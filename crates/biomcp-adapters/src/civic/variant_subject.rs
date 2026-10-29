@@ -1,5 +1,5 @@
 use super::{variant_map::identity, variant_raw as raw};
-use crate::mapped::Problems;
+use crate::{mapped::Problems, raw::Field};
 use biodata::{GeneSymbol, HgvsText, Text, VariantRef};
 use biomcp_types::{CivicMember, SourceRecord};
 pub(super) fn member(raw: raw::Member, cx: &mut Problems) -> Option<(CivicMember, Option<Text>)> {

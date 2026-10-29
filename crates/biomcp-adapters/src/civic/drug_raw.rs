@@ -45,9 +45,6 @@ impl Reply for ReplyBody {
         if self.errors.as_ref().is_some_and(|rows| !rows.is_empty()) {
             return Err(BadReply);
         }
-        if let Some(therapy) = &self.data.therapy {
-            therapy.check()?;
-        }
         if let Some(rows) = &self.data.evidence_items {
             rows.check()?;
         }
@@ -67,4 +64,48 @@ pub(super) struct Member {
 #[serde(rename_all = "camelCase")]
 pub(super) struct Coordinates {
     pub reference_build: Option<Field<Text>>,
+}
+
+pub(super) fn cacheable(data: &Data, query: &DrugGet) -> bool {
+    use crate::raw::Field;
+    let selected = |profile: &Option<Field<Profile>>,
+                    id: &Option<Field<u64>>,
+                    therapies: &Option<Field<Vec<Field<raw::Therapy>>>>| {
+        id.as_ref()
+            .and_then(Field::as_ref)
+            .is_some_and(|id| raw::id(*id))
+            && profile
+                .as_ref()
+                .and_then(Field::as_ref)
+                .is_some_and(|profile| {
+                    query
+                        .civic_profile()
+                        .is_none_or(|id| profile.id.as_ref().and_then(Field::as_ref) == Some(&id))
+                })
+            && therapies
+                .as_ref()
+                .and_then(Field::as_ref)
+                .is_some_and(|rows| {
+                    rows.iter().filter_map(Field::as_ref).any(|t| {
+                        t.id.as_ref()
+                            .and_then(Field::as_ref)
+                            .is_some_and(|id| id.to_string() == query.input().to_string())
+                    })
+                })
+    };
+    data.therapy
+        .as_ref()
+        .and_then(|t| t.id.as_ref())
+        .and_then(Field::as_ref)
+        .is_some_and(|id| id.to_string() == query.input().to_string())
+        && data.evidence_items.as_ref().is_none_or(|rows| {
+            rows.nodes
+                .iter()
+                .all(|row| selected(&row.molecular_profile, &row.claim.id, &row.claim.therapies))
+        })
+        && data.assertions.as_ref().is_none_or(|rows| {
+            rows.nodes
+                .iter()
+                .all(|row| selected(&row.molecular_profile, &row.claim.id, &row.claim.therapies))
+        })
 }

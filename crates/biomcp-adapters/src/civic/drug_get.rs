@@ -71,31 +71,27 @@ fn fetch(
     };
     let reply: raw::ReplyBody =
         leg.post_json_checked_cache(&GENES, &body, |reply: &raw::ReplyBody| {
-            matches(&reply.data, query, kind, after, count)
+            matches(&reply.data, kind, after, count) && raw::cacheable(&reply.data, query)
         })?;
     if reply.data.therapy.is_none() {
         return Err(failure(Reason::NotFound));
     }
-    if !matches(&reply.data, query, kind, after, count) {
+    if !matches(&reply.data, kind, after, count) {
         return Err(failure(Reason::BadReply));
     }
     Ok(reply.data)
 }
 fn matches(
     data: &raw::Data,
-    query: &DrugGet,
     kind: Option<CivicClaimKind>,
     after: Option<&Text>,
     count: u32,
 ) -> bool {
-    data.therapy
-        .as_ref()
-        .is_some_and(|t| t.id.to_string() == query.input().to_string())
-        && (kind == Some(CivicClaimKind::Assertions)
-            || data
-                .evidence_items
-                .as_ref()
-                .is_some_and(|rows| rows.nodes.len() <= count as usize && rows.progresses(after)))
+    (kind == Some(CivicClaimKind::Assertions)
+        || data
+            .evidence_items
+            .as_ref()
+            .is_some_and(|rows| rows.nodes.len() <= count as usize && rows.progresses(after)))
         && (kind == Some(CivicClaimKind::Evidence)
             || data
                 .assertions
@@ -161,7 +157,10 @@ fn page<T>(
 }
 /// Retrieve only the exact native therapy and its requested accepted claim collections.
 /// Claim profiles retain their own native context; collection totals never become profile counts.
-pub fn drug_civic(leg: &Leg<'_>, query: &DrugGet) -> Result<Mapped<DrugCivic>, RequestError> {
+pub fn drug_civic(
+    leg: &Leg<'_>,
+    query: &DrugGet,
+) -> Result<Mapped<Option<DrugCivic>>, RequestError> {
     if query.source() != biomcp_types::DrugSource::Civic {
         return Err(failure(Reason::BadReply));
     }
@@ -176,55 +175,58 @@ pub fn drug_civic(leg: &Leg<'_>, query: &DrugGet) -> Result<Mapped<DrugCivic>, R
         query.section_limit().unwrap_or(1)
     };
     let data = fetch(leg, query, query.civic_kind(), query.civic_cursor(), count)?;
-    let identity = data
-        .therapy
-        .ok_or_else(|| failure(Reason::NotFound))?
-        .header()?;
     let mut cx = crate::mapped::Problems {
         source: Source::Civic,
         record: None,
         list: Vec::new(),
     };
+    let identity = data
+        .therapy
+        .ok_or_else(|| failure(Reason::NotFound))?
+        .header(&mut cx);
+    let Some(identity) = identity else {
+        return Ok(Mapped {
+            value: None,
+            problems: cx.list,
+        });
+    };
+    if identity.id.to_string() != query.input().to_string() {
+        cx.required::<()>("id", None);
+        return Ok(Mapped {
+            value: None,
+            problems: cx.list,
+        });
+    }
     let evidence = data
         .evidence_items
         .map(|rows| {
-            let rows = seek(leg, query, CivicClaimKind::Evidence, rows, |d| {
-                d.evidence_items
-            })?;
-            let mut page = page(&rows, query, CivicClaimKind::Evidence)?;
-            let records = rows
-                .nodes
-                .into_iter()
-                .filter_map(|r| {
-                    cx.record = None;
-                    drug_map::evidence(r, query, &mut cx)
-                })
-                .collect::<Box<[_]>>();
-            page.returned = records.len() as u32;
-            Ok::<_, RequestError>(DrugCivicPage { records, page })
+            collection(
+                leg,
+                query,
+                CivicClaimKind::Evidence,
+                rows,
+                |d| d.evidence_items,
+                drug_map::evidence,
+                &mut cx,
+            )
         })
         .transpose()?;
     let assertions = data
         .assertions
         .map(|rows| {
-            let rows = seek(leg, query, CivicClaimKind::Assertions, rows, |d| {
-                d.assertions
-            })?;
-            let mut page = page(&rows, query, CivicClaimKind::Assertions)?;
-            let records = rows
-                .nodes
-                .into_iter()
-                .filter_map(|r| {
-                    cx.record = None;
-                    drug_map::assertion(r, query, &mut cx)
-                })
-                .collect::<Box<[_]>>();
-            page.returned = records.len() as u32;
-            Ok::<_, RequestError>(DrugCivicPage { records, page })
+            collection(
+                leg,
+                query,
+                CivicClaimKind::Assertions,
+                rows,
+                |d| d.assertions,
+                drug_map::assertion,
+                &mut cx,
+            )
         })
         .transpose()?;
     Ok(Mapped {
-        value: DrugCivic {
+        value: Some(DrugCivic {
             identity,
             civic: Section::Data {
                 source: Source::Civic,
@@ -233,7 +235,30 @@ pub fn drug_civic(leg: &Leg<'_>, query: &DrugGet) -> Result<Mapped<DrugCivic>, R
                     assertions,
                 },
             },
-        },
+        }),
         problems: cx.list,
     })
+}
+
+fn collection<T>(
+    leg: &Leg<'_>,
+    query: &DrugGet,
+    kind: CivicClaimKind,
+    rows: Connection<T>,
+    extract: fn(raw::Data) -> Option<Connection<T>>,
+    map: fn(T, &DrugGet, &mut crate::mapped::Problems) -> Option<biomcp_types::DrugCivicClaim>,
+    cx: &mut crate::mapped::Problems,
+) -> Result<DrugCivicPage, RequestError> {
+    let rows = seek(leg, query, kind, rows, extract)?;
+    let mut page = page(&rows, query, kind)?;
+    let records: Box<[_]> = rows
+        .nodes
+        .into_iter()
+        .filter_map(|row| {
+            cx.record = None;
+            map(row, query, cx)
+        })
+        .collect();
+    page.returned = records.len() as u32;
+    Ok(DrugCivicPage { records, page })
 }
