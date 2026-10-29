@@ -17,6 +17,35 @@ fn source_updates_keep_dates_and_timestamp_precision_distinct() {
     }
 }
 #[test]
+fn local_source_timestamps_keep_precision_without_inventing_a_timezone() {
+    for (native, timezone) in [
+        ("2020-05-08T17:33:59.756164", "source-gave-none"),
+        ("2020-05-08T17:33:59", "source-gave-none"),
+        ("2024-05-03T10:00:00.000100+02:00", "in-value"),
+    ] {
+        let checked: biomcp_types::SourceDateTime = native.parse().unwrap();
+        let wire = json!({"value":native,"timezone":timezone});
+        assert_eq!(serde_json::to_value(&checked).unwrap(), wire);
+        assert_eq!(
+            serde_json::from_value::<biomcp_types::SourceDateTime>(wire).unwrap(),
+            checked
+        );
+    }
+    for malformed in [
+        "2024-02-30T10:00:00",
+        "2024-05-03T24:00:00",
+        "2024-05-03T10:00:00.",
+    ] {
+        assert!(malformed.parse::<biomcp_types::SourceDateTime>().is_err());
+    }
+    assert!(
+        serde_json::from_value::<biomcp_types::SourceTimestamp>(
+            json!({"value":"2020-05-08T17:33:59.756164","timezone":"source-gave-none"})
+        )
+        .is_err()
+    );
+}
+#[test]
 fn source_timestamp_values_check_rfc3339_without_changing_offset_or_precision() {
     use biomcp_types::SourceTimestampValue;
     for native in [

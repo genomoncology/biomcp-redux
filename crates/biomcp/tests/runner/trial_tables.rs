@@ -228,11 +228,11 @@ fn count_failure() -> Check {
 }
 
 fn timestamp() -> Check {
-    for (native, timezone) in [
-        ("2026-10-23T09:00:04", "source-gave-none"),
-        ("2026-10-23T09:00:04Z", "in-value"),
-        ("2026-10-23T09:00:04+03:00", "in-value"),
-        ("2026-10-23T09:00:04-04:00", "in-value"),
+    for (native, expected) in [
+        ("2026-10-23T09:00:04", "2026-10-23T09:00:04Z"),
+        ("2026-10-23T09:00:04Z", "2026-10-23T09:00:04Z"),
+        ("2026-10-23T09:00:04+03:00", "2026-10-23T09:00:04+03:00"),
+        ("2026-10-23T09:00:04-04:00", "2026-10-23T09:00:04-04:00"),
     ] {
         let output = checked_case(
             "trial/condition",
@@ -242,8 +242,8 @@ fn timestamp() -> Check {
                     *value = json!(native);
                 }
             },
-            json!({"/result/source_updated/value":native,
-                "/result/source_updated/timezone":timezone,
+            json!({"/result/source_updated/value":expected,
+                "/result/source_updated/timezone":"in-value",
                 "/query/condition":["melanoma"],"/query/limit":10}),
             0,
         )?;

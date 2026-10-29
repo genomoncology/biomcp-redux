@@ -1,4 +1,3 @@
-use biodata::Text;
 use biomcp_adapters::ctgov::detail::Detail;
 use biomcp_fetch::CacheError;
 use biomcp_types::SourceOutcome;
@@ -6,12 +5,17 @@ use sha2::{Digest, Sha256};
 pub(super) struct Snapshot {
     pub(super) detail: Detail,
     pub(super) fetched: Option<u64>,
-    pub(super) version: Option<Text>,
+    pub(super) version: Option<biomcp_types::SourceTimestamp>,
     pub(super) sources: Vec<SourceOutcome>,
 }
 // Detail owns mandatory named fields; fixed query metadata follows it. The
 // /5 key separates optional acquisition times from earlier zero sentinels.
-type Saved = (Detail, Option<u64>, Option<Text>, Vec<SourceOutcome>);
+type Saved = (
+    Detail,
+    Option<u64>,
+    Option<biomcp_types::SourceTimestamp>,
+    Vec<SourceOutcome>,
+);
 impl Snapshot {
     pub(super) fn key(id: biodata::NctId) -> Vec<u8> {
         Sha256::digest(format!("biomcp.trial_snapshot/5\0{id}").as_bytes()).to_vec()

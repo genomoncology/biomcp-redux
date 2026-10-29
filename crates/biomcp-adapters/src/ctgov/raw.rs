@@ -24,7 +24,7 @@ impl Reply for FirstPage {
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub(super) struct Version {
-    pub(super) data_timestamp: Text,
+    pub(super) data_timestamp: Option<Field<Box<str>>>,
 }
 impl Reply for Version {
     fn check(&self) -> Result<(), BadReply> {

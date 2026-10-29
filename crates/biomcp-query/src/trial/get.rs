@@ -50,7 +50,10 @@ fn fetch(
     let source = status::source(Source::ClinicalTrialsGov, leg.finish(), error);
     out.local = error.and_then(status::local);
     out.sources.push(source.clone());
-    let source_updated = version.and_then(Result::ok);
+    let source_updated = version.and_then(Result::ok).and_then(|version| {
+        out.problems.extend(version.problems);
+        version.value
+    });
     let mut items = Vec::new();
     let mut store = if query.sections().is_empty() || !rows.iter().any(Result::is_ok) {
         None
@@ -158,13 +161,15 @@ fn unresolved(input: NctId, status: Status) -> TrialCardItem {
         more: Box::default(),
     }
 }
-fn finish(items: Vec<TrialCardItem>, source_updated: Option<biodata::Text>, out: &mut Outcome) {
+fn finish(
+    items: Vec<TrialCardItem>,
+    source_updated: Option<biomcp_types::SourceTimestamp>,
+    out: &mut Outcome,
+) {
     out.status = status::status(items.iter().map(|i| i.status));
     out.body = QueryBody::TrialCards(TrialCards {
         items: items.into(),
-        source_updated: source_updated
-            .map(biomcp_types::SourceTimestamp::from)
-            .map(Into::into),
+        source_updated: source_updated.map(Into::into),
         attribution: "ClinicalTrials.gov; registry protocol text, no eligibility assessment".into(),
     });
 }

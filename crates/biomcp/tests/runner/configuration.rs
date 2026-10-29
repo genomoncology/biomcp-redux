@@ -114,7 +114,7 @@ fn seed_legacy_cache(env: &Environment) -> Result<std::path::PathBuf, String> {
         SET version=1 WHERE owner='biomcp-fetch'; CREATE TABLE pool(id TEXT PRIMARY KEY); INSERT INTO pool \
         VALUES ('obsolete-terms'); CREATE TABLE foreign_data(value TEXT); INSERT INTO foreign_data VALUES \
         ('keep'); INSERT INTO meta VALUES ('foreign-owner',77); INSERT INTO meta(owner,version) VALUES \
-        ('biomcp-query',4) ON CONFLICT(owner) DO UPDATE SET version=4; INSERT INTO \
+        ('biomcp-query',5) ON CONFLICT(owner) DO UPDATE SET version=5; INSERT INTO \
         reply(key,source,url,status,body,fetched_at,fresh_until) VALUES \
         (x'01','pubmed','https://example.test/retained',200,x'7b7d',0,9223372036854775807);",
         )
@@ -164,10 +164,10 @@ fn default_cache_migration() -> Check {
     let retained: bool = cx
         .query_row(
             "SELECT EXISTS(SELECT 1 FROM reply WHERE key=x'01' AND body=x'7b7d') AND (SELECT version FROM meta \
-        WHERE owner='biomcp-query')=5 AND NOT EXISTS(SELECT 1 FROM pool WHERE id='obsolete-terms') AND \
+        WHERE owner='biomcp-query')=?1 AND NOT EXISTS(SELECT 1 FROM pool WHERE id='obsolete-terms') AND \
         (SELECT value FROM foreign_data)='keep' AND (SELECT version FROM meta WHERE \
         owner='foreign-owner')=77",
-            [],
+            [biomcp_query::store::VERSION],
             |r| r.get(0),
         )
         .map_err(|e| e.to_string())?;

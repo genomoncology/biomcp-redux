@@ -254,6 +254,11 @@ impl Protocol {
         let design = problems
             .field("designModule", self.design_module.take())
             .unwrap_or_default();
+        let updated = RawDate::field(
+            "lastUpdatePostDateStruct",
+            status.last_update_post_date_struct,
+            problems,
+        );
         TrialCard {
             nct_id: self.identification_module.nct_id,
             url: format!(
@@ -292,11 +297,8 @@ impl Protocol {
                 status.completion_date_struct,
                 problems,
             ),
-            updated: RawDate::field(
-                "lastUpdatePostDateStruct",
-                status.last_update_post_date_struct,
-                problems,
-            ),
+            updated: updated.as_ref().map(|date| date.date),
+            updated_kind: updated.and_then(|date| date.kind),
             brief_summary: problems
                 .field("descriptionModule", self.description_module.take())
                 .and_then(|d| problems.field("briefSummary", d.brief_summary)),

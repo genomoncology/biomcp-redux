@@ -39,7 +39,10 @@ pub struct TrialCard {
     pub completion: Option<TrialDate>,
     /// Last posted registry update, absent when missing or rejected.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub updated: Option<TrialDate>,
+    pub updated: Option<PartialDate>,
+    /// Native qualifier for the posted update date, absent when the registry omitted it.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub updated_kind: Option<TrialDateKind>,
     /// Whole brief summary, preserving whitespace.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub brief_summary: Option<Markdown>,

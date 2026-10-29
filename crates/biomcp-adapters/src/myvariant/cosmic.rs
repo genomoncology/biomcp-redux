@@ -5,7 +5,11 @@ use biomcp_fetch::{Arg, BadReply, Leg, PathSegment, Reply, RequestError};
 use biomcp_types::{CosmicCoordinates, CosmicIdentity, CosmicRecord, VariantCosmic};
 use serde::Deserialize;
 /// Read one exact aggregator record, without asserting its fragment's allele identity.
-pub fn get(leg: &Leg<'_>, id: &str, build: Build) -> Result<VariantCosmic, RequestError> {
+pub fn get(
+    leg: &Leg<'_>,
+    id: &str,
+    build: Build,
+) -> Result<crate::Mapped<VariantCosmic>, RequestError> {
     let endpoint = super::VARIANT
         .clone()
         .with_segments(&[PathSegment::new(id)?]);
@@ -43,16 +47,22 @@ pub fn get(leg: &Leg<'_>, id: &str, build: Build) -> Result<VariantCosmic, Reque
             tumor_site: row.tumor_site.map(Sites::rows).unwrap_or_default().into(),
         });
     }
-    let components = if records.is_empty() {
-        Vec::new()
+    let metadata = if records.is_empty() {
+        crate::Mapped {
+            value: Vec::new(),
+            problems: Vec::new(),
+        }
     } else {
-        vec![super::metadata::cosmic(leg)?]
+        super::metadata::cosmic(leg)?
     };
-    Ok(VariantCosmic {
-        total: records.len() as u64,
-        next: None,
-        records: records.into(),
-        components: components.into(),
+    Ok(crate::Mapped {
+        value: VariantCosmic {
+            total: records.len() as u64,
+            next: None,
+            records: records.into(),
+            components: metadata.value.into(),
+        },
+        problems: metadata.problems,
     })
 }
 #[derive(Deserialize)]

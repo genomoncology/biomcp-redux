@@ -144,6 +144,19 @@ impl Problems {
             .filter_map(|value| self.native_text(field, Some(value)))
             .collect()
     }
+    /// Keep the native spelling of a checked annotation URL without download policy.
+    pub(crate) fn url(
+        &mut self,
+        field: &str,
+        value: Option<crate::raw::Field<biodata::Text>>,
+    ) -> Option<biodata::Text> {
+        let value = self.field(field, value)?;
+        self.optional(
+            field,
+            Some(biomcp_fetch::check_annotation_url(value.as_str())),
+        )?;
+        Some(value)
+    }
     pub(crate) fn checked_text(
         &mut self,
         field: &str,

@@ -40,24 +40,29 @@ impl FromStr for SourceTimestampValue {
                 (&value[11..start], sign * (hours * 60 + minutes))
             }
         };
-        let (clock, fraction) = clock
-            .split_once('.')
-            .map_or((clock, None), |(c, f)| (c, Some(f)));
-        if clock.len() != 8
-            || clock.as_bytes().get(2) != Some(&b':')
-            || clock.as_bytes().get(5) != Some(&b':')
-            || fraction.is_some_and(|f| f.is_empty() || !f.bytes().all(|b| b.is_ascii_digit()))
-        {
-            return Err(invalid());
-        }
-        let hour = pair(&clock[..2], 23)?;
-        let minute = pair(&clock[3..5], 59)?;
-        let second = pair(&clock[6..], 60)?;
+        let (hour, minute, second) = source_clock(clock)?;
         if second == 60 && !month_end_leap_minute(date, hour * 60 + minute - offset) {
             return Err(invalid());
         }
         Ok(Self(value.into()))
     }
+}
+
+pub(super) fn source_clock(clock: &str) -> Result<(i16, i16, i16), biodata::Error> {
+    let (clock, fraction) = clock
+        .split_once('.')
+        .map_or((clock, None), |(c, f)| (c, Some(f)));
+    if clock.len() != 8
+        || clock.as_bytes().get(2) != Some(&b':')
+        || clock.as_bytes().get(5) != Some(&b':')
+        || fraction.is_some_and(|f| f.is_empty() || !f.bytes().all(|b| b.is_ascii_digit()))
+    {
+        return Err(biodata::Error::DateInvalid);
+    }
+    let hour = pair(&clock[..2], 23)?;
+    let minute = pair(&clock[3..5], 59)?;
+    let second = pair(&clock[6..], 60)?;
+    Ok((hour, minute, second))
 }
 
 fn pair(value: &str, maximum: i16) -> Result<i16, biodata::Error> {

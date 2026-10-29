@@ -48,7 +48,8 @@ mod section;
 mod source;
 mod source_timestamp;
 pub use source_timestamp::{
-    SourceTimestamp, SourceTimestampTimezone, SourceTimestampValue, SourceUpdated,
+    SourceDateTime, SourceDateTimeValue, SourceLocalTimestampValue, SourceTimestamp,
+    SourceTimestampTimezone, SourceTimestampValue, SourceUpdated,
 };
 mod status;
 mod store;
