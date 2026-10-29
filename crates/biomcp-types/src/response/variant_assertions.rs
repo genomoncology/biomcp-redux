@@ -16,7 +16,7 @@ pub struct VariantAssertions {
     pub next: Option<VariantAssertionsGet>,
 }
 impl super::ResponseBody for VariantAssertions {
-    const SCHEMA: &'static str = "biomcp.variant-assertions/6";
+    const SCHEMA: &'static str = "biomcp.variant-assertions/7";
     type Query = VariantAssertionsGet;
 }
 /// A native record/domain pair, never a vote or merged classification.

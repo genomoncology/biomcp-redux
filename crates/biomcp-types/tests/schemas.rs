@@ -201,9 +201,9 @@ fn adverse_event_contracts() -> Vec<Contract> {
 fn variant_contracts() -> Vec<Contract> {
     contracts! {
         VariantAssertionsGet => ("variant-assertions", "biomcp.variant-assertions/4", query),
-        PopulationFrequency => ("population-frequency", "biodata.population-frequency/7"),
+        PopulationFrequency => ("population-frequency", "biodata.population-frequency/8"),
         VariantPopulationQuery => ("variant-population", "biomcp.variant-population/4", query),
-        Statement => ("statement", "biodata.statement/6"),
+        Statement => ("statement", "biodata.statement/7"),
         VariantRecurrenceQuery => ("variant-recurrence-query", "biomcp.variant-recurrence-query/5", query),
         VariantNormalize => ("variant-normalize", "biomcp.variant-normalize/5", query),
         VariantSearch => ("variant-search", "biomcp.variant-search/4", query),
