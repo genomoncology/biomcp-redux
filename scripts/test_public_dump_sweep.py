@@ -132,6 +132,18 @@ class Sweep(unittest.TestCase):
         self.assertEqual(result.returncode, 1, result.stderr)
         self.assertEqual(report["profile_refusals"], [{"profile_id": "civic:9", "reason": "profile_member_ids_mismatch"}])
 
+    def test_companion_only_profile_is_refused_by_id(self):
+        profiles, variants, capture = self.profile_inputs()
+        nodes = capture["data"]["molecularProfiles"]["nodes"]
+        nodes.append({**nodes[0], "id": 10})
+        result, report = self.run_sweep("civic_profiles", profiles, variant_content=variants,
+                                        profile_capture=capture, full=True)
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertEqual(report["types"]["profile"]["parsed"], 1)
+        self.assertEqual(report["types"]["profile"]["unexplained"], 1)
+        self.assertEqual(report["full_report"]["profile_refusals"],
+                         [{"profile_id": "civic:10", "reason": "profile_companion_not_in_monthly_input"}])
+
     def test_profile_companion_requires_exact_provenance_and_feature_identity(self):
         profiles, variants, capture = self.profile_inputs()
         result, report = self.run_sweep("civic_profiles", profiles, variant_content=variants, profile_capture=capture,
