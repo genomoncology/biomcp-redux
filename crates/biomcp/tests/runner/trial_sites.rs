@@ -63,8 +63,10 @@ fn walk(id: &str, section: &str, raw: &Value, count: usize) -> Check {
         let source_card = &out["result"]["items"][0]["card"];
         if id == "NCT02987543"
             && (source_card["status"] != "COMPLETED"
-                || source_card["updated"]["date"]
-                    != raw["statusModule"]["lastUpdatePostDateStruct"]["date"])
+                || source_card["updated"]
+                    != raw["statusModule"]["lastUpdatePostDateStruct"]["date"]
+                || source_card["updated_kind"]
+                    != raw["statusModule"]["lastUpdatePostDateStruct"]["type"])
         {
             return Err("trial overall status/update changed".into());
         }
