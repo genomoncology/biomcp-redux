@@ -1,7 +1,7 @@
 //! Validate complete DNASE reference and alternate envelopes before publication.
-use super::super::{Limits, StreamDecoder, Tensor, TensorStream, proto};
+use super::{Limits, StreamDecoder, Tensor, TensorStream, proto};
 use super::{envelope_budget::EnvelopeBudget, wire};
-use crate::BadReply;
+use biomcp_fetch::BadReply;
 use prost::Message;
 
 /// Bounded envelope validator. Raw messages remain in the transport recording.

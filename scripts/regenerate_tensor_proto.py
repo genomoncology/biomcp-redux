@@ -56,7 +56,7 @@ def main():
     for path, digest in INPUTS.items():
         if hashlib.sha256((proto / path).read_bytes()).hexdigest() != digest:
             raise ValueError(f"pinned proto mismatch: {PIN}/{path}")
-    target = root / "crates/biomcp-fetch/src/grpc/generated"
+    target = root / "crates/biomcp-adapters/src/alphagenome/generated"
     with tempfile.TemporaryDirectory(prefix="tensor-proto-") as temporary:
         subprocess.run([
             "cargo", "run", "--locked", "--manifest-path",
