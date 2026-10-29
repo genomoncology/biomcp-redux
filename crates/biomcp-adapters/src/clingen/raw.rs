@@ -40,7 +40,7 @@ impl Validity {
             classification: problems.field("CLASSIFICATION", self.classification),
             classification_date: problems.field("CLASSIFICATION DATE", self.classification_date),
             expert_panel: problems.field("GCEP", self.expert_panel),
-            report_url: problems.field("ONLINE REPORT", self.report_url),
+            report_url: problems.url("ONLINE REPORT", self.report_url),
         })
     }
 }

@@ -36,7 +36,7 @@ pub(super) fn components(
             terms: super::components::label(declaration.terms)?,
             name,
             version: problems.field(&format!("{prefix}.version"), component.version),
-            license: problems.field(&format!("{prefix}.license_url"), component.license_url),
+            license: problems.url(&format!("{prefix}.license_url"), component.license_url),
             aggregator_build: build.clone(),
             aggregator_built: built.clone(),
             uploaded,
