@@ -320,15 +320,19 @@ fn isolation() -> Check {
             ));
         }
     }
+    let nested_profile = Path::new(&profile)
+        .parent()
+        .ok_or("profile directory missing")?
+        .join("harness-%m-%p.profraw");
     for child in [&first_step, &next_step, &other_case] {
         let nested = child.get("nested").ok_or("nested probe missing")?;
-        for values in [child, nested] {
+        for (values, expected) in [(child, Path::new(&profile)), (nested, nested_profile.as_path())] {
             if values
                 .get("LLVM_PROFILE_FILE")
                 .and_then(serde_json::Value::as_str)
-                != profile.to_str()
+                != expected.to_str()
             {
-                return Err("profiling must survive nested child launches".into());
+                return Err("nested profiling must retain its directory and harness classification".into());
             }
         }
         for key in ["NCBI_API_KEY", "HTTPS_PROXY"] {
