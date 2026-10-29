@@ -440,10 +440,13 @@ fn scalar_branches<'a>(root: &Value, branches: &'a Value) -> Check<Vec<(String, 
             branch
         };
         let kind = resolved["type"].as_str().ok_or("missing scalar type")?;
-        if !["number", "object"].contains(&kind) || !kinds.insert(kind) {
+        if !["number", "object", "string"].contains(&kind) || !kinds.insert(kind) {
             return Err("unsupported scalar union".into());
         }
         result.push((kind.to_owned(), branch));
+    }
+    if !kinds.contains("object") {
+        return Err("unsupported scalar union".into());
     }
     Ok(result)
 }

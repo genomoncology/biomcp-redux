@@ -393,6 +393,40 @@ fn compatibility_preserves_each_disjoint_scalar_branch() {
 }
 
 #[test]
+fn compatibility_keeps_source_date_and_timestamp_object_constraints() {
+    let old = json!({"$id":"biodata.example/1", "anyOf":[
+        {"type":"string","pattern":"^[0-9]{4}$"},
+        {"type":"object","properties":{"value":{"type":"string","format":"date-time"}},
+            "required":["value"]}]});
+    assert!(check(&old, &old).is_ok());
+    let mut reordered = old.clone();
+    reordered["anyOf"].as_array_mut().unwrap().reverse();
+    assert!(check(&old, &reordered).is_ok());
+    for index in [0, 1] {
+        let mut removed = old["anyOf"][index].clone();
+        removed["$id"] = json!("biodata.example/1");
+        assert!(check(&old, &removed).is_err(), "union branch disappeared");
+    }
+    let mut narrowed = old.clone();
+    narrowed["anyOf"][0]["pattern"] = json!("^2024$");
+    assert!(
+        check(&old, &narrowed).is_err(),
+        "date branch narrowed within a major"
+    );
+    narrowed = old.clone();
+    narrowed["anyOf"][1]["properties"]["value"]["minLength"] = json!(30);
+    assert!(
+        check(&old, &narrowed).is_err(),
+        "timestamp object branch narrowed within a major"
+    );
+    narrowed["$id"] = json!("biodata.example/2");
+    assert!(
+        check(&old, &narrowed).is_ok(),
+        "valid successor was rejected"
+    );
+}
+
+#[test]
 fn required_reply_names_cannot_disappear_within_a_major() {
     let old = json!({"$id":"biodata.example/1","type":"object","properties":{
         "name":{"type":"string"}},"required":["name"]});

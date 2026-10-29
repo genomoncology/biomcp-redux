@@ -6,12 +6,27 @@ use std::str::FromStr;
 /// Checked native timestamp text preserving explicit or missing timezone information.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
-#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub enum SourceDateTimeValue {
     /// RFC 3339 timestamp with its original offset.
     Timestamp(SourceTimestampValue),
     /// Calendar and clock text whose source states no timezone.
     Local(SourceLocalTimestampValue),
+}
+#[cfg(feature = "schema")]
+impl schemars::JsonSchema for SourceDateTimeValue {
+    fn schema_name() -> std::borrow::Cow<'static, str> {
+        "SourceDateTimeValue".into()
+    }
+    fn json_schema(_: &mut schemars::SchemaGenerator) -> schemars::Schema {
+        schemars::json_schema!({
+            "type":"string",
+            "pattern":format!("(?:{})|(?:{})", SourceTimestampValue::pattern(), SourceLocalTimestampValue::pattern()),
+            "description":concat!(
+                "Checked source timestamp preserving fractional precision and explicit or missing timezone. ",
+                "The parser additionally validates calendar days and zoned UTC leap-second positions."
+            )
+        })
+    }
 }
 impl FromStr for SourceDateTimeValue {
     type Err = biodata::Error;
