@@ -214,9 +214,9 @@ fn empty_selection() -> Check {
         "    expect: {'/type': string}",
     )?;
     for args in [
-        vec!["absent"],
-        vec!["absent", "--exact"],
-        vec!["absent", "--list"],
+        vec!["no-such-runner-selection-7e41"],
+        vec!["no-such-runner-selection-7e41", "--exact"],
+        vec!["no-such-runner-selection-7e41", "--list"],
         vec!["selected.yaml", "--exact", "--skip", "selected.yaml"],
         vec!["selected.yaml", "--exact", "--ignored"],
     ] {

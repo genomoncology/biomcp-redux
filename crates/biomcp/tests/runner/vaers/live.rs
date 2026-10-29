@@ -5,7 +5,9 @@ use crate::runner::launch::Environment;
 use serde_json::{Value, json};
 
 pub(super) fn run() -> Check {
-    let original: Value = serde_json::from_str(&crate::runner::launch::fixture_text("replies/vaers/live-mmr/vaers/7afc738c58f75b7c824f50ed0651327ced1f0e4c26db7d5b684e46dec027c963.json")?).map_err(|e| e.to_string())?;
+    let original: Value = serde_json::from_str(&crate::runner::launch::fixture_text(
+        "replies/vaers/live-mmr/vaers/7afc738c58f75b7c824f50ed0651327ced1f0e4c26db7d5b684e46dec027c963.json",
+    )?).map_err(|e| e.to_string())?;
     // Mutations reuse the actual request and source document, including its identity checks.
     for fault in [
         "none",

@@ -77,9 +77,15 @@ impl Capture {
         surface: &str,
     ) -> io::Result<()> {
         if let (Some(context), Some(key)) = (&self.context, &self.key) {
-            context.record(key, json!({"args":self.args,"surface":surface,
+            context
+                .record(
+                    key,
+                    json!({"args":self.args,"surface":surface,
                 "exit":status.code(),"stdout":stdout,
-                "executable":self.executable,"root":self.root,"checkout":crate::runner::launch::checkout().to_string_lossy().as_ref(),"version":env!("CARGO_PKG_VERSION")}))
+                "executable":self.executable,"root":self.root,
+                "checkout":crate::runner::launch::checkout().to_string_lossy().as_ref(),
+                "version":env!("CARGO_PKG_VERSION")}),
+                )
                 .map_err(io::Error::other)?;
         }
         self.finished = true;
