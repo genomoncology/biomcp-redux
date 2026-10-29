@@ -22,13 +22,17 @@ fn collect(node: &Value, types: &mut Types) {
 fn property_types(node: &Value, types: &mut BTreeSet<String>) {
     if let Some(reference) = node.get("$ref").and_then(Value::as_str) {
         types.insert(reference.trim_start_matches("#/$defs/Reply_").to_owned());
-    } else if let Some(kind) = node.get("type").and_then(Value::as_str)
-        && kind != "null"
-    {
-        types.insert(format!(
-            "{kind}:{}",
-            node.get("format").unwrap_or(&Value::Null)
-        ));
+    } else if let Some(kind) = node.get("type") {
+        for kind in std::iter::once(kind)
+            .chain(kind.as_array().into_iter().flatten())
+            .filter_map(Value::as_str)
+            .filter(|kind| *kind != "null")
+        {
+            types.insert(format!(
+                "{kind}:{}",
+                node.get("format").unwrap_or(&Value::Null)
+            ));
+        }
     }
     for keyword in ["anyOf", "oneOf", "allOf"] {
         for branch in node
