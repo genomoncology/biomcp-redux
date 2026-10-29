@@ -1,5 +1,6 @@
 mod biomarker;
 mod condition;
+mod continuation;
 mod country;
 mod filters;
 use crate::{GeneInput, NctId, PartialDate, StudyType, Text, TrialSex, TrialStatus};
@@ -148,7 +149,7 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "u32"))]
     age: Option<u32>,
-    /// Exact facility name; NCI matches organization names case-insensitively. A listed site is not necessarily enrolling. Cannot combine with radius.
+    /// Facility phrase; ClinicalTrials.gov tries the exact phrase, then its broader location search only after zero matches. NCI matches exact organization names case-insensitively. A listed site is not necessarily enrolling. Cannot combine with radius.
     #[serde(
         default,
         deserialize_with = "super::gene::present",
@@ -184,7 +185,7 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     distance: Option<Text>,
-    /// Exact lead sponsor field.
+    /// Lead sponsor phrase; ClinicalTrials.gov tries the exact phrase, then its broader sponsor search only after zero matches. Use --sponsor-type for the funding category.
     #[serde(
         default,
         deserialize_with = "super::gene::present",
@@ -192,7 +193,7 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     sponsor: Option<Text>,
-    /// Registry sponsor funding facet.
+    /// Registry sponsor funding category; use --sponsor for a sponsor name.
     #[serde(
         default,
         deserialize_with = "super::gene::present",

@@ -31,6 +31,7 @@ impl TryFrom<Fields> for TrialSearch {
         validate_alternatives(&f)?;
         super::country::validate(&f.country)?;
         validate_exact_condition(&f)?;
+        super::continuation::validate(&f)?;
         if !(1..=100).contains(&f.limit) {
             return Err(QueryInvalid::new(&["limit"]));
         }

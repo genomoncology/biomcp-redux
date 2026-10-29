@@ -49,6 +49,17 @@ pub struct SearchPage {
 }
 /// Exact parameters; resolved gene text is explicit and attributed to HGNC by the caller.
 pub fn parameters(query: &TrialSearch, gene: Option<&str>) -> BTreeMap<String, String> {
+    name_parameters(query, gene, query.broader_names())
+}
+/// Provider-native name search, preserving every other registry filter.
+pub fn broader_parameters(query: &TrialSearch, gene: Option<&str>) -> BTreeMap<String, String> {
+    name_parameters(query, gene, true)
+}
+fn name_parameters(
+    query: &TrialSearch,
+    gene: Option<&str>,
+    broader_names: bool,
+) -> BTreeMap<String, String> {
     let mut p = filters::base_parameters(query);
     for (name, values) in [
         ("query.cond", query.condition()),
@@ -58,8 +69,18 @@ pub fn parameters(query: &TrialSearch, gene: Option<&str>) -> BTreeMap<String, S
             p.insert(name.into(), alternatives(values));
         }
     }
-    if let Some(value) = query.next_page() {
-        p.insert("pageToken".into(), value.as_str().into());
+    if let Some(value) = query.registry_page_token() {
+        p.insert("pageToken".into(), value.into());
+    }
+    if broader_names {
+        for (name, value) in [
+            ("query.spons", query.sponsor()),
+            ("query.locn", query.facility()),
+        ] {
+            if let Some(value) = value {
+                p.insert(name.into(), value.to_string());
+            }
+        }
     }
     let mut text = Vec::new();
     if let Some(value) = query.query() {
@@ -88,7 +109,7 @@ pub fn parameters(query: &TrialSearch, gene: Option<&str>) -> BTreeMap<String, S
     if let Some(status) = query.status() {
         p.insert("filter.overallStatus".into(), status.as_str().to_owned());
     }
-    let advanced = filters::advanced(query);
+    let advanced = filters::advanced(query, broader_names);
     if !advanced.is_empty() {
         p.insert("filter.advanced".into(), advanced);
     }
