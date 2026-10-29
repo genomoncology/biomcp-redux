@@ -111,20 +111,6 @@ impl Problems {
             .filter_map(|value| self.native_text(field, Some(value)))
             .collect()
     }
-    /// Validate a copied public web link while preserving its source spelling.
-    pub(crate) fn url(
-        &mut self,
-        field: &str,
-        value: Option<crate::raw::Field<biodata::Text>>,
-    ) -> Option<biodata::Text> {
-        let value = self.field(field, value)?;
-        let parsed = self.optional(field, Some(url::Url::parse(value.as_str())))?;
-        self.required(
-            field,
-            (matches!(parsed.scheme(), "http" | "https") && parsed.host_str().is_some())
-                .then_some(value),
-        )
-    }
     pub(crate) fn text(&mut self, field: &str, value: Option<&str>) -> Option<biodata::Text> {
         self.optional(field, value.map(text))
     }

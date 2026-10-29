@@ -214,7 +214,6 @@ dependencies = [
  "serde_ignored",
  "serde_json",
  "tempfile",
- "url",
  "zip",
 ]
 
