@@ -1,5 +1,7 @@
 //! Neutral spontaneous report records; codes and arrays carry no causal inference.
+mod age;
 mod faers;
+pub use age::FaersAgeUnit;
 mod maude;
 pub use faers::{
     FaersDrug, FaersIdentifiers, FaersPatient, FaersReaction, FaersReport, FaersReporter,

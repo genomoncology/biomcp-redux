@@ -11,6 +11,9 @@ use std::fs;
 type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        transcript_trial("trial/nci/age-unit-boundaries", || {
+            ages().map_err(Into::into)
+        }),
         transcript_trial("trial/nci/exact-source-identity", || {
             identity().map_err(Into::into)
         }),
@@ -276,4 +279,45 @@ fn selector(section: &str) -> Vec<String> {
     ]
     .map(str::to_owned)
     .to_vec()
+}
+
+fn ages() -> Check {
+    for (number, unit, expected) in [
+        (
+            json!(18),
+            Some(json!("Years")),
+            Some(json!({"value":18,"unit":"Years"})),
+        ),
+        (json!(18), None, Some(json!({"value":18}))),
+        (json!(18), Some(json!("")), None),
+        (json!(18), Some(json!({})), None),
+        (json!("bad"), Some(json!("Years")), None),
+    ] {
+        let env = Environment::new().map_err(|e| e.to_string())?;
+        let dir = env.root().join("replies");
+        copy_capture("trial/nci/get", &dir, |_, record| {
+            let fields = &mut record["exchanges"][0]["body"]["value"]["eligibility"]["structured"];
+            fields["min_age_number"] = number.clone();
+            if let Some(unit) = &unit {
+                fields["min_age_unit"] = unit.clone();
+            } else if let Some(fields) = fields.as_object_mut() {
+                fields.remove("min_age_unit");
+            }
+        })
+        .map_err(|e| e.to_string())?;
+        let mut command = selector("eligibility");
+        command.extend(env.globals(Some(&dir), false));
+        let output = invoke(&env, &command, 0)?;
+        let structured =
+            &output["result"]["items"][0]["sections"]["eligibility"]["data"]["structured"];
+        if structured.get("min_age_number") != expected.as_ref()
+            || structured["min_age"] != json!("18 Years")
+        {
+            return Err(format!("age quantity changed source facts: {structured}"));
+        }
+        if expected.is_none() && output["problems"].as_array().is_none_or(Vec::is_empty) {
+            return Err("malformed stated age or unit lost its field problem".into());
+        }
+    }
+    Ok(())
 }

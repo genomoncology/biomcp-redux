@@ -3,7 +3,12 @@ use biodata::{
     FaersDrug, FaersIdentifiers, FaersPatient, FaersReaction, FaersReport, FaersReporter,
     FaersSeriousness,
 };
-pub(super) fn report(r: raw::Report) -> FaersReport {
+pub(super) fn report(r: raw::Report) -> crate::Mapped<FaersReport> {
+    let mut problems = crate::mapped::Problems {
+        source: biomcp_types::Source::Faers,
+        record: crate::mapped::record(&r.safetyreportid),
+        list: Vec::new(),
+    };
     let seriousness = FaersSeriousness {
         death: r.seriousnessdeath,
         lifethreatening: r.seriousnesslifethreatening,
@@ -20,8 +25,7 @@ pub(super) fn report(r: raw::Report) -> FaersReport {
         || seriousness.other.is_some();
     let p = r.patient;
     let patient = Some(FaersPatient {
-        age: p.patientonsetage,
-        age_unit: p.patientonsetageunit,
+        age: age(&mut problems, p.patientonsetage, p.patientonsetageunit),
         sex: p.patientsex,
         weight: p.patientweight,
     });
@@ -38,7 +42,7 @@ pub(super) fn report(r: raw::Report) -> FaersReport {
             outcome: v.reactionoutcome,
         })
         .collect();
-    FaersReport {
+    let value = FaersReport {
         safetyreportid: r.safetyreportid,
         safetyreportversion: r.safetyreportversion,
         receivedate: r.receivedate,
@@ -56,6 +60,10 @@ pub(super) fn report(r: raw::Report) -> FaersReport {
         }),
         drugs,
         reactions,
+    };
+    crate::Mapped {
+        value,
+        problems: problems.list,
     }
 }
 fn identifiers(r: raw::Identifiers) -> FaersIdentifiers {
@@ -97,4 +105,26 @@ fn drug(r: raw::Drug) -> FaersDrug {
         drugadditional: r.drugadditional,
         openfda: r.openfda.map(identifiers),
     }
+}
+
+fn age(
+    p: &mut crate::mapped::Problems,
+    value: Option<crate::raw::Field<String>>,
+    unit: Option<crate::raw::Field<biodata::FaersAgeUnit>>,
+) -> Option<biodata::WithUnit<biodata::FiniteNumber, biodata::FaersAgeUnit>> {
+    let supplied = unit.is_some();
+    let unit = p.field("patient.patientonsetageunit", unit);
+    let raw = p.field("patient.patientonsetage", value)?;
+    let value = p.optional(
+        "patient.patientonsetage",
+        Some(
+            raw.parse::<f64>()
+                .map_err(|_| ())
+                .and_then(|n| biodata::FiniteNumber::try_from(n).map_err(|_| ())),
+        ),
+    )?;
+    if supplied && unit.is_none() {
+        return None;
+    }
+    Some(biodata::WithUnit { value, unit })
 }

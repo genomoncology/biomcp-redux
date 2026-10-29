@@ -53,8 +53,21 @@ fn number(
     fields: &[String],
     row: &[Option<raw::Cell>],
     name: &str,
-) -> Result<Option<FiniteNumber>, BadReply> {
-    cell(fields, row, name).map(raw::Cell::number).transpose()
+) -> Result<Option<biodata::WithUnit<FiniteNumber>>, BadReply> {
+    let unit = match name {
+        "rate" | "rate_se" | "rate_lower_ci" | "rate_upper_ci" => "per 100,000 people",
+        _ => "%",
+    }
+    .parse()
+    .map_err(|_| BadReply)?;
+    cell(fields, row, name)
+        .map(|cell| {
+            Ok(biodata::WithUnit {
+                value: cell.number()?,
+                unit: Some(unit),
+            })
+        })
+        .transpose()
 }
 fn observed(
     fields: &[String],

@@ -46,6 +46,7 @@ pub(super) fn render(
         diseases: None,
     };
     let id = s.detail.card.nct_id;
+    out.problems.extend(s.detail.problems.clone());
     if let Some(problem) = super::phase_problem(&s.detail.card) {
         out.problems.push(problem);
     }

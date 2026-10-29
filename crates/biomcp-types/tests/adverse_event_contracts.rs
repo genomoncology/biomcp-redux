@@ -41,7 +41,7 @@ fn report_records_preserve_array_order_empty_strings_and_missing_reporter_qualif
         .collect();
     let report = json!(
         {"safetyreportid":"26940567","safetyreportversion":"1","receivedate":"20240101","receiptdate":"20240201","seriousness":{"death":"1",
-        "hospitalization":"1"},"reporter":{"country":""},"patient":{"age":"","age_unit":"801"},"drugs":drugs,"reactions":reactions}
+        "hospitalization":"1"},"reporter":{"country":""},"patient":{"age":{"value":42.5,"unit":"801"}},"drugs":drugs,"reactions":reactions}
     );
     assert_eq!(roundtrip::<FaersReport>(report.clone()).unwrap(), report);
     for length in [0, 5] {

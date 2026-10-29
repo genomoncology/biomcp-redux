@@ -29,7 +29,13 @@ pub(super) fn expression(raw: raw::Gene, id: &EnsemblGeneId) -> Mapped<GeneExpre
         rna_tissue_ntpm: map
             .numbers(raw.ntpm, "rna_tissue_ntpm")
             .into_iter()
-            .map(|(tissue, ntpm)| TissueNtpm { tissue, ntpm })
+            .map(|(tissue, value)| TissueNtpm {
+                tissue,
+                ntpm: biodata::WithUnit {
+                    value,
+                    unit: Some(biomcp_types::RnaUnit::Ntpm),
+                },
+            })
             .collect(),
         rna_cancer_specificity: crate::mapped::field_text(
             &mut map.problems,
@@ -41,7 +47,13 @@ pub(super) fn expression(raw: raw::Gene, id: &EnsemblGeneId) -> Mapped<GeneExpre
         rna_cancer_ptpm: map
             .numbers(raw.ptpm, "rna_cancer_ptpm")
             .into_iter()
-            .map(|(tissue, ptpm)| CancerPtpm { tissue, ptpm })
+            .map(|(tissue, value)| CancerPtpm {
+                tissue,
+                ptpm: biodata::WithUnit {
+                    value,
+                    unit: Some(biomcp_types::RnaUnit::Ptpm),
+                },
+            })
             .collect(),
         subcellular_main: map.list(raw.main, "subcellular_main"),
         subcellular_additional: map.list(raw.additional, "subcellular_additional"),

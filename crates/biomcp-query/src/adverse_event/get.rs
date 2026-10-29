@@ -9,7 +9,12 @@ use biomcp_types::{
     StepKind,
 };
 use sha2::{Digest, Sha256};
-type Saved = (FaersReport, Text, Vec<SourceOutcome>);
+type Saved = (
+    FaersReport,
+    Text,
+    Vec<SourceOutcome>,
+    Vec<biomcp_types::Problem>,
+);
 pub(super) fn get(cx: &Ctx<'_>, q: &AdverseEventGet) -> Outcome {
     let mut out = super::unsupported();
     out.body = QueryBody::AdverseEventFaersCard(None);
@@ -91,13 +96,19 @@ fn read(
             out.status = Status::Absent;
             return Ok(());
         };
-        let saved = (report, detail.report_url, out.sources.clone());
+        let saved = (
+            report,
+            detail.report_url,
+            out.sources.clone(),
+            detail.problems,
+        );
         let payload = serde_json::to_string(&saved).map_err(|_| CacheError::Database)?;
         let mut store = Store::open(cx.fetch.cache_access()?, deadline)?;
         let snapshot = store.save_source_snapshot(&key(q), &payload, &out.sources)?;
         (saved, snapshot)
     };
     out.sources = saved.2.clone();
+    out.problems.extend(saved.3.clone());
     out.status = if out
         .sources
         .iter()

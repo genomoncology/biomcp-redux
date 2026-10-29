@@ -5,6 +5,8 @@ use biomcp_fetch::{Arg, BadReply, Freshness, Leg, ReplyMetadata, RequestError};
 /// A single checked source report, absent only for the native no-match reply.
 #[derive(Debug)]
 pub struct Detail {
+    /// Rejected optional source fields.
+    pub problems: Vec<biomcp_types::Problem>,
     /// Exact selected native record.
     pub report: Option<FaersReport>,
     /// Credential-free URL used for this successful request.
@@ -47,7 +49,12 @@ pub fn get(leg: &Leg<'_>, id: &ReportId) -> Result<Detail, RequestError> {
     .ok_or(biomcp_fetch::InputError::Serialization)?;
     let report_url =
         biodata::Text::new(&url).map_err(|_| biomcp_fetch::InputError::Serialization)?;
+    let (report, problems) = match report {
+        Some(mapped) => (Some(mapped.value), mapped.problems),
+        None => (None, Vec::new()),
+    };
     Ok(Detail {
+        problems,
         report,
         report_url,
         metadata,
