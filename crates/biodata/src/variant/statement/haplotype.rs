@@ -20,6 +20,7 @@ enum ClinvarHaplotypeKind {
 /// A native ClinVar haplotype, without inferred allele identity or phase.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", schemars(inline))]
 pub struct ClinvarHaplotype {
     kind: ClinvarHaplotypeKind,
     /// Native ClinVar variation identity.
