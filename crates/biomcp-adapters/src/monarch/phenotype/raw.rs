@@ -92,13 +92,13 @@ impl From<ReceivedNode> for Node {
 }
 #[derive(Debug, Deserialize)]
 pub(super) struct Hierarchy {
-    pub super_classes: Option<Box<[Link]>>,
-    pub sub_classes: Option<Box<[Link]>>,
+    pub super_classes: Option<crate::raw::Field<Vec<crate::raw::Field<Link>>>>,
+    pub sub_classes: Option<crate::raw::Field<Vec<crate::raw::Field<Link>>>>,
 }
 #[derive(Debug, Deserialize)]
 pub(super) struct Link {
     pub id: biodata::Curie,
-    pub name: Box<str>,
+    pub name: Option<crate::raw::Field<Box<str>>>,
 }
 impl Reply for Node {
     fn check(&self) -> Result<(), BadReply> {

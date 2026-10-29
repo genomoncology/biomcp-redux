@@ -86,19 +86,24 @@ pub fn get(leg: &Leg<'_>, q: &PhenotypeGet) -> Result<Record, RequestError> {
         .get("/v3/api/entity")
         .with_segments(&[biomcp_fetch::PathSegment::new(q.id().as_str())?])
         .fresh(Freshness::Days(1));
-    let (node, metadata) = leg.json_received_checked::<raw::Node>(&endpoint, &[], |node| {
+    let (mut node, metadata) = leg.json_received_checked::<raw::Node>(&endpoint, &[], |node| {
         if node.id.as_ref() == Some(q.id()) {
             Ok(())
         } else {
             Err(BadReply)
         }
     })?;
-    let id = node.id.as_ref().ok_or(InputError::Serialization)?;
+    let id = node.id.as_ref().ok_or(InputError::Serialization)?.clone();
     let sections = sections(&node);
-    let attribution = attribution(id)?;
-    let (synonyms, xrefs, hierarchy) = sections::rows(&node, &attribution);
+    let attribution = attribution(&id)?;
+    let mut problems = crate::mapped::Problems {
+        source: biomcp_types::Source::Monarch,
+        record: crate::mapped::record(&id),
+        list: std::mem::take(&mut node.problems),
+    };
+    let (synonyms, xrefs, hierarchy) = sections::rows(&mut node, &attribution, &mut problems);
     Ok(Record {
-        problems: node.problems,
+        problems: problems.list,
         synonyms,
         xrefs,
         hierarchy,
