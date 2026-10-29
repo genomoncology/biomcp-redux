@@ -63,6 +63,14 @@ pub(super) fn canonical(commands: &mut Vec<HelpCommand>) -> io::Result<()> {
             .try_fold(&root, |parent, name| parent.find_subcommand(name))
             .is_some()
     });
+    // Help parser paths already spell their invocation. Keep topic examples in scoped help.
+    for entry in commands {
+        if entry.command.first().is_some_and(|word| word == "help")
+            && entry.examples == [entry.command.clone()]
+        {
+            entry.examples.clear();
+        }
+    }
     Ok(())
 }
 fn walk(commands: &mut Vec<HelpCommand>, parser: &Command, path: Vec<String>) {
