@@ -168,14 +168,16 @@ fn load(
     let leg = cx.fetch.leg(&gnomad::SPEC, deadline).fresh(cx.fresh);
     let mut groups = Vec::new();
     let result = gnomad::variant::population(&leg, id).and_then(|raw| {
-        raw.map(|raw| {
-            let summary = super::population::summary(&raw, candidates, problems)?;
-            if query.detail() {
-                groups = ancestry(&raw);
-            }
-            Ok(summary)
-        })
-        .transpose()
+        problems.extend(raw.problems);
+        raw.value
+            .map(|raw| {
+                let summary = super::population::summary(&raw, candidates, problems)?;
+                if query.detail() {
+                    groups = ancestry(&raw);
+                }
+                Ok(summary)
+            })
+            .transpose()
     });
     let error = result.as_ref().err().copied();
     let source = status::source(Source::Gnomad, leg.finish(), error);

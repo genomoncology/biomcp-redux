@@ -13,6 +13,17 @@ pub(super) fn frequency(
     subject: Option<&VariantRef>,
     problems: &mut Vec<Problem>,
 ) -> Option<PopulationFrequency> {
+    if subset.ac.is_none() || subset.an.is_none() {
+        return None;
+    }
+    if va.is_some_and(|rows| {
+        rows.iter().any(|row| {
+            row.cohort.id.as_str() == "ALL"
+                && (row.focus_allele_count.is_none() || row.locus_allele_count.is_none())
+        })
+    }) {
+        return None;
+    }
     let result = checked(subset, va, name, subject);
     let (version, subject) = match result {
         Ok(value) => value,
@@ -30,7 +41,7 @@ pub(super) fn frequency(
         }
     };
     let dataset = Source::Gnomad.text();
-    PopulationFrequency::new(
+    let frequency = PopulationFrequency::new(
         subject.clone(),
         Build::GRCh38,
         dataset,
@@ -46,9 +57,22 @@ pub(super) fn frequency(
         },
     )
     .with_stratum(Some(data_type), None, None, None)
-    .and_then(|frequency| frequency.with_counts(Some(subset.ac), Some(subset.an), None, None))
-    .ok()
-    .map(|f| f.with_filters(subset.filters.clone().into()))
+    .and_then(|frequency| frequency.with_counts(subset.ac, subset.an, None, None));
+    match frequency {
+        Ok(frequency) => Some(match &subset.filters {
+            Some(filters) => frequency.with_filters(filters.clone().into()),
+            None => frequency,
+        }),
+        Err(_) => {
+            problems.push(Problem {
+                source: Source::Gnomad,
+                record: Some(raw.variant_id.clone()),
+                field: format!("{name}.counts").into(),
+                code: ProblemCode::ValueUnknown,
+            });
+            None
+        }
+    }
 }
 
 fn checked<'a>(

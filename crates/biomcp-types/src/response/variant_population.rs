@@ -36,12 +36,14 @@ pub struct GnomadCounts {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub sex: Option<PopulationSex>,
     /// Native allele count, including reported zero.
-    pub ac: u64,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub ac: Option<u64>,
     /// Native allele denominator.
-    pub an: u64,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub an: Option<u64>,
     /// Native source filters, never converted to a classification.
-    #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
-    pub filters: Box<[Text]>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub filters: Option<Box<[Text]>>,
 }
 /// One page of exact rsID catalog associations.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
