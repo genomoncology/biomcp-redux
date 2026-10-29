@@ -47,13 +47,13 @@ fn subset(
                 problems.required::<()>(&format!("{name}.populations.{}.id", group.id), None);
                 return None;
             }
-            Some(group.id.clone())
+            Some(group.id.as_str().to_owned())
         })
         .collect::<std::collections::BTreeSet<_>>();
     let populations = native_groups
         .into_vec()
         .into_iter()
-        .filter(|group| populations.contains(&group.id))
+        .filter(|group| populations.contains(group.id.as_str()))
         .map(|group| Group {
             ac: problems.field(&format!("{name}.populations.{}.ac", group.id), group.ac),
             an: problems.field(&format!("{name}.populations.{}.an", group.id), group.an),
