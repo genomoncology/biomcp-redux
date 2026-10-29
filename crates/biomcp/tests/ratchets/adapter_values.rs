@@ -128,7 +128,7 @@ fn fingerprints(tokens: &[String], path: &str) -> BTreeMap<String, usize> {
         if let Some(site) = attribute_site(tokens, index) {
             *result.entry(site).or_default() += 1;
         }
-        let tail = &tokens[index..];
+        let tail = tokens.get(index..).unwrap_or_default();
         let ok = tail.starts_with(&[".".into(), "ok".into(), "(".into(), ")".into()]);
         let pattern = matches!(token.as_str(), "if" | "let")
             && (tail.starts_with(&["if".into(), "let".into(), "Ok".into()])
@@ -140,7 +140,12 @@ fn fingerprints(tokens: &[String], path: &str) -> BTreeMap<String, usize> {
                     && tail.get(1).is_some_and(|t| t == "Ok"));
         // Treat defaults throughout raw/map files conservatively, and also catch
         // parse receivers (including a result assigned earlier in the function).
-        let start = tokens[..index].iter().rposition(|t| t == "fn").unwrap_or(0);
+        let start = tokens
+            .get(..index)
+            .unwrap_or_default()
+            .iter()
+            .rposition(|t| t == "fn")
+            .unwrap_or(0);
         let default = tail.starts_with(&[
             ".".into(),
             "unwrap_or_default".into(),
@@ -148,7 +153,9 @@ fn fingerprints(tokens: &[String], path: &str) -> BTreeMap<String, usize> {
             ")".into(),
         ]) && (path.ends_with("/raw.rs")
             || path.ends_with("/map.rs")
-            || tokens[start..index]
+            || tokens
+                .get(start..index)
+                .unwrap_or_default()
                 .iter()
                 .any(|t| matches!(t.as_str(), "parse" | "from_str" | "from_slice")));
         if ok || default || pattern {
@@ -157,7 +164,10 @@ fn fingerprints(tokens: &[String], path: &str) -> BTreeMap<String, usize> {
             } else {
                 index + 4
             };
-            let context = tokens[index.saturating_sub(12)..end].join(" ");
+            let context = tokens
+                .get(index.saturating_sub(12)..end)
+                .unwrap_or_default()
+                .join(" ");
             *result.entry(format!("{function}: {context}")).or_default() += 1;
         }
     }
@@ -169,7 +179,7 @@ pub(super) fn attribute_site(tokens: &[String], index: usize) -> Option<String> 
     }
     let tail = tokens.get(index + 1..)?;
     let end = tail.iter().position(|t| t == "]")?;
-    let attribute = &tail[..end];
+    let attribute = tail.get(..end)?;
     if !attribute.iter().any(|t| t == "serde")
         || !attribute
             .iter()
@@ -179,7 +189,7 @@ pub(super) fn attribute_site(tokens: &[String], index: usize) -> Option<String> 
     }
     Some(format!(
         "adapter serde refusal: {}",
-        tail[..(end + 13).min(tail.len())].join(" ")
+        tail.get(..(end + 13).min(tail.len()))?.join(" ")
     ))
 }
 

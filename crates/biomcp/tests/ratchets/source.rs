@@ -252,10 +252,7 @@ fn attributes(path: &str, tokens: &[String]) -> Check {
             && let Some(site) = adapter_values::attribute_site(tokens, i)
             && !adapter_values::pending(path, &site, 1)?
         {
-            return fail(
-                path,
-                "raw serde default or deny_unknown_fields forbidden in adapter files",
-            );
+            return fail(path, "raw serde default or deny_unknown_fields forbidden");
         }
     }
     Ok(())
