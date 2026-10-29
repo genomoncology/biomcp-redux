@@ -69,7 +69,7 @@
       "exit": 2,
       "is_error": true,
       "expect": {
-        "/error/code": "usage.invalid_arguments"
+        "/error/code": "usage.arguments"
       },
       "offline": true
     },
@@ -150,7 +150,7 @@
       "is_error": true,
       "offline": false,
       "expect": {
-        "/error/code": "usage.invalid_arguments"
+        "/error/code": "usage.arguments"
       }
     },
     {
@@ -174,7 +174,7 @@
       "is_error": true,
       "offline": false,
       "expect": {
-        "/error/code": "usage.invalid_arguments"
+        "/error/code": "usage.arguments"
       }
     },
     {
@@ -198,7 +198,7 @@
       "is_error": true,
       "offline": false,
       "expect": {
-        "/error/code": "usage.invalid_arguments"
+        "/error/code": "usage.arguments"
       }
     },
     {
@@ -222,7 +222,7 @@
       "is_error": true,
       "offline": false,
       "expect": {
-        "/error/code": "usage.invalid_arguments"
+        "/error/code": "usage.arguments"
       }
     },
     {
@@ -246,7 +246,7 @@
       "is_error": true,
       "offline": false,
       "expect": {
-        "/error/code": "usage.invalid_arguments"
+        "/error/code": "usage.arguments"
       }
     }
   ]
