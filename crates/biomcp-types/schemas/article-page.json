@@ -614,10 +614,13 @@
       "description": "Public LitVar2 autocomplete candidate, without a clinical ranking claim.",
       "properties": {
         "count": {
-          "description": "Number of associated publications reported by LitVar2.",
+          "description": "Number of associated publications reported by LitVar2, without inferred totals.",
           "format": "uint64",
           "minimum": 0,
-          "type": "integer"
+          "type": [
+            "integer",
+            "null"
+          ]
         },
         "gene": {
           "description": "Source gene symbols.",
@@ -627,18 +630,21 @@
           "type": "array"
         },
         "name": {
-          "$ref": "#/$defs/Reply_Text",
-          "description": "Source variant name."
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source variant name, when independently admitted."
         },
         "rsid": {
           "$ref": "#/$defs/Reply_Text",
           "description": "Source rsID, when the source associates one with this variant."
         }
       },
-      "required": [
-        "name",
-        "count"
-      ],
       "type": "object"
     },
     "Reply_PageInfo": {
@@ -1358,7 +1364,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.article-page/6",
+  "$id": "biomcp.article-page/7",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -1414,7 +1420,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.article-page/6",
+      "const": "biomcp.article-page/7",
       "type": "string"
     },
     "sources": {
