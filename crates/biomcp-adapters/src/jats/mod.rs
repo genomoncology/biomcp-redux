@@ -79,10 +79,12 @@ impl XmlReply for Body {
                 continue;
             }
             figures.push(FigureCaption {
-                label: Text::from_source(
-                    &fig.value(&["label"])?.unwrap_or_else(|| "Figure".into()),
-                )
-                .map_err(|_| BadReply)?,
+                label: problems.optional(
+                    "figures.label",
+                    Some(Text::from_source(
+                        &fig.value(&["label"])?.unwrap_or_else(|| "Figure".into()),
+                    )),
+                ),
                 caption: markdown(caption.0)?,
             });
         }
@@ -91,7 +93,7 @@ impl XmlReply for Body {
             title,
             identifiers,
             pmcid,
-            supplements: supplements::read(root.0)?,
+            supplements: supplements::read(root.0, &mut problems)?,
             parts,
             rows,
             references,

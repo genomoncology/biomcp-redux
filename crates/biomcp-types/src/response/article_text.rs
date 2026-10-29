@@ -27,7 +27,8 @@ pub struct TextPart {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct FigureCaption {
     /// Source label.
-    pub label: Text,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub label: Option<Text>,
     /// Source caption.
     pub caption: crate::Markdown,
 }

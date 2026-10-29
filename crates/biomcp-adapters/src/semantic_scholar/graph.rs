@@ -134,10 +134,7 @@ impl From<RawEdge> for Edge {
         let contexts = p.field("contexts", raw.contexts).map(|values| {
             values
                 .into_iter()
-                .filter_map(|v| {
-                    let v = p.field("contexts", Some(v))?;
-                    p.text("contexts", Some(&v)).map(|v| v.to_string())
-                })
+                .filter_map(|v| p.field("contexts", Some(v)))
                 .collect()
         });
         Self {
@@ -200,8 +197,17 @@ impl Edge {
                     items: contexts
                         .into_iter()
                         .take(1)
-                        .map(|text| Text::from_source(&text).map_err(|_| BadReply))
-                        .collect::<Result<_, _>>()?,
+                        .filter_map(|text| {
+                            let mut p = Problems {
+                                source: biomcp_types::Source::SemanticScholar,
+                                record: item.pmid.and_then(record),
+                                list: Vec::new(),
+                            };
+                            let value = p.optional("contexts", Some(Text::from_source(&text)));
+                            problems.extend(p.list);
+                            value
+                        })
+                        .collect(),
                 })
             })
             .transpose()?;

@@ -17,6 +17,8 @@ pub(super) fn trials() -> Vec<Trial> {
         ("pmc-oa", pmc),
         ("semantic-scholar", edges),
         ("jats", jats),
+        ("jats-figure-label", figure_label),
+        ("semantic-context-native-strings", context_strings),
         ("icite", icite),
     ]
     .into_iter()
@@ -217,4 +219,76 @@ fn icite() -> Check {
         json!({"/result/items/0/answer/card/pmid":"33123537"}),
         "/result/items/0/sections/citations/data/rcr",
     )
+}
+
+fn context_strings() -> Check {
+    let value = checked_case(
+        "article/edges/live",
+        &[
+            "article",
+            "references",
+            "33123537",
+            "--source",
+            "semantic-scholar",
+        ],
+        |source, recording| {
+            if source == "semantic-scholar"
+                && let Some(contexts) =
+                    recording.pointer_mut("/exchanges/0/body/value/data/0/contexts")
+            {
+                *contexts = json!(["Native context", "x".repeat(biodata::Text::MAX_CHARS + 1)]);
+            }
+        },
+        json!({"/result/items/0/contexts/items/0":"Native context", "/result/items/0/contexts/total":2}),
+        0,
+    )?;
+    if value["problems"]
+        .as_array()
+        .is_some_and(|ps| ps.iter().any(|p| p["field"] == "contexts"))
+    {
+        return Err("Unselected native context acquired a text admission problem".into());
+    }
+    Ok(())
+}
+
+fn figure_label() -> Check {
+    let mut edits = 0;
+    let value = checked_case(
+        "article/fulltext/live-introduction",
+        &["get", "article", "28944238", "fulltext"],
+        |source, recording| {
+            if source != "pmc-oa" {
+                return;
+            }
+            if let Some(body) = recording.pointer_mut("/exchanges/0/body/value")
+                && let Some(xml) = body.as_str()
+                && let Some(figure) = xml.find("<fig ")
+                && let Some(label) = xml[figure..].find("<label>")
+            {
+                let start = figure + label + "<label>".len();
+                if let Some(end) = xml[start..].find("</label>") {
+                    let mut changed = xml.to_owned();
+                    changed.replace_range(start..start + end, " ");
+                    *body = changed.into();
+                    edits += 1;
+                }
+            }
+        },
+        json!({"/result/items/0/sections/fulltext/data/parts/0/title":"Introduction"}),
+        0,
+    )?;
+    if edits != 1
+        || value
+            .pointer("/result/items/0/sections/fulltext/data/figures/0/caption")
+            .is_none()
+        || value
+            .pointer("/result/items/0/sections/fulltext/data/figures/0/label")
+            .is_some()
+        || value["problems"]
+            .as_array()
+            .is_none_or(|ps| ps.iter().filter(|p| p["field"] == "figures.label").count() != 1)
+    {
+        return Err(format!("Figure label edit lost caption, document or problem: {value}").into());
+    }
+    Ok(())
 }
