@@ -81,7 +81,7 @@ help: Describe commands and their arguments.
 - `--config`: Read configuration from this file.
 - `--offline`: Read local data without source requests.
 - `--fresh`: Request fresh source data instead of cached replies.
-- `-h, --help`: Print scoped command help without source requests.
+- `--help`: Print scoped command help without source requests.
 - `--version`: Print the installed version without source requests.
 
 ## biomcp search
@@ -236,12 +236,12 @@ Options:
 
 Exact author name query and source window; positional text maps to query. Author IDs identify source records, not resolved people. Counts cover that source record. Missing metadata is unavailable. Topic-wide author ranking and cross-source merging are unavailable. Semantic Scholar and ORCID are noncommercial; commercial users disable both with --disable-sources noncommercial or config disable_sources. Optional keys: biomcp key set semantic-scholar or S2_API_KEY; biomcp key set orcid or ORCID_ACCESS_TOKEN. IDs use semantic-scholar:ID (alias semanticscholar:ID) or orcid:ID. Search supports --source semantic-scholar (alias semanticscholar), --query/-q and --limit/-l
 
-- `--limit`: Bounded source page size.
 - `--offset`: Source offset.
 - `--pool`: Retained page identity.
-- `query`: Exact query from the positional argument or --query.
 - `--source`: Source author source.
+- `query`: Exact query from the positional argument or --query.
 - `--query`: Exact query from the positional argument or --query.
+- `--limit`: Bounded source page size.
 
 ## biomcp search organization
 
@@ -369,9 +369,9 @@ Options:
 
 One exact cell line search, with source order and no total claim. An assay count is not an activity or sensitivity count. No treatment response is inferred; no bioinformatics tool runs.
 
-- `--limit`: Source page size.
 - `--offset`: Source start offset.
 - `query`: Exact source query; positional spelling and --query use the same field.
+- `--limit`: Source page size.
 - `--query`: Exact source query; positional spelling and --query use the same field.
 
 ## biomcp search gwas
@@ -445,9 +445,7 @@ Options:
 Source associations in default p-value-ascending order. Reports no personal risk, causal variant or gene, or clinical interpretation of a statistic. BioMCP's local request deadline expired. GWAS Catalog response times can vary; retry later or use https://www.ebi.ac.uk/gwas/. Contact the GWAS Catalog helpdesk if this persists.
 
 - `--extended-geneset`: Source extended gene set; requires gene.
-- `--gene`: Exact source mapped gene; legacy positional query aliases this field.
 - `--include-child-traits`: Source child-trait expansion; requires trait_id.
-- `--limit`: Maximum association rows.
 - `--offset`: Source association offset.
 - `--p-value`: Inclusive positive probability in scientific notation. Requires the default p-value-ascending order; no sort option is available. The qualifying total stays unknown until the ordered walk reaches its end.
 - `--pool`: Retained threshold walk identity; requires a threshold.
@@ -457,6 +455,8 @@ Source associations in default p-value-ascending order. Reports no personal risk
 - `--trait`: Exact source efo_trait label; never searches reported_trait prose.
 - `--trait-id`: Exact source ontology identity.
 - `--variant`: Exact source rsID.
+- `--gene`: Exact source mapped gene; legacy positional query aliases this field.
+- `--limit`: Maximum association rows.
 
 ## biomcp search protein
 
@@ -559,10 +559,10 @@ Options:
 
 Search exact human HP term candidates through Monarch with bounded source pages. A term lookup answers terminology and does not establish a diagnosis.
 
-- `--limit`: Maximum source headers, default five.
 - `--offset`: Source source row offset.
 - `--source`: Monarch only; HPO search is unsupported.
 - `text`: Unchanged exact term search text.
+- `--limit`: Maximum source headers, default five.
 
 ## biomcp search pathway
 
@@ -618,12 +618,12 @@ Search Reactome (default) or WikiPathways human pathways. Membership names a sou
 
 - `--fresh`: Request a new retained observation.
 - `--gene`: Human gene input for exact resolution and UniProt mapping; Reactome only.
-- `--limit`: Five rows by default, one to fifty. Reactome rows equals this limit without refill.
 - `--offset`: Source Reactome Start row or retained WikiPathways catalog offset.
 - `--pool`: Retained snapshot identity for deterministic continuation.
 - `query`: Exact source query; exclusive with gene and top-level discovery.
 - `--source`: Sources in caller order; repeated sources take turns without title joins.
 - `--top-level`: Source human Reactome top-level discovery, exclusive with text and gene.
+- `--limit`: Five rows by default, one to fifty. Reactome rows equals this limit without refill.
 
 ## biomcp search study
 
@@ -1201,8 +1201,8 @@ Checked search selectors and pool cursor.
 - `--offset`: Number of pool items to skip.
 - `--open-access`: Require the source's source open-access filter; Semantic Scholar means a public PDF.
 - `--pool`: Stable snapshot from an earlier response.
-- `--exclude-retracted`: Include retracted papers by default, or exclude them using a source filter.
-- `--include-retracted`: Include retracted papers by default, or exclude them using a source filter.
+- `--exclude-retracted`: 
+- `--include-retracted`: 
 - `--since`: Inclusive lower publication-date bound at the stated precision; PubMed matches either electronic or print date.
 - `--sort`: rank (default): source order; several sources take turns; source search cost.
 date: source search cost; PubMed means date added and Europe PMC means newest first; other sources refuse it.
@@ -2683,10 +2683,10 @@ One exact source record's publication window. ORCID sends its whole public works
 
 - `--full`: Legacy alias for details; normalized on construction.
 - `id`: Exact qualified source record.
-- `--limit`: Bounded row count.
 - `--offset`: Source or retained collection offset.
 - `--pool`: Retained collection identity.
 - `section`: Detailed disclosure when requested.
+- `--limit`: Bounded row count.
 
 Detailed disclosure when requested.
 
@@ -3228,9 +3228,9 @@ Read Reactome exact references or WikiPathways GeneProduct data nodes. The detai
 
 - `details`: Include every physical entity context for these references; never clips source text.
 - `id`: Checked source-owned human pathway identity.
-- `--limit`: Five complete relation rows by default, at most fifty.
 - `--offset`: Offset within the retained selected relation.
 - `--pool`: Immutable relation snapshot.
+- `--limit`: Five complete relation rows by default, at most fifty.
 
 ## biomcp pathway events
 
@@ -3276,9 +3276,9 @@ Options:
 Read Reactome event objects and unresolved source integer references in source order. Membership names a source and release; it implies no therapy, response or actionability. No enrichment is calculated.
 
 - `id`: Checked source-owned human pathway identity.
-- `--limit`: Five complete relation rows by default, at most fifty.
 - `--offset`: Offset within the retained selected relation.
 - `--pool`: Immutable relation snapshot.
+- `--limit`: Five complete relation rows by default, at most fifty.
 
 ## biomcp article
 
@@ -4795,6 +4795,9 @@ Options:
 
 ```
 
+Search source records by entity and checked filters.
+
+
 ## biomcp help search biomarker
 
 ```text
@@ -4820,6 +4823,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help search biomarker.
+
 
 ## biomcp help search author
 
@@ -4849,6 +4855,9 @@ Options:
 
 ```
 
+Read papers attributed to a source author record.
+
+
 ## biomcp help search organization
 
 ```text
@@ -4874,6 +4883,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help search organization.
+
 
 ## biomcp help search cell-line
 
@@ -4903,6 +4915,9 @@ Options:
 
 ```
 
+Read source cell line assay counts.
+
+
 ## biomcp help search gwas
 
 ```text
@@ -4928,6 +4943,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help search gwas. BioMCP's local request deadline expired. GWAS Catalog response times can vary; retry later or use https://www.ebi.ac.uk/gwas/. Contact the GWAS Catalog helpdesk if this persists.
+
 
 ## biomcp help search protein
 
@@ -4957,6 +4975,9 @@ Options:
 
 ```
 
+Read protein sequences, features and source relationships.
+
+
 ## biomcp help search phenotype
 
 ```text
@@ -4982,6 +5003,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help search phenotype.
+
 
 ## biomcp help search pathway
 
@@ -5011,6 +5035,9 @@ Options:
 
 ```
 
+Read pathway genes and source events.
+
+
 ## biomcp help search study
 
 ```text
@@ -5036,6 +5063,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help search study.
+
 
 ## biomcp help search pgx
 
@@ -5063,6 +5093,9 @@ Options:
 
 ```
 
+Describe help search pgx.
+
+
 ## biomcp help search diagnostic
 
 ```text
@@ -5088,6 +5121,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help search diagnostic.
+
 
 ## biomcp help search adverse-event
 
@@ -5115,6 +5151,9 @@ Options:
 
 ```
 
+Describe help search adverse-event. CDC WONDER can take longer than BioMCP's local command deadline. Use the interactive form at https://wonder.cdc.gov/vaers.html for a longer query. See https://wonder.cdc.gov/wonder/help/faq.html. BioMCP's local quota refused this request before contacting CDC WONDER. Retry after the reported seconds left. Automated queries must follow the spacing at https://wonder.cdc.gov/wonder/help/wonder-api.html.
+
+
 ## biomcp help search disease
 
 ```text
@@ -5140,6 +5179,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help search disease.
+
 
 ## biomcp help search drug
 
@@ -5167,6 +5209,9 @@ Options:
 
 ```
 
+Describe help search drug.
+
+
 ## biomcp help search gene
 
 ```text
@@ -5192,6 +5237,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help search gene.
+
 
 ## biomcp help search article
 
@@ -5221,6 +5269,9 @@ Options:
 
 ```
 
+Read article text, references, citations and files.
+
+
 ## biomcp help search trial
 
 ```text
@@ -5249,6 +5300,9 @@ Options:
 
 ```
 
+Read trial groups and public documents.
+
+
 ## biomcp help search variant
 
 ```text
@@ -5276,6 +5330,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Read source variant assertions, populations and recurrence.
+
 
 ## biomcp help get
 
@@ -5324,6 +5381,9 @@ Options:
 
 ```
 
+Retrieve one entity and its source sections.
+
+
 ## biomcp help get biomarker
 
 ```text
@@ -5349,6 +5409,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help get biomarker.
+
 
 ## biomcp help get author
 
@@ -5378,6 +5441,9 @@ Options:
 
 ```
 
+Read papers attributed to a source author record.
+
+
 ## biomcp help get cell-line
 
 ```text
@@ -5406,6 +5472,9 @@ Options:
 
 ```
 
+Read source cell line assay counts.
+
+
 ## biomcp help get gwas
 
 ```text
@@ -5431,6 +5500,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help get gwas. BioMCP's local request deadline expired. GWAS Catalog response times can vary; retry later or use https://www.ebi.ac.uk/gwas/. Contact the GWAS Catalog helpdesk if this persists.
+
 
 ## biomcp help get protein
 
@@ -5460,6 +5532,9 @@ Options:
 
 ```
 
+Read protein sequences, features and source relationships.
+
+
 ## biomcp help get phenotype
 
 ```text
@@ -5485,6 +5560,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help get phenotype.
+
 
 ## biomcp help get pathway
 
@@ -5514,6 +5592,9 @@ Options:
 
 ```
 
+Read pathway genes and source events.
+
+
 ## biomcp help get study
 
 ```text
@@ -5539,6 +5620,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help get study.
+
 
 ## biomcp help get pgx
 
@@ -5566,6 +5650,9 @@ Options:
 
 ```
 
+Describe help get pgx.
+
+
 ## biomcp help get diagnostic
 
 ```text
@@ -5591,6 +5678,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help get diagnostic.
+
 
 ## biomcp help get adverse-event
 
@@ -5618,6 +5708,9 @@ Options:
 
 ```
 
+Describe help get adverse-event. CDC WONDER can take longer than BioMCP's local command deadline. Use the interactive form at https://wonder.cdc.gov/vaers.html for a longer query. See https://wonder.cdc.gov/wonder/help/faq.html. BioMCP's local quota refused this request before contacting CDC WONDER. Retry after the reported seconds left. Automated queries must follow the spacing at https://wonder.cdc.gov/wonder/help/wonder-api.html.
+
+
 ## biomcp help get disease
 
 ```text
@@ -5643,6 +5736,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help get disease.
+
 
 ## biomcp help get drug
 
@@ -5670,6 +5766,9 @@ Options:
 
 ```
 
+Describe help get drug.
+
+
 ## biomcp help get gene
 
 ```text
@@ -5695,6 +5794,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help get gene.
+
 
 ## biomcp help get article
 
@@ -5724,6 +5826,9 @@ Options:
 
 ```
 
+Read article text, references, citations and files.
+
+
 ## biomcp help get trial
 
 ```text
@@ -5752,6 +5857,9 @@ Options:
 
 ```
 
+Read trial groups and public documents.
+
+
 ## biomcp help get variant
 
 ```text
@@ -5779,6 +5887,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Read source variant assertions, populations and recurrence.
+
 
 ## biomcp help author
 
@@ -5811,6 +5922,9 @@ Options:
 
 ```
 
+Read papers attributed to a source author record.
+
+
 ## biomcp help author papers
 
 ```text
@@ -5836,6 +5950,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help author papers.
+
 
 ## biomcp help cell-line
 
@@ -5868,6 +5985,9 @@ Options:
 
 ```
 
+Read source cell line assay counts.
+
+
 ## biomcp help cell-line assay-count
 
 ```text
@@ -5893,6 +6013,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help cell-line assay-count.
+
 
 ## biomcp help protein
 
@@ -5931,6 +6054,9 @@ Options:
 
 ```
 
+Read protein sequences, features and source relationships.
+
+
 ## biomcp help protein features
 
 ```text
@@ -5956,6 +6082,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help protein features.
+
 
 ## biomcp help protein isoforms
 
@@ -5983,6 +6112,9 @@ Options:
 
 ```
 
+Describe help protein isoforms.
+
+
 ## biomcp help protein domains
 
 ```text
@@ -6008,6 +6140,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help protein domains.
+
 
 ## biomcp help protein complexes
 
@@ -6035,6 +6170,9 @@ Options:
 
 ```
 
+Describe help protein complexes.
+
+
 ## biomcp help protein complex-members
 
 ```text
@@ -6060,6 +6198,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help protein complex-members.
+
 
 ## biomcp help protein structures
 
@@ -6087,6 +6228,9 @@ Options:
 
 ```
 
+Describe help protein structures.
+
+
 ## biomcp help protein sequence
 
 ```text
@@ -6112,6 +6256,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help protein sequence.
+
 
 ## biomcp help pathway
 
@@ -6145,6 +6292,9 @@ Options:
 
 ```
 
+Read pathway genes and source events.
+
+
 ## biomcp help pathway genes
 
 ```text
@@ -6171,6 +6321,9 @@ Options:
 
 ```
 
+Describe help pathway genes.
+
+
 ## biomcp help pathway events
 
 ```text
@@ -6196,6 +6349,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help pathway events.
+
 
 ## biomcp help article
 
@@ -6234,6 +6390,9 @@ Options:
 
 ```
 
+Read article text, references, citations and files.
+
+
 ## biomcp help article supplement
 
 ```text
@@ -6259,6 +6418,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help article supplement.
+
 
 ## biomcp help article pdf
 
@@ -6286,6 +6448,9 @@ Options:
 
 ```
 
+Describe help article pdf.
+
+
 ## biomcp help article text
 
 ```text
@@ -6311,6 +6476,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help article text.
+
 
 ## biomcp help article citations
 
@@ -6338,6 +6506,9 @@ Options:
 
 ```
 
+Describe help article citations.
+
+
 ## biomcp help article references
 
 ```text
@@ -6363,6 +6534,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help article references.
+
 
 ## biomcp help article citation-evidence
 
@@ -6390,6 +6564,9 @@ Options:
 
 ```
 
+Describe help article citation-evidence.
+
+
 ## biomcp help article recommendations
 
 ```text
@@ -6415,6 +6592,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help article recommendations.
+
 
 ## biomcp help trial
 
@@ -6447,6 +6627,9 @@ Options:
 
 ```
 
+Read trial groups and public documents.
+
+
 ## biomcp help trial document
 
 ```text
@@ -6472,6 +6655,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help trial document.
+
 
 ## biomcp help variant
 
@@ -6507,6 +6693,9 @@ Options:
 
 ```
 
+Read source variant assertions, populations and recurrence.
+
+
 ## biomcp help variant assertions
 
 ```text
@@ -6532,6 +6721,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help variant assertions.
+
 
 ## biomcp help variant population
 
@@ -6559,6 +6751,9 @@ Options:
 
 ```
 
+Describe help variant population.
+
+
 ## biomcp help variant recurrence
 
 ```text
@@ -6585,6 +6780,9 @@ Options:
 
 ```
 
+Describe help variant recurrence.
+
+
 ## biomcp help variant normalize
 
 ```text
@@ -6610,6 +6808,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help variant normalize.
+
 
 ## biomcp help sync
 
@@ -6652,6 +6853,9 @@ Options:
 
 ```
 
+Synchronize a local source bundle.
+
+
 ## biomcp help sync hgnc
 
 ```text
@@ -6677,6 +6881,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help sync hgnc.
+
 
 ## biomcp help sync clingen
 
@@ -6704,6 +6911,9 @@ Options:
 
 ```
 
+Describe help sync clingen.
+
+
 ## biomcp help sync gencc
 
 ```text
@@ -6729,6 +6939,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help sync gencc.
+
 
 ## biomcp help sync wikipathways
 
@@ -6756,6 +6969,9 @@ Options:
 
 ```
 
+Describe help sync wikipathways.
+
+
 ## biomcp help sync cbioportal-studies
 
 ```text
@@ -6781,6 +6997,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help sync cbioportal-studies.
+
 
 ## biomcp help sync ema
 
@@ -6808,6 +7027,9 @@ Options:
 
 ```
 
+Describe help sync ema.
+
+
 ## biomcp help sync ddinter
 
 ```text
@@ -6833,6 +7055,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help sync ddinter.
+
 
 ## biomcp help sync who-pq
 
@@ -6860,6 +7085,9 @@ Options:
 
 ```
 
+Describe help sync who-pq.
+
+
 ## biomcp help sync gtr
 
 ```text
@@ -6885,6 +7113,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help sync gtr.
+
 
 ## biomcp help sync who-ivd
 
@@ -6912,6 +7143,9 @@ Options:
 
 ```
 
+Describe help sync who-ivd.
+
+
 ## biomcp help sync fda-cdx
 
 ```text
@@ -6937,6 +7171,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help sync fda-cdx.
+
 
 ## biomcp help skill
 
@@ -6970,6 +7207,9 @@ Options:
 
 ```
 
+Describe help skill.
+
+
 ## biomcp help skill list
 
 ```text
@@ -6998,6 +7238,9 @@ Options:
 
 ```
 
+List supported discovery topics.
+
+
 ## biomcp help skill render
 
 ```text
@@ -7023,6 +7266,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help skill render.
+
 
 ## biomcp help skill status
 
@@ -7050,6 +7296,9 @@ Options:
 
 ```
 
+Describe help skill status.
+
+
 ## biomcp help skill install
 
 ```text
@@ -7075,6 +7324,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help skill install.
+
 
 ## biomcp help version
 
@@ -7102,6 +7354,9 @@ Options:
 
 ```
 
+Describe help version.
+
+
 ## biomcp help mcp-config
 
 ```text
@@ -7127,6 +7382,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help mcp-config.
+
 
 ## biomcp help health
 
@@ -7155,6 +7413,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Report source terms and bounded reachability.
+
 
 ## biomcp help store
 
@@ -7187,6 +7448,9 @@ Options:
 
 ```
 
+Manage local cached replies and snapshots.
+
+
 ## biomcp help store clean
 
 ```text
@@ -7212,6 +7476,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help store clean.
+
 
 ## biomcp help key
 
@@ -7250,6 +7517,10 @@ Options:
 
 ```
 
+Register and manage source credentials without showing values.
+
+- `source`: 
+
 ## biomcp help key list
 
 ```text
@@ -7278,6 +7549,9 @@ Options:
 
 ```
 
+List supported discovery topics.
+
+
 ## biomcp help key set
 
 ```text
@@ -7304,6 +7578,9 @@ Options:
 
 ```
 
+Describe help key set.
+
+
 ## biomcp help key remove
 
 ```text
@@ -7329,6 +7606,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help key remove.
+
 
 ## biomcp help serve
 
@@ -7358,6 +7638,9 @@ Options:
 
 ```
 
+Serve MCP over standard input or HTTP.
+
+
 ## biomcp help schema
 
 ```text
@@ -7383,6 +7666,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help schema.
+
 
 ## biomcp help help
 
@@ -7411,6 +7697,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe commands and their arguments.
+
 
 ## biomcp help network
 
@@ -7442,6 +7731,10 @@ Options:
 
 ```
 
+Describe help network.
+
+- `setting`: 
+
 ## biomcp help sources
 
 ```text
@@ -7468,6 +7761,9 @@ Options:
 
 ```
 
+Describe help sources.
+
+
 ## biomcp help config
 
 ```text
@@ -7493,6 +7789,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help config.
+
 
 ## biomcp help exit
 
@@ -7560,120 +7859,6 @@ Options:
 
 ```
 
-Follow source relationships through a named get section or a search filter. These links retrieve source records without deciding their clinical meaning.
-adverse-event -> drug (get section drugs)
-author -> article (search --author)
-biomarker -> diagnostic (search --biomarker)
-cell-line -> variant (get section variants)
-diagnostic -> gene (get section genes)
-disease -> article (search --disease), gene (get section genes), phenotype (get section phenotypes)
-drug -> article (search --drug)
-gene -> article (search --gene), diagnostic (search --gene), diagnostic (search --gene-id), gwas (search --gene), pathway (get section pathways), pathway (search --gene), pgx (search --gene), protein (get section protein), protein (search --gene), trial (search --gene), variant (search --gene)
-pathway -> gene (get section genes)
-phenotype -> disease (get section diseases), gene (get section genes)
-protein -> variant (search --protein)
-study -> gwas (search --study)
-trial -> disease (get section diseases)
-variant -> article (search --variant), gwas (get section gwas), gwas (search --variant), trial (search --variant)
-
-
-## biomcp sync hgnc
-
-Synchronize a local source bundle.
-
-
-## biomcp sync clingen
-
-Synchronize a local source bundle.
-
-
-## biomcp sync gencc
-
-Replace the complete validated local bundle atomically. Reads use stored data and never synchronize. Failed replacement preserves the last usable bundle.
-
-
-## biomcp sync wikipathways
-
-Replace WikiPathways search/get metadata catalogs atomically; reads never sync. Membership names a source and release; it implies no therapy, response or actionability. No enrichment is calculated.
-
-
-## biomcp sync cbioportal-studies
-
-Replace the complete validated local bundle atomically. Reads use stored data and never synchronize. Failed replacement preserves the last usable bundle.
-
-
-## biomcp sync ema
-
-Replace the complete validated local bundle atomically. Reads use stored data and never synchronize. Failed replacement preserves the last usable bundle.
-
-
-## biomcp sync ddinter
-
-Replace the complete validated local bundle atomically. Reads use stored data and never synchronize. Failed replacement preserves the last usable bundle.
-
-
-## biomcp sync who-pq
-
-Replace the complete validated local bundle atomically. Reads use stored data and never synchronize. Failed replacement preserves the last usable bundle.
-
-
-## biomcp sync gtr
-
-Replace the complete validated local bundle atomically. Reads use stored data and never synchronize. Failed replacement preserves the last usable bundle.
-
-
-## biomcp sync who-ivd
-
-Replace the complete validated local bundle atomically. Reads use stored data and never synchronize. Failed replacement preserves the last usable bundle.
-
-
-## biomcp sync fda-cdx
-
-Replace the complete validated local bundle atomically. Reads use stored data and never synchronize. Failed replacement preserves the last usable bundle.
-
-
-## biomcp help key ncbi
-
-Show credential registration and environment fallback names.
-
-
-## biomcp help key semantic-scholar
-
-Show credential registration and environment fallback names.
-
-
-## biomcp help key orcid
-
-Show credential registration and environment fallback names.
-
-
-## biomcp help key oncokb
-
-Show credential registration and environment fallback names.
-
-
-## biomcp help key alphagenome
-
-Show credential registration and environment fallback names.
-
-
-## biomcp help key nci
-
-Show credential registration and environment fallback names.
-
-
-## biomcp help key openfda
-
-Show credential registration and environment fallback names.
-
-
-## biomcp help network ca_bundle
-
-Set ca_bundle in config.json to a PEM certificate file. These roots add to platform trust for every source. Keep certificate verification enabled.
-
-
-## biomcp help network proxy
-
-Set proxy in config.json to an HTTP or HTTPS proxy URL. Otherwise https_proxy/HTTPS_PROXY and http_proxy/HTTP_PROXY select routes for their schemes; lower case wins when both names are set. no_proxy/NO_PROXY bypasses exact hosts/IPs, CIDR ranges, .domain, *.domain, optional ports, or *. Bare IPv6 is accepted. Unsupported entries are skipped and health reports configuration notices. Malformed ports and credentials refuse with the variable name. An explicit proxy overrides proxy environment settings. Publisher PDF downloads are refused when a proxy applies.
+Map entities through sections and search filters.
 
 

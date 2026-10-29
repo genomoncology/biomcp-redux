@@ -165,6 +165,11 @@ impl Inventory {
                         words(&scoped["command"]).join(" ")
                     ));
                 }
+                if name == "--section"
+                    && let Some(scoped) = scoped
+                {
+                    section_argument(scoped, token, argv.get(index + 1), &mut hits);
+                }
                 let next_flag = argv
                     .get(index + 1)
                     .map(|token| token.split('=').next().unwrap_or(token));
@@ -246,4 +251,25 @@ fn rows<'a>(value: &'a Value, key: &str) -> &'a [Value] {
         .get(key)
         .and_then(Value::as_array)
         .map_or(&[], Vec::as_slice)
+}
+
+fn section_argument(
+    command: &Value,
+    token: &str,
+    next: Option<&String>,
+    hits: &mut BTreeSet<String>,
+) {
+    let value = token
+        .split_once('=')
+        .map(|(_, value)| value)
+        .or_else(|| next.map(String::as_str));
+    for section in rows(command, "sections") {
+        if section["word"].as_str() == value {
+            hits.insert(format!(
+                "section {} {}",
+                words(&command["command"]).join(" "),
+                value.unwrap_or_default()
+            ));
+        }
+    }
 }

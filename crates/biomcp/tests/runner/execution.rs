@@ -71,17 +71,7 @@ pub(super) fn run_step(
         }
         answer = Some(result.clone());
         if let Some(cli) = cli.as_ref() {
-            let mut comparable = result.clone();
-            // Repeated explicit syncs may acquire the same source in different seconds.
-            if args.first().is_some_and(|verb| verb == "sync")
-                && let Some(acquired) = cli.pointer("/result/snapshot/acquired")
-                && let Some(value) = comparable.pointer_mut("/result/snapshot/acquired")
-            {
-                *value = acquired.clone();
-            }
-            if let Some(diff) = assertions::difference(cli, &comparable, "") {
-                return Err(format!("CLI/MCP parity: unequal results at {diff}"));
-            }
+            parity(cli, &result, args)?;
         }
     }
     if let Some(call) = &step.mcp_call {
@@ -100,4 +90,19 @@ pub(super) fn run_step(
         answer = Some(value);
     }
     answer.ok_or_else(|| "step requires run, mcp or mcp_call".into())
+}
+
+fn parity(cli: &Value, result: &Value, args: &[String]) -> Result<(), String> {
+    let mut comparable = result.clone();
+    // Repeated explicit syncs may acquire the same source in different seconds.
+    if args.first().is_some_and(|verb| verb == "sync")
+        && let Some(acquired) = cli.pointer("/result/snapshot/acquired")
+        && let Some(value) = comparable.pointer_mut("/result/snapshot/acquired")
+    {
+        *value = acquired.clone();
+    }
+    if let Some(diff) = assertions::difference(cli, &comparable, "") {
+        return Err(format!("CLI/MCP parity: unequal results at {diff}"));
+    }
+    Ok(())
 }

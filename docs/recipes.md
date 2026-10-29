@@ -511,134 +511,6 @@ biomcp serve
 biomcp help serve
 ```
 
-## biomcp sync hgnc
-
-```sh
-biomcp sync hgnc
-```
-
-## biomcp sync clingen
-
-```sh
-biomcp sync clingen
-```
-
-## biomcp sync gencc
-
-```sh
-biomcp sync gencc
-```
-
-## biomcp sync wikipathways
-
-```sh
-biomcp sync wikipathways
-biomcp sync wikipathways --fresh
-```
-
-## biomcp sync cbioportal-studies
-
-```sh
-biomcp sync cbioportal-studies
-biomcp sync cbioportal-studies --fresh
-```
-
-## biomcp sync ema
-
-```sh
-biomcp sync ema
-biomcp sync ema --fresh
-```
-
-## biomcp sync ddinter
-
-```sh
-biomcp sync ddinter
-biomcp sync ddinter --fresh
-```
-
-## biomcp sync who-pq
-
-```sh
-biomcp sync who-pq
-biomcp sync who-pq --fresh
-```
-
-## biomcp sync gtr
-
-```sh
-biomcp sync gtr
-biomcp sync gtr --fresh
-```
-
-## biomcp sync who-ivd
-
-```sh
-biomcp sync who-ivd
-biomcp sync who-ivd --fresh
-```
-
-## biomcp sync fda-cdx
-
-```sh
-biomcp sync fda-cdx
-biomcp sync fda-cdx --fresh
-```
-
-## biomcp help key ncbi
-
-```sh
-biomcp help key ncbi
-```
-
-## biomcp help key semantic-scholar
-
-```sh
-biomcp help key semantic-scholar
-```
-
-## biomcp help key orcid
-
-```sh
-biomcp help key orcid
-```
-
-## biomcp help key oncokb
-
-```sh
-biomcp help key oncokb
-```
-
-## biomcp help key alphagenome
-
-```sh
-biomcp help key alphagenome
-```
-
-## biomcp help key nci
-
-```sh
-biomcp help key nci
-```
-
-## biomcp help key openfda
-
-```sh
-biomcp help key openfda
-```
-
-## biomcp help network ca_bundle
-
-```sh
-biomcp help network ca_bundle
-```
-
-## biomcp help network proxy
-
-```sh
-biomcp help network proxy
-```
-
 ## biomcp help exit
 
 ```sh
@@ -716,6 +588,606 @@ biomcp key list
 ```sh
 biomcp schema
 biomcp schema biomcp.help/4
+```
+
+## biomcp help search
+
+```sh
+biomcp help search
+```
+
+## biomcp help search biomarker
+
+```sh
+biomcp help search biomarker
+```
+
+## biomcp help search author
+
+```sh
+biomcp help search author
+```
+
+## biomcp help search organization
+
+```sh
+biomcp help search organization
+```
+
+## biomcp help search cell-line
+
+```sh
+biomcp help search cell-line
+```
+
+## biomcp help search gwas
+
+```sh
+biomcp help search gwas
+```
+
+## biomcp help search protein
+
+```sh
+biomcp help search protein
+```
+
+## biomcp help search phenotype
+
+```sh
+biomcp help search phenotype
+```
+
+## biomcp help search pathway
+
+```sh
+biomcp help search pathway
+```
+
+## biomcp help search study
+
+```sh
+biomcp help search study
+```
+
+## biomcp help search pgx
+
+```sh
+biomcp help search pgx
+```
+
+## biomcp help search diagnostic
+
+```sh
+biomcp help search diagnostic
+```
+
+## biomcp help search adverse-event
+
+```sh
+biomcp help search adverse-event
+```
+
+## biomcp help search disease
+
+```sh
+biomcp help search disease
+```
+
+## biomcp help search drug
+
+```sh
+biomcp help search drug
+```
+
+## biomcp help search gene
+
+```sh
+biomcp help search gene
+```
+
+## biomcp help search article
+
+```sh
+biomcp help search article
+```
+
+## biomcp help search trial
+
+```sh
+biomcp help search trial
+```
+
+## biomcp help search variant
+
+```sh
+biomcp help search variant
+```
+
+## biomcp help get
+
+```sh
+biomcp help get
+```
+
+## biomcp help get biomarker
+
+```sh
+biomcp help get biomarker
+```
+
+## biomcp help get author
+
+```sh
+biomcp help get author
+```
+
+## biomcp help get cell-line
+
+```sh
+biomcp help get cell-line
+```
+
+## biomcp help get gwas
+
+```sh
+biomcp help get gwas
+```
+
+## biomcp help get protein
+
+```sh
+biomcp help get protein
+```
+
+## biomcp help get phenotype
+
+```sh
+biomcp help get phenotype
+```
+
+## biomcp help get pathway
+
+```sh
+biomcp help get pathway
+```
+
+## biomcp help get study
+
+```sh
+biomcp help get study
+```
+
+## biomcp help get pgx
+
+```sh
+biomcp help get pgx
+```
+
+## biomcp help get diagnostic
+
+```sh
+biomcp help get diagnostic
+```
+
+## biomcp help get adverse-event
+
+```sh
+biomcp help get adverse-event
+```
+
+## biomcp help get disease
+
+```sh
+biomcp help get disease
+```
+
+## biomcp help get drug
+
+```sh
+biomcp help get drug
+```
+
+## biomcp help get gene
+
+```sh
+biomcp help get gene
+```
+
+## biomcp help get article
+
+```sh
+biomcp help get article
+```
+
+## biomcp help get trial
+
+```sh
+biomcp help get trial
+```
+
+## biomcp help get variant
+
+```sh
+biomcp help get variant
+```
+
+## biomcp help author
+
+```sh
+biomcp help author
+```
+
+## biomcp help author papers
+
+```sh
+biomcp help author papers
+```
+
+## biomcp help cell-line
+
+```sh
+biomcp help cell-line
+```
+
+## biomcp help cell-line assay-count
+
+```sh
+biomcp help cell-line assay-count
+```
+
+## biomcp help protein
+
+```sh
+biomcp help protein
+```
+
+## biomcp help protein features
+
+```sh
+biomcp help protein features
+```
+
+## biomcp help protein isoforms
+
+```sh
+biomcp help protein isoforms
+```
+
+## biomcp help protein domains
+
+```sh
+biomcp help protein domains
+```
+
+## biomcp help protein complexes
+
+```sh
+biomcp help protein complexes
+```
+
+## biomcp help protein complex-members
+
+```sh
+biomcp help protein complex-members
+```
+
+## biomcp help protein structures
+
+```sh
+biomcp help protein structures
+```
+
+## biomcp help protein sequence
+
+```sh
+biomcp help protein sequence
+```
+
+## biomcp help pathway
+
+```sh
+biomcp help pathway
+```
+
+## biomcp help pathway genes
+
+```sh
+biomcp help pathway genes
+```
+
+## biomcp help pathway events
+
+```sh
+biomcp help pathway events
+```
+
+## biomcp help article
+
+```sh
+biomcp help article
+```
+
+## biomcp help article supplement
+
+```sh
+biomcp help article supplement
+```
+
+## biomcp help article pdf
+
+```sh
+biomcp help article pdf
+```
+
+## biomcp help article text
+
+```sh
+biomcp help article text
+```
+
+## biomcp help article citations
+
+```sh
+biomcp help article citations
+```
+
+## biomcp help article references
+
+```sh
+biomcp help article references
+```
+
+## biomcp help article citation-evidence
+
+```sh
+biomcp help article citation-evidence
+```
+
+## biomcp help article recommendations
+
+```sh
+biomcp help article recommendations
+```
+
+## biomcp help trial
+
+```sh
+biomcp help trial
+```
+
+## biomcp help trial document
+
+```sh
+biomcp help trial document
+```
+
+## biomcp help variant
+
+```sh
+biomcp help variant
+```
+
+## biomcp help variant assertions
+
+```sh
+biomcp help variant assertions
+```
+
+## biomcp help variant population
+
+```sh
+biomcp help variant population
+```
+
+## biomcp help variant recurrence
+
+```sh
+biomcp help variant recurrence
+```
+
+## biomcp help variant normalize
+
+```sh
+biomcp help variant normalize
+```
+
+## biomcp help sync
+
+```sh
+biomcp help sync
+```
+
+## biomcp help sync hgnc
+
+```sh
+biomcp help sync hgnc
+```
+
+## biomcp help sync clingen
+
+```sh
+biomcp help sync clingen
+```
+
+## biomcp help sync gencc
+
+```sh
+biomcp help sync gencc
+```
+
+## biomcp help sync wikipathways
+
+```sh
+biomcp help sync wikipathways
+```
+
+## biomcp help sync cbioportal-studies
+
+```sh
+biomcp help sync cbioportal-studies
+```
+
+## biomcp help sync ema
+
+```sh
+biomcp help sync ema
+```
+
+## biomcp help sync ddinter
+
+```sh
+biomcp help sync ddinter
+```
+
+## biomcp help sync who-pq
+
+```sh
+biomcp help sync who-pq
+```
+
+## biomcp help sync gtr
+
+```sh
+biomcp help sync gtr
+```
+
+## biomcp help sync who-ivd
+
+```sh
+biomcp help sync who-ivd
+```
+
+## biomcp help sync fda-cdx
+
+```sh
+biomcp help sync fda-cdx
+```
+
+## biomcp help skill
+
+```sh
+biomcp help skill
+```
+
+## biomcp help skill list
+
+```sh
+biomcp help skill list
+```
+
+## biomcp help skill render
+
+```sh
+biomcp help skill render
+```
+
+## biomcp help skill status
+
+```sh
+biomcp help skill status
+```
+
+## biomcp help skill install
+
+```sh
+biomcp help skill install
+```
+
+## biomcp help version
+
+```sh
+biomcp help version
+```
+
+## biomcp help mcp-config
+
+```sh
+biomcp help mcp-config
+```
+
+## biomcp help health
+
+```sh
+biomcp help health
+```
+
+## biomcp help store
+
+```sh
+biomcp help store
+```
+
+## biomcp help store clean
+
+```sh
+biomcp help store clean
+```
+
+## biomcp help key
+
+```sh
+biomcp help key
+```
+
+## biomcp help key list
+
+```sh
+biomcp help key list
+```
+
+## biomcp help key set
+
+```sh
+biomcp help key set
+```
+
+## biomcp help key remove
+
+```sh
+biomcp help key remove
+```
+
+## biomcp help serve
+
+```sh
+biomcp help serve
+```
+
+## biomcp help schema
+
+```sh
+biomcp help schema
+```
+
+## biomcp help help
+
+```sh
+biomcp help help
+```
+
+## biomcp help network
+
+```sh
+biomcp help network
+```
+
+## biomcp help sources
+
+```sh
+biomcp help sources
+```
+
+## biomcp help config
+
+```sh
+biomcp help config
+```
+
+## biomcp help relations
+
+```sh
+biomcp help relations
 ```
 
 ## biomcp help relations
