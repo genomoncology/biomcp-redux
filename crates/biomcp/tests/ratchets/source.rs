@@ -507,7 +507,7 @@ fn tool_modes(relative: &str, text: &str) -> Check {
     if matches!(
         relative,
         "crates/biomcp/tests/cases.rs" | "crates/biomcp/tests/runner/case_main.rs"
-    ) && tokens(&text)
+    ) && tokens(text)
         .iter()
         .filter_map(|v| v.strip_prefix("\"--"))
         .filter_map(|v| v.strip_suffix('"'))
