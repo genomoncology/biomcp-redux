@@ -47,7 +47,9 @@ macro_rules! replies {
 }
 /// Every enveloped reply, with identities taken from the registered body types.
 pub fn reply_registry() -> &'static [ReplyRegistration] {
-    replies! {
+    REPLIES
+}
+const REPLIES: &[ReplyRegistration] = replies! {
         ArticleEvidenceResult => "article-evidence-result",
         ArticleRecommendations => "article-recommendations",
         ArticlePdfResult => "article-pdf-result",
@@ -169,5 +171,4 @@ pub fn reply_registry() -> &'static [ReplyRegistration] {
         AuthorPapers => "author-papers",
         AuthorPaperDetails => "author-paper-details",
         OrcidWorks => "orcid-works",
-    }
-}
+};
