@@ -1,0 +1,50 @@
+{
+  "method": "POST",
+  "source": "gnomad",
+  "url": "https://gnomad.broadinstitute.org/api",
+  "post": {
+    "request_content_type": "application/json",
+    "request_body_sha256": "d03d8c10377b58a94e392d4d1b7e3f1aa6e2d91244c98fe1314f71fad35240b7"
+  },
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "data": {
+            "g2": null,
+            "g1": {
+              "gene_id": "ENSG00000141510",
+              "canonical_transcript_id": "ENST00000269305",
+              "mane_select_transcript": {
+                "ensembl_id": "ENST00000269305",
+                "ensembl_version": "9"
+              },
+              "gnomad_constraint": {
+                "pli": 0.999595868281925,
+                "oe_lof": 0.2582140811696815,
+                "oe_lof_upper": 0.4183620979251529,
+                "mis_z": 1.121638987172852,
+                "syn_z": 0.6508291842444744,
+                "flags": []
+              }
+            },
+            "g0": null
+          },
+          "errors": [
+            {
+              "message": "Gene not found"
+            },
+            {
+              "message": "Gene not found"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

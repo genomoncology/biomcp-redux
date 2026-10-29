@@ -1,0 +1,85 @@
+{
+  "method": "POST",
+  "source": "mygene",
+  "url": "https://mygene.info/v3/gene",
+  "post": {
+    "request_content_type": "application/x-www-form-urlencoded",
+    "request_body_sha256": "1b35a697d751cead3f82a6309f8371f5e16f2acbff7c361ebc9fddadc8142596"
+  },
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 200,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": [
+          {
+            "query": "3845",
+            "HGNC": "6407",
+            "_id": "3845",
+            "_version": 1,
+            "entrezgene": "3845",
+            "genomic_pos": {
+              "chr": "12",
+              "end": 25326473,
+              "ensemblgene": "ENSG00000133703",
+              "start": 25205246,
+              "strand": -1
+            },
+            "genomic_pos_hg19": {
+              "chr": "12",
+              "end": 25403870,
+              "start": 25357723,
+              "strand": -1
+            },
+            "summary": "This gene, a Kirsten ras oncogene homolog from the mammalian ras gene family, encodes a protein that is a member of the small GTPase superfamily. A single amino acid substitution is responsible for an activating mutation. The transforming protein that results is implicated in various malignancies, including lung adenocarcinoma, mucinous adenoma, ductal carcinoma of the pancreas and colorectal carcinoma. Alternative splicing leads to variants encoding two isoforms that differ in the C-terminal region. [provided by RefSeq, Jul 2008]."
+          },
+          {
+            "query": "673",
+            "HGNC": "1097",
+            "_id": "673",
+            "_version": 1,
+            "entrezgene": "673",
+            "genomic_pos": {
+              "chr": "7",
+              "end": 140925199,
+              "ensemblgene": "ENSG00000157764",
+              "start": 140719327,
+              "strand": -1
+            },
+            "genomic_pos_hg19": {
+              "chr": "7",
+              "end": 140624564,
+              "start": 140419127,
+              "strand": -1
+            },
+            "summary": "This gene encodes a protein belonging to the RAF family of serine/threonine protein kinases. This protein plays a role in regulating the MAP kinase/ERK signaling pathway, which affects cell division, differentiation, and secretion. Mutations in this gene, most commonly the V600E mutation, are the most frequently identified cancer-causing mutations in melanoma, and have been identified in various other cancers as well, including non-Hodgkin lymphoma, colorectal cancer, thyroid carcinoma, non-small cell lung carcinoma, hairy cell leukemia and adenocarcinoma of lung. Mutations in this gene are also associated with cardiofaciocutaneous, Noonan, and Costello syndromes, which exhibit overlapping phenotypes. A pseudogene of this gene has been identified on the X chromosome. [provided by RefSeq, Aug 2017]."
+          },
+          {
+            "query": "7157",
+            "HGNC": "11998",
+            "_id": "7157",
+            "_version": 1,
+            "entrezgene": "7157",
+            "genomic_pos": {
+              "chr": "17",
+              "end": 7687546,
+              "ensemblgene": "ENSG00000141510",
+              "start": 7661779,
+              "strand": -1
+            },
+            "genomic_pos_hg19": {
+              "chr": "17",
+              "end": 7590856,
+              "start": 7565097,
+              "strand": -1
+            },
+            "summary": "This gene encodes a tumor suppressor protein containing transcriptional activation, DNA binding, and oligomerization domains. The encoded protein responds to diverse cellular stresses to regulate expression of target genes, thereby inducing cell cycle arrest, apoptosis, senescence, DNA repair, or changes in metabolism. Mutations in this gene are associated with a variety of human cancers, including hereditary cancers such as Li-Fraumeni syndrome. Alternative splicing of this gene and the use of alternate promoters result in multiple transcript variants and isoforms. Additional isoforms have also been shown to result from the use of alternate translation initiation codons from identical transcript variants (PMIDs: 12032546, 20937277). [provided by RefSeq, Dec 2016]."
+          }
+        ]
+      }
+    }
+  ]
+}

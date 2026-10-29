@@ -1,0 +1,27 @@
+{
+  "feature": "gene-sections",
+  "live_check": "synthetic",
+  "story": "One malformed native gnomad value preserves its record and names the omitted field.",
+  "replay": "variant/adapter-values/gnomad",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "gene",
+        "TP53",
+        "constraint"
+      ],
+      "expect": {
+        "/result/items/0/sections/constraint/data/transcript": "ENST00000269305",
+        "/result/items/0/sections/constraint/data": {
+          "omits": [
+            "pli"
+          ]
+        },
+        "/problems/*/field": [
+          "pli"
+        ]
+      }
+    }
+  ]
+}
