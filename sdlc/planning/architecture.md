@@ -1962,6 +1962,7 @@ The ratchet owns the authoritative file and reason list below and checks this ta
 | `crates/biomcp-types/tests/schemas.rs` | Exercise checked values and schema contracts through the public library API. |
 | `crates/biomcp-types/tests/schemas/disease.rs` | Exercise standalone disease option metadata and synthetic envelope schema contracts before command registration. |
 | `crates/biomcp-types/tests/schemas/compatibility_cases.rs` | Exercise checked values and schema contracts through the public library API. |
+| `crates/biomcp-types/tests/schemas/ownership.rs` | Check published schema namespaces against the crate that defines each Rust type. |
 | `crates/biomcp-types/tests/schemas/values.rs` | Exercise checked values and schema contracts through the public library API. |
 | `crates/biomcp-types/tests/value_conventions.rs` | Exercise checked values and schema contracts through the public library API. |
 | `crates/biomcp-adapters/src/monarch/native_contracts.rs` | Exercise retained gene-keyed Monarch rows through the private mapper without adding a gene-keyed command. |
