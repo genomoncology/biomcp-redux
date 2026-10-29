@@ -56,7 +56,7 @@ pub struct GenePage {
     pub items: Box<[GeneHeader]>,
 }
 impl ResponseBody for GeneCards {
-    const SCHEMA: &'static str = "biomcp.gene-cards/9";
+    const SCHEMA: &'static str = "biomcp.gene-cards/10";
     type Query = GeneGet;
 }
 impl ResponseBody for GenePage {

@@ -8,18 +8,18 @@ use biomcp_types::{Reason, Section, Source};
 pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]) -> SectionResult {
     let leg = cx.fetch.leg(&gencc::SPEC, deadline).fresh(cx.fresh);
     let mut error = None;
+    let mut problems = Vec::new();
     let mut local = None;
     let values = genes
         .iter()
         .map(|(id, _)| {
             let section = match gencc::gene(&leg, *id) {
-                Ok(Some(data)) => Section::Data {
-                    source: Source::Gencc,
-                    data,
-                },
-                Ok(None) => Section::Empty {
-                    source: Source::Gencc,
-                    record: None,
+                Ok(mapped) => {
+                    status::append(&mut problems, mapped.problems);
+                    match mapped.value {
+                        Some(data) => Section::Data { source: Source::Gencc, data },
+                        None => Section::Empty { source: Source::Gencc, record: None },
+                    }
                 },
                 Err(failure) => {
                     error = Some(failure);
@@ -47,7 +47,7 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
     SectionResult {
         values,
         source: status::source(Source::Gencc, report, error),
-        problems: Vec::new(),
+        problems,
         local,
     }
 }
