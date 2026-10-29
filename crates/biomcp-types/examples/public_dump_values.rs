@@ -1,8 +1,8 @@
 //! Offline test-tool bridge. Each input line contains a batch of source values.
 use biodata::{
     Accession, CaId, ClinVarAlleleId, ClinVarVariationId, Concept, Curie, Doi, DrugId, Expression,
-    GeneSymbol, HgvsText, MondoId, NcbiGeneId, NcitId, NctId, Pmid, RcvId, RsId, ScvId, SourceText, Text,
-    VariantId, VariantRef, VcvId,
+    GeneSymbol, HgvsText, MondoId, NcbiGeneId, NcitId, NctId, Pmid, RcvId, RsId, ScvId, SourceText,
+    Text, VariantId, VariantRef, VcvId,
 };
 use serde::{Deserialize, Serialize};
 use serde_json::Value;

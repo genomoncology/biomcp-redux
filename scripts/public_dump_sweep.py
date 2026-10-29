@@ -17,6 +17,8 @@ replies must cover every source gene. --values-only explicitly omits comparison.
 Each source may provide refusal_explanations entries with exact record, type,
 value, reason, and source_rule. The source_rule names the publisher's invalid-input
 rule and its URL. Unmatched refusals remain unexplained and fail the run.
+Default output is bounded by SOURCE_LIMIT, EXAMPLE_LIMIT and GENE_LIMIT;
+--output retains the full source inventory and counts.
 Exit 0 means complete with no refusals or mapping gaps; 1 means findings or a
 bounded partial run; 2 means an input, transport or tool failure.
 """
@@ -34,6 +36,7 @@ from public_dump_compare import Comparison
 
 EXAMPLE_LIMIT = 10
 GENE_LIMIT = 20
+SOURCE_LIMIT = 20
 PIN_FIELDS = ("kind", "path", "release", "url", "rights", "sha256")
 
 
@@ -177,6 +180,8 @@ def run(args):
         with args.output.open("x", encoding="utf-8") as output:
             json.dump(report, output, indent=2, sort_keys=True)
             output.write("\n")
+    report["sources_omitted"] = max(0, len(report["sources"]) - SOURCE_LIMIT)
+    report["sources"] = report["sources"][:SOURCE_LIMIT]
     report["gene_counts_omitted"] = max(0, len(report["gene_counts"]) - GENE_LIMIT)
     report["gene_counts"] = dict(list(report["gene_counts"].items())[:GENE_LIMIT])
     reasons = report["refusal_reasons"]
