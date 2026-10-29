@@ -353,7 +353,7 @@ fn unknown_wire_enum_value_is_private() {
             .expect_err("unknown enum value must be refused");
         assert_eq!(
             error.to_string(),
-            "enum.value.unknown",
+            "wire_enum.unknown",
             "decode errors must omit input"
         );
     }

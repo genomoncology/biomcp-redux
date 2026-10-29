@@ -44,7 +44,7 @@ errors! {
     /// The checked value was rejected.
     ProteinBoundAbsent => "protein.bound.absent",
     /// The checked value was rejected.
-    WireEnumUnknown => "enum.value.unknown",
+    WireEnumUnknown => "wire_enum.unknown",
 
     /// A source-native study identity or timestamp failed its grammar.
     StudyValueInvalid => "study.value.invalid",
