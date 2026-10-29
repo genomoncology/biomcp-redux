@@ -6,7 +6,7 @@ use biomcp_fetch::{BadReply, InputError};
 use prost::Message;
 
 /// Pinned publisher RPC path; the API version is not a model release.
-pub const PREDICT_VARIANT: &str =
+pub(super) const PREDICT_VARIANT: &str =
     "/google.gdm.gdmscience.alphagenome.v1main.DnaModelService/PredictVariant";
 /// Pinned protobuf identity used by checked cache and recording admission.
 pub const SCHEMA: &str =

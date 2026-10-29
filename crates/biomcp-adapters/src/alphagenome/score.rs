@@ -5,7 +5,7 @@ use biomcp_fetch::{BadReply, InputError};
 use prost::Message;
 
 /// Publisher scoring method, independent of the earlier prediction method.
-pub const SCORE_VARIANT: &str =
+pub(super) const SCORE_VARIANT: &str =
     "/google.gdm.gdmscience.alphagenome.v1main.DnaModelService/ScoreVariant";
 /// Pinned scoring contract for complete-stream admission and persistent identities.
 pub const SCORE_SCHEMA: &str =
