@@ -9,25 +9,25 @@ crate::canonical_enum! {
         /// Source-stated salt identity.
         Salt => "salt",
         /// Source-stated clinical formulation identity.
-        ClinicalFormulation => "clinical_formulation",
+        ClinicalFormulation => "clinical-formulation",
         /// Source-stated branded product identity.
-        BrandedProduct => "branded_product",
+        BrandedProduct => "branded-product",
         /// Source-stated spl set identity.
-        SplSet => "spl_set",
+        SplSet => "spl-set",
         /// Source-stated spl version identity.
-        SplVersion => "spl_version",
+        SplVersion => "spl-version",
         /// Source-stated ndc package identity.
-        NdcPackage => "ndc_package",
+        NdcPackage => "ndc-package",
         /// Source-stated fda application identity.
-        FdaApplication => "fda_application",
+        FdaApplication => "fda-application",
         /// Source-stated fda product identity.
-        FdaProduct => "fda_product",
+        FdaProduct => "fda-product",
         /// Source-stated ema authorization identity.
-        EmaAuthorization => "ema_authorization",
+        EmaAuthorization => "ema-authorization",
         /// Source-stated ema application identity.
-        EmaApplication => "ema_application",
+        EmaApplication => "ema-application",
         /// Source-stated orphan designation identity.
-        OrphanDesignation => "orphan_designation",
+        OrphanDesignation => "orphan-designation",
         /// Source-stated unknown identity.
         Unknown => "unknown",
     }

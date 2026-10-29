@@ -65,7 +65,7 @@ fn names() -> Check {
             .filter(|brand| brands.iter().all(|b| b == *brand));
         if item.get("id") != Some(&json!("NDA021335"))
             || item.pointer("/identity/id") != item.get("id")
-            || item.pointer("/identity/identity_level") != Some(&json!("fda_application"))
+            || item.pointer("/identity/identity_level") != Some(&json!("fda-application"))
             || item.get("name") != expected.map(|brand| json!(brand)).as_ref()
             || item.get("products") != app.get("products").filter(|_| !brands.is_empty())
         {

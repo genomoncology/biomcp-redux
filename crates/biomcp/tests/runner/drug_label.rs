@@ -228,7 +228,7 @@ fn card(n: usize) -> Check {
     budget(&value, measured)?;
     if value.pointer("/result/header/id") != Some(field(&id, "set_id"))
         || value.pointer("/result/version") != Some(field(&id, "version"))
-        || value.pointer("/result/header/identity_level") != Some(&json!("spl_set"))
+        || value.pointer("/result/header/identity_level") != Some(&json!("spl-set"))
     {
         return Err("SPL card identity changed".into());
     }

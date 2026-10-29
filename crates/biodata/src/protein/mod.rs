@@ -15,7 +15,7 @@ crate::wire_enum! {
     /// Coordinate convention on the native feature before conversion.
     ProteinCoordinateConvention {
         /// Native one-based inclusive residue boundaries.
-        OneBasedInclusive => "one_based_inclusive"
+        OneBasedInclusive => "one-based-inclusive"
     }
 }
 crate::wire_enum! {
@@ -35,8 +35,8 @@ crate::wire_enum! {
         /// Exact direct sequence supplied.
         Available => "available",
         /// Source explicitly has no direct sequence.
-        NotAvailable => "not_available",
+        NotAvailable => "not-available",
         /// Direct sequence was not retrieved.
-        NotChecked => "not_checked"
+        NotChecked => "not-checked"
     }
 }

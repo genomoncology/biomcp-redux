@@ -59,7 +59,7 @@ biodata::canonical_enum! {
     /// The native unit counted by drug enforcement searches.
     DrugRecallCountUnit, SourceUnknown {
         /// Product recall records, independent of events and patient counts.
-        RecallRecords => "recall_records",
+        RecallRecords => "recall-records",
     }
 }
 /// A bounded page; totals count recall records.

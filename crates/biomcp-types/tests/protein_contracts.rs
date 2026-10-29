@@ -159,9 +159,9 @@ fn source_rows_keep_discontinuous_fragments_and_independent_complex_totals()
 #[test]
 fn external_products_and_exact_sequences_remain_independent()
 -> Result<(), Box<dyn std::error::Error>> {
-    let external = json!({"ids":["Q8N726-1"],"name":"Synthetic External product","sequence_status":"External","direct_sequence":"not_checked"});
+    let external = json!({"ids":["Q8N726-1"],"name":"Synthetic External product","sequence_status":"External","direct_sequence":"not-checked"});
     assert_eq!(roundtrip::<ProteinIsoform>(external.clone())?, external);
-    let absent = json!({"ids":["P00533-4"],"name":"Synthetic absent direct sequence","sequence_status":"Described","direct_sequence":"not_available"});
+    let absent = json!({"ids":["P00533-4"],"name":"Synthetic absent direct sequence","sequence_status":"Described","direct_sequence":"not-available"});
     assert_eq!(roundtrip::<ProteinIsoform>(absent.clone())?, absent);
     let sequence = json!(
         {"accession":"P38398-2","sequence":"M","length":1,"audit":{"entry_version":2,"sequence_version":1,
@@ -219,10 +219,10 @@ fn feature_provenance_and_sequence_availability_use_closed_native_contracts()
 -> Result<(), Box<dyn std::error::Error>> {
     let feature = json!(
         {"feature":{"protein":"P00533","span":{"start":{"min":711,"max":711},"end":{"min":979,"max":979}},"kind":{"label":"Domain"}},
-        "attribution":{"source":"uniprot","record":"P00533"},"source_coordinates":"one_based_inclusive"}
+        "attribution":{"source":"uniprot","record":"P00533"},"source_coordinates":"one-based-inclusive"}
     );
     assert_eq!(roundtrip::<ProteinFeature>(feature.clone())?, feature);
-    for state in ["available", "not_available", "not_checked"] {
+    for state in ["available", "not-available", "not-checked"] {
         assert_eq!(
             roundtrip::<ProteinSequenceAvailability>(json!(state))?,
             state

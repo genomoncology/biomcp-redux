@@ -89,7 +89,7 @@ fn search() -> Check {
     budget(measure(&value)?, (923, 812))?;
     if value.pointer("/result/items/0/identity/id") != Some(&json!("NDA021335"))
         || value.pointer("/result/items/0/identity/identity_level")
-            != Some(&json!("fda_application"))
+            != Some(&json!("fda-application"))
         || value.pointer("/result/items/0/products/0/brand_name") != Some(&json!("Synthetic brand"))
         || value.pointer("/result/total") != Some(&json!(2))
     {
