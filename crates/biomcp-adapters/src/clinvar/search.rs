@@ -8,6 +8,7 @@ use biomcp_types::{Source, SourceRecord, VariantHeader, VariantSearch};
 use serde::Deserialize;
 const SEARCH: Endpoint = SPEC.get("/esearch.fcgi").fresh(Freshness::Days(1));
 /// One native ClinVar candidate page, without inferred transcripts or alleles.
+#[derive(Debug)]
 pub struct SearchPage {
     /// Native total before paging.
     pub total: u64,
