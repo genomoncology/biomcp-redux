@@ -1,6 +1,6 @@
-use crate::runner::tools_api::budget;
 //! Unchanged retained reverse association requests prove source rows in both interfaces.
 use super::{Stub, native, raw_invoke, setup};
+use crate::runner::tools_api::budget;
 use serde_json::{Value, json};
 use sha2::{Digest, Sha256};
 use std::io::Write;

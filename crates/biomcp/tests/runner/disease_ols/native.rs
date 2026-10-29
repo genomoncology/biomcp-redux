@@ -1,7 +1,7 @@
-use crate::runner::tools_api::budget;
 //! Retained source bytes enter only this explicit external-evidence proof.
 use super::{args, markdown, record, replay, setup};
 use crate::runner::network_stub::Stub;
+use crate::runner::tools_api::budget;
 use serde_json::{Value, json};
 use sha2::{Digest, Sha256};
 use std::io::Write;

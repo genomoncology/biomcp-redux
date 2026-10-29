@@ -1,7 +1,7 @@
-use crate::runner::tools_api::budget;
 //! Explicit retained-source command proof; native bodies remain outside Git.
 use super::{args, invoke, markdown, measure, record, replay, setup};
 use crate::runner::network_stub::Stub;
+use crate::runner::tools_api::budget;
 use serde_json::{Value, json};
 use sha2::{Digest, Sha256};
 use std::{collections::BTreeMap, fs, path::Path};

@@ -1,6 +1,6 @@
-use crate::runner::tools_api::budget;
 //! Explicit source command proof reads unchanged retained bodies outside Git.
 use super::{Stub, invoke, measure, record, replay, setup};
+use crate::runner::tools_api::budget;
 use serde_json::{Value, json};
 use sha2::{Digest, Sha256};
 use std::{collections::BTreeMap, fs, path::Path};
