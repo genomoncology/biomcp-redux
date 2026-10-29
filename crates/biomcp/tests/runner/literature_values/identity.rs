@@ -107,12 +107,15 @@ fn europepmc() -> Check {
         .ok_or("missing valid Europe PMC sibling")?;
     if edits != 1
         || after.pointer("/result/items/0") != Some(sibling)
-        || after["problems"].as_array().is_none_or(|ps| {
-            ps.iter()
-                .filter(|p| p["source"] == "europepmc" && p["field"] == "id")
-                .count()
-                != 1
-        })
+        || after
+            .get("problems")
+            .and_then(Value::as_array)
+            .is_none_or(|ps| {
+                ps.iter()
+                    .filter(|p| p["source"] == "europepmc" && p["field"] == "id")
+                    .count()
+                    != 1
+            })
     {
         return Err(format!("Bad Europe PMC identity discarded siblings: {after}").into());
     }
@@ -146,15 +149,19 @@ pub(super) fn append_bad(
         json!({}),
         0,
     )?;
-    if edits == 0 || before["result"] != after["result"] {
+    if edits == 0 || before.get("result") != after.get("result") {
         return Err(format!("Bad {source} {field} discarded a valid sibling: {after}").into());
     }
-    if after["problems"].as_array().is_none_or(|ps| {
-        ps.iter()
-            .filter(|p| p["source"] == source && p["field"] == field)
-            .count()
-            != 1
-    }) {
+    if after
+        .get("problems")
+        .and_then(Value::as_array)
+        .is_none_or(|ps| {
+            ps.iter()
+                .filter(|p| p["source"] == source && p["field"] == field)
+                .count()
+                != 1
+        })
+    {
         return Err(format!("Bad {source} identity lacks one {field} problem: {after}").into());
     }
     Ok(())

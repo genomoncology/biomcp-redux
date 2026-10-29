@@ -90,7 +90,9 @@ fn native(
     writeln!(
         std::io::stdout(),
         "native positive {source}: schema={}",
-        positive["schema"]
+        positive
+            .get("schema")
+            .ok_or("native positive lacks schema")?
     )?;
     let mut edited = 0;
     let value = checked_case(
@@ -117,8 +119,9 @@ fn native(
     if value.pointer(missing).is_some() {
         return Err(format!("bad {source} field survived at {missing}").into());
     }
-    let problems = value["problems"]
-        .as_array()
+    let problems = value
+        .get("problems")
+        .and_then(Value::as_array)
         .ok_or("missing field problems")?;
     if problems
         .iter()
@@ -228,8 +231,9 @@ fn jats() -> Check {
         0,
     )?;
     if edits != 1
-        || value["problems"]
-            .as_array()
+        || value
+            .get("problems")
+            .and_then(Value::as_array)
             .is_none_or(|ps| ps.iter().filter(|p| p["field"] == "references.doi").count() != 1)
     {
         return Err(format!("JATS reference edit lost document or problem: {value}").into());
@@ -269,8 +273,9 @@ fn context_strings() -> Check {
         json!({"/result/items/0/contexts/items/0":"Native context", "/result/items/0/contexts/total":2}),
         0,
     )?;
-    if value["problems"]
-        .as_array()
+    if value
+        .get("problems")
+        .and_then(Value::as_array)
         .is_some_and(|ps| ps.iter().any(|p| p["field"] == "contexts"))
     {
         return Err("Unselected native context acquired a text admission problem".into());
@@ -311,8 +316,9 @@ fn figure_label() -> Check {
         || value
             .pointer("/result/items/0/sections/fulltext/data/figures/0/label")
             .is_some()
-        || value["problems"]
-            .as_array()
+        || value
+            .get("problems")
+            .and_then(Value::as_array)
             .is_none_or(|ps| ps.iter().filter(|p| p["field"] == "figures.label").count() != 1)
     {
         return Err(format!("Figure label edit lost caption, document or problem: {value}").into());
@@ -349,8 +355,9 @@ fn section_title() -> Check {
         || value
             .pointer("/result/items/0/sections/fulltext/data/parts/0/title")
             .is_some()
-        || value["problems"]
-            .as_array()
+        || value
+            .get("problems")
+            .and_then(Value::as_array)
             .is_none_or(|ps| ps.iter().filter(|p| p["field"] == "parts.title").count() != 1)
     {
         return Err(format!("Section title edit lost part or problem: {value}").into());

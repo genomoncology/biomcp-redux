@@ -45,7 +45,7 @@ pub(super) fn check(previous: &Path) -> Check {
                 );
             }
         }
-        if after["status"] != "complete" {
+        if after.get("status").and_then(Value::as_str) != Some("complete") {
             return Err(format!("Previous {capture} snapshot was refused: {after}").into());
         }
     }
