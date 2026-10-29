@@ -1,9 +1,10 @@
 //! One registry record request with a typed protocol projection, checked against its requested identity before caching.
+mod dates;
 mod publications;
 mod sites;
 use crate::{mapped::Problems, raw::Field};
 use biodata::{
-    Markdown, NctId, StudyType, TrialAgeBound, TrialArm, TrialCard, TrialDate, TrialEligibility,
+    Markdown, NctId, StudyType, TrialAgeBound, TrialArm, TrialCard, TrialEligibility,
     TrialIntervention, TrialOutcome, TrialOutcomeKind, TrialPhase, TrialSex, TrialStatus,
 };
 use biomcp_types::Source;
@@ -110,26 +111,7 @@ struct RawDate {
     #[serde(rename = "type")]
     kind: Option<Field<biodata::TrialDateKind>>,
 }
-impl RawDate {
-    fn field(
-        field: &str,
-        value: Option<Field<Self>>,
-        problems: &mut Problems,
-    ) -> Option<TrialDate> {
-        problems
-            .field(field, value)
-            .and_then(|date| date.mapped(field, problems))
-    }
-    fn mapped(self, field: &str, problems: &mut Problems) -> Option<TrialDate> {
-        let path = format!("{field}.date");
-        let date = problems.field(&path, self.date);
-        let kind = problems.field(&format!("{field}.type"), self.kind);
-        Some(TrialDate {
-            date: problems.required(&path, date)?,
-            kind,
-        })
-    }
-}
+
 #[derive(Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct Design {

@@ -366,7 +366,10 @@ fn native_duplicates() -> Check {
                 body["results"][1] = body["results"][0].clone();
             }
         },
-        json!({"/status":"partial","/page/total":99,"/sources/0/retrieved_count":100,"/result/items/0/found_by/pubtator":1,"/result/items/1/found_by/pubtator":3}),
+        json!({
+            "/status":"partial", "/page/total":99, "/sources/0/retrieved_count":100,
+            "/result/items/0/found_by/pubtator":1, "/result/items/1/found_by/pubtator":3
+        }),
         0,
     )?;
     Ok(())
