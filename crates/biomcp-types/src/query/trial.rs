@@ -77,7 +77,8 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     variant: Option<Text>,
-    /// Exact NCIt biomarker concept listed by NCI in trial criteria; NCI source only. This listing does not establish biomarker positivity or patient eligibility.
+    #[doc = "Exact NCIt biomarker concept listed by NCI in trial criteria; NCI source only. \
+        This listing does not establish biomarker positivity or patient eligibility."]
     #[serde(
         default,
         deserialize_with = "super::gene::present",
