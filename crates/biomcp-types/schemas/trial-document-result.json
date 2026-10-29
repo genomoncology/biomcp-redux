@@ -805,10 +805,8 @@
       "type": "string"
     },
     "Reply_Text": {
-      "description": "Bounded nonempty text with surrounding Unicode whitespace removed.",
-      "maxLength": 1048576,
+      "description": "Nonempty text with surrounding Unicode whitespace removed.",
       "minLength": 1,
-      "pattern": "^(?![\\s\\S]*[\\x00-\\x1f\\x7f-\\x9f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069])",
       "type": "string"
     },
     "Reply_TrialDocument": {
@@ -878,15 +876,11 @@
           ]
         },
         "uploaded": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_TrialUploadTime"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "Original upload timestamp, without guessing a timezone."
+          "description": "Original upload timestamp, without guessing a timezone.",
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "url": {
           "$ref": "#/$defs/Reply_Text",
@@ -973,11 +967,6 @@
       ],
       "type": "object"
     },
-    "Reply_TrialUploadTime": {
-      "description": "Native ClinicalTrials.gov DateTimeMinutes without timezone. The parser additionally validates the calendar day, including leap years.",
-      "pattern": "^(?!0000)[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])T([01][0-9]|2[0-3]):[0-5][0-9]$",
-      "type": "string"
-    },
     "Reply_Use": {
       "description": "Reviewed source-use category, without inferring rights in individual records.",
       "enum": [
@@ -989,7 +978,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.trial-document/5",
+  "$id": "biomcp.trial-document/4",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -1045,7 +1034,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.trial-document/5",
+      "const": "biomcp.trial-document/4",
       "type": "string"
     },
     "sources": {

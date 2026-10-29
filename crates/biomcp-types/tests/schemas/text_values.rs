@@ -88,7 +88,7 @@ pub(super) fn text_value_patterns_match_parser_admissions() {
         AminoAcids => ["ACDEFGHIKLMNPQRSTVWYUOX", "", "B", "a"],
         InterProId => ["IPR000001", "IPR00001", "IPR0000001"],
         ComplexPortalId => ["CPX-1", "CPX-0", "CPX-01"],
-        biodata::TrialUploadTime => ["2024-02-29T23:59", "2024-01-01T24:00", "2024-01-01T12:60", "2024-01-01T12:00Z", "2024-01-01T12:00:00"],
+        biodata::TrialUploadTime => ["2024-02-29T23:59", "2024-01-01T24:00", "2024-01-01T12:60", "2024-01-01T12:00Z", "2024-01-01T12:00:00", "2024-01-01T12:00\n", "2024-01-01T12:00\r"],
         StudyId => ["study_1", "study/1", "_study"],
         StudyProfileId => ["study.1", "study/1", "_study"],
         StudySampleListId => ["study-1", "study/1", "_study"],

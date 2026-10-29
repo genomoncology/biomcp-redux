@@ -191,7 +191,7 @@ fn checked_field_text(
     record: Option<biodata::Text>,
     field: &str,
     value: Option<crate::raw::Field<String>>,
-    admit: fn(&str) -> Result<biodata::Text, biodata::Error>,
+    admit: impl Fn(&str) -> Result<biodata::Text, biodata::Error>,
 ) -> Option<biodata::Text> {
     let value = value?.value().and_then(|s| admit(&s).ok());
     if value.is_none() {
