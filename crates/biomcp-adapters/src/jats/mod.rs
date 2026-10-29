@@ -69,7 +69,7 @@ impl XmlReply for Body {
         };
         let (title, identifiers) = header(metadata, &mut problems)?;
         let body = root.child("body")?.ok_or(BadReply)?;
-        let (parts, rows) = render::body(body)?;
+        let (parts, rows) = render::body(body, &mut problems)?;
         let mut figures = Vec::new();
         for fig in blocks::descendants(body.0, "fig")? {
             let Some(caption) = fig.child("caption")? else {

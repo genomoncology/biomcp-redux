@@ -16,7 +16,8 @@ pub struct TextPart {
     /// One-based reader selector.
     pub number: u32,
     /// Source section title or table label.
-    pub title: Text,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub title: Option<Text>,
     /// Source structure kind.
     pub kind: TextPartKind,
     /// Compact serialized text bytes divided by four, rounded up.

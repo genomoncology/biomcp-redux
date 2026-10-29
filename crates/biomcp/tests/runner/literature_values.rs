@@ -18,6 +18,7 @@ pub(super) fn trials() -> Vec<Trial> {
         ("semantic-scholar", edges),
         ("jats", jats),
         ("jats-figure-label", figure_label),
+        ("jats-section-title", section_title),
         ("semantic-context-native-strings", context_strings),
         ("icite", icite),
     ]
@@ -289,6 +290,44 @@ fn figure_label() -> Check {
             .is_none_or(|ps| ps.iter().filter(|p| p["field"] == "figures.label").count() != 1)
     {
         return Err(format!("Figure label edit lost caption, document or problem: {value}").into());
+    }
+    Ok(())
+}
+
+fn section_title() -> Check {
+    let mut edits = 0;
+    let value = checked_case(
+        "article/fulltext/live-introduction",
+        &["get", "article", "28944238", "fulltext"],
+        |source, recording| {
+            if source != "pmc-oa" {
+                return;
+            }
+            if let Some(body) = recording.pointer_mut("/exchanges/0/body/value")
+                && let Some(xml) = body.as_str()
+                && let Some(start) = xml.find("<title>Introduction</title>")
+            {
+                let mut changed = xml.to_owned();
+                changed.replace_range(
+                    start..start + "<title>Introduction</title>".len(),
+                    "<title> </title>",
+                );
+                *body = changed.into();
+                edits += 1;
+            }
+        },
+        json!({"/result/items/0/sections/fulltext/data/parts/0/number":1,"/result/items/0/sections/fulltext/data/parts/0/kind":"section"}),
+        0,
+    )?;
+    if edits != 1
+        || value
+            .pointer("/result/items/0/sections/fulltext/data/parts/0/title")
+            .is_some()
+        || value["problems"]
+            .as_array()
+            .is_none_or(|ps| ps.iter().filter(|p| p["field"] == "parts.title").count() != 1)
+    {
+        return Err(format!("Section title edit lost part or problem: {value}").into());
     }
     Ok(())
 }
