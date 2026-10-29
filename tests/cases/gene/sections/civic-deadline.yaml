@@ -3,6 +3,7 @@
   "feature": "gene-sections",
   "story": "A synthetic CIViC deadline reply preserves the independent card",
   "replay": "gene/civic/synthetic-deadline",
+  "cache_acquired": 42,
   "steps": [
     {
       "run": [

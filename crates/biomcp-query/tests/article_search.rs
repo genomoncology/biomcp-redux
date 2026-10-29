@@ -8,6 +8,8 @@
     reason = "Public store and concurrency contracts own isolated fixture I/O and abort on invalid fixture setup"
 )]
 
+#[path = "../../biomcp-fetch/tests/support/recordings.rs"]
+mod recording_support;
 use biomcp_fetch::{CacheError, Fetch, FetchConfig, Mode, ReplayCache, RequestError};
 use biomcp_query::{Ctx, Outcome};
 use biomcp_types::{ArticlePage, ArticleSearch, QueryBody, Request, Status};
@@ -321,7 +323,22 @@ fn stale_summary_fallback_stays_partial_when_its_page_is_read_offline() {
     let directory = tempfile::tempdir().unwrap();
     let path = directory.path().join("case");
     let cache = ReplayCache::create_case_with_owners(&path, &[]).unwrap();
-    let replay = fetch("synthetic-small", cache);
+    let recordings = directory.path().join("recordings");
+    recording_support::copy_capture(
+        &self::recordings("synthetic-small"),
+        &recordings,
+        |_, record| {
+            recording_support::cache_acquisition(record, 42);
+        },
+    )
+    .unwrap();
+    let replay = Fetch::open(FetchConfig {
+        mode: Mode::Replay { dir: recordings },
+        replay_cache: Some(cache),
+        cache_owners: vec![biomcp_query::store::OWNER],
+        ..Default::default()
+    })
+    .unwrap();
     let (first, _) = page(run(&replay, query(None, 0), false));
     let id = first.pool.unwrap().id;
     let connection = replay.cache_access().unwrap().connect().unwrap();

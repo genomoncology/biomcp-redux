@@ -2,7 +2,6 @@ use serde::{Deserialize, Serialize};
 /// One explicitly selected drug source; omitted search source means MyChem alone.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(try_from = "String", into = "&'static str")]
-#[non_exhaustive]
 pub enum DrugSource {
     /// WHO finished pharmaceutical product prequalification.
     WhoPq,

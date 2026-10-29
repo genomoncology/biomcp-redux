@@ -742,7 +742,10 @@
           "description": "Live collection acquisition wall time in Unix seconds, distinct from catalog acquisition.",
           "format": "uint64",
           "minimum": 0,
-          "type": "integer"
+          "type": [
+            "integer",
+            "null"
+          ]
         },
         "items": {
           "description": "Complete ordered metadata records, never member sample IDs.",
@@ -762,8 +765,7 @@
       },
       "required": [
         "study_id",
-        "page",
-        "acquired"
+        "page"
       ],
       "type": "object"
     },

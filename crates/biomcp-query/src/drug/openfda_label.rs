@@ -125,7 +125,7 @@ fn select(
     cx: &Ctx<'_>,
     query: &DrugGet,
     record: &source::Record,
-    fetched: i64,
+    fetched: Option<i64>,
     out: &mut Outcome,
 ) -> Result<(), RequestError> {
     if query.sections().is_empty() {

@@ -3,6 +3,7 @@
   "feature": "gene-sections",
   "story": "Source bad-flags preserves the gene and reports rejected fields on replay and offline",
   "replay": "gene/constraint/synthetic-bad-flags",
+  "cache_acquired": 42,
   "steps": [
     {
       "run": [

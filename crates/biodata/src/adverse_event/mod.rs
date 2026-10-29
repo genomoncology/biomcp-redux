@@ -6,15 +6,6 @@ pub use faers::{
     FaersSeriousness,
 };
 pub use maude::{MaudeDevice, MaudeNarrative, MaudeReport};
-/// An invalid published report identifier.
-#[derive(Debug, Clone, Copy)]
-pub struct ReportIdInvalid;
-impl std::fmt::Display for ReportIdInvalid {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str("report.id.invalid")
-    }
-}
-impl std::error::Error for ReportIdInvalid {}
 /// Opaque published digits with source carried separately, never a prefixed wrapper.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct ReportId(Box<str>);
@@ -25,10 +16,10 @@ impl ReportId {
     }
 }
 impl std::str::FromStr for ReportId {
-    type Err = ReportIdInvalid;
+    type Err = crate::Error;
     fn from_str(value: &str) -> Result<Self, Self::Err> {
         if value.is_empty() || !value.bytes().all(|b| b.is_ascii_digit()) {
-            return Err(ReportIdInvalid);
+            return Err(crate::Error::ReportIdInvalid);
         }
         Ok(Self(value.into()))
     }

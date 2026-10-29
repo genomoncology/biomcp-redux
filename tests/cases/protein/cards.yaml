@@ -3,6 +3,7 @@
   "feature": "protein-search",
   "story": "Exact protein cards preserve request order and isoform identity without disclosing sequence",
   "replay": "protein/synthetic",
+  "cache_acquired": 42,
   "steps": [
     {
       "run": [

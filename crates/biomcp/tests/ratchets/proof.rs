@@ -1,29 +1,6 @@
+use super::proof_support::{put, rejects, tree};
 use super::{Check, check};
-use std::{fs, path::Path};
-
-fn tree() -> Result<tempfile::TempDir, Box<dyn std::error::Error>> {
-    let tree = tempfile::tempdir()?;
-    fs::write(
-        tree.path().join("Cargo.toml"),
-        "[workspace]\n[workspace.dependencies]\nhttp = { package = 'ureq', version = '3' }\n",
-    )?;
-    put(
-        tree.path(),
-        "crates/biodata/Cargo.toml",
-        "[package]\nname = 'biodata'\n[lints]\nworkspace = true\n",
-    )?;
-    put(tree.path(), "crates/biodata/src/lib.rs", "//! Values.\n")?;
-    Ok(tree)
-}
-
-fn put(root: &Path, path: &str, text: &str) -> Check {
-    let path = root.join(path);
-    if let Some(parent) = path.parent() {
-        fs::create_dir_all(parent)?;
-    }
-    fs::write(path, text)?;
-    Ok(())
-}
+use std::fs;
 
 #[test]
 fn isolated_trees_reject_structural_violations() -> Check {
@@ -104,20 +81,6 @@ fn isolated_trees_reject_structural_violations() -> Check {
         &"// line\n".repeat(301),
         "file line limit",
     )?;
-    Ok(())
-}
-
-fn rejects(path: &str, content: &str, rule: &str) -> Check {
-    let tree = tree()?;
-    put(tree.path(), path, content)?;
-    let failure = match check(tree.path()) {
-        Ok(()) => return Err("planted violation passed".into()),
-        Err(error) => error.to_string(),
-    };
-    assert!(
-        failure.contains(path) && failure.contains(rule),
-        "{failure}"
-    );
     Ok(())
 }
 
@@ -424,6 +387,108 @@ fn test_fixture_paths_have_one_owner() -> Check {
 }
 
 #[test]
+fn audit_rejects_owned_underscores_and_old_tags_but_allows_native_values() {
+    for text in [
+        "#[serde(tag = \"annotationkind\")] enum Pgx {}",
+        "#[serde(rename_all = \"snake_case\")] enum Owned {}",
+        "wire_enum! { Reason { NoKey => \"no_key\" } }",
+    ] {
+        assert!(
+            super::spellings::audit(&super::source::tokens(text), true).is_err(),
+            "{text}"
+        );
+    }
+    assert!(
+        super::spellings::audit(
+            &super::source::tokens("wire_enum! { Native { Value => \"source_native\" } }"),
+            true
+        )
+        .is_ok()
+    );
+}
+
+#[test]
+fn enum_return_types_are_not_macro_declarations() {
+    assert!(
+        super::spellings::audit(
+            &super::source::tokens(
+                "fn kind() -> ArticleMatchKind { match self { X => ArticleMatchKind::Doi } }"
+            ),
+            true
+        )
+        .is_ok()
+    );
+}
+
+#[test]
+fn namespaced_error_codes_are_exempt_by_type() {
+    for name in ["ErrorCode", "ProblemCode"] {
+        for literal in ["usage.future_name", "wire_enum.unknown"] {
+            let source = format!("wire_enum! {{ {name} {{ New => {literal:?} }} }}");
+            assert!(super::spellings::audit(&super::source::tokens(&source), true).is_ok());
+            let ordinary = source.replace(name, "Reason");
+            assert!(super::spellings::audit(&super::source::tokens(&ordinary), true).is_err());
+        }
+    }
+}
+
+#[test]
+fn crate_ownership_keeps_biodata_values_and_audits_biomcp_values() -> Check {
+    for source in [
+        "#[serde(rename_all = \"snake_case\")] enum Owned {}",
+        "wire_enum! { DrugRecallCountUnit { Value => \"recall_records\" } }",
+    ] {
+        let tree = tree()?;
+        put(tree.path(), "crates/biodata/src/lib.rs", source)?;
+        check(tree.path())?;
+        rejects("crates/biomcp-types/src/lib.rs", source, "kebab-case")?;
+    }
+    Ok(())
+}
+
+#[test]
+fn planted_error_signature_and_exit_literals_are_rejected() -> Check {
+    super::errors::signatures(
+        "fn valid() -> Result<(), Failure> { Ok(()) } ExitCode::from(Status::Local.code())",
+    )?;
+    for planted in [
+        "fn bad() -> Result<Vec<u8>, ()> {}",
+        "fn bad() -> Result<Vec<u8>, (),> {}",
+        "impl From<()> for Failure {}",
+        "impl From<(),> for Failure {}",
+        "ExitCode::from(5)",
+    ] {
+        assert!(
+            super::errors::signatures(planted).is_err(),
+            "planted violation must fail: {planted}"
+        );
+    }
+    Ok(())
+}
+
+#[test]
+fn planted_undeclared_display_code_is_rejected() -> Check {
+    assert!(
+        super::errors::display_codes("One => \"same.error\", Two => \"same.error\"", "").is_err(),
+        "duplicate declared codes must fail"
+    );
+    let declaration = "Known => \"known.error\"";
+    super::errors::display_codes(
+        declaration,
+        "impl Display for Known { f.write_str(\"known.error\") }",
+    )?;
+    assert!(
+        super::errors::display_codes(
+            declaration,
+            "impl Display for Stray { f.write_str(\"stray.error\") }"
+        )
+        .is_err(),
+        "an undeclared display code must fail"
+    );
+    Ok(())
+}
+
+#[test]
 fn adapter_drop_forms_and_file_rules_require_pending_identity() -> Check {
     let root = tempfile::tempdir()?;
     let directory = root.path().join("crates/biomcp-adapters/src/example");
@@ -524,65 +589,5 @@ fn inventory_allows_shrinking_and_reclassification_but_refuses_new_identities() 
         validate(&current.to_string()).is_err(),
         "duplicate pending entry passed"
     );
-    Ok(())
-}
-
-#[test]
-fn audit_rejects_owned_underscores_and_old_tags_but_allows_native_values() {
-    for text in [
-        "#[serde(tag = \"annotationkind\")] enum Pgx {}",
-        "#[serde(rename_all = \"snake_case\")] enum Owned {}",
-        "wire_enum! { Reason { NoKey => \"no_key\" } }",
-    ] {
-        assert!(
-            super::spellings::audit(&super::source::tokens(text), true).is_err(),
-            "{text}"
-        );
-    }
-    assert!(
-        super::spellings::audit(
-            &super::source::tokens("wire_enum! { Native { Value => \"source_native\" } }"),
-            true
-        )
-        .is_ok()
-    );
-}
-
-#[test]
-fn enum_return_types_are_not_macro_declarations() {
-    assert!(
-        super::spellings::audit(
-            &super::source::tokens(
-                "fn kind() -> ArticleMatchKind { match self { X => ArticleMatchKind::Doi } }"
-            ),
-            true
-        )
-        .is_ok()
-    );
-}
-
-#[test]
-fn namespaced_error_codes_are_exempt_by_type() {
-    for name in ["ErrorCode", "ProblemCode"] {
-        for literal in ["usage.future_name", "wire_enum.unknown"] {
-            let source = format!("wire_enum! {{ {name} {{ New => {literal:?} }} }}");
-            assert!(super::spellings::audit(&super::source::tokens(&source), true).is_ok());
-            let ordinary = source.replace(name, "Reason");
-            assert!(super::spellings::audit(&super::source::tokens(&ordinary), true).is_err());
-        }
-    }
-}
-
-#[test]
-fn crate_ownership_keeps_biodata_values_and_audits_biomcp_values() -> Check {
-    for source in [
-        "#[serde(rename_all = \"snake_case\")] enum Owned {}",
-        "wire_enum! { DrugRecallCountUnit { Value => \"recall_records\" } }",
-    ] {
-        let tree = tree()?;
-        put(tree.path(), "crates/biodata/src/lib.rs", source)?;
-        check(tree.path())?;
-        rejects("crates/biomcp-types/src/lib.rs", source, "kebab-case")?;
-    }
     Ok(())
 }

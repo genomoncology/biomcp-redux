@@ -28,7 +28,7 @@ pub(super) fn cards<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut Out
                     r#match: ArticleMatch {
                         kind: item.input.kind(),
                     },
-                    fetched: u64::try_from(metadata.fetched).unwrap_or_default(),
+                    fetched: metadata.fetched.and_then(|value| u64::try_from(value).ok()),
                 });
             }
             Err(e) => {

@@ -73,7 +73,7 @@ pub(super) fn render(
             Status::Complete
         },
         card: Some(snapshot.detail.card),
-        fetched: Some(snapshot.fetched),
+        fetched: snapshot.fetched,
         sections: (!query.sections().is_empty()).then_some(sections),
         more: SECTIONS.into_iter().filter(|s| !requested(*s)).collect(),
     })

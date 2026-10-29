@@ -215,7 +215,7 @@ impl Service {
         (status, Some(result), Some(revision))
     }
     fn allowed(&self, request: &wire::Request) -> bool {
-        if request.one("origin") != Ok(None) {
+        if !matches!(request.one("origin"), Ok(None)) {
             return false;
         }
         let Ok(Some(host)) = request.one("host") else {

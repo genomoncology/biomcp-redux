@@ -14,14 +14,14 @@ pub(super) struct Request {
     pub(super) body: Vec<u8>,
 }
 impl Request {
-    pub(super) fn one(&self, name: &str) -> Result<Option<&str>, ()> {
+    pub(super) fn one(&self, name: &str) -> io::Result<Option<&str>> {
         let mut values = self
             .headers
             .iter()
             .filter(|(key, _)| key.eq_ignore_ascii_case(name));
         let first = values.next().map(|(_, value)| value.as_str());
         if values.next().is_some() {
-            return Err(());
+            return Err(malformed());
         }
         Ok(first)
     }

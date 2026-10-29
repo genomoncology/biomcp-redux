@@ -3,6 +3,7 @@
   "feature": "gene-sections",
   "story": "A gnomAD cut failure preserves identity and MyGene but never caches the rejected section",
   "replay": "gene/constraint/synthetic-cut",
+  "cache_acquired": 42,
   "steps": [
     {
       "run": [

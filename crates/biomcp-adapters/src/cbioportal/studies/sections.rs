@@ -11,7 +11,7 @@ pub struct Records<T> {
     /// Checked records in their original source order.
     pub rows: Vec<T>,
     /// Original response acquisition time, including cache reads.
-    pub acquired: u64,
+    pub acquired: Option<u64>,
     /// Number of rejected records with a different study identity.
     pub rejected: usize,
 }
@@ -104,7 +104,11 @@ pub fn profiles(leg: &Leg<'_>, id: &StudyId) -> Result<Records<StudyProfile>, Re
             .filter(|v| v.study_id == *id)
             .map(Profile::mapped)
             .collect(),
-        acquired: u64::try_from(metadata.fetched).map_err(|_| bad())?,
+        acquired: metadata
+            .fetched
+            .map(u64::try_from)
+            .transpose()
+            .map_err(|_| bad())?,
         rejected,
     })
 }
@@ -123,7 +127,11 @@ pub fn sample_lists(leg: &Leg<'_>, id: &StudyId) -> Result<Records<StudySampleLi
             .filter(|v| v.study_id == *id)
             .map(SampleList::mapped)
             .collect(),
-        acquired: u64::try_from(metadata.fetched).map_err(|_| bad())?,
+        acquired: metadata
+            .fetched
+            .map(u64::try_from)
+            .transpose()
+            .map_err(|_| bad())?,
         rejected,
     })
 }

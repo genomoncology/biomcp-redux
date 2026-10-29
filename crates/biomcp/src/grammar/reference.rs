@@ -6,7 +6,7 @@ use std::{collections::BTreeSet, fmt::Write, fs, path::PathBuf};
 type Check = Result<(), Box<dyn std::error::Error>>;
 
 fn documents() -> Result<Vec<(&'static str, String)>, Box<dyn std::error::Error>> {
-    let mut parser = super::root().map_err(|()| "command grammar unavailable")?;
+    let mut parser = super::root().map_err(|_| "command grammar unavailable")?;
     parser.build();
     let help = crate::help::dispatch(&[])?;
     let mut reference = String::from(

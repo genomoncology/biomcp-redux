@@ -24,7 +24,10 @@ impl TryFrom<Bounds> for Bound {
 impl Bound {
     /// Require at least one side and ordered supplied sides.
     pub fn new(min: Option<u32>, max: Option<u32>) -> Result<Self, Error> {
-        if (min.is_none() && max.is_none()) || min.zip(max).is_some_and(|(a, b)| a > b) {
+        if min.is_none() && max.is_none() {
+            return Err(Error::ProteinBoundAbsent);
+        }
+        if min.zip(max).is_some_and(|(a, b)| a > b) {
             return Err(Error::SpanOrder);
         }
         Ok(Self(Bounds { min, max }))

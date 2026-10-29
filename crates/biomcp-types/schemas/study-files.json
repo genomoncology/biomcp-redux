@@ -698,7 +698,10 @@
           "description": "Directory acquisition wall time in Unix seconds.",
           "format": "uint64",
           "minimum": 0,
-          "type": "integer"
+          "type": [
+            "integer",
+            "null"
+          ]
         },
         "items": {
           "description": "Source-ordered repository file references.",
@@ -730,8 +733,7 @@
       },
       "required": [
         "study_id",
-        "page",
-        "acquired"
+        "page"
       ],
       "type": "object"
     },

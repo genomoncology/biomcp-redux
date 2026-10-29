@@ -1,4 +1,6 @@
 use super::*;
+#[path = "absence.rs"]
+mod absence;
 
 #[test]
 fn fresh_hits_skip_quota_and_stale_positives_survive_quota_deadline() {
@@ -257,7 +259,7 @@ fn mixed_cached_and_live_replies_keep_their_own_fetch_times() {
         report
             .replies
             .iter()
-            .filter(|r| r.fetched == 1234567890)
+            .filter(|r| r.fetched == Some(1234567890))
             .count(),
         1
     );
@@ -265,7 +267,7 @@ fn mixed_cached_and_live_replies_keep_their_own_fetch_times() {
         report
             .replies
             .iter()
-            .filter(|r| r.fetched > 1234567890)
+            .filter(|r| r.fetched > Some(1234567890))
             .count(),
         1
     );
@@ -277,7 +279,7 @@ fn mixed_cached_and_live_replies_keep_their_own_fetch_times() {
     let leg = offline.leg(spec, offline.deadline(Duration::from_secs(10)));
     leg.json::<Answer>(&endpoint, &[("id", Arg::Num(1))])
         .unwrap();
-    assert_eq!(leg.finish().replies[0].fetched, 1234567890);
+    assert_eq!(leg.finish().replies[0].fetched, Some(1234567890));
 }
 
 #[test]
@@ -486,6 +488,7 @@ fn negative_admission_and_json_absence_removal_keep_the_source_answer() {
         assert!(report.failures.is_empty());
         assert!(!report.stale);
     }
+    absence::legacy_json_absence_removes_a_positive();
 }
 
 #[test]

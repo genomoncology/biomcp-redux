@@ -26,7 +26,7 @@ pub enum AlphaGenomeScalar {
 }
 impl AlphaGenomeScalar {
     /// Preserve a native FLOAT32 scalar without converting nonfinite values to null.
-    pub fn from_float32(value: f32) -> Result<Self, biodata::FiniteNumberError> {
+    pub fn from_float32(value: f32) -> Result<Self, biodata::Error> {
         let kind = if value.is_nan() {
             Some(AlphaGenomeNonfiniteKind::Nan)
         } else if value == f32::INFINITY {
