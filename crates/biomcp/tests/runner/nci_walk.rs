@@ -259,6 +259,7 @@ fn selector(section: &str) -> Vec<String> {
 }
 
 fn ages() -> Check {
+    legacy_age_snapshot()?;
     for (number, unit, expected) in [
         (
             json!(18),
@@ -323,6 +324,33 @@ fn check_ages(data: &Value, raw: &Value) -> Check {
     }
     if data["structured"] != expected {
         return Err("native numeric age lost its explicit source unit".into());
+    }
+    Ok(())
+}
+
+fn legacy_age_snapshot() -> Check {
+    use sha2::{Digest, Sha256};
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    let dir = super::launch::fixtures().join("replies/trial/nci/get");
+    let mut command = selector("eligibility");
+    command.extend(env.globals(Some(&dir), false));
+    let output = invoke(&env, &command, 0)?;
+    let next = super::action(&output, "page")?;
+    let db = rusqlite::Connection::open(env.root().join("case-cache/replay.sqlite"))
+        .map_err(|e| e.to_string())?;
+    let key = Sha256::digest(b"biomcp.nci_trial_snapshot/1\0NCT05136196").to_vec();
+    db.execute(
+        "UPDATE trial_snapshot SET request_key=?1,payload='obsolete age fields'",
+        [key],
+    )
+    .map_err(|e| e.to_string())?;
+    let mut command = next;
+    command.extend(env.globals(None, true));
+    let output = invoke(&env, &command, 3)?;
+    if output.pointer("/next/0/kind") != Some(&json!("restart")) {
+        return Err(format!(
+            "old NCI age snapshot did not restart safely: {output}"
+        ));
     }
     Ok(())
 }

@@ -461,6 +461,7 @@ fn budget(value: &Value, full: usize, comparable: usize) -> Check {
 }
 
 fn ages() -> Check {
+    legacy_age_snapshot()?;
     for code in [
         "800", "801", "802", "803", "804", "805", "absent", "999", "",
     ] {
@@ -484,6 +485,40 @@ fn ages() -> Check {
         || output["problems"].as_array().is_none_or(Vec::is_empty)
     {
         return Err("nonfinite FAERS age escaped field rejection".into());
+    }
+    Ok(())
+}
+
+fn legacy_age_snapshot() -> Check {
+    use sha2::{Digest, Sha256};
+    let (env, _stub) = setup("valid")?;
+    let card = both(&env, args(None), 0)?;
+    let snapshot = card
+        .pointer("/result/snapshot")
+        .and_then(Value::as_str)
+        .ok_or("snapshot")?;
+    let db = rusqlite::Connection::open(env.root().join("case-cache/replay.sqlite"))
+        .map_err(|e| e.to_string())?;
+    let key = Sha256::digest(
+        b"biomcp.faers_snapshot/1\0"
+            .iter()
+            .copied()
+            .chain(b"100".iter().copied())
+            .collect::<Vec<_>>(),
+    )
+    .to_vec();
+    db.execute(
+        "UPDATE trial_snapshot SET request_key=?1,payload='obsolete age strings'",
+        [key],
+    )
+    .map_err(|e| e.to_string())?;
+    let mut command = args(Some("drugs"));
+    command.extend(["--snapshot".into(), snapshot.into()]);
+    let output = invoke(&env, command, 3)?;
+    if output.pointer("/next/0/kind") != Some(&json!("restart")) {
+        return Err(format!(
+            "old FAERS age snapshot did not restart safely: {output}"
+        ));
     }
     Ok(())
 }
