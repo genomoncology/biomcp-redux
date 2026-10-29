@@ -40,8 +40,7 @@ pub(super) fn get(cx: &Ctx<'_>, q: &PhenotypeGet) -> Outcome {
             page.components,
             page.metadata
                 .fetched
-                .and_then(|value| u64::try_from(value).ok())
-                .filter(|v| *v > 0),
+                .and_then(|value| u64::try_from(value).ok()),
         );
         out.status = overall(&out, page.total == 0);
     }

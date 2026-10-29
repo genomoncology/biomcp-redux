@@ -111,9 +111,7 @@ pub fn get(cx: &Ctx<'_>, query: &DiseaseGet) -> Outcome {
     out
 }
 fn fetched(value: Option<i64>) -> Option<u64> {
-    value
-        .and_then(|value| u64::try_from(value).ok())
-        .filter(|v| *v > 0)
+    value.and_then(|value| u64::try_from(value).ok())
 }
 fn empty(body: QueryBody) -> Outcome {
     Outcome {

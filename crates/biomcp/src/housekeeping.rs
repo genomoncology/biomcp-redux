@@ -19,7 +19,7 @@ impl Command {
     pub(crate) fn render(&self, globals: &crate::grammar::Globals) -> io::Result<Vec<u8>> {
         let text = match self {
             Self::Skill(command) => command.render()?,
-            Self::Version { verbose } => version(*verbose, globals),
+            Self::Version { verbose } => version(*verbose, globals)?,
             Self::McpConfig { client } => mcp_config(*client)?,
         };
         Ok(text.into_bytes())
@@ -42,7 +42,7 @@ fn mcp_config(client: Client) -> io::Result<String> {
     let value = serde_json::json!({key: {"biomcp": {"command": command, "args": ["serve"]}}});
     Ok(format!("{}\n", serde_json::to_string_pretty(&value)?))
 }
-fn version(verbose: bool, globals: &crate::grammar::Globals) -> String {
+fn version(verbose: bool, globals: &crate::grammar::Globals) -> io::Result<String> {
     let mut text = format!("biomcp {}\n", env!("CARGO_PKG_VERSION"));
     if verbose {
         let versions = crate::schema::versions().join(", ");
@@ -52,13 +52,15 @@ fn version(verbose: bool, globals: &crate::grammar::Globals) -> String {
             env!("BIOMCP_BUILD_TARGET"),
             display_path(
                 crate::config::config_path(globals.config.as_ref())
-                    .ok()
-                    .flatten()
+                    .map_err(|_| io::Error::from(io::ErrorKind::InvalidData))?
             ),
-            display_path(crate::config::cache_path().ok().flatten()),
+            display_path(
+                crate::config::cache_path()
+                    .map_err(|_| io::Error::from(io::ErrorKind::InvalidData))?
+            ),
         ));
     }
-    text
+    Ok(text)
 }
 fn display_path(path: Option<std::path::PathBuf>) -> String {
     path.map_or_else(|| "unavailable".into(), |path| path.display().to_string())

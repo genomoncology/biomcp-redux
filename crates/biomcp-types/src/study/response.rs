@@ -66,7 +66,8 @@ macro_rules! page {
             /// Bounds and source-stated total for this collection.
             pub page: PageInfo,
             /// Live collection acquisition wall time in Unix seconds, distinct from catalog acquisition.
-            pub acquired: u64,
+            #[serde(default, skip_serializing_if = "Option::is_none")]
+            pub acquired: Option<u64>,
         }
         impl ResponseBody for $name {
             const SCHEMA: &'static str = $schema;
@@ -74,11 +75,11 @@ macro_rules! page {
         }
     };
 }
-page!(StudyProfiles, StudyProfile, "biomcp.study-profiles/1");
+page!(StudyProfiles, StudyProfile, "biomcp.study-profiles/2");
 page!(
     StudySampleLists,
     StudySampleList,
-    "biomcp.study-sample-lists/1"
+    "biomcp.study-sample-lists/2"
 );
 /// One native repository directory page; blob sizes do not describe data content.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -92,13 +93,14 @@ pub struct StudyFiles {
     /// Bounds within the complete received directory.
     pub page: PageInfo,
     /// Directory acquisition wall time in Unix seconds.
-    pub acquired: u64,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub acquired: Option<u64>,
     /// Native LICENSE publisher link, independent of the current file page.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub license_notice: Option<Text>,
 }
 impl ResponseBody for StudyFiles {
-    const SCHEMA: &'static str = "biomcp.study-files/1";
+    const SCHEMA: &'static str = "biomcp.study-files/2";
     type Query = StudyGet;
 }

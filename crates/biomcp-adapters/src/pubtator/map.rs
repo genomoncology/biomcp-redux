@@ -93,6 +93,7 @@ fn entity(
         "Variant" => AnnotationKind::Variant,
         "Disease" => AnnotationKind::Disease,
         "Chemical" => AnnotationKind::Chemical,
+        _ => return None,
     };
     let identifier = optional(id, "identifier", raw.identifier.as_ref(), problems);
     let name = optional(id, "name", raw.name.as_ref(), problems)

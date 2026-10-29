@@ -26,12 +26,16 @@ pub(crate) fn arguments() -> Vec<OsString> {
     clippy::disallowed_methods,
     reason = "Only the settings boundary reads the process environment"
 )]
-fn variable(name: &str) -> Result<Option<PathBuf>, ConfigError> {
+fn environment(name: &str) -> Result<Option<String>, ConfigError> {
     match std::env::var(name) {
-        Ok(value) => Ok((!value.is_empty()).then(|| PathBuf::from(value))),
+        Ok(value) => Ok((!value.is_empty()).then_some(value)),
         Err(std::env::VarError::NotPresent) => Ok(None),
         Err(std::env::VarError::NotUnicode(_)) => Err(ConfigError::field(name)),
     }
+}
+
+fn variable(name: &str) -> Result<Option<PathBuf>, ConfigError> {
+    environment(name).map(|value| value.map(PathBuf::from))
 }
 
 pub(crate) fn retired_study_directory() -> bool {
@@ -186,25 +190,19 @@ fn network(file: Option<&ConfigFile>) -> Result<biomcp_fetch::Network, ConfigErr
     let explicit = file.is_some_and(|file| file.proxy.is_some());
     let setting = |lower, upper| {
         if explicit {
-            (upper, None)
+            Ok((upper, None))
         } else {
             network_variable(lower, upper)
         }
     };
-    let (http_name, http) = setting("http_proxy", "HTTP_PROXY");
-    let (https_name, https) = setting("https_proxy", "HTTPS_PROXY");
-    let (bypass_name, bypass) = setting("no_proxy", "NO_PROXY");
-    let proxy = |value: Option<OsString>| {
-        value
-            .filter(|value| !value.is_empty())
-            .map(|value| Secret::new(value.to_string_lossy().into_owned()))
-    };
+    let (http_name, http) = setting("http_proxy", "HTTP_PROXY")?;
+    let (https_name, https) = setting("https_proxy", "HTTPS_PROXY")?;
+    let (bypass_name, bypass) = setting("no_proxy", "NO_PROXY")?;
+    let proxy = |value: Option<String>| value.filter(|value| !value.is_empty()).map(Secret::new);
     biomcp_fetch::Network::new(
         proxy(http),
         proxy(https),
-        &bypass
-            .map(|v| v.to_string_lossy().into_owned())
-            .unwrap_or_default(),
+        &bypass.unwrap_or_default(),
         roots,
     )
     .map_err(|error| {
@@ -220,14 +218,23 @@ fn network(file: Option<&ConfigFile>) -> Result<biomcp_fetch::Network, ConfigErr
     clippy::disallowed_methods,
     reason = "Only the settings boundary reads the process environment"
 )]
-fn network_variable(lower: &'static str, upper: &'static str) -> (&'static str, Option<OsString>) {
-    // Windows uses one case-insensitive name; retain the established diagnostic spelling.
-    if !cfg!(windows)
-        && let Some(value) = std::env::var_os(lower)
-    {
-        return (lower, Some(value));
+fn network_variable(
+    lower: &'static str,
+    upper: &'static str,
+) -> Result<(&'static str, Option<String>), ConfigError> {
+    // Presence, including an empty lower-case value, takes precedence on Unix.
+    if !cfg!(windows) {
+        match std::env::var(lower) {
+            Ok(value) => return Ok((lower, Some(value))),
+            Err(std::env::VarError::NotPresent) => {}
+            Err(std::env::VarError::NotUnicode(_)) => return Err(ConfigError::field(lower)),
+        }
     }
-    (upper, std::env::var_os(upper))
+    match std::env::var(upper) {
+        Ok(value) => Ok((upper, Some(value))),
+        Err(std::env::VarError::NotPresent) => Ok((upper, None)),
+        Err(std::env::VarError::NotUnicode(_)) => Err(ConfigError::field(upper)),
+    }
 }
 
 pub(crate) fn format(path: Option<&PathBuf>) -> Option<crate::grammar::Format> {

@@ -12,7 +12,7 @@ pub struct Directory {
     /// Publisher LICENSE link, discovered across the whole directory.
     pub license_notice: Option<Text>,
     /// Original response acquisition time.
-    pub acquired: u64,
+    pub acquired: Option<u64>,
 }
 #[derive(Deserialize)]
 struct Entry {
@@ -94,7 +94,7 @@ pub fn files(leg: &Leg<'_>, id: &StudyId) -> Result<Directory, RequestError> {
             return Ok(Directory {
                 rows: None,
                 license_notice: None,
-                acquired: 0,
+                acquired: None,
             });
         }
         Err(error) => return Err(error),
@@ -107,7 +107,11 @@ pub fn files(leg: &Leg<'_>, id: &StudyId) -> Result<Directory, RequestError> {
     Ok(Directory {
         rows: Some(reply.0.into_iter().map(Entry::mapped).collect()),
         license_notice,
-        acquired: u64::try_from(metadata.fetched).map_err(|_| bad())?,
+        acquired: metadata
+            .fetched
+            .map(u64::try_from)
+            .transpose()
+            .map_err(|_| bad())?,
     })
 }
 fn bad() -> RequestError {
