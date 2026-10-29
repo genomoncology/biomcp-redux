@@ -17,7 +17,9 @@ pub(super) fn prose_texts(values: &[String], problems: &mut Vec<Problem>) -> Box
         .collect()
 }
 
-pub(super) fn abstracts(rows: &[super::variant::Abstract]) -> Box<[biomcp_types::OncokbCitation]> {
+pub(super) fn abstracts(
+    rows: &[super::super::variant::Abstract],
+) -> Box<[biomcp_types::OncokbCitation]> {
     rows.iter()
         .map(|row| biomcp_types::OncokbCitation {
             text: row.abstract_content.as_deref().map(Into::into),
