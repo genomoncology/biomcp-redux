@@ -231,5 +231,3 @@ pub use response::NciTrialPhase;
 pub use response::{DeviceRecallCard, DeviceRecallHeader};
 
 pub use response::{Organization, OrganizationCoordinates, OrganizationPage};
-
-pub use response::{ReplyRegistration, reply_registry};

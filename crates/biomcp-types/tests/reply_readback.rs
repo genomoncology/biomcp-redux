@@ -1,6 +1,8 @@
 //! Contract checks for concrete reply readers.
-use biomcp_types::{Envelope, Help, ResponseBody, SchemaCatalog, Status, reply_registry};
+use biomcp_types::{Envelope, Help, ResponseBody, SchemaCatalog, Status};
 use serde_json::{Value, json};
+#[path = "schemas/readers.rs"]
+mod readers;
 
 #[test]
 fn envelope_checks_body_identity_and_accepts_added_reply_fields()
@@ -27,23 +29,23 @@ fn envelope_checks_body_identity_and_accepts_added_reply_fields()
 #[test]
 fn registered_reply_ids_are_unique_and_read_their_concrete_envelope()
 -> Result<(), Box<dyn std::error::Error>> {
-    let registry = reply_registry();
+    let registry = readers::READERS;
     let mut identities = std::collections::BTreeSet::new();
     for reply in registry {
-        assert!(identities.insert(reply.schema), "{}", reply.schema);
+        assert!(identities.insert(reply.0), "{}", reply.0);
     }
     let reply = registry
         .iter()
-        .find(|entry| entry.schema == SchemaCatalog::SCHEMA)
+        .find(|entry| entry.0 == SchemaCatalog::SCHEMA)
         .ok_or("catalog")?;
     let bytes = serde_json::to_vec(&Envelope::<SchemaCatalog>::new(
         Status::Complete,
         (),
         Some(SchemaCatalog { schemas: vec![] }),
     ))?;
-    assert_eq!((reply.read_write)(&bytes)?, bytes);
+    assert_eq!((reply.1)(&bytes)?, bytes);
     let mut wire: Value = serde_json::from_slice(&bytes)?;
     wire["schema"] = json!(Help::SCHEMA);
-    assert!((reply.read_write)(&serde_json::to_vec(&wire)?).is_err());
+    assert!((reply.1)(&serde_json::to_vec(&wire)?).is_err());
     Ok(())
 }

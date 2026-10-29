@@ -1,16 +1,15 @@
 //! Recorded replies must read into their published body type and write unchanged.
 use serde_json::Value;
+#[path = "../../../biomcp-types/tests/schemas/readers.rs"]
+mod readers;
 
 pub(super) fn check(bytes: &[u8], value: &Value, mcp: bool) -> Result<(), String> {
     let Some(schema) = value.get("schema").and_then(Value::as_str) else {
         // A raw schema command returns the requested schema artifact.
         return Ok(());
     };
-    let rewritten = if let Some(reply) = biomcp_types::reply_registry()
-        .iter()
-        .find(|reply| reply.schema == schema)
-    {
-        (reply.read_write)(bytes)
+    let rewritten = if let Some(reply) = readers::READERS.iter().find(|reply| reply.0 == schema) {
+        (reply.1)(bytes)
     } else {
         // Error replies have their own checked schema singleton rather than a body.
         serde_json::from_slice::<biomcp_types::ErrorEnvelope>(bytes)

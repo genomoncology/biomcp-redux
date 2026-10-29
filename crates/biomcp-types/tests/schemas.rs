@@ -59,6 +59,17 @@ macro_rules! contracts {
         (@kind) => { crate::policy::ContractKind::Reply };
     }
 
+macro_rules! reply_contracts {
+    ($($body:ty => $name:literal),+ $(,)?) => {
+        vec![$(Contract {
+            kind: policy::ContractKind::Reply,
+            name: $name,
+            id: <$body as ResponseBody>::SCHEMA,
+            generate: generation::reply::<Envelope<$body>>,
+        }),+]
+    };
+}
+
 #[path = "schemas/disease.rs"]
 mod disease;
 
@@ -189,12 +200,7 @@ fn registry() -> Vec<Contract> {
     contracts.extend(variant_contracts());
     contracts.extend(trial_contracts());
     contracts.extend(drug_contracts());
-    contracts.extend(reply_registry().iter().map(|reply| Contract {
-        kind: policy::ContractKind::Reply,
-        name: reply.name,
-        id: reply.schema,
-        generate: reply.generate,
-    }));
+    contracts.extend(biomcp_types::reply_types!(reply_contracts));
     contracts
 }
 fn study_registry() -> Vec<Contract> {

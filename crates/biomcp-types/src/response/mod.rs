@@ -177,4 +177,3 @@ mod organization;
 pub use organization::{Organization, OrganizationCoordinates, OrganizationPage};
 
 mod registry;
-pub use registry::{ReplyRegistration, reply_registry};
