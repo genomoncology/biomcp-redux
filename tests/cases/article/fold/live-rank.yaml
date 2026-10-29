@@ -1,6 +1,6 @@
 {
   "live_check": "public",
-  "feature": "article-search",
+  "feature": "article-fold",
   "story": "Recorded native PubMed and Europe PMC ranks define one complete stable walk",
   "replay": "article/fold/live",
   "verified": "2026-10-24 combined fold/citation measurement j9656: all 25 recorded pages retain native keys/ranks; maximum 5323 bytes, or 5063 without required found_by, below matching 0.9 baseline 5228. Required source provenance plus citation sort continuation qualifies for the approved multi-source exception. Ceiling 6122 is measured maximum plus 15 percent.",

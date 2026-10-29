@@ -26,7 +26,6 @@ corporate-network: A caller adds corporate certificate authorities, follows stan
 markdown-view: A caller reads gene and article results as Markdown, copies next commands, and keeps JSON for MCP.
 article-semantic-sections: Read machine-written summaries and source-ordered citation edges with contexts from Semantic Scholar.
 source-controls: Source terms, disabled sources and bounded source health preserve policy skips before cached reads or requests.
-live-source-checks: A separate keyless live diagnostic reports upstream drift without changing replay assertions or recordings.
 article-named-search: A caller searches sentence resemblance and PubTator entities by name while retaining native order, matched sentences and explicit unsupported filters.
 article-supplements: List source-confirmed files and read bounded spreadsheet and text rows through CLI and MCP.
 article-preprints: A caller retrieves preprint cards and licensed full text by Europe PMC ID.

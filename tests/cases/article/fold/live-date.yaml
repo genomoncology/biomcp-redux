@@ -1,6 +1,6 @@
 {
   "live_check": "public",
-  "feature": "article-search",
+  "feature": "article-fold",
   "story": "Recorded native date orders take turns and retain headers for papers without a PMID",
   "replay": "article/fold/live",
   "verified": "The maximum page is 5418 bytes; ceil(actual * 1.15) is 6231 bytes. Required found_by provenance contributes 262 bytes on that page. Without that provenance it is 5156 bytes, below the 0.9 AKT1 E17K plain-query JSON baseline of 1307 tokens / 5228 bytes. The reviewed output budget permits that provenance cost. No exact 0.9 record exists for the current date-added / native-date order.",

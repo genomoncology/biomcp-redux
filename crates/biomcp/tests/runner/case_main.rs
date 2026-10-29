@@ -45,12 +45,12 @@ fn trials(arguments: Vec<String>) -> Result<(Arguments, Vec<Trial>), String> {
     }
     let directory = directory.unwrap_or_else(|| runner::launch::fixtures().join("cases"));
     let mut trials = runner::discover(&directory)?;
-    tool_only! { trials.extend(super::tool_trials()?); }
     trials.extend(runner::protocol_trials());
     runner::validate_features(
         &trials,
         directory == runner::launch::fixtures().join("cases"),
     )?;
+    tool_only! { trials.extend(super::tool_trials()?); }
     let arguments = Arguments::from_iter(cargo_args);
     tool_only! {
         if arguments.filter.is_none() && !arguments.list {
