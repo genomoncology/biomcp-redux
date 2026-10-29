@@ -8,10 +8,11 @@ clingen_summary, clingen_evidence, clinvar_gks. ClinGen evidence accepts one
 original public interpretation response per file; GKS accepts the keyed bundle.
 The clinvar_gks_record kind accepts one original publisher example record.
 Only CC0-1.0 and public-domain inputs are accepted. Pin the compressed file hash.
-This tool checks mapped source fields. Profile member IDs are checked separately without
-inferring allele identities or reconstructing their source logical expression.
+This tool checks mapped source fields. Native CIViC profile members cannot be
+represented by VariantRef and remain named, unexplained mapping refusals.
 Use --observed with saved CLI envelopes as JSONL: {source, release, revision,
-retrieved, record, reply}. Source is civic or clinvar; ClinVar record is its
+retrieved, source_sha256, record, reply}. The manifest must name product_revision.
+The observation revision and sorted source_sha256 list must match these inputs. Source is civic or clinvar; ClinVar record is its
 clinvar: Variation ID. Release must exactly match the source manifest. Civic
 replies must cover every source gene. --values-only explicitly omits comparison.
 Each source may provide refusal_explanations entries with exact record, type,
@@ -91,16 +92,20 @@ class Sweep:
         self.unexplained = 0
 
     def parse(self, values, source, identity):
-        self.bridge.stdin.write(json.dumps(values) + "\n")
+        mapped = [value for value in values if "mapping_reason" not in value]
+        self.bridge.stdin.write(json.dumps(mapped) + "\n")
         self.bridge.stdin.flush()
         line = self.bridge.stdout.readline()
         if not line:
             raise ValueError("value_bridge_closed")
         outputs = json.loads(line)
-        if len(outputs) != len(values):
+        if len(outputs) != len(mapped):
             raise ValueError("value_bridge_count_mismatch")
+        results = iter(outputs)
         refused = False
-        for original, result in zip(values, outputs):
+        for original in values:
+            result = ({"kind": original["kind"], "value": original["value"],
+                       "reason": original["mapping_reason"]} if "mapping_reason" in original else next(results))
             if result["kind"] != original["kind"] or result["value"] != original["value"]:
                 raise ValueError("value_bridge_identity_mismatch")
             kind = result["kind"]
@@ -116,7 +121,8 @@ class Sweep:
                 rule = next((entry["source_rule"] for entry in source.get("refusal_explanations", [])
                              if entry.get("record") == identity and entry.get("type") == kind
                              and entry.get("value") == result["value"] and entry.get("reason") == reason
-                             and entry.get("source_rule")), None)
+                             and entry.get("source_rule") and "mapping_reason" not in original
+                             and reason != "source_identifier_spelling_changed"), None)
                 self.types[kind]["explained" if rule else "unexplained"] += 1
                 self.unexplained += not bool(rule)
                 if len(self.refusals) < EXAMPLE_LIMIT:
@@ -173,13 +179,19 @@ def run(args):
             raise
     report = sweep.report()
     try:
-        report["comparisons"] = sweep.comparison.compare(args.observed, sweep.genes) if args.observed else None
+        report["comparisons"] = sweep.comparison.compare(
+            args.observed, sweep.genes, json.loads(args.manifest.read_text()).get("product_revision"),
+            sources) if args.observed else None
     finally:
         sweep.comparison.close()
     if args.output:
         with args.output.open("x", encoding="utf-8") as output:
             json.dump(report, output, indent=2, sort_keys=True)
             output.write("\n")
+    if report["comparisons"]:
+        provenance = report["comparisons"]["provenance"]
+        report["comparisons"]["provenance_omitted"] = max(0, len(provenance) - EXAMPLE_LIMIT)
+        report["comparisons"]["provenance"] = provenance[:EXAMPLE_LIMIT]
     report["sources_omitted"] = max(0, len(report["sources"]) - SOURCE_LIMIT)
     report["sources"] = report["sources"][:SOURCE_LIMIT]
     report["gene_counts_omitted"] = max(0, len(report["gene_counts"]) - GENE_LIMIT)

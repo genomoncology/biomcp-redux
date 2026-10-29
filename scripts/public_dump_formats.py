@@ -37,15 +37,16 @@ def civic(kind, row):
         for field, prefix in (("single_variant_molecular_profile_id", "civic.profile:"), ("feature_id", "civic.feature:")):
             if row.get(field):
                 values.append(item("identifier", prefix + row[field]))
-        if row["gene"]:
-            values += [item("gene", gene) for gene in parts(row["gene"])]
+        for field in ("gene", "5_prime_partner", "3_prime_partner"):
+            values += [item("gene", gene) for gene in parts(row.get(field, ""))]
         values += [item("hgvs", hgvs) for hgvs in parts(row["hgvs_descriptions"])]
         for field in ("representative_transcript", "5_prime_transcript", "3_prime_transcript"):
             if row.get(field):
                 values.append(item("accession", row[field]))
     elif kind == "civic_profiles":
-        values.append(item("profile", {"level": "profile", "record": "civic:" + row["molecular_profile_id"],
-                                       "label": row["name"], "members": []}))
+        values.append({**item("profile", {"record": "civic:" + row["molecular_profile_id"],
+                                          "label": row["name"], "members": parts(row["variant_ids"])}),
+                       "mapping_reason": "profile_native_member_references_not_representable_by_VariantRef"})
         values += [item("identifier", "civic:" + identity) for identity in parts(row["variant_ids"])]
         for field, prefix in (("evidence_item_ids", "civic.evidence:"), ("assertion_ids", "civic.assertion:")):
             values += [item("identifier", prefix + identity) for identity in parts(row.get(field, ""))]
@@ -59,6 +60,8 @@ def civic(kind, row):
         if row.get("disease"):
             doid = row.get("doid", "")
             values.append(concept("disease", row["disease"], "DOID:" + doid if doid else None))
+        for phenotype in parts(row.get("phenotypes", "")):
+            values.append(concept("disease", phenotype))
         for drug in parts(row.get("therapies", "")):
             values.append(concept("drug", drug))
         values += [item("nct", identity) for identity in parts(row.get("nct_ids", ""))]
@@ -90,6 +93,9 @@ def clinvar(row):
     name = row.get("Name", "")
     if ":" in name and re.search(r":[gcnrpmo]\.", name):
         values.append(item("hgvs", name.split(" ", 1)[0]))
+        # Preserve unqualified protein notation as source text; never invent its accession.
+        for protein in re.findall(r"\((p\.[^()]*)\)", name):
+            values.append(item("text", protein))
     elif name and name != "-":
         values.append(item("text", name))
     for identity in parts(row.get("PhenotypeIDS", ""), "|"):
@@ -182,6 +188,10 @@ def coding_value(record):
     known = {
         "https://www.ncbi.nlm.nih.gov/snp/": ("rs", "rs"),
         "https://www.ncbi.nlm.nih.gov/clinvar/variation/": ("clinvar_variation", "clinvar:"),
+        "https://www.ncbi.nlm.nih.gov/clinvar/": ("clinvar_variation", "clinvar:"),
+        "https://www.genenames.org": ("identifier", "HGNC:"),
+        "https://www.omim.org/": ("identifier", "OMIM:"),
+        "https://www.uniprot.org/": ("identifier", "uniprot:"),
         "https://www.ncbi.nlm.nih.gov/gene/": ("gene_id", ""),
     }
     if system in known:
@@ -210,12 +220,12 @@ def nested_values(record):
                     yield item("expression", {"syntax": syntax, "value": value})
                 elif key == "code" and coding:
                     continue
-                elif key in {"id", "primaryCode", "code", "accession", "identifier"}:
+                elif key in {"id", "primaryCode", "code", "accession", "identifier", "refgetAccession"}:
                     parsed = identity_value(value)
                     if parsed:
                         yield parsed
                     elif value:
-                        yield item("text", value)
+                        yield item("native_identifier" if key == "refgetAccession" else "text", value)
                 elif key in {"name", "label", "title"}:
                     yield item("gene" if record.get("conceptType") == "gene" else "text", value)
 
@@ -245,8 +255,9 @@ def records(handle, kind):
             primary = item("identifier" if ":" in identity else "native_identifier", identity)
         if primary and record.get("id") != identity:
             values.insert(0, primary)
-        if section in {"condition", "therapy"} and record.get("name"):
-            values.append(concept("disease" if section == "condition" else "drug", record["name"]))
+        if section in {"condition", "therapy"} and (record.get("name") or record.get("label")):
+            values.append(concept("disease" if section == "condition" else "drug",
+                                  record.get("name") or record["label"], record.get("id")))
         scalars = list(strings(record))
         ids = [value["value"] for value in values if value["kind"] in {
             "variant", "clinvar_variation", "vcv", "ca", "rs"}]

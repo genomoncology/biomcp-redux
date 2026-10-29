@@ -1,5 +1,6 @@
 """Compare saved CLI replies to source identities using a temporary disk index."""
 from collections import Counter
+from datetime import date
 import hashlib
 import json
 import sqlite3
@@ -71,7 +72,14 @@ class Comparison:
         """, (root,))
         return {row[0] for row in rows}
 
-    def compare(self, path, genes):
+    def compare(self, path, genes, revision, sources):
+        if not isinstance(revision, str) or not revision:
+            raise ValueError("manifest_missing_product_revision")
+        hashes = {}
+        for source, _ in sources:
+            family = "civic" if source["kind"].startswith("civic_") else "clinvar" if source["kind"].startswith("clinvar_") else "clingen"
+            hashes.setdefault(family, set()).add(source["sha256"])
+        provenance = Counter()
         seen_genes = set()
         digest = hashlib.sha256()
         with path.open("rb") as raw:
@@ -89,6 +97,14 @@ class Comparison:
                     continue
                 if not observation.get("revision") or not observation.get("retrieved"):
                     raise ValueError("observation_missing_revision_or_retrieval_date")
+                if observation["revision"] != revision:
+                    self.refuse("product_revision_mismatch", number)
+                    continue
+                if observation.get("source_sha256") != sorted(hashes.get(source, set())):
+                    self.refuse("source_hash_mismatch", number)
+                    continue
+                date.fromisoformat(observation["retrieved"])
+                provenance[(source, observation["release"], observation["retrieved"])] += 1
                 reply = observation["reply"]
                 if not isinstance(reply, dict) or "result" not in reply:
                     raise ValueError("observation_not_cli_envelope")
@@ -102,7 +118,11 @@ class Comparison:
             self.refuse("civic_gene_unobserved", gene)
         if "clinvar" in self.releases and not self.checked["clinvar_ids"]:
             self.refuse("clinvar_ids_unobserved", "clinvar")
-        return {"observed_sha256": digest.hexdigest(), "checked": dict(self.checked),
+        return {"observed_sha256": digest.hexdigest(), "product_revision": revision,
+                "provenance": [{"source": source, "release": release, "retrieved": retrieved,
+                                "source_sha256": sorted(hashes[source]), "observations": count}
+                               for (source, release, retrieved), count in provenance.items()],
+                "checked": dict(self.checked),
                 "failures": dict(self.counts), "examples": self.examples}
 
     def civic(self, result, genes, seen):

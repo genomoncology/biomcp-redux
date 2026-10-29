@@ -42,13 +42,13 @@ class Sweep(unittest.TestCase):
             result = subprocess.run(command, text=True, capture_output=True, check=False)
             return result, json.loads(result.stdout) if result.stdout else None
 
-    def test_counts_each_row_and_preserves_compound_profile(self):
+    def test_counts_each_row_and_preserves_compound_profile_refusal(self):
         text = ("molecular_profile_id\tname\tvariant_ids\n"
                 "9\tBRAF V600E AND NOT KRAS G12D\t12,13\n")
         result, report = self.run_sweep("civic_profiles", text)
-        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.returncode, 1, result.stderr)
         self.assertEqual(report["sources"][0]["records"], 1)
-        self.assertEqual(report["types"]["profile"]["parsed"], 1)
+        self.assertEqual(report["types"]["profile"]["refused"], 1)
         self.assertEqual(report["types"]["identifier"]["parsed"], 2)
 
     def test_source_values_cannot_disappear_behind_successful_records(self):
@@ -61,6 +61,15 @@ class Sweep(unittest.TestCase):
         text = "variant_id\tvariant\tgene\thgvs_descriptions\t5_prime_partner\t3_prime_partner\n1\tFusion\t\t\tBCR\tABL1\n"
         result, report = self.run_sweep("civic_variants", text)
         self.assertEqual(report["types"]["gene"]["parsed"], 2)
+
+    def test_codings_and_native_accessions_keep_source_authority(self):
+        record = {"id": "clinvar:12", "mappings": [{"coding": {
+            "system": "https://www.genenames.org", "code": "6407"}}],
+            "sequenceReference": {"refgetAccession": "SQ.source"}}
+        result, report = self.run_sweep("clinvar_gks_record", json.dumps(record))
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(report["types"]["identifier"]["parsed"], 1)
+        self.assertEqual(report["types"]["native_identifier"]["parsed"], 1)
 
     def test_native_profile_members_do_not_become_empty_parsed_profiles(self):
         text = "molecular_profile_id\tname\tvariant_ids\n1\tBCR::ABL1 Fusion\t1\n"
@@ -79,6 +88,10 @@ class Sweep(unittest.TestCase):
         result, report = self.run_sweep("civic_variants", text, observed=[observation])
         self.assertEqual(result.returncode, 1, result.stderr)
         self.assertEqual(report["comparisons"]["failures"]["product_revision_mismatch"], 1)
+        observation["revision"] = "synthetic-product-reply"
+        observation["source_sha256"] = ["0" * 64]
+        result, report = self.run_sweep("civic_variants", text, observed=[observation])
+        self.assertEqual(report["comparisons"]["failures"]["source_hash_mismatch"], 1)
 
     def test_refusals_do_not_disappear_and_exit_nonzero(self):
         fixture = ROOT / "tests/fixtures/public-dump-sweep/clinvar-edge.tsv"
@@ -165,6 +178,8 @@ class Sweep(unittest.TestCase):
         result, report = self.run_sweep("clinvar_gks", json.dumps(bundle), observed=[observation])
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(report["comparisons"]["checked"]["clinvar_ids"], 2)
+        self.assertEqual(report["comparisons"]["product_revision"], "synthetic-product-reply")
+        self.assertEqual(report["comparisons"]["provenance"][0]["observations"], 1)
         reply["candidates"][0]["identity"]["ids"][0] = "clinvar:012"
         result, report = self.run_sweep("clinvar_gks", json.dumps(bundle), observed=[observation])
         self.assertEqual(result.returncode, 1, result.stderr)
@@ -224,7 +239,7 @@ class Sweep(unittest.TestCase):
                 data = (folder / source["path"]).read_bytes()
                 self.assertEqual(hashlib.sha256(data).hexdigest(), source["sha256"])
                 result, report = self.run_sweep(source["kind"], data.decode())
-                self.assertEqual(result.returncode, 0, result.stderr + str(report))
+                self.assertEqual(result.returncode, int(source["kind"] == "civic_profiles"), result.stderr + str(report))
                 self.assertEqual(report["sources"][0]["records"], 1)
 
 
