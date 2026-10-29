@@ -1,7 +1,7 @@
 {
   "live_check": "synthetic response case",
   "feature": "gene-sections",
-  "story": "Source wrong-identity preserves the gene and reports rejected fields on replay and offline",
+  "story": "A mismatched source identity preserves the gene and is never cached for offline reuse",
   "replay": "gene/constraint/synthetic-wrong-identity",
   "cache_acquired": 42,
   "steps": [
@@ -34,9 +34,13 @@
         "/status": "partial",
         "/result/items/0/answer/gene/hgnc_id": "HGNC:11998",
         "/result/items/0/answer/gene/summary/source": "refseq",
-        "/problems/0/field": "gene_id",
         "/result/items/0/sections/constraint/state": "unavailable",
-        "/result/items/0/sections/constraint/reason": "bad-reply"
+        "/result/items/0/sections/constraint/reason": "offline",
+        "": {
+          "omits": [
+            "problems"
+          ]
+        }
       },
       "max_bytes": 3600
     }
