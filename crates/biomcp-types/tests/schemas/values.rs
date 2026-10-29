@@ -512,7 +512,7 @@ fn generated_links_expose_uri_metadata() {
                     schema.get("$defs").and_then(|definitions| {
                         definitions
                             .get(*owner)
-                            .or_else(|| definitions.get(&format!("Reply_{owner}")))
+                            .or_else(|| definitions.get(format!("Reply_{owner}")))
                     })
                 };
                 if let Some(node) = node {
