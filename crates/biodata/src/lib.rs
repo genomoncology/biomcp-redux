@@ -79,9 +79,9 @@ pub use trial_upload_time::TrialUploadTime;
 pub use variant::{
     AcmgAmp2015Code, AmpAscoCap2017LevelCode, AmpAscoCap2017TierCode, Attribution,
     CivicEvidenceLevelCode, ClingenCgcVicc2022Code, ClingenLowPenetrance2024Code,
-    ClinvarAlleleOriginCode, ClinvarReviewStatusCode, Coding, Concept, Curie, Direction,
-    OncokbLevelCode, OncokbOncogenicityCode, Predicate, ProfileExpression, ProfileNode,
-    Proposition, Statement, Term, VariantRef,
+    ClinvarAlleleOriginCode, ClinvarHaplotype, ClinvarHaplotypeMember, ClinvarReviewStatusCode,
+    Coding, Concept, Curie, Direction, OncokbLevelCode, OncokbOncogenicityCode, Predicate,
+    ProfileExpression, ProfileNode, Proposition, Statement, Term, VariantRef,
 };
 
 pub use variant::{GenotypeFilter, PopulationDataType, PopulationFrequency, PopulationSex};
