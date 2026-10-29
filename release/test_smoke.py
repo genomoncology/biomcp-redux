@@ -110,7 +110,9 @@ else:
             installed = root / "installed"
             installed.mkdir()
             shutil.copy2(binary, installed / binary.name)
-            shutil.copy2(runner, installed / "case-runner")
+            shutil.copy2(runner, installed / ("case-runner" + runner.suffix))
+            shutil.copy2(runner.with_name("tool-runner" + runner.suffix),
+                         installed / ("tool-runner" + runner.suffix))
             fixtures = root / "fixtures"
             shutil.copytree("tests", fixtures)
             provenance = Path("sdlc/planning/slices/gene.md")
@@ -132,7 +134,7 @@ finally:
 """
             routine = subprocess.check_output([str(runner), "--list"], text=True)
             copied_env = {**os.environ, "BIOMCP_TEST_FIXTURES": str(fixtures)}
-            copied = subprocess.check_output([str(installed / "case-runner"), "--list"], env=copied_env, cwd=root, text=True)
+            copied = subprocess.check_output([str(installed / ("case-runner" + runner.suffix)), "--list"], env=copied_env, cwd=root, text=True)
             self.assertEqual(routine, copied)
             for configured, fail in [(True, False), (True, True)]:
                 with self.subTest(configured=configured, fail=fail):
@@ -140,7 +142,7 @@ finally:
                     if configured:
                         env["TMPDIR"] = str(parent)
                     selected = installed / ("absent" if fail else binary.name)
-                    result = subprocess.run([sys.executable, "-c", script, str(selected), str(installed / "case-runner"), str(fixtures), version], env=env, capture_output=True, text=True, timeout=300)
+                    result = subprocess.run([sys.executable, "-c", script, str(selected), str(installed / ("case-runner" + runner.suffix)), str(fixtures), version], env=env, capture_output=True, text=True, timeout=300)
                     self.assertEqual(result.returncode == 0, not fail, result.stdout + result.stderr)
                     roots = json.loads(result.stdout.splitlines()[-1])["temporary_roots"]
                     self.assertEqual(len(roots), 1)
@@ -179,7 +181,7 @@ finally:
             (fixtures / "support" / provenance).parent.mkdir(parents=True)
             shutil.copy2(provenance, fixtures / "support" / provenance)
             case = fixtures / "cases/installed-schema.yaml"
-            case.write_text("story: Installed schema identity\nsteps:\n  - run: [schema, biodata.source/1]\n    expect: {'/$id': biodata.source/1}\n")
+            case.write_text("feature: schema-discovery\nstory: Installed schema identity\nsteps:\n  - run: [schema, biodata.source/1]\n    expect: {'/$id': biodata.source/1}\n")
             script = "from release.smoke import smoke; import sys; smoke(*sys.argv[1:])"
             result = subprocess.run([sys.executable, "-c", script, str(planted), str(runner), str(fixtures),
                                      os.environ["BIOMCP_INSTALLED_VERSION"]], capture_output=True, text=True)
