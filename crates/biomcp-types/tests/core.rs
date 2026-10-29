@@ -180,6 +180,23 @@ fn text_refuses_controls_and_bounds_constructor_length() {
     }
     assert!(Text::new(&"α".repeat(1_048_576)).is_ok());
     assert!(Text::new(&"a".repeat(1_048_577)).is_err());
+    #[cfg(feature = "schema")]
+    {
+        let schema = serde_json::to_value(schemars::schema_for!(Text)).unwrap();
+        let validator = jsonschema::validator_for(&schema).unwrap();
+        for at_cap in ["a".repeat(Text::MAX_CHARS), "α".repeat(Text::MAX_CHARS)] {
+            assert!(
+                validator.is_valid(&json!(at_cap)),
+                "Valid text at the constructor cap must satisfy its schema"
+            );
+        }
+        for control in ["safe\n", "safe\r", "safe\u{0085}", "safe\u{202e}"] {
+            assert!(
+                !validator.is_valid(&json!(control)),
+                "Schema must reject controls at the end: {control:?}"
+            );
+        }
+    }
 }
 
 #[test]
