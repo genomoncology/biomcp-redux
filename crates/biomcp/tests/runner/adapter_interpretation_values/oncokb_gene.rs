@@ -6,6 +6,20 @@ pub(super) fn classifications() -> Result<(), String> {
     case(None, None)?;
     for (invalid, expected) in [
         (
+            json!(" TSG "),
+            json!({
+                "/result/items/0/oncokb/gene_type":" TSG ",
+                "/result/items/0/oncokb":{"omits":["gene_type_code"]}
+            }),
+        ),
+        (
+            json!(" FUTURE_NATIVE_ROLE "),
+            json!({
+                "/result/items/0/oncokb/gene_type":" FUTURE_NATIVE_ROLE ",
+                "/result/items/0/oncokb":{"omits":["gene_type_code"]}
+            }),
+        ),
+        (
             json!("FUTURE_NATIVE_ROLE"),
             json!({
                 "/result/items/0/oncokb/gene_type":"FUTURE_NATIVE_ROLE",
