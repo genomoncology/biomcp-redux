@@ -459,6 +459,23 @@ fn inventory_allows_shrinking_and_reclassification_but_refuses_new_identities() 
         entry["class"] = "migrated".into();
     }
     validate(&current.to_string())?;
+    validate("{\"sites\":[]}")?;
+    let planted = serde_json::json!({"sites": [{
+        "path": "crates/biomcp-adapters/src/example/details.rs",
+        "site": "new pending identity",
+        "maximum": 1,
+        "class": "pending_audit",
+        "owner": "example",
+        "reason": "Planted new entry"
+    }]});
+    assert!(
+        validate(&planted.to_string()).is_err(),
+        "new entry in empty inventory passed"
+    );
+    let mut current: serde_json::Value = serde_json::from_str(original)?;
+    if current["sites"].as_array().is_some_and(Vec::is_empty) {
+        return Ok(());
+    }
     current["sites"][0]["site"] = "new pending identity".into();
     assert!(
         validate(&current.to_string()).is_err(),

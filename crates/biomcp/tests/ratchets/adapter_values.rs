@@ -108,7 +108,7 @@ pub(crate) fn sites(root: &Path) -> Result<Vec<DropSite>, Box<dyn std::error::Er
             .replace('\\', "/");
         let text = fs::read_to_string(&path)?;
         let mut found = fingerprints(&tokens(&text), &relative);
-        if text.lines().count() > 300 {
+        if text.lines().count() > super::ADAPTER_LIMIT {
             found.insert("file line limit".into(), text.lines().count());
         }
         for (site, count) in found {
@@ -159,7 +159,12 @@ fn fingerprints(tokens: &[String], path: &str) -> BTreeMap<String, usize> {
                 .get(start..index)
                 .unwrap_or_default()
                 .iter()
-                .any(|t| matches!(t.as_str(), "parse" | "from_str" | "from_slice")));
+                .any(|t| {
+                    matches!(
+                        t.as_str(),
+                        "parse" | "from_str" | "from_slice" | "from_value" | "from_reader"
+                    )
+                }));
         if ok || default || pattern {
             let end = if pattern {
                 (index + 16).min(tokens.len())
