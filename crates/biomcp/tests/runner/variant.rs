@@ -4,6 +4,7 @@ use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
+mod build_echo;
 mod components;
 mod identifiers;
 mod labels;
@@ -47,7 +48,7 @@ pub(super) fn trials() -> Vec<Trial> {
         }),
         transcript_trial("variant/car-projection-wire", || car().map_err(Into::into)),
         transcript_trial("variant/myvariant-exact-build-wire", || {
-            myvariant().map_err(Into::into)
+            build_echo::check().map_err(Into::into)
         }),
     ];
     trials.extend(roundtrip::trials());
@@ -97,36 +98,6 @@ fn car() -> Result<(), String> {
     }
     if output.pointer("/result/candidates/0/identity/ids/0") != Some(&json!("CA123643")) {
         return Err(format!("source identity lost: {output}"));
-    }
-    Ok(())
-}
-fn myvariant() -> Result<(), String> {
-    let (output, requests) = call(
-        "myvariant.info",
-        myvariant_body,
-        &["get", "variant", "chr7:g.140753336A>T", "--build", "GRCh38"],
-    )?;
-    let [(_, request)] = requests.as_slice() else {
-        return Err("expected one exact MyVariant request".into());
-    };
-    if !request.starts_with(
-        "GET \
-        /v1/variant/chr7%3Ag.140753336A%3ET?fields=_id%2Cdbsnp.rsid%2Cdbsnp.gene.symbol%2Cclinvar.variant_id%2Csnpeff.ann\
-        &assembly=hg38 HTTP/1.1",
-    ) {
-        return Err(format!("exact annotation endpoint/build was not sent: {request}"));
-    }
-    if output.pointer("/result/candidates/0/identity/representations/0/build")
-        != Some(&json!("GRCh38"))
-    {
-        return Err(format!("source assembly lost: {output}"));
-    }
-    if output.pointer("/query/build") != Some(&json!("GRCh38"))
-        || output.pointer("/query/build_defaulted").is_some()
-    {
-        return Err(format!(
-            "explicit assembly was changed or marked as default: {output}"
-        ));
     }
     Ok(())
 }
