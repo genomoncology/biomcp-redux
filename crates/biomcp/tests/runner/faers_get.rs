@@ -46,7 +46,8 @@ fn native() -> Value {
     json!(
         {"meta":{"last_updated":"2024-09-01","results":{"skip":0,"limit":5,"total":1}},"results":[{"safetyreportid":"100",
         "safetyreportversion":"1","receivedate":"20240101","receiptdate":"20240202","serious":"1","seriousnessdeath":"1",
-        "seriousnesshospitalization":"1","primarysource":{"qualification":"1","reportercountry":"US"},"patient":{"patientonsetage":"42.5","patientonsetageunit":"801",
+        "seriousnesshospitalization":"1","primarysource":{"qualification":"1","reportercountry":"US"},"patient":{"patientonsetage":"42.5",
+        "patientonsetageunit":"801",
         "patientsex":"2","drug":[{"medicinalproduct":"Synthetic A","drugcharacterization":"1","openfda":{"unii":["TESTA"],"rxcui":["1"],
         "product_ndc":["SYNTHETIC"],"spl_id":["SYNTHETIC-ID"],"spl_set_id":["SYNTHETIC-SET"],"application_number":["SYNTHETIC-APPLICATION"],
         "package_ndc":["A","B","C","D","E","F"]}},{"medicinalproduct":"Synthetic B","drugcharacterization":"2","openfda":{"unii":[]}},
