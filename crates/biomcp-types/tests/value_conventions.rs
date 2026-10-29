@@ -185,6 +185,8 @@ fn coding_changes_preserve_checked_search_text_without_a_reference()
         "c.1-2_1-1insA",
         "c.1-1_1insA",
         "c.1_1+1insA",
+        "c.1_*1insA",
+        "c.1+2_2-2insA",
         "c.999999999999999999999999999999G>T",
     ] {
         let value: CodingChange = text.parse()?;
@@ -209,6 +211,13 @@ fn coding_changes_preserve_checked_search_text_without_a_reference()
         "c.1_1del",
         "c.1insA",
         "c.1_3insA",
+        "c.1_*2insA",
+        "c.1+1_3-1insA",
+        "c.-3+1_-1-1insA",
+        "c.*1+1_*3-1insA",
+        "c.-2+1_1-1insA",
+        "c.1+1_*2-1insA",
+        "c.-1+1_*1-1insA",
         "c.1_2ins",
         "c.1delins",
         "c.1delA",
