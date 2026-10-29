@@ -40,23 +40,33 @@ pub(super) fn unknown_acquisition() -> Result<(), String> {
         .map_err(|e| e.to_string())?
     {
         let file = file.map_err(|e| e.to_string())?;
-        let mut value: Value = serde_json::from_slice(&fs::read(file.path()).map_err(|e| e.to_string())?)
-            .map_err(|e| e.to_string())?;
+        let mut value: Value =
+            serde_json::from_slice(&fs::read(file.path()).map_err(|e| e.to_string())?)
+                .map_err(|e| e.to_string())?;
         for exchange in value["exchanges"].as_array_mut().ok_or("exchanges")? {
-            exchange.as_object_mut().ok_or("exchange")?.remove("fetched");
+            exchange
+                .as_object_mut()
+                .ok_or("exchange")?
+                .remove("fetched");
         }
-        fs::write(directory.join(file.file_name()), value.to_string()).map_err(|e| e.to_string())?;
+        fs::write(directory.join(file.file_name()), value.to_string())
+            .map_err(|e| e.to_string())?;
     }
     let mut args = env.globals(Some(&replay), false);
     args.extend(["get", "article", "33123537"].map(str::to_owned));
     let value = super::configuration::invoke(&env, args, 0)?;
     let words = ["get", "article", "33123537"].map(str::to_owned);
-    let mcp = super::mcp::call_with_globals(&env, &words, false, &env.globals(Some(&replay), false))?;
+    let mcp =
+        super::mcp::call_with_globals(&env, &words, false, &env.globals(Some(&replay), false))?;
     if value != mcp {
         return Err("legacy acquisition differs between CLI and MCP".into());
     }
-    let answer = value.pointer("/result/items/0/answer").ok_or("article answer")?;
-    if answer.get("resolution").and_then(Value::as_str) != Some("resolved") || answer.get("fetched").is_some() {
+    let answer = value
+        .pointer("/result/items/0/answer")
+        .ok_or("article answer")?;
+    if answer.get("resolution").and_then(Value::as_str) != Some("resolved")
+        || answer.get("fetched").is_some()
+    {
         return Err(format!("legacy article acquisition was invented: {value}"));
     }
     Ok(())

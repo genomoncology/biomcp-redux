@@ -300,7 +300,13 @@ fn retained(directory: &Path) -> Check {
 fn unknown_acquisition() -> Check {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let replay = seed(&env, rows(), 200)?;
-    call(&env, &replay, &["sync", "cbioportal-studies"], 0, "unknown/sync")?;
+    call(
+        &env,
+        &replay,
+        &["sync", "cbioportal-studies"],
+        0,
+        "unknown/sync",
+    )?;
     for section in ["molecular-profiles", "sample-lists"] {
         super::study_get::recording_raw(&replay, section, "[]", 200, 0)?;
     }
@@ -308,16 +314,28 @@ fn unknown_acquisition() -> Check {
         record(&replay, body, 200, 0)?;
         for file in fs::read_dir(replay.join("cbioportal")).map_err(|e| e.to_string())? {
             let path = file.map_err(|e| e.to_string())?.path();
-            let mut value: Value = serde_json::from_slice(&fs::read(&path).map_err(|e| e.to_string())?)
-                .map_err(|e| e.to_string())?;
+            let mut value: Value =
+                serde_json::from_slice(&fs::read(&path).map_err(|e| e.to_string())?)
+                    .map_err(|e| e.to_string())?;
             for exchange in value["exchanges"].as_array_mut().ok_or("exchanges")? {
-                exchange.as_object_mut().ok_or("exchange")?.remove("fetched");
+                exchange
+                    .as_object_mut()
+                    .ok_or("exchange")?
+                    .remove("fetched");
             }
             fs::write(path, value.to_string()).map_err(|e| e.to_string())?;
         }
         for section in ["profiles", "sample-lists", "files"] {
-            let value = call(&env, &replay, &["get", "study", "synthetic_0", section], 0, "unknown/section")?;
-            if value.pointer("/result/items").is_none() || value.pointer("/result/acquired").is_some() {
+            let value = call(
+                &env,
+                &replay,
+                &["get", "study", "synthetic_0", section],
+                0,
+                "unknown/section",
+            )?;
+            if value.pointer("/result/items").is_none()
+                || value.pointer("/result/acquired").is_some()
+            {
                 return Err(format!("unknown acquisition was invented: {value}"));
             }
         }

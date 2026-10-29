@@ -97,7 +97,10 @@ pub(super) fn recording_raw(
             serde_json::from_slice(&fs::read(file.path()).map_err(|e| e.to_string())?)
                 .map_err(|e| e.to_string())?;
         if value.pointer("/exchanges/0/fetched") != acquired.pointer("/result/acquired")
-            || acquired.pointer("/result/acquired").and_then(Value::as_u64).is_none()
+            || acquired
+                .pointer("/result/acquired")
+                .and_then(Value::as_u64)
+                .is_none()
         {
             return Err("live study acquisition differs from its recording receipt".into());
         }
@@ -168,7 +171,8 @@ fn pages() -> Check {
                 .pointer("/result/items")
                 .and_then(Value::as_array)
                 .ok_or_else(|| format!("missing section items: {value}"))?;
-            if value.pointer("/page/total") != Some(&json!(total)) || items.len() > 5
+            if value.pointer("/page/total") != Some(&json!(total))
+                || items.len() > 5
                 || value.pointer("/result/acquired") != Some(&json!(42))
             {
                 return Err(format!("native page bounds: {value}"));
