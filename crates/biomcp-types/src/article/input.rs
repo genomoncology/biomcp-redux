@@ -43,7 +43,13 @@ impl std::fmt::Display for ArticleInput {
 text_value!(
     ArticleInput,
     "ArticleInput",
-    r"^(?:[1-9][0-9]*|PMC[1-9][0-9]*|PPR[0-9]*[1-9][0-9]*|(?:https?://doi\.org/)?10\.[0-9]+/[^\s\x00-\x1f\x7f]+)$"
+    format!(
+        "({}|{}|(?=PPR){}|^(?:https?://doi\\.org/)?{})",
+        Pmid::pattern(),
+        Pmcid::pattern(),
+        EuropePmcId::pattern(),
+        Doi::pattern().trim_start_matches('^')
+    )
 );
 biodata::canonical_enum! {
     /// Identifier used to resolve this article.

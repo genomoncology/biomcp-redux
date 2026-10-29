@@ -14,8 +14,8 @@ pub struct KeyHelp {
     pub environment: crate::Text,
 }
 impl super::ResponseBody for KeyHelp {
-    const SCHEMA: &'static str = "biomcp.key/2";
-    type Query = ();
+    const SCHEMA: &'static str = "biomcp.key/3";
+    type Query = super::EmptyQuery;
 }
 
 biodata::wire_enum! {
@@ -51,6 +51,6 @@ pub struct RegisteredKeys {
     pub entries: Vec<RegisteredKey>,
 }
 impl super::ResponseBody for RegisteredKeys {
-    const SCHEMA: &'static str = "biomcp.registered-keys/2";
-    type Query = ();
+    const SCHEMA: &'static str = "biomcp.registered-keys/3";
+    type Query = super::EmptyQuery;
 }

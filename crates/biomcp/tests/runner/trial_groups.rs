@@ -50,6 +50,7 @@ pub(super) fn drug_trials() -> Vec<Trial> {
     trials.extend(native_vocabulary::trials());
     trials.extend(super::drug_who::trials());
     trials.extend(super::drug_ddinter::trials());
+    trials.extend(super::drug_recall::trials());
     trials.extend(super::drug_fda::trials());
     trials.extend(super::drug_mychem::trials());
     trials.extend(super::drug_native::trials());

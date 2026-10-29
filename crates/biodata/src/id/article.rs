@@ -37,7 +37,7 @@ impl fmt::Display for Pmid {
 text_value!(
     Pmid,
     "Pmid",
-    r"^[1-9][0-9]*$",
+    format!("^{}$", crate::schema_pattern::decimal(u32::MAX.into())),
     "Positive PubMed identifier."
 );
 /// Canonical PMC identifier, with an explicit namespace.
@@ -60,7 +60,7 @@ impl fmt::Display for Pmcid {
 text_value!(
     Pmcid,
     "Pmcid",
-    r"^PMC[1-9][0-9]*$",
+    format!("^PMC{}$", crate::schema_pattern::decimal(u32::MAX.into())),
     "Canonical PMC identifier, with an explicit namespace."
 );
 /// DOI preserving source spelling with ASCII-insensitive equality.
@@ -103,7 +103,10 @@ impl fmt::Display for Doi {
 text_value!(
     Doi,
     "Doi",
-    r"^10\.[0-9]+/[^\s\x00-\x1f\x7f]+$",
+    format!(
+        r"^10\.[0-9]+/[^{}\x00-\x1f\x7f-\x9f]+$",
+        crate::schema_pattern::WHITESPACE
+    ),
     "DOI preserving source spelling with ASCII-insensitive equality."
 );
 
@@ -135,7 +138,7 @@ impl fmt::Display for EuropePmcId {
 text_value!(
     EuropePmcId,
     "EuropePmcId",
-    r"^[A-Z]{1,8}[0-9]*[1-9][0-9]*$",
+    r"^(?=.{1,64}$)[A-Z]{1,8}[0-9]*[1-9][0-9]*$",
     "Europe PMC source prefix followed by its positive numeric local identifier."
 );
 
@@ -159,6 +162,6 @@ impl fmt::Display for SemanticScholarId {
 text_value!(
     SemanticScholarId,
     "SemanticScholarId",
-    r"^[a-f0-9]{40}$",
+    r"^[A-Fa-f0-9]{40}$",
     "Semantic Scholar's stable 40-character hexadecimal paper identifier."
 );

@@ -236,7 +236,7 @@
     {
       "expect": {
         "/result/environment": "ONCOKB_TOKEN",
-        "/schema": "biomcp.key/2"
+        "/schema": "biomcp.key/3"
       },
       "mcp": [
         "help",

@@ -59,7 +59,7 @@ fn missing() -> Result<(), String> {
         if value.pointer("/result/definition").is_some() {
             return Err("borrowed a component definition".into());
         }
-        let mut expected = json!({"/result/replaced_by":null});
+        let mut expected = json!({"/result":{"omits":["replaced_by"]}});
         if id == "MONDO:0007607" {
             super::insert(&mut expected, "/result/obsolete", json!(true))?;
             super::insert(

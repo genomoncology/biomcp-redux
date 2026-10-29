@@ -47,7 +47,11 @@ fn dispatch_using(
         && command == "schema"
     {
         return encode(
-            Envelope::new(Status::Complete, (), Some(crate::schema::catalog())),
+            Envelope::new(
+                Status::Complete,
+                biomcp_types::EmptyQuery {},
+                Some(crate::schema::catalog()),
+            ),
             crate::exit::Status::Success,
         );
     }
@@ -494,7 +498,7 @@ fn key_help(source: biomcp_types::Source) -> io::Result<Outcome> {
         environment: biodata::Text::new(name.environment()).map_err(io::Error::other)?,
     };
     encode(
-        Envelope::new(Status::Complete, (), Some(data)),
+        Envelope::new(Status::Complete, biomcp_types::EmptyQuery {}, Some(data)),
         crate::exit::Status::Success,
     )
 }

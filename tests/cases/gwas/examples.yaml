@@ -68,9 +68,6 @@
         "/result/items": {
           "count": 3
         },
-        "/result/qualifying_total": {
-          "equals": null
-        },
         "/next/0/kind": "page",
         "/query/query/p_value": "4e-254"
       },

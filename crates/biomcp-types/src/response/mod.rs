@@ -52,7 +52,7 @@ mod status;
 mod store;
 pub use store::{BundleSize, StoreClean, StoreSize};
 mod step;
-pub use envelope::{Envelope, ResponseBody};
+pub use envelope::{EmptyQuery, Envelope, ResponseBody};
 pub use gene::{GeneCards, GeneItem, GenePage, QueryBody};
 pub use page::{PageInfo, PoolInfo};
 pub use section::{Section, SourceRecord};

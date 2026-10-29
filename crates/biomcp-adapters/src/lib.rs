@@ -139,3 +139,5 @@ mod openfda_key;
 
 /// Native medical device recall records and exact enforcement classification.
 pub mod fda_device_recall;
+/// Native FDA drug enforcement records.
+pub mod fda_drug_recall;

@@ -8,6 +8,10 @@ pub trait ResponseBody: Serialize {
     /// Query echoed by this response.
     type Query: Serialize;
 }
+/// Explicit empty query for commands without selectors.
+#[derive(Clone, Copy, Debug, Default, Serialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct EmptyQuery {}
 /// One versioned command response; schema identity comes only from its body type.
 /// JSON readers ignore unknown fields and unknown growable enum values within a major.
 #[derive(Clone, Debug, Serialize)]

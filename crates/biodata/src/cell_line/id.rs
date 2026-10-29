@@ -10,7 +10,7 @@ impl fmt::Display for CellLineIdInvalid {
 }
 impl std::error::Error for CellLineIdInvalid {}
 macro_rules! checked {
-    ($name:ident, $check:expr, $pattern:literal, $doc:literal) => {
+    ($name:ident, $check:expr, $pattern:expr, $doc:literal) => {
         #[doc = $doc]
         #[derive(Clone, Debug, PartialEq, Eq, Hash)]
         pub struct $name(Box<str>);
@@ -53,7 +53,10 @@ checked!(
 checked!(
     CellLineSourceId,
     |v: &str| v.parse::<Curie>().is_ok(),
-    "^[A-Za-z0-9_.-]+:[^\\s\\x00-\\x1f\\x7f-\\x9f]+$",
+    format!(
+        r"^[A-Za-z0-9_.-]+:[^{}\x00-\x1f\x7f-\x9f]+$",
+        crate::schema_pattern::WHITESPACE
+    ),
     "An exact database-qualified source ID, preserving the database and native accession independently."
 );
 impl CellLineSourceId {

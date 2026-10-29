@@ -66,6 +66,11 @@
     {"path":"crates/biomcp-adapters/src/fda_cdx/raw.rs","site":"adapter serde refusal: [ serde ( deny_unknown_fields ) ] pub ( super ) struct Native { pub relation : CompanionDiagnosticRelation ,","maximum":1,"class":"pending_audit","owner":"fda_cdx","reason":"Existing adapter violation awaits its family audit"},
     {"path":"crates/biomcp-adapters/src/fda_cdx/search.rs","site":"search: Text : : new ( & format ! ( \"{snapshot}:{table}:{index}\" ) ) . ok ( )","maximum":1,"class":"pending_audit","owner":"fda_cdx","reason":"Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"},
     {"path":"crates/biomcp-adapters/src/fda_device_recall/raw.rs","site":"adapter serde refusal: [ serde ( deny_unknown_fields ) ] pub ( super ) struct Absence { code : String , message","maximum":1,"class":"pending_audit","owner":"fda_device_recall","reason":"Existing adapter violation awaits its family audit"},
+    {"path":"crates/biomcp-adapters/src/fda_drug_recall/map.rs","site":"date: . get ( . . 4 ) ? . parse ( ) . ok ( )","maximum":1,"class":"migrated","owner":"fda_drug_recall","reason":"Malformed optional recall date values emit a source problem for the exact recall and date field; the native-card-and-problem case checks omission and reporting"},
+    {"path":"crates/biomcp-adapters/src/fda_drug_recall/map.rs","site":"date: . get ( 6 . . ) ? . parse ( ) . ok ( )","maximum":1,"class":"migrated","owner":"fda_drug_recall","reason":"Malformed optional recall date values emit a source problem for the exact recall and date field; the native-card-and-problem case checks omission and reporting"},
+    {"path":"crates/biomcp-adapters/src/fda_drug_recall/map.rs","site":"date: get ( 4 . . 6 ) ? . parse ( ) . ok ( )","maximum":1,"class":"migrated","owner":"fda_drug_recall","reason":"Malformed optional recall date values emit a source problem for the exact recall and date field; the native-card-and-problem case checks omission and reporting"},
+    {"path":"crates/biomcp-adapters/src/fda_drug_recall/map.rs","site":"date: year , Some ( month ) , Some ( day ) ) . ok ( )","maximum":1,"class":"migrated","owner":"fda_drug_recall","reason":"Malformed optional recall date values emit a source problem for the exact recall and date field; the native-card-and-problem case checks omission and reporting"},
+    {"path":"crates/biomcp-adapters/src/fda_drug_recall/raw.rs","site":"adapter serde refusal: [ serde ( deny_unknown_fields ) ] pub ( super ) struct Absence { code : String , message","maximum":1,"class":"pending_audit","owner":"fda_drug_recall","reason":"Existing adapter violation awaits its family audit"},
     {"path":"crates/biomcp-adapters/src/fda_pma/raw.rs","site":"adapter serde refusal: [ serde ( deny_unknown_fields ) ] pub ( super ) struct Absence { code : String , message","maximum":1,"class":"pending_audit","owner":"fda_pma","reason":"Existing adapter violation awaits its family audit"},
     {"path":"crates/biomcp-adapters/src/gencc.rs","site":"adapter serde refusal: [ serde ( deny_unknown_fields ) ] struct Submission { gene_curie : HgncId , # [ serde ( rename","maximum":1,"class":"pending_audit","owner":"gencc.rs","reason":"Existing adapter violation awaits its family audit"},
     {"path":"crates/biomcp-adapters/src/gnomad/map.rs","site":"constraints: , transcript , version : Text : : new ( \"v4\" ) . ok ( )","maximum":1,"class":"pending_audit","owner":"gnomad","reason":"Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"},
@@ -198,7 +203,7 @@
     {"path":"crates/biomcp-adapters/src/reactome/relations.rs","site":"fields: : mapped : : text ( id . as_str ( ) ) . ok ( )","maximum":1,"class":"legitimate_absence","owner":"reactome","reason":"Problem record text derives from an already validated ReactomeId; it does not discard received optional metadata"},
     {"path":"crates/biomcp-adapters/src/received.rs","site":"received_date: = 12 { for day in 1 . . = 31 { if let Ok ( date ) = biodata : : PartialDate : : new ( year","maximum":1,"class":"pending_audit","owner":"received.rs","reason":"Existing adapter violation awaits its family audit"},
     {"path":"crates/biomcp-adapters/src/registry/records.rs","site":"record_url: : Write ; write ! ( & mut encoded , \"%{byte:02X}\" ) . ok ( )","maximum":1,"class":"pending_audit","owner":"registry","reason":"Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"},
-    {"path":"crates/biomcp-adapters/src/registry.rs","site":"file line limit","maximum":452,"class":"pending_audit","owner":"registry.rs","reason":"Existing adapter violation awaits its family audit"},
+    {"path":"crates/biomcp-adapters/src/registry.rs","site":"file line limit","maximum":454,"class":"pending_audit","owner":"registry.rs","reason":"Existing adapter violation awaits its family audit"},
     {"path":"crates/biomcp-adapters/src/seer/mod.rs","site":"catalog: = site . value . to_string ( ) . parse ( ) . ok ( )","maximum":1,"class":"pending_audit","owner":"seer","reason":"Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"},
     {"path":"crates/biomcp-adapters/src/semantic_scholar/author/papers/row.rs","site":"checked: ( | s | Text : : new ( & s ) . ok ( )","maximum":1,"class":"pending_audit","owner":"semantic_scholar","reason":"Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"},
     {"path":"crates/biomcp-adapters/src/semantic_scholar/author/papers/row.rs","site":"detail: ( | v | Text : : new ( & v ) . ok ( )","maximum":1,"class":"pending_audit","owner":"semantic_scholar","reason":"Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"},
@@ -237,5 +242,127 @@
     {"path":"crates/biomcp-adapters/src/wikipathways/gpml_raw.rs","site":"matches: | | revision . parse : : < u64 > ( ) . ok ( )","maximum":1,"class":"pending_audit","owner":"wikipathways","reason":"Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"},
     {"path":"crates/biomcp-adapters/src/wikipathways/raw.rs","site":"adapter serde refusal: [ serde ( deny_unknown_fields ) ] pub ( super ) struct Native { pub id : WikiPathwaysId ,","maximum":1,"class":"pending_audit","owner":"wikipathways","reason":"Existing adapter violation awaits its family audit"},
     {"path":"crates/biomcp-adapters/src/wikipathways/raw.rs","site":"adapter serde refusal: [ serde ( deny_unknown_fields ) ] struct Catalog { # [ serde ( rename = \"pathwayInfo\" ) ]","maximum":1,"class":"pending_audit","owner":"wikipathways","reason":"Existing adapter violation awaits its family audit"}
-  ]
+  ],
+  "fields": [
+  {
+    "path": "pubmed/map.rs",
+    "class": "migrated",
+    "fields": [
+      "title",
+      "journal",
+      "date",
+      "electronic_date",
+      "authors",
+      "first_author",
+      "types",
+      "articleids",
+      "doi",
+      "pmcid"
+    ],
+    "reason": "Present invalid optional fields use the shared problem context; malformed members name their field"
+  },
+  {
+    "path": "pubmed/efetch.rs",
+    "class": "migrated",
+    "fields": [
+      "title",
+      "journal",
+      "doi",
+      "pmcid",
+      "date",
+      "electronic_date",
+      "authors",
+      "abstract_parts.label",
+      "abstract_parts.text",
+      "corrections.pmid"
+    ],
+    "reason": "The citation and its PMID survive rejected optional XML text and IDs"
+  },
+  {
+    "path": "pubmed/indexing.rs",
+    "class": "migrated",
+    "fields": [
+      "mesh.descriptor",
+      "mesh.qualifiers.name",
+      "keywords",
+      "affiliations",
+      "orcids"
+    ],
+    "reason": "Invalid optional text omits only its member; ORCID values retain native text without new identity heuristics"
+  },
+  {
+    "path": "pubmed/mod.rs",
+    "class": "migrated",
+    "fields": [
+      "notices.not_found_words",
+      "notices.pubmed_warnings",
+      "notices.pubmed_warning.phrases"
+    ],
+    "reason": "Invalid optional notice text is omitted with a source problem"
+  },
+  {
+    "path": "orcid/raw.rs",
+    "class": "migrated",
+    "fields": [
+      "credit_name",
+      "given_names",
+      "family_name",
+      "name"
+    ],
+    "reason": "Each optional name is decoded tolerantly and checked through the shared context; the existing source selection chooses the display name"
+  },
+  {
+    "path": "orcid/works.rs",
+    "class": "migrated",
+    "fields": [
+      "work_type",
+      "external_ids",
+      "external_ids.relationship",
+      "title",
+      "subtitle",
+      "translated_title",
+      "publication_date",
+      "journal_title",
+      "url",
+      "display_index",
+      "external_ids.url",
+      "source.source_orcid",
+      "source.source_client_id",
+      "source.source_name",
+      "source.assertion_origin_orcid",
+      "source.assertion_origin_client_id",
+      "source.assertion_origin_name"
+    ],
+    "reason": "Tolerant optional raw fields report problems against the work path or whole-works path for group identifiers; stored pages retain the problems"
+  },
+  {
+    "path": "pubmed/raw.rs; pubmed/efetch.rs; orcid/raw.rs; orcid/works.rs",
+    "class": "identity_refusal",
+    "fields": [
+      "PubMed search idlist and count",
+      "PubMed summary uid and matching key",
+      "PubMed citation PMID",
+      "ORCID requested person/name/works/work paths",
+      "ORCID put_code",
+      "ORCID external ID kind and value (member only)"
+    ],
+    "reason": "Required identities retain strict decoding at their own record or member boundary"
+  },
+  {
+    "path": "pubmed/map.rs; pubmed/efetch.rs; orcid/raw.rs; orcid/works.rs",
+    "class": "legitimate_absence",
+    "fields": [
+      "Missing or null optional fields",
+      "Unrecognized native publication-type projection",
+      "Duplicate electronic and print dates",
+      "Unselected ArticleId namespaces",
+      "Unknown correction relation or kind",
+      "Nonpublic person names and work assertions",
+      "Empty public assertion groups",
+      "Missing or nonpublic person name object",
+      "No unrequested author summary beyond first author"
+    ],
+    "reason": "These branches represent missing, unselected or inaccessible source facts and never convert an invalid optional text value into silence"
+  }
+]
 }
