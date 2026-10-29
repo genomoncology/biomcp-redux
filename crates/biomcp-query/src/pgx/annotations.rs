@@ -141,7 +141,10 @@ pub(crate) fn annotation(cx: &Ctx<'_>, q: &PgxAnnotationGet) -> Outcome {
     let reply = clinpgx::annotation(&leg, q).map(|mapped| {
         problems = mapped.problems;
         QueryBody::PgxAnnotation(mapped.value.map(|annotation| PgxAnnotation {
-            header: PgxAnnotationIdentity { source: PgxSource::Clinpgx, id: q.id().clone() },
+            header: PgxAnnotationIdentity {
+                source: PgxSource::Clinpgx,
+                id: q.id().clone(),
+            },
             annotation,
         }))
     });

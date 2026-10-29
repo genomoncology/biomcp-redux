@@ -48,16 +48,26 @@ pub fn sync(fetch: &Fetch) -> Result<SyncResult, RequestError> {
     })
 }
 /// Read each source submission for the checked HGNC identity.
-pub fn gene(leg: &Leg<'_>, id: HgncId, symbol: &GeneSymbol) -> Result<Mapped<Option<GenccGene>>, RequestError> {
+pub fn gene(
+    leg: &Leg<'_>,
+    id: HgncId,
+    symbol: &GeneSymbol,
+) -> Result<Mapped<Option<GenccGene>>, RequestError> {
     let (mut rows, _) = leg.stored_rows(&SUBMISSIONS, Find::Exact(KeyKind::Id, &id.to_string()))?;
-    let (rejected, _) = leg.stored_rows(&SUBMISSIONS, Find::Exact(KeyKind::Symbol, &rejected_key(symbol)))?;
+    let (rejected, _) = leg.stored_rows(
+        &SUBMISSIONS,
+        Find::Exact(KeyKind::Symbol, &rejected_key(symbol)),
+    )?;
     rows.extend(rejected);
     let mut problems = Vec::new();
-    let submissions: Box<[_]> = rows.into_iter().filter_map(|row| {
-        let mapped = row.into_record(id);
-        problems.extend(mapped.problems);
-        mapped.value
-    }).collect();
+    let submissions: Box<[_]> = rows
+        .into_iter()
+        .filter_map(|row| {
+            let mapped = row.into_record(id);
+            problems.extend(mapped.problems);
+            mapped.value
+        })
+        .collect();
     Ok(Mapped {
         value: (!submissions.is_empty()).then_some(GenccGene { submissions }),
         problems,
@@ -91,23 +101,37 @@ impl Row for Submission {
     fn keys(&self) -> Keys {
         let exact = match self.gene_curie.as_ref().and_then(Field::as_ref) {
             Some(id) => vec![(KeyKind::Id, id.to_string().into())],
-            None => self.gene_symbol.as_ref().and_then(Field::as_ref)
-                .map(|symbol| vec![(KeyKind::Symbol, rejected_key(symbol).into())]).unwrap_or_default(),
+            None => self
+                .gene_symbol
+                .as_ref()
+                .and_then(Field::as_ref)
+                .map(|symbol| vec![(KeyKind::Symbol, rejected_key(symbol).into())])
+                .unwrap_or_default(),
         };
-        Keys { exact, words: Vec::new() }
+        Keys {
+            exact,
+            words: Vec::new(),
+        }
     }
 }
 impl Submission {
     fn into_record(self, requested: HgncId) -> Mapped<Option<GenccSubmission>> {
-        let mut cx = Problems { source: Source::Gencc, record: None, list: Vec::new() };
+        let mut cx = Problems {
+            source: Source::Gencc,
+            record: None,
+            list: Vec::new(),
+        };
         let id = cx.required_field("sgc_id", self.sgc_id);
         cx.record = id.clone();
         let gene = cx.required_field("gene_curie", self.gene_curie);
-        if gene.is_some_and(|gene| gene != requested) { cx.required::<()>("gene_curie", None); }
+        if gene.is_some_and(|gene| gene != requested) {
+            cx.required::<()>("gene_curie", None);
+        }
         let version = cx.required_field("version_number", self.version_number);
         let value = match (id, version) {
             (Some(id), Some(version)) if gene == Some(requested) => Some(GenccSubmission {
-                id, version,
+                id,
+                version,
                 disease_id: cx.field("disease_curie", self.disease_curie),
                 disease: cx.field("disease_title", self.disease_title),
                 classification_id: cx.field("classification_curie", self.classification_curie),
@@ -116,14 +140,25 @@ impl Submission {
                 mode_of_inheritance: cx.field("moi_title", self.moi_title),
                 submitter_id: cx.field("submitter_curie", self.submitter_curie),
                 submitter: cx.field("submitter_title", self.submitter_title),
-                evaluated_date: cx.text("submitted_as_date", self.submitted_as_date.as_deref().filter(|v| !v.is_empty())),
-                submitted_date: cx.text("submitted_run_date", self.submitted_run_date.as_deref().filter(|v| !v.is_empty())),
+                evaluated_date: cx.text(
+                    "submitted_as_date",
+                    self.submitted_as_date.as_deref().filter(|v| !v.is_empty()),
+                ),
+                submitted_date: cx.text(
+                    "submitted_run_date",
+                    self.submitted_run_date.as_deref().filter(|v| !v.is_empty()),
+                ),
             }),
             _ => None,
         };
-        Mapped { value, problems: cx.list }
+        Mapped {
+            value,
+            problems: cx.list,
+        }
     }
 }
 
 // This key scopes a refused HGNC join by an independently checked native symbol.
-fn rejected_key(symbol: &GeneSymbol) -> String { format!("rejected-hgnc:{symbol}") }
+fn rejected_key(symbol: &GeneSymbol) -> String {
+    format!("rejected-hgnc:{symbol}")
+}

@@ -1,5 +1,6 @@
 //! Feature cpic-pgx: synthetic native retrieval through the actual CLI and MCP.
 mod rows;
+mod failures;
 use super::{configuration::invoke, launch::Environment, network_stub::Stub};
 use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
@@ -41,7 +42,7 @@ pub(super) fn trials() -> Vec<Trial> {
     ] {
         out.push(transcript_trial(
             format!("cpic-pgx/source-{name}"),
-            move || failure(name).map_err(Into::into),
+            move || failures::failure(name).map_err(Into::into),
         ));
     }
     out
@@ -209,126 +210,6 @@ fn verify_next(name: &str, value: &Value) -> Check {
         && steps.first().and_then(|s| s.get("kind")) != Some(&json!("page"))
     {
         return Err("recommendation page missing".into());
-    }
-    Ok(())
-}
-fn failure(name: &'static str) -> Check {
-    let (mut args, mut body) = rows::scenario(match name {
-        "wrong-drug" => "table",
-        "truncated-diplotype" => "diplotype",
-        "truncated-card" => "card",
-        _ => "pairs",
-    })?;
-    if name == "wrong-gene" {
-        *body.pointer_mut("/0/genesymbol").ok_or("synthetic field")? = json!("TPMT");
-    }
-    if name == "wrong-drug" {
-        *body.pointer_mut("/0/drugid").ok_or("synthetic field")? = json!("RxNorm:999");
-    }
-    if name == "unknown-field" {
-        body.pointer_mut("/0")
-            .and_then(Value::as_object_mut)
-            .ok_or("synthetic row")?
-            .insert("invented_extra".into(), json!("unreviewed"));
-    }
-    let stub = Stub::counted(
-        move |request| {
-            Ok(if name == "wrong-gene" && request.contains("offset=1") {
-                let mut second = body.clone();
-                second[0]["genesymbol"] = json!("DPYD");
-                second[0]["pairid"] = json!(2);
-                second.to_string()
-            } else if name == "status" {
-                json!({"code":"SYNTHETIC","message":"Synthetic HTTP 200 error"}).to_string()
-            } else if name == "broken" {
-                "{".into()
-            } else {
-                body.to_string()
-            })
-        },
-        move |request| match name {
-            "wrong-gene" if request.contains("offset=1") => "Content-Range: 1-1/2\r\n".into(),
-            "missing-range" => String::new(),
-            "range" => "Content-Range: 4-4/5\r\n".into(),
-            "count" => "Content-Range: 0-1/2\r\n".into(),
-            _ => "Content-Range: 0-0/2\r\n".into(),
-        },
-        move |_| match name {
-            "status" => 200,
-            "429" => 429,
-            "500" => 500,
-            _ => 206,
-        },
-    )?;
-    let env = environment(&stub)?;
-    let record = env.root().join("record");
-    args.splice(0..0, ["--record".into(), record.to_string_lossy().into()]);
-    if matches!(name, "wrong-gene" | "wrong-drug" | "unknown-field") {
-        let value = invoke(&env, args.clone(), 0)?;
-        if value.pointer("/sources/0/state") != Some(&json!("ok")) {
-            return Err(format!("one field rejected the native page: {value}"));
-        }
-        if name != "unknown-field" && (value.pointer("/problems/0/field") != Some(&json!("record"))
-            || value.pointer("/result/items/0").is_some()) {
-            return Err(format!("wrong identity leaked from the native page: {value}"));
-        }
-        if name == "wrong-gene" && !value["next"].as_array().is_some_and(|steps| steps.iter().any(|step|
-            step["args"].as_array().is_some_and(|args| args.windows(2).any(|pair| pair == [json!("--offset"), json!("1")])))) {
-            return Err(format!("dropped native row stopped page progress: {value}"));
-        }
-        if name == "wrong-gene" {
-            let command = value["next"].as_array().ok_or("missing steps")?.iter()
-                .find(|step| step["kind"] == json!("page")).and_then(|step| step["args"].as_array())
-                .ok_or("missing native page step")?.iter().map(|arg| arg.as_str().unwrap().to_owned()).collect();
-            let second = invoke(&env, command, 0)?;
-            if second.pointer("/result/items/0/pairid") != Some(&json!(2))
-                || second.pointer("/result/page/returned") != Some(&json!(1))
-                || second.pointer("/result/page/offset") != Some(&json!(1)) {
-                return Err(format!("native continuation skipped or repeated a row: {second}"));
-            }
-        }
-        args[0] = "--replay".into();
-        let replay_env = Environment::new().map_err(|e| e.to_string())?;
-        let repeated = both(&replay_env, args, 0)?;
-        if repeated.get("result") != value.get("result") || repeated.get("problems") != value.get("problems") {
-            return Err("native row filtering changed on replay".into());
-        }
-        stub.finish()?;
-        return Ok(());
-    }
-    let value = invoke(&env, args.clone(), 4)?;
-    if value.get("result").is_some_and(|v| !v.is_null())
-        || value.pointer("/sources/0/state") != Some(&json!("failed"))
-        || value.pointer("/sources/0/terms").is_none()
-    {
-        return Err(format!("source failure hidden as success: {value}"));
-    }
-    if matches!(name, "wrong-gene" | "wrong-drug")
-        && (value.pointer("/problems/0/source") != Some(&json!("cpic"))
-            || value.pointer("/problems/0/field") != Some(&json!("record")))
-    {
-        return Err(format!("identity drop omitted its problem: {value}"));
-    }
-    super::pgx_retirements::bounded(&format!("CPIC {name}"), &value)?;
-    let mut replay = args.clone();
-    *replay.get_mut(0).ok_or("missing replay flag")? = "--replay".into();
-    let replay_env = Environment::new().map_err(|e| e.to_string())?;
-    let repeated = both(&replay_env, replay, 4)?;
-    if repeated.get("status") != value.get("status")
-        || repeated.get("sources") != value.get("sources")
-    {
-        return Err("recorded source failure changed".into());
-    }
-    let mut offline = args;
-    offline.drain(0..2);
-    offline.insert(0, "--offline".into());
-    let unavailable = both(&env, offline, 4)?;
-    if unavailable.pointer("/sources/0/reason") != Some(&json!("offline")) {
-        return Err("rejected reply entered the checked cache".into());
-    }
-    let count = stub.finish()?.len();
-    if count == 0 {
-        return Err("failure never reached synthetic source".into());
     }
     Ok(())
 }

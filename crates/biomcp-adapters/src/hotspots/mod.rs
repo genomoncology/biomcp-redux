@@ -39,17 +39,28 @@ struct Row {
     variant_amino_acid: Option<Field<std::collections::BTreeMap<String, Field<u64>>>>,
 }
 impl Reply for Rows {
-    fn check(&self) -> Result<(), BadReply> { Ok(()) }
+    fn check(&self) -> Result<(), BadReply> {
+        Ok(())
+    }
 }
 /// Read native gene rows as candidates until a transcript/consequence join is established.
 pub fn gene(leg: &Leg<'_>, gene: &GeneSymbol) -> Result<Mapped<Vec<HotspotRecord>>, RequestError> {
     let segment = PathSegment::new(gene.as_str()).map_err(RequestError::Input)?;
     let endpoint = GENE.clone().with_segments(&[segment]);
     let raw: Rows = leg.json(&endpoint, &[])?;
-    let mut out = Mapped { value: Vec::new(), problems: Vec::new() };
+    let mut out = Mapped {
+        value: Vec::new(),
+        problems: Vec::new(),
+    };
     for row in raw.0 {
-        let mut cx = Problems { source: Source::CancerHotspots, record: None, list: Vec::new() };
-        let mapped = cx.field("record", Some(row)).and_then(|row| row.map(gene, &mut cx));
+        let mut cx = Problems {
+            source: Source::CancerHotspots,
+            record: None,
+            list: Vec::new(),
+        };
+        let mapped = cx
+            .field("record", Some(row))
+            .and_then(|row| row.map(gene, &mut cx));
         out.value.extend(mapped);
         out.problems.extend(cx.list);
     }
@@ -60,16 +71,25 @@ impl Row {
         let residue = cx.required_field("residue", self.residue);
         cx.record = residue.clone();
         let symbol = cx.required_field("hugoSymbol", self.hugo_symbol);
-        let (Some(residue), Some(symbol)) = (residue, symbol) else { return None; };
+        let (Some(residue), Some(symbol)) = (residue, symbol) else {
+            return None;
+        };
         if &symbol != gene {
             cx.required::<()>("hugoSymbol", None);
             return None;
         }
-        let alternates = cx.field("variantAminoAcid", self.variant_amino_acid)
-            .into_iter().flatten().filter_map(|(key, count)| {
+        let alternates = cx
+            .field("variantAminoAcid", self.variant_amino_acid)
+            .into_iter()
+            .flatten()
+            .filter_map(|(key, count)| {
                 let amino_acid = cx.text("variantAminoAcid.amino_acid", Some(&key))?;
-                Some(HotspotAlternate { amino_acid, count: cx.field("variantAminoAcid.count", Some(count)) })
-            }).collect();
+                Some(HotspotAlternate {
+                    amino_acid,
+                    count: cx.field("variantAminoAcid.count", Some(count)),
+                })
+            })
+            .collect();
         Some(HotspotRecord {
             membership: HotspotMembership::Candidate,
             gene: symbol,

@@ -1,6 +1,8 @@
 //! Native fields retain source spellings and independent error boundaries.
 use crate::pgx_sources::pgx_row;
-use biodata::{GeneSymbol, HgncId, NcbiGeneId, EnsemblGeneId, ClinPgxAccession, Curie, Pmid, PgxGeneKey};
+use biodata::{
+    ClinPgxAccession, Curie, EnsemblGeneId, GeneSymbol, HgncId, NcbiGeneId, PgxGeneKey, Pmid,
+};
 use std::collections::BTreeMap;
 pgx_row! { PgxGeneIdentity => biodata::PgxGeneIdentity, record symbol {
     identity {

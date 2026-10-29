@@ -40,7 +40,11 @@ fn collection<T: serde::de::DeserializeOwned + NativeRow>(
         |_| Ok(()),
         |_| true,
     )?;
-    let mut cx = Problems { source: biomcp_types::Source::ClinPgx, record: None, list: Vec::new() };
+    let mut cx = Problems {
+        source: biomcp_types::Source::ClinPgx,
+        record: None,
+        list: Vec::new(),
+    };
     let mut value = Vec::new();
     for row in body.data {
         cx.record = None;
@@ -48,15 +52,24 @@ fn collection<T: serde::de::DeserializeOwned + NativeRow>(
             cx.record = raw.record();
             let before = cx.list.len();
             if let Some(row) = raw.map(&mut cx) {
-                if check(&row) { value.push(row); }
-                else if cx.list.len() == before { cx.required::<()>("record", None); }
+                if check(&row) {
+                    value.push(row);
+                } else if cx.list.len() == before {
+                    cx.required::<()>("record", None);
+                }
             }
         }
     }
-    Ok(Mapped { value, problems: cx.list })
+    Ok(Mapped {
+        value,
+        problems: cx.list,
+    })
 }
 /// Clinical min preserves full locations, evidence labels and relationship arrays.
-pub fn clinical(leg: &Leg<'_>, q: &PgxGet) -> Result<Mapped<Vec<PgxAnnotationHeader>>, RequestError> {
+pub fn clinical(
+    leg: &Leg<'_>,
+    q: &PgxGet,
+) -> Result<Mapped<Vec<PgxAnnotationHeader>>, RequestError> {
     let symbol = q.gene().to_string();
     collection::<super::annotation_raw::PgxAnnotationHeader>(
         leg,
@@ -64,19 +77,32 @@ pub fn clinical(leg: &Leg<'_>, q: &PgxGet) -> Result<Mapped<Vec<PgxAnnotationHea
         super::CLINICAL_PATH,
         "location.genes.symbol",
         |row: &PgxAnnotationHeader| {
-            row.location.as_ref().is_some_and(|location| location.genes.iter()
-                .any(|gene| gene.symbol.as_deref() == Some(symbol.as_str())))
+            row.location.as_ref().is_some_and(|location| {
+                location
+                    .genes
+                    .iter()
+                    .any(|gene| gene.symbol.as_deref() == Some(symbol.as_str()))
+            })
         },
     )
 }
 /// Reference collections remain independent; neither supplies full guidance.
-pub fn references(leg: &Leg<'_>, q: &PgxGet) -> Result<Mapped<Vec<PgxAnnotationReference>>, RequestError> {
+pub fn references(
+    leg: &Leg<'_>,
+    q: &PgxGet,
+) -> Result<Mapped<Vec<PgxAnnotationReference>>, RequestError> {
     let path = match q.kind() {
         Some(PgxAnnotationKind::Guideline) => "/data/guidelineAnnotation",
         Some(PgxAnnotationKind::Label) => "/data/labelAnnotation",
         _ => return Err(biomcp_fetch::InputError::Serialization.into()),
     };
-    collection::<super::annotation_raw::PgxAnnotationReference>(leg, q, path, "relatedGenes.symbol", |_| true)
+    collection::<super::annotation_raw::PgxAnnotationReference>(
+        leg,
+        q,
+        path,
+        "relatedGenes.symbol",
+        |_| true,
+    )
 }
 /// Check exact returned accession on every read before cache admission.
 pub fn annotation(
@@ -94,12 +120,22 @@ pub fn annotation(
         |_| Ok(()),
         |_| true,
     )?;
-    let mut cx = Problems { source: biomcp_types::Source::ClinPgx, record: None, list: Vec::new() };
+    let mut cx = Problems {
+        source: biomcp_types::Source::ClinPgx,
+        record: None,
+        list: Vec::new(),
+    };
     let value = cx.field("record", Some(body.data)).and_then(|raw| {
         cx.record = raw.record();
         let row = raw.map(&mut cx)?;
-        if row.accession_id == *q.id() { Some(row) }
-        else { cx.required("record", None) }
+        if row.accession_id == *q.id() {
+            Some(row)
+        } else {
+            cx.required("record", None)
+        }
     });
-    Ok(Mapped { value, problems: cx.list })
+    Ok(Mapped {
+        value,
+        problems: cx.list,
+    })
 }

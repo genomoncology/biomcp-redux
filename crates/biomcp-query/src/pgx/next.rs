@@ -20,7 +20,11 @@ fn section(q: &PgxGet, s: PgxSection) -> Option<Request> {
 pub(super) fn steps(request: &Request, out: &Outcome) -> Vec<(StepKind, Action)> {
     steps_with(request, out, None)
 }
-pub(super) fn steps_with(request: &Request, out: &Outcome, native_consumed: Option<u32>) -> Vec<(StepKind, Action)> {
+pub(super) fn steps_with(
+    request: &Request,
+    out: &Outcome,
+    native_consumed: Option<u32>,
+) -> Vec<(StepKind, Action)> {
     let mut next = vec![];
     let association = matches!(
         &out.body,
@@ -97,7 +101,12 @@ pub(super) fn steps_with(request: &Request, out: &Outcome, native_consumed: Opti
     }
     next
 }
-fn page_step(q: &PgxGet, p: &PgxPageInfo, next: &mut Vec<(StepKind, Action)>, consumed: Option<u32>) {
+fn page_step(
+    q: &PgxGet,
+    p: &PgxPageInfo,
+    next: &mut Vec<(StepKind, Action)>,
+    consumed: Option<u32>,
+) {
     let consumed = consumed.unwrap_or(p.returned);
     let offset = p.offset.saturating_add(consumed);
     if consumed > 0

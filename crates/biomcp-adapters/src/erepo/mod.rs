@@ -32,32 +32,57 @@ pub fn assertions(
 ) -> Result<Mapped<Vec<VariantAssertion>>, RequestError> {
     let mapped = records(leg, caid)?;
     let records = mapped.value;
-    let mut cx = Problems { source: Source::Erepo, record: None, list: mapped.problems };
+    let mut cx = Problems {
+        source: Source::Erepo,
+        record: None,
+        list: mapped.problems,
+    };
     if let Some((id, Some(version))) = selection {
         let record = records.iter().find(|r| r.id == id).ok_or_else(bad)?;
         // The summary names its own exact current document version.
         // Older selections use their own SEPIO body and cannot borrow these facts.
         if record.version != version {
-            let uuid = record.uuid.as_ref().and_then(crate::raw::Field::as_ref).ok_or_else(bad)?;
+            let uuid = record
+                .uuid
+                .as_ref()
+                .and_then(crate::raw::Field::as_ref)
+                .ok_or_else(bad)?;
             if !record
                 .versions
                 .as_ref()
                 .and_then(crate::raw::Field::as_ref)
-                .is_some_and(|v| v.iter().filter_map(crate::raw::Field::as_ref).any(|v| v.as_str() == version))
+                .is_some_and(|v| {
+                    v.iter()
+                        .filter_map(crate::raw::Field::as_ref)
+                        .any(|v| v.as_str() == version)
+                })
             {
                 return Err(bad());
             }
             let mapped = history::fetch(leg, caid, id, uuid, version)?;
             cx.list.extend(mapped.problems);
-            return Ok(Mapped { value: mapped.value.into_iter().collect(), problems: cx.list });
+            return Ok(Mapped {
+                value: mapped.value.into_iter().collect(),
+                problems: cx.list,
+            });
         }
     }
-    let value = records.into_iter().filter_map(|row| row.map(caid, &mut cx)).collect();
-    Ok(Mapped { value, problems: cx.list })
+    let value = records
+        .into_iter()
+        .filter_map(|row| row.map(caid, &mut cx))
+        .collect();
+    Ok(Mapped {
+        value,
+        problems: cx.list,
+    })
 }
 fn records(leg: &Leg<'_>, caid: &str) -> Result<Mapped<Vec<raw::Record>>, RequestError> {
     let mut rows = Vec::new();
-    let mut cx = Problems { source: Source::Erepo, record: None, list: Vec::new() };
+    let mut cx = Problems {
+        source: Source::Erepo,
+        record: None,
+        list: Vec::new(),
+    };
     let mut page = 1;
     loop {
         let params = [
@@ -67,25 +92,38 @@ fn records(leg: &Leg<'_>, caid: &str) -> Result<Mapped<Vec<raw::Record>>, Reques
             ("pgSize", Arg::Num(3)),
             ("pg", Arg::Num(page)),
         ];
-        let (reply, _) = leg.json_received_checked_cache::<raw::ReplyBody>(&FETCH, &params, |reply| {
-            reply.data.as_ref().is_some_and(|rows| !rows.is_empty() && rows.iter()
-                .all(|row| row.as_ref().is_some_and(|row| row.matches(caid))))
-        })?;
+        let (reply, _) =
+            leg.json_received_checked_cache::<raw::ReplyBody>(&FETCH, &params, |reply| {
+                reply.data.as_ref().is_some_and(|rows| {
+                    !rows.is_empty()
+                        && rows
+                            .iter()
+                            .all(|row| row.as_ref().is_some_and(|row| row.matches(caid)))
+                })
+            })?;
         let data = reply.data.unwrap_or_default();
         let complete = data.len() < 3;
         for raw in data {
             cx.record = None;
-            let Some(row) = cx.field("record", Some(raw)) else { continue; };
+            let Some(row) = cx.field("record", Some(raw)) else {
+                continue;
+            };
             cx.record = cx.text("PCERDocID", Some(&row.id));
             let version = cx.text("docVersion", Some(&row.version));
             let allele = cx.optional("caId", Some(row.ca_id.parse::<biodata::VariantId>()));
             if cx.record.is_some() && version.is_some() && allele.is_some() {
-                if row.ca_id == caid { rows.push(row); }
-                else { cx.required::<()>("caId", None); }
+                if row.ca_id == caid {
+                    rows.push(row);
+                } else {
+                    cx.required::<()>("caId", None);
+                }
             }
         }
         if complete {
-            return Ok(Mapped { value: rows, problems: cx.list });
+            return Ok(Mapped {
+                value: rows,
+                problems: cx.list,
+            });
         }
         page = page.checked_add(1).ok_or_else(bad)?;
     }

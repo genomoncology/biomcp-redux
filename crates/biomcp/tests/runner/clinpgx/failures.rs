@@ -41,6 +41,47 @@ fn failure(name: &'static str) -> Check {
     } else {
         "clinical"
     };
+    let stub = fixture(name, shape)?;
+    let env = environment(&stub)?;
+    let record = env.root().join("record");
+    let mut command = vec!["--record".into(), record.to_string_lossy().into()];
+    command.extend(args(shape));
+    if matches!(
+        name,
+        "wrong-accession" | "wrong-gene" | "unknown-field" | "unknown-nested-field" | "bad-score"
+    ) {
+        return mapped(name, &env, stub, command);
+    }
+    let value = invoke(&env, command.clone(), 4)?;
+    if value.get("result").is_some_and(|v| !v.is_null())
+        || value.pointer("/sources/0/state") != Some(&json!("failed"))
+        || value.pointer("/sources/0/terms").is_none()
+    {
+        return Err("source failure became a negative fact".into());
+    }
+    if matches!(name, "wrong-accession" | "wrong-gene")
+        && (value.pointer("/problems/0/source") != Some(&json!("clinpgx"))
+            || value.pointer("/problems/0/field") != Some(&json!("record")))
+    {
+        return Err(format!("identity drop omitted its problem: {value}"));
+    }
+    super::super::pgx_retirements::bounded(&format!("ClinPGx {name}"), &value)?;
+    *command.get_mut(0).ok_or("record switch")? = "--replay".into();
+    let fresh = Environment::new().map_err(|e| e.to_string())?;
+    let replay = both(&fresh, command, 4)?;
+    if replay.get("sources") != value.get("sources") {
+        return Err("recorded failure changed".into());
+    }
+    let mut offline = vec!["--offline".into()];
+    offline.extend(args(shape));
+    if both(&env, offline, 4)?.pointer("/sources/0/reason") != Some(&json!("offline")) {
+        return Err("rejected response entered cache".into());
+    }
+    stub.finish()?;
+    Ok(())
+}
+
+fn fixture(name: &'static str, shape: &str) -> Result<Stub, String> {
     let mut body = native(shape)?;
     if name == "wrong-accession" {
         *body
@@ -48,7 +89,7 @@ fn failure(name: &'static str) -> Check {
             .ok_or("synthetic identity")? = json!("PA999999");
     }
     if name == "bad-score" {
-        body["data"]["score"] = json!("invalid");
+        *body.pointer_mut("/data/score").ok_or("synthetic score")? = json!("invalid");
     }
     if name == "wrong-gene" {
         *body
@@ -85,60 +126,40 @@ fn failure(name: &'static str) -> Check {
             _ => 200,
         },
     )?;
-    let env = environment(&stub)?;
-    let record = env.root().join("record");
-    let mut command = vec!["--record".into(), record.to_string_lossy().into()];
-    command.extend(args(shape));
-    if matches!(name, "wrong-accession" | "wrong-gene" | "unknown-field" | "unknown-nested-field" | "bad-score") {
-        let value = invoke(&env, command.clone(), 0)?;
+    Ok(stub)
+}
+
+fn mapped(name: &str, env: &Environment, stub: Stub, mut command: Vec<String>) -> Check {
+        let value = invoke(env, command.clone(), 0)?;
         if value.pointer("/sources/0/state") != Some(&json!("ok")) {
-            return Err(format!("one native identity or field rejected the reply: {value}"));
+            return Err(format!(
+                "one native identity or field rejected the reply: {value}"
+            ));
         }
         if matches!(name, "wrong-accession" | "wrong-gene")
-            && value.pointer("/problems/0/field") != Some(&json!("record")) {
+            && value.pointer("/problems/0/field") != Some(&json!("record"))
+        {
             return Err(format!("identity drop lacks its problem: {value}"));
         }
-        if name == "bad-score" && (value.pointer("/result/annotation/score").is_some()
-            || value.pointer("/problems/0/field") != Some(&json!("score"))
-            || value.pointer("/result/annotation/accessionId") != Some(&json!("PA100001"))) {
-            return Err(format!("bad score discarded annotation or lacked disclosure: {value}"));
+        if name == "bad-score"
+            && (value.pointer("/result/annotation/score").is_some()
+                || value.pointer("/problems/0/field") != Some(&json!("score"))
+                || value.pointer("/result/annotation/accessionId") != Some(&json!("PA100001")))
+        {
+            return Err(format!(
+                "bad score discarded annotation or lacked disclosure: {value}"
+            ));
         }
-        command[0] = "--replay".into();
+        *command.get_mut(0).ok_or("record switch")? = "--replay".into();
         let fresh = Environment::new().map_err(|e| e.to_string())?;
         let replay = both(&fresh, command, 0)?;
-        if replay.get("problems") != value.get("problems") || replay.get("result") != value.get("result") {
+        if replay.get("problems") != value.get("problems")
+            || replay.get("result") != value.get("result")
+        {
             return Err("native field mapping changed on replay".into());
         }
         stub.finish()?;
-        return Ok(());
-    }
-    let value = invoke(&env, command.clone(), 4)?;
-    if value.get("result").is_some_and(|v| !v.is_null())
-        || value.pointer("/sources/0/state") != Some(&json!("failed"))
-        || value.pointer("/sources/0/terms").is_none()
-    {
-        return Err("source failure became a negative fact".into());
-    }
-    if matches!(name, "wrong-accession" | "wrong-gene")
-        && (value.pointer("/problems/0/source") != Some(&json!("clinpgx"))
-            || value.pointer("/problems/0/field") != Some(&json!("record")))
-    {
-        return Err(format!("identity drop omitted its problem: {value}"));
-    }
-    super::super::pgx_retirements::bounded(&format!("ClinPGx {name}"), &value)?;
-    *command.get_mut(0).ok_or("record switch")? = "--replay".into();
-    let fresh = Environment::new().map_err(|e| e.to_string())?;
-    let replay = both(&fresh, command, 4)?;
-    if replay.get("sources") != value.get("sources") {
-        return Err("recorded failure changed".into());
-    }
-    let mut offline = vec!["--offline".into()];
-    offline.extend(args(shape));
-    if both(&env, offline, 4)?.pointer("/sources/0/reason") != Some(&json!("offline")) {
-        return Err("rejected response entered cache".into());
-    }
-    stub.finish()?;
-    Ok(())
+        Ok(())
 }
 
 fn selectors() -> Check {

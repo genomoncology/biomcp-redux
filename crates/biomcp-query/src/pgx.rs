@@ -56,15 +56,25 @@ pub fn get(cx: &Ctx<'_>, query: &PgxGet) -> Outcome {
     command.finish(deadline.remaining());
     out
 }
-fn read(leg: &Leg<'_>, q: &PgxGet, problems: &mut Vec<Problem>, consumed: &mut u32) -> Result<QueryBody, RequestError> {
+fn read(
+    leg: &Leg<'_>,
+    q: &PgxGet,
+    problems: &mut Vec<Problem>,
+    consumed: &mut u32,
+) -> Result<QueryBody, RequestError> {
     let header = header(q.gene());
     Ok(match q.section() {
         None => {
             let page = cpic::card(leg, q)?;
             *consumed = page.consumed;
             problems.extend(page.problems);
-            QueryBody::PgxCard(page.items.into_iter().next().map(|identity| PgxCard { header, identity }))
-        },
+            QueryBody::PgxCard(
+                page.items
+                    .into_iter()
+                    .next()
+                    .map(|identity| PgxCard { header, identity }),
+            )
+        }
         Some(PgxSection::Recommendations) if q.drug_id().is_some() => {
             let p = cpic::drug_recommendations(leg, q)?;
             *consumed = p.consumed;
@@ -99,8 +109,11 @@ fn read(leg: &Leg<'_>, q: &PgxGet, problems: &mut Vec<Problem>, consumed: &mut u
             let page = cpic::diplotype(leg, q)?;
             *consumed = page.consumed;
             problems.extend(page.problems);
-            QueryBody::PgxDiplotype(PgxDiplotype { header, diplotypes: page.items.into() })
-        },
+            QueryBody::PgxDiplotype(PgxDiplotype {
+                header,
+                diplotypes: page.items.into(),
+            })
+        }
         Some(PgxSection::Annotations) => return Err(biomcp_fetch::InputError::Serialization.into()),
     })
 }

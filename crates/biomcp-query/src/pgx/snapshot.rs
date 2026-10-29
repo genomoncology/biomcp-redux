@@ -7,7 +7,11 @@ use biomcp_types::{
     SourceState, Status, StepKind,
 };
 use sha2::{Digest, Sha256};
-type Saved = (PgxAnnotations, Vec<SourceOutcome>, Vec<biomcp_types::Problem>);
+type Saved = (
+    PgxAnnotations,
+    Vec<SourceOutcome>,
+    Vec<biomcp_types::Problem>,
+);
 fn key(q: &PgxGet) -> Vec<u8> {
     Sha256::digest(
         format!(
@@ -59,10 +63,14 @@ pub(super) fn load(
         (saved, snapshot.clone())
     } else {
         let reply = match q.kind() {
-            Some(PgxAnnotationKind::Clinical) => {
-                clinpgx::clinical(&leg, q).map(|rows| { out.problems.extend(rows.problems); super::annotations::body(q, rows.value, vec![]) })
-            }
-            _ => clinpgx::references(&leg, q).map(|rows| { out.problems.extend(rows.problems); super::annotations::body(q, vec![], rows.value) }),
+            Some(PgxAnnotationKind::Clinical) => clinpgx::clinical(&leg, q).map(|rows| {
+                out.problems.extend(rows.problems);
+                super::annotations::body(q, rows.value, vec![])
+            }),
+            _ => clinpgx::references(&leg, q).map(|rows| {
+                out.problems.extend(rows.problems);
+                super::annotations::body(q, vec![], rows.value)
+            }),
         };
         let error = reply.as_ref().err().copied();
         out.sources

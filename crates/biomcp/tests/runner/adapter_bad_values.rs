@@ -8,12 +8,12 @@ mod reactome_bad_values;
 #[path = "adapter_reactome_discovery.rs"]
 mod reactome_discovery;
 
+#[path = "adapter_interpretation_values.rs"]
+mod interpretation_values;
 #[path = "adapter_mychem_ontology_bad_values.rs"]
 mod mychem_ontology;
 #[path = "adapter_repeated_references.rs"]
 mod repeated_references;
-#[path = "adapter_interpretation_values.rs"]
-mod interpretation_values;
 
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = vec![

@@ -17,10 +17,16 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
                 Ok(mapped) => {
                     status::append(&mut problems, mapped.problems);
                     match mapped.value {
-                        Some(data) => Section::Data { source: Source::Gencc, data },
-                        None => Section::Empty { source: Source::Gencc, record: None },
+                        Some(data) => Section::Data {
+                            source: Source::Gencc,
+                            data,
+                        },
+                        None => Section::Empty {
+                            source: Source::Gencc,
+                            record: None,
+                        },
                     }
-                },
+                }
                 Err(failure) => {
                     error = Some(failure);
                     local = local.or(status::local(failure));

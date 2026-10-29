@@ -162,8 +162,11 @@ fn wrong_identity() -> Result<(), String> {
     for _ in 0..2 {
         let value = call(&env, &[])?;
         if value.pointer("/result/candidates/0/sections/erepo/state") != Some(&json!("empty"))
-            || value.pointer("/problems/0/field") != Some(&json!("caId")) {
-            return Err(format!("wrong CAid attached without row disclosure: {value}"));
+            || value.pointer("/problems/0/field") != Some(&json!("caId"))
+        {
+            return Err(format!(
+                "wrong CAid attached without row disclosure: {value}"
+            ));
         }
     }
     if stub.finish()?.len() != 2 {
@@ -203,8 +206,11 @@ fn invalid_fields() -> Result<(), String> {
                 || stub.finish()?.len() != 1 {
                 return Err(format!("optional date rejected the source document: {bad}; warm={recovered}"));
             }
-        } else if recovered.pointer("/result/candidates/0/sections/erepo/data/assertions/0/statement/attribution/version") != Some(&json!("1.1.0"))
-            || stub.finish()?.len() != 2 {
+        } else if recovered.pointer(
+            "/result/candidates/0/sections/erepo/data/assertions/0/statement/attribution/version",
+        ) != Some(&json!("1.1.0"))
+            || stub.finish()?.len() != 2
+        {
             return Err(format!("bad document identity persisted: {recovered}"));
         }
     }
@@ -236,7 +242,8 @@ fn history(mode: u8) -> Result<(), String> {
             .map_err(|e| format!("{e}: {}", String::from_utf8_lossy(&output.stdout)))?;
         if wrong {
             if value.pointer("/result/assertions/0").is_some()
-                || value.pointer("/problems/0/field") != Some(&json!("document")) {
+                || value.pointer("/problems/0/field") != Some(&json!("document"))
+            {
                 return Err(format!(
                     "wrong historical version accepted: {value}; wire={:?}",
                     stub.finish()
@@ -249,9 +256,15 @@ fn history(mode: u8) -> Result<(), String> {
                     stub.finish()
                 ));
             };
-            if mode == 2 && (row.pointer("/detail/document/assessments/0/criterion").is_some()
-                || value.pointer("/problems/0/field") != Some(&json!("criterion.label"))) {
-                return Err(format!("bad criterion rejected the source document: {value}"));
+            if mode == 2
+                && (row
+                    .pointer("/detail/document/assessments/0/criterion")
+                    .is_some()
+                    || value.pointer("/problems/0/field") != Some(&json!("criterion.label")))
+            {
+                return Err(format!(
+                    "bad criterion rejected the source document: {value}"
+                ));
             }
             if row.pointer("/statement/attribution/version") != Some(&json!("1.0.0"))
                 || row.pointer("/statement/condition/label")

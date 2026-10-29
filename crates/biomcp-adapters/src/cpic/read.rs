@@ -41,12 +41,20 @@ fn read<T: serde::de::DeserializeOwned + Native>(
     let (rows, metadata) =
         leg.json_counted::<Rows<T>>(&endpoint, args, |rows, range, status| {
             range.check(offset, limit, rows.0.len(), status)?;
-            if complete && range.total != rows.0.len() as u64 { return Err(BadReply); }
+            if complete && range.total != rows.0.len() as u64 {
+                return Err(BadReply);
+            }
             Ok(())
         })?;
-    let range = metadata.content_range.ok_or(biomcp_fetch::InputError::Serialization)?;
+    let range = metadata
+        .content_range
+        .ok_or(biomcp_fetch::InputError::Serialization)?;
     let consumed = rows.0.len() as u32;
-    let mut problems = Problems { source: biomcp_types::Source::Cpic, record: None, list: Vec::new() };
+    let mut problems = Problems {
+        source: biomcp_types::Source::Cpic,
+        record: None,
+        list: Vec::new(),
+    };
     let mut items = Vec::new();
     for row in rows.0 {
         problems.record = None;
@@ -63,9 +71,20 @@ fn read<T: serde::de::DeserializeOwned + Native>(
         }
     }
     if !check(&items, range) {
-        return Err(biomcp_fetch::SourceError { source: biomcp_types::Source::Cpic, reason: biomcp_types::Reason::BadReply, status: None, retry_after: None }.into());
+        return Err(biomcp_fetch::SourceError {
+            source: biomcp_types::Source::Cpic,
+            reason: biomcp_types::Reason::BadReply,
+            status: None,
+            retry_after: None,
+        }
+        .into());
     }
-    Ok(Page { items, total: range.total, consumed, problems: problems.list })
+    Ok(Page {
+        items,
+        total: range.total,
+        consumed,
+        problems: problems.list,
+    })
 }
 /// Search exact gene pairs, preserving native level namespaces and row order.
 pub fn search(leg: &Leg<'_>, query: &PgxSearch) -> Result<Page<PgxPair>, RequestError> {
@@ -117,8 +136,7 @@ pub fn card(leg: &Leg<'_>, query: &PgxGet) -> Result<Page<PgxGeneIdentity>, Requ
         5,
         true,
         |rows: &[PgxGeneIdentity], _range| {
-            rows.len() <= 1
-                && rows.iter().all(|r| &r.symbol == query.gene())
+            rows.len() <= 1 && rows.iter().all(|r| &r.symbol == query.gene())
         },
     )
 }
@@ -235,8 +253,8 @@ pub fn diplotype(leg: &Leg<'_>, query: &PgxGet) -> Result<Page<PgxDiplotypeResul
         true,
         |rows: &[PgxDiplotypeResult], _range| {
             rows.iter().all(|r| {
-                    &r.genesymbol == query.gene() && r.diplotype.as_ref() == expression.to_string()
-                })
+                &r.genesymbol == query.gene() && r.diplotype.as_ref() == expression.to_string()
+            })
         },
     )
 }

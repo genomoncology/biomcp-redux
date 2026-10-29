@@ -1,8 +1,10 @@
 //! Native summary documents preserve independently valid source fields.
+use crate::{mapped::Problems, raw::Field};
 use biodata::{Attribution, Text, VariantRef};
 use biomcp_fetch::{BadReply, Reply};
-use biomcp_types::{AssertionCondition, AssertionDetail, AssertionDomain, AssertionKind, Source, VariantAssertion};
-use crate::{mapped::Problems, raw::Field};
+use biomcp_types::{
+    AssertionCondition, AssertionDetail, AssertionDomain, AssertionKind, Source, VariantAssertion,
+};
 use serde::Deserialize;
 #[derive(Deserialize)]
 pub(super) struct ReplyBody {
@@ -10,19 +12,30 @@ pub(super) struct ReplyBody {
     status: Status,
 }
 #[derive(Deserialize)]
-struct Status { code: u16, name: String, msg: Option<String> }
+struct Status {
+    code: u16,
+    name: String,
+    msg: Option<String>,
+}
 impl Reply for ReplyBody {
     fn check(&self) -> Result<(), BadReply> {
         match self.status.code {
             200 if self.data.is_some() => Ok(()),
             404 if self.status.name == "Not Found"
                 && self.status.msg.as_deref() == Some("No records were found for given query")
-                && self.data.as_ref().is_none_or(Vec::is_empty) => Ok(()),
+                && self.data.as_ref().is_none_or(Vec::is_empty) =>
+            {
+                Ok(())
+            }
             _ => Err(BadReply),
         }
     }
     fn check_status(&self, status: u16) -> Result<(), BadReply> {
-        if status == self.status.code { self.check() } else { Err(BadReply) }
+        if status == self.status.code {
+            self.check()
+        } else {
+            Err(BadReply)
+        }
     }
 }
 #[derive(Deserialize)]
@@ -55,31 +68,53 @@ pub(super) struct Record {
 }
 impl Record {
     pub(super) fn matches(&self, caid: &str) -> bool {
-        self.ca_id == caid && self.ca_id.parse::<biodata::VariantId>().is_ok()
-            && !self.id.trim().is_empty() && !self.version.trim().is_empty()
+        self.ca_id == caid
+            && self.ca_id.parse::<biodata::VariantId>().is_ok()
+            && !self.id.trim().is_empty()
+            && !self.version.trim().is_empty()
     }
     pub(super) fn map(self, caid: &str, cx: &mut Problems) -> Option<VariantAssertion> {
         cx.record = cx.text("PCERDocID", Some(&self.id));
         let id = cx.required("PCERDocID", cx.record.clone())?;
         let version = cx.text("docVersion", Some(&self.version))?;
         let allele = cx.optional("caId", Some(self.ca_id.parse::<biodata::VariantId>()))?;
-        if self.ca_id != caid { cx.required::<()>("caId", None); return None; }
+        if self.ca_id != caid {
+            cx.required::<()>("caId", None);
+            return None;
+        }
         let uuid = cx.field("uuid", self.uuid);
-        let url = uuid.as_deref().and_then(|uuid| cx.text("uuid", Some(&format!(
-            "https://erepo.clinicalgenome.org/evrepo/ui/classification/{uuid}?version={}", self.version
-        ))));
+        let url = uuid.as_deref().and_then(|uuid| {
+            cx.text(
+                "uuid",
+                Some(&format!(
+                    "https://erepo.clinicalgenome.org/evrepo/ui/classification/{uuid}?version={}",
+                    self.version
+                )),
+            )
+        });
         let attribution = Attribution {
-            source: Source::Erepo.text(), record: Some(id), version: Some(version), release: None,
-            submitter: cx.field("ep", self.ep), evaluated: None, url,
+            source: Source::Erepo.text(),
+            record: Some(id),
+            version: Some(version),
+            release: None,
+            submitter: cx.field("ep", self.ep),
+            evaluated: None,
+            url,
         };
         let condition = AssertionCondition {
-            database: None, accession: None,
+            database: None,
+            accession: None,
             id: cx.field("mondoId", self.mondo),
             label: cx.field("condition", self.condition),
         };
-        let conditions = if condition.id.is_some() || condition.label.is_some() { vec![condition] } else { vec![] };
+        let conditions = if condition.id.is_some() || condition.label.is_some() {
+            vec![condition]
+        } else {
+            vec![]
+        };
         let detail = AssertionDetail {
-            conditions: conditions.into(), summary: cx.field("summaryDesc", self.summary),
+            conditions: conditions.into(),
+            summary: cx.field("summaryDesc", self.summary),
             unmet_criteria: cx.fields("unMetCodes", self.unmet),
             published: cx.field("publishedDate", self.published),
             approved: cx.field("approvedDate", self.approved),
@@ -88,14 +123,33 @@ impl Record {
         };
         let classification = cx.field("classification", self.classification);
         let mut row = match classification {
-            Some(label) => crate::assertion::row(AssertionKind::Erepo, AssertionDomain::Germline, label,
-                attribution, VariantRef::allele(allele), detail, None),
-            None => crate::assertion::missing(AssertionKind::Erepo, AssertionDomain::Germline, attribution, detail),
+            Some(label) => crate::assertion::row(
+                AssertionKind::Erepo,
+                AssertionDomain::Germline,
+                label,
+                attribution,
+                VariantRef::allele(allele),
+                detail,
+                None,
+            ),
+            None => crate::assertion::missing(
+                AssertionKind::Erepo,
+                AssertionDomain::Germline,
+                attribution,
+                detail,
+            ),
         };
         let criteria = cx.fields("metCodes", self.criteria);
-        let gene = cx.field("gene", self.gene).and_then(|label| cx.optional("gene", Some(biodata::GeneRef::new(label, None, None, None))));
-        if let Some(statement) = &mut row.statement { statement.criteria = criteria; statement.gene_context = gene; }
-        else if let Some(detail) = &mut row.detail { detail.met_criteria = criteria; detail.gene_context = gene; }
+        let gene = cx.field("gene", self.gene).and_then(|label| {
+            cx.optional("gene", Some(biodata::GeneRef::new(label, None, None, None)))
+        });
+        if let Some(statement) = &mut row.statement {
+            statement.criteria = criteria;
+            statement.gene_context = gene;
+        } else if let Some(detail) = &mut row.detail {
+            detail.met_criteria = criteria;
+            detail.gene_context = gene;
+        }
         Some(row)
     }
 }
