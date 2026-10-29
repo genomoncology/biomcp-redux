@@ -39,14 +39,8 @@ fn decode(text: &str) -> Option<String> {
     String::from_utf8(decoded).ok()
 }
 pub(super) fn row(row: &Association, q: &GwasSearch) -> bool {
-    if row
-        .accession_id
-        .as_str()
-        .parse::<biodata::GwasStudyId>()
-        .is_err()
-        || row.exact_p_value().is_none()
-        || q.study()
-            .is_some_and(|id| row.accession_id.as_str() != id.to_string())
+    if q.study()
+        .is_some_and(|id| row.accession_id.as_str() != id.to_string())
         || q.pubmed()
             .is_some_and(|id| row.pubmed_id.as_deref() != Some(id.to_string().as_str()))
         || q.variant().is_some_and(|id| {
@@ -61,20 +55,13 @@ pub(super) fn row(row: &Association, q: &GwasSearch) -> bool {
                     .iter()
                     .any(|t| t.efo_id.as_str() == id.to_string())
         })
-        || q.trait_label()
-            .is_some_and(|label| !row.efo_traits.iter().any(|t| &t.efo_trait == label))
+        || q.trait_label().is_some_and(|label| {
+            !row.efo_traits
+                .iter()
+                .any(|t| t.efo_trait.as_ref() == Some(label))
+        })
     {
         return false;
     }
-    row.snp_allele
-        .iter()
-        .all(|a| a.rs_id.as_str().parse::<biodata::RsId>().is_ok())
-        && row
-            .efo_traits
-            .iter()
-            .all(|t| t.efo_id.as_str().parse::<biodata::GwasTraitId>().is_ok())
-        && row
-            .pubmed_id
-            .as_ref()
-            .is_none_or(|id| id.parse::<biodata::Pmid>().is_ok())
+    true
 }

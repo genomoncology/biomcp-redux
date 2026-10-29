@@ -30,15 +30,16 @@ pub fn search(cx: &Ctx<'_>, q: &GwasSearch) -> Outcome {
     let result = gwas::search(&leg, q);
     let error = result.as_ref().err().copied();
     if let Ok(page) = result {
+        out.problems.extend(page.problems);
         let items: Box<[_]> = page
             .rows
             .into_iter()
             .skip((q.offset() % q.limit()) as usize)
-            .map(map::association)
+            .map(|row| map::association(row, &mut out.problems))
             .collect();
         let returned = items.len() as u32;
-        let continuation = (u64::from(q.offset()) + u64::from(returned) < page.total)
-            .then(|| GwasPageQuery::Search(q.at_offset(q.offset().saturating_add(returned))));
+        let continuation = (u64::from(q.offset()) + u64::from(page.received) < page.total)
+            .then(|| GwasPageQuery::Search(q.at_offset(q.offset().saturating_add(page.received))));
         let page = PageInfo {
             offset: q.offset(),
             returned,
@@ -53,7 +54,11 @@ pub fn search(cx: &Ctx<'_>, q: &GwasSearch) -> Outcome {
             continuation,
             qualifying_total: None,
         }));
-        out.status = Status::Complete;
+        out.status = if out.problems.is_empty() {
+            Status::Complete
+        } else {
+            Status::Partial
+        };
     }
     let source = status::source(Source::Gwas, leg.finish(), error);
     if source.reason == Some(biomcp_types::Reason::BadReply) {

@@ -76,7 +76,8 @@ pub struct GwasAssociation {
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub alleles: Box<[GwasEffectAllele]>,
     /// Reported p value.
-    pub p_value: FiniteNumber,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub p_value: Option<FiniteNumber>,
     /// Authoritative exact source probability, including double underflow.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub exact_p_value: Option<biodata::ScientificPValue>,
@@ -118,7 +119,8 @@ pub struct GwasEffectAllele {
     /// Source rsID.
     pub rs_id: Text,
     /// Source allele text.
-    pub allele: Text,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub allele: Option<Text>,
 }
 /// Population summary and one explicitly requested ancestry-detail page.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -145,5 +147,6 @@ pub struct GwasTrait {
     /// Exact source ontology identifier spelling.
     pub id: Text,
     /// Whole source trait label.
-    pub label: Text,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub label: Option<Text>,
 }

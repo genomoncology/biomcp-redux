@@ -33,7 +33,6 @@ impl Reply for Association {
         if self.association_id == 0
             || self.accession_id.as_str().parse::<GwasStudyId>().is_err()
             || self.snp_allele.is_empty()
-            || self.exact_p_value().is_none()
         {
             Err(BadReply)
         } else {
