@@ -3,7 +3,7 @@ use crate::mapped::problem;
 use crate::mapped::record as record_text;
 use biodata::{Build, GenomicInterval, PartialDate, Span0, Strand, Summary, SummarySource, Text};
 
-pub(super) fn summary(value: String) -> Option<Summary> {
+pub(super) fn summary(value: String) -> Result<Summary, biodata::Error> {
     let parsed = value.strip_suffix("].").and_then(|text| {
         let (body, marker) = text.rsplit_once(" [provided by RefSeq, ")?;
         let (month, year) = marker.split_once(' ')?;
@@ -18,8 +18,8 @@ pub(super) fn summary(value: String) -> Option<Summary> {
         Some((body, date))
     });
     let (body, dated) = parsed.map_or((value.as_str(), None), |(body, date)| (body, Some(date)));
-    Some(Summary {
-        text: Text::new(body).ok()?,
+    Ok(Summary {
+        text: Text::from_source(body)?,
         source: SummarySource::RefSeq,
         dated,
     })
@@ -125,11 +125,11 @@ fn map_hit(hit: Hit, id: NcbiGeneId, problems: &mut Vec<Problem>) -> Option<Mapp
             .push(problem(Source::MyGene, record_text(id), "hgnc_id"));
     }
     if let Some(field) = hit.summary {
-        mapped.value.summary = field.value().and_then(summary);
-        if mapped.value.summary.is_none() {
-            mapped
+        match field.value().map(summary) {
+            Some(Ok(summary)) => mapped.value.summary = Some(summary),
+            _ => mapped
                 .problems
-                .push(problem(Source::MyGene, record_text(id), "summary"));
+                .push(problem(Source::MyGene, record_text(id), "summary")),
         }
     }
     let mut spans = Vec::new();

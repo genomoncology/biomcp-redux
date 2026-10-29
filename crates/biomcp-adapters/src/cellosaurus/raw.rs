@@ -1,3 +1,4 @@
+use crate::native_text::NativeText;
 use biodata::{CellLineXref, CellosaurusAccession, PartialDate, Text};
 use biomcp_fetch::{BadReply, Reply};
 use serde::Deserialize;
@@ -40,7 +41,7 @@ pub(super) struct Record {
 pub(super) struct Xref {
     pub database: Text,
     pub accession: Text,
-    pub label: Option<Text>,
+    pub label: Option<NativeText>,
     pub url: Option<Text>,
     pub category: Option<Text>,
     pub iri: Option<Text>,
@@ -51,8 +52,8 @@ pub(super) struct Xref {
 pub(super) struct Variation {
     pub variation_type: Text,
     pub mutation_type: Option<Text>,
-    pub mutation_description: Option<Text>,
-    pub variation_note: Option<Text>,
+    pub mutation_description: Option<NativeText>,
+    pub variation_note: Option<NativeText>,
     pub zygosity_type: Option<Text>,
     pub xref_list: Option<Box<[Xref]>>,
     pub source_list: Option<Box<[Provenance]>>,
@@ -60,8 +61,8 @@ pub(super) struct Variation {
 #[derive(Debug, Deserialize)]
 pub(super) struct Provenance {
     pub reference: Option<Reference>,
-    pub institution: Option<Text>,
-    pub value: Option<Text>,
+    pub institution: Option<NativeText>,
+    pub value: Option<NativeText>,
     pub xref: Option<Xref>,
 }
 #[derive(Debug, Deserialize)]
@@ -79,12 +80,14 @@ pub(super) struct Accession {
 pub(super) struct Name {
     #[serde(rename = "type")]
     pub kind: Text,
-    pub value: Text,
+    #[serde(deserialize_with = "crate::native_text::deserialize")]
+    pub value: biodata::Text,
 }
 #[derive(Debug, Deserialize)]
 pub(super) struct Comment {
     pub category: Text,
-    pub value: Text,
+    #[serde(deserialize_with = "crate::native_text::deserialize")]
+    pub value: biodata::Text,
 }
 impl Record {
     pub(super) fn accession(&self) -> Result<&CellosaurusAccession, BadReply> {

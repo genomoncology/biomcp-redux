@@ -19,9 +19,9 @@ steps:
         # The slice policy permits this source list alone measured size plus 15%.
         max_bytes: 758
       /x-extensible-enum/*: {includes: gnomad}
-  - run: [schema, biomcp.problem/1]
+  - run: [schema, biomcp.problem/2]
     expect:
-      /$id: biomcp.problem/1
+      /$id: biomcp.problem/2
       /properties/field:
         equals: {description: The biodata field name., type: string}
       /properties/record/anyOf/*:

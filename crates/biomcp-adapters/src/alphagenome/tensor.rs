@@ -115,9 +115,9 @@ impl TensorStream {
             .shape
             .iter()
             .try_fold(dtype.width(), |size, dimension| {
-                size.checked_mul(usize::try_from(*dimension).ok()?)
-            })
-            .ok_or(CodecError::BadReply)?;
+                let dimension = usize::try_from(*dimension).map_err(|_| CodecError::BadReply)?;
+                size.checked_mul(dimension).ok_or(CodecError::BadReply)
+            })?;
         self.expanded = self
             .expanded
             .checked_add(expected)

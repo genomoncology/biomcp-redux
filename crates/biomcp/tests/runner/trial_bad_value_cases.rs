@@ -45,6 +45,16 @@ pub(super) fn detail() -> Vec<Case> {
             "geoPoint",
         ),
         (
+            "referencesModule/references/0/type",
+            json!("FUTURE"),
+            "references.kind",
+        ),
+        (
+            "documentSection/largeDocumentModule/largeDocs/0/uploadDate",
+            json!("2023-02-29T12:00"),
+            "largeDocs.uploadDate",
+        ),
+        (
             "referencesModule/references/0/pmid",
             json!("bad"),
             "references.pmid",

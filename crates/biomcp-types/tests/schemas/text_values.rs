@@ -38,6 +38,7 @@ pub(super) fn text_value_patterns_match_parser_admissions() {
         )*};
     }
     cases! {
+        biodata::Text => ["safe", "safe\n", "safe\r", "safe\u{0085}", "safe\u{202e}"],
         HgncId => ["HGNC:1", "HGNC:0", "HGNC:4294967295", "HGNC:4294967296"],
         NcbiGeneId => ["1", "01", "4294967295", "4294967296"],
         Pmid => ["1", "0", "4294967295", "4294967296"],
@@ -87,6 +88,8 @@ pub(super) fn text_value_patterns_match_parser_admissions() {
         AminoAcids => ["ACDEFGHIKLMNPQRSTVWYUOX", "", "B", "a"],
         InterProId => ["IPR000001", "IPR00001", "IPR0000001"],
         ComplexPortalId => ["CPX-1", "CPX-0", "CPX-01"],
+        biodata::TrialUploadTime => ["2024-02-29T23:59", "2024-01-01T24:00", "2024-01-01T12:60",
+            "2024-01-01T12:00Z", "2024-01-01T12:00:00", "2024-01-01T12:00\n", "2024-01-01T12:00\r"],
         StudyId => ["study_1", "study/1", "_study"],
         StudyProfileId => ["study.1", "study/1", "_study"],
         StudySampleListId => ["study-1", "study/1", "_study"],
@@ -142,6 +145,7 @@ pub(super) fn text_value_schema_supersets_name_their_runtime_rules() {
     runtime_rule::<OrcidClientId>("0000-0002-1825-0098", "checksum");
     runtime_rule::<PartialDate>("2023-02-29", "calendar");
     runtime_rule::<StudyImportTime>("2023-02-29 00:00:00", "calendar");
+    runtime_rule::<biodata::TrialUploadTime>("2023-02-29T00:00", "calendar");
     runtime_rule::<SheetRows>("2-1", "end");
     runtime_rule::<SheetRows>("1-201", "200");
     runtime_rule::<VariantRegion>("chr1:2-1", "end");

@@ -8,9 +8,9 @@ pub struct TrialReference {
     /// Registry-supplied PubMed identity, when present.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub pmid: Option<Pmid>,
-    /// Native reference classification, such as RESULT or BACKGROUND.
+    /// Native reference classification, from the registry vocabulary.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub kind: Option<Box<str>>,
+    pub kind: Option<TrialReferenceKind>,
     /// Original citation text.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub citation: Option<Box<str>>,
@@ -35,7 +35,7 @@ pub struct TrialDocument {
     pub date: Option<crate::PartialDate>,
     /// Original upload timestamp, without guessing a timezone.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub uploaded: Option<Box<str>>,
+    pub uploaded: Option<crate::TrialUploadTime>,
     /// Source byte count, when supplied.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub size: Option<u64>,
@@ -50,4 +50,16 @@ pub struct TrialDocument {
     pub has_icf: Option<bool>,
     /// No blanket reuse license is inferred from registry availability.
     pub license: License,
+}
+
+crate::wire_enum! {
+    /// Native ClinicalTrials.gov reference classification.
+    TrialReferenceKind {
+        /// Registry background reference.
+        Background => "BACKGROUND",
+        /// Registry result reference.
+        Result => "RESULT",
+        /// Registry derived reference.
+        Derived => "DERIVED",
+    }
 }

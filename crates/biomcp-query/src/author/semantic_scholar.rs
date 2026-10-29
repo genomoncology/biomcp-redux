@@ -111,7 +111,7 @@ fn present(
     let items: Box<[_]> = page
         .data
         .into_iter()
-        .map(|r| r.detail())
+        .map(|r| r.detail(&mut out.problems))
         .collect::<Result<_, _>>()
         .map_err(|_| SourceError {
             source: Source::SemanticScholar,
@@ -137,7 +137,7 @@ fn present(
         pool: Some(pool.info),
         truncated: None,
     });
-    out.status = if saved.source.state == SourceState::Stale {
+    out.status = if saved.source.state == SourceState::Stale || !out.problems.is_empty() {
         Status::Partial
     } else {
         Status::Complete

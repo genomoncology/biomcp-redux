@@ -5,6 +5,8 @@ use biomcp_types::{DiagnosticGet, GtrCard, Problem};
 /// Exact source identity and independent relation collections under one local snapshot.
 #[derive(Debug)]
 pub struct Record {
+    /// Rejected optional source prose, without discarding the native identity.
+    pub problems: Vec<Problem>,
     /// Selected card, absent for missing or conflicting identities.
     pub card: Option<GtrCard>,
     /// Conflict supplied before any current flag selection.
@@ -35,8 +37,12 @@ pub fn get(leg: &Leg<'_>, query: &DiagnosticGet) -> Result<Record, RequestError>
     } else {
         None
     };
+    let mut problems = Vec::new();
     let card = if conflict.is_none() {
-        versions.first().map(|v| map::card(v)).transpose()?
+        versions
+            .first()
+            .map(|v| map::card(v, &mut problems))
+            .transpose()?
     } else {
         None
     };
@@ -49,6 +55,7 @@ pub fn get(leg: &Leg<'_>, query: &DiagnosticGet) -> Result<Record, RequestError>
         Vec::new()
     };
     Ok(Record {
+        problems,
         card,
         conflict,
         relations,

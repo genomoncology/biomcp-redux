@@ -59,7 +59,7 @@ pub(super) fn evidence(
                     .into_iter()
                     .collect(),
             }),
-            classification: classification(&raw.significance),
+            classification: classification(&raw.significance, raw.id, problems),
             disease: raw.disease.as_ref(),
             therapies: &raw.therapies,
             origin: None,
@@ -77,7 +77,7 @@ pub(super) fn assertion(
 ) -> Result<CivicStatement, RequestError> {
     let (classification, level) = match amp(raw.amp_level.as_ref()) {
         Some((classification, level)) => (Some(classification), level),
-        None => (classification(&raw.significance), None),
+        None => (classification(&raw.significance, raw.id, problems), None),
     };
     build(
         Claim {
@@ -260,8 +260,19 @@ fn amp(label: Option<&Text>) -> Option<(Term, Option<Term>)> {
     ))
 }
 
-fn classification(label: &biodata::SourceText) -> Option<Term> {
-    Text::new(label.as_str()).ok().map(|label| Term {
+fn classification(
+    label: &biodata::SourceText,
+    id: u64,
+    problems: &mut Vec<Problem>,
+) -> Option<Term> {
+    crate::mapped::field_text(
+        problems,
+        Source::Civic,
+        crate::mapped::record(id),
+        "significance",
+        Some(crate::raw::Field::Value(label.as_str().to_owned())),
+    )
+    .map(|label| Term {
         label,
         codings: Box::default(),
     })

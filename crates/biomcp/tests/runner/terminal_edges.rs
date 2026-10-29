@@ -28,6 +28,7 @@ fn markdown() -> Check {
     let env = Environment::new()?;
     let replay = env.root().join("recordings");
     let source = "Synthetic\u{1b}[31m\u{0}\u{7}\u{9}\u{7f}\u{85}\u{061c}\u{200e}\u{200f}\u{202a}\u{202e}\u{202c}\u{2066}\u{2069} protein";
+    let escaped = biodata::Text::from_source(source)?;
     let mut changed = false;
     super::response_cases::copy_capture("protein/synthetic", &replay, |_, record| {
         if let Some(name) = record.pointer_mut(
@@ -73,17 +74,17 @@ fn markdown() -> Check {
             .is_some_and(|steps| steps.iter().any(|step| {
                 step.get("args")
                     .and_then(Value::as_array)
-                    .is_some_and(|args| args.iter().any(|arg| arg == source))
+                    .is_some_and(|args| args.iter().any(|arg| arg == escaped.as_str()))
             })),
         "upstream gene name must reach a next command: {value}"
     );
     assert!(
-        String::from_utf8(output.stdout)?.contains("\\u001b"),
+        String::from_utf8(output.stdout)?.contains("\\\\u{001b}"),
         "Markdown output must preserve the command content and exit status"
     );
     assert!(
-        value.to_string().contains('\u{202e}'),
-        "JSON must retain bidi data"
+        !value.to_string().contains('\u{202e}'),
+        "JSON must retain bidi controls as visible escapes"
     );
     args.extend(["--format", "md"].map(str::to_owned));
     let output = env.command(env!("CARGO_BIN_EXE_biomcp"), &args).output()?;
