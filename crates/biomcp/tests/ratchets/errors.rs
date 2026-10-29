@@ -46,7 +46,7 @@ pub(super) fn display_codes(declaration: &str, text: &str) -> Check {
     let mut codes = BTreeSet::new();
     for code in declaration
         .windows(3)
-        .filter(|v| v[0] == "=" && v[1] == ">")
+        .filter(|v| v[0] == "=" && v[1] == ">" && v[2].starts_with('"'))
     {
         if !codes.insert(code[2].as_str()) {
             return Err(format!("duplicate biodata error code: {}", code[2]).into());
