@@ -418,9 +418,10 @@ fn audit_rejects_owned_underscores_and_old_tags_but_allows_native_values() {
         );
     }
     assert!(
-        super::spellings::audit(&super::source::tokens(
-            "wire_enum! { Native { Value => \"source_native\" } }"
-        ), true)
+        super::spellings::audit(
+            &super::source::tokens("wire_enum! { Native { Value => \"source_native\" } }"),
+            true
+        )
         .is_ok()
     );
 }
@@ -428,9 +429,12 @@ fn audit_rejects_owned_underscores_and_old_tags_but_allows_native_values() {
 #[test]
 fn enum_return_types_are_not_macro_declarations() {
     assert!(
-        super::spellings::audit(&super::source::tokens(
-            "fn kind() -> ArticleMatchKind { match self { X => ArticleMatchKind::Doi } }"
-        ), true)
+        super::spellings::audit(
+            &super::source::tokens(
+                "fn kind() -> ArticleMatchKind { match self { X => ArticleMatchKind::Doi } }"
+            ),
+            true
+        )
         .is_ok()
     );
 }
@@ -456,11 +460,7 @@ fn crate_ownership_keeps_biodata_values_and_audits_biomcp_values() -> Check {
         let tree = tree()?;
         put(tree.path(), "crates/biodata/src/lib.rs", source)?;
         check(tree.path())?;
-        rejects(
-            "crates/biomcp-types/src/lib.rs",
-            source,
-            "kebab-case",
-        )?;
+        rejects("crates/biomcp-types/src/lib.rs", source, "kebab-case")?;
     }
     Ok(())
 }
