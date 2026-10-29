@@ -431,12 +431,12 @@
       ],
       "x-extensible-enum": [
         "symbol",
-        "previous_symbol",
+        "previous-symbol",
         "alias",
-        "ncbi_alias",
-        "hgnc_id",
-        "entrez_id",
-        "ensembl_id",
+        "ncbi-alias",
+        "hgnc-id",
+        "entrez-id",
+        "ensembl-id",
         "band"
       ]
     },
@@ -539,7 +539,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.gene-resolution/5",
+  "$id": "biomcp.gene-resolution/6",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "Resolution outcomes preserve ambiguity and withdrawn identity.",
   "oneOf": [
@@ -625,7 +625,7 @@
       "description": "No source identity matched.",
       "properties": {
         "resolution": {
-          "const": "not_found",
+          "const": "not-found",
           "type": "string"
         }
       },

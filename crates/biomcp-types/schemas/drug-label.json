@@ -677,25 +677,25 @@
         " Identity lacks the identifier required to join this source."
       ],
       "x-extensible-enum": [
-        "not_found",
-        "not_open",
-        "not_pdf",
+        "not-found",
+        "not-open",
+        "not-pdf",
         "unsupported",
-        "too_large",
-        "rate_limited",
-        "local_quota",
+        "too-large",
+        "rate-limited",
+        "local-quota",
         "unavailable",
         "tls",
         "proxy",
         "rejected",
-        "bad_reply",
-        "deadline_exceeded",
+        "bad-reply",
+        "deadline-exceeded",
         "offline",
-        "no_key",
+        "no-key",
         "disabled",
-        "replay_miss",
+        "replay-miss",
         "syncing",
-        "no_join_id"
+        "no-join-id"
       ]
     },
     "Reply_Section_DrugLabelText": {
@@ -803,7 +803,7 @@
           "description": "Entity facts rule this section out.",
           "properties": {
             "state": {
-              "const": "not_applicable",
+              "const": "not-applicable",
               "type": "string"
             }
           },
@@ -975,7 +975,7 @@
           "description": "Local request limits and source-specific recovery guidance.",
           "properties": {
             "kind": {
-              "const": "request_guidance",
+              "const": "request-guidance",
               "type": "string"
             },
             "message": {
@@ -1002,7 +1002,7 @@
           "description": "Registered conditions lack the literal words requested in a condition search.",
           "properties": {
             "kind": {
-              "const": "condition_word_mismatch",
+              "const": "condition-word-mismatch",
               "type": "string"
             },
             "message": {
@@ -1020,7 +1020,7 @@
           "description": "A checked provider answer survived a local cache failure.",
           "properties": {
             "kind": {
-              "const": "cache_problem",
+              "const": "cache-problem",
               "type": "string"
             },
             "reason": {
@@ -1042,7 +1042,7 @@
               "description": "Default-source command offering another graph view."
             },
             "kind": {
-              "const": "graph_truncated",
+              "const": "graph-truncated",
               "type": "string"
             }
           },
@@ -1056,7 +1056,7 @@
           "description": "An empty LitVar lookup can be repeated with a caller-supplied rsID.",
           "properties": {
             "kind": {
-              "const": "litvar_rsid_hint",
+              "const": "litvar-rsid-hint",
               "type": "string"
             },
             "message": {
@@ -1074,7 +1074,7 @@
           "description": "PubMed supplied a named ESearch warning without changing its phrases.",
           "properties": {
             "kind": {
-              "const": "pubmed_warning",
+              "const": "pubmed-warning",
               "type": "string"
             },
             "name": {
@@ -1099,7 +1099,7 @@
           "description": "PubMed did not index these words.",
           "properties": {
             "kind": {
-              "const": "not_found_words",
+              "const": "not-found-words",
               "type": "string"
             },
             "words": {
@@ -1296,7 +1296,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.drug-label/4",
+  "$id": "biomcp.drug-label/5",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -1352,7 +1352,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.drug-label/4",
+      "const": "biomcp.drug-label/5",
       "type": "string"
     },
     "sources": {

@@ -1,5 +1,5 @@
 {
-  "$id": "biodata.match-kind/1",
+  "$id": "biodata.match-kind/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "How a source matched a gene input.",
   "title": "MatchKind",
@@ -16,12 +16,12 @@
   ],
   "x-extensible-enum": [
     "symbol",
-    "previous_symbol",
+    "previous-symbol",
     "alias",
-    "ncbi_alias",
-    "hgnc_id",
-    "entrez_id",
-    "ensembl_id",
+    "ncbi-alias",
+    "hgnc-id",
+    "entrez-id",
+    "ensembl-id",
     "band"
   ]
 }
