@@ -105,7 +105,31 @@ fn coding() -> Result<(), String> {
             ));
         }
     }
-    stub.finish()?;
+    let refused = super::super::configuration::invoke(
+        &env,
+        ["get", "variant", "NM_001199291.2(ATM):c.1619A>G"]
+            .into_iter()
+            .map(Into::into)
+            .collect(),
+        4,
+    )?;
+    if refused.pointer("/result/resolution") != Some(&json!("rejected"))
+        || refused.pointer("/result/rejection") != Some(&json!("transcript_gene_mismatch"))
+        || refused.pointer("/result/candidates").is_some()
+    {
+        return Err(format!(
+            "source transcript gene mismatch was admitted: {refused}"
+        ));
+    }
+    let requests = stub.finish()?;
+    if requests
+        .iter()
+        .any(|(_, request)| request.contains("%28HSD17B4%29") || request.contains("%28ATM%29"))
+    {
+        return Err(format!(
+            "gene label reached the native HGVS request: {requests:?}"
+        ));
+    }
     Ok(())
 }
 fn run(env: &Environment, args: &[&str]) -> Result<Value, String> {
