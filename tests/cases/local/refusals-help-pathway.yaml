@@ -7,7 +7,7 @@ steps:
   - --unrecognized-argument
   exit: 2
   expect:
-    /error/code: usage.arguments
+    /error/code: usage.schema
 - run:
   - help
   - pathway
@@ -15,7 +15,7 @@ steps:
   - --unrecognized-argument
   exit: 2
   expect:
-    /error/code: usage.arguments
+    /error/code: usage.schema
 - run:
   - help
   - pathway
@@ -23,4 +23,4 @@ steps:
   - --unrecognized-argument
   exit: 2
   expect:
-    /error/code: usage.arguments
+    /error/code: usage.schema

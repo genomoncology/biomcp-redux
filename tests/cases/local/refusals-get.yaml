@@ -27,7 +27,7 @@ steps:
   - --unrecognized-argument
   exit: 2
   expect:
-    /error/code: usage.arguments
+    /error/code: usage.retired
 - run:
   - get
   - disease
@@ -55,7 +55,7 @@ steps:
   - --unrecognized-argument
   exit: 2
   expect:
-    /error/code: usage.arguments
+    /error/code: usage.retired
 - run:
   - get
   - protein
