@@ -1,7 +1,7 @@
 //! Native synthetic replies exercise source boundaries without live publisher access.
 use super::{families::Check, trial};
 use crate::runner::network_stub::Stub;
-use biomcp_adapters::{Refusal, hotspots, litsense, mychem, ols};
+use biomcp_adapters::{Refusal, chembl, hotspots, litsense, mychem, ols};
 use biomcp_fetch::{Certificates, Fetch, FetchConfig, Network, Secret};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
@@ -9,6 +9,10 @@ use std::time::Duration;
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        trial(
+            "cell-line-chembl/refused-cell-records-carry-window-facts",
+            || cells().map_err(|e| e.to_string().into()),
+        ),
         trial(
             "disease-ols/refused-ontology-candidates-carry-facts",
             || ontology().map_err(|e| e.to_string().into()),
@@ -24,6 +28,37 @@ pub(super) fn trials() -> Vec<Trial> {
             sentences().map_err(|e| e.to_string().into())
         }),
     ]
+}
+
+fn cells() -> Check {
+    for invalid in [false, true] {
+        let row = json!({"cell_chembl_id":"CHEMBL3307715", "cell_id":if invalid {0}else{1},
+            "cellosaurus_id":"CVCL_2119", "cell_description":{"invalid":true}});
+        let (stub, fetch) = stubbed(
+            "www.ebi.ac.uk",
+            json!({"cell_lines":[row],
+            "page_meta":{"total_count":2,"offset":0,"limit":1,"next":"/next","previous":null}}),
+        )?;
+        let leg = fetch.leg(&chembl::SPEC, fetch.deadline(Duration::from_secs(20)));
+        let page = chembl::cells(&leg, &"CVCL_2119".parse()?, 1, 0)?;
+        if page.window.refusals()
+            != if invalid {
+                Refusal::Refused
+            } else {
+                Refusal::None
+            }
+            || page.window.rows.len() != usize::from(!invalid)
+            || page.window.received() != 1
+            || page.window.next_offset() != Some(1)
+            || page.problems.is_empty()
+        {
+            return Err("ChEMBL cell lost actual refusal or native continuation".into());
+        }
+        if stub.finish()?.len() != 1 {
+            return Err("ChEMBL cell boundary issued unexpected requests".into());
+        }
+    }
+    Ok(())
 }
 
 pub(super) fn stubbed(host: &'static str, body: Value) -> Check<(Stub, Fetch)> {
