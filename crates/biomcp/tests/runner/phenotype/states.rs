@@ -55,32 +55,25 @@ fn states() -> Result<(), String> {
         } else {
             vec!["get", "phenotype", "HP:9999999", "--source", "monarch"]
         };
+        let exit = match kind {
+            "failure" => 4,
+            "empty" => 0,
+            _ => 1,
+        };
         let directory = env.root().join("state");
         let result = record(
             &format!("states/states/record1@kind={kind}"),
             &env,
             &args,
             &directory,
-            if kind == "failure" {
-                4
-            } else if kind == "empty" {
-                0
-            } else {
-                1
-            },
+            exit,
         )?;
         budgets::mcp(
             &format!("states/states/mcp1@kind={kind}"),
             &directory,
             &args,
             &result,
-            if kind == "failure" {
-                4
-            } else if kind == "empty" {
-                0
-            } else {
-                1
-            },
+            exit,
         )?;
         if kind == "empty" {
             if result.pointer("/page/total") != Some(&json!(0))
@@ -201,7 +194,7 @@ fn short_limit() -> Result<(), String> {
 fn dropped() -> Result<(), String> {
     let stub = Stub::for_source("api-v3.monarchinitiative.org", "application/json", |_| {
         let mut rejected = super::node();
-        rejected["id"] = json!(42);
+        *rejected.get_mut("id").ok_or("missing fixture id")? = json!(42);
         Ok(json!({"limit":5,"offset":0,"total":2,"items":[super::node(),rejected]}).to_string())
     })?;
     let env = setup(&stub)?;

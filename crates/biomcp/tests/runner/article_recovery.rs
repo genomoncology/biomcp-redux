@@ -102,11 +102,10 @@ fn secondary_answer() -> Result<(), String> {
                 && record["url"]
                     .as_str()
                     .is_some_and(|url| url.contains("/esearch.fcgi"))
+                && let Some(exchanges) = record["exchanges"].as_array_mut()
             {
-                if let Some(exchanges) = record["exchanges"].as_array_mut() {
-                    for exchange in exchanges {
-                        exchange["status"] = json!(500);
-                    }
+                for exchange in exchanges {
+                    exchange["status"] = json!(500);
                 }
             }
         },
