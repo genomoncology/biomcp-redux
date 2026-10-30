@@ -181,7 +181,19 @@ fn dynamic_follow_never_counts_overridden_argv() -> Check {
     Ok(())
 }
 
+fn explicit_equals_refusal_counts() -> Check {
+    let mut inventory = Inventory::new(&help(), &[])?;
+    let refusal: Step = serde_json::from_value(json!({
+        "run":["get","trial"],
+        "expect":{"/error/code":{"equals":"usage.arguments"}}
+    }))?;
+    inventory.step(&refusal);
+    assert_eq!(inventory.calls.get("refusal get trial"), Some(&1));
+    Ok(())
+}
+
 pub(super) fn check() -> Check {
+    explicit_equals_refusal_counts()?;
     three_hand_counts_match_and_an_identity_never_counts_as_a_section()?;
     a_new_option_without_a_case_fails()?;
     removing_the_only_section_call_fails()?;
