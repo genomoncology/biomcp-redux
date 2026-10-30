@@ -83,7 +83,7 @@ class ReplyDiff(unittest.TestCase):
         self.write(directory, "case/runtime.yaml/step/0", json.dumps({
             "page": {"pool": {"id": pool, "created": 10 if suffix == "base" else 20,
                                 "expires": (10 if suffix == "base" else 20) + lifetime, "size": 1}},
-            "fetched": 30 if suffix == "base" else 40,
+            "result": {"fetched": 30 if suffix == "base" else 40},
             "next": [{"kind": "page", "args": ["search", "trial", "--pool", pool]}],
             "status": status,
         }).encode(), **common)
@@ -135,7 +135,7 @@ class ReplyDiff(unittest.TestCase):
 
     def test_json_source_text_and_literal_arguments_remain_significant(self):
         key = 'case/literal.yaml/step/0'
-        for place in ['source', 'args', 'mcp-source', 'source-args']:
+        for place in ['source', 'args', 'mcp-source', 'source-args', 'source-clock']:
             with self.subTest(place=place):
                 for directory, clock in [(self.base, 10), (self.head, 20)]:
                     literal = json.dumps({'fetched': clock})
@@ -151,6 +151,8 @@ class ReplyDiff(unittest.TestCase):
                         extra['surface'] = 'mcp'
                     elif place == 'source-args':
                         output = {'result': {'args': ['search', 'trial', '--pool', literal]}}
+                    elif place == 'source-clock':
+                        output = {'result': {'notes': {'fetched': clock}}}
                     self.write(directory, key, json.dumps(output).encode(), **extra)
                 result = self.compare()
                 self.assertEqual(result.returncode, 1, result.stderr + result.stdout)
@@ -173,7 +175,7 @@ class ReplyDiff(unittest.TestCase):
 
     def test_mcp_runtime_binding_preserves_unrelated_json_escape_bytes(self):
         for directory, clock in [(self.base, 10), (self.head, 20)]:
-            reply = {'fetched': clock, 'description': 'path/a'}
+            reply = {'result': {'fetched': clock, 'description': 'path/a'}}
             frame = {'jsonrpc': '2.0', 'id': 1, 'result': {
                 'structuredContent': reply,
                 'content': [{'type': 'text', 'text': json.dumps(reply)}]}}

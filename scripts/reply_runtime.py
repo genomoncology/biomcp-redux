@@ -29,7 +29,14 @@ class Bindings:
             changes[0][p] = changes[1][p] = '<runtime>'
         def visit(a, b, p):
             if isinstance(a, dict) and isinstance(b, dict):
-                pool = (p[-1:] == ('pool',)
+                position = p[len(path):]
+                if position[:2] == ('result', 'structuredContent'):
+                    position = position[2:]
+                fetched = (position == ('result',)
+                           or (position[:2] == ('result', 'items') and len(position) in (3, 4)
+                               and isinstance(position[2], int)
+                               and (len(position) == 3 or position[3] == 'answer')))
+                pool = (position == ('page', 'pool')
                         and {'id', 'created', 'expires', 'size'} <= a.keys() & b.keys())
                 if pool:
                     if not all(type(x[k]) is int for x in (a, b) for k in ('created', 'expires')):
@@ -47,10 +54,11 @@ class Bindings:
                     child = p + (k,)
                     if pool and k in ('id', 'created', 'expires'):
                         continue
-                    if clocks and (k == 'fetched' or (k == 'acquired' and p[-1:] == ('snapshot',))):
+                    if clocks and ((k == 'fetched' and fetched)
+                                   or (k == 'acquired' and position == ('result', 'snapshot'))):
                         if type(a[k]) is int and type(b[k]) is int:
                             put(child, a[k], b[k], (scope, k))
-                    elif (k == 'pool' and p[-1:] == ('query',)
+                    elif (k == 'pool' and position == ('query',)
                           and isinstance(a[k], str) and isinstance(b[k], str)):
                         put(child, a[k], b[k], 'pool')
                     else:
