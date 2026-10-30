@@ -121,14 +121,6 @@
       "reason": "A rejected optional HGNC interpretation now reports sequence-variation-list.xref-list.accession without losing the native cross-reference or variation."
     },
     {
-      "path": "crates/biomcp-adapters/src/clinpgx/read.rs",
-      "site": "adapter serde refusal: [ serde ( deny_unknown_fields , bound ( deserialize = \"T: Deserialize<'de>\" ) ) ] struct Native < T > { # [ serde ( deserialize_with =",
-      "maximum": 1,
-      "class": "pending_audit",
-      "owner": "clinpgx",
-      "reason": "Existing adapter violation awaits its family audit"
-    },
-    {
       "path": "crates/biomcp-adapters/src/complex_portal/map.rs",
       "site": "members: \"participants.protein\" , UniProtIsoform : : new ( & r . identifier ) . ok ( )",
       "maximum": 1,
@@ -369,14 +361,6 @@
       "reason": "Existing adapter violation awaits its family audit"
     },
     {
-      "path": "crates/biomcp-adapters/src/gencc.rs",
-      "site": "adapter serde refusal: [ serde ( deny_unknown_fields ) ] struct Submission { gene_curie : HgncId , # [ serde ( rename",
-      "maximum": 1,
-      "class": "pending_audit",
-      "owner": "gencc.rs",
-      "reason": "Existing adapter violation awaits its family audit"
-    },
-    {
       "path": "crates/biomcp-adapters/src/gnomad/raw.rs",
       "site": "check: ) ; let errors = self . errors . as_deref ( ) . unwrap_or_default ( )",
       "maximum": 1,
@@ -388,41 +372,17 @@
       "path": "crates/biomcp-adapters/src/gtr/get.rs",
       "site": "get: ( | v | map : : methods ( v ) ) . unwrap_or_default ( )",
       "maximum": 1,
-      "class": "pending_audit",
+      "class": "legitimate_absence",
       "owner": "gtr",
-      "reason": "Existing adapter violation awaits its family audit"
+      "reason": "An absent selected version has no independent method lists; present version cells are split as native text and no parse result is defaulted."
     },
     {
       "path": "crates/biomcp-adapters/src/gtr/map.rs",
       "site": "relation: . parse : : < biodata : : NcbiGeneId > ( ) . ok ( )",
       "maximum": 1,
-      "class": "pending_audit",
+      "class": "legitimate_absence",
       "owner": "gtr",
-      "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
-    },
-    {
-      "path": "crates/biomcp-adapters/src/gtr/mod.rs",
-      "site": "conflict: Text : : new ( & id . to_string ( ) ) . ok ( )",
-      "maximum": 1,
-      "class": "pending_audit",
-      "owner": "gtr",
-      "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
-    },
-    {
-      "path": "crates/biomcp-adapters/src/gtr/raw.rs",
-      "site": "adapter serde refusal: [ serde ( deny_unknown_fields ) ] pub ( super ) struct Relation { # [ serde ( rename",
-      "maximum": 1,
-      "class": "pending_audit",
-      "owner": "gtr",
-      "reason": "Existing adapter violation awaits its family audit"
-    },
-    {
-      "path": "crates/biomcp-adapters/src/gtr/raw.rs",
-      "site": "keys: Symbol , r . gene_symbol . clone ( ) ) ) ; if let Ok ( id ) = r . object_id . parse : : < biodata",
-      "maximum": 1,
-      "class": "pending_audit",
-      "owner": "gtr",
-      "reason": "Existing adapter violation awaits its family audit"
+      "reason": "The native gene-or-SNOMED cell is retained as native_gene_or_snomed_ct_id when it is not a GeneID; the independent checked gene label remains, and a row without either gene identity is refused with gene_symbol."
     },
     {
       "path": "crates/biomcp-adapters/src/gwas/get/study.rs",
