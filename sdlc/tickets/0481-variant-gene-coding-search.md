@@ -1,6 +1,7 @@
 # 0481 — Search variants by gene and coding change
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: d49c28082766a78cba1d28887b32a4cd6b557063
 
 Milestone: 5
 
