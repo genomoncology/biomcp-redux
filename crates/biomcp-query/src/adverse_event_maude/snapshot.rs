@@ -7,12 +7,25 @@ use crate::{status, store::Store};
 use biomcp_fetch::{CacheError, Deadline, RequestError, SourceError};
 use biomcp_types::{Reason, SourceOutcome};
 use sha2::{Digest, Sha256};
-#[derive(serde::Serialize, serde::Deserialize)]
+#[derive(serde::Deserialize)]
 struct Saved(
     biodata::MaudeReport,
     Vec<SourceOutcome>,
     #[serde(default)] Vec<biomcp_types::Problem>,
 );
+// Keep the established payload and snapshot identity when no field was rejected.
+impl serde::Serialize for Saved {
+    fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        use serde::ser::SerializeTuple;
+        let mut tuple = serializer.serialize_tuple(if self.2.is_empty() { 2 } else { 3 })?;
+        tuple.serialize_element(&self.0)?;
+        tuple.serialize_element(&self.1)?;
+        if !self.2.is_empty() {
+            tuple.serialize_element(&self.2)?;
+        }
+        tuple.end()
+    }
+}
 fn key(query: &AdverseEventGet) -> Vec<u8> {
     Sha256::digest(format!("biomcp.maude_snapshot/1\0{}", query.id()).as_bytes()).to_vec()
 }
