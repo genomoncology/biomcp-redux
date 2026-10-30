@@ -136,7 +136,7 @@ class ReplyDiff(unittest.TestCase):
 
     def test_json_source_text_and_literal_arguments_remain_significant(self):
         key = 'case/literal.yaml/step/0'
-        for place in ['source', 'args', 'mcp-source']:
+        for place in ['source', 'args', 'mcp-source', 'source-args']:
             with self.subTest(place=place):
                 for directory, clock in [(self.base, 10), (self.head, 20)]:
                     literal = json.dumps({'fetched': clock})
@@ -150,6 +150,8 @@ class ReplyDiff(unittest.TestCase):
                             'structuredContent': output,
                             'content': [{'type': 'text', 'text': json.dumps(output)}]}}
                         extra['surface'] = 'mcp'
+                    elif place == 'source-args':
+                        output = {'result': {'args': ['search', 'trial', '--pool', literal]}}
                     self.write(directory, key, json.dumps(output).encode(), **extra)
                 result = self.compare()
                 self.assertEqual(result.returncode, 1, result.stderr + result.stdout)

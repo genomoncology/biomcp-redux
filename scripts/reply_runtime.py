@@ -56,8 +56,11 @@ class Bindings:
                     else:
                         visit(a[k], b[k], child)
             elif isinstance(a, list) and isinstance(b, list):
+                argv = (not p or p == ('params', 'arguments', 'args')
+                        or (len(p) >= 3 and p[-3] == 'next'
+                            and isinstance(p[-2], int) and p[-1] == 'args'))
                 for i, (x, y) in enumerate(zip(a, b)):
-                    if ((not p or p[-1:] == ('args',)) and i and a[i-1] == b[i-1] == '--pool'
+                    if (argv and i and a[i-1] == b[i-1] == '--pool'
                             and isinstance(x, str) and isinstance(y, str)):
                         put(p + (i,), x, y, 'pool')
                     else:
