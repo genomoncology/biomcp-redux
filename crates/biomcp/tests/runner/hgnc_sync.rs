@@ -40,6 +40,9 @@ fn stub(env: &Environment) -> Result<Stub, String> {
         &["storage.googleapis.com", "clinicaltrials.gov"],
         |r| if r.contains("/api/v2/studies") { "application/json" } else { "text/tab-separated-values" },
         move |r| {
+            if r.contains("/api/v2/version") {
+                return Ok(r#"{"dataTimestamp":"2026-10-30T00:00:00Z"}"#.into());
+            }
             if r.contains("/api/v2/studies") {
                 return Ok(r#"{"studies":[],"totalCount":0}"#.into());
             }
