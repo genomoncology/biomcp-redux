@@ -2,12 +2,17 @@
 use super::launch::Environment;
 use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
+use serde_json::json;
 
 pub(super) fn trials() -> Vec<Trial> {
-    vec![transcript_trial(
-        "article-search/dropped-words-precede-articles",
-        || check().map_err(Into::into),
-    )]
+    vec![
+        transcript_trial("article-search/dropped-words-precede-articles", || {
+            check().map_err(Into::into)
+        }),
+        transcript_trial("article-fold/failed-pubmed-keeps-europepmc-answer", || {
+            secondary_answer().map_err(Into::into)
+        }),
+    ]
 }
 
 fn check() -> Result<(), String> {
@@ -78,4 +83,43 @@ fn warnings() -> Result<(), String> {
         }
     }
     Ok(())
+}
+
+fn secondary_answer() -> Result<(), String> {
+    super::response_cases::checked_case(
+        "article/fold/synthetic-fold",
+        &[
+            "search",
+            "article",
+            "AKT1",
+            "--author",
+            "Carpten",
+            "--source",
+            "pubmed,europepmc",
+        ],
+        |source, record| {
+            if source == "pubmed"
+                && record["url"]
+                    .as_str()
+                    .is_some_and(|url| url.contains("/esearch.fcgi"))
+            {
+                if let Some(exchanges) = record["exchanges"].as_array_mut() {
+                    for exchange in exchanges {
+                        exchange["status"] = json!(500);
+                    }
+                }
+            }
+        },
+        json!({
+            "/status": "partial",
+            "/sources/0/source": "pubmed",
+            "/sources/0/state": "failed",
+            "/sources/1/source": "europepmc",
+            "/sources/1/state": "ok",
+            "/result/items/0/header/title": "Synthetic source-local citation"
+        }),
+        0,
+    )
+    .map(|_| ())
+    .map_err(|error| error.to_string())
 }

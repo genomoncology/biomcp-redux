@@ -290,6 +290,3 @@ pub(crate) fn reason(error: RequestError) -> Option<biomcp_types::Reason> {
         _ => None,
     }
 }
-
-#[cfg(test)]
-mod tests;
