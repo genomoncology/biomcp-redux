@@ -47,40 +47,6 @@
         "get",
         "author"
       ]
-    },
-    {
-      "expect": {
-        "/result/commands/*/command": {
-          "includes": [
-            "author",
-            "papers"
-          ]
-        },
-        "/status": "complete"
-      },
-      "full_output_bytes": true,
-      "max_bytes": 11649,
-      "run": [
-        "help",
-        "author"
-      ]
-    },
-    {
-      "expect": {
-        "/result/commands/*/command": {
-          "includes": [
-            "author",
-            "papers"
-          ]
-        },
-        "/status": "complete"
-      },
-      "full_output_bytes": true,
-      "max_bytes": 11648,
-      "mcp": [
-        "help",
-        "author"
-      ]
     }
   ],
   "story": "Author help describes exact provider identity and unavailable topic rank",

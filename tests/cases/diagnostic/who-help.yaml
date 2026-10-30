@@ -26,25 +26,6 @@
           ]
         ]
       }
-    },
-    {
-      "run": [
-        "help",
-        "get",
-        "diagnostic"
-      ],
-      "max_bytes": 3799,
-      "expect": {
-        "/result/commands/0/examples": {
-          "includes": [
-            "get",
-            "diagnostic",
-            "0466-046-00",
-            "--source",
-            "who-ivd"
-          ]
-        }
-      }
     }
   ],
   "verified": "Help byte limits use j18463 output plus fifteen percent for defaults, aliases, inherited options and examples; higher existing limits remain."

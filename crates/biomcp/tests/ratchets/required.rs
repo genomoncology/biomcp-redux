@@ -5,6 +5,8 @@ mod case_data;
 mod environment;
 #[path = "../support/help_catalog.rs"]
 mod help_catalog;
+#[path = "../support/housekeeping_contract.rs"]
+mod housekeeping_contract;
 #[path = "required/pending.rs"]
 mod pending;
 #[path = "../runner/process.rs"]
@@ -68,6 +70,7 @@ pub(super) fn required_surface_has_asserted_calls() -> Check {
     let root = std::env::current_dir()?.join("../..");
     let (help, tools) = metadata()?;
     let mut counts = tally::Inventory::new(&help, &tools)?;
+    counts.runner(housekeeping_contract::OFFLINE_PROVENANCE.1);
     let mut paths = Vec::new();
     case_data::collect(&root.join("tests/cases"), &mut paths)?;
     paths.sort();

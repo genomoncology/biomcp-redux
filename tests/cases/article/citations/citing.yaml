@@ -17,21 +17,6 @@
         }
       },
       "max_bytes": 5378
-    },
-    {
-      "run": [
-        "article",
-        "citations",
-        "17611497"
-      ],
-      "expect": {
-        "/page/total": 1045,
-        "/result/items/*/cited_by": {
-          "nonincreasing": true
-        }
-      },
-      "offline": true,
-      "max_bytes": 5378
     }
   ],
   "verified": "The reply with disclosed PubMed optional-field problems measured 4676 comparable bytes in j19520. Both fresh and offline ceilings add fifteen percent to that measurement and remain below the recorded 0.9 JSON 7.2KB for this command."

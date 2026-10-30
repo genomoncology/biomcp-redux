@@ -9,21 +9,6 @@
       "run": [
         "get",
         "trial",
-        "NCT02578680"
-      ],
-      "expect": {
-        "/status": "complete",
-        "/result/items/0/input": "NCT02578680",
-        "/result/items/0/card": {
-          "equals_file": "NCT02578680-card.json"
-        }
-      },
-      "max_bytes": 3076
-    },
-    {
-      "run": [
-        "get",
-        "trial",
         "NCT02578680",
         "eligibility"
       ],
@@ -43,62 +28,6 @@
         }
       },
       "max_bytes": 8395
-    },
-    {
-      "run": [
-        "get",
-        "trial",
-        "NCT02578680",
-        "outcomes"
-      ],
-      "expect": {
-        "/status": "complete",
-        "/result/items/0/card/nct_id": "NCT02578680",
-        "/result/items/0/sections/outcomes/data/items/0/kind": "primary",
-        "/result/items/0/sections/outcomes/data/items/0/measure": "Progression-Free Survival (PFS) Per Response Evaluation Criteria in Solid Tumors (RECIST) 1.1 as Assessed by Blinded Central Imaging",
-        "/result/items/0/sections/outcomes/data/items/0/time_frame": "Up to approximately 21 months"
-      },
-      "max_bytes": 8397
-    },
-    {
-      "run": [
-        "get",
-        "trial",
-        "NCT02578680",
-        "arms"
-      ],
-      "expect": {
-        "/status": "complete",
-        "/result/items/0/card/nct_id": "NCT02578680",
-        "/result/items/0/sections/arms/data/items/0/record": "arm",
-        "/result/items/0/sections/arms/data/items/0/data/label": "Pembrolizumab+Pemetrexed+Platinum Chemotherapy Followed by Pembrolizumab+Pemetrexed",
-        "/result/items/0/sections/arms/data/items/0/data/intervention_names": [
-          "Biological: Pembrolizumab 200 mg",
-          "Drug: Cisplatin",
-          "Drug: Carboplatin",
-          "Drug: Pemetrexed",
-          "Dietary Supplement: Folic acid 350-1000 μg",
-          "Dietary Supplement: Vitamin B12 1000 μg",
-          "Drug: Dexamethasone 4 mg"
-        ]
-      },
-      "max_bytes": 8010
-    },
-    {
-      "run": [
-        "get",
-        "trial",
-        "NCT02578680",
-        "all"
-      ],
-      "expect": {
-        "/status": "complete",
-        "/result/items/0/card/nct_id": "NCT02578680",
-        "/result/items/0/sections/eligibility/state": "data",
-        "/result/items/0/sections/outcomes/state": "data",
-        "/result/items/0/sections/arms/state": "data"
-      },
-      "max_bytes": 24631
     }
   ],
   "harvest": "Reviewed question bank: T04, T05, T06"

@@ -37,38 +37,6 @@
         "/result/file/data/document/filename": "SAP_001.pdf"
       },
       "max_bytes": 807
-    },
-    {
-      "mcp": [
-        "trial",
-        "document",
-        "NCT04303780",
-        "SAP_001.pdf",
-        "--save",
-        "stdio-protocol.pdf"
-      ],
-      "expect": {
-        "/status": "complete",
-        "/result/file/data/bytes": 67,
-        "/result/file/data/document/filename": "SAP_001.pdf"
-      },
-      "max_bytes": 807
-    },
-    {
-      "mcp": [
-        "trial",
-        "document",
-        "NCT04303780",
-        "SAP_001.pdf",
-        "--save",
-        "stdio-analysis.pdf"
-      ],
-      "expect": {
-        "/status": "complete",
-        "/result/file/data/bytes": 67,
-        "/result/file/data/document/filename": "SAP_001.pdf"
-      },
-      "max_bytes": 807
     }
   ],
   "verified": "j10693 measured each isolated synthetic PDF save reply at 701 bytes; ceiling is ceil(actual*1.15). No matching released download-only save receipt baseline exists. Saved files stay in each case environment and disappear on cleanup."

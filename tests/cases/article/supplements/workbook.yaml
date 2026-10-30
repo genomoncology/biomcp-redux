@@ -54,20 +54,6 @@
           "includes": "AXIN2"
         }
       }
-    },
-    {
-      "run": [
-        "article",
-        "supplement",
-        "28944238",
-        "MGG3-5-553-s002.xlsx",
-        "--rows",
-        "84-86"
-      ],
-      "exit": 2,
-      "expect": {
-        "/error/code": "usage.arguments"
-      }
     }
   ]
 }

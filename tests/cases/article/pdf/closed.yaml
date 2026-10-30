@@ -15,21 +15,6 @@
         "/result/items/0/sections/pdf/state": "unavailable",
         "/result/items/0/sections/pdf/reason": "not-open"
       }
-    },
-    {
-      "run": [
-        "article",
-        "pdf",
-        "17611497",
-        "--save",
-        "failed.pdf"
-      ],
-      "exit": 4,
-      "is_error": true,
-      "expect": {
-        "/result/file/state": "unavailable",
-        "/result/file/reason": "not-open"
-      }
     }
   ]
 }

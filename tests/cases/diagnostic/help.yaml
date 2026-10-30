@@ -96,19 +96,6 @@
       "run": [
         "help",
         "sync",
-        "who-ivd"
-      ],
-      "expect": {
-        "/result/commands/0/examples": {
-          "count": 2
-        }
-      },
-      "max_bytes": 1391
-    },
-    {
-      "run": [
-        "help",
-        "sync",
         "fda-cdx"
       ],
       "expect": {

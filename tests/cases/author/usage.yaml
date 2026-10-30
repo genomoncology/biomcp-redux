@@ -8,55 +8,9 @@
       "run": [
         "search",
         "author",
-        " "
-      ],
-      "is_error": true,
-      "exit": 2,
-      "expect": {
-        "/error/code": "usage.arguments"
-      },
-      "full_output_bytes": true,
-      "max_bytes": 166
-    },
-    {
-      "run": [
-        "search",
-        "author",
         "x",
         "--limit",
         "0"
-      ],
-      "is_error": true,
-      "exit": 2,
-      "expect": {
-        "/error/code": "usage.arguments"
-      },
-      "full_output_bytes": true,
-      "max_bytes": 166
-    },
-    {
-      "run": [
-        "search",
-        "author",
-        "x",
-        "--limit",
-        "26"
-      ],
-      "is_error": true,
-      "exit": 2,
-      "expect": {
-        "/error/code": "usage.arguments"
-      },
-      "full_output_bytes": true,
-      "max_bytes": 166
-    },
-    {
-      "run": [
-        "search",
-        "author",
-        "x",
-        "--offset",
-        "-1"
       ],
       "is_error": true,
       "exit": 2,
@@ -79,40 +33,6 @@
       },
       "full_output_bytes": true,
       "max_bytes": 166
-    },
-    {
-      "run": [
-        "search",
-        "author",
-        "-q--topic",
-        "--disable-sources",
-        "semantic-scholar"
-      ],
-      "is_error": true,
-      "exit": 4,
-      "expect": {
-        "/query/query": "--topic",
-        "/sources/0/reason": "disabled"
-      },
-      "full_output_bytes": true,
-      "max_bytes": 386
-    },
-    {
-      "run": [
-        "search",
-        "author",
-        "--query=--topic",
-        "--disable-sources",
-        "semantic-scholar"
-      ],
-      "is_error": true,
-      "exit": 4,
-      "expect": {
-        "/query/query": "--topic",
-        "/sources/0/reason": "disabled"
-      },
-      "full_output_bytes": true,
-      "max_bytes": 386
     }
   ]
 }

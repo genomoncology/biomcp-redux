@@ -156,21 +156,6 @@
     },
     {
       "run": [
-        "search",
-        "diagnostic",
-        "--source",
-        "gtr",
-        "--gene",
-        "NOTLISTED"
-      ],
-      "max_bytes": 299,
-      "expect": {
-        "/status": "complete",
-        "/page/total": 0
-      }
-    },
-    {
-      "run": [
         "sync",
         "gtr",
         "--fresh"

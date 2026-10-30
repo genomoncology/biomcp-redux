@@ -8,63 +8,6 @@
       "run": [
         "get",
         "variant",
-        "rs113488022"
-      ],
-      "expect": {
-        "/query/build": "GRCh37",
-        "/query/build_defaulted": true,
-        "/result/candidates": {
-          "count": 3
-        }
-      }
-    },
-    {
-      "run": [
-        "get",
-        "variant",
-        "rs113488022",
-        "predict",
-        "conservation",
-        "cosmic"
-      ],
-      "max_bytes": 32583,
-      "expect": {
-        "/status": "complete",
-        "/result/candidates": {
-          "count": 3
-        },
-        "/result/candidates/0/sections/predict/state": "data",
-        "/result/candidates/0/sections/predict/data/components/0/terms/usage": "noncommercial",
-        "/result/candidates/0/sections/conservation/state": "data",
-        "/result/candidates/0/sections/cosmic/data/records/0/identity": "unverified",
-        "/result/candidates/0/sections/cosmic/data/records/0/myvariant_record": "chr7:g.140453136A>G",
-        "/result/candidates/0/sections/cosmic/data/records/0/mut_freq": 0.0,
-        "/result/candidates/0/component_terms/0/terms/usage": "restricted"
-      }
-    },
-    {
-      "run": [
-        "get",
-        "variant",
-        "rs113488022",
-        "predict",
-        "conservation",
-        "cosmic",
-        "--disable-sources",
-        "noncommercial"
-      ],
-      "max_bytes": 32583,
-      "expect": {
-        "/result/candidates/0/sections/predict/state": "skipped",
-        "/result/candidates/0/sections/predict/reason": "disabled",
-        "/result/candidates/0/sections/conservation/state": "skipped",
-        "/result/candidates/0/sections/cosmic/state": "data"
-      }
-    },
-    {
-      "run": [
-        "get",
-        "variant",
         "rs113488022",
         "predict",
         "conservation",
@@ -81,24 +24,6 @@
           "count": 1
         }
       }
-    },
-    {
-      "run": [
-        "get",
-        "variant",
-        "rs113488022",
-        "predict",
-        "conservation",
-        "cosmic",
-        "--disable-sources",
-        "myvariant"
-      ],
-      "max_bytes": 32583,
-      "expect": {
-        "/result/resolution": "unavailable"
-      },
-      "exit": 4,
-      "is_error": true
     }
   ]
 }

@@ -136,6 +136,9 @@ impl Inventory {
             }
         }
     }
+    pub(super) fn runner(&mut self, items: &[&str]) {
+        self.increment(items.iter().map(|item| (*item).to_owned()).collect());
+    }
     fn command(&self, tokens: &[String]) -> Option<&Value> {
         self.commands
             .iter()

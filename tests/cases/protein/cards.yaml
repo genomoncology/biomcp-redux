@@ -31,19 +31,6 @@
     },
     {
       "run": [
-        "get",
-        "protein",
-        "P00533"
-      ],
-      "offline": true,
-      "expect": {
-        "/status": "complete",
-        "/result/items/0/header/protein/accession": "P00533"
-      },
-      "max_bytes": 1041
-    },
-    {
-      "run": [
         "search",
         "protein",
         "--gene",

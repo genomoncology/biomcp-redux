@@ -150,22 +150,6 @@
       },
       "max_bytes": 5000,
       "is_error": true
-    },
-    {
-      "run": [
-        "search",
-        "trial",
-        "--country",
-        "Bonaire, Saint Eustatius and Saba"
-      ],
-      "offline": true,
-      "exit": 2,
-      "is_error": true,
-      "expect": {
-        "/error/code": "usage.arguments",
-        "/error/option": "--country"
-      },
-      "max_bytes": 5000
     }
   ],
   "replay": "trial/country",

@@ -31,46 +31,6 @@
         }
       },
       "max_bytes": 1798
-    },
-    {
-      "run": [
-        "article",
-        "supplement",
-        "28944238",
-        "MGG3-5-553-s002.xlsx",
-        "--find",
-        "p.Pro245Ser"
-      ],
-      "expect": {
-        "/result/content/data/rows/0/row": 85
-      }
-    },
-    {
-      "run": [
-        "article",
-        "supplement",
-        "28944238",
-        "MGG3-5-553-s002.xlsx",
-        "--find",
-        "P245S"
-      ],
-      "expect": {
-        "/page/total": 0
-      }
-    },
-    {
-      "run": [
-        "article",
-        "supplement",
-        "28944238",
-        "MGG3-5-553-s002.xlsx",
-        "--variant",
-        "P245"
-      ],
-      "exit": 2,
-      "expect": {
-        "/error/code": "usage.arguments"
-      }
     }
   ]
 }

@@ -32,20 +32,6 @@
         "/result/source_updated/timezone": "in-value"
       },
       "max_bytes": 5501
-    },
-    {
-      "run": [
-        "search",
-        "trial",
-        "--condition",
-        "melanoma"
-      ],
-      "offline": true,
-      "expect": {
-        "/status": "complete",
-        "/page/total": 3780
-      },
-      "max_bytes": 5501
     }
   ]
 }

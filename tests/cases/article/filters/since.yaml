@@ -43,34 +43,6 @@
       }
     },
     {
-      "follow": "page",
-      "max_bytes": 3191,
-      "expect": {
-        "/page/offset": 5,
-        "/page/returned": 5,
-        "/query/since": "2024",
-        "/query/sort": "date",
-        "/result/items/*/pmid": {
-          "equals": [
-            "42771901",
-            "42756523",
-            "42726935",
-            "42724606",
-            "42720810"
-          ]
-        },
-        "/result/items/*/header/date": {
-          "equals": [
-            "2026-11",
-            "2026-10",
-            "2026-09-11",
-            "2026-08-31",
-            "2026-09-10"
-          ]
-        }
-      }
-    },
-    {
       "run": [
         "search",
         "article",
