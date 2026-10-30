@@ -98,6 +98,19 @@ impl Problems {
         let value = self.field(field, value);
         self.required(field, value)
     }
+    /// Preserve a supplied empty list while rejecting only malformed members.
+    pub(crate) fn optional_fields<T>(
+        &mut self,
+        field: &str,
+        value: Option<crate::raw::Field<Vec<crate::raw::Field<T>>>>,
+    ) -> Option<Vec<T>> {
+        Some(
+            self.field(field, value)?
+                .into_iter()
+                .filter_map(|v| self.field(field, Some(v)))
+                .collect(),
+        )
+    }
     pub(crate) fn fields<T>(
         &mut self,
         field: &str,

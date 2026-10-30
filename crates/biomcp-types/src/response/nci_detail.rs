@@ -47,7 +47,8 @@ pub struct NciEligibility {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct NciCriterion {
     /// Original source text, preserving every character.
-    pub description: Box<str>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub description: Option<Box<str>>,
     /// Native source inclusion marker.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub inclusion_indicator: Option<bool>,
@@ -120,7 +121,8 @@ pub struct NciArm {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct NciIntervention {
     /// Native name field.
-    pub name: Text,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub name: Option<Text>,
     /// Native description field.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<Box<str>>,
