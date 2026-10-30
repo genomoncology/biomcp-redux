@@ -21,9 +21,10 @@
         ],
         "/result/items/0/sections/annotations/data/items/0/name": "Alpha",
         "/result/items/0/sections/annotations/data/items/0/count": 2,
-        "/result/items/0/sections/annotations/data/items/1/name": "Beta",
-        "/result/items/0/sections/annotations/data/total": 11,
+        "/result/items/0/sections/annotations/data/total": 13,
         "/result/items/0/sections/annotations/data/items/*/kind": [
+          "gene",
+          "gene",
           "gene",
           "gene",
           "gene",
@@ -35,7 +36,56 @@
           "disease",
           "chemical",
           "chemical"
-        ]
+        ],
+        "/result/items/0/sections/annotations/data/items/3/name": "Beta",
+        "/result/items/0/sections/annotations/data/items/1": {
+          "equals": {
+            "kind": "gene",
+            "count": 1,
+            "entrez_id": "302"
+          }
+        },
+        "/result/items/0/sections/annotations/data/items/2": {
+          "equals": {
+            "kind": "gene",
+            "count": 1,
+            "entrez_id": "303"
+          }
+        },
+        "/problems": {
+          "includes_all_of": [
+            {
+              "source": "pubtator",
+              "record": "33123537",
+              "field": "name",
+              "code": "value.unknown"
+            },
+            {
+              "source": "pubtator",
+              "record": "33123537",
+              "field": "entrez_id",
+              "code": "value.unknown"
+            },
+            {
+              "source": "pubtator",
+              "record": "33123537",
+              "field": "gene_id",
+              "code": "value.unknown"
+            },
+            {
+              "source": "pubtator",
+              "record": "33123537",
+              "field": "variant",
+              "code": "value.unknown"
+            },
+            {
+              "source": "pubtator",
+              "record": "33123537",
+              "field": "identifier",
+              "code": "value.unknown"
+            }
+          ]
+        }
       },
       "mcp": [
         "get",

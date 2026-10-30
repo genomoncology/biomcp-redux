@@ -1,7 +1,7 @@
 {
   "live_check": "synthetic control",
   "feature": "author-papers",
-  "story": "A source failure or absent response retains source terms without claiming a successful page",
+  "story": "An invalid optional PMID leaves the checked native paper and its exact problem available from the warm source snapshot.",
   "replay": "author/papers-bad-id",
   "steps": [
     {
@@ -15,13 +15,32 @@
         "papers",
         "semantic-scholar:123"
       ],
-      "exit": 4,
-      "is_error": true,
+      "exit": 0,
+      "is_error": false,
       "expect": {
-        "/status": "failed",
+        "/status": "partial",
+        "/result/author": "semantic-scholar:123",
+        "/result/items": {
+          "equals": [
+            {
+              "paper_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "title": "Synthetic malformed ID"
+            }
+          ]
+        },
         "/sources/0/source": "semantic-scholar",
-        "/sources/0/reason": "bad-reply",
-        "/sources/0/use": "noncommercial"
+        "/sources/0/state": "ok",
+        "/sources/0/use": "noncommercial",
+        "/problems": {
+          "equals": [
+            {
+              "source": "semantic-scholar",
+              "record": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "field": "pmid",
+              "code": "value.unknown"
+            }
+          ]
+        }
       },
       "max_bytes": 624,
       "full_output_bytes": true
@@ -37,15 +56,34 @@
         "papers",
         "semantic-scholar:123"
       ],
-      "exit": 4,
-      "is_error": true,
+      "exit": 0,
+      "is_error": false,
       "expect": {
-        "/status": "failed",
+        "/status": "partial",
+        "/result/author": "semantic-scholar:123",
+        "/result/items": {
+          "equals": [
+            {
+              "paper_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "title": "Synthetic malformed ID"
+            }
+          ]
+        },
         "/sources/0/source": "semantic-scholar",
-        "/sources/0/reason": "offline",
-        "/sources/0/use": "noncommercial"
+        "/sources/0/state": "ok",
+        "/sources/0/use": "noncommercial",
+        "/problems": {
+          "equals": [
+            {
+              "source": "semantic-scholar",
+              "record": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "field": "pmid",
+              "code": "value.unknown"
+            }
+          ]
+        }
       },
-      "max_bytes": 526,
+      "max_bytes": 656,
       "full_output_bytes": true,
       "offline": true
     }
