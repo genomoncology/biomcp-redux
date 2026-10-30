@@ -26,6 +26,9 @@ pub struct Page {
     pub problems: Vec<biomcp_types::Problem>,
     #[serde(skip)]
     pub(super) received: usize,
+    /// Actual refused native author records; never part of source serialization.
+    #[serde(skip)]
+    pub refusals: crate::Refusal,
 }
 #[derive(Deserialize)]
 struct RawPage {
@@ -44,10 +47,17 @@ impl From<RawPage> for Page {
             list: Vec::new(),
         };
         p.list.extend(raw.problems.into_iter().flatten());
+        let mut refusals = crate::Refusal::None;
         let data = raw
             .data
             .into_iter()
-            .filter_map(|r| p.required("author_id", r.value()))
+            .filter_map(|r| match p.required("author_id", r.value()) {
+                Some(row) => Some(row),
+                None => {
+                    refusals = crate::Refusal::Refused;
+                    None
+                }
+            })
             .collect();
         Self {
             offset: raw.offset,
@@ -56,6 +66,7 @@ impl From<RawPage> for Page {
             data,
             problems: p.list,
             received,
+            refusals,
         }
     }
 }
@@ -139,7 +150,11 @@ impl Record {
             header: self.header(&mut problems),
             url,
         };
-        Mapped { value, problems }
+        Mapped {
+            refusals: crate::Refusal::None,
+            value,
+            problems,
+        }
     }
 }
 impl Reply for Record {

@@ -25,6 +25,7 @@ impl From<ReceivedMolecules> for Molecules {
             list: Vec::new(),
         };
         let mut rows = Vec::new();
+        let mut refusals = crate::Refusal::None;
         for row in page.molecules {
             problems.record = None;
             if let Some(row) = problems.field("molecule_chembl_id", Some(row)) {
@@ -33,9 +34,12 @@ impl From<ReceivedMolecules> for Molecules {
                 {
                     rows.push(row);
                 } else {
+                    refusals = crate::Refusal::Refused;
                     problems.record = crate::mapped::record(&row.molecule_chembl_id);
                     problems.required::<()>("molecule_chembl_id", None);
                 }
+            } else {
+                refusals = crate::Refusal::Refused;
             }
         }
         Self {
@@ -45,6 +49,7 @@ impl From<ReceivedMolecules> for Molecules {
                 page.page_meta.limit,
                 Some(page.page_meta.total_count),
                 received,
+                refusals,
             ),
             problems: problems.list,
         }
@@ -79,6 +84,7 @@ impl From<ReceivedMechanisms> for Mechanisms {
             list: Vec::new(),
         };
         let mut rows = Vec::new();
+        let mut refusals = crate::Refusal::None;
         let mut molecules = Vec::new();
         for row in page.mechanisms {
             molecules.push(row.scope.molecule_chembl_id);
@@ -87,9 +93,12 @@ impl From<ReceivedMechanisms> for Mechanisms {
                 if row.mec_id > 0 {
                     rows.push(row);
                 } else {
+                    refusals = crate::Refusal::Refused;
                     problems.record = crate::mapped::record(row.mec_id);
                     problems.required::<()>("mec_id", None);
                 }
+            } else {
+                refusals = crate::Refusal::Refused;
             }
         }
         Self {
@@ -100,6 +109,7 @@ impl From<ReceivedMechanisms> for Mechanisms {
                 page.page_meta.limit,
                 Some(page.page_meta.total_count),
                 received,
+                refusals,
             ),
             problems: problems.list,
         }
@@ -134,6 +144,7 @@ impl From<ReceivedIndications> for Indications {
             list: Vec::new(),
         };
         let mut rows = Vec::new();
+        let mut refusals = crate::Refusal::None;
         let mut molecules = Vec::new();
         for row in page.drug_indications {
             molecules.push(row.scope.molecule_chembl_id);
@@ -142,9 +153,12 @@ impl From<ReceivedIndications> for Indications {
                 if row.drugind_id > 0 {
                     rows.push(row);
                 } else {
+                    refusals = crate::Refusal::Refused;
                     problems.record = crate::mapped::record(row.drugind_id);
                     problems.required::<()>("drugind_id", None);
                 }
+            } else {
+                refusals = crate::Refusal::Refused;
             }
         }
         Self {
@@ -155,6 +169,7 @@ impl From<ReceivedIndications> for Indications {
                 page.page_meta.limit,
                 Some(page.page_meta.total_count),
                 received,
+                refusals,
             ),
             problems: problems.list,
         }

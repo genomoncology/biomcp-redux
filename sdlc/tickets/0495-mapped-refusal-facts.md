@@ -1,6 +1,7 @@
 # 0495 — Carry each refused record as a fact on the adapter's mapped reply
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 7909f06ba7da0ca213189a120121a5c59130fc93
 
 Milestone: 5
 

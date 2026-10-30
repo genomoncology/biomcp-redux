@@ -30,6 +30,8 @@ const ASSOCIATIONS: Endpoint = SPEC.get("/associations").fresh(Freshness::Days(1
 /// Source-native page and its exact catalog denominator.
 #[derive(Debug)]
 pub struct Page {
+    /// Actual record refusals in the selected source slots.
+    pub refusals: crate::Refusal,
     /// Native page rows before identity refusals.
     pub received: u32,
     /// Rejected source fields and row identities.
@@ -82,13 +84,17 @@ fn page(response: raw::Response, skip: usize) -> Page {
         list: Vec::new(),
     };
     let mut rows = Vec::new();
+    let mut refusals = crate::Refusal::None;
     for row in received_rows.into_iter().skip(skip) {
         if let Some(mut row) = problems.field("association_id", Some(row.value)) {
             problems.list.append(&mut row.problems);
             rows.push(row);
+        } else {
+            refusals = crate::Refusal::Refused;
         }
     }
     Page {
+        refusals,
         rows,
         received,
         problems: problems.list,

@@ -40,10 +40,22 @@ pub(super) fn fetch(
         record: Some(crate::mapped::text(record).map_err(|_| super::bad())?),
         list: Vec::new(),
     };
-    let value = cx
-        .field("document", Some(reply.data))
-        .and_then(|document| document.map(caid, record, uuid, version, &mut cx));
+    let mut refusals = crate::Refusal::None;
+    let value = match cx.field("document", Some(reply.data)) {
+        Some(document) => match document.map(caid, record, uuid, version, &mut cx) {
+            Some(row) => Some(row),
+            None => {
+                refusals = crate::Refusal::Refused;
+                None
+            }
+        },
+        None => {
+            refusals = crate::Refusal::Refused;
+            None
+        }
+    };
     Ok(Mapped {
+        refusals,
         value,
         problems: cx.list,
     })

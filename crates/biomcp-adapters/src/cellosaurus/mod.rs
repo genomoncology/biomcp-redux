@@ -32,6 +32,8 @@ const VERIFY_FIELDS: &str = "ac,id,sy,ox,di,ca,sx,ag,dr,var,prob,caution,dt";
 /// Source-ordered checked candidate page and original retrieval metadata.
 #[derive(Debug)]
 pub struct Page {
+    /// Actual record refusals in the native page.
+    pub refusals: crate::Refusal,
     /// Refused row identities and rejected native metadata.
     pub problems: Vec<biomcp_types::Problem>,
     /// Native row count before identity refusals.
@@ -108,9 +110,11 @@ fn candidates(
     let received = data.rows.len() as u32;
     let mut problems = Vec::new();
     let mut items = Vec::new();
+    let mut refusals = crate::Refusal::None;
     for mut row in data.rows {
         problems.append(&mut row.problems);
         if row.accession().is_err() {
+            refusals = crate::Refusal::Refused;
             crate::mapped::push_problem(&mut problems, Source::Cellosaurus, None, "accession-list");
             continue;
         }
@@ -125,6 +129,7 @@ fn candidates(
         items.push(map::header(row)?);
     }
     Ok(Page {
+        refusals,
         items,
         problems,
         received,
@@ -249,6 +254,7 @@ pub fn release(
         updated: problems.required_field("release.updated", release.updated),
     };
     Ok(crate::Mapped {
+        refusals: crate::Refusal::None,
         value,
         problems: problems.list,
     })

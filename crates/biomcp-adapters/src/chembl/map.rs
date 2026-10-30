@@ -11,6 +11,7 @@ pub fn targets(
     rows: Vec<Mechanism>,
 ) -> Result<crate::Mapped<Box<[DrugTargetRelation]>>, Error> {
     let mut records = Vec::new();
+    let mut refusals = crate::Refusal::None;
     let mut rejected = Vec::new();
     for r in rows {
         let mut problems = Problems {
@@ -32,6 +33,7 @@ pub fn targets(
             .is_none()
         {
             rejected.extend(problems.list);
+            refusals = crate::Refusal::Refused;
             continue;
         }
         let relation = match r.action_type.as_deref() {
@@ -59,6 +61,7 @@ pub fn targets(
         rejected.extend(problems.list);
     }
     Ok(crate::Mapped {
+        refusals,
         value: records.into(),
         problems: rejected,
     })
@@ -112,6 +115,7 @@ pub fn indications(
         rejected.extend(problems.list);
     }
     Ok(crate::Mapped {
+        refusals: crate::Refusal::None,
         value: records.into(),
         problems: rejected,
     })

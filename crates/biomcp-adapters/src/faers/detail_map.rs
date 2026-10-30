@@ -64,6 +64,7 @@ pub(super) fn report(r: raw::Report) -> crate::Mapped<super::positions::Report> 
         reactions,
     };
     crate::Mapped {
+        refusals: crate::Refusal::None,
         value: super::positions::Report {
             data: value,
             positions,

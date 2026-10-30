@@ -87,6 +87,7 @@ impl Record {
             product_code: p.field("product_code", self.product_code),
         };
         crate::Mapped {
+            refusals: crate::Refusal::None,
             value,
             problems: p.list,
         }

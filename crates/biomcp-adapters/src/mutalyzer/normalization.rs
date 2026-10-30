@@ -18,6 +18,7 @@ pub fn normalize(leg: &Leg<'_>, input: &str) -> Result<Mapped<NormalizationResul
         Err(field) => {
             problems.required::<()>(field, None);
             return Ok(Mapped {
+                refusals: crate::Refusal::Refused,
                 value: result,
                 problems: problems.list,
             });
@@ -78,6 +79,7 @@ pub fn normalize(leg: &Leg<'_>, input: &str) -> Result<Mapped<NormalizationResul
         .into();
     }
     Ok(Mapped {
+        refusals: crate::Refusal::None,
         value: result,
         problems: problems.list,
     })

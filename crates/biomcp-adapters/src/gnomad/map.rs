@@ -37,15 +37,21 @@ fn constraint(
         list: Vec::new(),
     };
     let version = crate::mapped::text("v4")?;
+    let mut refusals = crate::Refusal::None;
     let value = gene.and_then(|gene| {
-        let gene = problems.required_field("gene_id", Some(gene))?;
+        let Some(gene) = problems.required_field("gene_id", Some(gene)) else {
+            refusals = crate::Refusal::Refused;
+            return None;
+        };
         if gene.gene_id != id.base() {
+            refusals = crate::Refusal::Refused;
             problems.required::<()>("gene_id", None);
             return None;
         }
         let transcript = match gene.transcript() {
             Ok(value) => value,
             Err(field) if gene.gnomad_constraint.is_some() => {
+                refusals = crate::Refusal::Refused;
                 problems.required::<()>(field, None);
                 return None;
             }
@@ -69,6 +75,7 @@ fn constraint(
         })
     });
     Ok(Mapped {
+        refusals,
         value,
         problems: problems.list,
     })

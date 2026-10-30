@@ -10,15 +10,18 @@ pub(super) fn proteins(raw: raw::Proteins, ids: &[UniProtAcc]) -> Mapped<Vec<Pro
     let mut problems = Vec::new();
     let mut values = Vec::new();
     let mut seen = Vec::new();
+    let mut refusals = crate::Refusal::None;
     for raw in raw.results {
         let Field::Value(raw) = raw else {
             push_problem(&mut problems, Source::UniProt, None, "protein");
+            refusals = crate::Refusal::Refused;
             continue;
         };
         let id = match raw.primary_accession.parse::<UniProtAcc>() {
             Ok(id) => id,
             Err(_) => {
                 push_problem(&mut problems, Source::UniProt, None, "primaryAccession");
+                refusals = crate::Refusal::Refused;
                 continue;
             }
         };
@@ -30,6 +33,7 @@ pub(super) fn proteins(raw: raw::Proteins, ids: &[UniProtAcc]) -> Mapped<Vec<Pro
                 "primaryAccession",
             );
             values.retain(|value: &Protein| value.accession != id);
+            refusals = crate::Refusal::Refused;
             continue;
         }
         seen.push(id.clone());
@@ -40,6 +44,7 @@ pub(super) fn proteins(raw: raw::Proteins, ids: &[UniProtAcc]) -> Mapped<Vec<Pro
                 record(&id),
                 "reviewed_human",
             );
+            refusals = crate::Refusal::Refused;
             continue;
         }
         let mut p = Problems {
@@ -66,6 +71,7 @@ pub(super) fn proteins(raw: raw::Proteins, ids: &[UniProtAcc]) -> Mapped<Vec<Pro
         }
     }
     Mapped {
+        refusals,
         value: values,
         problems,
     }

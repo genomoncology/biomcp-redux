@@ -6,6 +6,8 @@ use biomcp_types::{
     DrugGet, DrugHeader, DrugIndications, DrugRecords, DrugSection, DrugTargets, PageInfo,
     QueryBody, Request, Section, Source, Status, StepKind,
 };
+#[path = "collection_page.rs"]
+mod collection;
 pub(super) fn chembl(
     leg: &Leg<'_>,
     query: &DrugGet,
@@ -32,6 +34,7 @@ pub(super) fn chembl(
                 .map_err(|_| failure(source))?;
             out.problems.extend(page.problems);
             out.problems.extend(records.problems);
+            page.window.include_refusals(records.refusals);
             targets(
                 out,
                 query,
@@ -47,6 +50,7 @@ pub(super) fn chembl(
                 .map_err(|_| failure(source))?;
             out.problems.extend(page.problems);
             out.problems.extend(records.problems);
+            page.window.include_refusals(records.refusals);
             indications(
                 out,
                 query,
@@ -80,58 +84,22 @@ pub(super) fn opentargets(
     let offset = query.section_offset().unwrap_or(0) as usize;
     match query.sections() {
         [DrugSection::Targets] => {
-            let rows = opentargets::map_targets(&drug, row.mechanisms_of_action)
+            let mut collection = opentargets::map_targets(&drug, row.mechanisms_of_action)
                 .map_err(|_| failure(source))?;
-            out.problems.extend(rows.problems);
-            let rows = rows.value;
-            let total = rows.len() as u64;
-            let records = rows
-                .into_vec()
-                .into_iter()
-                .skip(offset)
-                .take(limit)
-                .collect();
-            targets(
-                out,
-                query,
-                header,
-                NativeWindow::new(
-                    records,
-                    offset as u32,
-                    limit as u32,
-                    Some(total),
-                    total.saturating_sub(offset as u64).min(limit as u64) as u32,
-                ),
-                meta.fetched,
-                fresh,
-            );
+            out.problems.append(&mut collection.problems);
+            // The collection owns refusals across its complete accepted-row paging surface.
+            // Its fact remains directly available here for the later status owner.
+            let window = collection::page(&mut collection, offset, limit);
+            targets(out, query, header, window, meta.fetched, fresh);
         }
         [DrugSection::Indications] => {
-            let rows = opentargets::map_indications(&drug, row.indications)
+            let mut collection = opentargets::map_indications(&drug, row.indications)
                 .map_err(|_| failure(source))?;
-            out.problems.extend(rows.problems);
-            let rows = rows.value;
-            let total = rows.len() as u64;
-            let records = rows
-                .into_vec()
-                .into_iter()
-                .skip(offset)
-                .take(limit)
-                .collect();
-            indications(
-                out,
-                query,
-                header,
-                NativeWindow::new(
-                    records,
-                    offset as u32,
-                    limit as u32,
-                    Some(total),
-                    total.saturating_sub(offset as u64).min(limit as u64) as u32,
-                ),
-                meta.fetched,
-                fresh,
-            );
+            out.problems.append(&mut collection.problems);
+            // The collection owns refusals across its complete accepted-row paging surface.
+            // Its fact remains directly available here for the later status owner.
+            let window = collection::page(&mut collection, offset, limit);
+            indications(out, query, header, window, meta.fetched, fresh);
         }
         _ => {
             out.status = Status::Complete;
@@ -141,6 +109,7 @@ pub(super) fn opentargets(
     }
     Ok(())
 }
+
 fn card_next(out: &mut Outcome, query: &DrugGet, fresh: bool, xrefs: bool) {
     for section in [
         DrugSection::Targets,
@@ -284,6 +253,7 @@ fn chembl_card(
                 total
                     .saturating_sub(u64::from(offset))
                     .min(u64::from(limit)) as u32,
+                biomcp_adapters::Refusal::None,
             ),
             fetched,
             fresh,

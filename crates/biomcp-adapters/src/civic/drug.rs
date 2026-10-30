@@ -112,6 +112,7 @@ pub fn drug_search(
                 record: None,
                 list: Vec::new(),
             };
+            let mut refusals = crate::Refusal::None;
             let items = if skipped < offset {
                 Vec::new()
             } else {
@@ -119,11 +120,18 @@ pub fn drug_search(
                     .into_iter()
                     .filter_map(|row| {
                         cx.record = None;
-                        row.header(&mut cx)
+                        match row.header(&mut cx) {
+                            Some(row) => Some(row),
+                            None => {
+                                refusals = crate::Refusal::Refused;
+                                None
+                            }
+                        }
                     })
                     .collect::<Vec<_>>()
             };
             return Ok(Mapped {
+                refusals,
                 value: (
                     DrugPage {
                         items: items.into(),

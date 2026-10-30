@@ -124,3 +124,30 @@ fn audit_site(
         .and_then(serde_json::Value::as_object_mut)
         .ok_or_else(|| "missing audit site".into())
 }
+
+pub(super) fn check_mapped_refusal_decisions() -> Check {
+    let path = "crates/biomcp-adapters/src/example/map.rs";
+    rejects(
+        path,
+        "fn mapped() { Mapped { value, problems } }",
+        "explicit refusal decision",
+    )?;
+    rejects(
+        path,
+        "fn mapped() { Mapped::<Vec<Record>> { value, problems } }",
+        "explicit refusal decision",
+    )?;
+    // A nested record's decision cannot stand in for the enclosing mapping.
+    rejects(
+        path,
+        "fn mapped() { Mapped { value: Record { refusals: None }, problems } }",
+        "explicit refusal decision",
+    )?;
+    let tree = tree()?;
+    put(
+        tree.path(),
+        path,
+        "fn mapped() { Mapped { value, problems, refusals: Refusal::None } }",
+    )?;
+    check(tree.path())
+}

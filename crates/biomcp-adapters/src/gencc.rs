@@ -40,6 +40,7 @@ pub fn sync(fetch: &Fetch) -> Result<crate::Mapped<SyncResult>, RequestError> {
     let info = fetch.sync(&SUBMISSIONS)?;
     let problems = crate::mapped::bundle_problems(Source::Gencc, &info);
     Ok(crate::Mapped {
+        refusals: crate::bundle_mapping::bundle_refusals(&info),
         problems,
         value: SyncResult {
             snapshot: None,
@@ -65,15 +66,18 @@ pub fn gene(
     )?;
     rows.extend(rejected);
     let mut problems = Vec::new();
+    let mut refusals = crate::Refusal::None;
     let submissions: Box<[_]> = rows
         .into_iter()
         .filter_map(|row| {
             let mapped = row.into_record(id);
+            refusals.include(mapped.refusals);
             problems.extend(mapped.problems);
             mapped.value
         })
         .collect();
     Ok(Mapped {
+        refusals,
         value: (!submissions.is_empty()).then_some(GenccGene { submissions }),
         problems,
     })
@@ -135,6 +139,7 @@ impl Submission {
             cx.required::<()>("gene_curie", None);
         }
         let version = cx.required_field("version_number", self.version_number);
+        let mut refusals = crate::Refusal::None;
         let value = match (id, version) {
             (Some(id), Some(version)) if gene == Some(requested) => Some(GenccSubmission {
                 id,
@@ -156,9 +161,13 @@ impl Submission {
                     self.submitted_run_date.as_deref().filter(|v| !v.is_empty()),
                 ),
             }),
-            _ => None,
+            _ => {
+                refusals = crate::Refusal::Refused;
+                None
+            }
         };
         Mapped {
+            refusals,
             value,
             problems: cx.list,
         }

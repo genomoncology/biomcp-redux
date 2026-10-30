@@ -109,6 +109,7 @@ pub(in crate::uniprot) fn entry(raw: raw::Entry, id: &UniProtIsoform) -> Mapped<
             None,
         );
         return Mapped {
+            refusals: crate::Refusal::Refused,
             value: None,
             problems: p.list,
         };
@@ -151,6 +152,7 @@ pub(in crate::uniprot) fn entry(raw: raw::Entry, id: &UniProtIsoform) -> Mapped<
         sequence,
     });
     Mapped {
+        refusals: crate::Refusal::None,
         value,
         problems: p.list,
     }

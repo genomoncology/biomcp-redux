@@ -59,6 +59,7 @@ pub(super) fn expression(raw: raw::Gene, id: &EnsemblGeneId) -> Mapped<GeneExpre
         subcellular_additional: map.list(raw.additional, "subcellular_additional"),
     };
     Mapped {
+        refusals: crate::Refusal::None,
         value,
         problems: map.problems,
     }
