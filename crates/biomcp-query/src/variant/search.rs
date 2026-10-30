@@ -52,22 +52,6 @@ pub fn search(cx: &Ctx<'_>, query: &VariantSearch) -> Outcome {
     );
     if let Ok(reply) = reply {
         out.include_refusals(reply.rows.refusals);
-        {
-            let (found, identity_failed, unavailable) = if out.dropped
-                || reply.total > u64::from(VariantSearch::MAX_RESULTS)
-                || out
-                    .sources
-                    .iter()
-                    .any(|s| s.state == biomcp_types::SourceState::Stale)
-            {
-                (true, false, true)
-            } else if reply.total == 0 {
-                (false, false, false)
-            } else {
-                (true, false, false)
-            };
-            crate::status::item(&mut out, found, identity_failed, unavailable);
-        };
         let returned = reply.rows.value.len() as u32;
         out.next = next(query, &reply.rows.value, reply.consumed, reply.total);
         out.page = Some(PageInfo {

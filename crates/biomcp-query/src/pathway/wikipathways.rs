@@ -93,7 +93,6 @@ pub(super) fn get(cx: &Ctx<'_>, q: &PathwayGet) -> Outcome {
         if !matches!(out.body, QueryBody::PoolError { .. }) {
             out.body = QueryBody::PathwayCard(card);
             {
-                let absent = absent;
                 crate::status::item(&mut out, !absent, false, false);
             }
         }

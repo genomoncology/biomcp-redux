@@ -46,15 +46,7 @@ pub(super) fn section(
     let value = match result {
         Ok(page) if page.total == 0 => Section::Empty {
             source: Source::Gwas,
-            record: id
-                .to_string()
-                .parse()
-                .ok()
-                .map(|id| biomcp_types::SourceRecord {
-                    namespace: biodata::IdentifierNamespace::Unknown,
-                    id,
-                    url: None,
-                }),
+            record: source_record(&id),
         },
         Ok(page) => {
             dropped |= page.refusals == biomcp_adapters::Refusal::Refused;
@@ -134,4 +126,15 @@ fn continuation(
             .at_section_offset(next)
             .with_sections(Box::new([biomcp_types::VariantSection::Gwas])),
     )
+}
+
+fn source_record(id: &VariantId) -> Option<biomcp_types::SourceRecord> {
+    id.to_string()
+        .parse()
+        .ok()
+        .map(|id| biomcp_types::SourceRecord {
+            namespace: biodata::IdentifierNamespace::Unknown,
+            id,
+            url: None,
+        })
 }

@@ -54,13 +54,7 @@ pub fn get(cx: &Ctx<'_>, query: &VariantGet) -> Outcome {
     if matches!(found.error, Some(RequestError::Source(e)) if e.reason == Reason::NotFound) {
         resolution = VariantResolution::Absent;
     }
-    let population_reason = if population && resolution == VariantResolution::Candidates {
-        Some(Reason::NoJoinId)
-    } else if population {
-        found.reason
-    } else {
-        None
-    };
+    let population_reason = population_reason(population, resolution, found.reason);
     let mut sources = found.sources;
     let mut local = found.local;
     if query.sections().is_empty()
@@ -380,4 +374,18 @@ fn myvariant_identity(
     *dropped |= found.refusals == biomcp_adapters::Refusal::Refused;
     problems.extend(found.problems);
     Ok((found.value, None))
+}
+
+fn population_reason(
+    population: bool,
+    resolution: VariantResolution,
+    reason: Option<Reason>,
+) -> Option<Reason> {
+    if population && resolution == VariantResolution::Candidates {
+        Some(Reason::NoJoinId)
+    } else if population {
+        reason
+    } else {
+        None
+    }
 }

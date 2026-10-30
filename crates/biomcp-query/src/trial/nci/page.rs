@@ -96,18 +96,15 @@ pub(super) fn render(
         .filter(|s| **s != TrialSection::All && !SECTIONS.contains(s))
         .copied()
         .collect();
-    let state = if s.detail.refusals == biomcp_adapters::Refusal::Refused
+    let incomplete = s.detail.refusals == biomcp_adapters::Refusal::Refused
         || !unsupported.is_empty()
         || s.sources.iter().any(|s| {
             matches!(
                 s.state,
                 biomcp_types::SourceState::Stale | biomcp_types::SourceState::Failed
             )
-        }) {
-        crate::status::item_status(true, false, true)
-    } else {
-        crate::status::item_status(true, false, false)
-    };
+        });
+    let state = crate::status::item_status(true, false, incomplete);
     Ok(NciTrialItem {
         input: id,
         status: state,
