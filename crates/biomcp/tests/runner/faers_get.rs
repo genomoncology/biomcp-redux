@@ -368,7 +368,7 @@ fn optional_sections(
                 != total
             || page.get("problems") != problems
         {
-            return Err(format!("optional section changed: {mode}: {page}"));
+            return Err(format!("optional section changed: {section}: {page}"));
         }
     }
     Ok(())
