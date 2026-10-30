@@ -215,6 +215,8 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(output_stream::trials());
     trials.extend(research::trials());
     trials.extend(cache_contention::trials());
+    // Private Refusal facts are visible only at the public adapter API.
+    trials.extend(mapped_refusals::trials());
     trials.extend(http::trials());
     trials.extend(remote_tools::trials());
     trials.extend(mcp_boundaries::trials());
@@ -414,6 +416,7 @@ tool_only! {
         trials.push(reply_comparison::trial());
         trials.extend(hgnc_sync::trials());
         trials.extend(schema_proof::trials(registry));
+        trials.extend(source_terms::trials());
         trials.extend(live_proof::trials());
         trials.extend(live_follow_proof::trials());
         Ok(trials)

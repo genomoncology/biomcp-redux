@@ -384,7 +384,7 @@ fn discovery() -> Check {
         "RESEARCH_DESCRIPTION_BYTES={descriptions}"
     )
     .map_err(|e| e.to_string())?;
-    if descriptions > 226 {
+    if descriptions > crate::runner::output_limit("research-descriptions")? {
         return Err("research descriptions exceed budget".into());
     }
     discovery_description(text)
@@ -491,7 +491,7 @@ fn discovery_description(text: &str) -> Check {
     writeln!(std::io::stdout(), "MCP_DESCRIPTION_BYTES={}", text.len())
         .map_err(|e| e.to_string())?;
     // The output budget uses j15878 measured 3840 bytes plus fifteen percent.
-    if text.len() > 4416 {
+    if text.len() > crate::runner::output_limit("command-description")? {
         return Err("command description exceeds budget".into());
     }
     for word in [

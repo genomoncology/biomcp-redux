@@ -123,8 +123,8 @@ fn envelope(value: &Value) -> Result<(), String> {
         .len();
     if terms != json!([{"component":"clinvar","terms":expected}])
         || full - payload != 205 + source_terms
-        || payload > 1536
-        || full - source_terms > 1771
+        || payload > crate::runner::output_limit("hotspots-payload")?
+        || full - source_terms > crate::runner::output_limit("hotspots-envelope")?
     {
         return Err(format!(
             "hotspots full={full}, comparable={payload}; caps=1771/1536"

@@ -110,7 +110,7 @@ pub(super) fn research_aggregate() -> Check {
         json!({"query":"adverse-event MMR seriousness --source vaers"}),
         &[],
     )?;
-    if result.to_string().len() > 2376
+    if result.to_string().len() > crate::runner::output_limit("vaers-full-summary")?
         || result.get("results").is_some()
         || result.pointer("/metadata/envelope") != Some(&cli)
         || result.pointer("/metadata/omitted_rows") != Some(&json!(3))

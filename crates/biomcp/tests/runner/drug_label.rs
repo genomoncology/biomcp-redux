@@ -98,12 +98,12 @@ fn measure(value: &Value) -> Check {
     let bytes = serde_json::to_vec(value).map_err(|e| e.to_string())?.len();
     let comparable = super::source_terms::size(value, "")?;
     // Peak retained full-body replay is 7661 comparable bytes; allow 15% growth.
-    if comparable > 8811 {
+    if comparable > crate::runner::output_limit("label-comparable")? {
         return Err(format!(
             "label exceeds measured comparable budget {comparable}/8811"
         ));
     }
-    if bytes > 8192 {
+    if bytes > crate::runner::output_limit("label-full")? {
         return Err(format!("label exceeds full allocation {bytes}/8192"));
     }
     use std::io::Write;

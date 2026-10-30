@@ -66,7 +66,8 @@ pub(super) fn call(
             .pointer("/query/limit")
             .and_then(Value::as_u64)
             .is_some_and(|n| n <= 5)
-        && serde_json::to_vec(&value).map_err(|e| e.to_string())?.len() + 1 > 3053
+        && serde_json::to_vec(&value).map_err(|e| e.to_string())?.len() + 1
+            > crate::runner::output_limit("study-sync-cli")?
     {
         return Err(
             "study header page exceeds retained-catalog measurement plus fifteen percent".into(),
@@ -298,7 +299,9 @@ fn surfaces() -> Check {
     let args = vec!["search".into(), "study".into(), "atlas".into()];
     let mcp =
         super::mcp::call_with_globals(&env, &args, false, &env.globals(Some(&replay), false))?;
-    if serde_json::to_vec(&mcp).map_err(|e| e.to_string())?.len() > 3051 {
+    if serde_json::to_vec(&mcp).map_err(|e| e.to_string())?.len()
+        > crate::runner::output_limit("study-sync-mcp")?
+    {
         return Err("MCP study page exceeds its measured ceiling".into());
     }
     if mcp.pointer("/result/items/0/studyId") != Some(&json!("synthetic_0")) {

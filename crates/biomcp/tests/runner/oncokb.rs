@@ -94,7 +94,7 @@ fn wire() -> Result<(), String> {
     recorded.extend(["--record".into(), directory.to_string_lossy().into()]);
     let data = invoke(&env, &recorded, 0)?;
     let size = data.to_string().len();
-    if size > 2098 {
+    if size > crate::runner::output_limit("oncokb-complete-envelope")? {
         return Err(format!(
             "annotation complete envelope exceeds measured ceiling: {size} bytes"
         ));

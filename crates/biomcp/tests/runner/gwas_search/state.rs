@@ -97,7 +97,9 @@ pub(super) fn literal() -> Result<(), String> {
 }
 fn bounded(value: &Value) -> Result<(), String> {
     let bytes = serde_json::to_vec(value).map_err(|e| e.to_string())?.len();
-    if bytes > 7000 || bytes.div_ceil(4) > 1750 {
+    if bytes > crate::runner::output_limit("gwas-state-bytes")?
+        || bytes.div_ceil(4) > crate::runner::output_limit("gwas-state-tokens")?
+    {
         return Err("synthetic state exceeds ceiling".into());
     }
     Ok(())

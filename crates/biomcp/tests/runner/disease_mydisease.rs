@@ -78,16 +78,28 @@ fn ceiling(step: &Value) -> Result<usize, String> {
         (key == "--section-limit").then_some(value)
     });
     Ok(match (section, limit) {
-        (Some("synonyms"), Some("2")) => 1237,
-        (Some("xrefs"), Some("2")) => 1374,
-        (Some("hierarchy"), Some("2")) => 1385,
-        (Some("synonyms"), Some("50")) => 2230,
-        (Some("xrefs"), Some("50")) => 5619,
-        (Some("hierarchy"), Some("50")) => 1796,
-        (Some("synonyms"), _) => 1889,
-        (Some("xrefs"), _) => 2200,
-        (Some("hierarchy"), _) => 1794,
-        _ => 2024,
+        (Some("synonyms"), Some("2")) => {
+            crate::runner::output_limit("disease_mydisease-measured-1237")?
+        }
+        (Some("xrefs"), Some("2")) => {
+            crate::runner::output_limit("disease_mydisease-measured-1374")?
+        }
+        (Some("hierarchy"), Some("2")) => {
+            crate::runner::output_limit("disease_mydisease-measured-1385")?
+        }
+        (Some("synonyms"), Some("50")) => {
+            crate::runner::output_limit("disease_mydisease-measured-2230")?
+        }
+        (Some("xrefs"), Some("50")) => {
+            crate::runner::output_limit("disease_mydisease-measured-5619")?
+        }
+        (Some("hierarchy"), Some("50")) => {
+            crate::runner::output_limit("disease_mydisease-measured-1796")?
+        }
+        (Some("synonyms"), _) => crate::runner::output_limit("disease_mydisease-measured-1889")?,
+        (Some("xrefs"), _) => crate::runner::output_limit("disease_mydisease-measured-2200")?,
+        (Some("hierarchy"), _) => crate::runner::output_limit("disease_mydisease-measured-1794")?,
+        _ => crate::runner::output_limit("disease_mydisease-measured-2024")?,
     })
 }
 fn record(env: &Environment, words: &[&str], directory: &Path, exit: i32) -> Result<Value, String> {

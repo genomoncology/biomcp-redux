@@ -71,9 +71,9 @@ fn failures() -> Result<(), String> {
         )
         .map_err(|e| e.to_string())?;
         let ceiling = match case {
-            "ambiguous" => 1592,
-            "missing" => 983,
-            _ => 496,
+            "ambiguous" => crate::runner::output_limit("trial_condition-measured-1592")?,
+            "missing" => crate::runner::output_limit("trial_condition-measured-983")?,
+            _ => crate::runner::output_limit("trial_condition-measured-496")?,
         };
         let file = tempfile::NamedTempFile::new().map_err(|e| e.to_string())?;
         fs::write(

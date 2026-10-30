@@ -84,7 +84,7 @@ fn exact() -> Result<(), String> {
     )?;
     measure(&["exact-native"], &value)?;
     // Ceil(j12282 comparable1833 * 1.15).
-    if super::source_terms::size(&value, "")? > 2108 {
+    if super::source_terms::size(&value, "")? > crate::runner::output_limit("monarch-exact-page")? {
         return Err("exact native mechanics page exceeds its measured bound".into());
     }
     let row = value

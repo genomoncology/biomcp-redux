@@ -164,3 +164,98 @@ fn markdown_object_bytes(table: &str, rows: &[Value]) -> Result<usize, String> {
     }
     Ok(bytes)
 }
+
+tool_only! {
+fn subtraction() -> Result<(), String> {
+    let outcome = biomcp_adapters::registry::outcome(
+        biomcp_types::Source::Hgnc,
+        biomcp_types::SourceState::Ok,
+        None,
+    );
+    let mut envelope = json!({"sources":[outcome], "result":{"value":1}});
+    let cap = size(&envelope, "")?;
+    let stdout = serde_json::to_vec(&envelope).map_err(|e| e.to_string())?;
+    for (limit, amount) in [("max_bytes", cap), ("max_tokens", cap.div_ceil(4))] {
+        for full in [false, true] {
+            let step: super::Step = serde_json::from_value(json!({
+                "run": [], "full_output_bytes": full, limit: amount,
+            }))
+            .map_err(|e| e.to_string())?;
+            let result = super::assertions::check(&stdout, &step, &Vec::new());
+            if result.is_err() != full {
+                return Err(format!(
+                    "{limit}: complete-output basis did not count policy fields"
+                ));
+            }
+        }
+    }
+    envelope
+        .get_mut("result")
+        .and_then(Value::as_object_mut)
+        .ok_or("missing result")?
+        .insert("added".into(), json!("ordinary payload"));
+    if size(&envelope, "")? <= cap {
+        return Err("ordinary payload earned a terms deduction".into());
+    }
+    envelope
+        .pointer_mut("/sources/0")
+        .and_then(Value::as_object_mut)
+        .ok_or("missing source")?
+        .insert("terms".into(), json!("wrong terms"));
+    if size(&envelope, "").is_ok() {
+        return Err("malformed terms earned a deduction".into());
+    }
+    envelope
+        .pointer_mut("/sources/0")
+        .and_then(Value::as_object_mut)
+        .ok_or("missing row")?
+        .remove("terms");
+    if size(&envelope, "").is_ok() {
+        return Err("missing terms earned a deduction".into());
+    }
+    Ok(())
+}
+}
+
+tool_only! {
+fn markdown_subtraction() -> Result<(), String> {
+    let outcome = biomcp_adapters::registry::outcome(
+        biomcp_types::Source::Hgnc,
+        biomcp_types::SourceState::Ok,
+        None,
+    );
+    let text = format!(
+        "## Sources\n\n| Source | State | Terms | Terms url | Use |\n| --- | --- | --- | --- | --- |\n| hgnc | ok | {} | {} | open |\n\n",
+        text::escape(&outcome.terms),
+        text::source_link(&outcome.terms_url)
+    );
+    let value = json!({"sources":[outcome]});
+    let expected = "## Sources\n\n| Source | State |\n| --- | --- |\n| hgnc | ok |\n\n";
+    if text.len() - markdown_bytes(&text, &value)? != expected.len() {
+        return Err("Markdown changed prior table bytes".into());
+    }
+    let added = format!("{text}ordinary added content");
+    if added.len() - markdown_bytes(&added, &value)? <= expected.len() {
+        return Err("ordinary Markdown earned a deduction".into());
+    }
+    for changed in [
+        text.replace(&text::escape("CC0 1.0"), "wrong terms"),
+        text.replace(" Terms ", " Missing "),
+    ] {
+        if markdown_bytes(&changed, &value).is_ok() {
+            return Err("invalid Markdown terms earned a deduction".into());
+        }
+    }
+    Ok(())
+}
+}
+
+tool_only! {
+pub(super) fn trials() -> Vec<libtest_mimic::Trial> {
+    // These call the runner's accounting directly; product output cannot prove the checker rejects bad budgets.
+    vec![
+        super::transcript::trial("schema-discovery/terms-subtraction-keeps-payload-ceilings", || subtraction().map_err(Into::into)),
+        super::transcript::trial("schema-discovery/markdown-terms-subtraction-keeps-payload-ceilings", || markdown_subtraction().map_err(Into::into)),
+    ]
+}
+}
