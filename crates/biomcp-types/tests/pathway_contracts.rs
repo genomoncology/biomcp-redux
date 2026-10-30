@@ -200,7 +200,8 @@ fn neutral_records_keep_absence_membership_and_unresolved_event_identity() {
     for event in [
         json!({"kind":"database","db_id":{"namespace":"Reactome","id":5673001}}),
         json!({"kind":"object","db_id":{"namespace":"Reactome","id":5668599},"name":"Native reaction","schema_class":"Reaction"}),
-        json!({"kind":"object","db_id":{"namespace":"Reactome","id":5673001},"id":"R-HSA-5673001","version":"R-HSA-5673001.12","name":"Native pathway","schema_class":"Pathway"}),
+        json!({"kind":"object","db_id":{"namespace":"Reactome","id":5673001},"id":"R-HSA-5673001",
+        "version":"R-HSA-5673001.12","name":"Native pathway","schema_class":"Pathway"}),
     ] {
         assert_eq!(
             roundtrip::<PathwayEventRef>(event.clone()).expect("public round-trip"),
@@ -227,7 +228,8 @@ fn native_short_page_keeps_total_scope_and_next_position() {
     );
     let page = json!(
         {"header":{"id":{"source":"reactome","id":"R-HSA-5673001"},"name":"RAF/MAP kinase cascade","species":"Homo sapiens"},
-        "items":[{"kind":"database","db_id":{"namespace":"Reactome","id":5668599}}],"page":{"offset":5,"returned":1,"total":81,"total_kind":"observed","next_offset":10}}
+        "items":[{"kind":"database","db_id":{"namespace":"Reactome","id":5668599}}],"page":{"offset":5,
+        "returned":1,"total":81,"total_kind":"observed","next_offset":10}}
     );
     assert_eq!(
         roundtrip::<biomcp_types::PathwayEvents>(page.clone()).expect("public round-trip"),
@@ -268,8 +270,10 @@ fn source_summation_multiplicity_and_pathway_citations_stay_independent() {
     // Minimal source-field projection; text/title and the second summation are synthetic controls.
     let pathway = json!(
         {"id":{"source":"reactome","id":"R-HSA-5673001"},"name":"RAF/MAP kinase cascade","species":"Homo sapiens",
-        "summations":[{"db_id":{"namespace":"Reactome","id":5683030},"text":"Complete retained source text."},{"db_id":{"namespace":"Reactome","id":5683031},"text":"Second source summation."}],
-        "references":[{"db_id":{"namespace":"Reactome","id":5672144},"pubmed":"24937142","title":"Native reference"},{"db_id":{"namespace":"Reactome","id":208231},"pubmed":"17496910"}]}
+        "summations":[{"db_id":{"namespace":"Reactome","id":5683030},"text":"Complete retained source text."},
+        {"db_id":{"namespace":"Reactome","id":5683031},"text":"Second source summation."}],
+        "references":[{"db_id":{"namespace":"Reactome","id":5672144},"pubmed":"24937142","title":"Native reference"},
+        {"db_id":{"namespace":"Reactome","id":208231},"pubmed":"17496910"}]}
     );
     assert_eq!(
         roundtrip::<Pathway>(pathway.clone()).expect("public round-trip"),

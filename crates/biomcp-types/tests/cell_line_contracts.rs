@@ -106,7 +106,7 @@ fn requests_reject_bad_bounds_and_identities_before_io() {
 // Synthetic contract rows preserve only the multiplicity and absence observed in the
 // retained capture archives. They are not native replies or curation answers.
 fn xref(database: &str, accession: &str) -> Value {
-    json!({"database":database,"accession":accession})
+    json!({"namespace":database,"id":accession})
 }
 #[test]
 fn whole_variations_keep_fusion_members_and_non_pubmed_provenance() {
