@@ -85,3 +85,36 @@ pub(crate) const CLINPGX_ANNOTATION: (&str, &[&str]) = (
     "clinpgx-annotations/annotation-network-cache-replay",
     &["option get pgx --annotation-id"],
 );
+
+// Label prose, keyed annotations, HPO and carried Monarch references remain synthetic.
+pub(crate) const LABEL_HEADINGS: (&str, &[&str]) = (
+    "drug-label/five-native-headings",
+    &["section get drug label", "option get drug --label-section"],
+);
+pub(crate) const ONCOKB: (&str, &[&str]) = (
+    "variant-oncokb/oncokb-key-policy-wire",
+    &[
+        "section get variant oncokb",
+        "option get variant --tumor-type",
+    ],
+);
+pub(crate) const ONCOKB_ALL: (&str, &[&str]) = (
+    "variant-oncokb/oncokb-resolved-id-and-all-context",
+    &["section get variant all"],
+);
+pub(crate) const ALPHAGENOME: (&str, &[&str]) = (
+    "variant-alphagenome/alphagenome-native-groups-local-tls",
+    &[
+        "section get variant alphagenome",
+        "option get variant --section-limit",
+        "option get variant --section-offset",
+    ],
+);
+pub(crate) const HPO_SNAPSHOT: (&str, &[&str]) = (
+    "phenotype-sections/refresh-preserves-card-snapshot-and-policy",
+    &["option get phenotype --snapshot"],
+);
+pub(crate) const MONARCH_XREFS: (&str, &[&str]) = (
+    "phenotype-sections/native-classes-and-direct-links",
+    &["section get phenotype xrefs"],
+);
