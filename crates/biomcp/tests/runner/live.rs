@@ -181,7 +181,7 @@ fn step_skips(case: &Case) -> Vec<Option<&'static str>> {
         .iter()
         .map(|step| {
             let reason = if !eligible_step(step) {
-                Some("local validation or offline step")
+                Some("local validation, presentation or offline step")
             } else if step.follow.is_some() && !predecessor {
                 Some("follow predecessor is ineligible")
             } else {
@@ -194,6 +194,12 @@ fn step_skips(case: &Case) -> Vec<Option<&'static str>> {
 }
 fn eligible_step(step: &Step) -> bool {
     if step.offline || step.exit > 1 {
+        return false;
+    }
+    if step.run.as_ref().or(step.mcp.as_ref()).is_some_and(|args| {
+        args.windows(2).any(|pair| pair == ["--format", "md"])
+            || args.iter().any(|arg| arg == "--format=md")
+    }) {
         return false;
     }
     // The reviewed case declares its source operations. Do not maintain another
