@@ -106,9 +106,7 @@ section get adverse-event unii
 section get cell-line chembl
 section get disease phenotypes
 section get drug civic
-section get drug indications
 section get drug label
-section get drug xrefs
 section get phenotype xrefs
 section get protein complexes
 section get protein domains
