@@ -51,10 +51,10 @@ pub(super) fn check() -> Result<(), Box<dyn std::error::Error>> {
         );
         let mut before = Vec::new();
         for stream in ["evidence", "assertions"] {
-            for file in ["cli.stdout", "mcp.stdout"] {
+            for file in ["cli.stdout", "cli.stderr", "mcp.stdout", "mcp.stderr"] {
                 let path = retained.join(format!("replay-{stream}/{file}"));
                 let bytes = fs::read(&path)?;
-                if bytes.is_empty() {
+                if file.ends_with("stdout") && bytes.is_empty() {
                     return Err(format!("native proof omitted output bytes: {path:?}").into());
                 }
                 before.push((path, bytes));
