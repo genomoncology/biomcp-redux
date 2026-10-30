@@ -302,7 +302,7 @@
       "maximum": 1,
       "class": "legitimate_absence",
       "owner": "fda_cdx",
-      "reason": "Native cell wording is retained intact; scanning ordinary words for optional derived source identifiers admits only matching native authority spellings and does not drop any physical cell value"
+      "reason": "Problem provenance is formed locally from the checked snapshot and physical table row position; this conversion never admits or drops a source cell value"
     },
     {
       "path": "crates/biomcp-adapters/src/fda_device_recall/raw.rs",

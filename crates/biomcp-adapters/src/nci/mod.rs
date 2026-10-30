@@ -158,7 +158,7 @@ impl Trial {
             summary: self.brief_summary,
             diseases: self.diseases.into(),
             eligibility: self.eligibility,
-            outcomes: self.outcome_measures.into(),
+            outcomes: self.outcome_measures,
             arms: self.arms,
         }
     }
