@@ -15,15 +15,7 @@ pub fn search(cx: &Ctx<'_>, q: &GwasSearch) -> Outcome {
     if q.p_value().is_some() {
         return threshold::search(cx, q);
     }
-    let mut out = Outcome {
-        status: Status::Failed,
-        body: QueryBody::GwasPage(None),
-        page: None,
-        sources: vec![],
-        problems: vec![],
-        next: vec![],
-        local: None,
-    };
+    let mut out = empty();
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let leg = cx.fetch.leg(&gwas::SPEC, deadline).fresh(cx.fresh);
@@ -93,4 +85,16 @@ pub fn search(cx: &Ctx<'_>, q: &GwasSearch) -> Outcome {
     out.local = error.and_then(status::local);
     command.finish(deadline.remaining());
     out
+}
+
+fn empty() -> Outcome {
+    Outcome {
+        status: Status::Failed,
+        body: QueryBody::GwasPage(None),
+        page: None,
+        sources: vec![],
+        problems: vec![],
+        next: vec![],
+        local: None,
+    }
 }

@@ -39,10 +39,8 @@ failure label expired-pool
 failure label not-found
 failure label offline-miss
 failure label unavailable
-failure trial bad-source-data
 failure trial expired-pool
 failure trial not-found
-failure trial offline-miss
 failure trial unavailable
 failure variant expired-pool
 failure variant not-found

@@ -39,11 +39,7 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &TrialSearch) -> Outcome {
         params.insert("query.cond".into(), format!("({condition})"));
     }
     let (result, name_notice) = names::search(&leg, query, &params, conditions);
-    let rejected = name_notice.is_none()
-        && matches!(
-            &result,
-            Err(biomcp_fetch::RequestError::Source(error)) if error.status == Some(400)
-        );
+    let rejected = name_notice.is_none() && request_rejected(result.as_ref().err());
     let version = match &result {
         Ok(_) => ctgov::version(&leg),
         Err(error) => Err(*error),
@@ -96,6 +92,10 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &TrialSearch) -> Outcome {
     command.finish(deadline.remaining());
     outcome
 }
+fn request_rejected(error: Option<&biomcp_fetch::RequestError>) -> bool {
+    matches!(error, Some(biomcp_fetch::RequestError::Source(error)) if error.status == Some(400))
+}
+
 fn apply_page(
     query: &TrialSearch,
     fresh: bool,
