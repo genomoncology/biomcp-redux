@@ -59,6 +59,7 @@ singleton! {
  SourceSelector => "choose one of the source selector values",
  UnsupportedFilter => "a selected source does not support the requested filters",
  TooManyPmids => "citation ordering exceeds the PMID limit; narrow the search",
+ McpResultTooBroad => "MCP tool result exceeds the character cap in error.count; narrow --limit or --section-limit, select one source or section, or fetch one exact record",
  SchemaUsage => "use biomcp schema to list known artifact IDs",
  Arguments => "expected a supported command with checked arguments",
  McpSync => "sync is unavailable over MCP; run it from the command line",
@@ -296,6 +297,15 @@ pub struct ErrorEnvelope {
 }
 
 impl ErrorEnvelope {
+    /// Refuse the complete serialized MCP result without cutting source text.
+    pub fn mcp_result_too_broad(cap: u64) -> Self {
+        let mut error = Self::arguments();
+        error.error.code = ErrorCode::TooBroad;
+        error.error.message = ErrorMessage::McpResultTooBroad;
+        error.error.count = Some(cap);
+        error
+    }
+
     /// Refuse a biomarker observation beyond its byte bound.
     pub fn biomarker_too_broad() -> Self {
         let mut error = Self::arguments();

@@ -110,7 +110,7 @@ fn start_input(sender: mpsc::SyncSender<Event>) -> io::Result<()> {
 
 impl Server {
     fn message(&mut self, frame: &[u8]) -> io::Result<Option<Value>> {
-        match rpc::message(frame, &mut self.legacy) {
+        match rpc::message(frame, &mut self.legacy, false) {
             rpc::Message::Reply(reply) => Ok(Some(reply)),
             rpc::Message::Tool { id, params, modern } => self.admit(id, &params, modern),
             rpc::Message::Notification { method, params } => {
@@ -203,7 +203,7 @@ impl Server {
             return Ok(None);
         }
         Ok(Some(match outcome {
-            Ok(outcome) => protocol::result(call.id, protocol::outcome(&outcome), call.modern),
+            Ok(outcome) => protocol::tool_result(call.id, &outcome, call.modern),
             Err(_) => protocol::error(call.id, -32603, "Internal error"),
         }))
     }
