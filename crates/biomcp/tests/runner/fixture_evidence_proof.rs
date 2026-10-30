@@ -18,7 +18,8 @@ pub(super) fn trials() -> Vec<Trial> {
         }),
         transcript_trial("schema-discovery/failed-local-peer-child", || {
             aborted(true).map(|_| ()).map_err(Into::into)
-        }).with_ignored_flag(true),
+        })
+        .with_ignored_flag(true),
         transcript_trial("schema-discovery/single-source-capturing-callback", || {
             capturing_callback().map_err(|error| error.to_string().into())
         }),
@@ -160,17 +161,28 @@ fn persistence() -> Result<(), Box<dyn std::error::Error>> {
         let scratch = env.root().join("job-tmp");
         fs::create_dir(&scratch)?;
         let args = [
-            "--exact", "schema-discovery/failed-local-peer-child", "--ignored",
-        ].map(str::to_owned);
+            "--exact",
+            "schema-discovery/failed-local-peer-child",
+            "--ignored",
+        ]
+        .map(str::to_owned);
         let mut command = env.command(std::env::current_exe()?, &args);
-        command.env("TMPDIR", &scratch).env("TMP", &scratch).env("TEMP", &scratch);
+        command
+            .env("TMPDIR", &scratch)
+            .env("TMP", &scratch)
+            .env("TEMP", &scratch);
         let expected = if explicit {
             let override_path = env.root().join("explicit-evidence");
             command.env("BIOMCP_EVIDENCE_DIR", &override_path);
-            override_path.join("fixture-failures")
+            env.root()
+                .canonicalize()?
+                .join("explicit-evidence/fixture-failures")
         } else {
             command.env_remove("BIOMCP_EVIDENCE_DIR");
-            super::super::launch::checkout().join("../../target/fixture-evidence")
+            super::super::launch::checkout()
+                .join("../..")
+                .canonicalize()?
+                .join("target/fixture-evidence")
         };
         let output = command.output()?;
         if !output.status.success() {
@@ -178,11 +190,13 @@ fn persistence() -> Result<(), Box<dyn std::error::Error>> {
         }
         let stderr = std::str::from_utf8(&output.stderr)?;
         let paths: Vec<String> = serde_json::from_str(
-            stderr.lines().find_map(|line| line.split_once("; evidence=").map(|(_, p)| p))
+            stderr
+                .lines()
+                .find_map(|line| line.split_once("; evidence=").map(|(_, p)| p))
                 .ok_or("fixture child omitted retained evidence")?,
         )?;
         let retained = std::path::PathBuf::from(paths.first().ok_or("missing evidence path")?);
-        if retained.parent() != Some(expected.canonicalize()?.as_path()) {
+        if retained.parent() != Some(expected.as_path()) {
             return Err(format!("fixture evidence used unexpected path: {retained:?}").into());
         }
         fs::remove_dir_all(&scratch)?;
