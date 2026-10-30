@@ -116,7 +116,7 @@ pub struct TextContent {
     pub hits: Option<Box<[TextHit]>>,
 }
 impl super::ResponseBody for ArticleTextResult {
-    const SCHEMA: &'static str = "biomcp.article-text/6";
+    const SCHEMA: &'static str = "biomcp.article-text/7";
     type Query = ArticleText;
 }
 

@@ -16,7 +16,7 @@
         "50"
       ],
       "expect": {
-        "/schema": "biomcp.variant-page/15",
+        "/schema": "biomcp.variant-page/16",
         "/status": "complete",
         "/result/source_query": "PTEN[GENE] AND \"c.333G>T\"[VRNM]",
         "/result/items/0/identity/ids/0": "clinvar:3669092",

@@ -237,11 +237,11 @@ pub struct CellLineAssayCount {
     pub assay_count: u64,
 }
 impl ResponseBody for CellLinePage {
-    const SCHEMA: &'static str = "biomcp.cell-line-page/6";
+    const SCHEMA: &'static str = "biomcp.cell-line-page/7";
     type Query = CellLineSearch;
 }
 impl ResponseBody for CellLineCard {
-    const SCHEMA: &'static str = "biomcp.cell-line-card/7";
+    const SCHEMA: &'static str = "biomcp.cell-line-card/8";
     type Query = CellLineGet;
 }
 impl ResponseBody for CellLineNames {
@@ -249,19 +249,19 @@ impl ResponseBody for CellLineNames {
     type Query = CellLineGet;
 }
 impl ResponseBody for CellLineIdentityPage {
-    const SCHEMA: &'static str = "biomcp.cell-line-identity/5";
+    const SCHEMA: &'static str = "biomcp.cell-line-identity/6";
     type Query = CellLineGet;
 }
 impl ResponseBody for CellLineXrefs {
-    const SCHEMA: &'static str = "biomcp.cell-line-xrefs/5";
+    const SCHEMA: &'static str = "biomcp.cell-line-xrefs/6";
     type Query = CellLineGet;
 }
 impl ResponseBody for CellLineVariants {
-    const SCHEMA: &'static str = "biomcp.cell-line-variants/6";
+    const SCHEMA: &'static str = "biomcp.cell-line-variants/7";
     type Query = CellLineGet;
 }
 impl ResponseBody for CellLineChembl {
-    const SCHEMA: &'static str = "biomcp.cell-line-chembl/6";
+    const SCHEMA: &'static str = "biomcp.cell-line-chembl/7";
     type Query = CellLineGet;
 }
 impl ResponseBody for CellLineAssayCount {

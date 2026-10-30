@@ -48,7 +48,7 @@ macro_rules! collection {
         }
     };
 }
-collection!(PgxPage, PgxPair, PgxSearch, "biomcp.pgx-page/5");
+collection!(PgxPage, PgxPair, PgxSearch, "biomcp.pgx-page/6");
 collection!(
     PgxGuidelines,
     PgxGuidelineReference,
@@ -82,7 +82,7 @@ pub enum PgxRecommendations {
     },
 }
 impl ResponseBody for PgxRecommendations {
-    const SCHEMA: &'static str = "biomcp.pgx-recommendations/4";
+    const SCHEMA: &'static str = "biomcp.pgx-recommendations/5";
     type Query = PgxGet;
 }
 /// Compact exact source gene identity, not a selected gene-drug pair.
@@ -149,7 +149,7 @@ pub enum PgxAnnotations {
     },
 }
 impl ResponseBody for PgxAnnotations {
-    const SCHEMA: &'static str = "biomcp.pgx-annotations/4";
+    const SCHEMA: &'static str = "biomcp.pgx-annotations/5";
     type Query = PgxGet;
 }
 /// Exact clinical annotation identity, distinct from any genomic allele identity.
@@ -171,6 +171,6 @@ pub struct PgxAnnotation {
     pub annotation: PgxAnnotationDetail,
 }
 impl ResponseBody for PgxAnnotation {
-    const SCHEMA: &'static str = "biomcp.pgx-annotation/4";
+    const SCHEMA: &'static str = "biomcp.pgx-annotation/5";
     type Query = PgxAnnotationGet;
 }

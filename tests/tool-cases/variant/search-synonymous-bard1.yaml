@@ -16,7 +16,7 @@
         "50"
       ],
       "expect": {
-        "/schema": "biomcp.variant-page/15",
+        "/schema": "biomcp.variant-page/16",
         "/status": "complete",
         "/query/protein": "p.Ala613=",
         "/result/source_query": "BARD1[GENE] AND \"p.Ala613=\"[VRNM]",
@@ -90,7 +90,7 @@
         "50"
       ],
       "expect": {
-        "/schema": "biomcp.variant-page/15",
+        "/schema": "biomcp.variant-page/16",
         "/status": "complete",
         "/query/protein": "p.Ala613=",
         "/result/source_query": "BARD1[GENE] AND \"p.Ala613=\"[VRNM]",
