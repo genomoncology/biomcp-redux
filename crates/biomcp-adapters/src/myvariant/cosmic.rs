@@ -72,7 +72,7 @@ pub fn get(leg: &Leg<'_>, id: &str, build: Build) -> Result<Mapped<VariantCosmic
 struct Record {
     #[serde(rename = "_id")]
     id: Option<Field<Text>>,
-    cosmic: Option<Field<OneOrMany<Field<Row>>>>,
+    cosmic: Option<Field<Rows>>,
 }
 impl Reply for Record {
     fn check(&self) -> Result<(), BadReply> {
@@ -81,7 +81,7 @@ impl Reply for Record {
 }
 #[derive(Deserialize)]
 struct Row {
-    cosmic_id: biodata::CosmicId,
+    cosmic_id: Option<Field<biodata::CosmicId>>,
     #[serde(rename = "ref")]
     reference: Option<Field<Text>>,
     alt: Option<Field<Text>>,
@@ -91,17 +91,36 @@ struct Row {
     mut_freq: Option<Field<FiniteNumber>>,
     tumor_site: Option<Field<OneOrMany<Field<Text>>>>,
 }
+#[derive(Deserialize)]
+#[serde(untagged)]
+enum Rows {
+    Many(Vec<Field<Row>>),
+    One(Row),
+    InvalidContainer(serde::de::IgnoredAny),
+}
 
 fn records(
     id: &Text,
-    rows: Option<Field<OneOrMany<Field<Row>>>>,
+    rows: Option<Field<Rows>>,
     problems: &mut Problems,
     refusals: &mut crate::Refusal,
 ) -> Vec<CosmicRecord> {
     let mut records = Vec::new();
-    let rows = problems.field("cosmic", rows);
-    for raw_row in rows.into_iter().flat_map(OneOrMany::values) {
+    let rows = match problems.field("cosmic", rows) {
+        Some(Rows::Many(rows)) => rows,
+        Some(Rows::One(row)) => vec![Field::Value(row)],
+        Some(Rows::InvalidContainer(_)) => {
+            problems.required::<()>("cosmic.cosmic_id", None);
+            return records;
+        }
+        None => return records,
+    };
+    for raw_row in rows {
         let Some(row) = problems.field("cosmic.cosmic_id", Some(raw_row)) else {
+            *refusals = crate::Refusal::Refused;
+            continue;
+        };
+        let Some(cosmic_id) = problems.required_field("cosmic.cosmic_id", row.cosmic_id) else {
             *refusals = crate::Refusal::Refused;
             continue;
         };
@@ -114,7 +133,7 @@ fn records(
         records.push(CosmicRecord {
             myvariant_record: id.clone(),
             identity: CosmicIdentity::Unverified,
-            cosmic_id: row.cosmic_id,
+            cosmic_id,
             reference: problems.field("cosmic.ref", row.reference),
             alternate: problems.field("cosmic.alt", row.alt),
             chromosome: problems.field("cosmic.chrom", row.chrom),
