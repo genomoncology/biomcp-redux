@@ -166,11 +166,11 @@ fn paging() -> Check {
                 return Err("Duplicate retained data node".into());
             }
             seen.push(id.to_owned());
-            if id == "n10" && row.pointer("/reference/namespace").is_some() {
-                return Err("Missing namespace became present".into());
+            if id == "n10" && row.pointer("/reference/namespace") != Some(&json!("unknown")) {
+                return Err("Missing namespace did not retain the unknown authority marker".into());
             }
-            if id == "n11" && row.pointer("/reference/namespace") != Some(&json!("")) {
-                return Err("Empty namespace was lost".into());
+            if id == "n11" && row.pointer("/reference/namespace") != Some(&json!("unknown")) {
+                return Err("Empty namespace did not retain the unknown authority marker".into());
             }
         }
         let step = next
