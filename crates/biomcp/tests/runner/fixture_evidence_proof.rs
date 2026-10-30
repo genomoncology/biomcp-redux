@@ -161,6 +161,7 @@ fn persistence() -> Result<(), Box<dyn std::error::Error>> {
         let scratch = env.root().join("job-tmp");
         fs::create_dir(&scratch)?;
         let args = [
+            "--proofs",
             "--exact",
             "schema-discovery/failed-local-peer-child",
             "--ignored",
