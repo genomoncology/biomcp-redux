@@ -57,14 +57,18 @@ impl<T> NativeWindow<T> {
     pub fn provider_empty(&self) -> bool {
         self.received == 0
     }
-    /// Advance by native slots; an unknown total requires a full native page.
+    /// Whether native rows indicate a further window, independent of accepted rows.
+    pub fn has_more(&self) -> bool {
+        !self.provider_empty()
+            && self.total.map_or(self.received == self.limit, |total| {
+                u64::from(self.offset) + u64::from(self.received) < total
+            })
+    }
+    /// Advance by native slots without overflowing the selector offset.
     pub fn next_offset(&self) -> Option<u32> {
-        let next = self.offset.checked_add(self.received)?;
-        (!self.provider_empty()
-            && self
-                .total
-                .map_or(self.received == self.limit, |total| u64::from(next) < total))
-        .then_some(next)
+        self.has_more()
+            .then(|| self.offset.checked_add(self.received))
+            .flatten()
     }
     /// Keep native traversal facts while mapping accepted records for a caller.
     pub fn with_rows<U>(self, rows: Vec<U>) -> NativeWindow<U> {

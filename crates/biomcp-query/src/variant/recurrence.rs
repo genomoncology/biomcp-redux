@@ -76,7 +76,7 @@ fn execute(
     metadata(query, &cohort, out);
     let (count, problems) = matching::count(&identity, &window.rows, query.study());
     out.problems.extend(problems);
-    let more = window.next_offset().is_some();
+    let more = window.has_more();
     let mut body = empty();
     body.identity = Some(identity);
     body.entrez_gene_id = Some(gene);
