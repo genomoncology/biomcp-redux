@@ -1,4 +1,3 @@
-option get drug --product-number
 option search diagnostic --drug-application
 option search diagnostic --initiated-from
 option search diagnostic --initiated-to
