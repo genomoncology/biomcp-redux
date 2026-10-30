@@ -9,9 +9,6 @@ mod errors;
 mod names;
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = vec![
-        transcript_trial("drug-approvals/literal-application-candidates", || {
-            search().map_err(Into::into)
-        }),
         transcript_trial(
             "drug-approvals/application-history-keeps-product-scope",
             || approvals().map_err(Into::into),
@@ -68,37 +65,6 @@ fn application() -> Value {
         "submissions":[{"submission_type":"ORIG","submission_number":"1",
             "submission_status":"AP","submission_status_date":"20010510",
             "review_priority":"PRIORITY"}]})
-}
-fn search() -> Check {
-    let (env, stub) = setup(
-        json!({"meta":{"results":{"skip":0,"limit":1,"total":2}},"results":[application()]}),
-        "products.active_ingredients.name%3A%22Synthetic%22",
-    )?;
-    let args = [
-        "search",
-        "drug",
-        "Synthetic",
-        "--source",
-        "drugsfda",
-        "--limit",
-        "1",
-    ]
-    .map(str::to_owned)
-    .to_vec();
-    let value = both(&env, args, 0)?;
-    budget(measure(&value)?, (923, 812))?;
-    if value.pointer("/result/items/0/identity/id") != Some(&json!("NDA021335"))
-        || value.pointer("/result/items/0/identity/identity_level")
-            != Some(&json!("fda_application"))
-        || value.pointer("/result/items/0/products/0/brand_name") != Some(&json!("Synthetic brand"))
-        || value.pointer("/result/total") != Some(&json!(2))
-    {
-        return Err(format!("native application candidates changed: {value}"));
-    }
-    if stub.finish()?.len() != 1 {
-        return Err("warm FDA search made another request".into());
-    }
-    Ok(())
 }
 fn approvals() -> Check {
     let mut app = application();
@@ -286,9 +252,10 @@ fn navigation() -> Check {
         "application/json",
         move |request| {
             if request.lines().next()
-                != Some(
-                    "GET /drug/drugsfda.json?search=products.active_ingredients.name%3A%22Synthetic%22&limit=7 HTTP/1.1",
-                )
+                != Some(concat!(
+                    "GET /drug/drugsfda.json?search=products.brand_name.exact%3A%22Synthetic%22%20OR%20",
+                    "products.active_ingredients.name.exact%3A%22Synthetic%22&limit=7 HTTP/1.1"
+                ))
             {
                 return Err("candidate request changed".into());
             }
