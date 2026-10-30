@@ -9,6 +9,9 @@ tool_only! { mod native; }
 tool_only! { pub(super) use native::run as native; }
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        transcript_trial("disease-seer/empty-catalog-is-complete", || {
+            empty_catalog().map_err(Into::into)
+        }),
         transcript_trial(
             "disease-seer/stale-valid-rows-retain-rejected-reply-problem",
             || failures::stale_rejection().map_err(Into::into),
@@ -144,6 +147,27 @@ fn markdown(
     }
     Ok(())
 }
+fn empty_catalog() -> Result<(), String> {
+    let stub = Stub::for_source("seer.cancer.gov", "application/json", |_| {
+        Ok(json!({"VariableFormats":{}, "CancerSites":[]}).to_string())
+    })?;
+    let env = setup(&stub)?;
+    let value = invoke(
+        &env,
+        &args(&["search", "disease", "--source", "seer"]),
+        0,
+    )?;
+    if value.pointer("/status") != Some(&json!("complete"))
+        || value.pointer("/page/total") != Some(&json!(0))
+        || value.pointer("/sources/0/state") != Some(&json!("ok"))
+    {
+        return Err(format!("successful empty catalog lost its answer: {value}"));
+    }
+    if stub.finish()?.len() != 1 {
+        return Err("empty catalog fetched again".into());
+    }
+    Ok(())
+}
 fn catalog() -> Result<(), String> {
     let stub = Stub::for_source("seer.cancer.gov", "application/json", wire)?;
     let env = setup(&stub)?;
@@ -153,7 +177,7 @@ fn catalog() -> Result<(), String> {
     replay(
         &directory,
         json!(
-            [ {"run":words,"mcp":words,"expect":{"/status":"partial","/page/total":2,"/result/items/0":{"equals":{"code":"55",
+            [ {"run":words,"mcp":words,"expect":{"/status":"complete","/page/total":2,"/result/items/0":{"equals":{"code":"55",
             "label":"Example site","active":true}},"/problems/0/field":"catalog.publisher_date","/problems/1/field":"catalog.publisher_version",
             "/next/0/kind":"page"},"max_bytes":644},{"run":["search","disease","--source","seer","--limit","1","--offset","1"],"mcp":["search",
             "disease","--source","seer","--limit","1","--offset","1"],"offline":true,"expect":{"/page/offset":1,"/result/items/0/code":"47",

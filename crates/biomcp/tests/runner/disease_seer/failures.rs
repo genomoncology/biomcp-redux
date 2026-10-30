@@ -406,7 +406,7 @@ fn statistics_expect(kind: &str) -> Value {
     if kind == "mismatch" {
         json!({"/result/items/0/returned_selectors/5/code":"9","/problems/5/field":"returned_selectors.year_range"})
     } else if kind == "number" {
-        json!({"/status":"partial","/sources/0/state":"ok","/page/returned":2,"/page/total":2,
+        json!({"/status":"complete","/sources/0/state":"ok","/page/returned":2,"/page/total":2,
                 "/result/items/0/year":2018,"/result/items/1/year":2022,
                 "/result/items/0/observed/standard_error/value":0.2,
                 "/result/items/0/observed/lower_ci/value":89.0,"/result/items/0/observed/upper_ci/value":91.0,

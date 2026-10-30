@@ -37,7 +37,7 @@ pub fn search(cx: &Ctx<'_>, query: &DiseaseSearch) -> Outcome {
             components: Box::default(),
             fetched: fetched(page.metadata.fetched),
         });
-        crate::status::item(&mut out, total != 0, false, false);
+        crate::status::search(&mut out);
     }
     command.finish(deadline.remaining());
     out
