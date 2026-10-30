@@ -161,11 +161,16 @@ struct RawEdges {
 }
 impl Reply for RawEdges {
     fn discovery(&self) -> Option<biomcp_fetch::Identities> {
-        let ids = self.data.as_ref()?.iter().filter_map(Field::as_ref)
+        let ids = self
+            .data
+            .as_ref()?
+            .iter()
+            .filter_map(Field::as_ref)
             .filter_map(|edge| edge.citing_paper.as_ref().or(edge.cited_paper.as_ref()))
             .filter_map(|paper| paper.external_ids.as_ref())
             .filter(|ids| ids.pubmed.is_none())
-            .filter_map(|ids| ids.doi.as_ref().map(ToString::to_string)).collect();
+            .filter_map(|ids| ids.doi.as_ref().map(ToString::to_string))
+            .collect();
         biomcp_fetch::Identities::bounded("doi", ids)
     }
 

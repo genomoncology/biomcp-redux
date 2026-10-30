@@ -110,9 +110,17 @@ pub(super) fn resolve_dois_with<'a>(
                 })
                 .collect::<Vec<_>>()
                 .join(" OR ");
-            let inputs = biomcp_fetch::Identities::bounded("doi", batch.iter().map(|doi| doi.to_string()).collect());
+            let inputs = biomcp_fetch::Identities::bounded(
+                "doi",
+                batch.iter().map(|doi| doi.to_string()).collect(),
+            );
             let request_leg = inputs.map(|inputs| leg.with_input_ids(inputs, "term"));
-            let ids = pubmed::search_ids(request_leg.as_ref().unwrap_or(&leg), &term, ArticleSort::Rank, cx.ncbi_email.as_ref())?;
+            let ids = pubmed::search_ids(
+                request_leg.as_ref().unwrap_or(&leg),
+                &term,
+                ArticleSort::Rank,
+                cx.ncbi_email.as_ref(),
+            )?;
             problems.extend(ids.problems);
             for chunk in ids.ids.chunks(50) {
                 let mapped = pubmed::summaries(&leg, chunk, cx.ncbi_email.as_ref())?;

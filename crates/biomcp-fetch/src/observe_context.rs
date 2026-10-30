@@ -114,7 +114,12 @@ pub(crate) fn request_context(prepared: &Prepared, parameter: &str) -> Option<St
 }
 
 impl crate::Leg<'_> {
-    pub(crate) fn provenance<T: Reply>(&self, prepared: &Prepared, body: &[u8], status: Option<u16>) -> Provenance {
+    pub(crate) fn provenance<T: Reply>(
+        &self,
+        prepared: &Prepared,
+        body: &[u8],
+        status: Option<u16>,
+    ) -> Provenance {
         let mut provenance = Provenance::received::<T>(prepared, body, status);
         if let Some((inputs, parameter)) = &self.diagnostic_inputs {
             provenance.inputs = Some(inputs.clone());
