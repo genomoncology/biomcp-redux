@@ -117,4 +117,3 @@ fn sources(out: &mut Outcome, sources: Vec<biomcp_types::SourceOutcome>) {
         }
     }
 }
-
