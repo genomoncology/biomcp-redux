@@ -233,8 +233,8 @@ fn explicit_equals_refusal_counts() -> Check {
 
 fn label_absence_requires_the_successful_label_source() -> Check {
     let mut help = help();
-    help["result"]["commands"]
-        .as_array_mut()
+    help.pointer_mut("/result/commands")
+        .and_then(Value::as_array_mut)
         .ok_or("proof commands")?
         .push(json!({
             "command":["get","drug"],"arguments":[],"sections":[{"word":"label"}]
@@ -248,17 +248,34 @@ fn label_absence_requires_the_successful_label_source() -> Check {
     ] {
         let mut expect = json!({"/status":"absent", "/sources/0/state":state});
         if let Some(source) = source {
-            expect["/sources/0/source"] = json!(source);
+            expect
+                .as_object_mut()
+                .ok_or("proof expectations")?
+                .insert("/sources/0/source".into(), json!(source));
         }
         let step: Step = serde_json::from_value(json!({
             "run":["get","drug","UNKNOWN","label"],"exit":1,"expect":expect
         }))?;
         inventory.step(&step);
     }
-    assert_eq!(inventory.calls.get("failure label not-found"), Some(&1));
-    assert_eq!(inventory.calls.get("failure trial not-found"), Some(&0));
-    assert!(!inventory.calls.contains_key("failure label expired-pool"));
-    assert!(!inventory.calls.contains_key("failure variant expired-pool"));
+    assert_eq!(
+        inventory.calls.get("failure label not-found"),
+        Some(&1),
+        "only successful label-source absence earns label credit"
+    );
+    assert_eq!(
+        inventory.calls.get("failure trial not-found"),
+        Some(&0),
+        "label absence never earns trial credit"
+    );
+    assert!(
+        !inventory.calls.contains_key("failure label expired-pool"),
+        "label has no expired-pool surface"
+    );
+    assert!(
+        !inventory.calls.contains_key("failure variant expired-pool"),
+        "variant has no expired-pool surface"
+    );
     Ok(())
 }
 
