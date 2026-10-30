@@ -11,6 +11,10 @@ pub(super) fn get(cx: &Ctx<'_>, q: &DiagnosticGet) -> Outcome {
     let leg = cx.fetch.leg(&fda_510k::SPEC, deadline).fresh(cx.fresh);
     let error = match fda_510k::get(&leg, q) {
         Ok(card) => {
+            let card = card.map(|mapped| {
+                out.problems.extend(mapped.problems);
+                mapped.value
+            });
             out.status = if card.is_some() {
                 Status::Complete
             } else {

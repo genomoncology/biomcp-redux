@@ -103,17 +103,20 @@ pub fn search(leg: &Leg<'_>, query: &AdverseEventSearch) -> Result<Page, Request
             components,
             items: results
                 .into_iter()
-                .map(|v| AdverseEventHeader {
-                    id: v.safetyreportid,
-                    source: AdverseEventSource::Faers,
-                    version: v.safetyreportversion,
-                    serious: v.serious,
-                    event_type: None,
-                    first_received: v.receivedate,
+                .map(|v| {
+                    problems.record = crate::mapped::record(&v.safetyreportid);
+                    AdverseEventHeader {
+                        id: v.safetyreportid,
+                        source: AdverseEventSource::Faers,
+                        version: problems.field("safetyreportversion", v.safetyreportversion),
+                        serious: problems.field("serious", v.serious),
+                        event_type: None,
+                        first_received: problems.field("receivedate", v.receivedate),
+                    }
                 })
                 .collect(),
             total: meta.results.total,
-            updated: problems.field("meta.last_updated", meta.last_updated),
+            updated: meta.last_updated,
             problems: problems.list,
             metadata,
         }),

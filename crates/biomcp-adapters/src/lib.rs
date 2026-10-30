@@ -4,6 +4,8 @@ pub mod alphagenome;
 mod bundle_mapping;
 pub mod hgnc;
 mod mapped;
+mod native_positions;
+pub use native_positions::NativePositions;
 pub mod mygene;
 /// Keyed OncoKB gene annotations.
 pub mod oncokb;

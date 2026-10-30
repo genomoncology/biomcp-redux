@@ -15,8 +15,8 @@ pub(super) fn page(raw: Page) -> Mapped<Vec<Organization>> {
             };
             let value = Organization {
                 next: None,
-                name: row.name,
-                count: row.count,
+                name: p.source_field("name", row.name),
+                count: p.field("count", row.count),
                 org_city: p.optional(
                     "org_city",
                     row.org_city.map(|v| v.value().map(Into::into).ok_or(())),
