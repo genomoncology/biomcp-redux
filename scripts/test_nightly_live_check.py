@@ -491,7 +491,7 @@ class NightlyCommand(unittest.TestCase):
         self.classified(row, 'failure', 1)
 
     def test_trial_continuation_uses_live_follow_and_excludes_recorded_mcp_token(self):
-        case = json.loads((ROOT / 'tests/cases/trial/walk.yaml').read_text())
+        case = json.loads((ROOT / 'tests/native/case-inputs/trial/walk.yaml').read_text())
         live = [step for step in case['steps'] if not step.get('offline')]
         self.assertEqual(live[0]['run'], ['search', 'trial', '--condition', 'melanoma'])
         self.assertEqual(live[1]['follow'], 'page')
