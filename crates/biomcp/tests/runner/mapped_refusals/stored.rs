@@ -3,6 +3,7 @@ use super::{
     families::{Check, replay},
     trial,
 };
+use crate::runner::trial_bad_values::replace;
 use biomcp_adapters::{Refusal, clingen, clinvar, ddinter, erepo, wikipathways};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
@@ -36,8 +37,9 @@ fn dosage() -> Check {
         let mut changed = false;
         let (_root, fetch) = replay("gene/clingen", |source, recording| {
             if source == "clingen"
-                && recording["url"]
-                    .as_str()
+                && recording
+                    .get("url")
+                    .and_then(|value| value.as_str())
                     .is_some_and(|u| u.contains("gene-dosage"))
                 && let Some(body) = recording.pointer_mut("/exchanges/0/body/value")
                 && let Some(native) = body.as_str()
@@ -76,8 +78,9 @@ fn pairs() -> Check {
         let mut changed = false;
         let (_root, fetch) = replay("drug/ddinter-synthetic", |source, recording| {
             if source == "ddinter"
-                && recording["url"]
-                    .as_str()
+                && recording
+                    .get("url")
+                    .and_then(|value| value.as_str())
                     .is_some_and(|u| u.ends_with("code_A.csv"))
                 && let Some(body) = recording.pointer_mut("/exchanges/0/body/value")
                 && let Some(native) = body.as_str()
@@ -117,8 +120,9 @@ fn catalog() -> Check {
         let mut changed = false;
         let (_root, fetch) = replay("pathway/examples-sync", |source, recording| {
             if source == "wikipathways"
-                && recording["url"]
-                    .as_str()
+                && recording
+                    .get("url")
+                    .and_then(|value| value.as_str())
                     .is_some_and(|u| u.contains("findPathwaysByText"))
                 && let Some(body) = recording.pointer_mut("/exchanges/0/body/value")
                 && let Some(native) = body.as_str()
@@ -129,9 +133,9 @@ fn catalog() -> Check {
                 if let Some(row) = catalog.pointer_mut("/pathwayInfo/0") {
                     changed = true;
                     if invalid {
-                        row["id"] = json!(false);
+                        replace(row, "/id", &(json!(false)));
                     } else {
-                        row["name"] = json!({"invalid":true});
+                        replace(row, "/name", &(json!({"invalid":true})));
                     }
                     *body = json!(catalog.to_string());
                 }
@@ -178,7 +182,7 @@ fn candidates() -> Check {
                         _ => json!(["1321696"]),
                     };
                     if case == "absent" {
-                        document["esearchresult"]["count"] = json!("0");
+                        replace(&mut document, "/esearchresult/count", &(json!("0")));
                     }
                     *body = json!(document.to_string());
                 }
@@ -216,8 +220,8 @@ fn assertions() -> Check {
             {
                 changed = true;
                 match case {
-                    "optional" => rows[0]["condition"] = json!({"invalid":true}),
-                    "identity" => rows[0]["PCERDocID"] = json!(" "),
+                    "optional" => replace(rows, "/0/condition", &(json!({"invalid":true}))),
+                    "identity" => replace(rows, "/0/PCERDocID", &(json!(" "))),
                     _ => *rows = json!([]),
                 }
             }

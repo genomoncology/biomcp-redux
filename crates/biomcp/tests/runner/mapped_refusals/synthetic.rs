@@ -1,6 +1,7 @@
 //! Native synthetic replies exercise source boundaries without live publisher access.
 use super::{families::Check, trial};
 use crate::runner::network_stub::Stub;
+use crate::runner::trial_bad_values::replace;
 use biomcp_adapters::{Refusal, chembl, hotspots, litsense, mychem, ols};
 use biomcp_fetch::{Certificates, Fetch, FetchConfig, Network, Secret};
 use libtest_mimic::Trial;
@@ -86,7 +87,7 @@ fn ontology() -> Check {
         let mut row =
             json!({"obo_id":"MONDO:0000001","ontology_name":"mondo","label":{"invalid":true}});
         if case == "identity" {
-            row["obo_id"] = json!(false);
+            replace(&mut row, "/obo_id", &(json!(false)));
         }
         let rows = if case == "absent" {
             json!([])
@@ -124,7 +125,7 @@ fn residues() -> Check {
     for case in ["optional", "identity", "absent"] {
         let mut row = json!({"hugoSymbol":"BRAF","residue":"V600","transcriptId":{"invalid":true},"tumorCount":12});
         if case == "identity" {
-            row["hugoSymbol"] = json!(false);
+            replace(&mut row, "/hugoSymbol", &(json!(false)));
         }
         let rows = if case == "absent" {
             json!([])
@@ -156,7 +157,7 @@ fn drugs() -> Check {
     for case in ["optional", "identity", "absent"] {
         let mut row = json!({"_id":"CHEMBL1","_version":{"invalid":true}});
         if case == "identity" {
-            row["_id"] = json!(false);
+            replace(&mut row, "/_id", &(json!(false)));
         }
         let rows = if case == "absent" {
             json!([])
@@ -191,7 +192,7 @@ fn sentences() -> Check {
     for case in ["optional", "identity", "absent"] {
         let mut row = json!({"pmid":33123537,"text":{"invalid":true}});
         if case == "identity" {
-            row["pmid"] = json!(false);
+            replace(&mut row, "/pmid", &(json!(false)));
         }
         let rows = if case == "absent" {
             json!([])

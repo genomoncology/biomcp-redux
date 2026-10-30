@@ -1,5 +1,6 @@
 //! Existing native recordings expose the private mapping fact through public adapter calls.
 use super::super::{response_cases::copy_capture, transcript::trial};
+use crate::runner::trial_bad_values::replace;
 use biomcp_adapters::{Refusal, gencc, gnomad, hgnc, mygene, pubmed};
 use biomcp_fetch::{Fetch, FetchConfig, Mode};
 use libtest_mimic::Trial;
@@ -63,11 +64,13 @@ fn mygene_hits() -> Check {
                 && body.is_array()
             {
                 changed = true;
-                let mut row = body[0].clone();
+                let Some(mut row) = body.get(0).cloned() else {
+                    return;
+                };
                 match case {
-                    "optional" => row["summary"] = json!({"bad_shape":true}),
-                    "unknown" => row["query"] = json!("999"),
-                    "mismatched" => row["entrezgene"] = json!("999"),
+                    "optional" => replace(&mut row, "/summary", &(json!({"bad_shape":true}))),
+                    "unknown" => replace(&mut row, "/query", &(json!("999"))),
+                    "mismatched" => replace(&mut row, "/entrezgene", &(json!("999"))),
                     "absent" => row = json!({"query":"201","notfound":true}),
                     _ => {}
                 }
@@ -126,17 +129,20 @@ fn constraints() -> Check {
             {
                 changed = true;
                 match case {
-                    "wrong-id" => gene["gene_id"] = json!("ENSG00000111111"),
+                    "wrong-id" => replace(gene, "/gene_id", &(json!("ENSG00000111111"))),
                     "absent" => *gene = Value::Null,
                     "bad-record" => *gene = json!({"gene_id":true}),
-                    "missing-container" => gene["gnomad_constraint"] = Value::Null,
-                    "empty-container" => gene["gnomad_constraint"] = json!({}),
-                    "invalid-container" => gene["gnomad_constraint"] = json!("invalid"),
+                    "missing-container" => replace(gene, "/gnomad_constraint", &(Value::Null)),
+                    "empty-container" => replace(gene, "/gnomad_constraint", &(json!({}))),
+                    "invalid-container" => replace(gene, "/gnomad_constraint", &(json!("invalid"))),
                     _ => {}
                 }
                 if case == "absent" {
-                    recording["exchanges"][0]["body"]["value"]["errors"] =
-                        json!([{"message":"Gene not found"}]);
+                    replace(
+                        recording,
+                        "/exchanges/0/body/value/errors",
+                        &(json!([{"message":"Gene not found"}])),
+                    );
                 }
             }
         })?;
@@ -263,15 +269,17 @@ fn summaries() -> Check {
                         result.remove("17611497");
                     } else if let Some(row) = result.get_mut("17611497") {
                         match case {
-                            "identity" => row["uid"] = json!("999"),
-                            "optional" => row["title"] = json!({"bad_shape":true}),
+                            "identity" => replace(row, "/uid", &(json!("999"))),
+                            "optional" => replace(row, "/title", &(json!({"bad_shape":true}))),
                             "missing-container" => {
                                 if let Some(fields) = row.as_object_mut() {
                                     fields.remove("authors");
                                 }
                             }
-                            "empty-container" => row["authors"] = json!([]),
-                            "invalid-container" => row["authors"] = json!({"bad_shape":true}),
+                            "empty-container" => replace(row, "/authors", &(json!([]))),
+                            "invalid-container" => {
+                                replace(row, "/authors", &(json!({"bad_shape":true})))
+                            }
                             _ => {}
                         }
                     }

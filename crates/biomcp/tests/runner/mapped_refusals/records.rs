@@ -3,6 +3,7 @@ use super::{
     families::{Check, replay},
     trial,
 };
+use crate::runner::trial_bad_values::replace;
 use biomcp_adapters::{Refusal, allele_registry, mutalyzer, reactome, uniprot};
 use libtest_mimic::Trial;
 use serde_json::json;
@@ -36,9 +37,13 @@ fn registry() -> Check {
             {
                 changed = true;
                 if invalid {
-                    body["@id"] = json!(false);
+                    replace(body, "/@id", &(json!(false)));
                 } else {
-                    body["genomicAlleles"] = json!("invalid optional container");
+                    replace(
+                        body,
+                        "/genomicAlleles",
+                        &(json!("invalid optional container")),
+                    );
                 }
             }
         })?;
@@ -72,12 +77,15 @@ fn normalized() -> Check {
             {
                 changed = true;
                 match case {
-                    "optional" => body["version"] = json!({"invalid":true}),
-                    "identity" => body["input_description"] = json!("NM_004333.4:c.1A>T"),
-                    _ => {
-                        body["errors"] =
-                            json!([{"code":"ESYNTHETIC","details":"Native validation outcome"}])
+                    "optional" => replace(body, "/version", &(json!({"invalid":true}))),
+                    "identity" => {
+                        replace(body, "/input_description", &(json!("NM_004333.4:c.1A>T")))
                     }
+                    _ => replace(
+                        body,
+                        "/errors",
+                        &(json!([{"code":"ESYNTHETIC","details":"Native validation outcome"}])),
+                    ),
                 }
             }
         })?;
@@ -109,10 +117,16 @@ fn proteins() -> Check {
                 && let Some(rows) = recording.pointer_mut("/exchanges/0/body/value/results")
             {
                 changed = true;
-                let mut row = rows[0].clone();
-                row["proteinDescription"] = json!("invalid optional container");
+                let Some(mut row) = rows.get(0).cloned() else {
+                    return;
+                };
+                replace(
+                    &mut row,
+                    "/proteinDescription",
+                    &(json!("invalid optional container")),
+                );
                 if case == "identity" {
-                    row["primaryAccession"] = json!("invalid");
+                    replace(&mut row, "/primaryAccession", &(json!("invalid")));
                 }
                 *rows = if case == "absent" {
                     json!([])
@@ -146,16 +160,19 @@ fn pathways() -> Check {
         let mut changed = false;
         let (_root, fetch) = replay("gene/pathways", |source, recording| {
             if source == "reactome"
-                && recording["url"]
-                    .as_str()
+                && recording
+                    .get("url")
+                    .and_then(|value| value.as_str())
                     .is_some_and(|u| u.contains("/UniProt/P04637/"))
                 && let Some(rows) = recording.pointer_mut("/exchanges/0/body/value")
             {
                 changed = true;
-                let mut row = rows[0].clone();
-                row["displayName"] = json!({"invalid":true});
+                let Some(mut row) = rows.get(0).cloned() else {
+                    return;
+                };
+                replace(&mut row, "/displayName", &(json!({"invalid":true})));
                 if case == "identity" {
-                    row["stId"] = json!("invalid");
+                    replace(&mut row, "/stId", &(json!("invalid")));
                 }
                 *rows = if case == "absent" {
                     json!([])

@@ -5,6 +5,7 @@ use super::{
     trial,
 };
 use crate::runner::network_stub::Stub;
+use crate::runner::trial_bad_values::replace;
 use biomcp_adapters::{Refusal, clinpgx, europepmc, pmc_oa};
 use libtest_mimic::Trial;
 use serde_json::json;
@@ -32,7 +33,7 @@ fn references() -> Check {
         let mut row =
             json!({"objCls":"GuidelineAnnotation","id":"PA166134421","name":{"invalid":true}});
         if case == "identity" {
-            row["id"] = json!(false);
+            replace(&mut row, "/id", &(json!(false)));
         }
         let rows = if case == "absent" {
             json!([])
@@ -76,9 +77,18 @@ fn preprints() -> Check {
             },
             move |request| {
                 if request.contains("fullTextXML") {
-                    Ok("<article><front><article-meta><title-group><article-title>Synthetic article</article-title></title-group></article-meta></front><body><sec><title>Results</title><p>Synthetic source paragraph.</p></sec></body></article>".into())
+                    Ok(concat!(
+                        "<article><front><article-meta><title-group><article-title>Synthetic article</article-title>",
+                        "</title-group></article-meta></front><body><sec><title>Results</title>",
+                        "<p>Synthetic source paragraph.</p></sec></body></article>"
+                    ).into())
                 } else {
-                    Ok(json!({"result":{"id":"PPR1064174","source":"PPR","license":if invalid{json!(false)}else{json!("CC BY")},"title":{"invalid":true}}}).to_string())
+                    Ok(json!({"result":{
+                        "id":"PPR1064174","source":"PPR",
+                        "license":if invalid{json!(false)}else{json!("CC BY")},
+                        "title":{"invalid":true}
+                    }})
+                    .to_string())
                 }
             },
         )?;
@@ -114,9 +124,9 @@ fn documents() -> Check {
             {
                 changed = true;
                 if invalid {
-                    body["license_code"] = json!(false);
+                    replace(body, "/license_code", &(json!(false)));
                 } else {
-                    body["is_manuscript"] = json!({"invalid":true});
+                    replace(body, "/is_manuscript", &(json!({"invalid":true})));
                 }
             }
         })?;

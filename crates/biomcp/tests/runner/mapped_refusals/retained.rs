@@ -3,6 +3,7 @@ use super::{
     families::{Check, replay},
     trial,
 };
+use crate::runner::trial_bad_values::replace;
 use biomcp_adapters::{Refusal, nci, openfda_label};
 use biomcp_fetch::RequestError;
 use biomcp_types::Reason;
@@ -36,12 +37,16 @@ fn labels() -> Check {
                 };
                 if let Some(row) = document.pointer_mut("/results/0") {
                     changed = true;
-                    row["boxed_warning"] = match case {
-                        "present" => json!(["Native text"]),
-                        "empty" => json!([]),
-                        "container" => json!({"invalid":true}),
-                        _ => json!([false, "Native text"]),
-                    };
+                    replace(
+                        row,
+                        "/boxed_warning",
+                        &(match case {
+                            "present" => json!(["Native text"]),
+                            "empty" => json!([]),
+                            "container" => json!({"invalid":true}),
+                            _ => json!([false, "Native text"]),
+                        }),
+                    );
                     *body = json!(document.to_string());
                 }
             }
@@ -70,18 +75,21 @@ fn organizations() -> Check {
         let mut native_count = 0;
         let (_root, fetch) = replay("organization/adapter-values/nci", |source, recording| {
             if source == "nci"
-                && recording["url"]
-                    .as_str()
+                && recording
+                    .get("url")
+                    .and_then(|value| value.as_str())
                     .is_some_and(|url| url.contains("org_city=Boston"))
                 && let Some(rows) = recording.pointer_mut("/exchanges/0/body/value/data")
             {
                 changed = true;
                 native_count = rows.as_array().map_or(0, Vec::len);
                 if invalid_record {
-                    rows[0] = json!(false);
+                    if let Some(slot) = rows.pointer_mut("/0") {
+                        *slot = json!(false);
+                    };
                 } else {
-                    rows[0]["contact_name"] = json!({"invalid":true});
-                    rows[0]["org_coordinates"] = json!({"invalid":true});
+                    replace(rows, "/0/contact_name", &(json!({"invalid":true})));
+                    replace(rows, "/0/org_coordinates", &(json!({"invalid":true})));
                 }
             }
         })?;

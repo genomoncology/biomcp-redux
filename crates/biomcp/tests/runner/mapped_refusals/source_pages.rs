@@ -3,9 +3,10 @@ use super::{
     families::{Check, replay},
     trial,
 };
+use crate::runner::trial_bad_values::replace;
 use biomcp_adapters::{Refusal, gwas, orcid, semantic_scholar, variantvalidator};
 use libtest_mimic::Trial;
-use serde_json::{Value, json};
+use serde_json::json;
 use std::time::Duration;
 
 pub(super) fn trials() -> Vec<Trial> {
@@ -32,7 +33,7 @@ fn authors() -> Check {
     for case in ["optional", "identity", "absent"] {
         let mut row = json!({"authorId":"12345","name":{"invalid":true}});
         if case == "identity" {
-            row["authorId"] = json!(false);
+            replace(&mut row, "/authorId", &(json!(false)));
         }
         let rows = if case == "absent" {
             json!([])
@@ -74,9 +75,13 @@ fn variants() -> Check {
                 {
                     changed = true;
                     match case {
-                        "optional" => body["z"]["validation_warnings"] = json!({"invalid":true}),
-                        "identity" => body["z"]["submitted_variant"] = json!("NM_004333.4:c.1A>T"),
-                        _ => body["flag"] = json!("warning"),
+                        "optional" => {
+                            replace(body, "/z/validation_warnings", &(json!({"invalid":true})))
+                        }
+                        "identity" => {
+                            replace(body, "/z/submitted_variant", &(json!("NM_004333.4:c.1A>T")))
+                        }
+                        _ => replace(body, "/flag", &(json!("warning"))),
                     }
                 }
             },
@@ -124,13 +129,17 @@ fn works() -> Check {
             {
                 changed = true;
                 match case {
-                    "optional" => {
-                        groups[0]["work-summary"][0]["journal-title"] = json!({"invalid":true})
-                    }
-                    "identity" => groups[0]["work-summary"][0]["put-code"] = json!(0),
-                    "invalid-container" => {
-                        groups[0]["work-summary"] = json!("invalid optional container")
-                    }
+                    "optional" => replace(
+                        groups,
+                        "/0/work-summary/0/journal-title",
+                        &(json!({"invalid":true})),
+                    ),
+                    "identity" => replace(groups, "/0/work-summary/0/put-code", &(json!(0))),
+                    "invalid-container" => replace(
+                        groups,
+                        "/0/work-summary",
+                        &(json!("invalid optional container")),
+                    ),
                     _ => *groups = json!([]),
                 }
             }
@@ -168,10 +177,12 @@ fn associations() -> Check {
                     recording.pointer_mut("/exchanges/0/body/value/_embedded/associations")
             {
                 changed = true;
-                let mut row = rows[0].clone();
-                row["p_value"] = json!({"invalid":true});
+                let Some(mut row) = rows.get(0).cloned() else {
+                    return;
+                };
+                replace(&mut row, "/p_value", &(json!({"invalid":true})));
                 if case == "identity" {
-                    row["association_id"] = json!(false);
+                    replace(&mut row, "/association_id", &(json!(false)));
                 }
                 *rows = if case == "absent" {
                     json!([])
@@ -179,8 +190,16 @@ fn associations() -> Check {
                     json!([row])
                 };
                 let total = u32::from(case != "absent");
-                recording["exchanges"][0]["body"]["value"]["page"]["totalElements"] = json!(total);
-                recording["exchanges"][0]["body"]["value"]["page"]["totalPages"] = json!(total);
+                replace(
+                    recording,
+                    "/exchanges/0/body/value/page/totalElements",
+                    &(json!(total)),
+                );
+                replace(
+                    recording,
+                    "/exchanges/0/body/value/page/totalPages",
+                    &(json!(total)),
+                );
             }
         })?;
         if !changed {

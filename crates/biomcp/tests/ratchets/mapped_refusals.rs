@@ -34,7 +34,7 @@ pub(super) fn check(root: &Path) -> Check {
                 }
                 let mut depth = 1;
                 let mut decision = false;
-                for (offset, token) in source[opening + 1..].iter().enumerate() {
+                for (offset, token) in source.iter().skip(opening + 1).enumerate() {
                     match token.as_str() {
                         "{" | "(" | "[" => depth += 1,
                         "}" | ")" | "]" => depth -= 1,

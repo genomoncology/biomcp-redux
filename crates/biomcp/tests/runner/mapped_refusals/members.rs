@@ -3,6 +3,7 @@ use super::{
     families::{Check, replay},
     trial,
 };
+use crate::runner::trial_bad_values::replace;
 use biomcp_adapters::{Refusal, civic, icite, litvar, myvariant, oncokb, pubtator};
 use biomcp_types::Section;
 use libtest_mimic::Trial;
@@ -53,12 +54,14 @@ fn cosmic() -> Check {
             {
                 changed = true;
                 match case {
-                    "optional" => body["cosmic"]["mut_freq"] = json!({"invalid":true}),
-                    "object-identity" => body["cosmic"]["cosmic_id"] = json!(false),
-                    "array-identity" => body["cosmic"] = json!([{"cosmic_id":false}]),
-                    "empty-container" => body["cosmic"] = json!([]),
-                    "invalid-container" => body["cosmic"] = json!("invalid optional container"),
-                    _ => body["cosmic"] = Value::Null,
+                    "optional" => replace(body, "/cosmic/mut_freq", &(json!({"invalid":true}))),
+                    "object-identity" => replace(body, "/cosmic/cosmic_id", &(json!(false))),
+                    "array-identity" => replace(body, "/cosmic", &(json!([{"cosmic_id":false}]))),
+                    "empty-container" => replace(body, "/cosmic", &(json!([]))),
+                    "invalid-container" => {
+                        replace(body, "/cosmic", &(json!("invalid optional container")))
+                    }
+                    _ => replace(body, "/cosmic", &(Value::Null)),
                 }
             }
         })?;
@@ -103,8 +106,8 @@ fn civic_genes() -> Check {
             {
                 changed = true;
                 match case {
-                    "optional" => row["variants"] = json!("invalid optional container"),
-                    "identity" => row["id"] = json!(0),
+                    "optional" => replace(row, "/variants", &(json!("invalid optional container"))),
+                    "identity" => replace(row, "/id", &(json!(0))),
                     _ => *row = Value::Null,
                 }
             }
@@ -141,8 +144,8 @@ fn oncokb_genes() -> Check {
             {
                 changed = true;
                 match case {
-                    "optional" => rows[0]["geneType"] = json!({"invalid":true}),
-                    "identity" => rows[0]["entrezGeneId"] = json!(0),
+                    "optional" => replace(rows, "/0/geneType", &(json!({"invalid":true}))),
+                    "identity" => replace(rows, "/0/entrezGeneId", &(json!(0))),
                     _ => *rows = json!([]),
                 }
             }
@@ -177,7 +180,7 @@ fn citations() -> Check {
                 {
                     changed = true;
                     match case {
-                        "identity" => rows[0]["pmid"] = json!(0),
+                        "identity" => replace(rows, "/0/pmid", &(json!(0))),
                         "absent" => *rows = json!([]),
                         _ => {}
                     }
@@ -222,10 +225,12 @@ fn candidates() -> Check {
                     && rows.is_array()
                 {
                     changed = true;
-                    let mut row = rows[0].clone();
-                    row["name"] = json!({"invalid":true});
+                    let Some(mut row) = rows.get(0).cloned() else {
+                        return;
+                    };
+                    replace(&mut row, "/name", &(json!({"invalid":true})));
                     if case == "identity" {
-                        row["_id"] = json!(0);
+                        replace(&mut row, "/_id", &(json!(0)));
                     }
                     *rows = if case == "absent" {
                         json!([])
@@ -275,15 +280,16 @@ fn annotations() -> Check {
                 {
                     changed = true;
                     match case {
-                        "empty-container" => rows[0]["passages"] = json!([]),
+                        "empty-container" => replace(rows, "/0/passages", &(json!([]))),
                         "invalid-container" => {
-                            rows[0]["passages"] = json!("invalid optional container")
+                            replace(rows, "/0/passages", &(json!("invalid optional container")))
                         }
-                        "identity" => rows[0]["id"] = json!("invalid"),
-                        "child" => {
-                            rows[0]["passages"][0]["annotations"] =
-                                json!([{"infons":{"type":"Variant"}}])
-                        }
+                        "identity" => replace(rows, "/0/id", &(json!("invalid"))),
+                        "child" => replace(
+                            rows,
+                            "/0/passages/0/annotations",
+                            &(json!([{"infons":{"type":"Variant"}}])),
+                        ),
                         "absent" => *rows = json!([]),
                         _ => {}
                     }

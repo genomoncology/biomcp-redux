@@ -3,6 +3,7 @@ use super::{
     families::{Check, replay},
     trial,
 };
+use crate::runner::trial_bad_values::replace;
 use biomcp_adapters::{Refusal, cbioportal, cellosaurus, monarch, seer};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
@@ -32,16 +33,17 @@ fn cells() -> Check {
         let mut changed = false;
         let (_root, fetch) = replay("cell-line/examples", |source, recording| {
             if source == "cellosaurus"
-                && recording["url"]
-                    .as_str()
+                && recording
+                    .get("url")
+                    .and_then(|value| value.as_str())
                     .is_some_and(|u| u.contains("/search/"))
                 && let Some(row) =
                     recording.pointer_mut("/exchanges/0/body/value/Cellosaurus/cell-line-list/0")
             {
                 changed = true;
-                row["name-list"] = json!("invalid optional container");
+                replace(row, "/name-list", &(json!("invalid optional container")));
                 if invalid {
-                    row["accession-list"][0]["value"] = json!("invalid");
+                    replace(row, "/accession-list/0/value", &(json!("invalid")));
                 }
             }
         })?;
@@ -77,9 +79,9 @@ fn terms() -> Check {
                 && let Some(row) = recording.pointer_mut("/exchanges/0/body/value/items/0")
             {
                 changed = true;
-                row["name"] = json!({"invalid":true});
+                replace(row, "/name", &(json!({"invalid":true})));
                 if invalid {
-                    row["id"] = json!("invalid");
+                    replace(row, "/id", &(json!("invalid")));
                 }
             }
         })?;
@@ -118,9 +120,9 @@ fn catalog() -> Check {
                 && let Some(sites) = recording.pointer_mut("/exchanges/0/body/value/CancerSites")
             {
                 changed = true;
-                sites[0]["active"] = json!("invalid optional field");
+                replace(sites, "/0/active", &(json!("invalid optional field")));
                 if invalid {
-                    sites[0]["value"] = json!("invalid");
+                    replace(sites, "/0/value", &(json!("invalid")));
                 }
             }
         })?;
@@ -159,9 +161,13 @@ fn series() -> Check {
                 };
                 if let Some(row) = document.pointer_mut("/data/5_3_1_1_55/data_series/0") {
                     changed = true;
-                    row[1] = json!("invalid optional rate");
+                    if let Some(slot) = row.pointer_mut("/1") {
+                        *slot = json!("invalid optional rate");
+                    };
                     if invalid {
-                        row[0] = json!("invalid year");
+                        if let Some(slot) = row.pointer_mut("/0") {
+                            *slot = json!("invalid year");
+                        };
                     }
                     *body = json!(document.to_string());
                 }
@@ -204,16 +210,19 @@ fn mutations() -> Check {
         let mut changed = false;
         let (_root, fetch) = replay("variant/recurrence", |source, recording| {
             if source == "cbioportal"
-                && recording["url"]
-                    .as_str()
+                && recording
+                    .get("url")
+                    .and_then(|value| value.as_str())
                     .is_some_and(|u| u.contains("/mutations?"))
                 && let Some(rows) = recording.pointer_mut("/exchanges/0/body/value")
             {
                 changed = true;
-                let mut row = rows[0].clone();
-                row["chr"] = json!({"invalid":true});
+                let Some(mut row) = rows.get(0).cloned() else {
+                    return;
+                };
+                replace(&mut row, "/chr", &(json!({"invalid":true})));
                 if invalid {
-                    row["sampleId"] = json!(" ");
+                    replace(&mut row, "/sampleId", &(json!(" ")));
                 }
                 *rows = json!([row]);
             }
@@ -222,9 +231,11 @@ fn mutations() -> Check {
             return Err("cBioPortal native mutation row missing".into());
         }
         let leg = fetch.leg(&cbioportal::SPEC, fetch.deadline(Duration::from_secs(20)));
-        let query = serde_json::from_value(
-            json!({"input":"rs113488022","source":"cbioportal","gene":"BRAF","study":"msk_impact_2017","profile":"msk_impact_2017_mutations","sample_set":"msk_impact_2017_all","limit":3}),
-        )?;
+        let query = serde_json::from_value(json!({
+            "input":"rs113488022","source":"cbioportal","gene":"BRAF",
+            "study":"msk_impact_2017","profile":"msk_impact_2017_mutations",
+            "sample_set":"msk_impact_2017_all","limit":3
+        }))?;
         let page = cbioportal::mutations(&leg, &query, biodata::NcbiGeneId::new(673)?)?;
         if page.window.refusals()
             != if invalid {
