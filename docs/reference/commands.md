@@ -4633,14 +4633,14 @@ Options:
       --hosted
           Refuse host file saves, health details and store or key changes over MCP.
 
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
       --http [<http>]
           Listen on an HTTP address; omit its value for the loopback default.
 
       --allow-host <allow-host>
           Allow an HTTP Host authority; required for non-loopback listeners.
-
-      --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
 
       --config <config>
           Read configuration from this file.
