@@ -55,8 +55,6 @@ option protein domains --pool
 option protein domains --type
 option protein features --offset
 option protein features --pool
-option protein features --position
-option protein features --type
 option protein isoforms --offset
 option protein isoforms --pool
 option protein structures --offset

@@ -78,6 +78,25 @@
         "/result/items/0/sections/isoforms/data/items/0/ids/0": "P00533-1",
         "/result/items/0/sections/structures/data/items/0/id": "1IVO"
       }
+    },
+    {
+      "run": [
+        "protein",
+        "features",
+        "P00533",
+        "--type",
+        "Chain",
+        "--position",
+        "25",
+        "--limit",
+        "1"
+      ],
+      "expect": {
+        "/result/items/0/feature/protein": "P00533",
+        "/result/items/0/feature/id": "PRO_0000016665",
+        "/result/items/0/feature/kind/label": "Chain",
+        "/page/total": 1
+      }
     }
   ]
 }
