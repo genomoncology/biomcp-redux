@@ -74,6 +74,7 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
         }
     }
     SectionResult {
+        dropped: false,
         values,
         source,
         problems,
@@ -83,6 +84,7 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
 
 fn skipped(genes: &[(HgncId, Gene)], reason: Reason) -> SectionResult {
     SectionResult {
+        dropped: false,
         values: genes
             .iter()
             .map(|(id, _)| {

@@ -16,6 +16,7 @@ use biomcp_types::{
     SourceState,
 };
 pub(super) struct SectionResult {
+    pub dropped: bool,
     pub values: Vec<(HgncId, SectionValue)>,
     pub source: SourceOutcome,
     pub problems: Vec<Problem>,
@@ -252,27 +253,6 @@ impl SectionValue {
             Self::Oncokb(value, _, _) => matches!(value, Section::Unavailable { .. }),
         }
     }
-    fn problem_matches(&self, gene: &Gene, problem: &Problem) -> bool {
-        let Some(record) = &problem.record else {
-            return false;
-        };
-        match self {
-            Self::Civic(Section::Data { data, .. }) => record.as_str() == data.id.id.to_string(),
-            Self::Civic(Section::Empty {
-                record: Some(entry),
-                ..
-            }) => record == &entry.id,
-            Self::Civic(_) | Self::Oncokb(..) => false,
-            Self::Gencc(_) => record.as_str() == gene.hgnc_id.to_string(),
-            Self::Protein(_) | Self::Pathways(_) => {
-                gene.uniprot.iter().any(|id| record.as_str() == id.as_str())
-            }
-            Self::Constraint(_) | Self::Expression(_) | Self::ClinGen(_) => gene
-                .ensembl_id
-                .as_ref()
-                .is_some_and(|id| record.as_str() == id.base()),
-        }
-    }
     fn apply(&self, item: &mut GeneItem) {
         if let Self::Oncokb(_, card, partial) = self {
             item.oncokb = card.clone();
@@ -309,10 +289,7 @@ pub(super) fn join(items: &mut [GeneItem], result: &SectionResult) {
             && (value.unavailable()
                 || (result.source.state == SourceState::Stale
                     && !matches!(value, SectionValue::ClinGen(_)))
-                || result
-                    .problems
-                    .iter()
-                    .any(|problem| value.problem_matches(gene, problem)))
+                || result.dropped)
         {
             item.status = crate::status::item_status(true, false, true);
         }
