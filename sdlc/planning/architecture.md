@@ -1971,6 +1971,7 @@ The ratchet owns the authoritative file and reason list below and checks this ta
 | `crates/biomcp-types/tests/schemas/registry.rs` | Register public value and research query schema contracts for schema drift checks. |
 | `crates/biomcp-types/tests/schemas/ownership.rs` | Check published schema namespaces against the crate that defines each Rust type. |
 | `crates/biomcp-types/tests/schemas/values.rs` | Exercise checked values and schema contracts through the public library API. |
+| `crates/biomcp-types/tests/value_conventions/sweep.rs` | Exercise public text value construction, parsing, JSON and hashing through the Rust consumer boundary. |
 | `crates/biomcp-types/tests/value_conventions.rs` | Exercise checked values and schema contracts through the public library API. |
 | `crates/biomcp-adapters/src/monarch/native_contracts.rs` | Exercise retained gene-keyed Monarch rows through the private mapper without adding a gene-keyed command. |
 | `crates/biomcp-adapters/tests/alphagenome_registration.rs` | Exercise restricted source registration and required-key admission before a product section exists. |
