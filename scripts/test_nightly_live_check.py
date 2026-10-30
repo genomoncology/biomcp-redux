@@ -359,6 +359,19 @@ class NightlyCommand(unittest.TestCase):
             with self.subTest(change=change):
                 self.classified(classification_case(change), expected, code)
 
+    def test_doi_group_change_tracks_graph_discovery_input(self):
+        row = classification_case('discovery')
+        for side in ('baseline', 'live'):
+            for request in row['witness'][0][side]['requests']:
+                for kind in ('discovery', 'inputs'):
+                    ids = request['provenance'].get(kind)
+                    if ids:
+                        ids['namespace'] = 'doi'
+                        ids['ids'] = ['10.1000/' + value for value in ids['ids']]
+        self.classified(row, 'churn', 0)
+        row['witness'][0]['live']['requests'][1]['provenance']['input_context'] = 'changed-query-mode'
+        self.classified(row, 'failure', 1)
+
     def test_causality_requires_ordered_selection_complete_diagnostics_and_fixed_parameters(self):
         for change, expected, code in [
                 ('rank', 'churn', 0), ('unused-tail', 'failure', 1),

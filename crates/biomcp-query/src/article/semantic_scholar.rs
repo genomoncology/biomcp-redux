@@ -97,30 +97,7 @@ pub(super) fn resolve_dois_with<'a>(
     let mut problems = Vec::new();
     let result: Result<(), RequestError> = (|| {
         for batch in dois.chunks(100) {
-            let term = batch
-                .iter()
-                .map(|doi| {
-                    format!(
-                        "\"{}\"[doi]",
-                        doi.to_string()
-                            .to_ascii_lowercase()
-                            .replace('\\', "\\\\")
-                            .replace('"', "\\\"")
-                    )
-                })
-                .collect::<Vec<_>>()
-                .join(" OR ");
-            let inputs = biomcp_fetch::Identities::bounded(
-                "doi",
-                batch.iter().map(|doi| doi.to_string()).collect(),
-            );
-            let request_leg = inputs.map(|inputs| leg.with_input_ids(inputs, "term"));
-            let ids = pubmed::search_ids(
-                request_leg.as_ref().unwrap_or(&leg),
-                &term,
-                ArticleSort::Rank,
-                cx.ncbi_email.as_ref(),
-            )?;
+            let ids = doi_batch(&leg, batch, cx.ncbi_email.as_ref())?;
             problems.extend(ids.problems);
             for chunk in ids.ids.chunks(50) {
                 let mapped = pubmed::summaries(&leg, chunk, cx.ncbi_email.as_ref())?;
@@ -168,4 +145,32 @@ pub(super) fn doi(item: &ArticleItem) -> Option<&Doi> {
             None
         }
     })
+}
+
+fn doi_batch(leg: &biomcp_fetch::Leg<'_>, batch: &[Doi], email: Option<&biomcp_fetch::Secret>) -> Result<pubmed::SearchIds, RequestError> {
+    let term = batch
+        .iter()
+        .map(|doi| {
+            format!(
+        "\"{}\"[doi]",
+        doi.to_string()
+            .to_ascii_lowercase()
+            .replace('\\', "\\\\")
+            .replace('"', "\\\"")
+            )
+        })
+        .collect::<Vec<_>>()
+        .join(" OR ");
+    let inputs = biomcp_fetch::Identities::bounded(
+        "doi",
+        batch.iter().map(|doi| doi.to_string()).collect(),
+    );
+    let request_leg = inputs.map(|inputs| leg.with_input_ids(inputs, "term"));
+    pubmed::search_ids(
+        request_leg.as_ref().unwrap_or(leg),
+        &term,
+        ArticleSort::Rank,
+        email,
+    )
+
 }

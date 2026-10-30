@@ -44,6 +44,7 @@ pub(super) fn command(
         return Err("recorded command has no provider observations".into());
     }
     let actual = invoke(live, args.1, None, ordinal, capture, "live");
+    within_budget(captures)?;
     Ok((expected, actual))
 }
 
