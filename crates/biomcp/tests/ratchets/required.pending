@@ -33,7 +33,6 @@ command mcp-config
 command skill list
 command skill render
 command skill status
-command version
 failure label bad-source-data
 failure label expired-pool
 failure label not-found
@@ -44,7 +43,6 @@ failure trial not-found
 failure trial unavailable
 failure variant expired-pool
 failure variant not-found
-global --version
 option article citation-evidence --offset
 option article citation-evidence --paragraph-offset
 option article citations --offset
@@ -163,7 +161,6 @@ option variant normalize --offset
 option variant population --build
 option variant population --limit
 option variant population --resolver
-option version --verbose
 refusal author
 refusal author papers
 refusal cell-line
