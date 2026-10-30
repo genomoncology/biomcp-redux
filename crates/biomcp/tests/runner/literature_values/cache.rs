@@ -1,5 +1,5 @@
 //! Stored native author snapshots must survive a change of adapter representation.
-use super::{Check, Value};
+use super::{Check, Value, json};
 use crate::runner::launch::{Environment, arguments, fixtures};
 use std::path::Path;
 
@@ -46,9 +46,7 @@ pub(super) fn check(previous: &Path) -> Check {
         if snapshot(&env, &pool)? != original {
             return Err(format!("Previous {capture} pool metadata or payload changed").into());
         }
-        if after.get("status").and_then(Value::as_str) != Some("complete") {
-            return Err(format!("Previous {capture} snapshot was refused: {after}").into());
-        }
+        accepted(capture, &after)?;
     }
     Ok(())
 }
@@ -106,4 +104,38 @@ fn snapshot(
         "SELECT p.created,p.expires,s.payload FROM pool p JOIN trial_snapshot s ON s.id=p.id WHERE p.id=?1",
         [pool], |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)),
     )?)
+}
+
+fn accepted(capture: &str, value: &Value) -> Check {
+    if capture == "author/papers" {
+        let paper = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+        let problems = json!([{
+            "source":"semantic-scholar", "record":paper,
+            "field":"open_access_pdf.url", "code":"value.unknown"
+        }]);
+        // The retained native row has an empty optional PDF URL. The old mapper
+        // omitted it silently; the current mapper also discloses that refusal.
+        if value.get("status") != Some(&json!("partial"))
+            || value.get("problems") != Some(&problems)
+            || value.pointer("/result/author") != Some(&json!("semantic-scholar:123"))
+            || value.pointer("/result/items/0/header/paper_id") != Some(&json!(paper))
+            || value
+                .pointer("/result/items/0/open_access_pdf/url")
+                .is_some()
+            || value.pointer("/result/items/0/open_access_pdf/status") != Some(&json!("CLOSED"))
+            || value.pointer("/sources/0/state") != Some(&json!("ok"))
+        {
+            return Err(format!(
+                "Previous papers payload lost field isolation or identity: {value}"
+            )
+            .into());
+        }
+    } else if value.get("status") != Some(&json!("complete"))
+        || value.get("problems").is_some()
+        || value.pointer("/result/items/0/id") != Some(&json!("semantic-scholar:2162869982"))
+        || value.pointer("/result/items/1/id") != Some(&json!("semantic-scholar:113751091"))
+    {
+        return Err(format!("Previous author candidates changed: {value}").into());
+    }
+    Ok(())
 }
