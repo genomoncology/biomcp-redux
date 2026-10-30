@@ -28,7 +28,7 @@
         "Carcinoma of colon (CRC)"
       ],
       "expect": {
-        "/schema": "biomcp.variant-page/15",
+        "/schema": "biomcp.variant-page/16",
         "/status": "partial",
         "/query": {
           "equals": {
@@ -65,7 +65,8 @@
               },
               "source": "myvariant",
               "record": {
-                "id": "chr7:g.140453136A>T"
+                "id": "chr7:g.140453136A>T",
+                "namespace": "unknown"
               },
               "component_terms": [
                 {
@@ -146,7 +147,8 @@
               },
               "source": "myvariant",
               "record": {
-                "id": "chr7:g.140453136A>T"
+                "id": "chr7:g.140453136A>T",
+                "namespace": "unknown"
               },
               "component_terms": [
                 {
@@ -232,7 +234,8 @@
               },
               "source": "myvariant",
               "record": {
-                "id": "chr7:g.140453136A>T"
+                "id": "chr7:g.140453136A>T",
+                "namespace": "unknown"
               },
               "component_terms": [
                 {

@@ -12,6 +12,7 @@ pub use supplement::{
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(tag = "namespace", content = "id", rename_all = "kebab-case")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", schemars(extend("x-identifier" = true)))]
 pub enum ArticleKey {
     /// PubMed identity.
     Pubmed(Pmid),
@@ -70,7 +71,7 @@ pub struct ArticlePage {
     pub candidates: Vec<LitVarCandidate>,
 }
 impl super::ResponseBody for ArticlePage {
-    const SCHEMA: &'static str = "biomcp.article-page/8";
+    const SCHEMA: &'static str = "biomcp.article-page/9";
     type Query = ArticleSearch;
 }
 
@@ -83,7 +84,7 @@ pub struct ArticleEdgePage {
     pub items: Box<[ArticleEdgeItem]>,
 }
 impl super::ResponseBody for ArticleEdgePage {
-    const SCHEMA: &'static str = "biomcp.article-edges/9";
+    const SCHEMA: &'static str = "biomcp.article-edges/10";
     type Query = crate::ArticleEdges;
 }
 

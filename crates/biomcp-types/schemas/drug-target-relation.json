@@ -100,7 +100,7 @@
           "$ref": "#/$defs/Reply_Text",
           "description": "Original source name."
         },
-        "source": {
+        "namespace": {
           "$ref": "#/$defs/Reply_Text",
           "description": "Source responsible for this identity."
         },
@@ -130,10 +130,11 @@
       },
       "required": [
         "id",
-        "source",
+        "namespace",
         "identity_level"
       ],
-      "type": "object"
+      "type": "object",
+      "x-identifier": true
     },
     "Reply_DrugIdentityLevel": {
       "description": "Identity level established by the source endpoint or record type, never inferred from ID shape.",
@@ -223,7 +224,7 @@
           ],
           "description": "Native target label, only when supplied."
         },
-        "source": {
+        "namespace": {
           "$ref": "#/$defs/Reply_Text",
           "description": "Source responsible for the native identifier."
         },
@@ -241,10 +242,11 @@
         }
       },
       "required": [
-        "source",
+        "namespace",
         "id"
       ],
-      "type": "object"
+      "type": "object",
+      "x-identifier": true
     },
     "Reply_EnsemblGeneId": {
       "description": " A human Ensembl gene stable identifier with a separately retained version.",
@@ -316,7 +318,7 @@
       "type": "string"
     }
   },
-  "$id": "biodata.drug-target-relation/6",
+  "$id": "biodata.drug-target-relation/7",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "anyOf": [
     {

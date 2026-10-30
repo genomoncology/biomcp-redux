@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct PgxAllelePhenotype {
     /// Native `id`; literal source value.
-    pub id: i64,
+    pub id: crate::Identifier<i64>,
     /// Native `allele`; literal source value.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub allele: Option<Box<str>>,
@@ -23,7 +23,7 @@ pub struct PgxAllelePhenotype {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct PgxAnnotationHistory {
     /// Native `id`; literal source value.
-    pub id: i64,
+    pub id: crate::Identifier<i64>,
     /// Native `date`; literal source value.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub date: Option<Box<str>>,
@@ -43,7 +43,7 @@ pub struct PgxAnnotationHistory {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct PgxAnnotationDetail {
     /// Native `id`; literal source value.
-    pub id: i64,
+    pub id: crate::Identifier<i64>,
     /// Native `accessionId`; literal source value.
     #[serde(rename = "accessionId")]
     pub accession_id: ClinPgxAccession,
@@ -54,7 +54,7 @@ pub struct PgxAnnotationDetail {
     /// Native `conflictingVariantAnnotationIds`; literal source value.
     #[serde(rename = "conflictingVariantAnnotationIds")]
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
-    pub conflicting_variant_annotation_ids: Box<[i64]>,
+    pub conflicting_variant_annotation_ids: Box<[crate::Identifier<i64>]>,
     /// Native `history`; literal source value.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub history: Box<[PgxAnnotationHistory]>,

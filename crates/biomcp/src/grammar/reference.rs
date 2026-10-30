@@ -8,7 +8,7 @@ type Check = Result<(), Box<dyn std::error::Error>>;
 fn documents() -> Result<Vec<(&'static str, String)>, Box<dyn std::error::Error>> {
     let mut parser = super::root().map_err(|_| "command grammar unavailable")?;
     parser.build();
-    let help = crate::help::dispatch(&[])?;
+    let help = crate::help::reference()?;
     let mut reference = String::from(
         "# Command reference\n\nGenerated from the command grammar and schema help. \
         Run `make docs-generate` to update.\n\nOptions shown on the root command apply to its subcommands. \
@@ -168,7 +168,7 @@ fn documentation_generation_preserves_case_bytes() -> Check {
 
 #[test]
 fn unscoped_help_uses_parser_nodes_and_scoped_topics_remain_available() -> Check {
-    let help = crate::help::dispatch(&[])?;
+    let help = crate::help::reference()?;
     assert!(
         help.commands
             .iter()

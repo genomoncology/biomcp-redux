@@ -44,9 +44,11 @@ pub(super) fn section(
         },
         Ok(None) => Section::Empty {
             source: Source::Gnomad,
-            record: Text::new(&id)
-                .ok()
-                .map(|id| biomcp_types::SourceRecord { id, url: None }),
+            record: Text::new(&id).ok().map(|id| biomcp_types::SourceRecord {
+                namespace: biodata::IdentifierNamespace::Unknown,
+                id,
+                url: None,
+            }),
         },
         Err(e) => Section::unavailable(
             Source::Gnomad,

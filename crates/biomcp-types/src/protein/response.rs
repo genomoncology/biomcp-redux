@@ -49,7 +49,7 @@ pub struct ProteinDomains {
     pub native_total: u64,
 }
 impl ResponseBody for ProteinDomains {
-    const SCHEMA: &'static str = "biomcp.protein-domains/6";
+    const SCHEMA: &'static str = "biomcp.protein-domains/7";
     type Query = ProteinDomainsQuery;
 }
 page!(
@@ -84,7 +84,7 @@ page!(
     ProteinStructures,
     ProteinStructureRef,
     ProteinRelationQuery,
-    "biomcp.protein-structures/4",
+    "biomcp.protein-structures/5",
     "Source structure links and native properties; no residue coverage claim."
 );
 /// Answers to requested inputs; ambiguous gene inputs retain all candidates.
@@ -96,7 +96,7 @@ pub struct ProteinCard {
     pub items: Box<[ProteinCardItem]>,
 }
 impl ResponseBody for ProteinCard {
-    const SCHEMA: &'static str = "biomcp.protein-card/8";
+    const SCHEMA: &'static str = "biomcp.protein-card/9";
     type Query = ProteinGet;
 }
 /// One requested identity and its source outcome, without first-hit selection.

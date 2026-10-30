@@ -11,12 +11,12 @@ pub struct VariantCard {
     /// All retained source identities.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub candidates: Box<[VariantHeader]>,
-    /// Provider rejection text, when present, separate from unchanged query input.
+    /// Named input rejection from provider validation or a source-stated transcript gene mismatch.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub rejection: Option<Text>,
 }
 impl super::ResponseBody for VariantCard {
-    const SCHEMA: &'static str = "biomcp.variant-card/14";
+    const SCHEMA: &'static str = "biomcp.variant-card/15";
     type Query = super::VariantGetQuery;
 }
 
@@ -57,7 +57,7 @@ biodata::wire_enum! {
         Candidates => "candidates",
         /// Provider reported no match.
         Absent => "absent",
-        /// Provider rejected the unchanged input.
+        /// Input failed provider validation or disagreed with a source-stated transcript gene.
         Rejected => "rejected",
         /// Provider could not answer.
         Unavailable => "unavailable",
@@ -125,7 +125,7 @@ pub struct VariantPage {
     pub items: Box<[VariantHeader]>,
 }
 impl super::ResponseBody for VariantPage {
-    const SCHEMA: &'static str = "biomcp.variant-page/15";
+    const SCHEMA: &'static str = "biomcp.variant-page/16";
     type Query = crate::VariantSearch;
 }
 

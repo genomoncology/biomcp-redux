@@ -83,7 +83,10 @@ pub struct AuthorPaperHeader {
 /// An open native identifier namespace and value; no identity inference.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", schemars(extend("x-identifier" = true)))]
 pub struct AuthorPaperExternalId {
+    /// Explicit native namespace supplied with the external identifier.
+    pub namespace: Text,
     /// Native namespace and identifier.
     pub id: Curie,
 }

@@ -65,7 +65,7 @@ pub struct VariantGwas {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct GwasAssociation {
     /// Native association identity.
-    pub id: u64,
+    pub id: biodata::GwasAssociationId,
     /// Study accession.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub study: Option<Text>,
@@ -139,17 +139,37 @@ pub struct VariantPopulationResult {
     pub candidates: Box<[crate::VariantHeader]>,
 }
 impl super::ResponseBody for VariantPopulationResult {
-    const SCHEMA: &'static str = "biomcp.variant-population/12";
+    const SCHEMA: &'static str = "biomcp.variant-population/13";
     type Query = crate::VariantPopulationQuery;
 }
 
 /// Source ontology mapping as supplied by GWAS Catalog.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", schemars(extend("x-identifier" = true)))]
 pub struct GwasTrait {
+    /// Native authority; unknown means the source did not state one.
+    pub namespace: biodata::IdentifierNamespace,
     /// Exact source ontology identifier spelling.
     pub id: Text,
     /// Whole source trait label.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub label: Option<Text>,
+}
+
+impl GwasTrait {
+    /// Retain the full source ID and expose only the authority stated by its checked grammar.
+    pub fn new(id: Text, label: Option<Text>) -> Self {
+        let namespace = id
+            .as_str()
+            .parse::<biodata::GwasTraitId>()
+            .ok()
+            .and_then(|value| Text::new(value.namespace()).ok())
+            .into();
+        Self {
+            namespace,
+            id,
+            label,
+        }
+    }
 }

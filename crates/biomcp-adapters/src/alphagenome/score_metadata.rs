@@ -114,7 +114,7 @@ fn ontology(
         ),
     )?;
     Some(AlphaGenomeOntology {
-        ontology_type,
+        namespace: ontology_type,
         id: value.id,
     })
 }

@@ -38,6 +38,16 @@ text_value!(
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct GwasAssociationId(std::num::NonZeroU64);
 impl GwasAssociationId {
+    /// Retain a native association number after the adapter checks positivity.
+    pub fn from_nonzero(value: std::num::NonZeroU64) -> Self {
+        Self(value)
+    }
+    /// Construct from the native positive association number.
+    pub fn new(value: u64) -> Result<Self, crate::Error> {
+        std::num::NonZeroU64::new(value)
+            .map(Self)
+            .ok_or(crate::Error::GwasValueInvalid)
+    }
     /// Native numeric ID.
     pub fn get(self) -> u64 {
         self.0.get()
@@ -73,6 +83,15 @@ text_value!(
 /// Native ontology identifier; namespaces are preserved without an EFO restriction.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct GwasTraitId(Text);
+impl GwasTraitId {
+    /// Authority explicitly present in the checked native identifier grammar.
+    pub fn namespace(&self) -> &str {
+        self.0
+            .as_str()
+            .split_once(['_', ':'])
+            .map_or("", |(namespace, _)| namespace)
+    }
+}
 impl FromStr for GwasTraitId {
     type Err = crate::Error;
     fn from_str(value: &str) -> Result<Self, Self::Err> {

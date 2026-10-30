@@ -7,7 +7,7 @@ pub(crate) fn association(
 ) -> GwasAssociation {
     let exact_p_value = row.exact_p_value();
     problems.extend(row.problems);
-    let record = row.association_id.to_string().parse().ok();
+    let record = row.association_id.get().to_string().parse().ok();
     GwasAssociation {
         id: row.association_id,
         study: row.accession_id,
@@ -15,10 +15,7 @@ pub(crate) fn association(
         ontology_traits: row
             .efo_traits
             .into_iter()
-            .map(|t| biomcp_types::GwasTrait {
-                id: t.efo_id,
-                label: t.efo_trait,
-            })
+            .map(|t| biomcp_types::GwasTrait::new(t.efo_id, t.efo_trait))
             .collect(),
         alleles: row
             .snp_allele

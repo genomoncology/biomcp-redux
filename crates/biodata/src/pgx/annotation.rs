@@ -22,7 +22,7 @@ pub struct PgxObjectReference {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct PgxCrossReference {
     /// Native `id`; literal source value.
-    pub id: i64,
+    pub id: crate::Identifier<i64>,
     /// Native `resource`; literal source value.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub resource: Option<Box<str>>,
@@ -43,14 +43,14 @@ pub struct PgxCrossReference {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct PgxDiplotypeReference {
     /// Native `id`; no expression, phase or phenotype is inferred.
-    pub id: i64,
+    pub id: crate::Identifier<i64>,
 }
 /// Source-native PgxLocation fields; no clinical interpretation.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct PgxLocation {
     /// Native `id`; literal source value.
-    pub id: i64,
+    pub id: crate::Identifier<i64>,
     /// Native `buildVersion` when supplied.
     #[serde(rename = "buildVersion")]
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -116,7 +116,7 @@ pub struct PgxLocation {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct PgxEvidenceTerm {
     /// Native `id`; literal source value.
-    pub id: i64,
+    pub id: crate::Identifier<i64>,
     /// Native `resource`; literal source value.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub resource: Option<Box<str>>,
@@ -139,7 +139,7 @@ pub struct PgxEvidenceTerm {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct PgxAnnotationHeader {
     /// Native `id`; literal source value.
-    pub id: i64,
+    pub id: crate::Identifier<i64>,
     /// Native `accessionId`; literal source value.
     #[serde(rename = "accessionId")]
     pub accession_id: ClinPgxAccession,

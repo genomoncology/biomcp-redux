@@ -80,10 +80,8 @@
       "description": "One exact accession-linked ChEMBL cell identity; no assay request is implied.",
       "properties": {
         "cell_id": {
-          "description": "Independent native integer cell record identity.",
-          "format": "uint64",
-          "minimum": 0,
-          "type": "integer"
+          "$ref": "#/$defs/Reply_Identifier",
+          "description": "Independent native integer cell record identity."
         },
         "cellosaurus_id": {
           "$ref": "#/$defs/Reply_CellosaurusAccession",
@@ -270,6 +268,34 @@
     "Reply_ChemblCellId": {
       "description": "A ChEMBL source-local cell ID, never a compound or target identity.",
       "pattern": "^CHEMBL[0-9]+$",
+      "type": "string"
+    },
+    "Reply_Identifier": {
+      "description": "An authority and its unchanged native identifier; unknown means the authority was not stated.",
+      "properties": {
+        "id": {
+          "description": "Native identifier value, with its original scalar type and precision.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "namespace": {
+          "$ref": "#/$defs/Reply_IdentifierNamespace",
+          "description": "Native authority spelling; the literal unknown carries an unstated authority."
+        }
+      },
+      "required": [
+        "namespace",
+        "id"
+      ],
+      "type": "object",
+      "x-identifier": true
+    },
+    "Reply_IdentifierNamespace": {
+      "description": "A source-stated authority or an explicit unknown authority, represented by the string unknown.",
+      "maxLength": 1048576,
+      "minLength": 1,
+      "pattern": "^(?![\\s\\S]*[\\x00-\\x1f\\x7f-\\x9f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069])",
       "type": "string"
     },
     "Reply_PageInfo": {
@@ -911,7 +937,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.cell-line-chembl/6",
+  "$id": "biomcp.cell-line-chembl/7",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -967,7 +993,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.cell-line-chembl/6",
+      "const": "biomcp.cell-line-chembl/7",
       "type": "string"
     },
     "sources": {

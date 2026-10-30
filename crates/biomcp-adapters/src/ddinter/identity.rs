@@ -26,7 +26,7 @@ pub(super) fn identities(row: &NativeRow) -> [(&str, Option<&str>); 2] {
 pub(super) fn identity(id: &str, name: Option<&str>) -> Result<DrugIdentity, biodata::Error> {
     Ok(DrugIdentity {
         id: id.parse()?,
-        source: Text::new("ddinter")?,
+        namespace: Text::new("ddinter")?,
         name: name.map(Text::from_source).transpose()?,
         // The CSV describes drug pairs, without identifying ingredient/product level.
         identity_level: DrugIdentityLevel::Unknown,

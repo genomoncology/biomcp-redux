@@ -146,5 +146,9 @@ pub(super) fn record(id: u64, link: Option<&Text>, cx: &mut Problems) -> Option<
             Text::new(&format!("https://civicdb.org{link}")).map_err(|_| ())
         }),
     );
-    Some(SourceRecord { id, url })
+    Some(SourceRecord {
+        namespace: biodata::IdentifierNamespace::Unknown,
+        id,
+        url,
+    })
 }

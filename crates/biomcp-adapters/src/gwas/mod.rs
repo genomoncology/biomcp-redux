@@ -84,10 +84,6 @@ fn page(response: raw::Response, skip: usize) -> Page {
     let mut rows = Vec::new();
     for row in received_rows.into_iter().skip(skip) {
         if let Some(mut row) = problems.field("association_id", Some(row.value)) {
-            if row.association_id == 0 {
-                problems.required::<()>("association_id", None);
-                continue;
-            }
             problems.list.append(&mut row.problems);
             rows.push(row);
         }

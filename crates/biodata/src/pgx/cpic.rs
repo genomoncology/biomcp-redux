@@ -31,7 +31,7 @@ pub struct PgxGeneIdentity {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct PgxPair {
     /// Native `pairid`; literal source value.
-    pub pairid: i64,
+    pub pairid: crate::Identifier<i64>,
     /// Native `drugid`; literal source value.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub drugid: Option<Curie>,
@@ -74,7 +74,7 @@ pub struct PgxPair {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct PgxRecommendation {
     /// Native `recommendationid`; literal source value.
-    pub recommendationid: i64,
+    pub recommendationid: crate::Identifier<i64>,
     /// Native `lookupkey`; literal source value.
     pub lookupkey: BTreeMap<super::PgxGeneKey, Box<str>>,
     /// Native `drugname`; literal source value.
@@ -114,10 +114,10 @@ pub struct PgxRecommendation {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct PgxDrugRecommendation {
     /// Native `id`; literal source value.
-    pub id: i64,
+    pub id: crate::Identifier<i64>,
     /// Native `guidelineid`; literal source value.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub guidelineid: Option<i64>,
+    pub guidelineid: Option<crate::Identifier<i64>>,
     /// Native `drugid`; literal source value.
     pub drugid: Curie,
     /// Native `implications`; literal source value.

@@ -16,7 +16,7 @@
       ],
       "expect": {
         "/status": "complete",
-        "/result/items/0/reference/value": "P15056"
+        "/result/items/0/reference/id": "P15056"
       },
       "max_bytes": 2555
     },
@@ -37,7 +37,7 @@
         "/status": "complete",
         "/result/items/0/physical_context_count": 29
       },
-      "max_bytes": 12156
+      "max_bytes": 14626
     },
     {
       "run": [
@@ -83,7 +83,7 @@
         },
         "/result/page/next_offset": 50
       },
-      "max_bytes": 11203
+      "max_bytes": 12931
     }
   ]
 }

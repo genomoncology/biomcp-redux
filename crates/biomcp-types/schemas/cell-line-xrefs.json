@@ -120,10 +120,6 @@
     "Reply_CellLineXref": {
       "description": "One complete native cross-reference; database and accession form the source identity.",
       "properties": {
-        "accession": {
-          "$ref": "#/$defs/Reply_Text",
-          "description": "Native accession, including any internal prefix."
-        },
         "category": {
           "anyOf": [
             {
@@ -135,10 +131,6 @@
           ],
           "description": "Native source category when supplied."
         },
-        "database": {
-          "$ref": "#/$defs/Reply_Text",
-          "description": "Native database name; no fixed vocabulary."
-        },
         "discontinued": {
           "anyOf": [
             {
@@ -149,6 +141,10 @@
             }
           ],
           "description": "Native discontinuation qualifier, including values such as probable."
+        },
+        "id": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "Native accession, including any internal prefix."
         },
         "iri": {
           "anyOf": [
@@ -172,6 +168,10 @@
           ],
           "description": "Native display label when supplied."
         },
+        "namespace": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "Native database name; no fixed vocabulary."
+        },
         "url": {
           "anyOf": [
             {
@@ -186,10 +186,11 @@
         }
       },
       "required": [
-        "database",
-        "accession"
+        "namespace",
+        "id"
       ],
-      "type": "object"
+      "type": "object",
+      "x-identifier": true
     },
     "Reply_CellLineXrefs": {
       "description": "Native source cross-references with collection-local totals and offset.",
@@ -880,7 +881,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.cell-line-xrefs/5",
+  "$id": "biomcp.cell-line-xrefs/6",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -936,7 +937,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.cell-line-xrefs/5",
+      "const": "biomcp.cell-line-xrefs/6",
       "type": "string"
     },
     "sources": {

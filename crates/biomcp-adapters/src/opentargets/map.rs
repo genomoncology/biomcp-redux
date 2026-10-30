@@ -124,7 +124,7 @@ pub fn targets(
                 .map(|label| GeneRef::new(label, None, None, Some(id.clone())))
                 .transpose()?;
             let native = DrugNativeTarget {
-                source: "opentargets".parse()?,
+                namespace: "opentargets".parse()?,
                 id: target.id.parse()?,
                 label,
                 url: None,

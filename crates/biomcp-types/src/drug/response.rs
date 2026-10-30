@@ -212,35 +212,35 @@ impl ResponseBody for DrugPage {
     type Query = DrugSearch;
 }
 impl ResponseBody for DrugCard {
-    const SCHEMA: &'static str = "biomcp.drug-card/5";
+    const SCHEMA: &'static str = "biomcp.drug-card/6";
     type Query = DrugGet;
 }
 impl ResponseBody for DrugLabel {
-    const SCHEMA: &'static str = "biomcp.drug-label/6";
+    const SCHEMA: &'static str = "biomcp.drug-label/7";
     type Query = DrugGet;
 }
 impl ResponseBody for DrugTargets {
-    const SCHEMA: &'static str = "biomcp.drug-targets/7";
+    const SCHEMA: &'static str = "biomcp.drug-targets/8";
     type Query = DrugGet;
 }
 impl ResponseBody for DrugIndications {
-    const SCHEMA: &'static str = "biomcp.drug-indications/7";
+    const SCHEMA: &'static str = "biomcp.drug-indications/8";
     type Query = DrugGet;
 }
 impl ResponseBody for DrugCivic {
-    const SCHEMA: &'static str = "biomcp.drug-civic/10";
+    const SCHEMA: &'static str = "biomcp.drug-civic/11";
     type Query = DrugGet;
 }
 impl ResponseBody for DrugApprovals {
-    const SCHEMA: &'static str = "biomcp.drug-approvals/6";
+    const SCHEMA: &'static str = "biomcp.drug-approvals/7";
     type Query = DrugGet;
 }
 impl ResponseBody for DrugRegulatory {
-    const SCHEMA: &'static str = "biomcp.drug-regulatory/5";
+    const SCHEMA: &'static str = "biomcp.drug-regulatory/6";
     type Query = DrugGet;
 }
 impl ResponseBody for DrugInteractions {
-    const SCHEMA: &'static str = "biomcp.drug-interactions/7";
+    const SCHEMA: &'static str = "biomcp.drug-interactions/8";
     type Query = DrugGet;
 }
 
@@ -254,6 +254,6 @@ pub struct DrugXrefs {
     pub xrefs: Section<DrugRecords<DrugIdentityRelation>>,
 }
 impl ResponseBody for DrugXrefs {
-    const SCHEMA: &'static str = "biomcp.drug-xrefs/4";
+    const SCHEMA: &'static str = "biomcp.drug-xrefs/5";
     type Query = DrugGet;
 }

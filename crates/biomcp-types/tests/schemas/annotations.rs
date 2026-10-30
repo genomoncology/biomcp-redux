@@ -4,6 +4,12 @@ type Check<T> = Result<T, String>;
 
 pub(super) fn validate(object: &serde_json::Map<String, Value>) -> Check<()> {
     validate_cli_flags(object.get("x-cli-flags"))?;
+    if object
+        .get("x-identifier")
+        .is_some_and(|value| value != &Value::Bool(true))
+    {
+        return Err("unsupported identifier annotation".into());
+    }
     if object.get("x-extensible-enum").is_some_and(|value| {
         !value
             .as_array()
