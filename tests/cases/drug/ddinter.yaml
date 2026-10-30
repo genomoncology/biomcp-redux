@@ -47,7 +47,7 @@
             "id": "DDInter1",
             "name": "Synthetic Anchor One",
             "identity_level": "unknown",
-            "namespace": "ddinter"
+            "source": "ddinter"
           }
         }
       },
@@ -78,7 +78,7 @@
             "id": "DDInter1",
             "name": "Synthetic Anchor One",
             "identity_level": "unknown",
-            "namespace": "ddinter"
+            "source": "ddinter"
           }
         }
       },

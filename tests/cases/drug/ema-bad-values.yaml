@@ -72,7 +72,7 @@
             "header": {
               "id": "EMEA/H/C/000406",
               "identity_level": "unknown",
-              "namespace": "ema"
+              "source": "ema"
             },
             "available_sections": [
               "regulatory"
