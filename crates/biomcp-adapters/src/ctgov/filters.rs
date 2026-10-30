@@ -21,7 +21,7 @@ pub(super) fn base_parameters(query: &TrialSearch) -> BTreeMap<String, String> {
     ])
 }
 
-pub(super) fn advanced(query: &TrialSearch) -> String {
+pub(super) fn advanced(query: &TrialSearch, broader_names: bool) -> String {
     let mut advanced = Vec::new();
     if query.exact_condition() {
         advanced.push(format!(
@@ -61,8 +61,14 @@ pub(super) fn advanced(query: &TrialSearch) -> String {
     }
     for (field, value) in [
         ("EligibilityCriteria", query.criteria()),
-        ("LocationFacility", query.facility()),
-        ("LeadSponsorName", query.sponsor()),
+        (
+            "LocationFacility",
+            query.facility().filter(|_| !broader_names),
+        ),
+        (
+            "LeadSponsorName",
+            query.sponsor().filter(|_| !broader_names),
+        ),
     ] {
         if let Some(value) = value {
             advanced.push(format!("AREA[{field}]{}", quote(value.as_str())));
@@ -92,6 +98,26 @@ pub(super) fn advanced(query: &TrialSearch) -> String {
         advanced.push("AREA[ResultsFirstPostDate]RANGE[MIN,MAX]".into());
     }
     advanced.join(" AND ")
+}
+
+pub(super) fn name_parameters(
+    query: &TrialSearch,
+    broader_names: bool,
+    params: &mut BTreeMap<String, String>,
+) {
+    if let Some(value) = query.registry_page_token() {
+        params.insert("pageToken".into(), value.into());
+    }
+    if broader_names {
+        for (name, value) in [
+            ("query.spons", query.sponsor()),
+            ("query.locn", query.facility()),
+        ] {
+            if let Some(value) = value {
+                params.insert(name.into(), value.to_string());
+            }
+        }
+    }
 }
 fn quote(value: &str) -> String {
     format!("\"{}\"", value.replace('\\', "\\\\").replace('"', "\\\""))
