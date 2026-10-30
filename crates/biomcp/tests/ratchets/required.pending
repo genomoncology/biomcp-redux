@@ -10,4 +10,3 @@ option search drug --reason
 option search drug --status
 option search trial --exact-condition
 section get variant civic
-section get variant hotspots

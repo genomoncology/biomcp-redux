@@ -129,6 +129,7 @@ pub(super) fn required_surface_has_asserted_calls() -> Check {
     counts.runner(synthetic_contracts::CLINVAR_PAGES.1);
     counts.runner(synthetic_contracts::MONARCH_PHENOTYPES.1);
     counts.runner(synthetic_contracts::POPULATION_SELECTORS.1);
+    counts.runner(synthetic_contracts::HOTSPOTS.1);
 
     counts.runner(synthetic_contracts::MAUDE_SECTIONS.1);
 

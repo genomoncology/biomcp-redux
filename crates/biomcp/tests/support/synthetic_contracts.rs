@@ -207,3 +207,9 @@ pub(crate) const POPULATION_SELECTORS: (&str, &[&str]) = (
         "option variant population --limit",
     ],
 );
+
+// Cancer Hotspots redistribution terms are unverified; the existing counts are synthetic.
+pub(crate) const HOTSPOTS: (&str, &[&str]) = (
+    "variant-hotspots/hotspots-retains-native-transcript-and-counts",
+    &["section get variant hotspots"],
+);
