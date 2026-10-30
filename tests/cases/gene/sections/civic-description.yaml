@@ -24,7 +24,10 @@
         "/problems/0/record": "20",
         "/result/items/1/sections/civic/data": {
           "equals": {
-            "id": 20,
+            "id": {
+              "namespace": "CIViC",
+              "id": 20
+            },
             "variant_count": 126,
             "url": "https://civicdb.org/features/20"
           }
