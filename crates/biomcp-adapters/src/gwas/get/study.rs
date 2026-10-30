@@ -59,6 +59,10 @@ impl From<ReceivedStudy> for Study {
             record: crate::mapped::record(&row.accession_id),
             list: Vec::new(),
         };
+        let pubmed_id = problems.field("pubmed_id", row.pubmed_id);
+        let disease_trait = problems
+            .required_field("disease_trait", row.disease_trait)
+            .map(Into::into);
         let mut refusals = crate::Refusal::None;
         let efo_traits = problems
             .records("efo_traits", row.efo_traits, &mut refusals)
@@ -66,10 +70,8 @@ impl From<ReceivedStudy> for Study {
         let mut value = Self {
             refusals,
             accession_id: row.accession_id,
-            pubmed_id: problems.field("pubmed_id", row.pubmed_id),
-            disease_trait: problems
-                .required_field("disease_trait", row.disease_trait)
-                .map(Into::into),
+            pubmed_id,
+            disease_trait,
             efo_traits,
             initial_sample_size: problems.field("initial_sample_size", row.initial_sample_size),
             replication_sample_size: problems

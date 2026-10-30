@@ -140,7 +140,7 @@ fn report_member_refusal_preserves_native_indexes_and_optional_values() -> Check
         })?;
         assert!(changed, "FAERS exact report fixture missing");
         let leg = fetch.leg(&faers::SPEC, fetch.deadline(Duration::from_secs(20)));
-        let row = faers::get(&leg, &"100".parse()?)?;
+        let row = faers::detail::get(&leg, &"100".parse()?)?;
         assert_eq!(
             row.refusals, expected,
             "FAERS lost actual native drug refusal"

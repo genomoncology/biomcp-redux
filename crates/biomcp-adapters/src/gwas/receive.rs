@@ -54,6 +54,19 @@ impl From<ReceivedAssociation> for super::raw::Association {
             record: crate::mapped::record(row.association_id),
             list: Vec::new(),
         };
+        let accession_id = problems
+            .field("accession_id", row.accession_id)
+            .and_then(|v| {
+                problems
+                    .optional(
+                        "accession_id",
+                        Some(v.as_str().parse::<biodata::GwasStudyId>()),
+                    )
+                    .map(|_| v)
+            });
+        let reported_trait = problems
+            .fields("reported_trait", row.reported_trait)
+            .into_vec();
         let mut refusals = crate::Refusal::None;
         let efo_traits = problems
             .records("efo_traits", row.efo_traits, &mut refusals)
@@ -64,19 +77,8 @@ impl From<ReceivedAssociation> for super::raw::Association {
         let mut value = Self {
             refusals,
             association_id: biodata::GwasAssociationId::from_nonzero(row.association_id),
-            accession_id: problems
-                .field("accession_id", row.accession_id)
-                .and_then(|v| {
-                    problems
-                        .optional(
-                            "accession_id",
-                            Some(v.as_str().parse::<biodata::GwasStudyId>()),
-                        )
-                        .map(|_| v)
-                }),
-            reported_trait: problems
-                .fields("reported_trait", row.reported_trait)
-                .into_vec(),
+            accession_id,
+            reported_trait,
             efo_traits,
             snp_allele,
             p_value: problems.required_field("p_value", row.p_value),
