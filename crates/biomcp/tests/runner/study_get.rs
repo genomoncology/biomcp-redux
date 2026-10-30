@@ -6,6 +6,8 @@ use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::{fs, io::Write, path::Path};
+#[path = "study_get/resource_refusals.rs"]
+mod resource_refusals;
 #[path = "study_get_pages.rs"]
 mod section_page;
 type Check = Result<(), String>;
@@ -13,6 +15,10 @@ pub(super) fn trials() -> Vec<Trial> {
     let native = crate::runner::launch::fixtures().join("study-get-cases");
     let available = native.is_dir();
     vec![
+        transcript_trial(
+            "study-get/resource-refusals-survive-catalog-replacement",
+            || resource_refusals::run().map_err(Into::into),
+        ),
         transcript_trial("study-get/retained-native", move || {
             retained(&native).map_err(Into::into)
         })
