@@ -40,6 +40,7 @@ pub struct Pathway {
 /// An open source namespace paired with its complete native identifier.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", schemars(extend("x-identifier" = true)))]
 pub struct PathwaySourceRef {
     /// Native namespace; never discarded during a gene join.
     #[serde(default, skip_serializing_if = "Option::is_none")]

@@ -35,6 +35,7 @@ crate::canonical_enum! {
 /// One source record identity, without any equivalence or authorization claim.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", schemars(extend("x-identifier" = true)))]
 pub struct DrugIdentity {
     /// Published native record identifier.
     pub id: DrugId,

@@ -146,6 +146,7 @@ impl super::ResponseBody for VariantPopulationResult {
 /// Source ontology mapping as supplied by GWAS Catalog.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", schemars(extend("x-identifier" = true)))]
 pub struct GwasTrait {
     /// Exact source ontology identifier spelling.
     pub id: Text,

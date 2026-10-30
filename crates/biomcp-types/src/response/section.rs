@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 /// The source's own entry for an entity.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", schemars(extend("x-identifier" = true)))]
 pub struct SourceRecord {
     /// Native source identifier.
     pub id: Text,

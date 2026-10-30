@@ -93,3 +93,45 @@ pub(super) fn checked_in_schema_definition_names_have_one_body() -> Check<()> {
     }
     Ok(())
 }
+
+#[test]
+fn identifier_objects_use_namespace_and_id() -> Check<()> {
+    for contract in registry() {
+        identifier_shape(&(contract.generate)(), contract.name)?;
+    }
+    Ok(())
+}
+
+fn identifier_shape(node: &Value, owner: &str) -> Check<()> {
+    match node {
+        Value::Object(object) => {
+            if object.get("x-identifier") == Some(&Value::Bool(true)) {
+                let branches = object.get("oneOf").and_then(Value::as_array);
+                for branch in branches.map_or_else(|| vec![node], |items| items.iter().collect()) {
+                    let properties = branch["properties"].as_object().ok_or("identifier properties")?;
+                    let required = branch["required"].as_array().ok_or("identifier required names")?;
+                    for field in ["namespace", "id"] {
+                        if !properties.contains_key(field) || !required.iter().any(|v| v == field) {
+                            return Err(format!("{owner}: identifier requires {field}").into());
+                        }
+                    }
+                    for old in ["source", "kind", "value"] {
+                        if properties.contains_key(old) {
+                            return Err(format!("{owner}: identifier still uses {old}").into());
+                        }
+                    }
+                }
+            }
+            for child in object.values() {
+                identifier_shape(child, owner)?;
+            }
+        }
+        Value::Array(items) => {
+            for child in items {
+                identifier_shape(child, owner)?;
+            }
+        }
+        _ => {}
+    }
+    Ok(())
+}

@@ -21,6 +21,7 @@ pub struct DrugNativeTarget {
 /// One native disease identifier and its own source label.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", schemars(extend("x-identifier" = true)))]
 pub struct DrugDiseaseReference {
     /// Source namespace spelling, such as EFO or MeSH.
     pub namespace: Text,
