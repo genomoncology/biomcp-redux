@@ -8,6 +8,8 @@ mod assertions;
 mod author;
 pub(super) mod case_main;
 mod execution;
+#[path = "../support/synthetic_contracts.rs"]
+mod required_contract;
 tool_only! { pub(super) mod tools_api; }
 mod features;
 mod orcid;

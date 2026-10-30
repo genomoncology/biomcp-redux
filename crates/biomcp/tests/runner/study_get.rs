@@ -1,4 +1,5 @@
 //! Feature study-get: exact stored cards and bounded source metadata without member IDs.
+use super::required_contract;
 use super::{rows, seed};
 use crate::runner::launch::Environment;
 use crate::runner::transcript::trial as transcript_trial;
@@ -14,7 +15,7 @@ pub(super) fn trials() -> Vec<Trial> {
             retained(&native).map_err(Into::into)
         })
         .with_ignored_flag(!available),
-        transcript_trial("study-get/complete-pages-and-native-counts", || {
+        transcript_trial(required_contract::STUDY_PAGES.0, || {
             pages().map_err(Into::into)
         }),
         transcript_trial("study-get/identity-failures-and-policy", || {
@@ -145,6 +146,27 @@ fn pages() -> Check {
     )?;
     record(&replay, "molecular-profiles", profiles(), 200)?;
     record(&replay, "sample-lists", lists(), 200)?;
+    let limited = call(
+        &env,
+        &replay,
+        &[
+            "get",
+            "study",
+            "synthetic_0",
+            "profiles",
+            "--section-limit",
+            "2",
+            "--section-offset",
+            "1",
+        ],
+        0,
+        "get/pages/limited",
+    )?;
+    if limited.pointer("/page/returned") != Some(&json!(2))
+        || limited.pointer("/result/items/0/molecularProfileId") != Some(&json!("native_profile_1"))
+    {
+        return Err("explicit section page lost its bound or source order".into());
+    }
     for (section, total, id) in [
         ("profiles", 17, "molecularProfileId"),
         ("sample-lists", 13, "sampleListId"),
