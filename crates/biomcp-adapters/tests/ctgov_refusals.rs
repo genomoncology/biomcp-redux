@@ -1,4 +1,8 @@
 //! Public registry adapter boundaries distinguish refused records from retained fields.
+#[expect(
+    clippy::disallowed_methods,
+    reason = "The shared recording boundary copies isolated replay fixtures"
+)]
 #[path = "../../biomcp-fetch/tests/support/recordings.rs"]
 mod recordings;
 use biomcp_adapters::{Refusal, ctgov};
