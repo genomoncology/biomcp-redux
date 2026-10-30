@@ -97,9 +97,6 @@ fn states() -> Result<(), String> {
     let [empty, absent, failure] = observed.as_slice() else {
         return Err("P24 state collection incomplete".into());
     };
-    if empty == absent || empty == failure || absent == failure {
-        return Err(format!("P24 states collapsed: {observed:?}"));
-    }
     if empty.0 != Some(json!("complete"))
         || absent.0 != Some(json!("absent"))
         || failure.0 != Some(json!("failed"))
