@@ -49,6 +49,7 @@ pub(super) fn supplement(
 }
 fn apply(item: &mut ProteinCardItem, out: &mut Outcome, result: Outcome) {
     let reason = reason(&result);
+    let result_status = result.status();
     if let Some(sections) = &mut item.sections {
         match result.body {
             QueryBody::ProteinDomains(data) => {
@@ -80,7 +81,6 @@ fn apply(item: &mut ProteinCardItem, out: &mut Outcome, result: Outcome) {
             _ => {}
         }
     }
-    let result_status = result.status();
     merge(
         item,
         out,
