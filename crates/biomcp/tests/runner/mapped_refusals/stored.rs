@@ -16,9 +16,10 @@ pub(super) fn trials() -> Vec<Trial> {
         trial("drug-ddinter/refused-export-rows-carry-sync-facts", || {
             pairs().map_err(|e| e.to_string().into())
         }),
-        trial("pathway-wikipathways/refused-catalog-members-carry-facts", || {
-            catalog().map_err(|e| e.to_string().into())
-        }),
+        trial(
+            "pathway-wikipathways/refused-catalog-members-carry-facts",
+            || catalog().map_err(|e| e.to_string().into()),
+        ),
         trial(
             "variant-search/refused-clinvar-identities-carry-facts",
             || candidates().map_err(|e| e.to_string().into()),
@@ -82,7 +83,9 @@ fn pairs() -> Check {
                 && let Some(native) = body.as_str()
             {
                 let replacement = if invalid {
-                    native.replacen("DDInter1,", "invalid,", 1)
+                    format!(
+                        "{native}invalid,Synthetic declined drug,DDInter99,Synthetic partner,Moderate\r\n"
+                    )
                 } else {
                     native.replace("Moderate", " ")
                 };
@@ -160,15 +163,20 @@ fn candidates() -> Check {
         let mut changed = false;
         let (_root, fetch) = replay("variant/search/coding-pten", |source, recording| {
             if source == "clinvar"
-                && let Some(rows) =
-                    recording.pointer_mut("/exchanges/0/body/value/esearchresult/idlist")
+                && let Some(body) = recording.pointer_mut("/exchanges/0/body/value")
+                && let Some(native) = body.as_str()
             {
-                changed = true;
-                *rows = match case {
-                    "identity" => json!([false]),
-                    "absent" => json!([]),
-                    _ => json!(["1321696"]),
-                };
+                let mut document: Value =
+                    serde_json::from_str(native).expect("existing ClinVar JSON");
+                if let Some(rows) = document.pointer_mut("/esearchresult/idlist") {
+                    changed = true;
+                    *rows = match case {
+                        "identity" => json!([false]),
+                        "absent" => json!([]),
+                        _ => json!(["1321696"]),
+                    };
+                    *body = json!(document.to_string());
+                }
             }
         })?;
         if !changed {
