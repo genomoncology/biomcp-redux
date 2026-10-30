@@ -7,11 +7,7 @@ option article supplement --replace
 option article supplement --save
 option article text --replace
 option article text --save
-option get adverse-event --drug-index
-option get adverse-event --section-limit
-option get adverse-event --section-offset
 option get adverse-event --snapshot
-option get adverse-event --source
 option get biomarker --source
 option get diagnostic --bundle-revision
 option get disease --ontology
@@ -38,7 +34,6 @@ option protein isoforms --offset
 option protein isoforms --pool
 option protein structures --offset
 option protein structures --pool
-option search adverse-event --offset
 option search adverse-event --reaction
 option search adverse-event --snapshot
 option search cell-line --offset
@@ -64,16 +59,8 @@ option variant normalize --offset
 option variant population --build
 option variant population --limit
 option variant population --resolver
-section get adverse-event application-number
 section get adverse-event devices
-section get adverse-event drugs
 section get adverse-event narrative
-section get adverse-event package-ndc
-section get adverse-event product-ndc
-section get adverse-event rxcui
-section get adverse-event spl-id
-section get adverse-event spl-set-id
-section get adverse-event unii
 section get cell-line chembl
 section get disease phenotypes
 section get drug civic

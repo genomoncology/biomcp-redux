@@ -1,0 +1,182 @@
+{
+  "feature": "adverse-event-get",
+  "live_check": "public native identity projection; no clinical interpretation",
+  "story": "A caller reads the original second drug row and each source identifier array from the recorded pembrolizumab report.",
+  "verified": "Original bodies and receipts retained outside Git. Search SHA256 1de03b614bc5d9b518380087f5b824e36153fcfb5b0548aba8d6f4a27d19ea25; get SHA256 c441dfe1c0e4a78ab0644a209fd9151eb0b4f03b6f4df524abf9c5c342350c10. Git projections omit MedDRA reaction fields, patient summary prose and drug detail fields other than medicinalproduct, drugcharacterization and openfda. Remaining source values and array order are unchanged. openFDA terms and license apply; no third-party terminology body is included.",
+  "replay": "adverse-event/native-identifiers",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "adverse-event",
+        "pembrolizumab",
+        "--source",
+        "faers",
+        "--limit",
+        "1",
+        "--offset",
+        "0"
+      ],
+      "expect": {
+        "/result/items/0/id": "26940567",
+        "/page/returned": 1,
+        "/page/total": 105020
+      }
+    },
+    {
+      "run": [
+        "get",
+        "adverse-event",
+        "26940567",
+        "drugs",
+        "--source",
+        "faers",
+        "--section-limit",
+        "1",
+        "--section-offset",
+        "1"
+      ],
+      "expect": {
+        "/result/header/id": "26940567",
+        "/result/drugs/records/0/index": 1,
+        "/result/drugs/records/0/medicinalproduct": "KEYTRUDA",
+        "/result/drugs/total": 2,
+        "/result/drugs/offset": 1
+      }
+    },
+    {
+      "run": [
+        "get",
+        "adverse-event",
+        "26940567",
+        "unii",
+        "--drug-index",
+        "1"
+      ],
+      "expect": {
+        "/result/header/id": "26940567",
+        "/result/unii/drug_index": 1,
+        "/result/unii/records": [
+          "DPT0O3T46P"
+        ],
+        "/result/unii/total": 1
+      }
+    },
+    {
+      "run": [
+        "get",
+        "adverse-event",
+        "26940567",
+        "rxcui",
+        "--drug-index",
+        "1"
+      ],
+      "expect": {
+        "/result/header/id": "26940567",
+        "/result/rxcui/drug_index": 1,
+        "/result/rxcui/records": [
+          "1657746",
+          "1657749",
+          "1657750",
+          "1657751"
+        ],
+        "/result/rxcui/total": 4
+      }
+    },
+    {
+      "run": [
+        "get",
+        "adverse-event",
+        "26940567",
+        "product-ndc",
+        "--drug-index",
+        "1"
+      ],
+      "expect": {
+        "/result/header/id": "26940567",
+        "/result/product_ndc/drug_index": 1,
+        "/result/product_ndc/records": [
+          "0006-3026",
+          "0006-3029"
+        ],
+        "/result/product_ndc/total": 2
+      }
+    },
+    {
+      "run": [
+        "get",
+        "adverse-event",
+        "26940567",
+        "package-ndc",
+        "--drug-index",
+        "1"
+      ],
+      "expect": {
+        "/result/header/id": "26940567",
+        "/result/package_ndc/drug_index": 1,
+        "/result/package_ndc/records": [
+          "0006-3029-01",
+          "0006-3029-02",
+          "0006-3026-01",
+          "0006-3026-02",
+          "0006-3026-04"
+        ],
+        "/result/package_ndc/total": 5
+      }
+    },
+    {
+      "run": [
+        "get",
+        "adverse-event",
+        "26940567",
+        "spl-id",
+        "--drug-index",
+        "1"
+      ],
+      "expect": {
+        "/result/header/id": "26940567",
+        "/result/spl_id/drug_index": 1,
+        "/result/spl_id/records": [
+          "228e1e3f-d207-481f-8e14-9fdcbd0470e9"
+        ],
+        "/result/spl_id/total": 1
+      }
+    },
+    {
+      "run": [
+        "get",
+        "adverse-event",
+        "26940567",
+        "spl-set-id",
+        "--drug-index",
+        "1"
+      ],
+      "expect": {
+        "/result/header/id": "26940567",
+        "/result/spl_set_id/drug_index": 1,
+        "/result/spl_set_id/records": [
+          "9333c79b-d487-4538-a9f0-71b91a02b287"
+        ],
+        "/result/spl_set_id/total": 1
+      }
+    },
+    {
+      "run": [
+        "get",
+        "adverse-event",
+        "26940567",
+        "application-number",
+        "--drug-index",
+        "1"
+      ],
+      "expect": {
+        "/result/header/id": "26940567",
+        "/result/application_number/drug_index": 1,
+        "/result/application_number/records": [
+          "BLA125514"
+        ],
+        "/result/application_number/total": 1
+      }
+    }
+  ]
+}
