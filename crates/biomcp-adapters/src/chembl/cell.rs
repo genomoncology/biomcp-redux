@@ -76,7 +76,7 @@ impl Cell {
         CellLineChemblRecord {
             id: r.cell_chembl_id,
             cell_id: biodata::Identifier {
-                namespace: crate::mapped::text("ChEMBL").ok().into(),
+                namespace: problems.text("cell_id.namespace", Some("ChEMBL")).into(),
                 id: r.cell_id,
             },
             cellosaurus_id: r.cellosaurus_id,

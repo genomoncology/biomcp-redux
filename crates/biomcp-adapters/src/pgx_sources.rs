@@ -42,7 +42,7 @@ macro_rules! pgx_row {
             fn map(self, problems: &mut crate::mapped::Problems) -> Option<Self::Value> {
                 $(let $id = problems.required_field($ip, self.$id)?;)*
                 problems.text(stringify!($record), Some(&$record.to_string()))?;
-                $(let $id = pgx_row!(@identity $id $(, $authority)?);)*
+                $(let $id = pgx_row!(@identity problems, $ip, $id $(, $authority)?);)*
                 use $out as Output;
                 Some(Output {
                     $($id,)*
@@ -57,19 +57,19 @@ macro_rules! pgx_row {
             }
         }
     };
-    (@identity $value:ident, $authority:literal) => {
-        biodata::Identifier::new(crate::mapped::text($authority).ok()?, $value)
+    (@identity $problems:ident, $path:literal, $value:ident, $authority:literal) => {
+        $problems.optional($path, Some(crate::mapped::identifier($authority, $value)))?
     };
-    (@identity $value:ident) => { $value };
+    (@identity $problems:ident, $path:literal, $value:ident) => { $value };
     (@value $problems:ident, $path:literal, $field:expr, $authority:literal) => {
         $problems.field($path, $field).and_then(|id| {
-            Some(biodata::Identifier::new(crate::mapped::text($authority).ok()?, id))
+            $problems.optional($path, Some(crate::mapped::identifier($authority, id)))
         })
     };
     (@value $problems:ident, $path:literal, $field:expr) => { $problems.field($path, $field) };
     (@list $problems:ident, $path:literal, $field:expr, $authority:literal) => {
         $problems.fields($path, $field).into_vec().into_iter().filter_map(|id| {
-            Some(biodata::Identifier::new(crate::mapped::text($authority).ok()?, id))
+            $problems.optional($path, Some(crate::mapped::identifier($authority, id)))
         }).collect()
     };
     (@list $problems:ident, $path:literal, $field:expr) => { $problems.fields($path, $field) };

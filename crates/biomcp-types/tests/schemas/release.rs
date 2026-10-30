@@ -97,8 +97,7 @@ pub(super) fn checked_in_schema_definition_names_have_one_body() -> Check<()> {
 // x-identifier marks authority/value objects, including numeric values, wherever a schema nests them.
 // Entity records and relations with already qualified scalar IDs are not identifier objects.
 // Native reference records retain category fields and optional reference IDs; a category is not an authority.
-#[test]
-fn identifier_objects_use_namespace_and_id() -> Check<()> {
+pub(super) fn identifier_objects_use_namespace_and_id() -> Check<()> {
     for contract in registry() {
         identifier_shape(&(contract.generate)(), contract.name)?;
     }

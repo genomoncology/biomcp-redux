@@ -576,3 +576,8 @@ fn source_forms_and_profile_members_match_admitted_subject_levels()
     }
     Ok(())
 }
+
+#[test]
+fn identifier_objects_use_namespace_and_id() -> Result<(), Box<dyn std::error::Error>> {
+    release::identifier_objects_use_namespace_and_id()
+}

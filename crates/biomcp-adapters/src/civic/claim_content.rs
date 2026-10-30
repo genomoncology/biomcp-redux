@@ -51,7 +51,7 @@ pub(super) fn therapies(
         }
         native.push(CivicTherapy {
             id: id.map(|id| biodata::Identifier {
-                namespace: crate::mapped::text("CIViC").ok().into(),
+                namespace: cx.text("therapies.id.namespace", Some("CIViC")).into(),
                 id,
             }),
             label,
