@@ -133,7 +133,14 @@
           ]
         },
         "term": {
-          "$ref": "#/$defs/Reply_Concept",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Concept"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Source term label without invented CURIE."
         },
         "vocabulary_version": {
@@ -145,8 +152,7 @@
         }
       },
       "required": [
-        "index",
-        "term"
+        "index"
       ],
       "type": "object"
     },
@@ -972,7 +978,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.adverse-event-reactions/4",
+  "$id": "biomcp.adverse-event-reactions/5",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -1028,7 +1034,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.adverse-event-reactions/4",
+      "const": "biomcp.adverse-event-reactions/5",
       "type": "string"
     },
     "sources": {

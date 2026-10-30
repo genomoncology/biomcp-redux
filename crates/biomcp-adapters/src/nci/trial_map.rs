@@ -47,7 +47,7 @@ fn disease(row: raw::Disease, p: &mut Problems) -> biomcp_types::NciDisease {
         nci_thesaurus_concept_id: row.nci_thesaurus_concept_id,
         inclusion_indicator: p.field("diseases.inclusion_indicator", row.inclusion_indicator),
         is_lead_disease: p.field("diseases.is_lead_disease", row.is_lead_disease),
-        kind: p.fields("diseases.kind", row.kind),
+        kind: p.fields("diseases.type", row.kind),
         parents: p.fields("diseases.parents", row.parents),
         synonyms: p.fields("diseases.synonyms", row.synonyms),
     }
@@ -80,7 +80,10 @@ fn arms(
     p: &mut Problems,
 ) -> Box<[biomcp_types::NciArmRecord]> {
     let mut result = Vec::new();
-    for (index, row) in p.fields("arms", rows).into_vec().into_iter().enumerate() {
+    for (index, row) in p.field("arms", rows).into_iter().flatten().enumerate() {
+        let Some(row) = p.field("arms", Some(row)) else {
+            continue;
+        };
         let arm_index = index as u32;
         result.push(biomcp_types::NciArmRecord::Arm {
             arm_index,
@@ -91,11 +94,14 @@ fn arms(
             },
         });
         for (index, row) in p
-            .fields("arms.interventions", row.interventions)
-            .into_vec()
+            .field("arms.interventions", row.interventions)
             .into_iter()
+            .flatten()
             .enumerate()
         {
+            let Some(row) = p.field("arms.interventions", Some(row)) else {
+                continue;
+            };
             result.push(biomcp_types::NciArmRecord::Intervention {
                 arm_index,
                 index: index as u32,

@@ -6,29 +6,32 @@
   "steps": [
     {
       "run": [
-        "search",
+        "get",
         "adverse-event",
+        "160",
         "--source",
-        "maude",
-        "--manufacturer",
-        "Synthetic maker",
-        "--product-code",
-        "ABC",
-        "--product-code",
-        "XYZ",
-        "--problem",
-        "Synthetic problem"
+        "maude"
       ],
       "expect": {
-        "/result/items/0": {
+        "/result/header/id": "160",
+        "/result/header": {
           "omits": [
             "event_type"
           ]
         },
         "/problems/*/field": [
           "event_type"
-        ],
-        "/result/items/0/source": "maude"
+        ]
+      }
+    },
+    {
+      "follow": "section",
+      "expect": {
+        "/result/header/id": "160",
+        "/result/devices/records/0/manufacturer_d_name": "Synthetic maker",
+        "/problems/*/field": [
+          "event_type"
+        ]
       }
     }
   ]
