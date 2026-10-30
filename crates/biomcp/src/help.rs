@@ -30,6 +30,7 @@ pub(crate) fn dispatch(path: &[String]) -> io::Result<Help> {
         .into_iter()
         .filter(|c| {
             path.is_empty()
+                || (path == ["help"] && c.command.is_empty())
                 || c.command.starts_with(path)
                 || (path.len() == 1
                     && path.first().is_some_and(|word| word == "skill")
@@ -40,11 +41,15 @@ pub(crate) fn dispatch(path: &[String]) -> io::Result<Help> {
                     && c.command.first() == path.first())
         })
         .collect();
-    if path.is_empty() {
-        public_grammar::canonical(&mut commands)?;
-    } else {
+    if !public_grammar::overview(&mut commands, path)? {
         public_grammar::scoped_globals(&mut commands);
     }
+    Ok(Help { commands })
+}
+#[cfg(test)]
+pub(crate) fn reference() -> io::Result<Help> {
+    let mut commands = commands()?;
+    public_grammar::canonical(&mut commands)?;
     Ok(Help { commands })
 }
 fn commands() -> io::Result<Vec<HelpCommand>> {

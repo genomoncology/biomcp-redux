@@ -8,20 +8,17 @@
         "/result/commands/*/command": {
           "includes_all_of": [
             [
-              "get",
-              "gene"
+              "get"
             ],
             [
-              "search",
-              "drug"
+              "search"
             ],
             [
-              "get",
-              "drug"
+              "help"
             ]
           ]
         },
-        "/schema": "biomcp.help/5"
+        "/schema": "biomcp.help/6"
       },
       "run": [
         "help"
