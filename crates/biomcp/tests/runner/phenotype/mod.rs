@@ -273,11 +273,7 @@ fn failures() -> Result<(), String> {
                 4,
             )?;
         }
-        if kind == 0 {
-            faults::refused(&result)?;
-        } else if result.get("status") != Some(&json!("failed")) {
-            return Err(format!("source failure became absence: {result}"));
-        }
+        faults::outcome(&result, "monarch", kind == 0)?;
         if matches!(kind, 0 | 1 | 2 | 5 | 6)
             && result
                 .get("problems")

@@ -194,11 +194,7 @@ fn identity(fault: &str) -> Result<(), String> {
             &directory,
             exit,
         )?;
-        if refused_row {
-            refused(&result)?;
-        } else {
-            failed(&result, source(surface))?;
-        }
+        outcome(&result, source(surface), refused_row)?;
         if n == 0 {
             budgets::mcp(
                 &format!("faults/identity/mcp1@fault={fault},attempt={n}"),
@@ -292,4 +288,12 @@ fn identity_body(surface: &str, fault: &str) -> Result<Value, String> {
         term
     };
     Ok(body)
+}
+
+pub(super) fn outcome(value: &Value, source: &str, refused_row: bool) -> Result<(), String> {
+    if refused_row {
+        refused(value)
+    } else {
+        failed(value, source)
+    }
 }
