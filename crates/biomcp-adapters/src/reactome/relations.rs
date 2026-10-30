@@ -133,24 +133,7 @@ pub fn events(
     leg: &Leg<'_>,
     id: &ReactomeId,
 ) -> Result<Mapped<Vec<PathwayEventRef>>, RequestError> {
-    let endpoint = SPEC
-        .get("/data/pathway/containedEvents")
-        .with_path(format!("/data/pathway/{id}/containedEvents"))?
-        .bytes(8 * 1024 * 1024)
-        .fresh(Freshness::Days(7));
-    let rows = leg.json_checked_cache::<raw::Events>(&endpoint, &[], |rows| {
-        rows.0.iter().all(|row| match row {
-            raw::Event::Database(_) => true,
-            raw::Event::Object(v) => {
-                v.species_name
-                    .as_deref()
-                    .is_none_or(|s| s == "Homo sapiens")
-                    && v.st_id
-                        .as_deref()
-                        .is_none_or(|id| id.parse::<ReactomeId>().is_ok())
-            }
-        })
-    })?;
+    let rows = event_rows(leg, id)?;
     let mut mapped = Mapped {
         refusals: crate::Refusal::None,
         value: Vec::new(),
@@ -214,6 +197,27 @@ pub fn events(
     }
     mapped.problems.extend(problems.list);
     Ok(mapped)
+}
+
+fn event_rows(leg: &Leg<'_>, id: &ReactomeId) -> Result<raw::Events, RequestError> {
+    let endpoint = SPEC
+        .get("/data/pathway/containedEvents")
+        .with_path(format!("/data/pathway/{id}/containedEvents"))?
+        .bytes(8 * 1024 * 1024)
+        .fresh(Freshness::Days(7));
+    leg.json_checked_cache::<raw::Events>(&endpoint, &[], |rows| {
+        rows.0.iter().all(|row| match row {
+            raw::Event::Database(_) => true,
+            raw::Event::Object(v) => {
+                v.species_name
+                    .as_deref()
+                    .is_none_or(|s| s == "Homo sapiens")
+                    && v.st_id
+                        .as_deref()
+                        .is_none_or(|id| id.parse::<ReactomeId>().is_ok())
+            }
+        })
+    })
 }
 
 fn fields(id: &ReactomeId) -> crate::mapped::Problems {

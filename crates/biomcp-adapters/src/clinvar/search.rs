@@ -110,7 +110,10 @@ pub fn search(leg: &Leg<'_>, query: &VariantSearch) -> Result<SearchPage, Reques
                 .all(|id| id.as_ref().is_some())
         },
     )?;
-    let page = reply.esearchresult;
+    Ok(mapped_page(reply.esearchresult))
+}
+
+fn mapped_page(page: Page) -> SearchPage {
     let consumed = page.idlist.len() as u32;
     let mut problems = Problems {
         source: Source::ClinVar,
@@ -148,7 +151,7 @@ pub fn search(leg: &Leg<'_>, query: &VariantSearch) -> Result<SearchPage, Reques
             })
         })
         .collect();
-    Ok(SearchPage {
+    SearchPage {
         total: page.count,
         consumed,
         rows: Mapped {
@@ -156,7 +159,7 @@ pub fn search(leg: &Leg<'_>, query: &VariantSearch) -> Result<SearchPage, Reques
             value: rows,
             problems: problems.list,
         },
-    })
+    }
 }
 
 fn count<'de, D: serde::Deserializer<'de>>(decoder: D) -> Result<u64, D::Error> {

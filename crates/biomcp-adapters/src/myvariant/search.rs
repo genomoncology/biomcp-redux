@@ -78,6 +78,10 @@ pub fn search(leg: &Leg<'_>, query: &VariantSearch) -> Result<SearchPage, Reques
                 .all(|raw| raw.as_ref().is_some_and(|hit| hit.check().is_ok()))
         },
     )?;
+    Ok(mapped_page(page, leg, query))
+}
+
+fn mapped_page(page: Page, leg: &Leg<'_>, query: &VariantSearch) -> SearchPage {
     let mut rows = Mapped {
         refusals: crate::Refusal::None,
         value: Vec::new(),
@@ -114,9 +118,9 @@ pub fn search(leg: &Leg<'_>, query: &VariantSearch) -> Result<SearchPage, Reques
         rows.refusals.include(mapped.refusals);
         rows.problems.extend(mapped.problems);
     }
-    Ok(SearchPage {
+    SearchPage {
         total: page.total,
         consumed,
         rows,
-    })
+    }
 }

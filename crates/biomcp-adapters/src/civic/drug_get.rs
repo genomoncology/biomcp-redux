@@ -164,16 +164,7 @@ pub fn drug_civic(
     if query.source() != biomcp_types::DrugSource::Civic {
         return Err(failure(Reason::BadReply));
     }
-    let offset = if query.civic_cursor().is_some() {
-        0
-    } else {
-        query.section_offset().unwrap_or(0)
-    };
-    let count = if offset > 0 {
-        offset.min(50)
-    } else {
-        query.section_limit().unwrap_or(1)
-    };
+    let count = first_count(query);
     let data = fetch(leg, query, query.civic_kind(), query.civic_cursor(), count)?;
     let mut cx = crate::mapped::Problems {
         source: Source::Civic,
@@ -206,8 +197,7 @@ pub fn drug_civic(
             collection(
                 leg,
                 query,
-                CivicClaimKind::Evidence,
-                rows,
+                (CivicClaimKind::Evidence, rows),
                 |d| d.evidence_items,
                 drug_map::evidence,
                 &mut cx,
@@ -221,8 +211,7 @@ pub fn drug_civic(
             collection(
                 leg,
                 query,
-                CivicClaimKind::Assertions,
-                rows,
+                (CivicClaimKind::Assertions, rows),
                 |d| d.assertions,
                 drug_map::assertion,
                 &mut cx,
@@ -246,16 +235,29 @@ pub fn drug_civic(
     })
 }
 
+fn first_count(query: &DrugGet) -> u32 {
+    let offset = if query.civic_cursor().is_some() {
+        0
+    } else {
+        query.section_offset().unwrap_or(0)
+    };
+    if offset > 0 {
+        offset.min(50)
+    } else {
+        query.section_limit().unwrap_or(1)
+    }
+}
+
 fn collection<T>(
     leg: &Leg<'_>,
     query: &DrugGet,
-    kind: CivicClaimKind,
-    rows: Connection<T>,
+    stream: (CivicClaimKind, Connection<T>),
     extract: fn(raw::Data) -> Option<Connection<T>>,
     map: fn(T, &DrugGet, &mut crate::mapped::Problems) -> Option<biomcp_types::DrugCivicClaim>,
     cx: &mut crate::mapped::Problems,
     refusals: &mut crate::Refusal,
 ) -> Result<DrugCivicPage, RequestError> {
+    let (kind, rows) = stream;
     let rows = seek(leg, query, kind, rows, extract)?;
     let mut page = page(&rows, query, kind)?;
     let records: Box<[_]> = rows
