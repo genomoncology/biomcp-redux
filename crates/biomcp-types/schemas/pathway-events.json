@@ -9,7 +9,14 @@
       ],
       "type": "string"
     },
-    "Reply_Identifier": {
+    "Reply_IdentifierNamespace": {
+      "description": "A source-stated authority or an explicit unknown authority, represented by the string unknown.",
+      "maxLength": 1048576,
+      "minLength": 1,
+      "pattern": "^(?![\\s\\S]*[\\x00-\\x1f\\x7f-\\x9f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069])",
+      "type": "string"
+    },
+    "Reply_Identifier_NonZeroU64": {
       "description": "An authority and its unchanged native identifier; unknown means the authority was not stated.",
       "properties": {
         "id": {
@@ -29,13 +36,6 @@
       ],
       "type": "object",
       "x-identifier": true
-    },
-    "Reply_IdentifierNamespace": {
-      "description": "A source-stated authority or an explicit unknown authority, represented by the string unknown.",
-      "maxLength": 1048576,
-      "minLength": 1,
-      "pattern": "^(?![\\s\\S]*[\\x00-\\x1f\\x7f-\\x9f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069])",
-      "type": "string"
     },
     "Reply_PageInfo": {
       "description": "Search counts after filtering and deduplication.",
@@ -91,7 +91,7 @@
           "description": "Native unresolved integer database reference.",
           "properties": {
             "db_id": {
-              "$ref": "#/$defs/Reply_Identifier",
+              "$ref": "#/$defs/Reply_Identifier_NonZeroU64",
               "description": "Positive native database reference."
             },
             "kind": {
@@ -109,7 +109,7 @@
           "description": "Native event object; fields are absent only when omitted by the source.",
           "properties": {
             "db_id": {
-              "$ref": "#/$defs/Reply_Identifier",
+              "$ref": "#/$defs/Reply_Identifier_NonZeroU64",
               "description": "Native object database identity."
             },
             "id": {

@@ -86,7 +86,7 @@
           "description": "Complete source description, absent when the source has none."
         },
         "id": {
-          "$ref": "#/$defs/Reply_Identifier",
+          "$ref": "#/$defs/Reply_Identifier_uint64",
           "description": "CIViC feature identifier."
         },
         "url": {
@@ -1179,7 +1179,14 @@
         "merged_split"
       ]
     },
-    "Reply_Identifier": {
+    "Reply_IdentifierNamespace": {
+      "description": "A source-stated authority or an explicit unknown authority, represented by the string unknown.",
+      "maxLength": 1048576,
+      "minLength": 1,
+      "pattern": "^(?![\\s\\S]*[\\x00-\\x1f\\x7f-\\x9f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069])",
+      "type": "string"
+    },
+    "Reply_Identifier_uint64": {
       "description": "An authority and its unchanged native identifier; unknown means the authority was not stated.",
       "properties": {
         "id": {
@@ -1199,13 +1206,6 @@
       ],
       "type": "object",
       "x-identifier": true
-    },
-    "Reply_IdentifierNamespace": {
-      "description": "A source-stated authority or an explicit unknown authority, represented by the string unknown.",
-      "maxLength": 1048576,
-      "minLength": 1,
-      "pattern": "^(?![\\s\\S]*[\\x00-\\x1f\\x7f-\\x9f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069])",
-      "type": "string"
     },
     "Reply_LocusGroup": {
       "description": "HGNC locus group, separate from a missing source value.",
