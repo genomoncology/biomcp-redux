@@ -12,6 +12,10 @@ pub enum Refusal {
     Refused,
 }
 impl Refusal {
+    /// Admit an accepted identity or a native collection with no refused records.
+    pub(crate) fn identities_admitted(self, accepted: usize, received: usize) -> bool {
+        accepted > 0 || (received == 0 && self == Self::None)
+    }
     /// Preserve an actual refusal from either mapping stage.
     pub fn include(&mut self, other: Self) {
         if other == Self::Refused {
