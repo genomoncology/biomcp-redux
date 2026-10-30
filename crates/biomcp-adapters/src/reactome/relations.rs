@@ -184,15 +184,10 @@ pub fn events(
                 };
                 mapped.value.push(PathwayEventRef::Object {
                     db_id: biodata::Identifier::new(namespace.clone(), v.db_id),
-                    source_url: native_id
-                        .as_ref()
-                        .map(|id| {
-                            crate::mapped::text(&format!(
-                                "https://reactome.org/content/detail/{id}"
-                            ))
-                            .map_err(|_| bad_reply())
-                        })
-                        .transpose()?,
+                    source_url: native_id.as_ref().and_then(|id| {
+                        crate::mapped::text(&format!("https://reactome.org/content/detail/{id}"))
+                            .ok()
+                    }),
                     id: native_id,
                     version: metadata(
                         &mut problems,
