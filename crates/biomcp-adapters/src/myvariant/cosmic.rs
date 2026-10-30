@@ -44,7 +44,7 @@ pub fn get(leg: &Leg<'_>, id: &str, build: Build) -> Result<Mapped<VariantCosmic
         .filter(|given| given.as_str() == id);
     let mut refusals = crate::Refusal::None;
     let records = if let Some(record_id) = record_id {
-        records(&record_id, raw.cosmic, &mut problems)
+        records(&record_id, raw.cosmic, &mut problems, &mut refusals)
     } else {
         refusals = crate::Refusal::Refused;
         problems.required::<()>("_id", None);
@@ -96,11 +96,13 @@ fn records(
     id: &Text,
     rows: Option<Field<OneOrMany<Field<Row>>>>,
     problems: &mut Problems,
+    refusals: &mut crate::Refusal,
 ) -> Vec<CosmicRecord> {
     let mut records = Vec::new();
     let rows = problems.field("cosmic", rows);
     for raw_row in rows.into_iter().flat_map(OneOrMany::values) {
         let Some(row) = problems.field("cosmic.cosmic_id", Some(raw_row)) else {
+            *refusals = crate::Refusal::Refused;
             continue;
         };
         let tumor_site = problems
