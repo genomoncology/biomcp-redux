@@ -45,11 +45,12 @@ pub(super) fn get_at(
         let page = reply.value;
         let total = page.window.total().unwrap_or(0);
         let next_offset = page.window.next_offset();
+        let more = page.window.has_more();
         let items = page.window.rows;
         let metadata = page.metadata;
         out.status = if total == 0 {
             Status::Absent
-        } else if !out.problems.is_empty() || next_offset.is_some() {
+        } else if !out.problems.is_empty() || more {
             Status::Partial
         } else {
             Status::Complete
