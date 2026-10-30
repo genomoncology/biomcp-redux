@@ -63,11 +63,6 @@ pub(super) fn search<'a>(
     let elapsed = results.iter().map(|r| r.elapsed).max().unwrap_or_default();
     *deadline = deadline.after_stage(elapsed);
     resolve_rows(cx, query, &mut results, deadline, out)?;
-    let failed_pubmed = results.iter().any(|r| {
-        r.source == ArticleSource::Pubmed
-            && r.error.is_some()
-            && r.outcome.reason != Some(biomcp_types::Reason::Disabled)
-    });
     let answered = results
         .iter()
         .any(|r| r.error.is_none() || !r.items.is_empty());
@@ -83,7 +78,7 @@ pub(super) fn search<'a>(
     if let Some(error) = error {
         return Err(error);
     }
-    if failed_pubmed || !answered {
+    if !answered {
         crate::status::item(out, false, true, false);
         return Ok(None);
     }
