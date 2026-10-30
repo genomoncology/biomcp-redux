@@ -121,7 +121,8 @@ pub struct CellLineProvenance {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct CellLineVariation {
     /// Native open variation label.
-    pub variation_type: Text,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub variation_type: Option<Text>,
     /// Native open mutation label.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub mutation_type: Option<Text>,

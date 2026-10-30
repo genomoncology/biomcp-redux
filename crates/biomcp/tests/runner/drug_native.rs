@@ -40,18 +40,19 @@ pub(super) fn trials() -> Vec<Trial> {
         Ok(cases) => cases
             .into_iter()
             .map(|case| {
-                transcript_trial(format!("drug-native/{}", case.name), move || {
+                transcript_trial(format!("drug-native-sources/{}", case.name), move || {
                     check(case.clone()).map_err(Into::into)
                 })
             })
             .collect(),
-        Err(error) => vec![transcript_trial("drug-native/fixture-plan", move || {
-            Err(error.clone().into())
-        })],
+        Err(error) => vec![transcript_trial(
+            "drug-native-sources/fixture-plan",
+            move || Err(error.clone().into()),
+        )],
     };
     if let Some(root) = std::env::var_os("BIOMCP_CHEMBL_DEFAULT_RECORDING") {
         trials.push(transcript_trial(
-            "drug-native/chembl-default-retained",
+            "drug-native-sources/chembl-default-retained",
             move || default_retained(PathBuf::from(&root)).map_err(Into::into),
         ));
     }

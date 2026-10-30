@@ -10,32 +10,36 @@ use std::{
 };
 mod concurrent;
 mod native;
+tool_only! { mod optional_metadata; }
 type Check = Result<(), String>;
 const SEARCH: &str = "https://www.wikipathways.org/json/findPathwaysByText.json";
 const GET: &str = "https://www.wikipathways.org/json/getPathwayInfo.json";
 pub(super) fn trials() -> Vec<Trial> {
     vec![
         transcript_trial(
-            "wikipathways/exact-source-species-before-text-normalization",
+            "pathway-wikipathways/exact-source-species-before-text-normalization",
             || exact_species().map_err(Into::into),
         ),
-        transcript_trial("wikipathways/stale-and-expired-stored-reads", || {
-            read_policy().map_err(Into::into)
-        }),
-        transcript_trial("wikipathways/stored-identity-pages-and-replacement", || {
-            run().map_err(Into::into)
-        }),
         transcript_trial(
-            "wikipathways/independent-union-legs-and-round-robin",
+            "pathway-wikipathways/stale-and-expired-stored-reads",
+            || read_policy().map_err(Into::into),
+        ),
+        transcript_trial(
+            "pathway-wikipathways/stored-identity-pages-and-replacement",
+            || run().map_err(Into::into),
+        ),
+        transcript_trial(
+            "pathway-wikipathways/independent-union-legs-and-round-robin",
             || union().map_err(Into::into),
         ),
         transcript_trial(
-            "wikipathways/concurrent-readers-during-pair-replacement",
+            "pathway-wikipathways/concurrent-readers-during-pair-replacement",
             || concurrent::run().map_err(Into::into),
         ),
-        transcript_trial("wikipathways/native-disclosure-measurements", || {
-            native::run().map_err(Into::into)
-        })
+        transcript_trial(
+            "pathway-wikipathways/native-disclosure-measurements",
+            || native::run().map_err(Into::into),
+        )
         .with_ignored_flag(
             !super::launch::fixtures()
                 .join("cases/wikipathways-native")
@@ -523,4 +527,14 @@ fn exact_species() -> Check {
         )?;
     }
     Ok(())
+}
+
+tool_only! {
+pub(super) fn tool_trials() -> Vec<Trial> {
+    vec![
+        transcript_trial("pathway-wikipathways/optional-name-keeps-native-identity", || {
+            optional_metadata::check().map_err(Into::into)
+        }),
+    ]
+}
 }

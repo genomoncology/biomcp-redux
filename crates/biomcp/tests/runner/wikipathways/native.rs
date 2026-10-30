@@ -4,8 +4,8 @@ pub(super) fn run() -> Check {
     use std::io::Write;
     let root = crate::runner::launch::fixtures().join("cases/wikipathways-native");
     let registry = crate::runner::schema::Registry::embedded()?;
-    let budgets: std::collections::BTreeMap<String, [usize; 3]> = serde_json::from_str(
-        &crate::runner::launch::fixture_text("wikipathways-budgets.json")?,
+    let budgets: std::collections::BTreeMap<String, [usize; 3]> = serde_saphyr::from_str(
+        &crate::runner::launch::fixture_text("wikipathways-budgets.yaml")?,
     )
     .map_err(|e| e.to_string())?;
     let outputs = crate::runner::launch::fixtures().join("wikipathways-native-outputs");

@@ -182,8 +182,8 @@ fn measure(env: &Environment, id: &str, outputs: &mut Vec<Value>) -> Check {
 }
 
 fn ceiling(id: &str, section: &str, value: &Value) -> Check {
-    let budgets: std::collections::BTreeMap<String, [usize; 3]> = serde_json::from_str(
-        &crate::runner::launch::fixture_text("wikipathways-gpml-budgets.json")?,
+    let budgets: std::collections::BTreeMap<String, [usize; 3]> = serde_saphyr::from_str(
+        &crate::runner::launch::fixture_text("wikipathways-gpml-budgets.yaml")?,
     )
     .map_err(|e| e.to_string())?;
     let key = format!("{id}/{section}");

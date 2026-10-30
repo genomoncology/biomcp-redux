@@ -21,12 +21,17 @@ pub static SPEC: SourceSpec = SourceSpec {
 mod map;
 mod presence;
 mod raw;
+mod receive;
 use biodata::Curie;
 use biomcp_fetch::{Arg, BadReply, Freshness, InputError, Leg, ReplyMetadata, RequestError};
 use biomcp_types::{DiseaseAssociationItem, DiseaseGet, DiseaseSection};
 /// Native association rows with their original retrieval metadata.
 #[derive(Debug)]
 pub struct Page {
+    /// Native rows before rejecting malformed identities.
+    pub received: u32,
+    /// Rejected row identities and metadata.
+    pub problems: Vec<biomcp_types::Problem>,
     /// Source ordered association rows, without gene deduplication.
     pub items: Vec<DiseaseAssociationItem>,
     /// Reviewed component terms, including an empty native page.
@@ -83,18 +88,31 @@ pub fn associations(leg: &Leg<'_>, query: &DiseaseGet) -> Result<Page, RequestEr
                 } else {
                     (&row.subject, &row.subject_closure)
                 };
-                endpoint != &id && !closure.as_deref().unwrap_or_default().contains(&id)
+                endpoint.as_ref() != Some(&id)
+                    && closure.as_ref().is_none_or(|values| !values.contains(&id))
             }) {
                 return Err(BadReply);
             }
             Ok(())
         })?;
-    let items = page
-        .items
-        .into_iter()
-        .map(|row| map::row(row, &id))
-        .collect::<Result<_, _>>()?;
+    let received = page.items.len() as u32;
+    let mut problems = Vec::new();
+    let mut items = Vec::new();
+    for mut row in page.items {
+        problems.append(&mut row.problems);
+        if row.id.is_some()
+            && row.subject.is_some()
+            && row.object.is_some()
+            && row.predicate.is_some()
+        {
+            let mapped = map::row(row, &id)?;
+            problems.extend(mapped.problems);
+            items.push(mapped.value);
+        }
+    }
     Ok(Page {
+        received,
+        problems,
         items,
         components: components()?,
         total: page.total,

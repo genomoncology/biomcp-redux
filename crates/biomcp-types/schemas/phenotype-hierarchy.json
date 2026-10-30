@@ -276,7 +276,10 @@
         },
         "label": {
           "description": "Whole related term label.",
-          "type": "string"
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "relation": {
           "$ref": "#/$defs/Reply_PhenotypeHierarchyRelation",
@@ -285,7 +288,6 @@
       },
       "required": [
         "id",
-        "label",
         "relation",
         "attribution"
       ],
@@ -920,7 +922,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.phenotype-hierarchy/4",
+  "$id": "biomcp.phenotype-hierarchy/5",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -976,7 +978,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.phenotype-hierarchy/4",
+      "const": "biomcp.phenotype-hierarchy/5",
       "type": "string"
     },
     "sources": {

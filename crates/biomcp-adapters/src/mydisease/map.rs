@@ -111,7 +111,7 @@ pub(super) fn annotation(record: native::Record) -> Result<Mapped<Annotation>, R
             xrefs: Vec::new(),
             parents: Vec::new(),
         },
-        problems: Vec::new(),
+        problems: record.problems,
     };
     for component in &record.components {
         mapped.problems.extend(component.problems.iter().cloned());

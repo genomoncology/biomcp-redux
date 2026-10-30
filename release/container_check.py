@@ -31,7 +31,11 @@ def main():
     with tempfile.TemporaryDirectory() as root:
         mcp_probe(common + ["-i", image, "serve"], os.environ.copy(), Path(root), version)
     checks.extend(["version", "mcp-all-stdout"])
-    executable = common + ["-v", str(Path(proof).resolve()) + ":/proof:ro", "-e", "BIOMCP_TEST_EXECUTABLE=/usr/local/bin/biomcp", "-e", "BIOMCP_TEST_FIXTURES=/proof/fixtures", "--entrypoint", "/proof/case-runner", image]
+    executable = common + ["-v", str(Path(proof).resolve()) + ":/proof:ro", "-e", "BIOMCP_TEST_EXECUTABLE=/usr/local/bin/biomcp", "-e", "BIOMCP_TEST_FIXTURES=/proof/fixtures", ]
+    case_suite(executable + ["--entrypoint", "/proof/tool-runner", image, "--proofs"],
+               os.environ.copy(), Path.cwd(), Path(proof) / "fixtures")
+    checks.append("runner-proofs")
+    executable += ["--entrypoint", "/proof/case-runner", image]
     summary = case_suite(executable, os.environ.copy(), Path.cwd(), Path(proof) / "fixtures")
     checks.append("all-cases-and-trials")
     print(json.dumps({"artifact": "docker", "platform": "linux/" + arch, "result": "pass", "checks": checks, **summary}))

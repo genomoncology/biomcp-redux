@@ -24,9 +24,10 @@ pub(super) fn trials() -> Vec<Trial> {
             "gene-sections/gencc-invalid-date-keeps-submission",
             || gencc().map_err(|error| error.to_string().into()),
         ),
-        crate::runner::transcript::trial("variant/hotspots-invalid-values-keep-candidates", || {
-            hotspots().map_err(Into::into)
-        }),
+        crate::runner::transcript::trial(
+            "variant-hotspots/hotspots-invalid-values-keep-candidates",
+            || hotspots().map_err(Into::into),
+        ),
         crate::runner::transcript::trial("cpic-pgx/invalid-cross-reference-keeps-gene", || {
             cpic().map_err(|error| error.to_string().into())
         }),

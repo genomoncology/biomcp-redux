@@ -1,6 +1,6 @@
 {
   "live_check": "synthetic response case",
-  "feature": "gene-sections",
+  "feature": "gene-protein",
   "story": "A UniProt 429 failure preserves identity and MyGene but never caches the rejected section",
   "replay": "gene/protein/synthetic-429",
   "cache_acquired": 42,

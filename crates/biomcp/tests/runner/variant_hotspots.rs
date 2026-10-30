@@ -6,7 +6,7 @@ use serde_json::{Value, json};
 use std::fs;
 pub(super) fn trials() -> Vec<Trial> {
     vec![transcript_trial(
-        "variant/hotspots-retains-native-transcript-and-counts",
+        "variant-hotspots/hotspots-retains-native-transcript-and-counts",
         || candidate().map_err(Into::into),
     )]
 }

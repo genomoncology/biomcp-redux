@@ -327,13 +327,19 @@
           "description": "Exact source ontology identifier spelling."
         },
         "label": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Whole source trait label."
         }
       },
       "required": [
-        "id",
-        "label"
+        "id"
       ],
       "type": "object"
     },
@@ -976,7 +982,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.gwas-study/4",
+  "$id": "biomcp.gwas-study/5",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -1032,7 +1038,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.gwas-study/4",
+      "const": "biomcp.gwas-study/5",
       "type": "string"
     },
     "sources": {

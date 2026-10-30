@@ -6,7 +6,7 @@ use serde_json::{Value, json};
 const XML: &str = include_str!("../../../../../tests/fixtures/clinvar/haplotype-441268.xml");
 pub(super) fn trials() -> Vec<Trial> {
     vec![trial(
-        "variant/clinvar-haplotype-preserves-native-members",
+        "variant-clinvar-haplotype/clinvar-haplotype-preserves-native-members",
         || check().map_err(Into::into),
     )]
 }

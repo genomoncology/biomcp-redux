@@ -24,19 +24,19 @@ const IDS: [&str; 8] = [
 ];
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        transcript_trial("trial/get/absent-fields-and-version-failure", || {
+        transcript_trial("trial-get/get/absent-fields-and-version-failure", || {
             optional_source().map_err(|e| e.to_string().into())
         }),
-        transcript_trial("trial/get/exact-source-section-walks", || {
+        transcript_trial("trial-get/get/exact-source-section-walks", || {
             walks().map_err(|e| e.to_string().into())
         }),
-        transcript_trial("trial/get/identity-and-failure-boundaries", || {
+        transcript_trial("trial-get/get/identity-and-failure-boundaries", || {
             failures().map_err(|e| e.to_string().into())
         }),
-        transcript_trial("trial/get/independent-input-states", || {
+        transcript_trial("trial-get/get/independent-input-states", || {
             batch().map_err(|e| e.to_string().into())
         }),
-        transcript_trial("trial/get/checked-source-continuations", || {
+        transcript_trial("trial-get/get/checked-source-continuations", || {
             continuations().map_err(|e| e.to_string().into())
         }),
     ]

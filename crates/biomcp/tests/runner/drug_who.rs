@@ -11,12 +11,14 @@ use std::{
 type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        transcript_trial("drug-who/native-rows-local-reads-and-replacement", || {
-            check().map_err(Into::into)
-        }),
-        transcript_trial("drug-who/all-candidates-keep-continuation", || {
-            navigation::check().map_err(Into::into)
-        }),
+        transcript_trial(
+            "drug-who-medicines/native-rows-local-reads-and-replacement",
+            || check().map_err(Into::into),
+        ),
+        transcript_trial(
+            "drug-who-medicines/all-candidates-keep-continuation",
+            || navigation::check().map_err(Into::into),
+        ),
     ]
 }
 const CSV: &str = "WHO Reference Number,\"INN, Dosage Form and Strength\",Product Type,Therapeutic \

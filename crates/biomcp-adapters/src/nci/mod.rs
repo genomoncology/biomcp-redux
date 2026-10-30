@@ -212,6 +212,9 @@ pub fn parameters(query: &TrialSearch) -> Vec<(String, String)> {
             value.as_str().into(),
         ));
     }
+    for country in query.country() {
+        params.push(("sites.org_country".into(), country.to_string()));
+    }
     if let Some(value) = query.keyword().first() {
         params.push(("keyword".into(), value.as_str().into()));
     }

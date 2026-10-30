@@ -22,7 +22,8 @@ pub struct Gene {
     /// HGNC record status.
     pub status: GeneStatus,
     /// HGNC locus group.
-    pub locus_group: LocusGroup,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub locus_group: Option<LocusGroup>,
     /// HGNC locus type, if stated and recognized.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub locus_type: Option<LocusType>,
@@ -48,7 +49,8 @@ pub struct Gene {
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub spans: Box<[GenomicInterval]>,
     /// Gene name.
-    pub name: Text,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub name: Option<Text>,
     /// Whole attributed summary, if stated.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub summary: Option<Summary>,

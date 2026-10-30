@@ -17,8 +17,8 @@ fn header() -> Result<GeneHeader, Error> {
     Ok(GeneHeader {
         hgnc_id: HgncId::new(1097)?,
         symbol: GeneSymbol::new("BRAF")?,
-        name: Text::new("BRAF name")?,
-        locus_group: LocusGroup::ProteinCoding,
+        name: Some(Text::new("BRAF name")?),
+        locus_group: Some(LocusGroup::ProteinCoding),
         location: None,
         status: GeneStatus::Approved,
         r#match: None,
@@ -30,9 +30,9 @@ fn gene() -> Result<Gene, Error> {
         symbol: GeneSymbol::new("BRAF")?,
         entrez_id: None,
         ensembl_id: None,
-        name: Text::new("BRAF name")?,
+        name: Some(Text::new("BRAF name")?),
         status: GeneStatus::Approved,
-        locus_group: LocusGroup::ProteinCoding,
+        locus_group: Some(LocusGroup::ProteinCoding),
         locus_type: None,
         location: None,
         previous_symbols: Box::new([]),
@@ -121,6 +121,17 @@ fn gene_resolutions_preserve_every_candidate_and_withdrawn_identity() -> Check {
     );
     assert!(serde_json::from_value::<Gene>(json!({})).is_err());
     round_trip(&header()?)?;
+    Ok(())
+}
+#[test]
+fn gene_metadata_can_be_absent_without_losing_identity() -> Check {
+    let mut missing_metadata = gene()?;
+    missing_metadata.name = None;
+    missing_metadata.locus_group = None;
+    round_trip(&missing_metadata)?;
+    let missing_metadata = serde_json::to_value(missing_metadata)?;
+    assert!(missing_metadata.get("name").is_none());
+    assert!(missing_metadata.get("locus_group").is_none());
     Ok(())
 }
 #[test]

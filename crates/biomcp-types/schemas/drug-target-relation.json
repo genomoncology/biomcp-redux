@@ -316,7 +316,7 @@
       "type": "string"
     }
   },
-  "$id": "biodata.drug-target-relation/5",
+  "$id": "biodata.drug-target-relation/6",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "anyOf": [
     {
@@ -363,7 +363,14 @@
       "type": "array"
     },
     "relation": {
-      "$ref": "#/$defs/Reply_Text",
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Reply_Text"
+        },
+        {
+          "type": "null"
+        }
+      ],
       "description": "Native relationship label."
     },
     "target": {
@@ -373,7 +380,6 @@
   },
   "required": [
     "drug",
-    "relation",
     "attribution"
   ],
   "title": "DrugTargetRelation",

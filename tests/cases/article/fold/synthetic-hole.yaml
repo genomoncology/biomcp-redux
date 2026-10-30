@@ -1,6 +1,6 @@
 {
   "live_check": "synthetic response case",
-  "feature": "article-search",
+  "feature": "article-fold",
   "story": "Synthetic source-local identity stays anchored when citation metadata is missing",
   "replay": "article/fold/synthetic-hole",
   "steps": [

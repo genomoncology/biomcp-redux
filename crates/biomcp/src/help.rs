@@ -40,7 +40,9 @@ pub(crate) fn dispatch(path: &[String]) -> io::Result<Help> {
                     && c.command.first() == path.first())
         })
         .collect();
-    if !path.is_empty() {
+    if path.is_empty() {
+        public_grammar::canonical(&mut commands)?;
+    } else {
         public_grammar::scoped_globals(&mut commands);
     }
     Ok(Help { commands })

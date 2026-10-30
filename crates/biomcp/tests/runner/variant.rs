@@ -12,46 +12,55 @@ mod labels;
 mod roundtrip;
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = vec![
-        transcript_trial("variant/printed-repeat-identity-round-trips", || {
-            roundtrip::check().map_err(Into::into)
-        }),
-        transcript_trial("variant/unpaired-native-labels-remain-context", || {
-            labels::check().map_err(Into::into)
-        }),
-        transcript_trial("variant/malformed-score-is-not-missing-identity", || {
-            malformed_score().map_err(Into::into)
-        }),
-        transcript_trial("variant/disabled-clinvar-identity-never-queries", || {
-            disabled_clinvar_identity().map_err(Into::into)
-        }),
-        transcript_trial("variant/component-groups-guard-warm-data", || {
+        transcript_trial(
+            "variant-identity/printed-repeat-identity-round-trips",
+            || roundtrip::check().map_err(Into::into),
+        ),
+        transcript_trial(
+            "variant-identity/unpaired-native-labels-remain-context",
+            || labels::check().map_err(Into::into),
+        ),
+        transcript_trial(
+            "variant-identity/malformed-score-is-not-missing-identity",
+            || malformed_score().map_err(Into::into),
+        ),
+        transcript_trial(
+            "variant-identity/disabled-clinvar-identity-never-queries",
+            || disabled_clinvar_identity().map_err(Into::into),
+        ),
+        transcript_trial("variant-identity/component-groups-guard-warm-data", || {
             component_groups().map_err(Into::into)
         }),
-        transcript_trial("variant/missing-historical-fragment-is-empty", || {
-            missing_component().map_err(Into::into)
-        }),
-        transcript_trial("variant/historical-fragment-walk-is-warm", || {
+        transcript_trial(
+            "variant-identity/missing-historical-fragment-is-empty",
+            || missing_component().map_err(Into::into),
+        ),
+        transcript_trial("variant-identity/historical-fragment-walk-is-warm", || {
             components::component_walk().map_err(Into::into)
         }),
-        transcript_trial("variant/component-timestamps-preserve-usable-data", || {
-            components::timestamp_admission().map_err(Into::into)
-        }),
         transcript_trial(
-            "variant/component-rights-and-historical-association",
+            "variant-identity/component-timestamps-preserve-usable-data",
+            || components::timestamp_admission().map_err(Into::into),
+        ),
+        transcript_trial(
+            "variant-identity/component-rights-and-historical-association",
             || components().map_err(Into::into),
         ),
-        transcript_trial("variant/mixed-identity-page-never-enters-cache", || {
-            mixed_page().map_err(Into::into)
-        }),
         transcript_trial(
-            "variant/validator-keeps-native-order-and-transcript-only-forms",
+            "variant-identity/mixed-identity-page-never-enters-cache",
+            || mixed_page().map_err(Into::into),
+        ),
+        transcript_trial(
+            "variant-identity/validator-keeps-native-order-and-transcript-only-forms",
             || validator_order().map_err(Into::into),
         ),
-        transcript_trial("variant/native-candidate-walk-is-warm", || {
+        transcript_trial("variant-identity/native-candidate-walk-is-warm", || {
             candidate_walk().map_err(Into::into)
         }),
-        transcript_trial("variant/car-projection-wire", || car().map_err(Into::into)),
-        transcript_trial("variant/myvariant-exact-build-wire", || {
+        transcript_trial("variant-identity/car-projection-wire", || {
+            car().map_err(Into::into)
+        }),
+        transcript_trial("variant-identity/myvariant-exact-build-wire", || {
             build_echo::check().map_err(Into::into)
         }),
     ];

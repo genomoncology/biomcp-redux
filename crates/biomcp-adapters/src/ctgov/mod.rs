@@ -1,6 +1,7 @@
 //! Native registry discovery; no local clinical interpretation or reordering.
 pub mod detail;
 pub mod document;
+mod filters;
 mod raw;
 mod version;
 use biodata::Text;
@@ -50,14 +51,18 @@ pub struct SearchPage {
 }
 /// Exact parameters; resolved gene text is explicit and attributed to HGNC by the caller.
 pub fn parameters(query: &TrialSearch, gene: Option<&str>) -> BTreeMap<String, String> {
-    let mut p = BTreeMap::from([
-        ("countTotal".into(), "true".into()),
-        ("pageSize".into(), if query.count_only() { "1".into() } else { query.limit().to_string() }),
-        (
-            "fields".into(),
-            "NCTId,BriefTitle,OverallStatus,Phase,Condition,InterventionName,LastUpdatePostDate,HasResults".into(),
-        ),
-    ]);
+    name_parameters(query, gene, query.broader_names())
+}
+/// Provider-native name search, preserving every other registry filter.
+pub fn broader_parameters(query: &TrialSearch, gene: Option<&str>) -> BTreeMap<String, String> {
+    name_parameters(query, gene, true)
+}
+fn name_parameters(
+    query: &TrialSearch,
+    gene: Option<&str>,
+    broader_names: bool,
+) -> BTreeMap<String, String> {
+    let mut p = filters::base_parameters(query);
     for (name, values) in [
         ("query.cond", query.condition()),
         ("query.intr", query.intervention()),
@@ -66,9 +71,7 @@ pub fn parameters(query: &TrialSearch, gene: Option<&str>) -> BTreeMap<String, S
             p.insert(name.into(), alternatives(values));
         }
     }
-    if let Some(value) = query.next_page() {
-        p.insert("pageToken".into(), value.as_str().into());
-    }
+    filters::name_parameters(query, broader_names, &mut p);
     let mut text = Vec::new();
     if let Some(value) = query.query() {
         text.push(value.as_str().to_owned());
@@ -96,7 +99,7 @@ pub fn parameters(query: &TrialSearch, gene: Option<&str>) -> BTreeMap<String, S
     if let Some(status) = query.status() {
         p.insert("filter.overallStatus".into(), status.as_str().to_owned());
     }
-    let advanced = advanced(query);
+    let advanced = filters::advanced(query, broader_names);
     if !advanced.is_empty() {
         p.insert("filter.advanced".into(), advanced);
     }
@@ -130,77 +133,25 @@ pub fn parameters(query: &TrialSearch, gene: Option<&str>) -> BTreeMap<String, S
     }
     p
 }
-fn advanced(query: &TrialSearch) -> String {
-    let mut advanced = Vec::new();
-    if query.exact_condition() {
-        advanced.push(format!(
-            "({})",
-            query
-                .condition()
-                .iter()
-                .map(|condition| format!(
-                    "(AREA[Condition]EXPANSION[None]{})",
-                    quote(condition.as_str())
-                ))
-                .collect::<Vec<_>>()
-                .join(" OR ")
-        ));
-    }
-    if let Some(id) = query.id() {
-        advanced.push(format!("AREA[NCTId]{id}"));
-    }
-    if let Some(phase) = query.phase() {
-        advanced.extend(
-            phase
-                .phases()
-                .iter()
-                .map(|phase| format!("AREA[Phase]{}", phase.as_str())),
-        );
-    }
-    for (field, value) in [
-        ("EligibilityCriteria", query.criteria()),
-        ("LocationFacility", query.facility()),
-        ("LeadSponsorName", query.sponsor()),
-    ] {
-        if let Some(value) = value {
-            advanced.push(format!("AREA[{field}]{}", quote(value.as_str())));
-        }
-    }
-    if let Some(study_type) = query.study_type() {
-        advanced.push(format!("AREA[StudyType]{}", study_type.as_str()));
-    }
-    if let Some(age) = query.age() {
-        advanced.push(format!(
-            "(AREA[MinimumAge]RANGE[MIN,{age} years] OR AREA[MinimumAge]MISSING) AND \
-            (AREA[MaximumAge]RANGE[{age} years,MAX] OR AREA[MaximumAge]MISSING)"
-        ));
-    }
-    if query.updated_since().is_some() || query.updated_until().is_some() {
-        advanced.push(format!(
-            "AREA[LastUpdatePostDate]RANGE[{},{}]",
-            query
-                .updated_since()
-                .map_or("MIN".into(), ToString::to_string),
-            query
-                .updated_until()
-                .map_or("MAX".into(), ToString::to_string)
-        ));
-    }
-    if query.has_results() {
-        advanced.push("AREA[ResultsFirstPostDate]RANGE[MIN,MAX]".into());
-    }
-    advanced.join(" AND ")
-}
-fn quote(value: &str) -> String {
-    format!("\"{}\"", value.replace('\\', "\\\\").replace('"', "\\\""))
-}
 /// Read and validate native discovery results before shared cache admission.
 pub fn search(
     leg: &Leg<'_>,
     params: &BTreeMap<String, String>,
     conditions: &[Text],
+    countries: &[Box<str>],
 ) -> Result<SearchPage, RequestError> {
     let raw = fetch_page(leg, params)?;
+    if !countries.is_empty()
+        && raw
+            .studies
+            .as_deref()
+            .unwrap_or_default()
+            .iter()
+            .filter_map(crate::raw::Field::as_ref)
+            .any(|row| !row.protocol_section.has_country(countries))
+    {
+        return Err(bad());
+    }
     let mut total = raw.total_count;
     let mut count_error = None;
     let mut count_request = None;

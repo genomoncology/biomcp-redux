@@ -7,7 +7,7 @@ mod hgvs_input;
 
 pub(super) fn trials() -> Vec<libtest_mimic::Trial> {
     vec![transcript_trial(
-        "variant/implausible-hgvs-never-queries",
+        "variant-identity/implausible-hgvs-never-queries",
         || hgvs_input::check().map_err(Into::into),
     )]
 }

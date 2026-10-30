@@ -1,6 +1,6 @@
 {
   "live_check": "synthetic response case",
-  "feature": "article-search",
+  "feature": "article-filters",
   "story": "Native source access parameters use the recorded request identity with an explicitly synthetic empty response",
   "replay": "article/filters/synthetic-semantic-scholar",
   "steps": [

@@ -41,7 +41,10 @@ pub(super) fn read<'a>(
     };
     let leg = cx.fetch.leg(&pmc_oa::SPEC, *deadline).fresh(cx.fresh);
     let started = leg.remaining();
-    let result = pmc_oa::read(&leg, id, pmid);
+    let result = pmc_oa::read(&leg, id, pmid).map(|mapped| {
+        out.problems.extend(mapped.problems);
+        mapped.value
+    });
     *deadline = crate::article::consume(*deadline, started, leg.remaining());
     source(
         snapshot,
@@ -56,7 +59,10 @@ pub(super) fn read<'a>(
             )
         }
         Ok(None) => Section::unavailable(Source::PmcOa, biomcp_types::Reason::NotOpen),
-        Ok(Some(document)) => paragraphs(&document, &target)?,
+        Ok(Some(document)) => {
+            out.problems.extend(document.problems.clone());
+            paragraphs(&document, &target)?
+        }
     });
     Ok(())
 }

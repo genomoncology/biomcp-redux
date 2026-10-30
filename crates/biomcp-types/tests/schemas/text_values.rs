@@ -2,8 +2,8 @@ use super::{generate, validator};
 use biodata::{
     Accession, AccessionBase, AminoAcids, AuthorId, Base, CaId, CbioportalCancerTypeId,
     CellLineSourceId, CellosaurusAccession, ChemblCellId, Chromosome, ClinPgxAccession,
-    ClinVarAlleleId, ClinVarVariationId, ComplexPortalId, Contig, CosmicId, Curie, Cytoband,
-    DeviceRecallNumber, DiagnosticDeviceId, Doi, DrugId, EnsemblGeneId, EuropePmcId,
+    ClinVarAlleleId, ClinVarVariationId, CodingChange, ComplexPortalId, Contig, CosmicId, Curie,
+    Cytoband, DeviceRecallNumber, DiagnosticDeviceId, Doi, DrugId, EnsemblGeneId, EuropePmcId,
     FdaDrugApplication, GeneSymbol, GtrTestId, GwasAssociationId, GwasStudyId, GwasTraitId, HgncId,
     HgvsText, HpId, InterProId, MondoId, NcbiGeneId, NcitId, NctId, OmimId, OrcidClientId, OrcidId,
     PaId, PartialDate, PgxDiplotypeExpression, PgxGeneKey, PmaNumber, PmaSupplement,
@@ -31,12 +31,12 @@ fn text_admissions<T: JsonSchema + std::str::FromStr>(examples: &[&str]) {
     }
 }
 
+macro_rules! cases {
+    ($($ty:ty => [$($text:expr),* $(,)?]),* $(,)?) => {$(
+        text_admissions::<$ty>(&[$($text),*]);
+    )*};
+}
 pub(super) fn text_value_patterns_match_parser_admissions() {
-    macro_rules! cases {
-        ($($ty:ty => [$($text:expr),* $(,)?]),* $(,)?) => {$(
-            text_admissions::<$ty>(&[$($text),*]);
-        )*};
-    }
     cases! {
         biodata::Text => ["safe", "safe\n", "safe\r", "safe\u{0085}", "safe\u{202e}"],
         HgncId => ["HGNC:1", "HGNC:0", "HGNC:4294967295", "HGNC:4294967296"],
@@ -68,6 +68,10 @@ pub(super) fn text_value_patterns_match_parser_admissions() {
         HgvsText => ["NM_004333.6:c.1A>G", "NM_004333.0:c.1A>G", "NM_004333.6(123):c.1A>G", "NM_004333.6(BRAF):c.1A>G", "NP_004324.1:c.1A>G",
             "NP_004324.1:p.?", "NC_000007.14(NP_004324.1):g.1A>G", "NC_000007.14(NP_004324.0):g.1A>G", "NM_004333.65536:c.1A>G",
             &format!("NM_004333.6({}):c.1A>G", "A".repeat(255)), &format!("NM_004333.6({}):c.1A>G", "A".repeat(256))],
+        CodingChange => ["c.333G>T", "c.780-4C>G", "c.678-14_678-3del", "c.-1_*2dup",
+            "c.1_2insAC", "c.1delinsN", "c.333garbage", "c.01G>T", "c.1+0G>T", "c.1insA",
+            "c.1_2ins", "c.1A>U", "c.[1A>G;2G>A]", "c.(1A>G)", "c.1inv", "c.1A>G\n",
+            "c.999999999999999999999999999999G>T"],
         Base => ["A", "N", "a", "U", "AA"],
         Sequence => ["", "ACGTRYSWKMBDHVN", "a", "U", "AC GT"],
         Chromosome => ["1", "22", "23", "X", "MT", "M", "chr1", "01"],
@@ -140,6 +144,9 @@ pub(super) fn text_value_schema_supersets_name_their_runtime_rules() {
         assert!(validator::<T>().is_valid(&json!(text)), "schema: {text}");
         assert!(text.parse::<T>().is_err(), "parser: {text}");
     }
+    runtime_rule::<CodingChange>("c.2_1del", "increasing range");
+    runtime_rule::<CodingChange>("c.1A>A", "different substitution");
+    runtime_rule::<CodingChange>("c.1_3insA", "insertion adjacency");
     runtime_rule::<OrcidId>("0000-0002-1825-0098", "checksum");
     runtime_rule::<AuthorId>("orcid:0000-0002-1825-0098", "checksum");
     runtime_rule::<OrcidClientId>("0000-0002-1825-0098", "checksum");
@@ -163,6 +170,12 @@ pub(super) fn protein_query_schema_matches_public_search_admissions()
     for text in [
         "V600E",
         "p.Val600Glu",
+        "p.Ala613=",
+        "p.A613=",
+        "p.=",
+        "p.Ala613==",
+        "p.Ala613=/Val",
+        "p.(Ala613=)",
         "Val600E",
         "*1Ter",
         "V0E",

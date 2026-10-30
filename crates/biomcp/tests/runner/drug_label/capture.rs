@@ -13,9 +13,10 @@ pub(super) fn trials() -> Vec<Trial> {
     (0..9)
         .map(|n| {
             let root = PathBuf::from(&root);
-            transcript_trial(format!("drug-label-captured/native-{n}"), move || {
-                check(&root, n).map_err(Into::into)
-            })
+            transcript_trial(
+                format!("drug-label/drug-label-captured/native-{n}"),
+                move || check(&root, n).map_err(Into::into),
+            )
         })
         .collect()
 }

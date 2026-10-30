@@ -2,7 +2,7 @@ use super::{OrcidClientId, OrcidId};
 use crate::{PartialDate, Text};
 use serde::{Deserialize, Serialize};
 /// Only public source visibility is admitted; legacy uppercase is an alias.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 #[cfg_attr(feature = "schema", schemars(with = "str", extend("enum" = ["public", "PUBLIC"])))]
 pub enum OrcidPublicVisibility {
@@ -83,7 +83,8 @@ pub struct OrcidWorkAssertion {
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub external_ids: Box<[OrcidExternalId]>,
     /// Native source and origin provenance.
-    pub source: OrcidAssertionSource,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub source: Option<OrcidAssertionSource>,
     /// Only public assertions belong to this product.
     pub visibility: OrcidPublicVisibility,
     /// Native display index retained without sorting.

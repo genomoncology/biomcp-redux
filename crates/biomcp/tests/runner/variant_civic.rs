@@ -17,40 +17,43 @@ pub(super) fn trials() -> Vec<Trial> {
             native_profile::context().map_err(Into::into)
         }),
         transcript_trial(
-            "variant/civic-invalid-values-keep-identified-claims",
+            "variant-civic/civic-invalid-values-keep-identified-claims",
             || values::claims().map_err(Into::into),
         ),
-        transcript_trial("variant/civic-amp-na-and-therapy-group-stay-native", || {
-            values::amp_and_group().map_err(Into::into)
-        }),
+        transcript_trial(
+            "variant-civic/civic-amp-na-and-therapy-group-stay-native",
+            || values::amp_and_group().map_err(Into::into),
+        ),
         transcript_trial("drug-civic/unknown-status-keeps-native-claims", || {
             vocabulary::drug_status().map_err(Into::into)
         }),
         transcript_trial(
-            "variant/civic-unknown-stream-vocabulary-keeps-claims",
+            "variant-civic/civic-unknown-stream-vocabulary-keeps-claims",
             || vocabulary::stream_context().map_err(Into::into),
         ),
-        transcript_trial("variant/civic-unknown-vocabulary-keeps-claims", || {
-            vocabulary::unknown().map_err(Into::into)
-        }),
-        transcript_trial("variant/civic-exact-profile-membership", || {
+        transcript_trial(
+            "variant-civic/civic-unknown-vocabulary-keeps-claims",
+            || vocabulary::unknown().map_err(Into::into),
+        ),
+        transcript_trial("variant-civic/civic-exact-profile-membership", || {
             exact().map_err(Into::into)
         }),
-        transcript_trial("variant/civic-unjoined-profile-is-not-cached", || {
+        transcript_trial("variant-civic/civic-unjoined-profile-is-not-cached", || {
             unjoined().map_err(Into::into)
         }),
-        transcript_trial("variant/civic-poisoned-warm-cache-is-rechecked", || {
-            poisoned().map_err(Into::into)
-        }),
         transcript_trial(
-            "variant/civic-graphql-errors-retain-valid-uncached-facts",
+            "variant-civic/civic-poisoned-warm-cache-is-rechecked",
+            || poisoned().map_err(Into::into),
+        ),
+        transcript_trial(
+            "variant-civic/civic-graphql-errors-retain-valid-uncached-facts",
             || graphql_errors().map_err(Into::into),
         ),
-        transcript_trial("variant/civic-native-cursor-must-progress", || {
+        transcript_trial("variant-civic/civic-native-cursor-must-progress", || {
             stalled_cursor().map_err(Into::into)
         }),
         transcript_trial(
-            "variant/civic-compound-profile-retains-all-native-members",
+            "variant-civic/civic-compound-profile-retains-all-native-members",
             || compound().map_err(Into::into),
         ),
     ]

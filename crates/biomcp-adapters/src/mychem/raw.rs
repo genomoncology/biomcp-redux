@@ -4,13 +4,10 @@ use serde::Deserialize;
 #[derive(Debug, Deserialize)]
 pub(super) struct Page {
     pub total: u64,
-    pub hits: Vec<Hit>,
+    pub hits: Vec<crate::raw::Field<Hit>>,
 }
 impl Reply for Page {
     fn check(&self) -> Result<(), BadReply> {
-        for hit in &self.hits {
-            hit.check()?;
-        }
         if self.hits.len() as u64 > self.total {
             return Err(BadReply);
         }
@@ -22,7 +19,7 @@ pub(super) struct Hit {
     #[serde(rename = "_id")]
     pub id: String,
     #[serde(rename = "_version")]
-    pub version: Option<u64>,
+    pub version: Option<crate::raw::Field<u64>>,
     pub drugbank: Option<crate::raw::Field<OneOrMany<crate::raw::Field<ReceivedComponent>>>>,
     pub chembl: Option<crate::raw::Field<OneOrMany<crate::raw::Field<ReceivedComponent>>>>,
     pub drugcentral: Option<crate::raw::Field<OneOrMany<crate::raw::Field<ReceivedComponent>>>>,

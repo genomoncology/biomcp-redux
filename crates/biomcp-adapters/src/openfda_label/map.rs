@@ -28,23 +28,15 @@ impl Record {
             id: self.set_id.clone(),
             source: DrugSource::OpenfdaLabel,
             version: Some(self.version.clone()),
-            name: Some(
-                self.openfda
-                    .brand_name
-                    .as_deref()
-                    .unwrap_or_default()
-                    .first()
-                    .or_else(|| {
-                        self.openfda
-                            .generic_name
-                            .as_deref()
-                            .unwrap_or_default()
-                            .first()
-                    })
-                    .cloned()
-                    .map(Into::into)
-                    .ok_or_else(bad)?,
-            ),
+            name: self
+                .openfda
+                .brand_name
+                .iter()
+                .flatten()
+                .next()
+                .or_else(|| self.openfda.generic_name.iter().flatten().next())
+                .cloned()
+                .map(Into::into),
             identity_level: DrugIdentityLevel::SplSet,
             r#type: None,
             url: Some(self.url()?),

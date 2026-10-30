@@ -25,7 +25,7 @@ lint:
 	cargo check --locked -p biodata -p biomcp-types --no-default-features
 	cargo clippy --workspace --all-targets --locked -- -D warnings
 
-ratchets:
+ratchets: plain-cli-build
 	cargo test --locked -p biomcp --test ratchets $(TEST_THREADS)
 
 test:
@@ -44,8 +44,13 @@ library-tests:
 	cargo test --workspace --exclude biomcp --features biomcp-types/schema --locked $(TEST_THREADS)
 	cargo test --locked -p biomcp --bin biomcp $(TEST_THREADS)
 
-coverage:
+coverage: schema-shape-check
 	sh scripts/coverage.sh run
+
+.PHONY: schema-shape-check
+schema-shape-check: docs-check library-tests
+	cargo test --locked -p biomcp --test cases mcp-research/research-registry-projection-paths $(TEST_THREADS)
+	cargo test --locked -p biomcp --test cases mcp-research/research-search-fetch-parity $(TEST_THREADS)
 
 unreached:
 	sh scripts/coverage.sh unreached
@@ -102,7 +107,7 @@ parity-run:
 
 .PHONY: parity-inventory
 parity-inventory:
-	cargo test --locked -p biomcp --test cases -- --parity-inventory "$(abspath $(PLAN))" "$(CURDIR)/tests/cases" "$(abspath $(OUT))"
+	cargo test --locked -p biomcp --test tools -- --parity-inventory "$(abspath $(PLAN))" "$(CURDIR)/tests/cases" "$(abspath $(OUT))"
 
 .PHONY: tensor-proto-check
 tensor-proto-check:

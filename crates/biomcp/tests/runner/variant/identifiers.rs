@@ -6,15 +6,17 @@ use serde_json::{Value, json};
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        transcript_trial("variant/component-record-identities-are-refused", || {
-            refused_components().map_err(Into::into)
-        }),
-        transcript_trial("variant/printed-identifiers-roundtrip", || {
+        transcript_trial(
+            "variant-identity/component-record-identities-are-refused",
+            || refused_components().map_err(Into::into),
+        ),
+        transcript_trial("variant-identity/printed-identifiers-roundtrip", || {
             check().map_err(Into::into)
         }),
-        transcript_trial("variant/direct-record-identities-are-refused", || {
-            refused().map_err(Into::into)
-        }),
+        transcript_trial(
+            "variant-identity/direct-record-identities-are-refused",
+            || refused().map_err(Into::into),
+        ),
     ]
 }
 fn check() -> Result<(), String> {

@@ -13,13 +13,18 @@ pub(super) fn get(cx: &Ctx<'_>, query: &CellLineGet) -> Outcome {
     let deadline = command.deadline();
     let leg = cx.fetch.leg(&cellosaurus::SPEC, deadline).fresh(cx.fresh);
     let mut card = vacant(query);
-    let reply = resolve(&leg, query, &mut card);
+    let mut problems = Vec::new();
+    let reply = resolve(&leg, query, &mut card, &mut problems);
     let error = reply.as_ref().err().copied();
     let mut out = empty(QueryBody::CellLineCard(vacant(query)));
+    out.problems = problems;
     out.sources
         .push(status::source(Source::Cellosaurus, leg.finish(), error));
     out.local = error.and_then(status::local);
     if reply.is_ok() {
+        if !out.problems.is_empty() {
+            card.status = Status::Partial;
+        }
         out.status = card.status;
         if card
             .sex
@@ -77,6 +82,7 @@ fn resolve(
     leg: &biomcp_fetch::Leg<'_>,
     query: &CellLineGet,
     card: &mut CellLineCard,
+    problems: &mut Vec<biomcp_types::Problem>,
 ) -> Result<(), biomcp_fetch::RequestError> {
     let (accession, source) = match query.id() {
         CellLineInput::Accession(id) => (id.clone(), None),
@@ -85,6 +91,7 @@ fn resolve(
                 return Err(biomcp_fetch::InputError::Path.into());
             }
             let page = cellosaurus::reverse(leg, id)?;
+            problems.extend(page.problems);
             card.fetched = page
                 .metadata
                 .fetched
@@ -113,6 +120,7 @@ fn resolve(
     } else {
         cellosaurus::get(leg, &accession, source)?
     };
+    problems.extend(reply.problems);
     if let Some(mut selected) = reply.card {
         selected.input = query.id().clone();
         selected.fetched = reply

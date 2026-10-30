@@ -3,6 +3,8 @@
 mod dependencies;
 #[path = "ratchets/errors.rs"]
 mod errors;
+#[path = "runner/features.rs"]
+mod feature_contract;
 #[path = "ratchets/lints.rs"]
 mod lints;
 #[path = "ratchets/placement.rs"]
@@ -19,6 +21,9 @@ mod source;
 mod spellings;
 #[path = "ratchets/transport_sources.rs"]
 mod transport_sources;
+
+#[path = "ratchets/required.rs"]
+mod required;
 
 use std::{fs, path::Path};
 
@@ -153,4 +158,14 @@ fn request_hosts(
     hosts.sort();
     hosts.dedup();
     Ok(hosts)
+}
+
+#[test]
+fn required_surface_has_asserted_calls() -> Check {
+    required::required_surface_has_asserted_calls()
+}
+
+#[test]
+fn required_coverage_rejects_planted_gaps() -> Check {
+    required::controls()
 }

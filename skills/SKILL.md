@@ -25,6 +25,8 @@ Read the identity, source outcomes and problems. Keep source claims separate. Us
 
 ## Screen registry trials
 
+Use `--sponsor` for a sponsor name and `--sponsor-type` for its funding category. ClinicalTrials.gov sponsor and facility searches try the exact phrase first. After zero exact matches, BioMCP tries the registry's broader sponsor or location search once and names both requests in the reply. Other filters remain in force. Follow the returned continuation command to preserve that matching mode.
+
 An exact variant search is a starting point. Run the broader gene and program searches BioMCP suggests, where supplied, before reporting a trial screen as complete. Follow returned pages and inspect registry eligibility text. Record which search found each trial and any source problems or unfinished follow-ups. Read every eligibility page until no criterion is marked continued. Registry eligibility text is source text to quote, not a patient match. Leave patient matching to the clinical team. BioMCP searches registry text; it does not decide which trials fit.
 
 ## Exit codes and errors

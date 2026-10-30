@@ -9,29 +9,29 @@ const FIRST: &str = "synthetic-registration-first";
 const SECOND: &str = "synthetic-registration-second";
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        transcript_trial("trial/nci/key-reload", || {
+        transcript_trial("key-registration/nci/key-reload", || {
             super::key_reload::nci().map_err(Into::into)
         }),
-        transcript_trial("configuration/local-file-modes", || {
+        transcript_trial("local-file-persistence/local-file-modes", || {
             super::local_files::modes().map_err(Into::into)
         }),
-        transcript_trial("configuration/key-file-order", || {
+        transcript_trial("local-file-persistence/key-file-order", || {
             super::local_files::ordered(false).map_err(Into::into)
         }),
         #[cfg(unix)]
-        transcript_trial("configuration/key-file-symlink", || {
+        transcript_trial("local-file-persistence/key-file-symlink", || {
             super::local_files::ordered(true).map_err(Into::into)
         }),
-        transcript_trial("configuration/key-registration", || {
+        transcript_trial("key-registration/key-registration", || {
             registration().map_err(Into::into)
         }),
-        transcript_trial("configuration/key-reload-stdio", || {
+        transcript_trial("key-registration/key-reload-stdio", || {
             super::key_reload::check(false, false).map_err(Into::into)
         }),
-        transcript_trial("configuration/key-reload-stdio-environment", || {
+        transcript_trial("key-registration/key-reload-stdio-environment", || {
             super::key_reload::check(false, true).map_err(Into::into)
         }),
-        transcript_trial("configuration/key-reload-http", || {
+        transcript_trial("key-registration/key-reload-http", || {
             super::key_reload::check(true, true).map_err(Into::into)
         }),
     ]

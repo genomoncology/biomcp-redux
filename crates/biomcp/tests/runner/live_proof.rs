@@ -22,7 +22,7 @@ pub(super) fn trials() -> Vec<Trial> {
         transcript_trial("live-source-checks/credential-free-witness-urls", || {
             witness_proof::credentials().map_err(Into::into)
         }),
-        transcript_trial("live-check/offline-planted-drift", || {
+        transcript_trial("live-source-checks/offline-planted-drift", || {
             check().map_err(|e| e.to_string().into())
         }),
         transcript_trial("live-source-checks/offline-eligibility", || {

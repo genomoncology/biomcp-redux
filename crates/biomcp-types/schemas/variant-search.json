@@ -12,6 +12,11 @@
         " Genome Reference Consortium human build 38."
       ]
     },
+    "CodingChange": {
+      "description": "HGVS 21.1 coding edit syntax without a reference. The parser additionally requires increasing range endpoints, different substitution bases and insertion adjacency where literal positions establish it. It does not check transcript sequence or exon boundaries.",
+      "pattern": "^c\\.(?:[-*]?[1-9][0-9]*(?:[+-][1-9][0-9]*)?[ACGTNRYSWKMBDHV]>[ACGTNRYSWKMBDHV]|[-*]?[1-9][0-9]*(?:[+-][1-9][0-9]*)?(?:_[-*]?[1-9][0-9]*(?:[+-][1-9][0-9]*)?)?(?:del|dup|delins(?=[ACGTNRYSWKMBDHV])[ACGTNRYSWKMBDHV]*)|[-*]?[1-9][0-9]*(?:[+-][1-9][0-9]*)?_[-*]?[1-9][0-9]*(?:[+-][1-9][0-9]*)?ins(?=[ACGTNRYSWKMBDHV])[ACGTNRYSWKMBDHV]*)$",
+      "type": "string"
+    },
     "GeneSymbol": {
       "description": "Source spelling of a gene symbol, with ASCII case-insensitive identity.",
       "pattern": "^[A-Za-z][A-Za-z0-9._/@-]{0,254}$",
@@ -54,7 +59,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.variant-search/4",
+  "$id": "biomcp.variant-search/5",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "anyOf": [
@@ -62,6 +67,12 @@
       "required": [
         "gene",
         "protein"
+      ]
+    },
+    {
+      "required": [
+        "gene",
+        "coding"
       ]
     },
     {
@@ -83,13 +94,17 @@
       "$ref": "#/$defs/Build",
       "description": "Optional caller assembly sent to MyVariant; regions require it explicitly."
     },
+    "coding": {
+      "$ref": "#/$defs/CodingChange",
+      "description": "Coding HGVS change searched literally in ClinVar with --gene, without choosing a transcript."
+    },
     "condition": {
       "$ref": "#/$defs/Text",
       "description": "Literal MyVariant clinvar.rcv.conditions.name phrase; source text is not a local diagnosis. Requires a declared protein or region selector."
     },
     "gene": {
       "$ref": "#/$defs/GeneSymbol",
-      "description": "Exact checked gene symbol for the fixed dbNSFP gene/protein field query; obeys component terms switches."
+      "description": "Checked gene symbol for the dbNSFP protein selector or the ClinVar coding selector."
     },
     "has": {
       "$ref": "#/$defs/VariantSearchField",

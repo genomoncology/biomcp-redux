@@ -105,7 +105,7 @@ pub(super) fn record(term: raw::Term, ontology: DiseaseOntology) -> Result<Recor
                 label,
             },
             definition,
-            obsolete: term.is_obsolete,
+            obsolete: problems.field("is_obsolete", term.is_obsolete),
             consider,
             replaced_by,
             attribution,

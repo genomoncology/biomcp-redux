@@ -37,8 +37,8 @@ pub(super) fn invoke(
     }
     let cli_bytes = serde_json::to_vec(&cli).map_err(|e| e.to_string())?.len() + 1;
     let mcp_bytes = serde_json::to_vec(&value).map_err(|e| e.to_string())?.len();
-    let measured: std::collections::BTreeMap<String, [usize; 2]> = serde_json::from_str(
-        &crate::runner::launch::fixture_text("gwas-synthetic-budgets.json")?,
+    let measured: std::collections::BTreeMap<String, [usize; 2]> = serde_saphyr::from_str(
+        &crate::runner::launch::fixture_text("gwas-synthetic-budgets.yaml")?,
     )
     .map_err(|e| e.to_string())?;
     let [cli_limit, mcp_limit] = measured

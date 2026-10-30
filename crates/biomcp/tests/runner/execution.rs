@@ -71,18 +71,48 @@ pub(super) fn run_step(
         }
         answer = Some(result.clone());
         if let Some(cli) = cli.as_ref() {
-            let mut comparable = result.clone();
-            // Repeated explicit syncs may acquire the same source in different seconds.
-            if args.first().is_some_and(|verb| verb == "sync")
-                && let Some(acquired) = cli.pointer("/result/snapshot/acquired")
-                && let Some(value) = comparable.pointer_mut("/result/snapshot/acquired")
-            {
-                *value = acquired.clone();
-            }
-            if let Some(diff) = assertions::difference(cli, &comparable, "") {
-                return Err(format!("CLI/MCP parity: unequal results at {diff}"));
-            }
+            parity(cli, &result, args)?;
         }
     }
-    answer.ok_or_else(|| "step requires run or mcp".into())
+    if let Some(call) = &step.mcp_call {
+        answer = Some(named(call, step, environment, expectations, &globals)?);
+    }
+    answer.ok_or_else(|| "step requires run, mcp or mcp_call".into())
+}
+
+fn parity(cli: &Value, result: &Value, args: &[String]) -> Result<(), String> {
+    let mut comparable = result.clone();
+    // Repeated explicit syncs may acquire the same source in different seconds.
+    if args.first().is_some_and(|verb| verb == "sync")
+        && let Some(acquired) = cli.pointer("/result/snapshot/acquired")
+        && let Some(value) = comparable.pointer_mut("/result/snapshot/acquired")
+    {
+        *value = acquired.clone();
+    }
+    if let Some(diff) = assertions::difference(cli, &comparable, "") {
+        return Err(format!("CLI/MCP parity: unequal results at {diff}"));
+    }
+    Ok(())
+}
+
+fn named(
+    call: &super::case_data::McpCall,
+    step: &Step,
+    environment: &launch::Environment,
+    expectations: &assertions::Expectations<'_>,
+    globals: &[String],
+) -> Result<Value, String> {
+    let value = super::research::call_checked(
+        environment,
+        &call.name,
+        call.arguments.clone(),
+        globals,
+        Some(step.is_error),
+    )?;
+    assertions::check(
+        &serde_json::to_vec(&value).map_err(|e| e.to_string())?,
+        step,
+        expectations,
+    )?;
+    Ok(value)
 }

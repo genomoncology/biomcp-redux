@@ -7,7 +7,7 @@ archives, output = map(Path, sys.argv[1:])
 replay = prepare(archives, output, sections=True)
 cases = output / 'cases'
 cases.mkdir()
-budget_path = Path(__file__).resolve().parent.parent / 'tests/protein-section-budgets.json'
+budget_path = Path(__file__).resolve().parent.parent / 'tests/protein-section-budgets.yaml'
 budgets = json.loads(budget_path.read_text()) if budget_path.is_file() else {}
 
 

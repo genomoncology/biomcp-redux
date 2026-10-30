@@ -22,9 +22,10 @@ pub(super) fn cards<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut Out
         used = true;
         match europepmc::core(&leg, id) {
             Ok((card, metadata)) => {
+                out.problems.extend(card.problems);
                 item.status = Status::Complete;
                 item.answer = Some(ArticleResolution::Resolved {
-                    card: card.card(),
+                    card: card.value.card(),
                     r#match: ArticleMatch {
                         kind: item.input.kind(),
                     },
@@ -74,8 +75,12 @@ pub(super) fn fulltext<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut 
             continue;
         };
         used = true;
-        sections.fulltext = Some(match europepmc::read(&leg, id) {
-            Ok(document) => {
+        let result = europepmc::read(&leg, id).map(|mapped| {
+            out.problems.extend(mapped.problems);
+            mapped.value
+        });
+        sections.fulltext = Some(match result {
+            Ok(Some(document)) => {
                 if !document.body.parts.is_empty() {
                     super::sections::fulltext::next_input(
                         ArticleInput::EuropePmc(id.clone()),
@@ -88,6 +93,7 @@ pub(super) fn fulltext<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut 
                     data: super::sections::fulltext::outline(&document),
                 }
             }
+            Ok(None) => Section::unavailable(Source::EuropePmc, biomcp_types::Reason::NotOpen),
             Err(e) => {
                 error.get_or_insert(e);
                 out.local = out.local.or(status::local(e));

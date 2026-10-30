@@ -15,7 +15,7 @@
       "exit": 2,
       "is_error": true,
       "expect": {
-        "/schema": "biomcp.error/3",
+        "/schema": "biomcp.error/4",
         "/error/code": "usage.arguments"
       }
     },
@@ -35,7 +35,7 @@
       "exit": 2,
       "is_error": true,
       "expect": {
-        "/schema": "biomcp.error/3",
+        "/schema": "biomcp.error/4",
         "/error/code": "usage.arguments"
       }
     },
@@ -55,7 +55,7 @@
       "exit": 2,
       "is_error": true,
       "expect": {
-        "/schema": "biomcp.error/3",
+        "/schema": "biomcp.error/4",
         "/error/code": "usage.arguments"
       }
     },
@@ -79,7 +79,7 @@
       "exit": 2,
       "is_error": true,
       "expect": {
-        "/schema": "biomcp.error/3",
+        "/schema": "biomcp.error/4",
         "/error/code": "usage.arguments"
       }
     },
@@ -103,7 +103,7 @@
       "exit": 2,
       "is_error": true,
       "expect": {
-        "/schema": "biomcp.error/3",
+        "/schema": "biomcp.error/4",
         "/error/code": "usage.arguments"
       }
     },
@@ -127,7 +127,7 @@
       "exit": 2,
       "is_error": true,
       "expect": {
-        "/schema": "biomcp.error/3",
+        "/schema": "biomcp.error/4",
         "/error/code": "usage.arguments"
       }
     },
@@ -147,7 +147,7 @@
       "exit": 2,
       "is_error": true,
       "expect": {
-        "/schema": "biomcp.error/3",
+        "/schema": "biomcp.error/4",
         "/error/code": "usage.arguments"
       }
     },
@@ -171,7 +171,7 @@
       "exit": 2,
       "is_error": true,
       "expect": {
-        "/schema": "biomcp.error/3",
+        "/schema": "biomcp.error/4",
         "/error/code": "usage.arguments"
       }
     },
@@ -195,7 +195,7 @@
       "exit": 2,
       "is_error": true,
       "expect": {
-        "/schema": "biomcp.error/3",
+        "/schema": "biomcp.error/4",
         "/error/code": "usage.arguments"
       }
     },
@@ -215,7 +215,7 @@
       "exit": 2,
       "is_error": true,
       "expect": {
-        "/schema": "biomcp.error/3",
+        "/schema": "biomcp.error/4",
         "/error/code": "usage.arguments"
       }
     },
@@ -239,7 +239,7 @@
       "exit": 2,
       "is_error": true,
       "expect": {
-        "/schema": "biomcp.error/3",
+        "/schema": "biomcp.error/4",
         "/error/code": "usage.arguments"
       }
     },
@@ -271,7 +271,7 @@
       "exit": 2,
       "is_error": true,
       "expect": {
-        "/schema": "biomcp.error/3",
+        "/schema": "biomcp.error/4",
         "/error/code": "usage.arguments"
       }
     },
@@ -299,7 +299,7 @@
       "exit": 2,
       "is_error": true,
       "expect": {
-        "/schema": "biomcp.error/3",
+        "/schema": "biomcp.error/4",
         "/error/code": "usage.arguments"
       }
     },
@@ -327,7 +327,7 @@
       "exit": 2,
       "is_error": true,
       "expect": {
-        "/schema": "biomcp.error/3",
+        "/schema": "biomcp.error/4",
         "/error/code": "usage.arguments"
       }
     },
@@ -355,7 +355,7 @@
       "exit": 4,
       "is_error": true,
       "expect": {
-        "/schema": "biomcp.variant-page/14",
+        "/schema": "biomcp.variant-page/15",
         "/status": "failed",
         "/sources/0/reason": "disabled"
       }
@@ -384,7 +384,7 @@
       "exit": 4,
       "is_error": true,
       "expect": {
-        "/schema": "biomcp.variant-page/14",
+        "/schema": "biomcp.variant-page/15",
         "/status": "failed",
         "/sources/0/reason": "disabled"
       }
@@ -413,7 +413,7 @@
       "exit": 4,
       "is_error": true,
       "expect": {
-        "/schema": "biomcp.variant-page/14",
+        "/schema": "biomcp.variant-page/15",
         "/status": "failed",
         "/sources/0/reason": "disabled"
       }
@@ -442,7 +442,7 @@
       "exit": 4,
       "is_error": true,
       "expect": {
-        "/schema": "biomcp.variant-page/14",
+        "/schema": "biomcp.variant-page/15",
         "/status": "failed",
         "/sources/0/reason": "disabled"
       }
@@ -471,7 +471,7 @@
       "exit": 4,
       "is_error": true,
       "expect": {
-        "/schema": "biomcp.variant-page/14",
+        "/schema": "biomcp.variant-page/15",
         "/status": "failed",
         "/sources/0/reason": "disabled"
       }

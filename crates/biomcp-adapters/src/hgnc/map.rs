@@ -28,20 +28,25 @@ fn gene(row: raw::Gene, f: &mut Fields) -> Option<Gene> {
         "symbol",
         GeneSymbol::new(raw::cell(row.symbol.as_deref())).ok(),
     );
-    let name = f.required(
-        "name",
-        Text::from_source(raw::cell(row.name.as_deref())).ok(),
-    );
-    let locus_group = f.required(
-        "locus_group",
-        fields::group(raw::cell(row.locus_group.as_deref())),
-    );
+    let name = if raw::cell(row.name.as_deref()).is_empty() {
+        None
+    } else {
+        f.required(
+            "name",
+            Text::from_source(raw::cell(row.name.as_deref())).ok(),
+        )
+    };
+    let locus_group = row
+        .locus_group
+        .as_deref()
+        .filter(|v| !v.is_empty())
+        .and_then(|group| f.required("locus_group", fields::group(group)));
     let status = f.required(
         "status",
         (raw::cell(row.status.as_deref()) == "Approved").then_some(GeneStatus::Approved),
     );
     // All required fields are checked before dropping a record.
-    let (hgnc_id, symbol, name, locus_group, status) = (id?, symbol?, name?, locus_group?, status?);
+    let (hgnc_id, symbol, status) = (id?, symbol?, status?);
     let locus_type = if raw::cell(row.locus_type.as_deref()).is_empty() {
         None
     } else {

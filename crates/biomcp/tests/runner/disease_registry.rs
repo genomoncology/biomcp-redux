@@ -6,22 +6,22 @@ use serde_json::Value;
 type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        transcript_trial("disease-registry/component-health", || {
+        transcript_trial("disease-ols/component-health", || {
             health::run().map_err(Into::into)
         }),
-        transcript_trial("disease-registry/publisher-declarations", || {
+        transcript_trial("disease-ols/publisher-declarations", || {
             declarations().map_err(Into::into)
         }),
-        transcript_trial("disease-registry/disabled-health-union", || {
+        transcript_trial("disease-ols/disabled-health-union", || {
             disabled_health().map_err(Into::into)
         }),
-        transcript_trial("disease-registry/component-policy", || {
+        transcript_trial("disease-ols/component-policy", || {
             components().map_err(Into::into)
         }),
-        transcript_trial("disease-registry/enabled-health-native-probes", || {
+        transcript_trial("disease-ols/enabled-health-native-probes", || {
             enabled_health().map_err(Into::into)
         }),
-        transcript_trial("disease-registry/disabled-before-cache-and-replay", || {
+        transcript_trial("disease-ols/disabled-before-cache-and-replay", || {
             admission::run().map_err(Into::into)
         }),
     ]

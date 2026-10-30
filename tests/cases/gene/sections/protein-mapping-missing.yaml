@@ -1,6 +1,6 @@
 {
   "live_check": "synthetic response case",
-  "feature": "gene-sections",
+  "feature": "gene-protein",
   "story": "Protein mapping missing preserves checked siblings and source identity",
   "replay": "gene/protein/synthetic-missing",
   "steps": [

@@ -12,18 +12,15 @@ pub fn search(leg: &Leg<'_>, q: &GwasSearch) -> Result<Page, RequestError> {
         .iter()
         .map(|(k, v)| (k.as_str(), Arg::Text(v)))
         .collect();
-    let (response, _) =
-        leg.json_received_checked::<raw::Response>(&ASSOCIATIONS, &params, |r| {
-            admission(r, q, &values)
-        })?;
-    Ok(Page {
-        rows: response
-            .embedded
-            .map(|e| e.associations)
-            .unwrap_or_default(),
-        total: response.page.total_elements,
-    })
+    let response = leg.json_checked_admission::<raw::Response>(
+        &ASSOCIATIONS,
+        &params,
+        |reply| admission(reply, q, &values),
+        raw::Response::identities_admitted,
+    )?;
+    Ok(super::page(response, (q.offset() % q.limit()) as usize))
 }
+
 fn selectors(q: &GwasSearch) -> BTreeMap<String, String> {
     let mut values = BTreeMap::new();
     for (key, value) in [
@@ -69,17 +66,17 @@ fn admission(
         .as_ref()
         .map(|e| e.associations.as_slice())
         .unwrap_or_default();
-    if !rows.iter().all(|row| identity::row(row, q)) {
+    if !rows.iter().all(|row| identity::row(&row.selectors, q)) {
         return Err(BadReply);
     }
     // Exact parts govern order even when native doubles underflow.
-    for pair in rows.windows(2) {
-        if let [a, b] = pair {
-            let a = a.exact_p_value().ok_or(BadReply)?;
-            let b = b.exact_p_value().ok_or(BadReply)?;
-            if a > b {
+    let mut previous = None;
+    for row in rows.iter().filter_map(|row| row.value.as_ref()) {
+        if let Some(exact) = row.exact_p_value() {
+            if previous.as_ref().is_some_and(|last| last > &exact) {
                 return Err(BadReply);
             }
+            previous = Some(exact);
         }
     }
     Ok(())
