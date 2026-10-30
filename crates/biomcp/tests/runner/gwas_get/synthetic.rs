@@ -1,6 +1,5 @@
 use super::{
-    BASE, Environment, Stub, Value, ancestry_body, call, card, fs, gwas_budgets, json, seed,
-    source, study,
+    BASE, Environment, Stub, Value, ancestry_body, call, fs, gwas_budgets, json, seed, source,
 };
 
 pub(super) fn ancestry() -> Result<(), String> {

@@ -53,6 +53,7 @@ mod http_limits;
 mod key_registration;
 pub(super) mod launch;
 mod remote_tools;
+mod replay;
 tool_only! { pub(crate) mod live; }
 tool_only! { mod live_follow_proof; }
 tool_only! { mod live_proof; }
@@ -214,6 +215,7 @@ fn run_case(path: &Path, registry: &schema::Registry) -> Result<Value, String> {
 pub(super) fn protocol_trials() -> Vec<Trial> {
     let mut trials = Vec::new();
     trials.extend(protocol::trials());
+    trials.extend(replay::trials());
     trials.extend(output_stream::trials());
     trials.extend(research::trials());
     trials.extend(cache_contention::trials());

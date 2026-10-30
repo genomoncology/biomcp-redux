@@ -155,7 +155,7 @@ pub(super) fn feature_list() -> &'static str {
     include_str!("../../../../sdlc/features.md")
 }
 
-/// Native command ceilings travel with the copied fixtures for both test targets.
+// Native command ceilings travel with the copied fixtures for both test targets.
 tool_only! {
 pub(super) fn native_budget(key: &str) -> Result<usize, String> {
     let limits: std::collections::BTreeMap<String, usize> =

@@ -1,5 +1,5 @@
 //! Optional FAERS values retain identity and independent native sections.
-use super::{Check, Environment, args, both, setup};
+use super::Check;
 use serde_json::{Value, json};
 
 pub(super) fn input(body: &mut Value, mode: &str) -> Check {

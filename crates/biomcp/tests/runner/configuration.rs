@@ -1,10 +1,7 @@
 //! Process settings and persistent case-cache ownership through the shipped binary.
-use super::{launch::Environment, mcp};
-use serde_json::{Value, json};
-use std::{
-    fs,
-    path::{Path, PathBuf},
-};
+use super::launch::Environment;
+use serde_json::Value;
+use std::path::{Path, PathBuf};
 
 pub(super) fn root() -> PathBuf {
     crate::runner::launch::fixtures().join("replies/gene/main")

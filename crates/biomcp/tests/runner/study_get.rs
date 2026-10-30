@@ -5,7 +5,7 @@ use crate::runner::launch::Environment;
 use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
-use std::{fs, io::Write, path::Path};
+use std::{fs, path::Path};
 #[path = "study_get_pages.rs"]
 mod section_page;
 type Check = Result<(), String>;

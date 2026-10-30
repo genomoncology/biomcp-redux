@@ -1,6 +1,5 @@
 //! Features trial-search and trial-get: malformed nonidentity fields retain their sibling facts.
-use super::response_cases::checked_steps;
-use serde_json::{Value, json};
+use serde_json::Value;
 
 pub(super) fn replace(record: &mut Value, path: &str, invalid: &Value) {
     if let Some((parent, name)) = path.rsplit_once('/')

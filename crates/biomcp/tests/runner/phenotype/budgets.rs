@@ -1,7 +1,6 @@
 //! Named full-envelope phenotype phases; CLI includes its newline.
 use serde_json::Value;
 use std::io::Write;
-use std::path::Path;
 pub(super) fn check(value: &Value, phase: &str, surface: &str) -> Result<(), String> {
     let observed =
         serde_json::to_vec(value).map_err(|e| e.to_string())?.len() + usize::from(surface == "cli");

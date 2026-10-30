@@ -1,5 +1,5 @@
 //! Both installed processes must accept searches while one ordinary cache is locked.
-use super::{launch::Environment, mcp::request, process::Process};
+use super::{launch::Environment, process::Process};
 use serde_json::{Value, json};
 use std::{
     io::{BufRead, BufReader, Write},

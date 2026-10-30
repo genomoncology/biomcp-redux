@@ -1,6 +1,5 @@
 //! Feature pathway-wikipathways: explicit atomic catalog replacement and stored-only reads.
 use super::launch::Environment;
-use crate::runner::pathway_budgets as budgets;
 use serde_json::{Value, json};
 use std::{
     fs,

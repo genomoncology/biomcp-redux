@@ -130,6 +130,3 @@ fn call_text_retained(
     }
     Ok((structured.clone(), text.to_owned()))
 }
-
-// A persistent server must start each command at its completed replay epoch,
-// while concurrent completions advance to their maximum endpoint only once.

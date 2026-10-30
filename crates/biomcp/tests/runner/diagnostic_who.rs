@@ -1,17 +1,11 @@
 //! Feature diagnostic-who: exact cards consume a complete explicit stored export.
 
 mod search;
-use super::{
-    configuration::invoke,
-    launch::{Environment, fixtures},
-};
+use super::{configuration::invoke, launch::Environment};
 use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
-use serde_json::{Value, json};
-use std::{
-    fs,
-    path::{Path, PathBuf},
-};
+use serde_json::Value;
+use std::path::Path;
 type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
     // The test follows runtime revision-bound pages and compares the complete candidate set without replacement requests.

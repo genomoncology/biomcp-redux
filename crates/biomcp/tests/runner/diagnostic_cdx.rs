@@ -1,13 +1,6 @@
 //! Feature diagnostic-cdx: synthetic stored companion rows retain owned identities.
-use super::{
-    configuration::invoke,
-    launch::{Environment, fixtures},
-};
-use serde_json::{Value, json};
-use std::{
-    fs,
-    path::{Path, PathBuf},
-};
+use super::launch::{Environment, fixtures};
+use std::{fs, path::PathBuf};
 
 pub(super) fn seed(env: &Environment) -> Result<PathBuf, String> {
     let source = fixtures().join("replies/diagnostic/fda-cdx-synthetic/fda-cdx");

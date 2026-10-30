@@ -4,11 +4,10 @@
     clippy::indexing_slicing,
     reason = "Checked test envelopes fail at the malformed boundary"
 )]
-use super::{launch::Environment, response_cases::checked_steps};
+use super::response_cases::checked_steps;
 use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
-use serde_json::{Value, json};
-use std::fs;
+use serde_json::json;
 pub(super) fn trials() -> Vec<Trial> {
     // The test reconstructs runtime fragments and compares independent citation/reference identities across pages.
     vec![transcript_trial(
