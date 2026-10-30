@@ -7,25 +7,7 @@ use std::{collections::BTreeSet, fs};
 
 pub(super) fn check() -> Result<(), String> {
     let environment = launch::Environment::new().map_err(|e| e.to_string())?;
-    let output = environment
-        .command(env!("CARGO_BIN_EXE_biomcp"), &["help".into()])
-        .output()
-        .map_err(|e| e.to_string())?;
-    if !output.status.success() || !output.stderr.is_empty() {
-        return Err("help process failed".into());
-    }
-    let help: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
-    let commands = help
-        .pointer("/result/commands")
-        .and_then(Value::as_array)
-        .ok_or("help commands missing")?;
-    source_description(commands)?;
-    let scoped = super::configuration::invoke(&environment, vec!["help".into(), "help".into()], 0)?;
-    let scoped = scoped
-        .pointer("/result/commands")
-        .and_then(Value::as_array)
-        .ok_or("scoped help commands")?;
-    let mut printed = collected_examples(commands, scoped)?;
+    let mut printed = advertised_examples(&environment)?;
     let advertised = printed.clone();
     let guide = guide_examples(&environment)?;
     printed.extend(guide);
@@ -88,6 +70,28 @@ pub(super) fn check() -> Result<(), String> {
         return Err("printed example has no owning case witness".into());
     }
     Ok(())
+}
+
+fn advertised_examples(environment: &launch::Environment) -> Result<BTreeSet<Vec<String>>, String> {
+    let output = environment
+        .command(env!("CARGO_BIN_EXE_biomcp"), &["help".into()])
+        .output()
+        .map_err(|e| e.to_string())?;
+    if !output.status.success() || !output.stderr.is_empty() {
+        return Err("help process failed".into());
+    }
+    let help: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
+    let commands = help
+        .pointer("/result/commands")
+        .and_then(Value::as_array)
+        .ok_or("help commands missing")?;
+    source_description(commands)?;
+    let scoped = super::configuration::invoke(&environment, vec!["help".into(), "help".into()], 0)?;
+    let scoped = scoped
+        .pointer("/result/commands")
+        .and_then(Value::as_array)
+        .ok_or("scoped help commands")?;
+    collected_examples(commands, scoped)
 }
 
 fn check_result(args: &[String], reply: &Value, advertised: bool) -> Result<(), String> {
