@@ -94,7 +94,13 @@ impl Cell {
     }
 }
 /// Checked cell records, native total, retrieval metadata and native window size.
-pub type CellPage = (Vec<CellLineChemblRecord>, u64, ReplyMetadata, u32);
+#[derive(Debug)]
+pub struct CellPage {
+    /// Accepted cells and their native window.
+    pub window: crate::NativeWindow<CellLineChemblRecord>,
+    /// Original acquisition metadata.
+    pub metadata: ReplyMetadata,
+}
 /// Read one native cell metadata page and check every exact accession before cache admission.
 pub fn cells(
     leg: &Leg<'_>,
@@ -137,7 +143,16 @@ pub fn cells(
         }
     }
     Ok(crate::Mapped {
-        value: (values, reply.page_meta.total_count, metadata, received),
+        value: CellPage {
+            window: crate::NativeWindow::new(
+                values,
+                offset,
+                limit,
+                Some(reply.page_meta.total_count),
+                received,
+            ),
+            metadata,
+        },
         problems: problems.list,
     })
 }
