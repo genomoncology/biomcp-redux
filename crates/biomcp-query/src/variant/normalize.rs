@@ -76,6 +76,7 @@ pub fn normalize(cx: &Ctx<'_>, query: &VariantNormalize) -> Outcome {
         Vec::new()
     };
     let outcome = Outcome {
+        dropped: false,
         status: status::status(states.into_iter()),
         body: QueryBody::VariantNormalization(VariantNormalization {
             results: results.into(),

@@ -49,6 +49,7 @@ pub fn get(cx: &Ctx<'_>, query: &ArticleGet) -> Outcome {
         }
     }
     let mut out = Outcome {
+        dropped: false,
         status: status::status(items.iter().map(|i| i.status)),
         body: QueryBody::ArticleCards(ArticleCards {
             items: items.into(),

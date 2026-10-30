@@ -108,6 +108,7 @@ pub(super) fn get(cx: &Ctx<'_>, q: &PgxGet) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let mut out = Outcome {
+        dropped: false,
         status: Status::Failed,
         body: QueryBody::PgxAnnotations(body(q, vec![], vec![])),
         page: None,

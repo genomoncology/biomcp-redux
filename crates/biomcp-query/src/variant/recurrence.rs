@@ -12,6 +12,7 @@ pub fn run(cx: &Ctx<'_>, query: &VariantRecurrenceQuery) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let mut out = Outcome {
+        dropped: false,
         status: Status::Failed,
         body: QueryBody::VariantRecurrence(empty()),
         page: None,

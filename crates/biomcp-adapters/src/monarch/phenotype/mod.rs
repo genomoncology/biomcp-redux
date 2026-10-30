@@ -9,6 +9,8 @@ use biomcp_types::{PhenotypeGet, PhenotypeSearch, PhenotypeSection, PhenotypeTer
 /// Native ordered HP page and retrieval metadata.
 #[derive(Debug)]
 pub struct Page {
+    /// One or more native row identities were refused.
+    pub dropped: bool,
     /// Native row count before refusing invalid row identities.
     pub received: u32,
     /// Rejected native metadata on returned rows.
@@ -73,6 +75,7 @@ pub fn search(leg: &Leg<'_>, q: &PhenotypeSearch) -> Result<Page, RequestError> 
         })
         .collect::<Result<Vec<_>, RequestError>>()?;
     Ok(Page {
+        dropped: items.len() < received as usize,
         received,
         problems,
         items,

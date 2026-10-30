@@ -23,6 +23,7 @@ pub fn search(cx: &Ctx<'_>, query: &DiseaseSearch) -> Outcome {
         .push(status::source(Source::Ols, leg.finish(), error));
     out.local = error.and_then(status::local);
     if let Ok(page) = reply {
+        out.dropped = page.dropped;
         let returned = page.rows.value.len() as u32;
         for row in &page.rows.value {
             if let Some(id) = &row.concept.id {
@@ -46,7 +47,7 @@ pub fn search(cx: &Ctx<'_>, query: &DiseaseSearch) -> Outcome {
         if let QueryBody::DiseasePage(body) = &mut out.body {
             body.items = page.rows.value.into();
         }
-        out.status = overall(&out, page.total == 0);
+        out.status = status::search_status(&out.sources, out.dropped);
     }
     command.finish(deadline.remaining());
     out

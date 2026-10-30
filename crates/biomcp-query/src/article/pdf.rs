@@ -12,6 +12,7 @@ pub fn download(cx: &Ctx<'_>, query: &ArticlePdf, allow_save: bool) -> Download 
     let command = cx.fetch.command_deadline(cx.budget);
     let mut deadline = command.deadline();
     let mut out = Outcome {
+        dropped: false,
         status: Status::Complete,
         body: QueryBody::ArticlePdf(ArticlePdfResult {
             file: Section::NotApplicable,

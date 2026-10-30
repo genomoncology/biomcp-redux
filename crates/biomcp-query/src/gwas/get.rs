@@ -14,6 +14,7 @@ use biomcp_types::{
 /// Read only the explicitly selected source resource.
 pub fn get(cx: &Ctx<'_>, q: &GwasGet) -> Outcome {
     let mut out = Outcome {
+        dropped: false,
         status: Status::Failed,
         body: empty(q),
         page: None,

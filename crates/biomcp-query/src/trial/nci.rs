@@ -84,17 +84,7 @@ fn finish(
     out.local = error.and_then(status::local);
     out.sources.push(source);
 }
-fn empty(body: QueryBody) -> Outcome {
-    Outcome {
-        status: Status::Failed,
-        body,
-        page: None,
-        sources: Vec::new(),
-        problems: Vec::new(),
-        next: Vec::new(),
-        local: None,
-    }
-}
+pub(super) use crate::status::empty;
 
 fn apply(
     q: &TrialSearch,

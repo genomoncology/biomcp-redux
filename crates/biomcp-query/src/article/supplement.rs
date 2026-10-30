@@ -20,6 +20,7 @@ pub fn download(cx: &Ctx<'_>, query: &ArticleSupplement, allow: bool) -> super::
     let command = cx.fetch.command_deadline(cx.budget);
     let mut deadline = command.deadline();
     let mut out = Outcome {
+        dropped: false,
         status: Status::Complete,
         body: QueryBody::ArticleSupplement(ArticleSupplementResult {
             pmcid: None,

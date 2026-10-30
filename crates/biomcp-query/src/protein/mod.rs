@@ -9,17 +9,7 @@ use crate::Outcome;
 use biomcp_types::{QueryBody, Status};
 pub use get::get;
 pub use search::search;
-fn empty(body: QueryBody) -> Outcome {
-    Outcome {
-        status: Status::Failed,
-        body,
-        page: None,
-        sources: Vec::new(),
-        problems: Vec::new(),
-        next: Vec::new(),
-        local: None,
-    }
-}
+pub(super) use crate::status::empty;
 
 /// Page checked native feature rows on their own sequence identity.
 pub fn features(cx: &crate::Ctx<'_>, q: &biomcp_types::ProteinFeaturesQuery) -> Outcome {

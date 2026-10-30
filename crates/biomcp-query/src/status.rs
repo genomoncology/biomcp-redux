@@ -1,5 +1,94 @@
 use biomcp_fetch::{LegReport, RequestError};
-use biomcp_types::{Source, SourceOutcome, SourceState, Status};
+use biomcp_types::{PageInfo, Problem, QueryBody, Source, SourceOutcome, SourceState, Status, StepKind};
+use crate::Action;
+/// Query result before the interface adds its typed envelope and next spelling.
+#[derive(Debug)]
+pub struct Outcome {
+    /// Overall outcome.
+    pub status: Status,
+    /// At least one native record was refused by its adapter.
+    pub(crate) dropped: bool,
+    /// Typed response body.
+    pub body: QueryBody,
+    /// Search counts.
+    pub page: Option<PageInfo>,
+    /// Sources actually asked.
+    pub sources: Vec<SourceOutcome>,
+    /// Rejected fields.
+    pub problems: Vec<Problem>,
+    /// Typed next actions.
+    pub next: Vec<(StepKind, Action)>,
+    /// Local errors remain distinct even alongside useful answers.
+    pub local: Option<RequestError>,
+}
+
+/// Start an unanswered query with one body and no source observations.
+pub(crate) fn empty(body: QueryBody) -> Outcome {
+    Outcome {
+        dropped: false,
+        status: Status::Failed,
+        body,
+        page: None,
+        sources: Vec::new(),
+        problems: Vec::new(),
+        next: Vec::new(),
+        local: None,
+    }
+}
+
+/// Construct an ordinary native page without snapshot or truncation metadata.
+pub(crate) fn page_info(offset: u32, returned: u32, total: u64) -> PageInfo {
+    PageInfo { offset, returned, total, pool: None, truncated: None }
+}
+
+/// Classify an identity independently of optional metadata omissions.
+pub(crate) fn item_status(found: bool, identity_failed: bool, unavailable: bool) -> Status {
+    if identity_failed {
+        Status::Failed
+    } else if !found {
+        Status::Absent
+    } else if unavailable {
+        Status::Partial
+    } else {
+        Status::Complete
+    }
+}
+
+/// A search remains an answer when its providers return no records.
+pub(crate) fn search_status(sources: &[SourceOutcome], dropped: bool) -> Status {
+    let mut answered = false;
+    let mut incomplete = dropped;
+    for source in sources {
+        match source.state {
+            SourceState::Ok => answered = true,
+            SourceState::Stale => {
+                answered = true;
+                incomplete = true;
+            }
+            SourceState::Failed | SourceState::Syncing => incomplete = true,
+            SourceState::Skipped => (),
+        }
+    }
+    if !answered {
+        Status::Failed
+    } else if incomplete {
+        Status::Partial
+    } else {
+        Status::Complete
+    }
+}
+
+/// Classify a resolved item from source facts, never optional-field problems.
+pub(crate) fn overall(out: &Outcome, absent: bool) -> Status {
+    item_status(
+        !absent,
+        false,
+        out.dropped || out.sources.iter().any(|source| {
+            matches!(source.state, SourceState::Failed | SourceState::Stale | SourceState::Syncing)
+        }),
+    )
+}
+
 /// Combine input outcomes without hiding a failed input behind a found one.
 pub(crate) fn status(items: impl Iterator<Item = Status>) -> Status {
     let values: Vec<_> = items.collect();

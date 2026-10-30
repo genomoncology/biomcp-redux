@@ -49,6 +49,7 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &GeneSearch) -> Outcome {
     };
     let next = next::search(query, &items, &page, &source);
     Outcome {
+        dropped: false,
         status: state,
         body: QueryBody::GenePage(biomcp_types::GenePage {
             items: items.into(),

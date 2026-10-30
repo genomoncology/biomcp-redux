@@ -14,17 +14,7 @@ use biomcp_types::{
     SourceState, Status, StepKind,
 };
 pub use get::get;
-fn empty(body: QueryBody) -> Outcome {
-    Outcome {
-        status: Status::Failed,
-        body,
-        page: None,
-        sources: Vec::new(),
-        problems: Vec::new(),
-        next: Vec::new(),
-        local: None,
-    }
-}
+pub(super) use crate::status::empty;
 fn finish(out: &mut Outcome, leg: Leg<'_>, error: Option<RequestError>) {
     finish_bundle(out, leg, error, Source::Gtr, Bundle::Gtr);
 }

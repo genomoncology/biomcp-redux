@@ -37,6 +37,7 @@ pub fn search(cx: &Ctx<'_>, query: &AdverseEventSearch) -> Outcome {
     };
     let error = reply.as_ref().err().copied();
     let mut out = Outcome {
+        dropped: false,
         status: Status::Failed,
         body: QueryBody::AdverseEventPage(AdverseEventPage {
             reaction_match: query
@@ -98,6 +99,7 @@ fn page_status(out: &Outcome, total: u64) -> Status {
 /// An unimplemented report get has no source effects until its owning slice lands.
 pub fn unsupported() -> Outcome {
     Outcome {
+        dropped: false,
         status: Status::Failed,
         body: QueryBody::UnsupportedAdverseEvent,
         page: None,

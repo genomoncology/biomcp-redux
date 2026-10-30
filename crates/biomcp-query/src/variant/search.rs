@@ -33,6 +33,7 @@ pub fn search(cx: &Ctx<'_>, query: &VariantSearch) -> Outcome {
     let error = reply.as_ref().err().copied();
     let source = status::source(spec.source, leg.finish(), error);
     let mut out = Outcome {
+        dropped: false,
         status: Status::Failed,
         body: QueryBody::VariantPage(VariantPage {
             selector_terms: selector_terms.clone(),
@@ -129,6 +130,7 @@ fn component_terms(
 }
 fn policy_error() -> Outcome {
     Outcome {
+        dropped: false,
         status: Status::Failed,
         body: QueryBody::VariantQueryPolicyError,
         page: None,

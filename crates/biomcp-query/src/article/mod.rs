@@ -144,6 +144,7 @@ fn retry(query: &ArticleSearch, pool: Option<Text>, out: &mut Outcome) {
 }
 fn empty() -> Outcome {
     Outcome {
+        dropped: false,
         status: Status::Complete,
         body: QueryBody::ArticlePage(ArticlePage {
             items: Box::default(),

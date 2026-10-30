@@ -17,36 +17,11 @@ use biomcp_types::{QueryBody, Request, Status};
 pub use get::get;
 pub use relation::{events, genes};
 pub use search::search;
-fn empty(body: QueryBody) -> Outcome {
-    Outcome {
-        status: Status::Failed,
-        body,
-        page: None,
-        sources: Vec::new(),
-        problems: Vec::new(),
-        next: Vec::new(),
-        local: None,
-    }
-}
+pub(super) use crate::status::empty;
 fn run(request: Request) -> Action {
     Action::Run {
         request,
         fresh: false,
     }
 }
-fn overall(out: &Outcome, absent: bool) -> Status {
-    if !out.problems.is_empty()
-        || out.sources.iter().any(|s| {
-            matches!(
-                s.state,
-                biomcp_types::SourceState::Stale | biomcp_types::SourceState::Failed
-            )
-        })
-    {
-        Status::Partial
-    } else if absent {
-        Status::Absent
-    } else {
-        Status::Complete
-    }
-}
+use crate::status::overall;

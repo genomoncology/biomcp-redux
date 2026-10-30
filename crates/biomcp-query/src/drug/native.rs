@@ -16,9 +16,7 @@ fn failure(source: Source) -> RequestError {
         retry_after: None,
     })
 }
-fn empty(body: QueryBody) -> Outcome {
-    super::empty(body)
-}
+pub(super) use crate::status::empty;
 fn spec(source: DrugSource) -> &'static biomcp_fetch::SourceSpec {
     if source == DrugSource::Chembl {
         &chembl::SPEC

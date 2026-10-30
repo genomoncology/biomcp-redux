@@ -152,6 +152,7 @@ fn apply_page(
 }
 fn empty() -> Outcome {
     Outcome {
+        dropped: false,
         status: Status::Failed,
         body: QueryBody::TrialPage(TrialPage {
             items: Box::default(),

@@ -5,6 +5,8 @@ use biomcp_types::{DiseaseHeader, DiseaseSearch};
 /// A single native page without local ranking or identity selection.
 #[derive(Debug)]
 pub struct SearchPage {
+    /// One or more native row identities were refused.
+    pub dropped: bool,
     /// Native window size before identity refusals.
     pub received: u32,
     /// Publisher total for the literal query and one ontology.
@@ -73,6 +75,7 @@ pub fn search(leg: &Leg<'_>, query: &DiseaseSearch) -> Result<SearchPage, Reques
         });
     }
     Ok(SearchPage {
+        dropped: value.len() < received as usize,
         received,
         total: page.response.total,
         rows: Mapped {

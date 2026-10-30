@@ -177,6 +177,7 @@ fn finish(
 }
 fn empty() -> Outcome {
     Outcome {
+        dropped: false,
         status: Status::Failed,
         body: QueryBody::TrialCards(TrialCards {
             items: Box::default(),

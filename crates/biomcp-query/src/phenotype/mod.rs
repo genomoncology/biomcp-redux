@@ -35,6 +35,7 @@ pub fn search(cx: &Ctx<'_>, q: &PhenotypeSearch) -> Outcome {
         .push(status::source(Source::Monarch, leg.finish(), error));
     out.local = error.and_then(status::local);
     if let Ok(page) = reply {
+        out.dropped = page.dropped;
         out.problems.extend(page.problems);
         let returned = page.items.len() as u32;
         for item in &page.items {
@@ -66,43 +67,21 @@ pub fn search(cx: &Ctx<'_>, q: &PhenotypeSearch) -> Outcome {
                 .fetched
                 .and_then(|value| u64::try_from(value).ok()),
         });
-        out.status = overall(&out, page.total == 0);
+        out.status = status::search_status(&out.sources, out.dropped);
     }
     problem(&mut out, Source::Monarch, None);
     recovery(&mut out, Request::SearchPhenotype(q.clone()));
     command.finish(deadline.remaining());
     out
 }
-fn empty(body: QueryBody) -> Outcome {
-    Outcome {
-        status: Status::Failed,
-        body,
-        page: None,
-        sources: Vec::new(),
-        problems: Vec::new(),
-        next: Vec::new(),
-        local: None,
-    }
-}
+pub(super) use crate::status::empty;
 fn run(request: Request) -> Action {
     Action::Run {
         request,
         fresh: false,
     }
 }
-fn overall(out: &Outcome, absent: bool) -> Status {
-    if out
-        .sources
-        .iter()
-        .any(|s| s.state == biomcp_types::SourceState::Stale)
-    {
-        Status::Partial
-    } else if absent {
-        Status::Absent
-    } else {
-        Status::Complete
-    }
-}
+use crate::status::overall;
 fn problem(out: &mut Outcome, source: Source, record: Option<biodata::Text>) {
     if out
         .sources

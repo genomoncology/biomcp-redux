@@ -142,6 +142,7 @@ fn page(
 }
 fn empty() -> Outcome {
     Outcome {
+        dropped: false,
         status: Status::Failed,
         body: QueryBody::OrganizationPage(OrganizationPage {
             items: Box::default(),

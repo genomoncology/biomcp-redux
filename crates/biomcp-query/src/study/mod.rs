@@ -4,17 +4,7 @@ use crate::{Action, Bundle, Ctx, Outcome, status};
 use biomcp_adapters::cbioportal::{SPEC, studies};
 use biomcp_fetch::{Leg, RequestError};
 use biomcp_types::{QueryBody, Source, SourceState, Status, StepKind, StudySearch};
-fn empty(body: QueryBody) -> Outcome {
-    Outcome {
-        status: Status::Failed,
-        body,
-        page: None,
-        sources: vec![],
-        problems: vec![],
-        next: vec![],
-        local: None,
-    }
-}
+pub(super) use crate::status::empty;
 fn finish(out: &mut Outcome, leg: Leg<'_>, error: Option<RequestError>) {
     out.local = error.and_then(status::local);
     out.sources

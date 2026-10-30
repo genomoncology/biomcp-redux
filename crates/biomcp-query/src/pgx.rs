@@ -163,6 +163,7 @@ fn finish(
         Status::Complete
     };
     Outcome {
+        dropped: false,
         status: state,
         body: reply.unwrap_or(empty),
         page: None,

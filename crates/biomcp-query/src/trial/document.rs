@@ -19,6 +19,7 @@ pub fn download(cx: &Ctx<'_>, query: &TrialDocumentGet, allow: bool) -> Download
         .leg(&ctgov::SPEC, command.deadline())
         .fresh(cx.fresh);
     let mut out = Outcome {
+        dropped: false,
         status: Status::Complete,
         body: QueryBody::TrialDocument(TrialDocumentResult {
             file: Section::Empty {

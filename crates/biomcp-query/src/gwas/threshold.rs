@@ -50,6 +50,7 @@ pub(super) fn search(cx: &Ctx<'_>, q: &GwasSearch) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let mut out = Outcome {
+        dropped: false,
         status: Status::Failed,
         body: QueryBody::GwasPage(None),
         page: None,

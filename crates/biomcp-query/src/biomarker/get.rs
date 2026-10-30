@@ -11,6 +11,7 @@ pub fn get(cx: &Ctx<'_>, q: &BiomarkerGet) -> Outcome {
     let error = reply.as_ref().err().copied();
     let source = status::source(Source::Nci, leg.finish(), error);
     let mut out = Outcome {
+        dropped: false,
         status: Status::Failed,
         body: QueryBody::BiomarkerResult(BiomarkerResult {
             card: None,

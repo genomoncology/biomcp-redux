@@ -81,6 +81,7 @@ pub fn get(cx: &Ctx<'_>, query: &VariantGet) -> Outcome {
     next.extend(oncokb::next(query, &sources));
     next.extend(alphagenome::next(&sources));
     let out = Outcome {
+        dropped: false,
         status: overall(resolution, &problems, &sources),
         body: QueryBody::VariantCard(VariantCard {
             resolution,

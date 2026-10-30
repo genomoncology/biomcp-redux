@@ -89,6 +89,7 @@ pub fn search(cx: &Ctx<'_>, q: &GwasSearch) -> Outcome {
 
 fn empty() -> Outcome {
     Outcome {
+        dropped: false,
         status: Status::Failed,
         body: QueryBody::GwasPage(None),
         page: None,

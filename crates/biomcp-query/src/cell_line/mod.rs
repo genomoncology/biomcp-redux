@@ -67,17 +67,7 @@ pub fn search(cx: &Ctx<'_>, query: &CellLineSearch) -> Outcome {
 pub fn get(cx: &Ctx<'_>, query: &CellLineGet) -> Outcome {
     get::get(cx, query)
 }
-fn empty(body: QueryBody) -> Outcome {
-    Outcome {
-        status: Status::Failed,
-        body,
-        page: None,
-        sources: Vec::new(),
-        problems: Vec::new(),
-        next: Vec::new(),
-        local: None,
-    }
-}
+pub(super) use crate::status::empty;
 fn run(request: Request) -> Action {
     Action::Run {
         request,

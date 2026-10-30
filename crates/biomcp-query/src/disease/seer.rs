@@ -115,43 +115,12 @@ pub fn get(cx: &Ctx<'_>, query: &DiseaseGet) -> Outcome {
 fn fetched(value: Option<i64>) -> Option<u64> {
     value.and_then(|value| u64::try_from(value).ok())
 }
-fn empty(body: QueryBody) -> Outcome {
-    Outcome {
-        status: Status::Failed,
-        body,
-        page: None,
-        sources: Vec::new(),
-        problems: Vec::new(),
-        next: Vec::new(),
-        local: None,
-    }
-}
-fn page_info(offset: u32, returned: u32, total: u64) -> PageInfo {
-    PageInfo {
-        offset,
-        returned,
-        total,
-        pool: None,
-        truncated: None,
-    }
-}
+pub(super) use crate::status::empty;
+pub(super) use crate::status::page_info;
 fn run(request: Request) -> Action {
     Action::Run {
         request,
         fresh: false,
     }
 }
-fn overall(out: &Outcome, absent: bool) -> Status {
-    if !out.problems.is_empty()
-        || out
-            .sources
-            .iter()
-            .any(|s| s.state == biomcp_types::SourceState::Stale)
-    {
-        Status::Partial
-    } else if absent {
-        Status::Absent
-    } else {
-        Status::Complete
-    }
-}
+use crate::status::overall;

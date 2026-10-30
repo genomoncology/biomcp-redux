@@ -13,17 +13,7 @@ use biomcp_types::{
 };
 pub use get::get;
 pub use search::search;
-fn empty(body: QueryBody) -> Outcome {
-    Outcome {
-        status: Status::Failed,
-        body,
-        page: None,
-        sources: vec![],
-        problems: vec![],
-        next: vec![],
-        local: None,
-    }
-}
+pub(super) use crate::status::empty;
 fn run(request: Request) -> Action {
     Action::Run {
         request,

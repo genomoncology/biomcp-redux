@@ -65,6 +65,7 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &GeneGet) -> Outcome {
     let state = status::status(items.iter().map(|item| item.status));
     let next = next::get(query, &items, &sources);
     Outcome {
+        dropped: false,
         status: state,
         body: QueryBody::GeneCards(GeneCards {
             items: items.into(),

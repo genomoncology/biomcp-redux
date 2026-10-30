@@ -164,6 +164,7 @@ fn page(
 }
 fn empty() -> Outcome {
     Outcome {
+        dropped: false,
         status: Status::Failed,
         body: QueryBody::BiomarkerPage(BiomarkerPage {
             items: Box::default(),
