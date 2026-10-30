@@ -94,9 +94,21 @@ fn chembl_pages() -> Result<(), String> {
             }
         }
         if !invalid
-            && (molecule.window.rows[0].problems.is_empty()
-                || mechanism.window.rows[0].problems.is_empty()
-                || indication.window.rows[0].problems.is_empty())
+            && (molecule
+                .window
+                .rows
+                .first()
+                .is_none_or(|row| row.problems.is_empty())
+                || mechanism
+                    .window
+                    .rows
+                    .first()
+                    .is_none_or(|row| row.problems.is_empty())
+                || indication
+                    .window
+                    .rows
+                    .first()
+                    .is_none_or(|row| row.problems.is_empty()))
         {
             return Err("optional-field control did not produce retained-row problems".into());
         }

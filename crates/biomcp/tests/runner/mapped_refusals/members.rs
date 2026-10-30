@@ -199,7 +199,12 @@ fn citations() -> Check {
                 format!("iCite {case}: actual record refusal or native absence changed").into(),
             );
         }
-        if case == "optional" && mapped.value[0].problems.is_empty() {
+        if case == "optional"
+            && mapped
+                .value
+                .first()
+                .is_none_or(|row| row.problems.is_empty())
+        {
             return Err("iCite optional-field control missed native problems".into());
         }
     }

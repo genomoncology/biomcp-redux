@@ -94,15 +94,16 @@ fn mygene_hits() -> Check {
                 format!("MyGene {case}: actual batch refusal or retained row was lost").into(),
             );
         }
-        if case == "optional"
-            && (rows[0].refusals != Refusal::None
-                || rows[0].value.summary.is_some()
-                || !rows[0]
-                    .problems
-                    .iter()
-                    .any(|p| p.field.as_ref() == "summary"))
-        {
-            return Err("MyGene retained optional-field problem became a record refusal".into());
+        if case == "optional" {
+            let row = rows.first().ok_or("MyGene retained row missing")?;
+            if row.refusals != Refusal::None
+                || row.value.summary.is_some()
+                || !row.problems.iter().any(|p| p.field.as_ref() == "summary")
+            {
+                return Err(
+                    "MyGene retained optional-field problem became a record refusal".into(),
+                );
+            }
         }
     }
     Ok(())

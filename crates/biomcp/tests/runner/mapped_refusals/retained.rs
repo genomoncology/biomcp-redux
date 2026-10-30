@@ -31,8 +31,9 @@ fn labels() -> Check {
                 && let Some(body) = recording.pointer_mut("/exchanges/0/body/value")
                 && let Some(native) = body.as_str()
             {
-                let mut document: Value =
-                    serde_json::from_str(native).expect("existing label JSON");
+                let Ok(mut document) = serde_json::from_str::<Value>(native) else {
+                    return;
+                };
                 if let Some(row) = document.pointer_mut("/results/0") {
                     changed = true;
                     row["boxed_warning"] = match case {

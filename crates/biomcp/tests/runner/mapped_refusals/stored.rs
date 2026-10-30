@@ -123,8 +123,9 @@ fn catalog() -> Check {
                 && let Some(body) = recording.pointer_mut("/exchanges/0/body/value")
                 && let Some(native) = body.as_str()
             {
-                let mut catalog: Value =
-                    serde_json::from_str(native).expect("existing catalog JSON");
+                let Ok(mut catalog) = serde_json::from_str::<Value>(native) else {
+                    return;
+                };
                 if let Some(row) = catalog.pointer_mut("/pathwayInfo/0") {
                     changed = true;
                     if invalid {
@@ -166,8 +167,9 @@ fn candidates() -> Check {
                 && let Some(body) = recording.pointer_mut("/exchanges/0/body/value")
                 && let Some(native) = body.as_str()
             {
-                let mut document: Value =
-                    serde_json::from_str(native).expect("existing ClinVar JSON");
+                let Ok(mut document) = serde_json::from_str::<Value>(native) else {
+                    return;
+                };
                 if let Some(rows) = document.pointer_mut("/esearchresult/idlist") {
                     changed = true;
                     *rows = match case {

@@ -60,9 +60,13 @@ fn opentargets_collection_owns_refusals_across_pages() -> Result<(), Box<dyn std
                     other_page.next_offset(),
                 ),
             ] {
-                assert_eq!(total, Some(2));
-                assert_eq!(received, u32::from(offset < 2));
-                assert_eq!(next, if offset == 0 { Some(1) } else { None });
+                assert_eq!(total, Some(2), "accepted collection total changed");
+                assert_eq!(received, u32::from(offset < 2), "accepted slots changed");
+                assert_eq!(
+                    next,
+                    if offset == 0 { Some(1) } else { None },
+                    "accepted continuation changed"
+                );
             }
             let target_reply = serde_json::to_vec(&page.rows)?;
             let indication_reply = serde_json::to_vec(&other_page.rows)?;

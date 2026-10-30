@@ -145,8 +145,9 @@ fn statistics() -> Check {
                 && let Some(body) = recording.pointer_mut("/exchanges/0/body/value")
                 && let Some(native) = body.as_str()
             {
-                let mut document: Value =
-                    serde_json::from_str(native).expect("existing native JSON string");
+                let Ok(mut document) = serde_json::from_str::<Value>(native) else {
+                    return;
+                };
                 if let Some(row) = document.pointer_mut("/data/5_3_1_1_55/data_series/0") {
                     changed = true;
                     row[1] = json!("invalid optional rate");
