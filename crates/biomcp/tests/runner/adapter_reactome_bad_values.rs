@@ -89,6 +89,9 @@ fn metadata_stub(
 }
 
 fn check_result(value: &Value, section: &str, field: &str) -> Result<(), String> {
+    if field == "name" && value.get("status") != Some(&json!("complete")) {
+        return Err(format!("optional pathway name changed status: {value}"));
+    }
     if !value
         .get("problems")
         .and_then(Value::as_array)

@@ -214,7 +214,12 @@ fn check_reply(
             && !value
                 .get("result")
                 .is_some_and(|v| has_string(v, "DB00001")))
-        || value.get("status") != Some(&json!("partial"))
+        || value.get("status")
+            != Some(&json!(if family == "ols" && field == "label" {
+                "complete"
+            } else {
+                "partial"
+            }))
         || value.get("result").is_none_or(Value::is_null)
         || value.get("result").is_some_and(contains_invalid)
     {
