@@ -343,7 +343,6 @@ section get disease hierarchy
 section get disease phenotypes
 section get disease synonyms
 section get disease xrefs
-section get drug approvals
 section get drug civic
 section get drug indications
 section get drug label

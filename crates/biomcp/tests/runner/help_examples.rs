@@ -36,7 +36,7 @@ pub(super) fn check() -> Result<(), String> {
     printed.retain(|example| owned.contains(example));
     let registry = schema::Registry::embedded()?;
     for (file, index) in witnesses {
-        let path = launch::fixtures().join("cases").join(file);
+        let path = launch::fixtures().join("cases").join(&file);
         let text = fs::read_to_string(&path).map_err(|e| e.to_string())?;
         let mut case: Case = serde_saphyr::from_str(&text).map_err(|e| e.to_string())?;
         super::load_floors(&mut case, &path)?;
