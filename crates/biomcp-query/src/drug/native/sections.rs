@@ -6,9 +6,8 @@ use biomcp_types::{
     DrugGet, DrugHeader, DrugIndications, DrugRecords, DrugSection, DrugTargets, PageInfo,
     QueryBody, Request, Section, Source, Status, StepKind,
 };
-#[cfg(test)]
-#[path = "collection_contract.rs"]
-mod collection_contract;
+#[path = "collection_page.rs"]
+mod collection;
 pub(super) fn chembl(
     leg: &Leg<'_>,
     query: &DrugGet,
@@ -90,7 +89,7 @@ pub(super) fn opentargets(
             out.problems.append(&mut collection.problems);
             // The collection owns refusals across its complete accepted-row paging surface.
             // Its fact remains directly available here for the later status owner.
-            let window = collection_page(&mut collection, offset, limit);
+            let window = collection::page(&mut collection, offset, limit);
             targets(out, query, header, window, meta.fetched, fresh);
         }
         [DrugSection::Indications] => {
@@ -99,7 +98,7 @@ pub(super) fn opentargets(
             out.problems.append(&mut collection.problems);
             // The collection owns refusals across its complete accepted-row paging surface.
             // Its fact remains directly available here for the later status owner.
-            let window = collection_page(&mut collection, offset, limit);
+            let window = collection::page(&mut collection, offset, limit);
             indications(out, query, header, window, meta.fetched, fresh);
         }
         _ => {
@@ -109,29 +108,6 @@ pub(super) fn opentargets(
         }
     }
     Ok(())
-}
-// Accepted-row offsets belong to this legacy public projection. Refusal events belong
-// to the complete Mapped collection, which this borrow preserves for the section owner.
-fn collection_page<T>(
-    collection: &mut biomcp_adapters::Mapped<Box<[T]>>,
-    offset: usize,
-    limit: usize,
-) -> NativeWindow<T> {
-    let total = collection.value.len() as u64;
-    let rows = std::mem::take(&mut collection.value)
-        .into_vec()
-        .into_iter()
-        .skip(offset)
-        .take(limit)
-        .collect();
-    NativeWindow::new(
-        rows,
-        offset as u32,
-        limit as u32,
-        Some(total),
-        total.saturating_sub(offset as u64).min(limit as u64) as u32,
-        biomcp_adapters::Refusal::None,
-    )
 }
 
 fn card_next(out: &mut Outcome, query: &DrugGet, fresh: bool, xrefs: bool) {

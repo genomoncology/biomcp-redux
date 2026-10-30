@@ -106,6 +106,11 @@ fn terms() -> Check {
 }
 
 fn statistics() -> Check {
+    catalog()?;
+    series()
+}
+
+fn catalog() -> Check {
     for invalid in [false, true] {
         let mut changed = false;
         let (_root, fetch) = replay("disease/seer-synthetic", |source, recording| {
@@ -138,6 +143,10 @@ fn statistics() -> Check {
             return Err("SEER catalog refusal escaped its selected native window".into());
         }
     }
+    Ok(())
+}
+
+fn series() -> Check {
     for invalid in [false, true] {
         let mut changed = false;
         let (_root, fetch) = replay("disease/seer-synthetic", |source, recording| {

@@ -1,8 +1,19 @@
 //! The query's collection boundary preserves accepted-row pages without sharing collection facts.
 use biomcp_adapters::{Refusal, opentargets};
+use libtest_mimic::Trial;
 use serde_json::json;
+#[path = "../../../../biomcp-query/src/drug/native/collection_page.rs"]
+mod projection;
+pub(super) fn trials() -> Vec<Trial> {
+    vec![super::trial(
+        "drug-native-sources/collection-refusals-stay-with-accepted-collection",
+        || {
+            opentargets_collection_owns_refusals_across_pages()
+                .map_err(|error| error.to_string().into())
+        },
+    )]
+}
 
-#[test]
 fn opentargets_collection_owns_refusals_across_pages() -> Result<(), Box<dyn std::error::Error>> {
     let drug = serde_json::from_value(json!({
         "id":"CHEMBL1", "namespace":"opentargets", "identity_level":"unknown"
@@ -32,8 +43,8 @@ fn opentargets_collection_owns_refusals_across_pages() -> Result<(), Box<dyn std
             } else {
                 Refusal::None
             };
-            let page = super::collection_page(&mut collection, offset, 1);
-            let other_page = super::collection_page(&mut other, offset, 1);
+            let page = projection::page(&mut collection, offset, 1);
+            let other_page = projection::page(&mut other, offset, 1);
             assert_eq!(
                 collection.refusals, expected,
                 "Open Targets target collection lost actual refusal"
