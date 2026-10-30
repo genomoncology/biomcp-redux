@@ -1,8 +1,6 @@
 //! Required publisher provenance is measured separately from unchanged payload caps.
 #[path = "../../src/view/escape.rs"]
 pub(super) mod text;
-use crate::runner::transcript::trial as transcript_trial;
-use libtest_mimic::Trial;
 use serde_json::{Value, json};
 
 fn strip_row(row: &mut Value) -> Result<(), String> {

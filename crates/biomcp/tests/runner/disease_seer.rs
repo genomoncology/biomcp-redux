@@ -1,7 +1,5 @@
 //! Feature disease-seer: native site choices and independent annual statistics.
 use super::{launch::Environment, network_stub::Stub};
-use crate::runner::transcript::trial as transcript_trial;
-use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::{fs, io::Write, path::Path};
 
@@ -66,7 +64,7 @@ fn replay(directory: &Path, steps: Value) -> Result<Value, String> {
         .map_err(|e| e.to_string())?,
     )
     .map_err(|e| e.to_string())?;
-    let value = super::run_case(file.path(), &super::schema::Registry::embedded()?)?;
+    let value = super::run_case(file.path(), super::schema::Registry::embedded()?.as_ref())?;
     measure(&["replay-terminal"], &value)?;
     Ok(value)
 }

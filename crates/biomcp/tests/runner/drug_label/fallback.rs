@@ -1,8 +1,6 @@
 //! Feature drug-label: tokenized discovery retains complete brand identity.
 use super::super::network_stub::Stub;
 use super::{Check, both, environment, field, identity, page, record};
-use crate::runner::transcript::trial as transcript_trial;
-use libtest_mimic::Trial;
 use serde_json::{Value, json};
 
 fn fallback(typed: &str, returned: &str, found: bool) -> Check {

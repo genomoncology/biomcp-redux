@@ -154,7 +154,7 @@ fn replay(directory: &Path, mut steps: Value) -> Result<Value, String> {
         .map_err(|e| e.to_string())?,
     )
     .map_err(|e| e.to_string())?;
-    let value = super::run_case(file.path(), &super::schema::Registry::embedded()?)?;
+    let value = super::run_case(file.path(), super::schema::Registry::embedded()?.as_ref())?;
     measure(&["replay"], &value)?;
     Ok(value)
 }

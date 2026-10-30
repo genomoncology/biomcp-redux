@@ -48,7 +48,7 @@ pub(super) fn checked_steps(
     )?;
     Ok(super::run_case(
         &path,
-        &super::schema::Registry::embedded()?,
+        super::schema::Registry::embedded()?.as_ref(),
     )?)
 }
 

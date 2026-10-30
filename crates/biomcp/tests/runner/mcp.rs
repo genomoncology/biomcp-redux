@@ -1,6 +1,6 @@
 use super::launch::Environment;
 use serde_json::{Value, json};
-use std::{io::Write, process::Stdio};
+use std::process::Stdio;
 
 pub(super) fn metadata() -> Value {
     json!({"io.modelcontextprotocol/protocolVersion":"2026-07-28",

@@ -64,7 +64,7 @@ fn replay(directory: &Path, mut steps: Value) -> Result<Value, String> {
         .map_err(|e| e.to_string())?,
     )
     .map_err(|e| e.to_string())?;
-    super::run_case(file.path(), &super::schema::Registry::embedded()?)
+    super::run_case(file.path(), super::schema::Registry::embedded()?.as_ref())
 }
 fn ceiling(step: &Value) -> Result<usize, String> {
     // Ceil(max measured comparable bytes by command/page shape * 1.15), j12127/j12134.

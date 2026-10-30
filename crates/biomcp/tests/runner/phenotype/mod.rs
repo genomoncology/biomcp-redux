@@ -9,7 +9,6 @@ mod section_native;
 mod sections;
 mod states;
 use super::{launch::Environment, network_stub::Stub};
-use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 tool_only! { pub(super) use native::run as native; }
 use serde_json::{Value, json};

@@ -1,7 +1,5 @@
 //! Features trial-search and trial-get: malformed nonidentity fields retain their sibling facts.
 use super::response_cases::checked_steps;
-use crate::runner::transcript::trial as transcript_trial;
-use libtest_mimic::Trial;
 use serde_json::{Value, json};
 #[path = "trial_bad_value_cases.rs"]
 mod edge_cases;

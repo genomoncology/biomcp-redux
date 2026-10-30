@@ -146,6 +146,6 @@ fn replay(
         "story":"A condition search preserves source rows and offers an explicit registered-phrase restriction",
         "replay":recording,"steps":[{"run":words,"mcp":words,"expect":expect}]
     }).to_string()).map_err(|e| e.to_string())?;
-    super::super::run_case(&case, &super::super::schema::Registry::embedded()?)?;
+    super::super::run_case(&case, super::super::schema::Registry::embedded()?.as_ref())?;
     Ok(())
 }

@@ -1,8 +1,6 @@
 use super::super::configuration::invoke;
 use super::field;
 use super::{Check, both, get_args, get_setup, identity, record};
-use crate::runner::transcript::trial as transcript_trial;
-use libtest_mimic::Trial;
 use serde_json::{Value, json};
 
 fn walk(n: usize, limit: u32) -> Check {

@@ -1,7 +1,5 @@
 //! Exact trial disease identity stops before trial I/O when resolution cannot supply a filter.
 use super::{launch::Environment, network_stub::Stub};
-use crate::runner::transcript::trial as transcript_trial;
-use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
 
@@ -88,7 +86,7 @@ fn failures() -> Result<(), String> {
             .map_err(|e| e.to_string())?,
         )
         .map_err(|e| e.to_string())?;
-        super::run_case(file.path(), &super::schema::Registry::embedded()?)?;
+        super::run_case(file.path(), super::schema::Registry::embedded()?.as_ref())?;
     }
     Ok(())
 }

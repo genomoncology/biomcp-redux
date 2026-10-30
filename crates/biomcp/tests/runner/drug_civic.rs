@@ -26,7 +26,7 @@ const CASES: [&str; 15] = [
 pub(super) fn trials() -> Vec<Trial> {
     vec![transcript_trial(
         crate::runner::pool_contract::DRUG_CIVIC_CURSOR.0,
-        || run(9).map_err(Into::into),
+        || check(9).map_err(Into::into),
     )]
 }
 fn arguments(n: usize) -> Result<Vec<String>, String> {

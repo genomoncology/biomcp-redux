@@ -1,9 +1,7 @@
 //! Key registration crosses the real CLI boundary without real credentials.
 use super::launch::Environment;
-use crate::runner::transcript::trial as transcript_trial;
-use libtest_mimic::Trial;
-use serde_json::{Value, json};
-use std::{fs, io::Write, process::Stdio};
+use serde_json::Value;
+use std::{io::Write, process::Stdio};
 type Check = Result<(), String>;
 const FIRST: &str = "synthetic-registration-first";
 const SECOND: &str = "synthetic-registration-second";

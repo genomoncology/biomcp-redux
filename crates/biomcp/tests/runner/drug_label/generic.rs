@@ -1,7 +1,5 @@
 //! Feature drug-label: complete generic discovery preserves the native brand.
 use super::{Check, both, field, identity, page, record, setup};
-use crate::runner::transcript::trial as transcript_trial;
-use libtest_mimic::Trial;
 use serde_json::{Value, json};
 
 fn search(typed: &str, basis: &str) -> Check {

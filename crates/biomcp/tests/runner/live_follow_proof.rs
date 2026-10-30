@@ -68,7 +68,7 @@ fn check() -> Result<(), Box<dyn std::error::Error>> {
         return Err(format!("skipped diagnostic counts changed: {report}").into());
     }
     // Ordinary replay still executes the local error and follows its real restart.
-    super::run_case(&witnessed, &super::schema::Registry::embedded()?)?;
+    super::run_case(&witnessed, super::schema::Registry::embedded()?.as_ref())?;
     continuation_context()?;
     Ok(())
 }
