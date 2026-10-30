@@ -6,6 +6,7 @@ use std::{fs, path::Path};
 tool_only! { use std::env; }
 
 tool_only! { #[path = "fixture_evidence_proof.rs"] mod fixture_evidence_proof; }
+tool_only! { #[path = "native_evidence_proof.rs"] mod native_evidence_proof; }
 
 tool_only! { type Check = Result<(), String>; }
 
@@ -45,6 +46,10 @@ pub(crate) fn trials() -> Vec<Trial> {
         }),
     ];
     trials.extend(fixture_evidence_proof::trials());
+    trials.push(transcript_trial(
+        "schema-discovery/persistent-native-evidence",
+        || native_evidence_proof::check().map_err(|error| error.to_string().into()),
+    ));
     trials
 }
 }
@@ -134,6 +139,19 @@ fn negatives() -> Check {
             "/type max_tokens: expected <= 1, actual 2",
         ),
     ];
+    put(
+        directory.path(),
+        "markdown-pair.yaml",
+        concat!(
+            "  - run: [help, author, --format, json]\n  - run: [help, author, --format, md]\n",
+            "    max_bytes: 8192\n    expect: {'': {includes_all_of: ",
+            "['biomcp author papers', '--format', '--disable-sources']}}",
+        ),
+    )?;
+    let accepted = invoke(directory.path(), &["markdown-pair.yaml", "--exact"])?;
+    if !accepted.status.success() {
+        return Err(format!("matching Markdown pair failed: {}", String::from_utf8_lossy(&accepted.stdout)));
+    }
     for (name, step, diagnostic) in cases.into_iter().chain(super::negative_cases::cases()) {
         let filename = format!("{name}.yaml");
         put(directory.path(), &filename, step)?;

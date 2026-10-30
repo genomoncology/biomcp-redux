@@ -1,5 +1,5 @@
 {
-  "feature": "drug-label",
+  "feature": "drug-failures",
   "live_check": "synthetic response-only failure over an actual recorded request identity",
   "story": "A failed label source remains distinct from a healthy source with no matching records.",
   "replay": "drug/label-unavailable",

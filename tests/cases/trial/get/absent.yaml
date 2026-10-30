@@ -16,6 +16,20 @@
         "/status": "usage",
         "/error/code": "usage.arguments"
       }
+    },
+    {
+      "run": [
+        "get",
+        "trial",
+        "NCT01811710"
+      ],
+      "exit": 1,
+      "expect": {
+        "/status": "absent",
+        "/result/items/0/status": "absent",
+        "/sources/0/source": "ctgov",
+        "/sources/0/state": "ok"
+      }
     }
   ]
 }

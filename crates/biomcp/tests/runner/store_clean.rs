@@ -24,7 +24,9 @@ fn run(env: &Environment, args: &[&str]) -> Check<Value> {
     if !output.status.success() {
         return Err(format!("command failed: {value}").into());
     }
-    if args.first().is_some_and(|s| s == "store") && output.stdout.len() > 250 {
+    if args.first().is_some_and(|s| s == "store")
+        && output.stdout.len() > crate::runner::output_limit("store-clean")?
+    {
         return Err(format!("cleanup exceeded 250 bytes: {}", output.stdout.len()).into());
     }
     Ok(value)

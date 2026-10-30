@@ -12,16 +12,28 @@ pub(super) struct Registry {
 }
 
 impl Registry {
-    pub(super) fn embedded() -> Result<Self, String> {
-        let artifacts = ARTIFACTS
-            .iter()
-            .map(|(id, text)| {
-                serde_json::from_str(text)
-                    .map(|value| ((*id).to_owned(), value))
-                    .map_err(|_| format!("schema validation: invalid artifact {}", bounded(id)))
+    pub(super) fn embedded() -> Result<Arc<Self>, String> {
+        #[expect(
+            clippy::disallowed_types,
+            reason = "Compile the immutable embedded schemas once and share the same fallible result across trials"
+        )]
+        static EMBEDDED: std::sync::OnceLock<Result<Arc<Registry>, String>> =
+            std::sync::OnceLock::new();
+        EMBEDDED
+            .get_or_init(|| {
+                let artifacts = ARTIFACTS
+                    .iter()
+                    .map(|(id, text)| {
+                        serde_json::from_str(text)
+                            .map(|value| ((*id).to_owned(), value))
+                            .map_err(|_| {
+                                format!("schema validation: invalid artifact {}", bounded(id))
+                            })
+                    })
+                    .collect::<Result<_, _>>()?;
+                Self::new(artifacts).map(Arc::new)
             })
-            .collect::<Result<_, _>>()?;
-        Self::new(artifacts)
+            .clone()
     }
 
     pub(super) fn new(artifacts: BTreeMap<String, Value>) -> Result<Self, String> {

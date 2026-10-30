@@ -4630,14 +4630,17 @@ Options:
           [default: json]
           [possible values: json, md]
 
+      --hosted
+          Refuse host file saves, health details and store or key changes over MCP.
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
       --http [<http>]
           Listen on an HTTP address; omit its value for the loopback default.
 
       --allow-host <allow-host>
           Allow an HTTP Host authority; required for non-loopback listeners.
-
-      --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
 
       --config <config>
           Read configuration from this file.
@@ -4653,8 +4656,9 @@ Example: biomcp help serve
 
 ```
 
-Serve MCP over stdio or --http [ADDR]. Non-loopback binds require --allow-host HOST or http.allowed_hosts; neither authenticates callers. HTTP refuses sync, store clean and --fresh. Stdio saves refuse --replace. MCP revisions: 2026-07-28, 2025-11-25, 2025-06-18, 2025-03-26. Send MCP-Protocol-Version on HTTP requests. Without it, initialize uses its requested legacy revision; other requests default to 2025-03-26. Unsupported headers return HTTP 400.
+Serve MCP over stdio or --http [ADDR]. Non-loopback binds require --allow-host HOST or http.allowed_hosts; neither authenticates callers. HTTP refuses sync, store clean and --fresh. Stdio saves refuse --replace. --hosted refuses file saves, health details, sync, store clean, --fresh and key commands on every transport with a usage.mcp_unavailable error. MCP revisions: 2026-07-28, 2025-11-25, 2025-06-18, 2025-03-26. Send MCP-Protocol-Version on HTTP requests. Without it, initialize uses its requested legacy revision; other requests default to 2025-03-26. Unsupported headers return HTTP 400.
 
+- `--hosted`: Refuse host file saves, health details and store or key changes over MCP.
 - `--http`: Listen on an HTTP address; omit its value for the loopback default.
 - `--allow-host`: Allow an HTTP Host authority; required for non-loopback listeners.
 

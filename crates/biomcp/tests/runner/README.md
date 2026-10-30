@@ -5,6 +5,12 @@ external case directory. Cargo filters and `--list` retain those relative names.
 Each case shares one isolated environment across its steps.
 An explicit name filter that selects no tests exits nonzero and names the filter on stderr.
 
+`scripts.trials.run_selected` selects exact names from an existing executable's
+`--list` output before its build preparation callback runs. Pass the target's
+existing mode arguments and required working directory. The helper keeps that
+command and directory for each exact run. Group names and names owned by another
+target fail before preparation. `--cases` selects a directory.
+
 `expect` maps JSON pointers to assertions. Scalars and arrays mean equality.
 Objects contain operators combined with AND; use `equals` for a literal object.
 The runner validates every step and assertion before launching any command.
@@ -27,6 +33,16 @@ JSON. By default, registered source policy fields are excluded from these step c
 Set `full_output_bytes: true` to count the complete emitted CLI stdout, including
 its newline, or the actual MCP content text. Its token estimate uses those same
 bytes divided by four, rounded up. RPC framing remains separate.
+An explicit CLI `--format md` or `--format=md` before a literal `--` accepts
+root `expect` assertions with `includes` for one substring or `includes_all_of`
+for an array of required substrings. Markdown `max_bytes` preserves the comparable text metric by validating and
+subtracting publisher policy columns with the existing source terms checker.
+It requires an immediately preceding actual JSON CLI step with matching arguments
+apart from explicit format options. A missing or different pair fails. With
+`full_output_bytes: true`, the ceiling counts every raw byte and requires no pair.
+JSON pointers, other operators, MCP parity and token ceilings remain unavailable
+for that text assertion form. Literal `stdout` still compares the complete output.
+
 Arrays are ordered. Membership ignores multiplicity. Missing paths fail;
 explicit null is a value. Ordinary empty arrays can equal `[]`, have count zero,
 and fail membership normally. A missing rank member fails.

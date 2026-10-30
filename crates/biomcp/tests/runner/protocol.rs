@@ -351,9 +351,13 @@ fn discovery() -> Check {
         .ok_or("expected three tools")?;
     if tool.get("name") != Some(&json!("biomcp"))
         || tool.get("inputSchema")
-            != Some(
-                &json!({"type":"object","properties":{"args":{"type":"array","items":{"type":"string"}}},"required":["args"],"additionalProperties":false}),
-            )
+            != Some(&json!({
+                "$schema":"https://json-schema.org/draft/2020-12/schema",
+                "type":"object",
+                "properties":{"args":{"type":"array","items":{"type":"string"}}},
+                "required":["args"],
+                "additionalProperties":false
+            }))
     {
         return Err("tool contract differs".into());
     }
@@ -384,7 +388,7 @@ fn discovery() -> Check {
         "RESEARCH_DESCRIPTION_BYTES={descriptions}"
     )
     .map_err(|e| e.to_string())?;
-    if descriptions > 226 {
+    if descriptions > crate::runner::output_limit("research-descriptions")? {
         return Err("research descriptions exceed budget".into());
     }
     discovery_description(text)
@@ -491,7 +495,7 @@ fn discovery_description(text: &str) -> Check {
     writeln!(std::io::stdout(), "MCP_DESCRIPTION_BYTES={}", text.len())
         .map_err(|e| e.to_string())?;
     // The output budget uses j15878 measured 3840 bytes plus fifteen percent.
-    if text.len() > 4416 {
+    if text.len() > crate::runner::output_limit("command-description")? {
         return Err("command description exceeds budget".into());
     }
     for word in [

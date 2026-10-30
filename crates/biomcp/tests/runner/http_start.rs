@@ -10,12 +10,23 @@ impl Server {
         key: Option<(&str, &str)>,
         allowed_host: Option<&str>,
     ) -> Result<Self, String> {
+        Self::configured_globals(bind, config, replay, key, allowed_host, &[])
+    }
+    pub(in crate::runner) fn configured_globals(
+        bind: &str,
+        config: Option<Value>,
+        replay: Option<std::path::PathBuf>,
+        key: Option<(&str, &str)>,
+        allowed_host: Option<&str>,
+        globals: &[String],
+    ) -> Result<Self, String> {
         let environment = Environment::new().map_err(|e| e.to_string())?;
         if let Some(config) = config {
             environment.config(&config).map_err(|e| e.to_string())?;
         }
         let address: SocketAddr = bind.parse().map_err(|_| "local address")?;
         let mut args = vec!["serve".into(), "--http".into(), address.to_string()];
+        args.extend_from_slice(globals);
         if let Some(host) = allowed_host {
             args.extend(["--allow-host".into(), host.into()]);
         }

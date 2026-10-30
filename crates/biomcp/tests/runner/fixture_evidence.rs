@@ -1,9 +1,5 @@
 //! One local peer owns only the synthetic environments explicitly attached to it.
 #![expect(
-    clippy::disallowed_methods,
-    reason = "The fixture owner selects durable test evidence outside scheduler scratch"
-)]
-#![expect(
     clippy::disallowed_types,
     reason = "The local fixture shares I/O diagnostics and owned scratch with its worker thread"
 )]
@@ -155,25 +151,10 @@ fn retain(root: &Path, context: &Context, reason: &str) -> io::Result<PathBuf> {
     )?;
     Ok(path)
 }
-pub(super) fn directory() -> io::Result<PathBuf> {
-    let fallback = super::super::launch::checkout().join("../../target/fixture-evidence");
-    let directory = std::env::var_os("BIOMCP_EVIDENCE_DIR").map_or_else(
-        || fallback.clone(),
-        |p| PathBuf::from(p).join("fixture-failures"),
-    );
-    fs::create_dir_all(&directory)?;
-    let directory = directory.canonicalize()?;
-    // A configured temporary directory cannot defeat native-gate retention.
-    if std::env::var_os("TMPDIR")
-        .map(PathBuf::from)
-        .and_then(|p| p.canonicalize().ok())
-        .is_some_and(|p| directory.starts_with(p))
-    {
-        fs::create_dir_all(&fallback)?;
-        return fallback.canonicalize();
-    }
-    Ok(directory)
-}
+#[path = "../../../biomcp-fetch/tests/support/evidence.rs"]
+mod evidence_path;
+pub(super) use evidence_path::directory;
+
 fn copy(source: &Path, destination: &Path) -> io::Result<()> {
     fs::create_dir(destination)?;
     for entry in fs::read_dir(source)? {

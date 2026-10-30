@@ -4,6 +4,7 @@ mod recording_support;
 use serde_json::{Value, json};
 use std::{fs, path::Path};
 type Check = Result<(), Box<dyn std::error::Error>>;
+tool_only! {
 pub(super) fn case(
     capture: &str,
     args: &[&str],
@@ -12,6 +13,7 @@ pub(super) fn case(
     exit: i32,
 ) -> Check {
     checked_case(capture, args, change, expect, exit).map(|_| ())
+}
 }
 
 pub(super) fn checked_case(
@@ -48,7 +50,7 @@ pub(super) fn checked_steps(
     )?;
     Ok(super::run_case(
         &path,
-        &super::schema::Registry::embedded()?,
+        super::schema::Registry::embedded()?.as_ref(),
     )?)
 }
 

@@ -255,6 +255,23 @@ impl Inventory {
         {
             hits.insert("failure label not-found".into());
         }
+        // A checked registry absence is a successful source with an absent item, not a source failure.
+        if path == ["get", "trial"]
+            && [
+                ("/status", "absent"),
+                ("/result/items/0/status", "absent"),
+                ("/sources/0/source", "ctgov"),
+                ("/sources/0/state", "ok"),
+            ]
+            .iter()
+            .all(|(pointer, value)| {
+                step.expect
+                    .get(*pointer)
+                    .is_some_and(|assertion| asserts(assertion, value))
+            })
+        {
+            hits.insert("failure trial not-found".into());
+        }
         for (failure, wire) in FAILURES {
             if step.expect.iter().any(|(pointer, value)| {
                 (pointer.ends_with("/reason") || pointer.ends_with("/code")) && asserts(value, wire)

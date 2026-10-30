@@ -41,29 +41,62 @@ pub(super) fn check(value: &Value) -> Result<(), String> {
 fn ceiling(value: &Value, schema: &str) -> Option<(usize, usize)> {
     if value.get("error").is_some() {
         return Some(if value.get("next").is_some() {
-            (250, 250)
+            (
+                crate::runner::output_limit("maude-envelope-250").ok()?,
+                crate::runner::output_limit("maude-envelope-250").ok()?,
+            )
         } else {
             // j19028: typed argument names, 218 compact bytes plus 15 percent.
-            (251, 251)
+            (
+                crate::runner::output_limit("maude-envelope-251").ok()?,
+                crate::runner::output_limit("maude-envelope-251").ok()?,
+            )
         });
     }
     if value.get("status") == Some(&json!("failed")) {
         return match schema {
-            "biomcp.adverse-event-page/6" => Some((364, 232)),
-            "biomcp.adverse-event-maude-card/3" => Some((472, 340)),
-            "biomcp.adverse-event-devices/3" => Some((481, 349)),
-            "biomcp.adverse-event-narrative/3" => Some((500, 367)),
+            "biomcp.adverse-event-page/6" => Some((
+                crate::runner::output_limit("maude-envelope-364").ok()?,
+                crate::runner::output_limit("maude-envelope-232").ok()?,
+            )),
+            "biomcp.adverse-event-maude-card/3" => Some((
+                crate::runner::output_limit("maude-envelope-472").ok()?,
+                crate::runner::output_limit("maude-envelope-340").ok()?,
+            )),
+            "biomcp.adverse-event-devices/3" => Some((
+                crate::runner::output_limit("maude-envelope-481").ok()?,
+                crate::runner::output_limit("maude-envelope-349").ok()?,
+            )),
+            "biomcp.adverse-event-narrative/3" => Some((
+                crate::runner::output_limit("maude-envelope-500").ok()?,
+                crate::runner::output_limit("maude-envelope-367").ok()?,
+            )),
             _ => None,
         };
     }
     if value.get("status") == Some(&json!("absent")) {
-        return Some((733, 601));
+        return Some((
+            crate::runner::output_limit("maude-envelope-733").ok()?,
+            crate::runner::output_limit("maude-envelope-601").ok()?,
+        ));
     }
     match schema {
-        "biomcp.adverse-event-page/6" => Some((948, 816)),
-        "biomcp.adverse-event-maude-card/3" => Some((1497, 1364)),
-        "biomcp.adverse-event-devices/3" => Some((1241, 1109)),
-        "biomcp.adverse-event-narrative/3" => Some((912, 780)),
+        "biomcp.adverse-event-page/6" => Some((
+            crate::runner::output_limit("maude-envelope-948").ok()?,
+            crate::runner::output_limit("maude-envelope-816").ok()?,
+        )),
+        "biomcp.adverse-event-maude-card/3" => Some((
+            crate::runner::output_limit("maude-envelope-1497").ok()?,
+            crate::runner::output_limit("maude-envelope-1364").ok()?,
+        )),
+        "biomcp.adverse-event-devices/3" => Some((
+            crate::runner::output_limit("maude-envelope-1241").ok()?,
+            crate::runner::output_limit("maude-envelope-1109").ok()?,
+        )),
+        "biomcp.adverse-event-narrative/3" => Some((
+            crate::runner::output_limit("maude-envelope-912").ok()?,
+            crate::runner::output_limit("maude-envelope-780").ok()?,
+        )),
         _ => None,
     }
 }
