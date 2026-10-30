@@ -3,7 +3,7 @@ use super::{
     families::{Check, replay},
     trial,
 };
-use biomcp_adapters::{Refusal, civic, icite, litvar, oncokb, pubtator};
+use biomcp_adapters::{Refusal, civic, icite, litvar, myvariant, oncokb, pubtator};
 use biomcp_types::Section;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
@@ -11,6 +11,10 @@ use std::time::Duration;
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        trial(
+            "variant-identity/refused-cosmic-children-carry-facts",
+            || cosmic().map_err(|e| e.to_string().into()),
+        ),
         trial("gene-sections/refused-civic-genes-carry-facts", || {
             civic_genes().map_err(|e| e.to_string().into())
         }),
@@ -30,6 +34,64 @@ pub(super) fn trials() -> Vec<Trial> {
             || annotations().map_err(|e| e.to_string().into()),
         ),
     ]
+}
+
+fn cosmic() -> Check {
+    for case in [
+        "optional",
+        "object-identity",
+        "array-identity",
+        "empty-container",
+        "invalid-container",
+        "absent",
+    ] {
+        let mut changed = false;
+        let (_root, fetch) = replay("variant/synthetic-components", |source, recording| {
+            if source == "myvariant"
+                && let Some(body) = recording.pointer_mut("/exchanges/0/body/value")
+                && body.get("cosmic").is_some()
+            {
+                changed = true;
+                match case {
+                    "optional" => body["cosmic"]["mut_freq"] = json!({"invalid":true}),
+                    "object-identity" => body["cosmic"]["cosmic_id"] = json!(false),
+                    "array-identity" => body["cosmic"] = json!([{"cosmic_id":false}]),
+                    "empty-container" => body["cosmic"] = json!([]),
+                    "invalid-container" => body["cosmic"] = json!("invalid optional container"),
+                    _ => body["cosmic"] = Value::Null,
+                }
+            }
+        })?;
+        if !changed {
+            return Err("MyVariant native COSMIC fragment missing".into());
+        }
+        let leg = fetch.leg(&myvariant::SPEC, fetch.deadline(Duration::from_secs(20)));
+        let mapped = myvariant::cosmic::get(&leg, "chr7:g.140453136A>T", biodata::Build::GRCh37)?;
+        let expected = if matches!(case, "object-identity" | "array-identity") {
+            Refusal::Refused
+        } else {
+            Refusal::None
+        };
+        if mapped.refusals != expected
+            || mapped.value.records.len() != usize::from(case == "optional")
+        {
+            return Err(format!(
+                "COSMIC {case}: actual child refusal or optional container changed"
+            )
+            .into());
+        }
+        if matches!(
+            case,
+            "object-identity" | "array-identity" | "invalid-container"
+        ) && !mapped
+            .problems
+            .iter()
+            .any(|p| p.field.as_ref() == "cosmic.cosmic_id")
+        {
+            return Err("COSMIC source problem wording changed".into());
+        }
+    }
+    Ok(())
 }
 
 fn civic_genes() -> Check {
