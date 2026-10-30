@@ -147,7 +147,7 @@ fn selected_get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
                     },
                 ));
             }
-            if !document.problems.is_empty() {
+            if document.refusals == biomcp_adapters::Refusal::Refused {
                 crate::status::item(&mut out, true, false, true);
             }
             out.problems = document.problems;
@@ -189,7 +189,7 @@ fn link_page(
             },
         ));
     }
-    if !document.problems.is_empty() {
+    if document.refusals == biomcp_adapters::Refusal::Refused {
         crate::status::item(out, true, false, true);
     }
     out.problems = document.problems;
@@ -263,22 +263,7 @@ fn search_results(
     out: &mut Outcome,
     received: u32,
 ) {
-    {
-        let (found, identity_failed, unavailable) =
-            if page.items.is_empty() && out.problems.is_empty() {
-                (false, false, false)
-            } else if !out.problems.is_empty()
-                || out
-                    .sources
-                    .iter()
-                    .any(|s| s.state == biomcp_types::SourceState::Stale)
-            {
-                (true, false, true)
-            } else {
-                (true, false, false)
-            };
-        crate::status::item(out, found, identity_failed, unavailable);
-    };
+    status::search(out);
     let returned = page.items.len() as u32;
     out.sources.iter_mut().for_each(|s| {
         s.count = page.total;

@@ -118,8 +118,8 @@ fn hydrate(
     for id in ids {
         match uniprot::entry(leg, &id) {
             Ok(mapped) => {
-                failed |= !mapped.problems.is_empty();
-                if mapped.value.is_none() && !mapped.problems.is_empty() {
+                failed |= mapped.refusals == biomcp_adapters::Refusal::Refused;
+                if mapped.value.is_none() && mapped.refusals == biomcp_adapters::Refusal::Refused {
                     *error = Some(
                         biomcp_fetch::SourceError {
                             source: Source::UniProt,

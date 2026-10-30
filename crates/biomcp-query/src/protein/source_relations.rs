@@ -146,8 +146,7 @@ pub(super) fn read(
     saved.member_steps(q, offset, limit, &mut store, out)?;
     saved.render(q, offset, limit, out)?;
     {
-        let unavailable = !out.problems.is_empty()
-            || out
+        let unavailable = out
                 .sources
                 .iter()
                 .any(|s| s.state != biomcp_types::SourceState::Ok);

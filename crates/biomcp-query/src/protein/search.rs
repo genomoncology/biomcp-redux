@@ -13,13 +13,14 @@ use biomcp_types::{
 };
 use sha2::{Digest, Sha256};
 struct Saved {
+    dropped: bool,
     page: uniprot::SearchPage,
     sources: Vec<SourceOutcome>,
     problems: Vec<biomcp_types::Problem>,
 }
 impl Saved {
     fn encode(&self) -> Result<String, CacheError> {
-        serde_json::to_string(&(&self.page, &self.sources, &self.problems))
+        serde_json::to_string(&(&self.page, &self.sources, &self.problems, self.dropped))
             .map_err(|_| CacheError::Database)
     }
     fn decode(payload: &str) -> Result<Self, CacheError> {
@@ -27,10 +28,12 @@ impl Saved {
             uniprot::SearchPage,
             Vec<SourceOutcome>,
             Vec<biomcp_types::Problem>,
+            bool,
         );
-        let (page, sources, problems): Wire =
+        let (page, sources, problems, dropped): Wire =
             serde_json::from_str(payload).map_err(|_| CacheError::Database)?;
         Ok(Self {
+            dropped,
             page,
             sources,
             problems,
@@ -63,7 +66,7 @@ pub fn search(cx: &Ctx<'_>, q: &ProteinSearch) -> Outcome {
 }
 fn key(q: &ProteinSearch) -> Vec<u8> {
     Sha256::digest(format!(
-        "biomcp.protein_pool/1\0{}\0{}\0reviewed-human-uniprot",
+        "biomcp.protein_pool/2\0{}\0{}\0reviewed-human-uniprot",
         q.query().map_or("", Text::as_str),
         q.gene().map_or("", biodata::GeneSymbol::as_str)
     ))
@@ -171,6 +174,7 @@ fn load(
     let mapped = uniprot::search(leg, q, None)?;
     Ok(Some(Loaded {
         saved: Saved {
+            dropped: mapped.refusals == biomcp_adapters::Refusal::Refused,
             page: mapped.value,
             sources: vec![status::source(Source::UniProt, Default::default(), None)],
             problems: mapped.problems,
@@ -218,6 +222,7 @@ fn extend(
                 .into(),
             );
         }
+        saved.dropped |= page.refusals == biomcp_adapters::Refusal::Refused;
         status::append(&mut saved.problems, page.problems);
         saved.page.items.extend(page.value.items);
         saved.page.cursor = page.value.cursor;
@@ -241,28 +246,9 @@ fn render(
         .skip(q.offset() as usize)
         .take(q.limit() as usize)
         .collect();
-    {
-        let (found, identity_failed, unavailable) = if saved
-            .sources
-            .iter()
-            .any(|s| s.state != biomcp_types::SourceState::Ok)
-            || !out.problems.is_empty()
-        {
-            if rows.is_empty()
-                && saved
-                    .sources
-                    .iter()
-                    .any(|s| s.state == biomcp_types::SourceState::Failed)
-            {
-                (false, true, false)
-            } else {
-                (true, false, true)
-            }
-        } else {
-            (true, false, false)
-        };
-        crate::status::item(out, found, identity_failed, unavailable);
-    };
+    out.dropped = saved.dropped;
+    out.sources = saved.sources;
+    status::search(out);
     let returned = rows.len() as u32;
     let offset = q.offset().saturating_add(returned);
     out.next = next::search(

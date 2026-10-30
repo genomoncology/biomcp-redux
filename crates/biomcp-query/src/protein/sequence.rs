@@ -52,14 +52,12 @@ pub(super) fn run(cx: &Ctx<'_>, q: &ProteinSequenceQuery) -> Outcome {
     let result = read(&leg, q);
     let error = result.as_ref().err().copied();
     if let Ok(mapped) = result {
+        out.dropped = mapped.refusals == biomcp_adapters::Refusal::Refused;
         out.problems = mapped.problems;
         {
             let found = mapped.value.is_some();
             crate::status::item(&mut out, found, false, false);
         };
-        if !out.problems.is_empty() {
-            crate::status::item(&mut out, false, true, false);
-        }
         out.body = QueryBody::ProteinSequence(
             mapped
                 .value

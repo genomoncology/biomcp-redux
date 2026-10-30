@@ -140,7 +140,7 @@ fn present(
     });
     {
         let (found, identity_failed, unavailable) =
-            if saved.source.state == SourceState::Stale || !out.problems.is_empty() {
+            if saved.source.state == SourceState::Stale {
                 (true, false, true)
             } else {
                 (true, false, false)

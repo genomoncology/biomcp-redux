@@ -23,6 +23,7 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     out.sources
         .push(status::source(Source::Ddinter, leg.finish(), error));
     if let Ok(mapped) = result {
+        out.dropped |= mapped.refusals == biomcp_adapters::Refusal::Refused;
         out.problems.extend(mapped.problems);
         let rows = mapped.value;
         let total = rows.len() as u64;
@@ -62,6 +63,7 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
             query.section_offset().unwrap_or(0),
         )
         .map(|body| {
+            out.dropped |= body.refusals == biomcp_adapters::Refusal::Refused;
             out.problems.extend(body.problems);
             let body = body.value;
             let found = body.is_some();
@@ -71,6 +73,7 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
         })
     } else {
         ddinter::card(&leg, query.input()).map(|card| {
+            out.dropped |= card.refusals == biomcp_adapters::Refusal::Refused;
             out.problems.extend(card.problems);
             let card = card.value;
             if card.is_some()
@@ -94,18 +97,7 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     out.sources
         .push(status::source(Source::Ddinter, leg.finish(), error));
     if let Ok(found) = result {
-        {
-            let (found, identity_failed, unavailable) = if !found {
-                (false, false, false)
-            } else if !out.problems.is_empty()
-                || out.sources.iter().any(|s| s.state == SourceState::Stale)
-            {
-                (true, false, true)
-            } else {
-                (true, false, false)
-            };
-            crate::status::item(&mut out, found, identity_failed, unavailable);
-        };
+        status::item(&mut out, found, false, false);
     }
     sync_step(&mut out);
     command.finish(deadline.remaining());

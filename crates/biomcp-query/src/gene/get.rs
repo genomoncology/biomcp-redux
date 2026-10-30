@@ -100,7 +100,7 @@ fn join(
     {
         gene.summary = extra.value.summary.clone();
         gene.spans = extra.value.spans.clone();
-        if !extra.problems.is_empty() {
+        if extra.refusals == biomcp_adapters::Refusal::Refused {
             item.status = crate::status::item_status(true, false, true);
         }
     } else {
@@ -130,7 +130,7 @@ fn resolve_item(
             let state = if matches!(mapped.value, GeneResolution::NotFound {}) {
                 crate::status::item_status(false, false, false)
             } else {
-                crate::status::item_status(true, false, false)
+                crate::status::item_status(true, false, mapped.refusals == biomcp_adapters::Refusal::Refused)
             };
             (Some(mapped.value), state)
         }

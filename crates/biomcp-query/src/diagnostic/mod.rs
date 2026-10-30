@@ -30,7 +30,7 @@ fn finish_bundle(
         .push(status::source(source, leg.finish(), error));
     if error.is_some() {
         crate::status::item(out, false, true, false);
-    } else if (!out.problems.is_empty()
+    } else if (out.dropped
         || out.sources.iter().any(|s| s.state == SourceState::Stale))
         && out.status() == Status::Complete
     {

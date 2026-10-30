@@ -22,9 +22,6 @@ pub(super) fn attach(cx: &Ctx<'_>, deadline: biomcp_fetch::Deadline<'_>, out: &m
         out.problems.extend(mapped.problems);
         mapped.value
     });
-    if !out.problems.is_empty() && out.status() == Status::Complete {
-        crate::status::item(out, true, false, true);
-    }
     match &mut out.body {
         QueryBody::CellLinePage(page) => page.release = release.clone(),
         QueryBody::CellLineCard(card) => card.release = release.clone(),

@@ -12,7 +12,7 @@ fn finish(out: &mut Outcome, leg: Leg<'_>, error: Option<RequestError>) {
     if error.is_some() {
         crate::status::item(out, false, true, false)
     } else if out.status() == Status::Complete
-        && (!out.problems.is_empty() || out.sources.iter().any(|s| s.state == SourceState::Stale))
+        && (out.dropped || out.sources.iter().any(|s| s.state == SourceState::Stale))
     {
         crate::status::item(out, true, false, true)
     }

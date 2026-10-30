@@ -24,7 +24,7 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
             .map(|entrez| oncokb::gene(&leg, &gene.symbol, entrez));
         let (section, card, partial) = match result {
             Some(Ok(mapped)) => {
-                let partial = !mapped.problems.is_empty();
+                let partial = mapped.refusals == biomcp_adapters::Refusal::Refused;
                 status::append(&mut problems, mapped.problems);
                 mapped_value(mapped.value, partial)
             }
@@ -50,7 +50,7 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
     {
         match oncokb::version(&leg) {
             Ok(version) => {
-                let partial_version = !version.problems.is_empty();
+                let partial_version = version.refusals == biomcp_adapters::Refusal::Refused;
                 status::append(&mut problems, version.problems);
                 apply_version(&mut values, version.value.as_ref(), partial_version);
             }

@@ -26,6 +26,7 @@ pub fn search(cx: &Ctx<'_>, query: &CellLineSearch) -> Outcome {
         .push(status::source(Source::Cellosaurus, leg.finish(), error));
     out.local = error.and_then(status::local);
     if let Ok(page) = reply {
+        out.dropped = page.refusals == biomcp_adapters::Refusal::Refused;
         out.problems.extend(page.problems);
         let full = page.received == query.limit();
         for row in &page.items {
@@ -42,16 +43,7 @@ pub fn search(cx: &Ctx<'_>, query: &CellLineSearch) -> Outcome {
                 run(Request::SearchCellLine(query.at_offset(offset))),
             ));
         }
-        {
-            let (found, identity_failed, unavailable) = if !out.problems.is_empty() {
-                (true, false, true)
-            } else if page.items.is_empty() {
-                (false, false, false)
-            } else {
-                (true, false, false)
-            };
-            crate::status::item(&mut out, found, identity_failed, unavailable);
-        };
+        status::search(&mut out);
         out.body = QueryBody::CellLinePage(CellLinePage {
             items: page.items.into(),
             release: None,

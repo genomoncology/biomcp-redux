@@ -43,12 +43,7 @@ fn join(item: &mut ArticleCardItem, result: &order::Counts) {
             record: None,
         }
     };
-    let rejected = result
-        .rows
-        .iter()
-        .find(|row| row.pmid == id)
-        .is_some_and(|row| !row.problems.is_empty());
-    if rejected
+    if result.dropped
         || matches!(section, Section::Unavailable { .. })
         || result.source.state == SourceState::Stale
     {

@@ -78,7 +78,8 @@ pub(super) fn resolve<'a>(
             }
             out.sources.push(source);
             let mapped = result?;
-            if !mapped.problems.is_empty() {
+            out.dropped |= mapped.refusals == biomcp_adapters::Refusal::Refused;
+            if out.dropped {
                 crate::status::item(out, true, false, true);
             }
             status::append(&mut out.problems, mapped.problems);

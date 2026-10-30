@@ -133,9 +133,6 @@ fn attach(cx: &Ctx<'_>, deadline: biomcp_fetch::Deadline<'_>, out: &mut Outcome)
         out.problems.extend(mapped.problems);
         mapped.value
     });
-    if !out.problems.is_empty() && out.status() == Status::Complete {
-        crate::status::item(out, true, false, true);
-    }
     match &mut out.body {
         QueryBody::CellLineChembl(body) => body.release = release.clone(),
         QueryBody::CellLineAssayCount(body) => body.release = release.clone(),

@@ -6,6 +6,7 @@ use biomcp_types::{ArticleItem, QueryBody, Source, SourceOutcome};
 /// Application citation enrichment window, shared by searches and graph pages.
 const MAX_PMIDS: usize = 10_000;
 pub(super) struct Counts {
+    pub dropped: bool,
     pub rows: Vec<icite::Publication>,
     pub problems: Vec<biomcp_types::Problem>,
     pub source: SourceOutcome,
@@ -16,6 +17,7 @@ pub(super) struct Counts {
 pub(super) fn fetch<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, ids: &[Pmid]) -> Counts {
     let leg = cx.fetch.leg(&icite::SPEC, *deadline).fresh(cx.fresh);
     let started = leg.remaining();
+    let mut dropped = false;
     let mut rows = Vec::new();
     let mut problems = Vec::new();
     let mut error = None;
@@ -30,6 +32,7 @@ pub(super) fn fetch<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, ids: &[Pmid])
         {
             match result {
                 Ok(values) => {
+                    dropped |= values.refusals == biomcp_adapters::Refusal::Refused;
                     rows.extend(values.value);
                     problems.extend(values.problems);
                 }
@@ -43,6 +46,7 @@ pub(super) fn fetch<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, ids: &[Pmid])
     }
     *deadline = deadline.after_stage(started.saturating_sub(leg.remaining()));
     Counts {
+        dropped,
         rows,
         problems,
         source: status::source(Source::Icite, leg.finish(), error),
@@ -62,6 +66,7 @@ pub(super) fn apply<'a>(
         return Ok(false);
     }
     let result = fetch(cx, deadline, &ids);
+    out.dropped |= result.dropped;
     status::append(&mut out.problems, result.problems.clone());
     let stale = out
         .sources

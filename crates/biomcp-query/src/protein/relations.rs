@@ -184,7 +184,7 @@ fn read(
         truncated: None,
     });
     {
-        let unavailable = !out.problems.is_empty();
+        let unavailable = false;
         crate::status::item(out, true, false, unavailable);
     };
     if out

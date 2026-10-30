@@ -22,9 +22,6 @@ pub(super) fn get(cx: &Ctx<'_>, query: &CellLineGet) -> Outcome {
         .push(status::source(Source::Cellosaurus, leg.finish(), error));
     out.local = error.and_then(status::local);
     if reply.is_ok() {
-        if !out.problems.is_empty() {
-            card.status = crate::status::item_status(true, false, true);
-        }
         let state = card.status;
         crate::status::restored(&mut out, state);
         if card
@@ -101,7 +98,7 @@ fn resolve(
                 card.status = if page.items.is_empty() {
                     crate::status::item_status(false, false, false)
                 } else {
-                    crate::status::item_status(true, false, true)
+                    crate::status::item_status(true, false, page.refusals == biomcp_adapters::Refusal::Refused)
                 };
                 card.candidates = page.items.into();
                 return Ok(());

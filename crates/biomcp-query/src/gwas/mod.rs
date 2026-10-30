@@ -26,6 +26,7 @@ pub fn search(cx: &Ctx<'_>, q: &GwasSearch) -> Outcome {
         .ok()
         .map(|page| (page.rows.len() as u32, page.total));
     if let Ok(page) = result {
+        out.dropped = page.refusals == biomcp_adapters::Refusal::Refused;
         out.problems.extend(page.problems);
         let items: Box<[_]> = page
             .rows
@@ -56,7 +57,7 @@ pub fn search(cx: &Ctx<'_>, q: &GwasSearch) -> Outcome {
             qualifying_total: None,
         }));
         {
-            let unavailable = !out.problems.is_empty();
+            let unavailable = false;
             crate::status::item(&mut out, true, false, unavailable);
         };
     }
@@ -81,6 +82,7 @@ pub fn search(cx: &Ctx<'_>, q: &GwasSearch) -> Outcome {
     };
     out.next = next::search(q, body.as_ref(), source.state, cx.fresh);
     out.sources.push(source);
+    status::search(&mut out);
     out.local = error.and_then(status::local);
     command.finish(deadline.remaining());
     out

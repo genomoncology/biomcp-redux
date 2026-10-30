@@ -122,6 +122,7 @@ fn resource(q: &GwasGet, leg: &Leg<'_>, out: &mut Outcome) -> Result<(), Request
             ..
         } => {
             let rows = gwas::get::loci(leg, *id)?;
+            out.dropped |= rows.refusals == biomcp_adapters::Refusal::Refused;
             out.problems.extend(rows.problems);
             rejected(out, rows.rejected);
             let (items, continuation) = page(q, &rows.items, out);
@@ -136,6 +137,7 @@ fn resource(q: &GwasGet, leg: &Leg<'_>, out: &mut Outcome) -> Result<(), Request
             id, section: None, ..
         } => {
             let study = gwas::get::study(leg, id)?;
+            out.dropped |= study.refusals == biomcp_adapters::Refusal::Refused;
             out.problems.extend(study.problems);
             for section in [GwasStudySection::Associations, GwasStudySection::Ancestries] {
                 let q = GwasGet::Study {
@@ -155,9 +157,6 @@ fn resource(q: &GwasGet, leg: &Leg<'_>, out: &mut Outcome) -> Result<(), Request
             associations(q, id, window, leg, out)?;
         }
         GwasGet::Study { .. } => return Ok(()),
-    }
-    if !out.problems.is_empty() {
-        crate::status::item(out, true, false, true);
     }
     if out.status() != Status::Partial {
         crate::status::item(out, true, false, false);

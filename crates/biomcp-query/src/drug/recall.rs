@@ -104,7 +104,7 @@ fn finish(out: &mut Outcome, leg: Leg<'_>, error: Option<RequestError>) {
     out.local = error.and_then(status::local);
     let source = status::source(Source::FdaDrugRecall, leg.finish(), error);
     if out.status() == Status::Complete
-        && (source.state == SourceState::Stale || !out.problems.is_empty())
+        && (source.state == SourceState::Stale || out.dropped)
     {
         crate::status::item(out, true, false, true);
     }
