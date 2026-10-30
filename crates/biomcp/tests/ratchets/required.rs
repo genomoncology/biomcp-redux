@@ -109,6 +109,10 @@ pub(super) fn required_surface_has_asserted_calls() -> Check {
     counts.runner(synthetic_contracts::HPO_SNAPSHOT.1);
     counts.runner(synthetic_contracts::MONARCH_XREFS.1);
 
+    counts.runner(synthetic_contracts::FAERS_SECTIONS.1);
+    counts.runner(synthetic_contracts::FAERS_IDENTIFIERS.1);
+    counts.runner(synthetic_contracts::MAUDE_SECTIONS.1);
+
     let mut paths = Vec::new();
     case_data::collect(&root.join("tests/cases"), &mut paths)?;
     paths.sort();

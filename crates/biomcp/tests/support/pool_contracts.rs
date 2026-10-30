@@ -62,5 +62,6 @@ pub(crate) const ARTICLE_SAVES: (&str, &[&str]) = (
         "option article text --save",
         "option article text --replace",
         "option article supplement --save",
+        "option article supplement --replace",
     ],
 );

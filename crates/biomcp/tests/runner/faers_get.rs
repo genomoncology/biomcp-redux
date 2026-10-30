@@ -9,7 +9,7 @@ pub(super) fn trials() -> Vec<Trial> {
         transcript_trial("adverse-event-get/age-unit-boundaries", || {
             ages().map_err(Into::into)
         }),
-        transcript_trial("adverse-event-get/synthetic-sections-and-snapshot", || {
+        transcript_trial(crate::runner::required_contract::FAERS_SECTIONS.0, || {
             sections().map_err(Into::into)
         }),
     ];
@@ -18,7 +18,7 @@ pub(super) fn trials() -> Vec<Trial> {
         || walks().map_err(Into::into),
     ));
     trials.push(transcript_trial(
-        "adverse-event-get/synthetic-identifier-kinds",
+        crate::runner::required_contract::FAERS_IDENTIFIERS.0,
         || identifier_kinds().map_err(Into::into),
     ));
     trials.push(transcript_trial(

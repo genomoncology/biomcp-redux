@@ -118,3 +118,35 @@ pub(crate) const MONARCH_XREFS: (&str, &[&str]) = (
     "phenotype-sections/native-classes-and-direct-links",
     &["section get phenotype xrefs"],
 );
+
+// FAERS/MedDRA and MAUDE/GMDN complete responses use authored synthetic terms.
+pub(crate) const FAERS_SECTIONS: (&str, &[&str]) = (
+    "adverse-event-get/synthetic-sections-and-snapshot",
+    &[
+        "section get adverse-event drugs",
+        "section get adverse-event package-ndc",
+        "option get adverse-event --snapshot",
+        "option get adverse-event --section-limit",
+        "option get adverse-event --section-offset",
+    ],
+);
+pub(crate) const FAERS_IDENTIFIERS: (&str, &[&str]) = (
+    "adverse-event-get/synthetic-identifier-kinds",
+    &[
+        "section get adverse-event unii",
+        "section get adverse-event rxcui",
+        "section get adverse-event product-ndc",
+        "section get adverse-event spl-id",
+        "section get adverse-event spl-set-id",
+        "section get adverse-event application-number",
+        "option get adverse-event --drug-index",
+    ],
+);
+pub(crate) const MAUDE_SECTIONS: (&str, &[&str]) = (
+    "maude-reports/synthetic-complete-section-pages",
+    &[
+        "section get adverse-event devices",
+        "section get adverse-event narrative",
+        "option get adverse-event --source",
+    ],
+);
