@@ -208,7 +208,6 @@ fn load(
 
 fn ancestry(raw: &gnomad::variant::Variant) -> Vec<GnomadCounts> {
     let mut groups = Vec::new();
-    let mut dropped = false;
     for (data_type, data) in [
         (PopulationDataType::Exomes, &raw.exome),
         (PopulationDataType::Genomes, &raw.genome),
