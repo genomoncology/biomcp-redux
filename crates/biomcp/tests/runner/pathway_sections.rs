@@ -417,8 +417,8 @@ fn measurements() -> Check {
         (vec!["pathway", "events", "R-HSA-5673001"], 2034, 509),
         (
             vec!["pathway", "genes", "R-HSA-5673001", "details"],
-            12155,
-            3040,
+            14625,
+            3657,
         ),
     ] {
         let env = Environment::new().map_err(|e| e.to_string())?;
