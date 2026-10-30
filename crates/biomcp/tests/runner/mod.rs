@@ -208,7 +208,7 @@ fn run_case(path: &Path, registry: &schema::Registry) -> Result<Value, String> {
                 registry,
                 replay.as_deref(),
                 previous.as_ref(),
-                index.checked_sub(1).map(|index| &case.steps[index]),
+                index.checked_sub(1).and_then(|index| case.steps.get(index)),
             )
             .map_err(|error| format!("{}; step {}: {error}", case.story, index + 1))?,
         );

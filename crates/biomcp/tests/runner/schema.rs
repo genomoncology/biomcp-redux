@@ -1,10 +1,6 @@
 use jsonschema::{Retrieve, Uri, Validator};
 use serde_json::Value;
-use std::{
-    collections::BTreeMap,
-    error::Error,
-    sync::{Arc, OnceLock},
-};
+use std::{collections::BTreeMap, error::Error, sync::Arc};
 
 pub(super) const ARTIFACTS: &[(&str, &str)] = include!(concat!(env!("OUT_DIR"), "/schemas.rs"));
 // Only a resolution anchor. The custom retriever never performs external I/O.
@@ -17,7 +13,12 @@ pub(super) struct Registry {
 
 impl Registry {
     pub(super) fn embedded() -> Result<Arc<Self>, String> {
-        static EMBEDDED: OnceLock<Result<Arc<Registry>, String>> = OnceLock::new();
+        #[expect(
+            clippy::disallowed_types,
+            reason = "Compile the immutable embedded schemas once and share the same fallible result across trials"
+        )]
+        static EMBEDDED: std::sync::OnceLock<Result<Arc<Registry>, String>> =
+            std::sync::OnceLock::new();
         EMBEDDED
             .get_or_init(|| {
                 let artifacts = ARTIFACTS

@@ -134,7 +134,7 @@ pub(super) fn markdown(step: &Step) -> bool {
         words.iter().any(|word| word.as_str() == "--format=md")
             || words
                 .windows(2)
-                .any(|pair| pair[0] == "--format" && pair[1] == "md")
+                .any(|pair| matches!(pair, [flag, value] if flag.as_str() == "--format" && value.as_str() == "md"))
     })
 }
 

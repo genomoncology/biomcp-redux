@@ -37,7 +37,9 @@ fn old_version(version: u32) -> Check {
         [old_key],
     )?;
     let expired = command(&env, &next, &env.globals(None, true), 3)?;
-    if expired["status"] != "expired" || super::action(&expired, "restart").is_err() {
+    if expired.get("status").and_then(serde_json::Value::as_str) != Some("expired")
+        || super::action(&expired, "restart").is_err()
+    {
         return Err("old snapshot did not expire with restart".into());
     }
     Ok(())

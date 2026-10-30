@@ -255,77 +255,27 @@ fn budget(value: &Value, full: usize, comparable: usize) -> Check {
         .unwrap_or("card");
     let status = value.get("status").and_then(Value::as_str).unwrap_or("");
     // j13008: compact CLI/MCP maxima; every ceiling is measured bytes plus15%.
-    let measured: (usize, usize) = match (section, status) {
-        (_, "usage") => (
-            crate::runner::output_limit("faers-envelope-143")?,
-            crate::runner::output_limit("faers-envelope-143")?,
-        ),
-        ("card", "complete") => (
-            crate::runner::output_limit("faers-envelope-1215")?,
-            crate::runner::output_limit("faers-envelope-1100")?,
-        ),
-        ("card", "absent") => (
-            crate::runner::output_limit("faers-envelope-298")?,
-            crate::runner::output_limit("faers-envelope-183")?,
-        ),
-        ("card", "failed") => (
-            crate::runner::output_limit("faers-envelope-428")?,
-            crate::runner::output_limit("faers-envelope-313")?,
-        ),
-        ("drugs", "failed") => (
-            crate::runner::output_limit("faers-envelope-419")?,
-            crate::runner::output_limit("faers-envelope-304")?,
-        ),
-        ("reactions", "failed") => (
-            crate::runner::output_limit("faers-envelope-423")?,
-            crate::runner::output_limit("faers-envelope-308")?,
-        ),
-        ("unii", "failed") => (
-            crate::runner::output_limit("faers-envelope-433")?,
-            crate::runner::output_limit("faers-envelope-318")?,
-        ),
-        ("unii", "absent") => (
-            crate::runner::output_limit("faers-envelope-409")?,
-            crate::runner::output_limit("faers-envelope-294")?,
-        ),
-        ("drugs", "complete") => (
-            crate::runner::output_limit("faers-envelope-1453")?,
-            crate::runner::output_limit("faers-envelope-1338")?,
-        ),
-        ("reactions", "complete") => (
-            crate::runner::output_limit("faers-envelope-1403")?,
-            crate::runner::output_limit("faers-envelope-1288")?,
-        ),
-        ("unii", "complete") => (
-            crate::runner::output_limit("faers-envelope-693")?,
-            crate::runner::output_limit("faers-envelope-578")?,
-        ),
-        ("rxcui", "complete") => (
-            crate::runner::output_limit("faers-envelope-692")?,
-            crate::runner::output_limit("faers-envelope-577")?,
-        ),
-        ("product-ndc", "complete") => (
-            crate::runner::output_limit("faers-envelope-718")?,
-            crate::runner::output_limit("faers-envelope-603")?,
-        ),
-        ("package-ndc", "complete") => (
-            crate::runner::output_limit("faers-envelope-924")?,
-            crate::runner::output_limit("faers-envelope-809")?,
-        ),
-        ("spl-id", "complete") => (
-            crate::runner::output_limit("faers-envelope-706")?,
-            crate::runner::output_limit("faers-envelope-591")?,
-        ),
-        ("spl-set-id", "complete") => (
-            crate::runner::output_limit("faers-envelope-719")?,
-            crate::runner::output_limit("faers-envelope-604")?,
-        ),
-        ("application-number", "complete") => (
-            crate::runner::output_limit("faers-envelope-751")?,
-            crate::runner::output_limit("faers-envelope-636")?,
-        ),
+    let names = match (section, status) {
+        (_, "usage") => ("faers-envelope-143", "faers-envelope-143"),
+        ("card", "complete") => ("faers-envelope-1215", "faers-envelope-1100"),
+        ("card", "absent") => ("faers-envelope-298", "faers-envelope-183"),
+        ("card", "failed") => ("faers-envelope-428", "faers-envelope-313"),
+        ("drugs", "failed") => ("faers-envelope-419", "faers-envelope-304"),
+        ("reactions", "failed") => ("faers-envelope-423", "faers-envelope-308"),
+        ("unii", "failed") => ("faers-envelope-433", "faers-envelope-318"),
+        ("unii", "absent") => ("faers-envelope-409", "faers-envelope-294"),
+        ("drugs", "complete") => ("faers-envelope-1453", "faers-envelope-1338"),
+        ("reactions", "complete") => ("faers-envelope-1403", "faers-envelope-1288"),
+        ("unii", "complete") => ("faers-envelope-693", "faers-envelope-578"),
+        ("rxcui", "complete") => ("faers-envelope-692", "faers-envelope-577"),
+        ("product-ndc", "complete") => ("faers-envelope-718", "faers-envelope-603"),
+        ("package-ndc", "complete") => ("faers-envelope-924", "faers-envelope-809"),
+        ("spl-id", "complete") => ("faers-envelope-706", "faers-envelope-591"),
+        ("spl-set-id", "complete") => ("faers-envelope-719", "faers-envelope-604"),
+        ("application-number", "complete") => ("faers-envelope-751", "faers-envelope-636"),
         _ => return Err(format!("unmeasured FAERS envelope: {section}/{status}")),
     };
+    let measured = (super::output_limit(names.0)?, super::output_limit(names.1)?);
     let caps = (
         (measured.0 * 115).div_ceil(100),
         (measured.1 * 115).div_ceil(100),
