@@ -8,6 +8,8 @@ from parity import LEDGER_END, LEDGER_START, UPGRADE_END, UPGRADE_START, rows, t
 
 
 def check(root):
+    if (root / "skills/SKILL.md").stat().st_size > 4096:
+        raise ValueError("agent skill exceeds 4 KB")
     roadmap = (root / "ROADMAP.md").read_text()
     if roadmap.count(LEDGER_START) != 1 or roadmap.count(LEDGER_END) != 1:
         raise ValueError("parity table differs: expected one generated ledger block")

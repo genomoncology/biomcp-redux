@@ -20,25 +20,27 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     let leg = cx.fetch.leg(&source::SPEC, deadline).fresh(cx.fresh);
     let discovery = source::search(&leg, name, query.limit(), query.offset());
     let result = discovery.page.and_then(|page| {
-        Ok((
-            page.records
-                .iter()
-                .map(|r| {
-                    let mut header = r.header()?;
-                    header.matched_name = r.name_match(name);
-                    Ok(header)
-                })
-                .collect::<Result<Vec<_>, RequestError>>()?,
-            page.total,
-            page.scanned,
-        ))
+        let items = page
+            .window
+            .rows
+            .iter()
+            .map(|r| {
+                let mut header = r.header()?;
+                header.matched_name = r.name_match(name);
+                Ok(header)
+            })
+            .collect::<Result<Vec<_>, RequestError>>()?;
+        Ok(page.window.with_rows(items))
     });
     let error = result.as_ref().err().copied();
     out.local = error.and_then(status::local);
     out.sources
         .push(status::source(SOURCE, leg.finish(), error));
     disclosure(&mut out, discovery.free_text);
-    if let Ok((items, total, scanned)) = result {
+    if let Ok(window) = result {
+        let total = window.total().unwrap_or(0);
+        let next_offset = window.next_offset();
+        let items = window.rows;
         let returned = items.len() as u32;
         out.status = if returned == 0 {
             Status::Absent
@@ -61,11 +63,7 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
                 ));
             }
         }
-        if let Some(offset) = query
-            .offset()
-            .checked_add(scanned)
-            .filter(|n| scanned > 0 && u64::from(*n) < total)
-        {
+        if let Some(offset) = next_offset {
             out.next.push((
                 StepKind::Page,
                 Action::Run {
@@ -123,10 +121,10 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     if let Ok(page) = result {
         out.status = state(&out);
         if let Some(source) = out.sources.first_mut() {
-            source.count = Some(page.total);
-            source.retrieved_count = Some(page.records.len() as u32);
+            source.count = Some(page.window.total().unwrap_or(0));
+            source.retrieved_count = Some(page.window.rows.len() as u32);
         }
-        if let Some(record) = page.records.first() {
+        if let Some(record) = page.window.rows.first() {
             if let Err(error) = select(cx, query, record, page.metadata.fetched, &mut out) {
                 out.status = Status::Failed;
                 out.local = status::local(error);

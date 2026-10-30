@@ -113,6 +113,7 @@ fn independent_proofs(directory: &Path, registry: &Registry, failures: &mut Vec<
             bindings::mechanism as fn(&Path, &Registry) -> Check,
         ),
         ("cell-request-scope", bindings::cell),
+        ("chembl-native-window", paging::chembl),
         ("seer-native-window", paging::seer),
         ("study-native-window", paging::study),
         ("gwas-native-window", gwas::run),
