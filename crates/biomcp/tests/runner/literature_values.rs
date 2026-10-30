@@ -13,21 +13,21 @@ mod identity;
 )]
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials: Vec<_> = [
-        ("europepmc", preprint as fn() -> Check),
-        ("litsense", litsense),
-        ("pubtator", pubtator),
-        ("pmc-oa", pmc),
-        ("semantic-scholar", edges),
-        ("jats", jats),
-        ("jats-figure-label", figure_label),
-        ("jats-section-title", section_title),
-        ("semantic-context-native-strings", context_strings),
-        ("icite", icite),
-        ("independent-identities", identity::check),
+        ("article-preprints/adapter-values-europepmc", preprint as fn() -> Check),
+        ("article-named-search/adapter-values-litsense", litsense),
+        ("article-sections/adapter-values-pubtator", pubtator),
+        ("article-fulltext/adapter-values-pmc-oa", pmc),
+        ("article-evidence/adapter-values-semantic-scholar", edges),
+        ("article-fulltext/adapter-values-jats", jats),
+        ("article-fulltext/adapter-values-jats-figure-label", figure_label),
+        ("article-fulltext/adapter-values-jats-section-title", section_title),
+        ("article-evidence/adapter-values-semantic-context-native-strings", context_strings),
+        ("article-citations/adapter-values-icite", icite),
+        ("article-sections/adapter-values-independent-identities", identity::check),
     ]
     .into_iter()
     .map(|(name, run)| {
-        transcript_trial(format!("literature-values/{name}"), move || {
+        transcript_trial(name, move || {
             run().map_err(|e| e.to_string().into())
         })
     })
@@ -35,7 +35,7 @@ pub(super) fn trials() -> Vec<Trial> {
     if let Some(capture) = std::env::var_os("BIOMCP_ORCID_NATIVE_CAPTURE") {
         let identity_capture = capture.to_string_lossy().into_owned();
         trials.push(transcript_trial(
-            "literature-values/orcid-independent-identity",
+            "author-orcid/adapter-values-independent-identity",
             move || {
                 identity::append_bad(
                     &identity_capture,
@@ -50,7 +50,7 @@ pub(super) fn trials() -> Vec<Trial> {
         ));
         let capture = capture.to_string_lossy().into_owned();
         trials.push(transcript_trial(
-            "literature-values/orcid-native-source",
+            "author-orcid/adapter-values-native-source",
             move || {
                 native(
                     &capture,
@@ -67,7 +67,7 @@ pub(super) fn trials() -> Vec<Trial> {
     }
     if let Some(previous) = std::env::var_os("BIOMCP_PREVIOUS_EXECUTABLE") {
         trials.push(transcript_trial(
-            "literature-values/previous-author-snapshots",
+            "author-papers/adapter-values-previous-snapshots",
             move || {
                 cache::check(&std::path::PathBuf::from(&previous)).map_err(|e| e.to_string().into())
             },
