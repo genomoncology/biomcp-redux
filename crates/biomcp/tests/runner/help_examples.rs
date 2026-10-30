@@ -43,7 +43,7 @@ pub(super) fn check() -> Result<(), String> {
         let step = case.steps.get(index).ok_or("example step missing")?;
         let args = step.run.as_ref().ok_or("example must be a run step")?;
         if step.exit != 0 || !printed.remove(args) {
-            return Err("example differs from successful case run step".into());
+            return Err(format!("example differs from successful case run step {file}:{index}, exit {}: {args:?}", step.exit));
         }
         let environment = launch::Environment::new().map_err(|e| e.to_string())?;
         if let Some(config) = &case.config {
