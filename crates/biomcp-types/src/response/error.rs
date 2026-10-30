@@ -65,6 +65,7 @@ singleton! {
  McpSync => "sync is unavailable over MCP; run it from the command line",
  McpStoreClean => "store clean is unavailable over MCP; run it from the command line",
  McpKey => "key is unavailable over MCP; run it from the command line",
+ McpHosted => "this command is unavailable in hosted mode",
  UnknownCommand => "unknown command; use the suggested help command",
  Local => "local configuration, cache or recording failed",
 

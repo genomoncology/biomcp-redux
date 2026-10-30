@@ -4,6 +4,12 @@ pub(super) fn serve_command() -> Command {
     Command::new("serve")
         .after_help("Example: biomcp serve\nExample: biomcp help serve")
         .arg(
+            Arg::new("hosted")
+                .long("hosted")
+                .help("Refuse host file saves, health details and store or key changes over MCP.")
+                .action(ArgAction::SetTrue),
+        )
+        .arg(
             Arg::new("http")
                 .long("http")
                 .help("Listen on an HTTP address; omit its value for the loopback default.")
@@ -130,7 +136,8 @@ pub(super) fn housekeeping(
     }
 }
 
-pub(super) fn serve(matches: &clap::ArgMatches, globals: super::Globals) -> super::Parsed {
+pub(super) fn serve(matches: &clap::ArgMatches, mut globals: super::Globals) -> super::Parsed {
+    globals.hosted = matches.get_flag("hosted");
     super::Parsed {
         key: None,
         housekeeping: None,

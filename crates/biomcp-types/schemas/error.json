@@ -100,6 +100,7 @@
         "sync is unavailable over MCP; run it from the command line",
         "store clean is unavailable over MCP; run it from the command line",
         "key is unavailable over MCP; run it from the command line",
+        "this command is unavailable in hosted mode",
         "unknown command; use the suggested help command",
         "local configuration, cache or recording failed",
         "use: search gwas with --gene, --trait, --trait-id, --variant, --study or --pubmed; --include-child-traits requires --trait-id; --extended-geneset requires --gene; use exact GCST accessions, rsIDs, positive PMIDs and native trait IDs without repair; --limit is 1..50 and --offset is a nonnegative integer; source p-value order is fixed with no --sort or local prefix intersection",
