@@ -120,5 +120,3 @@ section get variant oncokb
 section search adverse-event age
 section search adverse-event seriousness
 section search adverse-event symptoms
-tool fetch
-tool search
