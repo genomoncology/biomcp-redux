@@ -114,3 +114,18 @@ pub(crate) const WHO_REVISION: (&str, &[&str]) = (
     "diagnostic-who-search/full-walk-keeps-candidates-and-revision",
     &["option get diagnostic --bundle-revision"],
 );
+
+// Native CC0 claim page retains its source cursor and literal EID260.
+pub(crate) const DRUG_CIVIC_CURSOR: (&str, &[&str]) = (
+    "drug-civic/profile-evidence-next",
+    &["option get drug --civic-cursor"],
+);
+// Synthetic repeated/empty cursors force a bad-reply boundary unavailable on demand.
+pub(crate) const VARIANT_CIVIC_CURSOR: (&str, &[&str]) = (
+    "variant-civic/civic-native-cursor-must-progress",
+    &[
+        "option get variant --civic-profile",
+        "option get variant --civic-kind",
+        "option get variant --civic-cursor",
+    ],
+);

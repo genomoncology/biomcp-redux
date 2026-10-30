@@ -49,7 +49,7 @@ pub(super) fn trials() -> Vec<Trial> {
             "variant-civic/civic-graphql-errors-retain-valid-uncached-facts",
             || graphql_errors().map_err(Into::into),
         ),
-        transcript_trial("variant-civic/civic-native-cursor-must-progress", || {
+        transcript_trial(crate::runner::pool_contract::VARIANT_CIVIC_CURSOR.0, || {
             stalled_cursor().map_err(Into::into)
         }),
         transcript_trial(
