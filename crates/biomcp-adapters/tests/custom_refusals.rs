@@ -1,4 +1,6 @@
 //! Public native mapping boundaries preserve actual refusal facts.
+#[path = "custom_refusals/collections.rs"]
+mod collections;
 #[expect(
     clippy::disallowed_methods,
     reason = "The shared recording boundary copies isolated replay fixtures"
@@ -7,6 +9,8 @@
 mod recordings;
 #[path = "custom_refusals/replay.rs"]
 mod replay;
+#[path = "custom_refusals/stored.rs"]
+mod stored;
 #[path = "custom_refusals/transport.rs"]
 mod transport;
 use biomcp_adapters::{Refusal, chembl, drugsfda, gwas, jats, nci, semantic_scholar};
