@@ -4,6 +4,7 @@ mod families;
 mod members;
 mod pages;
 mod records;
+mod retained;
 mod source_pages;
 mod stored;
 mod synthetic;
@@ -31,6 +32,7 @@ pub(super) fn trials() -> Vec<Trial> {
     tests.extend(source_pages::trials());
     tests.extend(stored::trials());
     tests.extend(documents::trials());
+    tests.extend(retained::trials());
     tests
 }
 
