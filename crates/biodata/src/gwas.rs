@@ -83,6 +83,15 @@ text_value!(
 /// Native ontology identifier; namespaces are preserved without an EFO restriction.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct GwasTraitId(Text);
+impl GwasTraitId {
+    /// Authority explicitly present in the checked native identifier grammar.
+    pub fn namespace(&self) -> &str {
+        self.0
+            .as_str()
+            .split_once(['_', ':'])
+            .map_or("", |(namespace, _)| namespace)
+    }
+}
 impl FromStr for GwasTraitId {
     type Err = crate::Error;
     fn from_str(value: &str) -> Result<Self, Self::Err> {

@@ -168,14 +168,14 @@ fn pivots(out: &mut Outcome, rows: &[OrcidWorkGroup]) {
         if id.relationship.as_ref().map(biodata::Text::as_str) != Some("self") {
             continue;
         }
-        let input = match id.namespace.as_str() {
-            "pmid" => id
+        let input = match id.namespace.as_deref() {
+            Some("pmid") => id
                 .id
                 .as_str()
                 .parse()
                 .ok()
                 .map(biomcp_types::ArticleInput::Pmid),
-            "doi" => id
+            Some("doi") => id
                 .id
                 .as_str()
                 .parse()

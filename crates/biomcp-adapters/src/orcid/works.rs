@@ -31,7 +31,7 @@ struct Identifiers {
 #[derive(Deserialize)]
 #[serde(rename_all = "kebab-case")]
 struct ExternalId {
-    external_id_type: Text,
+    external_id_type: Option<Field<Text>>,
     external_id_value: Text,
     external_id_relationship: Option<Field<Text>>,
     external_id_url: Option<Field<Url>>,
@@ -47,7 +47,7 @@ impl Identifiers {
             .filter_map(|id| {
                 let id = problems.required("external_ids", id.value())?;
                 Some(OrcidExternalId {
-                    namespace: id.external_id_type,
+                    namespace: problems.field("external_ids", id.external_id_type).into(),
                     id: id.external_id_value,
                     relationship: optional(
                         problems,

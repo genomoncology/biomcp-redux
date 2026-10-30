@@ -16,7 +16,7 @@ pub enum OrcidPublicVisibility {
 #[cfg_attr(feature = "schema", schemars(extend("x-identifier" = true)))]
 pub struct OrcidExternalId {
     /// Open native external-id-type.
-    pub namespace: Text,
+    pub namespace: crate::IdentifierNamespace,
     /// Unchanged native identifier value.
     pub id: Text,
     /// Open native relationship, including self and part-of.

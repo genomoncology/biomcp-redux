@@ -156,3 +156,20 @@ pub struct GwasTrait {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub label: Option<Text>,
 }
+
+impl GwasTrait {
+    /// Retain the full source ID and expose only the authority stated by its checked grammar.
+    pub fn new(id: Text, label: Option<Text>) -> Self {
+        let namespace = id
+            .as_str()
+            .parse::<biodata::GwasTraitId>()
+            .ok()
+            .and_then(|value| Text::new(value.namespace()).ok())
+            .into();
+        Self {
+            namespace,
+            id,
+            label,
+        }
+    }
+}
