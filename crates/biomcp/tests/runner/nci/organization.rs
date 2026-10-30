@@ -5,7 +5,7 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
-    // Keep dynamic state, source bindings or wire checks that YAML cannot express.
+    // The test reuses runtime organization pool IDs with foreign selectors and checks retained-page ownership.
     vec![transcript_trial(
         crate::runner::pool_contract::ORGANIZATION.0,
         || pages().map_err(Into::into),

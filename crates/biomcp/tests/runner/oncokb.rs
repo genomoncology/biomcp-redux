@@ -9,7 +9,7 @@ const KEY: &str = "synthetic-oncokb-variant-key";
 const INPUT: &str = "chr7:g.140753336A>T";
 const SECTION: &str = "/result/candidates/0/sections/oncokb";
 pub(super) fn trials() -> Vec<Trial> {
-    // Keep dynamic state, source bindings or wire checks that YAML cannot express.
+    // The peer checks required outbound key placement and caches while the test inspects recordings for credential leakage.
     vec![transcript_trial(
         crate::runner::required_contract::ONCOKB.0,
         || wire().map_err(Into::into),

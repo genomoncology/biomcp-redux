@@ -13,7 +13,7 @@ mod navigation;
 type Check = Result<(), String>;
 
 pub(super) fn trials() -> Vec<Trial> {
-    // Keep dynamic state, source bindings or wire checks that YAML cannot express.
+    // The SOAP peer checks posted selectors and independent table requests while runtime snapshot pages are followed.
     vec![transcript_trial(
         crate::runner::required_contract::VAERS_TABLES.0,
         || navigation::run().map_err(Into::into),

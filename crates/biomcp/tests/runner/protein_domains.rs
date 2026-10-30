@@ -10,7 +10,7 @@ mod complexes;
 mod paging;
 
 pub(super) fn trials() -> Vec<Trial> {
-    // Keep dynamic state, source bindings or wire checks that YAML cannot express.
+    // The peers verify source request counts and runtime pool ownership while native pages and members are reconstructed.
     vec![
         transcript_trial(crate::runner::pool_contract::DOMAIN_PAGES.0, || {
             paging::run().map_err(Into::into)

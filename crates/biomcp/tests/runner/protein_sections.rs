@@ -7,7 +7,7 @@ use std::{fs, path::Path};
 mod boundaries;
 
 pub(super) fn trials() -> Vec<Trial> {
-    // Keep dynamic state, source bindings or wire checks that YAML cannot express.
+    // The peer checks exact source coordinates, bound page identities and request counts after section continuations.
     vec![transcript_trial(
         crate::runner::pool_contract::FEATURES.0,
         || boundaries::features().map_err(Into::into),

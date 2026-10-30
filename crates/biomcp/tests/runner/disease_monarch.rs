@@ -8,7 +8,7 @@ use std::{fs, path::Path};
 tool_only! { mod native; }
 tool_only! { pub(super) use native::run as native; }
 pub(super) fn trials() -> Vec<Trial> {
-    // Keep dynamic state, source bindings or wire checks that YAML cannot express.
+    // The peer checks literal direct-association requests and exact request counts independently of mapped output fields.
     vec![transcript_trial(
         crate::runner::required_contract::MONARCH_PHENOTYPES.0,
         || phenotype().map_err(Into::into),

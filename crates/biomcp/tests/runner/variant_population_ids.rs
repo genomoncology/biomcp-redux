@@ -6,7 +6,7 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 
 pub(super) fn trials() -> Vec<Trial> {
-    // Keep dynamic state, source bindings or wire checks that YAML cannot express.
+    // The peers check source request and allele bindings across ambiguous identifiers and their executable population actions.
     vec![transcript_trial(
         crate::runner::required_contract::POPULATION_SELECTORS.0,
         || ambiguous().map_err(Into::into),

@@ -6,7 +6,7 @@ use serde_json::{Value, json};
 use std::fs;
 
 pub(super) fn trials() -> Vec<Trial> {
-    // Keep dynamic state, source bindings or wire checks that YAML cannot express.
+    // The peer supplies cursor-dependent pages and counts requests to prove that repeated or empty cursors cannot progress.
     vec![transcript_trial(
         crate::runner::pool_contract::VARIANT_CIVIC_CURSOR.0,
         || stalled_cursor().map_err(Into::into),

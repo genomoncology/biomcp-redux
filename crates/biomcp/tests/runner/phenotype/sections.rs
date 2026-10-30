@@ -4,7 +4,7 @@ use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 pub(super) fn trials() -> Vec<Trial> {
-    // Keep dynamic state, source bindings or wire checks that YAML cannot express.
+    // The peer counts requests while the test changes runtime snapshots and follows source-owned class and hierarchy pages.
     vec![
         transcript_trial(crate::runner::required_contract::HPO_SNAPSHOT.0, || {
             retained().map_err(Into::into)

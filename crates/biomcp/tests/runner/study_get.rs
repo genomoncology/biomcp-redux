@@ -10,7 +10,7 @@ use std::{fs, io::Write, path::Path};
 mod section_page;
 type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
-    // Keep dynamic state, source bindings or wire checks that YAML cannot express.
+    // The test binds runtime store revisions and acquisition times while reconstructing independently owned native pages.
     vec![transcript_trial(required_contract::STUDY_PAGES.0, || {
         pages().map_err(Into::into)
     })]

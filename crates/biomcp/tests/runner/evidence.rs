@@ -10,7 +10,7 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
 pub(super) fn trials() -> Vec<Trial> {
-    // Keep dynamic state, source bindings or wire checks that YAML cannot express.
+    // The test reconstructs runtime fragments and compares independent citation/reference identities across pages.
     vec![transcript_trial(
         crate::runner::pool_contract::EVIDENCE_FRAGMENTS.0,
         || overflow().map_err(|e| e.to_string().into()),

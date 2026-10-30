@@ -14,7 +14,7 @@ use std::{
 };
 type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
-    // Keep dynamic state, source bindings or wire checks that YAML cannot express.
+    // The test follows runtime revision-bound pages and compares the complete candidate set without replacement requests.
     vec![transcript_trial(
         crate::runner::pool_contract::WHO_REVISION.0,
         || search::walk().map_err(Into::into),

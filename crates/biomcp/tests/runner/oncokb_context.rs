@@ -6,7 +6,7 @@ use serde_json::{Value, json};
 use std::fs;
 const SECTION: &str = "/result/candidates/0/sections/oncokb";
 pub(super) fn trials() -> Vec<Trial> {
-    // Keep dynamic state, source bindings or wire checks that YAML cannot express.
+    // The peer binds request context and verifies that independent tool calls do not inherit earlier annotation context.
     vec![transcript_trial(
         crate::runner::required_contract::ONCOKB_ALL.0,
         || run().map_err(Into::into),

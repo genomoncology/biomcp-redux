@@ -11,7 +11,7 @@ use std::{
 
 mod synthetic;
 pub(super) fn trials() -> Vec<Trial> {
-    // Keep dynamic state, source bindings or wire checks that YAML cannot express.
+    // The test removes replay input before ancestry continuations and counts real loci/study peer requests.
     vec![
         transcript_trial(required_contract::GWAS_ANCESTRY.0, || {
             synthetic::ancestry().map_err(Into::into)

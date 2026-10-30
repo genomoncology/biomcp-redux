@@ -7,7 +7,7 @@ use serde_json::{Value, json};
 use std::{collections::BTreeSet, io::Write};
 type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
-    // Keep dynamic state, source bindings or wire checks that YAML cannot express.
+    // The test follows runtime pool bindings and compares complete source event/reference sets across pages.
     vec![
         transcript_trial(crate::runner::pool_contract::PATHWAY_GENES.0, || {
             walk(true).map_err(Into::into)

@@ -6,7 +6,7 @@ use serde_json::{Value, json};
 type Check = Result<(), String>;
 mod optional;
 pub(super) fn trials() -> Vec<Trial> {
-    // Keep dynamic state, source bindings or wire checks that YAML cannot express.
+    // The test binds emitted snapshot IDs into later section requests and checks that those reads never reach the peer.
     vec![
         transcript_trial(crate::runner::required_contract::FAERS_SECTIONS.0, || {
             sections().map_err(Into::into)

@@ -9,7 +9,7 @@ use sha2::{Digest, Sha256};
 use std::{fs, path::Path};
 type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
-    // Keep dynamic state, source bindings or wire checks that YAML cannot express.
+    // The test reconstructs native file-reference pages from the retained revision and inspects publisher notice ownership.
     vec![transcript_trial(required_contract::STUDY_FILES.0, || {
         pages().map_err(Into::into)
     })]

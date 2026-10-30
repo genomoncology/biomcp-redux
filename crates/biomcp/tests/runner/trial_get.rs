@@ -14,7 +14,7 @@ use std::fs;
 type Check = Result<(), Box<dyn std::error::Error>>;
 
 pub(super) fn trials() -> Vec<Trial> {
-    // Keep dynamic state, source bindings or wire checks that YAML cannot express.
+    // The test rejoins runtime Unicode/whitespace fragments and mutates bound snapshot inputs after recording access ends.
     vec![transcript_trial(
         crate::runner::pool_contract::TRIAL.0,
         || continuations().map_err(|e| e.to_string().into()),

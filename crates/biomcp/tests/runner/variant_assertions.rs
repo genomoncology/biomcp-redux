@@ -5,7 +5,7 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
 pub(super) fn trials() -> Vec<Trial> {
-    // Keep dynamic state, source bindings or wire checks that YAML cannot express.
+    // The test walks runtime assertion pages and verifies native row reconstruction and cached continuation ownership.
     vec![transcript_trial(
         crate::runner::required_contract::CLINVAR_PAGES.0,
         || native_walk().map_err(Into::into),

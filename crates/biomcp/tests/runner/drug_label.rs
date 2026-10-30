@@ -7,7 +7,7 @@ use serde_json::{Value, json};
 type Check = Result<(), String>;
 
 pub(super) fn trials() -> Vec<Trial> {
-    // Keep dynamic state, source bindings or wire checks that YAML cannot express.
+    // The peer checks literal source label requests and counts reads after retaining all native heading pages.
     vec![transcript_trial(
         crate::runner::required_contract::LABEL_HEADINGS.0,
         || headings().map_err(Into::into),

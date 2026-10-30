@@ -6,7 +6,7 @@ use serde_json::{Value, json};
 use std::fs;
 
 pub(super) fn trials() -> Vec<Trial> {
-    // Keep dynamic state, source bindings or wire checks that YAML cannot express.
+    // The real peer checks resolver order, source requests and warm cache admission.
     vec![transcript_trial(
         crate::runner::required_contract::VALIDATOR_RESOLVER.0,
         || validator_order().map_err(Into::into),

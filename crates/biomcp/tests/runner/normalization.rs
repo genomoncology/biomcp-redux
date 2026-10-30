@@ -6,7 +6,7 @@ use serde_json::{Value, json};
 use std::fs;
 
 pub(super) fn trials() -> Vec<Trial> {
-    // Keep dynamic state, source bindings or wire checks that YAML cannot express.
+    // The peer checks literal resolver traffic while the test follows bound runtime mapping actions through the warm cache.
     vec![transcript_trial(
         crate::runner::required_contract::NORMALIZATION_PAGES.0,
         || walk().map_err(Into::into),

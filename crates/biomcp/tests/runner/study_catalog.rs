@@ -12,7 +12,7 @@ use std::{
 type Check = Result<(), String>;
 const URL: &str = "https://www.cbioportal.org/api/studies?projection=DETAILED";
 pub(super) fn trials() -> Vec<Trial> {
-    // Keep dynamic state, source bindings or wire checks that YAML cannot express.
+    // The test removes the replay source before traversing the runtime catalog revision and validates immutable store ownership.
     let mut trials = vec![transcript_trial(required_contract::STUDY_SEARCH.0, || {
         search().map_err(Into::into)
     })];
