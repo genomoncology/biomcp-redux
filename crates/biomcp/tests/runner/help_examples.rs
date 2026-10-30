@@ -67,7 +67,7 @@ pub(super) fn check() -> Result<(), String> {
                 &registry,
                 replay.as_deref(),
                 None,
-            )?;
+            ).map_err(|error| format!("help witness {file}:{index} {args:?}: {error}"))?;
             check_result(args, &reply, advertised.contains(args))?;
         }
     }

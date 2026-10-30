@@ -204,15 +204,16 @@
         "Bonaire, Saint Eustatius and Saba "
       ],
       "offline": true,
-      "exit": 1,
+      "exit": 4,
       "expect": {
-        "/status": "unavailable",
+        "/status": "failed",
         "/query/country": [
           "Bonaire, Saint Eustatius and Saba "
         ],
         "/sources/0/reason": "offline"
       },
-      "max_bytes": 5000
+      "max_bytes": 5000,
+      "is_error": true
     },
     {
       "run": [
