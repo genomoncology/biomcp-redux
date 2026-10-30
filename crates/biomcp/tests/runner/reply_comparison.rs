@@ -22,6 +22,7 @@ fn comparable(value: &Value) -> Result<Value, String> {
     Ok(value)
 }
 
+tool_only! {
 pub(super) fn trial() -> libtest_mimic::Trial {
     super::transcript::trial("runner/report-parity-keeps-every-nonvolatile-field", || {
         proof().map_err(Into::into)
@@ -82,4 +83,5 @@ fn proof() -> Result<(), String> {
         return Err("report parity ignored another schema's field".into());
     }
     Ok(())
+}
 }

@@ -1,5 +1,7 @@
 mod biomarker;
 mod condition;
+mod continuation;
+mod country;
 mod filters;
 use crate::{GeneInput, NctId, PartialDate, StudyType, Text, TrialSex, TrialStatus};
 pub use biomarker::NciBiomarkerUse;
@@ -147,7 +149,7 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "u32"))]
     age: Option<u32>,
-    /// Exact facility name; NCI matches organization names case-insensitively. A listed site is not necessarily enrolling. Cannot combine with radius.
+    /// Facility phrase; ClinicalTrials.gov broadens after zero exact matches. NCI matches exact names. Cannot combine with radius.
     #[serde(
         default,
         deserialize_with = "super::gene::present",
@@ -155,6 +157,10 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     facility: Option<Text>,
+    /// Exact ClinicalTrials.gov country label; repeat for OR. Trials must list a site in a named country. NCI uses its native country filter.
+    #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
+    #[cfg_attr(feature = "schema", schemars(schema_with = "country::schema"))]
+    country: Box<[Box<str>]>,
     /// Radius center latitude in degrees.
     #[serde(
         default,
@@ -179,7 +185,7 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     distance: Option<Text>,
-    /// Exact lead sponsor field.
+    /// Sponsor name; ClinicalTrials.gov broadens after zero exact matches. Use --sponsor-type for the funding category.
     #[serde(
         default,
         deserialize_with = "super::gene::present",
@@ -187,7 +193,7 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     sponsor: Option<Text>,
-    /// Registry sponsor funding facet.
+    /// Registry sponsor funding category; use --sponsor for a sponsor name.
     #[serde(
         default,
         deserialize_with = "super::gene::present",
@@ -346,9 +352,13 @@ impl TrialSearch {
     pub fn age(&self) -> Option<&u32> {
         self.0.age.as_ref()
     }
-    /// Exact facility name; NCI matches organization names case-insensitively. A listed site is not necessarily enrolling. Cannot combine with radius.
+    /// Requested facility phrase; a listed site is not necessarily enrolling.
     pub fn facility(&self) -> Option<&Text> {
         self.0.facility.as_ref()
+    }
+    /// Exact published country alternatives, without whitespace repair.
+    pub fn country(&self) -> &[Box<str>] {
+        &self.0.country
     }
     /// Radius center latitude in degrees.
     pub fn lat(&self) -> Option<&Text> {
@@ -362,11 +372,11 @@ impl TrialSearch {
     pub fn distance(&self) -> Option<&Text> {
         self.0.distance.as_ref()
     }
-    /// Exact lead sponsor field.
+    /// Requested sponsor name.
     pub fn sponsor(&self) -> Option<&Text> {
         self.0.sponsor.as_ref()
     }
-    /// Registry sponsor funding facet.
+    /// Requested sponsor funding category.
     pub fn sponsor_type(&self) -> Option<&SponsorType> {
         self.0.sponsor_type.as_ref()
     }

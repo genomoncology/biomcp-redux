@@ -124,7 +124,7 @@ fn has_drift(result: &Value) -> bool {
         .is_some_and(|drift| !drift.is_empty())
 }
 fn eligibility(case: &Case) -> Option<&str> {
-    match case.live_check.as_deref() {
+    match case._live_check.as_deref() {
         Some("public") if case.replay.is_some() && case.config.is_none() => {
             let skips = step_skips(case);
             if skips.iter().any(Option::is_none) {

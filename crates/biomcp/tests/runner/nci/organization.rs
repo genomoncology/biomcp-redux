@@ -6,13 +6,13 @@ use serde_json::{Value, json};
 type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        transcript_trial("organization/research-keeps-uncitable-rows", || {
+        transcript_trial("organization-nci/research-keeps-uncitable-rows", || {
             research().map_err(Into::into)
         }),
-        transcript_trial("organization/native-local-pages", || {
+        transcript_trial("organization-nci/native-local-pages", || {
             pages().map_err(Into::into)
         }),
-        transcript_trial("organization/bounded-failures", || {
+        transcript_trial("organization-nci/bounded-failures", || {
             failures().map_err(Into::into)
         }),
     ]

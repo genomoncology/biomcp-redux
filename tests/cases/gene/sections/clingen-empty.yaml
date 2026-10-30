@@ -1,6 +1,6 @@
 {
   "live_check": "public",
-  "feature": "gene-sections",
+  "feature": "gene-clingen",
   "story": "A gene absent from both ClinGen files retains both successful source statuses",
   "replay": "gene/clingen",
   "steps": [

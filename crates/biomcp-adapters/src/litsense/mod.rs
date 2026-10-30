@@ -1,5 +1,10 @@
 //! LitSense2 sentence resemblance in the provider's original order.
-use crate::quotas;
+use crate::{
+    Mapped,
+    mapped::{Problems, record},
+    quotas,
+    raw::Field,
+};
 use biodata::Text;
 use biomcp_fetch::{
     Arg, BadReply, Endpoint, Freshness, KeyUse, Leg, Reply, RequestError, SourceSpec,
@@ -24,16 +29,28 @@ pub static SPEC: SourceSpec = SourceSpec {
 };
 pub(crate) const SENTENCES: Endpoint = SPEC.get("/api/sentences/").fresh(Freshness::Days(1));
 /// Read one bounded provider reply and keep each paper's first sentence, without score sorting.
-pub fn search(leg: &Leg<'_>, term: &str) -> Result<Vec<ArticleItem>, RequestError> {
+pub fn search(leg: &Leg<'_>, term: &str) -> Result<Mapped<Vec<ArticleItem>>, RequestError> {
     let reply = leg.json::<Sentences>(
         &SENTENCES,
         &[("query", Arg::Text(term)), ("rerank", Arg::Text("true"))],
     )?;
     let mut items: Vec<ArticleItem> = Vec::new();
+    let mut problems = Problems {
+        source: Source::LitSense,
+        record: None,
+        list: Vec::new(),
+    };
     for (index, sentence) in reply.0.into_iter().enumerate() {
+        problems.record = None;
+        let Some(sentence) = problems.required("pmid", sentence.value()) else {
+            continue;
+        };
         if items.iter().any(|item| item.pmid == Some(sentence.pmid.0)) {
             continue;
         }
+        problems.record = record(sentence.pmid.0);
+        let section = problems.field("section", sentence.section);
+        let text = problems.source_field("text", sentence.text);
         items.push(ArticleItem {
             key: Some(ArticleKey::Pubmed(sentence.pmid.0)),
             pmid: Some(sentence.pmid.0),
@@ -43,23 +60,21 @@ pub fn search(leg: &Leg<'_>, term: &str) -> Result<Vec<ArticleItem>, RequestErro
             influential: None,
             contexts: None,
             header: None,
-            sentence: Some(ArticleSentence {
-                section: sentence.section.and_then(crate::raw::Field::value),
-                text: sentence.text,
-            }),
+            sentence: Some(ArticleSentence { section, text }),
         });
     }
-    Ok(items)
+    Ok(Mapped {
+        value: items,
+        problems: problems.list,
+    })
 }
 #[derive(Deserialize)]
-struct Sentences(Vec<Sentence>);
+struct Sentences(Vec<Field<Sentence>>);
 #[derive(Deserialize)]
 struct Sentence {
     pmid: crate::raw::NumericPmid,
-    #[serde(default)]
-    section: Option<crate::raw::Field<Text>>,
-    #[serde(deserialize_with = "crate::native_text::deserialize")]
-    text: biodata::Text,
+    section: Option<Field<Text>>,
+    text: Option<Field<crate::native_text::NativeText>>,
 }
 impl Reply for Sentences {
     fn check(&self) -> Result<(), BadReply> {

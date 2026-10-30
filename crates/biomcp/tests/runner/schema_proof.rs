@@ -1,36 +1,40 @@
-use super::schema::Registry;
-use crate::runner::transcript::trial as transcript_trial;
-use libtest_mimic::Trial;
-use serde_json::{Value, json};
-use std::sync::Arc;
+tool_only! { use super::schema::Registry; }
+tool_only! { use crate::runner::transcript::trial as transcript_trial; }
+tool_only! { use libtest_mimic::Trial; }
+use serde_json::Value;
+tool_only! { use serde_json::json; }
+tool_only! { use std::sync::Arc; }
 
+tool_only! {
 pub(super) fn trials(registry: Arc<Registry>) -> Vec<Trial> {
     let raw_registry = Arc::clone(&registry);
     let evolution_registry = Arc::clone(&registry);
     vec![
         transcript_trial(
-            "schema/recorded-reply-accepts-future-fields-and-enum-names",
+            "schema-discovery/recorded-reply-accepts-future-fields-and-enum-names",
             move || {
                 super::schema_evolution::recorded_reply(&evolution_registry).map_err(Into::into)
             },
         ),
-        transcript_trial("schema/catalog-and-help-reply-discovery", || {
+        transcript_trial("schema-discovery/catalog-and-help-reply-discovery", || {
             discovery().map_err(Into::into)
         }),
-        transcript_trial("runner/validates-results-before-assertions", move || {
+        transcript_trial("schema-discovery/validates-results-before-assertions", move || {
             results(&registry).map_err(Into::into)
         }),
-        transcript_trial("runner/validates-raw-artifact-request", move || {
+        transcript_trial("schema-discovery/validates-raw-artifact-request", move || {
             raw_artifacts(&raw_registry).map_err(Into::into)
         }),
-        transcript_trial("runner/resolves-only-registered-schema-references", || {
+        transcript_trial("schema-discovery/resolves-only-registered-schema-references", || {
             references().map_err(Into::into)
         }),
     ]
 }
+}
 
+tool_only! {
 fn results(registry: &Registry) -> Result<(), String> {
-    let good = json!({"schema":"biomcp.error/3", "status":"usage",
+    let good = json!({"schema":"biomcp.error/4", "status":"usage",
         "error":{"code":"usage.schema","message":"use biomcp schema to list known artifact IDs"}});
     let args = vec!["unknown".into()];
     registry.validate(&good, &args, false)?;
@@ -63,7 +67,9 @@ fn results(registry: &Registry) -> Result<(), String> {
     nulls()?;
     Ok(())
 }
+}
 
+tool_only! {
 fn nulls() -> Result<(), String> {
     use biomcp_types::{DiseaseGenes, ResponseBody};
     let association = DiseaseGenes::SCHEMA;
@@ -102,7 +108,9 @@ fn nulls() -> Result<(), String> {
     }
     Ok(())
 }
+}
 
+tool_only! {
 fn raw_artifacts(registry: &Registry) -> Result<(), String> {
     let artifact = |id: &str| -> Result<Value, String> {
         let (_, text) = super::schema::ARTIFACTS
@@ -122,7 +130,7 @@ fn raw_artifacts(registry: &Registry) -> Result<(), String> {
         &["schema".into(), "missing/1".into()],
         true,
     )?;
-    rejects(registry, &artifact("biomcp.error/3")?, &args, true)?;
+    rejects(registry, &artifact("biomcp.error/4")?, &args, true)?;
     let mut changed = source.clone();
     changed
         .as_object_mut()
@@ -136,7 +144,9 @@ fn raw_artifacts(registry: &Registry) -> Result<(), String> {
         .insert("$id".into(), json!("invented/1"));
     rejects(registry, &wrong_id, &args, true)
 }
+}
 
+tool_only! {
 fn references() -> Result<(), String> {
     let parent = json!({"$id":"fixture.parent/1", "type":"object", "required":["schema", "child"],
         "properties":{"schema":{"const":"fixture.parent/1"},
@@ -177,7 +187,9 @@ fn references() -> Result<(), String> {
     }
     Ok(())
 }
+}
 
+tool_only! {
 fn rejects(
     registry: &Registry,
     value: &Value,
@@ -191,7 +203,9 @@ fn rejects(
         )),
     }
 }
+}
 
+tool_only! {
 fn discovery_reply(
     environment: &super::launch::Environment,
     args: &[String],
@@ -208,7 +222,9 @@ fn discovery_reply(
     }
     serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())
 }
+}
 
+tool_only! {
 fn discovery() -> Result<(), String> {
     let environment = super::launch::Environment::new().map_err(|e| e.to_string())?;
     let invoke = |args: &[String]| discovery_reply(&environment, args);
@@ -287,7 +303,9 @@ fn discovery() -> Result<(), String> {
     }
     resolve_replies(&environment, replies)
 }
+}
 
+tool_only! {
 fn resolve_replies(
     environment: &super::launch::Environment,
     replies: std::collections::BTreeSet<&str>,
@@ -300,7 +318,9 @@ fn resolve_replies(
     }
     Ok(())
 }
+}
 
+tool_only! {
 fn parent_replies(commands: &[Value]) -> Result<(), String> {
     let parent = commands
         .iter()
@@ -322,6 +342,7 @@ fn parent_replies(commands: &[Value]) -> Result<(), String> {
         return Err("parent reply schemas are not sorted and unique".into());
     }
     Ok(())
+}
 }
 
 pub(super) fn reply_ids(schema: &Value) -> std::collections::BTreeSet<&str> {
@@ -348,6 +369,7 @@ pub(super) fn reply_ids(schema: &Value) -> std::collections::BTreeSet<&str> {
     ids
 }
 
+tool_only! {
 fn tool_definitions(environment: &super::launch::Environment) -> Result<Vec<Value>, String> {
     let mut reply = super::mcp::exchange(
         environment,
@@ -361,4 +383,5 @@ fn tool_definitions(environment: &super::launch::Environment) -> Result<Vec<Valu
         .map(Value::take)
         .ok_or("missing tool list")?;
     serde_json::from_value(tools).map_err(|e| e.to_string())
+}
 }

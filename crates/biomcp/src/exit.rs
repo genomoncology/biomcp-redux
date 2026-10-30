@@ -62,7 +62,7 @@ pub(crate) fn reference() -> String {
     ] {
         text.push_str(&format!("{}: {description}\n", status.code()));
     }
-    if let Some(schema) = crate::schema::find("biomcp.error/3")
+    if let Some(schema) = crate::schema::find("biomcp.error/4")
         .and_then(|s| serde_json::from_str::<serde_json::Value>(s).ok())
     {
         let codes = schema

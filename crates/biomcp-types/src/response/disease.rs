@@ -77,9 +77,11 @@ pub struct DiseaseSite {
     /// Native publisher site code.
     pub code: Text,
     /// Complete publisher site label.
-    pub label: Text,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub label: Option<Text>,
     /// Publisher active-state flag.
-    pub active: bool,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub active: Option<bool>,
 }
 /// One native association and the component terms governing that row.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -146,7 +148,7 @@ page!(
     DiseaseGenes,
     DiseaseAssociationItem,
     DiseaseGet,
-    "biomcp.disease-genes/8",
+    "biomcp.disease-genes/9",
     "Native association rows, not a unique-gene count.",
     [
         /// Original response retrieval Unix seconds, independent of local delivery.
@@ -158,7 +160,7 @@ page!(
     DiseasePhenotypes,
     DiseaseAssociationItem,
     DiseaseGet,
-    "biomcp.disease-phenotypes/8",
+    "biomcp.disease-phenotypes/9",
     "Native phenotype association rows without diagnostic inference.",
     [
         /// Original response retrieval Unix seconds, independent of local delivery.
@@ -170,7 +172,7 @@ page!(
     DiseaseSites,
     DiseaseSite,
     DiseaseSearch,
-    "biomcp.disease-sites/4",
+    "biomcp.disease-sites/5",
     "Publisher site catalog without an ontology-to-site mapping.",
     [
         /// Original response retrieval time in Unix seconds, distinct from publisher version/date.

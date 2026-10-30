@@ -68,7 +68,7 @@ fn check() -> Check {
         if !text.contains(&format!("Commit: {}\n", env!("BIOMCP_BUILD_COMMIT")))
             || !text.contains(&format!("Target: {}\n", env!("BIOMCP_BUILD_TARGET")))
             || !text.contains(<biomcp_types::Help as biomcp_types::ResponseBody>::SCHEMA)
-            || !text.contains("biomcp.error/3")
+            || !text.contains("biomcp.error/4")
         {
             return Err("verbose build or schema provenance differs from this artifact".into());
         }
@@ -140,9 +140,14 @@ fn help(env: &Environment) -> Check {
             .pointer("/result/commands")
             .and_then(Value::as_array)
             .ok_or("missing help")?;
-        if commands.len() != 1
+        if commands
+            .iter()
+            .map(|command| command.get("command"))
+            .collect::<Vec<_>>()
+            != vec![Some(&json!([name])), Some(&json!(["help", name]))]
             || commands
-                .first()
+                .iter()
+                .find(|command| command.get("command") == Some(&json!([name])))
                 .and_then(|c| c.get("arguments"))
                 .and_then(Value::as_array)
                 .is_none_or(|args| !args.iter().any(|arg| arg.get("name") == Some(&json!(flag))))
@@ -199,8 +204,8 @@ fn limit(args: &[&str], executable: &Path) -> Check<usize> {
     let (mut bytes, path) = match args {
         ["version", ..] if args.contains(&"--verbose") => (7023, None),
         ["version" | "--version", ..] => (13, None),
-        ["help", "version", ..] => (1275, None),
-        ["help", "mcp-config", ..] => (1650, None),
+        ["help", "version", ..] => (2112, None),
+        ["help", "mcp-config", ..] => (2560, None),
         ["mcp-config", ..] if args.contains(&"unknown") => (221, None),
         ["mcp-config", ..] if args.contains(&"codex") => (94, Some(true)),
         ["mcp-config", ..] if args.contains(&"servers") || args.contains(&"vscode") => {

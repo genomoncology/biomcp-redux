@@ -232,38 +232,33 @@ fn rejected_identity() -> Check {
         0,
     )?;
     for id in ["WP999", "bad-id"] {
-        let mut catalog = fixtures::catalog(false);
-        *catalog.pointer_mut("/pathwayInfo/0/id").ok_or("identity")? = json!(id);
-        fixtures::replace_source(
-            &root,
-            "wikipathways",
-            "getPathwayInfo",
-            &catalog.to_string(),
-            200,
-            0,
-        )?;
-        let rejected = call(
-            "pathway_failures/wikipathways/rejected_identity/3",
+        replace_bad_row(&root, id)?;
+        call(
+            "pathway_failures/wikipathways/rejected_identity/1",
             &env,
             &root,
             &["sync", "wikipathways"],
-            4,
+            0,
         )?;
-        if rejected.pointer("/sources/0/reason") != Some(&json!("bad-reply"))
-            || !rejected
+        let mut args = env.globals(Some(&root), false);
+        args.extend(
+            ["search", "pathway", "Synthetic", "--source", "wikipathways"].map(str::to_owned),
+        );
+        let found = super::super::configuration::invoke(&env, args, 0)?;
+        if found.pointer("/result/items/0/id/id") != Some(&json!("WP382"))
+            || found
+                .pointer("/result/items")
+                .and_then(Value::as_array)
+                .map(Vec::len)
+                != Some(1)
+            || found.pointer("/problems/0/field") != Some(&json!("identity"))
+            || found
                 .get("problems")
                 .and_then(Value::as_array)
-                .is_some_and(|v| {
-                    v.iter().any(|p| {
-                        p.get("source") == Some(&json!("wikipathways"))
-                            && p.get("field") == Some(&json!("catalog"))
-                            && p.get("code") == Some(&json!("collection.incomplete"))
-                    })
-                })
+                .map(Vec::len)
+                != Some(1)
         {
-            return Err(format!(
-                "rejected identity lost its failed receipt/catalog problem: {rejected}"
-            ));
+            return Err("bad catalog row lost its identity problem or valid sibling".into());
         }
         let retained = call(
             "pathway_failures/wikipathways/rejected_identity/4",
@@ -273,7 +268,7 @@ fn rejected_identity() -> Check {
             0,
         )?;
         if retained.get("result") != prior.get("result") {
-            return Err("rejected identity changed the old catalog pair".into());
+            return Err("rejected identity changed its valid sibling".into());
         }
         let absent = call(
             "pathway_failures/wikipathways/rejected_identity/5",
@@ -285,6 +280,24 @@ fn rejected_identity() -> Check {
         if absent.get("result").is_some_and(|v| !v.is_null()) {
             return Err("rejected identity entered get catalog".into());
         }
+    }
+    Ok(())
+}
+
+fn replace_bad_row(root: &std::path::Path, id: &str) -> Check {
+    for (search, route) in [(true, "findPathwaysByText"), (false, "getPathwayInfo")] {
+        let mut catalog = fixtures::catalog(search);
+        let mut invalid = catalog
+            .pointer("/pathwayInfo/0")
+            .ok_or("catalog row")?
+            .clone();
+        *invalid.get_mut("id").ok_or("catalog identity")? = json!(id);
+        catalog
+            .get_mut("pathwayInfo")
+            .and_then(Value::as_array_mut)
+            .ok_or("catalog rows")?
+            .push(invalid);
+        fixtures::replace_source(root, "wikipathways", route, &catalog.to_string(), 200, 0)?;
     }
     Ok(())
 }

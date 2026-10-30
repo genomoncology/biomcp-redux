@@ -1,6 +1,6 @@
 use super::raw::Pos;
-use crate::mapped::problem;
 use crate::mapped::record as record_text;
+use crate::mapped::{problem, push_problem};
 use biodata::{Build, GenomicInterval, PartialDate, Span0, Strand, Summary, SummarySource, Text};
 
 pub(super) fn summary(value: String) -> Result<Summary, biodata::Error> {
@@ -25,7 +25,13 @@ pub(super) fn summary(value: String) -> Result<Summary, biodata::Error> {
     })
 }
 
-pub(super) fn interval(value: Pos, build: Build) -> Option<GenomicInterval> {
+pub(super) fn interval(
+    value: Pos,
+    build: Build,
+    id: NcbiGeneId,
+    field: &str,
+    problems: &mut Vec<Problem>,
+) -> Option<GenomicInterval> {
     let start = value.start?.value()?;
     let end = value.end?.value()?;
     if start == 0 || end < start {
@@ -33,11 +39,17 @@ pub(super) fn interval(value: Pos, build: Build) -> Option<GenomicInterval> {
     }
     let strand = match value.strand {
         None => None,
-        Some(field) => Some(match field.value()? {
-            1 => Strand::Plus,
-            -1 => Strand::Minus,
-            _ => return None,
-        }),
+        Some(Field::Value(1)) => Some(Strand::Plus),
+        Some(Field::Value(-1)) => Some(Strand::Minus),
+        Some(_) => {
+            push_problem(
+                problems,
+                Source::MyGene,
+                record_text(id),
+                &format!("{field}.strand"),
+            );
+            None
+        }
     };
     // Source-chain inference: the pinned MyGene parser copies Ensembl bounds.
     // Ensembl counts closed one-based positions; equal endpoints span one base.
@@ -169,7 +181,10 @@ fn positions(
         None => problems.push(problem(Source::MyGene, record_text(id), name)),
         Some(values) => {
             for value in values.values() {
-                match value.value().and_then(|value| interval(value, build)) {
+                match value
+                    .value()
+                    .and_then(|value| interval(value, build, id, name, problems))
+                {
                     Some(value) => spans.push(value),
                     None => problems.push(problem(Source::MyGene, record_text(id), name)),
                 }

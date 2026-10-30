@@ -2,6 +2,7 @@
 mod condition;
 pub mod document;
 pub(crate) mod get;
+mod names;
 mod nci;
 use crate::{Action, Ctx, Outcome, status};
 
@@ -37,11 +38,8 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &TrialSearch) -> Outcome {
     {
         params.insert("query.cond".into(), format!("({condition})"));
     }
-    let result = ctgov::search(&leg, &params, conditions);
-    let rejected = matches!(
-        &result,
-        Err(biomcp_fetch::RequestError::Source(error)) if error.status == Some(400)
-    );
+    let (result, name_notice) = names::search(&leg, query, &params, conditions);
+    let rejected = name_notice.is_none() && request_rejected(result.as_ref().err());
     let version = match &result {
         Ok(_) => ctgov::version(&leg),
         Err(error) => Err(*error),
@@ -54,6 +52,7 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &TrialSearch) -> Outcome {
         .or_else(|| result.as_ref().ok().and_then(|page| page.count_error));
     deadline = deadline.after_stage(started.saturating_sub(leg.remaining()));
     let mut source = status::source(Source::ClinicalTrialsGov, leg.finish(), error);
+    source.notices.extend(name_notice);
     outcome.status = if result.is_err() {
         Status::Failed
     } else if version.is_err()
@@ -93,6 +92,10 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &TrialSearch) -> Outcome {
     command.finish(deadline.remaining());
     outcome
 }
+fn request_rejected(error: Option<&biomcp_fetch::RequestError>) -> bool {
+    matches!(error, Some(biomcp_fetch::RequestError::Source(error)) if error.status == Some(400))
+}
+
 fn apply_page(
     query: &TrialSearch,
     fresh: bool,

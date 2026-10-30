@@ -11,20 +11,26 @@ pub struct StudyProfile {
     /// Native profile study scope.
     pub study_id: StudyId,
     /// Extensible source alteration-type label.
-    pub molecular_alteration_type: Text,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub molecular_alteration_type: Option<Text>,
     /// Extensible native data-type label.
-    pub datatype: Text,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub datatype: Option<Text>,
     /// Source profile name.
-    pub name: Box<str>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub name: Option<Box<str>>,
     /// Source description.
-    pub description: Box<str>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub description: Option<Box<str>>,
     /// Native generic assay type, absent outside those profiles.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub generic_assay_type: Option<Text>,
     /// Native patient-level flag, not a unit inferred for other records.
-    pub patient_level: bool,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub patient_level: Option<bool>,
     /// Native profile display setting.
-    pub show_profile_in_analysis_tab: bool,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub show_profile_in_analysis_tab: Option<bool>,
 }
 /// Sample-list metadata without a representation for member sample IDs.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -36,11 +42,14 @@ pub struct StudySampleList {
     /// Native study scope.
     pub study_id: StudyId,
     /// Extensible native list category.
-    pub category: Text,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub category: Option<Text>,
     /// Native list name.
-    pub name: Box<str>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub name: Option<Box<str>>,
     /// Native list description.
-    pub description: Box<str>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub description: Option<Box<str>>,
     /// Stated source sampleCount when supplied, never computed from member IDs.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub sample_count: Option<u64>,

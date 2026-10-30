@@ -22,18 +22,18 @@ pub(super) fn trials() -> Vec<Trial> {
         .iter()
         .map(|&(source, usage, url)| {
             transcript_trial(
-                format!("pathway-registry/{source}-declaration"),
+                format!("source-controls/pathway-registry/{source}-declaration"),
                 move || declaration(source, usage, url).map_err(Into::into),
             )
         })
         .chain([
-            transcript_trial("source-registry/canonical-record-urls", || {
+            transcript_trial("source-controls/canonical-record-urls", || {
                 record_urls::run().map_err(Into::into)
             }),
-            transcript_trial("pathway-registry/policy-before-io", || {
+            transcript_trial("pathway-reactome/policy-before-io", || {
                 admission::run().map_err(Into::into)
             }),
-            transcript_trial("pathway-registry/configuration-union", || {
+            transcript_trial("pathway-reactome/configuration-union", || {
                 switches().map_err(Into::into)
             }),
         ])

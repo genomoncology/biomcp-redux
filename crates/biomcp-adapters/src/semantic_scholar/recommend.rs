@@ -1,5 +1,6 @@
 //! Recent-pool recommendations under the shared source key and quota.
 use super::{Paper, SPEC};
+use crate::{mapped::Problems, raw::Field};
 use biomcp_fetch::{
     Arg, BadReply, Endpoint, Freshness, Leg, PathSegment, Reply, RequestError, SourceSpec,
 };
@@ -29,14 +30,42 @@ const POST: Endpoint = RECOMMEND_SPEC
     .fresh(Freshness::Days(1));
 /// Provider-ordered papers, including a successful empty answer.
 #[derive(Debug, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(from = "RawRecommendations")]
 pub struct Recommendations {
     /// Native recommendation order.
     pub recommended_papers: Vec<Paper>,
+    /// Rejected independent paper identities.
+    pub problems: Vec<biomcp_types::Problem>,
+    received: usize,
+}
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct RawRecommendations {
+    recommended_papers: Vec<Field<Paper>>,
+}
+impl From<RawRecommendations> for Recommendations {
+    fn from(raw: RawRecommendations) -> Self {
+        let received = raw.recommended_papers.len();
+        let mut p = Problems {
+            source: SPEC.source,
+            record: None,
+            list: Vec::new(),
+        };
+        let recommended_papers = raw
+            .recommended_papers
+            .into_iter()
+            .filter_map(|v| p.required("paper_id", v.value()))
+            .collect();
+        Self {
+            recommended_papers,
+            problems: p.list,
+            received,
+        }
+    }
 }
 impl Reply for Recommendations {
     fn check(&self) -> Result<(), BadReply> {
-        if self.recommended_papers.len() > 100 {
+        if self.received > 100 {
             Err(BadReply)
         } else {
             Ok(())

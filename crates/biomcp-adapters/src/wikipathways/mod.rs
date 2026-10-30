@@ -1,5 +1,6 @@
 //! Publisher policy for explicit WikiPathways catalog synchronization.
 mod catalog;
+mod catalog_row;
 mod gpml;
 mod gpml_raw;
 pub use gpml::{Members, members};

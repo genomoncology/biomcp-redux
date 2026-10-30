@@ -32,12 +32,12 @@ pub(super) fn trials() -> Vec<Trial> {
     .into_iter()
     .map(|(source, fixture, words, help, expected)| {
         transcript_trial(
-            format!("source-deadlines/{source}/reply-and-help-guidance"),
+            format!("source-controls/source-deadlines/{source}/reply-and-help-guidance"),
             move || check(source, fixture, &words, &help, expected).map_err(Into::into),
         )
     })
     .chain(std::iter::once(transcript_trial(
-        "source-deadlines/wonder/shared-quota-reply",
+        "source-controls/wonder/shared-quota-reply",
         || quota::run().map_err(Into::into),
     )))
     .collect()

@@ -1,6 +1,5 @@
 live_check: local-only case
-feature: schema
-covers: [schema]
+feature: schema-discovery
 story: A caller inspects the source identifier schema
 steps:
   - run: [schema, biomcp.source/1]

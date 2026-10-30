@@ -23,9 +23,10 @@ pub(super) fn trials() -> Vec<Trial> {
     .into_iter()
     .flat_map(|(source, entity, id)| {
         [0, 1, 2].into_iter().map(move |mode| {
-            transcript_trial(format!("keys/openfda/{source}/{mode}"), move || {
-                check(source, entity, id, mode).map_err(Into::into)
-            })
+            transcript_trial(
+                format!("key-registration/keys/openfda/{source}/{mode}"),
+                move || check(source, entity, id, mode).map_err(Into::into),
+            )
         })
     })
     .collect()
@@ -62,9 +63,44 @@ fn check(source: &str, entity: &str, id: &str, mode: u8) -> Check {
     let args = ["get", entity, id, "--source", source];
     invoke(&env, &args, "--record", &directory, mode)?;
     let requests = stub.finish()?;
-    let [(_, request)] = requests.as_slice() else {
-        return Err("expected one openFDA request".into());
-    };
+    let expected = if source == "openfda-label" { 2 } else { 1 };
+    if requests.len() != expected {
+        return Err(format!(
+            "expected {expected} openFDA requests, got {}",
+            requests.len()
+        ));
+    }
+    for (index, (_, request)) in requests.iter().enumerate() {
+        request_key(request, mode)?;
+        if source == "openfda-label" {
+            let target = request
+                .lines()
+                .next()
+                .and_then(|line| line.split_whitespace().nth(1))
+                .ok_or("openFDA request target")?;
+            let url = url::Url::parse(&format!("https://api.fda.gov{target}"))
+                .map_err(|error| error.to_string())?;
+            let field = if index == 0 {
+                "openfda.spl_set_id"
+            } else {
+                "set_id"
+            };
+            if !url
+                .query_pairs()
+                .any(|(key, value)| key == "search" && value == format!("{field}:\"{id}\""))
+            {
+                return Err("SPL identity fallback changed its exact selector".into());
+            }
+        }
+    }
+    for file in fs::read_dir(directory.join(source)).map_err(|e| e.to_string())? {
+        let bytes = fs::read(file.map_err(|e| e.to_string())?.path()).map_err(|e| e.to_string())?;
+        secret_free(&bytes)?;
+    }
+    invoke(&env, &args, "--replay", &directory, mode)?;
+    Ok(())
+}
+fn request_key(request: &str, mode: u8) -> Check {
     let line = request.lines().next().ok_or("request line")?;
     let expected = match mode {
         0 => None,
@@ -78,13 +114,9 @@ fn check(source: &str, entity: &str, id: &str, mode: u8) -> Check {
     } else if request.contains("api_key") || request.contains(ENV_KEY) || request.contains(KEY) {
         return Err("keyless openFDA request carried a credential".into());
     }
-    for file in fs::read_dir(directory.join(source)).map_err(|e| e.to_string())? {
-        let bytes = fs::read(file.map_err(|e| e.to_string())?.path()).map_err(|e| e.to_string())?;
-        secret_free(&bytes)?;
-    }
-    invoke(&env, &args, "--replay", &directory, mode)?;
     Ok(())
 }
+
 fn invoke(env: &Environment, args: &[&str], flag: &str, directory: &Path, mode: u8) -> Check {
     let args = args
         .iter()

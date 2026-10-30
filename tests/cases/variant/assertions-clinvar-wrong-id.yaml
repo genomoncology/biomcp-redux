@@ -1,5 +1,5 @@
 {
-  "feature": "variant-assertions",
+  "feature": "variant-identity",
   "live_check": "synthetic response case",
   "story": "A different ClinVar parent identity refuses its assertions with a named problem and stays out of the raw cache",
   "replay": "variant/assertions/clinvar-wrong-id",

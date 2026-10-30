@@ -7,25 +7,10 @@ use std::{collections::BTreeSet, fs};
 
 pub(super) fn check() -> Result<(), String> {
     let environment = launch::Environment::new().map_err(|e| e.to_string())?;
-    let output = environment
-        .command(env!("CARGO_BIN_EXE_biomcp"), &["help".into()])
-        .output()
-        .map_err(|e| e.to_string())?;
-    if !output.status.success() || !output.stderr.is_empty() {
-        return Err("help process failed".into());
-    }
-    let help: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
-    let commands = help
-        .pointer("/result/commands")
-        .and_then(Value::as_array)
-        .ok_or("help commands missing")?;
-    source_description(commands)?;
-    let mut printed = collected_examples(commands)?;
-    let advertised = printed.clone();
+    let mut printed = advertised_examples(&environment)?;
+    let mut advertised = printed.clone();
     let guide = guide_examples(&environment)?;
     printed.extend(guide);
-    documents::check(&printed)?;
-    documents::rejects_invalid()?;
     let witnesses: Vec<(String, usize)> = serde_json::from_str(include_str!(concat!(
         env!("OUT_DIR"),
         "/example-cases.json"
@@ -43,20 +28,27 @@ pub(super) fn check() -> Result<(), String> {
                 .ok_or("example step missing".into())
         })
         .collect::<Result<_, String>>()?;
+    extend_scoped_examples(&environment, &owned, &mut advertised)?;
+    printed.extend(advertised.iter().cloned());
+    documents::check(&printed)?;
+    documents::rejects_invalid()?;
     for example in printed.difference(&owned) {
         documents::local(example)?;
     }
     printed.retain(|example| owned.contains(example));
     let registry = schema::Registry::embedded()?;
     for (file, index) in witnesses {
-        let path = launch::fixtures().join("cases").join(file);
+        let path = launch::fixtures().join("cases").join(&file);
         let text = fs::read_to_string(&path).map_err(|e| e.to_string())?;
         let mut case: Case = serde_saphyr::from_str(&text).map_err(|e| e.to_string())?;
         super::load_floors(&mut case, &path)?;
         let step = case.steps.get(index).ok_or("example step missing")?;
         let args = step.run.as_ref().ok_or("example must be a run step")?;
         if step.exit != 0 || !printed.remove(args) {
-            return Err("example differs from successful case run step".into());
+            return Err(format!(
+                "example differs from successful case run step {file}:{index}, exit {}: {args:?}",
+                step.exit
+            ));
         }
         let environment = launch::Environment::new().map_err(|e| e.to_string())?;
         if let Some(config) = &case.config {
@@ -75,12 +67,63 @@ pub(super) fn check() -> Result<(), String> {
                 &registry,
                 replay.as_deref(),
                 None,
-            )?;
+            )
+            .map_err(|error| format!("help witness {file}:{index} {args:?}: {error}"))?;
             check_result(args, &reply, advertised.contains(args))?;
         }
     }
     if !printed.is_empty() {
         return Err("printed example has no owning case witness".into());
+    }
+    Ok(())
+}
+
+fn advertised_examples(environment: &launch::Environment) -> Result<BTreeSet<Vec<String>>, String> {
+    let output = environment
+        .command(env!("CARGO_BIN_EXE_biomcp"), &["help".into()])
+        .output()
+        .map_err(|e| e.to_string())?;
+    if !output.status.success() || !output.stderr.is_empty() {
+        return Err("help process failed".into());
+    }
+    let help: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
+    let commands = help
+        .pointer("/result/commands")
+        .and_then(Value::as_array)
+        .ok_or("help commands missing")?;
+    source_description(commands)?;
+    let scoped = super::configuration::invoke(environment, vec!["help".into(), "help".into()], 0)?;
+    let scoped = scoped
+        .pointer("/result/commands")
+        .and_then(Value::as_array)
+        .ok_or("scoped help commands")?;
+    collected_examples(commands, scoped)
+}
+
+fn extend_scoped_examples(
+    environment: &launch::Environment,
+    owned: &BTreeSet<Vec<String>>,
+    printed: &mut BTreeSet<Vec<String>>,
+) -> Result<(), String> {
+    let verbs: BTreeSet<_> = owned
+        .difference(printed)
+        .filter_map(|args| args.first().cloned())
+        .collect();
+    for verb in verbs {
+        let response = super::configuration::invoke(environment, vec!["help".into(), verb], 0)?;
+        let commands = response
+            .pointer("/result/commands")
+            .and_then(Value::as_array)
+            .ok_or("scoped command help missing")?;
+        for command in commands {
+            let examples = command
+                .get("examples")
+                .and_then(Value::as_array)
+                .ok_or("scoped command examples missing")?;
+            for example in examples {
+                printed.insert(serde_json::from_value(example.clone()).map_err(|e| e.to_string())?);
+            }
+        }
     }
     Ok(())
 }
@@ -126,19 +169,29 @@ fn check_result(args: &[String], reply: &Value, advertised: bool) -> Result<(), 
     Ok(())
 }
 
-fn collected_examples(commands: &[Value]) -> Result<BTreeSet<Vec<String>>, String> {
+fn collected_examples(
+    commands: &[Value],
+    scoped: &[Value],
+) -> Result<BTreeSet<Vec<String>>, String> {
     let mut printed = BTreeSet::new();
-    if commands
-        .iter()
-        .any(|command| command["examples"].as_array().is_none_or(Vec::is_empty))
-    {
-        return Err("command help has no example".into());
-    }
-    for examples in commands
-        .iter()
-        .filter_map(|command| command.get("examples").and_then(Value::as_array))
-        .filter(|examples| !examples.is_empty())
-    {
+    for command in commands {
+        let examples = command.get("examples").and_then(Value::as_array);
+        let examples = examples
+            .filter(|examples| !examples.is_empty())
+            .or_else(|| {
+                scoped
+                    .iter()
+                    .find(|entry| entry.get("command") == command.get("command"))
+                    .and_then(|entry| entry.get("examples"))
+                    .and_then(Value::as_array)
+                    .filter(|examples| !examples.is_empty())
+            })
+            .ok_or_else(|| {
+                format!(
+                    "command help has no owned scoped example: {:?}",
+                    command.get("command")
+                )
+            })?;
         for example in examples {
             let args: Vec<String> =
                 serde_json::from_value(example.clone()).map_err(|e| e.to_string())?;

@@ -29,16 +29,16 @@ const RSID: &[&str] = &[
 ];
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        transcript_trial("article/litvar/independent-name-and-counts", || {
+        transcript_trial("article-litvar/litvar/independent-name-and-counts", || {
             optional_values().map_err(|e| e.to_string().into())
         }),
-        transcript_trial("article/litvar/response-boundaries", || {
+        transcript_trial("article-litvar/litvar/response-boundaries", || {
             boundaries().map_err(|e| e.to_string().into())
         }),
-        transcript_trial("article/litvar/empty-recovery", || {
+        transcript_trial("article-litvar/litvar/empty-recovery", || {
             empty_recovery().map_err(|e| e.to_string().into())
         }),
-        transcript_trial("article/litvar/source-failures", || {
+        transcript_trial("article-litvar/litvar/source-failures", || {
             failures().map_err(|e| e.to_string().into())
         }),
     ]

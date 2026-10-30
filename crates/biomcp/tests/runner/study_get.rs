@@ -375,7 +375,7 @@ fn retained(directory: &Path) -> Check {
 }
 
 fn reject_members(directory: &Path, value: &Value) -> Check {
-    if value.get("schema") != Some(&json!("biomcp.study-sample-lists/3")) {
+    if value.get("schema") != Some(&json!("biomcp.study-sample-lists/4")) {
         return Ok(());
     }
     let id = value
@@ -421,9 +421,55 @@ fn rejected(env: &Environment, replay: &Path, section: &str, value: &Value) -> C
     if value.to_string().contains("other_study") {
         return Err("wrong-study row survived filtering".into());
     }
-    let expected = if section == "profiles" { 16 } else { 12 };
-    if value.pointer("/page/total") != Some(&json!(expected)) {
-        return Err("rejected row changed accepted total".into());
+    let expected = if section == "profiles" { 17 } else { 13 };
+    if value.pointer("/page/total") != Some(&json!(expected))
+        || value.pointer("/page/returned") != Some(&json!(4))
+    {
+        return Err(format!(
+            "refused identity lost native total or accepted row count: {value}"
+        ));
+    }
+    let (field, prefix) = if section == "profiles" {
+        ("molecularProfileId", "native_profile_")
+    } else {
+        ("sampleListId", "native_list_")
+    };
+    let items = value
+        .pointer("/result/items")
+        .and_then(Value::as_array)
+        .ok_or("accepted study rows")?;
+    if items.len() != 4
+        || items
+            .iter()
+            .enumerate()
+            .any(|(n, row)| row.get(field) != Some(&json!(format!("{prefix}{}", n + 1))))
+    {
+        return Err(format!(
+            "refused study identity removed or reordered valid native neighbors: {value}"
+        ));
+    }
+    let next = crate::runner::action(value, "page")?;
+    if !next
+        .windows(2)
+        .any(|pair| pair == ["--section-offset", "5"])
+    {
+        return Err(format!(
+            "study continuation used accepted count instead of five consumed native rows: {next:?}"
+        ));
+    }
+    if !value
+        .get("problems")
+        .and_then(Value::as_array)
+        .is_some_and(|rows| {
+            rows.iter().any(|p| {
+                p.get("field") == Some(&json!("studyId"))
+                    && p.get("record") == Some(&json!(format!("{prefix}0")))
+            })
+        })
+    {
+        return Err(format!(
+            "wrong study scope lost its exact refused identity and Problem: {value}"
+        ));
     }
     let db = rusqlite::Connection::open(env.root().join("case-cache/replay.sqlite"))
         .map_err(|e| e.to_string())?;

@@ -1,6 +1,6 @@
 {
   "live_check": "synthetic response case",
-  "feature": "gene-sections",
+  "feature": "gene-civic",
   "story": "A malformed optional CIViC description preserves its record and other aliases",
   "replay": "gene/civic/synthetic-description",
   "steps": [

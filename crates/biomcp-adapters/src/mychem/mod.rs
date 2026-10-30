@@ -43,7 +43,7 @@ pub fn search(
     query: &str,
     limit: u32,
     offset: u32,
-) -> Result<crate::Mapped<DrugPage>, RequestError> {
+) -> Result<(crate::Mapped<DrugPage>, u32), RequestError> {
     let fields = crate::drug_sources::components::allowed_fields(leg, SEARCH_FIELDS);
     let reply = leg.json::<raw::Page>(
         &SEARCH,
@@ -54,7 +54,10 @@ pub fn search(
             ("fields", Arg::Text(&fields)),
         ],
     )?;
-    map::page(reply, leg).map_err(|_| bad_reply())
+    let received = reply.hits.len() as u32;
+    map::page(reply, leg)
+        .map(|page| (page, received))
+        .map_err(|_| bad_reply())
 }
 /// Retrieve an exact native document and verify the returned identity, never searching by name.
 pub fn get(leg: &Leg<'_>, id: &str) -> Result<crate::Mapped<DrugDocument>, RequestError> {

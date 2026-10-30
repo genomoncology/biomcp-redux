@@ -1,6 +1,6 @@
 {
   "live_check": "synthetic response case",
-  "feature": "gene-sections",
+  "feature": "gene-oncokb",
   "story": "A synthetic keyed default card adds a short source block and offers its section",
   "replay": "gene/oncokb-synthetic/notch-card",
   "config": {

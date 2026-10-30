@@ -48,7 +48,7 @@ fn apply(
     } else {
         q.clone()
     };
-    let (items, bounds) = page(rows, &query);
+    let (items, bounds, _) = page(rows.into_iter().map(Some), &query);
     let data = StudyFiles {
         study_id: q.id().clone(),
         items,

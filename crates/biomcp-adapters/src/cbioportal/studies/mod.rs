@@ -1,5 +1,7 @@
 //! Complete checked catalog replacement; reads never synchronize.
+mod context;
 mod raw;
+mod resource;
 use super::SPEC;
 use biomcp_fetch::{
     Bundle, BundleInfo, Fetch, Find, Freshness, KeyKind, Leg, RequestError, RowFormat,
@@ -46,28 +48,41 @@ pub fn sync(fetch: &Fetch) -> Result<crate::Mapped<SyncResult>, RequestError> {
 pub fn search(
     leg: &Leg<'_>,
     query: &StudySearch,
-) -> Result<(Vec<biodata::StudyHeader>, BundleInfo), RequestError> {
+) -> Result<(crate::Mapped<Vec<biodata::StudyHeader>>, BundleInfo), RequestError> {
     let (rows, info) = leg.stored_rows(&CATALOG, Find::Exact(KeyKind::Band, "catalog"))?;
     let items = rows
         .into_iter()
         .filter(|r| r.matches(query))
         .map(|r| r.header().map_err(|_| bad()))
         .collect::<Result<Vec<_>, _>>()?;
-    Ok((items, info))
+    let mut problems = Vec::new();
+    let value = items
+        .into_iter()
+        .map(|mapped: crate::Mapped<biodata::StudyHeader>| {
+            problems.extend(mapped.problems);
+            mapped.value
+        })
+        .collect();
+    Ok((crate::Mapped { value, problems }, info))
 }
 /// Read an exact case-sensitive metadata card from the stored catalog.
 pub fn card(
     leg: &Leg<'_>,
     id: &biodata::StudyId,
-) -> Result<(Option<biodata::Study>, BundleInfo), RequestError> {
+) -> Result<(crate::Mapped<Option<biodata::Study>>, BundleInfo), RequestError> {
     let (rows, info) = leg.stored_rows(&CATALOG, Find::Exact(KeyKind::Id, id.as_str()))?;
     let row = rows
         .into_iter()
         .map(|r| r.card().map_err(|_| bad()))
         .collect::<Result<Vec<_>, _>>()?
         .into_iter()
-        .find(|v| v.header.study_id == *id);
-    Ok((row, info))
+        .find(|v| v.value.header.study_id == *id);
+    let mut problems = Vec::new();
+    let value = row.map(|row| {
+        problems.extend(row.problems);
+        row.value
+    });
+    Ok((crate::Mapped { value, problems }, info))
 }
 /// Catalog provenance never substitutes acquisition time for a publisher revision.
 pub fn snapshot(info: &BundleInfo) -> Result<StudySnapshot, RequestError> {

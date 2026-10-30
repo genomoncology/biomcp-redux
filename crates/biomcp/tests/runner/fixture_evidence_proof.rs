@@ -10,10 +10,10 @@ use std::{
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        transcript_trial("runner/retains-failed-local-peer-state", || {
+        transcript_trial("schema-discovery/retains-failed-local-peer-state", || {
             check().map_err(Into::into)
         }),
-        transcript_trial("runner/single-source-capturing-callback", || {
+        transcript_trial("schema-discovery/single-source-capturing-callback", || {
             capturing_callback().map_err(|error| error.to_string().into())
         }),
     ]

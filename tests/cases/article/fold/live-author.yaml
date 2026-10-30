@@ -1,6 +1,6 @@
 {
   "live_check": "public",
-  "feature": "article-search",
+  "feature": "article-fold",
   "story": "A real author filter returns the actual Europe PMC depth below its requested window",
   "replay": "article/fold/live",
   "verified": "The maximum page is 4816 bytes; ceil(actual * 1.15) is 5539 bytes. No exact 0.9 JSON baseline is recorded for this author and source combination.",

@@ -10,25 +10,28 @@ use serde_json::{Value, json};
 type Check = Result<(), Box<dyn std::error::Error>>;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        transcript_trial("trial/native-timestamp-and-query-echo", || {
+        transcript_trial("trial-search/native-timestamp-and-query-echo", || {
             timestamp().map_err(Into::into)
         }),
-        transcript_trial("trial/missing-study-array-is-not-an-empty-page", || {
-            missing_studies().map_err(Into::into)
-        }),
-        transcript_trial("trial/gene-and-registry-share-command-budget", || {
-            sequential_budget(false).map_err(Into::into)
-        }),
-        transcript_trial("trial/version-timeout-preserves-search-rows", || {
+        transcript_trial(
+            "trial-search/missing-study-array-is-not-an-empty-page",
+            || missing_studies().map_err(Into::into),
+        ),
+        transcript_trial(
+            "trial-search/gene-and-registry-share-command-budget",
+            || sequential_budget(false).map_err(Into::into),
+        ),
+        transcript_trial("trial-search/version-timeout-preserves-search-rows", || {
             sequential_budget(true).map_err(Into::into)
         }),
-        transcript_trial("trial/count-failure-preserves-continuation-rows", || {
-            count_failure().map_err(Into::into)
-        }),
-        transcript_trial("trial/disabled-cache-and-source-usage", || {
+        transcript_trial(
+            "trial-search/count-failure-preserves-continuation-rows",
+            || count_failure().map_err(Into::into),
+        ),
+        transcript_trial("trial-search/disabled-cache-and-source-usage", || {
             policy().map_err(Into::into)
         }),
-        transcript_trial("trial/source-failures-never-assert-zero", || {
+        transcript_trial("trial-search/source-failures-never-assert-zero", || {
             failures().map_err(Into::into)
         }),
     ]

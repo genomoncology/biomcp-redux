@@ -3,13 +3,16 @@ use biomcp_fetch::{BadReply, Reply};
 use serde::Deserialize;
 /// Native molecule identity returned by the molecule endpoint.
 #[derive(Debug, Deserialize)]
+#[serde(from = "super::receive::ReceivedMolecule")]
 pub struct Molecule {
+    /// Rejected native metadata.
+    pub problems: Vec<biomcp_types::Problem>,
     /// Exact published molecule ID.
     pub molecule_chembl_id: String,
     /// Native preferred name.
     pub pref_name: Option<String>,
     /// Native record type, including nonchemical therapies.
-    pub molecule_type: String,
+    pub molecule_type: Option<String>,
     /// Explicit source synonyms.
     pub molecule_synonyms: Vec<Synonym>,
     /// Explicit native source cross-references.
@@ -19,11 +22,14 @@ pub struct Molecule {
 }
 /// One source alternate name.
 #[derive(Debug, Deserialize)]
+#[serde(from = "super::receive::ReceivedSynonym")]
 pub struct Synonym {
+    /// Rejected native metadata.
+    pub problems: Vec<biomcp_types::Problem>,
     /// Original name.
-    pub molecule_synonym: String,
+    pub molecule_synonym: Option<String>,
     /// Native name kind.
-    pub syn_type: String,
+    pub syn_type: Option<String>,
 }
 /// Source molecule parent relationship.
 #[derive(Debug, Deserialize)]
@@ -41,17 +47,13 @@ pub struct PageMeta {
     /// Native page size.
     pub limit: u32,
 }
-/// Candidate page in source order.
-#[derive(Debug, Deserialize)]
-pub struct Molecules {
-    /// Native candidate identities.
-    pub molecules: Vec<Molecule>,
-    /// Native counts and page position.
-    pub page_meta: PageMeta,
-}
+
 /// Native target mechanism, which need not identify a gene.
 #[derive(Debug, Deserialize)]
+#[serde(from = "super::receive::ReceivedMechanism")]
 pub struct Mechanism {
+    /// Rejected native metadata.
+    pub problems: Vec<biomcp_types::Problem>,
     /// Source relation ID.
     pub mec_id: u64,
     /// Exact drug identity.
@@ -61,13 +63,16 @@ pub struct Mechanism {
     /// Native action type.
     pub action_type: Option<String>,
     /// Complete mechanism wording.
-    pub mechanism_of_action: String,
+    pub mechanism_of_action: Option<String>,
     /// Native source links.
     pub mechanism_refs: Vec<Reference>,
 }
 /// Native indication, independent of a regulatory authorization.
 #[derive(Debug, Deserialize)]
+#[serde(from = "super::receive::ReceivedIndication")]
 pub struct Indication {
+    /// Rejected native metadata.
+    pub problems: Vec<biomcp_types::Problem>,
     /// Native indication ID.
     pub drugind_id: u64,
     /// Exact drug identity.
@@ -87,64 +92,23 @@ pub struct Indication {
 }
 /// Native source reference, retaining its original identifiers and URL.
 #[derive(Debug, Deserialize)]
+#[serde(from = "super::receive::ReceivedReference")]
 pub struct Reference {
+    /// Rejected native metadata.
+    pub problems: Vec<biomcp_types::Problem>,
     /// Original reference identity, including source-provided lists.
-    pub ref_id: String,
+    pub ref_id: Option<String>,
     /// Original reference type.
-    pub ref_type: String,
+    pub ref_type: Option<String>,
     /// Original source URL.
-    pub ref_url: String,
+    pub ref_url: Option<String>,
 }
-/// Native mechanism page.
-#[derive(Debug, Deserialize)]
-pub struct Mechanisms {
-    /// Source mechanism rows.
-    pub mechanisms: Vec<Mechanism>,
-    /// Source page counts.
-    pub page_meta: PageMeta,
-}
-/// Native indication page.
-#[derive(Debug, Deserialize)]
-pub struct Indications {
-    /// Source indication rows.
-    pub drug_indications: Vec<Indication>,
-    /// Source page counts.
-    pub page_meta: PageMeta,
-}
+
 impl Reply for Molecule {
     fn check(&self) -> Result<(), BadReply> {
-        if self.molecule_chembl_id.starts_with("CHEMBL") && !self.molecule_type.is_empty() {
-            Ok(())
-        } else {
-            Err(BadReply)
-        }
-    }
-}
-impl Reply for Molecules {
-    fn check(&self) -> Result<(), BadReply> {
-        self.molecules.iter().try_for_each(Reply::check)
-    }
-}
-impl Reply for Mechanisms {
-    fn check(&self) -> Result<(), BadReply> {
-        if self
-            .mechanisms
-            .iter()
-            .all(|r| r.mec_id > 0 && !r.mechanism_of_action.is_empty())
+        if self.molecule_chembl_id.starts_with("CHEMBL")
+            && self.molecule_chembl_id.parse::<biodata::DrugId>().is_ok()
         {
-            Ok(())
-        } else {
-            Err(BadReply)
-        }
-    }
-}
-impl Reply for Indications {
-    fn check(&self) -> Result<(), BadReply> {
-        if self.drug_indications.iter().all(|r| {
-            r.drugind_id > 0
-                && (r.efo_term.as_ref().is_some_and(|t| !t.is_empty())
-                    || r.mesh_heading.as_ref().is_some_and(|t| !t.is_empty()))
-        }) {
             Ok(())
         } else {
             Err(BadReply)
@@ -154,7 +118,10 @@ impl Reply for Indications {
 
 /// A source-stated cross-reference, preserving its original source namespace and path.
 #[derive(Debug, Deserialize)]
+#[serde(from = "super::receive::ReceivedCrossReference")]
 pub struct CrossReference {
+    /// Rejected native metadata.
+    pub problems: Vec<biomcp_types::Problem>,
     /// Native identifier or website path.
     pub xref_id: String,
     /// Native label when provided.

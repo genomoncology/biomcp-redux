@@ -5,7 +5,7 @@ import sys
 from protein_native_replay import prepare
 archives, output = map(Path, sys.argv[1:])
 replay = prepare(archives, output)
-budgets = json.loads((Path(__file__).resolve().parent.parent / 'tests/protein-section-budgets.json').read_text())
+budgets = json.loads((Path(__file__).resolve().parent.parent / 'tests/protein-section-budgets.yaml').read_text())
 def card_ceiling(name):
     return (budgets['card-' + name][1] * 115 + 99) // 100
 

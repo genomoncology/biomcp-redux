@@ -1,5 +1,5 @@
 live_check: local-only case
-feature: schema
+feature: schema-discovery
 story: Invalid schema requests return the fixed usage envelope
 steps:
   - run: [schema, SENSITIVE-usage-probe-37f4]
@@ -8,7 +8,7 @@ steps:
     expect:
       '':
         equals:
-          schema: biomcp.error/3
+          schema: biomcp.error/4
           status: usage
           error:
             code: usage.schema
@@ -19,7 +19,7 @@ steps:
     expect:
       '':
         equals:
-          schema: biomcp.error/3
+          schema: biomcp.error/4
           status: usage
           error:
             code: usage.schema

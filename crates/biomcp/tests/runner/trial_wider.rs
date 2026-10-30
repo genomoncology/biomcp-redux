@@ -10,13 +10,13 @@ use serde_json::{Value, json};
 type Check = Result<(), Box<dyn std::error::Error>>;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        transcript_trial("trial/wider-search/short-pages-only", || {
+        transcript_trial("trial-search/wider-search/short-pages-only", || {
             short_pages().map_err(Into::into)
         }),
-        transcript_trial("trial/wider-search/active-policy", || {
+        transcript_trial("trial-search/wider-search/active-policy", || {
             policy().map_err(Into::into)
         }),
-        transcript_trial("trial/wider-search/typed-option-contract", || {
+        transcript_trial("trial-search/wider-search/typed-option-contract", || {
             options().map_err(Into::into)
         }),
     ]

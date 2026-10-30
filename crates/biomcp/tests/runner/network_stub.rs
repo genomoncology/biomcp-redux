@@ -14,17 +14,18 @@ use std::{
     net::{TcpListener, TcpStream},
     sync::{Arc, mpsc},
     thread,
-    time::Duration,
 };
 
 type Requests = Vec<(String, String)>;
 
+tool_only! {
 #[derive(Clone)]
 pub(super) struct RecordedReply {
     pub(super) status: u16,
     pub(super) content_type: String,
     pub(super) body: Vec<u8>,
     pub(super) delay_ms: u64,
+}
 }
 pub(super) struct Stub {
     pub(super) address: std::net::SocketAddr,
@@ -178,6 +179,7 @@ impl Stub {
     }
     // Released clients can ignore system proxies. An explicit endpoint override
     // reaches this peer directly and gives its logical source sole ownership.
+    tool_only! {
     pub(super) fn loopback(
         host: String,
         mut reply: impl FnMut(&str, &str) -> Result<RecordedReply, String> + Send + 'static,
@@ -202,7 +204,7 @@ impl Stub {
                 {
                     return Err("invalid recorded HTTP status or content type".into());
                 }
-                thread::sleep(Duration::from_millis(recorded.delay_ms));
+                thread::sleep(std::time::Duration::from_millis(recorded.delay_ms));
                 observed.check("HTTP reply", write!(socket, "HTTP/1.1 {} Recorded\r\nContent-Type: {}\r\nContent-Length: {}\r\nConnection: close\r\n\r\n",
                     recorded.status, recorded.content_type, recorded.body.len()))?;
                 observed.check("HTTP body", socket.write_all(&recorded.body))?;
@@ -218,6 +220,7 @@ impl Stub {
             evidence,
             worker: Some(worker),
         })
+    }
     }
     pub(super) fn finish(mut self) -> Result<Vec<(String, String)>, String> {
         let _ = self.stop.send(());

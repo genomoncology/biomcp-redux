@@ -11,12 +11,14 @@ use std::{
 type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        transcript_trial("drug-who/native-rows-local-reads-and-replacement", || {
-            check().map_err(Into::into)
-        }),
-        transcript_trial("drug-who/all-candidates-keep-continuation", || {
-            navigation::check().map_err(Into::into)
-        }),
+        transcript_trial(
+            "drug-who-medicines/native-rows-local-reads-and-replacement",
+            || check().map_err(Into::into),
+        ),
+        transcript_trial(
+            "drug-who-medicines/all-candidates-keep-continuation",
+            || navigation::check().map_err(Into::into),
+        ),
     ]
 }
 const CSV: &str = "WHO Reference Number,\"INN, Dosage Form and Strength\",Product Type,Therapeutic \
@@ -256,9 +258,9 @@ fn bounded(value: &Value) -> Check {
         .ok_or("status")?;
     // Compact synthetic maxima measured by j13484; every cap adds fifteen percent.
     let baseline: usize = match (schema, status) {
-        ("biomcp.drug-who-page/4", "complete") => 937,
-        ("biomcp.drug-who-page/4", "partial") => 1242,
-        ("biomcp.drug-who-page/4", "absent") => 433,
+        ("biomcp.drug-who-page/5", "complete") => 937,
+        ("biomcp.drug-who-page/5", "partial") => 1242,
+        ("biomcp.drug-who-page/5", "absent") => 433,
         ("biomcp.drug-who-card/3", "complete") => 677,
         ("biomcp.drug-who-card/3", "partial") => 729,
         ("biomcp.drug-who-card/3", "absent") => 305,

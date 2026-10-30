@@ -8,6 +8,8 @@ use biomcp_types::{GwasAncestry, GwasLocus, GwasStudy};
 /// Checked rows and source rows rejected for an owning-identity mismatch.
 #[derive(Debug)]
 pub struct Rows<T> {
+    /// Rejected native metadata for retained source rows.
+    pub problems: Vec<biomcp_types::Problem>,
     /// Source rows in native order.
     pub items: Vec<T>,
     /// Number of rejected source rows.
@@ -30,11 +32,7 @@ pub fn association(leg: &Leg<'_>, id: GwasAssociationId) -> Result<Association, 
 }
 impl Reply for Association {
     fn check(&self) -> Result<(), BadReply> {
-        if self.association_id == 0
-            || self.accession_id.as_str().parse::<GwasStudyId>().is_err()
-            || self.snp_allele.is_empty()
-            || self.exact_p_value().is_none()
-        {
+        if self.association_id == 0 {
             Err(BadReply)
         } else {
             Ok(())
@@ -42,7 +40,7 @@ impl Reply for Association {
     }
 }
 /// Read one exact study with unchanged source sample descriptions.
-pub fn study(leg: &Leg<'_>, id: &GwasStudyId) -> Result<GwasStudy, RequestError> {
+pub fn study(leg: &Leg<'_>, id: &GwasStudyId) -> Result<crate::Mapped<GwasStudy>, RequestError> {
     let endpoint = SPEC
         .get("")
         .with_path(format!("/studies/{id}"))?
@@ -68,14 +66,20 @@ pub fn ancestries(leg: &Leg<'_>, id: &GwasStudyId) -> Result<Rows<GwasAncestry>,
             .all(|a| raw::owned(&a.links.current.href, &prefix))
     })?;
     let total = rows.embedded.ancestries.len();
+    let mut problems = crate::mapped::Problems {
+        source: biomcp_types::Source::Gwas,
+        record: None,
+        list: Vec::new(),
+    };
     let items: Vec<_> = rows
         .embedded
         .ancestries
         .into_iter()
         .filter(|a| raw::owned(&a.links.current.href, &prefix))
-        .map(raw::Ancestry::row)
+        .map(|r| r.row(&mut problems))
         .collect();
     Ok(Rows {
+        problems: problems.list,
         rejected: total - items.len(),
         items,
     })
@@ -92,14 +96,20 @@ pub fn loci(leg: &Leg<'_>, id: GwasAssociationId) -> Result<Rows<GwasLocus>, Req
             .all(|a| raw::owned(&a.links.current.href, &prefix))
     })?;
     let total = rows.embedded.loci.len();
+    let mut problems = crate::mapped::Problems {
+        source: biomcp_types::Source::Gwas,
+        record: None,
+        list: Vec::new(),
+    };
     let items: Vec<_> = rows
         .embedded
         .loci
         .into_iter()
         .filter(|a| raw::owned(&a.links.current.href, &prefix))
-        .map(raw::Locus::row)
+        .map(|r| r.row(&mut problems))
         .collect();
     Ok(Rows {
+        problems: problems.list,
         rejected: total - items.len(),
         items,
     })

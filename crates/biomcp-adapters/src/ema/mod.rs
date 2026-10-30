@@ -90,7 +90,7 @@ pub fn regulatory(
                 offset: 0,
                 total: Some(1),
                 truncated: None,
-                version: Some(row.meta.timestamp),
+                version: problems.field("_bundle_meta.timestamp", row.meta.timestamp),
                 retrieved: None,
             },
         },

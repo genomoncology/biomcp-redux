@@ -41,18 +41,19 @@ pub struct Page {
 fn literal(value: &str) -> String {
     format!("\"{}\"", value.replace('\\', "\\\\").replace('"', "\\\""))
 }
-/// Discover source-native applications using the unchanged literal ingredient phrase.
+/// Discover exact brand or ingredient names, then try their native word fields after a zero total.
 pub fn search(leg: &Leg<'_>, text: &Text, limit: u32, offset: u32) -> Result<Page, RequestError> {
-    page(
-        leg,
-        &format!(
-            "products.active_ingredients.name:{}",
-            literal(text.as_str())
-        ),
-        limit,
-        offset,
-        None,
-    )
+    let selector = |suffix: &str| {
+        let name = literal(text.as_str());
+        format!(
+            "products.brand_name{suffix}:{name} OR products.active_ingredients.name{suffix}:{name}"
+        )
+    };
+    let exact = page(leg, &selector(".exact"), limit, offset, None)?;
+    if exact.total > 0 {
+        return Ok(exact);
+    }
+    page(leg, &selector(""), limit, offset, None)
 }
 /// Read exactly the named native application; reject a wrong identity before caching it.
 pub fn get(leg: &Leg<'_>, id: &DrugId) -> Result<Page, RequestError> {

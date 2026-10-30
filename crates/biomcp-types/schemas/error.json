@@ -149,7 +149,7 @@
         "unphased variants cannot select a diplotype; --diplotype requires an unchanged declared expression",
         "pharmgkb is retired; use: clinpgx",
         "NCI disease filters require an NCIt identifier such as C3224; use --keyword for free text",
-        "get variant needs an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation needs --build; use search variant --gene BRAF --protein V600E for gene/protein shorthand",
+        "get variant needs an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation needs --build; use search variant --gene BRAF --protein V600E or search variant --gene PTEN --coding c.333G>T for gene shorthand",
         "renamed; use: --build",
         "renamed; use: --protein with --gene",
         "renamed; use: get variant <ID> predict",
@@ -284,7 +284,7 @@
     },
     "Reply_ErrorSchema": {
       "enum": [
-        "biomcp.error/3"
+        "biomcp.error/4"
       ],
       "type": "string"
     },
@@ -495,7 +495,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.error/3",
+  "$id": "biomcp.error/4",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "A versioned error response that never contains caller input.",
   "properties": {

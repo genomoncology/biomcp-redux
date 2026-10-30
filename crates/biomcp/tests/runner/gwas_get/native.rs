@@ -1,5 +1,6 @@
 //! Native bodies stay in the external evidence store and replay through transport recordings.
 use super::{Environment, Path, Stub, Value, fs, invoke, json};
+use crate::runner::launch::native_budget as budget;
 use std::{collections::BTreeMap, io::Write};
 pub(super) fn run() -> Result<(), String> {
     let root = super::super::launch::fixtures().join("gwas-get-native");
@@ -71,10 +72,10 @@ fn measure(root: &Path, recordings: &Path, output: &Path, input: &Value) -> Resu
     let args = words(&input["args"])?;
     let name = input["name"].as_str().ok_or("case name")?;
     let path = root.join(format!("{name}.yaml"));
-    let mut step =
-        json!({"run":args,"mcp":args,"expect":input["expect"],"max_bytes":20000,"max_tokens":5000});
-    let budgets: Value = serde_json::from_str(&crate::runner::launch::fixture_text(
-        "gwas-get-budgets.json",
+    let fallback = budget("gwas-get/unmeasured")?;
+    let mut step = json!({"run":args,"mcp":args,"expect":input["expect"],"max_bytes":fallback,"max_tokens":fallback.div_ceil(4)});
+    let budgets: Value = serde_saphyr::from_str(&crate::runner::launch::fixture_text(
+        "gwas-get-budgets.yaml",
     )?)
     .map_err(|e| e.to_string())?;
     if let Some(comparable) = budgets

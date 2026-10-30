@@ -84,6 +84,8 @@ fn sections(cx: &Ctx<'_>, q: &StudyGet, deadline: biomcp_fetch::Deadline<'_>, ou
 }
 fn card(leg: &Leg<'_>, q: &StudyGet, out: &mut Outcome) -> Result<(), RequestError> {
     let (row, info) = studies::card(leg, q.id())?;
+    out.problems.extend(row.problems);
+    let row = row.value;
     let snapshot = studies::snapshot(&info)?;
     out.status = if row.is_some() {
         Status::Complete
@@ -112,8 +114,9 @@ fn section_page(
     match q.section() {
         Some(StudySection::Profiles) => {
             let records = studies::profiles(leg, q.id())?;
+            out.problems.extend(records.problems);
             let rejected = records.rejected;
-            let (items, page) = page(records.rows, q);
+            let (items, page, received) = page(records.rows.into_iter(), q);
             let data = StudyProfiles {
                 study_id: q.id().clone(),
                 items,
@@ -129,12 +132,13 @@ fn section_page(
                 out.body = QueryBody::StudyProfiles(Some(data));
                 out.page = Some(page.clone());
             }
-            continuation(out, cx, q, &page, rejected);
+            continuation(out, cx, q, &page, rejected, received);
         }
         Some(StudySection::SampleLists) => {
             let records = studies::sample_lists(leg, q.id())?;
+            out.problems.extend(records.problems);
             let rejected = records.rejected;
-            let (items, page) = page(records.rows, q);
+            let (items, page, received) = page(records.rows.into_iter(), q);
             let data = StudySampleLists {
                 study_id: q.id().clone(),
                 items,
@@ -150,19 +154,23 @@ fn section_page(
                 out.body = QueryBody::StudySampleLists(Some(data));
                 out.page = Some(page.clone());
             }
-            continuation(out, cx, q, &page, rejected);
+            continuation(out, cx, q, &page, rejected, received);
         }
         _ => {}
     }
     Ok(())
 }
-fn page<T>(rows: Vec<T>, q: &StudyGet) -> (Box<[T]>, PageInfo) {
+fn page<T>(
+    rows: impl ExactSizeIterator<Item = Option<T>>,
+    q: &StudyGet,
+) -> (Box<[T]>, PageInfo, u32) {
     let total = rows.len() as u64;
-    let items: Box<[_]> = rows
-        .into_iter()
+    let window: Vec<_> = rows
         .skip(q.section_offset() as usize)
         .take(q.section_limit() as usize)
         .collect();
+    let received = window.len() as u32;
+    let items: Box<[_]> = window.into_iter().flatten().collect();
     let page = PageInfo {
         offset: q.section_offset(),
         returned: items.len() as u32,
@@ -170,22 +178,24 @@ fn page<T>(rows: Vec<T>, q: &StudyGet) -> (Box<[T]>, PageInfo) {
         pool: None,
         truncated: None,
     };
-    (items, page)
+    (items, page, received)
 }
-fn continuation(out: &mut Outcome, cx: &Ctx<'_>, q: &StudyGet, page: &PageInfo, rejected: usize) {
+fn continuation(
+    out: &mut Outcome,
+    cx: &Ctx<'_>,
+    q: &StudyGet,
+    page: &PageInfo,
+    rejected: usize,
+    received: u32,
+) {
     if rejected != 0 {
         out.status = Status::Partial;
-        out.problems.push(Problem {
-            source: Source::Cbioportal,
-            record: biodata::Text::new(q.id().as_str()).ok(),
-            field: "studyId".into(),
-            code: ProblemCode::IdentityConflict,
-        });
     } else if out.status != Status::Partial {
         out.status = Status::Complete;
     }
-    if u64::from(page.offset) + u64::from(page.returned) < page.total
-        && let Ok(query) = q.at_section_offset(page.offset + page.returned)
+    if received > 0
+        && u64::from(page.offset) + u64::from(received) < page.total
+        && let Ok(query) = q.at_section_offset(page.offset.saturating_add(received))
     {
         next(out, cx, StepKind::Page, query);
     }

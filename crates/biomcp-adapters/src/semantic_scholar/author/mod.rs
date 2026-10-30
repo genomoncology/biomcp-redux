@@ -20,7 +20,7 @@ pub fn search(leg: &Leg<'_>, q: &AuthorSearch) -> Result<Page, RequestError> {
             ("limit", Arg::Num(u64::from(q.limit()))),
         ],
         |page| {
-            if page.offset == q.offset() && page.data.len() <= q.limit() as usize {
+            if page.offset == q.offset() && page.received <= q.limit() as usize {
                 Ok(())
             } else {
                 Err(BadReply)
@@ -30,7 +30,10 @@ pub fn search(leg: &Leg<'_>, q: &AuthorSearch) -> Result<Page, RequestError> {
     Ok(page)
 }
 /// Reject a mismatched returned identity before cache admission and on cache reads.
-pub fn card(leg: &Leg<'_>, id: &SemanticScholarAuthorId) -> Result<AuthorCard, RequestError> {
+pub fn card(
+    leg: &Leg<'_>,
+    id: &SemanticScholarAuthorId,
+) -> Result<crate::Mapped<AuthorCard>, RequestError> {
     let endpoint = SPEC
         .get("")
         .with_path(format!("/author/{id}"))?

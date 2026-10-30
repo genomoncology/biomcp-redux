@@ -1,5 +1,5 @@
 live_check: local-only or offline-only case
-feature: article-search
+feature: article-filters
 story: Article filters preserve checked date precision and reject reversed ranges before requests.
 replay: article/search/live
 steps:

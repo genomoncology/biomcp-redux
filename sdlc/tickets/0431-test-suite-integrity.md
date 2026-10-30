@@ -1,6 +1,7 @@
 # 0431 — Make the runner the single record of tests
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 15cb2f26e28344170be3a4afdb52db6cd9283ce0
 
 Milestone: 5
 

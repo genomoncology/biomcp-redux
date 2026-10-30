@@ -57,9 +57,9 @@ pub fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     out.local = error.and_then(status::local);
     out.sources
         .push(status::source(Source::Mychem, leg.finish(), error));
-    if let Ok(page) = result {
+    if let Ok((page, received)) = result {
         out.problems = page.problems;
-        searched(query, cx.fresh, page.value, &mut out);
+        search_results(query, cx.fresh, page.value, &mut out, received);
     }
     component_outcomes(cx, &mut out, true);
     command.finish(deadline.remaining());
@@ -266,7 +266,17 @@ fn component_outcomes(cx: &Ctx<'_>, out: &mut Outcome, search: bool) {
 
 mod native;
 fn searched(query: &DrugSearch, fresh: bool, page: DrugPage, out: &mut Outcome) {
-    out.status = if page.items.is_empty() {
+    let received = page.items.len() as u32;
+    search_results(query, fresh, page, out, received);
+}
+fn search_results(
+    query: &DrugSearch,
+    fresh: bool,
+    page: DrugPage,
+    out: &mut Outcome,
+    received: u32,
+) {
+    out.status = if page.items.is_empty() && out.problems.is_empty() {
         Status::Absent
     } else if !out.problems.is_empty()
         || out
@@ -303,8 +313,8 @@ fn searched(query: &DrugSearch, fresh: bool, page: DrugPage, out: &mut Outcome) 
     }
     if let Some(offset) = query
         .offset()
-        .checked_add(returned)
-        .filter(|n| returned > 0 && page.total.is_some_and(|t| u64::from(*n) < t))
+        .checked_add(received)
+        .filter(|n| received > 0 && page.total.is_some_and(|t| u64::from(*n) < t))
     {
         out.next.push((
             StepKind::Page,

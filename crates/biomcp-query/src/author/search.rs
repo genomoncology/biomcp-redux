@@ -112,7 +112,12 @@ fn present(
         .into_iter()
         .find(|p| p.offset == q.offset())
         .ok_or(biomcp_fetch::CacheError::Database)?;
-    let items: Box<[_]> = page.data.into_iter().map(|r| r.header()).collect();
+    out.problems.extend(page.problems);
+    let items: Box<[_]> = page
+        .data
+        .into_iter()
+        .map(|r| r.header(&mut out.problems))
+        .collect();
     for row in &items {
         out.next.push((
             StepKind::Disambiguate,

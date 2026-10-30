@@ -201,7 +201,7 @@ fn usage_error_round_trips_and_rejects_changed_contract_values() {
     assert_eq!(
         value,
         json!({
-            "schema": "biomcp.error/3",
+            "schema": "biomcp.error/4",
             "status": "usage",
             "error": {
                 "code": "usage.schema",

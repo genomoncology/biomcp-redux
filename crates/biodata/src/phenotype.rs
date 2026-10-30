@@ -43,7 +43,8 @@ pub struct PhenotypeHeader {
     /// Source HP identity.
     pub id: HpId,
     /// Exact native label, including an empty value.
-    pub label: Box<str>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub label: Option<Box<str>>,
     /// Native search match score with no local interpretation.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub match_score: Option<FiniteNumber>,
@@ -68,7 +69,8 @@ pub enum PhenotypeCard {
         /// Exact returned identifier.
         returned_id: HpId,
         /// Whole source label.
-        label: Box<str>,
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        label: Option<Box<str>>,
         /// Complete definition; empty text remains present.
         #[serde(default, skip_serializing_if = "Option::is_none")]
         definition: Option<Box<str>>,
@@ -91,7 +93,8 @@ pub enum PhenotypeCard {
         /// Exact returned identifier.
         returned_id: HpId,
         /// Whole native label.
-        label: Box<str>,
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        label: Option<Box<str>>,
         /// Complete native description.
         #[serde(default, skip_serializing_if = "Option::is_none")]
         description: Option<Box<str>>,
@@ -117,9 +120,11 @@ pub struct PhenotypeAssociationCount {
     /// Native category.
     pub category: Curie,
     /// Native scope label.
-    pub label: Box<str>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub label: Option<Box<str>>,
     /// Native closure-expanded count.
-    pub count: u64,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub count: Option<u64>,
     /// Native direct count.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub count_direct: Option<u64>,
@@ -171,7 +176,8 @@ pub struct PhenotypeHierarchyLink {
     /// Exact related term identifier; native parents can be outside HP.
     pub id: Curie,
     /// Whole related term label.
-    pub label: Box<str>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub label: Option<Box<str>>,
     /// Original source relation, such as super_classes or sub_classes.
     pub relation: PhenotypeHierarchyRelation,
     /// Publisher provenance.

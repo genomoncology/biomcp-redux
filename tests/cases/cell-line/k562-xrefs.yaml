@@ -1,5 +1,5 @@
 {
-  "feature": "cell-line-sections",
+  "feature": "cell-line-identity",
   "story": "A caller walks all 1,398 K-562 source cross-references in native order without gaps or duplicate identities.",
   "replay": "cell-line/k562-xrefs",
   "steps": [

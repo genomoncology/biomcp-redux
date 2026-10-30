@@ -35,7 +35,7 @@ Commands:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -81,7 +81,7 @@ help: Describe commands and their arguments.
 - `--config`: Read configuration from this file.
 - `--offline`: Read local data without source requests.
 - `--fresh`: Request fresh source data instead of cached replies.
-- `-h, --help`: Print scoped command help without source requests.
+- `--help`: Print scoped command help without source requests.
 - `--version`: Print the installed version without source requests.
 
 ## biomcp search
@@ -115,7 +115,7 @@ Commands:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -146,7 +146,7 @@ Usage: biomcp search biomarker [OPTIONS] --source <source>
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -201,7 +201,7 @@ Arguments:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -256,7 +256,7 @@ Options:
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -340,7 +340,7 @@ Arguments:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -391,7 +391,7 @@ Options:
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -473,7 +473,7 @@ Arguments:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -530,7 +530,7 @@ Arguments:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -578,7 +578,7 @@ Arguments:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -642,7 +642,7 @@ Options:
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -690,7 +690,7 @@ Options:
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -741,7 +741,7 @@ Options:
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -840,7 +840,7 @@ Arguments:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -927,7 +927,7 @@ Arguments:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -974,7 +974,8 @@ Usage: biomcp search drug [OPTIONS] [query]
 
 Arguments:
   [query]
-          Literal name phrase; optional for FDA drug recalls. Harmonized recall names match but never become display names.
+          Literal name phrase; optional for FDA drug recalls. Drugs@FDA searches brands and ingredients,
+          exact names before word matches. Harmonized recall names match but never become display names.
 
 Options:
       --classification <classification>
@@ -982,7 +983,7 @@ Options:
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -1036,7 +1037,8 @@ Search one drug source. FDA drug recalls accept a name or source firm, classific
 - `--limit`: Source candidate rows per page.
 - `--name-selector`: Explicit ChEMBL source name selector; omitted means preferred name.
 - `--offset`: Source rows to skip.
-- `query`: Exact name phrase; optional for FDA drug recalls. Harmonized recall names match but never become display names.
+- `query`: Exact name phrase; optional for FDA drug recalls. Drugs@FDA searches brands and ingredients,
+exact names before word matches. Harmonized recall names match but never become display names.
 - `--reason`: Phrase in the published recall reason; drug recalls only.
 - `--source`: Exactly one source; default MyChem never fans out.
 - `--status`: Exact source recall status; drug recalls only.
@@ -1058,7 +1060,7 @@ Options:
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -1110,7 +1112,7 @@ Options:
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -1154,10 +1156,10 @@ Options:
           Stable snapshot from an earlier response.
 
       --exclude-retracted
-          
+
 
       --include-retracted
-          
+
 
       --since <since>
           Inclusive lower publication-date bound at the stated precision; PubMed matches either electronic or print date.
@@ -1238,7 +1240,7 @@ Options:
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -1263,23 +1265,26 @@ Options:
       --count-only
           Source total only; no returned study rows.
 
+      --country <country>...
+          Exact ClinicalTrials.gov country label; repeat for OR. Trials must list a site in a named country. NCI uses its native country filter.
+
       --criteria <criteria>
           Search literal registry eligibility text for discovery only; no eligibility judgment.
-
-      --distance <distance>
-          Source distance with explicit mi or km units.
 
       --offline
           Read local data without source requests.
 
-      --exact-condition
-          Ask ClinicalTrials.gov to restrict matching to the registered condition phrase; its support is partial.
+      --distance <distance>
+          Source distance with explicit mi or km units.
 
       --fresh
           Request fresh source data instead of cached replies.
 
+      --exact-condition
+          Ask ClinicalTrials.gov to restrict matching to the registered condition phrase; its support is partial.
+
       --facility <facility>
-          Exact facility name; NCI matches organization names case-insensitively. A listed site is not necessarily enrolling. Cannot combine with radius.
+          Facility phrase; ClinicalTrials.gov broadens after zero exact matches. NCI matches exact names. Cannot combine with radius.
 
       --gene <gene>
           Resolve one checked gene for registry text discovery only; no eligibility judgment.
@@ -1318,10 +1323,10 @@ Options:
           Explicit provider; defaults to ClinicalTrials.gov and never falls back.
 
       --sponsor <sponsor>
-          Exact lead sponsor field.
+          Sponsor name; ClinicalTrials.gov broadens after zero exact matches. Use --sponsor-type for the funding category.
 
       --sponsor-type <sponsor_type>
-          Registry sponsor funding facet.
+          Registry sponsor funding category; use --sponsor for a sponsor name.
 
       --status <status>
           Exact source status. NCI: Active, Administratively Complete, Approved, Closed to Accrual, Closed to Accrual and Intervention, Complete, INACTIVE, Enrolling by Invitation, Temporarily Closed to Accrual, Temporarily Closed to Accrual and Intervention, Withdrawn. ClinicalTrials.gov uses registry labels.
@@ -1348,10 +1353,11 @@ Search ClinicalTrials.gov or keyed NCI with source counts. NCI --facility matche
 - `--condition`: Condition alternatives joined with OR; NCI requires NCIt codes.
 - `--condition-id`: Exact MONDO or DOID CURIE resolved by MyDisease; NCI also accepts explicit NCIT:C codes.
 - `--count-only`: Source total only; no returned study rows.
+- `--country`: Exact ClinicalTrials.gov country label; repeat for OR. Trials must list a site in a named country. NCI uses its source country filter.
 - `--criteria`: Search exact registry eligibility text for discovery only; no eligibility judgment.
 - `--distance`: Source distance with explicit mi or km units.
 - `--exact-condition`: Ask ClinicalTrials.gov to restrict matching to the registered condition phrase; its support is partial.
-- `--facility`: Exact facility name; NCI matches organization names case-insensitively. A listed site is not necessarily enrolling. Cannot combine with radius.
+- `--facility`: Facility phrase; ClinicalTrials.gov broadens after zero exact matches. NCI matches exact names. Cannot combine with radius.
 - `--gene`: Resolve one checked gene for registry text discovery only; no eligibility judgment.
 - `--has-results`: Require posted source results.
 - `--id`: Exact NCT identity in a conjunction with other filters.
@@ -1365,8 +1371,8 @@ Search ClinicalTrials.gov or keyed NCI with source counts. NCI --facility matche
 - `query`: General registry discovery text.
 - `--sex`: Registry sex facet.
 - `--source`: Explicit source; defaults to ClinicalTrials.gov and never falls back.
-- `--sponsor`: Exact lead sponsor field.
-- `--sponsor-type`: Registry sponsor funding facet.
+- `--sponsor`: Sponsor name; ClinicalTrials.gov broadens after zero exact matches. Use --sponsor-type for the funding category.
+- `--sponsor-type`: Registry sponsor funding category; use --sponsor for a sponsor name.
 - `--status`: Exact source status. NCI: Active, Administratively Complete, Approved, Closed to Accrual, Closed to Accrual and Intervention, Complete, INACTIVE, Enrolling by Invitation, Temporarily Closed to Accrual, Temporarily Closed to Accrual and Intervention, Withdrawn. ClinicalTrials.gov uses registry labels.
 - `--study-type`: Exact registry study type.
 - `--updated-since`: First included registry update date.
@@ -1386,21 +1392,24 @@ Options:
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
-      --condition <condition>
-          Literal MyVariant clinvar.rcv.conditions.name phrase; source text is not a local diagnosis. Requires a declared protein or region selector.
+      --coding <coding>
+          Coding HGVS change searched literally in ClinVar with --gene, without choosing a transcript.
 
       --disable-sources <disable-sources>
           Exclude source names or source terms groups.
+
+      --condition <condition>
+          Literal MyVariant clinvar.rcv.conditions.name phrase; source text is not a local diagnosis. Requires a declared protein or region selector.
 
       --config <config>
           Read configuration from this file.
 
       --gene <gene>
-          Exact checked gene symbol for the fixed dbNSFP gene/protein field query; obeys component terms switches.
+          Checked gene symbol for the dbNSFP substitution or ClinVar coding/synonymous selector.
 
       --has <has>
           Require the selected component's identifier field. Only source-proven mappings are offered.
@@ -1411,17 +1420,17 @@ Options:
       --offset <offset>
           Native offset within this command's bounded result window; larger native totals remain visible.
 
-      --protein <protein>
-          Explicit substitution using checked one-letter or three-letter amino-acid codes.
-
       --offline
           Read local data without source requests.
 
-      --query <query>
-          Raw MyVariant query, passed and echoed unchanged when component policy allows; requires --source myvariant. With disabled components use declared selectors instead.
+      --protein <protein>
+          Explicit substitution or synonymous change using checked amino-acid codes.
 
       --fresh
           Request fresh source data instead of cached replies.
+
+      --query <query>
+          Raw MyVariant query, passed and echoed unchanged when component policy allows; requires --source myvariant. With disabled components use declared selectors instead.
 
       --region <region>
           Exact one-based inclusive MyVariant region, such as chr7:55259500-55259600; requires --build.
@@ -1437,12 +1446,13 @@ Options:
 Discover source candidates using one declared selector, without interpreting free text.
 
 - `--build`: Optional caller assembly sent to MyVariant; regions require it explicitly.
+- `--coding`: Coding HGVS change searched literally in ClinVar with --gene, without choosing a transcript.
 - `--condition`: Exact MyVariant clinvar.rcv.conditions.name phrase; source text is not a local diagnosis. Requires a declared protein or region selector.
-- `--gene`: Exact checked gene symbol for the fixed dbNSFP gene/protein field query; obeys component terms switches.
+- `--gene`: Checked gene symbol for the dbNSFP substitution or ClinVar coding/synonymous selector.
 - `--has`: Require the selected component's identifier field. Only source-proven mappings are offered.
 - `--limit`: Source candidates per page, default 10, maximum 50; all candidates remain candidates.
 - `--offset`: Source offset within this command's bounded result window; larger source totals remain visible.
-- `--protein`: Explicit substitution using checked one-letter or three-letter amino-acid codes.
+- `--protein`: Explicit substitution or synonymous change using checked amino-acid codes.
 - `--query`: Raw MyVariant query, passed and echoed unchanged when component policy allows; requires --source myvariant. With disabled components use declared selectors instead.
 - `--region`: Exact one-based inclusive MyVariant region, such as chr7:55259500-55259600; requires --build.
 - `--review-status`: Exact MyVariant clinvar.rcv.review_status phrase; no star conversion. Requires a declared protein or region selector.
@@ -1474,12 +1484,12 @@ Commands:
   gene           Get one to twenty human gene inputs in their original order.
   article        Get one to twenty article inputs in caller order.
   trial          Retrieve exact trial cards in input order; request bounded intact source sections with independent continuations.
-  variant        Read an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation requires --build. Use search variant --gene BRAF --protein V600E for shorthand. Every candidate remains available; source assertions do not classify the variant for the caller.
+  variant        Read an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation requires --build. Use search variant --gene BRAF --protein V600E or search variant --gene PTEN --coding c.333G>T for gene shorthand. Every candidate remains available; source assertions do not classify the variant for the caller.
 
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -1514,7 +1524,7 @@ Arguments:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -1554,7 +1564,7 @@ Arguments:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -1593,7 +1603,7 @@ Arguments:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -1650,7 +1660,7 @@ Arguments:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -1707,7 +1717,7 @@ Arguments:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -1767,7 +1777,7 @@ Arguments:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -1831,7 +1841,7 @@ Arguments:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -1891,7 +1901,7 @@ Arguments:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -1946,7 +1956,7 @@ Options:
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -2029,7 +2039,7 @@ Options:
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -2101,7 +2111,7 @@ Options:
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -2175,7 +2185,7 @@ Options:
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -2265,7 +2275,7 @@ Options:
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -2342,7 +2352,7 @@ Arguments:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -2397,7 +2407,7 @@ Arguments:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -2448,7 +2458,7 @@ Arguments:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -2506,7 +2516,7 @@ Optional intact source sections. Default cards only; diseases and summary requir
 ## biomcp get variant
 
 ```text
-Read an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation requires --build. Use search variant --gene BRAF --protein V600E for shorthand. Every candidate remains available; source assertions do not classify the variant for the caller.
+Read an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation requires --build. Use search variant --gene BRAF --protein V600E or search variant --gene PTEN --coding c.333G>T for gene shorthand. Every candidate remains available; source assertions do not classify the variant for the caller.
 
 Usage: biomcp get variant [OPTIONS] <input> [section]...
 
@@ -2523,7 +2533,7 @@ Options:
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -2568,7 +2578,7 @@ Options:
 
 ```
 
-Read an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation requires --build. Use search variant --gene BRAF --protein V600E for shorthand. Every candidate remains available; source assertions do not classify the variant for the caller.
+Read an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation requires --build. Use search variant --gene BRAF --protein V600E or search variant --gene PTEN --coding c.333G>T for gene shorthand. Every candidate remains available; source assertions do not classify the variant for the caller.
 
 - `--build`: Required for chromosome notation; no assembly is guessed.
 - `--civic-cursor`: Source CIViC cursor, retained unchanged.
@@ -2611,7 +2621,7 @@ Commands:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -2649,7 +2659,7 @@ Arguments:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -2705,7 +2715,7 @@ Commands:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -2740,7 +2750,7 @@ Arguments:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -2782,7 +2792,7 @@ Commands:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -2817,7 +2827,7 @@ Arguments:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -2873,7 +2883,7 @@ Arguments:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -2921,7 +2931,7 @@ Arguments:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -2973,7 +2983,7 @@ Arguments:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -3024,7 +3034,7 @@ Options:
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -3073,7 +3083,7 @@ Arguments:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -3122,7 +3132,7 @@ Arguments:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -3159,7 +3169,7 @@ Commands:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -3197,7 +3207,7 @@ Arguments:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -3246,7 +3256,7 @@ Arguments:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -3299,7 +3309,7 @@ Commands:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -3340,7 +3350,7 @@ Options:
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -3402,7 +3412,7 @@ Arguments:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -3449,7 +3459,7 @@ Options:
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -3506,7 +3516,7 @@ Arguments:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -3558,7 +3568,7 @@ Arguments:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -3613,7 +3623,7 @@ Arguments:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -3666,7 +3676,7 @@ Arguments:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -3717,7 +3727,7 @@ Commands:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -3755,7 +3765,7 @@ Arguments:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -3802,7 +3812,7 @@ Commands:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -3840,7 +3850,7 @@ Options:
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -3896,7 +3906,7 @@ Options:
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -3949,7 +3959,7 @@ Arguments:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -4012,7 +4022,7 @@ Options:
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -4062,14 +4072,14 @@ Usage: biomcp sync [OPTIONS] [bundle]
 Arguments:
   [bundle]
           Local source bundle to synchronize.
-          
+
           [default: hgnc]
           [possible values: hgnc, clingen, gencc, wikipathways, cbioportal-studies, ema, ddinter, who-pq, gtr, who-ivd, fda-cdx]
 
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -4107,7 +4117,7 @@ Commands:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -4140,7 +4150,7 @@ Usage: biomcp skill list [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -4173,7 +4183,7 @@ Usage: biomcp skill render [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -4210,7 +4220,7 @@ Arguments:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -4251,7 +4261,7 @@ Options:
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -4286,7 +4296,7 @@ Usage: biomcp version [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -4323,13 +4333,13 @@ Usage: biomcp mcp-config [OPTIONS]
 Options:
       --client <client>
           Choose a JSON client or the codex shell registration command; default mcp-servers.
-          
+
           [default: mcp-servers]
           [possible values: mcp-servers, servers, codex]
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -4367,7 +4377,7 @@ Usage: biomcp health [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -4398,12 +4408,12 @@ Manage local cached replies and snapshots.
 Usage: biomcp store [OPTIONS] <COMMAND>
 
 Commands:
-  clean  
+  clean
 
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -4432,7 +4442,7 @@ Usage: biomcp store clean [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -4464,13 +4474,13 @@ Usage: biomcp key [OPTIONS] <COMMAND>
 
 Commands:
   list    List supported discovery topics.
-  set     
-  remove  
+  set
+  remove
 
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -4503,7 +4513,7 @@ Usage: biomcp key list [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -4534,13 +4544,13 @@ Usage: biomcp key set [OPTIONS] <source>
 Arguments:
   <source>
           Source credential name to register or remove.
-          
+
           [possible values: ncbi, semantic-scholar, orcid, oncokb, alphagenome, nci, openfda]
 
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -4576,13 +4586,13 @@ Usage: biomcp key remove [OPTIONS] <source>
 Arguments:
   <source>
           Source credential name to register or remove.
-          
+
           [possible values: ncbi, semantic-scholar, orcid, oncokb, alphagenome, nci, openfda]
 
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -4616,7 +4626,7 @@ Usage: biomcp serve [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -4662,7 +4672,7 @@ Arguments:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -4707,25 +4717,25 @@ Commands:
   trial       Read trial groups and public documents.
   variant     Read source variant assertions, populations and recurrence.
   sync        Synchronize a local source bundle.
-  skill       
-  version     
-  mcp-config  
+  skill
+  version
+  mcp-config
   health      Report source terms and bounded reachability.
   store       Manage local cached replies and snapshots.
   key         Register and manage source credentials without showing values.
   serve       Serve MCP over standard input or HTTP.
-  schema      
+  schema
   help        Describe commands and their arguments.
-  network     
-  sources     
-  config      
+  network
+  sources
+  config
   exit        Explain process exit and error codes.
   relations   Map entities through sections and search filters.
 
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -4755,21 +4765,21 @@ Search source records by entity and checked filters.
 Usage: biomcp help search [OPTIONS] [COMMAND]
 
 Commands:
-  biomarker      
+  biomarker
   author         Read papers attributed to a source author record.
-  organization   
+  organization
   cell-line      Read source cell line assay counts.
-  gwas           
+  gwas
   protein        Read protein sequences, features and source relationships.
-  phenotype      
+  phenotype
   pathway        Read pathway genes and source events.
-  study          
-  pgx            
-  diagnostic     
-  adverse-event  
-  disease        
-  drug           
-  gene           
+  study
+  pgx
+  diagnostic
+  adverse-event
+  disease
+  drug
+  gene
   article        Read article text, references, citations and files.
   trial          Read trial groups and public documents.
   variant        Read source variant assertions, populations and recurrence.
@@ -4777,7 +4787,7 @@ Commands:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -4794,6 +4804,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Search source records by entity and checked filters.
+
 
 ## biomcp help search biomarker
 
@@ -4803,7 +4816,7 @@ Usage: biomcp help search biomarker [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -4820,6 +4833,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help search biomarker.
+
 
 ## biomcp help search author
 
@@ -4831,7 +4847,7 @@ Usage: biomcp help search author [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -4848,6 +4864,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Read papers attributed to a source author record.
+
 
 ## biomcp help search organization
 
@@ -4857,7 +4876,7 @@ Usage: biomcp help search organization [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -4874,6 +4893,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help search organization.
+
 
 ## biomcp help search cell-line
 
@@ -4885,7 +4907,7 @@ Usage: biomcp help search cell-line [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -4902,6 +4924,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Read source cell line assay counts.
+
 
 ## biomcp help search gwas
 
@@ -4911,7 +4936,7 @@ Usage: biomcp help search gwas [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -4928,6 +4953,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help search gwas. BioMCP's local request deadline expired. GWAS Catalog response times can vary; retry later or use https://www.ebi.ac.uk/gwas/. Contact the GWAS Catalog helpdesk if this persists.
+
 
 ## biomcp help search protein
 
@@ -4939,7 +4967,7 @@ Usage: biomcp help search protein [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -4956,6 +4984,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Read protein sequences, features and source relationships.
+
 
 ## biomcp help search phenotype
 
@@ -4965,7 +4996,7 @@ Usage: biomcp help search phenotype [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -4982,6 +5013,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help search phenotype.
+
 
 ## biomcp help search pathway
 
@@ -4993,7 +5027,7 @@ Usage: biomcp help search pathway [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -5010,6 +5044,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Read pathway genes and source events.
+
 
 ## biomcp help search study
 
@@ -5019,7 +5056,7 @@ Usage: biomcp help search study [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -5036,6 +5073,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help search study.
+
 
 ## biomcp help search pgx
 
@@ -5045,7 +5085,7 @@ Usage: biomcp help search pgx [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -5062,6 +5102,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help search pgx.
+
 
 ## biomcp help search diagnostic
 
@@ -5071,7 +5114,7 @@ Usage: biomcp help search diagnostic [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -5088,6 +5131,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help search diagnostic.
+
 
 ## biomcp help search adverse-event
 
@@ -5097,7 +5143,7 @@ Usage: biomcp help search adverse-event [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -5114,6 +5160,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help search adverse-event. CDC WONDER can take longer than BioMCP's local command deadline. Use the interactive form at https://wonder.cdc.gov/vaers.html for a longer query. See https://wonder.cdc.gov/wonder/help/faq.html. BioMCP's local quota refused this request before contacting CDC WONDER. Retry after the reported seconds left. Automated queries must follow the spacing at https://wonder.cdc.gov/wonder/help/wonder-api.html.
+
 
 ## biomcp help search disease
 
@@ -5123,7 +5172,7 @@ Usage: biomcp help search disease [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -5140,6 +5189,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help search disease.
+
 
 ## biomcp help search drug
 
@@ -5149,7 +5201,7 @@ Usage: biomcp help search drug [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -5166,6 +5218,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help search drug.
+
 
 ## biomcp help search gene
 
@@ -5175,7 +5230,7 @@ Usage: biomcp help search gene [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -5192,6 +5247,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help search gene.
+
 
 ## biomcp help search article
 
@@ -5203,7 +5261,7 @@ Usage: biomcp help search article [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -5220,6 +5278,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Read article text, references, citations and files.
+
 
 ## biomcp help search trial
 
@@ -5231,7 +5292,7 @@ Usage: biomcp help search trial [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -5248,6 +5309,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Read trial groups and public documents.
+
 
 ## biomcp help search variant
 
@@ -5259,7 +5323,7 @@ Usage: biomcp help search variant [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -5276,6 +5340,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Read source variant assertions, populations and recurrence.
+
 
 ## biomcp help get
 
@@ -5285,20 +5352,20 @@ Retrieve one entity and its source sections.
 Usage: biomcp help get [OPTIONS] [COMMAND]
 
 Commands:
-  biomarker      
+  biomarker
   author         Read papers attributed to a source author record.
   cell-line      Read source cell line assay counts.
-  gwas           
+  gwas
   protein        Read protein sequences, features and source relationships.
-  phenotype      
+  phenotype
   pathway        Read pathway genes and source events.
-  study          
-  pgx            
-  diagnostic     
-  adverse-event  
-  disease        
-  drug           
-  gene           
+  study
+  pgx
+  diagnostic
+  adverse-event
+  disease
+  drug
+  gene
   article        Read article text, references, citations and files.
   trial          Read trial groups and public documents.
   variant        Read source variant assertions, populations and recurrence.
@@ -5306,7 +5373,7 @@ Commands:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -5323,6 +5390,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Retrieve one entity and its source sections.
+
 
 ## biomcp help get biomarker
 
@@ -5332,7 +5402,7 @@ Usage: biomcp help get biomarker [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -5349,6 +5419,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help get biomarker.
+
 
 ## biomcp help get author
 
@@ -5360,7 +5433,7 @@ Usage: biomcp help get author [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -5377,6 +5450,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Read papers attributed to a source author record.
+
 
 ## biomcp help get cell-line
 
@@ -5388,7 +5464,7 @@ Usage: biomcp help get cell-line [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -5405,6 +5481,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Read source cell line assay counts.
+
 
 ## biomcp help get gwas
 
@@ -5414,7 +5493,7 @@ Usage: biomcp help get gwas [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -5431,6 +5510,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help get gwas. BioMCP's local request deadline expired. GWAS Catalog response times can vary; retry later or use https://www.ebi.ac.uk/gwas/. Contact the GWAS Catalog helpdesk if this persists.
+
 
 ## biomcp help get protein
 
@@ -5442,7 +5524,7 @@ Usage: biomcp help get protein [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -5459,6 +5541,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Read protein sequences, features and source relationships.
+
 
 ## biomcp help get phenotype
 
@@ -5468,7 +5553,7 @@ Usage: biomcp help get phenotype [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -5485,6 +5570,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help get phenotype.
+
 
 ## biomcp help get pathway
 
@@ -5496,7 +5584,7 @@ Usage: biomcp help get pathway [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -5513,6 +5601,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Read pathway genes and source events.
+
 
 ## biomcp help get study
 
@@ -5522,7 +5613,7 @@ Usage: biomcp help get study [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -5539,6 +5630,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help get study.
+
 
 ## biomcp help get pgx
 
@@ -5548,7 +5642,7 @@ Usage: biomcp help get pgx [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -5565,6 +5659,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help get pgx.
+
 
 ## biomcp help get diagnostic
 
@@ -5574,7 +5671,7 @@ Usage: biomcp help get diagnostic [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -5591,6 +5688,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help get diagnostic.
+
 
 ## biomcp help get adverse-event
 
@@ -5600,7 +5700,7 @@ Usage: biomcp help get adverse-event [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -5617,6 +5717,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help get adverse-event. CDC WONDER can take longer than BioMCP's local command deadline. Use the interactive form at https://wonder.cdc.gov/vaers.html for a longer query. See https://wonder.cdc.gov/wonder/help/faq.html. BioMCP's local quota refused this request before contacting CDC WONDER. Retry after the reported seconds left. Automated queries must follow the spacing at https://wonder.cdc.gov/wonder/help/wonder-api.html.
+
 
 ## biomcp help get disease
 
@@ -5626,7 +5729,7 @@ Usage: biomcp help get disease [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -5643,6 +5746,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help get disease.
+
 
 ## biomcp help get drug
 
@@ -5652,7 +5758,7 @@ Usage: biomcp help get drug [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -5669,6 +5775,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help get drug.
+
 
 ## biomcp help get gene
 
@@ -5678,7 +5787,7 @@ Usage: biomcp help get gene [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -5695,6 +5804,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help get gene.
+
 
 ## biomcp help get article
 
@@ -5706,7 +5818,7 @@ Usage: biomcp help get article [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -5723,6 +5835,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Read article text, references, citations and files.
+
 
 ## biomcp help get trial
 
@@ -5734,7 +5849,7 @@ Usage: biomcp help get trial [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -5751,6 +5866,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Read trial groups and public documents.
+
 
 ## biomcp help get variant
 
@@ -5762,7 +5880,7 @@ Usage: biomcp help get variant [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -5779,6 +5897,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Read source variant assertions, populations and recurrence.
+
 
 ## biomcp help author
 
@@ -5788,12 +5909,12 @@ Read papers attributed to a source author record.
 Usage: biomcp help author [OPTIONS] [COMMAND]
 
 Commands:
-  papers  
+  papers
 
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -5810,6 +5931,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Read papers attributed to a source author record.
+
 
 ## biomcp help author papers
 
@@ -5819,7 +5943,7 @@ Usage: biomcp help author papers [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -5836,6 +5960,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help author papers.
+
 
 ## biomcp help cell-line
 
@@ -5845,12 +5972,12 @@ Read source cell line assay counts.
 Usage: biomcp help cell-line [OPTIONS] [COMMAND]
 
 Commands:
-  assay-count  
+  assay-count
 
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -5867,6 +5994,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Read source cell line assay counts.
+
 
 ## biomcp help cell-line assay-count
 
@@ -5876,7 +6006,7 @@ Usage: biomcp help cell-line assay-count [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -5893,6 +6023,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help cell-line assay-count.
+
 
 ## biomcp help protein
 
@@ -5902,18 +6035,18 @@ Read protein sequences, features and source relationships.
 Usage: biomcp help protein [OPTIONS] [COMMAND]
 
 Commands:
-  features         
-  isoforms         
-  domains          
-  complexes        
-  complex-members  
-  structures       
-  sequence         
+  features
+  isoforms
+  domains
+  complexes
+  complex-members
+  structures
+  sequence
 
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -5930,6 +6063,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Read protein sequences, features and source relationships.
+
 
 ## biomcp help protein features
 
@@ -5939,7 +6075,7 @@ Usage: biomcp help protein features [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -5956,6 +6092,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help protein features.
+
 
 ## biomcp help protein isoforms
 
@@ -5965,7 +6104,7 @@ Usage: biomcp help protein isoforms [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -5982,6 +6121,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help protein isoforms.
+
 
 ## biomcp help protein domains
 
@@ -5991,7 +6133,7 @@ Usage: biomcp help protein domains [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -6008,6 +6150,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help protein domains.
+
 
 ## biomcp help protein complexes
 
@@ -6017,7 +6162,7 @@ Usage: biomcp help protein complexes [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -6034,6 +6179,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help protein complexes.
+
 
 ## biomcp help protein complex-members
 
@@ -6043,7 +6191,7 @@ Usage: biomcp help protein complex-members [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -6060,6 +6208,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help protein complex-members.
+
 
 ## biomcp help protein structures
 
@@ -6069,7 +6220,7 @@ Usage: biomcp help protein structures [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -6086,6 +6237,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help protein structures.
+
 
 ## biomcp help protein sequence
 
@@ -6095,7 +6249,7 @@ Usage: biomcp help protein sequence [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -6112,6 +6266,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help protein sequence.
+
 
 ## biomcp help pathway
 
@@ -6121,13 +6278,13 @@ Read pathway genes and source events.
 Usage: biomcp help pathway [OPTIONS] [COMMAND]
 
 Commands:
-  genes   
-  events  
+  genes
+  events
 
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -6144,6 +6301,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Read pathway genes and source events.
+
 
 ## biomcp help pathway genes
 
@@ -6153,7 +6313,7 @@ Usage: biomcp help pathway genes [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -6170,6 +6330,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help pathway genes.
+
 
 ## biomcp help pathway events
 
@@ -6179,7 +6342,7 @@ Usage: biomcp help pathway events [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -6196,6 +6359,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help pathway events.
+
 
 ## biomcp help article
 
@@ -6205,18 +6371,18 @@ Read article text, references, citations and files.
 Usage: biomcp help article [OPTIONS] [COMMAND]
 
 Commands:
-  supplement         
-  pdf                
-  text               
-  citations          
-  references         
-  citation-evidence  
-  recommendations    
+  supplement
+  pdf
+  text
+  citations
+  references
+  citation-evidence
+  recommendations
 
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -6233,6 +6399,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Read article text, references, citations and files.
+
 
 ## biomcp help article supplement
 
@@ -6242,7 +6411,7 @@ Usage: biomcp help article supplement [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -6259,6 +6428,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help article supplement.
+
 
 ## biomcp help article pdf
 
@@ -6268,7 +6440,7 @@ Usage: biomcp help article pdf [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -6285,6 +6457,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help article pdf.
+
 
 ## biomcp help article text
 
@@ -6294,7 +6469,7 @@ Usage: biomcp help article text [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -6311,6 +6486,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help article text.
+
 
 ## biomcp help article citations
 
@@ -6320,7 +6498,7 @@ Usage: biomcp help article citations [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -6337,6 +6515,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help article citations.
+
 
 ## biomcp help article references
 
@@ -6346,7 +6527,7 @@ Usage: biomcp help article references [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -6363,6 +6544,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help article references.
+
 
 ## biomcp help article citation-evidence
 
@@ -6372,7 +6556,7 @@ Usage: biomcp help article citation-evidence [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -6389,6 +6573,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help article citation-evidence.
+
 
 ## biomcp help article recommendations
 
@@ -6398,7 +6585,7 @@ Usage: biomcp help article recommendations [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -6415,6 +6602,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help article recommendations.
+
 
 ## biomcp help trial
 
@@ -6424,12 +6614,12 @@ Read trial groups and public documents.
 Usage: biomcp help trial [OPTIONS] [COMMAND]
 
 Commands:
-  document  
+  document
 
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -6446,6 +6636,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Read trial groups and public documents.
+
 
 ## biomcp help trial document
 
@@ -6455,7 +6648,7 @@ Usage: biomcp help trial document [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -6472,6 +6665,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help trial document.
+
 
 ## biomcp help variant
 
@@ -6481,15 +6677,15 @@ Read source variant assertions, populations and recurrence.
 Usage: biomcp help variant [OPTIONS] [COMMAND]
 
 Commands:
-  assertions  
-  population  
-  recurrence  
-  normalize   
+  assertions
+  population
+  recurrence
+  normalize
 
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -6506,6 +6702,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Read source variant assertions, populations and recurrence.
+
 
 ## biomcp help variant assertions
 
@@ -6515,7 +6714,7 @@ Usage: biomcp help variant assertions [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -6532,6 +6731,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help variant assertions.
+
 
 ## biomcp help variant population
 
@@ -6541,7 +6743,7 @@ Usage: biomcp help variant population [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -6558,6 +6760,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help variant population.
+
 
 ## biomcp help variant recurrence
 
@@ -6567,7 +6772,7 @@ Usage: biomcp help variant recurrence [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -6584,6 +6789,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help variant recurrence.
+
 
 ## biomcp help variant normalize
 
@@ -6593,7 +6801,7 @@ Usage: biomcp help variant normalize [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -6610,6 +6818,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help variant normalize.
+
 
 ## biomcp help sync
 
@@ -6619,22 +6830,22 @@ Synchronize a local source bundle.
 Usage: biomcp help sync [OPTIONS] [COMMAND]
 
 Commands:
-  hgnc                
-  clingen             
-  gencc               
-  wikipathways        
-  cbioportal-studies  
-  ema                 
-  ddinter             
-  who-pq              
-  gtr                 
-  who-ivd             
-  fda-cdx             
+  hgnc
+  clingen
+  gencc
+  wikipathways
+  cbioportal-studies
+  ema
+  ddinter
+  who-pq
+  gtr
+  who-ivd
+  fda-cdx
 
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -6651,6 +6862,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Synchronize a local source bundle.
+
 
 ## biomcp help sync hgnc
 
@@ -6660,7 +6874,7 @@ Usage: biomcp help sync hgnc [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -6677,6 +6891,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help sync hgnc.
+
 
 ## biomcp help sync clingen
 
@@ -6686,7 +6903,7 @@ Usage: biomcp help sync clingen [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -6703,6 +6920,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help sync clingen.
+
 
 ## biomcp help sync gencc
 
@@ -6712,7 +6932,7 @@ Usage: biomcp help sync gencc [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -6729,6 +6949,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help sync gencc.
+
 
 ## biomcp help sync wikipathways
 
@@ -6738,7 +6961,7 @@ Usage: biomcp help sync wikipathways [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -6755,6 +6978,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help sync wikipathways.
+
 
 ## biomcp help sync cbioportal-studies
 
@@ -6764,7 +6990,7 @@ Usage: biomcp help sync cbioportal-studies [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -6781,6 +7007,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help sync cbioportal-studies.
+
 
 ## biomcp help sync ema
 
@@ -6790,7 +7019,7 @@ Usage: biomcp help sync ema [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -6807,6 +7036,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help sync ema.
+
 
 ## biomcp help sync ddinter
 
@@ -6816,7 +7048,7 @@ Usage: biomcp help sync ddinter [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -6833,6 +7065,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help sync ddinter.
+
 
 ## biomcp help sync who-pq
 
@@ -6842,7 +7077,7 @@ Usage: biomcp help sync who-pq [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -6859,6 +7094,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help sync who-pq.
+
 
 ## biomcp help sync gtr
 
@@ -6868,7 +7106,7 @@ Usage: biomcp help sync gtr [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -6885,6 +7123,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help sync gtr.
+
 
 ## biomcp help sync who-ivd
 
@@ -6894,7 +7135,7 @@ Usage: biomcp help sync who-ivd [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -6911,6 +7152,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help sync who-ivd.
+
 
 ## biomcp help sync fda-cdx
 
@@ -6920,7 +7164,7 @@ Usage: biomcp help sync fda-cdx [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -6937,6 +7181,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help sync fda-cdx.
+
 
 ## biomcp help skill
 
@@ -6945,14 +7192,14 @@ Usage: biomcp help skill [OPTIONS] [COMMAND]
 
 Commands:
   list     List supported discovery topics.
-  render   
-  status   
-  install  
+  render
+  status
+  install
 
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -6969,6 +7216,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help skill.
+
 
 ## biomcp help skill list
 
@@ -6980,7 +7230,7 @@ Usage: biomcp help skill list [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -6997,6 +7247,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+List supported discovery topics.
+
 
 ## biomcp help skill render
 
@@ -7006,7 +7259,7 @@ Usage: biomcp help skill render [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -7023,6 +7276,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help skill render.
+
 
 ## biomcp help skill status
 
@@ -7032,7 +7288,7 @@ Usage: biomcp help skill status [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -7049,6 +7305,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help skill status.
+
 
 ## biomcp help skill install
 
@@ -7058,7 +7317,7 @@ Usage: biomcp help skill install [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -7075,6 +7334,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help skill install.
+
 
 ## biomcp help version
 
@@ -7084,7 +7346,7 @@ Usage: biomcp help version [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -7101,6 +7363,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help version.
+
 
 ## biomcp help mcp-config
 
@@ -7110,7 +7375,7 @@ Usage: biomcp help mcp-config [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -7127,6 +7392,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help mcp-config.
+
 
 ## biomcp help health
 
@@ -7138,7 +7406,7 @@ Usage: biomcp help health [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -7155,6 +7423,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Report source terms and bounded reachability.
+
 
 ## biomcp help store
 
@@ -7164,12 +7435,12 @@ Manage local cached replies and snapshots.
 Usage: biomcp help store [OPTIONS] [COMMAND]
 
 Commands:
-  clean  
+  clean
 
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -7186,6 +7457,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Manage local cached replies and snapshots.
+
 
 ## biomcp help store clean
 
@@ -7195,7 +7469,7 @@ Usage: biomcp help store clean [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -7212,6 +7486,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help store clean.
+
 
 ## biomcp help key
 
@@ -7222,17 +7499,19 @@ Usage: biomcp help key [OPTIONS] [source] [COMMAND]
 
 Commands:
   list    List supported discovery topics.
-  set     
-  remove  
+  set
+  remove
 
 Arguments:
   [source]
+          Credential source to describe.
+
           [possible values: ncbi, semantic-scholar, orcid, oncokb, alphagenome, nci, openfda]
 
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -7249,6 +7528,10 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Register and manage source credentials without showing values.
+
+- `source`: Credential source to describe.
 
 ## biomcp help key list
 
@@ -7260,7 +7543,7 @@ Usage: biomcp help key list [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -7277,6 +7560,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+List supported discovery topics.
+
 
 ## biomcp help key set
 
@@ -7286,7 +7572,7 @@ Usage: biomcp help key set [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -7303,6 +7589,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help key set.
+
 
 ## biomcp help key remove
 
@@ -7312,7 +7601,7 @@ Usage: biomcp help key remove [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -7329,6 +7618,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help key remove.
+
 
 ## biomcp help serve
 
@@ -7340,7 +7632,7 @@ Usage: biomcp help serve [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -7357,6 +7649,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Serve MCP over standard input or HTTP.
+
 
 ## biomcp help schema
 
@@ -7366,7 +7661,7 @@ Usage: biomcp help schema [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -7383,6 +7678,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help schema.
+
 
 ## biomcp help help
 
@@ -7394,7 +7692,7 @@ Usage: biomcp help help [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -7411,6 +7709,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe commands and their arguments.
+
 
 ## biomcp help network
 
@@ -7419,12 +7720,14 @@ Usage: biomcp help network [OPTIONS] [setting]
 
 Arguments:
   [setting]
+          Network setting to describe.
+
           [possible values: ca_bundle, proxy]
 
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -7441,6 +7744,10 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help network.
+
+- `setting`: Network setting to describe.
 
 ## biomcp help sources
 
@@ -7450,7 +7757,7 @@ Usage: biomcp help sources [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -7467,6 +7774,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help sources.
+
 
 ## biomcp help config
 
@@ -7476,7 +7786,7 @@ Usage: biomcp help config [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -7493,6 +7803,9 @@ Options:
           Request fresh source data instead of cached replies.
 
 ```
+
+Describe help config.
+
 
 ## biomcp help exit
 
@@ -7504,7 +7817,7 @@ Usage: biomcp help exit [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -7542,7 +7855,7 @@ Usage: biomcp help relations [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -7560,120 +7873,6 @@ Options:
 
 ```
 
-Follow source relationships through a named get section or a search filter. These links retrieve source records without deciding their clinical meaning.
-adverse-event -> drug (get section drugs)
-author -> article (search --author)
-biomarker -> diagnostic (search --biomarker)
-cell-line -> variant (get section variants)
-diagnostic -> gene (get section genes)
-disease -> article (search --disease), gene (get section genes), phenotype (get section phenotypes)
-drug -> article (search --drug)
-gene -> article (search --gene), diagnostic (search --gene), diagnostic (search --gene-id), gwas (search --gene), pathway (get section pathways), pathway (search --gene), pgx (search --gene), protein (get section protein), protein (search --gene), trial (search --gene), variant (search --gene)
-pathway -> gene (get section genes)
-phenotype -> disease (get section diseases), gene (get section genes)
-protein -> variant (search --protein)
-study -> gwas (search --study)
-trial -> disease (get section diseases)
-variant -> article (search --variant), gwas (get section gwas), gwas (search --variant), trial (search --variant)
-
-
-## biomcp sync hgnc
-
-Synchronize a local source bundle.
-
-
-## biomcp sync clingen
-
-Synchronize a local source bundle.
-
-
-## biomcp sync gencc
-
-Replace the complete validated local bundle atomically. Reads use stored data and never synchronize. Failed replacement preserves the last usable bundle.
-
-
-## biomcp sync wikipathways
-
-Replace WikiPathways search/get metadata catalogs atomically; reads never sync. Membership names a source and release; it implies no therapy, response or actionability. No enrichment is calculated.
-
-
-## biomcp sync cbioportal-studies
-
-Replace the complete validated local bundle atomically. Reads use stored data and never synchronize. Failed replacement preserves the last usable bundle.
-
-
-## biomcp sync ema
-
-Replace the complete validated local bundle atomically. Reads use stored data and never synchronize. Failed replacement preserves the last usable bundle.
-
-
-## biomcp sync ddinter
-
-Replace the complete validated local bundle atomically. Reads use stored data and never synchronize. Failed replacement preserves the last usable bundle.
-
-
-## biomcp sync who-pq
-
-Replace the complete validated local bundle atomically. Reads use stored data and never synchronize. Failed replacement preserves the last usable bundle.
-
-
-## biomcp sync gtr
-
-Replace the complete validated local bundle atomically. Reads use stored data and never synchronize. Failed replacement preserves the last usable bundle.
-
-
-## biomcp sync who-ivd
-
-Replace the complete validated local bundle atomically. Reads use stored data and never synchronize. Failed replacement preserves the last usable bundle.
-
-
-## biomcp sync fda-cdx
-
-Replace the complete validated local bundle atomically. Reads use stored data and never synchronize. Failed replacement preserves the last usable bundle.
-
-
-## biomcp help key ncbi
-
-Show credential registration and environment fallback names.
-
-
-## biomcp help key semantic-scholar
-
-Show credential registration and environment fallback names.
-
-
-## biomcp help key orcid
-
-Show credential registration and environment fallback names.
-
-
-## biomcp help key oncokb
-
-Show credential registration and environment fallback names.
-
-
-## biomcp help key alphagenome
-
-Show credential registration and environment fallback names.
-
-
-## biomcp help key nci
-
-Show credential registration and environment fallback names.
-
-
-## biomcp help key openfda
-
-Show credential registration and environment fallback names.
-
-
-## biomcp help network ca_bundle
-
-Set ca_bundle in config.json to a PEM certificate file. These roots add to platform trust for every source. Keep certificate verification enabled.
-
-
-## biomcp help network proxy
-
-Set proxy in config.json to an HTTP or HTTPS proxy URL. Otherwise https_proxy/HTTPS_PROXY and http_proxy/HTTP_PROXY select routes for their schemes; lower case wins when both names are set. no_proxy/NO_PROXY bypasses exact hosts/IPs, CIDR ranges, .domain, *.domain, optional ports, or *. Bare IPv6 is accepted. Unsupported entries are skipped and health reports configuration notices. Malformed ports and credentials refuse with the variable name. An explicit proxy overrides proxy environment settings. Publisher PDF downloads are refused when a proxy applies.
+Map entities through sections and search filters.
 
 

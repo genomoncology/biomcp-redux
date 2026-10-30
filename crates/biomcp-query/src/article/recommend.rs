@@ -110,6 +110,7 @@ fn create<'a>(
         reply.as_ref().err().copied(),
     ));
     let reply = reply?;
+    out.problems.extend(reply.problems);
     let dois: Vec<_> = reply
         .recommended_papers
         .iter()

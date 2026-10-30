@@ -16,7 +16,8 @@ struct Fields {
     /// Native partner ID and name.
     partner: DrugIdentity,
     /// Original native level, without a computed severity.
-    level: Text,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    level: Option<Text>,
     /// Primary pair record and bundle provenance.
     attribution: Attribution,
     /// Further distinct provenance, excluding the primary attribution.
@@ -29,7 +30,7 @@ impl DrugInteractionClaim {
     pub fn new(
         anchor: DrugIdentity,
         partner: DrugIdentity,
-        level: Text,
+        level: Option<Text>,
         attribution: Attribution,
         additional_attributions: Box<[Attribution]>,
     ) -> Result<Self, Error> {
@@ -50,8 +51,8 @@ impl DrugInteractionClaim {
         &self.0.partner
     }
     /// Original native level.
-    pub fn level(&self) -> &Text {
-        &self.0.level
+    pub fn level(&self) -> Option<&Text> {
+        self.0.level.as_ref()
     }
     /// Primary source record or bundle provenance.
     pub fn attribution(&self) -> &Attribution {

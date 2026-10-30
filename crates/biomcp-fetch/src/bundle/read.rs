@@ -52,7 +52,7 @@ impl Leg<'_> {
             .is_some_and(|names| !names.contains(bundle.name));
         let forced = replay || force_fresh || matches!(self.fetch.mode, Mode::Record { .. });
         if !offline && (!fresh || forced) {
-            match self.sync_bundle(bundle, true) {
+            match self.sync_for_read(bundle) {
                 Ok(_) => {
                     if let Some(names) = &mut refreshed {
                         names.insert(bundle.name);
@@ -93,6 +93,41 @@ impl Leg<'_> {
         let rows = cache.bundle_rows(bundle.name, find, self.budget())?;
         let rows = decode(rows)?;
         Ok(rows)
+    }
+    // Live readers share the last complete snapshot. Only an absent snapshot
+    // waits for its first publisher, within the existing leg deadline.
+    fn sync_for_read<R: Row>(&self, bundle: &Bundle<R>) -> Result<BundleInfo, RequestError> {
+        let cache = self.bundle_cache()?;
+        let live = matches!(self.fetch.mode, Mode::Live { .. });
+        let mut waited = false;
+        loop {
+            let active = live && cache.syncing(bundle.name, self.budget())?;
+            if active || waited {
+                if let Some(meta) = cache.bundle_info(bundle.name, self.budget())? {
+                    if meta.fresh_until <= crate::cache::now() {
+                        self.report
+                            .lock()
+                            .unwrap_or_else(std::sync::PoisonError::into_inner)
+                            .stale = true;
+                    }
+                    return Ok(store::info(bundle, &meta));
+                }
+                if active {
+                    if !crate::retry::wait(std::time::Duration::from_millis(10), self.budget()) {
+                        return Err(self.failure(biomcp_types::Reason::Syncing, None).into());
+                    }
+                    waited = true;
+                    continue;
+                }
+            }
+            match self.sync_bundle(bundle, true) {
+                Err(RequestError::Source(error))
+                    if live
+                        && error.reason == biomcp_types::Reason::Syncing
+                        && cache.syncing(bundle.name, self.budget())? => {}
+                result => return result,
+            }
+        }
     }
     /// Read only the last validated local bundle, even when fresh or replay is selected.
     /// Missing data reports `Syncing`; the caller must explicitly synchronize it.

@@ -40,7 +40,7 @@ pub(super) fn checked_steps(
     fs::write(
         &path,
         serde_json::to_vec(&json!({
-            "feature": "gene-commands",
+            "feature": "gene-identity",
             "story": "A checked command keeps valid source facts and reports malformed siblings",
             "replay": recordings,
             "steps": steps
