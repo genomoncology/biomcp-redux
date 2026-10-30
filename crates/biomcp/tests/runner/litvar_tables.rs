@@ -50,7 +50,7 @@ fn publications(record: &Value) -> bool {
 }
 fn boundaries() -> Check {
     let output = checked_case(
-        "article-litvar/litvar/kras-g12c",
+        "article/litvar/kras-g12c",
         KRAS,
         |_, _| {},
         json!({"/page/total":8915}),
@@ -75,7 +75,7 @@ fn boundaries() -> Check {
         "litvar",
     ];
     checked_case(
-        "article-litvar/litvar/kras-g12c",
+        "article/litvar/kras-g12c",
         &prefixed,
         |_, _| {},
         json!({"/sources/1/term":"rs121913530"}),
@@ -116,7 +116,7 @@ fn boundaries() -> Check {
         ),
     ] {
         checked_case(
-            "article-litvar/litvar/kras-g12c",
+            "article/litvar/kras-g12c",
             KRAS,
             |source, record| boundary_edit(source, record, kind),
             expected,
@@ -134,7 +134,7 @@ fn health() -> Check {
         .collect::<Vec<_>>()
         .join(",");
     let output = checked_case(
-        "article-litvar/litvar/akt1-rsid-citations",
+        "article/litvar/akt1-rsid-citations",
         &["health", "--disable-sources", &disabled],
         |_, _| {},
         json!({"/status":"complete"}),
@@ -178,9 +178,9 @@ fn failures() -> Check {
             "pubmed,litvar",
         ];
         for (capture, args, partial) in [
-            ("article-litvar/litvar/akt1-rsid-citations", RSID, false),
+            ("article/litvar/akt1-rsid-citations", RSID, false),
             (
-                "article-litvar/litvar/combined-rsid",
+                "article/litvar/combined-rsid",
                 combined.as_slice(),
                 true,
             ),
@@ -272,7 +272,7 @@ fn empty_recovery() -> Check {
             args.extend(["--disable-sources", "europepmc"]);
         }
         let output = checked_steps(
-            "article-litvar/litvar/kras-g12c",
+            "article/litvar/kras-g12c",
             |source, record| boundary_edit(source, record, "empty"),
             json!([{
                 "run": args, "mcp": args, "exit": 1,
@@ -329,7 +329,7 @@ fn empty_recovery() -> Check {
 fn markdown_recovery() -> Check {
     let directory = tempfile::tempdir()?;
     super::response_cases::copy_capture(
-        "article-litvar/litvar/kras-g12c",
+        "article/litvar/kras-g12c",
         directory.path(),
         |source, record| boundary_edit(source, record, "empty"),
     )?;
@@ -356,7 +356,7 @@ fn markdown_recovery() -> Check {
 fn optional_values() -> Check {
     // Keep the original capture's independent PubMed date disclosures in every control.
     checked_case(
-        "article-litvar/litvar/kras-g12c",
+        "article/litvar/kras-g12c",
         KRAS,
         |_, _| {},
         json!({"/result/items":{"count":10},
@@ -364,7 +364,7 @@ fn optional_values() -> Check {
         0,
     )?;
     checked_case(
-        "article-litvar/litvar/kras-g12c",
+        "article/litvar/kras-g12c",
         KRAS,
         |source, record| {
             if source == "litvar" && !publications(record) {
@@ -381,7 +381,7 @@ fn optional_values() -> Check {
         (true, json!(1)),
     ] {
         let output = checked_case(
-            "article-litvar/litvar/kras-g12c",
+            "article/litvar/kras-g12c",
             KRAS,
             |source, record| {
                 if source != "litvar" || publications(record) != publication {
