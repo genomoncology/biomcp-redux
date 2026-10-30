@@ -229,8 +229,8 @@ fn chembl_card(
     let source = Source::Chembl;
     let limit = query.section_limit().unwrap_or(10);
     let offset = query.section_offset().unwrap_or(0);
-    let mut card =
-        identity::chembl_card(row, fetched, &mut out.problems).map_err(|_| failure(source))?;
+    let mut card = identity::chembl_card(row, fetched, &mut out.dropped, &mut out.problems)
+        .map_err(|_| failure(source))?;
     let has_xrefs = !card.cross_references.is_empty();
     let xrefs = std::mem::take(&mut card.cross_references);
     if query.sections() == [DrugSection::Xrefs] {

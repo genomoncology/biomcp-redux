@@ -55,6 +55,7 @@ pub fn get(cx: &Ctx<'_>, q: &DiagnosticGet) -> Outcome {
     out
 }
 fn selected(out: &mut Outcome, q: &DiagnosticGet, record: gtr::Record, fresh: bool) {
+    out.include_refusals(record.refusals);
     status::append(&mut out.problems, record.problems);
     {
         let (found, identity_failed, unavailable) =

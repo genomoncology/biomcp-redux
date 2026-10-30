@@ -18,7 +18,9 @@ pub fn search(cx: &Ctx<'_>, query: &PgxSearch) -> Outcome {
     let leg = cx.fetch.leg(&cpic::SPEC, deadline).fresh(cx.fresh);
     let mut problems = Vec::new();
     let mut consumed = 0;
+    let mut refusals = biomcp_adapters::Refusal::None;
     let reply = cpic::search(&leg, query).map(|page| {
+        refusals.include(page.refusals);
         problems.extend(page.problems);
         consumed = page.consumed;
         let info = page_info(query.offset(), page.items.len(), page.total);
@@ -34,6 +36,7 @@ pub fn search(cx: &Ctx<'_>, query: &PgxSearch) -> Outcome {
         page: page_info(query.offset(), 0, 0),
     });
     let mut out = finish(leg, reply, empty, Source::Cpic);
+    out.include_refusals(refusals);
     status::append(&mut out.problems, problems);
     out.next = next::steps_with(&Request::SearchPgx(query.clone()), &out, Some(consumed));
     command.finish(deadline.remaining());
@@ -49,8 +52,10 @@ pub fn get(cx: &Ctx<'_>, query: &PgxGet) -> Outcome {
     let leg = cx.fetch.leg(&cpic::SPEC, deadline).fresh(cx.fresh);
     let mut problems = Vec::new();
     let mut consumed = 0;
-    let reply = read(&leg, query, &mut problems, &mut consumed);
+    let mut refusals = biomcp_adapters::Refusal::None;
+    let reply = read(&leg, query, &mut problems, &mut consumed, &mut refusals);
     let mut out = finish(leg, reply, empty(query), Source::Cpic);
+    out.include_refusals(refusals);
     status::append(&mut out.problems, problems);
     out.next = next::steps_with(&Request::GetPgx(query.clone()), &out, Some(consumed));
     command.finish(deadline.remaining());
@@ -61,12 +66,14 @@ fn read(
     q: &PgxGet,
     problems: &mut Vec<Problem>,
     consumed: &mut u32,
+    refusals: &mut biomcp_adapters::Refusal,
 ) -> Result<QueryBody, RequestError> {
     let header = header(q.gene());
     Ok(match q.section() {
         None => {
             let page = cpic::card(leg, q)?;
             *consumed = page.consumed;
+            refusals.include(page.refusals);
             problems.extend(page.problems);
             QueryBody::PgxCard(
                 page.items
@@ -78,6 +85,7 @@ fn read(
         Some(PgxSection::Recommendations) if q.drug_id().is_some() => {
             let p = cpic::drug_recommendations(leg, q)?;
             *consumed = p.consumed;
+            refusals.include(p.refusals);
             problems.extend(p.problems);
             QueryBody::PgxRecommendations(PgxRecommendations::Table {
                 header,
@@ -88,6 +96,7 @@ fn read(
         Some(PgxSection::Recommendations) => {
             let p = cpic::recommendations(leg, q)?;
             *consumed = p.consumed;
+            refusals.include(p.refusals);
             problems.extend(p.problems);
             QueryBody::PgxRecommendations(PgxRecommendations::View {
                 header,
@@ -98,6 +107,7 @@ fn read(
         Some(PgxSection::Guidelines) => {
             let p = cpic::guidelines(leg, q)?;
             *consumed = p.consumed;
+            refusals.include(p.refusals);
             problems.extend(p.problems);
             QueryBody::PgxGuidelines(PgxGuidelines {
                 header,
@@ -108,6 +118,7 @@ fn read(
         Some(PgxSection::Diplotype) => {
             let page = cpic::diplotype(leg, q)?;
             *consumed = page.consumed;
+            refusals.include(page.refusals);
             problems.extend(page.problems);
             QueryBody::PgxDiplotype(PgxDiplotype {
                 header,

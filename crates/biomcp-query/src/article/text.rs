@@ -132,6 +132,7 @@ fn execute<'a>(
     let content = match result? {
         None => Section::unavailable(Source::PmcOa, Reason::NotOpen),
         Some(document) => {
+            out.dropped |= document.refusals == biomcp_adapters::Refusal::Refused;
             out.problems.extend(document.problems.clone());
             let Some(content) = select(
                 query,

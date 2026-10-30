@@ -69,6 +69,7 @@ pub fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
         biomcp_adapters::who_ivd::search(&leg, q).map(|p| (p.items, p.total, p.info))
     } else {
         gtr::search(&leg, q).map(|p| {
+            out.include_refusals(p.refusals);
             status::append(&mut out.problems, p.problems);
             (p.items, p.total, p.info)
         })

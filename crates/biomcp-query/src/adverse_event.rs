@@ -61,6 +61,7 @@ pub fn search(cx: &Ctx<'_>, query: &AdverseEventSearch) -> Outcome {
     if let Ok(page) = reply {
         let returned = page.items.len() as u32;
         navigation(query, &page, &mut out);
+        out.include_refusals(page.refusals);
         out.problems.extend(page.problems);
         out.page = Some(PageInfo {
             offset: query.offset(),

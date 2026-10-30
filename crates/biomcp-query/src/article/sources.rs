@@ -8,6 +8,7 @@ use biomcp_types::{
 };
 use std::time::Duration;
 pub(super) struct ResultLeg {
+    pub(super) dropped: bool,
     pub(super) source: ArticleSource,
     pub(super) outcome: SourceOutcome,
     pub(super) items: Vec<ArticleItem>,
@@ -75,6 +76,7 @@ pub(super) fn search<'a>(
         .filter_map(|r| r.error)
         .find(|e| status::local(*e).is_some());
     for result in &results {
+        out.dropped |= result.dropped;
         out.sources.push(result.outcome.clone());
         status::append(&mut out.problems, result.problems.clone());
     }
@@ -150,6 +152,7 @@ fn pubmed_search<'a>(
     let error = result.as_ref().err().copied();
     let mut outcome = status::source(Source::PubMed, leg.finish(), error);
     outcome.term = Text::new(term).ok();
+    let mut dropped = false;
     let mut problems = Vec::new();
     let items = match result {
         Ok(ids) => {
@@ -175,6 +178,7 @@ fn pubmed_search<'a>(
         Err(_) => Vec::new(),
     };
     ResultLeg {
+        dropped,
         problems,
         source: ArticleSource::Pubmed,
         outcome,
@@ -197,9 +201,11 @@ fn europe_search<'a>(
     let error = result.as_ref().err().copied();
     let mut outcome = status::source(Source::EuropePmc, leg.finish(), error);
     outcome.term = Text::new(term).ok();
+    let mut dropped = false;
     let mut problems = Vec::new();
     let items = match result {
         Ok(reply) => {
+            dropped |= reply.refusals == biomcp_adapters::Refusal::Refused;
             outcome.count = Some(reply.count);
             outcome.retrieved_count = Some(reply.items.len() as u32);
             problems = reply.problems;
@@ -208,6 +214,7 @@ fn europe_search<'a>(
         Err(_) => Vec::new(),
     };
     ResultLeg {
+        dropped,
         problems,
         source: ArticleSource::Europepmc,
         outcome,
@@ -333,6 +340,7 @@ fn litvar_search((leg, selected): PreparedLitvar<'_>) -> ResultLeg {
     let error = result.as_ref().err().copied();
     let mut outcome = status::source(Source::LitVar, leg.finish(), error);
     outcome.term = term;
+    let mut dropped = false;
     let mut problems = Vec::new();
     let items = match result {
         Ok(litvar::Search {
@@ -340,7 +348,9 @@ fn litvar_search((leg, selected): PreparedLitvar<'_>) -> ResultLeg {
             count,
             ids,
             problems: rejected,
+            refusals,
         }) => {
+            dropped |= refusals == biomcp_adapters::Refusal::Refused;
             problems = rejected;
             outcome.term = Some(term);
             outcome.count = count;
@@ -362,6 +372,7 @@ fn litvar_search((leg, selected): PreparedLitvar<'_>) -> ResultLeg {
         Err(_) => Vec::new(),
     };
     ResultLeg {
+        dropped,
         problems,
         source: ArticleSource::Litvar,
         outcome,

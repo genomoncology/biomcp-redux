@@ -25,6 +25,7 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     out.sources
         .push(status::source(Source::Drugsfda, leg.finish(), error));
     if let Ok(page) = result {
+        out.include_refusals(page.refusals);
         out.problems.extend(page.problems);
         searched(
             query,
@@ -71,6 +72,7 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
             source.count = Some(page.total);
             source.retrieved_count = Some(page.records.len() as u32);
         }
+        out.include_refusals(page.refusals);
         out.problems.extend(page.problems);
         {
             let (found, identity_failed, unavailable) = if page.records.is_empty() {

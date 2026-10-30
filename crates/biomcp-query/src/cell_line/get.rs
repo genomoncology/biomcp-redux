@@ -82,6 +82,7 @@ fn resolve(
     card: &mut CellLineCard,
     problems: &mut Vec<biomcp_types::Problem>,
 ) -> Result<(), biomcp_fetch::RequestError> {
+    let mut dropped = false;
     let (accession, source) = match query.id() {
         CellLineInput::Accession(id) => (id.clone(), None),
         CellLineInput::Source(id) => {
@@ -89,6 +90,7 @@ fn resolve(
                 return Err(biomcp_fetch::InputError::Path.into());
             }
             let page = cellosaurus::reverse(leg, id)?;
+            dropped |= page.refusals == biomcp_adapters::Refusal::Refused;
             problems.extend(page.problems);
             card.fetched = page
                 .metadata
@@ -122,9 +124,11 @@ fn resolve(
     } else {
         cellosaurus::get(leg, &accession, source)?
     };
+    dropped |= reply.refusals == biomcp_adapters::Refusal::Refused;
     problems.extend(reply.problems);
     if let Some(mut selected) = reply.card {
         selected.input = query.id().clone();
+        selected.status = status::item_status(true, false, dropped);
         selected.fetched = reply
             .metadata
             .fetched

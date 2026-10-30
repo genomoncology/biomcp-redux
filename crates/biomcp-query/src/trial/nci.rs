@@ -66,6 +66,7 @@ pub(super) fn search(cx: &Ctx<'_>, q: &TrialSearch) -> Outcome {
         apply(q, cx.fresh, &mut out, &mut source, page);
     }
     finish(&mut out, source, error);
+    status::search_for(&mut out, &[Source::Nci]);
     command.finish(deadline.remaining());
     out
 }
@@ -91,6 +92,7 @@ fn apply(
     source: &mut biomcp_types::SourceOutcome,
     page: nci::Page,
 ) {
+    out.include_refusals(page.refusals);
     source.count = Some(page.total);
     source.retrieved_count = Some(page.data.len() as u32);
     {

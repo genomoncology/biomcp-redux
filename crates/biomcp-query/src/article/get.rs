@@ -55,7 +55,9 @@ pub fn get(cx: &Ctx<'_>, query: &ArticleGet) -> Outcome {
     let mut out = crate::status::finish(
         [status::status(items.iter().map(|i| i.status))],
         crate::status::Parts {
-            dropped: false,
+            dropped: records
+                .iter()
+                .any(|(record, _)| record.refusals == biomcp_adapters::Refusal::Refused),
             body: QueryBody::ArticleCards(ArticleCards {
                 items: items.into(),
             }),
@@ -149,7 +151,7 @@ fn append(
             found = true;
             items.push(item(
                 input,
-                if stale {
+                if stale || card.refusals == biomcp_adapters::Refusal::Refused {
                     crate::status::item_status(true, false, true)
                 } else {
                     crate::status::item_status(true, false, false)

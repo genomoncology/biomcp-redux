@@ -49,6 +49,7 @@ pub(super) fn run<'a>(
                 out.local = out.local.or(status::local(e));
             }
             if let Ok(Some(doc)) = &result {
+                out.dropped |= doc.refusals == biomcp_adapters::Refusal::Refused;
                 out.problems.extend(doc.problems.clone());
             }
             loaded.push((identity, content(result)));

@@ -112,6 +112,7 @@ fn present(
         .into_iter()
         .find(|p| p.offset == q.offset())
         .ok_or(biomcp_fetch::CacheError::Database)?;
+    out.include_refusals(page.refusals);
     out.problems.extend(page.problems);
     let items: Box<[_]> = page
         .data

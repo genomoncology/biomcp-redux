@@ -41,6 +41,7 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
             crate::status::item(&mut out, true, false, unavailable);
         };
         group_unsupported = page.group_unsupported;
+        out.include_refusals(page.refusals);
         out.problems = page.problems;
         out.page = Some(PageInfo {
             offset: q.offset(),

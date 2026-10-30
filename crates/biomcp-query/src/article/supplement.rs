@@ -87,6 +87,7 @@ fn execute<'a>(
                 reason: Reason::NotOpen,
             });
         };
+        out.dropped |= document.refusals == biomcp_adapters::Refusal::Refused;
         out.problems.extend(document.problems.clone());
         content(query, selection, &leg, &document, out, save)
     })();

@@ -80,6 +80,7 @@ pub(super) fn get(cx: &Ctx<'_>, q: &DrugGet) -> Outcome {
     match source::get(&leg, &id) {
         Ok(Some(row)) => {
             crate::status::item(&mut out, true, false, false);
+            out.include_refusals(row.refusals);
             out.problems = row.problems;
             out.body = QueryBody::DrugRecallCard(Some(row.value));
         }

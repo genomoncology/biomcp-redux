@@ -59,10 +59,12 @@ pub(super) fn get(cx: &Ctx<'_>, q: &DiagnosticGet, id: &biodata::DeviceRecallNum
     match adapter::get(&leg, id) {
         Ok(Some(mut mapped)) => {
             crate::status::item(&mut out, true, false, false);
+            out.include_refusals(mapped.refusals);
             out.problems.append(&mut mapped.problems);
             match adapter::classification(&leg, id) {
                 Ok(mut classification) => {
                     mapped.value.classification = classification.value;
+                    out.include_refusals(classification.refusals);
                     out.problems.append(&mut classification.problems);
                 }
                 Err(failure) => {

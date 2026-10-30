@@ -16,11 +16,11 @@ pub(super) type Rows = (
     Option<Box<[PhenotypeHierarchyLink]>>,
     Option<u64>,
 );
-type Saved = (Rows, Vec<SourceOutcome>, Vec<biomcp_types::Problem>);
+type Saved = (Rows, Vec<SourceOutcome>, Vec<biomcp_types::Problem>, bool);
 fn key(q: &PhenotypeGet) -> Vec<u8> {
     Sha256::digest(
         format!(
-            "biomcp.phenotype-reply/2\0{}\0{}",
+            "biomcp.phenotype-reply/3\0{}\0{}",
             q.source().as_str(),
             q.id()
         )
@@ -103,6 +103,7 @@ fn load(
     };
     out.sources = saved.1;
     out.problems = saved.2;
+    out.dropped = saved.3;
     {
         let absent = false;
         crate::status::item(out, !absent, false, false);
@@ -120,10 +121,12 @@ fn acquire(
     };
     let reply = match q.source() {
         PhenotypeSource::Hpo => hpo::get(&leg, q).map(|r| {
+            out.include_refusals(r.refusals);
             out.problems.extend(r.problems);
             (r.card, r.synonyms, r.xrefs, None, fetched(r.metadata))
         }),
         PhenotypeSource::Monarch => monarch::phenotype::get(&leg, q).map(|r| {
+            out.include_refusals(r.refusals);
             out.problems.extend(r.problems);
             (
                 r.card,
@@ -142,5 +145,10 @@ fn acquire(
             |e| !matches!(e, RequestError::Source(source) if source.reason == Reason::NotFound),
         ),
     ));
-    Ok((reply?, out.sources.clone(), out.problems.clone()))
+    Ok((
+        reply?,
+        out.sources.clone(),
+        out.problems.clone(),
+        out.dropped,
+    ))
 }

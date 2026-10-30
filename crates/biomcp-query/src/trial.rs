@@ -89,6 +89,7 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &TrialSearch) -> Outcome {
     }
     outcome.local = error.and_then(status::local);
     outcome.sources.push(source);
+    status::search_for(&mut outcome, &[Source::ClinicalTrialsGov]);
     command.finish(deadline.remaining());
     outcome
 }

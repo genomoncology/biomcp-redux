@@ -112,6 +112,17 @@ pub(crate) fn search(out: &mut Outcome) {
     out.status = search_status(&out.sources, out.dropped);
 }
 
+/// Classify only the asked search providers, keeping resolver reads as provenance.
+pub(crate) fn search_for(out: &mut Outcome, providers: &[Source]) {
+    let sources: Vec<_> = out
+        .sources
+        .iter()
+        .filter(|s| providers.contains(&s.source))
+        .cloned()
+        .collect();
+    out.status = search_status(&sources, out.dropped);
+}
+
 /// Start an unanswered query with one body and no source observations.
 pub(crate) fn empty(body: QueryBody) -> Outcome {
     Outcome {

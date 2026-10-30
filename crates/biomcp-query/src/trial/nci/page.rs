@@ -96,7 +96,8 @@ pub(super) fn render(
         .filter(|s| **s != TrialSection::All && !SECTIONS.contains(s))
         .copied()
         .collect();
-    let state = if !unsupported.is_empty()
+    let state = if s.detail.refusals == biomcp_adapters::Refusal::Refused
+        || !unsupported.is_empty()
         || s.sources.iter().any(|s| {
             matches!(
                 s.state,

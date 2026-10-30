@@ -61,6 +61,7 @@ pub(super) fn read<'a>(
         }
         Ok(None) => Section::unavailable(Source::PmcOa, biomcp_types::Reason::NotOpen),
         Ok(Some(document)) => {
+            out.dropped |= document.refusals == biomcp_adapters::Refusal::Refused;
             out.problems.extend(document.problems.clone());
             paragraphs(&document, &target)?
         }

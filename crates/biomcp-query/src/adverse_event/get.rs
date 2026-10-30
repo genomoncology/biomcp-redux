@@ -15,17 +15,27 @@ struct Saved(
     Vec<SourceOutcome>,
     Vec<biomcp_types::Problem>,
     #[serde(default)] faers::Positions,
+    #[serde(default)] bool,
 );
 impl serde::Serialize for Saved {
     fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         use serde::ser::SerializeTuple;
-        let mut tuple = serializer.serialize_tuple(if self.4.is_empty() { 4 } else { 5 })?;
+        let mut tuple = serializer.serialize_tuple(if self.5 {
+            6
+        } else if self.4.is_empty() {
+            4
+        } else {
+            5
+        })?;
         tuple.serialize_element(&self.0)?;
         tuple.serialize_element(&self.1)?;
         tuple.serialize_element(&self.2)?;
         tuple.serialize_element(&self.3)?;
-        if !self.4.is_empty() {
+        if !self.4.is_empty() || self.5 {
             tuple.serialize_element(&self.4)?;
+        }
+        if self.5 {
+            tuple.serialize_element(&true)?;
         }
         tuple.end()
     }
@@ -117,6 +127,7 @@ fn read(
             out.sources.clone(),
             detail.problems,
             detail.positions,
+            detail.refusals == biomcp_adapters::Refusal::Refused,
         );
         let payload = serde_json::to_string(&saved).map_err(|_| CacheError::Database)?;
         let mut store = Store::open(cx.fetch.cache_access()?, deadline)?;
@@ -132,6 +143,7 @@ fn render_saved(
     out: &mut Outcome,
 ) -> Result<(), RequestError> {
     out.sources = saved.2.clone();
+    out.dropped = saved.5;
     out.problems.extend(saved.3.clone());
     {
         let unavailable = out
