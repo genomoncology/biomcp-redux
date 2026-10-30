@@ -69,6 +69,9 @@ fn organizations() -> Check {
         let mut native_count = 0;
         let (_root, fetch) = replay("organization/adapter-values/nci", |source, recording| {
             if source == "nci"
+                && recording["url"]
+                    .as_str()
+                    .is_some_and(|url| url.contains("org_city=Boston"))
                 && let Some(rows) = recording.pointer_mut("/exchanges/0/body/value/data")
             {
                 changed = true;
