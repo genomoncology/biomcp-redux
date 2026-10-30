@@ -37,6 +37,8 @@ pub(super) fn valid_params(method: &str, params: &Value) -> bool {
         && (method != "tools/list" || params.get("cursor").is_none_or(Value::is_string))
 }
 
+// Tool schema dialect and result contract:
+// https://modelcontextprotocol.io/specification/2025-11-25/server/tools
 pub(super) const SCHEMA_DIALECT: &str = "https://json-schema.org/draft/2020-12/schema";
 const RESULT_CHARACTER_CAP: usize = 150_000;
 
@@ -67,7 +69,10 @@ pub(super) fn result(id: Value, mut value: Value, modern: bool) -> Value {
 // Tool results include both content forms and the negotiated protocol metadata.
 // JSON-RPC correlation IDs belong to the outer response, outside CallToolResult.
 pub(super) fn tool_result(id: Value, outcome: &crate::command::Outcome, modern: bool) -> Value {
-    let failed = !matches!(outcome.status, crate::exit::Status::Success | crate::exit::Status::Absent);
+    let failed = !matches!(
+        outcome.status,
+        crate::exit::Status::Success | crate::exit::Status::Absent
+    );
     let reply = result(id.clone(), content(outcome.value.clone(), failed), modern);
     if reply.get("result").is_some_and(within_cap) {
         return reply;
@@ -85,7 +90,12 @@ fn content(value: Value, failed: bool) -> Value {
 }
 fn within_cap(result: &Value) -> bool {
     // Count Unicode scalars after JSON escaping, not UTF-8 bytes or source text.
-    result.to_string().chars().take(RESULT_CHARACTER_CAP).count() < RESULT_CHARACTER_CAP
+    result
+        .to_string()
+        .chars()
+        .take(RESULT_CHARACTER_CAP)
+        .count()
+        < RESULT_CHARACTER_CAP
 }
 
 #[cfg(test)]
@@ -98,10 +108,21 @@ mod tests {
         // in the public tool result, which cannot express every one-character boundary.
         for (characters, allowed) in [(149_999, true), (150_000, false), (150_001, false)] {
             let value = json!({"text":"é".repeat(characters - 11)});
-            assert_eq!(value.to_string().chars().count(), characters, "table must hit exact serialized boundary");
-            assert_eq!(within_cap(&value), allowed, "Unicode scalar boundary differs");
+            assert_eq!(
+                value.to_string().chars().count(),
+                characters,
+                "table must hit exact serialized boundary"
+            );
+            assert_eq!(
+                within_cap(&value),
+                allowed,
+                "Unicode scalar boundary differs"
+            );
         }
         let escaped = json!({"text":"\\".repeat(75_000)});
-        assert!(!within_cap(&escaped), "JSON escapes must count toward the cap");
+        assert!(
+            !within_cap(&escaped),
+            "JSON escapes must count toward the cap"
+        );
     }
 }

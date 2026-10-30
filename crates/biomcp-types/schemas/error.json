@@ -94,6 +94,7 @@
         "choose one of the source selector values",
         "a selected source does not support the requested filters",
         "citation ordering exceeds the PMID limit; narrow the search",
+        "MCP tool result exceeds the character cap in error.count; narrow --limit or --section-limit, select one source or section, or fetch one exact record",
         "use biomcp schema to list known artifact IDs",
         "expected a supported command with checked arguments",
         "sync is unavailable over MCP; run it from the command line",

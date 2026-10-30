@@ -71,11 +71,11 @@ mod housekeeping;
 mod hpo_registry;
 mod http;
 mod http_limits;
-mod remote_tools;
 mod key_help;
 mod key_registration;
 mod key_reload;
 pub(super) mod launch;
+mod remote_tools;
 tool_only! { mod literature_values; }
 mod litvar_tables;
 tool_only! { pub(crate) mod live; }
