@@ -6,6 +6,8 @@ use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::{fs, io::Write, path::Path};
+#[path = "study_get_pages.rs"]
+mod section_page;
 type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
     let native = crate::runner::launch::fixtures().join("study-get-cases");
@@ -146,27 +148,7 @@ fn pages() -> Check {
     )?;
     record(&replay, "molecular-profiles", profiles(), 200)?;
     record(&replay, "sample-lists", lists(), 200)?;
-    let limited = call(
-        &env,
-        &replay,
-        &[
-            "get",
-            "study",
-            "synthetic_0",
-            "profiles",
-            "--section-limit",
-            "2",
-            "--section-offset",
-            "1",
-        ],
-        0,
-        "get/pages/limited",
-    )?;
-    if limited.pointer("/page/returned") != Some(&json!(2))
-        || limited.pointer("/result/items/0/molecularProfileId") != Some(&json!("native_profile_1"))
-    {
-        return Err("explicit section page lost its bound or source order".into());
-    }
+    section_page::limited(&env, &replay)?;
     for (section, total, id) in [
         ("profiles", 17, "molecularProfileId"),
         ("sample-lists", 13, "sampleListId"),
