@@ -190,9 +190,20 @@ fn only_trailing_words_select_implicit_sections() -> Check {
     ] {
         inventory.step(&step(&argv)?);
     }
-    assert_eq!(inventory.calls.get("section get trial eligibility"), Some(&0));
-    inventory.step(&step(&["get", "trial", "eligibility", "--section=eligibility"])?);
-    assert_eq!(inventory.calls.get("section get trial eligibility"), Some(&1));
+    assert_eq!(
+        inventory.calls.get("section get trial eligibility"),
+        Some(&0)
+    );
+    inventory.step(&step(&[
+        "get",
+        "trial",
+        "eligibility",
+        "--section=eligibility",
+    ])?);
+    assert_eq!(
+        inventory.calls.get("section get trial eligibility"),
+        Some(&1)
+    );
     Ok(())
 }
 

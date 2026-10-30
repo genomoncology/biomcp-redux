@@ -102,7 +102,7 @@ impl Inventory {
             if step
                 .expect
                 .get("/error/code")
-                .is_some_and(|v| v == "usage.arguments")
+                .is_some_and(|v| asserts(v, "usage.arguments"))
             {
                 hits.insert(format!("refusal {path}"));
             }
@@ -112,10 +112,17 @@ impl Inventory {
                     hits.insert(format!("command {}", words.join(" ")));
                 }
             }
-            for section in rows(command, "sections") {
-                let word = section["word"].as_str().unwrap_or_default();
-                if tokens.iter().skip(path_words.len() + 1).any(|t| t == word) {
-                    hits.insert(format!("section {path} {word}"));
+            if !hits.contains(&format!("option {path} --section")) {
+                // The grammar splits only a suffix and keeps the first input as an identity.
+                for token in tokens.iter().skip(path_words.len() + 1).rev() {
+                    if rows(command, "sections")
+                        .iter()
+                        .any(|section| section["word"] == *token)
+                    {
+                        hits.insert(format!("section {path} {token}"));
+                    } else {
+                        break;
+                    }
                 }
             }
             self.failures(step, &path_words, &tokens, &mut hits);
@@ -215,8 +222,7 @@ impl Inventory {
         };
         for (failure, wire) in FAILURES {
             if step.expect.iter().any(|(pointer, value)| {
-                (pointer.ends_with("/reason") || pointer.ends_with("/code"))
-                    && (value == *wire || value == &serde_json::json!({"equals": wire}))
+                (pointer.ends_with("/reason") || pointer.ends_with("/code")) && asserts(value, wire)
             }) {
                 hits.insert(format!("failure {failure}"));
                 if let Some(family) = family {
@@ -275,4 +281,8 @@ fn section_argument(
             ));
         }
     }
+}
+
+fn asserts(value: &Value, expected: &str) -> bool {
+    value == expected || value.get("equals").is_some_and(|value| value == expected)
 }

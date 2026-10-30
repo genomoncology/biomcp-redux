@@ -30,6 +30,9 @@ pub(crate) fn trials() -> Vec<Trial> {
         transcript_trial("schema-discovery/rejects-bad-cases", || {
             negatives().map_err(Into::into)
         }),
+        transcript_trial("schema-discovery/named-mcp-case", || {
+            named_mcp_case().map_err(Into::into)
+        }),
         transcript_trial("schema-discovery/selects-and-lists-cases", || {
             selection().map_err(Into::into)
         }),
@@ -536,4 +539,19 @@ pub(super) fn retained_both(
     }
     super::schema::Registry::embedded()?.validate(&value, command, exit < 2)?;
     Ok(value)
+}
+
+tool_only! {
+fn named_mcp_case() -> Check {
+    let directory = tempfile::tempdir().map_err(|error| error.to_string())?;
+    fs::write(directory.path().join("named.yaml"),
+        "feature: schema-discovery\nstory: Named tool checks its structured answer\nsteps:\n  - mcp_call:\n      name: biomcp\n      arguments:\n        args: [help, get, gene]\n    expect:\n      /result/commands/0/command: [get, gene]\n")
+        .map_err(|error| error.to_string())?;
+    let output = invoke(directory.path(), &["named.yaml", "--exact"])?;
+    if !output.status.success() {
+        return Err(format!("named MCP case failed: {} {}",
+            String::from_utf8_lossy(&output.stdout), String::from_utf8_lossy(&output.stderr)));
+    }
+    Ok(())
+}
 }

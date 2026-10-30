@@ -1,9 +1,0 @@
-feature: gene-help
-story: A named MCP case invokes the advertised tool and checks its structured answer.
-steps:
-  - mcp_call:
-      name: biomcp
-      arguments:
-        args: [help, get, gene]
-    expect:
-      /result/commands/0/command: [get, gene]
