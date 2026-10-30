@@ -6,8 +6,6 @@ mod annotations;
 mod compatibility;
 #[path = "schemas/compatibility_cases.rs"]
 mod compatibility_cases;
-#[path = "schemas/compatibility_recursive.rs"]
-mod compatibility_recursive;
 #[path = "schemas/compatibility_recursive_cases.rs"]
 mod compatibility_recursive_cases;
 #[path = "schemas/drug.rs"]
