@@ -177,6 +177,9 @@ fn candidates() -> Check {
                         "absent" => json!([]),
                         _ => json!(["1321696"]),
                     };
+                    if case == "absent" {
+                        document["esearchresult"]["count"] = json!("0");
+                    }
                     *body = json!(document.to_string());
                 }
             }
@@ -186,7 +189,9 @@ fn candidates() -> Check {
         }
         let leg = fetch.leg(&clinvar::SPEC, fetch.deadline(Duration::from_secs(20)));
         let query = serde_json::from_value(json!({"gene":"PTEN","coding":"c.333G>T","limit":50}))?;
-        let page = clinvar::search(&leg, &query)?;
+        let page = clinvar::search(&leg, &query).map_err(|error| {
+            format!("ClinVar {case}: native boundary rejected fixture: {error}")
+        })?;
         let expected = if case == "identity" {
             Refusal::Refused
         } else {
