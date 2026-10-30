@@ -129,7 +129,7 @@ fn output(
     } else {
         command.output()
     }
-    .map_err(|error| error.to_string())?
+    .map_err(|error| error.to_string())
 }
 
 fn parity(cli: &Value, result: &Value, args: &[String]) -> Result<(), String> {
