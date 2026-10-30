@@ -6,6 +6,8 @@ use std::{fs, path::Path};
 type Check<T = ()> = Result<T, String>;
 #[path = "other_source_value_proof/bindings.rs"]
 mod bindings;
+#[path = "other_source_value_proof/gwas.rs"]
+mod gwas;
 #[path = "other_source_value_proof/paging.rs"]
 mod paging;
 #[path = "other_source_value_proof/retained.rs"]
@@ -93,6 +95,9 @@ pub(super) fn run(directory: &Path) -> Check {
     }
     if let Err(error) = paging::study(directory, &registry) {
         failures.push(format!("study-native-window: {error}"));
+    }
+    if let Err(error) = gwas::run(directory, &registry) {
+        failures.push(format!("gwas-native-window: {error}"));
     }
     let large = "x".repeat(biodata::Text::MAX_CHARS + 1);
     let large_result = acquire(&case, Some((stage, json!(large))), &registry).and_then(|value| {
