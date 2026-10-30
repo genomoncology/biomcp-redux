@@ -122,7 +122,10 @@ fn check(http: bool, words: &[&str], schema: &str) -> Check {
         }
     }
     // These calls run offline, so ordinary saves cannot create an artifact either.
-    assert!(!path.exists());
+    assert!(
+        !path.exists(),
+        "offline controls must not create saved files"
+    );
     Ok(())
 }
 
@@ -150,7 +153,11 @@ fn call(http: bool, env: &Environment, args: &[String], globals: &[String]) -> C
         .pointer("/result/content/0/text")
         .and_then(Value::as_str)
         .ok_or("missing text")?;
-    assert_eq!(serde_json::from_str::<Value>(text)?, *value);
+    assert_eq!(
+        serde_json::from_str::<Value>(text)?,
+        *value,
+        "MCP text must match its structured result"
+    );
     assert_eq!(
         reply.pointer("/result/isError"),
         Some(&json!(
