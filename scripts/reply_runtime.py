@@ -36,7 +36,7 @@ class Bindings:
                            or (position[:2] == ('result', 'items') and len(position) in (3, 4)
                                and isinstance(position[2], int)
                                and (len(position) == 3 or position[3] == 'answer')))
-                pool = (position == ('page', 'pool')
+                pool = (position[-2:] == ('page', 'pool')
                         and {'id', 'created', 'expires', 'size'} <= a.keys() & b.keys())
                 if pool:
                     if not all(type(x[k]) is int for x in (a, b) for k in ('created', 'expires')):
@@ -58,7 +58,7 @@ class Bindings:
                                    or (k == 'acquired' and position == ('result', 'snapshot'))):
                         if type(a[k]) is int and type(b[k]) is int:
                             put(child, a[k], b[k], (scope, k))
-                    elif (k == 'pool' and position == ('query',)
+                    elif (k == 'pool' and position[-1:] == ('query',)
                           and isinstance(a[k], str) and isinstance(b[k], str)):
                         put(child, a[k], b[k], 'pool')
                     else:
