@@ -1,6 +1,4 @@
 failure trial not-found
-failure trial unavailable
-failure variant not-found
 option article citation-evidence --offset
 option article citation-evidence --paragraph-offset
 option article citations --offset
