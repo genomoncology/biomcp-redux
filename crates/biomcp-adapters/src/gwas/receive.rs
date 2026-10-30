@@ -55,8 +55,12 @@ impl From<ReceivedAssociation> for super::raw::Association {
             list: Vec::new(),
         };
         let mut refusals = crate::Refusal::None;
-        let efo_traits = problems.records("efo_traits", row.efo_traits, &mut refusals).into_vec();
-        let snp_allele = problems.records("snp_allele", row.snp_allele, &mut refusals).into_vec();
+        let efo_traits = problems
+            .records("efo_traits", row.efo_traits, &mut refusals)
+            .into_vec();
+        let snp_allele = problems
+            .records("snp_allele", row.snp_allele, &mut refusals)
+            .into_vec();
         let mut value = Self {
             refusals,
             association_id: biodata::GwasAssociationId::from_nonzero(row.association_id),

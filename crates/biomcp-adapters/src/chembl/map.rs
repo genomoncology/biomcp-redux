@@ -49,7 +49,12 @@ pub fn targets(
             None => None,
         };
         let mechanism = problems.text("mechanism_of_action", r.mechanism_of_action.as_deref());
-        let references = references(r.mechanism_refs, "mechanism_refs", &mut problems, &mut refusals);
+        let references = references(
+            r.mechanism_refs,
+            "mechanism_refs",
+            &mut problems,
+            &mut refusals,
+        );
         records.push(DrugTargetRelation::new(
             drug.clone(),
             None,
@@ -101,7 +106,12 @@ pub fn indications(
                 });
             }
         }
-        let references = references(r.indication_refs, "indication_refs", &mut problems, &mut refusals);
+        let references = references(
+            r.indication_refs,
+            "indication_refs",
+            &mut problems,
+            &mut refusals,
+        );
         records.push(DrugIndicationClaim {
             drug: drug.clone(),
             indication,

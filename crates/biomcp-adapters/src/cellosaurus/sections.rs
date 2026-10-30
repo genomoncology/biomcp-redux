@@ -72,7 +72,11 @@ fn variation(
             .collect(),
         references: references.into(),
         provenance: problems
-            .records("sequence-variation-list.source-list", row.source_list, refusals)
+            .records(
+                "sequence-variation-list.source-list",
+                row.source_list,
+                refusals,
+            )
             .into_vec()
             .into_iter()
             .map(|r| CellLineProvenance {

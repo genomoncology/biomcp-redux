@@ -61,12 +61,19 @@ pub fn card(row: Molecule, fetched: Option<i64>) -> Result<crate::Mapped<DrugCar
             "molecule_synonyms.molecule_synonym",
             synonym.molecule_synonym.as_deref(),
         ) {
-            if !names.contains(&name) { names.push(name); }
+            if !names.contains(&name) {
+                names.push(name);
+            }
         } else {
             refusals = crate::Refusal::Refused;
         }
     }
-    let references = cross_references(row.cross_references, &attribution, &mut problems, &mut refusals)?;
+    let references = cross_references(
+        row.cross_references,
+        &attribution,
+        &mut problems,
+        &mut refusals,
+    )?;
     let mut parents = Vec::new();
     if let Some(parent) = row.molecule_hierarchy
         && let Some(id) = problems.optional(

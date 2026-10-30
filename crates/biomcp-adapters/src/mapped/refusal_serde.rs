@@ -17,4 +17,3 @@ pub(crate) fn deserialize<'de, D: Deserializer<'de>>(deserializer: D) -> Result<
         Refusal::None
     })
 }
-

@@ -14,7 +14,10 @@ const DETAILS: &str = "paperId,externalIds,title,year,venue,abstract,publication
 #[serde(from = "RawPage")]
 pub struct PapersPage {
     /// Actual refused native records, independent of optional fields.
-    #[serde(default = "crate::mapped::refusal_serde::none", with = "crate::mapped::refusal_serde")]
+    #[serde(
+        default = "crate::mapped::refusal_serde::none",
+        with = "crate::mapped::refusal_serde"
+    )]
     pub refusals: crate::Refusal,
     /// Native window start.
     pub offset: u32,
@@ -36,7 +39,10 @@ struct RawPage {
     total: Option<u64>,
     data: Vec<Field<Paper>>,
     problems: Option<Vec<biomcp_types::Problem>>,
-    #[serde(default = "crate::mapped::refusal_serde::none", with = "crate::mapped::refusal_serde")]
+    #[serde(
+        default = "crate::mapped::refusal_serde::none",
+        with = "crate::mapped::refusal_serde"
+    )]
     refusals: crate::Refusal,
 }
 impl From<RawPage> for PapersPage {

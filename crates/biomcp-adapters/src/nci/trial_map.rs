@@ -126,6 +126,10 @@ impl From<Page> for super::Page {
         for row in &raw.data {
             refusals.include(row.refusals);
         }
-        Self { total: raw.total, data: raw.data, refusals }
+        Self {
+            total: raw.total,
+            data: raw.data,
+            refusals,
+        }
     }
 }

@@ -60,7 +60,12 @@ pub fn get(leg: &Leg<'_>, id: &ReportId) -> Result<Detail, RequestError> {
             mapped.problems,
             mapped.refusals,
         ),
-        None => (None, super::Positions::default(), Vec::new(), crate::Refusal::None),
+        None => (
+            None,
+            super::Positions::default(),
+            Vec::new(),
+            crate::Refusal::None,
+        ),
     };
     Ok(Detail {
         refusals,

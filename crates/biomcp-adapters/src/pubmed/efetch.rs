@@ -16,7 +16,10 @@ use serde::Deserialize;
 #[derive(Debug, Deserialize)]
 pub struct FetchedArticle {
     /// Actual refused native indexing records.
-    #[serde(default = "crate::mapped::refusal_serde::none", with = "crate::mapped::refusal_serde")]
+    #[serde(
+        default = "crate::mapped::refusal_serde::none",
+        with = "crate::mapped::refusal_serde"
+    )]
     pub refusals: crate::Refusal,
     /// Full article for the default card.
     pub article: Article,

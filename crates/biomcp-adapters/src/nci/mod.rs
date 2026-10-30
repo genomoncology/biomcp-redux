@@ -89,7 +89,10 @@ pub struct Trial {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Detail {
     /// Actual refused native child records persisted with the snapshot.
-    #[serde(default = "crate::mapped::refusal_serde::none", with = "crate::mapped::refusal_serde")]
+    #[serde(
+        default = "crate::mapped::refusal_serde::none",
+        with = "crate::mapped::refusal_serde"
+    )]
     pub refusals: crate::Refusal,
     /// Rejected optional source fields.
     pub problems: Vec<biomcp_types::Problem>,

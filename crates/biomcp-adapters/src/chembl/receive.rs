@@ -24,8 +24,12 @@ impl From<ReceivedMolecule> for Molecule {
             list: Vec::new(),
         };
         let mut refusals = crate::Refusal::None;
-        let molecule_synonyms = problems.records("molecule_synonyms", row.molecule_synonyms, &mut refusals).into_vec();
-        let cross_references = problems.records("cross_references", row.cross_references, &mut refusals).into_vec();
+        let molecule_synonyms = problems
+            .records("molecule_synonyms", row.molecule_synonyms, &mut refusals)
+            .into_vec();
+        let cross_references = problems
+            .records("cross_references", row.cross_references, &mut refusals)
+            .into_vec();
         Self {
             refusals,
             molecule_chembl_id: row.molecule_chembl_id,
@@ -84,7 +88,9 @@ impl From<ReceivedMechanism> for Mechanism {
             list: Vec::new(),
         };
         let mut refusals = crate::Refusal::None;
-        let mechanism_refs = problems.records("mechanism_refs", row.mechanism_refs, &mut refusals).into_vec();
+        let mechanism_refs = problems
+            .records("mechanism_refs", row.mechanism_refs, &mut refusals)
+            .into_vec();
         Self {
             refusals,
             mec_id: row.mec_id,
@@ -126,7 +132,9 @@ impl From<ReceivedIndication> for Indication {
             list: Vec::new(),
         };
         let mut refusals = crate::Refusal::None;
-        let indication_refs = problems.records("indication_refs", row.indication_refs, &mut refusals).into_vec();
+        let indication_refs = problems
+            .records("indication_refs", row.indication_refs, &mut refusals)
+            .into_vec();
         Self {
             refusals,
             drugind_id: row.drugind_id,

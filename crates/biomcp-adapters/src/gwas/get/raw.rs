@@ -65,7 +65,11 @@ impl Country {
     }
 }
 impl Ancestry {
-    pub(super) fn row(self, problems: &mut Problems, refusals: &mut crate::Refusal) -> GwasAncestry {
+    pub(super) fn row(
+        self,
+        problems: &mut Problems,
+        refusals: &mut crate::Refusal,
+    ) -> GwasAncestry {
         problems.record = Some(self.links.current.href.clone());
         GwasAncestry {
             stage: problems.required_field("type", self.stage),
@@ -76,9 +80,14 @@ impl Ancestry {
                 .into_vec()
                 .into_iter()
                 .filter_map(|g| {
-                    match problems.required_field("ancestral_groups.ancestral_group", g.ancestral_group) {
+                    match problems
+                        .required_field("ancestral_groups.ancestral_group", g.ancestral_group)
+                    {
                         Some(value) => Some(value.into()),
-                        None => { *refusals = crate::Refusal::Refused; None }
+                        None => {
+                            *refusals = crate::Refusal::Refused;
+                            None
+                        }
                     }
                 })
                 .collect(),
@@ -89,7 +98,11 @@ impl Ancestry {
                 .map(|r| r.row("country_of_origin", problems))
                 .collect(),
             country_of_recruitment: problems
-                .records("country_of_recruitment", self.country_of_recruitment, refusals)
+                .records(
+                    "country_of_recruitment",
+                    self.country_of_recruitment,
+                    refusals,
+                )
                 .into_vec()
                 .into_iter()
                 .map(|r| r.row("country_of_recruitment", problems))
@@ -138,7 +151,11 @@ impl Locus {
                 .field("description", self.description)
                 .map(Into::into),
             strongest_risk_alleles: problems
-                .records("strongest_risk_alleles", self.strongest_risk_alleles, refusals)
+                .records(
+                    "strongest_risk_alleles",
+                    self.strongest_risk_alleles,
+                    refusals,
+                )
                 .into_vec()
                 .into_iter()
                 .filter_map(|a| {
@@ -147,12 +164,19 @@ impl Locus {
                         a.risk_allele_name,
                     ) {
                         Some(value) => Some(value),
-                        None => { *refusals = crate::Refusal::Refused; None }
+                        None => {
+                            *refusals = crate::Refusal::Refused;
+                            None
+                        }
                     }
                 })
                 .collect(),
             author_reported_genes: problems
-                .records("author_reported_genes", self.author_reported_genes, refusals)
+                .records(
+                    "author_reported_genes",
+                    self.author_reported_genes,
+                    refusals,
+                )
                 .into_vec()
                 .into_iter()
                 .map(|g| GwasReportedGene {

@@ -26,7 +26,10 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Complex {
     /// Actual refused native records, independent of optional fields.
-    #[serde(default = "crate::mapped::refusal_serde::none", with = "crate::mapped::refusal_serde")]
+    #[serde(
+        default = "crate::mapped::refusal_serde::none",
+        with = "crate::mapped::refusal_serde"
+    )]
     pub refusals: crate::Refusal,
 
     /// Exact native header.
@@ -41,7 +44,10 @@ pub struct Complex {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Collection {
     /// Actual refused native records, independent of optional fields.
-    #[serde(default = "crate::mapped::refusal_serde::none", with = "crate::mapped::refusal_serde")]
+    #[serde(
+        default = "crate::mapped::refusal_serde::none",
+        with = "crate::mapped::refusal_serde"
+    )]
     pub refusals: crate::Refusal,
 
     /// Exact-participant admissions in native order.

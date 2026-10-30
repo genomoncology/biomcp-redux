@@ -1,5 +1,5 @@
-use crate::{Refusal, mapped::Problems, raw::Field};
 pub(super) use crate::mapped::refusal_serde::{deserialize, none, serialize};
+use crate::{Refusal, mapped::Problems, raw::Field};
 
 // Only examined members establish refusals; optional containers remain fields.
 pub(super) fn records<T>(

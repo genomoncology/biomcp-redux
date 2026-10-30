@@ -60,7 +60,9 @@ impl From<ReceivedStudy> for Study {
             list: Vec::new(),
         };
         let mut refusals = crate::Refusal::None;
-        let efo_traits = problems.records("efo_traits", row.efo_traits, &mut refusals).into_vec();
+        let efo_traits = problems
+            .records("efo_traits", row.efo_traits, &mut refusals)
+            .into_vec();
         let mut value = Self {
             refusals,
             accession_id: row.accession_id,

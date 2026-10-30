@@ -14,7 +14,10 @@ use std::collections::BTreeMap;
 #[serde(from = "Input")]
 pub struct Paper {
     /// Actual refused native records, independent of optional fields.
-    #[serde(default = "crate::mapped::refusal_serde::none", with = "crate::mapped::refusal_serde")]
+    #[serde(
+        default = "crate::mapped::refusal_serde::none",
+        with = "crate::mapped::refusal_serde"
+    )]
     pub refusals: crate::Refusal,
     detail: AuthorPaperDetail,
     problems: Vec<biomcp_types::Problem>,
@@ -25,7 +28,10 @@ pub struct Paper {
 #[serde(untagged)]
 enum Input {
     Cached {
-        #[serde(default = "crate::mapped::refusal_serde::none", with = "crate::mapped::refusal_serde")]
+        #[serde(
+            default = "crate::mapped::refusal_serde::none",
+            with = "crate::mapped::refusal_serde"
+        )]
         refusals: crate::Refusal,
         detail: AuthorPaperDetail,
         problems: Vec<biomcp_types::Problem>,
@@ -95,7 +101,15 @@ impl Access {
 impl From<Input> for Paper {
     fn from(input: Input) -> Self {
         match input {
-            Input::Cached { detail, problems, refusals } => Self { detail, problems, refusals },
+            Input::Cached {
+                detail,
+                problems,
+                refusals,
+            } => Self {
+                detail,
+                problems,
+                refusals,
+            },
             Input::Native(raw) => raw.checked(),
         }
     }

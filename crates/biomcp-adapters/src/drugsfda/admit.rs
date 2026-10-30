@@ -48,7 +48,11 @@ fn product(row: wire::Product, p: &mut Problems, refusals: &mut crate::Refusal) 
         product_number: row.product_number,
         brand_name: p.source_field("product.brand_name", row.brand_name),
         active_ingredients: p
-            .records("product.active_ingredients", row.active_ingredients, refusals)
+            .records(
+                "product.active_ingredients",
+                row.active_ingredients,
+                refusals,
+            )
             .into_vec()
             .into_iter()
             .map(|v| ingredient(v, p))
@@ -67,7 +71,11 @@ fn ingredient(row: wire::Ingredient, p: &mut Problems) -> Ingredient {
         strength: p.field("ingredient.strength", row.strength),
     }
 }
-fn submission(row: wire::Submission, p: &mut Problems, refusals: &mut crate::Refusal) -> Submission {
+fn submission(
+    row: wire::Submission,
+    p: &mut Problems,
+    refusals: &mut crate::Refusal,
+) -> Submission {
     Submission {
         submission_type: p.field("submission.submission_type", row.submission_type),
         submission_number: row.submission_number,

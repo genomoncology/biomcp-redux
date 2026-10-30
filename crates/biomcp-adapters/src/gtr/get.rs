@@ -38,7 +38,7 @@ pub fn get(leg: &Leg<'_>, query: &DiagnosticGet) -> Result<Record, RequestError>
             Native::Refused(r) => {
                 refusals = crate::Refusal::Refused;
                 r.disclose(&mut cx);
-            },
+            }
             Native::Relation(r) => {
                 if let Some(relation) = map::relation(&r, &mut cx, &mut refusals) {
                     relations.push(relation);

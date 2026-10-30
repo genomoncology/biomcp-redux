@@ -31,7 +31,11 @@ pub(super) fn rows(
             "type",
             entry.metadata.entry_type,
         );
-        let signatures = signatures(entry.metadata.member_databases, &mut problems, &mut refusals);
+        let signatures = signatures(
+            entry.metadata.member_databases,
+            &mut problems,
+            &mut refusals,
+        );
         for protein in entry.proteins {
             let protein_length = protein
                 .protein_length

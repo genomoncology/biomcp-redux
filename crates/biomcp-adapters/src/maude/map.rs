@@ -50,7 +50,8 @@ pub(super) fn report(row: raw::Report) -> crate::Mapped<super::Report> {
     };
     let mut refusals = crate::Refusal::None;
     let (devices, device_positions) = p.indexed_fields("device", row.devices, &mut refusals);
-    let (narrative_rows, narrative_positions) = p.indexed_fields("mdr_text", row.narrative, &mut refusals);
+    let (narrative_rows, narrative_positions) =
+        p.indexed_fields("mdr_text", row.narrative, &mut refusals);
     let value = MaudeReport {
         mdr_report_key: row.mdr_report_key,
         report_number: p.field("report_number", row.report_number),

@@ -89,7 +89,8 @@ fn patient(
         .into_iter()
         .map(|v| drug(v, problems))
         .collect();
-    let (reactions, reaction_positions) = problems.indexed_fields("patient.reaction", p.reaction, refusals);
+    let (reactions, reaction_positions) =
+        problems.indexed_fields("patient.reaction", p.reaction, refusals);
     let reactions = reactions
         .into_vec()
         .into_iter()
