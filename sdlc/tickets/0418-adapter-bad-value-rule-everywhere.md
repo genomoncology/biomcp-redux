@@ -1,6 +1,7 @@
 # 0418 — Apply the bad-value rule in every adapter outside the benchmark families
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 81bfa5d301df914ee6c20813c1f646ad68195bd8
 
 Milestone: 5
 
