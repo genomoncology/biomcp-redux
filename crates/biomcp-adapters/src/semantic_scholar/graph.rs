@@ -160,6 +160,16 @@ struct RawEdges {
     data: Option<Vec<Field<Edge>>>,
 }
 impl Reply for RawEdges {
+    fn discovery(&self) -> Option<biomcp_fetch::Identities> {
+        super::search::doi_discovery(
+            self.data
+                .as_ref()?
+                .iter()
+                .filter_map(Field::as_ref)
+                .filter_map(|edge| edge.citing_paper.as_ref().or(edge.cited_paper.as_ref())),
+        )
+    }
+
     fn check(&self) -> Result<(), BadReply> {
         if self.data.as_ref().is_some_and(|data| {
             data.len() > 1000

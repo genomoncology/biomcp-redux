@@ -20,9 +20,8 @@ impl Reply for Page {
 }
 #[derive(Debug, Deserialize)]
 pub(super) struct Organization {
-    #[serde(deserialize_with = "crate::native_text::deserialize")]
-    pub name: biodata::Text,
-    pub count: u64,
+    pub name: Option<Field<NativeText>>,
+    pub count: Option<Field<u64>>,
     pub org_city: Option<Field<NativeText>>,
     pub org_state_or_province: Option<Field<NativeText>>,
     pub org_country: Option<Field<NativeText>>,

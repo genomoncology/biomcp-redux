@@ -38,7 +38,11 @@ pub(super) fn retained() -> Result<(), String> {
     if row("clean")?.get("witness").is_some()
         || row("drift")?.pointer("/witness/after/id") != Some(&json!("new"))
         || row("failed")?.pointer("/witness/baseline/id") != Some(&json!("old"))
-        || row("large")?.pointer("/witness/cut") != Some(&json!(true))
+        || row("large")?
+            .pointer("/witness/output")
+            .and_then(Value::as_str)
+            .map(str::len)
+            != Some(2 * 1024 * 1024)
     {
         return Err("drift witnesses were discarded, retained for clean cases or unbounded".into());
     }
@@ -63,14 +67,17 @@ pub(super) fn retained() -> Result<(), String> {
             serde_json::to_vec(value).map(|bytes| size + bytes.len())
         })
         .map_err(|e| e.to_string())?;
-    if size > 1024 * 1024
-        || !rows
+    if size < 1024 * 1024
+        || rows
             .iter()
             .any(|row| row.pointer("/witness/cut") == Some(&json!(true)))
     {
-        return Err("multiple cases bypassed the total witness bound".into());
+        return Err("one case consumed another case witness budget".into());
     }
+    many_changed()?;
+    long_walk_shapes()?;
     retained_context()?;
+    doi_context()?;
     discovery_context()
         .and_then(|()| input_context::prove())
         .map_err(|error| error.to_string())
@@ -249,6 +256,109 @@ fn discovery_context() -> Result<(), Box<dyn std::error::Error>> {
             })
     {
         return Err("dependent provenance or response digest lost".into());
+    }
+    Ok(())
+}
+
+fn doi_context() -> Result<(), String> {
+    let env = Environment::new().map_err(|error| error.to_string())?;
+    let replay = super::super::launch::fixtures().join("replies/article/edges/live");
+    let rows = super::observe(
+        &env,
+        &replay,
+        "doi-discovery",
+        &[
+            "article",
+            "references",
+            "34096690",
+            "--source",
+            "semantic-scholar",
+        ],
+    )
+    .map_err(|error| error.to_string())?;
+    let discovery = rows
+        .iter()
+        .filter_map(|row| row.provenance.discovery.as_ref())
+        .find(|ids| ids.namespace == "doi")
+        .ok_or("missing graph DOI discovery")?;
+    let inputs = rows
+        .iter()
+        .filter(|row| {
+            row.provenance
+                .inputs
+                .as_ref()
+                .is_some_and(|ids| ids.namespace == "doi")
+        })
+        .collect::<Vec<_>>();
+    if discovery.ids.is_empty()
+        || inputs.is_empty()
+        || inputs.iter().any(|row| {
+            row.provenance.input_context.is_none()
+                || row.provenance.inputs.as_ref().is_none_or(|ids| {
+                    ids.ids.is_empty() || !ids.ids.iter().all(|id| discovery.ids.contains(id))
+                })
+        })
+    {
+        return Err("DOI request lost its discovery input or context".into());
+    }
+    Ok(())
+}
+
+fn many_changed() -> Result<(), String> {
+    let rows = (0..30)
+        .map(|index| {
+            json!({"case": format!("changed-{index}"),
+        "result": {"drift": ["request: request-plan-changed"]},
+        "witness": [{"ordinal":1,"baseline":{"requests":[],"output":"x".repeat(32 * 1024)},
+            "live":{"requests":[],"output":"y".repeat(32 * 1024)}}]})
+        })
+        .collect();
+    let report = live::summary(rows, BTreeMap::new(), 0, false);
+    let rows = report
+        .get("case_sample")
+        .and_then(Value::as_array)
+        .ok_or("missing changed cases")?;
+    if rows.len() != 30
+        || rows
+            .iter()
+            .any(|row| row.get("witness").is_none_or(Value::is_null))
+        || report.get("omitted") != Some(&json!(0))
+    {
+        return Err("changed cases consumed each other's evidence budget".into());
+    }
+    let oversized = vec![json!({"complete": "x".repeat(17 * 1024 * 1024)})];
+    if live::witness::within_budget(&oversized).is_ok() {
+        return Err("oversized case evidence did not fail explicitly".into());
+    }
+    Ok(())
+}
+
+fn long_walk_shapes() -> Result<(), String> {
+    // Retained nightly changed-case command counts, with whole command contexts.
+    let counts = [21, 30, 51, 63, 1, 21, 1, 5, 6, 2];
+    let rows = counts.iter().enumerate().map(|(index, count)| {
+        let commands = (0..*count).map(|ordinal| json!({"ordinal":ordinal + 1,
+            "baseline":{"requests":[],"output":"x".repeat(7000)},
+            "live":{"requests":[],"output":"y".repeat(7000)}})).collect::<Vec<_>>();
+        json!({"case":format!("retained-walk-{index}"), "result":{"drift":["request: request-plan-changed"]},
+            "witness":commands})
+    }).collect();
+    let report = live::summary(rows, BTreeMap::new(), 0, true);
+    let rows = report
+        .get("case_sample")
+        .and_then(Value::as_array)
+        .ok_or("missing retained walks")?;
+    for (row, count) in rows.iter().zip(counts) {
+        let captures = row
+            .get("witness")
+            .and_then(Value::as_array)
+            .ok_or("cut retained walk")?;
+        if captures.len() != count || live::witness::within_budget(captures).is_err() {
+            return Err("retained nightly walk lost commands or exceeded its case budget".into());
+        }
+    }
+    if rows.len() != counts.len() {
+        return Err("retained nightly walks omitted".into());
     }
     Ok(())
 }
