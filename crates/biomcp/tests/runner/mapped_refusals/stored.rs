@@ -16,7 +16,7 @@ pub(super) fn trials() -> Vec<Trial> {
         trial("drug-ddinter/refused-export-rows-carry-sync-facts", || {
             pairs().map_err(|e| e.to_string().into())
         }),
-        trial("pathway-search/refused-catalog-members-carry-facts", || {
+        trial("pathway-wikipathways/refused-catalog-members-carry-facts", || {
             catalog().map_err(|e| e.to_string().into())
         }),
         trial(
