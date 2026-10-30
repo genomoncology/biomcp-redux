@@ -8,6 +8,7 @@ mod assertions;
 mod author;
 pub(super) mod case_main;
 mod execution;
+mod mapped_refusals;
 tool_only! { pub(super) mod tools_api; }
 mod features;
 mod orcid;
@@ -505,6 +506,7 @@ fn disease_trials() -> Vec<Trial> {
         .chain(author::trials())
         .chain(orcid::trials())
         .chain(disease_seer::trials())
+        .chain(mapped_refusals::trials())
         .collect()
 }
 
