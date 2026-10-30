@@ -252,9 +252,10 @@ fn navigation() -> Check {
         "application/json",
         move |request| {
             if request.lines().next()
-                != Some(
-                    "GET /drug/drugsfda.json?search=products.active_ingredients.name%3A%22Synthetic%22&limit=7 HTTP/1.1",
-                )
+                != Some(concat!(
+                    "GET /drug/drugsfda.json?search=products.brand_name.exact%3A%22Synthetic%22%20OR%20",
+                    "products.active_ingredients.name.exact%3A%22Synthetic%22&limit=7 HTTP/1.1"
+                ))
             {
                 return Err("candidate request changed".into());
             }
