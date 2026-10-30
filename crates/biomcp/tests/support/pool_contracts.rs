@@ -129,3 +129,12 @@ pub(crate) const VARIANT_CIVIC_CURSOR: (&str, &[&str]) = (
         "option get variant --civic-cursor",
     ],
 );
+
+// Original CC0 Reactome relation walks retain all81 event identities.
+pub(crate) const PATHWAY_EVENTS: (&str, &[&str]) = (
+    "pathway-reactome/native-event-walk",
+    &[
+        "option pathway events --offset",
+        "option pathway events --pool",
+    ],
+);

@@ -11,7 +11,7 @@ pub(super) fn trials() -> Vec<Trial> {
         transcript_trial(crate::runner::pool_contract::PATHWAY_GENES.0, || {
             walk(true).map_err(Into::into)
         }),
-        transcript_trial("pathway-reactome/native-event-walk", || {
+        transcript_trial(crate::runner::pool_contract::PATHWAY_EVENTS.0, || {
             walk(false).map_err(Into::into)
         }),
         transcript_trial("pathway-reactome/pool-binding-and-fixed-lifetime", || {
