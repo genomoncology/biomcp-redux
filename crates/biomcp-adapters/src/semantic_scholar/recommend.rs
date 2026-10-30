@@ -64,6 +64,10 @@ impl From<RawRecommendations> for Recommendations {
     }
 }
 impl Reply for Recommendations {
+    fn discovery(&self) -> Option<biomcp_fetch::Identities> {
+        super::search::doi_discovery(self.recommended_papers.iter())
+    }
+
     fn check(&self) -> Result<(), BadReply> {
         if self.received > 100 {
             Err(BadReply)

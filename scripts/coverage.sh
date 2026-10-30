@@ -36,7 +36,7 @@ import subprocess
 
 names = subprocess.check_output([
     'git', 'ls-files', '-z', '--cached', '--others', '--exclude-standard', '--',
-    'crates', 'tests', 'Cargo.toml', 'Cargo.lock', 'rust-toolchain.toml',
+    'crates', 'tests', 'skills', 'Cargo.toml', 'Cargo.lock', 'rust-toolchain.toml',
     'scripts/coverage.sh', 'sdlc/features.md',
 ]).split(b'\0')
 digest = hashlib.sha256()

@@ -131,11 +131,11 @@ fn page(
         raw::Response::Success { meta, results } => (results, meta.results.total),
         raw::Response::Absent { .. } => (Vec::new(), 0),
     };
-    let received = records.len() as u32;
     let problems = records
         .iter()
         .flat_map(|r| r.problems.iter().cloned())
         .collect();
+    let received = records.len() as u32;
     Ok(Page {
         window: crate::NativeWindow::new(
             records,
