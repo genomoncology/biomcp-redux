@@ -144,3 +144,6 @@ pub mod fda_device_recall;
 pub mod fda_drug_recall;
 
 mod native_text;
+
+mod native_window;
+pub use native_window::NativeWindow;

@@ -95,7 +95,7 @@ pub fn mutations(
     leg: &Leg<'_>,
     query: &VariantRecurrenceQuery,
     gene: NcbiGeneId,
-) -> Result<crate::Mapped<(Vec<Mutation>, u32)>, RequestError> {
+) -> Result<crate::Mapped<crate::NativeWindow<Mutation>>, RequestError> {
     let endpoint = SPEC
         .get("/molecular-profiles")
         .with_segments(&[
@@ -137,7 +137,13 @@ pub fn mutations(
         }
     }
     Ok(crate::Mapped {
-        value: (values, received),
+        value: crate::NativeWindow::new(
+            values,
+            query.page().saturating_mul(query.limit()),
+            query.limit(),
+            None,
+            received,
+        ),
         problems: problems.list,
     })
 }
