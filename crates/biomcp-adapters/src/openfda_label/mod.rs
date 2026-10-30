@@ -17,11 +17,11 @@ pub static SPEC: SourceSpec = SourceSpec {
     key: crate::openfda_key::OPTIONAL,
     deadline: Duration::from_secs(15),
 };
+mod admit;
 mod map;
 mod page;
 mod raw;
 mod wire;
-mod admit;
 use biodata::{DrugId, Text};
 use biomcp_fetch::{Arg, BadReply, Endpoint, Freshness, Leg, ReplyMetadata, RequestError};
 pub use raw::Record;
@@ -135,7 +135,10 @@ fn page(
         raw::Response::Success { meta, results } => (results, meta.results.total),
         raw::Response::Absent { .. } => (Vec::new(), 0),
     };
-    let problems = records.iter().flat_map(|r| r.problems.iter().cloned()).collect();
+    let problems = records
+        .iter()
+        .flat_map(|r| r.problems.iter().cloned())
+        .collect();
     Ok(Page {
         problems,
         scanned: records.len() as u32,

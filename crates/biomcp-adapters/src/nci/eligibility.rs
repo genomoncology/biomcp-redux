@@ -24,8 +24,15 @@ struct Structured {
 impl Eligibility {
     pub(super) fn map(self, p: &mut Problems) -> NciEligibility {
         NciEligibility {
-            structured: p.field("eligibility.structured", self.structured).map(|s| s.map(p)),
-            unstructured: p.fields("eligibility.unstructured", self.unstructured).into_vec().into_iter().map(|v| v.map(p)).collect(),
+            structured: p
+                .field("eligibility.structured", self.structured)
+                .map(|s| s.map(p)),
+            unstructured: p
+                .fields("eligibility.unstructured", self.unstructured)
+                .into_vec()
+                .into_iter()
+                .map(|v| v.map(p))
+                .collect(),
         }
     }
 }
@@ -39,7 +46,10 @@ impl Structured {
             min_age_in_years: years(p, "min", self.min_age_in_years),
             max_age_in_years: years(p, "max", self.max_age_in_years),
             sex: p.field("eligibility.structured.sex", self.sex),
-            accepts_healthy_volunteers: p.field("eligibility.structured.accepts_healthy_volunteers", self.accepts_healthy_volunteers),
+            accepts_healthy_volunteers: p.field(
+                "eligibility.structured.accepts_healthy_volunteers",
+                self.accepts_healthy_volunteers,
+            ),
         }
     }
 }
@@ -92,7 +102,10 @@ impl Criterion {
     fn map(self, p: &mut Problems) -> biomcp_types::NciCriterion {
         biomcp_types::NciCriterion {
             description: p.field("eligibility.unstructured.description", self.description),
-            inclusion_indicator: p.field("eligibility.unstructured.inclusion_indicator", self.inclusion_indicator),
+            inclusion_indicator: p.field(
+                "eligibility.unstructured.inclusion_indicator",
+                self.inclusion_indicator,
+            ),
             display_order: p.field("eligibility.unstructured.display_order", self.display_order),
         }
     }

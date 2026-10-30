@@ -61,10 +61,11 @@ impl Submission {
                 jurisdiction: None,
                 status: self.submission_status.clone(),
                 kind: self.submission_type.clone(),
-                dates: self.submission_status_date.map(|date| AuthorizationDate {
-                    role,
-                    date,
-                }).into_iter().collect(),
+                dates: self
+                    .submission_status_date
+                    .map(|date| AuthorizationDate { role, date })
+                    .into_iter()
+                    .collect(),
                 indication: None,
                 attribution: Attribution {
                     source: "drugsfda".parse().map_err(|_| super::bad())?,

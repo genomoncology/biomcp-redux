@@ -14,7 +14,10 @@ pub(super) fn report(r: raw::Report) -> crate::Mapped<FaersReport> {
         lifethreatening: problems.field("seriousnesslifethreatening", r.seriousnesslifethreatening),
         hospitalization: problems.field("seriousnesshospitalization", r.seriousnesshospitalization),
         disabling: problems.field("seriousnessdisabling", r.seriousnessdisabling),
-        congenitalanomali: problems.field("seriousnesscongenitalanomali", r.seriousnesscongenitalanomali),
+        congenitalanomali: problems.field(
+            "seriousnesscongenitalanomali",
+            r.seriousnesscongenitalanomali,
+        ),
         other: problems.field("seriousnessother", r.seriousnessother),
     };
     let has_flags = seriousness.death.is_some()
@@ -40,10 +43,12 @@ pub(super) fn report(r: raw::Report) -> crate::Mapped<FaersReport> {
         serious: problems.field("serious", r.serious),
         seriousness: has_flags.then_some(seriousness),
         patient,
-        reporter: problems.field("primarysource", r.primarysource).map(|s| FaersReporter {
-            qualification: problems.field("qualification", s.qualification),
-            country: problems.field("reportercountry", s.reportercountry),
-        }),
+        reporter: problems
+            .field("primarysource", r.primarysource)
+            .map(|s| FaersReporter {
+                qualification: problems.field("qualification", s.qualification),
+                country: problems.field("reportercountry", s.reportercountry),
+            }),
         drugs,
         reactions,
     };
@@ -52,23 +57,36 @@ pub(super) fn report(r: raw::Report) -> crate::Mapped<FaersReport> {
         problems: problems.list,
     }
 }
-fn patient(p: raw::Patient, problems: &mut crate::mapped::Problems) -> (
-    Option<FaersPatient>, Box<[FaersDrug]>, Box<[FaersReaction]>
-) {
+fn patient(
+    p: raw::Patient,
+    problems: &mut crate::mapped::Problems,
+) -> (Option<FaersPatient>, Box<[FaersDrug]>, Box<[FaersReaction]>) {
     let patient = Some(FaersPatient {
         age: age(problems, p.patientonsetage, p.patientonsetageunit),
         sex: problems.field("patient.patientsex", p.patientsex),
         weight: problems.field("patient.patientweight", p.patientweight),
     });
-    let drugs = problems.fields("patient.drug", p.drug).into_vec().into_iter()
-        .map(|v| drug(v, problems)).collect();
-    let reactions = problems.fields("patient.reaction", p.reaction).into_vec().into_iter()
+    let drugs = problems
+        .fields("patient.drug", p.drug)
+        .into_vec()
+        .into_iter()
+        .map(|v| drug(v, problems))
+        .collect();
+    let reactions = problems
+        .fields("patient.reaction", p.reaction)
+        .into_vec()
+        .into_iter()
         .map(|v| FaersReaction {
-            term: problems.source_field("patient.reaction.reactionmeddrapt", v.reactionmeddrapt)
+            term: problems
+                .source_field("patient.reaction.reactionmeddrapt", v.reactionmeddrapt)
                 .map(|label| biodata::Concept { id: None, label }),
-            vocabulary_version: problems.field("patient.reaction.reactionmeddraversionpt", v.reactionmeddraversionpt),
+            vocabulary_version: problems.field(
+                "patient.reaction.reactionmeddraversionpt",
+                v.reactionmeddraversionpt,
+            ),
             outcome: problems.field("patient.reaction.reactionoutcome", v.reactionoutcome),
-        }).collect();
+        })
+        .collect();
     (patient, drugs, reactions)
 }
 fn identifiers(r: raw::Identifiers, p: &mut crate::mapped::Problems) -> FaersIdentifiers {
@@ -96,19 +114,27 @@ fn drug(r: raw::Drug, p: &mut crate::mapped::Problems) -> FaersDrug {
         drugdosagetext: p.field("drugdosagetext", r.drugdosagetext),
         drugenddate: p.field("drugenddate", r.drugenddate),
         drugenddateformat: p.field("drugenddateformat", r.drugenddateformat),
-        drugintervaldosagedefinition: p.field("drugintervaldosagedefinition", r.drugintervaldosagedefinition),
-        drugintervaldosageunitnumb: p.field("drugintervaldosageunitnumb", r.drugintervaldosageunitnumb),
-        drugrecurreadministration: p.field("drugrecurreadministration", r.drugrecurreadministration),
+        drugintervaldosagedefinition: p.field(
+            "drugintervaldosagedefinition",
+            r.drugintervaldosagedefinition,
+        ),
+        drugintervaldosageunitnumb: p
+            .field("drugintervaldosageunitnumb", r.drugintervaldosageunitnumb),
+        drugrecurreadministration: p
+            .field("drugrecurreadministration", r.drugrecurreadministration),
         drugseparatedosagenumb: p.field("drugseparatedosagenumb", r.drugseparatedosagenumb),
         drugstartdate: p.field("drugstartdate", r.drugstartdate),
         drugstartdateformat: p.field("drugstartdateformat", r.drugstartdateformat),
         drugstructuredosagenumb: p.field("drugstructuredosagenumb", r.drugstructuredosagenumb),
         drugstructuredosageunit: p.field("drugstructuredosageunit", r.drugstructuredosageunit),
         drugtreatmentduration: p.field("drugtreatmentduration", r.drugtreatmentduration),
-        drugtreatmentdurationunit: p.field("drugtreatmentdurationunit", r.drugtreatmentdurationunit),
+        drugtreatmentdurationunit: p
+            .field("drugtreatmentdurationunit", r.drugtreatmentdurationunit),
         actiondrug: p.field("actiondrug", r.actiondrug),
         drugadditional: p.field("drugadditional", r.drugadditional),
-        openfda: p.field("patient.drug.openfda", r.openfda).map(|v| identifiers(v, p)),
+        openfda: p
+            .field("patient.drug.openfda", r.openfda)
+            .map(|v| identifiers(v, p)),
     }
 }
 

@@ -8,7 +8,11 @@ use biomcp_fetch::{CacheError, Deadline, RequestError, SourceError};
 use biomcp_types::{Reason, SourceOutcome};
 use sha2::{Digest, Sha256};
 #[derive(serde::Serialize, serde::Deserialize)]
-struct Saved(biodata::MaudeReport, Vec<SourceOutcome>, #[serde(default)] Vec<biomcp_types::Problem>);
+struct Saved(
+    biodata::MaudeReport,
+    Vec<SourceOutcome>,
+    #[serde(default)] Vec<biomcp_types::Problem>,
+);
 fn key(query: &AdverseEventGet) -> Vec<u8> {
     Sha256::digest(format!("biomcp.maude_snapshot/1\0{}", query.id()).as_bytes()).to_vec()
 }

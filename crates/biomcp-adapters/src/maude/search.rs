@@ -63,11 +63,14 @@ pub fn search(
     };
     let (items, total, updated) = match reply {
         raw::Response::Page { meta, results } => (
-            results.into_iter().map(|r| {
-                let mapped = super::map::report(r);
-                problems.list.extend(mapped.problems);
-                header(&mapped.value)
-            }).collect(),
+            results
+                .into_iter()
+                .map(|r| {
+                    let mapped = super::map::report(r);
+                    problems.list.extend(mapped.problems);
+                    header(&mapped.value)
+                })
+                .collect(),
             meta.results.total,
             meta.last_updated,
         ),

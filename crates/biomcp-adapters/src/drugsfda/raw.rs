@@ -137,11 +137,10 @@ impl Application {
     fn check(&self) -> Result<(), BadReply> {
         if !biomcp_types::DrugSource::Drugsfda.accepts(&self.application_number)
             || self.products.iter().enumerate().any(|(i, p)| {
-                self
-                        .products
-                        .iter()
-                        .take(i)
-                        .any(|old| old.product_number == p.product_number)
+                self.products
+                    .iter()
+                    .take(i)
+                    .any(|old| old.product_number == p.product_number)
             })
             || self
                 .openfda

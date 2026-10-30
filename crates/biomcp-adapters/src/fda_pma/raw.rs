@@ -97,7 +97,10 @@ impl Record {
             date_received: p.field("date_received", self.date_received),
             fed_reg_notice_date: p.field("fed_reg_notice_date", self.fed_reg_notice_date),
             advisory_committee: p.field("advisory_committee", self.advisory_committee),
-            advisory_committee_description: p.field("advisory_committee_description", self.advisory_committee_description),
+            advisory_committee_description: p.field(
+                "advisory_committee_description",
+                self.advisory_committee_description,
+            ),
             product_code: p.field("product_code", self.product_code),
             supplement_type: p.field("supplement_type", self.supplement_type),
             supplement_reason: p.field("supplement_reason", self.supplement_reason),
@@ -105,6 +108,9 @@ impl Record {
             docket_number: p.field("docket_number", self.docket_number),
             expedited_review_flag: p.field("expedited_review_flag", self.expedited_review_flag),
         };
-        crate::Mapped { value, problems: p.list }
+        crate::Mapped {
+            value,
+            problems: p.list,
+        }
     }
 }

@@ -8,8 +8,8 @@ mod organization_map;
 mod organization_raw;
 mod sites;
 mod trial_biomarker;
-mod trial_raw;
 mod trial_map;
+mod trial_raw;
 use biodata::{NctId, Text};
 
 use biomcp_fetch::{
@@ -108,7 +108,9 @@ impl Reply for Trial {
 }
 impl Trial {
     /// Rejected native fields from this record.
-    pub fn problems(&self) -> &[biomcp_types::Problem] { &self.problems }
+    pub fn problems(&self) -> &[biomcp_types::Problem] {
+        &self.problems
+    }
     /// Native publisher card, with no clinical interpretation or inferred fields.
     pub fn card(&self, summary: bool) -> NciTrial {
         NciTrial {

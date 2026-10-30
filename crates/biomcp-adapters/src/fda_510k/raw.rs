@@ -86,6 +86,9 @@ impl Record {
             date_received: p.field("date_received", self.date_received),
             product_code: p.field("product_code", self.product_code),
         };
-        crate::Mapped { value, problems: p.list }
+        crate::Mapped {
+            value,
+            problems: p.list,
+        }
     }
 }
