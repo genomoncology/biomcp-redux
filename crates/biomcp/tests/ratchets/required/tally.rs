@@ -70,6 +70,9 @@ impl Inventory {
         for (failure, _) in FAILURES {
             inventory.calls.insert(format!("failure {failure}"), 0);
             for family in ["trial", "variant", "label", "article"] {
+                if *failure == "expired-pool" && matches!(family, "variant" | "label") {
+                    continue;
+                }
                 inventory
                     .calls
                     .insert(format!("failure {family} {failure}"), 0);
@@ -225,11 +228,25 @@ impl Inventory {
             Some("variant")
         } else if path.iter().any(|s| s == "article") {
             Some("article")
-        } else if path == ["get", "drug"] && tokens.iter().skip(3).any(|s| s == "label") {
+        } else if path == ["get", "drug"] && tokens.iter().skip(3).any(|s| s == "label")
+            || path == ["search", "drug"]
+                && step.run.as_ref().is_some_and(|args| {
+                    args.windows(2)
+                        .any(|pair| pair == ["--source", "openfda-label"])
+                })
+        {
             Some("label")
         } else {
             None
         };
+        if family == Some("label")
+            && step
+                .expect
+                .get("/status")
+                .is_some_and(|value| asserts(value, "absent"))
+        {
+            hits.insert("failure label not-found".into());
+        }
         for (failure, wire) in FAILURES {
             if step.expect.iter().any(|(pointer, value)| {
                 (pointer.ends_with("/reason") || pointer.ends_with("/code")) && asserts(value, wire)

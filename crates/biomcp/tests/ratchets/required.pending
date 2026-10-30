@@ -1,47 +1,9 @@
-command health
-command help article pdf
-command help config
-command help exit
-command help get biomarker
-command help health
-command help help
-command help key list
-command help key remove
-command help key set
-command help mcp-config
-command help network
-command help relations
-command help search biomarker
-command help search organization
-command help serve
-command help skill
-command help skill install
-command help skill list
-command help skill render
-command help skill status
-command help sources
-command help sync clingen
-command help sync gencc
-command help sync hgnc
-command help sync who-pq
-command help version
-command key
-command key list
-command key remove
-command key set
-command mcp-config
-command skill list
-command skill render
-command skill status
 failure label bad-source-data
-failure label expired-pool
-failure label not-found
 failure label offline-miss
 failure label unavailable
 failure trial expired-pool
 failure trial not-found
 failure trial unavailable
-failure variant expired-pool
 failure variant not-found
 option article citation-evidence --offset
 option article citation-evidence --paragraph-offset
@@ -93,9 +55,6 @@ option get variant --resolver
 option get variant --section-limit
 option get variant --section-offset
 option get variant --tumor-type
-option key set --replace
-option mcp-config --absolute-path
-option mcp-config --client
 option pathway events --offset
 option pathway events --pool
 option pathway genes --limit
@@ -152,7 +111,6 @@ option search study --offset
 option search study --pool
 option search trial --exact-condition
 option serve --allow-host
-option skill install --force
 option variant assertions --assertion
 option variant assertions --limit
 option variant assertions --offset
@@ -161,165 +119,6 @@ option variant normalize --offset
 option variant population --build
 option variant population --limit
 option variant population --resolver
-refusal author
-refusal author papers
-refusal cell-line
-refusal cell-line assay-count
-refusal get
-refusal get adverse-event
-refusal get cell-line
-refusal get diagnostic
-refusal get disease
-refusal get drug
-refusal get gene
-refusal get pgx
-refusal get protein
-refusal get study
-refusal get variant
-refusal health
-refusal help
-refusal help article
-refusal help article citation-evidence
-refusal help article citations
-refusal help article pdf
-refusal help article recommendations
-refusal help article references
-refusal help article supplement
-refusal help article text
-refusal help author
-refusal help author papers
-refusal help cell-line
-refusal help cell-line assay-count
-refusal help config
-refusal help exit
-refusal help get
-refusal help get adverse-event
-refusal help get article
-refusal help get author
-refusal help get biomarker
-refusal help get cell-line
-refusal help get diagnostic
-refusal help get disease
-refusal help get drug
-refusal help get gene
-refusal help get gwas
-refusal help get pathway
-refusal help get pgx
-refusal help get phenotype
-refusal help get protein
-refusal help get study
-refusal help get trial
-refusal help get variant
-refusal help health
-refusal help help
-refusal help key
-refusal help key list
-refusal help key remove
-refusal help key set
-refusal help mcp-config
-refusal help network
-refusal help pathway
-refusal help pathway events
-refusal help pathway genes
-refusal help protein
-refusal help protein complex-members
-refusal help protein complexes
-refusal help protein domains
-refusal help protein features
-refusal help protein isoforms
-refusal help protein sequence
-refusal help protein structures
-refusal help relations
-refusal help schema
-refusal help search
-refusal help search adverse-event
-refusal help search article
-refusal help search author
-refusal help search biomarker
-refusal help search cell-line
-refusal help search diagnostic
-refusal help search disease
-refusal help search drug
-refusal help search gene
-refusal help search gwas
-refusal help search organization
-refusal help search pathway
-refusal help search pgx
-refusal help search phenotype
-refusal help search protein
-refusal help search study
-refusal help search trial
-refusal help search variant
-refusal help serve
-refusal help skill
-refusal help skill install
-refusal help skill list
-refusal help skill render
-refusal help skill status
-refusal help sources
-refusal help store
-refusal help store clean
-refusal help sync
-refusal help sync cbioportal-studies
-refusal help sync clingen
-refusal help sync ddinter
-refusal help sync ema
-refusal help sync fda-cdx
-refusal help sync gencc
-refusal help sync gtr
-refusal help sync hgnc
-refusal help sync who-ivd
-refusal help sync who-pq
-refusal help sync wikipathways
-refusal help trial
-refusal help trial document
-refusal help variant
-refusal help variant assertions
-refusal help variant normalize
-refusal help variant population
-refusal help variant recurrence
-refusal help version
-refusal key
-refusal key list
-refusal key remove
-refusal key set
-refusal mcp-config
-refusal pathway
-refusal pathway genes
-refusal protein
-refusal protein complex-members
-refusal protein complexes
-refusal protein domains
-refusal protein features
-refusal protein isoforms
-refusal protein sequence
-refusal protein structures
-refusal schema
-refusal search
-refusal search adverse-event
-refusal search biomarker
-refusal search cell-line
-refusal search diagnostic
-refusal search disease
-refusal search gwas
-refusal search pgx
-refusal search protein
-refusal search study
-refusal serve
-refusal skill
-refusal skill install
-refusal skill list
-refusal skill render
-refusal skill status
-refusal store
-refusal store clean
-refusal sync
-refusal trial
-refusal trial document
-refusal variant
-refusal variant assertions
-refusal variant population
-refusal version
 section get adverse-event application-number
 section get adverse-event devices
 section get adverse-event drugs
