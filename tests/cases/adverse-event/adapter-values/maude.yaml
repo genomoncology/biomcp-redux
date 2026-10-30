@@ -27,7 +27,8 @@
         },
         "/problems/*/field": [
           "event_type"
-        ]
+        ],
+        "/result/items/0/source": "maude"
       }
     }
   ]

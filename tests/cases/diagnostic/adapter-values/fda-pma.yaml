@@ -22,7 +22,8 @@
         },
         "/problems/*/field": [
           "trade_name"
-        ]
+        ],
+        "/result/header/pma_number": "P150013"
       }
     }
   ]

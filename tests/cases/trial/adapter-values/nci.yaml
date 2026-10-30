@@ -20,7 +20,8 @@
         },
         "/problems/*/field": [
           "brief_title"
-        ]
+        ],
+        "/result/items/0/card/nct_id": "NCT05136196"
       }
     }
   ],

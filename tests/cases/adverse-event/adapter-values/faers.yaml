@@ -18,7 +18,8 @@
         },
         "/problems/*/field": [
           "serious"
-        ]
+        ],
+        "/result/header/id": "100"
       }
     }
   ]

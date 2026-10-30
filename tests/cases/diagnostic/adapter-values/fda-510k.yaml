@@ -13,14 +13,15 @@
         "fda-510k"
       ],
       "expect": {
-        "/result/clearance": {
+        "/problems/*/field": [
+          "device_name"
+        ],
+        "/result/k_number": "K999994",
+        "/result": {
           "omits": [
             "device_name"
           ]
-        },
-        "/problems/*/field": [
-          "device_name"
-        ]
+        }
       }
     }
   ]

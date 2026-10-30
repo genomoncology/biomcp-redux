@@ -212,9 +212,9 @@
       "path": "crates/biomcp-adapters/src/drugsfda/raw.rs",
       "site": "adapter serde refusal: [ serde ( deny_unknown_fields ) ] pub ( super ) struct Absence { code : String , message",
       "maximum": 1,
-      "class": "pending_audit",
+      "class": "identity_refusal",
       "owner": "drugsfda",
-      "reason": "Existing adapter violation awaits its family audit"
+      "reason": "The exact native no-match error is a protocol envelope; an unsupported error shape cannot establish record absence"
     },
     {
       "path": "crates/biomcp-adapters/src/ema/map.rs",
@@ -244,73 +244,73 @@
       "path": "crates/biomcp-adapters/src/faers/raw.rs",
       "site": "adapter serde refusal: [ serde ( deny_unknown_fields ) ] pub ( super ) struct Absence { code : String , message",
       "maximum": 1,
-      "class": "pending_audit",
+      "class": "identity_refusal",
       "owner": "faers",
-      "reason": "Existing adapter violation awaits its family audit"
+      "reason": "The exact native no-match error is a protocol envelope; an unsupported error shape cannot establish record absence"
     },
     {
       "path": "crates/biomcp-adapters/src/fda_510k/raw.rs",
       "site": "adapter serde refusal: [ serde ( deny_unknown_fields ) ] pub ( super ) struct Absence { code : String , message",
       "maximum": 1,
-      "class": "pending_audit",
+      "class": "identity_refusal",
       "owner": "fda_510k",
-      "reason": "Existing adapter violation awaits its family audit"
+      "reason": "The exact native no-match error is a protocol envelope; an unsupported error shape cannot establish record absence"
     },
     {
       "path": "crates/biomcp-adapters/src/fda_cdx/identity.rs",
       "site": "applications: v | v . parse : : < FdaDrugApplication > ( ) . ok ( )",
       "maximum": 1,
-      "class": "pending_audit",
+      "class": "legitimate_absence",
       "owner": "fda_cdx",
-      "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
+      "reason": "Native cell wording is retained intact; scanning ordinary words for optional derived source identifiers admits only matching native authority spellings and does not drop any physical cell value"
     },
     {
       "path": "crates/biomcp-adapters/src/fda_cdx/identity.rs",
       "site": "devices: ) . filter_map ( | v | v . parse ( ) . ok ( )",
       "maximum": 2,
-      "class": "pending_audit",
+      "class": "legitimate_absence",
       "owner": "fda_cdx",
-      "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
+      "reason": "Native cell wording is retained intact; scanning ordinary words for optional derived source identifiers admits only matching native authority spellings and does not drop any physical cell value"
     },
     {
       "path": "crates/biomcp-adapters/src/fda_cdx/identity.rs",
       "site": "linked_device: ) ? ; format ! ( \"{base}/{sub}\" ) . parse ( ) . ok ( )",
       "maximum": 1,
-      "class": "pending_audit",
+      "class": "legitimate_absence",
       "owner": "fda_cdx",
-      "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
+      "reason": "Native cell wording is retained intact; scanning ordinary words for optional derived source identifiers admits only matching native authority spellings and does not drop any physical cell value"
     },
     {
       "path": "crates/biomcp-adapters/src/fda_cdx/identity.rs",
       "site": "linked_device: DiagnosticDeviceId > { let value = value . to_ascii_uppercase ( ) ; if let Ok ( id ) = value . parse ( ) { return Some (",
       "maximum": 1,
-      "class": "pending_audit",
+      "class": "legitimate_absence",
       "owner": "fda_cdx",
-      "reason": "Existing adapter violation awaits its family audit"
+      "reason": "Native cell wording is retained intact; scanning ordinary words for optional derived source identifiers admits only matching native authority spellings and does not drop any physical cell value"
     },
     {
       "path": "crates/biomcp-adapters/src/fda_cdx/raw.rs",
       "site": "adapter serde refusal: [ serde ( deny_unknown_fields ) ] pub ( super ) struct Native { pub relation : CompanionDiagnosticRelation ,",
       "maximum": 1,
-      "class": "pending_audit",
+      "class": "identity_refusal",
       "owner": "fda_cdx",
-      "reason": "Existing adapter violation awaits its family audit"
+      "reason": "The stored physical row has a fixed internal shape"
     },
     {
       "path": "crates/biomcp-adapters/src/fda_cdx/search.rs",
       "site": "search: Text : : new ( & format ! ( \"{snapshot}:{table}:{index}\" ) ) . ok ( )",
       "maximum": 1,
-      "class": "pending_audit",
+      "class": "legitimate_absence",
       "owner": "fda_cdx",
-      "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
+      "reason": "Native cell wording is retained intact; scanning ordinary words for optional derived source identifiers admits only matching native authority spellings and does not drop any physical cell value"
     },
     {
       "path": "crates/biomcp-adapters/src/fda_device_recall/raw.rs",
       "site": "adapter serde refusal: [ serde ( deny_unknown_fields ) ] pub ( super ) struct Absence { code : String , message",
       "maximum": 1,
-      "class": "pending_audit",
+      "class": "identity_refusal",
       "owner": "fda_device_recall",
-      "reason": "Existing adapter violation awaits its family audit"
+      "reason": "The exact native no-match error is a protocol envelope; an unsupported error shape cannot establish record absence"
     },
     {
       "path": "crates/biomcp-adapters/src/fda_drug_recall/map.rs",
@@ -348,17 +348,17 @@
       "path": "crates/biomcp-adapters/src/fda_drug_recall/raw.rs",
       "site": "adapter serde refusal: [ serde ( deny_unknown_fields ) ] pub ( super ) struct Absence { code : String , message",
       "maximum": 1,
-      "class": "pending_audit",
+      "class": "identity_refusal",
       "owner": "fda_drug_recall",
-      "reason": "Existing adapter violation awaits its family audit"
+      "reason": "The exact native no-match error is a protocol envelope; an unsupported error shape cannot establish record absence"
     },
     {
       "path": "crates/biomcp-adapters/src/fda_pma/raw.rs",
       "site": "adapter serde refusal: [ serde ( deny_unknown_fields ) ] pub ( super ) struct Absence { code : String , message",
       "maximum": 1,
-      "class": "pending_audit",
+      "class": "identity_refusal",
       "owner": "fda_pma",
-      "reason": "Existing adapter violation awaits its family audit"
+      "reason": "The exact native no-match error is a protocol envelope; an unsupported error shape cannot establish record absence"
     },
     {
       "path": "crates/biomcp-adapters/src/gnomad/raw.rs",
@@ -588,9 +588,9 @@
       "path": "crates/biomcp-adapters/src/maude/raw.rs",
       "site": "adapter serde refusal: [ serde ( deny_unknown_fields ) ] pub ( super ) struct Absence { code : String , message",
       "maximum": 1,
-      "class": "pending_audit",
+      "class": "identity_refusal",
       "owner": "maude",
-      "reason": "Existing adapter violation awaits its family audit"
+      "reason": "The exact native no-match error is a protocol envelope; an unsupported error shape cannot establish record absence"
     },
     {
       "path": "crates/biomcp-adapters/src/monarch/map.rs",
@@ -804,49 +804,49 @@
       "path": "crates/biomcp-adapters/src/nci/mod.rs",
       "site": "adapter serde refusal: [ serde ( default ) ] # [ serde ( deserialize_with = \"crate::strict_input::deserialize\" ) ] diseases : Vec",
       "maximum": 1,
-      "class": "pending_audit",
+      "class": "migrated",
       "owner": "nci",
-      "reason": "Existing adapter violation awaits its family audit"
+      "reason": "Native nonidentity fields now pass through Field and Problems before projection; malformed collections or members are omitted with a named field problem while record identity remains checked"
     },
     {
       "path": "crates/biomcp-adapters/src/nci/mod.rs",
       "site": "adapter serde refusal: [ serde ( default ) ] # [ serde ( deserialize_with = \"crate::strict_input::deserialize\" ) ] interventions : Vec",
       "maximum": 1,
-      "class": "pending_audit",
+      "class": "migrated",
       "owner": "nci",
-      "reason": "Existing adapter violation awaits its family audit"
+      "reason": "Native nonidentity fields now pass through Field and Problems before projection; malformed collections or members are omitted with a named field problem while record identity remains checked"
     },
     {
       "path": "crates/biomcp-adapters/src/nci/mod.rs",
       "site": "adapter serde refusal: [ serde ( default ) ] # [ serde ( deserialize_with = \"crate::strict_input::deserialize\" ) ] outcome_measures : Vec",
       "maximum": 1,
-      "class": "pending_audit",
+      "class": "migrated",
       "owner": "nci",
-      "reason": "Existing adapter violation awaits its family audit"
+      "reason": "Native nonidentity fields now pass through Field and Problems before projection; malformed collections or members are omitted with a named field problem while record identity remains checked"
     },
     {
       "path": "crates/biomcp-adapters/src/nci/mod.rs",
       "site": "adapter serde refusal: [ serde ( default ) ] arms : Vec < Arm > , # [ serde ( default",
       "maximum": 1,
-      "class": "pending_audit",
+      "class": "migrated",
       "owner": "nci",
-      "reason": "Existing adapter violation awaits its family audit"
+      "reason": "Native nonidentity fields now pass through Field and Problems before projection; malformed collections or members are omitted with a named field problem while record identity remains checked"
     },
     {
       "path": "crates/biomcp-adapters/src/nci/mod.rs",
       "site": "adapter serde refusal: type : Option < Text > , # [ serde ( default ) ] # [ serde ( deserialize_with = \"crate::strict_input::deserialize\" ) ] interventions : Vec",
       "maximum": 1,
-      "class": "pending_audit",
+      "class": "migrated",
       "owner": "nci",
-      "reason": "Existing adapter violation awaits its family audit"
+      "reason": "Native nonidentity fields now pass through Field and Problems before projection; malformed collections or members are omitted with a named field problem while record identity remains checked"
     },
     {
       "path": "crates/biomcp-adapters/src/nci/mod.rs",
       "site": "search: | | value . parse : : < usize > ( ) . ok ( )",
       "maximum": 1,
-      "class": "pending_audit",
+      "class": "legitimate_absence",
       "owner": "nci",
-      "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
+      "reason": "This value is a locally constructed request page size, not an upstream record field; the explicit default bounds native page admission"
     },
     {
       "path": "crates/biomcp-adapters/src/ols/map.rs",
@@ -884,25 +884,25 @@
       "path": "crates/biomcp-adapters/src/openfda_label/map.rs",
       "site": "header: : Some ( self . openfda . brand_name . as_deref ( ) . unwrap_or_default ( )",
       "maximum": 1,
-      "class": "pending_audit",
+      "class": "migrated",
       "owner": "openfda_label",
-      "reason": "Existing adapter violation awaits its family audit"
+      "reason": "Native nonidentity fields now pass through Field and Problems before projection; malformed collections or members are omitted with a named field problem while record identity remains checked"
     },
     {
       "path": "crates/biomcp-adapters/src/openfda_label/map.rs",
       "site": "header: | | { self . openfda . generic_name . as_deref ( ) . unwrap_or_default ( )",
       "maximum": 1,
-      "class": "pending_audit",
+      "class": "migrated",
       "owner": "openfda_label",
-      "reason": "Existing adapter violation awaits its family audit"
+      "reason": "Native nonidentity fields now pass through Field and Problems before projection; malformed collections or members are omitted with a named field problem while record identity remains checked"
     },
     {
       "path": "crates/biomcp-adapters/src/openfda_label/raw.rs",
       "site": "adapter serde refusal: [ serde ( deny_unknown_fields ) ] pub ( super ) struct Absence { code : String , message",
       "maximum": 1,
-      "class": "pending_audit",
+      "class": "identity_refusal",
       "owner": "openfda_label",
-      "reason": "Existing adapter violation awaits its family audit"
+      "reason": "The exact native no-match error is a protocol envelope; an unsupported error shape cannot establish record absence"
     },
     {
       "path": "crates/biomcp-adapters/src/pmc_oa/location.rs",
