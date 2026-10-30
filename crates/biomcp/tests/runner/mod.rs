@@ -574,6 +574,7 @@ tool_only! {
     pub(super) fn tool_trials() -> Result<Vec<Trial>, String> {
         let registry = Arc::new(schema::Registry::embedded()?);
         let mut trials = proof::trials();
+        trials.push(reply_comparison::trial());
         trials.extend(disease_mydisease::tool_trials());
         trials.extend(schema_proof::trials(registry));
         trials.extend(parity::trials());
