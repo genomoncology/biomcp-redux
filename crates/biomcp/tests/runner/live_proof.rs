@@ -236,6 +236,7 @@ fn summary() -> Result<(), Box<dyn std::error::Error>> {
     if report.get("drift_cases") != Some(&json!(1))
         || report.get("error_cases") != Some(&json!(1))
         || report.get("checked") != Some(&json!(27))
+        || report.get("eligible") != Some(&json!(27))
         || report.get("omitted") != Some(&json!(7))
         || sample.len() != 20
         || report.pointer("/case_sample/0/case") != Some(&json!("late-drift"))

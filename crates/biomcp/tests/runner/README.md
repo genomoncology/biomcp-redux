@@ -74,10 +74,11 @@ keyless diagnostic mode. Ordinary tests and landing gates never select this mode
 The command prints a bounded JSON drift summary. The summary counts all cases with drift or command errors and samples affected cases first. The default samples cases and drift details using `CASE_SAMPLE` and `MAX_CHANGES`; `--live-check --list` lists every eligibility and skip reason offline. `--live-check --details` includes every checked case in the live report; individual drift samples retain their bound.
 Configure scheduling separately. This command installs no schedule. It never records or refreshes a fixture.
 
-Every public case is discovered. A case with reviewed real public provenance may
-set `live_check: public`; another string states its skip reason. Unreviewed cases
-are skipped explicitly. Configured cases remain ineligible even with the public marker. A public case skips its offline and local validation steps while retaining real absent-result requests. Injected failure and synthetic cases carry explicit skip markers. Review source evidence before adding the
-marker. Licensed, keyed, synthetic and external cases never receive it.
+Discovery requires every kept case to declare `live_check`. Missing or empty declarations fail before any source request. Each case with real recorded replies sets `live_check: public` after its source provenance is reviewed. Its `verified` field identifies captures, source projections and any synthetic components. Removing papers or projecting captured identity fields does not make the retained source data invented. Recording through a local TLS peer also does not make an ordinary public-source command local-only.
+
+Another string states a case's exclusion: invented failure replies, local-only behavior, or a source key absent from the nightly environment. Configured cases remain ineligible. A public case skips offline and local validation steps, while retaining source absence requests, entity action commands and named MCP tools. The existing MCP helper validates each named tool's output schema. External cases outside the kept case directory remain outside discovery.
+
+The offline plan reports its eligible case count. The nightly report records `eligible` and `checked` separately. The scheduled command rejects a report when those counts differ, including a run that reaches its existing time budget before attempting every eligible case. A command error still counts as an attempted check and remains an error in the report. Source quotas and evidence limits remain in their existing owners.
 
 Each case runs in an empty environment with cold isolated caches. Its commands retain only their own case state for continuation. The shared
 transport enforces within-command quotas. Commands run serially with a keyless
