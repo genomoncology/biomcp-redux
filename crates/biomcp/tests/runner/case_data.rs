@@ -28,6 +28,7 @@ pub(crate) struct Case {
 pub(crate) struct Step {
     pub(crate) run: Option<Vec<String>>,
     pub(crate) stdout: Option<String>,
+    pub(crate) stdin: Option<String>,
     pub(crate) follow: Option<String>,
     pub(crate) walk: Option<Walk>,
     #[serde(default)]

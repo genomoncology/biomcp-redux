@@ -99,10 +99,17 @@ impl Inventory {
         if let Some(command) = self.command(&tokens) {
             let path_words = words(&command["command"]);
             let path = path_words.join(" ");
-            if step
-                .expect
-                .get("/error/code")
-                .is_some_and(|v| asserts(v, "usage.arguments"))
+            if step.exit == 2
+                && step.expect.get("/error/code").is_some_and(|v| {
+                    [
+                        "usage.arguments",
+                        "usage.schema",
+                        "usage.unknown_command",
+                        "usage.retired",
+                    ]
+                    .iter()
+                    .any(|code| asserts(v, code))
+                })
             {
                 hits.insert(format!("refusal {path}"));
             }

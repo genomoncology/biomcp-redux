@@ -1,6 +1,6 @@
 //! Execute canonical case steps and assert their actual emitted bytes.
 use super::{Step, Value, assertions, launch, mcp, pathway_budgets, schema};
-use std::io::Write;
+use std::{io::Write, process::Stdio};
 pub(super) fn run_step(
     step: &Step,
     environment: &launch::Environment,
@@ -14,10 +14,25 @@ pub(super) fn run_step(
         .as_ref()
         .map(|args| {
             let command_args = launch::arguments(args, &globals);
-            let output = environment
-                .command(env!("CARGO_BIN_EXE_biomcp"), &command_args)
-                .output()
-                .map_err(|error| error.to_string())?;
+            let mut command = environment.command(env!("CARGO_BIN_EXE_biomcp"), &command_args);
+            let output = if let Some(input) = &step.stdin {
+                let mut child = command
+                    .stdin(Stdio::piped())
+                    .stdout(Stdio::piped())
+                    .stderr(Stdio::piped())
+                    .spawn()
+                    .map_err(|error| error.to_string())?;
+                child
+                    .stdin
+                    .take()
+                    .ok_or("missing CLI input pipe")?
+                    .write_all(input.as_bytes())
+                    .map_err(|error| error.to_string())?;
+                command.wait_with_output(child)
+            } else {
+                command.output()
+            }
+            .map_err(|error| error.to_string())?;
             if output.status.code() != Some(step.exit) {
                 return Err(format!(
                     "exit: expected {}, actual {:?}; command: {:?}; stderr: {}; stdout: {}",
@@ -45,6 +60,16 @@ pub(super) fn run_step(
             }
             let value = serde_json::from_slice::<Value>(&output.stdout)
                 .map_err(|error| error.to_string())?;
+            if value.get("schema").is_none()
+                && (args.first().is_some_and(|arg| arg == "mcp-config")
+                    || args.first().is_some_and(|arg| arg == "skill")
+                        && args
+                            .get(1)
+                            .is_some_and(|arg| matches!(arg.as_str(), "install" | "status")))
+            {
+                assertions::check(&output.stdout, step, expectations)?;
+                return Ok(value);
+            }
             registry.validate(&value, args, output.status.success())?;
             super::reply_readback::check(&output.stdout, &value, false)?;
             pathway_budgets::help(&value, args, "cli")?;

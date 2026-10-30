@@ -211,14 +211,21 @@ fn only_trailing_words_select_implicit_sections() -> Check {
 
 fn explicit_equals_refusal_counts() -> Check {
     let mut inventory = Inventory::new(&help(), &[])?;
-    let refusal: Step = serde_json::from_value(json!({
-        "run":["get","trial"],
-        "expect":{"/error/code":{"equals":"usage.arguments"}}
-    }))?;
-    inventory.step(&refusal);
+    for code in [
+        "usage.arguments",
+        "usage.schema",
+        "usage.unknown_command",
+        "usage.retired",
+    ] {
+        let refusal: Step = serde_json::from_value(json!({
+            "run":["get","trial"], "exit":2,
+            "expect":{"/error/code":{"equals":code}}
+        }))?;
+        inventory.step(&refusal);
+    }
     assert_eq!(
         inventory.calls.get("refusal get trial"),
-        Some(&1),
+        Some(&4),
         "explicit equality must count the same refusal as a scalar assertion"
     );
     Ok(())

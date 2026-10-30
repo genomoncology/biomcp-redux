@@ -19,6 +19,10 @@ pub(super) enum Assertion<'a> {
 pub(super) type Expectations<'a> = Vec<(&'a str, &'a Value, Vec<Assertion<'a>>)>;
 
 pub(super) fn prepare(step: &Step) -> Result<Expectations<'_>, String> {
+    if step.stdin.is_some() && (step.run.is_none() || step.mcp.is_some() || step.mcp_call.is_some())
+    {
+        return Err("literal stdin requires an explicit CLI call".into());
+    }
     if step.stdout.is_some()
         && (step.run.is_none()
             || step.mcp.is_some()
