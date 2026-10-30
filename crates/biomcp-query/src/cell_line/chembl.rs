@@ -42,18 +42,20 @@ pub(super) fn get_at(
     out.local = error.and_then(status::local);
     if let Ok(reply) = reply {
         out.problems.extend(reply.problems);
-        let (items, total, metadata, received) = reply.value;
-        let end = u64::from(body.offset) + u64::from(received);
+        let page = reply.value;
+        let total = page.window.total().unwrap_or(0);
+        let next_offset = page.window.next_offset();
+        let more = page.window.has_more();
+        let items = page.window.rows;
+        let metadata = page.metadata;
         out.status = if total == 0 {
             Status::Absent
-        } else if !out.problems.is_empty() || end < total {
+        } else if !out.problems.is_empty() || more {
             Status::Partial
         } else {
             Status::Complete
         };
-        if end < total
-            && let Some(offset) = body.offset.checked_add(limit)
-        {
+        if let Some(offset) = next_offset {
             out.next.push((
                 StepKind::Page,
                 run(Request::GetCellLine(query.at_section_offset(offset))),

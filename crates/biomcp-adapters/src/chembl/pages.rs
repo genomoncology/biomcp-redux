@@ -7,11 +7,7 @@ use serde::Deserialize;
 #[serde(from = "ReceivedMolecules")]
 pub struct Molecules {
     /// Accepted native rows.
-    pub molecules: Vec<Molecule>,
-    /// Native page metadata.
-    pub page_meta: PageMeta,
-    /// Native count before local identity refusals.
-    pub received: u32,
+    pub window: crate::NativeWindow<Molecule>,
     /// Rejected row identities.
     pub problems: Vec<biomcp_types::Problem>,
 }
@@ -43,9 +39,13 @@ impl From<ReceivedMolecules> for Molecules {
             }
         }
         Self {
-            molecules: rows,
-            page_meta: page.page_meta,
-            received,
+            window: crate::NativeWindow::new(
+                rows,
+                page.page_meta.offset,
+                page.page_meta.limit,
+                Some(page.page_meta.total_count),
+                received,
+            ),
             problems: problems.list,
         }
     }
@@ -61,11 +61,7 @@ impl Reply for Molecules {
 pub struct Mechanisms {
     pub(super) molecules: Vec<String>,
     /// Accepted native rows.
-    pub mechanisms: Vec<Mechanism>,
-    /// Native page metadata.
-    pub page_meta: PageMeta,
-    /// Native count before local identity refusals.
-    pub received: u32,
+    pub window: crate::NativeWindow<Mechanism>,
     /// Rejected row identities.
     pub problems: Vec<biomcp_types::Problem>,
 }
@@ -98,9 +94,13 @@ impl From<ReceivedMechanisms> for Mechanisms {
         }
         Self {
             molecules,
-            mechanisms: rows,
-            page_meta: page.page_meta,
-            received,
+            window: crate::NativeWindow::new(
+                rows,
+                page.page_meta.offset,
+                page.page_meta.limit,
+                Some(page.page_meta.total_count),
+                received,
+            ),
             problems: problems.list,
         }
     }
@@ -116,11 +116,7 @@ impl Reply for Mechanisms {
 pub struct Indications {
     pub(super) molecules: Vec<String>,
     /// Accepted native rows.
-    pub drug_indications: Vec<Indication>,
-    /// Native page metadata.
-    pub page_meta: PageMeta,
-    /// Native count before local identity refusals.
-    pub received: u32,
+    pub window: crate::NativeWindow<Indication>,
     /// Rejected row identities.
     pub problems: Vec<biomcp_types::Problem>,
 }
@@ -153,9 +149,13 @@ impl From<ReceivedIndications> for Indications {
         }
         Self {
             molecules,
-            drug_indications: rows,
-            page_meta: page.page_meta,
-            received,
+            window: crate::NativeWindow::new(
+                rows,
+                page.page_meta.offset,
+                page.page_meta.limit,
+                Some(page.page_meta.total_count),
+                received,
+            ),
             problems: problems.list,
         }
     }

@@ -13,7 +13,7 @@ pub struct Records<T> {
     /// Rejected metadata on retained records.
     pub problems: Vec<biomcp_types::Problem>,
     /// Checked records in their original source order.
-    pub rows: Vec<Option<T>>,
+    pub window: crate::NativeWindow<T>,
     /// Original response acquisition time, including cache reads.
     pub acquired: Option<u64>,
     /// Number of rejected records with a different study identity.
@@ -100,7 +100,12 @@ fn endpoint(id: &StudyId, name: &str) -> Result<biomcp_fetch::Endpoint, RequestE
         .bytes(MAX_SAMPLE_LIST_BYTES))
 }
 /// Exact DETAILED profiles; embedded source study records are never retained.
-pub fn profiles(leg: &Leg<'_>, id: &StudyId) -> Result<Records<StudyProfile>, RequestError> {
+pub fn profiles(
+    leg: &Leg<'_>,
+    id: &StudyId,
+    offset: u32,
+    limit: u32,
+) -> Result<Records<StudyProfile>, RequestError> {
     let (reply, metadata) = leg.json_received_checked_cache::<Profiles>(
         &endpoint(id, "molecular-profiles")?,
         &[("projection", Arg::Text("DETAILED"))],
@@ -129,7 +134,7 @@ pub fn profiles(leg: &Leg<'_>, id: &StudyId) -> Result<Records<StudyProfile>, Re
         .collect();
     Ok(Records {
         rejected: total - rows.iter().flatten().count(),
-        rows,
+        window: crate::NativeWindow::local(rows, offset, limit),
         problems: problems.list,
         acquired: metadata
             .fetched
@@ -139,7 +144,12 @@ pub fn profiles(leg: &Leg<'_>, id: &StudyId) -> Result<Records<StudyProfile>, Re
     })
 }
 /// Exact DETAILED metadata; source sampleCount remains optional and member IDs have no field.
-pub fn sample_lists(leg: &Leg<'_>, id: &StudyId) -> Result<Records<StudySampleList>, RequestError> {
+pub fn sample_lists(
+    leg: &Leg<'_>,
+    id: &StudyId,
+    offset: u32,
+    limit: u32,
+) -> Result<Records<StudySampleList>, RequestError> {
     let (reply, metadata) = leg.json_received_checked_cache::<SampleLists>(
         &endpoint(id, "sample-lists")?,
         &[("projection", Arg::Text("DETAILED"))],
@@ -168,7 +178,7 @@ pub fn sample_lists(leg: &Leg<'_>, id: &StudyId) -> Result<Records<StudySampleLi
         .collect();
     Ok(Records {
         rejected: total - rows.iter().flatten().count(),
-        rows,
+        window: crate::NativeWindow::local(rows, offset, limit),
         problems: problems.list,
         acquired: metadata
             .fetched

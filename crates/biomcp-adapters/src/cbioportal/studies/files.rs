@@ -8,7 +8,7 @@ use std::collections::BTreeSet;
 #[derive(Debug)]
 pub struct Directory {
     /// Native ordered references, absent when the exact directory returned 404.
-    pub rows: Option<Vec<StudyFile>>,
+    pub window: Option<crate::NativeWindow<StudyFile>>,
     /// Publisher LICENSE link, discovered across the whole directory.
     pub license_notice: Option<Text>,
     /// Original response acquisition time.
@@ -70,7 +70,12 @@ impl Entry {
     }
 }
 /// Read only one exact contents directory. No entry download URL is requested.
-pub fn files(leg: &Leg<'_>, id: &StudyId) -> Result<Directory, RequestError> {
+pub fn files(
+    leg: &Leg<'_>,
+    id: &StudyId,
+    offset: u32,
+    limit: u32,
+) -> Result<Directory, RequestError> {
     let url = format!(
         "{}/repos/cBioPortal/datahub/contents/public/{id}",
         super::super::GITHUB_ORIGIN
@@ -92,7 +97,7 @@ pub fn files(leg: &Leg<'_>, id: &StudyId) -> Result<Directory, RequestError> {
             if e.reason == biomcp_types::Reason::NotFound && e.status == Some(404) =>
         {
             return Ok(Directory {
-                rows: None,
+                window: None,
                 license_notice: None,
                 acquired: None,
             });
@@ -105,7 +110,11 @@ pub fn files(leg: &Leg<'_>, id: &StudyId) -> Result<Directory, RequestError> {
         .find(|r| r.name.as_str() == "LICENSE" && r.kind == StudyFileKind::File)
         .map(|r| r.html_url.clone());
     Ok(Directory {
-        rows: Some(reply.0.into_iter().map(Entry::mapped).collect()),
+        window: Some(crate::NativeWindow::local(
+            reply.0.into_iter().map(|row| Some(row.mapped())).collect(),
+            offset,
+            limit,
+        )),
         license_notice,
         acquired: metadata
             .fetched

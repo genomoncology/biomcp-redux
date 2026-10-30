@@ -50,7 +50,7 @@ pub fn search(
             ("limit", Arg::Num(limit.into())),
             ("offset", Arg::Num(offset.into())),
         ],
-        |r: &Molecules| page(&r.page_meta, r.received as usize, limit, offset),
+        |r: &Molecules| page(&r.window, limit, offset),
     )
 }
 /// Read exactly the requested molecule and refuse a mismatched source identity before cache admission.
@@ -88,7 +88,7 @@ pub fn mechanisms(
             ("offset", Arg::Num(offset.into())),
         ],
         |r: &Mechanisms| {
-            page(&r.page_meta, r.received as usize, limit, offset)?;
+            page(&r.window, limit, offset)?;
             if r.molecules.iter().all(|molecule| molecule == &id) {
                 Ok(())
             } else {
@@ -113,7 +113,7 @@ pub fn indications(
             ("offset", Arg::Num(offset.into())),
         ],
         |r: &Indications| {
-            page(&r.page_meta, r.received as usize, limit, offset)?;
+            page(&r.window, limit, offset)?;
             if r.molecules.iter().all(|molecule| molecule == &id) {
                 Ok(())
             } else {
@@ -122,12 +122,15 @@ pub fn indications(
         },
     )
 }
-fn page(meta: &PageMeta, count: usize, limit: u32, offset: u32) -> Result<(), BadReply> {
+fn page<T>(window: &crate::NativeWindow<T>, limit: u32, offset: u32) -> Result<(), BadReply> {
     if (1..=50).contains(&limit)
-        && meta.limit == limit
-        && meta.offset == offset
-        && count <= limit as usize
-        && (count == 0 || u64::from(offset) + count as u64 <= meta.total_count)
+        && window.limit() == limit
+        && window.offset() == offset
+        && window.received() <= limit
+        && (window.provider_empty()
+            || window
+                .total()
+                .is_some_and(|total| u64::from(offset) + u64::from(window.received()) <= total))
     {
         Ok(())
     } else {

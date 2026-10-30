@@ -1,6 +1,7 @@
 # 0494 — Keep each source page's native window facts in one value
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: c21c20e21919a33d0289182ec9a45eb1f5c08339
 
 Milestone: 5
 

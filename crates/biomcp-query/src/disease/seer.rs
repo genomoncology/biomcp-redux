@@ -21,23 +21,22 @@ pub fn search(cx: &Ctx<'_>, query: &DiseaseSearch) -> Outcome {
         .push(status::source(Source::Seer, leg.finish(), error));
     out.local = error.and_then(status::local);
     if let Ok(page) = reply {
-        let returned = page.rows.len() as u32;
-        out.page = Some(page_info(query.offset(), returned, page.total));
-        if page.received > 0 && u64::from(query.offset()) + u64::from(page.received) < page.total {
+        let total = page.window.total().unwrap_or(0);
+        let returned = page.window.rows.len() as u32;
+        out.page = Some(page_info(query.offset(), returned, total));
+        if let Some(offset) = page.window.next_offset() {
             out.next.push((
                 StepKind::Page,
-                run(Request::SearchDisease(
-                    query.at_offset(query.offset().saturating_add(page.received)),
-                )),
+                run(Request::SearchDisease(query.at_offset(offset))),
             ));
         }
         out.problems = page.problems;
         out.body = QueryBody::DiseaseSites(DiseaseSites {
-            items: page.rows.into(),
+            items: page.window.rows.into(),
             components: Box::default(),
             fetched: fetched(page.metadata.fetched),
         });
-        out.status = overall(&out, page.total == 0);
+        out.status = overall(&out, total == 0);
     }
     command.finish(deadline.remaining());
     out
@@ -76,16 +75,13 @@ pub fn get(cx: &Ctx<'_>, query: &DiseaseGet) -> Outcome {
         .push(status::source(Source::Seer, leg.finish(), error));
     out.local = error.and_then(status::local);
     if let Ok(page) = reply {
-        let returned = page.rows.len() as u32;
-        out.page = Some(page_info(query.section_offset(), returned, page.total));
-        if page.received > 0
-            && u64::from(query.section_offset()) + u64::from(page.received) < page.total
-        {
+        let total = page.window.total().unwrap_or(0);
+        let returned = page.window.rows.len() as u32;
+        out.page = Some(page_info(query.section_offset(), returned, total));
+        if let Some(offset) = page.window.next_offset() {
             out.next.push((
                 StepKind::Page,
-                run(Request::GetDisease(query.at_section_offset(
-                    query.section_offset().saturating_add(page.received),
-                ))),
+                run(Request::GetDisease(query.at_section_offset(offset))),
             ));
         }
         if let Ok(catalog) = serde_json::from_value(serde_json::json!({"source":"seer"})) {
@@ -95,18 +91,18 @@ pub fn get(cx: &Ctx<'_>, query: &DiseaseGet) -> Outcome {
         out.problems = page.problems;
         out.body = if survival {
             QueryBody::DiseaseSurvival(DiseaseSurvival {
-                items: page.rows.into(),
+                items: page.window.rows.into(),
                 components: Box::default(),
                 fetched: fetched(page.metadata.fetched),
             })
         } else {
             QueryBody::DiseaseIncidence(DiseaseIncidence {
-                items: page.rows.into(),
+                items: page.window.rows.into(),
                 components: Box::default(),
                 fetched: fetched(page.metadata.fetched),
             })
         };
-        out.status = overall(&out, page.total == 0);
+        out.status = overall(&out, total == 0);
     }
     super::page::record_problem(&mut out, query, Source::Seer);
     command.finish(deadline.remaining());
