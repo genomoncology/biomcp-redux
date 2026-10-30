@@ -400,10 +400,16 @@ fn report_context(observed: &[Observation]) -> Result<(), Box<dyn std::error::Er
         .collect();
     changes = Vec::new();
     let evidence = live::compare(&many, &[], &mut changes, &mut BTreeMap::new());
-    if evidence.get("omitted") != Some(&json!(8))
-        || !changes.last().is_some_and(|item| item.contains("omitted"))
+    if evidence.get("omitted") != Some(&json!(0))
+        || evidence
+            .get("items")
+            .and_then(Value::as_array)
+            .map(Vec::len)
+            != Some(40)
+        || changes.len() != 40
+        || changes.iter().any(|item| item.contains("omitted"))
     {
-        return Err("truncation is hidden".into());
+        return Err("complete exchange or drift details were discarded".into());
     }
     // Stable identities retain their exact match when an earlier result disappears.
     changes.clear();
@@ -461,14 +467,14 @@ fn bounded_command_drift(observed: &[Observation]) -> Result<(), Box<dyn std::er
     let mut changes = Vec::new();
     for _ in 0..2 {
         let evidence = live::compare(&before, &[], &mut changes, &mut BTreeMap::new());
-        if evidence.get("drift_omitted") != Some(&json!(24))
+        if evidence.get("drift_omitted") != Some(&json!(0))
             || evidence
                 .get("drift")
                 .and_then(Value::as_array)
                 .map(Vec::len)
-                != Some(16)
+                != Some(40)
         {
-            return Err("per-command drift evidence or exact omission count missing".into());
+            return Err("complete per-command drift evidence missing".into());
         }
     }
     Ok(())

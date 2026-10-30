@@ -233,7 +233,14 @@
       "description": "Compact source disease reference; the diseases section retains every coding field.",
       "properties": {
         "name": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Native source name."
         },
         "nci_thesaurus_concept_id": {
@@ -242,7 +249,6 @@
         }
       },
       "required": [
-        "name",
         "nci_thesaurus_concept_id"
       ],
       "type": "object"
@@ -346,11 +352,25 @@
           "description": "Native short summary, only on exact retrieval."
         },
         "brief_title": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Native title."
         },
         "current_trial_status": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Native status, without a registry translation."
         },
         "diseases": {
@@ -407,8 +427,6 @@
       "required": [
         "nci_id",
         "nct_id",
-        "brief_title",
-        "current_trial_status",
         "diseases"
       ],
       "type": "object"
@@ -1817,7 +1835,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.nci-trial-page/9",
+  "$id": "biomcp.nci-trial-page/10",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -1873,7 +1891,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.nci-trial-page/9",
+      "const": "biomcp.nci-trial-page/10",
       "type": "string"
     },
     "sources": {

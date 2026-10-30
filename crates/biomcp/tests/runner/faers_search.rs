@@ -94,8 +94,8 @@ pub(super) fn trials() -> Vec<Trial> {
 }
 fn policy_trials(cases: &mut Vec<Trial>) {
     cases.push(transcript_trial(
-        "adverse-event-search/invalid-optional-update-preserves-records",
-        || status::optional_date().map_err(Into::into),
+        "adverse-event-search/invalid-protocol-update-rejects-reply",
+        || status::protocol_date().map_err(Into::into),
     ));
     cases.push(transcript_trial(
         "adverse-event-search/200-absence-is-rejected-before-cache",

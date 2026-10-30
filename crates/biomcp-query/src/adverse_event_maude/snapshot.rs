@@ -7,7 +7,35 @@ use crate::{status, store::Store};
 use biomcp_fetch::{CacheError, Deadline, RequestError, SourceError};
 use biomcp_types::{Reason, SourceOutcome};
 use sha2::{Digest, Sha256};
-type Saved = (biodata::MaudeReport, Vec<SourceOutcome>);
+#[derive(serde::Deserialize)]
+struct Saved(
+    biodata::MaudeReport,
+    Vec<SourceOutcome>,
+    #[serde(default)] Vec<biomcp_types::Problem>,
+    #[serde(default)] maude::Positions,
+);
+// Keep the established payload and snapshot identity when no field was rejected.
+impl serde::Serialize for Saved {
+    fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        use serde::ser::SerializeTuple;
+        let mut tuple = serializer.serialize_tuple(if !self.3.is_empty() {
+            4
+        } else if self.2.is_empty() {
+            2
+        } else {
+            3
+        })?;
+        tuple.serialize_element(&self.0)?;
+        tuple.serialize_element(&self.1)?;
+        if !self.2.is_empty() || !self.3.is_empty() {
+            tuple.serialize_element(&self.2)?;
+        }
+        if !self.3.is_empty() {
+            tuple.serialize_element(&self.3)?;
+        }
+        tuple.end()
+    }
+}
 fn key(query: &AdverseEventGet) -> Vec<u8> {
     Sha256::digest(format!("biomcp.maude_snapshot/1\0{}", query.id()).as_bytes()).to_vec()
 }
@@ -16,7 +44,7 @@ pub(super) fn load(
     query: &AdverseEventGet,
     deadline: Deadline<'_>,
     out: &mut Outcome,
-) -> Result<Option<(biodata::MaudeReport, Text)>, RequestError> {
+) -> Result<Option<(biodata::MaudeReport, maude::Positions, Text)>, RequestError> {
     let leg = cx.fetch.leg(&maude::SPEC, deadline).fresh(cx.fresh);
     let denied = if cx.fetch.disabled(Source::Maude) {
         Some(
@@ -54,7 +82,7 @@ pub(super) fn load(
             return Ok(None);
         };
         let saved: Saved = serde_json::from_str(&payload).map_err(|_| CacheError::Database)?;
-        if saved.0.mdr_report_key != *query.id() {
+        if saved.0.mdr_report_key != *query.id() || !saved.3.check(&saved.0) {
             return Err(CacheError::Database.into());
         }
         (saved, snapshot.clone())
@@ -75,13 +103,26 @@ pub(super) fn load(
             out.status = Status::Absent;
             return Ok(None);
         };
-        let saved = (report, out.sources.clone());
+        let saved = Saved(
+            report.value.data,
+            out.sources.clone(),
+            report.problems,
+            report.value.positions,
+        );
         let payload = serde_json::to_string(&saved).map_err(|_| CacheError::Database)?;
         let mut store = Store::open(cx.fetch.cache_access()?, deadline)?;
         let snapshot = store.save_source_snapshot(&key(query), &payload, &out.sources)?;
         (saved, snapshot)
     };
+    Ok(Some(restore(saved, snapshot, out)))
+}
+fn restore(
+    saved: Saved,
+    snapshot: Text,
+    out: &mut Outcome,
+) -> (biodata::MaudeReport, maude::Positions, Text) {
     out.sources = saved.1;
+    out.problems.extend(saved.2);
     out.status = if out
         .sources
         .iter()
@@ -91,5 +132,5 @@ pub(super) fn load(
     } else {
         Status::Complete
     };
-    Ok(Some((saved.0, snapshot)))
+    (saved.0, saved.3, snapshot)
 }
