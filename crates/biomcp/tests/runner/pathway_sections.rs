@@ -119,6 +119,9 @@ fn walk(genes: bool) -> Check {
             seen.len()
         ));
     }
+    if !genes {
+        super::pathway_get_pages::check(&env, &globals(&env, false))?;
+    }
     Ok(())
 }
 fn observe(

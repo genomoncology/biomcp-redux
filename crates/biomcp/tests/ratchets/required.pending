@@ -1,7 +1,4 @@
 option get drug --product-number
-option get pathway --pool
-option get pathway --section-limit
-option get pathway --section-offset
 option get variant --resolver
 option search adverse-event --reaction
 option search adverse-event --snapshot

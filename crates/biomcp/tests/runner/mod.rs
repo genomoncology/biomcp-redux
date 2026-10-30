@@ -114,6 +114,7 @@ mod output_stream;
 mod pathway_budgets;
 mod pathway_commands;
 mod pathway_failures;
+mod pathway_get_pages;
 mod pathway_registry;
 mod pathway_retirements;
 mod pathway_sections;

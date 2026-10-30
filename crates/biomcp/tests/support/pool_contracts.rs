@@ -136,5 +136,8 @@ pub(crate) const PATHWAY_EVENTS: (&str, &[&str]) = (
     &[
         "option pathway events --offset",
         "option pathway events --pool",
+        "option get pathway --section-limit",
+        "option get pathway --section-offset",
+        "option get pathway --pool",
     ],
 );
