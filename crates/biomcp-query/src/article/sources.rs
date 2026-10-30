@@ -152,7 +152,7 @@ fn pubmed_search<'a>(
     let error = result.as_ref().err().copied();
     let mut outcome = status::source(Source::PubMed, leg.finish(), error);
     outcome.term = Text::new(term).ok();
-    let mut dropped = false;
+    let dropped = false;
     let mut problems = Vec::new();
     let items = match result {
         Ok(ids) => {

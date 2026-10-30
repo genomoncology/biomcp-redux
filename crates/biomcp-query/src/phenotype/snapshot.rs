@@ -121,7 +121,6 @@ fn acquire(
     };
     let reply = match q.source() {
         PhenotypeSource::Hpo => hpo::get(&leg, q).map(|r| {
-            out.include_refusals(r.refusals);
             out.problems.extend(r.problems);
             (r.card, r.synonyms, r.xrefs, None, fetched(r.metadata))
         }),
