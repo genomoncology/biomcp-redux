@@ -5,6 +5,8 @@ use biomcp_types::{DiagnosticGet, GtrCard, Problem};
 /// Exact source identity and independent relation collections under one local snapshot.
 #[derive(Debug)]
 pub struct Record {
+    /// Actual refused native records, independent of optional fields.
+    pub refusals: crate::Refusal,
     /// Rejected optional source prose, without discarding the native identity.
     pub problems: Vec<Problem>,
     /// Selected card, absent for missing or conflicting identities.
@@ -29,12 +31,16 @@ pub fn get(leg: &Leg<'_>, query: &DiagnosticGet) -> Result<Record, RequestError>
         record: None,
         list: Vec::new(),
     };
+    let mut refusals = crate::Refusal::None;
     for row in rows {
         match row.value {
             Native::Version(v) => versions.push(v),
-            Native::Refused(r) => r.disclose(&mut cx),
+            Native::Refused(r) => {
+                refusals = crate::Refusal::Refused;
+                r.disclose(&mut cx);
+            },
             Native::Relation(r) => {
-                if let Some(relation) = map::relation(&r, &mut cx) {
+                if let Some(relation) = map::relation(&r, &mut cx, &mut refusals) {
                     relations.push(relation);
                 }
             }
@@ -65,6 +71,7 @@ pub fn get(leg: &Leg<'_>, query: &DiagnosticGet) -> Result<Record, RequestError>
         Vec::new()
     };
     Ok(Record {
+        refusals,
         problems,
         card,
         conflict,
