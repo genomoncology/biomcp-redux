@@ -1,6 +1,7 @@
 # 0488 — Accept ClinVar's own ID and HGVS spellings
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 565abbc0cc47b811a25b1099ca913966930238ea
 
 Milestone: 5
 
