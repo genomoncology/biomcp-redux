@@ -13,6 +13,15 @@
         "--version"
       ],
       "stdout": "biomcp 1.0.0\n"
+    },
+    {
+      "run": [
+        "health",
+        "--offline"
+      ],
+      "expect": {
+        "/schema": "biomcp.health/6"
+      }
     }
   ]
 }
