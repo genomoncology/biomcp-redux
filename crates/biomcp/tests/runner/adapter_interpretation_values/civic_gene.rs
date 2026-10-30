@@ -21,7 +21,8 @@ pub(super) fn values() -> Result<(), Box<dyn std::error::Error>> {
                 }
             },
             json!({
-                "/result/items/0/sections/civic/data/id":20,
+                "/result/items/0/sections/civic/data/id/id":20,
+                "/result/items/0/sections/civic/data/id/namespace":"CIViC",
                 "/result/items/0/sections/civic/data":{"omits":[absent]},
                 "/problems":{"count":1},"/problems/0/field":field,"/problems/0/record":"20"
             }),

@@ -341,8 +341,8 @@ fn nested_domain_cases() -> Vec<NestedCase> {
             "/results/0/metadata/member_databases",
             "member_databases.database",
             json!({"":{"PF00001":"Bad"},"Pfam":{"PF00870":"Valid"}}),
-            "/result/items/0/member_signatures/0/accession",
-            json!("PF00870"),
+            "/result/items/0/member_signatures/0",
+            json!({"namespace":"Pfam","id":"PF00870","name":"Valid"}),
             "/result/items/0/member_signatures/1",
         ),
         (
@@ -350,8 +350,8 @@ fn nested_domain_cases() -> Vec<NestedCase> {
             "/results/0/metadata/member_databases",
             "member_databases.accession",
             json!({"Pfam":{"":"Bad","PF00870":"Valid"}}),
-            "/result/items/0/member_signatures/0/accession",
-            json!("PF00870"),
+            "/result/items/0/member_signatures/0",
+            json!({"namespace":"Pfam","id":"PF00870","name":"Valid"}),
             "/result/items/0/member_signatures/1",
         ),
         (
