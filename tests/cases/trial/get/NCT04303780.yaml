@@ -11,11 +11,6 @@
         "trial",
         "NCT04303780"
       ],
-      "mcp": [
-        "get",
-        "trial",
-        "NCT04303780"
-      ],
       "expect": {
         "/status": "complete",
         "/result/items/0/input": "NCT04303780",
@@ -27,65 +22,6 @@
     },
     {
       "run": [
-        "get",
-        "trial",
-        "NCT04303780",
-        "eligibility"
-      ],
-      "mcp": [
-        "get",
-        "trial",
-        "NCT04303780",
-        "eligibility"
-      ],
-      "expect": {
-        "/status": "complete",
-        "/result/items/0/card/nct_id": "NCT04303780",
-        "/result/items/0/sections/eligibility/data/minimum_age": {
-          "equals": {
-            "state": "source",
-            "raw": "18 Years"
-          }
-        },
-        "/result/items/0/sections/eligibility/data/maximum_age": {
-          "equals": {
-            "state": "source",
-            "raw": "100 Years"
-          }
-        }
-      },
-      "max_bytes": 2434
-    },
-    {
-      "run": [
-        "get",
-        "trial",
-        "NCT04303780",
-        "outcomes"
-      ],
-      "mcp": [
-        "get",
-        "trial",
-        "NCT04303780",
-        "outcomes"
-      ],
-      "expect": {
-        "/status": "complete",
-        "/result/items/0/card/nct_id": "NCT04303780",
-        "/result/items/0/sections/outcomes/data/items/0/kind": "primary",
-        "/result/items/0/sections/outcomes/data/items/0/measure": "Progression-free Survival (PFS)",
-        "/result/items/0/sections/outcomes/data/items/0/time_frame": "Baseline up to primary analysis data cut-off date (02 August 2022); max time on study as of primary analysis data cut off was 24.3 months"
-      },
-      "max_bytes": 2579
-    },
-    {
-      "run": [
-        "get",
-        "trial",
-        "NCT04303780",
-        "arms"
-      ],
-      "mcp": [
         "get",
         "trial",
         "NCT04303780",
@@ -101,28 +37,6 @@
         ]
       },
       "max_bytes": 2259
-    },
-    {
-      "run": [
-        "get",
-        "trial",
-        "NCT04303780",
-        "all"
-      ],
-      "mcp": [
-        "get",
-        "trial",
-        "NCT04303780",
-        "all"
-      ],
-      "expect": {
-        "/status": "complete",
-        "/result/items/0/card/nct_id": "NCT04303780",
-        "/result/items/0/sections/eligibility/state": "data",
-        "/result/items/0/sections/outcomes/state": "data",
-        "/result/items/0/sections/arms/state": "data"
-      },
-      "max_bytes": 12429
     }
   ],
   "harvest": "Reviewed question bank: T10, T11, T12"

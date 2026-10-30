@@ -137,7 +137,14 @@ fn page(
         .collect();
     let received = records.len() as u32;
     Ok(Page {
-        window: crate::NativeWindow::new(records, offset, limit, Some(total), received),
+        window: crate::NativeWindow::new(
+            records,
+            offset,
+            limit,
+            Some(total),
+            received,
+            crate::Refusal::None,
+        ),
         problems,
         metadata,
     })

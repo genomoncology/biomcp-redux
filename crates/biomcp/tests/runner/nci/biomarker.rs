@@ -8,7 +8,7 @@ pub(super) fn trials() -> Vec<Trial> {
         Trial::test("biomarker-nci/help-means-concepts", || {
             help().map_err(Into::into)
         }),
-        Trial::test("biomarker-nci/native-snapshot-pages", || {
+        Trial::test(crate::runner::pool_contract::BIOMARKER.0, || {
             pages().map_err(Into::into)
         }),
         Trial::test("biomarker-nci/bounded-failures", || {
@@ -221,6 +221,22 @@ fn research() -> Check {
         } else {
             "/result/card/parent_ids"
         };
+        let expected = if omitted == "card" {
+            json!({"/status":"complete", "/sources/0/source":"nci", "/sources/0/state":"ok",
+                "/sources/0/count":2, "/result/candidates/0/header/codes":["C96022"],
+                "/result/candidates/1/header/name":"Synthetic second native row"})
+        } else {
+            json!({"/status":"partial", "/sources/0/source":"nci", "/sources/0/state":"ok",
+                "/result/card/header/count":326, "/problems/0/field":"parent_ids"})
+        };
+        for (field, value) in expected.as_object().ok_or("source assertions")? {
+            if answer.pointer(field) != Some(value) {
+                return Err(format!(
+                    "{capture} {field}: expected {value}, actual {:?}",
+                    answer.pointer(field)
+                ));
+            }
+        }
         if answer.pointer(pointer).is_some() {
             return Err("ambiguous or malformed value acquired a selected result".into());
         }

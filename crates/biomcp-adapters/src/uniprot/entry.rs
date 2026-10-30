@@ -36,6 +36,7 @@ pub fn entry(leg: &Leg<'_>, id: &UniProtIsoform) -> Result<Mapped<Option<Entry>>
     match leg.json_checked_cache::<raw::Entry>(&ep, &[], |raw| raw.admitted(id)) {
         Ok(raw) => Ok(map::entry(raw, id)),
         Err(RequestError::Source(e)) if e.reason == biomcp_types::Reason::NotFound => Ok(Mapped {
+            refusals: crate::Refusal::None,
             value: None,
             problems: Vec::new(),
         }),

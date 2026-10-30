@@ -9,63 +9,8 @@
       "run": [
         "get",
         "trial",
-        "NCT02563002"
-      ],
-      "mcp": [
-        "get",
-        "trial",
-        "NCT02563002"
-      ],
-      "expect": {
-        "/status": "complete",
-        "/result/items/0/input": "NCT02563002",
-        "/result/items/0/card": {
-          "equals_file": "NCT02563002-card.json"
-        }
-      },
-      "max_bytes": 2352
-    },
-    {
-      "run": [
-        "get",
-        "trial",
         "NCT02563002",
-        "eligibility"
-      ],
-      "mcp": [
-        "get",
-        "trial",
-        "NCT02563002",
-        "eligibility"
-      ],
-      "expect": {
-        "/status": "complete",
-        "/result/items/0/card/nct_id": "NCT02563002",
-        "/result/items/0/sections/eligibility/data/minimum_age": {
-          "equals": {
-            "state": "source",
-            "raw": "18 Years"
-          }
-        },
-        "/result/items/0/sections/eligibility/data/maximum_age": {
-          "equals": {
-            "state": "no_limit"
-          }
-        }
-      },
-      "max_bytes": 6030
-    },
-    {
-      "run": [
-        "get",
-        "trial",
-        "NCT02563002",
-        "outcomes"
-      ],
-      "mcp": [
-        "get",
-        "trial",
-        "NCT02563002",
+        "--section",
         "outcomes"
       ],
       "expect": {
@@ -76,52 +21,6 @@
         "/result/items/0/sections/outcomes/data/items/0/time_frame": "Up to approximately 59 months"
       },
       "max_bytes": 6691
-    },
-    {
-      "run": [
-        "get",
-        "trial",
-        "NCT02563002",
-        "arms"
-      ],
-      "mcp": [
-        "get",
-        "trial",
-        "NCT02563002",
-        "arms"
-      ],
-      "expect": {
-        "/status": "complete",
-        "/result/items/0/card/nct_id": "NCT02563002",
-        "/result/items/0/sections/arms/data/items/0/record": "arm",
-        "/result/items/0/sections/arms/data/items/0/data/label": "Pembrolizumab",
-        "/result/items/0/sections/arms/data/items/0/data/intervention_names": [
-          "Biological: Pembrolizumab"
-        ]
-      },
-      "max_bytes": 5552
-    },
-    {
-      "run": [
-        "get",
-        "trial",
-        "NCT02563002",
-        "all"
-      ],
-      "mcp": [
-        "get",
-        "trial",
-        "NCT02563002",
-        "all"
-      ],
-      "expect": {
-        "/status": "complete",
-        "/result/items/0/card/nct_id": "NCT02563002",
-        "/result/items/0/sections/eligibility/state": "data",
-        "/result/items/0/sections/outcomes/state": "data",
-        "/result/items/0/sections/arms/state": "data"
-      },
-      "max_bytes": 17347
     }
   ],
   "harvest": "Reviewed question bank: T22"

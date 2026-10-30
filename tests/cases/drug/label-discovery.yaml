@@ -178,7 +178,9 @@
           "omits": [
             "problems"
           ]
-        }
+        },
+        "/sources/0/source": "openfda-label",
+        "/sources/0/state": "ok"
       },
       "max_bytes": 1000
     },

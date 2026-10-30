@@ -9,6 +9,8 @@ use biomcp_types::{PhenotypeGet, PhenotypeSearch, PhenotypeSection, PhenotypeTer
 /// Native ordered HP page and retrieval metadata.
 #[derive(Debug)]
 pub struct Page {
+    /// Actual HP records refused at the native identity boundary.
+    pub refusals: crate::Refusal,
     /// Native row count before refusing invalid row identities.
     pub received: u32,
     /// Rejected native metadata on returned rows.
@@ -61,12 +63,16 @@ pub fn search(leg: &Leg<'_>, q: &PhenotypeSearch) -> Result<Page, RequestError> 
     )?;
     let received = page.items.len() as u32;
     let mut problems = Vec::new();
+    let mut refusals = crate::Refusal::None;
     let items = page
         .items
         .into_iter()
         .filter_map(|node| {
             problems.extend(node.problems);
-            let id = node.id?;
+            let Some(id) = node.id else {
+                refusals = crate::Refusal::Refused;
+                return None;
+            };
             Some(attribution(&id).map(|attribution| PhenotypeHeader {
                 attribution,
                 id,
@@ -78,6 +84,7 @@ pub fn search(leg: &Leg<'_>, q: &PhenotypeSearch) -> Result<Page, RequestError> 
         })
         .collect::<Result<Vec<_>, RequestError>>()?;
     Ok(Page {
+        refusals,
         received,
         problems,
         items,

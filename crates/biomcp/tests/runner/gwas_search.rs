@@ -1,4 +1,5 @@
 //! Feature gwas-search: source selectors cross the real command boundary.
+use super::required_contract;
 use super::{configuration::invoke, gwas_budgets, launch::Environment};
 use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
@@ -20,10 +21,9 @@ pub(super) fn trials() -> Vec<Trial> {
         transcript_trial("gwas-search/stale-source-is-partial", || {
             state::stale().map_err(Into::into)
         }),
-        transcript_trial(
-            "gwas-search/expired-threshold-restarts-original-selectors",
-            || state::expired().map_err(Into::into),
-        ),
+        transcript_trial(required_contract::GWAS_POOL.0, || {
+            state::expired().map_err(Into::into)
+        }),
         transcript_trial("gwas-search/native-trait-id-is-never-rewritten", || {
             state::literal().map_err(Into::into)
         }),
@@ -53,10 +53,10 @@ pub(super) fn trials() -> Vec<Trial> {
         transcript_trial("gwas-search/restricted-policy-before-io", || {
             policy().map_err(Into::into)
         }),
-        transcript_trial("gwas-search/checked-native-selectors-and-aliases", || {
+        transcript_trial(required_contract::GWAS_SELECTORS.0, || {
             wire::selectors().map_err(Into::into)
         }),
-        transcript_trial("gwas-search/native-offset-and-continuation", || {
+        transcript_trial(required_contract::GWAS_PAGES.0, || {
             wire::paging().map_err(Into::into)
         }),
         transcript_trial("gwas-search/live-warm-cache-and-explicit-fresh", || {

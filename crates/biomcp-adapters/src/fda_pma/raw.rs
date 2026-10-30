@@ -109,6 +109,7 @@ impl Record {
             expedited_review_flag: p.field("expedited_review_flag", self.expedited_review_flag),
         };
         crate::Mapped {
+            refusals: crate::Refusal::None,
             value,
             problems: p.list,
         }

@@ -1,6 +1,7 @@
 # 0456 — Cut the cases to one best call per required item
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: c9f7693a10b6e32f93619f5f22935d6f9ed1de6a
 
 Milestone: 5
 

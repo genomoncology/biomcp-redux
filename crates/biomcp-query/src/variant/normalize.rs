@@ -129,6 +129,7 @@ fn service(
     let error = result.as_ref().err().copied();
     let mut source = status::source(spec.source, leg.finish(), error);
     let result = result.unwrap_or_else(|_| biomcp_adapters::Mapped {
+        refusals: biomcp_adapters::Refusal::None,
         value: NormalizationResult::unavailable(spec.source),
         problems: Vec::new(),
     });

@@ -13,14 +13,6 @@
         "--intervention",
         "pembrolizumab"
       ],
-      "mcp": [
-        "search",
-        "trial",
-        "--condition",
-        "melanoma",
-        "--intervention",
-        "pembrolizumab"
-      ],
       "expect": {
         "/status": "complete",
         "/page/total": 399,

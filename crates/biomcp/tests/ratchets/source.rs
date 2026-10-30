@@ -1,5 +1,7 @@
 #[path = "adapter_values.rs"]
 pub(super) mod adapter_values;
+#[path = "mapped_refusals.rs"]
+mod mapped_refusals;
 use super::{Check, dependencies, rust_files};
 use std::{collections::BTreeSet, fs, path::Path};
 
@@ -108,6 +110,7 @@ const ADAPTER_LIMIT: usize = 300;
 pub(super) fn check(root: &Path) -> Check {
     super::placement::check(root)?;
     adapter_values::check(root)?;
+    mapped_refusals::check(root)?;
     super::transport_sources::check(root)?;
     let sqlite = dependencies::sqlite_aliases(root)?;
     let mut keys = BTreeSet::new();

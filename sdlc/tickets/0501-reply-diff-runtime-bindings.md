@@ -1,6 +1,7 @@
 # 0501 — Let the reply diff pair runtime values by binding
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: f8f8b44e7911f735a5ea57971d47443e9920c026
 
 Milestone: 5
 

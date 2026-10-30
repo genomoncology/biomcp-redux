@@ -83,12 +83,12 @@ pub(super) fn raw_size(bytes: &[u8]) -> Result<usize, String> {
 
 fn envelopes() -> Result<(), String> {
     let registry = super::schema::Registry::embedded()?;
-    let root = crate::runner::launch::fixtures().join("cases");
+    let root = crate::runner::launch::fixtures().join("");
     for case in [
-        "gene/braf.yaml",
-        "article/get/card.yaml",
-        "trial/condition.yaml",
-        "gene/failure-500.yaml",
+        "cases/gene/braf.yaml",
+        "cases/article/get/card.yaml",
+        "native/case-inputs/trial/condition.yaml",
+        "native/case-inputs/gene/failure-500.yaml",
     ] {
         let value = super::run_case(&root.join(case), &registry)?;
         let rows = value

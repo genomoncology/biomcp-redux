@@ -11,12 +11,6 @@
         "CA123643",
         "--detail"
       ],
-      "mcp": [
-        "variant",
-        "population",
-        "CA123643",
-        "--detail"
-      ],
       "exit": 4,
       "is_error": true,
       "expect": {

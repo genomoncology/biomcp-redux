@@ -1,5 +1,5 @@
 //! Feature article sources: native recordings retain records after one bad metadata value.
-use super::response_cases::checked_case;
+use super::{native_fields::check as native, response_cases::checked_case};
 use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
@@ -20,7 +20,6 @@ pub(super) fn trials() -> Vec<Trial> {
         ("article-named-search/adapter-values-litsense", litsense),
         ("article-sections/adapter-values-pubtator", pubtator),
         ("article-fulltext/adapter-values-pmc-oa", pmc),
-        ("article-evidence/adapter-values-semantic-scholar", edges),
         ("article-fulltext/adapter-values-jats", jats),
         (
             "article-fulltext/adapter-values-jats-figure-label",
@@ -87,64 +86,6 @@ pub(super) fn trials() -> Vec<Trial> {
     trials
 }
 
-fn native(
-    capture: &str,
-    args: &[&str],
-    source: &str,
-    pointer: &str,
-    field: &str,
-    retained: Value,
-    missing: &str,
-) -> Check {
-    let positive = checked_case(capture, args, |_, _| {}, retained.clone(), 0)?;
-    use std::io::Write;
-    writeln!(
-        std::io::stdout(),
-        "native positive {source}: schema={}",
-        positive
-            .get("schema")
-            .ok_or("native positive lacks schema")?
-    )?;
-    let mut edited = 0;
-    let value = checked_case(
-        capture,
-        args,
-        |name, record| {
-            if name == source
-                && selected_record(source, record)
-                && let Some(value) = record.pointer_mut(pointer)
-            {
-                *value = if source == "orcid" {
-                    json!(42)
-                } else {
-                    json!({"bad": true})
-                };
-                edited += 1;
-            }
-        },
-        retained,
-        0,
-    )?;
-    if edited != 1 {
-        return Err(format!("expected one edited {source} field, got {edited}").into());
-    }
-    if value.pointer(missing).is_some() {
-        return Err(format!("bad {source} field survived at {missing}").into());
-    }
-    let problems = value
-        .get("problems")
-        .and_then(Value::as_array)
-        .ok_or("missing field problems")?;
-    if problems
-        .iter()
-        .filter(|p| p["source"] == source && p["field"] == field)
-        .count()
-        != 1
-    {
-        return Err(format!("expected one {source} {field} problem: {value}").into());
-    }
-    Ok(())
-}
 fn preprint() -> Check {
     native(
         "article/preprint/live",
@@ -195,24 +136,6 @@ fn pmc() -> Check {
         "/result/items/0/sections/fulltext/data/manuscript",
     )
 }
-fn edges() -> Check {
-    native(
-        "article/edges/live",
-        &[
-            "article",
-            "references",
-            "33123537",
-            "--source",
-            "semantic-scholar",
-        ],
-        "semantic-scholar",
-        "/exchanges/0/body/value/data/0/isInfluential",
-        "influential",
-        json!({"/result/items/0/pmid":"32597970"}),
-        "/result/items/0/influential",
-    )
-}
-
 fn jats() -> Check {
     let capture = "article/fulltext/live-all";
     let args = ["get", "article", "33123537", "fulltext"];
@@ -383,18 +306,4 @@ fn section_title() -> Check {
         return Err(format!("Section title edit lost part or problem: {value}").into());
     }
     Ok(())
-}
-
-// A capture directory may contain several original request identities. Change
-// only the exact record selected by these two native positive controls.
-fn selected_record(source: &str, record: &Value) -> bool {
-    let selected = match source {
-        "europepmc" => "/article/PPR/PPR1064174?",
-        "semantic-scholar" => "/paper/PMID%3A33123537/references?",
-        _ => return true,
-    };
-    record
-        .get("url")
-        .and_then(Value::as_str)
-        .is_some_and(|url| url.contains(selected))
 }

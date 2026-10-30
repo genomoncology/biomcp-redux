@@ -1,10 +1,13 @@
 //! Feature study-get: exact stored cards and bounded source metadata without member IDs.
+use super::required_contract;
 use super::{rows, seed};
 use crate::runner::launch::Environment;
 use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::{fs, io::Write, path::Path};
+#[path = "study_get_pages.rs"]
+mod section_page;
 type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
     let native = crate::runner::launch::fixtures().join("study-get-cases");
@@ -14,7 +17,7 @@ pub(super) fn trials() -> Vec<Trial> {
             retained(&native).map_err(Into::into)
         })
         .with_ignored_flag(!available),
-        transcript_trial("study-get/complete-pages-and-native-counts", || {
+        transcript_trial(required_contract::STUDY_PAGES.0, || {
             pages().map_err(Into::into)
         }),
         transcript_trial("study-get/identity-failures-and-policy", || {
@@ -145,6 +148,7 @@ fn pages() -> Check {
     )?;
     record(&replay, "molecular-profiles", profiles(), 200)?;
     record(&replay, "sample-lists", lists(), 200)?;
+    section_page::limited(&env, &replay)?;
     for (section, total, id) in [
         ("profiles", 17, "molecularProfileId"),
         ("sample-lists", 13, "sampleListId"),

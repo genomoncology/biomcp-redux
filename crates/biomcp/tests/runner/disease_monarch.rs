@@ -14,7 +14,7 @@ pub(super) fn trials() -> Vec<Trial> {
         || exact().map_err(Into::into),
     )];
     trials.push(transcript_trial(
-        "disease-monarch/phenotype-evidence-and-independent-native-qualifiers",
+        crate::runner::required_contract::MONARCH_PHENOTYPES.0,
         || phenotype().map_err(Into::into),
     ));
     trials.push(transcript_trial(

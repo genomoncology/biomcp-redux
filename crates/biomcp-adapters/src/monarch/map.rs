@@ -77,6 +77,7 @@ pub(super) fn row(
         components: components()?,
     };
     Ok(crate::Mapped {
+        refusals: crate::Refusal::None,
         value,
         problems: problems.list,
     })

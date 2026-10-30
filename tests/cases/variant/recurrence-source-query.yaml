@@ -22,23 +22,6 @@
         "--limit",
         "3"
       ],
-      "mcp": [
-        "variant",
-        "recurrence",
-        "NC_000007.13:g.140494253G>A",
-        "--source",
-        "cbioportal",
-        "--gene",
-        "BRAF",
-        "--study",
-        "msk_impact_2017",
-        "--profile",
-        "msk_impact_2017_mutations",
-        "--sample-set",
-        "msk_impact_2017_all",
-        "--limit",
-        "3"
-      ],
       "max_bytes": 4788,
       "expect": {
         "/schema": "biomcp.variant-recurrence/11",
