@@ -55,11 +55,9 @@ fn errors() -> Result<(), String> {
     Ok(())
 }
 fn help() -> Result<(), String> {
-    let value = invoke(&["help"], 0)?;
-    let commands = value
-        .pointer("/result/commands")
-        .and_then(Value::as_array)
-        .ok_or("missing help commands")?;
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    let commands = super::help_examples::catalog(&env)?;
+    let commands = commands.as_slice();
     command_metadata(commands)?;
     for command in commands {
         for argument in arguments(command)? {
@@ -104,38 +102,11 @@ fn help() -> Result<(), String> {
 }
 
 fn command_metadata(commands: &[Value]) -> Result<(), String> {
-    let index = commands
+    for command in commands
         .iter()
-        .find(|c| c.get("command").is_none())
-        .ok_or("missing command index")?;
-    let mut paths = std::collections::BTreeSet::from([Vec::new()]);
-    for line in index["description"]
-        .as_str()
-        .ok_or("missing index description")?
-        .lines()
+        .filter(|c| c["command"].as_array().is_some_and(|p| !p.is_empty()))
     {
-        let (name, _) = line.split_once(": ").ok_or("invalid command index")?;
-        paths.insert(vec![name.to_owned()]);
-    }
-    for command in commands {
-        if let Some(name) = command.pointer("/command/0").and_then(Value::as_str) {
-            paths.insert(vec![name.to_owned()]);
-        }
-    }
-    for path in paths {
-        if let Some(name) = path.first() {
-            invoke(&["help", name], 0).map_err(|error| format!("help {name}: {error}"))?;
-        }
-        let command = commands
-            .iter()
-            .find(|c| {
-                if path.is_empty() {
-                    c.get("command").is_none()
-                } else {
-                    c["command"] == json!(path)
-                }
-            })
-            .ok_or_else(|| format!("missing command {path:?}"))?;
+        let path = &command["command"];
         if command["description"]
             .as_str()
             .is_none_or(|s| s.trim().is_empty())

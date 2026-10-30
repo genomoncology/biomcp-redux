@@ -91,7 +91,7 @@ pub(super) fn search(cx: &Ctx<'_>, q: &GwasSearch) -> Outcome {
 }
 fn key(q: &GwasSearch) -> Vec<u8> {
     Sha256::digest(format!(
-        "biomcp.gwas_threshold/2\0{}",
+        "biomcp.gwas_threshold/3\0{}",
         serde_json::to_string(&q.restart()).unwrap_or_default()
     ))
     .to_vec()
@@ -217,7 +217,7 @@ fn append(q: &GwasSearch, saved: &mut Saved, page: gwas::Page) -> Result<(), Req
         let Some(exact) = row.exact_p_value() else {
             let problem = biomcp_types::Problem {
                 source: Source::Gwas,
-                record: row.association_id.to_string().parse().ok(),
+                record: row.association_id.get().to_string().parse().ok(),
                 field: "pvalue_mantissa".into(),
                 code: biomcp_types::ProblemCode::ValueUnknown,
             };

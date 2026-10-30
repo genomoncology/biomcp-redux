@@ -230,7 +230,7 @@ fn concurrent() -> Check {
         return Err("EOF failed to drain accepted calls".into());
     }
     if reply(&replies, &json!("gwas"))?.pointer("/result/structuredContent/result/items/0/id")
-        != Some(&json!(6110))
+        != Some(&json!("association:6110"))
     {
         return Err("concurrent GWAS cache-writing call failed".into());
     }

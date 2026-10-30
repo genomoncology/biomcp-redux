@@ -23,8 +23,8 @@ pub(super) fn xref(
     problems: &mut crate::mapped::Problems,
 ) -> CellLineXref {
     CellLineXref {
-        database: row.database,
-        accession: row.accession,
+        namespace: row.database,
+        id: row.accession,
         label: problems
             .field(&format!("{field}.label"), row.label)
             .map(Into::into),
@@ -41,7 +41,7 @@ fn variation(row: raw::Variation, problems: &mut crate::mapped::Problems) -> Cel
         .into_vec()
         .into_iter()
         .map(|r| xref(r, "sequence-variation-list.xref-list", problems))
-        .partition(|r| r.database.as_str() == "HGNC");
+        .partition(|r| r.namespace.as_str() == "HGNC");
     CellLineVariation {
         variation_type: problems
             .required_field(&format!("{field}.variation-type"), row.variation_type),
@@ -61,7 +61,7 @@ fn variation(row: raw::Variation, problems: &mut crate::mapped::Problems) -> Cel
             .map(|reference| CellLineGene {
                 hgnc: problems.optional(
                     "sequence-variation-list.xref-list.accession",
-                    Some(reference.accession.as_str().parse()),
+                    Some(reference.id.as_str().parse()),
                 ),
                 reference,
             })

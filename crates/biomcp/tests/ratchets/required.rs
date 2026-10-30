@@ -3,6 +3,8 @@
 mod case_data;
 #[path = "../../../biomcp-fetch/tests/support/environment.rs"]
 mod environment;
+#[path = "../support/help_catalog.rs"]
+mod help_catalog;
 #[path = "required/pending.rs"]
 mod pending;
 #[path = "../runner/process.rs"]
@@ -21,11 +23,16 @@ fn metadata() -> Result<(Value, Vec<Value>), Box<dyn std::error::Error>> {
     if !binary.is_file() {
         return Err("required coverage: build the current product binary before ratchets".into());
     }
-    let output = environment::command(binary, home.path(), &["help".into()]).output()?;
-    if !output.status.success() {
-        return Err("required coverage: shipped help failed".into());
-    }
-    let help: Value = serde_json::from_slice(&output.stdout)?;
+    let commands = help_catalog::collect(|args| {
+        let output = environment::command(binary, home.path(), &args)
+            .output()
+            .map_err(|e| e.to_string())?;
+        if !output.status.success() {
+            return Err("shipped scoped help failed".into());
+        }
+        serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())
+    })?;
+    let help = json!({"result":{"commands":commands}});
     let child = environment::command(binary, home.path(), &["serve".into()])
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())

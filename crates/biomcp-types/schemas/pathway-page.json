@@ -121,13 +121,13 @@
             "id": {
               "$ref": "#/$defs/Reply_ReactomeId"
             },
-            "source": {
+            "namespace": {
               "const": "reactome",
               "type": "string"
             }
           },
           "required": [
-            "source",
+            "namespace",
             "id"
           ],
           "type": "object"
@@ -138,18 +138,19 @@
             "id": {
               "$ref": "#/$defs/Reply_WikiPathwaysId"
             },
-            "source": {
+            "namespace": {
               "const": "wikipathways",
               "type": "string"
             }
           },
           "required": [
-            "source",
+            "namespace",
             "id"
           ],
           "type": "object"
         }
-      ]
+      ],
+      "x-identifier": true
     },
     "Reply_PathwayPage": {
       "description": "Source-ordered header page; class admission never changes the native total.",
@@ -902,7 +903,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.pathway-page/7",
+  "$id": "biomcp.pathway-page/8",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -958,7 +959,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.pathway-page/7",
+      "const": "biomcp.pathway-page/8",
       "type": "string"
     },
     "sources": {

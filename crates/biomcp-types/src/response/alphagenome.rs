@@ -6,9 +6,10 @@ use serde::{Deserialize, Serialize};
 /// Native ontology identity.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", schemars(extend("x-identifier" = true)))]
 pub struct AlphaGenomeOntology {
     /// Publisher ontology vocabulary.
-    pub ontology_type: AlphaGenomeOntologyType,
+    pub namespace: AlphaGenomeOntologyType,
     /// Publisher numeric identifier.
     pub id: i64,
 }

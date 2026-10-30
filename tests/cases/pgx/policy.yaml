@@ -25,7 +25,7 @@
         "cpic"
       ],
       "expect": {
-        "/schema": "biomcp.pgx-page/5",
+        "/schema": "biomcp.pgx-page/6",
         "/status": "failed",
         "/query/source": "cpic",
         "/sources/0/state": "skipped",
@@ -98,7 +98,7 @@
         "cpic"
       ],
       "expect": {
-        "/schema": "biomcp.pgx-recommendations/4",
+        "/schema": "biomcp.pgx-recommendations/5",
         "/status": "failed",
         "/query/source": "cpic",
         "/sources/0/state": "skipped",

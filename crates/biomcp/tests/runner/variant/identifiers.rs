@@ -48,13 +48,39 @@ fn check() -> Result<(), String> {
             return Err(format!("printed ID did not resolve: {id}: {card}"));
         }
     }
-    stub.finish()?;
+    for spelling in ["ClinVar:577152", "CLINVAR:577152", "cLiNvAr:577152"] {
+        let card = invoke(&env, strings(&["get", "variant", spelling]), 0)?;
+        if card.pointer("/query/input") != Some(&json!("clinvar:577152"))
+            || card.pointer("/result/candidates/0/identity/ids")
+                != Some(&json!(["rs1454569806", "clinvar:577152"]))
+        {
+            return Err(format!(
+                "ClinVar spelling lost its canonical source identity: {card}"
+            ));
+        }
+    }
+    let requests = stub.finish()?;
+    if !requests
+        .iter()
+        .any(|(_, r)| r.contains("q=clinvar.variant_id%3A577152"))
+    {
+        return Err(format!(
+            "ClinVar spelling did not use its canonical native query: {requests:?}"
+        ));
+    }
     subjects()
 }
 fn strings(args: &[&str]) -> Vec<String> {
     args.iter().map(|s| (*s).into()).collect()
 }
 fn body(request: &str) -> Result<String, String> {
+    if request.contains("577152") {
+        return std::fs::read_to_string(
+            crate::runner::launch::fixtures()
+                .join("fixtures/variant/transcripts/myvariant-clinvar-577152.json"),
+        )
+        .map_err(|e| e.to_string());
+    }
     let hit = json!({"_id":"chr7:g.140453136A>T", "dbsnp":{"rsid":"rs113488022"}, "clinvar":{"variant_id":13961}});
     Ok(if request.starts_with("GET /v1/query?") {
         json!({"total":1,"hits":[hit]})

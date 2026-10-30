@@ -250,7 +250,15 @@ pub(super) fn native_facts(value: &Value, id: &str) -> Result<(), String> {
             ("efo_id", "efo"),
         ] {
             let expected = source.get(native).filter(|v| !v.is_null());
-            if result.get(field) != expected {
+            let actual = if field == "cell_id" {
+                if result.pointer("/cell_id/namespace") != Some(&json!("ChEMBL")) {
+                    return Err("native cell identity lost its authority".into());
+                }
+                result.pointer("/cell_id/id")
+            } else {
+                result.get(field)
+            };
+            if actual != expected {
                 return Err(format!("{id}: lost native field {native}"));
             }
         }

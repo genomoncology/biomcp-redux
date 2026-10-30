@@ -262,7 +262,7 @@ fn discovery() -> Result<(), String> {
             .unwrap_or_default();
         for (entity, reply) in [
             ("drug", "biomcp.drug-who-card/3"),
-            ("pgx", "biomcp.pgx-annotation/4"),
+            ("pgx", "biomcp.pgx-annotation/5"),
         ] {
             if command["command"] == json!(["get", entity])
                 && !schemas.iter().any(|id| id.as_str() == Some(reply))
@@ -329,7 +329,7 @@ fn parent_replies(commands: &[Value]) -> Result<(), String> {
     let replies = parent["reply_schemas"]
         .as_array()
         .ok_or("missing parent reply schemas")?;
-    for id in ["biomcp.drug-who-card/3", "biomcp.pgx-annotation/4"] {
+    for id in ["biomcp.drug-who-card/3", "biomcp.pgx-annotation/5"] {
         if !replies.iter().any(|reply| reply.as_str() == Some(id)) {
             return Err(format!("missing child reply {id} for get parent"));
         }

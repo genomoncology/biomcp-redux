@@ -336,12 +336,25 @@
             }
           ],
           "description": "Whole source trait label."
+        },
+        "namespace": {
+          "$ref": "#/$defs/Reply_IdentifierNamespace",
+          "description": "Native authority; unknown means the source did not state one."
         }
       },
       "required": [
+        "namespace",
         "id"
       ],
-      "type": "object"
+      "type": "object",
+      "x-identifier": true
+    },
+    "Reply_IdentifierNamespace": {
+      "description": "A source-stated authority or an explicit unknown authority, represented by the string unknown.",
+      "maxLength": 1048576,
+      "minLength": 1,
+      "pattern": "^(?![\\s\\S]*[\\x00-\\x1f\\x7f-\\x9f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069])",
+      "type": "string"
     },
     "Reply_PageInfo": {
       "description": "Search counts after filtering and deduplication.",
@@ -982,7 +995,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.gwas-study/5",
+  "$id": "biomcp.gwas-study/6",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -1038,7 +1051,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.gwas-study/5",
+      "const": "biomcp.gwas-study/6",
       "type": "string"
     },
     "sources": {

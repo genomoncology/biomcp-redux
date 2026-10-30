@@ -31,10 +31,10 @@
           "count": 1398,
           "unique": true
         },
-        "/result/items/items/*/database": {
+        "/result/items/items/*/namespace": {
           "equals_file": "k562-xref-databases.json"
         },
-        "/result/items/items/*/accession": {
+        "/result/items/items/*/id": {
           "equals_file": "k562-xref-accessions.json"
         }
       },

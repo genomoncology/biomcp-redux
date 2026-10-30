@@ -18,7 +18,7 @@
         "/status": "complete",
         "/result/pathway/id": {
           "equals": {
-            "source": "reactome",
+            "namespace": "reactome",
             "id": "R-HSA-187037"
           }
         },
@@ -46,7 +46,7 @@
         "/status": "complete",
         "/result/pathway/references/1/pubmed": "12676795"
       },
-      "max_bytes": 1982
+      "max_bytes": 2309
     }
   ]
 }

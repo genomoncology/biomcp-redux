@@ -44,6 +44,14 @@ pub(crate) fn text(value: &str) -> Result<biodata::Text, biomcp_fetch::BadReply>
     biodata::Text::new(value).map_err(|_| biomcp_fetch::BadReply)
 }
 
+/// Pair an unchanged native scalar with its checked authority at the mapping boundary.
+pub(crate) fn identifier<T>(
+    namespace: &str,
+    id: T,
+) -> Result<biodata::Identifier<T>, biomcp_fetch::BadReply> {
+    Ok(biodata::Identifier::new(text(namespace)?, id))
+}
+
 /// Mapping context for optional fields; absent values produce no problem.
 pub(crate) struct Problems {
     pub(crate) source: biomcp_types::Source,

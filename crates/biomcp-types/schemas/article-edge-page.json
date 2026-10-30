@@ -375,7 +375,8 @@
           ],
           "type": "object"
         }
-      ]
+      ],
+      "x-identifier": true
     },
     "Reply_ArticleSentence": {
       "description": "Source-provided sentence resemblance, without a claim of clinical relevance.",
@@ -1177,7 +1178,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.article-edges/9",
+  "$id": "biomcp.article-edges/10",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -1233,7 +1234,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.article-edges/9",
+      "const": "biomcp.article-edges/10",
       "type": "string"
     },
     "sources": {

@@ -1,5 +1,5 @@
 use crate::{Error, text_value};
-use std::{fmt, str::FromStr};
+use std::{borrow::Cow, fmt, str::FromStr};
 /// Published variant identifier grammar, without interpreting the allele expression.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct VariantInput(crate::Text);
@@ -26,7 +26,7 @@ impl VariantInput {
 
     /// Maximum bytes in one published identifier.
     pub const MAX_BYTES: usize = 2048;
-    /// Check the identifier's spelling while preserving every supplied character.
+    /// Check the identifier spelling and canonicalize the ClinVar namespace prefix.
     pub fn new(value: &str) -> Result<Self, Error> {
         if value.is_empty()
             || value.len() > Self::MAX_BYTES
@@ -34,17 +34,46 @@ impl VariantInput {
         {
             return Err(Error::VariantInputInvalid);
         }
-        let input = Self(crate::Text::new(value).map_err(|_| Error::VariantInputInvalid)?);
+        let value = if value
+            .get(..8)
+            .is_some_and(|prefix| prefix.eq_ignore_ascii_case("clinvar:"))
+        {
+            Cow::Owned(format!("clinvar:{}", &value[8..]))
+        } else {
+            Cow::Borrowed(value)
+        };
+        let input = Self(crate::Text::new(value.as_ref()).map_err(|_| Error::VariantInputInvalid)?);
         input.namespace()?;
         Ok(input)
     }
-    /// Return the unchanged identifier.
+    /// Return the checked identifier with a canonical ClinVar prefix.
     pub fn as_str(&self) -> &str {
         self.0.as_str()
     }
     /// Borrow the already checked input text without reparsing or trimming it.
     pub fn text(&self) -> &crate::Text {
         &self.0
+    }
+    /// Checked parenthetical gene and its exact reference accession, when supplied.
+    pub fn reference_gene(&self) -> Option<(&str, &str)> {
+        let (reference, _) = self.as_str().split_once(':')?;
+        let (accession, gene) = reference.split_once('(')?;
+        let gene = gene.strip_suffix(')')?;
+        if gene.parse::<biodata::Accession>().is_ok() || gene.parse::<crate::GeneSymbol>().is_err()
+        {
+            return None;
+        }
+        Some((accession, gene))
+    }
+    /// Native resolver input omits a checked parenthetical gene label.
+    pub fn native_hgvs(&self) -> Cow<'_, str> {
+        if let Some((accession, _)) = self.reference_gene()
+            && let Some((_, body)) = self.as_str().split_once(':')
+        {
+            Cow::Owned(format!("{accession}:{body}"))
+        } else {
+            Cow::Borrowed(self.as_str())
+        }
     }
     /// Classify a published namespace, without parsing molecular meaning.
     pub fn namespace(&self) -> Result<VariantNamespace, Error> {
@@ -89,7 +118,7 @@ text_value!(
     format!(
         "^(?=[\\x21-\\x7e]{{1,{}}}$)({}|{}|^{}$|{})",
         Self::MAX_BYTES,
-        crate::VariantId::pattern(),
+        crate::VariantId::pattern().replace("clinvar:", "[cC][lL][iI][nN][vV][aA][rR]:"),
         crate::HgvsText::pattern(),
         biodata::schema_pattern::decimal(u64::MAX),
         Self::CHROMOSOME_PATTERN

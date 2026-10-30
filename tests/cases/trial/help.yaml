@@ -136,5 +136,5 @@
     }
   ],
   "story": "Trial help describes source discovery, intact sections and explicit document saves with executable examples.",
-  "verified": "Measured compact CLI bytes plus 15 percent in j10693: search trial 4489, get trial 2700, trial document 1088. No comparable released schema-generated help baseline exists. CLI/MCP parity shares these assertions. Help byte limits use j18463 output plus fifteen percent for defaults, aliases, inherited options and examples; higher existing limits remain. Native NCI phase/status values measured search trial help at 7114 bytes in j21057; its cap keeps the established fifteen percent margin."
+  "verified": "Measured compact CLI bytes plus 15 percent in j10693: search trial 4489, get trial 2700, trial document 1088. No comparable released schema-generated help baseline exists. CLI/MCP parity shares these assertions. Help byte limits use j18463 output plus fifteen percent for defaults, aliases, inherited options and examples; higher existing limits remain. Search trial entity help measured at 10262 bytes in j22622 on the combined source; its cap keeps the established fifteen percent margin."
 }

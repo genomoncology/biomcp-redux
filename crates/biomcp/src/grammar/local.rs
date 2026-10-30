@@ -35,20 +35,26 @@ pub(super) fn help_command(root: &Command) -> Command {
         }
         help = help.subcommand(child);
     }
-    help.subcommand(Command::new("help"))
-        .subcommand(
-            Command::new("network").arg(
-                Arg::new("setting")
-                    .help("Network setting to describe.")
-                    .value_parser(["ca_bundle", "proxy"]),
-            ),
-        )
-        .subcommand(Command::new("sources"))
-        .subcommand(Command::new("config"))
-        .subcommand(Command::new("exit").about("Explain process exit and error codes."))
-        .subcommand(
-            Command::new("relations").about("Map entities through sections and search filters."),
-        )
+    help.subcommand(
+        Command::new("help").arg(
+            Arg::new("command")
+                .num_args(0..)
+                .help("Command help path to describe."),
+        ),
+    )
+    .subcommand(
+        Command::new("network").arg(
+            Arg::new("setting")
+                .help("Network setting to describe.")
+                .value_parser(["ca_bundle", "proxy"]),
+        ),
+    )
+    .subcommand(Command::new("sources"))
+    .subcommand(Command::new("config"))
+    .subcommand(Command::new("exit").about("Explain process exit and error codes."))
+    .subcommand(
+        Command::new("relations").about("Map entities through sections and search filters."),
+    )
 }
 
 fn help_tree(command: &Command) -> Command {
