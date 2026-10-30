@@ -3,6 +3,7 @@ mod families;
 mod members;
 mod pages;
 mod records;
+mod source_pages;
 mod synthetic;
 use super::transcript::trial;
 use biomcp_adapters::{NativeWindow, Refusal, chembl};
@@ -25,6 +26,7 @@ pub(super) fn trials() -> Vec<Trial> {
     tests.extend(members::trials());
     tests.extend(records::trials());
     tests.extend(synthetic::trials());
+    tests.extend(source_pages::trials());
     tests
 }
 
