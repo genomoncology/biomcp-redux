@@ -61,11 +61,22 @@ fn citing_doi() -> Result<(), Box<dyn std::error::Error>> {
                     && output.pointer("/result/fulltext/reason") == Some(&json!("disabled"))
             }
             _ => {
-                state == Some(&json!("unavailable"))
-                    && output.pointer("/result/fulltext/reason") == Some(&json!("no-join-id"))
+                output.get("result").is_none()
+                    && output["sources"].as_array().is_some_and(|sources| {
+                        sources.iter().any(|source| {
+                            source["source"] == "pubmed"
+                                && source["state"] == "failed"
+                                && source["reason"] == "no-join-id"
+                        })
+                    })
             }
         };
-        if !valid {
+        let status = if matches!(mode, "no-join" | "mismatch") {
+            "failed"
+        } else {
+            "complete"
+        };
+        if !valid || output["status"] != status {
             return Err(format!("citing DOI {mode} outcome is wrong: {output}").into());
         }
     }
@@ -267,7 +278,9 @@ fn cursor() -> Result<(), String> {
         &next,
         &["--disable-sources".into(), "semantic-scholar".into()],
     )?;
-    if blocked.pointer("/result/semantic_scholar/state") != Some(&json!("skipped")) {
+    if blocked["status"] != "complete"
+        || blocked.pointer("/result/semantic_scholar/state") != Some(&json!("skipped"))
+    {
         return Err("disabled source restored stored evidence".into());
     }
     if stub.finish()?.len() != 6 {

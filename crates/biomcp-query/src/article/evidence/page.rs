@@ -63,7 +63,17 @@ pub(super) fn render(
         more |= (paragraph_end as usize) < total;
         data.paragraphs.items = items.into();
     }
-    classify(&snapshot, out);
+    let unavailable = matches!(&snapshot.graph, Section::Unavailable { .. })
+        || matches!(&snapshot.fulltext, Some(Section::Unavailable { .. }));
+    let answered = matches!(&snapshot.graph, Section::Data { .. })
+        || matches!(&snapshot.fulltext, Some(Section::Data { .. }));
+    sources(out, std::mem::take(&mut snapshot.sources));
+    crate::status::item(
+        out,
+        true,
+        unavailable && !answered,
+        unavailable || !snapshot.terminal,
+    );
     if more || !snapshot.terminal {
         out.next.push((
             StepKind::Page,
@@ -73,7 +83,6 @@ pub(super) fn render(
             },
         ));
     }
-    sources(out, snapshot.sources);
     out.body = QueryBody::ArticleEvidence(ArticleEvidenceResult {
         semantic_scholar: snapshot.graph,
         fulltext: snapshot.fulltext,
@@ -109,41 +118,3 @@ fn sources(out: &mut Outcome, sources: Vec<biomcp_types::SourceOutcome>) {
     }
 }
 
-fn classify(snapshot: &Snapshot, out: &mut Outcome) {
-    let failed = |section: &Section<_>| {
-        matches!(
-            section,
-            Section::Unavailable { .. } | Section::Skipped { .. }
-        )
-    };
-    let graph_failed = failed(&snapshot.graph);
-    let text_failed = snapshot
-        .fulltext
-        .as_ref()
-        .is_some_and(|s| matches!(s, Section::Unavailable { .. } | Section::Skipped { .. }));
-    let graph_data = matches!(&snapshot.graph, Section::Data { .. });
-    let text_data = matches!(&snapshot.fulltext, Some(Section::Data { .. }));
-    {
-        let (found, identity_failed, unavailable) = if graph_failed || text_failed {
-            if graph_data || text_data {
-                (true, false, true)
-            } else {
-                (false, true, false)
-            }
-        } else if !snapshot.terminal
-            || snapshot.sources.iter().any(|s| {
-                matches!(
-                    s.state,
-                    biomcp_types::SourceState::Stale
-                        | biomcp_types::SourceState::Failed
-                        | biomcp_types::SourceState::Skipped
-                )
-            })
-        {
-            (true, false, true)
-        } else {
-            (true, false, false)
-        };
-        crate::status::item(out, found, identity_failed, unavailable);
-    };
-}
