@@ -448,7 +448,7 @@ fn rejected(env: &Environment, replay: &Path, section: &str, value: &Value) -> C
             "refused study identity removed or reordered valid native neighbors: {value}"
         ));
     }
-    let next = super::action(value, "page")?;
+    let next = crate::runner::action(value, "page")?;
     if !next
         .windows(2)
         .any(|pair| pair == ["--section-offset", "5"])

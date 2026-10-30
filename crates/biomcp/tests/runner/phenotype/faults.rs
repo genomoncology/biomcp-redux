@@ -216,7 +216,7 @@ fn identity(fault: &str) -> Result<(), String> {
         let mut offline = words.clone();
         offline.push("--offline");
         let missing = invoke(
-            &format!("faults/identity/record1@fault=monarch-id,attempt=1"),
+            "faults/identity/record1@fault=monarch-id,attempt=1",
             &env,
             &offline,
             4,
