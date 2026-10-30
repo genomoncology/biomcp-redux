@@ -63,6 +63,7 @@ mod faers_search;
 mod format_selection;
 mod gene_tables;
 mod health_bundles;
+tool_only! { mod hgnc_sync; }
 mod held_proxy;
 mod help_entry;
 mod help_examples;
@@ -521,6 +522,7 @@ tool_only! {
         let mut trials = proof::trials();
         trials.push(reply_comparison::trial());
         trials.extend(literature_values::trials());
+        trials.extend(hgnc_sync::trials());
         trials.extend(gene_tables::tool_trials());
         trials.extend(drug_native_identity::tool_trials());
         trials.extend(wikipathways::tool_trials());
