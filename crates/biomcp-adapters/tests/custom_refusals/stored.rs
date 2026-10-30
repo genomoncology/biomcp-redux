@@ -30,7 +30,7 @@ fn stored_gtr_relations_distinguish_declined_identity_and_optional_values() -> C
         assert_eq!(row.refusals, expected, "GTR lost actual relation refusal");
         assert!(row.card.is_some());
         if expected == Refusal::None {
-            assert!(row.relations.first().is_some());
+            assert!(!row.relations.is_empty());
             assert!(
                 !row.problems.is_empty(),
                 "optional native value control must disclose its problem"

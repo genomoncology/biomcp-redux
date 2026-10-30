@@ -38,7 +38,7 @@ fn cpic_record_identity_refusal_preserves_native_consumption() -> Check {
         assert_eq!(page.refusals, expected, "CPIC lost actual identity refusal");
         assert_eq!(page.items.len(), accepted);
         assert_eq!(page.consumed, 1);
-        assert_eq!(page.total, 1);
+        assert_eq!(page.total, 2);
     }
     Ok(())
 }

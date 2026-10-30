@@ -8,7 +8,7 @@ fn complex_xref_refusal_preserves_participant_and_snapshot() -> Check {
     for (xrefs, expected) in [
         (json!(false), Refusal::None),
         (
-            json!([{"database":"GO","identifier":"GO:0000001","name":false}]),
+            json!([{"database":"GO","identifier":"0000001","name":false}]),
             Refusal::None,
         ),
         (json!([false]), Refusal::Refused),
