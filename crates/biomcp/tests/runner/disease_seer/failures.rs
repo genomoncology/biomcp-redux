@@ -178,9 +178,21 @@ fn malformed_statistics() -> Result<(), String> {
             ));
         }
         let expect = statistics_expect(kind);
+        // Measured comparable bytes 2405/1556 plus fifteen percent, rounded upward.
+        let ceiling = match kind {
+            "number" => 2766,
+            "year" => 1790,
+            _ => {
+                if exit == 0 {
+                    2675
+                } else {
+                    426
+                }
+            }
+        };
         if let Err(error) = replay(
             &directory,
-            json!([{"run":words,"mcp":words,"exit":exit,"is_error":exit!=0,"expect":expect,"max_bytes":if exit==0 {2675} else {426}}]),
+            json!([{"run":words,"mcp":words,"exit":exit,"is_error":exit!=0,"expect":expect,"max_bytes":ceiling}]),
         ) {
             errors.push(format!("{kind}: {error}"));
         }
