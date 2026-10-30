@@ -314,12 +314,13 @@ fn many_changed() -> Result<(), String> {
         })
         .collect();
     let report = live::summary(rows, BTreeMap::new(), 0, false);
-    let rows = report["case_sample"]
-        .as_array()
+    let rows = report
+        .get("case_sample")
+        .and_then(Value::as_array)
         .ok_or("missing changed cases")?;
     if rows.len() != 30
-        || rows.iter().any(|row| row["witness"].is_null())
-        || report["omitted"] != json!(0)
+        || rows.iter().any(|row| row.get("witness").is_none_or(Value::is_null))
+        || report.get("omitted") != Some(&json!(0))
     {
         return Err("changed cases consumed each other's evidence budget".into());
     }
@@ -341,13 +342,21 @@ fn long_walk_shapes() -> Result<(), String> {
             "witness":commands})
     }).collect();
     let report = live::summary(rows, BTreeMap::new(), 0, true);
-    let rows = report["case_sample"].as_array().ok_or("missing retained walks")?;
+    let rows = report
+        .get("case_sample")
+        .and_then(Value::as_array)
+        .ok_or("missing retained walks")?;
     for (row, count) in rows.iter().zip(counts) {
-        let captures = row["witness"].as_array().ok_or("cut retained walk")?;
+        let captures = row
+            .get("witness")
+            .and_then(Value::as_array)
+            .ok_or("cut retained walk")?;
         if captures.len() != count || live::witness::within_budget(captures).is_err() {
             return Err("retained nightly walk lost commands or exceeded its case budget".into());
         }
     }
-    if rows.len() != counts.len() { return Err("retained nightly walks omitted".into()); }
+    if rows.len() != counts.len() {
+        return Err("retained nightly walks omitted".into());
+    }
     Ok(())
 }

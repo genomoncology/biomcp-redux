@@ -36,8 +36,7 @@ pub(super) fn command(
     ordinal: usize,
     captures: &mut Vec<Value>,
 ) -> Result<(Reply, Result<Reply, String>), String> {
-    within_budget(captures)
-        .map_err(|error| format!("{error}; command {ordinal} was not run"))?;
+    within_budget(captures).map_err(|error| format!("{error}; command {ordinal} was not run"))?;
     captures.push(json!({"ordinal":ordinal}));
     let capture = captures.last_mut().ok_or("missing command capture")?;
     let expected = invoke(baseline, args.0, Some(replay), ordinal, capture, "baseline")?;

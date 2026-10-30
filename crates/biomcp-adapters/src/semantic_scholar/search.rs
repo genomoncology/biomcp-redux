@@ -274,5 +274,8 @@ pub(super) fn doi_discovery<'a>(
         .filter_map(|ids| ids.doi.as_ref().map(ToString::to_string))
         .collect();
     // Checked page and transport limits bound these complete source identities.
-    Some(biomcp_fetch::Identities { namespace: "doi".into(), ids })
+    Some(biomcp_fetch::Identities {
+        namespace: "doi".into(),
+        ids,
+    })
 }
