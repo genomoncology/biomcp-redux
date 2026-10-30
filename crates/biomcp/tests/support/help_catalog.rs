@@ -18,8 +18,7 @@ pub(crate) fn collect(
             && serde_json::to_vec(&response)
                 .map_err(|e| e.to_string())?
                 .len()
-                + 1
-                > 8192
+                >= 8192
         {
             return Err(format!("command help exceeds 8 KB: {path:?}"));
         }
