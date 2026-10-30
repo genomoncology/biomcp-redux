@@ -15,6 +15,12 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Detail {
+    /// Actual refused native records, including refused document manifest records.
+    #[serde(default = "super::refusals::none", with = "super::refusals")]
+    pub refusals: crate::Refusal,
+    /// Actual refused document manifest records, independent of optional labels.
+    #[serde(default = "super::refusals::none", with = "super::refusals")]
+    pub document_refusals: crate::Refusal,
     /// Rejected nonidentity fields retained with this snapshot.
     pub problems: Vec<biomcp_types::Problem>,
     /// Whole sites with attached contacts.
@@ -60,7 +66,10 @@ pub fn get(leg: &Leg<'_>, id: NctId) -> Result<(Detail, ReplyMetadata), RequestE
     };
     detail.documents = problems
         .field("documentSection", raw.document_section)
-        .map_or_else(Box::default, |d| d.mapped(id, &mut problems));
+        .map_or_else(Box::default, |d| {
+            d.mapped(id, &mut problems, &mut detail.document_refusals)
+        });
+    detail.refusals.include(detail.document_refusals);
     detail.problems = problems.list;
     Ok((detail, metadata))
 }
@@ -186,6 +195,7 @@ struct Intervention {
 }
 impl Protocol {
     fn detail(mut self) -> Detail {
+        let mut refusals = crate::Refusal::None;
         let mut problems = Problems {
             source: Source::ClinicalTrialsGov,
             record: crate::mapped::record(self.identification_module.nct_id),
@@ -197,7 +207,7 @@ impl Protocol {
         );
         let (arm_rows, interventions) = arms.map_or_else(
             || (Box::default(), Box::default()),
-            |arms| arms.rows(&mut problems),
+            |arms| arms.rows(&mut problems, &mut refusals),
         );
         let (locations, contacts, officials) = problems
             .field(
@@ -206,13 +216,13 @@ impl Protocol {
             )
             .map_or_else(
                 || (Box::default(), Box::default(), Box::default()),
-                |sites| sites.rows(&mut problems),
+                |sites| sites.rows(&mut problems, &mut refusals),
             );
         let card = self.card(&interventions, &mut problems);
         Detail {
             references: problems
                 .field("referencesModule", self.references_module)
-                .map_or_else(Box::default, |r| r.rows(&mut problems)),
+                .map_or_else(Box::default, |r| r.rows(&mut problems, &mut refusals)),
             documents: Box::default(),
             locations,
             contacts,
@@ -223,10 +233,12 @@ impl Protocol {
                 .map(|v| v.mapped(&mut problems)),
             outcomes: problems
                 .field("outcomesModule", self.outcomes_module)
-                .map_or_else(Box::default, |o| o.rows(&mut problems)),
+                .map_or_else(Box::default, |o| o.rows(&mut problems, &mut refusals)),
             problems: problems.list,
             arms: arm_rows,
             interventions,
+            refusals,
+            document_refusals: crate::Refusal::None,
         }
     }
     fn card(&mut self, interventions: &[TrialIntervention], problems: &mut Problems) -> TrialCard {
@@ -306,19 +318,29 @@ impl Eligibility {
     }
 }
 impl Outcomes {
-    fn rows(self, problems: &mut Problems) -> Box<[TrialOutcome]> {
+    fn rows(self, problems: &mut Problems, refusals: &mut crate::Refusal) -> Box<[TrialOutcome]> {
         [
             (
                 TrialOutcomeKind::Primary,
-                problems.fields("primaryOutcomes", self.primary_outcomes),
+                super::refusals::records(
+                    problems,
+                    refusals,
+                    "primaryOutcomes",
+                    self.primary_outcomes,
+                ),
             ),
             (
                 TrialOutcomeKind::Secondary,
-                problems.fields("secondaryOutcomes", self.secondary_outcomes),
+                super::refusals::records(
+                    problems,
+                    refusals,
+                    "secondaryOutcomes",
+                    self.secondary_outcomes,
+                ),
             ),
             (
                 TrialOutcomeKind::Other,
-                problems.fields("otherOutcomes", self.other_outcomes),
+                super::refusals::records(problems, refusals, "otherOutcomes", self.other_outcomes),
             ),
         ]
         .into_iter()
@@ -346,10 +368,13 @@ fn age(
 }
 
 impl Arms {
-    fn rows(self, problems: &mut Problems) -> (Box<[TrialArm]>, Box<[TrialIntervention]>) {
+    fn rows(
+        self,
+        problems: &mut Problems,
+        refusals: &mut crate::Refusal,
+    ) -> (Box<[TrialArm]>, Box<[TrialIntervention]>) {
         (
-            problems
-                .fields("armGroups", self.arm_groups)
+            super::refusals::records(problems, refusals, "armGroups", self.arm_groups)
                 .into_vec()
                 .into_iter()
                 .map(|v| TrialArm {
@@ -360,8 +385,7 @@ impl Arms {
                         .native_texts("armGroups.interventionNames", v.intervention_names),
                 })
                 .collect(),
-            problems
-                .fields("interventions", self.interventions)
+            super::refusals::records(problems, refusals, "interventions", self.interventions)
                 .into_vec()
                 .into_iter()
                 .map(|v| TrialIntervention {
