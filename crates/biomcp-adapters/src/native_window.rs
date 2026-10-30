@@ -76,6 +76,11 @@ impl<T> NativeWindow<T> {
     pub fn provider_empty(&self) -> bool {
         self.received == 0
     }
+    /// Admit valid native empty pages or pages with at least one accepted identity.
+    pub fn identities_admitted(&self) -> bool {
+        !self.rows.is_empty()
+            || (self.provider_empty() && self.refusals == crate::Refusal::None)
+    }
     /// Whether native rows indicate a further window, independent of accepted rows.
     pub fn has_more(&self) -> bool {
         !self.provider_empty()
