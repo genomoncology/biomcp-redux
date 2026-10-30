@@ -1,7 +1,7 @@
 {
   "feature": "article-preprints",
   "live_check": "synthetic response case",
-  "story": "Malformed source attributes are rejected before caching",
+  "story": "Malformed optional abstract markup leaves the checked preprint and its exact problem readable from cache.",
   "replay": "article/preprint/synthetic-attribute",
   "steps": [
     {
@@ -11,14 +11,29 @@
         "PPR1064174"
       ],
       "expect": {
-        "/status": "failed",
-        "/result/items/0/status": "failed",
-        "/sources/0/reason": "bad-reply",
-        "/next/*/kind": {
-          "includes": "fresh"
+        "/status": "complete",
+        "/result/items/0/status": "complete",
+        "/result/items/0/answer/card/europepmc_id": "PPR1064174",
+        "/result/items/0/answer/card/doi": "10.21203/rs.3.rs-7293078/v1",
+        "/result/items/0/answer/card": {
+          "omits": [
+            "abstract_parts"
+          ]
+        },
+        "/sources/0/source": "europepmc",
+        "/sources/0/state": "ok",
+        "/problems": {
+          "equals": [
+            {
+              "source": "europepmc",
+              "record": "PPR1064174",
+              "field": "abstract_parts",
+              "code": "value.unknown"
+            }
+          ]
         }
       },
-      "exit": 4
+      "exit": 0
     },
     {
       "run": [
@@ -28,13 +43,29 @@
       ],
       "offline": true,
       "expect": {
-        "/status": "failed",
-        "/sources/0/reason": "offline",
-        "/next/*/kind": {
-          "includes": "fresh"
+        "/status": "complete",
+        "/result/items/0/status": "complete",
+        "/result/items/0/answer/card/europepmc_id": "PPR1064174",
+        "/result/items/0/answer/card/doi": "10.21203/rs.3.rs-7293078/v1",
+        "/result/items/0/answer/card": {
+          "omits": [
+            "abstract_parts"
+          ]
+        },
+        "/sources/0/source": "europepmc",
+        "/sources/0/state": "ok",
+        "/problems": {
+          "equals": [
+            {
+              "source": "europepmc",
+              "record": "PPR1064174",
+              "field": "abstract_parts",
+              "code": "value.unknown"
+            }
+          ]
         }
       },
-      "exit": 4
+      "exit": 0
     }
   ]
 }

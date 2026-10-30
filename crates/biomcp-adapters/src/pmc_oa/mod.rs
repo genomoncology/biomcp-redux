@@ -92,10 +92,7 @@ pub fn read(
         record: crate::mapped::record(id),
         list: Vec::new(),
     };
-    let license_code = problems
-        .required_field("license", record.license_code)
-        .filter(|v| !v.trim().is_empty());
-    let license_code = problems.required("license", license_code);
+    let license_code = problems.required_field("license", record.license_code);
     let Some(license_code) = license_code else {
         return Ok(crate::Mapped {
             value: None,
