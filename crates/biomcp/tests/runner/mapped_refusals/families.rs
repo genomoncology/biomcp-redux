@@ -5,7 +5,7 @@ use biomcp_fetch::{Fetch, FetchConfig, Mode};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::time::Duration;
-type Check<T = ()> = Result<T, Box<dyn std::error::Error>>;
+pub(super) type Check<T = ()> = Result<T, Box<dyn std::error::Error>>;
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
@@ -31,7 +31,7 @@ pub(super) fn trials() -> Vec<Trial> {
     ]
 }
 
-fn replay(
+pub(super) fn replay(
     capture: &str,
     change: impl FnMut(&str, &mut Value),
 ) -> Check<(tempfile::TempDir, Fetch)> {
