@@ -68,7 +68,7 @@ pub fn search(cx: &Ctx<'_>, q: &GwasSearch) -> Outcome {
     }
     let mut source = status::source(Source::Gwas, leg.finish(), error);
     if let Some((received, total)) = counts {
-        source.fetched = Some(received);
+        source.retrieved_count = Some(received);
         source.count = Some(total);
     }
     if source.reason == Some(biomcp_types::Reason::BadReply) {

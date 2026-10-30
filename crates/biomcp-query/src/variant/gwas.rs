@@ -37,7 +37,7 @@ pub(super) fn section(
     let error = result.as_ref().err().copied();
     let mut source = status::source(Source::Gwas, leg.finish(), error);
     if let Ok(page) = &result {
-        source.fetched = Some(page.received);
+        source.retrieved_count = Some(page.received);
         source.count = Some(page.total);
     }
     let mut problems = Vec::new();
