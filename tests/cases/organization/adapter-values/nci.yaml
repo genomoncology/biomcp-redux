@@ -26,9 +26,10 @@
             "count"
           ]
         },
-        "/problems/*/field": [
-          "count"
-        ]
+        "/problems/*/field": {
+          "includes": "count"
+        },
+        "/result/items/0/name": "Dana Farber Community Cancer Care-Quincy"
       }
     }
   ]

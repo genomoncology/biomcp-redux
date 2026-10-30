@@ -28,10 +28,10 @@
       "follow": "section",
       "expect": {
         "/result/header/id": "160",
-        "/result/devices/records/0/manufacturer_d_name": "Synthetic maker",
         "/problems/*/field": [
           "event_type"
-        ]
+        ],
+        "/result/devices/records/0/manufacturer": "Synthetic maker"
       }
     }
   ]
