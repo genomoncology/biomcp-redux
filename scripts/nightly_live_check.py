@@ -216,10 +216,8 @@ def classify_case(row):
     if invariant:
         return 'failure'
     witness = row.get('witness')
-    if not witness or cut(witness):
-        return 'uncertain'
-    if not isinstance(witness, list):
-        return 'uncertain'
+    if not isinstance(witness, list) or not witness:
+        return 'failure'
     discoveries = {}
     outcomes = []
     output_changes = {item for item in drift if ': output status changed:' in item}

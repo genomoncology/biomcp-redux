@@ -336,7 +336,7 @@ class NightlyCommand(unittest.TestCase):
         self.assertNotEqual(result.returncode, 0)
         copied = json.loads((self.copied() / 'report.json').read_text())
         self.assertEqual(copied['case_sample'][0]['witness'], witness)
-        self.assertEqual(copied['case_sample'][0]['classification'], 'uncertain')
+        self.assertEqual(copied['case_sample'][0]['classification'], 'failure')
         self.assertEqual(self.scratch(), [])
 
     def classified(self, row, expected, exit_code):

@@ -85,7 +85,7 @@ impl Provenance {
     }
 }
 
-pub(crate) fn request_context(prepared: &Prepared, parameter: &str) -> Option<String> {
+fn request_context(prepared: &Prepared, parameter: &str) -> Option<String> {
     let mut url = url::Url::parse(&prepared.url).ok()?;
     let query: Vec<_> = url
         .query_pairs()
