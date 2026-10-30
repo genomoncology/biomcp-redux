@@ -118,7 +118,13 @@ pub fn profiles(leg: &Leg<'_>, id: &StudyId) -> Result<Records<StudyProfile>, Re
         .map(|v| {
             problems.record = None;
             let row = problems.field("molecularProfileId", Some(v.value))?;
-            (row.study_id == *id).then(|| row.mapped(&mut problems))
+            if row.study_id != *id {
+                problems.record = crate::mapped::record(&row.molecular_profile_id);
+                problems.required::<()>("studyId", None);
+                None
+            } else {
+                Some(row.mapped(&mut problems))
+            }
         })
         .collect();
     Ok(Records {
@@ -151,7 +157,13 @@ pub fn sample_lists(leg: &Leg<'_>, id: &StudyId) -> Result<Records<StudySampleLi
         .map(|v| {
             problems.record = None;
             let row = problems.field("sampleListId", Some(v.value))?;
-            (row.study_id == *id).then(|| row.mapped(&mut problems))
+            if row.study_id != *id {
+                problems.record = crate::mapped::record(&row.sample_list_id);
+                problems.required::<()>("studyId", None);
+                None
+            } else {
+                Some(row.mapped(&mut problems))
+            }
         })
         .collect();
     Ok(Records {
