@@ -93,6 +93,7 @@ text_value!(
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(tag = "source", content = "id", rename_all = "lowercase")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", schemars(extend("x-identifier" = true)))]
 pub enum PathwayId {
     /// Human Reactome stable identity without a version suffix.
     Reactome(ReactomeId),
