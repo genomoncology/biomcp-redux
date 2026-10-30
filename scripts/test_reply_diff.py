@@ -75,7 +75,8 @@ class ReplyDiff(unittest.TestCase):
                 self.assertEqual(result.returncode, 1, result.stderr)
                 self.assertIn("/0/stdout/source", result.stdout)
 
-    def runtime_capture(self, directory, suffix, *, bad_reference=False, lifetime=90, status="complete"):
+    def runtime_capture(self, directory, suffix, *, bad_reference=False,
+                        lifetime=90, status="complete"):
         root = "/tmp/" + suffix
         pool = suffix + "-pool"
         common = dict(root=root, args=["search", "trial"])
@@ -87,10 +88,13 @@ class ReplyDiff(unittest.TestCase):
             "status": status,
         }).encode(), **common)
         self.write(directory, "case/runtime.yaml/step/1", json.dumps({
-            "query": {"pool": pool}, "result": {"snapshot": {"acquired": 50 if suffix == "base" else 60}},
-        }).encode(), root=root, args=["search", "trial", "--pool", "broken" if bad_reference else pool])
+            "query": {"pool": pool},
+            "result": {"snapshot": {"acquired": 50 if suffix == "base" else 60}},
+        }).encode(), root=root,
+            args=["search", "trial", "--pool", "broken" if bad_reference else pool])
         self.write(directory, "case/runtime.yaml/step/2",
-                   ("# Trial\n**fetched:** " + ("30" if suffix == "base" else "40") + "\n").encode(), **common)
+                   ("# Trial\n**fetched:** " + ("30" if suffix == "base" else "40") + "\n").encode(),
+                   **common)
         self.write(directory, "case/runtime.yaml/step/3", json.dumps({
             "result": {"file": {"data": {"path": root + "/reply.json"}}},
         }).encode(), root=root, args=["get", "trial", "--save", "reply.json"])
@@ -192,6 +196,21 @@ class ReplyDiff(unittest.TestCase):
             # Declare the record directory in the same trial owner too.
             self.write(directory, 'trial/cache/replay/declaration/0',
                        args=['get', 'gene', '--record', root + '/record'], root=root)
+        result = self.compare()
+        self.assertEqual(result.returncode, 1, result.stderr + result.stdout)
+
+    def test_record_hash_alias_preserves_trial_occurrence(self):
+        for directory, suffix in [(self.base, 'base'), (self.head, 'head')]:
+            root = '/tmp/' + suffix
+            args = ['get', 'gene', '--record', root + '/record']
+            stable = [a.replace(root, '<root>') for a in args]
+            digest = hashlib.sha256(json.dumps(stable, separators=(',', ':')).encode()).hexdigest()
+            self.write(directory, 'trial/cache/replay/' + digest + '/0', args=args, root=root)
+            args = ['get', 'gene', '--replay', root + '/record']
+            digest = hashlib.sha256(json.dumps(args, separators=(',', ':')).encode()).hexdigest()
+            occurrence = '0' if suffix == 'base' else '1'
+            self.write(directory, 'trial/cache/replay/' + digest + '/' + occurrence,
+                       args=args, root='/tmp/other-' + suffix)
         result = self.compare()
         self.assertEqual(result.returncode, 1, result.stderr + result.stdout)
 

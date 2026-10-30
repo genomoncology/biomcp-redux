@@ -29,7 +29,8 @@ class Bindings:
             changes[0][p] = changes[1][p] = '<runtime>'
         def visit(a, b, p):
             if isinstance(a, dict) and isinstance(b, dict):
-                pool = p[-1:] == ('pool',) and {'id', 'created', 'expires', 'size'} <= a.keys() & b.keys()
+                pool = (p[-1:] == ('pool',)
+                        and {'id', 'created', 'expires', 'size'} <= a.keys() & b.keys())
                 if pool:
                     if not all(type(x[k]) is int for x in (a, b) for k in ('created', 'expires')):
                         raise ValueError('invalid pool clocks')
@@ -49,13 +50,15 @@ class Bindings:
                     if clocks and (k == 'fetched' or (k == 'acquired' and p[-1:] == ('snapshot',))):
                         if type(a[k]) is int and type(b[k]) is int:
                             put(child, a[k], b[k], (scope, k))
-                    elif k == 'pool' and p[-1:] == ('query',) and isinstance(a[k], str) and isinstance(b[k], str):
+                    elif (k == 'pool' and p[-1:] == ('query',)
+                          and isinstance(a[k], str) and isinstance(b[k], str)):
                         put(child, a[k], b[k], 'pool')
                     else:
                         visit(a[k], b[k], child)
             elif isinstance(a, list) and isinstance(b, list):
                 for i, (x, y) in enumerate(zip(a, b)):
-                    if (not p or p[-1:] == ('args',)) and i and a[i-1] == b[i-1] == '--pool' and isinstance(x, str) and isinstance(y, str):
+                    if ((not p or p[-1:] == ('args',)) and i and a[i-1] == b[i-1] == '--pool'
+                            and isinstance(x, str) and isinstance(y, str)):
                         put(p + (i,), x, y, 'pool')
                     else:
                         visit(x, y, p + (i,))
@@ -170,12 +173,13 @@ def align(base, head, normalize):
         for e in record['executions']:
             n = normalize(dict(e, args=declared_args(e, roots[index].get(owner(key), {}))))
             values.append({k: n[k] for k in ('args', 'surface', 'exit')})
-        return owner(key), json.dumps(values, sort_keys=True)
+        return owner(key), key.rsplit('/', 1)[-1], json.dumps(values, sort_keys=True)
     def valid_hash(key, record):
         parts = key.rsplit('/', 2)
         def stable(e):
             args = e['args']
-            for field, replacement in [('root', '<root>'), ('checkout', '<checkout>/crates/biomcp')]:
+            fields = [('root', '<root>'), ('checkout', '<checkout>/crates/biomcp')]
+            for field, replacement in fields:
                 if e.get(field):
                     args = [a.replace(e[field], replacement) for a in args]
             return args
@@ -208,7 +212,8 @@ def pair(left, right, scope, bindings, roots, normalize):
             # Executed argv can also contain a JSON MCP request token.
             n['args'][p[0]] = value
     # Only captured MCP request frames own JSON-encoded argument vectors.
-    if left['surface'] == right['surface'] == 'mcp' and '<requests>' in a['args'] and '<requests>' in b['args']:
+    if (left['surface'] == right['surface'] == 'mcp'
+            and '<requests>' in a['args'] and '<requests>' in b['args']):
         start = a['args'].index('<requests>') + 1
         if start == b['args'].index('<requests>') + 1:
             for i in range(start, min(len(a['args']), len(b['args']))):
@@ -232,10 +237,12 @@ def pair(left, right, scope, bindings, roots, normalize):
             kind, value = before
             if isinstance(kind, tuple) and kind[0] == scope and kind[1] == 'fetched':
                 for n, clock in ((a, value), (b, after)):
-                    n['stdout'] = n['stdout'].replace('**fetched:** ' + str(clock) + '\n', '**fetched:** <runtime>\n')
+                    n['stdout'] = n['stdout'].replace(
+                        '**fetched:** ' + str(clock) + '\n', '**fetched:** <runtime>\n')
         return a, b
     def embedded(value, execution):
-        if execution['surface'] != 'mcp' or not isinstance(value, dict) or value.get('jsonrpc') != '2.0':
+        if (execution['surface'] != 'mcp' or not isinstance(value, dict)
+                or value.get('jsonrpc') != '2.0'):
             return set()
         result = value.get('result', {})
         if not isinstance(result, dict):
