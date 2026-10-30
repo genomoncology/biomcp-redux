@@ -36,13 +36,14 @@ fn commands(text: &str) -> Result<BTreeSet<Vec<String>>, String> {
 
 pub(super) fn local(args: &[String]) -> Check {
     let environment = launch::Environment::new().map_err(|e| e.to_string())?;
-    if args == ["serve"] {
+    if args == ["serve"] || args == ["serve", "--hosted"] {
         let frames = [
             serde_json::json!({"jsonrpc":"2.0","id":1,"method":"initialize",
             "params":{"protocolVersion":"2026-07-28","capabilities":{},
             "clientInfo":{"name":"docs-check","version":"1"}}}),
         ];
-        let replies = mcp::exchange(&environment, &frames)?;
+        let globals: Vec<_> = args.iter().skip(1).cloned().collect();
+        let replies = mcp::exchange_with_globals(&environment, &frames, &globals)?;
         if replies.first().and_then(|v| v.get("result")).is_none() {
             return Err("documented stdio startup did not initialize".into());
         }
