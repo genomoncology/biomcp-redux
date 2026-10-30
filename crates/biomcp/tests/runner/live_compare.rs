@@ -3,8 +3,6 @@ use super::drift;
 use biomcp_fetch::Observation;
 use serde_json::{Value, json};
 use std::collections::{BTreeMap, BTreeSet};
-const MAX_CHANGES: usize = 16;
-const MAX_EXCHANGES: usize = 32;
 
 pub(crate) fn compare(
     before: &[Observation],
@@ -74,17 +72,8 @@ pub(crate) fn compare(
                 "after_identity": item.identity, "after_statuses": statuses(after, &item.identity)}));
         }
     }
-    let drift_omitted = found.len().saturating_sub(MAX_CHANGES);
-    let command_drift: Vec<_> = found.iter().take(MAX_CHANGES).cloned().collect();
-    changes.extend(found);
-    let omitted = changes.len().saturating_sub(MAX_CHANGES);
-    changes.truncate(MAX_CHANGES);
-    if omitted > 0 {
-        changes.push("more drift details omitted; counts are in command exchanges".into());
-    }
-    let omitted = evidence.len().saturating_sub(MAX_EXCHANGES);
-    evidence.truncate(MAX_EXCHANGES);
-    json!({"items": evidence, "omitted": omitted, "drift": command_drift, "drift_omitted": drift_omitted})
+    changes.extend(found.iter().cloned());
+    json!({"items": evidence, "omitted": 0, "drift": found, "drift_omitted": 0})
 }
 fn terminal(items: &[Observation]) -> Vec<&Observation> {
     let mut result: Vec<&Observation> = Vec::new();
@@ -105,8 +94,8 @@ fn statuses(items: &[Observation], identity: &str) -> Value {
         .iter()
         .filter(|item| item.identity == identity)
         .collect();
-    json!({"values": matching.iter().take(16).map(|item| item.status).collect::<Vec<_>>(),
-        "omitted": matching.len().saturating_sub(16)})
+    json!({"values": matching.iter().map(|item| item.status).collect::<Vec<_>>(),
+        "omitted": 0})
 }
 
 fn totals(after: &[Observation], sources: &mut BTreeMap<String, Value>) {
