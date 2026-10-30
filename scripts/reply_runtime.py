@@ -156,11 +156,12 @@ def record_roots(records):
     for key, record in records.items():
         for execution in record['executions']:
             args = execution['args']
-            if '--record' in args:
-                value = args[args.index('--record') + 1]
-                root = execution.get('root', '')
-                if root and value.startswith(root + '/'):
-                    roots.setdefault(owner(key), {})[value] = value[len(root):]
+            for flag in ('--record', '--replay'):
+                if flag in args:
+                    value = args[args.index(flag) + 1]
+                    root = execution.get('root', '')
+                    if root and value.startswith(root + '/'):
+                        roots.setdefault(owner(key), {})[value] = value[len(root):]
     return roots
 
 
