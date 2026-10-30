@@ -351,9 +351,13 @@ fn discovery() -> Check {
         .ok_or("expected three tools")?;
     if tool.get("name") != Some(&json!("biomcp"))
         || tool.get("inputSchema")
-            != Some(
-                &json!({"type":"object","properties":{"args":{"type":"array","items":{"type":"string"}}},"required":["args"],"additionalProperties":false}),
-            )
+            != Some(&json!({
+                "$schema":"https://json-schema.org/draft/2020-12/schema",
+                "type":"object",
+                "properties":{"args":{"type":"array","items":{"type":"string"}}},
+                "required":["args"],
+                "additionalProperties":false
+            }))
     {
         return Err("tool contract differs".into());
     }
