@@ -10,25 +10,28 @@ use serde_json::{Value, json};
 type Check = Result<(), Box<dyn std::error::Error>>;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        transcript_trial("trial/native-timestamp-and-query-echo", || {
+        transcript_trial("trial-search/native-timestamp-and-query-echo", || {
             timestamp().map_err(Into::into)
         }),
-        transcript_trial("trial/missing-study-array-is-not-an-empty-page", || {
-            missing_studies().map_err(Into::into)
-        }),
-        transcript_trial("trial/gene-and-registry-share-command-budget", || {
-            sequential_budget(false).map_err(Into::into)
-        }),
-        transcript_trial("trial/version-timeout-preserves-search-rows", || {
+        transcript_trial(
+            "trial-search/missing-study-array-is-not-an-empty-page",
+            || missing_studies().map_err(Into::into),
+        ),
+        transcript_trial(
+            "trial-search/gene-and-registry-share-command-budget",
+            || sequential_budget(false).map_err(Into::into),
+        ),
+        transcript_trial("trial-search/version-timeout-preserves-search-rows", || {
             sequential_budget(true).map_err(Into::into)
         }),
-        transcript_trial("trial/count-failure-preserves-continuation-rows", || {
-            count_failure().map_err(Into::into)
-        }),
-        transcript_trial("trial/disabled-cache-and-source-usage", || {
+        transcript_trial(
+            "trial-search/count-failure-preserves-continuation-rows",
+            || count_failure().map_err(Into::into),
+        ),
+        transcript_trial("trial-search/disabled-cache-and-source-usage", || {
             policy().map_err(Into::into)
         }),
-        transcript_trial("trial/source-failures-never-assert-zero", || {
+        transcript_trial("trial-search/source-failures-never-assert-zero", || {
             failures().map_err(Into::into)
         }),
     ]
@@ -228,11 +231,11 @@ fn count_failure() -> Check {
 }
 
 fn timestamp() -> Check {
-    for (native, timezone) in [
-        ("2026-10-23T09:00:04", "source-gave-none"),
-        ("2026-10-23T09:00:04Z", "in-value"),
-        ("2026-10-23T09:00:04+03:00", "in-value"),
-        ("2026-10-23T09:00:04-04:00", "in-value"),
+    for (native, expected) in [
+        ("2026-10-23T09:00:04", "2026-10-23T09:00:04Z"),
+        ("2026-10-23T09:00:04Z", "2026-10-23T09:00:04Z"),
+        ("2026-10-23T09:00:04+03:00", "2026-10-23T09:00:04+03:00"),
+        ("2026-10-23T09:00:04-04:00", "2026-10-23T09:00:04-04:00"),
     ] {
         let output = checked_case(
             "trial/condition",
@@ -242,8 +245,8 @@ fn timestamp() -> Check {
                     *value = json!(native);
                 }
             },
-            json!({"/result/source_updated/value":native,
-                "/result/source_updated/timezone":timezone,
+            json!({"/result/source_updated/value":expected,
+                "/result/source_updated/timezone":"in-value",
                 "/query/condition":["melanoma"],"/query/limit":10}),
             0,
         )?;
@@ -253,6 +256,38 @@ fn timestamp() -> Check {
             || output["query"].get("count_only").is_some()
         {
             return Err("trial reply echoed provider parameters or unset false flags".into());
+        }
+    }
+    for malformed in [json!("2024-02-30T10:00:00"), json!(7)] {
+        let value = checked_case(
+            "trial/condition",
+            &["search", "trial", "--condition", "melanoma"],
+            |_, record| {
+                if let Some(value) = record.pointer_mut("/exchanges/0/body/value/dataTimestamp") {
+                    *value = malformed.clone();
+                }
+            },
+            json!({"/status":"partial"}),
+            0,
+        )?;
+        if value.pointer("/result/source_updated").is_some()
+            || value
+                .pointer("/result/items")
+                .and_then(Value::as_array)
+                .is_none_or(Vec::is_empty)
+            || !value
+                .get("problems")
+                .and_then(Value::as_array)
+                .into_iter()
+                .flatten()
+                .any(|problem| {
+                    problem.get("field") == Some(&json!("dataTimestamp"))
+                        && problem.get("code") == Some(&json!("value.unknown"))
+                })
+        {
+            return Err(
+                "invalid optional registry processing metadata discarded study records".into(),
+            );
         }
     }
     Ok(())

@@ -26,18 +26,23 @@ pub struct ClinGenGene {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ClinGenValidity {
     /// Source disease label.
-    pub disease: Text,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub disease: Option<Text>,
     /// Source MONDO identifier.
     pub mondo_id: biodata::MondoId,
     /// Source mode of inheritance.
     pub mode_of_inheritance: Text,
     /// Source classification without inference.
-    pub classification: Text,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub classification: Option<Text>,
     /// Source classification date, preserving its original spelling.
-    pub classification_date: Text,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub classification_date: Option<Text>,
     /// Source expert panel.
-    pub expert_panel: Text,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub expert_panel: Option<Text>,
     /// Source report URL.
     #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
-    pub report_url: Text,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub report_url: Option<Text>,
 }

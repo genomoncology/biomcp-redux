@@ -1,6 +1,7 @@
 # 0470 — Apply the bad-value rule in the gene, protein and pathway adapters
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: facd659fedd4cf2edc05895653d86e42041befd0
 
 Milestone: 5
 

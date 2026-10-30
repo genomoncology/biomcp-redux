@@ -1,4 +1,4 @@
-use crate::{Concept, Curie, GeneRef, GtrTestId};
+use crate::{Curie, GtrTestId, NcbiGeneId, Text};
 use serde::{Deserialize, Serialize};
 /// One complete GTR test-version row; repeated identities remain separate records.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -103,14 +103,16 @@ pub struct GtrGeneRelation {
     /// Complete owning test accession/version.
     pub test_id: GtrTestId,
     /// Native source test type.
-    pub test_type: GtrTestType,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub test_type: Option<GtrTestType>,
     /// Shared source-given GeneID and gene_symbol; absent GeneID stays absent.
-    pub gene: GeneRef,
+    pub gene: GtrGeneReference,
     /// Uninterpreted nonempty `gene_or_SNOMED_CT_ID` when it is not a checked NCBI Gene ID.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub native_gene_or_snomed_ct_id: Option<Box<str>>,
     /// Independent native MedGen identity from GTR_identifier.
-    pub native_medgen: Curie,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub native_medgen: Option<Curie>,
     /// Native MIM cell, including empty.
     pub mim_number: Box<str>,
     /// Full source object_name without interpretation.
@@ -123,13 +125,41 @@ pub struct GtrConditionRelation {
     /// Complete owning test accession/version.
     pub test_id: GtrTestId,
     /// Native source test type.
-    pub test_type: GtrTestType,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub test_type: Option<GtrTestType>,
     /// Shared MedGen concept with source label.
-    pub condition: Concept,
+    pub condition: GtrConditionReference,
     /// Native MIM cell, including empty.
     pub mim_number: Box<str>,
     /// Native SNOMED CT cell, including empty; never a gene ID.
     pub snomed_ct_id: Box<str>,
+}
+/// Independently retained native gene target fields; mapping requires at least one usable key.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct GtrGeneReference {
+    /// Source gene symbol, absent when only the source GeneID survives.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub label: Option<Text>,
+    /// Native GeneID from a gene relation, never a condition's SNOMED field.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub ncbi_gene_id: Option<NcbiGeneId>,
+}
+impl GtrGeneReference {
+    /// Source-stated numeric gene identity.
+    pub fn ncbi_gene_id(&self) -> Option<NcbiGeneId> {
+        self.ncbi_gene_id
+    }
+}
+/// A checked native MedGen target with independently optional source label.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct GtrConditionReference {
+    /// Native MedGen identity from the condition relation.
+    pub id: Curie,
+    /// Native source label.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub label: Option<Text>,
 }
 /// One entry from one independent native method list.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]

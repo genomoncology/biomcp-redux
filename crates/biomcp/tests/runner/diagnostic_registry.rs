@@ -32,17 +32,19 @@ pub(super) fn trials() -> Vec<Trial> {
         .iter()
         .map(|&(source, usage, url)| {
             transcript_trial(
-                format!("diagnostic-registry/{source}-declaration"),
+                format!("source-controls/diagnostic-registry/{source}-declaration"),
                 move || declaration(source, usage, url).map_err(Into::into),
             )
         })
         .chain([
-            transcript_trial("diagnostic-registry/policy-before-io", || {
-                admission::run().map_err(Into::into)
-            }),
-            transcript_trial("diagnostic-registry/configuration-union", || {
-                switches().map_err(Into::into)
-            }),
+            transcript_trial(
+                "source-controls/diagnostic-registry/policy-before-io",
+                || admission::run().map_err(Into::into),
+            ),
+            transcript_trial(
+                "source-controls/diagnostic-registry/configuration-union",
+                || switches().map_err(Into::into),
+            ),
         ])
         .collect()
 }

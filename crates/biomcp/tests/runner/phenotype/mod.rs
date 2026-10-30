@@ -11,7 +11,7 @@ mod states;
 use super::{launch::Environment, network_stub::Stub};
 use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
-pub(super) use native::run as native;
+tool_only! { pub(super) use native::run as native; }
 use serde_json::{Value, json};
 use std::fs;
 pub(super) fn trials() -> Vec<Trial> {
@@ -256,14 +256,14 @@ fn failures() -> Result<(), String> {
             &env,
             &words,
             &directory,
-            4,
+            if kind == 0 { 0 } else { 4 },
         )?;
         budgets::mcp(
             &format!("mod/failures/mcp1@kind={kind}"),
             &directory,
             &words,
             &result,
-            4,
+            if kind == 0 { 0 } else { 4 },
         )?;
         if kind == 5 {
             invoke(
@@ -273,9 +273,7 @@ fn failures() -> Result<(), String> {
                 4,
             )?;
         }
-        if result.get("status") != Some(&json!("failed")) {
-            return Err(format!("source failure became absence: {result}"));
-        }
+        faults::outcome(&result, "monarch", kind == 0)?;
         if matches!(kind, 0 | 1 | 2 | 5 | 6)
             && result
                 .get("problems")

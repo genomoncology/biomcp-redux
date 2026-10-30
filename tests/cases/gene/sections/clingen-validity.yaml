@@ -1,6 +1,6 @@
 {
   "live_check": "public",
-  "feature": "gene-sections",
+  "feature": "gene-clingen",
   "story": "ClinGen preserves every validity record and dosage label for five Lynch syndrome genes in input order",
   "replay": "gene/clingen",
   "cache_acquired": 42,

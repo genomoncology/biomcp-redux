@@ -169,8 +169,7 @@ fn conditions(out: &mut Outcome, q: &DiagnosticGet, relations: Vec<GtrTestRelati
         .collect();
     let distinct_id_total = Some(
         rows.iter()
-            .filter_map(|r| r.condition.id.as_ref())
-            .map(ToString::to_string)
+            .map(|r| r.condition.id.to_string())
             .collect::<BTreeSet<_>>()
             .len() as u64,
     );

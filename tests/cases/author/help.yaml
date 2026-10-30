@@ -69,7 +69,7 @@
         "/status": "complete"
       },
       "full_output_bytes": true,
-      "max_bytes": 9758,
+      "max_bytes": 11649,
       "run": [
         "help",
         "author"
@@ -86,7 +86,7 @@
         "/status": "complete"
       },
       "full_output_bytes": true,
-      "max_bytes": 9817,
+      "max_bytes": 11648,
       "mcp": [
         "help",
         "author"

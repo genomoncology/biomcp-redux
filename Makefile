@@ -13,7 +13,7 @@ TEST_THREADS = $(if $(strip $(RUST_TEST_THREADS)),-- --test-threads $(RUST_TEST_
 
 .PHONY: landing-gate plain-cli-build fmt lint ratchets test audit coverage unreached
 
-landing-gate: workflow-lint plain-cli-build fmt lint docs-check tensor-proto-check coverage audit secrets
+landing-gate: workflow-lint plain-cli-build fmt lint docs-check tensor-proto-check audit secrets library-tests coverage
 
 plain-cli-build:
 	cargo build --locked -p biomcp --bin biomcp --timings
@@ -25,17 +25,32 @@ lint:
 	cargo check --locked -p biodata -p biomcp-types --no-default-features
 	cargo clippy --workspace --all-targets --locked -- -D warnings
 
-ratchets:
+ratchets: plain-cli-build
 	cargo test --locked -p biomcp --test ratchets $(TEST_THREADS)
 
 test:
 	cargo test --workspace --locked $(TEST_THREADS)
 
+.PHONY: public-dump-check
+public-dump-check:
+	cargo build --locked -p biomcp-types --example public_dump_values
+	PUBLIC_DUMP_VALUES="$(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target)/debug/examples/public_dump_values" python3 scripts/test_public_dump_sweep.py
+
 audit:
 	cargo deny --locked check licenses advisories bans sources
 
-coverage:
+.PHONY: library-tests
+library-tests:
+	cargo test --workspace --exclude biomcp --features biomcp-types/schema --locked $(TEST_THREADS)
+	cargo test --locked -p biomcp --bin biomcp $(TEST_THREADS)
+
+coverage: schema-shape-check
 	sh scripts/coverage.sh run
+
+.PHONY: schema-shape-check
+schema-shape-check: docs-check library-tests
+	cargo test --locked -p biomcp --test cases mcp-research/research-registry-projection-paths $(TEST_THREADS)
+	cargo test --locked -p biomcp --test cases mcp-research/research-search-fetch-parity $(TEST_THREADS)
 
 unreached:
 	sh scripts/coverage.sh unreached
@@ -49,6 +64,8 @@ docs-check:
 	python3 release/tools.py
 	python3 -m unittest release.test_tools release.test_linux
 	python3 scripts/check_docs.py
+	python3 scripts/article_licenses.py
+	python3 scripts/test_article_licenses.py
 	python3 scripts/test_docs.py
 	python3 scripts/test_source_capture.py
 	python3 scripts/test_source_capture_plan.py
@@ -90,7 +107,7 @@ parity-run:
 
 .PHONY: parity-inventory
 parity-inventory:
-	cargo test --locked -p biomcp --test cases -- --parity-inventory "$(abspath $(PLAN))" "$(CURDIR)/tests/cases" "$(abspath $(OUT))"
+	cargo test --locked -p biomcp --test tools -- --parity-inventory "$(abspath $(PLAN))" "$(CURDIR)/tests/cases" "$(abspath $(OUT))"
 
 .PHONY: tensor-proto-check
 tensor-proto-check:

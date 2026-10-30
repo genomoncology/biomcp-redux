@@ -13,15 +13,16 @@ const WORDS: &str = "next-generation sequencing recommendations advanced cancer 
 const NONSENSE: &str = "xqzvw zzyzxq kinase";
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        transcript_trial("article/named-search/failures", || {
+        transcript_trial("article-named-search/named-search/failures", || {
             failures().map_err(|e| e.to_string().into())
         }),
-        transcript_trial("article/named-search/paging-and-join", || {
+        transcript_trial("article-named-search/named-search/paging-and-join", || {
             paging().map_err(|e| e.to_string().into())
         }),
-        transcript_trial("article/named-search/sentences-and-policies", || {
-            sentences().map_err(|e| e.to_string().into())
-        }),
+        transcript_trial(
+            "article-named-search/named-search/sentences-and-policies",
+            || sentences().map_err(|e| e.to_string().into()),
+        ),
     ]
 }
 fn failures() -> Check {
@@ -78,7 +79,7 @@ fn paging() -> Check {
             "article/pubtator/pubtator-words",
             &args,
             |_, _| {},
-            json!({"/sources/0/fetched":100}),
+            json!({"/sources/0/retrieved_count":100}),
             0,
         )?;
         let ids: Vec<_> = first["result"]["items"]
@@ -113,7 +114,7 @@ fn paging() -> Check {
                     _ => {}
                 }
             },
-            json!({"/sources/0/fetched":10,"/page/total":10,"/page/truncated":true,"/result/items":{"count":10}}),
+            json!({"/sources/0/retrieved_count":10,"/page/total":10,"/page/truncated":true,"/result/items":{"count":10}}),
             0,
         )?;
         assert_eq!(
@@ -294,9 +295,22 @@ fn policies() -> Check {
 
 fn invalid_sentences(args: &[&str]) -> Check {
     for kind in ["oversize", "zero-pmid", "bad-text"] {
+        // Row admission is independent of PubMed hydration, whose original
+        // capture covers the complete seven-PMID request. Other proofs above
+        // retain the real mixed-source join and its exact request scope.
+        let mut selected = args.to_vec();
+        let (expect, exit) = if kind == "oversize" {
+            (
+                json!({"/status":"failed","/sources/0/reason":"bad-reply"}),
+                4,
+            )
+        } else {
+            selected.extend(["--disable-sources", "pubmed"]);
+            (sentence_admission(kind), 0)
+        };
         checked_case(
             "article/litsense/licensed-subset",
-            args,
+            &selected,
             |source, record| {
                 if source != "litsense" {
                     return;
@@ -313,11 +327,34 @@ fn invalid_sentences(args: &[&str]) -> Check {
                     _ => rows[0]["text"] = json!(""),
                 }
             },
-            json!({"/status":"failed","/sources/0/reason":"bad-reply"}),
-            4,
+            expect,
+            exit,
         )?;
     }
     Ok(())
+}
+fn sentence_admission(kind: &str) -> serde_json::Value {
+    let mut ids = vec![
+        "34718584", "30363995", "28017606", "19112497", "34647959", "36032122", "35656107",
+    ];
+    let problem = if kind == "zero-pmid" {
+        ids.remove(0);
+        json!({"source":"litsense","field":"pmid","code":"value.unknown"})
+    } else {
+        json!({"source":"litsense","record":"34718584","field":"text","code":"value.unknown"})
+    };
+    let mut expect = json!({
+        "/status":"partial", "/result/items/*/pmid":ids,
+        "/page/total":ids.len(), "/page/returned":ids.len(),
+        "/sources/0/source":"litsense", "/sources/0/state":"ok",
+        "/sources/0/count":ids.len(), "/sources/0/retrieved_count":ids.len(),
+        "/sources/1/source":"pubmed", "/sources/1/reason":"disabled",
+        "/problems":{"equals":[problem]}
+    });
+    if kind == "bad-text" {
+        expect["/result/items/0/sentence"] = json!({"omits":["text"]});
+    }
+    expect
 }
 
 fn merged_sentence() -> Check {
@@ -366,7 +403,10 @@ fn native_duplicates() -> Check {
                 body["results"][1] = body["results"][0].clone();
             }
         },
-        json!({"/status":"partial","/page/total":99,"/sources/0/fetched":100,"/result/items/0/found_by/pubtator":1,"/result/items/1/found_by/pubtator":3}),
+        json!({
+            "/status":"partial", "/page/total":99, "/sources/0/retrieved_count":100,
+            "/result/items/0/found_by/pubtator":1, "/result/items/1/found_by/pubtator":3
+        }),
         0,
     )?;
     Ok(())

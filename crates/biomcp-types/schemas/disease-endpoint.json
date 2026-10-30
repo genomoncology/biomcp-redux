@@ -15,7 +15,7 @@
   },
   "$id": "biodata.disease-endpoint/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "description": "One native endpoint with an identifier and an optional source label.",
+  "description": "One native endpoint with an identifier and an optional source label.\nNative associations use this reference because a source may omit a display label.",
   "properties": {
     "id": {
       "$ref": "#/$defs/Reply_Curie",

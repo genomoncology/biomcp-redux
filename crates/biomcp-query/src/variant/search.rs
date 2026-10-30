@@ -1,7 +1,7 @@
-//! Declared MyVariant searches keep native candidates, totals and page selectors.
+//! Declared variant searches keep native candidates, totals and page selectors.
 use crate::{Action, Ctx, Outcome, status};
 
-use biomcp_adapters::myvariant;
+use biomcp_adapters::{clinvar, myvariant};
 use biomcp_types::{
     PageInfo, QueryBody, Request, Source, Status, StepKind, VariantGet, VariantPage,
     VariantResolver, VariantSearch,
@@ -16,7 +16,12 @@ pub fn search(cx: &Ctx<'_>, query: &VariantSearch) -> Outcome {
     }
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
-    let leg = cx.fetch.leg(&myvariant::SPEC, deadline).fresh(cx.fresh);
+    let spec = if query.uses_clinvar_selector() {
+        &clinvar::SPEC
+    } else {
+        &myvariant::SPEC
+    };
+    let leg = cx.fetch.leg(spec, deadline).fresh(cx.fresh);
     let terms = component_terms("clinvar", query.uses_clinvar_filters());
     let selector_terms = component_terms("dbnsfp", query.uses_dbnsfp_selector());
     let reply = match (&terms, &selector_terms) {
@@ -26,7 +31,7 @@ pub fn search(cx: &Ctx<'_>, query: &VariantSearch) -> Outcome {
     let terms = terms.ok().flatten();
     let selector_terms = selector_terms.ok().flatten();
     let error = reply.as_ref().err().copied();
-    let source = status::source(Source::MyVariant, leg.finish(), error);
+    let source = status::source(spec.source, leg.finish(), error);
     let mut out = Outcome {
         status: Status::Failed,
         body: QueryBody::VariantPage(VariantPage {
@@ -57,7 +62,7 @@ pub fn search(cx: &Ctx<'_>, query: &VariantSearch) -> Outcome {
             Status::Complete
         };
         let returned = reply.rows.value.len() as u32;
-        out.next = next(query, &reply.rows.value, returned, reply.total);
+        out.next = next(query, &reply.rows.value, reply.consumed, reply.total);
         out.page = Some(PageInfo {
             offset: query.offset(),
             returned,
@@ -81,7 +86,14 @@ fn fetch_page(
     cx: &Ctx<'_>,
     leg: &biomcp_fetch::Leg<'_>,
     query: &VariantSearch,
-) -> Result<myvariant::SearchPage, biomcp_fetch::RequestError> {
+) -> Result<SearchPage, biomcp_fetch::RequestError> {
+    if query.uses_clinvar_selector() {
+        return clinvar::search(leg, query).map(|page| SearchPage {
+            total: page.total,
+            consumed: page.consumed,
+            rows: page.rows,
+        });
+    }
     if (query.uses_clinvar_filters() && myvariant::components::disabled(cx.fetch, "clinvar"))
         || (query.uses_dbnsfp_selector() && myvariant::components::disabled(cx.fetch, "dbnsfp"))
     {
@@ -93,7 +105,16 @@ fn fetch_page(
         }
         .into());
     }
-    myvariant::search(leg, query)
+    myvariant::search(leg, query).map(|page| SearchPage {
+        total: page.total,
+        consumed: page.consumed,
+        rows: page.rows,
+    })
+}
+struct SearchPage {
+    total: u64,
+    consumed: u32,
+    rows: biomcp_adapters::Mapped<Vec<biomcp_types::VariantHeader>>,
 }
 fn component_terms(
     name: &str,
@@ -120,7 +141,7 @@ fn policy_error() -> Outcome {
 fn next(
     query: &VariantSearch,
     rows: &[biomcp_types::VariantHeader],
-    returned: u32,
+    consumed: u32,
     total: u64,
 ) -> Vec<(StepKind, Action)> {
     let mut next = Vec::new();
@@ -141,8 +162,8 @@ fn next(
             ));
         }
     }
-    let offset = query.offset() + returned;
-    if u64::from(offset) < total && offset < VariantSearch::MAX_RESULTS && returned > 0 {
+    let offset = query.offset() + consumed;
+    if u64::from(offset) < total && offset < VariantSearch::MAX_RESULTS && consumed > 0 {
         next.push((
             StepKind::Page,
             Action::Run {

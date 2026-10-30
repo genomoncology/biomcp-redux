@@ -39,10 +39,16 @@ pub(super) fn run<'a>(
         };
         let identity = (id, card.pmid);
         if !loaded.iter().any(|(found, _)| *found == identity) {
-            let result = pmc_oa::read(&leg, id, card.pmid);
+            let result = pmc_oa::read(&leg, id, card.pmid).map(|mapped| {
+                out.problems.extend(mapped.problems);
+                mapped.value
+            });
             if let Err(e) = result {
                 error.get_or_insert(e);
                 out.local = out.local.or(status::local(e));
+            }
+            if let Ok(Some(doc)) = &result {
+                out.problems.extend(doc.problems.clone());
             }
             loaded.push((identity, content(result)));
         }

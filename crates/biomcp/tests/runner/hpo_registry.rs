@@ -10,16 +10,16 @@ mod admission;
 mod health;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        transcript_trial("hpo-registry/exact-term-health", || {
+        transcript_trial("phenotype-identity/exact-term-health", || {
             health::run().map_err(Into::into)
         }),
-        transcript_trial("hpo-registry/declaration", || {
+        transcript_trial("phenotype-identity/declaration", || {
             declaration().map_err(Into::into)
         }),
-        transcript_trial("hpo-registry/policy-before-io", || {
+        transcript_trial("phenotype-identity/policy-before-io", || {
             admission::run().map_err(Into::into)
         }),
-        transcript_trial("hpo-registry/configuration-union", || {
+        transcript_trial("phenotype-identity/configuration-union", || {
             switches().map_err(Into::into)
         }),
     ]

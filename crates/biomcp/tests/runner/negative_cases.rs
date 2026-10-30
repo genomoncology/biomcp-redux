@@ -19,7 +19,7 @@ pub(super) fn cases() -> Vec<(&'static str, &'static str, &'static str)> {
             "count: expected 0",
         ),
         ("mcp-is-error", "  - mcp: [schema, missing/1]", "MCP is_error mismatch"),
-        ("unequal-success", "    mcp: [schema, biomcp.error/3]", "CLI/MCP parity: unequal results"),
+        ("unequal-success", "    mcp: [schema, biomcp.error/4]", "CLI/MCP parity: unequal results"),
         ("no-command", "  - expect: {}", "step requires run or mcp"),
         ("unknown", "    expect: {'/type': {equal: string}}", "unknown assertion operator equal"),
         ("empty-operators", "    expect: {'/type': {}}", "assertion object requires an operator"),
@@ -110,7 +110,7 @@ fn article_cases() -> Vec<(&'static str, &'static str, &'static str)> {
         ),
         (
             "unique-duplicate",
-            "  - run: [schema, biomcp.gene-resolution/6]\n    expect: {'/oneOf/*/properties/resolution/type': {unique: true}}",
+            "  - run: [schema, biomcp.gene-resolution/7]\n    expect: {'/oneOf/*/properties/resolution/type': {unique: true}}",
             "unique: duplicate member",
         ),
         (

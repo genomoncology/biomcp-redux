@@ -10,32 +10,46 @@ mod get;
 mod ids;
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = vec![
-        transcript_trial("variant/population-source-given-grch38-snv", || {
-            population().map_err(Into::into)
-        }),
         transcript_trial(
-            "variant/population-mismatched-id-never-enters-cache",
+            "variant-population/population-independent-native-values",
+            || population_values().map_err(Into::into),
+        ),
+        transcript_trial(
+            "variant-population/population-source-given-grch38-snv",
+            || population().map_err(Into::into),
+        ),
+        transcript_trial(
+            "variant-population/population-mismatched-id-never-enters-cache",
             || population_mismatch().map_err(Into::into),
         ),
-        transcript_trial("variant/population-unknown-group-remains-native", || {
-            unknown_group().map_err(Into::into)
-        }),
-        transcript_trial("variant/population-source-chromosome-disagreement", || {
-            chromosome_mismatch().map_err(Into::into)
-        }),
-        transcript_trial("variant/population-unpadded-indel-is-unjoinable", || {
-            unjoinable().map_err(Into::into)
-        }),
-        transcript_trial("variant/gwas-native-pages-preserve-effects", || {
-            gwas_walk("rs113488022", 2).map_err(Into::into)
-        }),
-        transcript_trial("variant/gwas-resolved-id-pins-source-continuation", || {
-            gwas_walk("CA123643", 3).map_err(Into::into)
-        }),
-        transcript_trial("variant/gwas-v2-valid-zero", || {
+        transcript_trial(
+            "variant-population/population-unknown-group-remains-native",
+            || unknown_group().map_err(Into::into),
+        ),
+        transcript_trial(
+            "variant-population/population-source-chromosome-disagreement",
+            || chromosome_mismatch().map_err(Into::into),
+        ),
+        transcript_trial(
+            "variant-population/population-unpadded-indel-is-unjoinable",
+            || unjoinable().map_err(Into::into),
+        ),
+        transcript_trial(
+            "variant-population/gwas-native-pages-preserve-effects",
+            || gwas_walk("rs113488022", 2).map_err(Into::into),
+        ),
+        transcript_trial(
+            "variant-population/gwas-resolved-id-pins-source-continuation",
+            || gwas_walk("CA123643", 3).map_err(Into::into),
+        ),
+        transcript_trial("variant-population/gwas-v2-valid-zero", || {
             gwas_zero().map_err(Into::into)
         }),
     ];
+    trials.push(transcript_trial(
+        "variant-population/population-release-value-is-independent",
+        || release_value().map_err(Into::into),
+    ));
     trials.extend(ids::trials());
     trials.extend(get::trials());
     trials
@@ -184,6 +198,74 @@ fn execute(env: &Environment, args: &[&str]) -> Result<Value, String> {
         .map_err(|e| e.to_string())?;
     serde_json::from_slice(&out.stdout).map_err(|e| e.to_string())
 }
+fn population_values() -> Result<(), String> {
+    for mode in 0..6 {
+        let stub = Stub::for_sources(
+            &["reg.genome.network", "gnomad.broadinstitute.org"],
+            |_| "application/json",
+            move |request| {
+                let body = population_body(request)?;
+                if !request.starts_with("POST /api ") {
+                    return Ok(body);
+                }
+                let mut body: Value = serde_json::from_str(&body).map_err(|e| e.to_string())?;
+                let row = body
+                    .pointer_mut("/data/variant/exome")
+                    .ok_or("missing native exome control")?;
+                match mode {
+                    0 => row["ac"] = json!("bad"),
+                    1 => row["an"] = json!("bad"),
+                    2 => row["filters"] = json!(42),
+                    3 => row["filters"] = json!(["source filter", 42]),
+                    4 => row["ac"] = json!(2_000_000),
+                    _ => row["filters"] = Value::Null,
+                }
+                Ok(body.to_string())
+            },
+        )?;
+        let env = environment(&stub)?;
+        let value = execute(&env, &["variant", "population", "CA123643", "--detail"])?;
+        let row = value
+            .pointer("/result/population/data/exome")
+            .ok_or_else(|| format!("native row lost: {value}"))?;
+        let field = match mode {
+            0 => "ac",
+            1 => "an",
+            4 => "counts",
+            _ => "filters",
+        };
+        let count = value
+            .get("problems")
+            .and_then(Value::as_array)
+            .into_iter()
+            .flatten()
+            .filter(|problem| problem["field"] == format!("exome.{field}"))
+            .count();
+        if count != usize::from(mode != 5) {
+            return Err(format!(
+                "native field problem changed for mode {mode}: {value}"
+            ));
+        }
+        match mode {
+            0..=2 | 5 if row.get(field).is_some() => {
+                return Err(format!("bad or absent field retained: {value}"));
+            }
+            3 if row["filters"] != json!(["source filter"]) => {
+                return Err(format!("valid filter lost: {value}"));
+            }
+            4 if row["ac"] != json!(2_000_000)
+                || row["an"] != json!(1460618)
+                || row.get("frequency").is_some() =>
+            {
+                return Err(format!("native count pair repaired or projected: {value}"));
+            }
+            _ => (),
+        }
+        stub.finish()?;
+    }
+    Ok(())
+}
+
 fn population_mismatch() -> Result<(), String> {
     let stub = Stub::for_sources(
         &["reg.genome.network", "gnomad.broadinstitute.org"],
@@ -193,7 +275,9 @@ fn population_mismatch() -> Result<(), String> {
     let env = environment(&stub)?;
     for _ in 0..2 {
         let value = execute(&env, &["variant", "population", "CA123643", "--detail"])?;
-        if value.pointer("/result/population/reason") != Some(&json!("bad-reply"))
+        if value.pointer("/result/population/state") != Some(&json!("empty"))
+            || value.pointer("/problems/0/field") != Some(&json!("variant_id"))
+            || value.pointer("/status") != Some(&json!("partial"))
             || value.pointer("/result/population/data").is_some()
         {
             return Err(format!("wrong source allele leaked observations: {value}"));
@@ -438,4 +522,50 @@ fn unknown_group_body(request: &str) -> Result<String, String> {
             .ok_or("missing second synthetic group")? = json!("nfe_swe_XX");
     }
     Ok(body.to_string())
+}
+
+fn release_value() -> Result<(), String> {
+    for version in [json!(42), json!(" ")] {
+        let stub = Stub::for_sources(
+            &["reg.genome.network", "gnomad.broadinstitute.org"],
+            |_| "application/json",
+            move |request| {
+                let mut body: Value =
+                    serde_json::from_str(&population_body(request)?).map_err(|e| e.to_string())?;
+                if request.starts_with("POST /api ") {
+                    *body
+                        .pointer_mut("/data/variant")
+                        .ok_or("missing native variant")?
+                        .as_object_mut()
+                        .ok_or("variant is not object")?
+                        .entry("va")
+                        .or_insert(Value::Null) = json!({"exome":[{
+                        "cohort":{"id":"ALL"}, "focusAlleleCount":2,
+                        "locusAlleleCount":1460618, "derivedFrom":{"version":version}
+                    }]});
+                }
+                Ok(body.to_string())
+            },
+        )?;
+        let env = environment(&stub)?;
+        let value = execute(&env, &["variant", "population", "CA123643", "--detail"])?;
+        let problems = value
+            .get("problems")
+            .and_then(Value::as_array)
+            .ok_or("missing problems")?;
+        if problems.len() != 1
+            || problems.first().and_then(|p| p.get("field"))
+                != Some(&json!("va.exome.derivedFrom.version"))
+            || value.pointer("/result/population/data/exome/ac") != Some(&json!(2))
+            || value
+                .pointer("/result/population/data/exome/frequency")
+                .is_some()
+        {
+            return Err(format!(
+                "release value lost native counts or repeated its problem: {value}"
+            ));
+        }
+        stub.finish()?;
+    }
+    Ok(())
 }

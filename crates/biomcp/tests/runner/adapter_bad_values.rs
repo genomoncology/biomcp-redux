@@ -8,6 +8,8 @@ mod reactome_bad_values;
 #[path = "adapter_reactome_discovery.rs"]
 mod reactome_discovery;
 
+#[path = "adapter_interpretation_values.rs"]
+mod interpretation_values;
 #[path = "adapter_mychem_ontology_bad_values.rs"]
 mod mychem_ontology;
 #[path = "adapter_repeated_references.rs"]
@@ -31,20 +33,24 @@ pub(super) fn trials() -> Vec<Trial> {
             "pathway-reactome/invalid-optional-fields-keep-records",
             || reactome().map_err(Into::into),
         ),
-        transcript_trial("variant/invalid-clinvar-condition-id-is-disclosed", || {
-            clinvar_condition_id().map_err(Into::into)
-        }),
-        transcript_trial("variant/invalid-rcv-condition-names-own-record", || {
-            clinvar_rcv().map_err(Into::into)
-        }),
-        transcript_trial("variant/empty-clinvar-text-keeps-assertion", || {
-            clinvar().map_err(Into::into)
-        }),
+        transcript_trial(
+            "variant-identity/invalid-clinvar-condition-id-is-disclosed",
+            || clinvar_condition_id().map_err(Into::into),
+        ),
+        transcript_trial(
+            "variant-identity/invalid-rcv-condition-names-own-record",
+            || clinvar_rcv().map_err(Into::into),
+        ),
+        transcript_trial(
+            "variant-identity/empty-clinvar-text-keeps-assertion",
+            || clinvar().map_err(Into::into),
+        ),
         transcript_trial("drug-ema/empty-text-keeps-medicine", || {
             ema().map_err(|e| e.to_string().into())
         }),
     ];
     trials.extend(mychem_ontology::trials());
+    trials.extend(interpretation_values::trials());
     trials
 }
 fn check(value: &Value, field: &str, absent: &str) -> Result<(), String> {

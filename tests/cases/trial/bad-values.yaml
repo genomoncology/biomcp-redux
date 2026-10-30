@@ -38,8 +38,8 @@
             "NCT07230613"
           ]
         },
-        "/result/source_updated/value": "2026-10-23T09:00:04",
-        "/result/source_updated/timezone": "source-gave-none",
+        "/result/source_updated/value": "2026-10-23T09:00:04Z",
+        "/result/source_updated/timezone": "in-value",
         "/result/items/0/status": "TEMPORARILY_NOT_AVAILABLE",
         "/result/items/4/phases": {
           "equals": [
@@ -106,8 +106,8 @@
             "NCT07230613"
           ]
         },
-        "/result/source_updated/value": "2026-10-23T09:00:04",
-        "/result/source_updated/timezone": "source-gave-none",
+        "/result/source_updated/value": "2026-10-23T09:00:04Z",
+        "/result/source_updated/timezone": "in-value",
         "/result/items/0/status": "TEMPORARILY_NOT_AVAILABLE",
         "/result/items/4/phases": {
           "equals": [

@@ -8,19 +8,19 @@ use serde_json::{Value, json};
 pub(super) fn trials() -> Vec<Trial> {
     vec![
         transcript_trial(
-            "variant/population-ambiguous-ids-retain-source-alleles",
+            "variant-population/population-ambiguous-ids-retain-source-alleles",
             || ambiguous().map_err(Into::into),
         ),
         transcript_trial(
-            "variant/population-single-id-follows-source-ca-identity",
+            "variant-population/population-single-id-follows-source-ca-identity",
             || single().map_err(Into::into),
         ),
         transcript_trial(
-            "variant/population-unknown-build-keeps-candidate-steps",
+            "variant-population/population-unknown-build-keeps-candidate-steps",
             || unknown_build().map_err(Into::into),
         ),
         transcript_trial(
-            "variant/population-dbsnp-alias-cannot-authorize-ca-join",
+            "variant-population/population-dbsnp-alias-cannot-authorize-ca-join",
             || malformed_alias().map_err(Into::into),
         ),
     ]
@@ -77,7 +77,7 @@ fn malformed_alias() -> Result<(), String> {
                 .is_some_and(|problems| {
                     problems.iter().any(|p| {
                         p["source"] == "myvariant"
-                            && p["field"] == "ids"
+                            && p["field"] == "dbsnp.rsid"
                             && p["code"] == "value.unknown"
                     })
                 })

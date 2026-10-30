@@ -26,7 +26,7 @@ pub(super) fn trials() -> Vec<Trial> {
             check().map_err(|e| e.to_string().into())
         }),
         transcript_trial(
-            "source-prose/invalid-venue-keeps-paper-and-reports-field",
+            "source-controls/invalid-venue-keeps-paper-and-reports-field",
             || venue().map_err(|e| e.to_string().into()),
         ),
         transcript_trial("markdown-view/source-controls-are-visible", || {

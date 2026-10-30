@@ -46,7 +46,7 @@ singleton! {
 }
 
 singleton! {
-    ErrorSchema { V2 => "biomcp.error/3" }
+    ErrorSchema { V2 => "biomcp.error/4" }
 }
 
 singleton! {
@@ -133,7 +133,8 @@ singleton! {
         Pharmgkb => "pharmgkb is retired; use: clinpgx",
         NciDisease => "NCI disease filters require an NCIt identifier such as C3224; use --keyword for free text",
         VariantIdentifier => "get variant needs an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome \
-            notation needs --build; use search variant --gene BRAF --protein V600E for gene/protein shorthand",
+            notation needs --build; use search variant --gene BRAF --protein V600E or \
+            search variant --gene PTEN --coding c.333G>T for gene shorthand",
         VariantBuild => "renamed; use: --build",
         VariantProtein => "renamed; use: --protein with --gene",
         VariantPredict => "renamed; use: get variant <ID> predict",

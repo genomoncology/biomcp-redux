@@ -43,7 +43,8 @@ pub fn get(leg: &Leg<'_>, query: &PhenotypeGet) -> Result<super::super::Page, Re
             if page.limit != query.section_limit()
                 || page.offset != query.section_offset()
                 || page.items.iter().any(|row| {
-                    row.object != requested || (genes && row.subject_taxon.as_ref() != Some(&human))
+                    row.object.as_ref() != Some(&requested)
+                        || (genes && row.subject_taxon.as_ref() != Some(&human))
                 })
             {
                 return Err(BadReply);
@@ -51,12 +52,25 @@ pub fn get(leg: &Leg<'_>, query: &PhenotypeGet) -> Result<super::super::Page, Re
             Ok(())
         },
     )?;
+    let received = page.items.len() as u32;
+    let mut problems = Vec::new();
+    let mut items = Vec::new();
+    for mut row in page.items {
+        problems.append(&mut row.problems);
+        if row.id.is_some()
+            && row.subject.is_some()
+            && row.object.is_some()
+            && row.predicate.is_some()
+        {
+            let mapped = super::super::map::row(row, &requested)?;
+            problems.extend(mapped.problems);
+            items.push(mapped.value);
+        }
+    }
     Ok(super::super::Page {
-        items: page
-            .items
-            .into_iter()
-            .map(|row| super::super::map::row(row, &requested))
-            .collect::<Result<_, _>>()?,
+        received,
+        problems,
+        items,
         components: super::super::components()?,
         total: page.total,
         metadata,

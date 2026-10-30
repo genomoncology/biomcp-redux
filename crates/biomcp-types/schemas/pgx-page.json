@@ -155,15 +155,28 @@
         },
         "cpiclevel": {
           "description": "Native `cpiclevel`; literal source value.",
-          "type": "string"
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "drugid": {
-          "$ref": "#/$defs/Reply_Curie",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Curie"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Native `drugid`; literal source value."
         },
         "drugname": {
           "description": "Native `drugname`; literal source value.",
-          "type": "string"
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "genesymbol": {
           "$ref": "#/$defs/Reply_GeneSymbol",
@@ -208,21 +221,22 @@
         },
         "provisional": {
           "description": "Native `provisional`; literal source value.",
-          "type": "boolean"
+          "type": [
+            "boolean",
+            "null"
+          ]
         },
         "usedforrecommendation": {
           "description": "Native `usedforrecommendation`; literal source value.",
-          "type": "string"
+          "type": [
+            "string",
+            "null"
+          ]
         }
       },
       "required": [
         "pairid",
-        "drugid",
-        "drugname",
-        "genesymbol",
-        "cpiclevel",
-        "usedforrecommendation",
-        "provisional"
+        "genesymbol"
       ],
       "type": "object"
     },
@@ -745,15 +759,6 @@
             "null"
           ]
         },
-        "fetched": {
-          "description": "Retrieved identity depth.",
-          "format": "uint32",
-          "minimum": 0,
-          "type": [
-            "integer",
-            "null"
-          ]
-        },
         "notices": {
           "description": "Source notices and request recovery guidance.",
           "items": {
@@ -771,6 +776,15 @@
             }
           ],
           "description": "Failure or stale-fallback reason."
+        },
+        "retrieved_count": {
+          "description": "Number of retrieved identities.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
         },
         "source": {
           "$ref": "#/$defs/Reply_Source",
@@ -889,7 +903,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.pgx-page/4",
+  "$id": "biomcp.pgx-page/5",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -945,7 +959,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.pgx-page/4",
+      "const": "biomcp.pgx-page/5",
       "type": "string"
     },
     "sources": {

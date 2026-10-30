@@ -124,11 +124,23 @@ pub(super) fn drug_status() -> Result<(), String> {
         configure(&env, &stub)?;
         let result = run(&env, &["get", "drug", "5", "civic", "--source", "civic"])?;
         if matches!(status, "SUBMITTED" | "REJECTED") {
-            if result.pointer("/sources/0/reason") != Some(&json!("bad-reply"))
-                || result.get("result").is_some()
+            if result
+                .pointer("/result/civic/data/evidence/records")
+                .is_some()
+                || result
+                    .pointer("/result/civic/data/assertions/records")
+                    .is_some()
+                || result.pointer("/result/identity/id") != Some(&json!("5"))
+                || !result
+                    .get("problems")
+                    .and_then(|v| v.as_array())
+                    .is_some_and(|rows| {
+                        rows.iter()
+                            .any(|p| p.get("field") == Some(&json!("status")))
+                    })
             {
                 return Err(format!(
-                    "known nonaccepted curation status passed the source filter: {result}"
+                    "known nonaccepted curation status passed the requested source filter: {result}"
                 ));
             }
         } else {

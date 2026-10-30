@@ -8,7 +8,7 @@ pub struct TrialPage {
     pub items: Box<[crate::TrialHeader]>,
     /// Registry's source processing timestamp, independently of retrieval time.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub source_updated: Option<super::SourceTimestamp>,
+    pub source_updated: Option<crate::SourceUpdated>,
     /// Unresolved gene identity, without a registry request.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub gene_resolution: Option<crate::GeneResolution>,
@@ -19,7 +19,7 @@ pub struct TrialPage {
     pub attribution: String,
 }
 impl super::ResponseBody for TrialPage {
-    const SCHEMA: &'static str = "biomcp.trial-page/12";
+    const SCHEMA: &'static str = "biomcp.trial-page/14";
     type Query = crate::TrialSearch;
 }
 

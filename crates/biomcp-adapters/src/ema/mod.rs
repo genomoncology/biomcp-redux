@@ -3,8 +3,8 @@ mod map;
 mod raw;
 use biodata::DrugId;
 use biomcp_fetch::{
-    Bundle, BundleInfo, Fetch, Find, Freshness, KeyKind, KeyUse, Leg, RequestError, RowFormat,
-    SourceSpec, Terms,
+    Bundle, Fetch, Find, Freshness, KeyKind, KeyUse, Leg, RequestError, RowFormat, SourceSpec,
+    Terms,
 };
 use biomcp_types::Source;
 use biomcp_types::{DrugCard, DrugHeader, DrugRecords, DrugRegulatory, Section};
@@ -38,8 +38,10 @@ const MEDICINES: Bundle<raw::Medicine> = Bundle {
     row: PhantomData,
 };
 /// Explicit complete-file synchronization through the shared atomic bundle store.
-pub fn sync(fetch: &Fetch) -> Result<BundleInfo, RequestError> {
-    fetch.sync(&MEDICINES)
+pub fn sync(fetch: &Fetch) -> Result<crate::Mapped<biomcp_types::SyncResult>, RequestError> {
+    fetch
+        .sync(&MEDICINES)
+        .map(|info| crate::mapped::bundle_sync(SPEC.source, info))
 }
 /// Literal medicine-name candidates in native bundle order; never synchronize on reads.
 pub fn search(leg: &Leg<'_>, query: &str) -> Result<crate::Mapped<Vec<DrugHeader>>, RequestError> {
@@ -88,7 +90,7 @@ pub fn regulatory(
                 offset: 0,
                 total: Some(1),
                 truncated: None,
-                version: Some(row.meta.timestamp),
+                version: problems.field("_bundle_meta.timestamp", row.meta.timestamp),
                 retrieved: None,
             },
         },

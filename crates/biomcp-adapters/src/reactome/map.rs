@@ -25,7 +25,10 @@ pub(super) fn metadata(
     if value.is_none() && !required {
         return None;
     }
-    let admit = if matches!(field, "name" | "references.title" | "summations.text") {
+    let admit = if matches!(
+        field,
+        "name" | "pathways.name" | "references.title" | "summations.text"
+    ) {
         crate::mapped::source_text
     } else {
         crate::mapped::text
@@ -45,12 +48,17 @@ pub(super) fn hit(row: &raw::Hit, problems: &mut Problems) -> Option<PathwayHead
         return None;
     }
     // Reactome inserts only these highlight spans into the native display name.
-    let name = native_text(row.name.as_ref()).map(|name| {
-        name.replace("<span class=\"highlighting\" >", "")
-            .replace("</span>", "")
-    });
-    let name = problems.optional("name", name.as_deref().map(crate::mapped::source_text));
-    let name = problems.required("name", name)?;
+    let name = problems.optional(
+        "name",
+        row.name.as_ref().map(|field| {
+            let value = field.as_ref().ok_or(biomcp_fetch::BadReply)?;
+            crate::mapped::source_text(
+                &value
+                    .replace("<span class=\"highlighting\" >", "")
+                    .replace("</span>", ""),
+            )
+        }),
+    );
     Some(PathwayHeader {
         id,
         name,
@@ -61,7 +69,7 @@ pub(super) fn hit(row: &raw::Hit, problems: &mut Problems) -> Option<PathwayHead
 }
 pub(super) fn header(row: &raw::Card, problems: &mut Problems) -> Option<PathwayHeader> {
     let id = identity(&row.st_id, &row.species_name, &row.schema_class)?;
-    let name = metadata(problems, "name", row.display_name.as_ref(), true)?;
+    let name = metadata(problems, "name", row.display_name.as_ref(), false);
     let prefix = format!("{}.", row.st_id);
     let version = native_text(row.st_id_version.as_ref()).filter(|v| {
         v.strip_prefix(&prefix)
@@ -85,15 +93,17 @@ pub(super) fn card(row: raw::Card, summary: bool, problems: &mut Problems) -> Op
                 rows.into_iter()
                     .filter_map(|row| {
                         let row = problems.required("summations.identity", row.value())?;
-                        let text = problems.required(
-                            "summations.text",
-                            row.text
-                                .and_then(Field::value)
-                                .filter(|v| !v.trim().is_empty()),
-                        )?;
+                        let text = problems
+                            .field("summations.text", row.text)
+                            .and_then(|value| {
+                                problems.required(
+                                    "summations.text",
+                                    (!value.trim().is_empty()).then(|| value.into()),
+                                )
+                            });
                         Some(PathwaySummation {
                             db_id: row.db_id,
-                            text: text.into(),
+                            text,
                         })
                     })
                     .collect()

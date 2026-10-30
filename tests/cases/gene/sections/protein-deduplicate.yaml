@@ -1,6 +1,6 @@
 {
   "live_check": "public",
-  "feature": "gene-sections",
+  "feature": "gene-protein",
   "story": "Repeated cards share one deduplicated accession request",
   "replay": "gene/protein",
   "steps": [

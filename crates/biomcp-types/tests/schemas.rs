@@ -6,6 +6,8 @@ mod annotations;
 mod compatibility;
 #[path = "schemas/compatibility_cases.rs"]
 mod compatibility_cases;
+#[path = "schemas/compatibility_recursive_cases.rs"]
+mod compatibility_recursive_cases;
 #[path = "schemas/drug.rs"]
 mod drug;
 #[path = "schemas/generation.rs"]
@@ -16,6 +18,16 @@ mod ownership;
 mod policy;
 #[path = "schemas/release.rs"]
 mod release;
+#[path = "schemas/temporal.rs"]
+mod temporal;
+#[test]
+fn temporal_properties_have_one_type_across_registered_schemas() -> Result<(), String> {
+    temporal::temporal_properties_have_one_type_across_registered_schemas()
+}
+#[test]
+fn temporal_property_check_rejects_conflicting_definition_types() -> Result<(), String> {
+    temporal::temporal_property_check_rejects_conflicting_definition_types()
+}
 #[path = "schemas/values.rs"]
 mod values;
 
@@ -118,10 +130,10 @@ fn registry() -> Vec<Contract> {
         TrialDocumentGet => ("trial-document", "biomcp.trial-document/2", query),
         HttpHealth => ("http-health", "biomcp.http-health/2"),
         Markdown => ("markdown", "biodata.markdown/2"),
-        ErrorEnvelope => ("error", "biomcp.error/3"),
+        ErrorEnvelope => ("error", "biomcp.error/4"),
         GeneGet => ("gene-get", "biomcp.gene-get/2", query),
         GeneSearch => ("gene-search", "biomcp.gene-search/2", query),
-        Request => ("request", "biomcp.request/30", query),
+        Request => ("request", "biomcp.request/31", query),
         HgncId => ("hgnc-id", "biodata.hgnc-id/2"),
         PartialDate => ("partial-date", "biodata.partial-date/2"),
         Position1 => ("position1", "biodata.position1/1"),
@@ -132,9 +144,9 @@ fn registry() -> Vec<Contract> {
         ProblemCode => ("problem-code", "biomcp.problem-code/1"),
         Problem => ("problem", "biomcp.problem/2"),
         GeneInput => ("gene-input", "biomcp.gene-input/2", query),
-        Gene => ("gene", "biodata.gene/6"),
-        GeneHeader => ("gene-header", "biomcp.gene-header/5"),
-        GeneResolution => ("gene-resolution", "biomcp.gene-resolution/6"),
+        Gene => ("gene", "biodata.gene/7"),
+        GeneHeader => ("gene-header", "biomcp.gene-header/6"),
+        GeneResolution => ("gene-resolution", "biomcp.gene-resolution/7"),
         NcbiGeneId => ("ncbi-gene-id", "biodata.ncbi-gene-id/2"),
         EnsemblGeneId => ("ensembl-gene-id", "biodata.ensembl-gene-id/2"),
         GeneSymbol => ("gene-symbol", "biodata.gene-symbol/2"),
@@ -201,13 +213,13 @@ fn adverse_event_contracts() -> Vec<Contract> {
 fn variant_contracts() -> Vec<Contract> {
     contracts! {
         VariantAssertionsGet => ("variant-assertions", "biomcp.variant-assertions/4", query),
-        PopulationFrequency => ("population-frequency", "biodata.population-frequency/7"),
+        PopulationFrequency => ("population-frequency", "biodata.population-frequency/8"),
         VariantPopulationQuery => ("variant-population", "biomcp.variant-population/4", query),
-        Statement => ("statement", "biodata.statement/6"),
+        Statement => ("statement", "biodata.statement/7"),
         VariantRecurrenceQuery => ("variant-recurrence-query", "biomcp.variant-recurrence-query/5", query),
         VariantNormalize => ("variant-normalize", "biomcp.variant-normalize/5", query),
-        VariantSearch => ("variant-search", "biomcp.variant-search/4", query),
-        VariantGet => ("variant-get", "biomcp.variant-get/5", query),
+        VariantSearch => ("variant-search", "biomcp.variant-search/5", query),
+        VariantGet => ("variant-get", "biomcp.variant-get/6", query),
     }
 }
 
@@ -224,13 +236,13 @@ fn drug_contracts() -> Vec<Contract> {
         DrugDiseaseReference => ("drug-disease-reference", "biodata.drug-disease-reference/2"),
         DrugStage => ("drug-stage", "biodata.drug-stage/1"),
         DrugNativeReference => ("drug-native-reference", "biodata.drug-native-reference/2"),
-        DrugTargetRelation => ("drug-target-relation", "biodata.drug-target-relation/5"),
-        DrugIndicationClaim => ("drug-indication-claim", "biodata.drug-indication-claim/5"),
-        DrugInteractionClaim => ("drug-interaction-claim", "biodata.drug-interaction-claim/5"),
+        DrugTargetRelation => ("drug-target-relation", "biodata.drug-target-relation/6"),
+        DrugIndicationClaim => ("drug-indication-claim", "biodata.drug-indication-claim/6"),
+        DrugInteractionClaim => ("drug-interaction-claim", "biodata.drug-interaction-claim/6"),
         AuthorizationDate => ("authorization-date", "biodata.authorization-date/3"),
         AuthorizationEvent => ("authorization-event", "biodata.authorization-event/4"),
         DrugNameSelector => ("drug-name-selector", "biomcp.drug-name-selector/1", query),
-        DrugSearch => ("drug-search", "biomcp.drug-search/3", query),
+        DrugSearch => ("drug-search", "biomcp.drug-search/4", query),
         DrugGet => ("drug-get", "biomcp.drug-get/3", query),
         DrugWhoGet => ("drug-who-get", "biomcp.drug-who-get/2", query),
         DrugGetCommand => ("drug-get-command", "biomcp.drug-get-command/2", query),
@@ -253,7 +265,7 @@ fn trial_contracts() -> Vec<Contract> {
     contracts! {
         TrialGet => ("trial-get", "biomcp.trial-get/2", query),
         TrialConditionResolution => ("trial-condition-resolution", "biomcp.trial-condition-resolution/4"),
-        TrialSearch => ("trial-search", "biomcp.trial-search/5", query),
+        TrialSearch => ("trial-search", "biomcp.trial-search/6", query),
         NctId => ("nct-id", "biodata.nct-id/1"),
         TrialHeader => ("trial-header", "biomcp.trial-header/4"),
     }
@@ -501,4 +513,66 @@ fn population_frequencies_share_one_bounded_fraction() {
     }
     assert_eq!(schema["$defs"]["Fraction"]["minimum"], 0.0);
     assert_eq!(schema["$defs"]["Fraction"]["maximum"], 1.0);
+}
+
+#[test]
+fn source_forms_and_profile_members_match_admitted_subject_levels()
+-> Result<(), Box<dyn std::error::Error>> {
+    let schema = generate::<VariantRef>();
+    let branches = schema["oneOf"].as_array().ok_or("reference branches")?;
+    for (level, field, count) in [("source", "forms", 2), ("profile", "members", 3)] {
+        let branch = branches
+            .iter()
+            .find(|branch| branch["properties"]["level"]["const"] == level)
+            .ok_or("reference level")?;
+        let items = branch["properties"][field]["items"]["oneOf"]
+            .as_array()
+            .ok_or("flat tagged item branches")?;
+        assert_eq!(items.len(), count);
+        for item in items {
+            assert_eq!(item["type"], "object");
+            assert_eq!(item["properties"]["level"]["type"], "string");
+            assert!(item["properties"]["level"]["const"].is_string());
+            assert!(
+                item["required"]
+                    .as_array()
+                    .ok_or("required fields")?
+                    .iter()
+                    .any(|field| field == "level")
+            );
+            assert!(item.get("allOf").is_none());
+            assert!(item.get("$ref").is_none());
+        }
+    }
+    let validator = jsonschema::draft202012::new(&schema)?;
+    let allele = serde_json::json!({"level":"allele", "id":"VCV000013961.3"});
+    let protein =
+        serde_json::json!({"level":"protein", "gene":{"label":"EGFR"}, "label":"source label"});
+    let source = |forms| {
+        serde_json::json!({
+            "level":"source", "record":"civic:1", "feature":"native feature", "forms":forms
+        })
+    };
+    let profile = |members| {
+        serde_json::json!({
+            "level":"profile", "record":"1", "label":"native profile", "members":members
+        })
+    };
+    for (value, valid) in [
+        (source(vec![allele.clone()]), true),
+        (source(vec![protein.clone()]), true),
+        (profile(vec![allele.clone(), protein, source(vec![])]), true),
+        (source(vec![source(vec![])]), false),
+        (source(vec![profile(vec![])]), false),
+        (profile(vec![profile(vec![])]), false),
+        (profile(vec![source(vec![source(vec![allele])])]), false),
+    ] {
+        assert_eq!(validator.is_valid(&value), valid, "schema: {value}");
+        assert_eq!(
+            serde_json::from_value::<VariantRef>(value.clone()).is_ok(),
+            valid,
+            "admission: {value}"
+        );
+    }
+    Ok(())
 }

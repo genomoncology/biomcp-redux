@@ -23,21 +23,7 @@ pub(super) fn augment(commands: &mut Vec<HelpCommand>) -> io::Result<()> {
             _ => {}
         }
     }
-    add(commands, &root, Vec::new(), true);
-    for child in root.get_subcommands() {
-        let path = vec![child.get_name().into()];
-        add(commands, child, path.clone(), false);
-        if child.get_name() == "key" {
-            for grandchild in child.get_subcommands() {
-                add(
-                    commands,
-                    grandchild,
-                    vec!["key".into(), grandchild.get_name().into()],
-                    false,
-                );
-            }
-        }
-    }
+    walk(commands, &root, Vec::new());
     if let Some(entry) = commands.iter_mut().find(|entry| entry.command == ["help"]) {
         entry.arguments.push(metadata(
             &Arg::new("command")
@@ -66,6 +52,36 @@ pub(super) fn augment(commands: &mut Vec<HelpCommand>) -> io::Result<()> {
     }
     Ok(())
 }
+// The unscoped list describes parser nodes; scoped topic pages keep their detailed entries.
+pub(super) fn canonical(commands: &mut Vec<HelpCommand>) -> io::Result<()> {
+    let root =
+        crate::grammar::root().map_err(|_| io::Error::other("command grammar unavailable"))?;
+    commands.retain(|entry| {
+        entry
+            .command
+            .iter()
+            .try_fold(&root, |parent, name| parent.find_subcommand(name))
+            .is_some()
+    });
+    // Help parser paths already spell their invocation. Keep topic examples in scoped help.
+    for entry in commands {
+        if entry.command.first().is_some_and(|word| word == "help")
+            && entry.examples == [entry.command.clone()]
+        {
+            entry.examples.clear();
+        }
+    }
+    Ok(())
+}
+fn walk(commands: &mut Vec<HelpCommand>, parser: &Command, path: Vec<String>) {
+    add(commands, parser, path.clone(), path.is_empty());
+    for child in parser.get_subcommands() {
+        let mut path = path.clone();
+        path.push(child.get_name().into());
+        walk(commands, child, path);
+    }
+}
+
 fn augment_entries(commands: &mut [HelpCommand], root: &Command) {
     for entry in commands.iter_mut() {
         let parser = entry
@@ -108,10 +124,21 @@ fn add(commands: &mut Vec<HelpCommand>, parser: &Command, path: Vec<String>, roo
     if root {
         for alias in crate::grammar::entry_aliases() {
             arguments.push(HelpArgument {
-                name: alias.flags().join(", "),
+                name: alias
+                    .flags()
+                    .iter()
+                    .find(|flag| flag.starts_with("--"))
+                    .copied()
+                    .unwrap_or_default()
+                    .into(),
                 description: alias.description().into(),
                 value_type: "boolean".into(),
-                aliases: Vec::new(),
+                aliases: alias
+                    .flags()
+                    .iter()
+                    .filter(|flag| !flag.starts_with("--"))
+                    .map(|flag| (*flag).into())
+                    .collect(),
                 default: Some("false".into()),
                 required: false,
                 position: None,
@@ -122,7 +149,9 @@ fn add(commands: &mut Vec<HelpCommand>, parser: &Command, path: Vec<String>, roo
         }
     }
     if let Some(entry) = commands.iter_mut().find(|entry| entry.command == path) {
-        entry.arguments = arguments;
+        if entry.arguments.is_empty() {
+            entry.arguments = arguments;
+        }
     } else {
         let mut reply_schemas = crate::schema::local_replies(&path);
         if !path.is_empty() {
@@ -137,11 +166,12 @@ fn add(commands: &mut Vec<HelpCommand>, parser: &Command, path: Vec<String>, roo
         reply_schemas.dedup();
         commands.push(HelpCommand {
             reply_schemas,
-            command: path,
+            command: path.clone(),
             description: parser
                 .get_about()
                 .map(ToString::to_string)
-                .unwrap_or_default(),
+                .filter(|description| !description.is_empty())
+                .unwrap_or_else(|| format!("Describe {}.", path.join(" "))),
             arguments,
             sections: Vec::new(),
             section_rule: None,

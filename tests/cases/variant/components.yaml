@@ -1,5 +1,5 @@
 {
-  "feature": "variant-myvariant-sections",
+  "feature": "variant-identity",
   "live_check": "synthetic",
   "story": "Default component fields retain labels and matching groups prevent warm CLI and MCP disclosure",
   "replay": "variant/synthetic-components",

@@ -5,13 +5,13 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        transcript_trial("article/fulltext/source-subsection-markdown", || {
+        transcript_trial("article-search/fulltext/source-subsection-markdown", || {
             subsection().map_err(Into::into)
         }),
-        transcript_trial("article/fulltext/source-table-markdown", || {
+        transcript_trial("article-search/fulltext/source-table-markdown", || {
             table().map_err(Into::into)
         }),
-        transcript_trial("article/fulltext/abstract-markdown", || {
+        transcript_trial("article-search/fulltext/abstract-markdown", || {
             abstract_part().map_err(Into::into)
         }),
     ]

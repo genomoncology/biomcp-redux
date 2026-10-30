@@ -16,7 +16,8 @@ pub struct TextPart {
     /// One-based reader selector.
     pub number: u32,
     /// Source section title or table label.
-    pub title: Text,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub title: Option<Text>,
     /// Source structure kind.
     pub kind: TextPartKind,
     /// Compact serialized text bytes divided by four, rounded up.
@@ -27,7 +28,8 @@ pub struct TextPart {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct FigureCaption {
     /// Source label.
-    pub label: Text,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub label: Option<Text>,
     /// Source caption.
     pub caption: crate::Markdown,
 }
@@ -114,7 +116,7 @@ pub struct TextContent {
     pub hits: Option<Box<[TextHit]>>,
 }
 impl super::ResponseBody for ArticleTextResult {
-    const SCHEMA: &'static str = "biomcp.article-text/5";
+    const SCHEMA: &'static str = "biomcp.article-text/6";
     type Query = ArticleText;
 }
 

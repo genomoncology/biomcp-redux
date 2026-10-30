@@ -4,6 +4,8 @@ use biodata::{Curie, Text};
 /// One exact received annotation with independently attributed component facts.
 #[derive(Debug)]
 pub struct Record {
+    /// Rejected top-level metadata.
+    pub problems: Vec<biomcp_types::Problem>,
     /// Exact caller-selected identifier.
     pub requested_id: Curie,
     /// Native top-level identifier, checked against the request or its own alias.
@@ -106,7 +108,7 @@ pub(super) fn component(name: &'static str, raw: super::raw::Component) -> Compo
         synonyms,
         xrefs,
         parents,
-        obsolete: raw.is_obsolete,
+        obsolete: problems.field(&format!("{root}.is_obsolete"), raw.is_obsolete),
         consider,
         replaced_by,
         problems: problems.list,

@@ -65,6 +65,11 @@ pub(super) fn render(
     }
     out.problems
         .extend(snapshot.detail.problems.iter().cloned());
+    for problem in &snapshot.processing_problems {
+        if !out.problems.contains(problem) {
+            out.problems.push(problem.clone());
+        }
+    }
     Ok(TrialCardItem {
         input: id,
         status: if super::partial(&snapshot) {

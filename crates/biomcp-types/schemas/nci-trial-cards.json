@@ -259,7 +259,7 @@
         "max_age_in_years": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Reply_FiniteNumber"
+              "$ref": "#/$defs/Reply_WithUnit_FiniteNumber_Text"
             },
             {
               "type": "null"
@@ -270,24 +270,13 @@
         "max_age_number": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Reply_FiniteNumber"
+              "$ref": "#/$defs/Reply_WithUnit_FiniteNumber_Text"
             },
             {
               "type": "null"
             }
           ],
           "description": "Native max age number field."
-        },
-        "max_age_unit": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_Text"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "Native max age unit field."
         },
         "min_age": {
           "anyOf": [
@@ -303,7 +292,7 @@
         "min_age_in_years": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Reply_FiniteNumber"
+              "$ref": "#/$defs/Reply_WithUnit_FiniteNumber_Text"
             },
             {
               "type": "null"
@@ -314,24 +303,13 @@
         "min_age_number": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Reply_FiniteNumber"
+              "$ref": "#/$defs/Reply_WithUnit_FiniteNumber_Text"
             },
             {
               "type": "null"
             }
           ],
           "description": "Native min age number field."
-        },
-        "min_age_unit": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_Text"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "Native min age unit field."
         },
         "sex": {
           "anyOf": [
@@ -1874,15 +1852,6 @@
             "null"
           ]
         },
-        "fetched": {
-          "description": "Retrieved identity depth.",
-          "format": "uint32",
-          "minimum": 0,
-          "type": [
-            "integer",
-            "null"
-          ]
-        },
         "notices": {
           "description": "Source notices and request recovery guidance.",
           "items": {
@@ -1900,6 +1869,15 @@
             }
           ],
           "description": "Failure or stale-fallback reason."
+        },
+        "retrieved_count": {
+          "description": "Number of retrieved identities.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
         },
         "source": {
           "$ref": "#/$defs/Reply_Source",
@@ -2327,9 +2305,33 @@
         "restricted"
       ],
       "type": "string"
+    },
+    "Reply_WithUnit_FiniteNumber_Text": {
+      "description": "A source number with its explicitly stated unit; missing units stay absent.",
+      "properties": {
+        "unit": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Publisher unit or code, without conversion or inference."
+        },
+        "value": {
+          "$ref": "#/$defs/Reply_FiniteNumber",
+          "description": "Unchanged numeric source value."
+        }
+      },
+      "required": [
+        "value"
+      ],
+      "type": "object"
     }
   },
-  "$id": "biomcp.nci-trial-cards/4",
+  "$id": "biomcp.nci-trial-cards/6",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -2385,7 +2387,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.nci-trial-cards/4",
+      "const": "biomcp.nci-trial-cards/6",
       "type": "string"
     },
     "sources": {

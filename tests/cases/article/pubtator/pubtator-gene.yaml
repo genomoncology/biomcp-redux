@@ -22,7 +22,7 @@
         "/page/total": 100,
         "/page/truncated": true,
         "/sources/1/count": 750,
-        "/sources/1/fetched": 100,
+        "/sources/1/retrieved_count": 100,
         "/result/items/*/pmid": [
           "35681625",
           "41026470",

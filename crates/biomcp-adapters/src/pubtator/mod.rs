@@ -52,14 +52,28 @@ pub fn annotations(leg: &Leg<'_>, ids: &[Pmid]) -> Result<Vec<ArticleAnnotations
         .map(|id| id.to_string().into_boxed_str())
         .collect();
     let reply = leg.json::<raw::Export>(&EXPORT, &[("pmids", Arg::Ids(&names))])?;
-    Ok(ids
+    let malformed_identity = reply.documents.iter().any(|v| v.as_ref().is_none());
+    let mut results: Vec<_> = ids
         .iter()
         .map(|id| {
-            let document = reply.documents.iter().find(|doc| doc.id == *id);
+            let document = reply
+                .documents
+                .iter()
+                .filter_map(crate::raw::Field::as_ref)
+                .find(|doc| doc.id == *id);
             ArticleAnnotations {
                 id: *id,
                 annotations: map::document(*id, document),
             }
         })
-        .collect())
+        .collect();
+    if malformed_identity && let Some(first) = results.first_mut() {
+        crate::mapped::push_problem(
+            &mut first.annotations.problems,
+            Source::PubTator,
+            None,
+            "pmid",
+        );
+    }
+    Ok(results)
 }

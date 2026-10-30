@@ -50,14 +50,9 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
     {
         match oncokb::version(&leg) {
             Ok(version) => {
-                for (_, value) in &mut values {
-                    if let SectionValue::Oncokb(section, Some(card), _) = value {
-                        card.version = Some(version.clone());
-                        if let Section::Data { data, .. } = section {
-                            data.version = Some(version.clone());
-                        }
-                    }
-                }
+                let partial_version = !version.problems.is_empty();
+                status::append(&mut problems, version.problems);
+                apply_version(&mut values, version.value.as_ref(), partial_version);
             }
             Err(failure) => {
                 error = Some(failure);
@@ -143,5 +138,21 @@ fn mapped_value(
             None,
             false,
         ),
+    }
+}
+
+fn apply_version(
+    values: &mut [(HgncId, SectionValue)],
+    version: Option<&biodata::Text>,
+    partial_version: bool,
+) {
+    for (_, value) in values {
+        if let SectionValue::Oncokb(section, Some(card), partial) = value {
+            card.version = version.cloned();
+            *partial |= partial_version;
+            if let Section::Data { data, .. } = section {
+                data.version = version.cloned();
+            }
+        }
     }
 }

@@ -6,7 +6,7 @@ use serde_json::{Value, json};
 const SECTION: &str = "/result/candidates/0/sections/alphagenome";
 pub(super) fn trials() -> Vec<Trial> {
     vec![transcript_trial(
-        "variant/alphagenome-keyless-zero-network",
+        "variant-alphagenome/alphagenome-keyless-zero-network",
         || keyless().map_err(Into::into),
     )]
 }

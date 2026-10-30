@@ -29,13 +29,16 @@ const RSID: &[&str] = &[
 ];
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        transcript_trial("article/litvar/response-boundaries", || {
+        transcript_trial("article-litvar/litvar/independent-name-and-counts", || {
+            optional_values().map_err(|e| e.to_string().into())
+        }),
+        transcript_trial("article-litvar/litvar/response-boundaries", || {
             boundaries().map_err(|e| e.to_string().into())
         }),
-        transcript_trial("article/litvar/empty-recovery", || {
+        transcript_trial("article-litvar/litvar/empty-recovery", || {
             empty_recovery().map_err(|e| e.to_string().into())
         }),
-        transcript_trial("article/litvar/source-failures", || {
+        transcript_trial("article-litvar/litvar/source-failures", || {
             failures().map_err(|e| e.to_string().into())
         }),
     ]
@@ -92,18 +95,19 @@ fn boundaries() -> Check {
         ),
         (
             "bad-id",
-            json!({"/status":"failed","/sources/1/reason":"bad-reply"}),
-            4,
+            json!({"/status":"absent","/result/candidates":{"count":1},"/problems/*/field":["identity"]}),
+            1,
         ),
         (
             "bad-rsid",
-            json!({"/status":"failed","/sources/1/reason":"bad-reply"}),
-            4,
+            json!({"/status":"complete","/sources/1/term":"p.G12C",
+                "/problems/*/field":["rsid","electronic_date","electronic_date","date"]}),
+            0,
         ),
         (
             "zero-pmid",
-            json!({"/status":"failed","/sources/1/reason":"bad-reply"}),
-            4,
+            json!({"/page/total":8914,"/result/items":{"count":10},"/problems/*/field":{"includes":"pmids"}}),
+            0,
         ),
         (
             "cap",
@@ -248,7 +252,7 @@ fn boundary_edit(source: &str, record: &mut Value, kind: &str) {
                 _ => {}
             }
         } else if kind == "zero-pmid" {
-            body["pmids"][0] = json!(0);
+            *body["pmids"].as_array_mut().unwrap().last_mut().unwrap() = json!(0);
         } else if kind == "cap" {
             let ids = body["pmids"].as_array_mut().unwrap();
             ids.extend((1..=12000 - ids.len()).map(|id| json!(50_000_000 + id)));
@@ -342,5 +346,57 @@ fn markdown_recovery() -> Check {
         text.contains("If you have an rsID, look it up in LitVar"),
         "Empty results must keep recovery steps"
     );
+    Ok(())
+}
+
+fn optional_values() -> Check {
+    // Keep the original capture's independent PubMed date disclosures in every control.
+    checked_case(
+        "article/litvar/kras-g12c",
+        KRAS,
+        |_, _| {},
+        json!({"/result/items":{"count":10},
+            "/problems/*/field":["electronic_date","electronic_date","date"]}),
+        0,
+    )?;
+    checked_case(
+        "article/litvar/kras-g12c",
+        KRAS,
+        |source, record| {
+            if source == "litvar" && !publications(record) {
+                record["exchanges"][0]["body"]["value"][1]["name"] = json!(42);
+            }
+        },
+        json!({"/result/candidates":{"count":2},"/result/candidates/1":{"omits":["name"]},
+            "/result/candidates/1/rsid":"rs121913530","/problems/*/field":["name"]}),
+        1,
+    )?;
+    for (publication, invalid) in [
+        (false, json!("bad")),
+        (true, json!("bad")),
+        (true, json!(1)),
+    ] {
+        let output = checked_case(
+            "article/litvar/kras-g12c",
+            KRAS,
+            |source, record| {
+                if source != "litvar" || publications(record) != publication {
+                    return;
+                }
+                let value = &mut record["exchanges"][0]["body"]["value"];
+                if publication {
+                    value["pmids_count"] = invalid.clone();
+                } else {
+                    value[1]["pmids_count"] = invalid.clone();
+                }
+            },
+            json!({"/result/items":{"count":10},
+                "/problems/*/field":["pmids_count","electronic_date","electronic_date","date"]}),
+            0,
+        )?;
+        if publication && output.pointer("/sources/1/count").is_some() {
+            return Err("refused publication count was inferred or retained".into());
+        }
+    }
     Ok(())
 }

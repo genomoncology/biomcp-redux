@@ -59,22 +59,18 @@ pub(super) fn measurements(
     let section = match result {
         Ok(mapped) => {
             problems = mapped.problems;
-            if mapped.value.scores.is_empty()
-                && mapped.value.context.is_empty()
-                && !problems.is_empty()
+            if problems
+                .iter()
+                .any(|p| p.field.as_ref() == "subject_qualification")
             {
                 Section::Unavailable {
                     source: Source::MyVariant,
-                    reason: if problems
-                        .iter()
-                        .any(|p| p.field.as_ref() == "subject_qualification")
-                    {
-                        Reason::NoJoinId
-                    } else {
-                        Reason::BadReply
-                    },
+                    reason: Reason::NoJoinId,
                 }
-            } else if mapped.value.scores.is_empty() && mapped.value.context.is_empty() {
+            } else if mapped.value.scores.is_empty()
+                && mapped.value.context.is_empty()
+                && (problems.is_empty() || problems.iter().any(|p| p.field.as_ref() == "_id"))
+            {
                 Section::Empty {
                     source: Source::MyVariant,
                     record: candidates.first().map(|c| c.record.clone()),

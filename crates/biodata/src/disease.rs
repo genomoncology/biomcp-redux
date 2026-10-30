@@ -1,4 +1,4 @@
-use crate::{Attribution, Concept, Curie, FiniteNumber, Text};
+use crate::{Attribution, Curie, FiniteNumber, Text};
 use serde::{Deserialize, Serialize};
 /// A native source association without clinical interpretation.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -7,14 +7,14 @@ pub struct DiseaseAssociation {
     /// The exact requested concept, including a queried parent.
     pub requested_id: Curie,
     /// Native returned subject.
-    pub subject: Concept,
+    pub subject: DiseaseEndpoint,
     /// Native subject taxon, only as supplied by the publisher.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub subject_taxon: Option<Curie>,
     /// Native source predicate.
     pub predicate: Curie,
     /// Native returned object.
-    pub object: Concept,
+    pub object: DiseaseEndpoint,
     /// Original source subject before source normalization.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub original_subject: Option<Curie>,
@@ -157,22 +157,23 @@ pub struct DiseaseStatistic {
 pub struct StatisticEstimate {
     /// Native estimate.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub value: Option<FiniteNumber>,
+    pub value: Option<crate::WithUnit<FiniteNumber>>,
     /// Native standard error.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub standard_error: Option<FiniteNumber>,
+    pub standard_error: Option<crate::WithUnit<FiniteNumber>>,
     /// Native lower confidence bound.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub lower_ci: Option<FiniteNumber>,
+    pub lower_ci: Option<crate::WithUnit<FiniteNumber>>,
     /// Native upper confidence bound.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub upper_ci: Option<FiniteNumber>,
+    pub upper_ci: Option<crate::WithUnit<FiniteNumber>>,
     /// Native count; no inferred denominator.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub count: Option<u64>,
 }
 
 /// One native endpoint with an identifier and an optional source label.
+/// Native associations use this reference because a source may omit a display label.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DiseaseEndpoint {

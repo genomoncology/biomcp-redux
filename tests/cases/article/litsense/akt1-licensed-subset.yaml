@@ -25,7 +25,7 @@
         "/status": "complete",
         "/page/total": 6,
         "/page/truncated": false,
-        "/sources/0/fetched": 6,
+        "/sources/0/retrieved_count": 6,
         "/result/items/*/pmid": [
           "39614261",
           "36901954",

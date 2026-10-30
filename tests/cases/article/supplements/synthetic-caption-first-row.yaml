@@ -21,7 +21,7 @@
         "example-hit"
       ],
       "expect": {
-        "/schema": "biomcp.article-supplement/5",
+        "/schema": "biomcp.article-supplement/6",
         "/result/content/data/rows/0/first_row": {
           "equals": {
             "row": 1,

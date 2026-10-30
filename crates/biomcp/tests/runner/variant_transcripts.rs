@@ -11,7 +11,7 @@ pub(super) fn trials() -> Vec<Trial> {
             "variant-search/transcript-projection-and-component-policy",
             || transcripts().map_err(Into::into),
         ),
-        transcript_trial("variant/source-coding-transcript-match", || {
+        transcript_trial("variant-search/source-coding-transcript-match", || {
             coding().map_err(Into::into)
         }),
     ]

@@ -7,7 +7,7 @@ use serde_json::Value;
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![transcript_trial(
-        "sources/group-consequences-help-and-health",
+        "source-controls/group-consequences-help-and-health",
         || check().map_err(Into::into),
     )]
 }

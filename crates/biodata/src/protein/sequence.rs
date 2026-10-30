@@ -65,7 +65,8 @@ pub struct ProteinStructureRef {
     pub id: Text,
     /// Publisher link; no structure file is retrieved.
     #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
-    pub url: Text,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub url: Option<Text>,
     /// All native property pairs, including method, resolution and chains.
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     pub properties: Box<[ProteinStructureProperty]>,

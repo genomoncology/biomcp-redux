@@ -9,30 +9,6 @@
       ],
       "type": "string"
     },
-    "Reply_Concept": {
-      "description": "One source concept with its optional ontology identifier.",
-      "properties": {
-        "id": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_Curie"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "Source-stated concept identifier."
-        },
-        "label": {
-          "$ref": "#/$defs/Reply_Text",
-          "description": "Original concept label."
-        }
-      },
-      "required": [
-        "label"
-      ],
-      "type": "object"
-    },
     "Reply_Curie": {
       "description": "Checked prefix:local ontology identifier.",
       "pattern": "^[A-Za-z0-9_.-]+:[^:/\\x09-\\x0d\\x20\\x85\\xa0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000\\x00-\\x1f\\x7f-\\x9f][^:\\x09-\\x0d\\x20\\x85\\xa0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000\\x00-\\x1f\\x7f-\\x9f]*$",
@@ -178,11 +154,35 @@
         "PMA base application supplement headers; five per page."
       ]
     },
+    "Reply_GtrConditionReference": {
+      "description": "A checked native MedGen target with independently optional source label.",
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/Reply_Curie",
+          "description": "Native MedGen identity from the condition relation."
+        },
+        "label": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native source label."
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "type": "object"
+    },
     "Reply_GtrConditionRelation": {
       "description": "Native condition membership; SNOMED cells never become GeneID.",
       "properties": {
         "condition": {
-          "$ref": "#/$defs/Reply_Concept",
+          "$ref": "#/$defs/Reply_GtrConditionReference",
           "description": "Shared MedGen concept with source label."
         },
         "mim_number": {
@@ -198,13 +198,19 @@
           "description": "Complete owning test accession/version."
         },
         "test_type": {
-          "$ref": "#/$defs/Reply_GtrTestType",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_GtrTestType"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Native source test type."
         }
       },
       "required": [
         "test_id",
-        "test_type",
         "condition",
         "mim_number",
         "snomed_ct_id"
@@ -720,15 +726,6 @@
             "null"
           ]
         },
-        "fetched": {
-          "description": "Retrieved identity depth.",
-          "format": "uint32",
-          "minimum": 0,
-          "type": [
-            "integer",
-            "null"
-          ]
-        },
         "notices": {
           "description": "Source notices and request recovery guidance.",
           "items": {
@@ -746,6 +743,15 @@
             }
           ],
           "description": "Failure or stale-fallback reason."
+        },
+        "retrieved_count": {
+          "description": "Number of retrieved identities.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
         },
         "source": {
           "$ref": "#/$defs/Reply_Source",
@@ -864,7 +870,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.diagnostic-conditions/4",
+  "$id": "biomcp.diagnostic-conditions/5",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -920,7 +926,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.diagnostic-conditions/4",
+      "const": "biomcp.diagnostic-conditions/5",
       "type": "string"
     },
     "sources": {

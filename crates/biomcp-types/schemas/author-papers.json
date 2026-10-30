@@ -66,7 +66,14 @@
           "description": "Exact native PMID."
         },
         "title": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Whole source title."
         },
         "venue": {
@@ -91,8 +98,7 @@
         }
       },
       "required": [
-        "paper_id",
-        "title"
+        "paper_id"
       ],
       "type": "object"
     },
@@ -692,15 +698,6 @@
             "null"
           ]
         },
-        "fetched": {
-          "description": "Retrieved identity depth.",
-          "format": "uint32",
-          "minimum": 0,
-          "type": [
-            "integer",
-            "null"
-          ]
-        },
         "notices": {
           "description": "Source notices and request recovery guidance.",
           "items": {
@@ -718,6 +715,15 @@
             }
           ],
           "description": "Failure or stale-fallback reason."
+        },
+        "retrieved_count": {
+          "description": "Number of retrieved identities.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
         },
         "source": {
           "$ref": "#/$defs/Reply_Source",
@@ -836,7 +842,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.author-papers/3",
+  "$id": "biomcp.author-papers/5",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -892,7 +898,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.author-papers/3",
+      "const": "biomcp.author-papers/5",
       "type": "string"
     },
     "sources": {

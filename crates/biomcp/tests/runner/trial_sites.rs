@@ -15,16 +15,17 @@ type Check = Result<(), Box<dyn std::error::Error>>;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
         transcript_trial(
-            "trial/sites/whole-source-location-and-contact-walks",
+            "trial-sites/sites/whole-source-location-and-contact-walks",
             || walks().map_err(|e| e.to_string().into()),
         ),
-        transcript_trial("trial/sites/contact-attachment-and-source-status", || {
-            attachments().map_err(|e| e.to_string().into())
-        }),
-        transcript_trial("trial/sites/checked-geographic-coordinates", || {
+        transcript_trial(
+            "trial-sites/sites/contact-attachment-and-source-status",
+            || attachments().map_err(|e| e.to_string().into()),
+        ),
+        transcript_trial("trial-sites/sites/checked-geographic-coordinates", || {
             coordinates().map_err(|e| e.to_string().into())
         }),
-        transcript_trial("trial/sites/old-snapshot-owner-expires", || {
+        transcript_trial("trial-sites/sites/old-snapshot-owner-expires", || {
             old_owner().map_err(|e| e.to_string().into())
         }),
     ]
@@ -63,8 +64,10 @@ fn walk(id: &str, section: &str, raw: &Value, count: usize) -> Check {
         let source_card = &out["result"]["items"][0]["card"];
         if id == "NCT02987543"
             && (source_card["status"] != "COMPLETED"
-                || source_card["updated"]["date"]
-                    != raw["statusModule"]["lastUpdatePostDateStruct"]["date"])
+                || source_card["updated"]
+                    != raw["statusModule"]["lastUpdatePostDateStruct"]["date"]
+                || source_card["updated_kind"]
+                    != raw["statusModule"]["lastUpdatePostDateStruct"]["type"])
         {
             return Err("trial overall status/update changed".into());
         }

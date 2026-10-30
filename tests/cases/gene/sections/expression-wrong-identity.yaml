@@ -1,6 +1,6 @@
 {
   "live_check": "synthetic response case",
-  "feature": "gene-sections",
+  "feature": "gene-expression",
   "story": "A different returned HPA identity never attaches to CLDN18",
   "replay": "gene/expression/synthetic-wrong-identity",
   "steps": [

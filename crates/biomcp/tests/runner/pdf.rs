@@ -8,22 +8,22 @@ use std::{fs, path::Path};
 type Check = Result<(), Box<dyn std::error::Error>>;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        transcript_trial("article/pdf/recorded-metadata-contract", || {
+        transcript_trial("article-pdf/pdf/recorded-metadata-contract", || {
             record_metadata().map_err(|e| e.to_string().into())
         }),
-        transcript_trial("article/pdf/size-cut-and-proxy-boundaries", || {
+        transcript_trial("article-pdf/pdf/size-cut-and-proxy-boundaries", || {
             boundaries().map_err(|e| e.to_string().into())
         }),
-        transcript_trial("article/pdf/http-save-refused-with-link", || {
+        transcript_trial("article-pdf/pdf/http-save-refused-with-link", || {
             http_refusal().map_err(|e| e.to_string().into())
         }),
-        transcript_trial("article/pdf/atomic-explicit-saves", || {
+        transcript_trial("article-pdf/pdf/atomic-explicit-saves", || {
             saves().map_err(|e| e.to_string().into())
         }),
-        transcript_trial("article/pdf/hostile-existing-paths", || {
+        transcript_trial("article-pdf/pdf/hostile-existing-paths", || {
             existing_paths().map_err(|e| e.to_string().into())
         }),
-        transcript_trial("article/pdf/failed-download-leaves-nothing", || {
+        transcript_trial("article-pdf/pdf/failed-download-leaves-nothing", || {
             failures().map_err(|e| e.to_string().into())
         }),
     ]

@@ -31,7 +31,8 @@ pub struct GtrHeader {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub name: Option<Text>,
     /// Native laboratory context.
-    pub laboratory: DiagnosticLaboratory,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub laboratory: Option<DiagnosticLaboratory>,
     /// Source record URL.
     #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub url: Text,
@@ -109,9 +110,11 @@ pub struct GtrCard {
     /// Separate native flags.
     pub native_status: GtrNativeStatus,
     /// Native revision date; not a local retrieval date.
-    pub last_touch_date: Text,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub last_touch_date: Option<Text>,
     /// Source creation date.
-    pub test_create_date: Text,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub test_create_date: Option<Text>,
     /// Native deletion cell, including empty.
     pub test_deletion_date: Box<str>,
     /// Native manufacturer test name, including empty.
@@ -149,7 +152,7 @@ pub enum DiagnosticCard {
     Clearance(DiagnosticClearance),
 }
 impl ResponseBody for DiagnosticCard {
-    const SCHEMA: &'static str = "biomcp.diagnostic-card/3";
+    const SCHEMA: &'static str = "biomcp.diagnostic-card/4";
     type Query = DiagnosticGet;
 }
 /// One bounded regulatory fragment from the exact selected native submission.
@@ -216,49 +219,49 @@ page!(
     DiagnosticPage,
     DiagnosticCandidate,
     DiagnosticSearch,
-    "biomcp.diagnostic-page/4",
+    "biomcp.diagnostic-page/5",
     "Source-ordered GTR test candidates or WHO product headers."
 );
 page!(
     DiagnosticGenes,
     GtrGeneRelation,
     DiagnosticGet,
-    "biomcp.diagnostic-genes/4",
+    "biomcp.diagnostic-genes/5",
     "Native GTR gene relation rows without variant-coverage inference."
 );
 page!(
     DiagnosticConditions,
     GtrConditionRelation,
     DiagnosticGet,
-    "biomcp.diagnostic-conditions/4",
+    "biomcp.diagnostic-conditions/5",
     "Native GTR condition rows without ontology or clinical conversion."
 );
 page!(
     DiagnosticMethods,
     GtrMethod,
     DiagnosticGet,
-    "biomcp.diagnostic-methods/3",
+    "biomcp.diagnostic-methods/4",
     "Independent native method entries without positional pairing."
 );
 page!(
     DiagnosticRegulatory,
     DiagnosticRegulatoryFragment,
     DiagnosticGet,
-    "biomcp.diagnostic-regulatory/2",
+    "biomcp.diagnostic-regulatory/3",
     "Exact selected submission regulatory text fragments."
 );
 page!(
     DiagnosticSupplements,
     DiagnosticPmaHeader,
     DiagnosticGet,
-    "biomcp.diagnostic-supplements/2",
+    "biomcp.diagnostic-supplements/3",
     "Native supplement records retaining exact identity and independent dated decisions."
 );
 page!(
     DiagnosticCompanion,
     CompanionDiagnosticRelation,
     DiagnosticSearch,
-    "biomcp.diagnostic-companion/3",
+    "biomcp.diagnostic-companion/4",
     "Whole distinct physical companion-table rows with cell-owned identifiers."
 );
 /// Compact exact PMA row identity; its native empty base cell is explicit.

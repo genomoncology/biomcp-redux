@@ -2,12 +2,15 @@
 mod detail;
 mod map;
 mod raw;
+mod search;
+mod subject;
 use crate::quotas;
 use biomcp_fetch::{
-    Arg, BadReply, Credential, Endpoint, Freshness, KeyPlace, KeyUse, Leg, RequestError,
-    SecretName, SourceSpec,
+    Arg, Credential, Endpoint, Freshness, KeyPlace, KeyUse, Leg, RequestError, SecretName,
+    SourceSpec,
 };
 use biomcp_types::{Source, VariantAssertion};
+pub use search::{SearchPage, search};
 use std::time::Duration;
 /// ClinVar shares the existing NCBI quota and optional user key.
 pub static SPEC: SourceSpec = SourceSpec {
@@ -47,19 +50,24 @@ pub fn assertions(
         params.push(("is_variationid", Arg::Text("true")));
     }
     params.extend([("retmode", Arg::Text("xml")), ("tool", Arg::Text("biomcp"))]);
-    let (reply, _) = leg.xml_received_checked::<raw::Records>(&FETCH, &params, |r| {
-        if r.id.as_deref().is_none_or(|v| v == id)
-            && vcv.is_none_or(|(record, version)| {
-                r.id.is_none()
-                    || r.accession.as_deref() == Some(record)
-                        && version.is_none_or(|v| r.version.as_deref() == Some(v))
-            })
+    let (mut reply, _) =
+        leg.xml_received_checked_cache::<raw::Records>(&FETCH, &params, |reply| {
+            reply.identity_problem(id, vcv).is_none()
+        })?;
+    if let Some(field) = reply.identity_problem(id, vcv) {
+        reply.rows.clear();
+        if !reply
+            .problems
+            .iter()
+            .any(|problem| problem.field.as_ref() == field)
         {
-            Ok(())
-        } else {
-            Err(BadReply)
+            reply.problems.push(crate::mapped::problem(
+                Source::ClinVar,
+                crate::mapped::record(id),
+                field,
+            ));
         }
-    })?;
+    }
     Ok(crate::Mapped {
         value: reply.rows,
         problems: reply.problems,

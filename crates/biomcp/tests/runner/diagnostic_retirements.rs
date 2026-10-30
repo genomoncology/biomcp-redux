@@ -46,7 +46,7 @@ fn check(words: &str, message: &str, code: &str) -> Result<(), String> {
     let measured = if code == "usage.arguments" {
         USAGE_BYTES
     } else {
-        serde_json::to_vec(&json!({"schema":"biomcp.error/3","status":"usage",
+        serde_json::to_vec(&json!({"schema":"biomcp.error/4","status":"usage",
         "error":{"code":code,"message":message}}))
         .map_err(|e| e.to_string())?
         .len()
@@ -223,36 +223,50 @@ pub(super) fn bounded(value: &serde_json::Value) -> Result<(), String> {
     // Full compact synthetic maxima measured by j13382.
     let baseline: usize = match (schema, kind, status) {
         // Native recall mechanism maxima measured by j20265.
-        ("biomcp.diagnostic-page/4", "", "complete") if recall => 760,
-        ("biomcp.diagnostic-page/4", "", "partial") if recall => 922,
-        ("biomcp.diagnostic-page/4", "", "absent") if recall => 399,
-        ("biomcp.diagnostic-card/3", "device-recall", "complete") => 924,
-        ("biomcp.diagnostic-card/3", "device-recall", "partial") => 773,
-        ("biomcp.diagnostic-card/3", "", "failed") if recall => 451,
+        ("biomcp.diagnostic-page/5", "", "complete") if recall => 760,
+        ("biomcp.diagnostic-page/5", "", "partial") if recall => 922,
+        ("biomcp.diagnostic-page/5", "", "absent") if recall => 399,
+        ("biomcp.diagnostic-card/4", "device-recall", "complete") => 924,
+        ("biomcp.diagnostic-card/4", "device-recall", "partial") => 773,
+        ("biomcp.diagnostic-card/4", "", "failed") if recall => 451,
         // New WHO search view, full compact maximum measured by j13465.
-        ("biomcp.diagnostic-page/4", "", _)
+        ("biomcp.diagnostic-page/5", "", _)
             if value.pointer("/query/source") == Some(&json!("who-ivd")) =>
         {
             2249
         }
-        ("biomcp.diagnostic-card/3", "", "absent") => 281,
-        ("biomcp.diagnostic-card/3", "", "failed") => 436,
-        ("biomcp.diagnostic-card/3", "", "partial") => 393,
-        ("biomcp.diagnostic-card/3", "clearance", "complete") => 725,
-        ("biomcp.diagnostic-card/3", "gtr-test", "complete") => 1519,
-        ("biomcp.diagnostic-card/3", "gtr-test", "partial") => 1559,
-        ("biomcp.diagnostic-card/3", "who-ivd-product", "complete") => 2578,
-        ("biomcp.diagnostic-card/3", "who-ivd-product", "partial") => 2576,
-        ("biomcp.diagnostic-companion/3", "", "complete") => 7879,
-        ("biomcp.diagnostic-companion/3", "", "failed") => 410,
-        ("biomcp.diagnostic-companion/3", "", "partial") => 7035,
-        ("biomcp.diagnostic-genes/4", "", "complete") => 867,
-        ("biomcp.diagnostic-page/4", "", "failed") => 379,
-        ("biomcp.diagnostic-regulatory/2", "", "complete") => 7260,
-        ("biomcp.diagnostic-supplements/2", "", "complete") => 1414,
-        ("biomcp.error/3", "", "usage") => USAGE_BYTES,
-        ("biomcp.sync/6", "", "complete") => 348,
-        ("biomcp.sync/6", "", "failed") => 337,
+        ("biomcp.diagnostic-card/4", "", "absent") => 281,
+        ("biomcp.diagnostic-card/4", "", "failed") => 436,
+        ("biomcp.diagnostic-card/4", "", "partial") => 393,
+        ("biomcp.diagnostic-card/4", "clearance", "complete") => 725,
+        ("biomcp.diagnostic-card/4", "gtr-test", "complete") => 1519,
+        ("biomcp.diagnostic-card/4", "gtr-test", "partial") => 1559,
+        ("biomcp.diagnostic-card/4", "who-ivd-product", "complete") => 2578,
+        ("biomcp.diagnostic-card/4", "who-ivd-product", "partial") => 2576,
+        ("biomcp.diagnostic-companion/4", "", "complete") => 7879,
+        ("biomcp.diagnostic-companion/4", "", "failed") => 410,
+        ("biomcp.diagnostic-companion/4", "", "partial") => 7035,
+        // New GTR field-refusal views measured together by j21540.
+        ("biomcp.diagnostic-page/5", "", "complete")
+            if value.pointer("/query/source") == Some(&json!("gtr")) =>
+        {
+            3682
+        }
+        ("biomcp.diagnostic-page/5", "", "partial")
+            if value.pointer("/query/source") == Some(&json!("gtr")) =>
+        {
+            3760
+        }
+        ("biomcp.diagnostic-genes/5", "", "partial") => 1006,
+        ("biomcp.diagnostic-conditions/5", "", "complete") => 625,
+        ("biomcp.diagnostic-conditions/5", "", "partial") => 695,
+        ("biomcp.diagnostic-genes/5", "", "complete") => 867,
+        ("biomcp.diagnostic-page/5", "", "failed") => 379,
+        ("biomcp.diagnostic-regulatory/3", "", "complete") => 7260,
+        ("biomcp.diagnostic-supplements/3", "", "complete") => 1414,
+        ("biomcp.error/4", "", "usage") => USAGE_BYTES,
+        ("biomcp.sync/7", "", "complete") => 348,
+        ("biomcp.sync/7", "", "failed") => 337,
         _ => {
             return Err(format!(
                 "unmeasured diagnostic envelope: {schema}/{kind}/{status}"

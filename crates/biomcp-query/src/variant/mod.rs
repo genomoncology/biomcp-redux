@@ -148,6 +148,10 @@ pub(crate) fn resolve(
             biomcp_types::VariantResolver::Car => car(allele_registry::hgvs(leg, input)?, problems),
             biomcp_types::VariantResolver::Mutalyzer => match mutalyzer::resolve(leg, input)? {
                 mutalyzer::Resolution::Found(row) => Ok((vec![row], None)),
+                mutalyzer::Resolution::Refused(fields) => {
+                    problems.extend(fields);
+                    Ok((Vec::new(), None))
+                }
                 mutalyzer::Resolution::Rejected(codes) => {
                     Ok((Vec::new(), codes.into_iter().next()))
                 }
@@ -163,6 +167,7 @@ pub(crate) fn resolve(
                         retry_after: None,
                     })?,
                 )?;
+                problems.extend(result.problems);
                 Ok((
                     result.candidates,
                     if result.rejected {
@@ -185,6 +190,10 @@ fn car(
             (vec![row.value], None)
         }
         allele_registry::Resolution::Rejected(code) => (Vec::new(), Some(code)),
+        allele_registry::Resolution::Refused(fields) => {
+            problems.extend(fields);
+            (Vec::new(), None)
+        }
     })
 }
 fn join_id(row: &VariantHeader) -> Option<String> {

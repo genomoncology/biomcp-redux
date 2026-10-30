@@ -72,6 +72,18 @@ impl Environment {
         let mut command =
             child_environment::command(&executable(program.as_ref()), self.root.path(), args);
         let nested = std::env::current_exe().is_ok_and(|runner| runner == program.as_ref());
+        if let Some(profile) = std::env::var_os("LLVM_PROFILE_FILE")
+            && let Some(directory) = Path::new(&profile).parent()
+        {
+            // A nested test runner remains harness execution. Its own product
+            // children pass through this boundary and receive binary profiles.
+            let pattern = if nested {
+                "harness-%m-%p.profraw"
+            } else {
+                "bin-%m-%p.profraw"
+            };
+            command.env("LLVM_PROFILE_FILE", directory.join(pattern));
+        }
         if nested {
             // Nested runner proofs must retain the selection, never falling
             // back to Cargo's binary merely because a helper cleared its env.
@@ -138,6 +150,7 @@ pub(super) fn fixture_text(relative: &str) -> Result<String, String> {
     fs::read_to_string(&path).map_err(|e| format!("{}: {e}", path.display()))
 }
 
+tool_only! {
 #[expect(
     clippy::disallowed_methods,
     reason = "The launcher owns copied fixture selection"
@@ -148,4 +161,22 @@ pub(super) fn support() -> std::path::PathBuf {
     } else {
         checkout().join("../..")
     }
+}
+
+}
+
+// Feature ownership travels with the runner when installed fixtures are copied.
+pub(super) fn feature_list() -> &'static str {
+    include_str!("../../../../sdlc/features.md")
+}
+
+/// Native command ceilings travel with the copied fixtures for both test targets.
+pub(super) fn native_budget(key: &str) -> Result<usize, String> {
+    let limits: std::collections::BTreeMap<String, usize> =
+        serde_saphyr::from_str(&fixture_text("native-budgets.yaml")?)
+            .map_err(|error| error.to_string())?;
+    limits
+        .get(key)
+        .copied()
+        .ok_or_else(|| format!("unmeasured native proof: {key}"))
 }

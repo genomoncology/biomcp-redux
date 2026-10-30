@@ -11,9 +11,11 @@ pub struct Protein<A = UniProtAcc> {
     /// Checked primary accession.
     pub accession: A,
     /// Recommended protein name.
-    pub name: Text,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub name: Option<Text>,
     /// Sequence length in amino acids.
-    pub length: u32,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub length: Option<u32>,
     /// Whole source function paragraphs, omitted when absent.
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     pub function: Box<[Text]>,
@@ -29,7 +31,8 @@ pub struct ProteinHeader {
     /// Shared gene/protein identity fields; never independently restated.
     pub protein: Protein<UniProtIsoform>,
     /// Native source entry name.
-    pub entry_id: Text,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub entry_id: Option<Text>,
     /// Display names only; never identifier joins.
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     pub gene_names: Box<[Text]>,
@@ -89,12 +92,14 @@ pub struct ProteinIsoform {
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     pub ids: Box<[UniProtIsoform]>,
     /// Source isoform name.
-    pub name: Text,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub name: Option<Text>,
     /// Every source synonym.
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     pub synonyms: Box<[Text]>,
     /// Native sequence status; no sequence is inferred from it.
-    pub sequence_status: ProteinIsoformStatus,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub sequence_status: Option<ProteinIsoformStatus>,
     /// Source VSP sequence identifiers.
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     pub sequence_ids: Box<[Text]>,

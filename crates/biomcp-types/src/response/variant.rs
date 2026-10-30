@@ -16,7 +16,7 @@ pub struct VariantCard {
     pub rejection: Option<Text>,
 }
 impl super::ResponseBody for VariantCard {
-    const SCHEMA: &'static str = "biomcp.variant-card/12";
+    const SCHEMA: &'static str = "biomcp.variant-card/14";
     type Query = super::VariantGetQuery;
 }
 
@@ -104,7 +104,7 @@ pub struct VariantSections {
     pub hotspots: Option<crate::Section<crate::VariantHotspots>>,
 }
 
-/// One native MyVariant candidate page; its total and offset are in the shared envelope.
+/// One native variant candidate page; its total and offset are in the shared envelope.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct VariantPage {
@@ -125,7 +125,7 @@ pub struct VariantPage {
     pub items: Box<[VariantHeader]>,
 }
 impl super::ResponseBody for VariantPage {
-    const SCHEMA: &'static str = "biomcp.variant-page/13";
+    const SCHEMA: &'static str = "biomcp.variant-page/15";
     type Query = crate::VariantSearch;
 }
 

@@ -26,7 +26,8 @@ pub fn search(cx: &Ctx<'_>, query: &CellLineSearch) -> Outcome {
         .push(status::source(Source::Cellosaurus, leg.finish(), error));
     out.local = error.and_then(status::local);
     if let Ok(page) = reply {
-        let full = page.items.len() == query.limit() as usize;
+        out.problems.extend(page.problems);
+        let full = page.received == query.limit();
         for row in &page.items {
             out.next.push((
                 StepKind::Disambiguate,
@@ -41,7 +42,9 @@ pub fn search(cx: &Ctx<'_>, query: &CellLineSearch) -> Outcome {
                 run(Request::SearchCellLine(query.at_offset(offset))),
             ));
         }
-        out.status = if page.items.is_empty() {
+        out.status = if !out.problems.is_empty() {
+            Status::Partial
+        } else if page.items.is_empty() {
             Status::Absent
         } else {
             Status::Complete

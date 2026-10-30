@@ -11,6 +11,7 @@ pub(super) fn common_registry() -> Vec<Contract> {
         Sequence => ("sequence", "biodata.sequence/1"),
         SequenceLocation => ("sequence-location", "biodata.sequence-location/3"),
         Allele => ("allele", "biodata.allele/3"),
+        CodingChange => ("coding-change", "biodata.coding-change/1"),
         HgvsText => ("hgvs-text", "biodata.hgvs-text/4"),
         Expression => ("expression", "biodata.expression/3"),
         ExpressionSyntax => ("expression-syntax", "biodata.expression-syntax/1"),

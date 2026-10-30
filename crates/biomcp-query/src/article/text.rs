@@ -125,7 +125,10 @@ fn execute<'a>(
         ArticleInput::Pmid(id) => Some(*id),
         _ => None,
     };
-    let result = pmc_oa::read(&leg, id, pmid);
+    let result = pmc_oa::read(&leg, id, pmid).map(|mapped| {
+        out.problems.extend(mapped.problems);
+        mapped.value
+    });
     *deadline = deadline.after_stage(started.saturating_sub(leg.remaining()));
     let source = status::source(Source::PmcOa, leg.finish(), result.as_ref().err().copied());
     if source.state == biomcp_types::SourceState::Stale {
@@ -135,6 +138,7 @@ fn execute<'a>(
     let content = match result? {
         None => Section::unavailable(Source::PmcOa, Reason::NotOpen),
         Some(document) => {
+            out.problems.extend(document.problems.clone());
             let Some(content) = select(
                 query,
                 selection,
@@ -334,7 +338,15 @@ fn preprint<'a>(
         out.status = Status::Partial;
     }
     out.sources.push(source);
-    let document = result?;
+    let mapped = result?;
+    out.problems.extend(mapped.problems);
+    let Some(document) = mapped.value else {
+        out.body = QueryBody::ArticleText(ArticleTextResult {
+            pmcid: None,
+            content: Section::unavailable(Source::EuropePmc, Reason::NotOpen),
+        });
+        return Ok(());
+    };
     let Some(content) = select(
         query,
         selection,

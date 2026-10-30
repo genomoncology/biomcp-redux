@@ -22,7 +22,9 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     out.local = error.and_then(status::local);
     out.sources
         .push(status::source(Source::Civic, leg.finish(), error));
-    if let Ok(page) = result {
+    if let Ok(mapped) = result {
+        out.problems = mapped.problems;
+        let (page, consumed) = mapped.value;
         out.status = if page.items.is_empty() {
             Status::Absent
         } else {
@@ -31,7 +33,7 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
         let returned = page.items.len() as u32;
         out.sources.iter_mut().for_each(|s| {
             s.count = page.total;
-            s.fetched = Some(returned);
+            s.retrieved_count = Some(returned);
         });
         out.page = page.total.map(|total| PageInfo {
             offset: query.offset(),
@@ -55,8 +57,8 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
         }
         if let Some(offset) = query
             .offset()
-            .checked_add(returned)
-            .filter(|n| returned > 0 && page.total.is_some_and(|t| u64::from(*n) < t))
+            .checked_add(consumed)
+            .filter(|n| consumed > 0 && page.total.is_some_and(|t| u64::from(*n) < t))
         {
             out.next.push((
                 StepKind::Page,
@@ -91,8 +93,14 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     out.local = error.and_then(status::local);
     out.sources
         .push(status::source(Source::Civic, leg.finish(), error));
-    if let Ok(mut mapped) = result {
-        if let biomcp_types::Section::Data { data, .. } = &mapped.value.civic {
+    if let Ok(mapped) = result {
+        out.problems = mapped.problems;
+        let Some(mut value) = mapped.value else {
+            out.status = state(&out);
+            command.finish(deadline.remaining());
+            return out;
+        };
+        if let biomcp_types::Section::Data { data, .. } = &value.civic {
             for stream in [&data.evidence, &data.assertions].into_iter().flatten() {
                 if let Some(next) = &stream.page.next {
                     out.next.push((
@@ -105,10 +113,9 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
                 }
             }
         }
-        out.problems = mapped.problems;
-        super::next::civic(&mut mapped.value, cx.fresh, &mut out);
+        super::next::civic(&mut value, cx.fresh, &mut out);
         out.status = state(&out);
-        out.body = QueryBody::DrugCivic(Some(mapped.value));
+        out.body = QueryBody::DrugCivic(Some(value));
     }
     command.finish(deadline.remaining());
     out

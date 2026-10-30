@@ -1,15 +1,20 @@
 //! Preserve source narrative text and its ordered compact fragments.
 use biomcp_types::OncokbVariantRecord as Record;
 
-pub(super) fn annotation(row: &super::variant::Annotation, out: &mut Vec<Record>) {
+pub(super) fn annotation(
+    row: &mut super::variant::Annotation,
+    cx: &mut crate::mapped::Problems,
+    out: &mut Vec<Record>,
+) {
     for (field, value) in [
-        ("geneSummary", row.gene_summary.as_deref()),
-        ("variantSummary", row.variant_summary.as_deref()),
-        ("tumorTypeSummary", row.tumor_type_summary.as_deref()),
-        ("diagnosticSummary", row.diagnostic_summary.as_deref()),
-        ("prognosticSummary", row.prognostic_summary.as_deref()),
+        ("geneSummary", row.gene_summary.take()),
+        ("variantSummary", row.variant_summary.take()),
+        ("tumorTypeSummary", row.tumor_type_summary.take()),
+        ("diagnosticSummary", row.diagnostic_summary.take()),
+        ("prognosticSummary", row.prognostic_summary.take()),
     ] {
-        push(out, field, value);
+        let text = cx.field(field, value);
+        push(out, field, text.as_deref());
     }
 }
 pub(super) fn push(out: &mut Vec<Record>, field: &str, value: Option<&str>) {

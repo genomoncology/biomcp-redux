@@ -5,7 +5,7 @@ use libtest_mimic::Trial;
 use serde_json::Value;
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = vec![transcript_trial(
-        "article/markdown-view-preserves-source-text",
+        "article-search/markdown-view-preserves-source-text",
         || check().map_err(Into::into),
     )];
     trials.extend(super::source_text::trials());

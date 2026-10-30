@@ -1,5 +1,5 @@
 live_check: local-only case
-feature: mcp
+feature: mcp-parity
 story: The schema command and typed usage results agree through MCP and CLI
 steps:
   - run: [schema, biomcp.source/1]
@@ -11,7 +11,7 @@ steps:
     mcp: []
     is_error: false
     expect:
-      /schema: biomcp.help/4
+      /schema: biomcp.help/5
       /status: complete
   - mcp: [serve]
     is_error: true

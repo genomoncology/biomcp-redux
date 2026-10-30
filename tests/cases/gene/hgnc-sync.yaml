@@ -1,5 +1,5 @@
 live_check: public
-feature: gene-commands
+feature: gene-bundle
 story: HGNC synchronization imports approved and withdrawn identities for offline resolution
 replay: gene/main
 steps:

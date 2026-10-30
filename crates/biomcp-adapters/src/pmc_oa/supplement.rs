@@ -14,12 +14,16 @@ pub(super) fn select(
     jats: &[crate::jats::Supplement],
     urls: &[String],
     prefix: &str,
+    problems: &mut crate::mapped::Problems,
 ) -> Result<Vec<Supplement>, RequestError> {
     let mut out = Vec::new();
     for item in jats {
         // Matching the exact href is intentional; no path basename or URL guessing.
         for url in urls {
-            let Ok(location) = super::location::Location::checked(url, prefix) else {
+            let Some(location) = problems.optional(
+                "media_urls",
+                Some(super::location::Location::checked(url, prefix)),
+            ) else {
                 continue;
             };
             let Some(name) = location.path.strip_prefix(&format!("/{prefix}")) else {

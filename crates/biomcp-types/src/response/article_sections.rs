@@ -20,7 +20,8 @@ pub struct AnnotatedEntity {
     /// Source concept type.
     pub kind: AnnotationKind,
     /// Source normalized name.
-    pub name: Text,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub name: Option<Text>,
     /// Number of annotation mentions.
     pub count: u64,
     /// Gene identity, including a variant's associated gene.
@@ -88,9 +89,11 @@ pub struct Citations {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct Tldr {
     /// Complete one-sentence source summary.
-    pub text: Text,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub text: Option<Text>,
     /// Source model version.
-    pub model: Text,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub model: Option<Text>,
     /// Explicitly identifies generated prose.
     pub machine_written: bool,
     /// Total source citation count, when supplied.

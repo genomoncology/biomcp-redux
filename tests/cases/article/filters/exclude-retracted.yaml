@@ -1,6 +1,6 @@
 {
   "live_check": "synthetic response case",
-  "feature": "article-search",
+  "feature": "article-filters",
   "story": "Native exclude-retracted preserves the provider term and reported count; citation text is synthetic",
   "replay": "article/filters/synthetic-exclude-retracted",
   "steps": [

@@ -69,7 +69,7 @@ pub(super) fn both(env: &Environment, words: &[&str], exit: i32) -> Result<Value
     let cli = invoke(env, args.clone(), exit)?;
     super::schema::Registry::embedded()?.validate(&cli, &args, true)?;
     let mcp = super::mcp::call_with_globals(env, &args, exit >= 2, &[])?;
-    if cli != mcp {
+    if !super::reply_comparison::same_reply(&cli, &mcp)? {
         return Err(format!("MAUDE CLI/MCP differ: {cli} / {mcp}"));
     }
     Ok(cli)

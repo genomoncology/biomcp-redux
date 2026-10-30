@@ -1,6 +1,6 @@
 {
   "live_check": "synthetic response case",
-  "feature": "gene-sections",
+  "feature": "gene-oncokb",
   "story": "Synthetic OncoKB optional-fields retains valid sibling fields",
   "replay": "gene/oncokb-synthetic/optional-fields",
   "config": {

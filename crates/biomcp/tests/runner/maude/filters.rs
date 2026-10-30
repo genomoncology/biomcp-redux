@@ -28,7 +28,7 @@ fn both(
                 std::fs::read_to_string(env.root().join("mcp.stdout")).unwrap_or_default()
             )
         })?;
-    if cli != tool {
+    if !super::super::reply_comparison::same_reply(&cli, &tool)? {
         return Err(format!("CLI/MCP differ: {cli} / {tool}"));
     }
     Ok(cli)

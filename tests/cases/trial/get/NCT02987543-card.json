@@ -29,10 +29,8 @@
     "date": "2023-02-15",
     "kind": "ACTUAL"
   },
-  "updated": {
-    "date": "2023-10-06",
-    "kind": "ACTUAL"
-  },
+  "updated": "2023-10-06",
   "brief_summary": "The purpose of this study is to evaluate the efficacy and safety of olaparib versus enzalutamide or abiraterone acetate in subjects with metastatic castration-resistant prostate cancer who have failed prior treatment with a new hormonal agent and have homologous recombination repair gene mutations.",
-  "url": "https://clinicaltrials.gov/study/NCT02987543"
+  "url": "https://clinicaltrials.gov/study/NCT02987543",
+  "updated_kind": "ACTUAL"
 }

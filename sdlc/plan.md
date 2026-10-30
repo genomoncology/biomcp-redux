@@ -43,7 +43,9 @@ Robustness and public-text fixes come first, because the parity run, the docs an
 
 - Close the public benchmark gaps Ian added on 2026-10-28, corrected by an adversarial design review: build 0414, then 0409, 0411 and 0415 on the trial filters; 0408, then 0410 for the two NCI entities; 0413, then 0412 and 0416 for MAUDE filters and FDA device and drug recalls.
 
-- Close the code quality review's findings (`records/2026-10-28-code-quality-review.md`) by the reviewed design in `planning/restructure.md`. Order: the trial status fix 0417, the reply diff 0454 that proves each structure ticket changes nothing it does not name, pure dead code 0425, the installed-binary suite 0429, then 0423, 0434, 0430, 0431, 0456, the bad-value rule (0467, then the families 0468 to 0472, closed by 0418), 0426, 0457, status rules 0419 and typed next steps 0458, the layer move 0420, the command table 0421, 0427, the source declaration 0422, 0455, 0424, 0428 and finally the architecture rewrite 0432. Each ticket's Depends line holds the exact order.
+- Close the code quality review's findings (`records/2026-10-28-code-quality-review.md`) by the reviewed design in `planning/restructure.md`. Order: the trial status fix 0417, the reply diff 0454 that proves each structure ticket changes nothing it does not name, pure dead code 0425, the installed-binary suite 0429, then 0423, 0434, 0430, 0431, 0456, the bad-value rule (0467, then the families 0468 to 0472, closed by 0418), 0426, 0457, the native window owner 0494, refusal facts 0495, cache admission 0496, status rules 0419 and typed next steps 0458, the layer move 0420, the command table 0421, 0427, the source declaration 0422, 0455, 0424, 0428 and finally the architecture rewrite 0432. Each ticket's Depends line holds the exact order.
+
+- Rebuild the test suite as one small outside-in suite (`decisions/2026-10-29-one-small-outside-in-suite.md`): the required-coverage check 0483 after 0431, then the case cut 0456, then the runner trial cut 0484 and the nightly selection 0485. Mutation testing 0457 runs on the cut suite.
 
 - Fix the BioData review's data model findings before the tag, because the release gate freezes every pattern, type set and schema ID: 0435 to 0453, with 0436 and 0437 first, and 0444 before 0421.
 
@@ -55,8 +57,20 @@ Robustness and public-text fixes come first, because the parity run, the docs an
 
 - Rehearse the final candidate on every platform (0293).
 - A fresh agent compares the 0.9.3 and 1.0 CLIs blind on about 20 tasks, and every 1.0 regression is fixed or explained (0402).
-- Run MCP-Bench's BioMCP tasks, and InfoMosaic-Bench's if public, against 0.4.6 and 1.0: tool-call replay first, paid agent runs only after Ian approves their cost (0405).
+- Run MCP-Bench's BioMCP tasks, and InfoMosaic-Bench's if public, against 0.4.6 and 1.0: tool-call replay first, then agent runs as Codex agents through `pi` on Ian's subscription (0405).
 - Check the installed candidate against cBioPortal's 62 numeric agent questions (0462).
 - Ian approves the public append, the 1.0 tag and publication.
 - Append this repository's history to the public repository with one merge commit, keeping old tags and releases (0294).
 - Tag v1.0.0 on that public merge commit, let the release workflow qualify the tag, and have the release operators publish from that run (0294). The installer and Homebrew download from the public repository's release, so the append and tag come before publication.
+
+## After 1.0
+
+Ian's direction of 2026-10-29 (relayed in m14819): BioMCP becomes the data and control plane for precision-medicine context for agents. It reaches FHIR servers and OMOP databases through adapters that turn their replies into BioData values, with no ORM and no hand-written API client. FHIR search and FHIRPath become BioMCP getters, and OHDSI's queries become BioMCP commands. None of this changes 1.0.
+
+- BioData types only the small values: time with precision, decimal, unit, quantity, coded value, identifier, record key, source and loss (BioData's ruling of 2026-10-30, m15631). Record shapes, FHIR and OMOP adapters, SQL on FHIR views and query logic live in BioMCP, because FHIR R4 to R6 and OMOP 5.3 to 5.4 all stay live.
+- FHIR commands: search and get patient with sections, search observation, condition, medication and encounter, get report, each planned from the server's capability statement with fixed fallbacks and echoed requests, and a sync command that fills an offline store through bulk export.
+- OMOP commands: concept search and hierarchy, concept set resolution, person search and profile, Phenotype Library cohorts, counts and attrition, characteristics, incidence, and database summary and quality, running OHDSI's declarative artifacts (Circe, SqlRender, QueryLibrary, Achilles, DataQualityDashboard) natively in Rust, with OHDSI tools only as reference answers in tests.
+- Open questions for planning: cohort counts break get study's promise to calculate no frequencies; real databases need a minimum cell count (OHDSI's default is 5); and whether linking a FHIR library counts as running another tool.
+- BioData's experiments 507 and 508 tested shared clinical records and found that they failed across backends; planning starts from 508's record findings (encounter kind, observation stay, microbiology shape, medication kind).
+- Licensed data stays private: GENIE, UMLS, TCGA, JAX-CKB and all other licensed material live only in private repositories, private experiments or our machines, and public ISCN tests share nothing with the ISCN book's examples.
+

@@ -1,6 +1,6 @@
 {
   "live_check": "synthetic response case",
-  "feature": "gene-sections",
+  "feature": "gene-pathways",
   "story": "A Reactome deadline failure preserves identity and MyGene without caching the rejected section",
   "replay": "gene/pathways/synthetic-deadline",
   "cache_acquired": 42,

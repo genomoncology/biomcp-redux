@@ -13,7 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 CARGO = '''#!/usr/bin/env python3
 import json, os, sys
 from pathlib import Path
-assert sys.argv[1:] == ['test','--locked','-p','biomcp','--test','cases','--','--live-check','--details']
+assert sys.argv[1:] == ['test','--locked','-p','biomcp','--test','tools','--','--live-check','--details']
 print(json.dumps(json.loads(os.environ['FAKE_REPORT'])))
 print('offline build log', file=sys.stderr)
 sys.exit(int(os.environ.get('FAKE_EXIT', '0')))

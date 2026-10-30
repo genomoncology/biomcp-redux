@@ -1,4 +1,6 @@
-use crate::native_text::NativeText;
+pub(crate) use crate::bundle_mapping::{bundle_problems, bundle_sync};
+use crate::{native_text::NativeText, raw::Field};
+use biodata::Text;
 use biomcp_types::Problem;
 
 /// A source value with rejected fields retained as problems.
@@ -144,6 +146,19 @@ impl Problems {
             .filter_map(|value| self.native_text(field, Some(value)))
             .collect()
     }
+    /// Keep the native spelling of a checked annotation URL without download policy.
+    pub(crate) fn url(
+        &mut self,
+        field: &str,
+        value: Option<crate::raw::Field<biodata::Text>>,
+    ) -> Option<biodata::Text> {
+        let value = self.field(field, value)?;
+        self.optional(
+            field,
+            Some(biomcp_fetch::check_annotation_url(value.as_str())),
+        )?;
+        Some(value)
+    }
     pub(crate) fn checked_text(
         &mut self,
         field: &str,
@@ -210,4 +225,34 @@ pub(crate) fn record(value: impl std::fmt::Display) -> Option<biodata::Text> {
 /// Admit source prose while keeping the strict identity helper separate.
 pub(crate) fn source_text(value: &str) -> Result<biodata::Text, biomcp_fetch::BadReply> {
     biodata::Text::from_source(value).map_err(|_| biomcp_fetch::BadReply)
+}
+
+pub(crate) fn optional_text(
+    raw: Option<Field<String>>,
+    field: &str,
+    cx: &mut Problems,
+) -> Option<Text> {
+    field_text(&mut cx.list, cx.source, cx.record.clone(), field, raw)
+}
+pub(crate) fn optional_texts(
+    raw: Option<Field<Vec<Field<String>>>>,
+    field: &str,
+    cx: &mut Problems,
+) -> Box<[Text]> {
+    cx.fields(field, raw)
+        .into_vec()
+        .into_iter()
+        .filter_map(|value| cx.text(field, Some(&value)))
+        .collect()
+}
+pub(crate) fn optional_pmids(
+    raw: Option<Field<Vec<Field<String>>>>,
+    field: &str,
+    cx: &mut Problems,
+) -> Box<[biodata::Pmid]> {
+    cx.fields(field, raw)
+        .into_vec()
+        .into_iter()
+        .filter_map(|value| cx.optional(field, Some(value.parse())))
+        .collect()
 }

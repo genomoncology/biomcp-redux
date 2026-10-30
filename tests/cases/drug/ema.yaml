@@ -38,7 +38,7 @@
         "1"
       ],
       "expect": {
-        "/schema": "biomcp.drug-page/5",
+        "/schema": "biomcp.drug-page/7",
         "/status": "complete",
         "/result/total": 2,
         "/result/items/0/id": "EMEA/H/C/005936",
@@ -202,7 +202,7 @@
         "ema"
       ],
       "expect": {
-        "/schema": "biomcp.drug-regulatory/4",
+        "/schema": "biomcp.drug-regulatory/5",
         "/status": "complete",
         "/result/identity/id": "EMEA/H/C/000406",
         "/result/regulatory/state": "data",
@@ -231,7 +231,7 @@
         "ema"
       ],
       "expect": {
-        "/schema": "biomcp.drug-regulatory/4",
+        "/schema": "biomcp.drug-regulatory/5",
         "/status": "complete",
         "/result/identity/id": "EMEA/H/C/004124",
         "/result/regulatory/state": "data",
@@ -260,7 +260,7 @@
         "ema"
       ],
       "expect": {
-        "/schema": "biomcp.drug-regulatory/4",
+        "/schema": "biomcp.drug-regulatory/5",
         "/status": "complete",
         "/result/identity/id": "EMEA/H/C/004480",
         "/result/regulatory/state": "data",
@@ -289,7 +289,7 @@
         "ema"
       ],
       "expect": {
-        "/schema": "biomcp.drug-regulatory/4",
+        "/schema": "biomcp.drug-regulatory/5",
         "/status": "complete",
         "/result/identity/id": "EMEA/H/C/005621",
         "/result/regulatory/state": "data",

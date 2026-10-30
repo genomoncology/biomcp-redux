@@ -83,7 +83,7 @@ pub(super) fn call(
     let mut command = env.globals(Some(replay), false);
     command.extend(args.iter().map(|s| (*s).into()));
     let value = invoke(env, command, exit)?;
-    if value.get("schema") == Some(&json!("biomcp.study-page/3"))
+    if value.get("schema") == Some(&json!("biomcp.study-page/5"))
         && value
             .pointer("/query/limit")
             .and_then(Value::as_u64)

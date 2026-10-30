@@ -120,6 +120,11 @@ fn metadata(
             params![name, meta.bytes as i64, meta.rows as i64, meta.fresh_until, meta.etag, meta.modified],
         )
         .map_err(db_error)?;
+    let rejections = serde_json::to_string(&meta.rejections).map_err(|_| CacheError::Database)?;
+    connection.execute(
+        "INSERT INTO bundle_rejection VALUES(?1,?2) ON CONFLICT(name) DO UPDATE SET rejections=excluded.rejections",
+        params![name, rejections],
+    ).map_err(db_error)?;
     if let (Some(revision), Some(retrieved)) = (&meta.content_revision, meta.retrieved_at) {
         connection
             .execute(

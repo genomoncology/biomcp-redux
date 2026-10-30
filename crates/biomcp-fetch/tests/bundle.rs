@@ -436,3 +436,6 @@ mod rows;
 
 #[path = "bundle/native.rs"]
 mod native;
+
+#[path = "bundle/rejections.rs"]
+mod rejections;

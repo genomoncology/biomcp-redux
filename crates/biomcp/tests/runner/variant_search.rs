@@ -322,42 +322,51 @@ fn literal_body(request: &str) -> Result<String, String> {
 fn window() -> Result<(), String> {
     let stub = Stub::for_source("myvariant.info", "application/json", window_body)?;
     let env = environment(&stub)?;
-    let value = command(
-        &env,
-        &[
-            "search",
-            "variant",
-            "--query",
-            "synthetic-window",
-            "--source",
-            "myvariant",
-            "--limit",
-            "2",
-            "--offset",
-            "9999",
-        ],
-    )?;
-    if value.pointer("/status") != Some(&json!("partial"))
-        || value.pointer("/page/total") != Some(&json!(10001))
-        || value.pointer("/page/returned") != Some(&json!(1))
-        || value.pointer("/page/truncated") != Some(&json!(true))
-        || value
-            .get("next")
-            .and_then(Value::as_array)
-            .is_some_and(|steps| {
-                steps
-                    .iter()
-                    .any(|step| step.get("kind") == Some(&json!("page")))
-            })
-        || stub.finish()?.len() != 1
-    {
-        return Err(format!(
-            "bounded native window hid its remaining total: {value}"
-        ));
+    for offset in ["9998", "9999"] {
+        let value = command(
+            &env,
+            &[
+                "search",
+                "variant",
+                "--query",
+                "synthetic-window",
+                "--source",
+                "myvariant",
+                "--limit",
+                "2",
+                "--offset",
+                offset,
+            ],
+        )?;
+        if value.pointer("/status") != Some(&json!("partial"))
+            || value.pointer("/page/total") != Some(&json!(10001))
+            || value.pointer("/page/returned") != Some(&json!(1))
+            || value.pointer("/page/truncated") != Some(&json!(true))
+            || value
+                .get("next")
+                .and_then(Value::as_array)
+                .is_some_and(|steps| {
+                    steps
+                        .iter()
+                        .any(|step| step.get("kind") == Some(&json!("page")))
+                })
+        {
+            return Err(format!(
+                "bounded native window hid its remaining total: {value}"
+            ));
+        }
+    }
+    if stub.finish()?.len() != 2 {
+        return Err("native window request count changed".into());
     }
     Ok(())
 }
 fn window_body(request: &str) -> Result<String, String> {
+    if request.contains("&size=2&from=9998&") {
+        return Ok(
+            json!({"total":10001,"hits":[{"_id":42},{"_id":"chr7:g.55259515T>G"}]}).to_string(),
+        );
+    }
     if !request.contains("&size=1&from=9999&") {
         return Err(format!(
             "source request exceeded declared window: {request}"

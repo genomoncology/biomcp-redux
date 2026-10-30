@@ -152,7 +152,14 @@
       "description": "Native entry metadata wrapping the same Protein identity used by the gene slice.",
       "properties": {
         "entry_id": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Native source entry name."
         },
         "gene_ids": {
@@ -191,7 +198,6 @@
       },
       "required": [
         "protein",
-        "entry_id",
         "taxon",
         "reviewed",
         "url"
@@ -280,10 +286,20 @@
           "description": "Sequence length in amino acids.",
           "format": "uint32",
           "minimum": 0,
-          "type": "integer"
+          "type": [
+            "integer",
+            "null"
+          ]
         },
         "name": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Recommended protein name."
         },
         "subcellular_locations": {
@@ -295,9 +311,7 @@
         }
       },
       "required": [
-        "accession",
-        "name",
-        "length"
+        "accession"
       ],
       "type": "object"
     },
@@ -662,15 +676,6 @@
             "null"
           ]
         },
-        "fetched": {
-          "description": "Retrieved identity depth.",
-          "format": "uint32",
-          "minimum": 0,
-          "type": [
-            "integer",
-            "null"
-          ]
-        },
         "notices": {
           "description": "Source notices and request recovery guidance.",
           "items": {
@@ -688,6 +693,15 @@
             }
           ],
           "description": "Failure or stale-fallback reason."
+        },
+        "retrieved_count": {
+          "description": "Number of retrieved identities.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
         },
         "source": {
           "$ref": "#/$defs/Reply_Source",
@@ -811,7 +825,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.protein-page/3",
+  "$id": "biomcp.protein-page/5",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -867,7 +881,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.protein-page/3",
+      "const": "biomcp.protein-page/5",
       "type": "string"
     },
     "sources": {

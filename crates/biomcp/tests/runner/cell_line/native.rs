@@ -188,6 +188,7 @@ fn headers(
     Ok(())
 }
 
+tool_only! {
 pub(super) fn remaining() -> Result<(), String> {
     let stub = recorded_stub()?;
     let env = setup(&stub)?;
@@ -195,6 +196,7 @@ pub(super) fn remaining() -> Result<(), String> {
     reverse(&env, true)?;
     stub.finish()?;
     Ok(())
+}
 }
 
 pub(super) fn canonical(measure: bool) -> Result<(), String> {

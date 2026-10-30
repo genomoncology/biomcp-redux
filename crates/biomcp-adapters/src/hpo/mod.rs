@@ -27,6 +27,8 @@ use biomcp_types::{PhenotypeGet, PhenotypeSection, PhenotypeTermCard};
 /// Exact native term and its original retrieval metadata.
 #[derive(Debug)]
 pub struct Record {
+    /// Rejected native fields attributed to the exact term.
+    pub problems: Vec<biomcp_types::Problem>,
     /// Complete native source card.
     pub card: PhenotypeTermCard,
     /// Checked retrieval metadata.
@@ -56,15 +58,29 @@ fn map(
     metadata: ReplyMetadata,
     query: &PhenotypeGet,
 ) -> Result<Record, RequestError> {
+    let mut problems = crate::mapped::Problems {
+        source: Source::Hpo,
+        record: crate::mapped::record(&term.id),
+        list: Vec::new(),
+    };
+    let label = problems.required_field("name", term.name);
+    let definition = problems.field("definition", term.definition);
+    let comment = problems.field("comment", term.comment);
+    let publications = term
+        .publications
+        .map(|v| problems.fields("publicationReferences", Some(v)));
+    let descendants = problems.field("descendantCount", term.descendants);
+    let synonyms = term.synonyms.map(|v| problems.fields("synonyms", Some(v)));
+    let xrefs = term.xrefs.map(|v| problems.fields("xrefs", Some(v)));
     let mut sections = Vec::new();
-    if term.synonyms.is_some() {
+    if synonyms.is_some() {
         sections.push(PhenotypeSection::Synonyms);
     }
-    if term.xrefs.is_some() {
+    if xrefs.is_some() {
         sections.push(PhenotypeSection::Xrefs);
     }
     let attribution = attribution(&term.id)?;
-    let synonyms = term.synonyms.map(|rows| {
+    let synonyms = synonyms.map(|rows| {
         rows.into_vec()
             .into_iter()
             .map(|value| PhenotypeSynonym {
@@ -74,7 +90,7 @@ fn map(
             })
             .collect()
     });
-    let xrefs = term.xrefs.map(|rows| {
+    let xrefs = xrefs.map(|rows| {
         rows.into_vec()
             .into_iter()
             .map(|id| PhenotypeXref {
@@ -85,17 +101,18 @@ fn map(
             .collect()
     });
     Ok(Record {
+        problems: problems.list,
         synonyms,
         xrefs,
         card: PhenotypeTermCard {
             term: PhenotypeCard::Hpo {
                 requested_id: query.id().clone(),
                 returned_id: term.id,
-                label: term.name,
-                definition: term.definition,
-                comment: term.comment,
-                publication_references: term.publications,
-                hpo_descendant_count: term.descendants,
+                label,
+                definition,
+                comment,
+                publication_references: publications,
+                hpo_descendant_count: descendants,
                 attribution,
             },
             sections: sections.into(),

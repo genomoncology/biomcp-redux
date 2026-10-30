@@ -28,7 +28,7 @@
         "Carcinoma of colon (CRC)"
       ],
       "expect": {
-        "/schema": "biomcp.variant-page/13",
+        "/schema": "biomcp.variant-page/15",
         "/status": "partial",
         "/query": {
           "equals": {

@@ -35,7 +35,40 @@ pub(super) fn check() -> Check {
 }
 
 fn civic() -> Check {
-    for mode in 0..11 {
+    for mode in 0..13 {
+        let mut expect = match mode {
+            6 => json!({
+                "/result/items/0/sections/civic/state":"data",
+                "/result/items/0/sections/civic/data/id":20,
+                "/result/items/0/sections/civic/data":{"omits":["description"]},
+                "":{"omits":["problems"]}
+            }),
+            8 | 11 => json!({
+                "/result/items/0/sections/civic/state":"data",
+                "/result/items/0/sections/civic/data/id":20,
+                "/result/items/0/sections/civic/data/variant_count":126,
+                "/result/items/0/sections/civic/data":{"omits":[if mode == 8 {"url"} else {"description"}]},
+                "/problems":{"count":1},
+                "/problems/0/field":if mode == 8 {"link"} else {"description"},
+                "/problems/0/record":"20"
+            }),
+            7 | 9 | 12 => json!({
+                "/result/items/0/sections/civic/state":"empty",
+                "/result/items/0/sections/civic":{"omits":["record","data"]},
+                "/problems":{"count":1},
+                "/problems/0/field":if mode == 9 {"id"} else {"entrezId"}
+            }),
+            _ => json!({
+                "/result/items/0/sections/civic/state":"unavailable",
+                "/sources/2/reason":"bad-reply"
+            }),
+        };
+        let fields = expect.as_object_mut().ok_or("expected assertion object")?;
+        fields.insert("/result/items/0/answer/gene/symbol".into(), json!("ERBB2"));
+        fields.insert(
+            "/result/items/0/answer/gene/hgnc_id".into(),
+            json!("HGNC:3430"),
+        );
         graphql(
             "civic",
             |body| {
@@ -56,20 +89,23 @@ fn civic() -> Check {
                     7 => value["data"]["g0"]["entrezId"] = json!(0),
                     8 => value["data"]["g0"]["link"] = json!("https://other.example/features/20"),
                     9 => value["data"]["g0"]["id"] = json!(0),
+                    11 => value["data"]["g0"]["description"] = json!(42),
+                    12 => value["data"]["g0"]["entrezId"] = json!(1956),
                     _ => {
                         *body =
                             json!({"kind":"text", "value":"{\"data\":{\"g0\":null,\"g0\":null}}"})
                     }
                 }
             },
-            json!({"/result/items/0/sections/civic/state": "unavailable", "/sources/2/reason": "bad-reply"}),
-        )?;
+            expect,
+        )
+        .map_err(|error| format!("CIViC boundary mode {mode}: {error}"))?;
     }
     Ok(())
 }
 
 fn constraint() -> Check {
-    for mode in 0..16 {
+    for mode in (0..10).chain(11..16) {
         graphql(
             "gnomad",
             |body| {
@@ -94,7 +130,6 @@ fn constraint() -> Check {
                             .unwrap()
                             .remove("gnomad_constraint");
                     }
-                    10 => value["data"]["g0"]["gnomad_constraint"]["pli"] = json!("NaN"),
                     11 => {
                         value["data"]["g0"]["mane_select_transcript"]["ensembl_id"] = json!("bad")
                     }
@@ -116,7 +151,18 @@ fn constraint() -> Check {
                     }
                 }
             },
-            json!({"/result/items/0/sections/constraint/state": "unavailable", "/sources/2/reason": "bad-reply"}),
+            match mode {
+                3 => {
+                    json!({"/result/items/0/sections/constraint/state": "unavailable", "/problems/*/field": ["gene_id"], "/sources/2/state": "ok"})
+                }
+                9 => json!({"/result/items/0/sections/constraint/state": "empty"}),
+                11..=14 => {
+                    json!({"/result/items/0/sections/constraint/state": "empty", "/problems/*/field": ["mane_select_transcript.ensembl_id"]})
+                }
+                _ => {
+                    json!({"/result/items/0/sections/constraint/state": "unavailable", "/sources/2/reason": "bad-reply"})
+                }
+            },
         )?;
     }
     mappings()
@@ -187,6 +233,7 @@ fn clingen() -> Check {
     for mode in [
         "duplicate",
         "missing classification",
+        "malformed classification",
         "failed dosage",
         "failed validity",
         "both failed",
@@ -220,8 +267,13 @@ fn clingen() -> Check {
                     .unwrap();
                 match (mode, dosage) {
                     ("duplicate", true) => lines.push(lines[index].clone()),
-                    ("missing classification", false) => {
-                        lines[index] = lines[index].replace("\"Definitive\"", "\"\"")
+                    ("missing classification" | "malformed classification", false) => {
+                        let classification = if mode == "missing classification" {
+                            ""
+                        } else {
+                            "bad\u{1}"
+                        };
+                        lines[index] = lines[index].replace("Definitive", classification);
                     }
                     ("validity only", true) | ("dosage only", false) => {
                         lines.remove(index);
@@ -301,8 +353,20 @@ fn clingen_expectation(mode: &str) -> Value {
         }
         "dosage only" => json!({
             "/result/items/0/sections/clingen/data/haploinsufficiency": "Sufficient Evidence for Haploinsufficiency"}),
-        _ => {
-            json!({"/result/items/0/sections/clingen/state": "data", "/sources/2/reason": "bad-reply"})
+        "duplicate" => {
+            json!({"/result/items/0/sections/clingen/state": "data", "/problems/*/field": ["HGNC ID"]})
         }
+        "missing classification" => json!({
+            "/result/items/0/sections/clingen/state": "data",
+            "/result/items/0/sections/clingen/data/validity/0/mondo_id": "MONDO:0018875",
+            "/result/items/0/sections/clingen/data/validity/0": {"omits": ["classification"]},
+            "": {"omits": ["problems"]}
+        }),
+        _ => json!({
+            "/result/items/0/sections/clingen/state": "data",
+            "/result/items/0/sections/clingen/data/validity/0/mondo_id": "MONDO:0018875",
+            "/result/items/0/sections/clingen/data/validity/0": {"omits": ["classification"]},
+            "/problems/*/field": ["CLASSIFICATION"]
+        }),
     }
 }

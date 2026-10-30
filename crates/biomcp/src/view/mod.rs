@@ -332,20 +332,28 @@ fn property<'a>(node: &'a Value, name: &str, root: &'a Value) -> Option<&'a Valu
         .and_then(|properties| properties.get(name))
         .or_else(|| alternatives(node).find_map(|branch| property(branch, name, root)))
 }
-fn marked(node: &Value, root: &Value) -> bool {
-    let node = resolve(node, root);
-    node.get("format").and_then(Value::as_str) == Some("markdown")
-        || alternatives(node).any(|branch| marked(branch, root))
-}
 fn contains_markdown(node: &Value, root: &Value) -> bool {
+    markdown_in_graph(node, root, &mut Vec::new())
+}
+// Recursive schema definitions describe finite response values. Visit each schema
+// node once so presentation discovery also terminates on recursive definitions.
+fn markdown_in_graph<'a>(node: &'a Value, root: &'a Value, seen: &mut Vec<&'a Value>) -> bool {
     let node = resolve(node, root);
-    marked(node, root)
+    if seen.iter().any(|previous| std::ptr::eq(*previous, node)) {
+        return false;
+    }
+    seen.push(node);
+    node.get("format").and_then(Value::as_str) == Some("markdown")
         || node
             .get("properties")
             .and_then(Value::as_object)
-            .is_some_and(|properties| properties.values().any(|p| contains_markdown(p, root)))
+            .is_some_and(|properties| {
+                properties
+                    .values()
+                    .any(|p| markdown_in_graph(p, root, seen))
+            })
         || node
             .get("items")
-            .is_some_and(|item| contains_markdown(item, root))
-        || alternatives(node).any(|branch| contains_markdown(branch, root))
+            .is_some_and(|item| markdown_in_graph(item, root, seen))
+        || alternatives(node).any(|branch| markdown_in_graph(branch, root, seen))
 }

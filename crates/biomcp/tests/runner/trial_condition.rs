@@ -5,9 +5,9 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
 mod alternatives;
-mod native;
+tool_only! { mod native; }
 mod words;
-pub(super) use native::run as native;
+tool_only! { pub(super) use native::run as native; }
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![

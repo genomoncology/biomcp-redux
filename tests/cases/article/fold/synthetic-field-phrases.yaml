@@ -1,6 +1,6 @@
 {
   "live_check": "synthetic response case",
-  "feature": "article-search",
+  "feature": "article-fold",
   "story": "Synthetic multiword author and journal filters keep every word and quote inside its named field",
   "replay": "article/fold/synthetic-field-phrases",
   "verified": "Synthetic metadata-only request boundary; quoted field phrases follow https://europepmc.org/help and the Europe PMC service reference. No exact 0.9 baseline exists for this boundary reply.",

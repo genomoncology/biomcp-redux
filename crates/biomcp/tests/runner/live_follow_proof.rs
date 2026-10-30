@@ -20,7 +20,7 @@ fn check() -> Result<(), Box<dyn std::error::Error>> {
     fs::write(
         root.join("cases/excluded.yaml"),
         serde_json::to_vec(&json!({
-            "live_check": "public", "story": "An offline source predecessor stays excluded.",
+            "feature":"live-source-checks", "live_check": "public", "story": "An offline source predecessor stays excluded.",
             "replay": "article/search/live", "steps": [
                 {"run": ["search", "article", "AKT1 E17K"], "offline": true},
                 {"follow": "page"}, {"follow": "page"}
@@ -30,7 +30,7 @@ fn check() -> Result<(), Box<dyn std::error::Error>> {
     fs::write(
         root.join("cases/eligible.yaml"),
         serde_json::to_vec(&json!({
-            "live_check": "public", "story": "An eligible source permits its follow.",
+            "feature":"live-source-checks", "live_check": "public", "story": "An eligible source permits its follow.",
             "replay": "article/search/live", "steps": [
                 {"run": ["search", "article", "AKT1 E17K"]}, {"follow": "page"}
             ]

@@ -1,6 +1,6 @@
 {
   "live_check": "synthetic response case",
-  "feature": "article-annotations",
+  "feature": "article-sections",
   "story": "A empty PubTator document returns an empty section without a record.",
   "replay": "article/annotations/synthetic-empty",
   "steps": [

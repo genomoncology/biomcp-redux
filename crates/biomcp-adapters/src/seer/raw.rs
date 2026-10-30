@@ -10,29 +10,22 @@ pub(super) struct Catalog {
     #[serde(rename = "VariableFormats")]
     pub formats: Formats,
     #[serde(rename = "CancerSites")]
-    pub sites: Vec<Site>,
+    pub sites: Vec<crate::raw::Field<Site>>,
 }
 #[derive(Debug, Deserialize)]
 pub(super) struct Formats {
-    pub site: BTreeMap<String, crate::native_text::NativeText>,
+    pub site: Option<
+        crate::raw::Field<BTreeMap<String, crate::raw::Field<crate::native_text::NativeText>>>,
+    >,
 }
 #[derive(Debug, Deserialize)]
 pub(super) struct Site {
     pub value: u32,
-    pub active: bool,
+    pub active: Option<crate::raw::Field<bool>>,
 }
 impl Reply for Catalog {
     fn check(&self) -> Result<(), BadReply> {
-        let labels = &self.formats.site;
-        if self
-            .sites
-            .iter()
-            .all(|s| labels.contains_key(&s.value.to_string()))
-        {
-            Ok(())
-        } else {
-            Err(BadReply)
-        }
+        Ok(())
     }
 }
 
@@ -56,7 +49,7 @@ pub(super) struct Info {
 }
 #[derive(Debug, Deserialize)]
 pub(super) struct Series {
-    pub data_series: Vec<Vec<Option<Cell>>>,
+    pub data_series: Vec<Vec<Option<crate::raw::Field<Cell>>>>,
     pub year_range: u32,
 }
 #[derive(Debug, Deserialize)]
@@ -130,22 +123,6 @@ impl Reply for Document {
                 || series.data_series.iter().any(|r| r.len() != fields.len())
             {
                 return Err(BadReply);
-            }
-            for row in &series.data_series {
-                for (field, value) in fields.iter().zip(row) {
-                    if *field == "year" && value.is_none() {
-                        return Err(BadReply);
-                    }
-                    if let Some(value) = value {
-                        if *field == "year" {
-                            u32::try_from(value.integer()?).map_err(|_| BadReply)?;
-                        } else if *field == "count" {
-                            value.integer()?;
-                        } else {
-                            value.number()?;
-                        }
-                    }
-                }
             }
         }
         Ok(())

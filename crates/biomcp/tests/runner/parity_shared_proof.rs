@@ -8,10 +8,10 @@ pub(super) fn trials() -> Vec<Trial> {
     vec![
         super::operation::trial(),
         super::indexing_proof::trial(),
-        transcript_trial("parity/closed-projection-shapes", || {
+        transcript_trial("mcp-parity/closed-projection-shapes", || {
             projections().map_err(Into::into)
         }),
-        transcript_trial("parity/effective-limit-selector", || {
+        transcript_trial("mcp-parity/effective-limit-selector", || {
             selectors().map_err(Into::into)
         }),
     ]

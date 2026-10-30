@@ -15,30 +15,32 @@ pub fn search(cx: &Ctx<'_>, q: &GwasSearch) -> Outcome {
     if q.p_value().is_some() {
         return threshold::search(cx, q);
     }
-    let mut out = Outcome {
-        status: Status::Failed,
-        body: QueryBody::GwasPage(None),
-        page: None,
-        sources: vec![],
-        problems: vec![],
-        next: vec![],
-        local: None,
-    };
+    let mut out = empty();
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let leg = cx.fetch.leg(&gwas::SPEC, deadline).fresh(cx.fresh);
     let result = gwas::search(&leg, q);
     let error = result.as_ref().err().copied();
+    let counts = result
+        .as_ref()
+        .ok()
+        .map(|page| (page.rows.len() as u32, page.total));
     if let Ok(page) = result {
+        out.problems.extend(page.problems);
         let items: Box<[_]> = page
             .rows
             .into_iter()
-            .skip((q.offset() % q.limit()) as usize)
-            .map(map::association)
+            .map(|row| map::association(row, &mut out.problems))
             .collect();
         let returned = items.len() as u32;
-        let continuation = (u64::from(q.offset()) + u64::from(returned) < page.total)
-            .then(|| GwasPageQuery::Search(q.at_offset(q.offset().saturating_add(returned))));
+        let continuation =
+            (u64::from(q.offset() - q.offset() % q.limit()) + u64::from(page.received)
+                < page.total)
+                .then(|| {
+                    GwasPageQuery::Search(q.at_offset(
+                        (q.offset() - q.offset() % q.limit()).saturating_add(page.received),
+                    ))
+                });
         let page = PageInfo {
             offset: q.offset(),
             returned,
@@ -53,9 +55,17 @@ pub fn search(cx: &Ctx<'_>, q: &GwasSearch) -> Outcome {
             continuation,
             qualifying_total: None,
         }));
-        out.status = Status::Complete;
+        out.status = if out.problems.is_empty() {
+            Status::Complete
+        } else {
+            Status::Partial
+        };
     }
-    let source = status::source(Source::Gwas, leg.finish(), error);
+    let mut source = status::source(Source::Gwas, leg.finish(), error);
+    if let Some((accepted, total)) = counts {
+        source.retrieved_count = Some(accepted);
+        source.count = Some(total);
+    }
     if source.reason == Some(biomcp_types::Reason::BadReply) {
         out.problems.push(Problem {
             source: Source::Gwas,
@@ -75,4 +85,16 @@ pub fn search(cx: &Ctx<'_>, q: &GwasSearch) -> Outcome {
     out.local = error.and_then(status::local);
     command.finish(deadline.remaining());
     out
+}
+
+fn empty() -> Outcome {
+    Outcome {
+        status: Status::Failed,
+        body: QueryBody::GwasPage(None),
+        page: None,
+        sources: vec![],
+        problems: vec![],
+        next: vec![],
+        local: None,
+    }
 }

@@ -21,9 +21,10 @@ pub(super) fn trials() -> Vec<Trial> {
     ]
     .into_iter()
     .map(|(source, identity, config, environment)| {
-        transcript_trial(format!("keys/{source}/configuration-help"), move || {
-            check(source, identity, config, environment).map_err(Into::into)
-        })
+        transcript_trial(
+            format!("key-registration/keys/{source}/configuration-help"),
+            move || check(source, identity, config, environment).map_err(Into::into),
+        )
     })
     .collect()
 }

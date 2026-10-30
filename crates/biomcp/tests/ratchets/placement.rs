@@ -120,6 +120,14 @@ const ALLOWED: &[(&str, &str)] = &[
         "Exercise checked values and schema contracts through the public library API.",
     ),
     (
+        "crates/biomcp-types/tests/schemas/compatibility_recursive_cases.rs",
+        "Exercise recursive public schema graphs and their compatibility constraints.",
+    ),
+    (
+        "crates/biomcp-types/tests/schemas/temporal.rs",
+        "Exercise native timestamp schema spelling and temporal property consistency.",
+    ),
+    (
         "crates/biomcp-types/tests/schemas/drug.rs",
         "Exercise public drug header and card disclosure boundaries through their serialized values and schemas.",
     ),
@@ -136,6 +144,10 @@ const ALLOWED: &[(&str, &str)] = &[
         "Exercise checked values and schema contracts through the public library API.",
     ),
     (
+        "crates/biomcp-types/tests/value_conventions/sweep.rs",
+        "Exercise public text value construction, parsing, JSON and hashing through the Rust consumer boundary.",
+    ),
+    (
         "crates/biomcp-types/tests/value_conventions.rs",
         "Exercise checked values and schema contracts through the public library API.",
     ),
@@ -150,6 +162,10 @@ const ALLOWED: &[(&str, &str)] = &[
     (
         "crates/biomcp-adapters/tests/batch_bounds.rs",
         "Exercise literal indexed lookup inputs outside command validation and empty/oversized batches or chunks beyond command limits.",
+    ),
+    (
+        "crates/biomcp-adapters/tests/protein_storage.rs",
+        "Read legacy serialized adapter values through the public storage type without a source request.",
     ),
     (
         "crates/biomcp-adapters/tests/pmc_body.rs",
@@ -210,6 +226,10 @@ const ALLOWED: &[(&str, &str)] = &[
     (
         "crates/biomcp-fetch/tests/bundle/native.rs",
         "Exercise complete native TSV replacement sets and decoded bounds through the public transport API.",
+    ),
+    (
+        "crates/biomcp-fetch/tests/bundle/rejections.rs",
+        "Exercise rejected source rows, persisted revalidation and old-store migration through the public transport API.",
     ),
     (
         "crates/biomcp-fetch/tests/bundle/rows.rs",

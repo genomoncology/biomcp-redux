@@ -1,8 +1,13 @@
 //! One mapping shared by association search and the existing variant section.
 use biomcp_adapters::gwas;
 use biomcp_types::{GwasAssociation, GwasEffectAllele};
-pub(crate) fn association(row: gwas::Association) -> GwasAssociation {
+pub(crate) fn association(
+    row: gwas::Association,
+    problems: &mut Vec<biomcp_types::Problem>,
+) -> GwasAssociation {
     let exact_p_value = row.exact_p_value();
+    problems.extend(row.problems);
+    let record = row.association_id.to_string().parse().ok();
     GwasAssociation {
         id: row.association_id,
         study: row.accession_id,
@@ -25,7 +30,7 @@ pub(crate) fn association(row: gwas::Association) -> GwasAssociation {
             .collect(),
         p_value: row.p_value,
         exact_p_value,
-        author: optional_text(row.author.clone()),
+        author: optional_text(row.author.clone(), "first_author", record.clone(), problems),
         mapped_genes: row
             .mapped_gene
             .clone()
@@ -42,14 +47,46 @@ pub(crate) fn association(row: gwas::Association) -> GwasAssociation {
             .collect(),
         ci_lower: row.ci_lower,
         ci_upper: row.ci_upper,
-        beta: optional_text(row.beta),
+        beta: optional_text(row.beta, "beta", record.clone(), problems),
         odds_ratio: row.or_per_copy_num,
-        risk_frequency: optional_text(row.risk_frequency),
-        interval: optional_text(row.range),
-        publication: optional_text(row.pubmed_id),
+        risk_frequency: optional_text(
+            row.risk_frequency,
+            "risk_frequency",
+            record.clone(),
+            problems,
+        ),
+        interval: optional_text(row.range, "range", record.clone(), problems),
+        publication: optional_text(row.pubmed_id, "pubmed_id", record.clone(), problems),
     }
 }
 
-fn optional_text(value: Option<String>) -> Option<biodata::Text> {
-    value.and_then(|v| v.parse().ok())
+fn optional_text(
+    value: Option<String>,
+    field: &str,
+    record: Option<biodata::Text>,
+    problems: &mut Vec<biomcp_types::Problem>,
+) -> Option<biodata::Text> {
+    let value = value?;
+    let parsed = if field == "pubmed_id" {
+        value
+            .parse::<biodata::Pmid>()
+            .and_then(|_| biodata::Text::new(&value))
+    } else {
+        biodata::Text::from_source(&value)
+    };
+    match parsed {
+        Ok(value) => Some(value),
+        Err(_) => {
+            let problem = biomcp_types::Problem {
+                source: biomcp_types::Source::Gwas,
+                record,
+                field: field.into(),
+                code: biomcp_types::ProblemCode::ValueUnknown,
+            };
+            if !problems.contains(&problem) {
+                problems.push(problem);
+            }
+            None
+        }
+    }
 }

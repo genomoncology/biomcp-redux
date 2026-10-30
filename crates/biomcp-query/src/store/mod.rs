@@ -18,7 +18,7 @@ use rusqlite::{Connection, OptionalExtension, params};
 )]
 use std::time::{Instant, SystemTime, UNIX_EPOCH};
 /// Query schema version migrated independently of the cache filename.
-pub const VERSION: u32 = 5;
+pub const VERSION: u32 = 6;
 /// Stable shared-file generation, independent of the query schema version.
 pub const CACHE_NAMESPACE_VERSION: u32 = 5;
 /// Supported file generations retained until a separate transfer verifies their contents.
@@ -27,7 +27,7 @@ pub const CACHE_NAMESPACES: &[u32] = &[CACHE_NAMESPACE_VERSION, 4];
 pub const OWNER: SchemaOwner = SchemaOwner {
     name: "biomcp-query",
     version: VERSION,
-    migratable_versions: &[4],
+    migratable_versions: &[4, 5],
     tables: &[
         "pool",
         "pool_current",

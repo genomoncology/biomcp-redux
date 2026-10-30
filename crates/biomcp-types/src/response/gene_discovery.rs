@@ -20,14 +20,16 @@ pub struct GeneHeader {
     /// Source-preserved symbol.
     pub symbol: GeneSymbol,
     /// HGNC locus group.
-    pub locus_group: LocusGroup,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub locus_group: Option<LocusGroup>,
     /// Source-stated location, including unparsed publisher text.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub location: Option<GeneLocation>,
     /// HGNC record status.
     pub status: GeneStatus,
     /// Gene name.
-    pub name: Text,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub name: Option<Text>,
     /// Match information when this header answers an input.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub r#match: Option<Match>,

@@ -1,6 +1,6 @@
 {
   "live_check": "synthetic response case",
-  "feature": "gene-sections",
+  "feature": "gene-oncokb",
   "story": "Synthetic keyed OncoKB info-failure preserves checked identity",
   "replay": "gene/oncokb-synthetic/info-failure",
   "config": {
@@ -33,6 +33,7 @@
         "/result/items/0/oncokb": {
           "equals": {
             "gene_type": "TSG",
+            "gene_type_code": "TSG",
             "highest_sensitive_level": "SYNTHETIC_S",
             "highest_resistance_level": "SYNTHETIC_R"
           }

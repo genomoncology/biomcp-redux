@@ -49,10 +49,10 @@ fn ceiling(value: &Value, schema: &str) -> Option<(usize, usize)> {
     }
     if value.get("status") == Some(&json!("failed")) {
         return match schema {
-            "biomcp.adverse-event-page/5" => Some((364, 232)),
-            "biomcp.adverse-event-maude-card/2" => Some((472, 340)),
-            "biomcp.adverse-event-devices/2" => Some((481, 349)),
-            "biomcp.adverse-event-narrative/2" => Some((500, 367)),
+            "biomcp.adverse-event-page/6" => Some((364, 232)),
+            "biomcp.adverse-event-maude-card/3" => Some((472, 340)),
+            "biomcp.adverse-event-devices/3" => Some((481, 349)),
+            "biomcp.adverse-event-narrative/3" => Some((500, 367)),
             _ => None,
         };
     }
@@ -60,10 +60,10 @@ fn ceiling(value: &Value, schema: &str) -> Option<(usize, usize)> {
         return Some((733, 601));
     }
     match schema {
-        "biomcp.adverse-event-page/5" => Some((948, 816)),
-        "biomcp.adverse-event-maude-card/2" => Some((1497, 1364)),
-        "biomcp.adverse-event-devices/2" => Some((1241, 1109)),
-        "biomcp.adverse-event-narrative/2" => Some((912, 780)),
+        "biomcp.adverse-event-page/6" => Some((948, 816)),
+        "biomcp.adverse-event-maude-card/3" => Some((1497, 1364)),
+        "biomcp.adverse-event-devices/3" => Some((1241, 1109)),
+        "biomcp.adverse-event-narrative/3" => Some((912, 780)),
         _ => None,
     }
 }

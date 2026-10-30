@@ -17,11 +17,13 @@ pub static SPEC: SourceSpec = SourceSpec {
     key: KeyUse::None,
     deadline: Duration::from_secs(15),
 };
+mod pages;
 mod raw;
+mod receive;
 use biomcp_fetch::{Arg, BadReply, Freshness, Leg, PathSegment, RequestError};
+pub use pages::{Indications, Mechanisms, Molecules};
 pub use raw::{
-    CrossReference, Hierarchy, Indication, Indications, Mechanism, Mechanisms, Molecule, Molecules,
-    PageMeta, Reference, Synonym,
+    CrossReference, Hierarchy, Indication, Mechanism, Molecule, PageMeta, Reference, Synonym,
 };
 const MOLECULES: biomcp_fetch::Endpoint = SPEC.get("/molecule.json").fresh(Freshness::Days(1));
 const MOLECULE: biomcp_fetch::Endpoint = SPEC.get("/molecule").fresh(Freshness::Days(1));
@@ -48,7 +50,7 @@ pub fn search(
             ("limit", Arg::Num(limit.into())),
             ("offset", Arg::Num(offset.into())),
         ],
-        |r: &Molecules| page(&r.page_meta, r.molecules.len(), limit, offset),
+        |r: &Molecules| page(&r.page_meta, r.received as usize, limit, offset),
     )
 }
 /// Read exactly the requested molecule and refuse a mismatched source identity before cache admission.
@@ -86,8 +88,8 @@ pub fn mechanisms(
             ("offset", Arg::Num(offset.into())),
         ],
         |r: &Mechanisms| {
-            page(&r.page_meta, r.mechanisms.len(), limit, offset)?;
-            if r.mechanisms.iter().all(|row| row.molecule_chembl_id == id) {
+            page(&r.page_meta, r.received as usize, limit, offset)?;
+            if r.molecules.iter().all(|molecule| molecule == &id) {
                 Ok(())
             } else {
                 Err(BadReply)
@@ -111,11 +113,8 @@ pub fn indications(
             ("offset", Arg::Num(offset.into())),
         ],
         |r: &Indications| {
-            page(&r.page_meta, r.drug_indications.len(), limit, offset)?;
-            if r.drug_indications
-                .iter()
-                .all(|row| row.molecule_chembl_id == id)
-            {
+            page(&r.page_meta, r.received as usize, limit, offset)?;
+            if r.molecules.iter().all(|molecule| molecule == &id) {
                 Ok(())
             } else {
                 Err(BadReply)
@@ -136,7 +135,10 @@ fn page(meta: &PageMeta, count: usize, limit: u32, offset: u32) -> Result<(), Ba
     }
 }
 mod map;
+mod molecule;
+mod scope;
 pub use map::{indications as map_indications, targets as map_targets};
+pub use molecule::{card as molecule_card, header as molecule_header};
 
 mod cell;
-pub use cell::{assay_count, cells, release};
+pub use cell::{CellPage, assay_count, cells, release};

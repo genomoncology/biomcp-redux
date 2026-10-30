@@ -73,18 +73,28 @@
       "description": "Publisher release identity, fetched independently from record data.",
       "properties": {
         "updated": {
-          "$ref": "#/$defs/Reply_PartialDate",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_PartialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Native release update date."
         },
         "version": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Native release version."
         }
       },
-      "required": [
-        "version",
-        "updated"
-      ],
       "type": "object"
     },
     "Reply_CellLineSection": {
@@ -726,15 +736,6 @@
             "null"
           ]
         },
-        "fetched": {
-          "description": "Retrieved identity depth.",
-          "format": "uint32",
-          "minimum": 0,
-          "type": [
-            "integer",
-            "null"
-          ]
-        },
         "notices": {
           "description": "Source notices and request recovery guidance.",
           "items": {
@@ -752,6 +753,15 @@
             }
           ],
           "description": "Failure or stale-fallback reason."
+        },
+        "retrieved_count": {
+          "description": "Number of retrieved identities.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
         },
         "source": {
           "$ref": "#/$defs/Reply_Source",
@@ -870,7 +880,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.cell-line-xrefs/3",
+  "$id": "biomcp.cell-line-xrefs/5",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -926,7 +936,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.cell-line-xrefs/3",
+      "const": "biomcp.cell-line-xrefs/5",
       "type": "string"
     },
     "sources": {

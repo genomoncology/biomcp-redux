@@ -28,7 +28,7 @@ const EXAMPLES: [(&str, usize); 17] = [
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![transcript_trial(
-        "skill/catalog-and-managed-install",
+        "agent-skill/catalog-and-managed-install",
         || check().map_err(|error| error.to_string().into()),
     )]
 }
@@ -206,14 +206,14 @@ fn aliases(env: &Environment) -> Check {
 }
 
 fn help(env: &Environment) -> Check {
-    // j19122 measured 5612 bytes; retain fifteen percent headroom.
+    // j22698 measured 9919 bytes; retain fifteen percent headroom.
     let output = env
         .command(
             env!("CARGO_BIN_EXE_biomcp"),
             &["help".into(), "skill".into()],
         )
         .output()?;
-    if !output.status.success() || output.stdout.len() > (5612_usize * 115).div_ceil(100) {
+    if !output.status.success() || output.stdout.len() > (9919_usize * 115).div_ceil(100) {
         return Err("skill help exceeds measured ceiling or failed".into());
     }
     let value: Value = serde_json::from_slice(&output.stdout)?;

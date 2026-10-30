@@ -1,6 +1,6 @@
 {
   "live_check": "synthetic response case",
-  "feature": "article-search",
+  "feature": "article-fold",
   "story": "Synthetic metadata preserves native ranks before duplicate suppression and stable page walks",
   "replay": "article/fold/synthetic-fold",
   "steps": [
@@ -28,7 +28,7 @@
         "/status": "complete",
         "/page/total": 7,
         "/page/truncated": true,
-        "/sources/1/fetched": 6,
+        "/sources/1/retrieved_count": 6,
         "/sources/1/count": 11,
         "/result/items/1/found_by": {
           "equals": {

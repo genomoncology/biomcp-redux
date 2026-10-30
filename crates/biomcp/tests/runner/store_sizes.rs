@@ -6,7 +6,7 @@ use serde_json::Value;
 use std::{fs, path::Path};
 pub(super) fn trials() -> Vec<Trial> {
     vec![transcript_trial(
-        "sources/health-measures-owned-store-files",
+        "source-controls/health-measures-owned-store-files",
         || measured().map_err(Into::into),
     )]
 }

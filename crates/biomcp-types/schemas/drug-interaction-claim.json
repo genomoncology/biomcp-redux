@@ -182,7 +182,7 @@
       "type": "string"
     }
   },
-  "$id": "biodata.drug-interaction-claim/5",
+  "$id": "biodata.drug-interaction-claim/6",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One native interaction pair and level, without invented management advice.",
   "properties": {
@@ -203,7 +203,14 @@
       "description": "Primary pair record and bundle provenance."
     },
     "level": {
-      "$ref": "#/$defs/Reply_Text",
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Reply_Text"
+        },
+        {
+          "type": "null"
+        }
+      ],
       "description": "Original native level, without a computed severity."
     },
     "partner": {
@@ -214,7 +221,6 @@
   "required": [
     "anchor",
     "partner",
-    "level",
     "attribution"
   ],
   "title": "DrugInteractionClaim",

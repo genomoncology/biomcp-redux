@@ -1866,11 +1866,10 @@ Tests are outside-in, as `decisions/2026-10-23-outside-in-tests-and-one-small-ru
 
 ### 10.1 The runner
 
-`crates/biomcp/tests/cases.rs` is one integration test target with `harness = false`. It uses `libtest-mimic` to turn each YAML file under `tests/cases/` into a named test, so Cargo's filter and parallel run work per case. It runs the binary Cargo built for the test.
+`crates/biomcp/tests/cases.rs` is one behavior integration test target with `harness = false`. Explicit parity, live checks, measurements, native proofs and generation use `crates/biomcp/tests/tools.rs`, whose target has `test = false` and `harness = false`. It uses `libtest-mimic` to turn each YAML file under `tests/cases/` into a named test, so Cargo's filter and parallel run work per case. It runs the binary Cargo built for the test.
 
 ```yaml
 feature: article-search
-covers: [search article, --gene, --variant, --offset, --pool]
 story: AKT1 E17K leads to the 2007 discovery paper and keeps every plain PubMed hit
 harvest: paper PMID 17611497
 verified: 2026-10-23 live PubMed ESearch with sort=relevance
@@ -1897,7 +1896,7 @@ steps:
 
 The case keys:
 
-- `feature`, `covers`, `story`, `harvest` and `verified` describe the case. `covers` names the commands and options it exercises.
+- `feature`, `story`, `harvest` and `verified` describe the case. Each feature names one line in `sdlc/features.md`.
 - `replay` names the recording folder. Each step runs with `--replay` on it, in a fresh temporary config and cache shared by the case's steps.
 - `run` sends one CLI command. `mcp` sends the same arguments through `biomcp serve --replay` as a `tools/call`. A step with both runs each and asserts the two envelopes are equal.
 - `follow` runs a next step of the previous output, chosen by `kind` and an optional index. It tests chaining.
@@ -1918,7 +1917,6 @@ The runner's YAML reader is a test dependency. The original `serde_yaml` is arch
 
 ### 10.2 Checks the runner adds
 
-- **Surface.** One test reads `biomcp help --all` and fails when any command or option appears in no case's `covers`.
 - **Schema.** Every output validates against its schema.
 - **Parity.** Every step with both `run` and `mcp` compares the two envelopes.
 - **Quota.** The eight-parallel-call case in section 4.5.
@@ -1927,9 +1925,11 @@ The source ratchet permits `dead_code` only in the private `crates/biomcp-adapte
 
 ### 10.3 Coverage
 
-`make coverage` runs the case suite under `cargo llvm-cov`. The runner spawns the binary as a subprocess, so the target uses `cargo llvm-cov show-env` to build an instrumented binary and sets a profile file pattern per process. Every spawned binary then writes its own profile, and the cases report merges them. The counted collection also runs only the reviewed public type-contract targets explicitly named with feature ownership and any required Cargo features in `sdlc/features.md`. These tests deserialize literal caller inputs through exported types and assert published validation and wire facts without hooks. The command-only figure prints separately for historical comparison. Unlisted contracts and library unit tests run in a separate excluded profile collection and never raise the floor figure. A target needs review before its feature entry can count; the historical permitted-test inventory below grants no counting authority. Both reports use the same product-source denominator; test targets, internal test modules, generated output and build scripts are excluded.
+`make schema-shape-check` runs the grammar reference and schema-source checks, then the public-binary research projection and MCP search/fetch checks. Coverage depends on this check so a new source, reply shape, schema version or definition name fails before instrumentation.
 
-The landing gate fails when line coverage falls more than 0.2 points below the floor in `coverage.floor`. The tolerance absorbs counting noise between runs. Only the lander raises the floor, after a landing whose coverage exceeds it. `make unreached` lists the lines no case runs, for the reviewer. Each listed line is either deleted or given a case.
+`make coverage` instruments the `cases` target and the product binary through `cargo llvm-cov show-env`. The launcher sets `LLVM_PROFILE_FILE` to `bin-%m-%p.profraw` in the collection directory for every child. The script merges only `bin-` profiles with `llvm-profdata merge` and reports with `llvm-cov report --object` on the actual binary. Cargo's report command cannot select one object. The denominator contains source lines mapped into that binary from product crates. Harness code, test modules, in-process library calls, dependencies and generated protobuf code count toward neither side. Library functions absent from the binary have no mapping and fall outside the denominator. Public contracts and library tests run separately through `make library-tests` and never supply counted profiles.
+
+The landing gate fails when line coverage falls more than 0.2 points below `coverage.floor`. Only the PM sets and raises the floor, starting from the first binary-only measurement. `make unreached` shows counted product source with line execution counts for review.
 
 ### 10.4 Where unit tests are allowed
 
@@ -1965,14 +1965,18 @@ The ratchet owns the authoritative file and reason list below and checks this ta
 | `crates/biomcp-types/tests/schemas.rs` | Exercise checked values and schema contracts through the public library API. |
 | `crates/biomcp-types/tests/schemas/disease.rs` | Exercise standalone disease option metadata and synthetic envelope schema contracts before command registration. |
 | `crates/biomcp-types/tests/schemas/compatibility_cases.rs` | Exercise checked values and schema contracts through the public library API. |
+| `crates/biomcp-types/tests/schemas/compatibility_recursive_cases.rs` | Exercise recursive public schema graphs and their compatibility constraints. |
+| `crates/biomcp-types/tests/schemas/temporal.rs` | Exercise native timestamp schema spelling and temporal property consistency. |
 | `crates/biomcp-types/tests/schemas/drug.rs` | Exercise public drug header and card disclosure boundaries through their serialized values and schemas. |
 | `crates/biomcp-types/tests/schemas/registry.rs` | Register public value and research query schema contracts for schema drift checks. |
 | `crates/biomcp-types/tests/schemas/ownership.rs` | Check published schema namespaces against the crate that defines each Rust type. |
 | `crates/biomcp-types/tests/schemas/values.rs` | Exercise checked values and schema contracts through the public library API. |
+| `crates/biomcp-types/tests/value_conventions/sweep.rs` | Exercise public text value construction, parsing, JSON and hashing through the Rust consumer boundary. |
 | `crates/biomcp-types/tests/value_conventions.rs` | Exercise checked values and schema contracts through the public library API. |
 | `crates/biomcp-adapters/src/monarch/native_contracts.rs` | Exercise retained gene-keyed Monarch rows through the private mapper without adding a gene-keyed command. |
 | `crates/biomcp-adapters/tests/alphagenome_registration.rs` | Exercise restricted source registration and required-key admission before a product section exists. |
 | `crates/biomcp-adapters/tests/batch_bounds.rs` | Exercise literal indexed lookup inputs outside command validation and empty/oversized batches or chunks beyond command limits. |
+| `crates/biomcp-adapters/tests/protein_storage.rs` | Read legacy serialized adapter values through the public storage type without a source request. |
 | `crates/biomcp-adapters/tests/pmc_body.rs` | Reconstruct complete source rows and retain JATS reference IDs and links omitted from command JSON. |
 | `crates/biomcp-adapters/tests/pmc_limits.rs` | Reject invalid table spans and duplicate table IDs before allocation with a tiny decoder boundary table. |
 | `crates/biomcp-fetch/src/cache/contention.rs` | Order independent SQLite snapshots and writer admission at the private transaction boundary without product hooks. |
@@ -1988,6 +1992,7 @@ The ratchet owns the authoritative file and reason list below and checks this ta
 | `crates/biomcp-fetch/tests/bundle.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
 | `crates/biomcp-fetch/tests/bundle/download.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
 | `crates/biomcp-fetch/tests/bundle/native.rs` | Exercise complete native TSV replacement sets and decoded bounds through the public transport API. |
+| `crates/biomcp-fetch/tests/bundle/rejections.rs` | Exercise rejected source rows, persisted revalidation and old-store migration through the public transport API. |
 | `crates/biomcp-fetch/tests/bundle/rows.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
 | `crates/biomcp-fetch/tests/cache.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
 | `crates/biomcp-fetch/tests/cache/credentials.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
@@ -2113,7 +2118,7 @@ The PM ruled on this design's earlier open questions on 2026-10-23. This file ap
 5. **Several inputs per get.** `get` takes up to twenty inputs and returns items in input order, each with its own status. Sections are a closed enum per entity, with `--section` on collision.
 6. **Statuses and exit codes.** Distinct statuses and codes for absent, usage, expired, failed and local errors. Ambiguous and withdrawn inputs and zero-hit searches are answers that exit 0. A capped pool is complete with `truncated` and `total`. `main` returns `ExitCode`.
 7. **Bundles.** Explicit `biomcp sync` uses a lock, a separate budget and resumable downloads, and never runs offline. Stored-bundle reads never synchronize. The older `Leg::rows` path retains bounded automatic synchronization as described in section 4.11.
-8. **Coverage floor.** In the gate with a 0.2-point tolerance. Only the lander raises it. The subprocess binary is instrumented.
+8. **Coverage floor.** In the gate with a 0.2-point tolerance. Only the PM raises it. The subprocess binary is instrumented.
 9. **Wiki tables.** Entity, alias and link tables are deferred to the wiki's own design, and their DDL is gone from this file.
 
 Ian ruled on 2026-10-24, and this file applies each ruling:

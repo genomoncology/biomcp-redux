@@ -71,17 +71,19 @@ fn execute(
         result.as_ref().err().copied(),
     ));
     let (cohort, rows) = result?;
+    out.problems.extend(rows.problems);
+    let (rows, received) = rows.value;
     metadata(query, &cohort, out);
     let (count, problems) = matching::count(&identity, &rows, query.study());
     out.problems.extend(problems);
-    let more = rows.len() == query.limit() as usize;
+    let more = received == query.limit();
     let mut body = empty();
     body.identity = Some(identity);
     body.entrez_gene_id = Some(gene);
     body.study = Some(cohort.study);
     body.selected_sample_count = cohort.selected_sample_count;
     body.observed_sample_count = Some(count);
-    body.examined_rows = rows.len() as u32;
+    body.examined_rows = received;
     body.all_pages_read = query.page() == 0 && !more;
     body.more = more;
     out.body = QueryBody::VariantRecurrence(body);
@@ -107,6 +109,7 @@ fn execute(
     Ok(())
 }
 fn metadata(query: &VariantRecurrenceQuery, cohort: &cbioportal::Cohort, out: &mut Outcome) {
+    out.problems.extend(cohort.problems.iter().cloned());
     if let Some(error) = cohort.count_error {
         if let Some(source) = out.sources.last_mut() {
             source.state = biomcp_types::SourceState::Failed;

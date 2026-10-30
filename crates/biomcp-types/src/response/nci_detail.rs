@@ -65,24 +65,18 @@ pub struct NciEligibilityStructured {
     /// Native max age field.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub max_age: Option<Text>,
-    /// Native min age unit field.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub min_age_unit: Option<Text>,
-    /// Native max age unit field.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub max_age_unit: Option<Text>,
     /// Native min age number field.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub min_age_number: Option<FiniteNumber>,
+    pub min_age_number: Option<biodata::WithUnit<FiniteNumber>>,
     /// Native max age number field.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub max_age_number: Option<FiniteNumber>,
+    pub max_age_number: Option<biodata::WithUnit<FiniteNumber>>,
     /// Native min age in years field.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub min_age_in_years: Option<FiniteNumber>,
+    pub min_age_in_years: Option<biodata::WithUnit<FiniteNumber>>,
     /// Native max age in years field.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub max_age_in_years: Option<FiniteNumber>,
+    pub max_age_in_years: Option<biodata::WithUnit<FiniteNumber>>,
     /// Native sex field.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub sex: Option<Text>,

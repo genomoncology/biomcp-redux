@@ -154,7 +154,14 @@
           "description": "Checked source-owned identity."
         },
         "name": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Whole native name."
         },
         "revision": {
@@ -186,7 +193,6 @@
       },
       "required": [
         "id",
-        "name",
         "species"
       ],
       "type": "object"
@@ -380,18 +386,30 @@
           "type": "integer"
         },
         "name": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Whole physical entity label, including source-stated modification context."
         },
         "schema_class": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Native physical entity schema class, separate from reference schema class."
         }
       },
       "required": [
-        "db_id",
-        "name",
-        "schema_class"
+        "db_id"
       ],
       "type": "object"
     },
@@ -880,15 +898,6 @@
             "null"
           ]
         },
-        "fetched": {
-          "description": "Retrieved identity depth.",
-          "format": "uint32",
-          "minimum": 0,
-          "type": [
-            "integer",
-            "null"
-          ]
-        },
         "notices": {
           "description": "Source notices and request recovery guidance.",
           "items": {
@@ -906,6 +915,15 @@
             }
           ],
           "description": "Failure or stale-fallback reason."
+        },
+        "retrieved_count": {
+          "description": "Number of retrieved identities.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
         },
         "source": {
           "$ref": "#/$defs/Reply_Source",
@@ -1029,7 +1047,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.pathway-genes/6",
+  "$id": "biomcp.pathway-genes/8",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -1085,7 +1103,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.pathway-genes/6",
+      "const": "biomcp.pathway-genes/8",
       "type": "string"
     },
     "sources": {

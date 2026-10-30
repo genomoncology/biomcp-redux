@@ -12,9 +12,11 @@ pub struct CellLineHeader {
     /// Exact primary accession.
     pub accession: CellosaurusAccession,
     /// Recommended display name.
-    pub name: Text,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub name: Option<Text>,
     /// Native category.
-    pub category: Text,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub category: Option<Text>,
     /// Up to three complete species references and their native total.
     pub species: Capped<CellLineXref>,
     /// Up to three complete disease references and their independent total.
@@ -235,35 +237,35 @@ pub struct CellLineAssayCount {
     pub assay_count: u64,
 }
 impl ResponseBody for CellLinePage {
-    const SCHEMA: &'static str = "biomcp.cell-line-page/4";
+    const SCHEMA: &'static str = "biomcp.cell-line-page/6";
     type Query = CellLineSearch;
 }
 impl ResponseBody for CellLineCard {
-    const SCHEMA: &'static str = "biomcp.cell-line-card/5";
+    const SCHEMA: &'static str = "biomcp.cell-line-card/7";
     type Query = CellLineGet;
 }
 impl ResponseBody for CellLineNames {
-    const SCHEMA: &'static str = "biomcp.cell-line-names/3";
+    const SCHEMA: &'static str = "biomcp.cell-line-names/5";
     type Query = CellLineGet;
 }
 impl ResponseBody for CellLineIdentityPage {
-    const SCHEMA: &'static str = "biomcp.cell-line-identity/3";
+    const SCHEMA: &'static str = "biomcp.cell-line-identity/5";
     type Query = CellLineGet;
 }
 impl ResponseBody for CellLineXrefs {
-    const SCHEMA: &'static str = "biomcp.cell-line-xrefs/3";
+    const SCHEMA: &'static str = "biomcp.cell-line-xrefs/5";
     type Query = CellLineGet;
 }
 impl ResponseBody for CellLineVariants {
-    const SCHEMA: &'static str = "biomcp.cell-line-variants/4";
+    const SCHEMA: &'static str = "biomcp.cell-line-variants/6";
     type Query = CellLineGet;
 }
 impl ResponseBody for CellLineChembl {
-    const SCHEMA: &'static str = "biomcp.cell-line-chembl/4";
+    const SCHEMA: &'static str = "biomcp.cell-line-chembl/6";
     type Query = CellLineGet;
 }
 impl ResponseBody for CellLineAssayCount {
-    const SCHEMA: &'static str = "biomcp.cell-line-assay-count/4";
+    const SCHEMA: &'static str = "biomcp.cell-line-assay-count/6";
     type Query = CellLineAssayCountQuery;
 }
 
@@ -272,7 +274,9 @@ impl ResponseBody for CellLineAssayCount {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct CellLineRelease {
     /// Native release version.
-    pub version: Text,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub version: Option<Text>,
     /// Native release update date.
-    pub updated: PartialDate,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub updated: Option<PartialDate>,
 }

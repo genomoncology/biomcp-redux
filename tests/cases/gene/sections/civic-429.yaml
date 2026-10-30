@@ -1,6 +1,6 @@
 {
   "live_check": "synthetic response case",
-  "feature": "gene-sections",
+  "feature": "gene-civic",
   "story": "A synthetic CIViC 429 reply preserves the independent card",
   "replay": "gene/civic/synthetic-429",
   "cache_acquired": 42,

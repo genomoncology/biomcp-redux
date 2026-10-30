@@ -138,6 +138,7 @@ impl Leg<'_> {
             None,
             None,
         );
+        meta.rejections = rows.rejections.clone();
         provenance(&mut meta, exchange.body.bytes());
         cache.publish(b, None, &meta, Some(&rows), self.budget())?;
         imported.insert(b.name);
@@ -298,6 +299,7 @@ impl Leg<'_> {
             header(response, "etag"),
             header(response, "last-modified"),
         );
+        meta.rejections = rows.rejections.clone();
         provenance(&mut meta, &body);
         if matches!(self.fetch.mode, Mode::Record { .. }) {
             let exchange = Exchange {
@@ -470,6 +472,7 @@ fn meta<R: Row>(
     modified: Option<String>,
 ) -> Meta {
     Meta {
+        rejections: Vec::new(),
         bytes,
         rows,
         fresh_until: fresh_until(b),

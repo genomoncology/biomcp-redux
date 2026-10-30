@@ -40,8 +40,10 @@ const PAIRS: BundleSet<NativeRow> = BundleSet {
     row: PhantomData,
 };
 /// Synchronize the eight validated partitions as one atomic local replacement.
-pub fn sync(fetch: &Fetch) -> Result<BundleInfo, RequestError> {
-    fetch.sync_set(&PAIRS)
+pub fn sync(fetch: &Fetch) -> Result<crate::Mapped<biomcp_types::SyncResult>, RequestError> {
+    fetch
+        .sync_set(&PAIRS)
+        .map(|info| crate::mapped::bundle_sync(SPEC.source, info))
 }
 /// Discover literal native candidates from stored rows; never synchronize on a read.
 pub fn search(leg: &Leg<'_>, query: &str) -> Result<Vec<DrugHeader>, RequestError> {
@@ -66,9 +68,16 @@ fn selected(rows: &[super::PartRow], id: &str) -> Option<DrugHeader> {
         .map(identity::header)
 }
 /// Return only the exact selected native identity and available source section.
-pub fn card(leg: &Leg<'_>, id: &DrugId) -> Result<Option<DrugCard>, RequestError> {
+pub fn card(leg: &Leg<'_>, id: &DrugId) -> Result<crate::Mapped<Option<DrugCard>>, RequestError> {
     let (rows, info) = exact(leg, id)?;
-    Ok(selected(&rows, &id.to_string()).map(|header| DrugCard {
+    let problems = rows
+        .iter()
+        .flat_map(|row| {
+            row.value
+                .problems(crate::mapped::record(format!("{}:{}", row.part, row.row)))
+        })
+        .collect();
+    let value = selected(&rows, &id.to_string()).map(|header| DrugCard {
         header,
         alternate_names: Box::default(),
         cross_references: Box::default(),
@@ -83,7 +92,8 @@ pub fn card(leg: &Leg<'_>, id: &DrugId) -> Result<Option<DrugCard>, RequestError
         retrieved: crate::received_date(info.retrieved_at),
         available_sections: vec![DrugSection::Interactions].into(),
         next: Box::default(),
-    }))
+    });
+    Ok(crate::Mapped { value, problems })
 }
 /// Page exact native partners, preserving the source order and every duplicate origin.
 pub fn interactions(
@@ -91,37 +101,48 @@ pub fn interactions(
     id: &DrugId,
     limit: u32,
     offset: u32,
-) -> Result<Option<DrugInteractions>, RequestError> {
+) -> Result<crate::Mapped<Option<DrugInteractions>>, RequestError> {
     let (rows, info) = exact(leg, id)?;
     let Some(identity) = selected(&rows, &id.to_string()) else {
-        return Ok(None);
+        return Ok(crate::Mapped {
+            value: None,
+            problems: Vec::new(),
+        });
     };
     let pairs = partners(rows, &id.to_string());
     let total = pairs.len() as u64;
+    let mut problems = Vec::new();
     let records = pairs
         .into_iter()
         .skip(offset as usize)
         .take(limit as usize)
-        .map(|pair| pair.claim(info.content_revision.as_deref()))
+        .map(|pair| {
+            let mapped = pair.claim(info.content_revision.as_deref())?;
+            problems.extend(mapped.problems);
+            Ok::<_, biodata::Error>(mapped.value)
+        })
         .collect::<Result<Box<[_]>, _>>()
         .map_err(|_| biomcp_fetch::CacheError::Database)?;
-    Ok(Some(DrugInteractions {
-        identity,
-        interactions: Section::Data {
-            source: Source::Ddinter,
-            data: DrugRecords {
-                records,
-                offset,
-                total: Some(total),
-                truncated: None,
-                version: info
-                    .content_revision
-                    .as_deref()
-                    .and_then(|v| Text::new(v).ok()),
-                retrieved: crate::received_date(info.retrieved_at),
+    Ok(crate::Mapped {
+        problems,
+        value: Some(DrugInteractions {
+            identity,
+            interactions: Section::Data {
+                source: Source::Ddinter,
+                data: DrugRecords {
+                    records,
+                    offset,
+                    total: Some(total),
+                    truncated: None,
+                    version: info
+                        .content_revision
+                        .as_deref()
+                        .and_then(|v| Text::new(v).ok()),
+                    retrieved: crate::received_date(info.retrieved_at),
+                },
             },
-        },
-    }))
+        }),
+    })
 }
 
 /// Inspect this source's validated local catalog without reading rows or synchronizing.

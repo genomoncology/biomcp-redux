@@ -14,7 +14,7 @@
       ],
       "max_bytes": 354,
       "expect": {
-        "/schema": "biomcp.sync/6",
+        "/schema": "biomcp.sync/7",
         "/result/rows": 9
       }
     },
@@ -33,7 +33,7 @@
       ],
       "max_bytes": 7486,
       "expect": {
-        "/schema": "biomcp.diagnostic-companion/3",
+        "/schema": "biomcp.diagnostic-companion/4",
         "/page/offset": 0,
         "/page/returned": 5,
         "/page/total": 9
@@ -62,7 +62,7 @@
       ],
       "max_bytes": 5917,
       "expect": {
-        "/schema": "biomcp.diagnostic-companion/3",
+        "/schema": "biomcp.diagnostic-companion/4",
         "/page/offset": 5,
         "/page/returned": 4,
         "/page/total": 9
@@ -87,7 +87,7 @@
       ],
       "max_bytes": 8163,
       "expect": {
-        "/schema": "biomcp.diagnostic-companion/3",
+        "/schema": "biomcp.diagnostic-companion/4",
         "/page/offset": 0,
         "/page/returned": 5,
         "/page/total": 6
@@ -120,7 +120,7 @@
       ],
       "max_bytes": 1635,
       "expect": {
-        "/schema": "biomcp.diagnostic-companion/3",
+        "/schema": "biomcp.diagnostic-companion/4",
         "/page/offset": 5,
         "/page/returned": 1,
         "/page/total": 6
@@ -145,7 +145,7 @@
       ],
       "max_bytes": 2100,
       "expect": {
-        "/schema": "biomcp.diagnostic-companion/3",
+        "/schema": "biomcp.diagnostic-companion/4",
         "/page/offset": 0,
         "/page/returned": 1,
         "/page/total": 1,
@@ -171,7 +171,7 @@
       ],
       "max_bytes": 2846,
       "expect": {
-        "/schema": "biomcp.diagnostic-companion/3",
+        "/schema": "biomcp.diagnostic-companion/4",
         "/page/offset": 0,
         "/page/returned": 2,
         "/page/total": 2
@@ -196,7 +196,7 @@
       ],
       "max_bytes": 7641,
       "expect": {
-        "/schema": "biomcp.diagnostic-companion/3",
+        "/schema": "biomcp.diagnostic-companion/4",
         "/page/offset": 0,
         "/page/returned": 5,
         "/page/total": 8,
@@ -230,7 +230,7 @@
       ],
       "max_bytes": 4990,
       "expect": {
-        "/schema": "biomcp.diagnostic-companion/3",
+        "/schema": "biomcp.diagnostic-companion/4",
         "/page/offset": 5,
         "/page/returned": 3,
         "/page/total": 8
@@ -249,7 +249,7 @@
       ],
       "max_bytes": 1391,
       "expect": {
-        "/schema": "biomcp.help/4",
+        "/schema": "biomcp.help/5",
         "/result/commands/0/command": [
           "sync",
           "fda-cdx"
@@ -269,7 +269,7 @@
       ],
       "max_bytes": 3792,
       "expect": {
-        "/schema": "biomcp.help/4",
+        "/schema": "biomcp.help/5",
         "/result/commands/0/command": [
           "search",
           "diagnostic"
@@ -289,7 +289,7 @@
       ],
       "max_bytes": 354,
       "expect": {
-        "/schema": "biomcp.sync/6",
+        "/schema": "biomcp.sync/7",
         "/result/rows": 9
       }
     }

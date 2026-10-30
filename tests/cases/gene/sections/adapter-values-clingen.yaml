@@ -1,0 +1,27 @@
+{
+  "feature": "gene-sections",
+  "live_check": "synthetic",
+  "story": "One malformed native clingen value preserves its record and names the omitted field.",
+  "replay": "variant/adapter-values/clingen",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "gene",
+        "TP53",
+        "clingen"
+      ],
+      "expect": {
+        "/result/items/0/sections/clingen/data/validity/0/mondo_id": "MONDO:0018875",
+        "/result/items/0/sections/clingen/data/validity/0": {
+          "omits": [
+            "expert_panel"
+          ]
+        },
+        "/problems/*/field": [
+          "GCEP"
+        ]
+      }
+    }
+  ]
+}

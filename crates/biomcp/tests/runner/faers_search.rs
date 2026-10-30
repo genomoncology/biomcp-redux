@@ -4,11 +4,13 @@ use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 type Check = Result<(), String>;
-mod examples;
+tool_only! { mod examples; }
 mod policy;
 mod status;
+tool_only! {
 pub(super) fn record_examples(directory: &std::path::Path) -> Check {
     examples::record(directory)
+}
 }
 pub(super) fn trials() -> Vec<Trial> {
     let mut cases = vec![transcript_trial(
@@ -81,6 +83,10 @@ pub(super) fn trials() -> Vec<Trial> {
             move || selectors(&flags, suffix).map_err(Into::into),
         ));
     }
+    cases.push(transcript_trial(
+        "adverse-event-search/invalid-optional-update-preserves-records",
+        || status::optional_date().map_err(Into::into),
+    ));
     cases.push(transcript_trial(
         "adverse-event-search/200-absence-is-rejected-before-cache",
         || status::run().map_err(Into::into),
@@ -160,7 +166,7 @@ fn both(env: &Environment, args: Vec<String>, exit: i32) -> Result<Value, String
     let start = args.iter().position(|s| s == "search").unwrap_or(0);
     let (globals, command) = args.split_at(start);
     let mcp = super::mcp::call_with_globals(env, command, exit >= 2, globals)?;
-    if cli != mcp {
+    if !super::reply_comparison::same_reply(&cli, &mcp)? {
         return Err("CLI/MCP report search differs".into());
     }
     measure(&cli, &args)?;
@@ -265,7 +271,7 @@ fn navigation() -> Check {
     words.extend(["--limit".into(), "7".into()]);
     let value = both(&env, words.clone(), 0)?;
     words.extend(["--source".into(), "faers".into()]);
-    if invoke(&env, words, 0)? != value {
+    if !super::reply_comparison::same_reply(&invoke(&env, words, 0)?, &value)? {
         return Err("default FAERS differs from explicit source".into());
     }
     let next = value
@@ -274,6 +280,10 @@ fn navigation() -> Check {
         .ok_or("missing next")?;
     if next.len() != 8
         || value.pointer("/result/source_updated") != Some(&json!("2024-09-01"))
+        || value
+            .pointer("/result/fetched")
+            .and_then(Value::as_u64)
+            .is_none()
         || value.pointer("/result/items/0/first_received") != Some(&json!("20240102"))
     {
         return Err(format!(

@@ -1,6 +1,6 @@
 {
   "live_check": "synthetic response case",
-  "feature": "gene-sections",
+  "feature": "gene-civic",
   "story": "A synthetic CIViC mismatch reply preserves the independent card",
   "replay": "gene/civic/synthetic-mismatch",
   "steps": [
@@ -12,16 +12,22 @@
         "civic"
       ],
       "expect": {
-        "/status": "partial",
+        "/status": "complete",
         "/result/items/0/answer/gene/hgnc_id": "HGNC:3430",
         "/result/items/0/answer/gene/summary/source": "refseq",
-        "/result/items/0/sections/civic/state": "unavailable",
-        "/result/items/0/sections/civic/reason": "bad-reply",
+        "/result/items/0/sections/civic/state": "empty",
         "/sources/*/source": {
           "includes": "civic",
           "excludes": "gnomad"
         },
-        "/problems/0/field": "entrez_id"
+        "/problems/0/field": "entrezId",
+        "/result/items/0/sections/civic": {
+          "omits": [
+            "record",
+            "data"
+          ]
+        },
+        "/problems/0/record": "20"
       },
       "max_bytes": 3200,
       "mcp": [

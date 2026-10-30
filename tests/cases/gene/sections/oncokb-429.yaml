@@ -1,6 +1,6 @@
 {
   "live_check": "synthetic response case",
-  "feature": "gene-sections",
+  "feature": "gene-oncokb",
   "story": "Synthetic keyed OncoKB 429 preserves checked identity",
   "replay": "gene/oncokb-synthetic/429",
   "cache_acquired": 42,

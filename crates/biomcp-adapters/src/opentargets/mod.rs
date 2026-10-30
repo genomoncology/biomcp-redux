@@ -67,11 +67,6 @@ pub fn search(
                 && (r.data.search.hits.is_empty()
                     || u64::from(index) * u64::from(size) + r.data.search.hits.len() as u64
                         <= r.data.search.total)
-                && r.data
-                    .search
-                    .hits
-                    .iter()
-                    .all(|h| h.entity == "drug" && h.id.starts_with("CHEMBL") && !h.name.is_empty())
             {
                 Ok(())
             } else {
@@ -92,11 +87,7 @@ pub fn drug(
         variables: DrugVariables { id: &id },
     };
     leg.post_json_received_checked(&GRAPHQL, &[], &body, |r: &raw::Response<raw::DrugData>| {
-        if r.data
-            .drug
-            .as_ref()
-            .is_none_or(|d| d.id == id && !d.name.is_empty())
-        {
+        if r.data.drug.as_ref().is_none_or(|d| d.id == id) {
             Ok(())
         } else {
             Err(BadReply)
@@ -105,7 +96,7 @@ pub fn drug(
     .map(|(r, meta)| (r.data.drug, meta))
 }
 mod map;
-pub use map::{indications as map_indications, targets as map_targets};
+pub use map::{header, indications as map_indications, search_headers, targets as map_targets};
 
 fn search_query(index: u32, size: u32) -> String {
     format!(

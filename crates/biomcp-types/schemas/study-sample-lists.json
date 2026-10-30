@@ -499,15 +499,6 @@
             "null"
           ]
         },
-        "fetched": {
-          "description": "Retrieved identity depth.",
-          "format": "uint32",
-          "minimum": 0,
-          "type": [
-            "integer",
-            "null"
-          ]
-        },
         "notices": {
           "description": "Source notices and request recovery guidance.",
           "items": {
@@ -525,6 +516,15 @@
             }
           ],
           "description": "Failure or stale-fallback reason."
+        },
+        "retrieved_count": {
+          "description": "Number of retrieved identities.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
         },
         "source": {
           "$ref": "#/$defs/Reply_Source",
@@ -675,16 +675,29 @@
       "description": "Sample-list metadata without a representation for member sample IDs.",
       "properties": {
         "category": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Extensible native list category."
         },
         "description": {
           "description": "Native list description.",
-          "type": "string"
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "name": {
           "description": "Native list name.",
-          "type": "string"
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "sampleCount": {
           "description": "Stated source sampleCount when supplied, never computed from member IDs.",
@@ -706,10 +719,7 @@
       },
       "required": [
         "sampleListId",
-        "studyId",
-        "category",
-        "name",
-        "description"
+        "studyId"
       ],
       "type": "object"
     },
@@ -786,7 +796,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.study-sample-lists/2",
+  "$id": "biomcp.study-sample-lists/4",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -842,7 +852,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.study-sample-lists/2",
+      "const": "biomcp.study-sample-lists/4",
       "type": "string"
     },
     "sources": {

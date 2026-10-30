@@ -23,16 +23,13 @@ pub struct FaersSeriousness {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub other: Option<Box<str>>,
 }
-/// Optional native patient strings without numeric conversion.
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+/// Native patient age and independently supplied sex and weight fields.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct FaersPatient {
-    /// Native age string, including a present empty value.
+    /// Native numeric age with the exact publisher unit code, when stated.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub age: Option<Box<str>>,
-    /// Native age_unit string, including a present empty value.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub age_unit: Option<Box<str>>,
+    pub age: Option<crate::WithUnit<crate::FiniteNumber, super::FaersAgeUnit>>,
     /// Native sex string, including a present empty value.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub sex: Option<Box<str>>,
@@ -172,7 +169,7 @@ pub struct FaersReaction {
     pub outcome: Option<Box<str>>,
 }
 /// Neutral kept FAERS facts with independent ordered drug and reaction arrays.
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct FaersReport {
     /// Opaque published report identifier.
