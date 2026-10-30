@@ -1,0 +1,25 @@
+{
+  "feature": "trial-search",
+  "story": "A checked zero exact facility search names one native broader request and preserves its zero.",
+  "replay": "trial/name-fallback",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "trial",
+        "--id",
+        "NCT05273554",
+        "--facility",
+        "MD Anderson"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 0,
+        "/sources/0/count": 0,
+        "/sources/0/notices/0/kind": "request-guidance",
+        "/sources/0/notices/0/message": "ClinicalTrials.gov exact phrase request {\"countTotal\": \"true\", \"fields\": \"NCTId,BriefTitle,OverallStatus,Phase,Condition,InterventionName,LastUpdatePostDate,HasResults\", \"filter.advanced\": \"AREA[NCTId]NCT05273554 AND AREA[LocationFacility]\\\"MD Anderson\\\"\", \"pageSize\": \"10\"} returned zero trials. BioMCP tried the registry's broader name request {\"countTotal\": \"true\", \"fields\": \"NCTId,BriefTitle,OverallStatus,Phase,Condition,InterventionName,LastUpdatePostDate,HasResults\", \"filter.advanced\": \"AREA[NCTId]NCT05273554\", \"pageSize\": \"10\", \"query.locn\": \"MD Anderson\"} once."
+      },
+      "max_bytes": 4000
+    }
+  ]
+}

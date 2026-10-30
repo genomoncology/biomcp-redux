@@ -352,7 +352,7 @@ impl TrialSearch {
     pub fn age(&self) -> Option<&u32> {
         self.0.age.as_ref()
     }
-    /// Exact facility name; NCI matches organization names case-insensitively. A listed site is not necessarily enrolling. Cannot combine with radius.
+    /// Requested facility phrase; a listed site is not necessarily enrolling.
     pub fn facility(&self) -> Option<&Text> {
         self.0.facility.as_ref()
     }
@@ -372,11 +372,11 @@ impl TrialSearch {
     pub fn distance(&self) -> Option<&Text> {
         self.0.distance.as_ref()
     }
-    /// Exact lead sponsor field.
+    /// Requested sponsor name.
     pub fn sponsor(&self) -> Option<&Text> {
         self.0.sponsor.as_ref()
     }
-    /// Registry sponsor funding facet.
+    /// Requested sponsor funding category.
     pub fn sponsor_type(&self) -> Option<&SponsorType> {
         self.0.sponsor_type.as_ref()
     }
