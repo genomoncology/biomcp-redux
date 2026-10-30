@@ -91,13 +91,25 @@ fn patient(
 }
 fn identifiers(r: raw::Identifiers, p: &mut crate::mapped::Problems) -> FaersIdentifiers {
     FaersIdentifiers {
-        unii: p.field("unii", r.unii),
-        rxcui: p.field("rxcui", r.rxcui),
-        product_ndc: p.field("product_ndc", r.product_ndc),
-        package_ndc: p.field("package_ndc", r.package_ndc),
-        spl_id: p.field("spl_id", r.spl_id),
-        spl_set_id: p.field("spl_set_id", r.spl_set_id),
-        application_number: p.field("application_number", r.application_number),
+        unii: p.optional_fields("unii", r.unii).map(Vec::into_boxed_slice),
+        rxcui: p
+            .optional_fields("rxcui", r.rxcui)
+            .map(Vec::into_boxed_slice),
+        product_ndc: p
+            .optional_fields("product_ndc", r.product_ndc)
+            .map(Vec::into_boxed_slice),
+        package_ndc: p
+            .optional_fields("package_ndc", r.package_ndc)
+            .map(Vec::into_boxed_slice),
+        spl_id: p
+            .optional_fields("spl_id", r.spl_id)
+            .map(Vec::into_boxed_slice),
+        spl_set_id: p
+            .optional_fields("spl_set_id", r.spl_set_id)
+            .map(Vec::into_boxed_slice),
+        application_number: p
+            .optional_fields("application_number", r.application_number)
+            .map(Vec::into_boxed_slice),
     }
 }
 fn drug(r: raw::Drug, p: &mut crate::mapped::Problems) -> FaersDrug {

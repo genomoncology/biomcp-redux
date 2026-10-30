@@ -86,13 +86,13 @@ pub(super) struct Reaction {
 }
 #[derive(Debug, Deserialize)]
 pub(super) struct Identifiers {
-    pub unii: Option<crate::raw::Field<Box<[Box<str>]>>>,
-    pub rxcui: Option<crate::raw::Field<Box<[Box<str>]>>>,
-    pub product_ndc: Option<crate::raw::Field<Box<[Box<str>]>>>,
-    pub package_ndc: Option<crate::raw::Field<Box<[Box<str>]>>>,
-    pub spl_id: Option<crate::raw::Field<Box<[Box<str>]>>>,
-    pub spl_set_id: Option<crate::raw::Field<Box<[Box<str>]>>>,
-    pub application_number: Option<crate::raw::Field<Box<[Box<str>]>>>,
+    pub unii: Option<crate::raw::Field<Vec<crate::raw::Field<Box<str>>>>>,
+    pub rxcui: Option<crate::raw::Field<Vec<crate::raw::Field<Box<str>>>>>,
+    pub product_ndc: Option<crate::raw::Field<Vec<crate::raw::Field<Box<str>>>>>,
+    pub package_ndc: Option<crate::raw::Field<Vec<crate::raw::Field<Box<str>>>>>,
+    pub spl_id: Option<crate::raw::Field<Vec<crate::raw::Field<Box<str>>>>>,
+    pub spl_set_id: Option<crate::raw::Field<Vec<crate::raw::Field<Box<str>>>>>,
+    pub application_number: Option<crate::raw::Field<Vec<crate::raw::Field<Box<str>>>>>,
 }
 #[derive(Debug, Deserialize)]
 pub(super) struct Drug {

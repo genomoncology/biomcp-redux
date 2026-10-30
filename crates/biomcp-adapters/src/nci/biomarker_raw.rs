@@ -27,8 +27,8 @@ pub(super) struct Biomarker {
     pub codes: Box<[NcitId]>,
     pub r#type: Option<Field<Vec<Field<Text>>>>,
     pub count: Option<Field<u64>>,
-    pub parent_ids: Option<Field<Box<[NcitId]>>>,
-    pub ancestor_ids: Option<Field<Box<[NcitId]>>>,
-    pub synonyms: Option<Field<Box<[NativeText]>>>,
-    pub eligibility_criterion: Option<Field<Box<[Text]>>>,
+    pub parent_ids: Option<Field<Vec<Field<NcitId>>>>,
+    pub ancestor_ids: Option<Field<Vec<Field<NcitId>>>>,
+    pub synonyms: Option<Field<Vec<Field<NativeText>>>>,
+    pub eligibility_criterion: Option<Field<Vec<Field<Text>>>>,
 }

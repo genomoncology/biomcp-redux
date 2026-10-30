@@ -13,10 +13,11 @@ impl From<wire::Record> for Record {
         let openfda = p
             .field("openfda", row.openfda)
             .map(|v| Names {
-                brand_name: p.field("openfda.brand_name", v.brand_name),
-                generic_name: p.field("openfda.generic_name", v.generic_name),
-                spl_set_id: p.field("openfda.spl_set_id", v.spl_set_id),
-                application_number: p.field("openfda.application_number", v.application_number),
+                brand_name: p.optional_fields("openfda.brand_name", v.brand_name),
+                generic_name: p.optional_fields("openfda.generic_name", v.generic_name),
+                spl_set_id: p.optional_fields("openfda.spl_set_id", v.spl_set_id),
+                application_number: p
+                    .optional_fields("openfda.application_number", v.application_number),
             })
             .unwrap_or(Names {
                 brand_name: None,
@@ -34,17 +35,19 @@ impl From<wire::Record> for Record {
             effective_time,
             openfda,
             spl_product_data_elements: p
-                .field("spl_product_data_elements", row.spl_product_data_elements),
-            package_label_principal_display_panel: p.field(
+                .optional_fields("spl_product_data_elements", row.spl_product_data_elements),
+            package_label_principal_display_panel: p.optional_fields(
                 "package_label_principal_display_panel",
                 row.package_label_principal_display_panel,
             ),
-            boxed_warning: p.field("boxed_warning", row.boxed_warning),
+            boxed_warning: p.optional_fields("boxed_warning", row.boxed_warning),
             dosage_and_administration: p
-                .field("dosage_and_administration", row.dosage_and_administration),
-            drug_interactions: p.field("drug_interactions", row.drug_interactions),
-            indications_and_usage: p.field("indications_and_usage", row.indications_and_usage),
-            warnings_and_cautions: p.field("warnings_and_cautions", row.warnings_and_cautions),
+                .optional_fields("dosage_and_administration", row.dosage_and_administration),
+            drug_interactions: p.optional_fields("drug_interactions", row.drug_interactions),
+            indications_and_usage: p
+                .optional_fields("indications_and_usage", row.indications_and_usage),
+            warnings_and_cautions: p
+                .optional_fields("warnings_and_cautions", row.warnings_and_cautions),
             problems: p.list,
         }
     }
