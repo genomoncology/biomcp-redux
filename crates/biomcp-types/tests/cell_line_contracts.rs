@@ -155,8 +155,7 @@ fn collections_keep_independent_totals_and_complete_qualified_text() {
 }
 #[test]
 fn chembl_absence_and_synthetic_zero_remain_source_local() {
-    let record =
-        json!({"id":"CHEMBL3706573","cell_id":5547,"cellosaurus_id":"CVCL_2119","name":"MOLM-13"});
+    let record = json!({"id":"CHEMBL3706573","cell_id":{"namespace":"ChEMBL","id":5547},"cellosaurus_id":"CVCL_2119","name":"MOLM-13"});
     let got = roundtrip::<CellLineChemblRecord>(record.clone()).unwrap();
     assert_eq!(got, record);
     assert!(got.get("clo").is_none());

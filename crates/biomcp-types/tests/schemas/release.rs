@@ -102,6 +102,25 @@ fn identifier_objects_use_namespace_and_id() -> Check<()> {
     for contract in registry() {
         identifier_shape(&(contract.generate)(), contract.name)?;
     }
+    let numeric = serde_json::json!({
+        "x-identifier":true, "properties":{"namespace":{"type":["string","null"]},"id":{"type":"integer"}},
+        "required":["namespace","id"]
+    });
+    identifier_shape(
+        &serde_json::json!({"$defs":{"Nested":numeric.clone()}}),
+        "numeric",
+    )?;
+    for field in ["namespace", "id"] {
+        let mut malformed = numeric.clone();
+        malformed["required"] = serde_json::json!([field]);
+        assert!(
+            identifier_shape(
+                &serde_json::json!({"$defs":{"Nested":malformed}}),
+                "numeric"
+            )
+            .is_err()
+        );
+    }
     Ok(())
 }
 
