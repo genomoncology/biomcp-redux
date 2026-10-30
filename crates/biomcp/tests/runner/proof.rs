@@ -544,9 +544,16 @@ pub(super) fn retained_both(
 tool_only! {
 fn named_mcp_case() -> Check {
     let directory = tempfile::tempdir().map_err(|error| error.to_string())?;
-    fs::write(directory.path().join("named.yaml"),
-        "feature: schema-discovery\nstory: Named tool checks its structured answer\nsteps:\n  - mcp_call:\n      name: biomcp\n      arguments:\n        args: [help, get, gene]\n    expect:\n      /result/commands/0/command: [get, gene]\n")
-        .map_err(|error| error.to_string())?;
+    fs::write(directory.path().join("named.yaml"), r#"feature: schema-discovery
+story: Named tool checks its structured answer
+steps:
+  - mcp_call:
+      name: biomcp
+      arguments:
+        args: [help, get, gene]
+    expect:
+      /result/commands/0/command: [get, gene]
+"#).map_err(|error| error.to_string())?;
     let output = invoke(directory.path(), &["named.yaml", "--exact"])?;
     if !output.status.success() {
         return Err(format!("named MCP case failed: {} {}",
