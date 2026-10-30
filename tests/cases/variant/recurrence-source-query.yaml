@@ -41,7 +41,7 @@
       ],
       "max_bytes": 4788,
       "expect": {
-        "/schema": "biomcp.variant-recurrence/9",
+        "/schema": "biomcp.variant-recurrence/10",
         "/result/observed_sample_count": 1,
         "/result/examined_rows": 3,
         "/result/all_pages_read": false,

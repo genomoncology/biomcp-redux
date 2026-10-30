@@ -46,7 +46,7 @@ singleton! {
 }
 
 singleton! {
-    ErrorSchema { V2 => "biomcp.error/3" }
+    ErrorSchema { V2 => "biomcp.error/4" }
 }
 
 singleton! {

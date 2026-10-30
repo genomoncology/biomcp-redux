@@ -308,14 +308,7 @@
           "description": "Source-stated location, including unparsed publisher text."
         },
         "locus_group": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_LocusGroup"
-            },
-            {
-              "type": "null"
-            }
-          ],
+          "$ref": "#/$defs/Reply_LocusGroup",
           "description": "HGNC locus group."
         },
         "locus_type": {
@@ -337,14 +330,7 @@
           "type": "array"
         },
         "name": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_Text"
-            },
-            {
-              "type": "null"
-            }
-          ],
+          "$ref": "#/$defs/Reply_Text",
           "description": "Gene name."
         },
         "omim": {
@@ -398,7 +384,9 @@
       "required": [
         "hgnc_id",
         "symbol",
-        "status"
+        "status",
+        "locus_group",
+        "name"
       ],
       "type": "object"
     },
@@ -421,14 +409,7 @@
           "description": "Source-stated location, including unparsed publisher text."
         },
         "locus_group": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_LocusGroup"
-            },
-            {
-              "type": "null"
-            }
-          ],
+          "$ref": "#/$defs/Reply_LocusGroup",
           "description": "HGNC locus group."
         },
         "match": {
@@ -443,14 +424,7 @@
           "description": "Match information when this header answers an input."
         },
         "name": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_Text"
-            },
-            {
-              "type": "null"
-            }
-          ],
+          "$ref": "#/$defs/Reply_Text",
           "description": "Gene name."
         },
         "status": {
@@ -465,7 +439,9 @@
       "required": [
         "hgnc_id",
         "symbol",
-        "status"
+        "locus_group",
+        "status",
+        "name"
       ],
       "type": "object"
     },

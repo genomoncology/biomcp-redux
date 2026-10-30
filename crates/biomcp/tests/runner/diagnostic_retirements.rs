@@ -46,7 +46,7 @@ fn check(words: &str, message: &str, code: &str) -> Result<(), String> {
     let measured = if code == "usage.arguments" {
         USAGE_BYTES
     } else {
-        serde_json::to_vec(&json!({"schema":"biomcp.error/3","status":"usage",
+        serde_json::to_vec(&json!({"schema":"biomcp.error/4","status":"usage",
         "error":{"code":code,"message":message}}))
         .map_err(|e| e.to_string())?
         .len()
@@ -264,7 +264,7 @@ pub(super) fn bounded(value: &serde_json::Value) -> Result<(), String> {
         ("biomcp.diagnostic-page/5", "", "failed") => 379,
         ("biomcp.diagnostic-regulatory/3", "", "complete") => 7260,
         ("biomcp.diagnostic-supplements/3", "", "complete") => 1414,
-        ("biomcp.error/3", "", "usage") => USAGE_BYTES,
+        ("biomcp.error/4", "", "usage") => USAGE_BYTES,
         ("biomcp.sync/7", "", "complete") => 348,
         ("biomcp.sync/7", "", "failed") => 337,
         _ => {

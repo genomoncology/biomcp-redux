@@ -154,14 +154,7 @@
           "description": "Checked source-owned identity."
         },
         "name": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_Text"
-            },
-            {
-              "type": "null"
-            }
-          ],
+          "$ref": "#/$defs/Reply_Text",
           "description": "Whole native name."
         },
         "revision": {
@@ -193,6 +186,7 @@
       },
       "required": [
         "id",
+        "name",
         "species"
       ],
       "type": "object"
@@ -386,30 +380,18 @@
           "type": "integer"
         },
         "name": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_Text"
-            },
-            {
-              "type": "null"
-            }
-          ],
+          "$ref": "#/$defs/Reply_Text",
           "description": "Whole physical entity label, including source-stated modification context."
         },
         "schema_class": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_Text"
-            },
-            {
-              "type": "null"
-            }
-          ],
+          "$ref": "#/$defs/Reply_Text",
           "description": "Native physical entity schema class, separate from reference schema class."
         }
       },
       "required": [
-        "db_id"
+        "db_id",
+        "name",
+        "schema_class"
       ],
       "type": "object"
     },

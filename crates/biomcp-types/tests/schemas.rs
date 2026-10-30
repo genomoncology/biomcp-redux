@@ -130,7 +130,7 @@ fn registry() -> Vec<Contract> {
         TrialDocumentGet => ("trial-document", "biomcp.trial-document/2", query),
         HttpHealth => ("http-health", "biomcp.http-health/2"),
         Markdown => ("markdown", "biodata.markdown/2"),
-        ErrorEnvelope => ("error", "biomcp.error/3"),
+        ErrorEnvelope => ("error", "biomcp.error/4"),
         GeneGet => ("gene-get", "biomcp.gene-get/2", query),
         GeneSearch => ("gene-search", "biomcp.gene-search/2", query),
         Request => ("request", "biomcp.request/30", query),

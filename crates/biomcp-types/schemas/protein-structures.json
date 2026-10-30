@@ -208,21 +208,15 @@
           "type": "array"
         },
         "url": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_Text"
-            },
-            {
-              "type": "null"
-            }
-          ],
+          "$ref": "#/$defs/Reply_Text",
           "description": "Publisher link; no structure file is retrieved.",
           "format": "uri"
         }
       },
       "required": [
         "database",
-        "id"
+        "id",
+        "url"
       ],
       "type": "object"
     },

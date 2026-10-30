@@ -413,14 +413,7 @@
           "description": "Source drug identity."
         },
         "indication": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_Text"
-            },
-            {
-              "type": "null"
-            }
-          ],
+          "$ref": "#/$defs/Reply_Text",
           "description": "Complete native indication wording."
         },
         "population": {
@@ -455,6 +448,7 @@
       },
       "required": [
         "drug",
+        "indication",
         "attribution"
       ],
       "type": "object"

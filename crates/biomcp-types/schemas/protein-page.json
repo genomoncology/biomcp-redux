@@ -152,14 +152,7 @@
       "description": "Native entry metadata wrapping the same Protein identity used by the gene slice.",
       "properties": {
         "entry_id": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_Text"
-            },
-            {
-              "type": "null"
-            }
-          ],
+          "$ref": "#/$defs/Reply_Text",
           "description": "Native source entry name."
         },
         "gene_ids": {
@@ -198,6 +191,7 @@
       },
       "required": [
         "protein",
+        "entry_id",
         "taxon",
         "reviewed",
         "url"
@@ -286,20 +280,10 @@
           "description": "Sequence length in amino acids.",
           "format": "uint32",
           "minimum": 0,
-          "type": [
-            "integer",
-            "null"
-          ]
+          "type": "integer"
         },
         "name": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_Text"
-            },
-            {
-              "type": "null"
-            }
-          ],
+          "$ref": "#/$defs/Reply_Text",
           "description": "Recommended protein name."
         },
         "subcellular_locations": {
@@ -311,7 +295,9 @@
         }
       },
       "required": [
-        "accession"
+        "accession",
+        "name",
+        "length"
       ],
       "type": "object"
     },

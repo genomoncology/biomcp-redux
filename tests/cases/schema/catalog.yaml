@@ -8,4 +8,4 @@ steps:
       /result/schemas/*/id: {includes: biomcp.drug-civic/9}
   - run: [help, get, gene]
     expect:
-      /result/commands/0/reply_schemas: {includes: biomcp.gene-cards/11}
+      /result/commands/0/reply_schemas: {includes: biomcp.gene-cards/12}

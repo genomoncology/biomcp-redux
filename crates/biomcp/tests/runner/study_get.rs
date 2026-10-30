@@ -375,7 +375,7 @@ fn retained(directory: &Path) -> Check {
 }
 
 fn reject_members(directory: &Path, value: &Value) -> Check {
-    if value.get("schema") != Some(&json!("biomcp.study-sample-lists/3")) {
+    if value.get("schema") != Some(&json!("biomcp.study-sample-lists/4")) {
         return Ok(());
     }
     let id = value

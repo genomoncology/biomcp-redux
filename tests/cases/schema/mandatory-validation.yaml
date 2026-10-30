@@ -8,5 +8,5 @@ steps:
     mcp: [unknown]
     exit: 2
     is_error: true
-  - mcp: [schema, biomcp.error/3]
-  - run: [schema, biomcp.error/3]
+  - mcp: [schema, biomcp.error/4]
+  - run: [schema, biomcp.error/4]

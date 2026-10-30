@@ -224,14 +224,7 @@
           "description": "Checked source-owned identity."
         },
         "name": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_Text"
-            },
-            {
-              "type": "null"
-            }
-          ],
+          "$ref": "#/$defs/Reply_Text",
           "description": "Whole native name."
         },
         "revision": {
@@ -263,6 +256,7 @@
       },
       "required": [
         "id",
+        "name",
         "species"
       ],
       "type": "object"
