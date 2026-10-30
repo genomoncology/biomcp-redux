@@ -149,7 +149,5 @@ pub(crate) const HTTP_HOST: (&str, &[&str]) = (
 );
 
 // This hosted stdio call asserts refusal and the ordinary unhosted health reply.
-pub(crate) const HOSTED_MODE: (&str, &[&str]) = (
-    "mcp-hosted/stdio/health",
-    &["option serve --hosted"],
-);
+pub(crate) const HOSTED_MODE: (&str, &[&str]) =
+    ("mcp-hosted/stdio/health", &["option serve --hosted"]);
