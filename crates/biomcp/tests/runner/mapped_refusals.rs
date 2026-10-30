@@ -35,7 +35,7 @@ fn chembl_pages() -> Result<(), String> {
         }))
         .map_err(|e| e.to_string())?;
         let indication: chembl::Indications = serde_json::from_value(json!({
-            "indications":[{
+            "drug_indications":[{
                 "molecule_chembl_id":"CHEMBL1", "drugind_id": if invalid { 0 } else { 1 },
                 "max_phase_for_ind":{"bad_shape":true}
             }],
