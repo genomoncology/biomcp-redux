@@ -66,7 +66,7 @@
         "trial",
         "NCT03734029",
         "locations",
-        "--section-limit",
+        "--limit",
         "1"
       ],
       "mcp": [
@@ -74,7 +74,7 @@
         "trial",
         "NCT03734029",
         "locations",
-        "--section-limit",
+        "--limit",
         "1"
       ],
       "expect": {
