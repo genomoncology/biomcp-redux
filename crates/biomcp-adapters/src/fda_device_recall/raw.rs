@@ -11,6 +11,8 @@ pub(super) enum Response<T> {
 #[derive(Debug, Deserialize)]
 pub(super) struct Meta {
     pub results: Counts,
+    #[serde(rename = "last_updated")]
+    _last_updated: Option<biodata::PartialDate>,
 }
 #[derive(Debug, Deserialize)]
 pub(super) struct Counts {

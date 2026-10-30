@@ -113,7 +113,8 @@ pub struct AdverseEventReaction {
     /// Absolute native reaction index.
     pub index: u32,
     /// Source term label without invented CURIE.
-    pub term: biodata::Concept,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub term: Option<biodata::Concept>,
     /// Native vocabulary_version string; present empty values remain present.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub vocabulary_version: Option<Box<str>>,

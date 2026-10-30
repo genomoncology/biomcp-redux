@@ -27,7 +27,7 @@ pub struct Failure {
     pub identity_conflict: bool,
 }
 /// Retrieve only the exact source-native clearance; no harmonized fields enter the projection.
-pub fn get(leg: &Leg<'_>, q: &DiagnosticGet) -> Result<Option<DiagnosticClearance>, Failure> {
+pub fn get(leg: &Leg<'_>, q: &DiagnosticGet) -> Result<Option<crate::Mapped<DiagnosticClearance>>, Failure> {
     let selector = format!("k_number:\"{}\"", q.id());
     let endpoint = SPEC
         .get("")

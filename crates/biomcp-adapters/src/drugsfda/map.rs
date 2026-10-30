@@ -1,5 +1,5 @@
 //! Preserve independent native FDA products and application submission facts.
-use super::{Application, Product, Submission, date};
+use super::{Application, Product, Submission};
 use biodata::{Attribution, AuthorizationDate, AuthorizationEvent};
 use biomcp_fetch::RequestError;
 use biomcp_types::{
@@ -18,7 +18,7 @@ impl Application {
                     .iter()
                     .all(|p| p.brand_name == first.brand_name)
             })
-            .map(|product| product.brand_name.clone());
+            .and_then(|product| product.brand_name.clone());
         DrugFdaCandidate {
             id: identity.id.clone(),
             name,
@@ -53,18 +53,18 @@ impl Product {
 impl Submission {
     /// Retain the application owner and native date roles without assigning product applicability.
     pub fn mapped(&self, application: &Application) -> Result<DrugFdaSubmission, RequestError> {
+        let role = "submission_status_date".parse().map_err(|_| super::bad())?;
         Ok(DrugFdaSubmission {
             event: AuthorizationEvent {
                 record: application.application_number.clone(),
                 product_number: None,
                 jurisdiction: None,
-                status: Some(self.submission_status.clone()),
-                kind: Some(self.submission_type.clone()),
-                dates: vec![AuthorizationDate {
-                    role: "submission_status_date".parse().map_err(|_| super::bad())?,
-                    date: date(&self.submission_status_date).map_err(|_| super::bad())?,
-                }]
-                .into(),
+                status: self.submission_status.clone(),
+                kind: self.submission_type.clone(),
+                dates: self.submission_status_date.map(|date| AuthorizationDate {
+                    role,
+                    date,
+                }).into_iter().collect(),
                 indication: None,
                 attribution: Attribution {
                     source: "drugsfda".parse().map_err(|_| super::bad())?,
@@ -77,7 +77,7 @@ impl Submission {
                     ),
                     version: None,
                     release: None,
-                    submitter: Some(application.sponsor_name.clone()),
+                    submitter: application.sponsor_name.clone(),
                     evaluated: None,
                     url: None,
                 },
@@ -105,7 +105,7 @@ impl Submission {
                             Ok(DrugFdaDocument {
                                 id: d.id.clone(),
                                 url: d.url.clone(),
-                                date: date(&d.date).map_err(|_| super::bad())?,
+                                date: d.date,
                                 r#type: d.r#type.clone(),
                             })
                         })

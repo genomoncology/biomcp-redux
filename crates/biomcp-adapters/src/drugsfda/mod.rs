@@ -19,6 +19,8 @@ pub static SPEC: SourceSpec = SourceSpec {
 };
 mod map;
 mod raw;
+mod wire;
+mod admit;
 use biodata::{DrugId, DrugIdentityLevel, Text};
 use biomcp_fetch::{Arg, BadReply, Endpoint, Freshness, Leg, ReplyMetadata, RequestError};
 use biomcp_types::{DrugHeader, DrugSource};
@@ -108,10 +110,11 @@ fn page(
         raw::Response::Success { meta, results } => (
             results,
             meta.results.total,
-            problems.field("meta.last_updated", meta.last_updated),
+            meta.last_updated,
         ),
         raw::Response::Absent { .. } => (Vec::new(), 0, None),
     };
+    problems.list.extend(records.iter().flat_map(|r| r.problems.iter().cloned()));
     Ok(Page {
         problems: problems.list,
         records,

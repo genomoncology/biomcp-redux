@@ -8,12 +8,14 @@ pub struct BiomarkerHeader {
     /// Published NCIt codes, in source order.
     pub codes: Box<[NcitId]>,
     /// Native biomarker concept name.
-    pub name: Text,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub name: Option<Text>,
     /// Native type values; an empty source list is omitted.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub r#type: Box<[Text]>,
     /// Native NCI trial count across trial statuses.
-    pub count: u64,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub count: Option<u64>,
 }
 /// Native terminology card; source criteria remain uninterpreted.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

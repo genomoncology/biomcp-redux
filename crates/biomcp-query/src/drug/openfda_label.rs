@@ -20,6 +20,7 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     let leg = cx.fetch.leg(&source::SPEC, deadline).fresh(cx.fresh);
     let discovery = source::search(&leg, name, query.limit(), query.offset());
     let result = discovery.page.and_then(|page| {
+        out.problems.extend(page.problems);
         Ok((
             page.records
                 .iter()
@@ -121,6 +122,7 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     out.sources
         .push(status::source(SOURCE, leg.finish(), error));
     if let Ok(page) = result {
+        out.problems.extend(page.problems);
         out.status = state(&out);
         if let Some(source) = out.sources.first_mut() {
             source.count = Some(page.total);

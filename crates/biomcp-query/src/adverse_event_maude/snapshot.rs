@@ -7,7 +7,8 @@ use crate::{status, store::Store};
 use biomcp_fetch::{CacheError, Deadline, RequestError, SourceError};
 use biomcp_types::{Reason, SourceOutcome};
 use sha2::{Digest, Sha256};
-type Saved = (biodata::MaudeReport, Vec<SourceOutcome>);
+#[derive(serde::Serialize, serde::Deserialize)]
+struct Saved(biodata::MaudeReport, Vec<SourceOutcome>, #[serde(default)] Vec<biomcp_types::Problem>);
 fn key(query: &AdverseEventGet) -> Vec<u8> {
     Sha256::digest(format!("biomcp.maude_snapshot/1\0{}", query.id()).as_bytes()).to_vec()
 }
@@ -75,13 +76,14 @@ pub(super) fn load(
             out.status = Status::Absent;
             return Ok(None);
         };
-        let saved = (report, out.sources.clone());
+        let saved = Saved(report.value, out.sources.clone(), report.problems);
         let payload = serde_json::to_string(&saved).map_err(|_| CacheError::Database)?;
         let mut store = Store::open(cx.fetch.cache_access()?, deadline)?;
         let snapshot = store.save_source_snapshot(&key(query), &payload, &out.sources)?;
         (saved, snapshot)
     };
     out.sources = saved.1;
+    out.problems.extend(saved.2);
     out.status = if out
         .sources
         .iter()

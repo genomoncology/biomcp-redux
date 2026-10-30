@@ -8,19 +8,23 @@ pub struct DrugFdaProduct {
     /// Exact source product number, scoped by the response application.
     pub product_number: Text,
     /// Source brand wording, without inferred ingredient equivalence.
-    pub brand_name: Text,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub brand_name: Option<Text>,
     /// Complete source-listed ingredient and strength pairs.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub active_ingredients: Box<[DrugFdaIngredient]>,
     /// Native dosage form.
-    pub dosage_form: Text,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub dosage_form: Option<Text>,
     /// Native route; absent and null remain unavailable.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub route: Option<Text>,
     /// Product marketing status, independent of submission history.
-    pub marketing_status: Text,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub marketing_status: Option<Text>,
     /// Original source reference-drug designation.
-    pub reference_drug: Text,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub reference_drug: Option<Text>,
     /// Original source reference-standard designation when supplied.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub reference_standard: Option<Text>,
@@ -33,7 +37,8 @@ pub struct DrugFdaProduct {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DrugFdaIngredient {
     /// Native ingredient name.
-    pub name: Text,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub name: Option<Text>,
     /// Full source strength wording.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
@@ -68,7 +73,8 @@ pub struct DrugFdaSubmission {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DrugFdaProperty {
     /// Original property code.
-    pub code: Text,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub code: Option<Text>,
 }
 /// A native application document link; the command does not download it.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -78,11 +84,14 @@ pub struct DrugFdaDocument {
     pub id: Text,
     /// Original source URL.
     #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
-    pub url: Text,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub url: Option<Text>,
     /// Native document date, independent of event dates.
-    pub date: PartialDate,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub date: Option<PartialDate>,
     /// Original document type.
-    pub r#type: Text,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub r#type: Option<Text>,
 }
 /// One candidate application and its independent source-listed products.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

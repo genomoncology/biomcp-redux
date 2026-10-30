@@ -160,7 +160,8 @@ pub struct FaersDrug {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct FaersReaction {
     /// Native label without an invented CURIE.
-    pub term: crate::Concept,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub term: Option<crate::Concept>,
     /// Native vocabulary_version string, including a present empty value.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub vocabulary_version: Option<Box<str>>,

@@ -20,6 +20,8 @@ pub static SPEC: SourceSpec = SourceSpec {
 mod map;
 mod page;
 mod raw;
+mod wire;
+mod admit;
 use biodata::{DrugId, Text};
 use biomcp_fetch::{Arg, BadReply, Endpoint, Freshness, Leg, ReplyMetadata, RequestError};
 pub use raw::Record;
@@ -37,6 +39,8 @@ const LABEL: Endpoint = SPEC.get("").fresh(Freshness::Days(1)).json_absence();
 pub struct Page {
     /// Source revision records, never merged by ingredient or brand.
     pub records: Vec<Record>,
+    /// Rejected native source fields.
+    pub problems: Vec<biomcp_types::Problem>,
     /// Number of native rows consumed before any name identity filtering.
     pub scanned: u32,
     /// Native count for this selector, before any name identity filtering.
@@ -131,7 +135,9 @@ fn page(
         raw::Response::Success { meta, results } => (results, meta.results.total),
         raw::Response::Absent { .. } => (Vec::new(), 0),
     };
+    let problems = records.iter().flat_map(|r| r.problems.iter().cloned()).collect();
     Ok(Page {
+        problems,
         scanned: records.len() as u32,
         records,
         total,

@@ -5,12 +5,14 @@ use biomcp_fetch::{BadReply, Reply};
 use serde::Deserialize;
 /// One exact native application with independent product and submission collections.
 #[derive(Debug, Deserialize)]
+#[serde(from = "super::wire::Application")]
 pub struct Application {
+    /// Rejected native source fields.
+    pub problems: Vec<biomcp_types::Problem>,
     /// Native application identifier.
     pub application_number: DrugId,
     /// Original sponsor wording.
-    #[serde(deserialize_with = "crate::native_text::deserialize")]
-    pub sponsor_name: biodata::Text,
+    pub sponsor_name: Option<biodata::Text>,
     /// Native products in publisher order.
     pub products: Vec<Product>,
     /// Application-owned submission history in publisher order.
@@ -19,54 +21,52 @@ pub struct Application {
     pub openfda: Option<OpenFda>,
 }
 /// Source-given label links, without an inferred product association.
-#[derive(Debug, Deserialize)]
+#[derive(Debug)]
 pub struct OpenFda {
     /// Complete explicit SPL set identifiers.
     pub spl_set_id: Option<Vec<DrugId>>,
 }
 /// One native product, independent of application history.
-#[derive(Debug, Deserialize)]
+#[derive(Debug)]
 pub struct Product {
     /// Exact native product selector.
     pub product_number: Text,
     /// Native product name.
-    #[serde(deserialize_with = "crate::native_text::deserialize")]
-    pub brand_name: biodata::Text,
+    pub brand_name: Option<biodata::Text>,
     /// Source-listed ingredients and strengths.
     pub active_ingredients: Vec<Ingredient>,
     /// Original formulation wording.
-    pub dosage_form: Text,
+    pub dosage_form: Option<Text>,
     /// Native route, which may be null.
     pub route: Option<Text>,
     /// Original product marketing status, never a computed approval flag.
-    pub marketing_status: Text,
+    pub marketing_status: Option<Text>,
     /// Native reference-drug wording.
-    pub reference_drug: Text,
+    pub reference_drug: Option<Text>,
     /// Native reference-standard wording, omitted in some records.
     pub reference_standard: Option<Text>,
     /// Native therapeutic-equivalence code when given.
     pub te_code: Option<Text>,
 }
 /// Source-listed ingredient and unchanged strength text.
-#[derive(Debug, Deserialize)]
+#[derive(Debug)]
 pub struct Ingredient {
     /// Native ingredient name, without normalization.
-    #[serde(deserialize_with = "crate::native_text::deserialize")]
-    pub name: biodata::Text,
+    pub name: Option<biodata::Text>,
     /// Full native strength wording.
     pub strength: Option<NativeText>,
 }
 /// An application submission; the publisher supplies no product applicability.
-#[derive(Debug, Deserialize)]
+#[derive(Debug)]
 pub struct Submission {
     /// Native submission category.
-    pub submission_type: Text,
+    pub submission_type: Option<Text>,
     /// Native submission identifier within the application and type.
     pub submission_number: Text,
     /// Native historical status.
-    pub submission_status: Text,
+    pub submission_status: Option<Text>,
     /// Native YYYYMMDD status date, validated before cache admission.
-    pub submission_status_date: String,
+    pub submission_status_date: Option<PartialDate>,
     /// Original review priority.
     pub review_priority: Option<Text>,
     /// Original submission class code.
@@ -79,22 +79,22 @@ pub struct Submission {
     pub application_docs: Option<Vec<Document>>,
 }
 /// One native submission property.
-#[derive(Debug, Deserialize)]
+#[derive(Debug)]
 pub struct Property {
     /// Original property code.
-    pub code: Text,
+    pub code: Option<Text>,
 }
 /// A native application document, never fetched by the adapter.
-#[derive(Debug, Deserialize)]
+#[derive(Debug)]
 pub struct Document {
     /// Source document identifier.
     pub id: Text,
     /// Original document URL.
-    pub url: Text,
+    pub url: Option<Text>,
     /// Native YYYYMMDD document date.
-    pub date: String,
+    pub date: Option<PartialDate>,
     /// Native document kind.
-    pub r#type: Text,
+    pub r#type: Option<Text>,
 }
 #[derive(Debug, Deserialize)]
 #[serde(untagged)]
@@ -110,7 +110,7 @@ pub(super) enum Response {
 #[derive(Debug, Deserialize)]
 pub(super) struct Meta {
     pub results: Counts,
-    pub last_updated: Option<crate::raw::Field<PartialDate>>,
+    pub last_updated: Option<PartialDate>,
 }
 #[derive(Debug, Deserialize)]
 pub(super) struct Counts {
@@ -137,8 +137,7 @@ impl Application {
     fn check(&self) -> Result<(), BadReply> {
         if !biomcp_types::DrugSource::Drugsfda.accepts(&self.application_number)
             || self.products.iter().enumerate().any(|(i, p)| {
-                p.active_ingredients.is_empty()
-                    || self
+                self
                         .products
                         .iter()
                         .take(i)
@@ -154,12 +153,6 @@ impl Application {
                 })
         {
             return Err(BadReply);
-        }
-        for submission in &self.submissions {
-            date(&submission.submission_status_date)?;
-            for document in submission.application_docs.iter().flatten() {
-                date(&document.date)?;
-            }
         }
         Ok(())
     }

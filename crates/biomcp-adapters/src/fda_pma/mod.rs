@@ -29,6 +29,8 @@ pub use map::{fragments, header, regulatory};
 pub struct Records {
     /// Native records in original order, without harmonized values.
     pub rows: Vec<DeviceSubmission>,
+    /// Rejected nonidentity source fields.
+    pub problems: Vec<biomcp_types::Problem>,
     /// True only when the source application exceeds its single admitted page.
     pub incomplete: bool,
     /// Exact native identity field that conflicts with the request.
@@ -76,14 +78,21 @@ pub fn get(leg: &Leg<'_>, query: &DiagnosticGet) -> Result<Records, RequestError
         },
     )?;
     let identity_conflict = identity(&reply, query);
+    let mut problems = Vec::new();
     Ok(match reply {
         raw::Response::Page { meta, results } => Records {
-            rows: results.into_iter().map(raw::Record::mapped).collect(),
+            rows: results.into_iter().map(|row| {
+                let mapped = row.mapped();
+                problems.extend(mapped.problems);
+                mapped.value
+            }).collect(),
+            problems,
             incomplete: meta.results.total > 100,
             identity_conflict,
         },
         raw::Response::Absent { .. } => Records {
             rows: vec![],
+            problems,
             incomplete: false,
             identity_conflict: None,
         },

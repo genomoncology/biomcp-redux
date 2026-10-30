@@ -6,12 +6,14 @@ use serde::{Deserialize, Serialize};
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct Organization {
     /// Exact publisher organization name, never a unique identifier.
-    pub name: Text,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub name: Option<Text>,
     /// Search trials at this exact organization name; names may identify several locations.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub next: Option<crate::Step>,
     /// NCI trial count across all statuses, including closed trials.
-    pub count: u64,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub count: Option<u64>,
     /// Native city.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub org_city: Option<Text>,

@@ -5,8 +5,8 @@ use biomcp_types::{NciEligibility, NciEligibilityStructured};
 use serde::Deserialize;
 #[derive(Debug, Deserialize)]
 pub(super) struct Eligibility {
-    structured: Option<Structured>,
-    unstructured: Option<Box<[biomcp_types::NciCriterion]>>,
+    structured: Option<Field<Structured>>,
+    unstructured: Option<Field<Vec<Field<Criterion>>>>,
 }
 #[derive(Debug, Deserialize)]
 struct Structured {
@@ -18,14 +18,14 @@ struct Structured {
     max_age_unit: Option<Field<Text>>,
     min_age_in_years: Option<Field<FiniteNumber>>,
     max_age_in_years: Option<Field<FiniteNumber>>,
-    sex: Option<Text>,
-    accepts_healthy_volunteers: Option<bool>,
+    sex: Option<Field<Text>>,
+    accepts_healthy_volunteers: Option<Field<bool>>,
 }
 impl Eligibility {
     pub(super) fn map(self, p: &mut Problems) -> NciEligibility {
         NciEligibility {
-            structured: self.structured.map(|s| s.map(p)),
-            unstructured: self.unstructured.unwrap_or_default(),
+            structured: p.field("eligibility.structured", self.structured).map(|s| s.map(p)),
+            unstructured: p.fields("eligibility.unstructured", self.unstructured).into_vec().into_iter().map(|v| v.map(p)).collect(),
         }
     }
 }
@@ -38,8 +38,8 @@ impl Structured {
             max_age_number: age(p, "max", self.max_age_number, self.max_age_unit),
             min_age_in_years: years(p, "min", self.min_age_in_years),
             max_age_in_years: years(p, "max", self.max_age_in_years),
-            sex: self.sex,
-            accepts_healthy_volunteers: self.accepts_healthy_volunteers,
+            sex: p.field("eligibility.structured.sex", self.sex),
+            accepts_healthy_volunteers: p.field("eligibility.structured.accepts_healthy_volunteers", self.accepts_healthy_volunteers),
         }
     }
 }
@@ -80,4 +80,20 @@ fn years(
         value,
         unit: Some(unit),
     })
+}
+
+#[derive(Debug, Deserialize)]
+struct Criterion {
+    description: Option<Field<Box<str>>>,
+    inclusion_indicator: Option<Field<bool>>,
+    display_order: Option<Field<u32>>,
+}
+impl Criterion {
+    fn map(self, p: &mut Problems) -> biomcp_types::NciCriterion {
+        biomcp_types::NciCriterion {
+            description: p.field("eligibility.unstructured.description", self.description),
+            inclusion_indicator: p.field("eligibility.unstructured.inclusion_indicator", self.inclusion_indicator),
+            display_order: p.field("eligibility.unstructured.display_order", self.display_order),
+        }
+    }
 }

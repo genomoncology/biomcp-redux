@@ -16,9 +16,9 @@ pub(super) fn page(raw: Page) -> Mapped<Vec<BiomarkerCard>> {
             let value = BiomarkerCard {
                 header: BiomarkerHeader {
                     codes: row.codes,
-                    name: row.name,
-                    r#type: row.r#type,
-                    count: row.count,
+                    name: p.source_field("name", row.name),
+                    r#type: p.fields("type", row.r#type),
+                    count: p.field("count", row.count),
                 },
                 synonyms: p.optional(
                     "synonyms",

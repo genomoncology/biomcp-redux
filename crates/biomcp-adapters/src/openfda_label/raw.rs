@@ -5,23 +5,26 @@ use serde::Deserialize;
 
 /// A source SPL revision; the label fields retain their native array boundaries.
 #[derive(Debug, Deserialize)]
+#[serde(from = "super::wire::Record")]
 pub struct Record {
     /// Native revision identifier, distinct from its SPL set.
     pub id: DrugId,
     /// Native SPL set identifier.
     pub set_id: DrugId,
     /// Source-stated revision number.
-    pub version: Text,
+    pub version: Option<Text>,
     /// Native YYYYMMDD revision date.
-    pub effective_time: String,
+    pub effective_time: Option<biodata::PartialDate>,
+    /// Rejected native nonidentity fields.
+    pub problems: Vec<biomcp_types::Problem>,
     pub(super) openfda: Names,
     pub(super) spl_product_data_elements: Option<Vec<String>>,
     pub(super) package_label_principal_display_panel: Option<Vec<String>>,
-    boxed_warning: Option<Vec<String>>,
-    dosage_and_administration: Option<Vec<String>>,
-    drug_interactions: Option<Vec<String>>,
-    indications_and_usage: Option<Vec<String>>,
-    warnings_and_cautions: Option<Vec<String>>,
+    pub(super) boxed_warning: Option<Vec<String>>,
+    pub(super) dosage_and_administration: Option<Vec<String>>,
+    pub(super) drug_interactions: Option<Vec<String>>,
+    pub(super) indications_and_usage: Option<Vec<String>>,
+    pub(super) warnings_and_cautions: Option<Vec<String>>,
 }
 #[derive(Debug, Deserialize)]
 pub(super) struct Names {
@@ -54,7 +57,6 @@ impl Record {
                 .iter()
                 .flatten()
                 .any(|id| id != &self.set_id)
-            || self.revised().is_err()
         {
             return Err(BadReply);
         }
@@ -70,6 +72,8 @@ pub(super) enum Response {
 #[derive(Debug, Deserialize)]
 pub(super) struct Meta {
     pub results: Counts,
+    #[serde(rename = "last_updated")]
+    _last_updated: Option<biodata::PartialDate>,
 }
 #[derive(Debug, Deserialize)]
 pub(super) struct Counts {
