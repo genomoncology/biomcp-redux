@@ -1,6 +1,6 @@
 {
   "feature": "biomarker-nci",
-  "live_check": "missing nightly NCI user-owned API key; retained native public-tier replies use an isolated replay key",
+  "live_check": "synthetic",
   "story": "One malformed member in each native biomarker list leaves the independent valid members intact.",
   "replay": "biomarker/member-values/nci",
   "steps": [

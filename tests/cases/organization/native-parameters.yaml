@@ -1,6 +1,6 @@
 {
   "feature": "organization-nci",
-  "live_check": "missing nightly NCI user-owned API key; retained native public-tier replies use an isolated replay key",
+  "live_check": "synthetic",
   "story": "Every documented filter keeps its exact native parameter and no size or offset reaches NCI.",
   "replay": "organization/synthetic-filters",
   "config": {

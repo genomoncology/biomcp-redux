@@ -1,6 +1,6 @@
 {
   "feature": "biomarker-nci",
-  "live_check": "missing nightly NCI user-owned API key; retained native public-tier replies use an isolated replay key",
+  "live_check": "synthetic",
   "story": "One synthetic invalid trial count keeps its native row and names the omitted field.",
   "replay": "biomarker/adapter-values/nci",
   "config": {

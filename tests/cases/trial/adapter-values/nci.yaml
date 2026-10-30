@@ -1,6 +1,6 @@
 {
   "feature": "trial-nci",
-  "live_check": "missing nightly NCI user-owned API key; retained native public-tier replies use an isolated replay key",
+  "live_check": "synthetic",
   "story": "One mechanically poisoned nonidentity value retains the native record and names the omitted field.",
   "replay": "nci/adapter-values",
   "steps": [
