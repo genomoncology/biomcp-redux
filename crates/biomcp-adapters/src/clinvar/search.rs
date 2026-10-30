@@ -110,20 +110,28 @@ pub fn search(leg: &Leg<'_>, query: &VariantSearch) -> Result<SearchPage, Reques
                 .all(|id| id.as_ref().is_some())
         },
     )?;
-    let page = reply.esearchresult;
+    Ok(mapped_page(reply.esearchresult))
+}
+
+fn mapped_page(page: Page) -> SearchPage {
     let consumed = page.idlist.len() as u32;
     let mut problems = Problems {
         source: Source::ClinVar,
         record: None,
         list: Vec::new(),
     };
+    let mut refusals = crate::Refusal::None;
     let rows = page
         .idlist
         .into_iter()
         .filter_map(|id| {
-            let id = problems.required("idlist", id.value())?;
+            let Some(id) = problems.required("idlist", id.value()) else {
+                refusals = crate::Refusal::Refused;
+                return None;
+            };
             let identity = VariantId::ClinVarVariation(id.identity);
             let record = SourceRecord {
+                namespace: biodata::IdentifierNamespace::Unknown,
                 id: id.text,
                 url: None,
             };
@@ -143,14 +151,15 @@ pub fn search(leg: &Leg<'_>, query: &VariantSearch) -> Result<SearchPage, Reques
             })
         })
         .collect();
-    Ok(SearchPage {
+    SearchPage {
         total: page.count,
         consumed,
         rows: Mapped {
+            refusals,
             value: rows,
             problems: problems.list,
         },
-    })
+    }
 }
 
 fn count<'de, D: serde::Deserializer<'de>>(decoder: D) -> Result<u64, D::Error> {

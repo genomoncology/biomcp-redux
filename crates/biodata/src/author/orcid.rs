@@ -13,11 +13,12 @@ pub enum OrcidPublicVisibility {
 /// Native ORCID external identifier before any article pivot.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", schemars(extend("x-identifier" = true)))]
 pub struct OrcidExternalId {
     /// Open native external-id-type.
-    pub kind: Text,
+    pub namespace: crate::IdentifierNamespace,
     /// Unchanged native identifier value.
-    pub value: Text,
+    pub id: Text,
     /// Open native relationship, including self and part-of.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]

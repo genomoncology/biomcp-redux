@@ -64,6 +64,16 @@ pub fn search_ids(
     sort: ArticleSort,
     email: Option<&Secret>,
 ) -> Result<SearchIds, RequestError> {
+    search_ids_with_inputs(leg, term, sort, email, None)
+}
+/// Preserve the explicit identifier group that built a search term.
+pub fn search_ids_with_inputs(
+    leg: &Leg<'_>,
+    term: &str,
+    sort: ArticleSort,
+    email: Option<&Secret>,
+    inputs: Option<biomcp_fetch::Identities>,
+) -> Result<SearchIds, RequestError> {
     let mut params = vec![
         ("db", Arg::Text("pubmed")),
         ("term", Arg::Text(term)),
@@ -82,7 +92,14 @@ pub fn search_ids(
     } else {
         &SEARCH
     };
-    let raw = leg.json::<raw::Search>(endpoint, &params)?.esearchresult;
+    let raw = match inputs {
+        Some(ids) => leg.json_with_inputs::<raw::Search>(endpoint, &params, ids, "term"),
+        None => leg.json::<raw::Search>(endpoint, &params),
+    }?
+    .esearchresult;
+    Ok(search_result(raw))
+}
+fn search_result(raw: raw::SearchResult) -> SearchIds {
     let mut problems = crate::mapped::Problems {
         source: Source::PubMed,
         record: None,
@@ -126,12 +143,12 @@ pub fn search_ids(
             }
         }
     }
-    Ok(SearchIds {
+    SearchIds {
         ids: raw.idlist,
         count: raw.count,
         notices,
         problems: problems.list,
-    })
+    }
 }
 /// Retrieve a selected page's metadata. Each result is joined by checked PMID.
 pub fn summaries(

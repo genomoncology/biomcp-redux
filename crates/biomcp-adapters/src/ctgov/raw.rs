@@ -154,8 +154,7 @@ impl Protocol {
         requested.iter().all(|word| present.contains(word))
     }
 
-    pub(super) fn header(self) -> Result<(Mapped<TrialHeader>, bool), BadReply> {
-        let mut dropped = false;
+    pub(super) fn header(self) -> Result<Mapped<TrialHeader>, BadReply> {
         let mut problems = Problems {
             source: Source::ClinicalTrialsGov,
             record: crate::mapped::record(self.identification_module.nct_id),
@@ -203,9 +202,7 @@ impl Protocol {
                 problems
                     .field("armsInterventionsModule", self.arms_interventions_module)
                     .map_or_else(Vec::new, |v| {
-                        problems
-                            .record_fields("interventions", v.interventions, &mut dropped)
-                            .into_vec()
+                        problems.fields("interventions", v.interventions).into_vec()
                     })
                     .into_iter()
                     .filter_map(|v| problems.field("interventions.name", v.name))
@@ -213,13 +210,11 @@ impl Protocol {
             ),
             updated,
         };
-        Ok((
-            Mapped {
-                value,
-                problems: problems.list,
-            },
-            dropped,
-        ))
+        Ok(Mapped {
+            refusals: crate::Refusal::None,
+            value,
+            problems: problems.list,
+        })
     }
 }
 

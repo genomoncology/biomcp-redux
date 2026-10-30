@@ -8,12 +8,28 @@ use biomcp_types::{
     AdverseEventGet, AdverseEventSection, QueryBody, Request, Source, SourceOutcome, StepKind,
 };
 use sha2::{Digest, Sha256};
-type Saved = (
+#[derive(serde::Deserialize)]
+struct Saved(
     FaersReport,
     Text,
     Vec<SourceOutcome>,
     Vec<biomcp_types::Problem>,
+    #[serde(default)] faers::Positions,
 );
+impl serde::Serialize for Saved {
+    fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        use serde::ser::SerializeTuple;
+        let mut tuple = serializer.serialize_tuple(if self.4.is_empty() { 4 } else { 5 })?;
+        tuple.serialize_element(&self.0)?;
+        tuple.serialize_element(&self.1)?;
+        tuple.serialize_element(&self.2)?;
+        tuple.serialize_element(&self.3)?;
+        if !self.4.is_empty() {
+            tuple.serialize_element(&self.4)?;
+        }
+        tuple.end()
+    }
+}
 pub(super) fn get(cx: &Ctx<'_>, q: &AdverseEventGet) -> Outcome {
     let mut out = super::unsupported();
     out.body = QueryBody::AdverseEventFaersCard(None);
@@ -72,7 +88,7 @@ fn read(
             return Ok(());
         };
         let saved: Saved = serde_json::from_str(&payload).map_err(|_| CacheError::Database)?;
-        if saved.0.safetyreportid != *q.id() {
+        if saved.0.safetyreportid != *q.id() || !saved.4.check(&saved.0) {
             return Err(CacheError::Database.into());
         }
         (saved, snapshot.clone())
@@ -95,11 +111,12 @@ fn read(
             crate::status::item(out, false, false, false);
             return Ok(());
         };
-        let saved = (
+        let saved = Saved(
             report,
             detail.report_url,
             out.sources.clone(),
             detail.problems,
+            detail.positions,
         );
         let payload = serde_json::to_string(&saved).map_err(|_| CacheError::Database)?;
         let mut store = Store::open(cx.fetch.cache_access()?, deadline)?;
@@ -123,5 +140,5 @@ fn render_saved(
             .any(|s| s.state == biomcp_types::SourceState::Stale);
         crate::status::item(out, true, false, unavailable);
     };
-    render::render(q, saved.0, saved.1, snapshot, out)
+    render::render(q, saved.0, saved.1, snapshot, saved.4, out)
 }

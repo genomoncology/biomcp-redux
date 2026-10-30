@@ -18,10 +18,9 @@ pub(super) fn trials() -> Vec<Trial> {
         transcript_trial("diagnostic-who-search/overlapping-phrases", || {
             search::overlapping().map_err(Into::into)
         }),
-        transcript_trial(
-            "diagnostic-who-search/full-walk-keeps-candidates-and-revision",
-            || search::walk().map_err(Into::into),
-        ),
+        transcript_trial(crate::runner::pool_contract::WHO_REVISION.0, || {
+            search::walk().map_err(Into::into)
+        }),
         transcript_trial(
             "diagnostic-who-search/replacement-and-policy-admission",
             || search::admission().map_err(Into::into),
@@ -170,7 +169,14 @@ fn replacement() -> Check {
             }
             fs::write(path, value.to_string()).map_err(|e| e.to_string())?;
         }
-        call(&env, &replay, &["sync", "who-ivd"], 4)?;
+        let exit = if fault == "new-column" { 0 } else { 4 };
+        let synchronized = call(&env, &replay, &["sync", "who-ivd"], exit)?;
+        if fault == "new-column"
+            && (synchronized.pointer("/result/rows") != Some(&json!(10))
+                || synchronized.get("problems").is_some())
+        {
+            return Err("unknown WHO column changed accepted native rows".into());
+        }
         if call(&env, &replay, &args, 0)? != before {
             return Err(format!("{fault} replaced the usable copy"));
         }

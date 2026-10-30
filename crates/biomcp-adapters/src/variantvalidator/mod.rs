@@ -31,6 +31,8 @@ const VALIDATE: Endpoint = SPEC
 /// Explicit service response, without a local consensus or preferred transcript.
 #[derive(Debug)]
 pub struct Resolution {
+    /// Actual native transcript records refused at their identity boundary.
+    pub refusals: crate::Refusal,
     /// Warning flag refuses resolution even on HTTP 200.
     pub rejected: bool,
     /// Every source identity returned by the selected service.

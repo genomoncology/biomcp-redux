@@ -43,6 +43,7 @@ pub fn header(row: &Drug) -> Result<Mapped<DrugHeader>, Error> {
     });
     let value = native_header(&row.id, name, &mut p)?;
     Ok(Mapped {
+        refusals: crate::Refusal::None,
         value,
         problems: p.list,
     })
@@ -51,24 +52,29 @@ pub fn header(row: &Drug) -> Result<Mapped<DrugHeader>, Error> {
 pub fn search_headers(raw: Search, skip: usize) -> Mapped<biomcp_types::DrugPage> {
     let mut p = problems("");
     let mut items = Vec::new();
+    let mut refusals = crate::Refusal::None;
     for row in raw.hits.into_iter().skip(skip) {
         p.record = None;
         let Some(Hit { id, name, entity }) = p.required_field("identity", Some(row)) else {
+            refusals = crate::Refusal::Refused;
             continue;
         };
         p.record = crate::mapped::record(&id);
         if entity != "drug" || !id.starts_with("CHEMBL") {
             p.required::<()>("identity", None);
+            refusals = crate::Refusal::Refused;
             continue;
         }
         match native_header(&id, name, &mut p) {
             Ok(row) => items.push(row),
             Err(_) => {
+                refusals = crate::Refusal::Refused;
                 p.required::<()>("identity", None);
             }
         }
     }
     Mapped {
+        refusals,
         value: biomcp_types::DrugPage {
             items: items.into(),
             total: Some(raw.total),
@@ -83,8 +89,10 @@ pub fn targets(
 ) -> Result<Mapped<Box<[DrugTargetRelation]>>, Error> {
     let mut p = problems(&drug.id.to_string());
     let mut values = Vec::new();
+    let mut refusals = crate::Refusal::None;
     for row in rows.rows {
         let Some(row) = p.required_field("mechanismsOfAction", Some(row)) else {
+            refusals = crate::Refusal::Refused;
             continue;
         };
         let mechanism = field_text(
@@ -104,6 +112,7 @@ pub fn targets(
                 "targets.id",
                 Some(target.id.parse::<biodata::EnsemblGeneId>()),
             ) else {
+                refusals = crate::Refusal::Refused;
                 continue;
             };
             let label = field_text(
@@ -124,7 +133,7 @@ pub fn targets(
                 .map(|label| GeneRef::new(label, None, None, Some(id.clone())))
                 .transpose()?;
             let native = DrugNativeTarget {
-                source: "opentargets".parse()?,
+                namespace: "opentargets".parse()?,
                 id: target.id.parse()?,
                 label,
                 url: None,
@@ -141,6 +150,7 @@ pub fn targets(
         }
     }
     Ok(Mapped {
+        refusals,
         value: values.into(),
         problems: p.list,
     })
@@ -152,12 +162,15 @@ pub fn indications(
 ) -> Result<Mapped<Box<[DrugIndicationClaim]>>, Error> {
     let mut p = problems(&drug.id.to_string());
     let mut values = Vec::new();
+    let mut refusals = crate::Refusal::None;
     for row in rows.rows {
         let Some(row) = p.required_field("indications", Some(row)) else {
+            refusals = crate::Refusal::Refused;
             continue;
         };
         let Some(id) = p.optional("disease.id", Some(row.disease.id.parse::<biodata::Text>()))
         else {
+            refusals = crate::Refusal::Refused;
             continue;
         };
         let label = field_text(
@@ -194,6 +207,7 @@ pub fn indications(
         });
     }
     Ok(Mapped {
+        refusals,
         value: values.into(),
         problems: p.list,
     })

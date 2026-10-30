@@ -13,6 +13,13 @@ pub(super) fn trials() -> Vec<Trial> {
         transcript_trial("schema-discovery/retains-failed-local-peer-state", || {
             check().map_err(Into::into)
         }),
+        transcript_trial("schema-discovery/persistent-fixture-evidence", || {
+            persistence().map_err(|error| error.to_string().into())
+        }),
+        transcript_trial("schema-discovery/failed-local-peer-child", || {
+            aborted(true).map(|_| ()).map_err(Into::into)
+        })
+        .with_ignored_flag(true),
         transcript_trial("schema-discovery/single-source-capturing-callback", || {
             capturing_callback().map_err(|error| error.to_string().into())
         }),
@@ -62,8 +69,10 @@ fn check() -> Result<(), String> {
     std::thread::scope(|scope| {
         let finish = scope.spawn(|| aborted(true));
         let cleanup = scope.spawn(|| aborted(false));
-        finish.join().map_err(|_| "finish proof panicked")??;
-        cleanup.join().map_err(|_| "cleanup proof panicked")?
+        fs::remove_dir_all(finish.join().map_err(|_| "finish proof panicked")??)
+            .map_err(|e| e.to_string())?;
+        fs::remove_dir_all(cleanup.join().map_err(|_| "cleanup proof panicked")??)
+            .map_err(|e| e.to_string())
     })?;
     if fs::read(healthy.root().join("healthy-marker")).map_err(|e| e.to_string())?
         != b"unrelated scratch"
@@ -83,7 +92,7 @@ fn retained(env: &Environment) -> Result<std::path::PathBuf, String> {
         .map_err(|e| e.to_string())?
         .join(env.root().file_name().ok_or("scratch name")?))
 }
-fn aborted(finish: bool) -> Result<(), String> {
+fn aborted(finish: bool) -> Result<std::path::PathBuf, String> {
     let stub = Stub::for_source("fixture.invalid", "text/plain", |_| Ok("synthetic".into()))?;
     let env = Environment::new().map_err(|e| e.to_string())?;
     stub.retain(&env);
@@ -138,6 +147,66 @@ fn aborted(finish: bool) -> Result<(), String> {
         }
         Ok(())
     })();
-    let _ = fs::remove_dir_all(&retained);
-    result
+    result?;
+    Ok(retained)
+}
+
+#[expect(
+    clippy::disallowed_methods,
+    reason = "The retention proof invokes its runner with isolated child settings"
+)]
+fn persistence() -> Result<(), Box<dyn std::error::Error>> {
+    for explicit in [false, true] {
+        let env = Environment::new()?;
+        let scratch = env.root().join("job-tmp");
+        fs::create_dir(&scratch)?;
+        let args = [
+            "--proofs",
+            "--exact",
+            "schema-discovery/failed-local-peer-child",
+            "--ignored",
+        ]
+        .map(str::to_owned);
+        let mut command = env.command(std::env::current_exe()?, &args);
+        command
+            .env("TMPDIR", &scratch)
+            .env("TMP", &scratch)
+            .env("TEMP", &scratch);
+        let expected = if explicit {
+            let override_path = env.root().join("explicit-evidence");
+            command.env("BIOMCP_EVIDENCE_DIR", &override_path);
+            env.root()
+                .canonicalize()?
+                .join("explicit-evidence/fixture-failures")
+        } else {
+            command.env_remove("BIOMCP_EVIDENCE_DIR");
+            super::super::launch::checkout()
+                .join("../..")
+                .canonicalize()?
+                .join("target/fixture-evidence")
+        };
+        let output = command.output()?;
+        if !output.status.success() {
+            return Err(format!("fixture child failed: {output:?}").into());
+        }
+        let stderr = std::str::from_utf8(&output.stderr)?;
+        let paths: Vec<String> = serde_json::from_str(
+            stderr
+                .lines()
+                .find_map(|line| line.split_once("; evidence=").map(|(_, p)| p))
+                .ok_or("fixture child omitted retained evidence")?,
+        )?;
+        let retained = std::path::PathBuf::from(paths.first().ok_or("missing evidence path")?);
+        if retained.parent() != Some(expected.as_path()) {
+            return Err(format!("fixture evidence used unexpected path: {retained:?}").into());
+        }
+        fs::remove_dir_all(&scratch)?;
+        if fs::read(retained.join("scratch/synthetic-marker"))? != b"retained scratch"
+            || !retained.join("manifest.json").is_file()
+        {
+            return Err("fixture evidence did not survive scratch cleanup".into());
+        }
+        fs::remove_dir_all(retained)?;
+    }
+    Ok(())
 }

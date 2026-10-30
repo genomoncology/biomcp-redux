@@ -55,6 +55,7 @@ pub fn get(leg: &Leg<'_>, query: &PhenotypeGet) -> Result<super::super::Page, Re
     let received = page.items.len() as u32;
     let mut problems = Vec::new();
     let mut items = Vec::new();
+    let mut refusals = crate::Refusal::None;
     for mut row in page.items {
         problems.append(&mut row.problems);
         if row.id.is_some()
@@ -63,12 +64,15 @@ pub fn get(leg: &Leg<'_>, query: &PhenotypeGet) -> Result<super::super::Page, Re
             && row.predicate.is_some()
         {
             let mapped = super::super::map::row(row, &requested)?;
+            refusals.include(mapped.refusals);
             problems.extend(mapped.problems);
             items.push(mapped.value);
+        } else {
+            refusals = crate::Refusal::Refused;
         }
     }
     Ok(super::super::Page {
-        dropped: items.len() < received as usize,
+        refusals,
         received,
         problems,
         items,

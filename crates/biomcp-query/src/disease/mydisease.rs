@@ -23,6 +23,7 @@ pub fn get(cx: &Ctx<'_>, query: &DiseaseGet) -> Outcome {
         .push(status::source(Source::MyDisease, leg.finish(), error));
     out.local = error.and_then(status::local);
     if let Ok(mapped) = reply {
+        out.dropped = mapped.refusals == biomcp_adapters::Refusal::Refused;
         out.problems = mapped.problems;
         apply(&mut out, query, mapped.value);
     }
@@ -31,7 +32,6 @@ pub fn get(cx: &Ctx<'_>, query: &DiseaseGet) -> Outcome {
     out
 }
 fn apply(out: &mut Outcome, query: &DiseaseGet, record: mydisease::Annotation) {
-    out.dropped = record.dropped;
     let components = record.card.components.clone();
     match query.section() {
         Some(DiseaseSection::Synonyms) => {

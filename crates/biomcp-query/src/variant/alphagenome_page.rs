@@ -13,7 +13,11 @@ pub(super) fn page(
 ) -> Result<biomcp_adapters::Mapped<VariantAlphaGenome>, RequestError> {
     let problems = std::mem::take(&mut reply.problems);
     mapped(query, request, reply)
-        .map(|value| biomcp_adapters::Mapped { value, problems })
+        .map(|value| biomcp_adapters::Mapped {
+            refusals: biomcp_adapters::Refusal::None,
+            value,
+            problems,
+        })
         .map_err(|_| {
             biomcp_fetch::SourceError {
                 source: Source::AlphaGenome,

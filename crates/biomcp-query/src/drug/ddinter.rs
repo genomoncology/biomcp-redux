@@ -22,7 +22,9 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     out.local = error.and_then(status::local);
     out.sources
         .push(status::source(Source::Ddinter, leg.finish(), error));
-    if let Ok(rows) = result {
+    if let Ok(mapped) = result {
+        out.problems.extend(mapped.problems);
+        let rows = mapped.value;
         let total = rows.len() as u64;
         let page = DrugPage {
             items: rows

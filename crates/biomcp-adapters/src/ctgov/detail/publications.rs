@@ -50,9 +50,9 @@ struct Document {
     has_icf: Option<Field<bool>>,
 }
 impl References {
-    pub(super) fn rows(self, problems: &mut Problems, dropped: &mut bool) -> Box<[TrialReference]> {
+    pub(super) fn rows(self, problems: &mut Problems) -> Box<[TrialReference]> {
         problems
-            .record_fields("references", self.references, dropped)
+            .fields("references", self.references)
             .into_vec()
             .into_iter()
             .map(|v| v.mapped(problems))
@@ -60,24 +60,13 @@ impl References {
     }
 }
 impl Documents {
-    pub(super) fn mapped(
-        self,
-        id: NctId,
-        problems: &mut Problems,
-        dropped: &mut bool,
-    ) -> Box<[TrialDocument]> {
+    pub(super) fn mapped(self, id: NctId, problems: &mut Problems) -> Box<[TrialDocument]> {
         problems
             .field("largeDocumentModule", self.large_document_module)
-            .map_or_else(Box::default, |m| {
-                problems.record_fields("largeDocs", m.large_docs, dropped)
-            })
+            .map_or_else(Box::default, |m| problems.fields("largeDocs", m.large_docs))
             .into_vec()
             .into_iter()
-            .filter_map(|d| {
-                let record = d.mapped(id, problems);
-                *dropped |= record.is_none();
-                record
-            })
+            .filter_map(|d| d.mapped(id, problems))
             .collect()
     }
 }

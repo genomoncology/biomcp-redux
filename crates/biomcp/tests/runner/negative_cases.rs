@@ -1,5 +1,10 @@
 pub(super) fn cases() -> Vec<(&'static str, &'static str, &'static str)> {
     vec![
+        ("literal-stdout", "  - run: [version]\n    stdout: wrong version", "stdout: expected"),
+        ("mixed-stdout-json", "    stdout: wrong\n    expect: {'/type': string}", "literal stdout requires one explicit CLI call"),
+        ("query-literal-stdout", "    stdout: '{}'", "literal stdout requires a plain-text local command"),
+        ("stdin-follow", "    stdin: synthetic\n    follow: page", "literal stdin requires an explicit CLI call"),
+        ("stdin-walk", "    stdin: synthetic\n    walk: {items: /items, max_pages: 1}", "literal stdin requires an explicit CLI call"),
         ("excluded-member", "    expect: {'/x-extensible-enum': {excludes: hgnc}}", "excludes: unexpected member"),
         ("excluded-wrong-type", "    expect: {'/type': {excludes: hgnc}}", "excludes: expected an array"),
         (
@@ -20,7 +25,7 @@ pub(super) fn cases() -> Vec<(&'static str, &'static str, &'static str)> {
         ),
         ("mcp-is-error", "  - mcp: [schema, missing/1]", "MCP is_error mismatch"),
         ("unequal-success", "    mcp: [schema, biomcp.error/4]", "CLI/MCP parity: unequal results"),
-        ("no-command", "  - expect: {}", "step requires run or mcp"),
+        ("no-command", "  - expect: {}", "step requires run, mcp or mcp_call"),
         ("unknown", "    expect: {'/type': {equal: string}}", "unknown assertion operator equal"),
         ("empty-operators", "    expect: {'/type': {}}", "assertion object requires an operator"),
         (

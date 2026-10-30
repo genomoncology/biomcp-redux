@@ -140,8 +140,8 @@ fn source_rows_keep_discontinuous_fragments_and_independent_complex_totals()
         {"id":"IPR000494","name":"Synthetic source match","entry_type":"family","protein":"P00533","protein_length":1210,"taxon":9606,
         "locations":[{"fragments":[{"span":{"start":{"min":56,"max":56},"end":{"min":167,"max":167}},"dc_status":"N_TERMINAL_DISC"},
         {"span":{"start":{"min":360,"max":360},"end":{"min":480,"max":480}},"dc_status":"C_TERMINAL_DISC"}]},
-        {"fragments":[{"span":{"start":{"min":700,"max":700},"end":{"min":710,"max":710}}}]}],"member_signatures":[{"database":"pfam",
-        "accession":"PF01030","name":"Synthetic member"}],"attribution":{"source":"interpro","record":"IPR000494"}}
+        {"fragments":[{"span":{"start":{"min":700,"max":700},"end":{"min":710,"max":710}}}]}],"member_signatures":[{"namespace":"pfam",
+        "id":"PF01030","name":"Synthetic member"}],"attribution":{"source":"interpro","record":"IPR000494"}}
     );
     assert_eq!(roundtrip::<ProteinDomainMatch>(domain.clone())?, domain);
     let complex = json!(

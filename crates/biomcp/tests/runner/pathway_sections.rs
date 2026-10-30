@@ -8,10 +8,10 @@ use std::{collections::BTreeSet, io::Write};
 type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        transcript_trial("pathway-reactome/native-reference-walk", || {
+        transcript_trial(crate::runner::pool_contract::PATHWAY_GENES.0, || {
             walk(true).map_err(Into::into)
         }),
-        transcript_trial("pathway-reactome/native-event-walk", || {
+        transcript_trial(crate::runner::pool_contract::PATHWAY_EVENTS.0, || {
             walk(false).map_err(Into::into)
         }),
         transcript_trial("pathway-reactome/pool-binding-and-fixed-lifetime", || {
@@ -119,6 +119,9 @@ fn walk(genes: bool) -> Check {
             seen.len()
         ));
     }
+    if !genes {
+        super::pathway_get_pages::check(&env, &globals(&env, false))?;
+    }
     Ok(())
 }
 fn observe(
@@ -136,7 +139,7 @@ fn observe(
                 .and_then(Value::as_str)
                 .ok_or("namespace")?;
             let id = row
-                .pointer("/reference/value")
+                .pointer("/reference/id")
                 .and_then(Value::as_str)
                 .ok_or("reference")?;
             if let Some(gene) = row.get("gene").and_then(Value::as_str) {
@@ -175,7 +178,7 @@ fn unresolved(value: &Value, row: &Value) -> Check {
         .and_then(Value::as_str)
         .ok_or("namespace")?;
     let id = row
-        .pointer("/reference/value")
+        .pointer("/reference/id")
         .and_then(Value::as_str)
         .ok_or("reference")?;
     let reference = format!("{namespace}:{id}");
@@ -417,8 +420,8 @@ fn measurements() -> Check {
         (vec!["pathway", "events", "R-HSA-5673001"], 2034, 509),
         (
             vec!["pathway", "genes", "R-HSA-5673001", "details"],
-            12155,
-            3040,
+            14625,
+            3657,
         ),
     ] {
         let env = Environment::new().map_err(|e| e.to_string())?;

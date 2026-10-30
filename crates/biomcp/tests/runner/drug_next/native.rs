@@ -11,7 +11,7 @@ use std::{
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![transcript_trial(
-        "drug-next-steps/native-d05-source-listed-lookup",
+        crate::runner::pool_contract::DRUG_CIVIC.0,
         || run().map_err(Into::into),
     )]
 }

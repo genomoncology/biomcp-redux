@@ -132,8 +132,8 @@ fn check_result(value: &Value, section: &str, field: &str) -> Result<(), String>
         return Err(format!("bad {field} remained in reply: {value}"));
     }
     if field == "summations.text"
-        && (value.pointer("/result/pathway/summations/0/db_id") != Some(&json!(4))
-            || value.pointer("/result/pathway/summations/1/db_id") != Some(&json!(10)))
+        && (value.pointer("/result/pathway/summations/0/db_id/id") != Some(&json!(4))
+            || value.pointer("/result/pathway/summations/1/db_id/id") != Some(&json!(10)))
     {
         return Err(format!("bad summary lost its valid sibling: {value}"));
     }
@@ -141,8 +141,8 @@ fn check_result(value: &Value, section: &str, field: &str) -> Result<(), String>
         && (value.pointer("/result/physical_entities") != Some(&json!(2))
             || value.pointer("/result/reference_occurrences") != Some(&json!(2))
             || value.pointer("/result/items/0/physical_context_count") != Some(&json!(2))
-            || value.pointer("/result/items/0/participants/0/db_id") != Some(&json!(7))
-            || value.pointer("/result/items/0/participants/1/db_id") != Some(&json!(9)))
+            || value.pointer("/result/items/0/participants/0/db_id/id") != Some(&json!(7))
+            || value.pointer("/result/items/0/participants/1/db_id/id") != Some(&json!(9)))
     {
         return Err(format!(
             "bad {field} changed native counts or invented context: {value}"

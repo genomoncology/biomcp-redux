@@ -131,10 +131,11 @@ fn plan() -> Result<(), Box<dyn std::error::Error>> {
         .and_then(Value::as_array)
         .ok_or("case list missing")?;
     if !cases.iter().any(|c| {
-        c.get("case") == Some(&json!("article/get/live-capture.yaml"))
+        c.get("case") == Some(&json!("article/sections/grammar.yaml"))
             && c.get("eligible") == Some(&json!(true))
     }) || !cases.iter().any(|c| {
-        c.get("case") == Some(&json!("gene/failure-429.yaml")) && c.get("skipped").is_some()
+        c.get("case") == Some(&json!("article/sections/failure-500.yaml"))
+            && c.get("skipped").is_some()
     }) {
         return Err("eligibility list omitted public capture or failure skip".into());
     }
@@ -145,7 +146,7 @@ fn formats() -> Result<(), Box<dyn std::error::Error>> {
     let environment = Environment::new()?;
     let root = super::launch::fixtures().join("replies");
     let case: super::Case = serde_saphyr::from_str(&fs::read_to_string(
-        super::launch::fixtures().join("cases/article/get/live-capture.yaml"),
+        super::launch::fixtures().join("cases/article/sections/grammar.yaml"),
     )?)?;
     let args = case
         .steps
@@ -153,7 +154,8 @@ fn formats() -> Result<(), Box<dyn std::error::Error>> {
         .and_then(|step| step.run.as_ref())
         .ok_or("native XML command absent")?;
     let args: Vec<_> = args.iter().map(String::as_str).collect();
-    let xml = observe(&environment, &root.join("article/get/live"), "xml", &args)?;
+    let replay = case.replay.as_deref().ok_or("native XML replay absent")?;
+    let xml = observe(&environment, &root.join(replay), "xml", &args)?;
     if !xml
         .iter()
         .any(|o| o.shape.fields.contains_key("PubmedArticleSet"))
@@ -400,10 +402,16 @@ fn report_context(observed: &[Observation]) -> Result<(), Box<dyn std::error::Er
         .collect();
     changes = Vec::new();
     let evidence = live::compare(&many, &[], &mut changes, &mut BTreeMap::new());
-    if evidence.get("omitted") != Some(&json!(8))
-        || !changes.last().is_some_and(|item| item.contains("omitted"))
+    if evidence.get("omitted") != Some(&json!(0))
+        || evidence
+            .get("items")
+            .and_then(Value::as_array)
+            .map(Vec::len)
+            != Some(40)
+        || changes.len() != 40
+        || changes.iter().any(|item| item.contains("omitted"))
     {
-        return Err("truncation is hidden".into());
+        return Err("complete exchange or drift details were discarded".into());
     }
     // Stable identities retain their exact match when an earlier result disappears.
     changes.clear();
@@ -461,14 +469,14 @@ fn bounded_command_drift(observed: &[Observation]) -> Result<(), Box<dyn std::er
     let mut changes = Vec::new();
     for _ in 0..2 {
         let evidence = live::compare(&before, &[], &mut changes, &mut BTreeMap::new());
-        if evidence.get("drift_omitted") != Some(&json!(24))
+        if evidence.get("drift_omitted") != Some(&json!(0))
             || evidence
                 .get("drift")
                 .and_then(Value::as_array)
                 .map(Vec::len)
-                != Some(16)
+                != Some(40)
         {
-            return Err("per-command drift evidence or exact omission count missing".into());
+            return Err("complete per-command drift evidence missing".into());
         }
     }
     Ok(())

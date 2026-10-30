@@ -34,27 +34,14 @@ pub fn get(cx: &Ctx<'_>, q: &BiomarkerGet) -> Outcome {
         }
     }
     if let Ok(reply) = reply {
+        out.dropped = reply.refusals == biomcp_adapters::Refusal::Refused;
         let mut rows = reply.value;
         let total = rows.len();
         if let Some(source) = out.sources.first_mut() {
             source.count = Some(total as u64);
             source.retrieved_count = Some(total as u32);
         }
-        {
-            let (found, identity_failed, unavailable) = if !reply.problems.is_empty()
-                || out
-                    .sources
-                    .iter()
-                    .any(|s| s.state == biomcp_types::SourceState::Stale)
-            {
-                (true, false, true)
-            } else if total == 0 {
-                (false, false, false)
-            } else {
-                (true, false, false)
-            };
-            crate::status::item(&mut out, found, identity_failed, unavailable);
-        };
+        status::item(&mut out, total != 0, false, false);
         for row in &rows {
             for id in &row.header.codes {
                 let step = (

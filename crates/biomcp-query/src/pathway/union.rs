@@ -122,23 +122,7 @@ fn present(q: &PathwaySearch, saved: Saved, pool: biodata::Text, out: &mut Outco
         ));
     }
     out.dropped = saved.5;
-    let usable = out
-        .sources
-        .iter()
-        .any(|s| matches!(s.state, SourceState::Ok | SourceState::Stale));
-    {
-        let (found, identity_failed, unavailable) = if !usable {
-            (false, true, false)
-        } else if out.sources.iter().any(|s| s.state != SourceState::Ok) || !out.problems.is_empty()
-        {
-            (true, false, true)
-        } else if saved.0.page.total == 0 {
-            (false, false, false)
-        } else {
-            (true, false, false)
-        };
-        crate::status::item(out, found, identity_failed, unavailable);
-    };
+    status::search(out);
     out.body = QueryBody::PathwayPage(saved.0);
 }
 fn expired(q: &PathwaySearch, out: &mut Outcome) {
@@ -166,6 +150,7 @@ fn initial(cx: &Ctx<'_>, q: &PathwaySearch, deadline: Deadline<'_>, out: &mut Ou
                 .push(status::source(Source::WikiPathways, leg.finish(), error));
             let state = match reply {
                 Ok((rows, info)) => {
+                    saved.5 |= rows.refusals == biomcp_adapters::Refusal::Refused;
                     let total = rows.value.len() as u64;
                     saved.4.extend(rows.problems);
                     (
@@ -217,7 +202,7 @@ fn refill(
         }
         match reply {
             Ok(reply) => {
-                saved.5 |= reply.dropped;
+                saved.5 |= reply.rows.refusals == biomcp_adapters::Refusal::Refused;
                 let next = offset.saturating_add(reply.consumed);
                 state.0 = reply.rows.value;
                 state.1 = (reply.consumed > 0 && u64::from(next) < reply.total).then_some(next);

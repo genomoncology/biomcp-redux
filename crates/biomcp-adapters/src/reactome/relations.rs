@@ -40,7 +40,11 @@ pub fn members(leg: &Leg<'_>, id: &ReactomeId) -> Result<Mapped<Members>, Reques
         physical_entities: rows.0.len() as u64,
     };
     for row in rows.0 {
-        let participant = participant(&row, &mut problems);
+        let participant = participant(
+            &row,
+            &mut problems,
+            crate::mapped::text("Reactome").map_err(|_| bad_reply())?,
+        );
         for reference in row.ref_entities {
             value.reference_occurrences += 1;
             let (namespace, identifier) = reference.st_id.split_once(':').ok_or_else(bad_reply)?;
@@ -64,7 +68,7 @@ pub fn members(leg: &Leg<'_>, id: &ReactomeId) -> Result<Mapped<Members>, Reques
             );
             if let Some(existing) = value.items.iter_mut().find(|m| {
                 m.reference.namespace.as_deref() == Some(namespace)
-                    && m.reference.value.as_str() == identifier
+                    && m.reference.id.as_str() == identifier
             }) {
                 let mut participants = existing
                     .participants
@@ -79,13 +83,10 @@ pub fn members(leg: &Leg<'_>, id: &ReactomeId) -> Result<Mapped<Members>, Reques
                 value.items.push(PathwayMember {
                     node_id: None,
                     reference: PathwaySourceRef {
-                        namespace: Some(
-                            crate::mapped::text(namespace)
-                                .map_err(|_| bad_reply())?
-                                .as_str()
-                                .into(),
-                        ),
-                        value: crate::mapped::text(identifier).map_err(|_| bad_reply())?,
+                        namespace: crate::mapped::text(namespace)
+                            .map_err(|_| bad_reply())?
+                            .into(),
+                        id: crate::mapped::text(identifier).map_err(|_| bad_reply())?,
                     },
                     name,
                     source_url,
@@ -98,6 +99,7 @@ pub fn members(leg: &Leg<'_>, id: &ReactomeId) -> Result<Mapped<Members>, Reques
         }
     }
     Ok(Mapped {
+        refusals: crate::Refusal::None,
         value,
         problems: problems.list,
     })
@@ -105,6 +107,7 @@ pub fn members(leg: &Leg<'_>, id: &ReactomeId) -> Result<Mapped<Members>, Reques
 fn participant(
     row: &raw::Participant,
     problems: &mut crate::mapped::Problems,
+    namespace: biodata::Text,
 ) -> PathwayParticipant {
     let name = metadata(
         problems,
@@ -119,7 +122,7 @@ fn participant(
         false,
     );
     PathwayParticipant {
-        db_id: row.pe_db_id,
+        db_id: biodata::Identifier::new(namespace, row.pe_db_id),
         name,
         schema_class,
     }
@@ -130,32 +133,19 @@ pub fn events(
     leg: &Leg<'_>,
     id: &ReactomeId,
 ) -> Result<Mapped<Vec<PathwayEventRef>>, RequestError> {
-    let endpoint = SPEC
-        .get("/data/pathway/containedEvents")
-        .with_path(format!("/data/pathway/{id}/containedEvents"))?
-        .bytes(8 * 1024 * 1024)
-        .fresh(Freshness::Days(7));
-    let rows = leg.json_checked_cache::<raw::Events>(&endpoint, &[], |rows| {
-        rows.0.iter().all(|row| match row {
-            raw::Event::Database(_) => true,
-            raw::Event::Object(v) => {
-                v.species_name
-                    .as_deref()
-                    .is_none_or(|s| s == "Homo sapiens")
-                    && v.st_id
-                        .as_deref()
-                        .is_none_or(|id| id.parse::<ReactomeId>().is_ok())
-            }
-        })
-    })?;
+    let rows = event_rows(leg, id)?;
     let mut mapped = Mapped {
+        refusals: crate::Refusal::None,
         value: Vec::new(),
         problems: Vec::new(),
     };
     let mut problems = fields(id);
+    let namespace = crate::mapped::text("Reactome").map_err(|_| bad_reply())?;
     for row in rows.0 {
         match row {
-            raw::Event::Database(db_id) => mapped.value.push(PathwayEventRef::Database { db_id }),
+            raw::Event::Database(db_id) => mapped.value.push(PathwayEventRef::Database {
+                db_id: biodata::Identifier::new(namespace.clone(), db_id),
+            }),
             raw::Event::Object(v) => {
                 if v.species_name
                     .as_deref()
@@ -166,6 +156,7 @@ pub fn events(
                         record_text(id.as_str()),
                         "events.species",
                     ));
+                    mapped.refusals = crate::Refusal::Refused;
                     continue;
                 }
                 let native_id = v.st_id.as_deref().map(str::parse).transpose();
@@ -175,19 +166,17 @@ pub fn events(
                         record_text(id.as_str()),
                         "events.id",
                     ));
+                    mapped.refusals = crate::Refusal::Refused;
                     continue;
                 };
                 mapped.value.push(PathwayEventRef::Object {
-                    db_id: v.db_id,
-                    source_url: native_id
-                        .as_ref()
-                        .map(|id| {
-                            crate::mapped::text(&format!(
-                                "https://reactome.org/content/detail/{id}"
-                            ))
-                            .map_err(|_| bad_reply())
-                        })
-                        .transpose()?,
+                    db_id: biodata::Identifier::new(namespace.clone(), v.db_id),
+                    source_url: native_id.as_ref().and_then(|id| {
+                        problems.text(
+                            "events.source_url",
+                            Some(&format!("https://reactome.org/content/detail/{id}")),
+                        )
+                    }),
                     id: native_id,
                     version: metadata(
                         &mut problems,
@@ -208,6 +197,27 @@ pub fn events(
     }
     mapped.problems.extend(problems.list);
     Ok(mapped)
+}
+
+fn event_rows(leg: &Leg<'_>, id: &ReactomeId) -> Result<raw::Events, RequestError> {
+    let endpoint = SPEC
+        .get("/data/pathway/containedEvents")
+        .with_path(format!("/data/pathway/{id}/containedEvents"))?
+        .bytes(8 * 1024 * 1024)
+        .fresh(Freshness::Days(7));
+    leg.json_checked_cache::<raw::Events>(&endpoint, &[], |rows| {
+        rows.0.iter().all(|row| match row {
+            raw::Event::Database(_) => true,
+            raw::Event::Object(v) => {
+                v.species_name
+                    .as_deref()
+                    .is_none_or(|s| s == "Homo sapiens")
+                    && v.st_id
+                        .as_deref()
+                        .is_none_or(|id| id.parse::<ReactomeId>().is_ok())
+            }
+        })
+    })
 }
 
 fn fields(id: &ReactomeId) -> crate::mapped::Problems {

@@ -104,8 +104,15 @@ fn mapped(raw: &raw::Aliases, index: usize, symbol: GeneSymbol, id: NcbiGeneId) 
         record: None,
         list: Vec::new(),
     };
+    let mut refusals = crate::Refusal::None;
     let value = gene
-        .and_then(|gene| map(gene, id, &mut cx))
+        .and_then(|gene| match map(gene, id, &mut cx) {
+            Some(row) => Some(row),
+            None => {
+                refusals = crate::Refusal::Refused;
+                None
+            }
+        })
         .unwrap_or(Section::Empty {
             source: Source::Civic,
             record: None,
@@ -114,6 +121,7 @@ fn mapped(raw: &raw::Aliases, index: usize, symbol: GeneSymbol, id: NcbiGeneId) 
         symbol,
         id,
         civic: Mapped {
+            refusals,
             value,
             problems: cx.list,
         },
@@ -184,6 +192,7 @@ fn map(
         Section::Empty {
             source: Source::Civic,
             record: Some(SourceRecord {
+                namespace: biodata::IdentifierNamespace::Unknown,
                 id: cx.record.clone()?,
                 url,
             }),
@@ -192,7 +201,7 @@ fn map(
         Section::Data {
             source: Source::Civic,
             data: CivicGene {
-                id,
+                id: cx.optional("id", Some(crate::mapped::identifier("CIViC", id)))?,
                 variant_count,
                 url,
                 description,

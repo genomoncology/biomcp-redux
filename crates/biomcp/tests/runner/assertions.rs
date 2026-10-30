@@ -19,6 +19,7 @@ pub(super) enum Assertion<'a> {
 pub(super) type Expectations<'a> = Vec<(&'a str, &'a Value, Vec<Assertion<'a>>)>;
 
 pub(super) fn prepare(step: &Step) -> Result<Expectations<'_>, String> {
+    local_forms(step)?;
     step.expect
         .iter()
         .map(|(pointer, value)| {
@@ -82,6 +83,41 @@ pub(super) fn prepare(step: &Step) -> Result<Expectations<'_>, String> {
             Ok((pointer.as_str(), value, assertions))
         })
         .collect()
+}
+
+fn local_forms(step: &Step) -> Result<(), String> {
+    if step.stdin.is_some()
+        && (step.run.is_none()
+            || step.mcp.is_some()
+            || step.mcp_call.is_some()
+            || step.follow.is_some()
+            || step.walk.is_some())
+    {
+        return Err("literal stdin requires an explicit CLI call".into());
+    }
+    if step.stdout.is_some()
+        && (step.run.is_none()
+            || step.mcp.is_some()
+            || step.mcp_call.is_some()
+            || step.follow.is_some()
+            || step.walk.is_some()
+            || !step.expect.is_empty())
+    {
+        return Err("literal stdout requires one explicit CLI call without JSON assertions".into());
+    }
+    if step.stdout.is_some()
+        && !step.run.as_ref().is_some_and(|args| {
+            args.first()
+                .is_some_and(|word| matches!(word.as_str(), "version" | "--version"))
+                || args.first().is_some_and(|word| word == "skill")
+                    && !args
+                        .get(1)
+                        .is_some_and(|word| matches!(word.as_str(), "install" | "status"))
+        })
+    {
+        return Err("literal stdout requires a plain-text local command".into());
+    }
+    Ok(())
 }
 
 fn reject_empty_wildcard(pointer: &str, value: &Value) -> Result<(), String> {
@@ -394,4 +430,35 @@ pub(super) fn difference(left: &Value, right: &Value, path: &str) -> Option<Stri
     }
     let brief = |value: &Value| value.to_string().chars().take(120).collect::<String>();
     Some(format!("{path}: CLI={} MCP={}", brief(left), brief(right)))
+}
+
+// Native PGx field names mark IDs, including signed and array-valued IDs.
+// Expected values come from unchanged native fixtures, not the mapper under test.
+pub(super) fn qualify_numeric_ids(node: &mut Value, namespace: &str) {
+    match node {
+        Value::Object(fields) => {
+            for (key, value) in fields {
+                if key.to_ascii_lowercase().ends_with("id") && value.is_number() {
+                    *value = serde_json::json!({"namespace":namespace,"id":value.take()});
+                } else if key.ends_with("Ids") {
+                    if let Some(values) = value.as_array_mut() {
+                        for value in values {
+                            if value.is_number() {
+                                *value =
+                                    serde_json::json!({"namespace":namespace,"id":value.take()});
+                            }
+                        }
+                    }
+                } else {
+                    qualify_numeric_ids(value, namespace);
+                }
+            }
+        }
+        Value::Array(values) => {
+            for value in values {
+                qualify_numeric_ids(value, namespace);
+            }
+        }
+        _ => {}
+    }
 }

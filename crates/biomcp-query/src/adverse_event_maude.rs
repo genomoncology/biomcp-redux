@@ -12,12 +12,12 @@ pub fn get(cx: &Ctx<'_>, query: &AdverseEventGet) -> Outcome {
     let deadline = command.deadline();
     let mut out = crate::status::empty(empty(query));
     match snapshot::load(cx, query, deadline, &mut out) {
-        Ok(Some((report, snapshot))) => {
+        Ok(Some((report, positions, snapshot))) => {
             let bound = query.with_snapshot(snapshot.clone());
-            match projection::project(&bound, report, snapshot) {
-                Ok((body, total, returned)) => {
+            match projection::project(&bound, report, snapshot, positions) {
+                Ok((body, total, returned, offset)) => {
                     out.body = body;
-                    navigation(&bound, total, returned, &mut out);
+                    navigation(&bound, total, returned, offset, &mut out);
                 }
                 Err(_) => too_large(query, &mut out),
             }
@@ -35,9 +35,8 @@ fn empty(query: &AdverseEventGet) -> QueryBody {
         _ => QueryBody::AdverseEventMaudeCard(None),
     }
 }
-fn navigation(query: &AdverseEventGet, total: u64, returned: u32, out: &mut Outcome) {
+fn navigation(query: &AdverseEventGet, total: u64, returned: u32, offset: u32, out: &mut Outcome) {
     if query.section().is_some() {
-        let offset = query.section_offset().saturating_add(returned);
         out.page = Some(biomcp_types::PageInfo {
             offset: query.section_offset(),
             returned,
@@ -45,7 +44,7 @@ fn navigation(query: &AdverseEventGet, total: u64, returned: u32, out: &mut Outc
             pool: None,
             truncated: None,
         });
-        if returned > 0 && u64::from(offset) < total {
+        if offset > query.section_offset() && u64::from(offset) < total {
             out.next.push((
                 StepKind::Page,
                 Action::Run {

@@ -470,7 +470,7 @@ fn restricted_regions(env: &Environment) -> Result<(), String> {
 
 fn terms_budget() -> Result<(), String> {
     let registry = super::schema::Registry::embedded()?;
-    let root = crate::runner::launch::fixtures().join("cases/variant");
+    let root = crate::runner::launch::fixtures().join("native/case-inputs/variant");
     let expected = json!([{"component": "clinvar",
  "terms": biomcp_adapters::myvariant::components::label(biomcp_adapters::myvariant::components::CLINVAR.terms).map_err(|e| e.to_string())?}]);
     for (name, cap) in [

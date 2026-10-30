@@ -16,17 +16,6 @@
         "--limit",
         "1"
       ],
-      "mcp": [
-        "search",
-        "adverse-event",
-        "pembrolizumab",
-        "--source",
-        "faers",
-        "--serious",
-        "any",
-        "--limit",
-        "1"
-      ],
       "expect": {
         "/status": "complete",
         "/query/serious": "any",

@@ -18,20 +18,6 @@
         "--problem",
         "Synthetic problem"
       ],
-      "mcp": [
-        "search",
-        "adverse-event",
-        "--source",
-        "maude",
-        "--manufacturer",
-        "Synthetic maker",
-        "--product-code",
-        "ABC",
-        "--product-code",
-        "XYZ",
-        "--problem",
-        "Synthetic problem"
-      ],
       "expect": {
         "/status": "complete",
         "/result/source_query": "device.manufacturer_d_name:\"Synthetic maker\" AND (device.device_report_product_code.exact:\"ABC\" OR device.device_report_product_code.exact:\"XYZ\") AND product_problems:\"Synthetic problem\"",

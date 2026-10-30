@@ -29,9 +29,10 @@ pub(super) fn trials() -> Vec<Trial> {
             move || card(n).map_err(Into::into),
         ));
     }
-    trials.push(transcript_trial("drug-label/five-native-headings", || {
-        headings().map_err(Into::into)
-    }));
+    trials.push(transcript_trial(
+        crate::runner::required_contract::LABEL_HEADINGS.0,
+        || headings().map_err(Into::into),
+    ));
     trials.extend(fallback::trials());
     trials.extend(generic::trials());
     trials.extend(pagination::trials());
@@ -266,7 +267,7 @@ fn headings() -> Check {
             .copied()
             .ok_or("heading budget")?;
         budget(&value, measured)?;
-        if field(&value, "schema") != "biomcp.drug-label/6"
+        if field(&value, "schema") != "biomcp.drug-label/7"
             || value.pointer("/result/label/data/text") != record.pointer(&format!("/{heading}/0"))
             || value.pointer("/result/label/data/retrieved").is_none()
         {

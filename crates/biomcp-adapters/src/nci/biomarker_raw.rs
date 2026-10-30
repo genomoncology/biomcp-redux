@@ -23,13 +23,12 @@ impl Reply for Page {
 }
 #[derive(Debug, Deserialize)]
 pub(super) struct Biomarker {
-    #[serde(deserialize_with = "crate::native_text::deserialize")]
-    pub name: biodata::Text,
+    pub name: Option<Field<NativeText>>,
     pub codes: Box<[NcitId]>,
-    pub r#type: Box<[Text]>,
-    pub count: u64,
-    pub parent_ids: Option<Field<Box<[NcitId]>>>,
-    pub ancestor_ids: Option<Field<Box<[NcitId]>>>,
-    pub synonyms: Option<Field<Box<[NativeText]>>>,
-    pub eligibility_criterion: Option<Field<Box<[Text]>>>,
+    pub r#type: Option<Field<Vec<Field<Text>>>>,
+    pub count: Option<Field<u64>>,
+    pub parent_ids: Option<Field<Vec<Field<NcitId>>>>,
+    pub ancestor_ids: Option<Field<Vec<Field<NcitId>>>>,
+    pub synonyms: Option<Field<Vec<Field<NativeText>>>>,
+    pub eligibility_criterion: Option<Field<Vec<Field<Text>>>>,
 }

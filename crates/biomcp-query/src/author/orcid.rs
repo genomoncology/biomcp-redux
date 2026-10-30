@@ -37,7 +37,7 @@ fn restart(q: &AuthorPapersQuery, out: &mut Outcome, mismatch: bool) {
 }
 fn key(q: &AuthorPapersQuery) -> Result<Vec<u8>, RequestError> {
     serde_json::to_vec(&(
-        "biomcp.orcid_works_snapshot/2",
+        "biomcp.orcid_works_snapshot/3",
         q.id(),
         q.section(),
         q.limit(),
@@ -167,15 +167,15 @@ fn pivots(out: &mut Outcome, rows: &[OrcidWorkGroup]) {
         if id.relationship.as_ref().map(biodata::Text::as_str) != Some("self") {
             continue;
         }
-        let input = match id.kind.as_str() {
-            "pmid" => id
-                .value
+        let input = match id.namespace.as_deref() {
+            Some("pmid") => id
+                .id
                 .as_str()
                 .parse()
                 .ok()
                 .map(biomcp_types::ArticleInput::Pmid),
-            "doi" => id
-                .value
+            Some("doi") => id
+                .id
                 .as_str()
                 .parse()
                 .ok()

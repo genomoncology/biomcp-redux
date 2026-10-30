@@ -38,9 +38,9 @@ fn run(env: &Environment, args: &[&str]) -> Check<Vec<u8>> {
     if !output.status.success() {
         return Err(format!("skill command failed: {args:?}: {output:?}").into());
     }
-    // Preserve existing ceilings unless j19122 exceeded their fifteen percent headroom.
+    // Preserve existing ceilings; j22868 measured the current guide at 3945 bytes.
     let measured: usize = match args.get(1).map(String::as_str) {
-        None | Some("render") => 3258,
+        None | Some("render") => 3945,
         Some("list") => 1156,
         Some("install") => 117,
         Some("status") => 55,
@@ -206,14 +206,14 @@ fn aliases(env: &Environment) -> Check {
 }
 
 fn help(env: &Environment) -> Check {
-    // j19122 measured 5612 bytes; retain fifteen percent headroom.
+    // j22698 measured 9919 bytes; retain fifteen percent headroom.
     let output = env
         .command(
             env!("CARGO_BIN_EXE_biomcp"),
             &["help".into(), "skill".into()],
         )
         .output()?;
-    if !output.status.success() || output.stdout.len() > (5612_usize * 115).div_ceil(100) {
+    if !output.status.success() || output.stdout.len() > (9919_usize * 115).div_ceil(100) {
         return Err("skill help exceeds measured ceiling or failed".into());
     }
     let value: Value = serde_json::from_slice(&output.stdout)?;

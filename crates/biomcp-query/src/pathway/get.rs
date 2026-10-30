@@ -29,6 +29,7 @@ pub fn get(cx: &Ctx<'_>, q: &PathwayGet) -> Outcome {
     let mut error = reply.as_ref().err().copied();
     let mut card = match reply {
         Ok(mapped) => {
+            out.dropped |= mapped.refusals == biomcp_adapters::Refusal::Refused;
             out.problems = mapped.problems;
             mapped.value
         }

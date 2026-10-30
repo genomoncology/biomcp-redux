@@ -8,8 +8,6 @@ use biomcp_types::{PathwayCard, PathwayHeader, PathwaySearch, Source};
 /// One native page; rejected rows do not change its native position or total.
 #[derive(Debug)]
 pub struct Page {
-    /// At least one native identity was refused.
-    pub dropped: bool,
     /// Admitted headers and record-local problems.
     pub rows: Mapped<Vec<PathwayHeader>>,
     /// Source-reported unfiltered count or complete observed relation size.
@@ -53,6 +51,7 @@ pub fn search(leg: &Leg<'_>, q: &PathwaySearch) -> Result<Page, RequestError> {
         },
     )?;
     let mut rows = Mapped {
+        refusals: crate::Refusal::None,
         value: Vec::new(),
         problems: Vec::new(),
     };
@@ -66,12 +65,16 @@ pub fn search(leg: &Leg<'_>, q: &PathwaySearch) -> Result<Page, RequestError> {
                 let mut fields = map::fields(&row.st_id);
                 match map::hit(&row, &mut fields) {
                     Some(header) => rows.value.push(header),
-                    None if fields.list.is_empty() => rows.problems.push(problem(
-                        Source::Reactome,
-                        record_text(&row.st_id),
-                        "identity",
-                    )),
-                    None => {}
+                    None => {
+                        rows.refusals = crate::Refusal::Refused;
+                        if fields.list.is_empty() {
+                            rows.problems.push(problem(
+                                Source::Reactome,
+                                record_text(&row.st_id),
+                                "identity",
+                            ));
+                        }
+                    }
                 }
                 rows.problems.extend(fields.list);
             }
@@ -80,7 +83,6 @@ pub fn search(leg: &Leg<'_>, q: &PathwaySearch) -> Result<Page, RequestError> {
         raw::Search::Empty(_) => (0, 0),
     };
     Ok(Page {
-        dropped: rows.value.len() < consumed as usize,
         rows,
         total,
         consumed,
@@ -96,6 +98,7 @@ pub fn top_level(leg: &Leg<'_>) -> Result<Mapped<Vec<PathwayHeader>>, RequestErr
             .all(|r| map::header(r, &mut map::fields(&r.st_id)).is_some())
     })?;
     let mut mapped = Mapped {
+        refusals: crate::Refusal::None,
         value: Vec::new(),
         problems: Vec::new(),
     };
@@ -103,12 +106,16 @@ pub fn top_level(leg: &Leg<'_>) -> Result<Mapped<Vec<PathwayHeader>>, RequestErr
         let mut fields = map::fields(&row.st_id);
         match map::header(&row, &mut fields) {
             Some(v) => mapped.value.push(v),
-            None if fields.list.is_empty() => mapped.problems.push(problem(
-                Source::Reactome,
-                record_text(&row.st_id),
-                "identity",
-            )),
-            None => {}
+            None => {
+                mapped.refusals = crate::Refusal::Refused;
+                if fields.list.is_empty() {
+                    mapped.problems.push(problem(
+                        Source::Reactome,
+                        record_text(&row.st_id),
+                        "identity",
+                    ));
+                }
+            }
         }
         mapped.problems.extend(fields.list);
     }
@@ -129,6 +136,7 @@ pub fn card(
     }) {
         Err(RequestError::Source(e)) if e.reason == biomcp_types::Reason::NotFound => {
             return Ok(Mapped {
+                refusals: crate::Refusal::None,
                 value: None,
                 problems: Vec::new(),
             });
@@ -140,15 +148,26 @@ pub fn card(
         record: crate::mapped::text(id.as_str()).ok(),
         list: Vec::new(),
     };
-    let value = (row.st_id == id.as_str())
-        .then(|| map::card(row, summary, &mut problems))
-        .flatten();
+    let mut refusals = crate::Refusal::None;
+    let value = if row.st_id == id.as_str() {
+        match map::card(row, summary, &mut problems) {
+            Some(row) => Some(row),
+            None => {
+                refusals = crate::Refusal::Refused;
+                None
+            }
+        }
+    } else {
+        refusals = crate::Refusal::Refused;
+        None
+    };
     let value = if problems.list.is_empty() {
         problems.required("identity", value)
     } else {
         value
     };
     Ok(Mapped {
+        refusals,
         value,
         problems: problems.list,
     })

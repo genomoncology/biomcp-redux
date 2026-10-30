@@ -31,15 +31,7 @@
         ],
         "/result/items/0/count": 326
       },
-      "max_bytes": 5000,
-      "mcp": [
-        "search",
-        "biomarker",
-        "--source",
-        "nci",
-        "--name",
-        "PD-L1"
-      ]
+      "max_bytes": 5000
     }
   ]
 }

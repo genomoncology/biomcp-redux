@@ -65,6 +65,15 @@ fn orcid() -> Result<(), String> {
         )
         .map_err(|e| e.to_string())?;
         problem(&value, "orcid", field, "/0000-0002-4299-3018/work/1")?;
+        if key == "external-id-type"
+            && (value.pointer("/result/groups/0/assertions/0/external_ids/0/namespace")
+                != Some(&json!("unknown"))
+                || value
+                    .pointer("/result/groups/0/assertions/0/external_ids/0/id")
+                    .is_none())
+        {
+            return Err("unstated authority discarded a native ORCID identifier".into());
+        }
         let path = if field == "external_ids.url" {
             "external_ids/0/url".into()
         } else if field == "external_ids.relationship" {

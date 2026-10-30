@@ -61,9 +61,8 @@ pub(super) fn record(term: raw::Term, ontology: DiseaseOntology) -> Result<Recor
         }),
     );
     let attribution = attribution(&term.obo_id, iri, ontology)?;
-    let mut dropped = false;
-    let synonyms = synonyms(&term, &attribution, &mut dropped);
-    let xrefs = xrefs(&term, &attribution, &mut dropped);
+    let synonyms = synonyms(&term, &attribution);
+    let xrefs = xrefs(&term, &attribution);
     let mut sections = Vec::new();
     if !synonyms.value.is_empty() {
         sections.push(DiseaseSection::Synonyms);
@@ -97,7 +96,6 @@ pub(super) fn record(term: raw::Term, ontology: DiseaseOntology) -> Result<Recor
     );
     let definition = definition(term.description.as_ref(), &mut problems);
     Ok(Record {
-        dropped,
         card: DiseaseCard {
             requested_id: term.obo_id.clone(),
             returned_id: term.obo_id.clone(),
@@ -177,11 +175,7 @@ fn iri_id(value: &str) -> Option<Curie> {
     }
 }
 
-fn synonyms(
-    term: &raw::Term,
-    attribution: &Attribution,
-    dropped: &mut bool,
-) -> Mapped<Vec<DiseaseSynonym>> {
+fn synonyms(term: &raw::Term, attribution: &Attribution) -> Mapped<Vec<DiseaseSynonym>> {
     let mut problems = Problems {
         source: Source::Ols,
         record: record_text(&term.obo_id),
@@ -191,7 +185,6 @@ fn synonyms(
     for native in array(term.obo_synonym.as_ref(), "obo_synonym", &mut problems) {
         let Field::Value(native) = native else {
             problems.required::<()>("obo_synonym", None);
-            *dropped = true;
             continue;
         };
         let name = problems.required(
@@ -212,8 +205,6 @@ fn synonyms(
         );
         if let Some(name) = name {
             native_scopes.push((name, scope));
-        } else {
-            *dropped = true;
         }
     }
     let mut value = Vec::new();
@@ -235,21 +226,17 @@ fn synonyms(
                 language: None,
                 attribution: attribution.clone(),
             });
-        } else {
-            *dropped = true;
         }
     }
     Mapped {
+        refusals: crate::Refusal::None,
         value,
         problems: problems.list,
     }
 }
-fn xrefs(
-    term: &raw::Term,
-    attribution: &Attribution,
-    dropped: &mut bool,
-) -> Mapped<Vec<DiseaseRelation>> {
+fn xrefs(term: &raw::Term, attribution: &Attribution) -> Mapped<Vec<DiseaseRelation>> {
     let mut mapped = Mapped {
+        refusals: crate::Refusal::None,
         value: Vec::new(),
         problems: Vec::new(),
     };
@@ -261,7 +248,6 @@ fn xrefs(
     for native in array(term.obo_xref.as_ref(), "obo_xref", &mut metadata) {
         let Field::Value(native) = native else {
             metadata.required::<()>("obo_xref", None);
-            *dropped = true;
             continue;
         };
         let mut problems = Problems {
@@ -287,11 +273,9 @@ fn xrefs(
         );
         mapped.problems.extend(problems.list);
         let Some(id) = id else {
-            *dropped = true;
             continue;
         };
         let Ok(predicate) = "oboInOwl:hasDbXref".parse() else {
-            *dropped = true;
             continue;
         };
         mapped.value.push(DiseaseRelation {

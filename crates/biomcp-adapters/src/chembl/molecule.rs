@@ -24,6 +24,7 @@ pub fn header(row: &Molecule) -> Result<crate::Mapped<DrugHeader>, Error> {
         ))?),
     };
     Ok(crate::Mapped {
+        refusals: crate::Refusal::None,
         value,
         problems: problems.list,
     })
@@ -74,7 +75,7 @@ pub fn card(row: Molecule, fetched: Option<i64>) -> Result<crate::Mapped<DrugCar
         parents.push(DrugIdentityRelation {
             identity: DrugIdentity {
                 id,
-                source: Text::new("chembl")?,
+                namespace: Text::new("chembl")?,
                 name: None,
                 identity_level: DrugIdentityLevel::Unknown,
                 r#type: None,
@@ -102,6 +103,7 @@ pub fn card(row: Molecule, fetched: Option<i64>) -> Result<crate::Mapped<DrugCar
         next: Box::default(),
     };
     Ok(crate::Mapped {
+        refusals: header.refusals,
         value,
         problems: problems.list,
     })
@@ -129,7 +131,7 @@ fn cross_references(
             references.push(DrugIdentityRelation {
                 identity: DrugIdentity {
                     id,
-                    source,
+                    namespace: source,
                     name,
                     identity_level: DrugIdentityLevel::Unknown,
                     r#type: None,

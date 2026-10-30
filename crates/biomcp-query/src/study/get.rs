@@ -112,10 +112,18 @@ fn section_page(
 ) -> Result<(), RequestError> {
     match q.section() {
         Some(StudySection::Profiles) => {
-            let records = studies::profiles(leg, q.id())?;
+            let records = studies::profiles(leg, q.id(), q.section_offset(), q.section_limit())?;
             out.problems.extend(records.problems);
             let rejected = records.rejected;
-            let (items, page, received) = page(records.rows.into_iter(), q);
+            let next_offset = records.window.next_offset();
+            let page = PageInfo {
+                offset: records.window.offset(),
+                returned: records.window.rows.len() as u32,
+                total: records.window.total().unwrap_or(0),
+                pool: None,
+                truncated: None,
+            };
+            let items = records.window.rows.into();
             let data = StudyProfiles {
                 study_id: q.id().clone(),
                 items,
@@ -131,13 +139,22 @@ fn section_page(
                 out.body = QueryBody::StudyProfiles(Some(data));
                 out.page = Some(page.clone());
             }
-            continuation(out, cx, q, &page, rejected, received);
+            continuation(out, cx, q, rejected, next_offset);
         }
         Some(StudySection::SampleLists) => {
-            let records = studies::sample_lists(leg, q.id())?;
+            let records =
+                studies::sample_lists(leg, q.id(), q.section_offset(), q.section_limit())?;
             out.problems.extend(records.problems);
             let rejected = records.rejected;
-            let (items, page, received) = page(records.rows.into_iter(), q);
+            let next_offset = records.window.next_offset();
+            let page = PageInfo {
+                offset: records.window.offset(),
+                returned: records.window.rows.len() as u32,
+                total: records.window.total().unwrap_or(0),
+                pool: None,
+                truncated: None,
+            };
+            let items = records.window.rows.into();
             let data = StudySampleLists {
                 study_id: q.id().clone(),
                 items,
@@ -153,48 +170,26 @@ fn section_page(
                 out.body = QueryBody::StudySampleLists(Some(data));
                 out.page = Some(page.clone());
             }
-            continuation(out, cx, q, &page, rejected, received);
+            continuation(out, cx, q, rejected, next_offset);
         }
         _ => {}
     }
     Ok(())
 }
-fn page<T>(
-    rows: impl ExactSizeIterator<Item = Option<T>>,
-    q: &StudyGet,
-) -> (Box<[T]>, PageInfo, u32) {
-    let total = rows.len() as u64;
-    let window: Vec<_> = rows
-        .skip(q.section_offset() as usize)
-        .take(q.section_limit() as usize)
-        .collect();
-    let received = window.len() as u32;
-    let items: Box<[_]> = window.into_iter().flatten().collect();
-    let page = PageInfo {
-        offset: q.section_offset(),
-        returned: items.len() as u32,
-        total,
-        pool: None,
-        truncated: None,
-    };
-    (items, page, received)
-}
 fn continuation(
     out: &mut Outcome,
     cx: &Ctx<'_>,
     q: &StudyGet,
-    page: &PageInfo,
     rejected: usize,
-    received: u32,
+    next_offset: Option<u32>,
 ) {
     if rejected != 0 {
         crate::status::item(out, true, false, true);
     } else if out.status() != Status::Partial {
         crate::status::item(out, true, false, false);
     }
-    if received > 0
-        && u64::from(page.offset) + u64::from(received) < page.total
-        && let Ok(query) = q.at_section_offset(page.offset.saturating_add(received))
+    if let Some(offset) = next_offset
+        && let Ok(query) = q.at_section_offset(offset)
     {
         next(out, cx, StepKind::Page, query);
     }

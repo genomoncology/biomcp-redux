@@ -10,9 +10,11 @@ pub struct NciTrial {
     /// Registry cross-reference supplied by NCI.
     pub nct_id: NctId,
     /// Native title.
-    pub brief_title: Text,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub brief_title: Option<Text>,
     /// Native status, without a registry translation.
-    pub current_trial_status: Text,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub current_trial_status: Option<Text>,
     /// Native phase.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub phase: Option<super::NciTrialPhase>,
@@ -36,7 +38,8 @@ pub struct NciTrial {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct NciDisease {
     /// Source concept name.
-    pub name: Text,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub name: Option<Text>,
     /// Publisher NCIt identity.
     pub nci_thesaurus_concept_id: biodata::NcitId,
     /// Publisher coding provenance, without local interpretation.
@@ -75,7 +78,7 @@ pub struct NciTrialPage {
     pub attribution: Box<str>,
 }
 impl super::ResponseBody for NciTrialPage {
-    const SCHEMA: &'static str = "biomcp.nci-trial-page/9";
+    const SCHEMA: &'static str = "biomcp.nci-trial-page/10";
     type Query = TrialSearch;
 }
 /// Independent exact NCI answers in caller order.
@@ -89,7 +92,7 @@ pub struct NciTrialCards {
     pub attribution: Box<str>,
 }
 impl super::ResponseBody for NciTrialCards {
-    const SCHEMA: &'static str = "biomcp.nci-trial-cards/6";
+    const SCHEMA: &'static str = "biomcp.nci-trial-cards/8";
     type Query = TrialGet;
 }
 /// An exact NCI card and its source state.
@@ -122,7 +125,8 @@ pub struct NciTrialItem {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct NciDiseaseRef {
     /// Native source name.
-    pub name: Text,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub name: Option<Text>,
     /// Source NCIt identity.
     pub nci_thesaurus_concept_id: biodata::NcitId,
 }

@@ -54,6 +54,8 @@ pub struct GeneBatch {
     pub result: Result<Vec<Mapped<GeneExtras>>, RequestError>,
     /// Rejected hits that have no safe per-gene value to carry their problems.
     pub problems: Vec<Problem>,
+    /// Hits refused before an accepted per-gene annotation could be constructed.
+    pub refusals: crate::Refusal,
 }
 
 /// Fetch annotations in sorted distinct chunks, preserving each chunk's failures.
@@ -78,11 +80,13 @@ pub fn genes(leg: &Leg<'_>, ids: &[NcbiGeneId]) -> Vec<GeneBatch> {
         .zip(results)
         .map(|(ids, result)| {
             let mut problems = Vec::new();
-            let result = result.map(|reply| map::extras(reply, ids, &mut problems));
+            let mut refusals = crate::Refusal::None;
+            let result = result.map(|reply| map::extras(reply, ids, &mut problems, &mut refusals));
             GeneBatch {
                 ids: ids.into(),
                 result,
                 problems,
+                refusals,
             }
         })
         .collect()

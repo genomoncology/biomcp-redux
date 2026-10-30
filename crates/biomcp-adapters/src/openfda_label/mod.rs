@@ -17,9 +17,11 @@ pub static SPEC: SourceSpec = SourceSpec {
     key: crate::openfda_key::OPTIONAL,
     deadline: Duration::from_secs(15),
 };
+mod admit;
 mod map;
 mod page;
 mod raw;
+mod wire;
 use biodata::{DrugId, Text};
 use biomcp_fetch::{Arg, BadReply, Endpoint, Freshness, Leg, ReplyMetadata, RequestError};
 pub use raw::Record;
@@ -35,12 +37,10 @@ const LABEL: Endpoint = SPEC.get("").fresh(Freshness::Days(1)).json_absence();
 /// A source candidate page, preserving native order and source total.
 #[derive(Debug)]
 pub struct Page {
-    /// Source revision records, never merged by ingredient or brand.
-    pub records: Vec<Record>,
-    /// Number of native rows consumed before any name identity filtering.
-    pub scanned: u32,
-    /// Native count for this selector, before any name identity filtering.
-    pub total: u64,
+    /// Source revisions and native positions before name filtering.
+    pub window: crate::NativeWindow<Record>,
+    /// Rejected native source fields.
+    pub problems: Vec<biomcp_types::Problem>,
     /// This reply's actual original retrieval metadata.
     pub metadata: ReplyMetadata,
 }
@@ -90,7 +90,7 @@ pub fn get(leg: &Leg<'_>, set: &DrugId) -> Result<Page, RequestError> {
         0,
         Some(set),
     )?;
-    if !found.records.is_empty() {
+    if !found.window.rows.is_empty() {
         return Ok(found);
     }
     page(
@@ -131,10 +131,21 @@ fn page(
         raw::Response::Success { meta, results } => (results, meta.results.total),
         raw::Response::Absent { .. } => (Vec::new(), 0),
     };
+    let problems = records
+        .iter()
+        .flat_map(|r| r.problems.iter().cloned())
+        .collect();
+    let received = records.len() as u32;
     Ok(Page {
-        scanned: records.len() as u32,
-        records,
-        total,
+        window: crate::NativeWindow::new(
+            records,
+            offset,
+            limit,
+            Some(total),
+            received,
+            crate::Refusal::None,
+        ),
+        problems,
         metadata,
     })
 }

@@ -16,6 +16,7 @@ pub(super) fn candidates(
     allow_snpeff: bool,
 ) -> Mapped<Vec<VariantHeader>> {
     let mut value = Vec::new();
+    let mut refusals = crate::Refusal::None;
     let mut problems = Problems {
         source: Source::MyVariant,
         record: None,
@@ -24,6 +25,7 @@ pub(super) fn candidates(
     for raw in hits {
         problems.record = None;
         let Some(hit) = problems.field("identity", Some(raw)) else {
+            refusals = crate::Refusal::Refused;
             continue;
         };
         problems.record = Some(hit.id.clone());
@@ -32,13 +34,17 @@ pub(super) fn candidates(
             || value.iter().any(|v: &VariantHeader| v.record.id == hit.id)
         {
             problems.required::<()>("identity", None);
+            refusals = crate::Refusal::Refused;
             continue;
         }
         if let Some(row) = candidate(hit, build, allow_clinvar, allow_snpeff, &mut problems) {
             value.push(row);
+        } else {
+            refusals = crate::Refusal::Refused;
         }
     }
     Mapped {
+        refusals,
         value,
         problems: problems.list,
     }
@@ -106,6 +112,7 @@ fn candidate(
         },
         source: Source::MyVariant,
         record: SourceRecord {
+            namespace: biodata::IdentifierNamespace::Unknown,
             id: hit.id,
             url: None,
         },

@@ -35,7 +35,7 @@ pub(super) fn headers(
     let (items, info) = reply?;
     let total = items.value.len() as u64;
     Ok(snapshot::Saved {
-        dropped: out.dropped,
+        dropped: items.refusals == biomcp_adapters::Refusal::Refused,
         body: PathwayPage {
             items: items.value.into(),
             page: PathwayPageInfo {
@@ -74,6 +74,7 @@ pub(super) fn get(cx: &Ctx<'_>, q: &PathwayGet) -> Outcome {
     out.sources
         .push(status::source(Source::WikiPathways, leg.finish(), error));
     if let Ok(mapped) = reply {
+        out.dropped |= mapped.refusals == biomcp_adapters::Refusal::Refused;
         out.problems.extend(mapped.problems);
         let mut card = mapped.value;
         let absent = card.is_none();

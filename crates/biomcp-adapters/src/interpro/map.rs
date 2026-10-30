@@ -72,6 +72,7 @@ pub(super) fn rows(
         all_problems.extend(problems.list);
     }
     Ok(crate::Mapped {
+        refusals: crate::Refusal::None,
         value: rows,
         problems: all_problems,
     })
@@ -102,8 +103,8 @@ fn signatures(
                     continue;
                 };
                 signatures.push(ProteinMemberSignature {
-                    database: database.clone(),
-                    accession,
+                    namespace: database.clone(),
+                    id: accession,
                     name: crate::mapped::field_text(
                         &mut problems.list,
                         problems.source,

@@ -84,21 +84,7 @@ pub(super) fn run(directory: &Path) -> Check {
             failures.push(format!("stage-{name}: {error}"));
         }
     }
-    if let Err(error) = bindings::mechanism(directory, &registry) {
-        failures.push(format!("request-scope: {error}"));
-    }
-    if let Err(error) = bindings::cell(directory, &registry) {
-        failures.push(format!("cell-request-scope: {error}"));
-    }
-    if let Err(error) = paging::seer(directory, &registry) {
-        failures.push(format!("seer-native-window: {error}"));
-    }
-    if let Err(error) = paging::study(directory, &registry) {
-        failures.push(format!("study-native-window: {error}"));
-    }
-    if let Err(error) = gwas::run(directory, &registry) {
-        failures.push(format!("gwas-native-window: {error}"));
-    }
+    independent_proofs(directory, &registry, &mut failures);
     let large = "x".repeat(biodata::Text::MAX_CHARS + 1);
     let large_result = acquire(&case, Some((stage, json!(large))), &registry).and_then(|value| {
         if value
@@ -120,6 +106,24 @@ pub(super) fn run(directory: &Path) -> Check {
         Err(failures.join("\n"))
     }
 }
+fn independent_proofs(directory: &Path, registry: &Registry, failures: &mut Vec<String>) {
+    for (name, proof) in [
+        (
+            "request-scope",
+            bindings::mechanism as fn(&Path, &Registry) -> Check,
+        ),
+        ("cell-request-scope", bindings::cell),
+        ("chembl-native-window", paging::chembl),
+        ("seer-native-window", paging::seer),
+        ("study-native-window", paging::study),
+        ("gwas-native-window", gwas::run),
+    ] {
+        if let Err(error) = proof(directory, registry) {
+            failures.push(format!("{name}: {error}"));
+        }
+    }
+}
+
 fn native_case(file: &str) -> Check<NativeCase> {
     if let Some(case) = retained::case(file)? {
         return Ok(case);

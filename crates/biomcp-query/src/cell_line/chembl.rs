@@ -40,23 +40,16 @@ pub(super) fn get_at(
     out.sources
         .push(status::source(Source::Chembl, leg.finish(), error));
     out.local = error.and_then(status::local);
-    if let Ok(reply) = reply {
-        out.problems.extend(reply.problems);
-        let (items, total, metadata, received) = reply.value;
-        let end = u64::from(body.offset) + u64::from(received);
-        {
-            let (found, identity_failed, unavailable) = if total == 0 {
-                (false, false, false)
-            } else if !out.problems.is_empty() || end < total {
-                (true, false, true)
-            } else {
-                (true, false, false)
-            };
-            crate::status::item(&mut out, found, identity_failed, unavailable);
-        };
-        if end < total
-            && let Some(offset) = body.offset.checked_add(limit)
-        {
+    if let Ok(page) = reply {
+        out.problems.extend(page.problems);
+        let total = page.window.total().unwrap_or(0);
+        let next_offset = page.window.next_offset();
+        let more = page.window.has_more();
+        out.dropped = page.window.refusals() == biomcp_adapters::Refusal::Refused;
+        let items = page.window.rows;
+        let metadata = page.metadata;
+        crate::status::item(&mut out, total != 0, false, more);
+        if let Some(offset) = next_offset {
             out.next.push((
                 StepKind::Page,
                 run(Request::GetCellLine(query.at_section_offset(offset))),

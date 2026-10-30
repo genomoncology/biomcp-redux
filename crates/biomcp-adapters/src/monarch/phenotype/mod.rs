@@ -9,8 +9,8 @@ use biomcp_types::{PhenotypeGet, PhenotypeSearch, PhenotypeSection, PhenotypeTer
 /// Native ordered HP page and retrieval metadata.
 #[derive(Debug)]
 pub struct Page {
-    /// One or more native row identities were refused.
-    pub dropped: bool,
+    /// Actual HP records refused at the native identity boundary.
+    pub refusals: crate::Refusal,
     /// Native row count before refusing invalid row identities.
     pub received: u32,
     /// Rejected native metadata on returned rows.
@@ -49,21 +49,30 @@ pub fn search(leg: &Leg<'_>, q: &PhenotypeSearch) -> Result<Page, RequestError> 
         ("limit", Arg::Num(q.limit().into())),
         ("offset", Arg::Num(q.offset().into())),
     ];
-    let (page, metadata) = leg.json_received_checked::<raw::Page>(&endpoint, &args, |page| {
-        if page.limit != q.limit() || page.offset != q.offset() {
-            Err(BadReply)
-        } else {
-            Ok(())
-        }
-    })?;
+    let (page, metadata) = leg.json_received_checked_admission::<raw::Page>(
+        &endpoint,
+        &args,
+        |page| {
+            if page.limit != q.limit() || page.offset != q.offset() {
+                Err(BadReply)
+            } else {
+                Ok(())
+            }
+        },
+        |page| page.items.iter().all(|node| node.id.is_some()),
+    )?;
     let received = page.items.len() as u32;
     let mut problems = Vec::new();
+    let mut refusals = crate::Refusal::None;
     let items = page
         .items
         .into_iter()
         .filter_map(|node| {
             problems.extend(node.problems);
-            let id = node.id?;
+            let Some(id) = node.id else {
+                refusals = crate::Refusal::Refused;
+                return None;
+            };
             Some(attribution(&id).map(|attribution| PhenotypeHeader {
                 attribution,
                 id,
@@ -75,7 +84,7 @@ pub fn search(leg: &Leg<'_>, q: &PhenotypeSearch) -> Result<Page, RequestError> 
         })
         .collect::<Result<Vec<_>, RequestError>>()?;
     Ok(Page {
-        dropped: items.len() < received as usize,
+        refusals,
         received,
         problems,
         items,

@@ -190,7 +190,7 @@ fn empty() -> Outcome {
     }))
 }
 fn partial(snapshot: &Snapshot) -> bool {
-    snapshot.detail.dropped
+    snapshot.detail.refusals == biomcp_adapters::Refusal::Refused
         || snapshot.sources.iter().any(|s| {
             matches!(
                 s.state,

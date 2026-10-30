@@ -28,8 +28,8 @@ use biomcp_types::{DiseaseAssociationItem, DiseaseGet, DiseaseSection};
 /// Native association rows with their original retrieval metadata.
 #[derive(Debug)]
 pub struct Page {
-    /// At least one native association identity was refused.
-    pub dropped: bool,
+    /// Actual record refusals in the native page.
+    pub refusals: crate::Refusal,
     /// Native rows before rejecting malformed identities.
     pub received: u32,
     /// Rejected row identities and metadata.
@@ -100,6 +100,7 @@ pub fn associations(leg: &Leg<'_>, query: &DiseaseGet) -> Result<Page, RequestEr
     let received = page.items.len() as u32;
     let mut problems = Vec::new();
     let mut items = Vec::new();
+    let mut refusals = crate::Refusal::None;
     for mut row in page.items {
         problems.append(&mut row.problems);
         if row.id.is_some()
@@ -108,12 +109,15 @@ pub fn associations(leg: &Leg<'_>, query: &DiseaseGet) -> Result<Page, RequestEr
             && row.predicate.is_some()
         {
             let mapped = map::row(row, &id)?;
+            refusals.include(mapped.refusals);
             problems.extend(mapped.problems);
             items.push(mapped.value);
+        } else {
+            refusals = crate::Refusal::Refused;
         }
     }
     Ok(Page {
-        dropped: items.len() < received as usize,
+        refusals,
         received,
         problems,
         items,

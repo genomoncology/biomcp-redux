@@ -158,7 +158,7 @@ fn execute(
 
 fn window(value: &Value, offset: u32, ids: &[u64]) -> Check {
     // GwasPage's public serde contract omits an empty items vector.
-    let actual: Vec<_> = page(value)?.items.iter().map(|row| row.id).collect();
+    let actual: Vec<_> = page(value)?.items.iter().map(|row| row.id.get()).collect();
     if actual.as_slice() != ids
         || value.pointer("/page/offset") != Some(&json!(offset))
         || value.pointer("/page/returned") != Some(&json!(ids.len()))

@@ -33,6 +33,7 @@ impl Person {
             .filter(|n| n.visibility.as_deref() == Some("public"))
         else {
             return Ok(Mapped {
+                refusals: crate::Refusal::None,
                 value: None,
                 problems: Vec::new(),
             });
@@ -62,6 +63,7 @@ impl Person {
             }
         };
         Ok(Mapped {
+            refusals: crate::Refusal::None,
             value: Some(AuthorCard {
                 header: AuthorHeader {
                     id: AuthorId::Orcid(id.clone()),

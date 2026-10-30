@@ -7,11 +7,7 @@ use serde::Deserialize;
 #[serde(from = "ReceivedMolecules")]
 pub struct Molecules {
     /// Accepted native rows.
-    pub molecules: Vec<Molecule>,
-    /// Native page metadata.
-    pub page_meta: PageMeta,
-    /// Native count before local identity refusals.
-    pub received: u32,
+    pub window: crate::NativeWindow<Molecule>,
     /// Rejected row identities.
     pub problems: Vec<biomcp_types::Problem>,
 }
@@ -29,6 +25,7 @@ impl From<ReceivedMolecules> for Molecules {
             list: Vec::new(),
         };
         let mut rows = Vec::new();
+        let mut refusals = crate::Refusal::None;
         for row in page.molecules {
             problems.record = None;
             if let Some(row) = problems.field("molecule_chembl_id", Some(row)) {
@@ -37,15 +34,23 @@ impl From<ReceivedMolecules> for Molecules {
                 {
                     rows.push(row);
                 } else {
+                    refusals = crate::Refusal::Refused;
                     problems.record = crate::mapped::record(&row.molecule_chembl_id);
                     problems.required::<()>("molecule_chembl_id", None);
                 }
+            } else {
+                refusals = crate::Refusal::Refused;
             }
         }
         Self {
-            molecules: rows,
-            page_meta: page.page_meta,
-            received,
+            window: crate::NativeWindow::new(
+                rows,
+                page.page_meta.offset,
+                page.page_meta.limit,
+                Some(page.page_meta.total_count),
+                received,
+                refusals,
+            ),
             problems: problems.list,
         }
     }
@@ -61,11 +66,7 @@ impl Reply for Molecules {
 pub struct Mechanisms {
     pub(super) molecules: Vec<String>,
     /// Accepted native rows.
-    pub mechanisms: Vec<Mechanism>,
-    /// Native page metadata.
-    pub page_meta: PageMeta,
-    /// Native count before local identity refusals.
-    pub received: u32,
+    pub window: crate::NativeWindow<Mechanism>,
     /// Rejected row identities.
     pub problems: Vec<biomcp_types::Problem>,
 }
@@ -83,6 +84,7 @@ impl From<ReceivedMechanisms> for Mechanisms {
             list: Vec::new(),
         };
         let mut rows = Vec::new();
+        let mut refusals = crate::Refusal::None;
         let mut molecules = Vec::new();
         for row in page.mechanisms {
             molecules.push(row.scope.molecule_chembl_id);
@@ -91,16 +93,24 @@ impl From<ReceivedMechanisms> for Mechanisms {
                 if row.mec_id > 0 {
                     rows.push(row);
                 } else {
+                    refusals = crate::Refusal::Refused;
                     problems.record = crate::mapped::record(row.mec_id);
                     problems.required::<()>("mec_id", None);
                 }
+            } else {
+                refusals = crate::Refusal::Refused;
             }
         }
         Self {
             molecules,
-            mechanisms: rows,
-            page_meta: page.page_meta,
-            received,
+            window: crate::NativeWindow::new(
+                rows,
+                page.page_meta.offset,
+                page.page_meta.limit,
+                Some(page.page_meta.total_count),
+                received,
+                refusals,
+            ),
             problems: problems.list,
         }
     }
@@ -116,11 +126,7 @@ impl Reply for Mechanisms {
 pub struct Indications {
     pub(super) molecules: Vec<String>,
     /// Accepted native rows.
-    pub drug_indications: Vec<Indication>,
-    /// Native page metadata.
-    pub page_meta: PageMeta,
-    /// Native count before local identity refusals.
-    pub received: u32,
+    pub window: crate::NativeWindow<Indication>,
     /// Rejected row identities.
     pub problems: Vec<biomcp_types::Problem>,
 }
@@ -138,6 +144,7 @@ impl From<ReceivedIndications> for Indications {
             list: Vec::new(),
         };
         let mut rows = Vec::new();
+        let mut refusals = crate::Refusal::None;
         let mut molecules = Vec::new();
         for row in page.drug_indications {
             molecules.push(row.scope.molecule_chembl_id);
@@ -146,16 +153,24 @@ impl From<ReceivedIndications> for Indications {
                 if row.drugind_id > 0 {
                     rows.push(row);
                 } else {
+                    refusals = crate::Refusal::Refused;
                     problems.record = crate::mapped::record(row.drugind_id);
                     problems.required::<()>("drugind_id", None);
                 }
+            } else {
+                refusals = crate::Refusal::Refused;
             }
         }
         Self {
             molecules,
-            drug_indications: rows,
-            page_meta: page.page_meta,
-            received,
+            window: crate::NativeWindow::new(
+                rows,
+                page.page_meta.offset,
+                page.page_meta.limit,
+                Some(page.page_meta.total_count),
+                received,
+                refusals,
+            ),
             problems: problems.list,
         }
     }

@@ -5,8 +5,6 @@ use biomcp_types::{DiseaseHeader, DiseaseSearch};
 /// A single native page without local ranking or identity selection.
 #[derive(Debug)]
 pub struct SearchPage {
-    /// One or more native row identities were refused.
-    pub dropped: bool,
     /// Native window size before identity refusals.
     pub received: u32,
     /// Publisher total for the literal query and one ontology.
@@ -56,9 +54,11 @@ pub fn search(leg: &Leg<'_>, query: &DiseaseSearch) -> Result<SearchPage, Reques
     };
     let received = page.response.docs.len() as u32;
     let mut value = Vec::new();
+    let mut refusals = crate::Refusal::None;
     for hit in page.response.docs {
         problems.record = None;
         let Some(id) = problems.required_field("obo_id", hit.obo_id) else {
+            refusals = crate::Refusal::Refused;
             continue;
         };
         problems.record = crate::mapped::record(&id);
@@ -75,10 +75,10 @@ pub fn search(leg: &Leg<'_>, query: &DiseaseSearch) -> Result<SearchPage, Reques
         });
     }
     Ok(SearchPage {
-        dropped: value.len() < received as usize,
         received,
         total: page.response.total,
         rows: Mapped {
+            refusals,
             value,
             problems: problems.list,
         },

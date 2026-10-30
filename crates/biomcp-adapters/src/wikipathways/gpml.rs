@@ -59,13 +59,15 @@ pub fn members(leg: &Leg<'_>, id: &WikiPathwaysId) -> Result<Mapped<Members>, Re
         }
     }
     let data_nodes = document.nodes.len() as u64;
+    let mut refusals = crate::Refusal::None;
     for node in document.nodes {
-        if let Some(member) = member(node, &duplicates, &mut p)? {
+        if let Some(member) = member(node, &duplicates, &mut p, &mut refusals)? {
             items.push(member);
         }
     }
     let name = p.text("name", document.name.as_deref());
     Ok(Mapped {
+        refusals,
         value: Members {
             items,
             version: document.version.parse().map_err(|_| invalid())?,
@@ -80,6 +82,7 @@ fn member(
     node: super::gpml_raw::Node,
     duplicates: &BTreeSet<String>,
     p: &mut Problems,
+    refusals: &mut crate::Refusal,
 ) -> Result<Option<PathwayMember>, RequestError> {
     if node.kind.as_deref() != Some("GeneProduct") {
         if node.namespace.as_deref().is_none_or(str::is_empty) {
@@ -102,10 +105,12 @@ fn member(
         }),
     );
     if node.id.is_some() && node_id.is_none() {
+        *refusals = crate::Refusal::Refused;
         return Ok(None);
     }
     if node.id.as_ref().is_some_and(|id| duplicates.contains(id)) {
         p.required::<()>("genes.node_id", None);
+        *refusals = crate::Refusal::Refused;
         return Ok(None);
     }
     let value = p.optional(
@@ -117,6 +122,7 @@ fn member(
         }),
     );
     let Some(value) = p.required("genes.reference", value) else {
+        *refusals = crate::Refusal::Refused;
         return Ok(None);
     };
     if node.namespace.as_deref().is_none_or(str::is_empty) {
@@ -124,8 +130,12 @@ fn member(
     }
     Ok(Some(PathwayMember {
         reference: PathwaySourceRef {
-            namespace: node.namespace.map(Into::into),
-            value,
+            namespace: node
+                .namespace
+                .as_deref()
+                .and_then(|value| p.text("genes.namespace", Some(value)))
+                .into(),
+            id: value,
         },
         node_id,
         name: p.text("genes.name", node.label.as_deref()),

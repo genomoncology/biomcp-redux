@@ -20,13 +20,7 @@
           "excludes": "reactome"
         }
       },
-      "max_bytes": 3100,
-      "mcp": [
-        "get",
-        "gene",
-        "MIR21",
-        "pathways"
-      ]
+      "max_bytes": 3100
     }
   ]
 }

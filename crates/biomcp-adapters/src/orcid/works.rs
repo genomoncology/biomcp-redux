@@ -31,7 +31,7 @@ struct Identifiers {
 #[derive(Deserialize)]
 #[serde(rename_all = "kebab-case")]
 struct ExternalId {
-    external_id_type: Text,
+    external_id_type: Option<Field<Text>>,
     external_id_value: Text,
     external_id_relationship: Option<Field<Text>>,
     external_id_url: Option<Field<Url>>,
@@ -47,8 +47,8 @@ impl Identifiers {
             .filter_map(|id| {
                 let id = problems.required("external_ids", id.value())?;
                 Some(OrcidExternalId {
-                    kind: id.external_id_type,
-                    value: id.external_id_value,
+                    namespace: problems.field("external_ids", id.external_id_type).into(),
+                    id: id.external_id_value,
                     relationship: optional(
                         problems,
                         "external_ids.relationship",
@@ -209,12 +209,16 @@ impl Works {
             list: Vec::new(),
         };
         let prefix = self.path.strip_suffix("/works").unwrap_or("");
+        let mut refusals = crate::Refusal::None;
         let value = self
             .group
             .into_iter()
             .filter_map(|g| {
                 problems.record = record(&self.path);
-                let g = problems.field("group", Some(g))?;
+                let Some(g) = problems.field("group", Some(g)) else {
+                    refusals = crate::Refusal::Refused;
+                    return None;
+                };
                 let summaries = problems
                     .field("work_summary", g.work_summary)
                     .unwrap_or_default();
@@ -222,11 +226,20 @@ impl Works {
                     .into_iter()
                     .filter_map(|s| {
                         problems.record = record(&self.path);
-                        let s = problems.field("work_summary", Some(s))?;
+                        let Some(s) = problems.field("work_summary", Some(s)) else {
+                            refusals = crate::Refusal::Refused;
+                            return None;
+                        };
                         if s.visibility.as_deref() != Some("public") {
                             return None;
                         }
-                        s.convert(prefix, &mut problems)
+                        match s.convert(prefix, &mut problems) {
+                            Some(row) => Some(row),
+                            None => {
+                                refusals = crate::Refusal::Refused;
+                                None
+                            }
+                        }
                     })
                     .collect();
                 if assertions.is_empty() {
@@ -244,6 +257,7 @@ impl Works {
             })
             .collect();
         Mapped {
+            refusals,
             value,
             problems: problems.list,
         }

@@ -1,6 +1,7 @@
 # 0486 — Find drug labels whose openFDA names are empty
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 5bfa61687f693467b38fafa898386631776ea1cb
 
 Milestone: 5
 

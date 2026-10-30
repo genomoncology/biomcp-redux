@@ -10,11 +10,14 @@ pub(super) fn encode(
     match body {
         QueryBody::OrganizationPage(mut body) => {
             for row in &mut body.items {
+                let Some(name) = row.name.clone() else {
+                    continue;
+                };
                 row.next = Some(crate::spell::step(
                     biomcp_types::StepKind::Pivot,
                     &biomcp_query::Action::Run {
                         request: biomcp_types::Request::SearchTrial(
-                            biomcp_types::TrialSearch::for_nci_facility(row.name.clone()),
+                            biomcp_types::TrialSearch::for_nci_facility(name),
                         ),
                         fresh: false,
                     },

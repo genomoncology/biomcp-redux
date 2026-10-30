@@ -11,6 +11,7 @@
           "--condition",
           "--condition-id",
           "--count-only",
+          "--country",
           "--criteria",
           "--distance",
           "--exact-condition",
@@ -41,19 +42,14 @@
           "--offline",
           "--fresh"
         ],
-        "/result/commands/0/arguments/27/description": "First included registry update date.",
         "/result/commands/0/arguments/4/description": "Exact MONDO or DOID CURIE resolved by MyDisease; NCI also accepts explicit NCIT:C codes.",
-        "/result/commands/0/arguments/8/description": "Ask ClinicalTrials.gov to restrict matching to the registered condition phrase; its support is partial.",
         "/result/commands/0/examples": {
           "count": 4
-        }
+        },
+        "/result/commands/0/arguments/28/description": "First included registry update date.",
+        "/result/commands/0/arguments/9/description": "Ask ClinicalTrials.gov to restrict matching to the registered condition phrase; its support is partial."
       },
-      "max_bytes": 8182,
-      "mcp": [
-        "help",
-        "search",
-        "trial"
-      ],
+      "max_bytes": 11802,
       "run": [
         "help",
         "search",
@@ -93,11 +89,6 @@
         ]
       },
       "max_bytes": 4120,
-      "mcp": [
-        "help",
-        "get",
-        "trial"
-      ],
       "run": [
         "help",
         "get",
@@ -122,11 +113,6 @@
         }
       },
       "max_bytes": 2228,
-      "mcp": [
-        "help",
-        "trial",
-        "document"
-      ],
       "run": [
         "help",
         "trial",
@@ -135,5 +121,5 @@
     }
   ],
   "story": "Trial help describes source discovery, intact sections and explicit document saves with executable examples.",
-  "verified": "Measured compact CLI bytes plus 15 percent in j10693: search trial 4489, get trial 2700, trial document 1088. No comparable released schema-generated help baseline exists. CLI/MCP parity shares these assertions. Help byte limits use j18463 output plus fifteen percent for defaults, aliases, inherited options and examples; higher existing limits remain. Native NCI phase/status values measured search trial help at 7114 bytes in j21057; its cap keeps the established fifteen percent margin."
+  "verified": "Measured compact CLI bytes plus 15 percent in j10693: search trial 4489, get trial 2700, trial document 1088. No comparable released schema-generated help baseline exists. CLI/MCP parity shares these assertions. Help byte limits use j18463 output plus fifteen percent for defaults, aliases, inherited options and examples; higher existing limits remain. Search trial entity help measured at 10262 bytes in j22622 on the combined source; its cap keeps the established fifteen percent margin."
 }

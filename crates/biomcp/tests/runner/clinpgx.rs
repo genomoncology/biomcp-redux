@@ -1,4 +1,5 @@
 //! Feature clinpgx-annotations: native tiers through actual CLI and MCP.
+use super::required_contract;
 mod failures;
 mod rows;
 use super::{configuration::invoke, launch::Environment, network_stub::Stub};
@@ -19,7 +20,12 @@ pub(super) fn trials() -> Vec<Trial> {
         "annotation",
     ] {
         trials.push(transcript_trial(
-            format!("clinpgx-annotations/{name}-network-cache-replay"),
+            match name {
+                "clinical" => required_contract::CLINPGX_CLINICAL.0.to_owned(),
+                "guideline" => required_contract::CLINPGX_KIND.0.to_owned(),
+                "annotation" => required_contract::CLINPGX_ANNOTATION.0.to_owned(),
+                _ => format!("clinpgx-annotations/{name}-network-cache-replay"),
+            },
             move || scenario(name).map_err(Into::into),
         ));
     }
@@ -191,6 +197,7 @@ fn verify(name: &str, v: &Value, native: &Value) -> Check {
     }
     if name == "annotation" {
         let mut expected = native.get("data").cloned().ok_or("native data")?;
+        super::assertions::qualify_numeric_ids(&mut expected, "ClinPGx");
         super::assertions::omit_empty_lists(&mut expected);
         if v.pointer("/result/annotation") != Some(&expected) {
             return Err("base fields changed".into());
@@ -217,6 +224,7 @@ fn verify(name: &str, v: &Value, native: &Value) -> Check {
             .cloned()
             .collect::<Vec<_>>()
     );
+    super::assertions::qualify_numeric_ids(&mut expected_rows, "ClinPGx");
     super::assertions::omit_empty_lists(&mut expected_rows);
     if rows
         != expected_rows

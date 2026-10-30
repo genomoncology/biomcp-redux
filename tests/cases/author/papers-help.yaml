@@ -29,11 +29,6 @@
       },
       "full_output_bytes": true,
       "max_bytes": 3401,
-      "mcp": [
-        "help",
-        "author",
-        "papers"
-      ],
       "run": [
         "help",
         "author",

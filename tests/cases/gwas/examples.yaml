@@ -11,17 +11,13 @@
         "--pubmed",
         "17529967"
       ],
-      "mcp": [
-        "search",
-        "gwas",
-        "--pubmed",
-        "17529967"
-      ],
       "expect": {
         "/status": "complete",
-        "/result/items/0/id": 6110,
+        "/result/items/0/id": "association:6110",
         "/query/query/order": "p_value,asc",
-        "/result/items/0/p_value": 4e-254
+        "/result/items/0/p_value": 4e-254,
+        "/result/items/0/exact_p_value/mantissa": "4",
+        "/result/items/0/exact_p_value/exponent": -254
       },
       "max_bytes": 1828
     },
@@ -32,30 +28,18 @@
         "--variant",
         "rs2981582"
       ],
-      "mcp": [
-        "search",
-        "gwas",
-        "--variant",
-        "rs2981582"
-      ],
       "expect": {
         "/status": "complete",
-        "/result/items/0/id": 6110,
+        "/result/items/0/id": "association:6110",
         "/query/query/order": "p_value,asc",
-        "/result/items/0/p_value": 4e-254
+        "/result/items/0/p_value": 4e-254,
+        "/result/items/0/exact_p_value/mantissa": "4",
+        "/result/items/0/exact_p_value/exponent": -254
       },
       "max_bytes": 1835
     },
     {
       "run": [
-        "search",
-        "gwas",
-        "--pubmed",
-        "17529967",
-        "--p-value",
-        "4e-254"
-      ],
-      "mcp": [
         "search",
         "gwas",
         "--pubmed",

@@ -11,10 +11,12 @@ pub(super) fn get(cx: &Ctx<'_>, q: &DiagnosticGet) -> Outcome {
     let leg = cx.fetch.leg(&fda_510k::SPEC, deadline).fresh(cx.fresh);
     let error = match fda_510k::get(&leg, q) {
         Ok(card) => {
-            {
-                let found = card.is_some();
-                crate::status::item(&mut out, found, false, false);
-            };
+            let card = card.map(|mapped| {
+                out.dropped = mapped.refusals == biomcp_adapters::Refusal::Refused;
+                out.problems.extend(mapped.problems);
+                mapped.value
+            });
+            crate::status::item(&mut out, card.is_some(), false, false);
             if card.is_some() {
                 if let Ok(search) = serde_json::from_value::<DiagnosticSearch>(
                     serde_json::json!({"source":"fda-cdx","device_id":q.id()}),

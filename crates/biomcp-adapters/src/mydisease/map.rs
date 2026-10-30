@@ -90,8 +90,8 @@ pub(super) fn annotation(record: native::Record) -> Result<Mapped<Annotation>, R
         .find(|c| c.id == record.returned_id)
         .ok_or(InputError::Serialization)?;
     let mut mapped = Mapped {
+        refusals: crate::Refusal::None,
         value: Annotation {
-            dropped: record.components.iter().any(|component| component.dropped),
             card: DiseaseCard {
                 requested_id: record.requested_id.clone(),
                 returned_id: record.returned_id.clone(),
@@ -174,7 +174,6 @@ fn rows(
     mapped.problems.extend(problems.list);
     for value in &component.xrefs {
         let Some(id) = xref_id(value) else {
-            mapped.value.dropped = true;
             crate::mapped::push_problem(
                 &mut mapped.problems,
                 Source::MyDisease,

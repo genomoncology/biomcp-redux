@@ -1,4 +1,5 @@
 //! Feature study-files: references retain native blob facts and publisher notices.
+use super::required_contract;
 use super::{call, rows, seed};
 use crate::runner::launch::Environment;
 use crate::runner::transcript::trial as transcript_trial;
@@ -15,7 +16,7 @@ pub(super) fn trials() -> Vec<Trial> {
             retained(&native).map_err(Into::into)
         })
         .with_ignored_flag(!available),
-        transcript_trial("study-files/complete-walk-and-notice", || {
+        transcript_trial(required_contract::STUDY_FILES.0, || {
             pages().map_err(Into::into)
         }),
         transcript_trial("study-files/absence-failure-policy", || {

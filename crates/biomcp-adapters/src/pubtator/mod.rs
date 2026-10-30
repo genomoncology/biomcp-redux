@@ -68,6 +68,7 @@ pub fn annotations(leg: &Leg<'_>, ids: &[Pmid]) -> Result<Vec<ArticleAnnotations
         })
         .collect();
     if malformed_identity && let Some(first) = results.first_mut() {
+        first.annotations.refusals = crate::Refusal::Refused;
         crate::mapped::push_problem(
             &mut first.annotations.problems,
             Source::PubTator,

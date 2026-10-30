@@ -78,22 +78,32 @@ pub(super) fn trials() -> Vec<Trial> {
             " AND patient.reaction.reactionmeddrapt:\"Synthetic reaction\" AND seriousnessdeath:1 AND receivedate:[20240101 TO 20241231]",
         ),
     ] {
-        cases.push(transcript_trial(
-            format!("adverse-event-search/synthetic-{name}"),
-            move || selectors(&flags, suffix).map_err(Into::into),
-        ));
+        let name = if name == "combined" {
+            crate::runner::required_contract::FAERS_REACTION
+                .0
+                .to_owned()
+        } else {
+            format!("adverse-event-search/synthetic-{name}")
+        };
+        cases.push(transcript_trial(name, move || {
+            selectors(&flags, suffix).map_err(Into::into)
+        }));
     }
+    policy_trials(&mut cases);
+    cases
+}
+fn policy_trials(cases: &mut Vec<Trial>) {
     cases.push(transcript_trial(
-        "adverse-event-search/invalid-optional-update-preserves-records",
-        || status::optional_date().map_err(Into::into),
+        "adverse-event-search/invalid-protocol-update-rejects-reply",
+        || status::protocol_date().map_err(Into::into),
     ));
     cases.push(transcript_trial(
         "adverse-event-search/200-absence-is-rejected-before-cache",
         || status::run().map_err(Into::into),
     ));
     cases.extend(policy::trials());
-    cases
 }
+
 fn expression() -> &'static str {
     "(patient.drug.openfda.generic_name:\"Synthetic \\\"A\\\\B\" OR \
         patient.drug.openfda.brand_name:\"Synthetic \\\"A\\\\B\" OR \

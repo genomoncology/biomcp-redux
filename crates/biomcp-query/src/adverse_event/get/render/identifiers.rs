@@ -1,6 +1,6 @@
 use super::{QueryBody, S, page};
 use crate::Outcome;
-use biodata::{FaersIdentifiers, FaersReport, Text};
+use biodata::{FaersDrug, FaersIdentifiers, Text};
 use biomcp_fetch::RequestError;
 use biomcp_types::{
     AdverseEventGet, AdverseEventHeader, AdverseEventIdentifierRecords,
@@ -33,7 +33,7 @@ pub(super) fn available(ids: &FaersIdentifiers) -> impl Iterator<Item = S> + '_ 
 }
 pub(super) fn render(
     q: &AdverseEventGet,
-    r: &FaersReport,
+    drug: Option<&FaersDrug>,
     section: S,
     header: AdverseEventHeader,
     snapshot: Text,
@@ -43,7 +43,7 @@ pub(super) fn render(
     let index = q
         .drug_index()
         .ok_or(biomcp_fetch::InputError::Serialization)?;
-    let Some(drug) = r.drugs.get(index as usize) else {
+    let Some(drug) = drug else {
         out.body = QueryBody::TextPositionError;
         return Ok(());
     };
@@ -60,7 +60,12 @@ pub(super) fn render(
         .take(q.section_limit() as usize)
         .cloned()
         .collect();
-    page(q, records.len(), total, out);
+    page(
+        q,
+        q.section_offset().saturating_add(records.len() as u32),
+        total,
+        out,
+    );
     let records = AdverseEventIdentifierRecords {
         drug_index: index,
         records,

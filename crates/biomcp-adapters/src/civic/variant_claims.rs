@@ -206,7 +206,11 @@ fn build(mut row: Claim, subject: Option<&VariantRef>, cx: &mut Problems) -> Opt
             statement_unmapped: statement.is_none(),
             native: statement.is_none().then_some(row.native),
             statement,
-            record: SourceRecord { id, url: Some(url) },
+            record: SourceRecord {
+                namespace: biodata::IdentifierNamespace::Unknown,
+                id,
+                url: Some(url),
+            },
             kind: row.kind,
             status: row.status,
             direction: row.direction,

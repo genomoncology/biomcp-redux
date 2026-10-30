@@ -23,7 +23,7 @@ pub fn search(cx: &Ctx<'_>, query: &DiseaseSearch) -> Outcome {
         .push(status::source(Source::Ols, leg.finish(), error));
     out.local = error.and_then(status::local);
     if let Ok(page) = reply {
-        out.dropped = page.dropped;
+        out.dropped = page.rows.refusals == biomcp_adapters::Refusal::Refused;
         let returned = page.rows.value.len() as u32;
         for row in &page.rows.value {
             if let Some(id) = &row.concept.id {
@@ -73,11 +73,11 @@ pub fn get(cx: &Ctx<'_>, query: &DiseaseGet) -> Outcome {
     out
 }
 fn apply(out: &mut Outcome, query: &DiseaseGet, record: ols::Record) {
-    out.dropped = record.dropped;
     let components = record.card.components.clone();
     out.problems = record.problems;
     match query.section() {
         Some(DiseaseSection::Synonyms) => {
+            out.dropped = record.synonyms.refusals == biomcp_adapters::Refusal::Refused;
             out.problems.extend(record.synonyms.problems);
             let (items, total) = slice(record.synonyms.value, query);
             out.page = Some(page_info(query.section_offset(), items.len() as u32, total));
@@ -87,6 +87,7 @@ fn apply(out: &mut Outcome, query: &DiseaseGet, record: ols::Record) {
             });
         }
         Some(DiseaseSection::Xrefs) => {
+            out.dropped = record.xrefs.refusals == biomcp_adapters::Refusal::Refused;
             out.problems.extend(record.xrefs.problems);
             let (items, total) = slice(record.xrefs.value, query);
             out.page = Some(page_info(query.section_offset(), items.len() as u32, total));
@@ -96,7 +97,9 @@ fn apply(out: &mut Outcome, query: &DiseaseGet, record: ols::Record) {
             });
         }
         _ => {
+            out.dropped = record.synonyms.refusals == biomcp_adapters::Refusal::Refused;
             out.problems.extend(record.synonyms.problems);
+            out.dropped = record.xrefs.refusals == biomcp_adapters::Refusal::Refused;
             out.problems.extend(record.xrefs.problems);
             for section in record.card.sections.iter() {
                 out.next.push((

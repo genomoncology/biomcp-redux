@@ -1,6 +1,7 @@
 # 0483 — Check that every command, option and section has a case
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 0081bf71afc41f4fa067899e0f242ee0bb99ec95
 
 Milestone: 5
 

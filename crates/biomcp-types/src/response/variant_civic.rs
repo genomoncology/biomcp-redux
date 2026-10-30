@@ -167,7 +167,7 @@ pub struct CivicCondition {
 pub struct CivicTherapy {
     /// Native therapy identity when requested by this source route.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub id: Option<u64>,
+    pub id: Option<biodata::Identifier<u64>>,
     /// Complete source therapy name.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub label: Option<Text>,

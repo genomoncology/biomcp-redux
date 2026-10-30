@@ -52,7 +52,7 @@ fn execute(
     }
     let saved = snapshot::load(
         cx,
-        "biomcp.organization-snapshot/1",
+        "biomcp.organization-snapshot/2",
         &q.snapshot_query(),
         q.pool(),
         deadline,
@@ -79,6 +79,7 @@ fn execute(
                 source.retrieved_count = Some(reply.value.len() as u32);
             }
             snapshot::Saved {
+                dropped: reply.refusals == biomcp_adapters::Refusal::Refused,
                 items: reply.value,
                 sources,
                 problems: reply.problems,
@@ -90,7 +91,7 @@ fn execute(
     } else {
         snapshot::save(
             cx,
-            "biomcp.organization-snapshot/1",
+            "biomcp.organization-snapshot/2",
             &q.snapshot_query(),
             deadline,
             &saved,
@@ -117,21 +118,6 @@ fn page(
     if returned > 0 && u64::from(next) < total {
         out.next.push((StepKind::Page, run(q.at_page(next, pool))));
     }
-    {
-        let (found, identity_failed, unavailable) = if saved
-            .sources
-            .iter()
-            .any(|s| s.state == biomcp_types::SourceState::Stale)
-            || !saved.problems.is_empty()
-        {
-            (true, false, true)
-        } else if total == 0 {
-            (false, false, false)
-        } else {
-            (true, false, false)
-        };
-        crate::status::item(out, found, identity_failed, unavailable);
-    };
     out.page = Some(biomcp_types::PageInfo {
         offset: q.offset(),
         returned,
@@ -141,6 +127,8 @@ fn page(
     });
     out.sources = saved.sources;
     out.problems = saved.problems;
+    out.dropped = saved.dropped;
+    status::search(out);
     out.body = QueryBody::OrganizationPage(OrganizationPage { items });
 }
 fn empty() -> Outcome {

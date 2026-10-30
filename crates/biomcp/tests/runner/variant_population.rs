@@ -403,13 +403,17 @@ fn gwas_walk(input: &str, requests: usize) -> Result<(), String> {
     let value: Value = serde_json::from_slice(&warm.stdout).map_err(|e| e.to_string())?;
     if !warm.status.success()
         || value.pointer("/result/candidates/0/sections/gwas/data/associations/0/id")
-            != Some(&json!(103))
+            != Some(&json!("association:103"))
     {
         return Err(format!(
             "warm native catalog page was not available offline: {value}"
         ));
     }
-    if ids != [json!(101), json!(102), json!(103)] || stub.finish()?.len() != requests {
+    check_catalog_walk(&ids, stub.finish()?.len(), requests)
+}
+fn check_catalog_walk(ids: &[Value], observed: usize, requests: usize) -> Result<(), String> {
+    let expected = ["association:101", "association:102", "association:103"].map(Value::from);
+    if ids != expected || observed != requests {
         return Err(
             "catalog walk duplicated/dropped source rows or made extra source requests".into(),
         );

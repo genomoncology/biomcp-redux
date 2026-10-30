@@ -235,7 +235,14 @@
       "description": "A native application document link; the command does not download it.",
       "properties": {
         "date": {
-          "$ref": "#/$defs/Reply_PartialDate",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_PartialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Native document date, independent of event dates."
         },
         "id": {
@@ -243,20 +250,31 @@
           "description": "Source document identifier."
         },
         "type": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Original document type."
         },
         "url": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Original source URL.",
           "format": "uri"
         }
       },
       "required": [
-        "id",
-        "url",
-        "date",
-        "type"
+        "id"
       ],
       "type": "object"
     },
@@ -264,7 +282,14 @@
       "description": "An unchanged native ingredient and strength, without local normalization.",
       "properties": {
         "name": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Native ingredient name."
         },
         "strength": {
@@ -272,9 +297,6 @@
           "description": "Full source strength wording."
         }
       },
-      "required": [
-        "name"
-      ],
       "type": "object"
     },
     "Reply_DrugFdaProduct": {
@@ -288,15 +310,36 @@
           "type": "array"
         },
         "brand_name": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Source brand wording, without inferred ingredient equivalence."
         },
         "dosage_form": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Native dosage form."
         },
         "marketing_status": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Product marketing status, independent of submission history."
         },
         "product_number": {
@@ -304,7 +347,14 @@
           "description": "Exact source product number, scoped by the response application."
         },
         "reference_drug": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Original source reference-drug designation."
         },
         "reference_standard": {
@@ -342,11 +392,7 @@
         }
       },
       "required": [
-        "product_number",
-        "brand_name",
-        "dosage_form",
-        "marketing_status",
-        "reference_drug"
+        "product_number"
       ],
       "type": "object"
     },
@@ -354,13 +400,17 @@
       "description": "A source-stated submission property, without interpretation.",
       "properties": {
         "code": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Original property code."
         }
       },
-      "required": [
-        "code"
-      ],
       "type": "object"
     },
     "Reply_DrugFdaSubmission": {
@@ -758,6 +808,13 @@
         "ema",
         "ddinter"
       ]
+    },
+    "Reply_IdentifierNamespace": {
+      "description": "A source-stated authority or an explicit unknown authority, represented by the string unknown.",
+      "maxLength": 1048576,
+      "minLength": 1,
+      "pattern": "^(?![\\s\\S]*[\\x00-\\x1f\\x7f-\\x9f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069])",
+      "type": "string"
     },
     "Reply_PageInfo": {
       "description": "Search counts after filtering and deduplication.",
@@ -1446,6 +1503,10 @@
           "$ref": "#/$defs/Reply_Text",
           "description": "Native source identifier."
         },
+        "namespace": {
+          "$ref": "#/$defs/Reply_IdentifierNamespace",
+          "description": "Native authority; unknown means the source did not state one."
+        },
         "url": {
           "anyOf": [
             {
@@ -1460,9 +1521,11 @@
         }
       },
       "required": [
+        "namespace",
         "id"
       ],
-      "type": "object"
+      "type": "object",
+      "x-identifier": true
     },
     "Reply_SourceState": {
       "description": "State of a source actually asked by the command.",
@@ -1584,7 +1647,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.drug-approvals/6",
+  "$id": "biomcp.drug-approvals/8",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -1640,7 +1703,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.drug-approvals/6",
+      "const": "biomcp.drug-approvals/8",
       "type": "string"
     },
     "sources": {

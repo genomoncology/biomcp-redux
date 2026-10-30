@@ -34,12 +34,22 @@ pub(crate) fn bundle_problems(
         .collect()
 }
 
+/// Preserve the bundle decoder's actual row refusal events.
+pub(crate) fn bundle_refusals(info: &biomcp_fetch::BundleInfo) -> crate::Refusal {
+    let mut refusals = crate::Refusal::None;
+    for _ in &info.rejections {
+        refusals = crate::Refusal::Refused;
+    }
+    refusals
+}
+
 /// Convert ordinary bundle synchronization metadata with its rejected rows.
 pub(crate) fn bundle_sync(
     source: biomcp_types::Source,
     info: biomcp_fetch::BundleInfo,
 ) -> Mapped<biomcp_types::SyncResult> {
     Mapped {
+        refusals: bundle_refusals(&info),
         problems: bundle_problems(source, &info),
         value: biomcp_types::SyncResult {
             snapshot: None,

@@ -1,6 +1,7 @@
 # 0489 — Add three short clinical flows to the skill
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 9714f89d6eae0b1e212a48be330afd13f8b2afb0
 
 Milestone: 5
 

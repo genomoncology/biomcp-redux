@@ -64,6 +64,7 @@ pub(super) fn get(
         requested,
         source,
         record: biomcp_types::SourceRecord {
+            namespace: biodata::IdentifierNamespace::Unknown,
             id: query.input().text().clone(),
             url: None,
         },

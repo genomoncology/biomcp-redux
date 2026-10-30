@@ -103,8 +103,8 @@ fn apply_page(
     outcome: &mut Outcome,
     mut page: ctgov::SearchPage,
 ) {
-    outcome.dropped = page.dropped;
-    if page.dropped {
+    outcome.dropped = page.refusals == biomcp_adapters::Refusal::Refused;
+    if outcome.dropped {
         crate::status::item(outcome, true, false, false);
     }
     outcome.problems.append(&mut page.problems);

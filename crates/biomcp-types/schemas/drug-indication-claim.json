@@ -107,7 +107,8 @@
         "namespace",
         "id"
       ],
-      "type": "object"
+      "type": "object",
+      "x-identifier": true
     },
     "Reply_DrugId": {
       "description": "A published native drug record identifier, without a consumer source prefix.",
@@ -129,7 +130,7 @@
           "$ref": "#/$defs/Reply_Text",
           "description": "Original source name."
         },
-        "source": {
+        "namespace": {
           "$ref": "#/$defs/Reply_Text",
           "description": "Source responsible for this identity."
         },
@@ -159,10 +160,11 @@
       },
       "required": [
         "id",
-        "source",
+        "namespace",
         "identity_level"
       ],
-      "type": "object"
+      "type": "object",
+      "x-identifier": true
     },
     "Reply_DrugIdentityLevel": {
       "description": "Identity level established by the source endpoint or record type, never inferred from ID shape.",
@@ -265,7 +267,7 @@
       "type": "string"
     }
   },
-  "$id": "biodata.drug-indication-claim/6",
+  "$id": "biodata.drug-indication-claim/7",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "A source indication retaining its full population and combination wording.",
   "properties": {

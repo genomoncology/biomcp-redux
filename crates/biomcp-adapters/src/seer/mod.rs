@@ -63,14 +63,8 @@ pub struct Selection {
 /// A locally paged checked source response.
 #[derive(Debug)]
 pub struct Page<T> {
-    /// A native identity was refused within the selected window.
-    pub dropped: bool,
-    /// Native slots in the selected window before row refusals.
-    pub received: u32,
-    /// Rows in native order.
-    pub rows: Vec<T>,
-    /// Total native rows before local paging.
-    pub total: u64,
+    /// Accepted rows and native traversal facts.
+    pub window: crate::NativeWindow<T>,
     /// Original response metadata, never the page-read time.
     pub metadata: ReplyMetadata,
     /// Source fields that remain unverified or contradict a request.
@@ -107,6 +101,7 @@ pub fn catalog(leg: &Leg<'_>, limit: u32, offset: u32) -> Result<Page<DiseaseSit
     };
     let labels = problems.field("VariableFormats.site", raw.formats.site);
     let mut rows = Vec::new();
+    let mut refusals = crate::Refusal::None;
     let window: Vec<_> = raw
         .sites
         .into_iter()
@@ -136,13 +131,12 @@ pub fn catalog(leg: &Leg<'_>, limit: u32, offset: u32) -> Result<Page<DiseaseSit
                 label,
                 active,
             });
+        } else {
+            refusals = crate::Refusal::Refused;
         }
     }
     Ok(Page {
-        dropped: rows.len() < received as usize,
-        rows,
-        total,
-        received,
+        window: crate::NativeWindow::new(rows, offset, limit, Some(total), received, refusals),
         metadata,
         problems: problems.list,
     })
@@ -206,19 +200,8 @@ pub fn statistics(
             retry_after: None,
         })
     })?;
-    let total = rows.len() as u64;
-    let window: Vec<_> = rows
-        .into_iter()
-        .skip(offset as usize)
-        .take(limit as usize)
-        .collect();
-    let received = window.len() as u32;
-    let dropped = window.iter().any(Option::is_none);
     Ok(Page {
-        dropped,
-        rows: window.into_iter().flatten().collect(),
-        received,
-        total,
+        window: crate::NativeWindow::local(rows, offset, limit),
         metadata,
         problems,
     })

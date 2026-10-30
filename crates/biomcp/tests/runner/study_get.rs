@@ -1,10 +1,13 @@
 //! Feature study-get: exact stored cards and bounded source metadata without member IDs.
+use super::required_contract;
 use super::{rows, seed};
 use crate::runner::launch::Environment;
 use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::{fs, io::Write, path::Path};
+#[path = "study_get_pages.rs"]
+mod section_page;
 type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
     let native = crate::runner::launch::fixtures().join("study-get-cases");
@@ -14,7 +17,7 @@ pub(super) fn trials() -> Vec<Trial> {
             retained(&native).map_err(Into::into)
         })
         .with_ignored_flag(!available),
-        transcript_trial("study-get/complete-pages-and-native-counts", || {
+        transcript_trial(required_contract::STUDY_PAGES.0, || {
             pages().map_err(Into::into)
         }),
         transcript_trial("study-get/identity-failures-and-policy", || {
@@ -145,6 +148,7 @@ fn pages() -> Check {
     )?;
     record(&replay, "molecular-profiles", profiles(), 200)?;
     record(&replay, "sample-lists", lists(), 200)?;
+    section_page::limited(&env, &replay)?;
     for (section, total, id) in [
         ("profiles", 17, "molecularProfileId"),
         ("sample-lists", 13, "sampleListId"),
@@ -421,9 +425,55 @@ fn rejected(env: &Environment, replay: &Path, section: &str, value: &Value) -> C
     if value.to_string().contains("other_study") {
         return Err("wrong-study row survived filtering".into());
     }
-    let expected = if section == "profiles" { 16 } else { 12 };
-    if value.pointer("/page/total") != Some(&json!(expected)) {
-        return Err("rejected row changed accepted total".into());
+    let expected = if section == "profiles" { 17 } else { 13 };
+    if value.pointer("/page/total") != Some(&json!(expected))
+        || value.pointer("/page/returned") != Some(&json!(4))
+    {
+        return Err(format!(
+            "refused identity lost native total or accepted row count: {value}"
+        ));
+    }
+    let (field, prefix) = if section == "profiles" {
+        ("molecularProfileId", "native_profile_")
+    } else {
+        ("sampleListId", "native_list_")
+    };
+    let items = value
+        .pointer("/result/items")
+        .and_then(Value::as_array)
+        .ok_or("accepted study rows")?;
+    if items.len() != 4
+        || items
+            .iter()
+            .enumerate()
+            .any(|(n, row)| row.get(field) != Some(&json!(format!("{prefix}{}", n + 1))))
+    {
+        return Err(format!(
+            "refused study identity removed or reordered valid native neighbors: {value}"
+        ));
+    }
+    let next = crate::runner::action(value, "page")?;
+    if !next
+        .windows(2)
+        .any(|pair| pair == ["--section-offset", "5"])
+    {
+        return Err(format!(
+            "study continuation used accepted count instead of five consumed native rows: {next:?}"
+        ));
+    }
+    if !value
+        .get("problems")
+        .and_then(Value::as_array)
+        .is_some_and(|rows| {
+            rows.iter().any(|p| {
+                p.get("field") == Some(&json!("studyId"))
+                    && p.get("record") == Some(&json!(format!("{prefix}0")))
+            })
+        })
+    {
+        return Err(format!(
+            "wrong study scope lost its exact refused identity and Problem: {value}"
+        ));
     }
     let db = rusqlite::Connection::open(env.root().join("case-cache/replay.sqlite"))
         .map_err(|e| e.to_string())?;

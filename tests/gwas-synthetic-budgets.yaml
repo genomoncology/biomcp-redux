@@ -8,8 +8,8 @@
     577
   ],
   "gwas_get/failures/admission/rsid": [
-    578,
-    577
+    1637,
+    1636
   ],
   "gwas_get/failures/admission/self": [
     578,
@@ -60,8 +60,8 @@
     534
   ],
   "gwas_get/failures/failure/association/missing-array": [
-    535,
-    534
+    856,
+    855
   ],
   "gwas_get/failures/failure/association/timeout": [
     701,
@@ -132,8 +132,8 @@
     510
   ],
   "gwas_get/failures/failure/study/missing-array": [
-    511,
-    510
+    744,
+    743
   ],
   "gwas_get/failures/failure/study/timeout": [
     677,
@@ -248,8 +248,8 @@
     708
   ],
   "gwas_search/mechanics/admission/parts": [
-    709,
-    708
+    2091,
+    2090
   ],
   "gwas_search/mechanics/admission/publication": [
     709,

@@ -38,6 +38,7 @@ pub(super) fn allele(raw: RawAllele, expected: Option<&str>) -> Resolution {
         },
         source: Source::AlleleRegistry,
         record: SourceRecord {
+            namespace: biodata::IdentifierNamespace::Unknown,
             id: record,
             url: Some(url),
         },
@@ -46,7 +47,11 @@ pub(super) fn allele(raw: RawAllele, expected: Option<&str>) -> Resolution {
         sections: None,
         component_terms: Box::default(),
     };
-    Resolution::Found(Box::new(Mapped { value, problems }))
+    Resolution::Found(Box::new(Mapped {
+        refusals: crate::Refusal::None,
+        value,
+        problems,
+    }))
 }
 fn genomic(g: Genomic, record: &Text, out: &mut Vec<Representation>, problems: &mut Vec<Problem>) {
     let mut fields = crate::mapped::Problems {

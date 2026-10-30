@@ -1,5 +1,6 @@
 //! Named full-envelope phenotype phases; CLI includes its newline.
 use serde_json::Value;
+use std::io::Write;
 use std::path::Path;
 pub(super) fn check(value: &Value, phase: &str, surface: &str) -> Result<(), String> {
     let observed =
@@ -9,6 +10,11 @@ pub(super) fn check(value: &Value, phase: &str, surface: &str) -> Result<(), Str
 
 pub(super) fn bytes(observed: usize, phase: &str, surface: &str) -> Result<(), String> {
     let bytes = observed;
+    writeln!(
+        std::io::stderr(),
+        "PHENOTYPE_MEASURE {phase} [{surface}] {bytes}"
+    )
+    .map_err(|e| e.to_string())?;
     let max_bytes = ceiling(phase, surface)?;
     let key = format!("{phase} [{surface}]");
     if bytes > max_bytes {

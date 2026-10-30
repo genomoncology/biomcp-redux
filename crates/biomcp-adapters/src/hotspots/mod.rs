@@ -51,6 +51,7 @@ pub fn gene(leg: &Leg<'_>, gene: &GeneSymbol) -> Result<Mapped<Vec<HotspotRecord
     let endpoint = GENE.clone().with_segments(&[segment]);
     let raw: Rows = leg.json(&endpoint, &[])?;
     let mut out = Mapped {
+        refusals: crate::Refusal::None,
         value: Vec::new(),
         problems: Vec::new(),
     };
@@ -63,7 +64,10 @@ pub fn gene(leg: &Leg<'_>, gene: &GeneSymbol) -> Result<Mapped<Vec<HotspotRecord
         let mapped = cx
             .field("record", Some(row))
             .and_then(|row| row.map(gene, &mut cx));
-        out.value.extend(mapped);
+        match mapped {
+            Some(row) => out.value.push(row),
+            None => out.refusals = crate::Refusal::Refused,
+        }
         out.problems.extend(cx.list);
     }
     Ok(out)

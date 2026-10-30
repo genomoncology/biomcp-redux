@@ -136,6 +136,7 @@ fn apply(
             .data
             .into_iter()
             .map(|mut r| {
+                out.problems.extend(r.problems().iter().cloned());
                 let card = if let Some(name) = q.facility() {
                     let mapped = r.facility_card(name);
                     out.problems.extend(mapped.problems);

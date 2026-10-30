@@ -148,6 +148,13 @@ fn corrupted(
         *bad.pointer_mut("/exchanges/0/body/value")
             .ok_or("missing synthetic body")? = format!("{header}{row}").into();
         fs::write(path, bad.to_string()).map_err(|e| e.to_string())?;
+        if row.starts_with("DDInter1,,")
+            || row.contains("DDInter2, ,")
+            || row.ends_with("Synthetic B,\n")
+        {
+            optional_cells(env, replay, args, before, path, original)?;
+            continue;
+        }
         let failed = call(env, replay, &["sync", "ddinter"], 4)?;
         if failed.pointer("/sources/0/reason") != Some(&json!("bad-reply"))
             || call(env, replay, args, 0)? != *before
@@ -156,6 +163,39 @@ fn corrupted(
                 "malformed partition changed the complete set: {failed}"
             ));
         }
+    }
+    Ok(())
+}
+
+fn optional_cells(
+    env: &Environment,
+    replay: &Path,
+    args: &[&str],
+    before: &Value,
+    path: &Path,
+    original: &[u8],
+) -> Check {
+    let synchronized = call(env, replay, &["sync", "ddinter"], 0)?;
+    if synchronized.pointer("/result/rows") != Some(&json!(8)) {
+        return Err(format!(
+            "optional DDInter cells rejected a native pair: {synchronized}"
+        ));
+    }
+    let retained = call(env, replay, args, 0)?;
+    for field in ["anchor", "partner", "level"] {
+        let pointer = format!("/result/interactions/data/records/0/{field}");
+        if retained.pointer(&pointer).is_none()
+            || retained.pointer(&pointer) != before.pointer(&pointer)
+        {
+            return Err(format!(
+                "optional DDInter cells changed a valid sibling {field}"
+            ));
+        }
+    }
+    fs::write(path, original).map_err(|error| error.to_string())?;
+    call(env, replay, &["sync", "ddinter"], 0)?;
+    if call(env, replay, args, 0)? != *before {
+        return Err("restored DDInter partition changed the complete set".into());
     }
     Ok(())
 }

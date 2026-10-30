@@ -11,12 +11,6 @@
         "CA123643",
         "--detail"
       ],
-      "mcp": [
-        "variant",
-        "population",
-        "CA123643",
-        "--detail"
-      ],
       "exit": 4,
       "is_error": true,
       "expect": {
@@ -25,21 +19,6 @@
         "/result/population/reason": "bad-reply"
       },
       "max_bytes": 427
-    },
-    {
-      "run": [
-        "variant",
-        "population",
-        "CA123643",
-        "--detail"
-      ],
-      "offline": true,
-      "exit": 4,
-      "expect": {
-        "/status": "failed",
-        "/result/population/reason": "offline"
-      },
-      "max_bytes": 423
     }
   ]
 }

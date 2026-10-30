@@ -12,14 +12,6 @@
         "--section-limit",
         "25"
       ],
-      "mcp": [
-        "get",
-        "cell-line",
-        "CVCL_0004",
-        "xrefs",
-        "--section-limit",
-        "25"
-      ],
       "walk": {
         "items": "/result/items/items",
         "max_pages": 56
@@ -31,10 +23,10 @@
           "count": 1398,
           "unique": true
         },
-        "/result/items/items/*/database": {
+        "/result/items/items/*/namespace": {
           "equals_file": "k562-xref-databases.json"
         },
-        "/result/items/items/*/accession": {
+        "/result/items/items/*/id": {
           "equals_file": "k562-xref-accessions.json"
         }
       },

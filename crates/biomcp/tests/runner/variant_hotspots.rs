@@ -6,7 +6,7 @@ use serde_json::{Value, json};
 use std::fs;
 pub(super) fn trials() -> Vec<Trial> {
     vec![transcript_trial(
-        "variant-hotspots/hotspots-retains-native-transcript-and-counts",
+        crate::runner::required_contract::HOTSPOTS.0,
         || candidate().map_err(Into::into),
     )]
 }

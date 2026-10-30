@@ -1,6 +1,7 @@
 # 0491 — Keep gene searches working while HGNC syncs
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 64ba85762f0977e2bd717184b25a9fb1e39f7fc9
 
 Milestone: 5
 

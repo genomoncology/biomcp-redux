@@ -24,6 +24,33 @@
       "pattern": "^[A-Za-z][A-Za-z0-9._/@-]{0,254}$",
       "type": "string"
     },
+    "Reply_IdentifierNamespace": {
+      "description": "A source-stated authority or an explicit unknown authority, represented by the string unknown.",
+      "maxLength": 1048576,
+      "minLength": 1,
+      "pattern": "^(?![\\s\\S]*[\\x00-\\x1f\\x7f-\\x9f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069])",
+      "type": "string"
+    },
+    "Reply_Identifier_int64": {
+      "description": "An authority and its unchanged native identifier; unknown means the authority was not stated.",
+      "properties": {
+        "id": {
+          "description": "Native identifier value, with its original scalar type and precision.",
+          "format": "int64",
+          "type": "integer"
+        },
+        "namespace": {
+          "$ref": "#/$defs/Reply_IdentifierNamespace",
+          "description": "Native authority spelling; the literal unknown carries an unstated authority."
+        }
+      },
+      "required": [
+        "namespace",
+        "id"
+      ],
+      "type": "object",
+      "x-identifier": true
+    },
     "Reply_PageInfo": {
       "description": "Search counts after filtering and deduplication.",
       "properties": {
@@ -79,9 +106,8 @@
           "description": "Native `accessionId`; literal source value."
         },
         "id": {
-          "description": "Native `id`; literal source value.",
-          "format": "int64",
-          "type": "integer"
+          "$ref": "#/$defs/Reply_Identifier_int64",
+          "description": "Native `id`; literal source value."
         },
         "levelOfEvidence": {
           "anyOf": [
@@ -307,9 +333,8 @@
           ]
         },
         "id": {
-          "description": "Native `id`; literal source value.",
-          "format": "int64",
-          "type": "integer"
+          "$ref": "#/$defs/Reply_Identifier_int64",
+          "description": "Native `id`; literal source value."
         },
         "name": {
           "description": "Native `name` when supplied.",
@@ -347,9 +372,8 @@
       "description": "Native location diplotype reference; its numeric ID is not a ClinPGx accession.",
       "properties": {
         "id": {
-          "description": "Native `id`; no expression, phase or phenotype is inferred.",
-          "format": "int64",
-          "type": "integer"
+          "$ref": "#/$defs/Reply_Identifier_int64",
+          "description": "Native `id`; no expression, phase or phenotype is inferred."
         }
       },
       "required": [
@@ -361,9 +385,8 @@
       "description": "Source-native PgxEvidenceTerm fields; no clinical interpretation.",
       "properties": {
         "id": {
-          "description": "Native `id`; literal source value.",
-          "format": "int64",
-          "type": "integer"
+          "$ref": "#/$defs/Reply_Identifier_int64",
+          "description": "Native `id`; literal source value."
         },
         "resource": {
           "description": "Native `resource`; literal source value.",
@@ -583,9 +606,8 @@
           "type": "array"
         },
         "id": {
-          "description": "Native `id`; literal source value.",
-          "format": "int64",
-          "type": "integer"
+          "$ref": "#/$defs/Reply_Identifier_int64",
+          "description": "Native `id`; literal source value."
         },
         "linkedObjects": {
           "description": "Native `linkedObjects`; literal source value.",
@@ -1350,7 +1372,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.pgx-annotations/4",
+  "$id": "biomcp.pgx-annotations/5",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -1406,7 +1428,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.pgx-annotations/4",
+      "const": "biomcp.pgx-annotations/5",
       "type": "string"
     },
     "sources": {

@@ -41,7 +41,7 @@ fn discover(
             offset,
             None,
         )?;
-        found.records.retain(|record| {
+        found.window.rows.retain(|record| {
             record
                 .openfda
                 .application_number
@@ -57,25 +57,28 @@ fn discover(
     };
     let mut exact = page(leg, &selector(".exact"), limit, offset, None)?;
     exact
-        .records
+        .window
+        .rows
         .retain(|record| record.name_match(name).is_some());
-    if !exact.records.is_empty() {
+    if !exact.window.rows.is_empty() {
         return Ok(exact);
     }
     let mut fallback = page(leg, &selector(""), limit, offset, None)?;
     fallback
-        .records
+        .window
+        .rows
         .retain(|record| record.name_match(name).is_some());
     // Keep continuation within the word selector when it has native candidates,
     // including pages whose candidates all fail the complete-name check.
-    if fallback.total > 0 {
+    if fallback.window.total().is_some_and(|total| total > 0) {
         return Ok(fallback);
     }
     let selector = literal(name.as_str());
     *free_text = Some(selector.parse().map_err(|_| bad())?);
     let mut fallback = page(leg, &selector, limit, offset, None)?;
     fallback
-        .records
+        .window
+        .rows
         .retain(|record| record.name_match(name).is_some() || primary_name(record, name));
     Ok(fallback)
 }

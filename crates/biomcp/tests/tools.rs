@@ -1,4 +1,4 @@
-//! Explicit parity, measurement, live-check and generation tools.
+//! Explicit measurement, live-check and generation tools.
 #![expect(
     clippy::disallowed_methods,
     reason = "The test entry point reads arguments and locates its own executable"
@@ -11,12 +11,6 @@ mod runner;
 use std::{env, path::PathBuf, process::ExitCode};
 
 fn main() -> ExitCode {
-    if env::args().nth(1).as_deref() == Some("--parity") {
-        return runner::parity::main(env::args().skip(2).collect());
-    }
-    if env::args().nth(1).as_deref() == Some("--parity-inventory") {
-        return runner::parity::inventory_main(env::args().skip(2).collect());
-    }
     if let Some(code) = native_proof() {
         return code;
     }

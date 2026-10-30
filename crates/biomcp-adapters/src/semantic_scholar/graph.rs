@@ -14,6 +14,8 @@ const PAPER: Endpoint = super::SPEC.get("/paper").fresh(Freshness::Days(1));
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PaperSummary {
+    // A successful HTTP status can still carry the provider's protocol error.
+    error: Option<serde::de::IgnoredAny>,
     /// Null means the source has no summary.
     tldr: Option<Field<Summary>>,
     /// Independently reported citation count.
@@ -31,7 +33,11 @@ struct Summary {
 }
 impl Reply for PaperSummary {
     fn check(&self) -> Result<(), BadReply> {
-        Ok(())
+        if self.error.is_some() {
+            Err(BadReply)
+        } else {
+            Ok(())
+        }
     }
 }
 impl PaperSummary {
@@ -154,6 +160,16 @@ struct RawEdges {
     data: Option<Vec<Field<Edge>>>,
 }
 impl Reply for RawEdges {
+    fn discovery(&self) -> Option<biomcp_fetch::Identities> {
+        super::search::doi_discovery(
+            self.data
+                .as_ref()?
+                .iter()
+                .filter_map(Field::as_ref)
+                .filter_map(|edge| edge.citing_paper.as_ref().or(edge.cited_paper.as_ref())),
+        )
+    }
+
     fn check(&self) -> Result<(), BadReply> {
         if self.data.as_ref().is_some_and(|data| {
             data.len() > 1000

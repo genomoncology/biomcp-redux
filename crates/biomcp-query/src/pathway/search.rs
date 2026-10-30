@@ -117,6 +117,7 @@ fn fetch(
     let complete = q.top_level() || q.gene().is_some();
     if q.gene().is_some() {
         let mapped = super::gene::headers(cx, q, deadline, out)?;
+        out.dropped = mapped.refusals == biomcp_adapters::Refusal::Refused;
         out.problems.extend(mapped.problems);
         body.items = mapped.value.into();
     } else {
@@ -126,7 +127,6 @@ fn fetch(
             .fresh(cx.fresh || q.fresh());
         let reply = if q.top_level() {
             reactome::top_level(&leg).map(|rows| reactome::Page {
-                dropped: false,
                 total: rows.value.len() as u64,
                 consumed: rows.value.len() as u32,
                 rows,
@@ -140,7 +140,7 @@ fn fetch(
             reply.as_ref().err().copied(),
         ));
         let reply = reply?;
-        out.dropped = reply.dropped;
+        out.dropped = reply.rows.refusals == biomcp_adapters::Refusal::Refused;
         out.problems.extend(reply.rows.problems);
         body.items = reply.rows.value.into();
         body.page.total = reply.total;

@@ -32,6 +32,7 @@ pub fn assertions(
 ) -> Result<Mapped<Vec<VariantAssertion>>, RequestError> {
     let mapped = records(leg, caid)?;
     let records = mapped.value;
+    let mut refusals = mapped.refusals;
     let mut cx = Problems {
         source: Source::Erepo,
         record: None,
@@ -60,8 +61,10 @@ pub fn assertions(
                 return Err(bad());
             }
             let mapped = history::fetch(leg, caid, id, uuid, version)?;
+            refusals.include(mapped.refusals);
             cx.list.extend(mapped.problems);
             return Ok(Mapped {
+                refusals,
                 value: mapped.value.into_iter().collect(),
                 problems: cx.list,
             });
@@ -69,15 +72,23 @@ pub fn assertions(
     }
     let value = records
         .into_iter()
-        .filter_map(|row| row.map(caid, &mut cx))
+        .filter_map(|row| match row.map(caid, &mut cx) {
+            Some(row) => Some(row),
+            None => {
+                refusals = crate::Refusal::Refused;
+                None
+            }
+        })
         .collect();
     Ok(Mapped {
+        refusals,
         value,
         problems: cx.list,
     })
 }
 fn records(leg: &Leg<'_>, caid: &str) -> Result<Mapped<Vec<raw::Record>>, RequestError> {
     let mut rows = Vec::new();
+    let mut refusals = crate::Refusal::None;
     let mut cx = Problems {
         source: Source::Erepo,
         record: None,
@@ -106,6 +117,7 @@ fn records(leg: &Leg<'_>, caid: &str) -> Result<Mapped<Vec<raw::Record>>, Reques
         for raw in data {
             cx.record = None;
             let Some(row) = cx.field("record", Some(raw)) else {
+                refusals = crate::Refusal::Refused;
                 continue;
             };
             cx.record = cx.text("PCERDocID", Some(&row.id));
@@ -115,12 +127,16 @@ fn records(leg: &Leg<'_>, caid: &str) -> Result<Mapped<Vec<raw::Record>>, Reques
                 if row.ca_id == caid {
                     rows.push(row);
                 } else {
+                    refusals = crate::Refusal::Refused;
                     cx.required::<()>("caId", None);
                 }
+            } else {
+                refusals = crate::Refusal::Refused;
             }
         }
         if complete {
             return Ok(Mapped {
+                refusals,
                 value: rows,
                 problems: cx.list,
             });

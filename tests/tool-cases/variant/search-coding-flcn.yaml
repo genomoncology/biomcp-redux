@@ -16,7 +16,7 @@
         "50"
       ],
       "expect": {
-        "/schema": "biomcp.variant-page/15",
+        "/schema": "biomcp.variant-page/16",
         "/status": "complete",
         "/result/source_query": "FLCN[GENE] AND \"c.780-4C>G\"[VRNM]",
         "/result/items/0/identity/ids/0": "clinvar:1760704",

@@ -21,11 +21,6 @@
       },
       "full_output_bytes": true,
       "max_bytes": 3026,
-      "mcp": [
-        "help",
-        "search",
-        "author"
-      ],
       "run": [
         "help",
         "search",
@@ -47,48 +42,9 @@
       },
       "full_output_bytes": true,
       "max_bytes": 2350,
-      "mcp": [
-        "help",
-        "get",
-        "author"
-      ],
       "run": [
         "help",
         "get",
-        "author"
-      ]
-    },
-    {
-      "expect": {
-        "/result/commands/*/command": {
-          "includes": [
-            "author",
-            "papers"
-          ]
-        },
-        "/status": "complete"
-      },
-      "full_output_bytes": true,
-      "max_bytes": 9758,
-      "run": [
-        "help",
-        "author"
-      ]
-    },
-    {
-      "expect": {
-        "/result/commands/*/command": {
-          "includes": [
-            "author",
-            "papers"
-          ]
-        },
-        "/status": "complete"
-      },
-      "full_output_bytes": true,
-      "max_bytes": 9817,
-      "mcp": [
-        "help",
         "author"
       ]
     }

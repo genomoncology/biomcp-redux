@@ -192,13 +192,13 @@
     "Reply_ProteinStructureRef": {
       "description": "A source structure cross-reference link; no residue coverage claim.",
       "properties": {
-        "database": {
-          "$ref": "#/$defs/Reply_Text",
-          "description": "Native cross-reference database."
-        },
         "id": {
           "$ref": "#/$defs/Reply_Text",
           "description": "Native cross-reference identifier."
+        },
+        "namespace": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "Native cross-reference database."
         },
         "properties": {
           "description": "All native property pairs, including method, resolution and chains.",
@@ -221,10 +221,11 @@
         }
       },
       "required": [
-        "database",
+        "namespace",
         "id"
       ],
-      "type": "object"
+      "type": "object",
+      "x-identifier": true
     },
     "Reply_ProteinStructures": {
       "description": "Source structure links and native properties; no residue coverage claim.",
@@ -749,7 +750,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.protein-structures/4",
+  "$id": "biomcp.protein-structures/5",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -805,7 +806,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.protein-structures/4",
+      "const": "biomcp.protein-structures/5",
       "type": "string"
     },
     "sources": {

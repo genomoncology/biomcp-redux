@@ -39,13 +39,15 @@ fn civic() -> Check {
         let mut expect = match mode {
             6 => json!({
                 "/result/items/0/sections/civic/state":"data",
-                "/result/items/0/sections/civic/data/id":20,
+                "/result/items/0/sections/civic/data/id/id":20,
+                "/result/items/0/sections/civic/data/id/namespace":"CIViC",
                 "/result/items/0/sections/civic/data":{"omits":["description"]},
                 "":{"omits":["problems"]}
             }),
             8 | 11 => json!({
                 "/result/items/0/sections/civic/state":"data",
-                "/result/items/0/sections/civic/data/id":20,
+                "/result/items/0/sections/civic/data/id/id":20,
+                "/result/items/0/sections/civic/data/id/namespace":"CIViC",
                 "/result/items/0/sections/civic/data/variant_count":126,
                 "/result/items/0/sections/civic/data":{"omits":[if mode == 8 {"url"} else {"description"}]},
                 "/problems":{"count":1},

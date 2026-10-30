@@ -40,7 +40,7 @@ pub fn get(cx: &Ctx<'_>, query: &VariantGet) -> Outcome {
     deadline = deadline.after_stage(found.elapsed);
     let mut problems = found.problems;
     let mut candidates = found.rows;
-    let rejection = found.rejection;
+    let mut rejection = found.rejection;
     let mut resolution = if found.error.is_some() {
         VariantResolution::Unavailable
     } else if rejection.is_some() {
@@ -69,6 +69,11 @@ pub fn get(cx: &Ctx<'_>, query: &VariantGet) -> Outcome {
         let (source, error) = enrich(cx, &mut deadline, &mut candidates, &mut problems);
         sources.push(source);
         local = local.or(error);
+    }
+    if transcript_gene_mismatch(query, &candidates) {
+        candidates.clear();
+        resolution = VariantResolution::Rejected;
+        rejection = Text::new("transcript_gene_mismatch").ok();
     }
     match_transcripts(query, &mut candidates);
     let page = candidate_page(query, resolution, &mut candidates);
@@ -99,6 +104,17 @@ pub fn get(cx: &Ctx<'_>, query: &VariantGet) -> Outcome {
     );
     command.finish(deadline.remaining());
     out
+}
+fn transcript_gene_mismatch(query: &VariantGet, candidates: &[VariantHeader]) -> bool {
+    let Some((reference, gene)) = query.input().reference_gene() else {
+        return false;
+    };
+    candidates.iter().flat_map(|c| &c.transcripts).any(|t| {
+        t.transcript.as_str() == reference
+            && t.gene
+                .as_ref()
+                .is_some_and(|source_gene| source_gene.as_str() != gene)
+    })
 }
 fn match_transcripts(query: &VariantGet, candidates: &mut [VariantHeader]) {
     for candidate in candidates {
@@ -141,7 +157,8 @@ pub(crate) fn resolve(
     leg: &Leg<'_>,
     problems: &mut Vec<biomcp_types::Problem>,
 ) -> Result<(Vec<VariantHeader>, Option<Text>), RequestError> {
-    let input = query.input().as_str();
+    let native = query.input().native_hgvs();
+    let input = native.as_ref();
     match query.input().namespace() {
         Ok(VariantNamespace::Rs | VariantNamespace::ClinVar | VariantNamespace::Chromosome) => {
             myvariant_identity(query, leg, problems, false)
