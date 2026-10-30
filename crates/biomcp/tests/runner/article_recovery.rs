@@ -104,8 +104,12 @@ fn secondary_answer() -> Result<(), String> {
                     .is_some_and(|url| url.contains("/esearch.fcgi"))
                 && let Some(exchanges) = record["exchanges"].as_array_mut()
             {
-                for exchange in exchanges {
+                for exchange in exchanges.iter_mut() {
                     exchange["status"] = json!(500);
+                }
+                // Each transport attempt receives an actual provider failure.
+                if let Some(exchange) = exchanges.first().cloned() {
+                    exchanges.resize(3, exchange);
                 }
             }
         },
@@ -113,6 +117,7 @@ fn secondary_answer() -> Result<(), String> {
             "/status": "partial",
             "/sources/0/source": "pubmed",
             "/sources/0/state": "failed",
+            "/sources/0/reason": "unavailable",
             "/sources/1/source": "europepmc",
             "/sources/1/state": "ok",
             "/result/items/0/header/title": "Synthetic source-local citation"
