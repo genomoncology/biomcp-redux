@@ -24,3 +24,6 @@ pub use search::{Page, expression, search};
 pub mod detail;
 mod detail_map;
 mod detail_raw;
+
+mod positions;
+pub use positions::Positions;

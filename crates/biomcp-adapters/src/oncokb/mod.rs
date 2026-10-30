@@ -62,15 +62,19 @@ pub fn gene(
     let rows = reply.map(|reply| reply.0).unwrap_or_default();
     let mut problems = Vec::new();
     let mut accepted = Vec::new();
+    let mut refusals = crate::Refusal::None;
     for row in rows {
         if let Some(value) = row.mapped(symbol, id, &mut problems) {
             accepted.push(value);
+        } else {
+            refusals = crate::Refusal::Refused;
         }
     }
     let value = if accepted.len() == 1 {
         accepted.pop()
     } else {
         if accepted.len() > 1 {
+            refusals = crate::Refusal::Refused;
             push_problem(
                 &mut problems,
                 Source::Oncokb,
@@ -80,7 +84,11 @@ pub fn gene(
         }
         None
     };
-    Ok(Mapped { value, problems })
+    Ok(Mapped {
+        refusals,
+        value,
+        problems,
+    })
 }
 /// Read the data version once for the command's accepted gene data.
 pub fn version(leg: &Leg<'_>) -> Result<Mapped<Option<Text>>, RequestError> {
@@ -94,6 +102,7 @@ pub fn version(leg: &Leg<'_>) -> Result<Mapped<Option<Text>>, RequestError> {
         .field("dataVersion", info.data_version)
         .and_then(|value| cx.field("dataVersion.version", value.version));
     Ok(Mapped {
+        refusals: crate::Refusal::None,
         value,
         problems: cx.list,
     })

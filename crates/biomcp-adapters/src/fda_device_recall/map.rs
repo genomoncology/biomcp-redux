@@ -63,6 +63,7 @@ pub(super) fn mapped(row: raw::Record) -> Mapped<DeviceRecallCard> {
     let k_numbers = list(row.k_numbers, "k_numbers", id.clone(), &mut problems);
     let pma_numbers = list(row.pma_numbers, "pma_numbers", id, &mut problems);
     Mapped {
+        refusals: crate::Refusal::None,
         value: DeviceRecallCard {
             header,
             reason,
@@ -85,5 +86,9 @@ pub(super) fn classification(row: raw::Enforcement) -> Mapped<Option<Text>> {
         "classification",
         row.classification,
     );
-    Mapped { value, problems }
+    Mapped {
+        refusals: crate::Refusal::None,
+        value,
+        problems,
+    }
 }

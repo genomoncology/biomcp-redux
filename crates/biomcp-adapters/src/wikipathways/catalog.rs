@@ -58,6 +58,7 @@ pub fn sync(fetch: &Fetch) -> Result<crate::Mapped<WikiPathwaysSync>, RequestErr
         .clone();
     let problems = crate::mapped::bundle_problems(SPEC.source, &info);
     Ok(crate::Mapped {
+        refusals: crate::bundle_mapping::bundle_refusals(&info),
         problems,
         value: WikiPathwaysSync {
             search,
@@ -74,6 +75,7 @@ pub fn search(
     let (rows, info) = leg.stored_set_rows(&CATALOGS, Find::Exact(KeyKind::Band, "catalog"))?;
     let needle = text.to_lowercase();
     let mut mapped = Mapped {
+        refusals: crate::Refusal::None,
         value: Vec::new(),
         problems: Vec::new(),
     };
@@ -82,6 +84,7 @@ pub fn search(
             .problems
             .extend(row.value.problems.into_iter().flatten());
         let Some(row) = row.value.native else {
+            mapped.refusals = crate::Refusal::Refused;
             continue;
         };
         if row.species.as_ref() == "Homo sapiens"
@@ -110,6 +113,7 @@ pub fn card(
 ) -> Result<Mapped<Option<PathwayCard>>, RequestError> {
     let (rows, _) = leg.stored_set_rows(&CATALOGS, Find::Exact(KeyKind::Id, &id.to_string()))?;
     let mut mapped = Mapped {
+        refusals: crate::Refusal::None,
         value: None,
         problems: Vec::new(),
     };
@@ -118,6 +122,7 @@ pub fn card(
             .problems
             .extend(row.value.problems.into_iter().flatten());
         let Some(row) = row.value.native else {
+            mapped.refusals = crate::Refusal::Refused;
             continue;
         };
         if row.id != *id || row.species.as_ref() != "Homo sapiens" {

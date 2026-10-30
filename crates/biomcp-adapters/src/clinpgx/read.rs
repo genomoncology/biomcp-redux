@@ -46,6 +46,7 @@ fn collection<T: serde::de::DeserializeOwned + NativeRow>(
         list: Vec::new(),
     };
     let mut value = Vec::new();
+    let mut refusals = crate::Refusal::None;
     for row in body.data {
         cx.record = None;
         if let Some(raw) = cx.field("record", Some(row)) {
@@ -55,14 +56,20 @@ fn collection<T: serde::de::DeserializeOwned + NativeRow>(
                 match check(&row) {
                     Ok(()) => value.push(row),
                     Err(field) if cx.list.len() == before => {
+                        refusals = crate::Refusal::Refused;
                         cx.required::<()>(field, None);
                     }
-                    Err(_) => {}
+                    Err(_) => refusals = crate::Refusal::Refused,
                 }
+            } else {
+                refusals = crate::Refusal::Refused;
             }
+        } else {
+            refusals = crate::Refusal::Refused;
         }
     }
     Ok(Mapped {
+        refusals,
         value,
         problems: cx.list,
     })
@@ -138,16 +145,29 @@ pub fn annotation(
         record: None,
         list: Vec::new(),
     };
-    let value = cx.field("record", Some(body.data)).and_then(|raw| {
+    let mut refusals = crate::Refusal::None;
+    let record = match cx.field("record", Some(body.data)) {
+        Some(row) => Some(row),
+        None => {
+            refusals = crate::Refusal::Refused;
+            None
+        }
+    };
+    let value = record.and_then(|raw| {
         cx.record = raw.record();
-        let row = raw.map(&mut cx)?;
+        let Some(row) = raw.map(&mut cx) else {
+            refusals = crate::Refusal::Refused;
+            return None;
+        };
         if row.accession_id == *q.id() {
             Some(row)
         } else {
+            refusals = crate::Refusal::Refused;
             cx.required("record", None)
         }
     });
     Ok(Mapped {
+        refusals,
         value,
         problems: cx.list,
     })

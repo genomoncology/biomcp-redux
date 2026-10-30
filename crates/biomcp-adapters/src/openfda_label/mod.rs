@@ -17,9 +17,11 @@ pub static SPEC: SourceSpec = SourceSpec {
     key: crate::openfda_key::OPTIONAL,
     deadline: Duration::from_secs(15),
 };
+mod admit;
 mod map;
 mod page;
 mod raw;
+mod wire;
 use biodata::{DrugId, Text};
 use biomcp_fetch::{Arg, BadReply, Endpoint, Freshness, Leg, ReplyMetadata, RequestError};
 pub use raw::Record;
@@ -37,6 +39,8 @@ const LABEL: Endpoint = SPEC.get("").fresh(Freshness::Days(1)).json_absence();
 pub struct Page {
     /// Source revisions and native positions before name filtering.
     pub window: crate::NativeWindow<Record>,
+    /// Rejected native source fields.
+    pub problems: Vec<biomcp_types::Problem>,
     /// This reply's actual original retrieval metadata.
     pub metadata: ReplyMetadata,
 }
@@ -127,9 +131,21 @@ fn page(
         raw::Response::Success { meta, results } => (results, meta.results.total),
         raw::Response::Absent { .. } => (Vec::new(), 0),
     };
+    let problems = records
+        .iter()
+        .flat_map(|r| r.problems.iter().cloned())
+        .collect();
     let received = records.len() as u32;
     Ok(Page {
-        window: crate::NativeWindow::new(records, offset, limit, Some(total), received),
+        window: crate::NativeWindow::new(
+            records,
+            offset,
+            limit,
+            Some(total),
+            received,
+            crate::Refusal::None,
+        ),
+        problems,
         metadata,
     })
 }

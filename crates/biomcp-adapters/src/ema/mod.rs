@@ -55,6 +55,7 @@ pub fn search(leg: &Leg<'_>, query: &str) -> Result<crate::Mapped<Vec<DrugHeader
         })
         .collect();
     Ok(crate::Mapped {
+        refusals: crate::Refusal::None,
         value,
         problems: problems.list,
     })
@@ -71,6 +72,7 @@ pub fn card(leg: &Leg<'_>, id: &DrugId) -> Result<crate::Mapped<Option<DrugCard>
         .as_ref()
         .map(|row| map::card(row, &mut problems));
     Ok(crate::Mapped {
+        refusals: crate::Refusal::None,
         value,
         problems: problems.list,
     })
@@ -96,6 +98,7 @@ pub fn regulatory(
         },
     });
     Ok(crate::Mapped {
+        refusals: crate::Refusal::None,
         value,
         problems: problems.list,
     })

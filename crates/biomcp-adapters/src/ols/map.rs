@@ -229,12 +229,14 @@ fn synonyms(term: &raw::Term, attribution: &Attribution) -> Mapped<Vec<DiseaseSy
         }
     }
     Mapped {
+        refusals: crate::Refusal::None,
         value,
         problems: problems.list,
     }
 }
 fn xrefs(term: &raw::Term, attribution: &Attribution) -> Mapped<Vec<DiseaseRelation>> {
     let mut mapped = Mapped {
+        refusals: crate::Refusal::None,
         value: Vec::new(),
         problems: Vec::new(),
     };

@@ -4,6 +4,8 @@ pub mod alphagenome;
 mod bundle_mapping;
 pub mod hgnc;
 mod mapped;
+mod native_positions;
+pub use native_positions::NativePositions;
 pub mod mygene;
 /// Keyed OncoKB gene annotations.
 pub mod oncokb;
@@ -11,7 +13,7 @@ pub mod pubmed;
 mod quotas;
 mod raw;
 mod strict_input;
-pub use mapped::Mapped;
+pub use mapped::{Mapped, Refusal};
 
 pub mod complex_portal;
 pub mod gnomad;

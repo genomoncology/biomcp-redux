@@ -30,10 +30,13 @@ pub(super) fn page(
         list: Vec::new(),
     };
     let mut profiles = Vec::new();
+    let mut refusals = crate::Refusal::None;
     for profile in raw.nodes {
         cx.record = None;
-        if let Some(profile) = map(profile, query, allele, &mut cx)? {
+        if let Some(profile) = map(profile, query, allele, &mut cx, &mut refusals)? {
             profiles.push(profile);
+        } else {
+            refusals = crate::Refusal::Refused;
         }
     }
     let page = bounds(
@@ -58,6 +61,7 @@ pub(super) fn page(
         None
     };
     Ok(Mapped {
+        refusals,
         value: VariantCivic {
             profiles: profiles.into(),
             page,
@@ -71,6 +75,7 @@ fn map(
     query: &VariantGet,
     allele: &str,
     cx: &mut Problems,
+    refusals: &mut crate::Refusal,
 ) -> Result<Option<CivicProfile>, RequestError> {
     let Some(id) = identity(raw.id, "id", cx) else {
         return Ok(None);
@@ -89,7 +94,7 @@ fn map(
     let raw_name = cx.field("rawName", raw.raw_name);
     let native_count = raw.variants.as_ref().and_then(Field::as_ref).map(Vec::len);
     let native_members = cx.fields("variants", raw.variants);
-    let (members, exact) = checked_members(native_members, allele, cx);
+    let (members, exact) = checked_members(native_members, allele, cx, refusals);
     let mut context_bad = cx.list.len() != start;
     let complete = native_count == Some(members.len()) && !context_bad;
     let link = cx.field("link", raw.link);
@@ -131,6 +136,7 @@ fn map(
             context_bad,
             &record.id,
             cx,
+            refusals,
         );
         statements = claims;
         evidence_page.returned = evidence_returned;
@@ -173,12 +179,15 @@ fn claims(
     context_bad: bool,
     record: &Text,
     cx: &mut Problems,
+    refusals: &mut crate::Refusal,
 ) -> (Vec<CivicStatement>, u32) {
     let mut statements = Vec::new();
     for row in evidence {
         cx.record = Some(record.clone());
         if let Some(row) = variant_claims::evidence(row, subject, context_bad, cx) {
             statements.push(row.claim);
+        } else {
+            *refusals = crate::Refusal::Refused;
         }
     }
     let evidence_returned = statements.len() as u32;
@@ -186,6 +195,8 @@ fn claims(
         cx.record = Some(record.clone());
         if let Some(row) = variant_claims::assertion(row, subject, context_bad, cx) {
             statements.push(row.claim);
+        } else {
+            *refusals = crate::Refusal::Refused;
         }
     }
     (statements, evidence_returned)
@@ -194,6 +205,7 @@ fn checked_members(
     raw: Box<[raw::Member]>,
     allele: &str,
     cx: &mut Problems,
+    refusals: &mut crate::Refusal,
 ) -> (Vec<CivicMember>, bool) {
     let parent = cx.record.clone();
     let mut members = Vec::new();
@@ -203,6 +215,8 @@ fn checked_members(
         if let Some((member, caid)) = member(value, cx) {
             exact |= caid.as_ref().is_some_and(|id| id.as_str() == allele);
             members.push(member);
+        } else {
+            *refusals = crate::Refusal::Refused;
         }
     }
     cx.record = parent;

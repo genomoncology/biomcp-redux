@@ -3,6 +3,23 @@ use crate::{native_text::NativeText, raw::Field};
 use biodata::Text;
 use biomcp_types::Problem;
 
+/// Whether a mapper refused a record, independent of field diagnostics.
+#[derive(Clone, Copy, Debug, Eq, PartialEq, serde::Deserialize)]
+pub enum Refusal {
+    /// No record was refused.
+    None,
+    /// At least one record was refused at its mapping boundary.
+    Refused,
+}
+impl Refusal {
+    /// Preserve an actual refusal from either mapping stage.
+    pub fn include(&mut self, other: Self) {
+        if other == Self::Refused {
+            *self = other;
+        }
+    }
+}
+
 /// A source value with rejected fields retained as problems.
 #[derive(Debug)]
 pub struct Mapped<T> {
@@ -10,6 +27,8 @@ pub struct Mapped<T> {
     pub value: T,
     /// Fields that could not be accepted.
     pub problems: Vec<Problem>,
+    /// Actual record refusals, independent of optional-field problems.
+    pub refusals: Refusal,
 }
 
 /// Construct a rejected-field disclosure in one place for every adapter.
@@ -97,6 +116,19 @@ impl Problems {
     ) -> Option<T> {
         let value = self.field(field, value);
         self.required(field, value)
+    }
+    /// Preserve a supplied empty list while rejecting only malformed members.
+    pub(crate) fn optional_fields<T>(
+        &mut self,
+        field: &str,
+        value: Option<crate::raw::Field<Vec<crate::raw::Field<T>>>>,
+    ) -> Option<Vec<T>> {
+        Some(
+            self.field(field, value)?
+                .into_iter()
+                .filter_map(|v| self.field(field, Some(v)))
+                .collect(),
+        )
     }
     pub(crate) fn fields<T>(
         &mut self,

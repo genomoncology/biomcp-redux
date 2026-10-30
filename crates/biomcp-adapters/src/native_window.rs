@@ -8,16 +8,25 @@ pub struct NativeWindow<T> {
     limit: u32,
     total: Option<u64>,
     received: u32,
+    refusals: crate::Refusal,
 }
 impl<T> NativeWindow<T> {
     /// Bind accepted records to counts measured before identity filtering.
-    pub fn new(rows: Vec<T>, offset: u32, limit: u32, total: Option<u64>, received: u32) -> Self {
+    pub fn new(
+        rows: Vec<T>,
+        offset: u32,
+        limit: u32,
+        total: Option<u64>,
+        received: u32,
+        refusals: crate::Refusal,
+    ) -> Self {
         Self {
             rows,
             offset,
             limit,
             total,
             received,
+            refusals,
         }
     }
     /// Select native slots before removing refused records.
@@ -29,13 +38,23 @@ impl<T> NativeWindow<T> {
             .take(limit as usize)
             .collect();
         let received = slots.len() as u32;
-        Self::new(
-            slots.into_iter().flatten().collect(),
-            offset,
-            limit,
-            Some(total),
-            received,
-        )
+        let mut rows = Vec::new();
+        let mut refusals = crate::Refusal::None;
+        for slot in slots {
+            match slot {
+                Some(row) => rows.push(row),
+                None => refusals = crate::Refusal::Refused,
+            }
+        }
+        Self::new(rows, offset, limit, Some(total), received, refusals)
+    }
+    /// Actual record refusals in this selected window.
+    pub fn refusals(&self) -> crate::Refusal {
+        self.refusals
+    }
+    /// Retain actual record refusals from a later mapping stage.
+    pub fn include_refusals(&mut self, refusals: crate::Refusal) {
+        self.refusals.include(refusals);
     }
     /// Native selector offset.
     pub fn offset(&self) -> u32 {
@@ -72,6 +91,13 @@ impl<T> NativeWindow<T> {
     }
     /// Keep native traversal facts while mapping accepted records for a caller.
     pub fn with_rows<U>(self, rows: Vec<U>) -> NativeWindow<U> {
-        NativeWindow::new(rows, self.offset, self.limit, self.total, self.received)
+        NativeWindow::new(
+            rows,
+            self.offset,
+            self.limit,
+            self.total,
+            self.received,
+            self.refusals,
+        )
     }
 }

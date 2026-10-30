@@ -110,6 +110,7 @@ impl CatalogRow {
             reference_genome: self.reference_genome.clone(),
         };
         Ok(crate::Mapped {
+            refusals: crate::Refusal::None,
             value,
             problems: problems.list,
         })
@@ -146,6 +147,7 @@ impl CatalogRow {
             public_study: self.public_study,
         };
         Ok(crate::Mapped {
+            refusals: header.refusals,
             value,
             problems: header.problems,
         })

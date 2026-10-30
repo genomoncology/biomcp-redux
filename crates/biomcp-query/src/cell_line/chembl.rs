@@ -40,9 +40,8 @@ pub(super) fn get_at(
     out.sources
         .push(status::source(Source::Chembl, leg.finish(), error));
     out.local = error.and_then(status::local);
-    if let Ok(reply) = reply {
-        out.problems.extend(reply.problems);
-        let page = reply.value;
+    if let Ok(page) = reply {
+        out.problems.extend(page.problems);
         let total = page.window.total().unwrap_or(0);
         let next_offset = page.window.next_offset();
         let more = page.window.has_more();

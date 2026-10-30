@@ -177,6 +177,7 @@ pub fn classification(
     exact::<raw::Enforcement>(leg, "/device/enforcement.json", "recall_number", id).map(|row| {
         row.map_or_else(
             || crate::mapped::Mapped {
+                refusals: crate::Refusal::None,
                 value: None,
                 problems: Vec::new(),
             },

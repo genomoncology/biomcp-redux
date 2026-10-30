@@ -72,6 +72,7 @@ pub(super) fn project(
         }
     }
     Ok(Mapped {
+        refusals: crate::Refusal::None,
         value: VariantPredictors {
             subject_qualification: biomcp_types::SubjectQualification::AdapterDerivedReference,
             scores: out.scores.into(),
@@ -232,6 +233,7 @@ impl Output {
 
 fn unqualified(id: Option<Text>, field: &str) -> Mapped<VariantPredictors> {
     Mapped {
+        refusals: crate::Refusal::Refused,
         value: VariantPredictors {
             subject_qualification: biomcp_types::SubjectQualification::AdapterDerivedReference,
             scores: Box::new([]),

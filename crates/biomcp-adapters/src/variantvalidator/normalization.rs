@@ -39,13 +39,15 @@ pub fn normalize(
         .collect();
     let mut mappings = Vec::new();
     let mut messages = Vec::new();
-    for (key, row) in raw.records(input, &mut problems) {
+    let mut refusals = crate::Refusal::None;
+    for (key, row) in raw.records(input, &mut problems, &mut refusals) {
         add_record(&key, row, &mut mappings, &mut messages, &mut problems);
     }
     result.total_mappings = mappings.len() as u32;
     result.mappings = mappings.into();
     result.messages = messages.into();
     Ok(Mapped {
+        refusals,
         value: result,
         problems: problems.list,
     })

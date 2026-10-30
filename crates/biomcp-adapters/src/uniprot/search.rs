@@ -68,19 +68,23 @@ pub fn search(
         .transpose()?;
     let mut items = Vec::new();
     let mut problems = Vec::new();
+    let mut refusals = crate::Refusal::None;
     for raw in raw.results {
         let Some(raw) = raw.value() else {
+            refusals = crate::Refusal::Refused;
             crate::mapped::push_problem(&mut problems, Source::UniProt, None, "identity");
             continue;
         };
         let id = raw.primary_accession.clone();
         let mapped = entry::map::entry(raw, &id);
+        refusals.include(mapped.refusals);
         problems.extend(mapped.problems);
         if let Some(row) = mapped.value {
             if items
                 .iter()
                 .any(|h: &ProteinHeader| h.protein.accession == id)
             {
+                refusals = crate::Refusal::Refused;
                 problems.push(Problem {
                     source: Source::UniProt,
                     record: crate::mapped::record(&id),
@@ -93,6 +97,7 @@ pub fn search(
         }
     }
     Ok(Mapped {
+        refusals,
         value: SearchPage {
             items,
             total: page.total,

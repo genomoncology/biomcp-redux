@@ -80,12 +80,16 @@ pub(super) fn extras(
     reply: Genes,
     ids: &[NcbiGeneId],
     problems: &mut Vec<Problem>,
+    refusals: &mut crate::Refusal,
 ) -> Vec<Mapped<GeneExtras>> {
     let mut hits: BTreeMap<NcbiGeneId, Vec<Hit>> = BTreeMap::new();
     for hit in reply.0 {
         match hit.query.parse::<NcbiGeneId>() {
             Ok(id) if ids.contains(&id) => hits.entry(id).or_default().push(hit),
-            _ => problems.push(problem(Source::MyGene, None, "query")),
+            _ => {
+                *refusals = crate::Refusal::Refused;
+                problems.push(problem(Source::MyGene, None, "query"));
+            }
         }
     }
     for id in ids {
@@ -96,15 +100,21 @@ pub(super) fn extras(
     hits.into_iter()
         .filter_map(|(id, mut hits)| {
             if hits.len() != 1 {
+                *refusals = crate::Refusal::Refused;
                 problems.push(problem(Source::MyGene, record_text(id), "query"));
                 return None;
             }
-            map_hit(hits.pop()?, id, problems)
+            map_hit(hits.pop()?, id, problems, refusals)
         })
         .collect()
 }
 
-fn map_hit(hit: Hit, id: NcbiGeneId, problems: &mut Vec<Problem>) -> Option<Mapped<GeneExtras>> {
+fn map_hit(
+    hit: Hit,
+    id: NcbiGeneId,
+    problems: &mut Vec<Problem>,
+    refusals: &mut crate::Refusal,
+) -> Option<Mapped<GeneExtras>> {
     if hit.notfound == Some(true) {
         return None;
     }
@@ -113,6 +123,7 @@ fn map_hit(hit: Hit, id: NcbiGeneId, problems: &mut Vec<Problem>) -> Option<Mapp
         .and_then(Field::value)
         .and_then(|value| value.parse::<NcbiGeneId>().ok());
     if returned != Some(id) {
+        *refusals = crate::Refusal::Refused;
         problems.push(problem(Source::MyGene, record_text(id), "entrez_id"));
         return None;
     }
@@ -122,6 +133,7 @@ fn map_hit(hit: Hit, id: NcbiGeneId, problems: &mut Vec<Problem>) -> Option<Mapp
         .and_then(Field::value)
         .and_then(|value| format!("HGNC:{value}").parse::<HgncId>().ok());
     let mut mapped = Mapped {
+        refusals: crate::Refusal::None,
         value: GeneExtras {
             query_id: id,
             entrez_id: returned?,

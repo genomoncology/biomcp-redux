@@ -25,6 +25,7 @@ pub fn version(
             problems.optional("dataTimestamp", Some(checked))
         });
     Ok(crate::Mapped {
+        refusals: crate::Refusal::None,
         value,
         problems: problems.list,
     })

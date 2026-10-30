@@ -158,6 +158,10 @@ pub struct Author {
     pub name: Option<biodata::Text>,
 }
 impl Reply for Search {
+    fn discovery(&self) -> Option<biomcp_fetch::Identities> {
+        doi_discovery(self.data.iter())
+    }
+
     fn check(&self) -> Result<(), BadReply> {
         if self.received > 100 || self.received as u64 > self.total {
             return Err(BadReply);
@@ -259,4 +263,19 @@ impl Paper {
             found_by: Default::default(),
         }
     }
+}
+
+pub(super) fn doi_discovery<'a>(
+    papers: impl Iterator<Item = &'a Paper>,
+) -> Option<biomcp_fetch::Identities> {
+    let ids = papers
+        .filter_map(|paper| paper.external_ids.as_ref())
+        .filter(|ids| ids.pubmed.is_none())
+        .filter_map(|ids| ids.doi.as_ref().map(ToString::to_string))
+        .collect();
+    // Checked page and transport limits bound these complete source identities.
+    Some(biomcp_fetch::Identities {
+        namespace: "doi".into(),
+        ids,
+    })
 }

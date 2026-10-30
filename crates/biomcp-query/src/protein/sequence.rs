@@ -13,6 +13,7 @@ pub(super) fn read(
 ) -> Result<Mapped<Option<ProteinSequence>>, RequestError> {
     if q.isoform.as_str().contains('-') {
         return uniprot::sequence(leg, &q.isoform).map(|sequence| Mapped {
+            refusals: biomcp_adapters::Refusal::None,
             value: Some(sequence),
             problems: Vec::new(),
         });
@@ -30,6 +31,7 @@ pub(super) fn read(
         })
         .transpose()?;
     Ok(Mapped {
+        refusals: mapped.refusals,
         value,
         problems: mapped.problems,
     })

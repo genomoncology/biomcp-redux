@@ -9,6 +9,8 @@ pub(super) enum Response {
 #[derive(Debug, Deserialize)]
 pub(super) struct Meta {
     pub results: Counts,
+    #[serde(rename = "last_updated")]
+    _last_updated: Option<biodata::PartialDate>,
 }
 #[derive(Debug, Deserialize)]
 pub(super) struct Counts {
@@ -59,25 +61,35 @@ impl Reply for Response {
 #[derive(Debug, Deserialize)]
 pub(super) struct Record {
     pub k_number: biodata::DiagnosticDeviceId,
-    pub device_name: Option<Box<str>>,
-    pub applicant: Option<Box<str>>,
-    pub decision_code: Option<Box<str>>,
-    pub decision_description: Option<Box<str>>,
-    pub decision_date: Option<Box<str>>,
-    pub date_received: Option<Box<str>>,
-    pub product_code: Option<Box<str>>,
+    pub device_name: Option<crate::raw::Field<Box<str>>>,
+    pub applicant: Option<crate::raw::Field<Box<str>>>,
+    pub decision_code: Option<crate::raw::Field<Box<str>>>,
+    pub decision_description: Option<crate::raw::Field<Box<str>>>,
+    pub decision_date: Option<crate::raw::Field<Box<str>>>,
+    pub date_received: Option<crate::raw::Field<Box<str>>>,
+    pub product_code: Option<crate::raw::Field<Box<str>>>,
 }
 impl Record {
-    pub(super) fn mapped(self) -> biomcp_types::DiagnosticClearance {
-        biomcp_types::DiagnosticClearance {
+    pub(super) fn mapped(self) -> crate::Mapped<biomcp_types::DiagnosticClearance> {
+        let mut p = crate::mapped::Problems {
+            source: biomcp_types::Source::Fda510k,
+            record: crate::mapped::record(&self.k_number),
+            list: Vec::new(),
+        };
+        let value = biomcp_types::DiagnosticClearance {
             k_number: self.k_number,
-            device_name: self.device_name,
-            applicant: self.applicant,
-            decision_code: self.decision_code,
-            decision_description: self.decision_description,
-            decision_date: self.decision_date,
-            date_received: self.date_received,
-            product_code: self.product_code,
+            device_name: p.field("device_name", self.device_name),
+            applicant: p.field("applicant", self.applicant),
+            decision_code: p.field("decision_code", self.decision_code),
+            decision_description: p.field("decision_description", self.decision_description),
+            decision_date: p.field("decision_date", self.decision_date),
+            date_received: p.field("date_received", self.date_received),
+            product_code: p.field("product_code", self.product_code),
+        };
+        crate::Mapped {
+            refusals: crate::Refusal::None,
+            value,
+            problems: p.list,
         }
     }
 }
