@@ -36,7 +36,6 @@ command skill status
 command version
 failure label bad-source-data
 failure label expired-pool
-failure label not-found
 failure label offline-miss
 failure label unavailable
 failure trial expired-pool
