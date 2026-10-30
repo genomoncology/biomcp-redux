@@ -1,5 +1,8 @@
 //! Keep native application facts independently of rejected nonidentity values.
-use super::{raw::*, wire};
+use super::{
+    raw::{Application, Document, Ingredient, OpenFda, Product, Property, Submission, date},
+    wire,
+};
 use crate::mapped::Problems;
 impl From<wire::Application> for Application {
     fn from(row: wire::Application) -> Self {
