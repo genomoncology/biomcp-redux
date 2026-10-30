@@ -1,7 +1,15 @@
 pub(super) fn cases() -> Vec<(&'static str, &'static str, &'static str)> {
     vec![
-        ("markdown-wrong-pair", "  - run: [help, --format, md]\n    max_bytes: 710", "comparable Markdown max_bytes requires an adjacent JSON CLI step with matching arguments"),
-        ("markdown-content", "  - run: [schema, biomcp.source/1, --format, md]\n    expect: {'': {includes: nonexistent-review-text}}", "stdout includes: expected text"),
+        (
+            "markdown-wrong-pair",
+            "  - run: [help, --format, md]\n    max_bytes: 710",
+            "comparable Markdown max_bytes requires an adjacent JSON CLI step with matching arguments",
+        ),
+        (
+            "markdown-content",
+            "  - run: [schema, biomcp.source/1, --format, md]\n    expect: {'': {includes: nonexistent-review-text}}",
+            "stdout includes: expected text",
+        ),
         ("markdown-ceiling", "  - run: [schema, biomcp.source/1, --format=md]\n    max_bytes: 0", "stdout max_bytes: expected <= 0"),
         ("markdown-literal-separator", "  - run: [help, --, --format, md]\n    stdout: wrong", "literal stdout requires a plain-text local command"),
         ("literal-stdout", "  - run: [version]\n    stdout: wrong version", "stdout: expected"),
