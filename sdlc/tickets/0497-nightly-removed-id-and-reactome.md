@@ -1,6 +1,7 @@
 # 0497 — Refresh the Reactome recording and explain the nightly PubMed and uncertain cases
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 81202adc5cd812d273cae85b748eb2ca81be524c
 
 Milestone: 5
 

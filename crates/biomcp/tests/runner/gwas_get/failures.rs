@@ -67,7 +67,7 @@ fn failure(surface: &str, fault: &str) -> Result<(), String> {
         let (identity, expected, omitted) = if surface == "association" {
             (
                 "/result/association/id",
-                json!(6114),
+                json!("association:6114"),
                 "/result/association/alleles",
             )
         } else {

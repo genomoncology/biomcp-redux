@@ -144,7 +144,7 @@ fn help(env: &Environment) -> Check {
             .iter()
             .map(|command| command.get("command"))
             .collect::<Vec<_>>()
-            != vec![Some(&json!([name])), Some(&json!(["help", name]))]
+            != vec![Some(&json!([name]))]
             || commands
                 .iter()
                 .find(|command| command.get("command") == Some(&json!([name])))

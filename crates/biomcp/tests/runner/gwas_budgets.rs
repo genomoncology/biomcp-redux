@@ -65,8 +65,8 @@ pub(super) fn optional_page(value: &Value, field: &str, omitted: &str) -> Result
         || value
             .pointer("/sources/0/retrieved_count")
             .is_some_and(|count| count != &json!(3))
-        || value.pointer("/result/items/0/id") != Some(&json!(6110))
-        || value.pointer("/result/items/2/id") != Some(&json!(6112))
+        || value.pointer("/result/items/0/id") != Some(&json!("association:6110"))
+        || value.pointer("/result/items/2/id") != Some(&json!("association:6112"))
         || value.pointer(omitted).is_some()
         || !value
             .get("problems")
