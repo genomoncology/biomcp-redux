@@ -35,9 +35,13 @@ its newline, or the actual MCP content text. Its token estimate uses those same
 bytes divided by four, rounded up. RPC framing remains separate.
 An explicit CLI `--format md` or `--format=md` before a literal `--` accepts
 root `expect` assertions with `includes` for one substring or `includes_all_of`
-for an array of required substrings. Markdown checks raw `max_bytes`; JSON
-pointers, other operators, MCP parity and token ceilings remain unavailable for
-that text assertion form. Literal `stdout` still compares the complete output.
+for an array of required substrings. Markdown `max_bytes` preserves the comparable text metric by validating and
+subtracting publisher policy columns with the existing source terms checker.
+It requires an immediately preceding actual JSON CLI step with matching arguments
+apart from explicit format options. A missing or different pair fails. With
+`full_output_bytes: true`, the ceiling counts every raw byte and requires no pair.
+JSON pointers, other operators, MCP parity and token ceilings remain unavailable
+for that text assertion form. Literal `stdout` still compares the complete output.
 
 Arrays are ordered. Membership ignores multiplicity. Missing paths fail;
 explicit null is a value. Ordinary empty arrays can equal `[]`, have count zero,

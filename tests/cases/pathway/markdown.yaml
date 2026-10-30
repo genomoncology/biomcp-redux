@@ -2,6 +2,10 @@ feature: markdown-view
 story: Markdown preserves the reviewed pathway title and next commands within its original output ceiling.
 replay: pathway/native
 steps:
+  - run: [get, pathway, R-HSA-5673001, --format, json]
+    expect:
+      /status: complete
+      /result/pathway/id: {equals: {namespace: reactome, id: R-HSA-5673001}}
   - run: [get, pathway, R-HSA-5673001, --format, md]
     max_bytes: 710
     expect:

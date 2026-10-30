@@ -138,13 +138,61 @@ pub(super) fn markdown(step: &Step) -> bool {
     })
 }
 
+fn without_format(args: &[String]) -> Vec<&str> {
+    let mut result = Vec::new();
+    let mut words = args.iter();
+    while let Some(word) = words.next() {
+        if word == "--" {
+            result.push(word.as_str());
+            result.extend(words.map(String::as_str));
+            break;
+        }
+        if word == "--format" {
+            words.next();
+        } else if !word.starts_with("--format=") {
+            result.push(word.as_str());
+        }
+    }
+    result
+}
+
+/// Comparable Markdown budgets require an adjacent actual JSON reply for the same call.
+pub(super) fn markdown_pair<'a>(
+    step: &Step,
+    prior_step: Option<&Step>,
+    prior_value: Option<&'a Value>,
+) -> Result<Option<&'a Value>, String> {
+    if !markdown(step) || step.max_bytes.is_none() || step.full_output_bytes {
+        return Ok(None);
+    }
+    let refusal =
+        "comparable Markdown max_bytes requires an adjacent JSON CLI step with matching arguments";
+    let prior = prior_step.ok_or(refusal)?;
+    let value = prior_value.ok_or(refusal)?;
+    if markdown(prior)
+        || prior.stdout.is_some()
+        || prior.mcp.is_some()
+        || prior.mcp_call.is_some()
+        || prior.follow.is_some()
+        || prior.walk.is_some()
+        || prior.offline != step.offline
+        || prior.stdin != step.stdin
+        || !value.is_object()
+        || without_format(prior.run.as_deref().ok_or(refusal)?)
+            != without_format(step.run.as_deref().ok_or(refusal)?)
+    {
+        return Err(refusal.into());
+    }
+    Ok(Some(value))
+}
+
 fn markdown_forms(step: &Step) -> Result<(), String> {
     if step.mcp.is_some() || step.mcp_call.is_some() || step.follow.is_some() || step.walk.is_some()
     {
         return Err("Markdown assertions require one explicit CLI call".into());
     }
     if step.max_tokens.is_some() {
-        return Err("Markdown assertions use raw max_bytes".into());
+        return Err("Markdown assertions use max_bytes".into());
     }
     for (pointer, options) in &step.expect {
         let options = options
@@ -172,14 +220,19 @@ pub(super) fn check_markdown(
     stdout: &[u8],
     step: &Step,
     expectations: &Expectations<'_>,
+    paired_json: Option<&Value>,
 ) -> Result<(), String> {
+    let text = std::str::from_utf8(stdout).map_err(|error| error.to_string())?;
+    let terms_bytes = paired_json
+        .map(|value| super::source_terms::markdown_bytes(text, value))
+        .transpose()?
+        .unwrap_or(0);
     ceiling(
         "stdout",
         "max_bytes",
-        stdout.len(),
+        stdout.len() - terms_bytes,
         step.max_bytes.map(|value| value as u64),
     )?;
-    let text = std::str::from_utf8(stdout).map_err(|error| error.to_string())?;
     for (_, _, assertions) in expectations {
         for assertion in assertions {
             let expected = match assertion {

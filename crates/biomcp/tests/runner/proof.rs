@@ -139,6 +139,15 @@ fn negatives() -> Check {
             "/type max_tokens: expected <= 1, actual 2",
         ),
     ];
+    put(
+        directory.path(),
+        "markdown-pair.yaml",
+        "  - run: [help, author, --format, json]\n  - run: [help, author, --format, md]\n    max_bytes: 8192\n    expect: {'': {includes_all_of: ['biomcp author papers', '--format', '--disable-sources']}}",
+    )?;
+    let accepted = invoke(directory.path(), &["markdown-pair.yaml", "--exact"])?;
+    if !accepted.status.success() {
+        return Err(format!("matching Markdown pair failed: {}", String::from_utf8_lossy(&accepted.stdout)));
+    }
     for (name, step, diagnostic) in cases.into_iter().chain(super::negative_cases::cases()) {
         let filename = format!("{name}.yaml");
         put(directory.path(), &filename, step)?;

@@ -7,12 +7,23 @@ pub(super) fn run_step(
     expectations: &assertions::Expectations<'_>,
     registry: &schema::Registry,
     replay: Option<&std::path::Path>,
+    paired_json: Option<&Value>,
 ) -> Result<Value, String> {
     let globals = environment.globals(replay, step.offline);
     let cli = step
         .run
         .as_ref()
-        .map(|args| cli(args, step, environment, expectations, registry, &globals))
+        .map(|args| {
+            cli(
+                args,
+                step,
+                environment,
+                expectations,
+                registry,
+                &globals,
+                paired_json,
+            )
+        })
         .transpose()?;
     let mut answer = cli.clone();
     if let Some(args) = &step.mcp {
@@ -49,6 +60,7 @@ fn cli(
     expectations: &assertions::Expectations<'_>,
     registry: &schema::Registry,
     globals: &[String],
+    paired_json: Option<&Value>,
 ) -> Result<Value, String> {
     let command_args = launch::arguments(args, globals);
     let mut command = environment.command(env!("CARGO_BIN_EXE_biomcp"), &command_args);
@@ -70,7 +82,7 @@ fn cli(
         return Err("error output: expected empty stderr".into());
     }
     if assertions::markdown(step) {
-        assertions::check_markdown(&output.stdout, step, expectations)?;
+        assertions::check_markdown(&output.stdout, step, expectations, paired_json)?;
     }
     if let Some(expected) = &step.stdout {
         if serde_json::from_slice::<Value>(&output.stdout).is_ok() {

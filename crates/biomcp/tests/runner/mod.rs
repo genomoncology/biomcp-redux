@@ -203,6 +203,7 @@ fn run_case(path: &Path, registry: &schema::Registry) -> Result<Value, String> {
                 registry,
                 replay.as_deref(),
                 previous.as_ref(),
+                index.checked_sub(1).map(|index| &case.steps[index]),
             )
             .map_err(|error| format!("{}; step {}: {error}", case.story, index + 1))?,
         );
@@ -322,9 +323,11 @@ fn run_sequence(
     registry: &schema::Registry,
     replay: Option<&Path>,
     previous: Option<&Value>,
+    previous_step: Option<&Step>,
 ) -> Result<Value, String> {
+    let paired = assertions::markdown_pair(step, previous_step, previous)?;
     run_sequence_with(step, expectations, previous, |current, expectations| {
-        run_step(current, environment, expectations, registry, replay)
+        run_step(current, environment, expectations, registry, replay, paired)
     })
 }
 

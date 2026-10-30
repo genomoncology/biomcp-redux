@@ -1,8 +1,6 @@
 //! Required publisher provenance is measured separately from unchanged payload caps.
-tool_only! {
 #[path = "../../src/view/escape.rs"]
 pub(super) mod text;
-}
 use serde_json::{Value, json};
 
 fn strip_row(row: &mut Value) -> Result<(), String> {
@@ -54,7 +52,6 @@ pub(super) fn size(value: &Value, pointer: &str) -> Result<usize, String> {
 }
 
 /// Measure only new publisher columns in the source table of the paired JSON view.
-tool_only! {
 pub(super) fn markdown_bytes(text: &str, value: &Value) -> Result<usize, String> {
     comparable(value, "")?;
     let Some(rows) = value
@@ -132,9 +129,7 @@ pub(super) fn markdown_bytes(text: &str, value: &Value) -> Result<usize, String>
     }
     Ok(bytes)
 }
-}
 
-tool_only! {
 fn markdown_object_bytes(table: &str, rows: &[Value]) -> Result<usize, String> {
     let mut rest = table;
     let mut bytes = 0;
@@ -161,7 +156,6 @@ fn markdown_object_bytes(table: &str, rows: &[Value]) -> Result<usize, String> {
         }
     }
     Ok(bytes)
-}
 }
 
 tool_only! {
