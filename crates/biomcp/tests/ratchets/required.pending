@@ -4,9 +4,6 @@ option article citations --offset
 option article citations --pool
 option article recommendations --offset
 option article supplement --replace
-option article supplement --save
-option article text --replace
-option article text --save
 option get adverse-event --snapshot
 option get biomarker --source
 option get diagnostic --bundle-revision

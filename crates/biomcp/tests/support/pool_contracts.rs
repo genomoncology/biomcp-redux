@@ -1,4 +1,4 @@
-//! Existing routine owners retain runtime pool IDs and assert source rows.
+//! Existing routine owners retain runtime IDs, destinations and asserted source rows.
 //! Protein feature/member owners and oversized trial text use authored synthetic data.
 pub(crate) const PATHWAY_GENES: (&str, &[&str]) = (
     "pathway-reactome/native-reference-walk",
@@ -54,4 +54,13 @@ pub(crate) const TRIAL: (&str, &[&str]) = (
 pub(crate) const TRIAL_ABSENCE: (&str, &[&str]) = (
     "trial-get/get/independent-input-states",
     &["failure trial not-found"],
+);
+
+pub(crate) const ARTICLE_SAVES: (&str, &[&str]) = (
+    "article-saves/explicit-original-files",
+    &[
+        "option article text --save",
+        "option article text --replace",
+        "option article supplement --save",
+    ],
 );

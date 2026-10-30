@@ -297,10 +297,9 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
         "article-supplements/ping-after-bounded-refusal",
         || supplement_tables::ping_after_refusal().map_err(Into::into),
     ));
-    trials.push(transcript_trial(
-        "article-saves/explicit-original-files",
-        || article_save::check().map_err(Into::into),
-    ));
+    trials.push(transcript_trial(pool_contract::ARTICLE_SAVES.0, || {
+        article_save::check().map_err(Into::into)
+    }));
     trials.extend(gene_tables::trials());
     trials.extend(litvar_tables::trials());
     trials.extend(named_search::trials());

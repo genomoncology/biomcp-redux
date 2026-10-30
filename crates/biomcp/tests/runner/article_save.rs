@@ -192,6 +192,16 @@ fn supplement() -> Check {
         "Supplement saves must preserve existing caller files"
     );
     receipt(&value, &path, &original, None)?;
+    fs::write(&path, b"caller content")?;
+    let mut replace = args("supplement", &folder);
+    replace.push("--replace".into());
+    let replaced = command(&env, capture, &replace, 0)?;
+    assert_eq!(
+        fs::read(&path)?,
+        original,
+        "Replacement must preserve source bytes"
+    );
+    receipt(&replaced, &path, &original, None)?;
     let stdio = folder.join("stdio.xlsx");
     let value = super::mcp::call_with_globals(
         &env,
