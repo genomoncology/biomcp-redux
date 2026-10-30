@@ -319,7 +319,9 @@ fn many_changed() -> Result<(), String> {
         .and_then(Value::as_array)
         .ok_or("missing changed cases")?;
     if rows.len() != 30
-        || rows.iter().any(|row| row.get("witness").is_none_or(Value::is_null))
+        || rows
+            .iter()
+            .any(|row| row.get("witness").is_none_or(Value::is_null))
         || report.get("omitted") != Some(&json!(0))
     {
         return Err("changed cases consumed each other's evidence budget".into());
