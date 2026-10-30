@@ -12,9 +12,11 @@ pub struct CellLineHeader {
     /// Exact primary accession.
     pub accession: CellosaurusAccession,
     /// Recommended display name.
-    pub name: Text,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub name: Option<Text>,
     /// Native category.
-    pub category: Text,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub category: Option<Text>,
     /// Up to three complete species references and their native total.
     pub species: Capped<CellLineXref>,
     /// Up to three complete disease references and their independent total.
@@ -272,7 +274,9 @@ impl ResponseBody for CellLineAssayCount {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct CellLineRelease {
     /// Native release version.
-    pub version: Text,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub version: Option<Text>,
     /// Native release update date.
-    pub updated: PartialDate,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub updated: Option<PartialDate>,
 }

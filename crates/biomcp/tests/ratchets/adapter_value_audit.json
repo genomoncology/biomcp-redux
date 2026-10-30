@@ -52,72 +52,80 @@
       "path": "crates/biomcp-adapters/src/cbioportal/studies/mod.rs",
       "site": "snapshot: and_then ( | v | u64 : : try_from ( v ) . ok ( )",
       "maximum": 1,
-      "class": "pending_audit",
+      "class": "legitimate_absence",
       "owner": "cbioportal",
-      "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
+      "reason": "Bundle acquisition is internal transport provenance; nonnegative conversion cannot hide a provider field. Catalog metadata now maps through field problems."
     },
     {
       "path": "crates/biomcp-adapters/src/cellosaurus/map.rs",
       "site": "card: ) , 3 ) , diseases : capped ( row . disease_list . unwrap_or_default ( )",
       "maximum": 1,
-      "class": "pending_audit",
+      "class": "legitimate_absence",
       "owner": "cellosaurus",
-      "reason": "Existing adapter violation awaits its family audit"
+      "reason": "Absent optional native collections produce empty projections after present fields and members have been admitted with problems."
     },
     {
       "path": "crates/biomcp-adapters/src/cellosaurus/map.rs",
       "site": "card: : row . category , species : capped ( row . species_list . unwrap_or_default ( )",
       "maximum": 1,
-      "class": "pending_audit",
+      "class": "legitimate_absence",
       "owner": "cellosaurus",
-      "reason": "Existing adapter violation awaits its family audit"
+      "reason": "Absent optional native collections produce empty projections after present fields and members have been admitted with problems."
     },
     {
       "path": "crates/biomcp-adapters/src/cellosaurus/map.rs",
       "site": "card: let warnings = warnings ( row . comment_list . as_deref ( ) . unwrap_or_default ( )",
       "maximum": 1,
-      "class": "pending_audit",
+      "class": "legitimate_absence",
       "owner": "cellosaurus",
-      "reason": "Existing adapter violation awaits its family audit"
+      "reason": "Absent optional native collections produce empty projections after present fields and members have been admitted with problems."
     },
     {
       "path": "crates/biomcp-adapters/src/cellosaurus/map.rs",
       "site": "header: ) , 3 ) , diseases : capped ( row . disease_list . unwrap_or_default ( )",
       "maximum": 1,
-      "class": "pending_audit",
+      "class": "legitimate_absence",
       "owner": "cellosaurus",
-      "reason": "Existing adapter violation awaits its family audit"
+      "reason": "Absent optional native collections produce empty projections after present fields and members have been admitted with problems."
     },
     {
       "path": "crates/biomcp-adapters/src/cellosaurus/map.rs",
       "site": "header: : row . category , species : capped ( row . species_list . unwrap_or_default ( )",
       "maximum": 1,
-      "class": "pending_audit",
+      "class": "legitimate_absence",
       "owner": "cellosaurus",
-      "reason": "Existing adapter violation awaits its family audit"
+      "reason": "Absent optional native collections produce empty projections after present fields and members have been admitted with problems."
     },
     {
       "path": "crates/biomcp-adapters/src/cellosaurus/mod.rs",
       "site": "search: as_str ( ) . parse : : < CellosaurusAccession > ( ) . ok ( )",
       "maximum": 1,
-      "class": "pending_audit",
+      "class": "identity_refusal",
       "owner": "cellosaurus",
-      "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
+      "reason": "Parsing the caller query only chooses an exact-accession selector versus literal-name search; malformed source row identities are isolated with problems."
     },
     {
       "path": "crates/biomcp-adapters/src/cellosaurus/sections.rs",
       "site": "variation: : reference . accession . as_str ( ) . parse ( ) . ok ( )",
       "maximum": 1,
-      "class": "pending_audit",
+      "class": "migrated",
       "owner": "cellosaurus",
-      "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
+      "reason": "A rejected optional HGNC interpretation now reports sequence-variation-list.xref-list.accession without losing the native cross-reference or variation."
     },
     {
       "path": "crates/biomcp-adapters/src/cellosaurus/sections.rs",
       "site": "variation: : references . into ( ) , provenance : row . source_list . unwrap_or_default ( )",
       "maximum": 1,
-      "class": "pending_audit",
+      "class": "migrated",
       "owner": "cellosaurus",
+      "reason": "A rejected optional HGNC interpretation now reports sequence-variation-list.xref-list.accession without losing the native cross-reference or variation."
+    },
+    {
+      "path": "crates/biomcp-adapters/src/clinpgx/read.rs",
+      "site": "adapter serde refusal: [ serde ( deny_unknown_fields , bound ( deserialize = \"T: Deserialize<'de>\" ) ) ] struct Native < T > { # [ serde ( deserialize_with =",
+      "maximum": 1,
+      "class": "pending_audit",
+      "owner": "clinpgx",
       "reason": "Existing adapter violation awaits its family audit"
     },
     {
@@ -164,49 +172,49 @@
       "path": "crates/biomcp-adapters/src/ddinter/bundle.rs",
       "site": "card: and_then ( | v | Text : : new ( v ) . ok ( )",
       "maximum": 1,
-      "class": "pending_audit",
+      "class": "legitimate_absence",
       "owner": "ddinter",
-      "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
+      "reason": "The optional revision comes from internal bundle provenance; it is not an upstream row field."
     },
     {
       "path": "crates/biomcp-adapters/src/ddinter/bundle.rs",
       "site": "interactions: and_then ( | v | Text : : new ( v ) . ok ( )",
       "maximum": 1,
-      "class": "pending_audit",
+      "class": "legitimate_absence",
       "owner": "ddinter",
-      "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
+      "reason": "The optional revision comes from internal bundle provenance; it is not an upstream row field."
     },
     {
       "path": "crates/biomcp-adapters/src/ddinter/bundle.rs",
       "site": "selected: name ) | identity : : identity ( key , name ) . ok ( )",
       "maximum": 1,
-      "class": "pending_audit",
+      "class": "identity_refusal",
       "owner": "ddinter",
-      "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
+      "reason": "Only checked native drug identities enter candidates and selected headers; names and interaction level now admit bad present metadata with precise native-field problems."
     },
     {
       "path": "crates/biomcp-adapters/src/ddinter/identity.rs",
       "site": "candidates: seen . insert ( id . to_owned ( ) ) & & let Ok ( identity ) = identity ( id , name ) { items . push",
       "maximum": 1,
-      "class": "pending_audit",
+      "class": "identity_refusal",
       "owner": "ddinter",
-      "reason": "Existing adapter violation awaits its family audit"
+      "reason": "Only checked native drug identities enter candidates and selected headers; names and interaction level now admit bad present metadata with precise native-field problems."
     },
     {
       "path": "crates/biomcp-adapters/src/ddinter/raw.rs",
       "site": "adapter serde refusal: [ serde ( deny_unknown_fields ) ] struct Fields { # [ serde ( rename = \"DDInterID_A\" ) ]",
       "maximum": 1,
-      "class": "pending_audit",
+      "class": "migrated",
       "owner": "ddinter",
-      "reason": "Existing adapter violation awaits its family audit"
+      "reason": "Removed unknown-column refusal; pair IDs remain strict and bad names or level retain native interactions with field problems."
     },
     {
       "path": "crates/biomcp-adapters/src/drug_sources/date.rs",
       "site": "received_date: = 12 { for day in 1 . . = 31 { if let Ok ( date ) = biodata : : PartialDate : : new ( year",
       "maximum": 1,
-      "class": "pending_audit",
+      "class": "legitimate_absence",
       "owner": "drug_sources",
-      "reason": "Existing adapter violation awaits its family audit"
+      "reason": "Calendar enumeration skips impossible day/month combinations while converting an internal retrieval epoch; this is not a provider-field conversion."
     },
     {
       "path": "crates/biomcp-adapters/src/drugsfda/raw.rs",
@@ -220,25 +228,25 @@
       "path": "crates/biomcp-adapters/src/ema/map.rs",
       "site": "event: ( AuthorizationDate { role : Text : : new ( key ) . ok ( )",
       "maximum": 1,
-      "class": "pending_audit",
+      "class": "migrated",
       "owner": "ema",
-      "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
+      "reason": "EMA metadata, date roles and release timestamps preserve the medicine and disclose one source-field problem; generated record identifiers are checked drug identities."
     },
     {
       "path": "crates/biomcp-adapters/src/ema/mod.rs",
       "site": "fields: mapped : : text ( & id . to_string ( ) ) . ok ( )",
       "maximum": 1,
-      "class": "pending_audit",
+      "class": "migrated",
       "owner": "ema",
-      "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
+      "reason": "EMA metadata, date roles and release timestamps preserve the medicine and disclose one source-field problem; generated record identifiers are checked drug identities."
     },
     {
       "path": "crates/biomcp-adapters/src/ema/raw.rs",
       "site": "keys: name | vec ! [ name . into ( ) ] ) . unwrap_or_default ( )",
       "maximum": 1,
-      "class": "pending_audit",
+      "class": "migrated",
       "owner": "ema",
-      "reason": "Existing adapter violation awaits its family audit"
+      "reason": "EMA metadata, date roles and release timestamps preserve the medicine and disclose one source-field problem; generated record identifiers are checked drug identities."
     },
     {
       "path": "crates/biomcp-adapters/src/faers/raw.rs",
@@ -361,6 +369,14 @@
       "reason": "Existing adapter violation awaits its family audit"
     },
     {
+      "path": "crates/biomcp-adapters/src/gencc.rs",
+      "site": "adapter serde refusal: [ serde ( deny_unknown_fields ) ] struct Submission { gene_curie : HgncId , # [ serde ( rename",
+      "maximum": 1,
+      "class": "pending_audit",
+      "owner": "gencc.rs",
+      "reason": "Existing adapter violation awaits its family audit"
+    },
+    {
       "path": "crates/biomcp-adapters/src/gnomad/raw.rs",
       "site": "check: ) ; let errors = self . errors . as_deref ( ) . unwrap_or_default ( )",
       "maximum": 1,
@@ -372,57 +388,73 @@
       "path": "crates/biomcp-adapters/src/gtr/get.rs",
       "site": "get: ( | v | map : : methods ( v ) ) . unwrap_or_default ( )",
       "maximum": 1,
-      "class": "legitimate_absence",
+      "class": "pending_audit",
       "owner": "gtr",
-      "reason": "No methods exist without one selected native version; conflicting or missing versions remain explicit and do not select a row."
+      "reason": "Existing adapter violation awaits its family audit"
     },
     {
       "path": "crates/biomcp-adapters/src/gtr/map.rs",
       "site": "relation: . parse : : < biodata : : NcbiGeneId > ( ) . ok ( )",
       "maximum": 1,
-      "class": "legitimate_absence",
+      "class": "pending_audit",
       "owner": "gtr",
-      "reason": "The publisher retains unresolved native gene identifiers such as -1. The exact literal stays in native_gene_or_snomed_ct_id and never creates a numeric gene pivot."
+      "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
+    },
+    {
+      "path": "crates/biomcp-adapters/src/gtr/mod.rs",
+      "site": "conflict: Text : : new ( & id . to_string ( ) ) . ok ( )",
+      "maximum": 1,
+      "class": "pending_audit",
+      "owner": "gtr",
+      "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
+    },
+    {
+      "path": "crates/biomcp-adapters/src/gtr/raw.rs",
+      "site": "adapter serde refusal: [ serde ( deny_unknown_fields ) ] pub ( super ) struct Relation { # [ serde ( rename",
+      "maximum": 1,
+      "class": "pending_audit",
+      "owner": "gtr",
+      "reason": "Existing adapter violation awaits its family audit"
     },
     {
       "path": "crates/biomcp-adapters/src/gtr/raw.rs",
       "site": "keys: Symbol , r . gene_symbol . clone ( ) ) ) ; if let Ok ( id ) = r . object_id . parse : : < biodata",
       "maximum": 1,
-      "class": "legitimate_absence",
+      "class": "pending_audit",
       "owner": "gtr",
-      "reason": "Only a checked numeric native GeneID enters this optional lookup index. An unresolved native value remains in the source relation and its symbol/accession lookup."
+      "reason": "Existing adapter violation awaits its family audit"
     },
     {
       "path": "crates/biomcp-adapters/src/gwas/get/study.rs",
       "site": "card: to_string ( ) . parse : : < Pmid > ( ) . ok ( )",
       "maximum": 1,
-      "class": "pending_audit",
+      "class": "migrated",
       "owner": "gwas",
-      "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
+      "reason": "Bad present association/study/context metadata is omitted with source-record field problems. Exact p-value admission excludes only unprovable threshold candidates and retains native received offsets."
     },
     {
       "path": "crates/biomcp-adapters/src/gwas/raw.rs",
       "site": "check: ( | e | e . associations . as_slice ( ) ) . unwrap_or_default ( )",
       "maximum": 1,
-      "class": "pending_audit",
+      "class": "legitimate_absence",
       "owner": "gwas",
-      "reason": "Existing adapter violation awaits its family audit"
+      "reason": "An absent embedded association collection means an empty protocol page; strict counts, page number, size and self-link checks still validate that absence."
     },
     {
       "path": "crates/biomcp-adapters/src/gwas/raw.rs",
       "site": "exact_p_value: ( \"{mantissa}e{}\" , self . p_value_exponent ? ) . parse ( ) . ok ( )",
       "maximum": 1,
-      "class": "pending_audit",
+      "class": "migrated",
       "owner": "gwas",
-      "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
+      "reason": "Bad present association/study/context metadata is omitted with source-record field problems. Exact p-value admission excludes only unprovable threshold candidates and retains native received offsets."
     },
     {
       "path": "crates/biomcp-adapters/src/gwas/search/identity.rs",
       "site": "decode: , } ) ; } String : : from_utf8 ( decoded ) . ok ( )",
       "maximum": 1,
-      "class": "pending_audit",
+      "class": "identity_refusal",
       "owner": "gwas",
-      "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
+      "reason": "UTF-8 decoding belongs to native request self-link identity; a malformed value fails cache admission rather than silently removing metadata."
     },
     {
       "path": "crates/biomcp-adapters/src/hgnc/fields.rs",
@@ -604,73 +636,73 @@
       "path": "crates/biomcp-adapters/src/monarch/map.rs",
       "site": "qualifiers: { let mut qualifiers = raw . qualifiers . take ( ) . unwrap_or_default ( )",
       "maximum": 1,
-      "class": "pending_audit",
+      "class": "legitimate_absence",
       "owner": "monarch",
-      "reason": "Existing adapter violation awaits its family audit"
+      "reason": "Collection defaults represent absent optional metadata after wrapped fields and members have been mapped with precise problems; requested endpoint closure checks stay strict."
     },
     {
       "path": "crates/biomcp-adapters/src/monarch/map.rs",
       "site": "references: = Vec : : new ( ) ; for id in ids . unwrap_or_default ( )",
       "maximum": 1,
-      "class": "pending_audit",
+      "class": "legitimate_absence",
       "owner": "monarch",
-      "reason": "Existing adapter violation awaits its family audit"
+      "reason": "Collection defaults represent absent optional metadata after wrapped fields and members have been mapped with precise problems; requested endpoint closure checks stay strict."
     },
     {
       "path": "crates/biomcp-adapters/src/monarch/map.rs",
       "site": "references: Box < [ DiseaseAssociationReference ] > { let mut links = links . unwrap_or_default ( )",
       "maximum": 1,
-      "class": "pending_audit",
+      "class": "legitimate_absence",
       "owner": "monarch",
-      "reason": "Existing adapter violation awaits its family audit"
+      "reason": "Collection defaults represent absent optional metadata after wrapped fields and members have been mapped with precise problems; requested endpoint closure checks stay strict."
     },
     {
       "path": "crates/biomcp-adapters/src/monarch/map.rs",
       "site": "row: , has_quotient : raw . has_quotient , subject_closure : raw . subject_closure . unwrap_or_default ( )",
       "maximum": 1,
-      "class": "pending_audit",
+      "class": "legitimate_absence",
       "owner": "monarch",
-      "reason": "Existing adapter violation awaits its family audit"
+      "reason": "Collection defaults represent absent optional metadata after wrapped fields and members have been mapped with precise problems; requested endpoint closure checks stay strict."
     },
     {
       "path": "crates/biomcp-adapters/src/monarch/map.rs",
       "site": "row: . subject_closure . unwrap_or_default ( ) , object_closure : raw . object_closure . unwrap_or_default ( )",
       "maximum": 1,
-      "class": "pending_audit",
+      "class": "legitimate_absence",
       "owner": "monarch",
-      "reason": "Existing adapter violation awaits its family audit"
+      "reason": "Collection defaults represent absent optional metadata after wrapped fields and members have been mapped with precise problems; requested endpoint closure checks stay strict."
     },
     {
       "path": "crates/biomcp-adapters/src/monarch/mod.rs",
       "site": "associations: ! = & id & & ! closure . as_deref ( ) . unwrap_or_default ( )",
       "maximum": 1,
-      "class": "pending_audit",
+      "class": "identity_refusal",
       "owner": "monarch",
-      "reason": "Existing adapter violation awaits its family audit"
+      "reason": "A native expansion must prove the requested endpoint through its closure before cache admission; missing proof is a request identity failure."
     },
     {
       "path": "crates/biomcp-adapters/src/mychem/map.rs",
       "site": "aliases_for: c . synonyms . as_ref ( ) . map ( strings ) . unwrap_or_default ( )",
       "maximum": 1,
-      "class": "pending_audit",
+      "class": "legitimate_absence",
       "owner": "mychem",
-      "reason": "Existing adapter violation awaits its family audit"
+      "reason": "Optional alias and reference collections are absent only after component fields and members have been normalized with source-record problems."
     },
     {
       "path": "crates/biomcp-adapters/src/mychem/map.rs",
       "site": "aliases_for: extend ( values . as_ref ( ) . map ( strings ) . unwrap_or_default ( )",
       "maximum": 1,
-      "class": "pending_audit",
+      "class": "legitimate_absence",
       "owner": "mychem",
-      "reason": "Existing adapter violation awaits its family audit"
+      "reason": "Optional alias and reference collections are absent only after component fields and members have been normalized with source-record problems."
     },
     {
       "path": "crates/biomcp-adapters/src/mychem/map.rs",
       "site": "references_for: target in values . as_ref ( ) . map ( strings ) . unwrap_or_default ( )",
       "maximum": 1,
-      "class": "pending_audit",
+      "class": "legitimate_absence",
       "owner": "mychem",
-      "reason": "Existing adapter violation awaits its family audit"
+      "reason": "Optional alias and reference collections are absent only after component fields and members have been normalized with source-record problems."
     },
     {
       "path": "crates/biomcp-adapters/src/mydisease/map.rs",
@@ -884,9 +916,9 @@
       "path": "crates/biomcp-adapters/src/ols/map.rs",
       "site": "xrefs: Some ( id ) = id else { continue ; } ; let Ok ( predicate ) = \"oboInOwl:hasDbXref\" . parse ( ) else { continue ; }",
       "maximum": 1,
-      "class": "pending_audit",
+      "class": "legitimate_absence",
       "owner": "ols",
-      "reason": "Existing adapter violation awaits its family audit"
+      "reason": "The fixed oboInOwl:hasDbXref predicate is a valid constant; native xref fields already disclose rejected values."
     },
     {
       "path": "crates/biomcp-adapters/src/openfda_label/map.rs",
@@ -996,41 +1028,41 @@
       "path": "crates/biomcp-adapters/src/raw.rs",
       "site": "chromosome: ; match value { \"M\" = > \"MT\" . parse ( ) . ok ( )",
       "maximum": 1,
-      "class": "pending_audit",
+      "class": "legitimate_absence",
       "owner": "raw.rs",
-      "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
+      "reason": "This shared chromosome parser returns a checked optional identity to its owning callers. Fixed native aliases parse known canonical chromosomes; callers own rejected-field disclosure."
     },
     {
       "path": "crates/biomcp-adapters/src/raw.rs",
       "site": "chromosome: ok ( ) , \"23\" = > \"X\" . parse ( ) . ok ( )",
       "maximum": 1,
-      "class": "pending_audit",
+      "class": "legitimate_absence",
       "owner": "raw.rs",
-      "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
+      "reason": "This shared chromosome parser returns a checked optional identity to its owning callers. Fixed native aliases parse known canonical chromosomes; callers own rejected-field disclosure."
     },
     {
       "path": "crates/biomcp-adapters/src/raw.rs",
       "site": "chromosome: ok ( ) , \"24\" = > \"Y\" . parse ( ) . ok ( )",
       "maximum": 1,
-      "class": "pending_audit",
+      "class": "legitimate_absence",
       "owner": "raw.rs",
-      "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
+      "reason": "This shared chromosome parser returns a checked optional identity to its owning callers. Fixed native aliases parse known canonical chromosomes; callers own rejected-field disclosure."
     },
     {
       "path": "crates/biomcp-adapters/src/raw.rs",
       "site": "chromosome: ok ( ) , \"25\" = > \"MT\" . parse ( ) . ok ( )",
       "maximum": 1,
-      "class": "pending_audit",
+      "class": "legitimate_absence",
       "owner": "raw.rs",
-      "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
+      "reason": "This shared chromosome parser returns a checked optional identity to its owning callers. Fixed native aliases parse known canonical chromosomes; callers own rejected-field disclosure."
     },
     {
       "path": "crates/biomcp-adapters/src/raw.rs",
       "site": "chromosome: ok ( ) , _ = > value . parse ( ) . ok ( )",
       "maximum": 1,
-      "class": "pending_audit",
+      "class": "legitimate_absence",
       "owner": "raw.rs",
-      "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
+      "reason": "This shared chromosome parser returns a checked optional identity to its owning callers. Fixed native aliases parse known canonical chromosomes; callers own rejected-field disclosure."
     },
     {
       "path": "crates/biomcp-adapters/src/reactome/discovery.rs",
@@ -1092,33 +1124,33 @@
       "path": "crates/biomcp-adapters/src/received.rs",
       "site": "received_date: = 12 { for day in 1 . . = 31 { if let Ok ( date ) = biodata : : PartialDate : : new ( year",
       "maximum": 1,
-      "class": "pending_audit",
+      "class": "legitimate_absence",
       "owner": "received.rs",
-      "reason": "Existing adapter violation awaits its family audit"
+      "reason": "Calendar enumeration skips impossible day/month combinations while converting internal transport provenance; no provider value is silently dropped."
     },
     {
       "path": "crates/biomcp-adapters/src/registry.rs",
       "site": "file line limit",
       "maximum": 454,
-      "class": "pending_audit",
+      "class": "migrated",
       "owner": "registry.rs",
-      "reason": "Existing adapter violation awaits its family audit"
+      "reason": "Split bounded probe declarations into registry/probe.rs while preserving the public registry API and its publisher policies."
     },
     {
       "path": "crates/biomcp-adapters/src/registry/records.rs",
       "site": "record_url: : Write ; write ! ( & mut encoded , \"%{byte:02X}\" ) . ok ( )",
       "maximum": 1,
-      "class": "pending_audit",
+      "class": "legitimate_absence",
       "owner": "registry",
-      "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
+      "reason": "Percent encoding writes hexadecimal bytes to an owned String; its formatting write cannot fail and drops no provider field."
     },
     {
       "path": "crates/biomcp-adapters/src/seer/mod.rs",
       "site": "catalog: = site . value . to_string ( ) . parse ( ) . ok ( )",
       "maximum": 1,
-      "class": "pending_audit",
+      "class": "migrated",
       "owner": "seer",
-      "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
+      "reason": "Native catalog IDs and year row identities are isolated; bad labels, active flags and numeric estimates retain valid sibling rows with field problems."
     },
     {
       "path": "crates/biomcp-adapters/src/uniprot/entry/sections_map.rs",
@@ -1180,17 +1212,17 @@
       "path": "crates/biomcp-adapters/src/who_ivd/raw.rs",
       "site": "adapter serde refusal: [ serde ( deny_unknown_fields ) ] pub ( super ) struct Native { # [ serde ( rename",
       "maximum": 1,
-      "class": "pending_audit",
+      "class": "migrated",
       "owner": "who_ivd",
-      "reason": "Existing adapter violation awaits its family audit"
+      "reason": "Removed unknown-column refusal. NativeCsv delivers every valid cell as an exact String, including empty cells; UTF-8, header and row-width failures are wire protocol failures."
     },
     {
       "path": "crates/biomcp-adapters/src/who_pq/raw.rs",
       "site": "adapter serde refusal: [ serde ( deny_unknown_fields ) ] pub ( super ) struct Native { # [ serde ( rename",
       "maximum": 1,
-      "class": "pending_audit",
+      "class": "migrated",
       "owner": "who_pq",
-      "reason": "Existing adapter violation awaits its family audit"
+      "reason": "Removed unknown-column refusal. NativeCsv delivers every valid cell as an exact String, including empty cells; UTF-8, header and row-width failures are wire protocol failures."
     },
     {
       "path": "crates/biomcp-adapters/src/wikipathways/gpml_raw.rs",

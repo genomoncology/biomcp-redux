@@ -77,9 +77,11 @@ pub struct DiseaseSite {
     /// Native publisher site code.
     pub code: Text,
     /// Complete publisher site label.
-    pub label: Text,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub label: Option<Text>,
     /// Publisher active-state flag.
-    pub active: bool,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub active: Option<bool>,
 }
 /// One native association and the component terms governing that row.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]

@@ -1,7 +1,6 @@
 use biomcp_fetch::{KeyKind, Keys, Row};
 use serde::Deserialize;
 #[derive(Debug, Deserialize)]
-#[serde(deny_unknown_fields)]
 pub(super) struct Native {
     #[serde(rename = "WHO Reference Number")]
     reference: biodata::Text,

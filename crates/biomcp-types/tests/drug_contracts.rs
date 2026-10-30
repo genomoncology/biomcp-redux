@@ -397,7 +397,7 @@ fn interaction_keeps_both_bundle_origins_and_refuses_duplicate_attribution() {
         serde_json::from_value(value.clone()).expect("both bundle origins");
     assert_eq!(parsed.anchor().id.to_string(), "DDInter1");
     assert_eq!(parsed.partner().id.to_string(), "DDInter2");
-    assert_eq!(parsed.level().as_str(), "native level");
+    assert_eq!(parsed.level().map(|v| v.as_str()), Some("native level"));
     assert_eq!(
         parsed
             .attribution()
@@ -423,7 +423,7 @@ fn interaction_keeps_both_bundle_origins_and_refuses_duplicate_attribution() {
     let rebuilt = DrugInteractionClaim::new(
         parsed.anchor().clone(),
         parsed.partner().clone(),
-        parsed.level().clone(),
+        parsed.level().cloned(),
         parsed.attribution().clone(),
         additional,
     )
@@ -433,7 +433,7 @@ fn interaction_keeps_both_bundle_origins_and_refuses_duplicate_attribution() {
         DrugInteractionClaim::new(
             parsed.anchor().clone(),
             parsed.partner().clone(),
-            parsed.level().clone(),
+            parsed.level().cloned(),
             parsed.attribution().clone(),
             vec![parsed.attribution().clone()].into()
         )

@@ -159,7 +159,8 @@ impl ResponseBody for GwasStudy {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct GwasCountry {
     /// Original country label including NR.
-    pub country: Text,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub country: Option<Text>,
     /// Native source major area when supplied.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub major_area: Option<Text>,
@@ -172,7 +173,8 @@ pub struct GwasCountry {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct GwasAncestry {
     /// Native discovery or replication stage.
-    pub stage: Text,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub stage: Option<Text>,
     /// Source row count; no unique-person denominator is inferred.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub number_of_individuals: Option<u64>,

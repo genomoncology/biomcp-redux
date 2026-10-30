@@ -33,9 +33,14 @@ pub(super) fn section(
     let size = query.section_limit();
     let offset = query.section_offset();
     // A catalog page cannot start between provider page boundaries.
-    let result = gwas::associations(&leg, &id, offset / size, size);
+    let result = gwas::associations(&leg, &id, offset / size, size, offset % size);
     let error = result.as_ref().err().copied();
-    let source = status::source(Source::Gwas, leg.finish(), error);
+    let mut source = status::source(Source::Gwas, leg.finish(), error);
+    if let Ok(page) = &result {
+        source.fetched = Some(page.received);
+        source.count = Some(page.total);
+    }
+    let mut problems = Vec::new();
     let value = match result {
         Ok(page) if page.total == 0 => Section::Empty {
             source: Source::Gwas,
@@ -46,20 +51,23 @@ pub(super) fn section(
                 .map(|id| biomcp_types::SourceRecord { id, url: None }),
         },
         Ok(page) => {
-            let rows = page
-                .rows
-                .into_iter()
-                .skip((offset % size) as usize)
-                .collect::<Vec<_>>();
+            problems.extend(page.problems);
+            let rows = page.rows.into_iter().collect::<Vec<_>>();
             let returned = rows.len() as u32;
-            let continuation = continuation(query, &id, offset, returned, page.total);
+            let continuation = continuation(
+                query,
+                &id,
+                offset - offset % size,
+                page.received,
+                page.total,
+            );
             Section::Data {
                 source: Source::Gwas,
                 data: VariantGwas {
                     rs_id: id,
                     associations: rows
                         .into_iter()
-                        .map(crate::gwas::map::association)
+                        .map(|row| crate::gwas::map::association(row, &mut problems))
                         .collect(),
                     page: PageInfo {
                         offset,
@@ -77,12 +85,7 @@ pub(super) fn section(
             crate::status::reason(e).unwrap_or(biomcp_types::Reason::Unavailable),
         ),
     };
-    (
-        value,
-        vec![source],
-        Vec::new(),
-        error.and_then(status::local),
-    )
+    (value, vec![source], problems, error.and_then(status::local))
 }
 fn rs_id(query: &VariantGet, candidates: &[VariantHeader]) -> Option<VariantId> {
     if let Ok(id @ VariantId::Rs(_)) = query.input().as_str().parse() {

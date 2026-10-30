@@ -22,7 +22,7 @@ fn finish(out: &mut Outcome, leg: Leg<'_>, error: Option<RequestError>) {
     if error.is_some() {
         out.status = Status::Failed
     } else if out.status == Status::Complete
-        && out.sources.iter().any(|s| s.state == SourceState::Stale)
+        && (!out.problems.is_empty() || out.sources.iter().any(|s| s.state == SourceState::Stale))
     {
         out.status = Status::Partial
     }
@@ -45,8 +45,10 @@ pub fn search(cx: &Ctx<'_>, q: &StudySearch) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let leg = cx.fetch.leg(&SPEC, deadline);
-    let result = studies::search(&leg, q)
-        .and_then(|(rows, info)| page::search(cx, q, rows, info, deadline, &mut out));
+    let result = studies::search(&leg, q).and_then(|(rows, info)| {
+        out.problems.extend(rows.problems);
+        page::search(cx, q, rows.value, info, deadline, &mut out)
+    });
     let error = result.err();
     finish(&mut out, leg, error);
     command.finish(deadline.remaining());
