@@ -134,5 +134,6 @@ pub struct ArticleSentence {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub section: Option<crate::Text>,
     /// Source sentence text.
-    pub text: crate::Text,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub text: Option<crate::Text>,
 }

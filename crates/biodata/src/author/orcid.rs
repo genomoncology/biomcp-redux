@@ -83,7 +83,8 @@ pub struct OrcidWorkAssertion {
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub external_ids: Box<[OrcidExternalId]>,
     /// Native source and origin provenance.
-    pub source: OrcidAssertionSource,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub source: Option<OrcidAssertionSource>,
     /// Only public assertions belong to this product.
     pub visibility: OrcidPublicVisibility,
     /// Native display index retained without sorting.

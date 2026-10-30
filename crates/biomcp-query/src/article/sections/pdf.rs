@@ -97,7 +97,9 @@ pub(in crate::article) fn load<'a>(
     } else {
         out.sources.push(source);
     }
-    let Some(link) = result?
+    let result = result?;
+    out.problems.extend(result.problems);
+    let Some(link) = result
         .open_access_pdf
         .filter(|link| !link.url.trim().is_empty() && link.status != OpenAccessStatus::Closed)
     else {

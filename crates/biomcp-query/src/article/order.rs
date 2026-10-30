@@ -7,6 +7,7 @@ use biomcp_types::{ArticleItem, QueryBody, Source, SourceOutcome, Status};
 const MAX_PMIDS: usize = 10_000;
 pub(super) struct Counts {
     pub rows: Vec<icite::Publication>,
+    pub problems: Vec<biomcp_types::Problem>,
     pub source: SourceOutcome,
     pub local: Option<RequestError>,
     pub error: Option<RequestError>,
@@ -16,6 +17,7 @@ pub(super) fn fetch<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, ids: &[Pmid])
     let leg = cx.fetch.leg(&icite::SPEC, *deadline).fresh(cx.fresh);
     let started = leg.remaining();
     let mut rows = Vec::new();
+    let mut problems = Vec::new();
     let mut error = None;
     let mut local = None;
     let mut failures = Vec::new();
@@ -27,7 +29,10 @@ pub(super) fn fetch<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, ids: &[Pmid])
             .zip(leg.batch(wave, |child, ids| icite::publications(child, ids)))
         {
             match result {
-                Ok(values) => rows.extend(values),
+                Ok(values) => {
+                    rows.extend(values.value);
+                    problems.extend(values.problems);
+                }
                 Err(e) => {
                     failures.extend(ids.iter().map(|id| (*id, e)));
                     error.get_or_insert(e);
@@ -39,6 +44,7 @@ pub(super) fn fetch<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, ids: &[Pmid])
     *deadline = deadline.after_stage(started.saturating_sub(leg.remaining()));
     Counts {
         rows,
+        problems,
         source: status::source(Source::Icite, leg.finish(), error),
         error,
         local,
@@ -56,6 +62,7 @@ pub(super) fn apply<'a>(
         return Ok(false);
     }
     let result = fetch(cx, deadline, &ids);
+    status::append(&mut out.problems, result.problems.clone());
     let stale = out
         .sources
         .iter()

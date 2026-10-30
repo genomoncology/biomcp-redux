@@ -101,6 +101,7 @@ fn create<'a>(
         return Ok(None);
     };
     let parent = order::fetch(cx, deadline, &[pmid]);
+    crate::status::append(&mut out.problems, parent.problems);
     out.sources.push(parent.source);
     if let Some(error) = parent.local {
         return Err(error);

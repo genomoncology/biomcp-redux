@@ -71,7 +71,8 @@ pub struct AuthorPaperHeader {
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub external_ids: Box<[AuthorPaperExternalId]>,
     /// Whole source title.
-    pub title: Text,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub title: Option<Text>,
     /// Source publication year.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub year: Option<u32>,
@@ -94,7 +95,8 @@ pub struct AuthorByline {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<SemanticScholarAuthorId>,
     /// Native display name.
-    pub name: Text,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub name: Option<Text>,
 }
 /// Native access metadata; access does not establish reuse rights.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

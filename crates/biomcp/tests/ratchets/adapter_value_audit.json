@@ -241,22 +241,6 @@
       "reason": "Existing adapter violation awaits its family audit"
     },
     {
-      "path": "crates/biomcp-adapters/src/europepmc/mod.rs",
-      "site": "item: . then ( | | self . id . parse ( ) . ok ( )",
-      "maximum": 1,
-      "class": "pending_audit",
-      "owner": "europepmc",
-      "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
-    },
-    {
-      "path": "crates/biomcp-adapters/src/europepmc/mod.rs",
-      "site": "item: | Text : : new ( s . trim ( ) ) . ok ( )",
-      "maximum": 1,
-      "class": "pending_audit",
-      "owner": "europepmc",
-      "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
-    },
-    {
       "path": "crates/biomcp-adapters/src/faers/raw.rs",
       "site": "adapter serde refusal: [ serde ( deny_unknown_fields ) ] pub ( super ) struct Absence { code : String , message",
       "maximum": 1,
@@ -580,9 +564,9 @@
       "path": "crates/biomcp-adapters/src/icite/mod.rs",
       "site": "field: Text : : new ( & id . to_string ( ) ) . ok ( )",
       "maximum": 1,
-      "class": "pending_audit",
+      "class": "legitimate_absence",
       "owner": "icite",
-      "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
+      "reason": "The problem record is derived from an already checked nonzero PMID; converting its canonical spelling cannot reject provider metadata"
     },
     {
       "path": "crates/biomcp-adapters/src/interpro/map.rs",
@@ -591,30 +575,6 @@
       "class": "migrated",
       "owner": "interpro",
       "reason": "A malformed present fragment collection reaches Problems::required; an absent collection becomes empty while valid location identities remain"
-    },
-    {
-      "path": "crates/biomcp-adapters/src/jats/references.rs",
-      "site": "rows: ) = > row . doi = value . parse ( ) . ok ( )",
-      "maximum": 1,
-      "class": "pending_audit",
-      "owner": "jats",
-      "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
-    },
-    {
-      "path": "crates/biomcp-adapters/src/jats/references.rs",
-      "site": "rows: ) = > row . pmid = value . parse ( ) . ok ( )",
-      "maximum": 1,
-      "class": "pending_audit",
-      "owner": "jats",
-      "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
-    },
-    {
-      "path": "crates/biomcp-adapters/src/litsense/mod.rs",
-      "site": "adapter serde refusal: [ serde ( default ) ] section : Option < crate : : raw : : Field <",
-      "maximum": 1,
-      "class": "pending_audit",
-      "owner": "litsense",
-      "reason": "Existing adapter violation awaits its family audit"
     },
     {
       "path": "crates/biomcp-adapters/src/mapped.rs",
@@ -956,33 +916,25 @@
       "path": "crates/biomcp-adapters/src/pmc_oa/location.rs",
       "site": "version: ? ; let version : u32 = v . parse ( ) . ok ( )",
       "maximum": 1,
-      "class": "pending_audit",
+      "class": "legitimate_absence",
       "owner": "pmc_oa",
-      "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
-    },
-    {
-      "path": "crates/biomcp-adapters/src/pmc_oa/supplement.rs",
-      "site": "select: ) ; for item in jats { for url in urls { let Ok ( location ) = super : : location : : Location : : checked",
-      "maximum": 1,
-      "class": "pending_audit",
-      "owner": "pmc_oa",
-      "reason": "Existing adapter violation awaits its family audit"
+      "reason": "Listing keys outside canonical positive processing-version metadata names are unselected objects; version selects the latest matching record"
     },
     {
       "path": "crates/biomcp-adapters/src/pubmed/map.rs",
       "site": "header: . required ( \"articleids\" , v . value ( ) ) ) . unwrap_or_default ( )",
       "maximum": 1,
-      "class": "pending_audit",
+      "class": "migrated",
       "owner": "pubmed",
-      "reason": "Existing adapter violation awaits its family audit"
+      "reason": "The shared problem context reports malformed collection shapes and members; month parsing returns a checked date error through that context"
     },
     {
       "path": "crates/biomcp-adapters/src/pubmed/map.rs",
       "site": "header: . required ( \"authors\" , v . value ( ) ) ) . unwrap_or_default ( )",
       "maximum": 1,
-      "class": "pending_audit",
+      "class": "migrated",
       "owner": "pubmed",
-      "reason": "Existing adapter violation awaits its family audit"
+      "reason": "The shared problem context reports malformed collection shapes and members; month parsing returns a checked date error through that context"
     },
     {
       "path": "crates/biomcp-adapters/src/pubmed/map.rs",
@@ -1004,9 +956,9 @@
       "path": "crates/biomcp-adapters/src/pubmed/map.rs",
       "site": "month: - > Result < u8 , biomcp_fetch : : BadReply > { if let Ok ( month ) = value . parse ( ) { return Ok (",
       "maximum": 1,
-      "class": "pending_audit",
+      "class": "migrated",
       "owner": "pubmed",
-      "reason": "Existing adapter violation awaits its family audit"
+      "reason": "The shared problem context reports malformed collection shapes and members; month parsing returns a checked date error through that context"
     },
     {
       "path": "crates/biomcp-adapters/src/pubmed/map.rs",
@@ -1020,25 +972,25 @@
       "path": "crates/biomcp-adapters/src/pubmed/map.rs",
       "site": "publication_types: . required ( \"types\" , v . value ( ) ) ) . unwrap_or_default ( )",
       "maximum": 1,
-      "class": "pending_audit",
+      "class": "migrated",
       "owner": "pubmed",
-      "reason": "Existing adapter violation awaits its family audit"
+      "reason": "The shared problem context reports malformed collection shapes and members; month parsing returns a checked date error through that context"
     },
     {
       "path": "crates/biomcp-adapters/src/pubtator/map.rs",
       "site": "entity: > biodata : : NcbiGeneId : : new ( * n ) . ok ( )",
       "maximum": 1,
-      "class": "pending_audit",
+      "class": "migrated",
       "owner": "pubtator",
-      "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
+      "reason": "The optional identifier conversion is followed by its explicit named problem when admission fails"
     },
     {
       "path": "crates/biomcp-adapters/src/pubtator/map.rs",
       "site": "entity: | s | s . as_str ( ) . parse ( ) . ok ( )",
       "maximum": 1,
-      "class": "pending_audit",
+      "class": "migrated",
       "owner": "pubtator",
-      "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
+      "reason": "The optional identifier conversion is followed by its explicit named problem when admission fails"
     },
     {
       "path": "crates/biomcp-adapters/src/raw.rs",
@@ -1166,22 +1118,6 @@
       "maximum": 1,
       "class": "pending_audit",
       "owner": "seer",
-      "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
-    },
-    {
-      "path": "crates/biomcp-adapters/src/semantic_scholar/author/papers/row.rs",
-      "site": "checked: ( | s | Text : : new ( & s ) . ok ( )",
-      "maximum": 1,
-      "class": "pending_audit",
-      "owner": "semantic_scholar",
-      "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
-    },
-    {
-      "path": "crates/biomcp-adapters/src/semantic_scholar/search.rs",
-      "site": "item: | v | v . to_string ( ) . parse ( ) . ok ( )",
-      "maximum": 1,
-      "class": "pending_audit",
-      "owner": "semantic_scholar",
       "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
     },
     {

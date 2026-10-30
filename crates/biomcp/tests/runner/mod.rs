@@ -74,6 +74,7 @@ mod key_help;
 mod key_registration;
 mod key_reload;
 pub(super) mod launch;
+mod literature_values;
 mod litvar_tables;
 tool_only! { pub(crate) mod live; }
 tool_only! { mod live_follow_proof; }
@@ -349,6 +350,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
         || article_save::check().map_err(Into::into),
     ));
     trials.extend(gene_tables::trials());
+    trials.extend(literature_values::trials());
     trials.extend(litvar_tables::trials());
     trials.extend(named_search::trials());
     trials.extend(protein_commands::trials());
