@@ -19,6 +19,10 @@ pub(super) fn trials() -> Vec<Trial> {
         transcript_trial("cache-resilience/hgnc-trials-after-killed-sync", || {
             abandoned().map_err(Into::into)
         }),
+        transcript_trial(
+            "cache-resilience/hgnc-first-snapshot-wait-is-bounded",
+            || bounded().map_err(Into::into),
+        ),
         transcript_trial("cache-resilience/hgnc-first-snapshot-recovers", || {
             first().map_err(Into::into)
         }),
@@ -217,5 +221,37 @@ fn first() -> Check {
         ));
     }
     peer.finish()?;
+    Ok(())
+}
+
+// The public fetch API admits a short per-leg deadline that the CLI cannot set.
+fn bounded() -> Check {
+    use biomcp_fetch::{Fetch, FetchConfig, Find, KeyKind, RequestError, Secret};
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    let _pending = Pending::start(&env)?;
+    let db = database(&env)?;
+    let path: String = db
+        .query_row("PRAGMA database_list", [], |r| r.get(2))
+        .map_err(|e| e.to_string())?;
+    let fetch = Fetch::open(FetchConfig {
+        cache: Some(path.into()),
+        cache_owners: vec![biomcp_query::store::OWNER],
+        proxy: Some(Secret::new("http://127.0.0.1:9")),
+        ..Default::default()
+    })
+    .map_err(|e| e.to_string())?;
+    let leg = fetch.leg(
+        &biomcp_adapters::hgnc::SPEC,
+        fetch.deadline(Duration::from_millis(30)),
+    );
+    let result = biomcp_adapters::hgnc::lookup(&leg, Find::Exact(KeyKind::Symbol, "BRAF"));
+    if !matches!(result, Err(RequestError::Source(e)) if e.reason == biomcp_types::Reason::Syncing)
+        || !leg.remaining().is_zero()
+    {
+        return Err(format!(
+            "first snapshot did not wait within its deadline: {result:?}; remaining={:?}",
+            leg.remaining()
+        ));
+    }
     Ok(())
 }
