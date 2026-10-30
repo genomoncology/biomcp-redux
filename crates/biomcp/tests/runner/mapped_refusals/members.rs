@@ -1,0 +1,249 @@
+//! Retained parent properties and actually declined native records carry different facts.
+use super::{
+    families::{Check, replay},
+    trial,
+};
+use biomcp_adapters::{Refusal, civic, icite, litvar, oncokb, pubtator};
+use biomcp_types::Section;
+use libtest_mimic::Trial;
+use serde_json::{Value, json};
+use std::time::Duration;
+
+pub(super) fn trials() -> Vec<Trial> {
+    vec![
+        trial("gene-sections/refused-civic-genes-carry-facts", || {
+            civic_genes().map_err(|e| e.to_string().into())
+        }),
+        trial("gene-sections/refused-oncokb-genes-carry-facts", || {
+            oncokb_genes().map_err(|e| e.to_string().into())
+        }),
+        trial(
+            "article-citations/refused-citation-records-carry-facts",
+            || citations().map_err(|e| e.to_string().into()),
+        ),
+        trial(
+            "article-search/refused-litvar-candidates-carry-facts",
+            || candidates().map_err(|e| e.to_string().into()),
+        ),
+        trial(
+            "article-sections/refused-documents-and-children-carry-facts",
+            || annotations().map_err(|e| e.to_string().into()),
+        ),
+    ]
+}
+
+fn civic_genes() -> Check {
+    for case in ["optional", "identity", "absent"] {
+        let mut changed = false;
+        let (_root, fetch) = replay("gene/civic", |source, recording| {
+            if source == "civic"
+                && let Some(row) = recording.pointer_mut("/exchanges/0/body/value/data/g0")
+            {
+                changed = true;
+                match case {
+                    "optional" => row["variants"] = json!("invalid optional container"),
+                    "identity" => row["id"] = json!(0),
+                    _ => *row = Value::Null,
+                }
+            }
+        })?;
+        if !changed {
+            return Err("CIViC native gene missing".into());
+        }
+        let leg = fetch.leg(&civic::SPEC, fetch.deadline(Duration::from_secs(20)));
+        let mut rows = civic::genes(&leg, &[("ERBB2".parse()?, biodata::NcbiGeneId::new(2064)?)])?;
+        let mapped = rows.pop().ok_or("CIViC alias missing")?.civic;
+        let expected = if case == "identity" {
+            Refusal::Refused
+        } else {
+            Refusal::None
+        };
+        if mapped.refusals != expected
+            || matches!(mapped.value, Section::Data { .. }) != (case == "optional")
+        {
+            return Err(
+                format!("CIViC {case}: actual gene refusal or retained container changed").into(),
+            );
+        }
+    }
+    Ok(())
+}
+
+fn oncokb_genes() -> Check {
+    for case in ["optional", "identity", "absent"] {
+        let mut changed = false;
+        let (_root, fetch) = replay("gene/oncokb-synthetic/data", |source, recording| {
+            if source == "oncokb"
+                && let Some(rows) = recording.pointer_mut("/exchanges/0/body/value")
+                && rows.is_array()
+            {
+                changed = true;
+                match case {
+                    "optional" => rows[0]["geneType"] = json!({"invalid":true}),
+                    "identity" => rows[0]["entrezGeneId"] = json!(0),
+                    _ => *rows = json!([]),
+                }
+            }
+        })?;
+        if !changed {
+            return Err("OncoKB native gene missing".into());
+        }
+        let leg = fetch.leg(&oncokb::SPEC, fetch.deadline(Duration::from_secs(20)));
+        let mapped = oncokb::gene(&leg, &"TP53".parse()?, biodata::NcbiGeneId::new(7157)?)?;
+        let expected = if case == "identity" {
+            Refusal::Refused
+        } else {
+            Refusal::None
+        };
+        if mapped.refusals != expected || mapped.value.is_some() != (case == "optional") {
+            return Err(
+                format!("OncoKB {case}: actual gene refusal or retained field changed").into(),
+            );
+        }
+    }
+    Ok(())
+}
+
+fn citations() -> Check {
+    for case in ["optional", "identity", "absent"] {
+        let mut changed = false;
+        let (_root, fetch) = replay(
+            "article/citations/synthetic-malformed",
+            |source, recording| {
+                if source == "icite"
+                    && let Some(rows) = recording.pointer_mut("/exchanges/0/body/value/data")
+                {
+                    changed = true;
+                    match case {
+                        "identity" => rows[0]["pmid"] = json!(0),
+                        "absent" => *rows = json!([]),
+                        _ => {}
+                    }
+                }
+            },
+        )?;
+        if !changed {
+            return Err("iCite native records missing".into());
+        }
+        let leg = fetch.leg(&icite::SPEC, fetch.deadline(Duration::from_secs(20)));
+        let mapped = icite::publications(&leg, &[biodata::Pmid::new(33123537)?])?;
+        let expected = if case == "identity" {
+            Refusal::Refused
+        } else {
+            Refusal::None
+        };
+        if mapped.refusals != expected || mapped.value.len() != usize::from(case == "optional") {
+            return Err(
+                format!("iCite {case}: actual record refusal or native absence changed").into(),
+            );
+        }
+        if case == "optional" && mapped.value[0].problems.is_empty() {
+            return Err("iCite optional-field control missed native problems".into());
+        }
+    }
+    Ok(())
+}
+
+fn candidates() -> Check {
+    for case in ["optional", "identity", "absent"] {
+        let mut changed = false;
+        let (_root, fetch) = replay(
+            "article/search/synthetic-mixed-dropped-words",
+            |source, recording| {
+                if source == "litvar"
+                    && let Some(rows) = recording.pointer_mut("/exchanges/0/body/value")
+                    && rows.is_array()
+                {
+                    changed = true;
+                    let mut row = rows[0].clone();
+                    row["name"] = json!({"invalid":true});
+                    if case == "identity" {
+                        row["_id"] = json!(0);
+                    }
+                    *rows = if case == "absent" {
+                        json!([])
+                    } else {
+                        json!([row])
+                    };
+                }
+            },
+        )?;
+        if !changed {
+            return Err("LitVar native candidates missing".into());
+        }
+        let leg = fetch.leg(&litvar::SPEC, fetch.deadline(Duration::from_secs(20)));
+        let mapped = litvar::select(&leg, None, "rs121434592")?;
+        let expected = if case == "identity" {
+            Refusal::Refused
+        } else {
+            Refusal::None
+        };
+        if mapped.refusals != expected
+            || matches!(mapped.value, litvar::Selection::Exact(_)) != (case == "optional")
+        {
+            return Err(format!(
+                "LitVar {case}: actual candidate refusal or native absence changed"
+            )
+            .into());
+        }
+    }
+    Ok(())
+}
+
+fn annotations() -> Check {
+    for case in [
+        "present",
+        "empty-container",
+        "invalid-container",
+        "identity",
+        "child",
+        "absent",
+    ] {
+        let mut changed = false;
+        let (_root, fetch) = replay(
+            "article/annotations/synthetic-key-domains",
+            |source, recording| {
+                if source == "pubtator"
+                    && let Some(rows) = recording.pointer_mut("/exchanges/0/body/value/PubTator3")
+                {
+                    changed = true;
+                    match case {
+                        "empty-container" => rows[0]["passages"] = json!([]),
+                        "invalid-container" => {
+                            rows[0]["passages"] = json!("invalid optional container")
+                        }
+                        "identity" => rows[0]["id"] = json!("invalid"),
+                        "child" => {
+                            rows[0]["passages"][0]["annotations"] =
+                                json!([{"infons":{"type":"Variant"}}])
+                        }
+                        "absent" => *rows = json!([]),
+                        _ => {}
+                    }
+                }
+            },
+        )?;
+        if !changed {
+            return Err("PubTator native document missing".into());
+        }
+        let leg = fetch.leg(&pubtator::SPEC, fetch.deadline(Duration::from_secs(20)));
+        let mut rows = pubtator::annotations(&leg, &[biodata::Pmid::new(33123537)?])?;
+        let mapped = rows
+            .pop()
+            .ok_or("PubTator requested document result missing")?
+            .annotations;
+        let expected = if matches!(case, "identity" | "child") {
+            Refusal::Refused
+        } else {
+            Refusal::None
+        };
+        if mapped.refusals != expected
+            || matches!(mapped.value, Section::Data { .. }) != (case == "present")
+        {
+            return Err(
+                format!("PubTator {case}: actual document or child refusal changed").into(),
+            );
+        }
+    }
+    Ok(())
+}

@@ -1,5 +1,6 @@
 //! Actual record refusals stay distinct from optional fields at the public adapter boundary.
 mod families;
+mod members;
 mod pages;
 use super::transcript::trial;
 use biomcp_adapters::{NativeWindow, Refusal, chembl};
@@ -19,6 +20,7 @@ pub(super) fn trials() -> Vec<Trial> {
     ];
     tests.extend(families::trials());
     tests.extend(pages::trials());
+    tests.extend(members::trials());
     tests
 }
 
