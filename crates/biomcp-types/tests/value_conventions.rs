@@ -4,8 +4,7 @@ use serde::{Serialize, de::DeserializeOwned};
 use serde_json::json;
 
 #[test]
-fn synonymous_protein_search_roundtrips_canonical_hgvs()
--> Result<(), Box<dyn std::error::Error>> {
+fn synonymous_protein_search_roundtrips_canonical_hgvs() -> Result<(), Box<dyn std::error::Error>> {
     let canonical = json!({"gene":"BARD1", "protein":"p.Ala613=", "limit":10, "offset":0});
     for text in ["p.Ala613=", "p.A613="] {
         let query: biomcp_types::VariantSearch =
