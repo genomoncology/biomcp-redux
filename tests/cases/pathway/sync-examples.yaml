@@ -1,4 +1,5 @@
 {
+  "live_check": "synthetic authored or response-edited replies; no live provider observation",
   "feature": "pathway-wikipathways",
   "story": "Two published sync examples replace the synthetic metadata pair through CLI and MCP.",
   "replay": "pathway/examples-sync",

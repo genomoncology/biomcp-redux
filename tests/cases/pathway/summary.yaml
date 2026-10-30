@@ -1,4 +1,6 @@
 {
+  "verified": "Native Reactome recording retained by the bounded discovery implementation and the existing pathway command tests; ordinary public pathway commands check these replies nightly.",
+  "live_check": "public",
   "feature": "pathway-reactome",
   "story": "Summary preserves whole native summation text and its source references.",
   "replay": "pathway/native",

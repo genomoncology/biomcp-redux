@@ -1,3 +1,4 @@
+live_check: "local-only command help, validation or stored-state behavior; no recorded source replies"
 feature: query-validation
 story: Each public command refuses an unsupported argument before it reads a source.
 steps:

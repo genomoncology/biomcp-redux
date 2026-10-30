@@ -1,4 +1,5 @@
 {
+  "live_check": "local-only command help, validation or stored-state behavior; no recorded source replies",
   "feature": "key-registration",
   "story": "A caller registers and replaces a synthetic credential, sees only its origin, and removes it.",
   "steps": [

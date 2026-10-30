@@ -1,3 +1,4 @@
+live_check: "local-only command help, validation or stored-state behavior; no recorded source replies"
 feature: schema-discovery
 story: Scoped help identifies each advertised local command and its public arguments without source requests.
 steps:
