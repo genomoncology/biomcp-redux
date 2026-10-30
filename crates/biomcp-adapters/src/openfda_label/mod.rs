@@ -137,7 +137,14 @@ fn page(
         .flat_map(|r| r.problems.iter().cloned())
         .collect();
     Ok(Page {
-        window: crate::NativeWindow::new(records, offset, limit, Some(total), received),
+        window: crate::NativeWindow::new(
+            records,
+            offset,
+            limit,
+            Some(total),
+            received,
+            crate::Refusal::None,
+        ),
         problems,
         metadata,
     })

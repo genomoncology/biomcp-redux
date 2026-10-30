@@ -3,6 +3,23 @@ use crate::{native_text::NativeText, raw::Field};
 use biodata::Text;
 use biomcp_types::Problem;
 
+/// Whether a mapper refused a record, independent of field diagnostics.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum Refusal {
+    /// No record was refused.
+    None,
+    /// At least one record was refused at its mapping boundary.
+    Refused,
+}
+impl Refusal {
+    /// Preserve an actual refusal from either mapping stage.
+    pub fn include(&mut self, other: Self) {
+        if other == Self::Refused {
+            *self = other;
+        }
+    }
+}
+
 /// A source value with rejected fields retained as problems.
 #[derive(Debug)]
 pub struct Mapped<T> {

@@ -101,6 +101,7 @@ pub(super) fn opentargets(
                     limit as u32,
                     Some(total),
                     total.saturating_sub(offset as u64).min(limit as u64) as u32,
+                    biomcp_adapters::Refusal::None,
                 ),
                 meta.fetched,
                 fresh,
@@ -128,6 +129,7 @@ pub(super) fn opentargets(
                     limit as u32,
                     Some(total),
                     total.saturating_sub(offset as u64).min(limit as u64) as u32,
+                    biomcp_adapters::Refusal::None,
                 ),
                 meta.fetched,
                 fresh,
@@ -284,6 +286,7 @@ fn chembl_card(
                 total
                     .saturating_sub(u64::from(offset))
                     .min(u64::from(limit)) as u32,
+                biomcp_adapters::Refusal::None,
             ),
             fetched,
             fresh,
