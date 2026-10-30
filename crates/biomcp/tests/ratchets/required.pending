@@ -24,7 +24,6 @@ option variant population --build
 option variant population --limit
 option variant population --resolver
 section get disease phenotypes
-section get protein domains
 section get variant civic
 section get variant hotspots
 section search adverse-event age
