@@ -90,6 +90,7 @@ fn fetch_page(
     if query.uses_coding_selector() {
         return clinvar::search(leg, query).map(|page| SearchPage {
             total: page.total,
+            consumed: page.consumed,
             rows: page.rows,
         });
     }
@@ -106,11 +107,13 @@ fn fetch_page(
     }
     myvariant::search(leg, query).map(|page| SearchPage {
         total: page.total,
+        consumed: page.consumed,
         rows: page.rows,
     })
 }
 struct SearchPage {
     total: u64,
+    consumed: u32,
     rows: biomcp_adapters::Mapped<Vec<biomcp_types::VariantHeader>>,
 }
 fn component_terms(

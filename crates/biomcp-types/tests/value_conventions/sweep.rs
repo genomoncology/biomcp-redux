@@ -335,6 +335,8 @@ fn scientific_vocabularies_preserve_identity() -> Check {
 #[test]
 fn equal_identity_uses_equal_hashes() -> Check {
     equal_hash::<biodata::OrcidPublicVisibility>("PUBLIC", "public")?;
+    equal_hash::<biodata::Base>("A", "A")?;
+    equal_hash::<biodata::Sequence>("ACGTN", "ACGTN")?;
     equal_hash::<biodata::GeneSymbol>("BRAF", "bRaF")?;
     equal_hash::<biodata::Doi>("10.1000/ABC", "10.1000/abc")?;
     equal_hash::<biodata::ScientificPValue>("1.50e-8", "1.5e-8")?;
@@ -528,4 +530,12 @@ fn coding_changes_preserve_checked_search_text_without_a_reference() -> Check {
         "c.1A>T\n",
         "c.1A>T\"[VRNM] OR PTEN[GENE]",
     ])
+}
+
+#[test]
+fn source_timestamp_values_preserve_native_text() -> Check {
+    value_contract::<biomcp_types::SourceTimestampValue>(
+        &["2024-05-03T10:00:00+02:00", "2024-02-29t00:00:00.123456789012z", "1990-12-31T23:59:60Z"],
+        &["2024-05-03", "2023-02-29T10:00:00Z", "2024-05-03T10:00:00Z\n"],
+    )
 }

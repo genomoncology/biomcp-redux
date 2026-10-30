@@ -98,6 +98,7 @@ tool_only! { mod negative_cases; }
 mod network_stub;
 mod next_navigation;
 mod normalization;
+tool_only! { pub(super) mod other_source_value_proof; }
 mod oncokb;
 mod oncokb_context;
 mod openfda_key;

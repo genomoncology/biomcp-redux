@@ -1,7 +1,7 @@
 //! Native identity discovery follows NCBI's ClinVar E-utilities search contract.
 //! https://www.ncbi.nlm.nih.gov/clinvar/docs/programmatic_access/
 use super::SPEC;
-use crate::Mapped;
+use crate::{Mapped, mapped::Problems, raw::Field};
 use biodata::{ClinVarVariationId, Variant, VariantId};
 use biomcp_fetch::{Arg, BadReply, Endpoint, Freshness, Leg, Reply, RequestError};
 use biomcp_types::{Source, SourceRecord, VariantHeader, VariantSearch};
@@ -12,6 +12,8 @@ const SEARCH: Endpoint = SPEC.get("/esearch.fcgi").fresh(Freshness::Days(1));
 pub struct SearchPage {
     /// Native total before paging.
     pub total: u64,
+    /// Native positions consumed, including refused records.
+    pub consumed: u32,
     /// Source identities in their original order.
     pub rows: Mapped<Vec<VariantHeader>>,
 }
@@ -24,7 +26,7 @@ struct Page {
     #[serde(deserialize_with = "count")]
     count: u64,
     retstart: String,
-    idlist: Vec<Id>,
+    idlist: Vec<Field<Id>>,
     #[serde(rename = "ERROR")]
     error: Option<serde::de::IgnoredAny>,
     errorlist: Option<serde::de::IgnoredAny>,
@@ -51,27 +53,18 @@ impl Reply for Search {
         let total = page.count;
         let offset = page.retstart.parse::<u32>().map_err(|_| BadReply)?;
         let ids: std::collections::BTreeSet<_> =
-            page.idlist.iter().map(|id| id.identity.get()).collect();
+            page.idlist.iter().filter_map(|id| id.as_ref().map(|id| id.identity.get())).collect();
         if page.error.is_some()
             || page.errorlist.is_some()
             || page.idlist.len() > 50
-            || ids.len() != page.idlist.len()
+            || ids.len() != page.idlist.iter().filter(|id| id.as_ref().is_some()).count()
             || page.idlist.len() as u64 > total.saturating_sub(u64::from(offset))
         {
             return Err(BadReply);
         }
         Ok(())
     }
-    fn discovery(&self) -> Option<biomcp_fetch::Identities> {
-        biomcp_fetch::Identities::bounded(
-            "clinvar",
-            self.esearchresult
-                .idlist
-                .iter()
-                .map(|id| id.identity.to_string())
-                .collect(),
-        )
-    }
+
 }
 /// Search the supplied gene and coding notation without choosing a reference sequence.
 pub fn search(leg: &Leg<'_>, query: &VariantSearch) -> Result<SearchPage, RequestError> {
@@ -86,7 +79,7 @@ pub fn search(leg: &Leg<'_>, query: &VariantSearch) -> Result<SearchPage, Reques
     if query.offset() != 0 {
         args.push(("retstart", Arg::Num(u64::from(query.offset()))));
     }
-    let (reply, _) = leg.json_received_checked::<Search>(&SEARCH, &args, |reply| {
+    let reply = leg.json_checked_admission::<Search>(&SEARCH, &args, |reply| {
         let page = &reply.esearchresult;
         let total = page.count;
         if page.retstart != query.offset().to_string()
@@ -98,18 +91,21 @@ pub fn search(leg: &Leg<'_>, query: &VariantSearch) -> Result<SearchPage, Reques
             return Err(BadReply);
         }
         Ok(())
-    })?;
+    }, |reply| reply.esearchresult.idlist.iter().all(|id| id.as_ref().is_some()))?;
     let page = reply.esearchresult;
+    let consumed = page.idlist.len() as u32;
+    let mut problems = Problems { source: Source::ClinVar, record: None, list: Vec::new() };
     let rows = page
         .idlist
         .into_iter()
-        .map(|id| {
+        .filter_map(|id| {
+            let id = problems.required("idlist", id.value())?;
             let identity = VariantId::ClinVarVariation(id.identity);
             let record = SourceRecord {
                 id: id.text,
                 url: None,
             };
-            VariantHeader {
+            Some(VariantHeader {
                 identity: Variant {
                     ids: Box::new([identity]),
                     representations: Box::default(),
@@ -122,14 +118,15 @@ pub fn search(leg: &Leg<'_>, query: &VariantSearch) -> Result<SearchPage, Reques
                 myvariant: None,
                 sections: None,
                 component_terms: Box::default(),
-            }
+            })
         })
         .collect();
     Ok(SearchPage {
         total: page.count,
+        consumed,
         rows: Mapped {
             value: rows,
-            problems: Vec::new(),
+            problems: problems.list,
         },
     })
 }
