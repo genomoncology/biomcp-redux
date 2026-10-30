@@ -15,6 +15,9 @@ use serde::Deserialize;
 /// One citation and its separately requested indexing facts.
 #[derive(Debug, Deserialize)]
 pub struct FetchedArticle {
+    /// Actual refused native indexing records.
+    #[serde(default = "crate::mapped::refusal_serde::none", with = "crate::mapped::refusal_serde")]
+    pub refusals: crate::Refusal,
     /// Full article for the default card.
     pub article: Article,
     /// Facts from that same citation.
@@ -164,8 +167,11 @@ fn article(root: Element<'_>) -> Result<FetchedArticle, BadReply> {
             }
         }
     }
+    let mut refusals = crate::Refusal::None;
+    let indexing = super::indexing::parse(citation, row, &mut problems, &mut refusals)?;
     Ok(FetchedArticle {
-        indexing: super::indexing::parse(citation, row, &mut problems)?,
+        refusals,
+        indexing,
         article: Article {
             europepmc_id: None,
             pmid: Some(pmid),
