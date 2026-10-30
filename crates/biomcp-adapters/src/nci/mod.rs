@@ -8,6 +8,8 @@ mod organization_map;
 mod organization_raw;
 mod sites;
 mod trial_biomarker;
+mod trial_map;
+mod trial_raw;
 use biodata::{NctId, Text};
 
 use biomcp_fetch::{
@@ -62,34 +64,21 @@ impl Reply for Page {
 }
 /// Source-native identity and card fields. Extra source fields remain adapter-owned.
 #[derive(Debug, Deserialize)]
+#[serde(from = "trial_raw::Trial")]
 pub struct Trial {
     nci_id: Text,
     nct_id: NctId,
-    #[serde(deserialize_with = "crate::native_text::deserialize")]
-    brief_title: biodata::Text,
-    current_trial_status: Text,
+    brief_title: Option<Text>,
+    current_trial_status: Option<Text>,
     phase: Option<biomcp_types::NciTrialPhase>,
     brief_summary: Option<Box<str>>,
-    #[serde(default)]
-    #[serde(deserialize_with = "crate::strict_input::deserialize")]
     diseases: Vec<NciDisease>,
     biomarkers: Option<crate::raw::Field<Vec<crate::raw::Field<trial_biomarker::Biomarker>>>>,
     sites: Option<crate::raw::Field<Vec<crate::raw::Field<sites::Site>>>>,
-    eligibility: Option<crate::strict_input::Input<eligibility::Eligibility>>,
-    #[serde(default)]
-    arms: Vec<Arm>,
-    #[serde(default)]
-    #[serde(deserialize_with = "crate::strict_input::deserialize")]
-    outcome_measures: Vec<biomcp_types::NciOutcome>,
-}
-#[derive(Debug, Deserialize)]
-struct Arm {
-    name: Option<Box<str>>,
-    description: Option<Box<str>>,
-    r#type: Option<Text>,
-    #[serde(default)]
-    #[serde(deserialize_with = "crate::strict_input::deserialize")]
-    interventions: Vec<biomcp_types::NciIntervention>,
+    eligibility: Option<biomcp_types::NciEligibility>,
+    arms: Box<[biomcp_types::NciArmRecord]>,
+    outcome_measures: Box<[biomcp_types::NciOutcome]>,
+    problems: Vec<biomcp_types::Problem>,
 }
 /// Native sections and compact card from one validated source record.
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -118,6 +107,10 @@ impl Reply for Trial {
     }
 }
 impl Trial {
+    /// Rejected native fields from this record.
+    pub fn problems(&self) -> &[biomcp_types::Problem] {
+        &self.problems
+    }
     /// Native publisher card, with no clinical interpretation or inferred fields.
     pub fn card(&self, summary: bool) -> NciTrial {
         NciTrial {
@@ -159,41 +152,14 @@ impl Trial {
     }
     fn detail(self) -> Detail {
         let card = self.card(true);
-        let mut arms = Vec::new();
-        for (arm_index, arm) in self.arms.into_iter().enumerate() {
-            arms.push(biomcp_types::NciArmRecord::Arm {
-                arm_index: arm_index as u32,
-                data: biomcp_types::NciArm {
-                    name: arm.name,
-                    description: arm.description,
-                    r#type: arm.r#type,
-                },
-            });
-            arms.extend(
-                arm.interventions
-                    .into_iter()
-                    .enumerate()
-                    .map(|(index, data)| biomcp_types::NciArmRecord::Intervention {
-                        arm_index: arm_index as u32,
-                        index: index as u32,
-                        data,
-                    }),
-            );
-        }
-        let mut problems = crate::mapped::Problems {
-            source: biomcp_types::Source::Nci,
-            record: crate::mapped::record(self.nct_id),
-            list: Vec::new(),
-        };
-        let eligibility = self.eligibility.map(|e| e.0.map(&mut problems));
         Detail {
-            problems: problems.list,
+            problems: self.problems,
             card,
             summary: self.brief_summary,
             diseases: self.diseases.into(),
-            eligibility,
-            outcomes: self.outcome_measures.into(),
-            arms: arms.into(),
+            eligibility: self.eligibility,
+            outcomes: self.outcome_measures,
+            arms: self.arms,
         }
     }
 }

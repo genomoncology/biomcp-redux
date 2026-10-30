@@ -23,3 +23,6 @@ mod raw;
 mod search;
 pub use get::get;
 pub use search::{expression, search};
+
+mod positions;
+pub use positions::{Positions, Report};

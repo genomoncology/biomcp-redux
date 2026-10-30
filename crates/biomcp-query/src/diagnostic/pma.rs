@@ -37,6 +37,7 @@ fn selected(
     records: fda_pma::Records,
     fresh: bool,
 ) -> Result<(), biomcp_fetch::RequestError> {
+    out.problems.extend(records.problems);
     if let Some(field) = records.identity_conflict {
         out.status = Status::Failed;
         out.problems.push(Problem {
