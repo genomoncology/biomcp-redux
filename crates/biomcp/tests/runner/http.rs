@@ -19,10 +19,9 @@ pub(super) fn trials() -> Vec<Trial> {
             "mcp-http/revisions-parity-and-concurrent-identities",
             || protocols().map_err(Into::into),
         ),
-        transcript_trial(
-            "mcp-http/host-origin-method-and-metadata-boundaries",
-            || admission().map_err(Into::into),
-        ),
+        transcript_trial(crate::runner::pool_contract::HTTP_HOST.0, || {
+            admission().map_err(Into::into)
+        }),
         transcript_trial("mcp-http/framing-resource-deadlines-and-shutdown", || {
             super::http_limits::check().map_err(Into::into)
         }),
@@ -82,7 +81,7 @@ impl Server {
         &self._environment
     }
     pub(super) fn keys(config: Value, key: Option<(&str, &str)>) -> Result<Self, String> {
-        Self::configured_key("127.0.0.1:0", Some(config), None, key)
+        Self::configured_key("127.0.0.1:0", Some(config), None, key, None)
     }
     fn configured(bind: &str, config: Option<Value>, replay: bool) -> Result<Self, String> {
         Self::configured_key(
@@ -90,16 +89,18 @@ impl Server {
             config,
             replay.then(|| super::launch::fixtures().join("replies/gene/main")),
             None,
+            None,
         )
     }
     pub(super) fn start_replay(path: std::path::PathBuf) -> Result<Self, String> {
-        Self::configured_key("127.0.0.1:0", None, Some(path), None)
+        Self::configured_key("127.0.0.1:0", None, Some(path), None, None)
     }
     fn configured_key(
         bind: &str,
         config: Option<Value>,
         replay: Option<std::path::PathBuf>,
         key: Option<(&str, &str)>,
+        allowed_host: Option<&str>,
     ) -> Result<Self, String> {
         let environment = Environment::new().map_err(|e| e.to_string())?;
         if let Some(config) = config {
@@ -107,6 +108,9 @@ impl Server {
         }
         let address: SocketAddr = bind.parse().map_err(|_| "local address")?;
         let mut args = vec!["serve".into(), "--http".into(), address.to_string()];
+        if let Some(host) = allowed_host {
+            args.extend(["--allow-host".into(), host.into()]);
+        }
         if let Some(path) = replay {
             args.extend(environment.globals(Some(&path), false));
         }
@@ -409,7 +413,10 @@ fn concurrent(server: &Server, globals: &[String]) -> Check {
 }
 
 fn admission() -> Check {
-    let server = Server::start()?;
+    let server = Server::configured_key("127.0.0.1:0", None, None, None, Some("clinic.example"))?;
+    if server.raw("GET", "/health", "clinic.example", "", "")?.0 != 200 {
+        return Err("explicit allowed Host was rejected".into());
+    }
     metadata_cases(&server)?;
     let host = server.address.to_string();
     for (authority, headers) in [

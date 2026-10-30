@@ -9,6 +9,5 @@ option search drug --initiated-to
 option search drug --reason
 option search drug --status
 option search trial --exact-condition
-option serve --allow-host
 section get variant civic
 section get variant hotspots

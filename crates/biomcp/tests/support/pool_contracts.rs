@@ -141,3 +141,9 @@ pub(crate) const PATHWAY_EVENTS: (&str, &[&str]) = (
         "option get pathway --pool",
     ],
 );
+
+// One actual local HTTP process admits the literal configured Host and refuses foreign hosts.
+pub(crate) const HTTP_HOST: (&str, &[&str]) = (
+    "mcp-http/host-origin-method-and-metadata-boundaries",
+    &["option serve --allow-host"],
+);
