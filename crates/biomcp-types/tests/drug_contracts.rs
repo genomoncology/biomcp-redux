@@ -286,7 +286,7 @@ fn native_target_identity_does_not_require_an_invented_gene() {
         "source mechanism wording"
     );
     let native = DrugNativeTarget {
-        source: "chembl".parse().expect("source"),
+        namespace: "chembl".parse().expect("source"),
         id: "CHEMBL999".parse().expect("id"),
         label: Some("synthetic target complex".parse().expect("label")),
         url: Some("https://example.org/target".parse().expect("link")),

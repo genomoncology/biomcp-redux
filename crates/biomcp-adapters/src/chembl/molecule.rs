@@ -74,7 +74,7 @@ pub fn card(row: Molecule, fetched: Option<i64>) -> Result<crate::Mapped<DrugCar
         parents.push(DrugIdentityRelation {
             identity: DrugIdentity {
                 id,
-                source: Text::new("chembl")?,
+                namespace: Text::new("chembl")?,
                 name: None,
                 identity_level: DrugIdentityLevel::Unknown,
                 r#type: None,

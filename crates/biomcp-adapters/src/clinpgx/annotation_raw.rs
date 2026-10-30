@@ -23,7 +23,7 @@ pgx_row! { PgxObjectReference => biodata::PgxObjectReference, record id {
 }}
 pgx_row! { PgxCrossReference => biodata::PgxCrossReference, record id {
     identity {
-        id: i64 => "crossReferences.id",
+        id: i64 => "crossReferences.id" as "ClinPGx",
     }
     values {
         resource: Box<str> => "crossReferences.resource",
@@ -42,7 +42,7 @@ pgx_row! { PgxCrossReference => biodata::PgxCrossReference, record id {
 }}
 pgx_row! { PgxDiplotypeReference => biodata::PgxDiplotypeReference, record id {
     identity {
-        id: i64 => "diplotypes.id",
+        id: i64 => "diplotypes.id" as "ClinPGx",
     }
     values {
     }
@@ -57,7 +57,7 @@ pgx_row! { PgxDiplotypeReference => biodata::PgxDiplotypeReference, record id {
 }}
 pgx_row! { PgxLocation => biodata::PgxLocation, record id {
     identity {
-        id: i64 => "location.id",
+        id: i64 => "location.id" as "ClinPGx",
     }
     values {
         #[serde(rename = "buildVersion")] build_version: Box<str> => "location.buildVersion",
@@ -88,7 +88,7 @@ pgx_row! { PgxLocation => biodata::PgxLocation, record id {
 }}
 pgx_row! { PgxEvidenceTerm => biodata::PgxEvidenceTerm, record id {
     identity {
-        id: i64 => "levelOfEvidence.id",
+        id: i64 => "levelOfEvidence.id" as "ClinPGx",
     }
     values {
         resource: Box<str> => "levelOfEvidence.resource",
@@ -108,7 +108,7 @@ pgx_row! { PgxEvidenceTerm => biodata::PgxEvidenceTerm, record id {
 }}
 pgx_row! { PgxAnnotationHeader => biodata::PgxAnnotationHeader, record accession_id {
     identity {
-        id: i64 => "id",
+        id: i64 => "id" as "ClinPGx",
         #[serde(rename = "accessionId")] accession_id: ClinPgxAccession => "accessionId",
     }
     values {

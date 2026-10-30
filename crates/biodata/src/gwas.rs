@@ -38,6 +38,12 @@ text_value!(
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct GwasAssociationId(std::num::NonZeroU64);
 impl GwasAssociationId {
+    /// Retain a native association number after the adapter checks positivity.
+    pub fn from_nonzero(value: std::num::NonZeroU64) -> Self { Self(value) }
+    /// Construct from the native positive association number.
+    pub fn new(value: u64) -> Result<Self, crate::Error> {
+        std::num::NonZeroU64::new(value).map(Self).ok_or(crate::Error::GwasValueInvalid)
+    }
     /// Native numeric ID.
     pub fn get(self) -> u64 {
         self.0.get()

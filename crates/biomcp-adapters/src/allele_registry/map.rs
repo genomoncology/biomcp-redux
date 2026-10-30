@@ -37,7 +37,7 @@ pub(super) fn allele(raw: RawAllele, expected: Option<&str>) -> Resolution {
             genes: Box::default(),
         },
         source: Source::AlleleRegistry,
-        record: SourceRecord {
+        record: SourceRecord { namespace: None,
             id: record,
             url: Some(url),
         },

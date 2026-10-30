@@ -4,7 +4,7 @@ use crate::pgx_sources::pgx_row;
 use biodata::ClinPgxAccession;
 pgx_row! { PgxAllelePhenotype => biodata::PgxAllelePhenotype, record id {
     identity {
-        id: i64 => "allelePhenotypes.id",
+        id: i64 => "allelePhenotypes.id" as "ClinPGx",
     }
     values {
         allele: Box<str> => "allelePhenotypes.allele",
@@ -22,7 +22,7 @@ pgx_row! { PgxAllelePhenotype => biodata::PgxAllelePhenotype, record id {
 }}
 pgx_row! { PgxAnnotationHistory => biodata::PgxAnnotationHistory, record id {
     identity {
-        id: i64 => "history.id",
+        id: i64 => "history.id" as "ClinPGx",
     }
     values {
         date: Box<str> => "history.date",
@@ -41,7 +41,7 @@ pgx_row! { PgxAnnotationHistory => biodata::PgxAnnotationHistory, record id {
 }}
 pgx_row! { PgxAnnotationDetail => biodata::PgxAnnotationDetail, record accession_id {
     identity {
-        id: i64 => "id",
+        id: i64 => "id" as "ClinPGx",
         #[serde(rename = "accessionId")] accession_id: ClinPgxAccession => "accessionId",
     }
     values {

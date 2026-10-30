@@ -1,4 +1,4 @@
-use crate::{HgncId, Text};
+use crate::{HgncId, Identifier, Text};
 use serde::{Deserialize, Serialize};
 use std::num::NonZeroU64;
 mod ids;
@@ -43,10 +43,10 @@ pub struct Pathway {
 #[cfg_attr(feature = "schema", schemars(extend("x-identifier" = true)))]
 pub struct PathwaySourceRef {
     /// Native namespace; never discarded during a gene join.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(required))]
     pub namespace: Option<Box<str>>,
     /// Complete namespace-local identifier, including native isoform suffixes.
-    pub value: Text,
+    pub id: Text,
 }
 /// One source membership reference, without name-based gene inference.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -84,12 +84,12 @@ pub enum PathwayEventRef {
     /// Native unresolved integer database reference.
     Database {
         /// Positive native database reference.
-        db_id: NonZeroU64,
+        db_id: Identifier<NonZeroU64>,
     },
     /// Native event object; fields are absent only when omitted by the source.
     Object {
         /// Native object database identity.
-        db_id: NonZeroU64,
+        db_id: Identifier<NonZeroU64>,
         /// Native stable identity when present, never copied from the pathway.
         #[serde(default, skip_serializing_if = "Option::is_none")]
         id: Option<ReactomeId>,
@@ -114,7 +114,7 @@ pub enum PathwayEventRef {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct PathwaySummation {
     /// Native summation database identity, not the pathway identity.
-    pub db_id: NonZeroU64,
+    pub db_id: Identifier<NonZeroU64>,
     /// Complete native text; no sentence clipping or reference reassignment.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub text: Option<Box<str>>,
@@ -124,7 +124,7 @@ pub struct PathwaySummation {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct PathwayLiteratureRef {
     /// Native literature database reference.
-    pub db_id: NonZeroU64,
+    pub db_id: Identifier<NonZeroU64>,
     /// Native PubMed identifier when supplied.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub pubmed: Option<crate::Pmid>,
@@ -141,7 +141,7 @@ pub struct PathwayLiteratureRef {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct PathwayParticipant {
     /// Native physical entity database identity, distinct from reference identity.
-    pub db_id: NonZeroU64,
+    pub db_id: Identifier<NonZeroU64>,
     /// Whole physical entity label, including source-stated modification context.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<Text>,

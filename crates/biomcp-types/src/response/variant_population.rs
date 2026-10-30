@@ -65,7 +65,7 @@ pub struct VariantGwas {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct GwasAssociation {
     /// Native association identity.
-    pub id: u64,
+    pub id: biodata::GwasAssociationId,
     /// Study accession.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub study: Option<Text>,
@@ -148,6 +148,9 @@ impl super::ResponseBody for VariantPopulationResult {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 #[cfg_attr(feature = "schema", schemars(extend("x-identifier" = true)))]
 pub struct GwasTrait {
+    /// Native authority; null means the source did not state one.
+    #[cfg_attr(feature = "schema", schemars(required))]
+    pub namespace: Option<Text>,
     /// Exact source ontology identifier spelling.
     pub id: Text,
     /// Whole source trait label.

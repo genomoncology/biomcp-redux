@@ -125,7 +125,7 @@ fn member(
     Ok(Some(PathwayMember {
         reference: PathwaySourceRef {
             namespace: node.namespace.map(Into::into),
-            value,
+            id: value,
         },
         node_id,
         name: p.text("genes.name", node.label.as_deref()),

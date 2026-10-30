@@ -22,7 +22,7 @@ pub fn association(leg: &Leg<'_>, id: GwasAssociationId) -> Result<Association, 
         .with_path(format!("/associations/{}", id.get()))?
         .fresh(Freshness::Days(1));
     let (row, _) = leg.json_received_checked::<Association>(&endpoint, &[], |r| {
-        if r.association_id == id.get() {
+        if r.association_id == id {
             Ok(())
         } else {
             Err(BadReply)
@@ -32,11 +32,7 @@ pub fn association(leg: &Leg<'_>, id: GwasAssociationId) -> Result<Association, 
 }
 impl Reply for Association {
     fn check(&self) -> Result<(), BadReply> {
-        if self.association_id == 0 {
-            Err(BadReply)
-        } else {
-            Ok(())
-        }
+        Ok(())
     }
 }
 /// Read one exact study with unchanged source sample descriptions.

@@ -102,7 +102,7 @@ pub(super) fn card(row: raw::Card, summary: bool, problems: &mut Problems) -> Op
                                 )
                             });
                         Some(PathwaySummation {
-                            db_id: row.db_id,
+                            db_id: biodata::Identifier { namespace: Some(crate::mapped::text("Reactome").ok()?), id: row.db_id },
                             text,
                         })
                     })
@@ -121,7 +121,7 @@ pub(super) fn card(row: raw::Card, summary: bool, problems: &mut Problems) -> Op
                 rows.into_iter()
                     .filter_map(|row| {
                         let row = problems.required("references.identity", row.value())?;
-                        Some(literature(row, problems))
+                        literature(row, problems)
                     })
                     .collect()
             })
@@ -152,9 +152,9 @@ pub(super) fn card(row: raw::Card, summary: bool, problems: &mut Problems) -> Op
         events: None,
     })
 }
-fn literature(row: raw::Literature, problems: &mut Problems) -> PathwayLiteratureRef {
-    PathwayLiteratureRef {
-        db_id: row.db_id,
+fn literature(row: raw::Literature, problems: &mut Problems) -> Option<PathwayLiteratureRef> {
+    Some(PathwayLiteratureRef {
+        db_id: biodata::Identifier { namespace: Some(crate::mapped::text("Reactome").ok()?), id: row.db_id },
         pubmed: problems.optional(
             "references.pubmed",
             row.pub_med_identifier
@@ -162,5 +162,5 @@ fn literature(row: raw::Literature, problems: &mut Problems) -> PathwayLiteratur
         ),
         title: metadata(problems, "references.title", row.title.as_ref(), false),
         url: metadata(problems, "references.url", row.url.as_ref(), false),
-    }
+    })
 }

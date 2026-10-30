@@ -64,7 +64,7 @@ pub fn members(leg: &Leg<'_>, id: &ReactomeId) -> Result<Mapped<Members>, Reques
             );
             if let Some(existing) = value.items.iter_mut().find(|m| {
                 m.reference.namespace.as_deref() == Some(namespace)
-                    && m.reference.value.as_str() == identifier
+                    && m.reference.id.as_str() == identifier
             }) {
                 let mut participants = existing
                     .participants
@@ -85,7 +85,7 @@ pub fn members(leg: &Leg<'_>, id: &ReactomeId) -> Result<Mapped<Members>, Reques
                                 .as_str()
                                 .into(),
                         ),
-                        value: crate::mapped::text(identifier).map_err(|_| bad_reply())?,
+                        id: crate::mapped::text(identifier).map_err(|_| bad_reply())?,
                     },
                     name,
                     source_url,
@@ -119,7 +119,7 @@ fn participant(
         false,
     );
     PathwayParticipant {
-        db_id: row.pe_db_id,
+        db_id: biodata::Identifier::new(crate::mapped::text("Reactome").map_err(|_| bad_reply())?, row.pe_db_id),
         name,
         schema_class,
     }
@@ -155,7 +155,7 @@ pub fn events(
     let mut problems = fields(id);
     for row in rows.0 {
         match row {
-            raw::Event::Database(db_id) => mapped.value.push(PathwayEventRef::Database { db_id }),
+            raw::Event::Database(db_id) => mapped.value.push(PathwayEventRef::Database { db_id: biodata::Identifier::new(crate::mapped::text("Reactome").map_err(|_| bad_reply())?, db_id) }),
             raw::Event::Object(v) => {
                 if v.species_name
                     .as_deref()
@@ -178,7 +178,7 @@ pub fn events(
                     continue;
                 };
                 mapped.value.push(PathwayEventRef::Object {
-                    db_id: v.db_id,
+                    db_id: biodata::Identifier::new(crate::mapped::text("Reactome").map_err(|_| bad_reply())?, v.db_id),
                     source_url: native_id
                         .as_ref()
                         .map(|id| {

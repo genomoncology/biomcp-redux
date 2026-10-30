@@ -40,7 +40,7 @@ pub struct DrugIdentity {
     /// Published native record identifier.
     pub id: DrugId,
     /// Source responsible for this identity.
-    pub source: Text,
+    pub namespace: Text,
     /// Original source name.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]

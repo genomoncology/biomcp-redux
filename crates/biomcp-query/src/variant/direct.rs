@@ -63,7 +63,7 @@ pub(super) fn get(
         },
         requested,
         source,
-        record: biomcp_types::SourceRecord {
+        record: biomcp_types::SourceRecord { namespace: None,
             id: query.input().text().clone(),
             url: None,
         },

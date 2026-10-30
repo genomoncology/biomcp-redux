@@ -7,7 +7,7 @@ use serde::Deserialize;
 #[derive(Debug, Deserialize)]
 pub(super) struct ReceivedAssociation {
     /// Stable association record identity.
-    pub association_id: u64,
+    pub association_id: std::num::NonZeroU64,
     /// Catalog study accession.
     pub accession_id: Option<crate::raw::Field<Text>>,
     /// Source-reported traits.
@@ -55,7 +55,7 @@ impl From<ReceivedAssociation> for super::raw::Association {
             list: Vec::new(),
         };
         let mut value = Self {
-            association_id: row.association_id,
+            association_id: biodata::GwasAssociationId::from_nonzero(row.association_id),
             accession_id: problems
                 .field("accession_id", row.accession_id)
                 .and_then(|v| {

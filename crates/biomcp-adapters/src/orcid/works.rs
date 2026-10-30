@@ -47,8 +47,8 @@ impl Identifiers {
             .filter_map(|id| {
                 let id = problems.required("external_ids", id.value())?;
                 Some(OrcidExternalId {
-                    kind: id.external_id_type,
-                    value: id.external_id_value,
+                    namespace: id.external_id_type,
+                    id: id.external_id_value,
                     relationship: optional(
                         problems,
                         "external_ids.relationship",

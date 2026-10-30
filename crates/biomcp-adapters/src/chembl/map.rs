@@ -72,7 +72,7 @@ pub fn indications(
     let mut rejected = Vec::new();
     for r in rows {
         let mut problems = Problems {
-            source: biomcp_types::Source::Chembl,
+            namespace: biomcp_types::Source::Chembl,
             record: crate::mapped::record(r.drugind_id),
             list: r.problems,
         };

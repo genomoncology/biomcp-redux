@@ -5,6 +5,9 @@ use serde::{Deserialize, Serialize};
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 #[cfg_attr(feature = "schema", schemars(extend("x-identifier" = true)))]
 pub struct SourceRecord {
+    /// Native authority; null means the source did not state one.
+    #[cfg_attr(feature = "schema", schemars(required))]
+    pub namespace: Option<Text>,
     /// Native source identifier.
     pub id: Text,
     /// Link to that entry.

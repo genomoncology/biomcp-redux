@@ -17,7 +17,7 @@ pub(crate) trait Native {
 
 macro_rules! pgx_row {
     ($name:ident => $out:path, record $record:ident {
-        identity { $($(#[$ia:meta])* $id:ident : $it:ty => $ip:literal,)* }
+        identity { $($(#[$ia:meta])* $id:ident : $it:ty => $ip:literal $(as $authority:literal)?,)* }
         values { $($(#[$va:meta])* $value:ident : $vt:ty => $vp:literal,)* }
         nested { $($(#[$na:meta])* $nested:ident : $nt:ty => $np:literal,)* }
         lists { $($(#[$la:meta])* $list:ident : $lt:ty => $lp:literal,)* }
@@ -42,6 +42,7 @@ macro_rules! pgx_row {
             fn map(self, problems: &mut crate::mapped::Problems) -> Option<Self::Value> {
                 $(let $id = problems.required_field($ip, self.$id)?;)*
                 problems.text(stringify!($record), Some(&$record.to_string()))?;
+                $(let $id = pgx_row!(@identity $id $(, $authority)?);)*
                 use $out as Output;
                 Some(Output {
                     $($id,)*
@@ -56,5 +57,9 @@ macro_rules! pgx_row {
             }
         }
     };
+    (@identity $value:ident, $authority:literal) => {
+        biodata::Identifier::new(crate::mapped::text($authority).ok()?, $value)
+    };
+    (@identity $value:ident) => { $value };
 }
 pub(crate) use pgx_row;

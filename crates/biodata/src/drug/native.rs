@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DrugNativeTarget {
     /// Source responsible for the native identifier.
-    pub source: Text,
+    pub namespace: Text,
     /// Exact published target identifier.
     pub id: Text,
     /// Native target label, only when supplied.

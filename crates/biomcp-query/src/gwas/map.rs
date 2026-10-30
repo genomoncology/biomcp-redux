@@ -15,7 +15,7 @@ pub(crate) fn association(
         ontology_traits: row
             .efo_traits
             .into_iter()
-            .map(|t| biomcp_types::GwasTrait {
+            .map(|t| biomcp_types::GwasTrait { namespace: None,
                 id: t.efo_id,
                 label: t.efo_trait,
             })

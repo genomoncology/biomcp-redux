@@ -132,7 +132,7 @@ impl Study {
             ontology_traits: self
                 .efo_traits
                 .into_iter()
-                .map(|t| GwasTrait {
+                .map(|t| GwasTrait { namespace: None,
                     id: t.efo_id,
                     label: t.efo_trait,
                 })

@@ -183,7 +183,7 @@ fn map(
     Some(if variant_count == Some(0) && description.is_none() {
         Section::Empty {
             source: Source::Civic,
-            record: Some(SourceRecord {
+            record: Some(SourceRecord { namespace: None,
                 id: cx.record.clone()?,
                 url,
             }),
@@ -192,7 +192,7 @@ fn map(
         Section::Data {
             source: Source::Civic,
             data: CivicGene {
-                id,
+                id: biodata::Identifier::new(crate::mapped::text("CIViC").ok()?, id),
                 variant_count,
                 url,
                 description,
