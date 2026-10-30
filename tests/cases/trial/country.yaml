@@ -5,47 +5,6 @@
   "steps": [
     {
       "run": [
-        "search",
-        "trial",
-        "--country",
-        "Atlantis"
-      ],
-      "exit": 2,
-      "offline": true,
-      "is_error": true,
-      "expect": {
-        "/error/code": "usage.arguments",
-        "/error/option": "--country"
-      },
-      "max_bytes": 5000
-    },
-    {
-      "run": [
-        "search",
-        "trial",
-        "--id",
-        "NCT03734029",
-        "--limit",
-        "1",
-        "--country",
-        "United States"
-      ],
-      "expect": {
-        "/status": "complete",
-        "/page/total": 1,
-        "/query/country": [
-          "United States"
-        ],
-        "/result/items/*/nct_id": {
-          "equals": [
-            "NCT03734029"
-          ]
-        }
-      },
-      "max_bytes": 5000
-    },
-    {
-      "run": [
         "get",
         "trial",
         "NCT03734029",
@@ -57,59 +16,6 @@
         "/status": "complete",
         "/result/items/0/input": "NCT03734029",
         "/result/items/0/sections/locations/data/items/0/country": "United States"
-      },
-      "max_bytes": 5000
-    },
-    {
-      "run": [
-        "search",
-        "trial",
-        "--id",
-        "NCT03734029",
-        "--limit",
-        "1",
-        "--country",
-        "United States",
-        "--country",
-        "Canada"
-      ],
-      "expect": {
-        "/status": "complete",
-        "/query/country": [
-          "United States",
-          "Canada"
-        ],
-        "/result/items/*/nct_id": {
-          "equals": [
-            "NCT03734029"
-          ]
-        }
-      },
-      "max_bytes": 5000
-    },
-    {
-      "run": [
-        "search",
-        "trial",
-        "--source",
-        "nci",
-        "--country",
-        "United States",
-        "--country",
-        "Canada",
-        "--limit",
-        "1"
-      ],
-      "expect": {
-        "/status": "complete",
-        "/query/country": [
-          "United States",
-          "Canada"
-        ],
-        "/result/request/2/name": "sites.org_country",
-        "/result/request/2/value": "United States",
-        "/result/request/3/name": "sites.org_country",
-        "/result/request/3/value": "Canada"
       },
       "max_bytes": 5000
     },

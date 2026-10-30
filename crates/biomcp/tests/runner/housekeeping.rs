@@ -1,8 +1,8 @@
 //! Housekeeping runs through the isolated installed command boundary.
-#[path = "housekeeping_path.rs"]
-mod stable_path;
 #[path = "../support/housekeeping_contract.rs"]
 mod contract;
+#[path = "housekeeping_path.rs"]
+mod stable_path;
 
 use super::launch::Environment;
 use crate::runner::transcript::trial as transcript_trial;
