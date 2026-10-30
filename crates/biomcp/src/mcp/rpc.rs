@@ -13,7 +13,7 @@ pub(super) enum Message {
         params: Value,
     },
 }
-pub(super) fn message(frame: &[u8], legacy: &mut bool) -> Message {
+pub(super) fn message(frame: &[u8], legacy: &mut bool, read_only: bool) -> Message {
     let Ok(value) = serde_json::from_slice::<Value>(frame) else {
         return Message::Reply(protocol::error(Value::Null, -32700, "Parse error"));
     };
@@ -56,7 +56,7 @@ pub(super) fn message(frame: &[u8], legacy: &mut bool) -> Message {
     let result = match method {
         "ping" => json!({}),
         "server/discover" => current::discover(),
-        "tools/list" => match protocol::tools() {
+        "tools/list" => match protocol::tools(read_only) {
             Ok(tools) => json!({"tools":tools}),
             Err(_) => {
                 return Message::Reply(protocol::error(
