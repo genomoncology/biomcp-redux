@@ -12,14 +12,8 @@ option search drug --reason
 option search drug --status
 option search trial --exact-condition
 option serve --allow-host
-option variant assertions --assertion
-option variant assertions --limit
-option variant assertions --offset
-option variant normalize --limit
-option variant normalize --offset
 option variant population --build
 option variant population --limit
 option variant population --resolver
-section get disease phenotypes
 section get variant civic
 section get variant hotspots

@@ -26,10 +26,9 @@ pub(super) fn trials() -> Vec<Trial> {
             "variant-assertions/assertions-disabled-before-identity-and-join",
             || disabled().map_err(Into::into),
         ),
-        transcript_trial(
-            "variant-assertions/assertions-native-row-walk-preserves-unmapped",
-            || native_walk().map_err(Into::into),
-        ),
+        transcript_trial(crate::runner::required_contract::CLINVAR_PAGES.0, || {
+            native_walk().map_err(Into::into)
+        }),
         transcript_trial(
             "variant-assertions/assertions-erepo-selected-version-uses-only-document",
             || history(0).map_err(Into::into),

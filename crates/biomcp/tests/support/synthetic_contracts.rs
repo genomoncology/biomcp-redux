@@ -171,3 +171,29 @@ pub(crate) const FAERS_REACTION: (&str, &[&str]) = (
     "adverse-event-search/synthetic-combined",
     &["option search adverse-event --reaction"],
 );
+
+// Mutalyzer terms require review; these three source-shaped mappings are synthetic.
+pub(crate) const NORMALIZATION_PAGES: (&str, &[&str]) = (
+    "variant-normalization/native-mapping-walk-is-warm",
+    &[
+        "option variant normalize --limit",
+        "option variant normalize --offset",
+    ],
+);
+// ClinVar submission rights remain source-specific; the existing XML is synthetic.
+pub(crate) const CLINVAR_ASSERTION: (&str, &[&str]) = (
+    "variant-assertions/assertions-source-wire",
+    &["option variant assertions --assertion"],
+);
+pub(crate) const CLINVAR_PAGES: (&str, &[&str]) = (
+    "variant-assertions/assertions-native-row-walk-preserves-unmapped",
+    &[
+        "option variant assertions --limit",
+        "option variant assertions --offset",
+    ],
+);
+// HPO's custom license remains explicit; Monarch association labels are synthetic.
+pub(crate) const MONARCH_PHENOTYPES: (&str, &[&str]) = (
+    "disease-monarch/phenotype-evidence-and-independent-native-qualifiers",
+    &["section get disease phenotypes"],
+);
