@@ -1,6 +1,7 @@
 //! Retained GWAS pages with derived field/identity faults and a synthetic TLS transport.
 use super::super::{configuration::invoke, launch, network_stub::Stub, schema::Registry, variant};
 use super::{Check, save};
+use biomcp_types::{GwasPage, GwasPageQuery};
 use serde_json::{Value, json};
 use std::path::Path;
 
@@ -56,21 +57,15 @@ fn scenario(directory: &Path, registry: &Registry, fault: &str) -> Check {
     } else {
         window(&first, 0, if all_bad { &[] } else { &[6110, 6111, 6112] })?;
         fields(&first, fault)?;
-        let next = continuation(&first)?;
-        for pair in [
-            ["--offset", "3"],
-            ["--pubmed", "17529967"],
-            ["--limit", "3"],
-        ] {
-            if !next.windows(2).any(|words| words == pair) {
-                return Err(format!("GWAS continuation lost {pair:?}"));
-            }
-        }
+        let (next, expected_query) = continuation(&first)?;
         let last = execute(&env, registry, &next, false, 0)?;
         save(directory, &format!("gwas-{fault}-next"), &last)?;
         window(&last, 3, &[6113, 6114, 11346])?;
         let cached = execute(&env, registry, &next, true, 0)?;
         window(&cached, 3, &[6113, 6114, 11346])?;
+        if query(&last)? != expected_query || query(&cached)? != expected_query {
+            return Err("GWAS continuation changed query selectors or page size".into());
+        }
     }
     let uncached = refused || all_bad;
     let offline = execute(&env, registry, &args, true, if uncached { 4 } else { 0 })?;
@@ -162,14 +157,9 @@ fn execute(
 }
 
 fn window(value: &Value, offset: u32, ids: &[u64]) -> Check {
-    let actual: Vec<_> = value
-        .pointer("/result/items")
-        .and_then(Value::as_array)
-        .ok_or("GWAS result items missing")?
-        .iter()
-        .map(|row| row.get("id").and_then(Value::as_u64))
-        .collect();
-    if actual != ids.iter().copied().map(Some).collect::<Vec<_>>()
+    // GwasPage's public serde contract omits an empty items vector.
+    let actual: Vec<_> = page(value)?.items.iter().map(|row| row.id).collect();
+    if actual.as_slice() != ids
         || value.pointer("/page/offset") != Some(&json!(offset))
         || value.pointer("/page/returned") != Some(&json!(ids.len()))
         || value.pointer("/page/total") != Some(&json!(6))
@@ -203,8 +193,15 @@ fn fields(value: &Value, fault: &str) -> Check {
     Ok(())
 }
 
-fn continuation(value: &Value) -> Check<Vec<String>> {
-    value
+fn continuation(value: &Value) -> Check<(Vec<String>, GwasPageQuery)> {
+    let GwasPageQuery::Search(original) = query(value)? else {
+        return Err("GWAS native search echoed a different operation".into());
+    };
+    let expected = GwasPageQuery::Search(original.at_offset(3));
+    if page(value)?.continuation.as_ref() != Some(&expected) {
+        return Err("GWAS native continuation changed selectors or consumed offset".into());
+    }
+    let args = value
         .get("next")
         .and_then(Value::as_array)
         .and_then(|steps| {
@@ -221,7 +218,18 @@ fn continuation(value: &Value) -> Check<Vec<String>> {
                 .map(str::to_owned)
                 .ok_or_else(|| "GWAS continuation requires text arguments".into())
         })
-        .collect()
+        .collect::<Check<Vec<_>>>()?;
+    Ok((args, expected))
+}
+
+fn page(value: &Value) -> Check<GwasPage> {
+    serde_json::from_value(value.get("result").cloned().ok_or("GWAS result missing")?)
+        .map_err(|error| error.to_string())
+}
+
+fn query(value: &Value) -> Check<GwasPageQuery> {
+    serde_json::from_value(value.get("query").cloned().ok_or("GWAS query missing")?)
+        .map_err(|error| error.to_string())
 }
 
 fn reason(value: &Value, expected: &str) -> Check {
