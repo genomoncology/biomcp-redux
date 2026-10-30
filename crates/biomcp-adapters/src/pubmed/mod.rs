@@ -68,7 +68,10 @@ pub fn search_ids(
 }
 /// Preserve the explicit identifier group that built a search term.
 pub fn search_ids_with_inputs(
-    leg: &Leg<'_>, term: &str, sort: ArticleSort, email: Option<&Secret>,
+    leg: &Leg<'_>,
+    term: &str,
+    sort: ArticleSort,
+    email: Option<&Secret>,
     inputs: Option<biomcp_fetch::Identities>,
 ) -> Result<SearchIds, RequestError> {
     let mut params = vec![
@@ -92,7 +95,8 @@ pub fn search_ids_with_inputs(
     let raw = match inputs {
         Some(ids) => leg.json_with_inputs::<raw::Search>(endpoint, &params, ids, "term"),
         None => leg.json::<raw::Search>(endpoint, &params),
-    }?.esearchresult;
+    }?
+    .esearchresult;
     Ok(search_result(raw))
 }
 fn search_result(raw: raw::SearchResult) -> SearchIds {

@@ -70,6 +70,7 @@ pub(super) fn retained() -> Result<(), String> {
     {
         return Err("one case consumed another case witness budget".into());
     }
+    many_changed()?;
     retained_context()?;
     doi_context()?;
     discovery_context()
@@ -268,6 +269,24 @@ fn doi_context() -> Result<(), String> {
             ids.ids.is_empty() || !ids.ids.iter().all(|id| discovery.ids.contains(id)))
     }) {
         return Err("DOI request lost its discovery input or context".into());
+    }
+    Ok(())
+}
+
+fn many_changed() -> Result<(), String> {
+    let rows = (0..30).map(|index| json!({"case": format!("changed-{index}"),
+        "result": {"drift": ["request: request-plan-changed"]},
+        "witness": [{"ordinal":1,"baseline":{"requests":[],"output":"x".repeat(32 * 1024)},
+            "live":{"requests":[],"output":"y".repeat(32 * 1024)}}]})).collect();
+    let report = live::summary(rows, BTreeMap::new(), 0, false);
+    let rows = report["case_sample"].as_array().ok_or("missing changed cases")?;
+    if rows.len() != 30 || rows.iter().any(|row| row["witness"].is_null())
+        || report["omitted"] != json!(0) {
+        return Err("changed cases consumed each other's evidence budget".into());
+    }
+    let oversized = vec![json!({"complete": "x".repeat(17 * 1024 * 1024)})];
+    if live::witness::within_budget(&oversized).is_ok() {
+        return Err("oversized case evidence did not fail explicitly".into());
     }
     Ok(())
 }

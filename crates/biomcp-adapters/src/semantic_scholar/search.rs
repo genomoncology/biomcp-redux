@@ -265,9 +265,13 @@ impl Paper {
     }
 }
 
-pub(super) fn doi_discovery<'a>(papers: impl Iterator<Item = &'a Paper>) -> Option<biomcp_fetch::Identities> {
-    let ids = papers.filter_map(|paper| paper.external_ids.as_ref())
+pub(super) fn doi_discovery<'a>(
+    papers: impl Iterator<Item = &'a Paper>,
+) -> Option<biomcp_fetch::Identities> {
+    let ids = papers
+        .filter_map(|paper| paper.external_ids.as_ref())
         .filter(|ids| ids.pubmed.is_none())
-        .filter_map(|ids| ids.doi.as_ref().map(ToString::to_string)).collect();
+        .filter_map(|ids| ids.doi.as_ref().map(ToString::to_string))
+        .collect();
     biomcp_fetch::Identities::bounded("doi", ids)
 }

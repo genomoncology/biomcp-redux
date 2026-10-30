@@ -147,30 +147,25 @@ pub(super) fn doi(item: &ArticleItem) -> Option<&Doi> {
     })
 }
 
-fn doi_batch(leg: &biomcp_fetch::Leg<'_>, batch: &[Doi], email: Option<&biomcp_fetch::Secret>) -> Result<pubmed::SearchIds, RequestError> {
+fn doi_batch(
+    leg: &biomcp_fetch::Leg<'_>,
+    batch: &[Doi],
+    email: Option<&biomcp_fetch::Secret>,
+) -> Result<pubmed::SearchIds, RequestError> {
     let term = batch
         .iter()
         .map(|doi| {
             format!(
-        "\"{}\"[doi]",
-        doi.to_string()
-            .to_ascii_lowercase()
-            .replace('\\', "\\\\")
-            .replace('"', "\\\"")
+                "\"{}\"[doi]",
+                doi.to_string()
+                    .to_ascii_lowercase()
+                    .replace('\\', "\\\\")
+                    .replace('"', "\\\"")
             )
         })
         .collect::<Vec<_>>()
         .join(" OR ");
-    let inputs = biomcp_fetch::Identities::bounded(
-        "doi",
-        batch.iter().map(|doi| doi.to_string()).collect(),
-    );
-    pubmed::search_ids_with_inputs(
-        leg,
-        &term,
-        ArticleSort::Rank,
-        email,
-        inputs,
-    )
-
+    let inputs =
+        biomcp_fetch::Identities::bounded("doi", batch.iter().map(|doi| doi.to_string()).collect());
+    pubmed::search_ids_with_inputs(leg, &term, ArticleSort::Rank, email, inputs)
 }

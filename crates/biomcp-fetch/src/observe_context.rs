@@ -114,7 +114,12 @@ pub(crate) fn request_context(prepared: &Prepared, parameter: &str) -> Option<St
 }
 
 impl<T: Reply> crate::xml::Decoder<'_, T> {
-    pub(crate) fn provenance(&self, prepared: &Prepared, body: &[u8], status: Option<u16>) -> Provenance {
+    pub(crate) fn provenance(
+        &self,
+        prepared: &Prepared,
+        body: &[u8],
+        status: Option<u16>,
+    ) -> Provenance {
         let mut provenance = Provenance::received::<T>(prepared, body, status);
         if let Some((inputs, parameter)) = &self.diagnostic_inputs {
             provenance.inputs = Some(inputs.clone());
@@ -127,12 +132,14 @@ impl<T: Reply> crate::xml::Decoder<'_, T> {
 impl crate::Leg<'_> {
     /// Send checked JSON with explicit discovery inputs supplied by the request builder.
     pub fn json_with_inputs<T: Reply>(
-        &self, ep: &crate::Endpoint, params: &[(&str, crate::Arg<'_>)],
-        ids: crate::Identities, parameter: &str,
+        &self,
+        ep: &crate::Endpoint,
+        params: &[(&str, crate::Arg<'_>)],
+        ids: crate::Identities,
+        parameter: &str,
     ) -> Result<T, crate::RequestError> {
         let mut codec = crate::xml::Decoder::json();
         codec.diagnostic_inputs = Some((ids, parameter.into()));
         self.parameters(ep, params, codec).map(|(reply, _)| reply)
     }
-
 }
