@@ -8,6 +8,18 @@
       "run": [
         "author",
         "papers",
+        "semantic-scholar:123"
+      ],
+      "expect": {
+        "/status": "complete"
+      },
+      "max_bytes": 864,
+      "full_output_bytes": true
+    },
+    {
+      "run": [
+        "author",
+        "papers",
         "semantic-scholar:123",
         "--disable-sources",
         "noncommercial",

@@ -8,6 +8,18 @@
       "run": [
         "search",
         "author",
+        "Louis Williams"
+      ],
+      "expect": {
+        "/status": "complete"
+      },
+      "max_bytes": 1191,
+      "full_output_bytes": true
+    },
+    {
+      "run": [
+        "search",
+        "author",
         "Louis Williams",
         "--disable-sources",
         "noncommercial",

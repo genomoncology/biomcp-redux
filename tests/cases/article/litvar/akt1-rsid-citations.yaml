@@ -14,6 +14,23 @@
         "--source",
         "litvar",
         "--sort",
+        "citations"
+      ],
+      "max_bytes": 5504,
+      "expect": {
+        "/status": "complete",
+        "/page/total": 1590
+      }
+    },
+    {
+      "run": [
+        "search",
+        "article",
+        "--variant",
+        "rs121434592",
+        "--source",
+        "litvar",
+        "--sort",
         "citations",
         "--limit",
         "30"

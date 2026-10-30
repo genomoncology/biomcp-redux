@@ -5,6 +5,16 @@
   "steps": [
     {
       "run": [
+        "sync",
+        "who-ivd"
+      ],
+      "expect": {
+        "/result/rows": 10
+      },
+      "max_bytes": 179
+    },
+    {
+      "run": [
         "search",
         "diagnostic",
         "--source",

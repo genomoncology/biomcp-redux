@@ -5,6 +5,17 @@
   "steps": [
     {
       "run": [
+        "sync",
+        "ema"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/rows": 6
+      },
+      "max_bytes": 170
+    },
+    {
+      "run": [
         "search",
         "drug",
         "Tibsovo",

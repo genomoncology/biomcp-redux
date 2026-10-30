@@ -11,6 +11,22 @@
         "CA123643",
         "--detail"
       ],
+      "exit": 4,
+      "is_error": true,
+      "expect": {
+        "/status": "failed",
+        "/result/population/state": "unavailable",
+        "/result/population/reason": "deadline-exceeded"
+      },
+      "max_bytes": 446
+    },
+    {
+      "run": [
+        "variant",
+        "population",
+        "CA123643",
+        "--detail"
+      ],
       "offline": true,
       "exit": 4,
       "expect": {
