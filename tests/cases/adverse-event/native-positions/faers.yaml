@@ -16,41 +16,39 @@
         "1"
       ],
       "expect": {
-        "/page/returned": 0,
-        "/page/total": 4,
         "/result/drugs": {
           "omits": [
             "records"
           ]
-        }
+        },
+        "/result/drugs/total": 4
       }
     },
     {
       "follow": "page",
       "expect": {
-        "/page/offset": 1,
         "/result/drugs/records/0/index": 1,
-        "/result/drugs/records/0/medicinalproduct": "Synthetic position one"
+        "/result/drugs/records/0/medicinalproduct": "Synthetic position one",
+        "/result/drugs/offset": 1
       }
     },
     {
       "follow": "page",
       "expect": {
-        "/page/offset": 2,
-        "/page/returned": 0,
         "/result/drugs": {
           "omits": [
             "records"
           ]
-        }
+        },
+        "/result/drugs/offset": 2
       }
     },
     {
       "follow": "page",
       "expect": {
-        "/page/offset": 3,
         "/result/drugs/records/0/index": 3,
-        "/result/drugs/records/0/medicinalproduct": "Synthetic position three"
+        "/result/drugs/records/0/medicinalproduct": "Synthetic position three",
+        "/result/drugs/offset": 3
       }
     },
     {
@@ -74,41 +72,39 @@
         "1"
       ],
       "expect": {
-        "/page/returned": 0,
-        "/page/total": 4,
         "/result/reactions": {
           "omits": [
             "records"
           ]
-        }
+        },
+        "/result/reactions/total": 4
       }
     },
     {
       "follow": "page",
       "expect": {
-        "/page/offset": 1,
         "/result/reactions/records/0/index": 1,
-        "/result/reactions/records/0/term/label": "Synthetic reaction one"
+        "/result/reactions/records/0/term/label": "Synthetic reaction one",
+        "/result/reactions/offset": 1
       }
     },
     {
       "follow": "page",
       "expect": {
-        "/page/offset": 2,
-        "/page/returned": 0,
         "/result/reactions": {
           "omits": [
             "records"
           ]
-        }
+        },
+        "/result/reactions/offset": 2
       }
     },
     {
       "follow": "page",
       "expect": {
-        "/page/offset": 3,
         "/result/reactions/records/0/index": 3,
-        "/result/reactions/records/0/term/label": "Synthetic reaction three"
+        "/result/reactions/records/0/term/label": "Synthetic reaction three",
+        "/result/reactions/offset": 3
       }
     }
   ]
