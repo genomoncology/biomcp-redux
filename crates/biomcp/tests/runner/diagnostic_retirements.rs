@@ -16,7 +16,7 @@ pub(super) fn bounded(value: &serde_json::Value) -> Result<(), String> {
         .ok_or("missing status")?;
     let recall = value.pointer("/query/source") == Some(&json!("fda-device-recall"));
     // Full compact synthetic maxima measured by j13382.
-    let baseline: usize = match (schema, kind, status) {
+    let key = match (schema, kind, status) {
         // Native recall mechanism maxima measured by j20265.
         ("biomcp.diagnostic-page/5", "", "complete") if recall => "diagnostic-baseline-760",
         ("biomcp.diagnostic-page/5", "", "partial") if recall => "diagnostic-baseline-922",
@@ -68,7 +68,7 @@ pub(super) fn bounded(value: &serde_json::Value) -> Result<(), String> {
             ));
         }
     };
-    let baseline = super::output_limit(baseline)?;
+    let baseline = super::output_limit(key)?;
     writeln!(
         std::io::stdout(),
         "diagnostic {schema}/{kind}/{status}: {bytes}"
