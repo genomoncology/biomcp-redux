@@ -166,13 +166,18 @@ fn malformed_statistics() -> Result<(), String> {
             "--interval",
             "5",
         ];
-        let exit = if kind == "mismatch" { 0 } else { 4 };
-        record(&env, &words, &directory, exit)?;
-        let expect = if kind == "mismatch" {
-            json!({"/result/items/0/returned_selectors/5/code":"9","/problems/5/field":"returned_selectors.year_range"})
+        let exit = if matches!(kind, "mismatch" | "number" | "year") {
+            0
         } else {
-            json!({"/status":"failed","/sources/0/reason":"bad-reply","/sources/0/source":"seer"})
+            4
         };
+        let live = record(&env, &words, &directory, exit)?;
+        if kind == "number" && live.pointer("/result/items/0/observed/value").is_some() {
+            return Err(format!(
+                "bad optional rel_rate survived instead of precise omission: {live}"
+            ));
+        }
+        let expect = statistics_expect(kind);
         if let Err(error) = replay(
             &directory,
             json!([{"run":words,"mcp":words,"exit":exit,"is_error":exit!=0,"expect":expect,"max_bytes":if exit==0 {2675} else {426}}]),
@@ -383,4 +388,22 @@ pub(super) fn stale_rejection() -> Result<(), String> {
         return Err("unexpected stale request count".into());
     }
     Ok(())
+}
+
+fn statistics_expect(kind: &str) -> Value {
+    if kind == "mismatch" {
+        json!({"/result/items/0/returned_selectors/5/code":"9","/problems/5/field":"returned_selectors.year_range"})
+    } else if kind == "number" {
+        json!({"/status":"partial","/sources/0/state":"ok","/page/returned":2,"/page/total":2,
+                "/result/items/0/year":2018,"/result/items/1/year":2022,
+                "/result/items/0/observed/standard_error/value":0.2,
+                "/result/items/0/observed/lower_ci/value":89.0,"/result/items/0/observed/upper_ci/value":91.0,
+                "/result/items/0/observed/count":100,"/result/items/0/modeled/value/value":90.5,
+                "/problems/5/field":"rel_rate"})
+    } else if kind == "year" {
+        json!({"/status":"partial","/sources/0/state":"ok","/page/returned":1,"/page/total":2,
+                "/result/items/0/year":2022,"/problems/5/field":"year"})
+    } else {
+        json!({"/status":"failed","/sources/0/reason":"bad-reply","/sources/0/source":"seer"})
+    }
 }

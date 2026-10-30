@@ -1,6 +1,7 @@
 //! Named full-envelope command phases; native replay budgets remain independently owned.
 use super::{configuration, launch::Environment, mcp};
-use serde_json::Value;
+use serde_json::{Value, json};
+use std::io::Write;
 
 pub(super) fn invoke(
     phase: &str,
@@ -37,6 +38,11 @@ pub(super) fn invoke(
     }
     let cli_bytes = serde_json::to_vec(&cli).map_err(|e| e.to_string())?.len() + 1;
     let mcp_bytes = serde_json::to_vec(&value).map_err(|e| e.to_string())?.len();
+    writeln!(
+        std::io::stderr(),
+        "GWAS_MEASURE {phase} {cli_bytes} {mcp_bytes}"
+    )
+    .map_err(|e| e.to_string())?;
     let measured: std::collections::BTreeMap<String, [usize; 2]> = serde_saphyr::from_str(
         &crate::runner::launch::fixture_text("gwas-synthetic-budgets.yaml")?,
     )
@@ -50,4 +56,41 @@ pub(super) fn invoke(
         ));
     }
     Ok(cli)
+}
+
+pub(super) fn optional_page(value: &Value, field: &str, omitted: &str) -> Result<(), String> {
+    if value.get("status") != Some(&json!("partial"))
+        || value.pointer("/page/returned") != Some(&json!(3))
+        || value.pointer("/page/total") != Some(&json!(6))
+        || value
+            .pointer("/sources/0/retrieved_count")
+            .is_some_and(|count| count != &json!(3))
+        || value.pointer("/result/items/0/id") != Some(&json!(6110))
+        || value.pointer("/result/items/2/id") != Some(&json!(6112))
+        || value.pointer(omitted).is_some()
+        || !value
+            .get("problems")
+            .and_then(Value::as_array)
+            .is_some_and(|rows| {
+                rows.iter().any(|p| {
+                    p.get("field") == Some(&json!(field)) && p.get("record") == Some(&json!("6110"))
+                })
+            })
+    {
+        return Err(format!(
+            "optional GWAS field lost valid rows, native counts or precise refusal: {value}"
+        ));
+    }
+    let next = super::action(value, "page")?;
+    let offset = if value.pointer("/query/operation") == Some(&json!("get")) {
+        "--section-offset"
+    } else {
+        "--offset"
+    };
+    if !next.windows(2).any(|pair| pair == [offset, "3"]) {
+        return Err(format!(
+            "optional GWAS field changed consumed native continuation: {next:?}"
+        ));
+    }
+    Ok(())
 }

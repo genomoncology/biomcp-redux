@@ -44,8 +44,16 @@ pub(super) fn admission() -> Result<(), String> {
             &env,
             &replay,
             &args,
-            4,
+            if fault == "parts" { 0 } else { 4 },
         )?;
+        if fault == "parts" {
+            gwas_budgets::optional_page(
+                &failed,
+                "pvalue_mantissa",
+                "/result/items/0/exact_p_value",
+            )?;
+            continue;
+        }
         if failed.pointer("/sources/0/reason") != Some(&json!("bad-reply"))
             || failed.get("result").is_some()
             || failed

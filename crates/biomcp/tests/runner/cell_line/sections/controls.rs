@@ -40,15 +40,49 @@ fn admission(fault: &str, measure: bool) -> Result<(), String> {
         |_| 200,
     )?;
     let env = setup(&stub)?;
-    for (phase, exit) in [("failed", 4), ("healthy", 0)] {
-        let value = invoke(&env, &["get", "cell-line", "CVCL_2119", "variants"], exit)?;
+    for (phase, fresh) in [("failed", false), ("failed", false), ("healthy", true)] {
+        let mut words = vec!["get", "cell-line", "CVCL_2119", "variants"];
+        if fresh {
+            words.push("--fresh");
+        }
+        let value = invoke(&env, &words, 0)?;
         let key = format!("sections/admission/{fault}/{phase}");
         ordinary(&key, &value, measure)?;
         path(
             &value,
             "/status",
-            json!(if exit == 0 { "complete" } else { "failed" }),
+            json!(if fresh { "complete" } else { "partial" }),
         )?;
+        path(&value, "/result/accession", json!("CVCL_2119"))?;
+        if value
+            .pointer("/result/items/items")
+            .and_then(Value::as_array)
+            .is_none_or(|rows| rows.len() != 2)
+        {
+            return Err(format!(
+                "optional nested field removed native variant rows: {value}"
+            ));
+        }
+        let field = if fault == "xref" {
+            "xref-list"
+        } else {
+            "sequence-variation-list.source-list.reference.resource-internal-ref"
+        };
+        let problem = value
+            .get("problems")
+            .and_then(Value::as_array)
+            .is_some_and(|rows| {
+                rows.iter().any(|p| {
+                    p.get("field")
+                        .and_then(Value::as_str)
+                        .is_some_and(|f| f.contains(field))
+                })
+            });
+        if problem == fresh {
+            return Err(format!(
+                "optional nested field changed precise refusal or fresh repair: {value}"
+            ));
+        }
     }
     let requests = stub.finish()?;
     if requests
@@ -57,7 +91,7 @@ fn admission(fault: &str, measure: bool) -> Result<(), String> {
         .count()
         != 2
     {
-        return Err("malformed complete card entered ordinary cache".into());
+        return Err("optional metadata changed ordinary cache reuse or fresh repair".into());
     }
     Ok(())
 }

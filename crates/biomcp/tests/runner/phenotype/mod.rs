@@ -256,14 +256,14 @@ fn failures() -> Result<(), String> {
             &env,
             &words,
             &directory,
-            4,
+            if kind == 0 { 0 } else { 4 },
         )?;
         budgets::mcp(
             &format!("mod/failures/mcp1@kind={kind}"),
             &directory,
             &words,
             &result,
-            4,
+            if kind == 0 { 0 } else { 4 },
         )?;
         if kind == 5 {
             invoke(
@@ -273,7 +273,9 @@ fn failures() -> Result<(), String> {
                 4,
             )?;
         }
-        if result.get("status") != Some(&json!("failed")) {
+        if kind == 0 {
+            faults::refused(&result)?;
+        } else if result.get("status") != Some(&json!("failed")) {
             return Err(format!("source failure became absence: {result}"));
         }
         if matches!(kind, 0 | 1 | 2 | 5 | 6)

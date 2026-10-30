@@ -55,13 +55,34 @@ fn failure(surface: &str, fault: &str) -> Result<(), String> {
         fault.parse().unwrap_or(200),
         if fault == "timeout" { 16000 } else { 0 },
     )?;
+    let optional = fault == "missing-array" && matches!(surface, "association" | "study");
     let value = call(
         &format!("gwas_get/failures/failure/{surface}/{fault}"),
         &env,
         &replay,
         &args,
-        4,
+        if optional { 0 } else { 4 },
     )?;
+    if optional {
+        let (identity, expected, omitted) = if surface == "association" {
+            (
+                "/result/association/id",
+                json!(6114),
+                "/result/association/alleles",
+            )
+        } else {
+            ("/result/id", json!("GCST000035"), "/result/ontology_traits")
+        };
+        if value.pointer(identity) != Some(&expected)
+            || value.pointer(omitted).is_some()
+            || value.get("status") != Some(&json!("complete"))
+        {
+            return Err(format!(
+                "absent optional array lost its valid identity: {value}"
+            ));
+        }
+        return Ok(());
+    }
     failed(&value)?;
     let fresh = super::super::action(&value, "fresh")?;
     if !fresh.contains(&"--fresh".to_owned())
@@ -132,8 +153,11 @@ fn admission(fault: &str) -> Result<(), String> {
         &env,
         &replay,
         &args,
-        4,
+        if fault == "rsid" { 0 } else { 4 },
     )?;
+    if fault == "rsid" {
+        return gwas_budgets::optional_page(&value, "snp_allele.rs_id", "/result/items/0/alleles");
+    }
     failed(&value)?;
     if value
         .get("problems")

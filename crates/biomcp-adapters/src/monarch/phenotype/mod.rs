@@ -47,13 +47,18 @@ pub fn search(leg: &Leg<'_>, q: &PhenotypeSearch) -> Result<Page, RequestError> 
         ("limit", Arg::Num(q.limit().into())),
         ("offset", Arg::Num(q.offset().into())),
     ];
-    let (page, metadata) = leg.json_received_checked::<raw::Page>(&endpoint, &args, |page| {
-        if page.limit != q.limit() || page.offset != q.offset() {
-            Err(BadReply)
-        } else {
-            Ok(())
-        }
-    })?;
+    let (page, metadata) = leg.json_received_checked_admission::<raw::Page>(
+        &endpoint,
+        &args,
+        |page| {
+            if page.limit != q.limit() || page.offset != q.offset() {
+                Err(BadReply)
+            } else {
+                Ok(())
+            }
+        },
+        |page| page.items.iter().all(|node| node.id.is_some()),
+    )?;
     let received = page.items.len() as u32;
     let mut problems = Vec::new();
     let items = page

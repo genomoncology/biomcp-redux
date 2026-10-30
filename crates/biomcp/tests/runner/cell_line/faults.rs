@@ -145,18 +145,32 @@ fn no_admission(fault: &'static str, measure: bool) -> Result<(), String> {
     } else {
         words("card")
     };
-    // The first ordinary read must exercise cache admission before recording bypasses it.
-    failed(&invoke(&env, &words, 4)?)?;
+    let optional = matches!(fault, "bad-version" | "zero-version");
+    let exit = if optional { 0 } else { 4 };
+    // The first ordinary read exercises cache admission before recording bypasses it.
+    let initial = invoke(&env, &words, exit)?;
+    if optional {
+        omitted_version(&initial)?;
+    } else {
+        failed(&initial)?;
+    }
     let failed_value = parity(
         &format!("synthetic/no-admission/{fault}/failed"),
         &env,
         &words,
-        4,
+        exit,
         measure,
     )?;
-    failed(&failed_value)?;
+    if optional {
+        omitted_version(&failed_value)?;
+    } else {
+        failed(&failed_value)?;
+    }
     // Ordinary live read must fetch a healthy value instead of reusing a rejected cache entry.
-    invoke(&env, &words, 0)?;
+    let ordinary = invoke(&env, &words, 0)?;
+    if optional {
+        omitted_version(&ordinary)?;
+    }
     let repaired = parity(
         &format!("synthetic/no-admission/{fault}/healthy"),
         &env,
@@ -170,9 +184,11 @@ fn no_admission(fault: &'static str, measure: bool) -> Result<(), String> {
         .iter()
         .filter(|(_, r)| r.contains("GET /cell-line/"))
         .count()
-        != 4
+        != if optional { 3 } else { 4 }
     {
-        return Err(format!("{fault}: bad identity admitted to cache"));
+        return Err(format!(
+            "{fault}: identity rejection or optional-field cache admission changed"
+        ));
     }
     Ok(())
 }
@@ -303,5 +319,24 @@ fn usage() -> Result<(), String> {
     }
     let value = invoke(&env, &["get", "cell-line", "ArrayExpress:E-MTAB-2770"], 2)?;
     path(&value, "/status", json!("usage"))?;
+    Ok(())
+}
+
+fn omitted_version(value: &Value) -> Result<(), String> {
+    path(value, "/status", json!("partial"))?;
+    path(value, "/result/header/accession", json!("CVCL_2119"))?;
+    if value.pointer("/result/entry_version").is_some()
+        || !value
+            .get("problems")
+            .and_then(Value::as_array)
+            .is_some_and(|rows| {
+                rows.iter()
+                    .any(|p| p.get("field") == Some(&json!("entry-version")))
+            })
+    {
+        return Err(format!(
+            "malformed optional version lost identity or precise omission: {value}"
+        ));
+    }
     Ok(())
 }

@@ -421,9 +421,13 @@ fn rejected(env: &Environment, replay: &Path, section: &str, value: &Value) -> C
     if value.to_string().contains("other_study") {
         return Err("wrong-study row survived filtering".into());
     }
-    let expected = if section == "profiles" { 16 } else { 12 };
-    if value.pointer("/page/total") != Some(&json!(expected)) {
-        return Err("rejected row changed accepted total".into());
+    let expected = if section == "profiles" { 17 } else { 13 };
+    if value.pointer("/page/total") != Some(&json!(expected))
+        || value.pointer("/page/returned") != Some(&json!(4))
+    {
+        return Err(format!(
+            "refused identity lost native total or accepted row count: {value}"
+        ));
     }
     let db = rusqlite::Connection::open(env.root().join("case-cache/replay.sqlite"))
         .map_err(|e| e.to_string())?;
