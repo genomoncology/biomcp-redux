@@ -1,4 +1,3 @@
-failure trial expired-pool
 failure trial not-found
 failure trial unavailable
 failure variant not-found
@@ -28,8 +27,6 @@ option get pathway --pool
 option get pathway --section-limit
 option get pathway --section-offset
 option get phenotype --snapshot
-option get trial --offset
-option get trial --pool
 option get trial --section
 option get variant --civic-cursor
 option get variant --civic-kind
@@ -40,18 +37,11 @@ option get variant --section-offset
 option get variant --tumor-type
 option pathway events --offset
 option pathway events --pool
-option pathway genes --limit
-option pathway genes --offset
-option pathway genes --pool
-option protein complex-members --offset
-option protein complex-members --pool
 option protein complexes --offset
 option protein complexes --pool
 option protein domains --offset
 option protein domains --pool
 option protein domains --type
-option protein features --offset
-option protein features --pool
 option protein isoforms --offset
 option protein isoforms --pool
 option protein structures --offset
@@ -59,9 +49,6 @@ option protein structures --pool
 option search adverse-event --offset
 option search adverse-event --reaction
 option search adverse-event --snapshot
-option search biomarker --limit
-option search biomarker --offset
-option search biomarker --pool
 option search cell-line --offset
 option search diagnostic --drug-application
 option search diagnostic --initiated-from
@@ -74,9 +61,6 @@ option search drug --initiated-from
 option search drug --initiated-to
 option search drug --reason
 option search drug --status
-option search organization --offset
-option search organization --pool
-option search pathway --offset
 option search protein --reviewed
 option search trial --exact-condition
 option serve --allow-host

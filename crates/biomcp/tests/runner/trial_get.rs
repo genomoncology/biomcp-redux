@@ -36,7 +36,7 @@ pub(super) fn trials() -> Vec<Trial> {
         transcript_trial("trial-get/get/independent-input-states", || {
             batch().map_err(|e| e.to_string().into())
         }),
-        transcript_trial("trial-get/get/checked-source-continuations", || {
+        transcript_trial(crate::runner::pool_contract::TRIAL.0, || {
             continuations().map_err(|e| e.to_string().into())
         }),
     ]

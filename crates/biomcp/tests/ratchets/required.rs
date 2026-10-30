@@ -9,6 +9,8 @@ mod help_catalog;
 mod housekeeping_contract;
 #[path = "required/pending.rs"]
 mod pending;
+#[path = "../support/pool_contracts.rs"]
+mod pool_contracts;
 #[path = "../runner/process.rs"]
 mod process;
 #[path = "required/proof.rs"]
@@ -89,6 +91,14 @@ pub(super) fn required_surface_has_asserted_calls() -> Check {
     counts.runner(synthetic_contracts::CLINPGX_CLINICAL.1);
     counts.runner(synthetic_contracts::CLINPGX_KIND.1);
     counts.runner(synthetic_contracts::CLINPGX_ANNOTATION.1);
+
+    counts.runner(pool_contracts::PATHWAY_GENES.1);
+    counts.runner(pool_contracts::PATHWAY_SEARCH.1);
+    counts.runner(pool_contracts::ORGANIZATION.1);
+    counts.runner(pool_contracts::BIOMARKER.1);
+    counts.runner(pool_contracts::FEATURES.1);
+    counts.runner(pool_contracts::MEMBERS.1);
+    counts.runner(pool_contracts::TRIAL.1);
 
     let mut paths = Vec::new();
     case_data::collect(&root.join("tests/cases"), &mut paths)?;

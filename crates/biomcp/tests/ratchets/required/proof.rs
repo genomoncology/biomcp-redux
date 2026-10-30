@@ -240,9 +240,13 @@ fn label_absence_requires_the_successful_label_source() -> Check {
             "command":["get","drug"],"arguments":[],"sections":[{"word":"label"}]
         }));
     let mut inventory = Inventory::new(&help, &[])?;
-    for source in [None, Some("mychem"), Some("openfda-label")] {
-        let mut expect =
-            json!({"/status":"absent", "/sources/0/state":"ok", "/sources/0/term":"\"Tagrisso\""});
+    for (source, state) in [
+        (None, "ok"),
+        (Some("mychem"), "ok"),
+        (Some("openfda-label"), "failed"),
+        (Some("openfda-label"), "ok"),
+    ] {
+        let mut expect = json!({"/status":"absent", "/sources/0/state":state});
         if let Some(source) = source {
             expect["/sources/0/source"] = json!(source);
         }

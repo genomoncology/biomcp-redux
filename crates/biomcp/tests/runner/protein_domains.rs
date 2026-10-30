@@ -47,10 +47,9 @@ pub(super) fn trials() -> Vec<Trial> {
             move || native::run(&root).map_err(Into::into),
         )
         .with_ignored_flag(absent),
-        transcript_trial(
-            "protein-domains-complexes/exact-members-and-retained-pages",
-            || complexes::run().map_err(Into::into),
-        ),
+        transcript_trial(crate::runner::pool_contract::MEMBERS.0, || {
+            complexes::run().map_err(Into::into)
+        }),
         transcript_trial(
             "protein-domains-complexes/native-types-and-fragments",
             || domains().map_err(Into::into),

@@ -8,7 +8,7 @@ pub(super) fn trials() -> Vec<Trial> {
         Trial::test("biomarker-nci/help-means-concepts", || {
             help().map_err(Into::into)
         }),
-        Trial::test("biomarker-nci/native-snapshot-pages", || {
+        Trial::test(crate::runner::pool_contract::BIOMARKER.0, || {
             pages().map_err(Into::into)
         }),
         Trial::test("biomarker-nci/bounded-failures", || {

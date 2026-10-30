@@ -8,7 +8,7 @@ use std::{collections::BTreeSet, io::Write};
 type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        transcript_trial("pathway-reactome/native-reference-walk", || {
+        transcript_trial(crate::runner::pool_contract::PATHWAY_GENES.0, || {
             walk(true).map_err(Into::into)
         }),
         transcript_trial("pathway-reactome/native-event-walk", || {
