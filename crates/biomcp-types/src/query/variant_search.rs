@@ -302,7 +302,11 @@ impl VariantSearch {
     /// Whether the caller selected native ClinVar coding or synonymous notation.
     pub fn uses_clinvar_selector(&self) -> bool {
         self.0.coding.is_some()
-            || self.0.protein.as_ref().is_some_and(ProteinQuery::is_synonymous)
+            || self
+                .0
+                .protein
+                .as_ref()
+                .is_some_and(ProteinQuery::is_synonymous)
     }
     /// Compare a source protein spelling with the caller's checked substitution spellings.
     pub fn matches_protein(&self, gene: Option<&str>, notation: &str) -> bool {
