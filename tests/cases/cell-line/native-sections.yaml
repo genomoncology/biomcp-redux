@@ -2,7 +2,7 @@
   "feature": "cell-line-identity",
   "live_check": "public",
   "story": "A caller reads the retained Cellosaurus identity and pages its names without changing source order.",
-  "verified": "Cellosaurus CC BY 4.0, cite Bairoch (2018), https://www.cellosaurus.org/description.html. Original body SHA256 4ac92c4eacf46d97573f45775fc404368a053397d01db935db7d90e1b9a74ee9. Captured 2026-10-30 with no key.",
+  "verified": "Cellosaurus CC BY 4.0, cite Bairoch (2018), https://www.cellosaurus.org/description.html. Original body SHA256 4ac92c4eacf46d97573f45775fc404368a053397d01db935db7d90e1b9a74ee9. Captured 2026-10-30 with no key. Independent native release reply reused unchanged from cell-line/k562-xrefs.",
   "replay": "cell-line/native-sections",
   "steps": [
     {
@@ -15,7 +15,8 @@
         "2"
       ],
       "expect": {
-        "/result/header/accession": "CVCL_0004"
+        "/result/accession": "CVCL_0004",
+        "/result/species/items/0/id": "9606"
       }
     },
     {
@@ -30,9 +31,9 @@
         "1"
       ],
       "expect": {
-        "/result/header/accession": "CVCL_0004",
-        "/result/sections/names/data/items/items/0/value": "K.562",
-        "/result/sections/names/data/offset": 1
+        "/result/accession": "CVCL_0004",
+        "/result/items/items/0/value": "K.562",
+        "/result/offset": 1
       }
     },
     {
@@ -45,7 +46,7 @@
         "2"
       ],
       "expect": {
-        "/result/header/accession": "CVCL_0004"
+        "/result/accession": "CVCL_0004"
       }
     },
     {
