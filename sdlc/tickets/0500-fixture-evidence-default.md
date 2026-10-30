@@ -1,6 +1,7 @@
 # 0500 — Keep fixture failure evidence after a gate job exits
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 7b3ecf2941006b4d1bb8919ae949e50f081f8abe
 
 Milestone: 5
 
