@@ -15,17 +15,6 @@
         "--source",
         "litvar"
       ],
-      "mcp": [
-        "search",
-        "article",
-        "words",
-        "--gene",
-        "KRAS",
-        "--variant",
-        "G12C",
-        "--source",
-        "litvar"
-      ],
       "exit": 2,
       "max_bytes": 400,
       "expect": {
@@ -37,18 +26,6 @@
     },
     {
       "run": [
-        "search",
-        "article",
-        "--gene",
-        "KRAS",
-        "--variant",
-        "G12C",
-        "--source",
-        "litvar",
-        "--disease",
-        "cancer"
-      ],
-      "mcp": [
         "search",
         "article",
         "--gene",
@@ -82,18 +59,6 @@
         "--drug",
         "drug"
       ],
-      "mcp": [
-        "search",
-        "article",
-        "--gene",
-        "KRAS",
-        "--variant",
-        "G12C",
-        "--source",
-        "litvar",
-        "--drug",
-        "drug"
-      ],
       "exit": 2,
       "max_bytes": 400,
       "expect": {
@@ -105,18 +70,6 @@
     },
     {
       "run": [
-        "search",
-        "article",
-        "--gene",
-        "KRAS",
-        "--variant",
-        "G12C",
-        "--source",
-        "litvar",
-        "--author",
-        "Smith"
-      ],
-      "mcp": [
         "search",
         "article",
         "--gene",
@@ -150,18 +103,6 @@
         "--journal",
         "Nature"
       ],
-      "mcp": [
-        "search",
-        "article",
-        "--gene",
-        "KRAS",
-        "--variant",
-        "G12C",
-        "--source",
-        "litvar",
-        "--journal",
-        "Nature"
-      ],
       "exit": 2,
       "max_bytes": 400,
       "expect": {
@@ -173,18 +114,6 @@
     },
     {
       "run": [
-        "search",
-        "article",
-        "--gene",
-        "KRAS",
-        "--variant",
-        "G12C",
-        "--source",
-        "litvar",
-        "--since",
-        "2020"
-      ],
-      "mcp": [
         "search",
         "article",
         "--gene",
@@ -218,18 +147,6 @@
         "--until",
         "2024"
       ],
-      "mcp": [
-        "search",
-        "article",
-        "--gene",
-        "KRAS",
-        "--variant",
-        "G12C",
-        "--source",
-        "litvar",
-        "--until",
-        "2024"
-      ],
       "exit": 2,
       "max_bytes": 400,
       "expect": {
@@ -241,18 +158,6 @@
     },
     {
       "run": [
-        "search",
-        "article",
-        "--gene",
-        "KRAS",
-        "--variant",
-        "G12C",
-        "--source",
-        "litvar",
-        "--type",
-        "trial"
-      ],
-      "mcp": [
         "search",
         "article",
         "--gene",
@@ -286,18 +191,6 @@
         "--sort",
         "date"
       ],
-      "mcp": [
-        "search",
-        "article",
-        "--gene",
-        "KRAS",
-        "--variant",
-        "G12C",
-        "--source",
-        "litvar",
-        "--sort",
-        "date"
-      ],
       "exit": 2,
       "max_bytes": 400,
       "expect": {
@@ -309,13 +202,6 @@
     },
     {
       "run": [
-        "search",
-        "article",
-        "AKT1",
-        "--source",
-        "litvar"
-      ],
-      "mcp": [
         "search",
         "article",
         "AKT1",

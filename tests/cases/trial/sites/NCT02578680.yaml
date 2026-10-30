@@ -12,12 +12,6 @@
         "NCT02578680",
         "locations"
       ],
-      "mcp": [
-        "get",
-        "trial",
-        "NCT02578680",
-        "locations"
-      ],
       "expect": {
         "/status": "complete",
         "/result/items/0/input": "NCT02578680",
@@ -27,12 +21,6 @@
     },
     {
       "run": [
-        "get",
-        "trial",
-        "NCT02578680",
-        "contacts"
-      ],
-      "mcp": [
         "get",
         "trial",
         "NCT02578680",

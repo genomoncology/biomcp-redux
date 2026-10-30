@@ -21,12 +21,7 @@
         "/result/card/header/count": 326,
         "/problems/0/field": "parent_ids"
       },
-      "max_bytes": 5000,
-      "mcp": [
-        "get",
-        "biomarker",
-        "C96022"
-      ]
+      "max_bytes": 5000
     }
   ]
 }

@@ -26,12 +26,6 @@
         "/problems/0/field": "variant",
         "/result/items/0/sections/annotations/data/total": 6
       },
-      "mcp": [
-        "get",
-        "article",
-        "33123537",
-        "annotations"
-      ],
       "max_bytes": 4000
     }
   ]

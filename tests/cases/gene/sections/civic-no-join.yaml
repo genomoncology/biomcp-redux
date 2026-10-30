@@ -22,13 +22,7 @@
           "excludes": "mygene"
         }
       },
-      "max_bytes": 1800,
-      "mcp": [
-        "get",
-        "gene",
-        "AKAP2",
-        "civic"
-      ]
+      "max_bytes": 1800
     }
   ]
 }

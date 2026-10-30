@@ -27,19 +27,7 @@
         "/result/items/*/cited_by": {
           "nonincreasing": true
         }
-      },
-      "mcp": [
-        "search",
-        "article",
-        "--gene",
-        "IDH1",
-        "--variant",
-        "R132H",
-        "--source",
-        "litvar",
-        "--sort",
-        "citations"
-      ]
+      }
     }
   ]
 }

@@ -10,11 +10,6 @@
         "author",
         "semantic-scholar:123"
       ],
-      "mcp": [
-        "get",
-        "author",
-        "semantic-scholar:123"
-      ],
       "exit": 4,
       "is_error": true,
       "full_output_bytes": true,

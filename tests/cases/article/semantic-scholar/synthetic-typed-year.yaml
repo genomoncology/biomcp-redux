@@ -23,24 +23,6 @@
         "--source",
         "semantic-scholar"
       ],
-      "mcp": [
-        "search",
-        "article",
-        "--gene",
-        "EGFR",
-        "--variant",
-        "T790M",
-        "--drug",
-        "osimertinib",
-        "--disease",
-        "lung cancer",
-        "--since",
-        "2015",
-        "--until",
-        "2026",
-        "--source",
-        "semantic-scholar"
-      ],
       "max_bytes": 1822,
       "expect": {
         "/status": "complete",

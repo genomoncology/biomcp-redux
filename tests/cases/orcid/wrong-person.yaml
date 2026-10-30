@@ -10,11 +10,6 @@
         "author",
         "orcid:0000-0002-4299-3018"
       ],
-      "mcp": [
-        "get",
-        "author",
-        "orcid:0000-0002-4299-3018"
-      ],
       "exit": 4,
       "is_error": true,
       "expect": {
@@ -27,11 +22,6 @@
     },
     {
       "run": [
-        "get",
-        "author",
-        "orcid:0000-0002-4299-3018"
-      ],
-      "mcp": [
         "get",
         "author",
         "orcid:0000-0002-4299-3018"

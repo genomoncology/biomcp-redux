@@ -11,12 +11,6 @@
         "AKT1 E17K",
         "--no-preprints"
       ],
-      "mcp": [
-        "search",
-        "article",
-        "AKT1 E17K",
-        "--no-preprints"
-      ],
       "max_bytes": 3407,
       "expect": {
         "/status": "complete",

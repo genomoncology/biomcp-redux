@@ -74,17 +74,7 @@
           "p.G12C"
         ]
       },
-      "exit": 1,
-      "mcp": [
-        "search",
-        "article",
-        "--gene",
-        "KRAS",
-        "--variant",
-        "G12Q",
-        "--source",
-        "litvar"
-      ]
+      "exit": 1
     },
     {
       "run": [
@@ -159,17 +149,7 @@
           "p.G12C"
         ]
       },
-      "exit": 1,
-      "mcp": [
-        "search",
-        "article",
-        "--gene",
-        "KRAS",
-        "--variant",
-        "G12Q",
-        "--source",
-        "pubmed,litvar"
-      ]
+      "exit": 1
     }
   ]
 }

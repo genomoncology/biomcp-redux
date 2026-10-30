@@ -12,12 +12,6 @@
         "clinvar:13961",
         "clinvar"
       ],
-      "mcp": [
-        "get",
-        "variant",
-        "clinvar:13961",
-        "clinvar"
-      ],
       "max_bytes": 2271,
       "expect": {
         "/result/resolution": "unresolved",

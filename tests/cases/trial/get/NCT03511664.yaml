@@ -11,11 +11,6 @@
         "trial",
         "NCT03511664"
       ],
-      "mcp": [
-        "get",
-        "trial",
-        "NCT03511664"
-      ],
       "expect": {
         "/status": "complete",
         "/result/items/0/input": "NCT03511664",
@@ -27,12 +22,6 @@
     },
     {
       "run": [
-        "get",
-        "trial",
-        "NCT03511664",
-        "eligibility"
-      ],
-      "mcp": [
         "get",
         "trial",
         "NCT03511664",
@@ -62,12 +51,6 @@
         "NCT03511664",
         "outcomes"
       ],
-      "mcp": [
-        "get",
-        "trial",
-        "NCT03511664",
-        "outcomes"
-      ],
       "expect": {
         "/status": "complete",
         "/result/items/0/card/nct_id": "NCT03511664",
@@ -79,12 +62,6 @@
     },
     {
       "run": [
-        "get",
-        "trial",
-        "NCT03511664",
-        "arms"
-      ],
-      "mcp": [
         "get",
         "trial",
         "NCT03511664",
@@ -104,12 +81,6 @@
     },
     {
       "run": [
-        "get",
-        "trial",
-        "NCT03511664",
-        "all"
-      ],
-      "mcp": [
         "get",
         "trial",
         "NCT03511664",

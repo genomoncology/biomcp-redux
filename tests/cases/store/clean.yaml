@@ -7,10 +7,6 @@
         "store",
         "clean"
       ],
-      "mcp": [
-        "store",
-        "clean"
-      ],
       "expect": {
         "/schema": "biomcp.store-clean/4",
         "/status": "complete",
@@ -24,11 +20,6 @@
     },
     {
       "run": [
-        "help",
-        "store",
-        "clean"
-      ],
-      "mcp": [
         "help",
         "store",
         "clean"

@@ -10,11 +10,6 @@
         "variant",
         "rs113488022"
       ],
-      "mcp": [
-        "get",
-        "variant",
-        "rs113488022"
-      ],
       "expect": {
         "/query/build": "GRCh37",
         "/query/build_defaulted": true,
@@ -25,14 +20,6 @@
     },
     {
       "run": [
-        "get",
-        "variant",
-        "rs113488022",
-        "predict",
-        "conservation",
-        "cosmic"
-      ],
-      "mcp": [
         "get",
         "variant",
         "rs113488022",
@@ -66,16 +53,6 @@
         "--disable-sources",
         "noncommercial"
       ],
-      "mcp": [
-        "get",
-        "variant",
-        "rs113488022",
-        "predict",
-        "conservation",
-        "cosmic",
-        "--disable-sources",
-        "noncommercial"
-      ],
       "max_bytes": 32583,
       "expect": {
         "/result/candidates/0/sections/predict/state": "skipped",
@@ -86,16 +63,6 @@
     },
     {
       "run": [
-        "get",
-        "variant",
-        "rs113488022",
-        "predict",
-        "conservation",
-        "cosmic",
-        "--disable-sources",
-        "restricted"
-      ],
-      "mcp": [
         "get",
         "variant",
         "rs113488022",
@@ -117,16 +84,6 @@
     },
     {
       "run": [
-        "get",
-        "variant",
-        "rs113488022",
-        "predict",
-        "conservation",
-        "cosmic",
-        "--disable-sources",
-        "myvariant"
-      ],
-      "mcp": [
         "get",
         "variant",
         "rs113488022",

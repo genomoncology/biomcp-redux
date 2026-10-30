@@ -11,12 +11,6 @@
         "MIR21",
         "clingen"
       ],
-      "mcp": [
-        "get",
-        "gene",
-        "MIR21",
-        "clingen"
-      ],
       "expect": {
         "/status": "complete",
         "/sources/*/source": {

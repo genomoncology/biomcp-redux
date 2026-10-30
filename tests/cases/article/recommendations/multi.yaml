@@ -15,16 +15,6 @@
         "--limit",
         "5"
       ],
-      "mcp": [
-        "article",
-        "recommendations",
-        "34096690",
-        "32955176",
-        "--negative",
-        "33433946",
-        "--limit",
-        "5"
-      ],
       "expect": {
         "/status": "complete",
         "/page/total": 5,

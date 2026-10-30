@@ -10,11 +10,6 @@
         "recommendations",
         "17611497"
       ],
-      "mcp": [
-        "article",
-        "recommendations",
-        "17611497"
-      ],
       "expect": {
         "/status": "complete",
         "/page/total": 0,

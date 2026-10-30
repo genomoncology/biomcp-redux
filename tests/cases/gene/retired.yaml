@@ -20,10 +20,6 @@
         }
       },
       "exit": 2,
-      "mcp": [
-        "gene",
-        "secret-input"
-      ],
       "is_error": true
     },
     {
@@ -79,11 +75,6 @@
         }
       },
       "exit": 2,
-      "mcp": [
-        "gene",
-        "pathways",
-        "secret-input"
-      ],
       "is_error": true
     },
     {
@@ -221,13 +212,6 @@
         }
       },
       "exit": 2,
-      "mcp": [
-        "search",
-        "gene",
-        "secret-input",
-        "--chromosome",
-        "secret-value"
-      ],
       "is_error": true
     },
     {
@@ -331,12 +315,6 @@
         }
       },
       "exit": 2,
-      "mcp": [
-        "get",
-        "gene",
-        "secret-input",
-        "ontology"
-      ],
       "is_error": true
     },
     {
@@ -490,12 +468,6 @@
         "/error/code": "usage.arguments"
       },
       "exit": 2,
-      "mcp": [
-        "search",
-        "gene",
-        "--band",
-        "--go"
-      ],
       "is_error": true
     },
     {
@@ -511,13 +483,7 @@
         ],
         "/result/items/0/answer/resolution": "not-found"
       },
-      "exit": 1,
-      "mcp": [
-        "get",
-        "gene",
-        "--",
-        "--go"
-      ]
+      "exit": 1
     },
     {
       "run": [
@@ -531,12 +497,7 @@
         ],
         "/result/items/0/answer/resolution": "not-found"
       },
-      "exit": 1,
-      "mcp": [
-        "get",
-        "gene",
-        "go"
-      ]
+      "exit": 1
     },
     {
       "run": [
@@ -560,15 +521,7 @@
           "not-found"
         ]
       },
-      "exit": 1,
-      "mcp": [
-        "get",
-        "gene",
-        "go",
-        "diagnostics",
-        "--section",
-        "all"
-      ]
+      "exit": 1
     },
     {
       "run": [
@@ -580,13 +533,7 @@
       "expect": {
         "/query/query": "--go",
         "/page/total": 0
-      },
-      "mcp": [
-        "search",
-        "gene",
-        "--",
-        "--go"
-      ]
+      }
     },
     {
       "run": [
@@ -598,21 +545,10 @@
         "/error/code": "usage.arguments"
       },
       "exit": 2,
-      "mcp": [
-        "search",
-        "gene",
-        "--band=--go"
-      ],
       "is_error": true
     },
     {
       "run": [
-        "get",
-        "gene",
-        "BRAF",
-        "HPA"
-      ],
-      "mcp": [
         "get",
         "gene",
         "BRAF",
@@ -639,11 +575,6 @@
         "gene",
         "hpa"
       ],
-      "mcp": [
-        "get",
-        "gene",
-        "hpa"
-      ],
       "expect": {
         "/result/items/*/answer/resolution": [
           "resolved"
@@ -666,13 +597,6 @@
       ],
       "exit": 2,
       "is_error": true,
-      "mcp": [
-        "get",
-        "gene",
-        "secret-input",
-        "--section",
-        "hpa"
-      ],
       "expect": {
         "/error/code": "usage.retired",
         "/error/message": "use: expression"

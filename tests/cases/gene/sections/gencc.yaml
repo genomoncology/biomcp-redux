@@ -42,13 +42,6 @@
         "MIR21",
         "gencc"
       ],
-      "mcp": [
-        "get",
-        "gene",
-        "ODC1",
-        "MIR21",
-        "gencc"
-      ],
       "expect": {
         "/status": "complete",
         "/result/items/0/sections/gencc/state": "data",

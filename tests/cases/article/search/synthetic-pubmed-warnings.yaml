@@ -29,13 +29,6 @@
         "/sources/0/notices/1/name": "phrasesignored"
       },
       "full_output_bytes": true,
-      "mcp": [
-        "search",
-        "article",
-        "\"ERCC2 Ala717Gly\"",
-        "--source",
-        "pubmed"
-      ],
       "max_bytes": 1244
     },
     {
@@ -64,13 +57,6 @@
         "/page/total": 0
       },
       "full_output_bytes": true,
-      "mcp": [
-        "search",
-        "article",
-        "ERCC2[Title/Abstract] AND Ala717Gly[Title/Abstract]",
-        "--source",
-        "pubmed"
-      ],
       "max_bytes": 1244
     },
     {
@@ -98,13 +84,6 @@
         "/sources/0/notices/1/name": "phrasesignored"
       },
       "full_output_bytes": true,
-      "mcp": [
-        "search",
-        "article",
-        "\"GATA2 Thr176Pro\"",
-        "--source",
-        "pubmed"
-      ],
       "max_bytes": 1244
     },
     {
@@ -132,13 +111,6 @@
         "/sources/0/notices/1/name": "phrasesignored"
       },
       "full_output_bytes": true,
-      "mcp": [
-        "search",
-        "article",
-        "\"POT1 Gly404Val\"",
-        "--source",
-        "pubmed"
-      ],
       "max_bytes": 1244
     },
     {
@@ -166,13 +138,6 @@
         "/sources/0/notices/1/name": "phrasesignored"
       },
       "full_output_bytes": true,
-      "mcp": [
-        "search",
-        "article",
-        "\"GALC Thr109Ala\"",
-        "--source",
-        "pubmed"
-      ],
       "max_bytes": 1244
     },
     {
@@ -200,25 +165,10 @@
         "/sources/0/notices/1/name": "phrasesignored"
       },
       "full_output_bytes": true,
-      "mcp": [
-        "search",
-        "article",
-        "\"ACD Pro457=\"",
-        "--source",
-        "pubmed"
-      ],
       "max_bytes": 1244
     },
     {
       "run": [
-        "search",
-        "article",
-        "--source",
-        "pubmed",
-        "--",
-        "-ERCC2 Ala717Gly"
-      ],
-      "mcp": [
         "search",
         "article",
         "--source",

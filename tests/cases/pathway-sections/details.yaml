@@ -10,12 +10,6 @@
         "R-HSA-5673001",
         "details"
       ],
-      "mcp": [
-        "pathway",
-        "genes",
-        "R-HSA-5673001",
-        "details"
-      ],
       "expect": {
         "/query/details": "details",
         "/result/items/0/physical_context_count": 29,

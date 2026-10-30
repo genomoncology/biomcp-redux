@@ -17,16 +17,6 @@
         "--build",
         "GRCh37"
       ],
-      "mcp": [
-        "search",
-        "variant",
-        "--gene",
-        "EGFR",
-        "--protein",
-        "S768I",
-        "--build",
-        "GRCh37"
-      ],
       "max_bytes": 1187,
       "expect": {
         "/schema": "biomcp.variant-page/16",

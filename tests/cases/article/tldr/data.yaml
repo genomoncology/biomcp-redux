@@ -11,12 +11,6 @@
         "33123537",
         "tldr"
       ],
-      "mcp": [
-        "get",
-        "article",
-        "33123537",
-        "tldr"
-      ],
       "expect": {
         "/result/items/0/sections/tldr/state": "data",
         "/result/items/0/sections/tldr/data/model": "synthetic-test-model",

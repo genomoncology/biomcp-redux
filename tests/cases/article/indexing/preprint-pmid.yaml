@@ -11,12 +11,6 @@
         "PPR1064174",
         "indexing"
       ],
-      "mcp": [
-        "get",
-        "article",
-        "PPR1064174",
-        "indexing"
-      ],
       "expect": {
         "/status": "complete",
         "/result/items/0/sections/indexing/state": "not-applicable",
@@ -31,13 +25,6 @@
     },
     {
       "run": [
-        "get",
-        "article",
-        "PPR1064174",
-        "33123537",
-        "indexing"
-      ],
-      "mcp": [
         "get",
         "article",
         "PPR1064174",

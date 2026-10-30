@@ -24,18 +24,6 @@
         "/error/count": 16330
       },
       "exit": 2,
-      "mcp": [
-        "search",
-        "article",
-        "--gene",
-        "BRAF",
-        "--variant",
-        "V600E",
-        "--source",
-        "pubmed,litvar",
-        "--sort",
-        "citations"
-      ],
       "is_error": true
     }
   ]

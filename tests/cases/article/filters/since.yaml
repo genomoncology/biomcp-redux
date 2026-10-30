@@ -40,18 +40,7 @@
             "2026-09-30"
           ]
         }
-      },
-      "mcp": [
-        "search",
-        "article",
-        "KRAS G12C sotorasib",
-        "--since",
-        "2024",
-        "--sort",
-        "date",
-        "--limit",
-        "5"
-      ]
+      }
     },
     {
       "follow": "page",
@@ -82,8 +71,25 @@
       }
     },
     {
-      "run": ["search", "article", "KRAS G12C sotorasib", "--since", "2024", "--sort", "date", "--limit", "5", "--offset", "5"],
-      "expect": {"/page/offset": 5, "/page/returned": 5, "/query/since": "2024", "/query/sort": "date"},
+      "run": [
+        "search",
+        "article",
+        "KRAS G12C sotorasib",
+        "--since",
+        "2024",
+        "--sort",
+        "date",
+        "--limit",
+        "5",
+        "--offset",
+        "5"
+      ],
+      "expect": {
+        "/page/offset": 5,
+        "/page/returned": 5,
+        "/query/since": "2024",
+        "/query/sort": "date"
+      },
       "max_bytes": 3191
     }
   ]

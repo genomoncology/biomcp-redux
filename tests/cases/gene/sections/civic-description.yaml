@@ -30,15 +30,7 @@
           }
         },
         "/result/items/1/sections/civic/data/id/id": 20
-      },
-      "mcp": [
-        "get",
-        "gene",
-        "VISTA",
-        "ERBB2",
-        "VISTA",
-        "civic"
-      ]
+      }
     }
   ]
 }

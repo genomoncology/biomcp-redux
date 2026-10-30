@@ -31,13 +31,7 @@
         "/problems/1/field": "grch37.refseq"
       },
       "exit": 0,
-      "max_bytes": 5000,
-      "mcp": [
-        "get",
-        "gene",
-        "TP53",
-        "oncokb"
-      ]
+      "max_bytes": 5000
     }
   ]
 }

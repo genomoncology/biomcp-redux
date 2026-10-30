@@ -29,13 +29,7 @@
         },
         "/problems/0/record": "20"
       },
-      "max_bytes": 3200,
-      "mcp": [
-        "get",
-        "gene",
-        "ERBB2",
-        "civic"
-      ]
+      "max_bytes": 3200
     }
   ]
 }

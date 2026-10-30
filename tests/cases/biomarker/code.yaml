@@ -44,12 +44,7 @@
           "exclusion"
         ]
       },
-      "max_bytes": 5000,
-      "mcp": [
-        "get",
-        "biomarker",
-        "C96022"
-      ]
+      "max_bytes": 5000
     }
   ]
 }

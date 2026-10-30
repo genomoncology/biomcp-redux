@@ -11,11 +11,6 @@
         "article",
         "next-generation sequencing recommendations advanced cancer ESMO"
       ],
-      "mcp": [
-        "search",
-        "article",
-        "next-generation sequencing recommendations advanced cancer ESMO"
-      ],
       "max_bytes": 5492,
       "expect": {
         "/status": "complete",

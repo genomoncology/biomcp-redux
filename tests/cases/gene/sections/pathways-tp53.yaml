@@ -11,12 +11,6 @@
         "TP53",
         "pathways"
       ],
-      "mcp": [
-        "get",
-        "gene",
-        "TP53",
-        "pathways"
-      ],
       "expect": {
         "/status": "complete",
         "/result/items/0/sections/pathways/state": "data",

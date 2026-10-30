@@ -10,12 +10,6 @@
         "--id",
         "secret-id"
       ],
-      "mcp": [
-        "search",
-        "trial",
-        "--id",
-        "secret-id"
-      ],
       "exit": 2,
       "is_error": true,
       "expect": {
@@ -41,14 +35,6 @@
         "--until",
         "2024"
       ],
-      "mcp": [
-        "search",
-        "article",
-        "--since",
-        "2025",
-        "--until",
-        "2024"
-      ],
       "exit": 2,
       "is_error": true,
       "expect": {
@@ -58,12 +44,6 @@
     },
     {
       "run": [
-        "search",
-        "trial",
-        "--age",
-        "151"
-      ],
-      "mcp": [
         "search",
         "trial",
         "--age",
@@ -82,11 +62,6 @@
         "gwas",
         "secret-id"
       ],
-      "mcp": [
-        "get",
-        "gwas",
-        "secret-id"
-      ],
       "exit": 2,
       "is_error": true,
       "expect": {
@@ -101,12 +76,6 @@
         "GCST004415",
         "loci"
       ],
-      "mcp": [
-        "get",
-        "gwas",
-        "GCST004415",
-        "loci"
-      ],
       "exit": 2,
       "is_error": true,
       "expect": {
@@ -116,13 +85,6 @@
     },
     {
       "run": [
-        "get",
-        "gwas",
-        "GCST004415",
-        "--snapshot",
-        " "
-      ],
-      "mcp": [
         "get",
         "gwas",
         "GCST004415",

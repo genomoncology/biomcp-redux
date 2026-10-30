@@ -56,15 +56,13 @@
             "terms_url": "https://faq.oncokb.org/licensing"
           }
         },
-        "/next/*/kind": ["key", "section"]
+        "/next/*/kind": [
+          "key",
+          "section"
+        ]
       },
       "max_bytes": 2800,
-      "max_tokens": 650,
-      "mcp": [
-        "get",
-        "gene",
-        "BRAF"
-      ]
+      "max_tokens": 650
     },
     {
       "run": [

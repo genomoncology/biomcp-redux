@@ -19,13 +19,6 @@
           "nonincreasing": true
         }
       },
-      "mcp": [
-        "search",
-        "article",
-        "BRCA1 185delAG Ashkenazi",
-        "--sort",
-        "citations"
-      ],
       "max_bytes": 5938,
       "max_tokens": 1485
     },

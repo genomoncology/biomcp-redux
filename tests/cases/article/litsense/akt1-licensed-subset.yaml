@@ -13,13 +13,6 @@
         "--source",
         "litsense"
       ],
-      "mcp": [
-        "search",
-        "article",
-        "AKT1 E17K capivasertib breast cancer",
-        "--source",
-        "litsense"
-      ],
       "max_bytes": 5646,
       "expect": {
         "/status": "complete",

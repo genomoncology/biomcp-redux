@@ -8,10 +8,6 @@
         "search",
         "variant"
       ],
-      "mcp": [
-        "search",
-        "variant"
-      ],
       "exit": 2,
       "is_error": true,
       "expect": {
@@ -21,12 +17,6 @@
     },
     {
       "run": [
-        "search",
-        "variant",
-        "--gene",
-        "EGFR"
-      ],
-      "mcp": [
         "search",
         "variant",
         "--gene",
@@ -46,12 +36,6 @@
         "--protein",
         "L858R"
       ],
-      "mcp": [
-        "search",
-        "variant",
-        "--protein",
-        "L858R"
-      ],
       "exit": 2,
       "is_error": true,
       "expect": {
@@ -61,14 +45,6 @@
     },
     {
       "run": [
-        "search",
-        "variant",
-        "--gene",
-        "EGFR",
-        "--protein",
-        "Z858R"
-      ],
-      "mcp": [
         "search",
         "variant",
         "--gene",
@@ -92,14 +68,6 @@
         "--protein",
         "L0R"
       ],
-      "mcp": [
-        "search",
-        "variant",
-        "--gene",
-        "EGFR",
-        "--protein",
-        "L0R"
-      ],
       "exit": 2,
       "is_error": true,
       "expect": {
@@ -109,14 +77,6 @@
     },
     {
       "run": [
-        "search",
-        "variant",
-        "--gene",
-        "EGFR",
-        "--protein",
-        "L858Rdel"
-      ],
-      "mcp": [
         "search",
         "variant",
         "--gene",
@@ -138,12 +98,6 @@
         "--region",
         "chr7:1-2"
       ],
-      "mcp": [
-        "search",
-        "variant",
-        "--region",
-        "chr7:1-2"
-      ],
       "exit": 2,
       "is_error": true,
       "expect": {
@@ -153,14 +107,6 @@
     },
     {
       "run": [
-        "search",
-        "variant",
-        "--region",
-        "chr7:2-1",
-        "--build",
-        "GRCh38"
-      ],
-      "mcp": [
         "search",
         "variant",
         "--region",
@@ -184,14 +130,6 @@
         "--build",
         "GRCh37"
       ],
-      "mcp": [
-        "search",
-        "variant",
-        "--region",
-        "chr7:0-1",
-        "--build",
-        "GRCh37"
-      ],
       "exit": 2,
       "is_error": true,
       "expect": {
@@ -201,12 +139,6 @@
     },
     {
       "run": [
-        "search",
-        "variant",
-        "--query",
-        "rs113488022"
-      ],
-      "mcp": [
         "search",
         "variant",
         "--query",
@@ -228,14 +160,6 @@
         "--source",
         "myvariant"
       ],
-      "mcp": [
-        "search",
-        "variant",
-        "--query",
-        "  ",
-        "--source",
-        "myvariant"
-      ],
       "exit": 2,
       "is_error": true,
       "expect": {
@@ -245,18 +169,6 @@
     },
     {
       "run": [
-        "search",
-        "variant",
-        "--gene",
-        "EGFR",
-        "--protein",
-        "L858R",
-        "--query",
-        "x",
-        "--source",
-        "myvariant"
-      ],
-      "mcp": [
         "search",
         "variant",
         "--gene",
@@ -286,16 +198,6 @@
         "--limit",
         "0"
       ],
-      "mcp": [
-        "search",
-        "variant",
-        "--gene",
-        "EGFR",
-        "--protein",
-        "L858R",
-        "--limit",
-        "0"
-      ],
       "exit": 2,
       "is_error": true,
       "expect": {
@@ -314,16 +216,6 @@
         "--offset",
         "10000"
       ],
-      "mcp": [
-        "search",
-        "variant",
-        "--query",
-        "x",
-        "--source",
-        "myvariant",
-        "--offset",
-        "10000"
-      ],
       "exit": 2,
       "is_error": true,
       "expect": {
@@ -333,16 +225,6 @@
     },
     {
       "run": [
-        "search",
-        "variant",
-        "--gene",
-        "EGFR",
-        "--protein",
-        "L858R",
-        "--disable-sources",
-        "myvariant"
-      ],
-      "mcp": [
         "search",
         "variant",
         "--gene",
@@ -371,16 +253,6 @@
         "--disable-sources",
         "myvariant"
       ],
-      "mcp": [
-        "search",
-        "variant",
-        "--gene",
-        "CHEK2",
-        "--protein",
-        "Arg117Gly",
-        "--disable-sources",
-        "myvariant"
-      ],
       "exit": 4,
       "is_error": true,
       "expect": {
@@ -391,16 +263,6 @@
     },
     {
       "run": [
-        "search",
-        "variant",
-        "--gene",
-        "BRAF",
-        "--protein",
-        "p.Val600Glu",
-        "--disable-sources",
-        "myvariant"
-      ],
-      "mcp": [
         "search",
         "variant",
         "--gene",
@@ -429,16 +291,6 @@
         "--disable-sources",
         "myvariant"
       ],
-      "mcp": [
-        "search",
-        "variant",
-        "--region",
-        "chr7:1-2",
-        "--build",
-        "GRCh38",
-        "--disable-sources",
-        "myvariant"
-      ],
       "exit": 4,
       "is_error": true,
       "expect": {
@@ -449,16 +301,6 @@
     },
     {
       "run": [
-        "search",
-        "variant",
-        "--query",
-        "  dbsnp.rsid:rs113488022  ",
-        "--source",
-        "myvariant",
-        "--disable-sources",
-        "myvariant"
-      ],
-      "mcp": [
         "search",
         "variant",
         "--query",

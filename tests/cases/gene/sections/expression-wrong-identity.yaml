@@ -22,13 +22,7 @@
         },
         "/next/0/kind": "fresh"
       },
-      "max_bytes": 3500,
-      "mcp": [
-        "get",
-        "gene",
-        "CLDN18",
-        "expression"
-      ]
+      "max_bytes": 3500
     }
   ]
 }

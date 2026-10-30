@@ -23,13 +23,7 @@
         },
         "/next/0/kind": "fresh"
       },
-      "max_bytes": 6800,
-      "mcp": [
-        "get",
-        "gene",
-        "CDKN2A",
-        "protein"
-      ]
+      "max_bytes": 6800
     },
     {
       "run": [

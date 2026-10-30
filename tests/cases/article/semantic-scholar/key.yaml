@@ -9,11 +9,6 @@
         "key",
         "semantic-scholar"
       ],
-      "mcp": [
-        "help",
-        "key",
-        "semantic-scholar"
-      ],
       "max_bytes": 302,
       "expect": {
         "/result/source": "semantic-scholar",

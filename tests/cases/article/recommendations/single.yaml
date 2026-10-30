@@ -12,13 +12,6 @@
         "--limit",
         "5"
       ],
-      "mcp": [
-        "article",
-        "recommendations",
-        "34096690",
-        "--limit",
-        "5"
-      ],
       "expect": {
         "/status": "complete",
         "/page/total": 5,

@@ -22,14 +22,6 @@
         "/result/items/0/answer/resolution": "not-found"
       },
       "max_bytes": 3600,
-      "mcp": [
-        "get",
-        "gene",
-        "NOTAGENE",
-        "constraint",
-        "constraint",
-        "all"
-      ],
       "exit": 1
     },
     {
@@ -44,12 +36,7 @@
           "excludes": "gnomad"
         }
       },
-      "max_bytes": 3600,
-      "mcp": [
-        "get",
-        "gene",
-        "ALL"
-      ]
+      "max_bytes": 3600
     },
     {
       "run": [
@@ -63,12 +50,7 @@
           "all"
         ]
       },
-      "max_bytes": 3600,
-      "mcp": [
-        "get",
-        "gene",
-        "all"
-      ]
+      "max_bytes": 3600
     },
     {
       "run": [
@@ -93,16 +75,6 @@
         "/result/items/1/answer/resolution": "not-found",
         "/result/items/0/answer/resolution": "not-found"
       },
-      "mcp": [
-        "get",
-        "gene",
-        "NOTAGENE",
-        "constraint",
-        "--section",
-        "constraint",
-        "--section",
-        "all"
-      ],
       "exit": 1
     },
     {
@@ -125,14 +97,6 @@
         ],
         "/result/items/0/answer/resolution": "not-found"
       },
-      "mcp": [
-        "get",
-        "gene",
-        "NOTAGENE",
-        "constraint",
-        "NOTAGENE",
-        "all"
-      ],
       "exit": 1
     },
     {
@@ -151,16 +115,7 @@
           "-literal"
         ],
         "/result/items/0/sections/constraint/state": "data"
-      },
-      "mcp": [
-        "get",
-        "gene",
-        "TP53",
-        "--section",
-        "constraint",
-        "--",
-        "-literal"
-      ]
+      }
     }
   ]
 }

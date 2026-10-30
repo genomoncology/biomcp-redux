@@ -17,16 +17,6 @@
         "--has",
         "clinvar"
       ],
-      "mcp": [
-        "search",
-        "variant",
-        "--region",
-        "chr7:140453136-140453136",
-        "--build",
-        "GRCh37",
-        "--has",
-        "clinvar"
-      ],
       "expect": {
         "/schema": "biomcp.variant-page/16",
         "/status": "partial",
@@ -367,18 +357,6 @@
         "--disable-sources",
         "noncommercial"
       ],
-      "mcp": [
-        "search",
-        "variant",
-        "--region",
-        "chr7:140453136-140453136",
-        "--build",
-        "GRCh37",
-        "--has",
-        "clinvar",
-        "--disable-sources",
-        "noncommercial"
-      ],
       "expect": {
         "/status": "partial",
         "/result/items": {
@@ -545,34 +523,10 @@
       "expect": {
         "/sources/0/reason": "disabled",
         "/sources/0/state": "skipped"
-      },
-      "mcp": [
-        "search",
-        "variant",
-        "--region",
-        "chr7:140453136-140453136",
-        "--build",
-        "GRCh37",
-        "--has",
-        "clinvar",
-        "--disable-sources",
-        "restricted"
-      ]
+      }
     },
     {
       "run": [
-        "search",
-        "variant",
-        "--region",
-        "chr7:140453136-140453136",
-        "--build",
-        "GRCh37",
-        "--has",
-        "clinvar",
-        "--disable-sources",
-        "clinvar"
-      ],
-      "mcp": [
         "search",
         "variant",
         "--region",

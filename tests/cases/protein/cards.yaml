@@ -27,13 +27,6 @@
         ],
         "/result/items/0/audit/sequence_version": 2
       },
-      "mcp": [
-        "get",
-        "protein",
-        "P00533",
-        "Q9UIF7",
-        "P38398-2"
-      ],
       "max_bytes": 2001
     },
     {

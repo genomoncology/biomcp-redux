@@ -11,12 +11,6 @@
         "BRAF",
         "pathways"
       ],
-      "mcp": [
-        "get",
-        "gene",
-        "BRAF",
-        "pathways"
-      ],
       "expect": {
         "/status": "complete",
         "/result/items/0/sections/pathways/state": "data",

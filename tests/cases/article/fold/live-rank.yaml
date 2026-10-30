@@ -13,13 +13,6 @@
         "--source",
         "pubmed,europepmc"
       ],
-      "mcp": [
-        "search",
-        "article",
-        "AKT1 E17K",
-        "--source",
-        "pubmed,europepmc"
-      ],
       "max_bytes": 6122,
       "expect": {
         "/status": "complete",

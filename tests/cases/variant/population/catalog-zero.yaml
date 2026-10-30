@@ -11,12 +11,6 @@
         "rs113488022",
         "gwas"
       ],
-      "mcp": [
-        "get",
-        "variant",
-        "rs113488022",
-        "gwas"
-      ],
       "expect": {
         "/status": "complete",
         "/result/resolution": "unresolved",

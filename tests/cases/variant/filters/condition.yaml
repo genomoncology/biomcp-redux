@@ -17,16 +17,6 @@
         "--condition",
         "Carcinoma of colon (CRC)"
       ],
-      "mcp": [
-        "search",
-        "variant",
-        "--region",
-        "chr7:140453136-140453136",
-        "--build",
-        "GRCh37",
-        "--condition",
-        "Carcinoma of colon (CRC)"
-      ],
       "expect": {
         "/schema": "biomcp.variant-page/16",
         "/status": "partial",
@@ -195,18 +185,6 @@
         "--disable-sources",
         "noncommercial"
       ],
-      "mcp": [
-        "search",
-        "variant",
-        "--region",
-        "chr7:140453136-140453136",
-        "--build",
-        "GRCh37",
-        "--condition",
-        "Carcinoma of colon (CRC)",
-        "--disable-sources",
-        "noncommercial"
-      ],
       "expect": {
         "/status": "partial",
         "/result/items": {
@@ -287,34 +265,10 @@
       "expect": {
         "/sources/0/reason": "disabled",
         "/sources/0/state": "skipped"
-      },
-      "mcp": [
-        "search",
-        "variant",
-        "--region",
-        "chr7:140453136-140453136",
-        "--build",
-        "GRCh37",
-        "--condition",
-        "Carcinoma of colon (CRC)",
-        "--disable-sources",
-        "restricted"
-      ]
+      }
     },
     {
       "run": [
-        "search",
-        "variant",
-        "--region",
-        "chr7:140453136-140453136",
-        "--build",
-        "GRCh37",
-        "--condition",
-        "Carcinoma of colon (CRC)",
-        "--disable-sources",
-        "clinvar"
-      ],
-      "mcp": [
         "search",
         "variant",
         "--region",

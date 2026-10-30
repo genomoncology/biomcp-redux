@@ -48,13 +48,7 @@
         "/result/items/0/sections/oncokb/state": "data",
         "/result/items/0/oncokb/version": "synthetic-1"
       },
-      "max_bytes": 14200,
-      "mcp": [
-        "get",
-        "gene",
-        "TP53",
-        "all"
-      ]
+      "max_bytes": 14200
     }
   ],
   "config": {

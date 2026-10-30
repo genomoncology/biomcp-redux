@@ -11,12 +11,6 @@
         "17611497",
         "pdf"
       ],
-      "mcp": [
-        "get",
-        "article",
-        "17611497",
-        "pdf"
-      ],
       "expect": {
         "/result/items/0/sections/pdf/state": "unavailable",
         "/result/items/0/sections/pdf/reason": "not-open"

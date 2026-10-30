@@ -12,12 +12,6 @@
         "NCT03734029",
         "locations"
       ],
-      "mcp": [
-        "get",
-        "trial",
-        "NCT03734029",
-        "locations"
-      ],
       "expect": {
         "/status": "complete",
         "/result/items/0/input": "NCT03734029",
@@ -28,12 +22,6 @@
     },
     {
       "run": [
-        "get",
-        "trial",
-        "NCT03734029",
-        "contacts"
-      ],
-      "mcp": [
         "get",
         "trial",
         "NCT03734029",

@@ -11,12 +11,6 @@
         "AKT1 E17K",
         "--open-access"
       ],
-      "mcp": [
-        "search",
-        "article",
-        "AKT1 E17K",
-        "--open-access"
-      ],
       "max_bytes": 3426,
       "expect": {
         "/status": "complete",

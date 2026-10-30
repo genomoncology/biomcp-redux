@@ -12,13 +12,6 @@
         "article",
         "33123537"
       ],
-      "mcp": [
-        "--disable-sources",
-        "semantic-scholar",
-        "get",
-        "article",
-        "33123537"
-      ],
       "expect": {
         "/next": [
           {

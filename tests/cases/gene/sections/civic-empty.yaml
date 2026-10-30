@@ -22,13 +22,7 @@
           "excludes": "gnomad"
         }
       },
-      "max_bytes": 2500,
-      "mcp": [
-        "get",
-        "gene",
-        "VISTA",
-        "civic"
-      ]
+      "max_bytes": 2500
     }
   ]
 }

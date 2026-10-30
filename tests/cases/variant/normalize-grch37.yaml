@@ -15,16 +15,6 @@
         "--build",
         "GRCh37"
       ],
-      "mcp": [
-        "variant",
-        "normalize",
-        "--source",
-        "car",
-        "--hgvs",
-        "chr10:g.114758349C>T",
-        "--build",
-        "GRCh37"
-      ],
       "expect": {
         "/result/results/0/source": "car",
         "/result/results/0/outcome": "resolved",
@@ -43,16 +33,6 @@
         "--build",
         "GRCh36"
       ],
-      "mcp": [
-        "variant",
-        "normalize",
-        "--source",
-        "car",
-        "--hgvs",
-        "chr10:g.114758349C>T",
-        "--build",
-        "GRCh36"
-      ],
       "exit": 2,
       "is_error": true,
       "expect": {
@@ -75,16 +55,6 @@
         "chr10:g.114758349C>T",
         "--build=GRCh36"
       ],
-      "mcp": [
-        "--offline",
-        "variant",
-        "normalize",
-        "--source",
-        "car",
-        "--hgvs",
-        "chr10:g.114758349C>T",
-        "--build=GRCh36"
-      ],
       "exit": 2,
       "is_error": true,
       "expect": {
@@ -98,16 +68,6 @@
     },
     {
       "run": [
-        "variant",
-        "normalize",
-        "--source",
-        "car",
-        "--hgvs",
-        "NC_000010.11:g.114758349C>T",
-        "--build",
-        "GRCh37"
-      ],
-      "mcp": [
         "variant",
         "normalize",
         "--source",

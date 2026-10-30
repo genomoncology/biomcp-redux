@@ -11,12 +11,6 @@
         "34096690",
         "32955176"
       ],
-      "mcp": [
-        "article",
-        "citation-evidence",
-        "34096690",
-        "32955176"
-      ],
       "expect": {
         "/status": "complete",
         "/result/semantic_scholar/data/contexts/total": 0,

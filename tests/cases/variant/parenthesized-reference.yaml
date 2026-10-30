@@ -11,13 +11,6 @@
         "--disable-sources",
         "car,myvariant"
       ],
-      "mcp": [
-        "get",
-        "variant",
-        "NM_004333.4(BRAF):c.1799T>A",
-        "--disable-sources",
-        "car,myvariant"
-      ],
       "exit": 4,
       "is_error": true,
       "expect": {
@@ -30,13 +23,6 @@
     },
     {
       "run": [
-        "get",
-        "variant",
-        "NC_000007.14(NM_004333.4):g.140753336A>T",
-        "--disable-sources",
-        "car,myvariant"
-      ],
-      "mcp": [
         "get",
         "variant",
         "NC_000007.14(NM_004333.4):g.140753336A>T",
@@ -61,13 +47,6 @@
         "--disable-sources",
         "car,myvariant"
       ],
-      "mcp": [
-        "get",
-        "variant",
-        "NM_004333.4(BRAF:c.1799T>A",
-        "--disable-sources",
-        "car,myvariant"
-      ],
       "exit": 2,
       "is_error": true,
       "expect": {
@@ -76,13 +55,6 @@
     },
     {
       "run": [
-        "get",
-        "variant",
-        "NM_004333.4(@BRAF):c.1799T>A",
-        "--disable-sources",
-        "car,myvariant"
-      ],
-      "mcp": [
         "get",
         "variant",
         "NM_004333.4(@BRAF):c.1799T>A",

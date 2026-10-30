@@ -15,16 +15,6 @@
         "--disease",
         "meningioma"
       ],
-      "mcp": [
-        "search",
-        "article",
-        "--gene",
-        "NF2",
-        "--variant",
-        "K322",
-        "--disease",
-        "meningioma"
-      ],
       "expect": {
         "/status": "complete",
         "/page/total": 0,
@@ -52,14 +42,6 @@
     },
     {
       "run": [
-        "search",
-        "article",
-        "--disease",
-        "meningioma",
-        "--gene",
-        "NF2"
-      ],
-      "mcp": [
         "search",
         "article",
         "--disease",

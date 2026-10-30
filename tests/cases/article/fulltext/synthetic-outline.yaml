@@ -28,13 +28,7 @@
         "/result/items/0/sections/fulltext/data/figures": {
           "count": 2
         }
-      },
-      "mcp": [
-        "get",
-        "article",
-        "28944238",
-        "fulltext"
-      ]
+      }
     },
     {
       "run": [

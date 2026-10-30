@@ -17,16 +17,6 @@
         "--build",
         "GRCh37"
       ],
-      "mcp": [
-        "search",
-        "variant",
-        "--gene",
-        "EGFR",
-        "--protein",
-        "E709K",
-        "--build",
-        "GRCh37"
-      ],
       "max_bytes": 1188,
       "expect": {
         "/schema": "biomcp.variant-page/16",

@@ -10,12 +10,6 @@
         "R-HSA-5673001",
         "genes"
       ],
-      "mcp": [
-        "get",
-        "pathway",
-        "R-HSA-5673001",
-        "genes"
-      ],
       "expect": {
         "/status": "complete",
         "/result/genes/state": "data",

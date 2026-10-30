@@ -13,15 +13,6 @@
         "litvar",
         "--open-access"
       ],
-      "mcp": [
-        "search",
-        "article",
-        "--variant",
-        "rs121913529",
-        "--source",
-        "litvar",
-        "--open-access"
-      ],
       "exit": 2,
       "is_error": true,
       "max_bytes": 400,
@@ -33,15 +24,6 @@
     },
     {
       "run": [
-        "search",
-        "article",
-        "--variant",
-        "rs121913529",
-        "--source",
-        "litvar",
-        "--no-preprints"
-      ],
-      "mcp": [
         "search",
         "article",
         "--variant",
@@ -69,15 +51,6 @@
         "litvar",
         "--exclude-retracted"
       ],
-      "mcp": [
-        "search",
-        "article",
-        "--variant",
-        "rs121913529",
-        "--source",
-        "litvar",
-        "--exclude-retracted"
-      ],
       "exit": 2,
       "is_error": true,
       "max_bytes": 400,
@@ -96,14 +69,6 @@
         "litsense",
         "--open-access"
       ],
-      "mcp": [
-        "search",
-        "article",
-        "AKT1 E17K",
-        "--source",
-        "litsense",
-        "--open-access"
-      ],
       "exit": 2,
       "is_error": true,
       "max_bytes": 400,
@@ -115,14 +80,6 @@
     },
     {
       "run": [
-        "search",
-        "article",
-        "AKT1 E17K",
-        "--source",
-        "litsense",
-        "--no-preprints"
-      ],
-      "mcp": [
         "search",
         "article",
         "AKT1 E17K",
@@ -148,14 +105,6 @@
         "litsense",
         "--exclude-retracted"
       ],
-      "mcp": [
-        "search",
-        "article",
-        "AKT1 E17K",
-        "--source",
-        "litsense",
-        "--exclude-retracted"
-      ],
       "exit": 2,
       "is_error": true,
       "max_bytes": 400,
@@ -167,14 +116,6 @@
     },
     {
       "run": [
-        "search",
-        "article",
-        "AKT1 E17K",
-        "--source",
-        "pubtator",
-        "--open-access"
-      ],
-      "mcp": [
         "search",
         "article",
         "AKT1 E17K",
@@ -200,14 +141,6 @@
         "pubtator",
         "--no-preprints"
       ],
-      "mcp": [
-        "search",
-        "article",
-        "AKT1 E17K",
-        "--source",
-        "pubtator",
-        "--no-preprints"
-      ],
       "exit": 2,
       "is_error": true,
       "max_bytes": 400,
@@ -226,14 +159,6 @@
         "pubtator",
         "--exclude-retracted"
       ],
-      "mcp": [
-        "search",
-        "article",
-        "AKT1 E17K",
-        "--source",
-        "pubtator",
-        "--exclude-retracted"
-      ],
       "exit": 2,
       "is_error": true,
       "max_bytes": 400,
@@ -245,14 +170,6 @@
     },
     {
       "run": [
-        "search",
-        "article",
-        "AKT1 E17K",
-        "--source",
-        "semantic-scholar",
-        "--no-preprints"
-      ],
-      "mcp": [
         "search",
         "article",
         "AKT1 E17K",
@@ -271,14 +188,6 @@
     },
     {
       "run": [
-        "search",
-        "article",
-        "AKT1 E17K",
-        "--source",
-        "semantic-scholar",
-        "--exclude-retracted"
-      ],
-      "mcp": [
         "search",
         "article",
         "AKT1 E17K",

@@ -11,12 +11,6 @@
         "TP53",
         "constraint"
       ],
-      "mcp": [
-        "get",
-        "gene",
-        "TP53",
-        "constraint"
-      ],
       "exit": 5,
       "is_error": true,
       "expect": {

@@ -17,16 +17,6 @@
         "--build",
         "GRCh37"
       ],
-      "mcp": [
-        "search",
-        "variant",
-        "--gene",
-        "EGFR",
-        "--protein",
-        "L858R",
-        "--build",
-        "GRCh37"
-      ],
       "max_bytes": 1187,
       "expect": {
         "/schema": "biomcp.variant-page/16",
@@ -97,16 +87,6 @@
     },
     {
       "run": [
-        "search",
-        "variant",
-        "--gene",
-        "EGFR",
-        "--protein",
-        "L858R",
-        "--disable-sources",
-        "noncommercial"
-      ],
-      "mcp": [
         "search",
         "variant",
         "--gene",

@@ -11,11 +11,6 @@
         "trial",
         "NCT03734029"
       ],
-      "mcp": [
-        "get",
-        "trial",
-        "NCT03734029"
-      ],
       "expect": {
         "/status": "complete",
         "/result/items/0/input": "NCT03734029",
@@ -27,12 +22,6 @@
     },
     {
       "run": [
-        "get",
-        "trial",
-        "NCT03734029",
-        "eligibility"
-      ],
-      "mcp": [
         "get",
         "trial",
         "NCT03734029",
@@ -62,12 +51,6 @@
         "NCT03734029",
         "outcomes"
       ],
-      "mcp": [
-        "get",
-        "trial",
-        "NCT03734029",
-        "outcomes"
-      ],
       "expect": {
         "/status": "complete",
         "/result/items/0/card/nct_id": "NCT03734029",
@@ -79,12 +62,6 @@
     },
     {
       "run": [
-        "get",
-        "trial",
-        "NCT03734029",
-        "arms"
-      ],
-      "mcp": [
         "get",
         "trial",
         "NCT03734029",
@@ -103,12 +80,6 @@
     },
     {
       "run": [
-        "get",
-        "trial",
-        "NCT03734029",
-        "all"
-      ],
-      "mcp": [
         "get",
         "trial",
         "NCT03734029",

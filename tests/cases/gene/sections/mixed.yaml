@@ -30,16 +30,7 @@
         "/sources/*/source": {
           "includes": "gnomad"
         }
-      },
-      "mcp": [
-        "get",
-        "gene",
-        "BRAF",
-        "TP53",
-        "KRAS",
-        "TP53",
-        "constraint"
-      ]
+      }
     },
     {
       "run": [

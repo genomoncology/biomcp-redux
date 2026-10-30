@@ -10,12 +10,6 @@
         "33123537",
         "tldr"
       ],
-      "mcp": [
-        "get",
-        "article",
-        "33123537",
-        "tldr"
-      ],
       "expect": {
         "/result/items/0/sections/tldr/state": "empty",
         "/result/items/0/answer/card/pmid": "33123537"

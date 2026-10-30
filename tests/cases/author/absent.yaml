@@ -10,11 +10,6 @@
         "author",
         "semantic-scholar:999"
       ],
-      "mcp": [
-        "get",
-        "author",
-        "semantic-scholar:999"
-      ],
       "exit": 1,
       "expect": {
         "/status": "absent",

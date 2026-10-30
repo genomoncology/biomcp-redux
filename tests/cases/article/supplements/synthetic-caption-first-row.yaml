@@ -12,14 +12,6 @@
         "--find",
         "example-hit"
       ],
-      "mcp": [
-        "article",
-        "supplement",
-        "28944238",
-        "MGG3-5-553-s002.xlsx",
-        "--find",
-        "example-hit"
-      ],
       "expect": {
         "/schema": "biomcp.article-supplement/7",
         "/result/content/data/rows/0/first_row": {

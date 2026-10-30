@@ -24,13 +24,7 @@
         },
         "/next/0/kind": "fresh"
       },
-      "max_bytes": 3600,
-      "mcp": [
-        "get",
-        "gene",
-        "TP53",
-        "pathways"
-      ]
+      "max_bytes": 3600
     },
     {
       "run": [

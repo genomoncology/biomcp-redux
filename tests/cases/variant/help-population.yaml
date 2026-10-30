@@ -29,12 +29,6 @@
         "/result/groups/0/ancestry_group": "remaining",
         "/result/groups/1/sex": "xx"
       },
-      "mcp": [
-        "variant",
-        "population",
-        "CA123643",
-        "--detail"
-      ],
       "max_bytes": 2202
     },
     {
@@ -60,15 +54,7 @@
         "/result/groups/9/group_id": "asj_XX",
         "/problems/0/field": "dataset_version"
       },
-      "max_bytes": 2179,
-      "mcp": [
-        "variant",
-        "population",
-        "CA123643",
-        "--detail",
-        "--offset",
-        "10"
-      ]
+      "max_bytes": 2179
     }
   ]
 }

@@ -21,23 +21,6 @@
         "--disable-sources",
         "cbioportal"
       ],
-      "mcp": [
-        "variant",
-        "recurrence",
-        "CA123643",
-        "--source",
-        "cbioportal",
-        "--gene",
-        "BRAF",
-        "--study",
-        "msk_impact_2017",
-        "--profile",
-        "msk_impact_2017_mutations",
-        "--sample-set",
-        "msk_impact_2017_all",
-        "--disable-sources",
-        "cbioportal"
-      ],
       "exit": 4,
       "is_error": true,
       "expect": {
@@ -62,21 +45,6 @@
         "--disable-sources",
         "cbioportal"
       ],
-      "mcp": [
-        "variant",
-        "recurrence",
-        "CA123643",
-        "--source",
-        "cbioportal",
-        "--gene",
-        "BRAF",
-        "--profile",
-        "msk_impact_2017_mutations",
-        "--sample-set",
-        "msk_impact_2017_all",
-        "--disable-sources",
-        "cbioportal"
-      ],
       "exit": 2,
       "is_error": true,
       "expect": {
@@ -86,21 +54,6 @@
     },
     {
       "run": [
-        "variant",
-        "recurrence",
-        "CA123643",
-        "--source",
-        "cbioportal",
-        "--gene",
-        "BRAF",
-        "--study",
-        "msk_impact_2017",
-        "--sample-set",
-        "msk_impact_2017_all",
-        "--disable-sources",
-        "cbioportal"
-      ],
-      "mcp": [
         "variant",
         "recurrence",
         "CA123643",
@@ -138,21 +91,6 @@
         "--disable-sources",
         "cbioportal"
       ],
-      "mcp": [
-        "variant",
-        "recurrence",
-        "CA123643",
-        "--source",
-        "cbioportal",
-        "--gene",
-        "BRAF",
-        "--study",
-        "msk_impact_2017",
-        "--profile",
-        "msk_impact_2017_mutations",
-        "--disable-sources",
-        "cbioportal"
-      ],
       "exit": 2,
       "is_error": true,
       "expect": {
@@ -176,21 +114,6 @@
         "--disable-sources",
         "cbioportal"
       ],
-      "mcp": [
-        "variant",
-        "recurrence",
-        "CA123643",
-        "--source",
-        "cbioportal",
-        "--study",
-        "msk_impact_2017",
-        "--profile",
-        "msk_impact_2017_mutations",
-        "--sample-set",
-        "msk_impact_2017_all",
-        "--disable-sources",
-        "cbioportal"
-      ],
       "exit": 2,
       "is_error": true,
       "expect": {
@@ -200,21 +123,6 @@
     },
     {
       "run": [
-        "variant",
-        "recurrence",
-        "CA123643",
-        "--gene",
-        "BRAF",
-        "--study",
-        "msk_impact_2017",
-        "--profile",
-        "msk_impact_2017_mutations",
-        "--sample-set",
-        "msk_impact_2017_all",
-        "--disable-sources",
-        "cbioportal"
-      ],
-      "mcp": [
         "variant",
         "recurrence",
         "CA123643",

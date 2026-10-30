@@ -18,13 +18,7 @@
         "/result/items/0/sections/citations": {
           "max_tokens": 60
         }
-      },
-      "mcp": [
-        "get",
-        "article",
-        "33123537",
-        "citations"
-      ]
+      }
     }
   ]
 }

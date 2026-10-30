@@ -12,14 +12,6 @@
         "-l",
         "5"
       ],
-      "mcp": [
-        "search",
-        "cell-line",
-        "-q",
-        "MOLM13",
-        "-l",
-        "5"
-      ],
       "expect": {
         "/query/query": "MOLM13",
         "/query/limit": 5

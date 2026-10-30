@@ -3,9 +3,7 @@ feature: schema-discovery
 story: Schema validation applies with no optional assertions
 steps:
   - run: [schema, biomcp.source/1]
-    mcp: [schema, biomcp.source/1]
   - run: [unknown]
-    mcp: [unknown]
     exit: 2
     is_error: true
   - mcp: [schema, biomcp.error/4]

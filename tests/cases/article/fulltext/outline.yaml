@@ -53,13 +53,7 @@
           "1"
         ]
       },
-      "max_bytes": 5495,
-      "mcp": [
-        "get",
-        "article",
-        "28944238",
-        "fulltext"
-      ]
+      "max_bytes": 5495
     },
     {
       "follow": "page",

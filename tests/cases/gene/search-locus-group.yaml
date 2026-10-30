@@ -24,14 +24,7 @@
           "protein_coding",
           "protein_coding"
         ]
-      },
-      "mcp": [
-        "search",
-        "gene",
-        "kinase",
-        "--locus-group",
-        "protein_coding"
-      ]
+      }
     },
     {
       "run": [
@@ -62,17 +55,7 @@
           "--offset",
           "2"
         ]
-      },
-      "mcp": [
-        "search",
-        "gene",
-        "--band",
-        "9p21.3",
-        "--locus-group",
-        "pseudogene",
-        "--limit",
-        "2"
-      ]
+      }
     },
     {
       "run": [
@@ -93,19 +76,7 @@
         "/result/items/*/locus_group": [
           "pseudogene"
         ]
-      },
-      "mcp": [
-        "search",
-        "gene",
-        "--band",
-        "9p21.3",
-        "--locus-group",
-        "pseudogene",
-        "--limit",
-        "2",
-        "--offset",
-        "24"
-      ]
+      }
     },
     {
       "run": [
@@ -118,12 +89,6 @@
         "/error/code": "usage.arguments"
       },
       "exit": 2,
-      "mcp": [
-        "search",
-        "gene",
-        "--locus-group",
-        "protein_coding"
-      ],
       "is_error": true
     }
   ]

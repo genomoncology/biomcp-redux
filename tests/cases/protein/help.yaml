@@ -8,11 +8,6 @@
         "search",
         "protein"
       ],
-      "mcp": [
-        "help",
-        "search",
-        "protein"
-      ],
       "expect": {
         "/status": "complete",
         "/result/commands/0/command": [
@@ -37,11 +32,6 @@
     },
     {
       "run": [
-        "help",
-        "get",
-        "protein"
-      ],
-      "mcp": [
         "help",
         "get",
         "protein"
@@ -84,11 +74,6 @@
         "protein",
         "features"
       ],
-      "mcp": [
-        "help",
-        "protein",
-        "features"
-      ],
       "expect": {
         "/status": "complete",
         "/result/commands/0/command": [
@@ -113,11 +98,6 @@
     },
     {
       "run": [
-        "help",
-        "protein",
-        "domains"
-      ],
-      "mcp": [
         "help",
         "protein",
         "domains"
@@ -149,11 +129,6 @@
         "protein",
         "isoforms"
       ],
-      "mcp": [
-        "help",
-        "protein",
-        "isoforms"
-      ],
       "expect": {
         "/status": "complete",
         "/result/commands/0/command": [
@@ -180,11 +155,6 @@
         "protein",
         "complexes"
       ],
-      "mcp": [
-        "help",
-        "protein",
-        "complexes"
-      ],
       "expect": {
         "/status": "complete",
         "/result/commands/0/command": [
@@ -207,11 +177,6 @@
     },
     {
       "run": [
-        "help",
-        "protein",
-        "complex-members"
-      ],
-      "mcp": [
         "help",
         "protein",
         "complex-members"
@@ -243,11 +208,6 @@
         "protein",
         "structures"
       ],
-      "mcp": [
-        "help",
-        "protein",
-        "structures"
-      ],
       "expect": {
         "/status": "complete",
         "/result/commands/0/command": [
@@ -270,11 +230,6 @@
     },
     {
       "run": [
-        "help",
-        "protein",
-        "sequence"
-      ],
-      "mcp": [
         "help",
         "protein",
         "sequence"

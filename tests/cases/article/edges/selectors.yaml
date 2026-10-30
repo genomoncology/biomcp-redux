@@ -8,11 +8,6 @@
         "references",
         "PMC7573235"
       ],
-      "mcp": [
-        "article",
-        "references",
-        "PMC7573235"
-      ],
       "expect": {
         "/error/code": "usage.arguments"
       },
@@ -21,11 +16,6 @@
     },
     {
       "run": [
-        "article",
-        "citations",
-        "10.1038/nature05933"
-      ],
-      "mcp": [
         "article",
         "citations",
         "10.1038/nature05933"
@@ -44,13 +34,6 @@
         "--source",
         "bad"
       ],
-      "mcp": [
-        "article",
-        "citations",
-        "33123537",
-        "--source",
-        "bad"
-      ],
       "expect": {
         "/error/code": "usage.arguments"
       },
@@ -59,15 +42,6 @@
     },
     {
       "run": [
-        "article",
-        "references",
-        "33123537",
-        "--source",
-        "semantic-scholar",
-        "--limit",
-        "0"
-      ],
-      "mcp": [
         "article",
         "references",
         "33123537",
@@ -92,15 +66,6 @@
         "--limit",
         "51"
       ],
-      "mcp": [
-        "article",
-        "references",
-        "33123537",
-        "--source",
-        "semantic-scholar",
-        "--limit",
-        "51"
-      ],
       "expect": {
         "/error/code": "usage.arguments"
       },
@@ -109,13 +74,6 @@
     },
     {
       "run": [
-        "article",
-        "references",
-        "PPR1295425",
-        "--source",
-        "semantic-scholar"
-      ],
-      "mcp": [
         "article",
         "references",
         "PPR1295425",

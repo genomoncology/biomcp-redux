@@ -12,13 +12,6 @@
         "constraint",
         "clingen"
       ],
-      "mcp": [
-        "get",
-        "gene",
-        "TP53",
-        "constraint",
-        "clingen"
-      ],
       "max_bytes": 3600,
       "expect": {
         "/status": "complete",

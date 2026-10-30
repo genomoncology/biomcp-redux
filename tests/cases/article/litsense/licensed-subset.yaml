@@ -13,13 +13,6 @@
         "--source",
         "litsense"
       ],
-      "mcp": [
-        "search",
-        "article",
-        "xqzvw zzyzxq kinase",
-        "--source",
-        "litsense"
-      ],
       "max_bytes": 5514,
       "expect": {
         "/status": "complete",

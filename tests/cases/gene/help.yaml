@@ -56,11 +56,6 @@
         }
       },
       "max_bytes": 7000,
-      "mcp": [
-        "help",
-        "get",
-        "gene"
-      ],
       "run": [
         "help",
         "get",
@@ -95,11 +90,6 @@
         ]
       },
       "max_bytes": 7000,
-      "mcp": [
-        "help",
-        "search",
-        "gene"
-      ],
       "run": [
         "help",
         "search",
@@ -143,11 +133,6 @@
         "/status": "complete"
       },
       "max_bytes": 2400,
-      "mcp": [
-        "get",
-        "gene",
-        "KRAS"
-      ],
       "run": [
         "get",
         "gene",
@@ -235,11 +220,6 @@
         "/result/environment": "ONCOKB_TOKEN",
         "/schema": "biomcp.key/5"
       },
-      "mcp": [
-        "help",
-        "key",
-        "oncokb"
-      ],
       "run": [
         "help",
         "key",

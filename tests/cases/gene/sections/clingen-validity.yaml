@@ -16,16 +16,6 @@
         "EPCAM",
         "clingen"
       ],
-      "mcp": [
-        "get",
-        "gene",
-        "MLH1",
-        "MSH2",
-        "MSH6",
-        "PMS2",
-        "EPCAM",
-        "clingen"
-      ],
       "max_bytes": 17500,
       "expect": {
         "/status": "complete",

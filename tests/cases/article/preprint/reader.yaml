@@ -11,12 +11,6 @@
         "PPR1295425",
         "fulltext"
       ],
-      "mcp": [
-        "get",
-        "article",
-        "PPR1295425",
-        "fulltext"
-      ],
       "expect": {
         "/status": "complete",
         "/result/items/0/sections/fulltext/state": "data",
@@ -47,13 +41,6 @@
     },
     {
       "run": [
-        "article",
-        "text",
-        "PPR1295425",
-        "--find",
-        "adenoma"
-      ],
-      "mcp": [
         "article",
         "text",
         "PPR1295425",

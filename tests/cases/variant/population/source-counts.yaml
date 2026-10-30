@@ -29,12 +29,6 @@
         "/result/groups/0/ancestry_group": "remaining",
         "/result/groups/1/sex": "xx"
       },
-      "mcp": [
-        "variant",
-        "population",
-        "CA123643",
-        "--detail"
-      ],
       "max_bytes": 2202
     },
     {
@@ -92,12 +86,6 @@
     },
     {
       "run": [
-        "get",
-        "variant",
-        "CA123643",
-        "population"
-      ],
-      "mcp": [
         "get",
         "variant",
         "CA123643",

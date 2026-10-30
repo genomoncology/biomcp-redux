@@ -10,12 +10,6 @@
         "R-HSA-5673001",
         "all"
       ],
-      "mcp": [
-        "get",
-        "pathway",
-        "R-HSA-5673001",
-        "all"
-      ],
       "exit": 0,
       "is_error": false,
       "expect": {

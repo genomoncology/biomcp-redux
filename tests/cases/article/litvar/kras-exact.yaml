@@ -35,17 +35,7 @@
           "33521700",
           "26247207"
         ]
-      },
-      "mcp": [
-        "search",
-        "article",
-        "--gene",
-        "KRAS",
-        "--variant",
-        "G12C",
-        "--source",
-        "litvar"
-      ]
+      }
     },
     {
       "run": [

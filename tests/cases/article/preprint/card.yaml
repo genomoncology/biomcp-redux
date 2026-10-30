@@ -9,11 +9,6 @@
         "article",
         "PPR1064174"
       ],
-      "mcp": [
-        "get",
-        "article",
-        "PPR1064174"
-      ],
       "expect": {
         "/status": "complete",
         "/result/items/0/answer/match/kind": "europepmc-id",

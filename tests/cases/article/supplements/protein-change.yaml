@@ -12,14 +12,6 @@
         "--variant",
         "P245S"
       ],
-      "mcp": [
-        "article",
-        "supplement",
-        "28944238",
-        "MGG3-5-553-s002.xlsx",
-        "--variant",
-        "P245S"
-      ],
       "expect": {
         "/status": "complete",
         "/result/content/data/forms": [

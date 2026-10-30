@@ -11,13 +11,6 @@
         "--disable-sources",
         "myvariant"
       ],
-      "mcp": [
-        "get",
-        "variant",
-        "rs113488022",
-        "--disable-sources",
-        "myvariant"
-      ],
       "expect": {
         "/schema": "biomcp.variant-card/15",
         "/result/resolution": "unavailable",
@@ -33,11 +26,6 @@
         "variant",
         "PTEN c.333G>T"
       ],
-      "mcp": [
-        "get",
-        "variant",
-        "PTEN c.333G>T"
-      ],
       "exit": 2,
       "is_error": true,
       "expect": {
@@ -47,11 +35,6 @@
     },
     {
       "run": [
-        "get",
-        "variant",
-        "BRAF"
-      ],
-      "mcp": [
         "get",
         "variant",
         "BRAF"
@@ -69,11 +52,6 @@
         "variant",
         "chr7:g.140753336A>T"
       ],
-      "mcp": [
-        "get",
-        "variant",
-        "chr7:g.140753336A>T"
-      ],
       "exit": 2,
       "is_error": true,
       "expect": {
@@ -83,13 +61,6 @@
     },
     {
       "run": [
-        "get",
-        "variant",
-        "chr7:p.Val600Glu",
-        "--build",
-        "GRCh38"
-      ],
-      "mcp": [
         "get",
         "variant",
         "chr7:p.Val600Glu",
@@ -111,13 +82,6 @@
         "--limit",
         "0"
       ],
-      "mcp": [
-        "get",
-        "variant",
-        "rs113488022",
-        "--limit",
-        "0"
-      ],
       "exit": 2,
       "is_error": true,
       "expect": {
@@ -127,13 +91,6 @@
     },
     {
       "run": [
-        "get",
-        "variant",
-        "rs113488022",
-        "--limit",
-        "51"
-      ],
-      "mcp": [
         "get",
         "variant",
         "rs113488022",
@@ -155,13 +112,6 @@
         "--offset",
         "-1"
       ],
-      "mcp": [
-        "get",
-        "variant",
-        "rs113488022",
-        "--offset",
-        "-1"
-      ],
       "exit": 2,
       "is_error": true,
       "expect": {
@@ -175,11 +125,6 @@
         "variant",
         "CA434"
       ],
-      "mcp": [
-        "get",
-        "variant",
-        "CA434"
-      ],
       "exit": 2,
       "is_error": true,
       "expect": {
@@ -189,13 +134,6 @@
     },
     {
       "run": [
-        "get",
-        "variant",
-        "ENSG00000157764.1:g.1A>T",
-        "--disable-sources",
-        "car"
-      ],
-      "mcp": [
         "get",
         "variant",
         "ENSG00000157764.1:g.1A>T",
@@ -221,15 +159,6 @@
         "--disable-sources",
         "myvariant"
       ],
-      "mcp": [
-        "get",
-        "variant",
-        "chrMT:g.1A>G",
-        "--build",
-        "GRCh38",
-        "--disable-sources",
-        "myvariant"
-      ],
       "exit": 4,
       "is_error": true,
       "expect": {
@@ -247,13 +176,6 @@
         "--disable-sources",
         "myvariant"
       ],
-      "mcp": [
-        "get",
-        "variant",
-        "ClinVar:577152",
-        "--disable-sources",
-        "myvariant"
-      ],
       "expect": {
         "/query/input": "clinvar:577152",
         "/result/resolution": "unavailable",
@@ -265,13 +187,6 @@
     },
     {
       "run": [
-        "get",
-        "variant",
-        "CLINVAR:577152",
-        "--disable-sources",
-        "myvariant"
-      ],
-      "mcp": [
         "get",
         "variant",
         "CLINVAR:577152",
@@ -295,13 +210,6 @@
         "--disable-sources",
         "myvariant"
       ],
-      "mcp": [
-        "get",
-        "variant",
-        "cLiNvAr:577152",
-        "--disable-sources",
-        "myvariant"
-      ],
       "expect": {
         "/query/input": "clinvar:577152",
         "/result/resolution": "unavailable",
@@ -313,13 +221,6 @@
     },
     {
       "run": [
-        "get",
-        "variant",
-        "NM_000051.4(ATM):c.6115G>A",
-        "--disable-sources",
-        "car,myvariant"
-      ],
-      "mcp": [
         "get",
         "variant",
         "NM_000051.4(ATM):c.6115G>A",

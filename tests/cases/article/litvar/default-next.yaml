@@ -29,15 +29,7 @@
             "E17K"
           ]
         }
-      },
-      "mcp": [
-        "search",
-        "article",
-        "--gene",
-        "AKT1",
-        "--variant",
-        "E17K"
-      ]
+      }
     }
   ]
 }

@@ -11,12 +11,6 @@
         "rs113488022",
         "gwas"
       ],
-      "mcp": [
-        "get",
-        "variant",
-        "rs113488022",
-        "gwas"
-      ],
       "exit": 4,
       "is_error": true,
       "expect": {

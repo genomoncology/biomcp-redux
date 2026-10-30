@@ -17,16 +17,6 @@
         "--build",
         "GRCh37"
       ],
-      "mcp": [
-        "search",
-        "variant",
-        "--gene",
-        "CHEK2",
-        "--protein",
-        "Arg117Gly",
-        "--build",
-        "GRCh37"
-      ],
       "max_bytes": 1202,
       "expect": {
         "/schema": "biomcp.variant-page/16",

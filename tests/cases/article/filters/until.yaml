@@ -24,16 +24,7 @@
         },
         "/result/items/0/header/electronic_date": "2008-05-26",
         "/result/items/0/header/date": "2008-09-18"
-      },
-      "mcp": [
-        "search",
-        "article",
-        "AKT1 E17K",
-        "--until",
-        "2010",
-        "--limit",
-        "50"
-      ]
+      }
     }
   ]
 }

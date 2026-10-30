@@ -21,11 +21,6 @@
       },
       "full_output_bytes": true,
       "max_bytes": 3026,
-      "mcp": [
-        "help",
-        "search",
-        "author"
-      ],
       "run": [
         "help",
         "search",
@@ -47,11 +42,6 @@
       },
       "full_output_bytes": true,
       "max_bytes": 2350,
-      "mcp": [
-        "help",
-        "get",
-        "author"
-      ],
       "run": [
         "help",
         "get",

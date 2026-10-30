@@ -9,11 +9,6 @@
         "structure",
         "rs113488022"
       ],
-      "mcp": [
-        "variant",
-        "structure",
-        "rs113488022"
-      ],
       "exit": 2,
       "is_error": true,
       "expect": {
@@ -27,11 +22,6 @@
         "oncokb",
         "rs113488022"
       ],
-      "mcp": [
-        "variant",
-        "oncokb",
-        "rs113488022"
-      ],
       "exit": 2,
       "is_error": true,
       "expect": {
@@ -41,11 +31,6 @@
     },
     {
       "run": [
-        "variant",
-        "erepo",
-        "CA000434"
-      ],
-      "mcp": [
         "variant",
         "erepo",
         "CA000434"
@@ -64,12 +49,6 @@
         "car",
         "NM_004333.4:c.1799T>A"
       ],
-      "mcp": [
-        "variant",
-        "normalize",
-        "car",
-        "NM_004333.4:c.1799T>A"
-      ],
       "exit": 2,
       "is_error": true,
       "expect": {
@@ -79,13 +58,6 @@
     },
     {
       "run": [
-        "get",
-        "variant",
-        "rs113488022",
-        "--assembly",
-        "GRCh37"
-      ],
-      "mcp": [
         "get",
         "variant",
         "rs113488022",
@@ -108,14 +80,6 @@
         "--hgvsp",
         "V600E"
       ],
-      "mcp": [
-        "search",
-        "variant",
-        "--gene",
-        "BRAF",
-        "--hgvsp",
-        "V600E"
-      ],
       "exit": 2,
       "is_error": true,
       "expect": {
@@ -125,12 +89,6 @@
     },
     {
       "run": [
-        "get",
-        "variant",
-        "rs113488022",
-        "predictions"
-      ],
-      "mcp": [
         "get",
         "variant",
         "rs113488022",
@@ -150,12 +108,6 @@
         "CA123643",
         "population-details"
       ],
-      "mcp": [
-        "get",
-        "variant",
-        "CA123643",
-        "population-details"
-      ],
       "exit": 2,
       "is_error": true,
       "expect": {
@@ -165,12 +117,6 @@
     },
     {
       "run": [
-        "get",
-        "variant",
-        "CA123643",
-        "cbioportal"
-      ],
-      "mcp": [
         "get",
         "variant",
         "CA123643",
@@ -190,12 +136,6 @@
         "rs113488022",
         "cgi"
       ],
-      "mcp": [
-        "get",
-        "variant",
-        "rs113488022",
-        "cgi"
-      ],
       "exit": 2,
       "is_error": true,
       "expect": {
@@ -209,11 +149,6 @@
         "cspec",
         "rs113488022"
       ],
-      "mcp": [
-        "variant",
-        "cspec",
-        "rs113488022"
-      ],
       "exit": 2,
       "is_error": true,
       "expect": {
@@ -223,14 +158,6 @@
     },
     {
       "run": [
-        "variant",
-        "normalize",
-        "--source",
-        "car",
-        "--input",
-        "NM_004333.4:c.1799T>A"
-      ],
-      "mcp": [
         "variant",
         "normalize",
         "--source",

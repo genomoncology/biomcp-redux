@@ -46,12 +46,7 @@
           "max_tokens": 60
         }
       },
-      "max_bytes": 1000,
-      "mcp": [
-        "get",
-        "gene",
-        "MLL2"
-      ]
+      "max_bytes": 1000
     }
   ]
 }

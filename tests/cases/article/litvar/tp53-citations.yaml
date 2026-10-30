@@ -22,19 +22,7 @@
       "expect": {
         "/status": "complete",
         "/page/total": 680
-      },
-      "mcp": [
-        "search",
-        "article",
-        "--gene",
-        "TP53",
-        "--variant",
-        "R337H",
-        "--source",
-        "litvar",
-        "--sort",
-        "citations"
-      ]
+      }
     },
     {
       "run": [

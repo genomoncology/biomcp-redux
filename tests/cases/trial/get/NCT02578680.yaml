@@ -11,11 +11,6 @@
         "trial",
         "NCT02578680"
       ],
-      "mcp": [
-        "get",
-        "trial",
-        "NCT02578680"
-      ],
       "expect": {
         "/status": "complete",
         "/result/items/0/input": "NCT02578680",
@@ -27,12 +22,6 @@
     },
     {
       "run": [
-        "get",
-        "trial",
-        "NCT02578680",
-        "eligibility"
-      ],
-      "mcp": [
         "get",
         "trial",
         "NCT02578680",
@@ -62,12 +51,6 @@
         "NCT02578680",
         "outcomes"
       ],
-      "mcp": [
-        "get",
-        "trial",
-        "NCT02578680",
-        "outcomes"
-      ],
       "expect": {
         "/status": "complete",
         "/result/items/0/card/nct_id": "NCT02578680",
@@ -84,12 +67,6 @@
         "NCT02578680",
         "arms"
       ],
-      "mcp": [
-        "get",
-        "trial",
-        "NCT02578680",
-        "arms"
-      ],
       "expect": {
         "/status": "complete",
         "/result/items/0/card/nct_id": "NCT02578680",
@@ -100,8 +77,8 @@
           "Drug: Cisplatin",
           "Drug: Carboplatin",
           "Drug: Pemetrexed",
-          "Dietary Supplement: Folic acid 350-1000 \u03bcg",
-          "Dietary Supplement: Vitamin B12 1000 \u03bcg",
+          "Dietary Supplement: Folic acid 350-1000 μg",
+          "Dietary Supplement: Vitamin B12 1000 μg",
           "Drug: Dexamethasone 4 mg"
         ]
       },
@@ -109,12 +86,6 @@
     },
     {
       "run": [
-        "get",
-        "trial",
-        "NCT02578680",
-        "all"
-      ],
-      "mcp": [
         "get",
         "trial",
         "NCT02578680",

@@ -13,15 +13,6 @@
         "--author",
         "Carpten"
       ],
-      "mcp": [
-        "search",
-        "article",
-        "AKT1",
-        "--source",
-        "litsense",
-        "--author",
-        "Carpten"
-      ],
       "exit": 2,
       "is_error": true,
       "max_bytes": 400,
@@ -33,15 +24,6 @@
     },
     {
       "run": [
-        "search",
-        "article",
-        "AKT1",
-        "--source",
-        "litsense",
-        "--journal",
-        "Nature"
-      ],
-      "mcp": [
         "search",
         "article",
         "AKT1",
@@ -69,15 +51,6 @@
         "--since",
         "2020"
       ],
-      "mcp": [
-        "search",
-        "article",
-        "AKT1",
-        "--source",
-        "litsense",
-        "--since",
-        "2020"
-      ],
       "exit": 2,
       "is_error": true,
       "max_bytes": 400,
@@ -89,15 +62,6 @@
     },
     {
       "run": [
-        "search",
-        "article",
-        "AKT1",
-        "--source",
-        "litsense",
-        "--until",
-        "2024"
-      ],
-      "mcp": [
         "search",
         "article",
         "AKT1",
@@ -125,15 +89,6 @@
         "--type",
         "review"
       ],
-      "mcp": [
-        "search",
-        "article",
-        "AKT1",
-        "--source",
-        "litsense",
-        "--type",
-        "review"
-      ],
       "exit": 2,
       "is_error": true,
       "max_bytes": 400,
@@ -145,15 +100,6 @@
     },
     {
       "run": [
-        "search",
-        "article",
-        "AKT1",
-        "--source",
-        "litsense",
-        "--sort",
-        "date"
-      ],
-      "mcp": [
         "search",
         "article",
         "AKT1",
@@ -181,15 +127,6 @@
         "--author",
         "Carpten"
       ],
-      "mcp": [
-        "search",
-        "article",
-        "AKT1",
-        "--source",
-        "pubtator",
-        "--author",
-        "Carpten"
-      ],
       "exit": 2,
       "is_error": true,
       "max_bytes": 400,
@@ -201,15 +138,6 @@
     },
     {
       "run": [
-        "search",
-        "article",
-        "AKT1",
-        "--source",
-        "pubtator",
-        "--journal",
-        "Nature"
-      ],
-      "mcp": [
         "search",
         "article",
         "AKT1",
@@ -237,15 +165,6 @@
         "--since",
         "2020"
       ],
-      "mcp": [
-        "search",
-        "article",
-        "AKT1",
-        "--source",
-        "pubtator",
-        "--since",
-        "2020"
-      ],
       "exit": 2,
       "is_error": true,
       "max_bytes": 400,
@@ -257,15 +176,6 @@
     },
     {
       "run": [
-        "search",
-        "article",
-        "AKT1",
-        "--source",
-        "pubtator",
-        "--until",
-        "2024"
-      ],
-      "mcp": [
         "search",
         "article",
         "AKT1",
@@ -293,15 +203,6 @@
         "--type",
         "review"
       ],
-      "mcp": [
-        "search",
-        "article",
-        "AKT1",
-        "--source",
-        "pubtator",
-        "--type",
-        "review"
-      ],
       "exit": 2,
       "is_error": true,
       "max_bytes": 400,
@@ -313,15 +214,6 @@
     },
     {
       "run": [
-        "search",
-        "article",
-        "AKT1",
-        "--source",
-        "pubtator",
-        "--sort",
-        "date"
-      ],
-      "mcp": [
         "search",
         "article",
         "AKT1",

@@ -20,13 +20,7 @@
         },
         "/result/items/0/sections/civic/data/id/id": 20
       },
-      "max_bytes": 6200,
-      "mcp": [
-        "get",
-        "gene",
-        "ERBB2",
-        "civic"
-      ]
+      "max_bytes": 6200
     }
   ]
 }

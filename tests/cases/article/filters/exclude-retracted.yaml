@@ -11,12 +11,6 @@
         "AKT1 E17K",
         "--exclude-retracted"
       ],
-      "mcp": [
-        "search",
-        "article",
-        "AKT1 E17K",
-        "--exclude-retracted"
-      ],
       "max_bytes": 3337,
       "expect": {
         "/status": "complete",

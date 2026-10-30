@@ -11,12 +11,6 @@
         "PPR1064174",
         "fulltext"
       ],
-      "mcp": [
-        "get",
-        "article",
-        "PPR1064174",
-        "fulltext"
-      ],
       "expect": {
         "/status": "partial",
         "/result/items/0/sections/fulltext/state": "unavailable",
@@ -36,13 +30,6 @@
         "1"
       ],
       "exit": 4,
-      "mcp": [
-        "article",
-        "text",
-        "PPR1064174",
-        "--part",
-        "1"
-      ],
       "expect": {
         "/status": "failed",
         "/result/content/state": "unavailable",

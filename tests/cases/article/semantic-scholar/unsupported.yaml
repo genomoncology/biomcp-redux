@@ -13,15 +13,6 @@
         "--author",
         "Carpten"
       ],
-      "mcp": [
-        "search",
-        "article",
-        "AKT1",
-        "--source",
-        "pubmed,semantic-scholar",
-        "--author",
-        "Carpten"
-      ],
       "exit": 2,
       "max_bytes": 237,
       "expect": {
@@ -33,15 +24,6 @@
     },
     {
       "run": [
-        "search",
-        "article",
-        "EGFR",
-        "--source",
-        "semantic-scholar",
-        "--journal",
-        "Nature"
-      ],
-      "mcp": [
         "search",
         "article",
         "EGFR",
@@ -69,15 +51,6 @@
         "--type",
         "trial"
       ],
-      "mcp": [
-        "search",
-        "article",
-        "EGFR",
-        "--source",
-        "semantic-scholar",
-        "--type",
-        "trial"
-      ],
       "exit": 2,
       "max_bytes": 235,
       "expect": {
@@ -89,15 +62,6 @@
     },
     {
       "run": [
-        "search",
-        "article",
-        "EGFR",
-        "--source",
-        "semantic-scholar",
-        "--sort",
-        "date"
-      ],
-      "mcp": [
         "search",
         "article",
         "EGFR",

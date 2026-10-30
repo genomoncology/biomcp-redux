@@ -12,12 +12,6 @@
         "clinvar:128042",
         "clinvar"
       ],
-      "mcp": [
-        "get",
-        "variant",
-        "clinvar:128042",
-        "clinvar"
-      ],
       "offline": false,
       "exit": 0,
       "is_error": false,
@@ -47,12 +41,6 @@
         "clinvar:128042",
         "clinvar"
       ],
-      "mcp": [
-        "get",
-        "variant",
-        "clinvar:128042",
-        "clinvar"
-      ],
       "offline": false,
       "exit": 0,
       "is_error": false,
@@ -77,12 +65,6 @@
     },
     {
       "run": [
-        "get",
-        "variant",
-        "clinvar:128042",
-        "clinvar"
-      ],
-      "mcp": [
         "get",
         "variant",
         "clinvar:128042",

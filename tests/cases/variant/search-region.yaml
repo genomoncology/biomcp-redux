@@ -17,16 +17,6 @@
         "--limit",
         "2"
       ],
-      "mcp": [
-        "search",
-        "variant",
-        "--region",
-        "chr7:55259515-55259515",
-        "--build",
-        "GRCh37",
-        "--limit",
-        "2"
-      ],
       "max_bytes": 1525,
       "expect": {
         "/schema": "biomcp.variant-page/16",

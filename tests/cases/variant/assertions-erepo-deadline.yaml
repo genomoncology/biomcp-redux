@@ -12,12 +12,6 @@
         "CA000434",
         "erepo"
       ],
-      "mcp": [
-        "get",
-        "variant",
-        "CA000434",
-        "erepo"
-      ],
       "offline": false,
       "exit": 4,
       "is_error": true,
@@ -34,12 +28,6 @@
     },
     {
       "run": [
-        "get",
-        "variant",
-        "CA000434",
-        "erepo"
-      ],
-      "mcp": [
         "get",
         "variant",
         "CA000434",

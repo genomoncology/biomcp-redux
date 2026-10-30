@@ -15,11 +15,6 @@
         "article",
         "33123537"
       ],
-      "mcp": [
-        "get",
-        "article",
-        "33123537"
-      ],
       "expect": {
         "/status": "complete",
         "/next": [

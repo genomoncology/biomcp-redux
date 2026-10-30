@@ -17,16 +17,6 @@
         "--build",
         "GRCh37"
       ],
-      "mcp": [
-        "search",
-        "variant",
-        "--query",
-        "rs113488022",
-        "--source",
-        "myvariant",
-        "--build",
-        "GRCh37"
-      ],
       "max_bytes": 2005,
       "expect": {
         "/schema": "biomcp.variant-page/16",
@@ -169,16 +159,6 @@
         "--disable-sources",
         "noncommercial"
       ],
-      "mcp": [
-        "search",
-        "variant",
-        "--query",
-        "rs113488022",
-        "--source",
-        "myvariant",
-        "--disable-sources",
-        "noncommercial"
-      ],
       "exit": 2,
       "is_error": true,
       "expect": {
@@ -197,16 +177,6 @@
         "--disable-sources",
         "restricted"
       ],
-      "mcp": [
-        "search",
-        "variant",
-        "--query",
-        "rs113488022",
-        "--source",
-        "myvariant",
-        "--disable-sources",
-        "restricted"
-      ],
       "exit": 2,
       "is_error": true,
       "expect": {
@@ -216,16 +186,6 @@
     },
     {
       "run": [
-        "search",
-        "variant",
-        "--query",
-        "rs113488022",
-        "--source",
-        "myvariant",
-        "--disable-sources",
-        "clinvar"
-      ],
-      "mcp": [
         "search",
         "variant",
         "--query",

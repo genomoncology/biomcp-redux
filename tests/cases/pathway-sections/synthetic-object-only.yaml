@@ -9,11 +9,6 @@
         "events",
         "R-HSA-5673001"
       ],
-      "mcp": [
-        "pathway",
-        "events",
-        "R-HSA-5673001"
-      ],
       "exit": 0,
       "is_error": false,
       "expect": {

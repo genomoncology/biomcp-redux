@@ -13,14 +13,6 @@
         "semantic-scholar",
         "--open-access"
       ],
-      "mcp": [
-        "search",
-        "article",
-        "AKT1 E17K",
-        "--source",
-        "semantic-scholar",
-        "--open-access"
-      ],
       "expect": {
         "/status": "complete",
         "/sources/0/term": "AKT1 E17K",

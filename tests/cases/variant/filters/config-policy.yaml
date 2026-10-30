@@ -17,14 +17,6 @@
         "--source",
         "myvariant"
       ],
-      "mcp": [
-        "search",
-        "variant",
-        "--query",
-        "rs113488022",
-        "--source",
-        "myvariant"
-      ],
       "exit": 2,
       "is_error": true,
       "expect": {

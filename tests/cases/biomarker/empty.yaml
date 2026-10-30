@@ -15,11 +15,6 @@
         "biomarker",
         "C96022"
       ],
-      "mcp": [
-        "get",
-        "biomarker",
-        "C96022"
-      ],
       "expect": {
         "/status": "absent",
         "/sources/0/count": 0

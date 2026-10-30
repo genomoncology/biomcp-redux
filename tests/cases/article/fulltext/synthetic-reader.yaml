@@ -19,13 +19,6 @@
           "Introduction"
         ]
       },
-      "mcp": [
-        "article",
-        "text",
-        "PMC5606870",
-        "--part",
-        "1"
-      ],
       "max_tokens": 4000
     },
     {

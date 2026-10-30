@@ -11,12 +11,6 @@
         "41351423",
         "pdf"
       ],
-      "mcp": [
-        "get",
-        "article",
-        "41351423",
-        "pdf"
-      ],
       "max_bytes": 3500,
       "expect": {
         "/result/items/0/sections/pdf/state": "data",

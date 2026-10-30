@@ -12,13 +12,6 @@
         "--source",
         "pubmed,semantic-scholar"
       ],
-      "mcp": [
-        "search",
-        "article",
-        "EGFR T790M osimertinib",
-        "--source",
-        "pubmed,semantic-scholar"
-      ],
       "max_bytes": 2061,
       "expect": {
         "/status": "complete",
@@ -56,13 +49,6 @@
     },
     {
       "run": [
-        "search",
-        "article",
-        "EGFR T790M osimertinib",
-        "--source",
-        "semantic-scholar"
-      ],
-      "mcp": [
         "search",
         "article",
         "EGFR T790M osimertinib",

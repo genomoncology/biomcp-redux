@@ -13,14 +13,6 @@
         "28944238",
         "indexing"
       ],
-      "mcp": [
-        "get",
-        "article",
-        "33123537",
-        "35440569",
-        "28944238",
-        "indexing"
-      ],
       "expect": {
         "/result/items/0/sections/indexing/state": "data",
         "/result/items/0/sections/indexing/data/affiliations/total": 7,

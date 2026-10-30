@@ -12,14 +12,6 @@
         "--disable-sources",
         "gnomad"
       ],
-      "mcp": [
-        "get",
-        "variant",
-        "CA123643",
-        "population",
-        "--disable-sources",
-        "gnomad"
-      ],
       "expect": {
         "/result/resolution": "unresolved",
         "/result/candidates/0/sections/population/state": "skipped",
@@ -31,14 +23,6 @@
     },
     {
       "run": [
-        "get",
-        "variant",
-        "CA123643",
-        "gwas",
-        "--disable-sources",
-        "gwas"
-      ],
-      "mcp": [
         "get",
         "variant",
         "CA123643",

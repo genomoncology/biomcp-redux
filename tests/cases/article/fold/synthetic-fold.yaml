@@ -14,15 +14,6 @@
         "--limit",
         "2"
       ],
-      "mcp": [
-        "search",
-        "article",
-        "AKT1 E17K",
-        "--source",
-        "pubmed,europepmc",
-        "--limit",
-        "2"
-      ],
       "max_bytes": 1394,
       "expect": {
         "/status": "complete",

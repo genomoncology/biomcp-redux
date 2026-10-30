@@ -50,13 +50,7 @@
           "includes": "rna_tissue_ntpm"
         }
       },
-      "max_bytes": 3500,
-      "mcp": [
-        "get",
-        "gene",
-        "CLDN18",
-        "expression"
-      ]
+      "max_bytes": 3500
     }
   ]
 }

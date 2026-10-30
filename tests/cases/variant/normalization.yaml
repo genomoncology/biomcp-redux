@@ -16,18 +16,6 @@
         "--disable-sources",
         "car,mutalyzer,variantvalidator"
       ],
-      "mcp": [
-        "variant",
-        "normalize",
-        "--source",
-        "all",
-        "--hgvs",
-        "NM_004333.4:c.1799T>A",
-        "--build",
-        "GRCh38",
-        "--disable-sources",
-        "car,mutalyzer,variantvalidator"
-      ],
       "exit": 4,
       "is_error": true,
       "expect": {

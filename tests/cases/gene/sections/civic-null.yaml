@@ -21,13 +21,7 @@
           }
         }
       },
-      "max_bytes": 3200,
-      "mcp": [
-        "get",
-        "gene",
-        "ERBB2",
-        "civic"
-      ]
+      "max_bytes": 3200
     }
   ]
 }

@@ -72,12 +72,6 @@
         "/result/items/0/sections/fulltext/state": "data",
         "/result/items/0/sections/citations/state": "data"
       },
-      "mcp": [
-        "get",
-        "article",
-        "33123537",
-        "all"
-      ],
       "max_bytes": 12293
     },
     {

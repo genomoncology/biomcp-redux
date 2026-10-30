@@ -12,13 +12,6 @@
         "--source",
         "semantic-scholar"
       ],
-      "mcp": [
-        "article",
-        "references",
-        "PMC7573235",
-        "--source",
-        "semantic-scholar"
-      ],
       "expect": {
         "/status": "complete",
         "/page/total": 116,
