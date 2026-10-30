@@ -116,7 +116,7 @@
             "id": "DDInter1",
             "name": "Synthetic Anchor One",
             "identity_level": "unknown",
-            "namespace": "ddinter"
+            "source": "ddinter"
           }
         },
         "/result/interactions/data/records/0/anchor": {

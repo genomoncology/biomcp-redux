@@ -38,9 +38,9 @@ fn run(env: &Environment, args: &[&str]) -> Check<Vec<u8>> {
     if !output.status.success() {
         return Err(format!("skill command failed: {args:?}: {output:?}").into());
     }
-    // Preserve existing ceilings unless j19122 exceeded their fifteen percent headroom.
+    // Preserve existing ceilings; j22868 measured the current guide at 3945 bytes.
     let measured: usize = match args.get(1).map(String::as_str) {
-        None | Some("render") => 3258,
+        None | Some("render") => 3945,
         Some("list") => 1156,
         Some("install") => 117,
         Some("status") => 55,

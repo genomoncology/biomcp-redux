@@ -257,7 +257,7 @@ impl SectionValue {
             return false;
         };
         match self {
-            Self::Civic(Section::Data { data, .. }) => record.as_str() == data.id.to_string(),
+            Self::Civic(Section::Data { data, .. }) => record.as_str() == data.id.id.to_string(),
             Self::Civic(Section::Empty {
                 record: Some(entry),
                 ..
