@@ -113,7 +113,7 @@ pub fn search(leg: &Leg<'_>, query: &PgxSearch) -> Result<Page<PgxPair>, Request
                     && query
                         .cpic_level()
                         .is_none_or(|v| r.cpiclevel.as_deref() == Some(v.as_str()))
-            }) && ordered(rows.iter().map(|r| r.pairid))
+            }) && ordered(rows.iter().map(|r| r.pairid.id))
         },
     )
 }
@@ -164,7 +164,7 @@ pub fn recommendations(
                 r.lookupkey
                     .keys()
                     .any(|k| k.to_string() == query.gene().to_string())
-            }) && ordered(rows.iter().map(|r| r.recommendationid))
+            }) && ordered(rows.iter().map(|r| r.recommendationid.id))
         },
     )
 }
@@ -198,7 +198,7 @@ pub fn drug_recommendations(
                     && r.lookupkey
                         .keys()
                         .any(|k| k.to_string() == query.gene().to_string())
-            }) && ordered(rows.iter().map(|r| r.id))
+            }) && ordered(rows.iter().map(|r| r.id.id))
         },
     )
 }

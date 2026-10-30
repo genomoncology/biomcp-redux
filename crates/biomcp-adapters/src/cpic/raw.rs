@@ -29,7 +29,7 @@ pgx_row! { PgxGeneIdentity => biodata::PgxGeneIdentity, record symbol {
 }}
 pgx_row! { PgxPair => biodata::PgxPair, record pairid {
     identity {
-        pairid: i64 => "pairid",
+        pairid: i64 => "pairid" as "CPIC",
         genesymbol: GeneSymbol => "genesymbol",
     }
     values {
@@ -55,7 +55,7 @@ pgx_row! { PgxPair => biodata::PgxPair, record pairid {
 }}
 pgx_row! { PgxRecommendation => biodata::PgxRecommendation, record recommendationid {
     identity {
-        recommendationid: i64 => "recommendationid",
+        recommendationid: i64 => "recommendationid" as "CPIC",
         lookupkey: BTreeMap<PgxGeneKey, Box<str>> => "lookupkey",
     }
     values {
@@ -81,12 +81,12 @@ pgx_row! { PgxRecommendation => biodata::PgxRecommendation, record recommendatio
 }}
 pgx_row! { PgxDrugRecommendation => biodata::PgxDrugRecommendation, record id {
     identity {
-        id: i64 => "id",
+        id: i64 => "id" as "CPIC",
         drugid: Curie => "drugid",
         lookupkey: BTreeMap<PgxGeneKey, Box<str>> => "lookupkey",
     }
     values {
-        guidelineid: i64 => "guidelineid",
+        guidelineid: i64 => "guidelineid" as "CPIC",
         implications: BTreeMap<PgxGeneKey, Box<str>> => "implications",
         drugrecommendation: Box<str> => "drugrecommendation",
         classification: Box<str> => "classification",

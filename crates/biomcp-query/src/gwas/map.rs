@@ -7,7 +7,7 @@ pub(crate) fn association(
 ) -> GwasAssociation {
     let exact_p_value = row.exact_p_value();
     problems.extend(row.problems);
-    let record = row.association_id.to_string().parse().ok();
+    let record = row.association_id.get().to_string().parse().ok();
     GwasAssociation {
         id: row.association_id,
         study: row.accession_id,

@@ -63,7 +63,8 @@
                 },
                 "source": "myvariant",
                 "record": {
-                  "id": "chr22:g.29121326T>C"
+                  "id": "chr22:g.29121326T>C",
+                  "namespace": null
                 },
                 "component_terms": [
                   {
@@ -130,7 +131,8 @@
                 },
                 "source": "myvariant",
                 "record": {
-                  "id": "chr22:g.29121326T>C"
+                  "id": "chr22:g.29121326T>C",
+                  "namespace": null
                 },
                 "component_terms": [
                   {

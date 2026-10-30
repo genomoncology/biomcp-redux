@@ -217,7 +217,7 @@ fn append(q: &GwasSearch, saved: &mut Saved, page: gwas::Page) -> Result<(), Req
         let Some(exact) = row.exact_p_value() else {
             let problem = biomcp_types::Problem {
                 source: Source::Gwas,
-                record: row.association_id.to_string().parse().ok(),
+                record: row.association_id.get().to_string().parse().ok(),
                 field: "pvalue_mantissa".into(),
                 code: biomcp_types::ProblemCode::ValueUnknown,
             };

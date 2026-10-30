@@ -177,7 +177,7 @@ pub struct CellLineChemblRecord {
     /// Native cell ChEMBL ID, never a compound or target.
     pub id: ChemblCellId,
     /// Independent native integer cell record identity.
-    pub cell_id: u64,
+    pub cell_id: biodata::Identifier<u64>,
     /// Native exact accession; adapter verifies the join.
     pub cellosaurus_id: CellosaurusAccession,
     /// Native display name without name-based joining.

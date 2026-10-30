@@ -54,7 +54,7 @@ pub struct PgxAnnotationDetail {
     /// Native `conflictingVariantAnnotationIds`; literal source value.
     #[serde(rename = "conflictingVariantAnnotationIds")]
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
-    pub conflicting_variant_annotation_ids: Box<[i64]>,
+    pub conflicting_variant_annotation_ids: Box<[crate::Identifier<i64>]>,
     /// Native `history`; literal source value.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub history: Box<[PgxAnnotationHistory]>,

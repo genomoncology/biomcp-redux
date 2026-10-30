@@ -133,10 +133,14 @@ impl Raw {
                     header.pmcid = p.optional("pmcid", Some(id.parse()));
                 }
                 _ => {
-                    if let Some(id) =
-                        p.optional("external_ids", Some(format!("{namespace}:{text}").parse()))
-                    {
-                        external.push(AuthorPaperExternalId { id });
+                    if let (Some(id), Some(namespace)) = (
+                        p.optional("external_ids", Some(format!("{namespace}:{text}").parse())),
+                        p.optional(
+                            "external_ids.namespace",
+                            Some(crate::mapped::text(&namespace)),
+                        ),
+                    ) {
+                        external.push(AuthorPaperExternalId { namespace, id });
                     }
                 }
             }

@@ -59,7 +59,7 @@ pgx_row! { PgxAnnotationDetail => biodata::PgxAnnotationDetail, record accession
         location: PgxLocation => "location",
     }
     lists {
-        #[serde(rename = "conflictingVariantAnnotationIds")] conflicting_variant_annotation_ids: i64 => "conflictingVariantAnnotationIds",
+        #[serde(rename = "conflictingVariantAnnotationIds")] conflicting_variant_annotation_ids: i64 => "conflictingVariantAnnotationIds" as "ClinPGx",
         types: Box<str> => "types",
     }
     nested_lists {

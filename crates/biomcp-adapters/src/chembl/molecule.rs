@@ -129,7 +129,7 @@ fn cross_references(
             references.push(DrugIdentityRelation {
                 identity: DrugIdentity {
                     id,
-                    source,
+                    namespace: source,
                     name,
                     identity_level: DrugIdentityLevel::Unknown,
                     r#type: None,

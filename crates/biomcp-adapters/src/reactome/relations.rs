@@ -40,7 +40,11 @@ pub fn members(leg: &Leg<'_>, id: &ReactomeId) -> Result<Mapped<Members>, Reques
         physical_entities: rows.0.len() as u64,
     };
     for row in rows.0 {
-        let participant = participant(&row, &mut problems);
+        let participant = participant(
+            &row,
+            &mut problems,
+            crate::mapped::text("Reactome").map_err(|_| bad_reply())?,
+        );
         for reference in row.ref_entities {
             value.reference_occurrences += 1;
             let (namespace, identifier) = reference.st_id.split_once(':').ok_or_else(bad_reply)?;
@@ -105,6 +109,7 @@ pub fn members(leg: &Leg<'_>, id: &ReactomeId) -> Result<Mapped<Members>, Reques
 fn participant(
     row: &raw::Participant,
     problems: &mut crate::mapped::Problems,
+    namespace: biodata::Text,
 ) -> PathwayParticipant {
     let name = metadata(
         problems,
@@ -119,10 +124,7 @@ fn participant(
         false,
     );
     PathwayParticipant {
-        db_id: biodata::Identifier::new(
-            crate::mapped::text("Reactome").map_err(|_| bad_reply())?,
-            row.pe_db_id,
-        ),
+        db_id: biodata::Identifier::new(namespace, row.pe_db_id),
         name,
         schema_class,
     }

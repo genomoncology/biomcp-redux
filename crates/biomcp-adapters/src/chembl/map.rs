@@ -22,7 +22,7 @@ pub fn targets(
         let target = problems
             .checked_text("target_chembl_id", r.target_chembl_id.as_deref())
             .map(|id| DrugNativeTarget {
-                source,
+                namespace: source,
                 id,
                 label: None,
                 url: None,
@@ -72,7 +72,7 @@ pub fn indications(
     let mut rejected = Vec::new();
     for r in rows {
         let mut problems = Problems {
-            namespace: biomcp_types::Source::Chembl,
+            source: biomcp_types::Source::Chembl,
             record: crate::mapped::record(r.drugind_id),
             list: r.problems,
         };

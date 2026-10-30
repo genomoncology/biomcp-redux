@@ -60,7 +60,7 @@ pub(super) fn selectors() -> Result<(), String> {
         let args = [vec!["search", "gwas"], args].concat();
         let replay = seed(&env, &args, body(&url, 0, 6), 200, 0)?;
         let v = call("gwas_search/wire/selectors/1", &env, &replay, &args, 0)?;
-        if v.pointer("/result/items/0/id") != Some(&json!(6110))
+        if v.pointer("/result/items/0/id") != Some(&json!("association:6110"))
             || v.pointer("/query/query/order") != Some(&json!("p_value,asc"))
         {
             return Err(format!("selector lost: {v}"));
@@ -117,7 +117,7 @@ pub(super) fn paging() -> Result<(), String> {
         .map(|v| v.as_str().ok_or("arg"))
         .collect::<Result<Vec<_>, _>>()?;
     let second = call("gwas_search/wire/paging/2", &env, &replay, &args, 0)?;
-    if second.pointer("/result/items/0/id") != Some(&json!(6113))
+    if second.pointer("/result/items/0/id") != Some(&json!("association:6113"))
         || second.pointer("/page/offset") != Some(&json!(3))
     {
         return Err(format!("native page: {second}"));
@@ -129,7 +129,7 @@ pub(super) fn paging() -> Result<(), String> {
         &["search", "gwas", "--pubmed", "17529967", "--offset", "1"],
         0,
     )?;
-    if between.pointer("/result/items/0/id") != Some(&json!(6111))
+    if between.pointer("/result/items/0/id") != Some(&json!("association:6111"))
         || between.pointer("/page/returned") != Some(&json!(2))
     {
         return Err("offset must skip within one native page".into());
@@ -153,7 +153,7 @@ pub(super) fn surfaces() -> Result<(), String> {
         false,
         &env.globals(Some(&replay), false),
     )?;
-    if value.pointer("/result/items/0/id") != Some(&json!(6110)) {
+    if value.pointer("/result/items/0/id") != Some(&json!("association:6110")) {
         return Err("MCP argument mapping".into());
     }
     let mut md = env.globals(Some(&replay), false);

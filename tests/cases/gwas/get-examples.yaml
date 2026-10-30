@@ -17,7 +17,7 @@
       ],
       "expect": {
         "/status": "complete",
-        "/result/association/id": 6114
+        "/result/association/id": "association:6114"
       },
       "max_bytes": 851
     },

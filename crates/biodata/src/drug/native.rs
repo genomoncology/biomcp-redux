@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 /// One source-native target identity, without inventing a gene label.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", schemars(extend("x-identifier" = true)))]
 pub struct DrugNativeTarget {
     /// Source responsible for the native identifier.
     pub namespace: Text,

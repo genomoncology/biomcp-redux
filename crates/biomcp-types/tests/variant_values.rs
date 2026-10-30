@@ -483,7 +483,7 @@ fn card_ids_requested_and_statement_subjects_share_published_text()
             "resolution":"unresolved", "source":"erepo",
             "candidates":[{
                 "identity":{"ids":[id]}, "requested":id,
-                "source":"erepo", "record":{"id":"synthetic-record"},
+                "source":"erepo", "record":{"namespace":null,"id":"synthetic-record"},
                 "sections":{"erepo":{"state":"data", "source":"erepo", "data":{
                     "assertions":[{"kind":"erepo", "domain":"germline", "statement":{
                         "subject":{"level":"allele", "id":id},

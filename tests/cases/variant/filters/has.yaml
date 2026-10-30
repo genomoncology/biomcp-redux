@@ -65,7 +65,8 @@
               },
               "source": "myvariant",
               "record": {
-                "id": "chr7:g.140453136A>T"
+                "id": "chr7:g.140453136A>T",
+                "namespace": null
               },
               "component_terms": [
                 {
@@ -101,7 +102,8 @@
               },
               "source": "myvariant",
               "record": {
-                "id": "chr7:g.140453136A>C"
+                "id": "chr7:g.140453136A>C",
+                "namespace": null
               },
               "component_terms": [
                 {
@@ -137,7 +139,8 @@
               },
               "source": "myvariant",
               "record": {
-                "id": "chr7:g.140453134_140453136del"
+                "id": "chr7:g.140453134_140453136del",
+                "namespace": null
               },
               "component_terms": [
                 {
@@ -230,7 +233,8 @@
               },
               "source": "myvariant",
               "record": {
-                "id": "chr7:g.140453136A>T"
+                "id": "chr7:g.140453136A>T",
+                "namespace": null
               },
               "component_terms": [
                 {
@@ -266,7 +270,8 @@
               },
               "source": "myvariant",
               "record": {
-                "id": "chr7:g.140453136A>C"
+                "id": "chr7:g.140453136A>C",
+                "namespace": null
               },
               "component_terms": [
                 {
@@ -302,7 +307,8 @@
               },
               "source": "myvariant",
               "record": {
-                "id": "chr7:g.140453134_140453136del"
+                "id": "chr7:g.140453134_140453136del",
+                "namespace": null
               },
               "component_terms": [
                 {
@@ -400,7 +406,8 @@
               },
               "source": "myvariant",
               "record": {
-                "id": "chr7:g.140453136A>T"
+                "id": "chr7:g.140453136A>T",
+                "namespace": null
               },
               "component_terms": [
                 {
@@ -436,7 +443,8 @@
               },
               "source": "myvariant",
               "record": {
-                "id": "chr7:g.140453136A>C"
+                "id": "chr7:g.140453136A>C",
+                "namespace": null
               },
               "component_terms": [
                 {
@@ -472,7 +480,8 @@
               },
               "source": "myvariant",
               "record": {
-                "id": "chr7:g.140453134_140453136del"
+                "id": "chr7:g.140453134_140453136del",
+                "namespace": null
               },
               "component_terms": [
                 {

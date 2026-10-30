@@ -49,7 +49,13 @@ pub(super) fn therapies(
                 url: None,
             });
         }
-        native.push(CivicTherapy { id, label });
+        native.push(CivicTherapy {
+            id: id.map(|id| biodata::Identifier {
+                namespace: crate::mapped::text("CIViC").ok(),
+                id,
+            }),
+            label,
+        });
     }
     (native.into(), headers.into())
 }
