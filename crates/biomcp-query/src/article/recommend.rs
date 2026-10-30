@@ -75,7 +75,7 @@ fn execute<'a>(
         None => {
             let items = create(cx, query, deadline, out)?;
             store.set_deadline(*deadline);
-            store.publish(&key, &items, &out.sources, &out.problems)?
+            store.publish(&key, &items, &out.sources, &out.problems, out.dropped)?
         }
     };
     out.sources = pool.sources.clone();
@@ -110,6 +110,7 @@ fn create<'a>(
         reply.as_ref().err().copied(),
     ));
     let reply = reply?;
+    out.include_refusals(reply.refusals);
     out.problems.extend(reply.problems);
     let dois: Vec<_> = reply
         .recommended_papers

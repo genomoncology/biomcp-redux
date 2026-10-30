@@ -79,6 +79,7 @@ pub(super) fn read<'a>(
         crate::status::item(out, false, true, false);
         return Ok(());
     }
+    out.dropped |= pool.dropped;
     status::append(&mut out.problems, pool.problems.clone());
     let id = pool.info.id.as_str();
     let mut rows = store.page(id, query.offset(), query.limit())?;
@@ -95,6 +96,7 @@ pub(super) fn read<'a>(
         store.set_deadline(consume(deadline, started, leg.remaining()));
         match result {
             Ok(mapped) => {
+                out.include_refusals(mapped.refusals);
                 let source = status::source(Source::PubMed, leg.finish(), None);
                 if let Some(current) = out.sources.iter_mut().find(|s| s.source == Source::PubMed) {
                     status::retain_source_state(current, &source);
@@ -139,11 +141,7 @@ fn finish(query: Cursor<'_>, pool: &Pool, rows: Vec<StoredItem>, out: &mut Outco
         .iter()
         .any(|s| s.state == biomcp_types::SourceState::Stale);
     let failed = sources::failed(&out.sources);
-    let partial = stale
-        || failed
-        || rows.iter().any(|r| {
-            r.item.header.is_none() || r.problems.iter().any(|p| p.source == Source::Icite)
-        });
+    let partial = stale || failed || rows.iter().any(|r| r.item.header.is_none());
     for row in &rows {
         status::append(&mut out.problems, row.problems.clone());
     }

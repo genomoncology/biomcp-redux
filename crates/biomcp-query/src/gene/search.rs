@@ -12,8 +12,9 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &GeneSearch) -> Outcome {
         .fetch
         .leg(&hgnc::SPEC, cx.fetch.deadline(cx.budget))
         .fresh(cx.fresh);
+    let mut dropped = false;
     let mut problems = Vec::new();
-    let result = collect(&leg, query, &mut problems);
+    let result = collect(&leg, query, &mut problems, &mut dropped);
     let error = result.as_ref().err().copied();
     let source = status::source(Source::Hgnc, leg.finish(), error);
     let state = match (&result, source.state) {
@@ -51,7 +52,7 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &GeneSearch) -> Outcome {
     crate::status::finish(
         [state],
         crate::status::Parts {
-            dropped: false,
+            dropped,
             body: QueryBody::GenePage(biomcp_types::GenePage {
                 items: items.into(),
             }),
@@ -67,9 +68,11 @@ fn collect(
     leg: &Leg<'_>,
     query: &GeneSearch,
     problems: &mut Vec<biomcp_types::Problem>,
+    dropped: &mut bool,
 ) -> Result<Vec<(u8, GeneHeader)>, RequestError> {
     let Some(text) = query.query() else {
         let rows = hgnc::in_band(leg, query.band().map_or("", |band| band.as_str()))?;
+        *dropped |= rows.refusals == biomcp_adapters::Refusal::Refused;
         status::append(problems, rows.problems);
         return Ok(rows.value.into_iter().map(|header| (0, header)).collect());
     };
@@ -93,6 +96,7 @@ fn collect(
         (3, Find::Words(text.as_str()), None),
     ] {
         let rows = hgnc::lookup(leg, find)?;
+        *dropped |= rows.refusals == biomcp_adapters::Refusal::Refused;
         status::append(problems, rows.problems);
         for gene in rows.value {
             if query.band().is_some_and(|band| {

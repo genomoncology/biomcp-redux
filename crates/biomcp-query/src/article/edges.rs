@@ -72,7 +72,7 @@ fn execute<'a>(
                 return Ok(());
             };
             store.set_deadline(*deadline);
-            store.publish(&key, &items, &out.sources, &out.problems)?
+            store.publish(&key, &items, &out.sources, &out.problems, out.dropped)?
         }
     };
     out.sources = pool.sources.clone();

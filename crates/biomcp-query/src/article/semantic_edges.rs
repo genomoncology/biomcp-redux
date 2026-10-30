@@ -19,7 +19,13 @@ pub(super) fn create<'a>(
         .leg(&semantic_scholar::SPEC, *deadline)
         .fresh(cx.fresh);
     let started = leg.remaining();
-    let result = collect(&leg, &input, references, &mut out.problems);
+    let result = collect(
+        &leg,
+        &input,
+        references,
+        &mut out.problems,
+        &mut out.dropped,
+    );
     *deadline = super::consume(*deadline, started, leg.remaining());
     let error = result.as_ref().err().copied();
     let mut source = status::source(Source::SemanticScholar, leg.finish(), error);
@@ -91,6 +97,7 @@ fn collect(
     input: &biomcp_types::ArticleInput,
     references: bool,
     problems: &mut Vec<biomcp_types::Problem>,
+    dropped: &mut bool,
 ) -> Result<Window, RequestError> {
     let mut offset = None;
     let mut items = Vec::new();
@@ -98,6 +105,7 @@ fn collect(
     let mut count = 0;
     for _ in 0..5 {
         let reply = semantic_scholar::edges(leg, input, references, offset)?;
+        *dropped |= reply.refusals == biomcp_adapters::Refusal::Refused;
         problems.extend(reply.problems);
         count += reply.data.len() as u64;
         for edge in reply.data {
