@@ -550,3 +550,18 @@ fn source_timestamp_values_preserve_native_text() -> Check {
         ],
     )
 }
+
+#[test]
+fn synonymous_protein_search_roundtrips_canonical_hgvs() -> Result<(), Box<dyn std::error::Error>> {
+    let canonical = json!({"gene":"BARD1", "protein":"p.Ala613=", "limit":10, "offset":0});
+    for text in ["p.Ala613=", "p.A613="] {
+        let query: biomcp_types::VariantSearch =
+            serde_json::from_value(json!({"gene":"BARD1", "protein":text}))?;
+        assert_eq!(serde_json::to_value(&query)?, canonical);
+        assert_eq!(
+            biomcp_types::protein_query_forms(text)?,
+            ["A613=", "Ala613=", "p.A613=", "p.Ala613="].map(String::from)
+        );
+    }
+    Ok(())
+}

@@ -1,4 +1,4 @@
-//! Declared MyVariant searches keep native candidates, totals and page selectors.
+//! Declared variant searches keep native candidates, totals and page selectors.
 use crate::{Action, Ctx, Outcome, status};
 
 use biomcp_adapters::{clinvar, myvariant};
@@ -16,7 +16,7 @@ pub fn search(cx: &Ctx<'_>, query: &VariantSearch) -> Outcome {
     }
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
-    let spec = if query.uses_coding_selector() {
+    let spec = if query.uses_clinvar_selector() {
         &clinvar::SPEC
     } else {
         &myvariant::SPEC
@@ -87,7 +87,7 @@ fn fetch_page(
     leg: &biomcp_fetch::Leg<'_>,
     query: &VariantSearch,
 ) -> Result<SearchPage, biomcp_fetch::RequestError> {
-    if query.uses_coding_selector() {
+    if query.uses_clinvar_selector() {
         return clinvar::search(leg, query).map(|page| SearchPage {
             total: page.total,
             consumed: page.consumed,

@@ -110,7 +110,7 @@ pub struct VariantSearch(Fields);
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct Fields {
-    /// Checked gene symbol for the dbNSFP protein selector or the ClinVar coding selector.
+    /// Checked gene symbol for the dbNSFP substitution or ClinVar coding/synonymous selector.
     #[serde(
         default,
         deserialize_with = "present",
@@ -118,7 +118,7 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "GeneSymbol"))]
     gene: Option<GeneSymbol>,
-    /// Explicit substitution using checked one-letter or three-letter amino-acid codes.
+    /// Explicit substitution or synonymous change using checked amino-acid codes.
     #[serde(
         default,
         deserialize_with = "present",
@@ -211,7 +211,9 @@ impl TryFrom<Fields> for VariantSearch {
             && f.protein.is_some()
             && f.coding.is_none()
             && f.region.is_none()
-            && f.query.is_none();
+            && f.query.is_none()
+            && (!f.protein.as_ref().is_some_and(ProteinQuery::is_synonymous)
+                || (f.build.is_none() && f.source.is_none() && !f.filtered()));
         let coding = f.gene.is_some()
             && f.coding.is_some()
             && f.protein.is_none()
@@ -295,11 +297,16 @@ impl VariantSearch {
     }
     /// Whether the declared selector searches dbNSFP's gene and protein fields.
     pub fn uses_dbnsfp_selector(&self) -> bool {
-        self.0.protein.is_some()
+        self.0.protein.as_ref().is_some_and(|p| !p.is_synonymous())
     }
-    /// Whether the caller selected the native ClinVar gene and coding search.
-    pub fn uses_coding_selector(&self) -> bool {
+    /// Whether the caller selected native ClinVar coding or synonymous notation.
+    pub fn uses_clinvar_selector(&self) -> bool {
         self.0.coding.is_some()
+            || self
+                .0
+                .protein
+                .as_ref()
+                .is_some_and(ProteinQuery::is_synonymous)
     }
     /// Compare a source protein spelling with the caller's checked substitution spellings.
     pub fn matches_protein(&self, gene: Option<&str>, notation: &str) -> bool {
@@ -320,6 +327,11 @@ impl VariantSearch {
         }
         if let (Some(gene), Some(coding)) = (&self.0.gene, &self.0.coding) {
             return format!("{gene}[GENE] AND \"{coding}\"[VRNM]");
+        }
+        if let (Some(gene), Some(protein)) = (&self.0.gene, &self.0.protein)
+            && protein.is_synonymous()
+        {
+            return format!("{gene}[GENE] AND \"{protein}\"[VRNM]");
         }
         let mut term = if let Some(region) = &self.0.region {
             region.to_string()
