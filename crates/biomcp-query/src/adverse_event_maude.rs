@@ -2,9 +2,7 @@
 use crate::{Action, Ctx, Outcome, status};
 use biodata::Text;
 use biomcp_adapters::maude;
-use biomcp_types::{
-    AdverseEventGet, AdverseEventSection, QueryBody, Request, Source, StepKind,
-};
+use biomcp_types::{AdverseEventGet, AdverseEventSection, QueryBody, Request, Source, StepKind};
 mod projection;
 mod rows;
 mod snapshot;
@@ -12,15 +10,7 @@ mod snapshot;
 pub fn get(cx: &Ctx<'_>, query: &AdverseEventGet) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
-    let mut out = crate::status::finish([crate::status::item_status(false, true, false)], crate::status::Parts {
-        dropped: false,
-        body: empty(query),
-        page: None,
-        sources: Vec::new(),
-        problems: Vec::new(),
-        next: Vec::new(),
-        local: None,
-    });
+    let mut out = crate::status::empty(empty(query));
     match snapshot::load(cx, query, deadline, &mut out) {
         Ok(Some((report, snapshot))) => {
             let bound = query.with_snapshot(snapshot.clone());

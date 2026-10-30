@@ -86,11 +86,12 @@ pub(super) fn load(
     out.sources = saved.1;
     out.problems = saved.2;
     {
-        let (found, identity_failed, unavailable) = if out.sources.iter().any(|s| s.state == SourceState::Stale) {
-        (true, false, true)
-    } else {
-        (true, false, false)
-    };
+        let (found, identity_failed, unavailable) =
+            if out.sources.iter().any(|s| s.state == SourceState::Stale) {
+                (true, false, true)
+            } else {
+                (true, false, false)
+            };
         crate::status::item(out, found, identity_failed, unavailable);
     };
     Ok(Some((saved.0, snapshot)))

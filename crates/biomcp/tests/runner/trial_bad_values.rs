@@ -57,7 +57,7 @@ fn search() -> Check {
                 );
             },
             json!([{"run":["search","trial","--condition","melanoma","--status","RECRUITING"],
-            "expect":{"/status":"partial","/result/items/*/nct_id":{"includes":"NCT07381972"}}}]),
+            "expect":{"/status":if matches!(field,"nctId" | "interventions") {"partial"} else {"complete"},"/result/items/*/nct_id":{"includes":"NCT07381972"}}}]),
         )?;
         problem(&output, field)?;
         if field == "nctId"
@@ -89,7 +89,7 @@ fn detail() -> Check {
                 );
             },
             json!([{"run":["get","trial","NCT03511664"],"expect":{
-            "/status":"partial","/result/items/0/card/nct_id":"NCT03511664"}}]),
+            "/status":if field=="largeDocs.filename" {"partial"} else {"complete"},"/result/items/0/card/nct_id":"NCT03511664"}}]),
         )?;
         problem(&output, field)?;
         if !output
@@ -135,7 +135,7 @@ fn blank_text() -> Check {
             );
         },
         json!([{"run":["get","trial","NCT03511664","locations"],"expect":{
-        "/status":"partial","/result/items/0/card/nct_id":"NCT03511664",
+        "/status":"complete","/result/items/0/card/nct_id":"NCT03511664",
         "/result/items/0/card/conditions":{"equals":["valid condition","second condition"]},
         "/result/items/0/sections/locations/data/items/0":{"omits":["facility"]},
         "/result/items/0/sections/locations/data/items/0/city":"Scottsdale"}}]),
@@ -156,7 +156,7 @@ fn rejected_age() -> Check {
                 );
             },
             json!([{"run":["get","trial","NCT03511664","eligibility"],"expect":{
-            "/status":"partial",
+            "/status":"complete",
             "/result/items/0/sections/eligibility/data":{"omits":["minimum_age"]},
             "/result/items/0/sections/eligibility/data/maximum_age/state":"no_limit"}}]),
         )?;

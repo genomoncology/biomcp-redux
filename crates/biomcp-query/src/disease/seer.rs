@@ -39,9 +39,9 @@ pub fn search(cx: &Ctx<'_>, query: &DiseaseSearch) -> Outcome {
             fetched: fetched(page.metadata.fetched),
         });
         {
-        let absent = page.total == 0;
-        crate::status::item(&mut out, !absent, false, false);
-    }
+            let absent = page.total == 0;
+            crate::status::item(&mut out, !absent, false, false);
+        }
     }
     command.finish(deadline.remaining());
     out
@@ -112,9 +112,9 @@ pub fn get(cx: &Ctx<'_>, query: &DiseaseGet) -> Outcome {
             })
         };
         {
-        let absent = page.total == 0;
-        crate::status::item(&mut out, !absent, false, false);
-    }
+            let absent = page.total == 0;
+            crate::status::item(&mut out, !absent, false, false);
+        }
     }
     super::page::record_problem(&mut out, query, Source::Seer);
     command.finish(deadline.remaining());

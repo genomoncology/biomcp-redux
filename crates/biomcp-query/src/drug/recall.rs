@@ -21,13 +21,9 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DrugSearch) -> Outcome {
     if let Ok(page) = result {
         let returned = page.items.len() as u32;
         {
-        let (found, identity_failed, unavailable) = if returned == 0 {
-            (false, false, false)
-        } else {
-            (true, false, false)
+            let found = !(returned == 0);
+            crate::status::item(&mut out, found, false, false);
         };
-        crate::status::item(&mut out, found, identity_failed, unavailable);
-    };
         out.problems = page.problems;
         for item in &page.items {
             if let Ok(id) = item.recall_number.to_string().parse()

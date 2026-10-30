@@ -4,9 +4,7 @@ mod page;
 use crate::{Action, Ctx, Outcome, status};
 use biodata::Text;
 use biomcp_adapters::nci;
-use biomcp_types::{
-    NciTrialPage, QueryBody, Reason, Request, Source, StepKind, TrialSearch,
-};
+use biomcp_types::{NciTrialPage, QueryBody, Reason, Request, Source, StepKind, TrialSearch};
 pub(super) use get::run as get;
 const ATTRIBUTION: &str =
     "NCI Clinical Trials Search; source-native fields, no eligibility assessment";
@@ -96,17 +94,12 @@ fn apply(
     source.count = Some(page.total);
     source.retrieved_count = Some(page.data.len() as u32);
     {
-        let (found, identity_failed, unavailable) = if source.state == biomcp_types::SourceState::Stale
-        || out
-            .sources
-            .iter()
-            .any(|s| s.state != biomcp_types::SourceState::Ok)
-    {
-        (true, false, true)
-    } else {
-        (true, false, false)
-    };
-        crate::status::item(out, found, identity_failed, unavailable);
+        let unavailable = source.state == biomcp_types::SourceState::Stale
+            || out
+                .sources
+                .iter()
+                .any(|s| s.state != biomcp_types::SourceState::Ok);
+        crate::status::item(out, true, false, unavailable);
     };
     let offset = q
         .next_page()

@@ -243,24 +243,24 @@ fn render(
         .collect();
     {
         let (found, identity_failed, unavailable) = if saved
-        .sources
-        .iter()
-        .any(|s| s.state != biomcp_types::SourceState::Ok)
-        || !out.problems.is_empty()
-    {
-        if rows.is_empty()
-            && saved
-                .sources
-                .iter()
-                .any(|s| s.state == biomcp_types::SourceState::Failed)
+            .sources
+            .iter()
+            .any(|s| s.state != biomcp_types::SourceState::Ok)
+            || !out.problems.is_empty()
         {
-            (false, true, false)
+            if rows.is_empty()
+                && saved
+                    .sources
+                    .iter()
+                    .any(|s| s.state == biomcp_types::SourceState::Failed)
+            {
+                (false, true, false)
+            } else {
+                (true, false, true)
+            }
         } else {
-            (true, false, true)
-        }
-    } else {
-        (true, false, false)
-    };
+            (true, false, false)
+        };
         crate::status::item(out, found, identity_failed, unavailable);
     };
     let returned = rows.len() as u32;

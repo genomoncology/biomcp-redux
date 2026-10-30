@@ -148,12 +148,8 @@ fn finish(query: Cursor<'_>, pool: &Pool, rows: Vec<StoredItem>, out: &mut Outco
         status::append(&mut out.problems, row.problems.clone());
     }
     {
-        let (found, identity_failed, unavailable) = if partial {
-        (true, false, true)
-    } else {
-        (true, false, false)
-    };
-        crate::status::item(out, found, identity_failed, unavailable);
+        let unavailable = partial;
+        crate::status::item(out, true, false, unavailable);
     };
     let missing_external = rows
         .iter()

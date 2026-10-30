@@ -10,9 +10,7 @@ pub(super) fn encode(meta: ResponseMeta, request: Request, body: QueryBody) -> i
             meta.encode(q, Some(body))
         }
         (Request::GetDiagnostic(q), QueryBody::DiagnosticCard(body)) => meta.encode(q, body),
-        (Request::GetDiagnostic(q), QueryBody::DiagnosticGenes(body)) => {
-            meta.encode(q, Some(body))
-        }
+        (Request::GetDiagnostic(q), QueryBody::DiagnosticGenes(body)) => meta.encode(q, Some(body)),
         (Request::GetDiagnostic(q), QueryBody::DiagnosticConditions(body)) => {
             meta.encode(q, Some(body))
         }

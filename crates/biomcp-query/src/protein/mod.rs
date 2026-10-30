@@ -6,9 +6,9 @@ mod search;
 mod sections;
 mod sequence;
 use crate::Outcome;
+pub(super) use crate::status::empty;
 pub use get::get;
 pub use search::search;
-pub(super) use crate::status::empty;
 
 /// Page checked native feature rows on their own sequence identity.
 pub fn features(cx: &crate::Ctx<'_>, q: &biomcp_types::ProteinFeaturesQuery) -> Outcome {

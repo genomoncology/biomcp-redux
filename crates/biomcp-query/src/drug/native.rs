@@ -37,15 +37,15 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     if let Ok((page, received)) = result {
         let returned = page.items.len() as u32;
         {
-        let (found, identity_failed, unavailable) = if !out.problems.is_empty() {
-            (true, false, true)
-        } else if returned == 0 {
-            (false, false, false)
-        } else {
-            (true, false, false)
+            let (found, identity_failed, unavailable) = if !out.problems.is_empty() {
+                (true, false, true)
+            } else if returned == 0 {
+                (false, false, false)
+            } else {
+                (true, false, false)
+            };
+            crate::status::item(&mut out, found, identity_failed, unavailable);
         };
-        crate::status::item(&mut out, found, identity_failed, unavailable);
-    };
         out.page = page.total.map(|total| PageInfo {
             offset: query.offset(),
             returned,

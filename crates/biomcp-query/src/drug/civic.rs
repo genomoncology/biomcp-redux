@@ -26,13 +26,9 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
         out.problems = mapped.problems;
         let (page, consumed) = mapped.value;
         {
-        let (found, identity_failed, unavailable) = if page.items.is_empty() {
-            (false, false, false)
-        } else {
-            (true, false, false)
+            let found = !(page.items.is_empty());
+            crate::status::item(&mut out, found, false, false);
         };
-        crate::status::item(&mut out, found, identity_failed, unavailable);
-    };
         let returned = page.items.len() as u32;
         out.sources.iter_mut().for_each(|s| {
             s.count = page.total;

@@ -44,24 +44,31 @@ pub fn get(cx: &Ctx<'_>, query: &ArticleGet) -> Outcome {
     let mut items = Vec::new();
     for (input, resolution) in query.input().iter().zip(resolutions) {
         match resolution {
-            Err(_) => items.push(item(input, crate::status::item_status(false, true, false), None)),
+            Err(_) => items.push(item(
+                input,
+                crate::status::item_status(false, true, false),
+                None,
+            )),
             Ok(ids) => append(input, &ids, &records, &failures, stale, &mut items),
         }
     }
-    let mut out = crate::status::finish([status::status(items.iter().map(|i| i.status))], crate::status::Parts {
-        dropped: false,
-        body: QueryBody::ArticleCards(ArticleCards {
-            items: items.into(),
-        }),
-        sources: sources(query, source),
-        page: None,
-        problems: records
-            .iter()
-            .flat_map(|(record, _)| record.problems.iter().cloned())
-            .collect(),
-        next: Vec::new(),
-        local,
-    });
+    let mut out = crate::status::finish(
+        [status::status(items.iter().map(|i| i.status))],
+        crate::status::Parts {
+            dropped: false,
+            body: QueryBody::ArticleCards(ArticleCards {
+                items: items.into(),
+            }),
+            sources: sources(query, source),
+            page: None,
+            problems: records
+                .iter()
+                .flat_map(|(record, _)| record.problems.iter().cloned())
+                .collect(),
+            next: Vec::new(),
+            local,
+        },
+    );
     let mut deadline = deadline.after_stage(started.saturating_sub(remaining));
     super::preprint::cards(cx, &mut deadline, &mut out);
     let requested = if let QueryBody::ArticleCards(cards) = &mut out.body {
@@ -159,7 +166,11 @@ fn append(
         .iter()
         .any(|id| failures.iter().any(|(failed, _)| id == failed));
     if failed {
-        items.push(item(input, crate::status::item_status(false, true, false), None));
+        items.push(item(
+            input,
+            crate::status::item_status(false, true, false),
+            None,
+        ));
     } else if !found {
         items.push(item(
             input,

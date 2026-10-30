@@ -22,7 +22,7 @@
         "RECRUITING"
       ],
       "expect": {
-        "/status": "partial",
+        "/status": "complete",
         "/page/total": 483,
         "/result/items/*/nct_id": {
           "equals": [
@@ -90,7 +90,7 @@
         "RECRUITING"
       ],
       "expect": {
-        "/status": "partial",
+        "/status": "complete",
         "/page/total": 483,
         "/result/items/*/nct_id": {
           "equals": [

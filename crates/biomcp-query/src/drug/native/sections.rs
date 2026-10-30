@@ -169,12 +169,8 @@ fn page<T>(
     let received = received.unwrap_or(returned);
     let source = query.source().source();
     {
-        let (found, identity_failed, unavailable) = if total == 0 {
-        (false, false, false)
-    } else {
-        (true, false, false)
-    };
-        crate::status::item(out, found, identity_failed, unavailable);
+        let found = !(total == 0);
+        crate::status::item(out, found, false, false);
     };
     out.page = Some(PageInfo {
         offset,

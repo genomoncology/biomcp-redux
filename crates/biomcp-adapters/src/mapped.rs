@@ -101,6 +101,23 @@ impl Problems {
             .filter_map(|v| self.field(field, Some(v)))
             .collect()
     }
+    /// Map native record arrays while distinguishing refused rows from optional fields.
+    pub(crate) fn record_fields<T>(
+        &mut self,
+        field: &str,
+        value: Option<crate::raw::Field<Vec<crate::raw::Field<T>>>>,
+        dropped: &mut bool,
+    ) -> Box<[T]> {
+        self.field(field, value)
+            .unwrap_or_default()
+            .into_iter()
+            .filter_map(|value| {
+                let row = self.field(field, Some(value));
+                *dropped |= row.is_none();
+                row
+            })
+            .collect()
+    }
     /// Admit native text through the source boundary with visible control escapes.
     pub(crate) fn native_text(
         &mut self,

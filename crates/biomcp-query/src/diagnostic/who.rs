@@ -12,13 +12,9 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DiagnosticGet) -> Outcome {
     let error = result.as_ref().err().copied();
     if let Ok((product, _info)) = result {
         {
-        let (found, identity_failed, unavailable) = if product.is_some() {
-            (true, false, false)
-        } else {
-            (false, false, false)
+            let found = product.is_some();
+            crate::status::item(&mut out, found, false, false);
         };
-        crate::status::item(&mut out, found, identity_failed, unavailable);
-    };
         out.body = QueryBody::DiagnosticCard(product.map(DiagnosticCard::WhoIvdProduct));
         out.next.push((
             StepKind::Sync,

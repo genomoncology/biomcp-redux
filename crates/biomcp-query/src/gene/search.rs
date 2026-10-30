@@ -48,17 +48,20 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &GeneSearch) -> Outcome {
         total,
     };
     let next = next::search(query, &items, &page, &source);
-    crate::status::finish([state], crate::status::Parts {
-        dropped: false,
-        body: QueryBody::GenePage(biomcp_types::GenePage {
-            items: items.into(),
-        }),
-        page: Some(page),
-        sources: vec![source],
-        problems,
-        next,
-        local: error.and_then(status::local),
-    })
+    crate::status::finish(
+        [state],
+        crate::status::Parts {
+            dropped: false,
+            body: QueryBody::GenePage(biomcp_types::GenePage {
+                items: items.into(),
+            }),
+            page: Some(page),
+            sources: vec![source],
+            problems,
+            next,
+            local: error.and_then(status::local),
+        },
+    )
 }
 fn collect(
     leg: &Leg<'_>,

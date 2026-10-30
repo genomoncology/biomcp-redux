@@ -1,6 +1,8 @@
-use biomcp_fetch::{LegReport, RequestError};
-use biomcp_types::{PageInfo, Problem, QueryBody, Source, SourceOutcome, SourceState, Status, StepKind};
 use crate::Action;
+use biomcp_fetch::{LegReport, RequestError};
+use biomcp_types::{
+    PageInfo, Problem, QueryBody, Source, SourceOutcome, SourceState, Status, StepKind,
+};
 /// Query result before the interface adds its typed envelope and next spelling.
 #[derive(Debug)]
 pub struct Outcome {
@@ -53,15 +55,18 @@ pub(crate) fn finish(items: impl IntoIterator<Item = Status>, parts: Parts) -> O
 
 impl Outcome {
     /// The shared owner exposes status for readers only.
-    pub fn status(&self) -> Status { self.status }
+    pub fn status(&self) -> Status {
+        self.status
+    }
 
     /// The query layer owns whether a failed typed response remains visible.
     pub fn body_visible(&self) -> bool {
-        self.status != Status::Failed || match &self.body {
-            QueryBody::TrialPage(body) => body.condition_resolution.is_some(),
-            QueryBody::NciTrialPage(body) => body.condition_resolution.is_some(),
-            _ => false,
-        }
+        self.status != Status::Failed
+            || match &self.body {
+                QueryBody::TrialPage(body) => body.condition_resolution.is_some(),
+                QueryBody::NciTrialPage(body) => body.condition_resolution.is_some(),
+                _ => false,
+            }
     }
 }
 
@@ -70,15 +75,25 @@ pub(crate) fn item(out: &mut Outcome, found: bool, identity_failed: bool, unavai
     out.status = item_status(
         found,
         identity_failed,
-        unavailable || out.dropped || out.sources.iter().any(|source| {
-            matches!(source.state, SourceState::Failed | SourceState::Stale | SourceState::Syncing)
-        }),
+        unavailable
+            || out.dropped
+            || out.sources.iter().any(|source| {
+                matches!(
+                    source.state,
+                    SourceState::Failed | SourceState::Stale | SourceState::Syncing
+                )
+            }),
     );
 }
 
 /// Combine the independently classified items in one get.
 pub(crate) fn get(out: &mut Outcome, items: impl Iterator<Item = Status>) {
     out.status = status(items);
+}
+
+/// Restore a previously classified stored item without assigning outside this owner.
+pub(crate) fn restored(out: &mut Outcome, status: Status) {
+    out.status = status;
 }
 
 /// Decide a search from its asked providers and adapter refusal flag.
@@ -100,9 +115,22 @@ pub(crate) fn empty(body: QueryBody) -> Outcome {
     }
 }
 
+/// Start a body whose successful local construction is already an answer.
+pub(crate) fn ready(body: QueryBody) -> Outcome {
+    let mut out = empty(body);
+    item(&mut out, true, false, false);
+    out
+}
+
 /// Construct an ordinary native page without snapshot or truncation metadata.
 pub(crate) fn page_info(offset: u32, returned: u32, total: u64) -> PageInfo {
-    PageInfo { offset, returned, total, pool: None, truncated: None }
+    PageInfo {
+        offset,
+        returned,
+        total,
+        pool: None,
+        truncated: None,
+    }
 }
 
 /// Classify an identity independently of optional metadata omissions.

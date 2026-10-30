@@ -69,12 +69,8 @@ fn selected(
             .is_some_and(|cell| cell.as_str() == q.supplement().map_or("", |s| s.as_str()))
     });
     {
-        let (found, identity_failed, unavailable) = if selected.is_some() {
-        (true, false, false)
-    } else {
-        (false, false, false)
-    };
-        crate::status::item(out, found, identity_failed, unavailable);
+        let found = selected.is_some();
+        crate::status::item(out, found, false, false);
     };
     let Some(row) = selected else {
         return Ok(());

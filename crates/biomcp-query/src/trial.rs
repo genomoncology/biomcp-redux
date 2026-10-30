@@ -55,19 +55,19 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &TrialSearch) -> Outcome {
     source.notices.extend(name_notice);
     {
         let (found, identity_failed, unavailable) = if result.is_err() {
-        (false, true, false)
-    } else if version.is_err()
-        || error.is_some()
-        || source.state == SourceState::Stale
-        || outcome
-            .sources
-            .iter()
-            .any(|source| source.state != SourceState::Ok)
-    {
-        (true, false, true)
-    } else {
-        (true, false, false)
-    };
+            (false, true, false)
+        } else if version.is_err()
+            || error.is_some()
+            || source.state == SourceState::Stale
+            || outcome
+                .sources
+                .iter()
+                .any(|source| source.state != SourceState::Ok)
+        {
+            (true, false, true)
+        } else {
+            (true, false, false)
+        };
         crate::status::item(&mut outcome, found, identity_failed, unavailable);
     };
     if let Ok(page) = result {
@@ -82,9 +82,6 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &TrialSearch) -> Outcome {
         outcome.problems.extend(version.problems);
         if let QueryBody::TrialPage(body) = &mut outcome.body {
             body.source_updated = version.value.map(Into::into);
-        }
-        if !outcome.problems.is_empty() && outcome.status() == Status::Complete {
-            crate::status::item(&mut outcome, true, false, true);
         }
     }
     if rejected {
@@ -106,8 +103,9 @@ fn apply_page(
     outcome: &mut Outcome,
     mut page: ctgov::SearchPage,
 ) {
-    if !page.problems.is_empty() {
-        crate::status::item(outcome, true, false, true);
+    outcome.dropped = page.dropped;
+    if page.dropped {
+        crate::status::item(outcome, true, false, false);
     }
     outcome.problems.append(&mut page.problems);
     let short = page.items.len() < query.limit() as usize
@@ -154,22 +152,25 @@ fn apply_page(
     }
 }
 fn empty() -> Outcome {
-    crate::status::finish([crate::status::item_status(false, true, false)], crate::status::Parts {
-        dropped: false,
-        body: QueryBody::TrialPage(TrialPage {
-            items: Box::default(),
-            source_updated: None,
-            attribution: "ClinicalTrials.gov; source-native discovery, no eligibility assessment"
-                .into(),
-            gene_resolution: None,
-            condition_resolution: None,
-        }),
-        page: None,
-        sources: Vec::new(),
-        problems: Vec::new(),
-        next: Vec::new(),
-        local: None,
-    })
+    crate::status::finish(
+        [crate::status::item_status(false, true, false)],
+        crate::status::Parts {
+            dropped: false,
+            body: QueryBody::TrialPage(TrialPage {
+                items: Box::default(),
+                source_updated: None,
+                attribution:
+                    "ClinicalTrials.gov; source-native discovery, no eligibility assessment".into(),
+                gene_resolution: None,
+                condition_resolution: None,
+            }),
+            page: None,
+            sources: Vec::new(),
+            problems: Vec::new(),
+            next: Vec::new(),
+            local: None,
+        },
+    )
 }
 fn gene<'a>(
     cx: &Ctx<'a>,

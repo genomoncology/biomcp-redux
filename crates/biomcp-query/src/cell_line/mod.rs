@@ -8,7 +8,7 @@ mod sections;
 use crate::{Action, Ctx, Outcome, status};
 use biomcp_adapters::cellosaurus;
 use biomcp_types::{
-    CellLineGet, CellLinePage, CellLineSearch, QueryBody, Request, Source, StepKind,
+    CellLineGet, CellLinePage, CellLineSearch, QueryBody, Request, Source, Status, StepKind,
 };
 /// One native window, with no fabricated total or extra-page fetch.
 pub fn search(cx: &Ctx<'_>, query: &CellLineSearch) -> Outcome {
@@ -43,15 +43,15 @@ pub fn search(cx: &Ctx<'_>, query: &CellLineSearch) -> Outcome {
             ));
         }
         {
-        let (found, identity_failed, unavailable) = if !out.problems.is_empty() {
-            (true, false, true)
-        } else if page.items.is_empty() {
-            (false, false, false)
-        } else {
-            (true, false, false)
+            let (found, identity_failed, unavailable) = if !out.problems.is_empty() {
+                (true, false, true)
+            } else if page.items.is_empty() {
+                (false, false, false)
+            } else {
+                (true, false, false)
+            };
+            crate::status::item(&mut out, found, identity_failed, unavailable);
         };
-        crate::status::item(&mut out, found, identity_failed, unavailable);
-    };
         out.body = QueryBody::CellLinePage(CellLinePage {
             items: page.items.into(),
             release: None,

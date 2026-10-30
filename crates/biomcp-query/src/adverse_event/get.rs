@@ -117,16 +117,11 @@ fn render_saved(
     out.sources = saved.2.clone();
     out.problems.extend(saved.3.clone());
     {
-        let (found, identity_failed, unavailable) = if out
-        .sources
-        .iter()
-        .any(|s| s.state == biomcp_types::SourceState::Stale)
-    {
-        (true, false, true)
-    } else {
-        (true, false, false)
-    };
-        crate::status::item(out, found, identity_failed, unavailable);
+        let unavailable = out
+            .sources
+            .iter()
+            .any(|s| s.state == biomcp_types::SourceState::Stale);
+        crate::status::item(out, true, false, unavailable);
     };
     render::render(q, saved.0, saved.1, snapshot, out)
 }

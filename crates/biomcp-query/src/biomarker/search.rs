@@ -3,9 +3,7 @@ use crate::source_snapshot as snapshot;
 use crate::{Action, Ctx, Outcome, status};
 use biomcp_adapters::nci;
 use biomcp_fetch::{Deadline, RequestError, SourceError};
-use biomcp_types::{
-    BiomarkerPage, BiomarkerSearch, QueryBody, Reason, Request, Source, StepKind,
-};
+use biomcp_types::{BiomarkerPage, BiomarkerSearch, QueryBody, Reason, Request, Source, StepKind};
 /// Find native biomarker concept headers without interpretation.
 pub fn search(cx: &Ctx<'_>, q: &BiomarkerSearch) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
@@ -141,17 +139,17 @@ fn page(
     }
     {
         let (found, identity_failed, unavailable) = if saved
-        .sources
-        .iter()
-        .any(|s| s.state == biomcp_types::SourceState::Stale)
-        || !saved.problems.is_empty()
-    {
-        (true, false, true)
-    } else if total == 0 {
-        (false, false, false)
-    } else {
-        (true, false, false)
-    };
+            .sources
+            .iter()
+            .any(|s| s.state == biomcp_types::SourceState::Stale)
+            || !saved.problems.is_empty()
+        {
+            (true, false, true)
+        } else if total == 0 {
+            (false, false, false)
+        } else {
+            (true, false, false)
+        };
         crate::status::item(out, found, identity_failed, unavailable);
     };
     out.page = Some(biomcp_types::PageInfo {
@@ -166,17 +164,20 @@ fn page(
     out.body = QueryBody::BiomarkerPage(BiomarkerPage { items });
 }
 fn empty() -> Outcome {
-    crate::status::finish([crate::status::item_status(false, true, false)], crate::status::Parts {
-        dropped: false,
-        body: QueryBody::BiomarkerPage(BiomarkerPage {
-            items: Box::default(),
-        }),
-        page: None,
-        sources: Vec::new(),
-        problems: Vec::new(),
-        next: Vec::new(),
-        local: None,
-    })
+    crate::status::finish(
+        [crate::status::item_status(false, true, false)],
+        crate::status::Parts {
+            dropped: false,
+            body: QueryBody::BiomarkerPage(BiomarkerPage {
+                items: Box::default(),
+            }),
+            page: None,
+            sources: Vec::new(),
+            problems: Vec::new(),
+            next: Vec::new(),
+            local: None,
+        },
+    )
 }
 fn run(q: BiomarkerSearch) -> Action {
     Action::Run {

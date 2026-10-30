@@ -34,6 +34,8 @@ pub const VERSION: Endpoint = SPEC.get("/version").fresh(Freshness::Days(1));
 /// A native search page with opaque source cursor.
 #[derive(Debug)]
 pub struct SearchPage {
+    /// A native study identity was refused.
+    pub dropped: bool,
     /// Source order, untouched.
     pub items: Vec<TrialHeader>,
     /// Rejected nonidentity fields from retained studies.
@@ -178,6 +180,7 @@ pub fn search(
             })
         });
     let mut rejected = Vec::new();
+    let mut dropped = false;
     let mapped = raw
         .studies
         .unwrap_or_default()
@@ -185,6 +188,7 @@ pub fn search(
         .filter_map(|row| match row.value() {
             Some(row) => Some(row.protocol_section.header()),
             None => {
+                dropped = true;
                 rejected.push(crate::mapped::problem(SPEC.source, None, "nctId"));
                 None
             }
@@ -193,10 +197,14 @@ pub fn search(
         .map_err(|_| bad())?;
     let (items, problems): (Vec<_>, Vec<_>) = mapped
         .into_iter()
-        .map(|row| (row.value, row.problems))
+        .map(|(row, refused)| {
+            dropped |= refused;
+            (row.value, row.problems)
+        })
         .unzip();
     rejected.extend(problems.into_iter().flatten());
     Ok(SearchPage {
+        dropped,
         problems: rejected,
         condition_word_mismatch,
         items,

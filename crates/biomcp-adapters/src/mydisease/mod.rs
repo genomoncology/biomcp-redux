@@ -10,6 +10,8 @@ pub use native::{Component, Record, Reference, Value};
 /// Complete exact annotation before independently bounded response pages.
 #[derive(Debug)]
 pub struct Annotation {
+    /// One or more native relation identities were refused.
+    pub dropped: bool,
     /// Exact identity with optional native alias proof.
     pub card: biomcp_types::DiseaseCard,
     /// Component-attributed native synonyms.

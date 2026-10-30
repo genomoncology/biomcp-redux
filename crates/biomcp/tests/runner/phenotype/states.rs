@@ -13,6 +13,10 @@ pub(super) fn trials() -> Vec<Trial> {
         "phenotype-identity/synthetic-short-limit-keeps-native-page",
         || short_limit().map_err(Into::into),
     ));
+    rows.push(transcript_trial(
+        "phenotype-identity/refused-native-row-keeps-partial-page",
+        || dropped().map_err(Into::into),
+    ));
     for source in ["hpo", "monarch"] {
         rows.push(transcript_trial(
             format!("phenotype-identity/synthetic-disabled-{source}-fresh-before-cache"),
@@ -178,6 +182,35 @@ fn short_limit() -> Result<(), String> {
     budgets::mcp("states/short_limit/mcp1", &directory, &args, &result, 1)?;
     if stub.finish()?.len() != 1 {
         return Err("short limit request count".into());
+    }
+    Ok(())
+}
+
+fn dropped() -> Result<(), String> {
+    let stub = Stub::for_source("api-v3.monarchinitiative.org", "application/json", |_| {
+        let mut rejected = super::node();
+        rejected["id"] = json!(42);
+        Ok(json!({"limit":5,"offset":0,"total":2,"items":[super::node(),rejected]}).to_string())
+    })?;
+    let env = setup(&stub)?;
+    let reply = invoke(
+        "states/dropped",
+        &env,
+        &["search", "phenotype", "synthetic"],
+        0,
+    )?;
+    if reply.get("status") != Some(&json!("partial"))
+        || reply.pointer("/sources/0/state") != Some(&json!("ok"))
+        || reply.pointer("/page/total") != Some(&json!(2))
+        || reply.pointer("/page/returned") != Some(&json!(1))
+        || reply.pointer("/result/items/0/id") != Some(&json!("HP:0000001"))
+    {
+        return Err(format!(
+            "refused native row lost partial status or valid sibling: {reply}"
+        ));
+    }
+    if stub.finish()?.len() != 1 {
+        return Err("refused row triggered a replacement source page".into());
     }
     Ok(())
 }

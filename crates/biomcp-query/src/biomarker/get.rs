@@ -10,18 +10,21 @@ pub fn get(cx: &Ctx<'_>, q: &BiomarkerGet) -> Outcome {
     let reply = nci::biomarker::get(&leg, &q.id);
     let error = reply.as_ref().err().copied();
     let source = status::source(Source::Nci, leg.finish(), error);
-    let mut out = crate::status::finish([crate::status::item_status(false, true, false)], crate::status::Parts {
-        dropped: false,
-        body: QueryBody::BiomarkerResult(BiomarkerResult {
-            card: None,
-            candidates: Box::default(),
-        }),
-        page: None,
-        sources: vec![source],
-        problems: Vec::new(),
-        next: Vec::new(),
-        local: error.and_then(status::local),
-    });
+    let mut out = crate::status::finish(
+        [crate::status::item_status(false, true, false)],
+        crate::status::Parts {
+            dropped: false,
+            body: QueryBody::BiomarkerResult(BiomarkerResult {
+                card: None,
+                candidates: Box::default(),
+            }),
+            page: None,
+            sources: vec![source],
+            problems: Vec::new(),
+            next: Vec::new(),
+            local: error.and_then(status::local),
+        },
+    );
     if let Some(error) = error {
         if status::reason(error) == Some(Reason::TooLarge) {
             out.body = QueryBody::BiomarkerTooBroad;
@@ -38,20 +41,20 @@ pub fn get(cx: &Ctx<'_>, q: &BiomarkerGet) -> Outcome {
             source.retrieved_count = Some(total as u32);
         }
         {
-        let (found, identity_failed, unavailable) = if !reply.problems.is_empty()
-            || out
-                .sources
-                .iter()
-                .any(|s| s.state == biomcp_types::SourceState::Stale)
-        {
-            (true, false, true)
-        } else if total == 0 {
-            (false, false, false)
-        } else {
-            (true, false, false)
+            let (found, identity_failed, unavailable) = if !reply.problems.is_empty()
+                || out
+                    .sources
+                    .iter()
+                    .any(|s| s.state == biomcp_types::SourceState::Stale)
+            {
+                (true, false, true)
+            } else if total == 0 {
+                (false, false, false)
+            } else {
+                (true, false, false)
+            };
+            crate::status::item(&mut out, found, identity_failed, unavailable);
         };
-        crate::status::item(&mut out, found, identity_failed, unavailable);
-    };
         for row in &rows {
             for id in &row.header.codes {
                 let step = (

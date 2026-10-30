@@ -73,15 +73,15 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
         }
         out.problems.extend(page.problems);
         {
-        let (found, identity_failed, unavailable) = if page.records.is_empty() {
-            (false, false, false)
-        } else if out.sources.iter().any(|s| s.state == SourceState::Stale) {
-            (true, false, true)
-        } else {
-            (true, false, false)
+            let (found, identity_failed, unavailable) = if page.records.is_empty() {
+                (false, false, false)
+            } else if out.sources.iter().any(|s| s.state == SourceState::Stale) {
+                (true, false, true)
+            } else {
+                (true, false, false)
+            };
+            crate::status::item(&mut out, found, identity_failed, unavailable);
         };
-        crate::status::item(&mut out, found, identity_failed, unavailable);
-    };
         if let Some(row) = page.records.first() {
             label_steps(cx, row, &mut out);
             if is_approvals {

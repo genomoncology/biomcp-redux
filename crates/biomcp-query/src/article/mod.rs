@@ -143,18 +143,10 @@ fn retry(query: &ArticleSearch, pool: Option<Text>, out: &mut Outcome) {
     ));
 }
 fn empty() -> Outcome {
-    crate::status::finish([crate::status::item_status(true, false, false)], crate::status::Parts {
-        dropped: false,
-        body: QueryBody::ArticlePage(ArticlePage {
-            items: Box::default(),
-            candidates: Vec::new(),
-        }),
-        page: None,
-        sources: Vec::new(),
-        problems: Vec::new(),
-        next: Vec::new(),
-        local: None,
-    })
+    crate::status::ready(QueryBody::ArticlePage(ArticlePage {
+        items: Box::default(),
+        candidates: Vec::new(),
+    }))
 }
 
 // Fetch legs deliberately own independent replay clocks. A sequential article

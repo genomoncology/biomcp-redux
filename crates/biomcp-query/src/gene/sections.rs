@@ -13,7 +13,8 @@ use biomcp_fetch::{Deadline, RequestError};
 use biomcp_types::GeneResolution;
 use biomcp_types::{
     GeneGet, GeneItem, GeneSection, GeneSectionWord, GeneSections, Problem, Section, SourceOutcome,
-    SourceState, };
+    SourceState,
+};
 pub(super) struct SectionResult {
     pub values: Vec<(HgncId, SectionValue)>,
     pub source: SourceOutcome,

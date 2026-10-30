@@ -26,7 +26,7 @@ pub(super) fn get(cx: &Ctx<'_>, query: &CellLineGet) -> Outcome {
             card.status = crate::status::item_status(true, false, true);
         }
         let state = card.status;
-        crate::status::get(&mut out, [state].into_iter());
+        crate::status::restored(&mut out, state);
         if card
             .sex
             .as_ref()

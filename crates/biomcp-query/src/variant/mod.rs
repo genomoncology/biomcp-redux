@@ -80,20 +80,23 @@ pub fn get(cx: &Ctx<'_>, query: &VariantGet) -> Outcome {
     let mut next = next(query, resolution, &candidates, page.as_ref());
     next.extend(oncokb::next(query, &sources));
     next.extend(alphagenome::next(&sources));
-    let out = crate::status::finish([overall(resolution, &problems, &sources)], crate::status::Parts {
-        dropped: false,
-        body: QueryBody::VariantCard(VariantCard {
-            resolution,
-            source: spec.source,
-            candidates: candidates.into(),
-            rejection,
-        }),
-        page,
-        sources,
-        problems,
-        next,
-        local,
-    });
+    let out = crate::status::finish(
+        [overall(resolution, &problems, &sources)],
+        crate::status::Parts {
+            dropped: false,
+            body: QueryBody::VariantCard(VariantCard {
+                resolution,
+                source: spec.source,
+                candidates: candidates.into(),
+                rejection,
+            }),
+            page,
+            sources,
+            problems,
+            next,
+            local,
+        },
+    );
     command.finish(deadline.remaining());
     out
 }

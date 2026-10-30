@@ -39,27 +39,36 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &VariantPopulationQuery) -> Outcome {
     }
     next.extend(choices(query, &read.candidates));
     let status = match &read.population {
-        Section::Data { .. } if read.problems.is_empty() => crate::status::item_status(true, false, false),
+        Section::Data { .. } if read.problems.is_empty() => {
+            crate::status::item_status(true, false, false)
+        }
         Section::Data { .. } => crate::status::item_status(true, false, true),
-        _ if read.candidates.len() > 1 && read.problems.is_empty() => crate::status::item_status(true, false, false),
+        _ if read.candidates.len() > 1 && read.problems.is_empty() => {
+            crate::status::item_status(true, false, false)
+        }
         _ if read.candidates.len() > 1 => crate::status::item_status(true, false, true),
-        Section::Empty { .. } if !read.problems.is_empty() => crate::status::item_status(true, false, true),
+        Section::Empty { .. } if !read.problems.is_empty() => {
+            crate::status::item_status(true, false, true)
+        }
         Section::Empty { .. } => crate::status::item_status(false, false, false),
         _ => crate::status::item_status(false, true, false),
     };
-    let out = crate::status::finish([status], crate::status::Parts {
-        dropped: false,
-        body: QueryBody::VariantPopulation(VariantPopulationResult {
-            population: read.population,
-            groups,
-            candidates: std::mem::take(&mut read.candidates).into(),
-        }),
-        page,
-        sources: read.sources,
-        problems: read.problems,
-        next,
-        local: read.local,
-    });
+    let out = crate::status::finish(
+        [status],
+        crate::status::Parts {
+            dropped: false,
+            body: QueryBody::VariantPopulation(VariantPopulationResult {
+                population: read.population,
+                groups,
+                candidates: std::mem::take(&mut read.candidates).into(),
+            }),
+            page,
+            sources: read.sources,
+            problems: read.problems,
+            next,
+            local: read.local,
+        },
+    );
     command.finish(deadline.remaining());
     out
 }

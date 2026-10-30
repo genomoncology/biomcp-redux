@@ -56,13 +56,9 @@ pub fn search(cx: &Ctx<'_>, q: &GwasSearch) -> Outcome {
             qualifying_total: None,
         }));
         {
-        let (found, identity_failed, unavailable) = if out.problems.is_empty() {
-            (true, false, false)
-        } else {
-            (true, false, true)
+            let unavailable = !(out.problems.is_empty());
+            crate::status::item(&mut out, true, false, unavailable);
         };
-        crate::status::item(&mut out, found, identity_failed, unavailable);
-    };
     }
     let mut source = status::source(Source::Gwas, leg.finish(), error);
     if let Some((accepted, total)) = counts {
@@ -91,13 +87,5 @@ pub fn search(cx: &Ctx<'_>, q: &GwasSearch) -> Outcome {
 }
 
 fn empty() -> Outcome {
-    crate::status::finish([crate::status::item_status(false, true, false)], crate::status::Parts {
-        dropped: false,
-        body: QueryBody::GwasPage(None),
-        page: None,
-        sources: vec![],
-        problems: vec![],
-        next: vec![],
-        local: None,
-    })
+    crate::status::empty(QueryBody::GwasPage(None))
 }

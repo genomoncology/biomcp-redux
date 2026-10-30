@@ -215,10 +215,17 @@ fn check_reply(
                 .get("result")
                 .is_some_and(|v| has_string(v, "DB00001")))
         || value.get("status")
-            != Some(&json!(if family == "ols" && field == "label" {
-                "complete"
-            } else {
+            != Some(&json!(if family == "mychem"
+                || matches!(expected, "synonyms" | "synonym.name" | "xref.id")
+                || (family.starts_with("mydisease")
+                    && (expected.contains(".xrefs.")
+                        || expected.contains(".synonyms.")
+                        || expected == "mondo.synonym.exact"
+                        || expected.ends_with(".parents")))
+            {
                 "partial"
+            } else {
+                "complete"
             }))
         || value.get("result").is_none_or(Value::is_null)
         || value.get("result").is_some_and(contains_invalid)

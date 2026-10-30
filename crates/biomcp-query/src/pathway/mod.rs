@@ -12,12 +12,12 @@ mod search;
 mod snapshot;
 mod union;
 mod wikipathways;
-use crate::{Action};
-use biomcp_types::{Request};
+use crate::Action;
+pub(super) use crate::status::empty;
+use biomcp_types::Request;
 pub use get::get;
 pub use relation::{events, genes};
 pub use search::search;
-pub(super) use crate::status::empty;
 fn run(request: Request) -> Action {
     Action::Run {
         request,

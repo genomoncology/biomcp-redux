@@ -2,9 +2,7 @@ use super::Snapshot;
 use crate::{Action, Outcome};
 use biodata::Text;
 use biomcp_fetch::RequestError;
-use biomcp_types::{
-    ArticleEvidence, ArticleEvidenceResult, QueryBody, Request, Section, StepKind,
-};
+use biomcp_types::{ArticleEvidence, ArticleEvidenceResult, QueryBody, Request, Section, StepKind};
 /// Exact Unicode fragments leave room for both independent evidence sections and envelope.
 pub(super) fn split(text: &str) -> Vec<(u32, String)> {
     let mut out = Vec::new();
@@ -79,25 +77,25 @@ pub(super) fn render(
     let text_data = matches!(&snapshot.fulltext, Some(Section::Data { .. }));
     {
         let (found, identity_failed, unavailable) = if graph_failed || text_failed {
-        if graph_data || text_data {
+            if graph_data || text_data {
+                (true, false, true)
+            } else {
+                (false, true, false)
+            }
+        } else if !snapshot.terminal
+            || snapshot.sources.iter().any(|s| {
+                matches!(
+                    s.state,
+                    biomcp_types::SourceState::Stale
+                        | biomcp_types::SourceState::Failed
+                        | biomcp_types::SourceState::Skipped
+                )
+            })
+        {
             (true, false, true)
         } else {
-            (false, true, false)
-        }
-    } else if !snapshot.terminal
-        || snapshot.sources.iter().any(|s| {
-            matches!(
-                s.state,
-                biomcp_types::SourceState::Stale
-                    | biomcp_types::SourceState::Failed
-                    | biomcp_types::SourceState::Skipped
-            )
-        })
-    {
-        (true, false, true)
-    } else {
-        (true, false, false)
-    };
+            (true, false, false)
+        };
         crate::status::item(out, found, identity_failed, unavailable);
     };
     if more || !snapshot.terminal {

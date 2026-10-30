@@ -44,21 +44,21 @@ type SiteRows = (
     Box<[TrialOfficial]>,
 );
 impl ContactsLocations {
-    pub(super) fn rows(self, problems: &mut Problems) -> SiteRows {
+    pub(super) fn rows(self, problems: &mut Problems, dropped: &mut bool) -> SiteRows {
         let locations = problems
-            .fields("locations", self.locations)
+            .record_fields("locations", self.locations, dropped)
             .into_vec()
             .into_iter()
             .map(|v| v.mapped(problems))
             .collect();
         let contacts = problems
-            .fields("centralContacts", self.central_contacts)
+            .record_fields("centralContacts", self.central_contacts, dropped)
             .into_vec()
             .into_iter()
             .map(|v| v.mapped(problems))
             .collect();
         let officials = problems
-            .fields("overallOfficials", self.overall_officials)
+            .record_fields("overallOfficials", self.overall_officials, dropped)
             .into_vec()
             .into_iter()
             .map(|v| TrialOfficial {

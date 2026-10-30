@@ -184,12 +184,8 @@ fn read(
         truncated: None,
     });
     {
-        let (found, identity_failed, unavailable) = if out.problems.is_empty() {
-        (true, false, false)
-    } else {
-        (true, false, true)
-    };
-        crate::status::item(out, found, identity_failed, unavailable);
+        let unavailable = !(out.problems.is_empty());
+        crate::status::item(out, true, false, unavailable);
     };
     if out
         .sources

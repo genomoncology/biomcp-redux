@@ -119,17 +119,17 @@ fn page(
     }
     {
         let (found, identity_failed, unavailable) = if saved
-        .sources
-        .iter()
-        .any(|s| s.state == biomcp_types::SourceState::Stale)
-        || !saved.problems.is_empty()
-    {
-        (true, false, true)
-    } else if total == 0 {
-        (false, false, false)
-    } else {
-        (true, false, false)
-    };
+            .sources
+            .iter()
+            .any(|s| s.state == biomcp_types::SourceState::Stale)
+            || !saved.problems.is_empty()
+        {
+            (true, false, true)
+        } else if total == 0 {
+            (false, false, false)
+        } else {
+            (true, false, false)
+        };
         crate::status::item(out, found, identity_failed, unavailable);
     };
     out.page = Some(biomcp_types::PageInfo {
@@ -144,17 +144,20 @@ fn page(
     out.body = QueryBody::OrganizationPage(OrganizationPage { items });
 }
 fn empty() -> Outcome {
-    crate::status::finish([crate::status::item_status(false, true, false)], crate::status::Parts {
-        dropped: false,
-        body: QueryBody::OrganizationPage(OrganizationPage {
-            items: Box::default(),
-        }),
-        page: None,
-        sources: Vec::new(),
-        problems: Vec::new(),
-        next: Vec::new(),
-        local: None,
-    })
+    crate::status::finish(
+        [crate::status::item_status(false, true, false)],
+        crate::status::Parts {
+            dropped: false,
+            body: QueryBody::OrganizationPage(OrganizationPage {
+                items: Box::default(),
+            }),
+            page: None,
+            sources: Vec::new(),
+            problems: Vec::new(),
+            next: Vec::new(),
+            local: None,
+        },
+    )
 }
 fn run(q: OrganizationSearch) -> Action {
     Action::Run {

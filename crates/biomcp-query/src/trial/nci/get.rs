@@ -127,7 +127,7 @@ fn restore(
     out.sources = snapshot.sources.clone();
     let item = page::render(q, snapshot, q.pool().cloned(), out)?;
     let state = item.status;
-        crate::status::get(out, [state].into_iter());
+    crate::status::get(out, [state].into_iter());
     if let QueryBody::NciTrialCards(body) = &mut out.body {
         body.items = Box::new([item]);
     }

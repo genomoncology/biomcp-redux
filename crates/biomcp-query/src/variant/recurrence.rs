@@ -11,15 +11,7 @@ use biomcp_types::{
 pub fn run(cx: &Ctx<'_>, query: &VariantRecurrenceQuery) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
-    let mut out = crate::status::finish([crate::status::item_status(false, true, false)], crate::status::Parts {
-        dropped: false,
-        body: QueryBody::VariantRecurrence(empty()),
-        page: None,
-        sources: Vec::new(),
-        problems: Vec::new(),
-        next: Vec::new(),
-        local: None,
-    });
+    let mut out = crate::status::empty(QueryBody::VariantRecurrence(empty()));
     if let Err(error) = execute(cx, query, deadline, &mut out) {
         out.local = status::local(error);
     }
@@ -88,17 +80,12 @@ fn execute(
     body.more = more;
     out.body = QueryBody::VariantRecurrence(body);
     {
-        let (found, identity_failed, unavailable) = if out.problems.is_empty()
-        && out
-            .sources
-            .iter()
-            .all(|s| s.state == biomcp_types::SourceState::Ok)
-    {
-        (true, false, false)
-    } else {
-        (true, false, true)
-    };
-        crate::status::item(out, found, identity_failed, unavailable);
+        let unavailable = !(out.problems.is_empty()
+            && out
+                .sources
+                .iter()
+                .all(|s| s.state == biomcp_types::SourceState::Ok));
+        crate::status::item(out, true, false, unavailable);
     };
     if more && let Some(next) = query.next_page() {
         out.next.push((

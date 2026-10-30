@@ -4,7 +4,8 @@ use biodata::Text;
 use biomcp_adapters::vaers;
 use biomcp_fetch::{CacheError, Deadline, RequestError};
 use biomcp_types::{
-    AdverseEventSearch, PageInfo, QueryBody, Reason, Request, Source, SourceOutcome, StepKind, VaersSection, VaersSummary,
+    AdverseEventSearch, PageInfo, QueryBody, Reason, Request, Source, SourceOutcome, StepKind,
+    VaersSection, VaersSummary,
 };
 use sha2::{Digest, Sha256};
 type Saved = (VaersSummary, Vec<SourceOutcome>);
@@ -87,16 +88,11 @@ fn read(
     };
     out.sources = saved.1;
     {
-        let (found, identity_failed, unavailable) = if out
-        .sources
-        .iter()
-        .any(|s| s.state == biomcp_types::SourceState::Stale)
-    {
-        (true, false, true)
-    } else {
-        (true, false, false)
-    };
-        crate::status::item(out, found, identity_failed, unavailable);
+        let unavailable = out
+            .sources
+            .iter()
+            .any(|s| s.state == biomcp_types::SourceState::Stale);
+        crate::status::item(out, true, false, unavailable);
     };
     render(q, saved.0, snapshot, out);
     Ok(())

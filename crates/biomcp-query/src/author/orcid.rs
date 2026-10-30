@@ -147,12 +147,8 @@ fn present(
         truncated: None,
     });
     {
-        let (found, identity_failed, unavailable) = if source.state == SourceState::Stale {
-        (true, false, true)
-    } else {
-        (true, false, false)
-    };
-        crate::status::item(out, found, identity_failed, unavailable);
+        let unavailable = source.state == SourceState::Stale;
+        crate::status::item(out, true, false, unavailable);
     };
     out.sources = vec![source];
     out.body = QueryBody::OrcidWorks(Some(OrcidWorks {

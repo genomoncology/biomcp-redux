@@ -37,13 +37,9 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
             );
         }
         {
-        let (found, identity_failed, unavailable) = if page.problems.is_empty() {
-            (true, false, false)
-        } else {
-            (true, false, true)
+            let unavailable = !(page.problems.is_empty());
+            crate::status::item(&mut out, true, false, unavailable);
         };
-        crate::status::item(&mut out, found, identity_failed, unavailable);
-    };
         group_unsupported = page.group_unsupported;
         out.problems = page.problems;
         out.page = Some(PageInfo {

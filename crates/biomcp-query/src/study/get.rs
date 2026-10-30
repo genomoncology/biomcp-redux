@@ -88,12 +88,8 @@ fn card(leg: &Leg<'_>, q: &StudyGet, out: &mut Outcome) -> Result<(), RequestErr
     let row = row.value;
     let snapshot = studies::snapshot(&info)?;
     {
-        let (found, identity_failed, unavailable) = if row.is_some() {
-        (true, false, false)
-    } else {
-        (false, false, false)
-    };
-        crate::status::item(out, found, identity_failed, unavailable);
+        let found = row.is_some();
+        crate::status::item(out, found, false, false);
     };
     let source_url = format!("https://www.cbioportal.org/study/summary?id={}", q.id())
         .parse()

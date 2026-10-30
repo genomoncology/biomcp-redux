@@ -123,17 +123,12 @@ fn selected_get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
         .push(status::source(Source::Mychem, leg.finish(), error));
     if let Ok(document) = result {
         {
-        let (found, identity_failed, unavailable) = if out
-            .sources
-            .iter()
-            .any(|s| s.state == biomcp_types::SourceState::Stale)
-        {
-            (true, false, true)
-        } else {
-            (true, false, false)
+            let unavailable = out
+                .sources
+                .iter()
+                .any(|s| s.state == biomcp_types::SourceState::Stale);
+            crate::status::item(&mut out, true, false, unavailable);
         };
-        crate::status::item(&mut out, found, identity_failed, unavailable);
-    };
         if xrefs {
             link_page(query, cx.fresh, document, &mut out);
         } else {
@@ -269,18 +264,19 @@ fn search_results(
     received: u32,
 ) {
     {
-        let (found, identity_failed, unavailable) = if page.items.is_empty() && out.problems.is_empty() {
-        (false, false, false)
-    } else if !out.problems.is_empty()
-        || out
-            .sources
-            .iter()
-            .any(|s| s.state == biomcp_types::SourceState::Stale)
-    {
-        (true, false, true)
-    } else {
-        (true, false, false)
-    };
+        let (found, identity_failed, unavailable) =
+            if page.items.is_empty() && out.problems.is_empty() {
+                (false, false, false)
+            } else if !out.problems.is_empty()
+                || out
+                    .sources
+                    .iter()
+                    .any(|s| s.state == biomcp_types::SourceState::Stale)
+            {
+                (true, false, true)
+            } else {
+                (true, false, false)
+            };
         crate::status::item(out, found, identity_failed, unavailable);
     };
     let returned = page.items.len() as u32;

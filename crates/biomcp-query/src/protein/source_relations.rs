@@ -143,17 +143,12 @@ pub(super) fn read(
     saved.member_steps(q, offset, limit, &mut store, out)?;
     saved.render(q, offset, limit, out)?;
     {
-        let (found, identity_failed, unavailable) = if !out.problems.is_empty()
-        || out
-            .sources
-            .iter()
-            .any(|s| s.state != biomcp_types::SourceState::Ok)
-    {
-        (true, false, true)
-    } else {
-        (true, false, false)
-    };
-        crate::status::item(out, found, identity_failed, unavailable);
+        let unavailable = !out.problems.is_empty()
+            || out
+                .sources
+                .iter()
+                .any(|s| s.state != biomcp_types::SourceState::Ok);
+        crate::status::item(out, true, false, unavailable);
     };
     out.page = Some(PageInfo {
         offset,

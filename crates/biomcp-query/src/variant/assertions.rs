@@ -3,8 +3,8 @@ use crate::{Action, Ctx, Outcome, status};
 use biodata::VariantId;
 use biomcp_fetch::Deadline;
 use biomcp_types::{
-    AssertionSource, PageInfo, QueryBody, Reason, Request, Section, StepKind,
-    VariantAssertion, VariantAssertions, VariantAssertionsGet, VariantGet, VariantHeader,
+    AssertionSource, PageInfo, QueryBody, Reason, Request, Section, StepKind, VariantAssertion,
+    VariantAssertions, VariantAssertionsGet, VariantGet, VariantHeader,
 };
 pub(crate) fn get(cx: &Ctx<'_>, query: &VariantAssertionsGet) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
@@ -44,15 +44,18 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &VariantAssertionsGet) -> Outcome {
         .into_iter()
         .collect();
     command.finish(deadline.remaining());
-    crate::status::finish([status], crate::status::Parts {
-        dropped: false,
-        body: QueryBody::VariantAssertions(body),
-        page: None,
-        sources,
-        problems,
-        next,
-        local,
-    })
+    crate::status::finish(
+        [status],
+        crate::status::Parts {
+            dropped: false,
+            body: QueryBody::VariantAssertions(body),
+            page: None,
+            sources,
+            problems,
+            next,
+            local,
+        },
+    )
 }
 /// Section hooks receive one candidate; source input IDs can be checked caller selectors.
 pub(super) fn section(

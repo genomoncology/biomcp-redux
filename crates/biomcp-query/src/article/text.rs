@@ -6,7 +6,8 @@ use biomcp_adapters::{europepmc, jats, pmc_oa, pubmed};
 use biomcp_fetch::{Deadline, RequestError};
 use biomcp_types::ArticleInput;
 use biomcp_types::{
-    ArticleText, ArticleTextResult, PageInfo, QueryBody, Reason, Request, Section, Source, StepKind, TextContent, TextHit,
+    ArticleText, ArticleTextResult, PageInfo, QueryBody, Reason, Request, Section, Source,
+    StepKind, TextContent, TextHit,
 };
 /// Read a bounded part or find page through the same transport and command budget.
 pub fn read(cx: &Ctx<'_>, query: &ArticleText) -> Outcome {
@@ -17,18 +18,10 @@ pub fn download(cx: &Ctx<'_>, query: &ArticleText, allow: bool) -> super::save::
     let mut save = super::save::State::new(allow);
     let command = cx.fetch.command_deadline(cx.budget);
     let mut deadline = command.deadline();
-    let mut out = crate::status::finish([crate::status::item_status(true, false, false)], crate::status::Parts {
-        dropped: false,
-        body: QueryBody::ArticleText(ArticleTextResult {
-            pmcid: None,
-            content: Section::NotApplicable,
-        }),
-        page: None,
-        sources: Vec::new(),
-        problems: Vec::new(),
-        next: Vec::new(),
-        local: None,
-    });
+    let mut out = crate::status::ready(QueryBody::ArticleText(ArticleTextResult {
+        pmcid: None,
+        content: Section::NotApplicable,
+    }));
     let Ok(selection) = super::protein_change::Selection::new(query.find(), query.variant()) else {
         out.body = QueryBody::TextPositionError;
         return super::save::Download { out, file: None };

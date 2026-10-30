@@ -20,6 +20,8 @@ pub struct Record {
 /// A single component with its own native identity and complete annotation.
 #[derive(Debug)]
 pub struct Component {
+    /// At least one native relation or synonym identity was refused.
+    pub dropped: bool,
     /// Declared component name used by the shared terms registry.
     pub name: &'static str,
     /// Native component identity, distinct from the aggregate identity.
@@ -77,6 +79,7 @@ pub(super) fn component(name: &'static str, raw: super::raw::Component) -> Compo
         ),
         raw.definition.map(|v| v.value().map(Into::into).ok_or(())),
     );
+    let mut dropped = false;
     let synonyms = values(
         raw.synonym,
         &format!(
@@ -88,8 +91,19 @@ pub(super) fn component(name: &'static str, raw: super::raw::Component) -> Compo
             }
         ),
         &mut problems,
+        &mut dropped,
     );
-    let xrefs = references(raw.xrefs, &format!("{root}.xrefs"), &mut problems);
+    let xrefs = references(
+        raw.xrefs,
+        &format!("{root}.xrefs"),
+        &mut problems,
+        &mut dropped,
+    );
+    dropped |= raw
+        .parents
+        .as_ref()
+        .and_then(crate::raw::Field::as_ref)
+        .is_some_and(|values| values.iter().any(|value| value.as_ref().is_none()));
     let parents = ids(raw.parents, &format!("{root}.parents"), &mut problems).unwrap_or_default();
     let consider = ids(raw.consider, &format!("{root}.consider"), &mut problems);
     let replaced_by = ids(
@@ -98,6 +112,7 @@ pub(super) fn component(name: &'static str, raw: super::raw::Component) -> Compo
         &mut problems,
     );
     Component {
+        dropped,
         name,
         id: raw.id,
         label: problems.optional(
@@ -140,6 +155,7 @@ fn values(
     >,
     root: &str,
     problems: &mut crate::mapped::Problems,
+    dropped: &mut bool,
 ) -> Box<[Value]> {
     let mut result = Vec::new();
     for (field, values) in fields
@@ -154,6 +170,8 @@ fn values(
                     field: field.clone(),
                     value: value.into(),
                 });
+            } else {
+                *dropped = true;
             }
         }
     }
@@ -168,6 +186,7 @@ fn references(
     >,
     root: &str,
     problems: &mut crate::mapped::Problems,
+    dropped: &mut bool,
 ) -> Box<[Reference]> {
     let mut result = Vec::new();
     for (field, values) in fields
@@ -182,6 +201,8 @@ fn references(
                     field: field.clone(),
                     value,
                 });
+            } else {
+                *dropped = true;
             }
         }
     }

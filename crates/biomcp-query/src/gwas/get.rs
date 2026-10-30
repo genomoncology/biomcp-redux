@@ -13,15 +13,7 @@ use biomcp_types::{
 };
 /// Read only the explicitly selected source resource.
 pub fn get(cx: &Ctx<'_>, q: &GwasGet) -> Outcome {
-    let mut out = crate::status::finish([crate::status::item_status(false, true, false)], crate::status::Parts {
-        dropped: false,
-        body: empty(q),
-        page: None,
-        sources: vec![],
-        problems: vec![],
-        next: vec![],
-        local: None,
-    });
+    let mut out = crate::status::empty(empty(q));
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     if let Err(error) = read(cx, q, deadline, &mut out) {
@@ -46,7 +38,8 @@ pub fn get(cx: &Ctx<'_>, q: &GwasGet) -> Outcome {
             problem(&mut out, "ancestries", ProblemCode::CollectionIncomplete);
         }
     }
-    if out.sources.iter().any(|s| s.state == SourceState::Stale) && out.status() == Status::Complete {
+    if out.sources.iter().any(|s| s.state == SourceState::Stale) && out.status() == Status::Complete
+    {
         crate::status::item(&mut out, true, false, true);
     }
     if out

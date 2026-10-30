@@ -3,15 +3,11 @@ use biomcp_types::{CellLineSection, QueryBody, Request, Section};
 use std::io;
 pub(super) fn encode(meta: ResponseMeta, request: Request, body: QueryBody) -> io::Result<Outcome> {
     match (request, body) {
-        (Request::SearchCellLine(q), QueryBody::CellLinePage(body)) => {
-            meta.encode(q, Some(body))
-        }
+        (Request::SearchCellLine(q), QueryBody::CellLinePage(body)) => meta.encode(q, Some(body)),
         (Request::CellLineAssayCount(q), QueryBody::CellLineAssayCount(body)) => {
             meta.encode(q, Some(body))
         }
-        (Request::GetCellLine(q), QueryBody::CellLineChembl(body)) => {
-            meta.encode(q, Some(body))
-        }
+        (Request::GetCellLine(q), QueryBody::CellLineChembl(body)) => meta.encode(q, Some(body)),
         (Request::GetCellLine(q), QueryBody::CellLineCard(body)) if !body.candidates.is_empty() => {
             meta.encode(q, Some(body))
         }

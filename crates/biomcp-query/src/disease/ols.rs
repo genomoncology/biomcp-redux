@@ -73,6 +73,7 @@ pub fn get(cx: &Ctx<'_>, query: &DiseaseGet) -> Outcome {
     out
 }
 fn apply(out: &mut Outcome, query: &DiseaseGet, record: ols::Record) {
+    out.dropped = record.dropped;
     let components = record.card.components.clone();
     out.problems = record.problems;
     match query.section() {

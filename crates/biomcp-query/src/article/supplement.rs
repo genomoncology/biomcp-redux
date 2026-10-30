@@ -19,18 +19,10 @@ pub fn download(cx: &Ctx<'_>, query: &ArticleSupplement, allow: bool) -> super::
     let mut save = super::save::State::new(allow);
     let command = cx.fetch.command_deadline(cx.budget);
     let mut deadline = command.deadline();
-    let mut out = crate::status::finish([crate::status::item_status(true, false, false)], crate::status::Parts {
-        dropped: false,
-        body: QueryBody::ArticleSupplement(ArticleSupplementResult {
-            pmcid: None,
-            content: Section::NotApplicable,
-        }),
-        page: None,
-        sources: Vec::new(),
-        problems: Vec::new(),
-        next: Vec::new(),
-        local: None,
-    });
+    let mut out = crate::status::ready(QueryBody::ArticleSupplement(ArticleSupplementResult {
+        pmcid: None,
+        content: Section::NotApplicable,
+    }));
     let Ok(selection) = super::protein_change::Selection::new(query.find(), query.variant()) else {
         out.body = QueryBody::TextPositionError;
         return super::save::Download { out, file: None };

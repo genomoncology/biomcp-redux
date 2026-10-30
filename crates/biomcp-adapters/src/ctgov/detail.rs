@@ -15,6 +15,10 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Detail {
+    /// Native nested records refused during this checked mapping.
+    pub dropped: bool,
+    /// Manifest records refused while retaining independent study sections.
+    pub documents_dropped: bool,
     /// Rejected nonidentity fields retained with this snapshot.
     pub problems: Vec<biomcp_types::Problem>,
     /// Whole sites with attached contacts.
@@ -60,7 +64,10 @@ pub fn get(leg: &Leg<'_>, id: NctId) -> Result<(Detail, ReplyMetadata), RequestE
     };
     detail.documents = problems
         .field("documentSection", raw.document_section)
-        .map_or_else(Box::default, |d| d.mapped(id, &mut problems));
+        .map_or_else(Box::default, |d| {
+            d.mapped(id, &mut problems, &mut detail.documents_dropped)
+        });
+    detail.dropped |= detail.documents_dropped;
     detail.problems = problems.list;
     Ok((detail, metadata))
 }
@@ -186,6 +193,7 @@ struct Intervention {
 }
 impl Protocol {
     fn detail(mut self) -> Detail {
+        let mut dropped = false;
         let mut problems = Problems {
             source: Source::ClinicalTrialsGov,
             record: crate::mapped::record(self.identification_module.nct_id),
@@ -197,7 +205,7 @@ impl Protocol {
         );
         let (arm_rows, interventions) = arms.map_or_else(
             || (Box::default(), Box::default()),
-            |arms| arms.rows(&mut problems),
+            |arms| arms.rows(&mut problems, &mut dropped),
         );
         let (locations, contacts, officials) = problems
             .field(
@@ -206,14 +214,15 @@ impl Protocol {
             )
             .map_or_else(
                 || (Box::default(), Box::default(), Box::default()),
-                |sites| sites.rows(&mut problems),
+                |sites| sites.rows(&mut problems, &mut dropped),
             );
         let card = self.card(&interventions, &mut problems);
         Detail {
             references: problems
                 .field("referencesModule", self.references_module)
-                .map_or_else(Box::default, |r| r.rows(&mut problems)),
+                .map_or_else(Box::default, |r| r.rows(&mut problems, &mut dropped)),
             documents: Box::default(),
+            documents_dropped: false,
             locations,
             contacts,
             officials,
@@ -223,8 +232,9 @@ impl Protocol {
                 .map(|v| v.mapped(&mut problems)),
             outcomes: problems
                 .field("outcomesModule", self.outcomes_module)
-                .map_or_else(Box::default, |o| o.rows(&mut problems)),
+                .map_or_else(Box::default, |o| o.rows(&mut problems, &mut dropped)),
             problems: problems.list,
+            dropped,
             arms: arm_rows,
             interventions,
         }
@@ -306,19 +316,19 @@ impl Eligibility {
     }
 }
 impl Outcomes {
-    fn rows(self, problems: &mut Problems) -> Box<[TrialOutcome]> {
+    fn rows(self, problems: &mut Problems, dropped: &mut bool) -> Box<[TrialOutcome]> {
         [
             (
                 TrialOutcomeKind::Primary,
-                problems.fields("primaryOutcomes", self.primary_outcomes),
+                problems.record_fields("primaryOutcomes", self.primary_outcomes, dropped),
             ),
             (
                 TrialOutcomeKind::Secondary,
-                problems.fields("secondaryOutcomes", self.secondary_outcomes),
+                problems.record_fields("secondaryOutcomes", self.secondary_outcomes, dropped),
             ),
             (
                 TrialOutcomeKind::Other,
-                problems.fields("otherOutcomes", self.other_outcomes),
+                problems.record_fields("otherOutcomes", self.other_outcomes, dropped),
             ),
         ]
         .into_iter()
@@ -346,10 +356,14 @@ fn age(
 }
 
 impl Arms {
-    fn rows(self, problems: &mut Problems) -> (Box<[TrialArm]>, Box<[TrialIntervention]>) {
+    fn rows(
+        self,
+        problems: &mut Problems,
+        dropped: &mut bool,
+    ) -> (Box<[TrialArm]>, Box<[TrialIntervention]>) {
         (
             problems
-                .fields("armGroups", self.arm_groups)
+                .record_fields("armGroups", self.arm_groups, dropped)
                 .into_vec()
                 .into_iter()
                 .map(|v| TrialArm {
@@ -361,7 +375,7 @@ impl Arms {
                 })
                 .collect(),
             problems
-                .fields("interventions", self.interventions)
+                .record_fields("interventions", self.interventions, dropped)
                 .into_vec()
                 .into_iter()
                 .map(|v| TrialIntervention {

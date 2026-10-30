@@ -140,12 +140,8 @@ fn present(
         truncated: None,
     });
     {
-        let (found, identity_failed, unavailable) = if saved.source.state == SourceState::Stale {
-        (true, false, true)
-    } else {
-        (true, false, false)
-    };
-        crate::status::item(out, found, identity_failed, unavailable);
+        let unavailable = saved.source.state == SourceState::Stale;
+        crate::status::item(out, true, false, unavailable);
     };
     if saved.key_needed && saved.source.reason == Some(Reason::RateLimited) {
         super::key_step(out);

@@ -3,7 +3,8 @@ use super::empty;
 use crate::{Action, Bundle, Ctx, Outcome, status};
 use biomcp_adapters::who_pq;
 use biomcp_types::{
-    DrugSearch, DrugWhoGet, DrugWhoPage, PageInfo, QueryBody, Request, Source, SourceState, StepKind,
+    DrugSearch, DrugWhoGet, DrugWhoPage, PageInfo, QueryBody, Request, Source, SourceState,
+    StepKind,
 };
 pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     let mut out = empty(QueryBody::DrugWhoPage(DrugWhoPage {

@@ -3,8 +3,8 @@ use crate::{Ctx, Outcome};
 use biodata::Variant;
 use biomcp_fetch::Deadline;
 use biomcp_types::{
-    QueryBody, Source, VariantCard, VariantGet, VariantHeader, VariantNamespace,
-    VariantResolution, VariantSection,
+    QueryBody, Source, VariantCard, VariantGet, VariantHeader, VariantNamespace, VariantResolution,
+    VariantSection,
 };
 pub(super) fn source(cx: &Ctx<'_>, query: &VariantGet) -> Option<Source> {
     let [section] = query.sections() else {
@@ -92,23 +92,26 @@ pub(super) fn get(
         crate::status::item_status(true, false, false)
     };
     let next = super::next(query, VariantResolution::Unresolved, &candidates, None);
-    crate::status::finish([status], crate::status::Parts {
-        dropped: false,
-        body: QueryBody::VariantCard(VariantCard {
-            resolution: VariantResolution::Unresolved,
-            source,
-            candidates: candidates.into(),
-            rejection: None,
-        }),
-        page: None,
-        sources: sources.clone(),
-        problems,
-        next: {
-            let mut next = next;
-            next.extend(super::oncokb::next(query, &sources));
-            next.extend(super::alphagenome::next(&sources));
-            next
+    crate::status::finish(
+        [status],
+        crate::status::Parts {
+            dropped: false,
+            body: QueryBody::VariantCard(VariantCard {
+                resolution: VariantResolution::Unresolved,
+                source,
+                candidates: candidates.into(),
+                rejection: None,
+            }),
+            page: None,
+            sources: sources.clone(),
+            problems,
+            next: {
+                let mut next = next;
+                next.extend(super::oncokb::next(query, &sources));
+                next.extend(super::alphagenome::next(&sources));
+                next
+            },
+            local,
         },
-        local,
-    })
+    )
 }

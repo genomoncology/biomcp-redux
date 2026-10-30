@@ -4,7 +4,8 @@ use biomcp_adapters::pubtator;
 use biomcp_fetch::{Deadline, RequestError};
 use biomcp_types::{
     Annotations, ArticleCardItem, ArticleResolution, Problem, Section, Source, SourceOutcome,
-    SourceState, };
+    SourceState,
+};
 pub(super) struct Result {
     pub values: Vec<(Pmid, Section<Annotations>)>,
     pub source: SourceOutcome,

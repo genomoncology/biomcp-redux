@@ -139,11 +139,12 @@ fn present(
         truncated: None,
     });
     {
-        let (found, identity_failed, unavailable) = if saved.source.state == SourceState::Stale || !out.problems.is_empty() {
-        (true, false, true)
-    } else {
-        (true, false, false)
-    };
+        let (found, identity_failed, unavailable) =
+            if saved.source.state == SourceState::Stale || !out.problems.is_empty() {
+                (true, false, true)
+            } else {
+                (true, false, false)
+            };
         crate::status::item(out, found, identity_failed, unavailable);
     };
     if saved.key_needed && saved.source.reason == Some(Reason::RateLimited) {

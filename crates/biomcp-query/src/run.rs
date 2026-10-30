@@ -1,7 +1,7 @@
 use crate::{Ctx, gene};
 
-use biomcp_types::Request;
 use crate::Outcome;
+use biomcp_types::Request;
 /// Housekeeping selector independent of an entity query.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Bundle {

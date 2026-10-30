@@ -120,7 +120,7 @@ pub(super) fn run<'a>(
         annotations::join(&mut cards.items, &result);
         out.local = out.local.or(result.local);
         let state = status::status(cards.items.iter().map(|i| i.status));
-    status::get(out, [state].into_iter());
+        status::get(out, [state].into_iter());
         status::append(&mut out.problems, result.problems);
         out.sources.push(result.source);
     }

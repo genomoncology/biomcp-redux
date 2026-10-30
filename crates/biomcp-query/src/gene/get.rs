@@ -64,17 +64,20 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &GeneGet) -> Outcome {
     sections::offer_oncokb(query, &mut items, &sources);
     let state = status::status(items.iter().map(|item| item.status));
     let next = next::get(query, &items, &sources);
-    crate::status::finish([state], crate::status::Parts {
-        dropped: false,
-        body: QueryBody::GeneCards(GeneCards {
-            items: items.into(),
-        }),
-        page: None,
-        sources,
-        problems,
-        next,
-        local,
-    })
+    crate::status::finish(
+        [state],
+        crate::status::Parts {
+            dropped: false,
+            body: QueryBody::GeneCards(GeneCards {
+                items: items.into(),
+            }),
+            page: None,
+            sources,
+            problems,
+            next,
+            local,
+        },
+    )
 }
 fn join(
     item: &mut GeneItem,

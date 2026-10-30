@@ -45,7 +45,7 @@ pub fn get(cx: &Ctx<'_>, q: &AuthorGet) -> Outcome {
             super::source_error(reply.as_ref().err().copied()),
         );
         if outcome.state == SourceState::Stale && state == Status::Complete {
-            state = Status::Partial;
+            state = crate::status::item_status(true, false, true);
         }
         if let Some(existing) = out.sources.iter_mut().find(|s| s.source == source) {
             status::retain_source_state(existing, &outcome);

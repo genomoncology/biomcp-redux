@@ -7,13 +7,11 @@ mod papers_snapshot;
 mod search;
 mod semantic_scholar;
 mod snapshot;
+pub(super) use crate::status::empty;
 use crate::{Action, Outcome};
-use biomcp_types::{
-    Problem, ProblemCode, Reason, Request, Source, SourceState, StepKind,
-};
+use biomcp_types::{Problem, ProblemCode, Reason, Request, Source, SourceState, StepKind};
 pub use get::get;
 pub use search::search;
-pub(super) use crate::status::empty;
 fn run(request: Request) -> Action {
     Action::Run {
         request,

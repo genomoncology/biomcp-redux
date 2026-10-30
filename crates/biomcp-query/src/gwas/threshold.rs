@@ -49,15 +49,7 @@ impl Saved {
 pub(super) fn search(cx: &Ctx<'_>, q: &GwasSearch) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
-    let mut out = crate::status::finish([crate::status::item_status(false, true, false)], crate::status::Parts {
-        dropped: false,
-        body: QueryBody::GwasPage(None),
-        page: None,
-        sources: vec![],
-        problems: vec![],
-        next: vec![],
-        local: None,
-    });
+    let mut out = crate::status::empty(QueryBody::GwasPage(None));
     if let Err(error) = read(cx, q, deadline, &mut out) {
         out.local = status::local(error);
         out.body = QueryBody::GwasPage(None);
@@ -284,16 +276,11 @@ fn render(cx: &Ctx<'_>, q: &GwasSearch, saved: Saved, pool: Pool, out: &mut Outc
     out.page = Some(page);
     out.body = QueryBody::GwasPage(Some(body));
     {
-        let (found, identity_failed, unavailable) = if !out.problems.is_empty()
-        || out
-            .sources
-            .iter()
-            .any(|s| s.state == biomcp_types::SourceState::Stale)
-    {
-        (true, false, true)
-    } else {
-        (true, false, false)
-    };
-        crate::status::item(out, found, identity_failed, unavailable);
+        let unavailable = !out.problems.is_empty()
+            || out
+                .sources
+                .iter()
+                .any(|s| s.state == biomcp_types::SourceState::Stale);
+        crate::status::item(out, true, false, unavailable);
     };
 }

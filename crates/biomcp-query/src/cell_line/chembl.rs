@@ -45,15 +45,15 @@ pub(super) fn get_at(
         let (items, total, metadata, received) = reply.value;
         let end = u64::from(body.offset) + u64::from(received);
         {
-        let (found, identity_failed, unavailable) = if total == 0 {
-            (false, false, false)
-        } else if !out.problems.is_empty() || end < total {
-            (true, false, true)
-        } else {
-            (true, false, false)
+            let (found, identity_failed, unavailable) = if total == 0 {
+                (false, false, false)
+            } else if !out.problems.is_empty() || end < total {
+                (true, false, true)
+            } else {
+                (true, false, false)
+            };
+            crate::status::item(&mut out, found, identity_failed, unavailable);
         };
-        crate::status::item(&mut out, found, identity_failed, unavailable);
-    };
         if end < total
             && let Some(offset) = body.offset.checked_add(limit)
         {

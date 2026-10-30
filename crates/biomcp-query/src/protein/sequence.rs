@@ -52,13 +52,9 @@ pub(super) fn run(cx: &Ctx<'_>, q: &ProteinSequenceQuery) -> Outcome {
     if let Ok(mapped) = result {
         out.problems = mapped.problems;
         {
-        let (found, identity_failed, unavailable) = if mapped.value.is_some() {
-            (true, false, false)
-        } else {
-            (false, false, false)
+            let found = mapped.value.is_some();
+            crate::status::item(&mut out, found, false, false);
         };
-        crate::status::item(&mut out, found, identity_failed, unavailable);
-    };
         if !out.problems.is_empty() {
             crate::status::item(&mut out, false, true, false);
         }

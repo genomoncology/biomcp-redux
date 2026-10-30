@@ -1,10 +1,10 @@
 //! Literal study catalog reads with checked source admission and fixed continuation state.
 mod page;
+pub(super) use crate::status::empty;
 use crate::{Action, Bundle, Ctx, Outcome, status};
 use biomcp_adapters::cbioportal::{SPEC, studies};
 use biomcp_fetch::{Leg, RequestError};
 use biomcp_types::{QueryBody, Source, SourceState, Status, StepKind, StudySearch};
-pub(super) use crate::status::empty;
 fn finish(out: &mut Outcome, leg: Leg<'_>, error: Option<RequestError>) {
     out.local = error.and_then(status::local);
     out.sources

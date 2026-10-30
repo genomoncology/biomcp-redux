@@ -11,8 +11,8 @@
         "NCT03511664"
       ],
       "expect": {
-        "/status": "partial",
-        "/result/items/0/status": "partial",
+        "/status": "complete",
+        "/result/items/0/status": "complete",
         "/result/items/0/card/nct_id": "NCT03511664",
         "/result/items/0/card/phases": {
           "equals": [
@@ -45,8 +45,8 @@
         "NCT03511664"
       ],
       "expect": {
-        "/status": "partial",
-        "/result/items/0/status": "partial",
+        "/status": "complete",
+        "/result/items/0/status": "complete",
         "/result/items/0/card/nct_id": "NCT03511664",
         "/result/items/0/card/phases": {
           "equals": [

@@ -54,7 +54,7 @@ pub(super) fn cards<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut Out
         }
         out.sources.push(source);
         let state = status::status(cards.items.iter().map(|i| i.status));
-    status::get(out, [state].into_iter());
+        status::get(out, [state].into_iter());
     }
 }
 pub(super) fn fulltext<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut Outcome) {
@@ -128,6 +128,6 @@ pub(super) fn fulltext<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut 
             out.sources.push(source);
         }
         let state = status::status(cards.items.iter().map(|i| i.status));
-    status::get(out, [state].into_iter());
+        status::get(out, [state].into_iter());
     }
 }

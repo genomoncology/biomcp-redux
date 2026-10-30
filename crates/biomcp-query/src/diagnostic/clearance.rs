@@ -12,13 +12,9 @@ pub(super) fn get(cx: &Ctx<'_>, q: &DiagnosticGet) -> Outcome {
     let error = match fda_510k::get(&leg, q) {
         Ok(card) => {
             {
-        let (found, identity_failed, unavailable) = if card.is_some() {
-                (true, false, false)
-            } else {
-                (false, false, false)
+                let found = card.is_some();
+                crate::status::item(&mut out, found, false, false);
             };
-        crate::status::item(&mut out, found, identity_failed, unavailable);
-    };
             if card.is_some() {
                 if let Ok(search) = serde_json::from_value::<DiagnosticSearch>(
                     serde_json::json!({"source":"fda-cdx","device_id":q.id()}),

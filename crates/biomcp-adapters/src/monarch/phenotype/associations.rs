@@ -68,6 +68,7 @@ pub fn get(leg: &Leg<'_>, query: &PhenotypeGet) -> Result<super::super::Page, Re
         }
     }
     Ok(super::super::Page {
+        dropped: items.len() < received as usize,
         received,
         problems,
         items,

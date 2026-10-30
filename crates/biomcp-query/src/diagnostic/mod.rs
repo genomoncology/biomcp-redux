@@ -6,6 +6,7 @@ mod next;
 mod pma;
 mod recall;
 mod who;
+pub(super) use crate::status::empty;
 use crate::{Action, Bundle, Ctx, Outcome, status};
 use biomcp_adapters::gtr;
 use biomcp_fetch::{Leg, RequestError};
@@ -14,7 +15,6 @@ use biomcp_types::{
     SourceState, Status, StepKind,
 };
 pub use get::get;
-pub(super) use crate::status::empty;
 fn finish(out: &mut Outcome, leg: Leg<'_>, error: Option<RequestError>) {
     finish_bundle(out, leg, error, Source::Gtr, Bundle::Gtr);
 }

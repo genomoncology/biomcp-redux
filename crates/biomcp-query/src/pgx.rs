@@ -9,7 +9,8 @@ use biomcp_fetch::{Leg, RequestError};
 use biomcp_types::{
     PgxCard, PgxDiplotype, PgxGet, PgxGuidelines, PgxHeader, PgxPage, PgxPageInfo,
     PgxRecommendations, PgxSearch, PgxSection, PgxSource, PgxTotalKind, Problem, ProblemCode,
-    QueryBody, Reason, Request, Source, SourceOutcome, SourceState, };
+    QueryBody, Reason, Request, Source, SourceOutcome, SourceState,
+};
 /// Discover one independent native CPIC pair page.
 pub fn search(cx: &Ctx<'_>, query: &PgxSearch) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
@@ -161,15 +162,18 @@ fn finish(
     } else {
         crate::status::item_status(true, false, false)
     };
-    crate::status::finish([state], crate::status::Parts {
-        dropped: false,
-        body: reply.unwrap_or(empty),
-        page: None,
-        problems: record_problem(&source).into_iter().collect(),
-        sources: vec![source],
-        next: vec![],
-        local: error.and_then(status::local),
-    })
+    crate::status::finish(
+        [state],
+        crate::status::Parts {
+            dropped: false,
+            body: reply.unwrap_or(empty),
+            page: None,
+            problems: record_problem(&source).into_iter().collect(),
+            sources: vec![source],
+            next: vec![],
+            local: error.and_then(status::local),
+        },
+    )
 }
 fn header(gene: &biodata::GeneSymbol) -> PgxHeader {
     PgxHeader {

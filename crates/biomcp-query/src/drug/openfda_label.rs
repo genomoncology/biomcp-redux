@@ -41,13 +41,9 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     if let Ok((items, total, scanned)) = result {
         let returned = items.len() as u32;
         {
-        let (found, identity_failed, unavailable) = if returned == 0 {
-            (false, false, false)
-        } else {
-            (true, false, false)
+            let found = !(returned == 0);
+            crate::status::item(&mut out, found, false, false);
         };
-        crate::status::item(&mut out, found, identity_failed, unavailable);
-    };
         if let Some(source) = out.sources.first_mut() {
             source.count = Some(total);
             source.retrieved_count = Some(returned);

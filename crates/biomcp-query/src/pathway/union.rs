@@ -126,14 +126,15 @@ fn present(q: &PathwaySearch, saved: Saved, pool: biodata::Text, out: &mut Outco
         .any(|s| matches!(s.state, SourceState::Ok | SourceState::Stale));
     {
         let (found, identity_failed, unavailable) = if !usable {
-        (false, true, false)
-    } else if out.sources.iter().any(|s| s.state != SourceState::Ok) || !out.problems.is_empty() {
-        (true, false, true)
-    } else if saved.0.page.total == 0 {
-        (false, false, false)
-    } else {
-        (true, false, false)
-    };
+            (false, true, false)
+        } else if out.sources.iter().any(|s| s.state != SourceState::Ok) || !out.problems.is_empty()
+        {
+            (true, false, true)
+        } else if saved.0.page.total == 0 {
+            (false, false, false)
+        } else {
+            (true, false, false)
+        };
         crate::status::item(out, found, identity_failed, unavailable);
     };
     out.body = QueryBody::PathwayPage(saved.0);

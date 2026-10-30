@@ -1,6 +1,7 @@
 //! Reuse the shared source snapshot store; admission precedes every retained read.
 use super::{
-    Action, AdverseEventGet, AdverseEventSection, Ctx, Outcome, QueryBody, Request, Source, StepKind, Text, maude,
+    Action, AdverseEventGet, AdverseEventSection, Ctx, Outcome, QueryBody, Request, Source,
+    StepKind, Text, maude,
 };
 use crate::{status, store::Store};
 use biomcp_fetch::{CacheError, Deadline, RequestError, SourceError};
@@ -82,16 +83,11 @@ pub(super) fn load(
     };
     out.sources = saved.1;
     {
-        let (found, identity_failed, unavailable) = if out
-        .sources
-        .iter()
-        .any(|s| s.state == biomcp_types::SourceState::Stale)
-    {
-        (true, false, true)
-    } else {
-        (true, false, false)
-    };
-        crate::status::item(out, found, identity_failed, unavailable);
+        let unavailable = out
+            .sources
+            .iter()
+            .any(|s| s.state == biomcp_types::SourceState::Stale);
+        crate::status::item(out, true, false, unavailable);
     };
     Ok(Some((saved.0, snapshot)))
 }

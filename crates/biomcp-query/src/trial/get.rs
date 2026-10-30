@@ -116,7 +116,14 @@ fn restore(
             leg.finish(),
             error,
         ));
-        finish(vec![unresolved(id, crate::status::item_status(false, true, false))], None, out);
+        finish(
+            vec![unresolved(
+                id,
+                crate::status::item_status(false, true, false),
+            )],
+            None,
+            out,
+        );
         return Ok(());
     }
     let store = Store::open(cx.fetch.cache_access()?, deadline)?;
@@ -176,25 +183,18 @@ fn finish(
     });
 }
 fn empty() -> Outcome {
-    crate::status::finish([crate::status::item_status(false, true, false)], crate::status::Parts {
-        dropped: false,
-        body: QueryBody::TrialCards(TrialCards {
-            items: Box::default(),
-            source_updated: None,
-            attribution: "ClinicalTrials.gov".into(),
-        }),
-        page: None,
-        sources: Vec::new(),
-        problems: Vec::new(),
-        next: Vec::new(),
-        local: None,
-    })
+    crate::status::empty(QueryBody::TrialCards(TrialCards {
+        items: Box::default(),
+        source_updated: None,
+        attribution: "ClinicalTrials.gov".into(),
+    }))
 }
 fn partial(snapshot: &Snapshot) -> bool {
-    !snapshot.detail.problems.is_empty()
-        || snapshot.version.is_none()
-        || snapshot
-            .sources
-            .iter()
-            .any(|s| s.state == SourceState::Stale)
+    snapshot.detail.dropped
+        || snapshot.sources.iter().any(|s| {
+            matches!(
+                s.state,
+                SourceState::Failed | SourceState::Stale | SourceState::Syncing
+            )
+        })
 }

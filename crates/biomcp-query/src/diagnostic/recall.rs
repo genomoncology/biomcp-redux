@@ -20,13 +20,9 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
     if let Ok(page) = result {
         let returned = page.items.len() as u32;
         {
-        let (found, identity_failed, unavailable) = if page.total == 0 {
-            (false, false, false)
-        } else {
-            (true, false, false)
+            let found = !(page.total == 0);
+            crate::status::item(&mut out, found, false, false);
         };
-        crate::status::item(&mut out, found, identity_failed, unavailable);
-    };
         out.problems = page.problems;
         next::candidates(&mut out, q, &page.items, cx.fresh);
         if u64::from(q.offset()) + u64::from(returned) < page.total && returned > 0 {

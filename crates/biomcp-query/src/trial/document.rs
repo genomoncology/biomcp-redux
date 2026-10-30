@@ -18,27 +18,16 @@ pub fn download(cx: &Ctx<'_>, query: &TrialDocumentGet, allow: bool) -> Download
         .fetch
         .leg(&ctgov::SPEC, command.deadline())
         .fresh(cx.fresh);
-    let mut out = crate::status::finish([crate::status::item_status(true, false, false)], crate::status::Parts {
-        dropped: false,
-        body: QueryBody::TrialDocument(TrialDocumentResult {
-            file: Section::Empty {
-                source: Source::ClinicalTrialsGov,
-                record: None,
-            },
-        }),
-        page: None,
-        sources: Vec::new(),
-        problems: Vec::new(),
-        next: Vec::new(),
-        local: None,
-    });
+    let mut out = crate::status::ready(QueryBody::TrialDocument(TrialDocumentResult {
+        file: Section::Empty {
+            source: Source::ClinicalTrialsGov,
+            record: None,
+        },
+    }));
     let result = ctgov::detail::get(&leg, query.input).and_then(|(detail, _)| {
-        let incomplete_manifest = detail.problems.iter().any(|problem| {
-            problem.field.starts_with("largeDoc") || problem.field.starts_with("documentSection")
-        });
-        if !detail.problems.is_empty() {
-            crate::status::item(&mut out, true, false, true);
-        }
+        let incomplete_manifest = detail.documents_dropped;
+        out.dropped = detail.dropped;
+        crate::status::item(&mut out, true, false, false);
         out.problems.extend(detail.problems);
         let Some(document) = detail
             .documents

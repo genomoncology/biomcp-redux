@@ -66,12 +66,8 @@ pub(super) fn read(
     out.sources = saved.1;
     out.problems = saved.2;
     {
-        let (found, identity_failed, unavailable) = if out.problems.is_empty() {
-        (true, false, false)
-    } else {
-        (true, false, true)
-    };
-        crate::status::item(out, found, identity_failed, unavailable);
+        let unavailable = !(out.problems.is_empty());
+        crate::status::item(out, true, false, unavailable);
     };
     let q = q.with_page(window.with_snapshot(token));
     let (items, continuation) = page(&q, &saved.0, out);
