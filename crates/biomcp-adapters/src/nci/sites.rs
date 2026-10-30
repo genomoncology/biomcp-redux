@@ -20,10 +20,12 @@ impl super::Trial {
             record: Some(self.nci_id.clone()),
             list: Vec::new(),
         };
+        let mut refusals = self.refusals;
         let expected = name.as_str().to_lowercase();
         let mut count = 0;
-        for row in p.fields("sites", self.sites.take()) {
+        for row in p.records("sites", self.sites.take(), &mut refusals) {
             let Some(org_name) = p.required_source_field("sites.org_name", row.org_name) else {
+                refusals = crate::Refusal::Refused;
                 continue;
             };
             if org_name.as_str().to_lowercase() != expected {
@@ -45,7 +47,7 @@ impl super::Trial {
             p.required::<Text>("sites.org_name", None);
         }
         Mapped {
-            refusals: crate::Refusal::None,
+            refusals,
             value: card,
             problems: p.list,
         }

@@ -11,17 +11,18 @@ impl From<wire::Application> for Application {
             record: crate::mapped::record(&row.application_number),
             list: Vec::new(),
         };
+        let mut refusals = crate::Refusal::None;
         let products = p
-            .fields("products", row.products)
+            .records("products", row.products, &mut refusals)
             .into_vec()
             .into_iter()
-            .map(|v| product(v, &mut p))
+            .map(|v| product(v, &mut p, &mut refusals))
             .collect();
         let submissions = p
-            .fields("submissions", row.submissions)
+            .records("submissions", row.submissions, &mut refusals)
             .into_vec()
             .into_iter()
-            .map(|v| submission(v, &mut p))
+            .map(|v| submission(v, &mut p, &mut refusals))
             .collect();
         let openfda = p.field("openfda", row.openfda).map(|v| OpenFda {
             spl_set_id: p.field("openfda.spl_set_id", v.spl_set_id).map(|values| {
@@ -32,6 +33,7 @@ impl From<wire::Application> for Application {
             }),
         });
         Self {
+            refusals,
             application_number: row.application_number,
             sponsor_name: p.source_field("sponsor_name", row.sponsor_name),
             products,
@@ -41,12 +43,12 @@ impl From<wire::Application> for Application {
         }
     }
 }
-fn product(row: wire::Product, p: &mut Problems) -> Product {
+fn product(row: wire::Product, p: &mut Problems, refusals: &mut crate::Refusal) -> Product {
     Product {
         product_number: row.product_number,
         brand_name: p.source_field("product.brand_name", row.brand_name),
         active_ingredients: p
-            .fields("product.active_ingredients", row.active_ingredients)
+            .records("product.active_ingredients", row.active_ingredients, refusals)
             .into_vec()
             .into_iter()
             .map(|v| ingredient(v, p))
@@ -65,7 +67,7 @@ fn ingredient(row: wire::Ingredient, p: &mut Problems) -> Ingredient {
         strength: p.field("ingredient.strength", row.strength),
     }
 }
-fn submission(row: wire::Submission, p: &mut Problems) -> Submission {
+fn submission(row: wire::Submission, p: &mut Problems, refusals: &mut crate::Refusal) -> Submission {
     Submission {
         submission_type: p.field("submission.submission_type", row.submission_type),
         submission_number: row.submission_number,
@@ -94,7 +96,7 @@ fn submission(row: wire::Submission, p: &mut Problems) -> Submission {
                 values
                     .into_iter()
                     .filter_map(|v| {
-                        p.field("submission.submission_property_type", Some(v))
+                        p.record("submission.submission_property_type", v, refusals)
                             .map(|v| property(v, p))
                     })
                     .collect()
@@ -105,7 +107,7 @@ fn submission(row: wire::Submission, p: &mut Problems) -> Submission {
                 values
                     .into_iter()
                     .filter_map(|v| {
-                        p.field("submission.application_docs", Some(v))
+                        p.record("submission.application_docs", v, refusals)
                             .map(|v| document(v, p))
                     })
                     .collect()

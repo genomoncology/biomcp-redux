@@ -7,6 +7,8 @@ use biomcp_types::{
 /// One native ordered report page; no drug/reaction-array join.
 #[derive(Debug)]
 pub struct Page {
+    /// Actual refused native records, independent of optional fields.
+    pub refusals: crate::Refusal,
     /// Rejected optional source metadata.
     pub problems: Vec<biomcp_types::Problem>,
     /// Applicable filtered terminology terms, independent of service terms.
@@ -100,6 +102,7 @@ pub fn search(leg: &Leg<'_>, query: &AdverseEventSearch) -> Result<Page, Request
     };
     match response {
         raw::Response::Page { meta, results } => Ok(Page {
+            refusals: crate::Refusal::None,
             components,
             items: results
                 .into_iter()
@@ -121,6 +124,7 @@ pub fn search(leg: &Leg<'_>, query: &AdverseEventSearch) -> Result<Page, Request
             metadata,
         }),
         raw::Response::Absent { .. } => Ok(Page {
+            refusals: crate::Refusal::None,
             components,
             items: Vec::new(),
             total: 0,
