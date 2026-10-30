@@ -85,7 +85,6 @@ option get protein --section
 option get protein --section-limit
 option get study --section-limit
 option get study --section-offset
-option get trial --limit
 option get trial --offset
 option get trial --pool
 option get trial --section
