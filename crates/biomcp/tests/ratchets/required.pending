@@ -1,4 +1,3 @@
-failure trial not-found
 option article citation-evidence --offset
 option article citation-evidence --paragraph-offset
 option article citations --offset

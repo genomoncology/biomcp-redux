@@ -33,7 +33,7 @@ pub(super) fn trials() -> Vec<Trial> {
         transcript_trial("trial-get/get/identity-and-failure-boundaries", || {
             failures().map_err(|e| e.to_string().into())
         }),
-        transcript_trial("trial-get/get/independent-input-states", || {
+        transcript_trial(crate::runner::pool_contract::TRIAL_ABSENCE.0, || {
             batch().map_err(|e| e.to_string().into())
         }),
         transcript_trial(crate::runner::pool_contract::TRIAL.0, || {

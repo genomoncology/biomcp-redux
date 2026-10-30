@@ -49,3 +49,9 @@ pub(crate) const TRIAL: (&str, &[&str]) = (
         "failure trial expired-pool",
     ],
 );
+
+// Native NCT01811710 HTTP404 absence stays independent of a synthetic sibling outage.
+pub(crate) const TRIAL_ABSENCE: (&str, &[&str]) = (
+    "trial-get/get/independent-input-states",
+    &["failure trial not-found"],
+);
