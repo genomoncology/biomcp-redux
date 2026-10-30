@@ -110,7 +110,7 @@ fn start_input(sender: mpsc::SyncSender<Event>) -> io::Result<()> {
 
 impl Server {
     fn message(&mut self, frame: &[u8]) -> io::Result<Option<Value>> {
-        match rpc::message(frame, &mut self.legacy, false) {
+        match rpc::message(frame, &mut self.legacy, self.globals.hosted) {
             rpc::Message::Reply(reply) => Ok(Some(reply)),
             rpc::Message::Tool { id, params, modern } => self.admit(id, &params, modern),
             rpc::Message::Notification { method, params } => {
