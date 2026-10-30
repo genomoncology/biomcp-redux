@@ -28,7 +28,7 @@ pub(super) fn trials() -> Vec<Trial> {
             for config in [Config::Absent, Config::Default, Config::Explicit] {
                 let words = words.clone();
                 let name = format!(
-                    "terminal-format/{command}/{}/{config:?}",
+                    "markdown-view/terminal-format/{command}/{}/{config:?}",
                     format.unwrap_or("absent")
                 );
                 trials.push(transcript_trial(name, move || {
@@ -62,7 +62,7 @@ pub(super) fn trials() -> Vec<Trial> {
         ),
     ] {
         trials.push(transcript_trial(
-            format!("terminal-format/{name}"),
+            format!("markdown-view/{name}"),
             move || check(&words, exit, None, Config::Absent).map_err(|e| e.to_string().into()),
         ));
     }

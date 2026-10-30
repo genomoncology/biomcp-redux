@@ -1,5 +1,5 @@
 {
-  "feature": "generated-help",
+  "feature": "drug-help",
   "story": "Drug help exposes source-scoped sections and options with two executable examples per command and bundle sync.",
   "steps": [
     {

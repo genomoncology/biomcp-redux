@@ -25,7 +25,7 @@ with tarfile.open(archives/'j14211-j14221-identity-followup.tar.gz') as archive:
 (output/'requests.json').write_text(json.dumps(requests))
 cases = output/'cases'
 cases.mkdir()
-budgets = json.loads((Path(__file__).resolve().parent.parent / 'tests/protein-domain-budgets.json').read_text())
+budgets = json.loads((Path(__file__).resolve().parent.parent / 'tests/protein-domain-budgets.yaml').read_text())
 
 def case(name, args, expect):
     ceiling = (budgets[name][1] * 115 + 99) // 100

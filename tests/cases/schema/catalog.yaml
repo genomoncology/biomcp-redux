@@ -1,5 +1,5 @@
 live_check: local-only case
-feature: schema
+feature: schema-discovery
 story: A caller discovers reply contracts without guessing an identity
 steps:
   - run: [schema]

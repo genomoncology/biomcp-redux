@@ -1,6 +1,6 @@
 {
   "live_check": "public",
-  "feature": "article-search",
+  "feature": "article-filters",
   "story": "PubMed journal fields keep the matched journal search order.",
   "replay": "article/filters/journal",
   "steps": [

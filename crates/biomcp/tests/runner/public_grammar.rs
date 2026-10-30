@@ -5,10 +5,10 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        transcript_trial("public-grammar/argument-errors", || {
+        transcript_trial("query-validation/argument-errors", || {
             errors().map_err(Into::into)
         }),
-        transcript_trial("public-grammar/described-help", || {
+        transcript_trial("query-validation/described-help", || {
             help().map_err(Into::into)
         }),
     ]

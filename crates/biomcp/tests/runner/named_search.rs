@@ -13,15 +13,16 @@ const WORDS: &str = "next-generation sequencing recommendations advanced cancer 
 const NONSENSE: &str = "xqzvw zzyzxq kinase";
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        transcript_trial("article/named-search/failures", || {
+        transcript_trial("article-named-search/named-search/failures", || {
             failures().map_err(|e| e.to_string().into())
         }),
-        transcript_trial("article/named-search/paging-and-join", || {
+        transcript_trial("article-named-search/named-search/paging-and-join", || {
             paging().map_err(|e| e.to_string().into())
         }),
-        transcript_trial("article/named-search/sentences-and-policies", || {
-            sentences().map_err(|e| e.to_string().into())
-        }),
+        transcript_trial(
+            "article-named-search/named-search/sentences-and-policies",
+            || sentences().map_err(|e| e.to_string().into()),
+        ),
     ]
 }
 fn failures() -> Check {

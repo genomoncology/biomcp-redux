@@ -1,5 +1,5 @@
 live_check: local-only case
-feature: schema
+feature: schema-discovery
 story: The error schema exposes its canonical artifact ID
 steps:
   - run: [schema, biomcp.error/3]

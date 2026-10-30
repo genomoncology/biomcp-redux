@@ -505,7 +505,7 @@ fn verdict(output: &Value, pointer: &str, assertion: &assertions::Assertion<'_>)
 pub(super) fn trials() -> Vec<libtest_mimic::Trial> {
     let mut trials = shared_proof::trials();
     trials.push(transcript_trial(
-        "parity/reject-wrong-baseline-release",
+        "mcp-parity/reject-wrong-baseline-release",
         || {
             let env = Environment::new().map_err(|e| e.to_string())?;
             let plan = crate::runner::launch::fixtures().join("parity/sample.json");

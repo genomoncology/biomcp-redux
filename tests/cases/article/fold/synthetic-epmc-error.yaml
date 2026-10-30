@@ -1,6 +1,6 @@
 {
   "live_check": "synthetic response case",
-  "feature": "article-search",
+  "feature": "article-fold",
   "story": "Synthetic Europe PMC error preserves the answering source and offline paging",
   "replay": "article/fold/synthetic-epmc-error",
   "steps": [

@@ -7,46 +7,47 @@ use std::fs;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
         transcript_trial(
-            "variant/assertions-erepo-invalid-criterion-keeps-document",
+            "variant-assertions/assertions-erepo-invalid-criterion-keeps-document",
             || history(2).map_err(Into::into),
         ),
         transcript_trial(
-            "variant/assertions-erepo-invalid-fields-keep-valid-siblings",
+            "variant-assertions/assertions-erepo-invalid-fields-keep-valid-siblings",
             || invalid_fields().map_err(Into::into),
         ),
         transcript_trial(
-            "variant/assertions-synthetic-drug-response-stays-native",
+            "variant-assertions/assertions-synthetic-drug-response-stays-native",
             || drug_response().map_err(Into::into),
         ),
         transcript_trial(
-            "variant/assertions-current-version-keeps-summary-panel",
+            "variant-assertions/assertions-current-version-keeps-summary-panel",
             || current_version().map_err(Into::into),
         ),
         transcript_trial(
-            "variant/assertions-disabled-before-identity-and-join",
+            "variant-assertions/assertions-disabled-before-identity-and-join",
             || disabled().map_err(Into::into),
         ),
         transcript_trial(
-            "variant/assertions-native-row-walk-preserves-unmapped",
+            "variant-assertions/assertions-native-row-walk-preserves-unmapped",
             || native_walk().map_err(Into::into),
         ),
         transcript_trial(
-            "variant/assertions-erepo-selected-version-uses-only-document",
+            "variant-assertions/assertions-erepo-selected-version-uses-only-document",
             || history(0).map_err(Into::into),
         ),
         transcript_trial(
-            "variant/assertions-erepo-wrong-version-is-never-cached",
+            "variant-assertions/assertions-erepo-wrong-version-is-never-cached",
             || history(1).map_err(Into::into),
         ),
         transcript_trial(
-            "variant/assertions-erepo-source-zero-is-not-unknown-allele",
+            "variant-assertions/assertions-erepo-source-zero-is-not-unknown-allele",
             || erepo_absence().map_err(Into::into),
         ),
-        transcript_trial("variant/assertions-erepo-route404-is-not-empty", || {
-            route_failure().map_err(Into::into)
-        }),
         transcript_trial(
-            "variant/assertions-erepo-private-identity-never-caches",
+            "variant-assertions/assertions-erepo-route404-is-not-empty",
+            || route_failure().map_err(Into::into),
+        ),
+        transcript_trial(
+            "variant-assertions/assertions-erepo-private-identity-never-caches",
             || wrong_identity().map_err(Into::into),
         ),
     ]

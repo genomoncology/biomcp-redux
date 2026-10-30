@@ -7,7 +7,7 @@ type Check = Result<(), Box<dyn std::error::Error>>;
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![transcript_trial(
-        "trial/get/structural-eligibility-pages",
+        "trial-get/get/structural-eligibility-pages",
         || boundaries().map_err(|e| e.to_string().into()),
     )]
 }

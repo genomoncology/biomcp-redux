@@ -1,6 +1,6 @@
 {
   "live_check": "public",
-  "feature": "article-commands",
+  "feature": "article-retired",
   "story": "Retired article spellings give fixed guidance and preserve argument boundaries",
   "replay": "article/annotations/live",
   "steps": [

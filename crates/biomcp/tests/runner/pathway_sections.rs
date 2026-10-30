@@ -8,23 +8,23 @@ use std::{collections::BTreeSet, io::Write};
 type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        transcript_trial("pathway-sections/native-reference-walk", || {
+        transcript_trial("pathway-reactome/native-reference-walk", || {
             walk(true).map_err(Into::into)
         }),
-        transcript_trial("pathway-sections/native-event-walk", || {
+        transcript_trial("pathway-reactome/native-event-walk", || {
             walk(false).map_err(Into::into)
         }),
-        transcript_trial("pathway-sections/pool-binding-and-fixed-lifetime", || {
+        transcript_trial("pathway-reactome/pool-binding-and-fixed-lifetime", || {
             bindings().map_err(Into::into)
         }),
-        transcript_trial("pathway-sections/warm-hgnc-uniprot-index-migration", || {
+        transcript_trial("pathway-reactome/warm-hgnc-uniprot-index-migration", || {
             migration().map_err(Into::into)
         }),
         transcript_trial(
-            "pathway-sections/compact-and-complete-context-modes",
+            "pathway-reactome/compact-and-complete-context-modes",
             || disclosure_modes().map_err(Into::into),
         ),
-        transcript_trial("pathway-sections/native-disclosure-measurements", || {
+        transcript_trial("pathway-reactome/native-disclosure-measurements", || {
             measurements().map_err(Into::into)
         }),
     ]

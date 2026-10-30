@@ -1,6 +1,6 @@
 {
   "live_check": "public",
-  "feature": "article-search",
+  "feature": "article-filters",
   "story": "Explicit retraction inclusion preserves the default native PubMed pool and typed source flags",
   "replay": "article/search/live",
   "steps": [

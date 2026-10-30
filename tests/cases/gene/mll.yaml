@@ -1,6 +1,6 @@
 {
   "live_check": "public",
-  "feature": "gene-commands",
+  "feature": "gene-identity",
   "story": "MLL resolves to KMT2A while its unsupported patch contig is reported and primary chromosome spans remain",
   "replay": "gene/main",
   "steps": [

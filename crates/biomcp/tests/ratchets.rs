@@ -3,6 +3,8 @@
 mod dependencies;
 #[path = "ratchets/errors.rs"]
 mod errors;
+#[path = "runner/features.rs"]
+mod feature_contract;
 #[path = "ratchets/lints.rs"]
 mod lints;
 #[path = "ratchets/placement.rs"]

@@ -53,6 +53,9 @@ def smoke(binary, runner, fixtures, version, server_args=("serve",), timeout=Non
         require(any((root / "cache").rglob("*.sqlite")), "first tool call did not create the cache")
         checks.append("ordinary-cache-created")
         env.update(BIOMCP_TEST_EXECUTABLE=str(binary), BIOMCP_TEST_FIXTURES=str(fixtures))
+        tool = runner.with_name("tool-runner" + runner.suffix)
+        case_suite([str(tool), "--proofs"], env, root, fixtures, timeout)
+        checks.append("runner-proofs")
         summary = case_suite([str(runner)], env, root, fixtures, timeout)
         checks.append("all-cases-and-trials")
         return {"tools": tools, "checks": checks, **summary}

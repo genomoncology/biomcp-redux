@@ -5,7 +5,7 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 pub(super) fn trials() -> Vec<Trial> {
     vec![transcript_trial(
-        "variant/assertions-native-drug-response-disease-relationship",
+        "variant-identity/assertions-native-drug-response-disease-relationship",
         || relationship().map_err(Into::into),
     )]
 }

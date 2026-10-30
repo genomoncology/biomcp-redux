@@ -11,35 +11,42 @@ use std::fs;
 type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        transcript_trial("sources/article-resolver-retries-respect-disabled", || {
-            article_resolver_retries().map_err(Into::into)
-        }),
         transcript_trial(
-            "sources/next-preserves-selected-config-and-cli-policy",
+            "source-controls/article-resolver-retries-respect-disabled",
+            || article_resolver_retries().map_err(Into::into),
+        ),
+        transcript_trial(
+            "source-controls/next-preserves-selected-config-and-cli-policy",
             || next_config().map_err(Into::into),
         ),
-        transcript_trial("sources/keyed-health-uses-declared-api-route", || {
-            keyed_health().map_err(Into::into)
-        }),
-        transcript_trial("sources/disabled-leg-preserves-enabled-fold", || {
-            enabled_fold().map_err(Into::into)
-        }),
-        transcript_trial("sources/health-keeps-local-recording-errors-typed", || {
-            health_local().map_err(Into::into)
-        }),
-        transcript_trial("sources/disabled-before-warm-cache-and-sync", || {
-            disabled().map_err(Into::into)
-        }),
         transcript_trial(
-            "sources/health-terms-disable-union-and-unknown-refusal",
+            "source-controls/keyed-health-uses-declared-api-route",
+            || keyed_health().map_err(Into::into),
+        ),
+        transcript_trial(
+            "source-controls/disabled-leg-preserves-enabled-fold",
+            || enabled_fold().map_err(Into::into),
+        ),
+        transcript_trial(
+            "source-controls/health-keeps-local-recording-errors-typed",
+            || health_local().map_err(Into::into),
+        ),
+        transcript_trial(
+            "source-controls/disabled-before-warm-cache-and-sync",
+            || disabled().map_err(Into::into),
+        ),
+        transcript_trial(
+            "source-controls/health-terms-disable-union-and-unknown-refusal",
             || source_health().map_err(Into::into),
         ),
-        transcript_trial("sources/disabled-pools-never-restore-or-hydrate", || {
-            stored_pool().map_err(Into::into)
-        }),
-        transcript_trial("sources/disabled-recording-sends-no-request", || {
-            no_request().map_err(Into::into)
-        }),
+        transcript_trial(
+            "source-controls/disabled-pools-never-restore-or-hydrate",
+            || stored_pool().map_err(Into::into),
+        ),
+        transcript_trial(
+            "source-controls/disabled-recording-sends-no-request",
+            || no_request().map_err(Into::into),
+        ),
     ]
 }
 

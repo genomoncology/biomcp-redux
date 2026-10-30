@@ -1,5 +1,5 @@
 live_check: local-only case
-feature: schema
+feature: schema-discovery
 story: Schema validation applies with no optional assertions
 steps:
   - run: [schema, biomcp.source/1]

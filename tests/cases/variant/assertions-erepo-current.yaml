@@ -1,5 +1,5 @@
 {
-  "feature": "variant-assertions",
+  "feature": "variant-identity",
   "live_check": "synthetic response case",
   "story": "The TP53 expert-panel current version retains its source identity and panel",
   "replay": "variant/assertions/erepo-current",

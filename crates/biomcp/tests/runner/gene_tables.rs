@@ -19,10 +19,13 @@ type Check = Result<(), Box<dyn std::error::Error>>;
 pub(super) fn trials() -> Vec<Trial> {
     [
         (
-            "gene-commands/hgnc-boundaries",
+            "gene-identity/gene-commands/hgnc-boundaries",
             hgnc::check as fn() -> Check,
         ),
-        ("gene-commands/mygene-boundaries", mygene::check),
+        (
+            "gene-identity/gene-commands/mygene-boundaries",
+            mygene::check,
+        ),
         ("gene-sections/graphql-boundaries", graphql::check),
         ("gene-commands/bundle-rejections", rejections::check),
     ]

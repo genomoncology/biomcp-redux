@@ -1,6 +1,6 @@
 {
   "live_check": "public",
-  "feature": "gene-sections",
+  "feature": "gene-clingen",
   "story": "ClinGen sync imports both required summaries and sums their metadata",
   "replay": "gene/clingen",
   "steps": [

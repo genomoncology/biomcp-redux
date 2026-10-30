@@ -1,6 +1,6 @@
 {
   "live_check": "synthetic response case",
-  "feature": "gene-sections",
+  "feature": "gene-oncokb",
   "story": "Synthetic OncoKB mixed shares one version reply and preserves per-card outcomes",
   "replay": "gene/oncokb-synthetic/mixed",
   "config": {

@@ -15,7 +15,7 @@ mod trial_biomarker;
 type Check = Result<(), String>;
 const KEY: &str = "synthetic-nci-stored-key";
 pub(super) fn trials() -> Vec<Trial> {
-    let mut trials = vec![transcript_trial("trial/nci/wire-and-failures", || {
+    let mut trials = vec![transcript_trial("trial-nci/nci/wire-and-failures", || {
         wire().map_err(Into::into)
     })];
     trials.extend(organization::trials());

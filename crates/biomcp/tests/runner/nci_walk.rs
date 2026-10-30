@@ -11,16 +11,16 @@ use std::fs;
 type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        transcript_trial("trial/nci/age-unit-boundaries", || {
+        transcript_trial("trial-nci/nci/age-unit-boundaries", || {
             ages().map_err(Into::into)
         }),
-        transcript_trial("trial/nci/exact-source-identity", || {
+        transcript_trial("trial-nci/nci/exact-source-identity", || {
             identity().map_err(Into::into)
         }),
-        transcript_trial("trial/nci/native-section-walks", || {
+        transcript_trial("trial-nci/nci/native-section-walks", || {
             walks(false).map_err(Into::into)
         }),
-        transcript_trial("trial/nci/oversized-record-and-summary", || {
+        transcript_trial("trial-nci/nci/oversized-record-and-summary", || {
             walks(true).map_err(Into::into)
         }),
     ]

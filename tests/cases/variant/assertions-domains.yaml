@@ -1,5 +1,5 @@
 {
-  "feature": "variant-assertions",
+  "feature": "variant-identity",
   "live_check": "synthetic response case",
   "story": "Reviewed native BRAF classification domains retain their own labels and propositions",
   "replay": "variant/assertions/domains",

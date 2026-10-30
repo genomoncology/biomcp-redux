@@ -131,6 +131,7 @@ pub(super) fn check(root: &Path) -> Check {
             {
                 return fail(&relative, "test fixture paths belong in runner/launch.rs");
             }
+            tool_modes(&relative, &text)?;
             width(&relative, &text)?;
             if text.lines().count() > FILE_LIMIT {
                 return fail(
@@ -498,6 +499,21 @@ fn adapter_helpers(path: &str, tokens: &[String]) -> Check {
         .any(|pair| matches!(pair, [word, name] if word == "fn" && (name == "problem" || name == "text" && !format_text)))
     {
         return fail(path, "adapter mapping helpers belong in mapped.rs");
+    }
+    Ok(())
+}
+
+fn tool_modes(relative: &str, text: &str) -> Check {
+    if matches!(
+        relative,
+        "crates/biomcp/tests/cases.rs" | "crates/biomcp/tests/runner/case_main.rs"
+    ) && tokens(text)
+        .iter()
+        .filter_map(|v| v.strip_prefix("\"--"))
+        .filter_map(|v| v.strip_suffix('"'))
+        .any(|flag| flag != "cases" && !flag.contains(char::is_whitespace))
+    {
+        return fail(relative, "tool modes belong in tools.rs");
     }
     Ok(())
 }

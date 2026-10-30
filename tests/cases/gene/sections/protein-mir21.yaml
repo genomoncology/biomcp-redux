@@ -1,6 +1,6 @@
 {
   "live_check": "public",
-  "feature": "gene-sections",
+  "feature": "gene-protein",
   "story": "MIR21 rules out protein and constraint without either source",
   "replay": "gene/constraint",
   "steps": [

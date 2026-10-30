@@ -38,7 +38,8 @@ def run(args):
 
 def cargo(profile, tests=False, revision=None):
     args = ["cargo", "test" if tests else "build", "--locked", "-p", "biomcp", "--profile", profile, "--message-format=json"]
-    args += ["--test", "cases", "--no-run"] if tests else ["--bin", "biomcp"]
+    target = tests if isinstance(tests, str) else "cases"
+    args += ["--test", target, "--no-run"] if tests else ["--bin", "biomcp"]
     environment = {**os.environ, **({"BIOMCP_BUILD_REVISION": revision} if revision else {})}
     process = subprocess.Popen(args, stdout=subprocess.PIPE, text=True, env=environment)
     found = None
@@ -46,7 +47,7 @@ def cargo(profile, tests=False, revision=None):
         message = json.loads(line)
         if message.get("reason") == "compiler-message" and message["message"].get("rendered"):
             print(message["message"]["rendered"], file=sys.stderr, end="")
-        if message.get("reason") == "compiler-artifact" and message.get("executable") and message["target"]["name"] == ("cases" if tests else "biomcp"):
+        if message.get("reason") == "compiler-artifact" and message.get("executable") and message["target"]["name"] == (target if tests else "biomcp"):
             found = message
     if process.wait() or not found:
         raise ValueError("Cargo did not produce the requested executable")

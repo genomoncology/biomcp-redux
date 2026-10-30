@@ -13,10 +13,10 @@ use std::{
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        transcript_trial("gene/replay-missing-recording-reason", || {
+        transcript_trial("gene-identity/replay-missing-recording-reason", || {
             missing().map_err(Into::into)
         }),
-        transcript_trial("gene/replay-server-reuses-checked-reply", || {
+        transcript_trial("gene-identity/replay-server-reuses-checked-reply", || {
             repeated().map_err(Into::into)
         }),
     ]

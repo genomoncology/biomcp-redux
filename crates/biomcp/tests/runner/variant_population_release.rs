@@ -9,7 +9,7 @@ use serde_json::{Value, json};
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![transcript_trial(
-        "variant/population-release-from-same-response",
+        "variant-population/population-release-from-same-response",
         || release().map_err(Into::into),
     )]
 }

@@ -37,18 +37,26 @@ else:
             runner = root / "runner"
             runner.write_text(f"#!{sys.executable}\nimport json, sys\nwith open({str(log)!r}, 'a') as stream:\n    stream.write(json.dumps(sys.argv[1]) + '\\n')\nprint('test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out')\n")
             runner.chmod(0o755)
+            tool = runner.with_name("tool-runner")
+            tool.write_text(runner.read_text())
+            tool.chmod(0o755)
             script = "from release.smoke import smoke\nimport json, sys\nprint(json.dumps(smoke(*sys.argv[1:])))"
             result = subprocess.run([sys.executable, "-O", "-c", script, str(binary), str(runner), str(root), "1"],
                                     capture_output=True, text=True, timeout=30)
             self.assertEqual(result.returncode, 0, result.stderr)
             completed = json.loads(result.stdout.splitlines()[-1])
             commands = [json.loads(line) for line in log.read_text().splitlines()]
-            self.assertEqual(commands, ["schema", "help", "serve", "--test-threads"])
+            self.assertEqual(commands, ["schema", "help", "serve", "--proofs", "--test-threads"])
             self.assertEqual(completed["checks"], ["schemas", "help", "version", "mcp-all-stdout",
-                             "ordinary-cache-created", "all-cases-and-trials"])
+                             "ordinary-cache-created", "runner-proofs", "all-cases-and-trials"])
             self.assertEqual(completed["tools"], ["biomcp"])
             self.assertEqual(completed["trials"], 2)
             self.assertEqual(completed["timeout_seconds"], completed["elapsed_seconds"] * 1.15)
+            tool.unlink()
+            missing = subprocess.run([sys.executable, "-O", "-c", script, str(binary), str(runner), str(root), "1"],
+                                     capture_output=True, text=True, timeout=30)
+            self.assertNotEqual(missing.returncode, 0)
+            self.assertIn("tool-runner", missing.stderr)
 
 
     def test_broken_installed_commands_fail_under_optimization(self):

@@ -1,5 +1,6 @@
 //! Unchanged retained reverse association requests prove source rows in both interfaces.
 use super::{Stub, native, raw_invoke, setup};
+use crate::runner::launch::native_budget as budget;
 use serde_json::{Value, json};
 use sha2::{Digest, Sha256};
 use std::io::Write;
@@ -228,19 +229,10 @@ fn qualifiers(raw: &Value, mapped: &Value) -> Result<(), String> {
 }
 
 fn ceiling(row: &Value) -> Result<usize, String> {
-    match (
-        text(row, "section")?,
-        row.get("limit").and_then(Value::as_u64),
-        row.get("offset").and_then(Value::as_u64),
-    ) {
-        ("diseases", Some(2), Some(0)) => Ok(6220),
-        ("genes", Some(2), Some(0)) => Ok(5272),
-        ("diseases", Some(1), Some(1)) => Ok(3399),
-        ("genes", Some(1), Some(1)) => Ok(3139),
-        ("diseases", Some(1), Some(0)) => Ok(3657),
-        ("genes", Some(1), Some(0)) => Ok(2959),
-        _ => Err("unmeasured association case".into()),
-    }
+    let section = text(row, "section")?;
+    let limit = row.get("limit").and_then(Value::as_u64).ok_or("limit")?;
+    let offset = row.get("offset").and_then(Value::as_u64).ok_or("offset")?;
+    budget(&format!("phenotype-association/{section}/{limit}/{offset}"))
 }
 fn retained(directory: &Path, output: &Path, index: usize, row: &Value) -> Result<(), String> {
     let read = |p: &Path| -> Result<Value, String> {

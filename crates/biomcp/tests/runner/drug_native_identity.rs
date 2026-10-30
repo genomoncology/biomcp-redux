@@ -20,7 +20,7 @@ pub(super) fn trials() -> Vec<Trial> {
     .into_iter()
     .map(|(source, file, pointer, host)| {
         transcript_trial(
-            format!("drug-native/{source}-identity-before-cache"),
+            format!("drug-native-sources/{source}-identity-before-cache"),
             move || check(source, file, pointer, host).map_err(Into::into),
         )
     })

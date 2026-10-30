@@ -12,7 +12,7 @@ import sys
 import tarfile
 import tempfile
 
-COMMAND = ['cargo', 'test', '--locked', '-p', 'biomcp', '--test', 'cases',
+COMMAND = ['cargo', 'test', '--locked', '-p', 'biomcp', '--test', 'tools',
            '--', '--live-check', '--details']
 FILES = ('report.json', 'build.log', 'exit-status', 'run.json')
 

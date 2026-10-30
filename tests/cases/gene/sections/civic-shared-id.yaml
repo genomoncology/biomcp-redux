@@ -1,6 +1,6 @@
 {
   "live_check": "synthetic response case",
-  "feature": "gene-sections",
+  "feature": "gene-civic",
   "story": "Synthetic HGNC symbols sharing an Entrez ID retain their independently requested CIViC aliases",
   "replay": "gene/civic/synthetic-shared-id",
   "steps": [

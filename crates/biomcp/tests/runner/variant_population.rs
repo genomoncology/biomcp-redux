@@ -10,37 +10,43 @@ mod get;
 mod ids;
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = vec![
-        transcript_trial("variant/population-source-given-grch38-snv", || {
-            population().map_err(Into::into)
-        }),
-        transcript_trial("variant/population-independent-native-values", || {
+        transcript_trial("variant-population/population-independent-native-values", || {
             population_values().map_err(Into::into)
         }),
         transcript_trial(
-            "variant/population-mismatched-id-never-enters-cache",
+            "variant-population/population-source-given-grch38-snv",
+            || population().map_err(Into::into),
+        ),
+        transcript_trial(
+            "variant-population/population-mismatched-id-never-enters-cache",
             || population_mismatch().map_err(Into::into),
         ),
-        transcript_trial("variant/population-unknown-group-remains-native", || {
-            unknown_group().map_err(Into::into)
-        }),
-        transcript_trial("variant/population-source-chromosome-disagreement", || {
-            chromosome_mismatch().map_err(Into::into)
-        }),
-        transcript_trial("variant/population-unpadded-indel-is-unjoinable", || {
-            unjoinable().map_err(Into::into)
-        }),
-        transcript_trial("variant/gwas-native-pages-preserve-effects", || {
-            gwas_walk("rs113488022", 2).map_err(Into::into)
-        }),
-        transcript_trial("variant/gwas-resolved-id-pins-source-continuation", || {
-            gwas_walk("CA123643", 3).map_err(Into::into)
-        }),
-        transcript_trial("variant/gwas-v2-valid-zero", || {
+        transcript_trial(
+            "variant-population/population-unknown-group-remains-native",
+            || unknown_group().map_err(Into::into),
+        ),
+        transcript_trial(
+            "variant-population/population-source-chromosome-disagreement",
+            || chromosome_mismatch().map_err(Into::into),
+        ),
+        transcript_trial(
+            "variant-population/population-unpadded-indel-is-unjoinable",
+            || unjoinable().map_err(Into::into),
+        ),
+        transcript_trial(
+            "variant-population/gwas-native-pages-preserve-effects",
+            || gwas_walk("rs113488022", 2).map_err(Into::into),
+        ),
+        transcript_trial(
+            "variant-population/gwas-resolved-id-pins-source-continuation",
+            || gwas_walk("CA123643", 3).map_err(Into::into),
+        ),
+        transcript_trial("variant-population/gwas-v2-valid-zero", || {
             gwas_zero().map_err(Into::into)
         }),
     ];
     trials.push(transcript_trial(
-        "variant/population-release-value-is-independent",
+        "variant-population/population-release-value-is-independent",
         || release_value().map_err(Into::into),
     ));
     trials.extend(ids::trials());

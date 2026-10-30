@@ -1,6 +1,6 @@
 {
   "live_check": "public",
-  "feature": "article-annotations",
+  "feature": "article-sections",
   "story": "Article annotation export follows a card section action and preserves source identities.",
   "replay": "article/annotations/live",
   "steps": [

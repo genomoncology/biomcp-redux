@@ -1,6 +1,6 @@
 {
   "live_check": "synthetic response case",
-  "feature": "article-annotations",
+  "feature": "article-sections",
   "story": "Annotations cap distinct normalized entities and retain their total in deterministic name order.",
   "replay": "article/annotations/synthetic-cap",
   "steps": [

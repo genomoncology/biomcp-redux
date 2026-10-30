@@ -10,7 +10,14 @@ pub(super) fn trials() -> Vec<Trial> {
         .flat_map(|mode| {
             [false, true].into_iter().map(move |terminal| {
                 transcript_trial(
-                    format!("navigation/{mode}/terminal-{terminal}"),
+                    format!(
+                        "{}/navigation/{mode}/terminal-{terminal}",
+                        match mode {
+                            "drug-search" => "drug-mychem",
+                            "variant-search" => "variant-search",
+                            _ => "variant-identity",
+                        }
+                    ),
                     move || check(mode, terminal).map_err(Into::into),
                 )
             })

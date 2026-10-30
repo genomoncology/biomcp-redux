@@ -1,6 +1,6 @@
 {
   "live_check": "synthetic response case",
-  "feature": "article-search",
+  "feature": "article-filters",
   "story": "Filter-only searches preserve precise dates and each approved publication-type tag.",
   "replay": "article/filters/synthetic-empty",
   "steps": [
