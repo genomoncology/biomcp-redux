@@ -82,10 +82,9 @@ fn check() -> Check {
 }
 
 fn check_metadata(env: &Environment, value: &Value) -> Check {
-    let commands = value
-        .pointer("/result/commands")
-        .and_then(Value::as_array)
-        .ok_or("commands")?;
+    let _ = value;
+    let commands = super::help_examples::catalog(env)?;
+    let commands = commands.as_slice();
     for command in commands {
         let Some(arguments) = command.get("arguments") else {
             continue;

@@ -40,14 +40,12 @@ pub(crate) fn dispatch(path: &[String]) -> io::Result<Help> {
                     && c.command.first() == path.first())
         })
         .collect();
-    if path.is_empty() {
-        public_grammar::canonical(&mut commands)?;
-    } else {
+    if !public_grammar::overview(&mut commands, path)? {
         public_grammar::scoped_globals(&mut commands);
     }
     Ok(Help { commands })
 }
-fn commands() -> io::Result<Vec<HelpCommand>> {
+pub(crate) fn commands() -> io::Result<Vec<HelpCommand>> {
     let examples: BTreeMap<String, Vec<Vec<String>>> =
         serde_json::from_str(include_str!(concat!(env!("OUT_DIR"), "/examples.json")))?;
     let mut commands = Vec::new();

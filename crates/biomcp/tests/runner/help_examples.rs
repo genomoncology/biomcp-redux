@@ -1,5 +1,7 @@
 //! Verify installed help examples against their owning replay case steps.
 mod documents;
+#[path = "../help_catalog.rs"]
+mod help_catalog;
 
 use super::{Case, assertions, launch, run_sequence, schema};
 use serde_json::Value;
@@ -78,26 +80,30 @@ pub(super) fn check() -> Result<(), String> {
     Ok(())
 }
 
+pub(super) fn catalog(environment: &launch::Environment) -> Result<Vec<Value>, String> {
+    help_catalog::collect(|args| super::configuration::invoke(environment, args, 0))
+}
 fn advertised_examples(environment: &launch::Environment) -> Result<BTreeSet<Vec<String>>, String> {
-    let output = environment
-        .command(env!("CARGO_BIN_EXE_biomcp"), &["help".into()])
-        .output()
-        .map_err(|e| e.to_string())?;
-    if !output.status.success() || !output.stderr.is_empty() {
-        return Err("help process failed".into());
-    }
-    let help: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
-    let commands = help
-        .pointer("/result/commands")
-        .and_then(Value::as_array)
-        .ok_or("help commands missing")?;
-    source_description(commands)?;
+    let commands =
+        help_catalog::collect(|args| super::configuration::invoke(environment, args, 0))?;
+    source_description(&commands)?;
     let scoped = super::configuration::invoke(environment, vec!["help".into(), "help".into()], 0)?;
     let scoped = scoped
         .pointer("/result/commands")
         .and_then(Value::as_array)
         .ok_or("scoped help commands")?;
-    collected_examples(commands, scoped)
+    collected_examples(
+        &commands
+            .iter()
+            .filter(|c| {
+                c.get("command")
+                    .and_then(Value::as_array)
+                    .is_some_and(|p| !p.is_empty())
+            })
+            .cloned()
+            .collect::<Vec<_>>(),
+        scoped,
+    )
 }
 
 fn extend_scoped_examples(
@@ -105,12 +111,16 @@ fn extend_scoped_examples(
     owned: &BTreeSet<Vec<String>>,
     printed: &mut BTreeSet<Vec<String>>,
 ) -> Result<(), String> {
-    let verbs: BTreeSet<_> = owned
+    let paths: BTreeSet<Vec<String>> = owned
         .difference(printed)
-        .filter_map(|args| args.first().cloned())
+        .map(|args| args.iter().take(2).cloned().collect())
         .collect();
-    for verb in verbs {
-        let response = super::configuration::invoke(environment, vec!["help".into(), verb], 0)?;
+    for path in paths {
+        let response = super::configuration::invoke(
+            environment,
+            std::iter::once("help".into()).chain(path).collect(),
+            0,
+        )?;
         let commands = response
             .pointer("/result/commands")
             .and_then(Value::as_array)

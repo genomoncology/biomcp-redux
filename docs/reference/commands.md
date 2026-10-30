@@ -4691,7 +4691,7 @@ Options:
 JSON reply readers ignore unknown fields and unknown growable enum values within a major. Query schemas remain closed.
 
 Example: biomcp schema
-Example: biomcp schema biomcp.help/5
+Example: biomcp schema biomcp.help/6
 
 ```
 

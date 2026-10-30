@@ -52,26 +52,61 @@ pub(super) fn augment(commands: &mut Vec<HelpCommand>) -> io::Result<()> {
     }
     Ok(())
 }
-// The unscoped list describes parser nodes; scoped topic pages keep their detailed entries.
-pub(super) fn canonical(commands: &mut Vec<HelpCommand>) -> io::Result<()> {
-    let root =
+// Compact discovery follows the same parser that supplies detailed argument metadata.
+pub(super) fn overview(commands: &mut Vec<HelpCommand>, path: &[String]) -> io::Result<bool> {
+    let mut root =
         crate::grammar::root().map_err(|_| io::Error::other("command grammar unavailable"))?;
-    commands.retain(|entry| {
-        entry
-            .command
-            .iter()
-            .try_fold(&root, |parent, name| parent.find_subcommand(name))
-            .is_some()
-    });
-    // Help parser paths already spell their invocation. Keep topic examples in scoped help.
-    for entry in commands {
-        if entry.command.first().is_some_and(|word| word == "help")
-            && entry.examples == [entry.command.clone()]
-        {
-            entry.examples.clear();
-        }
+    root.build();
+    let Some(parser) = path
+        .iter()
+        .try_fold(&root, |parent, name| parent.find_subcommand(name))
+    else {
+        return Ok(false);
+    };
+    if parser.get_subcommands().next().is_none() && !path.is_empty() {
+        return Ok(false);
     }
-    Ok(())
+    let mut result = Vec::new();
+    if !path.is_empty() {
+        if let Some(parent) = commands.iter().find(|c| c.command == path) {
+            let mut parent = parent.clone();
+            if path == ["help"] {
+                parent.arguments = commands
+                    .iter()
+                    .find(|c| c.command.is_empty())
+                    .map(|c| c.arguments.clone())
+                    .unwrap_or_default();
+            }
+            parent.reply_schemas.clear();
+            result.push(parent);
+        }
+        scoped_globals(&mut result);
+    }
+    for child in parser.get_subcommands().filter(|c| !c.is_hide_set()) {
+        let mut child_path = path.to_vec();
+        child_path.push(child.get_name().into());
+        result.push(HelpCommand {
+            command: child_path,
+            description: child
+                .get_about()
+                .map(ToString::to_string)
+                .unwrap_or_default()
+                .lines()
+                .next()
+                .unwrap_or_default()
+                .split(". ")
+                .next()
+                .unwrap_or_default()
+                .into(),
+            reply_schemas: Vec::new(),
+            arguments: Vec::new(),
+            sections: Vec::new(),
+            section_rule: None,
+            examples: Vec::new(),
+        });
+    }
+    *commands = result;
+    Ok(true)
 }
 fn walk(commands: &mut Vec<HelpCommand>, parser: &Command, path: Vec<String>) {
     add(commands, parser, path.clone(), path.is_empty());
