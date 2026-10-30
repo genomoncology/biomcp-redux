@@ -120,7 +120,7 @@ def main():
         for key in sorted(base.keys() & head.keys() | aliases.keys()):
             target = aliases.get(key, key)
             a, b = base[key]["executions"], head[target]["executions"]
-            declared = [r.get(owner(key), ()) for r in roots]
+            declared = [r.get(owner(key), {}) for r in roots]
             # Collect every declaration before comparing references and Markdown.
             for x, y in zip(a, b):
                 pair(x, y, owner(key), bindings, declared, normalize)

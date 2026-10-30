@@ -111,20 +111,75 @@ class ReplyDiff(unittest.TestCase):
                 self.assertNotEqual(result.returncode, 0, result.stdout)
 
     def test_record_path_hash_keys_pair_only_through_declared_names(self):
-        def key(args):
+        def key(args, root=None):
+            if root:
+                args = [a.replace(root, '<root>') for a in args]
             digest = hashlib.sha256(json.dumps(args, separators=(",", ":")).encode()).hexdigest()
             return "trial/cache/replay/" + digest + "/0"
         for directory, suffix in [(self.base, "base"), (self.head, "head")]:
             root = "/tmp/" + suffix
             args = ["get", "gene", "--record", root + "/record"]
-            self.write(directory, key(args), args=args, root=root)
-            args = ["get", "gene", "--replay", root + "/record"]
-            self.write(directory, key(args), args=args, root="/tmp/other-" + suffix)
+            self.write(directory, key(args, root), args=args, root=root)
+            other = "/tmp/other-" + suffix
+            args = ["get", "gene", "--config", other + "/config", "--replay", root + "/record"]
+            self.write(directory, key(args, other), args=args, root=other)
         result = self.compare()
         self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
-        args = ["get", "gene", "--replay", "/tmp/head/record"]
-        self.write(self.head, key(args), args=["get", "gene", "--replay", "/tmp/head/another"], root="/tmp/other-head")
+        args = ["get", "gene", "--config", "/tmp/other-head/config", "--replay", "/tmp/head/record"]
+        changed = args[:-1] + ["/tmp/head/another"]
+        self.write(self.head, key(args, '/tmp/other-head'), args=changed, root="/tmp/other-head")
         self.assertEqual(self.compare().returncode, 1)
+
+    def test_json_source_text_and_literal_arguments_remain_significant(self):
+        key = 'case/literal.yaml/step/0'
+        for place in ['source', 'args', 'mcp-source']:
+            with self.subTest(place=place):
+                for directory, clock in [(self.base, 10), (self.head, 20)]:
+                    literal = json.dumps({'fetched': clock})
+                    output = {'result': {'description': literal}}
+                    extra = {}
+                    if place == 'args':
+                        output = {'status': 'complete'}
+                        extra['args'] = ['search', 'article', literal]
+                    elif place == 'mcp-source':
+                        output = {'jsonrpc': '2.0', 'id': 1, 'result': {
+                            'structuredContent': output,
+                            'content': [{'type': 'text', 'text': json.dumps(output)}]}}
+                        extra['surface'] = 'mcp'
+                    self.write(directory, key, json.dumps(output).encode(), **extra)
+                result = self.compare()
+                self.assertEqual(result.returncode, 1, result.stderr + result.stdout)
+
+    def test_mcp_runtime_fields_bind_only_inside_transport_frames(self):
+        for directory, suffix in [(self.base, 'base'), (self.head, 'head')]:
+            pool = suffix + '-pool'
+            reply = {'page': {'pool': {'id': pool, 'created': 10 if suffix == 'base' else 20,
+                                      'expires': 100 if suffix == 'base' else 110, 'size': 1}},
+                     'query': {'pool': pool}}
+            frame = {'jsonrpc': '2.0', 'id': 1, 'result': {
+                'structuredContent': reply,
+                'content': [{'type': 'text', 'text': json.dumps(reply)}]}}
+            request = {'jsonrpc': '2.0', 'id': 1, 'method': 'tools/call', 'params': {
+                'name': 'biomcp', 'arguments': {'args': ['search', 'trial', '--pool', pool]}}}
+            self.write(directory, 'case/mcp.yaml/step/0', json.dumps(frame).encode(),
+                       surface='mcp', args=['serve', '<requests>', json.dumps(request)])
+        result = self.compare()
+        self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+
+    def test_declared_record_directory_does_not_bind_neighbor_paths(self):
+        for directory, suffix in [(self.base, 'base'), (self.head, 'head')]:
+            root = '/tmp/' + suffix
+            self.write(directory, 'case/record.yaml/step/0',
+                       args=['get', 'gene', '--record', root + '/record'], root=root)
+            args = ['get', 'gene', '--replay', root + '/unrelated']
+            digest = hashlib.sha256(json.dumps(args, separators=(',', ':')).encode()).hexdigest()
+            self.write(directory, 'trial/cache/replay/' + digest + '/0', args=args,
+                       root='/tmp/other-' + suffix)
+            # Declare the record directory in the same trial owner too.
+            self.write(directory, 'trial/cache/replay/declaration/0',
+                       args=['get', 'gene', '--record', root + '/record'], root=root)
+        result = self.compare()
+        self.assertEqual(result.returncode, 1, result.stderr + result.stdout)
 
     def test_uncaptured_trials_are_disclosed(self):
         for directory in [self.base, self.head]:

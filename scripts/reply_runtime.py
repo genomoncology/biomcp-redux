@@ -19,7 +19,7 @@ class Bindings:
             raise ValueError(f'inconsistent runtime binding: {kind}')
         return '<runtime>'
 
-    def values(self, left, right, scope, path=()):
+    def values(self, left, right, scope, path=(), encoded=(), clocks=True):
         """Return only authorized scalar substitutions, indexed by JSON path."""
         changes = ({}, {})
         def put(p, a, b, kind):
@@ -46,7 +46,7 @@ class Bindings:
                     child = p + (k,)
                     if pool and k in ('id', 'created', 'expires'):
                         continue
-                    if k == 'fetched' or (k == 'acquired' and p[-1:] == ('snapshot',)):
+                    if clocks and (k == 'fetched' or (k == 'acquired' and p[-1:] == ('snapshot',))):
                         if type(a[k]) is int and type(b[k]) is int:
                             put(child, a[k], b[k], (scope, k))
                     elif k == 'pool' and p[-1:] == ('query',) and isinstance(a[k], str) and isinstance(b[k], str):
@@ -59,14 +59,14 @@ class Bindings:
                         put(p + (i,), x, y, 'pool')
                     else:
                         visit(x, y, p + (i,))
-            elif isinstance(a, str) and isinstance(b, str):
+            elif p in encoded and isinstance(a, str) and isinstance(b, str):
                 try:
                     aa, bb = json.loads(a), json.loads(b)
                 except ValueError:
                     return
                 # MCP embeds complete JSON replies inside text content.
                 if isinstance(aa, (dict, list)) and isinstance(bb, (dict, list)):
-                    nested = self.values(aa, bb, scope, p)
+                    nested = self.values(aa, bb, scope, p, clocks=clocks)
                     for index, value in enumerate((a, b)):
                         if nested[index]:
                             changes[index][p] = rewrite(value, nested[index], p)
@@ -122,7 +122,7 @@ def record_roots(records):
                 value = args[args.index('--record') + 1]
                 root = execution.get('root', '')
                 if root and value.startswith(root + '/'):
-                    roots.setdefault(owner(key), set()).add(root)
+                    roots.setdefault(owner(key), {})[value] = value[len(root):]
     return roots
 
 
@@ -130,10 +130,10 @@ def declared_args(execution, roots):
     args = execution['args']
     result = []
     for arg in args:
-        for root in roots:
+        for path, name in roots.items():
             # A declared record directory may be passed by another isolated process.
-            if arg.startswith(root + '/'):
-                arg = '<record-root>' + arg[len(root):]
+            if arg == path:
+                arg = '<record-root>' + name
         result.append(arg)
     return result
 
@@ -144,13 +144,19 @@ def align(base, head, normalize):
     def signature(key, record, index):
         values = []
         for e in record['executions']:
-            n = normalize(dict(e, args=declared_args(e, roots[index].get(owner(key), ()))))
+            n = normalize(dict(e, args=declared_args(e, roots[index].get(owner(key), {}))))
             values.append({k: n[k] for k in ('args', 'surface', 'exit')})
         return owner(key), json.dumps(values, sort_keys=True)
     def valid_hash(key, record):
         parts = key.rsplit('/', 2)
+        def stable(e):
+            args = e['args']
+            for field, replacement in [('root', '<root>'), ('checkout', '<checkout>/crates/biomcp')]:
+                if e.get(field):
+                    args = [a.replace(e[field], replacement) for a in args]
+            return args
         return (key.startswith('trial/') and len(parts) == 3 and
-                all(hashlib.sha256(json.dumps(e['args'], ensure_ascii=False,
+                all(hashlib.sha256(json.dumps(stable(e), ensure_ascii=False,
                     separators=(',', ':')).encode()).hexdigest() == parts[1]
                     for e in record['executions']))
     unmatched = (base.keys() - head.keys(), head.keys() - base.keys())
@@ -172,11 +178,28 @@ def align(base, head, normalize):
 def pair(left, right, scope, bindings, roots, normalize):
     a, b = [normalize(dict(e, args=declared_args(e, declared)))
             for e, declared in zip((left, right), roots)]
-    args = bindings.values(a['args'], b['args'], scope)
+    args = bindings.values(a['args'], b['args'], scope, clocks=False)
     for n, changes in ((a, args[0]), (b, args[1])):
         for p, value in changes.items():
             # Executed argv can also contain a JSON MCP request token.
             n['args'][p[0]] = value
+    # Only captured MCP request frames own JSON-encoded argument vectors.
+    if left['surface'] == right['surface'] == 'mcp' and '<requests>' in a['args'] and '<requests>' in b['args']:
+        start = a['args'].index('<requests>') + 1
+        if start == b['args'].index('<requests>') + 1:
+            for i in range(start, min(len(a['args']), len(b['args']))):
+                try:
+                    frames = [json.loads(n['args'][i]) for n in (a, b)]
+                    if not all(f.get('jsonrpc') == '2.0' and f.get('method') == 'tools/call'
+                               and f['params'].get('name') == 'biomcp' for f in frames):
+                        continue
+                    vectors = [f['params']['arguments']['args'] for f in frames]
+                except (ValueError, KeyError, TypeError, AttributeError):
+                    continue
+                path = ('params', 'arguments', 'args')
+                changes = bindings.values(*vectors, scope, path, clocks=False)
+                for n, change in zip((a, b), changes):
+                    n['args'][i] = rewrite(n['args'][i], change)
     try:
         values = [json.loads(n['stdout']) for n in (a, b)]
     except ValueError:
@@ -187,7 +210,23 @@ def pair(left, right, scope, bindings, roots, normalize):
                 for n, clock in ((a, value), (b, after)):
                     n['stdout'] = n['stdout'].replace('**fetched:** ' + str(clock) + '\n', '**fetched:** <runtime>\n')
         return a, b
-    changes = bindings.values(*values, scope)
+    def embedded(value, execution):
+        if execution['surface'] != 'mcp' or not isinstance(value, dict) or value.get('jsonrpc') != '2.0':
+            return set()
+        result = value.get('result', {})
+        if not isinstance(result, dict):
+            return set()
+        paths = set()
+        for i, item in enumerate(result.get('content', [])):
+            if isinstance(item, dict) and item.get('type') == 'text':
+                try:
+                    if json.loads(item.get('text', '')) == result.get('structuredContent'):
+                        paths.add(('result', 'content', i, 'text'))
+                except (ValueError, TypeError):
+                    pass
+        return paths
+    encoded = embedded(values[0], left) & embedded(values[1], right)
+    changes = bindings.values(*values, scope, encoded=encoded)
     # Saved paths are owned only when the literal destination was declared.
     for index, execution in enumerate((left, right)):
         args = execution['args']
