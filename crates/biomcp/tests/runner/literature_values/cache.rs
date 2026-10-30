@@ -1,6 +1,7 @@
 //! Changed typed owners remap raw cache replies while unrelated snapshots keep hitting.
 use super::{Check, Value, json};
-use crate::runner::launch::{Environment, arguments, fixtures};
+use crate::runner::launch::{Environment, arguments};
+use crate::runner::network_stub::Stub;
 use std::path::Path;
 
 pub(super) fn check(previous: &Path) -> Check {
@@ -25,13 +26,11 @@ pub(super) fn check(previous: &Path) -> Check {
         ),
     ] {
         let args: Vec<_> = words.into_iter().map(String::from).collect();
-        let replay = fixtures().join("replies").join(capture);
-        let before = command(
-            &env,
-            previous,
-            &arguments(&args, &env.globals(Some(&replay), false)),
-            true,
-        )?;
+        let stub = seed(capture, &env)?;
+        let before = command(&env, previous, &args, true)?;
+        if stub.finish()?.is_empty() {
+            return Err("previous owner did not acquire a recorded raw reply".into());
+        }
         let pool = pool_id(&before)?;
         let original = snapshot(&env, &pool)?;
         let retained = rows(&env)?;
@@ -69,6 +68,54 @@ pub(super) fn check(previous: &Path) -> Check {
         return Err("untouched author owner stopped hitting after the owner remaps".into());
     }
     Ok(())
+}
+
+
+// The old executable must acquire raw cache rows; untimestamped replay rows do not do so.
+fn seed(capture: &str, env: &Environment) -> Result<Stub, Box<dyn std::error::Error>> {
+    let host = match capture {
+        "author/synthetic" | "author/papers" => "api.semanticscholar.org",
+        "pathway/native" => "reactome.org",
+        "orcid/visibility" => "pub.orcid.org",
+        _ => return Err("unknown snapshot fixture".into()),
+    };
+    let mut records = Vec::new();
+    crate::runner::response_cases::copy_capture(
+        capture,
+        &env.root().join("seed-recordings").join(capture),
+        |_, record| records.push(record.clone()),
+    )?;
+    let mut replies = std::collections::BTreeMap::new();
+    for record in records {
+        let url = url::Url::parse(record.get("url").and_then(Value::as_str).ok_or("recorded URL")?)?;
+        if url.host_str() != Some(host) || record.pointer("/exchanges/0/status") != Some(&json!(200)) {
+            continue;
+        }
+        let body = record.pointer("/exchanges/0/body").ok_or("recorded body")?;
+        let body = match body.get("kind").and_then(Value::as_str) {
+            Some("json") => serde_json::to_string(body.get("value").ok_or("recorded JSON")?)?,
+            Some("text") => body.get("value").and_then(Value::as_str).ok_or("recorded text")?.into(),
+            _ => return Err("unsupported snapshot fixture body".into()),
+        };
+        replies.insert(url[url::Position::BeforePath..].to_owned(), body);
+    }
+    let stub = Stub::for_source(host, "application/json", move |request| {
+        let target = request.split_whitespace().nth(1).ok_or("request target")?;
+        replies.get(target).cloned().ok_or("unrecorded snapshot request".into())
+    })?;
+    stub.retain(env);
+    let ca = env.root().join("snapshot-ca.pem");
+    std::fs::write(&ca, &stub.certificate)?;
+    env.config(&json!({"proxy":format!("http://{}",stub.address),"ca_bundle":ca}))?;
+    Ok(stub)
+}
+
+fn database(env: &Environment) -> std::path::PathBuf {
+    env.root().join("cache/biomcp").join(format!(
+        "cache-{}-{}.sqlite",
+        biomcp_fetch::CACHE_NAMESPACE_VERSION,
+        biomcp_query::store::CACHE_NAMESPACE_VERSION
+    ))
 }
 
 fn remap(
@@ -199,7 +246,7 @@ fn current(
     command(
         env,
         Path::new(env!("CARGO_BIN_EXE_biomcp")),
-        &arguments(args, &env.globals(None, true)),
+        &arguments(args, &["--offline".into()]),
         success,
     )
 }
@@ -246,7 +293,7 @@ fn snapshot(
     env: &Environment,
     pool: &str,
 ) -> Result<(i64, i64, String), Box<dyn std::error::Error>> {
-    let db = rusqlite::Connection::open(env.root().join("case-cache/replay.sqlite"))?;
+    let db = rusqlite::Connection::open(database(env))?;
     let version: u32 = db.query_row(
         "SELECT version FROM meta WHERE owner='biomcp-query'",
         [],
@@ -300,7 +347,7 @@ fn accepted(capture: &str, value: &Value) -> Check {
 // New owner keys may add rows but must never reset or replace old payloads.
 type Rows = Vec<(String, Vec<Vec<rusqlite::types::Value>>)>;
 fn rows(env: &Environment) -> Result<Rows, Box<dyn std::error::Error>> {
-    let db = rusqlite::Connection::open(env.root().join("case-cache/replay.sqlite"))?;
+    let db = rusqlite::Connection::open(database(env))?;
     let names = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name")?
         .query_map([], |row| row.get::<_, String>(0))?.collect::<Result<Vec<_>, _>>()?;
     let mut result = Vec::new();
