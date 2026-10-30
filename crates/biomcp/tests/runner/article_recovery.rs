@@ -120,7 +120,8 @@ fn secondary_answer() -> Result<(), String> {
             "/sources/0/reason": "unavailable",
             "/sources/1/source": "europepmc",
             "/sources/1/state": "ok",
-            "/result/items/0/key": {"namespace":"europepmc", "id":"PPR8888"},
+            "/result/items/0/key/namespace": "europepmc",
+            "/result/items/0/key/id": "PPR8888",
             "/result/items/0/header/title": "Synthetic source-local citation"
         }),
         0,
