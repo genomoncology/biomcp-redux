@@ -1,5 +1,6 @@
 mod biomarker;
 mod condition;
+mod country;
 mod filters;
 use crate::{GeneInput, NctId, PartialDate, StudyType, Text, TrialSex, TrialStatus};
 pub use biomarker::NciBiomarkerUse;
@@ -155,6 +156,10 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     facility: Option<Text>,
+    /// Exact ClinicalTrials.gov country label; repeat for OR. Trials must list a site in a named country. NCI uses its native country filter.
+    #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
+    #[cfg_attr(feature = "schema", schemars(schema_with = "country::schema"))]
+    country: Box<[Box<str>]>,
     /// Radius center latitude in degrees.
     #[serde(
         default,
@@ -349,6 +354,10 @@ impl TrialSearch {
     /// Exact facility name; NCI matches organization names case-insensitively. A listed site is not necessarily enrolling. Cannot combine with radius.
     pub fn facility(&self) -> Option<&Text> {
         self.0.facility.as_ref()
+    }
+    /// Exact published country alternatives, without whitespace repair.
+    pub fn country(&self) -> &[Box<str>] {
+        &self.0.country
     }
     /// Radius center latitude in degrees.
     pub fn lat(&self) -> Option<&Text> {
