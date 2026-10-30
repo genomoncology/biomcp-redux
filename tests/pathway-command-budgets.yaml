@@ -138,7 +138,7 @@
   "runner/pathway_retirements/check/2: search pathway -q MAPK [mcp]": 116,
   "runner/pathway_retirements/check/2: search pathway MAPK --type Pathway [mcp]": 168,
   "runner/pathway_retirements/check/2: search pathway MAPK --type=Pathway [mcp]": 168,
-  "runner/pathway_sections/disclosure_modes/1: pathway genes R-HSA-5673001 details --offset 5 [mcp]": 5339,
+  "runner/pathway_sections/disclosure_modes/1: pathway genes R-HSA-5673001 details --offset 5 [mcp]": 6167,
   "runner/pathway_sections/measurements/1: get pathway R-HSA-5673001 all [mcp]": 8713,
   "runner/pathway_sections/measurements/1: get pathway R-HSA-5673001 events [mcp]": 2297,
   "runner/pathway_sections/measurements/1: get pathway R-HSA-5673001 genes [mcp]": 2835,
