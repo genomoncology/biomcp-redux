@@ -8,7 +8,7 @@ use std::{collections::BTreeSet, fs};
 pub(super) fn check() -> Result<(), String> {
     let environment = launch::Environment::new().map_err(|e| e.to_string())?;
     let mut printed = advertised_examples(&environment)?;
-    let advertised = printed.clone();
+    let mut advertised = printed.clone();
     let guide = guide_examples(&environment)?;
     printed.extend(guide);
     let witnesses: Vec<(String, usize)> = serde_json::from_str(include_str!(concat!(
@@ -28,7 +28,8 @@ pub(super) fn check() -> Result<(), String> {
                 .ok_or("example step missing".into())
         })
         .collect::<Result<_, String>>()?;
-    extend_scoped_examples(&environment, &owned, &mut printed)?;
+    extend_scoped_examples(&environment, &owned, &mut advertised)?;
+    printed.extend(advertised.iter().cloned());
     documents::check(&printed)?;
     documents::rejects_invalid()?;
     for example in printed.difference(&owned) {
