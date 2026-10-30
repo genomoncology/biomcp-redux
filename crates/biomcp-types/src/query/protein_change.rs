@@ -95,6 +95,10 @@ impl FromStr for ProteinQuery {
     }
 }
 impl ProteinQuery {
+    /// Whether this notation explicitly states that the residue is unchanged.
+    pub(crate) fn is_synonymous(&self) -> bool {
+        self.to.is_none()
+    }
     /// Literal spellings searched by readers, in stable order.
     pub(crate) fn forms(&self) -> [String; 4] {
         let (from, from_three) = AMINO.get(self.from).copied().unwrap_or(("", ""));
