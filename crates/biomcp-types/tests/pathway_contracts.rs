@@ -161,7 +161,10 @@ fn source_owned_sections_and_continuations_refuse_unavailable_relations() {
 
 #[test]
 fn neutral_records_keep_absence_membership_and_unresolved_event_identity() {
-    let base = json!({"id":{"namespace":"reactome","id":"R-HSA-5673001"},"name":"RAF/MAP kinase cascade","species":"Homo sapiens","version":"R-HSA-5673001.12"});
+    let base = json!(
+        {"id":{"namespace":"reactome","id":"R-HSA-5673001"},"name":"RAF/MAP kinase cascade",
+        "species":"Homo sapiens","version":"R-HSA-5673001.12"}
+    );
     assert_eq!(
         roundtrip::<Pathway>(base.clone()).expect("public round-trip"),
         base
