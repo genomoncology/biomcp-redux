@@ -17,10 +17,10 @@ pub(super) fn trials() -> Vec<Trial> {
             native_profile::context().map_err(Into::into)
         }),
         transcript_trial(
-            "variant/civic-invalid-values-keep-identified-claims",
+            "variant-civic/civic-invalid-values-keep-identified-claims",
             || values::claims().map_err(Into::into),
         ),
-        transcript_trial("variant/civic-amp-na-and-therapy-group-stay-native", || {
+        transcript_trial("variant-civic/civic-amp-na-and-therapy-group-stay-native", || {
             values::amp_and_group().map_err(Into::into)
         }),
         transcript_trial("drug-civic/unknown-status-keeps-native-claims", || {

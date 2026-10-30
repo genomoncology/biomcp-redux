@@ -125,6 +125,4 @@ diagnostic-device-recall: Search native device recall records, inspect exact rec
 organization-nci: Find source-native NCI organizations with bounded snapshots and local paging.
 biomarker-nci: Find NCI biomarker concepts by name or synonym and retrieve native concept rows by NCIt code.
 drug-recall: Search published FDA drug recall records by name, firm, classification, status, reason and initiation dates; page and fetch exact native recall numbers with source field problems.
-live-source-checks: A separate keyless live diagnostic reports upstream drift without changing replay assertions or recordings.
-variant-profile-reference: Preserve native variant members and exact source Boolean expressions without deriving allele identity or phase.
 variant-clinvar-haplotype: Preserve native ClinVar haplotype kind, version, chromosome grouping and ordered member identities.

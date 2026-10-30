@@ -38,7 +38,7 @@ pub(super) fn trials() -> Vec<Trial> {
         transcript_trial("variant-identity/historical-fragment-walk-is-warm", || {
             components::component_walk().map_err(Into::into)
         }),
-        transcript_trial("variant/component-timestamps-preserve-usable-data", || {
+        transcript_trial("variant-identity/component-timestamps-preserve-usable-data", || {
             components::timestamp_admission().map_err(Into::into)
         }),
         transcript_trial(

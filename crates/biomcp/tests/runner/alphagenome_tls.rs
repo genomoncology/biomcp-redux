@@ -26,7 +26,7 @@ pub(super) fn trials() -> Vec<Trial> {
         || refusals().map_err(Into::into),
     ));
     trials.push(transcript_trial(
-        "variant/alphagenome-field-admission-local-tls",
+        "variant-alphagenome/alphagenome-field-admission-local-tls",
         || field_admission().map_err(Into::into),
     ));
     trials.extend(capture::trials());

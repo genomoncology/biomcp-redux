@@ -26,11 +26,11 @@ pub(super) fn trials() -> Vec<Trial> {
         )
     })
     .chain(std::iter::once(transcript_trial(
-        "drug-native/opentargets-optional-name-keeps-identity",
+        "drug-native-sources/opentargets-optional-name-keeps-identity",
         || optional_values::check().map_err(Into::into),
     )))
     .chain(std::iter::once(transcript_trial(
-        "drug-native/opentargets-native-stage-preserved",
+        "drug-native-sources/opentargets-native-stage-preserved",
         || optional_values::stages().map_err(Into::into),
     )))
     .collect()

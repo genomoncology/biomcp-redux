@@ -16,7 +16,7 @@ const SEARCH: &str = "https://www.wikipathways.org/json/findPathwaysByText.json"
 const GET: &str = "https://www.wikipathways.org/json/getPathwayInfo.json";
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        transcript_trial("wikipathways/optional-name-keeps-native-identity", || {
+        transcript_trial("pathway-wikipathways/optional-name-keeps-native-identity", || {
             optional_metadata::check().map_err(Into::into)
         }),
         transcript_trial(
