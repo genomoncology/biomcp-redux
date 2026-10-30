@@ -125,6 +125,10 @@ fn constraints() -> Check {
                     "invalid-container" => gene["gnomad_constraint"] = json!("invalid"),
                     _ => {}
                 }
+                if case == "absent" {
+                    recording["exchanges"][0]["body"]["value"]["errors"] =
+                        json!([{"message":"Gene not found"}]);
+                }
             }
         })?;
         if !changed {
