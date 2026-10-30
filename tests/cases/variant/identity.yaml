@@ -238,6 +238,101 @@
         "/sources/0/source": "myvariant",
         "/sources/0/reason": "disabled"
       }
+    },
+    {
+      "run": [
+        "get",
+        "variant",
+        "ClinVar:577152",
+        "--disable-sources",
+        "myvariant"
+      ],
+      "mcp": [
+        "get",
+        "variant",
+        "ClinVar:577152",
+        "--disable-sources",
+        "myvariant"
+      ],
+      "expect": {
+        "/query/input": "clinvar:577152",
+        "/result/resolution": "unavailable",
+        "/sources/0/source": "myvariant",
+        "/sources/0/reason": "disabled"
+      },
+      "exit": 4,
+      "is_error": true
+    },
+    {
+      "run": [
+        "get",
+        "variant",
+        "CLINVAR:577152",
+        "--disable-sources",
+        "myvariant"
+      ],
+      "mcp": [
+        "get",
+        "variant",
+        "CLINVAR:577152",
+        "--disable-sources",
+        "myvariant"
+      ],
+      "expect": {
+        "/query/input": "clinvar:577152",
+        "/result/resolution": "unavailable",
+        "/sources/0/source": "myvariant",
+        "/sources/0/reason": "disabled"
+      },
+      "exit": 4,
+      "is_error": true
+    },
+    {
+      "run": [
+        "get",
+        "variant",
+        "cLiNvAr:577152",
+        "--disable-sources",
+        "myvariant"
+      ],
+      "mcp": [
+        "get",
+        "variant",
+        "cLiNvAr:577152",
+        "--disable-sources",
+        "myvariant"
+      ],
+      "expect": {
+        "/query/input": "clinvar:577152",
+        "/result/resolution": "unavailable",
+        "/sources/0/source": "myvariant",
+        "/sources/0/reason": "disabled"
+      },
+      "exit": 4,
+      "is_error": true
+    },
+    {
+      "run": [
+        "get",
+        "variant",
+        "NM_000051.4(ATM):c.6115G>A",
+        "--disable-sources",
+        "car,myvariant"
+      ],
+      "mcp": [
+        "get",
+        "variant",
+        "NM_000051.4(ATM):c.6115G>A",
+        "--disable-sources",
+        "car,myvariant"
+      ],
+      "expect": {
+        "/query/input": "NM_000051.4(ATM):c.6115G>A",
+        "/result/resolution": "unavailable",
+        "/sources/0/reason": "disabled"
+      },
+      "exit": 4,
+      "is_error": true
     }
   ]
 }

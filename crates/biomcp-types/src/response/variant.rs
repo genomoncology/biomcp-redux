@@ -11,7 +11,7 @@ pub struct VariantCard {
     /// All retained source identities.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub candidates: Box<[VariantHeader]>,
-    /// Provider rejection text, when present, separate from unchanged query input.
+    /// Named input rejection from provider validation or a source-stated transcript gene mismatch.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub rejection: Option<Text>,
 }
@@ -57,7 +57,7 @@ biodata::wire_enum! {
         Candidates => "candidates",
         /// Provider reported no match.
         Absent => "absent",
-        /// Provider rejected the unchanged input.
+        /// Input failed provider validation or disagreed with a source-stated transcript gene.
         Rejected => "rejected",
         /// Provider could not answer.
         Unavailable => "unavailable",

@@ -78,6 +78,7 @@ fn presentation_and_policy(env: &Environment) -> Result<(), String> {
 }
 // Feature: variant-identity. A coding request matches only the identical source transcript version.
 fn coding() -> Result<(), String> {
+    atm_request_spelling()?;
     let stub = Stub::for_sources(
         &["myvariant.info", "reg.genome.network"],
         |_| "application/json",
@@ -94,6 +95,7 @@ fn coding() -> Result<(), String> {
         ("NC_000005.9(NM_001199291.2):c.1619A>G", true),
         ("NC_000005.9(NM_001199291.3):c.1619A>G", false),
         ("NM_001199291.3:c.1619A>G", false),
+        ("NM_001199291.3(ATM):c.1619A>G", false),
     ] {
         let value = run(&env, &["get", "variant", notation])?;
         if value.pointer("/result/candidates/0/component_terms/1/component")
@@ -105,7 +107,57 @@ fn coding() -> Result<(), String> {
             ));
         }
     }
-    stub.finish()?;
+    let refused = super::super::configuration::invoke(
+        &env,
+        ["get", "variant", "NM_001199291.2(ATM):c.1619A>G"]
+            .into_iter()
+            .map(Into::into)
+            .collect(),
+        4,
+    )?;
+    if refused.pointer("/result/resolution") != Some(&json!("rejected"))
+        || refused.pointer("/result/rejection") != Some(&json!("transcript_gene_mismatch"))
+        || refused.pointer("/result/candidates").is_some()
+    {
+        return Err(format!(
+            "source transcript gene mismatch was admitted: {refused}"
+        ));
+    }
+    let requests = stub.finish()?;
+    if requests
+        .iter()
+        .any(|(_, request)| request.contains("%28HSD17B4%29") || request.contains("%28ATM%29"))
+    {
+        return Err(format!(
+            "gene label reached the native HGVS request: {requests:?}"
+        ));
+    }
+    Ok(())
+}
+// Synthetic empty response proves request spelling only; it provides no ATM allele mapping.
+fn atm_request_spelling() -> Result<(), String> {
+    let stub = Stub::for_source(
+        "reg.genome.network",
+        "application/json",
+        |_| Ok("{}".into()),
+    )?;
+    let env = super::super::variant::source_environment(&stub)?;
+    super::super::configuration::invoke(
+        &env,
+        ["get", "variant", "NM_000051.4(ATM):c.6115G>A"]
+            .into_iter()
+            .map(Into::into)
+            .collect(),
+        4,
+    )?;
+    let requests = stub.finish()?;
+    if !matches!(requests.as_slice(), [(_, request)]
+        if request.starts_with("GET /allele?hgvs=NM_000051.4%3Ac.6115G%3EA&fields="))
+    {
+        return Err(format!(
+            "ATM gene label was not removed from native HGVS request: {requests:?}"
+        ));
+    }
     Ok(())
 }
 fn run(env: &Environment, args: &[&str]) -> Result<Value, String> {
