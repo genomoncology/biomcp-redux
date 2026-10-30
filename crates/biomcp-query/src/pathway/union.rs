@@ -18,7 +18,7 @@ type Saved = (
     Vec<Problem>,
 );
 fn key(q: &PathwaySearch) -> Result<Vec<u8>, RequestError> {
-    serde_json::to_vec(&("pathway-union/1", q.restart())).map_err(|_| CacheError::Database.into())
+    serde_json::to_vec(&("pathway-union/2", q.restart())).map_err(|_| CacheError::Database.into())
 }
 fn page(q: &PathwaySearch) -> PathwayPage {
     PathwayPage {
