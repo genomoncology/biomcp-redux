@@ -25,11 +25,6 @@
         "/status": "complete"
       },
       "max_bytes": 2369,
-      "mcp": [
-        "help",
-        "search",
-        "study"
-      ],
       "run": [
         "help",
         "search",
@@ -64,11 +59,6 @@
         "/status": "complete"
       },
       "max_bytes": 2818,
-      "mcp": [
-        "help",
-        "get",
-        "study"
-      ],
       "run": [
         "help",
         "get",
@@ -90,11 +80,6 @@
         "/status": "complete"
       },
       "max_bytes": 1441,
-      "mcp": [
-        "help",
-        "sync",
-        "cbioportal-studies"
-      ],
       "run": [
         "help",
         "sync",

@@ -7,7 +7,7 @@ use std::fs;
 const SECTION: &str = "/result/candidates/0/sections/oncokb";
 pub(super) fn trials() -> Vec<Trial> {
     vec![transcript_trial(
-        "variant-oncokb/oncokb-resolved-id-and-all-context",
+        crate::runner::required_contract::ONCOKB_ALL.0,
         || run().map_err(Into::into),
     )]
 }

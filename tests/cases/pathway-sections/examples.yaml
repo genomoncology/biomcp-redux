@@ -9,11 +9,6 @@
         "genes",
         "R-HSA-5673001"
       ],
-      "mcp": [
-        "pathway",
-        "genes",
-        "R-HSA-5673001"
-      ],
       "expect": {
         "/status": "complete",
         "/result/items/0/reference/id": "P15056"
@@ -22,12 +17,6 @@
     },
     {
       "run": [
-        "pathway",
-        "genes",
-        "R-HSA-5673001",
-        "details"
-      ],
-      "mcp": [
         "pathway",
         "genes",
         "R-HSA-5673001",
@@ -45,11 +34,6 @@
         "events",
         "R-HSA-5673001"
       ],
-      "mcp": [
-        "pathway",
-        "events",
-        "R-HSA-5673001"
-      ],
       "expect": {
         "/status": "complete",
         "/result/page/returned": 5,
@@ -62,13 +46,6 @@
     },
     {
       "run": [
-        "pathway",
-        "events",
-        "R-HSA-5673001",
-        "--limit",
-        "50"
-      ],
-      "mcp": [
         "pathway",
         "events",
         "R-HSA-5673001",

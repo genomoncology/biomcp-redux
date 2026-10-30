@@ -5,11 +5,10 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        transcript_trial(
-            "phenotype-sections/refresh-preserves-card-snapshot-and-policy",
-            || retained().map_err(Into::into),
-        ),
-        transcript_trial("phenotype-sections/native-classes-and-direct-links", || {
+        transcript_trial(crate::runner::required_contract::HPO_SNAPSHOT.0, || {
+            retained().map_err(Into::into)
+        }),
+        transcript_trial(crate::runner::required_contract::MONARCH_XREFS.0, || {
             monarch().map_err(Into::into)
         }),
         transcript_trial(

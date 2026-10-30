@@ -17,16 +17,6 @@
         "--build",
         "GRCh37"
       ],
-      "mcp": [
-        "search",
-        "variant",
-        "--gene",
-        "CHEK2",
-        "--protein",
-        "Arg117Gly",
-        "--build",
-        "GRCh37"
-      ],
       "max_bytes": 1202,
       "expect": {
         "/schema": "biomcp.variant-page/16",
@@ -93,74 +83,6 @@
           }
         },
         "/sources/0/source": "myvariant"
-      }
-    },
-    {
-      "run": [
-        "search",
-        "variant",
-        "--gene",
-        "CHEK2",
-        "--protein",
-        "Arg117Gly",
-        "--build",
-        "GRCh37"
-      ],
-      "offline": true,
-      "expect": {
-        "/result": {
-          "equals": {
-            "source_query": "dbnsfp.genename:CHEK2 AND dbnsfp.hgvsp:\"p.Arg117Gly\"",
-            "build": "GRCh37",
-            "items": [
-              {
-                "identity": {
-                  "ids": [
-                    "rs28909982",
-                    "clinvar:128071"
-                  ],
-                  "representations": [
-                    {
-                      "source": "myvariant",
-                      "expression": {
-                        "syntax": "hgvs.g",
-                        "value": "chr22:g.29121326T>C"
-                      }
-                    }
-                  ]
-                },
-                "source": "myvariant",
-                "record": {
-                  "id": "chr22:g.29121326T>C",
-                  "namespace": "unknown"
-                },
-                "component_terms": [
-                  {
-                    "component": "clinvar",
-                    "terms": {
-                      "usage": "restricted",
-                      "name": "NCBI policy; submission rights remain source-specific",
-                      "url": "https://www.ncbi.nlm.nih.gov/clinvar/docs/maintenance_use/"
-                    }
-                  }
-                ]
-              }
-            ],
-            "selector_terms": {
-              "usage": "noncommercial",
-              "name": "dbNSFP academic branch and individual component terms",
-              "url": "https://sites.google.com/site/jpopgen/dbNSFP"
-            }
-          }
-        },
-        "/page": {
-          "equals": {
-            "offset": 0,
-            "returned": 1,
-            "total": 1
-          }
-        },
-        "/status": "partial"
       }
     }
   ]

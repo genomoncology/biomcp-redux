@@ -29,9 +29,10 @@ pub(super) fn trials() -> Vec<Trial> {
             move || card(n).map_err(Into::into),
         ));
     }
-    trials.push(transcript_trial("drug-label/five-native-headings", || {
-        headings().map_err(Into::into)
-    }));
+    trials.push(transcript_trial(
+        crate::runner::required_contract::LABEL_HEADINGS.0,
+        || headings().map_err(Into::into),
+    ));
     trials.extend(fallback::trials());
     trials.extend(generic::trials());
     trials.extend(pagination::trials());

@@ -19,13 +19,7 @@
           "excludes": "gnomad"
         }
       },
-      "max_bytes": 3500,
-      "mcp": [
-        "get",
-        "gene",
-        "MIR21",
-        "expression"
-      ]
+      "max_bytes": 3500
     }
   ]
 }

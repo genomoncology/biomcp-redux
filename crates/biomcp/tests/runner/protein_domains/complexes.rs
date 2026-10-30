@@ -12,6 +12,28 @@ pub(super) fn run() -> Result<(), String> {
             "description match admitted or predicted flag changed: {first}"
         ));
     }
+    let pool = first
+        .pointer("/page/pool/id")
+        .and_then(Value::as_str)
+        .ok_or("complex pool")?;
+    let kept = call(
+        &env,
+        &[
+            "protein",
+            "complexes",
+            "P38398",
+            "--pool",
+            pool,
+            "--offset",
+            "0",
+        ],
+        0,
+    )?;
+    if kept.pointer("/result/items/0/predicted") != Some(&json!(true))
+        || kept.pointer("/page/total") != Some(&json!(2))
+    {
+        return Err("retained complex page changed its source rows".into());
+    }
     let step = super::super::action(&first, "section")?;
     let words: Vec<_> = step.iter().map(String::as_str).collect();
     let members = call(&env, &words, 0)?;

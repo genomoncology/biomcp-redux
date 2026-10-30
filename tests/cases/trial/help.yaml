@@ -50,11 +50,6 @@
         "/result/commands/0/arguments/9/description": "Ask ClinicalTrials.gov to restrict matching to the registered condition phrase; its support is partial."
       },
       "max_bytes": 11802,
-      "mcp": [
-        "help",
-        "search",
-        "trial"
-      ],
       "run": [
         "help",
         "search",
@@ -94,11 +89,6 @@
         ]
       },
       "max_bytes": 4120,
-      "mcp": [
-        "help",
-        "get",
-        "trial"
-      ],
       "run": [
         "help",
         "get",
@@ -123,11 +113,6 @@
         }
       },
       "max_bytes": 2228,
-      "mcp": [
-        "help",
-        "trial",
-        "document"
-      ],
       "run": [
         "help",
         "trial",

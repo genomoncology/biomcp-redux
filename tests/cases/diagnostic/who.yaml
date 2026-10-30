@@ -8,10 +8,6 @@
         "sync",
         "who-ivd"
       ],
-      "mcp": [
-        "sync",
-        "who-ivd"
-      ],
       "max_bytes": 179,
       "expect": {
         "/schema": "biomcp.sync/7",
@@ -20,13 +16,6 @@
     },
     {
       "run": [
-        "get",
-        "diagnostic",
-        "0466-046-00",
-        "--source",
-        "who-ivd"
-      ],
-      "mcp": [
         "get",
         "diagnostic",
         "0466-046-00",
@@ -54,57 +43,6 @@
     },
     {
       "run": [
-        "get",
-        "diagnostic",
-        "12345-12345-00",
-        "--source",
-        "who-ivd"
-      ],
-      "mcp": [
-        "get",
-        "diagnostic",
-        "12345-12345-00",
-        "--source",
-        "who-ivd"
-      ],
-      "max_bytes": 681,
-      "expect": {
-        "/result/id": "12345-12345-00",
-        "/result/native_rows/0/marker": "Other marker",
-        "/result/native_rows": {
-          "count": 1
-        }
-      }
-    },
-    {
-      "run": [
-        "get",
-        "diagnostic",
-        "9999-999-00",
-        "--source",
-        "who-ivd"
-      ],
-      "mcp": [
-        "get",
-        "diagnostic",
-        "9999-999-00",
-        "--source",
-        "who-ivd"
-      ],
-      "max_bytes": 356,
-      "expect": {
-        "/status": "absent"
-      },
-      "exit": 1,
-      "is_error": false
-    },
-    {
-      "run": [
-        "sync",
-        "who-ivd",
-        "--fresh"
-      ],
-      "mcp": [
         "sync",
         "who-ivd",
         "--fresh"

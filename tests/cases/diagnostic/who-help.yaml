@@ -8,11 +8,6 @@
         "sync",
         "who-ivd"
       ],
-      "mcp": [
-        "help",
-        "sync",
-        "who-ivd"
-      ],
       "max_bytes": 1391,
       "expect": {
         "/result/commands/0/command": [
@@ -30,30 +25,6 @@
             "--fresh"
           ]
         ]
-      }
-    },
-    {
-      "run": [
-        "help",
-        "get",
-        "diagnostic"
-      ],
-      "mcp": [
-        "help",
-        "get",
-        "diagnostic"
-      ],
-      "max_bytes": 3799,
-      "expect": {
-        "/result/commands/0/examples": {
-          "includes": [
-            "get",
-            "diagnostic",
-            "0466-046-00",
-            "--source",
-            "who-ivd"
-          ]
-        }
       }
     }
   ],

@@ -1,4 +1,5 @@
 //! Feature clinpgx-annotations: native tiers through actual CLI and MCP.
+use super::required_contract;
 mod failures;
 mod rows;
 use super::{configuration::invoke, launch::Environment, network_stub::Stub};
@@ -19,7 +20,12 @@ pub(super) fn trials() -> Vec<Trial> {
         "annotation",
     ] {
         trials.push(transcript_trial(
-            format!("clinpgx-annotations/{name}-network-cache-replay"),
+            match name {
+                "clinical" => required_contract::CLINPGX_CLINICAL.0.to_owned(),
+                "guideline" => required_contract::CLINPGX_KIND.0.to_owned(),
+                "annotation" => required_contract::CLINPGX_ANNOTATION.0.to_owned(),
+                _ => format!("clinpgx-annotations/{name}-network-cache-replay"),
+            },
             move || scenario(name).map_err(Into::into),
         ));
     }

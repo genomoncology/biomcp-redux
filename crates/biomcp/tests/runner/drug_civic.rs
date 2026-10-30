@@ -28,9 +28,12 @@ pub(super) fn trials() -> Vec<Trial> {
         .into_iter()
         .enumerate()
         .map(|(n, name)| {
-            transcript_trial(format!("drug-civic/{name}"), move || {
-                check(n).map_err(Into::into)
-            })
+            let name = if n == 9 {
+                crate::runner::pool_contract::DRUG_CIVIC_CURSOR.0.to_owned()
+            } else {
+                format!("drug-civic/{name}")
+            };
+            transcript_trial(name, move || check(n).map_err(Into::into))
         })
         .collect()
 }

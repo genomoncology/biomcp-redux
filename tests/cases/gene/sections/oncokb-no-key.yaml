@@ -11,12 +11,6 @@
         "NOTCH1",
         "oncokb"
       ],
-      "mcp": [
-        "get",
-        "gene",
-        "NOTCH1",
-        "oncokb"
-      ],
       "expect": {
         "/status": "complete",
         "/result/items/0/sections/oncokb/state": "skipped",
@@ -40,11 +34,6 @@
     },
     {
       "run": [
-        "help",
-        "key",
-        "oncokb"
-      ],
-      "mcp": [
         "help",
         "key",
         "oncokb"

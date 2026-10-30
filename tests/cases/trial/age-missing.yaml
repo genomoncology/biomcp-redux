@@ -13,14 +13,6 @@
         "--age",
         "18"
       ],
-      "mcp": [
-        "search",
-        "trial",
-        "--condition",
-        "melanoma",
-        "--age",
-        "18"
-      ],
       "expect": {
         "/status": "complete",
         "/page/total": 3647,

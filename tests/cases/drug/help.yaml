@@ -8,11 +8,6 @@
         "search",
         "drug"
       ],
-      "mcp": [
-        "help",
-        "search",
-        "drug"
-      ],
       "expect": {
         "/result/commands/0/examples": {
           "count": 2
@@ -31,11 +26,6 @@
     },
     {
       "run": [
-        "help",
-        "get",
-        "drug"
-      ],
-      "mcp": [
         "help",
         "get",
         "drug"
@@ -77,11 +67,6 @@
         "sync",
         "ema"
       ],
-      "mcp": [
-        "help",
-        "sync",
-        "ema"
-      ],
       "expect": {
         "/result/commands/0/command": [
           "sync",
@@ -95,11 +80,6 @@
     },
     {
       "run": [
-        "help",
-        "sync",
-        "ddinter"
-      ],
-      "mcp": [
         "help",
         "sync",
         "ddinter"

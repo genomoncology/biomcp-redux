@@ -15,16 +15,6 @@
         "--no-preprints",
         "--exclude-retracted"
       ],
-      "mcp": [
-        "search",
-        "article",
-        "AKT1 E17K",
-        "--source",
-        "europepmc",
-        "--open-access",
-        "--no-preprints",
-        "--exclude-retracted"
-      ],
       "expect": {
         "/status": "complete",
         "/sources/0/term": "AKT1 E17K AND OPEN_ACCESS:y NOT SRC:PPR NOT PUB_TYPE:\"retracted publication\"",

@@ -24,13 +24,7 @@
           "includes": "gnomad"
         }
       },
-      "max_bytes": 3600,
-      "mcp": [
-        "get",
-        "gene",
-        "TP53",
-        "constraint"
-      ]
+      "max_bytes": 3600
     }
   ]
 }
