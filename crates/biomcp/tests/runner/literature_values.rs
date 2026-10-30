@@ -13,24 +13,35 @@ mod identity;
 )]
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials: Vec<_> = [
-        ("article-preprints/adapter-values-europepmc", preprint as fn() -> Check),
+        (
+            "article-preprints/adapter-values-europepmc",
+            preprint as fn() -> Check,
+        ),
         ("article-named-search/adapter-values-litsense", litsense),
         ("article-sections/adapter-values-pubtator", pubtator),
         ("article-fulltext/adapter-values-pmc-oa", pmc),
         ("article-evidence/adapter-values-semantic-scholar", edges),
         ("article-fulltext/adapter-values-jats", jats),
-        ("article-fulltext/adapter-values-jats-figure-label", figure_label),
-        ("article-fulltext/adapter-values-jats-section-title", section_title),
-        ("article-evidence/adapter-values-semantic-context-native-strings", context_strings),
+        (
+            "article-fulltext/adapter-values-jats-figure-label",
+            figure_label,
+        ),
+        (
+            "article-fulltext/adapter-values-jats-section-title",
+            section_title,
+        ),
+        (
+            "article-evidence/adapter-values-semantic-context-native-strings",
+            context_strings,
+        ),
         ("article-citations/adapter-values-icite", icite),
-        ("article-sections/adapter-values-independent-identities", identity::check),
+        (
+            "article-sections/adapter-values-independent-identities",
+            identity::check,
+        ),
     ]
     .into_iter()
-    .map(|(name, run)| {
-        transcript_trial(name, move || {
-            run().map_err(|e| e.to_string().into())
-        })
-    })
+    .map(|(name, run)| transcript_trial(name, move || run().map_err(|e| e.to_string().into())))
     .collect();
     if let Some(capture) = std::env::var_os("BIOMCP_ORCID_NATIVE_CAPTURE") {
         let identity_capture = capture.to_string_lossy().into_owned();
@@ -100,6 +111,7 @@ fn native(
         args,
         |name, record| {
             if name == source
+                && selected_record(source, record)
                 && let Some(value) = record.pointer_mut(pointer)
             {
                 *value = if source == "orcid" {
@@ -202,8 +214,8 @@ fn edges() -> Check {
 }
 
 fn jats() -> Check {
-    let capture = "article/fulltext/live-introduction";
-    let args = ["get", "article", "28944238", "fulltext"];
+    let capture = "article/fulltext/live-all";
+    let args = ["get", "article", "33123537", "fulltext"];
     let expect = json!({"/result/items/0/sections/fulltext/data/parts/0/title":"Introduction"});
     checked_case(capture, &args, |_, _| {}, expect.clone(), 0)?;
     let mut edits = 0;
@@ -216,9 +228,10 @@ fn jats() -> Check {
             }
             if let Some(body) = recording.pointer_mut("/exchanges/0/body/value")
                 && let Some(xml) = body.as_str()
-                && let Some(start) = xml.find("<pub-id pub-id-type=\"doi\">")
+                && let Some(references) = xml.find("<ref-list")
+                && let Some(offset) = xml[references..].find("<pub-id pub-id-type=\"doi\">")
             {
-                let from = start + "<pub-id pub-id-type=\"doi\">".len();
+                let from = references + offset + "<pub-id pub-id-type=\"doi\">".len();
                 if let Some(end) = xml[from..].find("</pub-id>") {
                     let mut changed = xml.to_owned();
                     changed.replace_range(from..from + end, "bad-doi");
@@ -284,10 +297,17 @@ fn context_strings() -> Check {
 }
 
 fn figure_label() -> Check {
+    checked_case(
+        "article/fulltext/live-all",
+        &["get", "article", "33123537", "fulltext"],
+        |_, _| {},
+        json!({"/result/items/0/sections/fulltext/data/figures/0/label":"Figure 1"}),
+        0,
+    )?;
     let mut edits = 0;
     let value = checked_case(
-        "article/fulltext/live-introduction",
-        &["get", "article", "28944238", "fulltext"],
+        "article/fulltext/live-all",
+        &["get", "article", "33123537", "fulltext"],
         |source, recording| {
             if source != "pmc-oa" {
                 return;
@@ -363,4 +383,18 @@ fn section_title() -> Check {
         return Err(format!("Section title edit lost part or problem: {value}").into());
     }
     Ok(())
+}
+
+// A capture directory may contain several original request identities. Change
+// only the exact record selected by these two native positive controls.
+fn selected_record(source: &str, record: &Value) -> bool {
+    let selected = match source {
+        "europepmc" => "/article/PPR/PPR1064174?",
+        "semantic-scholar" => "/paper/PMID%3A33123537/references?",
+        _ => return true,
+    };
+    record
+        .get("url")
+        .and_then(Value::as_str)
+        .is_some_and(|url| url.contains(selected))
 }
