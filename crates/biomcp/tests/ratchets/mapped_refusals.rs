@@ -1,9 +1,10 @@
 //! Derive mapping construction decisions from the source that owns them.
 use super::super::{Check, rust_files};
 use super::tokens;
-use std::{fs, path::Path};
+use std::{fs, io::Write, path::Path};
 
 pub(super) fn check(root: &Path) -> Check {
+    let mut inventory = Vec::new();
     for directory in ["crates/biomcp-adapters/src", "crates/biomcp-query/src"] {
         for path in rust_files(&root.join(directory))? {
             let source = tokens(&fs::read_to_string(&path)?);
@@ -55,8 +56,17 @@ pub(super) fn check(root: &Path) -> Check {
                     )
                     .into());
                 }
+                inventory.push(format!(
+                    "{}: Mapped at token {index}: explicit refusal decision",
+                    path.strip_prefix(root)?.display()
+                ));
             }
         }
     }
+    let mut output = std::io::stdout().lock();
+    for site in &inventory {
+        writeln!(output, "{site}")?;
+    }
+    writeln!(output, "Mapped construction decisions: {}", inventory.len())?;
     Ok(())
 }
