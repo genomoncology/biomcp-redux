@@ -17,16 +17,19 @@ pub fn get(cx: &Ctx<'_>, query: &DiseaseGet) -> Outcome {
         .push(status::source(Source::Monarch, leg.finish(), error));
     out.local = error.and_then(status::local);
     if let Ok(page) = reply {
+        out.problems.extend(page.problems);
         let returned = page.items.len() as u32;
         out.page = Some(page_info(query.section_offset(), returned, page.total));
         if query.section() == Some(DiseaseSection::Genes) {
             gene_steps(&mut out, &page.items);
         }
-        if returned > 0 && u64::from(query.section_offset()) + u64::from(returned) < page.total {
+        if page.received > 0
+            && u64::from(query.section_offset()) + u64::from(page.received) < page.total
+        {
             out.next.push((
                 StepKind::Page,
                 run(Request::GetDisease(query.at_section_offset(
-                    query.section_offset().saturating_add(returned),
+                    query.section_offset().saturating_add(page.received),
                 ))),
             ));
         }
@@ -67,9 +70,7 @@ fn body(
 }
 fn gene_steps(out: &mut Outcome, items: &[biomcp_types::DiseaseAssociationItem]) {
     for row in items {
-        let Some(id) = &row.association.subject.id else {
-            continue;
-        };
+        let id = &row.association.subject.id;
         let id = id.to_string();
         if let Some(query) = gene_query(&id) {
             let step = (StepKind::Disambiguate, run(Request::GetGene(query)));

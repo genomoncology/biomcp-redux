@@ -17,7 +17,7 @@ pub(super) fn trials() -> Vec<Trial> {
     ]
     .into_iter()
     .map(|(name, check)| {
-        transcript_trial(format!("terminal-edges/{name}"), move || {
+        transcript_trial(format!("markdown-view/terminal-edges/{name}"), move || {
             check().map_err(|e| e.to_string().into())
         })
     })

@@ -115,6 +115,8 @@ def installed(args):
         (fixtures / "support" / provenance).parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(source / provenance, fixtures / "support" / provenance)
         shutil.copy2(Path(cargo("release", tests=True)["executable"]), executable)
+        tool = executable.with_name("tool-runner" + executable.suffix)
+        shutil.copy2(Path(cargo("release", tests="tools")["executable"]), tool)
         shutil.copytree(source / "release", root / "tools/release", dirs_exist_ok=True, ignore=shutil.ignore_patterns("__pycache__"))
         shutil.copy2(source / "LICENSE", root / "tools/LICENSE")
     if args.prepare_only:

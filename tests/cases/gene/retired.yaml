@@ -1,6 +1,6 @@
 {
   "live_check": "public",
-  "feature": "gene-commands",
+  "feature": "gene-retired",
   "story": "Retired syntax has fixed guidance without consuming legitimate gene inputs",
   "replay": "gene/main",
   "steps": [
@@ -10,7 +10,7 @@
         "secret-input"
       ],
       "expect": {
-        "/schema": "biomcp.error/3",
+        "/schema": "biomcp.error/4",
         "/status": "usage",
         "/error": {
           "equals": {
@@ -32,7 +32,7 @@
         "get"
       ],
       "expect": {
-        "/schema": "biomcp.error/3",
+        "/schema": "biomcp.error/4",
         "/status": "usage",
         "/error": {
           "equals": {
@@ -50,7 +50,7 @@
         "definition"
       ],
       "expect": {
-        "/schema": "biomcp.error/3",
+        "/schema": "biomcp.error/4",
         "/status": "usage",
         "/error": {
           "equals": {
@@ -69,7 +69,7 @@
         "secret-input"
       ],
       "expect": {
-        "/schema": "biomcp.error/3",
+        "/schema": "biomcp.error/4",
         "/status": "usage",
         "/error": {
           "equals": {
@@ -93,7 +93,7 @@
         "secret-input"
       ],
       "expect": {
-        "/schema": "biomcp.error/3",
+        "/schema": "biomcp.error/4",
         "/status": "usage",
         "/error": {
           "equals": {
@@ -112,7 +112,7 @@
         "secret-input"
       ],
       "expect": {
-        "/schema": "biomcp.error/3",
+        "/schema": "biomcp.error/4",
         "/status": "usage",
         "/error": {
           "equals": {
@@ -131,7 +131,7 @@
         "secret-input"
       ],
       "expect": {
-        "/schema": "biomcp.error/3",
+        "/schema": "biomcp.error/4",
         "/status": "usage",
         "/error": {
           "equals": {
@@ -150,7 +150,7 @@
         "secret-input"
       ],
       "expect": {
-        "/schema": "biomcp.error/3",
+        "/schema": "biomcp.error/4",
         "/status": "usage",
         "/error": {
           "equals": {
@@ -169,7 +169,7 @@
         "secret-input"
       ],
       "expect": {
-        "/schema": "biomcp.error/3",
+        "/schema": "biomcp.error/4",
         "/status": "usage",
         "/error": {
           "equals": {
@@ -190,7 +190,7 @@
         "secret-value"
       ],
       "expect": {
-        "/schema": "biomcp.error/3",
+        "/schema": "biomcp.error/4",
         "/status": "usage",
         "/error": {
           "equals": {
@@ -211,7 +211,7 @@
         "secret-value"
       ],
       "expect": {
-        "/schema": "biomcp.error/3",
+        "/schema": "biomcp.error/4",
         "/status": "usage",
         "/error": {
           "equals": {
@@ -239,7 +239,7 @@
         "secret-value"
       ],
       "expect": {
-        "/schema": "biomcp.error/3",
+        "/schema": "biomcp.error/4",
         "/status": "usage",
         "/error": {
           "equals": {
@@ -260,7 +260,7 @@
         "secret-value"
       ],
       "expect": {
-        "/schema": "biomcp.error/3",
+        "/schema": "biomcp.error/4",
         "/status": "usage",
         "/error": {
           "equals": {
@@ -281,7 +281,7 @@
         "secret-value"
       ],
       "expect": {
-        "/schema": "biomcp.error/3",
+        "/schema": "biomcp.error/4",
         "/status": "usage",
         "/error": {
           "equals": {
@@ -301,7 +301,7 @@
         "hpa"
       ],
       "expect": {
-        "/schema": "biomcp.error/3",
+        "/schema": "biomcp.error/4",
         "/status": "usage",
         "/error": {
           "equals": {
@@ -321,7 +321,7 @@
         "ontology"
       ],
       "expect": {
-        "/schema": "biomcp.error/3",
+        "/schema": "biomcp.error/4",
         "/status": "usage",
         "/error": {
           "equals": {
@@ -347,7 +347,7 @@
         "diseases"
       ],
       "expect": {
-        "/schema": "biomcp.error/3",
+        "/schema": "biomcp.error/4",
         "/status": "usage",
         "/error": {
           "equals": {
@@ -367,7 +367,7 @@
         "go"
       ],
       "expect": {
-        "/schema": "biomcp.error/3",
+        "/schema": "biomcp.error/4",
         "/status": "usage",
         "/error": {
           "equals": {
@@ -387,7 +387,7 @@
         "interactions"
       ],
       "expect": {
-        "/schema": "biomcp.error/3",
+        "/schema": "biomcp.error/4",
         "/status": "usage",
         "/error": {
           "equals": {
@@ -407,7 +407,7 @@
         "funding"
       ],
       "expect": {
-        "/schema": "biomcp.error/3",
+        "/schema": "biomcp.error/4",
         "/status": "usage",
         "/error": {
           "equals": {
@@ -427,7 +427,7 @@
         "disgenet"
       ],
       "expect": {
-        "/schema": "biomcp.error/3",
+        "/schema": "biomcp.error/4",
         "/status": "usage",
         "/error": {
           "equals": {
@@ -447,7 +447,7 @@
         "druggability"
       ],
       "expect": {
-        "/schema": "biomcp.error/3",
+        "/schema": "biomcp.error/4",
         "/status": "usage",
         "/error": {
           "equals": {
@@ -467,7 +467,7 @@
         "diagnostics"
       ],
       "expect": {
-        "/schema": "biomcp.error/3",
+        "/schema": "biomcp.error/4",
         "/status": "usage",
         "/error": {
           "equals": {

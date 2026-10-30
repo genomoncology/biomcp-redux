@@ -33,8 +33,8 @@ fn ceiling(phase: &str, surface: &str) -> Result<usize, String> {
     if (phase, surface) == ("mod/help/invoke1", "cli") {
         return Ok(super::super::CLI_HELP_BYTES);
     }
-    let measurements: std::collections::BTreeMap<String, usize> = serde_json::from_str(
-        &crate::runner::launch::fixture_text("phenotype-command-budgets.json")?,
+    let measurements: std::collections::BTreeMap<String, usize> = serde_saphyr::from_str(
+        &crate::runner::launch::fixture_text("phenotype-command-budgets.yaml")?,
     )
     .map_err(|e| e.to_string())?;
     measurements

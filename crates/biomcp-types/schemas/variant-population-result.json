@@ -2321,7 +2321,14 @@
           "type": "array"
         },
         "p_value": {
-          "$ref": "#/$defs/Reply_FiniteNumber",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_FiniteNumber"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Reported p value."
         },
         "publication": {
@@ -2347,7 +2354,14 @@
           "description": "Source allele frequency text, without interpreting NR."
         },
         "study": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Study accession."
         },
         "traits": {
@@ -2359,9 +2373,7 @@
         }
       },
       "required": [
-        "id",
-        "study",
-        "p_value"
+        "id"
       ],
       "type": "object"
     },
@@ -2369,7 +2381,14 @@
       "description": "Catalog effect allele paired with its exact rsID.",
       "properties": {
         "allele": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Source allele text."
         },
         "rs_id": {
@@ -2378,8 +2397,7 @@
         }
       },
       "required": [
-        "rs_id",
-        "allele"
+        "rs_id"
       ],
       "type": "object"
     },
@@ -2391,13 +2409,19 @@
           "description": "Exact source ontology identifier spelling."
         },
         "label": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Whole source trait label."
         }
       },
       "required": [
-        "id",
-        "label"
+        "id"
       ],
       "type": "object"
     },
@@ -5779,7 +5803,7 @@
       "type": "object"
     },
     "Reply_VariantGet": {
-      "description": "Read an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation requires --build. Use search variant --gene BRAF --protein V600E for shorthand. Every candidate remains available; source assertions do not classify the variant for the caller.",
+      "description": "Read an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation requires --build. Use search variant --gene BRAF --protein V600E or search variant --gene PTEN --coding c.333G>T for gene shorthand. Every candidate remains available; source assertions do not classify the variant for the caller.",
       "properties": {
         "build": {
           "anyOf": [
@@ -7025,7 +7049,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.variant-population/11",
+  "$id": "biomcp.variant-population/12",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -7081,7 +7105,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.variant-population/11",
+      "const": "biomcp.variant-population/12",
       "type": "string"
     },
     "sources": {

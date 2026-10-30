@@ -1,6 +1,6 @@
 {
   "live_check": "public",
-  "feature": "gene-sections",
+  "feature": "gene-civic",
   "story": "VISTA resolves to a present CIViC entry without variants or description",
   "replay": "gene/civic",
   "steps": [

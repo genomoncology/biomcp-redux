@@ -1,4 +1,5 @@
 //! Typed native Open Targets responses; no dataset release is invented.
+use crate::raw::Field;
 use biomcp_fetch::{BadReply, Reply};
 use serde::Deserialize;
 /// GraphQL response with source errors kept distinct from empty data.
@@ -29,7 +30,7 @@ pub struct Search {
     /// Source total.
     pub total: u64,
     /// Source candidates.
-    pub hits: Vec<Hit>,
+    pub(super) hits: Vec<Field<Hit>>,
 }
 /// One native candidate identity.
 #[derive(Debug, Deserialize)]
@@ -37,9 +38,9 @@ pub struct Hit {
     /// Native ChEMBL identifier.
     pub id: String,
     /// Native source name.
-    pub name: String,
+    pub(super) name: Option<Field<String>>,
     /// Native record entity.
-    pub entity: String,
+    pub(super) entity: String,
 }
 /// Exact-ID response.
 #[derive(Debug, Deserialize)]
@@ -53,7 +54,7 @@ pub struct Drug {
     /// Exact native ChEMBL identifier.
     pub id: String,
     /// Native source name.
-    pub name: String,
+    pub(super) name: Option<Field<String>>,
     /// Complete native indication collection without invented server paging.
     pub indications: Rows<Indication>,
     /// Complete native mechanism collection without invented server paging.
@@ -64,14 +65,14 @@ pub struct Drug {
 #[derive(Debug, Deserialize)]
 pub struct Rows<T> {
     /// Native ordered rows.
-    pub rows: Vec<T>,
+    pub(super) rows: Vec<Field<T>>,
 }
 /// Source indication and clinical stage, without regulatory interpretation.
 #[derive(Debug, Deserialize)]
 pub struct Indication {
     /// Native clinical stage spelling.
     #[serde(rename = "maxClinicalStage")]
-    pub max_clinical_stage: String,
+    pub(super) max_clinical_stage: Option<Field<String>>,
     /// Native disease identifier and label.
     pub disease: Disease,
 }
@@ -81,19 +82,19 @@ pub struct Disease {
     /// Native source identifier.
     pub id: String,
     /// Original source label.
-    pub name: String,
+    pub(super) name: Option<Field<String>>,
 }
 /// Native mechanism and its complete target members.
 #[derive(Debug, Deserialize)]
 pub struct Mechanism {
     /// Complete original mechanism wording.
     #[serde(rename = "mechanismOfAction")]
-    pub mechanism_of_action: String,
+    pub(super) mechanism_of_action: Option<Field<String>>,
     /// Original action type.
     #[serde(rename = "actionType")]
-    pub action_type: Option<String>,
+    pub(super) action_type: Option<Field<String>>,
     /// Complete native target member context.
-    pub targets: Vec<Target>,
+    pub(super) targets: Option<Field<Vec<Field<Target>>>>,
 }
 /// Native target gene identities and labels.
 #[derive(Debug, Deserialize)]
@@ -102,8 +103,8 @@ pub struct Target {
     pub id: String,
     /// Original gene symbol.
     #[serde(rename = "approvedSymbol")]
-    pub approved_symbol: String,
+    pub(super) approved_symbol: Option<Field<String>>,
     /// Original gene name.
     #[serde(rename = "approvedName")]
-    pub approved_name: String,
+    pub(super) approved_name: Option<Field<String>>,
 }

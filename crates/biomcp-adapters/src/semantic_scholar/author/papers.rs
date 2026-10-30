@@ -1,4 +1,5 @@
 use super::super::SPEC;
+use crate::{mapped::Problems, raw::Field};
 use biodata::SemanticScholarAuthorId;
 use biomcp_fetch::{Arg, BadReply, Freshness, Leg, Reply, RequestError};
 use biomcp_types::AuthorPapersQuery;
@@ -10,6 +11,7 @@ const DETAILS: &str = "paperId,externalIds,title,year,venue,abstract,publication
                     influentialCitationCount,isOpenAccess,openAccessPdf,fieldsOfStudy,publicationTypes,authors.authorId,authors.name";
 /// Native papers page; the endpoint may omit both author identity and total.
 #[derive(Debug, Deserialize, Serialize)]
+#[serde(from = "RawPage")]
 pub struct PapersPage {
     /// Native window start.
     pub offset: u32,
@@ -19,15 +21,50 @@ pub struct PapersPage {
     pub total: Option<u64>,
     /// Unchanged native paper order.
     pub data: Vec<Paper>,
+    /// Rejected independently identified records.
+    pub problems: Vec<biomcp_types::Problem>,
+    #[serde(skip)]
+    pub(super) received: usize,
+}
+#[derive(Deserialize)]
+struct RawPage {
+    offset: u32,
+    next: Option<u32>,
+    total: Option<u64>,
+    data: Vec<Field<Paper>>,
+    problems: Option<Vec<biomcp_types::Problem>>,
+}
+impl From<RawPage> for PapersPage {
+    fn from(raw: RawPage) -> Self {
+        let received = raw.data.len();
+        let mut p = Problems {
+            source: biomcp_types::Source::SemanticScholar,
+            record: None,
+            list: raw.problems.unwrap_or_default(),
+        };
+        let data = raw
+            .data
+            .into_iter()
+            .filter_map(|r| p.required("paper_id", r.value()))
+            .collect();
+        Self {
+            offset: raw.offset,
+            next: raw.next,
+            total: raw.total,
+            data,
+            problems: p.list,
+            received,
+        }
+    }
 }
 impl Reply for PapersPage {
     fn check(&self) -> Result<(), BadReply> {
         for row in &self.data {
             row.clone().detail(&mut Vec::new())?;
         }
-        if self.data.len() > 25
+        if self.received > 25
             || self.next.is_some_and(|n| n <= self.offset)
-            || self.total.is_some_and(|n| self.data.len() as u64 > n)
+            || self.total.is_some_and(|n| self.received as u64 > n)
         {
             Err(BadReply)
         } else {
@@ -58,7 +95,7 @@ pub fn papers(
             ("limit", Arg::Num(u64::from(q.limit()))),
         ],
         |page| {
-            if page.offset == q.offset() && page.data.len() <= q.limit() as usize {
+            if page.offset == q.offset() && page.received <= q.limit() as usize {
                 Ok(())
             } else {
                 Err(BadReply)

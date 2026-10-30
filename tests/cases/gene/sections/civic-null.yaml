@@ -1,6 +1,6 @@
 {
   "live_check": "synthetic response case",
-  "feature": "gene-sections",
+  "feature": "gene-civic",
   "story": "An explicit null CIViC alias confirms absence without a source record",
   "replay": "gene/civic/synthetic-null",
   "steps": [

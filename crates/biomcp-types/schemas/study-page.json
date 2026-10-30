@@ -642,10 +642,20 @@
           "description": "Native allSampleCount, never a patient or profiled-gene denominator.",
           "format": "uint64",
           "minimum": 0,
-          "type": "integer"
+          "type": [
+            "integer",
+            "null"
+          ]
         },
         "cancerTypeId": {
-          "$ref": "#/$defs/Reply_CbioportalCancerTypeId",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_CbioportalCancerTypeId"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "cBioPortal namespace only; no ontology inference."
         },
         "citation": {
@@ -656,7 +666,14 @@
           ]
         },
         "name": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Native study name."
         },
         "pmids": {
@@ -670,7 +687,14 @@
           ]
         },
         "referenceGenome": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Native study metadata label, never a coordinate assembly."
         },
         "studyId": {
@@ -679,11 +703,7 @@
         }
       },
       "required": [
-        "studyId",
-        "name",
-        "cancerTypeId",
-        "allSampleCount",
-        "referenceGenome"
+        "studyId"
       ],
       "type": "object"
     },
@@ -808,7 +828,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.study-page/4",
+  "$id": "biomcp.study-page/5",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -864,7 +884,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.study-page/4",
+      "const": "biomcp.study-page/5",
       "type": "string"
     },
     "sources": {

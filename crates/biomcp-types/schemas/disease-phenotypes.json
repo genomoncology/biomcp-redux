@@ -131,30 +131,6 @@
       ],
       "type": "object"
     },
-    "Reply_Concept": {
-      "description": "One source concept with its optional ontology identifier.",
-      "properties": {
-        "id": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_Curie"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "Source-stated concept identifier."
-        },
-        "label": {
-          "$ref": "#/$defs/Reply_Text",
-          "description": "Original concept label."
-        }
-      },
-      "required": [
-        "label"
-      ],
-      "type": "object"
-    },
     "Reply_Curie": {
       "description": "Checked prefix:local ontology identifier.",
       "pattern": "^[A-Za-z0-9_.-]+:[^:/\\x09-\\x0d\\x20\\x85\\xa0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000\\x00-\\x1f\\x7f-\\x9f][^:\\x09-\\x0d\\x20\\x85\\xa0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000\\x00-\\x1f\\x7f-\\x9f]*$",
@@ -277,7 +253,7 @@
           ]
         },
         "object": {
-          "$ref": "#/$defs/Reply_Concept",
+          "$ref": "#/$defs/Reply_DiseaseEndpoint",
           "description": "Native returned object."
         },
         "object_closure": {
@@ -365,7 +341,7 @@
           "description": "The exact requested concept, including a queried parent."
         },
         "subject": {
-          "$ref": "#/$defs/Reply_Concept",
+          "$ref": "#/$defs/Reply_DiseaseEndpoint",
           "description": "Native returned subject."
         },
         "subject_closure": {
@@ -474,6 +450,30 @@
           ],
           "description": "Unchanged native link when supplied.",
           "format": "uri"
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "type": "object"
+    },
+    "Reply_DiseaseEndpoint": {
+      "description": "One native endpoint with an identifier and an optional source label.\nNative associations use this reference because a source may omit a display label.",
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/Reply_Curie",
+          "description": "Exact source identifier."
+        },
+        "label": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source label when supplied."
         }
       },
       "required": [
@@ -1311,7 +1311,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.disease-phenotypes/8",
+  "$id": "biomcp.disease-phenotypes/9",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -1367,7 +1367,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.disease-phenotypes/8",
+      "const": "biomcp.disease-phenotypes/9",
       "type": "string"
     },
     "sources": {

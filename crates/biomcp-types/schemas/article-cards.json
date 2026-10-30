@@ -71,7 +71,14 @@
           "description": "Source MeSH identity for a disease or chemical."
         },
         "name": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Source normalized name."
         },
         "rsid": {
@@ -88,7 +95,6 @@
       },
       "required": [
         "kind",
-        "name",
         "count"
       ],
       "type": "object"
@@ -681,12 +687,18 @@
           "description": "Source caption."
         },
         "label": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Source label."
         }
       },
       "required": [
-        "label",
         "caption"
       ],
       "type": "object"
@@ -2512,7 +2524,14 @@
           "type": "integer"
         },
         "title": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Source section title or table label."
         },
         "tokens": {
@@ -2524,7 +2543,6 @@
       },
       "required": [
         "number",
-        "title",
         "kind",
         "tokens"
       ],
@@ -2568,17 +2586,29 @@
           "type": "boolean"
         },
         "model": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Source model version."
         },
         "text": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Complete one-sentence source summary."
         }
       },
       "required": [
-        "text",
-        "model",
         "machine_written"
       ],
       "type": "object"
@@ -2594,7 +2624,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.article-cards/7",
+  "$id": "biomcp.article-cards/8",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -2650,7 +2680,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.article-cards/7",
+      "const": "biomcp.article-cards/8",
       "type": "string"
     },
     "sources": {

@@ -5,8 +5,8 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::{fs, io::Write, path::Path};
 mod failures;
-mod native;
-pub(super) use native::run as native;
+tool_only! { mod native; }
+tool_only! { pub(super) use native::run as native; }
 pub(super) fn trials() -> Vec<Trial> {
     vec![
         transcript_trial(

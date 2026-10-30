@@ -124,12 +124,6 @@ def main():
             result = check(root)
             assert result.returncode != 0 and expected in result.stderr, result
         slice_path.write_text(original_slice)
-        case = root / "tests/cases/new-command/proof.yaml"
-        case.parent.mkdir()
-        case.write_text("story: A new command\n")
-        result = check(root)
-        assert result.returncode != 0 and "unmapped case" in result.stderr, result
-        case.unlink()
         features = root / "sdlc/features.md"
         original_features = features.read_text()
         features.write_text(
@@ -137,9 +131,9 @@ def main():
             + "\nmissing: A caller sees a result. Cases: `tests/cases/missing/*.yaml`.\n"
         )
         result = check(root)
-        assert result.returncode != 0 and "matches no cases" in result.stderr, result
+        assert result.returncode != 0 and "invalid or duplicate feature line" in result.stderr, result
     print(
-        "Documentation contracts reject phantom leaves, unknown options, missing leaf accounting, drift and missing case mappings"
+        "Documentation contracts reject phantom leaves, unknown options, missing leaf accounting, drift and invalid feature declarations"
     )
 
 

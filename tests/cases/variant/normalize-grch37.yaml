@@ -1,5 +1,5 @@
 {
-  "feature": "variant-normalization",
+  "feature": "variant-identity",
   "live_check": "synthetic",
   "replay": "variant/normalization/grch37",
   "story": "An explicit chromosome build reaches the registry without changing its coordinates.",

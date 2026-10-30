@@ -1,4 +1,4 @@
-use crate::{Attribution, Concept, Curie, FiniteNumber, Text};
+use crate::{Attribution, Curie, FiniteNumber, Text};
 use serde::{Deserialize, Serialize};
 /// A native source association without clinical interpretation.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -7,14 +7,14 @@ pub struct DiseaseAssociation {
     /// The exact requested concept, including a queried parent.
     pub requested_id: Curie,
     /// Native returned subject.
-    pub subject: Concept,
+    pub subject: DiseaseEndpoint,
     /// Native subject taxon, only as supplied by the publisher.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub subject_taxon: Option<Curie>,
     /// Native source predicate.
     pub predicate: Curie,
     /// Native returned object.
-    pub object: Concept,
+    pub object: DiseaseEndpoint,
     /// Original source subject before source normalization.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub original_subject: Option<Curie>,
@@ -173,6 +173,7 @@ pub struct StatisticEstimate {
 }
 
 /// One native endpoint with an identifier and an optional source label.
+/// Native associations use this reference because a source may omit a display label.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DiseaseEndpoint {

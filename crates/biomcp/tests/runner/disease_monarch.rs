@@ -6,8 +6,8 @@ use serde_json::{Value, json};
 use std::{fs, path::Path};
 mod evidence;
 mod failures;
-mod native;
-pub(super) use native::run as native;
+tool_only! { mod native; }
+tool_only! { pub(super) use native::run as native; }
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = vec![transcript_trial(
         "disease-monarch/native-endpoints-and-paging",

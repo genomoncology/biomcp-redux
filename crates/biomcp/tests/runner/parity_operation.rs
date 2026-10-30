@@ -50,7 +50,7 @@ fn native_batch(mut options: &[&str]) -> bool {
 }
 
 pub(super) fn trial() -> libtest_mimic::Trial {
-    transcript_trial("parity/native-article-operation-containment", || {
+    transcript_trial("mcp-parity/native-article-operation-containment", || {
         batch_aliases()?;
         for (command, allowed) in [
             (vec!["get", "article", "123"], true),

@@ -40,6 +40,9 @@ mod secret;
 mod wire_request;
 pub mod xml;
 
+/// Original JSON row bytes carried through a typed transport document boundary.
+pub use serde_json::value::RawValue;
+
 pub use batch::MAX_BATCH_WORKERS;
 pub use bundle::{
     Bundle, BundleInfo, BundlePart, BundleRejection, BundleSet, DocumentMedia, Find, KeyKind, Keys,

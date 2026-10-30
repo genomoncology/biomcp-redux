@@ -1,6 +1,7 @@
 //! Literal native Cellosaurus queries and request-bound identity checks.
 mod map;
 mod raw;
+mod receive;
 mod sections;
 use biodata::{CellLineSourceId, CellosaurusAccession};
 use biomcp_fetch::{
@@ -31,6 +32,10 @@ const VERIFY_FIELDS: &str = "ac,id,sy,ox,di,ca,sx,ag,dr,var,prob,caution,dt";
 /// Source-ordered checked candidate page and original retrieval metadata.
 #[derive(Debug)]
 pub struct Page {
+    /// Refused row identities and rejected native metadata.
+    pub problems: Vec<biomcp_types::Problem>,
+    /// Native row count before identity refusals.
+    pub received: u32,
     /// Whole bounded headers.
     pub items: Vec<CellLineHeader>,
     /// Retrieval metadata, not release metadata.
@@ -39,6 +44,8 @@ pub struct Page {
 /// Selected card and original retrieval metadata.
 #[derive(Debug)]
 pub struct Card {
+    /// Rejected native metadata for the selected record.
+    pub problems: Vec<biomcp_types::Problem>,
     /// Absent only for the exact native404 contract.
     pub card: Option<CellLineCard>,
     /// Retrieval metadata.
@@ -98,12 +105,31 @@ fn candidates(
     let raw::Response::Records { data } = reply else {
         return Err(InputError::Serialization.into());
     };
-    let items = data
-        .rows
-        .into_iter()
-        .map(map::header)
-        .collect::<Result<_, _>>()?;
-    Ok(Page { items, metadata })
+    let received = data.rows.len() as u32;
+    let mut problems = Vec::new();
+    let mut items = Vec::new();
+    for mut row in data.rows {
+        problems.append(&mut row.problems);
+        if row.accession().is_err() {
+            crate::mapped::push_problem(&mut problems, Source::Cellosaurus, None, "accession-list");
+            continue;
+        }
+        if row.name().is_none() {
+            crate::mapped::push_problem(
+                &mut problems,
+                Source::Cellosaurus,
+                crate::mapped::record(row.accession().map_err(bad)?),
+                "name-list",
+            );
+        }
+        items.push(map::header(row)?);
+    }
+    Ok(Page {
+        items,
+        problems,
+        received,
+        metadata,
+    })
 }
 /// Check the primary accession and optional exact qualified cross-reference before cache admission.
 pub fn get(
@@ -163,22 +189,38 @@ fn fetch_card(
             _ => Err(BadReply),
         },
     )?;
+    let mut problems = Vec::new();
     let card = match reply {
         raw::Response::Missing { .. } => None,
         raw::Response::Records { data } => data
             .rows
             .into_iter()
             .next()
-            .map(|row| {
+            .map(|mut row| {
+                problems.append(&mut row.problems);
+                if row.name().is_none() {
+                    crate::mapped::push_problem(
+                        &mut problems,
+                        Source::Cellosaurus,
+                        crate::mapped::record(accession),
+                        "name-list",
+                    );
+                }
                 if complete {
-                    sections::card(row)
+                    let mapped = sections::card(row)?;
+                    problems.extend(mapped.problems);
+                    Ok(mapped.value)
                 } else {
                     map::card(row)
                 }
             })
             .transpose()?,
     };
-    Ok(Card { card, metadata })
+    Ok(Card {
+        card,
+        problems,
+        metadata,
+    })
 }
 /// Public supported source IDs map only to reviewed native database names.
 pub fn native_database(id: &CellLineSourceId) -> Option<&'static str> {
@@ -191,10 +233,25 @@ pub fn native_database(id: &CellLineSourceId) -> Option<&'static str> {
     }
 }
 /// Independent cacheable release provenance; no database counts become search totals.
-pub fn release(leg: &Leg<'_>) -> Result<biomcp_types::CellLineRelease, RequestError> {
+pub fn release(
+    leg: &Leg<'_>,
+) -> Result<crate::Mapped<biomcp_types::CellLineRelease>, RequestError> {
     let endpoint = SPEC.get("/release-info").fresh(Freshness::Days(1));
     let reply: raw::ReleaseReply = leg.json(&endpoint, &[("format", Arg::Text("json"))])?;
-    Ok(reply.data.header.release)
+    let release = reply.data.header.release;
+    let mut problems = crate::mapped::Problems {
+        source: Source::Cellosaurus,
+        record: None,
+        list: Vec::new(),
+    };
+    let value = biomcp_types::CellLineRelease {
+        version: problems.required_field("release.version", release.version),
+        updated: problems.required_field("release.updated", release.updated),
+    };
+    Ok(crate::Mapped {
+        value,
+        problems: problems.list,
+    })
 }
 
 fn bad(_: BadReply) -> RequestError {

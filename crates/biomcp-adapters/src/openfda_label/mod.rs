@@ -47,28 +47,8 @@ pub struct Page {
 fn literal(value: &str) -> String {
     format!("\"{}\"", value.replace('\\', "\\\\").replace('"', "\\\""))
 }
-/// Exact name discovery, with one tokenized fallback after an empty exact page.
-pub fn search(leg: &Leg<'_>, name: &Text, limit: u32, offset: u32) -> Result<Page, RequestError> {
-    if !(1..=50).contains(&limit) {
-        return Err(bad());
-    }
-    let selector = |suffix: &str| {
-        let name = literal(name.as_str());
-        format!("openfda.brand_name{suffix}:{name} OR openfda.generic_name{suffix}:{name}")
-    };
-    let mut exact = page(leg, &selector(".exact"), limit, offset, None)?;
-    exact
-        .records
-        .retain(|record| record.name_match(name).is_some());
-    if !exact.records.is_empty() {
-        return Ok(exact);
-    }
-    let mut fallback = page(leg, &selector(""), limit, offset, None)?;
-    fallback
-        .records
-        .retain(|record| record.name_match(name).is_some());
-    Ok(fallback)
-}
+mod search;
+pub use search::{Search, search};
 fn normalize_name(value: &str) -> String {
     value
         .chars()
@@ -103,9 +83,19 @@ pub fn get(leg: &Leg<'_>, set: &DrugId) -> Result<Page, RequestError> {
     if !biomcp_types::DrugSource::OpenfdaLabel.accepts(set) {
         return Err(bad());
     }
-    page(
+    let found = page(
         leg,
         &format!("openfda.spl_set_id:{}", literal(&set.to_string())),
+        1,
+        0,
+        Some(set),
+    )?;
+    if !found.records.is_empty() {
+        return Ok(found);
+    }
+    page(
+        leg,
+        &format!("set_id:{}", literal(&set.to_string())),
         1,
         0,
         Some(set),

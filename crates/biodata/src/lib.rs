@@ -41,8 +41,8 @@ pub use variant::{Representation, Variant};
 pub use coord::Chromosome;
 
 pub use variant::{
-    Accession, AccessionBase, Allele, Base, EnsemblFeature, LrgPart, RefSeqPrefix, Sequence,
-    SequenceLocation,
+    Accession, AccessionBase, Allele, Base, CodingChange, EnsemblFeature, LrgPart, RefSeqPrefix,
+    Sequence, SequenceLocation,
 };
 
 pub use variant::{

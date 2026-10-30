@@ -17,6 +17,7 @@ pub(super) fn get(cx: &Ctx<'_>, q: &PhenotypeGet) -> Outcome {
         .push(status::source(Source::Monarch, leg.finish(), error));
     out.local = error.and_then(status::local);
     if let Ok(page) = reply {
+        out.problems.extend(page.problems);
         let returned = page.items.len() as u32;
         out.page = Some(PageInfo {
             offset: q.section_offset(),
@@ -26,11 +27,13 @@ pub(super) fn get(cx: &Ctx<'_>, q: &PhenotypeGet) -> Outcome {
             truncated: None,
         });
         pivots(&mut out, q, &page.items);
-        if returned > 0 && u64::from(q.section_offset()) + u64::from(returned) < page.total {
+        if page.received > 0
+            && u64::from(q.section_offset()) + u64::from(page.received) < page.total
+        {
             out.next.push((
                 StepKind::Page,
                 run(Request::GetPhenotype(q.at_section_offset(
-                    q.section_offset().saturating_add(returned),
+                    q.section_offset().saturating_add(page.received),
                 ))),
             ));
         }
@@ -73,9 +76,7 @@ fn body(
 }
 fn pivots(out: &mut Outcome, q: &PhenotypeGet, rows: &[biomcp_types::DiseaseAssociationItem]) {
     for row in rows {
-        let Some(id) = &row.association.subject.id else {
-            continue;
-        };
+        let id = &row.association.subject.id;
         let id = id.to_string();
         let request = if q.section() == Some(PhenotypeSection::Genes) {
             crate::disease::monarch::gene_query(&id).map(Request::GetGene)

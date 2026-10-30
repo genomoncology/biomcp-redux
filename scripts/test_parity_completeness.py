@@ -20,7 +20,7 @@ NAMES = {
 def main():
     output = Path(sys.argv[1])
     assert output.is_absolute() and not output.exists()
-    subprocess.run(['cargo', 'test', '--locked', '-p', 'biomcp', '--test', 'cases',
+    subprocess.run(['cargo', 'test', '--locked', '-p', 'biomcp', '--test', 'tools',
                     '--', '--parity-inventory', str(ROOT / 'tests/parity/inventory.json'),
                     str(ROOT / 'tests/cases'), str(output)], cwd=ROOT, check=False)
     inventory = json.loads(output.read_text())

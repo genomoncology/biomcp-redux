@@ -144,6 +144,10 @@ const ALLOWED: &[(&str, &str)] = &[
         "Exercise checked values and schema contracts through the public library API.",
     ),
     (
+        "crates/biomcp-types/tests/value_conventions/sweep.rs",
+        "Exercise public text value construction, parsing, JSON and hashing through the Rust consumer boundary.",
+    ),
+    (
         "crates/biomcp-types/tests/value_conventions.rs",
         "Exercise checked values and schema contracts through the public library API.",
     ),
@@ -158,6 +162,10 @@ const ALLOWED: &[(&str, &str)] = &[
     (
         "crates/biomcp-adapters/tests/batch_bounds.rs",
         "Exercise literal indexed lookup inputs outside command validation and empty/oversized batches or chunks beyond command limits.",
+    ),
+    (
+        "crates/biomcp-adapters/tests/protein_storage.rs",
+        "Read legacy serialized adapter values through the public storage type without a source request.",
     ),
     (
         "crates/biomcp-adapters/tests/pmc_body.rs",

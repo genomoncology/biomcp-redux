@@ -113,6 +113,6 @@ pub(super) fn complex(
     Ok(Some(Complex {
         header,
         members,
-        problems: problems.list,
+        problems: Some(problems.list),
     }))
 }

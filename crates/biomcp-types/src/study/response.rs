@@ -24,7 +24,7 @@ pub struct StudyPage {
     pub snapshot: StudySnapshot,
 }
 impl ResponseBody for StudyPage {
-    const SCHEMA: &'static str = "biomcp.study-page/4";
+    const SCHEMA: &'static str = "biomcp.study-page/5";
     type Query = StudySearch;
 }
 /// Exact card with independent live section states and catalog provenance.
@@ -49,7 +49,7 @@ pub struct StudyCard {
     pub files: Option<Section<StudyFiles>>,
 }
 impl ResponseBody for StudyCard {
-    const SCHEMA: &'static str = "biomcp.study-card/5";
+    const SCHEMA: &'static str = "biomcp.study-card/6";
     type Query = StudyGet;
 }
 macro_rules! page {
@@ -75,11 +75,11 @@ macro_rules! page {
         }
     };
 }
-page!(StudyProfiles, StudyProfile, "biomcp.study-profiles/3");
+page!(StudyProfiles, StudyProfile, "biomcp.study-profiles/4");
 page!(
     StudySampleLists,
     StudySampleList,
-    "biomcp.study-sample-lists/3"
+    "biomcp.study-sample-lists/4"
 );
 /// One native repository directory page; blob sizes do not describe data content.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

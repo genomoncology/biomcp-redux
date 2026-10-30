@@ -113,7 +113,8 @@ fn resource(q: &GwasGet, leg: &Leg<'_>, out: &mut Outcome) -> Result<(), Request
         GwasGet::Association {
             id, section: None, ..
         } => {
-            let association = map::association(gwas::get::association(leg, *id)?);
+            let association =
+                map::association(gwas::get::association(leg, *id)?, &mut out.problems);
             next::association(&association, out);
             let mut loci = q.clone();
             if let GwasGet::Association { section, .. } = &mut loci {
@@ -128,6 +129,7 @@ fn resource(q: &GwasGet, leg: &Leg<'_>, out: &mut Outcome) -> Result<(), Request
             ..
         } => {
             let rows = gwas::get::loci(leg, *id)?;
+            out.problems.extend(rows.problems);
             rejected(out, rows.rejected);
             let (items, continuation) = page(q, &rows.items, out);
             next::loci(&items, out);
@@ -141,6 +143,7 @@ fn resource(q: &GwasGet, leg: &Leg<'_>, out: &mut Outcome) -> Result<(), Request
             id, section: None, ..
         } => {
             let study = gwas::get::study(leg, id)?;
+            out.problems.extend(study.problems);
             for section in [GwasStudySection::Associations, GwasStudySection::Ancestries] {
                 let q = GwasGet::Study {
                     id: id.clone(),
@@ -149,7 +152,7 @@ fn resource(q: &GwasGet, leg: &Leg<'_>, out: &mut Outcome) -> Result<(), Request
                 };
                 out.next.push((StepKind::Section, action(q, false)));
             }
-            out.body = QueryBody::GwasStudy(Some(study));
+            out.body = QueryBody::GwasStudy(Some(study.value));
         }
         GwasGet::Study {
             id,
@@ -159,6 +162,9 @@ fn resource(q: &GwasGet, leg: &Leg<'_>, out: &mut Outcome) -> Result<(), Request
             associations(q, id, window, leg, out)?;
         }
         GwasGet::Study { .. } => return Ok(()),
+    }
+    if !out.problems.is_empty() {
+        out.status = Status::Partial;
     }
     if out.status != Status::Partial {
         out.status = Status::Complete;
@@ -219,19 +225,21 @@ fn associations(
 ) -> Result<(), RequestError> {
     let selector = GwasSearch::study_page(id.clone(), window);
     let rows = gwas::search(leg, &selector)?;
+    out.problems.extend(rows.problems);
     let items: Box<[_]> = rows
         .rows
         .into_iter()
-        .skip((window.offset() % window.limit()) as usize)
-        .map(map::association)
+        .map(|row| map::association(row, &mut out.problems))
         .collect();
     let returned = items.len() as u32;
-    let continuation = (returned > 0
-        && u64::from(window.offset()) + u64::from(returned) < rows.total)
+    let continuation = (rows.received > 0
+        && u64::from(window.offset() - window.offset() % window.limit())
+            + u64::from(rows.received)
+            < rows.total)
         .then(|| {
-            GwasPageQuery::Get(
-                q.with_page(window.at_offset(window.offset().saturating_add(returned))),
-            )
+            GwasPageQuery::Get(q.with_page(window.at_offset(
+                (window.offset() - window.offset() % window.limit()).saturating_add(rows.received),
+            )))
         });
     out.page = Some(PageInfo {
         offset: window.offset(),

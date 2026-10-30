@@ -41,7 +41,7 @@
       "exit": 4,
       "is_error": true,
       "expect": {
-        "/schema": "biomcp.variant-recurrence/9",
+        "/schema": "biomcp.variant-recurrence/10",
         "/sources/0/source": "cbioportal",
         "/sources/0/reason": "disabled"
       }
@@ -80,7 +80,7 @@
       "exit": 2,
       "is_error": true,
       "expect": {
-        "/schema": "biomcp.error/3",
+        "/schema": "biomcp.error/4",
         "/error/code": "usage.arguments"
       }
     },
@@ -118,7 +118,7 @@
       "exit": 2,
       "is_error": true,
       "expect": {
-        "/schema": "biomcp.error/3",
+        "/schema": "biomcp.error/4",
         "/error/code": "usage.arguments"
       }
     },
@@ -156,7 +156,7 @@
       "exit": 2,
       "is_error": true,
       "expect": {
-        "/schema": "biomcp.error/3",
+        "/schema": "biomcp.error/4",
         "/error/code": "usage.arguments"
       }
     },
@@ -194,7 +194,7 @@
       "exit": 2,
       "is_error": true,
       "expect": {
-        "/schema": "biomcp.error/3",
+        "/schema": "biomcp.error/4",
         "/error/code": "usage.arguments"
       }
     },
@@ -232,7 +232,7 @@
       "exit": 2,
       "is_error": true,
       "expect": {
-        "/schema": "biomcp.error/3",
+        "/schema": "biomcp.error/4",
         "/error/code": "usage.arguments"
       }
     }

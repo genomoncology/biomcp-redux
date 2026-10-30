@@ -11,11 +11,7 @@ const LIMIT: usize = 20;
 pub(super) fn document(id: Pmid, document: Option<&Document>) -> Mapped<Section<Annotations>> {
     let mut problems = Vec::new();
     let mut entities: Vec<(String, AnnotatedEntity)> = Vec::new();
-    for annotation in document
-        .into_iter()
-        .flat_map(|d| &d.passages)
-        .flat_map(|p| p.annotations.iter().flatten())
-    {
+    for annotation in annotation_rows(id, document, &mut problems) {
         let Some((key, entity)) = entity(id, annotation, &mut problems) else {
             continue;
         };
@@ -32,7 +28,12 @@ pub(super) fn document(id: Pmid, document: Option<&Document>) -> Mapped<Section<
         b.count
             .cmp(&a.count)
             .then_with(|| order(a.kind).cmp(&order(b.kind)))
-            .then_with(|| a.name.as_str().cmp(b.name.as_str()))
+            .then_with(|| {
+                a.name
+                    .as_ref()
+                    .map(Text::as_str)
+                    .cmp(&b.name.as_ref().map(Text::as_str))
+            })
             .then_with(|| ka.cmp(kb))
     });
     let total = u64::try_from(entities.len()).unwrap_or(u64::MAX);
@@ -67,7 +68,7 @@ fn optional(
     raw: Option<&Field<String>>,
     problems: &mut Vec<Problem>,
 ) -> Option<Text> {
-    let admit = if field == "name" {
+    let admit = if matches!(field, "name" | "text") {
         Text::from_source
     } else {
         Text::new
@@ -101,17 +102,8 @@ fn entity(
         _ => return None,
     };
     let identifier = optional(id, "identifier", raw.identifier.as_ref(), problems);
-    let name = optional(id, "name", raw.name.as_ref(), problems).or_else(|| {
-        annotation.text.as_ref().and_then(|s| {
-            crate::mapped::field_text(
-                problems,
-                Source::PubTator,
-                record_text(id),
-                "text",
-                Some(Field::Value(s.clone())),
-            )
-        })
-    })?;
+    let text = optional(id, "text", annotation.text.as_ref(), problems);
+    let name = optional(id, "name", raw.name.as_ref(), problems).or(text);
     let mut value = AnnotatedEntity {
         kind,
         name,
@@ -149,6 +141,13 @@ fn entity(
         AnnotationKind::Gene => value.entrez_id.map(|id| id.to_string()),
         _ => identifier.map(|s| s.to_string()),
     };
+    if checked_identifier.is_none()
+        && value.name.is_none()
+        && value.hgvs.is_none()
+        && value.rsid.is_none()
+    {
+        return None;
+    }
     let key = checked_identifier
         .map(|id| format!("id:{id}"))
         .unwrap_or_else(|| {
@@ -158,8 +157,47 @@ fn entity(
                     value.entrez_id, value.hgvs, value.rsid
                 )
             } else {
-                format!("name:{}", value.name)
+                format!("name:{}", value.name.as_ref().map_or("", Text::as_str))
             }
         });
     Some((key, value))
+}
+
+fn annotation_rows<'a>(
+    id: Pmid,
+    document: Option<&'a Document>,
+    problems: &mut Vec<Problem>,
+) -> Vec<&'a Annotation> {
+    let mut annotations = Vec::new();
+    if let Some(passages) = document.and_then(|d| d.passages.as_ref()) {
+        if let Some(passages) = passages.as_ref() {
+            for passage in passages {
+                let Some(passage) = passage.as_ref() else {
+                    push_problem(problems, Source::PubTator, record_text(id), "passages");
+                    continue;
+                };
+                if let Some(items) = &passage.annotations {
+                    if let Some(items) = items.as_ref() {
+                        for item in items {
+                            if let Some(item) = item.as_ref() {
+                                annotations.push(item);
+                            } else {
+                                push_problem(
+                                    problems,
+                                    Source::PubTator,
+                                    record_text(id),
+                                    "annotations",
+                                );
+                            }
+                        }
+                    } else {
+                        push_problem(problems, Source::PubTator, record_text(id), "annotations");
+                    }
+                }
+            }
+        } else {
+            push_problem(problems, Source::PubTator, record_text(id), "passages");
+        }
+    }
+    annotations
 }

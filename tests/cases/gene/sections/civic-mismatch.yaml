@@ -1,6 +1,6 @@
 {
   "live_check": "synthetic response case",
-  "feature": "gene-sections",
+  "feature": "gene-civic",
   "story": "A synthetic CIViC mismatch reply preserves the independent card",
   "replay": "gene/civic/synthetic-mismatch",
   "steps": [

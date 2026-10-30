@@ -105,21 +105,29 @@
       "properties": {
         "active": {
           "description": "Publisher active-state flag.",
-          "type": "boolean"
+          "type": [
+            "boolean",
+            "null"
+          ]
         },
         "code": {
           "$ref": "#/$defs/Reply_Text",
           "description": "Native publisher site code."
         },
         "label": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Complete publisher site label."
         }
       },
       "required": [
-        "code",
-        "label",
-        "active"
+        "code"
       ],
       "type": "object"
     },
@@ -796,7 +804,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.disease-sites/4",
+  "$id": "biomcp.disease-sites/5",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -852,7 +860,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.disease-sites/4",
+      "const": "biomcp.disease-sites/5",
       "type": "string"
     },
     "sources": {

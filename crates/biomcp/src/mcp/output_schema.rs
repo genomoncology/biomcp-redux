@@ -25,7 +25,7 @@ pub(super) fn for_tool(name: &str) -> io::Result<Value> {
     properties.insert("schema".into(), json!({"type":"string","enum":ids}));
     properties.insert("query".into(), json!({"type":["object","array","null"]}));
     properties.insert("result".into(), json!({"type":"object"}));
-    let mut branches = vec![envelope, shape(&canonical("biomcp.error/3")?)?];
+    let mut branches = vec![envelope, shape(&canonical("biomcp.error/4")?)?];
     if name == "biomcp" {
         branches.push(json!({"properties":{
             "$id":{"type":"string","pattern":"^(biomcp|biodata)\\.[a-z0-9_-]+/[1-9][0-9]*$"},

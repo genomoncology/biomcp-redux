@@ -1,6 +1,6 @@
 {
   "live_check": "synthetic response case",
-  "feature": "article-annotations",
+  "feature": "article-sections",
   "story": "A missing identifier name cannot collide with a checked entity identifier.",
   "replay": "article/annotations/synthetic-key-domains",
   "steps": [

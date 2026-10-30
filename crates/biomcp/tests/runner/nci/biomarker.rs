@@ -5,16 +5,16 @@ use serde_json::{Value, json};
 type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test("biomarker/help-means-concepts", || {
+        Trial::test("biomarker-nci/help-means-concepts", || {
             help().map_err(Into::into)
         }),
-        Trial::test("biomarker/native-snapshot-pages", || {
+        Trial::test("biomarker-nci/native-snapshot-pages", || {
             pages().map_err(Into::into)
         }),
-        Trial::test("biomarker/bounded-failures", || {
+        Trial::test("biomarker-nci/bounded-failures", || {
             failures().map_err(Into::into)
         }),
-        Trial::test("biomarker/research-keeps-native-rows", || {
+        Trial::test("biomarker-nci/research-keeps-native-rows", || {
             research().map_err(Into::into)
         }),
     ]

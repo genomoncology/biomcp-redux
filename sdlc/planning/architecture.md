@@ -1866,11 +1866,10 @@ Tests are outside-in, as `decisions/2026-10-23-outside-in-tests-and-one-small-ru
 
 ### 10.1 The runner
 
-`crates/biomcp/tests/cases.rs` is one integration test target with `harness = false`. It uses `libtest-mimic` to turn each YAML file under `tests/cases/` into a named test, so Cargo's filter and parallel run work per case. It runs the binary Cargo built for the test.
+`crates/biomcp/tests/cases.rs` is one behavior integration test target with `harness = false`. Explicit parity, live checks, measurements, native proofs and generation use `crates/biomcp/tests/tools.rs`, whose target has `test = false` and `harness = false`. It uses `libtest-mimic` to turn each YAML file under `tests/cases/` into a named test, so Cargo's filter and parallel run work per case. It runs the binary Cargo built for the test.
 
 ```yaml
 feature: article-search
-covers: [search article, --gene, --variant, --offset, --pool]
 story: AKT1 E17K leads to the 2007 discovery paper and keeps every plain PubMed hit
 harvest: paper PMID 17611497
 verified: 2026-10-23 live PubMed ESearch with sort=relevance
@@ -1897,7 +1896,7 @@ steps:
 
 The case keys:
 
-- `feature`, `covers`, `story`, `harvest` and `verified` describe the case. `covers` names the commands and options it exercises.
+- `feature`, `story`, `harvest` and `verified` describe the case. Each feature names one line in `sdlc/features.md`.
 - `replay` names the recording folder. Each step runs with `--replay` on it, in a fresh temporary config and cache shared by the case's steps.
 - `run` sends one CLI command. `mcp` sends the same arguments through `biomcp serve --replay` as a `tools/call`. A step with both runs each and asserts the two envelopes are equal.
 - `follow` runs a next step of the previous output, chosen by `kind` and an optional index. It tests chaining.
@@ -1918,7 +1917,6 @@ The runner's YAML reader is a test dependency. The original `serde_yaml` is arch
 
 ### 10.2 Checks the runner adds
 
-- **Surface.** One test reads `biomcp help --all` and fails when any command or option appears in no case's `covers`.
 - **Schema.** Every output validates against its schema.
 - **Parity.** Every step with both `run` and `mcp` compares the two envelopes.
 - **Quota.** The eight-parallel-call case in section 4.5.
@@ -1926,6 +1924,8 @@ The runner's YAML reader is a test dependency. The original `serde_yaml` is arch
 The source ratchet permits `dead_code` only in the private `crates/biomcp-adapters/src/alphagenome/proto.rs` generated-message wrapper. That file contains only the checked closure include. Its pinned regeneration check must reproduce every committed generated file. The ordinary file size limits remain in force. Product code and unused imports receive no exception.
 
 ### 10.3 Coverage
+
+`make schema-shape-check` runs the grammar reference and schema-source checks, then the public-binary research projection and MCP search/fetch checks. Coverage depends on this check so a new source, reply shape, schema version or definition name fails before instrumentation.
 
 `make coverage` instruments the `cases` target and the product binary through `cargo llvm-cov show-env`. The launcher sets `LLVM_PROFILE_FILE` to `bin-%m-%p.profraw` in the collection directory for every child. The script merges only `bin-` profiles with `llvm-profdata merge` and reports with `llvm-cov report --object` on the actual binary. Cargo's report command cannot select one object. The denominator contains source lines mapped into that binary from product crates. Harness code, test modules, in-process library calls, dependencies and generated protobuf code count toward neither side. Library functions absent from the binary have no mapping and fall outside the denominator. Public contracts and library tests run separately through `make library-tests` and never supply counted profiles.
 
@@ -1971,10 +1971,12 @@ The ratchet owns the authoritative file and reason list below and checks this ta
 | `crates/biomcp-types/tests/schemas/registry.rs` | Register public value and research query schema contracts for schema drift checks. |
 | `crates/biomcp-types/tests/schemas/ownership.rs` | Check published schema namespaces against the crate that defines each Rust type. |
 | `crates/biomcp-types/tests/schemas/values.rs` | Exercise checked values and schema contracts through the public library API. |
+| `crates/biomcp-types/tests/value_conventions/sweep.rs` | Exercise public text value construction, parsing, JSON and hashing through the Rust consumer boundary. |
 | `crates/biomcp-types/tests/value_conventions.rs` | Exercise checked values and schema contracts through the public library API. |
 | `crates/biomcp-adapters/src/monarch/native_contracts.rs` | Exercise retained gene-keyed Monarch rows through the private mapper without adding a gene-keyed command. |
 | `crates/biomcp-adapters/tests/alphagenome_registration.rs` | Exercise restricted source registration and required-key admission before a product section exists. |
 | `crates/biomcp-adapters/tests/batch_bounds.rs` | Exercise literal indexed lookup inputs outside command validation and empty/oversized batches or chunks beyond command limits. |
+| `crates/biomcp-adapters/tests/protein_storage.rs` | Read legacy serialized adapter values through the public storage type without a source request. |
 | `crates/biomcp-adapters/tests/pmc_body.rs` | Reconstruct complete source rows and retain JATS reference IDs and links omitted from command JSON. |
 | `crates/biomcp-adapters/tests/pmc_limits.rs` | Reject invalid table spans and duplicate table IDs before allocation with a tiny decoder boundary table. |
 | `crates/biomcp-fetch/src/cache/contention.rs` | Order independent SQLite snapshots and writer admission at the private transaction boundary without product hooks. |

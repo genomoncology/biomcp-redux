@@ -1,49 +1,6 @@
 //! Public boundary tables for identifiers, partial dates and coordinate bounds.
 use biodata::{HgncId, PartialDate, Position1, Span0};
-use serde::{Serialize, de::DeserializeOwned};
 use serde_json::json;
-
-#[test]
-fn synonymous_protein_search_roundtrips_canonical_hgvs() -> Result<(), Box<dyn std::error::Error>> {
-    let canonical = json!({"gene":"BARD1", "protein":"p.Ala613=", "limit":10, "offset":0});
-    for text in ["p.Ala613=", "p.A613="] {
-        let query: biomcp_types::VariantSearch =
-            serde_json::from_value(json!({"gene":"BARD1", "protein":text}))?;
-        assert_eq!(serde_json::to_value(&query)?, canonical);
-        assert_eq!(
-            biomcp_types::protein_query_forms(text)?,
-            ["A613=", "Ala613=", "p.A613=", "p.Ala613="].map(String::from)
-        );
-    }
-    Ok(())
-}
-use std::{fmt::Debug, str::FromStr};
-
-#[expect(
-    clippy::unwrap_used,
-    reason = "Public boundary table uses valid round-trip fixtures"
-)]
-fn text_roundtrip<T: FromStr + Serialize + DeserializeOwned + Eq + Debug + ToString>(text: &str)
-where
-    T::Err: Debug,
-{
-    let value: T = text.parse().unwrap();
-    assert_eq!(
-        value.to_string(),
-        text,
-        "Text must preserve its checked roundtrip contract"
-    );
-    assert_eq!(
-        serde_json::to_value(&value).unwrap(),
-        json!(text),
-        "Text must preserve its checked roundtrip contract"
-    );
-    assert_eq!(
-        serde_json::from_value::<T>(json!(text)).unwrap(),
-        value,
-        "Text must preserve its checked roundtrip contract"
-    );
-}
 
 #[test]
 fn hgnc_ids_check_numeric_and_canonical_text_boundaries() {
@@ -54,7 +11,6 @@ fn hgnc_ids_check_numeric_and_canonical_text_boundaries() {
     ] {
         assert_eq!(HgncId::new(number).unwrap().get(), number);
         assert_eq!(HgncId::new(number).unwrap().to_string(), text);
-        text_roundtrip::<HgncId>(text);
     }
     assert!(HgncId::new(0).is_err());
     for text in [
@@ -99,7 +55,6 @@ fn partial_dates_preserve_precision_and_validate_gregorian_calendar() {
             (year, month, day)
         );
         assert_eq!(value.to_string(), text);
-        text_roundtrip::<PartialDate>(text);
     }
     for args in [
         (0, None, None),
@@ -180,3 +135,6 @@ fn coordinates_enforce_integer_bounds_and_half_open_span_order() {
         assert!(serde_json::from_value::<Span0>(value).is_err());
     }
 }
+
+#[path = "value_conventions/sweep.rs"]
+mod sweep;

@@ -52,6 +52,6 @@ pub struct ArticleCards {
     pub items: Box<[ArticleCardItem]>,
 }
 impl super::ResponseBody for ArticleCards {
-    const SCHEMA: &'static str = "biomcp.article-cards/7";
+    const SCHEMA: &'static str = "biomcp.article-cards/8";
     type Query = ArticleGet;
 }

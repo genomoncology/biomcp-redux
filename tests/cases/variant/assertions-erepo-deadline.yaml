@@ -1,5 +1,5 @@
 {
-  "feature": "variant-assertions",
+  "feature": "variant-identity",
   "live_check": "synthetic response case",
   "story": "erepo deadline preserves source failure and never admits a cache entry",
   "replay": "variant/assertions/erepo-deadline",

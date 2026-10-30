@@ -49,14 +49,7 @@ pub(super) fn exchange_retained(
         .stderr(Stdio::piped())
         .spawn()
         .map_err(|e| e.to_string())?;
-    let mut process = super::process::Process::new(child)?;
-    let mut stdin = process.child.stdin.take().ok_or("stdin missing")?;
-    for frame in frames {
-        serde_json::to_writer(&mut stdin, frame).map_err(|e| e.to_string())?;
-        stdin.write_all(b"\n").map_err(|e| e.to_string())?;
-    }
-    drop(stdin);
-    let (status, stdout, stderr) = process.finish()?;
+    let (status, stdout, stderr) = super::process::exchange(child, frames)?;
     command
         .record(status, &stdout, "mcp")
         .map_err(|e| e.to_string())?;
@@ -64,18 +57,7 @@ pub(super) fn exchange_retained(
         std::fs::write(directory.join("mcp.stdout"), &stdout).map_err(|e| e.to_string())?;
         std::fs::write(directory.join("mcp.stderr"), &stderr).map_err(|e| e.to_string())?;
     }
-    if !status.success() || !stderr.is_empty() {
-        return Err(format!(
-            "MCP process: {:?}; {}",
-            status.code(),
-            String::from_utf8_lossy(&stderr)
-        ));
-    }
-    stdout
-        .split(|b| *b == b'\n')
-        .filter(|line| !line.is_empty())
-        .map(|line| serde_json::from_slice(line).map_err(|e| e.to_string()))
-        .collect()
+    super::process::messages(status, &stdout, &stderr)
 }
 
 pub(super) fn call_with_globals(

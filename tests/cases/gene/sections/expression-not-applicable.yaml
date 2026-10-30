@@ -1,6 +1,6 @@
 {
   "live_check": "public",
-  "feature": "gene-sections",
+  "feature": "gene-expression",
   "story": "HGNC absence of Ensembl rules expression out without asking HPA",
   "replay": "gene/expression",
   "steps": [

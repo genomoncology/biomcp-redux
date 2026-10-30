@@ -15,20 +15,31 @@ use sha2::{Digest, Sha256};
 #[derive(Default)]
 struct Saved {
     rows: Vec<GwasAssociation>,
+    received: u32,
+    problems: Vec<biomcp_types::Problem>,
     total: Option<u64>,
     done: bool,
     sources: Vec<SourceOutcome>,
 }
 impl Saved {
     fn encode(&self) -> Result<String, CacheError> {
-        serde_json::to_string(&(&self.rows, self.total, self.done, &self.sources))
-            .map_err(|_| CacheError::Database)
+        serde_json::to_string(&(
+            &self.rows,
+            self.total,
+            self.done,
+            &self.sources,
+            self.received,
+            &self.problems,
+        ))
+        .map_err(|_| CacheError::Database)
     }
     fn decode(payload: &str) -> Result<Self, CacheError> {
-        let (rows, total, done, sources) =
+        let (rows, total, done, sources, received, problems) =
             serde_json::from_str(payload).map_err(|_| CacheError::Database)?;
         Ok(Self {
             rows,
+            received,
+            problems,
             total,
             done,
             sources,
@@ -80,7 +91,7 @@ pub(super) fn search(cx: &Ctx<'_>, q: &GwasSearch) -> Outcome {
 }
 fn key(q: &GwasSearch) -> Vec<u8> {
     Sha256::digest(format!(
-        "biomcp.gwas_threshold/1\0{}",
+        "biomcp.gwas_threshold/2\0{}",
         serde_json::to_string(&q.restart()).unwrap_or_default()
     ))
     .to_vec()
@@ -142,9 +153,13 @@ fn read(
     }
     let needed = q.offset().saturating_add(q.limit()) as usize;
     if !saved.done && saved.rows.len() < needed {
-        let result = gwas::search(&leg, &q.at_offset(saved.rows.len() as u32));
+        let result = gwas::search(&leg, &q.at_offset(saved.received));
         let error = result.as_ref().err().copied();
-        let incoming = status::source(Source::Gwas, leg.finish(), error);
+        let mut incoming = status::source(Source::Gwas, leg.finish(), error);
+        if let Ok(page) = &result {
+            incoming.retrieved_count = Some(page.rows.len() as u32);
+            incoming.count = Some(page.total);
+        }
         out.sources = vec![incoming.clone()];
         let page = result?;
         append(q, &mut saved, page)?;
@@ -192,10 +207,29 @@ fn append(q: &GwasSearch, saved: &mut Saved, page: gwas::Page) -> Result<(), Req
         return Err(bad());
     }
     let threshold = q.p_value().ok_or_else(bad)?;
-    let before = saved.rows.len();
+    saved.received = saved.received.checked_add(page.received).ok_or_else(bad)?;
+    if u64::from(saved.received) > page.total {
+        return Err(bad());
+    }
+    saved.problems.extend(page.problems);
     saved.total = Some(page.total);
     for row in page.rows {
-        let exact = row.exact_p_value().ok_or_else(bad)?;
+        let Some(exact) = row.exact_p_value() else {
+            let problem = biomcp_types::Problem {
+                source: Source::Gwas,
+                record: row.association_id.to_string().parse().ok(),
+                field: "pvalue_mantissa".into(),
+                code: biomcp_types::ProblemCode::ValueUnknown,
+            };
+            saved.problems.extend(row.problems);
+            if !saved.problems.iter().any(|p| {
+                p.record == problem.record
+                    && matches!(p.field.as_ref(), "pvalue_mantissa" | "pvalue_exponent")
+            }) {
+                saved.problems.push(problem);
+            }
+            continue;
+        };
         if saved.rows.iter().any(|old| old.id == row.association_id)
             || saved
                 .rows
@@ -209,18 +243,19 @@ fn append(q: &GwasSearch, saved: &mut Saved, page: gwas::Page) -> Result<(), Req
             saved.done = true;
             break;
         }
-        saved.rows.push(map::association(row));
+        saved.rows.push(map::association(row, &mut saved.problems));
     }
     if saved.rows.len() as u64 > page.total {
         return Err(bad());
     }
-    saved.done |= saved.rows.len() as u64 == page.total;
-    if !saved.done && saved.rows.len() == before {
+    saved.done |= u64::from(saved.received) == page.total;
+    if !saved.done && page.received == 0 {
         return Err(bad());
     }
     Ok(())
 }
 fn render(cx: &Ctx<'_>, q: &GwasSearch, saved: Saved, pool: Pool, out: &mut Outcome) {
+    out.problems = saved.problems.clone();
     let items: Box<[_]> = saved
         .rows
         .iter()
@@ -248,10 +283,11 @@ fn render(cx: &Ctx<'_>, q: &GwasSearch, saved: Saved, pool: Pool, out: &mut Outc
     out.next = next::search(q, Some(&body), biomcp_types::SourceState::Ok, cx.fresh);
     out.page = Some(page);
     out.body = QueryBody::GwasPage(Some(body));
-    out.status = if out
-        .sources
-        .iter()
-        .any(|s| s.state == biomcp_types::SourceState::Stale)
+    out.status = if !out.problems.is_empty()
+        || out
+            .sources
+            .iter()
+            .any(|s| s.state == biomcp_types::SourceState::Stale)
     {
         Status::Partial
     } else {
