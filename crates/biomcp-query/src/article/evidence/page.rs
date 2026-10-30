@@ -31,6 +31,7 @@ pub(super) fn render(
     id: Text,
     out: &mut Outcome,
 ) -> Result<(), RequestError> {
+    out.dropped |= snapshot.dropped;
     let mut context_end = query.offset();
     let mut paragraph_end = query.paragraph_offset();
     let mut more = false;
