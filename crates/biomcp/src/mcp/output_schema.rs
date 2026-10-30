@@ -38,9 +38,12 @@ pub(super) fn for_tool(name: &str) -> io::Result<Value> {
         };
         branches.push(shape(&canonical(id)?)?);
     }
-    Ok(
-        json!({"$schema":super::protocol::SCHEMA_DIALECT,"type":"object","description":"Compact reply shape. Use biomcp schema <id> for the complete contract.","anyOf":branches}),
-    )
+    Ok(json!({
+        "$schema": super::protocol::SCHEMA_DIALECT,
+        "type": "object",
+        "description": "Compact reply shape. Use biomcp schema <id> for the complete contract.",
+        "anyOf": branches
+    }))
 }
 fn canonical(id: &str) -> io::Result<Value> {
     serde_json::from_str(

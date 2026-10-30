@@ -12,7 +12,12 @@ pub(super) fn trials() -> Vec<Trial> {
         .flat_map(|http| {
             cases().into_iter().map(move |(name, words, schema)| {
                 let transport = if http { "http" } else { "stdio" };
-                transcript_trial(format!("mcp-hosted/{transport}/{name}"), move || {
+                let trial_name = if !http && name == "health" {
+                    crate::runner::pool_contract::HOSTED_MODE.0.to_owned()
+                } else {
+                    format!("mcp-hosted/{transport}/{name}")
+                };
+                transcript_trial(trial_name, move || {
                     check(http, &words, schema).map_err(|e| e.to_string().into())
                 })
             })

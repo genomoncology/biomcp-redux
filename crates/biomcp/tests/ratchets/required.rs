@@ -108,6 +108,7 @@ pub(super) fn required_surface_has_asserted_calls() -> Check {
     counts.runner(pool_contracts::VARIANT_CIVIC_CURSOR.1);
     counts.runner(pool_contracts::PATHWAY_EVENTS.1);
     counts.runner(pool_contracts::HTTP_HOST.1);
+    counts.runner(pool_contracts::HOSTED_MODE.1);
 
     counts.runner(synthetic_contracts::LABEL_HEADINGS.1);
     counts.runner(synthetic_contracts::ONCOKB.1);
