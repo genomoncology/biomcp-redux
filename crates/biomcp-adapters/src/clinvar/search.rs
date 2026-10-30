@@ -73,7 +73,7 @@ impl Reply for Search {
         Ok(())
     }
 }
-/// Search the supplied gene and coding notation without choosing a reference sequence.
+/// Search supplied gene and variant notation without choosing a reference sequence.
 pub fn search(leg: &Leg<'_>, query: &VariantSearch) -> Result<SearchPage, RequestError> {
     let term = query.source_query();
     let mut args = vec![

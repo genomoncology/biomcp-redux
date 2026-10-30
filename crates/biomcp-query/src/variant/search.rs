@@ -1,4 +1,4 @@
-//! Declared MyVariant searches keep native candidates, totals and page selectors.
+//! Declared variant searches keep native candidates, totals and page selectors.
 use crate::{Action, Ctx, Outcome, status};
 
 use biomcp_adapters::{clinvar, myvariant};
