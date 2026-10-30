@@ -166,12 +166,14 @@ fn reader(http: bool) -> Check {
     let env = Environment::new()?;
     for words in [
         vec!["get", "gene", "BRAF", "--offline"],
-        vec!["article", "text", "28944238", "--offline"],
+        vec!["article", "text", "28944238", "--find", "BRAF", "--offline"],
         vec![
             "article",
             "supplement",
             "28944238",
             "MGG3-5-553-s002.xlsx",
+            "--find",
+            "BRAF",
             "--offline",
         ],
     ] {
