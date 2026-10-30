@@ -1,6 +1,6 @@
 {
   "feature": "drug-label",
-  "story": "Recorded labels support free-text discovery without harmonized names and exact application searches without product substitution",
+  "story": "Recorded labels support free-text discovery without harmonized names and exact application searches without product substitution; the guide section command checks the existing synthetic warning fixture, never clinical warning prose.",
   "replay": "drug/label-discovery",
   "steps": [
     {
@@ -181,6 +181,24 @@
         }
       },
       "max_bytes": 1000
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "98b197ea-bca4-427e-8737-97f70a3262bc",
+        "label",
+        "--source",
+        "openfda-label",
+        "--label-section",
+        "warnings_and_cautions"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/header/id": "98b197ea-bca4-427e-8737-97f70a3262bc",
+        "/result/label/heading": "warnings_and_cautions"
+      },
+      "max_bytes": 2000
     }
   ]
 }

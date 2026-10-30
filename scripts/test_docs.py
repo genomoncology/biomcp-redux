@@ -29,6 +29,7 @@ def main():
         root = Path(directory)
         for name in (
             "ROADMAP.md",
+            "skills/SKILL.md",
             "docs/reference/commands.md",
             "sdlc/features.md",
             "sdlc/planning/upgrade.md",
@@ -48,6 +49,14 @@ def main():
             shutil.copytree(ROOT / name, root / name)
         result = check(root)
         assert result.returncode == 0, result.stderr
+        guide = root / "skills/SKILL.md"
+        original_guide = guide.read_bytes()
+        guide.write_bytes(b"x" * 4096)
+        assert check(root).returncode == 0
+        guide.write_bytes(b"x" * 4097)
+        result = check(root)
+        assert result.returncode != 0 and "agent skill exceeds 4 KB" in result.stderr, result
+        guide.write_bytes(original_guide)
         roadmap = root / "ROADMAP.md"
         original = roadmap.read_text()
         roadmap.write_text(
