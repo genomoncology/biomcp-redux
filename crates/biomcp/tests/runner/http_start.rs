@@ -12,7 +12,7 @@ impl Server {
     ) -> Result<Self, String> {
         Self::configured_globals(bind, config, replay, key, allowed_host, &[])
     }
-    pub(super) fn configured_globals(
+    pub(in crate::runner) fn configured_globals(
         bind: &str,
         config: Option<Value>,
         replay: Option<std::path::PathBuf>,
