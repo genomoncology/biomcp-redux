@@ -68,7 +68,7 @@ pub fn search(
                 .map(|r| {
                     let mapped = super::map::report(r);
                     problems.list.extend(mapped.problems);
-                    header(&mapped.value)
+                    header(&mapped.value.data)
                 })
                 .collect(),
             meta.results.total,

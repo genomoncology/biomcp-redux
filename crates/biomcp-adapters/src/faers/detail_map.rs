@@ -3,7 +3,7 @@ use biodata::{
     FaersDrug, FaersIdentifiers, FaersPatient, FaersReaction, FaersReport, FaersReporter,
     FaersSeriousness,
 };
-pub(super) fn report(r: raw::Report) -> crate::Mapped<FaersReport> {
+pub(super) fn report(r: raw::Report) -> crate::Mapped<super::positions::Report> {
     let mut problems = crate::mapped::Problems {
         source: biomcp_types::Source::Faers,
         record: crate::mapped::record(&r.safetyreportid),
@@ -27,9 +27,14 @@ pub(super) fn report(r: raw::Report) -> crate::Mapped<FaersReport> {
         || seriousness.congenitalanomali.is_some()
         || seriousness.other.is_some();
     let raw_patient = problems.field("patient", r.patient);
-    let (patient, drugs, reactions) = match raw_patient {
+    let (patient, drugs, reactions, positions) = match raw_patient {
         Some(p) => patient(p, &mut problems),
-        None => (None, Box::default(), Box::default()),
+        None => (
+            None,
+            Box::default(),
+            Box::default(),
+            super::Positions::default(),
+        ),
     };
     let value = FaersReport {
         safetyreportid: r.safetyreportid,
@@ -53,27 +58,35 @@ pub(super) fn report(r: raw::Report) -> crate::Mapped<FaersReport> {
         reactions,
     };
     crate::Mapped {
-        value,
+        value: super::positions::Report {
+            data: value,
+            positions,
+        },
         problems: problems.list,
     }
 }
 fn patient(
     p: raw::Patient,
     problems: &mut crate::mapped::Problems,
-) -> (Option<FaersPatient>, Box<[FaersDrug]>, Box<[FaersReaction]>) {
+) -> (
+    Option<FaersPatient>,
+    Box<[FaersDrug]>,
+    Box<[FaersReaction]>,
+    super::Positions,
+) {
     let patient = Some(FaersPatient {
         age: age(problems, p.patientonsetage, p.patientonsetageunit),
         sex: problems.field("patient.patientsex", p.patientsex),
         weight: problems.field("patient.patientweight", p.patientweight),
     });
-    let drugs = problems
-        .fields("patient.drug", p.drug)
+    let (drugs, drug_positions) = problems.indexed_fields("patient.drug", p.drug);
+    let drugs = drugs
         .into_vec()
         .into_iter()
         .map(|v| drug(v, problems))
         .collect();
-    let reactions = problems
-        .fields("patient.reaction", p.reaction)
+    let (reactions, reaction_positions) = problems.indexed_fields("patient.reaction", p.reaction);
+    let reactions = reactions
         .into_vec()
         .into_iter()
         .map(|v| FaersReaction {
@@ -87,7 +100,15 @@ fn patient(
             outcome: problems.field("patient.reaction.reactionoutcome", v.reactionoutcome),
         })
         .collect();
-    (patient, drugs, reactions)
+    (
+        patient,
+        drugs,
+        reactions,
+        super::Positions {
+            drugs: drug_positions,
+            reactions: reaction_positions,
+        },
+    )
 }
 fn identifiers(r: raw::Identifiers, p: &mut crate::mapped::Problems) -> FaersIdentifiers {
     FaersIdentifiers {

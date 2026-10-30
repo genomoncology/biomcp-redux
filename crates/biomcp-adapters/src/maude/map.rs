@@ -42,12 +42,14 @@ pub(super) fn narrative(row: raw::Narrative, p: &mut crate::mapped::Problems) ->
         text: p.field("text", row.text),
     }
 }
-pub(super) fn report(row: raw::Report) -> crate::Mapped<MaudeReport> {
+pub(super) fn report(row: raw::Report) -> crate::Mapped<super::Report> {
     let mut p = crate::mapped::Problems {
         source: biomcp_types::Source::Maude,
         record: crate::mapped::record(&row.mdr_report_key),
         list: Vec::new(),
     };
+    let (devices, device_positions) = p.indexed_fields("device", row.devices);
+    let (narrative, narrative_positions) = p.indexed_fields("mdr_text", row.narrative);
     let value = MaudeReport {
         mdr_report_key: row.mdr_report_key,
         report_number: p.field("report_number", row.report_number),
@@ -59,21 +61,25 @@ pub(super) fn report(row: raw::Report) -> crate::Mapped<MaudeReport> {
         date_report_to_fda: p.field("date_report_to_fda", row.date_report_to_fda),
         number_devices_in_event: p.field("number_devices_in_event", row.number_devices_in_event),
         number_patients_in_event: p.field("number_patients_in_event", row.number_patients_in_event),
-        devices: p
-            .fields("device", row.devices)
+        devices: devices
             .into_vec()
             .into_iter()
             .map(|v| device(v, &mut p))
             .collect(),
-        narrative: p
-            .fields("mdr_text", row.narrative)
+        narrative: narrative
             .into_vec()
             .into_iter()
             .map(|v| narrative(v, &mut p))
             .collect(),
     };
     crate::Mapped {
-        value,
+        value: super::Report {
+            data: value,
+            positions: super::Positions {
+                devices: device_positions,
+                narrative: narrative_positions,
+            },
+        },
         problems: p.list,
     }
 }
