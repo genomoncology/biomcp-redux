@@ -19,7 +19,12 @@ pub(super) enum Assertion<'a> {
 pub(super) type Expectations<'a> = Vec<(&'a str, &'a Value, Vec<Assertion<'a>>)>;
 
 pub(super) fn prepare(step: &Step) -> Result<Expectations<'_>, String> {
-    if step.stdin.is_some() && (step.run.is_none() || step.mcp.is_some() || step.mcp_call.is_some())
+    if step.stdin.is_some()
+        && (step.run.is_none()
+            || step.mcp.is_some()
+            || step.mcp_call.is_some()
+            || step.follow.is_some()
+            || step.walk.is_some())
     {
         return Err("literal stdin requires an explicit CLI call".into());
     }
@@ -32,6 +37,18 @@ pub(super) fn prepare(step: &Step) -> Result<Expectations<'_>, String> {
             || !step.expect.is_empty())
     {
         return Err("literal stdout requires one explicit CLI call without JSON assertions".into());
+    }
+    if step.stdout.is_some()
+        && !step.run.as_ref().is_some_and(|args| {
+            args.first()
+                .is_some_and(|word| matches!(word.as_str(), "version" | "--version"))
+                || args.first().is_some_and(|word| word == "skill")
+                    && !args
+                        .get(1)
+                        .is_some_and(|word| matches!(word.as_str(), "install" | "status"))
+        })
+    {
+        return Err("literal stdout requires a plain-text local command".into());
     }
     step.expect
         .iter()

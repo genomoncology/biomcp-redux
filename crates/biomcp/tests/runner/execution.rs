@@ -50,6 +50,9 @@ pub(super) fn run_step(
                 return Err("error output: expected empty stderr".into());
             }
             if let Some(expected) = &step.stdout {
+                if serde_json::from_slice::<Value>(&output.stdout).is_ok() {
+                    return Err("literal stdout requires plain text, not a JSON reply".into());
+                }
                 if output.stdout != expected.as_bytes() {
                     return Err(format!(
                         "stdout: expected {expected:?}, actual {:?}",

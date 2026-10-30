@@ -244,6 +244,20 @@ impl Inventory {
                 .expect
                 .get("/status")
                 .is_some_and(|value| asserts(value, "absent"))
+            && step
+                .expect
+                .get("/sources/0/source")
+                .is_some_and(|value| asserts(value, "openfda-label"))
+            && step
+                .expect
+                .get("/sources/0/state")
+                .is_some_and(|value| asserts(value, "ok"))
+            && step.expect.get("/sources/0/term").is_some_and(|value| {
+                value
+                    .as_str()
+                    .or_else(|| value.get("equals").and_then(Value::as_str))
+                    .is_some_and(|term| !term.is_empty())
+            })
         {
             hits.insert("failure label not-found".into());
         }
