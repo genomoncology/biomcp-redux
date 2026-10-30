@@ -1,0 +1,67 @@
+{
+  "feature": "drug-approvals",
+  "story": "A recorded native brand reaches its application and dated approvals; ingredient discovery keeps the same application facts",
+  "replay": "drug/drugsfda-brand",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "drug",
+        "SARCLISA ESCENA",
+        "--source",
+        "drugsfda",
+        "--limit",
+        "1"
+      ],
+      "max_bytes": 3000,
+      "expect": {
+        "/status": "complete",
+        "/result/total": 1,
+        "/result/items/0/id": "BLA761445",
+        "/result/items/0/name": "SARCLISA ESCENA",
+        "/result/items/0/products/0/brand_name": "SARCLISA ESCENA",
+        "/next/0/args": [
+          "get",
+          "drug",
+          "BLA761445",
+          "--source",
+          "drugsfda"
+        ]
+      }
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "BLA761445",
+        "approvals",
+        "--source",
+        "drugsfda"
+      ],
+      "max_bytes": 4000,
+      "expect": {
+        "/status": "complete",
+        "/result/identity/id": "BLA761445",
+        "/result/approvals/data/records/0/submission_status_date": "2026-07-09"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "drug",
+        "ISATUXIMAB-IRFC",
+        "--source",
+        "drugsfda",
+        "--limit",
+        "1"
+      ],
+      "max_bytes": 3000,
+      "expect": {
+        "/status": "complete",
+        "/result/total": 1,
+        "/result/items/0/id": "BLA761445",
+        "/result/items/0/products/0/active_ingredients/0/name": "ISATUXIMAB-IRFC"
+      }
+    }
+  ]
+}
