@@ -183,9 +183,7 @@ fn candidates() -> Check {
             return Err("ClinVar native idlist missing".into());
         }
         let leg = fetch.leg(&clinvar::SPEC, fetch.deadline(Duration::from_secs(20)));
-        let query = serde_json::from_value(
-            json!({"gene":"PTEN","coding":"c.333G>T","source":"clinvar","limit":50}),
-        )?;
+        let query = serde_json::from_value(json!({"gene":"PTEN","coding":"c.333G>T","limit":50}))?;
         let page = clinvar::search(&leg, &query)?;
         let expected = if case == "identity" {
             Refusal::Refused
