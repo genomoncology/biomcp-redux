@@ -49,7 +49,7 @@ pub(super) fn report(row: raw::Report) -> crate::Mapped<super::Report> {
         list: Vec::new(),
     };
     let (devices, device_positions) = p.indexed_fields("device", row.devices);
-    let (narrative, narrative_positions) = p.indexed_fields("mdr_text", row.narrative);
+    let (narrative_rows, narrative_positions) = p.indexed_fields("mdr_text", row.narrative);
     let value = MaudeReport {
         mdr_report_key: row.mdr_report_key,
         report_number: p.field("report_number", row.report_number),
@@ -66,7 +66,7 @@ pub(super) fn report(row: raw::Report) -> crate::Mapped<super::Report> {
             .into_iter()
             .map(|v| device(v, &mut p))
             .collect(),
-        narrative: narrative
+        narrative: narrative_rows
             .into_vec()
             .into_iter()
             .map(|v| narrative(v, &mut p))
