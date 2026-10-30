@@ -203,9 +203,13 @@ pub(super) fn chembl(directory: &Path, registry: &Registry) -> Check {
     let original: Value = serde_json::from_str(&fixture).map_err(|error| error.to_string())?;
     for refused in [false, true] {
         let mut body = original.clone();
-        *body.pointer_mut("/page_meta/total_count").ok_or("native mechanism total")? = json!(2);
+        *body
+            .pointer_mut("/page_meta/total_count")
+            .ok_or("native mechanism total")? = json!(2);
         if refused {
-            *body.pointer_mut("/mechanisms/0/mec_id").ok_or("native mechanism identity")? = json!({"bad_shape": true});
+            *body
+                .pointer_mut("/mechanisms/0/mec_id")
+                .ok_or("native mechanism identity")? = json!({"bad_shape": true});
         }
         let mutation = super::Mutation {
             file: "015.json",
@@ -215,7 +219,15 @@ pub(super) fn chembl(directory: &Path, registry: &Registry) -> Check {
             present: "",
         };
         let value = super::acquire(&case, Some((&mutation, body)), registry)?;
-        save(directory, if refused { "chembl-refused-window" } else { "chembl-window-positive" }, &value)?;
+        save(
+            directory,
+            if refused {
+                "chembl-refused-window"
+            } else {
+                "chembl-window-positive"
+            },
+            &value,
+        )?;
         let returned = u32::from(!refused);
         if value.pointer("/page/total") != Some(&json!(2))
             || value.pointer("/page/returned") != Some(&json!(returned))
@@ -223,19 +235,34 @@ pub(super) fn chembl(directory: &Path, registry: &Registry) -> Check {
         {
             return Err("ChEMBL native total or accepted identity count changed".into());
         }
-        if !value.get("next").and_then(Value::as_array).is_some_and(|steps| {
-            steps.iter().any(|step| {
-                step.get("kind") == Some(&json!("page"))
-                    && step.get("args").and_then(Value::as_array).is_some_and(|args| {
-                        args.windows(2).any(|pair| pair == [json!("--section-offset"), json!("1")])
-                    })
+        if !value
+            .get("next")
+            .and_then(Value::as_array)
+            .is_some_and(|steps| {
+                steps.iter().any(|step| {
+                    step.get("kind") == Some(&json!("page"))
+                        && step
+                            .get("args")
+                            .and_then(Value::as_array)
+                            .is_some_and(|args| {
+                                args.windows(2)
+                                    .any(|pair| pair == [json!("--section-offset"), json!("1")])
+                            })
+                })
             })
-        }) {
+        {
             return Err("ChEMBL refused identity removed native continuation".into());
         }
-        if refused && !value.get("problems").and_then(Value::as_array).is_some_and(|problems| {
-            problems.iter().any(|problem| problem.get("field") == Some(&json!("mec_id")))
-        }) {
+        if refused
+            && !value
+                .get("problems")
+                .and_then(Value::as_array)
+                .is_some_and(|problems| {
+                    problems
+                        .iter()
+                        .any(|problem| problem.get("field") == Some(&json!("mec_id")))
+                })
+        {
             return Err("ChEMBL refused identity lost its Problem".into());
         }
     }
