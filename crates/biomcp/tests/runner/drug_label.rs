@@ -207,9 +207,9 @@ fn absent() -> Check {
     .into_iter()
     .map(str::to_owned)
     .collect();
-    let value = both(&env, args, 1)?;
+    let value = both(&env, args, 0)?;
     budget(&value, 418)?;
-    if field(&value, "status") != "absent"
+    if field(&value, "status") != "complete"
         || value.pointer("/result/total") != Some(&json!(0))
         || value.pointer("/sources/0/state") != Some(&json!("ok"))
         || value.pointer("/sources/0/term") != Some(&json!("\"Tagrisso\""))

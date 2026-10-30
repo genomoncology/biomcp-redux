@@ -85,7 +85,7 @@ fn walk() -> Check {
         .into_iter()
         .map(str::to_owned)
         .collect();
-        let value = both(&env, args, if returned == 0 { 1 } else { 0 })?;
+        let value = both(&env, args, 0)?;
         check_page(&value, offset, returned, expected_id, next)?;
     }
     if stub.finish()?.len() != 12 {
@@ -112,7 +112,7 @@ fn check_page(
         if value.pointer("/result/items/0/id") != Some(id) {
             return Err("fallback repeated or skipped an accepted native row".into());
         }
-    } else if field(value, "status") != "absent" {
+    } else if field(value, "status") != "complete" {
         return Err("rejected page returned a label".into());
     }
     let continuation = value

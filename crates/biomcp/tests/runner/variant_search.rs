@@ -215,7 +215,7 @@ fn zero_and_failed() -> Result<(), String> {
             "myvariant",
         ],
     )?;
-    if zero.pointer("/status") != Some(&json!("absent"))
+    if zero.pointer("/status") != Some(&json!("complete"))
         || zero.pointer("/page/total") != Some(&json!(0))
         || zero.pointer("/sources/0/state") != Some(&json!("ok"))
     {
@@ -302,7 +302,7 @@ fn literal_gene() -> Result<(), String> {
             r#"dbnsfp.genename:HER\-2\/neu AND dbnsfp.hgvsp:"p.W24\*""#
         ))
         || value.pointer("/query/gene") != Some(&json!("HER-2/neu"))
-        || value.pointer("/status") != Some(&json!("absent"))
+        || value.pointer("/status") != Some(&json!("complete"))
         || stub.finish()?.len() != 1
     {
         return Err(format!(

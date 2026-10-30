@@ -112,9 +112,9 @@
         "--limit",
         "1"
       ],
-      "exit": 1,
+      "exit": 0,
       "expect": {
-        "/status": "absent",
+        "/status": "complete",
         "/result": {
           "omits": [
             "items"
@@ -139,9 +139,9 @@
         "--limit",
         "1"
       ],
-      "exit": 1,
+      "exit": 0,
       "expect": {
-        "/status": "absent",
+        "/status": "complete",
         "/result": {
           "omits": [
             "items"
@@ -166,9 +166,9 @@
         "--limit",
         "1"
       ],
-      "exit": 1,
+      "exit": 0,
       "expect": {
-        "/status": "absent",
+        "/status": "complete",
         "/result": {
           "omits": [
             "items"

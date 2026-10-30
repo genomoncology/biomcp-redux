@@ -76,7 +76,7 @@ fn fallback(typed: &str, returned: &str, found: bool) -> Check {
     .into_iter()
     .map(str::to_owned)
     .collect();
-    let value = both(&env, args, if found { 0 } else { 1 })?;
+    let value = both(&env, args, 0)?;
     if found {
         if value.pointer("/result/items/0/id") != Some(field(&id, "set_id"))
             || value.pointer("/result/items/0/name") != Some(&json!(returned))
@@ -91,7 +91,7 @@ fn fallback(typed: &str, returned: &str, found: bool) -> Check {
         if value.pointer("/result/items/0/matched_name") != Some(&json!(basis)) {
             return Err("fallback lost matched name basis".into());
         }
-    } else if field(&value, "status") != "absent"
+    } else if field(&value, "status") != "complete"
         || value.pointer("/result/items").is_some()
         || value.pointer("/result/total") != Some(&json!(1))
     {
