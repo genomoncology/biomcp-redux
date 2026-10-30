@@ -7,10 +7,11 @@ use super::super::super::{
     network_stub::Stub,
 };
 use libtest_mimic::Trial;
+use crate::runner::transcript::trial as transcript_trial;
 use serde_json::{Value, json};
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test(
+        transcript_trial(
             "diagnostic-device-recall/native-selectors-and-replay",
             || selectors().map_err(Into::into),
         ),
