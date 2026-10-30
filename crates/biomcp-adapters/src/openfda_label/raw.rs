@@ -15,6 +15,8 @@ pub struct Record {
     /// Native YYYYMMDD revision date.
     pub effective_time: String,
     pub(super) openfda: Names,
+    pub(super) spl_product_data_elements: Option<Vec<String>>,
+    pub(super) package_label_principal_display_panel: Option<Vec<String>>,
     boxed_warning: Option<Vec<String>>,
     dosage_and_administration: Option<Vec<String>>,
     drug_interactions: Option<Vec<String>>,
@@ -26,6 +28,7 @@ pub(super) struct Names {
     pub brand_name: Option<Vec<NativeText>>,
     pub generic_name: Option<Vec<NativeText>>,
     pub spl_set_id: Option<Vec<DrugId>>,
+    pub application_number: Option<Vec<NativeText>>,
 }
 impl Record {
     /// Only native fields the consumer explicitly supports; absent remains absent.
@@ -51,8 +54,6 @@ impl Record {
                 .iter()
                 .flatten()
                 .any(|id| id != &self.set_id)
-            || self.openfda.brand_name.as_ref().is_none_or(Vec::is_empty)
-                && self.openfda.generic_name.as_ref().is_none_or(Vec::is_empty)
             || self.revised().is_err()
         {
             return Err(BadReply);

@@ -18,7 +18,8 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let leg = cx.fetch.leg(&source::SPEC, deadline).fresh(cx.fresh);
-    let result = source::search(&leg, name, query.limit(), query.offset()).and_then(|page| {
+    let discovery = source::search(&leg, name, query.limit(), query.offset());
+    let result = discovery.page.and_then(|page| {
         Ok((
             page.records
                 .iter()
@@ -36,6 +37,7 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     out.local = error.and_then(status::local);
     out.sources
         .push(status::source(SOURCE, leg.finish(), error));
+    disclosure(&mut out, discovery.free_text);
     if let Ok((items, total, scanned)) = result {
         let returned = items.len() as u32;
         out.status = if returned == 0 {
@@ -79,6 +81,21 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     }
     command.finish(deadline.remaining());
     out
+}
+fn disclosure(out: &mut Outcome, selector: Option<biodata::Text>) {
+    if let Some(selector) = selector
+        && let Some(source) = out.sources.first_mut()
+    {
+        source.term = Some(selector);
+        source
+            .notices
+            .push(biomcp_types::SourceNotice::RequestGuidance {
+            message:
+                "Exact and word name searches found no matching product; searched label free text."
+                    .into(),
+            retry_after_seconds: None,
+        });
+    }
 }
 pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     let label = matches!(query.sections(), [DrugSection::Label]);
