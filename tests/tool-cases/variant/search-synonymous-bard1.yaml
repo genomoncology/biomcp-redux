@@ -151,6 +151,270 @@
           ]
         }
       }
+    },
+    {
+      "run": [
+        "search",
+        "variant",
+        "--gene",
+        "BARD1",
+        "--protein",
+        "p.Ala613=",
+        "--build",
+        "GRCh38"
+      ],
+      "mcp": [
+        "search",
+        "variant",
+        "--gene",
+        "BARD1",
+        "--protein",
+        "p.Ala613=",
+        "--build",
+        "GRCh38"
+      ],
+      "exit": 2,
+      "offline": true,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "variant",
+        "--gene",
+        "BARD1",
+        "--protein",
+        "p.Ala613=",
+        "--source",
+        "myvariant"
+      ],
+      "mcp": [
+        "search",
+        "variant",
+        "--gene",
+        "BARD1",
+        "--protein",
+        "p.Ala613=",
+        "--source",
+        "myvariant"
+      ],
+      "exit": 2,
+      "offline": true,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "variant",
+        "--gene",
+        "BARD1",
+        "--protein",
+        "p.Ala613=",
+        "--review-status",
+        "reviewed by expert panel"
+      ],
+      "mcp": [
+        "search",
+        "variant",
+        "--gene",
+        "BARD1",
+        "--protein",
+        "p.Ala613=",
+        "--review-status",
+        "reviewed by expert panel"
+      ],
+      "exit": 2,
+      "offline": true,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "variant",
+        "--gene",
+        "BARD1",
+        "--protein",
+        "p.Ala613=",
+        "--condition",
+        "Synthetic condition"
+      ],
+      "mcp": [
+        "search",
+        "variant",
+        "--gene",
+        "BARD1",
+        "--protein",
+        "p.Ala613=",
+        "--condition",
+        "Synthetic condition"
+      ],
+      "exit": 2,
+      "offline": true,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "variant",
+        "--gene",
+        "BARD1",
+        "--protein",
+        "p.Ala613=",
+        "--has",
+        "clinvar"
+      ],
+      "mcp": [
+        "search",
+        "variant",
+        "--gene",
+        "BARD1",
+        "--protein",
+        "p.Ala613=",
+        "--has",
+        "clinvar"
+      ],
+      "exit": 2,
+      "offline": true,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "variant",
+        "--gene",
+        "BARD1",
+        "--protein",
+        "p.Ala613=",
+        "--coding",
+        "c.333G>T"
+      ],
+      "mcp": [
+        "search",
+        "variant",
+        "--gene",
+        "BARD1",
+        "--protein",
+        "p.Ala613=",
+        "--coding",
+        "c.333G>T"
+      ],
+      "exit": 2,
+      "offline": true,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "variant",
+        "--gene",
+        "BARD1",
+        "--protein",
+        "p.="
+      ],
+      "mcp": [
+        "search",
+        "variant",
+        "--gene",
+        "BARD1",
+        "--protein",
+        "p.="
+      ],
+      "exit": 2,
+      "offline": true,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "variant",
+        "--gene",
+        "BARD1",
+        "--protein",
+        "p.Ala613=="
+      ],
+      "mcp": [
+        "search",
+        "variant",
+        "--gene",
+        "BARD1",
+        "--protein",
+        "p.Ala613=="
+      ],
+      "exit": 2,
+      "offline": true,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "variant",
+        "--gene",
+        "BARD1",
+        "--protein",
+        "p.Ala613=/Val"
+      ],
+      "mcp": [
+        "search",
+        "variant",
+        "--gene",
+        "BARD1",
+        "--protein",
+        "p.Ala613=/Val"
+      ],
+      "exit": 2,
+      "offline": true,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "variant",
+        "--gene",
+        "BARD1",
+        "--protein",
+        "p.(Ala613=)"
+      ],
+      "mcp": [
+        "search",
+        "variant",
+        "--gene",
+        "BARD1",
+        "--protein",
+        "p.(Ala613=)"
+      ],
+      "exit": 2,
+      "offline": true,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments"
+      }
     }
   ]
 }
