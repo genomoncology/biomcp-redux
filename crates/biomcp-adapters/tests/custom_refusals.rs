@@ -178,6 +178,36 @@ fn molecule_window_owns_selected_member_refusals() -> Check {
         );
         assert_eq!(page.window.received(), 1);
     }
+    for (fields, expected) in [
+        (json!({"molecule_hierarchy":false}), Refusal::None),
+        (
+            json!({"molecule_hierarchy":{"parent_chembl_id":""}}),
+            Refusal::Refused,
+        ),
+        (
+            json!({"molecule_synonyms":[{"molecule_synonym":"Retained","syn_type":false}]}),
+            Refusal::None,
+        ),
+        (
+            json!({"molecule_synonyms":[{"syn_type":"OTHER"}]}),
+            Refusal::Refused,
+        ),
+        (
+            json!({"cross_references":[{"xref_id":"","xref_src":"ChEBI"}]}),
+            Refusal::Refused,
+        ),
+    ] {
+        let mut native = json!({"molecule_chembl_id":"CHEMBL25"});
+        native
+            .as_object_mut()
+            .ok_or("molecule object")?
+            .extend(fields.as_object().ok_or("field object")?.clone());
+        let card = chembl::molecule_card(serde_json::from_value(native)?, None)?;
+        assert_eq!(
+            card.refusals, expected,
+            "molecule projection lost actual child refusal"
+        );
+    }
     Ok(())
 }
 

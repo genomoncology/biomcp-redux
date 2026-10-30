@@ -55,24 +55,26 @@ pub fn card(row: Molecule, fetched: Option<i64>) -> Result<crate::Mapped<DrugCar
         &mut refusals,
     )?;
     let mut parents = Vec::new();
-    if let Some(parent) = row.molecule_hierarchy
-        && let Some(id) = problems.optional(
+    if let Some(parent) = row.molecule_hierarchy {
+        if let Some(id) = problems.optional(
             "molecule_hierarchy.parent_chembl_id",
             Some(parent.parent_chembl_id.parse()),
-        )
-    {
-        parents.push(DrugIdentityRelation {
-            identity: DrugIdentity {
-                id,
-                namespace: Text::new("chembl")?,
-                name: None,
-                identity_level: DrugIdentityLevel::Unknown,
-                r#type: None,
-                url: None,
-            },
-            relation: Text::new("molecule_hierarchy.parent_chembl_id")?,
-            attribution,
-        });
+        ) {
+            parents.push(DrugIdentityRelation {
+                identity: DrugIdentity {
+                    id,
+                    namespace: Text::new("chembl")?,
+                    name: None,
+                    identity_level: DrugIdentityLevel::Unknown,
+                    r#type: None,
+                    url: None,
+                },
+                relation: Text::new("molecule_hierarchy.parent_chembl_id")?,
+                attribution,
+            });
+        } else {
+            refusals = crate::Refusal::Refused;
+        }
     }
     let mut sections = vec![DrugSection::Targets, DrugSection::Indications];
     if !references.is_empty() {
