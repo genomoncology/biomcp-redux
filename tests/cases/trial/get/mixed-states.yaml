@@ -2,7 +2,7 @@
   "feature": "trial-get",
   "story": "A batch preserves independent complete, absent and failed input states.",
   "live_check": "synthetic sibling outage combined with public native trial captures",
-  "replay": "trial/get/mixed-states",
+  "replay": "trial/get/NCT02296125",
   "steps": [
     {
       "run": [
