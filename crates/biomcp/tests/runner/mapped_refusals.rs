@@ -1,19 +1,23 @@
-//! Feature drug-native-sources: mapping facts distinguish refused records from optional fields.
+//! Actual record refusals stay distinct from optional fields at the public adapter boundary.
+mod families;
 use super::transcript::trial;
 use biomcp_adapters::{NativeWindow, Refusal, chembl};
 use libtest_mimic::Trial;
 use serde_json::json;
 
 pub(super) fn trials() -> Vec<Trial> {
-    vec![
-        trial("drug-native-sources/native-identity-refusals-carry-facts", || {
-            chembl_pages().map_err(Into::into)
-        }),
+    let mut tests = vec![
+        trial(
+            "drug-native-sources/native-identity-refusals-carry-facts",
+            || chembl_pages().map_err(Into::into),
+        ),
         trial(
             "drug-native-sources/refusal-facts-follow-selected-native-slots",
             || selected_slots().map_err(Into::into),
         ),
-    ]
+    ];
+    tests.extend(families::trials());
+    tests
 }
 
 fn chembl_pages() -> Result<(), String> {
