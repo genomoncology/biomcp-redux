@@ -10,7 +10,9 @@ pub(super) fn seer(directory: &Path, registry: &Registry) -> Check {
     let envelope: Value = serde_json::from_str(&fixture).map_err(|e| e.to_string())?;
     let body = envelope
         .pointer("/exchanges/0/body/value")
-        .ok_or("retained annual body")?;
+        .and_then(Value::as_str)
+        .ok_or("retained annual JSON string body")?;
+    let body: Value = serde_json::from_str(body).map_err(|error| error.to_string())?;
     let words = [
         "get",
         "disease",
@@ -44,7 +46,8 @@ pub(super) fn seer(directory: &Path, registry: &Registry) -> Check {
                 .ok_or("retained annual year")? = json!({"bad_shape":true});
         }
         let stub = Stub::for_source("seer.cancer.gov", "application/json", move |_| {
-            Ok(body.to_string())
+            // The native endpoint returns a JSON string containing the document.
+            Ok(json!(body.to_string()).to_string())
         })?;
         let env = variant::source_environment(&stub)?;
         let value = invoke(

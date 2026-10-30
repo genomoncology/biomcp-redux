@@ -153,10 +153,8 @@ fn execute(
         .filter(|word| word.as_str() != "--fresh")
         .cloned()
         .collect();
-    command.extend([
-        "--case-cache".into(),
-        env.root().join("case-cache").display().to_string(),
-    ]);
+    // The shared launcher isolates the normal cache in this environment's root.
+    // The grammar permits --case-cache only with replay or offline mode.
     command.push(if offline { "--offline" } else { "--fresh" }.into());
     let value = invoke(env, command, exit)?;
     registry.validate(&value, args, exit == 0)?;
