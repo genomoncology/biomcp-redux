@@ -403,7 +403,7 @@ impl Leg<'_> {
                     std::any::type_name::<T>(),
                     false,
                     &prepared.url,
-                    crate::Provenance::received::<T>(prepared, body, status),
+                    self.provenance::<T>(prepared, body, status),
                 ),
             );
         }

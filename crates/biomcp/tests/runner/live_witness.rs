@@ -6,34 +6,23 @@ use biomcp_types::Use;
 use serde_json::{Value, json};
 use std::path::Path;
 
-/// Total serialized witness payload per report; summaries remain independent.
-const MAX_WITNESS_BYTES: usize = 1024 * 1024;
+/// Stop a case before another command when its retained evidence exceeds this budget.
+/// The final command remains whole, so an error never destroys the evidence it reports.
+const MAX_CASE_BYTES: usize = 16 * 1024 * 1024;
 
-fn cut() -> Value {
-    json!({"cut":true,"reason":"report witness byte limit", "limit_bytes":MAX_WITNESS_BYTES})
+pub(super) fn within_budget(captures: &[Value]) -> Result<(), String> {
+    let bytes = serde_json::to_vec(captures).map_err(|error| error.to_string())?;
+    if bytes.len() > MAX_CASE_BYTES {
+        return Err("case evidence budget exhausted; complete commands retained".into());
+    }
+    Ok(())
 }
 
 pub(super) fn retain(results: &mut [Value]) {
-    let cut = cut();
-    let overhead = serde_json::to_vec(&cut).map_or(MAX_WITNESS_BYTES, |bytes| bytes.len());
-    let mut remaining = MAX_WITNESS_BYTES.saturating_sub(results.len().saturating_mul(overhead));
     for result in results {
         let wanted = live::has_drift(result) || result.get("error").is_some();
-        let Some(map) = result.as_object_mut() else {
-            continue;
-        };
-        let Some(witness) = map.remove("witness") else {
-            continue;
-        };
-        if !wanted {
-            continue;
-        }
-        let size = serde_json::to_vec(&witness).map_or(usize::MAX, |bytes| bytes.len());
-        if size <= remaining {
-            remaining -= size;
-            map.insert("witness".into(), witness);
-        } else {
-            map.insert("witness".into(), cut.clone());
+        if !wanted && let Some(map) = result.as_object_mut() {
+            map.remove("witness");
         }
     }
 }
@@ -47,6 +36,7 @@ pub(super) fn command(
     ordinal: usize,
     captures: &mut Vec<Value>,
 ) -> Result<(Reply, Result<Reply, String>), String> {
+    within_budget(captures)?;
     captures.push(json!({"ordinal":ordinal}));
     let capture = captures.last_mut().ok_or("missing command capture")?;
     let expected = invoke(baseline, args.0, Some(replay), ordinal, capture, "baseline")?;
@@ -74,15 +64,7 @@ pub(in crate::runner) fn invoke(
         }
     };
     if let Some(map) = capture.as_object_mut() {
-        let size = serde_json::to_vec(&context).map_or(usize::MAX, |bytes| bytes.len());
-        map.insert(
-            side.into(),
-            if size <= MAX_WITNESS_BYTES {
-                context
-            } else {
-                cut()
-            },
-        );
+        map.insert(side.into(), context);
     }
     result
 }

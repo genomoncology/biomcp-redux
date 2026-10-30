@@ -201,13 +201,15 @@ def classify_case(row):
         raise ValueError('invalid case drift')
     if row.get('error') is not None:
         return 'failure'
+    if cut(row.get('witness')):
+        return 'failure'
     if not drift:
-        return 'uncertain' if cut(row.get('witness')) else 'healthy'
+        return 'healthy'
     # Omitted diagnostics may hide an invariant or schema failure.
     if (any(item.startswith('more drift details omitted;') for item in drift)
             or any(command.get('exchanges', {}).get('drift_omitted', 0)
                    for command in result.get('commands', []))):
-        return 'uncertain'
+        return 'failure'
     # Schema and equivalent-request invariants always retain their failure status.
     invariant = any(not (': request-plan-' in item or ': HTTP status ' in item
                          or ': output status changed:' in item) for item in drift)

@@ -322,6 +322,7 @@ impl Fetch {
             no_key,
             report: std::sync::Arc::new(std::sync::Mutex::new(LegReport::default())),
             nested_batch: false,
+            diagnostic_inputs: None,
             refreshed_bundles: Default::default(),
             fresh: matches!(self.mode, Mode::Live { fresh: true }),
         }
@@ -333,7 +334,7 @@ impl Fetch {
     clippy::disallowed_types,
     reason = "Keep typed report state shared across concurrent requests; never hold its lock during request work"
 )]
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Leg<'a> {
     fetch: &'a Fetch,
     spec: &'static SourceSpec,
@@ -344,6 +345,7 @@ pub struct Leg<'a> {
     report: std::sync::Arc<std::sync::Mutex<LegReport>>,
     nested_batch: bool,
     fresh: bool,
+    diagnostic_inputs: Option<(Identities, String)>,
     refreshed_bundles: std::sync::Arc<std::sync::Mutex<std::collections::BTreeSet<&'static str>>>,
 }
 

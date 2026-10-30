@@ -71,6 +71,7 @@ pub(super) fn retained() -> Result<(), String> {
         return Err("one case consumed another case witness budget".into());
     }
     retained_context()?;
+    doi_context()?;
     discovery_context()
         .and_then(|()| input_context::prove())
         .map_err(|error| error.to_string())
@@ -249,6 +250,24 @@ fn discovery_context() -> Result<(), Box<dyn std::error::Error>> {
             })
     {
         return Err("dependent provenance or response digest lost".into());
+    }
+    Ok(())
+}
+
+fn doi_context() -> Result<(), String> {
+    let env = Environment::new().map_err(|error| error.to_string())?;
+    let replay = super::super::launch::fixtures().join("replies/article/edges/live");
+    let rows = super::observe(&env, &replay, "doi-discovery", &["article", "references", "34096690", "--source", "semantic-scholar"])
+        .map_err(|error| error.to_string())?;
+    let discovery = rows.iter().filter_map(|row| row.provenance.discovery.as_ref())
+        .find(|ids| ids.namespace == "doi").ok_or("missing graph DOI discovery")?;
+    let inputs = rows.iter().filter(|row| row.provenance.inputs.as_ref().is_some_and(|ids| ids.namespace == "doi"))
+        .collect::<Vec<_>>();
+    if discovery.ids.is_empty() || inputs.is_empty() || inputs.iter().any(|row| {
+        row.provenance.input_context.is_none() || row.provenance.inputs.as_ref().is_none_or(|ids|
+            ids.ids.is_empty() || !ids.ids.iter().all(|id| discovery.ids.contains(id)))
+    }) {
+        return Err("DOI request lost its discovery input or context".into());
     }
     Ok(())
 }
