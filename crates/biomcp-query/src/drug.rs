@@ -291,7 +291,7 @@ fn search_results(
     let returned = page.items.len() as u32;
     out.sources.iter_mut().for_each(|s| {
         s.count = page.total;
-        s.retrieved_count = Some(received);
+        s.retrieved_count = Some(returned);
     });
     out.page = page.total.map(|total| PageInfo {
         offset: query.offset(),

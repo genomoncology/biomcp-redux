@@ -198,6 +198,7 @@ pub(super) fn sequence() -> Result<(), String> {
     Ok(())
 }
 
+tool_only! {
 pub(super) fn feature_id() -> Result<(), String> {
     let stub = Stub::for_source("rest.uniprot.org", "application/json", |_| {
         let mut value = entry();
@@ -225,4 +226,5 @@ pub(super) fn feature_id() -> Result<(), String> {
         return Err("feature ID disclosure repeated the local request".into());
     }
     Ok(())
+}
 }

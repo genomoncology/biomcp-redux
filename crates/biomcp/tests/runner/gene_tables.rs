@@ -6,7 +6,7 @@
 )]
 mod graphql;
 mod hgnc;
-mod metadata;
+tool_only! { mod metadata; }
 mod mygene;
 mod rejections;
 
@@ -29,18 +29,6 @@ pub(super) fn trials() -> Vec<Trial> {
         ),
         ("gene-sections/graphql-boundaries", graphql::check),
         ("gene-bundle/bundle-rejections", rejections::check),
-        (
-            "gene-sections/uniprot-metadata-regression",
-            metadata::uniprot,
-        ),
-        (
-            "pathway-reactome/reactome-metadata-regression",
-            metadata::reactome,
-        ),
-        (
-            "pathway-reactome/native-summation-keeps-source-text",
-            metadata::native_summation,
-        ),
     ]
     .into_iter()
     .map(|(name, check)| transcript_trial(name, move || check().map_err(|e| e.to_string().into())))
@@ -76,4 +64,26 @@ fn tsv(record: &mut Value, symbol: &str, edits: &[(&str, &str)]) {
         output.push(cells.join("\t"));
     }
     *body = format!("{}\n", output.join("\n")).into();
+}
+
+tool_only! {
+pub(super) fn tool_trials() -> Vec<Trial> {
+    [
+        (
+            "gene-sections/uniprot-metadata-regression",
+            metadata::uniprot as fn() -> Check,
+        ),
+        (
+            "pathway-reactome/reactome-metadata-regression",
+            metadata::reactome,
+        ),
+        (
+            "pathway-reactome/native-summation-keeps-source-text",
+            metadata::native_summation,
+        ),
+    ]
+    .into_iter()
+    .map(|(name, check)| transcript_trial(name, move || check().map_err(|e| e.to_string().into())))
+    .collect()
+}
 }

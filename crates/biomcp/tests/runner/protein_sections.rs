@@ -15,9 +15,6 @@ pub(super) fn trials() -> Vec<Trial> {
             move || native::run(&path).map_err(Into::into),
         )
         .with_ignored_flag(absent),
-        transcript_trial("protein-sections/invalid-feature-id-keeps-identity", || {
-            boundaries::feature_id().map_err(Into::into)
-        }),
         transcript_trial("protein-sections/displayed-bounds-and-identity", || {
             boundaries::features().map_err(Into::into)
         }),
@@ -97,4 +94,14 @@ fn failures() -> Result<(), String> {
         }
     }
     Ok(())
+}
+
+tool_only! {
+pub(super) fn tool_trials() -> Vec<Trial> {
+    vec![
+        transcript_trial("protein-sections/invalid-feature-id-keeps-identity", || {
+            boundaries::feature_id().map_err(Into::into)
+        }),
+    ]
+}
 }

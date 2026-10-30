@@ -157,7 +157,7 @@ fn read(
         let error = result.as_ref().err().copied();
         let mut incoming = status::source(Source::Gwas, leg.finish(), error);
         if let Ok(page) = &result {
-            incoming.retrieved_count = Some(page.received);
+            incoming.retrieved_count = Some(page.rows.len() as u32);
             incoming.count = Some(page.total);
         }
         out.sources = vec![incoming.clone()];

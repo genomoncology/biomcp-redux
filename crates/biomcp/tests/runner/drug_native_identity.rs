@@ -7,7 +7,7 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
 type Check = Result<(), String>;
-mod optional_values;
+tool_only! { mod optional_values; }
 pub(super) fn trials() -> Vec<Trial> {
     [
         ("chembl", "010.json", "/molecule_chembl_id", "www.ebi.ac.uk"),
@@ -25,14 +25,6 @@ pub(super) fn trials() -> Vec<Trial> {
             move || check(source, file, pointer, host).map_err(Into::into),
         )
     })
-    .chain(std::iter::once(transcript_trial(
-        "drug-native-sources/opentargets-optional-name-keeps-identity",
-        || optional_values::check().map_err(Into::into),
-    )))
-    .chain(std::iter::once(transcript_trial(
-        "drug-native-sources/opentargets-native-stage-preserved",
-        || optional_values::stages().map_err(Into::into),
-    )))
     .collect()
 }
 fn check(source: &'static str, file: &str, pointer: &str, host: &'static str) -> Check {
@@ -82,4 +74,13 @@ fn check(source: &'static str, file: &str, pointer: &str, host: &'static str) ->
         return Err("a wrong identity entered cache or a valid identity did not cache".into());
     }
     Ok(())
+}
+
+tool_only! {
+pub(super) fn tool_trials() -> Vec<Trial> {
+    vec![
+        transcript_trial("drug-native-sources/opentargets-optional-name-keeps-identity", || optional_values::check().map_err(Into::into)),
+        transcript_trial("drug-native-sources/opentargets-native-stage-preserved", || optional_values::stages().map_err(Into::into)),
+    ]
+}
 }

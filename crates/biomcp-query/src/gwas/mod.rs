@@ -29,7 +29,7 @@ pub fn search(cx: &Ctx<'_>, q: &GwasSearch) -> Outcome {
     let leg = cx.fetch.leg(&gwas::SPEC, deadline).fresh(cx.fresh);
     let result = gwas::search(&leg, q);
     let error = result.as_ref().err().copied();
-    let counts = result.as_ref().ok().map(|page| (page.received, page.total));
+    let counts = result.as_ref().ok().map(|page| (page.rows.len() as u32, page.total));
     if let Ok(page) = result {
         out.problems.extend(page.problems);
         let items: Box<[_]> = page
@@ -67,8 +67,8 @@ pub fn search(cx: &Ctx<'_>, q: &GwasSearch) -> Outcome {
         };
     }
     let mut source = status::source(Source::Gwas, leg.finish(), error);
-    if let Some((received, total)) = counts {
-        source.retrieved_count = Some(received);
+    if let Some((accepted, total)) = counts {
+        source.retrieved_count = Some(accepted);
         source.count = Some(total);
     }
     if source.reason == Some(biomcp_types::Reason::BadReply) {

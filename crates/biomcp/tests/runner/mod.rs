@@ -74,7 +74,7 @@ mod key_help;
 mod key_registration;
 mod key_reload;
 pub(super) mod launch;
-mod literature_values;
+tool_only! { mod literature_values; }
 mod litvar_tables;
 tool_only! { pub(crate) mod live; }
 tool_only! { mod live_follow_proof; }
@@ -297,7 +297,6 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
         || article_save::check().map_err(Into::into),
     ));
     trials.extend(gene_tables::trials());
-    trials.extend(literature_values::trials());
     trials.extend(litvar_tables::trials());
     trials.extend(named_search::trials());
     trials.extend(protein_commands::trials());
@@ -521,6 +520,11 @@ tool_only! {
         let registry = Arc::new(schema::Registry::embedded()?);
         let mut trials = proof::trials();
         trials.push(reply_comparison::trial());
+        trials.extend(literature_values::trials());
+        trials.extend(gene_tables::tool_trials());
+        trials.extend(drug_native_identity::tool_trials());
+        trials.extend(wikipathways::tool_trials());
+        trials.extend(protein_sections::tool_trials());
         trials.extend(disease_mydisease::tool_trials());
         trials.extend(schema_proof::trials(registry));
         trials.extend(parity::trials());

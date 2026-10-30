@@ -36,7 +36,6 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     let leg = cx.fetch.leg(spec(query.source()), deadline).fresh(cx.fresh);
     let result = search_page(&leg, query, &mut out.problems);
     let error = result.as_ref().err().copied();
-    let received = result.as_ref().ok().map(|(_, received)| *received);
     if let Ok((page, received)) = result {
         let returned = page.items.len() as u32;
         out.status = if !out.problems.is_empty() {
@@ -79,7 +78,7 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
         }
         out.body = QueryBody::DrugPage(page);
     }
-    finish(&mut out, leg, query.source().source(), error, received);
+    finish(&mut out, leg, query.source().source(), error);
     command.finish(deadline.remaining());
     out
 }
@@ -152,12 +151,11 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     } else {
         sections::opentargets(&leg, query, cx.fresh, &mut out).map(|()| None)
     };
-    let received = result.as_ref().ok().copied().flatten();
     let error = result.err();
     if error.is_some() {
         out.status = Status::Failed;
     }
-    finish(&mut out, leg, query.source().source(), error, received);
+    finish(&mut out, leg, query.source().source(), error);
     command.finish(deadline.remaining());
     out
 }
@@ -166,13 +164,12 @@ fn finish(
     leg: Leg<'_>,
     source: Source,
     error: Option<RequestError>,
-    received: Option<u32>,
 ) {
     out.local = error.and_then(status::local);
     let mut outcome = status::source(source, leg.finish(), error);
     if let Some(page) = &out.page {
         outcome.count = Some(page.total);
-        outcome.retrieved_count = Some(received.unwrap_or(page.returned));
+        outcome.retrieved_count = Some(page.returned);
     }
     if (!out.problems.is_empty() || outcome.state == biomcp_types::SourceState::Stale)
         && out.status == Status::Complete
