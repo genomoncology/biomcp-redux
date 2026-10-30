@@ -147,9 +147,9 @@ pub(super) fn read(
     saved.render(q, offset, limit, out)?;
     {
         let unavailable = out
-                .sources
-                .iter()
-                .any(|s| s.state != biomcp_types::SourceState::Ok);
+            .sources
+            .iter()
+            .any(|s| s.state != biomcp_types::SourceState::Ok);
         crate::status::item(out, true, false, unavailable);
     };
     out.page = Some(PageInfo {

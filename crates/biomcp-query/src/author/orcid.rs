@@ -103,6 +103,7 @@ fn execute(
         out.sources.push(source.clone());
         let mapped = reply?;
         let groups = mapped.value;
+        out.include_refusals(mapped.refusals);
         out.problems.extend(mapped.problems);
         let payload = serde_json::to_string(&(&groups, &source, &out.problems))
             .map_err(|_| CacheError::Database)?;

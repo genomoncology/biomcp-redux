@@ -67,7 +67,13 @@ pub fn get(cx: &Ctx<'_>, query: &VariantGet) -> Outcome {
         && spec.source == Source::AlleleRegistry
         && resolution == VariantResolution::Resolved
     {
-        let (source, error) = enrich(cx, &mut deadline, &mut candidates, &mut problems, &mut dropped);
+        let (source, error) = enrich(
+            cx,
+            &mut deadline,
+            &mut candidates,
+            &mut problems,
+            &mut dropped,
+        );
         sources.push(source);
         local = local.or(error);
     }
@@ -167,7 +173,9 @@ pub(crate) fn resolve(
         }
         Ok(VariantNamespace::Ca) => car(allele_registry::by_id(leg, input)?, problems, dropped),
         _ => match query.resolver() {
-            biomcp_types::VariantResolver::Car => car(allele_registry::hgvs(leg, input)?, problems, dropped),
+            biomcp_types::VariantResolver::Car => {
+                car(allele_registry::hgvs(leg, input)?, problems, dropped)
+            }
             biomcp_types::VariantResolver::Mutalyzer => match mutalyzer::resolve(leg, input)? {
                 mutalyzer::Resolution::Found(row) => Ok((vec![row], None)),
                 mutalyzer::Resolution::Refused(fields) => {
@@ -271,7 +279,7 @@ fn enrich(
                 Ok(found) => {
                     *dropped |= found.refusals == biomcp_adapters::Refusal::Refused;
                     *dropped |= found.refusals == biomcp_adapters::Refusal::Refused;
-    problems.extend(found.problems);
+                    problems.extend(found.problems);
                     for row in found.value {
                         candidate.myvariant = Some(row.identity);
                         candidate.transcripts = row.transcripts;

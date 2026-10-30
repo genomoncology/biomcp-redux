@@ -66,7 +66,13 @@ pub(super) fn section(
     }
     let source = status::source(Source::CancerHotspots, leg.finish(), error);
     let value = disclose(query, rows, error, &mut problems);
-    (value, vec![source], problems, error.and_then(status::local), dropped)
+    (
+        value,
+        vec![source],
+        problems,
+        error.and_then(status::local),
+        dropped,
+    )
 }
 
 fn disclose(

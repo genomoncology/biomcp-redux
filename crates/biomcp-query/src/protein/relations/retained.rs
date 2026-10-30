@@ -61,7 +61,7 @@ pub(super) fn load(
     out.sources
         .push(status::source(Source::UniProt, leg.finish(), error));
     let mapped = result?;
-    out.dropped = mapped.refusals == biomcp_adapters::Refusal::Refused;
+    out.include_refusals(mapped.refusals);
     out.problems = mapped.problems;
     let Some(entry) = mapped.value else {
         if !out.dropped {
@@ -70,8 +70,8 @@ pub(super) fn load(
         return Ok(None);
     };
     let size = q.total(&entry) as u32;
-    let payload =
-        serde_json::to_string(&(&entry, &out.problems, out.dropped)).map_err(|_| CacheError::Database)?;
+    let payload = serde_json::to_string(&(&entry, &out.problems, out.dropped))
+        .map_err(|_| CacheError::Database)?;
     let pool = store.publish_source_pool(&key, &payload, size, &out.sources)?;
     Ok(Some((entry, pool.info)))
 }

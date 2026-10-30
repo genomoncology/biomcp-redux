@@ -84,6 +84,7 @@ fn sections(cx: &Ctx<'_>, q: &StudyGet, deadline: biomcp_fetch::Deadline<'_>, ou
 }
 fn card(leg: &Leg<'_>, q: &StudyGet, out: &mut Outcome) -> Result<(), RequestError> {
     let (row, info) = studies::card(leg, q.id())?;
+    out.include_refusals(row.refusals);
     out.problems.extend(row.problems);
     let row = row.value;
     let snapshot = studies::snapshot(&info)?;
@@ -113,6 +114,7 @@ fn section_page(
     match q.section() {
         Some(StudySection::Profiles) => {
             let records = studies::profiles(leg, q.id(), q.section_offset(), q.section_limit())?;
+            out.include_refusals(records.refusals);
             out.problems.extend(records.problems);
             let rejected = records.rejected;
             let next_offset = records.window.next_offset();
@@ -144,6 +146,7 @@ fn section_page(
         Some(StudySection::SampleLists) => {
             let records =
                 studies::sample_lists(leg, q.id(), q.section_offset(), q.section_limit())?;
+            out.include_refusals(records.refusals);
             out.problems.extend(records.problems);
             let rejected = records.rejected;
             let next_offset = records.window.next_offset();

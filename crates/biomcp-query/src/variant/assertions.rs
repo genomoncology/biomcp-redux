@@ -12,7 +12,10 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &VariantAssertionsGet) -> Outcome {
     let (section, sources, problems, local, dropped) = read(cx, query, deadline);
     let (status, body) = match section {
         Section::Data { data, .. } => (crate::status::item_status(true, false, dropped), data),
-        Section::Empty { .. } => (crate::status::item_status(dropped, false, dropped), empty(query)),
+        Section::Empty { .. } => (
+            crate::status::item_status(dropped, false, dropped),
+            empty(query),
+        ),
         _ => (crate::status::item_status(false, true, false), empty(query)),
     };
     let next = body

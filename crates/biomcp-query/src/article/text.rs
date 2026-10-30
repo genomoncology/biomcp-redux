@@ -78,7 +78,7 @@ pub(super) fn resolve<'a>(
             }
             out.sources.push(source);
             let mapped = result?;
-            out.dropped |= mapped.refusals == biomcp_adapters::Refusal::Refused;
+            out.include_refusals(mapped.refusals);
             if out.dropped {
                 crate::status::item(out, true, false, true);
             }
@@ -119,6 +119,7 @@ fn execute<'a>(
         _ => None,
     };
     let result = pmc_oa::read(&leg, id, pmid).map(|mapped| {
+        out.include_refusals(mapped.refusals);
         out.problems.extend(mapped.problems);
         mapped.value
     });
@@ -332,6 +333,7 @@ fn preprint<'a>(
     }
     out.sources.push(source);
     let mapped = result?;
+    out.include_refusals(mapped.refusals);
     out.problems.extend(mapped.problems);
     let Some(document) = mapped.value else {
         out.body = QueryBody::ArticleText(ArticleTextResult {

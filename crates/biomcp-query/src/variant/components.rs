@@ -61,7 +61,7 @@ pub(super) fn measurements(
     let section = match result {
         Ok(mapped) => {
             dropped |= mapped.refusals == biomcp_adapters::Refusal::Refused;
-        problems = mapped.problems;
+            problems = mapped.problems;
             if problems
                 .iter()
                 .any(|p| p.field.as_ref() == "subject_qualification")

@@ -117,7 +117,7 @@ fn fetch(
     let complete = q.top_level() || q.gene().is_some();
     if q.gene().is_some() {
         let mapped = super::gene::headers(cx, q, deadline, out)?;
-        out.dropped = mapped.refusals == biomcp_adapters::Refusal::Refused;
+        out.include_refusals(mapped.refusals);
         out.problems.extend(mapped.problems);
         body.items = mapped.value.into();
     } else {
@@ -140,7 +140,7 @@ fn fetch(
             reply.as_ref().err().copied(),
         ));
         let reply = reply?;
-        out.dropped = reply.rows.refusals == biomcp_adapters::Refusal::Refused;
+        out.include_refusals(reply.rows.refusals);
         out.problems.extend(reply.rows.problems);
         body.items = reply.rows.value.into();
         body.page.total = reply.total;

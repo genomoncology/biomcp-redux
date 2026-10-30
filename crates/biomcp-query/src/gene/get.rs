@@ -130,7 +130,11 @@ fn resolve_item(
             let state = if matches!(mapped.value, GeneResolution::NotFound {}) {
                 crate::status::item_status(false, false, false)
             } else {
-                crate::status::item_status(true, false, mapped.refusals == biomcp_adapters::Refusal::Refused)
+                crate::status::item_status(
+                    true,
+                    false,
+                    mapped.refusals == biomcp_adapters::Refusal::Refused,
+                )
             };
             (Some(mapped.value), state)
         }

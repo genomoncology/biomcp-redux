@@ -134,6 +134,7 @@ fn read_inner(
             (saved, pool)
         }
     };
+    out.dropped = saved.dropped;
     out.sources = saved.sources;
     out.problems = saved.problems;
     if let Some(body) = saved.genes {
@@ -236,6 +237,7 @@ fn fetch(
             Some(header) => header.clone(),
             None => {
                 let mapped = reactome::card(&leg, id, false)?;
+                out.include_refusals(mapped.refusals);
                 out.problems.extend(mapped.problems);
                 let card = mapped.value.ok_or(SourceError {
                     source: Source::Reactome,
@@ -253,6 +255,7 @@ fn fetch(
             }
         };
         let mut saved = snapshot::Saved {
+            dropped: out.dropped,
             genes: None,
             events: None,
             sources: Vec::new(),
@@ -260,6 +263,7 @@ fn fetch(
         };
         if q.genes {
             let rows = reactome::members(&leg, id)?;
+            saved.dropped |= rows.refusals == biomcp_adapters::Refusal::Refused;
             saved.problems = rows.problems;
             saved.genes = Some(biomcp_types::PathwayGenes {
                 header,
@@ -270,6 +274,7 @@ fn fetch(
             });
         } else {
             let rows = reactome::events(&leg, id)?;
+            saved.dropped |= rows.refusals == biomcp_adapters::Refusal::Refused;
             saved.problems = rows.problems;
             saved.events = Some(biomcp_types::PathwayEvents {
                 header,

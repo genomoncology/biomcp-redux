@@ -203,7 +203,13 @@ fn load(
             crate::status::reason(error).unwrap_or(biomcp_types::Reason::Unavailable),
         ),
     };
-    (section, groups, source, error.and_then(status::local), dropped)
+    (
+        section,
+        groups,
+        source,
+        error.and_then(status::local),
+        dropped,
+    )
 }
 
 fn ancestry(raw: &gnomad::variant::Variant) -> Vec<GnomadCounts> {

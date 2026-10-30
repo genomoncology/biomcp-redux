@@ -52,10 +52,15 @@ pub(super) fn read(
             rows.as_ref().err().copied(),
         ));
         let rows = rows?;
-        out.dropped = rows.refusals == biomcp_adapters::Refusal::Refused;
+        out.include_refusals(rows.refusals);
         out.problems.extend(rows.problems);
         rejected(out, rows.rejected);
-        let saved = (rows.items, out.sources.clone(), out.problems.clone(), out.dropped);
+        let saved = (
+            rows.items,
+            out.sources.clone(),
+            out.problems.clone(),
+            out.dropped,
+        );
         let payload = serde_json::to_string(&saved).map_err(|_| CacheError::Database)?;
         let token = Store::open(cx.fetch.cache_access()?, deadline)?.save_source_snapshot(
             &key,

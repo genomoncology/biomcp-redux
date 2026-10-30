@@ -54,6 +54,7 @@ pub fn get(cx: &Ctx<'_>, q: &AuthorGet) -> Outcome {
             out.sources.push(outcome);
         }
         let card = reply.ok().and_then(|mapped| {
+            out.include_refusals(mapped.refusals);
             out.problems.extend(mapped.problems);
             mapped.value
         });

@@ -72,6 +72,7 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
         ));
     }
     out.sources.push(source);
+    status::search(&mut out);
     command.finish(deadline.remaining());
     out
 }

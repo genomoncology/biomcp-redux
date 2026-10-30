@@ -23,6 +23,7 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     out.sources
         .push(status::source(Source::Ema, leg.finish(), error));
     if let Ok(rows) = result {
+        out.include_refusals(rows.refusals);
         out.problems.extend(rows.problems);
         let rows = rows.value;
         let total = rows.len() as u64;
@@ -56,6 +57,7 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     let leg = cx.fetch.leg(&ema::SPEC, deadline).fresh(cx.fresh);
     let result = if regulatory {
         ema::regulatory(&leg, query.input()).map(|body| {
+            out.include_refusals(body.refusals);
             out.problems.extend(body.problems);
             let body = body.value;
             let found = body.is_some();
@@ -65,6 +67,7 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
         })
     } else {
         ema::card(&leg, query.input()).map(|card| {
+            out.include_refusals(card.refusals);
             out.problems.extend(card.problems);
             let card = card.value;
             if card.is_some()

@@ -40,6 +40,7 @@ pub(super) fn run<'a>(
         let identity = (id, card.pmid);
         if !loaded.iter().any(|(found, _)| *found == identity) {
             let result = pmc_oa::read(&leg, id, card.pmid).map(|mapped| {
+                out.include_refusals(mapped.refusals);
                 out.problems.extend(mapped.problems);
                 mapped.value
             });

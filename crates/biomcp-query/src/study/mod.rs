@@ -36,6 +36,7 @@ pub fn search(cx: &Ctx<'_>, q: &StudySearch) -> Outcome {
     let deadline = command.deadline();
     let leg = cx.fetch.leg(&SPEC, deadline);
     let result = studies::search(&leg, q).and_then(|(rows, info)| {
+        out.include_refusals(rows.refusals);
         out.problems.extend(rows.problems);
         page::search(cx, q, rows.value, info, deadline, &mut out)
     });

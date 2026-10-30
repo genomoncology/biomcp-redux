@@ -55,7 +55,9 @@ pub(super) fn section(
     let reply = alphagenome::score(&leg, &request)
         .and_then(|reply| super::alphagenome_page::page(query, &request, reply));
     let error = reply.as_ref().err().copied();
-    let dropped = reply.as_ref().is_ok_and(|mapped| mapped.refusals == biomcp_adapters::Refusal::Refused);
+    let dropped = reply
+        .as_ref()
+        .is_ok_and(|mapped| mapped.refusals == biomcp_adapters::Refusal::Refused);
     let source = status::source(Source::AlphaGenome, leg.finish(), error);
     let mut problems = joined.problems;
     let section = match reply {

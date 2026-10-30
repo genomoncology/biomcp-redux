@@ -23,7 +23,7 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     out.sources
         .push(status::source(Source::Ddinter, leg.finish(), error));
     if let Ok(mapped) = result {
-        out.dropped |= mapped.refusals == biomcp_adapters::Refusal::Refused;
+        out.include_refusals(mapped.refusals);
         out.problems.extend(mapped.problems);
         let rows = mapped.value;
         let total = rows.len() as u64;
@@ -63,7 +63,7 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
             query.section_offset().unwrap_or(0),
         )
         .map(|body| {
-            out.dropped |= body.refusals == biomcp_adapters::Refusal::Refused;
+            out.include_refusals(body.refusals);
             out.problems.extend(body.problems);
             let body = body.value;
             let found = body.is_some();
@@ -73,7 +73,7 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
         })
     } else {
         ddinter::card(&leg, query.input()).map(|card| {
-            out.dropped |= card.refusals == biomcp_adapters::Refusal::Refused;
+            out.include_refusals(card.refusals);
             out.problems.extend(card.problems);
             let card = card.value;
             if card.is_some()

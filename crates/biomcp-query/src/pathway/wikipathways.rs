@@ -74,7 +74,7 @@ pub(super) fn get(cx: &Ctx<'_>, q: &PathwayGet) -> Outcome {
     out.sources
         .push(status::source(Source::WikiPathways, leg.finish(), error));
     if let Ok(mapped) = reply {
-        out.dropped |= mapped.refusals == biomcp_adapters::Refusal::Refused;
+        out.include_refusals(mapped.refusals);
         out.problems.extend(mapped.problems);
         let mut card = mapped.value;
         let absent = card.is_none();

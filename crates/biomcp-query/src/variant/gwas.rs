@@ -92,7 +92,13 @@ pub(super) fn section(
             crate::status::reason(e).unwrap_or(biomcp_types::Reason::Unavailable),
         ),
     };
-    (value, vec![source], problems, error.and_then(status::local), dropped)
+    (
+        value,
+        vec![source],
+        problems,
+        error.and_then(status::local),
+        dropped,
+    )
 }
 fn rs_id(query: &VariantGet, candidates: &[VariantHeader]) -> Option<VariantId> {
     if let Ok(id @ VariantId::Rs(_)) = query.input().as_str().parse() {

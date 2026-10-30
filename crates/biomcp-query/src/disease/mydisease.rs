@@ -23,7 +23,7 @@ pub fn get(cx: &Ctx<'_>, query: &DiseaseGet) -> Outcome {
         .push(status::source(Source::MyDisease, leg.finish(), error));
     out.local = error.and_then(status::local);
     if let Ok(mapped) = reply {
-        out.dropped = mapped.refusals == biomcp_adapters::Refusal::Refused;
+        out.include_refusals(mapped.refusals);
         out.problems = mapped.problems;
         apply(&mut out, query, mapped.value);
     }

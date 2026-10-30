@@ -77,6 +77,7 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
             total: Some(total),
         });
     }
+    status::search(&mut out);
     command.finish(deadline.remaining());
     out
 }
@@ -120,7 +121,7 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
         .push(status::source(SOURCE, leg.finish(), error));
     if let Ok(page) = result {
         out.problems.extend(page.problems);
-        out.dropped = page.window.refusals() == biomcp_adapters::Refusal::Refused;
+        out.include_refusals(page.window.refusals());
         crate::status::item(&mut out, true, false, false);
         if let Some(source) = out.sources.first_mut() {
             source.count = Some(page.window.total().unwrap_or(0));

@@ -58,7 +58,13 @@ pub(super) fn section(
             crate::status::reason(e).unwrap_or(biomcp_types::Reason::Unavailable),
         ),
     };
-    (value, vec![source], problems, error.and_then(status::local), dropped)
+    (
+        value,
+        vec![source],
+        problems,
+        error.and_then(status::local),
+        dropped,
+    )
 }
 /// Keep only source-qualified SNVs; indels need an explicit padded source representation.
 pub(super) fn join(candidates: &[VariantHeader]) -> Option<String> {

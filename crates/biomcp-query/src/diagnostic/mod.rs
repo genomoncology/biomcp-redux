@@ -30,8 +30,7 @@ fn finish_bundle(
         .push(status::source(source, leg.finish(), error));
     if error.is_some() {
         crate::status::item(out, false, true, false);
-    } else if (out.dropped
-        || out.sources.iter().any(|s| s.state == SourceState::Stale))
+    } else if (out.dropped || out.sources.iter().any(|s| s.state == SourceState::Stale))
         && out.status() == Status::Complete
     {
         crate::status::item(out, true, false, true);
@@ -106,6 +105,7 @@ pub fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
         });
     }
     finish_bundle(&mut out, leg, error, source, bundle);
+    status::search(&mut out);
     command.finish(deadline.remaining());
     out
 }

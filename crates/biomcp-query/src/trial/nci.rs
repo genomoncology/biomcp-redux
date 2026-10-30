@@ -139,6 +139,7 @@ fn apply(
                 out.problems.extend(r.problems().iter().cloned());
                 let card = if let Some(name) = q.facility() {
                     let mapped = r.facility_card(name);
+                    out.include_refusals(mapped.refusals);
                     out.problems.extend(mapped.problems);
                     mapped.value
                 } else {
@@ -146,6 +147,7 @@ fn apply(
                 };
                 if let Some(code) = q.biomarker_code() {
                     let mapped = r.biomarker_card(code, q.biomarker_use(), card);
+                    out.include_refusals(mapped.refusals);
                     out.problems.extend(mapped.problems);
                     mapped.value
                 } else {

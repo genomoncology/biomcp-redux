@@ -65,7 +65,7 @@ fn execute(
     let (cohort, rows) = result?;
     out.problems.extend(rows.problems);
     let window = rows.window;
-    out.dropped |= window.refusals() == biomcp_adapters::Refusal::Refused;
+    out.include_refusals(window.refusals());
     metadata(query, &cohort, out);
     let (count, problems) = matching::count(&identity, &window.rows, query.study());
     out.problems.extend(problems);
@@ -82,9 +82,9 @@ fn execute(
     out.body = QueryBody::VariantRecurrence(body);
     {
         let unavailable = !(out
-                .sources
-                .iter()
-                .all(|s| s.state == biomcp_types::SourceState::Ok));
+            .sources
+            .iter()
+            .all(|s| s.state == biomcp_types::SourceState::Ok));
         crate::status::item(out, true, false, unavailable);
     };
     if more && let Some(next) = query.next_page() {
@@ -177,6 +177,8 @@ fn gene(
         result.as_ref().err().copied(),
     ));
     let mapped = result?;
+    out.include_refusals(mapped.refusals);
+    out.include_refusals(mapped.refusals);
     out.problems.extend(mapped.problems);
     if mapped.value.len() == 1
         && let Some(id) = mapped.value.first().and_then(|v| v.entrez_id)

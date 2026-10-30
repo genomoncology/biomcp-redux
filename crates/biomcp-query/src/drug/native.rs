@@ -35,7 +35,7 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     let result = search_page(&leg, query, &mut out.problems);
     let error = result.as_ref().err().copied();
     if let Ok(window) = result {
-        out.dropped = window.refusals() == biomcp_adapters::Refusal::Refused;
+        out.include_refusals(window.refusals());
         let next_offset = window.next_offset().filter(|_| window.total().is_some());
         let page = DrugPage {
             total: window.total(),

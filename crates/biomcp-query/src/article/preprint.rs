@@ -77,6 +77,7 @@ pub(super) fn fulltext<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut 
         };
         used = true;
         let result = europepmc::read(&leg, id).map(|mapped| {
+            out.include_refusals(mapped.refusals);
             out.problems.extend(mapped.problems);
             mapped.value
         });

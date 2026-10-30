@@ -26,7 +26,7 @@ pub fn search(cx: &Ctx<'_>, q: &GwasSearch) -> Outcome {
         .ok()
         .map(|page| (page.rows.len() as u32, page.total));
     if let Ok(page) = result {
-        out.dropped = page.refusals == biomcp_adapters::Refusal::Refused;
+        out.include_refusals(page.refusals);
         out.problems.extend(page.problems);
         let items: Box<[_]> = page
             .rows

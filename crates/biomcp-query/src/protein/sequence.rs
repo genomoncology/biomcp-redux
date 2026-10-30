@@ -52,7 +52,7 @@ pub(super) fn run(cx: &Ctx<'_>, q: &ProteinSequenceQuery) -> Outcome {
     let result = read(&leg, q);
     let error = result.as_ref().err().copied();
     if let Ok(mapped) = result {
-        out.dropped = mapped.refusals == biomcp_adapters::Refusal::Refused;
+        out.include_refusals(mapped.refusals);
         out.problems = mapped.problems;
         {
             let found = mapped.value.is_some();

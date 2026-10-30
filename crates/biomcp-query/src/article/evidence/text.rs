@@ -42,6 +42,7 @@ pub(super) fn read<'a>(
     let leg = cx.fetch.leg(&pmc_oa::SPEC, *deadline).fresh(cx.fresh);
     let started = leg.remaining();
     let result = pmc_oa::read(&leg, id, pmid).map(|mapped| {
+        out.include_refusals(mapped.refusals);
         out.problems.extend(mapped.problems);
         mapped.value
     });

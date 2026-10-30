@@ -1,7 +1,6 @@
 //! ChEMBL metadata and independent assay-count disclosure.
 use super::{
-    CellLineGet, Ctx, Outcome, QueryBody, Request, Source, Status, StepKind, empty, recovery, run,
-    status,
+    CellLineGet, Ctx, Outcome, QueryBody, Request, Source, StepKind, empty, recovery, run, status,
 };
 use biodata::CellosaurusAccession;
 use biomcp_adapters::chembl;
@@ -45,7 +44,7 @@ pub(super) fn get_at(
         let total = page.window.total().unwrap_or(0);
         let next_offset = page.window.next_offset();
         let more = page.window.has_more();
-        out.dropped = page.window.refusals() == biomcp_adapters::Refusal::Refused;
+        out.include_refusals(page.window.refusals());
         let items = page.window.rows;
         let metadata = page.metadata;
         crate::status::item(&mut out, total != 0, false, more);
@@ -130,6 +129,7 @@ fn attach(cx: &Ctx<'_>, deadline: biomcp_fetch::Deadline<'_>, out: &mut Outcome)
         out.problems.push(problem("release"));
     }
     let release = release.ok().map(|mapped| {
+        out.include_refusals(mapped.refusals);
         out.problems.extend(mapped.problems);
         mapped.value
     });

@@ -78,7 +78,7 @@ pub(super) fn opentargets(
     let source = Source::Opentargets;
     let header = opentargets::header(&row).map_err(|_| failure(source))?;
     out.problems.extend(header.problems);
-    out.dropped |= header.refusals == biomcp_adapters::Refusal::Refused;
+    out.include_refusals(header.refusals);
     let header = header.value;
     let drug = identity::neutral(&header).map_err(|_| failure(source))?;
     let limit = query.section_limit().unwrap_or(10) as usize;
@@ -88,7 +88,7 @@ pub(super) fn opentargets(
             let mut collection = opentargets::map_targets(&drug, row.mechanisms_of_action)
                 .map_err(|_| failure(source))?;
             out.problems.append(&mut collection.problems);
-            out.dropped |= collection.refusals == biomcp_adapters::Refusal::Refused;
+            out.include_refusals(collection.refusals);
             let window = collection::page(&mut collection, offset, limit);
             targets(out, query, header, window, meta.fetched, fresh);
         }
@@ -96,7 +96,7 @@ pub(super) fn opentargets(
             let mut collection = opentargets::map_indications(&drug, row.indications)
                 .map_err(|_| failure(source))?;
             out.problems.append(&mut collection.problems);
-            out.dropped |= collection.refusals == biomcp_adapters::Refusal::Refused;
+            out.include_refusals(collection.refusals);
             let window = collection::page(&mut collection, offset, limit);
             indications(out, query, header, window, meta.fetched, fresh);
         }
@@ -136,7 +136,7 @@ fn page<T>(
     fetched: Option<i64>,
     fresh: bool,
 ) -> Section<DrugRecords<T>> {
-    out.dropped |= window.refusals() == biomcp_adapters::Refusal::Refused;
+    out.include_refusals(window.refusals());
     let offset = window.offset();
     let total = window.total().unwrap_or(0);
     let next_offset = window.next_offset();

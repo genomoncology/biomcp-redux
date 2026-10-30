@@ -57,6 +57,7 @@ pub fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     out.sources
         .push(status::source(Source::Mychem, leg.finish(), error));
     if let Ok((page, received)) = result {
+        out.include_refusals(page.refusals);
         out.problems = page.problems;
         search_results(query, cx.fresh, page.value, &mut out, received);
     }

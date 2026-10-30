@@ -52,6 +52,7 @@ pub(super) fn resolve<'a>(
     out.local = error.and_then(status::local);
     let value = match reply {
         Ok(mapped) => {
+            out.include_refusals(mapped.refusals);
             out.problems.extend(mapped.problems);
             resolved(query.source(), mapped.value, &mut resolution)
         }

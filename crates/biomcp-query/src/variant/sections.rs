@@ -92,7 +92,12 @@ pub(super) fn apply(
             candidate.sections = Some(Box::new(sections));
         }
     }
-    (collected.sources, collected.problems, collected.local, collected.incomplete)
+    (
+        collected.sources,
+        collected.problems,
+        collected.local,
+        collected.incomplete,
+    )
 }
 #[derive(Default)]
 struct Collected {

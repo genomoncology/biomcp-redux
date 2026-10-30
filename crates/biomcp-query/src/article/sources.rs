@@ -283,6 +283,7 @@ fn prepare_litvar<'a>(
     let start = leg.remaining();
     let result =
         litvar::select(&leg, gene, query.variant().map_or("", Text::as_str)).map(|mapped| {
+            out.include_refusals(mapped.refusals);
             out.problems.extend(mapped.problems);
             mapped.value
         });

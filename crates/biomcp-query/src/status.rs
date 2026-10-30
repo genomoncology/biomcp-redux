@@ -59,6 +59,14 @@ impl Outcome {
         self.status
     }
 
+    /// Preserve actual adapter refusals independently of optional field diagnostics.
+    pub(crate) fn include_refusals(&mut self, refusals: biomcp_adapters::Refusal) {
+        self.dropped |= refusals == biomcp_adapters::Refusal::Refused;
+        if self.status == Status::Complete {
+            item(self, true, false, false);
+        }
+    }
+
     /// The query layer owns whether a failed typed response remains visible.
     pub fn body_visible(&self) -> bool {
         self.status != Status::Failed
@@ -89,6 +97,9 @@ pub(crate) fn item(out: &mut Outcome, found: bool, identity_failed: bool, unavai
 /// Combine the independently classified items in one get.
 pub(crate) fn get(out: &mut Outcome, items: impl Iterator<Item = Status>) {
     out.status = status(items);
+    if out.status == Status::Complete {
+        item(out, true, false, false);
+    }
 }
 
 /// Restore a previously classified stored item without assigning outside this owner.

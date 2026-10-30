@@ -34,7 +34,7 @@ pub fn get(cx: &Ctx<'_>, q: &BiomarkerGet) -> Outcome {
         }
     }
     if let Ok(reply) = reply {
-        out.dropped = reply.refusals == biomcp_adapters::Refusal::Refused;
+        out.include_refusals(reply.refusals);
         let mut rows = reply.value;
         let total = rows.len();
         if let Some(source) = out.sources.first_mut() {

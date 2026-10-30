@@ -122,7 +122,8 @@ fn resource(q: &GwasGet, leg: &Leg<'_>, out: &mut Outcome) -> Result<(), Request
             ..
         } => {
             let rows = gwas::get::loci(leg, *id)?;
-            out.dropped |= rows.refusals == biomcp_adapters::Refusal::Refused;
+            out.include_refusals(rows.refusals);
+            out.include_refusals(rows.refusals);
             out.problems.extend(rows.problems);
             rejected(out, rows.rejected);
             let (items, continuation) = page(q, &rows.items, out);
@@ -137,7 +138,7 @@ fn resource(q: &GwasGet, leg: &Leg<'_>, out: &mut Outcome) -> Result<(), Request
             id, section: None, ..
         } => {
             let study = gwas::get::study(leg, id)?;
-            out.dropped |= study.refusals == biomcp_adapters::Refusal::Refused;
+            out.include_refusals(study.refusals);
             out.problems.extend(study.problems);
             for section in [GwasStudySection::Associations, GwasStudySection::Ancestries] {
                 let q = GwasGet::Study {
@@ -217,6 +218,7 @@ fn associations(
 ) -> Result<(), RequestError> {
     let selector = GwasSearch::study_page(id.clone(), window);
     let rows = gwas::search(leg, &selector)?;
+    out.include_refusals(rows.refusals);
     out.problems.extend(rows.problems);
     let items: Box<[_]> = rows
         .rows

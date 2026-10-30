@@ -26,7 +26,7 @@ pub fn download(cx: &Ctx<'_>, query: &TrialDocumentGet, allow: bool) -> Download
     }));
     let result = ctgov::detail::get(&leg, query.input).and_then(|(detail, _)| {
         let incomplete_manifest = detail.document_refusals == biomcp_adapters::Refusal::Refused;
-        out.dropped = detail.refusals == biomcp_adapters::Refusal::Refused;
+        out.include_refusals(detail.refusals);
         crate::status::item(&mut out, true, false, false);
         out.problems.extend(detail.problems);
         let Some(document) = detail

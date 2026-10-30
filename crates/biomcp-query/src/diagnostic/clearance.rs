@@ -12,7 +12,7 @@ pub(super) fn get(cx: &Ctx<'_>, q: &DiagnosticGet) -> Outcome {
     let error = match fda_510k::get(&leg, q) {
         Ok(card) => {
             let card = card.map(|mapped| {
-                out.dropped = mapped.refusals == biomcp_adapters::Refusal::Refused;
+                out.include_refusals(mapped.refusals);
                 out.problems.extend(mapped.problems);
                 mapped.value
             });

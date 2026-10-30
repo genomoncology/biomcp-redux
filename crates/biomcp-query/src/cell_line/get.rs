@@ -98,7 +98,11 @@ fn resolve(
                 card.status = if page.items.is_empty() {
                     crate::status::item_status(false, false, false)
                 } else {
-                    crate::status::item_status(true, false, page.refusals == biomcp_adapters::Refusal::Refused)
+                    crate::status::item_status(
+                        true,
+                        false,
+                        page.refusals == biomcp_adapters::Refusal::Refused,
+                    )
                 };
                 card.candidates = page.items.into();
                 return Ok(());

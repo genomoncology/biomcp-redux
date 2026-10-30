@@ -11,11 +11,12 @@ type Saved = (
     PgxAnnotations,
     Vec<SourceOutcome>,
     Vec<biomcp_types::Problem>,
+    bool,
 );
 fn key(q: &PgxGet) -> Vec<u8> {
     Sha256::digest(
         format!(
-            "biomcp.clinpgx_annotations/3\0{}\0{}",
+            "biomcp.clinpgx_annotations/4\0{}\0{}",
             q.gene(),
             q.kind()
                 .map(PgxAnnotationKind::as_str)
@@ -64,10 +65,12 @@ pub(super) fn load(
     } else {
         let reply = match q.kind() {
             Some(PgxAnnotationKind::Clinical) => clinpgx::clinical(&leg, q).map(|rows| {
+                out.include_refusals(rows.refusals);
                 out.problems.extend(rows.problems);
                 super::annotations::body(q, rows.value, vec![])
             }),
             _ => clinpgx::references(&leg, q).map(|rows| {
+                out.include_refusals(rows.refusals);
                 out.problems.extend(rows.problems);
                 super::annotations::body(q, vec![], rows.value)
             }),
@@ -77,7 +80,12 @@ pub(super) fn load(
             .push(status::source(Source::ClinPgx, leg.finish(), error));
         out.problems
             .extend(out.sources.iter().filter_map(super::record_problem));
-        let saved = (reply?, out.sources.clone(), out.problems.clone());
+        let saved = (
+            reply?,
+            out.sources.clone(),
+            out.problems.clone(),
+            out.dropped,
+        );
         let payload = serde_json::to_string(&saved).map_err(|_| CacheError::Database)?;
         let mut store = Store::open(cx.fetch.cache_access()?, deadline)?;
         let snapshot = store.save_source_snapshot(&key(q), &payload, &out.sources)?;
@@ -85,6 +93,7 @@ pub(super) fn load(
     };
     out.sources = saved.1;
     out.problems = saved.2;
+    out.dropped = saved.3;
     {
         let (found, identity_failed, unavailable) =
             if out.sources.iter().any(|s| s.state == SourceState::Stale) {

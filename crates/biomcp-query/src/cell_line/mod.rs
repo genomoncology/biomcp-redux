@@ -26,7 +26,7 @@ pub fn search(cx: &Ctx<'_>, query: &CellLineSearch) -> Outcome {
         .push(status::source(Source::Cellosaurus, leg.finish(), error));
     out.local = error.and_then(status::local);
     if let Ok(page) = reply {
-        out.dropped = page.refusals == biomcp_adapters::Refusal::Refused;
+        out.include_refusals(page.refusals);
         out.problems.extend(page.problems);
         let full = page.received == query.limit();
         for row in &page.items {

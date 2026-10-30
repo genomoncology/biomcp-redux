@@ -40,7 +40,7 @@ pub(super) fn section(
         Ok(row) => {
             let mapped = oncokb::variant_map::records(row, tumor.clone());
             dropped |= mapped.refusals == biomcp_adapters::Refusal::Refused;
-        problems = mapped.problems;
+            problems = mapped.problems;
             let mut data = mapped.value;
             let total = data.page.total;
             data.records = std::mem::take(&mut data.records)

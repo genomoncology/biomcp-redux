@@ -45,8 +45,9 @@ pub(crate) fn save<T: Serialize>(
     deadline: Deadline<'_>,
     saved: &Saved<T>,
 ) -> Result<biodata::Text, RequestError> {
-    let payload = serde_json::to_string(&(&saved.items, &saved.sources, &saved.problems, saved.dropped))
-        .map_err(|_| CacheError::Database)?;
+    let payload =
+        serde_json::to_string(&(&saved.items, &saved.sources, &saved.problems, saved.dropped))
+            .map_err(|_| CacheError::Database)?;
     let mut store = Store::open(cx.fetch.cache_access()?, deadline)?;
     Ok(store.save_source_snapshot(&key(namespace, q)?, &payload, &saved.sources)?)
 }

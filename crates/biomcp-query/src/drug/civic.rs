@@ -23,6 +23,7 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     out.sources
         .push(status::source(Source::Civic, leg.finish(), error));
     if let Ok(mapped) = result {
+        out.include_refusals(mapped.refusals);
         out.problems = mapped.problems;
         let (page, consumed) = mapped.value;
         {
@@ -69,6 +70,7 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
         }
         out.body = QueryBody::DrugPage(page);
     }
+    status::search(&mut out);
     command.finish(deadline.remaining());
     out
 }
@@ -87,6 +89,7 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     out.sources
         .push(status::source(Source::Civic, leg.finish(), error));
     if let Ok(mapped) = result {
+        out.include_refusals(mapped.refusals);
         out.problems = mapped.problems;
         let Some(mut value) = mapped.value else {
             crate::status::item(&mut out, true, false, false);

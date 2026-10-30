@@ -79,6 +79,7 @@ fn execute<'a>(
     };
     let result = (|| {
         let mapped = pmc_oa::read(&leg, id, pmid)?;
+        out.include_refusals(mapped.refusals);
         out.problems.extend(mapped.problems);
         let Some(document) = mapped.value else {
             return Ok(Section::Unavailable {

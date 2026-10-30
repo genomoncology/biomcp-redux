@@ -21,7 +21,7 @@ pub fn search(cx: &Ctx<'_>, query: &DiseaseSearch) -> Outcome {
         .push(status::source(Source::Seer, leg.finish(), error));
     out.local = error.and_then(status::local);
     if let Ok(page) = reply {
-        out.dropped = page.window.refusals() == biomcp_adapters::Refusal::Refused;
+        out.include_refusals(page.window.refusals());
         let total = page.window.total().unwrap_or(0);
         let returned = page.window.rows.len() as u32;
         out.page = Some(page_info(query.offset(), returned, total));
@@ -76,7 +76,7 @@ pub fn get(cx: &Ctx<'_>, query: &DiseaseGet) -> Outcome {
         .push(status::source(Source::Seer, leg.finish(), error));
     out.local = error.and_then(status::local);
     if let Ok(page) = reply {
-        out.dropped = page.window.refusals() == biomcp_adapters::Refusal::Refused;
+        out.include_refusals(page.window.refusals());
         let total = page.window.total().unwrap_or(0);
         let returned = page.window.rows.len() as u32;
         out.page = Some(page_info(query.section_offset(), returned, total));
