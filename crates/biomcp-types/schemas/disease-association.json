@@ -80,6 +80,30 @@
       ],
       "type": "object"
     },
+    "Reply_Concept": {
+      "description": "One source concept with its optional ontology identifier.",
+      "properties": {
+        "id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Curie"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source-stated concept identifier."
+        },
+        "label": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "Original concept label."
+        }
+      },
+      "required": [
+        "label"
+      ],
+      "type": "object"
+    },
     "Reply_Curie": {
       "description": "Checked prefix:local ontology identifier.",
       "pattern": "^[A-Za-z0-9_.-]+:[^:/\\x09-\\x0d\\x20\\x85\\xa0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000\\x00-\\x1f\\x7f-\\x9f][^:\\x09-\\x0d\\x20\\x85\\xa0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000\\x00-\\x1f\\x7f-\\x9f]*$",
@@ -150,30 +174,6 @@
       ],
       "type": "object"
     },
-    "Reply_DiseaseEndpoint": {
-      "description": "One native endpoint with an identifier and an optional source label.\nNative associations use this reference because a source may omit a display label.",
-      "properties": {
-        "id": {
-          "$ref": "#/$defs/Reply_Curie",
-          "description": "Exact source identifier."
-        },
-        "label": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_Text"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "Source label when supplied."
-        }
-      },
-      "required": [
-        "id"
-      ],
-      "type": "object"
-    },
     "Reply_FiniteNumber": {
       "description": "A finite decimal that JSON can represent without losing its value to null.",
       "format": "double",
@@ -192,7 +192,7 @@
       "type": "string"
     }
   },
-  "$id": "biodata.disease-association/7",
+  "$id": "biodata.disease-association/6",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "A native source association without clinical interpretation.",
   "properties": {
@@ -310,7 +310,7 @@
       ]
     },
     "object": {
-      "$ref": "#/$defs/Reply_DiseaseEndpoint",
+      "$ref": "#/$defs/Reply_Concept",
       "description": "Native returned object."
     },
     "object_closure": {
@@ -398,7 +398,7 @@
       "description": "The exact requested concept, including a queried parent."
     },
     "subject": {
-      "$ref": "#/$defs/Reply_DiseaseEndpoint",
+      "$ref": "#/$defs/Reply_Concept",
       "description": "Native returned subject."
     },
     "subject_closure": {

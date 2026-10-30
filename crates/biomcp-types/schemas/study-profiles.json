@@ -675,22 +675,12 @@
       "description": "Molecular profile reference with exact study membership.",
       "properties": {
         "datatype": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_Text"
-            },
-            {
-              "type": "null"
-            }
-          ],
+          "$ref": "#/$defs/Reply_Text",
           "description": "Extensible native data-type label."
         },
         "description": {
           "description": "Source description.",
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": "string"
         },
         "genericAssayType": {
           "anyOf": [
@@ -704,14 +694,7 @@
           "description": "Native generic assay type, absent outside those profiles."
         },
         "molecularAlterationType": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_Text"
-            },
-            {
-              "type": "null"
-            }
-          ],
+          "$ref": "#/$defs/Reply_Text",
           "description": "Extensible source alteration-type label."
         },
         "molecularProfileId": {
@@ -720,24 +703,15 @@
         },
         "name": {
           "description": "Source profile name.",
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": "string"
         },
         "patientLevel": {
           "description": "Native patient-level flag, not a unit inferred for other records.",
-          "type": [
-            "boolean",
-            "null"
-          ]
+          "type": "boolean"
         },
         "showProfileInAnalysisTab": {
           "description": "Native profile display setting.",
-          "type": [
-            "boolean",
-            "null"
-          ]
+          "type": "boolean"
         },
         "studyId": {
           "$ref": "#/$defs/Reply_StudyId",
@@ -746,7 +720,13 @@
       },
       "required": [
         "molecularProfileId",
-        "studyId"
+        "studyId",
+        "molecularAlterationType",
+        "datatype",
+        "name",
+        "description",
+        "patientLevel",
+        "showProfileInAnalysisTab"
       ],
       "type": "object"
     },
@@ -823,7 +803,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.study-profiles/4",
+  "$id": "biomcp.study-profiles/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -879,7 +859,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.study-profiles/4",
+      "const": "biomcp.study-profiles/3",
       "type": "string"
     },
     "sources": {

@@ -379,17 +379,13 @@
           "description": "Complete source description, including any literal reuse notice."
         },
         "name": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_Text"
-            },
-            {
-              "type": "null"
-            }
-          ],
+          "$ref": "#/$defs/Reply_Text",
           "description": "Source study title."
         }
       },
+      "required": [
+        "name"
+      ],
       "type": "object"
     },
     "Reply_RecurrenceTerms": {
@@ -1137,7 +1133,7 @@
       "type": "object"
     }
   },
-  "$id": "biomcp.variant-recurrence/10",
+  "$id": "biomcp.variant-recurrence/9",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -1193,7 +1189,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.variant-recurrence/10",
+      "const": "biomcp.variant-recurrence/9",
       "type": "string"
     },
     "sources": {

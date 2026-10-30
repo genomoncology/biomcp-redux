@@ -675,29 +675,16 @@
       "description": "Sample-list metadata without a representation for member sample IDs.",
       "properties": {
         "category": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_Text"
-            },
-            {
-              "type": "null"
-            }
-          ],
+          "$ref": "#/$defs/Reply_Text",
           "description": "Extensible native list category."
         },
         "description": {
           "description": "Native list description.",
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": "string"
         },
         "name": {
           "description": "Native list name.",
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": "string"
         },
         "sampleCount": {
           "description": "Stated source sampleCount when supplied, never computed from member IDs.",
@@ -719,7 +706,10 @@
       },
       "required": [
         "sampleListId",
-        "studyId"
+        "studyId",
+        "category",
+        "name",
+        "description"
       ],
       "type": "object"
     },
@@ -796,7 +786,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.study-sample-lists/4",
+  "$id": "biomcp.study-sample-lists/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -852,7 +842,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.study-sample-lists/4",
+      "const": "biomcp.study-sample-lists/3",
       "type": "string"
     },
     "sources": {

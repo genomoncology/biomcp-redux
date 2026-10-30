@@ -129,14 +129,7 @@
           "type": "array"
         },
         "p_value": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_FiniteNumber"
-            },
-            {
-              "type": "null"
-            }
-          ],
+          "$ref": "#/$defs/Reply_FiniteNumber",
           "description": "Reported p value."
         },
         "publication": {
@@ -162,14 +155,7 @@
           "description": "Source allele frequency text, without interpreting NR."
         },
         "study": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_Text"
-            },
-            {
-              "type": "null"
-            }
-          ],
+          "$ref": "#/$defs/Reply_Text",
           "description": "Study accession."
         },
         "traits": {
@@ -181,7 +167,9 @@
         }
       },
       "required": [
-        "id"
+        "id",
+        "study",
+        "p_value"
       ],
       "type": "object"
     },
@@ -217,14 +205,7 @@
       "description": "Catalog effect allele paired with its exact rsID.",
       "properties": {
         "allele": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_Text"
-            },
-            {
-              "type": "null"
-            }
-          ],
+          "$ref": "#/$defs/Reply_Text",
           "description": "Source allele text."
         },
         "rs_id": {
@@ -233,7 +214,8 @@
         }
       },
       "required": [
-        "rs_id"
+        "rs_id",
+        "allele"
       ],
       "type": "object"
     },
@@ -363,19 +345,13 @@
           "description": "Exact source ontology identifier spelling."
         },
         "label": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_Text"
-            },
-            {
-              "type": "null"
-            }
-          ],
+          "$ref": "#/$defs/Reply_Text",
           "description": "Whole source trait label."
         }
       },
       "required": [
-        "id"
+        "id",
+        "label"
       ],
       "type": "object"
     },
@@ -1034,7 +1010,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.gwas-association/5",
+  "$id": "biomcp.gwas-association/4",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -1090,7 +1066,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.gwas-association/5",
+      "const": "biomcp.gwas-association/4",
       "type": "string"
     },
     "sources": {

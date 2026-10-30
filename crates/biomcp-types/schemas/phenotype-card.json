@@ -204,10 +204,7 @@
           "description": "Native closure-expanded count.",
           "format": "uint64",
           "minimum": 0,
-          "type": [
-            "integer",
-            "null"
-          ]
+          "type": "integer"
         },
         "count_direct": {
           "description": "Native direct count.",
@@ -233,15 +230,14 @@
         },
         "label": {
           "description": "Native scope label.",
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": "string"
         }
       },
       "required": [
         "key",
-        "category"
+        "category",
+        "label",
+        "count"
       ],
       "type": "object"
     },
@@ -280,10 +276,7 @@
             },
             "label": {
               "description": "Whole source label.",
-              "type": [
-                "string",
-                "null"
-              ]
+              "type": "string"
             },
             "publication_references": {
               "description": "Source publication references, omitted when empty.",
@@ -312,6 +305,7 @@
             "source",
             "requested_id",
             "returned_id",
+            "label",
             "attribution"
           ],
           "type": "object"
@@ -349,10 +343,7 @@
             },
             "label": {
               "description": "Whole native label.",
-              "type": [
-                "string",
-                "null"
-              ]
+              "type": "string"
             },
             "monarch_descendant_count": {
               "description": "Monarch native descendant count, independent of HPO.",
@@ -380,6 +371,7 @@
             "source",
             "requested_id",
             "returned_id",
+            "label",
             "attribution"
           ],
           "type": "object"
@@ -1071,7 +1063,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.phenotype-card/5",
+  "$id": "biomcp.phenotype-card/4",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -1127,7 +1119,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.phenotype-card/5",
+      "const": "biomcp.phenotype-card/4",
       "type": "string"
     },
     "sources": {

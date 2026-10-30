@@ -224,14 +224,7 @@
           "description": "Checked source-owned identity."
         },
         "name": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_Text"
-            },
-            {
-              "type": "null"
-            }
-          ],
+          "$ref": "#/$defs/Reply_Text",
           "description": "Whole native name."
         },
         "revision": {
@@ -263,6 +256,7 @@
       },
       "required": [
         "id",
+        "name",
         "species"
       ],
       "type": "object"
@@ -974,7 +968,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.pathway-events/5",
+  "$id": "biomcp.pathway-events/4",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -1030,7 +1024,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.pathway-events/5",
+      "const": "biomcp.pathway-events/4",
       "type": "string"
     },
     "sources": {

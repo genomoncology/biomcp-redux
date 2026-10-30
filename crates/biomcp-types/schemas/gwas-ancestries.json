@@ -72,18 +72,12 @@
           "format": "uri"
         },
         "stage": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_Text"
-            },
-            {
-              "type": "null"
-            }
-          ],
+          "$ref": "#/$defs/Reply_Text",
           "description": "Native discovery or replication stage."
         }
       },
       "required": [
+        "stage",
         "source_url"
       ],
       "type": "object"
@@ -107,14 +101,7 @@
       "description": "Native country and region metadata.",
       "properties": {
         "country": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_Text"
-            },
-            {
-              "type": "null"
-            }
-          ],
+          "$ref": "#/$defs/Reply_Text",
           "description": "Original country label including NR."
         },
         "major_area": {
@@ -140,6 +127,9 @@
           "description": "Original region label when supplied."
         }
       },
+      "required": [
+        "country"
+      ],
       "type": "object"
     },
     "Reply_GwasGet": {
@@ -894,7 +884,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.gwas-ancestries/5",
+  "$id": "biomcp.gwas-ancestries/4",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -950,7 +940,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.gwas-ancestries/5",
+      "const": "biomcp.gwas-ancestries/4",
       "type": "string"
     },
     "sources": {

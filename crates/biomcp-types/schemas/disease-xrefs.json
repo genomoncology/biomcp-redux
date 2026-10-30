@@ -137,7 +137,7 @@
       "type": "string"
     },
     "Reply_DiseaseEndpoint": {
-      "description": "One native endpoint with an identifier and an optional source label.\nNative associations use this reference because a source may omit a display label.",
+      "description": "One native endpoint with an identifier and an optional source label.",
       "properties": {
         "id": {
           "$ref": "#/$defs/Reply_Curie",

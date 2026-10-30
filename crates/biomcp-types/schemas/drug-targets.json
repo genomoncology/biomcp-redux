@@ -595,14 +595,7 @@
           "type": "array"
         },
         "relation": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_Text"
-            },
-            {
-              "type": "null"
-            }
-          ],
+          "$ref": "#/$defs/Reply_Text",
           "description": "Native relationship label."
         },
         "target": {
@@ -612,6 +605,7 @@
       },
       "required": [
         "drug",
+        "relation",
         "attribution"
       ],
       "type": "object"
@@ -1471,7 +1465,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.drug-targets/7",
+  "$id": "biomcp.drug-targets/6",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -1527,7 +1521,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.drug-targets/7",
+      "const": "biomcp.drug-targets/6",
       "type": "string"
     },
     "sources": {

@@ -258,9 +258,9 @@ fn bounded(value: &Value) -> Check {
         .ok_or("status")?;
     // Compact synthetic maxima measured by j13484; every cap adds fifteen percent.
     let baseline: usize = match (schema, status) {
-        ("biomcp.drug-who-page/4", "complete") => 937,
-        ("biomcp.drug-who-page/4", "partial") => 1242,
-        ("biomcp.drug-who-page/4", "absent") => 433,
+        ("biomcp.drug-who-page/5", "complete") => 937,
+        ("biomcp.drug-who-page/5", "partial") => 1242,
+        ("biomcp.drug-who-page/5", "absent") => 433,
         ("biomcp.drug-who-card/3", "complete") => 677,
         ("biomcp.drug-who-card/3", "partial") => 729,
         ("biomcp.drug-who-card/3", "absent") => 305,

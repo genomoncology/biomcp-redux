@@ -1015,17 +1015,11 @@
           "description": "Native cnaSampleCount.",
           "format": "uint64",
           "minimum": 0,
-          "type": [
-            "integer",
-            "null"
-          ]
+          "type": "integer"
         },
         "description": {
           "description": "Native description.",
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": "string"
         },
         "groups": {
           "description": "Native access groups, possibly empty; not a reuse license.",
@@ -1036,14 +1030,7 @@
           "description": "Compact study identity and publication references."
         },
         "importDate": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_StudyImportTime"
-            },
-            {
-              "type": "null"
-            }
-          ],
+          "$ref": "#/$defs/Reply_StudyImportTime",
           "description": "Native timezone-unstated import time."
         },
         "patientCount": {
@@ -1074,32 +1061,29 @@
           "description": "Native sequencedSampleCount, not gene coverage.",
           "format": "uint64",
           "minimum": 0,
-          "type": [
-            "integer",
-            "null"
-          ]
+          "type": "integer"
         },
         "structuralVariantCount": {
           "description": "Native structuralVariantCount; its name does not imply sample units.",
           "format": "uint64",
           "minimum": 0,
-          "type": [
-            "integer",
-            "null"
-          ]
+          "type": "integer"
         },
         "treatmentCount": {
           "description": "Native treatmentCount without a unit conversion.",
           "format": "uint64",
           "minimum": 0,
-          "type": [
-            "integer",
-            "null"
-          ]
+          "type": "integer"
         }
       },
       "required": [
         "header",
+        "description",
+        "sequencedSampleCount",
+        "cnaSampleCount",
+        "structuralVariantCount",
+        "treatmentCount",
+        "importDate",
         "groups",
         "readPermission",
         "publicStudy"
@@ -1323,20 +1307,10 @@
           "description": "Native allSampleCount, never a patient or profiled-gene denominator.",
           "format": "uint64",
           "minimum": 0,
-          "type": [
-            "integer",
-            "null"
-          ]
+          "type": "integer"
         },
         "cancerTypeId": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_CbioportalCancerTypeId"
-            },
-            {
-              "type": "null"
-            }
-          ],
+          "$ref": "#/$defs/Reply_CbioportalCancerTypeId",
           "description": "cBioPortal namespace only; no ontology inference."
         },
         "citation": {
@@ -1347,14 +1321,7 @@
           ]
         },
         "name": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_Text"
-            },
-            {
-              "type": "null"
-            }
-          ],
+          "$ref": "#/$defs/Reply_Text",
           "description": "Native study name."
         },
         "pmids": {
@@ -1368,14 +1335,7 @@
           ]
         },
         "referenceGenome": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_Text"
-            },
-            {
-              "type": "null"
-            }
-          ],
+          "$ref": "#/$defs/Reply_Text",
           "description": "Native study metadata label, never a coordinate assembly."
         },
         "studyId": {
@@ -1384,7 +1344,11 @@
         }
       },
       "required": [
-        "studyId"
+        "studyId",
+        "name",
+        "cancerTypeId",
+        "allSampleCount",
+        "referenceGenome"
       ],
       "type": "object"
     },
@@ -1402,22 +1366,12 @@
       "description": "Molecular profile reference with exact study membership.",
       "properties": {
         "datatype": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_Text"
-            },
-            {
-              "type": "null"
-            }
-          ],
+          "$ref": "#/$defs/Reply_Text",
           "description": "Extensible native data-type label."
         },
         "description": {
           "description": "Source description.",
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": "string"
         },
         "genericAssayType": {
           "anyOf": [
@@ -1431,14 +1385,7 @@
           "description": "Native generic assay type, absent outside those profiles."
         },
         "molecularAlterationType": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_Text"
-            },
-            {
-              "type": "null"
-            }
-          ],
+          "$ref": "#/$defs/Reply_Text",
           "description": "Extensible source alteration-type label."
         },
         "molecularProfileId": {
@@ -1447,24 +1394,15 @@
         },
         "name": {
           "description": "Source profile name.",
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": "string"
         },
         "patientLevel": {
           "description": "Native patient-level flag, not a unit inferred for other records.",
-          "type": [
-            "boolean",
-            "null"
-          ]
+          "type": "boolean"
         },
         "showProfileInAnalysisTab": {
           "description": "Native profile display setting.",
-          "type": [
-            "boolean",
-            "null"
-          ]
+          "type": "boolean"
         },
         "studyId": {
           "$ref": "#/$defs/Reply_StudyId",
@@ -1473,7 +1411,13 @@
       },
       "required": [
         "molecularProfileId",
-        "studyId"
+        "studyId",
+        "molecularAlterationType",
+        "datatype",
+        "name",
+        "description",
+        "patientLevel",
+        "showProfileInAnalysisTab"
       ],
       "type": "object"
     },
@@ -1525,17 +1469,11 @@
         },
         "description": {
           "description": "Native resource description.",
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": "string"
         },
         "displayName": {
           "description": "Native resource display name.",
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": "string"
         },
         "openByDefault": {
           "description": "Native access/display setting, not a reuse license.",
@@ -1545,20 +1483,10 @@
           "description": "Native patient count within this resource only.",
           "format": "uint64",
           "minimum": 0,
-          "type": [
-            "integer",
-            "null"
-          ]
+          "type": "integer"
         },
         "priority": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_Text"
-            },
-            {
-              "type": "null"
-            }
-          ],
+          "$ref": "#/$defs/Reply_Text",
           "description": "Native priority string, without numeric reinterpretation."
         },
         "resourceId": {
@@ -1566,30 +1494,26 @@
           "description": "Native resource ID."
         },
         "resourceType": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_Text"
-            },
-            {
-              "type": "null"
-            }
-          ],
+          "$ref": "#/$defs/Reply_Text",
           "description": "Extensible native resource type, not a derived count unit."
         },
         "sampleCount": {
           "description": "Native count within this resource only.",
           "format": "uint64",
           "minimum": 0,
-          "type": [
-            "integer",
-            "null"
-          ]
+          "type": "integer"
         }
       },
       "required": [
         "resourceId",
+        "displayName",
+        "description",
+        "resourceType",
+        "priority",
         "openByDefault",
-        "cancerStudyIdentifier"
+        "cancerStudyIdentifier",
+        "sampleCount",
+        "patientCount"
       ],
       "type": "object"
     },
@@ -1602,29 +1526,16 @@
       "description": "Sample-list metadata without a representation for member sample IDs.",
       "properties": {
         "category": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_Text"
-            },
-            {
-              "type": "null"
-            }
-          ],
+          "$ref": "#/$defs/Reply_Text",
           "description": "Extensible native list category."
         },
         "description": {
           "description": "Native list description.",
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": "string"
         },
         "name": {
           "description": "Native list name.",
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": "string"
         },
         "sampleCount": {
           "description": "Stated source sampleCount when supplied, never computed from member IDs.",
@@ -1646,7 +1557,10 @@
       },
       "required": [
         "sampleListId",
-        "studyId"
+        "studyId",
+        "category",
+        "name",
+        "description"
       ],
       "type": "object"
     },
@@ -1743,7 +1657,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.study-card/6",
+  "$id": "biomcp.study-card/5",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -1799,7 +1713,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.study-card/6",
+      "const": "biomcp.study-card/5",
       "type": "string"
     },
     "sources": {

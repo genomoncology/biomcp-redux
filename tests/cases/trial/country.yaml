@@ -183,10 +183,10 @@
         "Afghanistan"
       ],
       "expect": {
-        "/status": "unavailable",
+        "/status": "failed",
         "/sources/0/reason": "bad-reply"
       },
-      "exit": 1,
+      "exit": 4,
       "max_bytes": 5000
     },
     {

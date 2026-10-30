@@ -39,14 +39,7 @@
           "description": "Exact primary accession."
         },
         "category": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_Text"
-            },
-            {
-              "type": "null"
-            }
-          ],
+          "$ref": "#/$defs/Reply_Text",
           "description": "Native category."
         },
         "diseases": {
@@ -54,14 +47,7 @@
           "description": "Up to three complete disease references and their independent total."
         },
         "name": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_Text"
-            },
-            {
-              "type": "null"
-            }
-          ],
+          "$ref": "#/$defs/Reply_Text",
           "description": "Recommended display name."
         },
         "species": {
@@ -71,6 +57,8 @@
       },
       "required": [
         "accession",
+        "name",
+        "category",
         "species",
         "diseases"
       ],
@@ -113,28 +101,18 @@
       "description": "Publisher release identity, fetched independently from record data.",
       "properties": {
         "updated": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_PartialDate"
-            },
-            {
-              "type": "null"
-            }
-          ],
+          "$ref": "#/$defs/Reply_PartialDate",
           "description": "Native release update date."
         },
         "version": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_Text"
-            },
-            {
-              "type": "null"
-            }
-          ],
+          "$ref": "#/$defs/Reply_Text",
           "description": "Native release version."
         }
       },
+      "required": [
+        "version",
+        "updated"
+      ],
       "type": "object"
     },
     "Reply_CellLineSearch": {
@@ -884,7 +862,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.cell-line-page/6",
+  "$id": "biomcp.cell-line-page/5",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -940,7 +918,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.cell-line-page/6",
+      "const": "biomcp.cell-line-page/5",
       "type": "string"
     },
     "sources": {

@@ -15,17 +15,13 @@
           "description": "Source author ID when supplied."
         },
         "name": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_Text"
-            },
-            {
-              "type": "null"
-            }
-          ],
+          "$ref": "#/$defs/Reply_Text",
           "description": "Native display name."
         }
       },
+      "required": [
+        "name"
+      ],
       "type": "object"
     },
     "Reply_AuthorId": {
@@ -275,14 +271,7 @@
           "description": "Exact native PMID."
         },
         "title": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_Text"
-            },
-            {
-              "type": "null"
-            }
-          ],
+          "$ref": "#/$defs/Reply_Text",
           "description": "Whole source title."
         },
         "venue": {
@@ -307,7 +296,8 @@
         }
       },
       "required": [
-        "paper_id"
+        "paper_id",
+        "title"
       ],
       "type": "object"
     },
@@ -1041,7 +1031,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.author-paper-details/5",
+  "$id": "biomcp.author-paper-details/4",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -1097,7 +1087,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.author-paper-details/5",
+      "const": "biomcp.author-paper-details/4",
       "type": "string"
     },
     "sources": {

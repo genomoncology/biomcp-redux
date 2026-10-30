@@ -75,7 +75,7 @@ pub struct DrugRecallPage {
     pub total: u64,
 }
 impl crate::ResponseBody for DrugRecallPage {
-    const SCHEMA: &'static str = "biomcp.drug-recall-page/3";
+    const SCHEMA: &'static str = "biomcp.drug-recall-page/4";
     type Query = super::DrugSearch;
 }
 impl crate::ResponseBody for DrugRecallCard {

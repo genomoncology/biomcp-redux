@@ -240,14 +240,7 @@
           "type": "integer"
         },
         "source": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_OrcidAssertionSource"
-            },
-            {
-              "type": "null"
-            }
-          ],
+          "$ref": "#/$defs/Reply_OrcidAssertionSource",
           "description": "Native source and origin provenance."
         },
         "subtitle": {
@@ -306,6 +299,7 @@
       },
       "required": [
         "put_code",
+        "source",
         "visibility"
       ],
       "type": "object"
@@ -1008,7 +1002,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.orcid-works/7",
+  "$id": "biomcp.orcid-works/6",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -1064,7 +1058,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.orcid-works/7",
+      "const": "biomcp.orcid-works/6",
       "type": "string"
     },
     "sources": {
