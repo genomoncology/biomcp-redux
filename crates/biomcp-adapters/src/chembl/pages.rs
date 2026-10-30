@@ -28,10 +28,12 @@ impl From<ReceivedMolecules> for Molecules {
         let mut refusals = crate::Refusal::None;
         for row in page.molecules {
             problems.record = None;
-            if let Some(row) = problems.field("molecule_chembl_id", Some(row)) {
+            if let Some(mut row) = problems.field("molecule_chembl_id", Some(row)) {
                 if row.molecule_chembl_id.starts_with("CHEMBL")
                     && row.molecule_chembl_id.parse::<biodata::DrugId>().is_ok()
                 {
+                    refusals.include(row.refusals);
+                    row.refusals = crate::Refusal::None;
                     rows.push(row);
                 } else {
                     refusals = crate::Refusal::Refused;
@@ -89,8 +91,10 @@ impl From<ReceivedMechanisms> for Mechanisms {
         for row in page.mechanisms {
             molecules.push(row.scope.molecule_chembl_id);
             problems.record = None;
-            if let Some(row) = problems.field("mec_id", Some(row.value)) {
+            if let Some(mut row) = problems.field("mec_id", Some(row.value)) {
                 if row.mec_id > 0 {
+                    refusals.include(row.refusals);
+                    row.refusals = crate::Refusal::None;
                     rows.push(row);
                 } else {
                     refusals = crate::Refusal::Refused;
@@ -149,8 +153,10 @@ impl From<ReceivedIndications> for Indications {
         for row in page.drug_indications {
             molecules.push(row.scope.molecule_chembl_id);
             problems.record = None;
-            if let Some(row) = problems.field("drugind_id", Some(row.value)) {
+            if let Some(mut row) = problems.field("drugind_id", Some(row.value)) {
                 if row.drugind_id > 0 {
+                    refusals.include(row.refusals);
+                    row.refusals = crate::Refusal::None;
                     rows.push(row);
                 } else {
                     refusals = crate::Refusal::Refused;

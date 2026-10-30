@@ -74,15 +74,14 @@ pub fn ancestries(leg: &Leg<'_>, id: &GwasStudyId) -> Result<Rows<GwasAncestry>,
         .embedded
         .ancestries
         .into_iter()
-        .filter(|a| {
+        .filter_map(|a| {
             if raw::owned(&a.links.current.href, &prefix) {
-                true
+                Some(a.row(&mut problems, &mut refusals))
             } else {
                 refusals = crate::Refusal::Refused;
-                false
+                None
             }
         })
-        .map(|r| r.row(&mut problems))
         .collect();
     Ok(Rows {
         refusals,
@@ -113,15 +112,14 @@ pub fn loci(leg: &Leg<'_>, id: GwasAssociationId) -> Result<Rows<GwasLocus>, Req
         .embedded
         .loci
         .into_iter()
-        .filter(|a| {
+        .filter_map(|a| {
             if raw::owned(&a.links.current.href, &prefix) {
-                true
+                Some(a.row(&mut problems, &mut refusals))
             } else {
                 refusals = crate::Refusal::Refused;
-                false
+                None
             }
         })
-        .map(|r| r.row(&mut problems))
         .collect();
     Ok(Rows {
         refusals,

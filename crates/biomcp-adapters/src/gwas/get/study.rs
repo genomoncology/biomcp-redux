@@ -6,6 +6,7 @@ use serde::Deserialize;
 #[derive(Debug, Deserialize)]
 #[serde(from = "ReceivedStudy")]
 pub(super) struct Study {
+    refusals: crate::Refusal,
     problems: Vec<biomcp_types::Problem>,
     pub accession_id: GwasStudyId,
     pubmed_id: Option<u64>,
@@ -58,13 +59,16 @@ impl From<ReceivedStudy> for Study {
             record: crate::mapped::record(&row.accession_id),
             list: Vec::new(),
         };
+        let mut refusals = crate::Refusal::None;
+        let efo_traits = problems.records("efo_traits", row.efo_traits, &mut refusals).into_vec();
         let mut value = Self {
+            refusals,
             accession_id: row.accession_id,
             pubmed_id: problems.field("pubmed_id", row.pubmed_id),
             disease_trait: problems
                 .required_field("disease_trait", row.disease_trait)
                 .map(Into::into),
-            efo_traits: problems.fields("efo_traits", row.efo_traits).into_vec(),
+            efo_traits,
             initial_sample_size: problems.field("initial_sample_size", row.initial_sample_size),
             replication_sample_size: problems
                 .field("replication_sample_size", row.replication_sample_size),
@@ -162,7 +166,7 @@ impl Study {
             license_url: self.terms_of_license,
         };
         crate::Mapped {
-            refusals: crate::Refusal::None,
+            refusals: self.refusals,
             value,
             problems: problems.list,
         }

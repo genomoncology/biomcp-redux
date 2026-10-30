@@ -14,6 +14,7 @@ pub fn targets(
     let mut refusals = crate::Refusal::None;
     let mut rejected = Vec::new();
     for r in rows {
+        refusals.include(r.refusals);
         let mut problems = Problems {
             source: biomcp_types::Source::Chembl,
             record: crate::mapped::record(r.mec_id),
@@ -48,7 +49,7 @@ pub fn targets(
             None => None,
         };
         let mechanism = problems.text("mechanism_of_action", r.mechanism_of_action.as_deref());
-        let references = references(r.mechanism_refs, "mechanism_refs", &mut problems);
+        let references = references(r.mechanism_refs, "mechanism_refs", &mut problems, &mut refusals);
         records.push(DrugTargetRelation::new(
             drug.clone(),
             None,
@@ -72,8 +73,10 @@ pub fn indications(
     rows: Vec<Indication>,
 ) -> Result<crate::Mapped<Box<[DrugIndicationClaim]>>, Error> {
     let mut records = Vec::new();
+    let mut refusals = crate::Refusal::None;
     let mut rejected = Vec::new();
     for r in rows {
+        refusals.include(r.refusals);
         let mut problems = Problems {
             source: biomcp_types::Source::Chembl,
             record: crate::mapped::record(r.drugind_id),
@@ -98,7 +101,7 @@ pub fn indications(
                 });
             }
         }
-        let references = references(r.indication_refs, "indication_refs", &mut problems);
+        let references = references(r.indication_refs, "indication_refs", &mut problems, &mut refusals);
         records.push(DrugIndicationClaim {
             drug: drug.clone(),
             indication,
@@ -115,7 +118,7 @@ pub fn indications(
         rejected.extend(problems.list);
     }
     Ok(crate::Mapped {
-        refusals: crate::Refusal::None,
+        refusals,
         value: records.into(),
         problems: rejected,
     })
@@ -124,6 +127,7 @@ fn references(
     rows: Vec<Reference>,
     field: &str,
     problems: &mut Problems,
+    refusals: &mut crate::Refusal,
 ) -> Box<[DrugNativeReference]> {
     let mut references = Vec::new();
     for r in rows {
@@ -142,6 +146,8 @@ fn references(
                 ref_id: problems.checked_text(&format!("{field}.ref_id"), r.ref_id.as_deref()),
                 ref_url: problems.checked_text(&format!("{field}.ref_url"), r.ref_url.as_deref()),
             });
+        } else {
+            *refusals = crate::Refusal::Refused;
         }
     }
     references.into()

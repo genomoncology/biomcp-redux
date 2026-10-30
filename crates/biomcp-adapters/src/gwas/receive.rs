@@ -54,7 +54,11 @@ impl From<ReceivedAssociation> for super::raw::Association {
             record: crate::mapped::record(row.association_id),
             list: Vec::new(),
         };
+        let mut refusals = crate::Refusal::None;
+        let efo_traits = problems.records("efo_traits", row.efo_traits, &mut refusals).into_vec();
+        let snp_allele = problems.records("snp_allele", row.snp_allele, &mut refusals).into_vec();
         let mut value = Self {
+            refusals,
             association_id: biodata::GwasAssociationId::from_nonzero(row.association_id),
             accession_id: problems
                 .field("accession_id", row.accession_id)
@@ -69,8 +73,8 @@ impl From<ReceivedAssociation> for super::raw::Association {
             reported_trait: problems
                 .fields("reported_trait", row.reported_trait)
                 .into_vec(),
-            efo_traits: problems.fields("efo_traits", row.efo_traits).into_vec(),
-            snp_allele: problems.fields("snp_allele", row.snp_allele).into_vec(),
+            efo_traits,
+            snp_allele,
             p_value: problems.required_field("p_value", row.p_value),
             p_value_mantissa: problems.field("pvalue_mantissa", row.p_value_mantissa),
             p_value_exponent: problems.field("pvalue_exponent", row.p_value_exponent),
@@ -138,6 +142,7 @@ fn check_metadata(value: &mut super::raw::Association, problems: &mut crate::map
     value.efo_traits.retain(|v| {
         let valid = v.efo_id.as_str().parse::<biodata::GwasTraitId>().is_ok();
         if !valid {
+            value.refusals = crate::Refusal::Refused;
             problems.required::<()>("efo_traits.efo_id", None);
         }
         valid
@@ -145,6 +150,7 @@ fn check_metadata(value: &mut super::raw::Association, problems: &mut crate::map
     value.snp_allele.retain(|v| {
         let valid = v.rs_id.as_str().parse::<biodata::RsId>().is_ok();
         if !valid {
+            value.refusals = crate::Refusal::Refused;
             problems.required::<()>("snp_allele.rs_id", None);
         }
         valid

@@ -87,6 +87,8 @@ fn page(response: raw::Response, skip: usize) -> Page {
     let mut refusals = crate::Refusal::None;
     for row in received_rows.into_iter().skip(skip) {
         if let Some(mut row) = problems.field("association_id", Some(row.value)) {
+            refusals.include(row.refusals);
+            row.refusals = crate::Refusal::None;
             problems.list.append(&mut row.problems);
             rows.push(row);
         } else {

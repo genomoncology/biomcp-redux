@@ -5,6 +5,8 @@ use serde::Deserialize;
 #[derive(Debug, Deserialize)]
 #[serde(from = "super::receive::ReceivedMolecule")]
 pub struct Molecule {
+    /// Actual refused native child records.
+    pub refusals: crate::Refusal,
     /// Rejected native metadata.
     pub problems: Vec<biomcp_types::Problem>,
     /// Exact published molecule ID.
@@ -52,6 +54,8 @@ pub struct PageMeta {
 #[derive(Debug, Deserialize)]
 #[serde(from = "super::receive::ReceivedMechanism")]
 pub struct Mechanism {
+    /// Actual refused native child records.
+    pub refusals: crate::Refusal,
     /// Rejected native metadata.
     pub problems: Vec<biomcp_types::Problem>,
     /// Source relation ID.
@@ -71,6 +75,8 @@ pub struct Mechanism {
 #[derive(Debug, Deserialize)]
 #[serde(from = "super::receive::ReceivedIndication")]
 pub struct Indication {
+    /// Actual refused native child records.
+    pub refusals: crate::Refusal,
     /// Rejected native metadata.
     pub problems: Vec<biomcp_types::Problem>,
     /// Native indication ID.

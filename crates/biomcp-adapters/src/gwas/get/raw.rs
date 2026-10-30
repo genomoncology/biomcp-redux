@@ -65,30 +65,31 @@ impl Country {
     }
 }
 impl Ancestry {
-    pub(super) fn row(self, problems: &mut Problems) -> GwasAncestry {
+    pub(super) fn row(self, problems: &mut Problems, refusals: &mut crate::Refusal) -> GwasAncestry {
         problems.record = Some(self.links.current.href.clone());
         GwasAncestry {
             stage: problems.required_field("type", self.stage),
             number_of_individuals: problems
                 .field("number_of_individuals", self.number_of_individuals),
             ancestry_groups: problems
-                .fields("ancestral_groups", self.ancestral_groups)
+                .records("ancestral_groups", self.ancestral_groups, refusals)
                 .into_vec()
                 .into_iter()
                 .filter_map(|g| {
-                    problems
-                        .required_field("ancestral_groups.ancestral_group", g.ancestral_group)
-                        .map(Into::into)
+                    match problems.required_field("ancestral_groups.ancestral_group", g.ancestral_group) {
+                        Some(value) => Some(value.into()),
+                        None => { *refusals = crate::Refusal::Refused; None }
+                    }
                 })
                 .collect(),
             country_of_origin: problems
-                .fields("country_of_origin", self.country_of_origin)
+                .records("country_of_origin", self.country_of_origin, refusals)
                 .into_vec()
                 .into_iter()
                 .map(|r| r.row("country_of_origin", problems))
                 .collect(),
             country_of_recruitment: problems
-                .fields("country_of_recruitment", self.country_of_recruitment)
+                .records("country_of_recruitment", self.country_of_recruitment, refusals)
                 .into_vec()
                 .into_iter()
                 .map(|r| r.row("country_of_recruitment", problems))
@@ -130,25 +131,28 @@ struct Gene {
     entrez_gene_ids: Option<Field<Vec<Field<Text>>>>,
 }
 impl Locus {
-    pub(super) fn row(self, problems: &mut Problems) -> GwasLocus {
+    pub(super) fn row(self, problems: &mut Problems, refusals: &mut crate::Refusal) -> GwasLocus {
         problems.record = Some(self.links.current.href.clone());
         GwasLocus {
             description: problems
                 .field("description", self.description)
                 .map(Into::into),
             strongest_risk_alleles: problems
-                .fields("strongest_risk_alleles", self.strongest_risk_alleles)
+                .records("strongest_risk_alleles", self.strongest_risk_alleles, refusals)
                 .into_vec()
                 .into_iter()
                 .filter_map(|a| {
-                    problems.required_field(
+                    match problems.required_field(
                         "strongest_risk_alleles.risk_allele_name",
                         a.risk_allele_name,
-                    )
+                    ) {
+                        Some(value) => Some(value),
+                        None => { *refusals = crate::Refusal::Refused; None }
+                    }
                 })
                 .collect(),
             author_reported_genes: problems
-                .fields("author_reported_genes", self.author_reported_genes)
+                .records("author_reported_genes", self.author_reported_genes, refusals)
                 .into_vec()
                 .into_iter()
                 .map(|g| GwasReportedGene {

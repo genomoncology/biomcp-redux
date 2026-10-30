@@ -24,7 +24,7 @@ pub fn header(row: &Molecule) -> Result<crate::Mapped<DrugHeader>, Error> {
         ))?),
     };
     Ok(crate::Mapped {
-        refusals: crate::Refusal::None,
+        refusals: row.refusals,
         value,
         problems: problems.list,
     })
@@ -46,6 +46,7 @@ pub fn card(row: Molecule, fetched: Option<i64>) -> Result<crate::Mapped<DrugCar
         evaluated: None,
         url: header.value.url.clone(),
     };
+    let mut refusals = header.refusals;
     let mut names = Vec::new();
     for synonym in row.molecule_synonyms {
         for issue in synonym.problems {
@@ -59,12 +60,13 @@ pub fn card(row: Molecule, fetched: Option<i64>) -> Result<crate::Mapped<DrugCar
         if let Some(name) = problems.text(
             "molecule_synonyms.molecule_synonym",
             synonym.molecule_synonym.as_deref(),
-        ) && !names.contains(&name)
-        {
-            names.push(name);
+        ) {
+            if !names.contains(&name) { names.push(name); }
+        } else {
+            refusals = crate::Refusal::Refused;
         }
     }
-    let references = cross_references(row.cross_references, &attribution, &mut problems)?;
+    let references = cross_references(row.cross_references, &attribution, &mut problems, &mut refusals)?;
     let mut parents = Vec::new();
     if let Some(parent) = row.molecule_hierarchy
         && let Some(id) = problems.optional(
@@ -103,7 +105,7 @@ pub fn card(row: Molecule, fetched: Option<i64>) -> Result<crate::Mapped<DrugCar
         next: Box::default(),
     };
     Ok(crate::Mapped {
-        refusals: header.refusals,
+        refusals,
         value,
         problems: problems.list,
     })
@@ -113,6 +115,7 @@ fn cross_references(
     rows: Vec<super::raw::CrossReference>,
     attribution: &Attribution,
     problems: &mut Problems,
+    refusals: &mut crate::Refusal,
 ) -> Result<Vec<DrugIdentityRelation>, Error> {
     let mut references = Vec::new();
     for r in rows {
@@ -140,6 +143,8 @@ fn cross_references(
                 relation: Text::new("cross_references")?,
                 attribution: attribution.clone(),
             });
+        } else {
+            *refusals = crate::Refusal::Refused;
         }
     }
     Ok(references)
