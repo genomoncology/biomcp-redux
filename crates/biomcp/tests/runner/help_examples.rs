@@ -23,7 +23,7 @@ pub(super) fn check() -> Result<(), String> {
     let scoped = super::configuration::invoke(
         &environment, vec!["help".into(), "help".into()], 0,
     )?;
-    let scoped = scoped.get("commands").and_then(Value::as_array).ok_or("scoped help commands")?;
+    let scoped = scoped.pointer("/result/commands").and_then(Value::as_array).ok_or("scoped help commands")?;
     let mut printed = collected_examples(commands, scoped)?;
     let advertised = printed.clone();
     let guide = guide_examples(&environment)?;
