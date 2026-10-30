@@ -162,16 +162,15 @@ fn finish(
     } else {
         Status::Complete
     };
-    Outcome {
+    crate::status::finish([state], crate::status::Parts {
         dropped: false,
-        status: state,
         body: reply.unwrap_or(empty),
         page: None,
         problems: record_problem(&source).into_iter().collect(),
         sources: vec![source],
         next: vec![],
         local: error.and_then(status::local),
-    }
+    })
 }
 fn header(gene: &biodata::GeneSymbol) -> PgxHeader {
     PgxHeader {

@@ -53,7 +53,7 @@ pub fn run(cx: &Ctx<'_>, query: &ArticleEvidence) -> Outcome {
     let mut deadline = command.deadline();
     if let Err(error) = execute(cx, query, &mut deadline, &mut out) {
         out.local = status::local(error);
-        out.status = Status::Failed;
+        crate::status::item(&mut out, false, true, false);
     }
     command.finish(deadline.remaining());
     if out
@@ -64,7 +64,7 @@ pub fn run(cx: &Ctx<'_>, query: &ArticleEvidence) -> Outcome {
         out.next
             .insert(0, (StepKind::Key, Action::KeyHelp(Source::SemanticScholar)));
     }
-    if matches!(out.status, Status::Failed | Status::Partial) && out.next.is_empty() {
+    if matches!(out.status(), Status::Failed | Status::Partial) && out.next.is_empty() {
         out.next.push((
             StepKind::Fresh,
             Action::Run {

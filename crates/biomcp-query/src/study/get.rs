@@ -73,10 +73,10 @@ fn sections(cx: &Ctx<'_>, q: &StudyGet, deadline: biomcp_fetch::Deadline<'_>, ou
                 if q.section() == Some(StudySection::All) {
                     section_error(out, section, error);
                 }
-                let was_partial = out.status == Status::Partial;
+                let was_partial = out.status() == Status::Partial;
                 finish(out, leg, error);
                 if q.section() == Some(StudySection::All) && (error.is_some() || was_partial) {
-                    out.status = Status::Partial;
+                    crate::status::item(out, true, false, true);
                 }
             }
         }
@@ -87,10 +87,13 @@ fn card(leg: &Leg<'_>, q: &StudyGet, out: &mut Outcome) -> Result<(), RequestErr
     out.problems.extend(row.problems);
     let row = row.value;
     let snapshot = studies::snapshot(&info)?;
-    out.status = if row.is_some() {
-        Status::Complete
+    {
+        let (found, identity_failed, unavailable) = if row.is_some() {
+        (true, false, false)
     } else {
-        Status::Absent
+        (false, false, false)
+    };
+        crate::status::item(out, found, identity_failed, unavailable);
     };
     let source_url = format!("https://www.cbioportal.org/study/summary?id={}", q.id())
         .parse()
@@ -189,9 +192,9 @@ fn continuation(
     received: u32,
 ) {
     if rejected != 0 {
-        out.status = Status::Partial;
-    } else if out.status != Status::Partial {
-        out.status = Status::Complete;
+        crate::status::item(out, true, false, true);
+    } else if out.status() != Status::Partial {
+        crate::status::item(out, true, false, false);
     }
     if received > 0
         && u64::from(page.offset) + u64::from(received) < page.total

@@ -44,16 +44,15 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &VariantAssertionsGet) -> Outcome {
         .into_iter()
         .collect();
     command.finish(deadline.remaining());
-    Outcome {
+    crate::status::finish([status], crate::status::Parts {
         dropped: false,
-        status,
         body: QueryBody::VariantAssertions(body),
         page: None,
         sources,
         problems,
         next,
         local,
-    }
+    })
 }
 /// Section hooks receive one candidate; source input IDs can be checked caller selectors.
 pub(super) fn section(

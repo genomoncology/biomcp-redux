@@ -25,7 +25,8 @@ pub(super) fn get(cx: &Ctx<'_>, query: &CellLineGet) -> Outcome {
         if !out.problems.is_empty() {
             card.status = Status::Partial;
         }
-        out.status = card.status;
+        let state = card.status;
+        crate::status::get(&mut out, [state].into_iter());
         if card
             .sex
             .as_ref()
@@ -71,7 +72,7 @@ pub(super) fn get(cx: &Ctx<'_>, query: &CellLineGet) -> Outcome {
             super::sections::provenance(card);
         }
     }
-    if query.section() == Some(CellLineSection::All) && out.status != Status::Failed {
+    if query.section() == Some(CellLineSection::All) && out.status() != Status::Failed {
         super::all::attach(cx, deadline, &mut out);
     }
     recovery(&mut out, Request::GetCellLine(query.clone()));

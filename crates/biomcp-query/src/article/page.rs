@@ -76,7 +76,7 @@ pub(super) fn read<'a>(
                 s
             })
             .collect();
-        out.status = Status::Failed;
+        crate::status::item(out, false, true, false);
         return Ok(());
     }
     status::append(&mut out.problems, pool.problems.clone());
@@ -116,7 +116,7 @@ pub(super) fn read<'a>(
                 out.sources.push(source);
                 if !matches!(error, RequestError::Source(e) if e.reason == biomcp_types::Reason::Disabled)
                 {
-                    out.status = Status::Failed;
+                    crate::status::item(out, false, true, false);
                     query.retry(Some(pool.info.id.clone()), out);
                     return Err(error);
                 }
@@ -147,10 +147,13 @@ fn finish(query: Cursor<'_>, pool: &Pool, rows: Vec<StoredItem>, out: &mut Outco
     for row in &rows {
         status::append(&mut out.problems, row.problems.clone());
     }
-    out.status = if partial {
-        Status::Partial
+    {
+        let (found, identity_failed, unavailable) = if partial {
+        (true, false, true)
     } else {
-        Status::Complete
+        (true, false, false)
+    };
+        crate::status::item(out, found, identity_failed, unavailable);
     };
     let missing_external = rows
         .iter()

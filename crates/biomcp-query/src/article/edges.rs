@@ -13,7 +13,7 @@ pub(super) fn run(cx: &Ctx<'_>, query: &ArticleEdges, references: bool) -> Outco
     let mut deadline = command.deadline();
     if let Err(error) = execute(cx, query, references, &mut deadline, &mut out) {
         out.local = crate::status::local(error);
-        out.status = Status::Failed;
+        crate::status::item(&mut out, false, true, false);
     }
     command.finish(deadline.remaining());
     out
@@ -107,7 +107,7 @@ fn create<'a>(
         return Err(error);
     }
     if parent.error.is_some() {
-        out.status = Status::Failed;
+        crate::status::item(out, false, true, false);
         restart(query, references, out, true);
         return Ok(None);
     }
@@ -123,7 +123,7 @@ fn create<'a>(
             }
         });
     let Some(ids) = ids else {
-        out.status = Status::Failed;
+        crate::status::item(out, false, true, false);
         if let Some(source) = out.sources.last_mut() {
             source.state = biomcp_types::SourceState::Failed;
             source.reason = Some(biomcp_types::Reason::BadReply);

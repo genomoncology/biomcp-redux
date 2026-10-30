@@ -10,9 +10,8 @@ pub fn get(cx: &Ctx<'_>, q: &BiomarkerGet) -> Outcome {
     let reply = nci::biomarker::get(&leg, &q.id);
     let error = reply.as_ref().err().copied();
     let source = status::source(Source::Nci, leg.finish(), error);
-    let mut out = Outcome {
+    let mut out = crate::status::finish([Status::Failed], crate::status::Parts {
         dropped: false,
-        status: Status::Failed,
         body: QueryBody::BiomarkerResult(BiomarkerResult {
             card: None,
             candidates: Box::default(),
@@ -22,7 +21,7 @@ pub fn get(cx: &Ctx<'_>, q: &BiomarkerGet) -> Outcome {
         problems: Vec::new(),
         next: Vec::new(),
         local: error.and_then(status::local),
-    };
+    });
     if let Some(error) = error {
         if status::reason(error) == Some(Reason::TooLarge) {
             out.body = QueryBody::BiomarkerTooBroad;
@@ -38,18 +37,21 @@ pub fn get(cx: &Ctx<'_>, q: &BiomarkerGet) -> Outcome {
             source.count = Some(total as u64);
             source.retrieved_count = Some(total as u32);
         }
-        out.status = if !reply.problems.is_empty()
+        {
+        let (found, identity_failed, unavailable) = if !reply.problems.is_empty()
             || out
                 .sources
                 .iter()
                 .any(|s| s.state == biomcp_types::SourceState::Stale)
         {
-            Status::Partial
+            (true, false, true)
         } else if total == 0 {
-            Status::Absent
+            (false, false, false)
         } else {
-            Status::Complete
+            (true, false, false)
         };
+        crate::status::item(&mut out, found, identity_failed, unavailable);
+    };
         for row in &rows {
             for id in &row.header.codes {
                 let step = (

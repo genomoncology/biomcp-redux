@@ -93,7 +93,7 @@ fn read(
         }
         let detail = result?;
         let Some(report) = detail.report else {
-            out.status = Status::Absent;
+            crate::status::item(out, false, false, false);
             return Ok(());
         };
         let saved = (
@@ -117,14 +117,17 @@ fn render_saved(
 ) -> Result<(), RequestError> {
     out.sources = saved.2.clone();
     out.problems.extend(saved.3.clone());
-    out.status = if out
+    {
+        let (found, identity_failed, unavailable) = if out
         .sources
         .iter()
         .any(|s| s.state == biomcp_types::SourceState::Stale)
     {
-        Status::Partial
+        (true, false, true)
     } else {
-        Status::Complete
+        (true, false, false)
+    };
+        crate::status::item(out, found, identity_failed, unavailable);
     };
     render::render(q, saved.0, saved.1, snapshot, out)
 }

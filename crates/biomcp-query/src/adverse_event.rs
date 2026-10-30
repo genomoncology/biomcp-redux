@@ -36,9 +36,8 @@ pub fn search(cx: &Ctx<'_>, query: &AdverseEventSearch) -> Outcome {
         maude::search(&leg, query)
     };
     let error = reply.as_ref().err().copied();
-    let mut out = Outcome {
+    let mut out = crate::status::finish([Status::Failed], crate::status::Parts {
         dropped: false,
-        status: Status::Failed,
         body: QueryBody::AdverseEventPage(AdverseEventPage {
             reaction_match: query
                 .reaction()
@@ -55,7 +54,7 @@ pub fn search(cx: &Ctx<'_>, query: &AdverseEventSearch) -> Outcome {
         problems: Vec::new(),
         next: Vec::new(),
         local: error.and_then(status::local),
-    };
+    });
     if let Ok(page) = reply {
         let returned = page.items.len() as u32;
         navigation(query, &page, &mut out);
@@ -67,7 +66,7 @@ pub fn search(cx: &Ctx<'_>, query: &AdverseEventSearch) -> Outcome {
             pool: None,
             truncated: None,
         });
-        out.status = page_status(&out, page.total);
+        crate::status::search(&mut out);
         if let QueryBody::AdverseEventPage(body) = &mut out.body {
             body.items = page.items.into();
             body.components = page.components;
@@ -98,16 +97,15 @@ fn page_status(out: &Outcome, total: u64) -> Status {
 
 /// An unimplemented report get has no source effects until its owning slice lands.
 pub fn unsupported() -> Outcome {
-    Outcome {
+    crate::status::finish([Status::Failed], crate::status::Parts {
         dropped: false,
-        status: Status::Failed,
         body: QueryBody::UnsupportedAdverseEvent,
         page: None,
         sources: Vec::new(),
         problems: Vec::new(),
         next: Vec::new(),
         local: None,
-    }
+    })
 }
 
 fn navigation(query: &AdverseEventSearch, page: &faers::Page, out: &mut Outcome) {

@@ -24,7 +24,7 @@ pub(super) fn search<'a>(
     out: &mut Outcome,
 ) -> Result<Option<Vec<ArticleItem>>, RequestError> {
     let mut prepared = prepare_litvar(cx, query, resolved.symbol.as_deref(), deadline, out);
-    if out.status == Status::Absent {
+    if out.status() == Status::Absent {
         return Ok(None);
     }
     let epmc_term = term(query);
@@ -82,7 +82,7 @@ pub(super) fn search<'a>(
         return Err(error);
     }
     if failed_pubmed || !answered {
-        out.status = Status::Failed;
+        crate::status::item(out, false, true, false);
         return Ok(None);
     }
     Ok(Some(super::fold::fold(
@@ -291,7 +291,7 @@ fn prepare_litvar<'a>(
         Ok(litvar::Selection::Exact(selected)) => Some((leg, Ok(selected))),
         Err(error) => Some((leg, Err(error))),
         Ok(litvar::Selection::Candidates(candidates)) => {
-            out.status = Status::Absent;
+            crate::status::item(out, false, false, false);
             out.sources
                 .push(status::source(Source::LitVar, leg.finish(), None));
             if candidates.is_empty() {

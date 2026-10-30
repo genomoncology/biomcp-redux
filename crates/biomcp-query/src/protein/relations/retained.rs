@@ -63,7 +63,7 @@ pub(super) fn load(
     out.problems = mapped.problems;
     let Some(entry) = mapped.value else {
         if out.problems.is_empty() {
-            out.status = biomcp_types::Status::Absent;
+            crate::status::item(out, false, false, false);
         }
         return Ok(None);
     };

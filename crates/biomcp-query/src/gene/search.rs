@@ -48,9 +48,8 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &GeneSearch) -> Outcome {
         total,
     };
     let next = next::search(query, &items, &page, &source);
-    Outcome {
+    crate::status::finish([state], crate::status::Parts {
         dropped: false,
-        status: state,
         body: QueryBody::GenePage(biomcp_types::GenePage {
             items: items.into(),
         }),
@@ -59,7 +58,7 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &GeneSearch) -> Outcome {
         problems,
         next,
         local: error.and_then(status::local),
-    }
+    })
 }
 fn collect(
     leg: &Leg<'_>,

@@ -44,13 +44,16 @@ pub(super) fn get_at(
         out.problems.extend(reply.problems);
         let (items, total, metadata, received) = reply.value;
         let end = u64::from(body.offset) + u64::from(received);
-        out.status = if total == 0 {
-            Status::Absent
+        {
+        let (found, identity_failed, unavailable) = if total == 0 {
+            (false, false, false)
         } else if !out.problems.is_empty() || end < total {
-            Status::Partial
+            (true, false, true)
         } else {
-            Status::Complete
+            (true, false, false)
         };
+        crate::status::item(&mut out, found, identity_failed, unavailable);
+    };
         if end < total
             && let Some(offset) = body.offset.checked_add(limit)
         {
@@ -97,7 +100,7 @@ pub fn assay_count(cx: &Ctx<'_>, query: &CellLineAssayCountQuery) -> Outcome {
         .push(status::source(Source::Chembl, leg.finish(), error));
     out.local = error.and_then(status::local);
     if let Ok((assay_count, metadata)) = reply {
-        out.status = Status::Complete;
+        crate::status::item(&mut out, true, false, false);
         out.body = QueryBody::CellLineAssayCount(CellLineAssayCount {
             id: query.id.clone(),
             assay_count,
@@ -129,7 +132,7 @@ fn attach(cx: &Ctx<'_>, deadline: biomcp_fetch::Deadline<'_>, out: &mut Outcome)
         status::retain_source_state(source, &incoming);
     }
     if error.is_some() {
-        out.status = Status::Partial;
+        crate::status::item(out, true, false, true);
         out.local = error.and_then(status::local);
         out.problems.push(problem("release"));
     }
@@ -137,8 +140,8 @@ fn attach(cx: &Ctx<'_>, deadline: biomcp_fetch::Deadline<'_>, out: &mut Outcome)
         out.problems.extend(mapped.problems);
         mapped.value
     });
-    if !out.problems.is_empty() && out.status == Status::Complete {
-        out.status = Status::Partial;
+    if !out.problems.is_empty() && out.status() == Status::Complete {
+        crate::status::item(out, true, false, true);
     }
     match &mut out.body {
         QueryBody::CellLineChembl(body) => body.release = release.clone(),
@@ -150,6 +153,6 @@ fn attach(cx: &Ctx<'_>, deadline: biomcp_fetch::Deadline<'_>, out: &mut Outcome)
         .iter()
         .any(|s| s.state == biomcp_types::SourceState::Stale)
     {
-        out.status = Status::Partial;
+        crate::status::item(out, true, false, true);
     }
 }

@@ -183,17 +183,20 @@ fn read(
         pool: Some(pool.clone()),
         truncated: None,
     });
-    out.status = if out.problems.is_empty() {
-        Status::Complete
+    {
+        let (found, identity_failed, unavailable) = if out.problems.is_empty() {
+        (true, false, false)
     } else {
-        Status::Partial
+        (true, false, true)
+    };
+        crate::status::item(out, found, identity_failed, unavailable);
     };
     if out
         .sources
         .iter()
         .any(|s| s.state == biomcp_types::SourceState::Stale)
     {
-        out.status = Status::Partial;
+        crate::status::item(out, true, false, true);
     }
     if (offset + returned) < total as u32 {
         out.next.push((

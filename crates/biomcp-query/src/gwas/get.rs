@@ -13,22 +13,21 @@ use biomcp_types::{
 };
 /// Read only the explicitly selected source resource.
 pub fn get(cx: &Ctx<'_>, q: &GwasGet) -> Outcome {
-    let mut out = Outcome {
+    let mut out = crate::status::finish([Status::Failed], crate::status::Parts {
         dropped: false,
-        status: Status::Failed,
         body: empty(q),
         page: None,
         sources: vec![],
         problems: vec![],
         next: vec![],
         local: None,
-    };
+    });
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     if let Err(error) = read(cx, q, deadline, &mut out) {
         out.local = status::local(error);
         if matches!(error, RequestError::Source(e) if e.reason == Reason::NotFound) {
-            out.status = Status::Absent;
+            crate::status::item(&mut out, false, false, false);
         }
     }
     if out
@@ -47,8 +46,8 @@ pub fn get(cx: &Ctx<'_>, q: &GwasGet) -> Outcome {
             problem(&mut out, "ancestries", ProblemCode::CollectionIncomplete);
         }
     }
-    if out.sources.iter().any(|s| s.state == SourceState::Stale) && out.status == Status::Complete {
-        out.status = Status::Partial;
+    if out.sources.iter().any(|s| s.state == SourceState::Stale) && out.status() == Status::Complete {
+        crate::status::item(&mut out, true, false, true);
     }
     if out
         .sources
@@ -165,10 +164,10 @@ fn resource(q: &GwasGet, leg: &Leg<'_>, out: &mut Outcome) -> Result<(), Request
         GwasGet::Study { .. } => return Ok(()),
     }
     if !out.problems.is_empty() {
-        out.status = Status::Partial;
+        crate::status::item(out, true, false, true);
     }
-    if out.status != Status::Partial {
-        out.status = Status::Complete;
+    if out.status() != Status::Partial {
+        crate::status::item(out, true, false, false);
     }
     Ok(())
 }
@@ -188,7 +187,7 @@ fn problem(out: &mut Outcome, field: &str, code: ProblemCode) {
 }
 fn rejected(out: &mut Outcome, count: usize) {
     if count > 0 {
-        out.status = Status::Partial;
+        crate::status::item(out, true, false, true);
         problem(out, "source_url", ProblemCode::ValueUnknown);
     }
 }

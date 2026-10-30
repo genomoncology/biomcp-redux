@@ -21,7 +21,7 @@ pub(super) fn papers(cx: &Ctx<'_>, q: &AuthorPapersQuery, id: &OrcidId) -> Outco
             ));
         }
         if matches!(error, RequestError::Source(e) if e.reason == Reason::NotFound) {
-            out.status = Status::Absent;
+            crate::status::item(&mut out, false, false, false);
         }
     }
     super::retry(&mut out, Request::AuthorPapers(q.restart()));
@@ -146,10 +146,13 @@ fn present(
         pool: Some(pool.info),
         truncated: None,
     });
-    out.status = if source.state == SourceState::Stale {
-        Status::Partial
+    {
+        let (found, identity_failed, unavailable) = if source.state == SourceState::Stale {
+        (true, false, true)
     } else {
-        Status::Complete
+        (true, false, false)
+    };
+        crate::status::item(out, found, identity_failed, unavailable);
     };
     out.sources = vec![source];
     out.body = QueryBody::OrcidWorks(Some(OrcidWorks {

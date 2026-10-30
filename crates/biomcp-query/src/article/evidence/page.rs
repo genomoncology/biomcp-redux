@@ -77,11 +77,12 @@ pub(super) fn render(
         .is_some_and(|s| matches!(s, Section::Unavailable { .. } | Section::Skipped { .. }));
     let graph_data = matches!(&snapshot.graph, Section::Data { .. });
     let text_data = matches!(&snapshot.fulltext, Some(Section::Data { .. }));
-    out.status = if graph_failed || text_failed {
+    {
+        let (found, identity_failed, unavailable) = if graph_failed || text_failed {
         if graph_data || text_data {
-            Status::Partial
+            (true, false, true)
         } else {
-            Status::Failed
+            (false, true, false)
         }
     } else if !snapshot.terminal
         || snapshot.sources.iter().any(|s| {
@@ -93,9 +94,11 @@ pub(super) fn render(
             )
         })
     {
-        Status::Partial
+        (true, false, true)
     } else {
-        Status::Complete
+        (true, false, false)
+    };
+        crate::status::item(out, found, identity_failed, unavailable);
     };
     if more || !snapshot.terminal {
         out.next.push((

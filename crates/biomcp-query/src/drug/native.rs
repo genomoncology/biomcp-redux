@@ -36,13 +36,16 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     let error = result.as_ref().err().copied();
     if let Ok((page, received)) = result {
         let returned = page.items.len() as u32;
-        out.status = if !out.problems.is_empty() {
-            Status::Partial
+        {
+        let (found, identity_failed, unavailable) = if !out.problems.is_empty() {
+            (true, false, true)
         } else if returned == 0 {
-            Status::Absent
+            (false, false, false)
         } else {
-            Status::Complete
+            (true, false, false)
         };
+        crate::status::item(&mut out, found, identity_failed, unavailable);
+    };
         out.page = page.total.map(|total| PageInfo {
             offset: query.offset(),
             returned,
@@ -151,7 +154,7 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     };
     let error = result.err();
     if error.is_some() {
-        out.status = Status::Failed;
+        crate::status::item(&mut out, false, true, false);
     }
     finish(&mut out, leg, query.source().source(), error);
     command.finish(deadline.remaining());
@@ -165,9 +168,9 @@ fn finish(out: &mut Outcome, leg: Leg<'_>, source: Source, error: Option<Request
         outcome.retrieved_count = Some(page.returned);
     }
     if (!out.problems.is_empty() || outcome.state == biomcp_types::SourceState::Stale)
-        && out.status == Status::Complete
+        && out.status() == Status::Complete
     {
-        out.status = Status::Partial;
+        crate::status::item(out, true, false, true);
     }
     out.sources.push(outcome);
 }

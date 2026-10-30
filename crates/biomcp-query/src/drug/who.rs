@@ -30,7 +30,7 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
             .take(query.limit() as usize)
             .collect();
         let returned = items.len() as u32;
-        out.status = found(!items.is_empty(), &out);
+        crate::status::item(&mut out, !items.is_empty(), false, false);
         out.page = Some(PageInfo {
             offset: query.offset(),
             returned,
@@ -81,7 +81,7 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &DrugWhoGet) -> Outcome {
     out.sources
         .push(status::source(Source::WhoPq, leg.finish(), error));
     if let Ok((card, _)) = result {
-        out.status = found(card.is_some(), &out);
+        crate::status::item(&mut out, card.is_some(), false, false);
         out.body = QueryBody::DrugWhoCard(card);
     }
     sync_step(&mut out);

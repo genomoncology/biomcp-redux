@@ -25,11 +25,14 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     if let Ok(mapped) = result {
         out.problems = mapped.problems;
         let (page, consumed) = mapped.value;
-        out.status = if page.items.is_empty() {
-            Status::Absent
+        {
+        let (found, identity_failed, unavailable) = if page.items.is_empty() {
+            (false, false, false)
         } else {
-            state(&out)
+            (true, false, false)
         };
+        crate::status::item(&mut out, found, identity_failed, unavailable);
+    };
         let returned = page.items.len() as u32;
         out.sources.iter_mut().for_each(|s| {
             s.count = page.total;
@@ -96,7 +99,7 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     if let Ok(mapped) = result {
         out.problems = mapped.problems;
         let Some(mut value) = mapped.value else {
-            out.status = state(&out);
+            crate::status::item(&mut out, true, false, false);
             command.finish(deadline.remaining());
             return out;
         };
@@ -114,7 +117,7 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
             }
         }
         super::next::civic(&mut value, cx.fresh, &mut out);
-        out.status = state(&out);
+        crate::status::item(&mut out, true, false, false);
         out.body = QueryBody::DrugCivic(Some(value));
     }
     command.finish(deadline.remaining());

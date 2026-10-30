@@ -75,9 +75,8 @@ pub fn normalize(cx: &Ctx<'_>, query: &VariantNormalize) -> Outcome {
     } else {
         Vec::new()
     };
-    let outcome = Outcome {
+    let outcome = crate::status::finish([status::status(states.into_iter())], crate::status::Parts {
         dropped: false,
-        status: status::status(states.into_iter()),
         body: QueryBody::VariantNormalization(VariantNormalization {
             results: results.into(),
         }),
@@ -86,7 +85,7 @@ pub fn normalize(cx: &Ctx<'_>, query: &VariantNormalize) -> Outcome {
         next,
         page: None,
         local,
-    };
+    });
     command.finish(deadline.remaining());
     outcome
 }

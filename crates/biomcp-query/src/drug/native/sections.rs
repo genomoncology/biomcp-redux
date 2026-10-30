@@ -72,7 +72,7 @@ pub(super) fn opentargets(
 ) -> Result<(), RequestError> {
     let (row, meta) = opentargets::drug(leg, query.input())?;
     let Some(row) = row else {
-        out.status = Status::Absent;
+        crate::status::item(out, false, false, false);
         return Ok(());
     };
     let source = Source::Opentargets;
@@ -128,7 +128,7 @@ pub(super) fn opentargets(
             );
         }
         _ => {
-            out.status = Status::Complete;
+            crate::status::item(out, true, false, false);
             out.body = QueryBody::DrugCard(Some(identity::card(header, meta.fetched)));
             card_next(out, query, fresh, false);
         }
@@ -168,10 +168,13 @@ fn page<T>(
     let returned = records.len() as u32;
     let received = received.unwrap_or(returned);
     let source = query.source().source();
-    out.status = if total == 0 {
-        Status::Absent
+    {
+        let (found, identity_failed, unavailable) = if total == 0 {
+        (false, false, false)
     } else {
-        Status::Complete
+        (true, false, false)
+    };
+        crate::status::item(out, found, identity_failed, unavailable);
     };
     out.page = Some(PageInfo {
         offset,
@@ -274,7 +277,7 @@ fn chembl_card(
         }));
         return Ok(());
     }
-    out.status = Status::Complete;
+    crate::status::item(out, true, false, false);
     out.body = QueryBody::DrugCard(Some(card));
     card_next(out, query, fresh, has_xrefs);
     if let Ok(get) = DrugGet::new(query.input().clone(), biomcp_types::DrugSource::Opentargets) {

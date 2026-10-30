@@ -18,9 +18,8 @@ pub fn download(cx: &Ctx<'_>, query: &TrialDocumentGet, allow: bool) -> Download
         .fetch
         .leg(&ctgov::SPEC, command.deadline())
         .fresh(cx.fresh);
-    let mut out = Outcome {
+    let mut out = crate::status::finish([Status::Complete], crate::status::Parts {
         dropped: false,
-        status: Status::Complete,
         body: QueryBody::TrialDocument(TrialDocumentResult {
             file: Section::Empty {
                 source: Source::ClinicalTrialsGov,
@@ -32,13 +31,13 @@ pub fn download(cx: &Ctx<'_>, query: &TrialDocumentGet, allow: bool) -> Download
         problems: Vec::new(),
         next: Vec::new(),
         local: None,
-    };
+    });
     let result = ctgov::detail::get(&leg, query.input).and_then(|(detail, _)| {
         let incomplete_manifest = detail.problems.iter().any(|problem| {
             problem.field.starts_with("largeDoc") || problem.field.starts_with("documentSection")
         });
         if !detail.problems.is_empty() {
-            out.status = Status::Partial;
+            crate::status::item(&mut out, true, false, true);
         }
         out.problems.extend(detail.problems);
         let Some(document) = detail
@@ -58,7 +57,7 @@ pub fn download(cx: &Ctx<'_>, query: &TrialDocumentGet, allow: bool) -> Download
     });
     let error = result.as_ref().err().copied();
     if let Some(error) = error {
-        out.status = Status::Failed;
+        crate::status::item(&mut out, false, true, false);
         out.local = status::local(error);
         out.body = QueryBody::TrialDocument(TrialDocumentResult {
             file: Section::unavailable(
@@ -82,7 +81,7 @@ pub fn download(cx: &Ctx<'_>, query: &TrialDocumentGet, allow: bool) -> Download
 
 fn missing_document(out: &mut Outcome, incomplete_manifest: bool) {
     if incomplete_manifest {
-        out.status = Status::Failed;
+        crate::status::item(out, false, true, false);
         out.body = QueryBody::TrialDocument(TrialDocumentResult {
             file: Section::unavailable(Source::ClinicalTrialsGov, biomcp_types::Reason::BadReply),
         });

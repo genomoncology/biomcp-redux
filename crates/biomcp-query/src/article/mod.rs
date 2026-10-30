@@ -38,7 +38,7 @@ pub fn search(cx: &Ctx<'_>, query: &ArticleSearch) -> Outcome {
     command.finish(deadline.remaining());
     if let Err(error) = result {
         out.local = status::local(error);
-        out.status = Status::Failed;
+        crate::status::item(&mut out, false, true, false);
     }
     if out.sources.iter().any(|source| {
         source.source == biomcp_types::Source::SemanticScholar
@@ -103,7 +103,7 @@ fn execute<'a>(
                 }
             };
             let Some(mut items) = sources::search(cx, query, &resolved, deadline, out)? else {
-                if out.status != Status::Absent {
+                if out.status() != Status::Absent {
                     retry(query, None, out);
                 }
                 return Ok(());
@@ -143,9 +143,8 @@ fn retry(query: &ArticleSearch, pool: Option<Text>, out: &mut Outcome) {
     ));
 }
 fn empty() -> Outcome {
-    Outcome {
+    crate::status::finish([Status::Complete], crate::status::Parts {
         dropped: false,
-        status: Status::Complete,
         body: QueryBody::ArticlePage(ArticlePage {
             items: Box::default(),
             candidates: Vec::new(),
@@ -155,7 +154,7 @@ fn empty() -> Outcome {
         problems: Vec::new(),
         next: Vec::new(),
         local: None,
-    }
+    })
 }
 
 // Fetch legs deliberately own independent replay clocks. A sequential article

@@ -42,13 +42,16 @@ pub fn search(cx: &Ctx<'_>, query: &CellLineSearch) -> Outcome {
                 run(Request::SearchCellLine(query.at_offset(offset))),
             ));
         }
-        out.status = if !out.problems.is_empty() {
-            Status::Partial
+        {
+        let (found, identity_failed, unavailable) = if !out.problems.is_empty() {
+            (true, false, true)
         } else if page.items.is_empty() {
-            Status::Absent
+            (false, false, false)
         } else {
-            Status::Complete
+            (true, false, false)
         };
+        crate::status::item(&mut out, found, identity_failed, unavailable);
+    };
         out.body = QueryBody::CellLinePage(CellLinePage {
             items: page.items.into(),
             release: None,

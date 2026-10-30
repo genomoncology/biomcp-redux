@@ -11,16 +11,15 @@ use biomcp_types::{
 pub fn run(cx: &Ctx<'_>, query: &VariantRecurrenceQuery) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
-    let mut out = Outcome {
+    let mut out = crate::status::finish([Status::Failed], crate::status::Parts {
         dropped: false,
-        status: Status::Failed,
         body: QueryBody::VariantRecurrence(empty()),
         page: None,
         sources: Vec::new(),
         problems: Vec::new(),
         next: Vec::new(),
         local: None,
-    };
+    });
     if let Err(error) = execute(cx, query, deadline, &mut out) {
         out.local = status::local(error);
     }
@@ -88,15 +87,18 @@ fn execute(
     body.all_pages_read = query.page() == 0 && !more;
     body.more = more;
     out.body = QueryBody::VariantRecurrence(body);
-    out.status = if out.problems.is_empty()
+    {
+        let (found, identity_failed, unavailable) = if out.problems.is_empty()
         && out
             .sources
             .iter()
             .all(|s| s.state == biomcp_types::SourceState::Ok)
     {
-        Status::Complete
+        (true, false, false)
     } else {
-        Status::Partial
+        (true, false, true)
+    };
+        crate::status::item(out, found, identity_failed, unavailable);
     };
     if more && let Some(next) = query.next_page() {
         out.next.push((

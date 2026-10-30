@@ -32,7 +32,7 @@ pub(super) fn create<'a>(
         Ok(value) => value,
         Err(error) => {
             out.sources.push(source);
-            out.status = Status::Failed;
+            crate::status::item(out, false, true, false);
             failure(query, references, out);
             return if status::local(error).is_some() {
                 Err(error)
@@ -201,7 +201,7 @@ fn resolve_input<'a>(
     };
     out.sources.push(source);
     if input.is_none() {
-        out.status = Status::Failed;
+        crate::status::item(out, false, true, false);
         failure(query, references, out);
     }
     Ok(input)

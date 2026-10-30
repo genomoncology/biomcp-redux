@@ -72,13 +72,16 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
             source.retrieved_count = Some(page.records.len() as u32);
         }
         out.problems.extend(page.problems);
-        out.status = if page.records.is_empty() {
-            Status::Absent
+        {
+        let (found, identity_failed, unavailable) = if page.records.is_empty() {
+            (false, false, false)
         } else if out.sources.iter().any(|s| s.state == SourceState::Stale) {
-            Status::Partial
+            (true, false, true)
         } else {
-            Status::Complete
+            (true, false, false)
         };
+        crate::status::item(&mut out, found, identity_failed, unavailable);
+    };
         if let Some(row) = page.records.first() {
             label_steps(cx, row, &mut out);
             if is_approvals {
@@ -90,7 +93,7 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
                     page.updated,
                     &mut out,
                 ) {
-                    out.status = Status::Failed;
+                    crate::status::item(&mut out, false, true, false);
                     out.local = status::local(error);
                 }
             } else {

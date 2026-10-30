@@ -79,7 +79,7 @@ pub(super) fn resolve<'a>(
             Ok(None)
         }
         _ => {
-            out.status = Status::Absent;
+            crate::status::item(out, false, false, false);
             Ok(None)
         }
     }

@@ -123,15 +123,18 @@ fn selected_get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     out.sources
         .push(status::source(Source::Mychem, leg.finish(), error));
     if let Ok(document) = result {
-        out.status = if out
+        {
+        let (found, identity_failed, unavailable) = if out
             .sources
             .iter()
             .any(|s| s.state == biomcp_types::SourceState::Stale)
         {
-            Status::Partial
+            (true, false, true)
         } else {
-            Status::Complete
+            (true, false, false)
         };
+        crate::status::item(&mut out, found, identity_failed, unavailable);
+    };
         if xrefs {
             link_page(query, cx.fresh, document, &mut out);
         } else {
@@ -151,7 +154,7 @@ fn selected_get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
                 ));
             }
             if !document.problems.is_empty() {
-                out.status = Status::Partial;
+                crate::status::item(&mut out, true, false, true);
             }
             out.problems = document.problems;
             out.body = QueryBody::DrugCard(Some(document.value.card));
@@ -193,7 +196,7 @@ fn link_page(
         ));
     }
     if !document.problems.is_empty() {
-        out.status = Status::Partial;
+        crate::status::item(out, true, false, true);
     }
     out.problems = document.problems;
     out.page = Some(PageInfo {
@@ -266,17 +269,20 @@ fn search_results(
     out: &mut Outcome,
     received: u32,
 ) {
-    out.status = if page.items.is_empty() && out.problems.is_empty() {
-        Status::Absent
+    {
+        let (found, identity_failed, unavailable) = if page.items.is_empty() && out.problems.is_empty() {
+        (false, false, false)
     } else if !out.problems.is_empty()
         || out
             .sources
             .iter()
             .any(|s| s.state == biomcp_types::SourceState::Stale)
     {
-        Status::Partial
+        (true, false, true)
     } else {
-        Status::Complete
+        (true, false, false)
+    };
+        crate::status::item(out, found, identity_failed, unavailable);
     };
     let returned = page.items.len() as u32;
     out.sources.iter_mut().for_each(|s| {

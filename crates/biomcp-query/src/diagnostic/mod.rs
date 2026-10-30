@@ -29,12 +29,12 @@ fn finish_bundle(
     out.sources
         .push(status::source(source, leg.finish(), error));
     if error.is_some() {
-        out.status = Status::Failed;
+        crate::status::item(out, false, true, false);
     } else if (!out.problems.is_empty()
         || out.sources.iter().any(|s| s.state == SourceState::Stale))
-        && out.status == Status::Complete
+        && out.status() == Status::Complete
     {
-        out.status = Status::Partial;
+        crate::status::item(out, true, false, true);
     }
     if out
         .sources
@@ -76,7 +76,7 @@ pub fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
     };
     let error = result.as_ref().err().copied();
     if let Ok((items, total, info)) = result {
-        out.status = Status::Complete;
+        crate::status::item(&mut out, true, false, false);
         let q = info
             .content_revision
             .as_deref()

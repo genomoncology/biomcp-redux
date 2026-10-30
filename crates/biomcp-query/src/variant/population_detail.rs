@@ -47,9 +47,8 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &VariantPopulationQuery) -> Outcome {
         Section::Empty { .. } => Status::Absent,
         _ => Status::Failed,
     };
-    let out = Outcome {
+    let out = crate::status::finish([status], crate::status::Parts {
         dropped: false,
-        status,
         body: QueryBody::VariantPopulation(VariantPopulationResult {
             population: read.population,
             groups,
@@ -60,7 +59,7 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &VariantPopulationQuery) -> Outcome {
         problems: read.problems,
         next,
         local: read.local,
-    };
+    });
     command.finish(deadline.remaining());
     out
 }

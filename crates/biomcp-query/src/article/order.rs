@@ -77,7 +77,7 @@ pub(super) fn apply<'a>(
         return Err(error);
     }
     if result.error.is_some() {
-        out.status = Status::Failed;
+        crate::status::item(out, false, true, false);
         return Ok(false);
     }
     for row in &result.rows {
@@ -98,7 +98,7 @@ pub(super) fn refuse(count: usize, out: &mut Outcome) -> bool {
     if count <= MAX_PMIDS {
         return false;
     }
-    out.status = Status::Failed;
+    crate::status::item(out, false, true, false);
     out.body = QueryBody::TooManyPmids {
         count: count as u64,
     };

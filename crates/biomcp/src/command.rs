@@ -215,7 +215,7 @@ fn response(
         exit: response_status(&result),
         body_visible: result.body_visible(),
         local_error: local::kind(result.local),
-        status: result.status,
+        status: result.status(),
         next: steps,
         page: result.page,
         sources: result.sources,
@@ -565,7 +565,7 @@ fn response_status(result: &biomcp_query::Outcome) -> crate::exit::Status {
     if result.local.is_some() {
         crate::exit::Status::Local
     } else {
-        crate::exit::Status::from(result.status)
+        crate::exit::Status::from(result.status())
     }
 }
 

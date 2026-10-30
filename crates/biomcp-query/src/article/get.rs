@@ -48,9 +48,8 @@ pub fn get(cx: &Ctx<'_>, query: &ArticleGet) -> Outcome {
             Ok(ids) => append(input, &ids, &records, &failures, stale, &mut items),
         }
     }
-    let mut out = Outcome {
+    let mut out = crate::status::finish([status::status(items.iter().map(|i| i.status))], crate::status::Parts {
         dropped: false,
-        status: status::status(items.iter().map(|i| i.status)),
         body: QueryBody::ArticleCards(ArticleCards {
             items: items.into(),
         }),
@@ -62,7 +61,7 @@ pub fn get(cx: &Ctx<'_>, query: &ArticleGet) -> Outcome {
             .collect(),
         next: Vec::new(),
         local,
-    };
+    });
     let mut deadline = deadline.after_stage(started.saturating_sub(remaining));
     super::preprint::cards(cx, &mut deadline, &mut out);
     let requested = if let QueryBody::ArticleCards(cards) = &mut out.body {

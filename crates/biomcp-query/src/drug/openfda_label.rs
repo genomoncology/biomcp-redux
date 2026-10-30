@@ -40,11 +40,14 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     disclosure(&mut out, discovery.free_text);
     if let Ok((items, total, scanned)) = result {
         let returned = items.len() as u32;
-        out.status = if returned == 0 {
-            Status::Absent
+        {
+        let (found, identity_failed, unavailable) = if returned == 0 {
+            (false, false, false)
         } else {
-            state(&out)
+            (true, false, false)
         };
+        crate::status::item(&mut out, found, identity_failed, unavailable);
+    };
         if let Some(source) = out.sources.first_mut() {
             source.count = Some(total);
             source.retrieved_count = Some(returned);
@@ -121,18 +124,18 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     out.sources
         .push(status::source(SOURCE, leg.finish(), error));
     if let Ok(page) = result {
-        out.status = state(&out);
+        crate::status::item(&mut out, true, false, false);
         if let Some(source) = out.sources.first_mut() {
             source.count = Some(page.total);
             source.retrieved_count = Some(page.records.len() as u32);
         }
         if let Some(record) = page.records.first() {
             if let Err(error) = select(cx, query, record, page.metadata.fetched, &mut out) {
-                out.status = Status::Failed;
+                crate::status::item(&mut out, false, true, false);
                 out.local = status::local(error);
             }
         } else {
-            out.status = Status::Absent;
+            crate::status::item(&mut out, false, false, false);
         }
     }
     command.finish(deadline.remaining());
@@ -193,7 +196,7 @@ fn select(
             }
         }
         None => {
-            out.status = Status::Partial;
+            crate::status::item(out, true, false, true);
             Section::unavailable(SOURCE, Reason::NotFound)
         }
     };

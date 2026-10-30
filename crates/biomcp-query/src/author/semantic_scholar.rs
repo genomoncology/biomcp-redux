@@ -16,7 +16,7 @@ pub(super) fn papers(cx: &Ctx<'_>, q: &AuthorPapersQuery) -> Outcome {
     if let Err(error) = execute(cx, q, deadline, &mut out) {
         out.local = status::local(error);
         if matches!(error, RequestError::Source(e) if e.reason == Reason::NotFound) {
-            out.status = Status::Absent;
+            crate::status::item(&mut out, false, false, false);
         }
         if out.sources.is_empty() {
             out.sources.push(biomcp_adapters::registry::outcome(
@@ -138,10 +138,13 @@ fn present(
         pool: Some(pool.info),
         truncated: None,
     });
-    out.status = if saved.source.state == SourceState::Stale || !out.problems.is_empty() {
-        Status::Partial
+    {
+        let (found, identity_failed, unavailable) = if saved.source.state == SourceState::Stale || !out.problems.is_empty() {
+        (true, false, true)
     } else {
-        Status::Complete
+        (true, false, false)
+    };
+        crate::status::item(out, found, identity_failed, unavailable);
     };
     if saved.key_needed && saved.source.reason == Some(Reason::RateLimited) {
         super::key_step(out);

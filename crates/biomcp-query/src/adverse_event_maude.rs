@@ -12,16 +12,15 @@ mod snapshot;
 pub fn get(cx: &Ctx<'_>, query: &AdverseEventGet) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
-    let mut out = Outcome {
+    let mut out = crate::status::finish([Status::Failed], crate::status::Parts {
         dropped: false,
-        status: Status::Failed,
         body: empty(query),
         page: None,
         sources: Vec::new(),
         problems: Vec::new(),
         next: Vec::new(),
         local: None,
-    };
+    });
     match snapshot::load(cx, query, deadline, &mut out) {
         Ok(Some((report, snapshot))) => {
             let bound = query.with_snapshot(snapshot.clone());
@@ -84,7 +83,7 @@ fn text(value: &str) -> Result<Text, biomcp_types::QueryInvalid> {
 }
 
 fn too_large(query: &AdverseEventGet, out: &mut Outcome) {
-    out.status = Status::Failed;
+    crate::status::item(out, false, true, false);
     out.sources = vec![biomcp_adapters::registry::outcome(
         Source::Maude,
         biomcp_types::SourceState::Failed,

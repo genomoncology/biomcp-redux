@@ -29,7 +29,7 @@ pub(in crate::trial) fn run(cx: &Ctx<'_>, q: &TrialGet) -> Outcome {
         fetch(cx, q, deadline, &mut out)
     };
     if let Err(error) = result {
-        out.status = Status::Failed;
+        crate::status::item(&mut out, false, true, false);
         out.local = status::local(error);
     }
     command.finish(deadline.remaining());
@@ -126,7 +126,8 @@ fn restore(
     }
     out.sources = snapshot.sources.clone();
     let item = page::render(q, snapshot, q.pool().cloned(), out)?;
-    out.status = item.status;
+    let state = item.status;
+        crate::status::get(out, [state].into_iter());
     if let QueryBody::NciTrialCards(body) = &mut out.body {
         body.items = Box::new([item]);
     }

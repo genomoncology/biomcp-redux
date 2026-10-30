@@ -20,11 +20,14 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DrugSearch) -> Outcome {
     let error = result.as_ref().err().copied();
     if let Ok(page) = result {
         let returned = page.items.len() as u32;
-        out.status = if returned == 0 {
-            Status::Absent
+        {
+        let (found, identity_failed, unavailable) = if returned == 0 {
+            (false, false, false)
         } else {
-            Status::Complete
+            (true, false, false)
         };
+        crate::status::item(&mut out, found, identity_failed, unavailable);
+    };
         out.problems = page.problems;
         for item in &page.items {
             if let Ok(id) = item.recall_number.to_string().parse()
@@ -80,11 +83,11 @@ pub(super) fn get(cx: &Ctx<'_>, q: &DrugGet) -> Outcome {
     let mut error = None;
     match source::get(&leg, &id) {
         Ok(Some(row)) => {
-            out.status = Status::Complete;
+            crate::status::item(&mut out, true, false, false);
             out.problems = row.problems;
             out.body = QueryBody::DrugRecallCard(Some(row.value));
         }
-        Ok(None) => out.status = Status::Absent,
+        Ok(None) => crate::status::item(&mut out, false, false, false),
         Err(failure) => {
             error = Some(failure.error);
             if let Some(field) = failure.identity_field {
@@ -104,10 +107,10 @@ pub(super) fn get(cx: &Ctx<'_>, q: &DrugGet) -> Outcome {
 fn finish(out: &mut Outcome, leg: Leg<'_>, error: Option<RequestError>) {
     out.local = error.and_then(status::local);
     let source = status::source(Source::FdaDrugRecall, leg.finish(), error);
-    if out.status == Status::Complete
+    if out.status() == Status::Complete
         && (source.state == SourceState::Stale || !out.problems.is_empty())
     {
-        out.status = Status::Partial;
+        crate::status::item(out, true, false, true);
     }
     out.sources.push(source);
 }

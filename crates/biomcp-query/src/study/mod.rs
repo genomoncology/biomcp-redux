@@ -10,11 +10,11 @@ fn finish(out: &mut Outcome, leg: Leg<'_>, error: Option<RequestError>) {
     out.sources
         .push(status::source(Source::Cbioportal, leg.finish(), error));
     if error.is_some() {
-        out.status = Status::Failed
-    } else if out.status == Status::Complete
+        crate::status::item(out, false, true, false)
+    } else if out.status() == Status::Complete
         && (!out.problems.is_empty() || out.sources.iter().any(|s| s.state == SourceState::Stale))
     {
-        out.status = Status::Partial
+        crate::status::item(out, true, false, true)
     }
     if out
         .sources

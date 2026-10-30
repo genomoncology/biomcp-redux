@@ -19,14 +19,14 @@ pub(super) fn get(cx: &Ctx<'_>, q: &DiagnosticGet) -> Outcome {
     out.sources
         .push(status::source(Source::FdaPma, leg.finish(), error));
     if error.is_some() {
-        out.status = Status::Failed;
-    } else if out.status == Status::Complete
+        crate::status::item(&mut out, false, true, false);
+    } else if out.status() == Status::Complete
         && out
             .sources
             .iter()
             .any(|source| source.state == biomcp_types::SourceState::Stale)
     {
-        out.status = Status::Partial;
+        crate::status::item(&mut out, true, false, true);
     }
     command.finish(deadline.remaining());
     out
@@ -38,7 +38,7 @@ fn selected(
     fresh: bool,
 ) -> Result<(), biomcp_fetch::RequestError> {
     if let Some(field) = records.identity_conflict {
-        out.status = Status::Failed;
+        crate::status::item(out, false, true, false);
         out.problems.push(Problem {
             source: Source::FdaPma,
             record: Some(q.id().clone()),
@@ -54,7 +54,7 @@ fn selected(
         .into());
     }
     if records.incomplete {
-        out.status = Status::Partial;
+        crate::status::item(out, true, false, true);
         out.problems.push(Problem {
             source: Source::FdaPma,
             record: Some(q.id().clone()),
@@ -68,10 +68,13 @@ fn selected(
             .as_ref()
             .is_some_and(|cell| cell.as_str() == q.supplement().map_or("", |s| s.as_str()))
     });
-    out.status = if selected.is_some() {
-        Status::Complete
+    {
+        let (found, identity_failed, unavailable) = if selected.is_some() {
+        (true, false, false)
     } else {
-        Status::Absent
+        (false, false, false)
+    };
+        crate::status::item(out, found, identity_failed, unavailable);
     };
     let Some(row) = selected else {
         return Ok(());

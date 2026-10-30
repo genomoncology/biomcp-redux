@@ -56,10 +56,13 @@ pub fn get(cx: &Ctx<'_>, q: &DiagnosticGet) -> Outcome {
 }
 fn selected(out: &mut Outcome, q: &DiagnosticGet, record: gtr::Record, fresh: bool) {
     status::append(&mut out.problems, record.problems);
-    out.status = if record.card.is_some() || q.section().is_some() && !record.relations.is_empty() {
-        Status::Complete
+    {
+        let (found, identity_failed, unavailable) = if record.card.is_some() || q.section().is_some() && !record.relations.is_empty() {
+        (true, false, false)
     } else {
-        Status::Absent
+        (false, false, false)
+    };
+        crate::status::item(out, found, identity_failed, unavailable);
     };
     match q.section() {
         None => {

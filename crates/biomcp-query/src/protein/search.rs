@@ -241,7 +241,8 @@ fn render(
         .skip(q.offset() as usize)
         .take(q.limit() as usize)
         .collect();
-    out.status = if saved
+    {
+        let (found, identity_failed, unavailable) = if saved
         .sources
         .iter()
         .any(|s| s.state != biomcp_types::SourceState::Ok)
@@ -253,12 +254,14 @@ fn render(
                 .iter()
                 .any(|s| s.state == biomcp_types::SourceState::Failed)
         {
-            Status::Failed
+            (false, true, false)
         } else {
-            Status::Partial
+            (true, false, true)
         }
     } else {
-        Status::Complete
+        (true, false, false)
+    };
+        crate::status::item(out, found, identity_failed, unavailable);
     };
     let returned = rows.len() as u32;
     let offset = q.offset().saturating_add(returned);
@@ -268,7 +271,7 @@ fn render(
         pool,
         offset,
         returned > 0 && u64::from(offset) < saved.page.total,
-        out.status != Status::Complete,
+        out.status() != Status::Complete,
     );
     out.page = Some(PageInfo {
         offset: q.offset(),

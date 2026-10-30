@@ -107,16 +107,15 @@ fn local_page<T>(q: &PgxGet, items: Box<[T]>, mut page: PgxPageInfo) -> (Box<[T]
 pub(super) fn get(cx: &Ctx<'_>, q: &PgxGet) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
-    let mut out = Outcome {
+    let mut out = crate::status::finish([Status::Failed], crate::status::Parts {
         dropped: false,
-        status: Status::Failed,
         body: QueryBody::PgxAnnotations(body(q, vec![], vec![])),
         page: None,
         sources: vec![],
         problems: vec![],
         next: vec![],
         local: None,
-    };
+    });
     match super::snapshot::load(cx, q, deadline, &mut out) {
         Ok(Some((body, snapshot))) => match q.with_snapshot(snapshot) {
             Ok(bound) => {

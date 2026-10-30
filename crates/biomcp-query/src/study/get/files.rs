@@ -20,10 +20,10 @@ pub(super) fn section(cx: &Ctx<'_>, q: &StudyGet, deadline: Deadline<'_>, out: &
         let reason = crate::status::reason(error).unwrap_or(biomcp_types::Reason::BadReply);
         card.files = Some(Section::unavailable(Source::Cbioportal, reason));
     }
-    let partial = out.status == Status::Partial;
+    let partial = out.status() == Status::Partial;
     finish(out, leg, error);
     if on_card && (error.is_some() || partial) {
-        out.status = Status::Partial;
+        crate::status::item(out, true, false, true);
     }
 }
 fn apply(
@@ -39,7 +39,7 @@ fn apply(
                 record: None,
             });
         } else {
-            out.status = Status::Absent;
+            crate::status::item(out, false, false, false);
         }
         return Ok(());
     };
@@ -67,7 +67,7 @@ fn apply(
         }
         out.body = QueryBody::StudyFiles(Some(data));
         out.page = Some(bounds.clone());
-        out.status = Status::Complete;
+        crate::status::item(out, true, false, false);
     }
     if u64::from(bounds.offset) + u64::from(bounds.returned) < bounds.total {
         let query = query

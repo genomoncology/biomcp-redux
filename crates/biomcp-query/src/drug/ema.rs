@@ -88,13 +88,16 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     out.sources
         .push(status::source(Source::Ema, leg.finish(), error));
     if let Ok(found) = result {
-        out.status = if !found {
-            Status::Absent
+        {
+        let (found, identity_failed, unavailable) = if !found {
+            (false, false, false)
         } else if out.sources.iter().any(|s| s.state == SourceState::Stale) {
-            Status::Partial
+            (true, false, true)
         } else {
-            Status::Complete
+            (true, false, false)
         };
+        crate::status::item(&mut out, found, identity_failed, unavailable);
+    };
     }
     sync_step(&mut out);
     command.finish(deadline.remaining());

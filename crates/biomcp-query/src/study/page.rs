@@ -92,7 +92,7 @@ fn render(
         page,
         snapshot,
     }));
-    out.status = Status::Complete;
+    crate::status::item(out, true, false, false);
     Ok(())
 }
 

@@ -49,16 +49,15 @@ impl Saved {
 pub(super) fn search(cx: &Ctx<'_>, q: &GwasSearch) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
-    let mut out = Outcome {
+    let mut out = crate::status::finish([Status::Failed], crate::status::Parts {
         dropped: false,
-        status: Status::Failed,
         body: QueryBody::GwasPage(None),
         page: None,
         sources: vec![],
         problems: vec![],
         next: vec![],
         local: None,
-    };
+    });
     if let Err(error) = read(cx, q, deadline, &mut out) {
         out.local = status::local(error);
         out.body = QueryBody::GwasPage(None);
@@ -284,14 +283,17 @@ fn render(cx: &Ctx<'_>, q: &GwasSearch, saved: Saved, pool: Pool, out: &mut Outc
     out.next = next::search(q, Some(&body), biomcp_types::SourceState::Ok, cx.fresh);
     out.page = Some(page);
     out.body = QueryBody::GwasPage(Some(body));
-    out.status = if !out.problems.is_empty()
+    {
+        let (found, identity_failed, unavailable) = if !out.problems.is_empty()
         || out
             .sources
             .iter()
             .any(|s| s.state == biomcp_types::SourceState::Stale)
     {
-        Status::Partial
+        (true, false, true)
     } else {
-        Status::Complete
+        (true, false, false)
+    };
+        crate::status::item(out, found, identity_failed, unavailable);
     };
 }

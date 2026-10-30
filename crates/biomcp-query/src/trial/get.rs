@@ -24,7 +24,7 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &TrialGet) -> Outcome {
         fetch(cx, query, deadline, &mut out)
     };
     if let Err(error) = result {
-        out.status = Status::Failed;
+        crate::status::item(&mut out, false, true, false);
         out.local = status::local(error);
     }
     command.finish(deadline.remaining());
@@ -176,9 +176,8 @@ fn finish(
     });
 }
 fn empty() -> Outcome {
-    Outcome {
+    crate::status::finish([Status::Failed], crate::status::Parts {
         dropped: false,
-        status: Status::Failed,
         body: QueryBody::TrialCards(TrialCards {
             items: Box::default(),
             source_updated: None,
@@ -189,7 +188,7 @@ fn empty() -> Outcome {
         problems: Vec::new(),
         next: Vec::new(),
         local: None,
-    }
+    })
 }
 fn partial(snapshot: &Snapshot) -> bool {
     !snapshot.detail.problems.is_empty()

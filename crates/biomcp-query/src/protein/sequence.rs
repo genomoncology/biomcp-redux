@@ -51,13 +51,16 @@ pub(super) fn run(cx: &Ctx<'_>, q: &ProteinSequenceQuery) -> Outcome {
     let error = result.as_ref().err().copied();
     if let Ok(mapped) = result {
         out.problems = mapped.problems;
-        out.status = if mapped.value.is_some() {
-            Status::Complete
+        {
+        let (found, identity_failed, unavailable) = if mapped.value.is_some() {
+            (true, false, false)
         } else {
-            Status::Absent
+            (false, false, false)
         };
+        crate::status::item(&mut out, found, identity_failed, unavailable);
+    };
         if !out.problems.is_empty() {
-            out.status = Status::Failed;
+            crate::status::item(&mut out, false, true, false);
         }
         out.body = QueryBody::ProteinSequence(
             mapped
@@ -83,7 +86,7 @@ pub(super) fn run(cx: &Ctx<'_>, q: &ProteinSequenceQuery) -> Outcome {
         .iter()
         .any(|s| s.state == biomcp_types::SourceState::Stale)
     {
-        out.status = Status::Partial;
+        crate::status::item(&mut out, true, false, true);
     }
     out.local = error.and_then(status::local);
     command.finish(deadline.remaining());

@@ -19,9 +19,8 @@ pub fn download(cx: &Ctx<'_>, query: &ArticleSupplement, allow: bool) -> super::
     let mut save = super::save::State::new(allow);
     let command = cx.fetch.command_deadline(cx.budget);
     let mut deadline = command.deadline();
-    let mut out = Outcome {
+    let mut out = crate::status::finish([Status::Complete], crate::status::Parts {
         dropped: false,
-        status: Status::Complete,
         body: QueryBody::ArticleSupplement(ArticleSupplementResult {
             pmcid: None,
             content: Section::NotApplicable,
@@ -31,7 +30,7 @@ pub fn download(cx: &Ctx<'_>, query: &ArticleSupplement, allow: bool) -> super::
         problems: Vec::new(),
         next: Vec::new(),
         local: None,
-    };
+    });
     let Ok(selection) = super::protein_change::Selection::new(query.find(), query.variant()) else {
         out.body = QueryBody::TextPositionError;
         return super::save::Download { out, file: None };
@@ -40,7 +39,7 @@ pub fn download(cx: &Ctx<'_>, query: &ArticleSupplement, allow: bool) -> super::
     command.finish(deadline.remaining());
     if let Err(error) = result {
         out.local = out.local.or(status::local(error));
-        out.status = Status::Failed;
+        crate::status::item(&mut out, false, true, false);
         if let QueryBody::ArticleSupplement(body) = &mut out.body {
             body.content = Section::unavailable(
                 Source::PmcOa,
@@ -101,7 +100,7 @@ fn execute<'a>(
     *deadline = deadline.after_stage(started.saturating_sub(leg.remaining()));
     let source = status::source(Source::PmcOa, leg.finish(), result.as_ref().err().copied());
     if source.state == biomcp_types::SourceState::Stale {
-        out.status = Status::Partial;
+        crate::status::item(out, true, false, true);
     }
     out.sources.push(source);
     let content = result?;

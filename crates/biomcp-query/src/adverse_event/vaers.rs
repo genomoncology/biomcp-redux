@@ -87,14 +87,17 @@ fn read(
         (saved, snapshot)
     };
     out.sources = saved.1;
-    out.status = if out
+    {
+        let (found, identity_failed, unavailable) = if out
         .sources
         .iter()
         .any(|s| s.state == biomcp_types::SourceState::Stale)
     {
-        Status::Partial
+        (true, false, true)
     } else {
-        Status::Complete
+        (true, false, false)
+    };
+        crate::status::item(out, found, identity_failed, unavailable);
     };
     render(q, saved.0, snapshot, out);
     Ok(())

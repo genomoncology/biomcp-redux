@@ -95,15 +95,18 @@ fn apply(
 ) {
     source.count = Some(page.total);
     source.retrieved_count = Some(page.data.len() as u32);
-    out.status = if source.state == biomcp_types::SourceState::Stale
+    {
+        let (found, identity_failed, unavailable) = if source.state == biomcp_types::SourceState::Stale
         || out
             .sources
             .iter()
             .any(|s| s.state != biomcp_types::SourceState::Ok)
     {
-        Status::Partial
+        (true, false, true)
     } else {
-        Status::Complete
+        (true, false, false)
+    };
+        crate::status::item(out, found, identity_failed, unavailable);
     };
     let offset = q
         .next_page()

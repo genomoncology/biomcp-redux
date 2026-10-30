@@ -72,7 +72,7 @@ pub(super) fn load(
             });
         }
         let Some(report) = reply? else {
-            out.status = Status::Absent;
+            crate::status::item(out, false, false, false);
             return Ok(None);
         };
         let saved = (report, out.sources.clone());
@@ -82,14 +82,17 @@ pub(super) fn load(
         (saved, snapshot)
     };
     out.sources = saved.1;
-    out.status = if out
+    {
+        let (found, identity_failed, unavailable) = if out
         .sources
         .iter()
         .any(|s| s.state == biomcp_types::SourceState::Stale)
     {
-        Status::Partial
+        (true, false, true)
     } else {
-        Status::Complete
+        (true, false, false)
+    };
+        crate::status::item(out, found, identity_failed, unavailable);
     };
     Ok(Some((saved.0, snapshot)))
 }

@@ -92,9 +92,8 @@ pub(super) fn get(
         Status::Complete
     };
     let next = super::next(query, VariantResolution::Unresolved, &candidates, None);
-    Outcome {
+    crate::status::finish([status], crate::status::Parts {
         dropped: false,
-        status,
         body: QueryBody::VariantCard(VariantCard {
             resolution: VariantResolution::Unresolved,
             source,
@@ -111,5 +110,5 @@ pub(super) fn get(
             next
         },
         local,
-    }
+    })
 }

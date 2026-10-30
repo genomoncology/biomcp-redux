@@ -139,10 +139,13 @@ fn present(
         pool: Some(pool.info),
         truncated: None,
     });
-    out.status = if saved.source.state == SourceState::Stale {
-        Status::Partial
+    {
+        let (found, identity_failed, unavailable) = if saved.source.state == SourceState::Stale {
+        (true, false, true)
     } else {
-        Status::Complete
+        (true, false, false)
+    };
+        crate::status::item(out, found, identity_failed, unavailable);
     };
     if saved.key_needed && saved.source.reason == Some(Reason::RateLimited) {
         super::key_step(out);

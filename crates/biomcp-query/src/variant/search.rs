@@ -32,9 +32,8 @@ pub fn search(cx: &Ctx<'_>, query: &VariantSearch) -> Outcome {
     let selector_terms = selector_terms.ok().flatten();
     let error = reply.as_ref().err().copied();
     let source = status::source(spec.source, leg.finish(), error);
-    let mut out = Outcome {
+    let mut out = crate::status::finish([Status::Failed], crate::status::Parts {
         dropped: false,
-        status: Status::Failed,
         body: QueryBody::VariantPage(VariantPage {
             selector_terms: selector_terms.clone(),
             filter_terms: terms.clone(),
@@ -47,21 +46,24 @@ pub fn search(cx: &Ctx<'_>, query: &VariantSearch) -> Outcome {
         problems: Vec::new(),
         next: Vec::new(),
         local: error.and_then(status::local),
-    };
+    });
     if let Ok(reply) = reply {
-        out.status = if !reply.rows.problems.is_empty()
+        {
+        let (found, identity_failed, unavailable) = if !reply.rows.problems.is_empty()
             || reply.total > u64::from(VariantSearch::MAX_RESULTS)
             || out
                 .sources
                 .iter()
                 .any(|s| s.state == biomcp_types::SourceState::Stale)
         {
-            Status::Partial
+            (true, false, true)
         } else if reply.total == 0 {
-            Status::Absent
+            (false, false, false)
         } else {
-            Status::Complete
+            (true, false, false)
         };
+        crate::status::item(&mut out, found, identity_failed, unavailable);
+    };
         let returned = reply.rows.value.len() as u32;
         out.next = next(query, &reply.rows.value, reply.consumed, reply.total);
         out.page = Some(PageInfo {
@@ -129,16 +131,15 @@ fn component_terms(
     Ok(Some(myvariant::components::label(terms)?))
 }
 fn policy_error() -> Outcome {
-    Outcome {
+    crate::status::finish([Status::Failed], crate::status::Parts {
         dropped: false,
-        status: Status::Failed,
         body: QueryBody::VariantQueryPolicyError,
         page: None,
         sources: Vec::new(),
         problems: Vec::new(),
         next: Vec::new(),
         local: None,
-    }
+    })
 }
 fn next(
     query: &VariantSearch,

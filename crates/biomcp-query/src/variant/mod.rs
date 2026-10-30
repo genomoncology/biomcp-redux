@@ -80,9 +80,8 @@ pub fn get(cx: &Ctx<'_>, query: &VariantGet) -> Outcome {
     let mut next = next(query, resolution, &candidates, page.as_ref());
     next.extend(oncokb::next(query, &sources));
     next.extend(alphagenome::next(&sources));
-    let out = Outcome {
+    let out = crate::status::finish([overall(resolution, &problems, &sources)], crate::status::Parts {
         dropped: false,
-        status: overall(resolution, &problems, &sources),
         body: QueryBody::VariantCard(VariantCard {
             resolution,
             source: spec.source,
@@ -94,7 +93,7 @@ pub fn get(cx: &Ctx<'_>, query: &VariantGet) -> Outcome {
         problems,
         next,
         local,
-    };
+    });
     command.finish(deadline.remaining());
     out
 }

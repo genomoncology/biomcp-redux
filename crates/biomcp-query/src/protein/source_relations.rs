@@ -142,15 +142,18 @@ pub(super) fn read(
     let returned = limit.min(total.saturating_sub(offset.into()) as u32);
     saved.member_steps(q, offset, limit, &mut store, out)?;
     saved.render(q, offset, limit, out)?;
-    out.status = if !out.problems.is_empty()
+    {
+        let (found, identity_failed, unavailable) = if !out.problems.is_empty()
         || out
             .sources
             .iter()
             .any(|s| s.state != biomcp_types::SourceState::Ok)
     {
-        Status::Partial
+        (true, false, true)
     } else {
-        Status::Complete
+        (true, false, false)
+    };
+        crate::status::item(out, found, identity_failed, unavailable);
     };
     out.page = Some(PageInfo {
         offset,

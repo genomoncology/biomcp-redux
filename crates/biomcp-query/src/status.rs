@@ -5,7 +5,7 @@ use crate::Action;
 #[derive(Debug)]
 pub struct Outcome {
     /// Overall outcome.
-    pub status: Status,
+    status: Status,
     /// At least one native record was refused by its adapter.
     pub(crate) dropped: bool,
     /// Typed response body.
@@ -22,7 +22,39 @@ pub struct Outcome {
     pub local: Option<RequestError>,
 }
 
+/// Entity-owned response parts without authority to assign an outcome status.
+pub(crate) struct Parts {
+    pub body: QueryBody,
+    pub page: Option<PageInfo>,
+    pub sources: Vec<SourceOutcome>,
+    pub problems: Vec<Problem>,
+    pub next: Vec<(StepKind, Action)>,
+    pub local: Option<RequestError>,
+    pub dropped: bool,
+}
+
+/// Finish preclassified get items through the shared outcome owner.
+pub(crate) fn finish(items: impl IntoIterator<Item = Status>, parts: Parts) -> Outcome {
+    let mut out = Outcome {
+        status: status(items.into_iter()),
+        body: parts.body,
+        page: parts.page,
+        sources: parts.sources,
+        problems: parts.problems,
+        next: parts.next,
+        local: parts.local,
+        dropped: parts.dropped,
+    };
+    if out.status == Status::Complete {
+        item(&mut out, true, false, false);
+    }
+    out
+}
+
 impl Outcome {
+    /// The shared owner exposes status for readers only.
+    pub fn status(&self) -> Status { self.status }
+
     /// The query layer owns whether a failed typed response remains visible.
     pub fn body_visible(&self) -> bool {
         self.status != Status::Failed || match &self.body {

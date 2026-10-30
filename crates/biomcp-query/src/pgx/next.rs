@@ -30,7 +30,7 @@ pub(super) fn steps_with(
         &out.body,
         QueryBody::PgxGuidelines(_) | QueryBody::PgxAnnotations(_)
     );
-    if out.status == Status::Failed {
+    if out.status() == Status::Failed {
         if !diplotype(request) && out.sources.iter().any(|s| s.state != SourceState::Skipped) {
             next.push((
                 StepKind::Fresh,
@@ -87,7 +87,7 @@ pub(super) fn steps_with(
         }
         _ => {}
     }
-    if out.status == Status::Partial && !diplotype(request) {
+    if out.status() == Status::Partial && !diplotype(request) {
         next.push((
             StepKind::Fresh,
             Action::Run {

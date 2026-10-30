@@ -117,17 +117,20 @@ fn page(
     if returned > 0 && u64::from(next) < total {
         out.next.push((StepKind::Page, run(q.at_page(next, pool))));
     }
-    out.status = if saved
+    {
+        let (found, identity_failed, unavailable) = if saved
         .sources
         .iter()
         .any(|s| s.state == biomcp_types::SourceState::Stale)
         || !saved.problems.is_empty()
     {
-        Status::Partial
+        (true, false, true)
     } else if total == 0 {
-        Status::Absent
+        (false, false, false)
     } else {
-        Status::Complete
+        (true, false, false)
+    };
+        crate::status::item(out, found, identity_failed, unavailable);
     };
     out.page = Some(biomcp_types::PageInfo {
         offset: q.offset(),
@@ -141,9 +144,8 @@ fn page(
     out.body = QueryBody::OrganizationPage(OrganizationPage { items });
 }
 fn empty() -> Outcome {
-    Outcome {
+    crate::status::finish([Status::Failed], crate::status::Parts {
         dropped: false,
-        status: Status::Failed,
         body: QueryBody::OrganizationPage(OrganizationPage {
             items: Box::default(),
         }),
@@ -152,7 +154,7 @@ fn empty() -> Outcome {
         problems: Vec::new(),
         next: Vec::new(),
         local: None,
-    }
+    })
 }
 fn run(q: OrganizationSearch) -> Action {
     Action::Run {
