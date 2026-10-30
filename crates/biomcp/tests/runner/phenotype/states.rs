@@ -195,8 +195,9 @@ fn dropped() -> Result<(), String> {
         Ok(json!({"limit":5,"offset":0,"total":2,"items":[super::node(),rejected]}).to_string())
     })?;
     let env = setup(&stub)?;
+    // Reuse the existing two-row search ceiling for this one-row refusal reply.
     let reply = invoke(
-        "states/dropped",
+        "mod/search/invoke1",
         &env,
         &["search", "phenotype", "synthetic"],
         0,
