@@ -192,7 +192,8 @@ fn only_trailing_words_select_implicit_sections() -> Check {
     }
     assert_eq!(
         inventory.calls.get("section get trial eligibility"),
-        Some(&0)
+        Some(&0),
+        "only the grammar's trailing suffix can select implicit sections"
     );
     inventory.step(&step(&[
         "get",
@@ -202,7 +203,8 @@ fn only_trailing_words_select_implicit_sections() -> Check {
     ])?);
     assert_eq!(
         inventory.calls.get("section get trial eligibility"),
-        Some(&1)
+        Some(&1),
+        "an explicit section must still earn coverage"
     );
     Ok(())
 }
@@ -214,7 +216,11 @@ fn explicit_equals_refusal_counts() -> Check {
         "expect":{"/error/code":{"equals":"usage.arguments"}}
     }))?;
     inventory.step(&refusal);
-    assert_eq!(inventory.calls.get("refusal get trial"), Some(&1));
+    assert_eq!(
+        inventory.calls.get("refusal get trial"),
+        Some(&1),
+        "explicit equality must count the same refusal as a scalar assertion"
+    );
     Ok(())
 }
 
