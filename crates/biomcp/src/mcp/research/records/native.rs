@@ -9,8 +9,8 @@ fn source(row: &Value, envelope: &Value) -> Option<Source> {
         row,
         &[
             "/source",
-            "/id/source",
-            "/pathway/id/source",
+            "/id/namespace",
+            "/pathway/id/namespace",
             "/attribution/source",
             "/term/source",
         ],

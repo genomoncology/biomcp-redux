@@ -21,8 +21,8 @@ fn identities_preserve_native_namespaces_and_refuse_foreign_species() {
         assert!(serde_json::from_value::<WikiPathwaysId>(json!(id)).is_err());
     }
     for id in [
-        json!({"source":"reactome","id":"R-HSA-5673001"}),
-        json!({"source":"wikipathways","id":"WP382"}),
+        json!({"namespace":"reactome","id":"R-HSA-5673001"}),
+        json!({"namespace":"wikipathways","id":"WP382"}),
     ] {
         assert_eq!(
             roundtrip::<PathwayId>(id.clone()).expect("public round-trip"),
@@ -30,9 +30,10 @@ fn identities_preserve_native_namespaces_and_refuse_foreign_species() {
         );
     }
     for id in [
-        json!({"source":"reactome","id":"R-MMU-5673001"}),
-        json!({"source":"reactome","id":"R-HSA-5673001.12"}),
-        json!({"source":"kegg","id":"hsa04010"}),
+        json!({"source":"reactome","id":"R-HSA-5673001"}),
+        json!({"namespace":"reactome","id":"R-MMU-5673001"}),
+        json!({"namespace":"reactome","id":"R-HSA-5673001.12"}),
+        json!({"namespace":"kegg","id":"hsa04010"}),
     ] {
         assert!(serde_json::from_value::<PathwayId>(id).is_err());
     }
@@ -160,7 +161,7 @@ fn source_owned_sections_and_continuations_refuse_unavailable_relations() {
 
 #[test]
 fn neutral_records_keep_absence_membership_and_unresolved_event_identity() {
-    let base = json!({"id":{"source":"reactome","id":"R-HSA-5673001"},"name":"RAF/MAP kinase cascade","species":"Homo sapiens","version":"R-HSA-5673001.12"});
+    let base = json!({"id":{"namespace":"reactome","id":"R-HSA-5673001"},"name":"RAF/MAP kinase cascade","species":"Homo sapiens","version":"R-HSA-5673001.12"});
     assert_eq!(
         roundtrip::<Pathway>(base.clone()).expect("public round-trip"),
         base
@@ -219,7 +220,7 @@ fn neutral_records_keep_absence_membership_and_unresolved_event_identity() {
 #[test]
 fn native_short_page_keeps_total_scope_and_next_position() {
     let page = json!(
-        {"items":[{"id":{"source":"reactome","id":"R-HSA-5673001"},"name":"RAF/MAP kinase cascade","species":"Homo sapiens"}],
+        {"items":[{"id":{"namespace":"reactome","id":"R-HSA-5673001"},"name":"RAF/MAP kinase cascade","species":"Homo sapiens"}],
         "page":{"offset":0,"returned":1,"total":917,"total_kind":"source","next_offset":5}}
     );
     assert_eq!(
@@ -227,7 +228,7 @@ fn native_short_page_keeps_total_scope_and_next_position() {
         page
     );
     let page = json!(
-        {"header":{"id":{"source":"reactome","id":"R-HSA-5673001"},"name":"RAF/MAP kinase cascade","species":"Homo sapiens"},
+        {"header":{"id":{"namespace":"reactome","id":"R-HSA-5673001"},"name":"RAF/MAP kinase cascade","species":"Homo sapiens"},
         "items":[{"kind":"database","db_id":{"namespace":"Reactome","id":5668599}}],"page":{"offset":5,
         "returned":1,"total":81,"total_kind":"observed","next_offset":10}}
     );
@@ -269,7 +270,7 @@ fn legacy_gene_reference_keeps_its_wire_shape_and_checked_identity() {
 fn source_summation_multiplicity_and_pathway_citations_stay_independent() {
     // Minimal source-field projection; text/title and the second summation are synthetic controls.
     let pathway = json!(
-        {"id":{"source":"reactome","id":"R-HSA-5673001"},"name":"RAF/MAP kinase cascade","species":"Homo sapiens",
+        {"id":{"namespace":"reactome","id":"R-HSA-5673001"},"name":"RAF/MAP kinase cascade","species":"Homo sapiens",
         "summations":[{"db_id":{"namespace":"Reactome","id":5683030},"text":"Complete retained source text."},
         {"db_id":{"namespace":"Reactome","id":5683031},"text":"Second source summation."}],
         "references":[{"db_id":{"namespace":"Reactome","id":5672144},"pubmed":"24937142","title":"Native reference"},
@@ -280,7 +281,7 @@ fn source_summation_multiplicity_and_pathway_citations_stay_independent() {
         pathway
     );
     let wiki = json!(
-        {"id":{"source":"wikipathways","id":"WP382"},"name":"MAPK signaling pathway","species":"Homo sapiens","revision":"2025-08-29",
+        {"id":{"namespace":"wikipathways","id":"WP382"},"name":"MAPK signaling pathway","species":"Homo sapiens","revision":"2025-08-29",
         "description":"Native catalog excerpt ...","cited_in":""}
     );
     assert_eq!(
@@ -292,7 +293,7 @@ fn source_summation_multiplicity_and_pathway_citations_stay_independent() {
 #[test]
 fn all_card_retains_each_requested_relation_state_without_inventing_rows() {
     let card = json!(
-        {"pathway":{"id":{"source":"reactome","id":"R-HSA-5673001"},"name":"RAF/MAP kinase cascade","species":"Homo sapiens"},
+        {"pathway":{"id":{"namespace":"reactome","id":"R-HSA-5673001"},"name":"RAF/MAP kinase cascade","species":"Homo sapiens"},
         "sections":["summary","genes","events","all"],"genes":{"state":"empty","source":"reactome"},"events":{"state":"not-applicable"}}
     );
     assert_eq!(

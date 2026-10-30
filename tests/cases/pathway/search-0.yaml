@@ -19,23 +19,23 @@
         "/query/query": "Signaling by BRAF",
         "/result/items/*/id": [
           {
-            "source": "reactome",
+            "namespace": "reactome",
             "id": "R-HSA-6802952"
           },
           {
-            "source": "reactome",
+            "namespace": "reactome",
             "id": "R-HSA-6802948"
           },
           {
-            "source": "reactome",
+            "namespace": "reactome",
             "id": "R-HSA-6802946"
           },
           {
-            "source": "reactome",
+            "namespace": "reactome",
             "id": "R-HSA-6802955"
           },
           {
-            "source": "reactome",
+            "namespace": "reactome",
             "id": "R-HSA-2028269"
           }
         ],
@@ -59,23 +59,23 @@
         "/query/query": "Signaling by EGFR",
         "/result/items/*/id": [
           {
-            "source": "reactome",
+            "namespace": "reactome",
             "id": "R-HSA-177929"
           },
           {
-            "source": "reactome",
+            "namespace": "reactome",
             "id": "R-HSA-1643713"
           },
           {
-            "source": "reactome",
+            "namespace": "reactome",
             "id": "R-HSA-5638303"
           },
           {
-            "source": "reactome",
+            "namespace": "reactome",
             "id": "R-HSA-179812"
           },
           {
-            "source": "reactome",
+            "namespace": "reactome",
             "id": "R-HSA-180336"
           }
         ],
@@ -99,23 +99,23 @@
         "/query/query": "Signaling by ERBB2",
         "/result/items/*/id": [
           {
-            "source": "reactome",
+            "namespace": "reactome",
             "id": "R-HSA-1227986"
           },
           {
-            "source": "reactome",
+            "namespace": "reactome",
             "id": "R-HSA-1227990"
           },
           {
-            "source": "reactome",
+            "namespace": "reactome",
             "id": "R-HSA-8863795"
           },
           {
-            "source": "reactome",
+            "namespace": "reactome",
             "id": "R-HSA-8847993"
           },
           {
-            "source": "reactome",
+            "namespace": "reactome",
             "id": "R-HSA-9664565"
           }
         ],
@@ -139,23 +139,23 @@
         "/query/query": "Signaling by KRAS",
         "/result/items/*/id": [
           {
-            "source": "reactome",
+            "namespace": "reactome",
             "id": "R-HSA-2028269"
           },
           {
-            "source": "reactome",
+            "namespace": "reactome",
             "id": "R-HSA-449147"
           },
           {
-            "source": "reactome",
+            "namespace": "reactome",
             "id": "R-HSA-5654738"
           },
           {
-            "source": "reactome",
+            "namespace": "reactome",
             "id": "R-HSA-5654736"
           },
           {
-            "source": "reactome",
+            "namespace": "reactome",
             "id": "R-HSA-5654741"
           }
         ],
@@ -179,23 +179,23 @@
         "/query/query": "Signaling by PI3K",
         "/result/items/*/id": [
           {
-            "source": "reactome",
+            "namespace": "reactome",
             "id": "R-HSA-1963642"
           },
           {
-            "source": "reactome",
+            "namespace": "reactome",
             "id": "R-HSA-1250342"
           },
           {
-            "source": "reactome",
+            "namespace": "reactome",
             "id": "R-HSA-2219530"
           },
           {
-            "source": "reactome",
+            "namespace": "reactome",
             "id": "R-HSA-109704"
           },
           {
-            "source": "reactome",
+            "namespace": "reactome",
             "id": "R-HSA-2028269"
           }
         ],
@@ -219,23 +219,23 @@
         "/query/query": "Signaling by ALK",
         "/result/items/*/id": [
           {
-            "source": "reactome",
+            "namespace": "reactome",
             "id": "R-HSA-201556"
           },
           {
-            "source": "reactome",
+            "namespace": "reactome",
             "id": "R-HSA-9700206"
           },
           {
-            "source": "reactome",
+            "namespace": "reactome",
             "id": "R-HSA-9851151"
           },
           {
-            "source": "reactome",
+            "namespace": "reactome",
             "id": "R-HSA-9725371"
           },
           {
-            "source": "reactome",
+            "namespace": "reactome",
             "id": "R-HSA-9725370"
           }
         ],
@@ -259,23 +259,23 @@
         "/query/query": "Signaling by NTRK1",
         "/result/items/*/id": [
           {
-            "source": "reactome",
+            "namespace": "reactome",
             "id": "R-HSA-187037"
           },
           {
-            "source": "reactome",
+            "namespace": "reactome",
             "id": "R-HSA-2028269"
           },
           {
-            "source": "reactome",
+            "namespace": "reactome",
             "id": "R-HSA-166520"
           },
           {
-            "source": "reactome",
+            "namespace": "reactome",
             "id": "R-HSA-449147"
           },
           {
-            "source": "reactome",
+            "namespace": "reactome",
             "id": "R-HSA-5654738"
           }
         ],
@@ -299,23 +299,23 @@
         "/query/query": "DNA Repair",
         "/result/items/*/id": [
           {
-            "source": "reactome",
+            "namespace": "reactome",
             "id": "R-HSA-73894"
           },
           {
-            "source": "reactome",
+            "namespace": "reactome",
             "id": "R-HSA-9675135"
           },
           {
-            "source": "reactome",
+            "namespace": "reactome",
             "id": "R-HSA-5693532"
           },
           {
-            "source": "reactome",
+            "namespace": "reactome",
             "id": "R-HSA-9675136"
           },
           {
-            "source": "reactome",
+            "namespace": "reactome",
             "id": "R-HSA-5358508"
           }
         ],

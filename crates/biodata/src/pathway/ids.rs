@@ -91,7 +91,7 @@ text_value!(
 );
 /// Source-owned pathway identity; equal names never merge sources.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
-#[serde(tag = "source", content = "id", rename_all = "lowercase")]
+#[serde(tag = "namespace", content = "id", rename_all = "lowercase")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 #[cfg_attr(feature = "schema", schemars(extend("x-identifier" = true)))]
 pub enum PathwayId {

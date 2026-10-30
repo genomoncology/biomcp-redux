@@ -122,7 +122,7 @@ fn partial() -> Check {
         .and_then(Value::as_array)
         .ok_or("sources")?;
     if value.get("status") != Some(&json!("partial"))
-        || value.pointer("/result/items/0/id/source") != Some(&json!("wikipathways"))
+        || value.pointer("/result/items/0/id/namespace") != Some(&json!("wikipathways"))
         || !sources.iter().any(|v| {
             v.get("source") == Some(&json!("reactome")) && v.get("state") == Some(&json!("failed"))
         })

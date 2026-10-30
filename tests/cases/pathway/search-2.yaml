@@ -19,23 +19,23 @@
         "/query/query": "Signaling by JAK-STAT",
         "/result/items/*/id": [
           {
-            "source": "reactome",
+            "namespace": "reactome",
             "id": "R-HSA-8950505"
           },
           {
-            "source": "reactome",
+            "namespace": "reactome",
             "id": "R-HSA-913531"
           },
           {
-            "source": "reactome",
+            "namespace": "reactome",
             "id": "R-HSA-2028269"
           },
           {
-            "source": "reactome",
+            "namespace": "reactome",
             "id": "R-HSA-449147"
           },
           {
-            "source": "reactome",
+            "namespace": "reactome",
             "id": "R-HSA-5654738"
           }
         ],
@@ -59,23 +59,23 @@
         "/query/query": "Autophagy",
         "/result/items/*/id": [
           {
-            "source": "reactome",
+            "namespace": "reactome",
             "id": "R-HSA-9612973"
           },
           {
-            "source": "reactome",
+            "namespace": "reactome",
             "id": "R-HSA-9636569"
           },
           {
-            "source": "reactome",
+            "namespace": "reactome",
             "id": "R-HSA-9663891"
           },
           {
-            "source": "reactome",
+            "namespace": "reactome",
             "id": "R-HSA-9613829"
           },
           {
-            "source": "reactome",
+            "namespace": "reactome",
             "id": "R-HSA-9754560"
           }
         ],
@@ -99,23 +99,23 @@
         "/query/query": "Insulin receptor signalling cascade",
         "/result/items/*/id": [
           {
-            "source": "reactome",
+            "namespace": "reactome",
             "id": "R-HSA-74751"
           },
           {
-            "source": "reactome",
+            "namespace": "reactome",
             "id": "R-HSA-74752"
           },
           {
-            "source": "reactome",
+            "namespace": "reactome",
             "id": "R-HSA-77387"
           },
           {
-            "source": "reactome",
+            "namespace": "reactome",
             "id": "R-HSA-8937144"
           },
           {
-            "source": "reactome",
+            "namespace": "reactome",
             "id": "R-HSA-168188"
           }
         ],
@@ -139,23 +139,23 @@
         "/query/query": "Hemostasis",
         "/result/items/*/id": [
           {
-            "source": "reactome",
+            "namespace": "reactome",
             "id": "R-HSA-109582"
           },
           {
-            "source": "reactome",
+            "namespace": "reactome",
             "id": "R-HSA-9671793"
           },
           {
-            "source": "reactome",
+            "namespace": "reactome",
             "id": "R-HSA-418346"
           },
           {
-            "source": "reactome",
+            "namespace": "reactome",
             "id": "R-HSA-9769743"
           },
           {
-            "source": "reactome",
+            "namespace": "reactome",
             "id": "R-HSA-202733"
           }
         ],
@@ -179,23 +179,23 @@
         "/query/query": "Interferon Signaling",
         "/result/items/*/id": [
           {
-            "source": "reactome",
+            "namespace": "reactome",
             "id": "R-HSA-913531"
           },
           {
-            "source": "reactome",
+            "namespace": "reactome",
             "id": "R-HSA-877300"
           },
           {
-            "source": "reactome",
+            "namespace": "reactome",
             "id": "R-HSA-909733"
           },
           {
-            "source": "reactome",
+            "namespace": "reactome",
             "id": "R-HSA-168305"
           },
           {
-            "source": "reactome",
+            "namespace": "reactome",
             "id": "R-HSA-9833109"
           }
         ],
@@ -219,23 +219,23 @@
         "/query/query": "Metabolism",
         "/result/items/*/id": [
           {
-            "source": "reactome",
+            "namespace": "reactome",
             "id": "R-HSA-1430728"
           },
           {
-            "source": "reactome",
+            "namespace": "reactome",
             "id": "R-HSA-15869"
           },
           {
-            "source": "reactome",
+            "namespace": "reactome",
             "id": "R-HSA-189445"
           },
           {
-            "source": "reactome",
+            "namespace": "reactome",
             "id": "R-HSA-380612"
           },
           {
-            "source": "reactome",
+            "namespace": "reactome",
             "id": "R-HSA-5668914"
           }
         ],
