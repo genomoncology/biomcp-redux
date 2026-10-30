@@ -54,35 +54,7 @@ fn admission(fault: &str, measure: bool) -> Result<(), String> {
             json!(if fresh { "complete" } else { "partial" }),
         )?;
         path(&value, "/result/accession", json!("CVCL_2119"))?;
-        if value
-            .pointer("/result/items/items")
-            .and_then(Value::as_array)
-            .is_none_or(|rows| rows.len() != 2)
-        {
-            return Err(format!(
-                "optional nested field removed native variant rows: {value}"
-            ));
-        }
-        let field = if fault == "xref" {
-            "xref-list"
-        } else {
-            "sequence-variation-list.source-list.reference.resource-internal-ref"
-        };
-        let problem = value
-            .get("problems")
-            .and_then(Value::as_array)
-            .is_some_and(|rows| {
-                rows.iter().any(|p| {
-                    p.get("field")
-                        .and_then(Value::as_str)
-                        .is_some_and(|f| f.contains(field))
-                })
-            });
-        if problem == fresh {
-            return Err(format!(
-                "optional nested field changed precise refusal or fresh repair: {value}"
-            ));
-        }
+        optional_variants(&value, fault, fresh)?;
     }
     let requests = stub.finish()?;
     if requests
@@ -95,6 +67,39 @@ fn admission(fault: &str, measure: bool) -> Result<(), String> {
     }
     Ok(())
 }
+fn optional_variants(value: &Value, fault: &str, fresh: bool) -> Result<(), String> {
+    if value
+        .pointer("/result/items/items")
+        .and_then(Value::as_array)
+        .is_none_or(|rows| rows.len() != 2)
+    {
+        return Err(format!(
+            "optional nested field removed native variant rows: {value}"
+        ));
+    }
+    let field = if fault == "xref" {
+        "xref-list"
+    } else {
+        "sequence-variation-list.source-list.reference.resource-internal-ref"
+    };
+    let problem = value
+        .get("problems")
+        .and_then(Value::as_array)
+        .is_some_and(|rows| {
+            rows.iter().any(|p| {
+                p.get("field")
+                    .and_then(Value::as_str)
+                    .is_some_and(|f| f.contains(field))
+            })
+        });
+    if problem == fresh {
+        return Err(format!(
+            "optional nested field changed precise refusal or fresh repair: {value}"
+        ));
+    }
+    Ok(())
+}
+
 fn disabled(measure: bool) -> Result<(), String> {
     let stub = recorded_stub()?;
     let env = setup(&stub)?;
