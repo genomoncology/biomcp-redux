@@ -5,13 +5,12 @@ use crate::{Ctx, Outcome, status};
 use biomcp_adapters::{pdf, semantic_scholar};
 use biomcp_fetch::{Deadline, RequestError};
 use biomcp_types::{
-    ArticlePdf, ArticlePdfResult, PdfLink, QueryBody, Reason, Section, Source, Status,
-};
+    ArticlePdf, ArticlePdfResult, PdfLink, QueryBody, Reason, Section, Source, };
 /// Download only when the caller supplied a path and the interface permits local writes.
 pub fn download(cx: &Ctx<'_>, query: &ArticlePdf, allow_save: bool) -> Download {
     let command = cx.fetch.command_deadline(cx.budget);
     let mut deadline = command.deadline();
-    let mut out = crate::status::finish([Status::Complete], crate::status::Parts {
+    let mut out = crate::status::finish([crate::status::item_status(true, false, false)], crate::status::Parts {
         dropped: false,
         body: QueryBody::ArticlePdf(ArticlePdfResult {
             file: Section::NotApplicable,

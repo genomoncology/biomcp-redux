@@ -6,7 +6,7 @@ use biomcp_adapters::semantic_scholar::{self, author};
 use biomcp_fetch::{Deadline, RequestError, SourceError};
 use biomcp_types::{
     ArticleGet, ArticleInput, AuthorPaperDetails, AuthorPapers, AuthorPapersQuery, PageInfo,
-    QueryBody, Reason, Request, Source, SourceState, Status, StepKind,
+    QueryBody, Reason, Request, Source, SourceState, StepKind,
 };
 /// Read one exact author's native paper page and retain checked continuation state.
 pub(super) fn papers(cx: &Ctx<'_>, q: &AuthorPapersQuery) -> Outcome {

@@ -5,7 +5,7 @@ use biomcp_adapters::{complex_portal, interpro};
 use biomcp_fetch::{CacheError, Deadline, RequestError, SourceError};
 use biomcp_types::{
     PageInfo, ProteinComplexMembersQuery, ProteinDomainsQuery, ProteinRelationQuery, QueryBody,
-    Request, Source, Status, StepKind,
+    Request, Source, StepKind,
 };
 use sha2::{Digest, Sha256};
 mod saved;

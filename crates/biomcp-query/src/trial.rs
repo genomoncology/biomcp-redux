@@ -154,7 +154,7 @@ fn apply_page(
     }
 }
 fn empty() -> Outcome {
-    crate::status::finish([Status::Failed], crate::status::Parts {
+    crate::status::finish([crate::status::item_status(false, true, false)], crate::status::Parts {
         dropped: false,
         body: QueryBody::TrialPage(TrialPage {
             items: Box::default(),

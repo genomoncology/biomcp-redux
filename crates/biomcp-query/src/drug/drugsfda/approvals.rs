@@ -3,7 +3,7 @@ use biomcp_adapters::{drugsfda as source, received_date};
 use biomcp_fetch::RequestError;
 use biomcp_types::{
     DrugApprovals, DrugGet, DrugRecords, PageInfo, QueryBody, Reason, Request, Section, Source,
-    Status, StepKind,
+    StepKind,
 };
 pub(super) fn select(
     cx: &Ctx<'_>,

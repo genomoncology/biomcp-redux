@@ -2,7 +2,7 @@ use super::{empty, order, page};
 use crate::{Action, Ctx, Outcome, store::Store};
 use biodata::Text;
 use biomcp_fetch::{CacheError, Deadline, RequestError};
-use biomcp_types::{ArticleEdges, ArticleItem, ArticleKey, QueryBody, Request, Status, StepKind};
+use biomcp_types::{ArticleEdges, ArticleItem, ArticleKey, QueryBody, Request, StepKind};
 use sha2::{Digest, Sha256};
 pub(super) fn run(cx: &Ctx<'_>, query: &ArticleEdges, references: bool) -> Outcome {
     let mut out = empty();

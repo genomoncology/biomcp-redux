@@ -4,8 +4,7 @@ use biodata::Text;
 use biomcp_adapters::vaers;
 use biomcp_fetch::{CacheError, Deadline, RequestError};
 use biomcp_types::{
-    AdverseEventSearch, PageInfo, QueryBody, Reason, Request, Source, SourceOutcome, Status,
-    StepKind, VaersSection, VaersSummary,
+    AdverseEventSearch, PageInfo, QueryBody, Reason, Request, Source, SourceOutcome, StepKind, VaersSection, VaersSummary,
 };
 use sha2::{Digest, Sha256};
 type Saved = (VaersSummary, Vec<SourceOutcome>);

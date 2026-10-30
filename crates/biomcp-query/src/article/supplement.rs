@@ -7,7 +7,7 @@ use biomcp_fetch::{Deadline, RequestError, SourceError};
 use biomcp_types::ArticleInput;
 use biomcp_types::{
     ArticleSupplement, ArticleSupplementResult, QueryBody, Reason, Request, Section, Source,
-    Status, StepKind, SupplementContent,
+    StepKind, SupplementContent,
 };
 use sha2::{Digest, Sha256};
 /// Read only a file named by both JATS and its owning bucket record.
@@ -19,7 +19,7 @@ pub fn download(cx: &Ctx<'_>, query: &ArticleSupplement, allow: bool) -> super::
     let mut save = super::save::State::new(allow);
     let command = cx.fetch.command_deadline(cx.budget);
     let mut deadline = command.deadline();
-    let mut out = crate::status::finish([Status::Complete], crate::status::Parts {
+    let mut out = crate::status::finish([crate::status::item_status(true, false, false)], crate::status::Parts {
         dropped: false,
         body: QueryBody::ArticleSupplement(ArticleSupplementResult {
             pmcid: None,

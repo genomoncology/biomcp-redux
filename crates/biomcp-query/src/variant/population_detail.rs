@@ -4,7 +4,7 @@ use biodata::PopulationDataType;
 use biomcp_adapters::gnomad;
 use biomcp_fetch::RequestError;
 use biomcp_types::{
-    GnomadCounts, PageInfo, QueryBody, Reason, Request, Section, Source, Status, StepKind,
+    GnomadCounts, PageInfo, QueryBody, Reason, Request, Section, Source, StepKind,
     VariantPopulationQuery, VariantPopulationResult,
 };
 
@@ -39,13 +39,13 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &VariantPopulationQuery) -> Outcome {
     }
     next.extend(choices(query, &read.candidates));
     let status = match &read.population {
-        Section::Data { .. } if read.problems.is_empty() => Status::Complete,
-        Section::Data { .. } => Status::Partial,
-        _ if read.candidates.len() > 1 && read.problems.is_empty() => Status::Complete,
-        _ if read.candidates.len() > 1 => Status::Partial,
-        Section::Empty { .. } if !read.problems.is_empty() => Status::Partial,
-        Section::Empty { .. } => Status::Absent,
-        _ => Status::Failed,
+        Section::Data { .. } if read.problems.is_empty() => crate::status::item_status(true, false, false),
+        Section::Data { .. } => crate::status::item_status(true, false, true),
+        _ if read.candidates.len() > 1 && read.problems.is_empty() => crate::status::item_status(true, false, false),
+        _ if read.candidates.len() > 1 => crate::status::item_status(true, false, true),
+        Section::Empty { .. } if !read.problems.is_empty() => crate::status::item_status(true, false, true),
+        Section::Empty { .. } => crate::status::item_status(false, false, false),
+        _ => crate::status::item_status(false, true, false),
     };
     let out = crate::status::finish([status], crate::status::Parts {
         dropped: false,

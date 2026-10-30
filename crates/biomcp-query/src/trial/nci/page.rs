@@ -4,7 +4,7 @@ use crate::{Action, Outcome};
 use biodata::Text;
 use biomcp_fetch::RequestError;
 use biomcp_types::{
-    NciEligibilityPage, NciTrialItem, NciTrialSections, Request, Section, Source, Status, StepKind,
+    NciEligibilityPage, NciTrialItem, NciTrialSections, Request, Section, Source, StepKind,
     TrialGet, TrialSection, TrialSource,
 };
 const SECTIONS: [TrialSection; 5] = [
@@ -103,9 +103,9 @@ pub(super) fn render(
                 biomcp_types::SourceState::Stale | biomcp_types::SourceState::Failed
             )
         }) {
-        Status::Partial
+        crate::status::item_status(true, false, true)
     } else {
-        Status::Complete
+        crate::status::item_status(true, false, false)
     };
     Ok(NciTrialItem {
         input: id,

@@ -8,7 +8,7 @@ mod sections;
 use crate::{Action, Ctx, Outcome, status};
 use biomcp_adapters::cellosaurus;
 use biomcp_types::{
-    CellLineGet, CellLinePage, CellLineSearch, QueryBody, Request, Source, Status, StepKind,
+    CellLineGet, CellLinePage, CellLineSearch, QueryBody, Request, Source, StepKind,
 };
 /// One native window, with no fabricated total or extra-page fetch.
 pub fn search(cx: &Ctx<'_>, query: &CellLineSearch) -> Outcome {

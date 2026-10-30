@@ -3,7 +3,7 @@ use crate::{Ctx, Outcome};
 use biodata::Variant;
 use biomcp_fetch::Deadline;
 use biomcp_types::{
-    QueryBody, Source, Status, VariantCard, VariantGet, VariantHeader, VariantNamespace,
+    QueryBody, Source, VariantCard, VariantGet, VariantHeader, VariantNamespace,
     VariantResolution, VariantSection,
 };
 pub(super) fn source(cx: &Ctx<'_>, query: &VariantGet) -> Option<Source> {
@@ -79,7 +79,7 @@ pub(super) fn get(
             .iter()
             .all(|s| s.state == biomcp_types::SourceState::Failed)
     {
-        Status::Failed
+        crate::status::item_status(false, true, false)
     } else if sources.iter().any(|s| {
         matches!(
             s.state,
@@ -87,9 +87,9 @@ pub(super) fn get(
         )
     }) || !problems.is_empty()
     {
-        Status::Partial
+        crate::status::item_status(true, false, true)
     } else {
-        Status::Complete
+        crate::status::item_status(true, false, false)
     };
     let next = super::next(query, VariantResolution::Unresolved, &candidates, None);
     crate::status::finish([status], crate::status::Parts {

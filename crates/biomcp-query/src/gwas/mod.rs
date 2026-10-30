@@ -91,7 +91,7 @@ pub fn search(cx: &Ctx<'_>, q: &GwasSearch) -> Outcome {
 }
 
 fn empty() -> Outcome {
-    crate::status::finish([Status::Failed], crate::status::Parts {
+    crate::status::finish([crate::status::item_status(false, true, false)], crate::status::Parts {
         dropped: false,
         body: QueryBody::GwasPage(None),
         page: None,

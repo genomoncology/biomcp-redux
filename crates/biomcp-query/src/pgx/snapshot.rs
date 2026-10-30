@@ -4,7 +4,7 @@ use biomcp_adapters::clinpgx;
 use biomcp_fetch::{CacheError, Deadline, RequestError, SourceError};
 use biomcp_types::{
     PgxAnnotationKind, PgxAnnotations, PgxGet, QueryBody, Reason, Request, Source, SourceOutcome,
-    SourceState, Status, StepKind,
+    SourceState, StepKind,
 };
 use sha2::{Digest, Sha256};
 type Saved = (

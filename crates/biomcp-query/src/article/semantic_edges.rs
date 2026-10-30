@@ -3,7 +3,7 @@ use crate::{Action, Ctx, Outcome, status};
 
 use biomcp_adapters::semantic_scholar;
 use biomcp_fetch::{Deadline, RequestError, SourceError};
-use biomcp_types::{ArticleEdges, ArticleItem, Reason, Source, Status, StepKind};
+use biomcp_types::{ArticleEdges, ArticleItem, Reason, Source, StepKind};
 pub(super) fn create<'a>(
     cx: &Ctx<'a>,
     query: &ArticleEdges,

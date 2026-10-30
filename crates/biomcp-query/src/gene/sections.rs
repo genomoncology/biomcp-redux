@@ -13,8 +13,7 @@ use biomcp_fetch::{Deadline, RequestError};
 use biomcp_types::GeneResolution;
 use biomcp_types::{
     GeneGet, GeneItem, GeneSection, GeneSectionWord, GeneSections, Problem, Section, SourceOutcome,
-    SourceState, Status,
-};
+    SourceState, };
 pub(super) struct SectionResult {
     pub values: Vec<(HgncId, SectionValue)>,
     pub source: SourceOutcome,
@@ -277,7 +276,7 @@ impl SectionValue {
         if let Self::Oncokb(_, card, partial) = self {
             item.oncokb = card.clone();
             if *partial {
-                item.status = Status::Partial;
+                item.status = crate::status::item_status(true, false, true);
             }
         }
         if let Some(sections) = &mut item.sections {
@@ -314,7 +313,7 @@ pub(super) fn join(items: &mut [GeneItem], result: &SectionResult) {
                     .iter()
                     .any(|problem| value.problem_matches(gene, problem)))
         {
-            item.status = Status::Partial;
+            item.status = crate::status::item_status(true, false, true);
         }
         value.apply(item);
     }

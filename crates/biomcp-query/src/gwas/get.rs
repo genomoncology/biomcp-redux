@@ -13,7 +13,7 @@ use biomcp_types::{
 };
 /// Read only the explicitly selected source resource.
 pub fn get(cx: &Ctx<'_>, q: &GwasGet) -> Outcome {
-    let mut out = crate::status::finish([Status::Failed], crate::status::Parts {
+    let mut out = crate::status::finish([crate::status::item_status(false, true, false)], crate::status::Parts {
         dropped: false,
         body: empty(q),
         page: None,

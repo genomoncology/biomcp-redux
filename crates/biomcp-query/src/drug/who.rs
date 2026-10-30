@@ -3,8 +3,7 @@ use super::empty;
 use crate::{Action, Bundle, Ctx, Outcome, status};
 use biomcp_adapters::who_pq;
 use biomcp_types::{
-    DrugSearch, DrugWhoGet, DrugWhoPage, PageInfo, QueryBody, Request, Source, SourceState, Status,
-    StepKind,
+    DrugSearch, DrugWhoGet, DrugWhoPage, PageInfo, QueryBody, Request, Source, SourceState, StepKind,
 };
 pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     let mut out = empty(QueryBody::DrugWhoPage(DrugWhoPage {
@@ -88,15 +87,7 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &DrugWhoGet) -> Outcome {
     command.finish(deadline.remaining());
     out
 }
-fn found(found: bool, out: &Outcome) -> Status {
-    if !found {
-        Status::Absent
-    } else if out.sources.iter().any(|s| s.state == SourceState::Stale) {
-        Status::Partial
-    } else {
-        Status::Complete
-    }
-}
+
 fn sync_step(out: &mut Outcome) {
     if out
         .sources

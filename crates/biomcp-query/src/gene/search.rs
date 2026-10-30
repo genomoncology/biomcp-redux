@@ -5,7 +5,7 @@ use biodata::{Gene, LocusGroup, MatchKind, Text};
 use biomcp_adapters::hgnc;
 use biomcp_fetch::{Find, KeyKind, Leg, RequestError};
 use biomcp_types::{GeneHeader, Match};
-use biomcp_types::{GeneSearch, PageInfo, QueryBody, Source, SourceState, Status};
+use biomcp_types::{GeneSearch, PageInfo, QueryBody, Source, SourceState};
 
 pub(crate) fn search(cx: &Ctx<'_>, query: &GeneSearch) -> Outcome {
     let leg = cx
@@ -17,9 +17,9 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &GeneSearch) -> Outcome {
     let error = result.as_ref().err().copied();
     let source = status::source(Source::Hgnc, leg.finish(), error);
     let state = match (&result, source.state) {
-        (Err(_), _) => Status::Failed,
-        (_, SourceState::Stale) => Status::Partial,
-        _ => Status::Complete,
+        (Err(_), _) => crate::status::item_status(false, true, false),
+        (_, SourceState::Stale) => crate::status::item_status(true, false, true),
+        _ => crate::status::item_status(true, false, false),
     };
     let mut headers = result.unwrap_or_default();
     headers.retain(|(_, header)| {

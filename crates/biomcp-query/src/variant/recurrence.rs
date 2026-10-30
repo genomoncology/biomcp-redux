@@ -5,13 +5,13 @@ use crate::{Action, Ctx, Outcome, status};
 use biomcp_adapters::{cbioportal, hgnc};
 use biomcp_fetch::{Deadline, Find, KeyKind, RequestError};
 use biomcp_types::{
-    QueryBody, Reason, Request, Source, Status, StepKind, VariantRecurrence, VariantRecurrenceQuery,
+    QueryBody, Reason, Request, Source, StepKind, VariantRecurrence, VariantRecurrenceQuery,
 };
 /// Read one native page without inventing an assayed denominator or selecting an ambiguous allele.
 pub fn run(cx: &Ctx<'_>, query: &VariantRecurrenceQuery) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
-    let mut out = crate::status::finish([Status::Failed], crate::status::Parts {
+    let mut out = crate::status::finish([crate::status::item_status(false, true, false)], crate::status::Parts {
         dropped: false,
         body: QueryBody::VariantRecurrence(empty()),
         page: None,

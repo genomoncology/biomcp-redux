@@ -2,7 +2,7 @@ use crate::{Action, Ctx, Outcome, store::Store};
 use biodata::StudyHeader;
 use biomcp_fetch::{BundleInfo, CacheError, Deadline, RequestError};
 use biomcp_types::{
-    PageInfo, QueryBody, Request, Status, StepKind, StudyGet, StudyPage, StudySearch, StudySnapshot,
+    PageInfo, QueryBody, Request, StepKind, StudyGet, StudyPage, StudySearch, StudySnapshot,
 };
 type Retained = (Vec<StudyHeader>, StudySnapshot, Vec<biomcp_types::Problem>);
 pub(super) fn search(

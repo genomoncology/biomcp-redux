@@ -5,7 +5,7 @@ use biomcp_adapters::uniprot;
 use biomcp_fetch::{CacheError, Deadline, RequestError};
 use biomcp_types::{
     PageInfo, ProteinFeatures, ProteinFeaturesQuery, ProteinIsoforms, ProteinRelationQuery,
-    ProteinStructures, QueryBody, Request, Source, Status, StepKind,
+    ProteinStructures, QueryBody, Request, Source, StepKind,
 };
 use sha2::{Digest, Sha256};
 mod retained;

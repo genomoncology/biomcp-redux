@@ -4,7 +4,7 @@ use biodata::GtrTestRelation;
 use biomcp_adapters::gtr;
 use biomcp_types::{
     DiagnosticCard, DiagnosticConditions, DiagnosticGenes, DiagnosticGet, DiagnosticGetSource,
-    DiagnosticMethods, DiagnosticSection, PageInfo, QueryBody, Request, Source, Status, StepKind,
+    DiagnosticMethods, DiagnosticSection, PageInfo, QueryBody, Request, Source, StepKind,
 };
 use std::collections::BTreeSet;
 /// Read one exact GTR test or its independently paged native relations.

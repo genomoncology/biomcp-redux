@@ -294,9 +294,9 @@ pub(crate) fn overall(
         resolution,
         VariantResolution::Unavailable | VariantResolution::Rejected
     ) {
-        Status::Failed
+        crate::status::item_status(false, true, false)
     } else if resolution == VariantResolution::Absent {
-        Status::Absent
+        crate::status::item_status(false, false, false)
     } else if !problems.is_empty()
         || sources.iter().any(|s| {
             matches!(
@@ -305,9 +305,9 @@ pub(crate) fn overall(
             )
         })
     {
-        Status::Partial
+        crate::status::item_status(true, false, true)
     } else {
-        Status::Complete
+        crate::status::item_status(true, false, false)
     }
 }
 

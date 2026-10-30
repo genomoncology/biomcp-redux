@@ -4,7 +4,7 @@ use crate::{Action, Ctx, Outcome, status};
 use biomcp_adapters::nci;
 use biomcp_fetch::{Deadline, RequestError, SourceError};
 use biomcp_types::{
-    BiomarkerPage, BiomarkerSearch, QueryBody, Reason, Request, Source, Status, StepKind,
+    BiomarkerPage, BiomarkerSearch, QueryBody, Reason, Request, Source, StepKind,
 };
 /// Find native biomarker concept headers without interpretation.
 pub fn search(cx: &Ctx<'_>, q: &BiomarkerSearch) -> Outcome {
@@ -166,7 +166,7 @@ fn page(
     out.body = QueryBody::BiomarkerPage(BiomarkerPage { items });
 }
 fn empty() -> Outcome {
-    crate::status::finish([Status::Failed], crate::status::Parts {
+    crate::status::finish([crate::status::item_status(false, true, false)], crate::status::Parts {
         dropped: false,
         body: QueryBody::BiomarkerPage(BiomarkerPage {
             items: Box::default(),

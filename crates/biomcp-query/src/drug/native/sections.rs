@@ -4,7 +4,7 @@ use biomcp_adapters::{chembl, opentargets};
 use biomcp_fetch::{Leg, RequestError};
 use biomcp_types::{
     DrugGet, DrugHeader, DrugIndications, DrugRecords, DrugSection, DrugTargets, PageInfo,
-    QueryBody, Request, Section, Source, Status, StepKind,
+    QueryBody, Request, Section, Source, StepKind,
 };
 pub(super) fn chembl(
     leg: &Leg<'_>,

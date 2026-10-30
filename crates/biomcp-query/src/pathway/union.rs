@@ -5,8 +5,7 @@ use biomcp_adapters::{reactome, wikipathways};
 use biomcp_fetch::{CacheError, Deadline, RequestError};
 use biomcp_types::{
     PathwayGet, PathwayHeader, PathwayPage, PathwayPageInfo, PathwaySearch, PathwaySource,
-    PathwayTotalKind, Problem, QueryBody, Request, Source, SourceOutcome, SourceState, Status,
-    StepKind,
+    PathwayTotalKind, Problem, QueryBody, Request, Source, SourceOutcome, SourceState, StepKind,
 };
 // Queued whole rows, next native position, source total and catalog content revision.
 type LegState = (Vec<PathwayHeader>, Option<u32>, u64, Option<biodata::Text>);

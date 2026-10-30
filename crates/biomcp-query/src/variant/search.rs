@@ -3,7 +3,7 @@ use crate::{Action, Ctx, Outcome, status};
 
 use biomcp_adapters::{clinvar, myvariant};
 use biomcp_types::{
-    PageInfo, QueryBody, Request, Source, Status, StepKind, VariantGet, VariantPage,
+    PageInfo, QueryBody, Request, Source, StepKind, VariantGet, VariantPage,
     VariantResolver, VariantSearch,
 };
 /// Discover one source-native page; a zero result remains distinct from a failed source.
@@ -32,7 +32,7 @@ pub fn search(cx: &Ctx<'_>, query: &VariantSearch) -> Outcome {
     let selector_terms = selector_terms.ok().flatten();
     let error = reply.as_ref().err().copied();
     let source = status::source(spec.source, leg.finish(), error);
-    let mut out = crate::status::finish([Status::Failed], crate::status::Parts {
+    let mut out = crate::status::finish([crate::status::item_status(false, true, false)], crate::status::Parts {
         dropped: false,
         body: QueryBody::VariantPage(VariantPage {
             selector_terms: selector_terms.clone(),
@@ -131,7 +131,7 @@ fn component_terms(
     Ok(Some(myvariant::components::label(terms)?))
 }
 fn policy_error() -> Outcome {
-    crate::status::finish([Status::Failed], crate::status::Parts {
+    crate::status::finish([crate::status::item_status(false, true, false)], crate::status::Parts {
         dropped: false,
         body: QueryBody::VariantQueryPolicyError,
         page: None,

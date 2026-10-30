@@ -44,7 +44,7 @@ pub fn get(cx: &Ctx<'_>, query: &ArticleGet) -> Outcome {
     let mut items = Vec::new();
     for (input, resolution) in query.input().iter().zip(resolutions) {
         match resolution {
-            Err(_) => items.push(item(input, Status::Failed, None)),
+            Err(_) => items.push(item(input, crate::status::item_status(false, true, false), None)),
             Ok(ids) => append(input, &ids, &records, &failures, stale, &mut items),
         }
     }
@@ -143,9 +143,9 @@ fn append(
             items.push(item(
                 input,
                 if stale {
-                    Status::Partial
+                    crate::status::item_status(true, false, true)
                 } else {
-                    Status::Complete
+                    crate::status::item_status(true, false, false)
                 },
                 Some(ArticleResolution::Resolved {
                     card: card.article.clone().card(),
@@ -159,11 +159,11 @@ fn append(
         .iter()
         .any(|id| failures.iter().any(|(failed, _)| id == failed));
     if failed {
-        items.push(item(input, Status::Failed, None));
+        items.push(item(input, crate::status::item_status(false, true, false), None));
     } else if !found {
         items.push(item(
             input,
-            Status::Absent,
+            crate::status::item_status(false, false, false),
             Some(ArticleResolution::NotFound),
         ));
     }

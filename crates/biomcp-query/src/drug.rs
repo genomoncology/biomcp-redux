@@ -10,8 +10,7 @@ pub(crate) mod who;
 use crate::{Action, Ctx, Outcome, status};
 use biomcp_adapters::mychem;
 use biomcp_types::{
-    DrugGet, DrugPage, DrugSearch, DrugSource, PageInfo, QueryBody, Request, Source, Status,
-    StepKind,
+    DrugGet, DrugPage, DrugSearch, DrugSource, PageInfo, QueryBody, Request, Source, StepKind,
 };
 /// Search the one selected source, without fan-out or selecting an identity.
 pub fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {

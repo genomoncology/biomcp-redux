@@ -1,7 +1,6 @@
 use crate::{Ctx, gene};
 
-use biomcp_fetch::RequestError;
-use biomcp_types::{Request, StepKind};
+use biomcp_types::Request;
 use crate::Outcome;
 /// Housekeeping selector independent of an entity query.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]

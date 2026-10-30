@@ -8,7 +8,7 @@ use biomcp_adapters::gwas;
 use biomcp_fetch::{CacheError, Deadline, RequestError};
 use biomcp_types::{
     GwasAssociation, GwasPage, GwasPageQuery, GwasSearch, PageInfo, QueryBody, Reason, Request,
-    Source, SourceOutcome, Status, StepKind,
+    Source, SourceOutcome, StepKind,
 };
 use sha2::{Digest, Sha256};
 
@@ -49,7 +49,7 @@ impl Saved {
 pub(super) fn search(cx: &Ctx<'_>, q: &GwasSearch) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
-    let mut out = crate::status::finish([Status::Failed], crate::status::Parts {
+    let mut out = crate::status::finish([crate::status::item_status(false, true, false)], crate::status::Parts {
         dropped: false,
         body: QueryBody::GwasPage(None),
         page: None,

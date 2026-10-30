@@ -4,7 +4,7 @@ use crate::{Action, Ctx, Outcome, status};
 use biomcp_adapters::{drugsfda as source, received_date};
 use biomcp_types::{
     DrugCard, DrugFdaPage, DrugGet, DrugPage, DrugSearch, DrugSection, DrugSource, QueryBody,
-    Request, Source, SourceState, Status, StepKind,
+    Request, Source, SourceState, StepKind,
 };
 mod approvals;
 pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {

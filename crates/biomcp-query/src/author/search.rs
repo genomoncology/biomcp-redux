@@ -4,7 +4,7 @@ use biomcp_adapters::semantic_scholar::{self, author};
 use biomcp_fetch::{Deadline, RequestError, SourceError};
 use biomcp_types::{
     AuthorGet, AuthorPage, AuthorSearch, PageInfo, QueryBody, Reason, Request, Source, SourceState,
-    Status, StepKind,
+    StepKind,
 };
 /// Preserve the source's exact query, candidate order and continuation.
 pub fn search(cx: &Ctx<'_>, q: &AuthorSearch) -> Outcome {

@@ -5,8 +5,7 @@ use biodata::{FaersReport, Text};
 use biomcp_adapters::faers;
 use biomcp_fetch::{CacheError, Deadline, RequestError};
 use biomcp_types::{
-    AdverseEventGet, AdverseEventSection, QueryBody, Request, Source, SourceOutcome, Status,
-    StepKind,
+    AdverseEventGet, AdverseEventSection, QueryBody, Request, Source, SourceOutcome, StepKind,
 };
 use sha2::{Digest, Sha256};
 type Saved = (

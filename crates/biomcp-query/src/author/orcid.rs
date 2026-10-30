@@ -4,7 +4,7 @@ use biomcp_adapters::orcid;
 use biomcp_fetch::{CacheError, Deadline, RequestError, SourceError};
 use biomcp_types::{
     AuthorPapersQuery, OrcidWorks, OrcidWorksScope, PageInfo, QueryBody, Reason, Request, Source,
-    SourceOutcome, SourceState, Status, StepKind,
+    SourceOutcome, SourceState, StepKind,
 };
 /// Read one whole source reply and retain local group pages.
 pub(super) fn papers(cx: &Ctx<'_>, q: &AuthorPapersQuery, id: &OrcidId) -> Outcome {

@@ -1,7 +1,7 @@
 use super::{empty, finish_bundle};
 use crate::{Action, Bundle, Ctx, Outcome};
 use biomcp_adapters::who_ivd;
-use biomcp_types::{DiagnosticCard, DiagnosticGet, QueryBody, Request, Status, StepKind};
+use biomcp_types::{DiagnosticCard, DiagnosticGet, QueryBody, Request, StepKind};
 
 pub(super) fn get(cx: &Ctx<'_>, query: &DiagnosticGet) -> Outcome {
     let mut out = empty(QueryBody::DiagnosticCard(None));

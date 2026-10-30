@@ -3,7 +3,7 @@ use crate::{Action, Bundle, Ctx, Outcome, status};
 use biomcp_adapters::ema;
 use biomcp_types::{
     DrugGet, DrugPage, DrugSearch, DrugSection, PageInfo, QueryBody, Request, Section, Source,
-    SourceState, Status, StepKind,
+    SourceState, StepKind,
 };
 
 pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {

@@ -9,8 +9,7 @@ use biomcp_fetch::{Leg, RequestError};
 use biomcp_types::{
     PgxCard, PgxDiplotype, PgxGet, PgxGuidelines, PgxHeader, PgxPage, PgxPageInfo,
     PgxRecommendations, PgxSearch, PgxSection, PgxSource, PgxTotalKind, Problem, ProblemCode,
-    QueryBody, Reason, Request, Source, SourceOutcome, SourceState, Status,
-};
+    QueryBody, Reason, Request, Source, SourceOutcome, SourceState, };
 /// Discover one independent native CPIC pair page.
 pub fn search(cx: &Ctx<'_>, query: &PgxSearch) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
@@ -156,11 +155,11 @@ fn finish(
     let error = reply.as_ref().err().copied();
     let source = status::source(source, leg.finish(), error);
     let state = if reply.is_err() {
-        Status::Failed
+        crate::status::item_status(false, true, false)
     } else if source.state == SourceState::Stale {
-        Status::Partial
+        crate::status::item_status(true, false, true)
     } else {
-        Status::Complete
+        crate::status::item_status(true, false, false)
     };
     crate::status::finish([state], crate::status::Parts {
         dropped: false,

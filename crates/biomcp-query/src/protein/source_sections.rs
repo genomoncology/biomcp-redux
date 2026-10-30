@@ -115,6 +115,6 @@ fn merge(
     out.next.extend(steps);
     out.problems.extend(problems);
     if state != Status::Complete {
-        item.status = Status::Partial;
+        item.status = crate::status::item_status(true, false, true);
     }
 }

@@ -9,7 +9,7 @@ use biomcp_adapters::pubmed;
 use biomcp_fetch::RequestError;
 use biomcp_types::{
     ArticleEdgePage, ArticleEdges, ArticlePage, ArticleSearch, ArticleSort, PageInfo, QueryBody,
-    Request, Source, Status, StepKind,
+    Request, Source, StepKind,
 };
 #[derive(Clone, Copy)]
 pub(super) enum Cursor<'a> {

@@ -1,7 +1,7 @@
 //! The existing store retains one complete received ancestry collection.
 use super::{
     Ctx, Deadline, GwasAncestries, GwasAncestry, GwasGet, Outcome, Problem, QueryBody, Reason,
-    RequestError, Source, SourceOutcome, Status, StepKind, action, gwas, page, rejected, status,
+    RequestError, Source, SourceOutcome, StepKind, action, gwas, page, rejected, status,
 };
 use crate::store::Store;
 use biomcp_fetch::{CacheError, SourceError};

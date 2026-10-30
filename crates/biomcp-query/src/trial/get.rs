@@ -90,9 +90,9 @@ fn fetch(
             Err(e) => items.push(unresolved(
                 *id,
                 if not_found(e) {
-                    Status::Absent
+                    crate::status::item_status(false, false, false)
                 } else {
-                    Status::Failed
+                    crate::status::item_status(false, true, false)
                 },
             )),
         }
@@ -116,7 +116,7 @@ fn restore(
             leg.finish(),
             error,
         ));
-        finish(vec![unresolved(id, Status::Failed)], None, out);
+        finish(vec![unresolved(id, crate::status::item_status(false, true, false))], None, out);
         return Ok(());
     }
     let store = Store::open(cx.fetch.cache_access()?, deadline)?;
@@ -176,7 +176,7 @@ fn finish(
     });
 }
 fn empty() -> Outcome {
-    crate::status::finish([Status::Failed], crate::status::Parts {
+    crate::status::finish([crate::status::item_status(false, true, false)], crate::status::Parts {
         dropped: false,
         body: QueryBody::TrialCards(TrialCards {
             items: Box::default(),

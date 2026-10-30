@@ -3,7 +3,7 @@ use crate::{Action, Ctx, Outcome, status};
 use biodata::VariantId;
 use biomcp_fetch::Deadline;
 use biomcp_types::{
-    AssertionSource, PageInfo, QueryBody, Reason, Request, Section, Status, StepKind,
+    AssertionSource, PageInfo, QueryBody, Reason, Request, Section, StepKind,
     VariantAssertion, VariantAssertions, VariantAssertionsGet, VariantGet, VariantHeader,
 };
 pub(crate) fn get(cx: &Ctx<'_>, query: &VariantAssertionsGet) -> Outcome {
@@ -13,21 +13,21 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &VariantAssertionsGet) -> Outcome {
     let (status, body) = match section {
         Section::Data { data, .. } => (
             if problems.is_empty() {
-                Status::Complete
+                crate::status::item_status(true, false, false)
             } else {
-                Status::Partial
+                crate::status::item_status(true, false, true)
             },
             data,
         ),
         Section::Empty { .. } => (
             if problems.is_empty() {
-                Status::Absent
+                crate::status::item_status(false, false, false)
             } else {
-                Status::Partial
+                crate::status::item_status(true, false, true)
             },
             empty(query),
         ),
-        _ => (Status::Failed, empty(query)),
+        _ => (crate::status::item_status(false, true, false), empty(query)),
     };
     let next = body
         .next

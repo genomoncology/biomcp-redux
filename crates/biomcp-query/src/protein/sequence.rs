@@ -5,7 +5,7 @@ use biomcp_adapters::{Mapped, uniprot};
 use biomcp_fetch::{Leg, RequestError, SourceError};
 use biomcp_types::{
     Problem, ProblemCode, ProteinSequenceQuery, ProteinSequenceResult, QueryBody, Reason, Request,
-    Source, Status, StepKind,
+    Source, StepKind,
 };
 pub(super) fn read(
     leg: &Leg<'_>,

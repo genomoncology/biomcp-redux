@@ -1,7 +1,7 @@
 //! Exact NCIt lookups keep multiple native rows as candidates.
 use crate::{Action, Ctx, Outcome, status};
 use biomcp_adapters::nci;
-use biomcp_types::{BiomarkerGet, BiomarkerResult, QueryBody, Reason, Source, Status, StepKind};
+use biomcp_types::{BiomarkerGet, BiomarkerResult, QueryBody, Reason, Source, StepKind};
 /// Read every native row attached to one exact code.
 pub fn get(cx: &Ctx<'_>, q: &BiomarkerGet) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
@@ -10,7 +10,7 @@ pub fn get(cx: &Ctx<'_>, q: &BiomarkerGet) -> Outcome {
     let reply = nci::biomarker::get(&leg, &q.id);
     let error = reply.as_ref().err().copied();
     let source = status::source(Source::Nci, leg.finish(), error);
-    let mut out = crate::status::finish([Status::Failed], crate::status::Parts {
+    let mut out = crate::status::finish([crate::status::item_status(false, true, false)], crate::status::Parts {
         dropped: false,
         body: QueryBody::BiomarkerResult(BiomarkerResult {
             card: None,

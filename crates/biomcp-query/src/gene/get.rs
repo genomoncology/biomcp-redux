@@ -22,7 +22,7 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &GeneGet) -> Outcome {
     if hgnc.state == SourceState::Stale {
         for item in &mut items {
             if item.status == Status::Complete {
-                item.status = Status::Partial;
+                item.status = crate::status::item_status(true, false, true);
             }
         }
     }
@@ -98,10 +98,10 @@ fn join(
         gene.summary = extra.value.summary.clone();
         gene.spans = extra.value.spans.clone();
         if !extra.problems.is_empty() {
-            item.status = Status::Partial;
+            item.status = crate::status::item_status(true, false, true);
         }
     } else {
-        item.status = Status::Partial;
+        item.status = crate::status::item_status(true, false, true);
         status::append(
             problems,
             [Problem {
@@ -125,16 +125,16 @@ fn resolve_item(
         Ok(mapped) => {
             status::append(problems, mapped.problems);
             let state = if matches!(mapped.value, GeneResolution::NotFound {}) {
-                Status::Absent
+                crate::status::item_status(false, false, false)
             } else {
-                Status::Complete
+                crate::status::item_status(true, false, false)
             };
             (Some(mapped.value), state)
         }
         Err(failure) => {
             *error = Some(failure);
             *local = local.or(status::local(failure));
-            (None, Status::Failed)
+            (None, crate::status::item_status(false, true, false))
         }
     };
     GeneItem {
@@ -174,7 +174,7 @@ fn mygene_join(
                 for item in &mut *items {
                     if matches!(&item.answer, Some(GeneResolution::Resolved { gene, .. }) if gene.entrez_id.is_some_and(|id| batch.ids.contains(&id)))
                     {
-                        item.status = Status::Partial;
+                        item.status = crate::status::item_status(true, false, true);
                     }
                 }
             }
@@ -185,7 +185,7 @@ fn mygene_join(
         for item in items {
             if matches!(&item.answer, Some(GeneResolution::Resolved { gene, .. }) if gene.entrez_id.is_some())
             {
-                item.status = Status::Partial;
+                item.status = crate::status::item_status(true, false, true);
             }
         }
     }

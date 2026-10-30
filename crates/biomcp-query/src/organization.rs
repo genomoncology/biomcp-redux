@@ -4,7 +4,7 @@ use crate::{Action, Ctx, Outcome, status};
 use biomcp_adapters::nci;
 use biomcp_fetch::{Deadline, RequestError, SourceError};
 use biomcp_types::{
-    OrganizationPage, OrganizationSearch, QueryBody, Reason, Request, Source, Status, StepKind,
+    OrganizationPage, OrganizationSearch, QueryBody, Reason, Request, Source, StepKind,
 };
 /// Find published organizations without assigning identities to names.
 pub fn search(cx: &Ctx<'_>, q: &OrganizationSearch) -> Outcome {
@@ -144,7 +144,7 @@ fn page(
     out.body = QueryBody::OrganizationPage(OrganizationPage { items });
 }
 fn empty() -> Outcome {
-    crate::status::finish([Status::Failed], crate::status::Parts {
+    crate::status::finish([crate::status::item_status(false, true, false)], crate::status::Parts {
         dropped: false,
         body: QueryBody::OrganizationPage(OrganizationPage {
             items: Box::default(),

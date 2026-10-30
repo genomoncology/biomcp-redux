@@ -4,7 +4,7 @@ use biomcp_adapters::{openfda_label as source, received_date};
 use biomcp_fetch::RequestError;
 use biomcp_types::{
     DrugGet, DrugLabel, DrugPage, DrugSearch, DrugSection, DrugSource, PageInfo, QueryBody, Reason,
-    Request, Section, Source, SourceState, Status, StepKind,
+    Request, Section, Source, StepKind,
 };
 const SOURCE: Source = Source::OpenfdaLabel;
 pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
@@ -206,13 +206,7 @@ fn select(
     }));
     Ok(())
 }
-fn state(out: &Outcome) -> Status {
-    if out.sources.iter().any(|s| s.state == SourceState::Stale) {
-        Status::Partial
-    } else {
-        Status::Complete
-    }
-}
+
 fn page(offset: u32, returned: u32, total: u64) -> PageInfo {
     PageInfo {
         offset,

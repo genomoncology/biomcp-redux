@@ -5,7 +5,7 @@ use crate::{Action, Ctx, Outcome, status};
 use biodata::Text;
 use biomcp_adapters::nci;
 use biomcp_types::{
-    NciTrialPage, QueryBody, Reason, Request, Source, Status, StepKind, TrialSearch,
+    NciTrialPage, QueryBody, Reason, Request, Source, StepKind, TrialSearch,
 };
 pub(super) use get::run as get;
 const ATTRIBUTION: &str =

@@ -3,8 +3,7 @@ use crate::{Ctx, Outcome, status};
 use biodata::Pmid;
 use biomcp_fetch::Deadline;
 use biomcp_types::{
-    ArticleCardItem, ArticleResolution, QueryBody, Section, Source, SourceState, Status,
-};
+    ArticleCardItem, ArticleResolution, QueryBody, Section, Source, SourceState, };
 pub(super) fn run<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, ids: &[Pmid], out: &mut Outcome) {
     let result = order::fetch(cx, deadline, ids);
     status::append(&mut out.problems, result.problems.clone());
@@ -54,7 +53,7 @@ fn join(item: &mut ArticleCardItem, result: &order::Counts) {
         || matches!(section, Section::Unavailable { .. })
         || result.source.state == SourceState::Stale
     {
-        item.status = Status::Partial;
+        item.status = crate::status::item_status(true, false, true);
     }
     if let Some(sections) = &mut item.sections {
         sections.citations = Some(section);

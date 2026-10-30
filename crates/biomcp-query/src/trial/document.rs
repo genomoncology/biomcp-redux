@@ -2,7 +2,7 @@
 use crate::{Ctx, Outcome, status};
 use biodata::TrialDocument;
 use biomcp_adapters::ctgov;
-use biomcp_types::{QueryBody, Section, Source, Status, TrialDocumentGet, TrialDocumentResult};
+use biomcp_types::{QueryBody, Section, Source, TrialDocumentGet, TrialDocumentResult};
 /// A typed source result before the binary writes a caller-owned file.
 #[derive(Debug)]
 pub struct Download {
@@ -18,7 +18,7 @@ pub fn download(cx: &Ctx<'_>, query: &TrialDocumentGet, allow: bool) -> Download
         .fetch
         .leg(&ctgov::SPEC, command.deadline())
         .fresh(cx.fresh);
-    let mut out = crate::status::finish([Status::Complete], crate::status::Parts {
+    let mut out = crate::status::finish([crate::status::item_status(true, false, false)], crate::status::Parts {
         dropped: false,
         body: QueryBody::TrialDocument(TrialDocumentResult {
             file: Section::Empty {

@@ -3,7 +3,7 @@ use crate::{Action, Ctx, Outcome, status};
 use biodata::Text;
 use biomcp_adapters::maude;
 use biomcp_types::{
-    AdverseEventGet, AdverseEventSection, QueryBody, Request, Source, Status, StepKind,
+    AdverseEventGet, AdverseEventSection, QueryBody, Request, Source, StepKind,
 };
 mod projection;
 mod rows;
@@ -12,7 +12,7 @@ mod snapshot;
 pub fn get(cx: &Ctx<'_>, query: &AdverseEventGet) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
-    let mut out = crate::status::finish([Status::Failed], crate::status::Parts {
+    let mut out = crate::status::finish([crate::status::item_status(false, true, false)], crate::status::Parts {
         dropped: false,
         body: empty(query),
         page: None,

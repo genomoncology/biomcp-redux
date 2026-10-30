@@ -23,7 +23,7 @@ pub(super) fn get(cx: &Ctx<'_>, query: &CellLineGet) -> Outcome {
     out.local = error.and_then(status::local);
     if reply.is_ok() {
         if !out.problems.is_empty() {
-            card.status = Status::Partial;
+            card.status = crate::status::item_status(true, false, true);
         }
         let state = card.status;
         crate::status::get(&mut out, [state].into_iter());
@@ -47,13 +47,13 @@ pub(super) fn get(cx: &Ctx<'_>, query: &CellLineGet) -> Outcome {
         {
             let mut metadata = super::chembl::get_at(cx, query, &header.accession, deadline);
             metadata.sources.splice(0..0, out.sources);
-            if metadata.status != Status::Failed
+            if metadata.status() != Status::Failed
                 && metadata
                     .sources
                     .iter()
                     .any(|source| source.state == biomcp_types::SourceState::Stale)
             {
-                metadata.status = Status::Partial;
+                crate::status::item(&mut metadata, true, false, true);
             }
             command.finish(deadline.remaining());
             return metadata;
@@ -99,9 +99,9 @@ fn resolve(
                 .and_then(|value| u64::try_from(value).ok());
             if page.items.len() != 1 {
                 card.status = if page.items.is_empty() {
-                    Status::Absent
+                    crate::status::item_status(false, false, false)
                 } else {
-                    Status::Partial
+                    crate::status::item_status(true, false, true)
                 };
                 card.candidates = page.items.into();
                 return Ok(());
@@ -144,7 +144,7 @@ fn resolve(
         super::sections::select(query, &mut selected);
         *card = selected;
     } else {
-        card.status = Status::Absent;
+        card.status = crate::status::item_status(false, false, false);
         card.fetched = reply
             .metadata
             .fetched
@@ -175,7 +175,7 @@ fn actions(out: &mut Outcome, card: &CellLineCard) {
 fn vacant(query: &CellLineGet) -> CellLineCard {
     CellLineCard {
         input: query.id().clone(),
-        status: Status::Failed,
+        status: crate::status::item_status(false, true, false),
         header: None,
         candidates: Box::default(),
         dates: None,

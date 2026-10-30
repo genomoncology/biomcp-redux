@@ -29,14 +29,14 @@ pub fn get(cx: &Ctx<'_>, q: &AuthorGet) -> Outcome {
             AuthorId::Orcid(id) => biomcp_adapters::orcid::card(&leg, id),
         };
         let mut state = match &reply {
-            Ok(mapped) if mapped.value.is_some() => Status::Complete,
-            Ok(_) => Status::Absent,
+            Ok(mapped) if mapped.value.is_some() => crate::status::item_status(true, false, false),
+            Ok(_) => crate::status::item_status(false, false, false),
             Err(biomcp_fetch::RequestError::Source(e)) if e.reason == Reason::NotFound => {
-                Status::Absent
+                crate::status::item_status(false, false, false)
             }
             Err(e) => {
                 out.local = out.local.or(status::local(*e));
-                Status::Failed
+                crate::status::item_status(false, true, false)
             }
         };
         let outcome = status::source(

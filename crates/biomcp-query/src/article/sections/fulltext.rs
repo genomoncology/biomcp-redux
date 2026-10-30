@@ -5,7 +5,7 @@ use biomcp_fetch::{Deadline, RequestError};
 use biomcp_types::ArticleInput;
 use biomcp_types::{
     ArticleResolution, ArticleSupplement, ArticleText, FullText, Reason, Request, Section, Source,
-    Status, StepKind, Supplements,
+    StepKind, Supplements,
 };
 type Identity = (Pmcid, Option<biodata::Pmid>);
 type Content = Result<Option<(FullText, Supplements)>, Reason>;
@@ -56,7 +56,7 @@ pub(super) fn run<'a>(
             continue;
         };
         if data.is_err() || matches!(data, Ok(None)) {
-            item.status = Status::Partial;
+            item.status = crate::status::item_status(true, false, true);
         }
         if fulltext && sections.fulltext.is_none() {
             sections.fulltext = Some(section(data, |(text, _)| text.clone()));
@@ -80,7 +80,7 @@ pub(super) fn run<'a>(
                     matches!(s.fulltext, Some(Section::Data { .. }))
                         || matches!(s.supplements, Some(Section::Data { .. }))
                 }) {
-                    item.status = Status::Partial;
+                    item.status = crate::status::item_status(true, false, true);
                 }
             }
         }

@@ -4,8 +4,7 @@ use biomcp_adapters::pubtator;
 use biomcp_fetch::{Deadline, RequestError};
 use biomcp_types::{
     Annotations, ArticleCardItem, ArticleResolution, Problem, Section, Source, SourceOutcome,
-    SourceState, Status,
-};
+    SourceState, };
 pub(super) struct Result {
     pub values: Vec<(Pmid, Section<Annotations>)>,
     pub source: SourceOutcome,
@@ -86,7 +85,7 @@ pub(super) fn join(items: &mut [ArticleCardItem], result: &Result) {
                     .is_some_and(|r| r.as_str() == id.to_string())
             })
         {
-            item.status = Status::Partial;
+            item.status = crate::status::item_status(true, false, true);
         }
         if let Some(sections) = &mut item.sections {
             sections.annotations = Some(section.clone());

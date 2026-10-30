@@ -5,7 +5,7 @@ use biomcp_adapters::{allele_registry, mutalyzer, variantvalidator};
 use biomcp_fetch::{Deadline, RequestError, SourceSpec};
 use biomcp_types::{
     NormalizationResult, NormalizationSource, QueryBody, Request, SourceOutcome, SourceState,
-    Status, StepKind, VariantNormalization, VariantNormalize, VariantResolution,
+    StepKind, VariantNormalization, VariantNormalize, VariantResolution,
 };
 type Row = (
     biomcp_adapters::Mapped<NormalizationResult>,
@@ -36,9 +36,9 @@ pub fn normalize(cx: &Ctx<'_>, query: &VariantNormalize) -> Outcome {
                 result.outcome,
                 VariantResolution::Rejected | VariantResolution::Unavailable
             ) {
-                Status::Failed
+                crate::status::item_status(false, true, false)
             } else {
-                Status::Complete
+                crate::status::item_status(true, false, false)
             },
         );
         result.total_messages = result.messages.len() as u32;

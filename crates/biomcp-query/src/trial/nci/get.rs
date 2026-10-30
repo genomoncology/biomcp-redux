@@ -5,7 +5,7 @@ use crate::{Action, Ctx, Outcome, status, store::Store};
 use biomcp_adapters::nci;
 use biomcp_fetch::{CacheError, RequestError};
 use biomcp_types::{
-    NciTrialCards, QueryBody, Reason, Request, Source, SourceOutcome, Status, StepKind, TrialGet,
+    NciTrialCards, QueryBody, Reason, Request, Source, SourceOutcome, StepKind, TrialGet,
 };
 use sha2::{Digest, Sha256};
 pub(super) struct Snapshot {
@@ -75,9 +75,9 @@ fn fetch(
             Err(e) => items.push(biomcp_types::NciTrialItem {
                 input: *id,
                 status: if absent(e) {
-                    Status::Absent
+                    crate::status::item_status(false, false, false)
                 } else {
-                    Status::Failed
+                    crate::status::item_status(false, true, false)
                 },
                 card: None,
                 fetched: None,

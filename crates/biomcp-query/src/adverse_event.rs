@@ -4,8 +4,7 @@ mod vaers;
 use crate::{Action, Ctx, Outcome, status};
 use biomcp_adapters::{faers, maude};
 use biomcp_types::{
-    AdverseEventPage, AdverseEventSearch, PageInfo, QueryBody, ReportUnit, Request, Source, Status,
-    StepKind,
+    AdverseEventPage, AdverseEventSearch, PageInfo, QueryBody, ReportUnit, Request, Source, StepKind,
 };
 /// Search report headers through the declared source and its reviewed component admission.
 pub fn search(cx: &Ctx<'_>, query: &AdverseEventSearch) -> Outcome {
@@ -36,7 +35,7 @@ pub fn search(cx: &Ctx<'_>, query: &AdverseEventSearch) -> Outcome {
         maude::search(&leg, query)
     };
     let error = reply.as_ref().err().copied();
-    let mut out = crate::status::finish([Status::Failed], crate::status::Parts {
+    let mut out = crate::status::finish([crate::status::item_status(false, true, false)], crate::status::Parts {
         dropped: false,
         body: QueryBody::AdverseEventPage(AdverseEventPage {
             reaction_match: query
@@ -80,24 +79,11 @@ pub fn search(cx: &Ctx<'_>, query: &AdverseEventSearch) -> Outcome {
     command.finish(deadline.remaining());
     out
 }
-fn page_status(out: &Outcome, total: u64) -> Status {
-    if total == 0 {
-        Status::Absent
-    } else if !out.problems.is_empty()
-        || out
-            .sources
-            .iter()
-            .any(|s| s.state == biomcp_types::SourceState::Stale)
-    {
-        Status::Partial
-    } else {
-        Status::Complete
-    }
-}
+
 
 /// An unimplemented report get has no source effects until its owning slice lands.
 pub fn unsupported() -> Outcome {
-    crate::status::finish([Status::Failed], crate::status::Parts {
+    crate::status::finish([crate::status::item_status(false, true, false)], crate::status::Parts {
         dropped: false,
         body: QueryBody::UnsupportedAdverseEvent,
         page: None,

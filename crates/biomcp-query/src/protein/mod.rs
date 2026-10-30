@@ -6,7 +6,6 @@ mod search;
 mod sections;
 mod sequence;
 use crate::Outcome;
-use biomcp_types::{Status};
 pub use get::get;
 pub use search::search;
 pub(super) use crate::status::empty;
