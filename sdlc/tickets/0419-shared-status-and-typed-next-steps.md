@@ -8,7 +8,7 @@ Depends on: 0454, 0415, 0416
 
 ## Outcome
 
-`biomcp-query/src/status.rs` chooses every status with the item, get and search rules in architecture 6.11 and ruling 1. `Outcome` moves into `status.rs` with a private `status` field, so entities pass parts and the compiler refuses any other place that sets a status. The source page carries a `dropped` flag set where an adapter refuses a record. The query layer hides a failed body unless it holds a condition resolution. One `empty`, `finish` and `page_info` replace the copies.
+`biomcp-query/src/status.rs` chooses every status with the item, get and search rules in architecture 6.11 and ruling 1. `Outcome` moves into `status.rs` with a private `status` field, so entities pass parts and the compiler refuses any other place that sets a status. The source page carries a `dropped` flag set where an adapter refuses a record. The query layer decides to hide a failed body unless it holds a condition resolution; until 0421 supplies the generic `Reply`, the typed `QueryBody` stays internal and `ResponseMeta::encode` applies that decision for every command, and 0421 turns it into an absent body (m15847). One `empty`, `finish` and `page_info` replace the copies.
 
 - Why: disease and SEER mark any problem partial, phenotype ignores problems, pathway marks any problem partial, and disease and phenotype ignore failed secondary sources. Status choices sit in 101 query files. The binary hides bodies in `command.rs` and `disease.rs`.
 - Starts from: `crates/biomcp-query/src/status.rs`, the entity `overall`, `empty` (24), `finish` (8) and `page_info` (3) copies, `crates/biomcp-adapters/src/mapped.rs` `SourcePage`, the body-hiding lines in `crates/biomcp/src/command.rs` and `command/disease.rs`.
