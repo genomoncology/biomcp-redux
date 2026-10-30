@@ -41,6 +41,7 @@ pub(super) fn target<'a>(
             return Err(bad());
         }
         let mapped = pubmed::summaries(&leg, &ids, cx.ncbi_email.as_ref())?;
+        out.include_refusals(mapped.refusals);
         status::append(&mut out.problems, mapped.problems);
         let header = mapped
             .value
@@ -101,6 +102,7 @@ pub(super) fn read<'a>(
     for _ in 0..5 {
         match semantic_scholar::edges(&leg, query.citing(), true, snapshot.cursor) {
             Ok(reply) => {
+                out.include_refusals(reply.refusals);
                 out.problems.extend(reply.problems);
                 for edge in reply.data {
                     out.problems.extend(edge.problems.clone());

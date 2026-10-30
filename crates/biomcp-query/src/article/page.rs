@@ -103,7 +103,14 @@ pub(super) fn read<'a>(
                 } else {
                     out.sources.push(source.clone());
                 }
-                store.hydrate(id, &missing, &mapped.value, &mapped.problems, Some(&source))?;
+                store.hydrate(
+                    id,
+                    &missing,
+                    &mapped.value,
+                    &mapped.problems,
+                    Some(&source),
+                    out.dropped,
+                )?;
                 rows = store.page(id, query.offset(), query.limit())?;
             }
             Err(error) => {

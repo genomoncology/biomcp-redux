@@ -15,6 +15,7 @@ use sha2::{Digest, Sha256};
 // successful independent evidence and its continuation after a source timeout.
 const SAVE_BUDGET: std::time::Duration = std::time::Duration::from_millis(100);
 pub(super) struct Snapshot {
+    dropped: bool,
     graph: Section<CitationContexts>,
     target: Option<graph::Target>,
     fulltext: Option<Section<CitationParagraphs>>,
@@ -26,6 +27,7 @@ pub(super) struct Snapshot {
 impl Snapshot {
     fn empty() -> Self {
         Self {
+            dropped: false,
             graph: Section::Empty {
                 source: Source::SemanticScholar,
                 record: None,
@@ -86,7 +88,7 @@ fn execute<'a>(
     let text_disabled = cx.fetch.disabled(Source::PmcOa);
     let mut store = Store::open(cx.fetch.cache_access()?, *deadline)?;
     let identity = serde_json::to_vec(&query.identity()).map_err(|_| CacheError::Database)?;
-    let key = Sha256::digest([b"biomcp.article_evidence/1\0".as_slice(), &identity].concat());
+    let key = Sha256::digest([b"biomcp.article_evidence/2\0".as_slice(), &identity].concat());
     let mut restored = false;
     let mut snapshot = if let Some(id) = query.pool() {
         match store.evidence(id.as_str(), &key, |source| cx.fetch.disabled(source))? {
@@ -134,7 +136,10 @@ fn execute<'a>(
     for incoming in std::mem::take(&mut out.sources) {
         source(&mut snapshot, incoming);
     }
-    let payload = encode(&snapshot)?;
+    let payload = {
+        snapshot.dropped |= out.dropped;
+        encode(&snapshot)?
+    };
     let id = store.save_evidence(
         query.pool().filter(|_| restored),
         &key,
@@ -183,6 +188,7 @@ type Saved = (
     (bool, Option<u32>, bool),
     Vec<SourceOutcome>,
     Option<(Option<biodata::Pmid>, Option<biodata::Doi>)>,
+    bool,
 );
 fn encode(snapshot: &Snapshot) -> Result<String, CacheError> {
     serde_json::to_string(&(
@@ -194,13 +200,15 @@ fn encode(snapshot: &Snapshot) -> Result<String, CacheError> {
             .target
             .as_ref()
             .map(|target| (target.pmid, target.doi.as_ref())),
+        snapshot.dropped,
     ))
     .map_err(|_| CacheError::Database)
 }
 fn decode(payload: &str) -> Result<Snapshot, CacheError> {
-    let (graph, fulltext, (terminal, cursor, matched), sources, target): Saved =
+    let (graph, fulltext, (terminal, cursor, matched), sources, target, dropped): Saved =
         serde_json::from_str(payload).map_err(|_| CacheError::Database)?;
     Ok(Snapshot {
+        dropped,
         graph,
         fulltext,
         terminal,

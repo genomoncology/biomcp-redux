@@ -254,8 +254,15 @@ impl Store<'_> {
         headers: &[ArticleHeader],
         problems: &[Problem],
         outcome: Option<&SourceOutcome>,
+        dropped: bool,
     ) -> Result<(), CacheError> {
         self.write(|tx| {
+            if dropped {
+                let raw: String = tx.query_row("SELECT outcomes FROM pool WHERE id=?1", [pool], |r| r.get(0)).map_err(db)?;
+                let (sources, problems, _) = metadata(&raw)?;
+                let raw = serde_json::to_string(&serde_json::json!({"sources": sources, "problems": problems, "dropped": true})).map_err(|_| CacheError::Database)?;
+                tx.execute("UPDATE pool SET outcomes=?2 WHERE id=?1", params![pool, raw]).map_err(db)?;
+            }
             let outcome = outcome.map(serde_json::to_string).transpose().map_err(|_| CacheError::Database)?;
             let names: Vec<_> = ids.iter().map(ToString::to_string).collect();
             for (index, id) in ids.iter().enumerate() {
