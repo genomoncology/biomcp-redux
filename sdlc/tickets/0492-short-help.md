@@ -1,6 +1,7 @@
 # 0492 — Make help short enough to read in one call
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 72542b1770428a45b3066f3af7f94b96c917e9a5
 
 Milestone: 5
 
