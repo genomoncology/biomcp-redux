@@ -51,7 +51,7 @@ pub(super) fn trials() -> Vec<Trial> {
             || mixed_page().map_err(Into::into),
         ),
         transcript_trial(
-            "variant-identity/validator-keeps-native-order-and-transcript-only-forms",
+            crate::runner::required_contract::VALIDATOR_RESOLVER.0,
             || validator_order().map_err(Into::into),
         ),
         transcript_trial("variant-identity/native-candidate-walk-is-warm", || {

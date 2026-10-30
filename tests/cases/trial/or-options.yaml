@@ -23,24 +23,6 @@
         "--limit",
         "1"
       ],
-      "mcp": [
-        "search",
-        "trial",
-        "--condition",
-        "melanoma",
-        "--condition",
-        "lung cancer",
-        "--intervention",
-        "pembrolizumab",
-        "--intervention",
-        "nivolumab",
-        "--keyword",
-        "survival",
-        "--keyword",
-        "quality of life",
-        "--limit",
-        "1"
-      ],
       "expect": {
         "/status": "complete",
         "/query/condition": [

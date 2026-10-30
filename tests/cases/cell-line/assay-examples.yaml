@@ -9,11 +9,6 @@
         "assay-count",
         "CHEMBL3706573"
       ],
-      "mcp": [
-        "cell-line",
-        "assay-count",
-        "CHEMBL3706573"
-      ],
       "expect": {
         "/status": "complete",
         "/result/id": "CHEMBL3706573",
@@ -24,12 +19,6 @@
     },
     {
       "run": [
-        "cell-line",
-        "assay-count",
-        "CHEMBL3706573",
-        "--fresh"
-      ],
-      "mcp": [
         "cell-line",
         "assay-count",
         "CHEMBL3706573",

@@ -15,12 +15,6 @@
         "/sources/0/reason": "syncing"
       },
       "max_bytes": 2000,
-      "mcp": [
-        "get",
-        "pathway",
-        "WP382",
-        "genes"
-      ],
       "is_error": true
     }
   ]

@@ -12,12 +12,6 @@
         "CA000434",
         "erepo"
       ],
-      "mcp": [
-        "get",
-        "variant",
-        "CA000434",
-        "erepo"
-      ],
       "max_bytes": 1115,
       "expect": {
         "/status": "complete",

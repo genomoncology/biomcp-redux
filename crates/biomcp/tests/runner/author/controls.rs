@@ -32,7 +32,8 @@ pub(super) fn check() -> Result<(), String> {
 }
 fn retirements(env: &Environment, globals: &[String]) -> Result<(), String> {
     for name in ["author", "article"] {
-        let path = super::super::launch::fixtures().join(format!("cases/{name}/retired.yaml"));
+        let path = super::super::launch::fixtures()
+            .join(format!("native/case-inputs/{name}/retired.yaml"));
         let case: super::super::Case =
             serde_saphyr::from_str(&fs::read_to_string(path).map_err(|e| e.to_string())?)
                 .map_err(|e| e.to_string())?;

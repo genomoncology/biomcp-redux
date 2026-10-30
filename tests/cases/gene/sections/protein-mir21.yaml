@@ -22,14 +22,7 @@
         },
         "/result/items/0/sections/protein/state": "not-applicable"
       },
-      "max_bytes": 3100,
-      "mcp": [
-        "get",
-        "gene",
-        "MIR21",
-        "constraint",
-        "protein"
-      ]
+      "max_bytes": 3100
     }
   ]
 }

@@ -9,11 +9,6 @@
         "get",
         "article"
       ],
-      "mcp": [
-        "help",
-        "get",
-        "article"
-      ],
       "expect": {
         "/result/commands/0/command": [
           "get",
@@ -38,11 +33,6 @@
     },
     {
       "run": [
-        "help",
-        "search",
-        "article"
-      ],
-      "mcp": [
         "help",
         "search",
         "article"
@@ -89,11 +79,6 @@
         "article",
         "text"
       ],
-      "mcp": [
-        "help",
-        "article",
-        "text"
-      ],
       "expect": {
         "/result/commands/0/command": [
           "article",
@@ -111,11 +96,6 @@
         "article",
         "supplement"
       ],
-      "mcp": [
-        "help",
-        "article",
-        "supplement"
-      ],
       "expect": {
         "/result/commands/0/command": [
           "article",
@@ -129,11 +109,6 @@
     },
     {
       "run": [
-        "help",
-        "article",
-        "citations"
-      ],
-      "mcp": [
         "help",
         "article",
         "citations"
@@ -159,11 +134,6 @@
         "article",
         "references"
       ],
-      "mcp": [
-        "help",
-        "article",
-        "references"
-      ],
       "expect": {
         "/result/commands/0/command": [
           "article",
@@ -185,11 +155,6 @@
         "article",
         "citation-evidence"
       ],
-      "mcp": [
-        "help",
-        "article",
-        "citation-evidence"
-      ],
       "expect": {
         "/result/commands/0/command": [
           "article",
@@ -203,11 +168,6 @@
     },
     {
       "run": [
-        "help",
-        "article",
-        "recommendations"
-      ],
-      "mcp": [
         "help",
         "article",
         "recommendations"

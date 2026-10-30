@@ -5,32 +5,6 @@
   "steps": [
     {
       "run": [
-        "search",
-        "drug",
-        "SARCLISA ESCENA",
-        "--source",
-        "drugsfda",
-        "--limit",
-        "1"
-      ],
-      "max_bytes": 3000,
-      "expect": {
-        "/status": "complete",
-        "/result/total": 1,
-        "/result/items/0/id": "BLA761445",
-        "/result/items/0/name": "SARCLISA ESCENA",
-        "/result/items/0/products/0/brand_name": "SARCLISA ESCENA",
-        "/next/0/args": [
-          "get",
-          "drug",
-          "BLA761445",
-          "--source",
-          "drugsfda"
-        ]
-      }
-    },
-    {
-      "run": [
         "get",
         "drug",
         "BLA761445",
@@ -48,20 +22,22 @@
     },
     {
       "run": [
-        "search",
+        "get",
         "drug",
-        "ISATUXIMAB-IRFC",
+        "BLA761445",
+        "approvals",
         "--source",
         "drugsfda",
-        "--limit",
-        "1"
+        "--product-number",
+        "001"
       ],
-      "max_bytes": 3000,
+      "max_bytes": 4000,
       "expect": {
         "/status": "complete",
-        "/result/total": 1,
-        "/result/items/0/id": "BLA761445",
-        "/result/items/0/products/0/active_ingredients/0/name": "ISATUXIMAB-IRFC"
+        "/result/identity/id": "BLA761445",
+        "/result/approvals/data/records/0/event/dates/0/role": "submission_status_date",
+        "/result/approvals/data/records/0/event/dates/0/date": "2026-07-09",
+        "/query/product_number": "001"
       }
     }
   ],

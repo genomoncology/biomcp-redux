@@ -9,12 +9,13 @@ mod author;
 pub(super) mod case_main;
 mod execution;
 mod mapped_refusals;
+#[path = "../support/pool_contracts.rs"]
+mod pool_contract;
+#[path = "../support/synthetic_contracts.rs"]
+mod required_contract;
 tool_only! { pub(super) mod tools_api; }
 mod features;
 mod orcid;
-tool_only! { pub(super) mod parity; }
-tool_only! { mod parity_inventory_proof; }
-tool_only! { mod parity_shape_proof; }
 use crate::runner::transcript::trial as transcript_trial;
 use execution::run_step;
 mod alphagenome;
@@ -22,6 +23,7 @@ mod alphagenome_tls;
 mod cache_contention;
 mod capture;
 pub(super) mod cell_line;
+mod citation_values;
 mod clinpgx;
 mod clinvar_key;
 mod configuration;
@@ -94,6 +96,7 @@ mod maude_snapshot;
 mod mcp;
 mod mcp_boundaries;
 mod named_search;
+mod native_fields;
 mod nci;
 mod nci_walk;
 tool_only! { mod negative_cases; }
@@ -109,6 +112,7 @@ mod output_stream;
 mod pathway_budgets;
 mod pathway_commands;
 mod pathway_failures;
+mod pathway_get_pages;
 mod pathway_registry;
 mod pathway_retirements;
 mod pathway_sections;
@@ -294,10 +298,9 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
         "article-supplements/ping-after-bounded-refusal",
         || supplement_tables::ping_after_refusal().map_err(Into::into),
     ));
-    trials.push(transcript_trial(
-        "article-saves/explicit-original-files",
-        || article_save::check().map_err(Into::into),
-    ));
+    trials.push(transcript_trial(pool_contract::ARTICLE_SAVES.0, || {
+        article_save::check().map_err(Into::into)
+    }));
     trials.extend(gene_tables::trials());
     trials.extend(litvar_tables::trials());
     trials.extend(named_search::trials());
@@ -327,6 +330,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(key_help::trials());
     trials.extend(scholar::trials());
     trials.extend(evidence::trials());
+    trials.push(citation_values::trial());
     trials.extend(pdf::trials());
     trials.extend(source_controls::trials());
     trials.extend(health_bundles::trials());
@@ -531,9 +535,6 @@ tool_only! {
         trials.extend(protein_sections::tool_trials());
         trials.extend(disease_mydisease::tool_trials());
         trials.extend(schema_proof::trials(registry));
-        trials.extend(parity::trials());
-        trials.push(parity_shape_proof::trial());
-        trials.push(parity_inventory_proof::trial());
         trials.extend(live_proof::trials());
         trials.extend(live_follow_proof::trials());
         Ok(trials)

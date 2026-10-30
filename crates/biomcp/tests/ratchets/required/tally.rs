@@ -70,6 +70,9 @@ impl Inventory {
         for (failure, _) in FAILURES {
             inventory.calls.insert(format!("failure {failure}"), 0);
             for family in ["trial", "variant", "label", "article"] {
+                if *failure == "expired-pool" && matches!(family, "variant" | "label") {
+                    continue;
+                }
                 inventory
                     .calls
                     .insert(format!("failure {family} {failure}"), 0);
@@ -92,17 +95,24 @@ impl Inventory {
         let Some(argv) = &step.run else {
             return;
         };
-        if step.expect.is_empty() {
+        if step.expect.is_empty() && step.stdout.is_none() {
             return;
         }
         let (tokens, mut hits) = self.arguments(argv);
         if let Some(command) = self.command(&tokens) {
             let path_words = words(&command["command"]);
             let path = path_words.join(" ");
-            if step
-                .expect
-                .get("/error/code")
-                .is_some_and(|v| asserts(v, "usage.arguments"))
+            if step.exit == 2
+                && step.expect.get("/error/code").is_some_and(|v| {
+                    [
+                        "usage.arguments",
+                        "usage.schema",
+                        "usage.unknown_command",
+                        "usage.retired",
+                    ]
+                    .iter()
+                    .any(|code| asserts(v, code))
+                })
             {
                 hits.insert(format!("refusal {path}"));
             }
@@ -135,6 +145,9 @@ impl Inventory {
                 *count += 1;
             }
         }
+    }
+    pub(super) fn runner(&mut self, items: &[&str]) {
+        self.increment(items.iter().map(|item| (*item).to_owned()).collect());
     }
     fn command(&self, tokens: &[String]) -> Option<&Value> {
         self.commands
@@ -215,11 +228,33 @@ impl Inventory {
             Some("variant")
         } else if path.iter().any(|s| s == "article") {
             Some("article")
-        } else if path == ["get", "drug"] && tokens.iter().skip(3).any(|s| s == "label") {
+        } else if path == ["get", "drug"] && tokens.iter().skip(3).any(|s| s == "label")
+            || path == ["search", "drug"]
+                && step.run.as_ref().is_some_and(|args| {
+                    args.windows(2)
+                        .any(|pair| pair == ["--source", "openfda-label"])
+                })
+        {
             Some("label")
         } else {
             None
         };
+        if family == Some("label")
+            && step
+                .expect
+                .get("/status")
+                .is_some_and(|value| asserts(value, "absent"))
+            && step
+                .expect
+                .get("/sources/0/source")
+                .is_some_and(|value| asserts(value, "openfda-label"))
+            && step
+                .expect
+                .get("/sources/0/state")
+                .is_some_and(|value| asserts(value, "ok"))
+        {
+            hits.insert("failure label not-found".into());
+        }
         for (failure, wire) in FAILURES {
             if step.expect.iter().any(|(pointer, value)| {
                 (pointer.ends_with("/reason") || pointer.ends_with("/code")) && asserts(value, wire)

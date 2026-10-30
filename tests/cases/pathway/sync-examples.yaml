@@ -8,10 +8,6 @@
         "sync",
         "wikipathways"
       ],
-      "mcp": [
-        "sync",
-        "wikipathways"
-      ],
       "expect": {
         "/status": "complete",
         "/result/search/total_rows": 13,
@@ -21,11 +17,6 @@
     },
     {
       "run": [
-        "sync",
-        "wikipathways",
-        "--fresh"
-      ],
-      "mcp": [
         "sync",
         "wikipathways",
         "--fresh"

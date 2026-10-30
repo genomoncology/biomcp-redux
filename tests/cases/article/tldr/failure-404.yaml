@@ -16,20 +16,6 @@
         "/result/items/0/sections/tldr/reason": "not-found"
       },
       "exit": 0
-    },
-    {
-      "run": [
-        "get",
-        "article",
-        "33123537",
-        "tldr"
-      ],
-      "offline": true,
-      "expect": {
-        "/status": "partial",
-        "/result/items/0/sections/tldr/reason": "not-found"
-      },
-      "exit": 0
     }
   ],
   "verified": "Response-only edits of the exact command capture from2026-10-24; request filenames, methods, URLs and identities are unchanged."

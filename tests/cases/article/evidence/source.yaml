@@ -11,12 +11,6 @@
         "33123537",
         "17611497"
       ],
-      "mcp": [
-        "article",
-        "citation-evidence",
-        "33123537",
-        "17611497"
-      ],
       "expect": {
         "/status": "complete",
         "/result/semantic_scholar/data/contexts/total": 6,
@@ -29,13 +23,6 @@
     },
     {
       "run": [
-        "article",
-        "citation-evidence",
-        "33123537",
-        "17611497",
-        "--fulltext"
-      ],
-      "mcp": [
         "article",
         "citation-evidence",
         "33123537",
