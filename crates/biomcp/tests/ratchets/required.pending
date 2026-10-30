@@ -20,15 +20,6 @@ option get variant --civic-profile
 option get variant --resolver
 option pathway events --offset
 option pathway events --pool
-option protein complexes --offset
-option protein complexes --pool
-option protein domains --offset
-option protein domains --pool
-option protein domains --type
-option protein isoforms --offset
-option protein isoforms --pool
-option protein structures --offset
-option protein structures --pool
 option search adverse-event --reaction
 option search adverse-event --snapshot
 option search cell-line --offset

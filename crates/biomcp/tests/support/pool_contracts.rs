@@ -32,6 +32,10 @@ pub(crate) const FEATURES: (&str, &[&str]) = (
     &[
         "option protein features --offset",
         "option protein features --pool",
+        "option protein isoforms --pool",
+        "option protein isoforms --offset",
+        "option protein structures --pool",
+        "option protein structures --offset",
     ],
 );
 pub(crate) const MEMBERS: (&str, &[&str]) = (
@@ -39,6 +43,8 @@ pub(crate) const MEMBERS: (&str, &[&str]) = (
     &[
         "option protein complex-members --offset",
         "option protein complex-members --pool",
+        "option protein complexes --pool",
+        "option protein complexes --offset",
     ],
 );
 pub(crate) const TRIAL: (&str, &[&str]) = (
@@ -64,4 +70,16 @@ pub(crate) const ARTICLE_SAVES: (&str, &[&str]) = (
         "option article supplement --save",
         "option article supplement --replace",
     ],
+);
+
+pub(crate) const DOMAIN_PAGES: (&str, &[&str]) = (
+    "protein-domains-complexes/native-pointer-retained-walk",
+    &[
+        "option protein domains --pool",
+        "option protein domains --offset",
+    ],
+);
+pub(crate) const DOMAIN_TYPE: (&str, &[&str]) = (
+    "protein-domains-complexes/native-types-and-fragments",
+    &["option protein domains --type"],
 );

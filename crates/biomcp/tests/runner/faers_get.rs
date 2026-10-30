@@ -180,6 +180,10 @@ fn sections() -> Check {
     ids.extend([
         "--drug-index".into(),
         "0".into(),
+        "--section-limit".into(),
+        "5".into(),
+        "--section-offset".into(),
+        "0".into(),
         "--snapshot".into(),
         snapshot.into(),
     ]);

@@ -38,10 +38,9 @@ pub(super) fn trials() -> Vec<Trial> {
         transcript_trial("protein-domains-complexes/source-failures", || {
             failures::run().map_err(Into::into)
         }),
-        transcript_trial(
-            "protein-domains-complexes/native-pointer-retained-walk",
-            || paging::run().map_err(Into::into),
-        ),
+        transcript_trial(crate::runner::pool_contract::DOMAIN_PAGES.0, || {
+            paging::run().map_err(Into::into)
+        }),
         transcript_trial(
             "protein-domains-complexes/retained-native-facts-and-costs",
             move || native::run(&root).map_err(Into::into),
@@ -50,10 +49,9 @@ pub(super) fn trials() -> Vec<Trial> {
         transcript_trial(crate::runner::pool_contract::MEMBERS.0, || {
             complexes::run().map_err(Into::into)
         }),
-        transcript_trial(
-            "protein-domains-complexes/native-types-and-fragments",
-            || domains().map_err(Into::into),
-        ),
+        transcript_trial(crate::runner::pool_contract::DOMAIN_TYPE.0, || {
+            domains().map_err(Into::into)
+        }),
     ]);
     trials
 }

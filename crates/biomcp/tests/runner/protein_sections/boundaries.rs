@@ -24,6 +24,7 @@ pub(super) fn features() -> Result<(), String> {
     coordinates(&env)?;
     retained(&env, &first)?;
     section_context(&env)?;
+    retained_relations(&env)?;
     usage(&env)?;
     if stub.finish()?.len() != 3 {
         return Err("retained entry sections repeated provider requests".into());
@@ -227,4 +228,38 @@ pub(super) fn feature_id() -> Result<(), String> {
     }
     Ok(())
 }
+}
+
+fn retained_relations(env: &Environment) -> Result<(), String> {
+    for (section, pointer, expected) in [
+        ("isoforms", "/result/items/0/ids/0", "Q8N726"),
+        ("structures", "/result/items/0/id", "1ABC"),
+    ] {
+        let first = call(
+            env,
+            None,
+            &["protein", section, "P00533", "--limit", "1"],
+            0,
+        )?;
+        let pool = first
+            .pointer("/page/pool/id")
+            .and_then(Value::as_str)
+            .ok_or("relation pool")?;
+        let kept = call(
+            env,
+            None,
+            &[
+                "protein", section, "P00533", "--limit", "1", "--pool", pool, "--offset", "0",
+            ],
+            0,
+        )?;
+        if kept.pointer(pointer) != Some(&json!(expected))
+            || kept.pointer("/page/pool/id").and_then(Value::as_str) != Some(pool)
+        {
+            return Err(format!(
+                "retained {section} changed its source identity: {kept}"
+            ));
+        }
+    }
+    Ok(())
 }
