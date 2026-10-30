@@ -164,10 +164,10 @@ fn persistence() -> Result<(), Box<dyn std::error::Error>> {
         ].map(str::to_owned);
         let mut command = env.command(std::env::current_exe()?, &args);
         command.env("TMPDIR", &scratch).env("TMP", &scratch).env("TEMP", &scratch);
-        // Exercise an explicit override inside TMPDIR too: an override must win.
         let expected = if explicit {
-            command.env("BIOMCP_EVIDENCE_DIR", &scratch);
-            scratch.join("fixture-failures")
+            let override_path = env.root().join("explicit-evidence");
+            command.env("BIOMCP_EVIDENCE_DIR", &override_path);
+            override_path.join("fixture-failures")
         } else {
             command.env_remove("BIOMCP_EVIDENCE_DIR");
             super::super::launch::checkout().join("../../target/fixture-evidence")
@@ -185,9 +185,7 @@ fn persistence() -> Result<(), Box<dyn std::error::Error>> {
         if retained.parent() != Some(expected.canonicalize()?.as_path()) {
             return Err(format!("fixture evidence used unexpected path: {retained:?}").into());
         }
-        if !explicit {
-            fs::remove_dir_all(&scratch)?;
-        }
+        fs::remove_dir_all(&scratch)?;
         if fs::read(retained.join("scratch/synthetic-marker"))? != b"retained scratch"
             || !retained.join("manifest.json").is_file()
         {
