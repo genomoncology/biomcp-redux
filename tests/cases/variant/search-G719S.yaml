@@ -63,7 +63,8 @@
                 },
                 "source": "myvariant",
                 "record": {
-                  "id": "chr7:g.55241707G>A"
+                  "id": "chr7:g.55241707G>A",
+                  "namespace": "unknown"
                 },
                 "component_terms": [
                   {
@@ -130,7 +131,8 @@
                 },
                 "source": "myvariant",
                 "record": {
-                  "id": "chr7:g.55241707G>A"
+                  "id": "chr7:g.55241707G>A",
+                  "namespace": "unknown"
                 },
                 "component_terms": [
                   {

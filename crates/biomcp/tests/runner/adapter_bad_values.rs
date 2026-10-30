@@ -162,13 +162,13 @@ fn reactome() -> Result<(), String> {
             "summary",
             "references.title",
             "/result/pathway/references/0/title",
-            "/result/pathway/references/0/db_id",
+            "/result/pathway/references/0/db_id/id",
         ),
         (
             "events",
             "events.name",
             "/result/items/0/name",
-            "/result/items/0/db_id",
+            "/result/items/0/db_id/id",
         ),
     ] {
         let stub = Stub::for_source("reactome.org", "application/json", |request| {

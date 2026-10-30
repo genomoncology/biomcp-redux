@@ -12,7 +12,7 @@ pub(super) fn chembl_header(
 pub(super) fn neutral(header: &DrugHeader) -> Result<DrugIdentity, Error> {
     Ok(DrugIdentity {
         id: header.id.clone(),
-        source: header.source.to_string().parse()?,
+        namespace: header.source.to_string().parse()?,
         name: header.name.clone(),
         identity_level: header.identity_level,
         r#type: header.r#type.clone(),

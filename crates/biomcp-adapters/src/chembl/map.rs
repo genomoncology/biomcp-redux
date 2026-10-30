@@ -22,7 +22,7 @@ pub fn targets(
         let target = problems
             .checked_text("target_chembl_id", r.target_chembl_id.as_deref())
             .map(|id| DrugNativeTarget {
-                source,
+                namespace: source,
                 id,
                 label: None,
                 url: None,

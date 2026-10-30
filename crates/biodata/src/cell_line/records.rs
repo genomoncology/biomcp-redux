@@ -5,11 +5,12 @@ use std::num::NonZeroU32;
 /// One complete native cross-reference; database and accession form the source identity.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", schemars(extend("x-identifier" = true)))]
 pub struct CellLineXref {
     /// Native database name; no fixed vocabulary.
-    pub database: Text,
+    pub namespace: Text,
     /// Native accession, including any internal prefix.
-    pub accession: Text,
+    pub id: Text,
     /// Native display label when supplied.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub label: Option<Text>,

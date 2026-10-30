@@ -201,7 +201,11 @@ fn page<T>(
                 .to_string()
                 .parse()
                 .ok()
-                .map(|id| biomcp_types::SourceRecord { id, url: None }),
+                .map(|id| biomcp_types::SourceRecord {
+                    namespace: biodata::IdentifierNamespace::Unknown,
+                    id,
+                    url: None,
+                }),
         }
     } else {
         Section::Data {

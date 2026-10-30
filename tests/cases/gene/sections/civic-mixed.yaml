@@ -16,8 +16,8 @@
       "expect": {
         "/status": "complete",
         "/result/items/0/sections/civic/record/id": "14308",
-        "/result/items/1/sections/civic/data/id": 20,
-        "/result/items/2/sections/civic/record/id": "14308"
+        "/result/items/2/sections/civic/record/id": "14308",
+        "/result/items/1/sections/civic/data/id/id": 20
       },
       "mcp": [
         "get",

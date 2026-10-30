@@ -50,11 +50,12 @@ pub struct ProteinDomainFragment {
 /// A member database signature, not an integrated IPR entry.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", schemars(extend("x-identifier" = true)))]
 pub struct ProteinMemberSignature {
     /// Native member database name.
-    pub database: Text,
+    pub namespace: Text,
     /// Native signature accession.
-    pub accession: Text,
+    pub id: Text,
     /// Native member signature name.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub name: Option<Text>,

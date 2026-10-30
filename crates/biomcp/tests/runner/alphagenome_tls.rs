@@ -311,7 +311,7 @@ fn groups(reply: &Value) -> Result<(), String> {
     if native.get("track")
         != Some(&json!({
             "name":"synthetic track 0","strand":"STRAND_UNSTRANDED",
-            "ontology_term":{"ontology_type":"ONTOLOGY_TYPE_UBERON","id":2048},
+            "ontology_term":{"namespace":"ONTOLOGY_TYPE_UBERON","id":2048},
             "biosample":{"type":"BIOSAMPLE_TYPE_TISSUE","name":"synthetic tissue","stage":"synthetic stage"},
             "assay":"synthetic assay","gtex_tissue":"synthetic GTEx tissue","histone_mark_code":"synthetic histone",
             "transcription_factor_code":"synthetic transcription factor","data_source":"synthetic data source",

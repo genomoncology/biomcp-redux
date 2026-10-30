@@ -132,10 +132,7 @@ impl Study {
             ontology_traits: self
                 .efo_traits
                 .into_iter()
-                .map(|t| GwasTrait {
-                    id: t.efo_id,
-                    label: t.efo_trait,
-                })
+                .map(|t| GwasTrait::new(t.efo_id, t.efo_trait))
                 .collect(),
             initial_sample_description: self.initial_sample_size.map(Into::into),
             replication_sample_description: self.replication_sample_size.map(Into::into),

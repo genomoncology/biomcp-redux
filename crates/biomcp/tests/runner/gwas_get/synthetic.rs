@@ -161,8 +161,8 @@ pub(super) fn contexts() -> Result<(), String> {
     )?;
     let next = super::super::action(&first, "page")?;
     let last = gwas_budgets::invoke("gwas_get/synthetic/contexts/3", &live, next, 0)?;
-    if first.pointer("/result/items/0/id") != Some(&json!(6110))
-        || last.pointer("/result/items/0/id") != Some(&json!(6113))
+    if first.pointer("/result/items/0/id") != Some(&json!("association:6110"))
+        || last.pointer("/result/items/0/id") != Some(&json!("association:6113"))
         || last.pointer("/query/query/id") != Some(&json!("GCST000035"))
         || last.pointer("/page/total") != Some(&json!(6))
     {

@@ -14,11 +14,11 @@
       "expect": {
         "/status": "complete",
         "/result/items/0/sections/civic/state": "data",
-        "/result/items/0/sections/civic/data/id": 20,
         "/result/items/0/sections/civic/data/variant_count": 126,
         "/result/items/0/sections/civic": {
           "max_tokens": 1000
-        }
+        },
+        "/result/items/0/sections/civic/data/id/id": 20
       },
       "max_bytes": 6200,
       "mcp": [

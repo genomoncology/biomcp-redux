@@ -22,9 +22,9 @@
         "/result/candidates/0/sections/gwas/data/page/returned": 3,
         "/result/candidates/0/sections/gwas/data/page/total": 3,
         "/result/candidates/0/sections/gwas/data/associations/*/id": [
-          101,
-          102,
-          103
+          "association:101",
+          "association:102",
+          "association:103"
         ],
         "/result/candidates/0/sections/gwas/data/associations/0/beta": "0.036833 kg decrease",
         "/result/candidates/0/sections/gwas/data/associations/0/study": "GCST90996374",

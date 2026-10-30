@@ -39,7 +39,7 @@ pub struct Association {
     /// Rejected source metadata attributed to the association.
     pub problems: Vec<biomcp_types::Problem>,
     /// Stable association record identity.
-    pub association_id: u64,
+    pub association_id: biodata::GwasAssociationId,
     /// Catalog study accession.
     pub accession_id: Option<Text>,
     /// Source-reported traits.
@@ -175,7 +175,6 @@ impl Reply for Response {
         if rows
             .iter()
             .filter_map(|row| row.value.as_ref())
-            .filter(|r| r.association_id > 0)
             .any(|r| !ids.insert(r.association_id))
         {
             return Err(BadReply);
@@ -186,11 +185,10 @@ impl Reply for Response {
 impl Response {
     pub(super) fn identities_admitted(&self) -> bool {
         self.embedded.as_ref().is_none_or(|embedded| {
-            embedded.associations.iter().all(|row| {
-                row.value
-                    .as_ref()
-                    .is_some_and(|value| value.association_id > 0)
-            })
+            embedded
+                .associations
+                .iter()
+                .all(|row| row.value.as_ref().is_some())
         })
     }
     pub(super) fn matches(&self, id: &str, page: u32, size: u32, url: &str) -> bool {

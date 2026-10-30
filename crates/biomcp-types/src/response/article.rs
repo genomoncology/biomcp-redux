@@ -12,6 +12,7 @@ pub use supplement::{
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(tag = "namespace", content = "id", rename_all = "kebab-case")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", schemars(extend("x-identifier" = true)))]
 pub enum ArticleKey {
     /// PubMed identity.
     Pubmed(Pmid),
