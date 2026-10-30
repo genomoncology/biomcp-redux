@@ -86,10 +86,20 @@
           "description": "Native NCI trial count across trial statuses.",
           "format": "uint64",
           "minimum": 0,
-          "type": "integer"
+          "type": [
+            "integer",
+            "null"
+          ]
         },
         "name": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Native biomarker concept name."
         },
         "type": {
@@ -101,9 +111,7 @@
         }
       },
       "required": [
-        "codes",
-        "name",
-        "count"
+        "codes"
       ],
       "type": "object"
     },
@@ -786,7 +794,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.biomarker-result/3",
+  "$id": "biomcp.biomarker-result/4",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -842,7 +850,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.biomarker-result/3",
+      "const": "biomcp.biomarker-result/4",
       "type": "string"
     },
     "sources": {

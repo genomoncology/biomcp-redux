@@ -280,7 +280,7 @@ impl Leg<'_> {
                         std::any::type_name::<T>(),
                         true,
                         &prepared.url,
-                        crate::Provenance::received::<T>(prepared, &entry.body, Some(entry.status)),
+                        codec.provenance(prepared, &entry.body, Some(entry.status)),
                     ),
                 );
             }
@@ -313,7 +313,7 @@ impl Leg<'_> {
                     std::any::type_name::<T>(),
                     true,
                     &prepared.url,
-                    crate::Provenance::received::<T>(prepared, &entry.body, Some(entry.status)),
+                    codec.provenance(prepared, &entry.body, Some(entry.status)),
                 ),
             );
         }

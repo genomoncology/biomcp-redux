@@ -1,7 +1,7 @@
 //! Feature adverse-event-search: a native absence body requires its native HTTP status.
 use super::{Check, args, both, environment};
 use serde_json::json;
-pub(super) fn optional_date() -> Check {
+pub(super) fn protocol_date() -> Check {
     let stub = super::Stub::for_sources(
         &["api.fda.gov"],
         |_| "application/json",
@@ -14,14 +14,12 @@ pub(super) fn optional_date() -> Check {
         },
     )?;
     let env = environment(&stub)?;
-    let value = both(&env, args(), 0)?;
-    if value.pointer("/result/items/0/id") != Some(&json!("100"))
-        || value.pointer("/result/source_updated").is_some()
-        || value.pointer("/problems/0/field") != Some(&json!("meta.last_updated"))
-        || value.pointer("/problems/0/code") != Some(&json!("value.unknown"))
+    let value = both(&env, args(), 4)?;
+    if value.get("result").is_some()
+        || value.pointer("/sources/0/reason") != Some(&json!("bad-reply"))
     {
         return Err(format!(
-            "optional source date discarded usable reports: {value}"
+            "invalid protocol date became usable reports: {value}"
         ));
     }
     stub.finish()?;

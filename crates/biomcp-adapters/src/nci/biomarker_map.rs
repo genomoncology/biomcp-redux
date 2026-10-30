@@ -16,27 +16,22 @@ pub(super) fn page(raw: Page) -> Mapped<Vec<BiomarkerCard>> {
             let value = BiomarkerCard {
                 header: BiomarkerHeader {
                     codes: row.codes,
-                    name: row.name,
-                    r#type: row.r#type,
-                    count: row.count,
+                    name: p.source_field("name", row.name),
+                    r#type: p.fields("type", row.r#type),
+                    count: p.field("count", row.count),
                 },
-                synonyms: p.optional(
-                    "synonyms",
-                    row.synonyms.map(|v| {
-                        v.value()
-                            .map(|values| values.into_vec().into_iter().map(Into::into).collect())
-                            .ok_or(())
-                    }),
-                ),
-                parent_ids: p.optional("parent_ids", row.parent_ids.map(|v| v.value().ok_or(()))),
-                ancestor_ids: p.optional(
-                    "ancestor_ids",
-                    row.ancestor_ids.map(|v| v.value().ok_or(())),
-                ),
-                eligibility_criterion: p.optional(
-                    "eligibility_criterion",
-                    row.eligibility_criterion.map(|v| v.value().ok_or(())),
-                ),
+                synonyms: p
+                    .optional_fields("synonyms", row.synonyms)
+                    .map(|values| values.into_iter().map(Into::into).collect()),
+                parent_ids: p
+                    .optional_fields("parent_ids", row.parent_ids)
+                    .map(Vec::into_boxed_slice),
+                ancestor_ids: p
+                    .optional_fields("ancestor_ids", row.ancestor_ids)
+                    .map(Vec::into_boxed_slice),
+                eligibility_criterion: p
+                    .optional_fields("eligibility_criterion", row.eligibility_criterion)
+                    .map(Vec::into_boxed_slice),
             };
             problems.extend(p.list);
             value

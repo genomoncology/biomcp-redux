@@ -4,6 +4,7 @@ use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 type Check = Result<(), String>;
+mod optional;
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = vec![
         transcript_trial("adverse-event-get/age-unit-boundaries", || {
@@ -25,19 +26,27 @@ pub(super) fn trials() -> Vec<Trial> {
         "adverse-event-get/synthetic-source-admission-before-retained-read",
         || source_policy().map_err(Into::into),
     ));
+    for mode in ["wrong-id", "two-versions", "absent", "bad-drug-index"] {
+        trials.push(transcript_trial(
+            format!("adverse-event-get/synthetic-{mode}"),
+            move || identity(mode).map_err(Into::into),
+        ));
+    }
     for mode in [
-        "wrong-id",
-        "two-versions",
-        "absent",
-        "bad-drug-index",
         "missing-patient",
         "missing-drugs",
         "missing-reactions",
+        "null-patient",
+        "null-drugs",
+        "null-reactions",
+        "invalid-patient",
+        "invalid-drugs",
+        "invalid-reactions",
         "empty-collections",
     ] {
         trials.push(transcript_trial(
             format!("adverse-event-get/synthetic-{mode}"),
-            move || identity(mode).map_err(Into::into),
+            move || optional::run(mode).map_err(Into::into),
         ));
     }
     trials
@@ -58,25 +67,7 @@ fn native() -> Value {
 fn setup(mode: &str) -> Result<(Environment, Stub), String> {
     let mut body = native();
     age_input(&mut body, mode)?;
-    if mode == "missing-patient" {
-        body.pointer_mut("/results/0")
-            .and_then(Value::as_object_mut)
-            .ok_or("report")?
-            .remove("patient");
-    }
-    for field in ["drug", "reaction"] {
-        if mode == format!("missing-{field}s") || mode == "empty-collections" {
-            let patient = body
-                .pointer_mut("/results/0/patient")
-                .and_then(Value::as_object_mut)
-                .ok_or("patient")?;
-            if mode == "empty-collections" {
-                patient.insert(field.into(), json!([]));
-            } else {
-                patient.remove(field);
-            }
-        }
-    }
+    optional::input(&mut body, mode)?;
     if mode == "walks" {
         let drugs: Vec<_> = (0..19)
             .map(|n| json!({"medicinalproduct":format!("Synthetic drug {n}"), "drugcharacterization":if n%2==0 {"1"}else{"2"}}))
@@ -234,23 +225,13 @@ fn identity(mode: &str) -> Check {
         words = args(Some("unii"));
         words.extend(["--drug-index".into(), "99".into()]);
     }
-    let exit = if mode == "empty-collections" {
-        0
-    } else if mode == "absent" {
-        1
-    } else if mode == "bad-drug-index" {
-        2
-    } else {
-        4
+    let exit = match mode {
+        "absent" => 1,
+        "bad-drug-index" => 2,
+        _ => 4,
     };
     let value = both(&env, words, exit)?;
-    if mode == "empty-collections" {
-        if value.pointer("/result/drug_count") != Some(&json!(0))
-            || value.pointer("/result/reaction_count") != Some(&json!(0))
-        {
-            return Err(format!("explicit empty arrays lost: {value}"));
-        }
-    } else if mode == "absent" {
+    if mode == "absent" {
         if value.get("status") != Some(&json!("absent")) {
             return Err(format!("absence: {value}"));
         }
@@ -268,11 +249,7 @@ fn identity(mode: &str) -> Check {
     {
         return Err("rejected identity lost its problem".into());
     }
-    let expected = if matches!(mode, "bad-drug-index" | "empty-collections") {
-        1
-    } else {
-        2
-    };
+    let expected = if mode == "bad-drug-index" { 1 } else { 2 };
     if stub.finish()?.len() != expected {
         return Err("invalid identity entered cache".into());
     }
