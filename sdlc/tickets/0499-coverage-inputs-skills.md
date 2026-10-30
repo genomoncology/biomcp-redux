@@ -1,6 +1,7 @@
 # 0499 — Bind coverage reuse to the embedded skill files
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: ccf093cd6d0300b347d08053d1a4c33c850d51ac
 
 Milestone: 5
 
