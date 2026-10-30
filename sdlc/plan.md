@@ -47,6 +47,8 @@ Robustness and public-text fixes come first, because the parity run, the docs an
 
 - Rebuild the test suite as one small outside-in suite (`decisions/2026-10-29-one-small-outside-in-suite.md`): the required-coverage check 0483 after 0431, then the case cut 0456, then the runner trial cut 0484 and the nightly selection 0485. Mutation testing 0457 runs on the cut suite.
 
+- Make 1.0 ready to run as a shared hosted MCP server, live before 2026-11-30 (m16469): hosted mode 0502, then per-request keys 0503, then licensed replies kept per caller 0504 and per-key pacing 0505, and remote tool fit 0506 after 0502. These run alongside the restructure, because they touch the MCP edge and the fetch layer and serve the deadline.
+
 - Fix the BioData review's data model findings before the tag, because the release gate freezes every pattern, type set and schema ID: 0435 to 0453, with 0436 and 0437 first, and 0444 before 0421.
 
 ### 6. Rehearse and release
