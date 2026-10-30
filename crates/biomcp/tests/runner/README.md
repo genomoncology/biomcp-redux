@@ -5,6 +5,12 @@ external case directory. Cargo filters and `--list` retain those relative names.
 Each case shares one isolated environment across its steps.
 An explicit name filter that selects no tests exits nonzero and names the filter on stderr.
 
+`scripts.trials.run_selected` selects exact names from an existing executable's
+`--list` output before its build preparation callback runs. Pass the target's
+existing mode arguments and required working directory. The helper keeps that
+command and directory for each exact run. Group names and names owned by another
+target fail before preparation. `--cases` selects a directory.
+
 `expect` maps JSON pointers to assertions. Scalars and arrays mean equality.
 Objects contain operators combined with AND; use `equals` for a literal object.
 The runner validates every step and assertion before launching any command.

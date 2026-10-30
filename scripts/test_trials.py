@@ -20,12 +20,28 @@ class TrialSelection(unittest.TestCase):
             with patch("trials.subprocess.run", return_value=listing) as run:
                 def prepare():
                     prepared.append(run.call_count)
-                run_selected(target, cwd, ["mcp-parity/bounded-framing"], prepare)
+                run_selected([str(target)], cwd, ["mcp-parity/bounded-framing"], prepare)
                 self.assertEqual(prepared, [1])
                 self.assertEqual(run.call_args_list[0].args[0], [str(target), "--list"])
                 self.assertEqual(run.call_args_list[1].args[0],
                     [str(target), "mcp-parity/bounded-framing", "--exact"])
                 self.assertTrue(all(call.kwargs["cwd"] == cwd for call in run.call_args_list))
+
+
+    def test_target_mode_stays_with_the_exact_selection(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            cwd = Path(temporary)
+            target = cwd / "tools"
+            target.touch()
+            listing = subprocess.CompletedProcess([], 0,
+                "schema-discovery/persistent-native-evidence: test\n", "")
+            with patch("trials.subprocess.run", return_value=listing) as run:
+                run_selected([str(target), "--proofs"], cwd,
+                             ["schema-discovery/persistent-native-evidence"], lambda: None)
+                self.assertEqual(run.call_args_list[0].args[0],
+                                 [str(target), "--proofs", "--list"])
+                self.assertEqual(run.call_args_list[1].args[0],
+                    [str(target), "--proofs", "schema-discovery/persistent-native-evidence", "--exact"])
 
     def test_unknown_and_empty_names_refuse_before_preparation(self):
         with tempfile.TemporaryDirectory() as temporary:
@@ -39,7 +55,7 @@ class TrialSelection(unittest.TestCase):
                     def prepare():
                         self.fail("invalid selection reached build preparation")
                     with self.assertRaises(ValueError):
-                        run_selected(target, cwd, names, prepare)
+                        run_selected([str(target)], cwd, names, prepare)
                     self.assertEqual(run.call_count, 1)
 
 
