@@ -92,9 +92,8 @@ class ReplyDiff(unittest.TestCase):
             "result": {"snapshot": {"acquired": 50 if suffix == "base" else 60}},
         }).encode(), root=root,
             args=["search", "trial", "--pool", "broken" if bad_reference else pool])
-        self.write(directory, "case/runtime.yaml/step/2",
-                   ("# Trial\n**fetched:** " + ("30" if suffix == "base" else "40") + "\n").encode(),
-                   **common)
+        markdown = "# Trial\n**fetched:** " + ("30" if suffix == "base" else "40") + "\n"
+        self.write(directory, "case/runtime.yaml/step/2", markdown.encode(), **common)
         self.write(directory, "case/runtime.yaml/step/3", json.dumps({
             "result": {"file": {"data": {"path": root + "/reply.json"}}},
         }).encode(), root=root, args=["get", "trial", "--save", "reply.json"])
