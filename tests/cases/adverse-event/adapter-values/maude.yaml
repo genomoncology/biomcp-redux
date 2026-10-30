@@ -1,0 +1,34 @@
+{
+  "feature": "maude-reports",
+  "live_check": "synthetic",
+  "story": "A synthetic wrong-shaped nonidentity value retains its report and names the omitted field.",
+  "replay": "adverse-event/adapter-values/maude",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "adverse-event",
+        "--source",
+        "maude",
+        "--manufacturer",
+        "Synthetic maker",
+        "--product-code",
+        "ABC",
+        "--product-code",
+        "XYZ",
+        "--problem",
+        "Synthetic problem"
+      ],
+      "expect": {
+        "/result/items/0": {
+          "omits": [
+            "event_type"
+          ]
+        },
+        "/problems/*/field": [
+          "event_type"
+        ]
+      }
+    }
+  ]
+}
