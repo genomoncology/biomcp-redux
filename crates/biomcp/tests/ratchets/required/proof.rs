@@ -7,7 +7,8 @@ fn help() -> Value {
     json!({"result":{"commands":[
         {"command":[],"arguments":[{"name":"--format","value_type":"string"}]},
         {"command":["get","trial"],"arguments":[
-            {"name":"--limit","value_type":"string","aliases":["-n"]}
+            {"name":"--limit","value_type":"string","aliases":["-n"]},
+            {"name":"--section","value_type":"string"}
         ],"sections":[{"word":"eligibility"}]}
     ]}})
 }
@@ -181,6 +182,20 @@ fn dynamic_follow_never_counts_overridden_argv() -> Check {
     Ok(())
 }
 
+fn only_trailing_words_select_implicit_sections() -> Check {
+    let mut inventory = Inventory::new(&help(), &[])?;
+    for argv in [
+        vec!["get", "trial", "NCT1", "eligibility", "NCT2"],
+        vec!["get", "trial", "NCT1", "eligibility", "--section=other"],
+    ] {
+        inventory.step(&step(&argv)?);
+    }
+    assert_eq!(inventory.calls.get("section get trial eligibility"), Some(&0));
+    inventory.step(&step(&["get", "trial", "eligibility", "--section=eligibility"])?);
+    assert_eq!(inventory.calls.get("section get trial eligibility"), Some(&1));
+    Ok(())
+}
+
 fn explicit_equals_refusal_counts() -> Check {
     let mut inventory = Inventory::new(&help(), &[])?;
     let refusal: Step = serde_json::from_value(json!({
@@ -193,6 +208,7 @@ fn explicit_equals_refusal_counts() -> Check {
 }
 
 pub(super) fn check() -> Check {
+    only_trailing_words_select_implicit_sections()?;
     explicit_equals_refusal_counts()?;
     three_hand_counts_match_and_an_identity_never_counts_as_a_section()?;
     a_new_option_without_a_case_fails()?;
