@@ -13,14 +13,6 @@
         "--study-type",
         "INTERVENTIONAL"
       ],
-      "mcp": [
-        "search",
-        "trial",
-        "--condition",
-        "melanoma",
-        "--study-type",
-        "INTERVENTIONAL"
-      ],
       "expect": {
         "/status": "complete",
         "/page/total": 3143,

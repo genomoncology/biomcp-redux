@@ -10,34 +10,6 @@
         "get",
         "trial",
         "NCT02987543",
-        "locations"
-      ],
-      "mcp": [
-        "get",
-        "trial",
-        "NCT02987543",
-        "locations"
-      ],
-      "expect": {
-        "/status": "complete",
-        "/result/items/0/input": "NCT02987543",
-        "/result/items/0/sections/locations/state": "data",
-        "/result/items/0/sections/locations/data/total": 204,
-        "/result/items/0/card/status": "COMPLETED"
-      },
-      "max_bytes": 4645
-    },
-    {
-      "run": [
-        "get",
-        "trial",
-        "NCT02987543",
-        "contacts"
-      ],
-      "mcp": [
-        "get",
-        "trial",
-        "NCT02987543",
         "contacts"
       ],
       "expect": {

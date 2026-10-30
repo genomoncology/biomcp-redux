@@ -12,14 +12,6 @@
         "--section-limit",
         "25"
       ],
-      "mcp": [
-        "get",
-        "cell-line",
-        "CVCL_0004",
-        "xrefs",
-        "--section-limit",
-        "25"
-      ],
       "walk": {
         "items": "/result/items/items",
         "max_pages": 56

@@ -34,7 +34,7 @@ pub(super) fn trials() -> Vec<Trial> {
 }
 pub(super) fn installed_trials() -> Vec<Trial> {
     vec![transcript_trial(
-        "variant-alphagenome/alphagenome-native-groups-local-tls",
+        crate::runner::required_contract::ALPHAGENOME.0,
         || run().map_err(Into::into),
     )]
 }

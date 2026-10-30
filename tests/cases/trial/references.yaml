@@ -11,12 +11,6 @@
         "NCT03511664",
         "references"
       ],
-      "mcp": [
-        "get",
-        "trial",
-        "NCT03511664",
-        "references"
-      ],
       "expect": {
         "/status": "complete",
         "/result/items/0/sections/references/data/items/5/pmid": "34161051",

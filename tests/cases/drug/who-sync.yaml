@@ -8,10 +8,6 @@
         "sync",
         "who-pq"
       ],
-      "mcp": [
-        "sync",
-        "who-pq"
-      ],
       "expect": {
         "/schema": "biomcp.sync/7",
         "/status": "complete",
@@ -23,11 +19,6 @@
     },
     {
       "run": [
-        "sync",
-        "who-pq",
-        "--fresh"
-      ],
-      "mcp": [
         "sync",
         "who-pq",
         "--fresh"

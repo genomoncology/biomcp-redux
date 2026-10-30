@@ -11,12 +11,6 @@
         "NCT04303780",
         "documents"
       ],
-      "mcp": [
-        "get",
-        "trial",
-        "NCT04303780",
-        "documents"
-      ],
       "expect": {
         "/status": "complete",
         "/result/items/0/sections/documents/data/total": 2,

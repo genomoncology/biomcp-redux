@@ -40,10 +40,9 @@ pub(super) fn trials() -> Vec<Trial> {
         transcript_trial("vaers-summary/synthetic-403-429-500-timeout-broken", || {
             failures::run().map_err(Into::into)
         }),
-        transcript_trial(
-            "vaers-summary/independent-tables-retained-walk-and-suppression",
-            || navigation::run().map_err(Into::into),
-        ),
+        transcript_trial(crate::runner::required_contract::VAERS_TABLES.0, || {
+            navigation::run().map_err(Into::into)
+        }),
         transcript_trial("vaers-summary/unsupported-vaccine-before-io", || {
             unsupported().map_err(Into::into)
         }),

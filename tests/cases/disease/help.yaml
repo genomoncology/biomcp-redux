@@ -31,11 +31,6 @@
         "/status": "complete"
       },
       "max_bytes": 2311,
-      "mcp": [
-        "help",
-        "search",
-        "disease"
-      ],
       "run": [
         "help",
         "search",
@@ -82,11 +77,6 @@
         "/status": "complete"
       },
       "max_bytes": 4433,
-      "mcp": [
-        "help",
-        "get",
-        "disease"
-      ],
       "run": [
         "help",
         "get",

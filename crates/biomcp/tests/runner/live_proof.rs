@@ -131,10 +131,11 @@ fn plan() -> Result<(), Box<dyn std::error::Error>> {
         .and_then(Value::as_array)
         .ok_or("case list missing")?;
     if !cases.iter().any(|c| {
-        c.get("case") == Some(&json!("article/get/live-capture.yaml"))
+        c.get("case") == Some(&json!("article/sections/grammar.yaml"))
             && c.get("eligible") == Some(&json!(true))
     }) || !cases.iter().any(|c| {
-        c.get("case") == Some(&json!("gene/failure-429.yaml")) && c.get("skipped").is_some()
+        c.get("case") == Some(&json!("article/sections/failure-500.yaml"))
+            && c.get("skipped").is_some()
     }) {
         return Err("eligibility list omitted public capture or failure skip".into());
     }
@@ -145,7 +146,7 @@ fn formats() -> Result<(), Box<dyn std::error::Error>> {
     let environment = Environment::new()?;
     let root = super::launch::fixtures().join("replies");
     let case: super::Case = serde_saphyr::from_str(&fs::read_to_string(
-        super::launch::fixtures().join("cases/article/get/live-capture.yaml"),
+        super::launch::fixtures().join("cases/article/sections/grammar.yaml"),
     )?)?;
     let args = case
         .steps
@@ -153,7 +154,8 @@ fn formats() -> Result<(), Box<dyn std::error::Error>> {
         .and_then(|step| step.run.as_ref())
         .ok_or("native XML command absent")?;
     let args: Vec<_> = args.iter().map(String::as_str).collect();
-    let xml = observe(&environment, &root.join("article/get/live"), "xml", &args)?;
+    let replay = case.replay.as_deref().ok_or("native XML replay absent")?;
+    let xml = observe(&environment, &root.join(replay), "xml", &args)?;
     if !xml
         .iter()
         .any(|o| o.shape.fields.contains_key("PubmedArticleSet"))

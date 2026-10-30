@@ -14,9 +14,10 @@ pub(super) fn trials() -> Vec<Trial> {
         transcript_trial("variant-normalization/keeps-every-transcript", || {
             transcripts().map_err(Into::into)
         }),
-        transcript_trial("variant-normalization/native-mapping-walk-is-warm", || {
-            walk().map_err(Into::into)
-        }),
+        transcript_trial(
+            crate::runner::required_contract::NORMALIZATION_PAGES.0,
+            || walk().map_err(Into::into),
+        ),
         transcript_trial("variant-normalization/warning-is-rejection", || {
             warning().map_err(Into::into)
         }),

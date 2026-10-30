@@ -9,7 +9,7 @@ pub(super) fn trials() -> Vec<Trial> {
         transcript_trial("organization-nci/research-keeps-uncitable-rows", || {
             research().map_err(Into::into)
         }),
-        transcript_trial("organization-nci/native-local-pages", || {
+        transcript_trial(crate::runner::pool_contract::ORGANIZATION.0, || {
             pages().map_err(Into::into)
         }),
         transcript_trial("organization-nci/bounded-failures", || {

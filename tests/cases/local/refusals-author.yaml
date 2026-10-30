@@ -1,0 +1,16 @@
+feature: query-validation
+story: Each public command refuses an unsupported argument before it reads a source.
+steps:
+- run:
+  - author
+  - --unrecognized-argument
+  exit: 2
+  expect:
+    /error/code: usage.arguments
+- run:
+  - author
+  - papers
+  - --unrecognized-argument
+  exit: 2
+  expect:
+    /error/code: usage.arguments

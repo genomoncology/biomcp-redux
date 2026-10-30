@@ -8,10 +8,10 @@ use std::{collections::BTreeSet, io::Write};
 type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        transcript_trial("pathway-reactome/native-reference-walk", || {
+        transcript_trial(crate::runner::pool_contract::PATHWAY_GENES.0, || {
             walk(true).map_err(Into::into)
         }),
-        transcript_trial("pathway-reactome/native-event-walk", || {
+        transcript_trial(crate::runner::pool_contract::PATHWAY_EVENTS.0, || {
             walk(false).map_err(Into::into)
         }),
         transcript_trial("pathway-reactome/pool-binding-and-fixed-lifetime", || {
@@ -118,6 +118,9 @@ fn walk(genes: bool) -> Check {
             "native event union changed: {} / {objects} / {integers}",
             seen.len()
         ));
+    }
+    if !genes {
+        super::pathway_get_pages::check(&env, &globals(&env, false))?;
     }
     Ok(())
 }

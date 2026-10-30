@@ -17,18 +17,6 @@
         "--distance",
         "50mi"
       ],
-      "mcp": [
-        "search",
-        "trial",
-        "--condition",
-        "melanoma",
-        "--lat",
-        "42.3601",
-        "--lon",
-        "-71.0589",
-        "--distance",
-        "50mi"
-      ],
       "expect": {
         "/status": "complete",
         "/page/total": 424,

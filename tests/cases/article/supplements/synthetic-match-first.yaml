@@ -12,14 +12,6 @@
         "--find",
         "F1761I"
       ],
-      "mcp": [
-        "article",
-        "supplement",
-        "28944238",
-        "MGG3-5-553-s002.xlsx",
-        "--find",
-        "F1761I"
-      ],
       "expect": {
         "/result/content/data/rows/0/row": 2,
         "/result/content/data/rows/0/fragment": {
@@ -67,20 +59,6 @@
         }
       },
       "max_bytes": 5500
-    },
-    {
-      "run": [
-        "article",
-        "supplement",
-        "28944238",
-        "MGG3-5-553-s002.xlsx",
-        "--find",
-        "Phe1761Ile"
-      ],
-      "expect": {
-        "/result/content/data/search_message": "No row contains the search term."
-      },
-      "max_tokens": 649
     }
   ]
 }

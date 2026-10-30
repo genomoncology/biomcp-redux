@@ -101,14 +101,6 @@ schema-generate:
 schema-release-check:
 	python3 scripts/schema_release.py
 
-.PHONY: parity-run
-parity-run:
-	sh scripts/parity_runner.sh "$(abspath $(PLAN))" "$(BASELINE)" "$(abspath $(OUT))"
-
-.PHONY: parity-inventory
-parity-inventory:
-	cargo test --locked -p biomcp --test tools -- --parity-inventory "$(abspath $(PLAN))" "$(CURDIR)/tests/cases" "$(abspath $(OUT))"
-
 .PHONY: tensor-proto-check
 tensor-proto-check:
 	python3 scripts/regenerate_tensor_proto.py --check

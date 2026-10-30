@@ -9,10 +9,6 @@
         "sync",
         "clingen"
       ],
-      "mcp": [
-        "sync",
-        "clingen"
-      ],
       "expect": {
         "/status": "complete",
         "/query/source": "clingen",

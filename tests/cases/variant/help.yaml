@@ -9,11 +9,6 @@
         "get",
         "variant"
       ],
-      "mcp": [
-        "help",
-        "get",
-        "variant"
-      ],
       "expect": {
         "/result/commands/0/examples": {
           "count": 2
@@ -24,11 +19,6 @@
     },
     {
       "run": [
-        "help",
-        "search",
-        "variant"
-      ],
-      "mcp": [
         "help",
         "search",
         "variant"
@@ -46,11 +36,6 @@
         "variant",
         "assertions"
       ],
-      "mcp": [
-        "help",
-        "variant",
-        "assertions"
-      ],
       "expect": {
         "/result/commands/0/examples": {
           "count": 2
@@ -60,11 +45,6 @@
     },
     {
       "run": [
-        "help",
-        "variant",
-        "population"
-      ],
-      "mcp": [
         "help",
         "variant",
         "population"
@@ -82,11 +62,6 @@
         "variant",
         "normalize"
       ],
-      "mcp": [
-        "help",
-        "variant",
-        "normalize"
-      ],
       "expect": {
         "/result/commands/0/examples": {
           "count": 2
@@ -96,11 +71,6 @@
     },
     {
       "run": [
-        "help",
-        "variant",
-        "recurrence"
-      ],
-      "mcp": [
         "help",
         "variant",
         "recurrence"

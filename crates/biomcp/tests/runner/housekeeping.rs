@@ -1,4 +1,6 @@
 //! Housekeeping runs through the isolated installed command boundary.
+#[path = "../support/housekeeping_contract.rs"]
+mod contract;
 #[path = "housekeeping_path.rs"]
 mod stable_path;
 
@@ -11,7 +13,7 @@ type Check<T = ()> = Result<T, Box<dyn std::error::Error>>;
 
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = vec![
-        transcript_trial("housekeeping/offline-provenance-and-config", || {
+        transcript_trial(contract::OFFLINE_PROVENANCE.0, || {
             check().map_err(|error| error.to_string().into())
         }),
         transcript_trial("housekeeping/invalid-globals-ignore-key-config", || {

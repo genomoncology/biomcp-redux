@@ -11,12 +11,6 @@
         "semantic-scholar:123",
         "details"
       ],
-      "mcp": [
-        "author",
-        "papers",
-        "semantic-scholar:123",
-        "details"
-      ],
       "expect": {
         "/status": "partial",
         "/result/items/0/header/paper_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
@@ -54,12 +48,6 @@
     },
     {
       "run": [
-        "author",
-        "papers",
-        "semantic-scholar:123",
-        "--full"
-      ],
-      "mcp": [
         "author",
         "papers",
         "semantic-scholar:123",

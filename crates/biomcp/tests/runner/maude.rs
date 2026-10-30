@@ -22,7 +22,7 @@ pub(super) fn trials() -> Vec<Trial> {
         transcript_trial("maude-reports/synthetic-search-and-card", || {
             search_card().map_err(Into::into)
         }),
-        transcript_trial("maude-reports/synthetic-complete-section-pages", || {
+        transcript_trial(crate::runner::required_contract::MAUDE_SECTIONS.0, || {
             sections().map_err(Into::into)
         }),
         transcript_trial("maude-reports/synthetic-policy-before-io", || {

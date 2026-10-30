@@ -13,11 +13,6 @@
         "/status": "complete"
       },
       "max_bytes": 1578,
-      "mcp": [
-        "search",
-        "pathway",
-        "Signaling by EGFR"
-      ],
       "is_error": false
     },
     {
@@ -30,20 +25,10 @@
         "/status": "complete"
       },
       "max_bytes": 1563,
-      "mcp": [
-        "search",
-        "pathway",
-        "Hemostasis"
-      ],
       "is_error": false
     },
     {
       "run": [
-        "get",
-        "pathway",
-        "R-HSA-9652817"
-      ],
-      "mcp": [
         "get",
         "pathway",
         "R-HSA-9652817"
@@ -65,11 +50,6 @@
     },
     {
       "run": [
-        "get",
-        "pathway",
-        "R-HSA-177929"
-      ],
-      "mcp": [
         "get",
         "pathway",
         "R-HSA-177929"

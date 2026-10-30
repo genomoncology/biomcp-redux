@@ -1,4 +1,5 @@
 //! Feature cpic-pgx: synthetic native retrieval through the actual CLI and MCP.
+use super::required_contract;
 mod failures;
 mod rows;
 use super::{configuration::invoke, launch::Environment, network_stub::Stub};
@@ -22,7 +23,14 @@ pub(super) fn trials() -> Vec<Trial> {
         "missing-second-gene",
     ] {
         out.push(transcript_trial(
-            format!("cpic-pgx/{name}-network-cache-replay"),
+            match name {
+                "view" => required_contract::CPIC_VIEW.0.to_owned(),
+                "table" => required_contract::CPIC_TABLE.0.to_owned(),
+                "guidelines" => required_contract::CPIC_GUIDELINES.0.to_owned(),
+                "diplotype" => required_contract::CPIC_DIPLOTYPE.0.to_owned(),
+                "pairs" => required_contract::CPIC_PAIRS.0.to_owned(),
+                _ => format!("cpic-pgx/{name}-network-cache-replay"),
+            },
             move || scenario(name).map_err(Into::into),
         ));
     }

@@ -1,4 +1,5 @@
 //! Feature study-catalog: stored literal search never synchronizes implicitly.
+use super::required_contract;
 use super::{configuration::invoke, launch::Environment};
 use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
@@ -21,7 +22,7 @@ pub(super) fn trials() -> Vec<Trial> {
         transcript_trial("study-catalog/mcp-markdown-help", || {
             surfaces().map_err(Into::into)
         }),
-        transcript_trial("study-catalog/literal-pages-and-selectors", || {
+        transcript_trial(required_contract::STUDY_SEARCH.0, || {
             search().map_err(Into::into)
         }),
         transcript_trial("study-catalog/atomic-replacement-and-policy", || {
