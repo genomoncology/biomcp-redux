@@ -79,7 +79,10 @@ impl FromStr for ProteinQuery {
             Some(residue(alternate)?)
         };
         let original = if to.is_none() {
-            format!("p.{}{position}=", AMINO[from].1).into_boxed_str()
+            let (_, three) = AMINO
+                .get(from)
+                .ok_or_else(|| super::gene::QueryInvalid::new(&["variant"]))?;
+            format!("p.{three}{position}=").into_boxed_str()
         } else {
             original.into()
         };
