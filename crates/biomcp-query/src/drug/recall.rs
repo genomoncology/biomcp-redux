@@ -21,7 +21,7 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DrugSearch) -> Outcome {
     if let Ok(page) = result {
         let returned = page.items.len() as u32;
         {
-            let found = !(returned == 0);
+            let found = returned != 0;
             crate::status::item(&mut out, found, false, false);
         };
         out.problems = page.problems;

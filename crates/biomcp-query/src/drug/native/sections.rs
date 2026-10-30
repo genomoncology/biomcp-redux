@@ -169,7 +169,7 @@ fn page<T>(
     let received = received.unwrap_or(returned);
     let source = query.source().source();
     {
-        let found = !(total == 0);
+        let found = total != 0;
         crate::status::item(out, found, false, false);
     };
     out.page = Some(PageInfo {

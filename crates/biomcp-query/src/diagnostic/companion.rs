@@ -37,7 +37,7 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
             );
         }
         {
-            let unavailable = !(page.problems.is_empty());
+            let unavailable = !page.problems.is_empty();
             crate::status::item(&mut out, true, false, unavailable);
         };
         group_unsupported = page.group_unsupported;

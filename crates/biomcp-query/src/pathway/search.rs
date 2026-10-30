@@ -81,6 +81,7 @@ fn execute(
         None => fetch(cx, q, deadline, out)?,
     };
     let pool = snapshot::save(cx, q, deadline, &saved)?;
+    out.dropped = saved.dropped;
     out.sources = saved.sources;
     out.problems = saved.problems;
     let mut body = saved.body;
@@ -153,6 +154,7 @@ fn fetch(
     }
     body.page.returned = body.items.len() as u32;
     Ok(snapshot::Saved {
+        dropped: out.dropped,
         body,
         complete,
         catalog_revision: None,

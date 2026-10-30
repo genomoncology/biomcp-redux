@@ -80,13 +80,14 @@ fn apply(item: &mut ProteinCardItem, out: &mut Outcome, result: Outcome) {
             _ => {}
         }
     }
+    let result_status = result.status();
     merge(
         item,
         out,
         result.sources,
         result.next,
         result.problems,
-        result.status,
+        result_status,
     );
 }
 

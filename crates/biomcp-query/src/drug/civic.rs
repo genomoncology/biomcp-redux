@@ -26,7 +26,7 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
         out.problems = mapped.problems;
         let (page, consumed) = mapped.value;
         {
-            let found = !(page.items.is_empty());
+            let found = !page.items.is_empty();
             crate::status::item(&mut out, found, false, false);
         };
         let returned = page.items.len() as u32;

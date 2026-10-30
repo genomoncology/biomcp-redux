@@ -45,8 +45,9 @@ pub(super) fn attach(cx: &Ctx<'_>, deadline: biomcp_fetch::Deadline<'_>, out: &m
     out.sources.extend(metadata.sources);
     out.problems.extend(metadata.problems);
     out.local = out.local.or(metadata.local);
+    let state = out.status();
     if let QueryBody::CellLineCard(card) = &mut out.body {
-        card.status = out.status();
+        card.status = state;
         card.sections.chembl = Some(section);
     }
     let QueryBody::CellLineCard(card) = &out.body else {

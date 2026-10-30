@@ -56,7 +56,7 @@ pub fn search(cx: &Ctx<'_>, q: &GwasSearch) -> Outcome {
             qualifying_total: None,
         }));
         {
-            let unavailable = !(out.problems.is_empty());
+            let unavailable = !out.problems.is_empty();
             crate::status::item(&mut out, true, false, unavailable);
         };
     }

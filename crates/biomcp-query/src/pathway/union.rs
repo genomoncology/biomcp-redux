@@ -15,9 +15,10 @@ type Saved = (
     usize,
     Vec<SourceOutcome>,
     Vec<Problem>,
+    bool,
 );
 fn key(q: &PathwaySearch) -> Result<Vec<u8>, RequestError> {
-    serde_json::to_vec(&("pathway-union/1", q.restart())).map_err(|_| CacheError::Database.into())
+    serde_json::to_vec(&("pathway-union/2", q.restart())).map_err(|_| CacheError::Database.into())
 }
 fn page(q: &PathwaySearch) -> PathwayPage {
     PathwayPage {
@@ -120,6 +121,7 @@ fn present(q: &PathwaySearch, saved: Saved, pool: biodata::Text, out: &mut Outco
             run(Request::SearchPathway(q.at_offset(offset).with_pool(pool))),
         ));
     }
+    out.dropped = saved.5;
     let usable = out
         .sources
         .iter()
@@ -145,7 +147,7 @@ fn expired(q: &PathwaySearch, out: &mut Outcome) {
         .push((StepKind::Restart, run(Request::SearchPathway(q.restart()))));
 }
 fn initial(cx: &Ctx<'_>, q: &PathwaySearch, deadline: Deadline<'_>, out: &mut Outcome) -> Saved {
-    let mut saved = (page(q), vec![], 0, vec![], vec![]);
+    let mut saved = (page(q), vec![], 0, vec![], vec![], false);
     for source in q.sources() {
         let leg = cx.fetch.leg(
             if *source == PathwaySource::Reactome {
@@ -215,6 +217,7 @@ fn refill(
         }
         match reply {
             Ok(reply) => {
+                saved.5 |= reply.dropped;
                 let next = offset.saturating_add(reply.consumed);
                 state.0 = reply.rows.value;
                 state.1 = (reply.consumed > 0 && u64::from(next) < reply.total).then_some(next);

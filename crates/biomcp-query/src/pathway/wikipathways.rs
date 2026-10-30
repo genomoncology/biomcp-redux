@@ -35,6 +35,7 @@ pub(super) fn headers(
     let (items, info) = reply?;
     let total = items.value.len() as u64;
     Ok(snapshot::Saved {
+        dropped: out.dropped,
         body: PathwayPage {
             items: items.value.into(),
             page: PathwayPageInfo {

@@ -4,6 +4,7 @@ use biomcp_types::{
     PathwayPage, PathwaySearch, Problem, QueryBody, Request, SourceOutcome, StepKind,
 };
 pub(super) struct Saved {
+    pub dropped: bool,
     pub body: PathwayPage,
     pub complete: bool,
     pub catalog_revision: Option<biodata::Text>,
@@ -11,7 +12,7 @@ pub(super) struct Saved {
     pub problems: Vec<Problem>,
 }
 fn key(q: &PathwaySearch) -> Result<Vec<u8>, RequestError> {
-    serde_json::to_vec(&("biomcp.pathway_snapshot/2", q.restart()))
+    serde_json::to_vec(&("biomcp.pathway_snapshot/3", q.restart()))
         .map_err(|_| CacheError::Database.into())
 }
 pub(super) fn load(
@@ -31,12 +32,14 @@ pub(super) fn load(
         Vec<SourceOutcome>,
         Vec<Problem>,
         Option<biodata::Text>,
+        bool,
     );
     let saved = payload
         .map(|p| {
             serde_json::from_str::<Wire>(&p)
                 .map(
-                    |(body, complete, sources, problems, catalog_revision)| Saved {
+                    |(body, complete, sources, problems, catalog_revision, dropped)| Saved {
+                        dropped,
                         body,
                         complete,
                         catalog_revision,
@@ -74,6 +77,7 @@ pub(super) fn save(
         &saved.sources,
         &saved.problems,
         &saved.catalog_revision,
+        saved.dropped,
     ))
     .map_err(|_| CacheError::Database)?;
     let mut store = Store::open(cx.fetch.cache_access()?, deadline)?;

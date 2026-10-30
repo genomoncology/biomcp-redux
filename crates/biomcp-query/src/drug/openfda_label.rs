@@ -41,7 +41,7 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     if let Ok((items, total, scanned)) = result {
         let returned = items.len() as u32;
         {
-            let found = !(returned == 0);
+            let found = returned != 0;
             crate::status::item(&mut out, found, false, false);
         };
         if let Some(source) = out.sources.first_mut() {

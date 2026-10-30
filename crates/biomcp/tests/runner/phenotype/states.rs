@@ -61,14 +61,26 @@ fn states() -> Result<(), String> {
             &env,
             &args,
             &directory,
-            if kind == "failure" { 4 } else { 1 },
+            if kind == "failure" {
+                4
+            } else if kind == "empty" {
+                0
+            } else {
+                1
+            },
         )?;
         budgets::mcp(
             &format!("states/states/mcp1@kind={kind}"),
             &directory,
             &args,
             &result,
-            if kind == "failure" { 4 } else { 1 },
+            if kind == "failure" {
+                4
+            } else if kind == "empty" {
+                0
+            } else {
+                1
+            },
         )?;
         if kind == "empty" {
             if result.pointer("/page/total") != Some(&json!(0))
@@ -95,7 +107,7 @@ fn states() -> Result<(), String> {
     if empty == absent || empty == failure || absent == failure {
         return Err(format!("P24 states collapsed: {observed:?}"));
     }
-    if empty.0 != Some(json!("absent"))
+    if empty.0 != Some(json!("complete"))
         || absent.0 != Some(json!("absent"))
         || failure.0 != Some(json!("failed"))
     {
@@ -175,11 +187,11 @@ fn short_limit() -> Result<(), String> {
     let env = setup(&stub)?;
     let args = ["search", "phenotype", "synthetic", "-l", "3"];
     let directory = env.root().join("alias");
-    let result = record("states/short_limit/record1", &env, &args, &directory, 1)?;
+    let result = record("states/short_limit/record1", &env, &args, &directory, 0)?;
     if result.pointer("/query/limit") != Some(&json!(3)) {
         return Err(format!("short limit lost: {result}"));
     }
-    budgets::mcp("states/short_limit/mcp1", &directory, &args, &result, 1)?;
+    budgets::mcp("states/short_limit/mcp1", &directory, &args, &result, 0)?;
     if stub.finish()?.len() != 1 {
         return Err("short limit request count".into());
     }
