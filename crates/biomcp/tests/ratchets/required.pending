@@ -67,7 +67,6 @@ option get disease --section-offset
 option get drug --civic-cursor
 option get drug --civic-kind
 option get drug --civic-profile
-option get drug --label-section
 option get drug --product-number
 option get gwas --section-limit
 option get gwas --section-offset
@@ -344,7 +343,6 @@ section get disease synonyms
 section get disease xrefs
 section get drug civic
 section get drug indications
-section get drug label
 section get drug xrefs
 section get gwas ancestries
 section get gwas associations
