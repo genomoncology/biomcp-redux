@@ -2,11 +2,24 @@
 use biomcp_query::Action;
 use biomcp_types::{ErrorEnvelope, ErrorMessage, Request};
 
-pub(super) fn refusal(
-    action: &Action,
-    globals: &crate::grammar::Globals,
-    http: bool,
-) -> Option<ErrorEnvelope> {
+pub(super) fn refusal(parsed: &crate::grammar::Parsed, http: bool) -> Option<ErrorEnvelope> {
+    let globals = &parsed.globals;
+    let action = parsed.action.as_ref();
+    if globals.hosted
+        && (parsed.key.is_some()
+            || globals.fresh
+            || matches!(
+                action,
+                Some(Action::Health | Action::Sync { .. } | Action::StoreClean)
+            )
+            || matches!(action, Some(Action::Run { request, .. }) if saves(request)))
+    {
+        return Some(ErrorEnvelope::mcp_unavailable(ErrorMessage::McpHosted));
+    }
+    if parsed.key.is_some() {
+        return Some(ErrorEnvelope::mcp_unavailable(ErrorMessage::McpKey));
+    }
+    let action = action?;
     if http {
         let command = match action {
             Action::Sync { .. } => Some(ErrorMessage::McpSync),
@@ -31,6 +44,15 @@ fn replaces(request: &Request) -> bool {
         Request::TrialDocument(query) => query.replace,
         Request::ArticleText(query) => query.replace(),
         Request::ArticleSupplement(query) => query.replace(),
+        _ => false,
+    }
+}
+
+fn saves(request: &Request) -> bool {
+    match request {
+        Request::ArticlePdf(_) | Request::TrialDocument(_) => true,
+        Request::ArticleText(query) => query.save().is_some(),
+        Request::ArticleSupplement(query) => query.save().is_some(),
         _ => false,
     }
 }

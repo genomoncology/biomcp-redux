@@ -58,6 +58,8 @@ Run `biomcp mcp-config` to print ready-to-paste stdio configuration using the in
 
 For native HTTP clients, `biomcp serve --http` listens at `http://127.0.0.1:8080/mcp`. Supply an address after `--http` to select another listener. A non-loopback listener requires `--allow-host HOST` or `http.allowed_hosts` in configuration. The allowlist does not authenticate callers. Restrict listener access to trusted clients. Browser origins are refused. HTTP refuses synchronization, store cleaning, fresh requests and file saves. Stdio allows new-file saves and refuses replacement. `GET /health` checks the local server and store without upstream requests.
 
+Use `biomcp serve --hosted` for a shared server, with `--http` for HTTP transport. Hosted mode refuses MCP file saves, `health`, `sync`, `store clean`, `--fresh` and `key` commands on both transports. Each refusal returns `usage.mcp_unavailable` and names hosted mode. Read-only queries keep the shared request cache and query pools. The HTTP `GET /health` endpoint remains available for local server checks.
+
 ## Develop
 
 The documentation check does not run the exact `uv tool install biomcp-cli` or `uv tool upgrade biomcp-cli` shell instructions. Release artifact checks install and exercise the produced package in an isolated environment.
