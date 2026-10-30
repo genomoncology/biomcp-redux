@@ -1,6 +1,7 @@
 # 0455 — Apply the bad-value rule in openFDA and NCI adapters
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: b23339c4d64d57b802eeb6ecafca1d0d3155162e
 
 Milestone: 5
 
