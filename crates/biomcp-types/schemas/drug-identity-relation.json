@@ -100,7 +100,7 @@
           "$ref": "#/$defs/Reply_Text",
           "description": "Original source name."
         },
-        "source": {
+        "namespace": {
           "$ref": "#/$defs/Reply_Text",
           "description": "Source responsible for this identity."
         },
@@ -130,10 +130,11 @@
       },
       "required": [
         "id",
-        "source",
+        "namespace",
         "identity_level"
       ],
-      "type": "object"
+      "type": "object",
+      "x-identifier": true
     },
     "Reply_DrugIdentityLevel": {
       "description": "Identity level established by the source endpoint or record type, never inferred from ID shape.",
@@ -182,7 +183,7 @@
       "type": "string"
     }
   },
-  "$id": "biodata.drug-identity-relation/4",
+  "$id": "biodata.drug-identity-relation/5",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One explicitly source-stated identifier, parent, product or formulation relation.",
   "properties": {

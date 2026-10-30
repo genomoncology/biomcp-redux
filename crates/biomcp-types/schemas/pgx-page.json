@@ -19,6 +19,33 @@
       "pattern": "^[A-Za-z][A-Za-z0-9._/@-]{0,254}$",
       "type": "string"
     },
+    "Reply_Identifier": {
+      "description": "An authority and its unchanged native identifier; unknown means the authority was not stated.",
+      "properties": {
+        "id": {
+          "description": "Native identifier value, with its original scalar type and precision.",
+          "format": "int64",
+          "type": "integer"
+        },
+        "namespace": {
+          "$ref": "#/$defs/Reply_IdentifierNamespace",
+          "description": "Native authority spelling; the literal unknown carries an unstated authority."
+        }
+      },
+      "required": [
+        "namespace",
+        "id"
+      ],
+      "type": "object",
+      "x-identifier": true
+    },
+    "Reply_IdentifierNamespace": {
+      "description": "A source-stated authority or an explicit unknown authority, represented by the string unknown.",
+      "maxLength": 1048576,
+      "minLength": 1,
+      "pattern": "^(?![\\s\\S]*[\\x00-\\x1f\\x7f-\\x9f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069])",
+      "type": "string"
+    },
     "Reply_PageInfo": {
       "description": "Search counts after filtering and deduplication.",
       "properties": {
@@ -198,9 +225,8 @@
           ]
         },
         "pairid": {
-          "description": "Native `pairid`; literal source value.",
-          "format": "int64",
-          "type": "integer"
+          "$ref": "#/$defs/Reply_Identifier",
+          "description": "Native `pairid`; literal source value."
         },
         "pgxtesting": {
           "description": "Native `pgxtesting`; literal source value.",
@@ -903,7 +929,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.pgx-page/5",
+  "$id": "biomcp.pgx-page/6",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -959,7 +985,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.pgx-page/5",
+      "const": "biomcp.pgx-page/6",
       "type": "string"
     },
     "sources": {
