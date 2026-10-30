@@ -1,5 +1,4 @@
 option get diagnostic --bundle-revision
-option get disease --ontology
 option get drug --civic-cursor
 option get drug --civic-kind
 option get drug --civic-profile
@@ -20,14 +19,12 @@ option search diagnostic --drug-application
 option search diagnostic --initiated-from
 option search diagnostic --initiated-to
 option search diagnostic --limit
-option search disease --ontology
 option search drug --classification
 option search drug --firm
 option search drug --initiated-from
 option search drug --initiated-to
 option search drug --reason
 option search drug --status
-option search protein --reviewed
 option search trial --exact-condition
 option serve --allow-host
 option variant assertions --assertion
@@ -40,7 +37,6 @@ option variant population --limit
 option variant population --resolver
 section get disease phenotypes
 section get drug civic
-section get protein complexes
 section get protein domains
 section get variant civic
 section get variant hotspots
