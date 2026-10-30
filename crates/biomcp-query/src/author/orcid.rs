@@ -37,7 +37,7 @@ fn restart(q: &AuthorPapersQuery, out: &mut Outcome, mismatch: bool) {
 }
 fn key(q: &AuthorPapersQuery) -> Result<Vec<u8>, RequestError> {
     serde_json::to_vec(&(
-        "biomcp.orcid_works_snapshot/2",
+        "biomcp.orcid_works_snapshot/3",
         q.id(),
         q.section(),
         q.limit(),
