@@ -1,6 +1,7 @@
 # 0482 — Accept synonymous protein changes
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 2174a0f2e0f5973926cadbe976a46e6ed984012f
 
 Milestone: 5
 
