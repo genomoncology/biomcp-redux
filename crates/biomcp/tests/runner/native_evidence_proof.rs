@@ -11,8 +11,12 @@ pub(super) fn check() -> Result<(), Box<dyn std::error::Error>> {
         let env = Environment::new()?;
         let scratch = env.root().join("job-tmp");
         fs::create_dir(&scratch)?;
-        let args = ["--proofs", "--exact", crate::runner::pool_contract::DRUG_CIVIC.0]
-            .map(str::to_owned);
+        let args = vec![
+            "--cases".to_owned(),
+            super::super::launch::fixtures().join("cases").display().to_string(),
+            "--exact".to_owned(),
+            crate::runner::pool_contract::DRUG_CIVIC.0.to_owned(),
+        ];
         let mut command = env.command(std::env::current_exe()?, &args);
         command
             .env("TMPDIR", &scratch)
