@@ -140,9 +140,14 @@ fn help(env: &Environment) -> Check {
             .pointer("/result/commands")
             .and_then(Value::as_array)
             .ok_or("missing help")?;
-        if commands.len() != 1
+        if commands
+            .iter()
+            .map(|command| command.get("command"))
+            .collect::<Vec<_>>()
+            != vec![Some(&json!([name])), Some(&json!(["help", name]))]
             || commands
-                .first()
+                .iter()
+                .find(|command| command.get("command") == Some(&json!([name])))
                 .and_then(|c| c.get("arguments"))
                 .and_then(Value::as_array)
                 .is_none_or(|args| !args.iter().any(|arg| arg.get("name") == Some(&json!(flag))))
