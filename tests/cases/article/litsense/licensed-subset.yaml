@@ -1,9 +1,9 @@
 {
   "feature": "article-named-search",
-  "live_check": "synthetic CC BY response subset",
+  "live_check": "public",
   "story": "Sentence resemblance retains the first source sentence for each paper without local score sorting",
   "replay": "article/litsense/licensed-subset",
-  "verified": "Edited subset of the actual xqzvw zzyzxq kinase response from 2026-10-24. Only seven papers with CC BY in current PMC bucket metadata remain; NC variants are excluded. The complete 100-sentence, 73-paper response runs externally. PubMed summary request was captured by an actual search for these exact seven PMIDs. Canonical request identities were never reconstructed. No exact 0.9 named-source JSON comparison exists. Measured page: 4794 bytes; ceiling: 5514 bytes, exactly ceil(actual * 1.15). No matching 0.9 single-source JSON baseline exists.",
+  "verified": "Edited subset of the actual xqzvw zzyzxq kinase response from 2026-10-24. Only seven papers with CC BY in current PMC bucket metadata remain; NC variants are excluded. The complete 100-sentence, 73-paper response runs externally. PubMed summary request was captured by an actual search for these exact seven PMIDs. Canonical request identities were never reconstructed. No exact 0.9 named-source JSON comparison exists. Measured page: 4794 bytes; ceiling: 5514 bytes, exactly ceil(actual * 1.15). No matching 0.9 single-source JSON baseline exists. tests/replies/article/litsense/README.md identifies unchanged captured source sentences in this license-filtered subset and the actual matching PubMed summary capture. Nightly execution checks the same public sentence search; the subset is not an invented reply.",
   "steps": [
     {
       "run": [

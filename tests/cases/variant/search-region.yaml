@@ -1,10 +1,10 @@
 {
   "feature": "variant-search",
-  "live_check": "synthetic",
+  "live_check": "public",
   "replay": "variant/search/region",
   "story": "Explicit MyVariant region candidates retain the source identities and query",
   "harvest": "sdlc/planning/slices/variant.md",
-  "verified": "2026-10-24; factual identity anchors from external0088-source-captures; synthetic response projection, not a fresh whole-source claim",
+  "verified": "2026-10-24; factual identity anchors from external0088-source-captures; synthetic response projection, not a fresh whole-source claim tests/replies/variant/search/README.md identifies the retained actual candidate identities, totals and native order. The compact identity-only response omits annotation content and build metadata; nightly execution checks the public source query.",
   "steps": [
     {
       "run": [

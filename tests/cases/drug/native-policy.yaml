@@ -1,4 +1,5 @@
 {
+  "live_check": "local-only selector validation before provider access",
   "feature": "drug-native-sources",
   "story": "Native drug source admission and explicit selector validation happen before provider access",
   "steps": [

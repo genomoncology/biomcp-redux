@@ -1,5 +1,5 @@
 {
-  "live_check": "public",
+  "live_check": "local-only unknown stored pool refusal before source access",
   "feature": "article-search",
   "story": "Article search accepts only checked selectors and offers a restart for an unknown pool.",
   "replay": "article/search/live",

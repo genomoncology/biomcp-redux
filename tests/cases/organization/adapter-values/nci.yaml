@@ -1,6 +1,6 @@
 {
   "feature": "organization-nci",
-  "live_check": "synthetic",
+  "live_check": "missing nightly NCI user-owned API key; retained native public-tier replies use an isolated replay key",
   "story": "One synthetic invalid trial count keeps its native row and names the omitted field.",
   "replay": "organization/adapter-values/nci",
   "config": {

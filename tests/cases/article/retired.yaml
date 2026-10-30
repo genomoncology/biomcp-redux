@@ -1,5 +1,5 @@
 {
-  "live_check": "public",
+  "live_check": "local-only retired syntax refusals before source access",
   "feature": "article-retired",
   "story": "Retired article spellings give fixed guidance and preserve argument boundaries",
   "replay": "article/annotations/live",

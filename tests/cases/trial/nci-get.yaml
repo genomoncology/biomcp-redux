@@ -1,6 +1,6 @@
 {
   "feature": "trial-nci",
-  "live_check": "keyed NCI source requires user-owned account",
+  "live_check": "missing nightly NCI user-owned API key; retained native public-tier replies use an isolated replay key",
   "story": "The NCI public-tier capture preserves native get fields without registry fallback.",
   "replay": "trial/nci/get",
   "config": {
