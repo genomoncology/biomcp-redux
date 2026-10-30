@@ -75,6 +75,7 @@ pub(super) fn retained() -> Result<(), String> {
         return Err("one case consumed another case witness budget".into());
     }
     many_changed()?;
+    long_walk_shapes()?;
     retained_context()?;
     doi_context()?;
     discovery_context()
@@ -326,5 +327,27 @@ fn many_changed() -> Result<(), String> {
     if live::witness::within_budget(&oversized).is_ok() {
         return Err("oversized case evidence did not fail explicitly".into());
     }
+    Ok(())
+}
+
+fn long_walk_shapes() -> Result<(), String> {
+    // Retained nightly changed-case command counts, with whole command contexts.
+    let counts = [21, 30, 51, 63, 1, 21, 1, 5, 6, 2];
+    let rows = counts.iter().enumerate().map(|(index, count)| {
+        let commands = (0..*count).map(|ordinal| json!({"ordinal":ordinal + 1,
+            "baseline":{"requests":[],"output":"x".repeat(7000)},
+            "live":{"requests":[],"output":"y".repeat(7000)}})).collect::<Vec<_>>();
+        json!({"case":format!("retained-walk-{index}"), "result":{"drift":["request: request-plan-changed"]},
+            "witness":commands})
+    }).collect();
+    let report = live::summary(rows, BTreeMap::new(), 0, true);
+    let rows = report["case_sample"].as_array().ok_or("missing retained walks")?;
+    for (row, count) in rows.iter().zip(counts) {
+        let captures = row["witness"].as_array().ok_or("cut retained walk")?;
+        if captures.len() != count || live::witness::within_budget(captures).is_err() {
+            return Err("retained nightly walk lost commands or exceeded its case budget".into());
+        }
+    }
+    if rows.len() != counts.len() { return Err("retained nightly walks omitted".into()); }
     Ok(())
 }
