@@ -6,6 +6,9 @@ use biomcp_types::{
     DrugGet, DrugHeader, DrugIndications, DrugRecords, DrugSection, DrugTargets, PageInfo,
     QueryBody, Request, Section, Source, Status, StepKind,
 };
+#[cfg(test)]
+#[path = "collection_contract.rs"]
+mod collection_contract;
 pub(super) fn chembl(
     leg: &Leg<'_>,
     query: &DrugGet,

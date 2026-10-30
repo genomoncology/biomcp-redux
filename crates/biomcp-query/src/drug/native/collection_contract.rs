@@ -1,0 +1,87 @@
+//! The query's collection boundary preserves accepted-row pages without sharing collection facts.
+use biomcp_adapters::{Refusal, opentargets};
+use serde_json::json;
+
+#[test]
+fn opentargets_collection_owns_refusals_across_pages() -> Result<(), Box<dyn std::error::Error>> {
+    let drug = serde_json::from_value(json!({
+        "id":"CHEMBL1", "namespace":"opentargets", "identity_level":"unknown"
+    }))?;
+    for offset in 0..3 {
+        let mut expected_targets = None;
+        let mut expected_indications = None;
+        for refused in [false, true] {
+            let mut targets = vec![
+                json!({"id":"ENSG00000141510"}),
+                json!({"id":"ENSG00000146648"}),
+            ];
+            let mut indications = vec![
+                json!({"disease":{"id":"EFO_0001"}}),
+                json!({"disease":{"id":"EFO_0002"}}),
+            ];
+            if refused {
+                targets.insert(1, json!({"id":"invalid"}));
+                indications.insert(1, json!({"disease":{"id":" "}}));
+            }
+            let raw = serde_json::from_value(json!({"rows":[{"targets":targets}]}))?;
+            let mut collection = opentargets::map_targets(&drug, raw)?;
+            let raw = serde_json::from_value(json!({"rows":indications}))?;
+            let mut other = opentargets::map_indications(&drug, raw)?;
+            let expected = if refused {
+                Refusal::Refused
+            } else {
+                Refusal::None
+            };
+            let page = super::collection_page(&mut collection, offset, 1);
+            let other_page = super::collection_page(&mut other, offset, 1);
+            assert_eq!(
+                collection.refusals, expected,
+                "Open Targets target collection lost actual refusal"
+            );
+            assert_eq!(
+                other.refusals, expected,
+                "Open Targets indication collection lost actual refusal"
+            );
+            assert_eq!(
+                page.refusals(),
+                Refusal::None,
+                "collection refusal leaked into target page"
+            );
+            assert_eq!(
+                other_page.refusals(),
+                Refusal::None,
+                "collection refusal leaked into indication page"
+            );
+            for (total, received, next) in [
+                (page.total(), page.received(), page.next_offset()),
+                (
+                    other_page.total(),
+                    other_page.received(),
+                    other_page.next_offset(),
+                ),
+            ] {
+                assert_eq!(total, Some(2));
+                assert_eq!(received, u32::from(offset < 2));
+                assert_eq!(next, if offset == 0 { Some(1) } else { None });
+            }
+            let target_reply = serde_json::to_vec(&page.rows)?;
+            let indication_reply = serde_json::to_vec(&other_page.rows)?;
+            if refused {
+                assert_eq!(
+                    Some(target_reply),
+                    expected_targets,
+                    "accepted target page changed"
+                );
+                assert_eq!(
+                    Some(indication_reply),
+                    expected_indications,
+                    "accepted indication page changed"
+                );
+            } else {
+                expected_targets = Some(target_reply);
+                expected_indications = Some(indication_reply);
+            }
+        }
+    }
+    Ok(())
+}
