@@ -25,6 +25,10 @@ use serde::{Deserialize, Serialize};
 /// One checked native page with its complete native count and opaque continuation.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Page {
+    /// Actual refused native records, independent of optional fields.
+    #[serde(default = "crate::mapped::refusal_serde::none", with = "crate::mapped::refusal_serde")]
+    pub refusals: crate::Refusal,
+
     /// Whole native match rows.
     pub items: Vec<ProteinDomainMatch>,
     /// Source count before local type selection.
@@ -74,6 +78,7 @@ pub fn page(
     }
     let mapped = map::rows(raw.results, id)?;
     Ok(Page {
+        refusals: mapped.refusals,
         items: mapped.value,
         problems: mapped.problems,
         total: raw.count,

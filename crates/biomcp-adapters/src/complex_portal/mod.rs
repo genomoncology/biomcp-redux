@@ -25,6 +25,10 @@ use serde::{Deserialize, Serialize};
 /// An admitted complex and its whole native participant list.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Complex {
+    /// Actual refused native records, independent of optional fields.
+    #[serde(default = "crate::mapped::refusal_serde::none", with = "crate::mapped::refusal_serde")]
+    pub refusals: crate::Refusal,
+
     /// Exact native header.
     pub header: ProteinComplexHeader,
     /// Source participants, including non-proteins.
@@ -36,6 +40,10 @@ pub struct Complex {
 /// A complete admitted collection with an independent source search count.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Collection {
+    /// Actual refused native records, independent of optional fields.
+    #[serde(default = "crate::mapped::refusal_serde::none", with = "crate::mapped::refusal_serde")]
+    pub refusals: crate::Refusal,
+
     /// Exact-participant admissions in native order.
     pub items: Vec<Complex>,
     /// Native text-search total, never an admitted membership count.
@@ -87,7 +95,12 @@ pub fn search(leg: &Leg<'_>, anchor: &UniProtIsoform) -> Result<Collection, Requ
     if items.iter().any(|c| !ids.insert(c.header.id.to_string())) {
         return Err(bad());
     }
+    let mut refusals = crate::Refusal::None;
+    for complex in &items {
+        refusals.include(complex.refusals);
+    }
     Ok(Collection {
+        refusals,
         items,
         native_total: total.ok_or_else(bad)?,
     })
