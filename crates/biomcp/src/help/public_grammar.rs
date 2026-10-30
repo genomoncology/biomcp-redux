@@ -63,7 +63,7 @@ pub(super) fn overview(commands: &mut Vec<HelpCommand>, path: &[String]) -> io::
     else {
         return Ok(false);
     };
-    if parser.get_subcommands().next().is_none() && !path.is_empty() {
+    if parser.get_subcommands().next().is_none() && !path.is_empty() && commands.len() == 1 {
         return Ok(false);
     }
     let mut result = Vec::new();

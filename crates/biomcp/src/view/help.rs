@@ -88,10 +88,24 @@ fn escape(text: &str) -> String {
 fn table(rows: &[Value], key: &str, title: &str, out: &mut String) {
     out.push_str(&format!("| {title} | Description |\n| --- | --- |\n"));
     for row in rows {
+        let choices = row["choices"]
+            .as_array()
+            .into_iter()
+            .flatten()
+            .filter_map(Value::as_str)
+            .map(escape)
+            .collect::<Vec<_>>()
+            .join(", ");
+        let description = escape(row["description"].as_str().unwrap_or_default());
+        let description = if choices.is_empty() {
+            description
+        } else {
+            format!("{description} Values: {choices}")
+        };
         out.push_str(&format!(
             "| {} | {} |\n",
             escape(row[key].as_str().unwrap_or_default()),
-            escape(row["description"].as_str().unwrap_or_default())
+            description
         ));
     }
     out.push('\n');
