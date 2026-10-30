@@ -576,28 +576,5 @@ fn tool_dispatch_stays_outside_cases() -> Check {
 
 #[test]
 fn mapped_constructions_require_their_own_refusal_decision() -> Check {
-    let path = "crates/biomcp-adapters/src/example/map.rs";
-    rejects(
-        path,
-        "fn mapped() { Mapped { value, problems } }",
-        "explicit refusal decision",
-    )?;
-    rejects(
-        path,
-        "fn mapped() { Mapped::<Vec<Record>> { value, problems } }",
-        "explicit refusal decision",
-    )?;
-    // A nested record's decision cannot stand in for the enclosing mapping.
-    rejects(
-        path,
-        "fn mapped() { Mapped { value: Record { refusals: None }, problems } }",
-        "explicit refusal decision",
-    )?;
-    let tree = tree()?;
-    put(
-        tree.path(),
-        path,
-        "fn mapped() { Mapped { value, problems, refusals: Refusal::None } }",
-    )?;
-    check(tree.path())
+    super::proof_support::check_mapped_refusal_decisions()
 }
