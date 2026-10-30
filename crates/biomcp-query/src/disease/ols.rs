@@ -119,8 +119,5 @@ fn apply(out: &mut Outcome, query: &DiseaseGet, record: ols::Record) {
             ));
         }
     }
-    {
-        let absent = out.page.as_ref().is_some_and(|p| p.total == 0);
-        crate::status::item(out, !absent, false, false);
-    }
+    crate::status::item(out, true, false, false);
 }
