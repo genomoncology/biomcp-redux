@@ -15,6 +15,14 @@ pub(super) fn check(previous: &Path) -> Check {
             "author/papers",
             vec!["author", "papers", "semantic-scholar:123", "details"],
         ),
+        (
+            "pathway/native",
+            vec!["search", "pathway", "MAPK signaling"],
+        ),
+        (
+            "orcid/visibility",
+            vec!["author", "papers", "orcid:0000-0002-4299-3018"],
+        ),
     ] {
         let args: Vec<_> = words.into_iter().map(String::from).collect();
         let replay = fixtures().join("replies").join(capture);
@@ -27,8 +35,8 @@ pub(super) fn check(previous: &Path) -> Check {
         let pool = pool_id(&before)?;
         let original = snapshot(&env, &pool)?;
         let retained = rows(&env)?;
-        let after = if capture == "author/papers" {
-            remap(&env, &args, &pool, &original.2)?
+        let after = if capture != "author/synthetic" {
+            remap(&env, capture, &args, &pool, &original.2)?
         } else {
             let mut selected = args;
             selected.extend(["--pool".into(), pool.clone()]);
@@ -58,28 +66,40 @@ pub(super) fn check(previous: &Path) -> Check {
     let (args, pool, before) = untouched.ok_or("missing untouched owner witness")?;
     let after = current(&env, &args, true)?;
     if pool_id(&after)? != pool || before.get("result") != after.get("result") {
-        return Err("untouched author owner stopped hitting after the papers remap".into());
+        return Err("untouched author owner stopped hitting after the owner remaps".into());
     }
     Ok(())
 }
 
 fn remap(
     env: &Environment,
+    capture: &str,
     args: &[String],
     pool: &str,
     payload: &str,
 ) -> Result<Value, Box<dyn std::error::Error>> {
     let old: Value = serde_json::from_str(payload)?;
+    let (pointer, namespace, id, old_id, miss) = contract(capture);
     let external = old
-        .pointer("/0/0/data/0/detail/header/external_ids/0")
-        .ok_or("previous binary must publish the current mapped author payload")?;
-    if external.get("namespace").is_some() || external.get("id") != Some(&json!("CorpusId:123")) {
-        return Err("previous binary must retain the mapped external ID without namespace".into());
+        .pointer(pointer)
+        .ok_or("missing previous mapped identifier")?;
+    let old_namespace = match capture {
+        "pathway/native" => external.get("source"),
+        "orcid/visibility" => external.get("kind"),
+        _ => None,
+    };
+    if external.get("namespace").is_some()
+        || external.get(old_id) != Some(&json!(id))
+        || capture != "author/papers" && old_namespace != Some(&json!(namespace))
+    {
+        return Err(
+            format!("previous binary must retain the old mapped {capture} identifier").into(),
+        );
     }
     let mut selected = args.to_vec();
     selected.extend(["--pool".into(), pool.into()]);
     let refused = current(env, &selected, false)?;
-    if refused.pointer("/error/code") != Some(&json!("usage.pool_mismatch"))
+    if refused.pointer("/error/code") != Some(&json!(miss))
         || refused.pointer("/next/0/kind") != Some(&json!("restart"))
     {
         return Err(format!("Old typed selection did not miss cleanly: {refused}").into());
@@ -89,38 +109,75 @@ fn remap(
     let after = current(env, args, true)?;
     let new_pool = pool_id(&after)?;
     let mapped: Value = serde_json::from_str(&snapshot(env, &new_pool)?.2)?;
+    let external = mapped
+        .pointer(pointer)
+        .ok_or("missing remapped identifier")?;
     if new_pool == pool
-        || mapped.pointer("/0/0/data/0/detail/header/external_ids/0/namespace")
-            != Some(&json!("CorpusId"))
+        || external.get("namespace") != Some(&json!(namespace))
+        || external.get("id") != Some(&json!(id))
     {
-        return Err(format!("Old typed author payload was not remapped: {after}").into());
+        return Err(format!("Old typed {capture} payload was not remapped: {after}").into());
     }
     // The newly mapped owner must itself hit on the next offline selection.
     selected.truncate(args.len());
     selected.extend(["--pool".into(), new_pool.clone()]);
     let hit = current(env, &selected, true)?;
     if hit.get("result") != after.get("result") || pool_id(&hit)? != new_pool {
-        return Err("remapped author snapshot did not hit".into());
+        return Err("remapped owner snapshot did not hit".into());
     }
     Ok(after)
 }
 
+fn contract(capture: &str) -> (&str, &str, &str, &str, &str) {
+    match capture {
+        "author/papers" => (
+            "/0/0/data/0/detail/header/external_ids/0",
+            "CorpusId",
+            "CorpusId:123",
+            "id",
+            "usage.pool_mismatch",
+        ),
+        "pathway/native" => (
+            "/0/items/0/id",
+            "reactome",
+            "R-HSA-9652817",
+            "id",
+            "pool.expired",
+        ),
+        "orcid/visibility" => (
+            "/0/0/assertions/0/external_ids/0",
+            "pmid",
+            "123",
+            "value",
+            "usage.pool_mismatch",
+        ),
+        _ => unreachable!("snapshot owner is declared by check"),
+    }
+}
+
 fn identities(capture: &str, before: &Value, after: &Value) -> Check {
-    let pointer = if capture == "author/papers" {
-        "/header/paper_id"
-    } else {
-        "/id"
+    let (items, pointer) = match capture {
+        "author/papers" => ("/result/items", "/header/paper_id"),
+        "pathway/native" => ("/result/items", "/id/id"),
+        "orcid/visibility" => ("/result/groups", "/assertions"),
+        _ => ("/result/items", "/id"),
     };
     let ids = |value: &Value| -> Result<Vec<Value>, Box<dyn std::error::Error>> {
         value
-            .pointer("/result/items")
+            .pointer(items)
             .and_then(Value::as_array)
             .ok_or("missing retained items")?
             .iter()
             .map(|item| {
-                item.pointer(pointer)
-                    .cloned()
-                    .ok_or_else(|| "missing retained identity".into())
+                let identity = item.pointer(pointer).ok_or("missing retained identity")?;
+                if capture == "orcid/visibility" {
+                    let assertions = identity.as_array().ok_or("missing retained assertions")?;
+                    Ok(Value::Array(
+                        assertions.iter().map(|a| a["put_code"].clone()).collect(),
+                    ))
+                } else {
+                    Ok(identity.clone())
+                }
             })
             .collect()
     };
@@ -196,10 +253,10 @@ fn snapshot(
         |row| row.get(0),
     )?;
     if version != 6 {
-        return Err("previous author proof requires query schema version 6".into());
+        return Err("previous snapshot proof requires query schema version 6".into());
     }
     Ok(db.query_row(
-        "SELECT p.created,p.expires,s.payload FROM pool p JOIN trial_snapshot s ON s.id=p.id WHERE p.id=?1",
+        "SELECT COALESCE(p.created,0),s.expires,s.payload FROM trial_snapshot s LEFT JOIN pool p ON s.id=p.id WHERE s.id=?1",
         [pool], |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)),
     )?)
 }
@@ -228,10 +285,11 @@ fn accepted(capture: &str, value: &Value) -> Check {
             )
             .into());
         }
-    } else if value.get("status") != Some(&json!("complete"))
-        || value.get("problems").is_some()
-        || value.pointer("/result/items/0/id") != Some(&json!("semantic-scholar:2162869982"))
-        || value.pointer("/result/items/1/id") != Some(&json!("semantic-scholar:113751091"))
+    } else if capture == "author/synthetic"
+        && (value.get("status") != Some(&json!("complete"))
+            || value.get("problems").is_some()
+            || value.pointer("/result/items/0/id") != Some(&json!("semantic-scholar:2162869982"))
+            || value.pointer("/result/items/1/id") != Some(&json!("semantic-scholar:113751091")))
     {
         return Err(format!("Previous author candidates changed: {value}").into());
     }
