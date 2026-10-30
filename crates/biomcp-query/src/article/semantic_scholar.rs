@@ -165,12 +165,12 @@ fn doi_batch(leg: &biomcp_fetch::Leg<'_>, batch: &[Doi], email: Option<&biomcp_f
         "doi",
         batch.iter().map(|doi| doi.to_string()).collect(),
     );
-    let request_leg = inputs.map(|inputs| leg.with_input_ids(inputs, "term"));
-    pubmed::search_ids(
-        request_leg.as_ref().unwrap_or(leg),
+    pubmed::search_ids_with_inputs(
+        leg,
         &term,
         ArticleSort::Rank,
         email,
+        inputs,
     )
 
 }

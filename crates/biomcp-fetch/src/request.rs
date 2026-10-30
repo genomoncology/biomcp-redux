@@ -329,7 +329,7 @@ impl Leg<'_> {
                 .ok_or_else(|| self.failure(Reason::DeadlineExceeded, None))?;
             let started = Instant::now();
             let exchange = self.exchange(prepared, codec);
-            self.observe_exchange::<T>(prepared, &exchange, started.elapsed());
+            self.observe_exchange::<T>(prepared, &exchange, started.elapsed(), codec);
             let (mut error, retryable, delay) = match exchange {
                 Ok(response) => {
                     let status = response.status;
@@ -382,6 +382,7 @@ impl Leg<'_> {
         prepared: &Prepared,
         exchange: &Result<Wire, Failure>,
         elapsed: Duration,
+        codec: &Decoder<T>,
     ) {
         let (status, body, media) = match exchange {
             Ok(response) => (
@@ -403,7 +404,7 @@ impl Leg<'_> {
                     std::any::type_name::<T>(),
                     false,
                     &prepared.url,
-                    self.provenance::<T>(prepared, body, status),
+                    codec.provenance(prepared, body, status),
                 ),
             );
         }

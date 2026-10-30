@@ -114,7 +114,6 @@ impl Leg<'_> {
     fn branch(&self) -> Leg<'_> {
         Leg {
             fresh: self.fresh,
-            diagnostic_inputs: self.diagnostic_inputs.clone(),
             refreshed_bundles: self.refreshed_bundles.clone(),
             fetch: self.fetch,
             spec: self.spec,
