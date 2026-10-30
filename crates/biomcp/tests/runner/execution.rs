@@ -50,7 +50,7 @@ fn cli(
     registry: &schema::Registry,
     globals: &[String],
 ) -> Result<Value, String> {
-    let command_args = launch::arguments(args, &globals);
+    let command_args = launch::arguments(args, globals);
     let mut command = environment.command(env!("CARGO_BIN_EXE_biomcp"), &command_args);
     let output = output(&mut command, step.stdin.as_deref())?;
     if output.status.code() != Some(step.exit) {
