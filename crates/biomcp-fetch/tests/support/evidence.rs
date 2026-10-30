@@ -3,7 +3,10 @@
     clippy::disallowed_methods,
     reason = "The fixture owner selects durable test evidence outside scheduler scratch"
 )]
-use std::{fs, io, path::{Path, PathBuf}};
+use std::{
+    fs, io,
+    path::{Path, PathBuf},
+};
 
 pub(crate) fn directory() -> io::Result<PathBuf> {
     let fallback = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../target/fixture-evidence");

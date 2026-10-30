@@ -46,9 +46,10 @@ pub(crate) fn trials() -> Vec<Trial> {
         }),
     ];
     trials.extend(fixture_evidence_proof::trials());
-    trials.push(transcript_trial("schema-discovery/persistent-native-evidence", || {
-        native_evidence_proof::check().map_err(|error| error.to_string().into())
-    }));
+    trials.push(transcript_trial(
+        "schema-discovery/persistent-native-evidence",
+        || native_evidence_proof::check().map_err(|error| error.to_string().into()),
+    ));
     trials
 }
 }

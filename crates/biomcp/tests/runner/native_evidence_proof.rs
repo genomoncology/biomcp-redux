@@ -13,7 +13,10 @@ pub(super) fn check() -> Result<(), Box<dyn std::error::Error>> {
         fs::create_dir(&scratch)?;
         let args = vec![
             "--cases".to_owned(),
-            super::super::launch::fixtures().join("cases").display().to_string(),
+            super::super::launch::fixtures()
+                .join("cases")
+                .display()
+                .to_string(),
             "--exact".to_owned(),
             crate::runner::pool_contract::DRUG_CIVIC.0.to_owned(),
         ];
@@ -43,7 +46,7 @@ pub(super) fn check() -> Result<(), Box<dyn std::error::Error>> {
         let retained = PathBuf::from(
             stdout
                 .lines()
-                .find_map(|line| line.strip_prefix("NATIVE_DRUG_NEXT_PROOF="))
+                .find_map(|line| line.split_once("NATIVE_DRUG_NEXT_PROOF=").map(|(_, path)| path))
                 .ok_or("native proof omitted retained evidence")?,
         );
         let mut before = Vec::new();
@@ -60,7 +63,9 @@ pub(super) fn check() -> Result<(), Box<dyn std::error::Error>> {
         fs::remove_dir_all(&scratch)?;
         for (path, bytes) in before {
             if fs::read(&path)? != bytes {
-                return Err(format!("native evidence changed after scratch cleanup: {path:?}").into());
+                return Err(
+                    format!("native evidence changed after scratch cleanup: {path:?}").into(),
+                );
             }
         }
         if retained.parent() != Some(expected.as_path()) {

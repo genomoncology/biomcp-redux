@@ -1,9 +1,5 @@
 //! One local peer owns only the synthetic environments explicitly attached to it.
 #![expect(
-    clippy::disallowed_methods,
-    reason = "The fixture owner selects durable test evidence outside scheduler scratch"
-)]
-#![expect(
     clippy::disallowed_types,
     reason = "The local fixture shares I/O diagnostics and owned scratch with its worker thread"
 )]
