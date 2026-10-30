@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 /// An authority and its unchanged native identifier; unknown means the authority was not stated.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-#[cfg_attr(feature = "schema", schemars(extend("x-identifier" = true)))]
+#[cfg_attr(feature = "schema", schemars(rename = "Identifier_{T}", extend("x-identifier" = true)))]
 pub struct Identifier<T> {
     /// Native authority spelling; the literal unknown carries an unstated authority.
     pub namespace: IdentifierNamespace,

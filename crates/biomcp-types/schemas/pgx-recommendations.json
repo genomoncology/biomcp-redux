@@ -19,7 +19,14 @@
       "pattern": "^[A-Za-z][A-Za-z0-9._/@-]{0,254}$",
       "type": "string"
     },
-    "Reply_Identifier": {
+    "Reply_IdentifierNamespace": {
+      "description": "A source-stated authority or an explicit unknown authority, represented by the string unknown.",
+      "maxLength": 1048576,
+      "minLength": 1,
+      "pattern": "^(?![\\s\\S]*[\\x00-\\x1f\\x7f-\\x9f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069])",
+      "type": "string"
+    },
+    "Reply_Identifier_int64": {
       "description": "An authority and its unchanged native identifier; unknown means the authority was not stated.",
       "properties": {
         "id": {
@@ -38,13 +45,6 @@
       ],
       "type": "object",
       "x-identifier": true
-    },
-    "Reply_IdentifierNamespace": {
-      "description": "A source-stated authority or an explicit unknown authority, represented by the string unknown.",
-      "maxLength": 1048576,
-      "minLength": 1,
-      "pattern": "^(?![\\s\\S]*[\\x00-\\x1f\\x7f-\\x9f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069])",
-      "type": "string"
     },
     "Reply_PageInfo": {
       "description": "Search counts after filtering and deduplication.",
@@ -181,7 +181,7 @@
         "guidelineid": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Reply_Identifier"
+              "$ref": "#/$defs/Reply_Identifier_int64"
             },
             {
               "type": "null"
@@ -190,7 +190,7 @@
           "description": "Native `guidelineid`; literal source value."
         },
         "id": {
-          "$ref": "#/$defs/Reply_Identifier",
+          "$ref": "#/$defs/Reply_Identifier_int64",
           "description": "Native `id`; literal source value."
         },
         "implications": {
@@ -495,7 +495,7 @@
           ]
         },
         "recommendationid": {
-          "$ref": "#/$defs/Reply_Identifier",
+          "$ref": "#/$defs/Reply_Identifier_int64",
           "description": "Native `recommendationid`; literal source value."
         }
       },

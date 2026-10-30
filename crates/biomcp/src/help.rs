@@ -52,7 +52,7 @@ pub(crate) fn reference() -> io::Result<Help> {
     public_grammar::canonical(&mut commands)?;
     Ok(Help { commands })
 }
-fn commands() -> io::Result<Vec<HelpCommand>> {
+pub(crate) fn commands() -> io::Result<Vec<HelpCommand>> {
     let examples: BTreeMap<String, Vec<Vec<String>>> =
         serde_json::from_str(include_str!(concat!(env!("OUT_DIR"), "/examples.json")))?;
     let mut commands = Vec::new();
