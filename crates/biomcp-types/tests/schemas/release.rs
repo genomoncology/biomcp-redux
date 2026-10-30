@@ -111,13 +111,15 @@ pub(super) fn identifier_objects_use_namespace_and_id() -> Check<()> {
     )?;
     for field in ["namespace", "id"] {
         let mut malformed = numeric.clone();
-        malformed["required"] = serde_json::json!([field]);
+        *malformed.get_mut("required").ok_or("numeric required names")? =
+            serde_json::json!([field]);
         assert!(
             identifier_shape(
                 &serde_json::json!({"$defs":{"Nested":malformed}}),
                 "numeric"
             )
-            .is_err()
+            .is_err(),
+            "identifier with only {field} required must be rejected"
         );
     }
     Ok(())
