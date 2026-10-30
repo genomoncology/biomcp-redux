@@ -21,7 +21,7 @@ pub(super) fn tools() -> io::Result<Vec<Value>> {
         let output = super::output_schema::for_tool(name)?;
         Ok(json!({"name":name,
 "description":description,
-"inputSchema":{"type":"object",
+"inputSchema":{"$schema":super::protocol::SCHEMA_DIALECT,"type":"object",
 "properties":{key:{"type":"string"}},
 "required":[key],
 "additionalProperties":false},

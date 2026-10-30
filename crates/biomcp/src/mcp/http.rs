@@ -188,7 +188,7 @@ impl Service {
             Err(error) => return (400, Some(error), None),
         };
         let mut legacy = revision != super::protocol::REVISIONS[0];
-        let result = match super::rpc::message(&request.body, &mut legacy) {
+        let result = match super::rpc::message(&request.body, &mut legacy, true) {
             super::rpc::Message::Reply(reply) => reply,
             super::rpc::Message::Notification { .. } => return (202, None, Some(revision)),
             super::rpc::Message::Tool { id, params, modern } => {
@@ -200,9 +200,7 @@ impl Service {
                     );
                 };
                 match super::research::execute(&call, &self.globals, &self.fetch, true) {
-                    Ok(outcome) => {
-                        super::protocol::result(id, super::protocol::outcome(&outcome), modern)
-                    }
+                    Ok(outcome) => super::protocol::tool_result(id, &outcome, modern),
                     Err(_) => super::protocol::error(id, -32603, "Internal error"),
                 }
             }
