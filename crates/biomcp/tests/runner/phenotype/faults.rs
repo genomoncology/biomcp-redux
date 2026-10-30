@@ -169,6 +169,103 @@ fn identity(fault: &str) -> Result<(), String> {
         "taxon" => "genes",
         _ => "search",
     };
+    let body = identity_body(surface, fault)?;
+    let stub = Stub::for_source_status(
+        if source(surface) == "hpo" {
+            "ontology.jax.org"
+        } else {
+            "api-v3.monarchinitiative.org"
+        },
+        "application/json",
+        move |_| Ok(body.to_string()),
+        |_| 200,
+    )?;
+    let env = setup(&stub)?;
+    let words = args(surface);
+    let refused_row = surface == "search";
+    let exit = if refused_row { 0 } else { 4 };
+    let mut result = Value::Null;
+    for n in 0..2 {
+        let directory = env.root().join(format!("identity-{n}"));
+        result = super::record(
+            &format!("faults/identity/record1@fault={fault},attempt={n}"),
+            &env,
+            &words,
+            &directory,
+            exit,
+        )?;
+        outcome(&result, source(surface), refused_row)?;
+        if n == 0 {
+            budgets::mcp(
+                &format!("faults/identity/mcp1@fault={fault},attempt={n}"),
+                &directory,
+                &words,
+                &result,
+                exit,
+            )?;
+        }
+    }
+    if refused_row {
+        let value = invoke(
+            &format!("faults/identity/record1@fault={fault},attempt=1"),
+            &env,
+            &words,
+            0,
+        )?;
+        refused(&value)?;
+        let mut offline = words.clone();
+        offline.push("--offline");
+        let missing = invoke(
+            "faults/identity/record1@fault=monarch-id,attempt=1",
+            &env,
+            &offline,
+            4,
+        )?;
+        if missing.pointer("/sources/0/reason") != Some(&json!("offline"))
+            || missing.get("result").is_some()
+        {
+            return Err(format!(
+                "refused phenotype identity entered offline cache: {missing}"
+            ));
+        }
+    }
+    if result
+        .get("problems")
+        .and_then(Value::as_array)
+        .is_none_or(Vec::is_empty)
+    {
+        return Err(format!("identity rejection lost its problem: {result}"));
+    }
+    if stub.finish()?.len() != if refused_row { 3 } else { 2 } {
+        return Err("rejected identity changed strict request count or entered cache".into());
+    }
+    Ok(())
+}
+
+pub(super) fn refused(value: &Value) -> Result<(), String> {
+    if value.get("status") != Some(&json!("complete"))
+        || value.pointer("/sources/0/state") != Some(&json!("ok"))
+        || value.pointer("/page/returned") != Some(&json!(0))
+        || value.pointer("/page/total") != Some(&json!(1))
+        || value.pointer("/result/items").is_some()
+        || !value
+            .get("problems")
+            .and_then(Value::as_array)
+            .is_some_and(|rows| {
+                rows.iter().any(|p| {
+                    p.get("field") == Some(&json!("id"))
+                        && p.get("source") == Some(&json!("monarch"))
+                })
+            })
+    {
+        return Err(format!(
+            "refused phenotype row became native zero or lost its identity Problem: {value}"
+        ));
+    }
+    Ok(())
+}
+
+fn identity_body(surface: &str, fault: &str) -> Result<Value, String> {
     let mut term = super::node();
     *term.get_mut("id").ok_or("synthetic node id")? =
         json!(if fault == "hpo-id" || fault == "monarch-id" {
@@ -190,48 +287,13 @@ fn identity(fault: &str) -> Result<(), String> {
     } else {
         term
     };
-    let stub = Stub::for_source_status(
-        if source(surface) == "hpo" {
-            "ontology.jax.org"
-        } else {
-            "api-v3.monarchinitiative.org"
-        },
-        "application/json",
-        move |_| Ok(body.to_string()),
-        |_| 200,
-    )?;
-    let env = setup(&stub)?;
-    let words = args(surface);
-    let mut result = Value::Null;
-    for n in 0..2 {
-        let directory = env.root().join(format!("identity-{n}"));
-        result = super::record(
-            &format!("faults/identity/record1@fault={fault},attempt={n}"),
-            &env,
-            &words,
-            &directory,
-            4,
-        )?;
-        failed(&result, source(surface))?;
-        if n == 0 {
-            budgets::mcp(
-                &format!("faults/identity/mcp1@fault={fault},attempt={n}"),
-                &directory,
-                &words,
-                &result,
-                4,
-            )?;
-        }
+    Ok(body)
+}
+
+pub(super) fn outcome(value: &Value, source: &str, refused_row: bool) -> Result<(), String> {
+    if refused_row {
+        refused(value)
+    } else {
+        failed(value, source)
     }
-    if result
-        .get("problems")
-        .and_then(Value::as_array)
-        .is_none_or(Vec::is_empty)
-    {
-        return Err(format!("identity rejection lost its problem: {result}"));
-    }
-    if stub.finish()?.len() != 2 {
-        return Err("rejected identity entered cache".into());
-    }
-    Ok(())
 }

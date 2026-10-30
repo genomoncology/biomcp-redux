@@ -16,17 +16,7 @@ pub(super) fn trials() -> Vec<Trial> {
     ]
 }
 fn malformed() -> Result<(), String> {
-    let capture: Value = serde_json::from_str(&crate::runner::launch::fixture_text(
-        "replies/drug/ema-synthetic/ema/1854254ba57f4597bd03970bf3664f62fac42eda059bf0022aaf32367297a317.json",
-    )?)
-    .map_err(|e| e.to_string())?;
-    let body: Value = serde_json::from_str(
-        capture
-            .pointer("/exchanges/0/body/value")
-            .and_then(Value::as_str)
-            .ok_or("missing body")?,
-    )
-    .map_err(|e| e.to_string())?;
+    let (capture, body) = retained()?;
     for fault in ["total", "duplicate", "metadata", "identity"] {
         let env = Environment::new().map_err(|e| e.to_string())?;
         let replay = env.root().join("replay");
@@ -68,6 +58,22 @@ fn malformed() -> Result<(), String> {
             bad.to_string().into(),
         )?;
         std::fs::write(&path, changed.to_string()).map_err(|e| e.to_string())?;
+        if fault == "metadata" {
+            call(&["sync", "ema"], 0)?;
+            let value = call(&get, 0)?;
+            if value.get("result") != before.get("result")
+                || value.get("problems")
+                    != Some(&json!([{
+                        "source":"ema", "record":id, "field":"_bundle_meta.timestamp", "code":"value.unknown"
+                    }]))
+                || value.pointer("/sources/0/state") != Some(&json!("ok"))
+            {
+                return Err(format!(
+                    "optional EMA timestamp changed native card: {value}"
+                ));
+            }
+            continue;
+        }
         if fault == "identity" {
             rejected_identity(&call(&["sync", "ema"], 0)?)?;
             rejected_identity(&call(&["sync", "ema"], 0)?)?;
@@ -85,6 +91,21 @@ fn malformed() -> Result<(), String> {
         }
     }
     Ok(())
+}
+
+fn retained() -> Result<(Value, Value), String> {
+    let capture: Value = serde_json::from_str(&crate::runner::launch::fixture_text(
+        "replies/drug/ema-synthetic/ema/1854254ba57f4597bd03970bf3664f62fac42eda059bf0022aaf32367297a317.json",
+    )?)
+    .map_err(|e| e.to_string())?;
+    let body: Value = serde_json::from_str(
+        capture
+            .pointer("/exchanges/0/body/value")
+            .and_then(Value::as_str)
+            .ok_or("missing body")?,
+    )
+    .map_err(|e| e.to_string())?;
+    Ok((capture, body))
 }
 
 fn rejected_identity(value: &Value) -> Result<(), String> {
