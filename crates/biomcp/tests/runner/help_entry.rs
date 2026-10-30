@@ -17,6 +17,9 @@ fn check() -> Check {
     let env = Environment::new()?;
     for format in ["json", "md"] {
         let help = run(&env, &["--format", format, "help"])?;
+        if help.len() > 4096 {
+            return Err(format!("root {format} help exceeds 4 KB: {}", help.len()).into());
+        }
         for alias in [vec![], vec!["-h"], vec!["--help"], vec!["help", "--help"]] {
             let mut args = vec!["--format", format];
             args.extend(alias);
