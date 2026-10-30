@@ -98,25 +98,7 @@ fn failed(value: &Value) -> Result<(), String> {
     Ok(())
 }
 fn no_admission(fault: &'static str, measure: bool) -> Result<(), String> {
-    let mut valid: Value =
-        serde_json::from_str(&fixture("portable-cellosaurus-cell-CVCL_2119.json")?)
-            .map_err(|e| e.to_string())?;
-    let healthy = valid.to_string();
-    let row = valid
-        .pointer_mut("/Cellosaurus/cell-line-list/0")
-        .ok_or("record")?;
-    match fault {
-        "accession" => {
-            *row.pointer_mut("/accession-list/0/value")
-                .ok_or("accession")? = json!("CVCL_0004")
-        }
-        "xref" => {
-            row.as_object_mut().ok_or("record")?.remove("xref-list");
-        }
-        "bad-version" => *row.get_mut("entry-version").ok_or("version")? = json!("bad"),
-        _ => *row.get_mut("entry-version").ok_or("version")? = json!("0"),
-    }
-    let bad = valid.to_string();
+    let (bad, healthy) = fault_card(fault)?;
     let release = fixture("portable-cellosaurus-cellosaurus-release.json")?;
     let reverse = fixture("portable-cellosaurus-search-reverse.json")?;
     let mut served = 0;
@@ -179,6 +161,9 @@ fn no_admission(fault: &'static str, measure: bool) -> Result<(), String> {
         measure,
     )?;
     path(&repaired, "/result/header/accession", json!("CVCL_2119"))?;
+    if optional {
+        path(&repaired, "/result/dates/version", json!(48))?;
+    }
     let calls = stub.finish()?;
     if calls
         .iter()
@@ -325,7 +310,7 @@ fn usage() -> Result<(), String> {
 fn omitted_version(value: &Value) -> Result<(), String> {
     path(value, "/status", json!("partial"))?;
     path(value, "/result/header/accession", json!("CVCL_2119"))?;
-    if value.pointer("/result/entry_version").is_some()
+    if value.pointer("/result/dates/version").is_some()
         || !value
             .get("problems")
             .and_then(Value::as_array)
@@ -339,4 +324,27 @@ fn omitted_version(value: &Value) -> Result<(), String> {
         ));
     }
     Ok(())
+}
+
+fn fault_card(fault: &str) -> Result<(String, String), String> {
+    let mut valid: Value =
+        serde_json::from_str(&fixture("portable-cellosaurus-cell-CVCL_2119.json")?)
+            .map_err(|e| e.to_string())?;
+    let healthy = valid.to_string();
+    let row = valid
+        .pointer_mut("/Cellosaurus/cell-line-list/0")
+        .ok_or("record")?;
+    match fault {
+        "accession" => {
+            *row.pointer_mut("/accession-list/0/value")
+                .ok_or("accession")? = json!("CVCL_0004")
+        }
+        "xref" => {
+            row.as_object_mut().ok_or("record")?.remove("xref-list");
+        }
+        "bad-version" => *row.get_mut("entry-version").ok_or("version")? = json!("bad"),
+        _ => *row.get_mut("entry-version").ok_or("version")? = json!("0"),
+    }
+    let bad = valid.to_string();
+    Ok((bad, healthy))
 }

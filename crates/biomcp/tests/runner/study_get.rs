@@ -429,6 +429,48 @@ fn rejected(env: &Environment, replay: &Path, section: &str, value: &Value) -> C
             "refused identity lost native total or accepted row count: {value}"
         ));
     }
+    let (field, prefix) = if section == "profiles" {
+        ("molecularProfileId", "native_profile_")
+    } else {
+        ("sampleListId", "native_list_")
+    };
+    let items = value
+        .pointer("/result/items")
+        .and_then(Value::as_array)
+        .ok_or("accepted study rows")?;
+    if items.len() != 4
+        || items
+            .iter()
+            .enumerate()
+            .any(|(n, row)| row.get(field) != Some(&json!(format!("{prefix}{}", n + 1))))
+    {
+        return Err(format!(
+            "refused study identity removed or reordered valid native neighbors: {value}"
+        ));
+    }
+    let next = super::action(value, "page")?;
+    if !next
+        .windows(2)
+        .any(|pair| pair == ["--section-offset", "5"])
+    {
+        return Err(format!(
+            "study continuation used accepted count instead of five consumed native rows: {next:?}"
+        ));
+    }
+    if !value
+        .get("problems")
+        .and_then(Value::as_array)
+        .is_some_and(|rows| {
+            rows.iter().any(|p| {
+                p.get("field") == Some(&json!("studyId"))
+                    && p.get("record") == Some(&json!(format!("{prefix}0")))
+            })
+        })
+    {
+        return Err(format!(
+            "wrong study scope lost its exact refused identity and Problem: {value}"
+        ));
+    }
     let db = rusqlite::Connection::open(env.root().join("case-cache/replay.sqlite"))
         .map_err(|e| e.to_string())?;
     let cached: i64 = db

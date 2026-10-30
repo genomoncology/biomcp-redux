@@ -52,6 +52,12 @@ pub(super) fn admission() -> Result<(), String> {
                 "pvalue_mantissa",
                 "/result/items/0/exact_p_value",
             )?;
+            gwas_budgets::cached(
+                &format!("gwas_search/mechanics/admission/{fault}"),
+                &env,
+                &args,
+                &failed,
+            )?;
             continue;
         }
         if failed.pointer("/sources/0/reason") != Some(&json!("bad-reply"))

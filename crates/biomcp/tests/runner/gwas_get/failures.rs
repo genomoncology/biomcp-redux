@@ -81,7 +81,12 @@ fn failure(surface: &str, fault: &str) -> Result<(), String> {
                 "absent optional array lost its valid identity: {value}"
             ));
         }
-        return Ok(());
+        return gwas_budgets::cached(
+            &format!("gwas_get/failures/failure/{surface}/{fault}"),
+            &env,
+            &args,
+            &value,
+        );
     }
     failed(&value)?;
     let fresh = super::super::action(&value, "fresh")?;
@@ -156,7 +161,13 @@ fn admission(fault: &str) -> Result<(), String> {
         if fault == "rsid" { 0 } else { 4 },
     )?;
     if fault == "rsid" {
-        return gwas_budgets::optional_page(&value, "snp_allele.rs_id", "/result/items/0/alleles");
+        gwas_budgets::optional_page(&value, "snp_allele.rs_id", "/result/items/0/alleles")?;
+        return gwas_budgets::cached(
+            &format!("gwas_get/failures/admission/{fault}"),
+            &env,
+            &args,
+            &value,
+        );
     }
     failed(&value)?;
     if value

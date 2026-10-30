@@ -94,3 +94,23 @@ pub(super) fn optional_page(value: &Value, field: &str, omitted: &str) -> Result
     }
     Ok(())
 }
+
+pub(super) fn cached(
+    phase: &str,
+    env: &Environment,
+    words: &[&str],
+    original: &Value,
+) -> Result<(), String> {
+    let mut args = env.globals(None, true);
+    args.extend(words.iter().map(|word| (*word).to_owned()));
+    let cached = invoke(phase, env, args, 0)?;
+    if cached.get("result") != original.get("result")
+        || cached.get("status") != original.get("status")
+        || cached.get("problems") != original.get("problems")
+    {
+        return Err(format!(
+            "valid GWAS identities with omitted optional metadata did not cache intact: {cached}"
+        ));
+    }
+    Ok(())
+}

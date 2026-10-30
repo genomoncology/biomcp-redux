@@ -77,10 +77,20 @@ fn optional_variants(value: &Value, fault: &str, fresh: bool) -> Result<(), Stri
             "optional nested field removed native variant rows: {value}"
         ));
     }
+    if fault == "provenance"
+        && value
+            .pointer("/result/items/items/0/provenance/0/reference")
+            .is_some()
+            != fresh
+    {
+        return Err(format!(
+            "optional provenance was not omitted or restored after fresh repair: {value}"
+        ));
+    }
     let field = if fault == "xref" {
         "xref-list"
     } else {
-        "sequence-variation-list.source-list.reference.resource-internal-ref"
+        "sequence-variation-list.source-list.reference"
     };
     let problem = value
         .get("problems")
