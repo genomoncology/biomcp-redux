@@ -54,42 +54,7 @@ fn check() -> Check {
     {
         return Err("retired list remains in public help".into());
     }
-    for command in value
-        .pointer("/result/commands")
-        .and_then(Value::as_array)
-        .ok_or("missing help commands")?
-    {
-        let name = command
-            .pointer("/command/0")
-            .and_then(Value::as_str)
-            .ok_or("missing command name")?;
-        for format in ["json", "md"] {
-            let output = run(&env, &["--format", format, "help", name])?;
-            if output.len() > 8192 {
-                return Err(format!(
-                    "command {name} {format} help exceeds 8 KB: {}",
-                    output.len()
-                )
-                .into());
-            }
-        }
-    }
-    let exit = String::from_utf8(run(&env, &["--format", "md", "help", "exit"])?)?;
-    if !exit.contains("0:") || exit.contains("&#58;") {
-        return Err("Markdown help escapes ordinary colons".into());
-    }
-    let drug: Value = serde_json::from_slice(&run(&env, &["help", "get", "drug"])?)?;
-    if !drug
-        .pointer("/result/commands/0/arguments")
-        .and_then(Value::as_array)
-        .is_some_and(|arguments| {
-            arguments
-                .iter()
-                .any(|argument| argument["name"] == "--label-section")
-        })
-    {
-        return Err("drug help omits --label-section".into());
-    }
+    check_bounded_scopes(&env, &value)?;
     check_metadata(&env, &value)?;
     for args in [
         vec!["discover", "SENSITIVE-input-never-echo"],
@@ -113,6 +78,46 @@ fn check() -> Check {
             .ok_or("unknown command omitted executable recovery")?;
         let next: Vec<_> = next.iter().filter_map(Value::as_str).collect();
         run(&env, &next)?;
+    }
+    Ok(())
+}
+
+fn check_bounded_scopes(env: &Environment, value: &Value) -> Check {
+    for command in value
+        .pointer("/result/commands")
+        .and_then(Value::as_array)
+        .ok_or("missing help commands")?
+    {
+        let name = command
+            .pointer("/command/0")
+            .and_then(Value::as_str)
+            .ok_or("missing command name")?;
+        for format in ["json", "md"] {
+            let output = run(env, &["--format", format, "help", name])?;
+            if output.len() > 8192 {
+                return Err(format!(
+                    "command {name} {format} help exceeds 8 KB: {}",
+                    output.len()
+                )
+                .into());
+            }
+        }
+    }
+    let exit = String::from_utf8(run(env, &["--format", "md", "help", "exit"])?)?;
+    if !exit.contains("0:") || exit.contains("&#58;") {
+        return Err("Markdown help escapes ordinary colons".into());
+    }
+    let drug: Value = serde_json::from_slice(&run(env, &["help", "get", "drug"])?)?;
+    if !drug
+        .pointer("/result/commands/0/arguments")
+        .and_then(Value::as_array)
+        .is_some_and(|arguments| {
+            arguments
+                .iter()
+                .any(|argument| argument["name"] == "--label-section")
+        })
+    {
+        return Err("drug help omits --label-section".into());
     }
     Ok(())
 }
