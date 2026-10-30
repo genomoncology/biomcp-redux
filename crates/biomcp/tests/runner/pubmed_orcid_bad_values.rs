@@ -5,6 +5,10 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        transcript_trial(
+            "author-orcid/refused-work-members-stay-partial-on-warm-page",
+            || stored_work_refusals().map_err(Into::into),
+        ),
         transcript_trial("author-orcid/invalid-optional-fields-are-disclosed", || {
             orcid()
                 .and_then(|_| person())
@@ -541,5 +545,30 @@ fn stored_notice_problems() -> Result<(), String> {
             return Err("cached notice requested the provider".into());
         }
     }
+    Ok(())
+}
+
+fn stored_work_refusals() -> Result<(), String> {
+    super::super::response_cases::checked_steps(
+        "orcid/visibility",
+        |source, capture| {
+            if source == "orcid"
+                && let Some(members) = capture
+                    .pointer_mut("/exchanges/0/body/value/group/0/work-summary")
+                    .and_then(Value::as_array_mut)
+            {
+                members.push(json!(42));
+            }
+        },
+        json!([
+            {"run":["author","papers","orcid:0000-0002-4299-3018"], "exit":0,
+             "expect":{"/status":"partial","/problems/0/field":"work_summary",
+                "/result/groups/0/assertions/0/put_code":1}},
+            {"run":["author","papers","orcid:0000-0002-4299-3018"], "offline":true, "exit":0,
+             "expect":{"/status":"partial","/problems/0/field":"work_summary",
+                "/result/groups/0/assertions/0/put_code":1}}
+        ]),
+    )
+    .map_err(|e| e.to_string())?;
     Ok(())
 }

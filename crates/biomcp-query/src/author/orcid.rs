@@ -37,7 +37,7 @@ fn restart(q: &AuthorPapersQuery, out: &mut Outcome, mismatch: bool) {
 }
 fn key(q: &AuthorPapersQuery) -> Result<Vec<u8>, RequestError> {
     serde_json::to_vec(&(
-        "biomcp.orcid_works_snapshot/3",
+        "biomcp.orcid_works_snapshot/4",
         q.id(),
         q.section(),
         q.limit(),
@@ -81,12 +81,14 @@ fn execute(
             restart(q, out, false);
             return Ok(());
         };
-        let (groups, source, problems): (
+        let (groups, source, problems, dropped): (
             Box<[OrcidWorkGroup]>,
             SourceOutcome,
             Vec<biomcp_types::Problem>,
+            bool,
         ) = serde_json::from_str(&payload).map_err(|_| CacheError::Database)?;
         out.problems.extend(problems);
+        out.dropped = dropped;
         (groups, source, pool)
     } else {
         if q.pool().is_some() {
@@ -105,7 +107,7 @@ fn execute(
         let groups = mapped.value;
         out.include_refusals(mapped.refusals);
         out.problems.extend(mapped.problems);
-        let payload = serde_json::to_string(&(&groups, &source, &out.problems))
+        let payload = serde_json::to_string(&(&groups, &source, &out.problems, out.dropped))
             .map_err(|_| CacheError::Database)?;
         let size = u32::try_from(groups.len()).map_err(|_| CacheError::Database)?;
         let pool =
