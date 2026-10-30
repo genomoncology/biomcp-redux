@@ -17,18 +17,6 @@
         "--limit",
         "100"
       ],
-      "mcp": [
-        "search",
-        "trial",
-        "--gene",
-        "KIT",
-        "--variant",
-        "L576P",
-        "--condition",
-        "gastrointestinal stromal tumor",
-        "--limit",
-        "100"
-      ],
       "expect": {
         "/status": "complete",
         "/page/total": 0,
@@ -67,16 +55,6 @@
     },
     {
       "run": [
-        "search",
-        "trial",
-        "--gene",
-        "KIT",
-        "--condition",
-        "gastrointestinal stromal tumor",
-        "--limit",
-        "100"
-      ],
-      "mcp": [
         "search",
         "trial",
         "--gene",

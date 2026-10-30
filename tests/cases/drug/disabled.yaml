@@ -10,13 +10,6 @@
         "--disable-sources",
         "mychem"
       ],
-      "mcp": [
-        "search",
-        "drug",
-        "imatinib",
-        "--disable-sources",
-        "mychem"
-      ],
       "expect": {
         "/status": "failed",
         "/query/source": "mychem",

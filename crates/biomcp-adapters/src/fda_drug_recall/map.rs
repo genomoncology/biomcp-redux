@@ -64,5 +64,9 @@ pub(super) fn mapped(row: raw::Record) -> Mapped<DrugRecallCard> {
         code_info: text("code_info", row.code_info),
         voluntary_mandated: text("voluntary_mandated", row.voluntary_mandated),
     };
-    Mapped { value, problems }
+    Mapped {
+        refusals: crate::Refusal::None,
+        value,
+        problems,
+    }
 }

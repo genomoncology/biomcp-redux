@@ -6,9 +6,11 @@ use serde_json::{Value, json};
 use std::{
     io::{Read, Write},
     net::{SocketAddr, TcpStream},
-    process::{Child, Stdio},
+    process::Child,
     time::Duration,
 };
+#[path = "http_start.rs"]
+mod start;
 type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
@@ -19,10 +21,9 @@ pub(super) fn trials() -> Vec<Trial> {
             "mcp-http/revisions-parity-and-concurrent-identities",
             || protocols().map_err(Into::into),
         ),
-        transcript_trial(
-            "mcp-http/host-origin-method-and-metadata-boundaries",
-            || admission().map_err(Into::into),
-        ),
+        transcript_trial(crate::runner::pool_contract::HTTP_HOST.0, || {
+            admission().map_err(Into::into)
+        }),
         transcript_trial("mcp-http/framing-resource-deadlines-and-shutdown", || {
             super::http_limits::check().map_err(Into::into)
         }),
@@ -82,7 +83,7 @@ impl Server {
         &self._environment
     }
     pub(super) fn keys(config: Value, key: Option<(&str, &str)>) -> Result<Self, String> {
-        Self::configured_key("127.0.0.1:0", Some(config), None, key)
+        Self::configured_key("127.0.0.1:0", Some(config), None, key, None)
     }
     fn configured(bind: &str, config: Option<Value>, replay: bool) -> Result<Self, String> {
         Self::configured_key(
@@ -90,82 +91,11 @@ impl Server {
             config,
             replay.then(|| super::launch::fixtures().join("replies/gene/main")),
             None,
+            None,
         )
     }
     pub(super) fn start_replay(path: std::path::PathBuf) -> Result<Self, String> {
-        Self::configured_key("127.0.0.1:0", None, Some(path), None)
-    }
-    fn configured_key(
-        bind: &str,
-        config: Option<Value>,
-        replay: Option<std::path::PathBuf>,
-        key: Option<(&str, &str)>,
-    ) -> Result<Self, String> {
-        Self::configured_globals(bind, config, replay, key, &[])
-    }
-    pub(super) fn configured_globals(
-        bind: &str,
-        config: Option<Value>,
-        replay: Option<std::path::PathBuf>,
-        key: Option<(&str, &str)>,
-        globals: &[String],
-    ) -> Result<Self, String> {
-        let environment = Environment::new().map_err(|e| e.to_string())?;
-        if let Some(config) = config {
-            environment.config(&config).map_err(|e| e.to_string())?;
-        }
-        let address: SocketAddr = bind.parse().map_err(|_| "local address")?;
-        let mut args = vec!["serve".into(), "--http".into(), address.to_string()];
-        args.extend_from_slice(globals);
-        if let Some(path) = replay {
-            args.extend(environment.globals(Some(&path), false));
-        }
-        let mut command = environment.command(env!("CARGO_BIN_EXE_biomcp"), &args);
-        #[cfg(windows)]
-        {
-            use std::os::windows::process::CommandExt;
-            // Installed services must also start without a console window.
-            const CREATE_NO_WINDOW: u32 = 0x0800_0000;
-            command.creation_flags(CREATE_NO_WINDOW);
-        }
-        if let Some((name, key)) = key {
-            command.env(name, key);
-        }
-        let child = command
-            .stdin(Stdio::null())
-            .stdout(Stdio::null())
-            .stderr(Stdio::piped())
-            .spawn()
-            .map_err(|e| e.to_string())?;
-        let mut server = Self {
-            child,
-            address,
-            _environment: environment,
-        };
-        let stderr = server.child.stderr.take().ok_or("HTTP stderr missing")?;
-        let (sender, receiver) = std::sync::mpsc::sync_channel(1);
-        let reader = std::thread::spawn(move || {
-            use std::io::BufRead;
-            let mut line = String::new();
-            let result = std::io::BufReader::new(stderr)
-                .read_line(&mut line)
-                .map(|_| line);
-            let _ = sender.send(result);
-        });
-        let event = receiver
-            .recv_timeout(Duration::from_secs(5))
-            .map_err(|_| "HTTP readiness event timed out")?
-            .map_err(|e| e.to_string())?;
-        reader.join().map_err(|_| "HTTP readiness reader stopped")?;
-        let event: Value =
-            serde_json::from_str(&event).map_err(|e| format!("HTTP readiness: {e}"))?;
-        server.address = event
-            .get("listening")
-            .and_then(Value::as_str)
-            .ok_or("missing listening address")?
-            .parse()
-            .map_err(|_| "invalid listening address")?;
-        Ok(server)
+        Self::configured_key("127.0.0.1:0", None, Some(path), None, None)
     }
 
     pub(super) fn request(
@@ -419,7 +349,10 @@ fn concurrent(server: &Server, globals: &[String]) -> Check {
 }
 
 fn admission() -> Check {
-    let server = Server::start()?;
+    let server = Server::configured_key("127.0.0.1:0", None, None, None, Some("clinic.example"))?;
+    if server.raw("GET", "/health", "clinic.example", "", "")?.0 != 200 {
+        return Err("explicit allowed Host was rejected".into());
+    }
     metadata_cases(&server)?;
     let host = server.address.to_string();
     for (authority, headers) in [

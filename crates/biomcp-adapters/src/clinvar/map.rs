@@ -21,6 +21,7 @@ pub(super) fn aggregate(
     subject: VariantRef,
     conditions: Vec<AssertionCondition>,
     problems: &mut crate::mapped::Problems,
+    refusals: &mut crate::Refusal,
 ) -> Result<Vec<VariantAssertion>, BadReply> {
     problems.record = record.attr("Accession")?.and_then(crate::mapped::record);
     let mut rows = Vec::new();
@@ -31,12 +32,14 @@ pub(super) fn aggregate(
         let descriptions = group.children("Description")?;
         for description in descriptions {
             let Some(label) = problems.text("description", Some(&description.text()?)) else {
+                *refusals = crate::Refusal::Refused;
                 continue;
             };
             let evaluated = description
                 .attr("DateLastEvaluated")?
                 .or(group.attr("DateLastEvaluated")?);
             let Some(attribution) = attribution(record, evaluated, None, kind, problems)? else {
+                *refusals = crate::Refusal::Refused;
                 continue;
             };
             let review = problems.text("review_status", group.value(&["ReviewStatus"])?.as_deref());
@@ -79,10 +82,12 @@ pub(super) fn submission(
     record: Element<'_>,
     subject: VariantRef,
     problems: &mut crate::mapped::Problems,
+    refusals: &mut crate::Refusal,
 ) -> Result<Vec<VariantAssertion>, BadReply> {
     problems.record = None;
     let Some(accession) = record.child("ClinVarAccession")? else {
         problems.required::<()>("ClinVarAccession", None);
+        *refusals = crate::Refusal::Refused;
         return Ok(Vec::new());
     };
     let Some(class) = record.child("Classification")? else {
@@ -96,6 +101,7 @@ pub(super) fn submission(
         problems,
     )?
     else {
+        *refusals = crate::Refusal::Refused;
         return Ok(Vec::new());
     };
     let detail = super::detail::submission(record, problems)?;
@@ -107,6 +113,7 @@ pub(super) fn submission(
         };
         let label = value.value(&["Description"])?.unwrap_or(value.text()?);
         let Some(label) = problems.text("description", Some(&label)) else {
+            *refusals = crate::Refusal::Refused;
             continue;
         };
         let mut detail = detail.clone();

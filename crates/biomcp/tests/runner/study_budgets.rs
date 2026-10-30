@@ -153,6 +153,8 @@ const MEASUREMENTS: &[(&str, usize, usize)] = &[
     ("get/pages/1", 447, 446),
     ("get/pages/2", 1896, 1895),
     ("get/pages/3", 6339, 6338),
+    // Limited profiles page measured through CLI/MCP in j22936.
+    ("get/pages/limited", 1138, 1137),
     ("retirements/boundaries/1", 447, 446),
     ("retirements/boundaries/2", 743, 742),
 ];

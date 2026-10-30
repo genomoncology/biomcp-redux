@@ -165,6 +165,7 @@ pub(super) fn card(mut row: raw::Record) -> Result<crate::Mapped<CellLineCard>, 
         },
     });
     Ok(crate::Mapped {
+        refusals: crate::Refusal::None,
         value: card,
         problems: problems.list,
     })

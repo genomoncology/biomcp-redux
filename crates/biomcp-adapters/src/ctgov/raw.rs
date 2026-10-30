@@ -211,6 +211,7 @@ impl Protocol {
             updated,
         };
         Ok(Mapped {
+            refusals: crate::Refusal::None,
             value,
             problems: problems.list,
         })

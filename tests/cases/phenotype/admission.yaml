@@ -11,14 +11,6 @@
         "--source",
         "hpo"
       ],
-      "mcp": [
-        "get",
-        "phenotype",
-        "HP:0001250",
-        "hierarchy",
-        "--source",
-        "hpo"
-      ],
       "offline": true,
       "exit": 2,
       "is_error": true,
@@ -31,14 +23,6 @@
     },
     {
       "run": [
-        "get",
-        "phenotype",
-        "HP:0001250",
-        "diseases",
-        "--source",
-        "hpo"
-      ],
-      "mcp": [
         "get",
         "phenotype",
         "HP:0001250",
@@ -65,14 +49,6 @@
         "--source",
         "hpo"
       ],
-      "mcp": [
-        "get",
-        "phenotype",
-        "HP:0001250",
-        "genes",
-        "--source",
-        "hpo"
-      ],
       "offline": true,
       "exit": 2,
       "is_error": true,
@@ -85,180 +61,6 @@
     },
     {
       "run": [
-        "get",
-        "phenotype",
-        "MONDO:0000001"
-      ],
-      "mcp": [
-        "get",
-        "phenotype",
-        "MONDO:0000001"
-      ],
-      "offline": true,
-      "exit": 2,
-      "is_error": true,
-      "expect": {
-        "/status": "usage",
-        "/error/code": "usage.arguments",
-        "/error/message": "expected a supported command with checked arguments"
-      },
-      "max_bytes": 166
-    },
-    {
-      "run": [
-        "get",
-        "phenotype",
-        "HGNC:1"
-      ],
-      "mcp": [
-        "get",
-        "phenotype",
-        "HGNC:1"
-      ],
-      "offline": true,
-      "exit": 2,
-      "is_error": true,
-      "expect": {
-        "/status": "usage",
-        "/error/code": "usage.arguments",
-        "/error/message": "expected a supported command with checked arguments"
-      },
-      "max_bytes": 166
-    },
-    {
-      "run": [
-        "get",
-        "phenotype",
-        "HP:bad"
-      ],
-      "mcp": [
-        "get",
-        "phenotype",
-        "HP:bad"
-      ],
-      "offline": true,
-      "exit": 2,
-      "is_error": true,
-      "expect": {
-        "/status": "usage",
-        "/error/code": "usage.arguments",
-        "/error/message": "expected a supported command with checked arguments"
-      },
-      "max_bytes": 166
-    },
-    {
-      "run": [
-        "search",
-        "phenotype",
-        "literal",
-        "--limit",
-        "0"
-      ],
-      "mcp": [
-        "search",
-        "phenotype",
-        "literal",
-        "--limit",
-        "0"
-      ],
-      "offline": true,
-      "exit": 2,
-      "is_error": true,
-      "expect": {
-        "/status": "usage",
-        "/error/code": "usage.arguments",
-        "/error/message": "expected a supported command with checked arguments",
-        "/error/option": "--limit"
-      },
-      "max_bytes": 166
-    },
-    {
-      "run": [
-        "search",
-        "phenotype",
-        "literal",
-        "--limit",
-        "51"
-      ],
-      "mcp": [
-        "search",
-        "phenotype",
-        "literal",
-        "--limit",
-        "51"
-      ],
-      "offline": true,
-      "exit": 2,
-      "is_error": true,
-      "expect": {
-        "/status": "usage",
-        "/error/code": "usage.arguments",
-        "/error/message": "expected a supported command with checked arguments",
-        "/error/option": "--limit"
-      },
-      "max_bytes": 166
-    },
-    {
-      "run": [
-        "search",
-        "phenotype",
-        "literal",
-        "--limit",
-        "4294967296"
-      ],
-      "mcp": [
-        "search",
-        "phenotype",
-        "literal",
-        "--limit",
-        "4294967296"
-      ],
-      "offline": true,
-      "exit": 2,
-      "is_error": true,
-      "expect": {
-        "/status": "usage",
-        "/error/code": "usage.arguments",
-        "/error/message": "expected a supported command with checked arguments",
-        "/error/option": "--limit"
-      },
-      "max_bytes": 166
-    },
-    {
-      "run": [
-        "search",
-        "phenotype",
-        "literal",
-        "--offset",
-        "-1"
-      ],
-      "mcp": [
-        "search",
-        "phenotype",
-        "literal",
-        "--offset",
-        "-1"
-      ],
-      "offline": true,
-      "exit": 2,
-      "is_error": true,
-      "expect": {
-        "/status": "usage",
-        "/error/code": "usage.arguments",
-        "/error/message": "expected a supported command with checked arguments",
-        "/error/option": "--offset"
-      },
-      "max_bytes": 166
-    },
-    {
-      "run": [
-        "search",
-        "phenotype",
-        "literal",
-        "--offset",
-        "4294967296"
-      ],
-      "mcp": [
         "search",
         "phenotype",
         "literal",
@@ -277,14 +79,6 @@
     },
     {
       "run": [
-        "get",
-        "phenotype",
-        "HP:0001250",
-        "synonyms",
-        "--section-limit",
-        "0"
-      ],
-      "mcp": [
         "get",
         "phenotype",
         "HP:0001250",
@@ -305,98 +99,6 @@
     },
     {
       "run": [
-        "get",
-        "phenotype",
-        "HP:0001250",
-        "synonyms",
-        "--section-limit",
-        "51"
-      ],
-      "mcp": [
-        "get",
-        "phenotype",
-        "HP:0001250",
-        "synonyms",
-        "--section-limit",
-        "51"
-      ],
-      "offline": true,
-      "exit": 2,
-      "is_error": true,
-      "expect": {
-        "/status": "usage",
-        "/error/code": "usage.arguments",
-        "/error/message": "expected a supported command with checked arguments",
-        "/error/option": "--section-limit"
-      },
-      "max_bytes": 171
-    },
-    {
-      "run": [
-        "get",
-        "phenotype",
-        "HP:0001250",
-        "synonyms",
-        "--section-limit",
-        "4294967296"
-      ],
-      "mcp": [
-        "get",
-        "phenotype",
-        "HP:0001250",
-        "synonyms",
-        "--section-limit",
-        "4294967296"
-      ],
-      "offline": true,
-      "exit": 2,
-      "is_error": true,
-      "expect": {
-        "/status": "usage",
-        "/error/code": "usage.arguments",
-        "/error/message": "expected a supported command with checked arguments",
-        "/error/option": "--section-limit"
-      },
-      "max_bytes": 171
-    },
-    {
-      "run": [
-        "get",
-        "phenotype",
-        "HP:0001250",
-        "synonyms",
-        "--section-offset",
-        "-1"
-      ],
-      "mcp": [
-        "get",
-        "phenotype",
-        "HP:0001250",
-        "synonyms",
-        "--section-offset",
-        "-1"
-      ],
-      "offline": true,
-      "exit": 2,
-      "is_error": true,
-      "expect": {
-        "/status": "usage",
-        "/error/code": "usage.arguments",
-        "/error/message": "expected a supported command with checked arguments",
-        "/error/option": "--section-offset"
-      },
-      "max_bytes": 172
-    },
-    {
-      "run": [
-        "get",
-        "phenotype",
-        "HP:0001250",
-        "synonyms",
-        "--section-offset",
-        "4294967296"
-      ],
-      "mcp": [
         "get",
         "phenotype",
         "HP:0001250",

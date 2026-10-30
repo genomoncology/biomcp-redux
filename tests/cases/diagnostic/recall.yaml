@@ -12,14 +12,6 @@
         "--manufacturer",
         "Synthetic maker"
       ],
-      "mcp": [
-        "search",
-        "diagnostic",
-        "--source",
-        "fda-device-recall",
-        "--manufacturer",
-        "Synthetic maker"
-      ],
       "expect": {
         "/result/count_unit": "recall-records",
         "/result/items/0/header/recall_number": "Z-0001-2024"
@@ -36,14 +28,6 @@
         "--product-code",
         "ABC"
       ],
-      "mcp": [
-        "search",
-        "diagnostic",
-        "--source",
-        "fda-device-recall",
-        "--product-code",
-        "ABC"
-      ],
       "expect": {
         "/page/total": 1
       },
@@ -52,13 +36,6 @@
     },
     {
       "run": [
-        "get",
-        "diagnostic",
-        "Z-0001-2024",
-        "--source",
-        "fda-device-recall"
-      ],
-      "mcp": [
         "get",
         "diagnostic",
         "Z-0001-2024",

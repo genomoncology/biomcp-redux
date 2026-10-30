@@ -133,7 +133,7 @@ fn call(http: bool, env: &Environment, args: &[String], globals: &[String]) -> C
         json!({"name":"biomcp","arguments":{"args":args}}),
     );
     let reply = if http {
-        let server = Server::configured_globals("127.0.0.1:0", None, None, None, globals)?;
+        let server = Server::configured_globals("127.0.0.1:0", None, None, None, None, globals)?;
         let (status, reply) = server.request("POST", "/mcp", &frame.to_string())?;
         assert_eq!(status, 200, "{reply}");
         reply

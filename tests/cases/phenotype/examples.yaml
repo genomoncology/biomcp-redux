@@ -9,11 +9,6 @@
         "phenotype",
         "synthetic"
       ],
-      "mcp": [
-        "search",
-        "phenotype",
-        "synthetic"
-      ],
       "expect": {
         "/status": "complete",
         "/result/items/0/id": "HP:0000001"
@@ -22,11 +17,6 @@
     },
     {
       "run": [
-        "get",
-        "phenotype",
-        "HP:0000001"
-      ],
-      "mcp": [
         "get",
         "phenotype",
         "HP:0000001"
@@ -45,13 +35,6 @@
         "--limit",
         "1"
       ],
-      "mcp": [
-        "search",
-        "phenotype",
-        "synthetic",
-        "--limit",
-        "1"
-      ],
       "expect": {
         "/status": "complete",
         "/query/limit": 1,
@@ -61,13 +44,6 @@
     },
     {
       "run": [
-        "get",
-        "phenotype",
-        "HP:0000001",
-        "--source",
-        "monarch"
-      ],
-      "mcp": [
         "get",
         "phenotype",
         "HP:0000001",

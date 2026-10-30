@@ -488,7 +488,7 @@ fn retired_requests() -> Result<(), String> {
         |_| Err("retired input opened a source".into()),
     )?;
     let env = setup(&stub)?;
-    let path = super::launch::fixtures().join("cases/disease/retired.yaml");
+    let path = super::launch::fixtures().join("native/case-inputs/disease/retired.yaml");
     let case: Value = serde_json::from_slice(&fs::read(path).map_err(|e| e.to_string())?)
         .map_err(|e| e.to_string())?;
     for step in case

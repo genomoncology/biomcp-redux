@@ -53,6 +53,7 @@ pub fn sync(fetch: &Fetch) -> Result<crate::Mapped<SyncResult>, RequestError> {
     }
     let problems = crate::mapped::bundle_problems(biomcp_types::Source::Gtr, &info);
     Ok(crate::Mapped {
+        refusals: crate::bundle_mapping::bundle_refusals(&info),
         problems,
         value: SyncResult {
             snapshot: None,

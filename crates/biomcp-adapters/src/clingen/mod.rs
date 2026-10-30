@@ -44,7 +44,10 @@ pub fn sync(fetch: &Fetch) -> Result<crate::Mapped<SyncResult>, RequestError> {
     let dosage = fetch.sync(&DOSAGE)?;
     let mut problems = crate::mapped::bundle_problems(Source::ClinGen, &validity);
     problems.extend(crate::mapped::bundle_problems(Source::ClinGen, &dosage));
+    let mut refusals = crate::bundle_mapping::bundle_refusals(&validity);
+    refusals.include(crate::bundle_mapping::bundle_refusals(&dosage));
     Ok(crate::Mapped {
+        refusals,
         problems,
         value: SyncResult {
             snapshot: None,
@@ -70,12 +73,20 @@ pub fn validity(
     };
     let key = id.to_string();
     let rejected = raw::rejected_key(symbol);
+    let mut refusals = crate::Refusal::None;
     let value = leg
         .rows(&VALIDITY, Find::AnyExact(KeyKind::Id, &[&key, &rejected]))?
         .into_iter()
-        .filter_map(|row| row.checked(&mut problems))
+        .filter_map(|row| match row.checked(&mut problems) {
+            Some(row) => Some(row),
+            None => {
+                refusals = crate::Refusal::Refused;
+                None
+            }
+        })
         .collect();
     Ok(Mapped {
+        refusals,
         value,
         problems: problems.list,
     })
@@ -104,16 +115,27 @@ pub fn dosage(
         record: None,
         list: Vec::new(),
     };
+    let mut refusals = crate::Refusal::None;
     let mut rows: Vec<_> = rows
         .into_iter()
-        .filter_map(|row| row.checked(&mut problems))
+        .filter_map(|row| match row.checked(&mut problems) {
+            Some(row) => Some(row),
+            None => {
+                refusals = crate::Refusal::Refused;
+                None
+            }
+        })
         .collect();
     let value = match rows.len() {
         0 => None,
         1 => rows.pop(),
-        _ => problems.required::<Dosage>("HGNC ID", None),
+        _ => {
+            refusals = crate::Refusal::Refused;
+            problems.required::<Dosage>("HGNC ID", None)
+        }
     };
     Ok(Mapped {
+        refusals,
         value,
         problems: problems.list,
     })

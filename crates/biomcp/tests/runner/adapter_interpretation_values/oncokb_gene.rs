@@ -85,7 +85,8 @@ fn case(mutation: Option<(&str, Value)>, expected: Option<Value>) -> Result<(), 
         },
     )
     .map_err(|e| e.to_string())?;
-    let original = crate::runner::launch::fixtures().join("cases/gene/sections/oncokb-data.yaml");
+    let original =
+        crate::runner::launch::fixtures().join("native/case-inputs/gene/sections/oncokb-data.yaml");
     let mut case: Value = serde_json::from_slice(&fs::read(original).map_err(|e| e.to_string())?)
         .map_err(|e| e.to_string())?;
     *case.get_mut("replay").ok_or("missing original replay")? = json!(capture);

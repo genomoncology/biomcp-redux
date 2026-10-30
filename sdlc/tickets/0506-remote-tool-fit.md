@@ -4,11 +4,10 @@ Status: OPEN.
 
 Milestone: 5
 
-Depends on: 0502
 
 ## Outcome
 
-Every MCP tool declares its JSON Schema dialect and correct annotations, and every tool result stays under 150,000 characters. The `biomcp` tool carries `destructiveHint: false`, and `readOnlyHint: true` wherever saving is off (HTTP and hosted mode). A reply that would pass the cap returns a typed error that names the cap and the narrowing options, never silently cut text.
+Every MCP tool declares its JSON Schema dialect and correct annotations, and every tool result stays under 150,000 characters. The `biomcp` tool carries `destructiveHint: false`, and `readOnlyHint: true` wherever saving is off (HTTP today, and hosted mode once 0502 lands; whichever of the two lands second wires the hosted case). A reply that would pass the cap returns a typed error that names the cap and the narrowing options, never silently cut text.
 
 - Why: Ian approved a shared hosted remote MCP server for 1.0, live before 2026-11-30 (m16469); a code audit at 79883e3ba checked each outcome against this repo. BioMCP lists three tools with root `required` arrays and a 20 second budget, which already fit, but no tool declares `$schema`, `biomcp` has no annotations, and `protocol.rs` `outcome` serializes each value twice with no size cap.
 - Starts from: `crates/biomcp/src/mcp/protocol.rs`, `rpc.rs`, `research.rs` and the output budgets.

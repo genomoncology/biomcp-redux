@@ -211,20 +211,76 @@ fn only_trailing_words_select_implicit_sections() -> Check {
 
 fn explicit_equals_refusal_counts() -> Check {
     let mut inventory = Inventory::new(&help(), &[])?;
-    let refusal: Step = serde_json::from_value(json!({
-        "run":["get","trial"],
-        "expect":{"/error/code":{"equals":"usage.arguments"}}
-    }))?;
-    inventory.step(&refusal);
+    for code in [
+        "usage.arguments",
+        "usage.schema",
+        "usage.unknown_command",
+        "usage.retired",
+    ] {
+        let refusal: Step = serde_json::from_value(json!({
+            "run":["get","trial"], "exit":2,
+            "expect":{"/error/code":{"equals":code}}
+        }))?;
+        inventory.step(&refusal);
+    }
     assert_eq!(
         inventory.calls.get("refusal get trial"),
-        Some(&1),
+        Some(&4),
         "explicit equality must count the same refusal as a scalar assertion"
     );
     Ok(())
 }
 
+fn label_absence_requires_the_successful_label_source() -> Check {
+    let mut help = help();
+    help.pointer_mut("/result/commands")
+        .and_then(Value::as_array_mut)
+        .ok_or("proof commands")?
+        .push(json!({
+            "command":["get","drug"],"arguments":[],"sections":[{"word":"label"}]
+        }));
+    let mut inventory = Inventory::new(&help, &[])?;
+    for (source, state) in [
+        (None, "ok"),
+        (Some("mychem"), "ok"),
+        (Some("openfda-label"), "failed"),
+        (Some("openfda-label"), "ok"),
+    ] {
+        let mut expect = json!({"/status":"absent", "/sources/0/state":state});
+        if let Some(source) = source {
+            expect
+                .as_object_mut()
+                .ok_or("proof expectations")?
+                .insert("/sources/0/source".into(), json!(source));
+        }
+        let step: Step = serde_json::from_value(json!({
+            "run":["get","drug","UNKNOWN","label"],"exit":1,"expect":expect
+        }))?;
+        inventory.step(&step);
+    }
+    assert_eq!(
+        inventory.calls.get("failure label not-found"),
+        Some(&1),
+        "only successful label-source absence earns label credit"
+    );
+    assert_eq!(
+        inventory.calls.get("failure trial not-found"),
+        Some(&0),
+        "label absence never earns trial credit"
+    );
+    assert!(
+        !inventory.calls.contains_key("failure label expired-pool"),
+        "label has no expired-pool surface"
+    );
+    assert!(
+        !inventory.calls.contains_key("failure variant expired-pool"),
+        "variant has no expired-pool surface"
+    );
+    Ok(())
+}
+
 pub(super) fn check() -> Check {
+    label_absence_requires_the_successful_label_source()?;
     only_trailing_words_select_implicit_sections()?;
     explicit_equals_refusal_counts()?;
     three_hand_counts_match_and_an_identity_never_counts_as_a_section()?;

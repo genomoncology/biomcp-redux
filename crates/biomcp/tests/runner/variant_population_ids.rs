@@ -8,7 +8,7 @@ use serde_json::{Value, json};
 pub(super) fn trials() -> Vec<Trial> {
     vec![
         transcript_trial(
-            "variant-population/population-ambiguous-ids-retain-source-alleles",
+            crate::runner::required_contract::POPULATION_SELECTORS.0,
             || ambiguous().map_err(Into::into),
         ),
         transcript_trial(
@@ -133,7 +133,29 @@ fn ambiguous() -> Result<(), String> {
     let stub = Stub::for_source("myvariant.info", "application/json", candidates)?;
     let env = environment(&stub)?;
     for input in ["rs7903146", "clinvar:7413"] {
-        let output = execute(&env, &["variant", "population", input])?;
+        let output = execute(
+            &env,
+            &[
+                "variant",
+                "population",
+                input,
+                "--resolver",
+                "car",
+                "--build",
+                "GRCh37",
+                "--limit",
+                "2",
+            ],
+        )?;
+        for (field, expected) in [
+            ("resolver", json!("car")),
+            ("build", json!("GRCh37")),
+            ("limit", json!(2)),
+        ] {
+            if output.pointer(&format!("/query/{field}")) != Some(&expected) {
+                return Err(format!("population selector lost at {field}: {output}"));
+            }
+        }
         let rows = output
             .pointer("/result/candidates")
             .and_then(Value::as_array)

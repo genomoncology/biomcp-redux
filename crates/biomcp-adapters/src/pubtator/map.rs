@@ -11,8 +11,9 @@ const LIMIT: usize = 20;
 pub(super) fn document(id: Pmid, document: Option<&Document>) -> Mapped<Section<Annotations>> {
     let mut problems = Vec::new();
     let mut entities: Vec<(String, AnnotatedEntity)> = Vec::new();
-    for annotation in annotation_rows(id, document, &mut problems) {
-        let Some((key, entity)) = entity(id, annotation, &mut problems) else {
+    let mut refusals = crate::Refusal::None;
+    for annotation in annotation_rows(id, document, &mut problems, &mut refusals) {
+        let Some((key, entity)) = entity(id, annotation, &mut problems, &mut refusals) else {
             continue;
         };
         if let Some((_, existing)) = entities
@@ -51,7 +52,11 @@ pub(super) fn document(id: Pmid, document: Option<&Document>) -> Mapped<Section<
             },
         }
     };
-    Mapped { value, problems }
+    Mapped {
+        refusals,
+        value,
+        problems,
+    }
 }
 fn order(kind: AnnotationKind) -> u8 {
     match kind {
@@ -92,6 +97,7 @@ fn entity(
     id: Pmid,
     annotation: &Annotation,
     problems: &mut Vec<Problem>,
+    refusals: &mut crate::Refusal,
 ) -> Option<(String, AnnotatedEntity)> {
     let raw = &annotation.infons;
     let kind = match raw.kind.as_str() {
@@ -125,6 +131,7 @@ fn entity(
             value.rsid = optional(id, "rsid", raw.rsid.as_ref(), problems);
             if value.hgvs.is_none() && value.rsid.is_none() {
                 push_problem(problems, Source::PubTator, record_text(id), "variant");
+                *refusals = crate::Refusal::Refused;
                 return None;
             }
             value.entrez_id = match &raw.gene_id {
@@ -146,6 +153,7 @@ fn entity(
         && value.hgvs.is_none()
         && value.rsid.is_none()
     {
+        *refusals = crate::Refusal::Refused;
         return None;
     }
     let key = checked_identifier
@@ -167,6 +175,7 @@ fn annotation_rows<'a>(
     id: Pmid,
     document: Option<&'a Document>,
     problems: &mut Vec<Problem>,
+    refusals: &mut crate::Refusal,
 ) -> Vec<&'a Annotation> {
     let mut annotations = Vec::new();
     if let Some(passages) = document.and_then(|d| d.passages.as_ref()) {
@@ -182,6 +191,7 @@ fn annotation_rows<'a>(
                             if let Some(item) = item.as_ref() {
                                 annotations.push(item);
                             } else {
+                                *refusals = crate::Refusal::Refused;
                                 push_problem(
                                     problems,
                                     Source::PubTator,

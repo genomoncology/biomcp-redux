@@ -105,6 +105,7 @@ pub fn select(
     });
     let Some((selected, term)) = matching.next().filter(|_| matching.next().is_none()) else {
         return Ok(crate::Mapped {
+            refusals: candidates.refusals,
             value: Selection::Candidates(
                 candidates
                     .value
@@ -117,6 +118,7 @@ pub fn select(
         });
     };
     Ok(crate::Mapped {
+        refusals: candidates.refusals,
         value: Selection::Exact(Variant {
             id: selected.id.clone(),
             term: term.clone(),

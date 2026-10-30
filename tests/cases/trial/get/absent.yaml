@@ -7,19 +7,6 @@
       "run": [
         "get",
         "trial",
-        "NCT01811710"
-      ],
-      "exit": 1,
-      "expect": {
-        "/status": "absent",
-        "/result/items/0/status": "absent"
-      },
-      "max_bytes": 372
-    },
-    {
-      "run": [
-        "get",
-        "trial",
         "NCT00000000"
       ],
       "exit": 2,

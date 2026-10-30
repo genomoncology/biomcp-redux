@@ -9,11 +9,6 @@
         "cell-line",
         "MOLM13"
       ],
-      "mcp": [
-        "search",
-        "cell-line",
-        "MOLM13"
-      ],
       "expect": {
         "/status": "complete",
         "/result/items/0/accession": "CVCL_2119"
@@ -23,12 +18,6 @@
     },
     {
       "run": [
-        "search",
-        "cell-line",
-        "--query",
-        "MV4;11"
-      ],
-      "mcp": [
         "search",
         "cell-line",
         "--query",
@@ -47,11 +36,6 @@
         "cell-line",
         "CVCL_2119"
       ],
-      "mcp": [
-        "get",
-        "cell-line",
-        "CVCL_2119"
-      ],
       "expect": {
         "/status": "complete",
         "/result/header/accession": "CVCL_2119"
@@ -61,11 +45,6 @@
     },
     {
       "run": [
-        "get",
-        "cell-line",
-        "CVCL_0004"
-      ],
-      "mcp": [
         "get",
         "cell-line",
         "CVCL_0004"

@@ -46,6 +46,7 @@ pub(super) fn components(
         });
     }
     Ok(Mapped {
+        refusals: crate::Refusal::None,
         value,
         problems: problems.list,
     })

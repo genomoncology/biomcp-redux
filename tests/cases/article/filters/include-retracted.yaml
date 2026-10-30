@@ -11,12 +11,6 @@
         "AKT1 E17K",
         "--include-retracted"
       ],
-      "mcp": [
-        "search",
-        "article",
-        "AKT1 E17K",
-        "--include-retracted"
-      ],
       "expect": {
         "/sources/0/term": "AKT1 E17K",
         "/page/total": 192

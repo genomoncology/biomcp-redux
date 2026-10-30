@@ -101,6 +101,7 @@ pub fn catalog(leg: &Leg<'_>, limit: u32, offset: u32) -> Result<Page<DiseaseSit
     };
     let labels = problems.field("VariableFormats.site", raw.formats.site);
     let mut rows = Vec::new();
+    let mut refusals = crate::Refusal::None;
     let window: Vec<_> = raw
         .sites
         .into_iter()
@@ -130,10 +131,12 @@ pub fn catalog(leg: &Leg<'_>, limit: u32, offset: u32) -> Result<Page<DiseaseSit
                 label,
                 active,
             });
+        } else {
+            refusals = crate::Refusal::Refused;
         }
     }
     Ok(Page {
-        window: crate::NativeWindow::new(rows, offset, limit, Some(total), received),
+        window: crate::NativeWindow::new(rows, offset, limit, Some(total), received, refusals),
         metadata,
         problems: problems.list,
     })

@@ -23,7 +23,7 @@ pub(super) fn trials() -> Vec<Trial> {
             "variant-oncokb/oncokb-environment-key-config-precedence",
             || environment_key().map_err(Into::into),
         ),
-        transcript_trial("variant-oncokb/oncokb-key-policy-wire", || {
+        transcript_trial(crate::runner::required_contract::ONCOKB.0, || {
             wire().map_err(Into::into)
         }),
         transcript_trial("variant-oncokb/oncokb-server-key-reload", || {

@@ -1,0 +1,26 @@
+feature: query-validation
+story: Each public command refuses an unsupported argument before it reads a source.
+steps:
+- run:
+  - help
+  - pathway
+  - --unrecognized-argument
+  exit: 2
+  expect:
+    /error/code: usage.schema
+- run:
+  - help
+  - pathway
+  - events
+  - --unrecognized-argument
+  exit: 2
+  expect:
+    /error/code: usage.schema
+- run:
+  - help
+  - pathway
+  - genes
+  - --unrecognized-argument
+  exit: 2
+  expect:
+    /error/code: usage.schema

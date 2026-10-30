@@ -10,7 +10,7 @@ pub(super) fn trials() -> Vec<Trial> {
         transcript_trial("adverse-event-get/age-unit-boundaries", || {
             ages().map_err(Into::into)
         }),
-        transcript_trial("adverse-event-get/synthetic-sections-and-snapshot", || {
+        transcript_trial(crate::runner::required_contract::FAERS_SECTIONS.0, || {
             sections().map_err(Into::into)
         }),
     ];
@@ -19,7 +19,7 @@ pub(super) fn trials() -> Vec<Trial> {
         || walks().map_err(Into::into),
     ));
     trials.push(transcript_trial(
-        "adverse-event-get/synthetic-identifier-kinds",
+        crate::runner::required_contract::FAERS_IDENTIFIERS.0,
         || identifier_kinds().map_err(Into::into),
     ));
     trials.push(transcript_trial(
@@ -142,14 +142,7 @@ fn both(env: &Environment, args: Vec<String>, exit: i32) -> Result<Value, String
 fn sections() -> Check {
     let (env, stub) = setup("valid")?;
     let card = both(&env, args(None), 0)?;
-    if card.pointer("/result/drug_count") != Some(&json!(3))
-        || card.pointer("/result/reaction_count") != Some(&json!(1))
-        || card.pointer("/result/patient/age") != Some(&json!({"value":42.5,"unit":"801"}))
-        || card.pointer("/result/patient/weight").is_some()
-        || card.pointer("/result/latest_received") != Some(&json!("20240202"))
-    {
-        return Err(format!("card facts: {card}"));
-    }
+    card_facts(&card)?;
     let snapshot = card
         .pointer("/result/snapshot")
         .and_then(Value::as_str)
@@ -170,6 +163,10 @@ fn sections() -> Check {
     let mut ids = args(Some("package-ndc"));
     ids.extend([
         "--drug-index".into(),
+        "0".into(),
+        "--section-limit".into(),
+        "5".into(),
+        "--section-offset".into(),
         "0".into(),
         "--snapshot".into(),
         snapshot.into(),
@@ -218,6 +215,18 @@ fn sections() -> Check {
     }
     Ok(())
 }
+fn card_facts(card: &Value) -> Check {
+    if card.pointer("/result/drug_count") != Some(&json!(3))
+        || card.pointer("/result/reaction_count") != Some(&json!(1))
+        || card.pointer("/result/patient/age") != Some(&json!({"value":42.5,"unit":"801"}))
+        || card.pointer("/result/patient/weight").is_some()
+        || card.pointer("/result/latest_received") != Some(&json!("20240202"))
+    {
+        return Err(format!("card facts: {card}"));
+    }
+    Ok(())
+}
+
 fn identity(mode: &str) -> Check {
     let (env, stub) = setup(mode)?;
     let mut words = args(None);

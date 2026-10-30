@@ -43,6 +43,7 @@ pub fn records(mut row: Annotation, tumor_type: Text) -> Mapped<VariantOncokb> {
     ));
     let total = records.len() as u64;
     Mapped {
+        refusals: crate::Refusal::None,
         value: VariantOncokb {
             hgvsg: row.query.hgvs,
             build: row.query.reference_genome,

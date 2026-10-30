@@ -44,12 +44,23 @@
           "exclusion"
         ]
       },
-      "max_bytes": 5000,
-      "mcp": [
+      "max_bytes": 5000
+    },
+    {
+      "run": [
         "get",
         "biomarker",
-        "C96022"
-      ]
+        "C96022",
+        "--source",
+        "nci"
+      ],
+      "expect": {
+        "/result/card/header/codes": [
+          "C96022"
+        ],
+        "/result/card/header/name": "CD274 Gene",
+        "/result/card/header/count": 326
+      }
     }
   ]
 }

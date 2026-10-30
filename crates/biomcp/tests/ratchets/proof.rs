@@ -573,3 +573,8 @@ fn tool_dispatch_stays_outside_cases() -> Check {
         "tool modes belong in tools.rs",
     )
 }
+
+#[test]
+fn mapped_constructions_require_their_own_refusal_decision() -> Check {
+    super::proof_support::check_mapped_refusal_decisions()
+}

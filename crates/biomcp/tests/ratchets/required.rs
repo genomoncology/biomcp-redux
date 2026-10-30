@@ -5,12 +5,18 @@ mod case_data;
 mod environment;
 #[path = "../support/help_catalog.rs"]
 mod help_catalog;
+#[path = "../support/housekeeping_contract.rs"]
+mod housekeeping_contract;
 #[path = "required/pending.rs"]
 mod pending;
+#[path = "../support/pool_contracts.rs"]
+mod pool_contracts;
 #[path = "../runner/process.rs"]
 mod process;
 #[path = "required/proof.rs"]
 mod proof;
+#[path = "../support/synthetic_contracts.rs"]
+mod synthetic_contracts;
 #[path = "required/tally.rs"]
 mod tally;
 use super::Check;
@@ -68,6 +74,65 @@ pub(super) fn required_surface_has_asserted_calls() -> Check {
     let root = std::env::current_dir()?.join("../..");
     let (help, tools) = metadata()?;
     let mut counts = tally::Inventory::new(&help, &tools)?;
+    counts.runner(housekeeping_contract::OFFLINE_PROVENANCE.1);
+    counts.runner(synthetic_contracts::GWAS_SELECTORS.1);
+    counts.runner(synthetic_contracts::GWAS_PAGES.1);
+    counts.runner(synthetic_contracts::GWAS_POOL.1);
+    counts.runner(synthetic_contracts::GWAS_ANCESTRY.1);
+    counts.runner(synthetic_contracts::GWAS_ASSOCIATIONS.1);
+    counts.runner(synthetic_contracts::STUDY_PAGES.1);
+    counts.runner(synthetic_contracts::STUDY_FILES.1);
+    counts.runner(synthetic_contracts::STUDY_SEARCH.1);
+    counts.runner(synthetic_contracts::CPIC_VIEW.1);
+    counts.runner(synthetic_contracts::CPIC_TABLE.1);
+    counts.runner(synthetic_contracts::CPIC_GUIDELINES.1);
+    counts.runner(synthetic_contracts::CPIC_DIPLOTYPE.1);
+    counts.runner(synthetic_contracts::CPIC_PAIRS.1);
+    counts.runner(synthetic_contracts::CLINPGX_CLINICAL.1);
+    counts.runner(synthetic_contracts::CLINPGX_KIND.1);
+    counts.runner(synthetic_contracts::CLINPGX_ANNOTATION.1);
+
+    counts.runner(pool_contracts::PATHWAY_GENES.1);
+    counts.runner(pool_contracts::PATHWAY_SEARCH.1);
+    counts.runner(pool_contracts::ORGANIZATION.1);
+    counts.runner(pool_contracts::BIOMARKER.1);
+    counts.runner(pool_contracts::FEATURES.1);
+    counts.runner(pool_contracts::MEMBERS.1);
+    counts.runner(pool_contracts::TRIAL.1);
+    counts.runner(pool_contracts::TRIAL_ABSENCE.1);
+    counts.runner(pool_contracts::ARTICLE_SAVES.1);
+    counts.runner(pool_contracts::DOMAIN_PAGES.1);
+    counts.runner(pool_contracts::DOMAIN_TYPE.1);
+    counts.runner(pool_contracts::ARTICLE_CITATIONS.1);
+    counts.runner(pool_contracts::EVIDENCE_FRAGMENTS.1);
+    counts.runner(pool_contracts::DRUG_CIVIC.1);
+    counts.runner(pool_contracts::WHO_REVISION.1);
+    counts.runner(pool_contracts::DRUG_CIVIC_CURSOR.1);
+    counts.runner(pool_contracts::VARIANT_CIVIC_CURSOR.1);
+    counts.runner(pool_contracts::PATHWAY_EVENTS.1);
+    counts.runner(pool_contracts::HTTP_HOST.1);
+
+    counts.runner(synthetic_contracts::LABEL_HEADINGS.1);
+    counts.runner(synthetic_contracts::ONCOKB.1);
+    counts.runner(synthetic_contracts::ONCOKB_ALL.1);
+    counts.runner(synthetic_contracts::ALPHAGENOME.1);
+    counts.runner(synthetic_contracts::HPO_SNAPSHOT.1);
+    counts.runner(synthetic_contracts::MONARCH_XREFS.1);
+
+    counts.runner(synthetic_contracts::FAERS_SECTIONS.1);
+    counts.runner(synthetic_contracts::FAERS_IDENTIFIERS.1);
+    counts.runner(synthetic_contracts::VALIDATOR_RESOLVER.1);
+    counts.runner(synthetic_contracts::VAERS_TABLES.1);
+    counts.runner(synthetic_contracts::FAERS_REACTION.1);
+    counts.runner(synthetic_contracts::NORMALIZATION_PAGES.1);
+    counts.runner(synthetic_contracts::CLINVAR_ASSERTION.1);
+    counts.runner(synthetic_contracts::CLINVAR_PAGES.1);
+    counts.runner(synthetic_contracts::MONARCH_PHENOTYPES.1);
+    counts.runner(synthetic_contracts::POPULATION_SELECTORS.1);
+    counts.runner(synthetic_contracts::HOTSPOTS.1);
+
+    counts.runner(synthetic_contracts::MAUDE_SECTIONS.1);
+
     let mut paths = Vec::new();
     case_data::collect(&root.join("tests/cases"), &mut paths)?;
     paths.sort();

@@ -55,6 +55,7 @@ pub fn assertions(
             reply.identity_problem(id, vcv).is_none()
         })?;
     if let Some(field) = reply.identity_problem(id, vcv) {
+        reply.refusals = crate::Refusal::Refused;
         reply.rows.clear();
         if !reply
             .problems
@@ -69,6 +70,7 @@ pub fn assertions(
         }
     }
     Ok(crate::Mapped {
+        refusals: reply.refusals,
         value: reply.rows,
         problems: reply.problems,
     })

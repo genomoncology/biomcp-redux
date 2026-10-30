@@ -73,6 +73,7 @@ pub(super) fn report(row: raw::Report) -> crate::Mapped<super::Report> {
             .collect(),
     };
     crate::Mapped {
+        refusals: crate::Refusal::None,
         value: super::Report {
             data: value,
             positions: super::Positions {

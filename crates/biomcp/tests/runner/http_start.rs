@@ -1,0 +1,83 @@
+//! Start one isolated HTTP process and retain its validated readiness address.
+use super::{Environment, Server};
+use serde_json::Value;
+use std::{net::SocketAddr, process::Stdio, time::Duration};
+impl Server {
+    pub(super) fn configured_key(
+        bind: &str,
+        config: Option<Value>,
+        replay: Option<std::path::PathBuf>,
+        key: Option<(&str, &str)>,
+        allowed_host: Option<&str>,
+    ) -> Result<Self, String> {
+        Self::configured_globals(bind, config, replay, key, allowed_host, &[])
+    }
+    pub(super) fn configured_globals(
+        bind: &str,
+        config: Option<Value>,
+        replay: Option<std::path::PathBuf>,
+        key: Option<(&str, &str)>,
+        allowed_host: Option<&str>,
+        globals: &[String],
+    ) -> Result<Self, String> {
+        let environment = Environment::new().map_err(|e| e.to_string())?;
+        if let Some(config) = config {
+            environment.config(&config).map_err(|e| e.to_string())?;
+        }
+        let address: SocketAddr = bind.parse().map_err(|_| "local address")?;
+        let mut args = vec!["serve".into(), "--http".into(), address.to_string()];
+        args.extend_from_slice(globals);
+        if let Some(host) = allowed_host {
+            args.extend(["--allow-host".into(), host.into()]);
+        }
+        if let Some(path) = replay {
+            args.extend(environment.globals(Some(&path), false));
+        }
+        let mut command = environment.command(env!("CARGO_BIN_EXE_biomcp"), &args);
+        #[cfg(windows)]
+        {
+            use std::os::windows::process::CommandExt;
+            // Installed services must also start without a console window.
+            const CREATE_NO_WINDOW: u32 = 0x0800_0000;
+            command.creation_flags(CREATE_NO_WINDOW);
+        }
+        if let Some((name, key)) = key {
+            command.env(name, key);
+        }
+        let child = command
+            .stdin(Stdio::null())
+            .stdout(Stdio::null())
+            .stderr(Stdio::piped())
+            .spawn()
+            .map_err(|e| e.to_string())?;
+        let mut server = Self {
+            child,
+            address,
+            _environment: environment,
+        };
+        let stderr = server.child.stderr.take().ok_or("HTTP stderr missing")?;
+        let (sender, receiver) = std::sync::mpsc::sync_channel(1);
+        let reader = std::thread::spawn(move || {
+            use std::io::BufRead;
+            let mut line = String::new();
+            let result = std::io::BufReader::new(stderr)
+                .read_line(&mut line)
+                .map(|_| line);
+            let _ = sender.send(result);
+        });
+        let event = receiver
+            .recv_timeout(Duration::from_secs(5))
+            .map_err(|_| "HTTP readiness event timed out")?
+            .map_err(|e| e.to_string())?;
+        reader.join().map_err(|_| "HTTP readiness reader stopped")?;
+        let event: Value =
+            serde_json::from_str(&event).map_err(|e| format!("HTTP readiness: {e}"))?;
+        server.address = event
+            .get("listening")
+            .and_then(Value::as_str)
+            .ok_or("missing listening address")?
+            .parse()
+            .map_err(|_| "invalid listening address")?;
+        Ok(server)
+    }
+}

@@ -103,6 +103,8 @@ pub struct CellPage {
     pub window: crate::NativeWindow<CellLineChemblRecord>,
     /// Original acquisition metadata.
     pub metadata: ReplyMetadata,
+    /// Independent field diagnostics.
+    pub problems: Vec<biomcp_types::Problem>,
 }
 /// Read one native cell metadata page and check every exact accession before cache admission.
 pub fn cells(
@@ -110,7 +112,7 @@ pub fn cells(
     id: &CellosaurusAccession,
     limit: u32,
     offset: u32,
-) -> Result<crate::Mapped<CellPage>, RequestError> {
+) -> Result<CellPage, RequestError> {
     let text = id.to_string();
     let (reply, metadata) = leg.json_received_checked(
         &CELLS,
@@ -135,27 +137,30 @@ pub fn cells(
         list: Vec::new(),
     };
     let mut values = Vec::new();
+    let mut refusals = crate::Refusal::None;
     for row in reply.cell_lines {
         if let Some(row) = problems.field("cell_chembl_id", Some(row.value)) {
             if row.cell_id == 0 {
+                refusals = crate::Refusal::Refused;
                 problems.record = crate::mapped::record(&row.cell_chembl_id);
                 problems.required::<()>("cell_id", None);
             } else {
                 values.push(row.mapped(&mut problems));
             }
+        } else {
+            refusals = crate::Refusal::Refused;
         }
     }
-    Ok(crate::Mapped {
-        value: CellPage {
-            window: crate::NativeWindow::new(
-                values,
-                offset,
-                limit,
-                Some(reply.page_meta.total_count),
-                received,
-            ),
-            metadata,
-        },
+    Ok(CellPage {
+        window: crate::NativeWindow::new(
+            values,
+            offset,
+            limit,
+            Some(reply.page_meta.total_count),
+            received,
+            refusals,
+        ),
+        metadata,
         problems: problems.list,
     })
 }
@@ -219,6 +224,7 @@ pub fn release(leg: &Leg<'_>) -> Result<crate::Mapped<CellLineRelease>, RequestE
         updated: problems.required_field("chembl_release_date", r.chembl_release_date),
     };
     Ok(crate::Mapped {
+        refusals: crate::Refusal::None,
         value,
         problems: problems.list,
     })

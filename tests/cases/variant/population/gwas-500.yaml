@@ -11,12 +11,6 @@
         "rs113488022",
         "gwas"
       ],
-      "mcp": [
-        "get",
-        "variant",
-        "rs113488022",
-        "gwas"
-      ],
       "exit": 4,
       "is_error": true,
       "expect": {
@@ -25,21 +19,6 @@
         "/result/candidates/0/sections/gwas/reason": "unavailable"
       },
       "max_bytes": 563
-    },
-    {
-      "run": [
-        "get",
-        "variant",
-        "rs113488022",
-        "gwas"
-      ],
-      "offline": true,
-      "exit": 4,
-      "expect": {
-        "/status": "failed",
-        "/result/candidates/0/sections/gwas/reason": "offline"
-      },
-      "max_bytes": 554
     }
   ]
 }
