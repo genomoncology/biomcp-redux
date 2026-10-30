@@ -45,7 +45,6 @@ option variant normalize --offset
 option variant population --build
 option variant population --limit
 option variant population --resolver
-section get cell-line chembl
 section get disease phenotypes
 section get drug civic
 section get protein complexes
