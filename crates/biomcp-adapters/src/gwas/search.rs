@@ -12,10 +12,12 @@ pub fn search(leg: &Leg<'_>, q: &GwasSearch) -> Result<Page, RequestError> {
         .iter()
         .map(|(k, v)| (k.as_str(), Arg::Text(v)))
         .collect();
-    let (response, _) =
-        leg.json_received_checked::<raw::Response>(&ASSOCIATIONS, &params, |r| {
-            admission(r, q, &values)
-        })?;
+    let response = leg.json_checked_admission::<raw::Response>(
+        &ASSOCIATIONS,
+        &params,
+        |reply| admission(reply, q, &values),
+        raw::Response::identities_admitted,
+    )?;
     Ok(super::page(response, (q.offset() % q.limit()) as usize))
 }
 

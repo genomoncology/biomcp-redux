@@ -52,7 +52,7 @@ pub fn associations(
         "{}/associations?rs_id={id}&page={page}&size={size}",
         SPEC.base
     );
-    let (response, _) = leg.json_received_checked::<raw::Response>(
+    let response = leg.json_checked_admission::<raw::Response>(
         &ASSOCIATIONS,
         &[
             ("rs_id", Arg::Text(&id)),
@@ -66,6 +66,7 @@ pub fn associations(
                 Err(BadReply)
             }
         },
+        raw::Response::identities_admitted,
     )?;
     Ok(self::page(response, skip as usize))
 }

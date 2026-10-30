@@ -184,6 +184,13 @@ impl Reply for Response {
     }
 }
 impl Response {
+    pub(super) fn identities_admitted(&self) -> bool {
+        self.embedded.as_ref().is_none_or(|embedded| {
+            embedded.associations.iter().all(|row| {
+                row.value.as_ref().is_some_and(|value| value.association_id > 0)
+            })
+        })
+    }
     pub(super) fn matches(&self, id: &str, page: u32, size: u32, url: &str) -> bool {
         self.page.number == page
             && self.page.size == size
