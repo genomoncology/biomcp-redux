@@ -10,9 +10,10 @@ mod get;
 mod ids;
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = vec![
-        transcript_trial("variant-population/population-independent-native-values", || {
-            population_values().map_err(Into::into)
-        }),
+        transcript_trial(
+            "variant-population/population-independent-native-values",
+            || population_values().map_err(Into::into),
+        ),
         transcript_trial(
             "variant-population/population-source-given-grch38-snv",
             || population().map_err(Into::into),

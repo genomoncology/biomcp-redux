@@ -218,8 +218,8 @@ fn variant_contracts() -> Vec<Contract> {
         Statement => ("statement", "biodata.statement/7"),
         VariantRecurrenceQuery => ("variant-recurrence-query", "biomcp.variant-recurrence-query/5", query),
         VariantNormalize => ("variant-normalize", "biomcp.variant-normalize/5", query),
-        VariantSearch => ("variant-search", "biomcp.variant-search/4", query),
-        VariantGet => ("variant-get", "biomcp.variant-get/5", query),
+        VariantSearch => ("variant-search", "biomcp.variant-search/5", query),
+        VariantGet => ("variant-get", "biomcp.variant-get/6", query),
     }
 }
 
@@ -238,7 +238,7 @@ fn drug_contracts() -> Vec<Contract> {
         DrugNativeReference => ("drug-native-reference", "biodata.drug-native-reference/2"),
         DrugTargetRelation => ("drug-target-relation", "biodata.drug-target-relation/6"),
         DrugIndicationClaim => ("drug-indication-claim", "biodata.drug-indication-claim/6"),
-        DrugInteractionClaim => ("drug-interaction-claim", "biodata.drug-interaction-claim/5"),
+        DrugInteractionClaim => ("drug-interaction-claim", "biodata.drug-interaction-claim/6"),
         AuthorizationDate => ("authorization-date", "biodata.authorization-date/3"),
         AuthorizationEvent => ("authorization-event", "biodata.authorization-event/4"),
         DrugNameSelector => ("drug-name-selector", "biomcp.drug-name-selector/1", query),
@@ -265,7 +265,7 @@ fn trial_contracts() -> Vec<Contract> {
     contracts! {
         TrialGet => ("trial-get", "biomcp.trial-get/2", query),
         TrialConditionResolution => ("trial-condition-resolution", "biomcp.trial-condition-resolution/4"),
-        TrialSearch => ("trial-search", "biomcp.trial-search/5", query),
+        TrialSearch => ("trial-search", "biomcp.trial-search/6", query),
         NctId => ("nct-id", "biodata.nct-id/1"),
         TrialHeader => ("trial-header", "biomcp.trial-header/4"),
     }

@@ -20,9 +20,10 @@ pub(super) fn trials() -> Vec<Trial> {
             "variant-civic/civic-invalid-values-keep-identified-claims",
             || values::claims().map_err(Into::into),
         ),
-        transcript_trial("variant-civic/civic-amp-na-and-therapy-group-stay-native", || {
-            values::amp_and_group().map_err(Into::into)
-        }),
+        transcript_trial(
+            "variant-civic/civic-amp-na-and-therapy-group-stay-native",
+            || values::amp_and_group().map_err(Into::into),
+        ),
         transcript_trial("drug-civic/unknown-status-keeps-native-claims", || {
             vocabulary::drug_status().map_err(Into::into)
         }),

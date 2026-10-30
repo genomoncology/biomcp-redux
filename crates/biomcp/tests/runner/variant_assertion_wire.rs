@@ -7,9 +7,10 @@ pub(super) fn trials() -> Vec<Trial> {
         transcript_trial("variant-assertions/assertions-source-wire", || {
             assertions_wire().map_err(Into::into)
         }),
-        transcript_trial("variant-assertions/clinvar-parent-identities-stay-uncached", || {
-            parent_identity().map_err(Into::into)
-        }),
+        transcript_trial(
+            "variant-assertions/clinvar-parent-identities-stay-uncached",
+            || parent_identity().map_err(Into::into),
+        ),
     ]
 }
 fn assertions_wire() -> Result<(), String> {

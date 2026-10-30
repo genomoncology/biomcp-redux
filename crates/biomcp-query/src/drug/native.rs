@@ -159,12 +159,7 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     command.finish(deadline.remaining());
     out
 }
-fn finish(
-    out: &mut Outcome,
-    leg: Leg<'_>,
-    source: Source,
-    error: Option<RequestError>,
-) {
+fn finish(out: &mut Outcome, leg: Leg<'_>, source: Source, error: Option<RequestError>) {
     out.local = error.and_then(status::local);
     let mut outcome = status::source(source, leg.finish(), error);
     if let Some(page) = &out.page {

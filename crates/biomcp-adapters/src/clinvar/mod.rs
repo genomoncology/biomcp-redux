@@ -2,8 +2,8 @@
 mod detail;
 mod map;
 mod raw;
-mod subject;
 mod search;
+mod subject;
 use crate::quotas;
 use biomcp_fetch::{
     Arg, Credential, Endpoint, Freshness, KeyPlace, KeyUse, Leg, RequestError, SecretName,

@@ -52,19 +52,26 @@ impl Reply for Search {
         let page = &self.esearchresult;
         let total = page.count;
         let offset = page.retstart.parse::<u32>().map_err(|_| BadReply)?;
-        let ids: std::collections::BTreeSet<_> =
-            page.idlist.iter().filter_map(|id| id.as_ref().map(|id| id.identity.get())).collect();
+        let ids: std::collections::BTreeSet<_> = page
+            .idlist
+            .iter()
+            .filter_map(|id| id.as_ref().map(|id| id.identity.get()))
+            .collect();
         if page.error.is_some()
             || page.errorlist.is_some()
             || page.idlist.len() > 50
-            || ids.len() != page.idlist.iter().filter(|id| id.as_ref().is_some()).count()
+            || ids.len()
+                != page
+                    .idlist
+                    .iter()
+                    .filter(|id| id.as_ref().is_some())
+                    .count()
             || page.idlist.len() as u64 > total.saturating_sub(u64::from(offset))
         {
             return Err(BadReply);
         }
         Ok(())
     }
-
 }
 /// Search the supplied gene and coding notation without choosing a reference sequence.
 pub fn search(leg: &Leg<'_>, query: &VariantSearch) -> Result<SearchPage, RequestError> {
@@ -79,22 +86,37 @@ pub fn search(leg: &Leg<'_>, query: &VariantSearch) -> Result<SearchPage, Reques
     if query.offset() != 0 {
         args.push(("retstart", Arg::Num(u64::from(query.offset()))));
     }
-    let reply = leg.json_checked_admission::<Search>(&SEARCH, &args, |reply| {
-        let page = &reply.esearchresult;
-        let total = page.count;
-        if page.retstart != query.offset().to_string()
-            || page.idlist.len() as u64
-                != total
-                    .saturating_sub(u64::from(query.offset()))
-                    .min(u64::from(query.limit()))
-        {
-            return Err(BadReply);
-        }
-        Ok(())
-    }, |reply| reply.esearchresult.idlist.iter().all(|id| id.as_ref().is_some()))?;
+    let reply = leg.json_checked_admission::<Search>(
+        &SEARCH,
+        &args,
+        |reply| {
+            let page = &reply.esearchresult;
+            let total = page.count;
+            if page.retstart != query.offset().to_string()
+                || page.idlist.len() as u64
+                    != total
+                        .saturating_sub(u64::from(query.offset()))
+                        .min(u64::from(query.limit()))
+            {
+                return Err(BadReply);
+            }
+            Ok(())
+        },
+        |reply| {
+            reply
+                .esearchresult
+                .idlist
+                .iter()
+                .all(|id| id.as_ref().is_some())
+        },
+    )?;
     let page = reply.esearchresult;
     let consumed = page.idlist.len() as u32;
-    let mut problems = Problems { source: Source::ClinVar, record: None, list: Vec::new() };
+    let mut problems = Problems {
+        source: Source::ClinVar,
+        record: None,
+        list: Vec::new(),
+    };
     let rows = page
         .idlist
         .into_iter()

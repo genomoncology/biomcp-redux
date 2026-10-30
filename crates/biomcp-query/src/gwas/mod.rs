@@ -29,7 +29,10 @@ pub fn search(cx: &Ctx<'_>, q: &GwasSearch) -> Outcome {
     let leg = cx.fetch.leg(&gwas::SPEC, deadline).fresh(cx.fresh);
     let result = gwas::search(&leg, q);
     let error = result.as_ref().err().copied();
-    let counts = result.as_ref().ok().map(|page| (page.rows.len() as u32, page.total));
+    let counts = result
+        .as_ref()
+        .ok()
+        .map(|page| (page.rows.len() as u32, page.total));
     if let Ok(page) = result {
         out.problems.extend(page.problems);
         let items: Box<[_]> = page

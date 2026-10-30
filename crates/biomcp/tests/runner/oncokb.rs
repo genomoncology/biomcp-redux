@@ -11,15 +11,18 @@ const INPUT: &str = "chr7:g.140753336A>T";
 const SECTION: &str = "/result/candidates/0/sections/oncokb";
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        transcript_trial("variant-oncokb/oncokb-invalid-values-keep-annotation", || {
-            values::optional_values().map_err(Into::into)
-        }),
-        transcript_trial("variant-oncokb/oncokb-invalid-values-keep-native-group", || {
-            values::group_values().map_err(Into::into)
-        }),
-        transcript_trial("variant-oncokb/oncokb-environment-key-config-precedence", || {
-            environment_key().map_err(Into::into)
-        }),
+        transcript_trial(
+            "variant-oncokb/oncokb-invalid-values-keep-annotation",
+            || values::optional_values().map_err(Into::into),
+        ),
+        transcript_trial(
+            "variant-oncokb/oncokb-invalid-values-keep-native-group",
+            || values::group_values().map_err(Into::into),
+        ),
+        transcript_trial(
+            "variant-oncokb/oncokb-environment-key-config-precedence",
+            || environment_key().map_err(Into::into),
+        ),
         transcript_trial("variant-oncokb/oncokb-key-policy-wire", || {
             wire().map_err(Into::into)
         }),
