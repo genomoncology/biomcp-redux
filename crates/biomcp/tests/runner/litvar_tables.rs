@@ -179,11 +179,7 @@ fn failures() -> Check {
         ];
         for (capture, args, partial) in [
             ("article/litvar/akt1-rsid-citations", RSID, false),
-            (
-                "article/litvar/combined-rsid",
-                combined.as_slice(),
-                true,
-            ),
+            ("article/litvar/combined-rsid", combined.as_slice(), true),
         ] {
             let source = if partial {
                 "/sources/1/reason"
