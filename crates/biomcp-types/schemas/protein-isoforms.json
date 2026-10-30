@@ -153,7 +153,14 @@
           "type": "array"
         },
         "name": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Source isoform name."
         },
         "sequence_ids": {
@@ -164,7 +171,14 @@
           "type": "array"
         },
         "sequence_status": {
-          "$ref": "#/$defs/Reply_ProteinIsoformStatus",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_ProteinIsoformStatus"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Native sequence status; no sequence is inferred from it."
         },
         "synonyms": {
@@ -176,8 +190,6 @@
         }
       },
       "required": [
-        "name",
-        "sequence_status",
         "direct_sequence"
       ],
       "type": "object"
@@ -756,7 +768,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.protein-isoforms/3",
+  "$id": "biomcp.protein-isoforms/4",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -812,7 +824,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.protein-isoforms/3",
+      "const": "biomcp.protein-isoforms/4",
       "type": "string"
     },
     "sources": {

@@ -2426,7 +2426,7 @@
       "type": "string"
     },
     "Reply_VariantGet": {
-      "description": "Read an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation requires --build. Use search variant --gene BRAF --protein V600E for shorthand. Every candidate remains available; source assertions do not classify the variant for the caller.",
+      "description": "Read an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation requires --build. Use search variant --gene BRAF --protein V600E or search variant --gene PTEN --coding c.333G>T for gene shorthand. Every candidate remains available; source assertions do not classify the variant for the caller.",
       "properties": {
         "build": {
           "anyOf": [
@@ -3056,7 +3056,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.drug-civic/9",
+  "$id": "biomcp.drug-civic/10",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -3112,7 +3112,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.drug-civic/9",
+      "const": "biomcp.drug-civic/10",
       "type": "string"
     },
     "sources": {

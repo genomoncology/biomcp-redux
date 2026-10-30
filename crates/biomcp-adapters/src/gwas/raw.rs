@@ -187,7 +187,9 @@ impl Response {
     pub(super) fn identities_admitted(&self) -> bool {
         self.embedded.as_ref().is_none_or(|embedded| {
             embedded.associations.iter().all(|row| {
-                row.value.as_ref().is_some_and(|value| value.association_id > 0)
+                row.value
+                    .as_ref()
+                    .is_some_and(|value| value.association_id > 0)
             })
         })
     }

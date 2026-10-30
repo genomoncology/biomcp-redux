@@ -1263,23 +1263,26 @@ Options:
       --count-only
           Source total only; no returned study rows.
 
+      --country <country>...
+          Exact ClinicalTrials.gov country label; repeat for OR. Trials must list a site in a named country. NCI uses its native country filter.
+
       --criteria <criteria>
           Search literal registry eligibility text for discovery only; no eligibility judgment.
-
-      --distance <distance>
-          Source distance with explicit mi or km units.
 
       --offline
           Read local data without source requests.
 
-      --exact-condition
-          Ask ClinicalTrials.gov to restrict matching to the registered condition phrase; its support is partial.
+      --distance <distance>
+          Source distance with explicit mi or km units.
 
       --fresh
           Request fresh source data instead of cached replies.
 
+      --exact-condition
+          Ask ClinicalTrials.gov to restrict matching to the registered condition phrase; its support is partial.
+
       --facility <facility>
-          Exact facility name; NCI matches organization names case-insensitively. A listed site is not necessarily enrolling. Cannot combine with radius.
+          Facility phrase; ClinicalTrials.gov broadens after zero exact matches. NCI matches exact names. Cannot combine with radius.
 
       --gene <gene>
           Resolve one checked gene for registry text discovery only; no eligibility judgment.
@@ -1318,10 +1321,10 @@ Options:
           Explicit provider; defaults to ClinicalTrials.gov and never falls back.
 
       --sponsor <sponsor>
-          Exact lead sponsor field.
+          Sponsor name; ClinicalTrials.gov broadens after zero exact matches. Use --sponsor-type for the funding category.
 
       --sponsor-type <sponsor_type>
-          Registry sponsor funding facet.
+          Registry sponsor funding category; use --sponsor for a sponsor name.
 
       --status <status>
           Exact source status. NCI: Active, Administratively Complete, Approved, Closed to Accrual, Closed to Accrual and Intervention, Complete, INACTIVE, Enrolling by Invitation, Temporarily Closed to Accrual, Temporarily Closed to Accrual and Intervention, Withdrawn. ClinicalTrials.gov uses registry labels.
@@ -1348,10 +1351,11 @@ Search ClinicalTrials.gov or keyed NCI with source counts. NCI --facility matche
 - `--condition`: Condition alternatives joined with OR; NCI requires NCIt codes.
 - `--condition-id`: Exact MONDO or DOID CURIE resolved by MyDisease; NCI also accepts explicit NCIT:C codes.
 - `--count-only`: Source total only; no returned study rows.
+- `--country`: Exact ClinicalTrials.gov country label; repeat for OR. Trials must list a site in a named country. NCI uses its source country filter.
 - `--criteria`: Search exact registry eligibility text for discovery only; no eligibility judgment.
 - `--distance`: Source distance with explicit mi or km units.
 - `--exact-condition`: Ask ClinicalTrials.gov to restrict matching to the registered condition phrase; its support is partial.
-- `--facility`: Exact facility name; NCI matches organization names case-insensitively. A listed site is not necessarily enrolling. Cannot combine with radius.
+- `--facility`: Facility phrase; ClinicalTrials.gov broadens after zero exact matches. NCI matches exact names. Cannot combine with radius.
 - `--gene`: Resolve one checked gene for registry text discovery only; no eligibility judgment.
 - `--has-results`: Require posted source results.
 - `--id`: Exact NCT identity in a conjunction with other filters.
@@ -1365,8 +1369,8 @@ Search ClinicalTrials.gov or keyed NCI with source counts. NCI --facility matche
 - `query`: General registry discovery text.
 - `--sex`: Registry sex facet.
 - `--source`: Explicit source; defaults to ClinicalTrials.gov and never falls back.
-- `--sponsor`: Exact lead sponsor field.
-- `--sponsor-type`: Registry sponsor funding facet.
+- `--sponsor`: Sponsor name; ClinicalTrials.gov broadens after zero exact matches. Use --sponsor-type for the funding category.
+- `--sponsor-type`: Registry sponsor funding category; use --sponsor for a sponsor name.
 - `--status`: Exact source status. NCI: Active, Administratively Complete, Approved, Closed to Accrual, Closed to Accrual and Intervention, Complete, INACTIVE, Enrolling by Invitation, Temporarily Closed to Accrual, Temporarily Closed to Accrual and Intervention, Withdrawn. ClinicalTrials.gov uses registry labels.
 - `--study-type`: Exact registry study type.
 - `--updated-since`: First included registry update date.
@@ -1390,17 +1394,20 @@ Options:
           [default: json]
           [possible values: json, md]
 
-      --condition <condition>
-          Literal MyVariant clinvar.rcv.conditions.name phrase; source text is not a local diagnosis. Requires a declared protein or region selector.
+      --coding <coding>
+          Coding HGVS change searched literally in ClinVar with --gene, without choosing a transcript.
 
       --disable-sources <disable-sources>
           Exclude source names or source terms groups.
+
+      --condition <condition>
+          Literal MyVariant clinvar.rcv.conditions.name phrase; source text is not a local diagnosis. Requires a declared protein or region selector.
 
       --config <config>
           Read configuration from this file.
 
       --gene <gene>
-          Exact checked gene symbol for the fixed dbNSFP gene/protein field query; obeys component terms switches.
+          Checked gene symbol for the dbNSFP protein selector or the ClinVar coding selector.
 
       --has <has>
           Require the selected component's identifier field. Only source-proven mappings are offered.
@@ -1411,17 +1418,17 @@ Options:
       --offset <offset>
           Native offset within this command's bounded result window; larger native totals remain visible.
 
-      --protein <protein>
-          Explicit substitution using checked one-letter or three-letter amino-acid codes.
-
       --offline
           Read local data without source requests.
 
-      --query <query>
-          Raw MyVariant query, passed and echoed unchanged when component policy allows; requires --source myvariant. With disabled components use declared selectors instead.
+      --protein <protein>
+          Explicit substitution using checked one-letter or three-letter amino-acid codes.
 
       --fresh
           Request fresh source data instead of cached replies.
+
+      --query <query>
+          Raw MyVariant query, passed and echoed unchanged when component policy allows; requires --source myvariant. With disabled components use declared selectors instead.
 
       --region <region>
           Exact one-based inclusive MyVariant region, such as chr7:55259500-55259600; requires --build.
@@ -1437,8 +1444,9 @@ Options:
 Discover source candidates using one declared selector, without interpreting free text.
 
 - `--build`: Optional caller assembly sent to MyVariant; regions require it explicitly.
+- `--coding`: Coding HGVS change searched literally in ClinVar with --gene, without choosing a transcript.
 - `--condition`: Exact MyVariant clinvar.rcv.conditions.name phrase; source text is not a local diagnosis. Requires a declared protein or region selector.
-- `--gene`: Exact checked gene symbol for the fixed dbNSFP gene/protein field query; obeys component terms switches.
+- `--gene`: Checked gene symbol for the dbNSFP protein selector or the ClinVar coding selector.
 - `--has`: Require the selected component's identifier field. Only source-proven mappings are offered.
 - `--limit`: Source candidates per page, default 10, maximum 50; all candidates remain candidates.
 - `--offset`: Source offset within this command's bounded result window; larger source totals remain visible.
@@ -1474,7 +1482,7 @@ Commands:
   gene           Get one to twenty human gene inputs in their original order.
   article        Get one to twenty article inputs in caller order.
   trial          Retrieve exact trial cards in input order; request bounded intact source sections with independent continuations.
-  variant        Read an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation requires --build. Use search variant --gene BRAF --protein V600E for shorthand. Every candidate remains available; source assertions do not classify the variant for the caller.
+  variant        Read an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation requires --build. Use search variant --gene BRAF --protein V600E or search variant --gene PTEN --coding c.333G>T for gene shorthand. Every candidate remains available; source assertions do not classify the variant for the caller.
 
 Options:
       --format <format>
@@ -2506,7 +2514,7 @@ Optional intact source sections. Default cards only; diseases and summary requir
 ## biomcp get variant
 
 ```text
-Read an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation requires --build. Use search variant --gene BRAF --protein V600E for shorthand. Every candidate remains available; source assertions do not classify the variant for the caller.
+Read an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation requires --build. Use search variant --gene BRAF --protein V600E or search variant --gene PTEN --coding c.333G>T for gene shorthand. Every candidate remains available; source assertions do not classify the variant for the caller.
 
 Usage: biomcp get variant [OPTIONS] <input> [section]...
 
@@ -2568,7 +2576,7 @@ Options:
 
 ```
 
-Read an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation requires --build. Use search variant --gene BRAF --protein V600E for shorthand. Every candidate remains available; source assertions do not classify the variant for the caller.
+Read an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation requires --build. Use search variant --gene BRAF --protein V600E or search variant --gene PTEN --coding c.333G>T for gene shorthand. Every candidate remains available; source assertions do not classify the variant for the caller.
 
 - `--build`: Required for chromosome notation; no assembly is guessed.
 - `--civic-cursor`: Source CIViC cursor, retained unchanged.

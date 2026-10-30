@@ -94,7 +94,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.gene-header/5",
+  "$id": "biomcp.gene-header/6",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "Enough gene identity to choose a search result.",
   "properties": {
@@ -114,7 +114,14 @@
       "description": "Source-stated location, including unparsed publisher text."
     },
     "locus_group": {
-      "$ref": "#/$defs/Reply_LocusGroup",
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Reply_LocusGroup"
+        },
+        {
+          "type": "null"
+        }
+      ],
       "description": "HGNC locus group."
     },
     "match": {
@@ -129,7 +136,14 @@
       "description": "Match information when this header answers an input."
     },
     "name": {
-      "$ref": "#/$defs/Reply_Text",
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Reply_Text"
+        },
+        {
+          "type": "null"
+        }
+      ],
       "description": "Gene name."
     },
     "status": {
@@ -144,9 +158,7 @@
   "required": [
     "hgnc_id",
     "symbol",
-    "locus_group",
-    "status",
-    "name"
+    "status"
   ],
   "title": "GeneHeader",
   "type": "object"

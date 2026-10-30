@@ -1763,6 +1763,11 @@
         }
       ]
     },
+    "Reply_CodingChange": {
+      "description": "HGVS 21.1 coding edit syntax without a reference. The parser additionally requires increasing range endpoints, different substitution bases and insertion adjacency where literal positions establish it. It does not check transcript sequence or exon boundaries.",
+      "pattern": "^c\\.(?:[-*]?[1-9][0-9]*(?:[+-][1-9][0-9]*)?[ACGTNRYSWKMBDHV]>[ACGTNRYSWKMBDHV]|[-*]?[1-9][0-9]*(?:[+-][1-9][0-9]*)?(?:_[-*]?[1-9][0-9]*(?:[+-][1-9][0-9]*)?)?(?:del|dup|delins(?=[ACGTNRYSWKMBDHV])[ACGTNRYSWKMBDHV]*)|[-*]?[1-9][0-9]*(?:[+-][1-9][0-9]*)?_[-*]?[1-9][0-9]*(?:[+-][1-9][0-9]*)?ins(?=[ACGTNRYSWKMBDHV])[ACGTNRYSWKMBDHV]*)$",
+      "type": "string"
+    },
     "Reply_ComponentLabel": {
       "description": "Terms attached to a named carried component on a consumer response.",
       "properties": {
@@ -2321,7 +2326,14 @@
           "type": "array"
         },
         "p_value": {
-          "$ref": "#/$defs/Reply_FiniteNumber",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_FiniteNumber"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Reported p value."
         },
         "publication": {
@@ -2347,7 +2359,14 @@
           "description": "Source allele frequency text, without interpreting NR."
         },
         "study": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Study accession."
         },
         "traits": {
@@ -2359,9 +2378,7 @@
         }
       },
       "required": [
-        "id",
-        "study",
-        "p_value"
+        "id"
       ],
       "type": "object"
     },
@@ -2369,7 +2386,14 @@
       "description": "Catalog effect allele paired with its exact rsID.",
       "properties": {
         "allele": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Source allele text."
         },
         "rs_id": {
@@ -2378,8 +2402,7 @@
         }
       },
       "required": [
-        "rs_id",
-        "allele"
+        "rs_id"
       ],
       "type": "object"
     },
@@ -2391,13 +2414,19 @@
           "description": "Exact source ontology identifier spelling."
         },
         "label": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Whole source trait label."
         }
       },
       "required": [
-        "id",
-        "label"
+        "id"
       ],
       "type": "object"
     },
@@ -5789,7 +5818,7 @@
       "type": "object"
     },
     "Reply_VariantGet": {
-      "description": "Read an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation requires --build. Use search variant --gene BRAF --protein V600E for shorthand. Every candidate remains available; source assertions do not classify the variant for the caller.",
+      "description": "Read an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation requires --build. Use search variant --gene BRAF --protein V600E or search variant --gene PTEN --coding c.333G>T for gene shorthand. Every candidate remains available; source assertions do not classify the variant for the caller.",
       "properties": {
         "build": {
           "anyOf": [
@@ -6185,7 +6214,7 @@
       "type": "object"
     },
     "Reply_VariantPage": {
-      "description": "One native MyVariant candidate page; its total and offset are in the shared envelope.",
+      "description": "One native variant candidate page; its total and offset are in the shared envelope.",
       "properties": {
         "build": {
           "anyOf": [
@@ -6801,6 +6830,12 @@
         },
         {
           "required": [
+            "gene",
+            "coding"
+          ]
+        },
+        {
+          "required": [
             "region",
             "build"
           ]
@@ -6818,13 +6853,17 @@
           "$ref": "#/$defs/Reply_Build",
           "description": "Optional caller assembly sent to MyVariant; regions require it explicitly."
         },
+        "coding": {
+          "$ref": "#/$defs/Reply_CodingChange",
+          "description": "Coding HGVS change searched literally in ClinVar with --gene, without choosing a transcript."
+        },
         "condition": {
           "$ref": "#/$defs/Reply_Text",
           "description": "Literal MyVariant clinvar.rcv.conditions.name phrase; source text is not a local diagnosis. Requires a declared protein or region selector."
         },
         "gene": {
           "$ref": "#/$defs/Reply_GeneSymbol",
-          "description": "Exact checked gene symbol for the fixed dbNSFP gene/protein field query; obeys component terms switches."
+          "description": "Checked gene symbol for the dbNSFP protein selector or the ClinVar coding selector."
         },
         "has": {
           "$ref": "#/$defs/Reply_VariantSearchField",
@@ -7109,7 +7148,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.variant-page/14",
+  "$id": "biomcp.variant-page/15",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -7165,7 +7204,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.variant-page/14",
+      "const": "biomcp.variant-page/15",
       "type": "string"
     },
     "sources": {
