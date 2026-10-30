@@ -1,12 +1,12 @@
 use crate::Text;
 use serde::{Deserialize, Serialize};
 
-/// An authority and its unchanged native identifier; null means the authority was not stated.
+/// An authority and its unchanged native identifier; unknown means the authority was not stated.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 #[cfg_attr(feature = "schema", schemars(extend("x-identifier" = true)))]
 pub struct Identifier<T> {
-    /// Native authority spelling; an explicit null carries an unknown authority.
+    /// Native authority spelling; the literal unknown carries an unstated authority.
     pub namespace: IdentifierNamespace,
     /// Native identifier value, with its original scalar type and precision.
     pub id: T,
@@ -31,14 +31,14 @@ impl<T: std::fmt::Display> std::fmt::Display for Identifier<T> {
     }
 }
 
-/// A source-stated authority or an explicit unknown authority, represented by null.
-#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
-#[serde(untagged)]
+/// A source-stated authority or an explicit unknown authority, represented by the string unknown.
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", schemars(with = "Text"))]
 pub enum IdentifierNamespace {
     /// The complete authority spelling supplied for this identifier.
     Stated(Text),
-    /// The source supplied no authority; serialize null rather than omit the property.
+    /// The source supplied no authority; serialize unknown rather than omit the property.
     Unknown,
 }
 impl IdentifierNamespace {
@@ -52,11 +52,26 @@ impl IdentifierNamespace {
 }
 impl From<Text> for IdentifierNamespace {
     fn from(value: Text) -> Self {
-        Self::Stated(value)
+        if value.as_str() == "unknown" {
+            Self::Unknown
+        } else {
+            Self::Stated(value)
+        }
     }
 }
 impl From<Option<Text>> for IdentifierNamespace {
     fn from(value: Option<Text>) -> Self {
-        value.map_or(Self::Unknown, Self::Stated)
+        value.map_or(Self::Unknown, Self::from)
+    }
+}
+
+impl Serialize for IdentifierNamespace {
+    fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        serializer.serialize_str(self.as_deref().unwrap_or("unknown"))
+    }
+}
+impl<'de> Deserialize<'de> for IdentifierNamespace {
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        Text::deserialize(deserializer).map(Self::from)
     }
 }

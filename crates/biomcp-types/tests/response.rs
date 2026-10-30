@@ -98,8 +98,9 @@ fn every_section_state_round_trips_without_conflating_data_and_failure() {
     {
         let schema = serde_json::to_value(schemars::schema_for!(SourceRecord)).unwrap();
         let validator = jsonschema::draft202012::new(&schema).unwrap();
-        assert!(validator.is_valid(&json!({"namespace":null,"id":"native:0001"})));
+        assert!(validator.is_valid(&json!({"namespace":"unknown","id":"native:0001"})));
         assert!(!validator.is_valid(&json!({"id":"native:0001"})));
+        assert!(!validator.is_valid(&json!({"namespace":null,"id":"native:0001"})));
         assert!(serde_json::from_value::<SourceRecord>(json!({"id":"native:0001"})).is_err());
     }
     let states = [

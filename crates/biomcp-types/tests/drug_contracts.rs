@@ -211,9 +211,9 @@ fn civic_therapy_streams_keep_independent_totals_and_profile_context() {
     assert_eq!(serde_json::to_value(selected).expect("query JSON"), next);
     let response = json!(
         { "identity":{"id":"5","source":"civic","name":"synthetic therapy","identity_level":"unknown"},"civic":{"state":"data",
-        "source":"civic","data":{ "evidence":{"records":[{ "profile":{"record":{"namespace":null,"id":"1"},"label":"synthetic profile","compound":false,
-        "members":[{"record":{"namespace":null,"id":"1"},"label":"synthetic allele","feature":"BRAF","reference_build":"GRCH38"}]},
-        "oncokb_missing":["variant"],"claim":{"record":{"namespace":null,"id":"EID259"},"kind":"PREDICTIVE","status":"ACCEPTED"},"therapies":[{"id":"5",
+        "source":"civic","data":{ "evidence":{"records":[{ "profile":{"record":{"namespace":"unknown","id":"1"},"label":"synthetic profile","compound":false,
+        "members":[{"record":{"namespace":"unknown","id":"1"},"label":"synthetic allele","feature":"BRAF","reference_build":"GRCH38"}]},
+        "oncokb_missing":["variant"],"claim":{"record":{"namespace":"unknown","id":"EID259"},"kind":"PREDICTIVE","status":"ACCEPTED"},"therapies":[{"id":"5",
         "source":"civic","name":"synthetic therapy","identity_level":"unknown"}] }],"page":{"returned":1,"total":169,"next":next}},
         "assertions":{"page":{"returned":0,"total":1}} }} }
     );

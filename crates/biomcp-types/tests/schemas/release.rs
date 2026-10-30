@@ -102,7 +102,7 @@ pub(super) fn identifier_objects_use_namespace_and_id() -> Check<()> {
         identifier_shape(&(contract.generate)(), contract.name)?;
     }
     let numeric = serde_json::json!({
-        "x-identifier":true, "properties":{"namespace":{"type":["string","null"]},"id":{"type":"integer"}},
+        "x-identifier":true, "properties":{"namespace":{"type":"string"},"id":{"type":"integer"}},
         "required":["namespace","id"]
     });
     identifier_shape(

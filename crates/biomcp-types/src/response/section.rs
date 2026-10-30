@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 #[cfg_attr(feature = "schema", schemars(extend("x-identifier" = true)))]
 pub struct SourceRecord {
-    /// Native authority; null means the source did not state one.
+    /// Native authority; unknown means the source did not state one.
     pub namespace: biodata::IdentifierNamespace,
     /// Native source identifier.
     pub id: Text,

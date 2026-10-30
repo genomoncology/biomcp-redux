@@ -68,7 +68,7 @@
                 "source": "myvariant",
                 "record": {
                   "id": "chr7:g.140453136A>G",
-                  "namespace": null
+                  "namespace": "unknown"
                 }
               },
               {
@@ -95,7 +95,7 @@
                 "source": "myvariant",
                 "record": {
                   "id": "chr7:g.140453136A>T",
-                  "namespace": null
+                  "namespace": "unknown"
                 },
                 "component_terms": [
                   {
@@ -132,7 +132,7 @@
                 "source": "myvariant",
                 "record": {
                   "id": "chr7:g.140453136A>C",
-                  "namespace": null
+                  "namespace": "unknown"
                 },
                 "component_terms": [
                   {
@@ -283,7 +283,7 @@
                 "source": "myvariant",
                 "record": {
                   "id": "chr7:g.140453136A>G",
-                  "namespace": null
+                  "namespace": "unknown"
                 }
               },
               {
@@ -310,7 +310,7 @@
                 "source": "myvariant",
                 "record": {
                   "id": "chr7:g.140453136A>T",
-                  "namespace": null
+                  "namespace": "unknown"
                 },
                 "component_terms": [
                   {
@@ -347,7 +347,7 @@
                 "source": "myvariant",
                 "record": {
                   "id": "chr7:g.140453136A>C",
-                  "namespace": null
+                  "namespace": "unknown"
                 },
                 "component_terms": [
                   {

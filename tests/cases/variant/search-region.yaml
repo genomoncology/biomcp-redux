@@ -67,7 +67,7 @@
                 "source": "myvariant",
                 "record": {
                   "id": "chr7:g.55259515T>A",
-                  "namespace": null
+                  "namespace": "unknown"
                 }
               },
               {
@@ -94,7 +94,7 @@
                 "source": "myvariant",
                 "record": {
                   "id": "chr7:g.55259515T>G",
-                  "namespace": null
+                  "namespace": "unknown"
                 },
                 "component_terms": [
                   {
@@ -161,7 +161,7 @@
                 "source": "myvariant",
                 "record": {
                   "id": "chr7:g.55259515T>A",
-                  "namespace": null
+                  "namespace": "unknown"
                 }
               },
               {
@@ -188,7 +188,7 @@
                 "source": "myvariant",
                 "record": {
                   "id": "chr7:g.55259515T>G",
-                  "namespace": null
+                  "namespace": "unknown"
                 },
                 "component_terms": [
                   {

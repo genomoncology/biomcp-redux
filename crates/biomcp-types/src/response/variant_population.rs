@@ -148,7 +148,7 @@ impl super::ResponseBody for VariantPopulationResult {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 #[cfg_attr(feature = "schema", schemars(extend("x-identifier" = true)))]
 pub struct GwasTrait {
-    /// Native authority; null means the source did not state one.
+    /// Native authority; unknown means the source did not state one.
     pub namespace: biodata::IdentifierNamespace,
     /// Exact source ontology identifier spelling.
     pub id: Text,
