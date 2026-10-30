@@ -191,6 +191,7 @@ fn verify(name: &str, v: &Value, native: &Value) -> Check {
     }
     if name == "annotation" {
         let mut expected = native.get("data").cloned().ok_or("native data")?;
+        super::assertions::qualify_numeric_ids(&mut expected, "ClinPGx");
         super::assertions::omit_empty_lists(&mut expected);
         if v.pointer("/result/annotation") != Some(&expected) {
             return Err("base fields changed".into());
@@ -217,6 +218,7 @@ fn verify(name: &str, v: &Value, native: &Value) -> Check {
             .cloned()
             .collect::<Vec<_>>()
     );
+    super::assertions::qualify_numeric_ids(&mut expected_rows, "ClinPGx");
     super::assertions::omit_empty_lists(&mut expected_rows);
     if rows
         != expected_rows

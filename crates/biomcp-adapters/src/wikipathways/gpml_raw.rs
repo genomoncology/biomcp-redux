@@ -142,7 +142,7 @@ fn read_child(tag: &BytesStart<'_>, depth: usize, node: &mut Option<Node>) -> Re
             kind: attribute(tag, "Type")?,
             id: attribute(tag, "GraphId")?,
             label: attribute(tag, "TextLabel")?,
-            namespace: biodata::IdentifierNamespace::Unknown,
+            namespace: None,
             value: None,
             xref_seen: false,
         });
