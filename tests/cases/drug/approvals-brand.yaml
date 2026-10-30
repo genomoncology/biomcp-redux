@@ -42,7 +42,8 @@
       "expect": {
         "/status": "complete",
         "/result/identity/id": "BLA761445",
-        "/result/approvals/data/records/0/submission_status_date": "2026-07-09"
+        "/result/approvals/data/records/0/event/dates/0/role": "submission_status_date",
+        "/result/approvals/data/records/0/event/dates/0/date": "2026-07-09"
       }
     },
     {
@@ -63,5 +64,6 @@
         "/result/items/0/products/0/active_ingredients/0/name": "ISATUXIMAB-IRFC"
       }
     }
-  ]
+  ],
+  "live_check": "public"
 }
