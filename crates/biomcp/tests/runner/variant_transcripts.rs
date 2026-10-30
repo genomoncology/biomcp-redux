@@ -151,10 +151,8 @@ fn atm_request_spelling() -> Result<(), String> {
         4,
     )?;
     let requests = stub.finish()?;
-    if requests.len() != 1
-        || !requests[0]
-            .1
-            .starts_with("GET /allele?hgvs=NM_000051.4%3Ac.6115G%3EA&fields=")
+    if !matches!(requests.as_slice(), [(_, request)]
+        if request.starts_with("GET /allele?hgvs=NM_000051.4%3Ac.6115G%3EA&fields="))
     {
         return Err(format!(
             "ATM gene label was not removed from native HGVS request: {requests:?}"
