@@ -104,7 +104,8 @@ def classification_case(change):
         if change == 'clean-cut':
             drift = []
         witness = {"cut": True}
-    result = {"drift": drift}
+    result = {"drift": drift, "commands": [{'ordinal': 1, 'exchanges': {
+        'items': [], 'omitted': 0, 'drift': drift, 'drift_omitted': 0}}]}
     if change == 'omitted-count':
         result['commands'] = [{'ordinal': 1, 'exchanges': {'drift_omitted': 1}}]
     return {"case": change, "result": result, "witness": witness}
@@ -138,7 +139,8 @@ def publication_growth_case(change='addition', count=1590, insertion=650):
     if change == 'unproven':
         after[0]['provenance']['discovery']['ids'] = old
     return {'case': 'article/litvar/akt1-rsid-citations.yaml',
-            'result': {'drift': ['icite: request-plan-changed', 'icite: request-plan-added']},
+            'result': {'drift': ['icite: request-plan-changed', 'icite: request-plan-added'],
+                       'commands': [{'ordinal': 1, 'exchanges': {'omitted': 0, 'drift_omitted': 0}}]},
             'witness': [{'ordinal': 1, 'baseline': {'requests': before},
                          'live': {'requests': after}}]}
 
@@ -383,6 +385,55 @@ class NightlyCommand(unittest.TestCase):
             with self.subTest(change=change):
                 self.classified(classification_case(change), expected, code)
 
+    def test_incomplete_command_coverage_cannot_clear_changed_cases(self):
+        for change in ('plan-drift', 'output-drift', 'unmatched-output', 'duplicate', 'extra', 'reordered',
+                       'missing-side', 'missing-requests', 'missing-commands', 'wrong-ordinal'):
+            with self.subTest(change=change):
+                row = classification_case('order')
+                row['result']['commands'].append({'ordinal': 2, 'exchanges': {'omitted': 0}})
+                row['result']['drift'] = ['second: request-plan-changed']
+                if change == 'output-drift':
+                    row['result']['drift'] = ['command 2: output status changed: complete -> partial']
+                if change in ('duplicate', 'extra', 'reordered', 'missing-side', 'missing-requests',
+                              'wrong-ordinal', 'unmatched-output'):
+                    second = json.loads(json.dumps(row['witness'][0]))
+                    second['ordinal'] = 2
+                    row['witness'].append(second)
+                    if change == 'unmatched-output':
+                        row['result']['drift'] = ['command 3: output status changed: complete -> partial']
+                    elif change == 'duplicate':
+                        second['ordinal'] = 1
+                    elif change == 'extra':
+                        row['witness'].append(dict(second, ordinal=3))
+                    elif change == 'reordered':
+                        row['witness'].reverse()
+                    elif change == 'missing-side':
+                        second.pop('live')
+                    elif change == 'missing-requests':
+                        second['live'].pop('requests')
+                    elif change == 'wrong-ordinal':
+                        row['result']['commands'][1]['ordinal'] = 3
+                if change == 'missing-commands':
+                    row['result'].pop('commands')
+                self.classified(row, 'failure', 1)
+
+    def test_any_exchange_omission_fails_before_source_classification(self):
+        for clean in (False, True):
+            for location in ('drift', 'exchanges', 'before-statuses', 'after-statuses'):
+                with self.subTest(clean=clean, location=location):
+                    row = classification_case('rank')
+                    exchanges = row['result']['commands'][0]['exchanges']
+                    if clean:
+                        row['result']['drift'] = []
+                    if location == 'drift':
+                        exchanges['drift_omitted'] = 1
+                    elif location == 'exchanges':
+                        exchanges['omitted'] = 1
+                    else:
+                        side = 'before_statuses' if location == 'before-statuses' else 'after_statuses'
+                        exchanges['items'] = [{side: {'values': [200], 'omitted': 1}}]
+                    self.classified(row, 'failure', 1)
+
     def test_publication_count_change_keeps_request_diagnostics(self):
         for change, expected in [('addition', 'churn'), ('removal', 'churn'),
                                  ('missing-batch', 'failure'), ('parameter', 'failure'),
@@ -433,6 +484,7 @@ class NightlyCommand(unittest.TestCase):
         first['baseline']['requests'] = before[:1]
         first['live']['requests'] = after[:1]
         row['witness'].append(second)
+        row['result']['commands'].append({'ordinal': 2, 'exchanges': {'omitted': 0, 'drift_omitted': 0}})
         self.classified(row, 'churn', 0)
         second['live']['requests'][0]['status'] = 400
         row['result']['drift'].append('continuation: HTTP status Some(200) -> Some(400)')
