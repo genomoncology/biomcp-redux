@@ -38,7 +38,7 @@ pub(super) fn retained() -> Result<(), String> {
     if row("clean")?.get("witness").is_some()
         || row("drift")?.pointer("/witness/after/id") != Some(&json!("new"))
         || row("failed")?.pointer("/witness/baseline/id") != Some(&json!("old"))
-        || row("large")?.pointer("/witness/cut") != Some(&json!(true))
+        || row("large")?.pointer("/witness/output").and_then(Value::as_str).map(str::len) != Some(2 * 1024 * 1024)
     {
         return Err("drift witnesses were discarded, retained for clean cases or unbounded".into());
     }
@@ -63,12 +63,12 @@ pub(super) fn retained() -> Result<(), String> {
             serde_json::to_vec(value).map(|bytes| size + bytes.len())
         })
         .map_err(|e| e.to_string())?;
-    if size > 1024 * 1024
-        || !rows
+    if size < 1024 * 1024
+        || rows
             .iter()
             .any(|row| row.pointer("/witness/cut") == Some(&json!(true)))
     {
-        return Err("multiple cases bypassed the total witness bound".into());
+        return Err("one case consumed another case witness budget".into());
     }
     retained_context()?;
     discovery_context()

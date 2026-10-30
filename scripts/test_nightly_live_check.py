@@ -354,7 +354,7 @@ class NightlyCommand(unittest.TestCase):
                 ('discovery', 'churn', 0), ('unchanged', 'failure', 1),
                 ('order', 'healthy', 0), ('schema', 'failure', 1),
                 ('500', 'failure', 1), ('429', 'throttled', 0),
-                ('cut', 'uncertain', 1), ('clean-cut', 'uncertain', 1), ('missing', 'uncertain', 1),
+                ('cut', 'failure', 1), ('clean-cut', 'failure', 1), ('missing', 'uncertain', 1),
                 ('unrelated', 'failure', 1), ('invariant', 'failure', 1)]:
             with self.subTest(change=change):
                 self.classified(classification_case(change), expected, code)
@@ -362,8 +362,8 @@ class NightlyCommand(unittest.TestCase):
     def test_causality_requires_ordered_selection_complete_diagnostics_and_fixed_parameters(self):
         for change, expected, code in [
                 ('rank', 'churn', 0), ('unused-tail', 'failure', 1),
-                ('parameter', 'failure', 1), ('omitted', 'uncertain', 1),
-                ('omitted-count', 'uncertain', 1),
+                ('parameter', 'failure', 1), ('omitted', 'failure', 1),
+                ('omitted-count', 'failure', 1),
                 ('429-output', 'throttled', 0), ('429-schema', 'failure', 1),
                 ('429-other-error', 'failure', 1),
                 ('500-output', 'failure', 1)]:
