@@ -4,6 +4,9 @@
     clippy::panic,
     reason = "Fixture setup, child processes and failed source assertions must abort the contract test"
 )]
+#[path = "evidence.rs"]
+mod evidence;
+
 use super::{Server, config, spec, support::Answer};
 use biomcp_fetch::{Arg, Fetch, Freshness, KeyUse, SourceSpec};
 use rusqlite::Connection;
@@ -142,7 +145,11 @@ fn event(control: &mut TcpStream, expected: u8) {
 
 #[test]
 fn concurrent_first_opens_and_distinct_writes_survive_into_a_new_process() {
-    let directory = tempfile::tempdir().unwrap().keep();
+    let directory = tempfile::Builder::new()
+        .prefix("cache-process-")
+        .tempdir_in(evidence::directory().unwrap())
+        .unwrap()
+        .keep();
     writeln!(
         std::io::stderr().lock(),
         "cache process test data: {}",
