@@ -507,13 +507,17 @@
           "description": "Source section, when present."
         },
         "text": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Source sentence text."
         }
       },
-      "required": [
-        "text"
-      ],
       "type": "object"
     },
     "Reply_ArticleSort": {
@@ -1364,7 +1368,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.article-page/7",
+  "$id": "biomcp.article-page/8",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -1420,7 +1424,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.article-page/7",
+      "const": "biomcp.article-page/8",
       "type": "string"
     },
     "sources": {

@@ -974,7 +974,8 @@ Usage: biomcp search drug [OPTIONS] [query]
 
 Arguments:
   [query]
-          Literal name phrase; optional for FDA drug recalls. Harmonized recall names match but never become display names.
+          Literal name phrase; optional for FDA drug recalls. Drugs@FDA searches brands and ingredients,
+          exact names before word matches. Harmonized recall names match but never become display names.
 
 Options:
       --classification <classification>
@@ -1036,7 +1037,8 @@ Search one drug source. FDA drug recalls accept a name or source firm, classific
 - `--limit`: Source candidate rows per page.
 - `--name-selector`: Explicit ChEMBL source name selector; omitted means preferred name.
 - `--offset`: Source rows to skip.
-- `query`: Exact name phrase; optional for FDA drug recalls. Harmonized recall names match but never become display names.
+- `query`: Exact name phrase; optional for FDA drug recalls. Drugs@FDA searches brands and ingredients,
+exact names before word matches. Harmonized recall names match but never become display names.
 - `--reason`: Phrase in the published recall reason; drug recalls only.
 - `--source`: Exactly one source; default MyChem never fans out.
 - `--status`: Exact source recall status; drug recalls only.
@@ -1407,7 +1409,7 @@ Options:
           Read configuration from this file.
 
       --gene <gene>
-          Checked gene symbol for the dbNSFP protein selector or the ClinVar coding selector.
+          Checked gene symbol for the dbNSFP substitution or ClinVar coding/synonymous selector.
 
       --has <has>
           Require the selected component's identifier field. Only source-proven mappings are offered.
@@ -1422,7 +1424,7 @@ Options:
           Read local data without source requests.
 
       --protein <protein>
-          Explicit substitution using checked one-letter or three-letter amino-acid codes.
+          Explicit substitution or synonymous change using checked amino-acid codes.
 
       --fresh
           Request fresh source data instead of cached replies.
@@ -1446,11 +1448,11 @@ Discover source candidates using one declared selector, without interpreting fre
 - `--build`: Optional caller assembly sent to MyVariant; regions require it explicitly.
 - `--coding`: Coding HGVS change searched literally in ClinVar with --gene, without choosing a transcript.
 - `--condition`: Exact MyVariant clinvar.rcv.conditions.name phrase; source text is not a local diagnosis. Requires a declared protein or region selector.
-- `--gene`: Checked gene symbol for the dbNSFP protein selector or the ClinVar coding selector.
+- `--gene`: Checked gene symbol for the dbNSFP substitution or ClinVar coding/synonymous selector.
 - `--has`: Require the selected component's identifier field. Only source-proven mappings are offered.
 - `--limit`: Source candidates per page, default 10, maximum 50; all candidates remain candidates.
 - `--offset`: Source offset within this command's bounded result window; larger source totals remain visible.
-- `--protein`: Explicit substitution using checked one-letter or three-letter amino-acid codes.
+- `--protein`: Explicit substitution or synonymous change using checked amino-acid codes.
 - `--query`: Raw MyVariant query, passed and echoed unchanged when component policy allows; requires --source myvariant. With disabled components use declared selectors instead.
 - `--region`: Exact one-based inclusive MyVariant region, such as chr7:55259500-55259600; requires --build.
 - `--review-status`: Exact MyVariant clinvar.rcv.review_status phrase; no star conversion. Requires a declared protein or region selector.

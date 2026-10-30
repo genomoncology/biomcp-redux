@@ -378,7 +378,14 @@
           "description": "Primary pair record and bundle provenance."
         },
         "level": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Original native level, without a computed severity."
         },
         "partner": {
@@ -389,7 +396,6 @@
       "required": [
         "anchor",
         "partner",
-        "level",
         "attribution"
       ],
       "type": "object"
@@ -1306,7 +1312,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.drug-interactions/6",
+  "$id": "biomcp.drug-interactions/7",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -1362,7 +1368,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.drug-interactions/6",
+      "const": "biomcp.drug-interactions/7",
       "type": "string"
     },
     "sources": {

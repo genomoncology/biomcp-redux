@@ -413,7 +413,14 @@
           "description": "Source drug identity."
         },
         "indication": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Complete native indication wording."
         },
         "population": {
@@ -448,7 +455,6 @@
       },
       "required": [
         "drug",
-        "indication",
         "attribution"
       ],
       "type": "object"
@@ -1419,7 +1425,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.drug-indications/6",
+  "$id": "biomcp.drug-indications/7",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -1475,7 +1481,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.drug-indications/6",
+      "const": "biomcp.drug-indications/7",
       "type": "string"
     },
     "sources": {
