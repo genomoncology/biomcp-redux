@@ -3,7 +3,7 @@
 mod case_data;
 #[path = "../../../biomcp-fetch/tests/support/environment.rs"]
 mod environment;
-#[path = "../help_catalog.rs"]
+#[path = "../support/help_catalog.rs"]
 mod help_catalog;
 #[path = "required/pending.rs"]
 mod pending;

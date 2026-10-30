@@ -1,6 +1,6 @@
 //! Verify installed help examples against their owning replay case steps.
 mod documents;
-#[path = "../help_catalog.rs"]
+#[path = "../support/help_catalog.rs"]
 mod help_catalog;
 
 use super::{Case, assertions, launch, run_sequence, schema};
