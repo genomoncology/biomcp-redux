@@ -82,21 +82,21 @@ fn boundaries() -> Check {
         0,
     )?;
     for (kind, expected, exit) in [
-        ("empty", json!({"/status":"absent",}), 1),
+        ("empty", json!({"/status":"complete",}), 0),
         (
             "multiple",
-            json!({"/status":"absent","/result/candidates":{"count":3}}),
-            1,
+            json!({"/status":"complete","/result/candidates":{"count":3}}),
+            0,
         ),
         (
             "nearby",
-            json!({"/status":"absent","/result/candidates":{"count":5},"/next":{"count":5}}),
-            1,
+            json!({"/status":"complete","/result/candidates":{"count":5},"/next":{"count":5}}),
+            0,
         ),
         (
             "bad-id",
-            json!({"/status":"absent","/result/candidates":{"count":1},"/problems/*/field":["identity"]}),
-            1,
+            json!({"/status":"partial","/result/candidates":{"count":1},"/problems/*/field":["identity"]}),
+            0,
         ),
         (
             "bad-rsid",
@@ -271,8 +271,8 @@ fn empty_recovery() -> Check {
             "article/litvar/kras-g12c",
             |source, record| boundary_edit(source, record, "empty"),
             json!([{
-                "run": args, "mcp": args, "exit": 1,
-                "expect": {"/status":"absent", }
+                "run": args, "mcp": args, "exit": 0,
+                "expect": {"/status":"complete", }
             }]),
         )?;
         let steps = output["next"].as_array().ok_or("missing recovery steps")?;
@@ -338,7 +338,7 @@ fn markdown_recovery() -> Check {
         .output()?;
     assert_eq!(
         output.status.code(),
-        Some(1),
+        Some(0),
         "Empty results must keep recovery steps"
     );
     let text = String::from_utf8(output.stdout)?;
@@ -367,9 +367,9 @@ fn optional_values() -> Check {
                 record["exchanges"][0]["body"]["value"][1]["name"] = json!(42);
             }
         },
-        json!({"/result/candidates":{"count":2},"/result/candidates/1":{"omits":["name"]},
+        json!({"/status":"complete","/result/candidates":{"count":2},"/result/candidates/1":{"omits":["name"]},
             "/result/candidates/1/rsid":"rs121913530","/problems/*/field":["name"]}),
-        1,
+        0,
     )?;
     for (publication, invalid) in [
         (false, json!("bad")),

@@ -4,7 +4,7 @@ use biomcp_adapters::{europepmc, litvar, pubmed};
 use biomcp_fetch::{Deadline, RequestError};
 use biomcp_types::{
     ArticleItem, ArticleKey, ArticleSearch, ArticleSource, ArticleType, Source, SourceOutcome,
-    SourceState, Status,
+    SourceState,
 };
 use std::time::Duration;
 pub(super) struct ResultLeg {
@@ -17,17 +17,26 @@ pub(super) struct ResultLeg {
     pub(super) elapsed: Duration,
     pub(super) error: Option<RequestError>,
 }
+pub(super) enum SearchResult {
+    Answer,
+    Unavailable,
+    Items(Vec<ArticleItem>),
+}
+enum Preparation<'a> {
+    Ready(Option<PreparedLitvar<'a>>),
+    Answer,
+}
 pub(super) fn search<'a>(
     cx: &Ctx<'a>,
     query: &ArticleSearch,
     resolved: &super::term::Resolved,
     deadline: &mut Deadline<'a>,
     out: &mut Outcome,
-) -> Result<Option<Vec<ArticleItem>>, RequestError> {
-    let mut prepared = prepare_litvar(cx, query, resolved.symbol.as_deref(), deadline, out);
-    if out.status() == Status::Absent {
-        return Ok(None);
-    }
+) -> Result<SearchResult, RequestError> {
+    let mut prepared = match prepare_litvar(cx, query, resolved.symbol.as_deref(), deadline, out) {
+        Preparation::Ready(prepared) => prepared,
+        Preparation::Answer => return Ok(SearchResult::Answer),
+    };
     let epmc_term = term(query);
     let start = *deadline;
     let jobs: Vec<Box<dyn FnOnce() -> ResultLeg + Send + '_>> = query
@@ -80,9 +89,9 @@ pub(super) fn search<'a>(
     }
     if !answered {
         crate::status::item(out, false, true, false);
-        return Ok(None);
+        return Ok(SearchResult::Unavailable);
     }
-    Ok(Some(super::fold::fold(
+    Ok(SearchResult::Items(super::fold::fold(
         results.into_iter().map(|r| (r.source, r.items)).collect(),
         query.sources().len() > 1,
     )))
@@ -277,9 +286,9 @@ fn prepare_litvar<'a>(
     gene: Option<&str>,
     deadline: &mut Deadline<'a>,
     out: &mut Outcome,
-) -> Option<PreparedLitvar<'a>> {
+) -> Preparation<'a> {
     if !query.sources().contains(&ArticleSource::Litvar) {
-        return None;
+        return Preparation::Ready(None);
     }
     let leg = cx.fetch.leg(&litvar::SPEC, *deadline).fresh(cx.fresh);
     let start = leg.remaining();
@@ -291,12 +300,12 @@ fn prepare_litvar<'a>(
         });
     *deadline = super::consume(*deadline, start, leg.remaining());
     match result {
-        Ok(litvar::Selection::Exact(selected)) => Some((leg, Ok(selected))),
-        Err(error) => Some((leg, Err(error))),
+        Ok(litvar::Selection::Exact(selected)) => Preparation::Ready(Some((leg, Ok(selected)))),
+        Err(error) => Preparation::Ready(Some((leg, Err(error)))),
         Ok(litvar::Selection::Candidates(candidates)) => {
-            crate::status::item(out, false, false, false);
             out.sources
                 .push(status::source(Source::LitVar, leg.finish(), None));
+            status::search_for(out, &[Source::LitVar]);
             if candidates.is_empty() {
                 super::empty_litvar::recover(query, out);
             }
@@ -320,7 +329,7 @@ fn prepare_litvar<'a>(
                 items: Box::default(),
                 candidates,
             });
-            None
+            Preparation::Answer
         }
     }
 }

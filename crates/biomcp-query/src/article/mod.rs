@@ -23,7 +23,7 @@ pub mod text;
 use crate::{Action, Ctx, Outcome, status, store::Store};
 use biodata::Text;
 use biomcp_fetch::{CacheError, Deadline, RequestError};
-use biomcp_types::{ArticlePage, ArticleSearch, QueryBody, Request, Status, StepKind};
+use biomcp_types::{ArticlePage, ArticleSearch, QueryBody, Request, StepKind};
 use sha2::{Digest, Sha256};
 /// Run one article command under a single absolute deadline.
 pub fn search(cx: &Ctx<'_>, query: &ArticleSearch) -> Outcome {
@@ -102,11 +102,13 @@ fn execute<'a>(
                     entrez: None,
                 }
             };
-            let Some(mut items) = sources::search(cx, query, &resolved, deadline, out)? else {
-                if out.status() != Status::Absent {
+            let mut items = match sources::search(cx, query, &resolved, deadline, out)? {
+                sources::SearchResult::Items(items) => items,
+                sources::SearchResult::Answer => return Ok(()),
+                sources::SearchResult::Unavailable => {
                     retry(query, None, out);
+                    return Ok(());
                 }
-                return Ok(());
             };
             if query.sort() == biomcp_types::ArticleSort::Citations
                 && !order::apply(cx, deadline, &mut items, out)?
