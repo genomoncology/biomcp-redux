@@ -20,7 +20,7 @@ pub(super) fn trials() -> Vec<Trial> {
         ("article-named-search/adapter-values-litsense", litsense),
         ("article-sections/adapter-values-pubtator", pubtator),
         ("article-fulltext/adapter-values-pmc-oa", pmc),
-        ("article-evidence/adapter-values-semantic-scholar", edges),
+        (crate::runner::pool_contract::ARTICLE_CITATIONS.0, edges),
         ("article-fulltext/adapter-values-jats", jats),
         (
             "article-fulltext/adapter-values-jats-figure-label",
@@ -210,7 +210,8 @@ fn edges() -> Check {
         "influential",
         json!({"/result/items/0/pmid":"32597970"}),
         "/result/items/0/influential",
-    )
+    )?;
+    retained_citations()
 }
 
 fn jats() -> Check {
@@ -397,4 +398,40 @@ fn selected_record(source: &str, record: &Value) -> bool {
         .get("url")
         .and_then(Value::as_str)
         .is_some_and(|url| url.contains(selected))
+}
+
+fn retained_citations() -> Check {
+    let env = crate::runner::launch::Environment::new()?;
+    let replay = crate::runner::launch::fixtures().join("replies/article/edges/synthetic-window");
+    let globals = env.globals(Some(&replay), false);
+    let mut args = [
+        "article",
+        "citations",
+        "23000897",
+        "--source",
+        "semantic-scholar",
+        "--limit",
+        "1",
+    ]
+    .map(str::to_owned)
+    .to_vec();
+    let mut first_args = args.clone();
+    first_args.extend(globals.clone());
+    let first = crate::runner::configuration::invoke(&env, first_args, 0)?;
+    crate::runner::schema::Registry::embedded()?.validate(&first, &args, true)?;
+    let pool = first
+        .pointer("/page/pool/id")
+        .and_then(Value::as_str)
+        .ok_or("citation pool")?;
+    args.extend(["--pool".into(), pool.into(), "--offset".into(), "1".into()]);
+    let mut retained_args = args.clone();
+    retained_args.extend(globals);
+    let kept = crate::runner::configuration::invoke(&env, retained_args, 0)?;
+    crate::runner::schema::Registry::embedded()?.validate(&kept, &args, true)?;
+    if kept.pointer("/result/items/0/header/title") != Some(&json!("Synthetic source page2."))
+        || kept.pointer("/page/offset") != Some(&json!(1))
+    {
+        return Err("retained citation page changed its source order".into());
+    }
+    Ok(())
 }

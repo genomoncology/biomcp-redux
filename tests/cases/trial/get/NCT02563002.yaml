@@ -10,6 +10,7 @@
         "get",
         "trial",
         "NCT02563002",
+        "--section",
         "outcomes"
       ],
       "expect": {

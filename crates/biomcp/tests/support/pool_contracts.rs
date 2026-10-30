@@ -83,3 +83,19 @@ pub(crate) const DOMAIN_TYPE: (&str, &[&str]) = (
     "protein-domains-complexes/native-types-and-fragments",
     &["option protein domains --type"],
 );
+
+// Citation window replies and oversized evidence strings are explicitly synthetic.
+pub(crate) const ARTICLE_CITATIONS: (&str, &[&str]) = (
+    "article-evidence/adapter-values-semantic-scholar",
+    &[
+        "option article citations --pool",
+        "option article citations --offset",
+    ],
+);
+pub(crate) const EVIDENCE_FRAGMENTS: (&str, &[&str]) = (
+    "article-evidence/evidence/overflow-and-reference-identity",
+    &[
+        "option article citation-evidence --offset",
+        "option article citation-evidence --paragraph-offset",
+    ],
+);

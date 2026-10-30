@@ -1,9 +1,3 @@
-option article citation-evidence --offset
-option article citation-evidence --paragraph-offset
-option article citations --offset
-option article citations --pool
-option article recommendations --offset
-option get biomarker --source
 option get diagnostic --bundle-revision
 option get disease --ontology
 option get drug --civic-cursor
@@ -13,7 +7,6 @@ option get drug --product-number
 option get pathway --pool
 option get pathway --section-limit
 option get pathway --section-offset
-option get trial --section
 option get variant --civic-cursor
 option get variant --civic-kind
 option get variant --civic-profile
