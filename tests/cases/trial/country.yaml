@@ -187,7 +187,8 @@
         "/sources/0/reason": "bad-reply"
       },
       "exit": 4,
-      "max_bytes": 5000
+      "max_bytes": 5000,
+      "is_error": true
     },
     {
       "run": [

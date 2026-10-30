@@ -11,8 +11,6 @@ pub(super) fn check() -> Result<(), String> {
     let advertised = printed.clone();
     let guide = guide_examples(&environment)?;
     printed.extend(guide);
-    documents::check(&printed)?;
-    documents::rejects_invalid()?;
     let witnesses: Vec<(String, usize)> = serde_json::from_str(include_str!(concat!(
         env!("OUT_DIR"),
         "/example-cases.json"
@@ -30,6 +28,9 @@ pub(super) fn check() -> Result<(), String> {
                 .ok_or("example step missing".into())
         })
         .collect::<Result<_, String>>()?;
+    extend_scoped_examples(&environment, &owned, &mut printed)?;
+    documents::check(&printed)?;
+    documents::rejects_invalid()?;
     for example in printed.difference(&owned) {
         documents::local(example)?;
     }
@@ -95,6 +96,34 @@ fn advertised_examples(environment: &launch::Environment) -> Result<BTreeSet<Vec
         .and_then(Value::as_array)
         .ok_or("scoped help commands")?;
     collected_examples(commands, scoped)
+}
+
+fn extend_scoped_examples(
+    environment: &launch::Environment,
+    owned: &BTreeSet<Vec<String>>,
+    printed: &mut BTreeSet<Vec<String>>,
+) -> Result<(), String> {
+    let verbs: BTreeSet<_> = owned
+        .difference(printed)
+        .filter_map(|args| args.first().cloned())
+        .collect();
+    for verb in verbs {
+        let response = super::configuration::invoke(environment, vec!["help".into(), verb], 0)?;
+        let commands = response
+            .pointer("/result/commands")
+            .and_then(Value::as_array)
+            .ok_or("scoped command help missing")?;
+        for command in commands {
+            let examples = command
+                .get("examples")
+                .and_then(Value::as_array)
+                .ok_or("scoped command examples missing")?;
+            for example in examples {
+                printed.insert(serde_json::from_value(example.clone()).map_err(|e| e.to_string())?);
+            }
+        }
+    }
+    Ok(())
 }
 
 fn check_result(args: &[String], reply: &Value, advertised: bool) -> Result<(), String> {
