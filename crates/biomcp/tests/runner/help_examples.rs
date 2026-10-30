@@ -138,7 +138,7 @@ fn collected_examples(commands: &[Value], scoped: &[Value]) -> Result<BTreeSet<V
             scoped.iter().find(|entry| entry.get("command") == command.get("command"))
                 .and_then(|entry| entry.get("examples")).and_then(Value::as_array)
                 .filter(|examples| !examples.is_empty())
-        }).ok_or_else(|| format!("command help has no owned scoped example: {}", command["command"]))?;
+        }).ok_or_else(|| format!("command help has no owned scoped example: {:?}", command.get("command")))?;
         for example in examples {
             let args: Vec<String> = serde_json::from_value(example.clone()).map_err(|e| e.to_string())?;
             printed.insert(args);
