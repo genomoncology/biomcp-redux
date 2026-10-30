@@ -108,6 +108,26 @@ pub(super) fn overview(commands: &mut Vec<HelpCommand>, path: &[String]) -> io::
     *commands = result;
     Ok(true)
 }
+#[cfg(test)]
+pub(super) fn canonical(commands: &mut Vec<HelpCommand>) -> io::Result<()> {
+    let root =
+        crate::grammar::root().map_err(|_| io::Error::other("command grammar unavailable"))?;
+    commands.retain(|entry| {
+        entry
+            .command
+            .iter()
+            .try_fold(&root, |parent, name| parent.find_subcommand(name))
+            .is_some()
+    });
+    for entry in commands {
+        if entry.command.first().is_some_and(|word| word == "help")
+            && entry.examples == [entry.command.clone()]
+        {
+            entry.examples.clear();
+        }
+    }
+    Ok(())
+}
 fn walk(commands: &mut Vec<HelpCommand>, parser: &Command, path: Vec<String>) {
     add(commands, parser, path.clone(), path.is_empty());
     for child in parser.get_subcommands() {
