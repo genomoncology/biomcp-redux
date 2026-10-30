@@ -147,7 +147,21 @@ fn execute<'a>(
         &snapshot.sources,
     )?;
     page::render(query, snapshot, id, out)?;
+    skipped(out, graph_disabled, query.fulltext() && text_disabled);
     Ok(())
+}
+
+fn skipped(out: &mut Outcome, graph: bool, text: bool) {
+    // A response observation does not make disabled content a stored dependency.
+    for (source, disabled) in [(Source::SemanticScholar, graph), (Source::PmcOa, text)] {
+        if disabled && !out.sources.iter().any(|outcome| outcome.source == source) {
+            out.sources.push(biomcp_adapters::registry::outcome(
+                source,
+                biomcp_types::SourceState::Skipped,
+                Some(biomcp_types::Reason::Disabled),
+            ));
+        }
+    }
 }
 pub(super) fn source(snapshot: &mut Snapshot, incoming: SourceOutcome) {
     if let Some(original) = snapshot

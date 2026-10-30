@@ -76,7 +76,15 @@ fn citing_doi() -> Result<(), Box<dyn std::error::Error>> {
         } else {
             "complete"
         };
-        if !valid || output["status"] != status {
+        let skipped_graph = output["sources"].as_array().and_then(|sources| sources.last());
+        if !valid
+            || output["status"] != status
+            || skipped_graph.is_none_or(|source| {
+                source["source"] != "semantic-scholar"
+                    || source["state"] != "skipped"
+                    || source["reason"] != "disabled"
+            })
+        {
             return Err(format!("citing DOI {mode} outcome is wrong: {output}").into());
         }
     }
@@ -211,7 +219,11 @@ fn resolver_policy() -> Result<(), Box<dyn std::error::Error>> {
         let mut next = super::action(&first, "page")?;
         next.extend(["--disable-sources".into(), source.into()]);
         let blocked = command(&env, &next, &globals)?;
-        if blocked.pointer("/result/fulltext/state") == Some(&json!("data")) {
+        if blocked["status"] != "complete"
+            || blocked.pointer("/result/fulltext/state") == Some(&json!("data"))
+            || blocked.pointer("/sources/1/source") != Some(&json!(source))
+            || blocked.pointer("/sources/1/state") != Some(&json!("skipped"))
+        {
             return Err(format!("disabled {source} restored its stored text: {blocked}").into());
         }
         if blocked.get("next").is_some() {
@@ -280,6 +292,8 @@ fn cursor() -> Result<(), String> {
     )?;
     if blocked["status"] != "complete"
         || blocked.pointer("/result/semantic_scholar/state") != Some(&json!("skipped"))
+        || blocked.pointer("/sources/0/source") != Some(&json!("semantic-scholar"))
+        || blocked.pointer("/sources/0/state") != Some(&json!("skipped"))
     {
         return Err("disabled source restored stored evidence".into());
     }
