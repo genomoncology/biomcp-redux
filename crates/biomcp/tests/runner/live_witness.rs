@@ -36,7 +36,8 @@ pub(super) fn command(
     ordinal: usize,
     captures: &mut Vec<Value>,
 ) -> Result<(Reply, Result<Reply, String>), String> {
-    within_budget(captures)?;
+    within_budget(captures)
+        .map_err(|error| format!("{error}; command {ordinal} was not run"))?;
     captures.push(json!({"ordinal":ordinal}));
     let capture = captures.last_mut().ok_or("missing command capture")?;
     let expected = invoke(baseline, args.0, Some(replay), ordinal, capture, "baseline")?;
@@ -44,7 +45,8 @@ pub(super) fn command(
         return Err("recorded command has no provider observations".into());
     }
     let actual = invoke(live, args.1, None, ordinal, capture, "live");
-    within_budget(captures)?;
+    within_budget(captures)
+        .map_err(|error| format!("{error}; stopped after complete command {ordinal}"))?;
     Ok((expected, actual))
 }
 

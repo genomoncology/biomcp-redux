@@ -273,5 +273,6 @@ pub(super) fn doi_discovery<'a>(
         .filter(|ids| ids.pubmed.is_none())
         .filter_map(|ids| ids.doi.as_ref().map(ToString::to_string))
         .collect();
-    biomcp_fetch::Identities::bounded("doi", ids)
+    // Checked page and transport limits bound these complete source identities.
+    Some(biomcp_fetch::Identities { namespace: "doi".into(), ids })
 }

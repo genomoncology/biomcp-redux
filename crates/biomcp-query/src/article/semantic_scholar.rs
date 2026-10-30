@@ -165,7 +165,9 @@ fn doi_batch(
         })
         .collect::<Vec<_>>()
         .join(" OR ");
-    let inputs =
-        biomcp_fetch::Identities::bounded("doi", batch.iter().map(|doi| doi.to_string()).collect());
+    let inputs = Some(biomcp_fetch::Identities {
+        namespace: "doi".into(),
+        ids: batch.iter().map(ToString::to_string).collect(),
+    });
     pubmed::search_ids_with_inputs(leg, &term, ArticleSort::Rank, email, inputs)
 }
