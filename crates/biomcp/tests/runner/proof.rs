@@ -142,7 +142,11 @@ fn negatives() -> Check {
     put(
         directory.path(),
         "markdown-pair.yaml",
-        "  - run: [help, author, --format, json]\n  - run: [help, author, --format, md]\n    max_bytes: 8192\n    expect: {'': {includes_all_of: ['biomcp author papers', '--format', '--disable-sources']}}",
+        concat!(
+            "  - run: [help, author, --format, json]\n  - run: [help, author, --format, md]\n",
+            "    max_bytes: 8192\n    expect: {'': {includes_all_of: ",
+            "['biomcp author papers', '--format', '--disable-sources']}}",
+        ),
     )?;
     let accepted = invoke(directory.path(), &["markdown-pair.yaml", "--exact"])?;
     if !accepted.status.success() {

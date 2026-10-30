@@ -14,7 +14,23 @@ pub(super) fn trials() -> Vec<Trial> {
     vec![transcript_trial(
         crate::runner::required_contract::FAERS_REACTION.0,
         || {
-            selectors(&["--reaction", "Synthetic reaction", "--serious", "death", "--received-from", "2024-01-01", "--received-to", "2024-12-31"], " AND patient.reaction.reactionmeddrapt:\"Synthetic reaction\" AND seriousnessdeath:1 AND receivedate:[20240101 TO 20241231]").map_err(Into::into)
+            selectors(
+                &[
+                    "--reaction",
+                    "Synthetic reaction",
+                    "--serious",
+                    "death",
+                    "--received-from",
+                    "2024-01-01",
+                    "--received-to",
+                    "2024-12-31",
+                ],
+                concat!(
+                    " AND patient.reaction.reactionmeddrapt:\"Synthetic reaction\"",
+                    " AND seriousnessdeath:1 AND receivedate:[20240101 TO 20241231]"
+                ),
+            )
+            .map_err(Into::into)
         },
     )]
 }
