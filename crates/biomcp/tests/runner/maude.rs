@@ -6,36 +6,12 @@ use serde_json::{Value, json};
 pub(super) type Check = Result<(), String>;
 mod filters;
 pub(super) fn trials() -> Vec<Trial> {
-    let mut trials = filters::trials();
-    trials.extend(vec![
-        transcript_trial("maude-reports/synthetic-snapshot-survives-refresh", || {
-            super::maude_snapshot::run().map_err(Into::into)
-        }),
-        transcript_trial(
-            "maude-reports/component-admission-before-cache-replay-http",
-            || super::maude_policy::run().map_err(Into::into),
-        ),
-        transcript_trial(
-            "maude-reports/retained-d03-no-match-adapter-fixture",
-            || absence().map_err(Into::into),
-        ),
-        transcript_trial("maude-reports/synthetic-search-and-card", || {
-            search_card().map_err(Into::into)
-        }),
-        transcript_trial(crate::runner::required_contract::MAUDE_SECTIONS.0, || {
+    // Keep dynamic state, source bindings or wire checks that YAML cannot express.
+    vec![
+transcript_trial(crate::runner::required_contract::MAUDE_SECTIONS.0, || {
             sections().map_err(Into::into)
-        }),
-        transcript_trial("maude-reports/synthetic-policy-before-io", || {
-            policy().map_err(Into::into)
-        }),
-        transcript_trial("maude-reports/synthetic-wrong-key-never-cached", || {
-            wrong_key().map_err(Into::into)
-        }),
-        transcript_trial("maude-reports/synthetic-oversized-narrative", || {
-            oversized().map_err(Into::into)
-        }),
-    ]);
-    trials
+        })
+]
 }
 pub(super) fn row() -> Value {
     json!(

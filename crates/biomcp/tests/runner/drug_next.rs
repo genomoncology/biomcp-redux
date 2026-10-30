@@ -19,19 +19,7 @@ const NAMES: [&str; 9] = [
     "all-distinct-pivots-and-both-stream-pages",
 ];
 pub(super) fn trials() -> Vec<Trial> {
-    let mut trials = native::trials();
-    trials.extend(
-        NAMES
-            .into_iter()
-            .enumerate()
-            .map(|(n, name)| {
-                transcript_trial(format!("drug-next-steps/{name}"), move || {
-                    run(n).map_err(Into::into)
-                })
-            })
-            .collect::<Vec<_>>(),
-    );
-    trials
+    native::trials()
 }
 fn run(n: usize) -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;

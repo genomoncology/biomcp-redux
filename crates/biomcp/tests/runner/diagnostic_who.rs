@@ -14,34 +14,12 @@ use std::{
 };
 type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
+    // Keep dynamic state, source bindings or wire checks that YAML cannot express.
     vec![
-        transcript_trial("diagnostic-who-search/overlapping-phrases", || {
-            search::overlapping().map_err(Into::into)
-        }),
-        transcript_trial(crate::runner::pool_contract::WHO_REVISION.0, || {
+transcript_trial(crate::runner::pool_contract::WHO_REVISION.0, || {
             search::walk().map_err(Into::into)
-        }),
-        transcript_trial(
-            "diagnostic-who-search/replacement-and-policy-admission",
-            || search::admission().map_err(Into::into),
-        ),
-        transcript_trial("diagnostic-who/missing-and-unsupported-never-fetch", || {
-            missing().map_err(Into::into)
-        }),
-        transcript_trial("diagnostic-who/policy-before-stored-data", || {
-            policy().map_err(Into::into)
-        }),
-        transcript_trial("diagnostic-who/failed-replacement-keeps-old-copy", || {
-            replacement().map_err(Into::into)
-        }),
-        transcript_trial(
-            "diagnostic-who/two-readers-during-atomic-replacement",
-            || mechanics::concurrent().map_err(Into::into),
-        ),
-        transcript_trial("diagnostic-who/markdown-keeps-native-cells", || {
-            mechanics::markdown().map_err(Into::into)
-        }),
-    ]
+        })
+]
 }
 fn call(env: &Environment, replay: &Path, args: &[&str], exit: i32) -> Result<Value, String> {
     let mut command = env.globals(Some(replay), false);

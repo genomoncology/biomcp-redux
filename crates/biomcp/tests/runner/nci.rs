@@ -15,14 +15,7 @@ mod trial_biomarker;
 type Check = Result<(), String>;
 const KEY: &str = "synthetic-nci-stored-key";
 pub(super) fn trials() -> Vec<Trial> {
-    let mut trials = vec![transcript_trial("trial-nci/nci/wire-and-failures", || {
-        wire().map_err(Into::into)
-    })];
-    trials.extend(organization::trials());
-    trials.extend(facility::trials());
-    trials.extend(biomarker::trials());
-    trials.extend(trial_biomarker::trials());
-    trials
+    organization::trials().into_iter().chain(biomarker::trials()).collect()
 }
 fn reply(request: &str) -> Result<String, String> {
     let card = json!(

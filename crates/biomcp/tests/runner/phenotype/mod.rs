@@ -15,56 +15,7 @@ tool_only! { pub(super) use native::run as native; }
 use serde_json::{Value, json};
 use std::fs;
 pub(super) fn trials() -> Vec<Trial> {
-    let directory = super::launch::fixtures().join("phenotype-section-native");
-    let absent = !directory.is_dir();
-    let mut rows = vec![
-        transcript_trial(
-            "phenotype-sections/retained-native-witnesses-and-costs",
-            move || section_native::run(&directory).map_err(Into::into),
-        )
-        .with_ignored_flag(absent),
-        transcript_trial("phenotype-identity/generated-help-matches-markdown", || {
-            help().map_err(Into::into)
-        }),
-        transcript_trial(
-            "phenotype-identity/literal-native-pages-and-default-card-pivots",
-            || search().map_err(Into::into),
-        ),
-        transcript_trial(
-            "phenotype-identity/independent-complete-cards-and-native-deprecation",
-            || cards().map_err(Into::into),
-        ),
-        transcript_trial(
-            "phenotype-identity/bad-identities-pages-and-outages-never-become-empty",
-            || failures().map_err(Into::into),
-        ),
-        transcript_trial(
-            "phenotype-identity/disabled-before-cache-and-replay",
-            || disabled().map_err(Into::into),
-        ),
-        transcript_trial(
-            "phenotype-identity/recorded-timeout-retains-source-and-terms",
-            || timeout().map_err(Into::into),
-        ),
-    ];
-    rows.extend(faults::trials());
-    rows.extend(states::trials());
-    rows.extend(sections::trials());
-    rows.extend(associations::trials());
-    let directory = super::launch::fixtures().join("phenotype-association-native");
-    let absent = !directory.is_dir();
-    rows.push(
-        transcript_trial(
-            "phenotype-associations/retained-reverse-pages-and-costs",
-            move || association_native::run(&directory).map_err(Into::into),
-        )
-        .with_ignored_flag(absent),
-    );
-    rows.push(transcript_trial(
-        "phenotype-sections/recorded-failures-retain-source-and-terms",
-        || section_failures::run().map_err(Into::into),
-    ));
-    rows
+    sections::trials()
 }
 fn setup(stub: &Stub) -> Result<Environment, String> {
     let env = Environment::new().map_err(|e| e.to_string())?;

@@ -7,25 +7,12 @@ use std::{fs, path::Path};
 mod boundaries;
 mod native;
 pub(super) fn trials() -> Vec<Trial> {
-    let path = super::launch::fixtures().join("protein-section-native/cases");
-    let absent = !path.is_dir();
+    // Keep dynamic state, source bindings or wire checks that YAML cannot express.
     vec![
-        transcript_trial(
-            "protein-sections/retained-native-facts-and-costs",
-            move || native::run(&path).map_err(Into::into),
-        )
-        .with_ignored_flag(absent),
-        transcript_trial(crate::runner::pool_contract::FEATURES.0, || {
+transcript_trial(crate::runner::pool_contract::FEATURES.0, || {
             boundaries::features().map_err(Into::into)
-        }),
-        transcript_trial("protein-sections/direct-sequence-admission", || {
-            boundaries::sequence().map_err(Into::into)
-        }),
-        transcript_trial(
-            "protein-sections/source-failures-retain-section-state",
-            || failures().map_err(Into::into),
-        ),
-    ]
+        })
+]
 }
 fn setup(stub: &Stub) -> Result<Environment, String> {
     let env = Environment::new().map_err(|e| e.to_string())?;

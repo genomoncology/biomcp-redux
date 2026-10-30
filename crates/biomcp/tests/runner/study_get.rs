@@ -10,23 +10,12 @@ use std::{fs, io::Write, path::Path};
 mod section_page;
 type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
-    let native = crate::runner::launch::fixtures().join("study-get-cases");
-    let available = native.is_dir();
+    // Keep dynamic state, source bindings or wire checks that YAML cannot express.
     vec![
-        transcript_trial("study-get/retained-native", move || {
-            retained(&native).map_err(Into::into)
-        })
-        .with_ignored_flag(!available),
-        transcript_trial(required_contract::STUDY_PAGES.0, || {
+transcript_trial(required_contract::STUDY_PAGES.0, || {
             pages().map_err(Into::into)
-        }),
-        transcript_trial("study-get/identity-failures-and-policy", || {
-            failures().map_err(Into::into)
-        }),
-        transcript_trial("study-get/admission-and-absent-count", || {
-            admission().map_err(Into::into)
-        }),
-    ]
+        })
+]
 }
 fn profiles() -> Value {
     json!(

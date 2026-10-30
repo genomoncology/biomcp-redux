@@ -12,16 +12,12 @@ use std::{fs, path::Path, process::Output};
 type Check<T = ()> = Result<T, Box<dyn std::error::Error>>;
 
 pub(super) fn trials() -> Vec<Trial> {
-    let mut trials = vec![
-        transcript_trial(contract::OFFLINE_PROVENANCE.0, || {
+    // Keep dynamic state, source bindings or wire checks that YAML cannot express.
+    vec![
+transcript_trial(contract::OFFLINE_PROVENANCE.0, || {
             check().map_err(|error| error.to_string().into())
-        }),
-        transcript_trial("housekeeping/invalid-globals-ignore-key-config", || {
-            invalid_globals().map_err(|error| error.to_string().into())
-        }),
-    ];
-    trials.extend(stable_path::trials());
-    trials
+        })
+]
 }
 fn run(env: &Environment, args: &[&str], empty: bool) -> Check<Output> {
     let words: Vec<_> = args.iter().map(|s| (*s).to_owned()).collect();

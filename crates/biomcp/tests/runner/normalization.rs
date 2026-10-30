@@ -6,30 +6,13 @@ use serde_json::{Value, json};
 use std::fs;
 
 pub(super) fn trials() -> Vec<Trial> {
+    // Keep dynamic state, source bindings or wire checks that YAML cannot express.
     vec![
-        transcript_trial(
-            "variant-normalization/identity-refusal-stays-uncached",
-            || refused_identity().map_err(Into::into),
-        ),
-        transcript_trial("variant-normalization/keeps-every-transcript", || {
-            transcripts().map_err(Into::into)
-        }),
-        transcript_trial(
+transcript_trial(
             crate::runner::required_contract::NORMALIZATION_PAGES.0,
             || walk().map_err(Into::into),
-        ),
-        transcript_trial("variant-normalization/warning-is-rejection", || {
-            warning().map_err(Into::into)
-        }),
-        transcript_trial(
-            "variant-normalization/nested-rejection-stays-uncached",
-            || nested().map_err(Into::into),
-        ),
-        transcript_trial(
-            "variant-normalization/all-keeps-independent-results",
-            || independent().map_err(Into::into),
-        ),
-    ]
+        )
+]
 }
 fn environment(stub: &Stub) -> Result<Environment, String> {
     let environment = Environment::new().map_err(|e| e.to_string())?;

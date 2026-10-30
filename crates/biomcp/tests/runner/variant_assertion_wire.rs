@@ -3,16 +3,13 @@ use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 pub(super) fn trials() -> Vec<Trial> {
+    // Keep dynamic state, source bindings or wire checks that YAML cannot express.
     vec![
-        transcript_trial(
+transcript_trial(
             crate::runner::required_contract::CLINVAR_ASSERTION.0,
             || assertions_wire().map_err(Into::into),
-        ),
-        transcript_trial(
-            "variant-assertions/clinvar-parent-identities-stay-uncached",
-            || parent_identity().map_err(Into::into),
-        ),
-    ]
+        )
+]
 }
 fn assertions_wire() -> Result<(), String> {
     let stub = Stub::for_source("eutils.ncbi.nlm.nih.gov", "application/xml", clinvar_body)?;

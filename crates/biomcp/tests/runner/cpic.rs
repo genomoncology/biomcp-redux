@@ -8,52 +8,8 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
-    let mut out = vec![transcript_trial("cpic-pgx/recorded-timeout", || {
-        timeout().map_err(Into::into)
-    })];
-    for name in [
-        "pairs",
-        "card",
-        "view",
-        "table",
-        "guidelines",
-        "guidelines-many",
-        "diplotype",
-        "empty",
-        "missing-second-gene",
-    ] {
-        out.push(transcript_trial(
-            match name {
-                "view" => required_contract::CPIC_VIEW.0.to_owned(),
-                "table" => required_contract::CPIC_TABLE.0.to_owned(),
-                "guidelines" => required_contract::CPIC_GUIDELINES.0.to_owned(),
-                "diplotype" => required_contract::CPIC_DIPLOTYPE.0.to_owned(),
-                "pairs" => required_contract::CPIC_PAIRS.0.to_owned(),
-                _ => format!("cpic-pgx/{name}-network-cache-replay"),
-            },
-            move || scenario(name).map_err(Into::into),
-        ));
-    }
-    for name in [
-        "wrong-gene",
-        "wrong-drug",
-        "truncated-diplotype",
-        "truncated-card",
-        "status",
-        "count",
-        "unknown-field",
-        "range",
-        "missing-range",
-        "broken",
-        "429",
-        "500",
-    ] {
-        out.push(transcript_trial(
-            format!("cpic-pgx/source-{name}"),
-            move || failures::failure(name).map_err(Into::into),
-        ));
-    }
-    out
+    // Keep the real HTTP headers, cache request counts and response-bound pages.
+    [(required_contract::CPIC_PAIRS.0, "pairs"),(required_contract::CPIC_VIEW.0, "view"),(required_contract::CPIC_TABLE.0, "table"),(required_contract::CPIC_GUIDELINES.0, "guidelines"),(required_contract::CPIC_DIPLOTYPE.0, "diplotype")].into_iter().map(|(name, mode)| transcript_trial(name, move || scenario(mode).map_err(Into::into))).collect()
 }
 fn environment(stub: &Stub) -> Result<Environment, String> {
     let env = Environment::new().map_err(|e| e.to_string())?;

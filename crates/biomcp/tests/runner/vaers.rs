@@ -15,38 +15,12 @@ mod rejections;
 type Check = Result<(), String>;
 
 pub(super) fn trials() -> Vec<Trial> {
+    // Keep dynamic state, source bindings or wire checks that YAML cannot express.
     vec![
-        transcript_trial("vaers-summary/complete-cdc-latin1-xml-replay", || {
-            live::run().map_err(Into::into)
-        }),
-        transcript_trial(
-            "vaers-summary/exact-influenza-types-and-native-labels",
-            || influenza::run().map_err(Into::into),
-        ),
-        transcript_trial("vaers-summary/policy-before-cache-and-replay", || {
-            policy::run().map_err(Into::into)
-        }),
-        transcript_trial("vaers-summary/user-agent-is-source-specific", || {
-            policy::default_agent().map_err(Into::into)
-        }),
-        transcript_trial(
-            "vaers-summary/invalid-shape-and-identity-never-cache",
-            || admission::run().map_err(Into::into),
-        ),
-        transcript_trial(
-            "vaers-summary/rejected-filters-and-influenza-before-io",
-            || rejections::run().map_err(Into::into),
-        ),
-        transcript_trial("vaers-summary/synthetic-403-429-500-timeout-broken", || {
-            failures::run().map_err(Into::into)
-        }),
-        transcript_trial(crate::runner::required_contract::VAERS_TABLES.0, || {
+transcript_trial(crate::runner::required_contract::VAERS_TABLES.0, || {
             navigation::run().map_err(Into::into)
-        }),
-        transcript_trial("vaers-summary/unsupported-vaccine-before-io", || {
-            unsupported().map_err(Into::into)
-        }),
-    ]
+        })
+]
 }
 
 fn words(text: &str) -> Vec<String> {

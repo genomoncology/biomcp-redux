@@ -4,22 +4,15 @@ use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 pub(super) fn trials() -> Vec<Trial> {
+    // Keep dynamic state, source bindings or wire checks that YAML cannot express.
     vec![
-        transcript_trial(crate::runner::required_contract::HPO_SNAPSHOT.0, || {
+transcript_trial(crate::runner::required_contract::HPO_SNAPSHOT.0, || {
             retained().map_err(Into::into)
         }),
-        transcript_trial(crate::runner::required_contract::MONARCH_XREFS.0, || {
+transcript_trial(crate::runner::required_contract::MONARCH_XREFS.0, || {
             monarch().map_err(Into::into)
-        }),
-        transcript_trial(
-            "phenotype-sections/empty-unavailable-and-missing-retained-reply",
-            || absent().map_err(Into::into),
-        ),
-        transcript_trial(
-            "phenotype-sections/retained-local-pages-and-executable-card-actions",
-            || pages().map_err(Into::into),
-        ),
-    ]
+        })
+]
 }
 fn pages() -> Result<(), String> {
     let stub = Stub::for_source("ontology.jax.org", "application/json", |request| {

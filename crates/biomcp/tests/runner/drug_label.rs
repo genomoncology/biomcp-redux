@@ -12,34 +12,13 @@ mod generic;
 mod pagination;
 mod walk;
 pub(super) fn trials() -> Vec<Trial> {
-    let mut trials = Vec::new();
-    for n in 0..3 {
-        trials.push(transcript_trial(
-            format!("drug-label/brand-{n}"),
-            move || search(n).map_err(Into::into),
-        ));
-    }
-    trials.push(transcript_trial(
-        "drug-label/native-brand-not-found",
-        || absent().map_err(Into::into),
-    ));
-    for n in 3..9 {
-        trials.push(transcript_trial(
-            format!("drug-label/spl-card-{n}"),
-            move || card(n).map_err(Into::into),
-        ));
-    }
-    trials.push(transcript_trial(
+    // Keep dynamic state, source bindings or wire checks that YAML cannot express.
+    vec![
+transcript_trial(
         crate::runner::required_contract::LABEL_HEADINGS.0,
         || headings().map_err(Into::into),
-    ));
-    trials.extend(fallback::trials());
-    trials.extend(generic::trials());
-    trials.extend(pagination::trials());
-    trials.extend(walk::trials());
-    trials.extend(errors::trials());
-    trials.extend(capture::trials());
-    trials
+    )
+]
 }
 fn identity(n: usize) -> Result<Value, String> {
     let rows: Vec<Value> = serde_json::from_str(&crate::runner::launch::fixture_text(

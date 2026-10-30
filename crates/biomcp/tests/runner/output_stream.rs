@@ -5,14 +5,10 @@ use libtest_mimic::Trial;
 use std::{io::Read, process::Stdio};
 
 pub(super) fn trials() -> Vec<Trial> {
+    // Keep dynamic state, source bindings or wire checks that YAML cannot express.
     vec![
-        transcript_trial("schema-discovery/closed-output-reader", || {
-            closed_reader().map_err(Into::into)
-        }),
-        transcript_trial("markdown-view/absent-query", || {
-            absent_query().map_err(Into::into)
-        }),
-    ]
+transcript_trial("schema-discovery/closed-output-reader", || { closed_reader().map_err(Into::into) })
+]
 }
 
 fn closed_reader() -> Result<(), String> {

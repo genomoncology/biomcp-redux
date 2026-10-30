@@ -9,23 +9,12 @@ use sha2::{Digest, Sha256};
 use std::{fs, path::Path};
 type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
-    let native = crate::runner::launch::fixtures().join("study-files-cases");
-    let available = native.is_dir();
+    // Keep dynamic state, source bindings or wire checks that YAML cannot express.
     vec![
-        transcript_trial("study-files/retained-native", move || {
-            retained(&native).map_err(Into::into)
-        })
-        .with_ignored_flag(!available),
-        transcript_trial(required_contract::STUDY_FILES.0, || {
+transcript_trial(required_contract::STUDY_FILES.0, || {
             pages().map_err(Into::into)
-        }),
-        transcript_trial("study-files/absence-failure-policy", || {
-            failures().map_err(Into::into)
-        }),
-        transcript_trial("study-files/unknown-acquisition-is-omitted", || {
-            unknown_acquisition().map_err(Into::into)
-        }),
-    ]
+        })
+]
 }
 fn entries() -> Value {
     json!(

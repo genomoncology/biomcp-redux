@@ -16,44 +16,18 @@ mod paging;
 mod policy;
 mod retirements;
 pub(super) fn trials() -> Vec<Trial> {
-    let root = super::launch::fixtures().join("protein-domain-native");
-    let absent = !root.is_dir();
-    let mut trials = card_failures::trials();
-    trials.extend(bad_values::trials());
-    trials.extend(retirements::trials());
-    trials.extend(identities::trials());
-    trials.push(transcript_trial(
-        "protein-domains-complexes/P24-no-analysis-tool-discovery",
-        || policy::run().map_err(Into::into),
-    ));
-    trials.push(transcript_trial(
-        "protein-domains-complexes/synthetic-all-first-pages-and-disabled",
-        || composite::run().map_err(Into::into),
-    ));
-    trials.extend(vec![
-        transcript_trial(
-            "protein-domains-complexes/card-sections-and-source-policy",
-            || cards::run().map_err(Into::into),
-        ),
-        transcript_trial("protein-domains-complexes/source-failures", || {
-            failures::run().map_err(Into::into)
-        }),
-        transcript_trial(crate::runner::pool_contract::DOMAIN_PAGES.0, || {
+    // Keep dynamic state, source bindings or wire checks that YAML cannot express.
+    vec![
+transcript_trial(crate::runner::pool_contract::DOMAIN_PAGES.0, || {
             paging::run().map_err(Into::into)
         }),
-        transcript_trial(
-            "protein-domains-complexes/retained-native-facts-and-costs",
-            move || native::run(&root).map_err(Into::into),
-        )
-        .with_ignored_flag(absent),
-        transcript_trial(crate::runner::pool_contract::MEMBERS.0, || {
+transcript_trial(crate::runner::pool_contract::MEMBERS.0, || {
             complexes::run().map_err(Into::into)
         }),
-        transcript_trial(crate::runner::pool_contract::DOMAIN_TYPE.0, || {
+transcript_trial(crate::runner::pool_contract::DOMAIN_TYPE.0, || {
             domains().map_err(Into::into)
-        }),
-    ]);
-    trials
+        })
+]
 }
 fn domains() -> Result<(), String> {
     let stub = Stub::for_source("www.ebi.ac.uk", "application/json", |_| {

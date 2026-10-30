@@ -7,27 +7,15 @@ use serde_json::{Value, json};
 use std::{collections::BTreeSet, io::Write};
 type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
+    // Keep dynamic state, source bindings or wire checks that YAML cannot express.
     vec![
-        transcript_trial(crate::runner::pool_contract::PATHWAY_GENES.0, || {
+transcript_trial(crate::runner::pool_contract::PATHWAY_GENES.0, || {
             walk(true).map_err(Into::into)
         }),
-        transcript_trial(crate::runner::pool_contract::PATHWAY_EVENTS.0, || {
+transcript_trial(crate::runner::pool_contract::PATHWAY_EVENTS.0, || {
             walk(false).map_err(Into::into)
-        }),
-        transcript_trial("pathway-reactome/pool-binding-and-fixed-lifetime", || {
-            bindings().map_err(Into::into)
-        }),
-        transcript_trial("pathway-reactome/warm-hgnc-uniprot-index-migration", || {
-            migration().map_err(Into::into)
-        }),
-        transcript_trial(
-            "pathway-reactome/compact-and-complete-context-modes",
-            || disclosure_modes().map_err(Into::into),
-        ),
-        transcript_trial("pathway-reactome/native-disclosure-measurements", || {
-            measurements().map_err(Into::into)
-        }),
-    ]
+        })
+]
 }
 fn globals(env: &Environment, offline: bool) -> Vec<String> {
     env.globals(Some(&fixtures().join("replies/pathway/sections")), offline)

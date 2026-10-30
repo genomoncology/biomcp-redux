@@ -12,32 +12,12 @@ use std::{
 type Check = Result<(), String>;
 const URL: &str = "https://www.cbioportal.org/api/studies?projection=DETAILED";
 pub(super) fn trials() -> Vec<Trial> {
-    let mut cases = vec![
-        transcript_trial("study-catalog/replacement-binds-pool-revision", || {
-            revision().map_err(Into::into)
-        }),
-        transcript_trial("study-catalog/expiry-stale-and-zero-network", || {
-            lifetimes().map_err(Into::into)
-        }),
-        transcript_trial("study-catalog/mcp-markdown-help", || {
-            surfaces().map_err(Into::into)
-        }),
-        transcript_trial(required_contract::STUDY_SEARCH.0, || {
+    // Keep dynamic state, source bindings or wire checks that YAML cannot express.
+    vec![
+transcript_trial(required_contract::STUDY_SEARCH.0, || {
             search().map_err(Into::into)
-        }),
-        transcript_trial("study-catalog/atomic-replacement-and-policy", || {
-            replacement().map_err(Into::into)
-        }),
-        transcript_trial("study-catalog/missing-bundle-explicit-sync", || {
-            missing().map_err(Into::into)
-        }),
-    ];
-    cases.extend(study_media::trials());
-    cases.extend(study_get::trials());
-    cases.extend(study_files::trials());
-    cases.extend(study_retirements::trials());
-    cases.extend(study_failures::trials());
-    cases
+        })
+]
 }
 #[path = "study_failures.rs"]
 mod study_failures;

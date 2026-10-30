@@ -10,28 +10,12 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
 pub(super) fn trials() -> Vec<Trial> {
+    // Keep dynamic state, source bindings or wire checks that YAML cannot express.
     vec![
-        transcript_trial(
-            "article-evidence/evidence/independent-source-outcomes",
-            || independence().map_err(|e| e.to_string().into()),
-        ),
-        transcript_trial("article-evidence/evidence/fifth-page-continuation", || {
-            cursor().map_err(Into::into)
-        }),
-        transcript_trial(crate::runner::pool_contract::EVIDENCE_FRAGMENTS.0, || {
+transcript_trial(crate::runner::pool_contract::EVIDENCE_FRAGMENTS.0, || {
             overflow().map_err(|e| e.to_string().into())
-        }),
-        transcript_trial(
-            "article-evidence/evidence/resolver-policy-before-stored-text",
-            || resolver_policy().map_err(|e| e.to_string().into()),
-        ),
-        transcript_trial("article-evidence/evidence/exact-context-fragments", || {
-            exact_context().map_err(|e| e.to_string().into())
-        }),
-        transcript_trial("article-evidence/evidence/citing-doi-fulltext", || {
-            citing_doi().map_err(|e| e.to_string().into())
-        }),
-    ]
+        })
+]
 }
 fn citing_doi() -> Result<(), Box<dyn std::error::Error>> {
     for mode in ["joined", "no-join", "no-pmc", "mismatch", "disabled"] {

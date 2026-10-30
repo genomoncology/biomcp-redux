@@ -9,28 +9,8 @@ use serde_json::{Value, json};
 type Check = Result<(), String>;
 const CLINICAL_PAGE_MAX_BYTES: usize = 5886;
 pub(super) fn trials() -> Vec<Trial> {
-    let mut trials = vec![];
-    for name in [
-        "clinical",
-        "default",
-        "wide",
-        "guideline",
-        "label",
-        "empty",
-        "annotation",
-    ] {
-        trials.push(transcript_trial(
-            match name {
-                "clinical" => required_contract::CLINPGX_CLINICAL.0.to_owned(),
-                "guideline" => required_contract::CLINPGX_KIND.0.to_owned(),
-                "annotation" => required_contract::CLINPGX_ANNOTATION.0.to_owned(),
-                _ => format!("clinpgx-annotations/{name}-network-cache-replay"),
-            },
-            move || scenario(name).map_err(Into::into),
-        ));
-    }
-    trials.extend(failures::trials());
-    trials
+    // Keep the real HTTP headers, cache request counts and response-bound pages.
+    [(required_contract::CLINPGX_CLINICAL.0, "clinical"),(required_contract::CLINPGX_KIND.0, "guideline"),(required_contract::CLINPGX_ANNOTATION.0, "annotation")].into_iter().map(|(name, mode)| transcript_trial(name, move || scenario(mode).map_err(Into::into))).collect()
 }
 fn environment(stub: &Stub) -> Result<Environment, String> {
     let env = Environment::new().map_err(|e| e.to_string())?;

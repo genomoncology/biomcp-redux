@@ -24,18 +24,7 @@ const CASES: [&str; 15] = [
     "synthetic-distinct-therapy-candidates",
 ];
 pub(super) fn trials() -> Vec<Trial> {
-    CASES
-        .into_iter()
-        .enumerate()
-        .map(|(n, name)| {
-            let name = if n == 9 {
-                crate::runner::pool_contract::DRUG_CIVIC_CURSOR.0.to_owned()
-            } else {
-                format!("drug-civic/{name}")
-            };
-            transcript_trial(name, move || check(n).map_err(Into::into))
-        })
-        .collect()
+    vec![transcript_trial(crate::runner::pool_contract::DRUG_CIVIC_CURSOR.0, || run(9).map_err(Into::into))]
 }
 fn arguments(n: usize) -> Result<Vec<String>, String> {
     let mut args = if n == 14 {

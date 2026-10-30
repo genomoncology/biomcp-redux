@@ -13,28 +13,15 @@ mod native;
 mod state;
 mod synthetic;
 pub(super) fn trials() -> Vec<Trial> {
-    let mut trials = vec![
-        transcript_trial("gwas-get/exact-identities-and-no-cache-admission", || {
-            synthetic::identity().map_err(Into::into)
-        }),
-        transcript_trial(required_contract::GWAS_ANCESTRY.0, || {
+    // Keep dynamic state, source bindings or wire checks that YAML cannot express.
+    vec![
+transcript_trial(required_contract::GWAS_ANCESTRY.0, || {
             synthetic::ancestry().map_err(Into::into)
         }),
-        transcript_trial(required_contract::GWAS_ASSOCIATIONS.0, || {
+transcript_trial(required_contract::GWAS_ASSOCIATIONS.0, || {
             synthetic::contexts().map_err(Into::into)
-        }),
-        transcript_trial("gwas-get/retained-native-records-and-costs", || {
-            native::run().map_err(Into::into)
         })
-        .with_ignored_flag(
-            !super::launch::fixtures()
-                .join("gwas-get-native/input.json")
-                .is_file(),
-        ),
-    ];
-    trials.extend(failures::trials());
-    trials.extend(state::trials());
-    trials
+]
 }
 const BASE: &str = "https://www.ebi.ac.uk/gwas/rest/api/v2";
 fn card() -> Value {

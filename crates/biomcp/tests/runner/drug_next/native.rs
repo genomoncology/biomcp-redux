@@ -10,10 +10,13 @@ use std::{
 };
 
 pub(super) fn trials() -> Vec<Trial> {
-    vec![transcript_trial(
+    // Keep dynamic state, source bindings or wire checks that YAML cannot express.
+    vec![
+transcript_trial(
         crate::runner::pool_contract::DRUG_CIVIC.0,
         || run().map_err(Into::into),
-    )]
+    )
+]
 }
 fn run() -> Result<(), String> {
     use sha2::{Digest, Sha256};

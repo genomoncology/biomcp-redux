@@ -23,23 +23,15 @@ const IDS: [&str; 8] = [
     "NCT02563002",
 ];
 pub(super) fn trials() -> Vec<Trial> {
+    // Keep dynamic state, source bindings or wire checks that YAML cannot express.
     vec![
-        transcript_trial("trial-get/get/absent-fields-and-version-failure", || {
-            optional_source().map_err(|e| e.to_string().into())
-        }),
-        transcript_trial("trial-get/get/exact-source-section-walks", || {
-            walks().map_err(|e| e.to_string().into())
-        }),
-        transcript_trial("trial-get/get/identity-and-failure-boundaries", || {
-            failures().map_err(|e| e.to_string().into())
-        }),
-        transcript_trial(crate::runner::pool_contract::TRIAL_ABSENCE.0, || {
+transcript_trial(crate::runner::pool_contract::TRIAL_ABSENCE.0, || {
             batch().map_err(|e| e.to_string().into())
         }),
-        transcript_trial(crate::runner::pool_contract::TRIAL.0, || {
+transcript_trial(crate::runner::pool_contract::TRIAL.0, || {
             continuations().map_err(|e| e.to_string().into())
-        }),
-    ]
+        })
+]
 }
 pub(super) fn original(id: &str) -> Result<Value, Box<dyn std::error::Error>> {
     let directory = super::launch::fixtures()

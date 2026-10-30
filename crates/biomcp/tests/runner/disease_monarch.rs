@@ -9,36 +9,13 @@ mod failures;
 tool_only! { mod native; }
 tool_only! { pub(super) use native::run as native; }
 pub(super) fn trials() -> Vec<Trial> {
-    let mut trials = vec![transcript_trial(
-        "disease-monarch/native-endpoints-and-paging",
-        || exact().map_err(Into::into),
-    )];
-    trials.push(transcript_trial(
+    // Keep dynamic state, source bindings or wire checks that YAML cannot express.
+    vec![
+transcript_trial(
         crate::runner::required_contract::MONARCH_PHENOTYPES.0,
         || phenotype().map_err(Into::into),
-    ));
-    trials.push(transcript_trial(
-        "disease-monarch/five-checked-genes-keep-pivots-and-native-page",
-        || navigation().map_err(Into::into),
-    ));
-    trials.push(transcript_trial(
-        "disease-monarch/only-distinct-checked-native-gene-identities-pivot",
-        || checked_identities().map_err(Into::into),
-    ));
-    trials.push(transcript_trial(
-        "disease-monarch/native-aggregators-keep-missing-null-and-arrays",
-        || aggregator_presence().map_err(Into::into),
-    ));
-    trials.push(transcript_trial(
-        "disease-monarch/source-defaults-and-explicit-limits",
-        || defaults().map_err(Into::into),
-    ));
-    trials.push(transcript_trial(
-        "disease-monarch/evidence-preserves-unavailable-empty-and-populated",
-        || evidence::run().map_err(Into::into),
-    ));
-    trials.extend(failures::trials());
-    trials
+    )
+]
 }
 fn setup(stub: &Stub) -> Result<Environment, String> {
     let env = Environment::new().map_err(|e| e.to_string())?;

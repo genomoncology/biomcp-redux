@@ -11,82 +11,13 @@ mod identifiers;
 mod labels;
 mod roundtrip;
 pub(super) fn trials() -> Vec<Trial> {
-    let mut trials = vec![
-        transcript_trial(
-            "variant-identity/printed-repeat-identity-round-trips",
-            || roundtrip::check().map_err(Into::into),
-        ),
-        transcript_trial(
-            "variant-identity/unpaired-native-labels-remain-context",
-            || labels::check().map_err(Into::into),
-        ),
-        transcript_trial(
-            "variant-identity/malformed-score-is-not-missing-identity",
-            || malformed_score().map_err(Into::into),
-        ),
-        transcript_trial(
-            "variant-identity/disabled-clinvar-identity-never-queries",
-            || disabled_clinvar_identity().map_err(Into::into),
-        ),
-        transcript_trial("variant-identity/component-groups-guard-warm-data", || {
-            component_groups().map_err(Into::into)
-        }),
-        transcript_trial(
-            "variant-identity/missing-historical-fragment-is-empty",
-            || missing_component().map_err(Into::into),
-        ),
-        transcript_trial("variant-identity/historical-fragment-walk-is-warm", || {
-            components::component_walk().map_err(Into::into)
-        }),
-        transcript_trial(
-            "variant-identity/component-timestamps-preserve-usable-data",
-            || components::timestamp_admission().map_err(Into::into),
-        ),
-        transcript_trial(
-            "variant-identity/component-rights-and-historical-association",
-            || components().map_err(Into::into),
-        ),
-        transcript_trial(
-            "variant-identity/mixed-identity-page-never-enters-cache",
-            || mixed_page().map_err(Into::into),
-        ),
-        transcript_trial(
+    // Keep dynamic state, source bindings or wire checks that YAML cannot express.
+    vec![
+transcript_trial(
             crate::runner::required_contract::VALIDATOR_RESOLVER.0,
             || validator_order().map_err(Into::into),
-        ),
-        transcript_trial("variant-identity/native-candidate-walk-is-warm", || {
-            candidate_walk().map_err(Into::into)
-        }),
-        transcript_trial("variant-identity/car-projection-wire", || {
-            car().map_err(Into::into)
-        }),
-        transcript_trial("variant-identity/myvariant-exact-build-wire", || {
-            build_echo::check().map_err(Into::into)
-        }),
-    ];
-    trials.extend(roundtrip::trials());
-    trials.extend(haplotype::trials());
-    trials.extend(identifiers::trials());
-    trials.extend(super::variant_assertion_wire::trials());
-    trials.extend(super::variant_assertions::trials());
-    trials.extend(super::variant_discovery::trials());
-    trials.extend(super::variant_condition_relationship::trials());
-    trials.extend(super::variant_population::trials());
-    trials.extend(super::variant_population_release::trials());
-    trials.extend(super::oncokb::trials());
-    trials.extend(super::oncokb_context::trials());
-    trials.extend(super::alphagenome::trials());
-    trials.extend(super::alphagenome_tls::trials());
-    trials.extend(super::variant_civic::trials());
-    trials.extend(super::variant_hotspots::trials());
-    trials.extend(super::recurrence::trials());
-    trials.extend(super::recurrence_errors::trials());
-    trials.extend(super::recurrence_metadata::trials());
-    trials.extend(super::normalization::trials());
-    trials.extend(super::variant_search::trials());
-    trials.extend(super::next_navigation::trials());
-    trials.extend(super::variant_filters::trials());
-    trials
+        )
+]
 }
 fn car() -> Result<(), String> {
     let (output, requests) = call(

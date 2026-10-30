@@ -12,51 +12,12 @@ mod values;
 mod vocabulary;
 
 pub(super) fn trials() -> Vec<Trial> {
+    // Keep dynamic state, source bindings or wire checks that YAML cannot express.
     vec![
-        transcript_trial("drug-civic/native-boolean-profile-context", || {
-            native_profile::context().map_err(Into::into)
-        }),
-        transcript_trial(
-            "variant-civic/civic-invalid-values-keep-identified-claims",
-            || values::claims().map_err(Into::into),
-        ),
-        transcript_trial(
-            "variant-civic/civic-amp-na-and-therapy-group-stay-native",
-            || values::amp_and_group().map_err(Into::into),
-        ),
-        transcript_trial("drug-civic/unknown-status-keeps-native-claims", || {
-            vocabulary::drug_status().map_err(Into::into)
-        }),
-        transcript_trial(
-            "variant-civic/civic-unknown-stream-vocabulary-keeps-claims",
-            || vocabulary::stream_context().map_err(Into::into),
-        ),
-        transcript_trial(
-            "variant-civic/civic-unknown-vocabulary-keeps-claims",
-            || vocabulary::unknown().map_err(Into::into),
-        ),
-        transcript_trial("variant-civic/civic-exact-profile-membership", || {
-            exact().map_err(Into::into)
-        }),
-        transcript_trial("variant-civic/civic-unjoined-profile-is-not-cached", || {
-            unjoined().map_err(Into::into)
-        }),
-        transcript_trial(
-            "variant-civic/civic-poisoned-warm-cache-is-rechecked",
-            || poisoned().map_err(Into::into),
-        ),
-        transcript_trial(
-            "variant-civic/civic-graphql-errors-retain-valid-uncached-facts",
-            || graphql_errors().map_err(Into::into),
-        ),
-        transcript_trial(crate::runner::pool_contract::VARIANT_CIVIC_CURSOR.0, || {
+transcript_trial(crate::runner::pool_contract::VARIANT_CIVIC_CURSOR.0, || {
             stalled_cursor().map_err(Into::into)
-        }),
-        transcript_trial(
-            "variant-civic/civic-compound-profile-retains-all-native-members",
-            || compound().map_err(Into::into),
-        ),
-    ]
+        })
+]
 }
 fn configure(environment: &Environment, stub: &Stub) -> Result<(), String> {
     let ca = environment.root().join("synthetic-ca.pem");

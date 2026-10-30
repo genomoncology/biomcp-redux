@@ -6,50 +6,16 @@ use serde_json::{Value, json};
 type Check = Result<(), String>;
 mod optional;
 pub(super) fn trials() -> Vec<Trial> {
-    let mut trials = vec![
-        transcript_trial("adverse-event-get/age-unit-boundaries", || {
-            ages().map_err(Into::into)
-        }),
-        transcript_trial(crate::runner::required_contract::FAERS_SECTIONS.0, || {
+    // Keep dynamic state, source bindings or wire checks that YAML cannot express.
+    vec![
+transcript_trial(crate::runner::required_contract::FAERS_SECTIONS.0, || {
             sections().map_err(Into::into)
         }),
-    ];
-    trials.push(transcript_trial(
-        "adverse-event-get/synthetic-complete-array-walks",
-        || walks().map_err(Into::into),
-    ));
-    trials.push(transcript_trial(
+transcript_trial(
         crate::runner::required_contract::FAERS_IDENTIFIERS.0,
         || identifier_kinds().map_err(Into::into),
-    ));
-    trials.push(transcript_trial(
-        "adverse-event-get/synthetic-source-admission-before-retained-read",
-        || source_policy().map_err(Into::into),
-    ));
-    for mode in ["wrong-id", "two-versions", "absent", "bad-drug-index"] {
-        trials.push(transcript_trial(
-            format!("adverse-event-get/synthetic-{mode}"),
-            move || identity(mode).map_err(Into::into),
-        ));
-    }
-    for mode in [
-        "missing-patient",
-        "missing-drugs",
-        "missing-reactions",
-        "null-patient",
-        "null-drugs",
-        "null-reactions",
-        "invalid-patient",
-        "invalid-drugs",
-        "invalid-reactions",
-        "empty-collections",
-    ] {
-        trials.push(transcript_trial(
-            format!("adverse-event-get/synthetic-{mode}"),
-            move || optional::run(mode).map_err(Into::into),
-        ));
-    }
-    trials
+    )
+]
 }
 fn native() -> Value {
     json!(

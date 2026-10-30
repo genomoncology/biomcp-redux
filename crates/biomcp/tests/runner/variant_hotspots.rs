@@ -5,10 +5,13 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
 pub(super) fn trials() -> Vec<Trial> {
-    vec![transcript_trial(
+    // Keep dynamic state, source bindings or wire checks that YAML cannot express.
+    vec![
+transcript_trial(
         crate::runner::required_contract::HOTSPOTS.0,
         || candidate().map_err(Into::into),
-    )]
+    )
+]
 }
 fn candidate() -> Result<(), String> {
     let stub = Stub::for_sources(

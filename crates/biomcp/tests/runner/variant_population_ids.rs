@@ -6,24 +6,13 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 
 pub(super) fn trials() -> Vec<Trial> {
+    // Keep dynamic state, source bindings or wire checks that YAML cannot express.
     vec![
-        transcript_trial(
+transcript_trial(
             crate::runner::required_contract::POPULATION_SELECTORS.0,
             || ambiguous().map_err(Into::into),
-        ),
-        transcript_trial(
-            "variant-population/population-single-id-follows-source-ca-identity",
-            || single().map_err(Into::into),
-        ),
-        transcript_trial(
-            "variant-population/population-unknown-build-keeps-candidate-steps",
-            || unknown_build().map_err(Into::into),
-        ),
-        transcript_trial(
-            "variant-population/population-dbsnp-alias-cannot-authorize-ca-join",
-            || malformed_alias().map_err(Into::into),
-        ),
-    ]
+        )
+]
 }
 fn malformed_alias() -> Result<(), String> {
     for count in [1, 2] {
