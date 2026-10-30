@@ -174,57 +174,11 @@ mod wikipathways;
 pub(super) const CLI_HELP_BYTES: usize = 131414;
 
 use libtest_mimic::Trial;
-use serde::Deserialize;
 use serde_json::Value;
-use std::{collections::BTreeMap, fs, path::Path, sync::Arc};
+use std::{fs, path::Path, sync::Arc};
 
-// Maintained serde YAML parser; only deserialization is needed. Its typed parser
-// rejects unknown fields so a misspelled assertion cannot silently pass.
-// https://docs.rs/serde-saphyr/latest/serde_saphyr/#using-serializer-or-deserializer-specifically
-#[derive(Debug, Deserialize)]
-#[serde(deny_unknown_fields)]
-struct Case {
-    #[serde(rename = "live_check")]
-    _live_check: Option<String>,
-    feature: String,
-    story: String,
-    replay: Option<String>,
-    cache_acquired: Option<i64>,
-    config: Option<Value>,
-    #[serde(rename = "harvest", default)]
-    _harvest: Option<String>,
-    #[serde(rename = "verified", default)]
-    _verified: Option<String>,
-    steps: Vec<Step>,
-}
-
-#[derive(Clone, Debug, Deserialize)]
-#[serde(deny_unknown_fields)]
-struct Step {
-    run: Option<Vec<String>>,
-    follow: Option<String>,
-    walk: Option<Walk>,
-    #[serde(default)]
-    offline: bool,
-    mcp: Option<Vec<String>>,
-    #[serde(default)]
-    is_error: bool,
-    #[serde(default)]
-    exit: i32,
-    #[serde(default)]
-    full_output_bytes: bool,
-    max_bytes: Option<usize>,
-    max_tokens: Option<usize>,
-    #[serde(default)]
-    expect: BTreeMap<String, Value>,
-}
-
-#[derive(Clone, Debug, Deserialize)]
-#[serde(deny_unknown_fields)]
-struct Walk {
-    items: String,
-    max_pages: u32,
-}
+mod case_data;
+use case_data::{Case, Step, collect, read_case};
 
 pub(super) fn discover(root: &Path) -> Result<Vec<Trial>, String> {
     let mut paths = Vec::new();
@@ -255,26 +209,6 @@ pub(super) fn discover(root: &Path) -> Result<Vec<Trial>, String> {
     Ok(trials)
 }
 
-fn collect(root: &Path, paths: &mut Vec<std::path::PathBuf>) -> std::io::Result<()> {
-    for entry in fs::read_dir(root)? {
-        let path = entry?.path();
-        if path.is_dir() {
-            collect(&path, paths)?;
-        } else if path
-            .extension()
-            .is_some_and(|ext| ext == "yaml" || ext == "yml")
-        {
-            paths.push(path);
-        }
-    }
-    Ok(())
-}
-
-fn read_case(path: &Path) -> Result<Case, String> {
-    let text = fs::read_to_string(path).map_err(|error| error.to_string())?;
-    serde_saphyr::from_str(&text).map_err(|error| format!("{}: {error}", path.display()))
-}
-
 pub(super) fn validate_features(trials: &[Trial], complete: bool) -> Result<(), String> {
     features::validate(
         launch::feature_list(),
@@ -294,8 +228,20 @@ fn run_case(path: &Path, registry: &schema::Registry) -> Result<Value, String> {
         .iter()
         .enumerate()
         .map(|(index, step)| {
-            if step.run.is_none() && step.mcp.is_none() && step.follow.is_none() {
-                return Err("step requires run or mcp".into());
+            if step.mcp_call.is_some()
+                && (step.run.is_some()
+                    || step.mcp.is_some()
+                    || step.follow.is_some()
+                    || step.walk.is_some())
+            {
+                return Err("named MCP call requires its own step".into());
+            }
+            if step.run.is_none()
+                && step.mcp.is_none()
+                && step.mcp_call.is_none()
+                && step.follow.is_none()
+            {
+                return Err("step requires run, mcp or mcp_call".into());
             }
             assertions::prepare(step)
                 .map_err(|error| format!("{}; step {}: {error}", case.story, index + 1))
