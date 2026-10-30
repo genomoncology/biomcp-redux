@@ -20,6 +20,9 @@ pub(super) type Expectations<'a> = Vec<(&'a str, &'a Value, Vec<Assertion<'a>>)>
 
 pub(super) fn prepare(step: &Step) -> Result<Expectations<'_>, String> {
     local_forms(step)?;
+    if markdown(step) {
+        markdown_forms(step)?;
+    }
     step.expect
         .iter()
         .map(|(pointer, value)| {
@@ -113,9 +116,87 @@ fn local_forms(step: &Step) -> Result<(), String> {
                     && !args
                         .get(1)
                         .is_some_and(|word| matches!(word.as_str(), "install" | "status"))
+                || markdown(step)
         })
     {
         return Err("literal stdout requires a plain-text local command".into());
+    }
+    Ok(())
+}
+
+/// Only an explicit format option before the CLI literal separator selects text assertions.
+pub(super) fn markdown(step: &Step) -> bool {
+    step.run.as_ref().is_some_and(|args| {
+        let words = args
+            .iter()
+            .take_while(|word| word.as_str() != "--")
+            .collect::<Vec<_>>();
+        words.iter().any(|word| word.as_str() == "--format=md")
+            || words
+                .windows(2)
+                .any(|pair| pair[0] == "--format" && pair[1] == "md")
+    })
+}
+
+fn markdown_forms(step: &Step) -> Result<(), String> {
+    if step.mcp.is_some() || step.mcp_call.is_some() || step.follow.is_some() || step.walk.is_some()
+    {
+        return Err("Markdown assertions require one explicit CLI call".into());
+    }
+    if step.max_tokens.is_some() {
+        return Err("Markdown assertions use raw max_bytes".into());
+    }
+    for (pointer, options) in &step.expect {
+        let options = options
+            .as_object()
+            .ok_or("Markdown assertions require includes or includes_all_of")?;
+        if !pointer.is_empty()
+            || options.is_empty()
+            || options
+                .iter()
+                .any(|(operator, expected)| match operator.as_str() {
+                    "includes" => expected.as_str().is_none(),
+                    "includes_all_of" => !expected
+                        .as_array()
+                        .is_some_and(|items| items.iter().all(Value::is_string)),
+                    _ => true,
+                })
+        {
+            return Err("Markdown assertions require root includes strings or includes_all_of string arrays".into());
+        }
+    }
+    Ok(())
+}
+
+pub(super) fn check_markdown(
+    stdout: &[u8],
+    step: &Step,
+    expectations: &Expectations<'_>,
+) -> Result<(), String> {
+    ceiling(
+        "stdout",
+        "max_bytes",
+        stdout.len(),
+        step.max_bytes.map(|value| value as u64),
+    )?;
+    let text = std::str::from_utf8(stdout).map_err(|error| error.to_string())?;
+    for (_, _, assertions) in expectations {
+        for assertion in assertions {
+            let expected = match assertion {
+                Assertion::Includes(value) => std::slice::from_ref(*value),
+                Assertion::IncludesAllOf(value) => value
+                    .as_array()
+                    .ok_or("Markdown includes_all_of requires strings")?
+                    .as_slice(),
+                _ => return Err("unsupported Markdown assertion".into()),
+            };
+            for value in expected {
+                let required = value.as_str().ok_or("Markdown includes requires strings")?;
+                if !text.contains(required) {
+                    return Err(format!("stdout includes: expected text {required:?}"));
+                }
+            }
+        }
     }
     Ok(())
 }

@@ -69,6 +69,9 @@ fn cli(
     if !output.stderr.is_empty() {
         return Err("error output: expected empty stderr".into());
     }
+    if assertions::markdown(step) {
+        assertions::check_markdown(&output.stdout, step, expectations)?;
+    }
     if let Some(expected) = &step.stdout {
         if serde_json::from_slice::<Value>(&output.stdout).is_ok() {
             return Err("literal stdout requires plain text, not a JSON reply".into());
@@ -80,6 +83,11 @@ fn cli(
             ));
         }
         return Ok(Value::String(expected.clone()));
+    }
+    if assertions::markdown(step) {
+        return String::from_utf8(output.stdout)
+            .map(Value::String)
+            .map_err(|error| error.to_string());
     }
     let value =
         serde_json::from_slice::<Value>(&output.stdout).map_err(|error| error.to_string())?;

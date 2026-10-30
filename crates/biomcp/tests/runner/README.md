@@ -33,6 +33,12 @@ JSON. By default, registered source policy fields are excluded from these step c
 Set `full_output_bytes: true` to count the complete emitted CLI stdout, including
 its newline, or the actual MCP content text. Its token estimate uses those same
 bytes divided by four, rounded up. RPC framing remains separate.
+An explicit CLI `--format md` or `--format=md` before a literal `--` accepts
+root `expect` assertions with `includes` for one substring or `includes_all_of`
+for an array of required substrings. Markdown checks raw `max_bytes`; JSON
+pointers, other operators, MCP parity and token ceilings remain unavailable for
+that text assertion form. Literal `stdout` still compares the complete output.
+
 Arrays are ordered. Membership ignores multiplicity. Missing paths fail;
 explicit null is a value. Ordinary empty arrays can equal `[]`, have count zero,
 and fail membership normally. A missing rank member fails.
