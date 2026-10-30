@@ -164,10 +164,8 @@ fn series() -> Check {
                     if let Some(slot) = row.pointer_mut("/1") {
                         *slot = json!("invalid optional rate");
                     };
-                    if invalid {
-                        if let Some(slot) = row.pointer_mut("/0") {
-                            *slot = json!("invalid year");
-                        };
+                    if invalid && let Some(slot) = row.pointer_mut("/0") {
+                        *slot = json!("invalid year");
                     }
                     *body = json!(document.to_string());
                 }
