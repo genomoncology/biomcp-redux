@@ -31,18 +31,18 @@
       "run": [
         "get",
         "variant",
-        "BRAF V600E"
+        "PTEN c.333G>T"
       ],
       "mcp": [
         "get",
         "variant",
-        "BRAF V600E"
+        "PTEN c.333G>T"
       ],
       "exit": 2,
       "is_error": true,
       "expect": {
         "/schema": "biomcp.error/3",
-        "/error/message": "get variant needs an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation needs --build; use search variant --gene BRAF --protein V600E for gene/protein shorthand"
+        "/error/message": "get variant needs an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation needs --build; use search variant --gene BRAF --protein V600E or search variant --gene PTEN --coding c.333G>T for gene shorthand"
       }
     },
     {
@@ -60,7 +60,7 @@
       "is_error": true,
       "expect": {
         "/schema": "biomcp.error/3",
-        "/error/message": "get variant needs an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation needs --build; use search variant --gene BRAF --protein V600E for gene/protein shorthand"
+        "/error/message": "get variant needs an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation needs --build; use search variant --gene BRAF --protein V600E or search variant --gene PTEN --coding c.333G>T for gene shorthand"
       }
     },
     {
@@ -78,7 +78,7 @@
       "is_error": true,
       "expect": {
         "/schema": "biomcp.error/3",
-        "/error/message": "get variant needs an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation needs --build; use search variant --gene BRAF --protein V600E for gene/protein shorthand"
+        "/error/message": "get variant needs an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation needs --build; use search variant --gene BRAF --protein V600E or search variant --gene PTEN --coding c.333G>T for gene shorthand"
       }
     },
     {
@@ -100,7 +100,7 @@
       "is_error": true,
       "expect": {
         "/schema": "biomcp.error/3",
-        "/error/message": "get variant needs an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation needs --build; use search variant --gene BRAF --protein V600E for gene/protein shorthand"
+        "/error/message": "get variant needs an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation needs --build; use search variant --gene BRAF --protein V600E or search variant --gene PTEN --coding c.333G>T for gene shorthand"
       }
     },
     {
@@ -122,7 +122,7 @@
       "is_error": true,
       "expect": {
         "/schema": "biomcp.error/3",
-        "/error/message": "get variant needs an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation needs --build; use search variant --gene BRAF --protein V600E for gene/protein shorthand"
+        "/error/message": "get variant needs an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation needs --build; use search variant --gene BRAF --protein V600E or search variant --gene PTEN --coding c.333G>T for gene shorthand"
       }
     },
     {
@@ -144,7 +144,7 @@
       "is_error": true,
       "expect": {
         "/schema": "biomcp.error/3",
-        "/error/message": "get variant needs an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation needs --build; use search variant --gene BRAF --protein V600E for gene/protein shorthand"
+        "/error/message": "get variant needs an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation needs --build; use search variant --gene BRAF --protein V600E or search variant --gene PTEN --coding c.333G>T for gene shorthand"
       }
     },
     {
@@ -166,7 +166,7 @@
       "is_error": true,
       "expect": {
         "/schema": "biomcp.error/3",
-        "/error/message": "get variant needs an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation needs --build; use search variant --gene BRAF --protein V600E for gene/protein shorthand"
+        "/error/message": "get variant needs an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation needs --build; use search variant --gene BRAF --protein V600E or search variant --gene PTEN --coding c.333G>T for gene shorthand"
       }
     },
     {
@@ -184,7 +184,7 @@
       "is_error": true,
       "expect": {
         "/schema": "biomcp.error/3",
-        "/error/message": "get variant needs an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation needs --build; use search variant --gene BRAF --protein V600E for gene/protein shorthand"
+        "/error/message": "get variant needs an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation needs --build; use search variant --gene BRAF --protein V600E or search variant --gene PTEN --coding c.333G>T for gene shorthand"
       }
     },
     {

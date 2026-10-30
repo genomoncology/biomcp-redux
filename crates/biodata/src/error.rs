@@ -114,6 +114,8 @@ errors! {
     /// The common value refused this input.
     GeneRefLabelEmpty => "gene.ref.label_empty",
     /// The common value refused this input.
+    CodingChangeInvalid => "hgvs.coding.invalid",
+    /// The common value refused this input.
     HgvsTextEmpty => "hgvs.text.empty",
     /// The common value refused this input.
     HgvsReferenceMissing => "hgvs.reference.missing",

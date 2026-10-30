@@ -104,7 +104,7 @@ pub struct VariantSections {
     pub hotspots: Option<crate::Section<crate::VariantHotspots>>,
 }
 
-/// One native MyVariant candidate page; its total and offset are in the shared envelope.
+/// One native variant candidate page; its total and offset are in the shared envelope.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct VariantPage {

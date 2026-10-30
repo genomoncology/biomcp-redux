@@ -26,3 +26,6 @@ mod population;
 pub use population::{GenotypeFilter, PopulationDataType, PopulationFrequency, PopulationSex};
 
 pub(crate) use accession::AccessionKind;
+
+mod coding_change;
+pub use coding_change::CodingChange;
