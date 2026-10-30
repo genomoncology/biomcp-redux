@@ -114,6 +114,13 @@ pub(super) fn load(
         let snapshot = store.save_source_snapshot(&key(query), &payload, &out.sources)?;
         (saved, snapshot)
     };
+    Ok(Some(restore(saved, snapshot, out)))
+}
+fn restore(
+    saved: Saved,
+    snapshot: Text,
+    out: &mut Outcome,
+) -> (biodata::MaudeReport, maude::Positions, Text) {
     out.sources = saved.1;
     out.problems.extend(saved.2);
     out.status = if out
@@ -125,5 +132,5 @@ pub(super) fn load(
     } else {
         Status::Complete
     };
-    Ok(Some((saved.0, saved.3, snapshot)))
+    (saved.0, saved.3, snapshot)
 }
