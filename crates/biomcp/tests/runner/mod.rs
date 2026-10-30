@@ -124,7 +124,7 @@ pub(super) fn discover(root: &Path) -> Result<Vec<Trial>, String> {
     if paths.is_empty() {
         return Err(format!("{}: no YAML cases", root.display()));
     }
-    let registry = Arc::new(schema::Registry::embedded()?);
+    let registry = schema::Registry::embedded()?;
     let trials = paths
         .into_iter()
         .map(|path| {
@@ -413,7 +413,7 @@ mod reply_readback;
 
 tool_only! {
     pub(super) fn tool_trials() -> Result<Vec<Trial>, String> {
-        let registry = Arc::new(schema::Registry::embedded()?);
+        let registry = schema::Registry::embedded()?;
         let mut trials = proof::trials();
         trials.push(reply_comparison::trial());
         trials.extend(hgnc_sync::trials());
