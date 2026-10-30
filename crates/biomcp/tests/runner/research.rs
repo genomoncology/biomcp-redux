@@ -29,14 +29,14 @@ pub(super) fn call(
     arguments: Value,
     globals: &[String],
 ) -> Result<Value, String> {
-    call_checked(env, name, arguments, globals, false)
+    call_checked(env, name, arguments, globals, None)
 }
 pub(super) fn call_checked(
     env: &Environment,
     name: &str,
     arguments: Value,
     globals: &[String],
-    is_error: bool,
+    expected_error: Option<bool>,
 ) -> Result<Value, String> {
     let replies = super::mcp::exchange_with_globals(
         env,
@@ -55,7 +55,7 @@ pub(super) fn call_checked(
         .find(|v| v.get("id") == Some(&json!(1)))
         .and_then(|v| v.get("result"))
         .ok_or("missing tool result")?;
-    if result.get("isError") != Some(&json!(is_error)) {
+    if expected_error.is_some_and(|expected| result.get("isError") != Some(&json!(expected))) {
         return Err("named MCP is_error mismatch".into());
     }
     let value = result

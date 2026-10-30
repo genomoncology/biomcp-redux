@@ -107,7 +107,7 @@ fn named(
         &call.name,
         call.arguments.clone(),
         globals,
-        step.is_error,
+        Some(step.is_error),
     )?;
     assertions::check(
         &serde_json::to_vec(&value).map_err(|e| e.to_string())?,
