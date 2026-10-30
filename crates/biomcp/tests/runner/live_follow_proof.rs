@@ -17,8 +17,13 @@ fn check() -> Result<(), Box<dyn std::error::Error>> {
     fs::create_dir_all(root.join("cases"))?;
     let witnessed = fixtures().join("cases/article/search/checked-request.yaml");
     let mut checked: Value = serde_saphyr::from_str(&fs::read_to_string(&witnessed)?)?;
-    checked["live_check"] = json!("public");
-    checked["steps"]
+    checked
+        .as_object_mut()
+        .ok_or("missing case object")?
+        .insert("live_check".into(), json!("public"));
+    checked
+        .get_mut("steps")
+        .ok_or("missing steps")?
         .as_array_mut()
         .ok_or("missing steps")?
         .push(json!({"follow":"page"}));
