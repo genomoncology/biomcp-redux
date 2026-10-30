@@ -7,12 +7,10 @@ use std::fs;
 const SECTION: &str = "/result/candidates/0/sections/oncokb";
 pub(super) fn trials() -> Vec<Trial> {
     // Keep dynamic state, source bindings or wire checks that YAML cannot express.
-    vec![
-transcript_trial(
+    vec![transcript_trial(
         crate::runner::required_contract::ONCOKB_ALL.0,
         || run().map_err(Into::into),
-    )
-]
+    )]
 }
 fn run() -> Result<(), String> {
     let stub = Stub::for_sources(

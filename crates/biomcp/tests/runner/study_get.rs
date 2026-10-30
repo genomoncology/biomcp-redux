@@ -11,11 +11,9 @@ mod section_page;
 type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
     // Keep dynamic state, source bindings or wire checks that YAML cannot express.
-    vec![
-transcript_trial(required_contract::STUDY_PAGES.0, || {
-            pages().map_err(Into::into)
-        })
-]
+    vec![transcript_trial(required_contract::STUDY_PAGES.0, || {
+        pages().map_err(Into::into)
+    })]
 }
 fn profiles() -> Value {
     json!(

@@ -214,11 +214,4 @@ fn exact() -> Result<(), String> {
     Ok(())
 }
 
-tool_only! {
-    pub(super) fn tool_trials() -> Vec<Trial> {
-        vec![transcript_trial(
-            "disease-mydisease/native-proof-retains-success-and-failure",
-            || native::retention().map_err(Into::into),
-        )]
-    }
-}
+tool_only! {}

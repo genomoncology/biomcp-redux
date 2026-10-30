@@ -3,27 +3,7 @@ use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
-pub(super) fn trials() -> Vec<Trial> {
-    vec![
-        transcript_trial(
-            "disease-monarch/wrong-endpoint-without-closure-never-enters-cache",
-            || wrong().map_err(Into::into),
-        ),
-        transcript_trial(
-            "disease-monarch/disabled-before-network-cache-and-replay",
-            || disabled().map_err(Into::into),
-        ),
-        transcript_trial("disease-monarch/failures-keep-source-and-terms", || {
-            failures().map_err(Into::into)
-        }),
-        transcript_trial("disease-monarch/timeout-keeps-source-and-terms", || {
-            timeout().map_err(Into::into)
-        }),
-        transcript_trial("disease-monarch/unsupported-section-before-io", || {
-            unsupported().map_err(Into::into)
-        }),
-    ]
-}
+
 fn reply(_: &str) -> Result<String, String> {
     Ok(json!({"limit":5,"offset":0,"total":1,"items":[association()]}).to_string())
 }

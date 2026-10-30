@@ -7,12 +7,10 @@ use serde_json::{Value, json};
 
 pub(super) fn trials() -> Vec<Trial> {
     // Keep dynamic state, source bindings or wire checks that YAML cannot express.
-    vec![
-transcript_trial(
+    vec![transcript_trial(
         crate::runner::pool_contract::PATHWAY_SEARCH.0,
         || bindings().map_err(Into::into),
-    )
-]
+    )]
 }
 fn call(
     phase: &str,

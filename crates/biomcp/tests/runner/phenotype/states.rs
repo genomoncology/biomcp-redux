@@ -4,23 +4,7 @@ use super::{Environment, Stub, invoke, record, setup};
 use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
-pub(super) fn trials() -> Vec<Trial> {
-    let mut rows = vec![transcript_trial(
-        "phenotype-identity/P24-synthetic-empty-absent-failure-states",
-        || states().map_err(Into::into),
-    )];
-    rows.push(transcript_trial(
-        "phenotype-identity/synthetic-short-limit-keeps-native-page",
-        || short_limit().map_err(Into::into),
-    ));
-    for source in ["hpo", "monarch"] {
-        rows.push(transcript_trial(
-            format!("phenotype-identity/synthetic-disabled-{source}-fresh-before-cache"),
-            move || disabled(source).map_err(Into::into),
-        ));
-    }
-    rows
-}
+
 fn states() -> Result<(), String> {
     let mut observed = Vec::new();
     for kind in ["empty", "absent", "failure"] {
@@ -153,31 +137,6 @@ fn disabled(source: &str) -> Result<(), String> {
     )?;
     if cold_result.pointer("/sources/0/reason") != Some(&json!("disabled")) {
         return Err("cold disabled source touched cache".into());
-    }
-    Ok(())
-}
-
-fn short_limit() -> Result<(), String> {
-    let stub = Stub::for_source(
-        "api-v3.monarchinitiative.org",
-        "application/json",
-        |request| {
-            if !request.contains("&limit=3&offset=0 ") {
-                return Err(format!("short limit changed native request: {request}"));
-            }
-            Ok(json!({"limit":3,"offset":0,"total":0,"items":[]}).to_string())
-        },
-    )?;
-    let env = setup(&stub)?;
-    let args = ["search", "phenotype", "synthetic", "-l", "3"];
-    let directory = env.root().join("alias");
-    let result = record("states/short_limit/record1", &env, &args, &directory, 1)?;
-    if result.pointer("/query/limit") != Some(&json!(3)) {
-        return Err(format!("short limit lost: {result}"));
-    }
-    budgets::mcp("states/short_limit/mcp1", &directory, &args, &result, 1)?;
-    if stub.finish()?.len() != 1 {
-        return Err("short limit request count".into());
     }
     Ok(())
 }

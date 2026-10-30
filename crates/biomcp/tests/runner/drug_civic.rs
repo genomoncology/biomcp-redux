@@ -24,7 +24,10 @@ const CASES: [&str; 15] = [
     "synthetic-distinct-therapy-candidates",
 ];
 pub(super) fn trials() -> Vec<Trial> {
-    vec![transcript_trial(crate::runner::pool_contract::DRUG_CIVIC_CURSOR.0, || run(9).map_err(Into::into))]
+    vec![transcript_trial(
+        crate::runner::pool_contract::DRUG_CIVIC_CURSOR.0,
+        || run(9).map_err(Into::into),
+    )]
 }
 fn arguments(n: usize) -> Result<Vec<String>, String> {
     let mut args = if n == 14 {

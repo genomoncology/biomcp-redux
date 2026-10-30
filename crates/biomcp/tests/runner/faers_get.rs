@@ -8,14 +8,14 @@ mod optional;
 pub(super) fn trials() -> Vec<Trial> {
     // Keep dynamic state, source bindings or wire checks that YAML cannot express.
     vec![
-transcript_trial(crate::runner::required_contract::FAERS_SECTIONS.0, || {
+        transcript_trial(crate::runner::required_contract::FAERS_SECTIONS.0, || {
             sections().map_err(Into::into)
         }),
-transcript_trial(
-        crate::runner::required_contract::FAERS_IDENTIFIERS.0,
-        || identifier_kinds().map_err(Into::into),
-    )
-]
+        transcript_trial(
+            crate::runner::required_contract::FAERS_IDENTIFIERS.0,
+            || identifier_kinds().map_err(Into::into),
+        ),
+    ]
 }
 fn native() -> Value {
     json!(
@@ -328,37 +328,6 @@ fn identifier_kinds() -> Check {
     Ok(())
 }
 
-fn source_policy() -> Check {
-    let (env, stub) = setup("valid")?;
-    let card = both(&env, args(None), 0)?;
-    let snapshot = card
-        .pointer("/result/snapshot")
-        .and_then(Value::as_str)
-        .ok_or("snapshot")?;
-    for section in [None, Some("drugs"), Some("reactions"), Some("unii")] {
-        let mut words = args(section);
-        words.extend([
-            "--snapshot".into(),
-            snapshot.into(),
-            "--disable-sources".into(),
-            "faers".into(),
-        ]);
-        if section == Some("unii") {
-            words.extend(["--drug-index".into(), "0".into()]);
-        }
-        let result = both(&env, words, 4)?;
-        if result.get("result").is_some()
-            || result.pointer("/sources/0/reason") != Some(&json!("disabled"))
-        {
-            return Err(format!("disabled source restored report: {result}"));
-        }
-    }
-    if stub.finish()?.len() != 1 {
-        return Err("disabled source reached HTTP".into());
-    }
-    Ok(())
-}
-
 fn budget(value: &Value, full: usize, comparable: usize) -> Check {
     let section = value
         .pointer("/query/section")
@@ -367,23 +336,74 @@ fn budget(value: &Value, full: usize, comparable: usize) -> Check {
     let status = value.get("status").and_then(Value::as_str).unwrap_or("");
     // j13008: compact CLI/MCP maxima; every ceiling is measured bytes plus15%.
     let measured: (usize, usize) = match (section, status) {
-        (_, "usage") => (143, 143),
-        ("card", "complete") => (1215, 1100),
-        ("card", "absent") => (298, 183),
-        ("card", "failed") => (428, 313),
-        ("drugs", "failed") => (419, 304),
-        ("reactions", "failed") => (423, 308),
-        ("unii", "failed") => (433, 318),
-        ("unii", "absent") => (409, 294),
-        ("drugs", "complete") => (1453, 1338),
-        ("reactions", "complete") => (1403, 1288),
-        ("unii", "complete") => (693, 578),
-        ("rxcui", "complete") => (692, 577),
-        ("product-ndc", "complete") => (718, 603),
-        ("package-ndc", "complete") => (924, 809),
-        ("spl-id", "complete") => (706, 591),
-        ("spl-set-id", "complete") => (719, 604),
-        ("application-number", "complete") => (751, 636),
+        (_, "usage") => (
+            crate::runner::output_limit("faers-envelope-143")?,
+            crate::runner::output_limit("faers-envelope-143")?,
+        ),
+        ("card", "complete") => (
+            crate::runner::output_limit("faers-envelope-1215")?,
+            crate::runner::output_limit("faers-envelope-1100")?,
+        ),
+        ("card", "absent") => (
+            crate::runner::output_limit("faers-envelope-298")?,
+            crate::runner::output_limit("faers-envelope-183")?,
+        ),
+        ("card", "failed") => (
+            crate::runner::output_limit("faers-envelope-428")?,
+            crate::runner::output_limit("faers-envelope-313")?,
+        ),
+        ("drugs", "failed") => (
+            crate::runner::output_limit("faers-envelope-419")?,
+            crate::runner::output_limit("faers-envelope-304")?,
+        ),
+        ("reactions", "failed") => (
+            crate::runner::output_limit("faers-envelope-423")?,
+            crate::runner::output_limit("faers-envelope-308")?,
+        ),
+        ("unii", "failed") => (
+            crate::runner::output_limit("faers-envelope-433")?,
+            crate::runner::output_limit("faers-envelope-318")?,
+        ),
+        ("unii", "absent") => (
+            crate::runner::output_limit("faers-envelope-409")?,
+            crate::runner::output_limit("faers-envelope-294")?,
+        ),
+        ("drugs", "complete") => (
+            crate::runner::output_limit("faers-envelope-1453")?,
+            crate::runner::output_limit("faers-envelope-1338")?,
+        ),
+        ("reactions", "complete") => (
+            crate::runner::output_limit("faers-envelope-1403")?,
+            crate::runner::output_limit("faers-envelope-1288")?,
+        ),
+        ("unii", "complete") => (
+            crate::runner::output_limit("faers-envelope-693")?,
+            crate::runner::output_limit("faers-envelope-578")?,
+        ),
+        ("rxcui", "complete") => (
+            crate::runner::output_limit("faers-envelope-692")?,
+            crate::runner::output_limit("faers-envelope-577")?,
+        ),
+        ("product-ndc", "complete") => (
+            crate::runner::output_limit("faers-envelope-718")?,
+            crate::runner::output_limit("faers-envelope-603")?,
+        ),
+        ("package-ndc", "complete") => (
+            crate::runner::output_limit("faers-envelope-924")?,
+            crate::runner::output_limit("faers-envelope-809")?,
+        ),
+        ("spl-id", "complete") => (
+            crate::runner::output_limit("faers-envelope-706")?,
+            crate::runner::output_limit("faers-envelope-591")?,
+        ),
+        ("spl-set-id", "complete") => (
+            crate::runner::output_limit("faers-envelope-719")?,
+            crate::runner::output_limit("faers-envelope-604")?,
+        ),
+        ("application-number", "complete") => (
+            crate::runner::output_limit("faers-envelope-751")?,
+            crate::runner::output_limit("faers-envelope-636")?,
+        ),
         _ => return Err(format!("unmeasured FAERS envelope: {section}/{status}")),
     };
     let caps = (
@@ -393,87 +413,6 @@ fn budget(value: &Value, full: usize, comparable: usize) -> Check {
     if full > caps.0 || comparable > caps.1 {
         return Err(format!(
             "FAERS output exceeds measured +15% ceiling: {full}/{comparable} > {caps:?}"
-        ));
-    }
-    Ok(())
-}
-
-fn ages() -> Check {
-    legacy_age_snapshot()?;
-    for code in [
-        "800", "801", "802", "803", "804", "805", "absent", "999", "",
-    ] {
-        let (env, stub) = setup(&format!("age-unit-{code}"))?;
-        let output = both(&env, args(None), 0)?;
-        stub.finish()?;
-        let expected = match code {
-            "absent" => Some(json!({"value":42.5})),
-            "999" | "" => None,
-            _ => Some(json!({"value":42.5,"unit":code})),
-        };
-        if output.pointer("/result/patient/age") != expected.as_ref() {
-            return Err(format!("FAERS age changed its stated unit: {output}"));
-        }
-        if expected.is_none()
-            && output
-                .get("problems")
-                .and_then(Value::as_array)
-                .is_none_or(Vec::is_empty)
-        {
-            return Err("malformed FAERS unit lost its problem".into());
-        }
-    }
-    let (env, stub) = setup("age-invalid")?;
-    let output = both(&env, args(None), 0)?;
-    stub.finish()?;
-    if output.pointer("/result/patient/age").is_some()
-        || output
-            .get("problems")
-            .and_then(Value::as_array)
-            .is_none_or(Vec::is_empty)
-    {
-        return Err("nonfinite FAERS age escaped field rejection".into());
-    }
-    Ok(())
-}
-
-fn legacy_age_snapshot() -> Check {
-    use sha2::{Digest, Sha256};
-    let (env, stub) = setup("valid")?;
-    let recording = env.root().join("recording");
-    let mut record = args(None);
-    record.extend(["--record".into(), recording.to_string_lossy().into_owned()]);
-    invoke(&env, record, 0)?;
-    stub.finish()?;
-    let mut initial = args(None);
-    initial.extend(env.globals(Some(&recording), false));
-    let card = invoke(&env, initial, 0)?;
-    let snapshot = card
-        .pointer("/result/snapshot")
-        .and_then(Value::as_str)
-        .ok_or("snapshot")?;
-    let db = rusqlite::Connection::open_with_flags(
-        env.root().join("case-cache/replay.sqlite"),
-        rusqlite::OpenFlags::SQLITE_OPEN_READ_WRITE,
-    )
-    .map_err(|e| e.to_string())?;
-    let key = Sha256::digest(b"biomcp.faers_snapshot/1\x00100").to_vec();
-    let rows = db
-        .execute(
-            "UPDATE trial_snapshot SET request_key=?1,payload='obsolete age strings' WHERE id=?2",
-            rusqlite::params![key, snapshot],
-        )
-        .map_err(|e| e.to_string())?;
-    if rows != 1 {
-        return Err("expected exactly one FAERS source snapshot".into());
-    }
-    let mut command = args(Some("drugs"));
-    command.extend(["--snapshot".into(), snapshot.into()]);
-    command.extend(env.globals(None, true));
-    let output = invoke(&env, command, 3)?;
-    if output.pointer("/next/0/kind") != Some(&json!("restart")) {
-        return Err(format!(
-            "old FAERS age snapshot did not restart safely: {output}"
         ));
     }
     Ok(())

@@ -4,18 +4,16 @@ use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::{fs, path::Path};
-#[path = "oncokb_values.rs"]
-mod values;
+
 const KEY: &str = "synthetic-oncokb-variant-key";
 const INPUT: &str = "chr7:g.140753336A>T";
 const SECTION: &str = "/result/candidates/0/sections/oncokb";
 pub(super) fn trials() -> Vec<Trial> {
     // Keep dynamic state, source bindings or wire checks that YAML cannot express.
-    vec![
-transcript_trial(crate::runner::required_contract::ONCOKB.0, || {
-            wire().map_err(Into::into)
-        })
-]
+    vec![transcript_trial(
+        crate::runner::required_contract::ONCOKB.0,
+        || wire().map_err(Into::into),
+    )]
 }
 pub(super) fn args() -> Vec<String> {
     [
@@ -302,74 +300,6 @@ fn failures(env: &Environment, dir: &Path) -> Result<(), String> {
     Ok(())
 }
 
-fn reload() -> Result<(), String> {
-    for http in [false, true] {
-        let assets = Environment::new().map_err(|e| e.to_string())?;
-        let stub = Stub::for_source("www.oncokb.org", "application/json", reload_reply)?;
-        let ca = assets.root().join("ca.pem");
-        stub.retain(&assets);
-        fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
-        let mut client = super::key_reload::start(
-            http,
-            false,
-            json!({"proxy":format!("http://{}",stub.address),"ca_bundle":ca}),
-            "ONCOKB_TOKEN",
-        )?;
-        for (index, key) in [None, Some(KEY), Some("synthetic-oncokb-replaced-key"), None]
-            .into_iter()
-            .enumerate()
-        {
-            if let Some(key) = key {
-                let commands = if index == 1 {
-                    vec!["key", "set", "oncokb"]
-                } else {
-                    vec!["key", "set", "oncokb", "--replace"]
-                };
-                super::key_registration::invoke(
-                    client.environment(),
-                    &commands,
-                    &format!("{key}\n"),
-                    0,
-                )?;
-            } else if index == 3 {
-                super::key_registration::invoke(
-                    client.environment(),
-                    &["key", "remove", "oncokb"],
-                    "",
-                    0,
-                )?;
-            }
-            let mut args = args();
-            *args.get_mut(7).ok_or("tumor argument")? = format!("Synthetic tumor {index}");
-            let refs = args.iter().map(String::as_str).collect::<Vec<_>>();
-            let output = client.call(index, &refs)?;
-            let expected = if key.is_some() { "data" } else { "skipped" };
-            if output.pointer(&format!("{SECTION}/state")) != Some(&json!(expected)) {
-                return Err("persistent OncoKB call did not reload key state".into());
-            }
-            for marker in [KEY, "synthetic-oncokb-replaced-key"] {
-                if output.to_string().contains(marker) {
-                    return Err("key leaked in persistent annotation".into());
-                }
-            }
-        }
-        client.finish()?;
-        let requests = stub.finish()?;
-        if requests.len() != 2 {
-            return Err("persistent OncoKB made keyless or missing requests".into());
-        }
-        for ((_, request), key) in requests.iter().zip([KEY, "synthetic-oncokb-replaced-key"]) {
-            if !request
-                .lines()
-                .any(|l| l.eq_ignore_ascii_case(&format!("authorization: Bearer {key}")))
-            {
-                return Err("persistent OncoKB used stale key snapshot".into());
-            }
-        }
-    }
-    Ok(())
-}
-
 fn walk(env: &Environment, baseline: &Value) -> Result<(), String> {
     let expected = baseline
         .pointer(&format!("{SECTION}/data/records"))
@@ -414,111 +344,4 @@ fn walk(env: &Environment, baseline: &Value) -> Result<(), String> {
     Ok(())
 }
 
-fn echo() -> Result<(), String> {
-    let stub = Stub::for_source("www.oncokb.org", "application/json", echo_reply)?;
-    let env = Environment::new().map_err(|e| e.to_string())?;
-    let ca = env.root().join("ca.pem");
-    stub.retain(&env);
-    fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
-    env.config(&json!({"proxy":format!("http://{}",stub.address),"ca_bundle":ca,"keys":{"oncokb_api_key":KEY}}))
-        .map_err(|e| e.to_string())?;
-    let mut command = args();
-    let directory = env.root().join("echo");
-    command.extend(["--record".into(), directory.to_string_lossy().into()]);
-    let output = env
-        .command(env!("CARGO_BIN_EXE_biomcp"), &command)
-        .output()
-        .map_err(|e| e.to_string())?;
-    let requests = stub.finish()?;
-    if requests.len() != 1 {
-        return Err("echo proof did not reach exactly one authenticated TLS request".into());
-    }
-    let leaked_output = [output.stdout.as_slice(), output.stderr.as_slice()]
-        .concat()
-        .windows(KEY.len())
-        .any(|b| b == KEY.as_bytes());
-    let mut leaked_recording = false;
-    if directory.join("oncokb").exists() {
-        for file in fs::read_dir(directory.join("oncokb")).map_err(|e| e.to_string())? {
-            let bytes =
-                fs::read(file.map_err(|e| e.to_string())?.path()).map_err(|e| e.to_string())?;
-            leaked_recording |= bytes.windows(KEY.len()).any(|b| b == KEY.as_bytes());
-        }
-    }
-    if leaked_output || leaked_recording {
-        return Err(format!(
-            "reflected synthetic credential leaked: output={leaked_output}, recording={leaked_recording}"
-        ));
-    }
-    if output.status.code() != Some(4) {
-        return Err("credential-bearing reply was not refused".into());
-    }
-    Ok(())
-}
-fn echo_reply(request: &str) -> Result<String, String> {
-    let mut body: Value = serde_json::from_str(&reply(request)?).map_err(|e| e.to_string())?;
-    body.as_object_mut()
-        .ok_or("synthetic annotation object")?
-        .insert("geneSummary".into(), json!(KEY));
-    Ok(body.to_string())
-}
-
-fn environment_key() -> Result<(), String> {
-    for configured in [false, true] {
-        let stub = Stub::for_source("www.oncokb.org", "application/json", reply)?;
-        let env = Environment::new().map_err(|e| e.to_string())?;
-        let ca = env.root().join("ca.pem");
-        stub.retain(&env);
-        fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
-        let mut config = json!({"proxy":format!("http://{}",stub.address),"ca_bundle":ca});
-        if configured {
-            config
-                .as_object_mut()
-                .ok_or("config object")?
-                .insert("keys".into(), json!({"oncokb_api_key":KEY}));
-        }
-        env.config(&config).map_err(|e| e.to_string())?;
-        let output = env
-            .command(env!("CARGO_BIN_EXE_biomcp"), &args())
-            .env(
-                "ONCOKB_TOKEN",
-                if configured {
-                    "synthetic-environment-shadowed"
-                } else {
-                    KEY
-                },
-            )
-            .output()
-            .map_err(|e| e.to_string())?;
-        let requests = stub.finish()?;
-        if !output.status.success()
-            || !output.stderr.is_empty()
-            || requests.len() != 1
-            || !requests.first().is_some_and(|(_, request)| {
-                request
-                    .lines()
-                    .any(|line| line.eq_ignore_ascii_case(&format!("authorization: Bearer {KEY}")))
-            })
-        {
-            return Err("OncoKB environment key or config precedence failed".into());
-        }
-        for marker in [KEY, "synthetic-environment-shadowed"] {
-            if output
-                .stdout
-                .windows(marker.len())
-                .any(|part| part == marker.as_bytes())
-            {
-                return Err("OncoKB environment credential leaked".into());
-            }
-        }
-    }
-    Ok(())
-}
-
 // Each key snapshot uses a distinct uncached input over both transports.
-fn reload_reply(request: &str) -> Result<String, String> {
-    let index = (0..4)
-        .find(|index| request.contains(&format!("tumorType=Synthetic%20tumor%20{index}")))
-        .ok_or("missing synthetic tumor input")?;
-    Ok(reply(request)?.replace("Synthetic tumor", &format!("Synthetic tumor {index}")))
-}

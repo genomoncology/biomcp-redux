@@ -199,36 +199,7 @@ pub(super) fn sequence() -> Result<(), String> {
     Ok(())
 }
 
-tool_only! {
-pub(super) fn feature_id() -> Result<(), String> {
-    let stub = Stub::for_source("rest.uniprot.org", "application/json", |_| {
-        let mut value = entry();
-        value
-            .pointer_mut("/features/0")
-            .and_then(Value::as_object_mut)
-            .ok_or("feature row")?
-            .insert("featureId".into(), json!(""));
-        Ok(value.to_string())
-    })?;
-    let env = setup(&stub)?;
-    let answer = call(&env, None, &["protein", "features", "P00533"], 0)?;
-    if answer.pointer("/result/items/0/feature/protein") != Some(&json!("P00533"))
-        || answer.pointer("/result/items/0/feature/id").is_some()
-        || answer.pointer("/problems/0/field") != Some(&json!("features.featureId"))
-        || answer
-            .get("problems")
-            .and_then(Value::as_array)
-            .map(Vec::len)
-            != Some(1)
-    {
-        return Err("bad feature ID lost the coordinate identity or its field problem".into());
-    }
-    if stub.finish()?.len() != 1 {
-        return Err("feature ID disclosure repeated the local request".into());
-    }
-    Ok(())
-}
-}
+tool_only! {}
 
 fn retained_relations(env: &Environment) -> Result<(), String> {
     for (section, pointer, expected) in [

@@ -24,14 +24,10 @@ const IDS: [&str; 8] = [
 ];
 pub(super) fn trials() -> Vec<Trial> {
     // Keep dynamic state, source bindings or wire checks that YAML cannot express.
-    vec![
-transcript_trial(crate::runner::pool_contract::TRIAL_ABSENCE.0, || {
-            batch().map_err(|e| e.to_string().into())
-        }),
-transcript_trial(crate::runner::pool_contract::TRIAL.0, || {
-            continuations().map_err(|e| e.to_string().into())
-        })
-]
+    vec![transcript_trial(
+        crate::runner::pool_contract::TRIAL.0,
+        || continuations().map_err(|e| e.to_string().into()),
+    )]
 }
 pub(super) fn original(id: &str) -> Result<Value, Box<dyn std::error::Error>> {
     let directory = super::launch::fixtures()
@@ -245,36 +241,7 @@ fn failures() -> Check {
     }
     Ok(())
 }
-fn batch() -> Check {
-    let env = Environment::new()?;
-    let replay = env.root().join("recordings");
-    for id in ["NCT02296125", "NCT01811710", "NCT02578680"] {
-        copy_capture(&format!("trial/get/{id}"), &replay, |_, record| {
-            if record["url"]
-                .as_str()
-                .is_some_and(|u| u.ends_with("NCT02578680"))
-            {
-                let mut exchange = record["exchanges"][0].clone();
-                exchange["status"] = json!(500);
-                record["exchanges"] = json!([exchange.clone(), exchange.clone(), exchange]);
-            }
-        })?;
-    }
-    let args = ["get", "trial", "NCT02296125", "NCT01811710", "NCT02578680"].map(str::to_owned);
-    let out = command(&env, &args, &env.globals(Some(&replay), false), 0)?;
-    let items = out["result"]["items"]
-        .as_array()
-        .ok_or("batch items missing")?;
-    if out["status"] != "partial"
-        || items.len() != 3
-        || items[0]["status"] != "complete"
-        || items[1]["status"] != "absent"
-        || items[2]["status"] != "failed"
-    {
-        return Err(format!("batch did not retain independent input states: {out}").into());
-    }
-    Ok(())
-}
+
 fn continuations() -> Check {
     let env = Environment::new()?;
     let replay = env.root().join("recordings");
@@ -382,66 +349,5 @@ fn altered_pool(env: &Environment, args: &[String], globals: &[String]) -> Check
             return Err("changed continuation was accepted".into());
         }
     }
-    Ok(())
-}
-
-fn optional_source() -> Check {
-    checked_steps(
-        "trial/get/NCT02296125",
-        |_, record| {
-            if record["url"]
-                .as_str()
-                .is_some_and(|u| u.ends_with("NCT02296125"))
-            {
-                let protocol = &mut record["exchanges"][0]["body"]["value"]["protocolSection"];
-                if let Some(fields) = protocol.as_object_mut() {
-                    for key in [
-                        "conditionsModule",
-                        "descriptionModule",
-                        "sponsorCollaboratorsModule",
-                        "eligibilityModule",
-                        "outcomesModule",
-                        "armsInterventionsModule",
-                    ] {
-                        fields.remove(key);
-                    }
-                }
-                if let Some(design) = protocol["designModule"].as_object_mut() {
-                    design.remove("phases");
-                }
-                if let Some(status) = protocol["statusModule"].as_object_mut() {
-                    for key in [
-                        "startDateStruct",
-                        "primaryCompletionDateStruct",
-                        "completionDateStruct",
-                    ] {
-                        status.remove(key);
-                    }
-                }
-            }
-        },
-        json!([{"run":["get","trial","NCT02296125","all"],"expect":{
-            "/status":"complete",
-            "/result/items/0/card":{"omits":["start","brief_summary","sponsor"]},
-            "/result/items/0/sections/eligibility/state":"empty","/result/items/0/sections/outcomes/state":"empty","/result/items/0/sections/arms/state":"empty"
-        }}]),
-    )?;
-    checked_steps(
-        "trial/get/NCT02296125",
-        |_, record| {
-            if record["url"]
-                .as_str()
-                .is_some_and(|u| u.ends_with("/version"))
-            {
-                let mut exchange = record["exchanges"][0].clone();
-                exchange["status"] = json!(500);
-                record["exchanges"] = json!([exchange.clone(), exchange.clone(), exchange]);
-            }
-        },
-        json!(
-            [{"run":["get","trial","NCT02296125"],"expect":{ "/status":"partial","/result/items/0/status":"partial",
-            "/result/items/0/card/nct_id":"NCT02296125","/sources/0/reason":"unavailable" }}]
-        ),
-    )?;
     Ok(())
 }

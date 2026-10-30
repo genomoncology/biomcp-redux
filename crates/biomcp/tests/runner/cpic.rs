@@ -1,6 +1,6 @@
 //! Feature cpic-pgx: synthetic native retrieval through the actual CLI and MCP.
 use super::required_contract;
-mod failures;
+
 mod rows;
 use super::{configuration::invoke, launch::Environment, network_stub::Stub};
 use crate::runner::transcript::trial as transcript_trial;
@@ -9,7 +9,16 @@ use serde_json::{Value, json};
 type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
     // Keep the real HTTP headers, cache request counts and response-bound pages.
-    [(required_contract::CPIC_PAIRS.0, "pairs"),(required_contract::CPIC_VIEW.0, "view"),(required_contract::CPIC_TABLE.0, "table"),(required_contract::CPIC_GUIDELINES.0, "guidelines"),(required_contract::CPIC_DIPLOTYPE.0, "diplotype")].into_iter().map(|(name, mode)| transcript_trial(name, move || scenario(mode).map_err(Into::into))).collect()
+    [
+        (required_contract::CPIC_PAIRS.0, "pairs"),
+        (required_contract::CPIC_VIEW.0, "view"),
+        (required_contract::CPIC_TABLE.0, "table"),
+        (required_contract::CPIC_GUIDELINES.0, "guidelines"),
+        (required_contract::CPIC_DIPLOTYPE.0, "diplotype"),
+    ]
+    .into_iter()
+    .map(|(name, mode)| transcript_trial(name, move || scenario(mode).map_err(Into::into)))
+    .collect()
 }
 fn environment(stub: &Stub) -> Result<Environment, String> {
     let env = Environment::new().map_err(|e| e.to_string())?;

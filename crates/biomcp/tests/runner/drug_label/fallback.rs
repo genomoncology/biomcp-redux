@@ -5,28 +5,6 @@ use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 
-pub(super) fn trials() -> Vec<Trial> {
-    [
-        ("lowercase", "gleevec", "Gleevec", true),
-        (
-            "complete-two-word",
-            "sarclisa escena",
-            "SARCLISA  ESCENA",
-            true,
-        ),
-        ("different-longer-brand", "Gleevec", "Gleevec Extra", false),
-        ("generic-case", "daraxonrasib", "RASONQUE", true),
-        ("partial-generic", "daraxon", "RASONQUE", false),
-        ("different-brand", "Gleevec", "Herceptin", false),
-    ]
-    .into_iter()
-    .map(|(name, typed, returned, found)| {
-        transcript_trial(format!("drug-label/fallback-{name}"), move || {
-            fallback(typed, returned, found).map_err(Into::into)
-        })
-    })
-    .collect()
-}
 fn fallback(typed: &str, returned: &str, found: bool) -> Check {
     let mut id = identity(0)?;
     *id.get_mut("brand").ok_or("brand")? = json!(returned);

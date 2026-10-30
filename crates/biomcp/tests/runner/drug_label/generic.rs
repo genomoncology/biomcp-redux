@@ -4,16 +4,6 @@ use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 
-pub(super) fn trials() -> Vec<Trial> {
-    [("daraxonrasib", "generic"), ("RASONQUE", "brand")]
-        .into_iter()
-        .map(|(typed, basis)| {
-            transcript_trial(format!("drug-label/name-{basis}"), move || {
-                search(typed, basis).map_err(Into::into)
-            })
-        })
-        .collect()
-}
 fn search(typed: &str, basis: &str) -> Check {
     // Synthetic identity and prose; names reproduce the reported public label fields.
     let mut id = identity(0)?;

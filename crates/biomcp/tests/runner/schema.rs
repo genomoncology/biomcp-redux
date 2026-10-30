@@ -1,6 +1,10 @@
 use jsonschema::{Retrieve, Uri, Validator};
 use serde_json::Value;
-use std::{collections::BTreeMap, error::Error, sync::{Arc, OnceLock}};
+use std::{
+    collections::BTreeMap,
+    error::Error,
+    sync::{Arc, OnceLock},
+};
 
 pub(super) const ARTIFACTS: &[(&str, &str)] = include!(concat!(env!("OUT_DIR"), "/schemas.rs"));
 // Only a resolution anchor. The custom retriever never performs external I/O.
@@ -14,17 +18,21 @@ pub(super) struct Registry {
 impl Registry {
     pub(super) fn embedded() -> Result<Arc<Self>, String> {
         static EMBEDDED: OnceLock<Result<Arc<Registry>, String>> = OnceLock::new();
-        EMBEDDED.get_or_init(|| {
-            let artifacts = ARTIFACTS
-                .iter()
-                .map(|(id, text)| {
-                    serde_json::from_str(text)
-                        .map(|value| ((*id).to_owned(), value))
-                        .map_err(|_| format!("schema validation: invalid artifact {}", bounded(id)))
-                })
-                .collect::<Result<_, _>>()?;
-            Self::new(artifacts).map(Arc::new)
-        }).clone()
+        EMBEDDED
+            .get_or_init(|| {
+                let artifacts = ARTIFACTS
+                    .iter()
+                    .map(|(id, text)| {
+                        serde_json::from_str(text)
+                            .map(|value| ((*id).to_owned(), value))
+                            .map_err(|_| {
+                                format!("schema validation: invalid artifact {}", bounded(id))
+                            })
+                    })
+                    .collect::<Result<_, _>>()?;
+                Self::new(artifacts).map(Arc::new)
+            })
+            .clone()
     }
 
     pub(super) fn new(artifacts: BTreeMap<String, Value>) -> Result<Self, String> {

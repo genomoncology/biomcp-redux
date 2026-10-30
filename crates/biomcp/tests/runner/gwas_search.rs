@@ -8,19 +8,17 @@ use std::{
     fs,
     path::{Path, PathBuf},
 };
-mod mechanics;
+
 mod native;
 mod state;
 mod threshold;
-mod usage;
+
 mod wire;
 pub(super) fn trials() -> Vec<Trial> {
     // Keep dynamic state, source bindings or wire checks that YAML cannot express.
-    vec![
-transcript_trial(required_contract::GWAS_POOL.0, || {
-            state::expired().map_err(Into::into)
-        })
-]
+    vec![transcript_trial(required_contract::GWAS_POOL.0, || {
+        state::expired().map_err(Into::into)
+    })]
 }
 fn policy() -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;

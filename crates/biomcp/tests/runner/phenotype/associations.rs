@@ -4,34 +4,7 @@ use super::{Stub, invoke, setup};
 use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
-pub(super) fn trials() -> Vec<Trial> {
-    vec![
-        transcript_trial(
-            "phenotype-associations/recorded-timeout-keeps-source-and-terms",
-            || timeout().map_err(Into::into),
-        ),
-        transcript_trial(
-            "phenotype-associations/card-actions-keep-one-row-default-and-explicit-limits",
-            || cards().map_err(Into::into),
-        ),
-        transcript_trial(
-            "phenotype-associations/direct-pages-preserve-native-rows",
-            || exact().map_err(Into::into),
-        ),
-        transcript_trial(
-            "phenotype-associations/native-two-row-paging-and-row-local-fields",
-            || pages().map_err(Into::into),
-        ),
-        transcript_trial(
-            "phenotype-associations/bad-endpoints-taxa-and-outages-never-cache",
-            || failures().map_err(Into::into),
-        ),
-        transcript_trial(
-            "phenotype-associations/disabled-components-skip-cached-and-recorded-pages",
-            || disabled().map_err(Into::into),
-        ),
-    ]
-}
+
 pub(super) fn row() -> Value {
     json!(
         {"id":"synthetic-first","subject":"HGNC:9910","subject_label":"RBMX","subject_taxon":"NCBITaxon:9606","object":"HP:0001250",

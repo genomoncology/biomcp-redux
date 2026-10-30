@@ -1,20 +1,4 @@
 //! Existing mechanical trials use authored synthetic data, never native captures.
-pub(crate) const GWAS_SELECTORS: (&str, &[&str]) = (
-    "gwas-search/checked-native-selectors-and-aliases",
-    &[
-        "option search gwas --extended-geneset",
-        "option search gwas --gene",
-        "option search gwas --include-child-traits",
-        "option search gwas --limit",
-        "option search gwas --study",
-        "option search gwas --trait",
-        "option search gwas --trait-id",
-    ],
-);
-pub(crate) const GWAS_PAGES: (&str, &[&str]) = (
-    "gwas-search/native-offset-and-continuation",
-    &["option search gwas --offset"],
-);
 pub(crate) const GWAS_POOL: (&str, &[&str]) = (
     "gwas-search/expired-threshold-restarts-original-selectors",
     &["option search gwas --pool"],

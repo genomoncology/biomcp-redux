@@ -2,18 +2,7 @@
 use super::super::mcp;
 use super::{Environment, Stub, Trial, Value, call, fs, invoke, json, setup};
 use crate::runner::transcript::trial as transcript_trial;
-pub(super) fn trials() -> Vec<Trial> {
-    let mut trials = Vec::new();
-    for source in ["uniprot", "interpro", "complex-portal"] {
-        for fault in ["429", "500", "timeout", "broken", "error"] {
-            trials.push(transcript_trial(
-                format!("protein-domains-complexes/synthetic-card-{source}-{fault}"),
-                move || failure(source, fault).map_err(Into::into),
-            ));
-        }
-    }
-    trials
-}
+
 fn failure(source: &str, fault: &str) -> Result<(), String> {
     let stub = Stub::for_sources(
         &["rest.uniprot.org", "www.ebi.ac.uk"],

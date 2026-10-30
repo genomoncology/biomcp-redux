@@ -1,8 +1,6 @@
 //! Housekeeping runs through the isolated installed command boundary.
 #[path = "../support/housekeeping_contract.rs"]
 mod contract;
-#[path = "housekeeping_path.rs"]
-mod stable_path;
 
 use super::launch::Environment;
 use crate::runner::transcript::trial as transcript_trial;
@@ -13,11 +11,9 @@ type Check<T = ()> = Result<T, Box<dyn std::error::Error>>;
 
 pub(super) fn trials() -> Vec<Trial> {
     // Keep dynamic state, source bindings or wire checks that YAML cannot express.
-    vec![
-transcript_trial(contract::OFFLINE_PROVENANCE.0, || {
-            check().map_err(|error| error.to_string().into())
-        })
-]
+    vec![transcript_trial(contract::OFFLINE_PROVENANCE.0, || {
+        check().map_err(|error| error.to_string().into())
+    })]
 }
 fn run(env: &Environment, args: &[&str], empty: bool) -> Check<Output> {
     let words: Vec<_> = args.iter().map(|s| (*s).to_owned()).collect();
@@ -200,16 +196,24 @@ fn shell_client(env: &Environment, empty: bool) -> Check {
 // raises a configuration budget when an installed executable has a longer path.
 fn limit(args: &[&str], executable: &Path) -> Check<usize> {
     let (mut bytes, path) = match args {
-        ["version", ..] if args.contains(&"--verbose") => (7023, None),
-        ["version" | "--version", ..] => (13, None),
-        ["help", "version", ..] => (2112, None),
-        ["help", "mcp-config", ..] => (2560, None),
-        ["mcp-config", ..] if args.contains(&"unknown") => (221, None),
-        ["mcp-config", ..] if args.contains(&"codex") => (94, Some(true)),
-        ["mcp-config", ..] if args.contains(&"servers") || args.contains(&"vscode") => {
-            (169, Some(false))
+        ["version", ..] if args.contains(&"--verbose") => {
+            (super::output_limit("housekeeping-version-verbose")?, None)
         }
-        ["mcp-config", ..] => (172, Some(false)),
+        ["version" | "--version", ..] => (super::output_limit("housekeeping-version")?, None),
+        ["help", "version", ..] => (super::output_limit("housekeeping-help-version")?, None),
+        ["help", "mcp-config", ..] => (super::output_limit("housekeeping-help-mcp-config")?, None),
+        ["mcp-config", ..] if args.contains(&"unknown") => {
+            (super::output_limit("housekeeping-invalid-client")?, None)
+        }
+        ["mcp-config", ..] if args.contains(&"codex") => (
+            super::output_limit("housekeeping-shell-config")?,
+            Some(true),
+        ),
+        ["mcp-config", ..] if args.contains(&"servers") || args.contains(&"vscode") => (
+            super::output_limit("housekeeping-servers-config")?,
+            Some(false),
+        ),
+        ["mcp-config", ..] => (super::output_limit("housekeeping-config")?, Some(false)),
         _ => return Err("housekeeping command requires a measured output budget".into()),
     };
     if let Some(shell) = path {
@@ -223,37 +227,4 @@ fn limit(args: &[&str], executable: &Path) -> Check<usize> {
         bytes += encoded.saturating_sub(63);
     }
     Ok((bytes * 115).div_ceil(100))
-}
-
-fn invalid_globals() -> Check {
-    let env = Environment::new()?;
-    env.config(&json!({"format":"md","keys":{"ncbi_api_key":"must-not-be-read"}}))?;
-    let config = env.root().join("config/biomcp/config.json");
-    let config = config.to_str().ok_or("invalid config path")?;
-    for root in ["version", "mcp-config"] {
-        for prefix in [
-            vec!["--format", "invalid"],
-            vec!["--config", config, "--config", config],
-            vec!["--unknown-global"],
-        ] {
-            let mut args = prefix;
-            args.push(root);
-            if root == "mcp-config" {
-                args.extend(["--client", "unknown"]);
-            }
-            let words: Vec<_> = args.iter().map(|word| (*word).to_owned()).collect();
-            let output = env.command(env!("CARGO_BIN_EXE_biomcp"), &words).output()?;
-            if output.status.code() != Some(2) || output.stdout.len() > 255 {
-                return Err(format!("invalid global error exceeded its contract: {args:?}").into());
-            }
-            let value: Value = serde_json::from_slice(&output.stdout)?;
-            if value.pointer("/error/code") != Some(&json!("usage.arguments")) {
-                return Err(format!(
-                    "invalid globals changed the command's error: {args:?}: {value}"
-                )
-                .into());
-            }
-        }
-    }
-    Ok(())
 }

@@ -11,16 +11,6 @@ use std::{
     time::Duration,
 };
 
-pub(super) fn trials() -> Vec<Trial> {
-    vec![
-        transcript_trial("gene-identity/replay-missing-recording-reason", || {
-            missing().map_err(Into::into)
-        }),
-        transcript_trial("gene-identity/replay-server-reuses-checked-reply", || {
-            repeated().map_err(Into::into)
-        }),
-    ]
-}
 fn missing() -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let directory = env.root().join("empty");

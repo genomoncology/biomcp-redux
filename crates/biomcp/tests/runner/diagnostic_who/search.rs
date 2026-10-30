@@ -18,26 +18,7 @@ fn args(step: &Value) -> Result<Vec<String>, String> {
     serde_json::from_value(step.get("args").cloned().ok_or("missing args")?)
         .map_err(|e| e.to_string())
 }
-pub(super) fn overlapping() -> Check {
-    let env = Environment::new().map_err(|e| e.to_string())?;
-    let replay = seed(&env)?;
-    call(&env, &replay, &["sync", "who-ivd"], 0)?;
-    let words = [
-        "search",
-        "diagnostic",
-        "--source",
-        "who-ivd",
-        "--manufacturer",
-        "North-North",
-    ];
-    let value = call(&env, &replay, &words, 0)?;
-    if value.pointer("/page/total") != Some(&json!(1))
-        || value.pointer("/result/items/0/id") != Some(&json!("2001-001-00"))
-    {
-        return Err("later whole-word occurrence was skipped".into());
-    }
-    Ok(())
-}
+
 pub(super) fn walk() -> Check {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let replay = seed(&env)?;

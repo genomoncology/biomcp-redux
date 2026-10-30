@@ -9,13 +9,16 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::{fs, path::Path};
 mod biomarker;
-mod facility;
+
 mod organization;
-mod trial_biomarker;
+
 type Check = Result<(), String>;
 const KEY: &str = "synthetic-nci-stored-key";
 pub(super) fn trials() -> Vec<Trial> {
-    organization::trials().into_iter().chain(biomarker::trials()).collect()
+    organization::trials()
+        .into_iter()
+        .chain(biomarker::trials())
+        .collect()
 }
 fn reply(request: &str) -> Result<String, String> {
     let card = json!(

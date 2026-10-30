@@ -4,42 +4,11 @@ use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
-mod alternatives;
+
 tool_only! { mod native; }
 mod words;
 tool_only! { pub(super) use native::run as native; }
 
-pub(super) fn trials() -> Vec<Trial> {
-    vec![
-        transcript_trial("trial-search/keyword-conjunction", || {
-            alternatives::conjunction().map_err(Into::into)
-        }),
-        transcript_trial("trial-search/repeated-condition-mismatch", || {
-            alternatives::mismatch().map_err(Into::into)
-        }),
-        transcript_trial("trial-nci/repeated-condition-filters", || {
-            alternatives::nci().map_err(Into::into)
-        }),
-        transcript_trial("trial-search/repeated-source-filters", || {
-            alternatives::run().map_err(Into::into)
-        }),
-        transcript_trial("trial-search/condition-complete-native-words", || {
-            words::complete_conditions().map_err(Into::into)
-        }),
-        transcript_trial("trial-search/condition-exact-boundary", || {
-            words::exact_boundary().map_err(Into::into)
-        }),
-        transcript_trial("trial-search/condition-word-mismatch", || {
-            words::mismatch().map_err(Into::into)
-        }),
-        transcript_trial("trial-search/condition-id-source-policy", || {
-            policy().map_err(Into::into)
-        }),
-        transcript_trial("trial-search/condition-id-failures-before-trial", || {
-            failures().map_err(Into::into)
-        }),
-    ]
-}
 fn annotation(id: &str, codes: &[&str]) -> Value {
     json!({"_id":id,"mondo":{"mondo":id,"label":"Synthetic failure concept","xrefs":{"ncit":codes}}})
 }

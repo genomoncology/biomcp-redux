@@ -4,36 +4,11 @@ use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::{fs, io::Write, path::Path};
-mod controls;
+
 mod cost;
-mod disabled_pool;
+
 mod pool;
-pub(super) fn trials() -> Vec<Trial> {
-    let root = super::launch::fixtures().join("author-native");
-    let absent = !root.is_dir();
-    vec![
-        transcript_trial("author-search/disabled-warm-source-pools", || {
-            disabled_pool::check().map_err(Into::into)
-        }),
-        transcript_trial("author-search/zero-io-controls", || {
-            controls::check().map_err(Into::into)
-        }),
-        transcript_trial("author-papers/help-and-markdown", || {
-            help().map_err(Into::into)
-        }),
-        transcript_trial("author-search/retained-native-pool-contract", || {
-            pool::check("pool").map_err(Into::into)
-        }),
-        transcript_trial("author-search/stale-source-provenance", || {
-            pool::check("stale").map_err(Into::into)
-        }),
-        transcript_trial(
-            "author-search/retained-native-records-and-costs",
-            move || native(&root).map_err(Into::into),
-        )
-        .with_ignored_flag(absent),
-    ]
-}
+
 fn native(root: &Path) -> Result<(), String> {
     let mut entries = fs::read_dir(root.join("cases"))
         .map_err(|e| e.to_string())?

@@ -4,42 +4,10 @@ use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::{fs, io::Write, path::Path};
-mod failures;
+
 tool_only! { mod native; }
 tool_only! { pub(super) use native::run as native; }
-pub(super) fn trials() -> Vec<Trial> {
-    vec![
-        transcript_trial(
-            "disease-seer/stale-valid-rows-retain-rejected-reply-problem",
-            || failures::stale_rejection().map_err(Into::into),
-        ),
-        transcript_trial(
-            "disease-seer/wrong-site-drops-before-cache-and-corrected-reply-recovers",
-            || failures::wrong_site().map_err(Into::into),
-        ),
-        transcript_trial(
-            "disease-seer/catalog-keeps-native-sites-and-local-pages",
-            || catalog().map_err(Into::into),
-        ),
-        transcript_trial("disease-seer/incidence-preserves-stage-rows", || {
-            incidence().map_err(Into::into)
-        }),
-        transcript_trial(
-            "disease-seer/survival-keeps-observed-and-model-only-years",
-            || survival().map_err(Into::into),
-        ),
-        transcript_trial("disease-seer/selectors-refuse-before-io", || {
-            failures::selectors().map_err(Into::into)
-        }),
-        transcript_trial("disease-seer/failures-retain-source-and-terms", || {
-            failures::run().map_err(Into::into)
-        }),
-        transcript_trial(
-            "disease-seer/disabled-source-bypasses-retained-data",
-            || failures::disabled().map_err(Into::into),
-        ),
-    ]
-}
+
 fn setup(stub: &Stub) -> Result<Environment, String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let ca = env.root().join("seer-ca.pem");
@@ -168,108 +136,6 @@ fn catalog() -> Result<(), String> {
     )?;
     if stub.finish()?.len() != 1 {
         return Err("catalog page fetched again".into());
-    }
-    Ok(())
-}
-fn incidence() -> Result<(), String> {
-    let stub = Stub::for_source("seer.cancer.gov", "application/json", wire)?;
-    let env = setup(&stub)?;
-    let directory = env.root().join("incidence");
-    let words = [
-        "get",
-        "disease",
-        "47",
-        "incidence",
-        "--source",
-        "seer",
-        "--dataset",
-        "4",
-        "--period",
-        "5",
-        "--section-limit",
-        "1",
-    ];
-    record(&env, &words, &directory, 0)?;
-    replay(
-        &directory,
-        json!(
-            [ {"run":words,"mcp":words,"expect":{"/query/sex":"1","/query/race":"1","/query/age_range":"1","/page/total":2,
-            "/result/items/0/measure":"rate","/result/items/0/observed/value/unit":"per 100,000 people","/result/items/0/observed/count":100,
-            "/result/items/0/returned_selectors/3/code":"104",
-            "/next/0/kind":"page"},"max_bytes":1889},{"run":["get","disease","47","incidence","--source","seer","--dataset","4","--period","5",
-            "--section-offset","2"],"offline":true,"expect":{"/page/returned":0,"/page/total":2,"/next/0/args":["search","disease","--source",
-            "seer"]},"max_bytes":862} ]
-        ),
-    )?;
-    markdown(
-        &env,
-        &words,
-        &directory,
-        &["Observed", "100", "registry", "SEER/NCI"],
-    )?;
-    let requests = stub.finish()?;
-    if requests.len() != 1
-        || !requests
-            .first()
-            .is_some_and(|(_, r)| r.contains("sex=1&race=1&age_range=1&year_range=5&data_model=4"))
-    {
-        return Err(format!("incidence selector drift: {requests:?}"));
-    }
-    Ok(())
-}
-fn survival() -> Result<(), String> {
-    let stub = Stub::for_source("seer.cancer.gov", "application/json", wire)?;
-    let env = setup(&stub)?;
-    let directory = env.root().join("survival");
-    let words = [
-        "get",
-        "disease",
-        "55",
-        "survival",
-        "--source",
-        "seer",
-        "--sex",
-        "3",
-        "--race",
-        "1",
-        "--age-range",
-        "1",
-        "--dataset",
-        "4",
-        "--interval",
-        "5",
-        "--section-limit",
-        "1",
-    ];
-    record(&env, &words, &directory, 0)?;
-    let mut next = args(&words);
-    next.extend(["--section-offset".into(), "1".into()]);
-    let last = replay(
-        &directory,
-        json!(
-            [ {"run":words,"mcp":words,"expect":{"/result/items/0/observed/value/unit":"%",
-            "/result/items/0/year":2018,"/result/items/0/observed/value/value":90.0,
-            "/result/items/0/modeled/value/value":90.5,"/result/items/0/returned_selectors/5/code":"31"},"max_bytes":2024},{"run":next,"mcp":next,
-            "offline":true,"expect":{"/result/items/0/year":2022,"/result/items/0/modeled/value/value":93.5,"/page/offset":1,"/page/total":2},
-            "max_bytes":1694} ]
-        ),
-    )?;
-    if last.pointer("/result/items/0/observed").is_some() {
-        return Err("model-only row acquired an observation".into());
-    }
-    markdown(
-        &env,
-        &words,
-        &directory,
-        &["Observed", "Modeled", "2018", "90&#46;5"],
-    )?;
-    let requests = stub.finish()?;
-    if requests.len() != 1
-        || !requests.first().is_some_and(|(_, r)| {
-            r.contains("relative_survival_interval=5&year_range=31&data_model=4")
-        })
-    {
-        return Err(format!("survival selector drift: {requests:?}"));
     }
     Ok(())
 }

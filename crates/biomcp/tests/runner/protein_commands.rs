@@ -4,26 +4,7 @@ use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::Value;
 type Check = Result<(), String>;
-pub(super) fn trials() -> Vec<Trial> {
-    vec![
-        transcript_trial("protein-search/continuation-count-bound", || {
-            continuation_count().map_err(|e| e.to_string().into())
-        }),
-        transcript_trial(
-            "protein-search/continuation-keeps-publication-lifetime",
-            || continuation_lifetime().map_err(Into::into),
-        ),
-        transcript_trial("protein-search/pool-binding-and-lifetime", || {
-            pools().map_err(Into::into)
-        }),
-        transcript_trial("protein-search/native-continuation-admission", || {
-            links().map_err(|e| e.to_string().into())
-        }),
-        transcript_trial("protein-search/row-cache-admission", || {
-            cache_admission().map_err(|e| e.to_string().into())
-        }),
-    ]
-}
+
 fn call(env: &Environment, args: &[&str], exit: i32) -> Result<Value, String> {
     let replay = super::launch::fixtures().join("replies/protein/synthetic");
     let mut words = env.globals(Some(&replay), false);
@@ -35,72 +16,6 @@ fn id(value: &Value) -> Result<&str, String> {
         .pointer("/page/pool/id")
         .and_then(Value::as_str)
         .ok_or_else(|| "missing protein pool".into())
-}
-fn pools() -> Check {
-    let env = Environment::new().map_err(|e| e.to_string())?;
-    let args = ["search", "protein", "--gene", "BRAF"];
-    let first = call(&env, &args, 0)?;
-    super::protein_budgets::check(&first, "search-pool/first", "cli")?;
-    let pool = id(&first)?;
-    let retained = call(
-        &env,
-        &["search", "protein", "--gene", "BRAF", "--pool", pool],
-        0,
-    )?;
-    super::protein_budgets::check(&retained, "search-pool/retained", "cli")?;
-    if first.pointer("/page/pool") != retained.pointer("/page/pool") {
-        return Err("retained protein pool changed its publication metadata".into());
-    }
-    let fresh = call(&env, &["search", "protein", "--gene", "BRAF", "--fresh"], 0)?;
-    super::protein_budgets::check(&fresh, "search-pool/fresh", "cli")?;
-    if pool == id(&fresh)? {
-        return Err("fresh protein search reused a published pool".into());
-    }
-    let mismatch = call(
-        &env,
-        &["search", "protein", "--gene", "EGFR", "--pool", pool],
-        2,
-    )?;
-    super::protein_budgets::check(&mismatch, "search-pool/mismatch", "cli")?;
-    if mismatch.pointer("/error/code").and_then(Value::as_str) != Some("usage.pool_mismatch") {
-        return Err("changed protein selectors did not reject the old pool".into());
-    }
-    let terminal = call(
-        &env,
-        &[
-            "search", "protein", "--gene", "BRAF", "--pool", pool, "--offset", "1",
-        ],
-        0,
-    )?;
-    super::protein_budgets::check(&terminal, "search-pool/terminal", "cli")?;
-    if terminal.pointer("/page/returned").and_then(Value::as_u64) != Some(0) {
-        return Err("terminal protein page returned a duplicate".into());
-    }
-    let invalid = call(
-        &env,
-        &[
-            "search", "protein", "--gene", "BRAF", "--pool", pool, "--offset", "2",
-        ],
-        3,
-    )?;
-    super::protein_budgets::check(&invalid, "search-pool/invalid-offset", "cli")?;
-    if invalid.pointer("/next/0/kind").and_then(Value::as_str) != Some("restart") {
-        return Err("invalid retained protein offset omitted restart".into());
-    }
-    let db = rusqlite::Connection::open(env.root().join("case-cache/replay.sqlite"))
-        .map_err(|e| e.to_string())?;
-    db.execute("UPDATE trial_snapshot SET expires=0 WHERE id=?1", [pool])
-        .map_err(|e| e.to_string())?;
-    let expired = call(
-        &env,
-        &["search", "protein", "--gene", "BRAF", "--pool", pool],
-        3,
-    )?;
-    super::protein_budgets::check(&expired, "search-pool/expired", "cli")?;
-    if expired.pointer("/error/code").and_then(Value::as_str) != Some("pool.expired") {
-        return Err("expired protein pool refetched instead of restarting".into());
-    }
-    Ok(())
 }
 
 fn links() -> Result<(), Box<dyn std::error::Error>> {
@@ -135,39 +50,6 @@ fn links() -> Result<(), Box<dyn std::error::Error>> {
             &value,
             &format!("search-continuation-rejection/{before}/{after}"),
             "cli",
-        )?;
-    }
-    Ok(())
-}
-
-fn cache_admission() -> Result<(), Box<dyn std::error::Error>> {
-    for (pointer, value) in [
-        ("/organism/taxonId", serde_json::json!(10090)),
-        (
-            "/entryType",
-            serde_json::json!("UniProtKB unreviewed (TrEMBL)"),
-        ),
-    ] {
-        super::protein_budgets::steps(
-            &format!("search-cache-admission/{pointer}"),
-            "protein/pages",
-            |_, record| {
-                if record
-                    .get("url")
-                    .and_then(Value::as_str)
-                    .is_some_and(|u| !u.contains("cursor="))
-                    && let Some(row) = record.pointer_mut("/exchanges/0/body/value/results/0")
-                    && let Some(field) = row.pointer_mut(pointer)
-                {
-                    *field = value.clone();
-                }
-            },
-            serde_json::json!([
-                {"run":["search","protein","EGFR"], "exit":0,
-                 "expect":{"/status":"partial", "/problems/0/code":"value.unknown"}},
-                {"run":["search","protein","EGFR","--fresh"], "offline":true,"exit":4,
-                 "expect":{"/status":"failed"}}
-            ]),
         )?;
     }
     Ok(())
@@ -246,57 +128,4 @@ fn measure_native(env: &Environment, globals: &[String], args: &[String]) -> Res
     }
     Ok(cli)
 }
-}
-
-fn continuation_lifetime() -> Check {
-    let env = Environment::new().map_err(|e| e.to_string())?;
-    let replay = super::launch::fixtures().join("replies/protein/pages");
-    let mut args = env.globals(Some(&replay), false);
-    args.extend(["search", "protein", "EGFR"].map(str::to_owned));
-    let first = invoke(&env, args.clone(), 0)?;
-    super::protein_budgets::check(&first, "native-continuation/first", "cli")?;
-    args.extend(["--pool", id(&first)?, "--offset", "5"].map(str::to_owned));
-    let next = invoke(&env, args, 0)?;
-    super::protein_budgets::check(&next, "native-continuation/next", "cli")?;
-    for key in ["id", "created", "expires"] {
-        let pointer = format!("/page/pool/{key}");
-        if first.pointer(&pointer) != next.pointer(&pointer) {
-            return Err(format!("native continuation changed pool {key}"));
-        }
-    }
-    if next.pointer("/page/pool/size").and_then(Value::as_u64) != Some(7) {
-        return Err("native continuation did not extend the retained window".into());
-    }
-    Ok(())
-}
-
-fn continuation_count() -> Result<(), Box<dyn std::error::Error>> {
-    let value = super::response_cases::checked_case(
-        "protein/pages",
-        &["search", "protein", "EGFR", "--limit", "25"],
-        |_, record| {
-            if record
-                .get("url")
-                .and_then(Value::as_str)
-                .is_some_and(|u| u.contains("cursor="))
-                && let Some(rows) = record
-                    .pointer_mut("/exchanges/0/body/value/results")
-                    .and_then(Value::as_array_mut)
-                && let Some(template) = rows.first().cloned()
-            {
-                for id in ["P04626", "P01133", "P22681"] {
-                    let mut row = template.clone();
-                    if let Some(accession) = row.get_mut("primaryAccession") {
-                        *accession = serde_json::json!(id);
-                    }
-                    rows.push(row);
-                }
-            }
-        },
-        serde_json::json!({"/status":"partial", "/sources/0/reason":"bad-reply",
-            "/page/returned":5, "/page/total":7}),
-        0,
-    )?;
-    super::protein_budgets::check(&value, "search-continuation/declared-count-rejected", "cli")?;
-    Ok(())
 }

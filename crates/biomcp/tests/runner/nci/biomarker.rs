@@ -4,7 +4,10 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
-    vec![Trial::test(crate::runner::pool_contract::BIOMARKER.0, || pages().map_err(Into::into))]
+    vec![Trial::test(
+        crate::runner::pool_contract::BIOMARKER.0,
+        || pages().map_err(Into::into),
+    )]
 }
 fn environment() -> Result<Environment, String> {
     let env = Environment::new().map_err(|e| e.to_string())?;

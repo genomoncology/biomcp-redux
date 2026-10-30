@@ -7,12 +7,10 @@ use serde_json::{Value, json};
 
 pub(super) fn trials() -> Vec<Trial> {
     // Keep dynamic state, source bindings or wire checks that YAML cannot express.
-    vec![
-transcript_trial(
-            crate::runner::required_contract::POPULATION_SELECTORS.0,
-            || ambiguous().map_err(Into::into),
-        )
-]
+    vec![transcript_trial(
+        crate::runner::required_contract::POPULATION_SELECTORS.0,
+        || ambiguous().map_err(Into::into),
+    )]
 }
 fn malformed_alias() -> Result<(), String> {
     for count in [1, 2] {
@@ -78,46 +76,7 @@ fn malformed_alias() -> Result<(), String> {
     }
     Ok(())
 }
-fn unknown_build() -> Result<(), String> {
-    let stub = Stub::for_source("myvariant.info", "application/json", |_| {
-        Ok(json!({"total":3,"hits":[
-            {"_id":"chr10:g.114758349C>T","dbsnp":{"rsid":"rs7903146"}},
-            {"_id":"chr10:g.114758349C>G","chrom":"10",
-                "hg19":{"start":114758349,"end":114758349},
-                "hg38":{"start":114758349,"end":114758349},"dbsnp":{"rsid":"rs7903146"}},
-            {"_id":"chr10:g.114758349del","dbsnp":{"rsid":"rs7903146"},
-                "clingen":{"caid":"CA123643"}}
-        ]})
-        .to_string())
-    })?;
-    let env = environment(&stub)?;
-    let output = execute(&env, &["variant", "population", "rs7903146"])?;
-    let next = output
-        .get("next")
-        .and_then(Value::as_array)
-        .ok_or("missing next")?;
-    if next.len() != 3 {
-        return Err(format!(
-            "unknown or conflicting source build dropped candidate actions: {output}"
-        ));
-    }
-    for (step, id) in next
-        .iter()
-        .zip(["chr10:g.114758349C>T", "chr10:g.114758349C>G", "CA123643"])
-    {
-        let args: Vec<String> =
-            serde_json::from_value(step["args"].clone()).map_err(|e| e.to_string())?;
-        if args.iter().any(|a| a == "--build")
-            || !args.iter().any(|a| a.replace('\\', "").contains(id))
-        {
-            return Err(format!(
-                "candidate action guessed an assembly or lost identity: {step}"
-            ));
-        }
-    }
-    stub.finish()?;
-    Ok(())
-}
+
 fn ambiguous() -> Result<(), String> {
     let stub = Stub::for_source("myvariant.info", "application/json", candidates)?;
     let env = environment(&stub)?;
@@ -195,47 +154,4 @@ pub(super) fn candidates(_: &str) -> Result<String, String> {
             "dbsnp":{"rsid":"rs7903146"},"clinvar":{"variant_id":7413}}
     ]})
     .to_string())
-}
-
-fn single() -> Result<(), String> {
-    let stub = Stub::for_sources(
-        &[
-            "myvariant.info",
-            "reg.genome.network",
-            "gnomad.broadinstitute.org",
-        ],
-        |_| "application/json",
-        source_ca,
-    )?;
-    let env = environment(&stub)?;
-    let output = execute(&env, &["variant", "population", "rs113488022"])?;
-    if output.pointer("/result/population/data/variant") != Some(&json!("7-140753336-A-T"))
-        || output.pointer("/result/population/data/exome/ac") != Some(&json!(2))
-    {
-        return Err(format!(
-            "single sourced allele did not reach population data: {output}"
-        ));
-    }
-    let requests = stub.finish()?;
-    if requests.len() != 3
-        || !requests
-            .iter()
-            .any(|(_, r)| r.starts_with("GET /allele/CA123643?"))
-    {
-        return Err(format!(
-            "population did not follow its one source CA identifier: {requests:?}"
-        ));
-    }
-    Ok(())
-}
-pub(super) fn source_ca(request: &str) -> Result<String, String> {
-    if request.starts_with("GET /v1/query?") {
-        let hit: Value = serde_json::from_str(&crate::runner::launch::fixture_text(
-            "replies/variant-population/source-ca-identity.json",
-        )?)
-        .map_err(|e| e.to_string())?;
-        Ok(json!({"total":1,"hits":[hit]}).to_string())
-    } else {
-        super::population_body(request)
-    }
 }

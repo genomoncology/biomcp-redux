@@ -1,16 +1,22 @@
 //! Feature clinpgx-annotations: native tiers through actual CLI and MCP.
 use super::required_contract;
-mod failures;
+
 mod rows;
 use super::{configuration::invoke, launch::Environment, network_stub::Stub};
 use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 type Check = Result<(), String>;
-const CLINICAL_PAGE_MAX_BYTES: usize = 5886;
 pub(super) fn trials() -> Vec<Trial> {
     // Keep the real HTTP headers, cache request counts and response-bound pages.
-    [(required_contract::CLINPGX_CLINICAL.0, "clinical"),(required_contract::CLINPGX_KIND.0, "guideline"),(required_contract::CLINPGX_ANNOTATION.0, "annotation")].into_iter().map(|(name, mode)| transcript_trial(name, move || scenario(mode).map_err(Into::into))).collect()
+    [
+        (required_contract::CLINPGX_CLINICAL.0, "clinical"),
+        (required_contract::CLINPGX_KIND.0, "guideline"),
+        (required_contract::CLINPGX_ANNOTATION.0, "annotation"),
+    ]
+    .into_iter()
+    .map(|(name, mode)| transcript_trial(name, move || scenario(mode).map_err(Into::into)))
+    .collect()
 }
 fn environment(stub: &Stub) -> Result<Environment, String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
@@ -172,7 +178,9 @@ fn verify(name: &str, v: &Value, native: &Value) -> Check {
     if name == "empty" {
         super::pgx_retirements::bounded("ClinPGx empty", v)?;
     }
-    if name == "default" && super::source_terms::size(v, "")? > CLINICAL_PAGE_MAX_BYTES {
+    if name == "default"
+        && super::source_terms::size(v, "")? > super::output_limit("clinpgx-clinical-page")?
+    {
         return Err("clinical default exceeds its reviewed output ceiling".into());
     }
     if name == "annotation" {

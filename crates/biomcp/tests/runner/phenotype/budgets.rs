@@ -37,7 +37,7 @@ pub(super) fn mcp(
 
 fn ceiling(phase: &str, surface: &str) -> Result<usize, String> {
     if (phase, surface) == ("mod/help/invoke1", "cli") {
-        return Ok(super::super::CLI_HELP_BYTES);
+        return super::super::output_limit("cli-help");
     }
     let measurements: std::collections::BTreeMap<String, usize> = serde_saphyr::from_str(
         &crate::runner::launch::fixture_text("phenotype-command-budgets.yaml")?,

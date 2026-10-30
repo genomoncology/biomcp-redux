@@ -4,30 +4,24 @@ use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
-mod bad_values;
-mod card_failures;
-mod cards;
+
 mod complexes;
-mod composite;
-mod failures;
-mod identities;
-mod native;
+
 mod paging;
-mod policy;
-mod retirements;
+
 pub(super) fn trials() -> Vec<Trial> {
     // Keep dynamic state, source bindings or wire checks that YAML cannot express.
     vec![
-transcript_trial(crate::runner::pool_contract::DOMAIN_PAGES.0, || {
+        transcript_trial(crate::runner::pool_contract::DOMAIN_PAGES.0, || {
             paging::run().map_err(Into::into)
         }),
-transcript_trial(crate::runner::pool_contract::MEMBERS.0, || {
+        transcript_trial(crate::runner::pool_contract::MEMBERS.0, || {
             complexes::run().map_err(Into::into)
         }),
-transcript_trial(crate::runner::pool_contract::DOMAIN_TYPE.0, || {
+        transcript_trial(crate::runner::pool_contract::DOMAIN_TYPE.0, || {
             domains().map_err(Into::into)
-        })
-]
+        }),
+    ]
 }
 fn domains() -> Result<(), String> {
     let stub = Stub::for_source("www.ebi.ac.uk", "application/json", |_| {

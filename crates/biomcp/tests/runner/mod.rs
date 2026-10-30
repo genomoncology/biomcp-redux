@@ -1,31 +1,27 @@
-mod trial_condition;
-mod source_text;
 mod protein_commands;
+mod trial_condition;
 tool_only! { pub(super) mod other_source_value_proof; }
-mod local_files;
-mod key_reload;
-mod faers_search;
-mod disease_seer;
-mod disease_ols;
-mod disease_mydisease;
-mod trial_bad_values;
-mod native_fields;
-pub(super) mod cell_line;
-mod mapped_refusals;
-pub(super) mod case_main;
-mod adverse_event_failures;
 mod article_save;
 mod article_save_reply;
 mod assertions;
-mod author;
+pub(super) mod case_main;
+pub(super) mod cell_line;
+mod disease_mydisease;
+mod disease_ols;
+mod disease_seer;
 mod execution;
+mod faers_search;
+mod key_reload;
+mod local_files;
+mod mapped_refusals;
+mod native_fields;
 #[path = "../support/pool_contracts.rs"]
 mod pool_contract;
 #[path = "../support/synthetic_contracts.rs"]
 mod required_contract;
+mod trial_bad_values;
 tool_only! { pub(super) mod tools_api; }
 mod features;
-mod orcid;
 use crate::runner::transcript::trial as transcript_trial;
 use execution::run_step;
 mod alphagenome;
@@ -57,7 +53,6 @@ mod remote_tools;
 tool_only! { pub(crate) mod live; }
 tool_only! { mod live_follow_proof; }
 tool_only! { mod live_proof; }
-mod markdown;
 mod maude;
 mod maude_budget;
 mod mcp;
@@ -74,7 +69,6 @@ mod pathway_budgets;
 mod pathway_commands;
 mod pathway_get_pages;
 mod pathway_sections;
-mod pdf;
 mod pgx_retirements;
 mod phenotype;
 mod process;
@@ -92,7 +86,6 @@ mod response_cases;
 mod schema;
 tool_only! { mod schema_evolution; }
 mod schema_proof;
-mod scholar;
 tool_only! { mod semantic_tables; }
 mod source_terms;
 mod store_clean;
@@ -107,8 +100,15 @@ mod variant_hotspots;
 mod variant_population;
 mod wikipathways;
 
-// Complete help: j18463 measured 114273 bytes; reviewed ceiling adds fifteen percent.
-pub(super) const CLI_HELP_BYTES: usize = 152733;
+pub(super) fn output_limit(name: &str) -> Result<usize, String> {
+    let limits: std::collections::BTreeMap<String, usize> =
+        serde_saphyr::from_str(&launch::fixture_text("runner-output-budgets.yaml")?)
+            .map_err(|error| error.to_string())?;
+    limits
+        .get(name)
+        .copied()
+        .ok_or_else(|| format!("missing output budget: {name}"))
+}
 
 use libtest_mimic::Trial;
 use serde_json::Value;
@@ -209,8 +209,6 @@ fn run_case(path: &Path, registry: &schema::Registry) -> Result<Value, String> {
     previous.ok_or_else(|| "case requires at least one step".into())
 }
 
-
-
 pub(super) fn protocol_trials() -> Vec<Trial> {
     let mut trials = Vec::new();
     trials.extend(protocol::trials());
@@ -228,11 +226,8 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(vaers::trials());
     trials.extend(trial_get::trials());
     trials.extend(variant_assertion_wire::trials());
-    trials.extend(study_files::trials());
     trials.extend(evidence::trials());
     trials.extend(variant::trials());
-    trials.extend(variant_population::trials());
-    trials.extend(variant_population::trials());
     trials.extend(variant_population::trials());
     trials.extend(oncokb_context::trials());
     trials.extend(variant_assertions::trials());
@@ -240,7 +235,6 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(oncokb::trials());
     trials.extend(protein_sections::trials());
     trials.extend(drug_label::trials());
-    trials.extend(study_get::trials());
     trials.extend(study_catalog::trials());
     trials.extend(pathway_commands::trials());
     trials.extend(gwas_search::trials());
@@ -258,8 +252,13 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(nci::trials());
     trials.extend(drug_civic::trials());
     trials.push(citation_values::trial());
-    trials.push(transcript_trial(pool_contract::ARTICLE_SAVES.0, || article_save::check().map_err(Into::into)));
-    trials.push(transcript_trial("mcp-parity/ping-passes-held-provider-call", || held_proxy::check().map_err(Into::into)));
+    trials.push(transcript_trial(pool_contract::ARTICLE_SAVES.0, || {
+        article_save::check().map_err(Into::into)
+    }));
+    trials.push(transcript_trial(
+        "mcp-parity/ping-passes-held-provider-call",
+        || held_proxy::check().map_err(Into::into),
+    ));
     trials
 }
 
@@ -402,12 +401,9 @@ fn run_sequence_with(
 mod variant_assertion_wire;
 mod variant_assertions;
 
-
-
 mod gwas_budgets;
 mod gwas_get;
 mod gwas_search;
-
 
 mod reply_readback;
 

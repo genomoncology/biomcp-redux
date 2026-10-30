@@ -3,24 +3,21 @@ use super::{configuration::invoke, launch::Environment, network_stub::Stub};
 use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
-mod admission;
+
 mod budget;
-mod failures;
+
 mod fixture;
-mod influenza;
-mod live;
+
 mod navigation;
-mod policy;
-mod rejections;
+
 type Check = Result<(), String>;
 
 pub(super) fn trials() -> Vec<Trial> {
     // Keep dynamic state, source bindings or wire checks that YAML cannot express.
-    vec![
-transcript_trial(crate::runner::required_contract::VAERS_TABLES.0, || {
-            navigation::run().map_err(Into::into)
-        })
-]
+    vec![transcript_trial(
+        crate::runner::required_contract::VAERS_TABLES.0,
+        || navigation::run().map_err(Into::into),
+    )]
 }
 
 fn words(text: &str) -> Vec<String> {

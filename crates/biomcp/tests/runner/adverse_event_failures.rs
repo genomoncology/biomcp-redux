@@ -5,17 +5,7 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::{fs, path::Path};
 type Check = Result<(), String>;
-pub(super) fn trials() -> Vec<Trial> {
-    ["faers", "maude"]
-        .into_iter()
-        .map(|source| {
-            transcript_trial(
-                format!("adverse-event-failures/{source}/synthetic-429-500-timeout-broken"),
-                move || check(source).map_err(Into::into),
-            )
-        })
-        .collect()
-}
+
 fn words(source: &str) -> Vec<String> {
     [
         "search",

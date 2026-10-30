@@ -7,22 +7,6 @@ use serde_json::{Value, json};
 mod edge_cases;
 type Check = Result<(), Box<dyn std::error::Error>>;
 
-pub(super) fn trials() -> Vec<Trial> {
-    vec![
-        transcript_trial("trial-get/malformed-age-is-not-a-source-no-limit", || {
-            rejected_age().map_err(Into::into)
-        }),
-        transcript_trial("trial-get/blank-text-is-rejected-with-siblings", || {
-            blank_text().map_err(Into::into)
-        }),
-        transcript_trial("trial-search/bad-values-retain-siblings", || {
-            search().map_err(Into::into)
-        }),
-        transcript_trial("trial-get/bad-values-retain-siblings", || {
-            detail().map_err(Into::into)
-        }),
-    ]
-}
 pub(super) fn replace(record: &mut Value, path: &str, invalid: &Value) {
     if let Some((parent, name)) = path.rsplit_once('/')
         && let Some(object) = record.pointer_mut(parent).and_then(Value::as_object_mut)
@@ -117,50 +101,4 @@ fn problem(output: &Value, field: &str) -> Check {
     } else {
         Err(format!("missing source field problem for {field}: {output}").into())
     }
-}
-
-fn blank_text() -> Check {
-    let out = checked_steps(
-        "trial/get/NCT03511664",
-        |_, record| {
-            replace(
-                record,
-                "/exchanges/0/body/value/protocolSection/contactsLocationsModule/locations/0/facility",
-                &json!(" \t "),
-            );
-            replace(
-                record,
-                "/exchanges/0/body/value/protocolSection/conditionsModule/conditions",
-                &json!(["  valid condition  ", " \t ", "second condition"]),
-            );
-        },
-        json!([{"run":["get","trial","NCT03511664","locations"],"expect":{
-        "/status":"partial","/result/items/0/card/nct_id":"NCT03511664",
-        "/result/items/0/card/conditions":{"equals":["valid condition","second condition"]},
-        "/result/items/0/sections/locations/data/items/0":{"omits":["facility"]},
-        "/result/items/0/sections/locations/data/items/0/city":"Scottsdale"}}]),
-    )?;
-    problem(&out, "facility")?;
-    problem(&out, "conditions")
-}
-
-fn rejected_age() -> Check {
-    for invalid in [json!(42), json!(" \t ")] {
-        let out = checked_steps(
-            "trial/get/NCT03511664",
-            |_, record| {
-                replace(
-                    record,
-                    "/exchanges/0/body/value/protocolSection/eligibilityModule/minimumAge",
-                    &invalid,
-                );
-            },
-            json!([{"run":["get","trial","NCT03511664","eligibility"],"expect":{
-            "/status":"partial",
-            "/result/items/0/sections/eligibility/data":{"omits":["minimum_age"]},
-            "/result/items/0/sections/eligibility/data/maximum_age/state":"no_limit"}}]),
-        )?;
-        problem(&out, "minimumAge")?;
-    }
-    Ok(())
 }

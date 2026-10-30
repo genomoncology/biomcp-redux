@@ -10,11 +10,9 @@ use std::{fs, path::Path};
 type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
     // Keep dynamic state, source bindings or wire checks that YAML cannot express.
-    vec![
-transcript_trial(required_contract::STUDY_FILES.0, || {
-            pages().map_err(Into::into)
-        })
-]
+    vec![transcript_trial(required_contract::STUDY_FILES.0, || {
+        pages().map_err(Into::into)
+    })]
 }
 fn entries() -> Value {
     json!(

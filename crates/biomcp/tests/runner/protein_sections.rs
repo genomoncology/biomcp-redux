@@ -5,14 +5,13 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::{fs, path::Path};
 mod boundaries;
-mod native;
+
 pub(super) fn trials() -> Vec<Trial> {
     // Keep dynamic state, source bindings or wire checks that YAML cannot express.
-    vec![
-transcript_trial(crate::runner::pool_contract::FEATURES.0, || {
-            boundaries::features().map_err(Into::into)
-        })
-]
+    vec![transcript_trial(
+        crate::runner::pool_contract::FEATURES.0,
+        || boundaries::features().map_err(Into::into),
+    )]
 }
 fn setup(stub: &Stub) -> Result<Environment, String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
@@ -83,12 +82,4 @@ fn failures() -> Result<(), String> {
     Ok(())
 }
 
-tool_only! {
-pub(super) fn tool_trials() -> Vec<Trial> {
-    vec![
-        transcript_trial("protein-sections/invalid-feature-id-keeps-identity", || {
-            boundaries::feature_id().map_err(Into::into)
-        }),
-    ]
-}
-}
+tool_only! {}

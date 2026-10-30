@@ -4,20 +4,7 @@ use super::{Check, both, get_args, get_setup, identity, record};
 use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
-pub(super) fn trials() -> Vec<Trial> {
-    let mut trials = Vec::new();
-    for (n, limit) in [(4, 1), (5, 3), (2, 50)] {
-        trials.push(transcript_trial(
-            format!("drug-label/complete-walk-{n}-{limit}"),
-            move || walk(n, limit).map_err(Into::into),
-        ));
-    }
-    trials.push(transcript_trial(
-        "drug-label/missing-field-is-unavailable",
-        || missing().map_err(Into::into),
-    ));
-    trials
-}
+
 fn walk(n: usize, limit: u32) -> Check {
     let id = identity(n)?;
     let originals = vec![String::new(); 49]

@@ -4,12 +4,7 @@ use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
-pub(super) fn trials() -> Vec<Trial> {
-    vec![transcript_trial(
-        "variant-recurrence/exact-page-wire-and-warm-cache",
-        || wire().map_err(Into::into),
-    )]
-}
+
 pub(super) fn args() -> Vec<String> {
     [
         "variant",

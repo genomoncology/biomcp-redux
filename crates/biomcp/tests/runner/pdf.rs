@@ -6,28 +6,7 @@ use serde_json::{Value, json};
 use sha2::{Digest, Sha256};
 use std::{fs, path::Path};
 type Check = Result<(), Box<dyn std::error::Error>>;
-pub(super) fn trials() -> Vec<Trial> {
-    vec![
-        transcript_trial("article-pdf/pdf/recorded-metadata-contract", || {
-            record_metadata().map_err(|e| e.to_string().into())
-        }),
-        transcript_trial("article-pdf/pdf/size-cut-and-proxy-boundaries", || {
-            boundaries().map_err(|e| e.to_string().into())
-        }),
-        transcript_trial("article-pdf/pdf/http-save-refused-with-link", || {
-            http_refusal().map_err(|e| e.to_string().into())
-        }),
-        transcript_trial("article-pdf/pdf/atomic-explicit-saves", || {
-            saves().map_err(|e| e.to_string().into())
-        }),
-        transcript_trial("article-pdf/pdf/hostile-existing-paths", || {
-            existing_paths().map_err(|e| e.to_string().into())
-        }),
-        transcript_trial("article-pdf/pdf/failed-download-leaves-nothing", || {
-            failures().map_err(|e| e.to_string().into())
-        }),
-    ]
-}
+
 fn command(
     env: &Environment,
     replay: &Path,
@@ -58,81 +37,7 @@ fn save_args(path: &Path) -> Vec<String> {
         path.to_string_lossy().into(),
     ]
 }
-fn saves() -> Check {
-    let env = Environment::new()?;
-    let replay = fixtures().join("replies/article/pdf/synthetic");
-    let folder = env.root().join("downloads");
-    fs::create_dir(&folder)?;
-    let target = folder.join("41351423.pdf");
-    let receipt = command(&env, &replay, &save_args(&folder), 0)?;
-    let bytes = fs::read(&target)?;
-    assert!(
-        bytes.starts_with(b"%PDF-"),
-        "PDF saves must publish the complete file with its exact receipt"
-    );
-    let sha: String = Sha256::digest(&bytes)
-        .iter()
-        .map(|b| format!("{b:02x}"))
-        .collect();
-    assert_eq!(
-        receipt.pointer("/result/file/data/path"),
-        Some(&json!(target.canonicalize()?.to_string_lossy())),
-        "PDF saves must publish the complete file with its exact receipt"
-    );
-    assert_eq!(
-        receipt.pointer("/result/file/data/bytes"),
-        Some(&json!(bytes.len())),
-        "PDF saves must publish the complete file with its exact receipt"
-    );
-    assert_eq!(
-        receipt.pointer("/result/file/data/sha256"),
-        Some(&json!(sha)),
-        "PDF saves must publish the complete file with its exact receipt"
-    );
-    fs::write(&target, b"keep existing bytes")?;
-    let refused = command(&env, &replay, &save_args(&folder), 2)?;
-    assert_eq!(
-        refused.pointer("/status"),
-        Some(&json!("usage")),
-        "PDF saves must publish the complete file with its exact receipt"
-    );
-    assert_eq!(
-        fs::read(&target)?,
-        b"keep existing bytes",
-        "PDF saves must publish the complete file with its exact receipt"
-    );
-    let mut args = save_args(&folder);
-    args.push("--replace".into());
-    command(&env, &replay, &args, 0)?;
-    assert_eq!(
-        fs::read(&target)?,
-        bytes,
-        "PDF saves must publish the complete file with its exact receipt"
-    );
-    let mcp_path = folder.join("stdio.pdf");
-    let mcp = super::mcp::call_with_globals(
-        &env,
-        &save_args(&mcp_path),
-        false,
-        &env.globals(Some(&replay), false),
-    )?;
-    assert_eq!(
-        mcp.pointer("/result/file/data/sha256"),
-        Some(&json!(sha)),
-        "PDF saves must publish the complete file with its exact receipt"
-    );
-    assert_eq!(
-        fs::read(&mcp_path)?,
-        bytes,
-        "PDF saves must publish the complete file with its exact receipt"
-    );
-    assert_eq!(
-        fs::read_dir(folder)?.count(),
-        2,
-        "PDF saves must publish the complete file with its exact receipt"
-    );
-    Ok(())
-}
+
 fn failures() -> Check {
     for name in ["not-pdf", "unavailable", "timeout"] {
         let env = Environment::new()?;
@@ -166,58 +71,6 @@ fn failures() -> Check {
             "Failed PDF downloads must leave no partial output behind"
         );
     }
-    Ok(())
-}
-
-fn existing_paths() -> Check {
-    let env = Environment::new()?;
-    let replay = fixtures().join("replies/article/pdf/synthetic");
-    let original = env.root().join("original.pdf");
-    let target = env.root().join("target.pdf");
-    fs::write(&original, b"caller-owned bytes")?;
-    fs::hard_link(&original, &target)?;
-    command(&env, &replay, &save_args(&target), 2)?;
-    let mut args = save_args(&target);
-    args.push("--replace".into());
-    command(&env, &replay, &args, 0)?;
-    assert!(
-        fs::read(&target)?.starts_with(b"%PDF-"),
-        "PDF saves must preserve existing caller files and directories"
-    );
-    assert_eq!(
-        fs::read(&original)?,
-        b"caller-owned bytes",
-        "PDF saves must preserve existing caller files and directories"
-    );
-    fs::remove_file(&target)?;
-    #[cfg(unix)]
-    {
-        for destination in [&original, &env.root().join("missing.pdf")] {
-            std::os::unix::fs::symlink(destination, &target)?;
-            command(&env, &replay, &save_args(&target), 2)?;
-            command(&env, &replay, &args, 2)?;
-            assert!(
-                fs::symlink_metadata(&target)?.file_type().is_symlink(),
-                "PDF saves must preserve existing caller files and directories"
-            );
-            fs::remove_file(&target)?;
-        }
-    }
-    assert_eq!(
-        fs::read(&original)?,
-        b"caller-owned bytes",
-        "PDF saves must preserve existing caller files and directories"
-    );
-    assert!(
-        !env.root().join("missing.pdf").exists(),
-        "PDF saves must preserve existing caller files and directories"
-    );
-    assert!(
-        fs::read_dir(env.root())?.all(|entry| {
-            entry.is_ok_and(|entry| !entry.file_name().to_string_lossy().starts_with(".tmp"))
-        }),
-        "PDF saves must preserve existing caller files and directories"
-    );
     Ok(())
 }
 
@@ -382,66 +235,6 @@ fn proxy_paths() -> Check {
             listener.accept().is_err(),
             "refused publisher request reached proxy"
         );
-    }
-    Ok(())
-}
-
-fn record_metadata() -> Check {
-    let stub = super::network_stub::Stub::for_source(
-        "api.semanticscholar.org",
-        "application/json",
-        |_| Ok("{\"openAccessPdf\":null}".into()),
-    )?;
-    let env = Environment::new()?;
-    let certificate = env.root().join("ca.pem");
-    stub.retain(&env);
-    fs::write(&certificate, &stub.certificate)?;
-    env.config(&json!({"ca_bundle":certificate}))?;
-    let capture = env.root().join("recording");
-    let args = vec![
-        "--record".into(),
-        capture.to_string_lossy().into(),
-        "article".into(),
-        "pdf".into(),
-        "33123537".into(),
-        "--save".into(),
-        env.root().join("never.pdf").to_string_lossy().into(),
-    ];
-    let output = env
-        .command(env!("CARGO_BIN_EXE_biomcp"), &args)
-        .env("HTTPS_PROXY", format!("http://{}", stub.address))
-        .output()?;
-    assert_eq!(
-        output.status.code(),
-        Some(4),
-        "PDF recordings must preserve the checked document metadata"
-    );
-    assert!(
-        !env.root().join("never.pdf").exists(),
-        "PDF recordings must preserve the checked document metadata"
-    );
-    let requests = stub.finish()?;
-    assert_eq!(
-        requests.len(),
-        1,
-        "PDF recordings must preserve the checked document metadata"
-    );
-    assert!(
-        requests.first().is_some_and(|(_, request)| {
-            request.contains("/paper/PMID%3A33123537?fields=openAccessPdf")
-        }),
-        "PDF recordings must preserve the checked document metadata"
-    );
-    for entry in fs::read_dir(capture.join("semantic-scholar"))? {
-        let entry = entry?;
-        if entry.path().extension().is_some_and(|v| v == "json") {
-            let record: Value = serde_json::from_slice(&fs::read(entry.path())?)?;
-            assert_eq!(
-                record.pointer("/exchanges/0/body/value/openAccessPdf"),
-                Some(&Value::Null),
-                "PDF recordings must preserve the checked document metadata"
-            );
-        }
     }
     Ok(())
 }

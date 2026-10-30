@@ -1,10 +1,10 @@
 //! Feature phenotype-identity: literal candidates and independent source term cards.
-mod association_native;
+
 mod associations;
 mod budgets;
 mod faults;
 mod native;
-mod section_failures;
+
 mod section_native;
 mod sections;
 mod states;

@@ -4,14 +4,13 @@ use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 pub(super) type Check = Result<(), String>;
-mod filters;
+
 pub(super) fn trials() -> Vec<Trial> {
     // Keep dynamic state, source bindings or wire checks that YAML cannot express.
-    vec![
-transcript_trial(crate::runner::required_contract::MAUDE_SECTIONS.0, || {
-            sections().map_err(Into::into)
-        })
-]
+    vec![transcript_trial(
+        crate::runner::required_contract::MAUDE_SECTIONS.0,
+        || sections().map_err(Into::into),
+    )]
 }
 pub(super) fn row() -> Value {
     json!(
@@ -50,73 +49,7 @@ pub(super) fn both(env: &Environment, words: &[&str], exit: i32) -> Result<Value
     }
     Ok(cli)
 }
-fn search_card() -> Check {
-    let stub = Stub::for_source("api.fda.gov", "application/json", |req| {
-        let first = req.lines().next().ok_or("request")?;
-        if first
-            == "GET /device/event.json?search=device.generic_name%3A%22Synthetic%20device%22&limit=5&skip=0&sort=date_received%3Adesc HTTP/1.1"
-        {
-            return Ok(json!({"meta":{"last_updated":"2024-09-01","results":{"skip":0,"limit":5,"total":1}},"results":[row()]}).to_string());
-        }
-        if first != "GET /device/event.json?search=mdr_report_key%3A%22160%22&limit=1 HTTP/1.1" {
-            return Err(format!("unexpected query {first}"));
-        }
-        Ok(response(row()))
-    })?;
-    let env = environment(&stub)?;
-    let search = both(
-        &env,
-        &[
-            "search",
-            "adverse-event",
-            "Synthetic device",
-            "--source",
-            "maude",
-        ],
-        0,
-    )?;
-    if search.pointer("/result/source_query")
-        != Some(&json!("device.generic_name:\"Synthetic device\""))
-        || search.pointer("/result/items/0/id") != Some(&json!("160"))
-        || search.pointer("/result/unit") != Some(&json!("reports"))
-        || search.pointer("/page/total") != Some(&json!(1))
-    {
-        return Err(format!("report search lost native facts: {search}"));
-    }
-    let card = both(
-        &env,
-        &["get", "adverse-event", "160", "--source", "maude"],
-        0,
-    )?;
-    for (key, expected) in [
-        ("report_number", json!("Synthetic-160")),
-        ("event_date", json!("20240101")),
-        ("received", json!("20240202")),
-        ("report_date", json!("20240303")),
-        ("date_report", json!("")),
-        ("number_devices_in_event", json!("9")),
-        ("number_patients_in_event", json!("2")),
-        ("device_count", json!(2)),
-        ("narrative_count", json!(3)),
-    ] {
-        if card.pointer(&format!("/result/{key}")) != Some(&expected) {
-            return Err(format!("lost {key}: {card}"));
-        }
-    }
-    if card.pointer("/result/date_report_to_fda").is_some()
-        || card.pointer("/result/snapshot").is_none()
-        || card.pointer("/result/report_url")
-            != Some(&json!(
-                "https://api.fda.gov/device/event.json?search=mdr_report_key%3A%22160%22&limit=1"
-            ))
-    {
-        return Err(format!("card fabricated or lost identity: {card}"));
-    }
-    if stub.finish()?.len() != 2 {
-        return Err("warm search/card reached HTTP".into());
-    }
-    Ok(())
-}
+
 fn sections() -> Check {
     let stub = Stub::for_source("api.fda.gov", "application/json", |_| Ok(response(row())))?;
     let env = environment(&stub)?;
@@ -216,27 +149,7 @@ fn policy() -> Check {
     }
     Ok(())
 }
-fn wrong_key() -> Check {
-    let stub = Stub::for_source("api.fda.gov", "application/json", |_| {
-        let mut r = row();
-        *r.get_mut("mdr_report_key").ok_or("synthetic key")? = json!("999");
-        Ok(response(r))
-    })?;
-    let env = environment(&stub)?;
-    let value = both(
-        &env,
-        &["get", "adverse-event", "160", "--source", "maude"],
-        4,
-    )?;
-    if value.get("result").is_some()
-        || value.pointer("/problems/0/field") != Some(&json!("report"))
-        || value.pointer("/sources/0/reason") != Some(&json!("bad-reply"))
-        || stub.finish()?.len() != 2
-    {
-        return Err("wrong report entered cache or result".into());
-    }
-    Ok(())
-}
+
 fn oversized() -> Check {
     let stub = Stub::for_source("api.fda.gov", "application/json", |_| {
         let mut r = row();

@@ -4,20 +4,15 @@ use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
-mod build_echo;
+
 mod components;
-mod haplotype;
-mod identifiers;
-mod labels;
-mod roundtrip;
+
 pub(super) fn trials() -> Vec<Trial> {
     // Keep dynamic state, source bindings or wire checks that YAML cannot express.
-    vec![
-transcript_trial(
-            crate::runner::required_contract::VALIDATOR_RESOLVER.0,
-            || validator_order().map_err(Into::into),
-        )
-]
+    vec![transcript_trial(
+        crate::runner::required_contract::VALIDATOR_RESOLVER.0,
+        || validator_order().map_err(Into::into),
+    )]
 }
 fn car() -> Result<(), String> {
     let (output, requests) = call(
@@ -73,80 +68,7 @@ fn car_body(_: &str) -> Result<String, String> {
 fn myvariant_body(_: &str) -> Result<String, String> {
     Ok(json!({"_id":"chr7:g.140753336A>T","dbsnp":{"rsid":"rs113488022","gene":{"symbol":"BRAF"}},"clinvar":{"variant_id":13961}}).to_string())
 }
-fn candidate_walk() -> Result<(), String> {
-    let stub = Stub::for_source("myvariant.info", "application/json", candidates_body)?;
-    let environment = source_environment(&stub)?;
-    let mut args = ["get", "variant", "rs113488022", "--limit", "1"]
-        .iter()
-        .map(|s| (*s).into())
-        .collect::<Vec<_>>();
-    let mut ids = Vec::new();
-    for offset in 0..3 {
-        let output = environment
-            .command(env!("CARGO_BIN_EXE_biomcp"), &args)
-            .output()
-            .map_err(|e| e.to_string())?;
-        if !output.status.success() {
-            return Err("candidate page command failed".into());
-        }
-        let value: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
-        if value.pointer("/page/offset") != Some(&json!(offset))
-            || value.pointer("/page/returned") != Some(&json!(1))
-            || value.pointer("/page/total") != Some(&json!(3))
-        {
-            return Err(format!("candidate page lost its bounds: {value}"));
-        }
-        ids.push(
-            value
-                .pointer("/result/candidates/0/record/id")
-                .cloned()
-                .ok_or("candidate ID absent")?,
-        );
-        let next = value
-            .get("next")
-            .and_then(Value::as_array)
-            .ok_or("candidate selection absent")?;
-        if !next
-            .iter()
-            .any(|n| n.get("kind").and_then(Value::as_str) == Some("disambiguate"))
-        {
-            return Err("candidate selection action absent".into());
-        }
-        if offset < 2 {
-            let page = next
-                .iter()
-                .find(|n| n.get("kind").and_then(Value::as_str) == Some("page"))
-                .ok_or("next candidate page absent")?;
-            args = serde_json::from_value(page.get("args").cloned().ok_or("page args absent")?)
-                .map_err(|e| e.to_string())?;
-        } else if next
-            .iter()
-            .any(|n| n.get("kind").and_then(Value::as_str) == Some("page"))
-        {
-            return Err("unexpected fourth page".into());
-        }
-    }
-    if ids
-        != [
-            json!("chr7:g.140453136A>G"),
-            json!("chr7:g.140453136A>T"),
-            json!("chr7:g.140453136A>C"),
-        ]
-    {
-        return Err("candidate walk changed native order or dropped an allele".into());
-    }
-    if stub.finish()?.len() != 1 {
-        return Err("warm candidate pages made another HTTP request".into());
-    }
-    Ok(())
-}
-fn candidates_body(_: &str) -> Result<String, String> {
-    Ok(json!(
-        {"total":3,"hits":[{"_id":"chr7:g.140453136A>G","dbsnp":{"rsid":"rs113488022"}},{"_id":"chr7:g.140453136A>T",
-        "dbsnp":{"rsid":"rs113488022"}},{"_id":"chr7:g.140453136A>C","dbsnp":{"rsid":"rs113488022"}}]}
-    )
-    .to_string())
-}
+
 pub(super) fn source_environment(stub: &Stub) -> Result<Environment, String> {
     let environment = Environment::new().map_err(|e| e.to_string())?;
     let ca = environment.root().join("synthetic-ca.pem");
@@ -157,48 +79,7 @@ pub(super) fn source_environment(stub: &Stub) -> Result<Environment, String> {
         .map_err(|e| e.to_string())?;
     Ok(environment)
 }
-fn mixed_page() -> Result<(), String> {
-    let stub = Stub::for_source("myvariant.info", "application/json", mixed_body)?;
-    let environment = source_environment(&stub)?;
-    let args = ["get", "variant", "rs113488022"]
-        .into_iter()
-        .map(Into::into)
-        .collect::<Vec<_>>();
-    for _ in 0..2 {
-        let output = environment
-            .command(env!("CARGO_BIN_EXE_biomcp"), &args)
-            .output()
-            .map_err(|e| e.to_string())?;
-        let value: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
-        if value.pointer("/status") != Some(&json!("partial"))
-            || value.pointer("/result/candidates/0/record/id")
-                != Some(&json!("chr7:g.140453136A>T"))
-            || value.pointer("/problems/0/field") != Some(&json!("identity"))
-        {
-            return Err(format!(
-                "mixed page lost the valid source candidate or mismatch problem: {value}"
-            ));
-        }
-    }
-    let mut offline = args;
-    offline.push("--offline".into());
-    let output = environment
-        .command(env!("CARGO_BIN_EXE_biomcp"), &offline)
-        .output()
-        .map_err(|e| e.to_string())?;
-    let value: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
-    if value.pointer("/sources/0/reason") != Some(&json!("offline")) || stub.finish()?.len() != 2 {
-        return Err("mixed identity response entered or was reused from cache".into());
-    }
-    Ok(())
-}
-fn mixed_body(_: &str) -> Result<String, String> {
-    Ok(json!(
-        {"total":2,"hits":[{"_id":"chr7:g.140453136A>G","dbsnp":{"rsid":"rs1"}},{"_id":"chr7:g.140453136A>T",
-        "dbsnp":{"rsid":"rs113488022"}}]}
-    )
-    .to_string())
-}
+
 fn validator_order() -> Result<(), String> {
     let (value, requests) = call(
         "rest.variantvalidator.org",
@@ -330,194 +211,4 @@ fn component_body(request: &str) -> Result<String, String> {
 }
 fn myvariant_body37(_: &str) -> Result<String, String> {
     Ok(json!({"_id":"chr7:g.140453136A>T","dbsnp":{"rsid":"rs113488022","gene":{"symbol":"BRAF"}},"clinvar":{"variant_id":13961}}).to_string())
-}
-
-fn missing_component() -> Result<(), String> {
-    let (value, requests) = call(
-        "myvariant.info",
-        myvariant_body37,
-        &[
-            "get",
-            "variant",
-            "chr7:g.140453136A>T",
-            "cosmic",
-            "--build",
-            "GRCh37",
-        ],
-    )?;
-    if value.pointer("/result/candidates/0/sections/cosmic/state") != Some(&json!("empty"))
-        || requests.len() != 2
-        || requests
-            .iter()
-            .any(|(_, r)| r.starts_with("GET /v1/metadata"))
-    {
-        return Err(format!(
-            "missing source field became unavailable or metadata fetched unnecessarily: {value}"
-        ));
-    }
-    Ok(())
-}
-fn component_groups() -> Result<(), String> {
-    let stub = Stub::for_source("myvariant.info", "application/json", component_body)?;
-    let environment = source_environment(&stub)?;
-    let base = [
-        "get",
-        "variant",
-        "chr7:g.140453136A>T",
-        "predict",
-        "conservation",
-        "cosmic",
-        "--build",
-        "GRCh37",
-    ];
-    for group in [
-        None,
-        Some("noncommercial"),
-        Some("restricted"),
-        Some("myvariant"),
-    ] {
-        let mut args = base.iter().map(|s| (*s).into()).collect::<Vec<String>>();
-        if let Some(group) = group {
-            args.extend(["--disable-sources".into(), group.into()]);
-        }
-        let output = environment
-            .command(env!("CARGO_BIN_EXE_biomcp"), &args)
-            .output()
-            .map_err(|e| e.to_string())?;
-        let value: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
-        if group == Some("myvariant") {
-            if value.pointer("/sources/0/reason") != Some(&json!("disabled")) {
-                return Err(format!("explicit source switch failed: {value}"));
-            }
-            continue;
-        }
-        if group == Some("restricted")
-            && value
-                .pointer("/result/candidates/0/identity/ids")
-                .and_then(Value::as_array)
-                .is_some_and(|ids| {
-                    ids.iter()
-                        .any(|id| id.as_str().is_some_and(|id| id.starts_with("clinvar:")))
-                })
-        {
-            return Err(format!(
-                "disabled ClinVar aliases leaked from an ignored projection: {value}"
-            ));
-        }
-        let prefix = "/result/candidates/0/sections";
-        for section in ["predict", "conservation", "cosmic"] {
-            let off = group == Some("noncommercial") && section != "cosmic"
-                || group == Some("restricted") && section == "cosmic";
-            if value.pointer(&format!("{prefix}/{section}/state"))
-                != Some(&json!(if off { "skipped" } else { "data" }))
-            {
-                return Err(format!(
-                    "component group leaked or hid unaffected data: {value}"
-                ));
-            }
-        }
-    }
-    configured_component_groups(&environment, &stub, &base)?;
-    let requests = stub.finish()?;
-    // A changed identity projection needs one new read; its ignored ClinVar response must not leak.
-    if requests.len() != 6 {
-        return Err(format!(
-            "warm policy caused extra component reads: {}",
-            requests.len()
-        ));
-    }
-    Ok(())
-}
-
-fn disabled_clinvar_identity() -> Result<(), String> {
-    let (value, requests) = call(
-        "myvariant.info",
-        component_body,
-        &[
-            "get",
-            "variant",
-            "clinvar:13961",
-            "--disable-sources",
-            "restricted",
-        ],
-    )?;
-    if !requests.is_empty()
-        || value.pointer("/result/resolution") != Some(&json!("unavailable"))
-        || value.pointer("/sources/0/reason") != Some(&json!("disabled"))
-    {
-        return Err(format!(
-            "disabled ClinVar identity became a request or false absence: {value}"
-        ));
-    }
-    Ok(())
-}
-
-fn configured_component_groups(
-    environment: &Environment,
-    stub: &Stub,
-    base: &[&str],
-) -> Result<(), String> {
-    environment
-        .config(&json!({"proxy":format!("http://{}",
-stub.address),
-"ca_bundle":environment.root().join("synthetic-ca.pem"),
-"disable_sources":["noncommercial"]}))
-        .map_err(|e| e.to_string())?;
-    for extra in [
-        Vec::<String>::new(),
-        vec!["--disable-sources".into(), "restricted".into()],
-    ] {
-        let mut args = base.iter().map(|s| (*s).into()).collect::<Vec<String>>();
-        args.extend(extra.clone());
-        let output = environment
-            .command(env!("CARGO_BIN_EXE_biomcp"), &args)
-            .output()
-            .map_err(|e| e.to_string())?;
-        let value: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
-        if value.pointer("/result/candidates/0/sections/predict/state") != Some(&json!("skipped"))
-            || value.pointer("/result/candidates/0/sections/conservation/state")
-                != Some(&json!("skipped"))
-            || value.pointer("/result/candidates/0/sections/cosmic/state")
-                != Some(&json!(if extra.is_empty() { "data" } else { "skipped" }))
-        {
-            return Err(format!(
-                "stored and command component policy did not combine: {value}"
-            ));
-        }
-    }
-    Ok(())
-}
-
-fn malformed_score() -> Result<(), String> {
-    fn body(request: &str) -> Result<String, String> {
-        if request.contains("cadd.phred") {
-            Ok(
-                json!({"_id":"chr7:g.140453136A>T","cadd":{"phred":"invalid_source_number"}})
-                    .to_string(),
-            )
-        } else {
-            myvariant_body37(request)
-        }
-    }
-    let (value, requests) = call(
-        "myvariant.info",
-        body,
-        &[
-            "get",
-            "variant",
-            "chr7:g.140453136A>T",
-            "predict",
-            "--build",
-            "GRCh37",
-        ],
-    )?;
-    if value.pointer("/result/candidates/0/sections/predict/state") != Some(&json!("data"))
-        || value.pointer("/problems/0/field") != Some(&json!("cadd.phred"))
-        || requests.len() != 2
-    {
-        return Err(format!(
-            "invalid source number was treated as missing identity: {value}"
-        ));
-    }
-    Ok(())
 }

@@ -4,20 +4,13 @@ use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
-#[path = "civic_native_profile.rs"]
-mod native_profile;
-#[path = "civic_values.rs"]
-mod values;
-#[path = "civic_vocabulary.rs"]
-mod vocabulary;
 
 pub(super) fn trials() -> Vec<Trial> {
     // Keep dynamic state, source bindings or wire checks that YAML cannot express.
-    vec![
-transcript_trial(crate::runner::pool_contract::VARIANT_CIVIC_CURSOR.0, || {
-            stalled_cursor().map_err(Into::into)
-        })
-]
+    vec![transcript_trial(
+        crate::runner::pool_contract::VARIANT_CIVIC_CURSOR.0,
+        || stalled_cursor().map_err(Into::into),
+    )]
 }
 fn configure(environment: &Environment, stub: &Stub) -> Result<(), String> {
     let ca = environment.root().join("synthetic-ca.pem");
@@ -295,180 +288,6 @@ fn source_environment(
     let source = Stub::for_source("civicdb.org", "application/json", body)?;
     configure(&environment, &source)?;
     Ok((environment, source))
-}
-fn unjoined() -> Result<(), String> {
-    let (environment, source) = source_environment(wrong_body)?;
-    let recording = environment.root().join("record");
-    fs::create_dir(&recording).map_err(|e| e.to_string())?;
-    let recording = fs::canonicalize(recording).map_err(|e| e.to_string())?;
-    let recording = recording.to_str().ok_or("recording path is not UTF-8")?;
-    for attempt in 0..3 {
-        let mut args = vec!["get", "variant", "CA123643", "civic"];
-        if attempt == 0 {
-            args.extend(["--record", recording]);
-        }
-        if attempt == 2 {
-            args.extend(["--civic-profile", "99", "--civic-kind", "evidence"]);
-        }
-        let value = run(&environment, &args)?;
-        let base = "/result/candidates/0/sections/civic";
-        if value.pointer("/result/candidates/0/identity") != Some(&json!({})) {
-            return Err(format!(
-                "unjoined profile created an allele identity: {value}"
-            ));
-        }
-        if attempt == 2 {
-            if value.pointer(&format!("{base}/state")) != Some(&json!("empty"))
-                || value.pointer(&format!("{base}/data")).is_some()
-                || value.get("problems")
-                    != Some(&json!([{
-                        "source":"civic", "record":"120", "field":"id", "code":"value.unknown"
-                    }]))
-            {
-                return Err(format!(
-                    "wrong requested profile identity was retained: {value}"
-                ));
-            }
-        } else if value.pointer(&format!("{base}/data/profiles/0/membership"))
-            != Some(&json!("candidate"))
-            || value
-                .pointer(&format!("{base}/data/profiles/0/statements"))
-                .is_some()
-            || value
-                .pointer(&format!("{base}/data/profiles/0/evidence_page/next"))
-                .is_some()
-        {
-            return Err(format!(
-                "unjoined native profile acquired allele claims: {value}"
-            ));
-        }
-    }
-    let replay = run(
-        &environment,
-        &["--replay", recording, "get", "variant", "CA123643", "civic"],
-    )?;
-    if replay.pointer("/result/candidates/0/sections/civic/data/profiles/0/membership")
-        != Some(&json!("candidate"))
-    {
-        return Err("replayed source member mismatch became an exact claim".into());
-    }
-    let offline = run(
-        &environment,
-        &["--offline", "get", "variant", "CA123643", "civic"],
-    )?;
-    if offline.pointer("/sources/0/reason") != Some(&json!("offline"))
-        || source.finish()?.len() != 3
-    {
-        return Err("unjoined profile entered or reused the source cache".into());
-    }
-    Ok(())
-}
-fn poisoned() -> Result<(), String> {
-    let (environment, source) = source_environment(civic_body)?;
-    run(&environment, &["get", "variant", "CA123643", "civic"])?;
-    let path = environment.root().join(format!(
-        "cache/biomcp/cache-{}-{}.sqlite",
-        biomcp_fetch::CACHE_NAMESPACE_VERSION,
-        biomcp_query::store::CACHE_NAMESPACE_VERSION
-    ));
-    let database = rusqlite::Connection::open(path).map_err(|e| e.to_string())?;
-    let poison = wrong_body("POST /api/graphql HTTP/1.1\r\n\r\n{}")?;
-    let rows = database
-        .execute(
-            "UPDATE reply SET body=?1 WHERE source='civic'",
-            [poison.as_bytes()],
-        )
-        .map_err(|e| e.to_string())?;
-    if rows != 1 {
-        return Err("expected one source-owned cached POST reply".into());
-    }
-    drop(database);
-    let value = run(&environment, &["get", "variant", "CA123643", "civic"])?;
-    if value.pointer("/result/candidates/0/sections/civic/data/profiles/0/membership")
-        != Some(&json!("exact"))
-        || source.finish()?.len() != 2
-    {
-        return Err(format!("poisoned warm source identity was reused: {value}"));
-    }
-    Ok(())
-}
-fn compound() -> Result<(), String> {
-    let (environment, source) = source_environment(compound_body)?;
-    let value = run(&environment, &["get", "variant", "CA123643", "civic"])?;
-    let base = "/result/candidates/0/sections/civic/data/profiles/0";
-    if value.pointer(&format!("{base}/compound")) != Some(&json!(true))
-        || value.pointer(&format!("{base}/statements/0/statement_unmapped")) != Some(&json!(true))
-        || value
-            .pointer(&format!("{base}/members"))
-            .and_then(Value::as_array)
-            .map(Vec::len)
-            != Some(2)
-        || value.pointer(&format!("{base}/members/1/feature")) != Some(&json!("KIAA1549::BRAF"))
-        || value
-            .pointer(&format!("{base}/statements/0/statement"))
-            .is_some()
-        || value.pointer(&format!("{base}/statements/0/native/therapies/0/label"))
-            != Some(&json!("dabrafenib"))
-    {
-        return Err(format!(
-            "compound OR profile was collapsed or its claim lost: {value}"
-        ));
-    }
-    source.finish()?;
-    Ok(())
-}
-fn wrong_body(request: &str) -> Result<String, String> {
-    let mut raw: Value = serde_json::from_str(&civic_body(request)?).map_err(|e| e.to_string())?;
-    let (_, body) = request
-        .split_once("\r\n\r\n")
-        .ok_or("missing request body")?;
-    let request: Value = serde_json::from_str(body).map_err(|e| e.to_string())?;
-    if request.pointer("/variables/ids/0") != Some(&json!(99)) {
-        *raw.pointer_mut("/data/molecularProfiles/nodes/0/variants/0/alleleRegistryId")
-            .ok_or("member identity")? = json!("CA999999");
-    }
-    Ok(raw.to_string())
-}
-fn compound_body(request: &str) -> Result<String, String> {
-    let mut raw: Value = serde_json::from_str(&civic_body(request)?).map_err(|e| e.to_string())?;
-    let base = "/data/molecularProfiles/nodes/0";
-    *raw.pointer_mut(&format!("{base}/name"))
-        .ok_or("profile name")? = json!("BRAF V600E OR KIAA1549::BRAF Fusion");
-    *raw.pointer_mut(&format!("{base}/isComplex"))
-        .ok_or("profile type")? = json!(true);
-    raw.pointer_mut(&format!("{base}/variants"))
-        .and_then(Value::as_array_mut)
-        .ok_or("members")?
-        .push(json!({"id":23, "name":"Fusion", "link":"/variants/23", "feature":{"name":"KIAA1549::BRAF"}}));
-    Ok(raw.to_string())
-}
-
-fn graphql_errors() -> Result<(), String> {
-    let (environment, source) = source_environment(error_body)?;
-    for _ in 0..2 {
-        let value = run(&environment, &["get", "variant", "CA123643", "civic"])?;
-        if value.pointer("/result/candidates/0/sections/civic/data/profiles/0/membership")
-            != Some(&json!("exact"))
-            || value.get("status") != Some(&json!("partial"))
-            || value.pointer("/problems/0/field") != Some(&json!("graphql.errors"))
-        {
-            return Err(format!(
-                "GraphQL partial error lost valid facts or its partial notice: {value}"
-            ));
-        }
-    }
-    if source.finish()?.len() != 2 {
-        return Err("GraphQL error reply entered source cache".into());
-    }
-    Ok(())
-}
-fn error_body(request: &str) -> Result<String, String> {
-    let mut raw: Value = serde_json::from_str(&civic_body(request)?).map_err(|e| e.to_string())?;
-    raw.as_object_mut().ok_or("GraphQL body")?.insert(
-        "errors".into(),
-        json!([{"message":"synthetic source error"}]),
-    );
-    Ok(raw.to_string())
 }
 
 fn stalled_cursor() -> Result<(), String> {

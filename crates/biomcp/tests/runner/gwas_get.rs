@@ -8,20 +8,18 @@ use std::{
     fs,
     path::{Path, PathBuf},
 };
-mod failures;
-mod native;
-mod state;
+
 mod synthetic;
 pub(super) fn trials() -> Vec<Trial> {
     // Keep dynamic state, source bindings or wire checks that YAML cannot express.
     vec![
-transcript_trial(required_contract::GWAS_ANCESTRY.0, || {
+        transcript_trial(required_contract::GWAS_ANCESTRY.0, || {
             synthetic::ancestry().map_err(Into::into)
         }),
-transcript_trial(required_contract::GWAS_ASSOCIATIONS.0, || {
+        transcript_trial(required_contract::GWAS_ASSOCIATIONS.0, || {
             synthetic::contexts().map_err(Into::into)
-        })
-]
+        }),
+    ]
 }
 const BASE: &str = "https://www.ebi.ac.uk/gwas/rest/api/v2";
 fn card() -> Value {

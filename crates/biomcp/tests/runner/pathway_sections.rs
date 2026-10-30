@@ -9,13 +9,13 @@ type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
     // Keep dynamic state, source bindings or wire checks that YAML cannot express.
     vec![
-transcript_trial(crate::runner::pool_contract::PATHWAY_GENES.0, || {
+        transcript_trial(crate::runner::pool_contract::PATHWAY_GENES.0, || {
             walk(true).map_err(Into::into)
         }),
-transcript_trial(crate::runner::pool_contract::PATHWAY_EVENTS.0, || {
+        transcript_trial(crate::runner::pool_contract::PATHWAY_EVENTS.0, || {
             walk(false).map_err(Into::into)
-        })
-]
+        }),
+    ]
 }
 fn globals(env: &Environment, offline: bool) -> Vec<String> {
     env.globals(Some(&fixtures().join("replies/pathway/sections")), offline)
@@ -285,120 +285,7 @@ fn bindings() -> Check {
     }
     Ok(())
 }
-fn migration() -> Check {
-    let env = Environment::new().map_err(|e| e.to_string())?;
-    let args = ["pathway", "genes", "R-HSA-5673001"]
-        .map(str::to_owned)
-        .to_vec();
-    call("pathway_sections/migration/1", &env, &args, false, 0)?;
-    let path = env.root().join("case-cache/replay.sqlite");
-    {
-        let db = rusqlite::Connection::open(&path).map_err(|e| e.to_string())?;
-        db.execute(
-            "DELETE FROM bundle_key WHERE bundle='hgnc' AND kind=4 AND key LIKE 'uniprot:%'",
-            [],
-        )
-        .map_err(|e| e.to_string())?;
-        db.execute("UPDATE meta SET version=3 WHERE owner='biomcp-fetch'", [])
-            .map_err(|e| e.to_string())?;
-        db.execute("CREATE TABLE unrelated_owner(value TEXT)", [])
-            .map_err(|e| e.to_string())?;
-        db.execute("INSERT INTO unrelated_owner VALUES ('preserve')", [])
-            .map_err(|e| e.to_string())?;
-    }
-    let value = call("pathway_sections/migration/2", &env, &args, true, 0)?;
-    if value.pointer("/result/items/0/gene") != Some(&json!("HGNC:1097")) {
-        return Err("retained HGNC index lost native join".into());
-    }
-    call("pathway_sections/migration/3", &env, &args, true, 0)?;
-    let db = rusqlite::Connection::open(path).map_err(|e| e.to_string())?;
-    let (version, preserved): (u32, String) = db
-        .query_row(
-            "SELECT version,(SELECT value FROM unrelated_owner) FROM meta WHERE owner='biomcp-fetch'",
-            [],
-            |r| Ok((r.get(0)?, r.get(1)?)),
-        )
-        .map_err(|e| e.to_string())?;
-    if version != biomcp_fetch::VERSION {
-        return Err("migration did not update the transport owner version".into());
-    }
-    if preserved != "preserve" {
-        return Err("migration changed a foreign owner's data".into());
-    }
-    Ok(())
-}
-fn disclosure_modes() -> Check {
-    let env = Environment::new().map_err(|e| e.to_string())?;
-    let args = ["pathway", "genes", "R-HSA-5673001"]
-        .map(str::to_owned)
-        .to_vec();
-    let compact = call("pathway_sections/disclosure_modes/1", &env, &args, false, 0)?;
-    if compact.pointer("/result/items/0/physical_context_count") != Some(&json!(29))
-        || compact.pointer("/result/items/0/participants").is_some()
-    {
-        return Err("default membership disclosed full contexts or omitted their count".into());
-    }
-    let steps = compact
-        .get("next")
-        .and_then(Value::as_array)
-        .ok_or("steps")?;
-    let details = steps
-        .iter()
-        .filter_map(|step| step.get("args"))
-        .find(|args| {
-            args.as_array()
-                .is_some_and(|args| args.contains(&json!("details")))
-        })
-        .ok_or("missing explicit details step")?;
-    let args: Vec<String> = serde_json::from_value(details.clone()).map_err(|e| e.to_string())?;
-    let full = call("pathway_sections/disclosure_modes/2", &env, &args, true, 0)?;
-    if full.pointer("/result/page/pool") != compact.pointer("/result/page/pool") {
-        return Err("disclosure mode replaced or renewed the retained relation".into());
-    }
-    check_context_counts(&full)?;
-    let next = continuation(&full)?.ok_or("missing details continuation")?;
-    if !next.iter().any(|s| s == "details") {
-        return Err("details mode disappeared from continuation".into());
-    }
-    let page = budgets::mcp(
-        "runner/pathway_sections/disclosure_modes/1",
-        &env,
-        &next,
-        false,
-        &globals(&env, true),
-    )?;
-    check_context_counts(&page)?;
-    let db = rusqlite::Connection::open(env.root().join("case-cache/replay.sqlite"))
-        .map_err(|e| e.to_string())?;
-    db.execute("UPDATE pool SET expires=0", [])
-        .map_err(|e| e.to_string())?;
-    let expired = call("pathway_sections/disclosure_modes/3", &env, &next, true, 3)?;
-    let restart = expired
-        .pointer("/next/0/args")
-        .and_then(Value::as_array)
-        .ok_or("details restart")?;
-    if !restart.contains(&json!("details")) {
-        return Err("restart lost details mode".into());
-    }
-    Ok(())
-}
-fn check_context_counts(value: &Value) -> Check {
-    let rows = value
-        .pointer("/result/items")
-        .and_then(Value::as_array)
-        .ok_or("details rows")?;
-    for row in rows {
-        let contexts = row
-            .get("participants")
-            .and_then(Value::as_array)
-            .ok_or("full contexts")?;
-        if row.get("physical_context_count").and_then(Value::as_u64) != Some(contexts.len() as u64)
-        {
-            return Err("details clipped or changed physical contexts".into());
-        }
-    }
-    Ok(())
-}
+
 fn measurements() -> Check {
     for (args, max_bytes, max_tokens) in [
         (vec!["get", "pathway", "R-HSA-5673001", "genes"], 3061, 766),

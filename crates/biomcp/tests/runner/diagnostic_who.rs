@@ -1,5 +1,5 @@
 //! Feature diagnostic-who: exact cards consume a complete explicit stored export.
-mod mechanics;
+
 mod search;
 use super::{
     configuration::invoke,
@@ -15,11 +15,10 @@ use std::{
 type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
     // Keep dynamic state, source bindings or wire checks that YAML cannot express.
-    vec![
-transcript_trial(crate::runner::pool_contract::WHO_REVISION.0, || {
-            search::walk().map_err(Into::into)
-        })
-]
+    vec![transcript_trial(
+        crate::runner::pool_contract::WHO_REVISION.0,
+        || search::walk().map_err(Into::into),
+    )]
 }
 fn call(env: &Environment, replay: &Path, args: &[&str], exit: i32) -> Result<Value, String> {
     let mut command = env.globals(Some(replay), false);

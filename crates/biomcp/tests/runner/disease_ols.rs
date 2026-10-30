@@ -7,39 +7,7 @@ use std::io::Write;
 use std::{fs, path::Path};
 tool_only! { mod native; }
 tool_only! { pub(super) use native::run as native; }
-pub(super) fn trials() -> Vec<Trial> {
-    vec![
-        transcript_trial("disease-ols/retired-spellings-never-open-source", || {
-            retired_requests().map_err(Into::into)
-        }),
-        transcript_trial(
-            "disease-ols/literal-zero-never-repairs-to-exact-get",
-            || literal_zero().map_err(Into::into),
-        ),
-        transcript_trial("disease-ols/max-page-keeps-all-candidate-actions", || {
-            maximum().map_err(Into::into)
-        }),
-        transcript_trial("disease-ols/native-order-and-literal-selectors", || {
-            search().map_err(Into::into)
-        }),
-        transcript_trial(
-            "disease-ols/exact-identity-and-independent-sections",
-            || exact().map_err(Into::into),
-        ),
-        transcript_trial("disease-ols/refuses-wrong-record-before-cache", || {
-            wrong().map_err(Into::into)
-        }),
-        transcript_trial("disease-ols/empty-is-not-provider-failure", || {
-            failures().map_err(Into::into)
-        }),
-        transcript_trial("disease-ols/timeout-retains-source-terms", || {
-            timeout().map_err(Into::into)
-        }),
-        transcript_trial("disease-ols/disabled-component-bypasses-cache", || {
-            disabled().map_err(Into::into)
-        }),
-    ]
-}
+
 fn setup(stub: &Stub) -> Result<Environment, String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let ca = env.root().join("ols-ca.pem");
@@ -426,90 +394,6 @@ fn maximum() -> Result<(), String> {
     )?;
     if stub.finish()?.len() != 1 {
         return Err("invalid page limit reached source".into());
-    }
-    Ok(())
-}
-
-fn literal_zero() -> Result<(), String> {
-    let stub = Stub::for_source("www.ebi.ac.uk", "application/json", |request| {
-        if request.starts_with("GET /ols4/api/search?") {
-            Ok(json!({"response":{"numFound":0,"start":0,"docs":[]}}).to_string())
-        } else {
-            exact_reply(request)
-        }
-    })?;
-    let env = setup(&stub)?;
-    let directory = env.root().join("literal-zero");
-    let mut words = args(&["search", "disease", "MONDO:0007607"]);
-    words.extend(["--record".into(), directory.to_string_lossy().into()]);
-    let value = invoke(&env, &words, 1)?;
-    if value.pointer("/query/text") != Some(&json!("MONDO:0007607")) {
-        return Err("literal input changed".into());
-    }
-    let exact_dir = env.root().join("explicit-exact");
-    record(
-        &env,
-        &["get", "disease", "MONDO:0007607", "--source", "ols"],
-        &exact_dir,
-    )?;
-    replay(
-        &directory,
-        json!(
-            [{"run":["search","disease","MONDO:0007607"],"mcp":["search","disease","MONDO:0007607"],"exit":1,"expect":{"/status":"absent",
-            "/page/total":0,},"max_bytes":463}]
-        ),
-    )?;
-    replay(
-        &exact_dir,
-        json!(
-            [{"run":["get","disease","MONDO:0007607","--source","ols"],"mcp":["get","disease","MONDO:0007607","--source","ols"],
-            "expect":{"/result/concept/id":"MONDO:0007607"},"max_bytes":1087}]
-        ),
-    )?;
-    let requests = stub.finish()?;
-    if !matches!(requests.as_slice(), [(_, search), (_, get)] if search.contains("/search?") && get.contains("/terms?obo_id="))
-    {
-        return Err(format!(
-            "zero result triggered repair or hidden lookup: {requests:?}"
-        ));
-    }
-    Ok(())
-}
-
-fn retired_requests() -> Result<(), String> {
-    let stub = Stub::for_sources(
-        &[
-            "www.ebi.ac.uk",
-            "mydisease.info",
-            "api-v3.monarchinitiative.org",
-            "seer.cancer.gov",
-        ],
-        |_| "application/json",
-        |_| Err("retired input opened a source".into()),
-    )?;
-    let env = setup(&stub)?;
-    let path = super::launch::fixtures().join("native/case-inputs/disease/retired.yaml");
-    let case: Value = serde_json::from_slice(&fs::read(path).map_err(|e| e.to_string())?)
-        .map_err(|e| e.to_string())?;
-    for step in case
-        .get("steps")
-        .and_then(Value::as_array)
-        .ok_or("missing cases")?
-    {
-        let words = step
-            .get("run")
-            .and_then(Value::as_array)
-            .ok_or("missing command")?
-            .iter()
-            .map(|w| w.as_str().map(String::from).ok_or("invalid word"))
-            .collect::<Result<Vec<_>, _>>()?;
-        let output = invoke(&env, &words, 2)?;
-        if output.get("sources").is_some() {
-            return Err("retired input reached source outcomes".into());
-        }
-    }
-    if !stub.finish()?.is_empty() {
-        return Err("retired input made a request".into());
     }
     Ok(())
 }

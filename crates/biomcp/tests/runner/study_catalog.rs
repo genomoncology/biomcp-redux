@@ -13,22 +13,19 @@ type Check = Result<(), String>;
 const URL: &str = "https://www.cbioportal.org/api/studies?projection=DETAILED";
 pub(super) fn trials() -> Vec<Trial> {
     // Keep dynamic state, source bindings or wire checks that YAML cannot express.
-    vec![
-transcript_trial(required_contract::STUDY_SEARCH.0, || {
-            search().map_err(Into::into)
-        })
-]
+    let mut trials = vec![transcript_trial(required_contract::STUDY_SEARCH.0, || {
+        search().map_err(Into::into)
+    })];
+    trials.extend(study_files::trials());
+    trials.extend(study_get::trials());
+    trials
 }
-#[path = "study_failures.rs"]
-mod study_failures;
+
 #[path = "study_files.rs"]
 mod study_files;
 #[path = "study_get.rs"]
 mod study_get;
-#[path = "study_media.rs"]
-mod study_media;
-#[path = "study_retirements.rs"]
-mod study_retirements;
+
 pub(super) fn rows() -> Value {
     json!(
         (0..12)
@@ -267,67 +264,7 @@ fn replacement() -> Check {
     }
     Ok(())
 }
-fn lifetimes() -> Check {
-    let env = Environment::new().map_err(|e| e.to_string())?;
-    let replay = seed(&env, rows(), 200)?;
-    call(
-        &env,
-        &replay,
-        &["sync", "cbioportal-studies"],
-        0,
-        "catalog/lifetimes/1",
-    )?;
-    let first = call(
-        &env,
-        &replay,
-        &["search", "study", "atlas"],
-        0,
-        "catalog/lifetimes/2",
-    )?;
-    let id = first
-        .pointer("/page/pool/id")
-        .and_then(Value::as_str)
-        .ok_or("pool")?;
-    let db = rusqlite::Connection::open(env.root().join("case-cache/replay.sqlite"))
-        .map_err(|e| e.to_string())?;
-    db.execute("UPDATE pool SET expires=0 WHERE id=?1", [id])
-        .map_err(|e| e.to_string())?;
-    fs::remove_dir_all(replay.join("cbioportal")).map_err(|e| e.to_string())?;
-    let expired = call(
-        &env,
-        &replay,
-        &["search", "study", "atlas", "--pool", id, "--offset", "5"],
-        3,
-        "catalog/lifetimes/3",
-    )?;
-    if expired.get("result").is_some() || expired.pointer("/next/0/kind") != Some(&json!("restart"))
-    {
-        return Err(format!("expired snapshot: {expired}"));
-    }
-    db.execute_batch(
-        "BEGIN; CREATE TEMP TABLE original_content AS SELECT * FROM bundle_content; UPDATE bundle SET \
-        fresh_until=0 WHERE name='cbioportal-studies'; INSERT INTO bundle_content SELECT * FROM \
-        original_content; COMMIT;",
-    )
-    .map_err(|e| e.to_string())?;
-    let stale = call(
-        &env,
-        &replay,
-        &["search", "study", "atlas", "--fresh"],
-        0,
-        "catalog/lifetimes/4",
-    )?;
-    if stale.get("status") != Some(&json!("partial"))
-        || stale.pointer("/sources/0/state") != Some(&json!("stale"))
-        || !stale
-            .get("next")
-            .and_then(Value::as_array)
-            .is_some_and(|a| a.iter().any(|v| v.get("kind") == Some(&json!("sync"))))
-    {
-        return Err(format!("stale stored catalog: {stale}"));
-    }
-    Ok(())
-}
+
 fn surfaces() -> Check {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let replay = seed(&env, rows(), 200)?;

@@ -5,20 +5,17 @@ use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 type Check = Result<(), String>;
-mod capture;
-mod errors;
+
 mod fallback;
 mod generic;
-mod pagination;
+
 mod walk;
 pub(super) fn trials() -> Vec<Trial> {
     // Keep dynamic state, source bindings or wire checks that YAML cannot express.
-    vec![
-transcript_trial(
+    vec![transcript_trial(
         crate::runner::required_contract::LABEL_HEADINGS.0,
         || headings().map_err(Into::into),
-    )
-]
+    )]
 }
 fn identity(n: usize) -> Result<Value, String> {
     let rows: Vec<Value> = serde_json::from_str(&crate::runner::launch::fixture_text(
