@@ -155,13 +155,11 @@ pub fn events(
         problems: Vec::new(),
     };
     let mut problems = fields(id);
+    let namespace = crate::mapped::text("Reactome").map_err(|_| bad_reply())?;
     for row in rows.0 {
         match row {
             raw::Event::Database(db_id) => mapped.value.push(PathwayEventRef::Database {
-                db_id: biodata::Identifier::new(
-                    crate::mapped::text("Reactome").map_err(|_| bad_reply())?,
-                    db_id,
-                ),
+                db_id: biodata::Identifier::new(namespace.clone(), db_id),
             }),
             raw::Event::Object(v) => {
                 if v.species_name
@@ -185,10 +183,7 @@ pub fn events(
                     continue;
                 };
                 mapped.value.push(PathwayEventRef::Object {
-                    db_id: biodata::Identifier::new(
-                        crate::mapped::text("Reactome").map_err(|_| bad_reply())?,
-                        v.db_id,
-                    ),
+                    db_id: biodata::Identifier::new(namespace.clone(), v.db_id),
                     source_url: native_id
                         .as_ref()
                         .map(|id| {
