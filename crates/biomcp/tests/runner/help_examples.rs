@@ -86,7 +86,7 @@ fn advertised_examples(environment: &launch::Environment) -> Result<BTreeSet<Vec
         .and_then(Value::as_array)
         .ok_or("help commands missing")?;
     source_description(commands)?;
-    let scoped = super::configuration::invoke(&environment, vec!["help".into(), "help".into()], 0)?;
+    let scoped = super::configuration::invoke(environment, vec!["help".into(), "help".into()], 0)?;
     let scoped = scoped
         .pointer("/result/commands")
         .and_then(Value::as_array)
