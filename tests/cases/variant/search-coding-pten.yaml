@@ -16,7 +16,7 @@
         "50"
       ],
       "expect": {
-        "/schema": "biomcp.variant-page/13",
+        "/schema": "biomcp.variant-page/15",
         "/status": "complete",
         "/result/source_query": "PTEN[GENE] AND \"c.333G>T\"[VRNM]",
         "/result/items/0/identity/ids/0": "clinvar:3669092",
@@ -31,5 +31,5 @@
       }
     }
   ],
-  "verified": "2026-10-29; unchanged public ClinVar ESearch body, natively recorded through a local TLS peer from the preserved capture"
+  "verified": "2026-10-29; unchanged public ClinVar ESearch body; replay request metadata uses the accepted canonical GET URL"
 }

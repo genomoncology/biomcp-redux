@@ -22,7 +22,7 @@ pub(super) fn mechanism(directory: &Path, registry: &Registry) -> Check {
     };
     let value = acquire_at_exit(&case, Some((&mutation, row.clone())), registry, 2)?;
     save(directory, "contradictory-scope-and-bad-identity", &value)?;
-    if value.pointer("/sources/0/reason") != Some(&json!("bad_reply")) {
+    if value.pointer("/sources/0/reason") != Some(&json!("bad-reply")) {
         return Err("contradictory native request scope was admitted".into());
     }
     Ok(())
@@ -82,7 +82,7 @@ pub(super) fn cell(directory: &Path, registry: &Registry) -> Check {
         .is_some_and(|sources| {
             sources
                 .iter()
-                .any(|source| source.get("reason") == Some(&json!("bad_reply")))
+                .any(|source| source.get("reason") == Some(&json!("bad-reply")))
         })
     {
         return Err("contradictory native cell request scope was admitted".into());

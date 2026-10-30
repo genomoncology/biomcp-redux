@@ -4,7 +4,7 @@ use serde_json::Value;
 pub(super) fn case(file: &str) -> Check<Option<NativeCase>> {
     match file {
         "008.json" => mychem().map(Some),
-        "portable-cellosaurus-cell-CVCL_0004.json" => cellosaurus().map(Some),
+        "native-projected-k562.json" => cellosaurus().map(Some),
         _ => Ok(None),
     }
 }
@@ -34,7 +34,7 @@ fn cellosaurus() -> Check<NativeCase> {
     let plan: Value = serde_json::from_str(&text).map_err(|e| e.to_string())?;
     let mut requests = Vec::new();
     for name in [
-        "portable-cellosaurus-cell-CVCL_0004",
+        "native-projected-k562",
         "portable-cellosaurus-cellosaurus-release",
     ] {
         let row = plan
