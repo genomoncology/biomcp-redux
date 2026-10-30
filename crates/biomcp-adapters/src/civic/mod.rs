@@ -193,7 +193,7 @@ fn map(
         Section::Data {
             source: Source::Civic,
             data: CivicGene {
-                id: biodata::Identifier::new(crate::mapped::text("CIViC").ok()?, id),
+                id: cx.optional("id", Some(crate::mapped::identifier("CIViC", id)))?,
                 variant_count,
                 url,
                 description,
