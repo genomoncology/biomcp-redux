@@ -150,3 +150,24 @@ pub(crate) const MAUDE_SECTIONS: (&str, &[&str]) = (
         "option get adverse-event --source",
     ],
 );
+
+// Restricted VariantValidator output uses the existing explicitly authored reply.
+pub(crate) const VALIDATOR_RESOLVER: (&str, &[&str]) = (
+    "variant-identity/validator-keeps-native-order-and-transcript-only-forms",
+    &["option get variant --resolver"],
+);
+// CDC WONDER restrictions: authored tables preserve independent totals and suppression.
+pub(crate) const VAERS_TABLES: (&str, &[&str]) = (
+    "vaers-summary/independent-tables-retained-walk-and-suppression",
+    &[
+        "section search adverse-event symptoms",
+        "section search adverse-event age",
+        "section search adverse-event seriousness",
+        "option search adverse-event --snapshot",
+    ],
+);
+// MedDRA terms remain synthetic under the existing report-source exception.
+pub(crate) const FAERS_REACTION: (&str, &[&str]) = (
+    "adverse-event-search/synthetic-combined",
+    &["option search adverse-event --reaction"],
+);

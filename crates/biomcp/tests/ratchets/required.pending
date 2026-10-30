@@ -1,7 +1,4 @@
 option get drug --product-number
-option get variant --resolver
-option search adverse-event --reaction
-option search adverse-event --snapshot
 option search cell-line --offset
 option search diagnostic --drug-application
 option search diagnostic --initiated-from
@@ -26,6 +23,3 @@ option variant population --resolver
 section get disease phenotypes
 section get variant civic
 section get variant hotspots
-section search adverse-event age
-section search adverse-event seriousness
-section search adverse-event symptoms
