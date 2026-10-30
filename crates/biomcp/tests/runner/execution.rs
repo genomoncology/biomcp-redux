@@ -34,6 +34,15 @@ pub(super) fn run_step(
             if !output.stderr.is_empty() {
                 return Err("error output: expected empty stderr".into());
             }
+            if let Some(expected) = &step.stdout {
+                if output.stdout != expected.as_bytes() {
+                    return Err(format!(
+                        "stdout: expected {expected:?}, actual {:?}",
+                        String::from_utf8_lossy(&output.stdout)
+                    ));
+                }
+                return Ok(Value::String(expected.clone()));
+            }
             let value = serde_json::from_slice::<Value>(&output.stdout)
                 .map_err(|error| error.to_string())?;
             registry.validate(&value, args, output.status.success())?;

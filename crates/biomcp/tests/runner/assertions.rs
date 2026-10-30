@@ -19,6 +19,16 @@ pub(super) enum Assertion<'a> {
 pub(super) type Expectations<'a> = Vec<(&'a str, &'a Value, Vec<Assertion<'a>>)>;
 
 pub(super) fn prepare(step: &Step) -> Result<Expectations<'_>, String> {
+    if step.stdout.is_some()
+        && (step.run.is_none()
+            || step.mcp.is_some()
+            || step.mcp_call.is_some()
+            || step.follow.is_some()
+            || step.walk.is_some()
+            || !step.expect.is_empty())
+    {
+        return Err("literal stdout requires one explicit CLI call without JSON assertions".into());
+    }
     step.expect
         .iter()
         .map(|(pointer, value)| {

@@ -92,7 +92,7 @@ impl Inventory {
         let Some(argv) = &step.run else {
             return;
         };
-        if step.expect.is_empty() {
+        if step.expect.is_empty() && step.stdout.is_none() {
             return;
         }
         let (tokens, mut hits) = self.arguments(argv);

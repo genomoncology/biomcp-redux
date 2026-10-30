@@ -1,5 +1,7 @@
 pub(super) fn cases() -> Vec<(&'static str, &'static str, &'static str)> {
     vec![
+        ("literal-stdout", "  - run: [version]\n    stdout: wrong version", "stdout: expected"),
+        ("mixed-stdout-json", "    stdout: wrong\n    expect: {'/type': string}", "literal stdout requires one explicit CLI call"),
         ("excluded-member", "    expect: {'/x-extensible-enum': {excludes: hgnc}}", "excludes: unexpected member"),
         ("excluded-wrong-type", "    expect: {'/type': {excludes: hgnc}}", "excludes: expected an array"),
         (
