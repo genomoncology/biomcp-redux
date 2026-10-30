@@ -109,8 +109,15 @@ pub(super) fn summary(
         .collect();
     let drift_cases = checked.iter().filter(|r| has_drift(r)).count();
     let error_cases = checked.iter().filter(|r| r.get("error").is_some()).count();
-    let retained = if details { MAX_CASES } else {
-        CASE_SAMPLE.max(checked.iter().filter(|row| has_drift(row) || row.get("error").is_some()).count())
+    let retained = if details {
+        MAX_CASES
+    } else {
+        CASE_SAMPLE.max(
+            checked
+                .iter()
+                .filter(|row| has_drift(row) || row.get("error").is_some())
+                .count(),
+        )
     };
     checked.sort_by_key(|r| !(has_drift(r) || r.get("error").is_some()));
     json!(

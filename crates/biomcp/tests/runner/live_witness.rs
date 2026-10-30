@@ -10,7 +10,7 @@ use std::path::Path;
 /// The final command remains whole, so an error never destroys the evidence it reports.
 const MAX_CASE_BYTES: usize = 16 * 1024 * 1024;
 
-pub(super) fn within_budget(captures: &[Value]) -> Result<(), String> {
+pub(in crate::runner) fn within_budget(captures: &[Value]) -> Result<(), String> {
     let bytes = serde_json::to_vec(captures).map_err(|error| error.to_string())?;
     if bytes.len() > MAX_CASE_BYTES {
         return Err("case evidence budget exhausted; complete commands retained".into());

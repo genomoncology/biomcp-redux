@@ -38,7 +38,11 @@ pub(super) fn retained() -> Result<(), String> {
     if row("clean")?.get("witness").is_some()
         || row("drift")?.pointer("/witness/after/id") != Some(&json!("new"))
         || row("failed")?.pointer("/witness/baseline/id") != Some(&json!("old"))
-        || row("large")?.pointer("/witness/output").and_then(Value::as_str).map(str::len) != Some(2 * 1024 * 1024)
+        || row("large")?
+            .pointer("/witness/output")
+            .and_then(Value::as_str)
+            .map(str::len)
+            != Some(2 * 1024 * 1024)
     {
         return Err("drift witnesses were discarded, retained for clean cases or unbounded".into());
     }
@@ -258,30 +262,64 @@ fn discovery_context() -> Result<(), Box<dyn std::error::Error>> {
 fn doi_context() -> Result<(), String> {
     let env = Environment::new().map_err(|error| error.to_string())?;
     let replay = super::super::launch::fixtures().join("replies/article/edges/live");
-    let rows = super::observe(&env, &replay, "doi-discovery", &["article", "references", "34096690", "--source", "semantic-scholar"])
-        .map_err(|error| error.to_string())?;
-    let discovery = rows.iter().filter_map(|row| row.provenance.discovery.as_ref())
-        .find(|ids| ids.namespace == "doi").ok_or("missing graph DOI discovery")?;
-    let inputs = rows.iter().filter(|row| row.provenance.inputs.as_ref().is_some_and(|ids| ids.namespace == "doi"))
+    let rows = super::observe(
+        &env,
+        &replay,
+        "doi-discovery",
+        &[
+            "article",
+            "references",
+            "34096690",
+            "--source",
+            "semantic-scholar",
+        ],
+    )
+    .map_err(|error| error.to_string())?;
+    let discovery = rows
+        .iter()
+        .filter_map(|row| row.provenance.discovery.as_ref())
+        .find(|ids| ids.namespace == "doi")
+        .ok_or("missing graph DOI discovery")?;
+    let inputs = rows
+        .iter()
+        .filter(|row| {
+            row.provenance
+                .inputs
+                .as_ref()
+                .is_some_and(|ids| ids.namespace == "doi")
+        })
         .collect::<Vec<_>>();
-    if discovery.ids.is_empty() || inputs.is_empty() || inputs.iter().any(|row| {
-        row.provenance.input_context.is_none() || row.provenance.inputs.as_ref().is_none_or(|ids|
-            ids.ids.is_empty() || !ids.ids.iter().all(|id| discovery.ids.contains(id)))
-    }) {
+    if discovery.ids.is_empty()
+        || inputs.is_empty()
+        || inputs.iter().any(|row| {
+            row.provenance.input_context.is_none()
+                || row.provenance.inputs.as_ref().is_none_or(|ids| {
+                    ids.ids.is_empty() || !ids.ids.iter().all(|id| discovery.ids.contains(id))
+                })
+        })
+    {
         return Err("DOI request lost its discovery input or context".into());
     }
     Ok(())
 }
 
 fn many_changed() -> Result<(), String> {
-    let rows = (0..30).map(|index| json!({"case": format!("changed-{index}"),
+    let rows = (0..30)
+        .map(|index| {
+            json!({"case": format!("changed-{index}"),
         "result": {"drift": ["request: request-plan-changed"]},
         "witness": [{"ordinal":1,"baseline":{"requests":[],"output":"x".repeat(32 * 1024)},
-            "live":{"requests":[],"output":"y".repeat(32 * 1024)}}]})).collect();
+            "live":{"requests":[],"output":"y".repeat(32 * 1024)}}]})
+        })
+        .collect();
     let report = live::summary(rows, BTreeMap::new(), 0, false);
-    let rows = report["case_sample"].as_array().ok_or("missing changed cases")?;
-    if rows.len() != 30 || rows.iter().any(|row| row["witness"].is_null())
-        || report["omitted"] != json!(0) {
+    let rows = report["case_sample"]
+        .as_array()
+        .ok_or("missing changed cases")?;
+    if rows.len() != 30
+        || rows.iter().any(|row| row["witness"].is_null())
+        || report["omitted"] != json!(0)
+    {
         return Err("changed cases consumed each other's evidence budget".into());
     }
     let oversized = vec![json!({"complete": "x".repeat(17 * 1024 * 1024)})];
