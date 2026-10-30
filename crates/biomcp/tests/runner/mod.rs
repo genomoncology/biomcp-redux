@@ -15,9 +15,6 @@ mod required_contract;
 tool_only! { pub(super) mod tools_api; }
 mod features;
 mod orcid;
-tool_only! { pub(super) mod parity; }
-tool_only! { mod parity_inventory_proof; }
-tool_only! { mod parity_shape_proof; }
 use crate::runner::transcript::trial as transcript_trial;
 use execution::run_step;
 mod alphagenome;
@@ -536,9 +533,6 @@ tool_only! {
         trials.extend(protein_sections::tool_trials());
         trials.extend(disease_mydisease::tool_trials());
         trials.extend(schema_proof::trials(registry));
-        trials.extend(parity::trials());
-        trials.push(parity_shape_proof::trial());
-        trials.push(parity_inventory_proof::trial());
         trials.extend(live_proof::trials());
         trials.extend(live_follow_proof::trials());
         Ok(trials)
