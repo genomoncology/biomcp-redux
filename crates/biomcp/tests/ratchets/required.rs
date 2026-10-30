@@ -105,6 +105,8 @@ pub(super) fn required_surface_has_asserted_calls() -> Check {
     counts.runner(pool_contracts::DOMAIN_TYPE.1);
     counts.runner(pool_contracts::ARTICLE_CITATIONS.1);
     counts.runner(pool_contracts::EVIDENCE_FRAGMENTS.1);
+    counts.runner(pool_contracts::DRUG_CIVIC.1);
+    counts.runner(pool_contracts::WHO_REVISION.1);
 
     counts.runner(synthetic_contracts::LABEL_HEADINGS.1);
     counts.runner(synthetic_contracts::ONCOKB.1);

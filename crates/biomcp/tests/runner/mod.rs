@@ -25,6 +25,7 @@ mod alphagenome_tls;
 mod cache_contention;
 mod capture;
 pub(super) mod cell_line;
+mod citation_values;
 mod clinpgx;
 mod clinvar_key;
 mod configuration;
@@ -97,6 +98,7 @@ mod maude_snapshot;
 mod mcp;
 mod mcp_boundaries;
 mod named_search;
+mod native_fields;
 mod nci;
 mod nci_walk;
 tool_only! { mod negative_cases; }
@@ -329,6 +331,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(key_help::trials());
     trials.extend(scholar::trials());
     trials.extend(evidence::trials());
+    trials.push(citation_values::trial());
     trials.extend(pdf::trials());
     trials.extend(source_controls::trials());
     trials.extend(health_bundles::trials());

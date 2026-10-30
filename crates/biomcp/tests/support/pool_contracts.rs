@@ -99,3 +99,18 @@ pub(crate) const EVIDENCE_FRAGMENTS: (&str, &[&str]) = (
         "option article citation-evidence --paragraph-offset",
     ],
 );
+
+// CIViC uses the retained CC0 capture and literal profile/claim identities.
+pub(crate) const DRUG_CIVIC: (&str, &[&str]) = (
+    "drug-next-steps/native-d05-source-listed-lookup",
+    &[
+        "section get drug civic",
+        "option get drug --civic-profile",
+        "option get drug --civic-kind",
+    ],
+);
+// Synthetic WHO rows exercise runtime revision binding, without publisher prose.
+pub(crate) const WHO_REVISION: (&str, &[&str]) = (
+    "diagnostic-who-search/full-walk-keeps-candidates-and-revision",
+    &["option get diagnostic --bundle-revision"],
+);

@@ -1,7 +1,4 @@
-option get diagnostic --bundle-revision
 option get drug --civic-cursor
-option get drug --civic-kind
-option get drug --civic-profile
 option get drug --product-number
 option get pathway --pool
 option get pathway --section-limit
@@ -36,7 +33,6 @@ option variant population --build
 option variant population --limit
 option variant population --resolver
 section get disease phenotypes
-section get drug civic
 section get protein domains
 section get variant civic
 section get variant hotspots
