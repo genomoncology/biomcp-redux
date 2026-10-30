@@ -39,24 +39,15 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &VariantPopulationQuery) -> Outcome {
     }
     next.extend(choices(query, &read.candidates));
     let status = match &read.population {
-        Section::Data { .. } if read.problems.is_empty() => {
-            crate::status::item_status(true, false, false)
-        }
-        Section::Data { .. } => crate::status::item_status(true, false, true),
-        _ if read.candidates.len() > 1 && read.problems.is_empty() => {
-            crate::status::item_status(true, false, false)
-        }
-        _ if read.candidates.len() > 1 => crate::status::item_status(true, false, true),
-        Section::Empty { .. } if !read.problems.is_empty() => {
-            crate::status::item_status(true, false, true)
-        }
-        Section::Empty { .. } => crate::status::item_status(false, false, false),
-        _ => crate::status::item_status(false, true, false),
+        Section::Data { .. } => status::item_status(true, false, read.dropped),
+        _ if read.candidates.len() > 1 => status::item_status(true, false, read.dropped),
+        Section::Empty { .. } => status::item_status(read.dropped, false, read.dropped),
+        _ => status::item_status(false, true, false),
     };
     let out = crate::status::finish(
         [status],
         crate::status::Parts {
-            dropped: false,
+            dropped: read.dropped,
             body: QueryBody::VariantPopulation(VariantPopulationResult {
                 population: read.population,
                 groups,
@@ -73,6 +64,7 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &VariantPopulationQuery) -> Outcome {
     out
 }
 struct PopulationRead {
+    dropped: bool,
     population: Section<biomcp_types::VariantPopulation>,
     groups: Vec<GnomadCounts>,
     candidates: Vec<biomcp_types::VariantHeader>,
@@ -86,6 +78,7 @@ fn read(
     deadline: biomcp_fetch::Deadline<'_>,
 ) -> PopulationRead {
     let mut read = PopulationRead {
+        dropped: false,
         population: Section::unavailable(Source::Gnomad, Reason::NoJoinId),
         groups: Vec::new(),
         candidates: Vec::new(),
@@ -99,6 +92,7 @@ fn read(
     }
     if let Ok(identity) = query.identity() {
         let found = super::population_identity::read(cx, &identity, deadline, true);
+        read.dropped = found.dropped;
         read.sources = found.sources;
         read.problems = found.problems;
         read.local = found.local;
@@ -119,7 +113,7 @@ fn read(
         }
         return read;
     };
-    let (section, groups, source, error) = load(
+    let (section, groups, source, error, dropped) = load(
         cx,
         query,
         &id,
@@ -127,6 +121,7 @@ fn read(
         &mut read.problems,
         deadline,
     );
+    read.dropped |= dropped;
     read.problems.extend(projection_problems(&section, &groups));
     read.sources.push(source);
     read.population = section;
@@ -174,10 +169,13 @@ fn load(
     Vec<GnomadCounts>,
     biomcp_types::SourceOutcome,
     Option<RequestError>,
+    bool,
 ) {
     let leg = cx.fetch.leg(&gnomad::SPEC, deadline).fresh(cx.fresh);
     let mut groups = Vec::new();
+    let mut dropped = false;
     let result = gnomad::variant::population(&leg, id).and_then(|raw| {
+        dropped |= raw.refusals == biomcp_adapters::Refusal::Refused;
         problems.extend(raw.problems);
         raw.value
             .map(|raw| {
@@ -205,11 +203,12 @@ fn load(
             crate::status::reason(error).unwrap_or(biomcp_types::Reason::Unavailable),
         ),
     };
-    (section, groups, source, error.and_then(status::local))
+    (section, groups, source, error.and_then(status::local), dropped)
 }
 
 fn ancestry(raw: &gnomad::variant::Variant) -> Vec<GnomadCounts> {
     let mut groups = Vec::new();
+    let mut dropped = false;
     for (data_type, data) in [
         (PopulationDataType::Exomes, &raw.exome),
         (PopulationDataType::Genomes, &raw.genome),

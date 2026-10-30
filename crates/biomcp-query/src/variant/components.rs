@@ -18,6 +18,7 @@ pub(super) fn skipped<T>() -> super::sections::Result<T> {
         )],
         Vec::new(),
         None,
+        false,
     )
 }
 pub(super) fn target(candidates: &[VariantHeader]) -> Option<(String, Build)> {
@@ -47,7 +48,7 @@ pub(super) fn measurements(
         return skipped();
     }
     let Some((id, build)) = target(candidates) else {
-        return (Section::NotApplicable, Vec::new(), Vec::new(), None);
+        return (Section::NotApplicable, Vec::new(), Vec::new(), None, false);
     };
     let leg = cx.fetch.leg(&myvariant::SPEC, *deadline).fresh(cx.fresh);
     let started = leg.remaining();
@@ -55,10 +56,12 @@ pub(super) fn measurements(
     let error = result.as_ref().err().copied();
     *deadline = deadline.after_stage(started.saturating_sub(leg.remaining()));
     let source = status::source(Source::MyVariant, leg.finish(), error);
+    let mut dropped = false;
     let mut problems = Vec::new();
     let section = match result {
         Ok(mapped) => {
-            problems = mapped.problems;
+            dropped |= mapped.refusals == biomcp_adapters::Refusal::Refused;
+        problems = mapped.problems;
             if problems
                 .iter()
                 .any(|p| p.field.as_ref() == "subject_qualification")
@@ -92,5 +95,6 @@ pub(super) fn measurements(
         vec![source],
         problems,
         error.and_then(status::local),
+        dropped,
     )
 }

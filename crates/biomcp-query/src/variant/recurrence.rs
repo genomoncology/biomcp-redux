@@ -65,6 +65,7 @@ fn execute(
     let (cohort, rows) = result?;
     out.problems.extend(rows.problems);
     let window = rows.window;
+    out.dropped |= window.refusals() == biomcp_adapters::Refusal::Refused;
     metadata(query, &cohort, out);
     let (count, problems) = matching::count(&identity, &window.rows, query.study());
     out.problems.extend(problems);
@@ -80,8 +81,7 @@ fn execute(
     body.more = more;
     out.body = QueryBody::VariantRecurrence(body);
     {
-        let unavailable = !(out.problems.is_empty()
-            && out
+        let unavailable = !(out
                 .sources
                 .iter()
                 .all(|s| s.state == biomcp_types::SourceState::Ok));
@@ -137,7 +137,7 @@ fn identity(
     .map_err(|_| rejected(Source::AlleleRegistry, Reason::Rejected))?;
     let spec = super::source(&q);
     let leg = cx.fetch.leg(spec, deadline).fresh(cx.fresh);
-    let result = super::resolve(&q, &leg, &mut out.problems);
+    let result = super::resolve(&q, &leg, &mut out.problems, &mut out.dropped);
     out.sources.push(status::source(
         spec.source,
         leg.finish(),

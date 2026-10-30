@@ -34,11 +34,13 @@ pub(super) fn section(
     let reply = oncokb::variant::annotation(&leg, &hgvsg, build, tumor.as_str());
     let error = reply.as_ref().err().copied();
     let source = status::source(Source::Oncokb, leg.finish(), error);
+    let mut dropped = false;
     let mut problems = Vec::new();
     let section = match reply {
         Ok(row) => {
             let mapped = oncokb::variant_map::records(row, tumor.clone());
-            problems = mapped.problems;
+            dropped |= mapped.refusals == biomcp_adapters::Refusal::Refused;
+        problems = mapped.problems;
             let mut data = mapped.value;
             let total = data.page.total;
             data.records = std::mem::take(&mut data.records)
@@ -80,6 +82,7 @@ pub(super) fn section(
         vec![source],
         problems,
         error.and_then(status::local),
+        dropped,
     )
 }
 fn genomic(row: &VariantHeader, build: Build) -> Option<String> {
@@ -109,6 +112,7 @@ fn skipped(reason: Reason) -> super::sections::Result<VariantOncokb> {
         vec![source(SourceState::Skipped, reason)],
         Vec::new(),
         None,
+        false,
     )
 }
 fn unavailable(reason: Reason) -> super::sections::Result<VariantOncokb> {
@@ -117,6 +121,7 @@ fn unavailable(reason: Reason) -> super::sections::Result<VariantOncokb> {
         vec![source(SourceState::Failed, reason)],
         Vec::new(),
         None,
+        false,
     )
 }
 fn source(state: SourceState, reason: Reason) -> SourceOutcome {

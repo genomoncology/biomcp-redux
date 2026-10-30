@@ -9,24 +9,10 @@ use biomcp_types::{
 pub(crate) fn get(cx: &Ctx<'_>, query: &VariantAssertionsGet) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
-    let (section, sources, problems, local) = read(cx, query, deadline);
+    let (section, sources, problems, local, dropped) = read(cx, query, deadline);
     let (status, body) = match section {
-        Section::Data { data, .. } => (
-            if problems.is_empty() {
-                crate::status::item_status(true, false, false)
-            } else {
-                crate::status::item_status(true, false, true)
-            },
-            data,
-        ),
-        Section::Empty { .. } => (
-            if problems.is_empty() {
-                crate::status::item_status(false, false, false)
-            } else {
-                crate::status::item_status(true, false, true)
-            },
-            empty(query),
-        ),
+        Section::Data { data, .. } => (crate::status::item_status(true, false, dropped), data),
+        Section::Empty { .. } => (crate::status::item_status(dropped, false, dropped), empty(query)),
         _ => (crate::status::item_status(false, true, false), empty(query)),
     };
     let next = body
@@ -47,7 +33,7 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &VariantAssertionsGet) -> Outcome {
     crate::status::finish(
         [status],
         crate::status::Parts {
-            dropped: false,
+            dropped,
             body: QueryBody::VariantAssertions(body),
             page: None,
             sources,
@@ -84,6 +70,7 @@ pub(super) fn section(
             Vec::new(),
             Vec::new(),
             None,
+            false,
         );
     };
     let Some(q) = id
@@ -101,6 +88,7 @@ pub(super) fn section(
             Vec::new(),
             Vec::new(),
             None,
+            false,
         );
     };
     read(cx, &q, deadline)
@@ -134,9 +122,11 @@ fn read(
     };
     let error = result.as_ref().err().copied();
     let outcome = status::source(spec.source, leg.finish(), error);
+    let mut dropped = false;
     let mut problems = Vec::new();
     let section = match result {
         Ok(rows) => {
+            dropped = rows.refusals == biomcp_adapters::Refusal::Refused;
             problems = rows.problems;
             let data = page(query, rows.value);
             if data.page.total == 0 {
@@ -161,6 +151,7 @@ fn read(
         vec![outcome],
         problems,
         error.and_then(status::local),
+        dropped,
     )
 }
 fn page(query: &VariantAssertionsGet, mut rows: Vec<VariantAssertion>) -> VariantAssertions {

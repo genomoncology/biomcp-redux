@@ -73,7 +73,7 @@ pub(super) fn get(
         sections: None,
         component_terms: Box::default(),
     }];
-    let (sources, problems, local) =
+    let (sources, problems, local, incomplete) =
         super::sections::apply(cx, query, &mut candidates, &mut deadline, None);
     let status = if sources.is_empty()
         || sources
@@ -86,7 +86,7 @@ pub(super) fn get(
             s.state,
             biomcp_types::SourceState::Failed | biomcp_types::SourceState::Stale
         )
-    }) || !problems.is_empty()
+    }) || incomplete
     {
         crate::status::item_status(true, false, true)
     } else {

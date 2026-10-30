@@ -15,6 +15,7 @@ pub(super) fn section(
     Vec<SourceOutcome>,
     Vec<Problem>,
     Option<RequestError>,
+    bool,
 ) {
     let leg = cx
         .fetch
@@ -33,6 +34,7 @@ pub(super) fn section(
         |candidate| biomcp_adapters::civic::variant(&leg, query, candidate),
     );
     let error = result.as_ref().err().copied();
+    let dropped = result.as_ref().is_ok_and(|mapped| mapped.refusals == biomcp_adapters::Refusal::Refused);
     let source = status::source(Source::Civic, leg.finish(), error);
     let (value, problems) = match result {
         Ok(mapped) => (
@@ -57,5 +59,5 @@ pub(super) fn section(
             Vec::new(),
         ),
     };
-    (value, vec![source], problems, error.and_then(status::local))
+    (value, vec![source], problems, error.and_then(status::local), dropped)
 }

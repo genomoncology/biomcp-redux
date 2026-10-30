@@ -27,6 +27,7 @@ pub(super) fn section(
                 code: ProblemCode::ValueUnknown,
             }],
             None,
+            false,
         );
     };
     let leg = cx.fetch.leg(&gwas::SPEC, deadline).fresh(cx.fresh);
@@ -40,6 +41,7 @@ pub(super) fn section(
         source.retrieved_count = Some(page.rows.len() as u32);
         source.count = Some(page.total);
     }
+    let mut dropped = false;
     let mut problems = Vec::new();
     let value = match result {
         Ok(page) if page.total == 0 => Section::Empty {
@@ -55,6 +57,7 @@ pub(super) fn section(
                 }),
         },
         Ok(page) => {
+            dropped |= page.refusals == biomcp_adapters::Refusal::Refused;
             problems.extend(page.problems);
             let rows = page.rows.into_iter().collect::<Vec<_>>();
             let returned = rows.len() as u32;
@@ -89,7 +92,7 @@ pub(super) fn section(
             crate::status::reason(e).unwrap_or(biomcp_types::Reason::Unavailable),
         ),
     };
-    (value, vec![source], problems, error.and_then(status::local))
+    (value, vec![source], problems, error.and_then(status::local), dropped)
 }
 fn rs_id(query: &VariantGet, candidates: &[VariantHeader]) -> Option<VariantId> {
     if let Ok(id @ VariantId::Rs(_)) = query.input().as_str().parse() {

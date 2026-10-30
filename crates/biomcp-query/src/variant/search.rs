@@ -51,8 +51,9 @@ pub fn search(cx: &Ctx<'_>, query: &VariantSearch) -> Outcome {
         },
     );
     if let Ok(reply) = reply {
+        out.dropped = reply.rows.refusals == biomcp_adapters::Refusal::Refused;
         {
-            let (found, identity_failed, unavailable) = if !reply.rows.problems.is_empty()
+            let (found, identity_failed, unavailable) = if out.dropped
                 || reply.total > u64::from(VariantSearch::MAX_RESULTS)
                 || out
                     .sources
