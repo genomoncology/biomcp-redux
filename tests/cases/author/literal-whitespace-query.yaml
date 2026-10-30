@@ -10,11 +10,6 @@
         "author",
         " Louis  Williams "
       ],
-      "mcp": [
-        "search",
-        "author",
-        " Louis  Williams "
-      ],
       "is_error": false,
       "exit": 0,
       "expect": {

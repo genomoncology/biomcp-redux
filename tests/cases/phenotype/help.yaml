@@ -24,11 +24,6 @@
         "/status": "complete"
       },
       "max_bytes": 2161,
-      "mcp": [
-        "help",
-        "search",
-        "phenotype"
-      ],
       "run": [
         "help",
         "search",
@@ -69,11 +64,6 @@
         "/status": "complete"
       },
       "max_bytes": 3335,
-      "mcp": [
-        "help",
-        "get",
-        "phenotype"
-      ],
       "run": [
         "help",
         "get",

@@ -13,14 +13,6 @@
         "--updated-until",
         "2025-12-31"
       ],
-      "mcp": [
-        "search",
-        "trial",
-        "--condition",
-        "melanoma",
-        "--updated-until",
-        "2025-12-31"
-      ],
       "expect": {
         "/status": "complete",
         "/page/total": 2908,

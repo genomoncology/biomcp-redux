@@ -11,13 +11,6 @@
         "--disable-sources",
         "faers"
       ],
-      "mcp": [
-        "search",
-        "adverse-event",
-        "pembrolizumab",
-        "--disable-sources",
-        "faers"
-      ],
       "expect": {
         "/schema": "biomcp.adverse-event-page/6",
         "/status": "failed",

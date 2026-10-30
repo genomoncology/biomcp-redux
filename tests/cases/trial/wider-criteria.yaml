@@ -15,16 +15,6 @@
         "--limit",
         "100"
       ],
-      "mcp": [
-        "search",
-        "trial",
-        "--gene",
-        "PTCH1",
-        "--condition",
-        "basal cell carcinoma",
-        "--limit",
-        "100"
-      ],
       "expect": {
         "/status": "complete",
         "/page/total": 5,
@@ -71,16 +61,6 @@
     },
     {
       "run": [
-        "search",
-        "trial",
-        "--criteria",
-        "PTCH1",
-        "--condition",
-        "basal cell carcinoma",
-        "--limit",
-        "100"
-      ],
-      "mcp": [
         "search",
         "trial",
         "--criteria",

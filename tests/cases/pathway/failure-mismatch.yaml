@@ -9,11 +9,6 @@
         "pathway",
         "R-HSA-5673001"
       ],
-      "mcp": [
-        "get",
-        "pathway",
-        "R-HSA-5673001"
-      ],
       "exit": 0,
       "expect": {
         "/status": "partial",
@@ -35,11 +30,6 @@
         "/status": "failed"
       },
       "max_bytes": 236,
-      "mcp": [
-        "get",
-        "pathway",
-        "R-HSA-5673001"
-      ],
       "is_error": true
     }
   ]

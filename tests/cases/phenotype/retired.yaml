@@ -7,10 +7,6 @@
         "list",
         "phenotype"
       ],
-      "mcp": [
-        "list",
-        "phenotype"
-      ],
       "offline": true,
       "exit": 2,
       "is_error": true,
@@ -26,11 +22,6 @@
         "phenotype",
         "HP:0001250 HP:0003002"
       ],
-      "mcp": [
-        "search",
-        "phenotype",
-        "HP:0001250 HP:0003002"
-      ],
       "offline": true,
       "exit": 2,
       "is_error": true,
@@ -42,11 +33,6 @@
     },
     {
       "run": [
-        "search",
-        "phenotype",
-        "HP:0001250,HP:0003002"
-      ],
-      "mcp": [
         "search",
         "phenotype",
         "HP:0001250,HP:0003002"
@@ -67,12 +53,6 @@
         "HP:0001250",
         "HP:0003002"
       ],
-      "mcp": [
-        "search",
-        "phenotype",
-        "HP:0001250",
-        "HP:0003002"
-      ],
       "offline": true,
       "exit": 2,
       "is_error": true,
@@ -84,13 +64,6 @@
     },
     {
       "run": [
-        "search",
-        "phenotype",
-        "synthetic",
-        "--source",
-        "hpo"
-      ],
-      "mcp": [
         "search",
         "phenotype",
         "synthetic",
@@ -108,13 +81,6 @@
     },
     {
       "run": [
-        "search",
-        "phenotype",
-        "HP:0001250",
-        "-l",
-        "5"
-      ],
-      "mcp": [
         "search",
         "phenotype",
         "HP:0001250",

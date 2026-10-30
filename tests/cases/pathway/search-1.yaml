@@ -9,11 +9,6 @@
         "pathway",
         "Homologous Recombination Repair"
       ],
-      "mcp": [
-        "search",
-        "pathway",
-        "Homologous Recombination Repair"
-      ],
       "expect": {
         "/status": "complete",
         "/query/query": "Homologous Recombination Repair",
@@ -45,11 +40,6 @@
     },
     {
       "run": [
-        "search",
-        "pathway",
-        "Mismatch Repair"
-      ],
-      "mcp": [
         "search",
         "pathway",
         "Mismatch Repair"
@@ -90,11 +80,6 @@
         "pathway",
         "TP53 Regulates Transcription"
       ],
-      "mcp": [
-        "search",
-        "pathway",
-        "TP53 Regulates Transcription"
-      ],
       "expect": {
         "/status": "complete",
         "/query/query": "TP53 Regulates Transcription",
@@ -126,11 +111,6 @@
     },
     {
       "run": [
-        "search",
-        "pathway",
-        "Apoptosis"
-      ],
-      "mcp": [
         "search",
         "pathway",
         "Apoptosis"
@@ -170,11 +150,6 @@
         "pathway",
         "Cell Cycle"
       ],
-      "mcp": [
-        "search",
-        "pathway",
-        "Cell Cycle"
-      ],
       "expect": {
         "/status": "complete",
         "/query/query": "Cell Cycle",
@@ -206,11 +181,6 @@
     },
     {
       "run": [
-        "search",
-        "pathway",
-        "Signaling by WNT"
-      ],
-      "mcp": [
         "search",
         "pathway",
         "Signaling by WNT"
@@ -250,11 +220,6 @@
         "pathway",
         "Signaling by NOTCH"
       ],
-      "mcp": [
-        "search",
-        "pathway",
-        "Signaling by NOTCH"
-      ],
       "expect": {
         "/status": "complete",
         "/query/query": "Signaling by NOTCH",
@@ -286,11 +251,6 @@
     },
     {
       "run": [
-        "search",
-        "pathway",
-        "Signaling by Hedgehog"
-      ],
-      "mcp": [
         "search",
         "pathway",
         "Signaling by Hedgehog"

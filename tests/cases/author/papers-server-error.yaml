@@ -10,11 +10,6 @@
         "papers",
         "semantic-scholar:123"
       ],
-      "mcp": [
-        "author",
-        "papers",
-        "semantic-scholar:123"
-      ],
       "exit": 4,
       "is_error": true,
       "expect": {

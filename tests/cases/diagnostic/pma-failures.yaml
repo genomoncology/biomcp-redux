@@ -11,13 +11,6 @@
         "--source",
         "fda-pma"
       ],
-      "mcp": [
-        "get",
-        "diagnostic",
-        "P999991",
-        "--source",
-        "fda-pma"
-      ],
       "exit": 4,
       "max_bytes": 355,
       "expect": {
@@ -31,13 +24,6 @@
     },
     {
       "run": [
-        "get",
-        "diagnostic",
-        "P999992",
-        "--source",
-        "fda-pma"
-      ],
-      "mcp": [
         "get",
         "diagnostic",
         "P999992",
@@ -63,13 +49,6 @@
         "--source",
         "fda-pma"
       ],
-      "mcp": [
-        "get",
-        "diagnostic",
-        "P999993",
-        "--source",
-        "fda-pma"
-      ],
       "exit": 4,
       "max_bytes": 360,
       "expect": {
@@ -83,13 +62,6 @@
     },
     {
       "run": [
-        "get",
-        "diagnostic",
-        "P999994",
-        "--source",
-        "fda-pma"
-      ],
-      "mcp": [
         "get",
         "diagnostic",
         "P999994",

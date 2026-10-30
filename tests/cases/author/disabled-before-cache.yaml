@@ -24,13 +24,6 @@
         "--disable-sources",
         "semantic-scholar"
       ],
-      "mcp": [
-        "get",
-        "author",
-        "semantic-scholar:123",
-        "--disable-sources",
-        "semantic-scholar"
-      ],
       "is_error": true,
       "exit": 4,
       "expect": {
@@ -43,13 +36,6 @@
     },
     {
       "run": [
-        "get",
-        "author",
-        "semantic-scholar:123",
-        "--disable-sources",
-        "noncommercial"
-      ],
-      "mcp": [
         "get",
         "author",
         "semantic-scholar:123",

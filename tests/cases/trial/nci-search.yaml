@@ -21,16 +21,6 @@
         "--limit",
         "1"
       ],
-      "mcp": [
-        "search",
-        "trial",
-        "--source",
-        "nci",
-        "--condition",
-        "C3224",
-        "--limit",
-        "1"
-      ],
       "expect": {
         "/status": "complete",
         "/sources/0/source": "nci",

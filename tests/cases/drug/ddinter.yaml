@@ -8,10 +8,6 @@
         "sync",
         "ddinter"
       ],
-      "mcp": [
-        "sync",
-        "ddinter"
-      ],
       "expect": {
         "/status": "complete",
         "/result/rows": 9
@@ -20,15 +16,6 @@
     },
     {
       "run": [
-        "search",
-        "drug",
-        "Synthetic Anchor",
-        "--source",
-        "ddinter",
-        "--limit",
-        "1"
-      ],
-      "mcp": [
         "search",
         "drug",
         "Synthetic Anchor",
@@ -61,13 +48,6 @@
         "--source",
         "ddinter"
       ],
-      "mcp": [
-        "get",
-        "drug",
-        "DDInter1",
-        "--source",
-        "ddinter"
-      ],
       "expect": {
         "/status": "complete",
         "/result/header/id": "DDInter1",
@@ -86,16 +66,6 @@
     },
     {
       "run": [
-        "get",
-        "drug",
-        "DDInter1",
-        "interactions",
-        "--source",
-        "ddinter",
-        "--section-limit",
-        "1"
-      ],
-      "mcp": [
         "get",
         "drug",
         "DDInter1",
@@ -152,19 +122,6 @@
         "1",
         "--fresh"
       ],
-      "mcp": [
-        "get",
-        "drug",
-        "DDInter1",
-        "interactions",
-        "--source",
-        "ddinter",
-        "--section-limit",
-        "1",
-        "--section-offset",
-        "1",
-        "--fresh"
-      ],
       "expect": {
         "/status": "complete",
         "/result/interactions/data/total": 3,
@@ -175,14 +132,6 @@
     },
     {
       "run": [
-        "get",
-        "drug",
-        "DDInter3",
-        "interactions",
-        "--source",
-        "ddinter"
-      ],
-      "mcp": [
         "get",
         "drug",
         "DDInter3",
@@ -210,14 +159,6 @@
         "--source",
         "ddinter"
       ],
-      "mcp": [
-        "get",
-        "drug",
-        "DDInter999",
-        "interactions",
-        "--source",
-        "ddinter"
-      ],
       "expect": {
         "/status": "absent"
       },
@@ -228,16 +169,6 @@
     },
     {
       "run": [
-        "get",
-        "drug",
-        "DDInter1",
-        "interactions",
-        "--source",
-        "ddinter",
-        "--disable-sources",
-        "noncommercial"
-      ],
-      "mcp": [
         "get",
         "drug",
         "DDInter1",
@@ -258,11 +189,6 @@
     },
     {
       "run": [
-        "sync",
-        "ddinter",
-        "--fresh"
-      ],
-      "mcp": [
         "sync",
         "ddinter",
         "--fresh"

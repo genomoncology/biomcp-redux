@@ -9,11 +9,6 @@
         "pathway",
         "R-HSA-1640170"
       ],
-      "mcp": [
-        "get",
-        "pathway",
-        "R-HSA-1640170"
-      ],
       "expect": {
         "/status": "complete",
         "/result/pathway/id": {

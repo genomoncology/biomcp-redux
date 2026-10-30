@@ -12,13 +12,6 @@
         "--serious",
         "lifethreatening"
       ],
-      "mcp": [
-        "search",
-        "adverse-event",
-        "pembrolizumab",
-        "--serious",
-        "lifethreatening"
-      ],
       "expect": {
         "/status": "complete",
         "/query/serious": "lifethreatening",
@@ -32,13 +25,6 @@
     },
     {
       "run": [
-        "search",
-        "adverse-event",
-        "pembrolizumab",
-        "--serious",
-        "disabling"
-      ],
-      "mcp": [
         "search",
         "adverse-event",
         "pembrolizumab",
@@ -64,13 +50,6 @@
         "--serious",
         "congenital-anomaly"
       ],
-      "mcp": [
-        "search",
-        "adverse-event",
-        "pembrolizumab",
-        "--serious",
-        "congenital-anomaly"
-      ],
       "expect": {
         "/status": "complete",
         "/query/serious": "congenital-anomaly",
@@ -84,13 +63,6 @@
     },
     {
       "run": [
-        "search",
-        "adverse-event",
-        "pembrolizumab",
-        "--serious",
-        "other"
-      ],
-      "mcp": [
         "search",
         "adverse-event",
         "pembrolizumab",

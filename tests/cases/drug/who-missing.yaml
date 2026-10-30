@@ -10,13 +10,6 @@
         "--source",
         "who-pq"
       ],
-      "mcp": [
-        "search",
-        "drug",
-        "trastuzumab",
-        "--source",
-        "who-pq"
-      ],
       "exit": 4,
       "is_error": true,
       "expect": {

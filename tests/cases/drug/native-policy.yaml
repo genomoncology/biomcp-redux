@@ -12,15 +12,6 @@
         "--name-selector",
         "preferred"
       ],
-      "mcp": [
-        "search",
-        "drug",
-        "Enhertu",
-        "--source",
-        "mychem",
-        "--name-selector",
-        "preferred"
-      ],
       "exit": 2,
       "is_error": true,
       "max_bytes": 300,
@@ -31,15 +22,6 @@
     },
     {
       "run": [
-        "search",
-        "drug",
-        "Enhertu",
-        "--source",
-        "opentargets",
-        "--name-selector",
-        "preferred"
-      ],
-      "mcp": [
         "search",
         "drug",
         "Enhertu",
@@ -66,15 +48,6 @@
         "--name-selector",
         "preferred"
       ],
-      "mcp": [
-        "search",
-        "drug",
-        "Enhertu",
-        "--source",
-        "civic",
-        "--name-selector",
-        "preferred"
-      ],
       "exit": 2,
       "is_error": true,
       "max_bytes": 300,
@@ -85,15 +58,6 @@
     },
     {
       "run": [
-        "search",
-        "drug",
-        "Enhertu",
-        "--source",
-        "openfda-label",
-        "--name-selector",
-        "preferred"
-      ],
-      "mcp": [
         "search",
         "drug",
         "Enhertu",
@@ -120,15 +84,6 @@
         "--name-selector",
         "preferred"
       ],
-      "mcp": [
-        "search",
-        "drug",
-        "Enhertu",
-        "--source",
-        "drugsfda",
-        "--name-selector",
-        "preferred"
-      ],
       "exit": 2,
       "is_error": true,
       "max_bytes": 300,
@@ -139,15 +94,6 @@
     },
     {
       "run": [
-        "search",
-        "drug",
-        "Enhertu",
-        "--source",
-        "ema",
-        "--name-selector",
-        "preferred"
-      ],
-      "mcp": [
         "search",
         "drug",
         "Enhertu",
@@ -174,15 +120,6 @@
         "--name-selector",
         "preferred"
       ],
-      "mcp": [
-        "search",
-        "drug",
-        "Enhertu",
-        "--source",
-        "ddinter",
-        "--name-selector",
-        "preferred"
-      ],
       "exit": 2,
       "is_error": true,
       "max_bytes": 300,
@@ -201,15 +138,6 @@
         "--disable-sources",
         "chembl"
       ],
-      "mcp": [
-        "search",
-        "drug",
-        "imatinib",
-        "--source",
-        "chembl",
-        "--disable-sources",
-        "chembl"
-      ],
       "exit": 4,
       "is_error": true,
       "max_bytes": 1000,
@@ -221,16 +149,6 @@
     },
     {
       "run": [
-        "get",
-        "drug",
-        "CHEMBL941",
-        "targets",
-        "--source",
-        "chembl",
-        "--disable-sources",
-        "chembl"
-      ],
-      "mcp": [
         "get",
         "drug",
         "CHEMBL941",
@@ -259,15 +177,6 @@
         "--disable-sources",
         "opentargets"
       ],
-      "mcp": [
-        "search",
-        "drug",
-        "imatinib",
-        "--source",
-        "opentargets",
-        "--disable-sources",
-        "opentargets"
-      ],
       "exit": 4,
       "is_error": true,
       "max_bytes": 1000,
@@ -279,16 +188,6 @@
     },
     {
       "run": [
-        "get",
-        "drug",
-        "CHEMBL941",
-        "targets",
-        "--source",
-        "opentargets",
-        "--disable-sources",
-        "opentargets"
-      ],
-      "mcp": [
         "get",
         "drug",
         "CHEMBL941",

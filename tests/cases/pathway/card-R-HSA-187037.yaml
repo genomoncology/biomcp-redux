@@ -9,11 +9,6 @@
         "pathway",
         "R-HSA-187037"
       ],
-      "mcp": [
-        "get",
-        "pathway",
-        "R-HSA-187037"
-      ],
       "expect": {
         "/status": "complete",
         "/result/pathway/id": {
@@ -31,12 +26,6 @@
     },
     {
       "run": [
-        "get",
-        "pathway",
-        "R-HSA-187037",
-        "summary"
-      ],
-      "mcp": [
         "get",
         "pathway",
         "R-HSA-187037",

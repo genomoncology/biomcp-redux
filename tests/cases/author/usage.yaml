@@ -10,11 +10,6 @@
         "author",
         " "
       ],
-      "mcp": [
-        "search",
-        "author",
-        " "
-      ],
       "is_error": true,
       "exit": 2,
       "expect": {
@@ -25,13 +20,6 @@
     },
     {
       "run": [
-        "search",
-        "author",
-        "x",
-        "--limit",
-        "0"
-      ],
-      "mcp": [
         "search",
         "author",
         "x",
@@ -54,13 +42,6 @@
         "--limit",
         "26"
       ],
-      "mcp": [
-        "search",
-        "author",
-        "x",
-        "--limit",
-        "26"
-      ],
       "is_error": true,
       "exit": 2,
       "expect": {
@@ -71,13 +52,6 @@
     },
     {
       "run": [
-        "search",
-        "author",
-        "x",
-        "--offset",
-        "-1"
-      ],
-      "mcp": [
         "search",
         "author",
         "x",
@@ -98,11 +72,6 @@
         "author",
         "123"
       ],
-      "mcp": [
-        "get",
-        "author",
-        "123"
-      ],
       "is_error": true,
       "exit": 2,
       "expect": {
@@ -113,13 +82,6 @@
     },
     {
       "run": [
-        "search",
-        "author",
-        "-q--topic",
-        "--disable-sources",
-        "semantic-scholar"
-      ],
-      "mcp": [
         "search",
         "author",
         "-q--topic",
@@ -137,13 +99,6 @@
     },
     {
       "run": [
-        "search",
-        "author",
-        "--query=--topic",
-        "--disable-sources",
-        "semantic-scholar"
-      ],
-      "mcp": [
         "search",
         "author",
         "--query=--topic",

@@ -20,16 +20,6 @@
         "--limit",
         "2"
       ],
-      "mcp": [
-        "search",
-        "trial",
-        "--source",
-        "nci",
-        "--biomarker-code",
-        "C96022",
-        "--limit",
-        "2"
-      ],
       "expect": {
         "/page/total": 324,
         "/page/returned": 2,
@@ -43,18 +33,6 @@
     },
     {
       "run": [
-        "search",
-        "trial",
-        "--source",
-        "nci",
-        "--biomarker-code",
-        "C96022",
-        "--limit",
-        "2",
-        "--biomarker-use",
-        "inclusion"
-      ],
-      "mcp": [
         "search",
         "trial",
         "--source",

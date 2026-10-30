@@ -8,10 +8,6 @@
         "sync",
         "ema"
       ],
-      "mcp": [
-        "sync",
-        "ema"
-      ],
       "expect": {
         "/status": "complete",
         "/result/rows": 2
@@ -20,13 +16,6 @@
     },
     {
       "run": [
-        "get",
-        "drug",
-        "EMEA/H/C/000406",
-        "--source",
-        "ema"
-      ],
-      "mcp": [
         "get",
         "drug",
         "EMEA/H/C/000406",
@@ -84,14 +73,6 @@
     },
     {
       "run": [
-        "get",
-        "drug",
-        "EMEA/H/C/000406",
-        "regulatory",
-        "--source",
-        "ema"
-      ],
-      "mcp": [
         "get",
         "drug",
         "EMEA/H/C/000406",
@@ -185,13 +166,6 @@
         "--source",
         "ema"
       ],
-      "mcp": [
-        "get",
-        "drug",
-        "EMEA/H/C/004124",
-        "--source",
-        "ema"
-      ],
       "expect": {
         "/status": "complete",
         "/result/header/name": "Tagrisso",
@@ -208,14 +182,6 @@
     },
     {
       "run": [
-        "get",
-        "drug",
-        "EMEA/H/C/004124",
-        "regulatory",
-        "--source",
-        "ema"
-      ],
-      "mcp": [
         "get",
         "drug",
         "EMEA/H/C/004124",

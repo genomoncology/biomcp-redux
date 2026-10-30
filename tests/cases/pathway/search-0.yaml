@@ -9,11 +9,6 @@
         "pathway",
         "Signaling by BRAF"
       ],
-      "mcp": [
-        "search",
-        "pathway",
-        "Signaling by BRAF"
-      ],
       "expect": {
         "/status": "complete",
         "/query/query": "Signaling by BRAF",
@@ -45,11 +40,6 @@
     },
     {
       "run": [
-        "search",
-        "pathway",
-        "Signaling by EGFR"
-      ],
-      "mcp": [
         "search",
         "pathway",
         "Signaling by EGFR"
@@ -89,11 +79,6 @@
         "pathway",
         "Signaling by ERBB2"
       ],
-      "mcp": [
-        "search",
-        "pathway",
-        "Signaling by ERBB2"
-      ],
       "expect": {
         "/status": "complete",
         "/query/query": "Signaling by ERBB2",
@@ -125,11 +110,6 @@
     },
     {
       "run": [
-        "search",
-        "pathway",
-        "Signaling by KRAS"
-      ],
-      "mcp": [
         "search",
         "pathway",
         "Signaling by KRAS"
@@ -169,11 +149,6 @@
         "pathway",
         "Signaling by PI3K"
       ],
-      "mcp": [
-        "search",
-        "pathway",
-        "Signaling by PI3K"
-      ],
       "expect": {
         "/status": "complete",
         "/query/query": "Signaling by PI3K",
@@ -205,11 +180,6 @@
     },
     {
       "run": [
-        "search",
-        "pathway",
-        "Signaling by ALK"
-      ],
-      "mcp": [
         "search",
         "pathway",
         "Signaling by ALK"
@@ -249,11 +219,6 @@
         "pathway",
         "Signaling by NTRK1"
       ],
-      "mcp": [
-        "search",
-        "pathway",
-        "Signaling by NTRK1"
-      ],
       "expect": {
         "/status": "complete",
         "/query/query": "Signaling by NTRK1",
@@ -285,11 +250,6 @@
     },
     {
       "run": [
-        "search",
-        "pathway",
-        "DNA Repair"
-      ],
-      "mcp": [
         "search",
         "pathway",
         "DNA Repair"

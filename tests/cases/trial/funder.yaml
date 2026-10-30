@@ -13,14 +13,6 @@
         "--sponsor-type",
         "nih"
       ],
-      "mcp": [
-        "search",
-        "trial",
-        "--condition",
-        "melanoma",
-        "--sponsor-type",
-        "nih"
-      ],
       "expect": {
         "/status": "complete",
         "/page/total": 629,

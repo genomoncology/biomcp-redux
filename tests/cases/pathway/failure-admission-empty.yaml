@@ -9,11 +9,6 @@
         "pathway",
         "MAPK signaling"
       ],
-      "mcp": [
-        "search",
-        "pathway",
-        "MAPK signaling"
-      ],
       "exit": 0,
       "expect": {
         "/status": "partial",
@@ -39,11 +34,6 @@
         "/status": "failed"
       },
       "max_bytes": 266,
-      "mcp": [
-        "search",
-        "pathway",
-        "MAPK signaling"
-      ],
       "is_error": true
     }
   ]

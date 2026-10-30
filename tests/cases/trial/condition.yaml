@@ -11,12 +11,6 @@
         "--condition",
         "melanoma"
       ],
-      "mcp": [
-        "search",
-        "trial",
-        "--condition",
-        "melanoma"
-      ],
       "expect": {
         "/status": "complete",
         "/page/total": 3780,

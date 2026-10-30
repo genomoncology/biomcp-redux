@@ -11,13 +11,6 @@
         "--source",
         "fda-510k"
       ],
-      "mcp": [
-        "get",
-        "diagnostic",
-        "K999991",
-        "--source",
-        "fda-510k"
-      ],
       "exit": 4,
       "max_bytes": 357,
       "expect": {
@@ -31,13 +24,6 @@
     },
     {
       "run": [
-        "get",
-        "diagnostic",
-        "K999992",
-        "--source",
-        "fda-510k"
-      ],
-      "mcp": [
         "get",
         "diagnostic",
         "K999992",
@@ -63,13 +49,6 @@
         "--source",
         "fda-510k"
       ],
-      "mcp": [
-        "get",
-        "diagnostic",
-        "K999993",
-        "--source",
-        "fda-510k"
-      ],
       "exit": 4,
       "max_bytes": 363,
       "expect": {
@@ -83,13 +62,6 @@
     },
     {
       "run": [
-        "get",
-        "diagnostic",
-        "K999994",
-        "--source",
-        "fda-510k"
-      ],
-      "mcp": [
         "get",
         "diagnostic",
         "K999994",

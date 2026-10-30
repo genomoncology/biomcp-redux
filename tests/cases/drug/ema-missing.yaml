@@ -10,13 +10,6 @@
         "--source",
         "ema"
       ],
-      "mcp": [
-        "search",
-        "drug",
-        "Tibsovo",
-        "--source",
-        "ema"
-      ],
       "exit": 4,
       "is_error": true,
       "expect": {

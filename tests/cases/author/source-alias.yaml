@@ -12,13 +12,6 @@
         "--source",
         "semanticscholar"
       ],
-      "mcp": [
-        "search",
-        "author",
-        "Louis Williams",
-        "--source",
-        "semanticscholar"
-      ],
       "expect": {
         "/status": "complete",
         "/query/source": "semantic-scholar",
@@ -37,12 +30,6 @@
         "-q",
         "Louis Williams"
       ],
-      "mcp": [
-        "search",
-        "author",
-        "-q",
-        "Louis Williams"
-      ],
       "expect": {
         "/status": "complete",
         "/query/source": "semantic-scholar",
@@ -56,12 +43,6 @@
     },
     {
       "run": [
-        "search",
-        "author",
-        "--query",
-        "Louis Williams"
-      ],
-      "mcp": [
         "search",
         "author",
         "--query",
@@ -86,13 +67,6 @@
         "-l",
         "5"
       ],
-      "mcp": [
-        "search",
-        "author",
-        "Louis Williams",
-        "-l",
-        "5"
-      ],
       "expect": {
         "/status": "complete",
         "/query/source": "semantic-scholar",
@@ -106,12 +80,6 @@
     },
     {
       "run": [
-        "search",
-        "author",
-        "--query=Louis Williams",
-        "-l5"
-      ],
-      "mcp": [
         "search",
         "author",
         "--query=Louis Williams",

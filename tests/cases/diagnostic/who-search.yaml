@@ -22,14 +22,6 @@
         "--marker",
         "hIv"
       ],
-      "mcp": [
-        "search",
-        "diagnostic",
-        "--source",
-        "who-ivd",
-        "--marker",
-        "hIv"
-      ],
       "max_bytes": 2366,
       "expect": {
         "/page/total": 7,
@@ -39,14 +31,6 @@
     },
     {
       "run": [
-        "search",
-        "diagnostic",
-        "--source",
-        "who-ivd",
-        "--manufacturer",
-        "north"
-      ],
-      "mcp": [
         "search",
         "diagnostic",
         "--source",
@@ -70,16 +54,6 @@
         "--manufacturer",
         "north"
       ],
-      "mcp": [
-        "search",
-        "diagnostic",
-        "--source",
-        "who-ivd",
-        "--marker",
-        "HIV",
-        "--manufacturer",
-        "north"
-      ],
       "max_bytes": 720,
       "expect": {
         "/page/total": 1
@@ -94,14 +68,6 @@
         "--marker",
         "missing"
       ],
-      "mcp": [
-        "search",
-        "diagnostic",
-        "--source",
-        "who-ivd",
-        "--marker",
-        "missing"
-      ],
       "max_bytes": 313,
       "expect": {
         "/page/total": 0
@@ -109,14 +75,6 @@
     },
     {
       "run": [
-        "search",
-        "diagnostic",
-        "--source",
-        "who-ivd",
-        "--manufacturer",
-        "North Synthetic"
-      ],
-      "mcp": [
         "search",
         "diagnostic",
         "--source",

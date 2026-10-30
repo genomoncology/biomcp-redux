@@ -9,11 +9,6 @@
         "pathway",
         "MAPK signaling"
       ],
-      "mcp": [
-        "search",
-        "pathway",
-        "MAPK signaling"
-      ],
       "exit": 4,
       "expect": {
         "/status": "failed",
@@ -36,11 +31,6 @@
         "/sources/0/reason": "offline"
       },
       "max_bytes": 266,
-      "mcp": [
-        "search",
-        "pathway",
-        "MAPK signaling"
-      ],
       "is_error": true
     }
   ]

@@ -12,13 +12,6 @@
         "--source",
         "semantic-scholar"
       ],
-      "mcp": [
-        "search",
-        "article",
-        "Synthetic author pivot",
-        "--source",
-        "semantic-scholar"
-      ],
       "expect": {
         "/status": "complete",
         "/result/items/0/header/first_author": "Synthetic first author",
@@ -34,13 +27,6 @@
     },
     {
       "run": [
-        "search",
-        "article",
-        "Synthetic author pivot",
-        "--source",
-        "semantic-scholar"
-      ],
-      "mcp": [
         "search",
         "article",
         "Synthetic author pivot",

@@ -14,16 +14,6 @@
         "--disable-sources",
         "cpic"
       ],
-      "mcp": [
-        "search",
-        "pgx",
-        "--gene",
-        "DPYD",
-        "--source",
-        "cpic",
-        "--disable-sources",
-        "cpic"
-      ],
       "expect": {
         "/schema": "biomcp.pgx-page/6",
         "/status": "failed",
@@ -50,16 +40,6 @@
         "--disable-sources",
         "cpic"
       ],
-      "mcp": [
-        "get",
-        "pgx",
-        "--gene",
-        "DPYD",
-        "--source",
-        "cpic",
-        "--disable-sources",
-        "cpic"
-      ],
       "expect": {
         "/schema": "biomcp.pgx-card/4",
         "/status": "failed",
@@ -76,17 +56,6 @@
     },
     {
       "run": [
-        "get",
-        "pgx",
-        "--gene",
-        "TPMT",
-        "recommendations",
-        "--source",
-        "cpic",
-        "--disable-sources",
-        "cpic"
-      ],
-      "mcp": [
         "get",
         "pgx",
         "--gene",
@@ -123,17 +92,6 @@
         "--disable-sources",
         "cpic"
       ],
-      "mcp": [
-        "get",
-        "pgx",
-        "--gene",
-        "DPYD",
-        "guidelines",
-        "--source",
-        "cpic",
-        "--disable-sources",
-        "cpic"
-      ],
       "expect": {
         "/schema": "biomcp.pgx-guidelines/4",
         "/status": "failed",
@@ -151,19 +109,6 @@
     },
     {
       "run": [
-        "get",
-        "pgx",
-        "--gene",
-        "TPMT",
-        "diplotype",
-        "--diplotype",
-        "*1/*3A",
-        "--source",
-        "cpic",
-        "--disable-sources",
-        "cpic"
-      ],
-      "mcp": [
         "get",
         "pgx",
         "--gene",

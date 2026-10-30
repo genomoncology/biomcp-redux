@@ -20,16 +20,6 @@
         "--limit",
         "1"
       ],
-      "mcp": [
-        "search",
-        "trial",
-        "--source",
-        "nci",
-        "--condition-id",
-        "NCIT:C3224",
-        "--limit",
-        "1"
-      ],
       "exit": 4,
       "is_error": true,
       "expect": {

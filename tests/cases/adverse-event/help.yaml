@@ -35,11 +35,6 @@
         }
       },
       "max_bytes": 5492,
-      "mcp": [
-        "help",
-        "search",
-        "adverse-event"
-      ],
       "run": [
         "help",
         "search",
@@ -85,11 +80,6 @@
         ]
       },
       "max_bytes": 4004,
-      "mcp": [
-        "help",
-        "get",
-        "adverse-event"
-      ],
       "run": [
         "help",
         "get",

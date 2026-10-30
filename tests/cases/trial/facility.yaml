@@ -13,14 +13,6 @@
         "--facility",
         "Dana-Farber Cancer Institute"
       ],
-      "mcp": [
-        "search",
-        "trial",
-        "--condition",
-        "melanoma",
-        "--facility",
-        "Dana-Farber Cancer Institute"
-      ],
       "expect": {
         "/status": "complete",
         "/page/total": 201,

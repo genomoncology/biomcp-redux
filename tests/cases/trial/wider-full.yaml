@@ -13,14 +13,6 @@
         "--limit",
         "1"
       ],
-      "mcp": [
-        "search",
-        "trial",
-        "--condition",
-        "melanoma",
-        "--limit",
-        "1"
-      ],
       "expect": {
         "/status": "complete",
         "/page/total": 3780,

@@ -8,11 +8,6 @@
         "search",
         "diagnostic"
       ],
-      "mcp": [
-        "help",
-        "search",
-        "diagnostic"
-      ],
       "expect": {
         "/result/commands/0/description": "Search five source records by default. FDA device recalls cover every medical device; totals count recall records, without harm inference.",
         "/result/commands/0/examples": {
@@ -47,11 +42,6 @@
     },
     {
       "run": [
-        "help",
-        "get",
-        "diagnostic"
-      ],
-      "mcp": [
         "help",
         "get",
         "diagnostic"
@@ -95,11 +85,6 @@
         "sync",
         "gtr"
       ],
-      "mcp": [
-        "help",
-        "sync",
-        "gtr"
-      ],
       "expect": {
         "/result/commands/0/examples": {
           "count": 2
@@ -113,11 +98,6 @@
         "sync",
         "who-ivd"
       ],
-      "mcp": [
-        "help",
-        "sync",
-        "who-ivd"
-      ],
       "expect": {
         "/result/commands/0/examples": {
           "count": 2
@@ -127,11 +107,6 @@
     },
     {
       "run": [
-        "help",
-        "sync",
-        "fda-cdx"
-      ],
-      "mcp": [
         "help",
         "sync",
         "fda-cdx"

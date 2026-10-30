@@ -9,11 +9,6 @@
         "pathway",
         "Signaling by JAK-STAT"
       ],
-      "mcp": [
-        "search",
-        "pathway",
-        "Signaling by JAK-STAT"
-      ],
       "expect": {
         "/status": "complete",
         "/query/query": "Signaling by JAK-STAT",
@@ -45,11 +40,6 @@
     },
     {
       "run": [
-        "search",
-        "pathway",
-        "Autophagy"
-      ],
-      "mcp": [
         "search",
         "pathway",
         "Autophagy"
@@ -89,11 +79,6 @@
         "pathway",
         "Insulin receptor signalling cascade"
       ],
-      "mcp": [
-        "search",
-        "pathway",
-        "Insulin receptor signalling cascade"
-      ],
       "expect": {
         "/status": "complete",
         "/query/query": "Insulin receptor signalling cascade",
@@ -125,11 +110,6 @@
     },
     {
       "run": [
-        "search",
-        "pathway",
-        "Hemostasis"
-      ],
-      "mcp": [
         "search",
         "pathway",
         "Hemostasis"
@@ -169,11 +149,6 @@
         "pathway",
         "Interferon Signaling"
       ],
-      "mcp": [
-        "search",
-        "pathway",
-        "Interferon Signaling"
-      ],
       "expect": {
         "/status": "complete",
         "/query/query": "Interferon Signaling",
@@ -205,11 +180,6 @@
     },
     {
       "run": [
-        "search",
-        "pathway",
-        "Metabolism"
-      ],
-      "mcp": [
         "search",
         "pathway",
         "Metabolism"

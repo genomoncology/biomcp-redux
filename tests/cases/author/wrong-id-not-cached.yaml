@@ -10,11 +10,6 @@
         "author",
         "semantic-scholar:789"
       ],
-      "mcp": [
-        "get",
-        "author",
-        "semantic-scholar:789"
-      ],
       "is_error": true,
       "exit": 4,
       "expect": {
@@ -28,11 +23,6 @@
     },
     {
       "run": [
-        "get",
-        "author",
-        "semantic-scholar:789"
-      ],
-      "mcp": [
         "get",
         "author",
         "semantic-scholar:789"

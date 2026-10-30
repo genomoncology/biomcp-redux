@@ -20,16 +20,6 @@
         "--limit",
         "1"
       ],
-      "mcp": [
-        "search",
-        "trial",
-        "--source",
-        "nci",
-        "--facility",
-        "Dana-Farber Cancer Institute",
-        "--limit",
-        "1"
-      ],
       "expect": {
         "/page/total": 3,
         "/result/items/0/nct_id": "NCT02296125",

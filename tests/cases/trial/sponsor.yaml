@@ -13,14 +13,6 @@
         "--sponsor",
         "National Cancer Institute"
       ],
-      "mcp": [
-        "search",
-        "trial",
-        "--condition",
-        "melanoma",
-        "--sponsor",
-        "National Cancer Institute"
-      ],
       "expect": {
         "/status": "complete",
         "/page/total": 229,

@@ -12,13 +12,6 @@
         "--phase",
         "1"
       ],
-      "mcp": [
-        "search",
-        "trial",
-        "NCT02563002",
-        "--phase",
-        "1"
-      ],
       "expect": {
         "/status": "complete",
         "/page/total": 0

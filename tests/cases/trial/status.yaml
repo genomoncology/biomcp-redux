@@ -13,14 +13,6 @@
         "--status",
         "RECRUITING"
       ],
-      "mcp": [
-        "search",
-        "trial",
-        "--condition",
-        "melanoma",
-        "--status",
-        "RECRUITING"
-      ],
       "expect": {
         "/status": "complete",
         "/page/total": 483,

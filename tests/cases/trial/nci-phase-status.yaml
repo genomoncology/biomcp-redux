@@ -20,16 +20,6 @@
         "--phase",
         "II"
       ],
-      "mcp": [
-        "search",
-        "trial",
-        "--source",
-        "nci",
-        "--limit",
-        "1",
-        "--phase",
-        "II"
-      ],
       "expect": {
         "/page/returned": 1,
         "/result/items/0/phase": "II",
@@ -49,16 +39,6 @@
         "--status",
         "Active"
       ],
-      "mcp": [
-        "search",
-        "trial",
-        "--source",
-        "nci",
-        "--limit",
-        "1",
-        "--status",
-        "Active"
-      ],
       "expect": {
         "/page/returned": 1,
         "/result/items/0/current_trial_status": "Active",
@@ -69,18 +49,6 @@
     },
     {
       "run": [
-        "search",
-        "trial",
-        "--source",
-        "nci",
-        "--limit",
-        "1",
-        "--phase",
-        "II",
-        "--status",
-        "Active"
-      ],
-      "mcp": [
         "search",
         "trial",
         "--source",

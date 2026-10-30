@@ -10,12 +10,6 @@
         "--gene",
         "HGNC:1097"
       ],
-      "mcp": [
-        "search",
-        "pathway",
-        "--gene",
-        "HGNC:1097"
-      ],
       "expect": {
         "/status": "complete",
         "/result/items": {

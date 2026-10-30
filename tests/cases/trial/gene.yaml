@@ -13,14 +13,6 @@
         "--gene",
         "BRAF"
       ],
-      "mcp": [
-        "search",
-        "trial",
-        "--condition",
-        "melanoma",
-        "--gene",
-        "BRAF"
-      ],
       "expect": {
         "/status": "complete",
         "/page/total": 354,

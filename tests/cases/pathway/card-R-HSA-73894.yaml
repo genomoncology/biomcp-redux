@@ -9,11 +9,6 @@
         "pathway",
         "R-HSA-73894"
       ],
-      "mcp": [
-        "get",
-        "pathway",
-        "R-HSA-73894"
-      ],
       "expect": {
         "/status": "complete",
         "/result/pathway/id": {
@@ -31,12 +26,6 @@
     },
     {
       "run": [
-        "get",
-        "pathway",
-        "R-HSA-73894",
-        "summary"
-      ],
-      "mcp": [
         "get",
         "pathway",
         "R-HSA-73894",

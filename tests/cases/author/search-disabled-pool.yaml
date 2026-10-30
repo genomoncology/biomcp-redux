@@ -14,11 +14,6 @@
         "/status": "complete"
       },
       "max_bytes": 1191,
-      "mcp": [
-        "search",
-        "author",
-        "Louis Williams"
-      ],
       "full_output_bytes": true
     },
     {
@@ -31,13 +26,6 @@
     },
     {
       "run": [
-        "search",
-        "author",
-        "Louis Williams",
-        "--disable-sources",
-        "semantic-scholar"
-      ],
-      "mcp": [
         "search",
         "author",
         "Louis Williams",
@@ -57,17 +45,6 @@
     },
     {
       "run": [
-        "search",
-        "author",
-        "Louis Williams",
-        "--disable-sources",
-        "semantic-scholar",
-        "--offset",
-        "5",
-        "--pool",
-        "<pool>"
-      ],
-      "mcp": [
         "search",
         "author",
         "Louis Williams",
@@ -97,13 +74,6 @@
         "--disable-sources",
         "noncommercial"
       ],
-      "mcp": [
-        "search",
-        "author",
-        "Louis Williams",
-        "--disable-sources",
-        "noncommercial"
-      ],
       "is_error": true,
       "exit": 4,
       "expect": {
@@ -117,17 +87,6 @@
     },
     {
       "run": [
-        "search",
-        "author",
-        "Louis Williams",
-        "--disable-sources",
-        "noncommercial",
-        "--offset",
-        "5",
-        "--pool",
-        "<pool>"
-      ],
-      "mcp": [
         "search",
         "author",
         "Louis Williams",

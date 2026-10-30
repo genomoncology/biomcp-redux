@@ -12,14 +12,6 @@
         "--condition",
         "C3224"
       ],
-      "mcp": [
-        "search",
-        "trial",
-        "--source",
-        "nci",
-        "--condition",
-        "C3224"
-      ],
       "exit": 4,
       "is_error": true,
       "offline": false,
@@ -58,14 +50,6 @@
         "--status",
         "RECRUITING"
       ],
-      "mcp": [
-        "search",
-        "trial",
-        "--source",
-        "nci",
-        "--status",
-        "RECRUITING"
-      ],
       "exit": 2,
       "is_error": true,
       "expect": {
@@ -75,14 +59,6 @@
     },
     {
       "run": [
-        "search",
-        "trial",
-        "--source",
-        "nci",
-        "--gene",
-        "BRAF"
-      ],
-      "mcp": [
         "search",
         "trial",
         "--source",
@@ -110,16 +86,6 @@
         "--keyword",
         "lung cancer"
       ],
-      "mcp": [
-        "search",
-        "trial",
-        "--source",
-        "nci",
-        "--keyword",
-        "melanoma",
-        "--keyword",
-        "lung cancer"
-      ],
       "exit": 2,
       "is_error": true,
       "offline": true,
@@ -138,14 +104,6 @@
         "--phase",
         "2"
       ],
-      "mcp": [
-        "search",
-        "trial",
-        "--source",
-        "nci",
-        "--phase",
-        "2"
-      ],
       "exit": 2,
       "is_error": true,
       "offline": false,
@@ -155,14 +113,6 @@
     },
     {
       "run": [
-        "search",
-        "trial",
-        "--source",
-        "nci",
-        "--phase",
-        "V"
-      ],
-      "mcp": [
         "search",
         "trial",
         "--source",
@@ -186,14 +136,6 @@
         "--status",
         "open"
       ],
-      "mcp": [
-        "search",
-        "trial",
-        "--source",
-        "nci",
-        "--status",
-        "open"
-      ],
       "exit": 2,
       "is_error": true,
       "offline": false,
@@ -210,14 +152,6 @@
         "--phase",
         "II"
       ],
-      "mcp": [
-        "search",
-        "trial",
-        "--source",
-        "ctgov",
-        "--phase",
-        "II"
-      ],
       "exit": 2,
       "is_error": true,
       "offline": false,
@@ -227,14 +161,6 @@
     },
     {
       "run": [
-        "search",
-        "trial",
-        "--source",
-        "ctgov",
-        "--status",
-        "Active"
-      ],
-      "mcp": [
         "search",
         "trial",
         "--source",

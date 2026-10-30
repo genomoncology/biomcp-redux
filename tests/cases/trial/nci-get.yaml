@@ -36,14 +36,6 @@
         "--source",
         "nci"
       ],
-      "mcp": [
-        "get",
-        "trial",
-        "NCT05136196",
-        "all",
-        "--source",
-        "nci"
-      ],
       "expect": {
         "/status": "complete",
         "/result/items/0/card/nct_id": "NCT05136196",

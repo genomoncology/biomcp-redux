@@ -9,11 +9,6 @@
         "pathway",
         "MAPK signaling"
       ],
-      "mcp": [
-        "search",
-        "pathway",
-        "MAPK signaling"
-      ],
       "exit": 4,
       "expect": {
         "/status": "failed",

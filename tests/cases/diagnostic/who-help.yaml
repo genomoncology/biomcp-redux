@@ -8,11 +8,6 @@
         "sync",
         "who-ivd"
       ],
-      "mcp": [
-        "help",
-        "sync",
-        "who-ivd"
-      ],
       "max_bytes": 1391,
       "expect": {
         "/result/commands/0/command": [
@@ -34,11 +29,6 @@
     },
     {
       "run": [
-        "help",
-        "get",
-        "diagnostic"
-      ],
-      "mcp": [
         "help",
         "get",
         "diagnostic"

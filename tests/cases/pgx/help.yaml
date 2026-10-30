@@ -8,11 +8,6 @@
         "search",
         "pgx"
       ],
-      "mcp": [
-        "help",
-        "search",
-        "pgx"
-      ],
       "expect": {
         "/status": "complete",
         "/result/commands/0/command": [
@@ -42,11 +37,6 @@
     },
     {
       "run": [
-        "help",
-        "get",
-        "pgx"
-      ],
-      "mcp": [
         "help",
         "get",
         "pgx"

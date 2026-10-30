@@ -8,10 +8,6 @@
         "sync",
         "ema"
       ],
-      "mcp": [
-        "sync",
-        "ema"
-      ],
       "max_bytes": 170,
       "expect": {
         "/schema": "biomcp.sync/7",
@@ -24,11 +20,6 @@
     },
     {
       "run": [
-        "sync",
-        "ema",
-        "--fresh"
-      ],
-      "mcp": [
         "sync",
         "ema",
         "--fresh"

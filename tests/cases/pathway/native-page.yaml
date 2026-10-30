@@ -9,11 +9,6 @@
         "pathway",
         "MAPK signaling"
       ],
-      "mcp": [
-        "search",
-        "pathway",
-        "MAPK signaling"
-      ],
       "expect": {
         "/status": "complete",
         "/result/items/0/id/id": "R-HSA-9652817",

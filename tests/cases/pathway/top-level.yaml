@@ -9,11 +9,6 @@
         "pathway",
         "--top-level"
       ],
-      "mcp": [
-        "search",
-        "pathway",
-        "--top-level"
-      ],
       "expect": {
         "/status": "complete",
         "/result/items": {

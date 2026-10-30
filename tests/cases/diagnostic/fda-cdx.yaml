@@ -8,10 +8,6 @@
         "sync",
         "fda-cdx"
       ],
-      "mcp": [
-        "sync",
-        "fda-cdx"
-      ],
       "max_bytes": 354,
       "expect": {
         "/schema": "biomcp.sync/7",
@@ -20,12 +16,6 @@
     },
     {
       "run": [
-        "search",
-        "diagnostic",
-        "--source",
-        "fda-cdx"
-      ],
-      "mcp": [
         "search",
         "diagnostic",
         "--source",
@@ -50,16 +40,6 @@
         "--source",
         "fda-cdx"
       ],
-      "mcp": [
-        "search",
-        "diagnostic",
-        "--bundle-revision",
-        "sha256:3eb93d3ba1a08b508955b0699d32042584fd8e0c805c72f7eeb470ef04ba959a",
-        "--offset",
-        "5",
-        "--source",
-        "fda-cdx"
-      ],
       "max_bytes": 5917,
       "expect": {
         "/schema": "biomcp.diagnostic-companion/4",
@@ -70,14 +50,6 @@
     },
     {
       "run": [
-        "search",
-        "diagnostic",
-        "--source",
-        "fda-cdx",
-        "--device-id",
-        "P200010"
-      ],
-      "mcp": [
         "search",
         "diagnostic",
         "--source",
@@ -106,18 +78,6 @@
         "--source",
         "fda-cdx"
       ],
-      "mcp": [
-        "search",
-        "diagnostic",
-        "--bundle-revision",
-        "sha256:3eb93d3ba1a08b508955b0699d32042584fd8e0c805c72f7eeb470ef04ba959a",
-        "--device-id",
-        "P200010",
-        "--offset",
-        "5",
-        "--source",
-        "fda-cdx"
-      ],
       "max_bytes": 1635,
       "expect": {
         "/schema": "biomcp.diagnostic-companion/4",
@@ -128,14 +88,6 @@
     },
     {
       "run": [
-        "search",
-        "diagnostic",
-        "--source",
-        "fda-cdx",
-        "--device-id",
-        "P200010/S026"
-      ],
-      "mcp": [
         "search",
         "diagnostic",
         "--source",
@@ -161,14 +113,6 @@
         "--device-id",
         "P150013/S020"
       ],
-      "mcp": [
-        "search",
-        "diagnostic",
-        "--source",
-        "fda-cdx",
-        "--device-id",
-        "P150013/S020"
-      ],
       "max_bytes": 2846,
       "expect": {
         "/schema": "biomcp.diagnostic-companion/4",
@@ -179,14 +123,6 @@
     },
     {
       "run": [
-        "search",
-        "diagnostic",
-        "--source",
-        "fda-cdx",
-        "--biomarker",
-        "KRAS"
-      ],
-      "mcp": [
         "search",
         "diagnostic",
         "--source",
@@ -216,18 +152,6 @@
         "--source",
         "fda-cdx"
       ],
-      "mcp": [
-        "search",
-        "diagnostic",
-        "--biomarker",
-        "KRAS",
-        "--bundle-revision",
-        "sha256:3eb93d3ba1a08b508955b0699d32042584fd8e0c805c72f7eeb470ef04ba959a",
-        "--offset",
-        "5",
-        "--source",
-        "fda-cdx"
-      ],
       "max_bytes": 4990,
       "expect": {
         "/schema": "biomcp.diagnostic-companion/4",
@@ -238,11 +162,6 @@
     },
     {
       "run": [
-        "help",
-        "sync",
-        "fda-cdx"
-      ],
-      "mcp": [
         "help",
         "sync",
         "fda-cdx"
@@ -262,11 +181,6 @@
         "search",
         "diagnostic"
       ],
-      "mcp": [
-        "help",
-        "search",
-        "diagnostic"
-      ],
       "max_bytes": 3792,
       "expect": {
         "/schema": "biomcp.help/6",
@@ -278,11 +192,6 @@
     },
     {
       "run": [
-        "sync",
-        "fda-cdx",
-        "--fresh"
-      ],
-      "mcp": [
         "sync",
         "fda-cdx",
         "--fresh"

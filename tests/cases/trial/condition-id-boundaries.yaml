@@ -12,14 +12,6 @@
         "--source",
         "nci"
       ],
-      "mcp": [
-        "search",
-        "trial",
-        "--condition-id",
-        "MONDO:0005105",
-        "--source",
-        "nci"
-      ],
       "exit": 4,
       "offline": false,
       "expect": {
@@ -38,14 +30,6 @@
         "--condition",
         "literal"
       ],
-      "mcp": [
-        "search",
-        "trial",
-        "--condition-id",
-        "MONDO:0005105",
-        "--condition",
-        "literal"
-      ],
       "exit": 2,
       "is_error": true,
       "offline": true,
@@ -56,16 +40,6 @@
     },
     {
       "run": [
-        "search",
-        "trial",
-        "--condition-id",
-        "MONDO:0005105",
-        "--source",
-        "nci",
-        "--keyword",
-        "literal"
-      ],
-      "mcp": [
         "search",
         "trial",
         "--condition-id",

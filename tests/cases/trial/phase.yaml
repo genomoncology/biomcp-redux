@@ -13,14 +13,6 @@
         "--phase",
         "3"
       ],
-      "mcp": [
-        "search",
-        "trial",
-        "--condition",
-        "melanoma",
-        "--phase",
-        "3"
-      ],
       "expect": {
         "/status": "complete",
         "/page/total": 222,

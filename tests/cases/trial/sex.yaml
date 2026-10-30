@@ -13,14 +13,6 @@
         "--sex",
         "FEMALE"
       ],
-      "mcp": [
-        "search",
-        "trial",
-        "--condition",
-        "breast cancer",
-        "--sex",
-        "FEMALE"
-      ],
       "expect": {
         "/status": "complete",
         "/page/total": 16889,

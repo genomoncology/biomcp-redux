@@ -8,10 +8,6 @@
         "sync",
         "gtr"
       ],
-      "mcp": [
-        "sync",
-        "gtr"
-      ],
       "max_bytes": 198,
       "expect": {
         "/schema": "biomcp.sync/7",
@@ -21,14 +17,6 @@
     },
     {
       "run": [
-        "search",
-        "diagnostic",
-        "--source",
-        "gtr",
-        "--gene",
-        "BRCA1"
-      ],
-      "mcp": [
         "search",
         "diagnostic",
         "--source",
@@ -58,16 +46,6 @@
         "--offset",
         "5"
       ],
-      "mcp": [
-        "search",
-        "diagnostic",
-        "--source",
-        "gtr",
-        "--gene-id",
-        "672",
-        "--offset",
-        "5"
-      ],
       "max_bytes": 1518,
       "expect": {
         "/page/total": 8,
@@ -77,16 +55,6 @@
     },
     {
       "run": [
-        "search",
-        "diagnostic",
-        "--source",
-        "gtr",
-        "--gene",
-        "BRCA1",
-        "--type",
-        "Research"
-      ],
-      "mcp": [
         "search",
         "diagnostic",
         "--source",
@@ -111,14 +79,6 @@
         "--condition-id",
         "MedGen:C2676676"
       ],
-      "mcp": [
-        "search",
-        "diagnostic",
-        "--source",
-        "gtr",
-        "--condition-id",
-        "MedGen:C2676676"
-      ],
       "max_bytes": 1014,
       "expect": {
         "/page/total": 1,
@@ -127,13 +87,6 @@
     },
     {
       "run": [
-        "get",
-        "diagnostic",
-        "GTR000006692.3",
-        "--source",
-        "gtr"
-      ],
-      "mcp": [
         "get",
         "diagnostic",
         "GTR000006692.3",
@@ -157,14 +110,6 @@
         "gtr",
         "genes"
       ],
-      "mcp": [
-        "get",
-        "diagnostic",
-        "GTR000006692.3",
-        "--source",
-        "gtr",
-        "genes"
-      ],
       "max_bytes": 888,
       "expect": {
         "/page/total": 2,
@@ -175,14 +120,6 @@
     },
     {
       "run": [
-        "get",
-        "diagnostic",
-        "GTR000006692.3",
-        "--source",
-        "gtr",
-        "conditions"
-      ],
-      "mcp": [
         "get",
         "diagnostic",
         "GTR000006692.3",
@@ -209,16 +146,6 @@
         "--section-limit",
         "2"
       ],
-      "mcp": [
-        "get",
-        "diagnostic",
-        "GTR000006692.3",
-        "--source",
-        "gtr",
-        "methods",
-        "--section-limit",
-        "2"
-      ],
       "max_bytes": 825,
       "expect": {
         "/page/total": 4,
@@ -236,14 +163,6 @@
         "--gene",
         "NOTLISTED"
       ],
-      "mcp": [
-        "search",
-        "diagnostic",
-        "--source",
-        "gtr",
-        "--gene",
-        "NOTLISTED"
-      ],
       "max_bytes": 299,
       "expect": {
         "/status": "complete",
@@ -252,11 +171,6 @@
     },
     {
       "run": [
-        "sync",
-        "gtr",
-        "--fresh"
-      ],
-      "mcp": [
         "sync",
         "gtr",
         "--fresh"

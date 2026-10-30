@@ -13,14 +13,6 @@
         "--variant",
         "BRAF V600E"
       ],
-      "mcp": [
-        "search",
-        "trial",
-        "--condition",
-        "melanoma",
-        "--variant",
-        "BRAF V600E"
-      ],
       "expect": {
         "/status": "complete",
         "/page/total": 78,

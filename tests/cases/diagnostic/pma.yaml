@@ -11,13 +11,6 @@
         "--source",
         "fda-pma"
       ],
-      "mcp": [
-        "get",
-        "diagnostic",
-        "P150013",
-        "--source",
-        "fda-pma"
-      ],
       "max_bytes": 1134,
       "expect": {
         "/status": "complete",
@@ -37,15 +30,6 @@
     },
     {
       "run": [
-        "get",
-        "diagnostic",
-        "P150013",
-        "--source",
-        "fda-pma",
-        "--supplement",
-        "S020"
-      ],
-      "mcp": [
         "get",
         "diagnostic",
         "P150013",
@@ -77,15 +61,6 @@
         "--supplement",
         "S021"
       ],
-      "mcp": [
-        "get",
-        "diagnostic",
-        "P150013",
-        "--source",
-        "fda-pma",
-        "--supplement",
-        "S021"
-      ],
       "max_bytes": 1106,
       "expect": {
         "/result/header/supplement_number": "S021"
@@ -93,14 +68,6 @@
     },
     {
       "run": [
-        "get",
-        "diagnostic",
-        "P150013",
-        "--source",
-        "fda-pma",
-        "supplements"
-      ],
-      "mcp": [
         "get",
         "diagnostic",
         "P150013",
@@ -138,16 +105,6 @@
         "--section-offset",
         "5"
       ],
-      "mcp": [
-        "get",
-        "diagnostic",
-        "P150013",
-        "--source",
-        "fda-pma",
-        "supplements",
-        "--section-offset",
-        "5"
-      ],
       "max_bytes": 1428,
       "expect": {
         "/page/total": 7,
@@ -159,14 +116,6 @@
     },
     {
       "run": [
-        "get",
-        "diagnostic",
-        "P150013",
-        "--source",
-        "fda-pma",
-        "regulatory"
-      ],
-      "mcp": [
         "get",
         "diagnostic",
         "P150013",
@@ -193,15 +142,6 @@
         "--supplement",
         "S999"
       ],
-      "mcp": [
-        "get",
-        "diagnostic",
-        "P150013",
-        "--source",
-        "fda-pma",
-        "--supplement",
-        "S999"
-      ],
       "max_bytes": 345,
       "expect": {
         "/status": "absent"
@@ -210,13 +150,6 @@
     },
     {
       "run": [
-        "get",
-        "diagnostic",
-        "P000000",
-        "--source",
-        "fda-pma"
-      ],
-      "mcp": [
         "get",
         "diagnostic",
         "P000000",

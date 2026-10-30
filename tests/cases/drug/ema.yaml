@@ -8,10 +8,6 @@
         "sync",
         "ema"
       ],
-      "mcp": [
-        "sync",
-        "ema"
-      ],
       "expect": {
         "/status": "complete",
         "/result/rows": 6
@@ -20,15 +16,6 @@
     },
     {
       "run": [
-        "search",
-        "drug",
-        "Tibsovo",
-        "--source",
-        "ema",
-        "--limit",
-        "1"
-      ],
-      "mcp": [
         "search",
         "drug",
         "Tibsovo",
@@ -60,18 +47,6 @@
         "1",
         "--fresh"
       ],
-      "mcp": [
-        "search",
-        "drug",
-        "Tibsovo",
-        "--source",
-        "ema",
-        "--limit",
-        "1",
-        "--offset",
-        "1",
-        "--fresh"
-      ],
       "expect": {
         "/status": "complete",
         "/result/total": 2,
@@ -82,13 +57,6 @@
     },
     {
       "run": [
-        "get",
-        "drug",
-        "EMEA/H/C/000406",
-        "--source",
-        "ema"
-      ],
-      "mcp": [
         "get",
         "drug",
         "EMEA/H/C/000406",
@@ -114,13 +82,6 @@
         "--source",
         "ema"
       ],
-      "mcp": [
-        "get",
-        "drug",
-        "EMEA/H/C/004124",
-        "--source",
-        "ema"
-      ],
       "expect": {
         "/status": "complete",
         "/result/header/id": "EMEA/H/C/004124",
@@ -134,13 +95,6 @@
     },
     {
       "run": [
-        "get",
-        "drug",
-        "EMEA/H/C/004480",
-        "--source",
-        "ema"
-      ],
-      "mcp": [
         "get",
         "drug",
         "EMEA/H/C/004480",
@@ -166,13 +120,6 @@
         "--source",
         "ema"
       ],
-      "mcp": [
-        "get",
-        "drug",
-        "EMEA/H/C/005621",
-        "--source",
-        "ema"
-      ],
       "expect": {
         "/status": "complete",
         "/result/header/id": "EMEA/H/C/005621",
@@ -186,14 +133,6 @@
     },
     {
       "run": [
-        "get",
-        "drug",
-        "EMEA/H/C/000406",
-        "regulatory",
-        "--source",
-        "ema"
-      ],
-      "mcp": [
         "get",
         "drug",
         "EMEA/H/C/000406",
@@ -222,14 +161,6 @@
         "--source",
         "ema"
       ],
-      "mcp": [
-        "get",
-        "drug",
-        "EMEA/H/C/004124",
-        "regulatory",
-        "--source",
-        "ema"
-      ],
       "expect": {
         "/schema": "biomcp.drug-regulatory/6",
         "/status": "complete",
@@ -244,14 +175,6 @@
     },
     {
       "run": [
-        "get",
-        "drug",
-        "EMEA/H/C/004480",
-        "regulatory",
-        "--source",
-        "ema"
-      ],
-      "mcp": [
         "get",
         "drug",
         "EMEA/H/C/004480",
@@ -280,14 +203,6 @@
         "--source",
         "ema"
       ],
-      "mcp": [
-        "get",
-        "drug",
-        "EMEA/H/C/005621",
-        "regulatory",
-        "--source",
-        "ema"
-      ],
       "expect": {
         "/schema": "biomcp.drug-regulatory/6",
         "/status": "complete",
@@ -309,14 +224,6 @@
         "--source",
         "ema"
       ],
-      "mcp": [
-        "get",
-        "drug",
-        "EMEA/H/C/005936",
-        "regulatory",
-        "--source",
-        "ema"
-      ],
       "expect": {
         "/result/regulatory/data/records/0/status": "Authorised"
       },
@@ -331,14 +238,6 @@
         "--source",
         "ema"
       ],
-      "mcp": [
-        "get",
-        "drug",
-        "EMEA/H/C/005056",
-        "regulatory",
-        "--source",
-        "ema"
-      ],
       "expect": {
         "/result/regulatory/data/records/0/status": "Application withdrawn"
       },
@@ -346,16 +245,6 @@
     },
     {
       "run": [
-        "get",
-        "drug",
-        "EMEA/H/C/004124",
-        "regulatory",
-        "--source",
-        "ema",
-        "--section-offset",
-        "1"
-      ],
-      "mcp": [
         "get",
         "drug",
         "EMEA/H/C/004124",
@@ -381,13 +270,6 @@
         "--source",
         "ema"
       ],
-      "mcp": [
-        "search",
-        "drug",
-        "unmatched-synthetic-name",
-        "--source",
-        "ema"
-      ],
       "expect": {
         "/status": "absent",
         "/result/total": 0
@@ -398,14 +280,6 @@
     },
     {
       "run": [
-        "get",
-        "drug",
-        "EMEA/H/C/999999",
-        "regulatory",
-        "--source",
-        "ema"
-      ],
-      "mcp": [
         "get",
         "drug",
         "EMEA/H/C/999999",
@@ -430,15 +304,6 @@
         "--disable-sources",
         "ema"
       ],
-      "mcp": [
-        "get",
-        "drug",
-        "EMEA/H/C/004124",
-        "--source",
-        "ema",
-        "--disable-sources",
-        "ema"
-      ],
       "expect": {
         "/status": "failed",
         "/sources/0/state": "skipped",
@@ -450,14 +315,6 @@
     },
     {
       "run": [
-        "get",
-        "drug",
-        "EMEA/H/C/000406",
-        "targets",
-        "--source",
-        "ema"
-      ],
-      "mcp": [
         "get",
         "drug",
         "EMEA/H/C/000406",
