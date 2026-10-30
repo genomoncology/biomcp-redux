@@ -2,6 +2,7 @@
 mod families;
 mod members;
 mod pages;
+mod records;
 use super::transcript::trial;
 use biomcp_adapters::{NativeWindow, Refusal, chembl};
 use libtest_mimic::Trial;
@@ -21,6 +22,7 @@ pub(super) fn trials() -> Vec<Trial> {
     tests.extend(families::trials());
     tests.extend(pages::trials());
     tests.extend(members::trials());
+    tests.extend(records::trials());
     tests
 }
 
