@@ -1,4 +1,5 @@
 {
+  "live_check": "synthetic authored or response-edited replies; no live provider observation",
   "feature": "drug-who-medicines",
   "story": "Explicit WHO finished-product sync validates the complete synthetic export and can explicitly refresh it",
   "replay": "drug/who-synthetic",
