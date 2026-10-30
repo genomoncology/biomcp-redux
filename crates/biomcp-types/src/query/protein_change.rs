@@ -1,4 +1,5 @@
-//! Checked declared protein substitutions; no free-text extraction or allele inference.
+//! Checked protein substitutions and no-change notation; no allele inference.
+//! https://hgvs-nomenclature.org/21.1.3/recommendations/protein/substitution/
 use biodata::text_value;
 use std::str::FromStr;
 const AMINO: &[(&str, &str)] = &[
@@ -26,13 +27,13 @@ const AMINO: &[(&str, &str)] = &[
     ("O", "Pyl"),
     ("*", "Ter"),
 ];
-/// Explicit protein substitution with checked residue codes and a positive position.
+/// Explicit protein substitution or no-change notation with checked residue codes.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub(crate) struct ProteinQuery {
     original: Box<str>,
     from: usize,
     position: u32,
-    to: usize,
+    to: Option<usize>,
 }
 impl FromStr for ProteinQuery {
     type Err = super::gene::QueryInvalid;
@@ -64,19 +65,29 @@ impl FromStr for ProteinQuery {
         let position = digits
             .parse()
             .map_err(|_| super::gene::QueryInvalid::new(&["variant"]))?;
+        let from = residue(
+            value
+                .get(..first)
+                .ok_or_else(|| super::gene::QueryInvalid::new(&["variant"]))?,
+        )?;
+        let alternate = value
+            .get(end..)
+            .ok_or_else(|| super::gene::QueryInvalid::new(&["variant"]))?;
+        let to = if alternate == "=" {
+            None
+        } else {
+            Some(residue(alternate)?)
+        };
+        let original = if to.is_none() {
+            format!("p.{}{position}=", AMINO[from].1).into_boxed_str()
+        } else {
+            original.into()
+        };
         Ok(Self {
-            original: original.into(),
-            from: residue(
-                value
-                    .get(..first)
-                    .ok_or_else(|| super::gene::QueryInvalid::new(&["variant"]))?,
-            )?,
+            original,
+            from,
             position,
-            to: residue(
-                value
-                    .get(end..)
-                    .ok_or_else(|| super::gene::QueryInvalid::new(&["variant"]))?,
-            )?,
+            to,
         })
     }
 }
@@ -84,7 +95,10 @@ impl ProteinQuery {
     /// Literal spellings searched by readers, in stable order.
     pub(crate) fn forms(&self) -> [String; 4] {
         let (from, from_three) = AMINO.get(self.from).copied().unwrap_or(("", ""));
-        let (to, to_three) = AMINO.get(self.to).copied().unwrap_or(("", ""));
+        let (to, to_three) = self
+            .to
+            .and_then(|to| AMINO.get(to).copied())
+            .unwrap_or(("=", "="));
         let one = format!("{from}{}{to}", self.position);
         let three = format!("{from_three}{}{to_three}", self.position);
         [
@@ -102,7 +116,7 @@ impl std::fmt::Display for ProteinQuery {
     }
 }
 impl ProteinQuery {
-    /// Exact caller spelling, without converting amino-acid notation.
+    /// Caller spelling, with synonymous changes written in canonical HGVS form.
     pub(crate) fn as_str(&self) -> &str {
         &self.original
     }
@@ -114,7 +128,7 @@ text_value!(ProteinQuery, "ProteinQuery", {
         .collect::<Vec<_>>()
         .join("|");
     format!(
-        "^(p\\.)?({residues}){}({residues})$",
+        "^(p\\.)?({residues}){}({residues}|=)$",
         biodata::schema_pattern::decimal(u32::MAX.into())
     )
 });

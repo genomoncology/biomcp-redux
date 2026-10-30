@@ -163,6 +163,12 @@ pub(super) fn protein_query_schema_matches_public_search_admissions()
     for text in [
         "V600E",
         "p.Val600Glu",
+        "p.Ala613=",
+        "p.A613=",
+        "p.=",
+        "p.Ala613==",
+        "p.Ala613=/Val",
+        "p.(Ala613=)",
         "Val600E",
         "*1Ter",
         "V0E",
