@@ -14,6 +14,15 @@ pub(crate) fn collect(
             continue;
         }
         let response = invoke(std::iter::once("help".into()).chain(path.clone()).collect())?;
+        if path.len() == 1
+            && serde_json::to_vec(&response)
+                .map_err(|e| e.to_string())?
+                .len()
+                + 1
+                > 8192
+        {
+            return Err(format!("command help exceeds 8 KB: {path:?}"));
+        }
         for entry in response
             .pointer("/result/commands")
             .and_then(Value::as_array)
