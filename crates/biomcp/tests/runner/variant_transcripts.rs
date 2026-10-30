@@ -95,6 +95,7 @@ fn coding() -> Result<(), String> {
         ("NC_000005.9(NM_001199291.2):c.1619A>G", true),
         ("NC_000005.9(NM_001199291.3):c.1619A>G", false),
         ("NM_001199291.3:c.1619A>G", false),
+        ("NM_001199291.3(ATM):c.1619A>G", false),
     ] {
         let value = run(&env, &["get", "variant", notation])?;
         if value.pointer("/result/candidates/0/component_terms/1/component")
