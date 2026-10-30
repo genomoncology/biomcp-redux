@@ -25,3 +25,7 @@ pub(crate) fn phenotype_native(path: &Path) -> Result<(), String> {
 pub(crate) fn protein_native(path: &Path) -> Result<(), String> {
     runner::protein_commands::native(path)
 }
+
+pub(crate) fn other_source_values(path: &Path) -> Result<(), String> {
+    runner::other_source_value_proof::run(path)
+}

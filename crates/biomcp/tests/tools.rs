@@ -93,7 +93,7 @@ fn native_proof() -> Option<ExitCode> {
         "--cell-line-xrefs" => runner::cell_line::generate_xrefs,
         "--cell-line-examples" => runner::cell_line::generate_examples,
         "--faers-search-synthetic-examples" => runner::tools_api::faers_search_examples,
-        "--other-source-value-proof" => runner::other_source_value_proof::run,
+        "--other-source-value-proof" => runner::tools_api::other_source_values,
         "--seer-native-proof" => runner::tools_api::seer_native,
         "--trial-condition-native-proof" => runner::tools_api::trial_condition_native,
         "--monarch-native-proof" => runner::tools_api::monarch_native,
