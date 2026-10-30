@@ -145,7 +145,12 @@ fn works() -> Check {
         } else {
             Refusal::None
         };
-        if mapped.refusals != expected || mapped.value.len() != usize::from(case == "optional") {
+        if mapped.refusals != expected
+            || mapped.value.len() != usize::from(matches!(case, "optional" | "identity"))
+            || mapped.value.first().is_some_and(|group| {
+                group.assertions.len() != if case == "identity" { 1 } else { 2 }
+            })
+        {
             return Err(
                 format!("ORCID {case}: actual work refusal or optional container changed").into(),
             );
@@ -173,6 +178,9 @@ fn associations() -> Check {
                 } else {
                     json!([row])
                 };
+                let total = u32::from(case != "absent");
+                recording["exchanges"][0]["body"]["value"]["page"]["totalElements"] = json!(total);
+                recording["exchanges"][0]["body"]["value"]["page"]["totalPages"] = json!(total);
             }
         })?;
         if !changed {
