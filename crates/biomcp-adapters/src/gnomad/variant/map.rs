@@ -9,8 +9,14 @@ pub(super) fn variant(value: Option<Field<raw::Variant>>, id: &str) -> Mapped<Op
         record: crate::mapped::record(id),
         list: Vec::new(),
     };
-    let value = problems.field("variant_id", value).and_then(|value| {
+    let mut refusals = crate::Refusal::None;
+    let value = value.and_then(|value| {
+        let Some(value) = problems.field("variant_id", Some(value)) else {
+            refusals = crate::Refusal::Refused;
+            return None;
+        };
         if value.variant_id.as_str() != id {
+            refusals = crate::Refusal::Refused;
             return problems.required("variant_id", None);
         }
         Some(Variant {
@@ -24,6 +30,7 @@ pub(super) fn variant(value: Option<Field<raw::Variant>>, id: &str) -> Mapped<Op
         })
     });
     Mapped {
+        refusals,
         value,
         problems: problems.list,
     }

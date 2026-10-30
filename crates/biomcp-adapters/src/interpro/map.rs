@@ -72,6 +72,7 @@ pub(super) fn rows(
         all_problems.extend(problems.list);
     }
     Ok(crate::Mapped {
+        refusals: crate::Refusal::None,
         value: rows,
         problems: all_problems,
     })

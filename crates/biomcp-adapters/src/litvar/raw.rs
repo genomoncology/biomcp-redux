@@ -34,13 +34,16 @@ impl Candidates {
             list: Vec::new(),
         };
         let mut value = Vec::new();
+        let mut refusals = crate::Refusal::None;
         for row in self.0 {
             problems.record = None;
             let Some(row) = problems.field("identity", Some(row)) else {
+                refusals = crate::Refusal::Refused;
                 continue;
             };
             problems.record = crate::mapped::record(&row.id);
             if !row.admitted() {
+                refusals = crate::Refusal::Refused;
                 problems.required::<()>("identity", None);
                 continue;
             }
@@ -62,6 +65,7 @@ impl Candidates {
             });
         }
         Mapped {
+            refusals,
             value,
             problems: problems.list,
         }

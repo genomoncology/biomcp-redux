@@ -43,16 +43,25 @@ impl Response {
             .iter()
             .all(|(_, row)| row.as_ref().is_some_and(|row| row.admitted(input, false)))
     }
-    pub(super) fn records(self, input: &str, problems: &mut Problems) -> Vec<(String, RawVariant)> {
+    pub(super) fn records(
+        self,
+        input: &str,
+        problems: &mut Problems,
+        refusals: &mut crate::Refusal,
+    ) -> Vec<(String, RawVariant)> {
         let warning = self.flag.as_str() == "warning";
         self.variants
             .into_iter()
             .filter_map(|(key, raw)| {
                 problems.record = crate::mapped::record(&key);
-                let row = problems.field("identity", Some(raw))?;
+                let Some(row) = problems.field("identity", Some(raw)) else {
+                    *refusals = crate::Refusal::Refused;
+                    return None;
+                };
                 if row.admitted(input, warning) {
                     Some((key, row))
                 } else {
+                    *refusals = crate::Refusal::Refused;
                     problems.required::<()>("identity", None);
                     None
                 }

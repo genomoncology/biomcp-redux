@@ -72,7 +72,7 @@ fn execute(
     ));
     let (cohort, rows) = result?;
     out.problems.extend(rows.problems);
-    let window = rows.value;
+    let window = rows.window;
     metadata(query, &cohort, out);
     let (count, problems) = matching::count(&identity, &window.rows, query.study());
     out.problems.extend(problems);

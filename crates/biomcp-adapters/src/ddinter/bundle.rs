@@ -46,7 +46,7 @@ pub fn sync(fetch: &Fetch) -> Result<crate::Mapped<biomcp_types::SyncResult>, Re
         .map(|info| crate::mapped::bundle_sync(SPEC.source, info))
 }
 /// Discover literal native candidates from stored rows; never synchronize on a read.
-pub fn search(leg: &Leg<'_>, query: &str) -> Result<Vec<DrugHeader>, RequestError> {
+pub fn search(leg: &Leg<'_>, query: &str) -> Result<crate::Mapped<Vec<DrugHeader>>, RequestError> {
     let (rows, _) = leg.stored_set_rows(&PAIRS, Find::Words(query))?;
     Ok(super::candidates(rows, query))
 }
@@ -60,12 +60,18 @@ fn exact(leg: &Leg<'_>, id: &DrugId) -> Result<(Vec<super::PartRow>, BundleInfo)
         info,
     ))
 }
-fn selected(rows: &[super::PartRow], id: &str) -> Option<DrugHeader> {
-    rows.iter()
+fn selected(rows: &[super::PartRow], id: &str) -> (Option<DrugHeader>, crate::Refusal) {
+    let found = rows
+        .iter()
         .flat_map(|row| identity::identities(&row.value))
-        .find(|(key, _)| *key == id)
-        .and_then(|(key, name)| identity::identity(key, name).ok())
-        .map(identity::header)
+        .find(|(key, _)| *key == id);
+    match found {
+        None => (None, crate::Refusal::None),
+        Some((key, name)) => match identity::identity(key, name) {
+            Ok(value) => (Some(identity::header(value)), crate::Refusal::None),
+            Err(_) => (None, crate::Refusal::Refused),
+        },
+    }
 }
 /// Return only the exact selected native identity and available source section.
 pub fn card(leg: &Leg<'_>, id: &DrugId) -> Result<crate::Mapped<Option<DrugCard>>, RequestError> {
@@ -77,7 +83,8 @@ pub fn card(leg: &Leg<'_>, id: &DrugId) -> Result<crate::Mapped<Option<DrugCard>
                 .problems(crate::mapped::record(format!("{}:{}", row.part, row.row)))
         })
         .collect();
-    let value = selected(&rows, &id.to_string()).map(|header| DrugCard {
+    let (selected, refusals) = selected(&rows, &id.to_string());
+    let value = selected.map(|header| DrugCard {
         header,
         alternate_names: Box::default(),
         cross_references: Box::default(),
@@ -93,7 +100,11 @@ pub fn card(leg: &Leg<'_>, id: &DrugId) -> Result<crate::Mapped<Option<DrugCard>
         available_sections: vec![DrugSection::Interactions].into(),
         next: Box::default(),
     });
-    Ok(crate::Mapped { value, problems })
+    Ok(crate::Mapped {
+        refusals,
+        value,
+        problems,
+    })
 }
 /// Page exact native partners, preserving the source order and every duplicate origin.
 pub fn interactions(
@@ -103,8 +114,10 @@ pub fn interactions(
     offset: u32,
 ) -> Result<crate::Mapped<Option<DrugInteractions>>, RequestError> {
     let (rows, info) = exact(leg, id)?;
-    let Some(identity) = selected(&rows, &id.to_string()) else {
+    let (selected, mut refusals) = selected(&rows, &id.to_string());
+    let Some(identity) = selected else {
         return Ok(crate::Mapped {
+            refusals,
             value: None,
             problems: Vec::new(),
         });
@@ -118,12 +131,14 @@ pub fn interactions(
         .take(limit as usize)
         .map(|pair| {
             let mapped = pair.claim(info.content_revision.as_deref())?;
+            refusals.include(mapped.refusals);
             problems.extend(mapped.problems);
             Ok::<_, biodata::Error>(mapped.value)
         })
         .collect::<Result<Box<[_]>, _>>()
         .map_err(|_| biomcp_fetch::CacheError::Database)?;
     Ok(crate::Mapped {
+        refusals,
         problems,
         value: Some(DrugInteractions {
             identity,

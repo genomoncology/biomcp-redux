@@ -7,6 +7,7 @@ pub(super) struct Records {
     pub id: Option<String>,
     pub rows: Vec<VariantAssertion>,
     pub problems: Vec<biomcp_types::Problem>,
+    pub refusals: crate::Refusal,
     pub accession: Option<String>,
     pub version: Option<String>,
 }
@@ -27,6 +28,7 @@ impl XmlReply for Records {
                 id: None,
                 rows: Vec::new(),
                 problems: Vec::new(),
+                refusals: crate::Refusal::None,
                 accession: None,
                 version: None,
             });
@@ -63,13 +65,16 @@ impl XmlReply for Records {
                 version,
                 rows: Vec::new(),
                 problems: problems.list,
+                refusals: crate::Refusal::Refused,
             });
         };
-        let rows = assertions(archive, classified, subject, &mut problems)?;
+        let mut refusals = crate::Refusal::None;
+        let rows = assertions(archive, classified, subject, &mut problems, &mut refusals)?;
         Ok(Self {
             id,
             rows,
             problems: problems.list,
+            refusals,
             accession,
             version,
         })
@@ -124,6 +129,7 @@ fn assertions(
     classified: Element<'_>,
     subject: biodata::VariantRef,
     problems: &mut crate::mapped::Problems,
+    refusals: &mut crate::Refusal,
 ) -> Result<Vec<VariantAssertion>, BadReply> {
     let mut rows = Vec::new();
     if let Some(class) = classified.child("Classifications")? {
@@ -134,6 +140,7 @@ fn assertions(
             subject.clone(),
             Vec::new(),
             problems,
+            refusals,
         )?);
     }
     if let Some(rcvs) = classified.child("RCVList")? {
@@ -147,13 +154,19 @@ fn assertions(
                     subject.clone(),
                     super::detail::rcv_conditions(rcv, problems)?,
                     problems,
+                    refusals,
                 )?);
             }
         }
     }
     if let Some(scvs) = classified.child("ClinicalAssertionList")? {
         for scv in scvs.children("ClinicalAssertion")? {
-            rows.extend(super::map::submission(scv, subject.clone(), problems)?);
+            rows.extend(super::map::submission(
+                scv,
+                subject.clone(),
+                problems,
+                refusals,
+            )?);
         }
     }
     Ok(rows)

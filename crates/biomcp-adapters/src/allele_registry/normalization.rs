@@ -2,6 +2,7 @@
 use super::raw;
 use biomcp_types::Source;
 pub(super) fn map(raw: raw::Allele) -> crate::Mapped<biomcp_types::NormalizationResult> {
+    let mut refusals = crate::Refusal::None;
     let mut result = biomcp_types::NormalizationResult::unavailable(Source::AlleleRegistry);
     let mut problems = crate::mapped::Problems {
         source: Source::AlleleRegistry,
@@ -37,8 +38,11 @@ pub(super) fn map(raw: raw::Allele) -> crate::Mapped<biomcp_types::Normalization
         let mappings = mappings(raw, &mut problems);
         result.total_mappings = mappings.len() as u32;
         result.mappings = mappings.into();
+    } else {
+        refusals = crate::Refusal::Refused;
     }
     crate::Mapped {
+        refusals,
         value: result,
         problems: problems.list,
     }

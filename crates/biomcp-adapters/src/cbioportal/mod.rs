@@ -90,12 +90,20 @@ pub fn cohort(leg: &Leg<'_>, query: &VariantRecurrenceQuery) -> Result<Cohort, R
         count_error,
     })
 }
+/// Checked mutation records with their native window and field diagnostics.
+#[derive(Debug)]
+pub struct MutationPage {
+    /// Accepted mutations and actual refusal events.
+    pub window: crate::NativeWindow<Mutation>,
+    /// Independent field diagnostics.
+    pub problems: Vec<biomcp_types::Problem>,
+}
 /// One native gene page. Wrong study, profile or gene cannot enter the cache.
 pub fn mutations(
     leg: &Leg<'_>,
     query: &VariantRecurrenceQuery,
     gene: NcbiGeneId,
-) -> Result<crate::Mapped<crate::NativeWindow<Mutation>>, RequestError> {
+) -> Result<MutationPage, RequestError> {
     let endpoint = SPEC
         .get("/molecular-profiles")
         .with_segments(&[
@@ -130,19 +138,23 @@ pub fn mutations(
         list: Vec::new(),
     };
     let mut values = Vec::new();
+    let mut refusals = crate::Refusal::None;
     for row in rows.0 {
         if let Some(mut row) = problems.field("sampleId", Some(row.value)) {
             problems.list.append(&mut row.problems);
             values.push(row);
+        } else {
+            refusals = crate::Refusal::Refused;
         }
     }
-    Ok(crate::Mapped {
-        value: crate::NativeWindow::new(
+    Ok(MutationPage {
+        window: crate::NativeWindow::new(
             values,
             query.page().saturating_mul(query.limit()),
             query.limit(),
             None,
             received,
+            refusals,
         ),
         problems: problems.list,
     })
@@ -193,6 +205,7 @@ fn sample_count(
             };
             let value = problems.field("sampleCount", list.sample_count);
             return Ok(crate::Mapped {
+                refusals: crate::Refusal::None,
                 value,
                 problems: problems.list,
             });

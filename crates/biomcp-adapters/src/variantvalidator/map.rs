@@ -12,14 +12,17 @@ pub(super) fn resolve(raw: Response, input: &str) -> Resolution {
     };
     let rejected = raw.flag.as_str() == "warning";
     let mut candidates = Vec::new();
+    let mut refusals = crate::Refusal::None;
     if !rejected {
-        for (_, row) in raw.records(input, &mut problems) {
+        for (_, row) in raw.records(input, &mut problems, &mut refusals) {
             let Some(key) = problems.text("identity", Some(&row.hgvs_transcript_variant)) else {
+                refusals = crate::Refusal::Refused;
                 continue;
             };
             let Some(expression) =
                 problems.optional("identity", Some(Expression::hgvs(key.clone())))
             else {
+                refusals = crate::Refusal::Refused;
                 continue;
             };
             let mut representations = vec![Representation {
@@ -76,6 +79,7 @@ pub(super) fn resolve(raw: Response, input: &str) -> Resolution {
         }
     }
     Resolution {
+        refusals,
         rejected,
         candidates,
         problems: problems.list,

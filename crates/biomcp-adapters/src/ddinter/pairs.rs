@@ -44,7 +44,11 @@ impl Pair {
             primary,
             additional.into_boxed_slice(),
         )?;
-        Ok(crate::Mapped { value, problems })
+        Ok(crate::Mapped {
+            refusals: crate::Refusal::None,
+            value,
+            problems,
+        })
     }
     /// Exact native partner ID, without a name join.
     fn partner_id(&self) -> &str {

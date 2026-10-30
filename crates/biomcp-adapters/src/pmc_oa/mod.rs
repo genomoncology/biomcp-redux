@@ -77,6 +77,7 @@ pub fn read(
         .max()
     else {
         return Ok(crate::Mapped {
+            refusals: crate::Refusal::None,
             value: None,
             problems: Vec::new(),
         });
@@ -95,6 +96,7 @@ pub fn read(
     let license_code = problems.required_field("license", record.license_code);
     let Some(license_code) = license_code else {
         return Ok(crate::Mapped {
+            refusals: crate::Refusal::Refused,
             value: None,
             problems: problems.list,
         });
@@ -128,6 +130,7 @@ pub fn read(
     problems.list.extend(body.problems.clone());
     let manuscript = problems.field("manuscript", record.is_manuscript);
     Ok(crate::Mapped {
+        refusals: crate::Refusal::None,
         value: Some(Document {
             url,
             supplements,

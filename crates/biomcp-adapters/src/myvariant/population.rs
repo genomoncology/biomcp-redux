@@ -21,11 +21,13 @@ pub(super) fn candidates(
     query: &str,
 ) -> Mapped<Vec<VariantHeader>> {
     let mut result = Mapped {
+        refusals: crate::Refusal::None,
         value: Vec::new(),
         problems: Vec::new(),
     };
     for raw in hits {
         let Some(mut hit) = raw.value() else {
+            result.refusals = crate::Refusal::Refused;
             result
                 .problems
                 .push(crate::mapped::problem(Source::MyVariant, None, "identity"));
@@ -70,6 +72,7 @@ pub(super) fn candidates(
                 None => (),
             }
         }
+        result.refusals.include(mapped.refusals);
         result.value.extend(mapped.value);
         result.problems.extend(mapped.problems);
     }

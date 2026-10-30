@@ -8,6 +8,7 @@ mod assertions;
 mod author;
 pub(super) mod case_main;
 mod execution;
+mod mapped_refusals;
 #[path = "../support/pool_contracts.rs"]
 mod pool_contract;
 #[path = "../support/synthetic_contracts.rs"]
@@ -509,6 +510,7 @@ fn disease_trials() -> Vec<Trial> {
         .chain(author::trials())
         .chain(orcid::trials())
         .chain(disease_seer::trials())
+        .chain(mapped_refusals::trials())
         .collect()
 }
 

@@ -164,16 +164,7 @@ pub fn drug_civic(
     if query.source() != biomcp_types::DrugSource::Civic {
         return Err(failure(Reason::BadReply));
     }
-    let offset = if query.civic_cursor().is_some() {
-        0
-    } else {
-        query.section_offset().unwrap_or(0)
-    };
-    let count = if offset > 0 {
-        offset.min(50)
-    } else {
-        query.section_limit().unwrap_or(1)
-    };
+    let count = first_count(query);
     let data = fetch(leg, query, query.civic_kind(), query.civic_cursor(), count)?;
     let mut cx = crate::mapped::Problems {
         source: Source::Civic,
@@ -186,6 +177,7 @@ pub fn drug_civic(
         .header(&mut cx);
     let Some(identity) = identity else {
         return Ok(Mapped {
+            refusals: crate::Refusal::Refused,
             value: None,
             problems: cx.list,
         });
@@ -193,21 +185,23 @@ pub fn drug_civic(
     if identity.id.to_string() != query.input().to_string() {
         cx.required::<()>("id", None);
         return Ok(Mapped {
+            refusals: crate::Refusal::Refused,
             value: None,
             problems: cx.list,
         });
     }
+    let mut refusals = crate::Refusal::None;
     let evidence = data
         .evidence_items
         .map(|rows| {
             collection(
                 leg,
                 query,
-                CivicClaimKind::Evidence,
-                rows,
+                (CivicClaimKind::Evidence, rows),
                 |d| d.evidence_items,
                 drug_map::evidence,
                 &mut cx,
+                &mut refusals,
             )
         })
         .transpose()?;
@@ -217,15 +211,16 @@ pub fn drug_civic(
             collection(
                 leg,
                 query,
-                CivicClaimKind::Assertions,
-                rows,
+                (CivicClaimKind::Assertions, rows),
                 |d| d.assertions,
                 drug_map::assertion,
                 &mut cx,
+                &mut refusals,
             )
         })
         .transpose()?;
     Ok(Mapped {
+        refusals,
         value: Some(DrugCivic {
             identity,
             civic: Section::Data {
@@ -240,15 +235,29 @@ pub fn drug_civic(
     })
 }
 
+fn first_count(query: &DrugGet) -> u32 {
+    let offset = if query.civic_cursor().is_some() {
+        0
+    } else {
+        query.section_offset().unwrap_or(0)
+    };
+    if offset > 0 {
+        offset.min(50)
+    } else {
+        query.section_limit().unwrap_or(1)
+    }
+}
+
 fn collection<T>(
     leg: &Leg<'_>,
     query: &DrugGet,
-    kind: CivicClaimKind,
-    rows: Connection<T>,
+    stream: (CivicClaimKind, Connection<T>),
     extract: fn(raw::Data) -> Option<Connection<T>>,
     map: fn(T, &DrugGet, &mut crate::mapped::Problems) -> Option<biomcp_types::DrugCivicClaim>,
     cx: &mut crate::mapped::Problems,
+    refusals: &mut crate::Refusal,
 ) -> Result<DrugCivicPage, RequestError> {
+    let (kind, rows) = stream;
     let rows = seek(leg, query, kind, rows, extract)?;
     let mut page = page(&rows, query, kind)?;
     let records: Box<[_]> = rows
@@ -256,7 +265,13 @@ fn collection<T>(
         .into_iter()
         .filter_map(|row| {
             cx.record = None;
-            map(row, query, cx)
+            match map(row, query, cx) {
+                Some(row) => Some(row),
+                None => {
+                    *refusals = crate::Refusal::Refused;
+                    None
+                }
+            }
         })
         .collect();
     page.returned = records.len() as u32;

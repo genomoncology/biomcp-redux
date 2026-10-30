@@ -76,9 +76,11 @@ pub(super) fn page(page: Page, leg: &Leg<'_>) -> Result<crate::Mapped<DrugPage>,
         list: Vec::new(),
     };
     let mut items = Vec::new();
+    let mut refusals = crate::Refusal::None;
     for hit in page.hits {
         problems.record = None;
         let Some(hit) = problems.field("_id", Some(hit)) else {
+            refusals = crate::Refusal::Refused;
             continue;
         };
         problems.record = crate::mapped::record(&hit.id);
@@ -86,12 +88,14 @@ pub(super) fn page(page: Page, leg: &Leg<'_>) -> Result<crate::Mapped<DrugPage>,
             .optional("_id", Some(hit.id.parse::<biodata::DrugId>()))
             .is_none()
         {
+            refusals = crate::Refusal::Refused;
             continue;
         }
         let (id, _, rows) = components(hit, leg, &mut problems);
         items.push(header(&id, &rows)?);
     }
     Ok(crate::Mapped {
+        refusals,
         value: DrugPage {
             items: items.into(),
             total: Some(page.total),
@@ -150,6 +154,7 @@ pub(super) fn card(
         card.available_sections = vec![biomcp_types::DrugSection::Xrefs].into();
     }
     Ok(crate::Mapped {
+        refusals: crate::Refusal::None,
         value: super::DrugDocument {
             card,
             xrefs: distinct.into(),

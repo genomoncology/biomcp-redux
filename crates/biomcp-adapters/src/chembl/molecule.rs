@@ -24,6 +24,7 @@ pub fn header(row: &Molecule) -> Result<crate::Mapped<DrugHeader>, Error> {
         ))?),
     };
     Ok(crate::Mapped {
+        refusals: crate::Refusal::None,
         value,
         problems: problems.list,
     })
@@ -102,6 +103,7 @@ pub fn card(row: Molecule, fetched: Option<i64>) -> Result<crate::Mapped<DrugCar
         next: Box::default(),
     };
     Ok(crate::Mapped {
+        refusals: header.refusals,
         value,
         problems: problems.list,
     })
