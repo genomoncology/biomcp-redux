@@ -6,6 +6,7 @@
 )]
 mod graphql;
 mod hgnc;
+mod metadata;
 mod mygene;
 mod rejections;
 
@@ -27,7 +28,19 @@ pub(super) fn trials() -> Vec<Trial> {
             mygene::check,
         ),
         ("gene-sections/graphql-boundaries", graphql::check),
-        ("gene-commands/bundle-rejections", rejections::check),
+        ("gene-bundle/bundle-rejections", rejections::check),
+        (
+            "gene-sections/uniprot-metadata-regression",
+            metadata::uniprot,
+        ),
+        (
+            "pathway-reactome/reactome-metadata-regression",
+            metadata::reactome,
+        ),
+        (
+            "pathway-reactome/native-summation-keeps-source-text",
+            metadata::native_summation,
+        ),
     ]
     .into_iter()
     .map(|(name, check)| transcript_trial(name, move || check().map_err(|e| e.to_string().into())))

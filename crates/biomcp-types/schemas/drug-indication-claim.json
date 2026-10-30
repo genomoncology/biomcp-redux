@@ -265,7 +265,7 @@
       "type": "string"
     }
   },
-  "$id": "biodata.drug-indication-claim/5",
+  "$id": "biodata.drug-indication-claim/6",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "A source indication retaining its full population and combination wording.",
   "properties": {
@@ -292,7 +292,14 @@
       "description": "Source drug identity."
     },
     "indication": {
-      "$ref": "#/$defs/Reply_Text",
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Reply_Text"
+        },
+        {
+          "type": "null"
+        }
+      ],
       "description": "Complete native indication wording."
     },
     "population": {
@@ -327,7 +334,6 @@
   },
   "required": [
     "drug",
-    "indication",
     "attribution"
   ],
   "title": "DrugIndicationClaim",

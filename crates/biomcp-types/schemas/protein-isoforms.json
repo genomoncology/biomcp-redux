@@ -153,7 +153,14 @@
           "type": "array"
         },
         "name": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Source isoform name."
         },
         "sequence_ids": {
@@ -164,7 +171,14 @@
           "type": "array"
         },
         "sequence_status": {
-          "$ref": "#/$defs/Reply_ProteinIsoformStatus",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_ProteinIsoformStatus"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Native sequence status; no sequence is inferred from it."
         },
         "synonyms": {
@@ -176,8 +190,6 @@
         }
       },
       "required": [
-        "name",
-        "sequence_status",
         "direct_sequence"
       ],
       "type": "object"

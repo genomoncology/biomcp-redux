@@ -33,10 +33,10 @@ pub(super) fn headers(
     out.sources
         .push(status::source(Source::WikiPathways, leg.finish(), error));
     let (items, info) = reply?;
-    let total = items.len() as u64;
+    let total = items.value.len() as u64;
     Ok(snapshot::Saved {
         body: PathwayPage {
-            items: items.into(),
+            items: items.value.into(),
             page: PathwayPageInfo {
                 offset: 0,
                 returned: total as u32,
@@ -49,7 +49,7 @@ pub(super) fn headers(
         complete: true,
         catalog_revision: info.content_revision.and_then(|s| s.parse().ok()),
         sources: out.sources.clone(),
-        problems: vec![],
+        problems: items.problems,
     })
 }
 /// Exact stored human WikiPathways metadata, without an implicit refresh.
@@ -72,7 +72,9 @@ pub(super) fn get(cx: &Ctx<'_>, q: &PathwayGet) -> Outcome {
     let error = reply.as_ref().err().copied();
     out.sources
         .push(status::source(Source::WikiPathways, leg.finish(), error));
-    if let Ok(mut card) = reply {
+    if let Ok(mapped) = reply {
+        out.problems.extend(mapped.problems);
+        let mut card = mapped.value;
         let absent = card.is_none();
         if let Some(value) = &mut card {
             super::get_sections::attach(cx, q, value, deadline, &mut out);

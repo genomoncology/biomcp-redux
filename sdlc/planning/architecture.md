@@ -1976,6 +1976,7 @@ The ratchet owns the authoritative file and reason list below and checks this ta
 | `crates/biomcp-adapters/src/monarch/native_contracts.rs` | Exercise retained gene-keyed Monarch rows through the private mapper without adding a gene-keyed command. |
 | `crates/biomcp-adapters/tests/alphagenome_registration.rs` | Exercise restricted source registration and required-key admission before a product section exists. |
 | `crates/biomcp-adapters/tests/batch_bounds.rs` | Exercise literal indexed lookup inputs outside command validation and empty/oversized batches or chunks beyond command limits. |
+| `crates/biomcp-adapters/tests/protein_storage.rs` | Read legacy serialized adapter values through the public storage type without a source request. |
 | `crates/biomcp-adapters/tests/pmc_body.rs` | Reconstruct complete source rows and retain JATS reference IDs and links omitted from command JSON. |
 | `crates/biomcp-adapters/tests/pmc_limits.rs` | Reject invalid table spans and duplicate table IDs before allocation with a tiny decoder boundary table. |
 | `crates/biomcp-fetch/src/cache/contention.rs` | Order independent SQLite snapshots and writer admission at the private transaction boundary without product hooks. |

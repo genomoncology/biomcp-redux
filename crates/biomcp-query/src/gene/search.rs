@@ -25,10 +25,12 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &GeneSearch) -> Outcome {
     headers.retain(|(_, header)| {
         query
             .locus_group()
-            .is_none_or(|group| header.locus_group == group)
+            .is_none_or(|group| header.locus_group == Some(group))
     });
     // Stable sort preserves published row order inside each rank and locus group.
-    headers.sort_by_key(|(rank, header)| (*rank, header.locus_group != LocusGroup::ProteinCoding));
+    headers.sort_by_key(|(rank, header)| {
+        (*rank, header.locus_group != Some(LocusGroup::ProteinCoding))
+    });
     let mut seen = std::collections::BTreeSet::new();
     headers.retain(|(_, header)| seen.insert(header.hgnc_id));
     let total = headers.len() as u64;

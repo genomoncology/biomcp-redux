@@ -14,7 +14,8 @@ pub struct Pathway {
     /// Checked source-owned identity.
     pub id: PathwayId,
     /// Whole native pathway name.
-    pub name: Text,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub name: Option<Text>,
     /// Explicit source-stated human species.
     pub species: PathwaySpecies,
     /// Complete native description when present; empty is distinct from absent.
@@ -114,7 +115,8 @@ pub struct PathwaySummation {
     /// Native summation database identity, not the pathway identity.
     pub db_id: NonZeroU64,
     /// Complete native text; no sentence clipping or reference reassignment.
-    pub text: Box<str>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub text: Option<Box<str>>,
 }
 /// A native pathway-level literature reference; never inferred from prose.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -140,7 +142,9 @@ pub struct PathwayParticipant {
     /// Native physical entity database identity, distinct from reference identity.
     pub db_id: NonZeroU64,
     /// Whole physical entity label, including source-stated modification context.
-    pub name: Text,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub name: Option<Text>,
     /// Native physical entity schema class, separate from reference schema class.
-    pub schema_class: Text,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub schema_class: Option<Text>,
 }

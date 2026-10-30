@@ -1,8 +1,10 @@
 use super::super::response_cases::checked_case;
 use super::{Check, case, tsv};
 use serde_json::json;
+mod metadata;
 
 pub(super) fn check() -> Check {
+    metadata::check()?;
     vocabulary()?;
     optional()?;
     locations()?;
@@ -92,9 +94,7 @@ fn required() -> Check {
     for (field, value, input) in [
         ("hgnc_id", "HGNC:0", "BRAF"),
         ("symbol", "bad symbol", "HGNC:1097"),
-        ("locus_group", "new group", "HGNC:1097"),
         ("status", "new status", "HGNC:1097"),
-        ("name", " ", "HGNC:1097"),
     ] {
         case(
             "gene/main",

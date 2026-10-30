@@ -11,7 +11,8 @@ pub struct PathwayHeader {
     /// Checked source-owned identity.
     pub id: PathwayId,
     /// Whole native name.
-    pub name: Text,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub name: Option<Text>,
     /// Explicit native human species.
     pub species: PathwaySpecies,
     /// Whole native Reactome stIdVersion, separate from stable identity.

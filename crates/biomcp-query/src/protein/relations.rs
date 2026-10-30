@@ -153,9 +153,13 @@ fn read(
         return Ok(());
     };
     if let Selection::Features(query) = q
-        && query
-            .position()
-            .is_some_and(|p| p.get() > entry.header.protein.length)
+        && query.position().is_some_and(|p| {
+            entry
+                .header
+                .protein
+                .length
+                .is_some_and(|length| p.get() > length)
+        })
     {
         out.problems.push(biomcp_types::Problem {
             source: Source::UniProt,

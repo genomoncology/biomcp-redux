@@ -32,7 +32,6 @@ pub struct Page {
     /// Source cursor, checked against the accession and request selectors.
     pub cursor: Option<Text>,
     /// Rejected optional fields for retained rows.
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub problems: Vec<biomcp_types::Problem>,
 }
 /// Fetch a native accession page; type selection remains over the retained complete collection.

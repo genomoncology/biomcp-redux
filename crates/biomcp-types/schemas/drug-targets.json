@@ -595,7 +595,14 @@
           "type": "array"
         },
         "relation": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Native relationship label."
         },
         "target": {
@@ -605,7 +612,6 @@
       },
       "required": [
         "drug",
-        "relation",
         "attribution"
       ],
       "type": "object"

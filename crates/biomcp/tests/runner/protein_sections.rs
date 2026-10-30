@@ -15,6 +15,9 @@ pub(super) fn trials() -> Vec<Trial> {
             move || native::run(&path).map_err(Into::into),
         )
         .with_ignored_flag(absent),
+        transcript_trial("protein-sections/invalid-feature-id-keeps-identity", || {
+            boundaries::feature_id().map_err(Into::into)
+        }),
         transcript_trial("protein-sections/displayed-bounds-and-identity", || {
             boundaries::features().map_err(Into::into)
         }),
@@ -40,7 +43,7 @@ fn entry() -> Value {
     json!(
         {"primaryAccession":"P00533","uniProtkbId":"SYNTHETIC_HUMAN","entryType":"UniProtKB reviewed (Swiss-Prot)",
         "organism":{"taxonId":9606},"proteinDescription":{"recommendedName":{"fullName":{"value":"Synthetic protein"}}},
-        "sequence":{"length":30,"value":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"},"features":[ {"type":"Domain","featureId":"",
+        "sequence":{"length":30,"value":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"},"features":[ {"type":"Domain",
         "description":"Native domain","location":{"start":{"value":10,"modifier":"EXACT"},"end":{"value":20,"modifier":"EXACT"}},
         "evidences":[{"evidenceCode":"ECO:0000269","source":"PubMed","id":"1"}]},{"type":"Region","description":"Uncertain edges",
         "location":{"start":{"value":5,"modifier":"OUTSIDE"},"end":{"value":25,"modifier":"OUTSIDE"}}},{"type":"Domain",
