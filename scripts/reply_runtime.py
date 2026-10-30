@@ -36,8 +36,8 @@ class Bindings:
                     if a['expires'] - a['created'] != b['expires'] - b['created']:
                         raise ValueError('changed pool lifetime')
                     for index, value in enumerate((a, b)):
-                        clocks = (value['created'], value['expires'])
-                        if self.pools[index].setdefault(value['id'], clocks) != clocks:
+                        pool_clocks = (value['created'], value['expires'])
+                        if self.pools[index].setdefault(value['id'], pool_clocks) != pool_clocks:
                             raise ValueError('inconsistent pool clocks')
                     put(p + ('id',), a['id'], b['id'], 'pool')
                     for k in ('created', 'expires'):
@@ -67,14 +67,14 @@ class Bindings:
                 # MCP embeds complete JSON replies inside text content.
                 if isinstance(aa, (dict, list)) and isinstance(bb, (dict, list)):
                     nested = self.values(aa, bb, scope, p, clocks=clocks)
-                    for index, value in enumerate((a, b)):
+                    for index in range(2):
                         if nested[index]:
-                            changes[index][p] = rewrite(value, nested[index], p)
+                            changes[index][p] = nested[index]
         visit(left, right, path)
         return changes
 
 
-def rewrite(text, changes, path=()):
+def rewrite(text, changes, path=(), spans=False):
     """Replace selected JSON leaves while preserving every other original byte."""
     decoder = json.JSONDecoder()
     def space(i):
@@ -103,11 +103,35 @@ def rewrite(text, changes, path=()):
                     break
                 i = space(i + 1)
             return i + 1
-        _, end = decoder.raw_decode(text, i)
+        value, end = decoder.raw_decode(text, i)
         if p in changes:
-            edits.append((i, end, json.dumps(changes[p], ensure_ascii=False)))
+            replacement = changes[p]
+            if isinstance(replacement, dict):
+                # Map decoded characters back to their original JSON escapes.
+                # Only runtime leaf spans may change inside an MCP text string.
+                offsets, cursor = [i + 1], i + 1
+                while cursor < end - 1:
+                    if text[cursor] == '\\':
+                        if text[cursor + 1] == 'u':
+                            code = int(text[cursor + 2:cursor + 6], 16)
+                            cursor += 6
+                            if (0xD800 <= code <= 0xDBFF and text[cursor:cursor + 2] == '\\u'
+                                    and 0xDC00 <= int(text[cursor + 2:cursor + 6], 16) <= 0xDFFF):
+                                cursor += 6
+                        else:
+                            cursor += 2
+                    else:
+                        cursor += 1
+                    offsets.append(cursor)
+                for start, finish, segment in rewrite(value, replacement, p, spans=True):
+                    edits.append((offsets[start], offsets[finish],
+                                  json.dumps(segment, ensure_ascii=False)[1:-1]))
+            else:
+                edits.append((i, end, json.dumps(replacement, ensure_ascii=False)))
         return end
     parse(0, path)
+    if spans:
+        return edits
     for start, end, value in reversed(edits):
         text = text[:start] + value + text[end:]
     return text

@@ -166,6 +166,20 @@ class ReplyDiff(unittest.TestCase):
         result = self.compare()
         self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
 
+    def test_mcp_runtime_binding_preserves_unrelated_json_escape_bytes(self):
+        for directory, clock in [(self.base, 10), (self.head, 20)]:
+            reply = {'fetched': clock, 'description': 'path/a'}
+            frame = {'jsonrpc': '2.0', 'id': 1, 'result': {
+                'structuredContent': reply,
+                'content': [{'type': 'text', 'text': json.dumps(reply)}]}}
+            output = json.dumps(frame)
+            if directory == self.head:
+                # Change only the text string's outer slash spelling.
+                output = output.replace('path/a', 'path\\/a', 1)
+            self.write(directory, 'case/mcp-escape.yaml/step/0', output.encode(), surface='mcp')
+        result = self.compare()
+        self.assertEqual(result.returncode, 1, result.stderr + result.stdout)
+
     def test_declared_record_directory_does_not_bind_neighbor_paths(self):
         for directory, suffix in [(self.base, 'base'), (self.head, 'head')]:
             root = '/tmp/' + suffix
