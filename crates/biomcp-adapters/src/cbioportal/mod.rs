@@ -205,6 +205,7 @@ fn sample_count(
             };
             let value = problems.field("sampleCount", list.sample_count);
             return Ok(crate::Mapped {
+                refusals: crate::Refusal::None,
                 value,
                 problems: problems.list,
             });

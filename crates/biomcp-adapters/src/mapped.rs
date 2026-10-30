@@ -4,7 +4,7 @@ use biodata::Text;
 use biomcp_types::Problem;
 
 /// Whether a mapper refused a record, independent of field diagnostics.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, serde::Deserialize)]
 pub enum Refusal {
     /// No record was refused.
     None,
@@ -27,6 +27,8 @@ pub struct Mapped<T> {
     pub value: T,
     /// Fields that could not be accepted.
     pub problems: Vec<Problem>,
+    /// Actual record refusals, independent of optional-field problems.
+    pub refusals: Refusal,
 }
 
 /// Construct a rejected-field disclosure in one place for every adapter.

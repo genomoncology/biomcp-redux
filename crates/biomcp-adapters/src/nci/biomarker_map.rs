@@ -37,5 +37,9 @@ pub(super) fn page(raw: Page) -> Mapped<Vec<BiomarkerCard>> {
             value
         })
         .collect();
-    Mapped { value, problems }
+    Mapped {
+        refusals: crate::Refusal::None,
+        value,
+        problems,
+    }
 }

@@ -162,6 +162,7 @@ impl Study {
             license_url: self.terms_of_license,
         };
         crate::Mapped {
+            refusals: crate::Refusal::None,
             value,
             problems: problems.list,
         }

@@ -186,6 +186,7 @@ pub fn drug_civic(
         .header(&mut cx);
     let Some(identity) = identity else {
         return Ok(Mapped {
+            refusals: crate::Refusal::Refused,
             value: None,
             problems: cx.list,
         });
@@ -193,10 +194,12 @@ pub fn drug_civic(
     if identity.id.to_string() != query.input().to_string() {
         cx.required::<()>("id", None);
         return Ok(Mapped {
+            refusals: crate::Refusal::Refused,
             value: None,
             problems: cx.list,
         });
     }
+    let mut refusals = crate::Refusal::None;
     let evidence = data
         .evidence_items
         .map(|rows| {
@@ -208,6 +211,7 @@ pub fn drug_civic(
                 |d| d.evidence_items,
                 drug_map::evidence,
                 &mut cx,
+                &mut refusals,
             )
         })
         .transpose()?;
@@ -222,10 +226,12 @@ pub fn drug_civic(
                 |d| d.assertions,
                 drug_map::assertion,
                 &mut cx,
+                &mut refusals,
             )
         })
         .transpose()?;
     Ok(Mapped {
+        refusals,
         value: Some(DrugCivic {
             identity,
             civic: Section::Data {
@@ -248,6 +254,7 @@ fn collection<T>(
     extract: fn(raw::Data) -> Option<Connection<T>>,
     map: fn(T, &DrugGet, &mut crate::mapped::Problems) -> Option<biomcp_types::DrugCivicClaim>,
     cx: &mut crate::mapped::Problems,
+    refusals: &mut crate::Refusal,
 ) -> Result<DrugCivicPage, RequestError> {
     let rows = seek(leg, query, kind, rows, extract)?;
     let mut page = page(&rows, query, kind)?;
@@ -256,7 +263,13 @@ fn collection<T>(
         .into_iter()
         .filter_map(|row| {
             cx.record = None;
-            map(row, query, cx)
+            match map(row, query, cx) {
+                Some(row) => Some(row),
+                None => {
+                    *refusals = crate::Refusal::Refused;
+                    None
+                }
+            }
         })
         .collect();
     page.returned = records.len() as u32;

@@ -69,7 +69,10 @@ pub fn sync_all(fetch: &Fetch) -> Result<Mapped<biomcp_types::SyncResult>, Reque
     let withdrawn = sync(fetch, HgncBundle::Withdrawn)?;
     let mut problems = crate::mapped::bundle_problems(Source::Hgnc, &complete);
     problems.extend(crate::mapped::bundle_problems(Source::Hgnc, &withdrawn));
+    let mut refusals = crate::bundle_mapping::bundle_refusals(&complete);
+    refusals.include(crate::bundle_mapping::bundle_refusals(&withdrawn));
     Ok(Mapped {
+        refusals,
         problems,
         value: biomcp_types::SyncResult {
             snapshot: None,
@@ -106,6 +109,7 @@ pub fn withdrawn(leg: &Leg<'_>, input: &GeneInput) -> Result<Mapped<Vec<Withdraw
         GeneInput::Text(_) => KeyKind::Symbol,
         _ => {
             return Ok(Mapped {
+                refusals: crate::Refusal::None,
                 value: Vec::new(),
                 problems: Vec::new(),
             });
@@ -139,6 +143,7 @@ pub fn in_band(leg: &Leg<'_>, prefix: &str) -> Result<Mapped<Vec<GeneHeader>>, R
         })
         .collect();
     Ok(Mapped {
+        refusals: rows.refusals,
         value,
         problems: rows.problems,
     })

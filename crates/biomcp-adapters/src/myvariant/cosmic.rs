@@ -42,9 +42,11 @@ pub fn get(leg: &Leg<'_>, id: &str, build: Build) -> Result<Mapped<VariantCosmic
         .id
         .and_then(Field::value)
         .filter(|given| given.as_str() == id);
+    let mut refusals = crate::Refusal::None;
     let records = if let Some(record_id) = record_id {
         records(&record_id, raw.cosmic, &mut problems)
     } else {
+        refusals = crate::Refusal::Refused;
         problems.required::<()>("_id", None);
         Vec::new()
     };
@@ -56,6 +58,7 @@ pub fn get(leg: &Leg<'_>, id: &str, build: Build) -> Result<Mapped<VariantCosmic
         metadata.value
     };
     Ok(Mapped {
+        refusals,
         value: VariantCosmic {
             total: records.len() as u64,
             next: None,

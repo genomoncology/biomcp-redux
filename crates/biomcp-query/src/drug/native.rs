@@ -125,7 +125,7 @@ fn search_page(
             query.limit(),
             mapped.value.total,
             received,
-            biomcp_adapters::Refusal::None,
+            mapped.refusals,
         ))
     }
 }

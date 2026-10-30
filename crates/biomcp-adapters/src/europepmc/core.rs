@@ -145,6 +145,7 @@ pub fn core(
     };
     Ok((
         Mapped {
+            refusals: crate::Refusal::None,
             value,
             problems: p.list,
         },
@@ -166,6 +167,7 @@ pub fn read(
     let license = p.field("license", raw.license);
     if malformed_license {
         return Ok(Mapped {
+            refusals: crate::Refusal::Refused,
             value: None,
             problems: p.list,
         });
@@ -198,6 +200,7 @@ pub fn read(
     };
     p.list.extend(value.problems.clone());
     Ok(Mapped {
+        refusals: crate::Refusal::None,
         value: Some(value),
         problems: p.list,
     })

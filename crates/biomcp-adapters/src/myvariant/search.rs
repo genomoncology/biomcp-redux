@@ -79,12 +79,14 @@ pub fn search(leg: &Leg<'_>, query: &VariantSearch) -> Result<SearchPage, Reques
         },
     )?;
     let mut rows = Mapped {
+        refusals: crate::Refusal::None,
         value: Vec::new(),
         problems: Vec::new(),
     };
     let consumed = page.hits.len() as u32;
     for raw in page.hits {
         let Some(hit) = raw.value() else {
+            rows.refusals = crate::Refusal::Refused;
             rows.problems.push(crate::mapped::problem(
                 biomcp_types::Source::MyVariant,
                 None,
@@ -109,6 +111,7 @@ pub fn search(leg: &Leg<'_>, query: &VariantSearch) -> Result<SearchPage, Reques
             }
             rows.value.push(row);
         }
+        rows.refusals.include(mapped.refusals);
         rows.problems.extend(mapped.problems);
     }
     Ok(SearchPage {

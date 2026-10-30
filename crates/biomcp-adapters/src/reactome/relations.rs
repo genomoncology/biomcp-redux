@@ -99,6 +99,7 @@ pub fn members(leg: &Leg<'_>, id: &ReactomeId) -> Result<Mapped<Members>, Reques
         }
     }
     Ok(Mapped {
+        refusals: crate::Refusal::None,
         value,
         problems: problems.list,
     })
@@ -151,6 +152,7 @@ pub fn events(
         })
     })?;
     let mut mapped = Mapped {
+        refusals: crate::Refusal::None,
         value: Vec::new(),
         problems: Vec::new(),
     };
@@ -171,6 +173,7 @@ pub fn events(
                         record_text(id.as_str()),
                         "events.species",
                     ));
+                    mapped.refusals = crate::Refusal::Refused;
                     continue;
                 }
                 let native_id = v.st_id.as_deref().map(str::parse).transpose();
@@ -180,6 +183,7 @@ pub fn events(
                         record_text(id.as_str()),
                         "events.id",
                     ));
+                    mapped.refusals = crate::Refusal::Refused;
                     continue;
                 };
                 mapped.value.push(PathwayEventRef::Object {

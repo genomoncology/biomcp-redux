@@ -74,13 +74,21 @@ pub fn publications(
         record: None,
         list: Vec::new(),
     };
+    let mut refusals = crate::Refusal::None;
     let value = raw
         .data
         .into_iter()
-        .filter_map(|r| p.required("pmid", r.value()))
+        .filter_map(|r| match p.required("pmid", r.value()) {
+            Some(row) => Some(row),
+            None => {
+                refusals = crate::Refusal::Refused;
+                None
+            }
+        })
         .map(Row::map)
         .collect();
     Ok(crate::Mapped {
+        refusals,
         value,
         problems: p.list,
     })

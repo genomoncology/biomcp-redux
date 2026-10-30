@@ -40,9 +40,11 @@ pub fn search(leg: &Leg<'_>, term: &str) -> Result<Mapped<Vec<ArticleItem>>, Req
         record: None,
         list: Vec::new(),
     };
+    let mut refusals = crate::Refusal::None;
     for (index, sentence) in reply.0.into_iter().enumerate() {
         problems.record = None;
         let Some(sentence) = problems.required("pmid", sentence.value()) else {
+            refusals = crate::Refusal::Refused;
             continue;
         };
         if items.iter().any(|item| item.pmid == Some(sentence.pmid.0)) {
@@ -64,6 +66,7 @@ pub fn search(leg: &Leg<'_>, term: &str) -> Result<Mapped<Vec<ArticleItem>>, Req
         });
     }
     Ok(Mapped {
+        refusals,
         value: items,
         problems: problems.list,
     })

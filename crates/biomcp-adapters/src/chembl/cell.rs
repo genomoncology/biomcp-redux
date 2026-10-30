@@ -224,6 +224,7 @@ pub fn release(leg: &Leg<'_>) -> Result<crate::Mapped<CellLineRelease>, RequestE
         updated: problems.required_field("chembl_release_date", r.chembl_release_date),
     };
     Ok(crate::Mapped {
+        refusals: crate::Refusal::None,
         value,
         problems: problems.list,
     })

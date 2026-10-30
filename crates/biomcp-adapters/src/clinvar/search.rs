@@ -117,11 +117,15 @@ pub fn search(leg: &Leg<'_>, query: &VariantSearch) -> Result<SearchPage, Reques
         record: None,
         list: Vec::new(),
     };
+    let mut refusals = crate::Refusal::None;
     let rows = page
         .idlist
         .into_iter()
         .filter_map(|id| {
-            let id = problems.required("idlist", id.value())?;
+            let Some(id) = problems.required("idlist", id.value()) else {
+                refusals = crate::Refusal::Refused;
+                return None;
+            };
             let identity = VariantId::ClinVarVariation(id.identity);
             let record = SourceRecord {
                 namespace: biodata::IdentifierNamespace::Unknown,
@@ -148,6 +152,7 @@ pub fn search(leg: &Leg<'_>, query: &VariantSearch) -> Result<SearchPage, Reques
         total: page.count,
         consumed,
         rows: Mapped {
+            refusals,
             value: rows,
             problems: problems.list,
         },

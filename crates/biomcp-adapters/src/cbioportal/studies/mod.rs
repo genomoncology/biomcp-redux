@@ -32,6 +32,7 @@ pub fn sync(fetch: &Fetch) -> Result<crate::Mapped<SyncResult>, RequestError> {
     let info = fetch.sync(&CATALOG)?;
     let problems = crate::mapped::bundle_problems(SPEC.source, &info);
     Ok(crate::Mapped {
+        refusals: crate::bundle_mapping::bundle_refusals(&info),
         problems,
         value: SyncResult {
             snapshot: Some(snapshot(&info)?),
@@ -56,14 +57,23 @@ pub fn search(
         .map(|r| r.header().map_err(|_| bad()))
         .collect::<Result<Vec<_>, _>>()?;
     let mut problems = Vec::new();
+    let mut refusals = crate::Refusal::None;
     let value = items
         .into_iter()
         .map(|mapped: crate::Mapped<biodata::StudyHeader>| {
+            refusals.include(mapped.refusals);
             problems.extend(mapped.problems);
             mapped.value
         })
         .collect();
-    Ok((crate::Mapped { value, problems }, info))
+    Ok((
+        crate::Mapped {
+            refusals,
+            value,
+            problems,
+        },
+        info,
+    ))
 }
 /// Read an exact case-sensitive metadata card from the stored catalog.
 pub fn card(
@@ -78,11 +88,20 @@ pub fn card(
         .into_iter()
         .find(|v| v.value.header.study_id == *id);
     let mut problems = Vec::new();
+    let mut refusals = crate::Refusal::None;
     let value = row.map(|row| {
+        refusals.include(row.refusals);
         problems.extend(row.problems);
         row.value
     });
-    Ok((crate::Mapped { value, problems }, info))
+    Ok((
+        crate::Mapped {
+            refusals,
+            value,
+            problems,
+        },
+        info,
+    ))
 }
 /// Catalog provenance never substitutes acquisition time for a publisher revision.
 pub fn snapshot(info: &BundleInfo) -> Result<StudySnapshot, RequestError> {

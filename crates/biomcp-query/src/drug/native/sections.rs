@@ -32,6 +32,7 @@ pub(super) fn chembl(
                 .map_err(|_| failure(source))?;
             out.problems.extend(page.problems);
             out.problems.extend(records.problems);
+            page.window.include_refusals(records.refusals);
             targets(
                 out,
                 query,
@@ -47,6 +48,7 @@ pub(super) fn chembl(
                 .map_err(|_| failure(source))?;
             out.problems.extend(page.problems);
             out.problems.extend(records.problems);
+            page.window.include_refusals(records.refusals);
             indications(
                 out,
                 query,
@@ -83,6 +85,7 @@ pub(super) fn opentargets(
             let rows = opentargets::map_targets(&drug, row.mechanisms_of_action)
                 .map_err(|_| failure(source))?;
             out.problems.extend(rows.problems);
+            let refusals = rows.refusals;
             let rows = rows.value;
             let total = rows.len() as u64;
             let records = rows
@@ -101,7 +104,7 @@ pub(super) fn opentargets(
                     limit as u32,
                     Some(total),
                     total.saturating_sub(offset as u64).min(limit as u64) as u32,
-                    biomcp_adapters::Refusal::None,
+                    refusals,
                 ),
                 meta.fetched,
                 fresh,
@@ -111,6 +114,7 @@ pub(super) fn opentargets(
             let rows = opentargets::map_indications(&drug, row.indications)
                 .map_err(|_| failure(source))?;
             out.problems.extend(rows.problems);
+            let refusals = rows.refusals;
             let rows = rows.value;
             let total = rows.len() as u64;
             let records = rows
@@ -129,7 +133,7 @@ pub(super) fn opentargets(
                     limit as u32,
                     Some(total),
                     total.saturating_sub(offset as u64).min(limit as u64) as u32,
-                    biomcp_adapters::Refusal::None,
+                    refusals,
                 ),
                 meta.fetched,
                 fresh,
