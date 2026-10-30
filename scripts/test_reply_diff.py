@@ -1,4 +1,5 @@
 """Exercise reply comparison through its command line; run outside the routine gate."""
+import hashlib
 import json
 from pathlib import Path
 import subprocess
@@ -21,7 +22,7 @@ class ReplyDiff(unittest.TestCase):
     def write(self, directory, key, stdout=b'{"status":"complete"}\n', code=0, **extra):
         execution = dict(args=["help"], surface="cli", exit=code, stdout=list(stdout))
         execution.update(extra)
-        path = directory / ("case.json" if key.startswith("case/") else "trial.json")
+        path = directory / (hashlib.sha256(key.encode()).hexdigest() + ".json")
         path.write_text(json.dumps(dict(key=key, executions=[execution])))
 
     def compare(self):
@@ -73,6 +74,57 @@ class ReplyDiff(unittest.TestCase):
                 result = self.compare()
                 self.assertEqual(result.returncode, 1, result.stderr)
                 self.assertIn("/0/stdout/source", result.stdout)
+
+    def runtime_capture(self, directory, suffix, *, bad_reference=False, lifetime=90, status="complete"):
+        root = "/tmp/" + suffix
+        pool = suffix + "-pool"
+        common = dict(root=root, args=["search", "trial"])
+        self.write(directory, "case/runtime.yaml/step/0", json.dumps({
+            "page": {"pool": {"id": pool, "created": 10 if suffix == "base" else 20,
+                                "expires": (10 if suffix == "base" else 20) + lifetime, "size": 1}},
+            "fetched": 30 if suffix == "base" else 40,
+            "next": [{"kind": "page", "args": ["search", "trial", "--pool", pool]}],
+            "status": status,
+        }).encode(), **common)
+        self.write(directory, "case/runtime.yaml/step/1", json.dumps({
+            "query": {"pool": pool}, "result": {"snapshot": {"acquired": 50 if suffix == "base" else 60}},
+        }).encode(), root=root, args=["search", "trial", "--pool", "broken" if bad_reference else pool])
+        self.write(directory, "case/runtime.yaml/step/2",
+                   ("# Trial\n**fetched:** " + ("30" if suffix == "base" else "40") + "\n").encode(), **common)
+        self.write(directory, "case/runtime.yaml/step/3", json.dumps({
+            "result": {"file": {"data": {"path": root + "/reply.json"}}},
+        }).encode(), root=root, args=["get", "trial", "--save", "reply.json"])
+
+    def test_runtime_values_bind_across_the_whole_capture(self):
+        self.runtime_capture(self.base, "base")
+        self.runtime_capture(self.head, "head")
+        result = self.compare()
+        self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+        self.assertEqual(result.stdout, "")
+
+    def test_runtime_binding_rejects_changed_reference_lifetime_and_data(self):
+        self.runtime_capture(self.base, "base")
+        for mutation in [dict(bad_reference=True), dict(lifetime=91), dict(status="partial")]:
+            with self.subTest(mutation=mutation):
+                self.runtime_capture(self.head, "head", **mutation)
+                result = self.compare()
+                self.assertNotEqual(result.returncode, 0, result.stdout)
+
+    def test_record_path_hash_keys_pair_only_through_declared_names(self):
+        def key(args):
+            digest = hashlib.sha256(json.dumps(args, separators=(",", ":")).encode()).hexdigest()
+            return "trial/cache/replay/" + digest + "/0"
+        for directory, suffix in [(self.base, "base"), (self.head, "head")]:
+            root = "/tmp/" + suffix
+            args = ["get", "gene", "--record", root + "/record"]
+            self.write(directory, key(args), args=args, root=root)
+            args = ["get", "gene", "--replay", root + "/record"]
+            self.write(directory, key(args), args=args, root="/tmp/other-" + suffix)
+        result = self.compare()
+        self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+        args = ["get", "gene", "--replay", "/tmp/head/record"]
+        self.write(self.head, key(args), args=["get", "gene", "--replay", "/tmp/head/another"], root="/tmp/other-head")
+        self.assertEqual(self.compare().returncode, 1)
 
     def test_uncaptured_trials_are_disclosed(self):
         for directory in [self.base, self.head]:

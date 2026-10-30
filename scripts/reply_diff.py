@@ -6,11 +6,15 @@ import re
 import shlex
 import sys
 
+from reply_runtime import Bindings, align, owner, pair
+
 
 def load(directory):
     records = {}
     uncaptured = []
     for path in sorted(Path(directory).rglob("*.json")):
+        if path.name.startswith("._"):
+            continue
         record = json.loads(path.read_text())
         if record.get("kind") == "trial":
             if record["uncaptured"]:
@@ -110,12 +114,26 @@ def main():
                     print(f"  {name}", file=sys.stderr)
         if not base or not head:
             raise ValueError("comparison requires captured steps in both sets")
+        roots, aliases = align(base, head, normalize)
+        paired = {}
+        bindings = Bindings()
+        for key in sorted(base.keys() & head.keys() | aliases.keys()):
+            target = aliases.get(key, key)
+            a, b = base[key]["executions"], head[target]["executions"]
+            declared = [r.get(owner(key), ()) for r in roots]
+            # Collect every declaration before comparing references and Markdown.
+            for x, y in zip(a, b):
+                pair(x, y, owner(key), bindings, declared, normalize)
+            paired[key] = (a, b, declared)
         differences = 0
-        for key in sorted(base.keys() | head.keys()):
+        for key in sorted(base.keys() | (head.keys() - set(aliases.values()))):
             location = ("/ missing in " + ("HEAD" if key in base else "BASE")
-                        if key not in base or key not in head
-                        else pointer([normalize(e) for e in base[key]["executions"]],
-                                     [normalize(e) for e in head[key]["executions"]]))
+                        if key not in paired
+                        else pointer(*[list(values) for values in zip(*[
+                            pair(x, y, owner(key), bindings, paired[key][2], normalize)
+                            for x, y in zip(*paired[key][:2])])]))
+            if key in paired and len(paired[key][0]) != len(paired[key][1]):
+                location = "/executions/length"
             if location:
                 differences += 1
                 if differences <= 20:
