@@ -279,8 +279,41 @@ fn label_absence_requires_the_successful_label_source() -> Check {
     Ok(())
 }
 
+fn trial_absence_requires_the_successful_registry_source() -> Check {
+    let mut inventory = Inventory::new(&help(), &[])?;
+    for (source, state, item, status) in [
+        (Some("ctgov"), "ok", Some("absent"), "absent"),
+        (None, "ok", Some("absent"), "absent"),
+        (Some("nci"), "ok", Some("absent"), "absent"),
+        (Some("ctgov"), "failed", Some("absent"), "absent"),
+        (Some("ctgov"), "ok", None, "absent"),
+        (Some("ctgov"), "ok", Some("failed"), "absent"),
+        (Some("ctgov"), "ok", Some("absent"), "partial"),
+    ] {
+        let mut expect = json!({"/status":status, "/sources/0/state":state});
+        let fields = expect.as_object_mut().ok_or("proof expectations")?;
+        if let Some(source) = source {
+            fields.insert("/sources/0/source".into(), json!(source));
+        }
+        if let Some(item) = item {
+            fields.insert("/result/items/0/status".into(), json!(item));
+        }
+        let step: Step = serde_json::from_value(json!({
+            "run":["get","trial","NCT01811710"],"exit":1,"expect":expect
+        }))?;
+        inventory.step(&step);
+    }
+    assert_eq!(
+        inventory.calls.get("failure trial not-found"),
+        Some(&1),
+        "only a successful checked registry absence earns trial absence credit"
+    );
+    Ok(())
+}
+
 pub(super) fn check() -> Check {
     label_absence_requires_the_successful_label_source()?;
+    trial_absence_requires_the_successful_registry_source()?;
     only_trailing_words_select_implicit_sections()?;
     explicit_equals_refusal_counts()?;
     three_hand_counts_match_and_an_identity_never_counts_as_a_section()?;
