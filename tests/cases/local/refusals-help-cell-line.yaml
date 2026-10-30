@@ -1,0 +1,18 @@
+feature: query-validation
+story: Each public command refuses an unsupported argument before it reads a source.
+steps:
+- run:
+  - help
+  - cell-line
+  - --unrecognized-argument
+  exit: 2
+  expect:
+    /error/code: usage.arguments
+- run:
+  - help
+  - cell-line
+  - assay-count
+  - --unrecognized-argument
+  exit: 2
+  expect:
+    /error/code: usage.arguments
