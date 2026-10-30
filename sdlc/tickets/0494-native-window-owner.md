@@ -12,7 +12,7 @@ Each adapter that pages a source returns its accepted records together with the 
 
 - Why: the coordinator's root cause analysis (m15669) found six source corrections in 0472 and 0486 with one cause. Accepted records and native traversal facts travel as separate fields or positional tuples, so callers mistake refused rows for provider emptiness or the end of the results.
 - Starts from: `SEERPage` with disease and SEER callers, cBioPortal records and the mutation tuple with study get and variant recurrence, the ChEMBL page and `CellPage` with drug and cell line callers, and `openFDAPage` with label search and the drug query.
-- Rules: one internal type per adapter family or one shared generic, whichever is smaller; no pagination framework; no public schema change; replies stay byte-identical except where the reply diff names a fixed defect.
+- Rules: public `retrieved_count` counts accepted identities, and native received or consumed counts stay internal (m15678); one internal type per adapter family or one shared generic, whichever is smaller; no pagination framework; no public schema change; replies stay byte-identical except where the reply diff names a fixed defect.
 - Proof: for each of the four families, a case over recorded replies where refused rows fill a native page fails on a build that derives continuation from the accepted count; the reply diff is otherwise empty.
 - Changes: the four adapter families, their callers, cases and baseline.
 - Defers: adapters outside these four families, unless the audit finds the same tuple there.
