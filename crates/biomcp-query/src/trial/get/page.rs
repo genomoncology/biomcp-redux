@@ -158,7 +158,7 @@ fn section<T>(page: TrialRecords<T>, id: NctId) -> Section<TrialRecords<T>> {
 }
 fn record(id: NctId) -> Option<SourceRecord> {
     Text::new(&id.to_string()).ok().map(|id| SourceRecord {
-        namespace: None,
+        namespace: biodata::IdentifierNamespace::Unknown,
         id,
         url: None,
     })

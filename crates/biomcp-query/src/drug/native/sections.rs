@@ -202,7 +202,7 @@ fn page<T>(
                 .parse()
                 .ok()
                 .map(|id| biomcp_types::SourceRecord {
-                    namespace: None,
+                    namespace: biodata::IdentifierNamespace::Unknown,
                     id,
                     url: None,
                 }),

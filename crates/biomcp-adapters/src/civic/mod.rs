@@ -184,7 +184,7 @@ fn map(
         Section::Empty {
             source: Source::Civic,
             record: Some(SourceRecord {
-                namespace: None,
+                namespace: biodata::IdentifierNamespace::Unknown,
                 id: cx.record.clone()?,
                 url,
             }),

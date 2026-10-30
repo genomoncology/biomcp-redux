@@ -161,7 +161,7 @@ pub fn resolve(leg: &Leg<'_>, input: &str) -> Result<Resolution, RequestError> {
         },
         source: Source::Mutalyzer,
         record: SourceRecord {
-            namespace: None,
+            namespace: biodata::IdentifierNamespace::Unknown,
             id: notation,
             url: None,
         },

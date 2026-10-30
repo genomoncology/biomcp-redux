@@ -63,7 +63,7 @@ pub(super) fn resolve(raw: Response, input: &str) -> Resolution {
                 },
                 source: Source::VariantValidator,
                 record: SourceRecord {
-                    namespace: None,
+                    namespace: biodata::IdentifierNamespace::Unknown,
                     id: key,
                     url: None,
                 },

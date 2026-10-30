@@ -147,7 +147,7 @@ pub(super) fn record(id: u64, link: Option<&Text>, cx: &mut Problems) -> Option<
         }),
     );
     Some(SourceRecord {
-        namespace: None,
+        namespace: biodata::IdentifierNamespace::Unknown,
         id,
         url,
     })

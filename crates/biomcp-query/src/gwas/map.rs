@@ -16,7 +16,7 @@ pub(crate) fn association(
             .efo_traits
             .into_iter()
             .map(|t| biomcp_types::GwasTrait {
-                namespace: None,
+                namespace: biodata::IdentifierNamespace::Unknown,
                 id: t.efo_id,
                 label: t.efo_trait,
             })

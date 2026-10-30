@@ -207,7 +207,7 @@ fn build(mut row: Claim, subject: Option<&VariantRef>, cx: &mut Problems) -> Opt
             native: statement.is_none().then_some(row.native),
             statement,
             record: SourceRecord {
-                namespace: None,
+                namespace: biodata::IdentifierNamespace::Unknown,
                 id,
                 url: Some(url),
             },

@@ -124,7 +124,11 @@ fn member(
     }
     Ok(Some(PathwayMember {
         reference: PathwaySourceRef {
-            namespace: node.namespace.map(Into::into),
+            namespace: node
+                .namespace
+                .as_deref()
+                .and_then(|value| p.text("genes.namespace", Some(value)))
+                .into(),
             id: value,
         },
         node_id,

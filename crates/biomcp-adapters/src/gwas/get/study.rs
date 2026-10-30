@@ -133,7 +133,7 @@ impl Study {
                 .efo_traits
                 .into_iter()
                 .map(|t| GwasTrait {
-                    namespace: None,
+                    namespace: biodata::IdentifierNamespace::Unknown,
                     id: t.efo_id,
                     label: t.efo_trait,
                 })

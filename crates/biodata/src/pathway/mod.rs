@@ -43,8 +43,7 @@ pub struct Pathway {
 #[cfg_attr(feature = "schema", schemars(extend("x-identifier" = true)))]
 pub struct PathwaySourceRef {
     /// Native namespace; never discarded during a gene join.
-    #[cfg_attr(feature = "schema", schemars(required))]
-    pub namespace: Option<Box<str>>,
+    pub namespace: crate::IdentifierNamespace,
     /// Complete namespace-local identifier, including native isoform suffixes.
     pub id: Text,
 }

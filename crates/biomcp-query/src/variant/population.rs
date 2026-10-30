@@ -45,7 +45,7 @@ pub(super) fn section(
         Ok(None) => Section::Empty {
             source: Source::Gnomad,
             record: Text::new(&id).ok().map(|id| biomcp_types::SourceRecord {
-                namespace: None,
+                namespace: biodata::IdentifierNamespace::Unknown,
                 id,
                 url: None,
             }),

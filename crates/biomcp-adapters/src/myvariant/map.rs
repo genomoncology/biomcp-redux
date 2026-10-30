@@ -106,7 +106,7 @@ fn candidate(
         },
         source: Source::MyVariant,
         record: SourceRecord {
-            namespace: None,
+            namespace: biodata::IdentifierNamespace::Unknown,
             id: hit.id,
             url: None,
         },

@@ -83,12 +83,9 @@ pub fn members(leg: &Leg<'_>, id: &ReactomeId) -> Result<Mapped<Members>, Reques
                 value.items.push(PathwayMember {
                     node_id: None,
                     reference: PathwaySourceRef {
-                        namespace: Some(
-                            crate::mapped::text(namespace)
-                                .map_err(|_| bad_reply())?
-                                .as_str()
-                                .into(),
-                        ),
+                        namespace: crate::mapped::text(namespace)
+                            .map_err(|_| bad_reply())?
+                            .into(),
                         id: crate::mapped::text(identifier).map_err(|_| bad_reply())?,
                     },
                     name,

@@ -3,7 +3,7 @@
 pub use id::{Doi, EuropePmcId, Pmcid, Pmid, SemanticScholarId};
 
 mod identifier;
-pub use identifier::Identifier;
+pub use identifier::{Identifier, IdentifierNamespace};
 
 mod source_text;
 pub use source_text::SourceText;

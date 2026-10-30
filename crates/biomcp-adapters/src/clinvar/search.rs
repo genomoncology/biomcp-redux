@@ -124,7 +124,7 @@ pub fn search(leg: &Leg<'_>, query: &VariantSearch) -> Result<SearchPage, Reques
             let id = problems.required("idlist", id.value())?;
             let identity = VariantId::ClinVarVariation(id.identity);
             let record = SourceRecord {
-                namespace: None,
+                namespace: biodata::IdentifierNamespace::Unknown,
                 id: id.text,
                 url: None,
             };
