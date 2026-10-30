@@ -1,6 +1,7 @@
 # 0498 — Keep enough nightly evidence to classify every live change
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: a1dfb5a5738f80bbb72f776fca6888e3a38330c8
 
 Milestone: 5
 
