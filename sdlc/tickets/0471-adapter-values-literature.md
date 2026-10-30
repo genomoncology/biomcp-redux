@@ -1,6 +1,7 @@
 # 0471 — Apply the bad-value rule in the literature adapters
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: c5f90cf5914ee3088fe00858366edf69ddaec779
 
 Milestone: 5
 

@@ -170,7 +170,14 @@ fn replacement() -> Check {
             }
             fs::write(path, value.to_string()).map_err(|e| e.to_string())?;
         }
-        call(&env, &replay, &["sync", "who-ivd"], 4)?;
+        let exit = if fault == "new-column" { 0 } else { 4 };
+        let synchronized = call(&env, &replay, &["sync", "who-ivd"], exit)?;
+        if fault == "new-column"
+            && (synchronized.pointer("/result/rows") != Some(&json!(10))
+                || synchronized.get("problems").is_some())
+        {
+            return Err("unknown WHO column changed accepted native rows".into());
+        }
         if call(&env, &replay, &args, 0)? != before {
             return Err(format!("{fault} replaced the usable copy"));
         }

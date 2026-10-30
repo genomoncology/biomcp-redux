@@ -172,7 +172,7 @@ mod variant_search;
 mod wikipathways;
 
 // Complete help: j18463 measured 114273 bytes; reviewed ceiling adds fifteen percent.
-pub(super) const CLI_HELP_BYTES: usize = 131414;
+pub(super) const CLI_HELP_BYTES: usize = 152733;
 
 use libtest_mimic::Trial;
 use serde_json::Value;

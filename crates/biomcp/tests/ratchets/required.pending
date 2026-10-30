@@ -153,7 +153,6 @@ option search protein --reviewed
 option search study --offset
 option search study --pool
 option search trial --exact-condition
-option search trial --next-page
 option serve --allow-host
 option skill install --force
 option variant assertions --assertion

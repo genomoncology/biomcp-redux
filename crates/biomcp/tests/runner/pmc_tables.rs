@@ -45,6 +45,7 @@ pub(super) fn check() -> Check {
 }
 
 fn licenses() -> Check {
+    let large = "x".repeat(biodata::Text::MAX_CHARS + 1);
     for (source, expected) in [
         ("CC BY", "cc_by"),
         ("cc-by-nc", "cc_by_nc"),
@@ -56,6 +57,10 @@ fn licenses() -> Check {
         ("PUBLIC DOMAIN", "public_domain"),
         ("TDM", "tdm"),
         ("source-specific", "other"),
+        ("", "other"),
+        (" ", "other"),
+        ("native\u{1}license", "other"),
+        (large.as_str(), "other"),
     ] {
         run(
             "",
@@ -69,11 +74,11 @@ fn licenses() -> Check {
 }
 
 fn identities() -> Check {
+    license_shapes()?;
     for (field, value) in [
         ("pmcid", json!("PMC1")),
         ("pmid", json!(1)),
         ("pmid", json!(0)),
-        ("license_code", json!(" ")),
     ] {
         run(
             "",
@@ -177,6 +182,27 @@ fn markup() -> Check {
         != 1
     {
         return Err("repeated citations duplicated a table".into());
+    }
+    Ok(())
+}
+
+fn license_shapes() -> Check {
+    for value in [json!(null), json!(42), json!({"bad":true})] {
+        run(
+            "",
+            "<p>Invented source.</p>",
+            |record| record["license_code"] = value.clone(),
+            &["get", "article", "28944238", "fulltext"],
+            json!({
+                "/result/items/0/answer/card/pmid":"28944238",
+                "/result/items/0/sections/fulltext/state":"unavailable",
+                "/result/items/0/sections/fulltext/reason":"not-open",
+                "/problems":{"equals":[{
+                    "source":"pmc-oa","record":"PMC5606870",
+                    "field":"license","code":"value.unknown"
+                }]}
+            }),
+        )?;
     }
     Ok(())
 }

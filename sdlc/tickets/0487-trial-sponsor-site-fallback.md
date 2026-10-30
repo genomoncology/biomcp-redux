@@ -1,6 +1,7 @@
 # 0487 — Fall back to a broader sponsor or site search when the exact phrase finds nothing
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 87fca64387247ed8a76a7c47f1efad2f7d5c05c3
 
 Milestone: 5
 
