@@ -3,6 +3,12 @@ use biodata::{
     FaersDrug, FaersIdentifiers, FaersPatient, FaersReaction, FaersReport, FaersReporter,
     FaersSeriousness,
 };
+type Patient = (
+    Option<FaersPatient>,
+    Box<[FaersDrug]>,
+    Box<[FaersReaction]>,
+    super::Positions,
+);
 pub(super) fn report(r: raw::Report) -> crate::Mapped<super::positions::Report> {
     let mut problems = crate::mapped::Problems {
         source: biomcp_types::Source::Faers,
@@ -65,15 +71,7 @@ pub(super) fn report(r: raw::Report) -> crate::Mapped<super::positions::Report> 
         problems: problems.list,
     }
 }
-fn patient(
-    p: raw::Patient,
-    problems: &mut crate::mapped::Problems,
-) -> (
-    Option<FaersPatient>,
-    Box<[FaersDrug]>,
-    Box<[FaersReaction]>,
-    super::Positions,
-) {
+fn patient(p: raw::Patient, problems: &mut crate::mapped::Problems) -> Patient {
     let patient = Some(FaersPatient {
         age: age(problems, p.patientonsetage, p.patientonsetageunit),
         sex: problems.field("patient.patientsex", p.patientsex),

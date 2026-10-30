@@ -5,10 +5,10 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub struct Positions {
     /// Native drugs positions when some rows were rejected.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub drugs: Option<NativePositions>,
     /// Native reactions positions when some rows were rejected.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub reactions: Option<NativePositions>,
 }
 impl Positions {
