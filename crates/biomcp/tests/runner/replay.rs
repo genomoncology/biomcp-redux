@@ -1,8 +1,10 @@
 //! Feature gene-identity: replay misses stay source failures and repeated server calls use checked cache.
+use super::configuration::{cached, invoke};
 use super::{launch::Environment, mcp};
 use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
+use std::fs;
 use std::{
     io::{BufRead, BufReader, Write},
     process::Stdio,
@@ -14,6 +16,9 @@ use std::{
 pub(super) fn trials() -> Vec<Trial> {
     // These calls share one live server; independent CLI invocations cannot expose its replay cursor.
     vec![
+        transcript_trial("article-search/concurrent-process-pool-publication", || {
+            article_processes().map_err(Into::into)
+        }),
         transcript_trial("gene-identity/replay-server-reuses-checked-reply", || {
             repeated().map_err(Into::into)
         }),
@@ -261,6 +266,70 @@ fn check_article_reply(
         .ok_or("pool missing")?;
     if !pools.insert(pool.to_owned()) {
         return Err("fresh command reused pool".into());
+    }
+    Ok(())
+}
+
+fn article_processes() -> Result<(), String> {
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    let case = env.root().join("case");
+    let fixture = env.root().join("known-recordings");
+    super::response_cases::cache_capture(
+        "article/search/synthetic-small",
+        &fixture,
+        super::response_cases::CACHE_ACQUIRED,
+    )?;
+    let base = ["search", "article", "AKT1 E17K", "--limit", "2"];
+    let initial = invoke(&env, cached(&base, &case, Some(&fixture)), 0)?;
+    let expected = initial.pointer("/result/items").ok_or("items missing")?;
+    let parent = env.root().join("cache/biomcp");
+    fs::create_dir_all(&parent).map_err(|e| e.to_string())?;
+    let file = parent.join(format!(
+        "cache-{}-{}.sqlite",
+        biomcp_fetch::CACHE_NAMESPACE_VERSION,
+        biomcp_query::store::CACHE_NAMESPACE_VERSION
+    ));
+    // Replay and ordinary caches have the same owned schema. Copy only after
+    // the seed process closes; it has checkpointed the WAL and released locks.
+    fs::copy(case.join("replay.sqlite"), &file).map_err(|e| e.to_string())?;
+    let fetch = biomcp_fetch::Fetch::open(biomcp_fetch::FetchConfig {
+        cache: Some(file),
+        mode: biomcp_fetch::Mode::Offline,
+        cache_owners: vec![biomcp_query::store::OWNER],
+        ..Default::default()
+    })
+    .map_err(|e| e.to_string())?;
+    let connection = fetch
+        .cache_access()
+        .map_err(|e| e.to_string())?
+        .connect()
+        .map_err(|e| e.to_string())?;
+    connection
+        .execute_batch("BEGIN IMMEDIATE")
+        .map_err(|e| e.to_string())?;
+    let replies = super::publication::check(&env, || {
+        connection
+            .execute_batch("COMMIT")
+            .map_err(|e| e.to_string())
+    })?;
+    let mut pools = std::collections::BTreeSet::new();
+    for reply in replies {
+        if reply.pointer("/result/items") != Some(expected) {
+            return Err("concurrent ordinary-cache search lost items".into());
+        }
+        let pool = reply
+            .pointer("/page/pool/id")
+            .and_then(Value::as_str)
+            .ok_or("published pool missing")?;
+        if !pools.insert(pool.to_owned()) || initial.pointer("/page/pool/id") == Some(&json!(pool))
+        {
+            return Err("concurrent fresh pools collided".into());
+        }
+        let mut args: Vec<String> = base.iter().map(|v| (*v).into()).collect();
+        args.extend(["--offline".into(), "--pool".into(), pool.into()]);
+        if invoke(&env, args, 0)?.pointer("/result/items") != Some(expected) {
+            return Err("published snapshot changed".into());
+        }
     }
     Ok(())
 }

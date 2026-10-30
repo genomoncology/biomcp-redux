@@ -4,16 +4,24 @@ use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
+mod build_echo;
 
 pub(super) fn trials() -> Vec<Trial> {
     // The real peer checks resolver order, source requests and warm cache admission.
-    vec![transcript_trial(
-        crate::runner::required_contract::VALIDATOR_RESOLVER.0,
-        || validator_order().map_err(Into::into),
-    )]
+    vec![
+        transcript_trial("variant-identity/car-projection-wire", || {
+            car().map_err(Into::into)
+        }),
+        transcript_trial("variant-identity/myvariant-exact-build-wire", || {
+            build_echo::check().map_err(Into::into)
+        }),
+        transcript_trial(
+            crate::runner::required_contract::VALIDATOR_RESOLVER.0,
+            || validator_order().map_err(Into::into),
+        ),
+    ]
 }
 
-type Requests = Vec<(String, String)>;
 fn call(
     host: &'static str,
     body: fn(&str) -> Result<String, String>,
@@ -74,4 +82,46 @@ fn validator_body(_: &str) -> Result<String, String> {
         \"submitted_variant\":\"NM_004333.4:c.1799T>A\",\"hgvs_transcript_variant\":\"NM_004333.4:c.1A>T\"}}"
             .into(),
     )
+}
+
+fn car() -> Result<(), String> {
+    let (output, requests) = call(
+        "reg.genome.network",
+        car_body,
+        &[
+            "get",
+            "variant",
+            "NM_004333.4:c.1799T>A",
+            "--disable-sources",
+            "myvariant",
+        ],
+    )?;
+    let [(_, request)] = requests.as_slice() else {
+        return Err("expected one CAR request".into());
+    };
+    if !request.starts_with(
+        "GET \
+        /allele?hgvs=NM_004333.4%3Ac.1799T%3EA&fields=none%2B%40id%2BcommunityStandardTitle%2BgenomicAlleles\
+        %2BtranscriptAlleles.MANE%2BexternalRecords.dbSNP%2BexternalRecords.ClinVarVariations HTTP/1.1",
+    ) {
+        return Err(format!("CAR projection must preserve literal plus modifiers: {request}"));
+    }
+    if output.pointer("/result/candidates/0/identity/ids/0") != Some(&json!("CA123643")) {
+        return Err(format!("source identity lost: {output}"));
+    }
+    Ok(())
+}
+type Requests = Vec<(String, String)>;
+
+fn car_body(_: &str) -> Result<String, String> {
+    Ok(json!(
+        {"@id":"http://reg.genome.network/allele/CA123643","genomicAlleles":[{"chromosome":"7","referenceGenome":"GRCh38",
+        "referenceSequence":"http://reg.genome.network/refseq/RS000055","hgvs":["NC_000007.14:g.140753336A>T"],
+        "coordinates":[{"start":140753335,"end":140753336,"referenceAllele":"A","allele":"T"}]}]}
+    )
+    .to_string())
+}
+
+fn myvariant_body(_: &str) -> Result<String, String> {
+    Ok(json!({"_id":"chr7:g.140753336A>T","dbsnp":{"rsid":"rs113488022","gene":{"symbol":"BRAF"}},"clinvar":{"variant_id":13961}}).to_string())
 }

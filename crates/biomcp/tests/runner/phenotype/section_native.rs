@@ -1,7 +1,4 @@
 //! Native term replies stay outside Git and are admitted only by exact hash.
-use super::{Stub, native, raw_invoke, setup};
-use serde_json::{Value, json};
-use std::{fs, io::Write, path::Path};
 
 fn measurements(key: &str) -> Result<[usize; 2], String> {
     let values: std::collections::BTreeMap<String, [usize; 2]> = serde_saphyr::from_str(

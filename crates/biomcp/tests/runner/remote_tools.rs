@@ -106,7 +106,9 @@ fn results() -> Result<(), String> {
 fn check_result(reply: &Value, text: &str, over: bool) -> Result<(), String> {
     let result = reply.get("result").ok_or("missing result")?;
     let serialized = result.to_string();
-    if serialized.chars().count() >= 150_000 || result.get("isError") != Some(&json!(over)) {
+    if serialized.chars().count() >= super::output_limit("remote-result-characters")?
+        || result.get("isError") != Some(&json!(over))
+    {
         return Err(format!(
             "whole result cap or error flag: {} characters",
             serialized.chars().count()
@@ -154,7 +156,9 @@ fn check_result(reply: &Value, text: &str, over: bool) -> Result<(), String> {
         {
             return Err("over-cap reply lacks narrowing guidance".into());
         }
-    } else if serialized.len() <= 150_000 || !serialized.contains(text) {
+    } else if serialized.len() <= super::output_limit("remote-result-characters")?
+        || !serialized.contains(text)
+    {
         return Err("Unicode reply was cut or measured in bytes".into());
     }
     Ok(())

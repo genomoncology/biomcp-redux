@@ -10,10 +10,14 @@ const INPUT: &str = "chr7:g.140753336A>T";
 const SECTION: &str = "/result/candidates/0/sections/oncokb";
 pub(super) fn trials() -> Vec<Trial> {
     // The peer checks required outbound key placement and caches while the test inspects recordings for credential leakage.
-    vec![transcript_trial(
-        crate::runner::required_contract::ONCOKB.0,
-        || wire().map_err(Into::into),
-    )]
+    vec![
+        transcript_trial("variant-oncokb/oncokb-server-key-reload", || {
+            reload().map_err(Into::into)
+        }),
+        transcript_trial(crate::runner::required_contract::ONCOKB.0, || {
+            wire().map_err(Into::into)
+        }),
+    ]
 }
 pub(super) fn args() -> Vec<String> {
     [
@@ -345,3 +349,78 @@ fn walk(env: &Environment, baseline: &Value) -> Result<(), String> {
 }
 
 // Each key snapshot uses a distinct uncached input over both transports.
+
+fn reload() -> Result<(), String> {
+    for http in [false, true] {
+        let assets = Environment::new().map_err(|e| e.to_string())?;
+        let stub = Stub::for_source("www.oncokb.org", "application/json", reload_reply)?;
+        let ca = assets.root().join("ca.pem");
+        stub.retain(&assets);
+        fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
+        let mut client = super::key_reload::start(
+            http,
+            false,
+            json!({"proxy":format!("http://{}",stub.address),"ca_bundle":ca}),
+            "ONCOKB_TOKEN",
+        )?;
+        for (index, key) in [None, Some(KEY), Some("synthetic-oncokb-replaced-key"), None]
+            .into_iter()
+            .enumerate()
+        {
+            if let Some(key) = key {
+                let commands = if index == 1 {
+                    vec!["key", "set", "oncokb"]
+                } else {
+                    vec!["key", "set", "oncokb", "--replace"]
+                };
+                super::key_registration::invoke(
+                    client.environment(),
+                    &commands,
+                    &format!("{key}\n"),
+                    0,
+                )?;
+            } else if index == 3 {
+                super::key_registration::invoke(
+                    client.environment(),
+                    &["key", "remove", "oncokb"],
+                    "",
+                    0,
+                )?;
+            }
+            let mut args = args();
+            *args.get_mut(7).ok_or("tumor argument")? = format!("Synthetic tumor {index}");
+            let refs = args.iter().map(String::as_str).collect::<Vec<_>>();
+            let output = client.call(index, &refs)?;
+            let expected = if key.is_some() { "data" } else { "skipped" };
+            if output.pointer(&format!("{SECTION}/state")) != Some(&json!(expected)) {
+                return Err("persistent OncoKB call did not reload key state".into());
+            }
+            for marker in [KEY, "synthetic-oncokb-replaced-key"] {
+                if output.to_string().contains(marker) {
+                    return Err("key leaked in persistent annotation".into());
+                }
+            }
+        }
+        client.finish()?;
+        let requests = stub.finish()?;
+        if requests.len() != 2 {
+            return Err("persistent OncoKB made keyless or missing requests".into());
+        }
+        for ((_, request), key) in requests.iter().zip([KEY, "synthetic-oncokb-replaced-key"]) {
+            if !request
+                .lines()
+                .any(|l| l.eq_ignore_ascii_case(&format!("authorization: Bearer {key}")))
+            {
+                return Err("persistent OncoKB used stale key snapshot".into());
+            }
+        }
+    }
+    Ok(())
+}
+
+fn reload_reply(request: &str) -> Result<String, String> {
+    let index = (0..4)
+        .find(|index| request.contains(&format!("tumorType=Synthetic%20tumor%20{index}")))
+        .ok_or("missing synthetic tumor input")?;
+    Ok(reply(request)?.replace("Synthetic tumor", &format!("Synthetic tumor {index}")))
+}

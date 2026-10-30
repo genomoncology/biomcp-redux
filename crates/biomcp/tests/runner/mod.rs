@@ -52,6 +52,7 @@ mod http;
 mod http_limits;
 mod key_registration;
 pub(super) mod launch;
+mod recurrence;
 mod remote_tools;
 mod replay;
 tool_only! { pub(crate) mod live; }
@@ -73,6 +74,7 @@ mod pathway_budgets;
 mod pathway_commands;
 mod pathway_get_pages;
 mod pathway_sections;
+mod pdf;
 mod pgx_retirements;
 mod phenotype;
 mod process;
@@ -86,6 +88,7 @@ mod reply_comparison;
 mod research;
 mod response_cases;
 mod schema;
+mod skill;
 tool_only! { mod schema_evolution; }
 mod schema_proof;
 tool_only! { mod semantic_tables; }
@@ -95,6 +98,7 @@ mod store_coexistence;
 mod study_catalog;
 mod transcript;
 mod trial_get;
+mod trial_sites;
 mod vaers;
 mod variant;
 mod variant_civic;
@@ -215,6 +219,8 @@ fn run_case(path: &Path, registry: &schema::Registry) -> Result<Value, String> {
 pub(super) fn protocol_trials() -> Vec<Trial> {
     let mut trials = Vec::new();
     trials.extend(protocol::trials());
+    trials.extend(configuration::trials());
+    trials.extend(recurrence::trials());
     trials.extend(replay::trials());
     trials.extend(output_stream::trials());
     trials.extend(research::trials());
@@ -222,6 +228,8 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(corporate::trials());
     trials.extend(drug_identity::trials());
     trials.extend(key_registration::trials());
+    trials.extend(pdf::trials());
+    trials.push(skill::trial());
     trials.extend(credential_containment::trials());
     // Private Refusal facts are visible only at the public adapter API.
     trials.extend(mapped_refusals::trials());
@@ -235,6 +243,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(variant_hotspots::trials());
     trials.extend(vaers::trials());
     trials.extend(trial_get::trials());
+    trials.push(trial_sites::trial());
     trials.extend(variant_assertion_wire::trials());
     trials.extend(evidence::trials());
     trials.extend(variant::trials());
@@ -249,6 +258,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(pathway_commands::trials());
     trials.extend(gwas_search::trials());
     trials.extend(diagnostic_who::trials());
+    trials.push(wikipathways::trial());
     trials.extend(variant_civic::trials());
     trials.extend(protein_domains::trials());
     trials.extend(faers_get::trials());

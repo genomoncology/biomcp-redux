@@ -4,7 +4,6 @@ use serde_json::{Value, json};
 use std::fs;
 
 tool_only! { mod native; }
-mod words;
 tool_only! { pub(super) use native::run as native; }
 
 fn setup(stub: &Stub) -> Result<Environment, String> {

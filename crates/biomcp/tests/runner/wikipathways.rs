@@ -1,5 +1,14 @@
 //! Feature pathway-wikipathways: explicit atomic catalog replacement and stored-only reads.
 use super::launch::Environment;
+use super::pathway_budgets as budgets;
+mod concurrent;
+type Check = Result<(), String>;
+pub(super) fn trial() -> libtest_mimic::Trial {
+    super::transcript::trial(
+        "pathway-wikipathways/concurrent-readers-during-pair-replacement",
+        || concurrent::run().map_err(Into::into),
+    )
+}
 use serde_json::{Value, json};
 use std::{
     fs,
@@ -49,3 +58,15 @@ pub(super) fn seed(
 }
 
 tool_only! {}
+
+fn call(
+    phase: &str,
+    env: &Environment,
+    replay: &Path,
+    args: &[&str],
+    exit: i32,
+) -> Result<Value, String> {
+    let mut command = env.globals(Some(replay), false);
+    command.extend(args.iter().map(|s| (*s).into()));
+    budgets::invoke(phase, env, command, exit)
+}

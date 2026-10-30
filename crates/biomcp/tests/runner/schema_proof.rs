@@ -61,7 +61,7 @@ fn results(registry: &Registry) -> Result<(), String> {
         .validate(&long_id, &args, false)
         .err()
         .ok_or("long unknown identity accepted")?;
-    if diagnostic.chars().count() > 240 {
+    if diagnostic.chars().count() > super::output_limit("schema-diagnostic-characters")? {
         return Err("unbounded schema identity diagnostic".into());
     }
     nulls()?;

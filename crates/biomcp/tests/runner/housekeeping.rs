@@ -1,6 +1,8 @@
 //! Housekeeping runs through the isolated installed command boundary.
 #[path = "../support/housekeeping_contract.rs"]
 mod contract;
+#[path = "housekeeping_path.rs"]
+mod executable_path;
 
 use super::launch::Environment;
 use crate::runner::transcript::trial as transcript_trial;
@@ -11,9 +13,11 @@ type Check<T = ()> = Result<T, Box<dyn std::error::Error>>;
 
 pub(super) fn trials() -> Vec<Trial> {
     // Keep dynamic state, source bindings or wire checks that YAML cannot express.
-    vec![transcript_trial(contract::OFFLINE_PROVENANCE.0, || {
+    let mut trials = executable_path::trials();
+    trials.push(transcript_trial(contract::OFFLINE_PROVENANCE.0, || {
         check().map_err(|error| error.to_string().into())
-    })]
+    }));
+    trials
 }
 fn run(env: &Environment, args: &[&str], empty: bool) -> Check<Output> {
     let words: Vec<_> = args.iter().map(|s| (*s).to_owned()).collect();

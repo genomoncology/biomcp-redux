@@ -1,5 +1,5 @@
 //! Measure the bytes the command and MCP actually emit.
-use super::{Environment, Value, Write, ceiling, fs};
+use super::{Write, ceiling};
 
 pub(in crate::runner::cell_line) fn measure_bytes(
     phase: &str,

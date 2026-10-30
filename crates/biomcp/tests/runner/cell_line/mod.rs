@@ -1,7 +1,5 @@
 //! Feature cell-line-identity: unchanged retained native requests through the real CLI and MCP.
-use crate::runner::transcript::trial as transcript_trial;
 use std::io::Write;
-mod all;
 mod chembl;
 tool_only! { mod examples; }
 mod faults;

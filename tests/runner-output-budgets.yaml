@@ -101,11 +101,9 @@
   "hotspots-envelope": 1771,
   "label-comparable": 8811,
   "label-full": 8192,
-  "monarch-exact-page": 2108,
   "gwas-state-bytes": 7000,
   "gwas-state-tokens": 1750,
   "study-sync-cli": 3053,
-  "study-sync-mcp": 3051,
   "disease_mydisease-measured-1237": 1237,
   "disease_mydisease-measured-1374": 1374,
   "disease_mydisease-measured-1385": 1385,
@@ -122,9 +120,6 @@
   "research-measured-6289": 6289,
   "research-measured-5047": 5047,
   "research-measured-2828": 2828,
-  "trial_condition-measured-1592": 1592,
-  "trial_condition-measured-983": 983,
-  "trial_condition-measured-496": 496,
   "vaers-budget-measured-298": 298,
   "vaers-budget-measured-297": 297,
   "vaers-budget-measured-551": 551,
@@ -162,5 +157,9 @@
   "faers-search-envelope-1659": 1659,
   "replay-gene-card": 2720,
   "replay-gene-protein": 3073,
-  "replay-gene-fresh": 1643
+  "replay-gene-fresh": 1643,
+  "skill-install": 117,
+  "skill-status": 55,
+  "remote-result-characters": 150000,
+  "schema-diagnostic-characters": 240
 }

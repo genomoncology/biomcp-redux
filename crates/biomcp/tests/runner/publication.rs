@@ -1,5 +1,5 @@
 //! Both installed processes must accept searches while one ordinary cache is locked.
-use super::{launch::Environment, process::Process};
+use super::{launch::Environment, mcp::request, process::Process};
 use serde_json::{Value, json};
 use std::{
     io::{BufRead, BufReader, Write},
@@ -84,4 +84,46 @@ impl Drop for Peer {
             let _ = process.child.wait();
         }
     }
+}
+
+pub(super) fn check(
+    env: &Environment,
+    release: impl FnOnce() -> Result<(), String>,
+) -> Result<Vec<Value>, String> {
+    let mut peers = [Peer::with_globals(env, &[])?, Peer::with_globals(env, &[])?];
+    for peer in &mut peers {
+        peer.send(&request(
+            json!("search"),
+            "tools/call",
+            json!({"name":"biomcp","arguments":{
+            "args":["search","article","AKT1 E17K","--limit","2","--offline","--fresh"]}}),
+        ))?;
+        peer.send(&request(json!("accepted"), "ping", json!({})))?;
+    }
+    // Ping is consumed after the search is admitted. Both searches remain
+    // pending behind the write transaction, so process overlap is an event.
+    for peer in &peers {
+        let reply = peer.next()?;
+        if reply.get("id") != Some(&json!("accepted")) || reply.get("error").is_some() {
+            return Err(format!("search did not wait for ordinary cache: {reply}"));
+        }
+    }
+    release()?;
+    let mut results = Vec::new();
+    for peer in peers {
+        let reply = peer.next()?;
+        if reply.get("id") != Some(&json!("search"))
+            || reply.pointer("/result/isError") != Some(&json!(false))
+        {
+            return Err(format!("ordinary-cache search failed: {reply}"));
+        }
+        results.push(
+            reply
+                .pointer("/result/structuredContent")
+                .ok_or("content missing")?
+                .clone(),
+        );
+        peer.finish()?;
+    }
+    Ok(results)
 }
