@@ -1,6 +1,6 @@
 {
   "feature": "drug-label",
-  "story": "Recorded labels support free-text discovery without harmonized names and exact application searches without product substitution",
+  "story": "Recorded labels support free-text discovery without harmonized names and exact application searches without product substitution. The guide section command preserves the recorded identity/display subset and reports its unavailable warning section.",
   "replay": "drug/label-discovery",
   "steps": [
     {
@@ -181,6 +181,26 @@
         }
       },
       "max_bytes": 1000
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "98b197ea-bca4-427e-8737-97f70a3262bc",
+        "label",
+        "--source",
+        "openfda-label",
+        "--label-section",
+        "warnings_and_cautions"
+      ],
+      "expect": {
+        "/status": "partial",
+        "/result/identity/id": "98b197ea-bca4-427e-8737-97f70a3262bc",
+        "/result/label/state": "unavailable",
+        "/result/label/reason": "not-found",
+        "/sources/0/source": "openfda-label"
+      },
+      "max_bytes": 2000
     }
   ]
 }
