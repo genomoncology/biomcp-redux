@@ -152,11 +152,7 @@ fn empty_catalog() -> Result<(), String> {
         Ok(json!({"VariableFormats":{}, "CancerSites":[]}).to_string())
     })?;
     let env = setup(&stub)?;
-    let value = invoke(
-        &env,
-        &args(&["search", "disease", "--source", "seer"]),
-        0,
-    )?;
+    let value = invoke(&env, &args(&["search", "disease", "--source", "seer"]), 0)?;
     if value.pointer("/status") != Some(&json!("complete"))
         || value.pointer("/page/total") != Some(&json!(0))
         || value.pointer("/sources/0/state") != Some(&json!("ok"))

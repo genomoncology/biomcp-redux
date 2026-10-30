@@ -6,8 +6,8 @@ use super::super::super::{
     mcp,
     network_stub::Stub,
 };
-use libtest_mimic::Trial;
 use crate::runner::transcript::trial as transcript_trial;
+use libtest_mimic::Trial;
 use serde_json::{Value, json};
 pub(super) fn trials() -> Vec<Trial> {
     vec![

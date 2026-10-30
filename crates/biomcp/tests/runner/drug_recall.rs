@@ -34,8 +34,7 @@ fn envelope(row: Value, offset: u32, total: u32) -> String {
 }
 fn empty_search() -> Result<(), String> {
     let stub = Stub::for_source("api.fda.gov", "application/json", |_| {
-        Ok(json!({"meta":{"results":{"skip":0,"limit":10,"total":0}},"results":[]})
-            .to_string())
+        Ok(json!({"meta":{"results":{"skip":0,"limit":10,"total":0}},"results":[]}).to_string())
     })?;
     let env = environment(&stub)?;
     let command = ["search", "drug", "missing", "--source", "fda-drug-recall"]
@@ -46,7 +45,9 @@ fn empty_search() -> Result<(), String> {
         || value.pointer("/page/total") != Some(&json!(0))
         || value.pointer("/sources/0/state") != Some(&json!("ok"))
     {
-        return Err(format!("successful empty recall search lost its answer: {value}"));
+        return Err(format!(
+            "successful empty recall search lost its answer: {value}"
+        ));
     }
     if stub.finish()?.len() != 1 {
         return Err("empty recall search fetched again".into());

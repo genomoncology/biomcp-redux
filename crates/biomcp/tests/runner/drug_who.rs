@@ -261,7 +261,10 @@ fn bounded(value: &Value) -> Check {
     // Compact synthetic maxima measured by j13484; every cap adds fifteen percent.
     let baseline: usize = match (schema, status) {
         ("biomcp.drug-who-page/5", "complete")
-            if value.pointer("/result/total") == Some(&json!(0)) => 433,
+            if value.pointer("/result/total") == Some(&json!(0)) =>
+        {
+            433
+        }
         ("biomcp.drug-who-page/5", "complete") => 937,
         ("biomcp.drug-who-page/5", "partial") => 1242,
         ("biomcp.drug-who-card/3", "complete") => 677,
