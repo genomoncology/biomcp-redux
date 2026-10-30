@@ -49,5 +49,4 @@ pub(super) fn admissions_retire_and_refuse_restoring_a_closed_gap() -> Check {
 
 // Generated once from the initial missing identities. Retire hashes with pending entries.
 pub(super) const INITIAL_ADMISSIONS: &str = "\
-97224436329f8e1d9c9498b593cac0da543c1a64d789d8c46826cf3a95e4bb44
 ";
