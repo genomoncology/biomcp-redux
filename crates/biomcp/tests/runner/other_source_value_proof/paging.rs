@@ -72,39 +72,44 @@ pub(super) fn seer(directory: &Path, registry: &Registry) -> Check {
             },
             &value,
         )?;
-        if value.pointer("/page/total") != Some(&json!(2)) {
-            return Err("annual native total changed".into());
-        }
-        let next = value
-            .get("next")
-            .and_then(Value::as_array)
-            .and_then(|next| {
-                next.iter()
-                    .find(|next| next.get("kind") == Some(&json!("page")))
-            });
-        if !next
-            .and_then(|next| next.get("args"))
-            .and_then(Value::as_array)
-            .is_some_and(|args| {
-                args.windows(2)
-                    .any(|pair| pair == [json!("--section-offset"), json!("1")])
-            })
-        {
-            return Err("annual native window did not advance".into());
-        }
-        if refused
-            && (value.pointer("/page/returned") != Some(&json!(0))
-                || !value
-                    .get("problems")
-                    .and_then(Value::as_array)
-                    .is_some_and(|problems| {
-                        problems
-                            .iter()
-                            .any(|problem| problem.get("field") == Some(&json!("year")))
-                    }))
-        {
-            return Err("refused annual identity did not retain its problem".into());
-        }
+        annual_window(&value, refused)?;
+    }
+    Ok(())
+}
+
+fn annual_window(value: &Value, refused: bool) -> Check {
+    if value.pointer("/page/total") != Some(&json!(2)) {
+        return Err("annual native total changed".into());
+    }
+    let next = value
+        .get("next")
+        .and_then(Value::as_array)
+        .and_then(|next| {
+            next.iter()
+                .find(|next| next.get("kind") == Some(&json!("page")))
+        });
+    if !next
+        .and_then(|next| next.get("args"))
+        .and_then(Value::as_array)
+        .is_some_and(|args| {
+            args.windows(2)
+                .any(|pair| pair == [json!("--section-offset"), json!("1")])
+        })
+    {
+        return Err("annual native window did not advance".into());
+    }
+    if refused
+        && (value.pointer("/page/returned") != Some(&json!(0))
+            || !value
+                .get("problems")
+                .and_then(Value::as_array)
+                .is_some_and(|problems| {
+                    problems
+                        .iter()
+                        .any(|problem| problem.get("field") == Some(&json!("year")))
+                }))
+    {
+        return Err("refused annual identity did not retain its problem".into());
     }
     Ok(())
 }
@@ -120,9 +125,13 @@ pub(super) fn study(directory: &Path, registry: &Registry) -> Check {
             "description":"Native profile description", "patientLevel":false,
             "showProfileInAnalysisTab":true, "category":"all_cases_in_study", "sampleCount":1
         });
-        row[identity] = json!("native_1");
+        row.as_object_mut()
+            .ok_or("study row object")?
+            .insert(identity.into(), json!("native_1"));
         let mut bad = row.clone();
-        bad[identity] = json!({"bad_shape":true});
+        bad.as_object_mut()
+            .ok_or("study refused row object")?
+            .insert(identity.into(), json!({"bad_shape":true}));
         let body = json!([bad, row]);
         let stub = Stub::for_source("www.cbioportal.org", "application/json", move |_| {
             Ok(body.to_string())

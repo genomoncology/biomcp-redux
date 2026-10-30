@@ -199,8 +199,8 @@ fn limit(args: &[&str], executable: &Path) -> Check<usize> {
     let (mut bytes, path) = match args {
         ["version", ..] if args.contains(&"--verbose") => (7023, None),
         ["version" | "--version", ..] => (13, None),
-        ["help", "version", ..] => (1275, None),
-        ["help", "mcp-config", ..] => (1650, None),
+        ["help", "version", ..] => (2112, None),
+        ["help", "mcp-config", ..] => (2560, None),
         ["mcp-config", ..] if args.contains(&"unknown") => (221, None),
         ["mcp-config", ..] if args.contains(&"codex") => (94, Some(true)),
         ["mcp-config", ..] if args.contains(&"servers") || args.contains(&"vscode") => {

@@ -84,20 +84,19 @@ pub(super) fn run(directory: &Path) -> Check {
             failures.push(format!("stage-{name}: {error}"));
         }
     }
-    if let Err(error) = bindings::mechanism(directory, &registry) {
-        failures.push(format!("request-scope: {error}"));
-    }
-    if let Err(error) = bindings::cell(directory, &registry) {
-        failures.push(format!("cell-request-scope: {error}"));
-    }
-    if let Err(error) = paging::seer(directory, &registry) {
-        failures.push(format!("seer-native-window: {error}"));
-    }
-    if let Err(error) = paging::study(directory, &registry) {
-        failures.push(format!("study-native-window: {error}"));
-    }
-    if let Err(error) = gwas::run(directory, &registry) {
-        failures.push(format!("gwas-native-window: {error}"));
+    for (name, proof) in [
+        (
+            "request-scope",
+            bindings::mechanism as fn(&Path, &Registry) -> Check,
+        ),
+        ("cell-request-scope", bindings::cell),
+        ("seer-native-window", paging::seer),
+        ("study-native-window", paging::study),
+        ("gwas-native-window", gwas::run),
+    ] {
+        if let Err(error) = proof(directory, &registry) {
+            failures.push(format!("{name}: {error}"));
+        }
     }
     let large = "x".repeat(biodata::Text::MAX_CHARS + 1);
     let large_result = acquire(&case, Some((stage, json!(large))), &registry).and_then(|value| {
