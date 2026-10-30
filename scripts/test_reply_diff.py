@@ -175,7 +175,7 @@ class ReplyDiff(unittest.TestCase):
             output = json.dumps(frame)
             if directory == self.head:
                 # Change only the text string's outer slash spelling.
-                output = output.replace('path/a', 'path\\/a', 1)
+                output = 'path\\/a'.join(output.rsplit('path/a', 1))
             self.write(directory, 'case/mcp-escape.yaml/step/0', output.encode(), surface='mcp')
         result = self.compare()
         self.assertEqual(result.returncode, 1, result.stderr + result.stdout)
