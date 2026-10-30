@@ -67,6 +67,7 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
         out.body = QueryBody::DrugWhoPage(DrugWhoPage { items, total });
     }
     sync_step(&mut out);
+    status::search(&mut out);
     command.finish(deadline.remaining());
     out
 }

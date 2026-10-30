@@ -6,6 +6,9 @@ use serde_json::{Value, json};
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = super::drug_recall_capture::trials();
     trials.extend(vec![
+        transcript_trial("drug-recall/empty-search-is-complete", || {
+            empty_search().map_err(Into::into)
+        }),
         transcript_trial("drug-recall/native-filters-and-paging", || {
             search().map_err(Into::into)
         }),
@@ -28,6 +31,27 @@ fn row() -> Value {
 }
 fn envelope(row: Value, offset: u32, total: u32) -> String {
     json!({"meta":{"results":{"skip":offset,"limit":1,"total":total}},"results":[row]}).to_string()
+}
+fn empty_search() -> Result<(), String> {
+    let stub = Stub::for_source("api.fda.gov", "application/json", |_| {
+        Ok(json!({"meta":{"results":{"skip":0,"limit":10,"total":0}},"results":[]})
+            .to_string())
+    })?;
+    let env = environment(&stub)?;
+    let command = ["search", "drug", "missing", "--source", "fda-drug-recall"]
+        .map(str::to_owned)
+        .to_vec();
+    let value = invoke(&env, command, 0)?;
+    if value.pointer("/status") != Some(&json!("complete"))
+        || value.pointer("/page/total") != Some(&json!(0))
+        || value.pointer("/sources/0/state") != Some(&json!("ok"))
+    {
+        return Err(format!("successful empty recall search lost its answer: {value}"));
+    }
+    if stub.finish()?.len() != 1 {
+        return Err("empty recall search fetched again".into());
+    }
+    Ok(())
 }
 fn search() -> Result<(), String> {
     for (args, selector) in [

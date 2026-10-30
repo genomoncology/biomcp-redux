@@ -62,9 +62,11 @@ fn check() -> Check {
             &env,
             &replay,
             &["search", "drug", text, "--source", "who-pq"],
-            1,
+            0,
         )?;
-        if value.pointer("/result/total") != Some(&json!(0)) {
+        if value.pointer("/result/total") != Some(&json!(0))
+            || value.pointer("/status") != Some(&json!("complete"))
+        {
             return Err(format!("search invented substring or alias match: {value}"));
         }
     }
@@ -258,9 +260,10 @@ fn bounded(value: &Value) -> Check {
         .ok_or("status")?;
     // Compact synthetic maxima measured by j13484; every cap adds fifteen percent.
     let baseline: usize = match (schema, status) {
+        ("biomcp.drug-who-page/5", "complete")
+            if value.pointer("/result/total") == Some(&json!(0)) => 433,
         ("biomcp.drug-who-page/5", "complete") => 937,
         ("biomcp.drug-who-page/5", "partial") => 1242,
-        ("biomcp.drug-who-page/5", "absent") => 433,
         ("biomcp.drug-who-card/3", "complete") => 677,
         ("biomcp.drug-who-card/3", "partial") => 729,
         ("biomcp.drug-who-card/3", "absent") => 305,

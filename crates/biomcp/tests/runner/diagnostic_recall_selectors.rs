@@ -84,8 +84,9 @@ fn selectors() -> Result<(), String> {
         .map(str::to_owned)
         .to_vec();
         args.extend(flags.iter().map(|v| (*v).to_owned()));
-        let value = replay(&env, &args, &env.root().join("recording"), i32::from(empty))?;
+        let value = replay(&env, &args, &env.root().join("recording"), 0)?;
         if value.pointer("/page/total") != Some(&json!(if empty { 0 } else { 1 }))
+            || value.pointer("/status") != Some(&json!("complete"))
             || value.pointer("/result/count_unit") != Some(&json!("recall-records"))
         {
             return Err(format!("wrong native count: {value}"));
