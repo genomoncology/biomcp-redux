@@ -118,36 +118,19 @@ pub fn mutations(
         ("pageSize", Arg::Num(u64::from(query.limit()))),
         ("pageNumber", Arg::Num(u64::from(query.page()))),
     ];
-    let (rows, _) = leg.json_received_checked_admission::<raw::Mutations>(
-        &endpoint,
-        &params,
-        |rows| {
-            if rows.0.len() <= query.limit() as usize
-                && rows.0.iter().all(|v| {
-                    v.scope.study_id == *query.study()
-                        && v.scope.molecular_profile_id == *query.profile()
-                        && v.scope.entrez_gene_id == gene.get()
-                })
-            {
-                Ok(())
-            } else {
-                Err(BadReply)
-            }
-        },
-        |rows| {
-            let accepted = rows
-                .0
-                .iter()
-                .filter(|row| row.value.as_ref().is_some())
-                .count();
-            let refusals = if accepted < rows.0.len() {
-                crate::Refusal::Refused
-            } else {
-                crate::Refusal::None
-            };
-            refusals.identities_admitted(accepted, rows.0.len())
-        },
-    )?;
+    let (rows, _) = leg.json_received_checked::<raw::Mutations>(&endpoint, &params, |rows| {
+        if rows.0.len() <= query.limit() as usize
+            && rows.0.iter().all(|v| {
+                v.scope.study_id == *query.study()
+                    && v.scope.molecular_profile_id == *query.profile()
+                    && v.scope.entrez_gene_id == gene.get()
+            })
+        {
+            Ok(())
+        } else {
+            Err(BadReply)
+        }
+    })?;
     let received = rows.0.len() as u32;
     let mut problems = crate::mapped::Problems {
         source: Source::Cbioportal,
