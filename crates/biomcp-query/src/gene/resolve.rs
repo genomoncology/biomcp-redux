@@ -73,18 +73,7 @@ pub fn resolve(leg: &Leg<'_>, input: &GeneInput) -> Result<Mapped<GeneResolution
         }
     }
     let value = if candidates.is_empty() {
-        let withdrawn = hgnc::withdrawn(leg, input)?;
-        refusals.include(withdrawn.refusals);
-        append_problems(&mut problems, withdrawn.problems);
-        match withdrawn.value.into_iter().next() {
-            Some(row) => GeneResolution::Withdrawn {
-                hgnc_id: row.hgnc_id,
-                symbol: row.symbol,
-                hgnc_status: row.hgnc_status,
-                merged_into: row.merged_into,
-            },
-            None => GeneResolution::NotFound {},
-        }
+        withdrawn(leg, input, &mut problems, &mut refusals)?
     } else {
         resolved(candidates)
     };
@@ -94,6 +83,26 @@ pub fn resolve(leg: &Leg<'_>, input: &GeneInput) -> Result<Mapped<GeneResolution
         problems,
     })
 }
+fn withdrawn(
+    leg: &Leg<'_>,
+    input: &GeneInput,
+    problems: &mut Vec<Problem>,
+    refusals: &mut biomcp_adapters::Refusal,
+) -> Result<GeneResolution, RequestError> {
+    let withdrawn = hgnc::withdrawn(leg, input)?;
+    refusals.include(withdrawn.refusals);
+    append_problems(problems, withdrawn.problems);
+    Ok(match withdrawn.value.into_iter().next() {
+        Some(row) => GeneResolution::Withdrawn {
+            hgnc_id: row.hgnc_id,
+            symbol: row.symbol,
+            hgnc_status: row.hgnc_status,
+            merged_into: row.merged_into,
+        },
+        None => GeneResolution::NotFound {},
+    })
+}
+
 fn collect(
     leg: &Leg<'_>,
     key: KeyKind,

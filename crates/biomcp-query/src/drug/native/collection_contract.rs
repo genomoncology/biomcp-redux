@@ -52,22 +52,13 @@ fn opentargets_collection_owns_refusals_across_pages() -> Result<(), Box<dyn std
                 Refusal::None,
                 "collection refusal leaked into indication page"
             );
-            for (total, received, next) in [
-                (page.total(), page.received(), page.next_offset()),
-                (
-                    other_page.total(),
-                    other_page.received(),
-                    other_page.next_offset(),
-                ),
-            ] {
-                assert_eq!(total, Some(2), "accepted collection total changed");
-                assert_eq!(received, u32::from(offset < 2), "accepted slots changed");
-                assert_eq!(
-                    next,
-                    if offset == 0 { Some(1) } else { None },
-                    "accepted continuation changed"
-                );
-            }
+            check_position(page.total(), page.received(), page.next_offset(), offset);
+            check_position(
+                other_page.total(),
+                other_page.received(),
+                other_page.next_offset(),
+                offset,
+            );
             let target_reply = serde_json::to_vec(&page.rows)?;
             let indication_reply = serde_json::to_vec(&other_page.rows)?;
             if refused {
@@ -88,4 +79,14 @@ fn opentargets_collection_owns_refusals_across_pages() -> Result<(), Box<dyn std
         }
     }
     Ok(())
+}
+
+fn check_position(total: Option<u64>, received: u32, next: Option<u32>, offset: usize) {
+    assert_eq!(total, Some(2), "accepted collection total changed");
+    assert_eq!(received, u32::from(offset < 2), "accepted slots changed");
+    assert_eq!(
+        next,
+        if offset == 0 { Some(1) } else { None },
+        "accepted continuation changed"
+    );
 }

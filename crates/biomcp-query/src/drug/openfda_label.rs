@@ -32,7 +32,6 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
             })
             .collect::<Result<Vec<_>, RequestError>>()?;
         Ok(page.window.with_rows(items))
-
     });
     let error = result.as_ref().err().copied();
     out.local = error.and_then(status::local);
