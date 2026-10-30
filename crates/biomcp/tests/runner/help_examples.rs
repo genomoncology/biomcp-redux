@@ -20,10 +20,11 @@ pub(super) fn check() -> Result<(), String> {
         .and_then(Value::as_array)
         .ok_or("help commands missing")?;
     source_description(commands)?;
-    let scoped = super::configuration::invoke(
-        &environment, vec!["help".into(), "help".into()], 0,
-    )?;
-    let scoped = scoped.pointer("/result/commands").and_then(Value::as_array).ok_or("scoped help commands")?;
+    let scoped = super::configuration::invoke(&environment, vec!["help".into(), "help".into()], 0)?;
+    let scoped = scoped
+        .pointer("/result/commands")
+        .and_then(Value::as_array)
+        .ok_or("scoped help commands")?;
     let mut printed = collected_examples(commands, scoped)?;
     let advertised = printed.clone();
     let guide = guide_examples(&environment)?;
@@ -130,17 +131,32 @@ fn check_result(args: &[String], reply: &Value, advertised: bool) -> Result<(), 
     Ok(())
 }
 
-fn collected_examples(commands: &[Value], scoped: &[Value]) -> Result<BTreeSet<Vec<String>>, String> {
+fn collected_examples(
+    commands: &[Value],
+    scoped: &[Value],
+) -> Result<BTreeSet<Vec<String>>, String> {
     let mut printed = BTreeSet::new();
     for command in commands {
         let examples = command.get("examples").and_then(Value::as_array);
-        let examples = examples.filter(|examples| !examples.is_empty()).or_else(|| {
-            scoped.iter().find(|entry| entry.get("command") == command.get("command"))
-                .and_then(|entry| entry.get("examples")).and_then(Value::as_array)
-                .filter(|examples| !examples.is_empty())
-        }).ok_or_else(|| format!("command help has no owned scoped example: {:?}", command.get("command")))?;
+        let examples = examples
+            .filter(|examples| !examples.is_empty())
+            .or_else(|| {
+                scoped
+                    .iter()
+                    .find(|entry| entry.get("command") == command.get("command"))
+                    .and_then(|entry| entry.get("examples"))
+                    .and_then(Value::as_array)
+                    .filter(|examples| !examples.is_empty())
+            })
+            .ok_or_else(|| {
+                format!(
+                    "command help has no owned scoped example: {:?}",
+                    command.get("command")
+                )
+            })?;
         for example in examples {
-            let args: Vec<String> = serde_json::from_value(example.clone()).map_err(|e| e.to_string())?;
+            let args: Vec<String> =
+                serde_json::from_value(example.clone()).map_err(|e| e.to_string())?;
             printed.insert(args);
         }
     }

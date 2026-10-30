@@ -41,8 +41,9 @@ impl From<RawPage> for Page {
         let mut p = Problems {
             source: biomcp_types::Source::SemanticScholar,
             record: None,
-            list: raw.problems.unwrap_or_default(),
+            list: Vec::new(),
         };
+        p.list.extend(raw.problems.into_iter().flatten());
         let data = raw
             .data
             .into_iter()
@@ -89,8 +90,9 @@ impl From<RawRecord> for Record {
         let mut p = Problems {
             source: biomcp_types::Source::SemanticScholar,
             record: record(&raw.author_id),
-            list: raw.problems.unwrap_or_default(),
+            list: Vec::new(),
         };
+        p.list.extend(raw.problems.into_iter().flatten());
         let affiliations = p.field("affiliations", raw.affiliations).map(|rows| {
             rows.into_iter()
                 .filter_map(|v| p.field("affiliations", Some(v)))
