@@ -197,3 +197,13 @@ pub(crate) const MONARCH_PHENOTYPES: (&str, &[&str]) = (
     "disease-monarch/phenotype-evidence-and-independent-native-qualifiers",
     &["section get disease phenotypes"],
 );
+
+// MyVariant component terms are restricted; authored ambiguous rows retain exact IDs.
+pub(crate) const POPULATION_SELECTORS: (&str, &[&str]) = (
+    "variant-population/population-ambiguous-ids-retain-source-alleles",
+    &[
+        "option variant population --resolver",
+        "option variant population --build",
+        "option variant population --limit",
+    ],
+);

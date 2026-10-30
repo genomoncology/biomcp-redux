@@ -1,5 +1,4 @@
 option get drug --product-number
-option search cell-line --offset
 option search diagnostic --drug-application
 option search diagnostic --initiated-from
 option search diagnostic --initiated-to
@@ -12,8 +11,5 @@ option search drug --reason
 option search drug --status
 option search trial --exact-condition
 option serve --allow-host
-option variant population --build
-option variant population --limit
-option variant population --resolver
 section get variant civic
 section get variant hotspots

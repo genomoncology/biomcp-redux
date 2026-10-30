@@ -10,11 +10,15 @@
         "-q",
         "MOLM13",
         "-l",
-        "5"
+        "5",
+        "--offset",
+        "0"
       ],
       "expect": {
         "/query/query": "MOLM13",
-        "/query/limit": 5
+        "/query/limit": 5,
+        "/query/offset": 0,
+        "/result/items/0/accession": "CVCL_2119"
       },
       "max_bytes": 1828,
       "full_output_bytes": true
