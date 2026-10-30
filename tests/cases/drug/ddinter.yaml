@@ -45,9 +45,9 @@
         "/result/items/0": {
           "equals": {
             "id": "DDInter1",
-            "source": "ddinter",
             "name": "Synthetic Anchor One",
-            "identity_level": "unknown"
+            "identity_level": "unknown",
+            "namespace": "ddinter"
           }
         }
       },
@@ -76,9 +76,9 @@
         "/result/header": {
           "equals": {
             "id": "DDInter1",
-            "source": "ddinter",
             "name": "Synthetic Anchor One",
-            "identity_level": "unknown"
+            "identity_level": "unknown",
+            "namespace": "ddinter"
           }
         }
       },
@@ -114,25 +114,25 @@
         "/result/identity": {
           "equals": {
             "id": "DDInter1",
-            "source": "ddinter",
             "name": "Synthetic Anchor One",
-            "identity_level": "unknown"
+            "identity_level": "unknown",
+            "namespace": "ddinter"
           }
         },
         "/result/interactions/data/records/0/anchor": {
           "equals": {
             "id": "DDInter1",
-            "source": "ddinter",
             "name": "Synthetic Anchor One",
-            "identity_level": "unknown"
+            "identity_level": "unknown",
+            "namespace": "ddinter"
           }
         },
         "/result/interactions/data/records/0/partner": {
           "equals": {
             "id": "DDInter2",
-            "source": "ddinter",
             "name": "Synthetic PartnerTwo",
-            "identity_level": "unknown"
+            "identity_level": "unknown",
+            "namespace": "ddinter"
           }
         }
       },

@@ -175,7 +175,6 @@ impl Reply for Response {
         if rows
             .iter()
             .filter_map(|row| row.value.as_ref())
-            
             .any(|r| !ids.insert(r.association_id))
         {
             return Err(BadReply);
@@ -186,11 +185,10 @@ impl Reply for Response {
 impl Response {
     pub(super) fn identities_admitted(&self) -> bool {
         self.embedded.as_ref().is_none_or(|embedded| {
-            embedded.associations.iter().all(|row| {
-                row.value
-                    .as_ref()
-                    .is_some()
-            })
+            embedded
+                .associations
+                .iter()
+                .all(|row| row.value.as_ref().is_some())
         })
     }
     pub(super) fn matches(&self, id: &str, page: u32, size: u32, url: &str) -> bool {

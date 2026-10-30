@@ -16,7 +16,10 @@ pub struct Identifier<T> {
 impl<T> Identifier<T> {
     /// Pair a native value with a stated authority without parsing or rewriting the value.
     pub fn new(namespace: Text, id: T) -> Self {
-        Self { namespace: Some(namespace), id }
+        Self {
+            namespace: Some(namespace),
+            id,
+        }
     }
 }
 

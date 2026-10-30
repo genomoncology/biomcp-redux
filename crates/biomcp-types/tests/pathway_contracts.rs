@@ -182,8 +182,8 @@ fn neutral_records_keep_absence_membership_and_unresolved_event_identity() {
     assert!(serde_json::from_value::<Pathway>(foreign).is_err());
     for accession in ["P01116-1", "P01116-2"] {
         let member = json!(
-            {"reference":{"namespace":"uniprot","value":accession},"name":format!("UniProt:{accession} KRAS"),"gene":"HGNC:6407",
-            "schema_class":"ReferenceIsoform","physical_context_count":1,"participants":[{"db_id":5672718,
+            {"reference":{"namespace":"uniprot","id":accession},"name":format!("UniProt:{accession} KRAS"),"gene":"HGNC:6407",
+            "schema_class":"ReferenceIsoform","physical_context_count":1,"participants":[{"db_id":{"namespace":"Reactome","id":5672718},
             "name":"p21 RAS:GTP:activated RAF homo/heterodimer complexes [plasma membrane]","schema_class":"Complex"}]}
         );
         assert_eq!(
@@ -192,15 +192,15 @@ fn neutral_records_keep_absence_membership_and_unresolved_event_identity() {
         );
     }
     let unknown =
-        json!({"reference":{"namespace":"chebi","value":"15377"},"physical_context_count":0});
+        json!({"reference":{"namespace":"chebi","id":"15377"},"physical_context_count":0});
     assert_eq!(
         roundtrip::<PathwayMember>(unknown.clone()).expect("public round-trip"),
         unknown
     );
     for event in [
-        json!({"kind":"database","db_id":5673001}),
-        json!({"kind":"object","db_id":5668599,"name":"Native reaction","schema_class":"Reaction"}),
-        json!({"kind":"object","db_id":5673001,"id":"R-HSA-5673001","version":"R-HSA-5673001.12","name":"Native pathway","schema_class":"Pathway"}),
+        json!({"kind":"database","db_id":{"namespace":"Reactome","id":5673001}}),
+        json!({"kind":"object","db_id":{"namespace":"Reactome","id":5668599},"name":"Native reaction","schema_class":"Reaction"}),
+        json!({"kind":"object","db_id":{"namespace":"Reactome","id":5673001},"id":"R-HSA-5673001","version":"R-HSA-5673001.12","name":"Native pathway","schema_class":"Pathway"}),
     ] {
         assert_eq!(
             roundtrip::<PathwayEventRef>(event.clone()).expect("public round-trip"),
@@ -208,7 +208,10 @@ fn neutral_records_keep_absence_membership_and_unresolved_event_identity() {
         );
     }
     assert!(
-        serde_json::from_value::<PathwayEventRef>(json!({"kind":"database","db_id":0})).is_err()
+        serde_json::from_value::<PathwayEventRef>(
+            json!({"kind":"database","db_id":{"namespace":"Reactome","id":0}})
+        )
+        .is_err()
     );
 }
 
@@ -224,7 +227,7 @@ fn native_short_page_keeps_total_scope_and_next_position() {
     );
     let page = json!(
         {"header":{"id":{"source":"reactome","id":"R-HSA-5673001"},"name":"RAF/MAP kinase cascade","species":"Homo sapiens"},
-        "items":[{"kind":"database","db_id":5668599}],"page":{"offset":5,"returned":1,"total":81,"total_kind":"observed","next_offset":10}}
+        "items":[{"kind":"database","db_id":{"namespace":"Reactome","id":5668599}}],"page":{"offset":5,"returned":1,"total":81,"total_kind":"observed","next_offset":10}}
     );
     assert_eq!(
         roundtrip::<biomcp_types::PathwayEvents>(page.clone()).expect("public round-trip"),
@@ -265,8 +268,8 @@ fn source_summation_multiplicity_and_pathway_citations_stay_independent() {
     // Minimal source-field projection; text/title and the second summation are synthetic controls.
     let pathway = json!(
         {"id":{"source":"reactome","id":"R-HSA-5673001"},"name":"RAF/MAP kinase cascade","species":"Homo sapiens",
-        "summations":[{"db_id":5683030,"text":"Complete retained source text."},{"db_id":5683031,"text":"Second source summation."}],
-        "references":[{"db_id":5672144,"pubmed":"24937142","title":"Native reference"},{"db_id":208231,"pubmed":"17496910"}]}
+        "summations":[{"db_id":{"namespace":"Reactome","id":5683030},"text":"Complete retained source text."},{"db_id":{"namespace":"Reactome","id":5683031},"text":"Second source summation."}],
+        "references":[{"db_id":{"namespace":"Reactome","id":5672144},"pubmed":"24937142","title":"Native reference"},{"db_id":{"namespace":"Reactome","id":208231},"pubmed":"17496910"}]}
     );
     assert_eq!(
         roundtrip::<Pathway>(pathway.clone()).expect("public round-trip"),

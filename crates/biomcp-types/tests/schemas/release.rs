@@ -108,8 +108,12 @@ fn identifier_shape(node: &Value, owner: &str) -> Check<()> {
             if object.get("x-identifier") == Some(&Value::Bool(true)) {
                 let branches = object.get("oneOf").and_then(Value::as_array);
                 for branch in branches.map_or_else(|| vec![node], |items| items.iter().collect()) {
-                    let properties = branch["properties"].as_object().ok_or("identifier properties")?;
-                    let required = branch["required"].as_array().ok_or("identifier required names")?;
+                    let properties = branch["properties"]
+                        .as_object()
+                        .ok_or("identifier properties")?;
+                    let required = branch["required"]
+                        .as_array()
+                        .ok_or("identifier required names")?;
                     for field in ["namespace", "id"] {
                         if !properties.contains_key(field) || !required.iter().any(|v| v == field) {
                             return Err(format!("{owner}: identifier requires {field}").into());

@@ -123,7 +123,8 @@ pub fn search(leg: &Leg<'_>, query: &VariantSearch) -> Result<SearchPage, Reques
         .filter_map(|id| {
             let id = problems.required("idlist", id.value())?;
             let identity = VariantId::ClinVarVariation(id.identity);
-            let record = SourceRecord { namespace: None,
+            let record = SourceRecord {
+                namespace: None,
                 id: id.text,
                 url: None,
             };

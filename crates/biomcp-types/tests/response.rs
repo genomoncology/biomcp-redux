@@ -101,7 +101,8 @@ fn every_section_state_round_trips_without_conflating_data_and_failure() {
         },
         Section::Empty {
             source: Source::Civic,
-            record: Some(SourceRecord { namespace: None,
+            record: Some(SourceRecord {
+                namespace: None,
                 id: Text::new("1").unwrap(),
                 url: None,
             }),

@@ -71,8 +71,8 @@
           "equals": {
             "header": {
               "id": "EMEA/H/C/000406",
-              "source": "ema",
-              "identity_level": "unknown"
+              "identity_level": "unknown",
+              "namespace": "ema"
             },
             "available_sections": [
               "regulatory"

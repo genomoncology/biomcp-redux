@@ -183,7 +183,8 @@ fn map(
     Some(if variant_count == Some(0) && description.is_none() {
         Section::Empty {
             source: Source::Civic,
-            record: Some(SourceRecord { namespace: None,
+            record: Some(SourceRecord {
+                namespace: None,
                 id: cx.record.clone()?,
                 url,
             }),

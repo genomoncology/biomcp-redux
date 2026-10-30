@@ -105,7 +105,8 @@ fn candidate(
             genes: genes.into(),
         },
         source: Source::MyVariant,
-        record: SourceRecord { namespace: None,
+        record: SourceRecord {
+            namespace: None,
             id: hit.id,
             url: None,
         },

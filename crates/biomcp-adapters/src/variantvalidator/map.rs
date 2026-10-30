@@ -62,7 +62,11 @@ pub(super) fn resolve(raw: Response, input: &str) -> Resolution {
                     genes: Box::default(),
                 },
                 source: Source::VariantValidator,
-                record: SourceRecord { namespace: None, id: key, url: None },
+                record: SourceRecord {
+                    namespace: None,
+                    id: key,
+                    url: None,
+                },
                 transcripts: Box::default(),
                 myvariant: None,
                 requested: None,

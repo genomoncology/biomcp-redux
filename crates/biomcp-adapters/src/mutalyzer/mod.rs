@@ -160,7 +160,8 @@ pub fn resolve(leg: &Leg<'_>, input: &str) -> Result<Resolution, RequestError> {
             genes: Box::default(),
         },
         source: Source::Mutalyzer,
-        record: SourceRecord { namespace: None,
+        record: SourceRecord {
+            namespace: None,
             id: notation,
             url: None,
         },

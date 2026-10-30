@@ -102,7 +102,10 @@ pub(super) fn card(row: raw::Card, summary: bool, problems: &mut Problems) -> Op
                                 )
                             });
                         Some(PathwaySummation {
-                            db_id: biodata::Identifier { namespace: Some(crate::mapped::text("Reactome").ok()?), id: row.db_id },
+                            db_id: biodata::Identifier {
+                                namespace: Some(crate::mapped::text("Reactome").ok()?),
+                                id: row.db_id,
+                            },
                             text,
                         })
                     })
@@ -154,7 +157,10 @@ pub(super) fn card(row: raw::Card, summary: bool, problems: &mut Problems) -> Op
 }
 fn literature(row: raw::Literature, problems: &mut Problems) -> Option<PathwayLiteratureRef> {
     Some(PathwayLiteratureRef {
-        db_id: biodata::Identifier { namespace: Some(crate::mapped::text("Reactome").ok()?), id: row.db_id },
+        db_id: biodata::Identifier {
+            namespace: Some(crate::mapped::text("Reactome").ok()?),
+            id: row.db_id,
+        },
         pubmed: problems.optional(
             "references.pubmed",
             row.pub_med_identifier
