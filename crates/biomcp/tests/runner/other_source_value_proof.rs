@@ -263,7 +263,7 @@ fn mutations() -> [Mutation; 5] {
             present: "/result/header/id",
         },
         Mutation {
-            file: "portable-cellosaurus-cell-CVCL_0004.json",
+            file: "native-projected-k562.json",
             pointer: "/Cellosaurus/cell-line-list/0/sex",
             field: "sex",
             absent: "/result/sex",
