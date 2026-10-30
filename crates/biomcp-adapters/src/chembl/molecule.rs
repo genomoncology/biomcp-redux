@@ -47,27 +47,7 @@ pub fn card(row: Molecule, fetched: Option<i64>) -> Result<crate::Mapped<DrugCar
         url: header.value.url.clone(),
     };
     let mut refusals = header.refusals;
-    let mut names = Vec::new();
-    for synonym in row.molecule_synonyms {
-        for issue in synonym.problems {
-            crate::mapped::push_problem(
-                &mut problems.list,
-                problems.source,
-                problems.record.clone(),
-                &format!("molecule_synonyms.{}", issue.field),
-            );
-        }
-        if let Some(name) = problems.text(
-            "molecule_synonyms.molecule_synonym",
-            synonym.molecule_synonym.as_deref(),
-        ) {
-            if !names.contains(&name) {
-                names.push(name);
-            }
-        } else {
-            refusals = crate::Refusal::Refused;
-        }
-    }
+    let names = names(row.molecule_synonyms, &mut problems, &mut refusals);
     let references = cross_references(
         row.cross_references,
         &attribution,
@@ -155,4 +135,33 @@ fn cross_references(
         }
     }
     Ok(references)
+}
+
+fn names(
+    rows: Vec<super::raw::Synonym>,
+    problems: &mut Problems,
+    refusals: &mut crate::Refusal,
+) -> Vec<Text> {
+    let mut names = Vec::new();
+    for synonym in rows {
+        for issue in synonym.problems {
+            crate::mapped::push_problem(
+                &mut problems.list,
+                problems.source,
+                problems.record.clone(),
+                &format!("molecule_synonyms.{}", issue.field),
+            );
+        }
+        if let Some(name) = problems.text(
+            "molecule_synonyms.molecule_synonym",
+            synonym.molecule_synonym.as_deref(),
+        ) {
+            if !names.contains(&name) {
+                names.push(name);
+            }
+        } else {
+            *refusals = crate::Refusal::Refused;
+        }
+    }
+    names
 }
