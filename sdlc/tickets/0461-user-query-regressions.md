@@ -1,6 +1,7 @@
 # 0461 — Turn real user queries and known problem shapes into cases
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 7bf54e4ebbb1902ad482938f000d0dfe0990ee7d
 
 Milestone: 5
 
