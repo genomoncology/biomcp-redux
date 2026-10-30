@@ -124,7 +124,7 @@
             "id": "DDInter1",
             "name": "Synthetic Anchor One",
             "identity_level": "unknown",
-            "source": "ddinter"
+            "namespace": "ddinter"
           }
         },
         "/result/interactions/data/records/0/partner": {
@@ -132,7 +132,7 @@
             "id": "DDInter2",
             "name": "Synthetic PartnerTwo",
             "identity_level": "unknown",
-            "source": "ddinter"
+            "namespace": "ddinter"
           }
         }
       },
