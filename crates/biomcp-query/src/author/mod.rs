@@ -9,7 +9,7 @@ mod semantic_scholar;
 mod snapshot;
 use crate::{Action, Outcome};
 use biomcp_types::{
-    Problem, ProblemCode, QueryBody, Reason, Request, Source, SourceState, Status, StepKind,
+    Problem, ProblemCode, Reason, Request, Source, SourceState, StepKind,
 };
 pub use get::get;
 pub use search::search;

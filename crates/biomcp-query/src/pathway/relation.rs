@@ -5,7 +5,7 @@ use biomcp_adapters::reactome;
 use biomcp_fetch::{Deadline, RequestError, SourceError};
 use biomcp_types::{
     PathwayEventsQuery, PathwayGenesQuery, PathwayHeader, PathwayPageInfo, PathwayTotalKind,
-    QueryBody, Reason, Request, Source, Status, StepKind,
+    QueryBody, Reason, Request, Source, StepKind,
 };
 pub(super) struct Selection<'a> {
     pub id: &'a PathwayId,

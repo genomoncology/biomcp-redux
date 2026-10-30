@@ -3,7 +3,7 @@ use crate::{Ctx, Outcome, status};
 use biomcp_adapters::ols;
 use biomcp_types::{
     DiseaseGet, DiseasePage, DiseaseSearch, DiseaseSection, DiseaseSynonyms, DiseaseXrefs,
-    QueryBody, Request, Source, Status, StepKind,
+    QueryBody, Request, Source, StepKind,
 };
 /// Discover one source-ordered page from one explicit ontology.
 pub fn search(cx: &Ctx<'_>, query: &DiseaseSearch) -> Outcome {

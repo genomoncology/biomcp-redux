@@ -5,8 +5,7 @@ mod snapshot;
 use crate::{Action, Ctx, Outcome, status};
 use biomcp_adapters::monarch;
 use biomcp_types::{
-    PageInfo, PhenotypeGet, PhenotypePage, PhenotypeSearch, QueryBody, Request, Source, Status,
-    StepKind,
+    PageInfo, PhenotypeGet, PhenotypePage, PhenotypeSearch, QueryBody, Request, Source, StepKind,
 };
 /// Read a native association page or one exact source term reply.
 pub fn get(cx: &Ctx<'_>, q: &PhenotypeGet) -> Outcome {

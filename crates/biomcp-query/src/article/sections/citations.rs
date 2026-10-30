@@ -19,7 +19,8 @@ pub(super) fn run<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, ids: &[Pmid], o
     }
     out.local = out.local.or(result.local);
     out.sources.push(result.source);
-    status::get(out, cards.items.iter().map(|i| i.status));
+    let state = status::status(cards.items.iter().map(|i| i.status));
+    status::get(out, [state].into_iter());
 }
 fn join(item: &mut ArticleCardItem, result: &order::Counts) {
     let Some(ArticleResolution::Resolved { card, .. }) = &item.answer else {

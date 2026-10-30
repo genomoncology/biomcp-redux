@@ -4,7 +4,7 @@ use biomcp_adapters::reactome;
 use biomcp_fetch::{Deadline, RequestError, SourceError};
 use biomcp_types::{
     PathwayGet, PathwayPage, PathwayPageInfo, PathwaySearch, PathwayTotalKind, QueryBody, Reason,
-    Request, Source, SourceState, Status, StepKind,
+    Request, Source, SourceState, StepKind,
 };
 fn page(q: &PathwaySearch) -> PathwayPage {
     PathwayPage {

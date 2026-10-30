@@ -22,6 +22,17 @@ pub struct Outcome {
     pub local: Option<RequestError>,
 }
 
+impl Outcome {
+    /// The query layer owns whether a failed typed response remains visible.
+    pub fn body_visible(&self) -> bool {
+        self.status != Status::Failed || match &self.body {
+            QueryBody::TrialPage(body) => body.condition_resolution.is_some(),
+            QueryBody::NciTrialPage(body) => body.condition_resolution.is_some(),
+            _ => false,
+        }
+    }
+}
+
 /// Decide an item from identity, requested-section and source observations.
 pub(crate) fn item(out: &mut Outcome, found: bool, identity_failed: bool, unavailable: bool) {
     out.status = item_status(

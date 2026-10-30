@@ -1,6 +1,6 @@
 //! Encode organization observations and typed narrowing refusals.
 use super::{Outcome, ResponseMeta};
-use biomcp_types::{ErrorEnvelope, OrganizationSearch, QueryBody, Status};
+use biomcp_types::{ErrorEnvelope, OrganizationSearch, QueryBody};
 use std::io;
 pub(super) fn encode(
     meta: ResponseMeta,
@@ -20,7 +20,7 @@ pub(super) fn encode(
                     },
                 )?);
             }
-            let body = (meta.status != Status::Failed).then_some(body);
+            let body = Some(body);
             meta.encode(q, body)
         }
         QueryBody::OrganizationTooBroad => {

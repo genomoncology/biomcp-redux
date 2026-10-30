@@ -6,7 +6,7 @@ use biomcp_adapters::{hpo, monarch};
 use biomcp_fetch::{CacheError, Deadline, RequestError, SourceError};
 use biomcp_types::{
     PhenotypeGet, PhenotypeSource, PhenotypeTermCard, QueryBody, Reason, Request, Source,
-    SourceOutcome, Status, StepKind,
+    SourceOutcome, StepKind,
 };
 use sha2::{Digest, Sha256};
 pub(super) type Rows = (

@@ -2,7 +2,7 @@ use super::{run, snapshot::Rows};
 use crate::Outcome;
 use biomcp_types::{
     PageInfo, PhenotypeGet, PhenotypeHierarchy, PhenotypeSection, PhenotypeSynonyms,
-    PhenotypeXrefs, QueryBody, Request, Status, StepKind,
+    PhenotypeXrefs, QueryBody, Request, StepKind,
 };
 pub(super) fn empty(q: &PhenotypeGet) -> QueryBody {
     match q.section() {

@@ -1,5 +1,5 @@
 use crate::{Action, Outcome};
-use biomcp_types::{DiseaseGet, PageInfo, QueryBody, Request, Status};
+use biomcp_types::{DiseaseGet, Request};
 pub(super) use crate::status::empty;
 pub(super) fn run(request: Request) -> Action {
     Action::Run {
