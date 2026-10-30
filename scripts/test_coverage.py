@@ -63,6 +63,9 @@ def main():
         source = root / 'crates/product/src/main.rs'
         source.parent.mkdir(parents=True)
         source.write_text('fn main() {}\n')
+        skill = root / 'skills/biomcp/SKILL.md'
+        skill.parent.mkdir(parents=True)
+        skill.write_text('Use biomcp to retrieve evidence.\n')
         subprocess.run(['git', 'init', '-q', str(root)], check=True)
         tools = root / 'fake-tools/bin'
         tools.mkdir(parents=True)
@@ -89,6 +92,9 @@ def main():
         assert unreached.returncode == 0, unreached.stdout + unreached.stderr
         below = invoke(root, env, 'report', PROOF_COVERAGE='59.7')
         assert below.returncode != 0 and 'below floor' in below.stderr, below
+        skill.write_text('Use biomcp to retrieve updated evidence.\n')
+        changed = invoke(root, env, 'report')
+        assert changed.returncode != 0 and 'inputs changed since collection' in changed.stderr, changed
         rejected = invoke(root, env, PROOF_REJECT_RATCHETS='1')
         assert rejected.returncode != 0 and 'ratchets failed' in rejected.stderr, rejected
         assert not (root / 'profiles/coverage-complete').exists()
