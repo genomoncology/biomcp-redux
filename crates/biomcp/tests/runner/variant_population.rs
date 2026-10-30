@@ -409,11 +409,13 @@ fn gwas_walk(input: &str, requests: usize) -> Result<(), String> {
             "warm native catalog page was not available offline: {value}"
         ));
     }
-    if ids != [
-        json!("association:101"),
-        json!("association:102"),
-        json!("association:103"),
-    ] || stub.finish()?.len() != requests
+    if ids
+        != [
+            json!("association:101"),
+            json!("association:102"),
+            json!("association:103"),
+        ]
+        || stub.finish()?.len() != requests
     {
         return Err(
             "catalog walk duplicated/dropped source rows or made extra source requests".into(),
