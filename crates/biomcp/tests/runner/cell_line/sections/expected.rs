@@ -49,6 +49,9 @@ fn variation(value: &Value) -> Result<Value, String> {
                     {
                         object.insert("resource_internal_ref".into(), value);
                     }
+                    if let Some(xref) = source.get_mut("xref") {
+                        *xref = identifier(xref.clone());
+                    }
                     source
                 })
                 .collect::<Vec<_>>()
