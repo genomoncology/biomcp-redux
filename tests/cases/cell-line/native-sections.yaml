@@ -54,9 +54,7 @@
         "get",
         "cell-line",
         "CVCL_0004",
-        "all",
-        "--section-limit",
-        "2"
+        "all"
       ],
       "expect": {
         "/result/header/accession": "CVCL_0004",
