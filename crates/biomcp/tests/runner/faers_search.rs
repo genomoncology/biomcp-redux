@@ -89,6 +89,10 @@ pub(super) fn trials() -> Vec<Trial> {
             selectors(&flags, suffix).map_err(Into::into)
         }));
     }
+    policy_trials(&mut cases);
+    cases
+}
+fn policy_trials(cases: &mut Vec<Trial>) {
     cases.push(transcript_trial(
         "adverse-event-search/invalid-optional-update-preserves-records",
         || status::optional_date().map_err(Into::into),
@@ -98,8 +102,8 @@ pub(super) fn trials() -> Vec<Trial> {
         || status::run().map_err(Into::into),
     ));
     cases.extend(policy::trials());
-    cases
 }
+
 fn expression() -> &'static str {
     "(patient.drug.openfda.generic_name:\"Synthetic \\\"A\\\\B\" OR \
         patient.drug.openfda.brand_name:\"Synthetic \\\"A\\\\B\" OR \

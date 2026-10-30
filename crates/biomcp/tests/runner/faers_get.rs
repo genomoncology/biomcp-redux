@@ -151,14 +151,7 @@ fn both(env: &Environment, args: Vec<String>, exit: i32) -> Result<Value, String
 fn sections() -> Check {
     let (env, stub) = setup("valid")?;
     let card = both(&env, args(None), 0)?;
-    if card.pointer("/result/drug_count") != Some(&json!(3))
-        || card.pointer("/result/reaction_count") != Some(&json!(1))
-        || card.pointer("/result/patient/age") != Some(&json!({"value":42.5,"unit":"801"}))
-        || card.pointer("/result/patient/weight").is_some()
-        || card.pointer("/result/latest_received") != Some(&json!("20240202"))
-    {
-        return Err(format!("card facts: {card}"));
-    }
+    card_facts(&card)?;
     let snapshot = card
         .pointer("/result/snapshot")
         .and_then(Value::as_str)
@@ -231,6 +224,18 @@ fn sections() -> Check {
     }
     Ok(())
 }
+fn card_facts(card: &Value) -> Check {
+    if card.pointer("/result/drug_count") != Some(&json!(3))
+        || card.pointer("/result/reaction_count") != Some(&json!(1))
+        || card.pointer("/result/patient/age") != Some(&json!({"value":42.5,"unit":"801"}))
+        || card.pointer("/result/patient/weight").is_some()
+        || card.pointer("/result/latest_received") != Some(&json!("20240202"))
+    {
+        return Err(format!("card facts: {card}"));
+    }
+    Ok(())
+}
+
 fn identity(mode: &str) -> Check {
     let (env, stub) = setup(mode)?;
     let mut words = args(None);
