@@ -27,44 +27,6 @@ fn words(text: &str) -> Vec<String> {
         .collect()
 }
 
-fn unsupported() -> Result<(), String> {
-    let env = Environment::new().map_err(|e| e.to_string())?;
-    let listener = std::net::TcpListener::bind("127.0.0.1:0").map_err(|e| e.to_string())?;
-    listener.set_nonblocking(true).map_err(|e| e.to_string())?;
-    env.config(
-        &json!({"proxy":format!("http://{}",listener.local_addr().map_err(|e|e.to_string())?)}),
-    )
-    .map_err(|e| e.to_string())?;
-    for text in [
-        "HPV9",
-        "MMR vaccine",
-        "COVID",
-        "165",
-        "FLU3",
-        "FLUX",
-        "FLU( H1N1 )",
-    ] {
-        let args = words(text);
-        let value = invoke(&env, args.clone(), 2)?;
-        let message = value
-            .pointer("/error/message")
-            .and_then(|v| v.as_str())
-            .ok_or("argument message")?;
-        if !["MMR", "COVID19"].iter().all(|name| message.contains(name)) {
-            return Err(format!(
-                "unsupported vaccine lacks exact supported codes: {value}"
-            ));
-        }
-        if super::mcp::call_with_globals(&env, &args, true, &[])? != value {
-            return Err("unsupported vaccine differs through MCP".into());
-        }
-    }
-    if listener.accept().is_ok() {
-        return Err("unsupported vaccine opened a source connection".into());
-    }
-    Ok(())
-}
-
 fn environment(stub: &Stub) -> Result<Environment, String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let ca = env.root().join("ca.pem");

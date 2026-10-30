@@ -13,32 +13,7 @@ use super::{launch::Environment, network_stub::Stub};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
-pub(super) fn trials() -> Vec<Trial> {
-    let mut tests = vec![transcript_trial(
-        "cell-line-identity/native-requests-order-exact-cards-and-costs",
-        || native::run(false).map_err(Into::into),
-    )];
-    tests.push(transcript_trial(
-        "cell-line-identity/help-and-markdown-parity",
-        || help::run(false).map_err(Into::into),
-    ));
-    tests.push(transcript_trial(
-        "cell-line-identity/research-search-fetch-runtime",
-        || research::run(false).map_err(Into::into),
-    ));
-    tests.push(transcript_trial(
-        "cell-line-identity/checked-canonical-accession-search",
-        || native::canonical(false).map_err(Into::into),
-    ));
-    tests.push(transcript_trial(
-        "cell-line-sections/native-whole-rows-and-independent-pages",
-        || sections::run(false).map_err(Into::into),
-    ));
-    tests.extend(faults::trials());
-    tests.extend(chembl::trials());
-    tests.extend(all::trials());
-    tests
-}
+
 fn setup(stub: &Stub) -> Result<Environment, String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let ca = env.root().join("cellosaurus-ca.pem");

@@ -1,0 +1,51 @@
+{
+  "source": "cbioportal",
+  "method": "GET",
+  "url": "https://www.cbioportal.org/api/studies?projection=DETAILED",
+  "exchanges": [
+    {
+      "status": 200,
+      "fetched": 42,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": "[{\"studyId\":\"synthetic_0\",\"name\":\"Synthetic Atlas\",\"description\":\"Synthetic metadata for documented commands\",\"cancerTypeId\":\"brca\",\"allSampleCount\":12,\"referenceGenome\":\"hg19\",\"sequencedSampleCount\":10,\"cnaSampleCount\":0,\"structuralVariantCount\":0,\"treatmentCount\":0,\"resourceCounts\":[],\"importDate\":\"2026-08-20 21:46:46\",\"groups\":\"\",\"readPermission\":true,\"publicStudy\":true},{\"studyId\":\"synthetic_1\",\"name\":\"Synthetic Mixed\",\"description\":\"Synthetic metadata for documented commands\",\"cancerTypeId\":\"mixed\",\"allSampleCount\":12,\"referenceGenome\":\"hg19\",\"sequencedSampleCount\":10,\"cnaSampleCount\":0,\"structuralVariantCount\":0,\"treatmentCount\":0,\"resourceCounts\":[],\"importDate\":\"2026-08-20 21:46:46\",\"groups\":\"\",\"readPermission\":true,\"publicStudy\":true}]"
+      }
+    },
+    {
+      "status": 500,
+      "fetched": 42,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": "synthetic catalog outage"
+      }
+    },
+    {
+      "status": 500,
+      "fetched": 42,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": "synthetic catalog outage"
+      }
+    },
+    {
+      "status": 500,
+      "fetched": 42,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": "synthetic catalog outage"
+      }
+    }
+  ]
+}

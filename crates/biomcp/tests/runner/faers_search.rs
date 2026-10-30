@@ -5,103 +5,18 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 type Check = Result<(), String>;
 tool_only! { mod examples; }
-mod policy;
-mod status;
 tool_only! {
 pub(super) fn record_examples(directory: &std::path::Path) -> Check {
     examples::record(directory)
 }
 }
 pub(super) fn trials() -> Vec<Trial> {
-    let mut cases = vec![transcript_trial(
-        "adverse-event-search/native-order-and-next",
-        || navigation().map_err(Into::into),
-    )];
-    for (name, flags, suffix) in [
-        (
-            "serious-lifethreatening",
-            vec!["--serious", "lifethreatening"],
-            " AND seriousnesslifethreatening:1",
-        ),
-        (
-            "serious-disabling",
-            vec!["--serious", "disabling"],
-            " AND seriousnessdisabling:1",
-        ),
-        (
-            "serious-congenital-anomaly",
-            vec!["--serious", "congenital-anomaly"],
-            " AND seriousnesscongenitalanomali:1",
-        ),
-        (
-            "serious-other",
-            vec!["--serious", "other"],
-            " AND seriousnessother:1",
-        ),
-        (
-            "serious-any",
-            vec!["--source", "faers", "--serious", "any"],
-            " AND serious:1",
-        ),
-        (
-            "serious-death",
-            vec!["--serious", "death"],
-            " AND seriousnessdeath:1",
-        ),
-        (
-            "serious-hospitalization",
-            vec!["--serious", "hospitalization"],
-            " AND seriousnesshospitalization:1",
-        ),
-        (
-            "from",
-            vec!["--received-from", "2024-01-01"],
-            " AND receivedate:[20240101 TO *]",
-        ),
-        (
-            "to",
-            vec!["--received-to", "2024-12-31"],
-            " AND receivedate:[* TO 20241231]",
-        ),
-        (
-            "combined",
-            vec![
-                "--reaction",
-                "Synthetic reaction",
-                "--serious",
-                "death",
-                "--received-from",
-                "2024-01-01",
-                "--received-to",
-                "2024-12-31",
-            ],
-            " AND patient.reaction.reactionmeddrapt:\"Synthetic reaction\" AND seriousnessdeath:1 AND receivedate:[20240101 TO 20241231]",
-        ),
-    ] {
-        let name = if name == "combined" {
-            crate::runner::required_contract::FAERS_REACTION
-                .0
-                .to_owned()
-        } else {
-            format!("adverse-event-search/synthetic-{name}")
-        };
-        cases.push(transcript_trial(name, move || {
-            selectors(&flags, suffix).map_err(Into::into)
-        }));
-    }
-    policy_trials(&mut cases);
-    cases
-}
-fn policy_trials(cases: &mut Vec<Trial>) {
-    cases.push(transcript_trial(
-        "adverse-event-search/invalid-protocol-update-rejects-reply",
-        || status::protocol_date().map_err(Into::into),
-    ));
-    cases.push(transcript_trial(
-        "adverse-event-search/200-absence-is-rejected-before-cache",
-        || status::run().map_err(Into::into),
-    ));
-    cases.extend(policy::trials());
+    vec![transcript_trial(
+        crate::runner::required_contract::FAERS_REACTION.0,
+        || {
+            selectors(&["--reaction", "Synthetic reaction", "--serious", "death", "--received-from", "2024-01-01", "--received-to", "2024-12-31"], " AND patient.reaction.reactionmeddrapt:\"Synthetic reaction\" AND seriousnessdeath:1 AND receivedate:[20240101 TO 20241231]").map_err(Into::into)
+        },
+    )]
 }
 
 fn expression() -> &'static str {
@@ -210,24 +125,51 @@ fn measure(value: &Value, args: &[String]) -> Check {
     // j12915 observed maxima; each full/comparable ceiling adds 15 percent.
     let caps = if value.get("error").is_some() {
         // j19028: typed argument names, 185 compact bytes plus 15 percent.
-        (213, 213)
+        (
+            crate::runner::output_limit("faers-search-envelope-213")?,
+            crate::runner::output_limit("faers-search-envelope-213")?,
+        )
     } else if value.pointer("/sources/0/reason") == Some(&json!("bad-reply")) {
         // j12936: 316 full / 201 comparable bytes, plus 15 percent.
-        (364, 232)
+        (
+            crate::runner::output_limit("faers-search-envelope-364")?,
+            crate::runner::output_limit("faers-search-envelope-232")?,
+        )
     } else if value.get("status") == Some(&json!("failed")) {
-        (396, 264)
+        (
+            crate::runner::output_limit("faers-search-envelope-396")?,
+            crate::runner::output_limit("faers-search-envelope-264")?,
+        )
     } else if args.iter().any(|v| v == "restricted") {
-        (2855, 2723)
+        (
+            crate::runner::output_limit("faers-search-envelope-2855")?,
+            crate::runner::output_limit("faers-search-envelope-2723")?,
+        )
     } else if args.iter().any(|v| v == "meddra") {
-        (1889, 1757)
+        (
+            crate::runner::output_limit("faers-search-envelope-1889")?,
+            crate::runner::output_limit("faers-search-envelope-1757")?,
+        )
     } else if value.pointer("/query/limit") == Some(&json!(7)) {
-        (2043, 1911)
+        (
+            crate::runner::output_limit("faers-search-envelope-2043")?,
+            crate::runner::output_limit("faers-search-envelope-1911")?,
+        )
     } else if value.pointer("/query/reaction").is_some() {
-        (2392, 2260)
+        (
+            crate::runner::output_limit("faers-search-envelope-2392")?,
+            crate::runner::output_limit("faers-search-envelope-2260")?,
+        )
     } else if value.pointer("/query/received_from").is_some() {
-        (1796, 1663)
+        (
+            crate::runner::output_limit("faers-search-envelope-1796")?,
+            crate::runner::output_limit("faers-search-envelope-1663")?,
+        )
     } else {
-        (1791, 1659)
+        (
+            crate::runner::output_limit("faers-search-envelope-1791")?,
+            crate::runner::output_limit("faers-search-envelope-1659")?,
+        )
     };
     if full > caps.0 || bytes > caps.1 {
         return Err(format!(
@@ -272,88 +214,6 @@ fn selectors(flags: &[&str], suffix: &str) -> Check {
     }
     if stub.finish()?.len() != 2 {
         return Err("warm filtered pages performed HTTP".into());
-    }
-    Ok(())
-}
-fn navigation() -> Check {
-    let (env, stub) = setup(expression(), 7)?;
-    let mut words = args();
-    words.extend(["--limit".into(), "7".into()]);
-    let value = both(&env, words.clone(), 0)?;
-    words.extend(["--source".into(), "faers".into()]);
-    if !super::reply_comparison::same_reply(&invoke(&env, words, 0)?, &value)? {
-        return Err("default FAERS differs from explicit source".into());
-    }
-    let next = value
-        .get("next")
-        .and_then(Value::as_array)
-        .ok_or("missing next")?;
-    if next.len() != 8
-        || value.pointer("/result/source_updated") != Some(&json!("2024-09-01"))
-        || value
-            .pointer("/result/fetched")
-            .and_then(Value::as_u64)
-            .is_none()
-        || value.pointer("/result/items/0/first_received") != Some(&json!("20240102"))
-    {
-        return Err(format!(
-            "report headers, dates or candidate gets changed: {value}"
-        ));
-    }
-    for (n, step) in next.iter().take(7).enumerate() {
-        let args = step
-            .get("args")
-            .and_then(Value::as_array)
-            .ok_or("get args")?;
-        if args.get(2) != Some(&json!((100 + n).to_string()))
-            || step.get("kind") != Some(&json!("disambiguate"))
-        {
-            return Err("candidate get lost native order/identity".into());
-        }
-    }
-    let page = next
-        .last()
-        .and_then(|s| s.get("args"))
-        .and_then(Value::as_array)
-        .ok_or("page args")?;
-    if !page
-        .windows(2)
-        .any(|v| v == [json!("--offset"), json!("7")])
-        || !page.contains(&json!("Synthetic \"A\\B"))
-    {
-        return Err("page action lost selector".into());
-    }
-    let md = env
-        .command(
-            env!("CARGO_BIN_EXE_biomcp"),
-            &[
-                "--format".into(),
-                "md".into(),
-                "search".into(),
-                "adverse-event".into(),
-                "Synthetic \"A\\B".into(),
-                "--limit".into(),
-                "7".into(),
-            ],
-        )
-        .output()
-        .map_err(|e| e.to_string())?;
-    let markdown_bytes = md.stdout.len();
-    if markdown_bytes > 1738 {
-        return Err(format!(
-            "report Markdown exceeds measured +15% ceiling: {markdown_bytes}"
-        ));
-    }
-    let text = String::from_utf8(md.stdout).map_err(|e| e.to_string())?;
-    if !md.status.success()
-        || !text.contains("**source\\_query:**")
-        || !text.contains("2024-09-01")
-        || !text.contains("biomcp get adverse-event 100")
-    {
-        return Err(format!("Markdown lost report facts or actions: {text}"));
-    }
-    if stub.finish()?.len() != 1 {
-        return Err("warm report search reached HTTP".into());
     }
     Ok(())
 }

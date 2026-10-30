@@ -1,0 +1,51 @@
+{
+  "feature": "study-failures",
+  "story": "A failed catalog refresh preserves the accepted stored study metadata.",
+  "live_check": "authored synthetic failed refresh",
+  "replay": "study/failed-refresh",
+  "steps": [
+    {
+      "run": [
+        "sync",
+        "cbioportal-studies"
+      ],
+      "expect": {
+        "/status": "complete"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "study",
+        "synthetic_0"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/study/header/studyId": "synthetic_0"
+      }
+    },
+    {
+      "run": [
+        "sync",
+        "cbioportal-studies",
+        "--fresh"
+      ],
+      "exit": 4,
+      "expect": {
+        "/status": "failed",
+        "/sources/0/reason": "unavailable"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "study",
+        "synthetic_0"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/study/header/studyId": "synthetic_0"
+      }
+    }
+  ]
+}

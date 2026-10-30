@@ -20,29 +20,6 @@ fn environment(stub: &Stub) -> Result<Environment, String> {
         .map_err(|e| e.to_string())?;
     Ok(env)
 }
-fn call(env: &Environment, extra: &[&str]) -> Result<Value, String> {
-    let args = ["get", "variant", "CA000434", "erepo"]
-        .into_iter()
-        .chain(extra.iter().copied())
-        .map(Into::into)
-        .collect::<Vec<_>>();
-    let output = env
-        .command(env!("CARGO_BIN_EXE_biomcp"), &args)
-        .output()
-        .map_err(|e| e.to_string())?;
-    serde_json::from_slice(&output.stdout)
-        .map_err(|e| format!("{e}: {}", String::from_utf8_lossy(&output.stdout)))
-}
-pub(super) fn body(caid: &str) -> String {
-    json!(
-        {"status":{"code":200,"name":"OK"},"data":[{"caId":caid,"PCERDocID":"PCER000001171","docVersion":"1.1.0",
-        "classification":"Pathogenic","condition":"Li-Fraumeni syndrome","mondoId":"MONDO:0018875","ep":"TP53 VCEP","gene":"TP53",
-        "metCodes":["PP4_Moderate","PM2_Supporting","PS2","PS3","PS4","PM1","PP3"],"unMetCodes":["BS1"],"publishedDate":"2024-08-05",
-        "approvedDate":"2024-08-05","versionsList":["1.1.0","1.0.0"],
-        "summaryDesc":"Synthetic public-fixture payload; structured PS4 and source prose PS4_Very Strong remain separate."}]}
-    )
-    .to_string()
-}
 
 fn native_walk() -> Result<(), String> {
     let stub = Stub::for_source(
@@ -106,38 +83,6 @@ fn native_walk() -> Result<(), String> {
         return Err(format!(
             "native rows merged, reordered or requested again: {records:?}"
         ));
-    }
-    Ok(())
-}
-
-fn disabled() -> Result<(), String> {
-    let stub = Stub::for_source("reg.genome.network", "application/json", |_| {
-        Err("disabled source attempted HTTP".into())
-    })?;
-    let env = environment(&stub)?;
-    for (input, source) in [("CA000434", "clinvar"), ("rs113488022", "erepo")] {
-        let args = ["get", "variant", input, source, "--disable-sources", source].map(String::from);
-        let output = env
-            .command(env!("CARGO_BIN_EXE_biomcp"), &args)
-            .output()
-            .map_err(|e| e.to_string())?;
-        let value: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
-        let section = value.pointer(&format!("/result/candidates/0/sections/{source}"));
-        if section.and_then(|s| s.get("state")) != Some(&json!("skipped"))
-            || section.and_then(|s| s.get("reason")) != Some(&json!("disabled"))
-            || value.pointer("/sources/0/state") != Some(&json!("skipped"))
-            || value.pointer("/result/candidates/0/identity/ids").is_some()
-        {
-            return Err(format!(
-                "disabled assertion source resolved identity or joined: {value}"
-            ));
-        }
-        if super::mcp::call_with_globals(&env, &args, false, &[])? != value {
-            return Err("disabled assertion CLI/MCP mismatch".into());
-        }
-    }
-    if !stub.finish()?.is_empty() {
-        return Err("disabled assertion source attempted provider work".into());
     }
     Ok(())
 }

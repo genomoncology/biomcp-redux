@@ -1,18 +1,21 @@
-mod protein_commands;
-mod trial_condition;
+mod corporate;
+mod credential_containment;
+mod drug_identity;
+mod key_reload;
+mod local_files;
+tool_only! { mod protein_commands; }
+tool_only! { mod trial_condition; }
 tool_only! { pub(super) mod other_source_value_proof; }
 mod article_save;
 mod article_save_reply;
 mod assertions;
 pub(super) mod case_main;
-pub(super) mod cell_line;
-mod disease_mydisease;
-mod disease_ols;
-mod disease_seer;
+tool_only! { pub(super) mod cell_line; }
+tool_only! { mod disease_mydisease; }
+tool_only! { mod disease_ols; }
+tool_only! { mod disease_seer; }
 mod execution;
 mod faers_search;
-mod key_reload;
-mod local_files;
 mod mapped_refusals;
 mod native_fields;
 #[path = "../support/pool_contracts.rs"]
@@ -78,8 +81,6 @@ mod protein_domains;
 mod protein_sections;
 mod protocol;
 mod publication;
-mod recurrence;
-mod replay;
 mod reply_comparison;
 mod research;
 mod response_cases;
@@ -215,6 +216,10 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(output_stream::trials());
     trials.extend(research::trials());
     trials.extend(cache_contention::trials());
+    trials.extend(corporate::trials());
+    trials.extend(drug_identity::trials());
+    trials.extend(key_registration::trials());
+    trials.extend(credential_containment::trials());
     // Private Refusal facts are visible only at the public adapter API.
     trials.extend(mapped_refusals::trials());
     trials.extend(http::trials());
@@ -244,6 +249,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(variant_civic::trials());
     trials.extend(protein_domains::trials());
     trials.extend(faers_get::trials());
+    trials.extend(faers_search::trials());
     trials.extend(cpic::trials());
     trials.extend(maude::trials());
     trials.extend(disease_monarch::trials());

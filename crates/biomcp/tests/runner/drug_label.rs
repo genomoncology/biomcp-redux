@@ -6,10 +6,6 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 type Check = Result<(), String>;
 
-mod fallback;
-mod generic;
-
-mod walk;
 pub(super) fn trials() -> Vec<Trial> {
     // Keep dynamic state, source bindings or wire checks that YAML cannot express.
     vec![transcript_trial(
@@ -115,118 +111,7 @@ fn measure(value: &Value) -> Check {
     )
     .map_err(|e| e.to_string())
 }
-fn search(n: usize) -> Check {
-    let id = identity(n)?;
-    let brand = field(&id, "brand").as_str().ok_or("brand")?;
-    let (env, stub) = setup(
-        page(record(&id)),
-        format!(
-            "openfda.brand_name.exact%3A%22{brand}%22%20OR%20openfda.generic_name.exact%3A%22{brand}%22"
-        ),
-        200,
-    )?;
-    let args = vec![
-        "search",
-        "drug",
-        brand,
-        "--source",
-        "openfda-label",
-        "--limit",
-        "1",
-    ]
-    .into_iter()
-    .map(str::to_owned)
-    .collect();
-    let value = both(&env, args, 0)?;
-    budget(&value, if n == 1 { 647 } else { 643 })?;
-    if value.pointer("/result/items/0/id") != Some(field(&id, "set_id"))
-        || value.pointer("/result/items/0/version") != Some(field(&id, "version"))
-    {
-        return Err("native label identity or revision changed".into());
-    }
-    if stub.finish()?.len() != 1 {
-        return Err("warm label search made another request".into());
-    }
-    Ok(())
-}
-fn absent() -> Check {
-    let stub = Stub::for_source_status(
-        "api.fda.gov",
-        "application/json",
-        |request| {
-            let selector = request.lines().next().ok_or("request")?;
-            let free_text = selector
-                == "GET /drug/label.json?search=%22Tagrisso%22&limit=1&sort=effective_time%3Adesc HTTP/1.1";
-            if !free_text && !["openfda.brand_name.exact", "openfda.brand_name"].iter().any(|field| {
-                let generic = field.replace("brand_name", "generic_name");
-                let names = format!("{field}%3A%22Tagrisso%22%20OR%20{generic}%3A%22Tagrisso%22");
-                selector == format!(
-                    "GET /drug/label.json?search={names}&limit=1&sort=effective_time%3Adesc HTTP/1.1"
-                )
-            }) {
-                return Err(format!("unexpected absence request: {request}"));
-            }
-            Ok(json!({"error":{"code":"NOT_FOUND","message":"No matches found!"}}).to_string())
-        },
-        |_| 404,
-    )?;
-    let (env, stub) = environment(stub)?;
-    let args = vec![
-        "search",
-        "drug",
-        "Tagrisso",
-        "--source",
-        "openfda-label",
-        "--limit",
-        "1",
-    ]
-    .into_iter()
-    .map(str::to_owned)
-    .collect();
-    let value = both(&env, args, 1)?;
-    budget(&value, 418)?;
-    if field(&value, "status") != "absent"
-        || value.pointer("/result/total") != Some(&json!(0))
-        || value.pointer("/sources/0/state") != Some(&json!("ok"))
-        || value.pointer("/sources/0/term") != Some(&json!("\"Tagrisso\""))
-        || value.pointer("/sources/0/notices/0/message")
-            != Some(&json!(
-                "Exact and word name searches found no matching product; searched label free text."
-            ))
-    {
-        return Err("native NOT_FOUND became a failed source or a clinical answer".into());
-    }
-    if stub.finish()?.len() != 6 {
-        return Err("native absence fallback count changed".into());
-    }
-    Ok(())
-}
-fn card(n: usize) -> Check {
-    let id = identity(n)?;
-    let (env, stub) = get_setup(&id, record(&id))?;
-    let value = both(&env, get_args(&id)?, 0)?;
-    let measured = [1390, 1388, 1392, 1386, 1384, 1386]
-        .get(n - 3)
-        .copied()
-        .ok_or("card budget")?;
-    budget(&value, measured)?;
-    if value.pointer("/result/header/id") != Some(field(&id, "set_id"))
-        || value.pointer("/result/version") != Some(field(&id, "version"))
-        || value.pointer("/result/header/identity_level") != Some(&json!("spl_set"))
-    {
-        return Err("SPL card identity changed".into());
-    }
-    if field(&value, "result").get("label").is_some()
-        || field(&value, "result").get("text").is_some()
-        || value.pointer("/result/retrieved").is_none()
-    {
-        return Err("card leaks label text or loses retrieval metadata".into());
-    }
-    if stub.finish()?.len() != 1 {
-        return Err("warm card made another request".into());
-    }
-    Ok(())
-}
+
 fn headings() -> Check {
     let id = identity(4)?;
     let record = record(&id);

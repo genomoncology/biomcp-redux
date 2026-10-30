@@ -48,38 +48,5 @@ fn call(
     words.extend(args.iter().map(|s| (*s).to_owned()));
     invoke(env, words, exit).map_err(|e| format!("{args:?}: {e}"))
 }
-fn record(env: &Environment, args: &[&str], directory: &Path, exit: i32) -> Result<Value, String> {
-    let mut words = args.to_vec();
-    words.extend(["--record", directory.to_str().ok_or("record directory")?]);
-    call(env, None, &words, exit)
-}
-fn failures() -> Result<(), String> {
-    for (fixture, reason) in [
-        ("rate-limit", "rate_limit"),
-        ("server-error", "server"),
-        ("timeout", "deadline"),
-        ("broken-body", "bad-reply"),
-    ] {
-        let replay = super::launch::fixtures()
-            .join("replies/protein")
-            .join(fixture);
-        let env = Environment::new().map_err(|e| e.to_string())?;
-        let value = call(
-            &env,
-            Some(&replay),
-            &["get", "protein", "P00533", "structures"],
-            4,
-        )?;
-        super::protein_budgets::check(&value, &format!("section-failure/{fixture}"), "cli")?;
-        if value.pointer("/status") != Some(&json!("failed"))
-            || value.pointer("/result/items/0/sections/structures/state")
-                != Some(&json!("unavailable"))
-            || value.pointer("/sources/0/terms") != Some(&json!("CC BY 4.0"))
-        {
-            return Err(format!("{reason} became an empty structure page: {value}"));
-        }
-    }
-    Ok(())
-}
 
 tool_only! {}

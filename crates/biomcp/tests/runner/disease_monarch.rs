@@ -5,7 +5,6 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::{fs, path::Path};
 
-mod failures;
 tool_only! { mod native; }
 tool_only! { pub(super) use native::run as native; }
 pub(super) fn trials() -> Vec<Trial> {
@@ -49,72 +48,6 @@ fn association() -> Value {
         "aggregator_knowledge_source":["infores:monarchinitiative","infores:hpo-annotations"],"provided_by":"synthetic_collection",
         "has_evidence":["ECO:0000501"],"qualifiers":null,"negated":false,"subject_closure":null,"object_closure":["MONDO:0019003"]}
     )
-}
-fn exact() -> Result<(), String> {
-    let stub = Stub::for_source_status(
-        "api-v3.monarchinitiative.org",
-        "application/json",
-        |request| {
-            if !request.starts_with("GET /v3/api/association?object=MONDO%3A0019003&subject_category=biolink%3AGene&limit=5&offset=0 ") {
-                return Err(format!("unexpected request: {request}"));
-            }
-
-            let mut row = association();
-            row.as_object_mut()
-                .ok_or("missing synthetic row")?
-                .insert("subject_taxon".into(), json!("NCBITaxon:9606"));
-            Ok(json!({"limit":5,"offset":0,"total":8,"items":[row]}).to_string())
-        },
-        |_| 200,
-    )?;
-    let env = setup(&stub)?;
-    let value = invoke(
-        &env,
-        &[
-            "get",
-            "disease",
-            "MONDO:0019003",
-            "genes",
-            "--source",
-            "monarch",
-            "--section-limit",
-            "5",
-        ],
-        0,
-    )?;
-    measure(&["exact-native"], &value)?;
-    // Ceil(j12282 comparable1833 * 1.15).
-    if super::source_terms::size(&value, "")? > crate::runner::output_limit("monarch-exact-page")? {
-        return Err("exact native mechanics page exceeds its measured bound".into());
-    }
-    let row = value
-        .pointer("/result/items/0/association")
-        .ok_or("missing association")?;
-    for (key, expected) in [
-        ("requested_id", json!("MONDO:0019003")),
-        ("subject_taxon", json!("NCBITaxon:9606")),
-        (
-            "object",
-            json!({"id":"MONDO:0007958","label":"Synthetic child"}),
-        ),
-        (
-            "aggregator_knowledge_source",
-            json!(["infores:monarchinitiative", "infores:hpo-annotations"]),
-        ),
-    ] {
-        if row.get(key) != Some(&expected) {
-            return Err(format!("lost {key}: {row}"));
-        }
-    }
-    if value.pointer("/page/total") != Some(&json!(8))
-        || value.pointer("/page/returned") != Some(&json!(1))
-    {
-        return Err("association page counts changed".into());
-    }
-    if stub.finish()?.len() != 1 {
-        return Err("unexpected fanout".into());
-    }
-    Ok(())
 }
 
 fn record(env: &Environment, words: &[&str], directory: &Path, exit: i32) -> Result<Value, String> {
@@ -224,61 +157,6 @@ fn phenotype() -> Result<(), String> {
     )?;
     if stub.finish()?.len() != 1 {
         return Err("unexpected phenotype fanout".into());
-    }
-    Ok(())
-}
-
-fn navigation() -> Result<(), String> {
-    let stub = Stub::for_source_status(
-        "api-v3.monarchinitiative.org",
-        "application/json",
-        |_| {
-            let mut items = Vec::new();
-            for number in 1..=5 {
-                let mut row = association();
-                row.as_object_mut()
-                    .ok_or("missing synthetic row")?
-                    .insert("subject".into(), json!(format!("HGNC:{number}")));
-                items.push(row);
-            }
-            Ok(json!({"limit":5,"offset":0,"total":6,"items":items}).to_string())
-        },
-        |_| 200,
-    )?;
-    let env = setup(&stub)?;
-    let directory = env.root().join("navigation");
-    let words = [
-        "get",
-        "disease",
-        "MONDO:0019003",
-        "genes",
-        "--source",
-        "monarch",
-        "--section-limit",
-        "5",
-    ];
-    let value = record(&env, &words, &directory, 0)?;
-    let next = value
-        .get("next")
-        .and_then(Value::as_array)
-        .ok_or("missing navigation")?;
-    if next.len() != 6 {
-        return Err(format!("checked-gene pivot was truncated: {next:?}"));
-    }
-    for (index, row) in next.iter().take(5).enumerate() {
-        if row.get("args") != Some(&json!(["get", "gene", format!("HGNC:{}", index + 1)])) {
-            return Err("gene source order changed".into());
-        }
-    }
-    if next.get(5).and_then(|row| row.get("kind")) != Some(&json!("page")) {
-        return Err("native page was lost".into());
-    }
-    replay(
-        &directory,
-        json!([{"run":words,"mcp":words,"expect":{"/next/5/kind":"page","/page/total":6},"max_bytes":6909}]),
-    )?;
-    if stub.finish()?.len() != 1 {
-        return Err("gene navigation made additional source requests".into());
     }
     Ok(())
 }

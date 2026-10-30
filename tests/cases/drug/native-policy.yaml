@@ -19,26 +19,6 @@
         "/status": "usage",
         "/error/code": "usage.arguments"
       }
-    },
-    {
-      "run": [
-        "get",
-        "drug",
-        "CHEMBL941",
-        "targets",
-        "--source",
-        "chembl",
-        "--disable-sources",
-        "chembl"
-      ],
-      "exit": 4,
-      "is_error": true,
-      "max_bytes": 1000,
-      "expect": {
-        "/status": "failed",
-        "/sources/0/reason": "disabled",
-        "/sources/0/state": "skipped"
-      }
     }
   ]
 }

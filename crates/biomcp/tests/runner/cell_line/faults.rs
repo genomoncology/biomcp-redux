@@ -4,12 +4,7 @@ use super::{
     recorded_stub, setup,
 };
 use crate::runner::transcript::trial as transcript_trial;
-pub(super) fn trials() -> Vec<Trial> {
-    vec![transcript_trial(
-        "cell-line-identity/synthetic-faults-no-cache-and-provenance",
-        || run(false).map_err(Into::into),
-    )]
-}
+
 pub(super) fn run(measure: bool) -> Result<(), String> {
     for surface in ["search", "card"] {
         for fault in ["429", "500", "broken", "html", "timeout"] {

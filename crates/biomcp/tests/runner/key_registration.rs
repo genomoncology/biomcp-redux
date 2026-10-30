@@ -1,11 +1,34 @@
-//! Key registration crosses the real CLI boundary without real credentials.
+//! Persistent MCP key snapshots and real filesystem ownership require process/file inspection.
 use super::launch::Environment;
+use crate::runner::transcript::trial as transcript_trial;
+use libtest_mimic::Trial;
 use serde_json::Value;
 use std::{io::Write, process::Stdio};
-type Check = Result<(), String>;
 const FIRST: &str = "synthetic-registration-first";
 const SECOND: &str = "synthetic-registration-second";
-
+pub(super) fn trials() -> Vec<Trial> {
+    vec![
+        transcript_trial("local-file-persistence/local-file-modes", || {
+            super::local_files::modes().map_err(Into::into)
+        }),
+        transcript_trial("local-file-persistence/key-file-order", || {
+            super::local_files::ordered(false).map_err(Into::into)
+        }),
+        #[cfg(unix)]
+        transcript_trial("local-file-persistence/key-file-symlink", || {
+            super::local_files::ordered(true).map_err(Into::into)
+        }),
+        transcript_trial("key-registration/key-reload-stdio", || {
+            super::key_reload::check(false, false).map_err(Into::into)
+        }),
+        transcript_trial("key-registration/key-reload-stdio-environment", || {
+            super::key_reload::check(false, true).map_err(Into::into)
+        }),
+        transcript_trial("key-registration/key-reload-http", || {
+            super::key_reload::check(true, true).map_err(Into::into)
+        }),
+    ]
+}
 pub(super) fn invoke(
     env: &Environment,
     args: &[&str],

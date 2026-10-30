@@ -1,6 +1,8 @@
 //! Required publisher provenance is measured separately from unchanged payload caps.
+tool_only! {
 #[path = "../../src/view/escape.rs"]
 pub(super) mod text;
+}
 use serde_json::{Value, json};
 
 fn strip_row(row: &mut Value) -> Result<(), String> {
@@ -51,15 +53,8 @@ pub(super) fn size(value: &Value, pointer: &str) -> Result<usize, String> {
         .map_err(|e| e.to_string())
 }
 
-pub(super) fn raw_size(bytes: &[u8]) -> Result<usize, String> {
-    let Ok(value) = serde_json::from_slice::<Value>(bytes) else {
-        return Ok(bytes.len());
-    };
-    let compact = serde_json::to_vec(&value).map_err(|e| e.to_string())?.len();
-    Ok(bytes.len() - (compact - size(&value, "")?))
-}
-
 /// Measure only new publisher columns in the source table of the paired JSON view.
+tool_only! {
 pub(super) fn markdown_bytes(text: &str, value: &Value) -> Result<usize, String> {
     comparable(value, "")?;
     let Some(rows) = value
@@ -137,6 +132,9 @@ pub(super) fn markdown_bytes(text: &str, value: &Value) -> Result<usize, String>
     }
     Ok(bytes)
 }
+}
+
+tool_only! {
 fn markdown_object_bytes(table: &str, rows: &[Value]) -> Result<usize, String> {
     let mut rest = table;
     let mut bytes = 0;
@@ -163,6 +161,7 @@ fn markdown_object_bytes(table: &str, rows: &[Value]) -> Result<usize, String> {
         }
     }
     Ok(bytes)
+}
 }
 
 tool_only! {

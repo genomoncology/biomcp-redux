@@ -1,57 +1,6 @@
 //! Feature protein-search: dynamic pool bindings and lifetimes through the shipped command.
 use super::{configuration::invoke, launch::Environment};
 use serde_json::Value;
-type Check = Result<(), String>;
-
-fn call(env: &Environment, args: &[&str], exit: i32) -> Result<Value, String> {
-    let replay = super::launch::fixtures().join("replies/protein/synthetic");
-    let mut words = env.globals(Some(&replay), false);
-    words.extend(args.iter().map(|s| (*s).into()));
-    invoke(env, words, exit)
-}
-fn id(value: &Value) -> Result<&str, String> {
-    value
-        .pointer("/page/pool/id")
-        .and_then(Value::as_str)
-        .ok_or_else(|| "missing protein pool".into())
-}
-
-fn links() -> Result<(), Box<dyn std::error::Error>> {
-    for (before, after) in [
-        ("rest.uniprot.org", "example.invalid"),
-        ("%28EGFR%29", "%28OTHER%29"),
-        ("size=5", "size=6"),
-        (
-            "cursor=native-second",
-            "cursor=native-second&unexpected=field",
-        ),
-        ("uniprotkb/search", "other/search"),
-    ] {
-        let value = super::response_cases::checked_case(
-            "protein/pages",
-            &["search", "protein", "EGFR"],
-            |_, record| {
-                if record
-                    .get("url")
-                    .and_then(Value::as_str)
-                    .is_some_and(|u| !u.contains("cursor="))
-                    && let Some(next) = record.pointer_mut("/exchanges/0/pagination/next")
-                    && let Some(text) = next.as_str()
-                {
-                    *next = serde_json::json!(text.replace(before, after));
-                }
-            },
-            serde_json::json!({"/status":"failed", "/sources/0/reason":"bad-reply"}),
-            4,
-        )?;
-        super::protein_budgets::check(
-            &value,
-            &format!("search-continuation-rejection/{before}/{after}"),
-            "cli",
-        )?;
-    }
-    Ok(())
-}
 
 // Measure the ordinary CLI and MCP responses against the accepted external replay.
 tool_only! {

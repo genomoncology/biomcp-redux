@@ -9,9 +9,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-mod native;
 mod state;
-mod threshold;
 
 mod wire;
 pub(super) fn trials() -> Vec<Trial> {
@@ -19,28 +17,6 @@ pub(super) fn trials() -> Vec<Trial> {
     vec![transcript_trial(required_contract::GWAS_POOL.0, || {
         state::expired().map_err(Into::into)
     })]
-}
-fn policy() -> Result<(), String> {
-    let env = Environment::new().map_err(|e| e.to_string())?;
-    let replay = env.root().join("empty-replay");
-    fs::create_dir(&replay).map_err(|e| e.to_string())?;
-    let mut args = env.globals(Some(&replay), false);
-    args.extend(
-        [
-            "search",
-            "gwas",
-            "--pubmed",
-            "17529967",
-            "--disable-sources",
-            "restricted",
-        ]
-        .map(str::to_owned),
-    );
-    let value = gwas_budgets::invoke("gwas_search/policy/1", &env, args, 4)?;
-    if value.pointer("/sources/0/reason") != Some(&json!("disabled")) {
-        return Err(format!("restricted source was not refused: {value}"));
-    }
-    Ok(())
 }
 
 const BASE: &str = "https://www.ebi.ac.uk/gwas/rest/api/v2/associations";

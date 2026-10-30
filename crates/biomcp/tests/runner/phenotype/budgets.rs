@@ -24,16 +24,6 @@ pub(super) fn bytes(observed: usize, phase: &str, surface: &str) -> Result<(), S
     }
     Ok(())
 }
-pub(super) fn mcp(
-    phase: &str,
-    directory: &Path,
-    words: &[&str],
-    value: &Value,
-    exit: i32,
-) -> Result<(), String> {
-    check(value, phase, "mcp")?;
-    super::native::mcp(directory, words, value, exit, Some(ceiling(phase, "mcp")?))
-}
 
 fn ceiling(phase: &str, surface: &str) -> Result<usize, String> {
     if (phase, surface) == ("mod/help/invoke1", "cli") {

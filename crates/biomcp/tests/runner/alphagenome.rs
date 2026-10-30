@@ -1,7 +1,6 @@
 //! Feature variant-alphagenome: required keys stop before variant resolution or any provider request.
 use super::launch::Environment;
 use serde_json::Value;
-const SECTION: &str = "/result/candidates/0/sections/alphagenome";
 
 pub(super) fn invoke(env: &Environment, args: &[String], exit: i32) -> Result<Value, String> {
     let output = env
