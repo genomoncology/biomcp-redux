@@ -1,4 +1,4 @@
-use super::{empty, overall, run, snapshot};
+use super::{empty, run, snapshot};
 use crate::{Action, Bundle, Ctx, Outcome, status};
 use biodata::PathwayId;
 use biomcp_adapters::wikipathways;
@@ -90,7 +90,10 @@ pub(super) fn get(cx: &Ctx<'_>, q: &PathwayGet) -> Outcome {
         }
         if !matches!(out.body, QueryBody::PoolError { .. }) {
             out.body = QueryBody::PathwayCard(card);
-            out.status = overall(&out, absent);
+            {
+        let absent = absent;
+        crate::status::item(&mut out, !absent, false, false);
+    }
         }
     }
     out.local = out.local.or_else(|| error.and_then(status::local));

@@ -168,7 +168,7 @@ fn finish(
     source_updated: Option<biomcp_types::SourceTimestamp>,
     out: &mut Outcome,
 ) {
-    out.status = status::status(items.iter().map(|i| i.status));
+    status::get(out, items.iter().map(|i| i.status));
     out.body = QueryBody::TrialCards(TrialCards {
         items: items.into(),
         source_updated: source_updated.map(Into::into),

@@ -22,6 +22,27 @@ pub struct Outcome {
     pub local: Option<RequestError>,
 }
 
+/// Decide an item from identity, requested-section and source observations.
+pub(crate) fn item(out: &mut Outcome, found: bool, identity_failed: bool, unavailable: bool) {
+    out.status = item_status(
+        found,
+        identity_failed,
+        unavailable || out.dropped || out.sources.iter().any(|source| {
+            matches!(source.state, SourceState::Failed | SourceState::Stale | SourceState::Syncing)
+        }),
+    );
+}
+
+/// Combine the independently classified items in one get.
+pub(crate) fn get(out: &mut Outcome, items: impl Iterator<Item = Status>) {
+    out.status = status(items);
+}
+
+/// Decide a search from its asked providers and adapter refusal flag.
+pub(crate) fn search(out: &mut Outcome) {
+    out.status = search_status(&out.sources, out.dropped);
+}
+
 /// Start an unanswered query with one body and no source observations.
 pub(crate) fn empty(body: QueryBody) -> Outcome {
     Outcome {
@@ -76,17 +97,6 @@ pub(crate) fn search_status(sources: &[SourceOutcome], dropped: bool) -> Status 
     } else {
         Status::Complete
     }
-}
-
-/// Classify a resolved item from source facts, never optional-field problems.
-pub(crate) fn overall(out: &Outcome, absent: bool) -> Status {
-    item_status(
-        !absent,
-        false,
-        out.dropped || out.sources.iter().any(|source| {
-            matches!(source.state, SourceState::Failed | SourceState::Stale | SourceState::Syncing)
-        }),
-    )
 }
 
 /// Combine input outcomes without hiding a failed input behind a found one.

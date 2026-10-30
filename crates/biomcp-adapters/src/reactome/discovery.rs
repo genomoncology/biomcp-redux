@@ -8,6 +8,8 @@ use biomcp_types::{PathwayCard, PathwayHeader, PathwaySearch, Source};
 /// One native page; rejected rows do not change its native position or total.
 #[derive(Debug)]
 pub struct Page {
+    /// At least one native identity was refused.
+    pub dropped: bool,
     /// Admitted headers and record-local problems.
     pub rows: Mapped<Vec<PathwayHeader>>,
     /// Source-reported unfiltered count or complete observed relation size.
@@ -78,6 +80,7 @@ pub fn search(leg: &Leg<'_>, q: &PathwaySearch) -> Result<Page, RequestError> {
         raw::Search::Empty(_) => (0, 0),
     };
     Ok(Page {
+        dropped: rows.value.len() < consumed as usize,
         rows,
         total,
         consumed,

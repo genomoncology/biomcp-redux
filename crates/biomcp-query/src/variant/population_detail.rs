@@ -48,6 +48,7 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &VariantPopulationQuery) -> Outcome {
         _ => Status::Failed,
     };
     let out = Outcome {
+        dropped: false,
         status,
         body: QueryBody::VariantPopulation(VariantPopulationResult {
             population: read.population,

@@ -45,6 +45,7 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &VariantAssertionsGet) -> Outcome {
         .collect();
     command.finish(deadline.remaining());
     Outcome {
+        dropped: false,
         status,
         body: QueryBody::VariantAssertions(body),
         page: None,

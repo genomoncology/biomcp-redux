@@ -119,7 +119,7 @@ pub(super) fn run<'a>(
         let result = annotations::run(cx, deadline, &ids);
         annotations::join(&mut cards.items, &result);
         out.local = out.local.or(result.local);
-        out.status = status::status(cards.items.iter().map(|i| i.status));
+        status::get(&mut out, cards.items.iter().map(|i| i.status));
         status::append(&mut out.problems, result.problems);
         out.sources.push(result.source);
     }

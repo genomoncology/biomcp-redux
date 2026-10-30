@@ -67,7 +67,7 @@ pub fn search(cx: &Ctx<'_>, q: &PhenotypeSearch) -> Outcome {
                 .fetched
                 .and_then(|value| u64::try_from(value).ok()),
         });
-        out.status = status::search_status(&out.sources, out.dropped);
+        crate::status::search(&mut out);
     }
     problem(&mut out, Source::Monarch, None);
     recovery(&mut out, Request::SearchPhenotype(q.clone()));
@@ -81,7 +81,6 @@ fn run(request: Request) -> Action {
         fresh: false,
     }
 }
-use crate::status::overall;
 fn problem(out: &mut Outcome, source: Source, record: Option<biodata::Text>) {
     if out
         .sources

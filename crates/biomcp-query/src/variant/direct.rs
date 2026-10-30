@@ -93,6 +93,7 @@ pub(super) fn get(
     };
     let next = super::next(query, VariantResolution::Unresolved, &candidates, None);
     Outcome {
+        dropped: false,
         status,
         body: QueryBody::VariantCard(VariantCard {
             resolution: VariantResolution::Unresolved,

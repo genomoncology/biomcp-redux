@@ -1,4 +1,4 @@
-use super::{empty, overall, relation_snapshot as snapshot};
+use super::{empty, relation_snapshot as snapshot};
 use crate::{Ctx, Outcome, status};
 use biodata::{PathwayId, Text};
 use biomcp_adapters::reactome;
@@ -64,7 +64,7 @@ pub(super) fn read(cx: &Ctx<'_>, q: Selection<'_>, deadline: Deadline<'_>) -> Ou
     });
     if let Err(error) = read_inner(cx, &q, deadline, &mut out) {
         out.local = status::local(error);
-        out.status = Status::Failed;
+        crate::status::item(&mut out, false, true, false);
     }
     out
 }
@@ -177,7 +177,10 @@ fn present_genes(
         &mut out.problems,
     );
     super::relation_steps::genes(&body, q.limit, q.details, &mut out.next);
-    out.status = overall(out, body.page.total == 0);
+    {
+        let absent = body.page.total == 0;
+        crate::status::item(out, !absent, false, false);
+    }
     out.body = QueryBody::PathwayGenes(Some(body));
 }
 fn present_events(
@@ -195,7 +198,10 @@ fn present_events(
         .collect();
     body.page = position(body.page, q, body.items.len(), pool);
     super::relation_steps::events(&body, q.limit, &mut out.next);
-    out.status = overall(out, body.page.total == 0);
+    {
+        let absent = body.page.total == 0;
+        crate::status::item(out, !absent, false, false);
+    }
     out.body = QueryBody::PathwayEvents(Some(body));
 }
 

@@ -1,4 +1,4 @@
-use super::page::{empty, overall, page_info, run, slice};
+use super::page::{empty, page_info, run, slice};
 use crate::{Ctx, Outcome, status};
 use biomcp_adapters::ols;
 use biomcp_types::{
@@ -47,7 +47,7 @@ pub fn search(cx: &Ctx<'_>, query: &DiseaseSearch) -> Outcome {
         if let QueryBody::DiseasePage(body) = &mut out.body {
             body.items = page.rows.value.into();
         }
-        out.status = status::search_status(&out.sources, out.dropped);
+        crate::status::search(&mut out);
     }
     command.finish(deadline.remaining());
     out
@@ -65,7 +65,7 @@ pub fn get(cx: &Ctx<'_>, query: &DiseaseGet) -> Outcome {
     out.local = error.and_then(status::local);
     match reply {
         Ok(Some(record)) => apply(&mut out, query, record),
-        Ok(None) => out.status = Status::Absent,
+        Ok(None) => crate::status::item(&mut out, false, false, false),
         _ => (),
     }
     super::page::record_problem(&mut out, query, Source::Ols);
@@ -115,5 +115,8 @@ fn apply(out: &mut Outcome, query: &DiseaseGet, record: ols::Record) {
             ));
         }
     }
-    out.status = overall(out, out.page.as_ref().is_some_and(|p| p.total == 0));
+    {
+        let absent = out.page.as_ref().is_some_and(|p| p.total == 0);
+        crate::status::item(out, !absent, false, false);
+    }
 }

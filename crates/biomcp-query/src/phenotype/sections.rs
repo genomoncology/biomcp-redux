@@ -1,4 +1,4 @@
-use super::{overall, run, snapshot::Rows};
+use super::{run, snapshot::Rows};
 use crate::Outcome;
 use biomcp_types::{
     PageInfo, PhenotypeGet, PhenotypeHierarchy, PhenotypeSection, PhenotypeSynonyms,
@@ -65,7 +65,7 @@ pub(super) fn apply(out: &mut Outcome, q: &PhenotypeGet, rows: Rows) {
     }
 }
 fn unavailable(out: &mut Outcome) {
-    out.status = Status::Absent;
+    crate::status::item(out, false, false, false);
 }
 fn page<T: Clone>(out: &mut Outcome, q: &PhenotypeGet, rows: &[T]) -> Box<[T]> {
     let offset = q.section_offset() as usize;
@@ -90,6 +90,9 @@ fn page<T: Clone>(out: &mut Outcome, q: &PhenotypeGet, rows: &[T]) -> Box<[T]> {
             run(Request::GetPhenotype(q.at_section_offset(next))),
         ));
     }
-    out.status = overall(out, rows.is_empty());
+    {
+        let absent = rows.is_empty();
+        crate::status::item(out, !absent, false, false);
+    }
     items
 }

@@ -18,8 +18,6 @@ pub(super) fn slice<T>(rows: Vec<T>, query: &DiseaseGet) -> (Vec<T>, u64) {
         total,
     )
 }
-pub(super) use crate::status::overall;
-
 /// Every rejected disease get keeps its source reason and records the rejected identity.
 pub(super) fn record_problem(out: &mut Outcome, query: &DiseaseGet, source: biomcp_types::Source) {
     if out.sources.iter().any(|outcome| {

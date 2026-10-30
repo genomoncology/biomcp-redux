@@ -1,4 +1,4 @@
-use super::{empty, overall, run, snapshot};
+use super::{empty, run, snapshot};
 use crate::{Ctx, Outcome, status};
 use biomcp_adapters::reactome;
 use biomcp_fetch::{Deadline, RequestError, SourceError};
@@ -46,7 +46,7 @@ pub fn search(cx: &Ctx<'_>, q: &PathwaySearch) -> Outcome {
             ));
         }
         out.local = status::local(error);
-        out.status = Status::Failed;
+        crate::status::item(&mut out, false, true, false);
     }
     super::wikipathways::sync_step(&mut out);
     command.finish(deadline.remaining());
@@ -99,7 +99,7 @@ fn execute(
             run(Request::SearchPathway(q.at_offset(offset).with_pool(pool))),
         ));
     }
-    out.status = overall(out, body.page.total == 0);
+    crate::status::search(out);
     out.body = QueryBody::PathwayPage(body);
     Ok(())
 }
@@ -125,6 +125,7 @@ fn fetch(
             .fresh(cx.fresh || q.fresh());
         let reply = if q.top_level() {
             reactome::top_level(&leg).map(|rows| reactome::Page {
+                dropped: false,
                 total: rows.value.len() as u64,
                 consumed: rows.value.len() as u32,
                 rows,
@@ -138,6 +139,7 @@ fn fetch(
             reply.as_ref().err().copied(),
         ));
         let reply = reply?;
+        out.dropped = reply.dropped;
         out.problems.extend(reply.rows.problems);
         body.items = reply.rows.value.into();
         body.page.total = reply.total;

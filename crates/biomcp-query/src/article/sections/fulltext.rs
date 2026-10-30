@@ -86,7 +86,7 @@ pub(super) fn run<'a>(
         }
         out.sources.push(source);
     }
-    out.status = status::status(cards.items.iter().map(|i| i.status));
+    status::get(out, cards.items.iter().map(|i| i.status));
 }
 fn content(result: Result<Option<pmc_oa::Document>, RequestError>) -> Content {
     result

@@ -67,7 +67,7 @@ pub(super) fn run<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut Outco
         }
     }
     if let QueryBody::ArticleCards(cards) = &out.body {
-        out.status = status::status(cards.items.iter().map(|i| i.status));
+        status::get(out, cards.items.iter().map(|i| i.status));
     }
 }
 pub(in crate::article) fn load<'a>(

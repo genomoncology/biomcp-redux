@@ -62,7 +62,7 @@ pub fn get(cx: &Ctx<'_>, q: &AuthorGet) -> Outcome {
             card,
         });
     }
-    out.status = status::status(items.iter().map(|i| i.status));
+    status::get(&mut out, items.iter().map(|i| i.status));
     recovery(cx, &mut out, Request::GetAuthor(q.clone()));
     for item in &items {
         if item.card.is_some() && out.next.len() < 5 {

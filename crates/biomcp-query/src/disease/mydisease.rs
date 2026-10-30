@@ -1,4 +1,4 @@
-use super::page::{empty, overall, page_info, run, slice};
+use super::page::{empty, page_info, run, slice};
 use crate::{Ctx, Outcome, status};
 use biomcp_adapters::mydisease;
 use biomcp_types::{
@@ -76,5 +76,8 @@ fn apply(out: &mut Outcome, query: &DiseaseGet, record: mydisease::Annotation) {
             ));
         }
     }
-    out.status = overall(out, out.page.as_ref().is_some_and(|p| p.total == 0));
+    {
+        let absent = out.page.as_ref().is_some_and(|p| p.total == 0);
+        crate::status::item(out, !absent, false, false);
+    }
 }

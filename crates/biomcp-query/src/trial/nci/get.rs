@@ -87,7 +87,7 @@ fn fetch(
             }),
         }
     }
-    out.status = status::status(items.iter().map(|i| i.status));
+    status::get(out, items.iter().map(|i| i.status));
     if let QueryBody::NciTrialCards(body) = &mut out.body {
         body.items = items.into();
     }

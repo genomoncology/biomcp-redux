@@ -63,6 +63,8 @@ pub struct Selection {
 /// A locally paged checked source response.
 #[derive(Debug)]
 pub struct Page<T> {
+    /// A native identity was refused within the selected window.
+    pub dropped: bool,
     /// Native slots in the selected window before row refusals.
     pub received: u32,
     /// Rows in native order.
@@ -137,6 +139,7 @@ pub fn catalog(leg: &Leg<'_>, limit: u32, offset: u32) -> Result<Page<DiseaseSit
         }
     }
     Ok(Page {
+        dropped: rows.len() < received as usize,
         rows,
         total,
         received,
@@ -210,7 +213,9 @@ pub fn statistics(
         .take(limit as usize)
         .collect();
     let received = window.len() as u32;
+    let dropped = window.iter().any(Option::is_none);
     Ok(Page {
+        dropped,
         rows: window.into_iter().flatten().collect(),
         received,
         total,

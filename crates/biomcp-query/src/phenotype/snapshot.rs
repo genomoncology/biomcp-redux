@@ -1,5 +1,5 @@
 //! One exact term reply supplies every local section page.
-use super::{empty, overall, problem, recovery, run};
+use super::{empty, problem, recovery, run};
 use crate::{Ctx, Outcome, status, store::Store};
 use biodata::{PhenotypeHierarchyLink, PhenotypeSynonym, PhenotypeXref, Text};
 use biomcp_adapters::{hpo, monarch};
@@ -39,7 +39,7 @@ pub(super) fn get(cx: &Ctx<'_>, q: &PhenotypeGet) -> Outcome {
         Err(error) => {
             out.local = status::local(error);
             if matches!(error,RequestError::Source(e) if e.reason==Reason::NotFound) {
-                out.status = Status::Absent;
+                crate::status::item(&mut out, false, false, false);
             }
         }
     }
@@ -103,7 +103,10 @@ fn load(
     };
     out.sources = saved.1;
     out.problems = saved.2;
-    out.status = overall(out, false);
+    {
+        let absent = false;
+        crate::status::item(out, !absent, false, false);
+    }
     Ok(Some((saved.0, token)))
 }
 

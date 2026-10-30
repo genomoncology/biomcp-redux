@@ -21,6 +21,7 @@ pub fn search(cx: &Ctx<'_>, query: &DiseaseSearch) -> Outcome {
         .push(status::source(Source::Seer, leg.finish(), error));
     out.local = error.and_then(status::local);
     if let Ok(page) = reply {
+        out.dropped = page.dropped;
         let returned = page.rows.len() as u32;
         out.page = Some(page_info(query.offset(), returned, page.total));
         if page.received > 0 && u64::from(query.offset()) + u64::from(page.received) < page.total {
@@ -37,7 +38,10 @@ pub fn search(cx: &Ctx<'_>, query: &DiseaseSearch) -> Outcome {
             components: Box::default(),
             fetched: fetched(page.metadata.fetched),
         });
-        out.status = overall(&out, page.total == 0);
+        {
+        let absent = page.total == 0;
+        crate::status::item(&mut out, !absent, false, false);
+    }
     }
     command.finish(deadline.remaining());
     out
@@ -76,6 +80,7 @@ pub fn get(cx: &Ctx<'_>, query: &DiseaseGet) -> Outcome {
         .push(status::source(Source::Seer, leg.finish(), error));
     out.local = error.and_then(status::local);
     if let Ok(page) = reply {
+        out.dropped = page.dropped;
         let returned = page.rows.len() as u32;
         out.page = Some(page_info(query.section_offset(), returned, page.total));
         if page.received > 0
@@ -106,7 +111,10 @@ pub fn get(cx: &Ctx<'_>, query: &DiseaseGet) -> Outcome {
                 fetched: fetched(page.metadata.fetched),
             })
         };
-        out.status = overall(&out, page.total == 0);
+        {
+        let absent = page.total == 0;
+        crate::status::item(&mut out, !absent, false, false);
+    }
     }
     super::page::record_problem(&mut out, query, Source::Seer);
     command.finish(deadline.remaining());
@@ -123,4 +131,3 @@ fn run(request: Request) -> Action {
         fresh: false,
     }
 }
-use crate::status::overall;
