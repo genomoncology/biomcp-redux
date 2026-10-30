@@ -1,4 +1,5 @@
 //! Actual record refusals stay distinct from optional fields at the public adapter boundary.
+mod documents;
 mod families;
 mod members;
 mod pages;
@@ -29,6 +30,7 @@ pub(super) fn trials() -> Vec<Trial> {
     tests.extend(synthetic::trials());
     tests.extend(source_pages::trials());
     tests.extend(stored::trials());
+    tests.extend(documents::trials());
     tests
 }
 

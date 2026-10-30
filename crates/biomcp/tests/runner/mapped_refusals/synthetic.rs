@@ -26,10 +26,15 @@ pub(super) fn trials() -> Vec<Trial> {
     ]
 }
 
-fn stubbed(host: &'static str, body: Value) -> Check<(Stub, Fetch)> {
+pub(super) fn stubbed(host: &'static str, body: Value) -> Check<(Stub, Fetch)> {
     let body = body.to_string();
     let stub = Stub::for_source(host, "application/json", move |_| Ok(body.clone()))?;
-    let fetch = Fetch::open(FetchConfig {
+    let fetch = configured(&stub)?;
+    Ok((stub, fetch))
+}
+
+pub(super) fn configured(stub: &Stub) -> Check<Fetch> {
+    Ok(Fetch::open(FetchConfig {
         proxy: Some(Secret::new(format!("http://{}", stub.address))),
         network: Network::new(
             None,
@@ -38,8 +43,7 @@ fn stubbed(host: &'static str, body: Value) -> Check<(Stub, Fetch)> {
             Certificates::from_pem(stub.certificate.as_bytes())?,
         )?,
         ..Default::default()
-    })?;
-    Ok((stub, fetch))
+    })?)
 }
 
 fn ontology() -> Check {
