@@ -423,10 +423,10 @@ fn structured_text_values_reject_invalid_native_parts() -> Check {
         );
     }
     for (text, wire) in [
-        ("WP1", json!({"source":"wikipathways", "id":"WP1"})),
-        ("WP01", json!({"source":"wikipathways", "id":"WP01"})),
-        ("R-HSA-1", json!({"source":"reactome", "id":"R-HSA-1"})),
-        ("R-HSA-01", json!({"source":"reactome", "id":"R-HSA-01"})),
+        ("WP1", json!({"namespace":"wikipathways", "id":"WP1"})),
+        ("WP01", json!({"namespace":"wikipathways", "id":"WP01"})),
+        ("R-HSA-1", json!({"namespace":"reactome", "id":"R-HSA-1"})),
+        ("R-HSA-01", json!({"namespace":"reactome", "id":"R-HSA-01"})),
     ] {
         assert_eq!(
             text.parse::<biodata::PathwayId>().ok(),

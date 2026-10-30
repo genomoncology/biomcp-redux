@@ -94,6 +94,15 @@ fn source_timestamp_values_check_rfc3339_without_changing_offset_or_precision() 
 }
 #[test]
 fn every_section_state_round_trips_without_conflating_data_and_failure() {
+    #[cfg(feature = "schema")]
+    {
+        let schema = serde_json::to_value(schemars::schema_for!(SourceRecord)).unwrap();
+        let validator = jsonschema::draft202012::new(&schema).unwrap();
+        assert!(validator.is_valid(&json!({"namespace":"unknown","id":"native:0001"})));
+        assert!(!validator.is_valid(&json!({"id":"native:0001"})));
+        assert!(!validator.is_valid(&json!({"namespace":null,"id":"native:0001"})));
+        assert!(serde_json::from_value::<SourceRecord>(json!({"id":"native:0001"})).is_err());
+    }
     let states = [
         Section::Data {
             source: Source::Civic,
@@ -102,6 +111,7 @@ fn every_section_state_round_trips_without_conflating_data_and_failure() {
         Section::Empty {
             source: Source::Civic,
             record: Some(SourceRecord {
+                namespace: biodata::IdentifierNamespace::Unknown,
                 id: Text::new("1").unwrap(),
                 url: None,
             }),

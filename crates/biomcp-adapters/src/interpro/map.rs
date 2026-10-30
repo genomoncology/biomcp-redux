@@ -102,8 +102,8 @@ fn signatures(
                     continue;
                 };
                 signatures.push(ProteinMemberSignature {
-                    database: database.clone(),
-                    accession,
+                    namespace: database.clone(),
+                    id: accession,
                     name: crate::mapped::field_text(
                         &mut problems.list,
                         problems.source,

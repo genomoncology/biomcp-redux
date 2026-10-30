@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct CivicGene {
     /// CIViC feature identifier.
-    pub id: u64,
+    pub id: biodata::Identifier<u64>,
     /// Number of curated variants reported by the source.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub variant_count: Option<u64>,

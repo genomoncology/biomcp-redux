@@ -395,3 +395,34 @@ pub(super) fn difference(left: &Value, right: &Value, path: &str) -> Option<Stri
     let brief = |value: &Value| value.to_string().chars().take(120).collect::<String>();
     Some(format!("{path}: CLI={} MCP={}", brief(left), brief(right)))
 }
+
+// Native PGx field names mark IDs, including signed and array-valued IDs.
+// Expected values come from unchanged native fixtures, not the mapper under test.
+pub(super) fn qualify_numeric_ids(node: &mut Value, namespace: &str) {
+    match node {
+        Value::Object(fields) => {
+            for (key, value) in fields {
+                if key.to_ascii_lowercase().ends_with("id") && value.is_number() {
+                    *value = serde_json::json!({"namespace":namespace,"id":value.take()});
+                } else if key.ends_with("Ids") {
+                    if let Some(values) = value.as_array_mut() {
+                        for value in values {
+                            if value.is_number() {
+                                *value =
+                                    serde_json::json!({"namespace":namespace,"id":value.take()});
+                            }
+                        }
+                    }
+                } else {
+                    qualify_numeric_ids(value, namespace);
+                }
+            }
+        }
+        Value::Array(values) => {
+            for value in values {
+                qualify_numeric_ids(value, namespace);
+            }
+        }
+        _ => {}
+    }
+}

@@ -384,7 +384,7 @@
           "$ref": "#/$defs/Reply_Text",
           "description": "Original source name."
         },
-        "source": {
+        "namespace": {
           "$ref": "#/$defs/Reply_Text",
           "description": "Source responsible for this identity."
         },
@@ -414,10 +414,11 @@
       },
       "required": [
         "id",
-        "source",
+        "namespace",
         "identity_level"
       ],
-      "type": "object"
+      "type": "object",
+      "x-identifier": true
     },
     "Reply_DrugIdentityLevel": {
       "description": "Identity level established by the source endpoint or record type, never inferred from ID shape.",
@@ -1169,7 +1170,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.drug-card/5",
+  "$id": "biomcp.drug-card/6",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -1225,7 +1226,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.drug-card/5",
+      "const": "biomcp.drug-card/6",
       "type": "string"
     },
     "sources": {

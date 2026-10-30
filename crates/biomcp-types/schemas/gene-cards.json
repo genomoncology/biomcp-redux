@@ -86,10 +86,8 @@
           "description": "Complete source description, absent when the source has none."
         },
         "id": {
-          "description": "CIViC feature identifier.",
-          "format": "uint64",
-          "minimum": 0,
-          "type": "integer"
+          "$ref": "#/$defs/Reply_Identifier",
+          "description": "CIViC feature identifier."
         },
         "url": {
           "anyOf": [
@@ -1180,6 +1178,34 @@
         "entry_withdrawn",
         "merged_split"
       ]
+    },
+    "Reply_Identifier": {
+      "description": "An authority and its unchanged native identifier; unknown means the authority was not stated.",
+      "properties": {
+        "id": {
+          "description": "Native identifier value, with its original scalar type and precision.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "namespace": {
+          "$ref": "#/$defs/Reply_IdentifierNamespace",
+          "description": "Native authority spelling; the literal unknown carries an unstated authority."
+        }
+      },
+      "required": [
+        "namespace",
+        "id"
+      ],
+      "type": "object",
+      "x-identifier": true
+    },
+    "Reply_IdentifierNamespace": {
+      "description": "A source-stated authority or an explicit unknown authority, represented by the string unknown.",
+      "maxLength": 1048576,
+      "minLength": 1,
+      "pattern": "^(?![\\s\\S]*[\\x00-\\x1f\\x7f-\\x9f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069])",
+      "type": "string"
     },
     "Reply_LocusGroup": {
       "description": "HGNC locus group, separate from a missing source value.",
@@ -3101,6 +3127,10 @@
           "$ref": "#/$defs/Reply_Text",
           "description": "Native source identifier."
         },
+        "namespace": {
+          "$ref": "#/$defs/Reply_IdentifierNamespace",
+          "description": "Native authority; unknown means the source did not state one."
+        },
         "url": {
           "anyOf": [
             {
@@ -3115,9 +3145,11 @@
         }
       },
       "required": [
+        "namespace",
         "id"
       ],
-      "type": "object"
+      "type": "object",
+      "x-identifier": true
     },
     "Reply_SourceState": {
       "description": "State of a source actually asked by the command.",
@@ -3318,7 +3350,7 @@
       "type": "object"
     }
   },
-  "$id": "biomcp.gene-cards/12",
+  "$id": "biomcp.gene-cards/13",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -3374,7 +3406,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.gene-cards/12",
+      "const": "biomcp.gene-cards/13",
       "type": "string"
     },
     "sources": {

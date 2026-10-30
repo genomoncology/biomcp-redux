@@ -225,6 +225,7 @@ fn verify_body(name: &str, cold: &Value, original: &Value, total: usize) -> Chec
         cold.pointer("/result/items").ok_or("items")?.clone()
     };
     let mut expected = original.clone();
+    super::assertions::qualify_numeric_ids(&mut expected, "CPIC");
     super::assertions::omit_empty_lists(&mut expected);
     super::assertions::omit_null_fields(
         &mut expected,

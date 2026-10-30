@@ -87,7 +87,7 @@ pub(super) fn walk() -> Result<(), String> {
         }
         let second = follow(&env, &replay, &first, 0)?;
         final_count(&second, count)?;
-        if second.pointer("/result/items/0/id") != Some(&json!(6113)) {
+        if second.pointer("/result/items/0/id") != Some(&json!("association:6113")) {
             return Err("second page identity".into());
         }
     }

@@ -86,7 +86,7 @@ fn metadata_absence_and_repeated_byline_names_remain_source_local() {
     // contain no repeated display names. No native titles or abstracts enter Git.
     let header = json!({"paper_id":"0123456789abcdef0123456789abcdef01234567",
 "title":"Synthetic paper",
-"external_ids":[{"id":"CorpusId:123"}],
+"external_ids":[{"namespace":"CorpusId","id":"CorpusId:123"}],
 "doi":"10.1234/example"});
     let detail = json!(
         {"header":header,"authors":[{"id":"123","name":"Repeated name"},{"id":"456","name":"Repeated name"}],
@@ -106,8 +106,8 @@ fn metadata_absence_and_repeated_byline_names_remain_source_local() {
 fn assertion(code: u64, title: Option<&str>) -> Value {
     let mut v = json!(
         {"put_code":code,"work_type":"journal-article","source":{"source_client_id":"APP-1234567890ABCDEF","source_name":"Synthetic source",
-        "assertion_origin_orcid":"0000-0002-4299-3018"},"visibility":"public","external_ids":[{"kind":"doi","value":"10.1234/example",
-        "relationship":"self"},{"kind":"wosuid","value":"native-value","relationship":"part-of"}]}
+        "assertion_origin_orcid":"0000-0002-4299-3018"},"visibility":"public","external_ids":[{"namespace":"doi","id":"10.1234/example",
+        "relationship":"self"},{"namespace":"wosuid","id":"native-value","relationship":"part-of"}]}
     );
     if let (Some(title), Some(object)) = (title, v.as_object_mut()) {
         object.insert("title".into(), json!(title));
@@ -118,7 +118,7 @@ fn assertion(code: u64, title: Option<&str>) -> Value {
 fn orcid_groups_keep_all_ordered_assertions_and_native_relationships() {
     // A 0003 has 73 groups with two summaries; A 0005 has absent title/date.
     let group = json!(
-        {"external_ids":[{"kind":"pmid","value":"123","relationship":"self"}],"assertions":[assertion(2,Some("Synthetic title")),
+        {"external_ids":[{"namespace":"pmid","id":"123","relationship":"self"}],"assertions":[assertion(2,Some("Synthetic title")),
         assertion(1,None)]}
     );
     assert_eq!(roundtrip::<OrcidWorkGroup>(group.clone()).unwrap(), group);

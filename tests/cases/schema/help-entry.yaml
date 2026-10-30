@@ -4,14 +4,14 @@ story: Help entry points show the public grammar before any source access.
 steps:
   - run: []
     expect:
-      /schema: biomcp.help/5
+      /schema: biomcp.help/6
       /status: complete
   - run: [-h]
     expect:
-      /schema: biomcp.help/5
+      /schema: biomcp.help/6
   - run: [--help]
     expect:
-      /schema: biomcp.help/5
+      /schema: biomcp.help/6
   - run: [get, --help]
     expect:
       /result/commands/0/command/0: get
@@ -29,10 +29,10 @@ steps:
     expect:
       /result/commands/0/command: [schema]
       /result/commands/0/description: 'List every schema identity and description with biomcp schema, or print one schema artifact with biomcp schema <id>.'
-      /result/commands/0/examples: [[schema], [schema, biomcp.help/5]]
+      /result/commands/0/examples: [[schema], [schema, biomcp.help/6]]
   - run: [help, store]
     expect:
-      /result/commands/0/command: [store, clean]
+      /result/commands/0/command: [store]
   - run: [help, key]
     expect:
       /result/commands/0/command/0: key
@@ -44,7 +44,7 @@ steps:
       /result/commands/0/command: [serve]
   - run: [help, --help]
     expect:
-      /schema: biomcp.help/5
+      /schema: biomcp.help/6
   - run: [help, frobnicate]
     exit: 2
     expect:

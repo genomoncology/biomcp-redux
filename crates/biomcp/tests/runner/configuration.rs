@@ -37,13 +37,15 @@ pub(super) fn invoke(env: &Environment, args: Vec<String>, exit: i32) -> Result<
         )
         .map_err(|e| e.to_string())?;
     }
-    if args.iter().any(|word| word == "diagnostic")
-        || args.windows(2).any(|words| {
-            words.first().is_some_and(|word| word == "sync")
-                && words
-                    .get(1)
-                    .is_some_and(|word| matches!(word.as_str(), "gtr" | "who-ivd" | "fda-cdx"))
-        })
+    if value.get("schema").and_then(Value::as_str)
+        != Some(<biomcp_types::Help as biomcp_types::ResponseBody>::SCHEMA)
+        && (args.iter().any(|word| word == "diagnostic")
+            || args.windows(2).any(|words| {
+                words.first().is_some_and(|word| word == "sync")
+                    && words
+                        .get(1)
+                        .is_some_and(|word| matches!(word.as_str(), "gtr" | "who-ivd" | "fda-cdx"))
+            }))
     {
         super::diagnostic_retirements::bounded(&value)?;
     }

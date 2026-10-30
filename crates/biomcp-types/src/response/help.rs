@@ -17,7 +17,7 @@ pub struct Help {
     pub commands: Vec<HelpCommand>,
 }
 impl super::ResponseBody for Help {
-    const SCHEMA: &'static str = "biomcp.help/5";
+    const SCHEMA: &'static str = "biomcp.help/6";
     type Query = HelpQuery;
 }
 /// One command and its generated arguments.

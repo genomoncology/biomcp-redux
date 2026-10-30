@@ -9,6 +9,34 @@
       ],
       "type": "string"
     },
+    "Reply_Identifier": {
+      "description": "An authority and its unchanged native identifier; unknown means the authority was not stated.",
+      "properties": {
+        "id": {
+          "description": "Native identifier value, with its original scalar type and precision.",
+          "format": "uint64",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "namespace": {
+          "$ref": "#/$defs/Reply_IdentifierNamespace",
+          "description": "Native authority spelling; the literal unknown carries an unstated authority."
+        }
+      },
+      "required": [
+        "namespace",
+        "id"
+      ],
+      "type": "object",
+      "x-identifier": true
+    },
+    "Reply_IdentifierNamespace": {
+      "description": "A source-stated authority or an explicit unknown authority, represented by the string unknown.",
+      "maxLength": 1048576,
+      "minLength": 1,
+      "pattern": "^(?![\\s\\S]*[\\x00-\\x1f\\x7f-\\x9f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069])",
+      "type": "string"
+    },
     "Reply_PageInfo": {
       "description": "Search counts after filtering and deduplication.",
       "properties": {
@@ -63,10 +91,8 @@
           "description": "Native unresolved integer database reference.",
           "properties": {
             "db_id": {
-              "description": "Positive native database reference.",
-              "format": "uint64",
-              "minimum": 1,
-              "type": "integer"
+              "$ref": "#/$defs/Reply_Identifier",
+              "description": "Positive native database reference."
             },
             "kind": {
               "const": "database",
@@ -83,10 +109,8 @@
           "description": "Native event object; fields are absent only when omitted by the source.",
           "properties": {
             "db_id": {
-              "description": "Native object database identity.",
-              "format": "uint64",
-              "minimum": 1,
-              "type": "integer"
+              "$ref": "#/$defs/Reply_Identifier",
+              "description": "Native object database identity."
             },
             "id": {
               "anyOf": [
@@ -276,13 +300,13 @@
             "id": {
               "$ref": "#/$defs/Reply_ReactomeId"
             },
-            "source": {
+            "namespace": {
               "const": "reactome",
               "type": "string"
             }
           },
           "required": [
-            "source",
+            "namespace",
             "id"
           ],
           "type": "object"
@@ -293,18 +317,19 @@
             "id": {
               "$ref": "#/$defs/Reply_WikiPathwaysId"
             },
-            "source": {
+            "namespace": {
               "const": "wikipathways",
               "type": "string"
             }
           },
           "required": [
-            "source",
+            "namespace",
             "id"
           ],
           "type": "object"
         }
-      ]
+      ],
+      "x-identifier": true
     },
     "Reply_PathwayPageInfo": {
       "description": "Native page position and explicit count provenance; a short admitted page can continue.",
@@ -974,7 +999,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.pathway-events/5",
+  "$id": "biomcp.pathway-events/6",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -1030,7 +1055,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.pathway-events/5",
+      "const": "biomcp.pathway-events/6",
       "type": "string"
     },
     "sources": {

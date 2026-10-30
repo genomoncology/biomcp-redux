@@ -40,7 +40,11 @@ pub fn members(leg: &Leg<'_>, id: &ReactomeId) -> Result<Mapped<Members>, Reques
         physical_entities: rows.0.len() as u64,
     };
     for row in rows.0 {
-        let participant = participant(&row, &mut problems);
+        let participant = participant(
+            &row,
+            &mut problems,
+            crate::mapped::text("Reactome").map_err(|_| bad_reply())?,
+        );
         for reference in row.ref_entities {
             value.reference_occurrences += 1;
             let (namespace, identifier) = reference.st_id.split_once(':').ok_or_else(bad_reply)?;
@@ -64,7 +68,7 @@ pub fn members(leg: &Leg<'_>, id: &ReactomeId) -> Result<Mapped<Members>, Reques
             );
             if let Some(existing) = value.items.iter_mut().find(|m| {
                 m.reference.namespace.as_deref() == Some(namespace)
-                    && m.reference.value.as_str() == identifier
+                    && m.reference.id.as_str() == identifier
             }) {
                 let mut participants = existing
                     .participants
@@ -79,13 +83,10 @@ pub fn members(leg: &Leg<'_>, id: &ReactomeId) -> Result<Mapped<Members>, Reques
                 value.items.push(PathwayMember {
                     node_id: None,
                     reference: PathwaySourceRef {
-                        namespace: Some(
-                            crate::mapped::text(namespace)
-                                .map_err(|_| bad_reply())?
-                                .as_str()
-                                .into(),
-                        ),
-                        value: crate::mapped::text(identifier).map_err(|_| bad_reply())?,
+                        namespace: crate::mapped::text(namespace)
+                            .map_err(|_| bad_reply())?
+                            .into(),
+                        id: crate::mapped::text(identifier).map_err(|_| bad_reply())?,
                     },
                     name,
                     source_url,
@@ -105,6 +106,7 @@ pub fn members(leg: &Leg<'_>, id: &ReactomeId) -> Result<Mapped<Members>, Reques
 fn participant(
     row: &raw::Participant,
     problems: &mut crate::mapped::Problems,
+    namespace: biodata::Text,
 ) -> PathwayParticipant {
     let name = metadata(
         problems,
@@ -119,7 +121,7 @@ fn participant(
         false,
     );
     PathwayParticipant {
-        db_id: row.pe_db_id,
+        db_id: biodata::Identifier::new(namespace, row.pe_db_id),
         name,
         schema_class,
     }
@@ -153,9 +155,12 @@ pub fn events(
         problems: Vec::new(),
     };
     let mut problems = fields(id);
+    let namespace = crate::mapped::text("Reactome").map_err(|_| bad_reply())?;
     for row in rows.0 {
         match row {
-            raw::Event::Database(db_id) => mapped.value.push(PathwayEventRef::Database { db_id }),
+            raw::Event::Database(db_id) => mapped.value.push(PathwayEventRef::Database {
+                db_id: biodata::Identifier::new(namespace.clone(), db_id),
+            }),
             raw::Event::Object(v) => {
                 if v.species_name
                     .as_deref()
@@ -178,16 +183,13 @@ pub fn events(
                     continue;
                 };
                 mapped.value.push(PathwayEventRef::Object {
-                    db_id: v.db_id,
-                    source_url: native_id
-                        .as_ref()
-                        .map(|id| {
-                            crate::mapped::text(&format!(
-                                "https://reactome.org/content/detail/{id}"
-                            ))
-                            .map_err(|_| bad_reply())
-                        })
-                        .transpose()?,
+                    db_id: biodata::Identifier::new(namespace.clone(), v.db_id),
+                    source_url: native_id.as_ref().and_then(|id| {
+                        problems.text(
+                            "events.source_url",
+                            Some(&format!("https://reactome.org/content/detail/{id}")),
+                        )
+                    }),
                     id: native_id,
                     version: metadata(
                         &mut problems,

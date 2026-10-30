@@ -38,6 +38,7 @@ pub(super) fn allele(raw: RawAllele, expected: Option<&str>) -> Resolution {
         },
         source: Source::AlleleRegistry,
         record: SourceRecord {
+            namespace: biodata::IdentifierNamespace::Unknown,
             id: record,
             url: Some(url),
         },

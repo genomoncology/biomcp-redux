@@ -4691,7 +4691,7 @@ Options:
 JSON reply readers ignore unknown fields and unknown growable enum values within a major. Query schemas remain closed.
 
 Example: biomcp schema
-Example: biomcp schema biomcp.help/5
+Example: biomcp schema biomcp.help/6
 
 ```
 
@@ -7687,7 +7687,11 @@ Describe help schema.
 ```text
 Describe commands and their arguments.
 
-Usage: biomcp help help [OPTIONS]
+Usage: biomcp help help [OPTIONS] [command]...
+
+Arguments:
+  [command]...
+          Command help path to describe.
 
 Options:
       --format <format>
@@ -7712,6 +7716,7 @@ Options:
 
 Describe commands and their arguments.
 
+- `command`: Command help path to describe.
 
 ## biomcp help network
 

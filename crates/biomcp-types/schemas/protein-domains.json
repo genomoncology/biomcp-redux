@@ -438,13 +438,9 @@
     "Reply_ProteinMemberSignature": {
       "description": "A member database signature, not an integrated IPR entry.",
       "properties": {
-        "accession": {
+        "id": {
           "$ref": "#/$defs/Reply_Text",
           "description": "Native signature accession."
-        },
-        "database": {
-          "$ref": "#/$defs/Reply_Text",
-          "description": "Native member database name."
         },
         "name": {
           "anyOf": [
@@ -456,13 +452,18 @@
             }
           ],
           "description": "Native member signature name."
+        },
+        "namespace": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "Native member database name."
         }
       },
       "required": [
-        "database",
-        "accession"
+        "namespace",
+        "id"
       ],
-      "type": "object"
+      "type": "object",
+      "x-identifier": true
     },
     "Reply_Reason": {
       "description": "Why a source could not supply data.",
@@ -990,7 +991,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.protein-domains/6",
+  "$id": "biomcp.protein-domains/7",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -1046,7 +1047,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.protein-domains/6",
+      "const": "biomcp.protein-domains/7",
       "type": "string"
     },
     "sources": {

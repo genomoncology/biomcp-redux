@@ -31,7 +31,7 @@ pub(super) fn reference(
     Ok(DrugIdentityRelation {
         identity: DrugIdentity {
             id: target.parse().map_err(|_| BadReply)?,
-            source: text(target_source)?,
+            namespace: text(target_source)?,
             name: name.map(text).transpose()?,
             identity_level: DrugIdentityLevel::Unknown,
             r#type: None,

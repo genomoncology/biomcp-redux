@@ -29,7 +29,7 @@
       ],
       "max_bytes": 1186,
       "expect": {
-        "/schema": "biomcp.variant-page/15",
+        "/schema": "biomcp.variant-page/16",
         "/status": "partial",
         "/query": {
           "equals": {
@@ -63,7 +63,8 @@
                 },
                 "source": "myvariant",
                 "record": {
-                  "id": "chr7:g.55241707G>T"
+                  "id": "chr7:g.55241707G>T",
+                  "namespace": "unknown"
                 },
                 "component_terms": [
                   {
@@ -130,7 +131,8 @@
                 },
                 "source": "myvariant",
                 "record": {
-                  "id": "chr7:g.55241707G>T"
+                  "id": "chr7:g.55241707G>T",
+                  "namespace": "unknown"
                 },
                 "component_terms": [
                   {

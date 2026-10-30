@@ -136,7 +136,7 @@ fn observe(
                 .and_then(Value::as_str)
                 .ok_or("namespace")?;
             let id = row
-                .pointer("/reference/value")
+                .pointer("/reference/id")
                 .and_then(Value::as_str)
                 .ok_or("reference")?;
             if let Some(gene) = row.get("gene").and_then(Value::as_str) {
@@ -175,7 +175,7 @@ fn unresolved(value: &Value, row: &Value) -> Check {
         .and_then(Value::as_str)
         .ok_or("namespace")?;
     let id = row
-        .pointer("/reference/value")
+        .pointer("/reference/id")
         .and_then(Value::as_str)
         .ok_or("reference")?;
     let reference = format!("{namespace}:{id}");

@@ -139,7 +139,7 @@ fn continue_page(env: &Environment, value: &Value) -> Check {
         })
         .collect::<Result<Vec<_>, _>>()?;
     let second = invoke(env, command, 0)?;
-    if second.pointer("/result/items/0/pairid") != Some(&json!(2))
+    if second.pointer("/result/items/0/pairid/id") != Some(&json!(2))
         || second.pointer("/result/page/returned") != Some(&json!(1))
         || second.pointer("/result/page/offset") != Some(&json!(1))
     {

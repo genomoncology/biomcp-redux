@@ -15,7 +15,7 @@ type Saved = (
 fn key(q: &PgxGet) -> Vec<u8> {
     Sha256::digest(
         format!(
-            "biomcp.clinpgx_annotations/2\0{}\0{}",
+            "biomcp.clinpgx_annotations/3\0{}\0{}",
             q.gene(),
             q.kind()
                 .map(PgxAnnotationKind::as_str)

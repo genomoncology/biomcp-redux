@@ -19,9 +19,9 @@
       "expect": {
         "/status": "complete",
         "/result/genes/state": "data",
-        "/result/genes/data/items/0/reference/value": "P15056",
         "/result/genes/data/items/0/gene": "HGNC:1097",
-        "/result/genes/data/items/0/physical_context_count": 29
+        "/result/genes/data/items/0/physical_context_count": 29,
+        "/result/genes/data/items/0/reference/id": "P15056"
       },
       "max_bytes": 3061
     }

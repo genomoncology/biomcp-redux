@@ -28,7 +28,7 @@ const SHAPES: &[Shape] = &[
             "limit",
             "pool",
             "source",
-            "Topic-wide author ranking and cross-source merging are unavailable&#46;",
+            "Topic-wide author ranking and cross-source merging are unavailable.",
         ],
         max_bytes: 2657,
     },
@@ -41,8 +41,8 @@ const SHAPES: &[Shape] = &[
     Shape {
         args: &["help", "author"],
         replies: "",
-        required: &["query", "offset", "limit", "pool", "source", "id"],
-        max_bytes: 10553,
+        required: &["biomcp author papers", "--format", "--disable-sources"],
+        max_bytes: 8192,
     },
     Shape {
         args: &["help", "author", "papers"],

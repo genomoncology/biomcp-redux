@@ -174,7 +174,7 @@ pub(super) fn structures(
                     r.id
                 ))),
             ),
-            database: r.database,
+            namespace: r.database,
             id: r.id,
             properties: p.fields("structures.properties", r.properties),
         })

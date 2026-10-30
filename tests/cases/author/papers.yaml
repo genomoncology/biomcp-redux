@@ -29,6 +29,7 @@
             "doi": "10.1234/synthetic",
             "external_ids": [
               {
+                "namespace": "CorpusId",
                 "id": "CorpusId:123"
               }
             ],
@@ -84,6 +85,7 @@
             "doi": "10.1234/synthetic",
             "external_ids": [
               {
+                "namespace": "CorpusId",
                 "id": "CorpusId:123"
               }
             ],
@@ -127,6 +129,7 @@
             "doi": "10.1234/synthetic",
             "external_ids": [
               {
+                "namespace": "CorpusId",
                 "id": "CorpusId:123"
               }
             ],

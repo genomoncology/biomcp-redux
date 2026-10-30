@@ -52,7 +52,7 @@
         "/status": "complete",
         "/result/pathway/id": {
           "equals": {
-            "source": "reactome",
+            "namespace": "reactome",
             "id": "R-HSA-9652817"
           }
         },
@@ -78,7 +78,7 @@
         "/status": "complete",
         "/result/pathway/id": {
           "equals": {
-            "source": "reactome",
+            "namespace": "reactome",
             "id": "R-HSA-177929"
           }
         },

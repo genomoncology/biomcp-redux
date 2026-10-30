@@ -310,7 +310,7 @@ fn matching_union(env: &Environment, replay: &Path, args: &[&str]) -> Check {
         .and_then(Value::as_array)
         .ok_or("items")?
         .iter()
-        .map(|r| r.pointer("/id/source").and_then(Value::as_str))
+        .map(|r| r.pointer("/id/namespace").and_then(Value::as_str))
         .collect::<Vec<_>>();
     if sources
         != vec![
@@ -329,7 +329,7 @@ fn matching_union(env: &Environment, replay: &Path, args: &[&str]) -> Check {
     let partial = call("wikipathways/matching_union/3", env, replay, &failed, 0)?;
     if partial.get("status") != Some(&json!("partial"))
         || partial.pointer("/sources/0/reason") != Some(&json!("disabled"))
-        || partial.pointer("/result/items/0/id/source") != Some(&json!("wikipathways"))
+        || partial.pointer("/result/items/0/id/namespace") != Some(&json!("wikipathways"))
     {
         return Err(format!("failed leg beside successful leg: {partial}"));
     }
@@ -368,7 +368,7 @@ fn short_union(env: &Environment, replay: &Path, args: &[&str]) -> Check {
         .map(|v| v.as_str().ok_or("arg"))
         .collect::<Result<Vec<_>, _>>()?;
     let resumed = call("wikipathways/short_union/2", env, replay, &next, 0)?;
-    if resumed.pointer("/result/items/0/id/source") != Some(&json!("reactome"))
+    if resumed.pointer("/result/items/0/id/namespace") != Some(&json!("reactome"))
         || resumed.pointer("/result/items/1/id/id") != Some(&json!("WP3"))
     {
         return Err(format!("short page changed source turn: {resumed}"));

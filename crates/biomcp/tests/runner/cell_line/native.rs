@@ -59,7 +59,7 @@ fn search(env: &Environment, measure: bool) -> Result<(), String> {
             for i in [0, 2] {
                 path(
                     &value,
-                    &format!("/result/items/{i}/species/items/0/accession"),
+                    &format!("/result/items/{i}/species/items/0/id"),
                     json!("10090"),
                 )?;
             }
