@@ -1,7 +1,7 @@
 {
   "source": "clinvar",
   "method": "GET",
-  "url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=clinvar&id=441268&rettype=vcv&is_variationid=true&retmode=xml&tool=biomcp",
+  "url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=clinvar&id=VCV000441268.5&rettype=vcv&retmode=xml&tool=biomcp",
   "exchanges": [
     {
       "status": 200,

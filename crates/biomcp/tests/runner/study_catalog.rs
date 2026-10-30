@@ -13,9 +13,16 @@ type Check = Result<(), String>;
 const URL: &str = "https://www.cbioportal.org/api/studies?projection=DETAILED";
 pub(super) fn trials() -> Vec<Trial> {
     // The test removes the replay source before traversing the runtime catalog revision and validates immutable store ownership.
-    let mut trials = vec![transcript_trial(required_contract::STUDY_SEARCH.0, || {
-        search().map_err(Into::into)
-    })];
+    // Replacing the recording after the accepted sync is required: CLI case steps each restart replay exchanges.
+    let mut trials = vec![
+        transcript_trial(
+            "study-failures/failed-refresh-preserves-published-catalog",
+            || replacement().map_err(Into::into),
+        ),
+        transcript_trial(required_contract::STUDY_SEARCH.0, || {
+            search().map_err(Into::into)
+        }),
+    ];
     trials.extend(study_files::trials());
     trials.extend(study_get::trials());
     trials
@@ -196,6 +203,77 @@ fn page_walk(env: &Environment, replay: &Path, first: &Value) -> Check {
             .collect::<Vec<_>>()
     {
         return Err("page walk changed order or lost rows".into());
+    }
+    Ok(())
+}
+
+fn replacement() -> Check {
+    for fault in ["conflict", "oversized"] {
+        let env = Environment::new().map_err(|e| e.to_string())?;
+        let replay = seed(&env, rows(), 200)?;
+        call(
+            &env,
+            &replay,
+            &["sync", "cbioportal-studies"],
+            0,
+            "catalog/replacement/1",
+        )?;
+        let mut body = rows();
+        if fault == "conflict" {
+            let row = body.get(0).ok_or("row")?.clone();
+            body.as_array_mut().ok_or("rows")?.push(row);
+        }
+        if fault == "oversized" {
+            *body.pointer_mut("/0/description").ok_or("description")? =
+                json!("x".repeat(1024 * 1024));
+        }
+        seed(&env, body, 200)?;
+        let failure = call(
+            &env,
+            &replay,
+            &["sync", "cbioportal-studies"],
+            4,
+            "catalog/replacement/2",
+        )?;
+        if failure.pointer("/sources/0/state") != Some(&json!("failed"))
+            || failure.pointer("/sources/0/use") != Some(&json!("restricted"))
+            || failure.pointer("/sources/0/terms").is_none()
+        {
+            return Err(format!(
+                "sync fault lost terms or source outcome: {failure}"
+            ));
+        }
+        let found = call(
+            &env,
+            &replay,
+            &["search", "study", "atlas"],
+            0,
+            "catalog/replacement/3",
+        )?;
+        if found.pointer("/page/total") != Some(&json!(12)) {
+            return Err(format!("failed replacement lost old rows: {found}"));
+        }
+        for group in ["cbioportal", "restricted"] {
+            let skipped = call(
+                &env,
+                &replay,
+                &["search", "study", "atlas", "--disable-sources", group],
+                4,
+                "catalog/replacement/4",
+            )?;
+            if skipped.get("result").is_some()
+                || skipped.pointer("/sources/0/reason") != Some(&json!("disabled"))
+            {
+                return Err(format!("disabled read: {skipped}"));
+            }
+            call(
+                &env,
+                &replay,
+                &["sync", "cbioportal-studies", "--disable-sources", group],
+                4,
+                "catalog/replacement/5",
+            )?;
+        }
     }
     Ok(())
 }
