@@ -19,7 +19,7 @@
           "omits": [
             "notices",
             "count",
-            "fetched"
+            "retrieved_count"
           ]
         }
       },
@@ -42,7 +42,7 @@
         "/sources/0": {
           "omits": [
             "count",
-            "fetched"
+            "retrieved_count"
           ]
         }
       },

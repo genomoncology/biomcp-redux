@@ -38,12 +38,12 @@
             "NCT05273554"
           ]
         },
-        "/sources/0/fetched": 1,
         "/sources/0/count": 2,
         "/query/country": [
           "United States"
         ],
-        "/sources/0/notices/0/kind": "request-guidance"
+        "/sources/0/notices/0/kind": "request-guidance",
+        "/sources/0/retrieved_count": 1
       },
       "max_bytes": 7000
     },
@@ -84,13 +84,13 @@
             "NCT05273554"
           ]
         },
-        "/sources/0/fetched": 1,
         "/sources/0/count": 2,
         "/query/country": [
           "United States"
         ],
         "/sources/0/notices/0/kind": "request-guidance",
-        "/query/next_page": "biomcp:ctgov-names:v1:synthetic-next"
+        "/query/next_page": "biomcp:ctgov-names:v1:synthetic-next",
+        "/sources/0/retrieved_count": 1
       },
       "max_bytes": 5500
     }

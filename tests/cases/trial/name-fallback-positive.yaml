@@ -1,0 +1,32 @@
+{
+  "feature": "trial-search",
+  "story": "An exact lead-sponsor phrase returns zero; native sponsor/collaborator search returns NCT03734029, whose captured lead sponsor is Daiichi Sankyo and collaborator is AstraZeneca.",
+  "replay": "trial/name-fallback",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "trial",
+        "--id",
+        "NCT03734029",
+        "--sponsor",
+        "AstraZeneca"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 1,
+        "/page/returned": 1,
+        "/sources/0/count": 1,
+        "/result/items/*/nct_id": {
+          "equals": [
+            "NCT03734029"
+          ]
+        },
+        "/sources/0/notices/0/kind": "request-guidance",
+        "/sources/0/notices/0/message": "ClinicalTrials.gov exact phrase request {\"countTotal\": \"true\", \"fields\": \"NCTId,BriefTitle,OverallStatus,Phase,Condition,InterventionName,LastUpdatePostDate,HasResults\", \"filter.advanced\": \"AREA[NCTId]NCT03734029 AND AREA[LeadSponsorName]\\\"AstraZeneca\\\"\", \"pageSize\": \"10\"} returned zero trials. BioMCP tried the registry's broader name request {\"countTotal\": \"true\", \"fields\": \"NCTId,BriefTitle,OverallStatus,Phase,Condition,InterventionName,LastUpdatePostDate,HasResults\", \"filter.advanced\": \"AREA[NCTId]NCT03734029\", \"pageSize\": \"10\", \"query.spons\": \"AstraZeneca\"} once.",
+        "/sources/0/retrieved_count": 1
+      },
+      "max_bytes": 5000
+    }
+  ]
+}
