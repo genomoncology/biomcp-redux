@@ -360,7 +360,16 @@ fn optional_sections(
         let mut words = args(Some(section));
         words.extend(["--snapshot".into(), snapshot.into()]);
         let page = both(env, words, 0)?;
-        if page.pointer(&format!("/result/{section}/total")) != Some(&json!(total))
+        let native = match section {
+            "drugs" => ("medicinalproduct", "Synthetic A"),
+            _ => ("term/label", "Synthetic reaction"),
+        };
+        if page.get("status") != Some(&json!("complete"))
+            || page.pointer("/sources/0/state") != Some(&json!("ok"))
+            || page.pointer(&format!("/result/{section}/total")) != Some(&json!(total))
+            || (total > 0
+                && page.pointer(&format!("/result/{section}/records/0/{}", native.0))
+                    != Some(&json!(native.1)))
             || page
                 .pointer(&format!("/result/{section}/records"))
                 .and_then(Value::as_array)
