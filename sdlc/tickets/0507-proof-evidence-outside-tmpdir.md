@@ -1,6 +1,7 @@
 # 0507 — Keep every intended test evidence folder outside the job's temporary folder
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: d3b8baed926397824553701ad62426894fbbfa57
 
 Milestone: 5
 

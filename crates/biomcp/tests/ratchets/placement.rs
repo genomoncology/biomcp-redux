@@ -17,7 +17,7 @@ const ALLOWED: &[(&str, &str)] = &[
     ),
     (
         "crates/biomcp/src/mcp/worker_tests.rs",
-        "Inject a panic at the private worker completion boundary because public requests cannot intentionally panic.",
+        "Test worker panic completion and exact serialized tool result character boundaries that public requests cannot intentionally produce.",
     ),
     (
         "crates/biomcp/src/config/deferred_keys_tests.rs",
