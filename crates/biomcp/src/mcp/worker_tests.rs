@@ -9,6 +9,8 @@ fn panicking_worker_completes_with_internal_error() {
         active: std::collections::BTreeMap::new(),
         legacy: false,
         globals: crate::grammar::Globals::default(),
+        root: std::sync::Arc::new(clap::Command::new("worker-fixture")),
+        settings: std::sync::Arc::new(Ok(None)),
         fetch: Err(crate::config::StartupError::Local),
     };
     server
