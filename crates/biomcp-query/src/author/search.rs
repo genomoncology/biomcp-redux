@@ -7,7 +7,7 @@ use biomcp_types::{
     StepKind,
 };
 /// Preserve the source's exact query, candidate order and continuation.
-pub fn search(cx: &Ctx<'_>, q: &AuthorSearch) -> Outcome {
+pub(crate) fn search(cx: &Ctx<'_>, q: &AuthorSearch) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let mut out = empty(QueryBody::AuthorPage(None));
@@ -73,7 +73,7 @@ fn execute(
             None,
         )
     };
-    let cached = saved.pages.iter().any(|p| p.offset == q.offset());
+    let cached = saved.pages.iter().any(|p| p.offset() == q.offset());
     if !cached {
         let leg = cx
             .fetch
@@ -110,15 +110,14 @@ fn present(
     let page = saved
         .pages
         .into_iter()
-        .find(|p| p.offset == q.offset())
+        .find(|p| p.offset() == q.offset())
         .ok_or(biomcp_fetch::CacheError::Database)?;
-    out.include_refusals(page.refusals);
-    out.problems.extend(page.problems);
-    let items: Box<[_]> = page
-        .data
-        .into_iter()
-        .map(|r| r.header(&mut out.problems))
-        .collect();
+    let next = page.next();
+    let total = page.total();
+    let mapped = page.headers();
+    out.include_refusals(mapped.refusals);
+    out.problems.extend(mapped.problems);
+    let items = mapped.value;
     for row in &items {
         out.next.push(crate::next::Step::new(
             StepKind::Disambiguate,
@@ -126,7 +125,7 @@ fn present(
             run(Request::GetAuthor(AuthorGet::one(row.id.clone()))),
         ));
     }
-    if let Some(offset) = page.next {
+    if let Some(offset) = next {
         out.next.push(crate::next::Step::new(
             StepKind::Page,
             &[biomcp_types::Source::SemanticScholar],
@@ -135,7 +134,7 @@ fn present(
             )),
         ));
     }
-    out.page = page.total.map(|total| PageInfo {
+    out.page = total.map(|total| PageInfo {
         offset: q.offset(),
         returned: items.len() as u32,
         total,
@@ -152,7 +151,7 @@ fn present(
     out.sources = vec![saved.source];
     out.body = QueryBody::AuthorPage(Some(AuthorPage {
         items,
-        matching_records: page.total,
+        matching_records: total,
     }));
     Ok(())
 }

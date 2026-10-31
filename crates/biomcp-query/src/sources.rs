@@ -28,3 +28,6 @@ pub fn sync(
         Bundle::Gencc => biomcp_adapters::gencc::sync(fetch),
     })
 }
+
+/// Configuration actions for source transport failures.
+pub fn network(sources: &[biomcp_types::SourceOutcome]) -> Vec<crate::next::Step> { crate::next::network(sources) }

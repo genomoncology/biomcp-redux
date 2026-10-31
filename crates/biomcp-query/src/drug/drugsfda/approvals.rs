@@ -14,29 +14,23 @@ pub(super) fn select(
     out: &mut Outcome,
 ) -> Result<(), RequestError> {
     let products: Box<[_]> = row
-        .products
-        .iter()
+        .products()
+        .into_vec()
+        .into_iter()
         .filter(|p| {
             query
                 .product_number()
                 .is_none_or(|n| n == &p.product_number)
         })
-        .map(|p| p.mapped())
         .collect();
     let approvals = if query.product_number().is_some() && products.is_empty() {
         crate::status::item(out, true, false, true);
         Section::unavailable(Source::Drugsfda, Reason::NotFound)
     } else {
         let offset = query.section_offset().unwrap_or(0);
-        let records = row
-            .submissions
-            .iter()
-            .skip(offset as usize)
-            .take(query.section_limit().unwrap_or(1) as usize)
-            .map(|s| s.mapped(row))
-            .collect::<Result<Box<[_]>, _>>()?;
+        let records = row.submissions(offset, query.section_limit().unwrap_or(1))?;
         let returned = records.len() as u32;
-        let total = row.submissions.len() as u64;
+        let total = row.submission_count() as u64;
         out.page = Some(PageInfo {
             offset,
             returned,

@@ -24,7 +24,8 @@ mod wire;
 use biodata::{DrugId, DrugIdentityLevel, Text};
 use biomcp_fetch::{Arg, BadReply, Endpoint, Freshness, Leg, ReplyMetadata, RequestError};
 use biomcp_types::{DrugHeader, DrugSource};
-pub use raw::{Application, Document, Ingredient, OpenFda, Product, Property, Submission, date};
+use raw::{Application as RawApplication, Product, Submission};
+pub use map::Application;
 const APPLICATION: Endpoint = SPEC.get("").fresh(Freshness::Days(1)).json_absence();
 /// One native application candidate page and its original retrieval metadata.
 #[derive(Debug)]
@@ -124,13 +125,13 @@ fn page(
     Ok(Page {
         refusals,
         problems: problems.list,
-        records,
+        records: records.into_iter().map(map::Application).collect(),
         total,
         metadata,
         updated,
     })
 }
-impl Application {
+impl RawApplication {
     /// An application endpoint establishes application identity, without choosing a brand.
     pub fn header(&self) -> DrugHeader {
         DrugHeader {

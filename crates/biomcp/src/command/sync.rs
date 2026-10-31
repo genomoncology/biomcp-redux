@@ -58,7 +58,7 @@ fn finish<T: biomcp_types::ResponseBody<Query = biomcp_types::SyncQuery>>(
             code: biomcp_types::ProblemCode::CollectionIncomplete,
         });
     }
-    envelope.next = biomcp_query::next::network(&envelope.sources)
+    envelope.next = biomcp_query::sources::network(&envelope.sources)
         .iter()
         .map(|step| crate::spell::step(step.0, &step.1))
         .collect::<Result<Vec<_>, _>>()?;

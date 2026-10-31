@@ -6,7 +6,7 @@ use biomcp_types::{
 };
 
 /// Page the native site catalog without selecting an ontology identity.
-pub fn search(cx: &Ctx<'_>, query: &DiseaseSearch) -> Outcome {
+pub(crate) fn search(cx: &Ctx<'_>, query: &DiseaseSearch) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let leg = cx.fetch.leg(&seer::SPEC, deadline).fresh(cx.fresh);
@@ -44,7 +44,7 @@ pub fn search(cx: &Ctx<'_>, query: &DiseaseSearch) -> Outcome {
     out
 }
 /// Preserve source stage or annual rows behind an explicit native site selection.
-pub fn get(cx: &Ctx<'_>, query: &DiseaseGet) -> Outcome {
+pub(crate) fn get(cx: &Ctx<'_>, query: &DiseaseGet) -> Outcome {
     let survival = query.section() == Some(DiseaseSection::Survival);
     let body = if survival {
         QueryBody::DiseaseSurvival(DiseaseSurvival {

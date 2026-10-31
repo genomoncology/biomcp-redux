@@ -1,9 +1,9 @@
 //! PubMed snapshots and stable pages through one checked command consumer.
 mod edges;
 mod empty_litvar;
-pub mod evidence;
+pub(crate) mod evidence;
 mod fold;
-pub mod get;
+pub(crate) mod get;
 mod named;
 pub(crate) mod next;
 mod order;
@@ -11,11 +11,11 @@ mod page;
 pub mod pdf;
 mod preprint;
 mod protein_change;
-pub mod recommend;
-pub mod save;
+pub(crate) mod recommend;
+pub(crate) mod save;
 mod sections;
 mod semantic_edges;
-pub mod semantic_scholar;
+pub(crate) mod semantic_scholar;
 mod sources;
 pub mod supplement;
 mod term;
@@ -26,7 +26,7 @@ use biomcp_fetch::{CacheError, Deadline, RequestError};
 use biomcp_types::{ArticlePage, ArticleSearch, QueryBody, Request, StepKind};
 use sha2::{Digest, Sha256};
 /// Run one article command under a single absolute deadline.
-pub fn search(cx: &Ctx<'_>, query: &ArticleSearch) -> Outcome {
+pub(crate) fn search(cx: &Ctx<'_>, query: &ArticleSearch) -> Outcome {
     let mut out = empty();
     if let Some((source, option)) = unsupported(query) {
         out.body = QueryBody::UnsupportedFilter { source, option };
@@ -161,12 +161,12 @@ pub(super) fn consume<'a>(
 }
 
 /// Page one citation graph direction.
-pub fn edges(cx: &Ctx<'_>, query: &biomcp_types::ArticleEdges, references: bool) -> Outcome {
+pub(crate) fn edges(cx: &Ctx<'_>, query: &biomcp_types::ArticleEdges, references: bool) -> Outcome {
     edges::run(cx, query, references)
 }
 
 /// Check source capabilities before resolving inputs or opening a store.
-pub fn unsupported(
+pub(crate) fn unsupported(
     query: &ArticleSearch,
 ) -> Option<(biomcp_types::Source, biomcp_types::ArticleFilter)> {
     use biomcp_types::{ArticleFilter as F, ArticleSource as S};

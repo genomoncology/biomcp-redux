@@ -22,9 +22,7 @@ mod raw;
 mod receive;
 use biomcp_fetch::{Arg, BadReply, Freshness, Leg, PathSegment, RequestError};
 pub use pages::{Indications, Mechanisms, Molecules};
-pub use raw::{
-    CrossReference, Hierarchy, Indication, Mechanism, Molecule, PageMeta, Reference, Synonym,
-};
+pub use map::{Molecule, Mechanism, Indication};
 const MOLECULES: biomcp_fetch::Endpoint = SPEC.get("/molecule.json").fresh(Freshness::Days(1));
 const MOLECULE: biomcp_fetch::Endpoint = SPEC.get("/molecule").fresh(Freshness::Days(1));
 const MECHANISMS: biomcp_fetch::Endpoint = SPEC.get("/mechanism.json").fresh(Freshness::Days(1));
@@ -64,14 +62,14 @@ pub fn molecule(
     leg.json_received_checked(
         &MOLECULE.clone().with_segments(&[path]),
         &[],
-        |r: &Molecule| {
+        |r: &raw::Molecule| {
             if r.molecule_chembl_id == id {
                 Ok(())
             } else {
                 Err(BadReply)
             }
         },
-    )
+    ).map(|(row, meta)| (map::Molecule(row), meta))
 }
 /// Read native mechanisms without resolving a target record by name or substituting a drug ID.
 pub fn mechanisms(
@@ -144,7 +142,7 @@ mod map;
 mod molecule;
 mod scope;
 pub use map::{indications as map_indications, targets as map_targets};
-pub use molecule::{card as molecule_card, header as molecule_header};
+pub use map::{molecule_card, molecule_header};
 
 mod cell;
 pub use cell::{CellPage, assay_count, cells, release};

@@ -9,7 +9,7 @@ use biomcp_types::{
     StudyCard, StudyGet, StudyProfiles, StudySampleLists, StudySection,
 };
 /// Exact case-sensitive catalog card or one bounded independent metadata collection.
-pub fn get(cx: &Ctx<'_>, q: &StudyGet) -> Outcome {
+pub(crate) fn get(cx: &Ctx<'_>, q: &StudyGet) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let mut out = empty(match q.section() {

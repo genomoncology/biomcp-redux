@@ -348,19 +348,13 @@ fn query_resolution() -> Check {
             return Err("HGNC recording did not contain native complete rows".into());
         }
         hgnc::sync(&fetch, hgnc::HgncBundle::Complete)?;
-        let leg = fetch.leg(&hgnc::SPEC, fetch.deadline(Duration::from_secs(20)));
-        let mapped = biomcp_query::gene::resolve(&leg, &"ODC1".parse()?)?;
-        let expected = if refused {
-            Refusal::Refused
-        } else {
-            Refusal::None
-        };
-        if mapped.refusals != expected
-            || !matches!(mapped.value, biomcp_types::GeneResolution::Resolved { .. })
-        {
-            return Err(
-                "HGNC query aggregation lost a retained gene or its actual refusal fact".into(),
-            );
+        let query = biomcp_types::GeneGet::new(Box::new(["ODC1".parse()?]))?;
+        let mapped = biomcp_query::run(&biomcp_query::Ctx {
+            fetch: &fetch, budget: Duration::from_secs(20), fresh: false, ncbi_email: None,
+        }, &biomcp_types::Request::GetGene(query));
+        let expected = if refused { biomcp_types::Status::Partial } else { biomcp_types::Status::Complete };
+        if mapped.status() != expected || !matches!(mapped.body, biomcp_types::QueryBody::GeneCards(ref cards) if !cards.items.is_empty()) {
+            return Err("HGNC query aggregation lost a retained gene or its actual refusal fact".into());
         }
         if !refused
             && !mapped

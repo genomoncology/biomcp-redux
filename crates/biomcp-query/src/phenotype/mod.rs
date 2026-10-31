@@ -8,7 +8,7 @@ use biomcp_types::{
     PageInfo, PhenotypeGet, PhenotypePage, PhenotypeSearch, QueryBody, Request, Source, StepKind,
 };
 /// Read a native association page or one exact source term reply.
-pub fn get(cx: &Ctx<'_>, q: &PhenotypeGet) -> Outcome {
+pub(crate) fn get(cx: &Ctx<'_>, q: &PhenotypeGet) -> Outcome {
     if matches!(
         q.section(),
         Some(biomcp_types::PhenotypeSection::Diseases | biomcp_types::PhenotypeSection::Genes)
@@ -19,7 +19,7 @@ pub fn get(cx: &Ctx<'_>, q: &PhenotypeGet) -> Outcome {
     }
 }
 /// Search one native HP page without source substitution or local selection.
-pub fn search(cx: &Ctx<'_>, q: &PhenotypeSearch) -> Outcome {
+pub(crate) fn search(cx: &Ctx<'_>, q: &PhenotypeSearch) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let leg = cx.fetch.leg(&monarch::SPEC, deadline).fresh(cx.fresh);

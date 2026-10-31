@@ -100,17 +100,17 @@ fn chembl_pages() -> Result<(), String> {
                 .window
                 .rows
                 .first()
-                .is_none_or(|row| row.problems.is_empty())
+                .is_none_or(|row| row.problems().is_empty())
                 || mechanism
                     .window
                     .rows
                     .first()
-                    .is_none_or(|row| row.problems.is_empty())
+                    .is_none_or(|row| row.problems().is_empty())
                 || indication
                     .window
                     .rows
                     .first()
-                    .is_none_or(|row| row.problems.is_empty()))
+                    .is_none_or(|row| row.problems().is_empty()))
         {
             return Err("optional-field control did not produce retained-row problems".into());
         }

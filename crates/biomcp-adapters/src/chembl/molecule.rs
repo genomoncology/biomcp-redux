@@ -1,10 +1,10 @@
 //! Map molecule metadata without changing native identities or stage strings.
-use super::Molecule;
+use super::raw::Molecule;
 use crate::mapped::Problems;
 use biodata::{Attribution, DrugIdentity, DrugIdentityLevel, DrugIdentityRelation, Error, Text};
 use biomcp_types::{DrugCard, DrugHeader, DrugSection, DrugSource};
 /// Map one checked native molecule identity with independent metadata problems.
-pub fn header(row: &Molecule) -> Result<crate::Mapped<DrugHeader>, Error> {
+pub(super) fn header(row: &Molecule) -> Result<crate::Mapped<DrugHeader>, Error> {
     let mut problems = Problems {
         source: biomcp_types::Source::Chembl,
         record: crate::mapped::record(&row.molecule_chembl_id),
@@ -30,7 +30,7 @@ pub fn header(row: &Molecule) -> Result<crate::Mapped<DrugHeader>, Error> {
     })
 }
 /// Map synonyms and source relations without failing unrelated molecule fields.
-pub fn card(row: Molecule, fetched: Option<i64>) -> Result<crate::Mapped<DrugCard>, Error> {
+pub(super) fn card(row: Molecule, fetched: Option<i64>) -> Result<crate::Mapped<DrugCard>, Error> {
     let header = header(&row)?;
     let mut problems = Problems {
         source: biomcp_types::Source::Chembl,

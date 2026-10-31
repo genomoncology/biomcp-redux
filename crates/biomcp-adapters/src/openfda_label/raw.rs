@@ -6,7 +6,7 @@ use serde::Deserialize;
 /// A source SPL revision; the label fields retain their native array boundaries.
 #[derive(Debug, Deserialize)]
 #[serde(from = "super::wire::Record")]
-pub struct Record {
+pub(super) struct Record {
     /// Native revision identifier, distinct from its SPL set.
     pub id: DrugId,
     /// Native SPL set identifier.

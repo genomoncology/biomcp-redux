@@ -4,7 +4,8 @@ mod scope;
 use biodata::NcbiGeneId;
 use biomcp_fetch::{Arg, BadReply, Freshness, KeyUse, Leg, PathSegment, RequestError, SourceSpec};
 use biomcp_types::{RecurrenceStudy, Source, VariantRecurrenceQuery};
-pub use raw::Mutation;
+mod map;
+pub use map::Mutation;
 use std::time::Duration;
 /// Reviewed DataHub directory API origin.
 pub(crate) const GITHUB_ORIGIN: &str = "https://api.github.com";
@@ -147,7 +148,7 @@ pub fn mutations(
     for row in rows.0 {
         if let Some(mut row) = problems.field("sampleId", Some(row.value)) {
             problems.list.append(&mut row.problems);
-            values.push(row);
+            values.push(map::mutation(row));
         } else {
             refusals = crate::Refusal::Refused;
         }

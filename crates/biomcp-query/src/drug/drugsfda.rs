@@ -131,12 +131,7 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     out
 }
 fn label_steps(cx: &Ctx<'_>, row: &source::Application, out: &mut Outcome) {
-    for id in row
-        .openfda
-        .as_ref()
-        .and_then(|o| o.spl_set_id.as_ref())
-        .into_iter()
-        .flatten()
+    for id in row.label_ids()
     {
         if let Some(request) = crate::next::checked(
             DrugGet::new(id.clone(), DrugSource::OpenfdaLabel),

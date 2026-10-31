@@ -13,7 +13,7 @@ use serde::{Deserialize, Serialize};
 /// Native source page, with no inferred next offset or result total.
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(from = "RawPage")]
-pub struct Page {
+pub(super) struct Page {
     /// Native start offset.
     pub offset: u32,
     /// Native next offset, only when supplied.
@@ -73,7 +73,7 @@ impl From<RawPage> for Page {
 /// Native author metadata; omitted optional fields remain absent.
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase", from = "RawRecord")]
-pub struct Record {
+pub(super) struct Record {
     /// Exact provider record identity.
     pub author_id: SemanticScholarAuthorId,
     name: Option<biodata::Text>,

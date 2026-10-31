@@ -8,7 +8,7 @@ use biomcp_types::{
     QueryBody, Reason, Request, Source, StepKind, VariantRecurrence, VariantRecurrenceQuery,
 };
 /// Read one native page without inventing an assayed denominator or selecting an ambiguous allele.
-pub fn run(cx: &Ctx<'_>, query: &VariantRecurrenceQuery) -> Outcome {
+pub(crate) fn run(cx: &Ctx<'_>, query: &VariantRecurrenceQuery) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let mut out = crate::status::empty(QueryBody::VariantRecurrence(empty()));

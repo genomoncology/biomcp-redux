@@ -7,7 +7,7 @@ use biomcp_types::{
     VariantSearch,
 };
 /// Discover one source-native page; a zero result remains distinct from a failed source.
-pub fn search(cx: &Ctx<'_>, query: &VariantSearch) -> Outcome {
+pub(crate) fn search(cx: &Ctx<'_>, query: &VariantSearch) -> Outcome {
     if query.raw_query()
         && !cx.fetch.disabled(Source::MyVariant)
         && myvariant::components::restricted(cx.fetch)

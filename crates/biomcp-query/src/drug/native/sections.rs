@@ -85,7 +85,7 @@ pub(super) fn opentargets(
     let offset = query.section_offset().unwrap_or(0) as usize;
     match query.sections() {
         [DrugSection::Targets] => {
-            let mut collection = opentargets::map_targets(&drug, row.mechanisms_of_action)
+            let mut collection = opentargets::map_targets(&drug, row.mechanisms())
                 .map_err(|_| failure(source))?;
             out.problems.append(&mut collection.problems);
             out.include_refusals(collection.refusals);
@@ -93,7 +93,7 @@ pub(super) fn opentargets(
             targets(out, query, header, window, meta.fetched, fresh);
         }
         [DrugSection::Indications] => {
-            let mut collection = opentargets::map_indications(&drug, row.indications)
+            let mut collection = opentargets::map_indications(&drug, row.indications())
                 .map_err(|_| failure(source))?;
             out.problems.append(&mut collection.problems);
             out.include_refusals(collection.refusals);

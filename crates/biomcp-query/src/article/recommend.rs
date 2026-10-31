@@ -9,7 +9,7 @@ use biomcp_types::{
 };
 use sha2::{Digest, Sha256};
 /// Read one recommendation window without local topic filtering or ranking.
-pub fn run(cx: &Ctx<'_>, query: &ArticleRecommend) -> Outcome {
+pub(crate) fn run(cx: &Ctx<'_>, query: &ArticleRecommend) -> Outcome {
     let mut out = super::empty();
     out.body = QueryBody::ArticleRecommendations(body(Box::default(), false));
     let command = cx.fetch.command_deadline(cx.budget);

@@ -13,7 +13,7 @@ type Row = (
     Option<RequestError>,
 );
 /// Call each explicitly selected service independently under the shared deadline.
-pub fn normalize(cx: &Ctx<'_>, query: &VariantNormalize) -> Outcome {
+pub(crate) fn normalize(cx: &Ctx<'_>, query: &VariantNormalize) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let jobs = selected(query.source())

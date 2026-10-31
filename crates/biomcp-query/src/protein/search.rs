@@ -45,7 +45,7 @@ struct Loaded {
     prior: Option<(Pool, String)>,
 }
 /// Walk the retained collection; an invalid pool never silently refetches.
-pub fn search(cx: &Ctx<'_>, q: &ProteinSearch) -> Outcome {
+pub(crate) fn search(cx: &Ctx<'_>, q: &ProteinSearch) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let mut out = super::empty(QueryBody::ProteinPage(ProteinPage {

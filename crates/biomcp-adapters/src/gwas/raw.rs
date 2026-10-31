@@ -35,7 +35,7 @@ pub(super) struct Page {
 /// A source association retains publisher labels and numbers unchanged.
 #[derive(Debug, Deserialize)]
 #[serde(from = "super::receive::ReceivedAssociation")]
-pub struct Association {
+pub(super) struct Association {
     /// Actual refused native child records.
     pub refusals: crate::Refusal,
     /// Rejected source metadata attributed to the association.
@@ -84,7 +84,7 @@ pub struct Association {
 /// Source trait identity and label.
 #[derive(Debug, Deserialize)]
 #[serde(from = "ReceivedTrait")]
-pub struct Trait {
+pub(super) struct Trait {
     /// Rejected display metadata.
     pub problems: Vec<biomcp_types::Problem>,
     /// Source ontology ID.
@@ -118,7 +118,7 @@ impl From<ReceivedTrait> for Trait {
 /// Effect allele qualified by its exact source rsID.
 #[derive(Debug, Deserialize)]
 #[serde(from = "ReceivedEffectAllele")]
-pub struct EffectAllele {
+pub(super) struct EffectAllele {
     /// Rejected display metadata.
     pub problems: Vec<biomcp_types::Problem>,
     /// Source rsID.

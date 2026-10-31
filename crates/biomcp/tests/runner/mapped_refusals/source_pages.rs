@@ -47,9 +47,9 @@ fn authors() -> Check {
         } else {
             Refusal::None
         };
-        if page.refusals != expected
-            || page.data.len() != usize::from(case == "optional")
-            || page.next != Some(1)
+        if page.refusals() != expected
+            || page.len() != usize::from(case == "optional")
+            || page.next() != Some(1)
         {
             return Err(format!(
                 "Semantic Scholar {case}: actual author refusal or continuation changed"

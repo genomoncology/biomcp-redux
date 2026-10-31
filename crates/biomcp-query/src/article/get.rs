@@ -9,7 +9,7 @@ use biomcp_types::{
     SourceState, Status,
 };
 /// Resolve and hydrate article cards under one absolute command deadline.
-pub fn get(cx: &Ctx<'_>, query: &ArticleGet) -> Outcome {
+pub(crate) fn get(cx: &Ctx<'_>, query: &ArticleGet) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let leg = cx.fetch.leg(&pubmed::SPEC, deadline).fresh(cx.fresh);

@@ -6,7 +6,7 @@ use serde::Deserialize;
 /// One exact native application with independent product and submission collections.
 #[derive(Debug, Deserialize)]
 #[serde(from = "super::wire::Application")]
-pub struct Application {
+pub(super) struct Application {
     /// Actual refused native records, independent of optional fields.
     pub refusals: crate::Refusal,
     /// Rejected native source fields.
@@ -24,13 +24,13 @@ pub struct Application {
 }
 /// Source-given label links, without an inferred product association.
 #[derive(Debug)]
-pub struct OpenFda {
+pub(super) struct OpenFda {
     /// Complete explicit SPL set identifiers.
     pub spl_set_id: Option<Vec<DrugId>>,
 }
 /// One native product, independent of application history.
 #[derive(Debug)]
-pub struct Product {
+pub(super) struct Product {
     /// Exact native product selector.
     pub product_number: Text,
     /// Native product name.
@@ -52,7 +52,7 @@ pub struct Product {
 }
 /// Source-listed ingredient and unchanged strength text.
 #[derive(Debug)]
-pub struct Ingredient {
+pub(super) struct Ingredient {
     /// Native ingredient name, without normalization.
     pub name: Option<biodata::Text>,
     /// Full native strength wording.
@@ -60,7 +60,7 @@ pub struct Ingredient {
 }
 /// An application submission; the publisher supplies no product applicability.
 #[derive(Debug)]
-pub struct Submission {
+pub(super) struct Submission {
     /// Native submission category.
     pub submission_type: Option<Text>,
     /// Native submission identifier within the application and type.
@@ -82,13 +82,13 @@ pub struct Submission {
 }
 /// One native submission property.
 #[derive(Debug)]
-pub struct Property {
+pub(super) struct Property {
     /// Original property code.
     pub code: Option<Text>,
 }
 /// A native application document, never fetched by the adapter.
 #[derive(Debug)]
-pub struct Document {
+pub(super) struct Document {
     /// Source document identifier.
     pub id: Text,
     /// Original document URL.
@@ -127,7 +127,7 @@ pub(super) struct Absence {
     message: String,
 }
 /// Convert the source date without assigning it an approval meaning.
-pub fn date(value: &str) -> Result<PartialDate, BadReply> {
+pub(super) fn date(value: &str) -> Result<PartialDate, BadReply> {
     if value.len() != 8 || !value.bytes().all(|b| b.is_ascii_digit()) {
         return Err(BadReply);
     }

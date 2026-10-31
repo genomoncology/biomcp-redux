@@ -4,7 +4,7 @@ use biodata::PathwayId;
 use biomcp_adapters::reactome;
 use biomcp_types::{PathwayGet, PathwaySection, QueryBody, Request, Source, StepKind};
 /// Read one exact native human pathway and only its requested bounded disclosures.
-pub fn get(cx: &Ctx<'_>, q: &PathwayGet) -> Outcome {
+pub(crate) fn get(cx: &Ctx<'_>, q: &PathwayGet) -> Outcome {
     if matches!(q.id(), PathwayId::Wikipathways(_)) {
         return super::wikipathways::get(cx, q);
     }

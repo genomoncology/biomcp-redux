@@ -24,7 +24,8 @@ mod raw;
 mod wire;
 use biodata::{DrugId, Text};
 use biomcp_fetch::{Arg, BadReply, Endpoint, Freshness, Leg, ReplyMetadata, RequestError};
-pub use raw::Record;
+use raw::Record as RawRecord;
+pub use map::Record;
 /// Exact native headings supported by the label surface.
 pub const HEADINGS: [&str; 5] = [
     "boxed_warning",
@@ -56,7 +57,7 @@ fn normalize_name(value: &str) -> String {
         .flat_map(char::to_lowercase)
         .collect()
 }
-impl Record {
+impl RawRecord {
     /// Compare complete publisher values after the established case and spacing normalization.
     pub fn name_match(&self, input: &Text) -> Option<biomcp_types::DrugNameMatch> {
         let input = normalize_name(input.as_str());
@@ -138,7 +139,7 @@ fn page(
     let received = records.len() as u32;
     Ok(Page {
         window: crate::NativeWindow::new(
-            records,
+            records.into_iter().map(map::Record).collect(),
             offset,
             limit,
             Some(total),

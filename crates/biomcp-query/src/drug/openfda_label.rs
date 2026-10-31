@@ -152,7 +152,7 @@ fn select(
         let card = record.card(received_date(fetched))?;
         for heading in source::HEADINGS
             .into_iter()
-            .filter(|h| record.parts(h).is_some())
+            .filter(|h| record.has_heading(h))
         {
             if let Some(heading) = crate::next::checked(
                 heading.parse(),

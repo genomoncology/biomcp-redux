@@ -42,7 +42,7 @@ impl Snapshot {
     }
 }
 /// Keep every successful evidence part beside any independent source failure.
-pub fn run(cx: &Ctx<'_>, query: &ArticleEvidence) -> Outcome {
+pub(crate) fn run(cx: &Ctx<'_>, query: &ArticleEvidence) -> Outcome {
     let mut out = super::empty();
     out.body = QueryBody::ArticleEvidence(ArticleEvidenceResult {
         semantic_scholar: Section::Empty {

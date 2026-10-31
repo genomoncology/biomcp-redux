@@ -7,7 +7,7 @@ use biomcp_types::{
     OrganizationPage, OrganizationSearch, QueryBody, Reason, Request, Source, StepKind,
 };
 /// Find published organizations without assigning identities to names.
-pub fn search(cx: &Ctx<'_>, q: &OrganizationSearch) -> Outcome {
+pub(crate) fn search(cx: &Ctx<'_>, q: &OrganizationSearch) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let mut out = empty();

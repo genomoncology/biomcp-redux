@@ -78,7 +78,7 @@ pub(super) fn get_at(
     out
 }
 /// One exact assay request with its native total, including zero.
-pub fn assay_count(cx: &Ctx<'_>, query: &CellLineAssayCountQuery) -> Outcome {
+pub(crate) fn assay_count(cx: &Ctx<'_>, query: &CellLineAssayCountQuery) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let leg = cx.fetch.leg(&chembl::SPEC, deadline).fresh(cx.fresh);

@@ -3,7 +3,7 @@ use crate::{Action, Ctx, Outcome, status};
 use biomcp_adapters::nci;
 use biomcp_types::{BiomarkerGet, BiomarkerResult, QueryBody, Reason, Source, StepKind};
 /// Read every native row attached to one exact code.
-pub fn get(cx: &Ctx<'_>, q: &BiomarkerGet) -> Outcome {
+pub(crate) fn get(cx: &Ctx<'_>, q: &BiomarkerGet) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let leg = cx.fetch.leg(&nci::SPEC, deadline).fresh(cx.fresh);

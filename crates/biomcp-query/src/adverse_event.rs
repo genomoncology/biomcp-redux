@@ -8,7 +8,7 @@ use biomcp_types::{
     StepKind,
 };
 /// Search report headers through the declared source and its reviewed component admission.
-pub fn search(cx: &Ctx<'_>, query: &AdverseEventSearch) -> Outcome {
+pub(crate) fn search(cx: &Ctx<'_>, query: &AdverseEventSearch) -> Outcome {
     if query.source() == biomcp_types::AdverseEventSource::Vaers {
         return vaers::search(cx, query);
     }
@@ -86,7 +86,7 @@ pub fn search(cx: &Ctx<'_>, query: &AdverseEventSearch) -> Outcome {
 }
 
 /// An unimplemented report get has no source effects until its owning slice lands.
-pub fn unsupported() -> Outcome {
+pub(crate) fn unsupported() -> Outcome {
     crate::status::empty(QueryBody::UnsupportedAdverseEvent)
 }
 
@@ -118,7 +118,7 @@ fn navigation(query: &AdverseEventSearch, page: &faers::Page, out: &mut Outcome)
 }
 
 /// Read an exact FAERS report and its independent retained sections.
-pub fn get(cx: &Ctx<'_>, query: &biomcp_types::AdverseEventGet) -> Outcome {
+pub(crate) fn get(cx: &Ctx<'_>, query: &biomcp_types::AdverseEventGet) -> Outcome {
     if query.source() != biomcp_types::AdverseEventSource::Faers {
         return unsupported();
     }

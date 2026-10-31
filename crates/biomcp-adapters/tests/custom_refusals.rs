@@ -172,7 +172,7 @@ fn molecule_window_owns_selected_member_refusals() -> Check {
             .first()
             .ok_or("missing retained molecule")?;
         assert_eq!(
-            row.refusals,
+            row.refusals(),
             Refusal::None,
             "window must own transferred fact"
         );

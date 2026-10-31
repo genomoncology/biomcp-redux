@@ -1,4 +1,5 @@
 //! Bounded body selection under one command budget, including PMID resolution.
+pub use super::save::Download;
 use crate::{Ctx, Outcome, status};
 use biodata::{Pmcid, Text};
 
@@ -10,7 +11,7 @@ use biomcp_types::{
     StepKind, TextContent, TextHit,
 };
 /// Read a bounded part or find page through the same transport and command budget.
-pub fn read(cx: &Ctx<'_>, query: &ArticleText) -> Outcome {
+pub(crate) fn read(cx: &Ctx<'_>, query: &ArticleText) -> Outcome {
     download(cx, query, false).out
 }
 /// Obtain the whole document for an explicit binary-owned save.

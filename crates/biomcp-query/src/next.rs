@@ -14,11 +14,11 @@ pub struct Step(
 );
 impl Step {
     /// Retain target identities supplied by the entity that creates the step.
-    pub fn new(kind: StepKind, sources: &[Source], action: Action) -> Self {
+    pub(crate) fn new(kind: StepKind, sources: &[Source], action: Action) -> Self {
         Self(kind, action, sources.into())
     }
     /// Retain a checked query and its cache policy with the declared provider requirements.
-    pub fn run(
+    pub(crate) fn run(
         kind: StepKind,
         sources: &[Source],
         request: biomcp_types::Request,
@@ -86,7 +86,7 @@ pub(crate) fn checked<T, E>(
 }
 
 /// Apply source exclusions and the shared response ordering and caps.
-pub fn finish(fetch: &biomcp_fetch::Fetch, result: &mut Outcome) {
+pub(crate) fn finish(fetch: &biomcp_fetch::Fetch, result: &mut Outcome) {
     result.next.retain(|step| {
         !matches!(step.1, Action::NetworkHelp(_))
             && !step.2.iter().any(|source| fetch.disabled(*source))
@@ -175,7 +175,7 @@ fn candidate_navigation(candidates: bool) -> Navigation<'static> {
 }
 
 /// Build source network guidance for housekeeping results with the same bounded policy.
-pub fn network(sources: &[biomcp_types::SourceOutcome]) -> Vec<Step> {
+pub(crate) fn network(sources: &[biomcp_types::SourceOutcome]) -> Vec<Step> {
     let mut steps = Vec::new();
     network_steps(&mut steps, sources, None);
     steps

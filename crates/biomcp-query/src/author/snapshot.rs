@@ -45,22 +45,18 @@ pub(super) fn load(
                 pages: pages
                     .into_iter()
                     .map(|(mut page, dropped)| {
-                        page.refusals = if dropped {
-                            biomcp_adapters::Refusal::Refused
-                        } else {
-                            biomcp_adapters::Refusal::None
-                        };
+                        page.restore_refusals(dropped);
                         page
                     })
                     .collect(),
                 source,
                 key_needed,
             };
-            if saved.pages.iter().any(|p| q.offset() == p.offset)
+            if saved.pages.iter().any(|p| q.offset() == p.offset())
                 || saved
                     .pages
                     .last()
-                    .is_some_and(|p| p.next == Some(q.offset()))
+                    .is_some_and(|p| p.next() == Some(q.offset()))
             {
                 return Ok(Some((saved, pool)));
             }
@@ -87,12 +83,12 @@ pub(super) fn save(
     let pages: Vec<_> = saved
         .pages
         .iter()
-        .map(|page| (page, page.refusals == biomcp_adapters::Refusal::Refused))
+        .map(|page| (page, page.refusals() == biomcp_adapters::Refusal::Refused))
         .collect();
     let payload = serde_json::to_string(&(pages, &saved.source, saved.key_needed))
         .map_err(|_| CacheError::Database)?;
     let mut store = Store::open(cx.fetch.cache_access()?, deadline)?;
-    let size = saved.pages.iter().map(|p| p.data.len() as u32).sum();
+    let size = saved.pages.iter().map(|p| p.len() as u32).sum();
     let sources = std::slice::from_ref(&saved.source);
     Ok(if let Some(pool) = pool {
         store.extend_source_pool(pool, &payload, size, sources)?

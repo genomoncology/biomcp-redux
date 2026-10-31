@@ -19,7 +19,7 @@ pub static SPEC: SourceSpec = SourceSpec {
 };
 mod raw;
 use biomcp_fetch::{BadReply, Freshness, Leg, RequestError};
-pub use raw::{Disease, Drug, Hit, Indication, Mechanism, Rows, Search, Target};
+pub use map::{Drug, Search, Mechanisms, Indications};
 use serde::Serialize;
 const GRAPHQL: biomcp_fetch::Endpoint = SPEC.post_json("/graphql").fresh(Freshness::Days(1));
 const DETAIL: &str = "query Drug($id:String!){drug(chemblId:$id){id name indications{rows{maxClinicalStage disease{id \
@@ -74,7 +74,7 @@ pub fn search(
             }
         },
     )
-    .map(|(r, meta)| (r.data.search, meta))
+    .map(|(r, meta)| (map::Search(r.data.search), meta))
 }
 /// Read one checked source ChEMBL identity; all section paging occurs over this returned collection.
 pub fn drug(
@@ -93,7 +93,7 @@ pub fn drug(
             Err(BadReply)
         }
     })
-    .map(|(r, meta)| (r.data.drug, meta))
+    .map(|(r, meta)| (r.data.drug.map(map::Drug), meta))
 }
 mod map;
 pub use map::{header, indications as map_indications, search_headers, targets as map_targets};

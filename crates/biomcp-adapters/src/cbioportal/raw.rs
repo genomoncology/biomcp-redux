@@ -27,7 +27,7 @@ pub(super) struct SampleList {
 /// Native source mutation identity and sample, without inferred equivalence.
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase", from = "ReceivedMutation")]
-pub struct Mutation {
+pub(super) struct Mutation {
     /// Rejected native fields on this source mutation.
     pub problems: Vec<biomcp_types::Problem>,
     /// Source profile; checked before cache admission.

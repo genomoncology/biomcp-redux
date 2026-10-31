@@ -6,7 +6,7 @@ use biomcp_types::{
     Request, Source, StepKind,
 };
 /// Read one native association page without identity choice or cross-source joins.
-pub fn get(cx: &Ctx<'_>, query: &DiseaseGet) -> Outcome {
+pub(crate) fn get(cx: &Ctx<'_>, query: &DiseaseGet) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let leg = cx.fetch.leg(&monarch::SPEC, deadline).fresh(cx.fresh);

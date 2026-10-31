@@ -4,7 +4,7 @@ use serde::Deserialize;
 /// Native molecule identity returned by the molecule endpoint.
 #[derive(Debug, Deserialize)]
 #[serde(from = "super::receive::ReceivedMolecule")]
-pub struct Molecule {
+pub(super) struct Molecule {
     /// Actual refused native child records.
     pub refusals: crate::Refusal,
     /// Rejected native metadata.
@@ -25,7 +25,7 @@ pub struct Molecule {
 /// One source alternate name.
 #[derive(Debug, Deserialize)]
 #[serde(from = "super::receive::ReceivedSynonym")]
-pub struct Synonym {
+pub(super) struct Synonym {
     /// Rejected native metadata.
     pub problems: Vec<biomcp_types::Problem>,
     /// Original name.
@@ -35,13 +35,13 @@ pub struct Synonym {
 }
 /// Source molecule parent relationship.
 #[derive(Debug, Deserialize)]
-pub struct Hierarchy {
+pub(super) struct Hierarchy {
     /// Source parent ID, possibly the molecule itself.
     pub parent_chembl_id: String,
 }
 /// Source page metadata, independent of local row counts.
 #[derive(Debug, Deserialize)]
-pub struct PageMeta {
+pub(super) struct PageMeta {
     /// Native total.
     pub total_count: u64,
     /// Native offset.
@@ -53,7 +53,7 @@ pub struct PageMeta {
 /// Native target mechanism, which need not identify a gene.
 #[derive(Debug, Deserialize)]
 #[serde(from = "super::receive::ReceivedMechanism")]
-pub struct Mechanism {
+pub(super) struct Mechanism {
     /// Actual refused native child records.
     pub refusals: crate::Refusal,
     /// Rejected native metadata.
@@ -82,7 +82,7 @@ impl Mechanism {
 /// Native indication, independent of a regulatory authorization.
 #[derive(Debug, Deserialize)]
 #[serde(from = "super::receive::ReceivedIndication")]
-pub struct Indication {
+pub(super) struct Indication {
     /// Actual refused native child records.
     pub refusals: crate::Refusal,
     /// Rejected native metadata.
@@ -107,7 +107,7 @@ pub struct Indication {
 /// Native source reference, retaining its original identifiers and URL.
 #[derive(Debug, Deserialize)]
 #[serde(from = "super::receive::ReceivedReference")]
-pub struct Reference {
+pub(super) struct Reference {
     /// Rejected native metadata.
     pub problems: Vec<biomcp_types::Problem>,
     /// Original reference identity, including source-provided lists.
@@ -133,7 +133,7 @@ impl Reply for Molecule {
 /// A source-stated cross-reference, preserving its original source namespace and path.
 #[derive(Debug, Deserialize)]
 #[serde(from = "super::receive::ReceivedCrossReference")]
-pub struct CrossReference {
+pub(super) struct CrossReference {
     /// Rejected native metadata.
     pub problems: Vec<biomcp_types::Problem>,
     /// Native identifier or website path.

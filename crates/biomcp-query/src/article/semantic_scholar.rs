@@ -69,7 +69,7 @@ pub(super) fn search<'a>(
 }
 /// A DOI join preserves its source outcome even when transport or local work fails.
 #[derive(Debug)]
-pub struct DoiResolution {
+pub(crate) struct DoiResolution {
     /// Actual PubMed state, including a failed or stale leg.
     pub source: biomcp_types::SourceOutcome,
     /// Original error, so local failures remain distinct.

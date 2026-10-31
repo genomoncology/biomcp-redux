@@ -8,7 +8,7 @@ use biomcp_types::{
     SourceState, Status, StepKind,
 };
 /// Exact accessions resolve independently and remain in caller order.
-pub fn get(cx: &Ctx<'_>, q: &ProteinGet) -> Outcome {
+pub(crate) fn get(cx: &Ctx<'_>, q: &ProteinGet) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let hgnc_leg = cx.fetch.leg(&hgnc::SPEC, deadline).fresh(cx.fresh);

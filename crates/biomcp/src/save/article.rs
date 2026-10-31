@@ -24,7 +24,7 @@ fn target(path: Option<&Text>, filename: &str, replace: bool, allow: bool) -> Op
         .then(|| SaveTarget::new(path?.as_str(), filename, replace).ok())
         .flatten()
 }
-fn finish(download: article::save::Download, target: Option<SaveTarget>) -> Outcome {
+fn finish(download: article::text::Download, target: Option<SaveTarget>) -> Outcome {
     let mut out = download.out;
     let url = match &out.body {
         QueryBody::ArticleText(body) => match &body.content {
