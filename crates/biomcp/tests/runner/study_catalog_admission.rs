@@ -64,12 +64,12 @@ fn check(value: &Value, status: &str, rows: u64, native: u64, state: &str) -> Ch
     }
     Ok(())
 }
-fn rejected() -> Value {
+fn rejected() -> Result<Value, String> {
     let mut body = rows();
-    for row in body.as_array_mut().expect("synthetic rows") {
-        row["studyId"] = json!("invalid identity with spaces");
+    for row in body.as_array_mut().ok_or("synthetic rows")? {
+        *row.get_mut("studyId").ok_or("study identity")? = json!("invalid identity with spaces");
     }
-    body
+    Ok(body)
 }
 fn empty() -> Check {
     let env = Environment::new().map_err(|e| e.to_string())?;
@@ -79,7 +79,9 @@ fn empty() -> Check {
     let empty = call(&env, &replay, &["sync", "cbioportal-studies"])?;
     check(&empty, "complete", 0, 0, "ok")?;
     let search = call(&env, &replay, &["search", "study", "atlas"])?;
-    if search.pointer("/page/total") != Some(&json!(0)) || search["status"] != "complete" {
+    if search.pointer("/page/total") != Some(&json!(0))
+        || search.get("status") != Some(&json!("complete"))
+    {
         return Err(format!("empty native catalog did not activate: {search}"));
     }
     Ok(())
@@ -92,20 +94,19 @@ fn refused() -> Check {
             .then(|| call(&env, &replay, &["sync", "cbioportal-studies"]))
             .transpose()?;
         let native_rows = if prior { 3 } else { 12 };
-        let mut body = rejected();
+        let mut body = rejected()?;
         body.as_array_mut()
-            .expect("synthetic rows")
+            .ok_or("synthetic rows")?
             .truncate(native_rows as usize);
         seed(&env, body, 200)?;
         let refusal = call(&env, &replay, &["sync", "cbioportal-studies"])?;
-        if let Some(old) = &old {
-            if refusal.pointer("/result/rows") != Some(&json!(12))
-                || refusal.pointer("/result/snapshot") != old.pointer("/result/snapshot")
-            {
-                return Err(format!(
-                    "refused refresh replaced last good rows or snapshot: {refusal}"
-                ));
-            }
+        if let Some(old) = &old
+            && (refusal.pointer("/result/rows") != Some(&json!(12))
+                || refusal.pointer("/result/snapshot") != old.pointer("/result/snapshot"))
+        {
+            return Err(format!(
+                "refused refresh replaced last good rows or snapshot: {refusal}"
+            ));
         }
         check(
             &refusal,
@@ -114,7 +115,12 @@ fn refused() -> Check {
             native_rows,
             if prior { "stale" } else { "ok" },
         )?;
-        if refusal["problems"].as_array().map(Vec::len) != Some(native_rows as usize) {
+        if refusal
+            .get("problems")
+            .and_then(Value::as_array)
+            .map(Vec::len)
+            != Some(native_rows as usize)
+        {
             return Err(format!("native refusals were lost: {refusal}"));
         }
         if old.is_some() {
@@ -138,14 +144,18 @@ fn refused() -> Check {
 }
 fn mixed() -> Check {
     let env = Environment::new().map_err(|e| e.to_string())?;
-    let mut body = rejected();
-    body[0] = rows()[0].clone();
+    let mut body = rejected()?;
+    *body.get_mut(0).ok_or("refused row")? = rows().get(0).ok_or("accepted row")?.clone();
     let replay = seed(&env, body, 200)?;
     let receipt = call(&env, &replay, &["sync", "cbioportal-studies"])?;
     check(&receipt, "partial", 1, 12, "ok")?;
     let found = call(&env, &replay, &["search", "study", "atlas"])?;
     if found.pointer("/page/total") != Some(&json!(1))
-        || receipt["problems"].as_array().map(Vec::len) != Some(11)
+        || receipt
+            .get("problems")
+            .and_then(Value::as_array)
+            .map(Vec::len)
+            != Some(11)
     {
         return Err(format!(
             "mixed native rows lost their accepted identity: {receipt} / {found}"
