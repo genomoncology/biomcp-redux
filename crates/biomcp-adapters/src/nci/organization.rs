@@ -1,6 +1,7 @@
 //! One unsized NCI organization request under an explicit response byte bound.
 use biodata::Text;
 use biomcp_fetch::{Arg, Endpoint, Freshness, Leg, RequestError};
+use biomcp_fetch::{Input, Read};
 use biomcp_types::{Organization, OrganizationSearch};
 /// Maximum complete organization observation before a typed narrowing refusal.
 pub const MAX_BYTES: u64 = 1024 * 1024;
@@ -34,6 +35,12 @@ pub fn search(
         .into_iter()
         .map(|(k, v)| (k, Arg::Text(v.as_str())))
         .collect();
-    leg.json_bounded::<super::organization_raw::Page>(&SEARCH, &args, MAX_BYTES)
-        .map(super::organization_map::page)
+    leg.call(
+        &SEARCH,
+        Input::Params(&args),
+        Read::<super::organization_raw::Page>::json()
+            .bounded(MAX_BYTES, biomcp_types::Reason::TooLarge),
+    )
+    .map(|received| received.value)
+    .map(super::organization_map::page)
 }

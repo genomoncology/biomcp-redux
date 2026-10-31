@@ -1,4 +1,5 @@
 //! One explicit adverse-event source; no inference, drug choice or source probing.
+use biomcp_types::Paged;
 use biomcp_types::ReplyBody;
 mod get;
 mod vaers;

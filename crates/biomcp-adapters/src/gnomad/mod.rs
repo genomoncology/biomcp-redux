@@ -1,4 +1,5 @@
 //! gnomAD population constraint for checked human Ensembl identities.
+use biomcp_fetch::{Input, Read};
 mod map;
 mod raw;
 use crate::{Mapped, quotas};
@@ -55,9 +56,11 @@ pub fn constraints(
         ($($n:literal),+) => {
             match ids.len() {
                 $(
-                    $n => leg.post_json_checked_cache::<_, raw::Genes<$n>>(
-                        &GENES, &body, |raw| raw.eligible(&ids),
-                    ).map(|raw| raw.data),
+                    $n => leg.call(
+                        &GENES,
+                        Input::json(&[], &body),
+                        Read::<raw::Genes<$n>>::json().cache_if(&|raw| raw.eligible(&ids)),
+                    ).map(|received| received.value.data),
                 )+
                 _ => return Err(biomcp_fetch::bad_reply(Source::Gnomad, None)),
             }

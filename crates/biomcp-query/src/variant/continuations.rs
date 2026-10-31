@@ -1,5 +1,6 @@
 //! Spell each provider's typed continuation without changing source identity or page selectors.
 use crate::Action;
+use biomcp_types::Paged;
 
 use biomcp_types::{
     Request, Section, Source, StepKind, VariantGet, VariantHeader, VariantResolution,

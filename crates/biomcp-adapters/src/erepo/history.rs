@@ -2,6 +2,7 @@
 use crate::native_text::NativeText;
 use crate::{Mapped, mapped::Problems, raw::Field};
 use biodata::{Attribution, Text, VariantRef};
+use biomcp_fetch::Read;
 use biomcp_fetch::{BadReply, Freshness, Leg, PathSegment, Reply, RequestError};
 use biomcp_types::{
     AssertionAssessment, AssertionCondition, AssertionDetail, AssertionDocument, AssertionDomain,
@@ -24,17 +25,20 @@ pub(super) fn fetch(
         .collect::<Result<Vec<_>, _>>()
         .map_err(RequestError::Input)?;
     let endpoint = DOCUMENT.clone().with_segments(&path);
-    let reply: DocumentReply = leg.json_checked_admission(
-        &endpoint,
-        &[],
-        |_| Ok(()),
-        |reply: &DocumentReply| {
-            reply
-                .data
-                .as_ref()
-                .is_some_and(|data| data.matches(caid, uuid, version))
-        },
-    )?;
+    let reply: DocumentReply = leg
+        .call(
+            &endpoint,
+            biomcp_fetch::Input::Params(&[]),
+            Read::json()
+                .check(&|_| Ok(()))
+                .cache_if(&|reply: &DocumentReply| {
+                    reply
+                        .data
+                        .as_ref()
+                        .is_some_and(|data| data.matches(caid, uuid, version))
+                }),
+        )?
+        .value;
     let mut cx = Problems {
         source: Source::Erepo,
         record: Some(

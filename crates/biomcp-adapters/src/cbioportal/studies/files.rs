@@ -1,6 +1,7 @@
 //! Exact DataHub directory metadata under the existing restricted source declaration.
 use super::super::SPEC;
 use biodata::{StudyBlobSha, StudyFile, StudyFileKind, StudyId, Text};
+use biomcp_fetch::Input;
 use biomcp_fetch::{BadReply, Freshness, Leg, Reply, RequestError};
 use serde::Deserialize;
 use std::collections::BTreeSet;
@@ -84,13 +85,19 @@ pub fn files(
         .download(&url)?
         .fresh(Freshness::Days(1))
         .bytes(100_000);
-    let result = leg.json_received_checked::<Entries>(&endpoint, &[], |r| {
-        if r.0.iter().all(|v| v.matches(id)) {
-            Ok(())
-        } else {
-            Err(BadReply)
-        }
-    });
+    let result = leg
+        .call(
+            &endpoint,
+            Input::Params(&[]),
+            biomcp_fetch::Read::<Entries>::json().check(&|r| {
+                if r.0.iter().all(|v| v.matches(id)) {
+                    Ok(())
+                } else {
+                    Err(BadReply)
+                }
+            }),
+        )
+        .map(|received| (received.value, received.meta));
     let (reply, metadata) = match result {
         Ok(value) => value,
         Err(RequestError::Source(e))

@@ -1,4 +1,5 @@
 //! Exact native 510(k) identity is checked before ordinary cache admission.
+use biomcp_fetch::{Input, Read};
 mod raw;
 use biomcp_fetch::{Arg, BadReply, Freshness, Leg, RequestError, SourceSpec, Terms};
 use biomcp_types::{DiagnosticClearance, DiagnosticGet, Source, Use};
@@ -38,25 +39,27 @@ pub fn get(
         .bytes(2 * 1024 * 1024)
         .json_absence();
     let reply = leg
-        .json_checked_admission::<raw::Response>(
+        .call(
             &endpoint,
-            &[
+            Input::Params(&[
                 ("search", Arg::Text(&selector)),
                 ("limit", Arg::Num(1)),
                 ("skip", Arg::Num(0)),
-            ],
-            |reply| {
-                if let raw::Response::Page { meta, .. } = reply
-                    && (meta.results.skip != 0
-                        || meta.results.limit != 1
-                        || meta.results.total != 1)
-                {
-                    return Err(BadReply);
-                }
-                Ok(())
-            },
-            |reply| identity(reply, q),
+            ]),
+            Read::<raw::Response>::json()
+                .check(&|reply| {
+                    if let raw::Response::Page { meta, .. } = reply
+                        && (meta.results.skip != 0
+                            || meta.results.limit != 1
+                            || meta.results.total != 1)
+                    {
+                        return Err(BadReply);
+                    }
+                    Ok(())
+                })
+                .cache_if(&|reply| identity(reply, q)),
         )
+        .map(|received| received.value)
         .map_err(|error| Failure {
             error,
             identity_conflict: false,

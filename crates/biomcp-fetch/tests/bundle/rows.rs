@@ -1,4 +1,5 @@
 use super::*;
+use biomcp_fetch::{Input, Read};
 
 #[test]
 fn indexed_tsv_rows_are_literal_and_offline() {
@@ -35,7 +36,12 @@ fn indexed_tsv_rows_are_literal_and_offline() {
         let call = scope.spawn(|| {
             fetch
                 .leg(spec, fetch.deadline(Duration::from_secs(2)))
-                .json::<support::Answer>(&spec.get("/genes").fresh(Freshness::Days(1)), &[])
+                .call(
+                    &spec.get("/genes").fresh(Freshness::Days(1)),
+                    Input::Params(&[]),
+                    Read::<support::Answer>::json(),
+                )
+                .map(|received| received.value)
         });
         server.next().ok();
         assert!(call.join().unwrap().unwrap().answer);

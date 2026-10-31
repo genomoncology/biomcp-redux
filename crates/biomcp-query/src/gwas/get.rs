@@ -1,4 +1,5 @@
 //! Exact get and independent context pages share the native association mapping.
+use biomcp_types::Paged;
 use biomcp_types::ReplyBody;
 mod ancestry;
 mod next;

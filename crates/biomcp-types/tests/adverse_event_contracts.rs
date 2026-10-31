@@ -1,5 +1,6 @@
 //! adverse-event-types: caller-owned no-I/O report contracts.
 use biodata::{FaersReport, MaudeReport};
+use biomcp_types::Paged;
 use biomcp_types::{AdverseEventGet, AdverseEventSearch};
 use serde::{Serialize, de::DeserializeOwned};
 use serde_json::{Value, json};

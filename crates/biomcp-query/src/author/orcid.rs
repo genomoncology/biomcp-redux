@@ -2,6 +2,7 @@ use crate::{Ctx, Outcome, status, store::Store};
 use biodata::{OrcidId, OrcidWorkGroup};
 use biomcp_adapters::orcid;
 use biomcp_fetch::{CacheError, Deadline, RequestError, SourceError};
+use biomcp_types::Paged;
 use biomcp_types::ReplyBody;
 use biomcp_types::{
     AuthorPapersQuery, OrcidWorks, OrcidWorksScope, PageInfo, Reason, ReplyData, Request, Source,

@@ -1,4 +1,5 @@
 //! Integrated InterPro entries only; member-database material retains upstream rights.
+use biomcp_fetch::{Input, Read};
 use biomcp_fetch::{KeyUse, SourceSpec, Terms};
 use biomcp_types::{Source, Use};
 use std::time::Duration;
@@ -84,7 +85,13 @@ pub fn page(
         args.push(("cursor", Arg::Text(cursor.as_str())));
         args.push(("page", Arg::Num(1)));
     }
-    let raw = leg.json_checked_cache::<raw::Page>(&endpoint, &args, |p| p.admitted(id))?;
+    let raw = leg
+        .call(
+            &endpoint,
+            Input::Params(&args),
+            Read::<raw::Page>::json().cache_if(&|p| p.admitted(id)),
+        )?
+        .value;
     if !raw.admitted(id) {
         return Err(biomcp_fetch::bad_reply(Source::InterPro, Some(200)));
     }

@@ -1,4 +1,5 @@
 //! Canonical OPENTARGETS source declaration.
+use biomcp_fetch::Input;
 use biomcp_fetch::{KeyUse, SourceSpec, Terms};
 use biomcp_types::Source;
 use std::time::Duration;
@@ -58,11 +59,10 @@ pub fn search(
         query: &query,
         variables: SearchVariables { q: text },
     };
-    leg.post_json_received_checked(
+    leg.call(
         &GRAPHQL,
-        &[],
-        &body,
-        |r: &raw::Response<raw::SearchData>| {
+        Input::json(&[], &body),
+        biomcp_fetch::Read::json().check(&|r: &raw::Response<raw::SearchData>| {
             if r.data.search.hits.len() <= size as usize
                 && (r.data.search.hits.is_empty()
                     || u64::from(index) * u64::from(size) + r.data.search.hits.len() as u64
@@ -72,8 +72,9 @@ pub fn search(
             } else {
                 Err(BadReply)
             }
-        },
+        }),
     )
+    .map(|received| (received.value, received.meta))
     .map(|(r, meta)| (map::Search(r.data.search), meta))
 }
 /// Read one checked source ChEMBL identity; all section paging occurs over this returned collection.
@@ -86,13 +87,18 @@ pub fn drug(
         query: DETAIL,
         variables: DrugVariables { id: &id },
     };
-    leg.post_json_received_checked(&GRAPHQL, &[], &body, |r: &raw::Response<raw::DrugData>| {
-        if r.data.drug.as_ref().is_none_or(|d| d.id == id) {
-            Ok(())
-        } else {
-            Err(BadReply)
-        }
-    })
+    leg.call(
+        &GRAPHQL,
+        Input::json(&[], &body),
+        biomcp_fetch::Read::json().check(&|r: &raw::Response<raw::DrugData>| {
+            if r.data.drug.as_ref().is_none_or(|d| d.id == id) {
+                Ok(())
+            } else {
+                Err(BadReply)
+            }
+        }),
+    )
+    .map(|received| (received.value, received.meta))
     .map(|(r, meta)| (r.data.drug.map(map::Drug), meta))
 }
 mod map;

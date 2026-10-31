@@ -1,5 +1,6 @@
 //! Credential placement and reflected metadata share one transport boundary.
 use super::*;
+use biomcp_fetch::{Input, Read};
 
 #[test]
 fn credential_identities_scope_replies_without_disclosing_keys() {
@@ -49,7 +50,12 @@ fn safe_keyed_binary_recording_replays_without_opening_http()
         let fetch = Fetch::open(config)?;
         let bytes = fetch
             .leg(spec, fetch.deadline(Duration::from_secs(10)))
-            .bytes(&spec.get("/binary").bytes(1024), &[])?;
+            .call(
+                &spec.get("/binary").bytes(1024),
+                Input::Params(&[]),
+                Read::bytes(),
+            )
+            .map(|received| received.value.0)?;
         assert_eq!(bytes, b"safe binary");
     }
     assert_eq!(stub.finish().len(), 1);
@@ -78,7 +84,13 @@ fn reflected_credentials_are_sent_but_refused_without_retry_or_public_disclosure
             assert!(!format!("{config:?}").contains(secret));
             let fetch = Fetch::open(config).unwrap();
             let leg = fetch.leg(spec, fetch.deadline(Duration::from_secs(10)));
-            let error = leg.json::<Answer>(&spec.get("/answer"), &[]).unwrap_err();
+            let error = leg
+                .call(
+                    &spec.get("/answer"),
+                    Input::Params(&[]),
+                    Read::<Answer>::json(),
+                )
+                .unwrap_err();
             let biomcp_fetch::RequestError::Source(error) = error else {
                 panic!("expected provider failure: {error}");
             };
@@ -130,7 +142,13 @@ fn deferred_credentials_resolve_once_after_source_admission()
         let fetch = Fetch::open(config)?;
         let leg = fetch.leg(spec, fetch.deadline(Duration::from_secs(10)));
         assert_eq!(calls.load(Ordering::SeqCst), 0);
-        let reply = leg.json::<Answer>(&spec.get("/answer"), &[]);
+        let reply = leg
+            .call(
+                &spec.get("/answer"),
+                Input::Params(&[]),
+                Read::<Answer>::json(),
+            )
+            .map(|received| received.value);
         if disabled {
             assert!(
                 matches!(reply,Err(biomcp_fetch::RequestError::Source(e)) if e.reason == Reason::Disabled)

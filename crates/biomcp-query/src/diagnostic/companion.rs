@@ -1,6 +1,7 @@
 use crate::{Action, Bundle, Ctx, Outcome, status};
 use biodata::CompanionDiagnosticRelation;
 use biomcp_adapters::fda_cdx;
+use biomcp_types::Paged;
 use biomcp_types::ReplyBody;
 use biomcp_types::{
     DiagnosticCompanion, DiagnosticSearch, DrugGet, DrugSource, PageInfo, Reason, Request, Source,

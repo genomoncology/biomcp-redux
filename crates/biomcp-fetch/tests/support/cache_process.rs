@@ -4,6 +4,8 @@
     clippy::panic,
     reason = "Fixture setup, child processes and failed source assertions must abort the contract test"
 )]
+use biomcp_fetch::Input;
+
 #[path = "evidence.rs"]
 mod evidence;
 
@@ -238,7 +240,12 @@ fn child() {
         assert!(
             fetch
                 .leg(spec, fetch.deadline(Duration::from_secs(10)))
-                .json::<Answer>(&endpoint, &[("key", Arg::Text(key))])
+                .call(
+                    &endpoint,
+                    Input::Params(&[("key", Arg::Text(key))]),
+                    biomcp_fetch::Read::<Answer>::json()
+                )
+                .map(|received| received.value)
                 .unwrap()
                 .answer
         );

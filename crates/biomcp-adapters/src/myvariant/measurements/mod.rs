@@ -1,4 +1,5 @@
 //! Capture-proven native measurements, without score blending or interpretation.
+use biomcp_fetch::Input;
 mod map;
 mod raw;
 use biodata::Build;
@@ -34,27 +35,29 @@ pub fn get(
     let endpoint = super::VARIANT
         .clone()
         .with_segments(&[PathSegment::new(id)?]);
-    let record = leg.json_checked_cache::<raw::Record>(
-        &endpoint,
-        &[
-            ("fields", Arg::Text(&fields)),
-            (
-                "assembly",
-                Arg::Text(if build == Build::GRCh38 {
-                    "hg38"
-                } else {
-                    "hg19"
-                }),
-            ),
-        ],
-        |record| {
-            record
-                .id
-                .as_ref()
-                .and_then(crate::raw::Field::as_ref)
-                .is_some_and(|given| given.as_str() == id)
-        },
-    )?;
+    let record = leg
+        .call(
+            &endpoint,
+            Input::Params(&[
+                ("fields", Arg::Text(&fields)),
+                (
+                    "assembly",
+                    Arg::Text(if build == Build::GRCh38 {
+                        "hg38"
+                    } else {
+                        "hg19"
+                    }),
+                ),
+            ]),
+            biomcp_fetch::Read::<raw::Record>::json().cache_if(&|record| {
+                record
+                    .id
+                    .as_ref()
+                    .and_then(crate::raw::Field::as_ref)
+                    .is_some_and(|given| given.as_str() == id)
+            }),
+        )?
+        .value;
     let mut mapped = map::project(record, id, build, conservation, cadd, dbnsfp)?;
     let selected = [
         (cadd, super::components::CADD),

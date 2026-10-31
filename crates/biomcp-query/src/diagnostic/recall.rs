@@ -2,6 +2,7 @@ use super::{empty, next};
 use crate::{Ctx, Outcome, status};
 use biomcp_adapters::fda_device_recall as adapter;
 use biomcp_fetch::{Leg, RequestError};
+use biomcp_types::Paged;
 use biomcp_types::ReplyBody;
 use biomcp_types::{
     DiagnosticCard, DiagnosticCountUnit, DiagnosticGet, DiagnosticPage, DiagnosticSearch, PageInfo,

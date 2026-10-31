@@ -1,4 +1,5 @@
 use super::*;
+use biomcp_fetch::{Input, Read};
 
 #[test]
 fn query_identity_distinguishes_arguments_and_excludes_configured_credentials() {
@@ -66,7 +67,7 @@ fn query_identity_distinguishes_arguments_and_excludes_configured_credentials() 
         source(
             fetch
                 .leg(other, fetch.deadline(Duration::from_secs(10)))
-                .json::<Answer>(&foreign, &[])
+                .call(&foreign, Input::Params(&[]), Read::<Answer>::json())
                 .unwrap_err()
         )
         .reason,

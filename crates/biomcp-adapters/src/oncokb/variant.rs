@@ -2,6 +2,7 @@
 use super::SPEC;
 use crate::raw::Field;
 use biodata::Build;
+use biomcp_fetch::Input;
 use biomcp_fetch::{Arg, BadReply, Endpoint, Freshness, Leg, Reply, RequestError};
 use serde::Deserialize;
 
@@ -164,14 +165,14 @@ pub fn annotation(
     tumor_type: &str,
 ) -> Result<Annotation, RequestError> {
     let assembly = build.to_string();
-    leg.json_received_checked(
+    leg.call(
         &ANNOTATION,
-        &[
+        Input::Params(&[
             ("hgvsg", Arg::Text(hgvsg)),
             ("referenceGenome", Arg::Text(&assembly)),
             ("tumorType", Arg::Text(tumor_type)),
-        ],
-        |row: &Annotation| {
+        ]),
+        biomcp_fetch::Read::json().check(&|row: &Annotation| {
             if row.query.hgvs.as_str() == hgvsg
                 && row.query.reference_genome == build
                 && row.query.tumor_type == tumor_type
@@ -180,8 +181,9 @@ pub fn annotation(
             } else {
                 Err(BadReply)
             }
-        },
+        }),
     )
+    .map(|received| (received.value, received.meta))
     .map(|(row, _)| row)
 }
 

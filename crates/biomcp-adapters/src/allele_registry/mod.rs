@@ -1,4 +1,5 @@
 //! Read-only ClinGen Allele Registry resolution, without local allele repair.
+use biomcp_fetch::Input;
 mod annotations;
 mod map;
 mod normalization;
@@ -56,9 +57,15 @@ fn read(leg: &Leg<'_>, input: &str, by_id: bool) -> Result<raw::Allele, RequestE
     if !by_id {
         params.insert(0, ("hgvs", Arg::Text(input)));
     }
-    let reply = leg.json_checked_cache::<raw::Allele>(&endpoint, &params, |r| {
-        r.error_type.is_none() && r.identity(by_id.then_some(input)).is_ok()
-    })?;
+    let reply = leg
+        .call(
+            &endpoint,
+            Input::Params(&params),
+            biomcp_fetch::Read::<raw::Allele>::json().cache_if(&|r| {
+                r.error_type.is_none() && r.identity(by_id.then_some(input)).is_ok()
+            }),
+        )?
+        .value;
     Ok(reply)
 }
 

@@ -1,4 +1,5 @@
 //! PMC OA bucket listing, checked metadata and confined JATS reads.
+use biomcp_fetch::{Input, Read};
 mod location;
 mod raw;
 mod supplement;
@@ -54,10 +55,13 @@ pub fn read(
 ) -> Result<crate::Mapped<Option<Document>>, RequestError> {
     let invalid_reply = biomcp_fetch::bad_reply(Source::PmcOa, None);
     let prefix = format!("{id}.");
-    let listing = leg.xml::<raw::Listing>(
-        &LIST,
-        &[("list-type", Arg::Num(2)), ("prefix", Arg::Text(&prefix))],
-    )?;
+    let listing = leg
+        .call(
+            &LIST,
+            Input::Params(&[("list-type", Arg::Num(2)), ("prefix", Arg::Text(&prefix))]),
+            Read::<raw::Listing>::xml(),
+        )?
+        .value;
     let contents = listing.contents.as_deref().unwrap_or(&[]);
     if contents.iter().any(|e| !e.key.starts_with(&prefix)) {
         return Err(invalid_reply);
@@ -75,10 +79,13 @@ pub fn read(
     };
     let directory = format!("{id}.{version}/");
     let path = format!("/{directory}{id}.{version}.json");
-    let record = leg.json::<raw::Record>(
-        &FILE.clone().with_path(path).map_err(|_| invalid_reply)?,
-        &[],
-    )?;
+    let record = leg
+        .call(
+            &FILE.clone().with_path(path).map_err(|_| invalid_reply)?,
+            Input::Params(&[]),
+            Read::<raw::Record>::json(),
+        )?
+        .value;
     if record.pmcid != id || pmid.is_some_and(|expected| record.pmid != Some(expected.get())) {
         return Err(invalid_reply);
     }
@@ -158,13 +165,16 @@ fn body(
             .unwrap_or_default()
     ))
     .map_err(|_| invalid_reply)?;
-    let body = leg.xml::<jats::Body>(
-        &FILE
-            .clone()
-            .with_path(loc.path)
-            .map_err(|_| invalid_reply)?,
-        &params,
-    )?;
+    let body = leg
+        .call(
+            &FILE
+                .clone()
+                .with_path(loc.path)
+                .map_err(|_| invalid_reply)?,
+            Input::Params(&params),
+            Read::<jats::Body>::xml(),
+        )?
+        .value;
     Ok((url, body))
 }
 

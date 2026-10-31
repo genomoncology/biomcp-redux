@@ -1,4 +1,5 @@
 //! Canonical diagnostic publisher declaration; runtime dispatch belongs to later slices.
+use biomcp_fetch::{Input, Read};
 use biomcp_fetch::{SourceSpec, Terms};
 use biomcp_types::{Source, Use};
 use std::time::Duration;
@@ -47,14 +48,11 @@ pub fn get(leg: &Leg<'_>, query: &DiagnosticGet) -> Result<Records, RequestError
         .fresh(Freshness::Days(1))
         .bytes(10 * 1024 * 1024)
         .json_absence();
-    let reply = leg.json_checked_admission::<raw::Response>(
-        &endpoint,
-        &[
+    let reply = leg.call(&endpoint, Input::Params(&[
             ("search", Arg::Text(&selector)),
             ("limit", Arg::Num(100)),
             ("skip", Arg::Num(0)),
-        ],
-        |reply| {
+        ]), Read::<raw::Response>::json().check(&|reply| {
             if let raw::Response::Page { meta, results } = reply {
                 if meta.results.skip != 0 || meta.results.limit != 100 {
                     return Err(BadReply);
@@ -71,12 +69,10 @@ pub fn get(leg: &Leg<'_>, query: &DiagnosticGet) -> Result<Records, RequestError
                 }
             }
             Ok(())
-        },
-        |reply| {
+        }).cache_if(&|reply| {
             identity(reply, query).is_none()
                 && !matches!(reply, raw::Response::Page {meta,..} if meta.results.total > 100)
-        },
-    )?;
+        }))?.value;
     let identity_conflict = identity(&reply, query);
     let mut problems = Vec::new();
     Ok(match reply {

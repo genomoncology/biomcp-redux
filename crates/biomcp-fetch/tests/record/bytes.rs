@@ -1,8 +1,14 @@
 use super::*;
+use biomcp_fetch::{Input, Read};
 fn bytes(fetch: &Fetch, spec: &'static SourceSpec) -> Result<Vec<u8>, RequestError> {
     fetch
         .leg(spec, fetch.deadline(Duration::from_secs(10)))
-        .bytes(&spec.get("/bytes").bytes(20), &[])
+        .call(
+            &spec.get("/bytes").bytes(20),
+            Input::Params(&[]),
+            Read::bytes(),
+        )
+        .map(|received| received.value.0)
 }
 fn json_file(dir: &Path) -> std::path::PathBuf {
     std::fs::read_dir(dir.join("pubmed"))
@@ -75,9 +81,9 @@ pub(super) fn ordered_binary_sidecars_round_trip_and_refuse_hostile_paths() {
     );
     assert!(
         matches!(disabled.leg(spec,
- disabled.deadline(Duration::from_secs(10))).bytes_checked(&spec.get("/bytes").bytes(20),
- &[],
- |_| Err(biomcp_types::Reason::BadReply)),
+ disabled.deadline(Duration::from_secs(10)))
+.call(&spec.get("/bytes").bytes(20),
+Input::Params(&[]), Read::bytes().validate_body(&|_| Err(biomcp_types::Reason::BadReply))).map(|received| received.value.0),
  Err(RequestError::Source(e)) if e.reason == biomcp_types::Reason::Disabled),
         "Binary replay must preserve order and reject unsafe sidecars"
     );
@@ -163,12 +169,29 @@ pub(super) fn only_bounded_json_reports_typed_overflow() {
                 let leg = fetch.leg(spec, fetch.deadline(Duration::from_secs(10)));
                 match kind {
                     "bounded" => leg
-                        .json_bounded::<Answer>(&spec.get("/answer"), &[], 8)
+                        .call(
+                            &spec.get("/answer"),
+                            Input::Params(&[]),
+                            Read::<Answer>::json().bounded(8, biomcp_types::Reason::TooLarge),
+                        )
+                        .map(|received| received.value)
                         .map(|_| ()),
                     "json" => leg
-                        .json::<Answer>(&spec.get("/answer").bytes(8), &[])
+                        .call(
+                            &spec.get("/answer").bytes(8),
+                            Input::Params(&[]),
+                            Read::<Answer>::json(),
+                        )
+                        .map(|received| received.value)
                         .map(|_| ()),
-                    _ => leg.bytes(&spec.get("/answer").bytes(8), &[]).map(|_| ()),
+                    _ => leg
+                        .call(
+                            &spec.get("/answer").bytes(8),
+                            Input::Params(&[]),
+                            Read::bytes(),
+                        )
+                        .map(|received| received.value.0)
+                        .map(|_| ()),
                 }
             });
             let media = if kind == "bytes" {

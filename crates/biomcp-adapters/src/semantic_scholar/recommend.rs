@@ -1,6 +1,7 @@
 //! Recent-pool recommendations under the shared source key and quota.
 use super::{Paper, SPEC};
 use crate::{mapped::Problems, raw::Field};
+use biomcp_fetch::Read;
 use biomcp_fetch::{
     Arg, BadReply, Endpoint, Freshness, Leg, PathSegment, Reply, RequestError, SourceSpec,
 };
@@ -112,7 +113,13 @@ pub fn recommendations(
     {
         let id = paper_id(seed)?;
         let segment = PathSegment::new(&id).map_err(RequestError::Input)?;
-        return leg.json(&GET.clone().with_segments(&[segment]), &args);
+        return leg
+            .call(
+                &GET.clone().with_segments(&[segment]),
+                biomcp_fetch::Input::Params(&args),
+                Read::json(),
+            )
+            .map(|received| received.value);
     }
     #[derive(Serialize)]
     #[serde(rename_all = "camelCase")]
@@ -124,5 +131,6 @@ pub fn recommendations(
         positive_paper_ids: seeds.iter().map(paper_id).collect::<Result<_, _>>()?,
         negative_paper_ids: negative.iter().map(paper_id).collect::<Result<_, _>>()?,
     };
-    leg.post_json_with_args(&POST, &args, &body)
+    leg.call(&POST, biomcp_fetch::Input::json(&args, &body), Read::json())
+        .map(|received| received.value)
 }

@@ -5,6 +5,7 @@ use super::{
 };
 use crate::store::Store;
 use biomcp_fetch::{CacheError, SourceError};
+use biomcp_types::Paged;
 use biomcp_types::ReplyBody;
 use biomcp_types::ReplyData;
 use sha2::{Digest, Sha256};

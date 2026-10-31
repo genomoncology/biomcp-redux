@@ -1,4 +1,5 @@
 //! Literal source term discovery and independent exact term cards.
+use biomcp_types::Paged;
 use biomcp_types::ReplyBody;
 mod associations;
 mod sections;

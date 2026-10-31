@@ -167,11 +167,11 @@ impl GeneSearch {
     pub fn offset(&self) -> u32 {
         self.0.offset
     }
-    /// The same selectors on another page.
-    pub fn at_offset(&self, offset: u32) -> Self {
-        let mut page = self.clone();
-        page.0.offset = offset;
-        page
+}
+impl crate::Paged for GeneSearch {
+    type Offset = u32;
+    fn set_page_offset(&mut self, offset: Self::Offset) {
+        self.0.offset = offset;
     }
 }
 

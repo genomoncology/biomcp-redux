@@ -1,4 +1,5 @@
 //! Explicit diagnostic source ownership; reads consume only complete local snapshots.
+use biomcp_types::Paged;
 use biomcp_types::ReplyBody;
 mod clearance;
 mod companion;

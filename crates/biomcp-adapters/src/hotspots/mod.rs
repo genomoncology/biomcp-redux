@@ -49,7 +49,13 @@ impl Reply for Rows {
 pub fn gene(leg: &Leg<'_>, gene: &GeneSymbol) -> Result<Mapped<Vec<HotspotRecord>>, RequestError> {
     let segment = PathSegment::new(gene.as_str()).map_err(RequestError::Input)?;
     let endpoint = GENE.clone().with_segments(&[segment]);
-    let raw: Rows = leg.json(&endpoint, &[])?;
+    let raw: Rows = leg
+        .call(
+            &endpoint,
+            biomcp_fetch::Input::Params(&[]),
+            biomcp_fetch::Read::json(),
+        )?
+        .value;
     let mut out = Mapped {
         refusals: crate::Refusal::None,
         value: Vec::new(),

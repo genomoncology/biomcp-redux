@@ -169,13 +169,14 @@ impl PhenotypeSearch {
     pub fn offset(&self) -> u32 {
         self.0.offset
     }
-    /// Continue with the same selectors.
-    pub fn at_offset(&self, offset: u32) -> Self {
-        let mut q = self.clone();
-        q.0.offset = offset;
-        q
+}
+impl crate::Paged for PhenotypeSearch {
+    type Offset = u32;
+    fn set_page_offset(&mut self, offset: Self::Offset) {
+        self.0.offset = offset;
     }
 }
+
 impl PhenotypeGet {
     /// Publisher selected when the caller omits the source flag for this section.
     pub fn default_source(&self) -> PhenotypeSource {
@@ -242,17 +243,20 @@ impl PhenotypeGet {
         }
         Self::try_from(fields)
     }
-    /// Restart exact source acquisition after retained reply expiry.
-    pub fn restart(&self) -> Self {
-        let mut q = self.clone();
-        q.0.snapshot = None;
-        q.0.section_offset = 0;
-        q
-    }
+
     /// Continue the same section and publisher.
     pub fn at_section_offset(&self, offset: u32) -> Self {
         let mut q = self.clone();
         q.0.section_offset = offset;
         q
+    }
+}
+impl crate::Paged for PhenotypeGet {
+    type Offset = ();
+    fn set_page_offset(&mut self, _offset: Self::Offset) {
+        self.0.section_offset = 0;
+    }
+    fn clear_page_context(&mut self) {
+        self.0.snapshot = None;
     }
 }

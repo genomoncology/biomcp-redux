@@ -2,6 +2,7 @@
 use super::SPEC;
 use biodata::Pmid;
 use biomcp_fetch::{Arg, BadReply, Endpoint, Freshness, Leg, Reply, RequestError};
+use biomcp_fetch::{Input, Read};
 use biomcp_types::Source;
 use serde::Deserialize;
 const SEARCH: Endpoint = SPEC.get("/search/").fresh(Freshness::Days(1));
@@ -25,10 +26,13 @@ pub fn search(leg: &Leg<'_>, term: &str) -> Result<Search, RequestError> {
     };
     let mut previous = Vec::new();
     for page in 1..=LIMIT as u64 {
-        let reply = leg.json::<Page>(
-            &SEARCH,
-            &[("text", Arg::Text(term)), ("page", Arg::Num(page))],
-        );
+        let reply = leg
+            .call(
+                &SEARCH,
+                Input::Params(&[("text", Arg::Text(term)), ("page", Arg::Num(page))]),
+                Read::<Page>::json(),
+            )
+            .map(|received| received.value);
         let reply = match reply {
             Ok(reply) => reply,
             Err(error) if page == 1 => return Err(error),

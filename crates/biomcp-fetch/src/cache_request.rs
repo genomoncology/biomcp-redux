@@ -1,5 +1,5 @@
 //! Checked cache reuse around the single live request path.
-use crate::xml::Decoder;
+use crate::read::Read;
 use crate::{
     Endpoint, Leg, Mode, Reply, RequestError,
     cache::{Cache, Entry, now},
@@ -38,76 +38,11 @@ impl Leg<'_> {
         }
     }
 
-    /// Apply request-bound checks on every read and admit only cacheable decoded replies.
-    /// A valid provider rejection can return to the caller without entering the cache.
-    pub fn json_checked_admission<T: Reply>(
-        &self,
-        endpoint: &Endpoint,
-        params: &[(&str, crate::Arg<'_>)],
-        check: impl Fn(&T) -> Result<(), crate::BadReply>,
-        cache_if: impl Fn(&T) -> bool,
-    ) -> Result<T, RequestError> {
-        self.json_received_checked_admission(endpoint, params, check, cache_if)
-            .map(|(reply, _)| reply)
-    }
-
-    /// Preserve retrieval metadata while checking scope and withholding refused identities from cache.
-    pub fn json_received_checked_admission<T: Reply>(
-        &self,
-        endpoint: &Endpoint,
-        params: &[(&str, crate::Arg<'_>)],
-        check: impl Fn(&T) -> Result<(), crate::BadReply>,
-        cache_if: impl Fn(&T) -> bool,
-    ) -> Result<(T, crate::ReplyMetadata), RequestError> {
-        self.parameters(
-            endpoint,
-            params,
-            Decoder::checked_json(&check).cache_if(&cache_if),
-        )
-    }
-
-    /// Decode one JSON-string wrapper with the same checks and cache admission as native JSON.
-    pub fn json_string_received_checked_admission<T: Reply>(
-        &self,
-        endpoint: &Endpoint,
-        params: &[(&str, crate::Arg<'_>)],
-        check: impl Fn(&T) -> Result<(), crate::BadReply>,
-        cache_if: impl Fn(&T) -> bool,
-    ) -> Result<(T, crate::ReplyMetadata), RequestError> {
-        self.parameters(
-            endpoint,
-            params,
-            Decoder::checked_json_string(&check).cache_if(&cache_if),
-        )
-    }
-
-    /// Return checked JSON while withholding a response from cache when request identity differs.
-    /// The same predicate rejects pre-existing entries before either fresh or stale reuse.
-    pub fn json_checked_cache<T: Reply>(
-        &self,
-        endpoint: &Endpoint,
-        params: &[(&str, crate::Arg<'_>)],
-        cache_if: impl Fn(&T) -> bool,
-    ) -> Result<T, RequestError> {
-        self.parameters(endpoint, params, Decoder::json().cache_if(&cache_if))
-            .map(|(reply, _)| reply)
-    }
-
-    /// Preserve per-reply metadata while withholding request-mismatched rows from cache.
-    pub fn json_received_checked_cache<T: Reply>(
-        &self,
-        endpoint: &Endpoint,
-        params: &[(&str, crate::Arg<'_>)],
-        cache_if: impl Fn(&T) -> bool,
-    ) -> Result<(T, crate::ReplyMetadata), RequestError> {
-        self.parameters(endpoint, params, Decoder::json().cache_if(&cache_if))
-    }
-
     pub(crate) fn cached<T: Reply>(
         &self,
         endpoint: &Endpoint,
         prepared: &crate::prepared::Prepared,
-        codec: &Decoder<T>,
+        codec: &Read<T>,
         live: impl FnOnce() -> Result<crate::request::Decoded<T>, RequestError>,
     ) -> Result<CachedReply<T>, RequestError> {
         let (url, key) = (prepared.url.as_str(), &prepared.identity);
@@ -118,7 +53,14 @@ impl Leg<'_> {
             return self.offline(endpoint, prepared, codec);
         }
         let Some((cache, seconds)) = self.fetch.cache.as_ref().zip(endpoint.fresh.seconds()) else {
-            return live().map(|(reply, _, _, fetched, range, pagination)| {
+            return live().map(|decoded| {
+                let crate::request::Decoded {
+                    reply,
+                    fetched,
+                    content_range: range,
+                    pagination,
+                    ..
+                } = decoded;
                 (
                     reply,
                     fetched,
@@ -143,13 +85,7 @@ impl Leg<'_> {
             }
         }
         match live() {
-            Ok((reply, status, body, fetched, range, pagination)) => self.admit_live(
-                cache,
-                prepared,
-                codec,
-                seconds,
-                (reply, status, body, fetched, range, pagination),
-            ),
+            Ok(decoded) => self.admit_live(cache, prepared, codec, seconds, decoded),
             Err(RequestError::Source(error)) if error.reason == Reason::NotFound => {
                 // A current absence replaces a formerly positive entry; no stale
                 // result can override it and the provider body is never stored.
@@ -186,11 +122,18 @@ impl Leg<'_> {
         &self,
         cache: &Cache,
         prepared: &crate::prepared::Prepared,
-        codec: &Decoder<T>,
+        codec: &Read<T>,
         seconds: u64,
         decoded: crate::request::Decoded<T>,
     ) -> Result<CachedReply<T>, RequestError> {
-        let (reply, status, body, fetched, range, pagination) = decoded;
+        let crate::request::Decoded {
+            reply,
+            status,
+            body,
+            fetched,
+            content_range: range,
+            pagination,
+        } = decoded;
         let mut entry = Entry::new(status, body, seconds, codec.name());
         if codec.json_absence && status == 404 {
             self.cache_result(cache.remove(&prepared.identity, self.budget()));
@@ -231,7 +174,7 @@ impl Leg<'_> {
         &self,
         endpoint: &Endpoint,
         prepared: &crate::prepared::Prepared,
-        codec: &Decoder<T>,
+        codec: &Read<T>,
     ) -> Result<CachedReply<T>, RequestError> {
         if let Some(cache) = self
             .fetch
@@ -262,7 +205,7 @@ impl Leg<'_> {
         &self,
         cache: &Cache,
         prepared: &crate::prepared::Prepared,
-        codec: &Decoder<T>,
+        codec: &Read<T>,
     ) -> Result<Option<Checked<T>>, RequestError> {
         let key = &prepared.identity;
         let entry = match cache.read(

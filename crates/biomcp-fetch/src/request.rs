@@ -1,18 +1,18 @@
+use crate::read::Read;
 use crate::record::{Body, Exchange};
-use crate::xml::{Decoder, XmlReply};
 use crate::{Arg, Endpoint, Leg, Reply, RequestError, SourceError};
 use crate::{InputError, declaration::Method, prepared::Prepared};
 use biomcp_types::Reason;
 use std::time::{Duration, Instant};
 
-pub(crate) type Decoded<T> = (
-    T,
-    u16,
-    Vec<u8>,
-    Option<i64>,
-    Option<String>,
-    Option<crate::Pagination>,
-);
+pub(crate) struct Decoded<T> {
+    pub(crate) reply: T,
+    pub(crate) status: u16,
+    pub(crate) body: Vec<u8>,
+    pub(crate) fetched: Option<i64>,
+    pub(crate) content_range: Option<String>,
+    pub(crate) pagination: Option<crate::Pagination>,
+}
 #[derive(serde::Serialize)]
 struct Wire {
     fetched: Option<i64>,
@@ -30,151 +30,20 @@ pub(crate) enum Failure {
 }
 
 impl Leg<'_> {
-    /// Read opaque bytes from an endpoint declaring its own bounded binary policy.
-    pub fn bytes(
-        &self,
-        ep: &Endpoint,
-        params: &[(&str, Arg<'_>)],
-    ) -> Result<Vec<u8>, RequestError> {
-        let limit = ep
-            .byte_limit
-            .filter(|v| *v > 0 && *v < u64::MAX)
-            .ok_or(InputError::BodyLimit)?;
-        self.parameters(ep, params, Decoder::bytes(limit))
-            .map(|(v, _)| v.0)
-    }
-    /// Read binary bytes only after the source-owned parser accepts them for cache admission.
-    pub fn bytes_checked(
-        &self,
-        ep: &Endpoint,
-        params: &[(&str, Arg<'_>)],
-        check: impl Fn(&[u8]) -> Result<(), Reason>,
-    ) -> Result<Vec<u8>, RequestError> {
-        self.bytes_checked_media(ep, params, None, check)
-    }
-    pub(crate) fn bytes_checked_media(
-        &self,
-        ep: &Endpoint,
-        params: &[(&str, Arg<'_>)],
-        media: Option<crate::DocumentMedia>,
-        check: impl Fn(&[u8]) -> Result<(), Reason>,
-    ) -> Result<Vec<u8>, RequestError> {
-        let limit = ep
-            .byte_limit
-            .filter(|v| *v > 0 && *v < u64::MAX)
-            .ok_or(InputError::BodyLimit)?;
-        let decoder = Decoder::checked_bytes(limit, &check);
-        let decoder = match media {
-            Some(media) => decoder.document_media(media),
-            None => decoder,
-        };
-        self.parameters(ep, params, decoder).map(|(v, _)| v.0)
-    }
     /// Probe declared reachability through the same bounded transport, quota and replay policy.
     /// Probe replies never enter the checked data cache.
-    pub fn probe(&self, ep: &Endpoint, params: &[(&str, Arg<'_>)]) -> Result<(), RequestError> {
+    pub fn probe(&self, ep: &Endpoint, input: crate::Input<'_>) -> Result<(), RequestError> {
         let mut ep = ep.clone().fresh(crate::Freshness::Never);
         // Reachability is one observation, never a retrying data request.
         ep.idempotent = false;
-        self.parameters(&ep, params, Decoder::probe()).map(|_| ())
-    }
-    /// Probe a declared read-only JSON endpoint with a bounded request body.
-    pub fn probe_json<B: serde::Serialize>(
-        &self,
-        ep: &Endpoint,
-        body: &B,
-    ) -> Result<(), RequestError> {
-        let mut ep = ep.clone().fresh(crate::Freshness::Never);
-        // Reachability is one observation, never a retrying data request.
-        ep.idempotent = false;
-        self.validate(&ep, true)?;
-        let body = crate::prepared::json(body, self.fetch.config.max_body)?;
-        let url = if ep.publisher {
-            ep.path.to_string()
-        } else {
-            format!("{}{}", self.spec.base.trim_end_matches('/'), ep.path)
-        };
-        self.send(
-            &ep,
-            Prepared::new(url, body, ep.method, ep.idempotent),
-            Decoder::probe(),
-        )
-        .map(|_| ())
-    }
-
-    /// Send checked JSON from a GET or form POST. A missing record returns `not_found`.
-    pub fn json<T: Reply>(
-        &self,
-        ep: &Endpoint,
-        params: &[(&str, Arg<'_>)],
-    ) -> Result<T, RequestError> {
-        self.parameters(ep, params, Decoder::json())
-            .map(|(reply, _)| reply)
-    }
-
-    /// Request a native JSON value served as text/plain, retaining typed checks.
-    pub fn json_text<T: Reply>(
-        &self,
-        ep: &Endpoint,
-        params: &[(&str, Arg<'_>)],
-    ) -> Result<T, RequestError> {
-        self.parameters(ep, params, Decoder::json_text())
-            .map(|(reply, _)| reply)
-    }
-
-    /// Read checked JSON and the timestamp belonging to that received record.
-    pub fn json_received<T: Reply>(
-        &self,
-        ep: &Endpoint,
-        params: &[(&str, Arg<'_>)],
-    ) -> Result<(T, crate::ReplyMetadata), RequestError> {
-        self.parameters(ep, params, Decoder::json())
-    }
-
-    /// Apply a request-bound JSON check before cache admission and on cache or replay reads.
-    pub fn json_received_checked<T: Reply>(
-        &self,
-        ep: &Endpoint,
-        params: &[(&str, Arg<'_>)],
-        check: impl Fn(&T) -> Result<(), crate::BadReply>,
-    ) -> Result<(T, crate::ReplyMetadata), RequestError> {
-        self.parameters(ep, params, Decoder::checked_json(&check))
-    }
-    /// Decode exactly one JSON-string wrapper, then validate the typed inner reply.
-    /// Cache and replay reads use the same decoder and request-bound check.
-    pub fn json_string_received_checked<T: Reply>(
-        &self,
-        ep: &Endpoint,
-        params: &[(&str, Arg<'_>)],
-        check: impl Fn(&T) -> Result<(), crate::BadReply>,
-    ) -> Result<(T, crate::ReplyMetadata), RequestError> {
-        self.parameters(ep, params, Decoder::checked_json_string(&check))
-    }
-
-    /// Send checked XML from a GET or form POST.
-    pub fn xml<T: XmlReply>(
-        &self,
-        ep: &Endpoint,
-        params: &[(&str, Arg<'_>)],
-    ) -> Result<T, RequestError> {
-        self.parameters(ep, params, Decoder::xml())
-            .map(|(reply, _)| reply)
-    }
-
-    /// Read XML and its own original fetch time without borrowing another reply's metadata.
-    pub fn xml_received<T: XmlReply>(
-        &self,
-        ep: &Endpoint,
-        params: &[(&str, Arg<'_>)],
-    ) -> Result<(T, crate::ReplyMetadata), RequestError> {
-        self.parameters(ep, params, Decoder::xml())
+        self.call(&ep, input, Read::probe()).map(|_| ())
     }
 
     pub(crate) fn parameters<T: Reply>(
         &self,
         ep: &Endpoint,
         params: &[(&str, Arg<'_>)],
-        codec: Decoder<T>,
+        codec: Read<T>,
     ) -> Result<(T, crate::ReplyMetadata), RequestError> {
         self.validate(ep, false)?;
         let url = if ep.publisher {
@@ -204,18 +73,6 @@ impl Leg<'_> {
             })
             .collect();
         self.send(ep, prepared, codec)
-    }
-
-    /// Send checked JSON from a GET or form POST, treating HTTP 404 as an absent record.
-    pub fn json_opt<T: Reply>(
-        &self,
-        ep: &Endpoint,
-        params: &[(&str, Arg<'_>)],
-    ) -> Result<Option<T>, RequestError> {
-        match self.json(ep, params) {
-            Err(RequestError::Source(error)) if error.reason == Reason::NotFound => Ok(None),
-            result => result.map(Some),
-        }
     }
 
     pub(crate) fn failure(&self, reason: Reason, status: Option<u16>) -> SourceError {
@@ -283,7 +140,7 @@ impl Leg<'_> {
         &self,
         ep: &Endpoint,
         mut prepared: Prepared,
-        codec: Decoder<T>,
+        codec: Read<T>,
     ) -> Result<(T, crate::ReplyMetadata), RequestError> {
         self.spec.admit(&prepared.url, ep.publisher)?;
         prepared.identity_encoding = ep.identity_encoding;
@@ -325,7 +182,7 @@ impl Leg<'_> {
     fn attempts<T: Reply>(
         &self,
         prepared: &Prepared,
-        codec: &Decoder<T>,
+        codec: &Read<T>,
     ) -> Result<Decoded<T>, RequestError> {
         for attempt in 0..crate::retry::ATTEMPTS {
             let permit = self
@@ -387,7 +244,7 @@ impl Leg<'_> {
         prepared: &Prepared,
         exchange: &Result<Wire, Failure>,
         elapsed: Duration,
-        codec: &Decoder<T>,
+        codec: &Read<T>,
     ) {
         let (status, body, media) = match exchange {
             Ok(response) => (
@@ -415,7 +272,7 @@ impl Leg<'_> {
         }
     }
 
-    fn exchange<T: Reply>(&self, prepared: &Prepared, codec: &Decoder<T>) -> Result<Wire, Failure> {
+    fn exchange<T: Reply>(&self, prepared: &Prepared, codec: &Read<T>) -> Result<Wire, Failure> {
         let local = |error| Failure::Local(RequestError::Recording(error));
         if let Some(exchange) = self
             .fetch
@@ -524,7 +381,7 @@ impl Leg<'_> {
     fn record_wire<T: Reply>(
         &self,
         prepared: &Prepared,
-        codec: &Decoder<T>,
+        codec: &Read<T>,
         wire: &Wire,
         started: Instant,
     ) -> Result<(), crate::RecordError> {
@@ -552,11 +409,7 @@ impl Leg<'_> {
         )
     }
 
-    fn decode<T: Reply>(
-        &self,
-        response: Wire,
-        codec: &Decoder<T>,
-    ) -> Result<Decoded<T>, SourceError> {
+    fn decode<T: Reply>(&self, response: Wire, codec: &Read<T>) -> Result<Decoded<T>, SourceError> {
         let status = response.status;
         let bad = || self.failure(Reason::BadReply, Some(status));
         if !codec.accepts(&response.content_type) {
@@ -582,13 +435,13 @@ impl Leg<'_> {
             std::borrow::Cow::Borrowed(_) => response.body,
             std::borrow::Cow::Owned(body) => body,
         };
-        Ok((
+        Ok(Decoded {
             reply,
             status,
             body,
-            response.fetched,
-            response.content_range,
-            response.pagination,
-        ))
+            fetched: response.fetched,
+            content_range: response.content_range,
+            pagination: response.pagination,
+        })
     }
 }

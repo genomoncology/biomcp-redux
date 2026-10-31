@@ -1,4 +1,5 @@
 //! Direct reverse associations share the disease row representation and mapper.
+use biomcp_fetch::Input;
 use biomcp_fetch::{Arg, BadReply, InputError, Leg, RequestError};
 use biomcp_types::{PhenotypeGet, PhenotypeSection};
 /// Read exactly one checked native page; wrong endpoints or taxa never enter cache.
@@ -36,23 +37,26 @@ pub fn get(leg: &Leg<'_>, query: &PhenotypeGet) -> Result<super::super::Page, Re
         ("limit", Arg::Num(query.section_limit().into())),
         ("offset", Arg::Num(query.section_offset().into())),
     ]);
-    let (page, metadata) = leg.json_received_checked_admission::<super::super::raw::Page>(
-        &super::super::ASSOCIATIONS,
-        &args,
-        |page| {
-            if page.limit != query.section_limit()
-                || page.offset != query.section_offset()
-                || page.items.iter().any(|row| {
-                    row.object.as_ref() != Some(&requested)
-                        || (genes && row.subject_taxon.as_ref() != Some(&human))
+    let (page, metadata) = leg
+        .call(
+            &super::super::ASSOCIATIONS,
+            Input::Params(&args),
+            biomcp_fetch::Read::<super::super::raw::Page>::json()
+                .check(&|page| {
+                    if page.limit != query.section_limit()
+                        || page.offset != query.section_offset()
+                        || page.items.iter().any(|row| {
+                            row.object.as_ref() != Some(&requested)
+                                || (genes && row.subject_taxon.as_ref() != Some(&human))
+                        })
+                    {
+                        return Err(BadReply);
+                    }
+                    Ok(())
                 })
-            {
-                return Err(BadReply);
-            }
-            Ok(())
-        },
-        super::super::raw::Page::identities_admitted,
-    )?;
+                .cache_if(&super::super::raw::Page::identities_admitted),
+        )
+        .map(|received| (received.value, received.meta))?;
     let received = page.items.len() as u32;
     let mut problems = Vec::new();
     let mut items = Vec::new();

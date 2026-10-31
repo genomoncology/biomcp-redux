@@ -83,13 +83,14 @@ impl PgxSearch {
     pub fn offset(&self) -> u32 {
         self.0.offset
     }
-    /// Continue without changing any other selector.
-    pub fn at_offset(&self, offset: u32) -> Self {
-        let mut q = self.clone();
-        q.0.offset = offset;
-        q
+}
+impl crate::Paged for PgxSearch {
+    type Offset = u32;
+    fn set_page_offset(&mut self, offset: Self::Offset) {
+        self.0.offset = offset;
     }
 }
+
 /// PGx card or section. No phenotype, phase or dose is calculated.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "GetFields")]
@@ -232,13 +233,7 @@ impl PgxGet {
         q.snapshot = Some(snapshot);
         Self::try_from(q)
     }
-    /// Restart collection admission without a retained selector.
-    pub fn restart(&self) -> Self {
-        let mut q = self.clone();
-        q.0.snapshot = None;
-        q.0.section_offset = 0;
-        q
-    }
+
     /// Continue the same independent section.
     pub fn at_section_offset(&self, offset: u32) -> Result<Self, QueryInvalid> {
         let mut q = self.0.clone();
@@ -261,6 +256,16 @@ impl PgxGet {
         Self::try_from(q)
     }
 }
+impl crate::Paged for PgxGet {
+    type Offset = ();
+    fn set_page_offset(&mut self, _offset: Self::Offset) {
+        self.0.section_offset = 0;
+    }
+    fn clear_page_context(&mut self) {
+        self.0.snapshot = None;
+    }
+}
+
 /// Exact single clinical annotation get, with no inferred source or annotation kind.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "AnnotationFields")]

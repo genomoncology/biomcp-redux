@@ -4,6 +4,7 @@ use crate::{Ctx, Outcome, status, store::Store};
 use biodata::{PhenotypeHierarchyLink, PhenotypeSynonym, PhenotypeXref, Text};
 use biomcp_adapters::{hpo, monarch};
 use biomcp_fetch::{CacheError, Deadline, RequestError, SourceError};
+use biomcp_types::Paged;
 use biomcp_types::{
     PhenotypeGet, PhenotypeSource, PhenotypeTermCard, Reason, ReplyData, Request, Source,
     SourceOutcome, StepKind,

@@ -12,6 +12,10 @@ use biodata::{
     text_value,
 };
 
+#[macro_use]
+mod response_page;
+mod paged;
+pub use paged::Paged;
 mod research;
 pub use research::{
     ResearchEnvelope, ResearchFetch, ResearchHit, ResearchSearch, ResearchSearchMetadata,

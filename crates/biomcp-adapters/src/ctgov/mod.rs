@@ -1,4 +1,5 @@
 //! Native registry discovery; no local clinical interpretation or reordering.
+use biomcp_fetch::Input;
 pub mod detail;
 pub mod document;
 mod filters;
@@ -224,9 +225,20 @@ fn fetch_page(leg: &Leg<'_>, params: &BTreeMap<String, String>) -> Result<RawPag
         .map(|(k, v)| (k.as_str(), Arg::Text(v)))
         .collect();
     if params.contains_key("pageToken") {
-        leg.json::<RawPage>(&SEARCH, &args)
+        leg.call(
+            &SEARCH,
+            Input::Params(&args),
+            biomcp_fetch::Read::<RawPage>::json(),
+        )
+        .map(|received| received.value)
     } else {
-        leg.json::<FirstPage>(&SEARCH, &args).map(|page| page.0)
+        leg.call(
+            &SEARCH,
+            Input::Params(&args),
+            biomcp_fetch::Read::<FirstPage>::json(),
+        )
+        .map(|received| received.value)
+        .map(|page| page.0)
     }
 }
 

@@ -1,5 +1,6 @@
 use crate::next::Step;
 use biodata::ProteinHeader;
+use biomcp_types::Paged;
 use biomcp_types::{ProteinCardItem, ProteinGet, ProteinInput, ProteinSearch, Request, StepKind};
 pub(super) fn accession(
     header: &ProteinHeader,

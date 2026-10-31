@@ -2,6 +2,7 @@
 use super::empty;
 use crate::{Action, Bundle, Ctx, Outcome, status};
 use biomcp_adapters::who_pq;
+use biomcp_types::Paged;
 use biomcp_types::ReplyBody;
 use biomcp_types::{
     DrugSearch, DrugWhoGet, DrugWhoPage, PageInfo, Request, Source, SourceState, StepKind,

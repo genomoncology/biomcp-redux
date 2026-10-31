@@ -1,4 +1,5 @@
 //! Native GWAS Catalog v2 association pages, without clinical interpretation.
+use biomcp_fetch::Input;
 pub mod get;
 mod raw;
 mod receive;
@@ -55,22 +56,25 @@ pub fn associations(
         "{}/associations?rs_id={id}&page={page}&size={size}",
         SPEC.base
     );
-    let response = leg.json_checked_admission::<raw::Response>(
-        &ASSOCIATIONS,
-        &[
-            ("rs_id", Arg::Text(&id)),
-            ("page", Arg::Num(page.into())),
-            ("size", Arg::Num(size.into())),
-        ],
-        |r| {
-            if r.matches(&id, page, size, &expected) {
-                Ok(())
-            } else {
-                Err(BadReply)
-            }
-        },
-        raw::Response::identities_admitted,
-    )?;
+    let response = leg
+        .call(
+            &ASSOCIATIONS,
+            Input::Params(&[
+                ("rs_id", Arg::Text(&id)),
+                ("page", Arg::Num(page.into())),
+                ("size", Arg::Num(size.into())),
+            ]),
+            biomcp_fetch::Read::<raw::Response>::json()
+                .check(&|r| {
+                    if r.matches(&id, page, size, &expected) {
+                        Ok(())
+                    } else {
+                        Err(BadReply)
+                    }
+                })
+                .cache_if(&raw::Response::identities_admitted),
+        )?
+        .value;
     Ok(self::page(response, skip as usize))
 }
 fn page(response: raw::Response, skip: usize) -> Page {

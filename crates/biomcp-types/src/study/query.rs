@@ -97,13 +97,17 @@ impl StudySearch {
         q.0.pool = pool;
         q
     }
-    /// Continue without changing selectors or snapshot.
-    pub fn at_offset(&self, offset: u32) -> Self {
-        let mut q = self.clone();
-        q.0.offset = offset;
-        q
+}
+impl crate::Paged for StudySearch {
+    type Offset = u32;
+    fn set_page_offset(&mut self, offset: Self::Offset) {
+        self.0.offset = offset;
+    }
+    fn clear_page_context(&mut self) {
+        self.0.pool = None;
     }
 }
+
 #[doc = " Exact case-sensitive study card or bounded metadata section. No frequency, denominator, \
     survival or comparison is calculated. Source counts keep their native names."]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

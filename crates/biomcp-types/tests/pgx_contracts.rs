@@ -1,5 +1,6 @@
 //! pgx-types: checked public requests and neutral records, with no I/O.
 use biodata::ClinPgxAccession;
+use biomcp_types::Paged;
 use biomcp_types::{PgxGet, PgxSearch};
 use serde_json::json;
 #[test]

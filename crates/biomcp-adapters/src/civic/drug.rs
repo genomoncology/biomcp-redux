@@ -3,6 +3,7 @@ use super::{GENES, variant::failure, variant_map, variant_raw::Connection};
 use crate::{Mapped, mapped::Problems, native_text::NativeText, raw::Field};
 use biodata::{DrugIdentityLevel, Text};
 use biomcp_fetch::{BadReply, Leg, Reply, RequestError};
+use biomcp_fetch::{Input, Read};
 use biomcp_types::{DrugHeader, DrugPage, DrugSource, Reason};
 use serde::{Deserialize, Serialize};
 
@@ -42,6 +43,18 @@ impl Therapy {
     }
 }
 
+impl SearchReply {
+    fn cacheable(&self, count: u32, after: Option<&Text>) -> bool {
+        self.data.therapies.nodes.len() <= count as usize
+            && self.data.therapies.progresses(after)
+            && self.data.therapies.nodes.iter().all(|row| {
+                row.id
+                    .as_ref()
+                    .and_then(Field::as_ref)
+                    .is_some_and(|id| super::variant_raw::id(*id))
+            })
+    }
+}
 impl Reply for SearchReply {
     fn check(&self) -> Result<(), BadReply> {
         if self.errors.as_ref().is_some_and(|rows| !rows.is_empty()) {
@@ -90,17 +103,14 @@ pub fn drug_search(
                 after: after.as_ref(),
             },
         };
-        let reply: SearchReply =
-            leg.post_json_checked_cache(&GENES, &body, |reply: &SearchReply| {
-                reply.data.therapies.nodes.len() <= count as usize
-                    && reply.data.therapies.progresses(after.as_ref())
-                    && reply.data.therapies.nodes.iter().all(|row| {
-                        row.id
-                            .as_ref()
-                            .and_then(Field::as_ref)
-                            .is_some_and(|id| super::variant_raw::id(*id))
-                    })
-            })?;
+        let reply: SearchReply = leg
+            .call(
+                &GENES,
+                Input::json(&[], &body),
+                Read::json()
+                    .cache_if(&|reply: &SearchReply| reply.cacheable(count, after.as_ref())),
+            )?
+            .value;
         let rows = reply.data.therapies;
         if rows.nodes.len() > count as usize || !rows.progresses(after.as_ref()) {
             return Err(failure(Reason::BadReply));

@@ -90,26 +90,7 @@ impl ResponseBody for PathwayCard {
     const SCHEMA: &'static str = "biomcp.pathway-card/10";
     type Query = PathwayGet;
 }
-macro_rules! relation_page {
-    ($name:ident, $row:ty, $query:ty, $schema:literal) => {
-        /// Independent source-ordered page of whole native references.
-        #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-        #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-        pub struct $name {
-            /// Exact source pathway owning this relation.
-            pub header: PathwayHeader,
-            /// Whole native references; unresolved identities remain visible.
-            #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
-            pub items: Box<[$row]>,
-            /// Relation-specific count provenance and continuation.
-            pub page: PathwayPageInfo,
-        }
-        impl ResponseBody for $name {
-            const SCHEMA: &'static str = $schema;
-            type Query = $query;
-        }
-    };
-}
+
 /// Independent source-ordered distinct membership references and their observed counts.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
@@ -130,11 +111,13 @@ impl ResponseBody for PathwayGenes {
     const SCHEMA: &'static str = "biomcp.pathway-genes/9";
     type Query = PathwayGenesQuery;
 }
-relation_page!(
+page!(
+    pathway,
     PathwayEvents,
     PathwayEventRef,
     PathwayEventsQuery,
-    "biomcp.pathway-events/6"
+    "biomcp.pathway-events/6",
+    "Independent source-ordered page of whole native references."
 );
 /// Receipt for one independently validated WikiPathways metadata catalog.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

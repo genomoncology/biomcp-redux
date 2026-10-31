@@ -1,4 +1,5 @@
 //! One registry record request with a typed protocol projection, checked against its requested identity before caching.
+use biomcp_fetch::{Input, Read};
 mod dates;
 mod publications;
 mod sites;
@@ -50,13 +51,17 @@ pub fn get(leg: &Leg<'_>, id: NctId) -> Result<(Detail, ReplyMetadata), RequestE
         .get("/studies")
         .fresh(Freshness::Days(1))
         .with_segments(&[biomcp_fetch::PathSegment::new(&id.to_string())?]);
-    let (raw, metadata) = leg.json_received_checked::<Study>(&endpoint, &[], |raw| {
-        if raw.protocol_section.identification_module.nct_id == id {
-            Ok(())
-        } else {
-            Err(BadReply)
-        }
-    })?;
+    let (raw, metadata) = leg
+        .call(
+            &endpoint,
+            Input::Params(&[]),
+            Read::<Study>::json().check(&|raw| {
+                (raw.protocol_section.identification_module.nct_id == id)
+                    .then_some(())
+                    .ok_or(BadReply)
+            }),
+        )
+        .map(|received| (received.value, received.meta))?;
     let id = raw.protocol_section.identification_module.nct_id;
     let mut detail = raw.protocol_section.detail();
     let mut problems = Problems {

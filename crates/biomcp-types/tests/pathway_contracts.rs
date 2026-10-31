@@ -1,5 +1,6 @@
 //! Feature pathway-types: public no-I/O identity and consumer contracts.
 use biodata::{Pathway, PathwayEventRef, PathwayId, PathwayMember, WikiPathwaysId};
+use biomcp_types::Paged;
 use biomcp_types::{PathwayEventsQuery, PathwayGenesQuery, PathwayGet, PathwaySearch};
 use serde_json::{Value, json};
 

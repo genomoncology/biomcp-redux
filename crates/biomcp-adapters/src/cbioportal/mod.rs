@@ -1,4 +1,5 @@
 //! Bounded explicit-cohort mutation observations and stored public study metadata.
+use biomcp_fetch::{Input, Read};
 mod raw;
 mod scope;
 use biodata::NcbiGeneId;
@@ -42,27 +43,38 @@ pub fn cohort(leg: &Leg<'_>, query: &VariantRecurrenceQuery) -> Result<Cohort, R
         .get("/studies")
         .with_segments(&[PathSegment::new(query.study().as_str())?])
         .fresh(Freshness::Days(1));
-    let (study, _) = leg.json_received_checked::<raw::Study>(&endpoint, &[], |v| {
-        if v.study_id == *query.study() {
-            Ok(())
-        } else {
-            Err(BadReply)
-        }
-    })?;
+    let (study, _) = leg
+        .call(
+            &endpoint,
+            Input::Params(&[]),
+            Read::<raw::Study>::json().check(&|v| {
+                if v.study_id == *query.study() {
+                    Ok(())
+                } else {
+                    Err(BadReply)
+                }
+            }),
+        )
+        .map(|received| (received.value, received.meta))?;
     let endpoint = SPEC
         .get("/molecular-profiles")
         .with_segments(&[PathSegment::new(query.profile().as_str())?])
         .fresh(Freshness::Days(1));
-    leg.json_received_checked::<raw::Profile>(&endpoint, &[], |v| {
-        if v.study_id == *query.study()
-            && v.molecular_profile_id == *query.profile()
-            && v.molecular_alteration_type.as_str() == "MUTATION_EXTENDED"
-        {
-            Ok(())
-        } else {
-            Err(BadReply)
-        }
-    })?;
+    leg.call(
+        &endpoint,
+        Input::Params(&[]),
+        Read::<raw::Profile>::json().check(&|v| {
+            if v.study_id == *query.study()
+                && v.molecular_profile_id == *query.profile()
+                && v.molecular_alteration_type.as_str() == "MUTATION_EXTENDED"
+            {
+                Ok(())
+            } else {
+                Err(BadReply)
+            }
+        }),
+    )
+    .map(|received| (received.value, received.meta))?;
     let mut problems = crate::mapped::Problems {
         source: Source::Cbioportal,
         record: Some(study.study_id.clone()),
@@ -119,24 +131,27 @@ pub fn mutations(
         ("pageSize", Arg::Num(u64::from(query.limit()))),
         ("pageNumber", Arg::Num(u64::from(query.page()))),
     ];
-    let (rows, _) = leg.json_received_checked_admission::<raw::Mutations>(
-        &endpoint,
-        &params,
-        |rows| {
-            if rows.0.len() <= query.limit() as usize
-                && rows.0.iter().all(|v| {
-                    v.scope.study_id == *query.study()
-                        && v.scope.molecular_profile_id == *query.profile()
-                        && v.scope.entrez_gene_id == gene.get()
+    let (rows, _) = leg
+        .call(
+            &endpoint,
+            Input::Params(&params),
+            Read::<raw::Mutations>::json()
+                .check(&|rows| {
+                    if rows.0.len() <= query.limit() as usize
+                        && rows.0.iter().all(|v| {
+                            v.scope.study_id == *query.study()
+                                && v.scope.molecular_profile_id == *query.profile()
+                                && v.scope.entrez_gene_id == gene.get()
+                        })
+                    {
+                        Ok(())
+                    } else {
+                        Err(BadReply)
+                    }
                 })
-            {
-                Ok(())
-            } else {
-                Err(BadReply)
-            }
-        },
-        raw::Mutations::identities_admitted,
-    )?;
+                .cache_if(&raw::Mutations::identities_admitted),
+        )
+        .map(|received| (received.value, received.meta))?;
     let received = rows.0.len() as u32;
     let mut problems = crate::mapped::Problems {
         source: Source::Cbioportal,
@@ -188,16 +203,21 @@ fn sample_count(
             ("sortBy", Arg::Text("sampleListId")),
             ("direction", Arg::Text("ASC")),
         ];
-        let (lists, _) =
-            leg.json_received_checked::<raw::SampleLists>(&endpoint, &params, |v| {
-                if v.0.len() <= LIST_PAGE_SIZE as usize
-                    && v.0.iter().all(|l| l.study_id == *query.study())
-                {
-                    Ok(())
-                } else {
-                    Err(BadReply)
-                }
-            })?;
+        let (lists, _) = leg
+            .call(
+                &endpoint,
+                Input::Params(&params),
+                Read::<raw::SampleLists>::json().check(&|v| {
+                    if v.0.len() <= LIST_PAGE_SIZE as usize
+                        && v.0.iter().all(|l| l.study_id == *query.study())
+                    {
+                        Ok(())
+                    } else {
+                        Err(BadReply)
+                    }
+                }),
+            )
+            .map(|received| (received.value, received.meta))?;
         let count = lists.0.len();
         if let Some(list) = lists
             .0

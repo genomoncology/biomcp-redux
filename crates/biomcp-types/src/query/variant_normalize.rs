@@ -113,13 +113,14 @@ impl VariantNormalize {
     pub fn offset(&self) -> u32 {
         self.0.offset
     }
-    /// Preserve selectors for another native mapping page.
-    pub fn at_offset(&self, offset: u32) -> Self {
-        let mut q = self.clone();
-        q.0.offset = offset;
-        q
+}
+impl crate::Paged for VariantNormalize {
+    type Offset = u32;
+    fn set_page_offset(&mut self, offset: Self::Offset) {
+        self.0.offset = offset;
     }
 }
+
 biodata::wire_enum! {
     /// Explicit normalization service selection.
     NormalizationSource {

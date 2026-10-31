@@ -3,6 +3,7 @@ use crate::{Ctx, Outcome, status, store::Store};
 use biodata::Text;
 use biomcp_adapters::vaers;
 use biomcp_fetch::{CacheError, Deadline, RequestError};
+use biomcp_types::Paged;
 use biomcp_types::ReplyBody;
 use biomcp_types::{
     AdverseEventSearch, PageInfo, Reason, ReplyData, Request, Source, SourceOutcome, StepKind,

@@ -251,12 +251,7 @@ impl VariantGet {
     pub fn offset(&self) -> u32 {
         self.0.offset
     }
-    /// Keep all selectors while selecting another source-ordered page.
-    pub fn at_offset(&self, offset: u32) -> Self {
-        let mut query = self.clone();
-        query.0.offset = offset;
-        query
-    }
+
     /// Unchanged checked identifier.
     pub fn input(&self) -> &VariantInput {
         &self.0.input
@@ -285,6 +280,13 @@ impl VariantGet {
         self.0.build
     }
 }
+impl crate::Paged for VariantGet {
+    type Offset = u32;
+    fn set_page_offset(&mut self, offset: Self::Offset) {
+        self.0.offset = offset;
+    }
+}
+
 biodata::wire_enum! {
     /// Explicit source service for reference-qualified notation.
     VariantResolver {

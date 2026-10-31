@@ -2,6 +2,7 @@
 use super::SPEC;
 use crate::native_text::NativeText;
 use biodata::{CellosaurusAccession, ChemblCellId};
+use biomcp_fetch::Input;
 use biomcp_fetch::{Arg, BadReply, Freshness, Leg, Reply, ReplyMetadata, RequestError};
 use biomcp_types::{CellLineChemblRecord, CellLineRelease};
 use serde::Deserialize;
@@ -118,35 +119,38 @@ pub fn cells(
     offset: u32,
 ) -> Result<CellPage, RequestError> {
     let text = id.to_string();
-    let (reply, metadata) = leg.json_received_checked_admission(
-        &CELLS,
-        &[
-            ("cellosaurus_id", Arg::Text(&text)),
-            ("limit", Arg::Num(limit.into())),
-            ("offset", Arg::Num(offset.into())),
-        ],
-        |r: &Cells| {
-            r.page_meta.check(r.cell_lines.len(), limit, offset)?;
-            if r.cell_lines.iter().all(|r| &r.scope.cellosaurus_id == id) {
-                Ok(())
-            } else {
-                Err(BadReply)
-            }
-        },
-        |r| {
-            let accepted = r
-                .cell_lines
-                .iter()
-                .filter(|row| row.value.as_ref().is_some_and(Cell::identity_admitted))
-                .count();
-            let refusals = if accepted < r.cell_lines.len() {
-                crate::Refusal::Refused
-            } else {
-                crate::Refusal::None
-            };
-            refusals.identities_admitted(accepted, r.cell_lines.len())
-        },
-    )?;
+    let (reply, metadata) = leg
+        .call(
+            &CELLS,
+            Input::Params(&[
+                ("cellosaurus_id", Arg::Text(&text)),
+                ("limit", Arg::Num(limit.into())),
+                ("offset", Arg::Num(offset.into())),
+            ]),
+            biomcp_fetch::Read::json()
+                .check(&|r: &Cells| {
+                    r.page_meta.check(r.cell_lines.len(), limit, offset)?;
+                    if r.cell_lines.iter().all(|r| &r.scope.cellosaurus_id == id) {
+                        Ok(())
+                    } else {
+                        Err(BadReply)
+                    }
+                })
+                .cache_if(&|r| {
+                    let accepted = r
+                        .cell_lines
+                        .iter()
+                        .filter(|row| row.value.as_ref().is_some_and(Cell::identity_admitted))
+                        .count();
+                    let refusals = if accepted < r.cell_lines.len() {
+                        crate::Refusal::Refused
+                    } else {
+                        crate::Refusal::None
+                    };
+                    refusals.identities_admitted(accepted, r.cell_lines.len())
+                }),
+        )
+        .map(|received| (received.value, received.meta))?;
     let received = reply.cell_lines.len() as u32;
     let mut problems = crate::mapped::Problems {
         source: biomcp_types::Source::Chembl,
@@ -198,24 +202,26 @@ impl Reply for Assays {
 /// Read only the native assay total; validate every returned cell identity first.
 pub fn assay_count(leg: &Leg<'_>, id: &ChemblCellId) -> Result<(u64, ReplyMetadata), RequestError> {
     let text = id.to_string();
-    let (reply, metadata) = leg.json_received_checked(
-        &ASSAYS,
-        &[
-            ("cell_chembl_id", Arg::Text(&text)),
-            ("limit", Arg::Num(1)),
-            ("offset", Arg::Num(0)),
-        ],
-        |r: &Assays| {
-            r.page_meta.check(r.assays.len(), 1, 0)?;
-            if (r.page_meta.total_count == 0) == r.assays.is_empty()
-                && r.assays.iter().all(|r| &r.cell_chembl_id == id)
-            {
-                Ok(())
-            } else {
-                Err(BadReply)
-            }
-        },
-    )?;
+    let (reply, metadata) = leg
+        .call(
+            &ASSAYS,
+            Input::Params(&[
+                ("cell_chembl_id", Arg::Text(&text)),
+                ("limit", Arg::Num(1)),
+                ("offset", Arg::Num(0)),
+            ]),
+            biomcp_fetch::Read::json().check(&|r: &Assays| {
+                r.page_meta.check(r.assays.len(), 1, 0)?;
+                if (r.page_meta.total_count == 0) == r.assays.is_empty()
+                    && r.assays.iter().all(|r| &r.cell_chembl_id == id)
+                {
+                    Ok(())
+                } else {
+                    Err(BadReply)
+                }
+            }),
+        )
+        .map(|received| (received.value, received.meta))?;
     Ok((reply.page_meta.total_count, metadata))
 }
 #[derive(Debug, Deserialize)]
@@ -230,7 +236,9 @@ impl Reply for Release {
 }
 /// Read publisher release independently from data retrieval time.
 pub fn release(leg: &Leg<'_>) -> Result<crate::Mapped<CellLineRelease>, RequestError> {
-    let r: Release = leg.json(&STATUS, &[])?;
+    let r: Release = leg
+        .call(&STATUS, Input::Params(&[]), biomcp_fetch::Read::json())?
+        .value;
     let mut problems = crate::mapped::Problems {
         source: biomcp_types::Source::Chembl,
         record: None,

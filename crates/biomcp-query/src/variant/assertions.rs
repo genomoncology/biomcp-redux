@@ -2,6 +2,7 @@
 use crate::{Ctx, Outcome, status};
 use biodata::VariantId;
 use biomcp_fetch::Deadline;
+use biomcp_types::Paged;
 use biomcp_types::ReplyBody;
 use biomcp_types::{
     AssertionSource, PageInfo, Reason, Request, Section, StepKind, VariantAssertion,

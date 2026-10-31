@@ -1,6 +1,7 @@
 use crate::{Ctx, Outcome, store::Store};
 use biodata::StudyHeader;
 use biomcp_fetch::{BundleInfo, CacheError, Deadline, RequestError};
+use biomcp_types::Paged;
 use biomcp_types::ReplyBody;
 use biomcp_types::{
     PageInfo, ReplyData, Request, StepKind, StudyGet, StudyPage, StudySearch, StudySnapshot,

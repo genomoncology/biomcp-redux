@@ -1,5 +1,6 @@
 use biodata::Text;
 use biomcp_fetch::{Arg, Leg, RequestError};
+use biomcp_fetch::{Input, Read};
 use biomcp_types::{FileKind, SupplementFile};
 /// Source-confirmed supplement with a confined bucket location.
 #[derive(Debug)]
@@ -99,12 +100,18 @@ pub fn download(leg: &Leg<'_>, file: &Supplement) -> Result<Download, RequestErr
     let (ep, params) = request(file)?;
     let local_end = leg.local_deadline();
     let parsed = std::cell::RefCell::new(None);
-    let bytes = leg.bytes_checked(&ep, &params, |bytes| {
-        let end = local_end.earlier(leg.local_deadline());
-        let sheets = crate::sheet::read(bytes, file.file.kind, end.clone())?;
-        *parsed.borrow_mut() = Some((sheets, end));
-        Ok(())
-    })?;
+    let bytes = leg
+        .call(
+            &ep,
+            Input::Params(&params),
+            Read::bytes().validate_body(&|bytes| {
+                let end = local_end.earlier(leg.local_deadline());
+                let sheets = crate::sheet::read(bytes, file.file.kind, end.clone())?;
+                *parsed.borrow_mut() = Some((sheets, end));
+                Ok(())
+            }),
+        )
+        .map(|received| received.value.0)?;
     let (sheets, deadline) = parsed
         .into_inner()
         .ok_or_else(|| biomcp_fetch::bad_reply(biomcp_types::Source::PmcOa, None))?;
@@ -121,7 +128,8 @@ pub fn download_bytes(leg: &Leg<'_>, file: &Supplement) -> Result<Vec<u8>, Reque
     let (ep, params) = request(file)?;
     // Explicit raw saves never read or admit source file bodies in the reply cache.
     let ep = ep.fresh(biomcp_fetch::Freshness::Never);
-    leg.bytes(&ep, &params)
+    leg.call(&ep, Input::Params(&params), Read::bytes())
+        .map(|received| received.value.0)
 }
 type RequestParts<'a> = (biomcp_fetch::Endpoint, Vec<(&'static str, Arg<'a>)>);
 fn request(file: &Supplement) -> Result<RequestParts<'_>, RequestError> {

@@ -6,6 +6,7 @@ use crate::{
     raw::Field,
 };
 use biodata::Text;
+use biomcp_fetch::Input;
 use biomcp_fetch::{
     Arg, BadReply, Endpoint, Freshness, KeyUse, Leg, Reply, RequestError, SourceSpec,
 };
@@ -30,10 +31,13 @@ pub static SPEC: SourceSpec = SourceSpec {
 pub(crate) const SENTENCES: Endpoint = SPEC.get("/api/sentences/").fresh(Freshness::Days(1));
 /// Read one bounded provider reply and keep each paper's first sentence, without score sorting.
 pub fn search(leg: &Leg<'_>, term: &str) -> Result<Mapped<Vec<ArticleItem>>, RequestError> {
-    let reply = leg.json::<Sentences>(
-        &SENTENCES,
-        &[("query", Arg::Text(term)), ("rerank", Arg::Text("true"))],
-    )?;
+    let reply = leg
+        .call(
+            &SENTENCES,
+            Input::Params(&[("query", Arg::Text(term)), ("rerank", Arg::Text("true"))]),
+            biomcp_fetch::Read::<Sentences>::json(),
+        )?
+        .value;
     let mut items: Vec<ArticleItem> = Vec::new();
     let mut problems = Problems {
         source: Source::LitSense,

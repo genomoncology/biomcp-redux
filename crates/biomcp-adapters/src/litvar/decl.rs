@@ -7,7 +7,7 @@ pub(crate) static DECL: SourceDecl = SourceDecl {
     probe: Probe::Custom(|leg| {
         leg.probe(
             &crate::litvar::AUTOCOMPLETE,
-            &[("query", biomcp_fetch::Arg::Text("rs121434592"))],
+            biomcp_fetch::Input::Params(&[("query", biomcp_fetch::Arg::Text("rs121434592"))]),
         )
     }),
     components: &[],

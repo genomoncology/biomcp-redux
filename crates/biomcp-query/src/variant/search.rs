@@ -1,5 +1,6 @@
 //! Declared variant searches keep native candidates, totals and page selectors.
 use crate::{Ctx, Outcome, status};
+use biomcp_types::Paged;
 use biomcp_types::ReplyBody;
 
 use biomcp_adapters::{clinvar, myvariant};

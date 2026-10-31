@@ -94,11 +94,15 @@ impl Fetch {
                 }
                 Ok(())
             };
-            let media = match format {
-                RowFormat::Document { media } => Some(media),
-                _ => None,
+            let read = crate::Read::bytes().validate_body(&check);
+            let read = match format {
+                RowFormat::Document { media } => read.document_media(media),
+                _ => read,
             };
-            let body = leg.bytes_checked_media(&endpoint, &[], media, check)?;
+            let body = leg
+                .call(&endpoint, crate::Input::Params(&[]), read)?
+                .value
+                .0;
             bytes = bytes.saturating_add(body.len() as u64);
             if bytes > super::MAX_BUNDLE_BYTES {
                 return Err(leg

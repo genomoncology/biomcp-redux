@@ -142,7 +142,7 @@ fn request_context(prepared: &Prepared, parameter: &str) -> Option<String> {
     )
 }
 
-impl<T: Reply> crate::xml::Decoder<'_, T> {
+impl<T: Reply> crate::read::Read<'_, T> {
     pub(crate) fn provenance(
         &self,
         prepared: &Prepared,
@@ -155,20 +155,5 @@ impl<T: Reply> crate::xml::Decoder<'_, T> {
             provenance.input_context = request_context(prepared, parameter);
         }
         provenance
-    }
-}
-
-impl crate::Leg<'_> {
-    /// Send checked JSON with explicit discovery inputs supplied by the request builder.
-    pub fn json_with_inputs<T: Reply>(
-        &self,
-        ep: &crate::Endpoint,
-        params: &[(&str, crate::Arg<'_>)],
-        ids: crate::Identities,
-        parameter: &str,
-    ) -> Result<T, crate::RequestError> {
-        let mut codec = crate::xml::Decoder::json();
-        codec.diagnostic_inputs = Some((ids, parameter.into()));
-        self.parameters(ep, params, codec).map(|(reply, _)| reply)
     }
 }

@@ -1,6 +1,7 @@
 //! Exact LitVar2 candidate selection and source-ordered publication identifiers.
 use crate::quotas;
 use biodata::{Pmid, Text};
+use biomcp_fetch::{Input, Read};
 
 use biomcp_fetch::{Arg, Endpoint, Freshness, KeyUse, Leg, PathSegment, RequestError, SourceSpec};
 use biomcp_types::{LitVarCandidate, Source};
@@ -76,11 +77,12 @@ pub fn select(
         format!("{} {change}", gene.unwrap_or_default())
     };
     let candidates = leg
-        .json_checked_cache::<Candidates>(
+        .call(
             &AUTOCOMPLETE,
-            &[("query", Arg::Text(&term))],
-            Candidates::eligible,
-        )?
+            Input::Params(&[("query", Arg::Text(&term))]),
+            Read::<Candidates>::json().cache_if(&Candidates::eligible),
+        )
+        .map(|received| received.value)?
         .mapped();
     let mut matching = candidates.value.iter().filter_map(|row| {
         let matches = if rsid {
@@ -134,11 +136,13 @@ pub fn publications(leg: &Leg<'_>, selected: Variant) -> Result<Search, RequestE
         .into_iter()
         .map(PathSegment::new)
         .collect::<Result<Vec<_>, _>>()?;
-    let reply = leg.json_checked_cache::<Publications>(
-        &PUBLICATIONS.clone().with_segments(&segments),
-        &[],
-        Publications::eligible,
-    )?;
+    let reply = leg
+        .call(
+            &PUBLICATIONS.clone().with_segments(&segments),
+            Input::Params(&[]),
+            Read::<Publications>::json().cache_if(&Publications::eligible),
+        )?
+        .value;
     let mut problems = crate::mapped::Problems {
         source: Source::LitVar,
         record: crate::mapped::record(&selected.id),

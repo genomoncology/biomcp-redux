@@ -6,6 +6,7 @@ use crate::{
 };
 use biomcp_adapters::gwas;
 use biomcp_fetch::{CacheError, Deadline, RequestError};
+use biomcp_types::Paged;
 use biomcp_types::ReplyBody;
 use biomcp_types::{
     GwasAssociation, GwasPage, GwasPageQuery, GwasSearch, PageInfo, Reason, ReplyData, Request,

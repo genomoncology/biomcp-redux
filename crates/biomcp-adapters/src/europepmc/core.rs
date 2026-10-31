@@ -8,6 +8,7 @@ use crate::{
 };
 use crate::{jats, pmc_oa};
 use biodata::{Doi, EuropePmcId, PartialDate, Pmid, Text};
+use biomcp_fetch::Input;
 
 use biomcp_fetch::{Arg, BadReply, Endpoint, Freshness, Leg, Reply, ReplyMetadata, RequestError};
 use biomcp_types::{AbstractPart, Article};
@@ -65,13 +66,16 @@ fn record(leg: &Leg<'_>, id: &EuropePmcId) -> Result<(Record, ReplyMetadata), Re
         .clone()
         .with_path(format!("/article/PPR/{id}"))
         .map_err(|_| biomcp_fetch::bad_reply(biomcp_types::Source::EuropePmc, None))?;
-    let (raw, meta) = leg.json_received::<Raw>(
-        &endpoint,
-        &[
-            ("format", Arg::Text("json")),
-            ("resultType", Arg::Text("core")),
-        ],
-    )?;
+    let (raw, meta) = leg
+        .call(
+            &endpoint,
+            Input::Params(&[
+                ("format", Arg::Text("json")),
+                ("resultType", Arg::Text("core")),
+            ]),
+            biomcp_fetch::Read::<Raw>::json(),
+        )
+        .map(|received| (received.value, received.meta))?;
     if raw.result.id != *id {
         return Err(biomcp_fetch::bad_reply(
             biomcp_types::Source::EuropePmc,
@@ -171,7 +175,13 @@ pub fn read(
         .clone()
         .with_path(format!("/{id}/fullTextXML"))
         .map_err(|_| biomcp_fetch::bad_reply(biomcp_types::Source::EuropePmc, None))?;
-    let mut body = leg.xml::<jats::Body>(&endpoint, &[])?;
+    let mut body = leg
+        .call(
+            &endpoint,
+            Input::Params(&[]),
+            biomcp_fetch::Read::<jats::Body>::xml(),
+        )?
+        .value;
     if body.title.is_none() {
         body.title = p.source_field("title", raw.title);
     }

@@ -1,4 +1,5 @@
 //! Exact public registry records with checked returned paths before cache admission.
+use biomcp_fetch::Input;
 mod raw;
 mod works;
 use biodata::{AuthorCard, OrcidId, OrcidWorkGroup};
@@ -40,16 +41,21 @@ pub fn card(
     leg: &Leg<'_>,
     id: &OrcidId,
 ) -> Result<crate::Mapped<Option<AuthorCard>>, RequestError> {
-    let (record, _) =
-        leg.json_received_checked::<raw::Person>(&endpoint(id, "person")?, &[], |r| {
-            if r.path == format!("/{id}/person")
-                && r.name.as_ref().is_none_or(|n| n.path == id.to_string())
-            {
-                Ok(())
-            } else {
-                Err(BadReply)
-            }
-        })?;
+    let (record, _) = leg
+        .call(
+            &endpoint(id, "person")?,
+            Input::Params(&[]),
+            biomcp_fetch::Read::<raw::Person>::json().check(&|r| {
+                if r.path == format!("/{id}/person")
+                    && r.name.as_ref().is_none_or(|n| n.path == id.to_string())
+                {
+                    Ok(())
+                } else {
+                    Err(BadReply)
+                }
+            }),
+        )
+        .map(|received| (received.value, received.meta))?;
     record
         .card(id)
         .map_err(|_| biomcp_fetch::bad_reply(Source::Orcid, None))
@@ -59,14 +65,19 @@ pub fn works(
     leg: &Leg<'_>,
     id: &OrcidId,
 ) -> Result<crate::Mapped<Box<[OrcidWorkGroup]>>, RequestError> {
-    let (record, _) =
-        leg.json_received_checked::<works::Works>(&endpoint(id, "works")?, &[], |r| {
-            if r.identity(id) {
-                Ok(())
-            } else {
-                Err(BadReply)
-            }
-        })?;
+    let (record, _) = leg
+        .call(
+            &endpoint(id, "works")?,
+            Input::Params(&[]),
+            biomcp_fetch::Read::<works::Works>::json().check(&|r| {
+                if r.identity(id) {
+                    Ok(())
+                } else {
+                    Err(BadReply)
+                }
+            }),
+        )
+        .map(|received| (received.value, received.meta))?;
     Ok(record.groups())
 }
 

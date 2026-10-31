@@ -2,6 +2,7 @@ use super::{SPEC, map::publication_type};
 use crate::mapped::{Problems, record};
 use crate::xml_element::Element;
 use biodata::{PartialDate, Pmid, Text};
+use biomcp_fetch::{Input, Read};
 use biomcp_types::{Problem, Source};
 
 use biomcp_fetch::{
@@ -53,7 +54,12 @@ pub fn resolve_ids(
         params.push(("email", Arg::Contact(email)));
     }
     Ok(leg
-        .json::<super::raw::Search>(&RESOLVE, &params)?
+        .call(
+            &RESOLVE,
+            Input::Params(&params),
+            Read::<super::raw::Search>::json(),
+        )
+        .map(|received| received.value)?
         .esearchresult
         .idlist)
 }
@@ -79,7 +85,9 @@ pub fn fetch_articles(
     if let Some(email) = email {
         params.push(("email", Arg::Contact(email)));
     }
-    let (reply, metadata) = leg.xml_received::<Records>(&FETCH, &params)?;
+    let (reply, metadata) = leg
+        .call(&FETCH, Input::Params(&params), Read::<Records>::xml())
+        .map(|received| (received.value, received.meta))?;
     Ok((reply.articles, metadata))
 }
 #[derive(Deserialize)]

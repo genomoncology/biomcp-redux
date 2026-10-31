@@ -8,23 +8,9 @@ use biodata::{
     ProteinFunction, ProteinHeader, ProteinIsoform, ProteinSequence, ProteinStructureRef,
 };
 use serde::{Deserialize, Serialize};
-macro_rules! page {
-    ($name:ident, $row:ty, $query:ty, $schema:literal, $doc:literal) => {
-        #[doc = $doc]
-        #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-        #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-        pub struct $name {
-            /// Whole native rows in source order; totals apply only to this collection.
-            #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
-            pub items: Box<[$row]>,
-        }
-        impl ResponseBody for $name {
-            const SCHEMA: &'static str = $schema;
-            type Query = $query;
-        }
-    };
-}
+
 page!(
+    protein,
     ProteinPage,
     ProteinHeader,
     ProteinSearch,
@@ -32,6 +18,7 @@ page!(
     "Source-ordered human reviewed protein headers."
 );
 page!(
+    protein,
     ProteinFeatures,
     ProteinFeature,
     ProteinFeaturesQuery,
@@ -53,6 +40,7 @@ impl ResponseBody for ProteinDomains {
     type Query = ProteinDomainsQuery;
 }
 page!(
+    protein,
     ProteinIsoforms,
     ProteinIsoform,
     ProteinRelationQuery,
@@ -74,6 +62,7 @@ impl ResponseBody for ProteinComplexes {
     type Query = ProteinRelationQuery;
 }
 page!(
+    protein,
     ProteinComplexMembers,
     ProteinComplexMember,
     ProteinComplexMembersQuery,
@@ -81,6 +70,7 @@ page!(
     "Native participants of one exact containing complex, including non-protein source facts."
 );
 page!(
+    protein,
     ProteinStructures,
     ProteinStructureRef,
     ProteinRelationQuery,

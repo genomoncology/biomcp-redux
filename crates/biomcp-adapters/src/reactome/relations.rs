@@ -4,6 +4,7 @@ use crate::mapped::problem;
 use crate::mapped::record as record_text;
 use biodata::{PathwayEventRef, PathwayMember, PathwayParticipant, PathwaySourceRef, ReactomeId};
 use biomcp_fetch::{Freshness, Leg, RequestError};
+use biomcp_fetch::{Input, Read};
 use biomcp_types::Source;
 /// Complete source-reference membership with explicit occurrence and physical-entity counts.
 #[derive(Debug)]
@@ -18,13 +19,22 @@ pub struct Members {
 
 /// Read the bounded complete physical-participant relation without interpreting display names.
 pub fn members(leg: &Leg<'_>, id: &ReactomeId) -> Result<Mapped<Members>, RequestError> {
-    let invalid_reply = biomcp_fetch::bad_reply(Source::Reactome, Some(200));
     let endpoint = SPEC
         .get("/data/participants")
         .with_path(format!("/data/participants/{id}"))?
         .bytes(8 * 1024 * 1024)
         .fresh(Freshness::Days(7));
-    let rows = leg.json::<raw::Participants>(&endpoint, &[])?;
+    let rows = leg
+        .call(
+            &endpoint,
+            Input::Params(&[]),
+            Read::<raw::Participants>::json(),
+        )?
+        .value;
+    map_members(rows, id)
+}
+fn map_members(rows: raw::Participants, id: &ReactomeId) -> Result<Mapped<Members>, RequestError> {
+    let invalid_reply = biomcp_fetch::bad_reply(Source::Reactome, Some(200));
     let mut problems = fields(id);
     let mut value = Members {
         items: Vec::new(),
@@ -198,19 +208,24 @@ fn event_rows(leg: &Leg<'_>, id: &ReactomeId) -> Result<raw::Events, RequestErro
         .with_path(format!("/data/pathway/{id}/containedEvents"))?
         .bytes(8 * 1024 * 1024)
         .fresh(Freshness::Days(7));
-    leg.json_checked_cache::<raw::Events>(&endpoint, &[], |rows| {
-        rows.0.iter().all(|row| match row {
-            raw::Event::Database(_) => true,
-            raw::Event::Object(v) => {
-                v.species_name
-                    .as_deref()
-                    .is_none_or(|s| s == "Homo sapiens")
-                    && v.st_id
+    leg.call(
+        &endpoint,
+        Input::Params(&[]),
+        Read::<raw::Events>::json().cache_if(&|rows| {
+            rows.0.iter().all(|row| match row {
+                raw::Event::Database(_) => true,
+                raw::Event::Object(v) => {
+                    v.species_name
                         .as_deref()
-                        .is_none_or(|id| id.parse::<ReactomeId>().is_ok())
-            }
-        })
-    })
+                        .is_none_or(|s| s == "Homo sapiens")
+                        && v.st_id
+                            .as_deref()
+                            .is_none_or(|id| id.parse::<ReactomeId>().is_ok())
+                }
+            })
+        }),
+    )
+    .map(|received| received.value)
 }
 
 fn fields(id: &ReactomeId) -> crate::mapped::Problems {

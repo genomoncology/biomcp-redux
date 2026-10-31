@@ -1,5 +1,6 @@
 //! Europe PMC's bounded metadata-only search window.
 use crate::native_text::NativeText;
+use biomcp_fetch::{Input, Read};
 mod core;
 use crate::{
     mapped::{Problems, record},
@@ -55,7 +56,9 @@ pub fn search(leg: &Leg<'_>, term: &str, sort: ArticleSort) -> Result<Search, Re
     if sort == ArticleSort::Date {
         args.push(("sort", Arg::Text("FIRST_PDATE_D desc")));
     }
-    let raw = leg.json::<Raw>(&SEARCH, &args)?;
+    let raw = leg
+        .call(&SEARCH, Input::Params(&args), Read::<Raw>::json())?
+        .value;
     let mut problems = Vec::new();
     let mut refusals = crate::Refusal::None;
     let items = raw

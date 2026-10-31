@@ -1,5 +1,6 @@
 use crate::{Ctx, Outcome, store::Store};
 use biomcp_fetch::{CacheError, Deadline, RequestError};
+use biomcp_types::Paged;
 use biomcp_types::{
     PathwayPage, PathwaySearch, Problem, ReplyData, Request, SourceOutcome, StepKind,
 };

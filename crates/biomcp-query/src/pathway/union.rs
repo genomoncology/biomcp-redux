@@ -3,6 +3,7 @@ use super::{empty, run};
 use crate::{Ctx, Outcome, status, store::Store};
 use biomcp_adapters::{reactome, wikipathways};
 use biomcp_fetch::{CacheError, Deadline, RequestError};
+use biomcp_types::Paged;
 use biomcp_types::ReplyBody;
 use biomcp_types::{
     PathwayGet, PathwayHeader, PathwayPage, PathwayPageInfo, PathwaySearch, PathwaySource,

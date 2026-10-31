@@ -4,6 +4,8 @@
     clippy::disallowed_methods,
     reason = "Fixture failures fail the contract"
 )]
+use biomcp_fetch::Input;
+
 #[path = "support/environment.rs"]
 #[expect(
     clippy::disallowed_types,
@@ -401,7 +403,12 @@ fn release_large_bundle_capture_round_trips() {
     assert!(matches!(
         ordinary
             .leg(b.spec, ordinary.deadline(Duration::from_secs(5)))
-            .json::<support::Answer>(&b.spec.get(b.path), &[]),
+            .call(
+                &b.spec.get(b.path),
+                Input::Params(&[]),
+                biomcp_fetch::Read::<support::Answer>::json()
+            )
+            .map(|received| received.value),
         Err(biomcp_fetch::RequestError::Recording(
             biomcp_fetch::RecordError::Limit
         ))

@@ -193,29 +193,9 @@ biodata::wire_enum! {
         NativeMethodEntries => "native-method-entries"
     }
 }
-macro_rules! page {
-    ($name:ident, $row:ty, $query:ty, $schema:literal, $doc:literal) => {
-        #[doc = $doc]
-        #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-        #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-        pub struct $name {
-            /// Complete source-owned rows in native order; envelope totals count native rows.
-            #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
-            pub items: Box<[$row]>,
-            /// Exact meaning of the envelope total; supplied by the owning source command.
-            #[serde(default, skip_serializing_if = "Option::is_none")]
-            pub count_unit: Option<DiagnosticCountUnit>,
-            /// Distinct complete native IDs across the selected relation collection.
-            #[serde(default, skip_serializing_if = "Option::is_none")]
-            pub distinct_id_total: Option<u64>,
-        }
-        impl ResponseBody for $name {
-            const SCHEMA: &'static str = $schema;
-            type Query = $query;
-        }
-    };
-}
+
 page!(
+    diagnostic,
     DiagnosticPage,
     DiagnosticCandidate,
     DiagnosticSearch,
@@ -223,6 +203,7 @@ page!(
     "Source-ordered GTR test candidates or WHO product headers."
 );
 page!(
+    diagnostic,
     DiagnosticGenes,
     GtrGeneRelation,
     DiagnosticGet,
@@ -230,6 +211,7 @@ page!(
     "Native GTR gene relation rows without variant-coverage inference."
 );
 page!(
+    diagnostic,
     DiagnosticConditions,
     GtrConditionRelation,
     DiagnosticGet,
@@ -237,6 +219,7 @@ page!(
     "Native GTR condition rows without ontology or clinical conversion."
 );
 page!(
+    diagnostic,
     DiagnosticMethods,
     GtrMethod,
     DiagnosticGet,
@@ -244,6 +227,7 @@ page!(
     "Independent native method entries without positional pairing."
 );
 page!(
+    diagnostic,
     DiagnosticRegulatory,
     DiagnosticRegulatoryFragment,
     DiagnosticGet,
@@ -251,6 +235,7 @@ page!(
     "Exact selected submission regulatory text fragments."
 );
 page!(
+    diagnostic,
     DiagnosticSupplements,
     DiagnosticPmaHeader,
     DiagnosticGet,
@@ -258,6 +243,7 @@ page!(
     "Native supplement records retaining exact identity and independent dated decisions."
 );
 page!(
+    diagnostic,
     DiagnosticCompanion,
     CompanionDiagnosticRelation,
     DiagnosticSearch,

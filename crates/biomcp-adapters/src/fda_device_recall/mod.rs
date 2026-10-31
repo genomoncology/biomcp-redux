@@ -1,4 +1,5 @@
 //! Native product recall records with exact optional enforcement classification.
+use biomcp_fetch::{Input, Read};
 mod map;
 mod raw;
 use biodata::{DeviceRecallNumber, Text};
@@ -69,15 +70,18 @@ pub fn search(leg: &Leg<'_>, q: &DiagnosticSearch) -> Result<Page, RequestError>
         ("skip", Arg::Num(q.offset().into())),
         ("sort", Arg::Text("event_date_initiated:desc")),
     ]);
-    let (reply, _) = leg.json_received_checked::<raw::Response<raw::Record>>(
-        &SPEC
-            .get("/device/recall.json")
-            .fresh(Freshness::Days(1))
-            .bytes(2 * 1024 * 1024)
-            .json_absence(),
-        &args,
-        |reply| counts(reply, q.offset(), q.limit(), false),
-    )?;
+    let (reply, _) = leg
+        .call(
+            &SPEC
+                .get("/device/recall.json")
+                .fresh(Freshness::Days(1))
+                .bytes(2 * 1024 * 1024)
+                .json_absence(),
+            Input::Params(&args),
+            Read::<raw::Response<raw::Record>>::json()
+                .check(&|reply| counts(reply, q.offset(), q.limit(), false)),
+        )
+        .map(|received| (received.value, received.meta))?;
     let mut page = Page {
         items: Box::default(),
         total: 0,
@@ -130,16 +134,18 @@ fn exact<T: DeserializeOwned + Identity + crate::openfda::Item>(
         .json_absence();
     let identity = |reply: &raw::Response<T>| !matches!(reply,raw::Response::Page {results,..} if results.iter().any(|r|r.id()!=id));
     let reply = leg
-        .json_checked_admission::<raw::Response<T>>(
+        .call(
             &endpoint,
-            &[
+            Input::Params(&[
                 ("search", Arg::Text(&selector)),
                 ("limit", Arg::Num(1)),
                 ("skip", Arg::Num(0)),
-            ],
-            |reply| counts(reply, 0, 1, true),
-            identity,
+            ]),
+            Read::<raw::Response<T>>::json()
+                .check(&|reply| counts(reply, 0, 1, true))
+                .cache_if(&identity),
         )
+        .map(|received| received.value)
         .map_err(|error| Failure {
             error,
             identity_field: None,

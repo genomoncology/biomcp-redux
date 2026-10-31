@@ -1,5 +1,6 @@
 //! Feature diagnostic-types: checked source-owned records before adapters exist.
 use biodata::*;
+use biomcp_types::Paged;
 use biomcp_types::*;
 use serde_json::{Value, json};
 

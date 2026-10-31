@@ -18,12 +18,17 @@ impl Probe {
     /// Run the declared request without choosing a source-specific fallback.
     pub fn run(&self, spec: &'static SourceSpec, leg: &Leg<'_>) -> Result<(), RequestError> {
         match self {
-            Self::Get(path, params) => leg.probe(&spec.get(path), params),
-            Self::GraphQl(path) => leg.probe_json(
+            Self::Get(path, params) => {
+                leg.probe(&spec.get(path), biomcp_fetch::Input::Params(params))
+            }
+            Self::GraphQl(path) => leg.probe(
                 &spec.post_json(path).idempotent(),
-                &ProbeQuery {
-                    query: "{ __typename }",
-                },
+                biomcp_fetch::Input::json(
+                    &[],
+                    &ProbeQuery {
+                        query: "{ __typename }",
+                    },
+                ),
             ),
             Self::Custom(probe) => probe(leg),
             Self::Unavailable | Self::Component => Err(biomcp_fetch::SourceError {

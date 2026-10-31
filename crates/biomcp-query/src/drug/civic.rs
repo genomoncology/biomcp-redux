@@ -1,6 +1,7 @@
 //! Source-local CIViC therapy candidates and independent native claim streams.
 use crate::{Ctx, Outcome, status};
 use biomcp_adapters::civic;
+use biomcp_types::Paged;
 use biomcp_types::ReplyBody;
 use biomcp_types::{
     DrugGet, DrugPage, DrugSearch, DrugSection, DrugSource, PageInfo, Request, Source, StepKind,

@@ -239,13 +239,14 @@ impl DiseaseSearch {
     pub fn offset(&self) -> u32 {
         self.0.offset
     }
-    /// Continue with every other selector unchanged.
-    pub fn at_offset(&self, offset: u32) -> Self {
-        let mut q = self.clone();
-        q.0.offset = offset;
-        q
+}
+impl crate::Paged for DiseaseSearch {
+    type Offset = u32;
+    fn set_page_offset(&mut self, offset: Self::Offset) {
+        self.0.offset = offset;
     }
 }
+
 impl DiseaseGet {
     /// Check an exact OLS concept within its source-listed ontology.
     pub fn ols(id: Text, ontology: DiseaseOntology) -> Result<Self, QueryInvalid> {

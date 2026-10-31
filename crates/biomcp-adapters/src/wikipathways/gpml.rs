@@ -7,6 +7,7 @@ use crate::Mapped;
 use crate::mapped::{Problems, record};
 use biodata::{PathwayMember, PathwaySourceRef, Text, WikiPathwaysId};
 use biomcp_fetch::{Freshness, Leg, RequestError};
+use biomcp_fetch::{Input, Read};
 use biomcp_types::Source;
 use std::collections::BTreeSet;
 
@@ -41,8 +42,13 @@ pub fn members(leg: &Leg<'_>, id: &WikiPathwaysId) -> Result<Mapped<Members>, Re
         .application_octet_stream()
         .bytes(MAX_BYTES)
         .fresh(Freshness::Days(7));
-    let (document, _) =
-        leg.xml_received_checked::<Document>(&endpoint, &[], |value| value.matches(id))?;
+    let (document, _) = leg
+        .call(
+            &endpoint,
+            Input::Params(&[]),
+            Read::<Document>::xml().check(&|value| value.matches(id)),
+        )
+        .map(|received| (received.value, received.meta))?;
     let mut p = Problems {
         source: Source::WikiPathways,
         record: record(id),
