@@ -58,7 +58,7 @@ pub(super) fn check(tools: &[Value], reply: &Value) -> Result<(), String> {
         &env,
         "biomcp",
         json!({"args":["health"]}),
-        &env.globals(None, true),
+        &["--offline".into()],
     )?;
     let complete = super::super::research::call(
         &env,
