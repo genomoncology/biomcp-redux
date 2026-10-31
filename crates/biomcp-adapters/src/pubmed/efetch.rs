@@ -54,7 +54,11 @@ pub fn resolve_ids(
         params.push(("email", Arg::Contact(email)));
     }
     Ok(leg
-        .call::<super::raw::Search>(&RESOLVE, Input::Params(&params), Read::json())
+        .call(
+            &RESOLVE,
+            Input::Params(&params),
+            Read::<super::raw::Search>::json(),
+        )
         .map(|received| received.value)?
         .esearchresult
         .idlist)
@@ -82,7 +86,7 @@ pub fn fetch_articles(
         params.push(("email", Arg::Contact(email)));
     }
     let (reply, metadata) = leg
-        .call::<Records>(&FETCH, Input::Params(&params), Read::xml())
+        .call(&FETCH, Input::Params(&params), Read::<Records>::xml())
         .map(|received| (received.value, received.meta))?;
     Ok((reply.articles, metadata))
 }

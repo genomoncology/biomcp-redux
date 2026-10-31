@@ -36,10 +36,10 @@ fn indexed_tsv_rows_are_literal_and_offline() {
         let call = scope.spawn(|| {
             fetch
                 .leg(spec, fetch.deadline(Duration::from_secs(2)))
-                .call::<support::Answer>(
+                .call(
                     &spec.get("/genes").fresh(Freshness::Days(1)),
                     Input::Params(&[]),
-                    Read::json(),
+                    Read::<support::Answer>::json(),
                 )
                 .map(|received| received.value)
         });

@@ -80,7 +80,7 @@ pub fn search(leg: &Leg<'_>, query: &AdverseEventSearch) -> Result<Page, Request
     };
     let endpoint = SPEC.get("").fresh(Freshness::Days(1)).json_absence();
     let (response, metadata) = leg
-        .call::<raw::Response>(
+        .call(
             &endpoint,
             Input::Params(&[
                 ("search", Arg::Text(&selector)),
@@ -88,7 +88,7 @@ pub fn search(leg: &Leg<'_>, query: &AdverseEventSearch) -> Result<Page, Request
                 ("skip", Arg::Num(query.offset().into())),
                 ("sort", Arg::Text("receivedate:desc")),
             ]),
-            biomcp_fetch::Read::json().check(
+            biomcp_fetch::Read::<raw::Response>::json().check(
                 &(|reply| {
                     if let raw::Response::Page { meta, .. } = reply
                         && (meta.results.skip != query.offset()

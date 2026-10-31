@@ -42,10 +42,10 @@ pub(super) fn legacy_json_absence_removes_a_positive() {
         .leg(spec, replay.deadline(Duration::from_secs(10)))
         .fresh(true);
     let (absence, metadata) = leg
-        .call::<Absence>(
+        .call(
             &endpoint.clone().json_absence(),
             Input::Params(&[]),
-            Read::json(),
+            Read::<Absence>::json(),
         )
         .map(|received| (received.value, received.meta))
         .unwrap();
@@ -68,7 +68,7 @@ pub(super) fn legacy_json_absence_removes_a_positive() {
     let replay = replay_case(directory.path(), case);
     let leg = replay.leg(spec, replay.deadline(Duration::from_secs(10)));
     let (answer, metadata) = leg
-        .call::<Answer>(&endpoint, Input::Params(&[]), Read::json())
+        .call(&endpoint, Input::Params(&[]), Read::<Answer>::json())
         .map(|received| (received.value, received.meta))
         .unwrap();
     assert!(

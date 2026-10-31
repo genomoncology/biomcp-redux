@@ -52,10 +52,10 @@ pub fn get(leg: &Leg<'_>, id: NctId) -> Result<(Detail, ReplyMetadata), RequestE
         .fresh(Freshness::Days(1))
         .with_segments(&[biomcp_fetch::PathSegment::new(&id.to_string())?]);
     let (raw, metadata) = leg
-        .call::<Study>(
+        .call(
             &endpoint,
             Input::Params(&[]),
-            biomcp_fetch::Read::json().check(
+            biomcp_fetch::Read::<Study>::json().check(
                 &(|raw| {
                     if raw.protocol_section.identification_module.nct_id == id {
                         Ok(())

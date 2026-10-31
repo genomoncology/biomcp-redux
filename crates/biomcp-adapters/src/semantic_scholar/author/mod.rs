@@ -14,7 +14,7 @@ const FIELDS: &str = "authorId,name,affiliations,paperCount,citationCount,hIndex
 pub fn search(leg: &Leg<'_>, q: &AuthorSearch) -> Result<Page, RequestError> {
     let endpoint = SPEC.get("/author/search").fresh(Freshness::Days(1));
     let (page, _) = leg
-        .call::<raw::Page>(
+        .call(
             &endpoint,
             Input::Params(&[
                 ("query", Arg::Text(q.query())),
@@ -22,7 +22,7 @@ pub fn search(leg: &Leg<'_>, q: &AuthorSearch) -> Result<Page, RequestError> {
                 ("offset", Arg::Num(u64::from(q.offset()))),
                 ("limit", Arg::Num(u64::from(q.limit()))),
             ]),
-            biomcp_fetch::Read::json().check(
+            biomcp_fetch::Read::<raw::Page>::json().check(
                 &(|page| {
                     if page.offset == q.offset() && page.received <= q.limit() as usize {
                         Ok(())
@@ -45,10 +45,10 @@ pub fn card(
         .with_path(format!("/author/{id}"))?
         .fresh(Freshness::Days(1));
     let (row, _) = leg
-        .call::<raw::Record>(
+        .call(
             &endpoint,
             Input::Params(&[("fields", Arg::Text(FIELDS))]),
-            biomcp_fetch::Read::json().check(
+            biomcp_fetch::Read::<raw::Record>::json().check(
                 &(|row| {
                     if &row.author_id == id {
                         Ok(())

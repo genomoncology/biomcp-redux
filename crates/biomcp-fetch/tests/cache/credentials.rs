@@ -67,7 +67,7 @@ fn query_identity_distinguishes_arguments_and_excludes_configured_credentials() 
         source(
             fetch
                 .leg(other, fetch.deadline(Duration::from_secs(10)))
-                .call::<Answer>(&foreign, Input::Params(&[]), Read::json())
+                .call(&foreign, Input::Params(&[]), Read::<Answer>::json())
                 .map(|received| received.value)
                 .unwrap_err()
         )

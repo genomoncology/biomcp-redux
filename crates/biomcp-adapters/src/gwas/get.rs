@@ -28,10 +28,10 @@ pub fn association(
         .with_path(format!("/associations/{}", id.get()))?
         .fresh(Freshness::Days(1));
     let (row, _) = leg
-        .call::<Association>(
+        .call(
             &endpoint,
             Input::Params(&[]),
-            biomcp_fetch::Read::json().check(
+            biomcp_fetch::Read::<Association>::json().check(
                 &(|r| {
                     if r.association_id == id {
                         Ok(())
@@ -56,10 +56,10 @@ pub fn study(leg: &Leg<'_>, id: &GwasStudyId) -> Result<crate::Mapped<GwasStudy>
         .with_path(format!("/studies/{id}"))?
         .fresh(Freshness::Days(1));
     let (row, _) = leg
-        .call::<study::Study>(
+        .call(
             &endpoint,
             Input::Params(&[]),
-            biomcp_fetch::Read::json().check(
+            biomcp_fetch::Read::<study::Study>::json().check(
                 &(|r| {
                     if &r.accession_id == id {
                         Ok(())
@@ -78,10 +78,10 @@ pub fn ancestries(leg: &Leg<'_>, id: &GwasStudyId) -> Result<Rows<GwasAncestry>,
     let prefix = format!("{}{path}/", SPEC.base);
     let endpoint = SPEC.get("").with_path(path)?.fresh(Freshness::Days(1));
     let (rows, _) = leg
-        .call::<raw::Ancestries>(
+        .call(
             &endpoint,
             Input::Params(&[]),
-            biomcp_fetch::Read::json().cache_if(
+            biomcp_fetch::Read::<raw::Ancestries>::json().cache_if(
                 &(|r| {
                     r.embedded
                         .ancestries
@@ -124,10 +124,10 @@ pub fn loci(leg: &Leg<'_>, id: GwasAssociationId) -> Result<Rows<GwasLocus>, Req
     let prefix = format!("{}{path}/", SPEC.base);
     let endpoint = SPEC.get("").with_path(path)?.fresh(Freshness::Days(1));
     let (rows, _) = leg
-        .call::<raw::Loci>(
+        .call(
             &endpoint,
             Input::Params(&[]),
-            biomcp_fetch::Read::json().cache_if(
+            biomcp_fetch::Read::<raw::Loci>::json().cache_if(
                 &(|r| {
                     r.embedded
                         .loci

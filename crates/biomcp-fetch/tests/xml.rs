@@ -79,7 +79,11 @@ fn checked_get_and_form_xml_preserve_text_and_select_media() {
             let worker = scope.spawn(|| {
                 fetch
                     .leg(spec, fetch.deadline(Duration::from_secs(10)))
-                    .call::<Answer>(&ep, Input::Params(&[("q", Arg::Num(1))]), Read::xml())
+                    .call(
+                        &ep,
+                        Input::Params(&[("q", Arg::Num(1))]),
+                        Read::<Answer>::xml(),
+                    )
                     .map(|received| received.value)
             });
             let request = server.next();
@@ -276,10 +280,10 @@ fn xml_cache_codec_invalid_entries_and_stale_fallback_remain_checked() {
     let leg = fetch.leg(spec, fetch.deadline(Duration::from_secs(10)));
     thread::scope(|scope| {
         let worker = scope.spawn(|| {
-            leg.call::<Answer>(
+            leg.call(
                 &spec.get("/answer").fresh(Freshness::Days(1)),
                 Input::Params(&[]),
-                Read::xml(),
+                Read::<Answer>::xml(),
             )
             .map(|received| received.value)
         });
@@ -309,10 +313,10 @@ fn xml_cache_codec_invalid_entries_and_stale_fallback_remain_checked() {
         let worker = scope.spawn(|| {
             fetch
                 .leg(spec, fetch.deadline(Duration::from_secs(10)))
-                .call::<support::Answer>(
+                .call(
                     &spec.get("/answer").fresh(Freshness::Days(1)),
                     Input::Params(&[]),
-                    Read::json(),
+                    Read::<support::Answer>::json(),
                 )
                 .map(|received| received.value)
         });
@@ -394,10 +398,10 @@ fn record_xml_text_replays_without_http_and_offline_uses_checked_codec() {
     .unwrap();
     let leg = offline.leg(spec, offline.deadline(Duration::from_secs(10)));
     assert!(
-        leg.call::<Answer>(
+        leg.call(
             &spec.get("/answer").fresh(Freshness::Days(1)),
             Input::Params(&[]),
-            Read::xml()
+            Read::<Answer>::xml()
         )
         .map(|received| received.value)
         .is_ok()
@@ -415,7 +419,11 @@ fn ordinary_xml_replies_use_default_serde_decoding() {
         let worker = scope.spawn(|| {
             fetch
                 .leg(spec, fetch.deadline(Duration::from_secs(10)))
-                .call::<support::Answer>(&spec.get("/plain"), Input::Params(&[]), Read::xml())
+                .call(
+                    &spec.get("/plain"),
+                    Input::Params(&[]),
+                    Read::<support::Answer>::xml(),
+                )
                 .map(|received| received.value)
         });
         respond(
@@ -484,7 +492,7 @@ fn application_octet_stream_permission_keeps_xml_checks_and_bounds() {
             let worker = scope.spawn(|| {
                 fetch
                     .leg(spec, fetch.deadline(Duration::from_secs(10)))
-                    .call::<Answer>(&endpoint, Input::Params(&[]), Read::xml())
+                    .call(&endpoint, Input::Params(&[]), Read::<Answer>::xml())
                     .map(|received| received.value)
             });
             respond(server.next(), media, body.as_bytes());

@@ -71,14 +71,15 @@ pub fn search(leg: &Leg<'_>, q: &DiagnosticSearch) -> Result<Page, RequestError>
         ("sort", Arg::Text("event_date_initiated:desc")),
     ]);
     let (reply, _) = leg
-        .call::<raw::Response<raw::Record>>(
+        .call(
             &SPEC
                 .get("/device/recall.json")
                 .fresh(Freshness::Days(1))
                 .bytes(2 * 1024 * 1024)
                 .json_absence(),
             Input::Params(&args),
-            Read::json().check(&(|reply| counts(reply, q.offset(), q.limit(), false))),
+            Read::<raw::Response<raw::Record>>::json()
+                .check(&(|reply| counts(reply, q.offset(), q.limit(), false))),
         )
         .map(|received| (received.value, received.meta))?;
     let mut page = Page {
@@ -133,14 +134,14 @@ fn exact<T: DeserializeOwned + Identity + crate::openfda::Item>(
         .json_absence();
     let identity = |reply: &raw::Response<T>| !matches!(reply,raw::Response::Page {results,..} if results.iter().any(|r|r.id()!=id));
     let reply = leg
-        .call::<raw::Response<T>>(
+        .call(
             &endpoint,
             Input::Params(&[
                 ("search", Arg::Text(&selector)),
                 ("limit", Arg::Num(1)),
                 ("skip", Arg::Num(0)),
             ]),
-            Read::json()
+            Read::<raw::Response<T>>::json()
                 .check(&(|reply| counts(reply, 0, 1, true)))
                 .cache_if(&(identity)),
         )

@@ -55,14 +55,14 @@ pub fn publications(
         .map(|id| id.to_string().into_boxed_str())
         .collect();
     let raw = leg
-        .call::<Raw>(
+        .call(
             &PUBS,
             Input::Params(&[
                 ("pmids", Arg::Ids(&names)),
                 ("legacy", Arg::Text("false")),
                 ("fl", Arg::Text(FIELDS)),
             ]),
-            Read::json(),
+            Read::<Raw>::json(),
         )
         .map(|received| received.value)?;
     if raw

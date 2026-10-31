@@ -50,10 +50,10 @@ fn fetch(leg: &Leg<'_>, input: &str, build: Build) -> Result<Response, RequestEr
         PathSegment::new("all")?,
     ]);
     let raw = leg
-        .call::<Response>(
+        .call(
             &endpoint,
             Input::Params(&[("content-type", Arg::Text("application/json"))]),
-            Read::json()
+            Read::<Response>::json()
                 .check(&(|_| Ok(())))
                 .cache_if(&(|reply| reply.flag.as_str() != "warning" && reply.eligible(input))),
         )

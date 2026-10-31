@@ -24,7 +24,7 @@ pub fn get(leg: &Leg<'_>, id: &ReportId) -> Result<Detail, RequestError> {
     let expression = format!("safetyreportid:\"{id}\"");
     let endpoint = SPEC.get("").fresh(Freshness::Days(1)).json_absence();
     let (reply, metadata) = leg
-        .call::<raw::Response>(
+        .call(
             &endpoint,
             Input::Params(&[
                 ("search", Arg::Text(&expression)),
@@ -32,7 +32,7 @@ pub fn get(leg: &Leg<'_>, id: &ReportId) -> Result<Detail, RequestError> {
                 ("skip", Arg::Num(0)),
                 ("sort", Arg::Text("receivedate:desc")),
             ]),
-            Read::json().check(
+            Read::<raw::Response>::json().check(
                 &(|response| {
                     if let raw::Response::Page { results, .. } = response
                         && results.first().is_none_or(|r| r.safetyreportid != *id)

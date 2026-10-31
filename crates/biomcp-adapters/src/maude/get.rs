@@ -13,10 +13,10 @@ pub fn get(
     let selector = format!("mdr_report_key:\"{}\"", query.id().as_str());
     let endpoint = SPEC.get("").fresh(Freshness::Days(1)).json_absence();
     let (reply, _) = leg
-        .call::<raw::Response>(
+        .call(
             &endpoint,
             Input::Params(&[("search", Arg::Text(&selector)), ("limit", Arg::Num(1))]),
-            Read::json().check(
+            Read::<raw::Response>::json().check(
                 &(|reply| {
                     if let raw::Response::Page { meta, results } = reply
                         && (meta.results.total != 1

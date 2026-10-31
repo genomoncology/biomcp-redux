@@ -225,12 +225,20 @@ fn fetch_page(leg: &Leg<'_>, params: &BTreeMap<String, String>) -> Result<RawPag
         .map(|(k, v)| (k.as_str(), Arg::Text(v)))
         .collect();
     if params.contains_key("pageToken") {
-        leg.call::<RawPage>(&SEARCH, Input::Params(&args), biomcp_fetch::Read::json())
-            .map(|received| received.value)
+        leg.call(
+            &SEARCH,
+            Input::Params(&args),
+            biomcp_fetch::Read::<RawPage>::json(),
+        )
+        .map(|received| received.value)
     } else {
-        leg.call::<FirstPage>(&SEARCH, Input::Params(&args), biomcp_fetch::Read::json())
-            .map(|received| received.value)
-            .map(|page| page.0)
+        leg.call(
+            &SEARCH,
+            Input::Params(&args),
+            biomcp_fetch::Read::<FirstPage>::json(),
+        )
+        .map(|received| received.value)
+        .map(|page| page.0)
     }
 }
 

@@ -7,8 +7,7 @@ use std::borrow::Cow;
 
 type BodyCheck<'a> = dyn Fn(&[u8]) -> Result<(), biomcp_types::Reason> + 'a;
 type ReplyCheck<'a, T> = dyn Fn(&T) -> Result<(), crate::BadReply> + 'a;
-type RangeCheck<'a, T> =
-    dyn Fn(&T, Option<crate::ContentRange>, u16) -> Result<(), crate::BadReply> + 'a;
+type RangeCheck<'a, T> = dyn Fn(&T, crate::ContentRange, u16) -> Result<(), crate::BadReply> + 'a;
 type BodyNormalizer = for<'a> fn(&str, &'a [u8]) -> Cow<'a, [u8]>;
 /// Options shared by live, replay and cached response reads.
 pub struct Read<'a, T> {
@@ -84,7 +83,7 @@ impl<'a, T: Reply> Read<'a, T> {
         let reply = self.decode(body)?;
         reply.check_status(status).ok()?;
         if let Some(check) = self.range_check {
-            check(&reply, range.and_then(crate::ContentRange::parse), status).ok()?;
+            check(&reply, range.and_then(crate::ContentRange::parse)?, status).ok()?;
         }
         Some(reply)
     }

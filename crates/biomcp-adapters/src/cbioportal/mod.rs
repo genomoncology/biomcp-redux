@@ -44,10 +44,10 @@ pub fn cohort(leg: &Leg<'_>, query: &VariantRecurrenceQuery) -> Result<Cohort, R
         .with_segments(&[PathSegment::new(query.study().as_str())?])
         .fresh(Freshness::Days(1));
     let (study, _) = leg
-        .call::<raw::Study>(
+        .call(
             &endpoint,
             Input::Params(&[]),
-            Read::json().check(
+            Read::<raw::Study>::json().check(
                 &(|v| {
                     if v.study_id == *query.study() {
                         Ok(())
@@ -62,10 +62,10 @@ pub fn cohort(leg: &Leg<'_>, query: &VariantRecurrenceQuery) -> Result<Cohort, R
         .get("/molecular-profiles")
         .with_segments(&[PathSegment::new(query.profile().as_str())?])
         .fresh(Freshness::Days(1));
-    leg.call::<raw::Profile>(
+    leg.call(
         &endpoint,
         Input::Params(&[]),
-        Read::json().check(
+        Read::<raw::Profile>::json().check(
             &(|v| {
                 if v.study_id == *query.study()
                     && v.molecular_profile_id == *query.profile()
@@ -136,10 +136,10 @@ pub fn mutations(
         ("pageNumber", Arg::Num(u64::from(query.page()))),
     ];
     let (rows, _) = leg
-        .call::<raw::Mutations>(
+        .call(
             &endpoint,
             Input::Params(&params),
-            Read::json()
+            Read::<raw::Mutations>::json()
                 .check(
                     &(|rows| {
                         if rows.0.len() <= query.limit() as usize
@@ -210,10 +210,10 @@ fn sample_count(
             ("direction", Arg::Text("ASC")),
         ];
         let (lists, _) = leg
-            .call::<raw::SampleLists>(
+            .call(
                 &endpoint,
                 Input::Params(&params),
-                Read::json().check(
+                Read::<raw::SampleLists>::json().check(
                     &(|v| {
                         if v.0.len() <= LIST_PAGE_SIZE as usize
                             && v.0.iter().all(|l| l.study_id == *query.study())

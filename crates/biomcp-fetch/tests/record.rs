@@ -70,7 +70,7 @@ fn repeated_key_consumes_ordered_replies_and_never_opens_replay_http() {
     let restricted = replay.restrict_sources([biomcp_types::Source::Oncokb].into());
     assert!(
         matches!(restricted.leg(spec, replay.deadline(Duration::from_secs(10)))
-            .call::<Answer>(&spec.get("/answer"), Input::Params(&[]), Read::json()).map(|received| received.value),
+            .call(&spec.get("/answer"), Input::Params(&[]), Read::<Answer>::json()).map(|received| received.value),
             Err(RequestError::Source(e)) if e.reason == biomcp_types::Reason::BadReply)
     );
     assert_eq!(
@@ -80,10 +80,10 @@ fn repeated_key_consumes_ordered_replies_and_never_opens_replay_http() {
     assert!(server.requests.try_recv().is_err());
     let error = replay
         .leg(spec, replay.deadline(Duration::from_secs(10)))
-        .call::<Answer>(
+        .call(
             &spec.get("/answer"),
             Input::Params(&[("other", Arg::Num(1))]),
-            Read::json(),
+            Read::<Answer>::json(),
         )
         .map(|received| received.value)
         .unwrap_err();
@@ -171,10 +171,14 @@ fn replay_advances_long_response_and_retry_delays_and_enforces_each_leg_budget()
     let clock = replay.deadline(Duration::from_secs(1000));
     let leg = replay.leg(original, clock);
     assert!(
-        leg.call::<Answer>(&original.get("/answer"), Input::Params(&[]), Read::json())
-            .map(|received| received.value)
-            .unwrap()
-            .answer
+        leg.call(
+            &original.get("/answer"),
+            Input::Params(&[]),
+            Read::<Answer>::json()
+        )
+        .map(|received| received.value)
+        .unwrap()
+        .answer
     );
     assert_eq!(leg.remaining(), Duration::from_secs(640));
     assert!(server.requests.try_recv().is_err());
@@ -184,7 +188,7 @@ fn replay_advances_long_response_and_retry_delays_and_enforces_each_leg_budget()
     let clock = replay.deadline(Duration::from_secs(1000));
     let leg = replay.leg(original, clock);
     assert!(
-        matches!(leg.call::<Answer>(&original.get("/answer"), Input::Params(&[]), Read::json()).map(|received| received.value), Err(RequestError::Source(e)) if e.reason == biomcp_types::Reason::DeadlineExceeded)
+        matches!(leg.call(&original.get("/answer"), Input::Params(&[]), Read::<Answer>::json()).map(|received| received.value), Err(RequestError::Source(e)) if e.reason == biomcp_types::Reason::DeadlineExceeded)
     );
     assert_eq!(leg.remaining(), Duration::ZERO);
     assert!(get(&replay, original).unwrap().answer);
@@ -208,7 +212,11 @@ fn capture_numbers(server: &Server, spec: &'static SourceSpec, dir: &Path) {
                 scope.spawn(|| {
                     recording
                         .leg(spec, recording.deadline(Duration::from_secs(10)))
-                        .call::<Number>(&spec.get("/answer"), Input::Params(&[]), Read::json())
+                        .call(
+                            &spec.get("/answer"),
+                            Input::Params(&[]),
+                            Read::<Number>::json(),
+                        )
                         .map(|received| received.value)
                         .unwrap()
                         .value
@@ -256,7 +264,11 @@ fn concurrent_same_key_reserves_each_exchange_once_and_shares_virtual_quota() {
                 scope.spawn(|| {
                     let leg = replay.leg(slow, clock);
                     let value = leg
-                        .call::<Number>(&slow.get("/answer"), Input::Params(&[]), Read::json())
+                        .call(
+                            &slow.get("/answer"),
+                            Input::Params(&[]),
+                            Read::<Number>::json(),
+                        )
                         .map(|received| received.value)
                         .unwrap()
                         .value;
@@ -440,7 +452,11 @@ fn independent_virtual_leg_budgets_reject_foreign_clock_domains_before_recording
     let second = replay.leg(other, budget);
     assert!(
         first
-            .call::<Answer>(&spec.get("/answer"), Input::Params(&[]), Read::json())
+            .call(
+                &spec.get("/answer"),
+                Input::Params(&[]),
+                Read::<Answer>::json()
+            )
             .map(|received| received.value)
             .unwrap()
             .answer
@@ -448,7 +464,11 @@ fn independent_virtual_leg_budgets_reject_foreign_clock_domains_before_recording
     assert_eq!(first.remaining(), Duration::from_secs(4));
     assert!(
         second
-            .call::<Answer>(&other.get("/answer"), Input::Params(&[]), Read::json())
+            .call(
+                &other.get("/answer"),
+                Input::Params(&[]),
+                Read::<Answer>::json()
+            )
             .map(|received| received.value)
             .unwrap()
             .answer
@@ -464,11 +484,11 @@ fn independent_virtual_leg_budgets_reject_foreign_clock_domains_before_recording
         foreign.deadline(Duration::from_secs(10)),
     ] {
         assert!(matches!(replay.leg(spec,
-wrong).call::<Answer>(&spec.get("/answer"), Input::Params(&[]), Read::json()).map(|received| received.value),
+wrong).call(&spec.get("/answer"), Input::Params(&[]), Read::<Answer>::json()).map(|received| received.value),
  Err(RequestError::Source(e)) if e.reason == biomcp_types::Reason::Rejected));
     }
     assert!(
-        matches!(live.leg(spec,budget).call::<Answer>(&spec.get("/answer"), Input::Params(&[]), Read::json()).map(|received| received.value), Err(RequestError::Source(e)) if e.reason == biomcp_types::Reason::Rejected)
+        matches!(live.leg(spec,budget).call(&spec.get("/answer"), Input::Params(&[]), Read::<Answer>::json()).map(|received| received.value), Err(RequestError::Source(e)) if e.reason == biomcp_types::Reason::Rejected)
     );
     assert!(server.requests.try_recv().is_err());
 }
@@ -582,7 +602,11 @@ fn legacy_recording_has_no_acquisition_time() {
     });
     let leg = replay.leg(spec, replay.deadline(Duration::from_secs(10)));
     let (_, metadata) = leg
-        .call::<Answer>(&spec.get("/answer"), Input::Params(&[]), Read::json())
+        .call(
+            &spec.get("/answer"),
+            Input::Params(&[]),
+            Read::<Answer>::json(),
+        )
         .map(|received| (received.value, received.meta))
         .unwrap();
     assert_eq!(

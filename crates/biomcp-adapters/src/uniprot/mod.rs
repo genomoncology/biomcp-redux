@@ -40,14 +40,14 @@ pub fn proteins(leg: &Leg<'_>, ids: &[UniProtAcc]) -> Result<Mapped<Vec<Protein>
     ids.dedup();
     let text: Vec<Box<str>> = ids.iter().map(|id| id.to_string().into()).collect();
     let raw = leg
-        .call::<raw::Proteins>(
+        .call(
             &PROTEINS,
             Input::Params(&[
                 ("accessions", Arg::Ids(&text)),
                 ("fields", Arg::Text(FIELDS)),
                 ("format", Arg::Text("json")),
             ]),
-            Read::json(),
+            Read::<raw::Proteins>::json(),
         )
         .map(|received| received.value)?;
     Ok(map::proteins(raw, &ids))

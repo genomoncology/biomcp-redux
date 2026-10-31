@@ -32,7 +32,7 @@ pub fn expression(
         .fresh(Freshness::Days(7))
         .with_path(format!("/{}.json", id.base()))?;
     let raw = leg
-        .call::<raw::Gene>(&endpoint, Input::Params(&[]), Read::json())
+        .call(&endpoint, Input::Params(&[]), Read::<raw::Gene>::json())
         .map(|received| received.value)
         .absent()?;
     raw.map(|raw| {

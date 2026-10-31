@@ -42,10 +42,10 @@ pub fn card(
     id: &OrcidId,
 ) -> Result<crate::Mapped<Option<AuthorCard>>, RequestError> {
     let (record, _) = leg
-        .call::<raw::Person>(
+        .call(
             &endpoint(id, "person")?,
             Input::Params(&[]),
-            biomcp_fetch::Read::json().check(
+            biomcp_fetch::Read::<raw::Person>::json().check(
                 &(|r| {
                     if r.path == format!("/{id}/person")
                         && r.name.as_ref().is_none_or(|n| n.path == id.to_string())
@@ -68,10 +68,10 @@ pub fn works(
     id: &OrcidId,
 ) -> Result<crate::Mapped<Box<[OrcidWorkGroup]>>, RequestError> {
     let (record, _) = leg
-        .call::<works::Works>(
+        .call(
             &endpoint(id, "works")?,
             Input::Params(&[]),
-            biomcp_fetch::Read::json().check(
+            biomcp_fetch::Read::<works::Works>::json().check(
                 &(|r| {
                     if r.identity(id) {
                         Ok(())

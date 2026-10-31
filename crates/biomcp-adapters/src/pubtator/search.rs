@@ -27,10 +27,10 @@ pub fn search(leg: &Leg<'_>, term: &str) -> Result<Search, RequestError> {
     let mut previous = Vec::new();
     for page in 1..=LIMIT as u64 {
         let reply = leg
-            .call::<Page>(
+            .call(
                 &SEARCH,
                 Input::Params(&[("text", Arg::Text(term)), ("page", Arg::Num(page))]),
-                Read::json(),
+                Read::<Page>::json(),
             )
             .map(|received| received.value);
         let reply = match reply {

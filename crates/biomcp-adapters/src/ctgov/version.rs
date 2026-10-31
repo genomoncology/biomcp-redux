@@ -8,7 +8,7 @@ pub fn version(
     leg: &Leg<'_>,
 ) -> Result<crate::Mapped<Option<biomcp_types::SourceTimestamp>>, RequestError> {
     let raw = leg
-        .call::<Version>(&VERSION, Input::Params(&[]), Read::json())
+        .call(&VERSION, Input::Params(&[]), Read::<Version>::json())
         .map(|received| received.value)?;
     let mut problems = crate::mapped::Problems {
         source: biomcp_types::Source::ClinicalTrialsGov,

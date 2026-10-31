@@ -19,10 +19,11 @@ pub fn search(
         .map(|name| ("name", Arg::Text(name.as_str())))
         .into_iter()
         .collect();
-    leg.call::<super::biomarker_raw::Page>(
+    leg.call(
         &SEARCH,
         Input::Params(&args),
-        Read::json().bounded(MAX_BYTES, biomcp_types::Reason::TooLarge),
+        Read::<super::biomarker_raw::Page>::json()
+            .bounded(MAX_BYTES, biomcp_types::Reason::TooLarge),
     )
     .map(|received| received.value)
     .map(super::biomarker_map::page)
@@ -30,10 +31,10 @@ pub fn search(
 /// Search exact native codes; reject unrelated identities before cache admission.
 pub fn get(leg: &Leg<'_>, id: &NcitId) -> Result<crate::Mapped<Vec<BiomarkerCard>>, RequestError> {
     let code = id.to_string();
-    leg.call::<super::biomarker_raw::Page>(
+    leg.call(
         &SEARCH,
         Input::Params(&[("codes", Arg::Text(&code))]),
-        Read::json()
+        Read::<super::biomarker_raw::Page>::json()
             .bounded(MAX_BYTES, biomcp_types::Reason::TooLarge)
             .check(
                 &(|page| {

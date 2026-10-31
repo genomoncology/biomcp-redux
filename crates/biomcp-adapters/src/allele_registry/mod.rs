@@ -58,10 +58,10 @@ fn read(leg: &Leg<'_>, input: &str, by_id: bool) -> Result<raw::Allele, RequestE
         params.insert(0, ("hgvs", Arg::Text(input)));
     }
     let reply = leg
-        .call::<raw::Allele>(
+        .call(
             &endpoint,
             Input::Params(&params),
-            biomcp_fetch::Read::json().cache_if(
+            biomcp_fetch::Read::<raw::Allele>::json().cache_if(
                 &(|r| r.error_type.is_none() && r.identity(by_id.then_some(input)).is_ok()),
             ),
         )

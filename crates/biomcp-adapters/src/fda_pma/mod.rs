@@ -48,11 +48,11 @@ pub fn get(leg: &Leg<'_>, query: &DiagnosticGet) -> Result<Records, RequestError
         .fresh(Freshness::Days(1))
         .bytes(10 * 1024 * 1024)
         .json_absence();
-    let reply = leg.call::<raw::Response>(&endpoint, Input::Params(&[
+    let reply = leg.call(&endpoint, Input::Params(&[
             ("search", Arg::Text(&selector)),
             ("limit", Arg::Num(100)),
             ("skip", Arg::Num(0)),
-        ]), Read::json().check(&(|reply| {
+        ]), Read::<raw::Response>::json().check(&(|reply| {
             if let raw::Response::Page { meta, results } = reply {
                 if meta.results.skip != 0 || meta.results.limit != 100 {
                     return Err(BadReply);

@@ -78,14 +78,22 @@ fn canceled_waiter_leaves_shared_in_flight_queue_and_releases_successor() {
         let holder = scope.spawn(|| {
             fetch
                 .leg(first, fetch.deadline(Duration::from_secs(5)))
-                .call::<Answer>(&first.get("/holder"), Input::Params(&[]), Read::json())
+                .call(
+                    &first.get("/holder"),
+                    Input::Params(&[]),
+                    Read::<Answer>::json(),
+                )
                 .map(|received| received.value)
         });
         let held = server.next();
         let canceled = scope.spawn(|| {
             restricted
                 .leg(second, restricted.deadline(Duration::from_millis(100)))
-                .call::<Answer>(&second.get("/cancel"), Input::Params(&[]), Read::json())
+                .call(
+                    &second.get("/cancel"),
+                    Input::Params(&[]),
+                    Read::<Answer>::json(),
+                )
                 .map(|received| received.value)
         });
         // Completion with the holder still blocked proves the waiter exhausted its queue budget.
@@ -97,13 +105,21 @@ fn canceled_waiter_leaves_shared_in_flight_queue_and_releases_successor() {
         let successor = scope.spawn(|| {
             restricted
                 .leg(second, restricted.deadline(Duration::from_secs(5)))
-                .call::<Answer>(&second.get("/successor"), Input::Params(&[]), Read::json())
+                .call(
+                    &second.get("/successor"),
+                    Input::Params(&[]),
+                    Read::<Answer>::json(),
+                )
                 .map(|received| received.value)
         });
         let other = scope.spawn(|| {
             fetch
                 .leg(independent, fetch.deadline(Duration::from_secs(5)))
-                .call::<Answer>(&independent.get("/other"), Input::Params(&[]), Read::json())
+                .call(
+                    &independent.get("/other"),
+                    Input::Params(&[]),
+                    Read::<Answer>::json(),
+                )
                 .map(|received| received.value)
         });
         let request = server.next();
@@ -153,7 +169,11 @@ fn configured_optional_key_selects_keyed_rate_without_bypassing_shared_queue() {
                 for _ in 0..2 {
                     let result = fetch
                         .leg(spec, fetch.deadline(Duration::from_secs(5)))
-                        .call::<Answer>(&spec.get("/answer"), Input::Params(&[]), Read::json())
+                        .call(
+                            &spec.get("/answer"),
+                            Input::Params(&[]),
+                            Read::<Answer>::json(),
+                        )
                         .map(|received| received.value);
                     sent.send(result).unwrap();
                 }
@@ -188,21 +208,33 @@ fn declared_burst_admits_only_its_capacity_and_expired_rate_waiters_leave() {
         let first = scope.spawn(|| {
             fetch
                 .leg(spec, fetch.deadline(Duration::from_secs(5)))
-                .call::<Answer>(&spec.get("/first"), Input::Params(&[]), Read::json())
+                .call(
+                    &spec.get("/first"),
+                    Input::Params(&[]),
+                    Read::<Answer>::json(),
+                )
                 .map(|received| received.value)
         });
         let held = server.next();
         let second = scope.spawn(|| {
             fetch
                 .leg(spec, fetch.deadline(Duration::from_secs(5)))
-                .call::<Answer>(&spec.get("/second"), Input::Params(&[]), Read::json())
+                .call(
+                    &spec.get("/second"),
+                    Input::Params(&[]),
+                    Read::<Answer>::json(),
+                )
                 .map(|received| received.value)
         });
         let also_held = server.next();
         let canceled = scope.spawn(|| {
             fetch
                 .leg(spec, fetch.deadline(Duration::from_millis(100)))
-                .call::<Answer>(&spec.get("/expired"), Input::Params(&[]), Read::json())
+                .call(
+                    &spec.get("/expired"),
+                    Input::Params(&[]),
+                    Read::<Answer>::json(),
+                )
                 .map(|received| received.value)
         });
         assert_eq!(
@@ -217,7 +249,11 @@ fn declared_burst_admits_only_its_capacity_and_expired_rate_waiters_leave() {
         let successor = scope.spawn(|| {
             fetch
                 .leg(spec, fetch.deadline(Duration::from_secs(5)))
-                .call::<Answer>(&spec.get("/successor"), Input::Params(&[]), Read::json())
+                .call(
+                    &spec.get("/successor"),
+                    Input::Params(&[]),
+                    Read::<Answer>::json(),
+                )
                 .map(|received| received.value)
         });
         server.next().ok();
@@ -247,7 +283,11 @@ fn shared_queue_applies_each_arriving_sources_credential_rate() {
         let first = scope.spawn(|| {
             fetch
                 .leg(keyed, fetch.deadline(Duration::from_secs(5)))
-                .call::<Answer>(&keyed.get("/keyed"), Input::Params(&[]), Read::json())
+                .call(
+                    &keyed.get("/keyed"),
+                    Input::Params(&[]),
+                    Read::<Answer>::json(),
+                )
                 .map(|received| received.value)
         });
         let request = server.next();
@@ -257,7 +297,11 @@ fn shared_queue_applies_each_arriving_sources_credential_rate() {
         let second = scope.spawn(|| {
             fetch
                 .leg(unkeyed, fetch.deadline(Duration::from_secs(5)))
-                .call::<Answer>(&unkeyed.get("/unkeyed"), Input::Params(&[]), Read::json())
+                .call(
+                    &unkeyed.get("/unkeyed"),
+                    Input::Params(&[]),
+                    Read::<Answer>::json(),
+                )
                 .map(|received| received.value)
         });
         let request = server.next();

@@ -56,10 +56,10 @@ pub fn read(
     let invalid_reply = biomcp_fetch::bad_reply(Source::PmcOa, None);
     let prefix = format!("{id}.");
     let listing = leg
-        .call::<raw::Listing>(
+        .call(
             &LIST,
             Input::Params(&[("list-type", Arg::Num(2)), ("prefix", Arg::Text(&prefix))]),
-            Read::xml(),
+            Read::<raw::Listing>::xml(),
         )
         .map(|received| received.value)?;
     let contents = listing.contents.as_deref().unwrap_or(&[]);
@@ -80,10 +80,10 @@ pub fn read(
     let directory = format!("{id}.{version}/");
     let path = format!("/{directory}{id}.{version}.json");
     let record = leg
-        .call::<raw::Record>(
+        .call(
             &FILE.clone().with_path(path).map_err(|_| invalid_reply)?,
             Input::Params(&[]),
-            Read::json(),
+            Read::<raw::Record>::json(),
         )
         .map(|received| received.value)?;
     if record.pmcid != id || pmid.is_some_and(|expected| record.pmid != Some(expected.get())) {
@@ -166,13 +166,13 @@ fn body(
     ))
     .map_err(|_| invalid_reply)?;
     let body = leg
-        .call::<jats::Body>(
+        .call(
             &FILE
                 .clone()
                 .with_path(loc.path)
                 .map_err(|_| invalid_reply)?,
             Input::Params(&params),
-            Read::xml(),
+            Read::<jats::Body>::xml(),
         )
         .map(|received| received.value)?;
     Ok((url, body))

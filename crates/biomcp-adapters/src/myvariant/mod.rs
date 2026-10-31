@@ -82,7 +82,7 @@ fn lookup_with(
     let mut hits = Vec::new();
     loop {
         let page = leg
-            .call::<raw::Page>(
+            .call(
                 &QUERY,
                 Input::Params(&[
                     ("q", Arg::Text(query)),
@@ -91,7 +91,7 @@ fn lookup_with(
                     ("fields", Arg::Text(&fields)),
                     ("assembly", Arg::Text(assembly)),
                 ]),
-                Read::json().cache_if(
+                Read::<raw::Page>::json().cache_if(
                     &(|page| {
                         page.hits.iter().all(|hit| {
                             hit.as_ref().is_some_and(|hit| {
@@ -144,13 +144,13 @@ fn annotation(
     let endpoint = VARIANT.clone().with_segments(&[PathSegment::new(id)?]);
     let fields = projection(leg, population);
     let annotation = leg
-        .call::<raw::Annotation>(
+        .call(
             &endpoint,
             Input::Params(&[
                 ("fields", Arg::Text(&fields)),
                 ("assembly", Arg::Text(assembly)),
             ]),
-            Read::json().cache_if(
+            Read::<raw::Annotation>::json().cache_if(
                 &(|annotation| {
                     annotation.hit.as_ref().is_some_and(|hit| {
                         biomcp_fetch::Reply::check(hit).is_ok() && hit.matches(id)

@@ -36,7 +36,7 @@ pub fn get(
         .clone()
         .with_segments(&[PathSegment::new(id)?]);
     let record = leg
-        .call::<raw::Record>(
+        .call(
             &endpoint,
             Input::Params(&[
                 ("fields", Arg::Text(&fields)),
@@ -49,7 +49,7 @@ pub fn get(
                     }),
                 ),
             ]),
-            biomcp_fetch::Read::json().cache_if(
+            biomcp_fetch::Read::<raw::Record>::json().cache_if(
                 &(|record| {
                     record
                         .id

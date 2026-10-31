@@ -86,10 +86,10 @@ pub fn page(
         args.push(("page", Arg::Num(1)));
     }
     let raw = leg
-        .call::<raw::Page>(
+        .call(
             &endpoint,
             Input::Params(&args),
-            Read::json().cache_if(&(|p| p.admitted(id))),
+            Read::<raw::Page>::json().cache_if(&(|p| p.admitted(id))),
         )
         .map(|received| received.value)?;
     if !raw.admitted(id) {

@@ -50,10 +50,10 @@ pub fn search(
     }
     let ep = SPEC.get(PATH).identity_encoding().fresh(Freshness::Days(1));
     let (raw, meta) = leg
-        .call::<Rows>(
+        .call(
             &ep,
             Input::Params(&args),
-            Read::json().cache_if(&(|_| true)),
+            Read::<Rows>::json().cache_if(&(|_| true)),
         )
         .map(|received| (received.value, received.meta))?;
     let page = meta

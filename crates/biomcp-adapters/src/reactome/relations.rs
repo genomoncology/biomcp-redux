@@ -26,7 +26,11 @@ pub fn members(leg: &Leg<'_>, id: &ReactomeId) -> Result<Mapped<Members>, Reques
         .bytes(8 * 1024 * 1024)
         .fresh(Freshness::Days(7));
     let rows = leg
-        .call::<raw::Participants>(&endpoint, Input::Params(&[]), biomcp_fetch::Read::json())
+        .call(
+            &endpoint,
+            Input::Params(&[]),
+            biomcp_fetch::Read::<raw::Participants>::json(),
+        )
         .map(|received| received.value)?;
     let mut problems = fields(id);
     let mut value = Members {
@@ -201,10 +205,10 @@ fn event_rows(leg: &Leg<'_>, id: &ReactomeId) -> Result<raw::Events, RequestErro
         .with_path(format!("/data/pathway/{id}/containedEvents"))?
         .bytes(8 * 1024 * 1024)
         .fresh(Freshness::Days(7));
-    leg.call::<raw::Events>(
+    leg.call(
         &endpoint,
         Input::Params(&[]),
-        biomcp_fetch::Read::json().cache_if(
+        biomcp_fetch::Read::<raw::Events>::json().cache_if(
             &(|rows| {
                 rows.0.iter().all(|row| match row {
                     raw::Event::Database(_) => true,

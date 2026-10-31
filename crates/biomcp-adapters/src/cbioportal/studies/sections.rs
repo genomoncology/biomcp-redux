@@ -108,10 +108,10 @@ pub fn profiles(
     limit: u32,
 ) -> Result<Records<StudyProfile>, RequestError> {
     let (reply, metadata) = leg
-        .call::<Profiles>(
+        .call(
             &endpoint(id, "molecular-profiles")?,
             Input::Params(&[("projection", Arg::Text("DETAILED"))]),
-            Read::json().cache_if(
+            Read::<Profiles>::json().cache_if(
                 &(|r| {
                     let accepted = r.0.iter().filter(|v| v.value.as_ref().is_some()).count();
                     let refusals = if accepted < r.0.len() {
@@ -165,10 +165,10 @@ pub fn sample_lists(
     limit: u32,
 ) -> Result<Records<StudySampleList>, RequestError> {
     let (reply, metadata) = leg
-        .call::<SampleLists>(
+        .call(
             &endpoint(id, "sample-lists")?,
             Input::Params(&[("projection", Arg::Text("DETAILED"))]),
-            Read::json().cache_if(
+            Read::<SampleLists>::json().cache_if(
                 &(|r| {
                     let accepted = r.0.iter().filter(|v| v.value.as_ref().is_some()).count();
                     let refusals = if accepted < r.0.len() {

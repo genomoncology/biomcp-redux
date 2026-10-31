@@ -60,10 +60,10 @@ pub fn get(leg: &Leg<'_>, id: &Curie) -> Result<Record, RequestError> {
     let fields = crate::disease_sources::components::allowed_fields(leg, FIELDS)?;
     let endpoint = GET.clone().with_segments(&[PathSegment::new(&identifier)?]);
     let (raw, metadata) = leg
-        .call::<raw::Document>(
+        .call(
             &endpoint,
             Input::Params(&[("fields", Arg::Text(&fields))]),
-            biomcp_fetch::Read::json().check(
+            biomcp_fetch::Read::<raw::Document>::json().check(
                 &(|record| {
                     if record.matches(id, &fields) {
                         Ok(())

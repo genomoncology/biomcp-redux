@@ -46,10 +46,10 @@ pub fn get(leg: &Leg<'_>, query: &PhenotypeGet) -> Result<Record, RequestError> 
         .with_segments(&[biomcp_fetch::PathSegment::new(query.id().as_str())?])
         .fresh(Freshness::Days(1));
     let (term, metadata) = leg
-        .call::<raw::Term>(
+        .call(
             &endpoint,
             Input::Params(&[]),
-            biomcp_fetch::Read::json().check(
+            biomcp_fetch::Read::<raw::Term>::json().check(
                 &(|term| {
                     if &term.id == query.id() {
                         Ok(())

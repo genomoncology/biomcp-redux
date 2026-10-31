@@ -21,13 +21,13 @@ pub fn get(leg: &Leg<'_>, id: &str, build: Build) -> Result<Mapped<VariantCosmic
         "hg19"
     };
     let raw = leg
-        .call::<Record>(
+        .call(
             &endpoint,
             Input::Params(&[
                 ("fields", Arg::Text("_id,cosmic")),
                 ("assembly", Arg::Text(assembly)),
             ]),
-            biomcp_fetch::Read::json().cache_if(
+            biomcp_fetch::Read::<Record>::json().cache_if(
                 &(|record| {
                     record
                         .id

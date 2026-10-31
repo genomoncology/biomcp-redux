@@ -63,7 +63,11 @@ fn checked_no_proxy_boundaries_select_direct_routes() {
         }));
         let result = fetch
             .leg(spec, fetch.deadline(Duration::from_secs(10)))
-            .call::<Answer>(&spec.get("/answer"), Input::Params(&[]), Read::json())
+            .call(
+                &spec.get("/answer"),
+                Input::Params(&[]),
+                Read::<Answer>::json(),
+            )
             .map(|received| received.value);
         if direct {
             assert_eq!(result.unwrap().answer.as_deref(), Some("direct"));
@@ -132,7 +136,11 @@ fn ipv6_and_cidr_bypass_rules_route_matching_addresses_directly() {
         let spec = stub.spec(KeyUse::None, Duration::from_secs(10));
         let reply = fetch
             .leg(spec, fetch.deadline(Duration::from_secs(10)))
-            .call::<Answer>(&spec.get("/answer"), Input::Params(&[]), Read::json())
+            .call(
+                &spec.get("/answer"),
+                Input::Params(&[]),
+                Read::<Answer>::json(),
+            )
             .map(|received| received.value);
         if direct {
             assert_eq!(reply.unwrap().answer.as_deref(), Some("direct"));

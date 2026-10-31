@@ -56,7 +56,7 @@ pub fn constraints(
         ($($n:literal),+) => {
             match ids.len() {
                 $(
-                    $n => leg.call::<raw::Genes<$n>>(&GENES, Input::Json { params: &[], body: JsonBody::new(&body) }, Read::json().cache_if(&(|raw| raw.eligible(&ids)))).map(|received| received.value).map(|raw| raw.data),
+                    $n => leg.call(&GENES, Input::Json { params: &[], body: JsonBody::new(&body) }, Read::<raw::Genes<$n>>::json().cache_if(&(|raw| raw.eligible(&ids)))).map(|received| received.value).map(|raw| raw.data),
                 )+
                 _ => return Err(biomcp_fetch::bad_reply(Source::Gnomad, None)),
             }

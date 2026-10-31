@@ -118,10 +118,10 @@ impl Reply for Normalized {
 fn fetch(leg: &Leg<'_>, input: &str) -> Result<Normalized, RequestError> {
     let endpoint = NORMALIZE.clone().with_segments(&[PathSegment::new(input)?]);
     let mut raw = leg
-        .call::<Normalized>(
+        .call(
             &endpoint,
             Input::Params(&[]),
-            Read::json()
+            Read::<Normalized>::json()
                 .cache_if(&(|reply| reply.errors().is_empty() && reply.identity(input).is_ok())),
         )
         .map(|received| received.value)?;

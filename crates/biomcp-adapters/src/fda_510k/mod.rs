@@ -39,14 +39,14 @@ pub fn get(
         .bytes(2 * 1024 * 1024)
         .json_absence();
     let reply = leg
-        .call::<raw::Response>(
+        .call(
             &endpoint,
             Input::Params(&[
                 ("search", Arg::Text(&selector)),
                 ("limit", Arg::Num(1)),
                 ("skip", Arg::Num(0)),
             ]),
-            Read::json()
+            Read::<raw::Response>::json()
                 .check(
                     &(|reply| {
                         if let raw::Response::Page { meta, .. } = reply

@@ -103,14 +103,14 @@ pub fn papers(
         COMPACT
     };
     let (page, _) = leg
-        .call::<PapersPage>(
+        .call(
             &endpoint,
             Input::Params(&[
                 ("fields", Arg::Text(fields)),
                 ("offset", Arg::Num(u64::from(q.offset()))),
                 ("limit", Arg::Num(u64::from(q.limit()))),
             ]),
-            Read::json().check(
+            Read::<PapersPage>::json().check(
                 &(|page| {
                     if page.offset == q.offset() && page.received <= q.limit() as usize {
                         Ok(())

@@ -391,10 +391,14 @@ fn bundle_publication_finishes_while_another_owner_holds_the_reply_connection() 
                     let leg = fetch.leg(bundle.spec, fetch.deadline(Duration::from_secs(5)));
                     let endpoint = bundle.spec.get("/answer").fresh(Freshness::Hours(1));
                     assert!(
-                        leg.call::<support::Answer>(&endpoint, Input::Params(&[]), Read::json())
-                            .map(|received| received.value)
-                            .unwrap()
-                            .answer
+                        leg.call(
+                            &endpoint,
+                            Input::Params(&[]),
+                            Read::<support::Answer>::json()
+                        )
+                        .map(|received| received.value)
+                        .unwrap()
+                        .answer
                     );
                     leg.finish()
                 });

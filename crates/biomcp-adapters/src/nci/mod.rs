@@ -251,10 +251,10 @@ pub fn search(leg: &Leg<'_>, params: &[(String, String)]) -> Result<Page, Reques
                 .flatten()
         })
         .unwrap_or(PAGE_LIMIT as usize);
-    leg.call::<Page>(
+    leg.call(
         &SEARCH,
         Input::Params(&args),
-        Read::json().check(
+        Read::<Page>::json().check(
             &(|page| {
                 if page.data.len() <= limit {
                     Ok(())
@@ -274,10 +274,10 @@ pub fn get(
 ) -> Result<(Detail, biomcp_fetch::ReplyMetadata), RequestError> {
     let endpoint = DETAIL.clone().with_path(format!("/trials/{id}"))?;
     let (raw, metadata) = leg
-        .call::<Trial>(
+        .call(
             &endpoint,
             Input::Params(&[]),
-            Read::json().check(
+            Read::<Trial>::json().check(
                 &(|r| {
                     if r.nct_id == id {
                         Ok(())

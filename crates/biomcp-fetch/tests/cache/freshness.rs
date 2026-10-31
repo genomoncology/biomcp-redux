@@ -28,7 +28,7 @@ fn fresh_hits_skip_quota_and_stale_positives_survive_quota_deadline() {
         assert!(
             fetch
                 .leg(spec, fetch.deadline(Duration::from_millis(100)))
-                .call::<Answer>(&endpoint, Input::Params(&[]), Read::json())
+                .call(&endpoint, Input::Params(&[]), Read::<Answer>::json())
                 .map(|received| received.value)
                 .unwrap()
                 .answer
@@ -36,7 +36,7 @@ fn fresh_hits_skip_quota_and_stale_positives_survive_quota_deadline() {
         expire(&path);
         let leg = fetch.leg(spec, fetch.deadline(Duration::from_millis(100)));
         assert!(
-            leg.call::<Answer>(&endpoint, Input::Params(&[]), Read::json())
+            leg.call(&endpoint, Input::Params(&[]), Read::<Answer>::json())
                 .map(|received| received.value)
                 .unwrap()
                 .answer
@@ -69,7 +69,7 @@ fn body_and_send_failures_can_use_only_a_checked_stale_positive() {
         let worker = scope.spawn(|| {
             let leg = fetch.leg(spec, fetch.deadline(Duration::from_secs(10)));
             assert!(
-                leg.call::<Answer>(&endpoint, Input::Params(&[]), Read::json())
+                leg.call(&endpoint, Input::Params(&[]), Read::<Answer>::json())
                     .map(|received| received.value)
                     .unwrap()
                     .answer
@@ -86,7 +86,7 @@ fn body_and_send_failures_can_use_only_a_checked_stale_positive() {
     drop(server);
     let leg = fetch.leg(spec, fetch.deadline(Duration::from_secs(10)));
     assert!(
-        leg.call::<Answer>(&endpoint, Input::Params(&[]), Read::json())
+        leg.call(&endpoint, Input::Params(&[]), Read::<Answer>::json())
             .map(|received| received.value)
             .unwrap()
             .answer
@@ -113,7 +113,7 @@ fn local_write_busy_keeps_the_checked_live_reply_and_deadline() {
     let (reply, report) = exchange(&server, 200, r#"{"answer":true}"#, || {
         let leg = fetch.leg(spec, deadline);
         let reply = leg
-            .call::<Answer>(&endpoint, Input::Params(&[]), Read::json())
+            .call(&endpoint, Input::Params(&[]), Read::<Answer>::json())
             .map(|received| received.value)
             .unwrap();
         (reply, leg.finish())
@@ -143,7 +143,7 @@ fn per_leg_freshness_reaches_batch_children_without_leaking_to_siblings() {
         .fresh(true);
     exchange(&server, 200, r#"{"answer":true,"fresh":true}"#, || {
         let results = fresh.batch(&[()], |leg, ()| {
-            leg.call::<Answer>(&endpoint, Input::Params(&[]), Read::json())
+            leg.call(&endpoint, Input::Params(&[]), Read::<Answer>::json())
                 .map(|received| received.value)
         });
         assert!(results.into_iter().all(|result| result.unwrap().answer));
@@ -153,7 +153,7 @@ fn per_leg_freshness_reaches_batch_children_without_leaking_to_siblings() {
     expire(&path);
     let failure = exchange(&server, 400, "rejected", || {
         fresh
-            .call::<Answer>(&endpoint, Input::Params(&[]), Read::json())
+            .call(&endpoint, Input::Params(&[]), Read::<Answer>::json())
             .map(|received| received.value)
     })
     .unwrap_err();
@@ -220,10 +220,10 @@ fn concurrent_replay_legs_share_the_cache_without_spurious_local_busy_errors() {
                 scope.spawn(move || {
                     let leg = fetch.leg(spec, fetch.deadline(Duration::from_secs(10)));
                     start.wait();
-                    leg.call::<Answer>(
+                    leg.call(
                         endpoint,
                         Input::Params(&[("index", Arg::Num(index))]),
-                        Read::json(),
+                        Read::<Answer>::json(),
                     )
                     .map(|received| received.value)
                 })
@@ -265,10 +265,10 @@ fn mixed_cached_and_live_replies_keep_their_own_fetch_times() {
                     cached_ready.wait();
                 }
                 let reply = child
-                    .call::<Answer>(
+                    .call(
                         &endpoint,
                         Input::Params(&[("id", Arg::Num(*id))]),
-                        Read::json(),
+                        Read::<Answer>::json(),
                     )
                     .map(|received| received.value);
                 if *id == 1 {
@@ -313,10 +313,10 @@ fn mixed_cached_and_live_replies_keep_their_own_fetch_times() {
     })
     .unwrap();
     let leg = offline.leg(spec, offline.deadline(Duration::from_secs(10)));
-    leg.call::<Answer>(
+    leg.call(
         &endpoint,
         Input::Params(&[("id", Arg::Num(1))]),
-        Read::json(),
+        Read::<Answer>::json(),
     )
     .map(|received| received.value)
     .unwrap();
@@ -355,7 +355,7 @@ fn native_search_headers_survive_record_replay_and_offline_cache() {
     let run = |fetch: &Fetch| {
         let leg = fetch.leg(spec, fetch.deadline(Duration::from_secs(10)));
         let (reply, meta) = leg
-            .call::<Answer>(&endpoint, Input::Params(&[]), Read::json())
+            .call(&endpoint, Input::Params(&[]), Read::<Answer>::json())
             .map(|received| (received.value, received.meta))
             .unwrap();
         assert!(reply.answer);
@@ -474,7 +474,7 @@ fn busy_read_is_a_miss_before_the_live_deadline() {
                 let worker = scope.spawn(|| {
                     let leg = fetch.leg(spec, deadline);
                     assert!(
-                        leg.call::<Answer>(&endpoint, Input::Params(&[]), Read::json())
+                        leg.call(&endpoint, Input::Params(&[]), Read::<Answer>::json())
                             .map(|received| received.value)
                             .unwrap()
                             .answer
@@ -521,11 +521,11 @@ fn negative_admission_and_json_absence_removal_keep_the_source_answer() {
                 .leg(spec, fetch.deadline(Duration::from_secs(10)))
                 .fresh(true);
             let result = if json_absence {
-                leg.call::<Absence>(&endpoint, Input::Params(&[]), Read::json())
+                leg.call(&endpoint, Input::Params(&[]), Read::<Absence>::json())
                     .map(|received| received.value)
                     .map(|reply| reply.absent)
             } else {
-                leg.call::<Answer>(&endpoint, Input::Params(&[]), Read::json())
+                leg.call(&endpoint, Input::Params(&[]), Read::<Answer>::json())
                     .map(|received| received.value)
                     .map(|reply| reply.answer)
             };
@@ -566,7 +566,7 @@ fn failed_invalidation_removal_cannot_reuse_an_unchecked_stale_entry() {
     let (result, report) = exchange(&server, 400, "rejected", || {
         let leg = fetch.leg(spec, fetch.deadline(Duration::from_secs(2)));
         let result = leg
-            .call::<Answer>(&endpoint, Input::Params(&[]), Read::json())
+            .call(&endpoint, Input::Params(&[]), Read::<Answer>::json())
             .map(|received| received.value);
         (result, leg.finish())
     });

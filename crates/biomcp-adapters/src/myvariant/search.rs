@@ -58,10 +58,10 @@ pub fn search(leg: &Leg<'_>, query: &VariantSearch) -> Result<SearchPage, Reques
         ));
     }
     let page = leg
-        .call::<Page>(
+        .call(
             &QUERY,
             Input::Params(&args),
-            Read::json()
+            Read::<Page>::json()
                 .check(
                     &(|page| {
                         if page.hits.len() <= query.limit() as usize

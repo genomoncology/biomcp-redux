@@ -55,13 +55,13 @@ pub fn gene(
     id: NcbiGeneId,
 ) -> Result<Mapped<Option<GeneData>>, RequestError> {
     let reply = leg
-        .call::<raw::Genes>(
+        .call(
             &GENES,
             Input::Params(&[
                 ("hugoSymbol", Arg::Text(symbol.as_str())),
                 ("includeEvidence", Arg::Text("true")),
             ]),
-            biomcp_fetch::Read::json(),
+            biomcp_fetch::Read::<raw::Genes>::json(),
         )
         .map(|received| received.value)
         .absent()?;
@@ -99,7 +99,11 @@ pub fn gene(
 /// Read the data version once for the command's accepted gene data.
 pub fn version(leg: &Leg<'_>) -> Result<Mapped<Option<Text>>, RequestError> {
     let info = leg
-        .call::<raw::Info>(&INFO, Input::Params(&[]), biomcp_fetch::Read::json())
+        .call(
+            &INFO,
+            Input::Params(&[]),
+            biomcp_fetch::Read::<raw::Info>::json(),
+        )
         .map(|received| received.value)?;
     let mut cx = crate::mapped::Problems {
         source: Source::Oncokb,

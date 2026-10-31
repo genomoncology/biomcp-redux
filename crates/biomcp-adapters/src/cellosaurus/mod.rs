@@ -105,10 +105,10 @@ fn candidates(
         args.push(("start", Arg::Num(offset.into())));
     }
     let (reply, metadata) = leg
-        .call::<raw::Response>(
+        .call(
             &endpoint,
             Input::Params(&args),
-            Read::json()
+            Read::<raw::Response>::json()
                 .check(
                     &(|reply| match reply {
                         raw::Response::Records { data } if data.rows.len() <= limit as usize => {
@@ -197,10 +197,10 @@ fn fetch_card(
         CARD_FIELDS
     };
     let (reply, metadata) = leg
-        .call::<raw::Response>(
+        .call(
             &endpoint,
             Input::Params(&[("format", Arg::Text("json")), ("fields", Arg::Text(fields))]),
-            Read::json().check(
+            Read::<raw::Response>::json().check(
                 &(|reply| match reply {
                     raw::Response::Missing { code: 404, message }
                         if message == &format!("Item not found, ac: {accession}") =>

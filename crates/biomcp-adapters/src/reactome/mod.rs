@@ -54,10 +54,10 @@ pub fn pathways(
         .with_path(format!("/data/mapping/UniProt/{accession}/pathways"))?
         .fresh(Freshness::Days(7));
     let rows = match leg
-        .call::<Rows>(
+        .call(
             &endpoint,
             Input::Params(&[("species", Arg::Text("9606"))]),
-            Read::json(),
+            Read::<Rows>::json(),
         )
         .map(|received| received.value)
     {

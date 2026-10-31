@@ -41,13 +41,13 @@ pub fn read(
         .post_form("/controller/datarequest/D8")
         .fresh(Freshness::Days(1));
     let (reply, _) = leg
-        .call::<raw::Native>(
+        .call(
             &endpoint,
             Input::Params(&[
                 ("request_xml", Arg::Text(&xml)),
                 ("accept_datause_restrictions", Arg::Text("true")),
             ]),
-            biomcp_fetch::Read::xml().check(
+            biomcp_fetch::Read::<raw::Native>::xml().check(
                 &(|v| {
                     if v.0
                         .vaccine

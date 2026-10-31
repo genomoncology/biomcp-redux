@@ -53,10 +53,11 @@ pub fn assertions(
     }
     params.extend([("retmode", Arg::Text("xml")), ("tool", Arg::Text("biomcp"))]);
     let (mut reply, _) = leg
-        .call::<raw::Records>(
+        .call(
             &FETCH,
             Input::Params(&params),
-            Read::xml().cache_if(&(|reply| reply.identity_problem(id, vcv).is_none())),
+            Read::<raw::Records>::xml()
+                .cache_if(&(|reply| reply.identity_problem(id, vcv).is_none())),
         )
         .map(|received| (received.value, received.meta))?;
     if let Some(field) = reply.identity_problem(id, vcv) {

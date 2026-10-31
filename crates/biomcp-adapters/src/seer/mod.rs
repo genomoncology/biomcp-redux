@@ -91,7 +91,11 @@ const SERIES: Endpoint = SPEC.get("/render_region_5.php").fresh(Freshness::Days(
 /// Read the native catalog without selecting an ontology mapping.
 pub fn catalog(leg: &Leg<'_>, limit: u32, offset: u32) -> Result<Page<DiseaseSite>, RequestError> {
     let (raw, metadata) = leg
-        .call::<raw::Catalog>(&CATALOG, Input::Params(&[]), biomcp_fetch::Read::json())
+        .call(
+            &CATALOG,
+            Input::Params(&[]),
+            biomcp_fetch::Read::<raw::Catalog>::json(),
+        )
         .map(|received| (received.value, received.meta))?;
     let total = raw.sites.len() as u64;
     let mut problems = crate::mapped::Problems {
@@ -177,10 +181,10 @@ pub fn statistics(
     offset: u32,
 ) -> Result<Page<DiseaseStatistic>, RequestError> {
     let (raw, metadata) = leg
-        .call::<raw::Document>(
+        .call(
             &SERIES,
             Input::Params(&query.params()),
-            biomcp_fetch::Read::json_string()
+            biomcp_fetch::Read::<raw::Document>::json_string()
                 .check(
                     &(|r| {
                         let expected = if matches!(query.statistic, Statistic::Survival { .. }) {

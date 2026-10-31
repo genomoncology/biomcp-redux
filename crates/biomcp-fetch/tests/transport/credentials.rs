@@ -85,7 +85,11 @@ fn reflected_credentials_are_sent_but_refused_without_retry_or_public_disclosure
             let fetch = Fetch::open(config).unwrap();
             let leg = fetch.leg(spec, fetch.deadline(Duration::from_secs(10)));
             let error = leg
-                .call::<Answer>(&spec.get("/answer"), Input::Params(&[]), Read::json())
+                .call(
+                    &spec.get("/answer"),
+                    Input::Params(&[]),
+                    Read::<Answer>::json(),
+                )
                 .map(|received| received.value)
                 .unwrap_err();
             let biomcp_fetch::RequestError::Source(error) = error else {
@@ -140,7 +144,11 @@ fn deferred_credentials_resolve_once_after_source_admission()
         let leg = fetch.leg(spec, fetch.deadline(Duration::from_secs(10)));
         assert_eq!(calls.load(Ordering::SeqCst), 0);
         let reply = leg
-            .call::<Answer>(&spec.get("/answer"), Input::Params(&[]), Read::json())
+            .call(
+                &spec.get("/answer"),
+                Input::Params(&[]),
+                Read::<Answer>::json(),
+            )
             .map(|received| received.value);
         if disabled {
             assert!(

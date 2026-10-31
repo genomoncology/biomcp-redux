@@ -67,14 +67,14 @@ pub fn genes(leg: &Leg<'_>, ids: &[NcbiGeneId]) -> Vec<GeneBatch> {
     let chunks: Vec<_> = ids.chunks(BATCH).collect();
     let results = leg.batch(&chunks, |leg, chunk| {
         let ids: Vec<Box<str>> = chunk.iter().map(|id| id.to_string().into()).collect();
-        leg.call::<raw::Genes>(
+        leg.call(
             &GENES,
             Input::Params(&[
                 ("ids", Arg::Ids(&ids)),
                 ("fields", Arg::Text(FIELDS)),
                 ("species", Arg::Text("human")),
             ]),
-            Read::json(),
+            Read::<raw::Genes>::json(),
         )
         .map(|received| received.value)
     });

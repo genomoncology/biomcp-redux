@@ -57,7 +57,7 @@ fn offline_rechecks_fresh_stale_negative_expired_and_corrupt_entries_without_htt
     let get = |fetch: &Fetch| {
         fetch
             .leg(spec, fetch.deadline(Duration::from_secs(10)))
-            .call::<Answer>(&ep, Input::Params(&[]), Read::json())
+            .call(&ep, Input::Params(&[]), Read::<Answer>::json())
             .map(|received| received.value)
     };
     assert!(matches!(get(&offline), Err(RequestError::Source(e)) if e.reason == Reason::Offline));
@@ -70,7 +70,7 @@ fn offline_rechecks_fresh_stale_negative_expired_and_corrupt_entries_without_htt
     expire(&cache);
     let leg = offline.leg(spec, offline.deadline(Duration::from_secs(10)));
     assert!(
-        leg.call::<Answer>(&ep, Input::Params(&[]), Read::json())
+        leg.call(&ep, Input::Params(&[]), Read::<Answer>::json())
             .map(|received| received.value)
             .unwrap()
             .answer
@@ -86,7 +86,7 @@ fn offline_rechecks_fresh_stale_negative_expired_and_corrupt_entries_without_htt
     assert!(
         offline
             .leg(spec, offline.deadline(Duration::from_secs(10)))
-            .call::<Answer>(&ep, Input::Params(&[]), Read::json())
+            .call(&ep, Input::Params(&[]), Read::<Answer>::json())
             .map(|received| Some(received.value))
             .or_else(|error| match error {
                 biomcp_fetch::RequestError::Source(source)
@@ -122,7 +122,7 @@ fn record_bypasses_warm_cache_and_replay_ignores_user_cache_and_writes_only_owne
     let get = |fetch: &Fetch| {
         fetch
             .leg(spec, fetch.deadline(Duration::from_secs(10)))
-            .call::<Answer>(&ep, Input::Params(&[]), Read::json())
+            .call(&ep, Input::Params(&[]), Read::<Answer>::json())
             .map(|received| received.value)
     };
     let live = Fetch::open(config(&cache, Mode::default())).unwrap();
@@ -167,7 +167,7 @@ fn record_bypasses_warm_cache_and_replay_ignores_user_cache_and_writes_only_owne
         replay
             .leg(spec, replay.deadline(Duration::from_secs(10)))
             .fresh(true)
-            .call::<Answer>(&ep, Input::Params(&[]), Read::json())
+            .call(&ep, Input::Params(&[]), Read::<Answer>::json())
             .map(|received| received.value)
             .unwrap_err(),
         RequestError::Recording(RecordError::Exhausted)
@@ -216,7 +216,7 @@ fn replay_does_not_open_an_invalid_ordinary_cache() {
         let worker = scope.spawn(|| {
             capture
                 .leg(spec, capture.deadline(Duration::from_secs(10)))
-                .call::<Answer>(&ep, Input::Params(&[]), Read::json())
+                .call(&ep, Input::Params(&[]), Read::<Answer>::json())
                 .map(|received| received.value)
         });
         server.next().ok();
@@ -227,7 +227,7 @@ fn replay_does_not_open_an_invalid_ordinary_cache() {
     assert!(
         replay
             .leg(spec, replay.deadline(Duration::from_secs(10)))
-            .call::<Answer>(&ep, Input::Params(&[]), Read::json())
+            .call(&ep, Input::Params(&[]), Read::<Answer>::json())
             .map(|received| received.value)
             .unwrap()
             .answer

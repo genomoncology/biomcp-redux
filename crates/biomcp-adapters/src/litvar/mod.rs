@@ -77,10 +77,10 @@ pub fn select(
         format!("{} {change}", gene.unwrap_or_default())
     };
     let candidates = leg
-        .call::<Candidates>(
+        .call(
             &AUTOCOMPLETE,
             Input::Params(&[("query", Arg::Text(&term))]),
-            Read::json().cache_if(&(Candidates::eligible)),
+            Read::<Candidates>::json().cache_if(&(Candidates::eligible)),
         )
         .map(|received| received.value)?
         .mapped();
@@ -137,10 +137,10 @@ pub fn publications(leg: &Leg<'_>, selected: Variant) -> Result<Search, RequestE
         .map(PathSegment::new)
         .collect::<Result<Vec<_>, _>>()?;
     let reply = leg
-        .call::<Publications>(
+        .call(
             &PUBLICATIONS.clone().with_segments(&segments),
             Input::Params(&[]),
-            Read::json().cache_if(&(Publications::eligible)),
+            Read::<Publications>::json().cache_if(&(Publications::eligible)),
         )
         .map(|received| received.value)?;
     let mut problems = crate::mapped::Problems {

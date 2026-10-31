@@ -24,7 +24,7 @@ pub fn search(leg: &Leg<'_>, q: &PathwaySearch) -> Result<Page, RequestError> {
         .fresh(Freshness::Days(1))
         .json_absence();
     let reply = leg
-        .call::<raw::Search>(
+        .call(
             &endpoint,
             Input::Params(&[
                 ("query", Arg::Text(text.as_str())),
@@ -35,7 +35,7 @@ pub fn search(leg: &Leg<'_>, q: &PathwaySearch) -> Result<Page, RequestError> {
                 ("types", Arg::Text("TopLevelPathway")),
                 ("Force filters", Arg::Text("true")),
             ]),
-            biomcp_fetch::Read::json()
+            biomcp_fetch::Read::<raw::Search>::json()
                 .check(
                     &(|v| match v {
                         raw::Search::Page { count, .. } if *count <= q.limit() => Ok(()),
@@ -102,10 +102,10 @@ pub fn top_level(leg: &Leg<'_>) -> Result<Mapped<Vec<PathwayHeader>>, RequestErr
         .get("/data/pathways/top/Homo%20sapiens")
         .fresh(Freshness::Days(7));
     let rows = leg
-        .call::<raw::Cards>(
+        .call(
             &endpoint,
             Input::Params(&[]),
-            biomcp_fetch::Read::json().cache_if(
+            biomcp_fetch::Read::<raw::Cards>::json().cache_if(
                 &(|v| {
                     v.0.iter()
                         .all(|r| map::header(r, &mut map::fields(&r.st_id)).is_some())
@@ -148,10 +148,10 @@ pub fn card(
         .with_path(format!("/data/query/{id}"))?
         .fresh(Freshness::Days(7));
     let row = match leg
-        .call::<raw::Card>(
+        .call(
             &endpoint,
             Input::Params(&[]),
-            biomcp_fetch::Read::json().cache_if(
+            biomcp_fetch::Read::<raw::Card>::json().cache_if(
                 &(|r| {
                     r.st_id == id.as_str() && map::header(r, &mut map::fields(&r.st_id)).is_some()
                 }),
@@ -201,10 +201,10 @@ pub fn card(
 pub fn release(leg: &Leg<'_>) -> Result<Text, RequestError> {
     let endpoint = SPEC.get("/data/database/version").fresh(Freshness::Days(1));
     let value = leg
-        .call::<raw::Version>(
+        .call(
             &endpoint,
             Input::Params(&[]),
-            biomcp_fetch::Read::json_text(),
+            biomcp_fetch::Read::<raw::Version>::json_text(),
         )
         .map(|received| received.value)?;
     Text::new(&value.0.to_string()).map_err(|_| biomcp_fetch::InputError::Serialization.into())

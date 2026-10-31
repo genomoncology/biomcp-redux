@@ -80,10 +80,10 @@ pub fn associations(leg: &Leg<'_>, query: &DiseaseGet) -> Result<Page, RequestEr
         ("offset", Arg::Num(query.section_offset().into())),
     ];
     let (page, metadata) = leg
-        .call::<raw::Page>(
+        .call(
             &ASSOCIATIONS,
             Input::Params(&args),
-            Read::json()
+            Read::<raw::Page>::json()
                 .check(
                     &(|page| {
                         if page.limit != query.section_limit()

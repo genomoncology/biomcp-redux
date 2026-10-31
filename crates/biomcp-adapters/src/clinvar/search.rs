@@ -88,10 +88,10 @@ pub fn search(leg: &Leg<'_>, query: &VariantSearch) -> Result<SearchPage, Reques
         args.push(("retstart", Arg::Num(u64::from(query.offset()))));
     }
     let reply = leg
-        .call::<Search>(
+        .call(
             &SEARCH,
             Input::Params(&args),
-            Read::json()
+            Read::<Search>::json()
                 .check(
                     &(|reply| {
                         let page = &reply.esearchresult;

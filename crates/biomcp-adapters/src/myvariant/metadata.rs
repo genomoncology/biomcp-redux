@@ -16,7 +16,7 @@ pub(super) fn components(
     selected: &[super::components::Component],
 ) -> Result<Mapped<Vec<VariantComponent>>, RequestError> {
     let mut raw = leg
-        .call::<Metadata>(&METADATA, Input::Params(&[]), Read::json())
+        .call(&METADATA, Input::Params(&[]), Read::<Metadata>::json())
         .map(|received| received.value)?;
     let mut problems = Problems {
         source: Source::MyVariant,

@@ -53,10 +53,10 @@ pub fn search(leg: &Leg<'_>, q: &PhenotypeSearch) -> Result<Page, RequestError> 
         ("offset", Arg::Num(q.offset().into())),
     ];
     let (page, metadata) = leg
-        .call::<raw::Page>(
+        .call(
             &endpoint,
             Input::Params(&args),
-            Read::json()
+            Read::<raw::Page>::json()
                 .check(
                     &(|page| {
                         if page.limit != q.limit() || page.offset != q.offset() {
@@ -108,10 +108,10 @@ pub fn get(leg: &Leg<'_>, q: &PhenotypeGet) -> Result<Record, RequestError> {
         .with_segments(&[biomcp_fetch::PathSegment::new(q.id().as_str())?])
         .fresh(Freshness::Days(1));
     let (mut node, metadata) = leg
-        .call::<raw::Node>(
+        .call(
             &endpoint,
             Input::Params(&[]),
-            Read::json().check(
+            Read::<raw::Node>::json().check(
                 &(|node| {
                     if node.id.as_ref() == Some(q.id()) {
                         Ok(())

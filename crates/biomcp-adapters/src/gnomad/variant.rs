@@ -92,13 +92,13 @@ pub fn population(leg: &Leg<'_>, id: &str) -> Result<crate::Mapped<Option<Varian
         variables: BTreeMap::from([("id".into(), id.into())]),
     };
     let response = leg
-        .call::<raw::Response>(
+        .call(
             &VARIANT,
             Input::Json {
                 params: &[],
                 body: JsonBody::new(&body),
             },
-            biomcp_fetch::Read::json().cache_if(
+            biomcp_fetch::Read::<raw::Response>::json().cache_if(
                 &(|response| {
                     response.data.variant.as_ref().is_none_or(|value| {
                         value

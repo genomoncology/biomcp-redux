@@ -67,13 +67,13 @@ fn record(leg: &Leg<'_>, id: &EuropePmcId) -> Result<(Record, ReplyMetadata), Re
         .with_path(format!("/article/PPR/{id}"))
         .map_err(|_| biomcp_fetch::bad_reply(biomcp_types::Source::EuropePmc, None))?;
     let (raw, meta) = leg
-        .call::<Raw>(
+        .call(
             &endpoint,
             Input::Params(&[
                 ("format", Arg::Text("json")),
                 ("resultType", Arg::Text("core")),
             ]),
-            biomcp_fetch::Read::json(),
+            biomcp_fetch::Read::<Raw>::json(),
         )
         .map(|received| (received.value, received.meta))?;
     if raw.result.id != *id {
@@ -176,7 +176,11 @@ pub fn read(
         .with_path(format!("/{id}/fullTextXML"))
         .map_err(|_| biomcp_fetch::bad_reply(biomcp_types::Source::EuropePmc, None))?;
     let mut body = leg
-        .call::<jats::Body>(&endpoint, Input::Params(&[]), biomcp_fetch::Read::xml())
+        .call(
+            &endpoint,
+            Input::Params(&[]),
+            biomcp_fetch::Read::<jats::Body>::xml(),
+        )
         .map(|received| received.value)?;
     if body.title.is_none() {
         body.title = p.source_field("title", raw.title);

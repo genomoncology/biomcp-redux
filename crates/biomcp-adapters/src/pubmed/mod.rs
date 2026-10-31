@@ -96,14 +96,18 @@ pub fn search_ids_with_inputs(
     };
     let raw = match inputs {
         Some(ids) => leg
-            .call::<raw::Search>(
+            .call(
                 endpoint,
                 Input::Params(&params),
-                Read::json().inputs(ids, "term"),
+                Read::<raw::Search>::json().inputs(ids, "term"),
             )
             .map(|received| received.value),
         None => leg
-            .call::<raw::Search>(endpoint, Input::Params(&params), Read::json())
+            .call(
+                endpoint,
+                Input::Params(&params),
+                Read::<raw::Search>::json(),
+            )
             .map(|received| received.value),
     }?
     .esearchresult;
@@ -180,7 +184,11 @@ pub fn summaries(
         params.push(("email", Arg::Contact(email)));
     }
     let reply = leg
-        .call::<raw::Summary>(&SUMMARY, Input::Params(&params), Read::json())
+        .call(
+            &SUMMARY,
+            Input::Params(&params),
+            Read::<raw::Summary>::json(),
+        )
         .map(|received| received.value)?;
     Ok(map::summaries(reply, &ids))
 }

@@ -119,10 +119,10 @@ fn page(
         args.push(("skip", Arg::Num(offset.into())));
     }
     let (reply, metadata) = leg
-        .call::<raw::Response>(
+        .call(
             &LABEL,
             Input::Params(&args),
-            biomcp_fetch::Read::json().check(
+            biomcp_fetch::Read::<raw::Response>::json().check(
                 &(|reply| match reply {
                     raw::Response::Page { meta, results }
                         if meta.results.skip != offset

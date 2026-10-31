@@ -57,14 +57,14 @@ pub fn associations(
         SPEC.base
     );
     let response = leg
-        .call::<raw::Response>(
+        .call(
             &ASSOCIATIONS,
             Input::Params(&[
                 ("rs_id", Arg::Text(&id)),
                 ("page", Arg::Num(page.into())),
                 ("size", Arg::Num(size.into())),
             ]),
-            biomcp_fetch::Read::json()
+            biomcp_fetch::Read::<raw::Response>::json()
                 .check(
                     &(|r| {
                         if r.matches(&id, page, size, &expected) {

@@ -86,10 +86,10 @@ pub fn files(
         .fresh(Freshness::Days(1))
         .bytes(100_000);
     let result = leg
-        .call::<Entries>(
+        .call(
             &endpoint,
             Input::Params(&[]),
-            biomcp_fetch::Read::json().check(
+            biomcp_fetch::Read::<Entries>::json().check(
                 &(|r| {
                     if r.0.iter().all(|v| v.matches(id)) {
                         Ok(())

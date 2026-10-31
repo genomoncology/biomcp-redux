@@ -53,10 +53,10 @@ pub fn annotations(leg: &Leg<'_>, ids: &[Pmid]) -> Result<Vec<ArticleAnnotations
         .map(|id| id.to_string().into_boxed_str())
         .collect();
     let reply = leg
-        .call::<raw::Export>(
+        .call(
             &EXPORT,
             Input::Params(&[("pmids", Arg::Ids(&names))]),
-            Read::json(),
+            Read::<raw::Export>::json(),
         )
         .map(|received| received.value)?;
     let malformed_identity = reply.documents.iter().any(|v| v.as_ref().is_none());

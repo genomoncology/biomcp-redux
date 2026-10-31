@@ -35,10 +35,11 @@ pub fn search(
         .into_iter()
         .map(|(k, v)| (k, Arg::Text(v.as_str())))
         .collect();
-    leg.call::<super::organization_raw::Page>(
+    leg.call(
         &SEARCH,
         Input::Params(&args),
-        Read::json().bounded(MAX_BYTES, biomcp_types::Reason::TooLarge),
+        Read::<super::organization_raw::Page>::json()
+            .bounded(MAX_BYTES, biomcp_types::Reason::TooLarge),
     )
     .map(|received| received.value)
     .map(super::organization_map::page)

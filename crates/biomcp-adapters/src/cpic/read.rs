@@ -42,17 +42,15 @@ fn read<T: serde::de::DeserializeOwned + Native>(
 ) -> Result<Page<T::Value>, RequestError> {
     let endpoint = SPEC.get(path).fresh(Freshness::Days(1));
     let (rows, metadata) = leg
-        .call::<Rows<T>>(
+        .call(
             &endpoint,
             Input::Params(args),
-            biomcp_fetch::Read::json().counted(&|reply, range, status| {
-                (|rows, range, status| {
-                    range.check(offset, limit, rows.0.len(), status)?;
-                    if complete && range.total != rows.0.len() as u64 {
-                        return Err(BadReply);
-                    }
-                    Ok(())
-                })(reply, range.ok_or(biomcp_fetch::BadReply)?, status)
+            biomcp_fetch::Read::<Rows<T>>::json().counted(&|rows, range, status| {
+                range.check(offset, limit, rows.0.len(), status)?;
+                if complete && range.total != rows.0.len() as u64 {
+                    return Err(BadReply);
+                }
+                Ok(())
             }),
         )
         .map(|received| (received.value, received.meta))?;

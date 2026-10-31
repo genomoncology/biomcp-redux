@@ -38,10 +38,10 @@ pub fn get(leg: &Leg<'_>, query: &PhenotypeGet) -> Result<super::super::Page, Re
         ("offset", Arg::Num(query.section_offset().into())),
     ]);
     let (page, metadata) = leg
-        .call::<super::super::raw::Page>(
+        .call(
             &super::super::ASSOCIATIONS,
             Input::Params(&args),
-            biomcp_fetch::Read::json()
+            biomcp_fetch::Read::<super::super::raw::Page>::json()
                 .check(
                     &(|page| {
                         if page.limit != query.section_limit()

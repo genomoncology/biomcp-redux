@@ -35,10 +35,10 @@ pub fn entry(leg: &Leg<'_>, id: &UniProtIsoform) -> Result<Mapped<Option<Entry>>
         .identity_encoding()
         .fresh(Freshness::Days(7));
     match leg
-        .call::<raw::Entry>(
+        .call(
             &ep,
             Input::Params(&[]),
-            Read::json().cache_if(&(|raw| raw.admitted(id))),
+            Read::<raw::Entry>::json().cache_if(&(|raw| raw.admitted(id))),
         )
         .map(|received| received.value)
     {

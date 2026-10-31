@@ -32,10 +32,10 @@ pub(crate) const SENTENCES: Endpoint = SPEC.get("/api/sentences/").fresh(Freshne
 /// Read one bounded provider reply and keep each paper's first sentence, without score sorting.
 pub fn search(leg: &Leg<'_>, term: &str) -> Result<Mapped<Vec<ArticleItem>>, RequestError> {
     let reply = leg
-        .call::<Sentences>(
+        .call(
             &SENTENCES,
             Input::Params(&[("query", Arg::Text(term)), ("rerank", Arg::Text("true"))]),
-            biomcp_fetch::Read::json(),
+            biomcp_fetch::Read::<Sentences>::json(),
         )
         .map(|received| received.value)?;
     let mut items: Vec<ArticleItem> = Vec::new();

@@ -403,10 +403,10 @@ fn release_large_bundle_capture_round_trips() {
     assert!(matches!(
         ordinary
             .leg(b.spec, ordinary.deadline(Duration::from_secs(5)))
-            .call::<support::Answer>(
+            .call(
                 &b.spec.get(b.path),
                 Input::Params(&[]),
-                biomcp_fetch::Read::json()
+                biomcp_fetch::Read::<support::Answer>::json()
             )
             .map(|received| received.value),
         Err(biomcp_fetch::RequestError::Recording(

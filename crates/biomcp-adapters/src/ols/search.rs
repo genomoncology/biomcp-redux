@@ -26,7 +26,7 @@ pub fn search(leg: &Leg<'_>, query: &DiseaseSearch) -> Result<SearchPage, Reques
         .ok_or(biomcp_fetch::InputError::Serialization)?;
     let endpoint = SPEC.get("/api/search").fresh(Freshness::Days(1));
     let (page, _) = leg
-        .call::<raw::Search>(
+        .call(
             &endpoint,
             Input::Params(&[
                 ("q", Arg::Text(text)),
@@ -35,7 +35,7 @@ pub fn search(leg: &Leg<'_>, query: &DiseaseSearch) -> Result<SearchPage, Reques
                 ("ontology", Arg::Text(ontology.as_str())),
                 ("groupField", Arg::Text("iri")),
             ]),
-            Read::json().check(
+            Read::<raw::Search>::json().check(
                 &(|page| {
                     let response = &page.response;
                     if response.start != query.offset()

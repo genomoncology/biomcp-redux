@@ -240,10 +240,10 @@ fn child() {
         assert!(
             fetch
                 .leg(spec, fetch.deadline(Duration::from_secs(10)))
-                .call::<Answer>(
+                .call(
                     &endpoint,
                     Input::Params(&[("key", Arg::Text(key))]),
-                    biomcp_fetch::Read::json()
+                    biomcp_fetch::Read::<Answer>::json()
                 )
                 .map(|received| received.value)
                 .unwrap()

@@ -108,10 +108,10 @@ fn records(leg: &Leg<'_>, caid: &str) -> Result<Mapped<Vec<raw::Record>>, Reques
             ("pg", Arg::Num(page)),
         ];
         let (reply, _) = leg
-            .call::<raw::ReplyBody>(
+            .call(
                 &FETCH,
                 Input::Params(&params),
-                biomcp_fetch::Read::json().cache_if(
+                biomcp_fetch::Read::<raw::ReplyBody>::json().cache_if(
                     &(|reply| {
                         reply.data.as_ref().is_some_and(|rows| {
                             !rows.is_empty()

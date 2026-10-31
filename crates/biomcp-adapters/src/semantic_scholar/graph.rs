@@ -273,10 +273,10 @@ pub fn edges(
         args.push(("offset", Arg::Num(u64::from(offset))));
     }
     let raw = leg
-        .call::<RawEdges>(
+        .call(
             &endpoint,
             biomcp_fetch::Input::Params(&args),
-            biomcp_fetch::Read::json(),
+            biomcp_fetch::Read::<RawEdges>::json(),
         )
         .map(|received| received.value)?;
     let data = raw.data.ok_or(biomcp_fetch::SourceError {

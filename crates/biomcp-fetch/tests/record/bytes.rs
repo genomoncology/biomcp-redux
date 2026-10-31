@@ -167,18 +167,18 @@ pub(super) fn only_bounded_json_reports_typed_overflow() {
                 let leg = fetch.leg(spec, fetch.deadline(Duration::from_secs(10)));
                 match kind {
                     "bounded" => leg
-                        .call::<Answer>(
+                        .call(
                             &spec.get("/answer"),
                             Input::Params(&[]),
-                            Read::json().bounded(8, biomcp_types::Reason::TooLarge),
+                            Read::<Answer>::json().bounded(8, biomcp_types::Reason::TooLarge),
                         )
                         .map(|received| received.value)
                         .map(|_| ()),
                     "json" => leg
-                        .call::<Answer>(
+                        .call(
                             &spec.get("/answer").bytes(8),
                             Input::Params(&[]),
-                            Read::json(),
+                            Read::<Answer>::json(),
                         )
                         .map(|received| received.value)
                         .map(|_| ()),

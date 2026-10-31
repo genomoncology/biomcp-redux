@@ -45,7 +45,7 @@ fn overlapping_requests_keep_input_order_and_independent_failures() {
     thread::scope(|scope| {
         let worker = scope.spawn(|| {
             leg.batch(&["/0", "/1", "/2"], |leg, chunk| {
-                leg.call::<Answer>(&spec.get(chunk), Input::Params(&[]), Read::json())
+                leg.call(&spec.get(chunk), Input::Params(&[]), Read::<Answer>::json())
                     .map(|received| received.value)
             })
         });
@@ -179,7 +179,11 @@ fn panic_propagates_only_after_other_workers_finish() {
                         panic!("callback failed");
                     }
                     let reply = leg
-                        .call::<Answer>(&spec.get("/held"), Input::Params(&[]), Read::json())
+                        .call(
+                            &spec.get("/held"),
+                            Input::Params(&[]),
+                            Read::<Answer>::json(),
+                        )
                         .map(|received| received.value)?;
                     done.fetch_add(1, Ordering::SeqCst);
                     Ok(reply)
@@ -194,8 +198,12 @@ fn panic_propagates_only_after_other_workers_finish() {
     // A later request still gets the provider slot after scoped cleanup.
     thread::scope(|scope| {
         let worker = scope.spawn(|| {
-            leg.call::<Answer>(&spec.get("/after"), Input::Params(&[]), Read::json())
-                .map(|received| received.value)
+            leg.call(
+                &spec.get("/after"),
+                Input::Params(&[]),
+                Read::<Answer>::json(),
+            )
+            .map(|received| received.value)
         });
         server.next().ok();
         assert!(worker.join().unwrap().unwrap().answer);
@@ -211,8 +219,12 @@ fn provider_slots_bound_a_batch_independently_of_workers() {
     thread::scope(|scope| {
         let worker = scope.spawn(|| {
             leg.batch(&[(); 8], |leg, ()| {
-                leg.call::<Answer>(&spec.get("/quota"), Input::Params(&[]), Read::json())
-                    .map(|received| received.value)
+                leg.call(
+                    &spec.get("/quota"),
+                    Input::Params(&[]),
+                    Read::<Answer>::json(),
+                )
+                .map(|received| received.value)
             })
         });
         let mut held = server.next();
@@ -267,10 +279,14 @@ fn recording(
             for value in 0..count {
                 let leg = capture.leg(spec, capture.deadline(Duration::from_secs(30)));
                 assert_eq!(
-                    leg.call::<Number>(&spec.get("/number"), Input::Params(&[]), Read::json())
-                        .map(|received| received.value)
-                        .unwrap()
-                        .value,
+                    leg.call(
+                        &spec.get("/number"),
+                        Input::Params(&[]),
+                        Read::<Number>::json()
+                    )
+                    .map(|received| received.value)
+                    .unwrap()
+                    .value,
                     value,
                     "Batch capture must retain every ordered source request"
                 );
@@ -317,7 +333,11 @@ fn replay_retains_worker_progress_and_parent_joins_the_greatest_completion() {
     let phase = std::sync::Barrier::new(biomcp_fetch::MAX_BATCH_WORKERS);
     let results = leg.batch(&[(); 16], |child, ()| {
         let number = child
-            .call::<Number>(&spec.get("/number"), Input::Params(&[]), Read::json())
+            .call(
+                &spec.get("/number"),
+                Input::Params(&[]),
+                Read::<Number>::json(),
+            )
             .map(|received| received.value)?;
         let remaining = child.remaining();
         // Every worker is admitted; finish the round before any worker starts its next chunk.
@@ -338,7 +358,11 @@ fn replay_retains_worker_progress_and_parent_joins_the_greatest_completion() {
     assert_eq!(leg.remaining(), Duration::from_secs(28));
     assert_eq!(
         leg.batch(&[()], |child, ()| child
-            .call::<Number>(&spec.get("/number"), Input::Params(&[]), Read::json())
+            .call(
+                &spec.get("/number"),
+                Input::Params(&[]),
+                Read::<Number>::json()
+            )
             .map(|received| received.value))[0]
             .as_ref()
             .unwrap()
@@ -359,7 +383,11 @@ fn replay_retains_sole_slot_completion_and_stops_expired_callbacks() {
     let mut budgets: Vec<_> = leg
         .batch(&[(); 2], |child, ()| {
             child
-                .call::<Number>(&spec.get("/number"), Input::Params(&[]), Read::json())
+                .call(
+                    &spec.get("/number"),
+                    Input::Params(&[]),
+                    Read::<Number>::json(),
+                )
                 .map(|received| received.value)?;
             Ok(child.remaining())
         })
@@ -376,7 +404,11 @@ fn replay_retains_sole_slot_completion_and_stops_expired_callbacks() {
     let leg = exhausted.leg(spec, exhausted.deadline(Duration::from_secs(2)));
     let results = leg.batch(&[(); 2], |child, ()| {
         child
-            .call::<Number>(&spec.get("/number"), Input::Params(&[]), Read::json())
+            .call(
+                &spec.get("/number"),
+                Input::Params(&[]),
+                Read::<Number>::json(),
+            )
             .map(|received| received.value)
     });
     assert_eq!(results.iter().filter(|result| result.is_ok()).count(), 1);
@@ -410,7 +442,7 @@ fn batch_stale_fallbacks_retain_original_failures_after_later_success() {
     let endpoint = spec.get("/cached").fresh(biomcp_fetch::Freshness::Hours(1));
     thread::scope(|scope| {
         let seed = scope.spawn(|| {
-            leg.call::<Answer>(&endpoint, Input::Params(&[]), Read::json())
+            leg.call(&endpoint, Input::Params(&[]), Read::<Answer>::json())
                 .map(|received| received.value)
         });
         server.next().ok();
@@ -428,7 +460,7 @@ fn batch_stale_fallbacks_retain_original_failures_after_later_success() {
                     stale_read.wait();
                 }
                 child
-                    .call::<Answer>(&endpoint, Input::Params(&[]), Read::json())
+                    .call(&endpoint, Input::Params(&[]), Read::<Answer>::json())
                     .map(|received| received.value)
             })
         });
@@ -447,8 +479,12 @@ fn batch_stale_fallbacks_retain_original_failures_after_later_success() {
                 .all(|result| result.unwrap().answer)
         );
         let later = scope.spawn(|| {
-            leg.call::<Answer>(&spec.get("/success"), Input::Params(&[]), Read::json())
-                .map(|received| received.value)
+            leg.call(
+                &spec.get("/success"),
+                Input::Params(&[]),
+                Read::<Answer>::json(),
+            )
+            .map(|received| received.value)
         });
         server.next().ok();
         assert!(later.join().unwrap().unwrap().answer);
@@ -478,7 +514,11 @@ fn real_batch_requests_share_the_original_absolute_deadline() {
     // and prevent subsequent chunks from gaining a new source budget.
     let results = leg.batch(&[(); 16], |child, ()| {
         child
-            .call::<Answer>(&spec.get("/held"), Input::Params(&[]), Read::json())
+            .call(
+                &spec.get("/held"),
+                Input::Params(&[]),
+                Read::<Answer>::json(),
+            )
             .map(|received| received.value)
     });
     assert_eq!(results.len(), 16);
