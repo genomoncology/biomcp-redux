@@ -50,9 +50,9 @@ fn recovery() -> Check {
         if supplied {
             if content.get("error").is_some()
                 || !content["sources"].as_array().is_some_and(|sources| {
-                    sources.iter().any(|source| {
-                        source["source"] == "oncokb" && source["reason"] == "offline"
-                    })
+                    sources
+                        .iter()
+                        .any(|source| source["source"] == "oncokb" && source["reason"] == "offline")
                 })
             {
                 return Err("startup recovery dropped the caller credential".into());
