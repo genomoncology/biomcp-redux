@@ -40,8 +40,8 @@ fn snapshot(
         Ok(secrets) => secrets,
         Err(error) => return Ok(Err(error.into())),
     };
-    let secrets = if globals.hosted {
-        secrets.hosted(
+    let fetch = if globals.hosted {
+        fetch.with_hosted_secrets(secrets.hosted(
             context.and_then(|context| context.secrets),
             biomcp_fetch::SecretName::ALL
                 .iter()
@@ -49,9 +49,9 @@ fn snapshot(
                 .filter(|&name| {
                     biomcp_adapters::registry::key_tier(name) == biomcp_types::KeyTier::NoFallback
                 }),
-        )
+        ))
     } else {
-        secrets
+        fetch.with_secrets(secrets)
     };
-    crate::config::restrict(fetch.with_secrets(secrets), globals).map(Ok)
+    crate::config::restrict(fetch, globals).map(Ok)
 }
