@@ -2,6 +2,7 @@
 import hashlib
 import json
 import re
+import shlex
 
 
 def owner(key):
@@ -27,6 +28,7 @@ class Bindings:
         self.forward = {}
         self.reverse = {}
         self.pools = ({}, {})
+        self.snapshot_steps = {}
 
     def bind(self, kind, left, right):
         a, b = (kind, left), (kind, right)
@@ -45,6 +47,19 @@ class Bindings:
         documents = [envelope(value) for value in (left, right)]
         def schema(prefix):
             return all(str(value.get('schema', '')).startswith(prefix) for value in documents)
+        def pgx_page(position, a, b):
+            # PgxAnnotations::SCHEMA; pgx/annotations.rs binds the stored collection
+            # before pgx/next.rs emits its typed page command. Only this slot declares.
+            flags = {3: '--gene', 5: '--kind', 7: '--section-limit',
+                     9: '--section-offset', 11: '--snapshot', 13: '--source'}
+            return (len(position) == 3 and position[0] == 'next'
+                    and all(d.get('schema') == 'biomcp.pgx-annotations/5'
+                            and d['next'][position[1]].get('kind') == 'page'
+                            for d in documents)
+                    and all(len(args) == 15 and args[:3] == ['get', 'pgx', 'annotations']
+                            and args[14] == 'clinpgx'
+                            and all(args[i] == flag for i, flag in flags.items())
+                            for args in (a, b)))
         def put(p, a, b, kind):
             if type(a) is not type(b):
                 return
@@ -117,11 +132,14 @@ class Bindings:
                             put(p + (i,), x, y, (scope, 'pool'))
                     elif (argv and i and a[i-1] == b[i-1] == '--snapshot'
                           and isinstance(x, str) and isinstance(y, str)):
-                        # Phenotype section steps own opaque retained source snapshots.
+                        pgx = i == 12 and pgx_page(position, a, b)
+                        # Retained phenotype sections and ClinPGx pages declare snapshots.
                         declared = (len(position) == 3 and position[0] == 'next'
-                                    and schema('biomcp.phenotype-card/'))
+                                    and schema('biomcp.phenotype-card/')) or pgx
                         if declared or ((scope, 'snapshot'), x) in self.forward:
                             put(p + (i,), x, y, (scope, 'snapshot'))
+                            if pgx:
+                                self.snapshot_steps[scope, tuple(a)] = tuple(b)
                     else:
                         visit(x, y, p + (i,))
             elif p in encoded and isinstance(a, str) and isinstance(b, str):
@@ -358,6 +376,19 @@ def pair(left, right, scope, bindings, roots, normalize):
     try:
         values = [json.loads(n['stdout']) for n in (a, b)]
     except ValueError:
+        # Markdown can reference an already declared typed page command. Match the
+        # complete renderer-owned block, never a source string containing its token.
+        for (step_scope, before), after in bindings.snapshot_steps.items():
+            if step_scope != scope:
+                continue
+            for n, args in ((a, before), (b, after)):
+                command = ' '.join(shlex.quote(arg) for arg in args)
+                canonical = list(args)
+                canonical[12] = '<runtime>'
+                replacement = ' '.join(shlex.quote(arg) for arg in canonical)
+                prefix = '**page:**\n\n```sh\nbiomcp '
+                n['stdout'] = n['stdout'].replace(prefix + command + '\n```',
+                                                prefix + replacement + '\n```')
         # Markdown clocks bind only to a JSON fetched declaration in this owner.
         for before, after in bindings.forward.items():
             kind, value = before
