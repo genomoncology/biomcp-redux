@@ -16,8 +16,12 @@ fn stored_gtr_relations_distinguish_declined_identity_and_optional_values() -> C
                     .is_some_and(|u| u.ends_with("test_condition_gene.txt"))
                 && let Some(value) = record.pointer_mut("/exchanges/0/body/value")
             {
+                let header = concat!(
+                    "#accession_version\ttest_type\tobject\tGTR_identifier\tMIM_number\t",
+                    "object_name\tgene_or_SNOMED_CT_ID\tgene_symbol\n"
+                );
                 *value = json!(format!(
-                    "#accession_version\ttest_type\tobject\tGTR_identifier\tMIM_number\tobject_name\tgene_or_SNOMED_CT_ID\tgene_symbol\nGTR000006692.3\tUnknown\tgene\t\t\tSynthetic relation\t{gene_id}\t{symbol}\n"
+                    "{header}GTR000006692.3\tUnknown\tgene\t\t\tSynthetic relation\t{gene_id}\t{symbol}\n"
                 ));
                 changed = true;
             }
@@ -49,9 +53,12 @@ fn citation_indexing_refusals_preserve_the_article() -> Check {
         ),
         ("<MeshHeading></MeshHeading>", Refusal::Refused),
     ] {
-        let xml = format!(
-            "<PubmedArticleSet><PubmedArticle><MedlineCitation><PMID>28944238</PMID><Article><ArticleTitle>Retained title</ArticleTitle></Article><MeshHeadingList>{heading}</MeshHeadingList></MedlineCitation></PubmedArticle></PubmedArticleSet>"
+        let prefix = concat!(
+            "<PubmedArticleSet><PubmedArticle><MedlineCitation><PMID>28944238</PMID>",
+            "<Article><ArticleTitle>Retained title</ArticleTitle></Article><MeshHeadingList>"
         );
+        let suffix = "</MeshHeadingList></MedlineCitation></PubmedArticle></PubmedArticleSet>";
+        let xml = format!("{prefix}{heading}{suffix}");
         let mut changed = false;
         let (_root, fetch) = replay("article/get/synthetic-derived", |source, record| {
             if source == "pubmed"

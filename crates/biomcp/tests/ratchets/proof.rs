@@ -583,3 +583,8 @@ fn mapped_constructions_require_their_own_refusal_decision() -> Check {
 fn only_owned_private_refusal_defaults_bypass_native_ceiling() -> Check {
     super::proof_support::private_refusal_defaults()
 }
+
+#[test]
+fn structural_diagnostics_keep_independent_categories() -> Check {
+    super::proof_support::independent_structural_failures()
+}

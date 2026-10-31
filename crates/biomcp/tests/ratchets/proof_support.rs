@@ -208,3 +208,23 @@ pub(super) fn private_refusal_defaults() -> Check {
     assert!(failure.contains("raw serde default"), "{failure}");
     Ok(())
 }
+
+pub(super) fn independent_structural_failures() -> Check {
+    let tree = tree()?;
+    put(
+        tree.path(),
+        "crates/biomcp-adapters/src/example/raw.rs",
+        &format!(
+            "#[serde(default)] struct Raw;\nfn text() {{}}\n//{}\n",
+            "x".repeat(161)
+        ),
+    )?;
+    let failure = match super::source::check(tree.path()) {
+        Ok(()) => return Err("independent violations passed".into()),
+        Err(error) => error.to_string(),
+    };
+    for category in ["raw serde default", "line width", "mapping helpers belong"] {
+        assert!(failure.contains(category), "missing {category}: {failure}");
+    }
+    Ok(())
+}
