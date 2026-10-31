@@ -1,5 +1,5 @@
 //! Exact native JSON page counts share the checked request, recording and cache path.
-use crate::{Arg, BadReply, Endpoint, Leg, Reply, ReplyMetadata, RequestError, xml::Decoder};
+use crate::{Arg, BadReply, Endpoint, Leg, Reply, ReplyMetadata, RequestError, read::Read};
 /// Provider-given inclusive row bounds and exact total, never inferred from page length.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct ContentRange {
@@ -68,7 +68,7 @@ impl Leg<'_> {
         self.parameters(
             &endpoint,
             params,
-            Decoder::counted_json(&|reply, range, status| {
+            Read::counted_json(&|reply, range, status| {
                 check(reply, range.ok_or(BadReply)?, status)
             }),
         )

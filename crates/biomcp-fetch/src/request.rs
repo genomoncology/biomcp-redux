@@ -1,7 +1,7 @@
 use crate::record::{Body, Exchange};
-use crate::xml::{Decoder, XmlReply};
 use crate::{Arg, Endpoint, Leg, Reply, RequestError, SourceError};
 use crate::{InputError, declaration::Method, prepared::Prepared};
+use crate::{read::Read, xml::XmlReply};
 use biomcp_types::Reason;
 use std::time::{Duration, Instant};
 
@@ -40,7 +40,7 @@ impl Leg<'_> {
             .byte_limit
             .filter(|v| *v > 0 && *v < u64::MAX)
             .ok_or(InputError::BodyLimit)?;
-        self.parameters(ep, params, Decoder::bytes(limit))
+        self.parameters(ep, params, Read::bytes(limit))
             .map(|(v, _)| v.0)
     }
     /// Read binary bytes only after the source-owned parser accepts them for cache admission.
@@ -63,7 +63,7 @@ impl Leg<'_> {
             .byte_limit
             .filter(|v| *v > 0 && *v < u64::MAX)
             .ok_or(InputError::BodyLimit)?;
-        let decoder = Decoder::checked_bytes(limit, &check);
+        let decoder = Read::checked_bytes(limit, &check);
         let decoder = match media {
             Some(media) => decoder.document_media(media),
             None => decoder,
@@ -76,7 +76,7 @@ impl Leg<'_> {
         let mut ep = ep.clone().fresh(crate::Freshness::Never);
         // Reachability is one observation, never a retrying data request.
         ep.idempotent = false;
-        self.parameters(&ep, params, Decoder::probe()).map(|_| ())
+        self.parameters(&ep, params, Read::probe()).map(|_| ())
     }
     /// Probe a declared read-only JSON endpoint with a bounded request body.
     pub fn probe_json<B: serde::Serialize>(
@@ -97,7 +97,7 @@ impl Leg<'_> {
         self.send(
             &ep,
             Prepared::new(url, body, ep.method, ep.idempotent),
-            Decoder::probe(),
+            Read::probe(),
         )
         .map(|_| ())
     }
@@ -108,7 +108,7 @@ impl Leg<'_> {
         ep: &Endpoint,
         params: &[(&str, Arg<'_>)],
     ) -> Result<T, RequestError> {
-        self.parameters(ep, params, Decoder::json())
+        self.parameters(ep, params, Read::json())
             .map(|(reply, _)| reply)
     }
 
@@ -118,7 +118,7 @@ impl Leg<'_> {
         ep: &Endpoint,
         params: &[(&str, Arg<'_>)],
     ) -> Result<(T, crate::ReplyMetadata), RequestError> {
-        self.parameters(ep, params, Decoder::json())
+        self.parameters(ep, params, Read::json())
     }
 
     /// Apply a request-bound JSON check before cache admission and on cache or replay reads.
@@ -128,7 +128,7 @@ impl Leg<'_> {
         params: &[(&str, Arg<'_>)],
         check: impl Fn(&T) -> Result<(), crate::BadReply>,
     ) -> Result<(T, crate::ReplyMetadata), RequestError> {
-        self.parameters(ep, params, Decoder::checked_json(&check))
+        self.parameters(ep, params, Read::checked_json(&check))
     }
     /// Decode exactly one JSON-string wrapper, then validate the typed inner reply.
     /// Cache and replay reads use the same decoder and request-bound check.
@@ -138,7 +138,7 @@ impl Leg<'_> {
         params: &[(&str, Arg<'_>)],
         check: impl Fn(&T) -> Result<(), crate::BadReply>,
     ) -> Result<(T, crate::ReplyMetadata), RequestError> {
-        self.parameters(ep, params, Decoder::checked_json_string(&check))
+        self.parameters(ep, params, Read::checked_json_string(&check))
     }
 
     /// Send checked XML from a GET or form POST.
@@ -147,7 +147,7 @@ impl Leg<'_> {
         ep: &Endpoint,
         params: &[(&str, Arg<'_>)],
     ) -> Result<T, RequestError> {
-        self.parameters(ep, params, Decoder::xml())
+        self.parameters(ep, params, Read::xml())
             .map(|(reply, _)| reply)
     }
 
@@ -157,14 +157,14 @@ impl Leg<'_> {
         ep: &Endpoint,
         params: &[(&str, Arg<'_>)],
     ) -> Result<(T, crate::ReplyMetadata), RequestError> {
-        self.parameters(ep, params, Decoder::xml())
+        self.parameters(ep, params, Read::xml())
     }
 
     pub(crate) fn parameters<T: Reply>(
         &self,
         ep: &Endpoint,
         params: &[(&str, Arg<'_>)],
-        codec: Decoder<T>,
+        codec: Read<T>,
     ) -> Result<(T, crate::ReplyMetadata), RequestError> {
         self.validate(ep, false)?;
         let url = if ep.publisher {
@@ -273,7 +273,7 @@ impl Leg<'_> {
         &self,
         ep: &Endpoint,
         mut prepared: Prepared,
-        codec: Decoder<T>,
+        codec: Read<T>,
     ) -> Result<(T, crate::ReplyMetadata), RequestError> {
         self.spec.admit(&prepared.url, ep.publisher)?;
         prepared.identity_encoding = ep.identity_encoding;
@@ -315,7 +315,7 @@ impl Leg<'_> {
     fn attempts<T: Reply>(
         &self,
         prepared: &Prepared,
-        codec: &Decoder<T>,
+        codec: &Read<T>,
     ) -> Result<Decoded<T>, RequestError> {
         for attempt in 0..crate::retry::ATTEMPTS {
             let permit = self
@@ -377,7 +377,7 @@ impl Leg<'_> {
         prepared: &Prepared,
         exchange: &Result<Wire, Failure>,
         elapsed: Duration,
-        codec: &Decoder<T>,
+        codec: &Read<T>,
     ) {
         let (status, body, media) = match exchange {
             Ok(response) => (
@@ -405,7 +405,7 @@ impl Leg<'_> {
         }
     }
 
-    fn exchange<T: Reply>(&self, prepared: &Prepared, codec: &Decoder<T>) -> Result<Wire, Failure> {
+    fn exchange<T: Reply>(&self, prepared: &Prepared, codec: &Read<T>) -> Result<Wire, Failure> {
         let local = |error| Failure::Local(RequestError::Recording(error));
         if let Some(exchange) = self
             .fetch
@@ -514,7 +514,7 @@ impl Leg<'_> {
     fn record_wire<T: Reply>(
         &self,
         prepared: &Prepared,
-        codec: &Decoder<T>,
+        codec: &Read<T>,
         wire: &Wire,
         started: Instant,
     ) -> Result<(), crate::RecordError> {
@@ -542,11 +542,7 @@ impl Leg<'_> {
         )
     }
 
-    fn decode<T: Reply>(
-        &self,
-        response: Wire,
-        codec: &Decoder<T>,
-    ) -> Result<Decoded<T>, SourceError> {
+    fn decode<T: Reply>(&self, response: Wire, codec: &Read<T>) -> Result<Decoded<T>, SourceError> {
         let status = response.status;
         let bad = || self.failure(Reason::BadReply, Some(status));
         if !codec.accepts(&response.content_type) {

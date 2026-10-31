@@ -113,7 +113,7 @@ fn request_context(prepared: &Prepared, parameter: &str) -> Option<String> {
     )
 }
 
-impl<T: Reply> crate::xml::Decoder<'_, T> {
+impl<T: Reply> crate::read::Read<'_, T> {
     pub(crate) fn provenance(
         &self,
         prepared: &Prepared,
@@ -138,7 +138,7 @@ impl crate::Leg<'_> {
         ids: crate::Identities,
         parameter: &str,
     ) -> Result<T, crate::RequestError> {
-        let mut codec = crate::xml::Decoder::json();
+        let mut codec = crate::read::Read::json();
         codec.diagnostic_inputs = Some((ids, parameter.into()));
         self.parameters(ep, params, codec).map(|(reply, _)| reply)
     }

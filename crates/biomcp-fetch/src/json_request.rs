@@ -1,5 +1,5 @@
 //! JSON POST preparation uses the shared checked transport and cache path.
-use crate::{Arg, Endpoint, Leg, Reply, RequestError, prepared::Prepared, xml::Decoder};
+use crate::{Arg, Endpoint, Leg, Reply, RequestError, prepared::Prepared, read::Read};
 
 impl Leg<'_> {
     /// Send checked JSON from a declared JSON POST endpoint.
@@ -18,7 +18,7 @@ impl Leg<'_> {
         params: &[(&str, Arg<'_>)],
         body: &B,
     ) -> Result<T, RequestError> {
-        self.post_json_decoded(ep, params, body, Decoder::json())
+        self.post_json_decoded(ep, params, body, Read::json())
             .map(|(reply, _)| reply)
     }
 
@@ -30,7 +30,7 @@ impl Leg<'_> {
         body: &B,
         check: impl Fn(&T) -> Result<(), crate::BadReply>,
     ) -> Result<(T, crate::ReplyMetadata), RequestError> {
-        self.post_json_decoded(ep, params, body, Decoder::checked_json(&check))
+        self.post_json_decoded(ep, params, body, Read::checked_json(&check))
     }
 
     /// Keep valid source rows while denying cache admission for mixed request identities.
@@ -41,7 +41,7 @@ impl Leg<'_> {
         body: &B,
         cache_if: impl Fn(&T) -> bool,
     ) -> Result<T, RequestError> {
-        self.post_json_decoded(ep, &[], body, Decoder::json().cache_if(&cache_if))
+        self.post_json_decoded(ep, &[], body, Read::json().cache_if(&cache_if))
             .map(|(reply, _)| reply)
     }
 
@@ -50,7 +50,7 @@ impl Leg<'_> {
         ep: &Endpoint,
         params: &[(&str, Arg<'_>)],
         body: &B,
-        codec: Decoder<'_, T>,
+        codec: Read<'_, T>,
     ) -> Result<(T, crate::ReplyMetadata), RequestError> {
         self.validate(ep, true)?;
         let body = crate::prepared::json(body, self.fetch.config.max_body)?;

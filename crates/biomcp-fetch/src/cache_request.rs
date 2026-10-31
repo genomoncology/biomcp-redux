@@ -1,5 +1,5 @@
 //! Checked cache reuse around the single live request path.
-use crate::xml::Decoder;
+use crate::read::Read;
 use crate::{
     Endpoint, Leg, Mode, Reply, RequestError,
     cache::{Cache, Entry, now},
@@ -62,7 +62,7 @@ impl Leg<'_> {
         self.parameters(
             endpoint,
             params,
-            Decoder::checked_json(&check).cache_if(&cache_if),
+            Read::checked_json(&check).cache_if(&cache_if),
         )
     }
 
@@ -77,7 +77,7 @@ impl Leg<'_> {
         self.parameters(
             endpoint,
             params,
-            Decoder::checked_json_string(&check).cache_if(&cache_if),
+            Read::checked_json_string(&check).cache_if(&cache_if),
         )
     }
 
@@ -89,7 +89,7 @@ impl Leg<'_> {
         params: &[(&str, crate::Arg<'_>)],
         cache_if: impl Fn(&T) -> bool,
     ) -> Result<T, RequestError> {
-        self.parameters(endpoint, params, Decoder::json().cache_if(&cache_if))
+        self.parameters(endpoint, params, Read::json().cache_if(&cache_if))
             .map(|(reply, _)| reply)
     }
 
@@ -100,14 +100,14 @@ impl Leg<'_> {
         params: &[(&str, crate::Arg<'_>)],
         cache_if: impl Fn(&T) -> bool,
     ) -> Result<(T, crate::ReplyMetadata), RequestError> {
-        self.parameters(endpoint, params, Decoder::json().cache_if(&cache_if))
+        self.parameters(endpoint, params, Read::json().cache_if(&cache_if))
     }
 
     pub(crate) fn cached<T: Reply>(
         &self,
         endpoint: &Endpoint,
         prepared: &crate::prepared::Prepared,
-        codec: &Decoder<T>,
+        codec: &Read<T>,
         live: impl FnOnce() -> Result<crate::request::Decoded<T>, RequestError>,
     ) -> Result<CachedReply<T>, RequestError> {
         let (url, key) = (prepared.url.as_str(), &prepared.identity);
@@ -187,7 +187,7 @@ impl Leg<'_> {
         &self,
         cache: &Cache,
         prepared: &crate::prepared::Prepared,
-        codec: &Decoder<T>,
+        codec: &Read<T>,
         seconds: u64,
         decoded: crate::request::Decoded<T>,
     ) -> Result<CachedReply<T>, RequestError> {
@@ -239,7 +239,7 @@ impl Leg<'_> {
         &self,
         endpoint: &Endpoint,
         prepared: &crate::prepared::Prepared,
-        codec: &Decoder<T>,
+        codec: &Read<T>,
     ) -> Result<CachedReply<T>, RequestError> {
         if let Some(cache) = self
             .fetch
@@ -270,7 +270,7 @@ impl Leg<'_> {
         &self,
         cache: &Cache,
         prepared: &crate::prepared::Prepared,
-        codec: &Decoder<T>,
+        codec: &Read<T>,
     ) -> Result<Option<Checked<T>>, RequestError> {
         let key = &prepared.identity;
         let entry = match cache.read(
