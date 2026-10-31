@@ -398,6 +398,15 @@ class ReplyDiff(unittest.TestCase):
             path.write_text(json.dumps(record))
         self.assertEqual(self.compare().returncode, 1)
 
+    def test_replay_owner_root_cannot_rebind_within_one_capture_owner(self):
+        self.owned_replay_capture()
+        for directory, side in [(self.base, "base"), (self.head, "head")]:
+            root = "/tmp/replies-" + side + ("-other" if side == "head" else "")
+            self.write(directory, "case/owned.yaml/step/3",
+                       args=["help", "--replay", root + "/recordings"],
+                       root="/tmp/runtime-" + side, replay_owner_root=root)
+        self.assertNotEqual(self.compare().returncode, 0)
+
     def test_combined_replay_metadata_requires_successful_same_owner_inputs(self):
         self.owned_replay_capture(suffix="all")
         result = self.compare()

@@ -203,30 +203,60 @@ def rewrite(text, changes, path=(), spans=False):
 
 
 def context_roots(roots, key, index):
-    return roots.get(owner(key), {})
+    return dict(roots.get(owner(key), {}), **roots.get(key + "/execution/" + str(index), {}))
 
 
 def record_roots(records):
     roots = {}
+    recordings = {}
     for key, record in records.items():
         for execution in record['executions']:
             args = execution['args']
+            if (execution.get('root') and execution['exit'] == 0
+                    and args.count('--record') == 1
+                    and args.index('--record') + 1 < len(args)
+                    and ('--' not in args or args.index('--') > args.index('--record'))):
+                recordings.setdefault((owner(key), execution['root']), set()).add(
+                    args[args.index('--record') + 1])
             for flag in ('--record', '--replay'):
                 if flag in args:
                     value = args[args.index(flag) + 1]
                     root = execution.get('root', '')
                     if root and value.startswith(root + '/'):
                         roots.setdefault(owner(key), {})[value] = value[len(root):]
+    for key, record in records.items():
+        for index, execution in enumerate(record['executions']):
+            if 'replay_owner_root' not in execution:
+                continue
+            root, args = execution['replay_owner_root'], execution['args']
+            if (not isinstance(root, str) or not root.startswith('/')
+                    or any(part in ('', '.', '..') for part in root.split('/')[1:])):
+                raise ValueError('invalid captured replay owner root')
+            if (args.count('--replay') != 1 or args.index('--replay') + 1 >= len(args)
+                    or ('--' in args and args.index('--') < args.index('--replay'))):
+                raise ValueError('captured replay owner requires one effective replay argument')
+            path = args[args.index('--replay') + 1]
+            if path not in (root + '/recordings', root + '/all'):
+                raise ValueError('replay argument is outside its captured owner')
+            if path == root + '/all':
+                inputs = recordings.get((owner(key), root), set())
+                if not {root + '/first', root + '/second'} <= inputs:
+                    raise ValueError('combined replay lacks successful owned recording inputs')
+            roots[key + '/execution/' + str(index)] = {
+                path: {'owner_root': root, 'relative': path[len(root):]}}
     return roots
 
 
 def declared_args(execution, roots):
     args = execution['args']
     result = []
-    for arg in args:
+    for i, arg in enumerate(args):
         for path, name in roots.items():
             # A declared record directory may be passed by another isolated process.
-            if arg == path:
+            if isinstance(name, dict):
+                if i and args[i - 1] == '--replay' and arg == path:
+                    arg = '<owned-replay>' + name['relative']
+            elif arg == path:
                 arg = '<record-root>' + name
         result.append(arg)
     return result
@@ -296,6 +326,10 @@ def align(base, head, normalize, bindings=None):
 
 
 def pair(left, right, scope, bindings, roots, normalize):
+    owned = [[value['owner_root'] for value in declared.values() if isinstance(value, dict)]
+             for declared in roots]
+    if all(len(values) == 1 for values in owned):
+        bindings.bind((scope, 'replay-owner-root'), owned[0][0], owned[1][0])
     a, b = [normalize(dict(e, args=declared_args(e, declared)))
             for e, declared in zip((left, right), roots)]
     args = bindings.values(a['args'], b['args'], scope, clocks=False)
