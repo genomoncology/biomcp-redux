@@ -6,7 +6,7 @@ import re
 import shlex
 import sys
 
-from reply_runtime import Bindings, align, context_roots, owner, pair, replay_owners
+from reply_runtime import Bindings, align, context_roots, owner, pair
 
 
 def load(directory):
@@ -103,8 +103,8 @@ def pointer(left, right, path=""):
 
 
 def main():
-    if len(sys.argv) not in (3, 4):
-        print("usage: reply_diff.py BASE HEAD [OWNERS.json]", file=sys.stderr)
+    if len(sys.argv) != 3:
+        print("usage: reply_diff.py BASE HEAD", file=sys.stderr)
         return 2
     try:
         (base, base_missing), (head, head_missing) = (load(d) for d in sys.argv[1:3])
@@ -116,15 +116,7 @@ def main():
         if not base or not head:
             raise ValueError("comparison requires captured steps in both sets")
         bindings = Bindings()
-        owned = ({}, {})
-        if len(sys.argv) == 4:
-            evidence = Path(sys.argv[3])
-            declarations = json.loads(evidence.read_text())
-            if not isinstance(declarations, dict) or set(declarations) != {'base', 'head'}:
-                raise ValueError('ownership map requires base and head declarations')
-            owned = tuple(replay_owners(records, directory, declarations[side], evidence.parent)
-                          for records, directory, side in zip((base, head), sys.argv[1:3], ('base', 'head')))
-        roots, aliases = align(base, head, normalize, bindings, owned)
+        roots, aliases = align(base, head, normalize, bindings)
         paired = {}
         for key in sorted(base.keys() & head.keys() | aliases.keys()):
             target = aliases.get(key, key)

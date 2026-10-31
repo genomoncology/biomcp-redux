@@ -2,7 +2,6 @@
 import hashlib
 import json
 import re
-from pathlib import Path
 
 
 def owner(key):
@@ -203,78 +202,8 @@ def rewrite(text, changes, path=(), spans=False):
     return text
 
 
-def replay_owners(records, directory, entries, evidence):
-    """Validate supplemental reviewed evidence without altering original captures.
-
-    Source/helper hashes bind the files reviewed by the map's author. They do
-    not assert that a hash proves the helper's ownership or existed in a capture.
-    """
-    roots = {}
-    def checked_file(parent, binding):
-        path = Path(binding['file'])
-        if path.is_absolute() or '..' in path.parts or not path.parts:
-            raise ValueError('invalid ownership evidence path')
-        data = (Path(parent) / path).read_bytes()
-        if hashlib.sha256(data).hexdigest() != binding['sha256']:
-            raise ValueError('ownership evidence hash mismatch')
-        return data
-    if not isinstance(entries, list):
-        raise ValueError('ownership declarations must be a list')
-    for entry in entries:
-        key, index = entry['key'], entry['execution']
-        if type(index) is not int or index < 0:
-            raise ValueError('invalid owned execution')
-        context = key + '/execution/' + str(index)
-        if context in roots:
-            raise ValueError('duplicate replay ownership context')
-        capture = json.loads(checked_file(directory, entry['capture']))
-        if capture.get('key') != key or capture != records.get(key):
-            raise ValueError('ownership evidence capture key mismatch')
-        if index >= len(capture['executions']):
-            raise ValueError('owned execution is absent')
-        execution = capture['executions'][index]
-        args, path = execution['args'], entry['replay_root']
-        if (args.count('--replay') != 1 or args.index('--replay') + 1 >= len(args)
-                or ('--' in args and args.index('--') < args.index('--replay'))
-                or args[args.index('--replay') + 1] != path):
-            raise ValueError('owned root is not the actual replay argument')
-        if not isinstance(path, str) or not path.startswith('/') or any(
-                part in ('', '.', '..') for part in path.split('/')[1:]):
-            raise ValueError('invalid owned replay root')
-        helper = entry['source']['helper']
-        if helper not in ('checked_case', 'checked_steps', 'evidence::combine'):
-            raise ValueError('invalid reviewed replay helper')
-        checked_file(evidence, entry['source'])
-        checked_file(evidence, entry['helper_source'])
-        if helper == 'evidence::combine':
-            inputs = entry['recording_inputs']
-            if len(inputs) != 2 or Path(path).name != 'all':
-                raise ValueError('invalid reviewed combined replay inputs')
-            names = set()
-            for recording in inputs:
-                record = json.loads(checked_file(directory, recording['capture']))
-                if record.get('key') != recording['key'] or record != records.get(recording['key']):
-                    raise ValueError('combined recording capture key mismatch')
-                position = recording['execution']
-                if type(position) is not int or position < 0 or position >= len(record['executions']):
-                    raise ValueError('combined recording execution is absent')
-                execution = record['executions'][position]
-                args = execution['args']
-                destination = recording['record_root']
-                if (args.count('--record') != 1 or args.index('--record') + 1 >= len(args)
-                        or args[args.index('--record') + 1] != destination
-                        or destination != execution.get('root', '') + '/' + Path(destination).name
-                        or Path(destination).parent != Path(path).parent):
-                    raise ValueError('combined replay input is not the actual owned recording')
-                names.add(Path(destination).name)
-            if names != {'first', 'second'}:
-                raise ValueError('combined replay requires first and second recordings')
-        roots[context] = {path: {'replay': Path(path).name, 'helper': helper}}
-    return roots
-
-
 def context_roots(roots, key, index):
-    return dict(roots.get(owner(key), {}), **roots.get(key + '/execution/' + str(index), {}))
+    return roots.get(owner(key), {})
 
 
 def record_roots(records):
@@ -294,24 +223,18 @@ def record_roots(records):
 def declared_args(execution, roots):
     args = execution['args']
     result = []
-    for i, arg in enumerate(args):
+    for arg in args:
         for path, name in roots.items():
             # A declared record directory may be passed by another isolated process.
-            if isinstance(name, dict):
-                # Supplemental response-case ownership covers this exact argv slot.
-                if i and args[i - 1] == '--replay' and arg == path:
-                    arg = '<owned-replay:' + name['helper'] + '>/' + name['replay']
-            elif arg == path:
+            if arg == path:
                 arg = '<record-root>' + name
         result.append(arg)
     return result
 
 
-def align(base, head, normalize, bindings=None, owned=None):
+def align(base, head, normalize, bindings=None):
     """Alias changed trial hashes through declared paths and bound opaque IDs."""
-    owned = owned if owned is not None else ({}, {})
-    roots = tuple(dict(record_roots(records), **extra)
-                  for records, extra in zip((base, head), owned))
+    roots = (record_roots(base), record_roots(head))
     bindings = bindings if bindings is not None else Bindings()
     # Shared capture keys declare runtime IDs before hashed requests are aligned.
     for key in sorted(base.keys() & head.keys()):
@@ -373,12 +296,6 @@ def align(base, head, normalize, bindings=None, owned=None):
 
 
 def pair(left, right, scope, bindings, roots, normalize):
-    external = [[path for path, name in declared.items() if isinstance(name, dict)]
-                for declared in roots]
-    if all(len(paths) == 1 for paths in external):
-        a, b = external[0][0], external[1][0]
-        if roots[0][a]['helper'] == roots[1][b]['helper']:
-            bindings.bind((scope, 'replay-root', roots[0][a]['helper']), a, b)
     a, b = [normalize(dict(e, args=declared_args(e, declared)))
             for e, declared in zip((left, right), roots)]
     args = bindings.values(a['args'], b['args'], scope, clocks=False)
