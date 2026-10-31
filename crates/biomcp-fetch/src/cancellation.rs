@@ -65,10 +65,6 @@ impl Clone for Cancellation {
     }
 }
 impl Fetch {
-    #[expect(
-        clippy::disallowed_types,
-        reason = "Cancel all request workers through one command-owned atomic flag"
-    )]
     /// Isolate cancellable connections while retaining quotas, cache, recordings and observations.
     pub fn cancellable(&self) -> Result<(Self, Cancellation), FetchError> {
         let cancellation = Cancellation::new(None);
