@@ -1,6 +1,7 @@
 # 0516 — Run focused proofs through one committed trials command
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: c363db9d062d597a3eb62bf0ded8839e9f98b022
 
 Milestone: 5
 
