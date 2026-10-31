@@ -45,7 +45,7 @@ pub fn search(
     offset: u32,
 ) -> Result<(crate::Mapped<DrugPage>, u32), RequestError> {
     let fields = crate::drug_sources::components::allowed_fields(leg, SEARCH_FIELDS);
-    let reply = leg.json::<raw::Page>(
+    let reply = leg.json_checked_admission::<raw::Page>(
         &SEARCH,
         &[
             ("q", Arg::Text(query)),
@@ -53,6 +53,8 @@ pub fn search(
             ("from", Arg::Num(offset as u64)),
             ("fields", Arg::Text(&fields)),
         ],
+        |_| Ok(()),
+        raw::Page::identities_admitted,
     )?;
     let received = reply.hits.len() as u32;
     map::page(reply, leg)

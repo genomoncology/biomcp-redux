@@ -36,7 +36,7 @@ pub fn get(leg: &Leg<'_>, query: &PhenotypeGet) -> Result<super::super::Page, Re
         ("limit", Arg::Num(query.section_limit().into())),
         ("offset", Arg::Num(query.section_offset().into())),
     ]);
-    let (page, metadata) = leg.json_received_checked::<super::super::raw::Page>(
+    let (page, metadata) = leg.json_received_checked_admission::<super::super::raw::Page>(
         &super::super::ASSOCIATIONS,
         &args,
         |page| {
@@ -51,6 +51,7 @@ pub fn get(leg: &Leg<'_>, query: &PhenotypeGet) -> Result<super::super::Page, Re
             }
             Ok(())
         },
+        super::super::raw::Page::identities_admitted,
     )?;
     let received = page.items.len() as u32;
     let mut problems = Vec::new();
@@ -58,11 +59,7 @@ pub fn get(leg: &Leg<'_>, query: &PhenotypeGet) -> Result<super::super::Page, Re
     let mut refusals = crate::Refusal::None;
     for mut row in page.items {
         problems.append(&mut row.problems);
-        if row.id.is_some()
-            && row.subject.is_some()
-            && row.object.is_some()
-            && row.predicate.is_some()
-        {
+        if row.identity_admitted() {
             let mapped = super::super::map::row(row, &requested)?;
             refusals.include(mapped.refusals);
             problems.extend(mapped.problems);

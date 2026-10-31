@@ -29,6 +29,7 @@ use crate::runner::transcript::trial as transcript_trial;
 use execution::run_step;
 mod alphagenome;
 mod alphagenome_tls;
+mod cache_admission;
 mod cache_contention;
 mod capture;
 mod citation_values;
@@ -225,6 +226,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(output_stream::trials());
     trials.extend(research::trials());
     trials.extend(cache_contention::trials());
+    trials.extend(cache_admission::trials());
     trials.extend(corporate::trials());
     trials.extend(drug_identity::trials());
     trials.extend(key_registration::trials());

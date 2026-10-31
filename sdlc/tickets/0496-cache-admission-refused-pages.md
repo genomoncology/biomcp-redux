@@ -1,6 +1,7 @@
 # 0496 — Keep pages whose every record was refused out of the cache
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 1b33e09b80c4d9f58d8734c4cfdacfc96aaeb92d
 
 Milestone: 5
 

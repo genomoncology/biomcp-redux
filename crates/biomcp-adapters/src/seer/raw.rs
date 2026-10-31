@@ -60,6 +60,10 @@ pub(super) enum Cell {
     Text(String),
 }
 impl Cell {
+    pub(super) fn year(&self) -> Result<u32, BadReply> {
+        u32::try_from(self.integer()?).map_err(|_| BadReply)
+    }
+
     pub(super) fn number(&self) -> Result<biodata::FiniteNumber, BadReply> {
         let value = match self {
             Self::Integer(n) => n.to_string().parse().map_err(|_| BadReply)?,
