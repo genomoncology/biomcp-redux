@@ -7,7 +7,7 @@ use std::time::Duration;
 
 pub(super) fn check() -> Result<(), Box<dyn std::error::Error>> {
     let env = Environment::new()?;
-    let replay = env.root().join("section-delay-replay");
+    let replay = env.root().to_owned();
     let delay = Duration::from_millis(600);
     let budget = Duration::from_secs(1);
     let mut delayed = 0;
