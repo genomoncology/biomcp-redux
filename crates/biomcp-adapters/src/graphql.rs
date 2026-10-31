@@ -7,8 +7,8 @@ use serde::{
 use std::collections::BTreeMap;
 #[derive(Serialize)]
 pub(crate) struct Query {
-    query: String,
-    variables: BTreeMap<String, String>,
+    pub(crate) query: String,
+    pub(crate) variables: BTreeMap<String, String>,
 }
 impl Query {
     pub(crate) fn aliases(
