@@ -161,11 +161,11 @@ fn stored_licensed_owners_admit_same_key_and_refuse_other_or_missing_keys() -> C
 
 #[test]
 fn public_stores_remain_shared_and_legacy_licensed_rows_require_ownership() -> Check {
-    let directory = tempfile::tempdir()?;
-    let path = directory.path().join("cache.sqlite");
-    let original = caller(&path, Some("synthetic-owner-a"), false)?;
-    let mut ordinary = store(&original)?;
     for private in [false, true] {
+        let directory = tempfile::tempdir()?;
+        let path = directory.path().join("cache.sqlite");
+        let original = caller(&path, Some("synthetic-owner-a"), false)?;
+        let mut ordinary = store(&original)?;
         let sources = [source(private)];
         let pool = ordinary.publish(KEY, &[item()], &sources, &[])?;
         let window = ordinary.publish_source_pool(KEY, PAYLOAD, 1, &sources)?;
