@@ -1,6 +1,7 @@
 # 0502 — Add a hosted mode that refuses host-touching MCP calls
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 1de20120ba798aaca0bcd2b85f3ced7ee1b9121a
 
 Milestone: 5
 
