@@ -130,7 +130,7 @@ fn licensed() -> Check {
             }
         }
         if hosted {
-            concurrent(&server, &args)?;
+            concurrent(&args)?;
         }
         let reply = call(&server, &args, "", true)?;
         if reply.pointer("/error/code") != Some(&json!(-32602)) {
@@ -171,11 +171,19 @@ fn header_boundaries(server: &Server, hosted: bool) -> Check {
     }
     Ok(())
 }
-fn concurrent(server: &Server, args: &[&str]) -> Check {
+fn concurrent(args: &[&str]) -> Check {
+    let mut server = Server::configured_globals(
+        "127.0.0.1:0",
+        Some(json!({"keys":{"oncokb_api_key":SERVER}})),
+        Some(super::launch::fixtures().join("replies/gene/oncokb-synthetic/data")),
+        None,
+        None,
+        &["--hosted".into()],
+    )?;
     let extra = format!("x-biomcp-key-oncokb-api-key: {CALLER}\r\n");
     let (keyed, unkeyed) = std::thread::scope(|scope| {
-        let keyed = scope.spawn(|| call(server, args, &extra, false));
-        let unkeyed = scope.spawn(|| call(server, args, "", false));
+        let keyed = scope.spawn(|| call(&server, args, &extra, false));
+        let unkeyed = scope.spawn(|| call(&server, args, "", false));
         Ok::<_, String>((
             keyed.join().map_err(|_| "keyed caller stopped")??,
             unkeyed.join().map_err(|_| "unkeyed caller stopped")??,
@@ -194,6 +202,7 @@ fn concurrent(server: &Server, args: &[&str]) -> Check {
     {
         return Err("concurrent callers shared a credential snapshot".into());
     }
+    server.stop()?;
     Ok(())
 }
 fn public() -> Check {
@@ -273,7 +282,11 @@ fn stdio() -> Check {
             vec!["get", "variant", "rs113488022", "alphagenome"],
         ),
     ] {
-        let frame = json!({"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"biomcp","arguments":{"args":args}}});
+        let frame = super::mcp::request(
+            json!(1),
+            "tools/call",
+            json!({"name":"biomcp","arguments":{"args":args}}),
+        );
         let replies = super::mcp::exchange_with_globals(&env, &[frame], &globals)?;
         let reply = replies.first().ok_or("missing stdio reply")?;
         if reply.pointer("/result/structuredContent/error/source") != Some(&json!(source))
