@@ -1,7 +1,7 @@
 use crate::{Ctx, gene};
 
-use biomcp_fetch::RequestError;
-use biomcp_types::{PageInfo, Problem, QueryBody, Request, SourceOutcome, Status, StepKind};
+use crate::Outcome;
+use biomcp_types::Request;
 /// Housekeeping selector independent of an entity query.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Bundle {
@@ -55,24 +55,6 @@ pub enum Action {
         #[doc = "Bundle selector."]
         bundle: Bundle,
     },
-}
-/// Query result before the interface adds its typed envelope and next spelling.
-#[derive(Debug)]
-pub struct Outcome {
-    /// Overall outcome.
-    pub status: Status,
-    /// Typed response body.
-    pub body: QueryBody,
-    /// Search counts.
-    pub page: Option<PageInfo>,
-    /// Sources actually asked.
-    pub sources: Vec<SourceOutcome>,
-    /// Rejected fields.
-    pub problems: Vec<Problem>,
-    /// Typed next actions.
-    pub next: Vec<(StepKind, Action)>,
-    /// Local errors remain distinct even alongside useful answers.
-    pub local: Option<RequestError>,
 }
 /// Run one checked request through the shared query layer.
 pub fn run(cx: &Ctx<'_>, request: &Request) -> Outcome {

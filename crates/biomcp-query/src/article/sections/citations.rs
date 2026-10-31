@@ -2,9 +2,7 @@ use super::super::order;
 use crate::{Ctx, Outcome, status};
 use biodata::Pmid;
 use biomcp_fetch::Deadline;
-use biomcp_types::{
-    ArticleCardItem, ArticleResolution, QueryBody, Section, Source, SourceState, Status,
-};
+use biomcp_types::{ArticleCardItem, ArticleResolution, QueryBody, Section, Source, SourceState};
 pub(super) fn run<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, ids: &[Pmid], out: &mut Outcome) {
     let result = order::fetch(cx, deadline, ids);
     status::append(&mut out.problems, result.problems.clone());
@@ -19,7 +17,8 @@ pub(super) fn run<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, ids: &[Pmid], o
     }
     out.local = out.local.or(result.local);
     out.sources.push(result.source);
-    out.status = status::status(cards.items.iter().map(|i| i.status));
+    let state = status::status(cards.items.iter().map(|i| i.status));
+    status::get(out, [state].into_iter());
 }
 fn join(item: &mut ArticleCardItem, result: &order::Counts) {
     let Some(ArticleResolution::Resolved { card, .. }) = &item.answer else {
@@ -44,16 +43,11 @@ fn join(item: &mut ArticleCardItem, result: &order::Counts) {
             record: None,
         }
     };
-    let rejected = result
-        .rows
-        .iter()
-        .find(|row| row.pmid == id)
-        .is_some_and(|row| !row.problems.is_empty());
-    if rejected
+    if result.dropped
         || matches!(section, Section::Unavailable { .. })
         || result.source.state == SourceState::Stale
     {
-        item.status = Status::Partial;
+        item.status = crate::status::item_status(true, false, true);
     }
     if let Some(sections) = &mut item.sections {
         sections.citations = Some(section);

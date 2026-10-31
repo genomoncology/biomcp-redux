@@ -996,6 +996,19 @@ An adapter is one folder with three files:
 
 `#[serde(default)]` is banned in `raw.rs`. A field the provider may omit is an `Option`, and the top-level `check` decides whether its absence makes the reply an error. A missing result list can therefore never decode as an empty answer.
 
+Private stored refusal flags have one narrow legacy codec classification. The guard requires an exact reviewed owner below, a `crate::Refusal` field, and the paired `default = "crate::mapped::refusal_serde::none"` and `with = "crate::mapped::refusal_serde"` attributes. ClinicalTrials.gov uses `super::refusals` only while its reexport still names that exact codec. Missing legacy flags mean no refusal. The native default inventory and its frozen identities and counts remain unchanged. Native fields, other types, other codecs and other owners receive no allowance.
+
+| Adapter file and field | Private stored owner |
+| --- | --- |
+| `cbioportal/studies/raw.rs`: `ReceivedCatalogRow.refusals` | Checked catalog rows persist member refusals; source admission clears any received stored flag before mapping. |
+| `ctgov/detail.rs`: `Detail.refusals`, `Detail.document_refusals` | The trial snapshot retains accepted details and manifest refusal facts; public body types omit both flags. |
+| `nci/mod.rs`: `Detail.refusals` | The NCI trial snapshot retains accepted details and child refusal facts; public section types omit the flag. |
+| `semantic_scholar/author/papers.rs`: `RawPage.refusals` | Stored papers pages restore their retained native member refusal fact; public author papers omit the flag. |
+| `semantic_scholar/author/papers/row.rs`: `Input::Cached.refusals` | Stored checked paper rows restore child refusal facts beside their detail and problems; public paper detail omits the flag. |
+| `complex_portal/mod.rs`: `Complex.refusals`, `Collection.refusals` | Stored source relations retain participant and collection refusal facts; public headers and member pages omit both flags. |
+
+InterPro transfers its refusal fact into the private stored domains tuple. Its serialized adapter page accepts an explicit optional boolean on receipt to preserve missing legacy flags without a native default allowance.
+
 Every present source field that cannot map is omitted and produces a `Problem` naming that field. The adapter returns the remaining item through `Mapped { value, problems }`. A missing optional field produces no problem. An invalid required identity still fails the item. Mapping never guesses a value from prose. Optional collection members follow the same rule individually.
 
 Complex Portal and InterPro use the following field classifications. These classify conversion sites, not work status.
@@ -1935,6 +1948,8 @@ The landing gate fails when line coverage falls more than 0.2 points below `cove
 
 The ratchet owns the authoritative file and reason list below and checks this table against it. Every other test of reachable command behavior runs through the runner. Public library contracts remain only where the binary cannot construct the state without a test hook.
 
+The runner tool proof `schema-discovery/capture-retains-replay-owner` drops the actual launcher and command capture separately, observes the owned temporary directory's lifetime and reads retained fixture bytes after deletion. YAML cannot perform those private ownership operations. Its version command only exercises the real capture boundary.
+
 | File | Reason |
 | --- | --- |
 | `crates/biomcp-fetch/src/hosts_tests.rs` | Check credential-free exact publisher origins at the private admission boundary without a product inventory helper. |
@@ -1976,6 +1991,11 @@ The ratchet owns the authoritative file and reason list below and checks this ta
 | `crates/biomcp-adapters/src/monarch/native_contracts.rs` | Exercise retained gene-keyed Monarch rows through the private mapper without adding a gene-keyed command. |
 | `crates/biomcp-adapters/tests/alphagenome_registration.rs` | Exercise restricted source registration and required-key admission before a product section exists. |
 | `crates/biomcp-adapters/tests/batch_bounds.rs` | Exercise literal indexed lookup inputs outside command validation and empty/oversized batches or chunks beyond command limits. |
+| `crates/biomcp-adapters/tests/ctgov_refusals.rs` | Inspect registry refusal facts, legacy snapshot defaults and native continuation fields omitted from command JSON. |
+| `crates/biomcp-adapters/tests/custom_refusals.rs` | Inspect adapter refusal facts and legacy snapshot codecs omitted from command JSON. |
+| `crates/biomcp-adapters/tests/custom_refusals/collections.rs` | Inspect retained native member refusal facts, snapshot round trips and consumed counts omitted from command JSON. |
+| `crates/biomcp-adapters/tests/custom_refusals/stored.rs` | Inspect stored native relation refusal facts and source member indexes omitted from command JSON. |
+| `crates/biomcp-adapters/tests/custom_refusals/transport.rs` | Inspect native page consumption and retained member refusal facts omitted from command JSON. |
 | `crates/biomcp-adapters/tests/protein_storage.rs` | Read legacy serialized adapter values through the public storage type without a source request. |
 | `crates/biomcp-adapters/tests/pmc_body.rs` | Reconstruct complete source rows and retain JATS reference IDs and links omitted from command JSON. |
 | `crates/biomcp-adapters/tests/pmc_limits.rs` | Reject invalid table spans and duplicate table IDs before allocation with a tiny decoder boundary table. |

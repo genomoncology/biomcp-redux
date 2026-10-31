@@ -48,12 +48,12 @@ pub fn get(cx: &Ctx<'_>, q: &ProteinGet) -> Outcome {
     {
         for item in &mut items {
             if item.status == Status::Complete {
-                item.status = Status::Partial;
+                item.status = crate::status::item_status(true, false, true);
             }
         }
     }
     super::source_sections::supplement(cx, q, &mut items, &mut out, deadline);
-    out.status = status::status(items.iter().map(|i| i.status));
+    status::get(&mut out, items.iter().map(|i| i.status));
     if out.next.is_empty() {
         out.next = next::cards(&items);
     }
@@ -67,7 +67,7 @@ pub fn get(cx: &Ctx<'_>, q: &ProteinGet) -> Outcome {
 fn empty_item(input: ProteinInput) -> ProteinCardItem {
     ProteinCardItem {
         input,
-        status: Status::Failed,
+        status: crate::status::item_status(false, true, false),
         header: None,
         candidates: Box::default(),
         audit: None,
@@ -113,13 +113,13 @@ fn hydrate(
     error: &mut Option<RequestError>,
 ) {
     let ambiguous = ids.len() > 1;
-    item.status = Status::Absent;
+    item.status = crate::status::item_status(false, false, false);
     let mut failed = false;
     for id in ids {
         match uniprot::entry(leg, &id) {
             Ok(mapped) => {
-                failed |= !mapped.problems.is_empty();
-                if mapped.value.is_none() && !mapped.problems.is_empty() {
+                failed |= mapped.refusals == biomcp_adapters::Refusal::Refused;
+                if mapped.value.is_none() && mapped.refusals == biomcp_adapters::Refusal::Refused {
                     *error = Some(
                         biomcp_fetch::SourceError {
                             source: Source::UniProt,
@@ -132,7 +132,7 @@ fn hydrate(
                 }
                 status::append(&mut out.problems, mapped.problems);
                 if let Some(entry) = mapped.value {
-                    item.status = Status::Complete;
+                    item.status = crate::status::item_status(true, false, false);
                     if ambiguous {
                         let mut rows = item.candidates.to_vec();
                         rows.push(entry.header);
@@ -178,9 +178,9 @@ fn hydrate(
     }
     if failed {
         item.status = if item.header.is_some() || !item.candidates.is_empty() {
-            Status::Partial
+            crate::status::item_status(true, false, true)
         } else {
-            Status::Failed
+            crate::status::item_status(false, true, false)
         };
     }
 }

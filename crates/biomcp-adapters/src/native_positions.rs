@@ -39,6 +39,7 @@ impl Problems {
         &mut self,
         field: &str,
         value: Option<Field<Vec<Field<T>>>>,
+        refusals: &mut crate::Refusal,
     ) -> (Box<[T]>, Option<NativePositions>) {
         let values = self.field(field, value).unwrap_or_default();
         let total = values.len() as u32;
@@ -47,7 +48,7 @@ impl Problems {
             .into_iter()
             .enumerate()
             .filter_map(|(index, value)| {
-                let value = self.field(field, Some(value))?;
+                let value = self.record(field, value, refusals)?;
                 indexes.push(index as u32);
                 Some(value)
             })

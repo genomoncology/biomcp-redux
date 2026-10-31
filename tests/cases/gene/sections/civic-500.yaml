@@ -21,7 +21,12 @@
         "/sources/*/source": {
           "includes": "civic",
           "excludes": "gnomad"
-        }
+        },
+        "/result/items/0/status": "partial",
+        "/sources/0/source": "hgnc",
+        "/sources/0/state": "ok",
+        "/sources/2/source": "civic",
+        "/sources/2/state": "failed"
       },
       "max_bytes": 3200
     },

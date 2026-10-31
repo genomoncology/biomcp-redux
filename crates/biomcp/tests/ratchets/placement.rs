@@ -164,6 +164,26 @@ const ALLOWED: &[(&str, &str)] = &[
         "Exercise literal indexed lookup inputs outside command validation and empty/oversized batches or chunks beyond command limits.",
     ),
     (
+        "crates/biomcp-adapters/tests/ctgov_refusals.rs",
+        "Inspect registry refusal facts, legacy snapshot defaults and native continuation fields omitted from command JSON.",
+    ),
+    (
+        "crates/biomcp-adapters/tests/custom_refusals.rs",
+        "Inspect adapter refusal facts and legacy snapshot codecs omitted from command JSON.",
+    ),
+    (
+        "crates/biomcp-adapters/tests/custom_refusals/collections.rs",
+        "Inspect retained native member refusal facts, snapshot round trips and consumed counts omitted from command JSON.",
+    ),
+    (
+        "crates/biomcp-adapters/tests/custom_refusals/stored.rs",
+        "Inspect stored native relation refusal facts and source member indexes omitted from command JSON.",
+    ),
+    (
+        "crates/biomcp-adapters/tests/custom_refusals/transport.rs",
+        "Inspect native page consumption and retained member refusal facts omitted from command JSON.",
+    ),
+    (
         "crates/biomcp-adapters/tests/protein_storage.rs",
         "Read legacy serialized adapter values through the public storage type without a source request.",
     ),

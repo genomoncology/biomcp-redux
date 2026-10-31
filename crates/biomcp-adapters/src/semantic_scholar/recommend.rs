@@ -32,6 +32,8 @@ const POST: Endpoint = RECOMMEND_SPEC
 #[derive(Debug, Deserialize)]
 #[serde(from = "RawRecommendations")]
 pub struct Recommendations {
+    /// Actual refused native records, independent of optional fields.
+    pub refusals: crate::Refusal,
     /// Native recommendation order.
     pub recommended_papers: Vec<Paper>,
     /// Rejected independent paper identities.
@@ -45,6 +47,7 @@ struct RawRecommendations {
 }
 impl From<RawRecommendations> for Recommendations {
     fn from(raw: RawRecommendations) -> Self {
+        let mut refusals = crate::Refusal::None;
         let received = raw.recommended_papers.len();
         let mut p = Problems {
             source: SPEC.source,
@@ -54,9 +57,14 @@ impl From<RawRecommendations> for Recommendations {
         let recommended_papers = raw
             .recommended_papers
             .into_iter()
-            .filter_map(|v| p.required("paper_id", v.value()))
+            .filter_map(|v| {
+                let row = p.record("paper_id", v, &mut refusals)?;
+                refusals.include(row.refusals);
+                Some(row)
+            })
             .collect();
         Self {
+            refusals,
             recommended_papers,
             problems: p.list,
             received,

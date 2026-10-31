@@ -75,6 +75,7 @@ pub(super) fn attach(
                 out.sources.push(incoming);
             }
         }
+        out.dropped |= result.dropped;
         out.problems.extend(result.problems);
         out.next.extend(result.next);
         out.local = out.local.or(result.local);

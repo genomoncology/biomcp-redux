@@ -6,7 +6,7 @@ use biomcp_adapters::semantic_scholar::{self, author};
 use biomcp_fetch::{Deadline, RequestError, SourceError};
 use biomcp_types::{
     ArticleGet, ArticleInput, AuthorPaperDetails, AuthorPapers, AuthorPapersQuery, PageInfo,
-    QueryBody, Reason, Request, Source, SourceState, Status, StepKind,
+    QueryBody, Reason, Request, Source, SourceState, StepKind,
 };
 /// Read one exact author's native paper page and retain checked continuation state.
 pub(super) fn papers(cx: &Ctx<'_>, q: &AuthorPapersQuery) -> Outcome {
@@ -16,7 +16,7 @@ pub(super) fn papers(cx: &Ctx<'_>, q: &AuthorPapersQuery) -> Outcome {
     if let Err(error) = execute(cx, q, deadline, &mut out) {
         out.local = status::local(error);
         if matches!(error, RequestError::Source(e) if e.reason == Reason::NotFound) {
-            out.status = Status::Absent;
+            crate::status::item(&mut out, false, false, false);
         }
         if out.sources.is_empty() {
             out.sources.push(biomcp_adapters::registry::outcome(
@@ -108,6 +108,7 @@ fn present(
         .into_iter()
         .find(|p| p.offset == q.offset())
         .ok_or(biomcp_fetch::CacheError::Database)?;
+    out.include_refusals(page.refusals);
     out.problems.extend(page.problems);
     let items: Box<[_]> = page
         .data
@@ -138,10 +139,13 @@ fn present(
         pool: Some(pool.info),
         truncated: None,
     });
-    out.status = if saved.source.state == SourceState::Stale || !out.problems.is_empty() {
-        Status::Partial
-    } else {
-        Status::Complete
+    {
+        let (found, identity_failed, unavailable) = if saved.source.state == SourceState::Stale {
+            (true, false, true)
+        } else {
+            (true, false, false)
+        };
+        crate::status::item(out, found, identity_failed, unavailable);
     };
     if saved.key_needed && saved.source.reason == Some(Reason::RateLimited) {
         super::key_step(out);

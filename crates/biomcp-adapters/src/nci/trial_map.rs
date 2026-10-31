@@ -8,23 +8,25 @@ impl From<raw::Trial> for Trial {
             record: crate::mapped::record(row.nct_id),
             list: Vec::new(),
         };
+        let mut refusals = crate::Refusal::None;
         let eligibility = p
             .field("eligibility", row.eligibility)
-            .map(|v| v.map(&mut p));
+            .map(|v| v.map(&mut p, &mut refusals));
         let diseases = p
-            .fields("diseases", row.diseases)
+            .records("diseases", row.diseases, &mut refusals)
             .into_vec()
             .into_iter()
             .map(|v| disease(v, &mut p))
             .collect();
         let outcomes = p
-            .fields("outcome_measures", row.outcome_measures)
+            .records("outcome_measures", row.outcome_measures, &mut refusals)
             .into_vec()
             .into_iter()
             .map(|v| outcome(v, &mut p))
             .collect();
-        let arms = arms(row.arms, &mut p);
+        let arms = arms(row.arms, &mut p, &mut refusals);
         Self {
+            refusals,
             nci_id: row.nci_id,
             nct_id: row.nct_id,
             brief_title: p.source_field("brief_title", row.brief_title),
@@ -78,10 +80,11 @@ fn outcome(row: raw::Outcome, p: &mut Problems) -> biomcp_types::NciOutcome {
 fn arms(
     rows: Option<crate::raw::Field<Vec<crate::raw::Field<raw::Arm>>>>,
     p: &mut Problems,
+    refusals: &mut crate::Refusal,
 ) -> Box<[biomcp_types::NciArmRecord]> {
     let mut result = Vec::new();
     for (index, row) in p.field("arms", rows).into_iter().flatten().enumerate() {
-        let Some(row) = p.field("arms", Some(row)) else {
+        let Some(row) = p.record("arms", row, refusals) else {
             continue;
         };
         let arm_index = index as u32;
@@ -99,7 +102,7 @@ fn arms(
             .flatten()
             .enumerate()
         {
-            let Some(row) = p.field("arms.interventions", Some(row)) else {
+            let Some(row) = p.record("arms.interventions", row, refusals) else {
                 continue;
             };
             result.push(biomcp_types::NciArmRecord::Intervention {
@@ -110,4 +113,23 @@ fn arms(
         }
     }
     result.into()
+}
+
+#[derive(serde::Deserialize)]
+pub(super) struct Page {
+    total: u64,
+    data: Vec<Trial>,
+}
+impl From<Page> for super::Page {
+    fn from(raw: Page) -> Self {
+        let mut refusals = crate::Refusal::None;
+        for row in &raw.data {
+            refusals.include(row.refusals);
+        }
+        Self {
+            total: raw.total,
+            data: raw.data,
+            refusals,
+        }
+    }
 }

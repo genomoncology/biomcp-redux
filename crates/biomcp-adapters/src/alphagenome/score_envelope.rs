@@ -40,6 +40,7 @@ pub struct ScoreEnvelope {
     groups: Vec<ScoreGroup>,
     failed: bool,
     problems: Vec<biomcp_types::Problem>,
+    refusals: crate::Refusal,
 }
 impl ScoreEnvelope {
     pub(super) fn new(
@@ -59,6 +60,7 @@ impl ScoreEnvelope {
             groups: Vec::new(),
             failed: false,
             problems: Vec::new(),
+            refusals: crate::Refusal::None,
         })
     }
     fn read(&mut self, bytes: &[u8]) -> Result<(), BadReply> {
@@ -83,6 +85,7 @@ impl ScoreEnvelope {
         if let Some(tensor) = tensor {
             let mut metadata = self.active.take().ok_or(BadReply)?;
             self.problems.append(&mut metadata.problems);
+            self.refusals.include(metadata.refusals);
             self.groups.push(ScoreGroup::checked(tensor, metadata)?);
             self.complete += 1;
         }
@@ -126,6 +129,7 @@ impl ScoreEnvelope {
                         problems
                             .required::<()>(&format!("scorers.{}.variant", self.complete), None);
                         identity = false;
+                        metadata.refusals = crate::Refusal::Refused;
                     }
                     variant = true;
                 }
@@ -138,6 +142,7 @@ impl ScoreEnvelope {
                         proto::TrackMetadata::decode(value).map_err(|_| BadReply)?,
                         &format!("scorers.{}.tracks.{}", self.complete, tracks - 1),
                         &mut problems,
+                        &mut metadata.refusals,
                     ));
                 }
                 3 => {
@@ -149,6 +154,7 @@ impl ScoreEnvelope {
                         proto::GeneScorerMetadata::decode(value).map_err(|_| BadReply)?,
                         &format!("scorers.{}.genes.{}", self.complete, genes - 1),
                         &mut problems,
+                        &mut metadata.refusals,
                     ));
                 }
                 _ => return Err(BadReply),
@@ -183,6 +189,7 @@ impl StreamDecoder for ScoreEnvelope {
         }
         self.tensors.finish().map_err(|_| BadReply)?;
         Ok(ScoreReply {
+            refusals: self.refusals,
             variant: score_metadata::variant(&self.variant)?,
             groups: self.groups,
             problems: self.problems,

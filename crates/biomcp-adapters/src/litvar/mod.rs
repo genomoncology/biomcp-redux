@@ -48,6 +48,8 @@ pub enum Selection {
 /// One selected variant's whole source count and bounded native sequence.
 #[derive(Debug)]
 pub struct Search {
+    /// Actual refused native records, independent of optional fields.
+    pub refusals: crate::Refusal,
     /// Selected source rsID or variant name.
     pub term: Text,
     /// Whole source publication count.
@@ -151,16 +153,24 @@ pub fn publications(leg: &Leg<'_>, selected: Variant) -> Result<Search, RequestE
                 Some(count)
             }
         });
+    let mut refusals = crate::Refusal::None;
     let ids = reply
         .pmids
         .into_iter()
         .take(9_999)
         .filter_map(|raw| {
-            let id = problems.field("pmids", Some(raw))?;
-            problems.optional("pmids", Some(Pmid::new(id)))
+            let id = problems.record("pmids", raw, &mut refusals)?;
+            match problems.optional("pmids", Some(Pmid::new(id))) {
+                Some(id) => Some(id),
+                None => {
+                    refusals = crate::Refusal::Refused;
+                    None
+                }
+            }
         })
         .collect();
     Ok(Search {
+        refusals,
         term: selected.term,
         count,
         ids,

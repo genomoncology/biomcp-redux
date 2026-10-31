@@ -4,7 +4,7 @@ use biomcp_adapters::{NativeWindow, chembl, opentargets};
 use biomcp_fetch::{Leg, RequestError};
 use biomcp_types::{
     DrugGet, DrugHeader, DrugIndications, DrugRecords, DrugSection, DrugTargets, PageInfo,
-    QueryBody, Request, Section, Source, Status, StepKind,
+    QueryBody, Request, Section, Source, StepKind,
 };
 #[path = "collection_page.rs"]
 mod collection;
@@ -72,12 +72,13 @@ pub(super) fn opentargets(
 ) -> Result<(), RequestError> {
     let (row, meta) = opentargets::drug(leg, query.input())?;
     let Some(row) = row else {
-        out.status = Status::Absent;
+        crate::status::item(out, false, false, false);
         return Ok(());
     };
     let source = Source::Opentargets;
     let header = opentargets::header(&row).map_err(|_| failure(source))?;
     out.problems.extend(header.problems);
+    out.include_refusals(header.refusals);
     let header = header.value;
     let drug = identity::neutral(&header).map_err(|_| failure(source))?;
     let limit = query.section_limit().unwrap_or(10) as usize;
@@ -87,8 +88,7 @@ pub(super) fn opentargets(
             let mut collection = opentargets::map_targets(&drug, row.mechanisms_of_action)
                 .map_err(|_| failure(source))?;
             out.problems.append(&mut collection.problems);
-            // The collection owns refusals across its complete accepted-row paging surface.
-            // Its fact remains directly available here for the later status owner.
+            out.include_refusals(collection.refusals);
             let window = collection::page(&mut collection, offset, limit);
             targets(out, query, header, window, meta.fetched, fresh);
         }
@@ -96,13 +96,12 @@ pub(super) fn opentargets(
             let mut collection = opentargets::map_indications(&drug, row.indications)
                 .map_err(|_| failure(source))?;
             out.problems.append(&mut collection.problems);
-            // The collection owns refusals across its complete accepted-row paging surface.
-            // Its fact remains directly available here for the later status owner.
+            out.include_refusals(collection.refusals);
             let window = collection::page(&mut collection, offset, limit);
             indications(out, query, header, window, meta.fetched, fresh);
         }
         _ => {
-            out.status = Status::Complete;
+            crate::status::item(out, true, false, false);
             out.body = QueryBody::DrugCard(Some(identity::card(header, meta.fetched)));
             card_next(out, query, fresh, false);
         }
@@ -137,16 +136,16 @@ fn page<T>(
     fetched: Option<i64>,
     fresh: bool,
 ) -> Section<DrugRecords<T>> {
+    out.include_refusals(window.refusals());
     let offset = window.offset();
     let total = window.total().unwrap_or(0);
     let next_offset = window.next_offset();
     let records = window.rows.into_boxed_slice();
     let returned = records.len() as u32;
     let source = query.source().source();
-    out.status = if total == 0 {
-        Status::Absent
-    } else {
-        Status::Complete
+    {
+        let found = total != 0;
+        crate::status::item(out, found, false, false);
     };
     out.page = Some(PageInfo {
         offset,
@@ -230,8 +229,8 @@ fn chembl_card(
     let source = Source::Chembl;
     let limit = query.section_limit().unwrap_or(10);
     let offset = query.section_offset().unwrap_or(0);
-    let mut card =
-        identity::chembl_card(row, fetched, &mut out.problems).map_err(|_| failure(source))?;
+    let mut card = identity::chembl_card(row, fetched, &mut out.dropped, &mut out.problems)
+        .map_err(|_| failure(source))?;
     let has_xrefs = !card.cross_references.is_empty();
     let xrefs = std::mem::take(&mut card.cross_references);
     if query.sections() == [DrugSection::Xrefs] {
@@ -264,7 +263,7 @@ fn chembl_card(
         }));
         return Ok(());
     }
-    out.status = Status::Complete;
+    crate::status::item(out, true, false, false);
     out.body = QueryBody::DrugCard(Some(card));
     card_next(out, query, fresh, has_xrefs);
     if let Ok(get) = DrugGet::new(query.input().clone(), biomcp_types::DrugSource::Opentargets) {

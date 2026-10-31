@@ -6,14 +6,23 @@ use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::{fs, path::Path};
+#[path = "study_get/resource_refusals.rs"]
+mod resource_refusals;
 #[path = "study_get_pages.rs"]
 mod section_page;
 type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
     // The test binds runtime store revisions and acquisition times while reconstructing independently owned native pages.
-    vec![transcript_trial(required_contract::STUDY_PAGES.0, || {
-        pages().map_err(Into::into)
-    })]
+    vec![
+        transcript_trial(required_contract::STUDY_PAGES.0, || {
+            pages().map_err(Into::into)
+        }),
+        // Replace the native catalog after acquiring a pool and revisit its old immutable membership.
+        transcript_trial(
+            "study-get/resource-refusals-survive-catalog-replacement",
+            || resource_refusals::run().map_err(Into::into),
+        ),
+    ]
 }
 fn profiles() -> Value {
     json!(

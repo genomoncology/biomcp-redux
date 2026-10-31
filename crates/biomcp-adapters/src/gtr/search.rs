@@ -9,6 +9,8 @@ use std::collections::{HashMap, HashSet};
 /// One bounded source page and its complete distinct-test count.
 #[derive(Debug)]
 pub struct Search {
+    /// Actual refused native records, independent of optional fields.
+    pub refusals: crate::Refusal,
     /// Rejected optional source prose on retained candidates.
     pub problems: Vec<biomcp_types::Problem>,
     /// Native test candidates in relation report order.
@@ -42,14 +44,16 @@ pub fn search(leg: &Leg<'_>, query: &DiagnosticSearch) -> Result<Search, Request
         record: None,
         list: Vec::new(),
     };
+    let mut refusals = crate::Refusal::None;
     for row in rows {
         if let Native::Refused(r) = &row.value
             && r.matches(query)
         {
+            refusals = crate::Refusal::Refused;
             r.disclose(&mut cx);
         }
         if let Native::Relation(r) = row.value
-            && let Some(relation) = map::relation(&r, &mut cx)
+            && let Some(relation) = map::relation(&r, &mut cx, &mut refusals)
             && matches(&r, query)
             && seen.insert(r.id.clone())
         {
@@ -90,6 +94,7 @@ pub fn search(leg: &Leg<'_>, query: &DiagnosticSearch) -> Result<Search, Request
         })
         .collect::<Result<Box<[_]>, _>>()?;
     Ok(Search {
+        refusals,
         items,
         total,
         info,

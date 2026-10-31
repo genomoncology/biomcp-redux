@@ -16,10 +16,10 @@ pub fn run(cx: &Ctx<'_>, query: &ArticleRecommend) -> Outcome {
     let mut deadline = command.deadline();
     if let Err(error) = execute(cx, query, &mut deadline, &mut out) {
         out.local = status::local(error);
-        out.status = Status::Failed;
+        crate::status::item(&mut out, false, true, false);
     }
     command.finish(deadline.remaining());
-    if out.status == Status::Failed {
+    if out.status() == Status::Failed {
         if out
             .sources
             .iter()
@@ -75,7 +75,7 @@ fn execute<'a>(
         None => {
             let items = create(cx, query, deadline, out)?;
             store.set_deadline(*deadline);
-            store.publish(&key, &items, &out.sources, &out.problems)?
+            store.publish(&key, &items, &out.sources, &out.problems, out.dropped)?
         }
     };
     out.sources = pool.sources.clone();
@@ -110,6 +110,7 @@ fn create<'a>(
         reply.as_ref().err().copied(),
     ));
     let reply = reply?;
+    out.include_refusals(reply.refusals);
     out.problems.extend(reply.problems);
     let dois: Vec<_> = reply
         .recommended_papers

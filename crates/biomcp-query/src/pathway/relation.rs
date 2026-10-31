@@ -1,11 +1,11 @@
-use super::{empty, overall, relation_snapshot as snapshot};
+use super::{empty, relation_snapshot as snapshot};
 use crate::{Ctx, Outcome, status};
 use biodata::{PathwayId, Text};
 use biomcp_adapters::reactome;
 use biomcp_fetch::{Deadline, RequestError, SourceError};
 use biomcp_types::{
     PathwayEventsQuery, PathwayGenesQuery, PathwayHeader, PathwayPageInfo, PathwayTotalKind,
-    QueryBody, Reason, Request, Source, Status, StepKind,
+    QueryBody, Reason, Request, Source, StepKind,
 };
 pub(super) struct Selection<'a> {
     pub id: &'a PathwayId,
@@ -64,7 +64,7 @@ pub(super) fn read(cx: &Ctx<'_>, q: Selection<'_>, deadline: Deadline<'_>) -> Ou
     });
     if let Err(error) = read_inner(cx, &q, deadline, &mut out) {
         out.local = status::local(error);
-        out.status = Status::Failed;
+        crate::status::item(&mut out, false, true, false);
     }
     out
 }
@@ -134,6 +134,7 @@ fn read_inner(
             (saved, pool)
         }
     };
+    out.dropped = saved.dropped;
     out.sources = saved.sources;
     out.problems = saved.problems;
     if let Some(body) = saved.genes {
@@ -177,7 +178,10 @@ fn present_genes(
         &mut out.problems,
     );
     super::relation_steps::genes(&body, q.limit, q.details, &mut out.next);
-    out.status = overall(out, body.page.total == 0);
+    {
+        let absent = body.page.total == 0;
+        crate::status::item(out, !absent, false, false);
+    }
     out.body = QueryBody::PathwayGenes(Some(body));
 }
 fn present_events(
@@ -195,7 +199,10 @@ fn present_events(
         .collect();
     body.page = position(body.page, q, body.items.len(), pool);
     super::relation_steps::events(&body, q.limit, &mut out.next);
-    out.status = overall(out, body.page.total == 0);
+    {
+        let absent = body.page.total == 0;
+        crate::status::item(out, !absent, false, false);
+    }
     out.body = QueryBody::PathwayEvents(Some(body));
 }
 
@@ -230,6 +237,7 @@ fn fetch(
             Some(header) => header.clone(),
             None => {
                 let mapped = reactome::card(&leg, id, false)?;
+                out.include_refusals(mapped.refusals);
                 out.problems.extend(mapped.problems);
                 let card = mapped.value.ok_or(SourceError {
                     source: Source::Reactome,
@@ -247,6 +255,7 @@ fn fetch(
             }
         };
         let mut saved = snapshot::Saved {
+            dropped: out.dropped,
             genes: None,
             events: None,
             sources: Vec::new(),
@@ -254,6 +263,7 @@ fn fetch(
         };
         if q.genes {
             let rows = reactome::members(&leg, id)?;
+            saved.dropped |= rows.refusals == biomcp_adapters::Refusal::Refused;
             saved.problems = rows.problems;
             saved.genes = Some(biomcp_types::PathwayGenes {
                 header,
@@ -264,6 +274,7 @@ fn fetch(
             });
         } else {
             let rows = reactome::events(&leg, id)?;
+            saved.dropped |= rows.refusals == biomcp_adapters::Refusal::Refused;
             saved.problems = rows.problems;
             saved.events = Some(biomcp_types::PathwayEvents {
                 header,

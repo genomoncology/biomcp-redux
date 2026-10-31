@@ -16,9 +16,7 @@ fn failure(source: Source) -> RequestError {
         retry_after: None,
     })
 }
-fn empty(body: QueryBody) -> Outcome {
-    super::empty(body)
-}
+pub(super) use crate::status::empty;
 fn spec(source: DrugSource) -> &'static biomcp_fetch::SourceSpec {
     if source == DrugSource::Chembl {
         &chembl::SPEC
@@ -37,19 +35,13 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     let result = search_page(&leg, query, &mut out.problems);
     let error = result.as_ref().err().copied();
     if let Ok(window) = result {
+        out.include_refusals(window.refusals());
         let next_offset = window.next_offset().filter(|_| window.total().is_some());
         let page = DrugPage {
             total: window.total(),
             items: window.rows.into(),
         };
         let returned = page.items.len() as u32;
-        out.status = if !out.problems.is_empty() {
-            Status::Partial
-        } else if returned == 0 {
-            Status::Absent
-        } else {
-            Status::Complete
-        };
         out.page = page.total.map(|total| PageInfo {
             offset: query.offset(),
             returned,
@@ -80,6 +72,7 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
         out.body = QueryBody::DrugPage(page);
     }
     finish(&mut out, leg, query.source().source(), error);
+    status::search(&mut out);
     command.finish(deadline.remaining());
     out
 }
@@ -154,7 +147,7 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     };
     let error = result.err();
     if error.is_some() {
-        out.status = Status::Failed;
+        crate::status::item(&mut out, false, true, false);
     }
     finish(&mut out, leg, query.source().source(), error);
     command.finish(deadline.remaining());
@@ -167,10 +160,8 @@ fn finish(out: &mut Outcome, leg: Leg<'_>, source: Source, error: Option<Request
         outcome.count = Some(page.total);
         outcome.retrieved_count = Some(page.returned);
     }
-    if (!out.problems.is_empty() || outcome.state == biomcp_types::SourceState::Stale)
-        && out.status == Status::Complete
-    {
-        out.status = Status::Partial;
-    }
     out.sources.push(outcome);
+    if out.status() == Status::Complete {
+        status::item(out, true, false, false);
+    }
 }

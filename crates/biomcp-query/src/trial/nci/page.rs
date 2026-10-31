@@ -4,7 +4,7 @@ use crate::{Action, Outcome};
 use biodata::Text;
 use biomcp_fetch::RequestError;
 use biomcp_types::{
-    NciEligibilityPage, NciTrialItem, NciTrialSections, Request, Section, Source, Status, StepKind,
+    NciEligibilityPage, NciTrialItem, NciTrialSections, Request, Section, Source, StepKind,
     TrialGet, TrialSection, TrialSource,
 };
 const SECTIONS: [TrialSection; 5] = [
@@ -96,17 +96,15 @@ pub(super) fn render(
         .filter(|s| **s != TrialSection::All && !SECTIONS.contains(s))
         .copied()
         .collect();
-    let state = if !unsupported.is_empty()
+    let incomplete = s.detail.refusals == biomcp_adapters::Refusal::Refused
+        || !unsupported.is_empty()
         || s.sources.iter().any(|s| {
             matches!(
                 s.state,
                 biomcp_types::SourceState::Stale | biomcp_types::SourceState::Failed
             )
-        }) {
-        Status::Partial
-    } else {
-        Status::Complete
-    };
+        });
+    let state = crate::status::item_status(true, false, incomplete);
     Ok(NciTrialItem {
         input: id,
         status: state,

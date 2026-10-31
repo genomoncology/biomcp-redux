@@ -163,6 +163,14 @@ pub(super) fn validate_features(trials: &[Trial], complete: bool) -> Result<(), 
 }
 
 fn run_case(path: &Path, registry: &schema::Registry) -> Result<Value, String> {
+    run_case_owned(path, registry, None)
+}
+
+fn run_case_owned(
+    path: &Path,
+    registry: &schema::Registry,
+    replay_owner: Option<Arc<tempfile::TempDir>>,
+) -> Result<Value, String> {
     let mut case = read_case(path)?;
     if case.story.trim().is_empty() || case.steps.is_empty() {
         return Err("case requires a story and at least one step".into());
@@ -192,7 +200,10 @@ fn run_case(path: &Path, registry: &schema::Registry) -> Result<Value, String> {
                 .map_err(|error| format!("{}; step {}: {error}", case.story, index + 1))
         })
         .collect::<Result<Vec<_>, _>>()?;
-    let environment = launch::Environment::new().map_err(|error| error.to_string())?;
+    let mut environment = launch::Environment::new().map_err(|error| error.to_string())?;
+    if let Some(owner) = replay_owner {
+        environment = environment.with_replay_owner(owner);
+    }
     if let Some(config) = &case.config {
         environment
             .config(config)

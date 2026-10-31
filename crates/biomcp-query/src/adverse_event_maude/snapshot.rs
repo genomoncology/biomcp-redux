@@ -1,6 +1,6 @@
 //! Reuse the shared source snapshot store; admission precedes every retained read.
 use super::{
-    Action, AdverseEventGet, AdverseEventSection, Ctx, Outcome, QueryBody, Request, Source, Status,
+    Action, AdverseEventGet, AdverseEventSection, Ctx, Outcome, QueryBody, Request, Source,
     StepKind, Text, maude,
 };
 use crate::{status, store::Store};
@@ -13,12 +13,15 @@ struct Saved(
     Vec<SourceOutcome>,
     #[serde(default)] Vec<biomcp_types::Problem>,
     #[serde(default)] maude::Positions,
+    #[serde(default)] bool,
 );
 // Keep the established payload and snapshot identity when no field was rejected.
 impl serde::Serialize for Saved {
     fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         use serde::ser::SerializeTuple;
-        let mut tuple = serializer.serialize_tuple(if !self.3.is_empty() {
+        let mut tuple = serializer.serialize_tuple(if self.4 {
+            5
+        } else if !self.3.is_empty() || self.4 {
             4
         } else if self.2.is_empty() {
             2
@@ -27,11 +30,14 @@ impl serde::Serialize for Saved {
         })?;
         tuple.serialize_element(&self.0)?;
         tuple.serialize_element(&self.1)?;
-        if !self.2.is_empty() || !self.3.is_empty() {
+        if !self.2.is_empty() || !self.3.is_empty() || self.4 {
             tuple.serialize_element(&self.2)?;
         }
-        if !self.3.is_empty() {
+        if !self.3.is_empty() || self.4 {
             tuple.serialize_element(&self.3)?;
+        }
+        if self.4 {
+            tuple.serialize_element(&true)?;
         }
         tuple.end()
     }
@@ -100,7 +106,7 @@ pub(super) fn load(
             });
         }
         let Some(report) = reply? else {
-            out.status = Status::Absent;
+            crate::status::item(out, false, false, false);
             return Ok(None);
         };
         let saved = Saved(
@@ -108,6 +114,7 @@ pub(super) fn load(
             out.sources.clone(),
             report.problems,
             report.value.positions,
+            report.refusals == biomcp_adapters::Refusal::Refused,
         );
         let payload = serde_json::to_string(&saved).map_err(|_| CacheError::Database)?;
         let mut store = Store::open(cx.fetch.cache_access()?, deadline)?;
@@ -122,15 +129,8 @@ fn restore(
     out: &mut Outcome,
 ) -> (biodata::MaudeReport, maude::Positions, Text) {
     out.sources = saved.1;
+    out.dropped = saved.4;
     out.problems.extend(saved.2);
-    out.status = if out
-        .sources
-        .iter()
-        .any(|s| s.state == biomcp_types::SourceState::Stale)
-    {
-        Status::Partial
-    } else {
-        Status::Complete
-    };
+    crate::status::item(out, true, false, false);
     (saved.0, saved.3, snapshot)
 }

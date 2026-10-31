@@ -42,6 +42,8 @@ impl ScoreGroup {
 /// Complete source reply, published only after successful terminal transport status.
 #[derive(Debug)]
 pub struct ScoreReply {
+    /// Actual refused native scorer metadata records.
+    pub refusals: crate::Refusal,
     /// Requested variant identity matched by every admitted scalar group.
     pub variant: AlphaGenomeVariant,
     /// Complete native groups in their received order.
@@ -49,9 +51,21 @@ pub struct ScoreReply {
     /// Rejected independent metadata and affected scalar identities.
     pub problems: Vec<biomcp_types::Problem>,
 }
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub(super) struct Metadata {
+    pub(super) refusals: crate::Refusal,
     pub(super) problems: Vec<biomcp_types::Problem>,
     pub(super) tracks: Vec<Option<AlphaGenomeTrack>>,
     pub(super) genes: Vec<Option<AlphaGenomeGene>>,
+}
+
+impl Default for Metadata {
+    fn default() -> Self {
+        Self {
+            refusals: crate::Refusal::None,
+            problems: Vec::new(),
+            tracks: Vec::new(),
+            genes: Vec::new(),
+        }
+    }
 }

@@ -4,7 +4,7 @@ use crate::{Action, Ctx, Outcome, status};
 use biomcp_adapters::nci;
 use biomcp_fetch::{Deadline, RequestError, SourceError};
 use biomcp_types::{
-    OrganizationPage, OrganizationSearch, QueryBody, Reason, Request, Source, Status, StepKind,
+    OrganizationPage, OrganizationSearch, QueryBody, Reason, Request, Source, StepKind,
 };
 /// Find published organizations without assigning identities to names.
 pub fn search(cx: &Ctx<'_>, q: &OrganizationSearch) -> Outcome {
@@ -52,7 +52,7 @@ fn execute(
     }
     let saved = snapshot::load(
         cx,
-        "biomcp.organization-snapshot/1",
+        "biomcp.organization-snapshot/2",
         &q.snapshot_query(),
         q.pool(),
         deadline,
@@ -79,6 +79,7 @@ fn execute(
                 source.retrieved_count = Some(reply.value.len() as u32);
             }
             snapshot::Saved {
+                dropped: reply.refusals == biomcp_adapters::Refusal::Refused,
                 items: reply.value,
                 sources,
                 problems: reply.problems,
@@ -90,7 +91,7 @@ fn execute(
     } else {
         snapshot::save(
             cx,
-            "biomcp.organization-snapshot/1",
+            "biomcp.organization-snapshot/2",
             &q.snapshot_query(),
             deadline,
             &saved,
@@ -117,18 +118,6 @@ fn page(
     if returned > 0 && u64::from(next) < total {
         out.next.push((StepKind::Page, run(q.at_page(next, pool))));
     }
-    out.status = if saved
-        .sources
-        .iter()
-        .any(|s| s.state == biomcp_types::SourceState::Stale)
-        || !saved.problems.is_empty()
-    {
-        Status::Partial
-    } else if total == 0 {
-        Status::Absent
-    } else {
-        Status::Complete
-    };
     out.page = Some(biomcp_types::PageInfo {
         offset: q.offset(),
         returned,
@@ -138,20 +127,25 @@ fn page(
     });
     out.sources = saved.sources;
     out.problems = saved.problems;
+    out.dropped = saved.dropped;
+    status::search(out);
     out.body = QueryBody::OrganizationPage(OrganizationPage { items });
 }
 fn empty() -> Outcome {
-    Outcome {
-        status: Status::Failed,
-        body: QueryBody::OrganizationPage(OrganizationPage {
-            items: Box::default(),
-        }),
-        page: None,
-        sources: Vec::new(),
-        problems: Vec::new(),
-        next: Vec::new(),
-        local: None,
-    }
+    crate::status::finish(
+        [crate::status::item_status(false, true, false)],
+        crate::status::Parts {
+            dropped: false,
+            body: QueryBody::OrganizationPage(OrganizationPage {
+                items: Box::default(),
+            }),
+            page: None,
+            sources: Vec::new(),
+            problems: Vec::new(),
+            next: Vec::new(),
+            local: None,
+        },
+    )
 }
 fn run(q: OrganizationSearch) -> Action {
     Action::Run {

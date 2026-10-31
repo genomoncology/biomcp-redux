@@ -15,6 +15,7 @@ pub(super) fn report(r: raw::Report) -> crate::Mapped<super::positions::Report> 
         record: crate::mapped::record(&r.safetyreportid),
         list: Vec::new(),
     };
+    let mut refusals = crate::Refusal::None;
     let seriousness = FaersSeriousness {
         death: problems.field("seriousnessdeath", r.seriousnessdeath),
         lifethreatening: problems.field("seriousnesslifethreatening", r.seriousnesslifethreatening),
@@ -34,7 +35,7 @@ pub(super) fn report(r: raw::Report) -> crate::Mapped<super::positions::Report> 
         || seriousness.other.is_some();
     let raw_patient = problems.field("patient", r.patient);
     let (patient, drugs, reactions, positions) = match raw_patient {
-        Some(p) => patient(p, &mut problems),
+        Some(p) => patient(p, &mut problems, &mut refusals),
         None => (
             None,
             Box::default(),
@@ -64,7 +65,7 @@ pub(super) fn report(r: raw::Report) -> crate::Mapped<super::positions::Report> 
         reactions,
     };
     crate::Mapped {
-        refusals: crate::Refusal::None,
+        refusals,
         value: super::positions::Report {
             data: value,
             positions,
@@ -72,19 +73,24 @@ pub(super) fn report(r: raw::Report) -> crate::Mapped<super::positions::Report> 
         problems: problems.list,
     }
 }
-fn patient(p: raw::Patient, problems: &mut crate::mapped::Problems) -> Patient {
+fn patient(
+    p: raw::Patient,
+    problems: &mut crate::mapped::Problems,
+    refusals: &mut crate::Refusal,
+) -> Patient {
     let patient = Some(FaersPatient {
         age: age(problems, p.patientonsetage, p.patientonsetageunit),
         sex: problems.field("patient.patientsex", p.patientsex),
         weight: problems.field("patient.patientweight", p.patientweight),
     });
-    let (drugs, drug_positions) = problems.indexed_fields("patient.drug", p.drug);
+    let (drugs, drug_positions) = problems.indexed_fields("patient.drug", p.drug, refusals);
     let drugs = drugs
         .into_vec()
         .into_iter()
         .map(|v| drug(v, problems))
         .collect();
-    let (reactions, reaction_positions) = problems.indexed_fields("patient.reaction", p.reaction);
+    let (reactions, reaction_positions) =
+        problems.indexed_fields("patient.reaction", p.reaction, refusals);
     let reactions = reactions
         .into_vec()
         .into_iter()

@@ -7,7 +7,7 @@ use biodata::{NctId, Text};
 
 use biomcp_fetch::{CacheError, RequestError};
 use biomcp_types::{
-    Request, Section, Source, SourceRecord, Status, StepKind, TrialArmRecord, TrialCardItem,
+    Request, Section, Source, SourceRecord, StepKind, TrialArmRecord, TrialCardItem,
     TrialEligibilityPage, TrialGet, TrialRecords, TrialSection, TrialSections,
 };
 const SECTIONS: [TrialSection; 7] = [
@@ -73,9 +73,9 @@ pub(super) fn render(
     Ok(TrialCardItem {
         input: id,
         status: if super::partial(&snapshot) {
-            Status::Partial
+            crate::status::item_status(true, false, true)
         } else {
-            Status::Complete
+            crate::status::item_status(true, false, false)
         },
         card: Some(snapshot.detail.card),
         fetched: snapshot.fetched,

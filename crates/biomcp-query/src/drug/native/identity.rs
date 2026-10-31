@@ -37,9 +37,11 @@ pub(super) fn card(header: DrugHeader, fetched: Option<i64>) -> DrugCard {
 pub(super) fn chembl_card(
     row: chembl::Molecule,
     fetched: Option<i64>,
+    dropped: &mut bool,
     problems: &mut Vec<biomcp_types::Problem>,
 ) -> Result<DrugCard, Error> {
     let mapped = chembl::molecule_card(row, fetched)?;
+    *dropped |= mapped.refusals == biomcp_adapters::Refusal::Refused;
     problems.extend(mapped.problems);
     Ok(mapped.value)
 }

@@ -3,7 +3,7 @@ use crate::{Action, Bundle, Ctx, Outcome, status};
 use biomcp_adapters::ddinter;
 use biomcp_types::{
     DrugGet, DrugInteractions, DrugPage, DrugSearch, DrugSection, PageInfo, QueryBody, Request,
-    Section, Source, SourceState, Status, StepKind,
+    Section, Source, SourceState, StepKind,
 };
 
 pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
@@ -23,6 +23,7 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     out.sources
         .push(status::source(Source::Ddinter, leg.finish(), error));
     if let Ok(mapped) = result {
+        out.include_refusals(mapped.refusals);
         out.problems.extend(mapped.problems);
         let rows = mapped.value;
         let total = rows.len() as u64;
@@ -62,6 +63,7 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
             query.section_offset().unwrap_or(0),
         )
         .map(|body| {
+            out.include_refusals(body.refusals);
             out.problems.extend(body.problems);
             let body = body.value;
             let found = body.is_some();
@@ -71,6 +73,7 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
         })
     } else {
         ddinter::card(&leg, query.input()).map(|card| {
+            out.include_refusals(card.refusals);
             out.problems.extend(card.problems);
             let card = card.value;
             if card.is_some()
@@ -94,15 +97,7 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     out.sources
         .push(status::source(Source::Ddinter, leg.finish(), error));
     if let Ok(found) = result {
-        out.status = if !found {
-            Status::Absent
-        } else if !out.problems.is_empty()
-            || out.sources.iter().any(|s| s.state == SourceState::Stale)
-        {
-            Status::Partial
-        } else {
-            Status::Complete
-        };
+        status::item(&mut out, found, false, false);
     }
     sync_step(&mut out);
     command.finish(deadline.remaining());

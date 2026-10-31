@@ -41,6 +41,7 @@ pub(super) fn target<'a>(
             return Err(bad());
         }
         let mapped = pubmed::summaries(&leg, &ids, cx.ncbi_email.as_ref())?;
+        out.include_refusals(mapped.refusals);
         status::append(&mut out.problems, mapped.problems);
         let header = mapped
             .value
@@ -101,22 +102,11 @@ pub(super) fn read<'a>(
     for _ in 0..5 {
         match semantic_scholar::edges(&leg, query.citing(), true, snapshot.cursor) {
             Ok(reply) => {
+                out.include_refusals(reply.refusals);
                 out.problems.extend(reply.problems);
                 for edge in reply.data {
                     out.problems.extend(edge.problems.clone());
-                    let matches = edge
-                        .cited_paper
-                        .as_ref()
-                        .and_then(|p| p.external_ids.as_ref())
-                        .is_some_and(|ids| {
-                            target.pmid.is_some() && ids.pubmed == target.pmid
-                                || ids
-                                    .doi
-                                    .as_ref()
-                                    .zip(target.doi.as_ref())
-                                    .is_some_and(|(a, b)| a == b)
-                        });
-                    if matches {
+                    if matches_target(&edge, &target) {
                         retain(snapshot, edge)?;
                     }
                 }
@@ -233,4 +223,18 @@ fn finish(snapshot: &mut Snapshot) {
             },
         };
     }
+}
+
+fn matches_target(edge: &semantic_scholar::Edge, target: &Target) -> bool {
+    edge.cited_paper
+        .as_ref()
+        .and_then(|p| p.external_ids.as_ref())
+        .is_some_and(|ids| {
+            target.pmid.is_some() && ids.pubmed == target.pmid
+                || ids
+                    .doi
+                    .as_ref()
+                    .zip(target.doi.as_ref())
+                    .is_some_and(|(a, b)| a == b)
+        })
 }

@@ -24,7 +24,7 @@ pub fn header(row: &Molecule) -> Result<crate::Mapped<DrugHeader>, Error> {
         ))?),
     };
     Ok(crate::Mapped {
-        refusals: crate::Refusal::None,
+        refusals: row.refusals,
         value,
         problems: problems.list,
     })
@@ -46,44 +46,35 @@ pub fn card(row: Molecule, fetched: Option<i64>) -> Result<crate::Mapped<DrugCar
         evaluated: None,
         url: header.value.url.clone(),
     };
-    let mut names = Vec::new();
-    for synonym in row.molecule_synonyms {
-        for issue in synonym.problems {
-            crate::mapped::push_problem(
-                &mut problems.list,
-                problems.source,
-                problems.record.clone(),
-                &format!("molecule_synonyms.{}", issue.field),
-            );
-        }
-        if let Some(name) = problems.text(
-            "molecule_synonyms.molecule_synonym",
-            synonym.molecule_synonym.as_deref(),
-        ) && !names.contains(&name)
-        {
-            names.push(name);
-        }
-    }
-    let references = cross_references(row.cross_references, &attribution, &mut problems)?;
+    let mut refusals = header.refusals;
+    let names = names(row.molecule_synonyms, &mut problems, &mut refusals);
+    let references = cross_references(
+        row.cross_references,
+        &attribution,
+        &mut problems,
+        &mut refusals,
+    )?;
     let mut parents = Vec::new();
-    if let Some(parent) = row.molecule_hierarchy
-        && let Some(id) = problems.optional(
+    if let Some(parent) = row.molecule_hierarchy {
+        if let Some(id) = problems.optional(
             "molecule_hierarchy.parent_chembl_id",
             Some(parent.parent_chembl_id.parse()),
-        )
-    {
-        parents.push(DrugIdentityRelation {
-            identity: DrugIdentity {
-                id,
-                namespace: Text::new("chembl")?,
-                name: None,
-                identity_level: DrugIdentityLevel::Unknown,
-                r#type: None,
-                url: None,
-            },
-            relation: Text::new("molecule_hierarchy.parent_chembl_id")?,
-            attribution,
-        });
+        ) {
+            parents.push(DrugIdentityRelation {
+                identity: DrugIdentity {
+                    id,
+                    namespace: Text::new("chembl")?,
+                    name: None,
+                    identity_level: DrugIdentityLevel::Unknown,
+                    r#type: None,
+                    url: None,
+                },
+                relation: Text::new("molecule_hierarchy.parent_chembl_id")?,
+                attribution,
+            });
+        } else {
+            refusals = crate::Refusal::Refused;
+        }
     }
     let mut sections = vec![DrugSection::Targets, DrugSection::Indications];
     if !references.is_empty() {
@@ -103,7 +94,7 @@ pub fn card(row: Molecule, fetched: Option<i64>) -> Result<crate::Mapped<DrugCar
         next: Box::default(),
     };
     Ok(crate::Mapped {
-        refusals: header.refusals,
+        refusals,
         value,
         problems: problems.list,
     })
@@ -113,6 +104,7 @@ fn cross_references(
     rows: Vec<super::raw::CrossReference>,
     attribution: &Attribution,
     problems: &mut Problems,
+    refusals: &mut crate::Refusal,
 ) -> Result<Vec<DrugIdentityRelation>, Error> {
     let mut references = Vec::new();
     for r in rows {
@@ -140,7 +132,38 @@ fn cross_references(
                 relation: Text::new("cross_references")?,
                 attribution: attribution.clone(),
             });
+        } else {
+            *refusals = crate::Refusal::Refused;
         }
     }
     Ok(references)
+}
+
+fn names(
+    rows: Vec<super::raw::Synonym>,
+    problems: &mut Problems,
+    refusals: &mut crate::Refusal,
+) -> Vec<Text> {
+    let mut names = Vec::new();
+    for synonym in rows {
+        for issue in synonym.problems {
+            crate::mapped::push_problem(
+                &mut problems.list,
+                problems.source,
+                problems.record.clone(),
+                &format!("molecule_synonyms.{}", issue.field),
+            );
+        }
+        if let Some(name) = problems.text(
+            "molecule_synonyms.molecule_synonym",
+            synonym.molecule_synonym.as_deref(),
+        ) {
+            if !names.contains(&name) {
+                names.push(name);
+            }
+        } else {
+            *refusals = crate::Refusal::Refused;
+        }
+    }
+    names
 }

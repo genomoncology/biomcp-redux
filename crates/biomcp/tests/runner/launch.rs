@@ -7,6 +7,7 @@ pub(super) use child_environment::ENV_PATHS;
 #[derive(Debug)]
 pub(super) struct Environment {
     root: Arc<tempfile::TempDir>,
+    replay_owner: Option<Arc<tempfile::TempDir>>,
     transcript: Option<Arc<super::transcript::Context>>,
 }
 
@@ -15,8 +16,14 @@ impl Environment {
         let root = child_environment::new()?;
         Ok(Self {
             root: Arc::new(root),
+            replay_owner: None,
             transcript: super::transcript::current(),
         })
+    }
+
+    pub(super) fn with_replay_owner(mut self, owner: Arc<tempfile::TempDir>) -> Self {
+        self.replay_owner = Some(owner);
+        self
     }
 
     pub(super) fn config(&self, value: &serde_json::Value) -> io::Result<()> {
@@ -102,6 +109,7 @@ impl Environment {
             },
             transcript_args,
             self.root.path(),
+            self.replay_owner.clone(),
         )
     }
 }

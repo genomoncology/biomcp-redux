@@ -2,7 +2,7 @@
 pub(super) mod adapter_values;
 #[path = "mapped_refusals.rs"]
 mod mapped_refusals;
-use super::{Check, dependencies, rust_files};
+use super::Check;
 use std::{collections::BTreeSet, fs, path::Path};
 
 // The sole dead-code exception contains only the private generated closure include.
@@ -107,82 +107,17 @@ const FILE_LIMIT: usize = 600;
 const LINE_WIDTH: usize = 160;
 const ADAPTER_LIMIT: usize = 300;
 
+#[path = "source_files.rs"]
+mod files;
+
 pub(super) fn check(root: &Path) -> Check {
-    super::placement::check(root)?;
-    adapter_values::check(root)?;
-    mapped_refusals::check(root)?;
-    super::transport_sources::check(root)?;
-    let sqlite = dependencies::sqlite_aliases(root)?;
-    let mut keys = BTreeSet::new();
-    let crates = root.join("crates");
-    if !crates.exists() {
-        return Ok(());
-    }
-    for entry in fs::read_dir(crates)? {
-        let crate_root = entry?.path();
-        for path in rust_files(&crate_root.join("tests"))? {
-            let text = fs::read_to_string(&path)?;
-            let relative = path
-                .strip_prefix(root)?
-                .to_string_lossy()
-                .replace('\\', "/");
-            if relative.starts_with("crates/biomcp/tests/")
-                && relative != "crates/biomcp/tests/runner/launch.rs"
-                && tokens(&text)
-                    .iter()
-                    .any(|token| token == "\"CARGO_MANIFEST_DIR\"")
-            {
-                return fail(&relative, "test fixture paths belong in runner/launch.rs");
-            }
-            tool_modes(&relative, &text)?;
-            width(&relative, &text)?;
-            if text.lines().count() > FILE_LIMIT {
-                return fail(
-                    &path.strip_prefix(root)?.to_string_lossy(),
-                    "file line limit exceeded",
-                );
-            }
-        }
-        for path in rust_files(&crate_root.join("src"))? {
-            let relative = path
-                .strip_prefix(root)?
-                .to_string_lossy()
-                .replace('\\', "/");
-            let text = fs::read_to_string(&path)?;
-            width(&relative, &text)?;
-            if !relative.ends_with("_tests.rs") && !relative.ends_with("native_contracts.rs") {
-                super::errors::signatures(&text)?;
-            }
-            if relative.starts_with("crates/biodata/src/") && !relative.ends_with("/error.rs") {
-                let declaration = fs::read_to_string(root.join("crates/biodata/src/error.rs"))
-                    .unwrap_or_default();
-                super::errors::display_codes(&declaration, &text)?;
-            }
-            let adapter = relative.starts_with("crates/biomcp-adapters/src/");
-            let count = text.lines().count();
-            if count > FILE_LIMIT
-                || adapter
-                    && count > ADAPTER_LIMIT
-                    && !adapter_values::pending(&relative, "file line limit", count)?
-            {
-                return fail(&relative, "file line limit exceeded");
-            }
-            let tokens = tokens(&text);
-            adapter_helpers(&relative, &tokens)?;
-            source_terms(root, &relative, &tokens)?;
-            if relative != "crates/biomcp-types/src/response/source.rs"
-                && relative != "crates/biomcp-adapters/src/registry.rs"
-                && tokens
-                    .windows(3)
-                    .any(|part| matches!(part, [before, name, open] if before != ">" && name == "SourceOutcome" && open == "{"))
-            {
-                return fail(&relative, "source outcomes require registry terms");
-            }
-            attributes(&relative, &tokens)?;
-            references(root, &relative, &text, &tokens, &sqlite, &mut keys)?;
-        }
-    }
-    Ok(())
+    super::diagnostics(vec![
+        super::placement::check(root),
+        adapter_values::check(root),
+        mapped_refusals::check(root),
+        super::transport_sources::check(root),
+        files::check(root),
+    ])
 }
 
 fn width(path: &str, text: &str) -> Check {
@@ -201,7 +136,7 @@ fn fail(path: &str, rule: &str) -> Check {
     Err(format!("{path}: {rule}").into())
 }
 
-fn attributes(path: &str, tokens: &[String]) -> Check {
+fn attributes(root: &Path, path: &str, tokens: &[String]) -> Check {
     for (i, token) in tokens.iter().enumerate() {
         if token != "#" {
             continue;
@@ -275,6 +210,7 @@ fn attributes(path: &str, tokens: &[String]) -> Check {
         }
         if path.starts_with("crates/biomcp-adapters/src/")
             && let Some(site) = adapter_values::attribute_site(tokens, i)
+            && !adapter_values::private_refusal::allowed(root, path, tokens, i)
             && !adapter_values::pending(path, &site, 1)?
         {
             return fail(path, "raw serde default or deny_unknown_fields forbidden");

@@ -1,4 +1,4 @@
-use super::{Ctx, Outcome, QueryBody, Source, Status, cellosaurus, status};
+use super::{Ctx, Outcome, QueryBody, Source, cellosaurus, status};
 /// Release metadata is an independent cacheable read, with its own failure state.
 pub(super) fn attach(cx: &Ctx<'_>, deadline: biomcp_fetch::Deadline<'_>, out: &mut Outcome) {
     let leg = cx.fetch.leg(&cellosaurus::SPEC, deadline).fresh(cx.fresh);
@@ -9,7 +9,7 @@ pub(super) fn attach(cx: &Ctx<'_>, deadline: biomcp_fetch::Deadline<'_>, out: &m
         status::retain_source_state(source, &incoming);
     }
     if error.is_some() {
-        out.status = Status::Partial;
+        crate::status::item(out, true, false, true);
         out.local = error.and_then(status::local);
         out.problems.push(biomcp_types::Problem {
             source: Source::Cellosaurus,
@@ -19,12 +19,10 @@ pub(super) fn attach(cx: &Ctx<'_>, deadline: biomcp_fetch::Deadline<'_>, out: &m
         });
     }
     let release = release.ok().map(|mapped| {
+        out.include_refusals(mapped.refusals);
         out.problems.extend(mapped.problems);
         mapped.value
     });
-    if !out.problems.is_empty() && out.status == Status::Complete {
-        out.status = Status::Partial;
-    }
     match &mut out.body {
         QueryBody::CellLinePage(page) => page.release = release.clone(),
         QueryBody::CellLineCard(card) => card.release = release.clone(),
@@ -35,6 +33,6 @@ pub(super) fn attach(cx: &Ctx<'_>, deadline: biomcp_fetch::Deadline<'_>, out: &m
         .iter()
         .any(|s| s.state == biomcp_types::SourceState::Stale)
     {
-        out.status = Status::Partial;
+        crate::status::item(out, true, false, true);
     }
 }

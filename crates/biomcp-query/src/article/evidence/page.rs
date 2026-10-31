@@ -2,9 +2,7 @@ use super::Snapshot;
 use crate::{Action, Outcome};
 use biodata::Text;
 use biomcp_fetch::RequestError;
-use biomcp_types::{
-    ArticleEvidence, ArticleEvidenceResult, QueryBody, Request, Section, Status, StepKind,
-};
+use biomcp_types::{ArticleEvidence, ArticleEvidenceResult, QueryBody, Request, Section, StepKind};
 /// Exact Unicode fragments leave room for both independent evidence sections and envelope.
 pub(super) fn split(text: &str) -> Vec<(u32, String)> {
     let mut out = Vec::new();
@@ -33,6 +31,7 @@ pub(super) fn render(
     id: Text,
     out: &mut Outcome,
 ) -> Result<(), RequestError> {
+    out.dropped |= snapshot.dropped;
     let mut context_end = query.offset();
     let mut paragraph_end = query.paragraph_offset();
     let mut more = false;
@@ -64,39 +63,17 @@ pub(super) fn render(
         more |= (paragraph_end as usize) < total;
         data.paragraphs.items = items.into();
     }
-    let failed = |section: &Section<_>| {
-        matches!(
-            section,
-            Section::Unavailable { .. } | Section::Skipped { .. }
-        )
-    };
-    let graph_failed = failed(&snapshot.graph);
-    let text_failed = snapshot
-        .fulltext
-        .as_ref()
-        .is_some_and(|s| matches!(s, Section::Unavailable { .. } | Section::Skipped { .. }));
-    let graph_data = matches!(&snapshot.graph, Section::Data { .. });
-    let text_data = matches!(&snapshot.fulltext, Some(Section::Data { .. }));
-    out.status = if graph_failed || text_failed {
-        if graph_data || text_data {
-            Status::Partial
-        } else {
-            Status::Failed
-        }
-    } else if !snapshot.terminal
-        || snapshot.sources.iter().any(|s| {
-            matches!(
-                s.state,
-                biomcp_types::SourceState::Stale
-                    | biomcp_types::SourceState::Failed
-                    | biomcp_types::SourceState::Skipped
-            )
-        })
-    {
-        Status::Partial
-    } else {
-        Status::Complete
-    };
+    let unavailable = matches!(&snapshot.graph, Section::Unavailable { .. })
+        || matches!(&snapshot.fulltext, Some(Section::Unavailable { .. }));
+    let answered = matches!(&snapshot.graph, Section::Data { .. })
+        || matches!(&snapshot.fulltext, Some(Section::Data { .. }));
+    sources(out, std::mem::take(&mut snapshot.sources));
+    crate::status::item(
+        out,
+        true,
+        unavailable && !answered,
+        unavailable || !snapshot.terminal,
+    );
     if more || !snapshot.terminal {
         out.next.push((
             StepKind::Page,
@@ -106,7 +83,6 @@ pub(super) fn render(
             },
         ));
     }
-    sources(out, snapshot.sources);
     out.body = QueryBody::ArticleEvidence(ArticleEvidenceResult {
         semantic_scholar: snapshot.graph,
         fulltext: snapshot.fulltext,

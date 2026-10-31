@@ -2,9 +2,7 @@
 use crate::{Action, Ctx, Outcome, status};
 use biodata::Text;
 use biomcp_adapters::maude;
-use biomcp_types::{
-    AdverseEventGet, AdverseEventSection, QueryBody, Request, Source, Status, StepKind,
-};
+use biomcp_types::{AdverseEventGet, AdverseEventSection, QueryBody, Request, Source, StepKind};
 mod projection;
 mod rows;
 mod snapshot;
@@ -12,15 +10,7 @@ mod snapshot;
 pub fn get(cx: &Ctx<'_>, query: &AdverseEventGet) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
-    let mut out = Outcome {
-        status: Status::Failed,
-        body: empty(query),
-        page: None,
-        sources: Vec::new(),
-        problems: Vec::new(),
-        next: Vec::new(),
-        local: None,
-    };
+    let mut out = crate::status::empty(empty(query));
     match snapshot::load(cx, query, deadline, &mut out) {
         Ok(Some((report, positions, snapshot))) => {
             let bound = query.with_snapshot(snapshot.clone());
@@ -82,7 +72,7 @@ fn text(value: &str) -> Result<Text, biomcp_types::QueryInvalid> {
 }
 
 fn too_large(query: &AdverseEventGet, out: &mut Outcome) {
-    out.status = Status::Failed;
+    crate::status::item(out, false, true, false);
     out.sources = vec![biomcp_adapters::registry::outcome(
         Source::Maude,
         biomcp_types::SourceState::Failed,

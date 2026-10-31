@@ -13,6 +13,9 @@ const DETAILS: &str = "paperId,externalIds,title,year,venue,abstract,publication
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(from = "RawPage")]
 pub struct PapersPage {
+    /// Actual refused native records, independent of optional fields.
+    #[serde(with = "crate::mapped::refusal_serde")]
+    pub refusals: crate::Refusal,
     /// Native window start.
     pub offset: u32,
     /// Native next window, with no inferred continuation.
@@ -33,10 +36,16 @@ struct RawPage {
     total: Option<u64>,
     data: Vec<Field<Paper>>,
     problems: Option<Vec<biomcp_types::Problem>>,
+    #[serde(
+        default = "crate::mapped::refusal_serde::none",
+        with = "crate::mapped::refusal_serde"
+    )]
+    refusals: crate::Refusal,
 }
 impl From<RawPage> for PapersPage {
     fn from(raw: RawPage) -> Self {
         let received = raw.data.len();
+        let mut refusals = raw.refusals;
         let mut p = Problems {
             source: biomcp_types::Source::SemanticScholar,
             record: None,
@@ -45,9 +54,14 @@ impl From<RawPage> for PapersPage {
         let data = raw
             .data
             .into_iter()
-            .filter_map(|r| p.required("paper_id", r.value()))
+            .filter_map(|r| {
+                let row = p.record("paper_id", r, &mut refusals)?;
+                refusals.include(row.refusals);
+                Some(row)
+            })
             .collect();
         Self {
+            refusals,
             offset: raw.offset,
             next: raw.next,
             total: raw.total,

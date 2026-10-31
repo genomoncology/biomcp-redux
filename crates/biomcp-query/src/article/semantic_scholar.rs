@@ -33,6 +33,9 @@ pub(super) fn search<'a>(
     let error = result.as_ref().err().copied();
     let mut outcome = status::source(Source::SemanticScholar, leg.finish(), error);
     outcome.term = Text::new(&term).ok();
+    let dropped = result
+        .as_ref()
+        .is_ok_and(|reply| reply.refusals == biomcp_adapters::Refusal::Refused);
     let mut dois = Vec::new();
     let mut problems = Vec::new();
     let items = match result {
@@ -54,6 +57,7 @@ pub(super) fn search<'a>(
         Err(_) => Vec::new(),
     };
     super::sources::ResultLeg {
+        dropped,
         problems,
         source: ArticleSource::SemanticScholar,
         outcome,

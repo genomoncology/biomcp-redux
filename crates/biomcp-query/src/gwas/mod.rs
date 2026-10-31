@@ -26,6 +26,7 @@ pub fn search(cx: &Ctx<'_>, q: &GwasSearch) -> Outcome {
         .ok()
         .map(|page| (page.rows.len() as u32, page.total));
     if let Ok(page) = result {
+        out.include_refusals(page.refusals);
         out.problems.extend(page.problems);
         let items: Box<[_]> = page
             .rows
@@ -55,10 +56,9 @@ pub fn search(cx: &Ctx<'_>, q: &GwasSearch) -> Outcome {
             continuation,
             qualifying_total: None,
         }));
-        out.status = if out.problems.is_empty() {
-            Status::Complete
-        } else {
-            Status::Partial
+        {
+            let unavailable = false;
+            crate::status::item(&mut out, true, false, unavailable);
         };
     }
     let mut source = status::source(Source::Gwas, leg.finish(), error);
@@ -74,27 +74,20 @@ pub fn search(cx: &Ctx<'_>, q: &GwasSearch) -> Outcome {
             code: ProblemCode::ValueUnknown,
         });
     }
-    if out.status == Status::Complete && source.state == SourceState::Stale {
-        out.status = Status::Partial;
+    if out.status() == Status::Complete && source.state == SourceState::Stale {
+        crate::status::item(&mut out, true, false, true);
     }
     let QueryBody::GwasPage(body) = &out.body else {
         return out;
     };
     out.next = next::search(q, body.as_ref(), source.state, cx.fresh);
     out.sources.push(source);
+    status::search(&mut out);
     out.local = error.and_then(status::local);
     command.finish(deadline.remaining());
     out
 }
 
 fn empty() -> Outcome {
-    Outcome {
-        status: Status::Failed,
-        body: QueryBody::GwasPage(None),
-        page: None,
-        sources: vec![],
-        problems: vec![],
-        next: vec![],
-        local: None,
-    }
+    crate::status::empty(QueryBody::GwasPage(None))
 }

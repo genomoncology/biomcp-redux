@@ -3,7 +3,7 @@ use crate::{Action, Outcome};
 use biomcp_types::ArticleInput;
 use biomcp_types::{ArticleGet, ArticleResolution, QueryBody, Request, Status, StepKind};
 pub(super) fn get(query: &ArticleGet, out: &mut Outcome) {
-    if matches!(out.status, Status::Failed | Status::Partial) {
+    if matches!(out.status(), Status::Failed | Status::Partial) {
         out.next.push((
             StepKind::Fresh,
             Action::Run {

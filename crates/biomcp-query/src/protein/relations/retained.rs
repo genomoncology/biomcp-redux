@@ -45,10 +45,11 @@ pub(super) fn load(
             restart(q, out, false);
             return Ok(None);
         };
-        let (entry, problems): (Entry, Vec<biomcp_types::Problem>) =
+        let (entry, problems, dropped): (Entry, Vec<biomcp_types::Problem>, bool) =
             serde_json::from_str(&payload).map_err(|_| CacheError::Database)?;
         out.sources = pool.sources;
         out.problems = problems;
+        out.dropped = dropped;
         return Ok(Some((entry, pool.info)));
     }
     if selected.is_some() {
@@ -60,16 +61,17 @@ pub(super) fn load(
     out.sources
         .push(status::source(Source::UniProt, leg.finish(), error));
     let mapped = result?;
+    out.include_refusals(mapped.refusals);
     out.problems = mapped.problems;
     let Some(entry) = mapped.value else {
-        if out.problems.is_empty() {
-            out.status = biomcp_types::Status::Absent;
+        if !out.dropped {
+            crate::status::item(out, false, false, false);
         }
         return Ok(None);
     };
     let size = q.total(&entry) as u32;
-    let payload =
-        serde_json::to_string(&(&entry, &out.problems)).map_err(|_| CacheError::Database)?;
+    let payload = serde_json::to_string(&(&entry, &out.problems, out.dropped))
+        .map_err(|_| CacheError::Database)?;
     let pool = store.publish_source_pool(&key, &payload, size, &out.sources)?;
     Ok(Some((entry, pool.info)))
 }

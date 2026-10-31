@@ -5,7 +5,7 @@ use biomcp_adapters::uniprot;
 use biomcp_fetch::{CacheError, Deadline, RequestError};
 use biomcp_types::{
     PageInfo, ProteinFeatures, ProteinFeaturesQuery, ProteinIsoforms, ProteinRelationQuery,
-    ProteinStructures, QueryBody, Request, Source, Status, StepKind,
+    ProteinStructures, QueryBody, Request, Source, StepKind,
 };
 use sha2::{Digest, Sha256};
 mod retained;
@@ -183,17 +183,16 @@ fn read(
         pool: Some(pool.clone()),
         truncated: None,
     });
-    out.status = if out.problems.is_empty() {
-        Status::Complete
-    } else {
-        Status::Partial
+    {
+        let unavailable = false;
+        crate::status::item(out, true, false, unavailable);
     };
     if out
         .sources
         .iter()
         .any(|s| s.state == biomcp_types::SourceState::Stale)
     {
-        out.status = Status::Partial;
+        crate::status::item(out, true, false, true);
     }
     if (offset + returned) < total as u32 {
         out.next.push((

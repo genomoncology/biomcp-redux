@@ -4,7 +4,7 @@ use crate::{Ctx, Outcome};
 use biomcp_adapters::clinpgx;
 use biomcp_types::{
     PgxAnnotation, PgxAnnotationGet, PgxAnnotationIdentity, PgxAnnotationKind, PgxAnnotations,
-    PgxGet, PgxHeader, PgxPageInfo, PgxSource, PgxTotalKind, QueryBody, Request, Source, Status,
+    PgxGet, PgxHeader, PgxPageInfo, PgxSource, PgxTotalKind, QueryBody, Request, Source,
 };
 fn page<T>(rows: Vec<T>) -> (Box<[T]>, PgxPageInfo) {
     let total = rows.len() as u64;
@@ -107,15 +107,7 @@ fn local_page<T>(q: &PgxGet, items: Box<[T]>, mut page: PgxPageInfo) -> (Box<[T]
 pub(super) fn get(cx: &Ctx<'_>, q: &PgxGet) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
-    let mut out = Outcome {
-        status: Status::Failed,
-        body: QueryBody::PgxAnnotations(body(q, vec![], vec![])),
-        page: None,
-        sources: vec![],
-        problems: vec![],
-        next: vec![],
-        local: None,
-    };
+    let mut out = crate::status::empty(QueryBody::PgxAnnotations(body(q, vec![], vec![])));
     match super::snapshot::load(cx, q, deadline, &mut out) {
         Ok(Some((body, snapshot))) => match q.with_snapshot(snapshot) {
             Ok(bound) => {

@@ -44,29 +44,37 @@ type SiteRows = (
     Box<[TrialOfficial]>,
 );
 impl ContactsLocations {
-    pub(super) fn rows(self, problems: &mut Problems) -> SiteRows {
-        let locations = problems
-            .fields("locations", self.locations)
-            .into_vec()
-            .into_iter()
-            .map(|v| v.mapped(problems))
-            .collect();
-        let contacts = problems
-            .fields("centralContacts", self.central_contacts)
-            .into_vec()
-            .into_iter()
-            .map(|v| v.mapped(problems))
-            .collect();
-        let officials = problems
-            .fields("overallOfficials", self.overall_officials)
-            .into_vec()
-            .into_iter()
-            .map(|v| TrialOfficial {
-                name: problems.native_text("overallOfficials.name", v.name),
-                affiliation: problems.native_text("overallOfficials.affiliation", v.affiliation),
-                role: problems.field("overallOfficials.role", v.role),
-            })
-            .collect();
+    pub(super) fn rows(self, problems: &mut Problems, refusals: &mut crate::Refusal) -> SiteRows {
+        let locations =
+            super::super::refusals::records(problems, refusals, "locations", self.locations)
+                .into_vec()
+                .into_iter()
+                .map(|v| v.mapped(problems, refusals))
+                .collect();
+        let contacts = super::super::refusals::records(
+            problems,
+            refusals,
+            "centralContacts",
+            self.central_contacts,
+        )
+        .into_vec()
+        .into_iter()
+        .map(|v| v.mapped(problems))
+        .collect();
+        let officials = super::super::refusals::records(
+            problems,
+            refusals,
+            "overallOfficials",
+            self.overall_officials,
+        )
+        .into_vec()
+        .into_iter()
+        .map(|v| TrialOfficial {
+            name: problems.native_text("overallOfficials.name", v.name),
+            affiliation: problems.native_text("overallOfficials.affiliation", v.affiliation),
+            role: problems.field("overallOfficials.role", v.role),
+        })
+        .collect();
         (locations, contacts, officials)
     }
 }
@@ -83,7 +91,7 @@ impl Contact {
     }
 }
 impl Location {
-    fn mapped(self, problems: &mut Problems) -> TrialLocation {
+    fn mapped(self, problems: &mut Problems, refusals: &mut crate::Refusal) -> TrialLocation {
         TrialLocation {
             facility: problems.native_text("facility", self.facility),
             city: problems.native_text("city", self.city),
@@ -92,12 +100,16 @@ impl Location {
             country: problems.native_text("country", self.country),
             status: problems.field("locations.status", self.status),
             coordinates: problems.field("geoPoint", self.geo_point).map(|v| v.0),
-            contacts: problems
-                .fields("locations.contacts", self.contacts)
-                .into_vec()
-                .into_iter()
-                .map(|v| v.mapped(problems))
-                .collect(),
+            contacts: super::super::refusals::records(
+                problems,
+                refusals,
+                "locations.contacts",
+                self.contacts,
+            )
+            .into_vec()
+            .into_iter()
+            .map(|v| v.mapped(problems))
+            .collect(),
         }
     }
 }
