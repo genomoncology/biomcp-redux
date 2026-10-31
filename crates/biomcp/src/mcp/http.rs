@@ -1,9 +1,11 @@
 //! Bounded blocking HTTP transport with independent request protocol state.
 mod authority;
+mod call;
 mod chunked;
 mod metadata;
 mod wire;
 use authority::Authority;
+use call::{Calls, HostedCall};
 use serde_json::{Value, json};
 use std::{
     io,
@@ -21,6 +23,7 @@ pub(crate) enum StartError {
     Local,
 }
 struct Service {
+    calls: Calls,
     address: SocketAddr,
     hosts: Vec<Authority>,
     globals: crate::grammar::Globals,
@@ -57,6 +60,7 @@ pub(crate) fn serve(
     let listener = TcpListener::bind(address).map_err(|_| StartError::Local)?;
     let address = listener.local_addr().map_err(|_| StartError::Local)?;
     let service = Arc::new(Service {
+        calls: Calls::default(),
         address,
         hosts,
         fetch: crate::config::fetch(&globals).map(Arc::new),
@@ -133,6 +137,7 @@ fn connections(
         );
     }
     drop(listener);
+    service.calls.cancel();
     for worker in workers {
         worker
             .join()
@@ -192,41 +197,7 @@ impl Service {
             super::rpc::Message::Reply(reply) => reply,
             super::rpc::Message::Notification { .. } => return (202, None, Some(revision)),
             super::rpc::Message::Tool { id, params, modern } => {
-                let Some(call) = super::research::parse(&params) else {
-                    return (
-                        200,
-                        Some(super::protocol::error(id, -32602, "Invalid params")),
-                        Some(revision),
-                    );
-                };
-                let keys = if self.globals.hosted {
-                    let keys = match request.source_keys() {
-                        Ok(keys) => keys,
-                        Err(_) => {
-                            return (
-                                400,
-                                Some(json!({"error":"Invalid source key headers"})),
-                                Some(revision),
-                            );
-                        }
-                    };
-                    Some(keys)
-                } else {
-                    None
-                };
-                match super::research::execute(
-                    &call,
-                    crate::command::Context {
-                        globals: &self.globals,
-                        fetch: &self.fetch,
-                        secrets: keys.as_ref(),
-                        scope: None,
-                    },
-                    true,
-                ) {
-                    Ok(outcome) => super::protocol::tool_result(id, &outcome, modern),
-                    Err(_) => super::protocol::error(id, -32603, "Internal error"),
-                }
+                return self.tool(request, id, &params, modern, revision);
             }
         };
         let status = if result.pointer("/error/code") == Some(&json!(-32601)) {
@@ -235,6 +206,68 @@ impl Service {
             200
         };
         (status, Some(result), Some(revision))
+    }
+    fn tool(
+        &self,
+        request: &wire::Request,
+        id: Value,
+        params: &Value,
+        modern: bool,
+        revision: &'static str,
+    ) -> (u16, Option<Value>, Option<&'static str>) {
+        let scope = self
+            .globals
+            .hosted
+            .then(|| biomcp_fetch::Cancellation::with_budget(crate::config::BUDGET));
+        let Some(call) = super::research::parse(params) else {
+            return (
+                200,
+                Some(super::protocol::error(id, -32602, "Invalid params")),
+                Some(revision),
+            );
+        };
+        let keys = if self.globals.hosted {
+            let keys = match request.source_keys() {
+                Ok(keys) => keys,
+                Err(_) => {
+                    return (
+                        400,
+                        Some(json!({"error":"Invalid source key headers"})),
+                        Some(revision),
+                    );
+                }
+            };
+            Some(keys)
+        } else {
+            None
+        };
+        let result = if let Some(scope) = scope {
+            self.calls.run(
+                self,
+                HostedCall {
+                    id,
+                    modern,
+                    call,
+                    secrets: keys,
+                    scope,
+                },
+            )
+        } else {
+            match super::research::execute(
+                &call,
+                crate::command::Context {
+                    globals: &self.globals,
+                    fetch: &self.fetch,
+                    secrets: keys.as_ref(),
+                    scope: None,
+                },
+                true,
+            ) {
+                Ok(outcome) => super::protocol::tool_result(id, &outcome, modern),
+                Err(_) => super::protocol::error(id, -32603, "Internal error"),
+            }
+        };
+        (200, Some(result), Some(revision))
     }
     fn allowed(&self, request: &wire::Request) -> bool {
         if !matches!(request.one("origin"), Ok(None)) {

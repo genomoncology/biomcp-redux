@@ -25,6 +25,9 @@ pub(super) enum Caller {
     Hosted(Option<crate::KeyFingerprint>),
 }
 const IDLE_BUCKET_TTL: Duration = Duration::from_secs(300);
+#[cfg(test)]
+#[path = "limiter_tests.rs"]
+mod tests;
 
 impl Limiters {
     pub(crate) fn acquire<'a>(
