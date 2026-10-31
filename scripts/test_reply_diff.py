@@ -227,6 +227,55 @@ class ReplyDiff(unittest.TestCase):
         result = self.compare()
         self.assertEqual(result.returncode, 1, result.stderr + result.stdout)
 
+    def test_fetched_clocks_bind_only_inside_the_recorded_cache_root(self):
+        key = "case/monarch.yaml/step/"
+        for directory, side in [(self.base, "base"), (self.head, "head")]:
+            for step in range(6):
+                clock = [10, 11, 11][step // 2] if side == "base" else 20
+                self.write(directory, key + str(step), json.dumps({
+                    "result": {"fetched": clock, "name": "same"},
+                }).encode(), root=f"/tmp/{side}/{step // 2}")
+        result = self.compare()
+        self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+        path = self.head / (hashlib.sha256((key + "1").encode()).hexdigest() + ".json")
+        original = path.read_text()
+        for mutation in ["clock", "public", "root", "missing", "unpaired"]:
+            with self.subTest(mutation=mutation):
+                record = json.loads(original)
+                execution = record["executions"][0]
+                if mutation in ("clock", "public"):
+                    reply = json.loads(bytes(execution["stdout"]))
+                    reply["result"]["fetched" if mutation == "clock" else "name"] = 21
+                    execution["stdout"] = list(json.dumps(reply).encode())
+                elif mutation == "root":
+                    execution.pop("root")
+                elif mutation == "missing":
+                    record["executions"] = []
+                else:
+                    record["executions"].append(dict(execution))
+                path.write_text(json.dumps(record))
+                self.assertNotEqual(self.compare().returncode, 0)
+        path.write_text(original)
+
+    def test_native_request_metadata_compares_exactly_in_its_own_schema(self):
+        key = "cache/mychem-search/optional/requests"
+        for directory in (self.base, self.head):
+            self.write(directory, "case/help.yaml/step/0")
+            (directory / "native.json").write_text(json.dumps({
+                "key": key, "executions": [[["CONNECT host", "GET /native"]]],
+            }))
+        result = self.compare()
+        self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+        for mutation in ["changed", "missing", "malformed"]:
+            path = self.head / "native.json"
+            if mutation == "missing":
+                path.unlink()
+            else:
+                requests = [[["CONNECT host", "GET /changed"]]] if mutation == "changed" else [{}]
+                path.write_text(json.dumps({"key": key, "executions": requests}))
+            result = self.compare()
+            self.assertNotEqual(result.returncode, 0)
+
     def test_catalog_acquisition_binds_per_root_and_revision(self):
         key = "case/catalog.yaml/step/"
         for directory, side in [(self.base, "base"), (self.head, "head")]:
