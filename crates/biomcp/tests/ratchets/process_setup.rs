@@ -116,8 +116,7 @@ fn product_tokens(text: &str) -> Vec<String> {
     product
 }
 
-#[test]
-fn reject_config_reads_and_tree_builds_in_commands() -> Check {
+pub(super) fn reject_config_reads_and_tree_builds_in_commands() -> Check {
     for text in [
         "crate::config::file::read_file(None)?;",
         "use crate::config::file::read_file as load; load(None)?;",
