@@ -20,7 +20,48 @@ pub(super) fn trials() -> Vec<Trial> {
         transcript_trial("mcp-hosted/keys/stdio-license", || {
             stdio().map_err(Into::into)
         }),
+        transcript_trial("mcp-hosted/keys/startup-recovery", || {
+            recovery().map_err(Into::into)
+        }),
     ]
+}
+fn recovery() -> Check {
+    let mut server = Server::configured_globals(
+        "127.0.0.1:0",
+        Some(json!({"proxy":"ftp://127.0.0.1:1"})),
+        None,
+        None,
+        None,
+        &["--hosted".into()],
+    )?;
+    server
+        .environment()
+        .config(&json!({"keys":{"oncokb_api_key":SERVER}}))
+        .map_err(|e| e.to_string())?;
+    let args = ["get", "gene", "TP53", "oncokb", "--offline"];
+    for supplied in [true, false] {
+        let extra = if supplied {
+            format!("x-biomcp-key-oncokb-api-key: {CALLER}\r\n")
+        } else {
+            String::new()
+        };
+        let reply = call(&server, &args, &extra, false)?;
+        let content = &reply["result"]["structuredContent"];
+        if supplied {
+            if content.get("error").is_some()
+                || !content["sources"].as_array().is_some_and(|sources| {
+                    sources.iter().any(|source| {
+                        source["source"] == "oncokb" && source["reason"] == "offline"
+                    })
+                })
+            {
+                return Err("startup recovery dropped the caller credential".into());
+            }
+        } else if content.pointer("/error/source") != Some(&json!("oncokb")) {
+            return Err("startup recovery retained a previous caller credential".into());
+        }
+    }
+    server.stop()
 }
 fn discovery() -> Check {
     let env = Environment::new().map_err(|e| e.to_string())?;
