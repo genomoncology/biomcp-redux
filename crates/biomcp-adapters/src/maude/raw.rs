@@ -1,6 +1,7 @@
 use crate::openfda::{Envelope, Item};
 pub(super) type Response = Envelope<Report>;
 use biodata::ReportId;
+use biomcp_fetch::BadReply;
 use serde::Deserialize;
 
 #[derive(Debug, Deserialize)]
@@ -98,4 +99,17 @@ pub(super) struct Report {
     pub narrative: Option<crate::raw::Field<Vec<crate::raw::Field<Narrative>>>>,
 }
 
-impl Item for Report {}
+impl Item for Report {
+    fn check(&self) -> Result<(), BadReply> {
+        if self
+            .mdr_report_key
+            .as_str()
+            .bytes()
+            .all(|b| b.is_ascii_digit())
+        {
+            Ok(())
+        } else {
+            Err(BadReply)
+        }
+    }
+}
