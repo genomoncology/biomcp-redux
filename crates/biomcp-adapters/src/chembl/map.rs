@@ -14,6 +14,7 @@ pub fn targets(
     let mut refusals = crate::Refusal::None;
     let mut rejected = Vec::new();
     for r in rows {
+        let target_identity = r.target_identity();
         let mut problems = Problems {
             source: biomcp_types::Source::Chembl,
             record: crate::mapped::record(r.mec_id),
@@ -21,7 +22,8 @@ pub fn targets(
         };
         let source = Text::new("chembl")?;
         let target = problems
-            .checked_text("target_chembl_id", r.target_chembl_id.as_deref())
+            .optional("target_chembl_id", Some(target_identity))
+            .flatten()
             .map(|id| DrugNativeTarget {
                 namespace: source,
                 id,

@@ -1,6 +1,7 @@
 # 0509 — Pair the remaining runtime values in the reply diff
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 91c086d7817b4e9fb11bb00bdac214f2280ac875
 
 Milestone: 5
 
