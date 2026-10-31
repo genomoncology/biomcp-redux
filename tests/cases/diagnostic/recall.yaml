@@ -1,4 +1,5 @@
 {
+  "live_check": "synthetic authored or response-edited replies; no live provider observation",
   "feature": "diagnostic-device-recall",
   "story": "Native device recall records retain their own identifiers and optionally join exact enforcement classification, without projecting product-code metadata.",
   "replay": "diagnostic/recall-synthetic",

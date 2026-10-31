@@ -1,4 +1,5 @@
 {
+  "live_check": "local-only expired pool and invalid argument refusals; every step exits before source access",
   "feature": "pathway-reactome",
   "story": "Invalid selectors fail before I/O and genuine source absence never triggers a replacement search.",
   "replay": "pathway/native",

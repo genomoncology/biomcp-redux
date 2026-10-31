@@ -1,4 +1,5 @@
 {
+  "live_check": "synthetic authored or response-edited replies; no live provider observation",
   "feature": "drug-ddinter",
   "story": "Synthetic native pairs preserve source IDs, order, duplicate origins and stored-only reads after a complete explicit sync",
   "replay": "drug/ddinter-synthetic",

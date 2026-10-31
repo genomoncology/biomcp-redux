@@ -35,15 +35,24 @@ pub(super) fn command(
     replay: &Path,
     ordinal: usize,
     captures: &mut Vec<Value>,
+    call: Option<&super::super::case_data::McpCall>,
 ) -> Result<(Reply, Result<Reply, String>), String> {
     within_budget(captures).map_err(|error| format!("{error}; command {ordinal} was not run"))?;
     captures.push(json!({"ordinal":ordinal}));
     let capture = captures.last_mut().ok_or("missing command capture")?;
-    let expected = invoke(baseline, args.0, Some(replay), ordinal, capture, "baseline")?;
+    let expected = invoke_call(
+        baseline,
+        args.0,
+        Some(replay),
+        ordinal,
+        capture,
+        "baseline",
+        call,
+    )?;
     if ordinal == 1 && expected.1.is_empty() {
         return Err("recorded command has no provider observations".into());
     }
-    let actual = invoke(live, args.1, None, ordinal, capture, "live");
+    let actual = invoke_call(live, args.1, None, ordinal, capture, "live", call);
     within_budget(captures)
         .map_err(|error| format!("{error}; stopped after complete command {ordinal}"))?;
     Ok((expected, actual))
@@ -57,7 +66,19 @@ pub(in crate::runner) fn invoke(
     capture: &mut Value,
     side: &str,
 ) -> Result<(Value, Vec<Observation>), String> {
-    let result = live::invoke(environment, args, replay, ordinal);
+    invoke_call(environment, args, replay, ordinal, capture, side, None)
+}
+
+fn invoke_call(
+    environment: &Environment,
+    args: &[String],
+    replay: Option<&Path>,
+    ordinal: usize,
+    capture: &mut Value,
+    side: &str,
+    call: Option<&super::super::case_data::McpCall>,
+) -> Result<(Value, Vec<Observation>), String> {
+    let result = live::invoke(environment, args, replay, ordinal, call);
     let context = match &result {
         Ok((output, observations)) => context(output, observations),
         Err(error) => {

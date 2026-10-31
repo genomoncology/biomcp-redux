@@ -1,6 +1,6 @@
 {
   "feature": "trial-nci",
-  "live_check": "recorded",
+  "live_check": "missing nightly NCI user-owned API key; retained native public-tier replies use an isolated replay key",
   "story": "NCI exact biomarker code search preserves a positive native total and the matched entry criterion and inclusion indicator. Captured 2026-10-29; historical 0410 count326 belongs to its earlier snapshot. Current /biomarkers code C96022 criterion inclusion count318 equals the trial source total318.",
   "replay": "trial/nci/biomarker/native",
   "config": {

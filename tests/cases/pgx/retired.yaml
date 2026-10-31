@@ -1,4 +1,5 @@
 {
+  "live_check": "local-only migration guidance or disabled source behavior before provider access",
   "feature": "pgx-retirements",
   "story": "Each retired command returns fixed migration guidance before source access.",
   "steps": [

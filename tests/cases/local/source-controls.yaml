@@ -1,4 +1,5 @@
 {
+  "live_check": "local-only migration guidance or disabled source behavior before provider access",
   "feature": "source-controls",
   "story": "A disabled source is skipped before any provider or retained-data access.",
   "steps": [

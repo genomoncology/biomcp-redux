@@ -1,6 +1,6 @@
 {
   "feature": "biomarker-nci",
-  "live_check": "bounded keyed NCI public-tier capture",
+  "live_check": "missing nightly NCI user-owned API key; retained native public-tier replies use an isolated replay key",
   "story": "Exact code search returns the complete sole native terminology row.",
   "replay": "biomarker/native",
   "config": {

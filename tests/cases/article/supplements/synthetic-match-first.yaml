@@ -1,4 +1,5 @@
 {
+  "live_check": "synthetic authored or response-edited replies; no live provider observation",
   "feature": "article-supplements",
   "story": "A literal match in a wide row precedes first-row and unrelated cell fragments; original coordinates and continuation preserve all context. A different spelling stays absent.",
   "replay": "article/supplements/synthetic-match-first",

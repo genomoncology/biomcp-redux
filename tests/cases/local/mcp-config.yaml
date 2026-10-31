@@ -1,4 +1,5 @@
 {
+  "live_check": "local-only command help, validation or stored-state behavior; no recorded source replies",
   "feature": "housekeeping",
   "story": "Client configuration retains the stdio startup arguments for each JSON configuration shape.",
   "steps": [

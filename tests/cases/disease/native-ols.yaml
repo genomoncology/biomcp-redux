@@ -1,8 +1,8 @@
 {
   "feature": "disease-ols",
-  "live_check": "public native MONDO/OLS replies",
+  "live_check": "public",
   "story": "An explicit MONDO selector retains the exact publisher identity and label for the existing disease lookup.",
-  "verified": "MONDO CC BY 4.0. Original OLS get SHA256 5c6e5e0bc165f484234d1d76d4b32a67fa6b470eb80246b6903aa45edd7b9cec; search SHA256 2737622c684aa06a764c6c1b46b4660ebe8c96b70b57d833257a6a0b2caaadf7. Captured 2026-10-30; original requests, bodies and headers retained outside Git.",
+  "verified": "MONDO CC BY 4.0. Original OLS get SHA256 5c6e5e0bc165f484234d1d76d4b32a67fa6b470eb80246b6903aa45edd7b9cec; search SHA256 2737622c684aa06a764c6c1b46b4660ebe8c96b70b57d833257a6a0b2caaadf7. Captured 2026-10-30; original requests, bodies and headers retained outside Git. The native MONDO/OLS body hashes and license are recorded in this case; the nightly run executes the public OLS get and search requests.",
   "replay": "disease/native-ols",
   "steps": [
     {

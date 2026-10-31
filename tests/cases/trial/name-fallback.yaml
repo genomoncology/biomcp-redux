@@ -1,4 +1,6 @@
 {
+  "verified": "tests/replies/trial/name-fallback/README.md identifies unchanged public registry exact-zero and broader search bodies with hashes; ordinary public trial search commands check these replies nightly.",
+  "live_check": "public",
   "feature": "trial-search",
   "story": "A real exact-zero sponsor/collaborator positive and honest MD Anderson sponsor/facility zeros each name the exact and single broader native requests.",
   "replay": "trial/name-fallback",

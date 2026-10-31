@@ -1,4 +1,5 @@
 {
+  "live_check": "synthetic authored or response-edited replies; no live provider observation",
   "feature": "drug-ema",
   "story": "Explicit EMA synchronization imports a complete synthetic file and can explicitly refresh it.",
   "replay": "drug/ema-synthetic",

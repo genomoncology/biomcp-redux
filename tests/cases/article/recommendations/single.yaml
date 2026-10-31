@@ -1,7 +1,8 @@
 {
+  "live_check": "public",
   "feature": "article-recommendations",
   "story": "single",
-  "verified": "Actual keyless command capture; preserve native order and whole bibliographic metadata.",
+  "verified": "Actual keyless command capture; preserve native order and whole bibliographic metadata. The existing verification records the actual keyless command capture; the nightly run executes the public recommendation request.",
   "replay": "article/recommendations/single",
   "steps": [
     {

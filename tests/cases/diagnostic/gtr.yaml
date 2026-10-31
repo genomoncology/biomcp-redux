@@ -1,4 +1,5 @@
 {
+  "live_check": "synthetic authored or response-edited replies; no live provider observation",
   "feature": "diagnostic-gtr",
   "story": "A complete synthetic GTR pair preserves exact selectors, quoted cells, native relations, conflicts, orphan rows and independent method lists.",
   "replay": "diagnostic/gtr-synthetic",

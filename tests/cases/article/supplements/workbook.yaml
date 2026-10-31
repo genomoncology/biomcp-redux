@@ -1,4 +1,6 @@
 {
+  "verified": "tests/replies/article/supplements/README.md identifies the actual CC BY supplement capture and unchanged source workbook; the nightly run executes the public workbook and row requests.",
+  "live_check": "public",
   "feature": "article-supplements",
   "story": "workbook",
   "replay": "article/supplements/live",

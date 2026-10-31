@@ -172,7 +172,7 @@ class NightlyCommand(unittest.TestCase):
                         BIOMCP_EVIDENCE_DIR=str(self.store),
                         BIOMCP_SCRATCH_DIR=str(self.scratch_root),
                         PATH=str(self.tools) + os.pathsep + os.environ['PATH'],
-                        FAKE_REPORT='{"drift_cases":0,"error_cases":0}')
+                        FAKE_REPORT='{"drift_cases":0,"error_cases":0,"eligible":0,"checked":0}')
         Path(self.env['TMPDIR']).mkdir()
 
     def run_command(self, args=(), **values):
@@ -317,6 +317,8 @@ class NightlyCommand(unittest.TestCase):
     def test_drift_errors_and_failed_runner_still_copy(self):
         for overrides in [dict(FAKE_REPORT='{"drift_cases":1,"error_cases":0}'),
                           dict(FAKE_REPORT='{"drift_cases":0,"error_cases":1}'),
+                          dict(FAKE_REPORT='{"drift_cases":0,"error_cases":0,"eligible":1,"checked":0}'),
+                          dict(FAKE_REPORT='{"drift_cases":0,"error_cases":0,"checked":0}'),
                           dict(FAKE_EXIT='7'), dict(FAKE_REPORT='{}')]:
             with self.subTest(overrides=overrides):
                 result = self.run_command(**overrides)
@@ -330,7 +332,7 @@ class NightlyCommand(unittest.TestCase):
             "requests": [{"url": "https://example.org/search?q=cancer", "status": 200,
                           "shape": {"fields": {"/id": True}}}],
             "result_ids": [{"field": "id", "value": "new"}], "output": {"id": "new"}}}
-        report = {"drift_cases": 1, "error_cases": 0,
+        report = {"drift_cases": 1, "error_cases": 0, "eligible": 2, "checked": 2,
                   "case_sample": [{"case": "changed", "witness": witness,
                                    "result": {"drift": ["x: request-plan-changed"]}},
                                   {"case": "clean", "result": {"drift": []}}]}
@@ -344,7 +346,7 @@ class NightlyCommand(unittest.TestCase):
     def classified(self, row, expected, exit_code):
         shutil.rmtree(self.store, ignore_errors=True)
         report = {"drift_cases": int(bool(row["result"]["drift"])), "error_cases": 0,
-                  "checked": 1, "omitted": 0, "case_sample": [row]}
+                  "eligible": 1, "checked": 1, "omitted": 0, "case_sample": [row]}
         result = self.run_command(FAKE_REPORT=json.dumps(report))
         self.assertEqual(result.returncode == 0, exit_code == 0, result.stdout + result.stderr)
         saved = json.loads((self.copied() / 'report.json').read_text())

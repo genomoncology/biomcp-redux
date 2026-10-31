@@ -1,4 +1,5 @@
 {
+  "live_check": "local-only unsupported WikiPathways events refusals; every step exits before source access",
   "feature": "pathway-reactome",
   "story": "validation",
   "replay": "pathway/sections",

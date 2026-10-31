@@ -1,10 +1,10 @@
 {
   "feature": "variant-search",
-  "live_check": "synthetic",
+  "live_check": "public",
   "replay": "variant/filters/condition",
   "story": "The proved MyVariant condition filter keeps its literal field query and native candidates",
   "harvest": "sdlc/planning/slices/variant.md",
-  "verified": "2026-10-24; direct MyVariant query and actual CLI record retained externally under0096-filter-captures; Git response is a synthetic identity-only projection; projection identity locally recorded from unchanged retained response on 2026-10-24, with original source date and reuse label retained externally",
+  "verified": "2026-10-24; direct MyVariant query and actual CLI record retained externally under0096-filter-captures; Git response is a synthetic identity-only projection; projection identity locally recorded from unchanged retained response on 2026-10-24, with original source date and reuse label retained externally tests/replies/variant/filters/README.md identifies actual direct queries and CLI captures with matching candidate identities, totals and native order. The identity-only projection omits annotation content; nightly execution checks the public filter query.",
   "steps": [
     {
       "run": [

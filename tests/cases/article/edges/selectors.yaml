@@ -1,4 +1,5 @@
 {
+  "live_check": "local-only command help, validation or stored-state behavior; no recorded source replies",
   "feature": "article-semantic-sections",
   "story": "iCite keeps its PMID contract and graph selectors reject invalid source and page bounds before a request.",
   "steps": [

@@ -1,4 +1,5 @@
 {
+  "live_check": "synthetic authored or response-edited replies; no live provider observation",
   "feature": "drug-ema",
   "story": "Synthetic medicines preserve exact EMA records, native date roles, separate Tibsovo applications and local-only bounded reads after one explicit sync",
   "replay": "drug/ema-synthetic",

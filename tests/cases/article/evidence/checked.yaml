@@ -1,4 +1,5 @@
 {
+  "live_check": "local-only missing evidence pool refusal; the command exits before source access",
   "feature": "article-evidence",
   "story": "Reject unsupported identifiers, invalid bounds and stale continuation selectors before source calls.",
   "replay": "article/recommendations/empty",

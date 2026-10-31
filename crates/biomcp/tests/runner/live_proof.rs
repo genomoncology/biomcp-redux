@@ -139,6 +139,18 @@ fn plan() -> Result<(), Box<dyn std::error::Error>> {
     }) {
         return Err("eligibility list omitted public capture or failure skip".into());
     }
+    for name in [
+        "mcp/research-search.yaml",
+        "mcp/research-fetch.yaml",
+        "pathway-sections/examples.yaml",
+        "cell-line/assay-examples.yaml",
+    ] {
+        if !cases.iter().any(|case| {
+            case.get("case") == Some(&json!(name)) && case.get("eligible") == Some(&json!(true))
+        }) {
+            return Err(format!("eligible source operation omitted: {name}").into());
+        }
+    }
     Ok(())
 }
 
@@ -236,6 +248,7 @@ fn summary() -> Result<(), Box<dyn std::error::Error>> {
     if report.get("drift_cases") != Some(&json!(1))
         || report.get("error_cases") != Some(&json!(1))
         || report.get("checked") != Some(&json!(27))
+        || report.get("eligible") != Some(&json!(27))
         || report.get("omitted") != Some(&json!(7))
         || sample.len() != 20
         || report.pointer("/case_sample/0/case") != Some(&json!("late-drift"))
