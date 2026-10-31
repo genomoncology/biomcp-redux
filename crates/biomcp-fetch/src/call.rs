@@ -6,6 +6,11 @@ type BodyEncoder<'a> = dyn Fn(u64) -> Result<Vec<u8>, crate::InputError> + 'a;
 pub struct JsonBody<'a> {
     encode: Box<BodyEncoder<'a>>,
 }
+impl std::fmt::Debug for JsonBody<'_> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("JsonBody").finish_non_exhaustive()
+    }
+}
 impl<'a> JsonBody<'a> {
     /// Borrow a serializable body without changing its wire representation.
     pub fn new<B: serde::Serialize + 'a>(body: &'a B) -> Self {
@@ -15,6 +20,7 @@ impl<'a> JsonBody<'a> {
     }
 }
 /// Request parameters and an optional bounded JSON body.
+#[derive(Debug)]
 pub enum Input<'a> {
     /// Canonical query parameters or form fields, as declared by the endpoint.
     Params(&'a [(&'a str, Arg<'a>)]),

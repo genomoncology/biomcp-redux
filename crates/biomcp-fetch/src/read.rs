@@ -27,6 +27,14 @@ pub struct Read<'a, T> {
     parse: fn(&[u8]) -> Option<T>,
     range_check: Option<&'a RangeCheck<'a, T>>,
 }
+impl<T> std::fmt::Debug for Read<'_, T> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Read")
+            .field("media", &self.codec.name())
+            .field("limit", &self.limit)
+            .finish_non_exhaustive()
+    }
+}
 impl<'a, T: Reply> Read<'a, T> {
     /// Check request-bound identity before cache admission and every reuse.
     pub fn check(mut self, check: &'a ReplyCheck<'a, T>) -> Self {

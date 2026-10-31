@@ -223,7 +223,7 @@ impl Reply for Probe {
         Ok(())
     }
 }
-#[derive(serde::Deserialize)]
+#[derive(Debug, serde::Deserialize)]
 /// Original bytes returned by a checked binary read.
 pub struct Bytes(pub Vec<u8>);
 impl Reply for Bytes {
