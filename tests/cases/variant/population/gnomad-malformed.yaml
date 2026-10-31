@@ -15,8 +15,14 @@
       "is_error": true,
       "expect": {
         "/status": "failed",
-        "/result/population/state": "unavailable",
-        "/result/population/reason": "bad-reply"
+        "": {
+          "omits": [
+            "result"
+          ]
+        },
+        "/sources/1/source": "gnomad",
+        "/sources/1/state": "failed",
+        "/sources/1/reason": "bad-reply"
       },
       "max_bytes": 427
     }

@@ -569,8 +569,15 @@ fn cache_boundary() -> Check {
             String::from_utf8_lossy(&output.stdout)
         );
         let value: Value = serde_json::from_slice(&output.stdout)?;
+        assert!(
+            value.get("result").is_none(),
+            "failed save exposed its body"
+        );
+        assert_eq!(value.pointer("/status"), Some(&json!("failed")));
+        assert_eq!(value.pointer("/sources/0/source"), Some(&json!("pmc-oa")));
+        assert_eq!(value.pointer("/sources/0/state"), Some(&json!("failed")));
         assert_eq!(
-            value.pointer("/result/content/reason"),
+            value.pointer("/sources/0/reason"),
             Some(&json!("offline")),
             "Save operations must respect cache access and caller ownership"
         );

@@ -295,7 +295,12 @@ fn failures(env: &Environment, dir: &Path) -> Result<(), String> {
         )
         .map_err(|e| e.to_string())?;
         let output = invoke(env, &replay_args(&target), 4)?;
-        if output.pointer(&format!("{SECTION}/reason")) != Some(&json!(reason)) {
+        if output.get("result").is_some()
+            || output.pointer("/status") != Some(&json!("failed"))
+            || output.pointer("/sources/0/source") != Some(&json!("oncokb"))
+            || output.pointer("/sources/0/state") != Some(&json!("failed"))
+            || output.pointer("/sources/0/reason") != Some(&json!(reason))
+        {
             return Err(format!(
                 "annotation failure {kind} lost its reason: {output}"
             ));
