@@ -1,6 +1,7 @@
 # 0517 — Move the tools target off removed transport calls and gate it
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 159494d4a4fffae410c463ea543673d92d16fea9
 
 Milestone: 5
 
