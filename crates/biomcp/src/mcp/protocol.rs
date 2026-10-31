@@ -19,6 +19,10 @@ pub(super) fn info() -> Value {
 pub(super) fn error(id: Value, code: i32, message: &str) -> Value {
     json!({"jsonrpc":"2.0", "id":id, "error":{"code":code,"message":message}})
 }
+pub(super) fn timeout(id: Value) -> Value {
+    json!({"jsonrpc":"2.0", "id":id, "error":{"code":-32000,"message":"Tool deadline exceeded",
+        "data":{"reason":biomcp_types::Reason::DeadlineExceeded}}})
+}
 
 pub(super) fn valid_id(value: &Value) -> bool {
     value.is_string() || value.is_i64() || value.is_u64()

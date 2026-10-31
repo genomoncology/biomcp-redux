@@ -155,12 +155,9 @@ impl Leg<'_> {
     ) -> Result<BundleSync, RequestError> {
         let prepared = Prepared::new(url.into(), Vec::new(), Method::Get, true);
         let mut headers = conditional(t.part, old)?;
-        let keyed = self.keyed();
         for attempt in 0..crate::retry::ATTEMPTS {
             let permit = self
-                .fetch
-                .limiters
-                .acquire(self.spec.quota, keyed, self.budget())
+                .acquire_quota()
                 .map_err(|delay| self.quota_failure(delay))?
                 .ok_or_else(|| self.failure(Reason::Syncing, None))?;
             t.started = Instant::now();

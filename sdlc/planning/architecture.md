@@ -739,7 +739,7 @@ A source whose terms require the user's own license or account, such as OncoKB, 
 - The fan-out sees the same check first and records the source as `skipped` with reason `no_key` without starting a thread.
 - A requested section from that source reports `Skipped` with reason `no_key`. The source outcome reports `skipped`, once per envelope. The response's next steps include one `key` step, `biomcp help key <source>`, whose help leads with `biomcp key set <source>` and also names the config key and the environment variable.
 - A skip changes no status. A card whose only gap is a skipped keyed source is complete.
-- Replay cases for a keyed source set a placeholder key in the case's temporary config. The reply key never includes a credential, so the recording matches.
+- Replay cases for a keyed source set a placeholder key in the case's temporary config. Ordinary and public-source recording identities omit credentials. Hosted no-fallback recordings use the same caller namespace as the checked reply cache, including shared replay cursors and capture sequences. Older unscoped licensed recordings cannot answer hosted calls.
 
 
 ### 4.4 The request path
@@ -747,7 +747,7 @@ A source whose terms require the user's own license or account, such as OncoKB, 
 Every call on a `Leg` runs the same steps in this order:
 
 1. Build the URL from the base, the path and the parameters. An `Arg::Ids` list is sorted before joining, so the same set of IDs always makes the same request. Add the user's key from `Secrets` when the spec takes one and it is configured. A leg whose required key is missing never reaches this step (section 4.3).
-2. Compute the reply key: SHA-256 over the method, the URL without the credential parameter and the body.
+2. Compute the reply key: SHA-256 over the method, the URL without the credential parameter and the body. Hosted no-fallback requests apply the effective caller key's opaque one-way namespace. Public-source and ordinary request identities remain unchanged.
 3. In replay mode, take the recording for the key, or fail with `replay_miss`. Skip to step 8.
 4. Look up the reply cache. A fresh entry skips to step 10. In offline mode, a stale entry skips to step 10 marked stale, and a miss fails with `offline`.
 5. Wait for a FIFO permit from the source's quota: a rate slot and an in-flight place. The wait is bounded by the leg's deadline.
@@ -767,13 +767,13 @@ When steps 5 to 9 fail and the cache holds a stale entry for the key, the leg se
 Limiters are keyed by a source key and never by a URL, a host name or an endpoint.
 
 - Each adapter's `SourceSpec` names the `Quota` that matches the provider's documented limit, and each `Quota` names its `SourceKey`. Sources that share one provider limit declare the same quota. PubMed, NCBI Gene and ClinVar all draw on E-utilities, so all three use `ncbi-eutils`, and a gene leg and an article leg in one command cannot together exceed NCBI's limit. Sources on one host with separate limits declare separate keys. PubTator sits on an NCBI host with its own limit, so it uses `pubtator`.
-- `Fetch` holds one limiter per `SourceKey`, built from its `Quota` on first use. The limiter's constructor takes only a `&'static Quota`, so nothing can derive a limiter from a URL or host. The ratchet test checks that `SourceKey::declare` and `Quota` statics appear only in `quotas.rs` and that no two quotas declare the same key.
+- `Fetch` shares its quota owner across command snapshots. Ordinary commands keep one limiter per declared `SourceKey`. Hosted commands use one bucket per source and effective credential fingerprint, with one shared keyless bucket per source. Fingerprints come from the shared secret owner and never expose key values. Idle buckets expire only after their credit refills and all callers leave. No limiter derives its source identity from a URL or host. The ratchet confines source key declarations and quota statics to the adapter quota table.
 - Each limiter applies the keyed rate when the leg's source has its key configured, and the unkeyed rate otherwise.
 - Permits are served in arrival order. A waiter takes a ticket under a `Mutex`, and a `Condvar` wakes tickets in order. A caller sleeps for its rate slot outside the lock.
 - Each leg runs on its own thread, and only sources on the same quota wait for each other. A slow or rate-limited source therefore delays only the legs that share its provider.
 - The article slice declares `ncbi-eutils` (3 per second, 10 with a key), `europepmc` (assumed 10 per second), `pubtator` (3 per second), `litvar` (assumed 3 per second), `semantic-scholar` (1 request every 2 seconds without a key, 1 per second with the optional key), `icite` (assumed 5 per second) and `pmc-oa` (assumed 10 per second). Each assumed rate is confirmed against the provider before its adapter lands.
 - A recorded case sends eight parallel calls to one E-utilities quota without a key and asserts from `--explain` that their start times keep the quota's rate. 0.9 drew seven 429 replies from the same pattern.
-- The limiter is per process. Several BioMCP processes sharing a key can exceed a provider's limit together. The provider then answers 429, and step 7 retries within the deadline.
+- The limiter is per process. Hosted operators set `--rate-share` to their process's share of every keyed and keyless source rate. The front end assigns shares across server instances. These processes do not coordinate with one another. Hosted HTTP calls retain a bounded worker slot until actual completion and return a typed `deadline-exceeded` when the whole-call wall-clock budget expires.
 
 ### 4.6 Retries
 
@@ -836,7 +836,7 @@ A recording is one JSON file per exchange, at `<dir>/<source>/<key>.json`:
 
 ### 4.10 Credentials and proxies
 
-`Secrets` maps a `SecretName` enum to a `Secret(Box<str>)` whose `Debug` and `Display` print `***`. Only the binary's config module builds `Secrets`, from the config file and the documented environment variables. Every declared key uses the same per-command deferred loader, which resolves the config value before its environment fallback when the source is admitted, including raw-cache and replay validation. Disabled sources and stored query pages do not resolve keys. The secret enters only the outgoing request. It never enters a cache key, a recording, a trace, an error or the envelope. The config file's `proxy` key overrides all proxy environment settings. Otherwise `config.rs` reads `HTTP_PROXY`, `HTTPS_PROXY` and `NO_PROXY` and passes checked routes to Fetch. Proxy credentials and CA paths never enter reply identities or recordings.
+`Secrets` maps a `SecretName` enum to a `Secret(Box<str>)` whose `Debug` and `Display` print `***`. Only the binary's config module builds `Secrets`, from the config file and the documented environment variables. Every declared key uses the same per-command deferred loader, which resolves the config value before its environment fallback when the source is admitted, including raw-cache and replay validation. Disabled sources and public stored query pages do not resolve keys. Hosted licensed continuations resolve their declared credentials before any stored payload read or update. Their internal ownership metadata never enters the response. Unscoped legacy licensed rows fail admission without resetting the store schema. The secret enters only the outgoing request. It never enters a cache key, a recording, a trace, an error or the envelope. The config file's `proxy` key overrides all proxy environment settings. Otherwise `config.rs` reads `HTTP_PROXY`, `HTTPS_PROXY` and `NO_PROXY` and passes checked routes to Fetch. Proxy credentials and CA paths never enter reply identities or recordings.
 
 ### 4.11 Bundles
 
@@ -1954,8 +1954,10 @@ The runner tool proof `schema-discovery/capture-retains-replay-owner` drops the 
 | --- | --- |
 | `crates/biomcp-fetch/src/hosts_tests.rs` | Check credential-free exact publisher origins at the private admission boundary without a product inventory helper. |
 | `crates/biomcp-fetch/tests/grpc_worker/shutdown.rs` | Prove cancellation joins active network work at the private worker boundary without exporting shutdown control. |
+| `crates/biomcp-fetch/tests/quotas/expiry.rs` | Check idle bucket expiry after scaled refill without sleeping or exposing transport state. |
 | `crates/biomcp/src/grammar/reference.rs` | Generate and compare documentation at the private parser boundary without adding a public command. |
 | `crates/biomcp/src/mcp/worker_tests.rs` | Test worker panic completion and exact serialized tool result character boundaries that public requests cannot intentionally produce. |
+| `crates/biomcp/src/mcp/http/call.rs` | Prove hosted tool capacity and shutdown ownership with held worker exits using the private server limit. |
 | `crates/biomcp/src/config/deferred_keys_tests.rs` | Observe forbidden credential environment reads at the private settings boundary while executing real commands. |
 | `crates/biomcp-types/tests/author_contracts.rs` | Exercise checked source-qualified author records and standalone native paper and work-group contracts before adapters exist. |
 | `crates/biomcp-types/tests/cell_line_contracts.rs` | Exercise checked cell identities, native variation members and provenance, and standalone consumer contracts through the public library API before adapters exist. |
@@ -2035,6 +2037,7 @@ The runner tool proof `schema-discovery/capture-retains-replay-owner` drops the 
 | `crates/biomcp-fetch/tests/transport/credentials.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
 | `crates/biomcp-fetch/tests/xml.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
 | `crates/biomcp-query/tests/article_search.rs` | Exercise concurrent pool publication/hydration, injected SQL corruption, external writers and API-only deadline boundaries. |
+| `crates/biomcp-query/src/store/privacy_tests.rs` | Prove caller ownership at the private query store security boundary before licensed routes publish continuations. |
 | `crates/biomcp-query/tests/gene_resolution.rs` | Mutate isolated cache freshness and preserve a local bundle failure under an API-only short command deadline. |
 | `crates/biomcp/tests/ratchets.rs` | Enforce repository structure and prove refusal of planted violations in isolated trees. |
 | `crates/biomcp/tests/ratchets/lints.rs` | Prove the shared Clippy settings reject planted scalar, banned-type and reason drift. |
@@ -2079,7 +2082,7 @@ Every ratchet starts at its 1.0 target, because the code starts empty. `make lan
 | Outside-in coverage | never more than 0.2 points below the floor | `make coverage` with `coverage.floor` |
 | Output size per command and per section | under each case's `max_bytes` and `max_tokens` ceilings | the runner |
 | Keyed sources called without the user's key | none | `KeyUse::Required` checked in `Fetch::leg` and the fan-out; a replay case per keyed source with no key asserts `skipped` and no recording read |
-| Limiters keyed by anything but a declared source key | none | the limiter takes only a `&'static Quota`; the ratchet test confines `SourceKey::declare` and `Quota` statics to `quotas.rs` and refuses duplicate keys |
+| Limiter source identities derived from URLs or hosts | none | the quota table declares source keys; hosted caller buckets add only the shared opaque credential fingerprint |
 | Documented commands that fail | none | a docs check runs each documented command over recordings |
 
 ## 12. Porting 0.9 knowledge

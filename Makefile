@@ -61,7 +61,7 @@ docs-check:
 	python3 release/toolchain.py check
 	python3 -m unittest release.test_toolchain
 	python3 release/tools.py
-	python3 -m unittest release.test_tools release.test_linux
+	python3 -m unittest release.test_tools release.test_linux release.test_mutations
 	python3 scripts/check_docs.py
 	python3 scripts/article_licenses.py
 	python3 scripts/test_article_licenses.py
@@ -114,6 +114,11 @@ COLD_REPORT ?= $(CURDIR)/dist/cold-report.json
 .PHONY: release-cold
 release-cold:
 	python3 release/rehearse.py cold --report "$(COLD_REPORT)" -- $(CONTAINER_ARGS)
+
+.PHONY: release-mutations
+release-mutations:
+	@test -n "$(MUTATION_REPORT)" || (echo 'Set MUTATION_REPORT to a job-owned stage report'; exit 1)
+	python3 release/rehearse.py mutation --report "$(MUTATION_REPORT)" -- $(MUTATION_ARGS)
 
 .PHONY: workflow-lint
 workflow-lint:

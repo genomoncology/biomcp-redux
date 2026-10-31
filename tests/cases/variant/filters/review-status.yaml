@@ -19,7 +19,7 @@
       ],
       "expect": {
         "/schema": "biomcp.variant-page/16",
-        "/status": "partial",
+        "/status": "complete",
         "/query": {
           "equals": {
             "region": "chr7:140453136-140453136",

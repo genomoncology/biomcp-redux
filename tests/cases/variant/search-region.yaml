@@ -20,7 +20,7 @@
       "max_bytes": 1525,
       "expect": {
         "/schema": "biomcp.variant-page/16",
-        "/status": "partial",
+        "/status": "complete",
         "/query": {
           "equals": {
             "region": "chr7:55259515-55259515",
@@ -107,7 +107,23 @@
             "total": 4
           }
         },
-        "/sources/0/source": "myvariant"
+        "/sources/0/source": "myvariant",
+        "/problems": {
+          "equals": [
+            {
+              "source": "myvariant",
+              "record": "chr7:g.55259515T>A",
+              "field": "representations.build",
+              "code": "value.unknown"
+            },
+            {
+              "source": "myvariant",
+              "record": "chr7:g.55259515T>G",
+              "field": "representations.build",
+              "code": "value.unknown"
+            }
+          ]
+        }
       }
     }
   ]

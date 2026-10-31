@@ -145,3 +145,9 @@ pub(crate) const HTTP_HOST: (&str, &[&str]) = (
 // This hosted stdio call asserts refusal and the ordinary unhosted health reply.
 pub(crate) const HOSTED_MODE: (&str, &[&str]) =
     ("mcp-hosted/stdio/health", &["option serve --hosted"]);
+
+// This hosted call asserts separate pacing for two source header keys.
+pub(crate) const HOSTED_PACING: (&str, &[&str]) = (
+    "mcp-hosted/pacing/two-header-keys",
+    &["option serve --rate-share"],
+);
