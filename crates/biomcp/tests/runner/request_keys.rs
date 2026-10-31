@@ -250,8 +250,9 @@ fn concurrent(args: &[&str]) -> Check {
         let mut record: Value =
             serde_json::from_slice(&std::fs::read(&path).map_err(|e| e.to_string())?)
                 .map_err(|e| e.to_string())?;
-        let exchanges = record["exchanges"]
-            .as_array_mut()
+        let exchanges = record
+            .get_mut("exchanges")
+            .and_then(Value::as_array_mut)
             .ok_or("MyGene replay exchanges")?;
         if exchanges.len() != 1 {
             return Err("concurrent MyGene fixture requires one exchange per caller".into());
