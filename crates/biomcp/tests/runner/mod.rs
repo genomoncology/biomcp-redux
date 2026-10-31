@@ -97,11 +97,11 @@ mod maude_snapshot;
 mod mcp;
 mod mcp_boundaries;
 mod mcp_hosted;
-mod request_keys;
 mod named_search;
 mod native_fields;
 mod nci;
 mod nci_walk;
+mod request_keys;
 tool_only! { mod negative_cases; }
 mod network_stub;
 mod next_navigation;

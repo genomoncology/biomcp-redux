@@ -8,32 +8,38 @@ pub(super) fn fetch(
 ) -> io::Result<Result<Fetch, StartupError>> {
     match shared {
         Some(Ok(fetch)) => {
-            let secrets = match crate::config::secrets(globals) {
-                Ok(secrets) => secrets,
-                Err(error) => return Ok(Err(error.into())),
-            };
-            let secrets = if globals.hosted {
-                fetch.hosted_secrets(
-                    secrets,
-                    biomcp_fetch::SecretName::ALL
-                        .iter()
-                        .copied()
-                        .filter(|&name| {
-                            biomcp_adapters::registry::key_tier(name)
-                                == biomcp_types::KeyTier::NoFallback
-                        }),
-                )
-            } else {
-                secrets
-            };
             let fetch = if globals.offline {
                 fetch.offline()
             } else {
                 fetch.as_ref().clone()
             };
-            crate::config::restrict(fetch.with_secrets(secrets), globals).map(Ok)
+            snapshot(fetch, globals)
         }
         Some(Err(error)) if !globals.offline => Ok(Err(error.clone())),
+        _ if globals.hosted => match crate::config::fetch(globals) {
+            Ok(fetch) => snapshot(fetch, globals),
+            Err(error) => Ok(Err(error)),
+        },
         _ => Ok(crate::config::fetch(globals)),
     }
+}
+fn snapshot(fetch: Fetch, globals: &Globals) -> io::Result<Result<Fetch, StartupError>> {
+    let secrets = match crate::config::secrets(globals) {
+        Ok(secrets) => secrets,
+        Err(error) => return Ok(Err(error.into())),
+    };
+    let secrets = if globals.hosted {
+        fetch.hosted_secrets(
+            secrets,
+            biomcp_fetch::SecretName::ALL
+                .iter()
+                .copied()
+                .filter(|&name| {
+                    biomcp_adapters::registry::key_tier(name) == biomcp_types::KeyTier::NoFallback
+                }),
+        )
+    } else {
+        secrets
+    };
+    crate::config::restrict(fetch.with_secrets(secrets), globals).map(Ok)
 }
