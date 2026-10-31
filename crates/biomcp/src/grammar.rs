@@ -125,7 +125,7 @@ fn global_arguments() -> Command {
 pub(crate) fn is_housekeeping(root: &Command, args: &[OsString]) -> bool {
     scan_command_words(root, args, true)
         .next()
-        .is_some_and(|name| crate::housekeeping::recognizes(name))
+        .is_some_and(crate::housekeeping::recognizes)
 }
 
 // Root recognition must also work when global values or repetitions are invalid.
@@ -237,11 +237,11 @@ pub(crate) struct ParseInvalid {
     pub(crate) usage: Option<biomcp_types::UsageError>,
 }
 pub(crate) fn parse(root: &Command, args: &[OsString]) -> Result<Parsed, ParseInvalid> {
-    let args = entry::arguments(args, &root);
+    let args = entry::arguments(args, root);
     let matches = root
         .clone()
         .try_get_matches_from(std::iter::once(OsString::from("biomcp")).chain(args))
-        .map_err(|error| errors::parse_invalid(&root, &error))?;
+        .map_err(|error| errors::parse_invalid(root, &error))?;
     let globals = globals(&matches)?;
     let (verb, matches) = matches.subcommand().ok_or_else(ParseInvalid::default)?;
     if verb == "serve" {

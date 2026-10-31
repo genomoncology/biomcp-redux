@@ -67,7 +67,9 @@ fn placement(path: &str, text: &str) -> Check {
         let import = input
             .get(index + 1)
             .is_some_and(|word| matches!(word.as_str(), ";" | "," | "}" | "as"))
-            && input[..index]
+            && input
+                .get(..index)
+                .unwrap_or_default()
                 .iter()
                 .rev()
                 .take_while(|word| word.as_str() != ";")
@@ -86,7 +88,7 @@ fn product_tokens(text: &str) -> Vec<String> {
     let input = tokens(text);
     let mut product = Vec::new();
     let mut index = 0;
-    while index < input.len() {
+    while let Some(word) = input.get(index) {
         // Ignore only the test module body, then resume checking product items after it.
         let marker = ["#", "[", "cfg", "(", "test", ")", "]", "mod", "tests", "{"];
         if input
@@ -95,8 +97,11 @@ fn product_tokens(text: &str) -> Vec<String> {
         {
             index += marker.len();
             let mut depth = 1;
-            while depth > 0 && index < input.len() {
-                match input[index].as_str() {
+            while depth > 0 {
+                let Some(word) = input.get(index) else {
+                    break;
+                };
+                match word.as_str() {
                     "{" => depth += 1,
                     "}" => depth -= 1,
                     _ => {}
@@ -104,7 +109,7 @@ fn product_tokens(text: &str) -> Vec<String> {
                 index += 1;
             }
         } else {
-            product.push(input[index].clone());
+            product.push(word.clone());
             index += 1;
         }
     }
