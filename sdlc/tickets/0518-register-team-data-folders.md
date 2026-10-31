@@ -1,6 +1,7 @@
 # 0518 — Register the team's data folders
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 25f558ac16251c4e910483ef48989623f8976f53
 
 Milestone: 5
 
