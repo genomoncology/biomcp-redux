@@ -65,6 +65,7 @@ impl Calls {
         let root = service.root.clone();
         let settings = service.settings.clone();
         let fetch = service.fetch.clone();
+        let recovery = service.recovery.clone();
         let worker_scope = scope.clone();
         let worker_id = id.clone();
         let (sender, receiver) = mpsc::sync_channel(1);
@@ -76,6 +77,7 @@ impl Calls {
                     root: &root,
                     settings: &settings,
                     fetch: &fetch,
+                    recovery: recovery.as_deref(),
                     secrets: secrets.as_ref(),
                     scope: Some(&worker_scope),
                 };

@@ -30,6 +30,7 @@ struct Service {
     root: Arc<clap::Command>,
     settings: Arc<crate::config::Settings>,
     fetch: Result<Arc<biomcp_fetch::Fetch>, crate::config::StartupError>,
+    recovery: Option<Arc<super::Recovery>>,
 }
 pub(crate) fn serve(
     address: &str,
@@ -63,11 +64,14 @@ pub(crate) fn serve(
     }
     let listener = TcpListener::bind(address).map_err(|_| StartError::Local)?;
     let address = listener.local_addr().map_err(|_| StartError::Local)?;
+    let fetch = crate::config::fetch(&globals, &settings).map(Arc::new);
+    let recovery = fetch.is_err().then(|| Arc::new(super::Recovery::new()));
     let service = Arc::new(Service {
         calls: Calls::default(),
         address,
         hosts,
-        fetch: crate::config::fetch(&globals, &settings).map(Arc::new),
+        fetch,
+        recovery,
         globals,
         root,
         settings,
@@ -266,6 +270,7 @@ impl Service {
                     root: &self.root,
                     settings: &self.settings,
                     fetch: &self.fetch,
+                    recovery: self.recovery.as_deref(),
                     secrets: keys.as_ref(),
                     scope: None,
                 },

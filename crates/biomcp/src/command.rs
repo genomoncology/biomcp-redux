@@ -98,14 +98,15 @@ fn dispatch_using(
         Ok(action) => action,
         Err(error) => return usage_envelope(error, encoding),
     };
-    let fetch = match transport::fetch(&parsed.globals, settings, context)? {
+    let transport = match transport::fetch(&parsed.globals, settings, context)? {
         Ok(fetch) => fetch,
         Err(error) => return local::startup(error, encoding),
     };
+    let settings = transport.settings.as_deref().unwrap_or(settings);
     let outcome = execute(
         root,
         settings,
-        &fetch,
+        &transport.fetch,
         action,
         &parsed.globals,
         allow_save,

@@ -9,6 +9,7 @@ pub(crate) struct Context<'a> {
     pub(crate) root: &'a clap::Command,
     pub(crate) settings: &'a crate::config::Settings,
     pub(crate) fetch: &'a Result<Arc<Fetch>, StartupError>,
+    pub(crate) recovery: Option<&'a crate::mcp::Recovery>,
     pub(crate) secrets: Option<&'a Secrets>,
     pub(crate) scope: Option<&'a Cancellation>,
 }
@@ -24,6 +25,7 @@ impl<'a> Context<'a> {
             root,
             settings,
             fetch,
+            recovery: None,
             secrets: None,
             scope: None,
         }

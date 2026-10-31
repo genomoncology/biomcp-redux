@@ -21,11 +21,14 @@ pub(super) fn trials() -> Vec<Trial> {
             stdio().map_err(Into::into)
         }),
         transcript_trial("mcp-hosted/keys/startup-recovery", || {
-            recovery().map_err(Into::into)
+            recovery(false).map_err(Into::into)
+        }),
+        transcript_trial("mcp-hosted/keys/recovery-freezes-static-settings", || {
+            recovery(true).map_err(Into::into)
         }),
     ]
 }
-fn recovery() -> Check {
+fn recovery(freeze: bool) -> Check {
     let mut server = Server::configured_globals(
         "127.0.0.1:0",
         Some(json!({"proxy":"ftp://127.0.0.1:1"})),
@@ -68,6 +71,14 @@ fn recovery() -> Check {
                 })
             {
                 return Err("startup recovery dropped the caller credential".into());
+            }
+            if freeze {
+                server
+                    .environment()
+                    .config(&json!({
+                        "proxy":"ftp://127.0.0.1:1", "keys":{"oncokb_api_key":SERVER}
+                    }))
+                    .map_err(|error| error.to_string())?;
             }
         } else if content.pointer("/error/source") != Some(&json!("oncokb")) {
             return Err("startup recovery retained a previous caller credential".into());
