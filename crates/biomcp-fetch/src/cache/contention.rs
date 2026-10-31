@@ -26,7 +26,7 @@ fn discretionary_read_waits_for_held_local_sql_until_deadline() {
         cache.try_sql(
             Deadline::start(Duration::from_secs(5), None),
             |connection| {
-                let busy: u64 = connection
+                let busy: i64 = connection
                     .query_row("PRAGMA busy_timeout", [], |row| row.get(0))
                     .unwrap();
                 assert_eq!(busy, 0, "external SQLite contention must remain immediate");
@@ -38,20 +38,17 @@ fn discretionary_read_waits_for_held_local_sql_until_deadline() {
 }
 
 #[test]
-#[expect(
-    clippy::disallowed_types,
-    reason = "Bind the held-lock probe to the command cancellation flag"
-)]
 fn discretionary_read_refuses_expired_or_cancelled_local_wait() {
-    use std::sync::{Arc, atomic::AtomicBool};
     let directory = tempfile::tempdir().unwrap();
     let cache = Cache::open_with_owners(&directory.path().join("cache.sqlite"), &[]).unwrap();
     let _owner = cache.0.lock().unwrap();
-    let cancelled = Arc::new(AtomicBool::new(true));
-    for deadline in [
-        Deadline::start(Duration::ZERO, None),
-        Deadline::start(Duration::from_secs(5), None).with_cancellation(Some(&cancelled)),
-    ] {
+    let (fetch, cancellation) = crate::Fetch::open(crate::FetchConfig::default())
+        .unwrap()
+        .cancellable()
+        .unwrap();
+    let cancelled = fetch.deadline(Duration::from_secs(5));
+    cancellation.cancel();
+    for deadline in [Deadline::start(Duration::ZERO, None), cancelled] {
         assert_eq!(
             cache.try_sql(deadline, |_| -> Result<(), CacheError> {
                 panic!("expired local wait reached SQL")
