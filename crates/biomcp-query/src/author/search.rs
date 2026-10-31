@@ -2,6 +2,7 @@ use super::{empty, retry, run, snapshot};
 use crate::{Ctx, Outcome, status};
 use biomcp_adapters::semantic_scholar::{self, author};
 use biomcp_fetch::{Deadline, RequestError, SourceError};
+use biomcp_types::Paged;
 use biomcp_types::ReplyBody;
 use biomcp_types::{
     AuthorGet, AuthorPage, AuthorSearch, PageInfo, Reason, ReplyData, Request, Source, SourceState,

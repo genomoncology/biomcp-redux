@@ -70,12 +70,6 @@ impl TryFrom<SearchFields> for CellLineSearch {
     }
 }
 impl CellLineSearch {
-    /// Preserve the literal query and page size on continuation.
-    pub fn at_offset(&self, offset: u32) -> Self {
-        let mut q = self.clone();
-        q.0.offset = offset;
-        q
-    }
     /// Literal checked search text.
     pub fn query(&self) -> &Text {
         &self.0.query
@@ -89,6 +83,12 @@ impl CellLineSearch {
         self.0.offset
     }
 }
+impl crate::Paged for CellLineSearch {
+    fn set_page_offset(&mut self, offset: u32) {
+        self.0.offset = offset;
+    }
+}
+
 /// One exact identity and an optional bounded named section.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "GetFields")]

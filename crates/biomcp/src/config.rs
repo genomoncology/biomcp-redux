@@ -1,5 +1,4 @@
 //! The process argument and settings boundary.
-use biomcp_fetch::Input;
 pub(crate) mod key_file;
 use crate::grammar::Globals;
 use biomcp_fetch::{Fetch, FetchConfig, Mode, ReplayCache, Secret, SecretName, Secrets};
@@ -282,7 +281,7 @@ fn configured_secret(
     keys: Option<&std::collections::BTreeMap<String, String>>,
     name: SecretName,
     environment: &impl Fn(&str) -> Result<Option<PathBuf>, ConfigError>,
-) -> Result<Option<Secret>, InputError> {
+) -> Result<Option<Secret>, biomcp_fetch::InputError> {
     if let Some(value) = keys
         .and_then(|keys| keys.get(name.config()))
         .filter(|v| !v.is_empty())
@@ -290,13 +289,13 @@ fn configured_secret(
         return Ok(Some(Secret::new(value.clone())));
     }
     environment(name.environment())
-        .map_err(|_| InputError::CredentialEncoding)?
+        .map_err(|_| biomcp_fetch::InputError::CredentialEncoding)?
         .map(|value| {
             value
                 .into_os_string()
                 .into_string()
                 .map(Secret::new)
-                .map_err(|_| InputError::CredentialEncoding)
+                .map_err(|_| biomcp_fetch::InputError::CredentialEncoding)
         })
         .transpose()
 }

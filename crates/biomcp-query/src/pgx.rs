@@ -1,5 +1,4 @@
 //! CPIC retrieval preserves source contexts and performs no clinical inference.
-use biomcp_fetch::Input;
 use biomcp_types::ReplyBody;
 mod annotations;
 mod next;
@@ -134,7 +133,7 @@ fn read(
             })
             .with_query(q.clone())
         }
-        Some(PgxSection::Annotations) => return Err(InputError::Serialization.into()),
+        Some(PgxSection::Annotations) => return Err(biomcp_fetch::InputError::Serialization.into()),
     })
 }
 fn empty(q: &PgxGet) -> ReplyData {

@@ -265,17 +265,17 @@ impl DiagnosticSearch {
     pub fn bundle_revision(&self) -> Option<&Text> {
         self.0.bundle_revision.as_ref()
     }
-    /// Continue without changing source, filters or revision.
-    pub fn at_offset(&self, offset: u32) -> Self {
-        let mut v = self.clone();
-        v.0.offset = offset;
-        v
-    }
+
     /// Bind a stored query to its immutable source snapshot.
     pub fn with_bundle_revision(&self, revision: Text) -> Self {
         let mut v = self.clone();
         v.0.bundle_revision = Some(revision);
         v
+    }
+}
+impl crate::Paged for DiagnosticSearch {
+    fn set_page_offset(&mut self, offset: u32) {
+        self.0.offset = offset;
     }
 }
 

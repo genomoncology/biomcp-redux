@@ -1,5 +1,6 @@
 //! Feature: phenotype-types. Public checked request and neutral record contracts.
 use biodata::HpId;
+use biomcp_types::Paged;
 use biomcp_types::{PhenotypeGet, PhenotypeSearch, PhenotypeSource};
 use serde_json::json;
 

@@ -1,4 +1,5 @@
 //! Source-local association search, without clinical interpretation.
+use biomcp_types::Paged;
 use biomcp_types::ReplyBody;
 mod get;
 pub(crate) mod map;

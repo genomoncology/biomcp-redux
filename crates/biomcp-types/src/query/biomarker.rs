@@ -1,4 +1,5 @@
 //! Checked selectors for NCI biomarker terminology.
+use crate::Paged;
 use crate::QueryInvalid;
 use biodata::{NcitId, Text};
 use serde::{Deserialize, Serialize};
@@ -81,13 +82,7 @@ impl BiomarkerSearch {
         q.0.pool = Some(pool);
         q
     }
-    /// Restart the native search.
-    pub fn restart(&self) -> Self {
-        let mut q = self.clone();
-        q.0.offset = 0;
-        q.0.pool = None;
-        q
-    }
+
     /// Snapshot selectors exclude page controls.
     pub fn snapshot_query(&self) -> Self {
         let mut q = self.restart();
@@ -95,6 +90,15 @@ impl BiomarkerSearch {
         q
     }
 }
+impl crate::Paged for BiomarkerSearch {
+    fn set_page_offset(&mut self, offset: u32) {
+        self.0.offset = offset;
+    }
+    fn clear_page_context(&mut self) {
+        self.0.pool = None;
+    }
+}
+
 #[doc = "Search NCI by exact NCIt code. Several native rows return candidates without choosing one. The public tier returns \
     codes, name, type, trial count, synonyms, parent_ids, ancestor_ids and eligibility_criterion. No clinical interpretation \
     is performed."]

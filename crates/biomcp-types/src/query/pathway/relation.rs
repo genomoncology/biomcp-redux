@@ -64,9 +64,7 @@ macro_rules! relation {
             /// Retain the same immutable relation on subsequent pages.
             pub fn with_pool(mut self, pool: Text) -> Self { self.0.pool = Some(pool); self }
             /// Restart the same disclosure mode at its first page.
-            pub fn restart(&self) -> Self {
-                let mut value = self.clone(); value.0.offset = 0; value.0.pool = None; value
-            }
+
             /// Checked source identity owning this relation.
             pub fn id(&self) -> &PathwayId { &self.0.id }
             /// Complete relation rows per page.
@@ -76,10 +74,13 @@ macro_rules! relation {
             /// Immutable relation snapshot.
             pub fn pool(&self) -> Option<&Text> { self.0.pool.as_ref() }
             /// Continue without changing relation identity, mode or page size.
-            pub fn at_offset(&self, offset: u32) -> Self {
-                let mut v = self.clone(); v.0.offset = offset; v
-            }
+
         }
+impl crate::Paged for $name {
+    fn set_page_offset(&mut self, offset: u32) { self.0.offset = offset; }
+    fn clear_page_context(&mut self) { self.0.pool = None; }
+}
+
     };
 }
 relation!(PathwayGenesQuery, GeneFields, "GeneFields", valid_genes,

@@ -1,5 +1,5 @@
 //! Source-local native drug requests; selected identities never fan out.
-use biomcp_fetch::Input;
+use biomcp_types::Paged;
 use biomcp_types::ReplyBody;
 mod identity;
 mod sections;
@@ -88,7 +88,9 @@ fn search_page(
     query: &DrugSearch,
     problems: &mut Vec<biomcp_types::Problem>,
 ) -> Result<NativeWindow<biomcp_types::DrugHeader>, RequestError> {
-    let name = query.query().ok_or(InputError::Serialization)?;
+    let name = query
+        .query()
+        .ok_or(biomcp_fetch::InputError::Serialization)?;
     let source = query.source().source();
     if query.source() == DrugSource::Chembl {
         let (page, _) = chembl::search(

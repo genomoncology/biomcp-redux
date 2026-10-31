@@ -55,8 +55,9 @@ pub fn get(leg: &Leg<'_>, id: &ReportId) -> Result<Detail, RequestError> {
         crate::registry::records::RecordKind::AdverseEvent,
         id.as_str(),
     )
-    .ok_or(InputError::Serialization)?;
-    let report_url = biodata::Text::new(&url).map_err(|_| InputError::Serialization)?;
+    .ok_or(biomcp_fetch::InputError::Serialization)?;
+    let report_url =
+        biodata::Text::new(&url).map_err(|_| biomcp_fetch::InputError::Serialization)?;
     let (report, positions, problems, refusals) = match report {
         Some(mapped) => (
             Some(mapped.value.data),

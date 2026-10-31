@@ -64,7 +64,7 @@ pub fn expression(query: &AdverseEventSearch) -> String {
 /// Read one checked native page; component policy applies before cache, replay or HTTP.
 pub fn search(leg: &Leg<'_>, query: &AdverseEventSearch) -> Result<Page, RequestError> {
     if query.source() != AdverseEventSource::Faers {
-        return Err(InputError::Serialization.into());
+        return Err(biomcp_fetch::InputError::Serialization.into());
     }
     let selector = expression(query);
     if query.reaction().is_some() {

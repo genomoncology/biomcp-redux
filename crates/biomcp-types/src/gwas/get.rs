@@ -92,11 +92,10 @@ impl GwasSectionPage {
     pub fn offset(&self) -> u32 {
         self.0.section_offset
     }
-    /// Select a later relation window.
-    pub fn at_offset(&self, offset: u32) -> Self {
-        let mut page = self.clone();
-        page.0.section_offset = offset;
-        page
+}
+impl crate::Paged for GwasSectionPage {
+    fn set_page_offset(&mut self, offset: u32) {
+        self.0.section_offset = offset;
     }
 }
 
@@ -152,13 +151,19 @@ impl GwasGet {
         }
         next
     }
-    /// Restart the same relation without a retained reply.
-    pub fn restart(&self) -> Self {
-        self.with_page(GwasSectionPage(PageFields {
-            section_limit: self.page().limit(),
-            section_offset: 0,
-            snapshot: None,
-        }))
+}
+impl crate::Paged for GwasGet {
+    fn set_page_offset(&mut self, offset: u32) {
+        match self {
+            Self::Association { page, .. } | Self::Study { page, .. } => {
+                page.set_page_offset(offset)
+            }
+        }
+    }
+    fn clear_page_context(&mut self) {
+        match self {
+            Self::Association { page, .. } | Self::Study { page, .. } => page.0.snapshot = None,
+        }
     }
 }
 

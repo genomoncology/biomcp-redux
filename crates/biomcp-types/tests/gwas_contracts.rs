@@ -1,5 +1,6 @@
 //! Public GWAS value and request contracts before command registration.
 use biodata::{GwasAssociationId, GwasStudyId, GwasTraitId, ScientificPValue};
+use biomcp_types::Paged;
 use biomcp_types::{GwasGet, GwasSearch};
 use serde_json::json;
 

@@ -3,6 +3,7 @@ use crate::{Ctx, Outcome, status};
 use biodata::{Text, UniProtIsoform};
 use biomcp_adapters::uniprot;
 use biomcp_fetch::{CacheError, Deadline, RequestError};
+use biomcp_types::Paged;
 use biomcp_types::ReplyBody;
 use biomcp_types::{
     PageInfo, ProteinFeatures, ProteinFeaturesQuery, ProteinIsoforms, ProteinRelationQuery,

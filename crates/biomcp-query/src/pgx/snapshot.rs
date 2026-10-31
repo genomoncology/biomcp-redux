@@ -2,6 +2,7 @@
 use crate::{Ctx, Outcome, status, store::Store};
 use biomcp_adapters::clinpgx;
 use biomcp_fetch::{CacheError, Deadline, RequestError, SourceError};
+use biomcp_types::Paged;
 use biomcp_types::{
     PgxAnnotationKind, PgxAnnotations, PgxGet, Reason, ReplyData, Request, Source, SourceOutcome,
     SourceState, StepKind,

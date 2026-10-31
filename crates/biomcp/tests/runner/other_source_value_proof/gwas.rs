@@ -1,6 +1,7 @@
 //! Retained GWAS pages with derived field/identity faults and a synthetic TLS transport.
 use super::super::{configuration::invoke, launch, network_stub::Stub, schema::Registry, variant};
 use super::{Check, save};
+use biomcp_types::Paged;
 use biomcp_types::{GwasPage, GwasPageQuery};
 use serde_json::{Value, json};
 use std::path::Path;

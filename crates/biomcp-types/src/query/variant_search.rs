@@ -360,13 +360,13 @@ impl VariantSearch {
     pub fn offset(&self) -> u32 {
         self.0.offset
     }
-    /// Preserve all declared selectors on the next native page.
-    pub fn at_offset(&self, offset: u32) -> Self {
-        let mut q = self.clone();
-        q.0.offset = offset;
-        q
+}
+impl crate::Paged for VariantSearch {
+    fn set_page_offset(&mut self, offset: u32) {
+        self.0.offset = offset;
     }
 }
+
 impl Fields {
     fn filtered(&self) -> bool {
         self.review_status.is_some() || self.condition.is_some() || self.has.is_some()

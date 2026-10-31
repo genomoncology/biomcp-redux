@@ -1,6 +1,7 @@
 use super::relation::{self, Echo, Selection};
 use crate::{Ctx, Outcome, status};
 use biomcp_fetch::Deadline;
+use biomcp_types::Paged;
 use biomcp_types::{
     PathwayCard, PathwayGet, PathwayHeader, PathwaySection, Reason, ReplyData, Section, Source,
 };

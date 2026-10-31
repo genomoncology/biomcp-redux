@@ -3,6 +3,7 @@ use super::empty;
 use crate::{Ctx, Outcome, status};
 use biomcp_adapters::fda_drug_recall as source;
 use biomcp_fetch::{Leg, RequestError};
+use biomcp_types::Paged;
 use biomcp_types::ReplyBody;
 use biomcp_types::{
     DrugGet, DrugRecallPage, DrugSearch, DrugSource, PageInfo, Request, Source, SourceState,

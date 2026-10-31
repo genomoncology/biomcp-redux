@@ -3,6 +3,7 @@ use crate::{Ctx, Outcome, status};
 use biodata::PopulationDataType;
 use biomcp_adapters::gnomad;
 use biomcp_fetch::RequestError;
+use biomcp_types::Paged;
 use biomcp_types::ReplyBody;
 use biomcp_types::{
     GnomadCounts, PageInfo, Reason, Request, Section, Source, StepKind, VariantPopulationQuery,

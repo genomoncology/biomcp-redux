@@ -1,7 +1,6 @@
 use crate::Outcome;
 use biodata::{FaersReport, Text};
 use biomcp_adapters::{NativePositions, faers::Positions};
-use biomcp_fetch::Input;
 use biomcp_fetch::RequestError;
 use biomcp_types::ReplyBody;
 use biomcp_types::{
@@ -182,7 +181,7 @@ fn card(
             .as_ref()
             .map_or(r.reactions.len() as u32, |p| p.total),
         source_url: Text::new("https://open.fda.gov/apis/drug/event/")
-            .map_err(|_| InputError::Serialization)?,
+            .map_err(|_| biomcp_fetch::InputError::Serialization)?,
         report_url: url,
         available_sections: vec![S::Drugs, S::Reactions].into(),
         components: Box::default(),

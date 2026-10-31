@@ -18,7 +18,7 @@ pub struct Page {
 }
 /// Search exactly the requested native source window, without refill.
 pub fn search(leg: &Leg<'_>, q: &PathwaySearch) -> Result<Page, RequestError> {
-    let text = q.query().ok_or(InputError::Serialization)?;
+    let text = q.query().ok_or(biomcp_fetch::InputError::Serialization)?;
     let endpoint = SPEC
         .get("/search/query")
         .fresh(Freshness::Days(1))
@@ -203,5 +203,5 @@ pub fn release(leg: &Leg<'_>) -> Result<Text, RequestError> {
     let value = leg
         .call::<raw::Version>(&endpoint, Input::Params(&[]), biomcp_fetch::Read::json())
         .map(|received| received.value)?;
-    Text::new(&value.0.to_string()).map_err(|_| InputError::Serialization.into())
+    Text::new(&value.0.to_string()).map_err(|_| biomcp_fetch::InputError::Serialization.into())
 }

@@ -1,6 +1,7 @@
 use super::page::{empty, page_info, run, slice};
 use crate::{Ctx, Outcome, status};
 use biomcp_adapters::ols;
+use biomcp_types::Paged;
 use biomcp_types::ReplyBody;
 use biomcp_types::{
     DiseaseGet, DiseasePage, DiseaseSearch, DiseaseSection, DiseaseSynonyms, DiseaseXrefs,

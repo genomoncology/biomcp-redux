@@ -1,7 +1,6 @@
 use super::{S, page};
 use crate::Outcome;
 use biodata::{FaersDrug, FaersIdentifiers, Text};
-use biomcp_fetch::Input;
 use biomcp_fetch::RequestError;
 use biomcp_types::ReplyBody;
 use biomcp_types::ReplyData;
@@ -43,7 +42,9 @@ pub(super) fn render(
     components: Box<[ComponentLabel]>,
     out: &mut Outcome,
 ) -> Result<(), RequestError> {
-    let index = q.drug_index().ok_or(InputError::Serialization)?;
+    let index = q
+        .drug_index()
+        .ok_or(biomcp_fetch::InputError::Serialization)?;
     let Some(drug) = drug else {
         out.body = ReplyData::Usage(biomcp_types::UsageError::TextPositionError);
         return Ok(());
@@ -116,7 +117,7 @@ pub(super) fn render(
             application_number: records,
             components,
         },
-        _ => return Err(InputError::Serialization.into()),
+        _ => return Err(biomcp_fetch::InputError::Serialization.into()),
     };
     out.body = result.with_query(q.clone());
     Ok(())

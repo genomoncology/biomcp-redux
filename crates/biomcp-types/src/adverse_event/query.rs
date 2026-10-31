@@ -185,13 +185,7 @@ impl AdverseEventSearch {
         q.0.offset = 0;
         q
     }
-    /// Restart without an expired retained table.
-    pub fn restart(&self) -> Self {
-        let mut q = self.clone();
-        q.0.snapshot = None;
-        q.0.offset = 0;
-        q
-    }
+
     /// Exact supported vaccine code, never an inferred code bridge.
     pub fn vaccine(&self) -> Option<&'static str> {
         self.0
@@ -243,13 +237,16 @@ impl AdverseEventSearch {
     pub fn offset(&self) -> u32 {
         self.0.offset
     }
-    /// Continue while preserving every filter.
-    pub fn at_offset(&self, offset: u32) -> Self {
-        let mut q = self.clone();
-        q.0.offset = offset;
-        q
+}
+impl crate::Paged for AdverseEventSearch {
+    fn set_page_offset(&mut self, offset: u32) {
+        self.0.offset = offset;
+    }
+    fn clear_page_context(&mut self) {
+        self.0.snapshot = None;
     }
 }
+
 /// Exact native report identity and an optional independently paged section.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "GetFields")]
@@ -345,13 +342,7 @@ impl AdverseEventGet {
         q.0.snapshot = Some(snapshot);
         q
     }
-    /// Restart the exact report without an expired snapshot.
-    pub fn restart(&self) -> Self {
-        let mut q = self.clone();
-        q.0.snapshot = None;
-        q.0.section_offset = 0;
-        q
-    }
+
     /// Absolute native drug index, only for identifier sections.
     pub fn drug_index(&self) -> Option<u32> {
         self.0.drug_index
@@ -381,5 +372,13 @@ impl AdverseEventGet {
         fields.drug_index = drug_index;
         fields.section_offset = 0;
         fields.try_into()
+    }
+}
+impl crate::Paged for AdverseEventGet {
+    fn set_page_offset(&mut self, offset: u32) {
+        self.0.section_offset = offset;
+    }
+    fn clear_page_context(&mut self) {
+        self.0.snapshot = None;
     }
 }

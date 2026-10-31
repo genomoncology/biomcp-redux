@@ -2,6 +2,7 @@ use super::{empty, run, snapshot};
 use crate::{Ctx, Outcome, status};
 use biomcp_adapters::reactome;
 use biomcp_fetch::{Deadline, RequestError, SourceError};
+use biomcp_types::Paged;
 use biomcp_types::ReplyBody;
 use biomcp_types::{
     PathwayGet, PathwayPage, PathwayPageInfo, PathwaySearch, PathwayTotalKind, Reason, ReplyData,

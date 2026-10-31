@@ -375,13 +375,13 @@ impl DrugSearch {
     pub fn offset(&self) -> u32 {
         self.0.offset
     }
-    /// Continue that exact literal source query.
-    pub fn at_offset(&self, offset: u32) -> Self {
-        let mut fields = self.0.clone();
-        fields.offset = offset;
-        Self(fields)
+}
+impl crate::Paged for DrugSearch {
+    fn set_page_offset(&mut self, offset: u32) {
+        self.0.offset = offset;
     }
 }
+
 impl DrugGet {
     /// Explicit requested disclosures.
     pub fn sections(&self) -> &[DrugSection] {

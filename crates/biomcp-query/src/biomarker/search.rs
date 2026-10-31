@@ -3,6 +3,7 @@ use crate::source_snapshot as snapshot;
 use crate::{Action, Ctx, Outcome, status};
 use biomcp_adapters::nci;
 use biomcp_fetch::{Deadline, RequestError, SourceError};
+use biomcp_types::Paged;
 use biomcp_types::ReplyBody;
 use biomcp_types::{BiomarkerPage, BiomarkerSearch, Reason, ReplyData, Request, Source, StepKind};
 /// Find native biomarker concept headers without interpretation.

@@ -1,5 +1,6 @@
 //! study-types: public no-I/O contracts from retained cBioPortal metadata shapes.
 use biodata::{Study, StudyId, StudySampleList};
+use biomcp_types::Paged;
 use biomcp_types::{StudyGet, StudySearch};
 use serde_json::{Value, json};
 

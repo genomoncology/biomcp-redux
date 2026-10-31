@@ -1,4 +1,5 @@
 //! Exact FAERS report reads and checked immutable section continuation.
+use biomcp_types::Paged;
 use biomcp_types::ReplyBody;
 mod render;
 use crate::{Ctx, Outcome, status, store::Store};

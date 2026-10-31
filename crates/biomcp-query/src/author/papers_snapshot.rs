@@ -4,6 +4,7 @@ use crate::{
 };
 use biomcp_adapters::semantic_scholar::author::PapersPage;
 use biomcp_fetch::{CacheError, Deadline, RequestError};
+use biomcp_types::Paged;
 use biomcp_types::{AuthorPapersQuery, ReplyData, Request, SourceOutcome, StepKind};
 #[derive(Debug)]
 pub(super) struct Saved {

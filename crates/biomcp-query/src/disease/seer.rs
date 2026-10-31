@@ -1,5 +1,6 @@
 use crate::{Ctx, Outcome, status};
 use biomcp_adapters::seer;
+use biomcp_types::Paged;
 use biomcp_types::ReplyBody;
 use biomcp_types::{
     DiseaseGet, DiseaseIncidence, DiseaseSearch, DiseaseSection, DiseaseSites, DiseaseSurvival,

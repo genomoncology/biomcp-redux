@@ -1,5 +1,6 @@
 use super::run;
 use biodata::PathwayEventRef;
+use biomcp_types::Paged;
 use biomcp_types::{
     GeneGet, GeneInput, PathwayEvents, PathwayEventsQuery, PathwayGenes, PathwayGenesQuery,
     PathwayGet, Request, StepKind,

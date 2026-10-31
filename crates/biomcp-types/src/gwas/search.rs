@@ -1,4 +1,5 @@
 //! Standalone GWAS requests. Shared command registration follows separately.
+use crate::Paged;
 use crate::{GeneSymbol, Pmid, QueryInvalid, RsId, Text};
 use biodata::{GwasStudyId, GwasTraitId, ScientificPValue};
 use serde::{Deserialize, Serialize};
@@ -222,23 +223,20 @@ impl GwasSearch {
     pub fn pool(&self) -> Option<&Text> {
         self.0.pool.as_ref()
     }
-    /// Restart the exact selectors at the beginning.
-    pub fn restart(&self) -> Self {
-        let mut q = self.at_offset(0);
-        q.0.pool = None;
-        q
-    }
+
     /// Continue a retained threshold walk.
     pub fn in_pool(&self, pool: Text, offset: u32) -> Self {
         let mut q = self.at_offset(offset);
         q.0.pool = Some(pool);
         q
     }
-    /// Continue without changing source selectors.
-    pub fn at_offset(&self, offset: u32) -> Self {
-        let mut next = self.clone();
-        next.0.offset = offset;
-        next
+}
+impl crate::Paged for GwasSearch {
+    fn set_page_offset(&mut self, offset: u32) {
+        self.0.offset = offset;
+    }
+    fn clear_page_context(&mut self) {
+        self.0.pool = None;
     }
 }
 

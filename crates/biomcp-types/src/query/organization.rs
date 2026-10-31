@@ -1,4 +1,5 @@
 //! Checked NCI organization selectors preserve native matching.
+use crate::Paged;
 use crate::QueryInvalid;
 use biodata::Text;
 use serde::{Deserialize, Serialize};
@@ -200,17 +201,19 @@ impl OrganizationSearch {
         q.0.pool = Some(pool);
         q
     }
-    /// Canonical selectors for a new observation, independent of page size.
-    pub fn restart(&self) -> Self {
-        let mut q = self.clone();
-        q.0.offset = 0;
-        q.0.pool = None;
-        q
-    }
+
     /// Snapshot key selectors exclude page controls.
     pub fn snapshot_query(&self) -> Self {
         let mut q = self.restart();
         q.0.limit = limit();
         q
+    }
+}
+impl crate::Paged for OrganizationSearch {
+    fn set_page_offset(&mut self, offset: u32) {
+        self.0.offset = offset;
+    }
+    fn clear_page_context(&mut self) {
+        self.0.pool = None;
     }
 }

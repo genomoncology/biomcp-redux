@@ -93,7 +93,7 @@ fn resolve(
         CellLineInput::Accession(id) => (id.clone(), None),
         CellLineInput::Source(id) => {
             if cellosaurus::native_database(id).is_none() {
-                return Err(InputError::Path.into());
+                return Err(biomcp_fetch::InputError::Path.into());
             }
             let page = cellosaurus::reverse(leg, id)?;
             dropped |= page.refusals == biomcp_adapters::Refusal::Refused;
@@ -118,7 +118,7 @@ fn resolve(
             (
                 page.items
                     .first()
-                    .ok_or(InputError::Serialization)?
+                    .ok_or(biomcp_fetch::InputError::Serialization)?
                     .accession
                     .clone(),
                 Some(id),

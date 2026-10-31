@@ -2,7 +2,6 @@
 
 /// Shared independent component declaration.
 pub use crate::registry::Component;
-use biomcp_fetch::Input;
 use biomcp_fetch::Terms;
 use biomcp_types::{Source, Use};
 /// CADD data retain their published noncommercial terms.
@@ -68,11 +67,12 @@ pub fn terms(name: &str) -> Option<Terms> {
 }
 
 /// Convert a declaration to its public response label without repeating its values.
-pub fn label(terms: Terms) -> Result<biomcp_types::ComponentTerms, InputError> {
+pub fn label(terms: Terms) -> Result<biomcp_types::ComponentTerms, biomcp_fetch::InputError> {
     Ok(biomcp_types::ComponentTerms {
         usage: terms.usage,
-        name: biodata::Text::new(terms.name).map_err(|_| InputError::Serialization)?,
-        url: biodata::Text::new(terms.url).map_err(|_| InputError::Serialization)?,
+        name: biodata::Text::new(terms.name)
+            .map_err(|_| biomcp_fetch::InputError::Serialization)?,
+        url: biodata::Text::new(terms.url).map_err(|_| biomcp_fetch::InputError::Serialization)?,
     })
 }
 

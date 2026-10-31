@@ -116,7 +116,7 @@ pub fn catalog(leg: &Leg<'_>, limit: u32, offset: u32) -> Result<Page<DiseaseSit
         problems.record = None;
         if let Some(site) = problems.field("CancerSites.value", Some(site)) {
             let code = crate::mapped::text(&site.value.to_string())
-                .map_err(|_| InputError::Serialization)?;
+                .map_err(|_| biomcp_fetch::InputError::Serialization)?;
             problems.record = Some(code.clone());
             let label = problems
                 .required(

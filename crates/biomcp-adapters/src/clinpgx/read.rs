@@ -110,7 +110,7 @@ pub fn references(
     let (path, class) = match q.kind() {
         Some(PgxAnnotationKind::Guideline) => ("/data/guidelineAnnotation", "GuidelineAnnotation"),
         Some(PgxAnnotationKind::Label) => ("/data/labelAnnotation", "LabelAnnotation"),
-        _ => return Err(InputError::Serialization.into()),
+        _ => return Err(biomcp_fetch::InputError::Serialization.into()),
     };
     collection::<super::annotation_raw::PgxAnnotationReference>(
         leg,

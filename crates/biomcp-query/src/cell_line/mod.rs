@@ -1,4 +1,5 @@
 //! Literal source discovery and exact cell identity; no name-based joins.
+use biomcp_types::Paged;
 use biomcp_types::ReplyBody;
 mod all;
 mod chembl;

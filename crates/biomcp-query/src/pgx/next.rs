@@ -1,6 +1,7 @@
 //! Pure typed follow-up requests; source names never become chosen drug identities.
 use crate::Outcome;
 use crate::next::run;
+use biomcp_types::Paged;
 use biomcp_types::{
     PgxAnnotations, PgxGet, PgxPageInfo, PgxRecommendations, PgxSection, PgxSource, ReplyData,
     Request, SourceState, Status, StepKind,

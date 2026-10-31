@@ -119,12 +119,7 @@ impl VariantAssertionsGet {
     pub fn offset(&self) -> u32 {
         self.0.offset
     }
-    /// Continue the same source result.
-    pub fn at_offset(&self, offset: u32) -> Self {
-        let mut q = self.clone();
-        q.0.offset = offset;
-        q
-    }
+
     /// Construct a checked source query without selecting an assertion.
     pub fn new(
         input: VariantInput,
@@ -155,6 +150,12 @@ impl VariantAssertionsGet {
         self.0.try_into()
     }
 }
+impl crate::Paged for VariantAssertionsGet {
+    fn set_page_offset(&mut self, offset: u32) {
+        self.0.offset = offset;
+    }
+}
+
 biodata::wire_enum! {
     /// Native assertion provider.
     AssertionSource {

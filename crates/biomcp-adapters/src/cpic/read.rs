@@ -56,7 +56,9 @@ fn read<T: serde::de::DeserializeOwned + Native>(
             }),
         )
         .map(|received| (received.value, received.meta))?;
-    let range = metadata.content_range.ok_or(InputError::Serialization)?;
+    let range = metadata
+        .content_range
+        .ok_or(biomcp_fetch::InputError::Serialization)?;
     let consumed = rows.0.len() as u32;
     let mut problems = Problems {
         source: biomcp_types::Source::Cpic,
@@ -186,7 +188,9 @@ pub fn drug_recommendations(
     leg: &Leg<'_>,
     query: &PgxGet,
 ) -> Result<Page<PgxDrugRecommendation>, RequestError> {
-    let id = query.drug_id().ok_or(InputError::Serialization)?;
+    let id = query
+        .drug_id()
+        .ok_or(biomcp_fetch::InputError::Serialization)?;
     let drug = format!("eq.{id}");
     let key = format!("lookupkey->>{}", query.gene());
     read::<super::raw::PgxDrugRecommendation>(
@@ -244,7 +248,9 @@ pub fn guidelines(
 }
 /// Retrieve every mapping for the unchanged expression; literal empty is success.
 pub fn diplotype(leg: &Leg<'_>, query: &PgxGet) -> Result<Page<PgxDiplotypeResult>, RequestError> {
-    let expression = query.diplotype().ok_or(InputError::Serialization)?;
+    let expression = query
+        .diplotype()
+        .ok_or(biomcp_fetch::InputError::Serialization)?;
     let gene = format!("eq.{}", query.gene());
     let value = format!("eq.{expression}");
     read::<super::raw::PgxDiplotypeResult>(

@@ -19,7 +19,9 @@ pub struct Record {
 pub fn get(leg: &Leg<'_>, query: &DiseaseGet) -> Result<Option<Record>, RequestError> {
     let ontology = crate::disease_sources::components::ontology(
         leg,
-        query.ontology().ok_or(InputError::Serialization)?,
+        query
+            .ontology()
+            .ok_or(biomcp_fetch::InputError::Serialization)?,
     )?;
     let endpoint = SPEC
         .get("/api/ontologies")

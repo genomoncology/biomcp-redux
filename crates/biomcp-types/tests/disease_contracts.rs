@@ -1,5 +1,6 @@
 //! Disease public wire contracts precede provider implementations.
 use biodata::{DiseaseAssociation, Statement};
+use biomcp_types::Paged;
 use biomcp_types::{DiseaseCard, DiseaseGet, DiseaseOntology, DiseaseSearch};
 use serde::{Serialize, de::DeserializeOwned};
 use serde_json::{Value, json};

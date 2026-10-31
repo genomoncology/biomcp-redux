@@ -17,9 +17,13 @@ pub struct SearchPage {
 pub fn search(leg: &Leg<'_>, query: &DiseaseSearch) -> Result<SearchPage, RequestError> {
     let ontology = crate::disease_sources::components::ontology(
         leg,
-        query.ontology().ok_or(InputError::Serialization)?,
+        query
+            .ontology()
+            .ok_or(biomcp_fetch::InputError::Serialization)?,
     )?;
-    let text = query.text().ok_or(InputError::Serialization)?;
+    let text = query
+        .text()
+        .ok_or(biomcp_fetch::InputError::Serialization)?;
     let endpoint = SPEC.get("/api/search").fresh(Freshness::Days(1));
     let (page, _) = leg
         .call::<raw::Search>(

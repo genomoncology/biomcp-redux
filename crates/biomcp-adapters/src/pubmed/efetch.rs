@@ -66,7 +66,7 @@ pub fn fetch_articles(
     email: Option<&Secret>,
 ) -> Result<(Vec<FetchedArticle>, ReplyMetadata), RequestError> {
     if ids.len() > 200 || ids.is_empty() {
-        return Err(InputError::Method.into());
+        return Err(biomcp_fetch::InputError::Method.into());
     }
     let ids: Vec<_> = ids
         .iter()

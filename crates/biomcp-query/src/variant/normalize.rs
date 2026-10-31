@@ -1,5 +1,6 @@
 //! Explicit provider normalization with independent source outcomes.
 use crate::{Ctx, Outcome, status};
+use biomcp_types::Paged;
 use biomcp_types::ReplyBody;
 
 use biomcp_adapters::{allele_registry, mutalyzer, variantvalidator};
