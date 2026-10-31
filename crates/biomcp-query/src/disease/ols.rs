@@ -26,21 +26,21 @@ pub fn search(cx: &Ctx<'_>, query: &DiseaseSearch) -> Outcome {
         out.include_refusals(page.rows.refusals);
         let returned = page.rows.value.len() as u32;
         for row in &page.rows.value {
-            if let Some(id) = &row.concept.id {
-                if let Some(get) = crate::next::checked(
+            if let Some(id) = &row.concept.id
+                && let Some(get) = crate::next::checked(
                     id.to_string()
                         .parse()
                         .map_err(|_| biomcp_types::QueryInvalid::new(&["id"]))
                         .and_then(|id| DiseaseGet::ols(id, row.ontology)),
                     Source::Ols,
                     &mut out.problems,
-                ) {
-                    out.next.push(crate::next::Step::new(
-                        StepKind::Disambiguate,
-                        &[biomcp_types::Source::Ols],
-                        run(Request::GetDisease(get)),
-                    ));
-                }
+                )
+            {
+                out.next.push(crate::next::Step::new(
+                    StepKind::Disambiguate,
+                    &[biomcp_types::Source::Ols],
+                    run(Request::GetDisease(get)),
+                ));
             }
         }
         if page.received > 0 && u64::from(query.offset()) + u64::from(page.received) < page.total {
