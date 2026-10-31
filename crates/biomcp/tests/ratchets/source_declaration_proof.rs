@@ -142,9 +142,10 @@ fn generic_source_constructor_rejects_unnamed_provider_facts() -> Check {
             tree.path(),
             &format!("crates/biomcp-adapters/src/{path}"),
             &format!(
-                "fn {name}(source: Source, carrier: &SourceSpec, terms: Terms) -> SourceSpec {{ \
-                    SourceSpec {{ source, terms, base: {base}, destinations: biomcp_fetch::Destinations::Primary, \
-                    user_agent: carrier.user_agent, key: KeyUse::None, quota: carrier.quota, deadline: carrier.deadline }} }}"
+                "fn {name}(source: Source, carrier: &SourceSpec, terms: Terms) -> SourceSpec {{\n\
+                    SourceSpec {{ source, terms, base: {base},\n\
+                    destinations: biomcp_fetch::Destinations::Primary, user_agent: carrier.user_agent,\n\
+                    key: KeyUse::None, quota: carrier.quota, deadline: carrier.deadline }}\n}}"
             ),
         )?;
         let failure = check(tree.path())

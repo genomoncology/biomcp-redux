@@ -111,6 +111,15 @@ fn dispatched_source(
         })
 }
 
+fn return_type(prefix: &[String]) -> bool {
+    prefix
+        .rsplit(|token| matches!(token.as_str(), "{" | "}" | ";"))
+        .next()
+        .unwrap_or_default()
+        .windows(2)
+        .any(|pair| pair == ["-", ">"])
+}
+
 fn collect(
     path: &str,
     input: &[String],
@@ -119,6 +128,7 @@ fn collect(
 ) -> Check {
     for (i, token) in input.iter().enumerate() {
         if input.get(i + 1).is_none_or(|token| token != "{")
+            || return_type(input.get(..i).unwrap_or_default())
             || input
                 .get(i.wrapping_sub(1))
                 .is_some_and(|token| token == "struct")
