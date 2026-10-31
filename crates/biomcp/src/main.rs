@@ -35,47 +35,43 @@ fn main() -> ExitCode {
     }
     let (_, path) = grammar::presentation(&root, &args).unwrap_or_default();
     let settings = std::sync::Arc::new(config::file::read_file(path.as_ref()));
-    if let Ok(parsed) = parsed {
-        if parsed.action.is_none() && parsed.key.is_none() {
-            let globals = parsed.globals;
-            if let Some((address, hosts)) = parsed.http {
-                return match mcp::http::serve(
-                    &address,
-                    hosts,
-                    globals,
-                    root.clone(),
-                    settings.clone(),
-                ) {
-                    Ok(()) => ExitCode::SUCCESS,
-                    Err(mcp::http::StartError::Configuration(error)) => {
-                        match command::local::startup(error) {
-                            Ok(outcome) => exit::finish(
-                                output::command(&outcome, &root, &settings, &args),
-                                outcome.status,
-                            ),
-                            Err(error) => exit::failure(error),
-                        }
+    if let Ok(parsed) = parsed
+        && parsed.action.is_none()
+        && parsed.key.is_none()
+    {
+        let globals = parsed.globals;
+        if let Some((address, hosts)) = parsed.http {
+            return match mcp::http::serve(&address, hosts, globals, root.clone(), settings.clone())
+            {
+                Ok(()) => ExitCode::SUCCESS,
+                Err(mcp::http::StartError::Configuration(error)) => {
+                    match command::local::startup(error) {
+                        Ok(outcome) => exit::finish(
+                            output::command(&outcome, &root, &settings, &args),
+                            outcome.status,
+                        ),
+                        Err(error) => exit::failure(error),
                     }
-                    Err(mcp::http::StartError::AllowHost) => exit::finish(
-                        command::encode(
-                            biomcp_types::ErrorEnvelope::from(biomcp_types::UsageError::argument(
-                                "--allow-host".into(),
-                            )),
-                            exit::Status::Usage,
-                        )
-                        .and_then(|outcome| output::bytes(&outcome.cli_bytes)),
+                }
+                Err(mcp::http::StartError::AllowHost) => exit::finish(
+                    command::encode(
+                        biomcp_types::ErrorEnvelope::from(biomcp_types::UsageError::argument(
+                            "--allow-host".into(),
+                        )),
                         exit::Status::Usage,
-                    ),
-                    Err(mcp::http::StartError::Usage) => ExitCode::from(exit::Status::Usage.code()),
-                    Err(mcp::http::StartError::Local) => ExitCode::from(exit::Status::Local.code()),
-                };
-            }
-            let fetch = config::fetch(&globals, &settings);
-            return exit::finish(
-                mcp::serve(globals, fetch, root.clone(), settings.clone()),
-                exit::Status::Success,
-            );
+                    )
+                    .and_then(|outcome| output::bytes(&outcome.cli_bytes)),
+                    exit::Status::Usage,
+                ),
+                Err(mcp::http::StartError::Usage) => ExitCode::from(exit::Status::Usage.code()),
+                Err(mcp::http::StartError::Local) => ExitCode::from(exit::Status::Local.code()),
+            };
         }
+        let fetch = config::fetch(&globals, &settings);
+        return exit::finish(
+            mcp::serve(globals, fetch, root.clone(), settings.clone()),
+            exit::Status::Success,
+        );
     }
     match command::dispatch(&root, &settings, &args) {
         Ok(outcome) => exit::finish(
