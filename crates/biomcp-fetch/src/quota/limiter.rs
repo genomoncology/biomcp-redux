@@ -26,7 +26,7 @@ pub(super) enum Caller {
 }
 const IDLE_BUCKET_TTL: Duration = Duration::from_secs(300);
 #[cfg(test)]
-#[path = "limiter_tests.rs"]
+#[path = "../../tests/quotas/expiry.rs"]
 mod tests;
 
 impl Limiters {

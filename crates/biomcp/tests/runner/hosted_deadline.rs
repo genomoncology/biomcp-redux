@@ -84,10 +84,7 @@ fn blocked_settings() -> Result<(), String> {
     let (status, reply) = server.request(
         "POST",
         "/mcp",
-        &serde_json::json!({
-            "jsonrpc":"2.0","id":2,"method":"tools/list","params":{}
-        })
-        .to_string(),
+        &super::mcp::request(serde_json::json!(2), "tools/list", serde_json::json!({})).to_string(),
     )?;
     if status != 200 || reply.pointer("/result/tools/0/name") != Some(&serde_json::json!("biomcp"))
     {
@@ -108,7 +105,15 @@ fn request(address: std::net::SocketAddr) -> Result<serde_json::Value, String> {
     stream
         .set_read_timeout(Some(DEADLOCK_GUARD))
         .map_err(|e| e.to_string())?;
-    stream.write_all(format!("POST /mcp HTTP/1.1\r\nHost: {address}\r\nContent-Type: application/json\r\nAccept: application/json, text/event-stream\r\nMCP-Protocol-Version: 2025-11-25\r\nConnection: close\r\nContent-Length: {}\r\n\r\n{body}", body.len()).as_bytes()).map_err(|e| e.to_string())?;
+    let frame = format!(
+        "POST /mcp HTTP/1.1\r\nHost: {address}\r\nContent-Type: application/json\r\n\
+        Accept: application/json, text/event-stream\r\nMCP-Protocol-Version: 2025-11-25\r\n\
+        Connection: close\r\nContent-Length: {}\r\n\r\n{body}",
+        body.len()
+    );
+    stream
+        .write_all(frame.as_bytes())
+        .map_err(|e| e.to_string())?;
     let mut response = String::new();
     stream
         .read_to_string(&mut response)

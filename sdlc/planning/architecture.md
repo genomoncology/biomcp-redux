@@ -767,13 +767,13 @@ When steps 5 to 9 fail and the cache holds a stale entry for the key, the leg se
 Limiters are keyed by a source key and never by a URL, a host name or an endpoint.
 
 - Each adapter's `SourceSpec` names the `Quota` that matches the provider's documented limit, and each `Quota` names its `SourceKey`. Sources that share one provider limit declare the same quota. PubMed, NCBI Gene and ClinVar all draw on E-utilities, so all three use `ncbi-eutils`, and a gene leg and an article leg in one command cannot together exceed NCBI's limit. Sources on one host with separate limits declare separate keys. PubTator sits on an NCBI host with its own limit, so it uses `pubtator`.
-- `Fetch` holds one limiter per `SourceKey`, built from its `Quota` on first use. The limiter's constructor takes only a `&'static Quota`, so nothing can derive a limiter from a URL or host. The ratchet test checks that `SourceKey::declare` and `Quota` statics appear only in `quotas.rs` and that no two quotas declare the same key.
+- `Fetch` shares its quota owner across command snapshots. Ordinary commands keep one limiter per declared `SourceKey`. Hosted commands use one bucket per source and effective credential fingerprint, with one shared keyless bucket per source. Fingerprints come from the shared secret owner and never expose key values. Idle buckets expire only after their credit refills and all callers leave. No limiter derives its source identity from a URL or host. The ratchet confines source key declarations and quota statics to the adapter quota table.
 - Each limiter applies the keyed rate when the leg's source has its key configured, and the unkeyed rate otherwise.
 - Permits are served in arrival order. A waiter takes a ticket under a `Mutex`, and a `Condvar` wakes tickets in order. A caller sleeps for its rate slot outside the lock.
 - Each leg runs on its own thread, and only sources on the same quota wait for each other. A slow or rate-limited source therefore delays only the legs that share its provider.
 - The article slice declares `ncbi-eutils` (3 per second, 10 with a key), `europepmc` (assumed 10 per second), `pubtator` (3 per second), `litvar` (assumed 3 per second), `semantic-scholar` (1 request every 2 seconds without a key, 1 per second with the optional key), `icite` (assumed 5 per second) and `pmc-oa` (assumed 10 per second). Each assumed rate is confirmed against the provider before its adapter lands.
 - A recorded case sends eight parallel calls to one E-utilities quota without a key and asserts from `--explain` that their start times keep the quota's rate. 0.9 drew seven 429 replies from the same pattern.
-- The limiter is per process. Several BioMCP processes sharing a key can exceed a provider's limit together. The provider then answers 429, and step 7 retries within the deadline.
+- The limiter is per process. Hosted operators set `--rate-share` to their process's share of every keyed and keyless source rate. The front end assigns shares across server instances. These processes do not coordinate with one another. Hosted HTTP calls retain a bounded worker slot until actual completion and return a typed `deadline-exceeded` when the whole-call wall-clock budget expires.
 
 ### 4.6 Retries
 
@@ -1939,8 +1939,10 @@ The ratchet owns the authoritative file and reason list below and checks this ta
 | --- | --- |
 | `crates/biomcp-fetch/src/hosts_tests.rs` | Check credential-free exact publisher origins at the private admission boundary without a product inventory helper. |
 | `crates/biomcp-fetch/tests/grpc_worker/shutdown.rs` | Prove cancellation joins active network work at the private worker boundary without exporting shutdown control. |
+| `crates/biomcp-fetch/tests/quotas/expiry.rs` | Check idle bucket expiry after scaled refill without sleeping or exposing transport state. |
 | `crates/biomcp/src/grammar/reference.rs` | Generate and compare documentation at the private parser boundary without adding a public command. |
 | `crates/biomcp/src/mcp/worker_tests.rs` | Test worker panic completion and exact serialized tool result character boundaries that public requests cannot intentionally produce. |
+| `crates/biomcp/src/mcp/http/call.rs` | Prove hosted tool capacity and shutdown ownership with held worker exits using the private server limit. |
 | `crates/biomcp/src/config/deferred_keys_tests.rs` | Observe forbidden credential environment reads at the private settings boundary while executing real commands. |
 | `crates/biomcp-types/tests/author_contracts.rs` | Exercise checked source-qualified author records and standalone native paper and work-group contracts before adapters exist. |
 | `crates/biomcp-types/tests/cell_line_contracts.rs` | Exercise checked cell identities, native variation members and provenance, and standalone consumer contracts through the public library API before adapters exist. |
@@ -2060,7 +2062,7 @@ Every ratchet starts at its 1.0 target, because the code starts empty. `make lan
 | Outside-in coverage | never more than 0.2 points below the floor | `make coverage` with `coverage.floor` |
 | Output size per command and per section | under each case's `max_bytes` and `max_tokens` ceilings | the runner |
 | Keyed sources called without the user's key | none | `KeyUse::Required` checked in `Fetch::leg` and the fan-out; a replay case per keyed source with no key asserts `skipped` and no recording read |
-| Limiters keyed by anything but a declared source key | none | the limiter takes only a `&'static Quota`; the ratchet test confines `SourceKey::declare` and `Quota` statics to `quotas.rs` and refuses duplicate keys |
+| Limiter source identities derived from URLs or hosts | none | the quota table declares source keys; hosted caller buckets add only the shared opaque credential fingerprint |
 | Documented commands that fail | none | a docs check runs each documented command over recordings |
 
 ## 12. Porting 0.9 knowledge
