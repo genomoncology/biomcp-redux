@@ -27,15 +27,20 @@ struct Service {
     address: SocketAddr,
     hosts: Vec<Authority>,
     globals: crate::grammar::Globals,
+    root: Arc<crate::grammar::Root>,
+    settings: Arc<crate::config::Settings>,
     fetch: Result<Arc<biomcp_fetch::Fetch>, crate::config::StartupError>,
+    recovery: Option<Arc<super::Recovery>>,
 }
 pub(crate) fn serve(
     address: &str,
     hosts: Vec<String>,
     globals: crate::grammar::Globals,
+    root: Arc<crate::grammar::Root>,
+    settings: Arc<crate::config::Settings>,
 ) -> Result<(), StartError> {
     let address: SocketAddr = address.parse().map_err(|_| StartError::Usage)?;
-    let names = crate::config::http_hosts(&globals)
+    let names = crate::config::http_hosts(&settings)
         .map_err(|error| StartError::Configuration(error.into()))?;
     let mut allowed = names
         .iter()
@@ -59,12 +64,17 @@ pub(crate) fn serve(
     }
     let listener = TcpListener::bind(address).map_err(|_| StartError::Local)?;
     let address = listener.local_addr().map_err(|_| StartError::Local)?;
+    let fetch = crate::config::fetch(&globals, &settings).map(Arc::new);
+    let recovery = fetch.is_err().then(|| Arc::new(super::Recovery::new()));
     let service = Arc::new(Service {
         calls: Calls::default(),
         address,
         hosts,
-        fetch: crate::config::fetch(&globals).map(Arc::new),
+        fetch,
+        recovery,
         globals,
+        root,
+        settings,
     });
     let (stop, stopped) = std::sync::mpsc::sync_channel(1);
     ctrlc::try_set_handler(move || {
@@ -193,7 +203,7 @@ impl Service {
             Err(error) => return (400, Some(error), None),
         };
         let mut legacy = revision != super::protocol::REVISIONS[0];
-        let result = match super::rpc::message(&request.body, &mut legacy, true) {
+        let result = match super::rpc::message(&request.body, &mut legacy, true, &self.root) {
             super::rpc::Message::Reply(reply) => reply,
             super::rpc::Message::Notification { .. } => return (202, None, Some(revision)),
             super::rpc::Message::Tool { id, params, modern } => {
@@ -257,7 +267,10 @@ impl Service {
                 &call,
                 crate::command::Context {
                     globals: &self.globals,
+                    root: &self.root,
+                    settings: &self.settings,
                     fetch: &self.fetch,
+                    recovery: self.recovery.as_deref(),
                     secrets: keys.as_ref(),
                     scope: None,
                 },

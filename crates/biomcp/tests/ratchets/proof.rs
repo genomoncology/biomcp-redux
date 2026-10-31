@@ -516,3 +516,8 @@ fn structural_diagnostics_keep_independent_categories() -> Check {
 fn adapter_mapping_helpers_require_one_owner() -> Check {
     helper_owner_proof::check()
 }
+
+#[test]
+fn reject_config_reads_and_tree_builds_in_commands() -> Check {
+    super::process_setup::reject_config_reads_and_tree_builds_in_commands()
+}

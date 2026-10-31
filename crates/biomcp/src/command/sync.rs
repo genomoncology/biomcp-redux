@@ -1,19 +1,26 @@
-use super::{Outcome, bundle_source, encode};
+use super::{Encoding, Outcome, bundle_source};
 use biomcp_query::Bundle;
 use biomcp_types::{Envelope, Status};
 use std::io;
-pub(super) fn run(fetch: &biomcp_fetch::Fetch, bundle: Bundle) -> io::Result<Outcome> {
+pub(super) fn run(
+    fetch: &biomcp_fetch::Fetch,
+    bundle: Bundle,
+    encoding: Encoding,
+) -> io::Result<Outcome> {
     match biomcp_query::sources::sync(fetch, bundle) {
         biomcp_query::sources::BundleReply::Standard(result, stale) => {
-            finish(bundle, result, stale)
+            finish(bundle, result, stale, encoding)
         }
-        biomcp_query::sources::BundleReply::WikiPathways(result) => finish(bundle, result, false),
+        biomcp_query::sources::BundleReply::WikiPathways(result) => {
+            finish(bundle, result, false, encoding)
+        }
     }
 }
 fn finish<T: biomcp_types::ResponseBody<Query = biomcp_types::SyncQuery>>(
     bundle: Bundle,
     result: Result<biomcp_query::sources::Mapped<T>, biomcp_fetch::RequestError>,
     stale: bool,
+    encoding: Encoding,
 ) -> io::Result<Outcome> {
     let source = bundle_source(bundle);
     let source_state = if stale {
@@ -73,7 +80,7 @@ fn finish<T: biomcp_types::ResponseBody<Query = biomcp_types::SyncQuery>>(
         .iter()
         .map(|step| crate::spell::step(step.0, &step.1))
         .collect::<Result<Vec<_>, _>>()?;
-    encode(
+    encoding.encode(
         envelope,
         if local {
             crate::exit::Status::Local

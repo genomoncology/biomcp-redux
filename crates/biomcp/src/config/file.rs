@@ -23,7 +23,7 @@ impl ConfigError {
 }
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
-pub(super) struct ConfigFile {
+pub(crate) struct ConfigFile {
     pub(super) format: Option<crate::grammar::Format>,
     pub(super) proxy: Option<String>,
     pub(super) http: Option<Http>,
@@ -138,7 +138,7 @@ fn diagnose(bytes: &[u8]) -> Result<ConfigFile, ConfigError> {
     unknown(&map, "")?;
     Ok(file)
 }
-pub(super) fn read_file(
+pub(crate) fn read_file(
     override_path: Option<&PathBuf>,
 ) -> Result<Option<ConfigFile>, ConfigError> {
     config_path(override_path)?

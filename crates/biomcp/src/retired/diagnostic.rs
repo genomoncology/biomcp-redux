@@ -11,7 +11,7 @@ struct Words<'a> {
     manufacturer: bool,
     test_type: bool,
 }
-pub(super) fn message(args: &[OsString]) -> Option<ErrorMessage> {
+pub(super) fn message(root: &clap::Command, args: &[OsString]) -> Option<ErrorMessage> {
     let mut words = Words::default();
     let mut literal = false;
     let mut args = args.iter();
@@ -50,7 +50,7 @@ pub(super) fn message(args: &[OsString]) -> Option<ErrorMessage> {
         if matches!(
             flag,
             "--section" | "--query" | "--marker" | "--manufacturer" | "--disease" | "-d"
-        ) || super::takes_value(flag, &words.positional).unwrap_or(false)
+        ) || super::takes_value(root, flag, &words.positional).unwrap_or(false)
         {
             let value = inline.or_else(|| args.next().and_then(|v| v.to_str()));
             match flag {

@@ -46,16 +46,18 @@ pub(super) fn valid_params(method: &str, params: &Value) -> bool {
 pub(super) const SCHEMA_DIALECT: &str = "https://json-schema.org/draft/2020-12/schema";
 const RESULT_CHARACTER_CAP: usize = 150_000;
 
-pub(super) fn tool(read_only: bool) -> std::io::Result<Value> {
-    Ok(json!({"name":"biomcp", "description":crate::help::tree(),
+pub(super) fn tool(root: &crate::grammar::Root, read_only: bool) -> std::io::Result<Value> {
+    Ok(
+        json!({"name":"biomcp", "description":crate::help::tree(root),
         "annotations":{"readOnlyHint":read_only,"destructiveHint":false,"openWorldHint":true},
         "inputSchema":{"$schema":SCHEMA_DIALECT,"type":"object","properties":{"args":{"type":"array","items":{"type":"string"}}},
-            "required":["args"],"additionalProperties":false},"outputSchema":super::output_schema::for_tool("biomcp")?}))
+            "required":["args"],"additionalProperties":false},"outputSchema":super::output_schema::for_tool(root, "biomcp")?}),
+    )
 }
 
-pub(super) fn tools(read_only: bool) -> std::io::Result<Vec<Value>> {
-    let mut tools = vec![tool(read_only)?];
-    tools.extend(super::research::tools()?);
+pub(super) fn tools(root: &crate::grammar::Root, read_only: bool) -> std::io::Result<Vec<Value>> {
+    let mut tools = vec![tool(root, read_only)?];
+    tools.extend(super::research::tools(root)?);
     Ok(tools)
 }
 
@@ -77,7 +79,10 @@ pub(super) fn tool_result(id: Value, outcome: &crate::command::Outcome, modern: 
         outcome.status,
         crate::exit::Status::Success | crate::exit::Status::Absent
     );
-    let reply = result(id.clone(), content(outcome.value.clone(), failed), modern);
+    let Ok(value) = outcome.value() else {
+        return self::error(id, -32603, "Internal error");
+    };
+    let reply = result(id.clone(), content(value.clone(), failed), modern);
     if reply.get("result").is_some_and(within_cap) {
         return reply;
     }

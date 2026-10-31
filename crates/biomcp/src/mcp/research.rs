@@ -3,7 +3,7 @@ mod records;
 use serde_json::{Value, json};
 use std::{ffi::OsString, io};
 
-pub(super) fn tools() -> io::Result<Vec<Value>> {
+pub(super) fn tools(root: &crate::grammar::Root) -> io::Result<Vec<Value>> {
     [
         (
             "search",
@@ -18,7 +18,7 @@ pub(super) fn tools() -> io::Result<Vec<Value>> {
     ]
     .into_iter()
     .map(|(name, key, description)| {
-        let output = super::output_schema::for_tool(name)?;
+        let output = super::output_schema::for_tool(root, name)?;
         Ok(json!({"name":name,
 "description":description,
 "inputSchema":{"$schema":super::protocol::SCHEMA_DIALECT,"type":"object",
@@ -98,7 +98,7 @@ pub(super) fn execute(
     let mut outcome = if http {
         crate::command::tool_http(&call.args, context)?
     } else {
-        crate::command::tool(&call.args, context.globals, context.fetch)?
+        crate::command::tool(&call.args, context)?
     };
     if !matches!(
         outcome.status,
@@ -106,14 +106,19 @@ pub(super) fn execute(
     ) {
         return Ok(outcome);
     }
-    outcome.value = match &call.projection {
-        Projection::Cli => return Ok(outcome),
-        Projection::Search => search(call, outcome.value)?,
+    if matches!(&call.projection, Projection::Cli) {
+        return Ok(outcome);
+    }
+    let original = std::mem::take(outcome.value_mut()?);
+    let projected = match &call.projection {
+        Projection::Cli => original,
+        Projection::Search => search(context.root, call, original)?,
         Projection::Fetch(id) => {
-            let entity = entity(call);
-            let hit = records::fetch(entity, id, &outcome.value);
+            let entity = entity(context.root, call);
+            let hit = records::fetch(entity, id, &original);
             let Some(hit) = hit else {
                 outcome.status = crate::exit::Status::Failed;
+                *outcome.value_mut()? = original;
                 return Ok(outcome);
             };
             serde_json::to_value(biomcp_types::ResearchFetch {
@@ -121,18 +126,19 @@ pub(super) fn execute(
                 title: hit.title,
                 url: hit.url,
                 text: biodata::Markdown::new(
-                    &String::from_utf8(crate::view::markdown(&outcome.value)?)
+                    &String::from_utf8(crate::view::markdown(&original)?)
                         .map_err(io::Error::other)?,
                 )
                 .map_err(io::Error::other)?,
-                metadata: outcome.value,
+                metadata: original,
             })?
         }
     };
+    *outcome.value_mut()? = projected;
     Ok(outcome)
 }
-fn search(call: &Call, envelope: Value) -> io::Result<Value> {
-    let entity = entity(call);
+fn search(root: &crate::grammar::Root, call: &Call, envelope: Value) -> io::Result<Value> {
+    let entity = entity(root, call);
     let rows = envelope.pointer("/result/items").and_then(Value::as_array);
     let results = rows
         .into_iter()
@@ -184,8 +190,8 @@ fn restrictions(
     Ok(hit)
 }
 
-fn entity(call: &Call) -> &'static str {
-    match crate::grammar::parse(&call.args)
+fn entity(root: &crate::grammar::Root, call: &Call) -> &'static str {
+    match crate::grammar::parse(root, &call.args)
         .ok()
         .and_then(|parsed| parsed.action)
     {

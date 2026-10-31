@@ -21,11 +21,14 @@ pub(super) fn trials() -> Vec<Trial> {
             stdio().map_err(Into::into)
         }),
         transcript_trial("mcp-hosted/keys/startup-recovery", || {
-            recovery().map_err(Into::into)
+            recovery(false).map_err(Into::into)
+        }),
+        transcript_trial("mcp-hosted/keys/recovery-freezes-static-settings", || {
+            recovery(true).map_err(Into::into)
         }),
     ]
 }
-fn recovery() -> Check {
+fn recovery(freeze: bool) -> Check {
     let mut server = Server::configured_globals(
         "127.0.0.1:0",
         Some(json!({"proxy":"ftp://127.0.0.1:1"})),
@@ -68,6 +71,14 @@ fn recovery() -> Check {
                 })
             {
                 return Err("startup recovery dropped the caller credential".into());
+            }
+            if freeze {
+                server
+                    .environment()
+                    .config(&json!({
+                        "proxy":"ftp://127.0.0.1:1", "keys":{"oncokb_api_key":SERVER}
+                    }))
+                    .map_err(|error| error.to_string())?;
             }
         } else if content.pointer("/error/source") != Some(&json!("oncokb")) {
             return Err("startup recovery retained a previous caller credential".into());
@@ -243,6 +254,27 @@ fn header_boundaries(server: &Server, hosted: bool) -> Check {
 fn concurrent(args: &[&str]) -> Check {
     let assets = Environment::new().map_err(|e| e.to_string())?;
     let scoped = super::licensed_cache::scoped_gene_fixture(&assets, CALLER)?;
+    // Both callers run the public gene join before the hosted key refusal.
+    // Each caller needs its own identical exchange in the shared replay cursor.
+    for entry in std::fs::read_dir(scoped.join("mygene")).map_err(|e| e.to_string())? {
+        let path = entry.map_err(|e| e.to_string())?.path();
+        let mut record: Value =
+            serde_json::from_slice(&std::fs::read(&path).map_err(|e| e.to_string())?)
+                .map_err(|e| e.to_string())?;
+        let exchanges = record
+            .get_mut("exchanges")
+            .and_then(Value::as_array_mut)
+            .ok_or("MyGene replay exchanges")?;
+        if exchanges.len() != 1 {
+            return Err("concurrent MyGene fixture requires one exchange per caller".into());
+        }
+        exchanges.extend(exchanges.clone());
+        std::fs::write(
+            &path,
+            serde_json::to_vec(&record).map_err(|e| e.to_string())?,
+        )
+        .map_err(|e| e.to_string())?;
+    }
     let mut server = Server::configured_globals(
         "127.0.0.1:0",
         Some(json!({"keys":{"oncokb_api_key":SERVER}})),
@@ -266,6 +298,18 @@ fn concurrent(args: &[&str]) -> Check {
             &key,
             json!({"surface":"http-concurrent","keyed_reply":keyed,"unkeyed_reply":unkeyed}),
         )?;
+    }
+    if keyed.pointer("/result/isError") != Some(&json!(false))
+        || !keyed
+            .pointer("/result/structuredContent/sources")
+            .and_then(Value::as_array)
+            .is_some_and(|sources| {
+                sources
+                    .iter()
+                    .any(|source| source["source"] == "mygene" && source["state"] == "ok")
+            })
+    {
+        return Err("concurrent keyed caller exhausted the public gene fixture".into());
     }
     if keyed.pointer("/result/structuredContent/result/items/0/sections/oncokb/state")
         != Some(&json!("data"))

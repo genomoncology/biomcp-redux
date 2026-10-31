@@ -68,9 +68,11 @@ pub(crate) fn parse(matches: &clap::ArgMatches) -> Result<Command, crate::gramma
 pub(crate) fn run(
     command: Command,
     globals: &crate::grammar::Globals,
+    settings: &crate::config::Settings,
+    encoding: crate::command::Encoding,
 ) -> io::Result<crate::command::Outcome> {
-    match run_inner(command, globals) {
-        Ok(value) => crate::command::encode(
+    match run_inner(command, globals, settings) {
+        Ok(value) => encoding.encode(
             biomcp_types::Envelope::new(
                 biomcp_types::Status::Complete,
                 biomcp_types::EmptyQuery {},
@@ -78,21 +80,21 @@ pub(crate) fn run(
             ),
             crate::exit::Status::Success,
         ),
-        Err(Failure::Usage) => crate::command::encode(
+        Err(Failure::Usage) => encoding.encode(
             biomcp_types::ErrorEnvelope::from(biomcp_types::UsageError::arguments()),
             crate::exit::Status::Usage,
         ),
-        Err(Failure::Configuration(field)) => crate::command::encode(
+        Err(Failure::Configuration(field)) => encoding.encode(
             biomcp_types::ErrorEnvelope::configuration(field),
             crate::exit::Status::Local,
         ),
-        Err(Failure::Replace) => crate::command::encode(
+        Err(Failure::Replace) => encoding.encode(
             biomcp_types::ErrorEnvelope::from(biomcp_types::UsageError::argument(
                 "--replace".into(),
             )),
             crate::exit::Status::Usage,
         ),
-        Err(Failure::Local) => crate::command::encode(
+        Err(Failure::Local) => encoding.encode(
             biomcp_types::ErrorEnvelope::local(),
             crate::exit::Status::Local,
         ),
@@ -112,20 +114,20 @@ impl From<io::Error> for Failure {
 fn run_inner(
     command: Command,
     globals: &crate::grammar::Globals,
+    settings: &crate::config::Settings,
 ) -> Result<biomcp_types::RegisteredKeys, Failure> {
     let path = crate::config::config_path(globals.config.as_ref())
         .map_err(|error| Failure::Configuration(error.0))?
         .ok_or(Failure::Local)?;
     // Validate the same config contract used by ordinary commands before preserving it.
     if path.exists() {
-        crate::config::secrets(globals).map_err(|error| Failure::Configuration(error.0))?;
+        crate::config::secrets(settings).map_err(|error| Failure::Configuration(error.0))?;
     }
     if matches!(command, Command::List) {
-        let value = crate::config::key_file::read(&path)?;
         return Ok(biomcp_types::RegisteredKeys {
             entries: biomcp_query::sources::keys()
                 .iter()
-                .map(|&name| entry(name, state(&value, name)?))
+                .map(|&name| entry(name, state(settings, name)?))
                 .collect::<Result<_, _>>()?,
         });
     }
@@ -167,16 +169,23 @@ fn stored(value: &Value, name: SecretName) -> Option<&str> {
         .as_str()
         .filter(|s| !s.is_empty())
 }
-fn state(value: &Value, name: SecretName) -> Result<biomcp_types::KeyState, Failure> {
-    Ok(if stored(value, name).is_some() {
-        biomcp_types::KeyState::Stored
-    } else if crate::config::has_environment_key(name)
-        .map_err(|error| Failure::Configuration(error.0))?
-    {
-        biomcp_types::KeyState::Environment
-    } else {
-        biomcp_types::KeyState::None
-    })
+fn state(
+    settings: &crate::config::Settings,
+    name: SecretName,
+) -> Result<biomcp_types::KeyState, Failure> {
+    Ok(
+        if crate::config::has_stored_key(settings, name)
+            .map_err(|error| Failure::Configuration(error.0))?
+        {
+            biomcp_types::KeyState::Stored
+        } else if crate::config::has_environment_key(name)
+            .map_err(|error| Failure::Configuration(error.0))?
+        {
+            biomcp_types::KeyState::Environment
+        } else {
+            biomcp_types::KeyState::None
+        },
+    )
 }
 fn entry(
     name: SecretName,

@@ -62,7 +62,10 @@ impl Calls {
             return protocol::timeout(id);
         }
         let globals = service.globals.clone();
+        let root = service.root.clone();
+        let settings = service.settings.clone();
         let fetch = service.fetch.clone();
+        let recovery = service.recovery.clone();
         let worker_scope = scope.clone();
         let worker_id = id.clone();
         let (sender, receiver) = mpsc::sync_channel(1);
@@ -71,7 +74,10 @@ impl Calls {
             .spawn(move || {
                 let context = Context {
                     globals: &globals,
+                    root: &root,
+                    settings: &settings,
                     fetch: &fetch,
+                    recovery: recovery.as_deref(),
                     secrets: secrets.as_ref(),
                     scope: Some(&worker_scope),
                 };
@@ -159,11 +165,14 @@ mod tests {
     )]
     fn expired_calls_keep_capacity_and_shutdown_waits_for_actual_worker_exit() {
         let service = Service {
+            root: std::sync::Arc::new(crate::grammar::root().unwrap()),
+            settings: std::sync::Arc::new(Ok(None)),
             calls: Calls::default(),
             address: "127.0.0.1:1".parse().unwrap(),
             hosts: Vec::new(),
             globals: Globals::default(),
             fetch: Err(StartupError::Local),
+            recovery: None,
         };
         let mut releases = Vec::new();
         let mut exits = Vec::new();
