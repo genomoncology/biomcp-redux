@@ -1,5 +1,5 @@
 {
-  "live_check": "public",
+  "live_check": "Synthetic HGNC subset omits the public GO alias; recorded input grammar control only.",
   "feature": "gene-retired",
   "story": "Retired syntax has fixed guidance without consuming legitimate gene inputs",
   "replay": "gene/main",

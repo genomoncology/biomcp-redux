@@ -59,6 +59,9 @@ pub(crate) fn compare(
         }
         evidence.push(json!({"kind": kind, "source": old.source, "role": old.role,
             "before_identity": old.identity, "after_identity": paired.map(|item| &item.identity),
+            "before_shape_incomplete": old.shape.incomplete,
+            "after_shape_incomplete": paired.map(|item| item.shape.incomplete),
+            "shape_comparison": if old.shape.incomplete || paired.is_some_and(|item| item.shape.incomplete) {"incomplete"} else {"complete"},
             "before_statuses": statuses(before, &old.identity),
             "after_statuses": paired.map(|item| statuses(after, &item.identity))}));
     }
