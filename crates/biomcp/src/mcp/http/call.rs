@@ -21,6 +21,9 @@ use std::{
     reason = "The HTTP service owns its bounded active tool workers"
 )]
 pub(super) struct Calls(Mutex<Vec<Active>>);
+#[cfg(test)]
+#[path = "call_tests.rs"]
+mod tests;
 struct Active {
     worker: JoinHandle<()>,
     scope: Cancellation,

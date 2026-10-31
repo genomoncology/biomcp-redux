@@ -1,6 +1,10 @@
 //! Feature mcp-hosted: the call timer covers a blocked settings read before source work.
 use libtest_mimic::Trial;
 
+// Bounds diagnose a stuck fixture; no assertion measures admission or cleanup speed.
+#[cfg(unix)]
+const DEADLOCK_GUARD: std::time::Duration = std::time::Duration::from_secs(60);
+
 pub(super) fn trials() -> Vec<Trial> {
     #[cfg(unix)]
     {
@@ -19,12 +23,7 @@ pub(super) fn trials() -> Vec<Trial> {
 fn blocked_settings() -> Result<(), String> {
     use super::http::Server;
     use nix::{sys::stat::Mode, unistd::mkfifo};
-    use std::{
-        fs::OpenOptions,
-        io::Write,
-        os::unix::fs::OpenOptionsExt,
-        time::{Duration, Instant},
-    };
+    use std::{fs::OpenOptions, io::Write, os::unix::fs::OpenOptionsExt, time::Instant};
     let mut server = Server::configured_globals(
         "127.0.0.1:0",
         Some(serde_json::json!({})),
@@ -40,11 +39,9 @@ fn blocked_settings() -> Result<(), String> {
     std::fs::remove_file(&path).map_err(|e| e.to_string())?;
     mkfifo(&path, Mode::S_IRUSR | Mode::S_IWUSR).map_err(|e| e.to_string())?;
     let address = server.address;
-    let workers: Vec<_> = (0..8)
-        .map(|_| std::thread::spawn(move || request(address)))
-        .collect();
+    let worker = std::thread::spawn(move || request(address));
     // A successful nonblocking writer open witnesses the blocked reader's admission.
-    let end = Instant::now() + Duration::from_secs(5);
+    let end = Instant::now() + DEADLOCK_GUARD;
     let mut writer = loop {
         match OpenOptions::new()
             .write(true)
@@ -63,19 +60,13 @@ fn blocked_settings() -> Result<(), String> {
                     .environment()
                     .config(&serde_json::json!({}))
                     .map_err(|e| e.to_string())?;
-                for worker in workers {
-                    let _ = worker.join();
-                }
+                let _ = worker.join();
                 return Err(format!("settings reader did not enter the FIFO: {error}"));
             }
         }
     };
     // The response must arrive while the settings read still has no EOF.
-    let replies = workers
-        .into_iter()
-        .map(|worker| worker.join().map_err(|_| "deadline client stopped"))
-        .collect::<Result<Vec<_>, _>>()?;
-    let capacity = request(address);
+    let reply = worker.join().map_err(|_| "deadline client stopped")?;
     writer.write_all(b"{}").map_err(|e| e.to_string())?;
     drop(writer);
     std::fs::remove_file(&path).map_err(|e| e.to_string())?;
@@ -83,8 +74,27 @@ fn blocked_settings() -> Result<(), String> {
         .environment()
         .config(&serde_json::json!({}))
         .map_err(|e| e.to_string())?;
-    verify(replies, capacity)?;
-    recovered(address)?;
+    let reply = reply?;
+    if reply.pointer("/error/data/reason") != Some(&serde_json::json!("deadline-exceeded")) {
+        return Err(format!(
+            "whole call did not return the typed timeout: {reply}"
+        ));
+    }
+    // Finished timed-out work must release ownership so the same service can answer again.
+    let (status, reply) = server.request(
+        "POST",
+        "/mcp",
+        &serde_json::json!({
+            "jsonrpc":"2.0","id":2,"method":"tools/list","params":{}
+        })
+        .to_string(),
+    )?;
+    if status != 200 || reply.pointer("/result/tools/0/name") != Some(&serde_json::json!("biomcp"))
+    {
+        return Err(format!(
+            "service did not recover after timed-out settings read: {reply}"
+        ));
+    }
     server.stop()
 }
 
@@ -96,7 +106,7 @@ fn request(address: std::net::SocketAddr) -> Result<serde_json::Value, String> {
     .to_string();
     let mut stream = std::net::TcpStream::connect(address).map_err(|e| e.to_string())?;
     stream
-        .set_read_timeout(Some(std::time::Duration::from_secs(30)))
+        .set_read_timeout(Some(DEADLOCK_GUARD))
         .map_err(|e| e.to_string())?;
     stream.write_all(format!("POST /mcp HTTP/1.1\r\nHost: {address}\r\nContent-Type: application/json\r\nAccept: application/json, text/event-stream\r\nMCP-Protocol-Version: 2025-11-25\r\nConnection: close\r\nContent-Length: {}\r\n\r\n{body}", body.len()).as_bytes()).map_err(|e| e.to_string())?;
     let mut response = String::new();
@@ -107,44 +117,4 @@ fn request(address: std::net::SocketAddr) -> Result<serde_json::Value, String> {
         .split_once("\r\n\r\n")
         .ok_or("deadline response has no body")?;
     serde_json::from_str(body).map_err(|e| e.to_string())
-}
-
-#[cfg(unix)]
-fn verify(
-    replies: Vec<Result<serde_json::Value, String>>,
-    capacity: Result<serde_json::Value, String>,
-) -> Result<(), String> {
-    for reply in replies {
-        let reply = reply?;
-        if reply.pointer("/error/data/reason") != Some(&serde_json::json!("deadline-exceeded")) {
-            return Err(format!(
-                "whole call did not return the typed timeout: {reply}"
-            ));
-        }
-    }
-    let capacity = capacity?;
-    if capacity.pointer("/error/code") != Some(&serde_json::json!(-31000)) {
-        return Err(format!(
-            "timed-out running work released server capacity: {capacity}"
-        ));
-    }
-    Ok(())
-}
-#[cfg(unix)]
-fn recovered(address: std::net::SocketAddr) -> Result<(), String> {
-    let end = std::time::Instant::now() + std::time::Duration::from_secs(5);
-    loop {
-        let reply = request(address)?;
-        if reply.get("result").is_some() {
-            return Ok(());
-        }
-        if reply.pointer("/error/code") != Some(&serde_json::json!(-31000))
-            || std::time::Instant::now() >= end
-        {
-            return Err(format!(
-                "service did not recover after timed-out settings reads: {reply}"
-            ));
-        }
-        std::thread::yield_now();
-    }
 }
