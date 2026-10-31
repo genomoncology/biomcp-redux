@@ -13,11 +13,11 @@ pub(super) type Result<T> = (
     bool,
 );
 type Completed<'a> = (VariantSections, Collected, Deadline<'a>);
-pub(super) fn apply(
+pub(super) fn apply<'a>(
     cx: &Ctx<'_>,
     query: &VariantGet,
     candidates: &mut [VariantHeader],
-    deadline: &mut Deadline<'_>,
+    deadline: &mut Deadline<'a>,
     population_reason: Option<Reason>,
 ) -> (Vec<SourceOutcome>, Vec<Problem>, Option<RequestError>, bool) {
     let mut collected = Collected::default();
@@ -25,10 +25,10 @@ pub(super) fn apply(
         let mut sections = VariantSections::default();
         let origin = *deadline;
         let candidate_ref = &*candidate;
-        let jobs: Vec<Box<dyn FnOnce() -> Completed<'_> + Send + '_>> = selected(query)
+        let jobs: Vec<Box<dyn FnOnce() -> Completed<'a> + Send + '_>> = selected(query)
             .map(|section| {
                 Box::new(move || read(cx, query, candidate_ref, origin, population_reason, section))
-                    as Box<dyn FnOnce() -> Completed<'_> + Send + '_>
+                    as Box<dyn FnOnce() -> Completed<'a> + Send + '_>
             })
             .collect();
         for (result, mut more, completed) in crate::fan_out::run(jobs) {
