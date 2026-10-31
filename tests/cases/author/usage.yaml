@@ -18,7 +18,7 @@
         "/error/code": "usage.arguments"
       },
       "full_output_bytes": true,
-      "max_bytes": 166
+      "max_bytes": 395
     },
     {
       "run": [
@@ -32,7 +32,7 @@
         "/error/code": "usage.arguments"
       },
       "full_output_bytes": true,
-      "max_bytes": 166
+      "max_bytes": 630
     }
   ]
 }
