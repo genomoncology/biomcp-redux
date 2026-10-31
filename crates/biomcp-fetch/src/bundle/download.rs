@@ -342,8 +342,10 @@ impl Leg<'_> {
             if let Some(holder) = holder {
                 cache.discard(b.name, holder, self.budget())?;
             }
-            let retained = cache.bundle_info(b.name, self.budget())?
-                .as_ref().map(|meta| store::info(b, meta));
+            let retained = cache
+                .bundle_info(b.name, self.budget())?
+                .as_ref()
+                .map(|meta| store::info(b, meta));
             return Ok(BundleSync::Refused {
                 native_rows: rows.rejections.len() as u64,
                 rejections: rows.rejections.clone(),

@@ -186,7 +186,9 @@ impl BundleSync {
     pub(super) fn published(self, leg: &crate::Leg<'_>) -> Result<BundleInfo, RequestError> {
         match self {
             Self::Published(info) => Ok(info),
-            Self::Refused { .. } => Err(leg.failure(biomcp_types::Reason::BadReply, Some(200)).into()),
+            Self::Refused { .. } => Err(leg
+                .failure(biomcp_types::Reason::BadReply, Some(200))
+                .into()),
         }
     }
 }

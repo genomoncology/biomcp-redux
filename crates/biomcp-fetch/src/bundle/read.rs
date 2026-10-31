@@ -120,7 +120,10 @@ impl Leg<'_> {
                     continue;
                 }
             }
-            match self.sync_bundle(bundle, true).and_then(|result| result.published(self)) {
+            match self
+                .sync_bundle(bundle, true)
+                .and_then(|result| result.published(self))
+            {
                 Err(RequestError::Source(error))
                     if live
                         && error.reason == biomcp_types::Reason::Syncing

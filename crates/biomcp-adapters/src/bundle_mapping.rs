@@ -7,7 +7,15 @@ pub(crate) fn bundle_problems(
     source: biomcp_types::Source,
     info: &biomcp_fetch::BundleInfo,
 ) -> Vec<Problem> {
-    info.rejections
+    rejection_problems(source, info.name, &info.rejections)
+}
+
+pub(crate) fn rejection_problems(
+    source: biomcp_types::Source,
+    name: &str,
+    rejections: &[biomcp_fetch::BundleRejection],
+) -> Vec<Problem> {
+    rejections
         .iter()
         .map(|rejection| {
             let (part, reason) = rejection
@@ -22,8 +30,8 @@ pub(crate) fn bundle_problems(
                 _ => "decode",
             };
             let location = match part {
-                Some(part) => format!("{}.{part}", info.name),
-                None => info.name.to_owned(),
+                Some(part) => format!("{name}.{part}"),
+                None => name.to_owned(),
             };
             problem(
                 source,
@@ -52,6 +60,7 @@ pub(crate) fn bundle_sync(
         refusals: bundle_refusals(&info),
         problems: bundle_problems(source, &info),
         value: biomcp_types::SyncResult {
+            native_rows: None,
             snapshot: None,
             etag: None,
             last_modified: None,

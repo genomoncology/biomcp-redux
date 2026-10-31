@@ -355,6 +355,9 @@ pub struct SyncResult {
     /// Native publisher Last-Modified when supplied.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub last_modified: Option<Box<str>>,
+    /// Native catalog rows examined before identity admission.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub native_rows: Option<u64>,
     /// Imported rows.
     pub rows: u64,
     /// Imported source-file bytes before native file decoding.
