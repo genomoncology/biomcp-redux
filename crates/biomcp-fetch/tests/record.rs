@@ -501,7 +501,8 @@ fn head_metadata_capture_never_reads_the_object_or_collides_with_get() {
     thread::scope(|scope| {
         let worker = scope.spawn(|| {
             let leg = capture.leg(spec, capture.deadline(Duration::from_secs(10)));
-            leg.probe(&spec.head("/answer"), &[]).unwrap();
+            leg.probe(&spec.head("/answer"), biomcp_fetch::Input::Params(&[]))
+                .unwrap();
             get(&capture, spec).unwrap();
         });
         let request = server.next();
@@ -518,7 +519,7 @@ fn head_metadata_capture_never_reads_the_object_or_collides_with_get() {
     assert!(get(&replay, spec).unwrap().answer);
     replay
         .leg(spec, replay.deadline(Duration::from_secs(10)))
-        .probe(&spec.head("/answer"), &[])
+        .probe(&spec.head("/answer"), biomcp_fetch::Input::Params(&[]))
         .unwrap();
     assert!(server.requests.try_recv().is_err());
     let path = std::fs::read_dir(dir.path().join("pubmed"))
@@ -546,7 +547,7 @@ fn head_metadata_capture_never_reads_the_object_or_collides_with_get() {
         assert_eq!(
             replay
                 .leg(spec, replay.deadline(Duration::from_secs(10)))
-                .probe(&spec.head("/answer"), &[])
+                .probe(&spec.head("/answer"), biomcp_fetch::Input::Params(&[]))
                 .unwrap_err(),
             RequestError::Recording(RecordError::Malformed)
         );

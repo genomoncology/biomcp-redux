@@ -156,7 +156,7 @@ impl crate::Paged for GwasGet {
     fn set_page_offset(&mut self, offset: u32) {
         match self {
             Self::Association { page, .. } | Self::Study { page, .. } => {
-                page.set_page_offset(offset)
+                crate::Paged::set_page_offset(page, offset)
             }
         }
     }

@@ -7,13 +7,13 @@ pub(crate) static DECL: SourceDecl = SourceDecl {
     probe: Probe::Custom(|leg| {
         leg.probe(
             &crate::litsense::SENTENCES,
-            &[
+            biomcp_fetch::Input::Params(&[
                 (
                     "query",
                     biomcp_fetch::Arg::Text("AKT1 E17K capivasertib breast cancer"),
                 ),
                 ("rerank", biomcp_fetch::Arg::Text("true")),
-            ],
+            ]),
         )
     }),
     components: &[],

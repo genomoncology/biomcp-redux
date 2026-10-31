@@ -22,29 +22,9 @@ impl ResponseBody for PhenotypeTermCard {
     const SCHEMA: &'static str = "biomcp.phenotype-card/5";
     type Query = PhenotypeGet;
 }
-macro_rules! page {
-    ($name:ident, $row:ty, $query:ty, $schema:literal, $doc:literal) => {
-        #[doc = $doc]
-        #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-        #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-        pub struct $name {
-            /// Native ordered rows; empty remains an empty collection.
-            #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
-            pub items: Box<[$row]>,
-            /// Applicable publisher component terms.
-            #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
-            pub components: Box<[ComponentLabel]>,
-            /// Original source retrieval seconds, distinct from ontology release.
-            #[serde(default, skip_serializing_if = "Option::is_none")]
-            pub fetched: Option<u64>,
-        }
-        impl ResponseBody for $name {
-            const SCHEMA: &'static str = $schema;
-            type Query = $query;
-        }
-    };
-}
+
 page!(
+    phenotype,
     PhenotypePage,
     PhenotypeHeader,
     PhenotypeSearch,
@@ -52,6 +32,7 @@ page!(
     "Native HP search header page, without local ranking."
 );
 page!(
+    phenotype,
     PhenotypeSynonyms,
     PhenotypeSynonym,
     PhenotypeGet,
@@ -59,6 +40,7 @@ page!(
     "Source synonym rows preserving publisher classes."
 );
 page!(
+    phenotype,
     PhenotypeXrefs,
     PhenotypeXref,
     PhenotypeGet,
@@ -66,6 +48,7 @@ page!(
     "Source reference rows without equivalence promotion."
 );
 page!(
+    phenotype,
     PhenotypeHierarchy,
     PhenotypeHierarchyLink,
     PhenotypeGet,

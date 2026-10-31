@@ -4,7 +4,7 @@ pub(crate) static DECL: SourceDecl = SourceDecl {
     spec: &super::SPEC,
     display: "OncoKB",
     registry_order: Some(18),
-    probe: Probe::Custom(|leg| leg.probe(&crate::oncokb::INFO, &[])),
+    probe: Probe::Custom(|leg| leg.probe(&crate::oncokb::INFO, biomcp_fetch::Input::Params(&[]))),
     components: &[],
     auxiliary: &[],
     bundles: &[],

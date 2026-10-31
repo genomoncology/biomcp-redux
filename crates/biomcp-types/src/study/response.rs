@@ -52,34 +52,22 @@ impl ResponseBody for StudyCard {
     const SCHEMA: &'static str = "biomcp.study-card/7";
     type Query = StudyGet;
 }
-macro_rules! page {
-    ($name:ident,$row:ty,$schema:literal) => {
-        /// One independently acquired, bounded native metadata collection.
-        #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-        #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-        pub struct $name {
-            /// Exact study scope of this collection.
-            pub study_id: StudyId,
-            /// Complete ordered metadata records, never member sample IDs.
-            #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
-            pub items: Box<[$row]>,
-            /// Bounds and source-stated total for this collection.
-            pub page: PageInfo,
-            /// Live collection acquisition wall time in Unix seconds, distinct from catalog acquisition.
-            #[serde(default, skip_serializing_if = "Option::is_none")]
-            pub acquired: Option<u64>,
-        }
-        impl ResponseBody for $name {
-            const SCHEMA: &'static str = $schema;
-            type Query = StudyGet;
-        }
-    };
-}
-page!(StudyProfiles, StudyProfile, "biomcp.study-profiles/4");
+
 page!(
+    study,
+    StudyProfiles,
+    StudyProfile,
+    StudyGet,
+    "biomcp.study-profiles/4",
+    "One independently acquired, bounded native metadata collection."
+);
+page!(
+    study,
     StudySampleLists,
     StudySampleList,
-    "biomcp.study-sample-lists/4"
+    StudyGet,
+    "biomcp.study-sample-lists/4",
+    "One independently acquired, bounded native metadata collection."
 );
 /// One native repository directory page; blob sizes do not describe data content.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

@@ -540,10 +540,14 @@ fn bounded_reachability_probes_share_policy_and_never_cache_data() {
     let spec = stub.spec(KeyUse::None, Duration::from_secs(2));
     let fetch = fetch();
     let leg = fetch.leg(spec, fetch.deadline(Duration::from_secs(2)));
-    leg.probe(&spec.get("/probe"), &[]).unwrap();
-    leg.probe_json(
+    leg.probe(&spec.get("/probe"), biomcp_fetch::Input::Params(&[]))
+        .unwrap();
+    leg.probe(
         &spec.post_json("/probe").idempotent(),
-        &serde_json::json!({"query":"health"}),
+        biomcp_fetch::Input::Json {
+            params: &[],
+            body: biomcp_fetch::JsonBody::new(&serde_json::json!({"query":"health"})),
+        },
     )
     .unwrap();
     assert_eq!(stub.finish().len(), 2);
@@ -558,7 +562,9 @@ fn bounded_reachability_probes_share_policy_and_never_cache_data() {
     })
     .unwrap();
     let leg = fetch.leg(spec, fetch.deadline(Duration::from_secs(2)));
-    let error = leg.probe(&spec.get("/probe"), &[]).unwrap_err();
+    let error = leg
+        .probe(&spec.get("/probe"), biomcp_fetch::Input::Params(&[]))
+        .unwrap_err();
     assert!(matches!(error, biomcp_fetch::RequestError::Source(e) if e.reason == Reason::Disabled));
     assert!(stub.finish().is_empty());
 }
