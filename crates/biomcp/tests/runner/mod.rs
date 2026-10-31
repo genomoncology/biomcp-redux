@@ -97,6 +97,7 @@ mod skill;
 tool_only! { mod schema_evolution; }
 mod schema_proof;
 tool_only! { mod semantic_tables; }
+mod source_queries;
 mod source_terms;
 mod store_clean;
 mod store_coexistence;
@@ -244,6 +245,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(cache_admission::trials());
     trials.extend(corporate::trials());
     trials.extend(drug_identity::trials());
+    trials.extend(source_queries::trials());
     trials.extend(key_registration::trials());
     trials.extend(pdf::trials());
     trials.push(skill::trial());

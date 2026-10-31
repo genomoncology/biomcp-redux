@@ -211,7 +211,7 @@ fn header(input: &mut impl Read) -> Result<String, String> {
     }
     String::from_utf8(bytes).map_err(|e| e.to_string())
 }
-fn body(withdrawn: bool) -> Result<String, String> {
+pub(super) fn body(withdrawn: bool) -> Result<String, String> {
     let root = super::fixture_paths::fixtures().join("replies/gene/main/hgnc");
     for file in fs::read_dir(root).map_err(|e| e.to_string())? {
         let value: Value = serde_json::from_slice(
