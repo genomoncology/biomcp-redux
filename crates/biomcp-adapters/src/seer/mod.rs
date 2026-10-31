@@ -173,8 +173,10 @@ pub fn statistics(
     limit: u32,
     offset: u32,
 ) -> Result<Page<DiseaseStatistic>, RequestError> {
-    let (raw, metadata) =
-        leg.json_string_received_checked::<raw::Document>(&SERIES, &query.params(), |r| {
+    let (raw, metadata) = leg.json_string_received_checked_admission::<raw::Document>(
+        &SERIES,
+        &query.params(),
+        |r| {
             let expected = if matches!(query.statistic, Statistic::Survival { .. }) {
                 "rel_rate"
             } else {
@@ -191,7 +193,9 @@ pub fn statistics(
             } else {
                 Err(biomcp_fetch::BadReply)
             }
-        })?;
+        },
+        map::identities_admitted,
+    )?;
     let (rows, problems) = map::rows(raw, query).map_err(|_| {
         RequestError::Source(biomcp_fetch::SourceError {
             source: Source::Seer,

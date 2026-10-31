@@ -152,12 +152,8 @@ pub(super) fn rows(
                 });
             let year = if document.info.fields.iter().any(|v| v == "year") {
                 let year = fields.required("year", cell(&document.info.fields, &row, "year"));
-                let year = fields.optional(
-                    "year",
-                    year.map(|v| {
-                        u32::try_from(v.as_ref().ok_or(BadReply)?.integer()?).map_err(|_| BadReply)
-                    }),
-                );
+                let year =
+                    fields.optional("year", year.map(|v| v.as_ref().ok_or(BadReply)?.year()));
                 if year.is_none() {
                     rows.push(None);
                     problems.extend(fields.list);
@@ -205,4 +201,27 @@ fn mismatches(
             }
         }
     }
+}
+
+pub(super) fn identities_admitted(document: &raw::Document) -> bool {
+    let mut received = 0;
+    let mut accepted = 0;
+    let mut refusals = crate::Refusal::None;
+    for row in document
+        .data
+        .iter()
+        .flat_map(|(_, series)| &series.data_series)
+    {
+        received += 1;
+        if !document.info.fields.iter().any(|field| field == "year")
+            || cell(&document.info.fields, row, "year")
+                .and_then(crate::raw::Field::as_ref)
+                .is_some_and(|value| value.year().is_ok())
+        {
+            accepted += 1;
+        } else {
+            refusals = crate::Refusal::Refused;
+        }
+    }
+    refusals.identities_admitted(accepted, received)
 }
