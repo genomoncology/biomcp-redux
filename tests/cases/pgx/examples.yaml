@@ -96,28 +96,12 @@
         "/next": {
           "count": 2
         },
-        "/next/0/args": [
-          "--disable-sources",
-          "clinpgx",
-          "get",
-          "pgx",
-          "recommendations",
-          "--gene",
-          "DPYD",
-          "--source",
-          "cpic"
-        ],
-        "/next/1/args": [
-          "--disable-sources",
-          "clinpgx",
-          "get",
-          "pgx",
-          "guidelines",
-          "--gene",
-          "DPYD",
-          "--source",
-          "cpic"
-        ]
+        "/next/0/args": {
+          "includes": "recommendations"
+        },
+        "/next/1/args": {
+          "includes": "guidelines"
+        }
       }
     }
   ]
