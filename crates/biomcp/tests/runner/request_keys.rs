@@ -126,11 +126,32 @@ fn licensed() -> Check {
                 return Err("request credential failed to admit recorded licensed reply".into());
             }
         }
+        if hosted {
+            concurrent(&server, &args)?;
+        }
         let reply = call(&server, &args, "", true)?;
         if reply.pointer("/error/code") != Some(&json!(-32602)) {
             return Err("tool argument accepted a source key".into());
         }
         server.stop()?;
+    }
+    Ok(())
+}
+fn concurrent(server: &Server, args: &[&str]) -> Check {
+    let extra = format!("x-biomcp-key-oncokb-api-key: {CALLER}\r\n");
+    let (keyed, unkeyed) = std::thread::scope(|scope| {
+        let keyed = scope.spawn(|| call(server, args, &extra, false));
+        let unkeyed = scope.spawn(|| call(server, args, "", false));
+        Ok::<_, String>((
+            keyed.join().map_err(|_| "keyed caller stopped")??,
+            unkeyed.join().map_err(|_| "unkeyed caller stopped")??,
+        ))
+    })?;
+    if keyed.pointer("/result/structuredContent/result/items/0/sections/oncokb/state")
+        != Some(&json!("data"))
+        || unkeyed.pointer("/result/structuredContent/error/source") != Some(&json!("oncokb"))
+    {
+        return Err("concurrent callers shared a credential snapshot".into());
     }
     Ok(())
 }
