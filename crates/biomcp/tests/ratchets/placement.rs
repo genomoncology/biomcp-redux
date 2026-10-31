@@ -320,6 +320,10 @@ const ALLOWED: &[(&str, &str)] = &[
         "Exercise concurrent pool publication/hydration, injected SQL corruption, external writers and API-only deadline boundaries.",
     ),
     (
+        "crates/biomcp-query/src/store/privacy_tests.rs",
+        "Prove caller ownership at the private query store security boundary before licensed routes publish continuations.",
+    ),
+    (
         "crates/biomcp-query/tests/gene_resolution.rs",
         "Mutate isolated cache freshness and preserve a local bundle failure under an API-only short command deadline.",
     ),

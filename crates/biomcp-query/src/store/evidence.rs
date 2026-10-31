@@ -26,8 +26,8 @@ impl Store<'_> {
                 .optional()
                 .map_err(db)?;
             let Some(outcomes) = outcomes else { return Ok(EvidenceState::Missing) };
-            let sources: Vec<SourceOutcome> = serde_json::from_str(&outcomes).map_err(|_| CacheError::Database)?;
-            if sources.iter().any(|s| disabled(s.source) && s.reason != Some(biomcp_types::Reason::Disabled)) {
+            let Some(metadata) = self.policy().decode(&outcomes)? else { return Ok(EvidenceState::Missing) };
+            if metadata.sources.iter().any(|s| disabled(s.source) && s.reason != Some(biomcp_types::Reason::Disabled)) {
                 return Ok(EvidenceState::Disabled);
             }
             cx.query_row("SELECT payload FROM citation_evidence WHERE id=?1", params![id], |row| row.get(0))
@@ -42,13 +42,17 @@ impl Store<'_> {
         payload: &str,
         sources: &[SourceOutcome],
     ) -> Result<Text, CacheError> {
+        let outcomes = self.policy().encode(sources, &[])?;
+        let policy = self.policy();
         self.write(|tx| {
+            if let Some(id) = id {
+                policy.authorize_update(tx, super::ownership::Table::Evidence, id.as_str(), &outcomes)?;
+            }
             Self::collect_expired(tx)?;
             let id = match id {
                 Some(id) => id.to_string(),
                 None => tx.query_row("SELECT lower(hex(randomblob(16)))", [], |r| r.get(0)).map_err(db)?,
             };
-            let outcomes = serde_json::to_string(sources).map_err(|_| CacheError::Database)?;
             tx.execute(
                 "INSERT INTO citation_evidence(id,request_key,expires,payload,outcomes) VALUES (?1,?2,?3,?4,?5) ON \
                 CONFLICT(id) DO UPDATE SET payload=excluded.payload,outcomes=excluded.outcomes",

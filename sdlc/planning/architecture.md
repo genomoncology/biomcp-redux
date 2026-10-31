@@ -739,7 +739,7 @@ A source whose terms require the user's own license or account, such as OncoKB, 
 - The fan-out sees the same check first and records the source as `skipped` with reason `no_key` without starting a thread.
 - A requested section from that source reports `Skipped` with reason `no_key`. The source outcome reports `skipped`, once per envelope. The response's next steps include one `key` step, `biomcp help key <source>`, whose help leads with `biomcp key set <source>` and also names the config key and the environment variable.
 - A skip changes no status. A card whose only gap is a skipped keyed source is complete.
-- Replay cases for a keyed source set a placeholder key in the case's temporary config. The reply key never includes a credential, so the recording matches.
+- Replay cases for a keyed source set a placeholder key in the case's temporary config. Ordinary and public-source recording identities omit credentials. Hosted no-fallback recordings use the same caller namespace as the checked reply cache, including shared replay cursors and capture sequences. Older unscoped licensed recordings cannot answer hosted calls.
 
 
 ### 4.4 The request path
@@ -747,7 +747,7 @@ A source whose terms require the user's own license or account, such as OncoKB, 
 Every call on a `Leg` runs the same steps in this order:
 
 1. Build the URL from the base, the path and the parameters. An `Arg::Ids` list is sorted before joining, so the same set of IDs always makes the same request. Add the user's key from `Secrets` when the spec takes one and it is configured. A leg whose required key is missing never reaches this step (section 4.3).
-2. Compute the reply key: SHA-256 over the method, the URL without the credential parameter and the body.
+2. Compute the reply key: SHA-256 over the method, the URL without the credential parameter and the body. Hosted no-fallback requests apply the effective caller key's opaque one-way namespace. Public-source and ordinary request identities remain unchanged.
 3. In replay mode, take the recording for the key, or fail with `replay_miss`. Skip to step 8.
 4. Look up the reply cache. A fresh entry skips to step 10. In offline mode, a stale entry skips to step 10 marked stale, and a miss fails with `offline`.
 5. Wait for a FIFO permit from the source's quota: a rate slot and an in-flight place. The wait is bounded by the leg's deadline.
@@ -836,7 +836,7 @@ A recording is one JSON file per exchange, at `<dir>/<source>/<key>.json`:
 
 ### 4.10 Credentials and proxies
 
-`Secrets` maps a `SecretName` enum to a `Secret(Box<str>)` whose `Debug` and `Display` print `***`. Only the binary's config module builds `Secrets`, from the config file and the documented environment variables. Every declared key uses the same per-command deferred loader, which resolves the config value before its environment fallback when the source is admitted, including raw-cache and replay validation. Disabled sources and stored query pages do not resolve keys. The secret enters only the outgoing request. It never enters a cache key, a recording, a trace, an error or the envelope. The config file's `proxy` key overrides all proxy environment settings. Otherwise `config.rs` reads `HTTP_PROXY`, `HTTPS_PROXY` and `NO_PROXY` and passes checked routes to Fetch. Proxy credentials and CA paths never enter reply identities or recordings.
+`Secrets` maps a `SecretName` enum to a `Secret(Box<str>)` whose `Debug` and `Display` print `***`. Only the binary's config module builds `Secrets`, from the config file and the documented environment variables. Every declared key uses the same per-command deferred loader, which resolves the config value before its environment fallback when the source is admitted, including raw-cache and replay validation. Disabled sources and public stored query pages do not resolve keys. Hosted licensed continuations resolve their declared credentials before any stored payload read or update. Their internal ownership metadata never enters the response. Unscoped legacy licensed rows fail admission without resetting the store schema. The secret enters only the outgoing request. It never enters a cache key, a recording, a trace, an error or the envelope. The config file's `proxy` key overrides all proxy environment settings. Otherwise `config.rs` reads `HTTP_PROXY`, `HTTPS_PROXY` and `NO_PROXY` and passes checked routes to Fetch. Proxy credentials and CA paths never enter reply identities or recordings.
 
 ### 4.11 Bundles
 
@@ -2015,6 +2015,7 @@ The ratchet owns the authoritative file and reason list below and checks this ta
 | `crates/biomcp-fetch/tests/transport/credentials.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
 | `crates/biomcp-fetch/tests/xml.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
 | `crates/biomcp-query/tests/article_search.rs` | Exercise concurrent pool publication/hydration, injected SQL corruption, external writers and API-only deadline boundaries. |
+| `crates/biomcp-query/src/store/privacy_tests.rs` | Prove caller ownership at the private query store security boundary before licensed routes publish continuations. |
 | `crates/biomcp-query/tests/gene_resolution.rs` | Mutate isolated cache freshness and preserve a local bundle failure under an API-only short command deadline. |
 | `crates/biomcp/tests/ratchets.rs` | Enforce repository structure and prove refusal of planted violations in isolated trees. |
 | `crates/biomcp/tests/ratchets/lints.rs` | Prove the shared Clippy settings reject planted scalar, banned-type and reason drift. |

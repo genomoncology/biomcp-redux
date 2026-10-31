@@ -8,10 +8,55 @@ const SECOND: &str = "synthetic-cache-caller-b";
 const STATE: &str = "/result/structuredContent/result/candidates/0/sections/oncokb/state";
 
 pub(super) fn trials() -> Vec<Trial> {
-    vec![transcript_trial(
-        "mcp-hosted/cache/licensed-callers",
-        || licensed().map_err(Into::into),
-    )]
+    vec![
+        transcript_trial("mcp-hosted/cache/licensed-callers", || {
+            licensed().map_err(Into::into)
+        }),
+        transcript_trial("mcp-hosted/cache/licensed-recordings", || {
+            recordings().map_err(Into::into)
+        }),
+    ]
+}
+
+pub(super) fn scoped_gene_fixture(
+    env: &Environment,
+    key: &str,
+) -> Result<std::path::PathBuf, String> {
+    let directory = env.root().join("scoped-recordings");
+    super::response_cases::copy_capture("gene/oncokb-synthetic/data", &directory, |_, _| {})
+        .map_err(|e| e.to_string())?;
+    let mut secrets = biomcp_fetch::Secrets::default();
+    secrets.insert(
+        biomcp_fetch::SecretName::OncokbApiKey,
+        biomcp_fetch::Secret::new(key),
+    );
+    let fingerprint = secrets
+        .fingerprint(biomcp_fetch::SecretName::OncokbApiKey)
+        .ok_or("synthetic fingerprint")?;
+    for entry in std::fs::read_dir(directory.join("oncokb")).map_err(|e| e.to_string())? {
+        let path = entry.map_err(|e| e.to_string())?.path();
+        let stem = path
+            .file_stem()
+            .and_then(|s| s.to_str())
+            .ok_or("recording identity")?;
+        let bytes = stem
+            .as_bytes()
+            .chunks_exact(2)
+            .map(|chunk| {
+                let text = std::str::from_utf8(chunk).map_err(|e| e.to_string())?;
+                u8::from_str_radix(text, 16).map_err(|e| e.to_string())
+            })
+            .collect::<Result<Vec<_>, _>>()?;
+        let identity = bytes.try_into().map_err(|_| "recording identity length")?;
+        let scoped: String = fingerprint
+            .namespace(identity)
+            .iter()
+            .map(|b| format!("{b:02x}"))
+            .collect();
+        std::fs::rename(&path, path.with_file_name(format!("{scoped}.json")))
+            .map_err(|e| e.to_string())?;
+    }
+    Ok(directory)
 }
 
 fn request(server: &Server, key: Option<&str>, offline: bool) -> Result<Value, String> {
@@ -101,6 +146,76 @@ fn licensed() -> Result<(), String> {
         if requests.len() != if hosted { 2 } else { 1 } {
             return Err("licensed cache fetched the wrong number of replies".into());
         }
+    }
+    Ok(())
+}
+
+fn recordings() -> Result<(), String> {
+    let assets = Environment::new().map_err(|e| e.to_string())?;
+    let stub = Stub::for_source("www.oncokb.org", "application/json", super::oncokb::reply)?;
+    stub.retain(&assets);
+    let ca = assets.root().join("ca.pem");
+    std::fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
+    let directory = assets.root().join("recordings");
+    let legacy = assets.root().join("legacy-recordings");
+    for hosted in [false, true] {
+        let capture = if hosted { &directory } else { &legacy };
+        let mut globals = vec!["--record".into(), capture.to_string_lossy().into()];
+        if hosted {
+            globals.push("--hosted".into());
+        }
+        let mut server = Server::configured_globals(
+            "127.0.0.1:0",
+            Some(
+                json!({"proxy":format!("http://{}",stub.address),"ca_bundle":ca,"keys":{"oncokb_api_key":FIRST}}),
+            ),
+            None,
+            None,
+            None,
+            &globals,
+        )?;
+        if request(&server, Some(FIRST), false)?.pointer(STATE) != Some(&json!("data")) {
+            return Err("synthetic licensed capture was not published".into());
+        }
+        server.stop()?;
+    }
+    for entry in std::fs::read_dir(legacy.join("oncokb")).map_err(|e| e.to_string())? {
+        let entry = entry.map_err(|e| e.to_string())?;
+        std::fs::copy(
+            entry.path(),
+            directory.join("oncokb").join(entry.file_name()),
+        )
+        .map_err(|e| e.to_string())?;
+    }
+    let mut server = Server::configured_globals(
+        "127.0.0.1:0",
+        None,
+        Some(directory.clone()),
+        None,
+        None,
+        &["--hosted".into()],
+    )?;
+    for key in [Some(SECOND), Some(FIRST), None, Some(SECOND)] {
+        let reply = request(&server, key, false)?;
+        if (reply.pointer(STATE) == Some(&json!("data"))) != (key == Some(FIRST)) {
+            return Err("recording or replay cache crossed licensed callers".into());
+        }
+    }
+    server.stop()?;
+    let mut ordinary = Server::configured_globals(
+        "127.0.0.1:0",
+        Some(json!({"keys":{"oncokb_api_key":FIRST}})),
+        Some(directory),
+        None,
+        None,
+        &[],
+    )?;
+    if request(&ordinary, Some(SECOND), false)?.pointer(STATE) != Some(&json!("data")) {
+        return Err("ordinary recording behavior changed".into());
+    }
+    ordinary.stop()?;
+    if stub.finish()?.len() != 2 {
+        return Err("record/replay opened an unexpected connection".into());
     }
     Ok(())
 }

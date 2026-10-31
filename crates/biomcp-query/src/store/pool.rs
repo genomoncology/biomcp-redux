@@ -39,8 +39,8 @@ impl Store<'_> {
                 .optional()
                 .map_err(db)?;
             row.map(|(id, key, created, expires, size, sources)| {
-                let (sources, problems) = metadata(&sources)?;
-                Ok(Pool {
+                let Some(metadata) = self.policy().decode(&sources)? else { return Ok(None) };
+                Ok(Some(Pool {
                     info: PoolInfo {
                         id: Text::new(&id).map_err(|_| CacheError::Database)?,
                         size,
@@ -49,11 +49,12 @@ impl Store<'_> {
                     },
 
                     key,
-                    sources,
-                    problems,
-                })
+                    sources: metadata.sources,
+                    problems: metadata.problems,
+                }))
             })
             .transpose()
+            .map(Option::flatten)
         })
     }
     pub(crate) fn publish(
@@ -63,15 +64,17 @@ impl Store<'_> {
         sources: &[SourceOutcome],
         problems: &[Problem],
     ) -> Result<Pool, CacheError> {
+        let global: Vec<_> = problems
+            .iter()
+            .filter(|p| p.record.is_none())
+            .cloned()
+            .collect();
+        let outcomes = self.policy().encode(sources, &global)?;
         self.write(|tx| {
             Self::collect_expired(tx)?;
             let created = Self::now();
             let expires = created.saturating_add(86400);
             let id: String = tx.query_row("SELECT lower(hex(randomblob(16)))", [], |r| r.get(0)).map_err(db)?;
-            let global: Vec<_> = problems.iter().filter(|p| p.record.is_none()).cloned().collect();
-            let outcomes = if global.is_empty() { serde_json::to_string(sources) }
-                else { serde_json::to_string(&serde_json::json!({"sources":sources,"problems":global})) }
-                .map_err(|_| CacheError::Database)?;
             let size = u32::try_from(items.len()).map_err(|_| CacheError::Database)?;
             tx.execute(
                 "INSERT INTO pool(id,request_key,created,expires,size,outcomes) VALUES (?1,?2,?3,?4,?5,?6)",
@@ -128,12 +131,12 @@ impl Store<'_> {
         size: u32,
         sources: &[SourceOutcome],
     ) -> Result<Pool, CacheError> {
+        let outcomes = self.policy().encode(sources, &[])?;
         self.write(|tx| {
             Self::collect_expired(tx)?;
             let created = Self::now();
             let expires = created.saturating_add(86400);
             let id: String = tx.query_row("SELECT lower(hex(randomblob(16)))", [], |r| r.get(0)).map_err(db)?;
-            let outcomes = serde_json::to_string(sources).map_err(|_| CacheError::Database)?;
             tx.execute(
                 "INSERT INTO pool(id,request_key,created,expires,size,outcomes) VALUES (?1,?2,?3,?4,?5,?6)",
                 params![id, key, created, expires, size, outcomes],
@@ -171,9 +174,12 @@ impl Store<'_> {
         size: u32,
         sources: &[SourceOutcome],
     ) -> Result<Pool, CacheError> {
+        let policy = self.policy();
+        let outcomes = policy.encode(sources, &[])?;
         self.write(|tx| {
-            let outcomes = serde_json::to_string(sources).map_err(|_| CacheError::Database)?;
             let id = pool.info.id.as_str();
+            policy.authorize_update(tx, super::ownership::Table::Pool, id, &outcomes)?;
+            policy.authorize_update(tx, super::ownership::Table::Snapshot, id, &outcomes)?;
             let changed = tx
                 .execute(
                     "UPDATE pool SET size=?3,outcomes=?4 WHERE id=?1 AND request_key=?2 AND expires>?5 AND size<=?3",
@@ -199,7 +205,7 @@ impl Store<'_> {
                 )
                 .map_err(db)?;
             pool.info.size = size;
-            pool.sources = serde_json::from_str(&outcomes).map_err(|_| CacheError::Database)?;
+            pool.sources = policy.decode(&outcomes)?.ok_or(CacheError::Database)?.sources;
             Ok(pool)
         })
     }
@@ -210,6 +216,7 @@ impl Store<'_> {
         limit: u32,
     ) -> Result<Vec<StoredItem>, CacheError> {
         self.read(|connection| {
+            self.policy().authorize(connection, super::ownership::Table::Pool, pool)?;
             let mut statement = connection
                 .prepare(
                     "SELECT item,checked,header,problems,outcome FROM pool_item WHERE pool=?1 ORDER BY rank LIMIT ?2 \
@@ -250,7 +257,9 @@ impl Store<'_> {
         problems: &[Problem],
         outcome: Option<&SourceOutcome>,
     ) -> Result<(), CacheError> {
+        let policy = self.policy();
         self.write(|tx| {
+            policy.authorize_hydration(tx, pool, outcome)?;
             let outcome = outcome.map(serde_json::to_string).transpose().map_err(|_| CacheError::Database)?;
             let names: Vec<_> = ids.iter().map(ToString::to_string).collect();
             for (index, id) in ids.iter().enumerate() {
@@ -294,25 +303,4 @@ impl Store<'_> {
             Ok(())
         })
     }
-}
-
-// Existing source-only rows remain readable; only pool-scoped problems need metadata.
-fn metadata(text: &str) -> Result<(Vec<SourceOutcome>, Vec<Problem>), CacheError> {
-    let mut value: serde_json::Value =
-        serde_json::from_str(text).map_err(|_| CacheError::Database)?;
-    if value.is_array() {
-        return serde_json::from_value(value)
-            .map(|sources| (sources, Vec::new()))
-            .map_err(|_| CacheError::Database);
-    }
-    let fields = value
-        .as_object_mut()
-        .filter(|v| v.len() == 2)
-        .ok_or(CacheError::Database)?;
-    let sources = fields.remove("sources").ok_or(CacheError::Database)?;
-    let problems = fields.remove("problems").ok_or(CacheError::Database)?;
-    Ok((
-        serde_json::from_value(sources).map_err(|_| CacheError::Database)?,
-        serde_json::from_value(problems).map_err(|_| CacheError::Database)?,
-    ))
 }
