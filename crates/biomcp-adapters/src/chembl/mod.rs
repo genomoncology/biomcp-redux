@@ -96,7 +96,7 @@ pub fn mechanisms(
                 Err(BadReply)
             }
         },
-        |r| r.window.identities_admitted(),
+        Mechanisms::identities_admitted,
     )
 }
 /// Read native indication rows and clinical phases without interpreting them as authorization.

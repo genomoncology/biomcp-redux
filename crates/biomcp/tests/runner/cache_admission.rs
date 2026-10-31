@@ -56,8 +56,9 @@ fn check(owner: &Owner) -> Result<(), String> {
             .map(|query| format!("?{query}"))
             .unwrap_or_default()
     );
+    let mut failures = Vec::new();
     // Positive controls qualify the exact command and peer before the regression witness.
-    for control in ["empty", "optional", "refused"] {
+    for &control in controls::kinds(owner) {
         let (hosts, mut routes) = routes()?;
         let entry = routes
             .iter_mut()
@@ -92,25 +93,15 @@ fn check(owner: &Owner) -> Result<(), String> {
             .map_err(|error| format!("{} {control} call {}: {error}", owner.name, index + 1))?;
         }
         let requests = stub.finish()?;
-        if let Some(transcript) = transcript::current() {
-            transcript.record(
-                &format!("cache/{}/{control}/requests", owner.name),
-                serde_json::to_value(&requests).map_err(|error| error.to_string())?,
-            )?;
-        }
-        let received = requests
-            .iter()
-            .filter(|(_, request)| request.lines().next() == Some(target.as_str()))
-            .count();
-        let expected = if control == "refused" { 2 } else { 1 };
-        if received != expected {
-            return Err(format!(
-                "{} {control}: expected {expected} native requests, received {received}",
-                owner.name
-            ));
+        if let Some(failure) = controls::requests(owner, control, &target, &requests)? {
+            failures.push(failure);
         }
     }
-    Ok(())
+    if failures.is_empty() {
+        Ok(())
+    } else {
+        Err(failures.join("\n"))
+    }
 }
 fn routes() -> Result<(Vec<String>, Routes), String> {
     let mut routes = Vec::new();

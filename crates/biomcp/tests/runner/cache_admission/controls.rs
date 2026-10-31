@@ -1,6 +1,7 @@
 //! Positive controls change only the native response body and its output assertions.
-use super::Owner;
+use super::{Owner, Routes};
 use crate::runner::Step;
+use crate::runner::transcript;
 use serde_json::{Value, json};
 pub(super) fn prepare(
     owner: &Owner,
@@ -31,17 +32,30 @@ pub(super) fn prepare(
             );
         }
         if !owner.total.is_empty() {
-            step.expect.insert(owner.total.into(), json!(count));
+            step.expect.insert(
+                owner.total.into(),
+                json!(if control == "target-refused" {
+                    1
+                } else {
+                    count
+                }),
+            );
         }
-        if control == "optional" {
+        if control == "optional" || control == "target-refused" {
             *body
                 .pointer_mut(owner.identity)
                 .ok_or("accepted native identity slot")? =
                 serde_json::from_str(owner.accepted_identity).map_err(|e| e.to_string())?;
-            step.expect.insert(
-                "/problems/*/field".into(),
-                json!({"includes": owner.optional}),
-            );
+            let field = if control == "target-refused" {
+                *body
+                    .pointer_mut("/mechanisms/0/target_chembl_id")
+                    .ok_or("native target identity")? = json!({"invalid":true});
+                "target_chembl_id"
+            } else {
+                owner.optional
+            };
+            step.expect
+                .insert("/problems/*/field".into(), json!({"includes": field}));
         } else {
             *body.pointer_mut(owner.rows).ok_or("native record array")? = json!([]);
             if !owner.total_field.is_empty() {
@@ -59,4 +73,37 @@ pub(super) fn prepare(
         body.to_string()
     };
     Ok((step, wire))
+}
+
+pub(super) fn kinds(owner: &Owner) -> &'static [&'static str] {
+    if owner.name == "chembl-mechanisms" {
+        &["empty", "optional", "refused", "target-refused"]
+    } else {
+        &["empty", "optional", "refused"]
+    }
+}
+
+pub(super) fn requests(
+    owner: &Owner,
+    control: &str,
+    target: &str,
+    requests: &Routes,
+) -> Result<Option<String>, String> {
+    if let Some(transcript) = transcript::current() {
+        transcript.record(
+            &format!("cache/{}/{control}/requests", owner.name),
+            serde_json::to_value(requests).map_err(|error| error.to_string())?,
+        )?;
+    }
+    let received = requests
+        .iter()
+        .filter(|(_, request)| request.lines().next() == Some(target))
+        .count();
+    let expected = if control.ends_with("refused") { 2 } else { 1 };
+    Ok((received != expected).then(|| {
+        format!(
+            "{} {control}: expected {expected} native requests, received {received}",
+            owner.name
+        )
+    }))
 }
