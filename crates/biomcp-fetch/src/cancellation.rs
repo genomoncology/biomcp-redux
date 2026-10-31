@@ -75,10 +75,6 @@ impl Fetch {
         let fetch = self.with_cancellation(&cancellation)?;
         Ok((fetch, cancellation))
     }
-    #[expect(
-        clippy::disallowed_types,
-        reason = "Bind the selected or rebuilt transport to its command's cancellation scope"
-    )]
     /// Bind this transport's isolated connections to an existing command scope.
     pub fn with_cancellation(&self, cancellation: &Cancellation) -> Result<Self, FetchError> {
         let agents = Arc::new(Agents::new(
