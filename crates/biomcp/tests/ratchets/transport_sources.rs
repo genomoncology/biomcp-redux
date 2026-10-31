@@ -2,12 +2,7 @@
 use super::{Check, rust_files};
 use std::{fs, path::Path};
 
-const EXCEPTIONS: &[&str] = &[
-    "secret.rs",
-    "cache_hgnc.rs",
-    "bundle/transfer.rs",
-    "cache/schema.rs",
-];
+const EXCEPTIONS: &[&str] = &[];
 
 pub(super) fn check(root: &Path) -> Check {
     let source = root.join("crates/biomcp-fetch/src");

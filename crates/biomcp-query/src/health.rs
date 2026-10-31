@@ -20,7 +20,7 @@ pub fn run(fetch: &Fetch, budget: Duration) -> Result<Health, RequestError> {
                     } else {
                         match spec.key {
                             KeyUse::Required(c) if !fetch.has_key(c.secret) => Some(Reason::NoKey),
-                            _ => None,
+                            KeyUse::None | KeyUse::Optional(_) | KeyUse::Required(_) => None,
                         }
                     };
                     let leg = fetch.leg(spec, deadline.child(PROBE_BUDGET)).fresh(true);
@@ -116,7 +116,9 @@ fn source_probe(
             let reason = crate::status::reason(error).unwrap_or(Reason::Unavailable);
             let retry = match error {
                 RequestError::Source(error) => error.retry_after,
-                _ => None,
+                RequestError::Input(_) | RequestError::Cache(_) | RequestError::Recording(_) => {
+                    None
+                }
             };
             notices.extend(biomcp_adapters::guidance::notices(
                 spec.source,

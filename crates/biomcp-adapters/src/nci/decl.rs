@@ -2,14 +2,24 @@
 use crate::decl::{Guidance, Probe, SourceDecl};
 use biomcp_fetch::Arg;
 pub(crate) static DECL: SourceDecl = SourceDecl {
-    spec: &super::SPEC, display: "NCI Clinical Trials Search",
-    registry_order: Some(42), probe: Probe::Get(
-            "/trials",
-            &[("size", Arg::Num(1)), ("include", Arg::Text("none"))],
-        ),
-    components: || &[],
+    spec: &super::SPEC,
+    display: "NCI Clinical Trials Search",
+    registry_order: Some(42),
+    probe: Probe::Get(
+        "/trials",
+        &[("size", Arg::Num(1)), ("include", Arg::Text("none"))],
+    ),
+    components: &[],
     auxiliary: &[],
     bundles: &[],
-    guidance: Guidance { deadline: None, quota: None },
-    key: Some(crate::decl::KeyDecl { name: biomcp_fetch::SecretName::NciApiKey, word: "nci", order: 5 }),
+    guidance: Guidance {
+        deadline: None,
+        quota: None,
+    },
+    key: Some(crate::decl::KeyDecl {
+        name: biomcp_fetch::SecretName::NciApiKey,
+        suffix: "",
+        word: "nci",
+        order: 5,
+    }),
 };

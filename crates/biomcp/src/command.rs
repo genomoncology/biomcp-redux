@@ -287,7 +287,12 @@ fn parse_refusal(args: &[OsString], cause: crate::grammar::ParseInvalid) -> io::
             .iter()
             .map(|name| biomcp_types::Step {
                 kind: biomcp_types::StepKind::Configure,
-                args: vec!["help".into(), "key".into(), biomcp_query::sources::key_name(*name).into()].into(),
+                args: vec![
+                    "help".into(),
+                    "key".into(),
+                    biomcp_query::sources::key_name(*name).into(),
+                ]
+                .into(),
             })
             .collect();
     }
@@ -304,11 +309,7 @@ fn key_help(name: biomcp_fetch::SecretName) -> io::Result<Outcome> {
             biodata::Text::new(&format!(
                 "biomcp key set {}{}",
                 biomcp_query::sources::key_name(name),
-                if source == biomcp_types::Source::SemanticScholar {
-                    "; a free key raises the request limit"
-                } else {
-                    ""
-                }
+                biomcp_query::sources::key_suffix(name)
             ))
             .map_err(io::Error::other)?,
         ),
@@ -388,4 +389,6 @@ fn response_status(result: &biomcp_query::Outcome) -> crate::exit::Status {
     }
 }
 
-fn bundle_source(bundle: Bundle) -> biomcp_types::Source { bundle.source() }
+fn bundle_source(bundle: Bundle) -> biomcp_types::Source {
+    bundle.source()
+}

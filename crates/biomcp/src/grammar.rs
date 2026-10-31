@@ -18,7 +18,9 @@ pub(crate) use queries::command_paths;
 pub(crate) use queries::query_schema;
 
 pub(crate) fn bundle_names() -> Vec<&'static str> {
-    biomcp_query::sources::bundles().map(|bundle| bundle.name()).collect()
+    biomcp_query::sources::bundles()
+        .map(|bundle| bundle.name())
+        .collect()
 }
 
 use biomcp_query::{Action, Bundle};
@@ -180,10 +182,8 @@ pub(crate) fn root() -> Result<Command, ParseInvalid> {
         Command::new("sync").arg(
             Arg::new("bundle")
                 .help("Local source bundle to synchronize.")
-                .default_value("hgnc")
-                .value_parser(clap::builder::PossibleValuesParser::new(
-                    bundle_names(),
-                )),
+                .default_value(Bundle::Hgnc.name())
+                .value_parser(clap::builder::PossibleValuesParser::new(bundle_names())),
         ),
     );
     root = root.subcommands(local::housekeeping_commands());

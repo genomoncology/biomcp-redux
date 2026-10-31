@@ -1,13 +1,14 @@
 //! Every source owns one complete adapter declaration.
 #![deny(clippy::wildcard_enum_match_arm)]
-mod bundle;
+pub(crate) mod bundle;
 mod probe;
-pub use bundle::{Bundle, BundleDecl, BundleReply, bundles};
-pub use probe::Probe;
+use crate::registry::Component;
 use biomcp_fetch::{KeyUse, SecretName, SourceSpec, Terms};
 use biomcp_types::Source;
-use crate::registry::Component;
+pub use bundle::{Bundle, BundleDecl, BundleReply, bundles};
+pub use probe::Probe;
 /// Source-specific request guidance.
+#[derive(Debug)]
 pub struct Guidance {
     /// Request deadline explanation, when the provider needs one.
     pub deadline: Option<&'static str>,
@@ -15,15 +16,19 @@ pub struct Guidance {
     pub quota: Option<&'static str>,
 }
 /// Credential command identity, attached to its primary adapter.
+#[derive(Debug)]
 pub struct KeyDecl {
     /// Transport credential identity.
     pub name: SecretName,
     /// Command spelling retained across credential commands.
     pub word: &'static str,
+    /// Source guidance appended to the key registration command.
+    pub suffix: &'static str,
     /// Stable discovery order.
     pub order: usize,
 }
 /// Complete source policy consumed by every source discovery surface.
+#[derive(Debug)]
 pub struct SourceDecl {
     /// Publisher and transport contract.
     pub spec: &'static SourceSpec,
@@ -36,7 +41,7 @@ pub struct SourceDecl {
     /// Local catalogs exposed by sync.
     pub bundles: &'static [&'static BundleDecl],
     /// Independently labeled carried fields.
-    pub components: fn() -> &'static [Component],
+    pub components: &'static [Component],
     /// Other APIs sharing this source identity.
     pub auxiliary: &'static [&'static SourceSpec],
     /// Provider-reviewed timing and admission text.
@@ -124,8 +129,11 @@ pub const fn decl(source: Source) -> &'static SourceDecl {
 }
 /// Iterate direct sources in the established public order.
 pub fn sources() -> impl Iterator<Item = &'static SourceSpec> {
-    let mut declarations: Vec<_> = Source::ALL.iter().map(|&source| decl(source))
-        .filter(|declaration| declaration.registry_order.is_some()).collect();
+    let mut declarations: Vec<_> = Source::ALL
+        .iter()
+        .map(|&source| decl(source))
+        .filter(|declaration| declaration.registry_order.is_some())
+        .collect();
     declarations.sort_by_key(|declaration| declaration.registry_order);
     declarations.into_iter().map(|declaration| declaration.spec)
 }
@@ -143,19 +151,51 @@ pub fn keys() -> Vec<SecretName> {
 pub fn key_name(name: SecretName) -> &'static str {
     key_decl(name).word
 }
+/// Source guidance attached to a key registration command.
+pub fn key_suffix(name: SecretName) -> &'static str {
+    key_decl(name).suffix
+}
 /// Resolve the source represented in credential help.
-#[expect(clippy::expect_used, reason = "Every credential identity is declared by its adapter")]
+#[expect(
+    clippy::expect_used,
+    reason = "Every credential identity is declared by its adapter"
+)]
 pub fn key_source(name: SecretName) -> Source {
-    Source::ALL.iter().copied().find(|&source| decl(source).key.as_ref().is_some_and(|key| key.name == name))
+    Source::ALL
+        .iter()
+        .copied()
+        .find(|&source| {
+            decl(source)
+                .key
+                .as_ref()
+                .is_some_and(|key| key.name == name)
+        })
         .expect("every credential has a source declaration")
 }
-#[expect(clippy::expect_used, reason = "Every credential identity is declared by its adapter")]
+#[expect(
+    clippy::expect_used,
+    reason = "Every credential identity is declared by its adapter"
+)]
 fn key_decl(name: SecretName) -> &'static KeyDecl {
-    Source::ALL.iter().find_map(|&source| decl(source).key.as_ref().filter(|key| key.name == name))
+    Source::ALL
+        .iter()
+        .find_map(|&source| decl(source).key.as_ref().filter(|key| key.name == name))
         .expect("every credential has a source declaration")
 }
 /// Describe carried publisher terms without registering another request endpoint.
-pub(crate) const fn component_spec(source: Source, carrier: &'static SourceSpec, terms: Terms) -> SourceSpec {
-    SourceSpec { source, terms, base: carrier.base, destinations: biomcp_fetch::Destinations::Primary,
-        user_agent: carrier.user_agent, key: KeyUse::None, quota: carrier.quota, deadline: carrier.deadline }
+pub(crate) const fn component_spec(
+    source: Source,
+    carrier: &'static SourceSpec,
+    terms: Terms,
+) -> SourceSpec {
+    SourceSpec {
+        source,
+        terms,
+        base: carrier.base,
+        destinations: biomcp_fetch::Destinations::Primary,
+        user_agent: carrier.user_agent,
+        key: KeyUse::None,
+        quota: carrier.quota,
+        deadline: carrier.deadline,
+    }
 }

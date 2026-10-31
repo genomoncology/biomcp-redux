@@ -2,11 +2,16 @@
 use crate::decl::{Guidance, Probe, SourceDecl};
 use biomcp_fetch::Arg;
 pub(crate) static DECL: SourceDecl = SourceDecl {
-    spec: &super::SPEC, display: "FDA premarket approval",
-    registry_order: Some(7), probe: Probe::Get("", &[("limit", Arg::Num(1))]),
-    components: || &[],
+    spec: &super::SPEC,
+    display: "FDA premarket approval",
+    registry_order: Some(7),
+    probe: Probe::Get("", &[("limit", Arg::Num(1))]),
+    components: &[],
     auxiliary: &[],
     bundles: &[],
-    guidance: Guidance { deadline: None, quota: None },
+    guidance: Guidance {
+        deadline: None,
+        quota: None,
+    },
     key: None,
 };

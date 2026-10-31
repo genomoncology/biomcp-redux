@@ -105,13 +105,11 @@ pub fn requested_components(
     search: bool,
 ) -> impl Iterator<Item = &'static crate::registry::Component> {
     let fields = if search { SEARCH_FIELDS } else { CARD_FIELDS };
-    crate::drug_sources::components::COMPONENTS
-        .iter()
-        .filter(move |component| {
-            fields
-                .split(',')
-                .any(|field| field.split('.').next() == Some(component.name))
-        })
+    crate::drug_sources::components::all().filter(move |component| {
+        fields
+            .split(',')
+            .any(|field| field.split('.').next() == Some(component.name))
+    })
 }
 
 /// Complete source policy and command declaration.

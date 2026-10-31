@@ -20,8 +20,7 @@ fn components(
         ("ndc", hit.ndc),
         ("openfda", hit.openfda),
     ] {
-        if crate::drug_sources::components::COMPONENTS
-            .iter()
+        if crate::drug_sources::components::all()
             .find(|c| c.name == name)
             .is_some_and(|c| !c.disabled_on_leg(leg))
             && let Some(value) = values.and_then(|value| problems.required(name, value.value()))

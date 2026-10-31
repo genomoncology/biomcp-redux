@@ -61,7 +61,7 @@ impl Cache {
         connection
             .execute("ATTACH DATABASE ?1 AS predecessor", [uri.as_str()])
             .map_err(db_error)?;
-        let Some(version) = stage(&connection, name, owners, deadline)? else {
+        let Some(_version) = stage(&connection, name, owners, deadline)? else {
             return Ok(false);
         };
         connection
@@ -74,9 +74,6 @@ impl Cache {
             // Current publication wins, including a concurrent publisher that finished while staging.
             if exists(&tx, "main", name)? {
                 return Ok(true);
-            }
-            if name == "hgnc" && matches!(version, 1..=3) {
-                crate::cache_hgnc::backfill_staged(&tx, deadline)?;
             }
             for table in TABLES {
                 sql_deadline(&tx, deadline)?;

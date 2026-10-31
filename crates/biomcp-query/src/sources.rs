@@ -3,14 +3,14 @@
 pub use biomcp_adapters::guidance::{WONDER_QUOTA, deadline};
 pub use biomcp_adapters::registry::records::{RecordKind, declaration, record_url};
 pub use biomcp_adapters::registry::{
-    sources, keys, key_name, key_source, components, disable_groups, disabled, disabled_uses, display_name, group, key_tier,
-    outcome, requests, restore_outcome, terms,
+    components, disable_groups, disabled, disabled_uses, display_name, group, key_name, key_source,
+    key_suffix, key_tier, keys, outcome, requests, restore_outcome, sources, terms,
 };
 
 pub use biomcp_adapters::decl::{BundleReply, bundles};
 pub use biomcp_adapters::{Mapped, Refusal};
 /// Synchronize the adapter declared by a checked catalog selector.
-pub fn sync(fetch: &biomcp_fetch::Fetch, bundle: crate::Bundle) -> Result<BundleReply, biomcp_fetch::RequestError> {
+pub fn sync(fetch: &biomcp_fetch::Fetch, bundle: crate::Bundle) -> BundleReply {
     bundle.sync(fetch)
 }
 

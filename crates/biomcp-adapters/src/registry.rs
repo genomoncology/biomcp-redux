@@ -11,13 +11,14 @@ pub use probe::probe;
 pub mod records;
 pub use component::Component;
 
+pub use crate::decl::{key_name, key_source, key_suffix, keys, sources};
 use biomcp_fetch::SourceSpec;
 use biomcp_types::{Source, Use};
 use std::collections::BTreeSet;
-pub use crate::decl::{sources, keys, key_name, key_source};
 /// Enumerate direct and auxiliary request contracts from their owning adapters.
 pub fn requests() -> impl Iterator<Item = &'static SourceSpec> {
-    sources().chain(sources().flat_map(|spec| crate::decl::decl(spec.source).auxiliary.iter().copied()))
+    sources()
+        .chain(sources().flat_map(|spec| crate::decl::decl(spec.source).auxiliary.iter().copied()))
 }
 /// Declared credential policy shared by hosted admission and key discovery.
 /// Multiple APIs using one credential must retain the strongest declared tier.
@@ -34,7 +35,7 @@ pub fn key_tier(name: biomcp_fetch::SecretName) -> biomcp_types::KeyTier {
 }
 /// Independently labeled fields from every implemented aggregator.
 pub fn components() -> impl Iterator<Item = &'static Component> {
-    sources().flat_map(|spec| (crate::decl::decl(spec.source).components)().iter())
+    sources().flat_map(|spec| crate::decl::decl(spec.source).components.iter())
 }
 /// Resolve one supported terms group.
 pub fn group(name: &str) -> Option<Use> {
@@ -109,5 +110,9 @@ pub fn bundle_state(
     spec: &'static SourceSpec,
     leg: &biomcp_fetch::Leg<'_>,
 ) -> Result<Option<biomcp_types::LocalBundleState>, biomcp_fetch::RequestError> {
-    crate::decl::decl(spec.source).bundles.first().map(|bundle| (bundle.state)(leg)).transpose()
+    crate::decl::decl(spec.source)
+        .bundles
+        .first()
+        .map(|bundle| (bundle.state)(leg))
+        .transpose()
 }

@@ -1,6 +1,7 @@
 //! Explicit bounded request shapes for source health.
 use biomcp_fetch::{Arg, Leg, RequestError, SourceSpec};
 /// Source-owned health behavior.
+#[derive(Debug)]
 pub enum Probe {
     /// A bounded GET endpoint and fixed parameters.
     Get(&'static str, &'static [(&'static str, Arg<'static>)]),
@@ -18,11 +19,24 @@ impl Probe {
     pub fn run(&self, spec: &'static SourceSpec, leg: &Leg<'_>) -> Result<(), RequestError> {
         match self {
             Self::Get(path, params) => leg.probe(&spec.get(path), params),
-            Self::GraphQl(path) => leg.probe_json(&spec.post_json(path).idempotent(), &ProbeQuery { query: "{ __typename }" }),
+            Self::GraphQl(path) => leg.probe_json(
+                &spec.post_json(path).idempotent(),
+                &ProbeQuery {
+                    query: "{ __typename }",
+                },
+            ),
             Self::Custom(probe) => probe(leg),
-            Self::Unavailable | Self::Component => Err(biomcp_fetch::SourceError { source: spec.source, reason: biomcp_types::Reason::Rejected, status: None, retry_after: None }.into()),
+            Self::Unavailable | Self::Component => Err(biomcp_fetch::SourceError {
+                source: spec.source,
+                reason: biomcp_types::Reason::Rejected,
+                status: None,
+                retry_after: None,
+            }
+            .into()),
         }
     }
 }
 #[derive(serde::Serialize)]
-struct ProbeQuery { query: &'static str }
+struct ProbeQuery {
+    query: &'static str,
+}

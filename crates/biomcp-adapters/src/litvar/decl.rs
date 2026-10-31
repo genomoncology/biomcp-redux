@@ -2,11 +2,21 @@
 use crate::decl::{Guidance, Probe, SourceDecl};
 use biomcp_fetch::Arg;
 pub(crate) static DECL: SourceDecl = SourceDecl {
-    spec: &super::SPEC, display: "LitVar",
-    registry_order: Some(35), probe: Probe::Custom(|leg| leg.probe(&crate::litvar::AUTOCOMPLETE, &[("query", biomcp_fetch::Arg::Text("rs121434592"))])),
-    components: || &[],
+    spec: &super::SPEC,
+    display: "LitVar",
+    registry_order: Some(35),
+    probe: Probe::Custom(|leg| {
+        leg.probe(
+            &crate::litvar::AUTOCOMPLETE,
+            &[("query", biomcp_fetch::Arg::Text("rs121434592"))],
+        )
+    }),
+    components: &[],
     auxiliary: &[],
     bundles: &[],
-    guidance: Guidance { deadline: None, quota: None },
+    guidance: Guidance {
+        deadline: None,
+        quota: None,
+    },
     key: None,
 };
