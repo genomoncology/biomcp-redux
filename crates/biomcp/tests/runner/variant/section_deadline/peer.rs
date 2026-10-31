@@ -96,12 +96,22 @@ fn serve(
             if held.len() == 2 {
                 ready(&events)?;
                 for (mut tls, kind, content_type, body) in held.drain(..) {
-                    reply(&mut tls, content_type, &body)?;
-                    events.push(if kind == "clinvar" {
-                        "release-clinvar"
-                    } else {
-                        "release-hotspots"
-                    });
+                    match reply(&mut tls, content_type, &body) {
+                        Ok(()) => events.push(if kind == "clinvar" {
+                            "release-clinvar"
+                        } else {
+                            "release-hotspots"
+                        }),
+                        Err(error) => {
+                            fs::write(directory.join(format!("{kind}-closed.txt")), error)
+                                .map_err(|e| e.to_string())?;
+                            events.push(if kind == "clinvar" {
+                                "closed-clinvar"
+                            } else {
+                                "closed-hotspots"
+                            });
+                        }
+                    }
                 }
                 break;
             }

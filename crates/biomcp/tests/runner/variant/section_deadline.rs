@@ -1,75 +1,69 @@
-//! Independent source requests rendezvous before either section reply is released.
+//! Independent source requests rendezvous through the selected executable.
 use super::super::{launch::Environment, network_stub};
-use biomcp_fetch::{Certificates, Fetch, FetchConfig, Network, Secret};
-use biomcp_types::{Request, VariantGet, VariantResolver, VariantSection};
-use serde_json::Value;
-use std::time::Duration;
+use serde_json::{Value, json};
+use std::fs;
 mod peer;
 
 pub(super) fn check() -> Result<(), Box<dyn std::error::Error>> {
     let env = Environment::new()?;
     let inputs = env.root().join("replay");
     let peer = peer::Peer::start(&inputs)?;
-    let network = Network::new(
-        None,
-        Some(Secret::new(format!("http://{}", peer.address))),
-        "",
-        Certificates::from_pem(peer.certificate.as_bytes())?,
-    )?;
-    let fetch = Fetch::open(FetchConfig {
-        network,
-        ..FetchConfig::default()
-    })?;
-    let query = VariantGet::new(
-        "chr7:g.140753336A>T".parse()?,
-        VariantResolver::Car,
-        Some(biodata::Build::GRCh38),
-    )?
-    .with_sections(Box::new([
-        VariantSection::Hotspots,
-        VariantSection::Clinvar,
-    ]));
-    // Below both existing source caps: the held baseline exhausts the public request budget.
-    let outcome = biomcp_query::run(
-        &biomcp_query::Ctx {
-            fetch: &fetch,
-            budget: Duration::from_secs(5),
-            ncbi_email: None,
-            fresh: false,
-        },
-        &Request::GetVariant(query),
-    );
+    let ca = inputs.join("source-ca.pem");
+    fs::write(&ca, &peer.certificate)?;
+    env.config(&json!({"proxy":format!("http://{}",peer.address),"ca_bundle":ca}))?;
+    let args = [
+        "get",
+        "variant",
+        "chr7:g.140753336A>T",
+        "--build",
+        "GRCh38",
+        "hotspots",
+        "clinvar",
+    ]
+    .map(str::to_owned);
+    let output = env.command(env!("CARGO_BIN_EXE_biomcp"), &args).output();
     let events = peer.finish();
+    if let Ok(output) = &output {
+        fs::write(inputs.join("child-stdout.json"), &output.stdout)?;
+        fs::write(inputs.join("child-stderr.txt"), &output.stderr)?;
+        fs::write(
+            inputs.join("child-exit.json"),
+            json!({"exit":output.status.code()}).to_string(),
+        )?;
+    }
     network_stub::retain_replay_owner(env.shared_root().as_ref())?;
+    let output = output?;
     let events = events?;
-    let biomcp_types::QueryBody::VariantCard(card) = &outcome.body else {
-        return Err(format!("variant request returned a different body: {outcome:?}").into());
-    };
-    let body = serde_json::to_value(card)?;
+    let outcome: Value = serde_json::from_slice(&output.stdout)?;
     for section in ["clinvar", "hotspots"] {
-        if body.pointer(&format!("/candidates/0/sections/{section}/state"))
-            != Some(&Value::from("data"))
+        if outcome.pointer(&format!("/result/candidates/0/sections/{section}/state"))
+            != Some(&json!("data"))
         {
-            let detail = format!("{outcome:?}; peer={events:?}");
-            return Err(
-                format!("{section} did not complete under one request deadline: {detail}").into(),
-            );
+            let reason =
+                outcome.pointer(&format!("/result/candidates/0/sections/{section}/reason"));
+            return Err(format!("{section} did not complete: reason={reason:?}; exit={:?}; peer={events:?}; reply={outcome}", output.status.code()).into());
         }
     }
-    if outcome.status() != biomcp_types::Status::Complete
-        || outcome.local.is_some()
-        || outcome.sources.iter().any(|source| source.reason.is_some())
+    if !output.status.success()
+        || !output.stderr.is_empty()
+        || outcome.get("status") != Some(&json!("complete"))
     {
-        return Err(format!("independent sections failed: {outcome:?}; peer={events:?}").into());
+        return Err(format!(
+            "independent sections failed: exit={:?}; reply={outcome}; peer={events:?}",
+            output.status.code()
+        )
+        .into());
     }
-    if outcome.sources.iter().map(|s| s.source).collect::<Vec<_>>()
-        != [
-            biomcp_types::Source::MyVariant,
-            biomcp_types::Source::ClinVar,
-            biomcp_types::Source::CancerHotspots,
-        ]
-    {
-        return Err(format!("declared section order changed: {outcome:?}").into());
+    let sources = outcome
+        .get("sources")
+        .and_then(Value::as_array)
+        .ok_or("source outcomes")?;
+    let order: Vec<_> = sources
+        .iter()
+        .filter_map(|s| s.get("source").and_then(Value::as_str))
+        .collect();
+    if order != ["myvariant", "clinvar", "hotspots"] {
+        return Err(format!("declared section order changed: {outcome}").into());
     }
     peer::rendezvous(&events)?;
     Ok(())
