@@ -216,7 +216,7 @@ fn response(
     fresh: bool,
     globals: &crate::grammar::Globals,
 ) -> io::Result<Outcome> {
-    drug_label::bound(&request, &mut result, fresh, globals)?;
+    drug_label::bound(fetch, &request, &mut result, fresh, globals)?;
     biomcp_query::next::finish(fetch, &mut result);
     let steps = steps::next(&result, globals)?;
     let meta = ResponseMeta {

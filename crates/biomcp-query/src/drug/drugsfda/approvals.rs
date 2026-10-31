@@ -47,7 +47,11 @@ pub(super) fn select(
         if let Some(next) = offset
             .checked_add(returned)
             .filter(|n| returned > 0 && u64::from(*n) < total)
-            && let Ok(request) = query.at_section_offset(next)
+            && let Some(request) = crate::next::checked(
+                query.at_section_offset(next),
+                biomcp_types::Source::Drugsfda,
+                &mut out.problems,
+            )
         {
             out.next.push(crate::next::Step::new(
                 StepKind::Page,

@@ -260,6 +260,7 @@ fn render(
         offset,
         returned > 0 && u64::from(offset) < saved.page.total,
         out.status() != Status::Complete,
+        &mut out.problems,
     );
     out.page = Some(PageInfo {
         offset: q.offset(),

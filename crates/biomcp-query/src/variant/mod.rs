@@ -83,7 +83,7 @@ pub fn get(cx: &Ctx<'_>, query: &VariantGet) -> Outcome {
     sources.extend(section_sources);
     problems.extend(section_problems);
     local = local.or(section_error);
-    let mut next = next(query, resolution, &candidates, page.as_ref());
+    let mut next = next(query, resolution, &candidates, page.as_ref(), &mut problems);
     next.extend(oncokb::next(query, &sources));
     next.extend(alphagenome::next(&sources));
     let out = crate::status::finish(

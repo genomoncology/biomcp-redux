@@ -84,13 +84,25 @@ fn pivots(out: &mut Outcome, q: &PhenotypeGet, rows: &[biomcp_types::DiseaseAsso
         let id = &row.association.subject.id;
         let id = id.to_string();
         let request = if q.section() == Some(PhenotypeSection::Genes) {
-            crate::disease::monarch::gene_query(&id).map(Request::GetGene)
+            crate::disease::monarch::gene_query(&id, &mut out.problems).map(Request::GetGene)
         } else {
-            biomcp_adapters::mydisease::supported_id(&id)
-                .then(|| id.parse::<biodata::Curie>().ok())
-                .flatten()
-                .and_then(|id| DiseaseGet::from_id(id).ok())
+            if biomcp_adapters::mydisease::supported_id(&id) {
+                crate::next::checked(
+                    id.parse::<biodata::Curie>(),
+                    Source::Monarch,
+                    &mut out.problems,
+                )
+                .and_then(|id| {
+                    crate::next::checked(
+                        DiseaseGet::from_id(id),
+                        Source::Monarch,
+                        &mut out.problems,
+                    )
+                })
                 .map(Request::GetDisease)
+            } else {
+                None
+            }
         };
         if let Some(request) = request {
             let step = crate::next::Step::new(

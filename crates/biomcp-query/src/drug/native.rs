@@ -50,7 +50,11 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
             truncated: None,
         });
         for item in &page.items {
-            if let Ok(get) = DrugGet::new(item.id.clone(), query.source()) {
+            if let Some(get) = crate::next::checked(
+                DrugGet::new(item.id.clone(), query.source()),
+                query.source().source(),
+                &mut out.problems,
+            ) {
                 out.next.push(crate::next::Step::new(
                     StepKind::Disambiguate,
                     &[get.source().source()],

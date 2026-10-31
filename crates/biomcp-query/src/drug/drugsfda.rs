@@ -99,7 +99,11 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
                     out.local = status::local(error);
                 }
             } else {
-                if let Ok(request) = query.for_section(DrugSection::Approvals) {
+                if let Some(request) = crate::next::checked(
+                    query.for_section(DrugSection::Approvals),
+                    biomcp_types::Source::Drugsfda,
+                    &mut out.problems,
+                ) {
                     out.next.push(crate::next::Step::new(
                         StepKind::Section,
                         &[biomcp_types::Source::Drugsfda],
@@ -136,10 +140,14 @@ fn label_steps(cx: &Ctx<'_>, row: &source::Application, out: &mut Outcome) {
         .into_iter()
         .flatten()
     {
-        if let Ok(request) = DrugGet::new(id.clone(), DrugSource::OpenfdaLabel) {
+        if let Some(request) = crate::next::checked(
+            DrugGet::new(id.clone(), DrugSource::OpenfdaLabel),
+            biomcp_types::Source::Drugsfda,
+            &mut out.problems,
+        ) {
             out.next.push(crate::next::Step::new(
                 StepKind::Disambiguate,
-                &[biomcp_types::Source::Drugsfda],
+                &[request.source().source()],
                 Action::Run {
                     request: Request::GetDrug(request),
                     fresh: cx.fresh,

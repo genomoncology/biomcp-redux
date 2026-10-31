@@ -88,7 +88,11 @@ fn selected(
             }
             .into();
             for section in &sections {
-                if let Ok(query) = q.with_section(*section) {
+                if let Some(query) = crate::next::checked(
+                    q.with_section(*section),
+                    biomcp_types::Source::FdaPma,
+                    &mut out.problems,
+                ) {
                     next::push(
                         out,
                         StepKind::Section,

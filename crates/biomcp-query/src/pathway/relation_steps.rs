@@ -1,19 +1,28 @@
 use super::run;
-use crate::Action;
 use biodata::PathwayEventRef;
 use biomcp_types::{
     GeneGet, GeneInput, PathwayEvents, PathwayEventsQuery, PathwayGenes, PathwayGenesQuery,
     PathwayGet, Request, StepKind,
 };
 type Steps = Vec<crate::next::Step>;
-pub(super) fn genes(body: &PathwayGenes, limit: u32, details: bool, next: &mut Steps) {
+pub(super) fn genes(
+    body: &PathwayGenes,
+    limit: u32,
+    details: bool,
+    next: &mut Steps,
+    problems: &mut Vec<biomcp_types::Problem>,
+) {
     let mut seen = Vec::new();
     for row in &body.items {
         if let Some(id) = row.gene
             && !seen.contains(&id)
         {
             seen.push(id);
-            if let Ok(query) = GeneGet::new(vec![GeneInput::HgncId(id)].into()) {
+            if let Some(query) = crate::next::checked(
+                GeneGet::new(vec![GeneInput::HgncId(id)].into()),
+                biomcp_types::Source::Reactome,
+                problems,
+            ) {
                 next.push(crate::next::Step::new(
                     StepKind::Pivot,
                     &[biomcp_types::Source::Hgnc],
@@ -24,7 +33,11 @@ pub(super) fn genes(body: &PathwayGenes, limit: u32, details: bool, next: &mut S
     }
     if let Some(offset) = body.page.next_offset
         && let Some(pool) = &body.page.pool
-        && let Ok(query) = PathwayGenesQuery::new(body.header.id.clone(), limit)
+        && let Some(query) = crate::next::checked(
+            PathwayGenesQuery::new(body.header.id.clone(), limit),
+            biomcp_types::Source::Reactome,
+            problems,
+        )
     {
         let query = if details { query.with_details() } else { query };
         next.push(crate::next::Step::new(
@@ -39,7 +52,11 @@ pub(super) fn genes(body: &PathwayGenes, limit: u32, details: bool, next: &mut S
         && !details
         && !body.items.is_empty()
         && let Some(pool) = &body.page.pool
-        && let Ok(query) = PathwayGenesQuery::new(body.header.id.clone(), limit)
+        && let Some(query) = crate::next::checked(
+            PathwayGenesQuery::new(body.header.id.clone(), limit),
+            biomcp_types::Source::Reactome,
+            problems,
+        )
     {
         next.push(crate::next::Step::new(
             StepKind::Section,
@@ -54,10 +71,19 @@ pub(super) fn genes(body: &PathwayGenes, limit: u32, details: bool, next: &mut S
     }
 }
 
-pub(super) fn events(body: &PathwayEvents, limit: u32, next: &mut Steps) {
+pub(super) fn events(
+    body: &PathwayEvents,
+    limit: u32,
+    next: &mut Steps,
+    problems: &mut Vec<biomcp_types::Problem>,
+) {
     if let Some(offset) = body.page.next_offset
         && let Some(pool) = &body.page.pool
-        && let Ok(query) = PathwayEventsQuery::new(body.header.id.clone(), limit)
+        && let Some(query) = crate::next::checked(
+            PathwayEventsQuery::new(body.header.id.clone(), limit),
+            biomcp_types::Source::Reactome,
+            problems,
+        )
     {
         next.push(crate::next::Step::new(
             StepKind::Page,

@@ -118,7 +118,11 @@ fn card_next(out: &mut Outcome, query: &DrugGet, fresh: bool, xrefs: bool) {
     .into_iter()
     .filter(|s| *s != DrugSection::Xrefs || xrefs)
     {
-        if let Ok(get) = query.for_section(section) {
+        if let Some(get) = crate::next::checked(
+            query.for_section(section),
+            query.source().source(),
+            &mut out.problems,
+        ) {
             out.next.push(crate::next::Step::new(
                 StepKind::Section,
                 &[get.source().source()],
@@ -156,7 +160,11 @@ fn page<T>(
         truncated: None,
     });
     if let Some(offset) = next_offset
-        && let Ok(get) = query.at_section_offset(offset)
+        && let Some(get) = crate::next::checked(
+            query.at_section_offset(offset),
+            query.source().source(),
+            &mut out.problems,
+        )
     {
         out.next.push(crate::next::Step::new(
             StepKind::Page,
@@ -268,7 +276,11 @@ fn chembl_card(
     crate::status::item(out, true, false, false);
     out.body = QueryBody::DrugCard(Some(card));
     card_next(out, query, fresh, has_xrefs);
-    if let Ok(get) = DrugGet::new(query.input().clone(), biomcp_types::DrugSource::Opentargets) {
+    if let Some(get) = crate::next::checked(
+        DrugGet::new(query.input().clone(), biomcp_types::DrugSource::Opentargets),
+        query.source().source(),
+        &mut out.problems,
+    ) {
         out.next.push(crate::next::Step::new(
             StepKind::Section,
             &[get.source().source()],

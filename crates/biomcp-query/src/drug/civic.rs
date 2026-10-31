@@ -43,9 +43,12 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
             truncated: None,
         });
         for item in &page.items {
-            if let Ok(get) = DrugGet::new(item.id.clone(), DrugSource::Civic)
-                .and_then(|q| q.for_section(DrugSection::Civic))
-            {
+            if let Some(get) = crate::next::checked(
+                DrugGet::new(item.id.clone(), DrugSource::Civic)
+                    .and_then(|q| q.for_section(DrugSection::Civic)),
+                biomcp_types::Source::Civic,
+                &mut out.problems,
+            ) {
                 out.next.push(crate::next::Step::new(
                     StepKind::Disambiguate,
                     &[biomcp_types::Source::Civic],

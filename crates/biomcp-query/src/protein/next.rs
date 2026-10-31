@@ -2,9 +2,15 @@ use crate::Action;
 use crate::next::Step;
 use biodata::ProteinHeader;
 use biomcp_types::{ProteinCardItem, ProteinGet, ProteinInput, ProteinSearch, Request, StepKind};
-pub(super) fn accession(header: &ProteinHeader) -> Option<Step> {
-    let q = ProteinGet::new(vec![ProteinInput::Accession(header.protein.accession.clone())].into())
-        .ok()?;
+pub(super) fn accession(
+    header: &ProteinHeader,
+    problems: &mut Vec<biomcp_types::Problem>,
+) -> Option<Step> {
+    let q = crate::next::checked(
+        ProteinGet::new(vec![ProteinInput::Accession(header.protein.accession.clone())].into()),
+        biomcp_types::Source::UniProt,
+        problems,
+    )?;
     Some(crate::next::Step::new(
         StepKind::Disambiguate,
         &[biomcp_types::Source::UniProt],
@@ -14,11 +20,14 @@ pub(super) fn accession(header: &ProteinHeader) -> Option<Step> {
         },
     ))
 }
-pub(super) fn cards(items: &[ProteinCardItem]) -> Vec<Step> {
+pub(super) fn cards(
+    items: &[ProteinCardItem],
+    problems: &mut Vec<biomcp_types::Problem>,
+) -> Vec<Step> {
     let mut steps = Vec::new();
     for item in items {
         for candidate in &item.candidates {
-            if let Some(step) = accession(candidate)
+            if let Some(step) = accession(candidate, problems)
                 && !steps.contains(&step)
             {
                 steps.push(step);
@@ -30,8 +39,12 @@ pub(super) fn cards(items: &[ProteinCardItem]) -> Vec<Step> {
             break;
         }
         if let Some(header) = &item.header {
-            if let Ok(q) = ProteinGet::new(
-                vec![ProteinInput::Accession(header.protein.accession.clone())].into(),
+            if let Some(q) = crate::next::checked(
+                ProteinGet::new(
+                    vec![ProteinInput::Accession(header.protein.accession.clone())].into(),
+                ),
+                biomcp_types::Source::UniProt,
+                problems,
             ) {
                 for section in &item.more {
                     if steps.len() >= 5 {
@@ -51,9 +64,15 @@ pub(super) fn cards(items: &[ProteinCardItem]) -> Vec<Step> {
                 break;
             }
             for name in &header.gene_names {
-                if let Ok(input) = biomcp_types::GeneInput::new(name.as_str())
-                    && let Ok(q) = biomcp_types::GeneGet::new(vec![input].into())
-                {
+                if let Some(input) = crate::next::checked(
+                    biomcp_types::GeneInput::new(name.as_str()),
+                    biomcp_types::Source::UniProt,
+                    problems,
+                ) && let Some(q) = crate::next::checked(
+                    biomcp_types::GeneGet::new(vec![input].into()),
+                    biomcp_types::Source::UniProt,
+                    problems,
+                ) {
                     let step = crate::next::Step::new(
                         StepKind::Pivot,
                         &[biomcp_types::Source::Hgnc],
@@ -79,8 +98,12 @@ pub(super) fn search(
     offset: u32,
     more: bool,
     partial: bool,
+    problems: &mut Vec<biomcp_types::Problem>,
 ) -> Vec<Step> {
-    let mut steps: Vec<_> = rows.iter().filter_map(accession).collect();
+    let mut steps: Vec<_> = rows
+        .iter()
+        .filter_map(|row| accession(row, problems))
+        .collect();
     if more {
         steps.push(crate::next::Step::new(
             StepKind::Page,

@@ -51,7 +51,9 @@ pub(super) fn civic(body: &mut DrugCivic, fresh: bool, out: &mut Outcome) {
             else {
                 continue;
             };
-            if let Some(lookup) = member.and_then(|m| lookup(m, variant, build, tumor)) {
+            if let Some(lookup) =
+                member.and_then(|m| lookup(m, variant, build, tumor, &mut out.problems))
+            {
                 let action = crate::next::Step::new(
                     StepKind::Disambiguate,
                     &[biomcp_types::Source::Oncokb],
@@ -116,16 +118,26 @@ fn lookup(
     variant: VariantInput,
     build: Build,
     tumor: Text,
+    problems: &mut Vec<biomcp_types::Problem>,
 ) -> Option<DrugOncokbLookup> {
-    let query = VariantGet::new(variant, VariantResolver::Car, Some(build))
-        .ok()?
-        .with_tumor_type(tumor)
-        .ok()?
-        .with_sections(vec![VariantSection::Oncokb].into());
+    let query = crate::next::checked(
+        VariantGet::new(variant, VariantResolver::Car, Some(build)),
+        biomcp_types::Source::Civic,
+        problems,
+    )?;
+    let query = crate::next::checked(
+        query.with_tumor_type(tumor),
+        biomcp_types::Source::Civic,
+        problems,
+    )?
+    .with_sections(vec![VariantSection::Oncokb].into());
     Some(DrugOncokbLookup {
         member: member.member.record.id.clone(),
-        label: Text::new("Look up this source-listed genomic variant in the stated tumor context")
-            .ok()?,
+        label: crate::next::checked(
+            Text::new("Look up this source-listed genomic variant in the stated tumor context"),
+            biomcp_types::Source::Civic,
+            problems,
+        )?,
         query,
     })
 }

@@ -266,13 +266,12 @@ fn actions(query: Cursor<'_>, pool: &Pool, returned: u32, total: u64, out: &mut 
             } else {
                 (input, parent.input().clone())
             };
+            let evidence = biomcp_types::ArticleEvidence::new(citing, cited);
             out.next.push(crate::next::Step::new(
                 StepKind::Disambiguate,
-                &[Source::SemanticScholar, Source::PubMed],
+                &super::next::evidence_sources(&evidence),
                 Action::Run {
-                    request: Request::ArticleEvidence(biomcp_types::ArticleEvidence::new(
-                        citing, cited,
-                    )),
+                    request: Request::ArticleEvidence(evidence),
                     fresh: false,
                 },
             ));
@@ -280,8 +279,11 @@ fn actions(query: Cursor<'_>, pool: &Pool, returned: u32, total: u64, out: &mut 
     }
     if let Some(first) = items.first()
         && let Some(id) = first.pmid
-        && let Ok(query) =
-            biomcp_types::ArticleGet::new(vec![biomcp_types::ArticleInput::Pmid(id)].into())
+        && let Some(query) = crate::next::checked(
+            biomcp_types::ArticleGet::new(vec![biomcp_types::ArticleInput::Pmid(id)].into()),
+            biomcp_types::Source::PubMed,
+            &mut out.problems,
+        )
     {
         out.next.push(crate::next::Step::new(
             StepKind::Disambiguate,

@@ -38,7 +38,7 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &VariantPopulationQuery) -> Outcome {
             },
         ));
     }
-    next.extend(choices(query, &read.candidates));
+    next.extend(choices(query, &read.candidates, &mut read.problems));
     let status = match &read.population {
         Section::Data { .. } => status::item_status(true, false, read.dropped),
         _ if read.candidates.len() > 1 => status::item_status(true, false, read.dropped),
@@ -134,23 +134,29 @@ fn read(
 fn choices(
     query: &VariantPopulationQuery,
     candidates: &[biomcp_types::VariantHeader],
+    problems: &mut Vec<biomcp_types::Problem>,
 ) -> Vec<crate::next::Step> {
     candidates
         .iter()
         .filter_map(|row| {
-            let request = match super::population_identity::choice(row)? {
+            let (request, source) = super::population_identity::choice(row, problems)?;
+            let (request, source) = match request {
                 Request::GetVariant(identity) if candidates.len() > 1 => {
-                    Request::VariantPopulation(
-                        query
-                            .with_identity(identity.input().clone(), identity.build())
-                            .ok()?,
+                    let query = crate::next::checked(
+                        query.with_identity(identity.input().clone(), identity.build()),
+                        row.source,
+                        problems,
+                    )?;
+                    (
+                        Request::VariantPopulation(query),
+                        biomcp_types::Source::Gnomad,
                     )
                 }
-                request => request,
+                request => (request, source),
             };
             Some(crate::next::Step::new(
                 StepKind::Disambiguate,
-                &[biomcp_types::Source::Gnomad],
+                &[source],
                 Action::Run {
                     request,
                     fresh: false,

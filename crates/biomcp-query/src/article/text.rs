@@ -205,7 +205,12 @@ fn select(
         )
         .ok();
         if part.continuation {
-            super::sections::fulltext::next_input(input, number.checked_add(1)?, &mut out.next);
+            super::sections::fulltext::next_input(
+                input,
+                number.checked_add(1)?,
+                &mut out.next,
+                &mut out.problems,
+            );
         }
     } else {
         content.hits = Some(find(query, selection, document, out)?);

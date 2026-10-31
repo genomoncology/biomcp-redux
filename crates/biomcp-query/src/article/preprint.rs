@@ -88,6 +88,7 @@ pub(super) fn fulltext<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut 
                         ArticleInput::EuropePmc(id.clone()),
                         1,
                         &mut out.next,
+                        &mut out.problems,
                     );
                 }
                 Section::Data {

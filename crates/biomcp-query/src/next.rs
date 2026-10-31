@@ -57,22 +57,20 @@ pub(crate) fn run(request: biomcp_types::Request) -> Action {
 }
 
 /// Keep failed construction visible without exposing rejected field values.
-pub(crate) fn checked<T>(
-    result: Result<T, biomcp_types::QueryInvalid>,
+pub(crate) fn checked<T, E>(
+    result: Result<T, E>,
     source: Source,
     problems: &mut Vec<biomcp_types::Problem>,
 ) -> Option<T> {
     match result {
         Ok(value) => Some(value),
-        Err(error) => {
-            for field in error.arguments() {
-                problems.push(biomcp_types::Problem {
-                    source,
-                    record: None,
-                    field: field.clone(),
-                    code: biomcp_types::ProblemCode::ValueUnknown,
-                });
-            }
+        Err(_) => {
+            problems.push(biomcp_types::Problem {
+                source,
+                record: None,
+                field: "next".into(),
+                code: biomcp_types::ProblemCode::ValueUnknown,
+            });
             None
         }
     }
@@ -80,9 +78,10 @@ pub(crate) fn checked<T>(
 
 /// Apply source exclusions and the shared response ordering and caps.
 pub fn finish(fetch: &biomcp_fetch::Fetch, result: &mut Outcome) {
-    result
-        .next
-        .retain(|step| !step.2.iter().any(|source| fetch.disabled(*source)));
+    result.next.retain(|step| {
+        !matches!(step.1, Action::NetworkHelp(_))
+            && !step.2.iter().any(|source| fetch.disabled(*source))
+    });
     let has_more = result
         .page
         .as_ref()

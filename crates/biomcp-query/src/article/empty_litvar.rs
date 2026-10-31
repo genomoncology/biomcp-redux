@@ -16,9 +16,18 @@ pub(super) fn recover(query: &ArticleSearch, out: &mut Outcome) {
     if let Some(input) = query
         .variant()
         .filter(|value| biomcp_adapters::litvar::is_rsid(value.as_str()))
-        .and_then(|value| value.as_str().parse().ok())
-        && let Ok(get) =
-            biomcp_types::VariantGet::new(input, biomcp_types::VariantResolver::Car, None)
+        .and_then(|value| {
+            crate::next::checked(
+                value.as_str().parse(),
+                biomcp_types::Source::LitVar,
+                &mut out.problems,
+            )
+        })
+        && let Some(get) = crate::next::checked(
+            biomcp_types::VariantGet::new(input, biomcp_types::VariantResolver::Car, None),
+            biomcp_types::Source::LitVar,
+            &mut out.problems,
+        )
     {
         out.next.push(crate::next::Step::new(
             StepKind::Disambiguate,

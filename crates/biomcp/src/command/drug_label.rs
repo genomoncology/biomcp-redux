@@ -3,6 +3,7 @@ use biomcp_types::{Envelope, QueryBody, Request, Section, StepKind};
 use std::io;
 const LABEL_BYTES: usize = 8192;
 pub(super) fn bound(
+    fetch: &biomcp_fetch::Fetch,
     request: &Request,
     out: &mut biomcp_query::Outcome,
     fresh: bool,
@@ -12,6 +13,7 @@ pub(super) fn bound(
         return Ok(());
     };
     loop {
+        biomcp_query::next::finish(fetch, out);
         let QueryBody::DrugLabel(Some(body)) = &out.body else {
             return Ok(());
         };

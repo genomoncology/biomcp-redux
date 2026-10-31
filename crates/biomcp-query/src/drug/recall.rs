@@ -26,9 +26,15 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DrugSearch) -> Outcome {
         };
         out.problems = page.problems;
         for item in &page.items {
-            if let Ok(id) = item.recall_number.to_string().parse()
-                && let Ok(get) = DrugGet::new(id, DrugSource::FdaDrugRecall)
-            {
+            if let Some(id) = crate::next::checked(
+                item.recall_number.to_string().parse(),
+                biomcp_types::Source::FdaDrugRecall,
+                &mut out.problems,
+            ) && let Some(get) = crate::next::checked(
+                DrugGet::new(id, DrugSource::FdaDrugRecall),
+                biomcp_types::Source::FdaDrugRecall,
+                &mut out.problems,
+            ) {
                 out.next.push(crate::next::Step::new(
                     StepKind::Disambiguate,
                     &[biomcp_types::Source::FdaDrugRecall],

@@ -125,7 +125,11 @@ fn drugs(
     }
 }
 fn section_step(q: &AdverseEventGet, s: S, index: Option<u32>, out: &mut Outcome) {
-    if let Ok(q) = q.with_section(s, index) {
+    if let Some(q) = crate::next::checked(
+        q.with_section(s, index),
+        biomcp_types::Source::Faers,
+        &mut out.problems,
+    ) {
         out.next.push(crate::next::Step::new(
             StepKind::Section,
             &[biomcp_types::Source::Faers],

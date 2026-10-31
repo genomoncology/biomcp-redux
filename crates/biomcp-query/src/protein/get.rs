@@ -55,7 +55,7 @@ pub fn get(cx: &Ctx<'_>, q: &ProteinGet) -> Outcome {
     super::source_sections::supplement(cx, q, &mut items, &mut out, deadline);
     status::get(&mut out, items.iter().map(|i| i.status));
     if out.next.is_empty() {
-        out.next = next::cards(&items);
+        out.next = next::cards(&items, &mut out.problems);
     }
     recovery(q, &mut out);
     out.body = QueryBody::ProteinCard(ProteinCard {

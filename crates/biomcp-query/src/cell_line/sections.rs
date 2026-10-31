@@ -128,7 +128,11 @@ fn pivots(data: &CellLineVariants, out: &mut Outcome) {
                     .resource_internal_ref
                     .as_str()
                     .strip_prefix("PubMed=")
-                && let Ok(pmid) = value.parse()
+                && let Some(pmid) = crate::next::checked(
+                    value.parse(),
+                    biomcp_types::Source::Cellosaurus,
+                    &mut out.problems,
+                )
             {
                 let input = ArticleInput::Pmid(pmid);
                 if !articles.contains(&input) {
@@ -139,7 +143,11 @@ fn pivots(data: &CellLineVariants, out: &mut Outcome) {
     }
     for chunk in genes.chunks(20) {
         if out.next.len() < 5
-            && let Ok(query) = GeneGet::new(chunk.into())
+            && let Some(query) = crate::next::checked(
+                GeneGet::new(chunk.into()),
+                biomcp_types::Source::Cellosaurus,
+                &mut out.problems,
+            )
         {
             out.next.push(crate::next::Step::new(
                 StepKind::Pivot,
@@ -150,7 +158,11 @@ fn pivots(data: &CellLineVariants, out: &mut Outcome) {
     }
     for chunk in articles.chunks(20) {
         if out.next.len() < 5
-            && let Ok(query) = ArticleGet::new(chunk.into())
+            && let Some(query) = crate::next::checked(
+                ArticleGet::new(chunk.into()),
+                biomcp_types::Source::Cellosaurus,
+                &mut out.problems,
+            )
         {
             out.next.push(crate::next::Step::new(
                 StepKind::Pivot,

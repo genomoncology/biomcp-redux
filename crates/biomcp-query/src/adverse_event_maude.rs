@@ -56,7 +56,11 @@ fn navigation(query: &AdverseEventGet, total: u64, returned: u32, offset: u32, o
         }
     } else {
         for section in [AdverseEventSection::Devices, AdverseEventSection::Narrative] {
-            if let Ok(next) = query.with_section(section, None) {
+            if let Some(next) = crate::next::checked(
+                query.with_section(section, None),
+                biomcp_types::Source::Maude,
+                &mut out.problems,
+            ) {
                 out.next.push(crate::next::Step::new(
                     StepKind::Section,
                     &[biomcp_types::Source::Maude],

@@ -71,7 +71,11 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
             out.problems.extend(card.problems);
             let card = card.value;
             if card.is_some()
-                && let Ok(get) = query.for_section(DrugSection::Regulatory)
+                && let Some(get) = crate::next::checked(
+                    query.for_section(DrugSection::Regulatory),
+                    biomcp_types::Source::Ema,
+                    &mut out.problems,
+                )
             {
                 out.next.push(crate::next::Step::new(
                     StepKind::Section,

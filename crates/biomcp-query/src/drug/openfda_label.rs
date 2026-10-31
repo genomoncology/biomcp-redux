@@ -53,7 +53,11 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
         }
         out.page = Some(page(query.offset(), returned, total));
         for item in &items {
-            if let Ok(get) = DrugGet::new(item.id.clone(), DrugSource::OpenfdaLabel) {
+            if let Some(get) = crate::next::checked(
+                DrugGet::new(item.id.clone(), DrugSource::OpenfdaLabel),
+                biomcp_types::Source::OpenfdaLabel,
+                &mut out.problems,
+            ) {
                 out.next.push(crate::next::Step::new(
                     StepKind::Disambiguate,
                     &[biomcp_types::Source::OpenfdaLabel],
@@ -154,9 +158,15 @@ fn select(
             .into_iter()
             .filter(|h| record.parts(h).is_some())
         {
-            if let Ok(heading) = heading.parse()
-                && let Ok(request) = query.for_label(heading)
-            {
+            if let Some(heading) = crate::next::checked(
+                heading.parse(),
+                biomcp_types::Source::OpenfdaLabel,
+                &mut out.problems,
+            ) && let Some(request) = crate::next::checked(
+                query.for_label(heading),
+                biomcp_types::Source::OpenfdaLabel,
+                &mut out.problems,
+            ) {
                 out.next.push(crate::next::Step::new(
                     StepKind::Section,
                     &[biomcp_types::Source::OpenfdaLabel],
@@ -181,7 +191,11 @@ fn select(
             if let Some(next) = offset
                 .checked_add(returned)
                 .filter(|n| returned > 0 && u64::from(*n) < total)
-                && let Ok(request) = query.at_section_offset(next)
+                && let Some(request) = crate::next::checked(
+                    query.at_section_offset(next),
+                    biomcp_types::Source::OpenfdaLabel,
+                    &mut out.problems,
+                )
             {
                 out.next.push(crate::next::Step::new(
                     StepKind::Page,

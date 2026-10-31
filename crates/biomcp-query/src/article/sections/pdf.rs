@@ -40,7 +40,11 @@ pub(super) fn run<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut Outco
         };
         if matches!(section, Section::Data { .. }) && out.next.len() < 5 {
             let name = ArticlePdf::filename(&input);
-            if let Ok(save) = Text::new(&name) {
+            if let Some(save) = crate::next::checked(
+                Text::new(&name),
+                biomcp_types::Source::SemanticScholar,
+                &mut out.problems,
+            ) {
                 out.next.push(crate::next::Step::new(
                     StepKind::Section,
                     &[biomcp_types::Source::SemanticScholar],

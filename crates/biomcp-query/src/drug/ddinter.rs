@@ -77,7 +77,11 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
             out.problems.extend(card.problems);
             let card = card.value;
             if card.is_some()
-                && let Ok(get) = query.for_section(DrugSection::Interactions)
+                && let Some(get) = crate::next::checked(
+                    query.for_section(DrugSection::Interactions),
+                    biomcp_types::Source::Ddinter,
+                    &mut out.problems,
+                )
             {
                 out.next.push(crate::next::Step::new(
                     StepKind::Section,
@@ -124,7 +128,11 @@ fn page(
             .offset
             .checked_add(returned)
             .filter(|n| returned > 0 && u64::from(*n) < total)
-            && let Ok(get) = query.at_section_offset(offset)
+            && let Some(get) = crate::next::checked(
+                query.at_section_offset(offset),
+                biomcp_types::Source::Ddinter,
+                &mut out.problems,
+            )
         {
             out.next.push(crate::next::Step::new(
                 StepKind::Page,

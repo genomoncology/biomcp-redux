@@ -105,6 +105,7 @@ pub(super) fn next(
     resolution: VariantResolution,
     candidates: &[VariantHeader],
     page: Option<&biomcp_types::PageInfo>,
+    problems: &mut Vec<biomcp_types::Problem>,
 ) -> Vec<crate::next::Step> {
     let mut next = Vec::new();
     if resolution == VariantResolution::Candidates
@@ -127,8 +128,8 @@ pub(super) fn next(
             })
     {
         for row in candidates {
-            if let Some(request) = candidate_request(query, resolution, row) {
-                push(&mut next, StepKind::Disambiguate, row.source, request);
+            if let Some((request, source)) = candidate_request(query, resolution, row, problems) {
+                push(&mut next, StepKind::Disambiguate, source, request);
             }
         }
     }
@@ -178,25 +179,34 @@ fn candidate_request(
     query: &VariantGet,
     resolution: VariantResolution,
     row: &VariantHeader,
-) -> Option<Request> {
+    problems: &mut Vec<biomcp_types::Problem>,
+) -> Option<(Request, Source)> {
     if super::population_identity::requested(query) {
-        return Some(match super::population_identity::choice(row)? {
-            Request::GetVariant(q) if resolution == VariantResolution::Candidates => {
-                Request::GetVariant(q.with_sections(query.sections().into()))
-            }
-            request => request,
-        });
+        let (request, source) = super::population_identity::choice(row, problems)?;
+        return Some((
+            match request {
+                Request::GetVariant(q) if resolution == VariantResolution::Candidates => {
+                    Request::GetVariant(q.with_sections(query.sections().into()))
+                }
+                request => request,
+            },
+            source,
+        ));
     }
-    Some(Request::GetVariant(
+    let input = crate::next::checked(row.record.id.as_str().parse(), row.source, problems)?;
+    let query = crate::next::checked(
         VariantGet::new(
-            row.record.id.as_str().parse().ok()?,
+            input,
             query.resolver(),
             row.identity
                 .representations
                 .iter()
                 .find_map(|r| r.build)
                 .or(query.build()),
-        )
-        .ok()?,
-    ))
+        ),
+        row.source,
+        problems,
+    )?;
+    let source = super::source(&query).source;
+    Some((Request::GetVariant(query), source))
 }

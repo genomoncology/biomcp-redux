@@ -18,7 +18,11 @@ pub(super) fn apply(out: &mut Outcome, q: &PhenotypeGet, rows: Rows) {
     match q.section() {
         None => {
             for section in &rows.0.sections {
-                if let Ok(request) = q.with_section(*section) {
+                if let Some(request) = crate::next::checked(
+                    q.with_section(*section),
+                    super::snapshot::source(q),
+                    &mut out.problems,
+                ) {
                     out.next.push(crate::next::Step::new(
                         StepKind::Section,
                         &[super::snapshot::source(q)],

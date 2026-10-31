@@ -181,7 +181,7 @@ fn present_genes(
         &mut out.sources,
         &mut out.problems,
     );
-    super::relation_steps::genes(&body, q.limit, q.details, &mut out.next);
+    super::relation_steps::genes(&body, q.limit, q.details, &mut out.next, &mut out.problems);
     {
         let absent = body.page.total == 0;
         crate::status::item(out, !absent, false, false);
@@ -202,7 +202,7 @@ fn present_events(
         .cloned()
         .collect();
     body.page = position(body.page, q, body.items.len(), pool);
-    super::relation_steps::events(&body, q.limit, &mut out.next);
+    super::relation_steps::events(&body, q.limit, &mut out.next, &mut out.problems);
     {
         let absent = body.page.total == 0;
         crate::status::item(out, !absent, false, false);

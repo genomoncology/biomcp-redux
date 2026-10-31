@@ -34,7 +34,11 @@ pub(super) fn render(
             .map(ArticleInput::Pmid)
             .collect();
         for chunk in inputs.chunks(20) {
-            if let Ok(request) = ArticleGet::new(chunk.into()) {
+            if let Some(request) = crate::next::checked(
+                ArticleGet::new(chunk.into()),
+                biomcp_types::Source::ClinicalTrialsGov,
+                &mut out.problems,
+            ) {
                 out.next.push(crate::next::Step::new(
                     StepKind::Section,
                     &[biomcp_types::Source::PubMed],

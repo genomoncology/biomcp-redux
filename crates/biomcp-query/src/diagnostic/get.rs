@@ -70,7 +70,11 @@ fn selected(out: &mut Outcome, q: &DiagnosticGet, record: gtr::Record, fresh: bo
         None => {
             if let Some(card) = &record.card {
                 for &section in &card.sections {
-                    if let Ok(query) = q.with_section(section) {
+                    if let Some(query) = crate::next::checked(
+                        q.with_section(section),
+                        biomcp_types::Source::Gtr,
+                        &mut out.problems,
+                    ) {
                         next::push(
                             out,
                             StepKind::Section,
@@ -154,9 +158,15 @@ fn genes(out: &mut Outcome, q: &DiagnosticGet, relations: Vec<GtrTestRelation>, 
         .filter_map(|r| r.gene.ncbi_gene_id())
         .filter(|id| seen.insert(id.to_string()))
     {
-        if let Ok(input) = biomcp_types::GeneInput::new(&id.to_string())
-            && let Ok(query) = biomcp_types::GeneGet::new(vec![input].into())
-        {
+        if let Some(input) = crate::next::checked(
+            biomcp_types::GeneInput::new(&id.to_string()),
+            biomcp_types::Source::Gtr,
+            &mut out.problems,
+        ) && let Some(query) = crate::next::checked(
+            biomcp_types::GeneGet::new(vec![input].into()),
+            biomcp_types::Source::Gtr,
+            &mut out.problems,
+        ) {
             next::push(
                 out,
                 StepKind::Disambiguate,

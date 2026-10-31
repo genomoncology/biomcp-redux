@@ -49,7 +49,11 @@ pub fn get(cx: &Ctx<'_>, q: &PathwayGet) -> Outcome {
             for section in &value.sections {
                 if q.section() != Some(PathwaySection::All)
                     && Some(*section) != q.section()
-                    && let Ok(query) = q.with_section(*section)
+                    && let Some(query) = crate::next::checked(
+                        q.with_section(*section),
+                        biomcp_types::Source::Reactome,
+                        &mut out.problems,
+                    )
                 {
                     out.next.push(crate::next::Step::new(
                         StepKind::Section,

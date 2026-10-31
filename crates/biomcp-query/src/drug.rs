@@ -135,7 +135,11 @@ fn selected_get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
                 .card
                 .available_sections
                 .contains(&biomcp_types::DrugSection::Xrefs)
-                && let Ok(request) = query.for_section(biomcp_types::DrugSection::Xrefs)
+                && let Some(request) = crate::next::checked(
+                    query.for_section(biomcp_types::DrugSection::Xrefs),
+                    biomcp_types::Source::Mychem,
+                    &mut out.problems,
+                )
             {
                 out.next.push(crate::next::Step::new(
                     StepKind::Section,
@@ -178,7 +182,11 @@ fn link_page(
     if let Some(offset) = offset
         .checked_add(returned)
         .filter(|next| returned > 0 && u64::from(*next) < total)
-        && let Ok(request) = query.at_section_offset(offset)
+        && let Some(request) = crate::next::checked(
+            query.at_section_offset(offset),
+            biomcp_types::Source::Mychem,
+            &mut out.problems,
+        )
     {
         out.next.push(crate::next::Step::new(
             StepKind::Page,
@@ -277,7 +285,11 @@ fn search_results(
         truncated: None,
     });
     for item in &page.items {
-        if let Ok(get) = DrugGet::new(item.id.clone(), query.source()) {
+        if let Some(get) = crate::next::checked(
+            DrugGet::new(item.id.clone(), query.source()),
+            biomcp_types::Source::Mychem,
+            &mut out.problems,
+        ) {
             out.next.push(crate::next::Step::new(
                 StepKind::Disambiguate,
                 &[get.source().source()],

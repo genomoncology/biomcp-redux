@@ -38,10 +38,11 @@ pub fn search(cx: &Ctx<'_>, q: &PhenotypeSearch) -> Outcome {
         out.problems.extend(page.problems);
         let returned = page.items.len() as u32;
         for item in &page.items {
+            let get = PhenotypeGet::new(item.id.clone());
             out.next.push(crate::next::Step::new(
                 StepKind::Disambiguate,
-                &[Source::Monarch],
-                run(Request::GetPhenotype(PhenotypeGet::new(item.id.clone()))),
+                &[snapshot::source(&get)],
+                run(Request::GetPhenotype(get)),
             ));
         }
         if page.received > 0 && u64::from(q.offset()) + u64::from(page.received) < page.total {

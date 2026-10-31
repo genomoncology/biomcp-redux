@@ -42,7 +42,7 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
             crate::status::item(&mut out, true, false, unavailable);
         };
         group_unsupported = page.group_unsupported;
-        out.problems = page.problems;
+        out.problems.extend(page.problems);
         out.page = Some(PageInfo {
             offset: q.offset(),
             returned,
@@ -129,8 +129,16 @@ fn pivots(out: &mut Outcome, rows: &[CompanionDiagnosticRelation], fresh: bool) 
         }
         for application in applications {
             if seen.insert(application.id.as_str().to_owned())
-                && let Ok(id) = application.id.as_str().parse()
-                && let Ok(get) = DrugGet::new(id, DrugSource::Drugsfda)
+                && let Some(id) = crate::next::checked(
+                    application.id.as_str().parse(),
+                    biomcp_types::Source::FdaCdx,
+                    &mut out.problems,
+                )
+                && let Some(get) = crate::next::checked(
+                    DrugGet::new(id, DrugSource::Drugsfda),
+                    biomcp_types::Source::FdaCdx,
+                    &mut out.problems,
+                )
             {
                 super::next::push(
                     out,

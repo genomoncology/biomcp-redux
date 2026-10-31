@@ -197,7 +197,11 @@ fn overview(
             .collect(),
     );
     if let Some(first) = sheets.first()
-        && let Ok(name) = Text::new(&first.name)
+        && let Some(name) = crate::next::checked(
+            Text::new(&first.name),
+            biomcp_types::Source::PmcOa,
+            &mut out.problems,
+        )
     {
         out.next.push(crate::next::Step::new(
             StepKind::Page,

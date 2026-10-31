@@ -35,9 +35,13 @@ pub(super) fn get(query: &ArticleGet, out: &mut Outcome) {
             .pmid
             .map(ArticleInput::Pmid)
             .or_else(|| card.doi.clone().map(ArticleInput::Doi))
-            && let Ok(query) = ArticleGet::with_sections(
-                vec![input].into(),
-                vec![biomcp_types::ArticleSectionWord::Pdf].into(),
+            && let Some(query) = crate::next::checked(
+                ArticleGet::with_sections(
+                    vec![input].into(),
+                    vec![biomcp_types::ArticleSectionWord::Pdf].into(),
+                ),
+                biomcp_types::Source::PubMed,
+                &mut out.problems,
             )
         {
             push(
@@ -58,9 +62,15 @@ pub(super) fn get(query: &ArticleGet, out: &mut Outcome) {
             let words = item
                 .more
                 .iter()
-                .filter_map(|s| s.to_string().parse().ok())
+                .filter_map(|s| {
+                    crate::next::checked(s.to_string().parse(), Source::PubMed, &mut out.problems)
+                })
                 .collect();
-            if let Ok(query) = ArticleGet::with_sections(vec![input].into(), words) {
+            if let Some(query) = crate::next::checked(
+                ArticleGet::with_sections(vec![input].into(), words),
+                biomcp_types::Source::PubMed,
+                &mut out.problems,
+            ) {
                 push(
                     &mut out.next,
                     StepKind::Section,
@@ -209,7 +219,11 @@ pub(super) fn authors(out: &mut Outcome) {
 pub(super) fn text(query: &biomcp_types::ArticleText, out: &mut Outcome) {
     if matches!(&out.body, QueryBody::ArticleText(body)
         if !matches!(body.content, biomcp_types::Section::Data { .. }))
-        && let Ok(get) = ArticleGet::new(vec![query.input().clone()].into())
+        && let Some(get) = crate::next::checked(
+            ArticleGet::new(vec![query.input().clone()].into()),
+            biomcp_types::Source::PubMed,
+            &mut out.problems,
+        )
     {
         out.next.push(crate::next::Step::new(
             StepKind::Disambiguate,

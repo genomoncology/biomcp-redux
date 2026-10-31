@@ -77,7 +77,7 @@ fn gene_steps(out: &mut Outcome, items: &[biomcp_types::DiseaseAssociationItem])
     for row in items {
         let id = &row.association.subject.id;
         let id = id.to_string();
-        if let Some(query) = gene_query(&id) {
+        if let Some(query) = gene_query(&id, &mut out.problems) {
             let step = crate::next::Step::new(
                 StepKind::Disambiguate,
                 &[biomcp_types::Source::Hgnc],
@@ -91,15 +91,21 @@ fn gene_steps(out: &mut Outcome, items: &[biomcp_types::DiseaseAssociationItem])
 }
 
 /// Accept only an identifier the existing gene command understands, without symbol repair.
-pub(crate) fn gene_query(id: &str) -> Option<GeneGet> {
-    let checked = match GeneInput::new(id) {
-        Ok(input @ (GeneInput::HgncId(_) | GeneInput::EnsemblId(_) | GeneInput::EntrezId(_))) => {
-            Some(input)
-        }
-        _ => id
-            .strip_prefix("NCBIGene:")
-            .and_then(|value| value.parse::<biodata::NcbiGeneId>().ok())
-            .map(GeneInput::EntrezId),
+pub(crate) fn gene_query(id: &str, problems: &mut Vec<biomcp_types::Problem>) -> Option<GeneGet> {
+    let input = if let Some(value) = id.strip_prefix("NCBIGene:") {
+        crate::next::checked(
+            value.parse::<biodata::NcbiGeneId>(),
+            Source::Monarch,
+            problems,
+        )
+        .map(GeneInput::EntrezId)?
+    } else if id.starts_with("HGNC:")
+        || id.starts_with("ENSG")
+        || id.bytes().all(|byte| byte.is_ascii_digit())
+    {
+        crate::next::checked(GeneInput::new(id), Source::Monarch, problems)?
+    } else {
+        return None;
     };
-    checked.and_then(|input| GeneGet::new(vec![input].into()).ok())
+    crate::next::checked(GeneGet::new(vec![input].into()), Source::Monarch, problems)
 }
