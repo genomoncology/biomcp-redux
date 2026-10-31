@@ -24,6 +24,7 @@ def load(directory):
         key = record["key"]
         # Context::record stores native wire request pairs separately from executions.
         if (isinstance(key, str) and key.startswith("cache/") and key.endswith("/requests")
+                and len(key.split("/")) == 4
                 and all(part not in ("", ".", "..") for part in key.split("/"))):
             executions = record.get("executions")
             if (set(record) != {"key", "executions"} or not isinstance(executions, list)

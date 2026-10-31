@@ -257,6 +257,21 @@ class ReplyDiff(unittest.TestCase):
                 self.assertNotEqual(self.compare().returncode, 0)
         path.write_text(original)
 
+    def test_pool_clocks_stay_consistent_per_recorded_root_and_pool(self):
+        for directory, side in [(self.base, "base"), (self.head, "head")]:
+            for step in range(4):
+                created = 10 + step // 2 if side == "base" else 20
+                self.write(directory, "case/pool.yaml/step/" + str(step), json.dumps({
+                    "page": {"pool": {"id": side, "created": created,
+                                      "expires": created + 90, "size": 1}},
+                }).encode(), root=f"/tmp/{side}/{step // 2}")
+        result = self.compare()
+        self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+        self.write(self.head, "case/pool.yaml/step/1", json.dumps({
+            "page": {"pool": {"id": "head", "created": 21, "expires": 111, "size": 1}},
+        }).encode(), root="/tmp/head/0")
+        self.assertNotEqual(self.compare().returncode, 0)
+
     def test_native_request_metadata_compares_exactly_in_its_own_schema(self):
         key = "cache/mychem-search/optional/requests"
         for directory in (self.base, self.head):
