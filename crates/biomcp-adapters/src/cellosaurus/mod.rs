@@ -101,11 +101,30 @@ fn candidates(
     if let Some(offset) = offset {
         args.push(("start", Arg::Num(offset.into())));
     }
-    let (reply, metadata) =
-        leg.json_received_checked::<raw::Response>(&endpoint, &args, |reply| match reply {
+    let (reply, metadata) = leg.json_received_checked_admission::<raw::Response>(
+        &endpoint,
+        &args,
+        |reply| match reply {
             raw::Response::Records { data } if data.rows.len() <= limit as usize => Ok(()),
             _ => Err(BadReply),
-        })?;
+        },
+        |reply| {
+            let raw::Response::Records { data } = reply else {
+                return false;
+            };
+            let accepted = data
+                .rows
+                .iter()
+                .filter(|row| row.accession().is_ok())
+                .count();
+            let refusals = if accepted < data.rows.len() {
+                crate::Refusal::Refused
+            } else {
+                crate::Refusal::None
+            };
+            refusals.identities_admitted(accepted, data.rows.len())
+        },
+    )?;
     let raw::Response::Records { data } = reply else {
         return Err(InputError::Serialization.into());
     };

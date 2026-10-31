@@ -71,6 +71,14 @@ pub struct Mechanism {
     /// Native source links.
     pub mechanism_refs: Vec<Reference>,
 }
+impl Mechanism {
+    pub(super) fn target_identity(&self) -> Result<Option<biodata::Text>, biodata::Error> {
+        self.target_chembl_id
+            .as_deref()
+            .map(biodata::Text::new)
+            .transpose()
+    }
+}
 /// Native indication, independent of a regulatory authorization.
 #[derive(Debug, Deserialize)]
 #[serde(from = "super::receive::ReceivedIndication")]

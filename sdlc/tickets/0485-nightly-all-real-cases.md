@@ -1,6 +1,7 @@
 # 0485 — Put every real-data case in the nightly live check
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 18186021724d467bf7357356e3af0d5af72dfa48
 
 Milestone: 5
 

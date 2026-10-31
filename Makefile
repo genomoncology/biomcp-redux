@@ -58,7 +58,6 @@ unreached:
 .PHONY: docs-check
 docs-check:
 	cargo test --locked -p biomcp --bin biomcp grammar::reference::reference_matches_grammar $(TEST_THREADS)
-	cargo test --locked -p biomcp --test cases article-help/executable-examples $(TEST_THREADS)
 	python3 release/toolchain.py check
 	python3 -m unittest release.test_toolchain
 	python3 release/tools.py

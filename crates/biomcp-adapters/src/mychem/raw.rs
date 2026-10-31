@@ -6,6 +6,21 @@ pub(super) struct Page {
     pub total: u64,
     pub hits: Vec<crate::raw::Field<Hit>>,
 }
+impl Page {
+    pub(super) fn identities_admitted(&self) -> bool {
+        let accepted = self
+            .hits
+            .iter()
+            .filter(|hit| hit.as_ref().is_some_and(|hit| hit.identity().is_ok()))
+            .count();
+        let refusals = if accepted < self.hits.len() {
+            crate::Refusal::Refused
+        } else {
+            crate::Refusal::None
+        };
+        refusals.identities_admitted(accepted, self.hits.len())
+    }
+}
 impl Reply for Page {
     fn check(&self) -> Result<(), BadReply> {
         if self.hits.len() as u64 > self.total {
@@ -28,9 +43,14 @@ pub(super) struct Hit {
     pub ndc: Option<crate::raw::Field<OneOrMany<crate::raw::Field<ReceivedComponent>>>>,
     pub openfda: Option<crate::raw::Field<OneOrMany<crate::raw::Field<ReceivedComponent>>>>,
 }
+impl Hit {
+    pub(super) fn identity(&self) -> Result<biodata::DrugId, BadReply> {
+        self.id.parse().map_err(|_| BadReply)
+    }
+}
 impl Reply for Hit {
     fn check(&self) -> Result<(), BadReply> {
-        if self.id.parse::<biodata::DrugId>().is_err() {
+        if self.identity().is_err() {
             Err(BadReply)
         } else {
             Ok(())

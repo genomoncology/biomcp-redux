@@ -65,6 +65,10 @@ impl Reply for Cells {
     }
 }
 impl Cell {
+    fn identity_admitted(&self) -> bool {
+        self.cell_id > 0
+    }
+
     fn mapped(self, problems: &mut crate::mapped::Problems) -> CellLineChemblRecord {
         let r = self;
         problems.record = crate::mapped::record(&r.cell_chembl_id);
@@ -114,7 +118,7 @@ pub fn cells(
     offset: u32,
 ) -> Result<CellPage, RequestError> {
     let text = id.to_string();
-    let (reply, metadata) = leg.json_received_checked(
+    let (reply, metadata) = leg.json_received_checked_admission(
         &CELLS,
         &[
             ("cellosaurus_id", Arg::Text(&text)),
@@ -129,6 +133,19 @@ pub fn cells(
                 Err(BadReply)
             }
         },
+        |r| {
+            let accepted = r
+                .cell_lines
+                .iter()
+                .filter(|row| row.value.as_ref().is_some_and(Cell::identity_admitted))
+                .count();
+            let refusals = if accepted < r.cell_lines.len() {
+                crate::Refusal::Refused
+            } else {
+                crate::Refusal::None
+            };
+            refusals.identities_admitted(accepted, r.cell_lines.len())
+        },
     )?;
     let received = reply.cell_lines.len() as u32;
     let mut problems = crate::mapped::Problems {
@@ -140,7 +157,7 @@ pub fn cells(
     let mut refusals = crate::Refusal::None;
     for row in reply.cell_lines {
         if let Some(row) = problems.field("cell_chembl_id", Some(row.value)) {
-            if row.cell_id == 0 {
+            if !row.identity_admitted() {
                 refusals = crate::Refusal::Refused;
                 problems.record = crate::mapped::record(&row.cell_chembl_id);
                 problems.required::<()>("cell_id", None);
