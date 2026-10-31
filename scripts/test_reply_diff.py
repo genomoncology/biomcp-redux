@@ -360,13 +360,15 @@ class ReplyDiff(unittest.TestCase):
         declare()
         result = self.compare(owners)
         self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
-        for mutation in ["capture", "key", "execution", "replay_root", "source", "duplicate"]:
+        for mutation in ["capture", "key", "execution", "replay_root", "source", "helper", "duplicate"]:
             with self.subTest(mutation=mutation):
                 declare()
                 data = json.loads(owners.read_text())
                 row = data["head"][0]
                 if mutation in ("capture", "source"):
                     row[mutation]["sha256"] = "0" * 64
+                elif mutation == "helper":
+                    row["source"]["helper"] = "unknown"
                 elif mutation == "execution":
                     row[mutation] = 1
                 elif mutation == "duplicate":
@@ -386,6 +388,43 @@ class ReplyDiff(unittest.TestCase):
         data["head"] = []
         owners.write_text(json.dumps(data))
         self.assertEqual(self.compare(owners).returncode, 1)
+
+    def test_combined_replay_requires_both_actual_recording_inputs(self):
+        owners = Path(self.directory.name, "combined-owners.json")
+        source = Path(self.directory.name, "combine.rs")
+        source.write_text("// Reviewed fixture: evidence::combine joins first and second into all.\n")
+        binding = {"file": source.name, "sha256": hashlib.sha256(source.read_bytes()).hexdigest()}
+        data = {"base": [], "head": []}
+        for side, directory in [("base", self.base), ("head", self.head)]:
+            inputs = []
+            for i, name in enumerate(["first", "second", "all"]):
+                key = "case/combine.yaml/step/" + str(i)
+                root = "/tmp/" + side
+                args = ["help", "--record" if i < 2 else "--replay", root + "/" + name]
+                self.write(directory, key, args=args, root=root if i < 2 else root + "/child")
+                path = directory / (hashlib.sha256(key.encode()).hexdigest() + ".json")
+                context = {"key": key, "execution": 0,
+                           "capture": {"file": path.name, "sha256": hashlib.sha256(path.read_bytes()).hexdigest()}}
+                if i < 2:
+                    inputs.append(dict(context, record_root=root + "/" + name))
+                else:
+                    data[side].append(dict(context, replay_root=root + "/all", recording_inputs=inputs,
+                        source=dict(binding, helper="evidence::combine"), helper_source=binding))
+        owners.write_text(json.dumps(data))
+        result = self.compare(owners)
+        self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+        for mutation in ["missing", "input-root", "sibling"]:
+            with self.subTest(mutation=mutation):
+                changed = json.loads(json.dumps(data))
+                row = changed["head"][0]
+                if mutation == "missing":
+                    row["recording_inputs"].pop()
+                elif mutation == "input-root":
+                    row["recording_inputs"][0]["record_root"] += "/other"
+                else:
+                    row["replay_root"] += "/sibling"
+                owners.write_text(json.dumps(changed))
+                self.assertNotEqual(self.compare(owners).returncode, 0)
 
     def test_invalid_capture_keys_do_not_invent_an_owner(self):
         for key in ["unknown/name/0", "case/name/step/no", "case//step/0",

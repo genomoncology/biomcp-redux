@@ -241,11 +241,35 @@ def replay_owners(records, directory, entries, evidence):
         if not isinstance(path, str) or not path.startswith('/') or any(
                 part in ('', '.', '..') for part in path.split('/')[1:]):
             raise ValueError('invalid owned replay root')
-        if entry['source']['helper'] not in ('checked_case', 'checked_steps'):
-            raise ValueError('invalid reviewed response-case helper')
+        helper = entry['source']['helper']
+        if helper not in ('checked_case', 'checked_steps', 'evidence::combine'):
+            raise ValueError('invalid reviewed replay helper')
         checked_file(evidence, entry['source'])
         checked_file(evidence, entry['helper_source'])
-        roots[context] = {path: {'replay': Path(path).name}}
+        if helper == 'evidence::combine':
+            inputs = entry['recording_inputs']
+            if len(inputs) != 2 or Path(path).name != 'all':
+                raise ValueError('invalid reviewed combined replay inputs')
+            names = set()
+            for recording in inputs:
+                record = json.loads(checked_file(directory, recording['capture']))
+                if record.get('key') != recording['key'] or record != records.get(recording['key']):
+                    raise ValueError('combined recording capture key mismatch')
+                position = recording['execution']
+                if type(position) is not int or position < 0 or position >= len(record['executions']):
+                    raise ValueError('combined recording execution is absent')
+                execution = record['executions'][position]
+                args = execution['args']
+                destination = recording['record_root']
+                if (args.count('--record') != 1 or args.index('--record') + 1 >= len(args)
+                        or args[args.index('--record') + 1] != destination
+                        or destination != execution.get('root', '') + '/' + Path(destination).name
+                        or Path(destination).parent != Path(path).parent):
+                    raise ValueError('combined replay input is not the actual owned recording')
+                names.add(Path(destination).name)
+            if names != {'first', 'second'}:
+                raise ValueError('combined replay requires first and second recordings')
+        roots[context] = {path: {'replay': Path(path).name, 'helper': helper}}
     return roots
 
 
@@ -276,7 +300,7 @@ def declared_args(execution, roots):
             if isinstance(name, dict):
                 # Supplemental response-case ownership covers this exact argv slot.
                 if i and args[i - 1] == '--replay' and arg == path:
-                    arg = '<response-cases>/' + name['replay']
+                    arg = '<owned-replay:' + name['helper'] + '>/' + name['replay']
             elif arg == path:
                 arg = '<record-root>' + name
         result.append(arg)
@@ -340,7 +364,9 @@ def pair(left, right, scope, bindings, roots, normalize):
     external = [[path for path, name in declared.items() if isinstance(name, dict)]
                 for declared in roots]
     if all(len(paths) == 1 for paths in external):
-        bindings.bind((scope, 'response-cases'), external[0][0], external[1][0])
+        a, b = external[0][0], external[1][0]
+        if roots[0][a]['helper'] == roots[1][b]['helper']:
+            bindings.bind((scope, 'replay-root', roots[0][a]['helper']), a, b)
     a, b = [normalize(dict(e, args=declared_args(e, declared)))
             for e, declared in zip((left, right), roots)]
     args = bindings.values(a['args'], b['args'], scope, clocks=False)
