@@ -8,7 +8,7 @@ steps:
   - --unrecognized-argument
   exit: 2
   expect:
-    /error/code: usage.schema
+    /error/code: usage.arguments
 - run:
   - help
   - article
@@ -16,7 +16,7 @@ steps:
   - --unrecognized-argument
   exit: 2
   expect:
-    /error/code: usage.schema
+    /error/code: usage.arguments
 - run:
   - help
   - article
@@ -24,7 +24,7 @@ steps:
   - --unrecognized-argument
   exit: 2
   expect:
-    /error/code: usage.schema
+    /error/code: usage.arguments
 - run:
   - help
   - article
@@ -32,7 +32,7 @@ steps:
   - --unrecognized-argument
   exit: 2
   expect:
-    /error/code: usage.schema
+    /error/code: usage.arguments
 - run:
   - help
   - article
@@ -40,7 +40,7 @@ steps:
   - --unrecognized-argument
   exit: 2
   expect:
-    /error/code: usage.schema
+    /error/code: usage.arguments
 - run:
   - help
   - article
@@ -48,7 +48,7 @@ steps:
   - --unrecognized-argument
   exit: 2
   expect:
-    /error/code: usage.schema
+    /error/code: usage.arguments
 - run:
   - help
   - article
@@ -56,7 +56,7 @@ steps:
   - --unrecognized-argument
   exit: 2
   expect:
-    /error/code: usage.schema
+    /error/code: usage.arguments
 - run:
   - help
   - article
@@ -64,4 +64,4 @@ steps:
   - --unrecognized-argument
   exit: 2
   expect:
-    /error/code: usage.schema
+    /error/code: usage.arguments

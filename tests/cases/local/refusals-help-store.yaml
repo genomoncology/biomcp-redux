@@ -8,7 +8,7 @@ steps:
   - --unrecognized-argument
   exit: 2
   expect:
-    /error/code: usage.schema
+    /error/code: usage.arguments
 - run:
   - help
   - store
@@ -16,4 +16,4 @@ steps:
   - --unrecognized-argument
   exit: 2
   expect:
-    /error/code: usage.schema
+    /error/code: usage.arguments
