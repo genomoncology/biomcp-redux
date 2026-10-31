@@ -5,10 +5,14 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
 mod build_echo;
+mod section_deadline;
 
 pub(super) fn trials() -> Vec<Trial> {
     // The real peer checks resolver order, source requests and warm cache admission.
     vec![
+        transcript_trial("variant-identity/sections-share-replay-deadline", || {
+            section_deadline::check().map_err(|error| error.to_string().into())
+        }),
         transcript_trial("variant-identity/car-projection-wire", || {
             car().map_err(Into::into)
         }),
