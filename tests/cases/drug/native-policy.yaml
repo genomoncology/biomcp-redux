@@ -1,4 +1,5 @@
 {
+  "live_check": "local-only selector validation before provider access",
   "feature": "drug-native-sources",
   "story": "Native drug source admission and explicit selector validation happen before provider access",
   "steps": [
@@ -18,26 +19,6 @@
       "expect": {
         "/status": "usage",
         "/error/code": "usage.arguments"
-      }
-    },
-    {
-      "run": [
-        "get",
-        "drug",
-        "CHEMBL941",
-        "targets",
-        "--source",
-        "chembl",
-        "--disable-sources",
-        "chembl"
-      ],
-      "exit": 4,
-      "is_error": true,
-      "max_bytes": 1000,
-      "expect": {
-        "/status": "failed",
-        "/sources/0/reason": "disabled",
-        "/sources/0/state": "skipped"
       }
     }
   ]

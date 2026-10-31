@@ -1,6 +1,6 @@
 {
   "feature": "trial-nci",
-  "live_check": "keyed source capture replay; no provider call",
+  "live_check": "missing nightly NCI user-owned API key; retained native public-tier replies use an isolated replay key",
   "story": "An explicit NCIt CURIE bypasses the disease resolver and uses the unchanged captured NCI request.",
   "replay": "trial/nci/search",
   "config": {

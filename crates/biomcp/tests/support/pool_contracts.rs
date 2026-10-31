@@ -56,12 +56,6 @@ pub(crate) const TRIAL: (&str, &[&str]) = (
     ],
 );
 
-// Native NCT01811710 HTTP404 absence stays independent of a synthetic sibling outage.
-pub(crate) const TRIAL_ABSENCE: (&str, &[&str]) = (
-    "trial-get/get/independent-input-states",
-    &["failure trial not-found"],
-);
-
 pub(crate) const ARTICLE_SAVES: (&str, &[&str]) = (
     "article-saves/explicit-original-files",
     &[

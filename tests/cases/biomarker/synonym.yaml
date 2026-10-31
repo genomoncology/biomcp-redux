@@ -1,6 +1,6 @@
 {
   "feature": "biomarker-nci",
-  "live_check": "bounded keyed NCI public-tier capture",
+  "live_check": "missing nightly NCI user-owned API key; retained native public-tier replies use an isolated replay key",
   "story": "A native synonym search returns CD274 Gene and preserves NCI header lists.",
   "replay": "biomarker/native",
   "config": {

@@ -59,7 +59,7 @@ pub(in crate::runner) fn run(root: &Path) -> Result<(), String> {
             serde_json::to_vec_pretty(&case).map_err(|e| e.to_string())?,
         )
         .map_err(|e| e.to_string())?;
-        crate::runner::run_case(&file, &crate::runner::schema::Registry::embedded()?)?;
+        crate::runner::run_case(&file, crate::runner::schema::Registry::embedded()?.as_ref())?;
         fs::write(
             output.join(format!("{name}-size.json")),
             json!(
@@ -210,7 +210,7 @@ fn copy(from: &Path, to: &Path) -> Result<(), String> {
 fn explicit(output: &Path) -> Result<(), String> {
     let value = crate::runner::run_case(
         &crate::runner::launch::fixtures().join("cases/trial/nci-condition-id.yaml"),
-        &crate::runner::schema::Registry::embedded()?,
+        crate::runner::schema::Registry::embedded()?.as_ref(),
     )?;
     fs::write(
         output.join("nci-explicit.json"),

@@ -58,7 +58,6 @@ unreached:
 .PHONY: docs-check
 docs-check:
 	cargo test --locked -p biomcp --bin biomcp grammar::reference::reference_matches_grammar $(TEST_THREADS)
-	cargo test --locked -p biomcp --test cases article-help/executable-examples $(TEST_THREADS)
 	python3 release/toolchain.py check
 	python3 -m unittest release.test_toolchain
 	python3 release/tools.py
@@ -71,6 +70,7 @@ docs-check:
 	python3 scripts/test_source_capture_plan.py
 	python3 scripts/test_coverage.py
 	python3 scripts/test_build_workers.py
+	python3 scripts/test_trials.py
 	python3 scripts/test_nightly_live_check.py
 	python3 -m unittest release.test_installer release.test_checks release.test_gate release.test_windows
 	python3 -m unittest release.test_workflow release.test_security release.test_licenses

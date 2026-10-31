@@ -1,4 +1,5 @@
 {
+  "live_check": "synthetic authored or response-edited replies; no live provider observation",
   "feature": "article-semantic-sections",
   "story": "A source that still has another cursor after five calls returns its accessible window with a truncation notice and iCite command.",
   "verified": "Response-only synthetic copies of all five exact command requests captured2026-10-24; original source contexts remain external. Each source body is replaced, never a request identifier. No comparable0.9 source-edge command is recorded; ceiling follows actual replay plus15percent after measurement.",

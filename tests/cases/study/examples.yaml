@@ -1,4 +1,5 @@
 {
+  "live_check": "synthetic authored or response-edited replies; no live provider observation",
   "feature": "study-catalog",
   "story": "Synthetic catalog examples run through CLI and MCP without provider requests.",
   "replay": "study/synthetic-examples",

@@ -81,7 +81,7 @@ biomcp get gwas GCST000035
 ## biomcp search gwas
 
 ```sh
-biomcp search gwas --pubmed 17529967
+biomcp search gwas --pubmed 17529967 --limit 3
 biomcp search gwas --variant rs2981582
 ```
 

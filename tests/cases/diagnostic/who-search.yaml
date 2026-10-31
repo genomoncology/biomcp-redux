@@ -1,4 +1,5 @@
 {
+  "live_check": "synthetic authored or response-edited replies; no live provider observation",
   "feature": "diagnostic-who-search",
   "story": "Literal native marker and manufacturer fields select source-ordered distinct WHO products without substring or inferred matches.",
   "replay": "diagnostic/who-search-synthetic",

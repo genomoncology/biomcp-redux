@@ -1,4 +1,5 @@
 {
+  "live_check": "local-only command help, validation or stored-state behavior; no recorded source replies",
   "feature": "agent-skill",
   "story": "Local guidance renders its released text and reports each explicit installation state.",
   "steps": [

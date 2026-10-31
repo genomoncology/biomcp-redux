@@ -5,6 +5,12 @@ external case directory. Cargo filters and `--list` retain those relative names.
 Each case shares one isolated environment across its steps.
 An explicit name filter that selects no tests exits nonzero and names the filter on stderr.
 
+`scripts.trials.run_selected` selects exact names from an existing executable's
+`--list` output before its build preparation callback runs. Pass the target's
+existing mode arguments and required working directory. The helper keeps that
+command and directory for each exact run. Group names and names owned by another
+target fail before preparation. `--cases` selects a directory.
+
 `expect` maps JSON pointers to assertions. Scalars and arrays mean equality.
 Objects contain operators combined with AND; use `equals` for a literal object.
 The runner validates every step and assertion before launching any command.
@@ -27,6 +33,16 @@ JSON. By default, registered source policy fields are excluded from these step c
 Set `full_output_bytes: true` to count the complete emitted CLI stdout, including
 its newline, or the actual MCP content text. Its token estimate uses those same
 bytes divided by four, rounded up. RPC framing remains separate.
+An explicit CLI `--format md` or `--format=md` before a literal `--` accepts
+root `expect` assertions with `includes` for one substring or `includes_all_of`
+for an array of required substrings. Markdown `max_bytes` preserves the comparable text metric by validating and
+subtracting publisher policy columns with the existing source terms checker.
+It requires an immediately preceding actual JSON CLI step with matching arguments
+apart from explicit format options. A missing or different pair fails. With
+`full_output_bytes: true`, the ceiling counts every raw byte and requires no pair.
+JSON pointers, other operators, MCP parity and token ceilings remain unavailable
+for that text assertion form. Literal `stdout` still compares the complete output.
+
 Arrays are ordered. Membership ignores multiplicity. Missing paths fail;
 explicit null is a value. Ordinary empty arrays can equal `[]`, have count zero,
 and fail membership normally. A missing rank member fails.
@@ -74,10 +90,11 @@ keyless diagnostic mode. Ordinary tests and landing gates never select this mode
 The command prints a bounded JSON drift summary. The summary counts all cases with drift or command errors and samples affected cases first. The default samples cases and drift details using `CASE_SAMPLE` and `MAX_CHANGES`; `--live-check --list` lists every eligibility and skip reason offline. `--live-check --details` includes every checked case in the live report; individual drift samples retain their bound.
 Configure scheduling separately. This command installs no schedule. It never records or refreshes a fixture.
 
-Every public case is discovered. A case with reviewed real public provenance may
-set `live_check: public`; another string states its skip reason. Unreviewed cases
-are skipped explicitly. Configured cases remain ineligible even with the public marker. A public case skips its offline and local validation steps while retaining real absent-result requests. Injected failure and synthetic cases carry explicit skip markers. Review source evidence before adding the
-marker. Licensed, keyed, synthetic and external cases never receive it.
+Discovery requires every kept case to declare `live_check`. Missing or empty declarations fail before any source request. Each case with real recorded replies sets `live_check: public` after its source provenance is reviewed. Its `verified` field identifies captures, source projections and any synthetic components. Removing papers or projecting captured identity fields does not make the retained source data invented. Recording through a local TLS peer also does not make an ordinary public-source command local-only.
+
+Another string states a case's exclusion: invented failure replies, local-only behavior, or a source key absent from the nightly environment. Configured cases remain ineligible. A public case skips offline and local validation steps, while retaining source absence requests, entity action commands and named MCP tools. The existing MCP helper validates each named tool's output schema. External cases outside the kept case directory remain outside discovery.
+
+The offline plan reports its eligible case count. The nightly report records `eligible` and `checked` separately. The scheduled command rejects a report when those counts differ, including a run that reaches its existing time budget before attempting every eligible case. A command error still counts as an attempted check and remains an error in the report. Source quotas and evidence limits remain in their existing owners.
 
 Each case runs in an empty environment with cold isolated caches. Its commands retain only their own case state for continuation. The shared
 transport enforces within-command quotas. Commands run serially with a keyless
