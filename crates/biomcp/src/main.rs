@@ -24,15 +24,18 @@ fn main() -> ExitCode {
         Ok(root) => std::sync::Arc::new(root),
         Err(_) => return exit::failure(std::io::Error::other("command grammar unavailable")),
     };
+    let parsed = grammar::parse(&root, &args);
+    if let Ok(parsed) = &parsed
+        && let Some(command) = &parsed.housekeeping
+    {
+        return match command.render(&parsed.globals) {
+            Ok(bytes) => exit::finish(output::bytes(&bytes), exit::Status::Success),
+            Err(error) => exit::failure(error),
+        };
+    }
     let (_, path) = grammar::presentation(&root, &args).unwrap_or_default();
     let settings = std::sync::Arc::new(config::file::read_file(path.as_ref()));
-    if let Ok(parsed) = grammar::parse(&root, &args) {
-        if let Some(command) = parsed.housekeeping {
-            return match command.render(&parsed.globals) {
-                Ok(bytes) => exit::finish(output::bytes(&bytes), exit::Status::Success),
-                Err(error) => exit::failure(error),
-            };
-        }
+    if let Ok(parsed) = parsed {
         if parsed.action.is_none() && parsed.key.is_none() {
             let globals = parsed.globals;
             if let Some((address, hosts)) = parsed.http {
