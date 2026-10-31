@@ -280,6 +280,23 @@ def declared_args(execution, roots):
     return result
 
 
+def _mcp_arguments(execution):
+    """Yield only captured BioMCP tools/call request frames and their argv."""
+    args = execution['args']
+    if execution['surface'] != 'mcp' or '<requests>' not in args:
+        return
+    for i in range(args.index('<requests>') + 1, len(args)):
+        try:
+            frame = json.loads(args[i])
+            if (frame.get('jsonrpc') == '2.0' and frame.get('method') == 'tools/call'
+                    and frame['params'].get('name') == 'biomcp'):
+                vector = frame['params']['arguments']['args']
+                if isinstance(vector, list):
+                    yield i, frame, vector
+        except (ValueError, KeyError, TypeError, AttributeError):
+            continue
+
+
 def align(base, head, normalize, bindings=None):
     """Alias changed trial hashes through declared paths and bound opaque IDs."""
     roots = (record_roots(base), record_roots(head))
@@ -293,13 +310,22 @@ def align(base, head, normalize, bindings=None):
         values = []
         for i, e in enumerate(record['executions']):
             n = normalize(dict(e, args=declared_args(e, context_roots(roots[index], key, i))))
-            for i, arg in enumerate(n['args']):
-                if i and n['args'][i-1] in ('--pool', '--snapshot'):
-                    kind = (owner(key), n['args'][i-1][2:])
-                    if index == 0 and (kind, arg) in bindings.forward:
-                        n['args'][i] = '<bound>/' + arg
-                    elif index == 1 and (kind, arg) in bindings.reverse:
-                        n['args'][i] = '<bound>/' + bindings.reverse[kind, arg]
+            def tokens(args):
+                changes = {}
+                for j, arg in enumerate(args):
+                    if j and args[j-1] in ('--pool', '--snapshot') and isinstance(arg, str):
+                        kind = (owner(key), args[j-1][2:])
+                        if index == 0 and (kind, arg) in bindings.forward:
+                            changes[j,] = '<bound>/' + arg
+                        elif index == 1 and (kind, arg) in bindings.reverse:
+                            changes[j,] = '<bound>/' + bindings.reverse[kind, arg]
+                return changes
+            for j, value in tokens(n['args']).items():
+                n['args'][j[0]] = value
+            for j, frame, vector in _mcp_arguments(n):
+                changes = {('params', 'arguments', 'args') + p: v
+                           for p, v in tokens(vector).items()}
+                n['args'][j] = rewrite(n['args'][j], changes)
             values.append({k: n[k] for k in ('args', 'surface')})
         return owner(key), key.rsplit('/', 1)[-1], json.dumps(values, sort_keys=True)
     def valid_hash(key, record):
@@ -356,23 +382,12 @@ def pair(left, right, scope, bindings, roots, normalize):
             # Executed argv can also contain a JSON MCP request token.
             n['args'][p[0]] = value
     # Only captured MCP request frames own JSON-encoded argument vectors.
-    if (left['surface'] == right['surface'] == 'mcp'
-            and '<requests>' in a['args'] and '<requests>' in b['args']):
-        start = a['args'].index('<requests>') + 1
-        if start == b['args'].index('<requests>') + 1:
-            for i in range(start, min(len(a['args']), len(b['args']))):
-                try:
-                    frames = [json.loads(n['args'][i]) for n in (a, b)]
-                    if not all(f.get('jsonrpc') == '2.0' and f.get('method') == 'tools/call'
-                               and f['params'].get('name') == 'biomcp' for f in frames):
-                        continue
-                    vectors = [f['params']['arguments']['args'] for f in frames]
-                except (ValueError, KeyError, TypeError, AttributeError):
-                    continue
-                path = ('params', 'arguments', 'args')
-                changes = bindings.values(*vectors, scope, path, clocks=False)
-                for n, change in zip((a, b), changes):
-                    n['args'][i] = rewrite(n['args'][i], change)
+    for (i, _, av), (j, _, bv) in zip(_mcp_arguments(a), _mcp_arguments(b)):
+        if i == j:
+            path = ('params', 'arguments', 'args')
+            changes = bindings.values(av, bv, scope, path, clocks=False)
+            for n, change in zip((a, b), changes):
+                n['args'][i] = rewrite(n['args'][i], change)
     try:
         values = [json.loads(n['stdout']) for n in (a, b)]
     except ValueError:

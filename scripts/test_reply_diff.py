@@ -406,6 +406,22 @@ class ReplyDiff(unittest.TestCase):
                 result = self.compare()
                 self.assertNotEqual(result.returncode, 0, result.stdout)
 
+    def test_pgx_declared_snapshot_pairs_hashed_mcp_invocations(self):
+        for directory, token in [(self.base, 'base-token'), (self.head, 'head-token')]:
+            args = ['get', 'pgx', 'annotations', '--gene', 'DPYD', '--kind', 'clinical',
+                    '--section-limit', '1', '--section-offset', '1', '--snapshot', token,
+                    '--source', 'clinpgx']
+            self.write(directory, 'trial/pgx/' + 'a' * 64 + '/0', json.dumps({
+                'schema': 'biomcp.pgx-annotations/5',
+                'next': [{'kind': 'page', 'args': args}]}).encode())
+            frame = {'jsonrpc': '2.0', 'method': 'tools/call',
+                     'params': {'name': 'biomcp', 'arguments': {'args': args}}}
+            command = ['serve', '<requests>', json.dumps(frame)]
+            digest = hashlib.sha256(json.dumps(command, separators=(',', ':')).encode()).hexdigest()
+            self.write(directory, 'trial/pgx/' + digest + '/0', args=command, surface='mcp')
+        result = self.compare()
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
     def owned_replay_capture(self, *, suffix="recordings", mutation=None):
         for directory, side in [(self.base, "base"), (self.head, "head")]:
             root = "/tmp/replies-" + side
