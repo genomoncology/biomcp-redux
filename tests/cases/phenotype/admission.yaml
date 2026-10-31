@@ -18,9 +18,15 @@
       "expect": {
         "/status": "usage",
         "/error/code": "usage.arguments",
-        "/error/message": "expected a supported command with checked arguments"
+        "/error/message": "option is missing or invalid; choose an accepted value or form and use the suggested help command",
+        "/error/option": "--source",
+        "/next/0/args": [
+          "help",
+          "get",
+          "phenotype"
+        ]
       },
-      "max_bytes": 199
+      "max_bytes": 354
     },
     {
       "run": [
@@ -37,9 +43,15 @@
       "expect": {
         "/status": "usage",
         "/error/code": "usage.arguments",
-        "/error/message": "expected a supported command with checked arguments"
+        "/error/message": "option is missing or invalid; choose an accepted value or form and use the suggested help command",
+        "/error/option": "--source",
+        "/next/0/args": [
+          "help",
+          "get",
+          "phenotype"
+        ]
       },
-      "max_bytes": 199
+      "max_bytes": 354
     },
     {
       "run": [
@@ -56,9 +68,15 @@
       "expect": {
         "/status": "usage",
         "/error/code": "usage.arguments",
-        "/error/message": "expected a supported command with checked arguments"
+        "/error/message": "option is missing or invalid; choose an accepted value or form and use the suggested help command",
+        "/error/option": "--source",
+        "/next/0/args": [
+          "help",
+          "get",
+          "phenotype"
+        ]
       },
-      "max_bytes": 199
+      "max_bytes": 354
     },
     {
       "run": [
@@ -74,9 +92,15 @@
       "expect": {
         "/status": "usage",
         "/error/code": "usage.arguments",
-        "/error/message": "expected a supported command with checked arguments"
+        "/error/message": "option is missing or invalid; choose an accepted value or form and use the suggested help command",
+        "/error/option": "--offset",
+        "/next/0/args": [
+          "help",
+          "search",
+          "phenotype"
+        ]
       },
-      "max_bytes": 166
+      "max_bytes": 385
     },
     {
       "run": [
@@ -93,10 +117,15 @@
       "expect": {
         "/status": "usage",
         "/error/code": "usage.arguments",
-        "/error/message": "expected a supported command with checked arguments",
-        "/error/option": "--section-limit"
+        "/error/message": "option is missing or invalid; choose an accepted value or form and use the suggested help command",
+        "/error/option": "--section-limit",
+        "/next/0/args": [
+          "help",
+          "get",
+          "phenotype"
+        ]
       },
-      "max_bytes": 171
+      "max_bytes": 444
     },
     {
       "run": [
@@ -113,9 +142,15 @@
       "expect": {
         "/status": "usage",
         "/error/code": "usage.arguments",
-        "/error/message": "expected a supported command with checked arguments"
+        "/error/message": "option is missing or invalid; choose an accepted value or form and use the suggested help command",
+        "/error/option": "--section-offset",
+        "/next/0/args": [
+          "help",
+          "get",
+          "phenotype"
+        ]
       },
-      "max_bytes": 198
+      "max_bytes": 391
     }
   ]
 }

@@ -15,7 +15,7 @@
       ],
       "exit": 2,
       "is_error": true,
-      "max_bytes": 300,
+      "max_bytes": 366,
       "expect": {
         "/status": "usage",
         "/error/code": "usage.arguments"

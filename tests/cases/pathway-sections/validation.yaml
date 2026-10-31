@@ -15,7 +15,7 @@
       "expect": {
         "/error/code": "usage.arguments"
       },
-      "max_bytes": 166
+      "max_bytes": 417
     },
     {
       "run": [
@@ -29,7 +29,7 @@
       "expect": {
         "/error/code": "usage.arguments"
       },
-      "max_bytes": 193
+      "max_bytes": 370
     }
   ]
 }

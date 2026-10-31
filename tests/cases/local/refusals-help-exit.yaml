@@ -8,4 +8,4 @@ steps:
   - --unrecognized-argument
   exit: 2
   expect:
-    /error/code: usage.unknown_command
+    /error/code: usage.arguments
