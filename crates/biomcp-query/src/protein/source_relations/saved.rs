@@ -1,5 +1,5 @@
 use super::{
-    CacheError, Outcome, QueryBody, Request, RequestError, Selection, Source, StepKind, Store,
+    CacheError, Outcome, QueryBody, Request, RequestError, Selection, StepKind, Store,
     complex_portal, interpro,
 };
 use biomcp_types::{ProteinComplexMembers, ProteinComplexes, ProteinDomains};
