@@ -1,7 +1,6 @@
 //! The query's collection boundary preserves accepted-row pages without sharing collection facts.
 use biomcp_adapters::{Refusal, opentargets};
 use libtest_mimic::Trial;
-use serde_json::json;
 #[path = "../src/drug/native/collection_page.rs"]
 mod projection;
 fn trials() -> Vec<Trial> {
@@ -15,28 +14,28 @@ fn trials() -> Vec<Trial> {
 }
 
 fn opentargets_collection_owns_refusals_across_pages() -> Result<(), Box<dyn std::error::Error>> {
-    let drug = serde_json::from_value(json!({
-        "id":"CHEMBL1", "namespace":"opentargets", "identity_level":"unknown"
-    }))?;
+    let drug = serde_json::from_str(
+        r#"{"id":"CHEMBL1","namespace":"opentargets","identity_level":"unknown"}"#,
+    )?;
     for offset in 0..3 {
         let mut expected_targets = None;
         let mut expected_indications = None;
         for refused in [false, true] {
-            let mut targets = vec![
-                json!({"id":"ENSG00000141510"}),
-                json!({"id":"ENSG00000146648"}),
-            ];
+            let mut targets = vec![r#"{"id":"ENSG00000141510"}"#, r#"{"id":"ENSG00000146648"}"#];
             let mut indications = vec![
-                json!({"disease":{"id":"EFO_0001"}}),
-                json!({"disease":{"id":"EFO_0002"}}),
+                r#"{"disease":{"id":"EFO_0001"}}"#,
+                r#"{"disease":{"id":"EFO_0002"}}"#,
             ];
             if refused {
-                targets.insert(1, json!({"id":"invalid"}));
-                indications.insert(1, json!({"disease":{"id":" "}}));
+                targets.insert(1, r#"{"id":"invalid"}"#);
+                indications.insert(1, r#"{"disease":{"id":" "}}"#);
             }
-            let raw = serde_json::from_value(json!({"rows":[{"targets":targets}]}))?;
+            let raw = serde_json::from_str(&format!(
+                r#"{{"rows":[{{"targets":[{}]}}]}}"#,
+                targets.join(",")
+            ))?;
             let mut collection = opentargets::map_targets(&drug, raw)?;
-            let raw = serde_json::from_value(json!({"rows":indications}))?;
+            let raw = serde_json::from_str(&format!(r#"{{"rows":[{}]}}"#, indications.join(",")))?;
             let mut other = opentargets::map_indications(&drug, raw)?;
             let expected = if refused {
                 Refusal::Refused

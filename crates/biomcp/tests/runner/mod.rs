@@ -22,8 +22,6 @@ mod pool_contract;
 mod query_refusals;
 #[path = "../support/synthetic_contracts.rs"]
 mod required_contract;
-#[path = "../../../biomcp-fetch/tests/support/value.rs"]
-mod trial_bad_values;
 tool_only! { pub(super) mod tools_api; }
 mod features;
 use crate::runner::transcript::trial as transcript_trial;
@@ -475,3 +473,6 @@ mod fixture_paths;
 mod replay_support;
 #[path = "../../../biomcp-fetch/tests/support/hash.rs"]
 mod stable_hash;
+
+#[path = "../../../biomcp-fetch/tests/support/recordings.rs"]
+mod recording_support;

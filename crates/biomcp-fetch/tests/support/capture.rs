@@ -1,10 +1,5 @@
 //! Copy source recordings from the common public fixture root.
-#[path = "recordings.rs"]
-#[expect(
-    dead_code,
-    reason = "The shared recording support also serves synthetic cache setup"
-)]
-mod recordings;
+use super::recording_support;
 pub(crate) fn copy_capture(
     capture: &str,
     target: &std::path::Path,

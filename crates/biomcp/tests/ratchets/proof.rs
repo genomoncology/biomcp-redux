@@ -385,7 +385,7 @@ fn test_fixture_paths_have_one_owner() -> Check {
         rejects(
             "crates/biomcp/tests/runner/planted.rs",
             &format!("fn fixture() {{ let root = {read}; }}"),
-            "fixture paths belong in runner/launch.rs",
+            "fixture paths belong in shared support/fixtures.rs",
         )?;
     }
     Ok(())

@@ -1959,6 +1959,7 @@ The runner tool proof `schema-discovery/capture-retains-replay-owner` drops the 
 | `crates/biomcp/src/mcp/worker_tests.rs` | Test worker panic completion and exact serialized tool result character boundaries that public requests cannot intentionally produce. |
 | `crates/biomcp/src/mcp/http/call.rs` | Prove hosted tool capacity and shutdown ownership with held worker exits using the private server limit. |
 | `crates/biomcp/src/config/credential_reads_tests.rs` | Observe forbidden credential environment reads at the private settings boundary while executing real commands. |
+| `crates/biomcp-adapters/tests/deferred_keys_tests.rs` | Exercise deferred credential admission through the public AlphaGenome adapter without reading binary settings. |
 | `crates/biomcp-types/tests/author_contracts.rs` | Exercise checked source-qualified author records and standalone native paper and work-group contracts before adapters exist. |
 | `crates/biomcp-types/tests/cell_line_contracts.rs` | Exercise checked cell identities, native variation members and provenance, and standalone consumer contracts through the public library API before adapters exist. |
 | `crates/biomcp-types/tests/gwas_contracts.rs` | Exercise checked GWAS identities, exact probabilities and standalone consumer contracts through the public library API before adapters exist. |

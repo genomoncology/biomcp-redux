@@ -28,3 +28,10 @@ fn main() {
     )
     .exit();
 }
+
+#[path = "../../biomcp-fetch/tests/support/recordings.rs"]
+#[expect(
+    dead_code,
+    reason = "The shared recording support also serves binary cache setup"
+)]
+mod recording_support;
