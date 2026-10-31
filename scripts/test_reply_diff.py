@@ -48,7 +48,7 @@ class ReplyDiff(unittest.TestCase):
                 self.assertIn(pointer, result.stdout)
 
     def test_trial_output_and_arguments_remain_significant(self):
-        key = "trial/housekeeping/version/argument-hash/0"
+        key = "trial/housekeeping/version/" + "a" * 64 + "/0"
         self.write(self.base, key, b"original\n")
         for output, args in [(b"changed\n", ["help"]), (b"original\n", ["version"])]:
             self.write(self.head, key, output, args=args)
@@ -138,7 +138,8 @@ class ReplyDiff(unittest.TestCase):
 
     def test_json_source_text_and_literal_arguments_remain_significant(self):
         key = 'case/literal.yaml/step/0'
-        for place in ['source', 'args', 'mcp-source', 'source-args', 'source-clock']:
+        for place in ['source', 'args', 'mcp-source', 'source-args', 'source-clock',
+                      'source-continuation', 'source-snapshot']:
             with self.subTest(place=place):
                 for directory, clock in [(self.base, 10), (self.head, 20)]:
                     literal = json.dumps({'fetched': clock})
@@ -156,6 +157,12 @@ class ReplyDiff(unittest.TestCase):
                         output = {'result': {'args': ['search', 'trial', '--pool', literal]}}
                     elif place == 'source-clock':
                         output = {'result': {'notes': {'fetched': clock}}}
+                    elif place == 'source-continuation':
+                        output = {'result': {'items': [{'sections': {'locations': {'data': {
+                            'continuation': {'pool': literal}}}}}]}}
+                    elif place == 'source-snapshot':
+                        output = {'next': [{'kind': 'section', 'args': [
+                            'get', 'phenotype', 'HP:0000001', '--snapshot', literal]}]}
                     self.write(directory, key, json.dumps(output).encode(), **extra)
                 result = self.compare()
                 self.assertEqual(result.returncode, 1, result.stderr + result.stdout)
@@ -200,7 +207,7 @@ class ReplyDiff(unittest.TestCase):
             self.write(directory, 'trial/cache/replay/' + digest + '/0', args=args,
                        root='/tmp/other-' + suffix)
             # Declare the record directory in the same trial owner too.
-            self.write(directory, 'trial/cache/replay/declaration/0',
+            self.write(directory, 'trial/cache/replay/' + 'd' * 64 + '/0',
                        args=['get', 'gene', '--record', root + '/record'], root=root)
         result = self.compare()
         self.assertEqual(result.returncode, 1, result.stderr + result.stdout)
@@ -237,6 +244,10 @@ class ReplyDiff(unittest.TestCase):
         self.write(self.head, key + "3", json.dumps({
             "result": {"snapshot": {"revision": "old", "acquired": 21}},
         }).encode(), root="/tmp/head/first")
+        self.assertNotEqual(self.compare().returncode, 0)
+        self.write(self.head, key + "3", json.dumps({
+            "result": {"snapshot": {"revision": "old", "acquired": 20}},
+        }).encode(), root="/tmp/head/second")
         self.assertNotEqual(self.compare().returncode, 0)
 
     def test_section_continuation_preserves_every_reference(self):
@@ -291,6 +302,32 @@ class ReplyDiff(unittest.TestCase):
         self.assertEqual(result.returncode, 1, result.stderr)
         self.assertIn("/0/exit", result.stdout)
         self.assertNotIn("missing", result.stdout)
+
+    def test_snapshot_sections_bind_only_their_declared_token_slots(self):
+        for directory, token in [(self.base, "base-token"), (self.head, "head-token")]:
+            reply = {"schema": "biomcp.phenotype-card/5", "query": {"id": "HP:0000001"},
+                     "next": [{"kind": "section", "args": ["get", "phenotype", "HP:0000001",
+                                                               "synonyms", "--snapshot", token]}]}
+            self.write(directory, "case/phenotype.yaml/step/0", json.dumps(reply).encode())
+            self.write(directory, "case/phenotype.yaml/step/1", json.dumps({
+                "schema": "biomcp.phenotype-card/5", "query": {"snapshot": token}}).encode(),
+                args=["get", "phenotype", "HP:0000001", "synonyms", "--snapshot", token])
+        result = self.compare()
+        self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+        for directory, token in [(self.base, "base-token"), (self.head, "head-token")]:
+            self.write(directory, "case/phenotype.yaml/step/2", json.dumps({
+                "result": {"description": token}}).encode())
+        self.assertEqual(self.compare().returncode, 1)
+
+    def test_nested_trial_names_keep_independent_runtime_owners(self):
+        for directory, side in [(self.base, "base"), (self.head, "head")]:
+            for name, clock in [("first", 10), ("second", 11)]:
+                self.write(directory, "trial/article-evidence/evidence/" + name + "/" + "a" * 64 + "/0",
+                           json.dumps({"result": {"fetched": clock if side == "base" else 20},
+                               "page": {"pool": {"id": "shared" if side == "base" else name,
+                                                  "created": 10, "expires": 20, "size": 1}}}).encode())
+        result = self.compare()
+        self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
 
     def test_external_replays_require_exact_source_bound_contexts(self):
         key = "case/response.yaml/step/0"
@@ -349,6 +386,19 @@ class ReplyDiff(unittest.TestCase):
         data["head"] = []
         owners.write_text(json.dumps(data))
         self.assertEqual(self.compare(owners).returncode, 1)
+
+    def test_invalid_capture_keys_do_not_invent_an_owner(self):
+        for key in ["unknown/name/0", "case/name/step/no", "case//step/0",
+                    "trial/evidence/name/hash/0", "trial//" + "a" * 64 + "/0",
+                    "trial/" + "a" * 64 + "/0"]:
+            with self.subTest(key=key):
+                for directory in (self.base, self.head):
+                    for path in directory.glob("*.json"):
+                        path.unlink()
+                    self.write(directory, key)
+                result = self.compare()
+                self.assertEqual(result.returncode, 2, result.stderr + result.stdout)
+                self.assertIn("invalid transcript key", result.stderr)
 
     def test_uncaptured_trials_are_disclosed(self):
         for directory in [self.base, self.head]:

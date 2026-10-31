@@ -6,7 +6,7 @@ import re
 import shlex
 import sys
 
-from reply_runtime import Bindings, align, owner, pair
+from reply_runtime import Bindings, align, context_roots, owner, pair, replay_owners
 
 
 def load(directory):
@@ -21,6 +21,7 @@ def load(directory):
                 uncaptured.append(record["name"])
             continue
         key = record["key"]
+        owner(key)
         if key in records:
             raise ValueError(f"duplicate transcript key: {key}")
         records[key] = record
@@ -102,11 +103,11 @@ def pointer(left, right, path=""):
 
 
 def main():
-    if len(sys.argv) != 3:
-        print("usage: reply_diff.py BASE HEAD", file=sys.stderr)
+    if len(sys.argv) not in (3, 4):
+        print("usage: reply_diff.py BASE HEAD [OWNERS.json]", file=sys.stderr)
         return 2
     try:
-        (base, base_missing), (head, head_missing) = (load(d) for d in sys.argv[1:])
+        (base, base_missing), (head, head_missing) = (load(d) for d in sys.argv[1:3])
         for label, missing in (("BASE", base_missing), ("HEAD", head_missing)):
             if missing:
                 print(f"{label} uncaptured trials ({len(missing)}):", file=sys.stderr)
@@ -114,24 +115,34 @@ def main():
                     print(f"  {name}", file=sys.stderr)
         if not base or not head:
             raise ValueError("comparison requires captured steps in both sets")
-        roots, aliases = align(base, head, normalize)
-        paired = {}
         bindings = Bindings()
+        owned = ({}, {})
+        if len(sys.argv) == 4:
+            evidence = Path(sys.argv[3])
+            declarations = json.loads(evidence.read_text())
+            if not isinstance(declarations, dict) or set(declarations) != {'base', 'head'}:
+                raise ValueError('ownership map requires base and head declarations')
+            owned = tuple(replay_owners(records, directory, declarations[side], evidence.parent)
+                          for records, directory, side in zip((base, head), sys.argv[1:3], ('base', 'head')))
+        roots, aliases = align(base, head, normalize, bindings, owned)
+        paired = {}
         for key in sorted(base.keys() & head.keys() | aliases.keys()):
             target = aliases.get(key, key)
             a, b = base[key]["executions"], head[target]["executions"]
-            declared = [r.get(owner(key), {}) for r in roots]
             # Collect every declaration before comparing references and Markdown.
-            for x, y in zip(a, b):
+            for i, (x, y) in enumerate(zip(a, b)):
+                declared = [context_roots(r, k, i) for r, k in zip(roots, (key, target))]
                 pair(x, y, owner(key), bindings, declared, normalize)
-            paired[key] = (a, b, declared)
+            paired[key] = (a, b)
         differences = 0
         for key in sorted(base.keys() | (head.keys() - set(aliases.values()))):
             location = ("/ missing in " + ("HEAD" if key in base else "BASE")
                         if key not in paired
                         else pointer(*[list(values) for values in zip(*[
-                            pair(x, y, owner(key), bindings, paired[key][2], normalize)
-                            for x, y in zip(*paired[key][:2])])]))
+                            pair(x, y, owner(key), bindings,
+                                 [context_roots(r, k, i) for r, k in zip(roots, (key, aliases.get(key, key)))],
+                                 normalize)
+                            for i, (x, y) in enumerate(zip(*paired[key]))])]))
             if key in paired and len(paired[key][0]) != len(paired[key][1]):
                 location = "/executions/length"
             if location:
