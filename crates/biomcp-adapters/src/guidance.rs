@@ -4,9 +4,7 @@ use biomcp_types::{Reason, Source, SourceNotice};
 pub fn deadline(source: Source) -> Option<&'static str> {
     crate::decl::decl(source).guidance.deadline
 }
-/// Explain immediate local refusal under CDC's automated-query spacing guidance.
-pub const WONDER_QUOTA: &str = "BioMCP's local quota refused this request before contacting CDC WONDER. Retry after the reported seconds \
-            left. Automated queries must follow the spacing at https://wonder.cdc.gov/wonder/help/wonder-api.html.";
+pub use crate::vaers::decl::WONDER_QUOTA;
 /// Preserve a latency or admission reason and attach the corresponding next step.
 pub fn notices(
     source: Source,
