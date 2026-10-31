@@ -33,8 +33,12 @@ fn main() -> ExitCode {
             Err(error) => exit::failure(error),
         };
     }
-    let (_, path) = grammar::presentation(&root, &args).unwrap_or_default();
-    let settings = std::sync::Arc::new(config::file::read_file(path.as_ref()));
+    let settings = std::sync::Arc::new(if grammar::plain_housekeeping(&root, &args) {
+        Ok(None)
+    } else {
+        let (_, path) = grammar::presentation(&root, &args).unwrap_or_default();
+        config::file::read_file(path.as_ref())
+    });
     if let Ok(parsed) = parsed
         && parsed.action.is_none()
         && parsed.key.is_none()

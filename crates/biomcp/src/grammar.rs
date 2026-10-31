@@ -128,6 +128,14 @@ pub(crate) fn is_housekeeping(root: &Command, args: &[OsString]) -> bool {
         .is_some_and(crate::housekeeping::recognizes)
 }
 
+// Plain housekeeping replies, including refusals, do not depend on configuration.
+pub(crate) fn plain_housekeeping(root: &Command, args: &[OsString]) -> bool {
+    is_housekeeping(root, args)
+        && parse(root, args)
+            .ok()
+            .is_none_or(|parsed| parsed.help.is_none())
+}
+
 // Root recognition must also work when global values or repetitions are invalid.
 pub(crate) fn command_words<'a>(
     root: &Command,

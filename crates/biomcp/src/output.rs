@@ -7,11 +7,7 @@ pub(crate) fn command(
     settings: &crate::config::Settings,
     args: &[std::ffi::OsString],
 ) -> io::Result<()> {
-    if crate::grammar::is_housekeeping(root, args)
-        && crate::grammar::parse(root, args)
-            .ok()
-            .is_none_or(|parsed| parsed.help.is_none())
-    {
+    if crate::grammar::plain_housekeeping(root, args) {
         return bytes(&outcome.cli_bytes);
     }
     let (format, _) = crate::grammar::presentation(root, args).unwrap_or_default();
