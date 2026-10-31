@@ -264,6 +264,12 @@ pub(crate) fn config_path(override_path: Option<&PathBuf>) -> Result<Option<Path
 pub(crate) fn secrets(settings: &Settings) -> Result<Secrets, ConfigError> {
     Ok(secrets_from(configured(settings)?))
 }
+pub(crate) fn has_stored_key(settings: &Settings, name: SecretName) -> Result<bool, ConfigError> {
+    Ok(configured(settings)?
+        .and_then(|file| file.keys.as_ref())
+        .and_then(|keys| keys.get(name.config()))
+        .is_some_and(|key| !key.is_empty()))
+}
 fn secrets_from(file: Option<&ConfigFile>) -> Secrets {
     secrets_using(file.and_then(|file| file.keys.clone()), variable)
 }

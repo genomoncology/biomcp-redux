@@ -120,11 +120,10 @@ fn run_inner(
         crate::config::secrets(settings).map_err(|error| Failure::Configuration(error.0))?;
     }
     if matches!(command, Command::List) {
-        let value = crate::config::key_file::read(&path)?;
         return Ok(biomcp_types::RegisteredKeys {
             entries: SecretName::ALL
                 .iter()
-                .map(|&name| entry(name, state(&value, name)?))
+                .map(|&name| entry(name, state(settings, name)?))
                 .collect::<Result<_, _>>()?,
         });
     }
@@ -166,16 +165,23 @@ fn stored(value: &Value, name: SecretName) -> Option<&str> {
         .as_str()
         .filter(|s| !s.is_empty())
 }
-fn state(value: &Value, name: SecretName) -> Result<biomcp_types::KeyState, Failure> {
-    Ok(if stored(value, name).is_some() {
-        biomcp_types::KeyState::Stored
-    } else if crate::config::has_environment_key(name)
-        .map_err(|error| Failure::Configuration(error.0))?
-    {
-        biomcp_types::KeyState::Environment
-    } else {
-        biomcp_types::KeyState::None
-    })
+fn state(
+    settings: &crate::config::Settings,
+    name: SecretName,
+) -> Result<biomcp_types::KeyState, Failure> {
+    Ok(
+        if crate::config::has_stored_key(settings, name)
+            .map_err(|error| Failure::Configuration(error.0))?
+        {
+            biomcp_types::KeyState::Stored
+        } else if crate::config::has_environment_key(name)
+            .map_err(|error| Failure::Configuration(error.0))?
+        {
+            biomcp_types::KeyState::Environment
+        } else {
+            biomcp_types::KeyState::None
+        },
+    )
 }
 fn entry(
     name: SecretName,
