@@ -60,8 +60,8 @@ pub fn read(
             &LIST,
             Input::Params(&[("list-type", Arg::Num(2)), ("prefix", Arg::Text(&prefix))]),
             Read::<raw::Listing>::xml(),
-        )
-        .map(|received| received.value)?;
+        )?
+        .value;
     let contents = listing.contents.as_deref().unwrap_or(&[]);
     if contents.iter().any(|e| !e.key.starts_with(&prefix)) {
         return Err(invalid_reply);
@@ -84,8 +84,8 @@ pub fn read(
             &FILE.clone().with_path(path).map_err(|_| invalid_reply)?,
             Input::Params(&[]),
             Read::<raw::Record>::json(),
-        )
-        .map(|received| received.value)?;
+        )?
+        .value;
     if record.pmcid != id || pmid.is_some_and(|expected| record.pmid != Some(expected.get())) {
         return Err(invalid_reply);
     }
@@ -173,8 +173,8 @@ fn body(
                 .map_err(|_| invalid_reply)?,
             Input::Params(&params),
             Read::<jats::Body>::xml(),
-        )
-        .map(|received| received.value)?;
+        )?
+        .value;
     Ok((url, body))
 }
 

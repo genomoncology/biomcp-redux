@@ -64,8 +64,8 @@ fn read(leg: &Leg<'_>, input: &str, by_id: bool) -> Result<raw::Allele, RequestE
             biomcp_fetch::Read::<raw::Allele>::json().cache_if(&|r| {
                 r.error_type.is_none() && r.identity(by_id.then_some(input)).is_ok()
             }),
-        )
-        .map(|received| received.value)?;
+        )?
+        .value;
     Ok(reply)
 }
 

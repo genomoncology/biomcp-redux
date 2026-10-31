@@ -52,8 +52,8 @@ pub fn search(leg: &Leg<'_>, q: &PathwaySearch) -> Result<Page, RequestError> {
                         .all(|r| map::hit(r, &mut map::fields(&r.st_id)).is_some()),
                     raw::Search::Empty(_) => false,
                 }),
-        )
-        .map(|received| received.value)?;
+        )?
+        .value;
     let mut rows = Mapped {
         refusals: crate::Refusal::None,
         value: Vec::new(),
@@ -105,8 +105,8 @@ pub fn top_level(leg: &Leg<'_>) -> Result<Mapped<Vec<PathwayHeader>>, RequestErr
                 v.0.iter()
                     .all(|r| map::header(r, &mut map::fields(&r.st_id)).is_some())
             }),
-        )
-        .map(|received| received.value)?;
+        )?
+        .value;
     let mut mapped = Mapped {
         refusals: crate::Refusal::None,
         value: Vec::new(),
@@ -197,7 +197,7 @@ pub fn release(leg: &Leg<'_>) -> Result<Text, RequestError> {
             &endpoint,
             Input::Params(&[]),
             biomcp_fetch::Read::<raw::Version>::json_text(),
-        )
-        .map(|received| received.value)?;
+        )?
+        .value;
     Text::new(&value.0.to_string()).map_err(|_| biomcp_fetch::InputError::Serialization.into())
 }

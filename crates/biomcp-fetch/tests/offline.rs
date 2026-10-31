@@ -168,7 +168,6 @@ fn record_bypasses_warm_cache_and_replay_ignores_user_cache_and_writes_only_owne
             .leg(spec, replay.deadline(Duration::from_secs(10)))
             .fresh(true)
             .call(&ep, Input::Params(&[]), Read::<Answer>::json())
-            .map(|received| received.value)
             .unwrap_err(),
         RequestError::Recording(RecordError::Exhausted)
     );

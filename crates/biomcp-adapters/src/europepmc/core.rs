@@ -180,8 +180,8 @@ pub fn read(
             &endpoint,
             Input::Params(&[]),
             biomcp_fetch::Read::<jats::Body>::xml(),
-        )
-        .map(|received| received.value)?;
+        )?
+        .value;
     if body.title.is_none() {
         body.title = p.source_field("title", raw.title);
     }

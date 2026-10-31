@@ -277,8 +277,8 @@ pub fn edges(
             &endpoint,
             biomcp_fetch::Input::Params(&args),
             biomcp_fetch::Read::<RawEdges>::json(),
-        )
-        .map(|received| received.value)?;
+        )?
+        .value;
     let data = raw.data.ok_or(biomcp_fetch::SourceError {
         source: biomcp_types::Source::SemanticScholar,
         reason: biomcp_types::Reason::Unavailable,

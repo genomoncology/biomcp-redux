@@ -112,8 +112,8 @@ pub fn search(leg: &Leg<'_>, query: &VariantSearch) -> Result<SearchPage, Reques
                         .iter()
                         .all(|id| id.as_ref().is_some())
                 }),
-        )
-        .map(|received| received.value)?;
+        )?
+        .value;
     Ok(mapped_page(reply.esearchresult))
 }
 

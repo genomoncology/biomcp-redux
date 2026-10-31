@@ -54,8 +54,8 @@ pub fn gene(leg: &Leg<'_>, gene: &GeneSymbol) -> Result<Mapped<Vec<HotspotRecord
             &endpoint,
             biomcp_fetch::Input::Params(&[]),
             biomcp_fetch::Read::json(),
-        )
-        .map(|received| received.value)?;
+        )?
+        .value;
     let mut out = Mapped {
         refusals: crate::Refusal::None,
         value: Vec::new(),

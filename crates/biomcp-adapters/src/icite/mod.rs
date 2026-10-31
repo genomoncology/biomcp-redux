@@ -63,8 +63,8 @@ pub fn publications(
                 ("fl", Arg::Text(FIELDS)),
             ]),
             Read::<Raw>::json(),
-        )
-        .map(|received| received.value)?;
+        )?
+        .value;
     if raw
         .data
         .iter()

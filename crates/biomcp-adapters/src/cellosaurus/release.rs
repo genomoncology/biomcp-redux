@@ -10,8 +10,8 @@ pub fn release(
             &endpoint,
             Input::Params(&[("format", Arg::Text("json"))]),
             Read::json(),
-        )
-        .map(|received| received.value)?;
+        )?
+        .value;
     let release = reply.data.header.release;
     let mut problems = crate::mapped::Problems {
         source: Source::Cellosaurus,

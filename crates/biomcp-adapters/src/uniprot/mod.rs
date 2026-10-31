@@ -48,8 +48,8 @@ pub fn proteins(leg: &Leg<'_>, ids: &[UniProtAcc]) -> Result<Mapped<Vec<Protein>
                 ("format", Arg::Text("json")),
             ]),
             Read::<raw::Proteins>::json(),
-        )
-        .map(|received| received.value)?;
+        )?
+        .value;
     Ok(map::proteins(raw, &ids))
 }
 

@@ -34,8 +34,8 @@ pub fn get(leg: &Leg<'_>, id: &str, build: Build) -> Result<Mapped<VariantCosmic
                     .and_then(Field::as_ref)
                     .is_some_and(|given| given.as_str() == id)
             }),
-        )
-        .map(|received| received.value)?;
+        )?
+        .value;
     let mut problems = Problems {
         source: Source::MyVariant,
         record: crate::mapped::record(id),

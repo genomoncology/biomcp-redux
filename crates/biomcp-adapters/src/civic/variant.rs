@@ -56,8 +56,8 @@ pub fn variant(
                         && page.matches(&allele, query.civic_profile())
                         && page.progresses(query, after.as_ref())
                 }),
-            )
-            .map(|received| received.value)?;
+            )?
+            .value;
         if !reply.progresses(query, after.as_ref()) {
             return Err(failure(Reason::BadReply));
         }

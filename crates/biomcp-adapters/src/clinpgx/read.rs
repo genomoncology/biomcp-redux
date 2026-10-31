@@ -40,8 +40,8 @@ fn collection<T: serde::de::DeserializeOwned + NativeRow>(
             &endpoint,
             Input::Params(&[(key, Arg::Text(&gene)), ("view", Arg::Text("min"))]),
             Read::json().check(&|_| Ok(())).cache_if(&|_| true),
-        )
-        .map(|received| received.value)?;
+        )?
+        .value;
     let mut cx = Problems {
         source: biomcp_types::Source::ClinPgx,
         record: None,
@@ -141,8 +141,8 @@ pub fn annotation(
             &endpoint,
             Input::Params(&[("view", Arg::Text("base"))]),
             Read::json().check(&|_| Ok(())).cache_if(&|_| true),
-        )
-        .map(|received| received.value)?;
+        )?
+        .value;
     let mut cx = Problems {
         source: biomcp_types::Source::ClinPgx,
         record: None,

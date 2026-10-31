@@ -103,8 +103,8 @@ pub fn version(leg: &Leg<'_>) -> Result<Mapped<Option<Text>>, RequestError> {
             &INFO,
             Input::Params(&[]),
             biomcp_fetch::Read::<raw::Info>::json(),
-        )
-        .map(|received| received.value)?;
+        )?
+        .value;
     let mut cx = crate::mapped::Problems {
         source: Source::Oncokb,
         record: None,

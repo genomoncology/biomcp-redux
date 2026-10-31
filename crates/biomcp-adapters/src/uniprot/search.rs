@@ -50,11 +50,7 @@ pub fn search(
     }
     let ep = SPEC.get(PATH).identity_encoding().fresh(Freshness::Days(1));
     let (raw, meta) = leg
-        .call(
-            &ep,
-            Input::Params(&args),
-            Read::<Rows>::json().cache_if(&|_| true),
-        )
+        .call(&ep, Input::Params(&args), Read::<Rows>::json())
         .map(|received| (received.value, received.meta))?;
     let page = meta
         .pagination

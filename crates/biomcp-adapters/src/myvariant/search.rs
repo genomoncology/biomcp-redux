@@ -80,8 +80,8 @@ pub fn search(leg: &Leg<'_>, query: &VariantSearch) -> Result<SearchPage, Reques
                         .iter()
                         .all(|raw| raw.as_ref().is_some_and(|hit| hit.check().is_ok()))
                 }),
-        )
-        .map(|received| received.value)?;
+        )?
+        .value;
     Ok(mapped_page(page, leg, query))
 }
 

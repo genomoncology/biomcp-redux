@@ -1,5 +1,5 @@
 //! Literal native Cellosaurus queries and request-bound identity checks.
-use biomcp_fetch::{Input, Read};
+use biomcp_fetch::{Input, Read, Received};
 mod map;
 mod raw;
 mod receive;
@@ -104,33 +104,34 @@ fn candidates(
     if let Some(offset) = offset {
         args.push(("start", Arg::Num(offset.into())));
     }
-    let (reply, metadata) = leg
-        .call(
-            &endpoint,
-            Input::Params(&args),
-            Read::<raw::Response>::json()
-                .check(&|reply| match reply {
-                    raw::Response::Records { data } if data.rows.len() <= limit as usize => Ok(()),
-                    _ => Err(BadReply),
-                })
-                .cache_if(&|reply| {
-                    let raw::Response::Records { data } = reply else {
-                        return false;
-                    };
-                    let accepted = data
-                        .rows
-                        .iter()
-                        .filter(|row| row.accession().is_ok())
-                        .count();
-                    let refusals = if accepted < data.rows.len() {
-                        crate::Refusal::Refused
-                    } else {
-                        crate::Refusal::None
-                    };
-                    refusals.identities_admitted(accepted, data.rows.len())
-                }),
-        )
-        .map(|received| (received.value, received.meta))?;
+    let Received {
+        value: reply,
+        meta: metadata,
+    } = leg.call(
+        &endpoint,
+        Input::Params(&args),
+        Read::<raw::Response>::json()
+            .check(&|reply| match reply {
+                raw::Response::Records { data } if data.rows.len() <= limit as usize => Ok(()),
+                _ => Err(BadReply),
+            })
+            .cache_if(&|reply| {
+                let raw::Response::Records { data } = reply else {
+                    return false;
+                };
+                let accepted = data
+                    .rows
+                    .iter()
+                    .filter(|row| row.accession().is_ok())
+                    .count();
+                let refusals = if accepted < data.rows.len() {
+                    crate::Refusal::Refused
+                } else {
+                    crate::Refusal::None
+                };
+                refusals.identities_admitted(accepted, data.rows.len())
+            }),
+    )?;
     let raw::Response::Records { data } = reply else {
         return Err(InputError::Serialization.into());
     };
@@ -190,42 +191,14 @@ fn fetch_card(
     } else {
         CARD_FIELDS
     };
-    let (reply, metadata) = leg
-        .call(
-            &endpoint,
-            Input::Params(&[("format", Arg::Text("json")), ("fields", Arg::Text(fields))]),
-            Read::<raw::Response>::json().check(&|reply| match reply {
-                raw::Response::Missing { code: 404, message }
-                    if message == &format!("Item not found, ac: {accession}") =>
-                {
-                    Ok(())
-                }
-                raw::Response::Records { data } if data.rows.len() == 1 => {
-                    let row = data.rows.first().ok_or(BadReply)?;
-                    if row.accession()? != accession {
-                        return Err(BadReply);
-                    }
-                    if let Some(id) = source {
-                        let database = native_database(id).ok_or(BadReply)?;
-                        if !row
-                            .xref_list
-                            .as_deref()
-                            .unwrap_or_default()
-                            .iter()
-                            .any(|r| {
-                                r.database.as_str() == database
-                                    && r.accession.as_str() == id.accession()
-                            })
-                        {
-                            return Err(BadReply);
-                        }
-                    }
-                    Ok(())
-                }
-                _ => Err(BadReply),
-            }),
-        )
-        .map(|received| (received.value, received.meta))?;
+    let Received {
+        value: reply,
+        meta: metadata,
+    } = leg.call(
+        &endpoint,
+        Input::Params(&[("format", Arg::Text("json")), ("fields", Arg::Text(fields))]),
+        Read::<raw::Response>::json().check(&|reply| check_card(reply, accession, source)),
+    )?;
     let mut problems = Vec::new();
     let mut refusals = crate::Refusal::None;
     let card = match reply {
@@ -261,6 +234,41 @@ fn fetch_card(
         problems,
         metadata,
     })
+}
+fn check_card(
+    reply: &raw::Response,
+    accession: &CellosaurusAccession,
+    source: Option<&CellLineSourceId>,
+) -> Result<(), BadReply> {
+    match reply {
+        raw::Response::Missing { code: 404, message }
+            if message == &format!("Item not found, ac: {accession}") =>
+        {
+            Ok(())
+        }
+        raw::Response::Records { data } if data.rows.len() == 1 => {
+            let row = data.rows.first().ok_or(BadReply)?;
+            if row.accession()? != accession {
+                return Err(BadReply);
+            }
+            if let Some(id) = source {
+                let database = native_database(id).ok_or(BadReply)?;
+                if !row
+                    .xref_list
+                    .as_deref()
+                    .unwrap_or_default()
+                    .iter()
+                    .any(|r| {
+                        r.database.as_str() == database && r.accession.as_str() == id.accession()
+                    })
+                {
+                    return Err(BadReply);
+                }
+            }
+            Ok(())
+        }
+        _ => Err(BadReply),
+    }
 }
 /// Public supported source IDs map only to reviewed native database names.
 pub fn native_database(id: &CellLineSourceId) -> Option<&'static str> {

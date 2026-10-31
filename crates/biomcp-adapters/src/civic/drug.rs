@@ -43,6 +43,18 @@ impl Therapy {
     }
 }
 
+impl SearchReply {
+    fn cacheable(&self, count: u32, after: Option<&Text>) -> bool {
+        self.data.therapies.nodes.len() <= count as usize
+            && self.data.therapies.progresses(after)
+            && self.data.therapies.nodes.iter().all(|row| {
+                row.id
+                    .as_ref()
+                    .and_then(Field::as_ref)
+                    .is_some_and(|id| super::variant_raw::id(*id))
+            })
+    }
+}
 impl Reply for SearchReply {
     fn check(&self) -> Result<(), BadReply> {
         if self.errors.as_ref().is_some_and(|rows| !rows.is_empty()) {
@@ -95,18 +107,10 @@ pub fn drug_search(
             .call(
                 &GENES,
                 Input::json(&[], &body),
-                Read::json().cache_if(&|reply: &SearchReply| {
-                    reply.data.therapies.nodes.len() <= count as usize
-                        && reply.data.therapies.progresses(after.as_ref())
-                        && reply.data.therapies.nodes.iter().all(|row| {
-                            row.id
-                                .as_ref()
-                                .and_then(Field::as_ref)
-                                .is_some_and(|id| super::variant_raw::id(*id))
-                        })
-                }),
-            )
-            .map(|received| received.value)?;
+                Read::json()
+                    .cache_if(&|reply: &SearchReply| reply.cacheable(count, after.as_ref())),
+            )?
+            .value;
         let rows = reply.data.therapies;
         if rows.nodes.len() > count as usize || !rows.progresses(after.as_ref()) {
             return Err(failure(Reason::BadReply));

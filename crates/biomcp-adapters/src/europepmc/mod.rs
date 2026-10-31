@@ -57,8 +57,8 @@ pub fn search(leg: &Leg<'_>, term: &str, sort: ArticleSort) -> Result<Search, Re
         args.push(("sort", Arg::Text("FIRST_PDATE_D desc")));
     }
     let raw = leg
-        .call(&SEARCH, Input::Params(&args), Read::<Raw>::json())
-        .map(|received| received.value)?;
+        .call(&SEARCH, Input::Params(&args), Read::<Raw>::json())?
+        .value;
     let mut problems = Vec::new();
     let mut refusals = crate::Refusal::None;
     let items = raw

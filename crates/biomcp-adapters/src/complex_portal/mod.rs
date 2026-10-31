@@ -77,8 +77,8 @@ pub fn search(leg: &Leg<'_>, anchor: &UniProtIsoform) -> Result<Collection, Requ
                 &endpoint,
                 Input::Params(&args),
                 biomcp_fetch::Read::<raw::Search>::json(),
-            )
-            .map(|received| received.value)?;
+            )?
+            .value;
         if total.is_some_and(|n| n != page.total_number_of_results) {
             return Err(biomcp_fetch::bad_reply(Source::ComplexPortal, Some(200)));
         }
@@ -130,8 +130,8 @@ fn detail(leg: &Leg<'_>, id: &ComplexPortalId) -> Result<raw::Complex, RequestEr
             &endpoint,
             Input::Params(&[]),
             biomcp_fetch::Read::<raw::Detail>::json().cache_if(&|d| d.id == *id),
-        )
-        .map(|received| received.value)?;
+        )?
+        .value;
     if d.id != *id {
         return Err(biomcp_fetch::bad_reply(Source::ComplexPortal, Some(200)));
     }

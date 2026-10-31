@@ -77,8 +77,8 @@ fn fetch(
             Read::json().cache_if(&|reply: &raw::ReplyBody| {
                 matches(&reply.data, kind, after, count) && raw::cacheable(&reply.data, query)
             }),
-        )
-        .map(|received| received.value)?;
+        )?
+        .value;
     if reply.data.therapy.is_none() {
         return Err(failure(Reason::NotFound));
     }

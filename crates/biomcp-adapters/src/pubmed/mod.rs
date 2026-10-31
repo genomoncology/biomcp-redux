@@ -188,8 +188,8 @@ pub fn summaries(
             &SUMMARY,
             Input::Params(&params),
             Read::<raw::Summary>::json(),
-        )
-        .map(|received| received.value)?;
+        )?
+        .value;
     Ok(map::summaries(reply, &ids))
 }
 

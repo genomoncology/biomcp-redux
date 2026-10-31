@@ -3,8 +3,8 @@ use crate::Mapped;
 use crate::mapped::problem;
 use crate::mapped::record as record_text;
 use biodata::{PathwayEventRef, PathwayMember, PathwayParticipant, PathwaySourceRef, ReactomeId};
-use biomcp_fetch::Input;
 use biomcp_fetch::{Freshness, Leg, RequestError};
+use biomcp_fetch::{Input, Read};
 use biomcp_types::Source;
 /// Complete source-reference membership with explicit occurrence and physical-entity counts.
 #[derive(Debug)]
@@ -29,9 +29,9 @@ pub fn members(leg: &Leg<'_>, id: &ReactomeId) -> Result<Mapped<Members>, Reques
         .call(
             &endpoint,
             Input::Params(&[]),
-            biomcp_fetch::Read::<raw::Participants>::json(),
-        )
-        .map(|received| received.value)?;
+            Read::<raw::Participants>::json(),
+        )?
+        .value;
     let mut problems = fields(id);
     let mut value = Members {
         items: Vec::new(),
@@ -208,7 +208,7 @@ fn event_rows(leg: &Leg<'_>, id: &ReactomeId) -> Result<raw::Events, RequestErro
     leg.call(
         &endpoint,
         Input::Params(&[]),
-        biomcp_fetch::Read::<raw::Events>::json().cache_if(&|rows| {
+        Read::<raw::Events>::json().cache_if(&|rows| {
             rows.0.iter().all(|row| match row {
                 raw::Event::Database(_) => true,
                 raw::Event::Object(v) => {

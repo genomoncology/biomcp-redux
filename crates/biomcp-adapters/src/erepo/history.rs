@@ -37,8 +37,8 @@ pub(super) fn fetch(
                         .as_ref()
                         .is_some_and(|data| data.matches(caid, uuid, version))
                 }),
-        )
-        .map(|received| received.value)?;
+        )?
+        .value;
     let mut cx = Problems {
         source: Source::Erepo,
         record: Some(

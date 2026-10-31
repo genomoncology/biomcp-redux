@@ -36,8 +36,8 @@ pub fn search(leg: &Leg<'_>, term: &str) -> Result<Mapped<Vec<ArticleItem>>, Req
             &SENTENCES,
             Input::Params(&[("query", Arg::Text(term)), ("rerank", Arg::Text("true"))]),
             biomcp_fetch::Read::<Sentences>::json(),
-        )
-        .map(|received| received.value)?;
+        )?
+        .value;
     let mut items: Vec<ArticleItem> = Vec::new();
     let mut problems = Problems {
         source: Source::LitSense,

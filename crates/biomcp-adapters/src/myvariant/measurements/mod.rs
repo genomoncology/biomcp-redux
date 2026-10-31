@@ -56,8 +56,8 @@ pub fn get(
                     .and_then(crate::raw::Field::as_ref)
                     .is_some_and(|given| given.as_str() == id)
             }),
-        )
-        .map(|received| received.value)?;
+        )?
+        .value;
     let mut mapped = map::project(record, id, build, conservation, cadd, dbnsfp)?;
     let selected = [
         (cadd, super::components::CADD),

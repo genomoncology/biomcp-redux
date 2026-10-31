@@ -57,8 +57,8 @@ pub fn annotations(leg: &Leg<'_>, ids: &[Pmid]) -> Result<Vec<ArticleAnnotations
             &EXPORT,
             Input::Params(&[("pmids", Arg::Ids(&names))]),
             Read::<raw::Export>::json(),
-        )
-        .map(|received| received.value)?;
+        )?
+        .value;
     let malformed_identity = reply.documents.iter().any(|v| v.as_ref().is_none());
     let mut results: Vec<_> = ids
         .iter()

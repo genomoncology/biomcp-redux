@@ -215,7 +215,6 @@ fn undeclared_download_host_is_refused_before_replay_admission() {
     let error = fetch
         .leg(spec, fetch.deadline(Duration::from_secs(1)))
         .call(&endpoint, Input::Params(&[]), Read::<Answer>::json())
-        .map(|received| received.value)
         .unwrap_err();
     assert_eq!(error.to_string(), "fetch.input_host");
     assert!(server.requests.try_recv().is_err());
@@ -294,7 +293,6 @@ fn declared_secondary_origins_are_exact_and_publisher_policy_is_explicit() {
         let error = fetch
             .leg(spec, fetch.deadline(Duration::from_secs(1)))
             .call(&endpoint, Input::Params(&[]), Read::<Answer>::json())
-            .map(|received| received.value)
             .unwrap_err();
         assert_eq!(
             error.to_string(),

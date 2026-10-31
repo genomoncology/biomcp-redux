@@ -168,7 +168,6 @@ fn preparation_errors_precede_locked_cache_and_malformed_replay_without_echo() {
                     biomcp_fetch::Input::json(&[], &Broken),
                     Read::<Answer>::json(),
                 )
-                .map(|received| received.value)
                 .unwrap_err(),
                 InputError::Serialization,
             ),
@@ -178,7 +177,6 @@ fn preparation_errors_precede_locked_cache_and_malformed_replay_without_echo() {
                     biomcp_fetch::Input::json(&[], &"x".repeat(33)),
                     Read::<Answer>::json(),
                 )
-                .map(|received| received.value)
                 .unwrap_err(),
                 InputError::BodyLimit,
             ),
@@ -188,7 +186,6 @@ fn preparation_errors_precede_locked_cache_and_malformed_replay_without_echo() {
                     biomcp_fetch::Input::Params(&[]),
                     Read::<Answer>::json(),
                 )
-                .map(|received| received.value)
                 .unwrap_err(),
                 InputError::Method,
             ),
@@ -198,7 +195,6 @@ fn preparation_errors_precede_locked_cache_and_malformed_replay_without_echo() {
                     biomcp_fetch::Input::json(&[], &Broken),
                     Read::<Answer>::json(),
                 )
-                .map(|received| received.value)
                 .unwrap_err(),
                 InputError::Method,
             ),
@@ -208,7 +204,6 @@ fn preparation_errors_precede_locked_cache_and_malformed_replay_without_echo() {
                     biomcp_fetch::Input::Params(&[("q", Arg::Text(&"é".repeat(20)))]),
                     Read::<Answer>::json(),
                 )
-                .map(|received| received.value)
                 .unwrap_err(),
                 InputError::BodyLimit,
             ),
@@ -322,7 +317,6 @@ fn cache_capture_replay_and_offline_distinguish_method_encoding_and_body() {
             biomcp_fetch::Input::json(&[], &serde_json::json!({"q":3})),
             Read::<Answer>::json()
         )
-        .map(|received| received.value)
         .unwrap_err(),
         RequestError::Recording(RecordError::Missing)
     );

@@ -73,8 +73,8 @@ pub fn associations(
                     }
                 })
                 .cache_if(&raw::Response::identities_admitted),
-        )
-        .map(|received| received.value)?;
+        )?
+        .value;
     Ok(self::page(response, skip as usize))
 }
 fn page(response: raw::Response, skip: usize) -> Page {

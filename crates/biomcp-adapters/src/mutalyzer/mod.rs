@@ -123,8 +123,8 @@ fn fetch(leg: &Leg<'_>, input: &str) -> Result<Normalized, RequestError> {
             Input::Params(&[]),
             Read::<Normalized>::json()
                 .cache_if(&|reply| reply.errors().is_empty() && reply.identity(input).is_ok()),
-        )
-        .map(|received| received.value)?;
+        )?
+        .value;
     Ok(if let Some(custom) = raw.custom.take() {
         *custom
     } else {

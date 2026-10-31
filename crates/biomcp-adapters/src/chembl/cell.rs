@@ -237,8 +237,8 @@ impl Reply for Release {
 /// Read publisher release independently from data retrieval time.
 pub fn release(leg: &Leg<'_>) -> Result<crate::Mapped<CellLineRelease>, RequestError> {
     let r: Release = leg
-        .call(&STATUS, Input::Params(&[]), biomcp_fetch::Read::json())
-        .map(|received| received.value)?;
+        .call(&STATUS, Input::Params(&[]), biomcp_fetch::Read::json())?
+        .value;
     let mut problems = crate::mapped::Problems {
         source: biomcp_types::Source::Chembl,
         record: None,

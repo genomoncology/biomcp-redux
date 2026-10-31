@@ -141,8 +141,8 @@ pub fn publications(leg: &Leg<'_>, selected: Variant) -> Result<Search, RequestE
             &PUBLICATIONS.clone().with_segments(&segments),
             Input::Params(&[]),
             Read::<Publications>::json().cache_if(&Publications::eligible),
-        )
-        .map(|received| received.value)?;
+        )?
+        .value;
     let mut problems = crate::mapped::Problems {
         source: Source::LitVar,
         record: crate::mapped::record(&selected.id),

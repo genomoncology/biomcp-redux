@@ -81,7 +81,9 @@ pub(super) fn ordered_binary_sidecars_round_trip_and_refuse_hostile_paths() {
     );
     assert!(
         matches!(disabled.leg(spec,
- disabled.deadline(Duration::from_secs(10))).call(&spec.get("/bytes").bytes(20), Input::Params(&[]), Read::bytes().validate_body(&|_| Err(biomcp_types::Reason::BadReply))).map(|received| received.value.0),
+ disabled.deadline(Duration::from_secs(10)))
+.call(&spec.get("/bytes").bytes(20),
+Input::Params(&[]), Read::bytes().validate_body(&|_| Err(biomcp_types::Reason::BadReply))).map(|received| received.value.0),
  Err(RequestError::Source(e)) if e.reason == biomcp_types::Reason::Disabled),
         "Binary replay must preserve order and reject unsafe sidecars"
     );

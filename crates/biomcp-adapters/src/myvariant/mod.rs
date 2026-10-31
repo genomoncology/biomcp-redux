@@ -98,8 +98,8 @@ fn lookup_with(
                         })
                     })
                 }),
-            )
-            .map(|received| received.value)?;
+            )?
+            .value;
         let count = page.hits.len() as u64;
         hits.extend(page.hits);
         offset += count;
@@ -154,8 +154,8 @@ fn annotation(
                     .as_ref()
                     .is_some_and(|hit| biomcp_fetch::Reply::check(hit).is_ok() && hit.matches(id))
             }),
-        )
-        .map(|received| received.value)?;
+        )?
+        .value;
     Ok(mapped(leg, vec![annotation.hit], id, build, population))
 }
 

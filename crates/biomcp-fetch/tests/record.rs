@@ -85,7 +85,6 @@ fn repeated_key_consumes_ordered_replies_and_never_opens_replay_http() {
             Input::Params(&[("other", Arg::Num(1))]),
             Read::<Answer>::json(),
         )
-        .map(|received| received.value)
         .unwrap_err();
     assert_eq!(error, RequestError::Recording(RecordError::Missing));
 }
@@ -187,9 +186,12 @@ fn replay_advances_long_response_and_retry_delays_and_enforces_each_leg_budget()
     });
     let clock = replay.deadline(Duration::from_secs(1000));
     let leg = replay.leg(original, clock);
-    assert!(
-        matches!(leg.call(&original.get("/answer"), Input::Params(&[]), Read::<Answer>::json()).map(|received| received.value), Err(RequestError::Source(e)) if e.reason == biomcp_types::Reason::DeadlineExceeded)
-    );
+    assert!(matches!(leg
+.call(&original.get("/answer"),
+Input::Params(&[]),
+Read::<Answer>::json())
+.map(|received| received.value),
+Err(RequestError::Source(e)) if e.reason == biomcp_types::Reason::DeadlineExceeded));
     assert_eq!(leg.remaining(), Duration::ZERO);
     assert!(get(&replay, original).unwrap().answer);
 }
@@ -487,9 +489,12 @@ fn independent_virtual_leg_budgets_reject_foreign_clock_domains_before_recording
 wrong).call(&spec.get("/answer"), Input::Params(&[]), Read::<Answer>::json()).map(|received| received.value),
  Err(RequestError::Source(e)) if e.reason == biomcp_types::Reason::Rejected));
     }
-    assert!(
-        matches!(live.leg(spec,budget).call(&spec.get("/answer"), Input::Params(&[]), Read::<Answer>::json()).map(|received| received.value), Err(RequestError::Source(e)) if e.reason == biomcp_types::Reason::Rejected)
-    );
+    assert!(matches!(live.leg(spec,budget)
+.call(&spec.get("/answer"),
+Input::Params(&[]),
+Read::<Answer>::json())
+.map(|received| received.value),
+Err(RequestError::Source(e)) if e.reason == biomcp_types::Reason::Rejected));
     assert!(server.requests.try_recv().is_err());
 }
 

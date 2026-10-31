@@ -20,8 +20,8 @@ pub fn search(leg: &Leg<'_>, q: &GwasSearch) -> Result<Page, RequestError> {
             biomcp_fetch::Read::<raw::Response>::json()
                 .check(&|reply| admission(reply, q, &values))
                 .cache_if(&raw::Response::identities_admitted),
-        )
-        .map(|received| received.value)?;
+        )?
+        .value;
     Ok(super::page(response, (q.offset() % q.limit()) as usize))
 }
 

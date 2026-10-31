@@ -90,8 +90,8 @@ pub fn page(
             &endpoint,
             Input::Params(&args),
             Read::<raw::Page>::json().cache_if(&|p| p.admitted(id)),
-        )
-        .map(|received| received.value)?;
+        )?
+        .value;
     if !raw.admitted(id) {
         return Err(biomcp_fetch::bad_reply(Source::InterPro, Some(200)));
     }

@@ -206,7 +206,6 @@ fn http_failures_preserve_status_and_optional_404_is_absent() {
                 Input::Params(&[]),
                 biomcp_fetch::Read::<Answer>::json(),
             )
-            .map(|received| received.value)
             .unwrap_err();
         let biomcp_fetch::RequestError::Source(error) = error else {
             panic!("expected provider failure: {error}");
@@ -255,7 +254,6 @@ fn unusable_success_replies_are_bad_reply() {
                 Input::Params(&[]),
                 biomcp_fetch::Read::<Answer>::json(),
             )
-            .map(|received| received.value)
             .unwrap_err();
         let biomcp_fetch::RequestError::Source(error) = error else {
             panic!("expected provider failure: {error}");
@@ -347,7 +345,6 @@ fn refusals_send_zero_requests() {
                 Input::Params(&[]),
                 biomcp_fetch::Read::<Answer>::json(),
             )
-            .map(|received| received.value)
             .unwrap_err();
         let biomcp_fetch::RequestError::Source(error) = error else {
             panic!("expected provider failure: {error}");
@@ -377,7 +374,6 @@ fn source_budget_caps_supplied_deadline_during_headers_and_body() {
                 Input::Params(&[]),
                 biomcp_fetch::Read::<Answer>::json(),
             )
-            .map(|received| received.value)
             .unwrap_err();
         let biomcp_fetch::RequestError::Source(error) = error else {
             panic!("expected provider failure: {error}");
@@ -431,7 +427,6 @@ fn deadline_exhausted_during_reply_check_returns_deadline_exceeded() {
             Input::Params(&[]),
             biomcp_fetch::Read::<CheckedAnswer>::json(),
         )
-        .map(|received| received.value)
         .unwrap_err();
     let biomcp_fetch::RequestError::Source(error) = error else {
         panic!("expected provider failure: {error}");

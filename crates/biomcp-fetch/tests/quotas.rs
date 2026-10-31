@@ -391,8 +391,8 @@ fn get(
 ) -> Result<Duration, RequestError> {
     let leg = fetch.leg(spec, fetch.deadline(budget));
     let reply: Answer = leg
-        .call(&spec.get("/answer"), Input::Params(&[]), Read::json())
-        .map(|received| received.value)?;
+        .call(&spec.get("/answer"), Input::Params(&[]), Read::json())?
+        .value;
     assert!(reply.answer, "the recorded request must complete");
     Ok(leg.remaining())
 }

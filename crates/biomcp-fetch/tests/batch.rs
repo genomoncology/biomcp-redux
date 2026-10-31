@@ -183,8 +183,8 @@ fn panic_propagates_only_after_other_workers_finish() {
                             &spec.get("/held"),
                             Input::Params(&[]),
                             Read::<Answer>::json(),
-                        )
-                        .map(|received| received.value)?;
+                        )?
+                        .value;
                     done.fetch_add(1, Ordering::SeqCst);
                     Ok(reply)
                 })
@@ -337,8 +337,8 @@ fn replay_retains_worker_progress_and_parent_joins_the_greatest_completion() {
                 &spec.get("/number"),
                 Input::Params(&[]),
                 Read::<Number>::json(),
-            )
-            .map(|received| received.value)?;
+            )?
+            .value;
         let remaining = child.remaining();
         // Every worker is admitted; finish the round before any worker starts its next chunk.
         phase.wait();
@@ -387,8 +387,8 @@ fn replay_retains_sole_slot_completion_and_stops_expired_callbacks() {
                     &spec.get("/number"),
                     Input::Params(&[]),
                     Read::<Number>::json(),
-                )
-                .map(|received| received.value)?;
+                )?
+                .value;
             Ok(child.remaining())
         })
         .into_iter()

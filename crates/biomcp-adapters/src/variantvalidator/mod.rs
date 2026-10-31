@@ -56,8 +56,8 @@ fn fetch(leg: &Leg<'_>, input: &str, build: Build) -> Result<Response, RequestEr
             Read::<Response>::json()
                 .check(&|_| Ok(()))
                 .cache_if(&|reply| reply.flag.as_str() != "warning" && reply.eligible(input)),
-        )
-        .map(|received| received.value)?;
+        )?
+        .value;
     Ok(raw)
 }
 /// Preserve caller assembly, unchanged input and every service-returned identity.

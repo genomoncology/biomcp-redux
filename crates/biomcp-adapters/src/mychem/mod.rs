@@ -58,8 +58,8 @@ pub fn search(
             Read::<raw::Page>::json()
                 .check(&|_| Ok(()))
                 .cache_if(&raw::Page::identities_admitted),
-        )
-        .map(|received| received.value)?;
+        )?
+        .value;
     let received = reply.hits.len() as u32;
     map::page(reply, leg)
         .map(|page| (page, received))

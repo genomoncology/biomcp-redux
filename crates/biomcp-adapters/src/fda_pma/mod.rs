@@ -72,7 +72,7 @@ pub fn get(leg: &Leg<'_>, query: &DiagnosticGet) -> Result<Records, RequestError
         }).cache_if(&|reply| {
             identity(reply, query).is_none()
                 && !matches!(reply, raw::Response::Page {meta,..} if meta.results.total > 100)
-        })).map(|received| received.value)?;
+        }))?.value;
     let identity_conflict = identity(&reply, query);
     let mut problems = Vec::new();
     Ok(match reply {

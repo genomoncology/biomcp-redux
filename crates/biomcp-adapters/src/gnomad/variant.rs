@@ -102,7 +102,7 @@ pub fn population(leg: &Leg<'_>, id: &str) -> Result<crate::Mapped<Option<Varian
                         .is_some_and(|variant| variant.variant_id.as_str() == id)
                 })
             }),
-        )
-        .map(|received| received.value)?;
+        )?
+        .value;
     Ok(map::variant(response.data.variant, id))
 }

@@ -90,7 +90,6 @@ fn reflected_credentials_are_sent_but_refused_without_retry_or_public_disclosure
                     Input::Params(&[]),
                     Read::<Answer>::json(),
                 )
-                .map(|received| received.value)
                 .unwrap_err();
             let biomcp_fetch::RequestError::Source(error) = error else {
                 panic!("expected provider failure: {error}");

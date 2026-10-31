@@ -1,5 +1,5 @@
 //! Canonical monarch publisher declaration.
-use biomcp_fetch::{Input, Read};
+use biomcp_fetch::{Input, Read, Received};
 use biomcp_fetch::{KeyUse, SourceSpec, Terms};
 use biomcp_types::{Source, Use};
 use std::time::Duration;
@@ -79,33 +79,16 @@ pub fn associations(leg: &Leg<'_>, query: &DiseaseGet) -> Result<Page, RequestEr
         ("limit", Arg::Num(query.section_limit().into())),
         ("offset", Arg::Num(query.section_offset().into())),
     ];
-    let (page, metadata) = leg
-        .call(
-            &ASSOCIATIONS,
-            Input::Params(&args),
-            Read::<raw::Page>::json()
-                .check(&|page| {
-                    if page.limit != query.section_limit() || page.offset != query.section_offset()
-                    {
-                        return Err(BadReply);
-                    }
-                    // Native parent expansion may return a child endpoint; require its native closure proof.
-                    if page.items.iter().any(|row| {
-                        let (endpoint, closure) = if genes {
-                            (&row.object, &row.object_closure)
-                        } else {
-                            (&row.subject, &row.subject_closure)
-                        };
-                        endpoint.as_ref() != Some(&id)
-                            && closure.as_ref().is_none_or(|values| !values.contains(&id))
-                    }) {
-                        return Err(BadReply);
-                    }
-                    Ok(())
-                })
-                .cache_if(&raw::Page::identities_admitted),
-        )
-        .map(|received| (received.value, received.meta))?;
+    let Received {
+        value: page,
+        meta: metadata,
+    } = leg.call(
+        &ASSOCIATIONS,
+        Input::Params(&args),
+        Read::<raw::Page>::json()
+            .check(&|page| check_page(page, query, &id, genes))
+            .cache_if(&raw::Page::identities_admitted),
+    )?;
     let received = page.items.len() as u32;
     let mut problems = Vec::new();
     let mut items = Vec::new();
@@ -130,6 +113,28 @@ pub fn associations(leg: &Leg<'_>, query: &DiseaseGet) -> Result<Page, RequestEr
         total: page.total,
         metadata,
     })
+}
+fn check_page(
+    page: &raw::Page,
+    query: &DiseaseGet,
+    id: &Curie,
+    genes: bool,
+) -> Result<(), BadReply> {
+    if page.limit != query.section_limit() || page.offset != query.section_offset() {
+        return Err(BadReply);
+    }
+    // Native parent expansion may return a child endpoint; require its native closure proof.
+    if page.items.iter().any(|row| {
+        let (endpoint, closure) = if genes {
+            (&row.object, &row.object_closure)
+        } else {
+            (&row.subject, &row.subject_closure)
+        };
+        endpoint.as_ref() != Some(id) && closure.as_ref().is_none_or(|values| !values.contains(id))
+    }) {
+        return Err(BadReply);
+    }
+    Ok(())
 }
 /// Reviewed terms for the carried components remain explicit on pages and rows.
 pub fn components() -> Result<Box<[biomcp_types::ComponentLabel]>, RequestError> {
