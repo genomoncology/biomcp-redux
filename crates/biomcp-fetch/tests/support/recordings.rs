@@ -1,5 +1,5 @@
 //! Copy isolated recordings and opt positive exchanges into synthetic cache setup.
-use serde_json::{Value, json};
+use serde_json::Value;
 use std::{fs, path::Path};
 type Check = Result<(), Box<dyn std::error::Error>>;
 /// Copy transport-owned identities unchanged and mutate only response exchanges.
@@ -47,7 +47,7 @@ pub(crate) fn cache_acquisition(record: &mut Value, acquired: i64) {
                 .is_some_and(|v| (200..300).contains(&v))
                 && let Some(exchange) = exchange.as_object_mut()
             {
-                exchange.entry("fetched").or_insert(json!(acquired));
+                exchange.entry("fetched").or_insert(Value::from(acquired));
             }
         }
     }
