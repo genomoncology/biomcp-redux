@@ -6,6 +6,7 @@ use std::{fs, path::Path};
 tool_only! { use std::env; }
 
 tool_only! { #[path = "fixture_evidence_proof.rs"] mod fixture_evidence_proof; }
+tool_only! { #[path = "native_evidence_proof.rs"] mod native_evidence_proof; }
 
 tool_only! { type Check = Result<(), String>; }
 
@@ -45,6 +46,10 @@ pub(crate) fn trials() -> Vec<Trial> {
         }),
     ];
     trials.extend(fixture_evidence_proof::trials());
+    trials.push(transcript_trial(
+        "schema-discovery/persistent-native-evidence",
+        || native_evidence_proof::check().map_err(|error| error.to_string().into()),
+    ));
     trials
 }
 }

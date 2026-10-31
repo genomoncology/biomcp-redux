@@ -1,6 +1,7 @@
 # 0506 — Fit the MCP tools to remote clients
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: f542feb02acae73b5f13233c15924bdcceda773d
 
 Milestone: 5
 

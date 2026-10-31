@@ -77,24 +77,17 @@ fn dispatch_using(
     {
         return usage(args);
     }
+    if shared.is_some()
+        && let Some(error) = mcp_policy::refusal(&parsed, !allow_save)
+    {
+        return encode(error, crate::exit::Status::Usage);
+    }
     if let Some(command) = parsed.key {
-        return if shared.is_some() {
-            encode(
-                ErrorEnvelope::mcp_unavailable(biomcp_types::ErrorMessage::McpKey),
-                crate::exit::Status::Usage,
-            )
-        } else {
-            crate::keys::run(command, &parsed.globals)
-        };
+        return crate::keys::run(command, &parsed.globals);
     }
     let Some(action) = parsed.action else {
         return usage(args);
     };
-    if shared.is_some()
-        && let Some(error) = mcp_policy::refusal(&action, &parsed.globals, !allow_save)
-    {
-        return encode(error, crate::exit::Status::Usage);
-    }
     if let Some(path) = parsed.help {
         return encode(
             Envelope::new(
