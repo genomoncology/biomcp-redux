@@ -107,3 +107,19 @@ pub(super) struct Mutations(pub Vec<super::scope::Row<Mutation, super::scope::Mu
 #[serde(transparent)]
 pub(super) struct SampleLists(pub Vec<SampleList>);
 reply!(Study, Profile, SampleLists, Mutations);
+
+impl Mutations {
+    pub(super) fn identities_admitted(&self) -> bool {
+        let accepted = self
+            .0
+            .iter()
+            .filter(|row| row.value.as_ref().is_some())
+            .count();
+        let refusals = if accepted < self.0.len() {
+            crate::Refusal::Refused
+        } else {
+            crate::Refusal::None
+        };
+        refusals.identities_admitted(accepted, self.0.len())
+    }
+}
