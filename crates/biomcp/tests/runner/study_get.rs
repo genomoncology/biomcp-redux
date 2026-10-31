@@ -18,9 +18,10 @@ pub(super) fn trials() -> Vec<Trial> {
             pages().map_err(Into::into)
         }),
         // Replace the native catalog after acquiring a pool and revisit its old immutable membership.
-        transcript_trial("study-get/resource-refusals-survive-catalog-replacement", || {
-            resource_refusals::run().map_err(Into::into)
-        }),
+        transcript_trial(
+            "study-get/resource-refusals-survive-catalog-replacement",
+            || resource_refusals::run().map_err(Into::into),
+        ),
     ]
 }
 fn profiles() -> Value {
