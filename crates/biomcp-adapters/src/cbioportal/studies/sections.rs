@@ -109,7 +109,16 @@ pub fn profiles(
     let (reply, metadata) = leg.json_received_checked_cache::<Profiles>(
         &endpoint(id, "molecular-profiles")?,
         &[("projection", Arg::Text("DETAILED"))],
-        |r| r.0.iter().all(|v| v.scope.study_id == *id),
+        |r| {
+            let accepted = r.0.iter().filter(|v| v.value.as_ref().is_some()).count();
+            let refusals = if accepted < r.0.len() {
+                crate::Refusal::Refused
+            } else {
+                crate::Refusal::None
+            };
+            r.0.iter().all(|v| v.scope.study_id == *id)
+                && refusals.identities_admitted(accepted, r.0.len())
+        },
     )?;
     let mut problems = Problems {
         source: biomcp_types::Source::Cbioportal,
@@ -153,7 +162,16 @@ pub fn sample_lists(
     let (reply, metadata) = leg.json_received_checked_cache::<SampleLists>(
         &endpoint(id, "sample-lists")?,
         &[("projection", Arg::Text("DETAILED"))],
-        |r| r.0.iter().all(|v| v.scope.study_id == *id),
+        |r| {
+            let accepted = r.0.iter().filter(|v| v.value.as_ref().is_some()).count();
+            let refusals = if accepted < r.0.len() {
+                crate::Refusal::Refused
+            } else {
+                crate::Refusal::None
+            };
+            r.0.iter().all(|v| v.scope.study_id == *id)
+                && refusals.identities_admitted(accepted, r.0.len())
+        },
     )?;
     let mut problems = Problems {
         source: biomcp_types::Source::Cbioportal,

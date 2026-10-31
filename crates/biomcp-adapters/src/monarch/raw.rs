@@ -9,6 +9,21 @@ pub(super) struct Page {
     pub total: u64,
     pub items: Vec<Row>,
 }
+impl Page {
+    pub(super) fn identities_admitted(&self) -> bool {
+        let accepted = self
+            .items
+            .iter()
+            .filter(|row| row.identity_admitted())
+            .count();
+        let refusals = if accepted < self.items.len() {
+            crate::Refusal::Refused
+        } else {
+            crate::Refusal::None
+        };
+        refusals.identities_admitted(accepted, self.items.len())
+    }
+}
 impl Reply for Page {
     fn check(&self) -> Result<(), BadReply> {
         if self.items.len() > self.limit as usize
@@ -66,6 +81,14 @@ pub(super) struct Row {
     pub has_quotient: Option<FiniteNumber>,
     pub subject_closure: Option<Box<[Curie]>>,
     pub object_closure: Option<Box<[Curie]>>,
+}
+impl Row {
+    pub(super) fn identity_admitted(&self) -> bool {
+        self.id.is_some()
+            && self.subject.is_some()
+            && self.object.is_some()
+            && self.predicate.is_some()
+    }
 }
 #[derive(Debug, Deserialize)]
 pub(super) struct Link {

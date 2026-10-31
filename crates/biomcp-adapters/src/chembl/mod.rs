@@ -43,7 +43,7 @@ pub fn search(
         NameSelector::Preferred => "pref_name__iexact",
         NameSelector::Synonym => "molecule_synonyms__molecule_synonym__iexact",
     };
-    leg.json_received_checked(
+    leg.json_received_checked_admission(
         &MOLECULES,
         &[
             (key, Arg::Text(text)),
@@ -51,6 +51,7 @@ pub fn search(
             ("offset", Arg::Num(offset.into())),
         ],
         |r: &Molecules| page(&r.window, limit, offset),
+        |r| r.window.identities_admitted(),
     )
 }
 /// Read exactly the requested molecule and refuse a mismatched source identity before cache admission.
@@ -80,7 +81,7 @@ pub fn mechanisms(
     offset: u32,
 ) -> Result<(Mechanisms, biomcp_fetch::ReplyMetadata), RequestError> {
     let id = id.to_string();
-    leg.json_received_checked(
+    leg.json_received_checked_admission(
         &MECHANISMS,
         &[
             ("molecule_chembl_id", Arg::Text(&id)),
@@ -95,6 +96,7 @@ pub fn mechanisms(
                 Err(BadReply)
             }
         },
+        Mechanisms::identities_admitted,
     )
 }
 /// Read native indication rows and clinical phases without interpreting them as authorization.
@@ -105,7 +107,7 @@ pub fn indications(
     offset: u32,
 ) -> Result<(Indications, biomcp_fetch::ReplyMetadata), RequestError> {
     let id = id.to_string();
-    leg.json_received_checked(
+    leg.json_received_checked_admission(
         &INDICATIONS,
         &[
             ("molecule_chembl_id", Arg::Text(&id)),
@@ -120,6 +122,7 @@ pub fn indications(
                 Err(BadReply)
             }
         },
+        |r| r.window.identities_admitted(),
     )
 }
 fn page<T>(window: &crate::NativeWindow<T>, limit: u32, offset: u32) -> Result<(), BadReply> {
