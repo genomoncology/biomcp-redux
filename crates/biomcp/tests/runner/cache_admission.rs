@@ -9,6 +9,7 @@ use super::{
 use libtest_mimic::Trial;
 use serde_json::Value;
 use std::fs;
+type Routes = Vec<(String, String)>;
 #[derive(Clone, Copy)]
 struct Owner {
     name: &'static str,
@@ -111,7 +112,7 @@ fn check(owner: &Owner) -> Result<(), String> {
     }
     Ok(())
 }
-fn routes() -> Result<(Vec<String>, Vec<(String, String)>), String> {
+fn routes() -> Result<(Vec<String>, Routes), String> {
     let mut routes = Vec::new();
     let mut hosts = Vec::new();
     for source in fs::read_dir(launch::fixtures().join("replies/cache-admission"))
