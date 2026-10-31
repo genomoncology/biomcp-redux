@@ -112,6 +112,8 @@ pub enum KeyUse {
 /// The credential name and its placement in an outgoing request.
 #[derive(Clone, Copy, Debug)]
 pub struct Credential {
+    /// Whether hosted calls may fall back to the server credential.
+    pub tier: biomcp_types::KeyTier,
     /// Configured secret to use.
     pub secret: SecretName,
     /// Where the provider expects its credential.

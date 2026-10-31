@@ -1,6 +1,7 @@
 # 0510 — Keep all-refused cBioPortal mutation pages out of the cache
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 090a9b8bc5ce8487202b411ada9850a69786f758
 
 Milestone: 5
 

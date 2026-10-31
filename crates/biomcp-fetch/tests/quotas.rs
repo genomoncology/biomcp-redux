@@ -120,6 +120,7 @@ fn configured_optional_key_selects_keyed_rate_without_bypassing_shared_queue() {
         let spec = server.spec(
             shared,
             KeyUse::Optional(Credential {
+                tier: biomcp_types::KeyTier::Fallback,
                 secret: SecretName::SemanticScholarApiKey,
                 place: KeyPlace::Header("x-api-key"),
             }),
@@ -216,6 +217,7 @@ fn shared_queue_applies_each_arriving_sources_credential_rate() {
     let keyed = server.spec(
         shared,
         KeyUse::Optional(Credential {
+            tier: biomcp_types::KeyTier::Fallback,
             secret: SecretName::NcbiApiKey,
             place: KeyPlace::Header("x-api-key"),
         }),

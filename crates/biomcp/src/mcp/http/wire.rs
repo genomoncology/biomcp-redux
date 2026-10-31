@@ -14,6 +14,18 @@ pub(super) struct Request {
     pub(super) body: Vec<u8>,
 }
 impl Request {
+    pub(super) fn source_keys(&self) -> io::Result<biomcp_fetch::Secrets> {
+        let mut secrets = biomcp_fetch::Secrets::default();
+        for &name in biomcp_fetch::SecretName::ALL {
+            if let Some(value) = self.one(&name.header())? {
+                if value.is_empty() || value.len() > 8192 || value.chars().any(char::is_control) {
+                    return Err(malformed());
+                }
+                secrets.insert(name, biomcp_fetch::Secret::new(value));
+            }
+        }
+        Ok(secrets)
+    }
     pub(super) fn one(&self, name: &str) -> io::Result<Option<&str>> {
         let mut values = self
             .headers

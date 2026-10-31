@@ -95,9 +95,10 @@ pub(super) fn execute(
     globals: &crate::grammar::Globals,
     fetch: &Result<Arc<biomcp_fetch::Fetch>, crate::config::StartupError>,
     http: bool,
+    request_secrets: Option<&biomcp_fetch::Secrets>,
 ) -> io::Result<crate::command::Outcome> {
     let mut outcome = if http {
-        crate::command::tool_http(&call.args, globals, fetch)?
+        crate::command::tool_http(&call.args, globals, fetch, request_secrets)?
     } else {
         crate::command::tool(&call.args, globals, fetch)?
     };

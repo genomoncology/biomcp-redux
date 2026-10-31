@@ -115,6 +115,7 @@ fn empty_and_refused_batches_never_execute_callbacks() {
     let required = server.spec(
         quota(1),
         KeyUse::Required(biomcp_fetch::Credential {
+            tier: biomcp_types::KeyTier::Fallback,
             secret: biomcp_fetch::SecretName::NcbiApiKey,
             place: biomcp_fetch::KeyPlace::Header("x-api-key"),
         }),

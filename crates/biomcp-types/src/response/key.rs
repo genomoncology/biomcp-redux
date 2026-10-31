@@ -29,6 +29,15 @@ biodata::wire_enum! {
         None => "none"
     }
 }
+biodata::wire_enum! {
+    /// Whether hosted calls may use the server's configured source credential.
+    KeyTier {
+        /// Only the caller may supply this source credential.
+        NoFallback => "no-fallback",
+        /// Use the server credential when the caller supplies none.
+        Fallback => "fallback"
+    }
+}
 /// Credential identity and redacted presence.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
@@ -39,6 +48,10 @@ pub struct RegisteredKey {
     pub config: crate::Text,
     /// Environment fallback name.
     pub environment: crate::Text,
+    /// Header accepted by the hosted HTTP transport.
+    pub header: crate::Text,
+    /// Declared server credential fallback policy.
+    pub tier: KeyTier,
     /// Current credential origin.
     pub state: KeyState,
 }

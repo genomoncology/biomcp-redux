@@ -329,6 +329,7 @@ fn capture_keeps_retry_status_headers_and_rejected_json_without_credentials() {
     let dir = tempfile::tempdir().unwrap();
     let server = Server::new();
     let credential = biomcp_fetch::Credential {
+        tier: biomcp_types::KeyTier::Fallback,
         secret: biomcp_fetch::SecretName::NcbiApiKey,
         place: biomcp_fetch::KeyPlace::Query("api_key"),
     };

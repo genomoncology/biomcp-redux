@@ -1,6 +1,7 @@
 # 0511 — Sort the code the cut suite no longer reaches
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 25e49bc07229449a28f2c47f50ebedf046514ea4
 
 Milestone: 5
 

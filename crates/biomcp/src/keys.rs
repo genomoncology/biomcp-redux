@@ -182,6 +182,8 @@ fn entry(
         source: text(name.source().into())?,
         config: text(format!("keys.{}", name.config()))?,
         environment: text(name.environment().into())?,
+        header: text(name.header())?,
+        tier: biomcp_adapters::registry::key_tier(name),
         state,
     })
 }

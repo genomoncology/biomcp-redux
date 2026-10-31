@@ -28,6 +28,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     source: Source::Oncokb,
     base: "https://www.oncokb.org",
     key: KeyUse::Required(Credential {
+        tier: biomcp_types::KeyTier::NoFallback,
         secret: SecretName::OncokbApiKey,
         place: KeyPlace::Bearer,
     }),

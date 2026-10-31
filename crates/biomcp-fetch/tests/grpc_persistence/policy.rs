@@ -5,6 +5,7 @@ use biomcp_fetch::{Credential, KeyPlace, Secret, SecretName};
 fn credentials_stay_out_of_requests_recordings_and_offline_reads_without_a_key() -> Check {
     let fixture = Fixture::with_messages(Hold::None, 0, false, false, messages())?;
     let credential = Credential {
+        tier: biomcp_types::KeyTier::Fallback,
         secret: SecretName::OncokbApiKey,
         place: KeyPlace::Header("x-fixture-key"),
     };
