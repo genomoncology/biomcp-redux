@@ -1,7 +1,7 @@
 //! Read-only research projections over the same parsed CLI commands.
 mod records;
 use serde_json::{Value, json};
-use std::{ffi::OsString, io, sync::Arc};
+use std::{ffi::OsString, io};
 
 pub(super) fn tools() -> io::Result<Vec<Value>> {
     [
@@ -92,15 +92,13 @@ fn search_args(input: &str) -> Vec<String> {
 }
 pub(super) fn execute(
     call: &Call,
-    globals: &crate::grammar::Globals,
-    fetch: &Result<Arc<biomcp_fetch::Fetch>, crate::config::StartupError>,
+    context: crate::command::Context<'_>,
     http: bool,
-    request_secrets: Option<&biomcp_fetch::Secrets>,
 ) -> io::Result<crate::command::Outcome> {
     let mut outcome = if http {
-        crate::command::tool_http(&call.args, globals, fetch, request_secrets)?
+        crate::command::tool_http(&call.args, context)?
     } else {
-        crate::command::tool(&call.args, globals, fetch)?
+        crate::command::tool(&call.args, context.globals, context.fetch)?
     };
     if !matches!(
         outcome.status,

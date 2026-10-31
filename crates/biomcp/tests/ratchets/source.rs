@@ -55,6 +55,10 @@ const EXCEPTIONS: &[(&str, &str)] = &[
         "Own bounded HTTP connection workers and join completed handles",
     ),
     (
+        "crates/biomcp/src/mcp/http/call.rs",
+        "Own and join bounded hosted HTTP tool workers through timeout and shutdown",
+    ),
+    (
         "crates/biomcp-adapters/src/pmc_oa/supplement.rs",
         "Retain one parsed binary reply across its checked cache admission callback",
     ),
@@ -99,7 +103,7 @@ const EXCEPTIONS: &[(&str, &str)] = &[
         "Read process arguments at the command boundary",
     ),
     (
-        "crates/biomcp-fetch/src/quota.rs",
+        "crates/biomcp-fetch/src/quota/limiter.rs",
         "Shared transport quota state and FIFO waits",
     ),
 ];

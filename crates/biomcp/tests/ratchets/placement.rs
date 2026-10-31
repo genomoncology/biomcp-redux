@@ -12,12 +12,20 @@ const ALLOWED: &[(&str, &str)] = &[
         "Prove cancellation joins active network work at the private worker boundary without exporting shutdown control.",
     ),
     (
+        "crates/biomcp-fetch/tests/quotas/expiry.rs",
+        "Check idle bucket expiry after scaled refill without sleeping or exposing transport state.",
+    ),
+    (
         "crates/biomcp/src/grammar/reference.rs",
         "Generate and compare documentation at the private parser boundary without adding a public command.",
     ),
     (
         "crates/biomcp/src/mcp/worker_tests.rs",
         "Test worker panic completion and exact serialized tool result character boundaries that public requests cannot intentionally produce.",
+    ),
+    (
+        "crates/biomcp/src/mcp/http/call.rs",
+        "Prove hosted tool capacity and shutdown ownership with held worker exits using the private server limit.",
     ),
     (
         "crates/biomcp/src/config/deferred_keys_tests.rs",

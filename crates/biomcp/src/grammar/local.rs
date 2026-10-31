@@ -10,6 +10,14 @@ pub(super) fn serve_command() -> Command {
                 .action(ArgAction::SetTrue),
         )
         .arg(
+            Arg::new("rate-share")
+                .long("rate-share")
+                .help("Use this share of every source rate in hosted mode (greater than 0, at most 1).")
+                .value_parser(clap::value_parser!(biomcp_fetch::RateShare))
+                .default_value("1")
+                .requires("hosted"),
+        )
+        .arg(
             Arg::new("http")
                 .long("http")
                 .help("Listen on an HTTP address; omit its value for the loopback default.")
@@ -138,6 +146,10 @@ pub(super) fn housekeeping(
 
 pub(super) fn serve(matches: &clap::ArgMatches, mut globals: super::Globals) -> super::Parsed {
     globals.hosted = matches.get_flag("hosted");
+    globals.rate_share = matches
+        .get_one::<biomcp_fetch::RateShare>("rate-share")
+        .copied()
+        .unwrap_or_default();
     super::Parsed {
         key: None,
         housekeeping: None,
