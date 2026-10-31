@@ -109,9 +109,11 @@ pub(super) fn routes(recording: &str) -> Result<(Vec<String>, Routes), String> {
     for source in fs::read_dir(launch::fixtures().join("replies").join(recording))
         .map_err(|e| e.to_string())?
     {
-        for file in
-            fs::read_dir(source.map_err(|e| e.to_string())?.path()).map_err(|e| e.to_string())?
-        {
+        let source = source.map_err(|e| e.to_string())?.path();
+        if !source.is_dir() {
+            continue;
+        }
+        for file in fs::read_dir(source).map_err(|e| e.to_string())? {
             let file = file.map_err(|e| e.to_string())?;
             let record: Value =
                 serde_json::from_slice(&fs::read(file.path()).map_err(|e| e.to_string())?)
