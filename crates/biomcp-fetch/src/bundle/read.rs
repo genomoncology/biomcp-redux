@@ -177,6 +177,9 @@ impl Leg<'_> {
     }
     pub(super) fn bundle_source<R: Row>(&self, bundle: &Bundle<R>) -> Result<(), RequestError> {
         self.check_source()?;
+        if self.licensed() {
+            return Err(self.failure(biomcp_types::Reason::Rejected, None).into());
+        }
         self.spec.admit(
             &format!("{}{}", self.spec.base.trim_end_matches('/'), bundle.path),
             false,

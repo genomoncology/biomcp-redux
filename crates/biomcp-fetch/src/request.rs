@@ -285,6 +285,7 @@ impl Leg<'_> {
             hash.update(prepared.identity);
             prepared.identity = hash.finalize().into();
         }
+        prepared.identity = self.licensed_identity(prepared.identity);
         prepared.publisher = ep.publisher;
         let mut codec = codec.octet_stream(ep.octet_stream);
         if let Some(limit) = ep.byte_limit {
