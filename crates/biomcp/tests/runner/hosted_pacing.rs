@@ -7,7 +7,7 @@ type Check<T = ()> = Result<T, String>;
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        super::transcript::trial("mcp-hosted/pacing/two-header-keys", || {
+        super::transcript::trial(super::pool_contract::HOSTED_PACING.0, || {
             check(true).map_err(Into::into)
         }),
         super::transcript::trial("mcp-hosted/pacing/shared-keyless", || {
