@@ -22,7 +22,7 @@ fn caller(fetch: &Fetch, key: Option<&str>) -> Fetch {
 fn fixture(share: RateShare) -> Result<(tempfile::TempDir, Fetch, &'static SourceSpec), Box<dyn std::error::Error>> {
     let dir = tempfile::tempdir()?;
     let url = "https://example.invalid/answer";
-    let hash = Sha256::digest(url.as_bytes())
+    let hash = Sha256::digest([b"GET\0".as_slice(), url.as_bytes()].concat())
         .iter()
         .map(|byte| format!("{byte:02x}"))
         .collect::<String>();
@@ -31,8 +31,8 @@ fn fixture(share: RateShare) -> Result<(tempfile::TempDir, Fetch, &'static Sourc
         dir.path().join("pubmed").join(format!("{hash}.json")),
         serde_json::to_vec(&serde_json::json!({
             "method":"GET","source":"pubmed","url":url,
-            "exchanges":[{"status":200,"content_type":"application/json","delay_ms":0,
-                "body":{"kind":"json","value":{"answer":true}}}]
+            "exchanges":vec![serde_json::json!({"status":200,"content_type":"application/json","delay_ms":0,
+                "body":{"kind":"json","value":{"answer":true}}}); 3]
         }))?,
     )?;
     let spec = Box::leak(Box::new(SourceSpec {

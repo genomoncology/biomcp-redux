@@ -51,6 +51,8 @@ mod held_proxy;
 mod housekeeping;
 mod http;
 mod http_limits;
+mod hosted_pacing;
+mod hosted_deadline;
 mod key_registration;
 pub(super) mod launch;
 mod recurrence;
@@ -241,6 +243,8 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(mcp_boundaries::trials());
     trials.extend(mcp_hosted::trials());
     trials.extend(request_keys::trials());
+    trials.extend(hosted_pacing::trials());
+    trials.extend(hosted_deadline::trials());
     trials.extend(alphagenome_tls::trials());
     trials.extend(housekeeping::trials());
     trials.extend(clinpgx::trials());
