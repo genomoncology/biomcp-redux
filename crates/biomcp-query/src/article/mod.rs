@@ -48,7 +48,7 @@ pub fn search(cx: &Ctx<'_>, query: &ArticleSearch) -> Outcome {
             0,
             crate::next::Step::new(
                 StepKind::Key,
-                &[Source::SemanticScholar],
+                &[biomcp_types::Source::SemanticScholar],
                 Action::KeyHelp(biomcp_types::Source::SemanticScholar),
             ),
         );

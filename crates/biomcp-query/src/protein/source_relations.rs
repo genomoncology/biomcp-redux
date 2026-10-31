@@ -1,5 +1,5 @@
 //! Complete checked source collections page without admitting inferred memberships.
-use crate::{Action, Ctx, Outcome, status, store::Store};
+use crate::{Ctx, Outcome, status, store::Store};
 use biodata::{Text, UniProtIsoform};
 use biomcp_adapters::{complex_portal, interpro};
 use biomcp_fetch::{CacheError, Deadline, RequestError, SourceError};

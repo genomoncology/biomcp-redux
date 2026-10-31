@@ -1,7 +1,7 @@
 //! Source-local native drug requests; selected identities never fan out.
 mod identity;
 mod sections;
-use crate::{Action, Ctx, Outcome, status};
+use crate::{Ctx, Outcome, status};
 use biomcp_adapters::{NativeWindow, chembl, opentargets};
 use biomcp_fetch::{Leg, RequestError, SourceError};
 use biomcp_types::{

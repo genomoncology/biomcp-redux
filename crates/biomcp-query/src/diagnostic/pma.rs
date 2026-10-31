@@ -191,11 +191,18 @@ fn supplements(
         .collect::<Result<Vec<_>, _>>()?;
     for row in &items {
         if let Some(query) = crate::next::checked(
-            DiagnosticGet::new(
-                q.id().clone(),
-                biomcp_types::DiagnosticGetSource::FdaPma,
-                row.supplement_number.clone(),
-            ),
+            row.supplement_number
+                .as_ref()
+                .map(|supplement| supplement.as_str().parse())
+                .transpose()
+                .map_err(|_| biomcp_types::QueryInvalid::new(&["supplement"]))
+                .and_then(|supplement| {
+                    DiagnosticGet::new(
+                        q.id().clone(),
+                        biomcp_types::DiagnosticGetSource::FdaPma,
+                        supplement,
+                    )
+                }),
             biomcp_types::Source::FdaPma,
             &mut out.problems,
         ) {

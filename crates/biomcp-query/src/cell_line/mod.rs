@@ -5,7 +5,7 @@ mod get;
 pub use chembl::assay_count;
 mod provenance;
 mod sections;
-use crate::{Action, Ctx, Outcome, status};
+use crate::{Ctx, Outcome, status};
 use biomcp_adapters::cellosaurus;
 use biomcp_types::{
     CellLineGet, CellLinePage, CellLineSearch, QueryBody, Request, Source, Status, StepKind,

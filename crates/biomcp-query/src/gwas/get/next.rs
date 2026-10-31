@@ -34,9 +34,11 @@ pub(super) fn association(row: &GwasAssociation, out: &mut Outcome) {
     }
     if let Some(publication) = &row.publication
         && let Some(q) = crate::next::checked(
-            biomcp_types::ArticleGet::new(
-                vec![biomcp_types::ArticleInput::Pmid(*publication)].into(),
-            ),
+            publication
+                .as_str()
+                .parse()
+                .map_err(|_| biomcp_types::QueryInvalid::new(&["input"]))
+                .and_then(|input| biomcp_types::ArticleGet::new(vec![input].into())),
             Source::Gwas,
             &mut out.problems,
         )

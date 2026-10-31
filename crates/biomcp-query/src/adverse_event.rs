@@ -1,7 +1,7 @@
 //! One explicit adverse-event source; no inference, drug choice or source probing.
 mod get;
 mod vaers;
-use crate::{Action, Ctx, Outcome, status};
+use crate::{Ctx, Outcome, status};
 use biomcp_adapters::{faers, maude};
 use biomcp_types::{
     AdverseEventPage, AdverseEventSearch, PageInfo, QueryBody, ReportUnit, Request, Source,

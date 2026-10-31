@@ -1,5 +1,5 @@
 //! Explicit MAUDE native cards and whole device/narrative pages.
-use crate::{Action, Ctx, Outcome, status};
+use crate::{Ctx, Outcome, status};
 use biodata::Text;
 use biomcp_adapters::maude;
 use biomcp_types::{AdverseEventGet, AdverseEventSection, QueryBody, Request, Source, StepKind};

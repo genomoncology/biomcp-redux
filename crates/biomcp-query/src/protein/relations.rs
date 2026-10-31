@@ -1,5 +1,5 @@
 //! Complete entry-backed pages bind the section and every selector to one snapshot.
-use crate::{Action, Ctx, Outcome, status};
+use crate::{Ctx, Outcome, status};
 use biodata::{Text, UniProtIsoform};
 use biomcp_adapters::uniprot;
 use biomcp_fetch::{CacheError, Deadline, RequestError};

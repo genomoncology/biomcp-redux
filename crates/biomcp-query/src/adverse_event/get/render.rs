@@ -1,4 +1,4 @@
-use crate::{Action, Outcome};
+use crate::Outcome;
 use biodata::{FaersReport, Text};
 use biomcp_adapters::{NativePositions, faers::Positions};
 use biomcp_fetch::RequestError;

@@ -1,7 +1,7 @@
 //! Stored cards and independently acquired bounded metadata sections.
 mod files;
 use super::{empty, finish};
-use crate::{Action, Ctx, Outcome};
+use crate::{Ctx, Outcome};
 use biomcp_adapters::cbioportal::{SPEC, studies};
 use biomcp_fetch::{Leg, RequestError};
 use biomcp_types::{

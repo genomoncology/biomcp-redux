@@ -1,6 +1,6 @@
 //! Native FDA application discovery; product and submission scope remain separate.
 use super::{empty, searched, unsupported};
-use crate::{Action, Ctx, Outcome, status};
+use crate::{Ctx, Outcome, status};
 use biomcp_adapters::{drugsfda as source, received_date};
 use biomcp_types::{
     DrugCard, DrugFdaPage, DrugGet, DrugPage, DrugSearch, DrugSection, DrugSource, QueryBody,

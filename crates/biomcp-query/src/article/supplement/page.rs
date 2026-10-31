@@ -1,5 +1,5 @@
 mod fragments;
-use crate::{Action, Outcome};
+use crate::Outcome;
 use biodata::Text;
 use biomcp_adapters::sheet;
 use biomcp_fetch::LocalDeadline;

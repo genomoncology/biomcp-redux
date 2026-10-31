@@ -2,7 +2,7 @@
 pub(in crate::trial) mod page;
 mod snapshot;
 use self::snapshot::Snapshot;
-use crate::{Action, Ctx, Outcome, status, store::Store};
+use crate::{Ctx, Outcome, status, store::Store};
 use biodata::NctId;
 use biomcp_adapters::ctgov;
 use biomcp_fetch::{CacheError, RequestError};

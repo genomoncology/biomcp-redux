@@ -1,6 +1,6 @@
 //! Page-local exact sample observations with explicit cohort and source provenance.
 mod matching;
-use crate::{Action, Ctx, Outcome, status};
+use crate::{Ctx, Outcome, status};
 
 use biomcp_adapters::{cbioportal, hgnc};
 use biomcp_fetch::{Deadline, Find, KeyKind, RequestError};

@@ -1,5 +1,5 @@
 use super::{failure, identity};
-use crate::{Action, Outcome};
+use crate::Outcome;
 use biomcp_adapters::{NativeWindow, chembl, opentargets};
 use biomcp_fetch::{Leg, RequestError};
 use biomcp_types::{
