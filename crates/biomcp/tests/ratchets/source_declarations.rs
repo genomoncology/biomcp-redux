@@ -26,7 +26,12 @@ pub(super) fn check(root: &Path) -> Check {
             .to_string_lossy()
             .replace('\\', "/");
         let input = tokens(&fs::read_to_string(&path)?);
-        collect(&relative, &input, &mut policies, &mut declarations)?;
+        collect(
+            &format!("crates/biomcp-adapters/src/{relative}"),
+            &input,
+            &mut policies,
+            &mut declarations,
+        )?;
     }
     let dispatcher = fs::read_to_string(adapters.join("decl.rs")).unwrap_or_default();
     let dispatcher = tokens(&dispatcher).join("");
@@ -199,7 +204,9 @@ fn named(input: &[String], keyword: &str) -> Option<String> {
 }
 
 fn module(path: &str) -> String {
-    path.trim_end_matches(".rs")
+    path.strip_prefix("crates/biomcp-adapters/src/")
+        .unwrap_or(path)
+        .trim_end_matches(".rs")
         .trim_end_matches("/mod")
         .replace('/', "::")
 }
@@ -227,7 +234,9 @@ fn generic_constructor(path: &str, prefix: &[String], input: &[String]) -> bool 
         .iter()
         .rposition(|token| token == "fn")
         .and_then(|i| prefix.get(i + 1));
-    if path != "decl.rs" || function.is_none_or(|name| name != "component_spec") {
+    if path != "crates/biomcp-adapters/src/decl.rs"
+        || function.is_none_or(|name| name != "component_spec")
+    {
         return false;
     }
     // Only the reviewed argument-preserving constructor may build an unnamed policy.
