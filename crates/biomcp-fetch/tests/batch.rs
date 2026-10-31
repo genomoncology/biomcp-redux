@@ -382,13 +382,11 @@ fn replay_retains_sole_slot_completion_and_stops_expired_callbacks() {
     let leg = fetch.leg(spec, fetch.deadline(Duration::from_secs(30)));
     let mut budgets: Vec<_> = leg
         .batch(&[(); 2], |child, ()| {
-            child
-                .call(
-                    &spec.get("/number"),
-                    Input::Params(&[]),
-                    Read::<Number>::json(),
-                )?
-                .value;
+            child.call(
+                &spec.get("/number"),
+                Input::Params(&[]),
+                Read::<Number>::json(),
+            )?;
             Ok(child.remaining())
         })
         .into_iter()
