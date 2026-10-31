@@ -22,7 +22,7 @@ const OWNERS: &[(&str, &str, &str)] = &[
     ("complex_portal/mod.rs", "Collection", "refusals"),
 ];
 
-pub(super) fn allowed(root: &Path, path: &str, input: &[String], index: usize) -> bool {
+pub(in super::super) fn allowed(root: &Path, path: &str, input: &[String], index: usize) -> bool {
     let Some(relative) = path.strip_prefix("crates/biomcp-adapters/src/") else {
         return false;
     };
