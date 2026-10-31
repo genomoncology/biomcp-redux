@@ -152,3 +152,6 @@ pub use native_window::NativeWindow;
 
 mod graphql;
 mod openfda;
+
+/// Adapter-owned source and bundle declarations.
+pub mod decl;

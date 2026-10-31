@@ -286,3 +286,6 @@ pub fn release(
         problems: problems.list,
     })
 }
+
+/// Complete source policy and command declaration.
+pub(crate) mod decl;

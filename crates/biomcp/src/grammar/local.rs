@@ -1,4 +1,4 @@
-use super::BUNDLE_HELP;
+use super::bundle_names;
 use clap::{Arg, ArgAction, Command};
 pub(super) fn serve_command() -> Command {
     Command::new("serve")
@@ -45,7 +45,7 @@ pub(super) fn help_command(root: &Command) -> Command {
             );
         }
         if command.get_name() == "sync" {
-            child = child.subcommands(BUNDLE_HELP.iter().map(|&name| Command::new(name)));
+            child = child.subcommands(bundle_names().into_iter().map(Command::new));
         }
         help = help.subcommand(child);
     }
@@ -78,21 +78,18 @@ fn help_tree(command: &Command) -> Command {
 
 pub(super) fn help_source(
     matches: &clap::ArgMatches,
-) -> Result<biomcp_types::Source, super::ParseInvalid> {
-    matches
+) -> Result<biomcp_fetch::SecretName, super::ParseInvalid> {
+    let word = matches
         .subcommand()
         .filter(|(name, _)| *name == "key")
-        .and_then(|(_, m)| m.get_one::<String>("source"))
-        .map_or(Ok(biomcp_types::Source::Oncokb), |s| {
-            if s == "ncbi" {
-                Ok(biomcp_types::Source::PubMed)
-            } else if s == "openfda" {
-                Ok(biomcp_types::Source::OpenfdaLabel)
-            } else {
-                s.parse()
-            }
-        })
-        .map_err(|_| super::ParseInvalid::default())
+        .and_then(|(_, matches)| matches.get_one::<String>("source"));
+    match word {
+        Some(word) => biomcp_query::sources::keys()
+            .into_iter()
+            .find(|&name| biomcp_query::sources::key_name(name) == word)
+            .ok_or_else(super::ParseInvalid::default),
+        None => Ok(biomcp_fetch::SecretName::OncokbApiKey),
+    }
 }
 
 pub(crate) fn housekeeping_commands() -> [Command; 3] {

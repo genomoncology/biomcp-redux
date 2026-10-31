@@ -75,7 +75,7 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
             StepKind::Sync,
             &[biomcp_types::Source::FdaCdx],
             Action::Sync {
-                bundle: Bundle::FdaCdx,
+                bundle: Bundle::FDA_CDX,
             },
         ));
     }

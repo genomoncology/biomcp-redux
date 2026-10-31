@@ -176,3 +176,6 @@ pub fn summaries(
 
 mod query;
 pub use query::{search_dois, search_query};
+
+/// Complete source policy and command declaration.
+pub(crate) mod decl;

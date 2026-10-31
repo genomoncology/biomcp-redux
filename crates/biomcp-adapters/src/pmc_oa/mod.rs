@@ -167,3 +167,6 @@ fn body(
     )?;
     Ok((url, body))
 }
+
+/// Complete source policy and command declaration.
+pub(crate) mod decl;

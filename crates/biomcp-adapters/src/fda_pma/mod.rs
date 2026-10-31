@@ -123,3 +123,6 @@ fn identity(reply: &raw::Response, query: &DiagnosticGet) -> Option<&'static str
     }
     None
 }
+
+/// Complete source policy and command declaration.
+pub(crate) mod decl;

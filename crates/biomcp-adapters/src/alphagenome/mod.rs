@@ -52,3 +52,6 @@ pub const SCORE_VARIANT: biomcp_fetch::grpc::GrpcEndpoint = SPEC
     .grpc(score::SCORE_VARIANT)
     .bounded(SCORE_LIMITS)
     .checked(SCORE_SCHEMA, biomcp_fetch::Freshness::Never);
+
+/// Complete source policy and command declaration.
+pub(crate) mod decl;

@@ -140,7 +140,7 @@ pub(super) fn next(sources: &[SourceOutcome]) -> Vec<crate::next::Step> {
         vec![crate::next::Step::new(
             biomcp_types::StepKind::Key,
             &[biomcp_types::Source::AlphaGenome],
-            crate::Action::KeyHelp(Source::AlphaGenome),
+            crate::Action::KeyHelp(biomcp_fetch::SecretName::AlphaGenomeApiKey),
         )]
     } else {
         Vec::new()

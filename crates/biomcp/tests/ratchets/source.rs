@@ -3,7 +3,7 @@ pub(super) mod adapter_values;
 #[path = "mapped_refusals.rs"]
 mod mapped_refusals;
 use super::Check;
-use std::{collections::BTreeSet, fs, path::Path};
+use std::{collections::BTreeSet, path::Path};
 
 // The sole dead-code exception contains only the private generated closure include.
 const GENERATED_PROTO: &str = "crates/biomcp-adapters/src/alphagenome/proto.rs";
@@ -354,78 +354,6 @@ pub(super) fn tokens(text: &str) -> Vec<String> {
         }
     }
     result
-}
-
-fn source_terms(root: &Path, path: &str, tokens: &[String]) -> Check {
-    if !path.starts_with("crates/biomcp-adapters/src/") {
-        return Ok(());
-    }
-    for (i, word) in tokens.iter().enumerate() {
-        if word != "SourceSpec" || tokens.get(i + 1).is_none_or(|s| s != "{") {
-            continue;
-        }
-        let rest = tokens.get(i + 2..).unwrap_or_default();
-        let mut depth = 1;
-        let end = rest
-            .iter()
-            .position(|s| {
-                if s == "{" {
-                    depth += 1;
-                } else if s == "}" {
-                    depth -= 1;
-                }
-                depth == 0
-            })
-            .unwrap_or(rest.len());
-        let declaration = rest.get(..end).unwrap_or_default();
-        let Some(pos) = declaration.iter().position(|s| s == "terms") else {
-            return fail(path, "source declaration requires publisher terms");
-        };
-        let terms = declaration.get(pos + 1..).unwrap_or_default();
-        let terms: Vec<_> = terms.iter().take_while(|s| s.as_str() != "}").collect();
-        for name in ["name", "url", "usage"] {
-            let Some(pos) = terms.iter().position(|s| s.as_str() == name) else {
-                return fail(path, "source declaration requires publisher terms");
-            };
-            if name != "usage" && terms.get(pos + 2).is_none_or(|s| s.as_str() == "\"\"") {
-                return fail(path, "source declaration requires publisher terms");
-            }
-        }
-        let relative = path
-            .strip_prefix("crates/biomcp-adapters/src/")
-            .unwrap_or("");
-        let module = relative.strip_suffix(".rs").unwrap_or(relative);
-        let module = module
-            .strip_suffix("/mod")
-            .unwrap_or(module)
-            .replace('/', "::");
-        let prefix = tokens
-            .get(..i)
-            .ok_or("source declaration offset is invalid")?;
-        let Some(position) = prefix.iter().rposition(|token| token == "static") else {
-            return fail(path, "source declarations require named statics");
-        };
-        if prefix
-            .get(position..)
-            .ok_or("source static offset is invalid")?
-            .iter()
-            .any(|token| matches!(token.as_str(), ";" | "{" | "}"))
-        {
-            return fail(path, "source declarations require named statics");
-        }
-        let name = tokens
-            .get(position + 1)
-            .ok_or("source static lacks a name")?;
-        let expected = format!("&crate::{module}::{name}");
-        let registry = fs::read_to_string(root.join("crates/biomcp-adapters/src/registry.rs"))?;
-        if !registry.contains(&expected) {
-            return fail(
-                path,
-                &format!("implemented source must appear in source registry: expected {expected}"),
-            );
-        }
-    }
-    Ok(())
 }
 
 fn adapter_helpers(path: &str, tokens: &[String]) -> Check {

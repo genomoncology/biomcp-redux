@@ -14,7 +14,6 @@ mod bounded_json;
 mod bundle;
 mod cache;
 mod cache_access;
-mod cache_hgnc;
 mod cleanup;
 mod store_size;
 pub use cache_access::CacheAccess;

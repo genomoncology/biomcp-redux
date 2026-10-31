@@ -198,3 +198,6 @@ fn field<T>(
         None => None,
     }
 }
+
+/// Complete source policy and command declaration.
+pub(crate) mod decl;

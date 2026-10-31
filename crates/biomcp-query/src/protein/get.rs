@@ -209,7 +209,7 @@ fn recovery(q: &ProteinGet, out: &mut Outcome) {
             StepKind::Sync,
             &[biomcp_types::Source::Hgnc],
             Action::Sync {
-                bundle: Bundle::Hgnc,
+                bundle: Bundle::HGNC,
             },
         ));
     }

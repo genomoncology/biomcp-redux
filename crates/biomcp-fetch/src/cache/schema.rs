@@ -175,9 +175,6 @@ impl Cache {
         check_owners(&tx, &[TRANSPORT_OWNER])?;
         create_reply_schema(&tx, version)?;
         crate::bundle::store::initialize(&tx)?;
-        if matches!(version, Some(1..=3)) {
-            crate::cache_hgnc::backfill(&tx)?;
-        }
         tx.execute(
             "INSERT INTO meta(owner,version) VALUES (?1,?2) ON CONFLICT(owner) DO UPDATE SET version=excluded.version",
             (OWNER, VERSION),

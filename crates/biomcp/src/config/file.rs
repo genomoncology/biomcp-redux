@@ -1,5 +1,5 @@
 //! Configuration decoding retains field names without retaining rejected values.
-use super::{SecretName, config_path};
+use super::config_path;
 use serde::{Deserialize, de::DeserializeOwned};
 use serde_json::{Map, Value};
 use std::{collections::BTreeMap, fs, path::PathBuf};
@@ -79,7 +79,10 @@ fn decode(bytes: &[u8]) -> Result<ConfigFile, ConfigError> {
     })?;
     if let Some(keys) = &file.keys {
         for key in keys.keys() {
-            if !SecretName::ALL.iter().any(|name| name.config() == key) {
+            if !biomcp_query::sources::keys()
+                .iter()
+                .any(|name| name.config() == key)
+            {
                 return Err(ConfigError::field(&format!("keys.{key}")));
             }
         }
@@ -109,7 +112,10 @@ fn diagnose(bytes: &[u8]) -> Result<ConfigFile, ConfigError> {
             map.into_iter()
                 .map(|(key, value)| {
                     let field = format!("keys.{key}");
-                    if !SecretName::ALL.iter().any(|name| name.config() == key) {
+                    if !biomcp_query::sources::keys()
+                        .iter()
+                        .any(|name| name.config() == key)
+                    {
                         return Err(ConfigError::field(&field));
                     }
                     let value =

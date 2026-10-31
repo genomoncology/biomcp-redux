@@ -147,3 +147,6 @@ pub use map::{molecule_card, molecule_header};
 
 mod cell;
 pub use cell::{CellPage, assay_count, cells, release};
+
+/// Complete source policy and command declaration.
+pub(crate) mod decl;

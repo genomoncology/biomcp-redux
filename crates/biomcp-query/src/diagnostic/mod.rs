@@ -17,7 +17,7 @@ use biomcp_types::{
 };
 pub(crate) use get::get;
 fn finish(out: &mut Outcome, leg: Leg<'_>, error: Option<RequestError>) {
-    finish_bundle(out, leg, error, Source::Gtr, Bundle::Gtr);
+    finish_bundle(out, leg, error, Source::Gtr, Bundle::GTR);
 }
 fn finish_bundle(
     out: &mut Outcome,
@@ -132,14 +132,14 @@ fn search_source(
         (
             &biomcp_adapters::who_ivd::SPEC,
             Source::WhoIvd,
-            Bundle::WhoIvd,
+            Bundle::WHO_IVD,
             biomcp_types::DiagnosticCountUnit::ProductIdentities,
         )
     } else {
         (
             &gtr::SPEC,
             Source::Gtr,
-            Bundle::Gtr,
+            Bundle::GTR,
             biomcp_types::DiagnosticCountUnit::TestIdentities,
         )
     }

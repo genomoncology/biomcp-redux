@@ -82,3 +82,6 @@ pub fn get(
 fn identity(reply: &raw::Response, q: &DiagnosticGet) -> bool {
     !matches!(reply,raw::Response::Page{results,..} if results.iter().any(|row|row.k_number.as_str()!=q.id().as_str()))
 }
+
+/// Complete source policy and command declaration.
+pub(crate) mod decl;

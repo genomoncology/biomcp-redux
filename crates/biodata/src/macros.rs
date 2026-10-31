@@ -158,6 +158,11 @@ macro_rules! canonical_enum {
             $($(#[doc = $variant_doc])* $variant),+
         }
 
+        impl $name {
+            /// Every declared value, in declaration order.
+            pub const ALL: &'static [Self] = &[$(Self::$variant),+];
+        }
+
         impl From<$name> for &'static str {
             fn from(value: $name) -> Self {
                 match value { $($name::$variant => $text),+ }

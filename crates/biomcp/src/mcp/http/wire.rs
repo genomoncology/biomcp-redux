@@ -16,7 +16,7 @@ pub(super) struct Request {
 impl Request {
     pub(super) fn source_keys(&self) -> io::Result<biomcp_fetch::Secrets> {
         let mut secrets = biomcp_fetch::Secrets::default();
-        for &name in biomcp_fetch::SecretName::ALL {
+        for name in biomcp_query::sources::keys() {
             if let Some(value) = self.one(&name.header())? {
                 if value.is_empty() || value.len() > 8192 || value.chars().any(char::is_control) {
                     return Err(malformed());

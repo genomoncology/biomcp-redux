@@ -234,3 +234,6 @@ pub mod studies;
 pub use studies::sync as sync_studies;
 
 pub(crate) use studies::bundle_state;
+
+/// Complete source policy and command declaration.
+pub(crate) mod decl;

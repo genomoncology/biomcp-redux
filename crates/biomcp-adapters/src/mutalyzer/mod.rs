@@ -176,3 +176,6 @@ pub fn resolve(leg: &Leg<'_>, input: &str) -> Result<Resolution, RequestError> {
 
 /// Source normalization descriptions, mappings and native messages.
 pub use normalization::normalize;
+
+/// Complete source policy and command declaration.
+pub(crate) mod decl;

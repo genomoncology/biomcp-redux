@@ -36,3 +36,6 @@ pub(crate) mod recommend;
 pub use recommend::{RECOMMEND_SPEC, Recommendations, paper_id, recommendations};
 /// Provider-local author discovery and exact metadata.
 pub mod author;
+
+/// Complete source policy and command declaration.
+pub(crate) mod decl;

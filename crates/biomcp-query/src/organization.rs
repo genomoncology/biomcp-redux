@@ -35,7 +35,7 @@ pub(crate) fn search(cx: &Ctx<'_>, q: &OrganizationSearch) -> Outcome {
             crate::next::Step::new(
                 StepKind::Key,
                 &[biomcp_types::Source::Nci],
-                Action::KeyHelp(Source::Nci),
+                Action::KeyHelp(biomcp_fetch::SecretName::NciApiKey),
             ),
         );
     }

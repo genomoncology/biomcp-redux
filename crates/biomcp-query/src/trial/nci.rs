@@ -86,7 +86,11 @@ fn finish(
     if source.reason == Some(Reason::NoKey) {
         out.next.insert(
             0,
-            crate::next::Step::new(StepKind::Key, &[Source::Nci], Action::KeyHelp(Source::Nci)),
+            crate::next::Step::new(
+                StepKind::Key,
+                &[Source::Nci],
+                Action::KeyHelp(biomcp_fetch::SecretName::NciApiKey),
+            ),
         );
     }
     out.local = error.and_then(status::local);

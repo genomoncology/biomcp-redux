@@ -4,18 +4,10 @@ use biomcp_types::{Envelope, Status};
 use std::io;
 pub(super) fn run(fetch: &biomcp_fetch::Fetch, bundle: Bundle) -> io::Result<Outcome> {
     match biomcp_query::sources::sync(fetch, bundle) {
-        Some(result) => {
-            let (result, stale) = match result {
-                Ok((mapped, stale)) => (Ok(mapped), stale),
-                Err(error) => (Err(error), false),
-            };
+        biomcp_query::sources::BundleReply::Standard(result, stale) => {
             finish(bundle, result, stale)
         }
-        None => finish(
-            bundle,
-            biomcp_query::sources::sync_wikipathways(fetch),
-            false,
-        ),
+        biomcp_query::sources::BundleReply::WikiPathways(result) => finish(bundle, result, false),
     }
 }
 fn finish<T: biomcp_types::ResponseBody<Query = biomcp_types::SyncQuery>>(

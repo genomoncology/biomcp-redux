@@ -103,3 +103,6 @@ pub fn search_query(
         .join(" ");
     (search(leg, &term), term)
 }
+
+/// Complete source policy and command declaration.
+pub(crate) mod decl;

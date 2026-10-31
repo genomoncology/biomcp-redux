@@ -91,3 +91,6 @@ pub fn genes(leg: &Leg<'_>, ids: &[NcbiGeneId]) -> Vec<GeneBatch> {
         })
         .collect()
 }
+
+/// Complete source policy and command declaration.
+pub(crate) mod decl;

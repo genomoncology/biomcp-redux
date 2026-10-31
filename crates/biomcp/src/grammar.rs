@@ -17,19 +17,11 @@ pub(crate) use local::housekeeping_commands;
 pub(crate) use queries::command_paths;
 pub(crate) use queries::query_schema;
 
-pub(crate) const BUNDLE_HELP: &[&str] = &[
-    "hgnc",
-    "clingen",
-    "gencc",
-    "wikipathways",
-    "cbioportal-studies",
-    "ema",
-    "ddinter",
-    "who-pq",
-    "gtr",
-    "who-ivd",
-    "fda-cdx",
-];
+pub(crate) fn bundle_names() -> Vec<&'static str> {
+    biomcp_query::sources::bundles()
+        .map(|bundle| bundle.name())
+        .collect()
+}
 
 use biomcp_query::{Action, Bundle};
 use biomcp_types::{Help, Request, ResponseBody};
@@ -190,10 +182,8 @@ pub(crate) fn root() -> Result<Command, ParseInvalid> {
         Command::new("sync").arg(
             Arg::new("bundle")
                 .help("Local source bundle to synchronize.")
-                .default_value("hgnc")
-                .value_parser(clap::builder::PossibleValuesParser::new(
-                    BUNDLE_HELP.iter().copied(),
-                )),
+                .default_value(Bundle::HGNC.name())
+                .value_parser(clap::builder::PossibleValuesParser::new(bundle_names())),
         ),
     );
     root = root.subcommands(local::housekeeping_commands());
@@ -273,18 +263,9 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ParseInvalid> {
         Action::KeyHelp(local::help_source(matches)?)
     } else if verb == "sync" {
         Action::Sync {
-            bundle: match matches.get_one::<String>("bundle").map(String::as_str) {
-                Some("wikipathways") => Bundle::WikiPathways,
-                Some("cbioportal-studies") => Bundle::CbioportalStudies,
-                Some("fda-cdx") => Bundle::FdaCdx,
-                Some("gtr") => Bundle::Gtr,
-                Some("who-ivd") => Bundle::WhoIvd,
-                Some("ema") => Bundle::Ema,
-                Some("who-pq") => Bundle::WhoPq,
-                Some("ddinter") => Bundle::Ddinter,
-                Some("clingen") => Bundle::ClinGen,
-                Some("gencc") => Bundle::Gencc,
-                _ => Bundle::Hgnc,
+            bundle: match matches.get_one::<String>("bundle") {
+                Some(name) => Bundle::named(name).ok_or_else(ParseInvalid::default)?,
+                None => Bundle::HGNC,
             },
         }
     } else {

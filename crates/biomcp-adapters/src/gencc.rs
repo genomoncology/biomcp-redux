@@ -179,3 +179,6 @@ impl Submission {
 fn rejected_key(symbol: &GeneSymbol) -> String {
     format!("rejected-hgnc:{symbol}")
 }
+
+/// Complete source policy and command declaration.
+pub(crate) mod decl;

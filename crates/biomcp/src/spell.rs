@@ -1,7 +1,7 @@
 //! Reverse the same embedded query schema used by the parser.
 #![deny(clippy::wildcard_enum_match_arm)]
 
-use biomcp_query::{Action, Bundle};
+use biomcp_query::Action;
 use biomcp_types::{Request, Step, StepKind};
 use serde_json::Value;
 
@@ -36,24 +36,12 @@ pub(crate) fn action_args(action: &Action) -> Result<Vec<String>, serde_json::Er
             .collect()),
         Action::StoreClean => Ok(vec!["store".into(), "clean".into()]),
         Action::Health => Ok(vec!["health".into()]),
-        Action::KeyHelp(source) => Ok(vec!["help".into(), "key".into(), source.to_string()]),
-        Action::Sync { bundle } => Ok(vec![
-            "sync".into(),
-            match bundle {
-                Bundle::WikiPathways => "wikipathways",
-                Bundle::CbioportalStudies => "cbioportal-studies",
-                Bundle::FdaCdx => "fda-cdx",
-                Bundle::Gtr => "gtr",
-                Bundle::WhoIvd => "who-ivd",
-                Bundle::Ema => "ema",
-                Bundle::WhoPq => "who-pq",
-                Bundle::Ddinter => "ddinter",
-                Bundle::Hgnc => "hgnc",
-                Bundle::ClinGen => "clingen",
-                Bundle::Gencc => "gencc",
-            }
-            .into(),
+        Action::KeyHelp(source) => Ok(vec![
+            "help".into(),
+            "key".into(),
+            biomcp_query::sources::key_name(*source).into(),
         ]),
+        Action::Sync { bundle } => Ok(vec!["sync".into(), bundle.name().into()]),
         Action::Run { request, fresh } => {
             let mut args = request_args(request)?;
             if *fresh {
