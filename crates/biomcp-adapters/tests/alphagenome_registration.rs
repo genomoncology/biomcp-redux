@@ -13,7 +13,7 @@ fn restricted_source_requires_its_own_key_before_any_provider_request()
     assert!(matches!(
         SPEC.key,
         KeyUse::Required(Credential {
-            tier: biomcp_types::KeyTier::Fallback,
+            tier: biomcp_types::KeyTier::NoFallback,
             secret: SecretName::AlphaGenomeApiKey,
             place: KeyPlace::Header("x-goog-api-key")
         })
