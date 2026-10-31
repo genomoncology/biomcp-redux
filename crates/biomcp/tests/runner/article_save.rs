@@ -573,9 +573,21 @@ fn cache_boundary() -> Check {
             value.get("result").is_none(),
             "failed save exposed its body"
         );
-        assert_eq!(value.pointer("/status"), Some(&json!("failed")));
-        assert_eq!(value.pointer("/sources/0/source"), Some(&json!("pmc-oa")));
-        assert_eq!(value.pointer("/sources/0/state"), Some(&json!("failed")));
+        assert_eq!(
+            value.pointer("/status"),
+            Some(&json!("failed")),
+            "Failed saves must retain the overall failure status"
+        );
+        assert_eq!(
+            value.pointer("/sources/0/source"),
+            Some(&json!("pmc-oa")),
+            "Failed saves must name the source that refused offline access"
+        );
+        assert_eq!(
+            value.pointer("/sources/0/state"),
+            Some(&json!("failed")),
+            "Failed saves must retain the failed source state"
+        );
         assert_eq!(
             value.pointer("/sources/0/reason"),
             Some(&json!("offline")),
