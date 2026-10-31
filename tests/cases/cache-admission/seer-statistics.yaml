@@ -29,7 +29,7 @@
         "/page/returned": 0,
         "/page/total": 1,
         "/problems/*/field": {
-          "includes": "0"
+          "includes": "year"
         }
       },
       "max_bytes": 2578
@@ -59,7 +59,7 @@
         "/page/returned": 0,
         "/page/total": 1,
         "/problems/*/field": {
-          "includes": "0"
+          "includes": "year"
         }
       },
       "max_bytes": 2578
