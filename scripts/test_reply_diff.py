@@ -397,7 +397,8 @@ class ReplyDiff(unittest.TestCase):
                 self.write(directory, "trial/article-evidence/evidence/" + name + "/" + "a" * 64 + "/0",
                            json.dumps({"result": {"fetched": clock if side == "base" else 20},
                                "page": {"pool": {"id": "shared" if side == "base" else name,
-                                                  "created": 10, "expires": 20, "size": 1}}}).encode())
+                                                  "created": 10, "expires": 20, "size": 1}}}).encode(),
+                           root="/tmp/" + side + "/" + name)
         result = self.compare()
         self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
 
