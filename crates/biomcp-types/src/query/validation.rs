@@ -62,7 +62,7 @@ pub trait CheckedQuery: Sized {
 
 macro_rules! checked_query {
     ($query:ty, $fields:ty) => {
-        checked_query!($query, $fields, None);
+        $crate::query::validation::checked_query!($query, $fields, None);
     };
     ($query:ty, $fields:ty, $message:expr) => {
         impl $crate::CheckedQuery for $query {
