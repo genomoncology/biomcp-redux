@@ -1,5 +1,5 @@
 //! Keyed gene annotations, joined only by checked HGNC Entrez identity.
-use biomcp_fetch::Input;
+use biomcp_fetch::{Absent, Input};
 mod narrative;
 use crate::mapped::push_problem;
 use crate::mapped::record as record_text;
@@ -63,15 +63,8 @@ pub fn gene(
             ]),
             biomcp_fetch::Read::json(),
         )
-        .map(|received| Some(received.value))
-        .or_else(|error| match error {
-            biomcp_fetch::RequestError::Source(source)
-                if source.reason == biomcp_types::Reason::NotFound =>
-            {
-                Ok(None)
-            }
-            error => Err(error),
-        })?;
+        .map(|received| received.value)
+        .absent()?;
     let rows = reply.map(|reply| reply.0).unwrap_or_default();
     let mut problems = Vec::new();
     let mut accepted = Vec::new();

@@ -1,9 +1,10 @@
 //! One request entry point shares preparation and checked response policies.
 use crate::{Arg, Endpoint, Leg, Read, Reply, ReplyMetadata, RequestError};
 
+type BodyEncoder<'a> = dyn Fn(u64) -> Result<Vec<u8>, crate::InputError> + 'a;
 /// A bounded JSON body serialized only after request validation.
 pub struct JsonBody<'a> {
-    encode: Box<dyn Fn(u64) -> Result<Vec<u8>, crate::InputError> + 'a>,
+    encode: Box<BodyEncoder<'a>>,
 }
 impl<'a> JsonBody<'a> {
     /// Borrow a serializable body without changing its wire representation.

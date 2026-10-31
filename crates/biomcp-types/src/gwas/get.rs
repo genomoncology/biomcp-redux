@@ -97,6 +97,9 @@ impl crate::Paged for GwasSectionPage {
     fn set_page_offset(&mut self, offset: u32) {
         self.0.section_offset = offset;
     }
+    fn clear_page_context(&mut self) {
+        self.0.snapshot = None;
+    }
 }
 
 impl Default for GwasSectionPage {

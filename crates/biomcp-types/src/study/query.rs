@@ -102,6 +102,9 @@ impl crate::Paged for StudySearch {
     fn set_page_offset(&mut self, offset: u32) {
         self.0.offset = offset;
     }
+    fn clear_page_context(&mut self) {
+        self.0.pool = None;
+    }
 }
 
 #[doc = " Exact case-sensitive study card or bounded metadata section. No frequency, denominator, \
