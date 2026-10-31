@@ -1,5 +1,5 @@
 //! Positive controls change only the native response body and its output assertions.
-use super::{Owner, Routes};
+use super::Owner;
 use crate::runner::Step;
 use crate::runner::transcript;
 use serde_json::{Value, json};
@@ -87,7 +87,7 @@ pub(super) fn requests(
     owner: &Owner,
     control: &str,
     target: &str,
-    requests: &Routes,
+    requests: &[(String, String)],
 ) -> Result<Option<String>, String> {
     if let Some(transcript) = transcript::current() {
         transcript.record(
