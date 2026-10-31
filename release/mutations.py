@@ -150,8 +150,24 @@ def shard(args):
         raise ValueError('Shard index is outside the plan')
     # Rust regex does not accept every Python re.escape escape; escape its metacharacters only.
     escaped = [re.sub(r'([\\.^$|?*+()\[\]{}])', r'\\\1', name) for name in value['selected']]
-    command = native_args() + ['--re', '^(' + '|'.join(escaped) + ')$',
-                              '--shard', f"{args.index}/{value['shards']}",
+    inventory = {row['name']: row for row in read(args.plan.parent / 'inventory.json')}
+    expected = {name: inventory[name] for name in value['selected']}
+    files = sorted({row['file'] for row in expected.values()})
+    command = native_args() + [arg for path in files for arg in ('--file', path)]
+    command += ['--re', '^(' + '|'.join(escaped) + ')$']
+    if time.time() < value['deadline']:
+        discovery = command + ['--list', '--json']
+        code = execute(discovery, value['deadline'], output / 'selection.json')
+        if code != 0:
+            raise ValueError('Shard discovery failed or reached the cap')
+        rows = read(output / 'selection.json')
+        observed = {row['name']: row for row in rows}
+        exact = observed == expected and len(rows) == len(expected)
+        save(output / 'selection-check.json', dict(argv=discovery, exact=exact,
+             expected=len(expected), observed=len(rows)))
+        if not exact:
+            raise ValueError('Native shard selection differs from the exact plan')
+    command += ['--shard', f"{args.index}/{value['shards']}",
                               '--jobs', '1', '--jobserver-tasks', '2',
                               '--baseline', 'run', '--timeout', str(CAP_SECONDS),
                               '--output', str(output.resolve())]
@@ -159,7 +175,7 @@ def shard(args):
     # Native scratch trees omit Git metadata; bind the existing build contract to this plan.
     code = execute(command, value['deadline'], output / 'command.log',
                    {'BIOMCP_BUILD_REVISION': value['candidate']})
-    save(output / 'command.json', dict(exit=code, started=started, ended=time.time(),
+    save(output / 'command.json', dict(argv=command, exit=code, started=started, ended=time.time(),
                                      candidate=value['candidate']))
     print(json.dumps(dict(shard=args.index, exit=code, output=str(output))))
     # Survivors and native timeouts are evidence. Baseline and tool errors fail.

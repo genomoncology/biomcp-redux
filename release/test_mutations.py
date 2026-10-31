@@ -25,10 +25,11 @@ if '--version' in args:
 if args[0] == 'install':
     sys.exit(0)
 names = json.loads(pathlib.Path('native-inventory.json').read_text())
+selected = ([row for row in names if re.search(args[args.index('--re') + 1], row['name'])]
+            if '--re' in args else names)
 if '--list' in args:
-    print(json.dumps(names))
+    print(json.dumps(names if os.environ.get('FAKE_MODE') == 'selection-drift' else selected))
     sys.exit(0)
-selected = [row for row in names if re.search(args[args.index('--re') + 1], row['name'])]
 output = pathlib.Path(args[args.index('--output') + 1]) / 'mutants.out'
 output.mkdir()
 phase = lambda duration: dict(phase='Test', duration=duration, process_status='Success',
@@ -166,6 +167,17 @@ class MutationCommands(unittest.TestCase):
         self.call('shard', '--plan', self.plan, '--index', 0)
         self.call('collect', '--plan', self.plan, ok=False)
         self.assertIn('omitted selected', ' '.join(self.report()['errors']))
+
+    def test_wider_native_selection_stops_before_any_build_or_mutation(self):
+        self.prepare('--measure')
+        self.env['FAKE_MODE'] = 'selection-drift'
+        result = self.call('shard', '--plan', self.plan, '--index', 0, ok=False)
+        self.assertIn('exact plan', result.stderr)
+        calls = [json.loads(line) for line in (self.root / 'cargo-calls.jsonl').read_text().splitlines()]
+        self.assertFalse(any('--shard' in row['args'] for row in calls))
+        check = json.loads((self.output / 'shard-0/selection-check.json').read_text())
+        self.assertEqual((check['expected'], check['observed'], check['exact']), (20, 24, False))
+        self.assertIn('--file', check['argv'])
 
     def test_rehearsal_records_advisory_survivors_and_collection_errors(self):
         self.prepare('--measure')
