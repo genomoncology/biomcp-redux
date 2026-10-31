@@ -310,11 +310,11 @@ class ReplyDiff(unittest.TestCase):
                 args = ["serve", "<requests>", json.dumps(frame)]
                 surface = "mcp"
                 value = {"jsonrpc": "2.0", "result": {"structuredContent": value}}
-            extra = dict(sequence_start=step * 2, sequence_end=step * 2 + 1)
+            extra = dict(sequence_start=step * 10, sequence_end=step * 10 + 8)
             if mutation == "superseded" and step == 2:
                 value["result"]["snapshot"]["acquired"] = 20
             if mutation == "overlap" and step == 2:
-                extra["sequence_start"] = 2
+                extra["sequence_start"] = 15
             if mutation == "missing" and step == 2:
                 extra = {}
             if mutation == "invalid" and step == 2:
