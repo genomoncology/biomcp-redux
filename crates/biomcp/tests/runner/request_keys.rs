@@ -108,7 +108,7 @@ fn licensed() -> Check {
         let headers: &[bool] = if hosted {
             &[false, true, false]
         } else {
-            &[false]
+            &[true]
         };
         for &header in headers {
             let extra = if header {
