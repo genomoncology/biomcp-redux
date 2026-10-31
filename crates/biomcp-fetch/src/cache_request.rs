@@ -118,7 +118,14 @@ impl Leg<'_> {
             return self.offline(endpoint, prepared, codec);
         }
         let Some((cache, seconds)) = self.fetch.cache.as_ref().zip(endpoint.fresh.seconds()) else {
-            return live().map(|(reply, _, _, fetched, range, pagination)| {
+            return live().map(|decoded| {
+                let crate::request::Decoded {
+                    reply,
+                    fetched,
+                    content_range: range,
+                    pagination,
+                    ..
+                } = decoded;
                 (
                     reply,
                     fetched,
@@ -143,13 +150,7 @@ impl Leg<'_> {
             }
         }
         match live() {
-            Ok((reply, status, body, fetched, range, pagination)) => self.admit_live(
-                cache,
-                prepared,
-                codec,
-                seconds,
-                (reply, status, body, fetched, range, pagination),
-            ),
+            Ok(decoded) => self.admit_live(cache, prepared, codec, seconds, decoded),
             Err(RequestError::Source(error)) if error.reason == Reason::NotFound => {
                 // A current absence replaces a formerly positive entry; no stale
                 // result can override it and the provider body is never stored.
@@ -190,7 +191,14 @@ impl Leg<'_> {
         seconds: u64,
         decoded: crate::request::Decoded<T>,
     ) -> Result<CachedReply<T>, RequestError> {
-        let (reply, status, body, fetched, range, pagination) = decoded;
+        let crate::request::Decoded {
+            reply,
+            status,
+            body,
+            fetched,
+            content_range: range,
+            pagination,
+        } = decoded;
         let mut entry = Entry::new(status, body, seconds, codec.name());
         if codec.json_absence && status == 404 {
             self.cache_result(cache.remove(&prepared.identity, self.budget()));

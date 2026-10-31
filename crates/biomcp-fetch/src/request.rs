@@ -5,14 +5,14 @@ use crate::{InputError, declaration::Method, prepared::Prepared};
 use biomcp_types::Reason;
 use std::time::{Duration, Instant};
 
-pub(crate) type Decoded<T> = (
-    T,
-    u16,
-    Vec<u8>,
-    Option<i64>,
-    Option<String>,
-    Option<crate::Pagination>,
-);
+pub(crate) struct Decoded<T> {
+    pub(crate) reply: T,
+    pub(crate) status: u16,
+    pub(crate) body: Vec<u8>,
+    pub(crate) fetched: Option<i64>,
+    pub(crate) content_range: Option<String>,
+    pub(crate) pagination: Option<crate::Pagination>,
+}
 #[derive(serde::Serialize)]
 struct Wire {
     fetched: Option<i64>,
@@ -572,13 +572,13 @@ impl Leg<'_> {
             std::borrow::Cow::Borrowed(_) => response.body,
             std::borrow::Cow::Owned(body) => body,
         };
-        Ok((
+        Ok(Decoded {
             reply,
             status,
             body,
-            response.fetched,
-            response.content_range,
-            response.pagination,
-        ))
+            fetched: response.fetched,
+            content_range: response.content_range,
+            pagination: response.pagination,
+        })
     }
 }
