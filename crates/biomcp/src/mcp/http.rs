@@ -199,7 +199,7 @@ impl Service {
                         Some(revision),
                     );
                 };
-                let fetch = if self.globals.hosted {
+                let keys = if self.globals.hosted {
                     let keys = match request.source_keys() {
                         Ok(keys) => keys,
                         Err(_) => {
@@ -210,14 +210,17 @@ impl Service {
                             );
                         }
                     };
-                    self.fetch
-                        .as_ref()
-                        .map(|fetch| Arc::new(fetch.with_request_secrets(keys)))
-                        .map_err(Clone::clone)
+                    Some(keys)
                 } else {
-                    self.fetch.clone()
+                    None
                 };
-                match super::research::execute(&call, &self.globals, &fetch, true) {
+                match super::research::execute(
+                    &call,
+                    &self.globals,
+                    &self.fetch,
+                    true,
+                    keys.as_ref(),
+                ) {
                     Ok(outcome) => super::protocol::tool_result(id, &outcome, modern),
                     Err(_) => super::protocol::error(id, -32603, "Internal error"),
                 }

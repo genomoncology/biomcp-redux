@@ -89,11 +89,12 @@ impl Secrets {
             }),
         );
     }
-    pub(crate) fn overlay(
-        &mut self,
+    /// Resolve this command's hosted credentials from caller keys and declared tiers.
+    pub fn hosted(
+        mut self,
         request: Option<&Self>,
         no_fallback: impl IntoIterator<Item = SecretName>,
-    ) {
+    ) -> Self {
         for name in no_fallback {
             self.0.remove(&name);
         }
@@ -104,6 +105,7 @@ impl Secrets {
                 }
             }
         }
+        self
     }
     pub(crate) fn invalid(&self, name: SecretName) -> bool {
         self.0.get(&name).is_some_and(|value| match value {

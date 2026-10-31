@@ -152,7 +152,6 @@ impl Default for FetchConfig {
 )]
 #[derive(Clone)]
 pub struct Fetch {
-    request_secrets: Option<std::sync::Arc<Secrets>>,
     secrets: std::sync::Arc<Secrets>,
     agents: std::sync::Arc<network::Agents>,
     grpc_worker: std::sync::Arc<grpc::Worker>,
@@ -216,7 +215,6 @@ impl Fetch {
         let clock =
             matches!(config.mode, Mode::Replay { .. }).then(deadline::VirtualClock::default);
         Ok(Self {
-            request_secrets: None,
             secrets: std::sync::Arc::new(std::mem::take(&mut config.secrets)),
             agents: std::sync::Arc::new(agents),
             grpc_worker,
@@ -278,23 +276,6 @@ impl Fetch {
         let mut fetch = self.clone();
         fetch.secrets = std::sync::Arc::new(secrets);
         fetch
-    }
-
-    /// Attach an immutable caller credential overlay to this call only.
-    pub fn with_request_secrets(&self, secrets: Secrets) -> Self {
-        let mut fetch = self.clone();
-        fetch.request_secrets = Some(std::sync::Arc::new(secrets));
-        fetch
-    }
-
-    /// Resolve one hosted command snapshot from declared source policies.
-    pub fn hosted_secrets(
-        &self,
-        mut server: Secrets,
-        no_fallback: impl IntoIterator<Item = SecretName>,
-    ) -> Secrets {
-        server.overlay(self.request_secrets.as_deref(), no_fallback);
-        server
     }
 
     /// Report whether a configured credential is nonempty without exposing it.
