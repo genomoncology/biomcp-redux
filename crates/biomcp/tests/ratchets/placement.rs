@@ -5,7 +5,7 @@ use std::{fs, path::Path};
 const ALLOWED: &[(&str, &str)] = &[
     (
         "crates/biomcp/tests/ratchets/source_declaration_proof.rs",
-        "Plant missing publisher terms, undeclared policies, mismatched source identities and unnamed provider facts at the structural boundary.",
+        "Plant source declaration omissions, identity mismatches, unnamed provider facts and transport source literals at the structural boundary.",
     ),
     (
         "crates/biomcp-adapters/tests/source_declarations.rs",

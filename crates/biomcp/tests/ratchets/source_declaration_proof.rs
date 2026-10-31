@@ -187,3 +187,15 @@ fn generic_source_constructor_rejects_unnamed_provider_facts() -> Check {
     }
     Ok(())
 }
+
+#[test]
+fn transport_source_names_have_no_legacy_exceptions() -> Check {
+    for file in ["secret.rs", "cache/schema.rs", "bundle/transfer.rs"] {
+        super::proof_support::rejects(
+            &format!("crates/biomcp-fetch/src/{file}"),
+            "const PLANTED_PROVIDER: &str = \"hgnc\";",
+            "transport names source hgnc",
+        )?;
+    }
+    Ok(())
+}
