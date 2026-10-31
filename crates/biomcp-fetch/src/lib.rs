@@ -72,6 +72,10 @@ pub trait Reply: serde::de::DeserializeOwned {
     fn discovery(&self) -> Option<Identities> {
         None
     }
+    /// Complete checked provider sequences when discovery spans identifier namespaces.
+    fn discoveries(&self) -> Option<Vec<Identities>> {
+        None
+    }
     /// Explicit namespace and ID parameter used by this dependent request.
     fn input_parameter() -> Option<(&'static str, &'static str)> {
         None

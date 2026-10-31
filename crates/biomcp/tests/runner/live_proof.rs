@@ -394,7 +394,15 @@ fn comparison() -> Result<(), Box<dyn std::error::Error>> {
 // A sampler cannot prove absence beyond its field or array window.
 fn sampling(observations: &[Observation]) -> Result<(), Box<dyn std::error::Error>> {
     use biomcp_fetch::Shape;
+    let historical: Shape = serde_json::from_value(json!({"fields": {}, "positive": {}, "header": null}))?;
+    if !historical.incomplete || Shape::inspect(br#"{}"#, "application/json").incomplete {
+        return Err("unknown historical shape was treated as a complete new inspection".into());
+    }
     let sample = observations.first().ok_or("missing native observation")?;
+    let report = live::compare(&[sample.clone()], &[], &mut Vec::new(), &mut BTreeMap::new());
+    if report.pointer("/items/0/shape_comparison") != Some(&json!("unexamined")) {
+        return Err("unpaired request was described as examined".into());
+    }
     let before = Shape::inspect(br#"{"z":1}"#, "application/json");
     let mut crowded = serde_json::Map::new();
     for index in 0..70 {

@@ -170,8 +170,11 @@ pub struct Author {
     pub name: Option<biodata::Text>,
 }
 impl Reply for Search {
-    fn discovery(&self) -> Option<biomcp_fetch::Identities> {
-        doi_discovery(self.data.iter())
+    fn discoveries(&self) -> Option<Vec<biomcp_fetch::Identities>> {
+        if self.refusals != crate::Refusal::None {
+            return None;
+        }
+        paper_discoveries(self.data.iter())
     }
 
     fn check(&self) -> Result<(), BadReply> {
@@ -277,17 +280,25 @@ impl Paper {
     }
 }
 
-pub(super) fn doi_discovery<'a>(
+pub(super) fn paper_discoveries<'a>(
     papers: impl Iterator<Item = &'a Paper>,
-) -> Option<biomcp_fetch::Identities> {
-    let ids = papers
-        .filter_map(|paper| paper.external_ids.as_ref())
-        .filter(|ids| ids.pubmed.is_none())
-        .filter_map(|ids| ids.doi.as_ref().map(ToString::to_string))
-        .collect();
-    // Checked page and transport limits bound these complete source identities.
-    Some(biomcp_fetch::Identities {
-        namespace: "doi".into(),
-        ids,
-    })
+) -> Option<Vec<biomcp_fetch::Identities>> {
+    let mut pmids = Vec::new();
+    let mut dois = Vec::new();
+    for paper in papers {
+        if paper.refusals != crate::Refusal::None || !paper.problems.is_empty() {
+            return None;
+        }
+        if let Some(ids) = &paper.external_ids {
+            if let Some(pmid) = &ids.pubmed {
+                pmids.push(pmid.to_string());
+            } else if let Some(doi) = &ids.doi {
+                dois.push(doi.to_string());
+            }
+        }
+    }
+    Some(vec![
+        biomcp_fetch::Identities::bounded("pmid", pmids)?,
+        biomcp_fetch::Identities::bounded("doi", dois)?,
+    ])
 }

@@ -72,8 +72,11 @@ impl From<RawRecommendations> for Recommendations {
     }
 }
 impl Reply for Recommendations {
-    fn discovery(&self) -> Option<biomcp_fetch::Identities> {
-        super::search::doi_discovery(self.recommended_papers.iter())
+    fn discoveries(&self) -> Option<Vec<biomcp_fetch::Identities>> {
+        if self.refusals != crate::Refusal::None {
+            return None;
+        }
+        super::search::paper_discoveries(self.recommended_papers.iter())
     }
 
     fn check(&self) -> Result<(), BadReply> {

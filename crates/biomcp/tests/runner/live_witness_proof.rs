@@ -78,6 +78,7 @@ pub(super) fn retained() -> Result<(), String> {
     long_walk_shapes()?;
     retained_context()?;
     doi_context()?;
+    scholar_context().map_err(|error| error.to_string())?;
     discovery_context()
         .and_then(|()| input_context::prove())
         .map_err(|error| error.to_string())
@@ -278,7 +279,8 @@ fn doi_context() -> Result<(), String> {
     .map_err(|error| error.to_string())?;
     let discovery = rows
         .iter()
-        .filter_map(|row| row.provenance.discovery.as_ref())
+        .filter_map(|row| row.provenance.discoveries.as_ref())
+        .flatten()
         .find(|ids| ids.namespace == "doi")
         .ok_or("missing graph DOI discovery")?;
     let inputs = rows
@@ -359,6 +361,26 @@ fn long_walk_shapes() -> Result<(), String> {
     }
     if rows.len() != counts.len() {
         return Err("retained nightly walks omitted".into());
+    }
+    Ok(())
+}
+
+fn scholar_context() -> Result<(), Box<dyn std::error::Error>> {
+    let env = Environment::new()?;
+    let replay = super::super::launch::fixtures().join("replies/article/recommendations/single");
+    let rows = super::observe(&env, &replay, "scholar-identities", &[
+        "article", "recommendations", "34096690", "--limit", "5",
+    ])?;
+    let sequences = rows.iter()
+        .find(|row| row.source == biomcp_types::Source::SemanticScholar)
+        .and_then(|row| row.provenance.discoveries.as_ref())
+        .ok_or("provider namespace sequences absent")?;
+    let find = |namespace| sequences.iter().find(|ids| ids.namespace == namespace)
+        .map(|ids| ids.ids.iter().map(String::as_str).collect::<Vec<_>>());
+    if find("pmid") != Some(vec!["42745055", "42685317", "42846599", "42891951"])
+        || find("doi") != Some(vec!["10.1158/1538-7445.pancreatic26-b074"])
+    {
+        return Err("provider PMIDs were inferred, reordered or mixed with DOI fallback".into());
     }
     Ok(())
 }
