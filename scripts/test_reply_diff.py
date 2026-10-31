@@ -305,6 +305,10 @@ class ReplyDiff(unittest.TestCase):
             args = ["sync", "cbioportal-studies"] if sync else ["search", "study", "ATLAS"]
             surface = "cli"
             if step == 1:
+                if mutation == "delimiter":
+                    args = ["--"] + args
+                if mutation == "flag-value":
+                    args = ["--case-cache"] + args
                 frame = {"jsonrpc": "2.0", "method": "tools/call",
                          "params": {"name": "biomcp", "arguments": {"args": args}}}
                 args = ["serve", "<requests>", json.dumps(frame)]
@@ -320,7 +324,7 @@ class ReplyDiff(unittest.TestCase):
             if mutation == "invalid" and step == 2:
                 extra["sequence_start"] = "4"
             if mutation == "duplicate" and step == 2:
-                extra["sequence_end"] = 1
+                extra["sequence_end"] = 38
             self.write(directory, "case/sync.yaml/step/" + str(step),
                        json.dumps(value).encode(), args=args, root=root, surface=surface, **extra)
 
@@ -329,7 +333,8 @@ class ReplyDiff(unittest.TestCase):
         self.catalog_sync_capture(self.head, "head")
         result = self.compare()
         self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
-        for mutation in ["superseded", "overlap", "missing", "invalid", "duplicate"]:
+        for mutation in ["superseded", "overlap", "missing", "invalid", "duplicate",
+                         "delimiter", "flag-value"]:
             with self.subTest(mutation=mutation):
                 self.catalog_sync_capture(self.head, "head", mutation)
                 self.assertNotEqual(self.compare().returncode, 0)

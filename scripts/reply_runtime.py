@@ -311,7 +311,7 @@ def align(base, head, normalize, bindings=None):
     """Alias changed trial hashes through declared paths and bound opaque IDs."""
     roots = (record_roots(base), record_roots(head))
     bindings = bindings if bindings is not None else Bindings()
-    bindings.acquisitions = tuple(acquisition_events(records, owner) for records in (base, head))
+    bindings.acquisitions = tuple(acquisition_events(records, owner, _mcp_arguments) for records in (base, head))
     # Shared capture keys declare runtime IDs before hashed requests are aligned.
     for key in sorted(base.keys() & head.keys()):
         for i, (a, b) in enumerate(zip(base[key]['executions'], head[key]['executions'])):

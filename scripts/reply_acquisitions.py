@@ -4,6 +4,7 @@ import json
 
 def catalog_root(execution):
     args = execution['args']
+    args = args[:args.index('--')] if '--' in args else args
     if args.count('--case-cache') == 1 and args.index('--case-cache') + 1 < len(args):
         return args[args.index('--case-cache') + 1]
     return execution.get('root')
@@ -19,30 +20,40 @@ def document(execution):
         return {}
 
 
-def accepted_sync(execution, value):
+def captured_command(args, command):
+    """Accept the capture's two path globals and one exact command, fail closed otherwise."""
+    if args[-len(command):] != command:
+        return False
+    prefix = args[:-len(command)]
+    return (len(prefix) % 2 == 0 and all(
+        prefix[i] in ('--replay', '--case-cache')
+        and isinstance(prefix[i + 1], str) and prefix[i + 1].startswith('/')
+        for i in range(0, len(prefix), 2)))
+
+
+def accepted_sync(execution, value, mcp_arguments):
     args = execution['args']
-    if execution['surface'] == 'mcp' and '<requests>' in args:
-        frames = args[args.index('<requests>') + 1:]
-        if len(frames) != 1:
+    if execution['surface'] == 'mcp':
+        frames = list(mcp_arguments(execution))
+        if (len(frames) != 1 or args.count('<requests>') != 1
+                or len(args) - args.index('<requests>') != 2
+                or args[:1] != ['serve']
+                or not captured_command(args[1:args.index('<requests>')] + ['serve'], ['serve'])):
             return False
-        try:
-            frame = json.loads(frames[0])
-            if (frame.get('method') != 'tools/call'
-                    or frame['params'].get('name') != 'biomcp'):
-                return False
-            args = frame['params']['arguments']['args']
-        except (ValueError, KeyError, TypeError):
-            return False
-    command = any(args[i:i + 2] == ['sync', 'cbioportal-studies']
-                  for i in range(len(args) - 1))
-    return (command and execution['exit'] == 0
-            and value.get('schema') == 'biomcp.sync/7'
+        args = frames[0][2]
+    elif execution['surface'] != 'cli':
+        return False
+    # This Document catalog cannot revalidate with 304: download passes old=None.
+    # One CLI command / MCP frame has no prior Fetch-local replay import to reuse.
+    # Other sources and unsupported launch syntax receive no event declaration.
+    return (captured_command(args, ['sync', 'cbioportal-studies'])
+            and execution['exit'] == 0 and value.get('schema') == 'biomcp.sync/7'
             and value.get('query', {}).get('source') == 'cbioportal'
             and any(source.get('source') == 'cbioportal' and source.get('state') == 'ok'
                     for source in value.get('sources', [])))
 
 
-def acquisition_events(records, owner):
+def acquisition_events(records, owner, mcp_arguments):
     """Map an execution to its observed active sync ordinal; never infer old order."""
     owners = {}
     for key, record in records.items():
@@ -70,7 +81,7 @@ def acquisition_events(records, owner):
                 (start, end, execution, value, snapshot))
         for entries in groups.values():
             entries.sort(key=lambda entry: entry[0])
-            syncs = [entry for entry in entries if accepted_sync(entry[2], entry[3])]
+            syncs = [entry for entry in entries if accepted_sync(entry[2], entry[3], mcp_arguments)]
             if not syncs:
                 continue
             active, ordinal = None, -1
@@ -78,7 +89,7 @@ def acquisition_events(records, owner):
                 for sync_start, sync_end, sync, _, _ in syncs:
                     if sync is not execution and start < sync_end and sync_start < end:
                         raise ValueError('overlapping catalog acquisition and execution')
-                if accepted_sync(execution, value):
+                if accepted_sync(execution, value, mcp_arguments):
                     active = snapshot
                     ordinal += 1
                 elif active is None or snapshot != active:
