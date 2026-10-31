@@ -6,11 +6,11 @@ pub(crate) static DECL: SourceDecl = SourceDecl {
     registry_order: Some(53),
     probe: Probe::Get("/metadata", &[]),
     components: &[
-        COMPONENT_3,
-        COMPONENT_4,
-        COMPONENT_5,
-        COMPONENT_6,
-        COMPONENT_7,
+        MONDO_COMPONENT,
+        DOID_COMPONENT,
+        HPO_COMPONENT,
+        ORPHANET_COMPONENT,
+        OMIM_COMPONENT,
     ],
     auxiliary: &[],
     bundles: &[],
@@ -25,7 +25,7 @@ pub(crate) static ORPHANET: SourceDecl = SourceDecl {
     spec: &crate::decl::component_spec(
         biomcp_types::Source::Orphanet,
         &super::SPEC,
-        crate::mydisease::decl::COMPONENT_6.terms,
+        ORPHANET_COMPONENT.terms,
     ),
     display: "Orphadata Science",
     registry_order: None,
@@ -44,7 +44,7 @@ pub(crate) static OMIM: SourceDecl = SourceDecl {
     spec: &crate::decl::component_spec(
         biomcp_types::Source::Omim,
         &super::SPEC,
-        crate::mydisease::decl::COMPONENT_7.terms,
+        OMIM_COMPONENT.terms,
     ),
     display: "OMIM",
     registry_order: None,
@@ -59,7 +59,7 @@ pub(crate) static OMIM: SourceDecl = SourceDecl {
     key: None,
 };
 
-pub(crate) const COMPONENT_3: crate::registry::Component =
+pub(crate) const MONDO_COMPONENT: crate::registry::Component =
     crate::disease_sources::components::component(
         biomcp_types::Source::MyDisease,
         biomcp_types::Source::Mondo,
@@ -67,7 +67,7 @@ pub(crate) const COMPONENT_3: crate::registry::Component =
         crate::disease_sources::components::MONDO,
     );
 
-pub(crate) const COMPONENT_4: crate::registry::Component =
+pub(crate) const DOID_COMPONENT: crate::registry::Component =
     crate::disease_sources::components::component(
         biomcp_types::Source::MyDisease,
         biomcp_types::Source::Doid,
@@ -75,7 +75,7 @@ pub(crate) const COMPONENT_4: crate::registry::Component =
         crate::disease_sources::components::DOID,
     );
 
-pub(crate) const COMPONENT_5: crate::registry::Component =
+pub(crate) const HPO_COMPONENT: crate::registry::Component =
     crate::disease_sources::components::component(
         biomcp_types::Source::MyDisease,
         biomcp_types::Source::Hpo,
@@ -83,7 +83,7 @@ pub(crate) const COMPONENT_5: crate::registry::Component =
         crate::disease_sources::components::HPO,
     );
 
-pub(crate) const COMPONENT_6: crate::registry::Component =
+pub(crate) const ORPHANET_COMPONENT: crate::registry::Component =
     crate::disease_sources::components::component(
         biomcp_types::Source::MyDisease,
         biomcp_types::Source::Orphanet,
@@ -91,7 +91,7 @@ pub(crate) const COMPONENT_6: crate::registry::Component =
         crate::disease_sources::components::ORPHANET,
     );
 
-pub(crate) const COMPONENT_7: crate::registry::Component =
+pub(crate) const OMIM_COMPONENT: crate::registry::Component =
     crate::disease_sources::components::component(
         biomcp_types::Source::MyDisease,
         biomcp_types::Source::Omim,

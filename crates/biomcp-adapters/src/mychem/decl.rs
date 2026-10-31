@@ -6,13 +6,13 @@ pub(crate) static DECL: SourceDecl = SourceDecl {
     registry_order: Some(44),
     probe: Probe::Get("/metadata", &[]),
     components: &[
-        COMPONENT_0,
-        COMPONENT_1,
-        COMPONENT_2,
-        COMPONENT_3,
-        COMPONENT_4,
-        COMPONENT_5,
-        COMPONENT_6,
+        DRUGBANK_COMPONENT,
+        CHEMBL_COMPONENT,
+        DRUGCENTRAL_COMPONENT,
+        GTOPDB_COMPONENT,
+        UNII_COMPONENT,
+        NDC_COMPONENT,
+        OPENFDA_COMPONENT,
     ],
     auxiliary: &[],
     bundles: &[],
@@ -27,7 +27,7 @@ pub(crate) static DRUGBANKOPEN: SourceDecl = SourceDecl {
     spec: &crate::decl::component_spec(
         biomcp_types::Source::DrugbankOpen,
         &super::SPEC,
-        crate::mychem::decl::COMPONENT_0.terms,
+        DRUGBANK_COMPONENT.terms,
     ),
     display: "DrugBank Open",
     registry_order: None,
@@ -46,7 +46,7 @@ pub(crate) static DRUGCENTRAL: SourceDecl = SourceDecl {
     spec: &crate::decl::component_spec(
         biomcp_types::Source::Drugcentral,
         &super::SPEC,
-        crate::mychem::decl::COMPONENT_2.terms,
+        DRUGCENTRAL_COMPONENT.terms,
     ),
     display: "DrugCentral",
     registry_order: None,
@@ -65,7 +65,7 @@ pub(crate) static GTOPDB: SourceDecl = SourceDecl {
     spec: &crate::decl::component_spec(
         biomcp_types::Source::Gtopdb,
         &super::SPEC,
-        crate::mychem::decl::COMPONENT_3.terms,
+        GTOPDB_COMPONENT.terms,
     ),
     display: "Guide to Pharmacology",
     registry_order: None,
@@ -84,7 +84,7 @@ pub(crate) static UNII: SourceDecl = SourceDecl {
     spec: &crate::decl::component_spec(
         biomcp_types::Source::Unii,
         &super::SPEC,
-        crate::mychem::decl::COMPONENT_4.terms,
+        UNII_COMPONENT.terms,
     ),
     display: "FDA UNII",
     registry_order: None,
@@ -103,7 +103,7 @@ pub(crate) static NDC: SourceDecl = SourceDecl {
     spec: &crate::decl::component_spec(
         biomcp_types::Source::Ndc,
         &super::SPEC,
-        crate::mychem::decl::COMPONENT_5.terms,
+        NDC_COMPONENT.terms,
     ),
     display: "FDA NDC",
     registry_order: None,
@@ -122,7 +122,7 @@ pub(crate) static OPENFDAXREF: SourceDecl = SourceDecl {
     spec: &crate::decl::component_spec(
         biomcp_types::Source::OpenfdaXref,
         &super::SPEC,
-        crate::mychem::decl::COMPONENT_6.terms,
+        OPENFDA_COMPONENT.terms,
     ),
     display: "openFDA cross-reference",
     registry_order: None,
@@ -137,7 +137,7 @@ pub(crate) static OPENFDAXREF: SourceDecl = SourceDecl {
     key: None,
 };
 
-pub(crate) const COMPONENT_0: crate::registry::Component =
+pub(crate) const DRUGBANK_COMPONENT: crate::registry::Component =
     crate::drug_sources::components::component(
         "drugbank",
         biomcp_types::Source::DrugbankOpen,
@@ -148,14 +148,14 @@ pub(crate) const COMPONENT_0: crate::registry::Component =
         },
     );
 
-pub(crate) const COMPONENT_1: crate::registry::Component =
+pub(crate) const CHEMBL_COMPONENT: crate::registry::Component =
     crate::drug_sources::components::component(
         "chembl",
         biomcp_types::Source::Chembl,
         crate::drug_sources::CHEMBL_TERMS,
     );
 
-pub(crate) const COMPONENT_2: crate::registry::Component =
+pub(crate) const DRUGCENTRAL_COMPONENT: crate::registry::Component =
     crate::drug_sources::components::component(
         "drugcentral",
         biomcp_types::Source::Drugcentral,
@@ -166,7 +166,7 @@ pub(crate) const COMPONENT_2: crate::registry::Component =
         },
     );
 
-pub(crate) const COMPONENT_3: crate::registry::Component =
+pub(crate) const GTOPDB_COMPONENT: crate::registry::Component =
     crate::drug_sources::components::component(
         "gtopdb",
         biomcp_types::Source::Gtopdb,
@@ -177,7 +177,7 @@ pub(crate) const COMPONENT_3: crate::registry::Component =
         },
     );
 
-pub(crate) const COMPONENT_4: crate::registry::Component =
+pub(crate) const UNII_COMPONENT: crate::registry::Component =
     crate::drug_sources::components::component(
         "unii",
         biomcp_types::Source::Unii,
@@ -188,7 +188,7 @@ pub(crate) const COMPONENT_4: crate::registry::Component =
         },
     );
 
-pub(crate) const COMPONENT_5: crate::registry::Component =
+pub(crate) const NDC_COMPONENT: crate::registry::Component =
     crate::drug_sources::components::component(
         "ndc",
         biomcp_types::Source::Ndc,
@@ -199,7 +199,7 @@ pub(crate) const COMPONENT_5: crate::registry::Component =
         },
     );
 
-pub(crate) const COMPONENT_6: crate::registry::Component =
+pub(crate) const OPENFDA_COMPONENT: crate::registry::Component =
     crate::drug_sources::components::component(
         "openfda",
         biomcp_types::Source::OpenfdaXref,

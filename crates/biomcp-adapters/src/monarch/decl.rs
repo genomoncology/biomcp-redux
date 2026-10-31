@@ -18,7 +18,7 @@ pub(crate) static DECL: SourceDecl = SourceDecl {
     display: "Monarch",
     registry_order: Some(54),
     probe: Probe::Custom(probe),
-    components: &[COMPONENT_8, COMPONENT_9],
+    components: &[HPO_COMPONENT, ORPHANET_COMPONENT],
     auxiliary: &[],
     bundles: &[],
     guidance: Guidance {
@@ -28,7 +28,7 @@ pub(crate) static DECL: SourceDecl = SourceDecl {
     key: None,
 };
 
-pub(crate) const COMPONENT_8: crate::registry::Component =
+pub(crate) const HPO_COMPONENT: crate::registry::Component =
     crate::disease_sources::components::component(
         biomcp_types::Source::Monarch,
         biomcp_types::Source::Hpo,
@@ -36,7 +36,7 @@ pub(crate) const COMPONENT_8: crate::registry::Component =
         crate::disease_sources::components::HPO,
     );
 
-pub(crate) const COMPONENT_9: crate::registry::Component =
+pub(crate) const ORPHANET_COMPONENT: crate::registry::Component =
     crate::disease_sources::components::component(
         biomcp_types::Source::Monarch,
         biomcp_types::Source::Orphanet,

@@ -2,8 +2,8 @@
 use crate::{Ctx, gene};
 
 use crate::Outcome;
-use biomcp_types::Request;
 pub use biomcp_adapters::decl::Bundle;
+use biomcp_types::Request;
 /// Typed action before an interface spells command arguments.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Action {

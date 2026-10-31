@@ -76,11 +76,17 @@ fn help_tree(command: &Command) -> Command {
         .subcommands(command.get_subcommands().map(help_tree))
 }
 
-pub(super) fn help_source(matches: &clap::ArgMatches) -> Result<biomcp_fetch::SecretName, super::ParseInvalid> {
-    let word = matches.subcommand().filter(|(name, _)| *name == "key")
+pub(super) fn help_source(
+    matches: &clap::ArgMatches,
+) -> Result<biomcp_fetch::SecretName, super::ParseInvalid> {
+    let word = matches
+        .subcommand()
+        .filter(|(name, _)| *name == "key")
         .and_then(|(_, matches)| matches.get_one::<String>("source"));
     match word {
-        Some(word) => biomcp_query::sources::keys().into_iter().find(|&name| biomcp_query::sources::key_name(name) == word)
+        Some(word) => biomcp_query::sources::keys()
+            .into_iter()
+            .find(|&name| biomcp_query::sources::key_name(name) == word)
             .ok_or_else(super::ParseInvalid::default),
         None => Ok(biomcp_fetch::SecretName::OncokbApiKey),
     }

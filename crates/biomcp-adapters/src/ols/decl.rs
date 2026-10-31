@@ -6,7 +6,7 @@ pub(crate) static DECL: SourceDecl = SourceDecl {
     display: "Ontology Lookup Service",
     registry_order: Some(52),
     probe: Probe::Get("/api/ontologies", &[("size", Arg::Num(1))]),
-    components: &[COMPONENT_0, COMPONENT_1, COMPONENT_2],
+    components: &[MONDO_COMPONENT, DOID_COMPONENT, NCIT_COMPONENT],
     auxiliary: &[],
     bundles: &[],
     guidance: Guidance {
@@ -20,7 +20,7 @@ pub(crate) static MONDO: SourceDecl = SourceDecl {
     spec: &crate::decl::component_spec(
         biomcp_types::Source::Mondo,
         &super::SPEC,
-        crate::ols::decl::COMPONENT_0.terms,
+        MONDO_COMPONENT.terms,
     ),
     display: "MONDO",
     registry_order: None,
@@ -39,7 +39,7 @@ pub(crate) static DOID: SourceDecl = SourceDecl {
     spec: &crate::decl::component_spec(
         biomcp_types::Source::Doid,
         &super::SPEC,
-        crate::ols::decl::COMPONENT_1.terms,
+        DOID_COMPONENT.terms,
     ),
     display: "Disease Ontology",
     registry_order: None,
@@ -58,7 +58,7 @@ pub(crate) static NCIT: SourceDecl = SourceDecl {
     spec: &crate::decl::component_spec(
         biomcp_types::Source::Ncit,
         &super::SPEC,
-        crate::ols::decl::COMPONENT_2.terms,
+        NCIT_COMPONENT.terms,
     ),
     display: "NCI Thesaurus",
     registry_order: None,
@@ -73,7 +73,7 @@ pub(crate) static NCIT: SourceDecl = SourceDecl {
     key: None,
 };
 
-pub(crate) const COMPONENT_0: crate::registry::Component =
+pub(crate) const MONDO_COMPONENT: crate::registry::Component =
     crate::disease_sources::components::component(
         biomcp_types::Source::Ols,
         biomcp_types::Source::Mondo,
@@ -81,7 +81,7 @@ pub(crate) const COMPONENT_0: crate::registry::Component =
         crate::disease_sources::components::MONDO,
     );
 
-pub(crate) const COMPONENT_1: crate::registry::Component =
+pub(crate) const DOID_COMPONENT: crate::registry::Component =
     crate::disease_sources::components::component(
         biomcp_types::Source::Ols,
         biomcp_types::Source::Doid,
@@ -89,7 +89,7 @@ pub(crate) const COMPONENT_1: crate::registry::Component =
         crate::disease_sources::components::DOID,
     );
 
-pub(crate) const COMPONENT_2: crate::registry::Component =
+pub(crate) const NCIT_COMPONENT: crate::registry::Component =
     crate::disease_sources::components::component(
         biomcp_types::Source::Ols,
         biomcp_types::Source::Ncit,

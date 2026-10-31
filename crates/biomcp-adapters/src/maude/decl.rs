@@ -10,7 +10,7 @@ pub(crate) static DECL: SourceDecl = SourceDecl {
     display: "FDA MAUDE",
     registry_order: Some(58),
     probe: Probe::Custom(probe),
-    components: &[COMPONENT_1],
+    components: &[GMDN_COMPONENT],
     auxiliary: &[],
     bundles: &[],
     guidance: Guidance {
@@ -24,7 +24,7 @@ pub(crate) static GMDN: SourceDecl = SourceDecl {
     spec: &crate::decl::component_spec(
         biomcp_types::Source::Gmdn,
         &super::SPEC,
-        crate::maude::decl::COMPONENT_1.terms,
+        GMDN_COMPONENT.terms,
     ),
     display: "GMDN",
     registry_order: None,
@@ -39,7 +39,7 @@ pub(crate) static GMDN: SourceDecl = SourceDecl {
     key: None,
 };
 
-pub(crate) const COMPONENT_1: crate::registry::Component = crate::registry::Component {
+pub(crate) const GMDN_COMPONENT: crate::registry::Component = crate::registry::Component {
     source: biomcp_types::Source::Maude,
     native_source: Some(biomcp_types::Source::Gmdn),
     name: "gmdn",

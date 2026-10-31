@@ -10,7 +10,7 @@ pub(crate) static DECL: SourceDecl = SourceDecl {
     display: "FDA FAERS",
     registry_order: Some(57),
     probe: Probe::Custom(probe),
-    components: &[COMPONENT_0],
+    components: &[MEDDRA_COMPONENT],
     auxiliary: &[],
     bundles: &[],
     guidance: Guidance {
@@ -24,7 +24,7 @@ pub(crate) static MEDDRA: SourceDecl = SourceDecl {
     spec: &crate::decl::component_spec(
         biomcp_types::Source::Meddra,
         &super::SPEC,
-        crate::faers::decl::COMPONENT_0.terms,
+        MEDDRA_COMPONENT.terms,
     ),
     display: "MedDRA",
     registry_order: None,
@@ -39,7 +39,7 @@ pub(crate) static MEDDRA: SourceDecl = SourceDecl {
     key: None,
 };
 
-pub(crate) const COMPONENT_0: crate::registry::Component = crate::registry::Component {
+pub(crate) const MEDDRA_COMPONENT: crate::registry::Component = crate::registry::Component {
     source: biomcp_types::Source::Faers,
     native_source: Some(biomcp_types::Source::Meddra),
     name: "meddra",

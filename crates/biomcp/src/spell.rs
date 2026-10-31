@@ -36,12 +36,12 @@ pub(crate) fn action_args(action: &Action) -> Result<Vec<String>, serde_json::Er
             .collect()),
         Action::StoreClean => Ok(vec!["store".into(), "clean".into()]),
         Action::Health => Ok(vec!["health".into()]),
-        Action::KeyHelp(source) => Ok(vec!["help".into(), "key".into(), biomcp_query::sources::key_name(*source).into()]),
-        Action::Sync { bundle } => Ok(vec![
-            "sync".into(),
-            bundle.name()
-            .into(),
+        Action::KeyHelp(source) => Ok(vec![
+            "help".into(),
+            "key".into(),
+            biomcp_query::sources::key_name(*source).into(),
         ]),
+        Action::Sync { bundle } => Ok(vec!["sync".into(), bundle.name().into()]),
         Action::Run { request, fresh } => {
             let mut args = request_args(request)?;
             if *fresh {

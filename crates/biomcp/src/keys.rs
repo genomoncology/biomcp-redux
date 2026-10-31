@@ -11,7 +11,10 @@ pub(crate) enum Command {
     Remove(SecretName),
 }
 pub(crate) fn names() -> Vec<&'static str> {
-    biomcp_query::sources::keys().iter().map(|&name| biomcp_query::sources::key_name(name)).collect()
+    biomcp_query::sources::keys()
+        .iter()
+        .map(|&name| biomcp_query::sources::key_name(name))
+        .collect()
 }
 pub(crate) fn grammar() -> clap::Command {
     let source = || {
