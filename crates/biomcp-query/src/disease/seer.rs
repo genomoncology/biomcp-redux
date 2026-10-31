@@ -2,7 +2,7 @@ use crate::{Action, Ctx, Outcome, status};
 use biomcp_adapters::seer;
 use biomcp_types::{
     DiseaseGet, DiseaseIncidence, DiseaseSearch, DiseaseSection, DiseaseSites, DiseaseSurvival,
-    PageInfo, QueryBody, Request, Source, Status, StepKind,
+    QueryBody, Request, Source, StepKind,
 };
 
 /// Page the native site catalog without selecting an ontology identity.
@@ -21,6 +21,7 @@ pub fn search(cx: &Ctx<'_>, query: &DiseaseSearch) -> Outcome {
         .push(status::source(Source::Seer, leg.finish(), error));
     out.local = error.and_then(status::local);
     if let Ok(page) = reply {
+        out.include_refusals(page.window.refusals());
         let total = page.window.total().unwrap_or(0);
         let returned = page.window.rows.len() as u32;
         out.page = Some(page_info(query.offset(), returned, total));
@@ -36,7 +37,7 @@ pub fn search(cx: &Ctx<'_>, query: &DiseaseSearch) -> Outcome {
             components: Box::default(),
             fetched: fetched(page.metadata.fetched),
         });
-        out.status = overall(&out, total == 0);
+        crate::status::search(&mut out);
     }
     command.finish(deadline.remaining());
     out
@@ -75,6 +76,7 @@ pub fn get(cx: &Ctx<'_>, query: &DiseaseGet) -> Outcome {
         .push(status::source(Source::Seer, leg.finish(), error));
     out.local = error.and_then(status::local);
     if let Ok(page) = reply {
+        out.include_refusals(page.window.refusals());
         let total = page.window.total().unwrap_or(0);
         let returned = page.window.rows.len() as u32;
         out.page = Some(page_info(query.section_offset(), returned, total));
@@ -102,7 +104,7 @@ pub fn get(cx: &Ctx<'_>, query: &DiseaseGet) -> Outcome {
                 fetched: fetched(page.metadata.fetched),
             })
         };
-        out.status = overall(&out, total == 0);
+        crate::status::item(&mut out, total != 0, false, false);
     }
     super::page::record_problem(&mut out, query, Source::Seer);
     command.finish(deadline.remaining());
@@ -111,43 +113,11 @@ pub fn get(cx: &Ctx<'_>, query: &DiseaseGet) -> Outcome {
 fn fetched(value: Option<i64>) -> Option<u64> {
     value.and_then(|value| u64::try_from(value).ok())
 }
-fn empty(body: QueryBody) -> Outcome {
-    Outcome {
-        status: Status::Failed,
-        body,
-        page: None,
-        sources: Vec::new(),
-        problems: Vec::new(),
-        next: Vec::new(),
-        local: None,
-    }
-}
-fn page_info(offset: u32, returned: u32, total: u64) -> PageInfo {
-    PageInfo {
-        offset,
-        returned,
-        total,
-        pool: None,
-        truncated: None,
-    }
-}
+pub(super) use crate::status::empty;
+pub(super) use crate::status::page_info;
 fn run(request: Request) -> Action {
     Action::Run {
         request,
         fresh: false,
-    }
-}
-fn overall(out: &Outcome, absent: bool) -> Status {
-    if !out.problems.is_empty()
-        || out
-            .sources
-            .iter()
-            .any(|s| s.state == biomcp_types::SourceState::Stale)
-    {
-        Status::Partial
-    } else if absent {
-        Status::Absent
-    } else {
-        Status::Complete
     }
 }

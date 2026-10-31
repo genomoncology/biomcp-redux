@@ -3,7 +3,7 @@ use biomcp_adapters::{drugsfda as source, received_date};
 use biomcp_fetch::RequestError;
 use biomcp_types::{
     DrugApprovals, DrugGet, DrugRecords, PageInfo, QueryBody, Reason, Request, Section, Source,
-    Status, StepKind,
+    StepKind,
 };
 pub(super) fn select(
     cx: &Ctx<'_>,
@@ -24,7 +24,7 @@ pub(super) fn select(
         .map(|p| p.mapped())
         .collect();
     let approvals = if query.product_number().is_some() && products.is_empty() {
-        out.status = Status::Partial;
+        crate::status::item(out, true, false, true);
         Section::unavailable(Source::Drugsfda, Reason::NotFound)
     } else {
         let offset = query.section_offset().unwrap_or(0);

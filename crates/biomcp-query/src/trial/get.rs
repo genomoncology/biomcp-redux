@@ -24,7 +24,7 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &TrialGet) -> Outcome {
         fetch(cx, query, deadline, &mut out)
     };
     if let Err(error) = result {
-        out.status = Status::Failed;
+        crate::status::item(&mut out, false, true, false);
         out.local = status::local(error);
     }
     command.finish(deadline.remaining());
@@ -90,9 +90,9 @@ fn fetch(
             Err(e) => items.push(unresolved(
                 *id,
                 if not_found(e) {
-                    Status::Absent
+                    crate::status::item_status(false, false, false)
                 } else {
-                    Status::Failed
+                    crate::status::item_status(false, true, false)
                 },
             )),
         }
@@ -116,7 +116,14 @@ fn restore(
             leg.finish(),
             error,
         ));
-        finish(vec![unresolved(id, Status::Failed)], None, out);
+        finish(
+            vec![unresolved(
+                id,
+                crate::status::item_status(false, true, false),
+            )],
+            None,
+            out,
+        );
         return Ok(());
     }
     let store = Store::open(cx.fetch.cache_access()?, deadline)?;
@@ -168,7 +175,7 @@ fn finish(
     source_updated: Option<biomcp_types::SourceTimestamp>,
     out: &mut Outcome,
 ) {
-    out.status = status::status(items.iter().map(|i| i.status));
+    status::get(out, items.iter().map(|i| i.status));
     out.body = QueryBody::TrialCards(TrialCards {
         items: items.into(),
         source_updated: source_updated.map(Into::into),
@@ -176,25 +183,18 @@ fn finish(
     });
 }
 fn empty() -> Outcome {
-    Outcome {
-        status: Status::Failed,
-        body: QueryBody::TrialCards(TrialCards {
-            items: Box::default(),
-            source_updated: None,
-            attribution: "ClinicalTrials.gov".into(),
-        }),
-        page: None,
-        sources: Vec::new(),
-        problems: Vec::new(),
-        next: Vec::new(),
-        local: None,
-    }
+    crate::status::empty(QueryBody::TrialCards(TrialCards {
+        items: Box::default(),
+        source_updated: None,
+        attribution: "ClinicalTrials.gov".into(),
+    }))
 }
 fn partial(snapshot: &Snapshot) -> bool {
-    !snapshot.detail.problems.is_empty()
-        || snapshot.version.is_none()
-        || snapshot
-            .sources
-            .iter()
-            .any(|s| s.state == SourceState::Stale)
+    snapshot.detail.refusals == biomcp_adapters::Refusal::Refused
+        || snapshot.sources.iter().any(|s| {
+            matches!(
+                s.state,
+                SourceState::Failed | SourceState::Stale | SourceState::Syncing
+            )
+        })
 }

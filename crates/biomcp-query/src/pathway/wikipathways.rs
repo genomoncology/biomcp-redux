@@ -1,4 +1,4 @@
-use super::{empty, overall, run, snapshot};
+use super::{empty, run, snapshot};
 use crate::{Action, Bundle, Ctx, Outcome, status};
 use biodata::PathwayId;
 use biomcp_adapters::wikipathways;
@@ -35,6 +35,7 @@ pub(super) fn headers(
     let (items, info) = reply?;
     let total = items.value.len() as u64;
     Ok(snapshot::Saved {
+        dropped: items.refusals == biomcp_adapters::Refusal::Refused,
         body: PathwayPage {
             items: items.value.into(),
             page: PathwayPageInfo {
@@ -73,6 +74,7 @@ pub(super) fn get(cx: &Ctx<'_>, q: &PathwayGet) -> Outcome {
     out.sources
         .push(status::source(Source::WikiPathways, leg.finish(), error));
     if let Ok(mapped) = reply {
+        out.include_refusals(mapped.refusals);
         out.problems.extend(mapped.problems);
         let mut card = mapped.value;
         let absent = card.is_none();
@@ -90,7 +92,9 @@ pub(super) fn get(cx: &Ctx<'_>, q: &PathwayGet) -> Outcome {
         }
         if !matches!(out.body, QueryBody::PoolError { .. }) {
             out.body = QueryBody::PathwayCard(card);
-            out.status = overall(&out, absent);
+            {
+                crate::status::item(&mut out, !absent, false, false);
+            }
         }
     }
     out.local = out.local.or_else(|| error.and_then(status::local));

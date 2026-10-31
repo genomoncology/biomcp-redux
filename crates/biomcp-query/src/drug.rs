@@ -10,8 +10,7 @@ pub(crate) mod who;
 use crate::{Action, Ctx, Outcome, status};
 use biomcp_adapters::mychem;
 use biomcp_types::{
-    DrugGet, DrugPage, DrugSearch, DrugSource, PageInfo, QueryBody, Request, Source, Status,
-    StepKind,
+    DrugGet, DrugPage, DrugSearch, DrugSource, PageInfo, QueryBody, Request, Source, StepKind,
 };
 /// Search the one selected source, without fan-out or selecting an identity.
 pub fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
@@ -55,6 +54,7 @@ pub fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     out.sources
         .push(status::source(Source::Mychem, leg.finish(), error));
     if let Ok((page, received)) = result {
+        out.include_refusals(page.refusals);
         out.problems = page.problems;
         search_results(query, cx.fresh, page.value, &mut out, received);
     }
@@ -120,14 +120,12 @@ fn selected_get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     out.sources
         .push(status::source(Source::Mychem, leg.finish(), error));
     if let Ok(document) = result {
-        out.status = if out
-            .sources
-            .iter()
-            .any(|s| s.state == biomcp_types::SourceState::Stale)
         {
-            Status::Partial
-        } else {
-            Status::Complete
+            let unavailable = out
+                .sources
+                .iter()
+                .any(|s| s.state == biomcp_types::SourceState::Stale);
+            crate::status::item(&mut out, true, false, unavailable);
         };
         if xrefs {
             link_page(query, cx.fresh, document, &mut out);
@@ -147,8 +145,8 @@ fn selected_get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
                     },
                 ));
             }
-            if !document.problems.is_empty() {
-                out.status = Status::Partial;
+            if document.refusals == biomcp_adapters::Refusal::Refused {
+                crate::status::item(&mut out, true, false, true);
             }
             out.problems = document.problems;
             out.body = QueryBody::DrugCard(Some(document.value.card));
@@ -189,8 +187,8 @@ fn link_page(
             },
         ));
     }
-    if !document.problems.is_empty() {
-        out.status = Status::Partial;
+    if document.refusals == biomcp_adapters::Refusal::Refused {
+        crate::status::item(out, true, false, true);
     }
     out.problems = document.problems;
     out.page = Some(PageInfo {
@@ -216,17 +214,7 @@ fn link_page(
     }));
 }
 
-fn empty(body: QueryBody) -> Outcome {
-    Outcome {
-        status: Status::Failed,
-        body,
-        page: None,
-        sources: Vec::new(),
-        problems: Vec::new(),
-        next: Vec::new(),
-        local: None,
-    }
-}
+pub(super) use crate::status::empty;
 fn unsupported(source: DrugSource, mut out: Outcome) -> Outcome {
     out.sources.push(biomcp_adapters::registry::outcome(
         source.source(),
@@ -273,18 +261,7 @@ fn search_results(
     out: &mut Outcome,
     received: u32,
 ) {
-    out.status = if page.items.is_empty() && out.problems.is_empty() {
-        Status::Absent
-    } else if !out.problems.is_empty()
-        || out
-            .sources
-            .iter()
-            .any(|s| s.state == biomcp_types::SourceState::Stale)
-    {
-        Status::Partial
-    } else {
-        Status::Complete
-    };
+    status::search(out);
     let returned = page.items.len() as u32;
     out.sources.iter_mut().for_each(|s| {
         s.count = page.total;

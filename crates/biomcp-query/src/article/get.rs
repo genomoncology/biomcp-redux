@@ -44,24 +44,33 @@ pub fn get(cx: &Ctx<'_>, query: &ArticleGet) -> Outcome {
     let mut items = Vec::new();
     for (input, resolution) in query.input().iter().zip(resolutions) {
         match resolution {
-            Err(_) => items.push(item(input, Status::Failed, None)),
+            Err(_) => items.push(item(
+                input,
+                crate::status::item_status(false, true, false),
+                None,
+            )),
             Ok(ids) => append(input, &ids, &records, &failures, stale, &mut items),
         }
     }
-    let mut out = Outcome {
-        status: status::status(items.iter().map(|i| i.status)),
-        body: QueryBody::ArticleCards(ArticleCards {
-            items: items.into(),
-        }),
-        sources: sources(query, source),
-        page: None,
-        problems: records
-            .iter()
-            .flat_map(|(record, _)| record.problems.iter().cloned())
-            .collect(),
-        next: Vec::new(),
-        local,
-    };
+    let mut out = crate::status::finish(
+        [status::status(items.iter().map(|i| i.status))],
+        crate::status::Parts {
+            dropped: records
+                .iter()
+                .any(|(record, _)| record.refusals == biomcp_adapters::Refusal::Refused),
+            body: QueryBody::ArticleCards(ArticleCards {
+                items: items.into(),
+            }),
+            sources: sources(query, source),
+            page: None,
+            problems: records
+                .iter()
+                .flat_map(|(record, _)| record.problems.iter().cloned())
+                .collect(),
+            next: Vec::new(),
+            local,
+        },
+    );
     let mut deadline = deadline.after_stage(started.saturating_sub(remaining));
     super::preprint::cards(cx, &mut deadline, &mut out);
     let requested = if let QueryBody::ArticleCards(cards) = &mut out.body {
@@ -142,10 +151,10 @@ fn append(
             found = true;
             items.push(item(
                 input,
-                if stale {
-                    Status::Partial
+                if stale || card.refusals == biomcp_adapters::Refusal::Refused {
+                    crate::status::item_status(true, false, true)
                 } else {
-                    Status::Complete
+                    crate::status::item_status(true, false, false)
                 },
                 Some(ArticleResolution::Resolved {
                     card: card.article.clone().card(),
@@ -159,11 +168,15 @@ fn append(
         .iter()
         .any(|id| failures.iter().any(|(failed, _)| id == failed));
     if failed {
-        items.push(item(input, Status::Failed, None));
+        items.push(item(
+            input,
+            crate::status::item_status(false, true, false),
+            None,
+        ));
     } else if !found {
         items.push(item(
             input,
-            Status::Absent,
+            crate::status::item_status(false, false, false),
             Some(ArticleResolution::NotFound),
         ));
     }

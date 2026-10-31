@@ -61,12 +61,14 @@ pub fn search(
         record: None,
         list: Vec::new(),
     };
+    let mut refusals = crate::Refusal::None;
     let (items, total, updated) = match reply {
         raw::Response::Page { meta, results } => (
             results
                 .into_iter()
                 .map(|r| {
                     let mapped = super::map::report(r);
+                    refusals.include(mapped.refusals);
                     problems.list.extend(mapped.problems);
                     header(&mapped.value.data)
                 })
@@ -77,6 +79,7 @@ pub fn search(
         raw::Response::Absent { .. } => (Vec::new(), 0, None),
     };
     Ok(crate::faers::Page {
+        refusals,
         problems: problems.list,
         components: crate::adverse_event_sources::components::labels(Source::Maude, Source::Gmdn)?,
         items,

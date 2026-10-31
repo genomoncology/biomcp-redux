@@ -8,6 +8,7 @@ pub(super) enum Saved {
         Vec<biodata::ProteinDomainMatch>,
         u64,
         Vec<biomcp_types::Problem>,
+        bool,
     ),
     Complexes(complex_portal::Collection),
     Members(Option<complex_portal::Complex>),
@@ -32,6 +33,7 @@ impl Saved {
                     {
                         return Err(bad(q.source()));
                     }
+                    page.refusals.include(next.refusals);
                     page.items.extend(next.items);
                     page.problems.extend(next.problems);
                     page.cursor = next.cursor;
@@ -45,7 +47,12 @@ impl Saved {
                         .entry_type()
                         .is_none_or(|kind| r.entry_type.as_ref() == Some(kind))
                 });
-                Ok(Self::Domains(page.items, total, page.problems))
+                Ok(Self::Domains(
+                    page.items,
+                    total,
+                    page.problems,
+                    page.refusals == biomcp_adapters::Refusal::Refused,
+                ))
             }
             Selection::Complexes(_) => {
                 complex_portal::search(leg, q.accession()).map(Self::Complexes)
@@ -57,15 +64,15 @@ impl Saved {
     }
     pub(super) fn total(&self) -> u64 {
         match self {
-            Self::Domains(items, _, _) => items.len() as u64,
+            Self::Domains(items, _, _, _) => items.len() as u64,
             Self::Complexes(c) => c.items.len() as u64,
             Self::Members(c) => c.as_ref().map_or(0, |c| c.members.len() as u64),
         }
     }
     pub(super) fn encode(&self) -> Result<String, CacheError> {
         match self {
-            Self::Domains(items, total, problems) => {
-                serde_json::to_string(&(items, total, problems))
+            Self::Domains(items, total, problems, dropped) => {
+                serde_json::to_string(&(items, total, problems, dropped))
             }
             Self::Complexes(c) => serde_json::to_string(c),
             Self::Members(c) => serde_json::to_string(c),
@@ -74,8 +81,11 @@ impl Saved {
     }
     pub(super) fn decode(q: &Selection, text: &str) -> Result<Self, CacheError> {
         match q {
-            Selection::Domains(_) => serde_json::from_str(text)
-                .map(|(rows, total, problems)| Self::Domains(rows, total, problems)),
+            Selection::Domains(_) => {
+                serde_json::from_str(text).map(|(rows, total, problems, dropped)| {
+                    Self::Domains(rows, total, problems, dropped)
+                })
+            }
             Selection::Complexes(_) => serde_json::from_str(text).map(Self::Complexes),
             Selection::Members(_) => serde_json::from_str(text).map(Self::Members),
         }
@@ -149,7 +159,8 @@ impl Saved {
         let offset = offset as usize;
         let limit = limit as usize;
         match self {
-            Self::Domains(items, native_total, problems) => {
+            Self::Domains(items, native_total, problems, dropped) => {
+                out.dropped |= dropped;
                 out.problems.extend(problems);
                 out.body = QueryBody::ProteinDomains(Some(ProteinDomains {
                     items: items.into_iter().skip(offset).take(limit).collect(),
@@ -157,6 +168,7 @@ impl Saved {
                 }))
             }
             Self::Complexes(c) => {
+                out.include_refusals(c.refusals);
                 out.problems.extend(
                     c.items
                         .iter()
@@ -175,6 +187,7 @@ impl Saved {
                 }));
             }
             Self::Members(Some(c)) => {
+                out.include_refusals(c.refusals);
                 out.problems.extend(c.problems.into_iter().flatten());
                 let items: Vec<_> = c.members.into_iter().skip(offset).take(limit).collect();
                 for member in &items {

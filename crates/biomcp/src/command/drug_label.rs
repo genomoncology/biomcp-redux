@@ -18,7 +18,7 @@ pub(super) fn bound(
         if !matches!(body.label, Section::Data { .. }) {
             return Ok(());
         }
-        let mut envelope = Envelope::new(out.status, query.clone(), Some(body.clone()));
+        let mut envelope = Envelope::new(out.status(), query.clone(), Some(body.clone()));
         envelope.sources = out
             .sources
             .iter()

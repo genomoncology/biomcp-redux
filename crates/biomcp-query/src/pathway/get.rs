@@ -1,4 +1,4 @@
-use super::{empty, overall, run};
+use super::{empty, run};
 use crate::{Ctx, Outcome, status};
 use biodata::PathwayId;
 use biomcp_adapters::reactome;
@@ -29,6 +29,7 @@ pub fn get(cx: &Ctx<'_>, q: &PathwayGet) -> Outcome {
     let mut error = reply.as_ref().err().copied();
     let mut card = match reply {
         Ok(mapped) => {
+            out.include_refusals(mapped.refusals);
             out.problems = mapped.problems;
             mapped.value
         }
@@ -58,7 +59,10 @@ pub fn get(cx: &Ctx<'_>, q: &PathwayGet) -> Outcome {
     }
     if !matches!(out.body, QueryBody::PoolError { .. }) {
         if card.is_some() || error.is_none() {
-            out.status = overall(&out, card.is_none());
+            {
+                let absent = card.is_none();
+                crate::status::item(&mut out, !absent, false, false);
+            }
         }
         out.body = QueryBody::PathwayCard(card);
     }

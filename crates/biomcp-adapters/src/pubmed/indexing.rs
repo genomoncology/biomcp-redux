@@ -8,15 +8,18 @@ pub(super) fn parse(
     citation: Element<'_>,
     row: Element<'_>,
     problems: &mut Problems,
+    refusals: &mut crate::Refusal,
 ) -> Result<Indexing, BadReply> {
     let mut mesh = Vec::new();
     if let Some(list) = citation.child("MeshHeadingList")? {
         for heading in list.children("MeshHeading")? {
             let Some(descriptor) = heading.child("DescriptorName")? else {
+                *refusals = crate::Refusal::Refused;
                 problems.required::<()>("mesh.descriptor", None);
                 continue;
             };
             let Some(name) = problems.text("mesh.descriptor", Some(&descriptor.text()?)) else {
+                *refusals = crate::Refusal::Refused;
                 continue;
             };
             let mut qualifiers = Vec::new();
@@ -27,6 +30,8 @@ pub(super) fn parse(
                         name,
                         major: major(qualifier)?,
                     });
+                } else {
+                    *refusals = crate::Refusal::Refused;
                 }
             }
             mesh.push(MeshHeading {

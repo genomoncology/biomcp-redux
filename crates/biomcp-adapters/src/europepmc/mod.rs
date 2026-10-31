@@ -35,6 +35,8 @@ const SEARCH: Endpoint = SPEC.get("/search").fresh(Freshness::Days(1));
 /// Original row positions and metadata, before any duplicate suppression.
 #[derive(Debug)]
 pub struct Search {
+    /// Actual refused native records, independent of optional fields.
+    pub refusals: crate::Refusal,
     /// Source-reported whole result count.
     pub count: u64,
     /// The actual fetched rows, including duplicates in their original positions.
@@ -55,20 +57,23 @@ pub fn search(leg: &Leg<'_>, term: &str, sort: ArticleSort) -> Result<Search, Re
     }
     let raw = leg.json::<Raw>(&SEARCH, &args)?;
     let mut problems = Vec::new();
+    let mut refusals = crate::Refusal::None;
     let items = raw
         .result_list
         .result
         .into_iter()
         .filter_map(|row| {
             if let Some(row) = row.value() {
-                row.item(&mut problems)
+                row.item(&mut problems, &mut refusals)
             } else {
+                refusals = crate::Refusal::Refused;
                 crate::mapped::push_problem(&mut problems, Source::EuropePmc, None, "id");
                 None
             }
         })
         .collect();
     Ok(Search {
+        refusals,
         count: raw.hit_count,
         items,
         problems,
@@ -116,7 +121,11 @@ impl Row {
         };
         id.parse()
     }
-    fn item(self, problems: &mut Vec<biomcp_types::Problem>) -> Option<ArticleItem> {
+    fn item(
+        self,
+        problems: &mut Vec<biomcp_types::Problem>,
+        refusals: &mut crate::Refusal,
+    ) -> Option<ArticleItem> {
         let mut p = Problems {
             source: Source::EuropePmc,
             record: record(&self.id),
@@ -124,6 +133,7 @@ impl Row {
         };
         let local = p.optional("id", Some(self.local_id()));
         let Some(local) = local else {
+            *refusals = crate::Refusal::Refused;
             problems.extend(p.list);
             return None;
         };

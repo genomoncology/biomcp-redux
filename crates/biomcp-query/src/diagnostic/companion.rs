@@ -36,10 +36,9 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
                 cx.fresh,
             );
         }
-        out.status = if page.problems.is_empty() {
-            Status::Complete
-        } else {
-            Status::Partial
+        {
+            let unavailable = false;
+            crate::status::item(&mut out, true, false, unavailable);
         };
         group_unsupported = page.group_unsupported;
         out.problems = page.problems;
@@ -61,8 +60,8 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
     if group_unsupported {
         source.reason = Some(Reason::Unsupported);
     }
-    if matches!(source.state, SourceState::Stale) && out.status == Status::Complete {
-        out.status = Status::Partial;
+    if matches!(source.state, SourceState::Stale) && out.status() == Status::Complete {
+        crate::status::item(&mut out, true, false, true);
     }
     if matches!(source.state, SourceState::Syncing | SourceState::Stale) {
         out.next.push((
@@ -73,6 +72,7 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
         ));
     }
     out.sources.push(source);
+    status::search(&mut out);
     command.finish(deadline.remaining());
     out
 }

@@ -10,7 +10,7 @@ pub(super) fn section(
     deadline: &mut Deadline<'_>,
 ) -> super::sections::Result<VariantCosmic> {
     let Some((id, build)) = super::components::target(candidates) else {
-        return (Section::NotApplicable, Vec::new(), Vec::new(), None);
+        return (Section::NotApplicable, Vec::new(), Vec::new(), None, false);
     };
     if biomcp_adapters::myvariant::components::disabled(
         cx.fetch,
@@ -27,8 +27,10 @@ pub(super) fn section(
     let error = result.as_ref().err().copied();
     *deadline = deadline.after_stage(started.saturating_sub(leg.remaining()));
     let source = status::source(Source::MyVariant, leg.finish(), error);
+    let mut dropped = false;
     let mut problems = Vec::new();
     let result = result.map(|mapped| {
+        dropped |= mapped.refusals == biomcp_adapters::Refusal::Refused;
         problems = mapped.problems;
         mapped.value
     });
@@ -67,5 +69,6 @@ pub(super) fn section(
         vec![source],
         problems,
         error.and_then(status::local),
+        dropped,
     )
 }

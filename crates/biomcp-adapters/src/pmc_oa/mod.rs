@@ -130,7 +130,7 @@ pub fn read(
     problems.list.extend(body.problems.clone());
     let manuscript = problems.field("manuscript", record.is_manuscript);
     Ok(crate::Mapped {
-        refusals: crate::Refusal::None,
+        refusals: body.refusals,
         value: Some(Document {
             url,
             supplements,

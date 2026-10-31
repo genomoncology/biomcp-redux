@@ -14,7 +14,7 @@
         "1"
       ],
       "expect": {
-        "/status": "partial"
+        "/status": "complete"
       },
       "max_bytes": 638
     },
@@ -30,7 +30,7 @@
         "1"
       ],
       "expect": {
-        "/status": "partial"
+        "/status": "complete"
       },
       "max_bytes": 525
     },
@@ -50,7 +50,7 @@
         "1"
       ],
       "expect": {
-        "/status": "partial"
+        "/status": "complete"
       },
       "max_bytes": 1882
     },
@@ -76,7 +76,7 @@
         "5"
       ],
       "expect": {
-        "/status": "partial"
+        "/status": "complete"
       },
       "max_bytes": 2578
     }

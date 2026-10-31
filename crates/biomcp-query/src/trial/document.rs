@@ -2,7 +2,7 @@
 use crate::{Ctx, Outcome, status};
 use biodata::TrialDocument;
 use biomcp_adapters::ctgov;
-use biomcp_types::{QueryBody, Section, Source, Status, TrialDocumentGet, TrialDocumentResult};
+use biomcp_types::{QueryBody, Section, Source, TrialDocumentGet, TrialDocumentResult};
 /// A typed source result before the binary writes a caller-owned file.
 #[derive(Debug)]
 pub struct Download {
@@ -18,27 +18,16 @@ pub fn download(cx: &Ctx<'_>, query: &TrialDocumentGet, allow: bool) -> Download
         .fetch
         .leg(&ctgov::SPEC, command.deadline())
         .fresh(cx.fresh);
-    let mut out = Outcome {
-        status: Status::Complete,
-        body: QueryBody::TrialDocument(TrialDocumentResult {
-            file: Section::Empty {
-                source: Source::ClinicalTrialsGov,
-                record: None,
-            },
-        }),
-        page: None,
-        sources: Vec::new(),
-        problems: Vec::new(),
-        next: Vec::new(),
-        local: None,
-    };
+    let mut out = crate::status::ready(QueryBody::TrialDocument(TrialDocumentResult {
+        file: Section::Empty {
+            source: Source::ClinicalTrialsGov,
+            record: None,
+        },
+    }));
     let result = ctgov::detail::get(&leg, query.input).and_then(|(detail, _)| {
-        let incomplete_manifest = detail.problems.iter().any(|problem| {
-            problem.field.starts_with("largeDoc") || problem.field.starts_with("documentSection")
-        });
-        if !detail.problems.is_empty() {
-            out.status = Status::Partial;
-        }
+        let incomplete_manifest = detail.document_refusals == biomcp_adapters::Refusal::Refused;
+        out.include_refusals(detail.refusals);
+        crate::status::item(&mut out, true, false, false);
         out.problems.extend(detail.problems);
         let Some(document) = detail
             .documents
@@ -57,7 +46,7 @@ pub fn download(cx: &Ctx<'_>, query: &TrialDocumentGet, allow: bool) -> Download
     });
     let error = result.as_ref().err().copied();
     if let Some(error) = error {
-        out.status = Status::Failed;
+        crate::status::item(&mut out, false, true, false);
         out.local = status::local(error);
         out.body = QueryBody::TrialDocument(TrialDocumentResult {
             file: Section::unavailable(
@@ -81,7 +70,7 @@ pub fn download(cx: &Ctx<'_>, query: &TrialDocumentGet, allow: bool) -> Download
 
 fn missing_document(out: &mut Outcome, incomplete_manifest: bool) {
     if incomplete_manifest {
-        out.status = Status::Failed;
+        crate::status::item(out, false, true, false);
         out.body = QueryBody::TrialDocument(TrialDocumentResult {
             file: Section::unavailable(Source::ClinicalTrialsGov, biomcp_types::Reason::BadReply),
         });

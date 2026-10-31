@@ -46,6 +46,8 @@ pub struct Page {
 /// Selected card and original retrieval metadata.
 #[derive(Debug)]
 pub struct Card {
+    /// Actual refused native records, independent of optional fields.
+    pub refusals: crate::Refusal,
     /// Rejected native metadata for the selected record.
     pub problems: Vec<biomcp_types::Problem>,
     /// Absent only for the exact native404 contract.
@@ -214,6 +216,7 @@ fn fetch_card(
         },
     )?;
     let mut problems = Vec::new();
+    let mut refusals = crate::Refusal::None;
     let card = match reply {
         raw::Response::Missing { .. } => None,
         raw::Response::Records { data } => data
@@ -232,6 +235,7 @@ fn fetch_card(
                 }
                 if complete {
                     let mapped = sections::card(row)?;
+                    refusals.include(mapped.refusals);
                     problems.extend(mapped.problems);
                     Ok(mapped.value)
                 } else {
@@ -241,6 +245,7 @@ fn fetch_card(
             .transpose()?,
     };
     Ok(Card {
+        refusals,
         card,
         problems,
         metadata,

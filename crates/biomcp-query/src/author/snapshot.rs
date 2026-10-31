@@ -12,7 +12,7 @@ pub(super) struct Saved {
     pub key_needed: bool,
 }
 fn key(q: &AuthorSearch) -> Result<Vec<u8>, RequestError> {
-    serde_json::to_vec(&("biomcp.author_snapshot/2", q.query(), q.source(), q.limit()))
+    serde_json::to_vec(&("biomcp.author_snapshot/3", q.query(), q.source(), q.limit()))
         .map_err(|_| CacheError::Database.into())
 }
 pub(super) fn load(
@@ -39,10 +39,20 @@ pub(super) fn load(
             cx.fetch.disabled(source)
         })?;
         if let Some(payload) = payload {
-            let (pages, source, key_needed): (Vec<Page>, SourceOutcome, bool) =
+            let (pages, source, key_needed): (Vec<(Page, bool)>, SourceOutcome, bool) =
                 serde_json::from_str(&payload).map_err(|_| CacheError::Database)?;
             let saved = Saved {
-                pages,
+                pages: pages
+                    .into_iter()
+                    .map(|(mut page, dropped)| {
+                        page.refusals = if dropped {
+                            biomcp_adapters::Refusal::Refused
+                        } else {
+                            biomcp_adapters::Refusal::None
+                        };
+                        page
+                    })
+                    .collect(),
                 source,
                 key_needed,
             };
@@ -73,7 +83,12 @@ pub(super) fn save(
     saved: &Saved,
     pool: Option<Pool>,
 ) -> Result<Pool, RequestError> {
-    let payload = serde_json::to_string(&(&saved.pages, &saved.source, saved.key_needed))
+    let pages: Vec<_> = saved
+        .pages
+        .iter()
+        .map(|page| (page, page.refusals == biomcp_adapters::Refusal::Refused))
+        .collect();
+    let payload = serde_json::to_string(&(pages, &saved.source, saved.key_needed))
         .map_err(|_| CacheError::Database)?;
     let mut store = Store::open(cx.fetch.cache_access()?, deadline)?;
     let size = saved.pages.iter().map(|p| p.data.len() as u32).sum();

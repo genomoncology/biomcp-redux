@@ -49,7 +49,7 @@ pub(super) fn render(
     };
     let array = drug.openfda.as_ref().and_then(|v| values(v, section));
     let Some(array) = array else {
-        out.status = biomcp_types::Status::Absent;
+        crate::status::item(out, false, false, false);
         out.body = QueryBody::AdverseEventIdentifiers(None);
         return Ok(());
     };

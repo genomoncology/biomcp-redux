@@ -63,9 +63,20 @@ pub(super) fn prepare(
             }
         }
     }
-    // SEER retains its explicit dataset cautions; empty metadata study sections return complete.
-    if control == "empty" && owner.feature != "disease-seer" && owner.feature != "study-get" {
-        step.exit = 1;
+    // Empty metadata study sections retain their successfully loaded study identity.
+    if control == "empty" && owner.feature != "study-get" {
+        if step
+            .run
+            .as_ref()
+            .is_some_and(|args| args.first().is_some_and(|arg| arg == "search"))
+        {
+            step.expect.insert("/status".into(), json!("complete"));
+        } else {
+            step.exit = 1;
+            if owner.feature == "disease-seer" {
+                step.expect.insert("/status".into(), json!("absent"));
+            }
+        }
     }
     let wire = if owner.string {
         json!(body.to_string()).to_string()

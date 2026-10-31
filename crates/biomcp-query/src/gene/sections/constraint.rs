@@ -19,6 +19,7 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
     let result = gnomad::constraints(&leg, &ids);
     let error = result.as_ref().err().copied();
     let source = status::source(Source::Gnomad, leg.finish(), error);
+    let mut dropped = false;
     let mut problems = Vec::new();
     let mut sections = Vec::new();
     for (id, gene) in genes.iter().filter(|(_, gene)| applicable(gene)) {
@@ -31,6 +32,7 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
                 });
                 match value {
                     Some(value) => {
+                        dropped |= value.constraint.refusals == biomcp_adapters::Refusal::Refused;
                         status::append(&mut problems, value.constraint.problems.clone());
                         if value
                             .constraint
@@ -62,6 +64,7 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
         sections.push((*id, super::SectionValue::Constraint(section)));
     }
     SectionResult {
+        dropped,
         values: sections,
         source,
         problems,

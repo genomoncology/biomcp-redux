@@ -6,7 +6,7 @@ use biomcp_adapters::{europepmc, jats, pmc_oa, pubmed};
 use biomcp_fetch::{Deadline, RequestError};
 use biomcp_types::ArticleInput;
 use biomcp_types::{
-    ArticleText, ArticleTextResult, PageInfo, QueryBody, Reason, Request, Section, Source, Status,
+    ArticleText, ArticleTextResult, PageInfo, QueryBody, Reason, Request, Section, Source,
     StepKind, TextContent, TextHit,
 };
 /// Read a bounded part or find page through the same transport and command budget.
@@ -18,18 +18,10 @@ pub fn download(cx: &Ctx<'_>, query: &ArticleText, allow: bool) -> super::save::
     let mut save = super::save::State::new(allow);
     let command = cx.fetch.command_deadline(cx.budget);
     let mut deadline = command.deadline();
-    let mut out = Outcome {
-        status: Status::Complete,
-        body: QueryBody::ArticleText(ArticleTextResult {
-            pmcid: None,
-            content: Section::NotApplicable,
-        }),
-        page: None,
-        sources: Vec::new(),
-        problems: Vec::new(),
-        next: Vec::new(),
-        local: None,
-    };
+    let mut out = crate::status::ready(QueryBody::ArticleText(ArticleTextResult {
+        pmcid: None,
+        content: Section::NotApplicable,
+    }));
     let Ok(selection) = super::protein_change::Selection::new(query.find(), query.variant()) else {
         out.body = QueryBody::TextPositionError;
         return super::save::Download { out, file: None };
@@ -38,7 +30,7 @@ pub fn download(cx: &Ctx<'_>, query: &ArticleText, allow: bool) -> super::save::
     command.finish(deadline.remaining());
     if let Err(error) = result {
         out.local = out.local.or(status::local(error));
-        out.status = Status::Failed;
+        crate::status::item(&mut out, false, true, false);
         if let QueryBody::ArticleText(body) = &mut out.body {
             let default_source = if matches!(query.input(), ArticleInput::EuropePmc(_)) {
                 Source::EuropePmc
@@ -82,12 +74,13 @@ pub(super) fn resolve<'a>(
             let source =
                 status::source(Source::PubMed, leg.finish(), result.as_ref().err().copied());
             if source.state == biomcp_types::SourceState::Stale {
-                out.status = Status::Partial;
+                crate::status::item(out, true, false, true);
             }
             out.sources.push(source);
             let mapped = result?;
-            if !mapped.problems.is_empty() {
-                out.status = Status::Partial;
+            out.include_refusals(mapped.refusals);
+            if out.dropped {
+                crate::status::item(out, true, false, true);
             }
             status::append(&mut out.problems, mapped.problems);
             let header = mapped
@@ -126,18 +119,20 @@ fn execute<'a>(
         _ => None,
     };
     let result = pmc_oa::read(&leg, id, pmid).map(|mapped| {
+        out.include_refusals(mapped.refusals);
         out.problems.extend(mapped.problems);
         mapped.value
     });
     *deadline = deadline.after_stage(started.saturating_sub(leg.remaining()));
     let source = status::source(Source::PmcOa, leg.finish(), result.as_ref().err().copied());
     if source.state == biomcp_types::SourceState::Stale {
-        out.status = Status::Partial;
+        crate::status::item(out, true, false, true);
     }
     out.sources.push(source);
     let content = match result? {
         None => Section::unavailable(Source::PmcOa, Reason::NotOpen),
         Some(document) => {
+            out.dropped |= document.body.refusals == biomcp_adapters::Refusal::Refused;
             out.problems.extend(document.problems.clone());
             let Some(content) = select(
                 query,
@@ -335,10 +330,11 @@ fn preprint<'a>(
         result.as_ref().err().copied(),
     );
     if source.state == biomcp_types::SourceState::Stale {
-        out.status = Status::Partial;
+        crate::status::item(out, true, false, true);
     }
     out.sources.push(source);
     let mapped = result?;
+    out.include_refusals(mapped.refusals);
     out.problems.extend(mapped.problems);
     let Some(document) = mapped.value else {
         out.body = QueryBody::ArticleText(ArticleTextResult {

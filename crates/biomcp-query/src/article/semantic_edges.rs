@@ -3,7 +3,7 @@ use crate::{Action, Ctx, Outcome, status};
 
 use biomcp_adapters::semantic_scholar;
 use biomcp_fetch::{Deadline, RequestError, SourceError};
-use biomcp_types::{ArticleEdges, ArticleItem, Reason, Source, Status, StepKind};
+use biomcp_types::{ArticleEdges, ArticleItem, Reason, Source, StepKind};
 pub(super) fn create<'a>(
     cx: &Ctx<'a>,
     query: &ArticleEdges,
@@ -19,7 +19,13 @@ pub(super) fn create<'a>(
         .leg(&semantic_scholar::SPEC, *deadline)
         .fresh(cx.fresh);
     let started = leg.remaining();
-    let result = collect(&leg, &input, references, &mut out.problems);
+    let result = collect(
+        &leg,
+        &input,
+        references,
+        &mut out.problems,
+        &mut out.dropped,
+    );
     *deadline = super::consume(*deadline, started, leg.remaining());
     let error = result.as_ref().err().copied();
     let mut source = status::source(Source::SemanticScholar, leg.finish(), error);
@@ -32,7 +38,7 @@ pub(super) fn create<'a>(
         Ok(value) => value,
         Err(error) => {
             out.sources.push(source);
-            out.status = Status::Failed;
+            crate::status::item(out, false, true, false);
             failure(query, references, out);
             return if status::local(error).is_some() {
                 Err(error)
@@ -91,6 +97,7 @@ fn collect(
     input: &biomcp_types::ArticleInput,
     references: bool,
     problems: &mut Vec<biomcp_types::Problem>,
+    dropped: &mut bool,
 ) -> Result<Window, RequestError> {
     let mut offset = None;
     let mut items = Vec::new();
@@ -98,6 +105,7 @@ fn collect(
     let mut count = 0;
     for _ in 0..5 {
         let reply = semantic_scholar::edges(leg, input, references, offset)?;
+        *dropped |= reply.refusals == biomcp_adapters::Refusal::Refused;
         problems.extend(reply.problems);
         count += reply.data.len() as u64;
         for edge in reply.data {
@@ -201,7 +209,7 @@ fn resolve_input<'a>(
     };
     out.sources.push(source);
     if input.is_none() {
-        out.status = Status::Failed;
+        crate::status::item(out, false, true, false);
         failure(query, references, out);
     }
     Ok(input)

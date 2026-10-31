@@ -11,10 +11,14 @@ use biomcp_fetch::{
 use biomcp_types::{
     AbstractPart, Article, ArticleInput, Correction, CorrectionKind, CorrectionRelation,
 };
+use quick_xml::events::Event;
 use serde::Deserialize;
 /// One citation and its separately requested indexing facts.
 #[derive(Debug, Deserialize)]
 pub struct FetchedArticle {
+    /// Actual refused native indexing records.
+    #[serde(with = "crate::mapped::refusal_serde")]
+    pub refusals: crate::Refusal,
     /// Full article for the default card.
     pub article: Article,
     /// Facts from that same citation.
@@ -94,21 +98,15 @@ impl XmlReply for Records {
         let start = loop {
             let begin = reader.buffer_position() as usize;
             match reader.read_event().map_err(|_| BadReply)? {
-                quick_xml::events::Event::Start(tag)
-                    if tag.name().as_ref() == "PubmedArticleSet" =>
-                {
+                Event::Start(tag) if tag.name().as_ref() == "PubmedArticleSet" => {
                     break begin;
                 }
-                quick_xml::events::Event::Empty(tag)
-                    if tag.name().as_ref() == "PubmedArticleSet" =>
-                {
+                Event::Empty(tag) if tag.name().as_ref() == "PubmedArticleSet" => {
                     return Ok(Self {
                         articles: Vec::new(),
                     });
                 }
-                quick_xml::events::Event::Eof | quick_xml::events::Event::Start(_) => {
-                    return Err(BadReply);
-                }
+                Event::Eof | Event::Start(_) => return Err(BadReply),
                 _ => {}
             }
         };
@@ -164,8 +162,11 @@ fn article(root: Element<'_>) -> Result<FetchedArticle, BadReply> {
             }
         }
     }
+    let mut refusals = crate::Refusal::None;
+    let indexing = super::indexing::parse(citation, row, &mut problems, &mut refusals)?;
     Ok(FetchedArticle {
-        indexing: super::indexing::parse(citation, row, &mut problems)?,
+        refusals,
+        indexing,
         article: Article {
             europepmc_id: None,
             pmid: Some(pmid),

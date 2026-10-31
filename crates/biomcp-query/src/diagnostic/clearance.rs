@@ -12,14 +12,11 @@ pub(super) fn get(cx: &Ctx<'_>, q: &DiagnosticGet) -> Outcome {
     let error = match fda_510k::get(&leg, q) {
         Ok(card) => {
             let card = card.map(|mapped| {
+                out.include_refusals(mapped.refusals);
                 out.problems.extend(mapped.problems);
                 mapped.value
             });
-            out.status = if card.is_some() {
-                Status::Complete
-            } else {
-                Status::Absent
-            };
+            crate::status::item(&mut out, card.is_some(), false, false);
             if card.is_some() {
                 if let Ok(search) = serde_json::from_value::<DiagnosticSearch>(
                     serde_json::json!({"source":"fda-cdx","device_id":q.id()}),
@@ -57,8 +54,8 @@ pub(super) fn get(cx: &Ctx<'_>, q: &DiagnosticGet) -> Outcome {
     };
     out.local = error.and_then(status::local);
     let source = status::source(Source::Fda510k, leg.finish(), error);
-    if source.state == SourceState::Stale && out.status == Status::Complete {
-        out.status = Status::Partial;
+    if source.state == SourceState::Stale && out.status() == Status::Complete {
+        crate::status::item(&mut out, true, false, true);
     }
     out.sources.push(source);
     command.finish(deadline.remaining());

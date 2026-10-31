@@ -6,6 +6,10 @@ pub(super) fn evidence_directory() -> std::io::Result<std::path::PathBuf> {
     evidence::directory()
 }
 
+pub(super) fn retain_replay_owner(owner: &tempfile::TempDir) -> std::io::Result<()> {
+    evidence::retain_replay_owner(owner)
+}
+
 use rustls::{ServerConfig, ServerConnection, StreamOwned, pki_types::PrivatePkcs8KeyDer};
 use serde_json::Value;
 use std::{

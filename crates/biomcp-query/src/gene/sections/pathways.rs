@@ -27,6 +27,7 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
         .iter()
         .find_map(|result| result.as_ref().err().copied().and_then(status::local));
     let source = status::source(Source::Reactome, leg.finish(), error);
+    let mut dropped = false;
     let mut problems = Vec::new();
     let mut values = Vec::new();
     for (id, gene) in genes.iter().filter(|(_, gene)| applicable(gene)) {
@@ -41,6 +42,7 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
             };
             match result {
                 Ok(mapped) => {
+                    dropped |= mapped.refusals == biomcp_adapters::Refusal::Refused;
                     status::append(&mut problems, mapped.problems.clone());
                     for pathway in &mapped.value {
                         if !pathways
@@ -79,6 +81,7 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
         values.push((*id, SectionValue::Pathways(section)));
     }
     SectionResult {
+        dropped,
         values,
         source,
         problems,

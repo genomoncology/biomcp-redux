@@ -10,6 +10,7 @@ pub(crate) struct Pool {
     pub key: Vec<u8>,
     pub sources: Vec<SourceOutcome>,
     pub problems: Vec<Problem>,
+    pub dropped: bool,
 }
 /// Fixed identity and independently hydrated metadata.
 pub(crate) struct StoredItem {
@@ -39,7 +40,7 @@ impl Store<'_> {
                 .optional()
                 .map_err(db)?;
             row.map(|(id, key, created, expires, size, sources)| {
-                let (sources, problems) = metadata(&sources)?;
+                let (sources, problems, dropped) = metadata(&sources)?;
                 Ok(Pool {
                     info: PoolInfo {
                         id: Text::new(&id).map_err(|_| CacheError::Database)?,
@@ -51,6 +52,7 @@ impl Store<'_> {
                     key,
                     sources,
                     problems,
+                    dropped,
                 })
             })
             .transpose()
@@ -62,6 +64,7 @@ impl Store<'_> {
         items: &[ArticleItem],
         sources: &[SourceOutcome],
         problems: &[Problem],
+        dropped: bool,
     ) -> Result<Pool, CacheError> {
         self.write(|tx| {
             Self::collect_expired(tx)?;
@@ -69,8 +72,8 @@ impl Store<'_> {
             let expires = created.saturating_add(86400);
             let id: String = tx.query_row("SELECT lower(hex(randomblob(16)))", [], |r| r.get(0)).map_err(db)?;
             let global: Vec<_> = problems.iter().filter(|p| p.record.is_none()).cloned().collect();
-            let outcomes = if global.is_empty() { serde_json::to_string(sources) }
-                else { serde_json::to_string(&serde_json::json!({"sources":sources,"problems":global})) }
+            let outcomes = if global.is_empty() && !dropped { serde_json::to_string(sources) }
+                else { serde_json::to_string(&serde_json::json!({"sources":sources,"problems":global,"dropped":dropped})) }
                 .map_err(|_| CacheError::Database)?;
             let size = u32::try_from(items.len()).map_err(|_| CacheError::Database)?;
             tx.execute(
@@ -117,6 +120,7 @@ impl Store<'_> {
                 key: key.into(),
                 sources: sources.into(),
                 problems: global,
+                dropped,
             })
         })
     }
@@ -160,6 +164,7 @@ impl Store<'_> {
                 key: key.into(),
                 sources: sources.into(),
                 problems: Vec::new(),
+                dropped: false,
             })
         })
     }
@@ -249,8 +254,17 @@ impl Store<'_> {
         headers: &[ArticleHeader],
         problems: &[Problem],
         outcome: Option<&SourceOutcome>,
+        dropped: bool,
     ) -> Result<(), CacheError> {
         self.write(|tx| {
+            if dropped {
+                let raw: String = tx.query_row("SELECT outcomes FROM pool WHERE id=?1", [pool], |r| r.get(0)).map_err(db)?;
+                let (sources, problems, _) = metadata(&raw)?;
+                let raw = serde_json::to_string(&serde_json::json!({
+                    "sources": sources, "problems": problems, "dropped": true
+                })).map_err(|_| CacheError::Database)?;
+                tx.execute("UPDATE pool SET outcomes=?2 WHERE id=?1", params![pool, raw]).map_err(db)?;
+            }
             let outcome = outcome.map(serde_json::to_string).transpose().map_err(|_| CacheError::Database)?;
             let names: Vec<_> = ids.iter().map(ToString::to_string).collect();
             for (index, id) in ids.iter().enumerate() {
@@ -297,22 +311,28 @@ impl Store<'_> {
 }
 
 // Existing source-only rows remain readable; only pool-scoped problems need metadata.
-fn metadata(text: &str) -> Result<(Vec<SourceOutcome>, Vec<Problem>), CacheError> {
+fn metadata(text: &str) -> Result<(Vec<SourceOutcome>, Vec<Problem>, bool), CacheError> {
     let mut value: serde_json::Value =
         serde_json::from_str(text).map_err(|_| CacheError::Database)?;
     if value.is_array() {
         return serde_json::from_value(value)
-            .map(|sources| (sources, Vec::new()))
+            .map(|sources| (sources, Vec::new(), false))
             .map_err(|_| CacheError::Database);
     }
     let fields = value
         .as_object_mut()
-        .filter(|v| v.len() == 2)
+        .filter(|v| v.len() == 2 || v.len() == 3)
         .ok_or(CacheError::Database)?;
+    let dropped = fields
+        .remove("dropped")
+        .map(|v| v.as_bool().ok_or(CacheError::Database))
+        .transpose()?
+        .unwrap_or(false);
     let sources = fields.remove("sources").ok_or(CacheError::Database)?;
     let problems = fields.remove("problems").ok_or(CacheError::Database)?;
     Ok((
         serde_json::from_value(sources).map_err(|_| CacheError::Database)?,
         serde_json::from_value(problems).map_err(|_| CacheError::Database)?,
+        dropped,
     ))
 }

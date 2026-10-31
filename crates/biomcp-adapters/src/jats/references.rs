@@ -16,13 +16,16 @@ pub struct Reference {
 pub(super) fn rows(
     xml: &str,
     problems: &mut crate::mapped::Problems,
+    refusals: &mut crate::Refusal,
 ) -> Result<Vec<Reference>, BadReply> {
     let mut out = Vec::new();
     for reference in blocks::descendants(xml, "ref")? {
         let Some(id) = reference.attr("id")? else {
+            *refusals = crate::Refusal::Refused;
             continue;
         };
         let Some(id) = problems.optional("references.id", Some(Text::new(&id))) else {
+            *refusals = crate::Refusal::Refused;
             continue;
         };
         let mut row = Reference {

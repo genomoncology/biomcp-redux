@@ -17,6 +17,8 @@ pub struct Page<T> {
     pub total: u64,
     /// Native rows consumed before identity refusals.
     pub consumed: u32,
+    /// Actual refused native records, independent of optional fields.
+    pub refusals: crate::Refusal,
     /// Rejected native fields and records.
     pub problems: Vec<biomcp_types::Problem>,
 }
@@ -56,16 +58,20 @@ fn read<T: serde::de::DeserializeOwned + Native>(
         list: Vec::new(),
     };
     let mut items = Vec::new();
+    let mut refusals = crate::Refusal::None;
     for row in rows.0 {
         problems.record = None;
-        if let Some(raw) = problems.field("record", Some(row)) {
+        if let Some(raw) = problems.record("record", row, &mut refusals) {
             problems.record = raw.record();
             let before = problems.list.len();
-            if let Some(mapped) = raw.map(&mut problems) {
+            if let Some(mapped) = raw.map(&mut problems, &mut refusals) {
                 if check(std::slice::from_ref(&mapped), range) {
                     items.push(mapped);
-                } else if problems.list.len() == before {
-                    problems.required::<()>("record", None);
+                } else {
+                    refusals = crate::Refusal::Refused;
+                    if problems.list.len() == before {
+                        problems.required::<()>("record", None);
+                    }
                 }
             }
         }
@@ -80,6 +86,7 @@ fn read<T: serde::de::DeserializeOwned + Native>(
         .into());
     }
     Ok(Page {
+        refusals,
         items,
         total: range.total,
         consumed,

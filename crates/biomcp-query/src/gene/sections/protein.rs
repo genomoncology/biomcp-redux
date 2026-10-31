@@ -17,8 +17,10 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
     let result = uniprot::proteins(&leg, &ids);
     let error = result.as_ref().err().copied();
     let source = status::source(Source::UniProt, leg.finish(), error);
+    let mut dropped = false;
     let mut problems = Vec::new();
     if let Ok(mapped) = &result {
+        dropped |= mapped.refusals == biomcp_adapters::Refusal::Refused;
         status::append(&mut problems, mapped.problems.clone());
     }
     let values = genes
@@ -59,6 +61,7 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
         })
         .collect();
     SectionResult {
+        dropped,
         values,
         source,
         problems,

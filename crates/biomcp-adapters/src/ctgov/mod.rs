@@ -3,6 +3,7 @@ pub mod detail;
 pub mod document;
 mod filters;
 mod raw;
+mod refusals;
 mod version;
 use biodata::Text;
 use biomcp_fetch::{Arg, Endpoint, Freshness, KeyUse, Leg, RequestError, SourceSpec};
@@ -34,6 +35,8 @@ pub const VERSION: Endpoint = SPEC.get("/version").fresh(Freshness::Days(1));
 /// A native search page with opaque source cursor.
 #[derive(Debug)]
 pub struct SearchPage {
+    /// Actual refused studies or native child records, independent of field problems.
+    pub refusals: crate::Refusal,
     /// Source order, untouched.
     pub items: Vec<TrialHeader>,
     /// Rejected nonidentity fields from retained studies.
@@ -178,6 +181,7 @@ pub fn search(
             })
         });
     let mut rejected = Vec::new();
+    let mut refusals = crate::Refusal::None;
     let mapped = raw
         .studies
         .unwrap_or_default()
@@ -185,6 +189,7 @@ pub fn search(
         .filter_map(|row| match row.value() {
             Some(row) => Some(row.protocol_section.header()),
             None => {
+                refusals = crate::Refusal::Refused;
                 rejected.push(crate::mapped::problem(SPEC.source, None, "nctId"));
                 None
             }
@@ -193,10 +198,14 @@ pub fn search(
         .map_err(|_| bad())?;
     let (items, problems): (Vec<_>, Vec<_>) = mapped
         .into_iter()
-        .map(|row| (row.value, row.problems))
+        .map(|row| {
+            refusals.include(row.refusals);
+            (row.value, row.problems)
+        })
         .unzip();
     rejected.extend(problems.into_iter().flatten());
     Ok(SearchPage {
+        refusals,
         problems: rejected,
         condition_word_mismatch,
         items,

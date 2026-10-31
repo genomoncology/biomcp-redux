@@ -10,7 +10,7 @@ pub(super) fn attach(cx: &Ctx<'_>, deadline: biomcp_fetch::Deadline<'_>, out: &m
         CellLineGet::accession(header.accession.clone()).with_section(CellLineSection::Chembl);
     let metadata = super::chembl::get_at(cx, &selected, &header.accession, deadline);
     let section = match &metadata.body {
-        QueryBody::CellLineChembl(data) if metadata.status != Status::Failed => {
+        QueryBody::CellLineChembl(data) if metadata.status() != Status::Failed => {
             if data.items.total == 0 {
                 Section::Empty {
                     source: Source::Chembl,
@@ -32,8 +32,8 @@ pub(super) fn attach(cx: &Ctx<'_>, deadline: biomcp_fetch::Deadline<'_>, out: &m
                 .unwrap_or(Reason::BadReply),
         ),
     };
-    if metadata.status != Status::Complete && metadata.status != Status::Absent {
-        out.status = Status::Partial;
+    if metadata.status() != Status::Complete && metadata.status() != Status::Absent {
+        crate::status::item(out, true, false, true);
     }
     out.next.extend(
         metadata
@@ -45,8 +45,9 @@ pub(super) fn attach(cx: &Ctx<'_>, deadline: biomcp_fetch::Deadline<'_>, out: &m
     out.sources.extend(metadata.sources);
     out.problems.extend(metadata.problems);
     out.local = out.local.or(metadata.local);
+    let state = out.status();
     if let QueryBody::CellLineCard(card) = &mut out.body {
-        card.status = out.status;
+        card.status = state;
         card.sections.chembl = Some(section);
     }
     let QueryBody::CellLineCard(card) = &out.body else {

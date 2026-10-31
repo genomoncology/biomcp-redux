@@ -3,31 +3,20 @@ use crate::{Action, Ctx, Outcome, status};
 use biodata::VariantId;
 use biomcp_fetch::Deadline;
 use biomcp_types::{
-    AssertionSource, PageInfo, QueryBody, Reason, Request, Section, Status, StepKind,
-    VariantAssertion, VariantAssertions, VariantAssertionsGet, VariantGet, VariantHeader,
+    AssertionSource, PageInfo, QueryBody, Reason, Request, Section, StepKind, VariantAssertion,
+    VariantAssertions, VariantAssertionsGet, VariantGet, VariantHeader,
 };
 pub(crate) fn get(cx: &Ctx<'_>, query: &VariantAssertionsGet) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
-    let (section, sources, problems, local) = read(cx, query, deadline);
+    let (section, sources, problems, local, dropped) = read(cx, query, deadline);
     let (status, body) = match section {
-        Section::Data { data, .. } => (
-            if problems.is_empty() {
-                Status::Complete
-            } else {
-                Status::Partial
-            },
-            data,
-        ),
+        Section::Data { data, .. } => (crate::status::item_status(true, false, dropped), data),
         Section::Empty { .. } => (
-            if problems.is_empty() {
-                Status::Absent
-            } else {
-                Status::Partial
-            },
+            crate::status::item_status(dropped, false, dropped),
             empty(query),
         ),
-        _ => (Status::Failed, empty(query)),
+        _ => (crate::status::item_status(false, true, false), empty(query)),
     };
     let next = body
         .next
@@ -44,15 +33,18 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &VariantAssertionsGet) -> Outcome {
         .into_iter()
         .collect();
     command.finish(deadline.remaining());
-    Outcome {
-        status,
-        body: QueryBody::VariantAssertions(body),
-        page: None,
-        sources,
-        problems,
-        next,
-        local,
-    }
+    crate::status::finish(
+        [status],
+        crate::status::Parts {
+            dropped,
+            body: QueryBody::VariantAssertions(body),
+            page: None,
+            sources,
+            problems,
+            next,
+            local,
+        },
+    )
 }
 /// Section hooks receive one candidate; source input IDs can be checked caller selectors.
 pub(super) fn section(
@@ -81,6 +73,7 @@ pub(super) fn section(
             Vec::new(),
             Vec::new(),
             None,
+            false,
         );
     };
     let Some(q) = id
@@ -98,6 +91,7 @@ pub(super) fn section(
             Vec::new(),
             Vec::new(),
             None,
+            false,
         );
     };
     read(cx, &q, deadline)
@@ -131,9 +125,11 @@ fn read(
     };
     let error = result.as_ref().err().copied();
     let outcome = status::source(spec.source, leg.finish(), error);
+    let mut dropped = false;
     let mut problems = Vec::new();
     let section = match result {
         Ok(rows) => {
+            dropped = rows.refusals == biomcp_adapters::Refusal::Refused;
             problems = rows.problems;
             let data = page(query, rows.value);
             if data.page.total == 0 {
@@ -158,6 +154,7 @@ fn read(
         vec![outcome],
         problems,
         error.and_then(status::local),
+        dropped,
     )
 }
 fn page(query: &VariantAssertionsGet, mut rows: Vec<VariantAssertion>) -> VariantAssertions {

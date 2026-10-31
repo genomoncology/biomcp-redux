@@ -4,7 +4,7 @@ use crate::{Action, Ctx, Outcome, status};
 use biomcp_adapters::{drugsfda as source, received_date};
 use biomcp_types::{
     DrugCard, DrugFdaPage, DrugGet, DrugPage, DrugSearch, DrugSection, DrugSource, QueryBody,
-    Request, Source, SourceState, Status, StepKind,
+    Request, Source, SourceState, StepKind,
 };
 mod approvals;
 pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
@@ -25,6 +25,7 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     out.sources
         .push(status::source(Source::Drugsfda, leg.finish(), error));
     if let Ok(page) = result {
+        out.include_refusals(page.refusals);
         out.problems.extend(page.problems);
         searched(
             query,
@@ -71,13 +72,17 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
             source.count = Some(page.total);
             source.retrieved_count = Some(page.records.len() as u32);
         }
+        out.include_refusals(page.refusals);
         out.problems.extend(page.problems);
-        out.status = if page.records.is_empty() {
-            Status::Absent
-        } else if out.sources.iter().any(|s| s.state == SourceState::Stale) {
-            Status::Partial
-        } else {
-            Status::Complete
+        {
+            let (found, identity_failed, unavailable) = if page.records.is_empty() {
+                (false, false, false)
+            } else if out.sources.iter().any(|s| s.state == SourceState::Stale) {
+                (true, false, true)
+            } else {
+                (true, false, false)
+            };
+            crate::status::item(&mut out, found, identity_failed, unavailable);
         };
         if let Some(row) = page.records.first() {
             label_steps(cx, row, &mut out);
@@ -90,7 +95,7 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
                     page.updated,
                     &mut out,
                 ) {
-                    out.status = Status::Failed;
+                    crate::status::item(&mut out, false, true, false);
                     out.local = status::local(error);
                 }
             } else {

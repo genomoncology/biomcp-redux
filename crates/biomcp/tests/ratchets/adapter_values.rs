@@ -1,4 +1,6 @@
 //! Classify optional-value drops beside the existing source ratchet.
+#[path = "private_refusal.rs"]
+pub(crate) mod private_refusal;
 use super::super::{Check, rust_files};
 use super::tokens;
 use serde::Deserialize;
@@ -23,6 +25,7 @@ struct Site {
 }
 pub(super) fn check(root: &Path) -> Check {
     let audit = validate(include_str!("adapter_value_audit.json"))?;
+    let mut violations = Vec::new();
     for (relative, site, count) in sites(root)? {
         if !audit
             .sites
@@ -34,10 +37,14 @@ pub(super) fn check(root: &Path) -> Check {
             } else {
                 "classify new optional-value drop or file rule"
             };
-            return Err(format!("{relative}: {rule}: {site}").into());
+            violations.push(format!("{relative}: {rule}: {site}"));
         }
     }
-    Ok(())
+    if violations.is_empty() {
+        Ok(())
+    } else {
+        Err(violations.join("\n").into())
+    }
 }
 pub(crate) fn validate(text: &str) -> Result<Audit, Box<dyn std::error::Error>> {
     let audit: Audit = serde_json::from_str(text)?;
@@ -107,7 +114,7 @@ pub(crate) fn sites(root: &Path) -> Result<Vec<DropSite>, Box<dyn std::error::Er
             .to_string_lossy()
             .replace('\\', "/");
         let text = fs::read_to_string(&path)?;
-        let mut found = fingerprints(&tokens(&text), &relative);
+        let mut found = fingerprints(root, &tokens(&text), &relative);
         if text.lines().count() > super::ADAPTER_LIMIT {
             found.insert("file line limit".into(), text.lines().count());
         }
@@ -118,7 +125,7 @@ pub(crate) fn sites(root: &Path) -> Result<Vec<DropSite>, Box<dyn std::error::Er
     Ok(result)
 }
 
-fn fingerprints(tokens: &[String], path: &str) -> BTreeMap<String, usize> {
+fn fingerprints(root: &Path, tokens: &[String], path: &str) -> BTreeMap<String, usize> {
     let mut result = BTreeMap::new();
     let mut function = "module";
     for (index, token) in tokens.iter().enumerate() {
@@ -127,7 +134,9 @@ fn fingerprints(tokens: &[String], path: &str) -> BTreeMap<String, usize> {
         {
             function = name;
         }
-        if let Some(site) = attribute_site(tokens, index) {
+        if let Some(site) = attribute_site(tokens, index)
+            && !private_refusal::allowed(root, path, tokens, index)
+        {
             *result.entry(site).or_default() += 1;
         }
         let tail = tokens.get(index..).unwrap_or_default();

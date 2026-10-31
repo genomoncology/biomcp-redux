@@ -13,9 +13,9 @@
         "--source",
         "litvar"
       ],
-      "exit": 1,
+      "exit": 0,
       "expect": {
-        "/status": "absent",
+        "/status": "complete",
         "/sources/0/source": "litvar",
         "/sources/0/state": "ok",
         "/next": {

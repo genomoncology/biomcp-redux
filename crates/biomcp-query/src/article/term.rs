@@ -2,7 +2,7 @@ use crate::{Action, Ctx, Outcome, gene, status};
 
 use biomcp_adapters::hgnc;
 use biomcp_fetch::{Deadline, RequestError};
-use biomcp_types::{ArticleSearch, ArticleType, Request, Source, Status, StepKind};
+use biomcp_types::{ArticleSearch, ArticleType, Request, Source, StepKind};
 use biomcp_types::{GeneInput, GeneResolution};
 pub(super) struct Resolved {
     pub term: String,
@@ -79,7 +79,7 @@ pub(super) fn resolve<'a>(
             Ok(None)
         }
         _ => {
-            out.status = Status::Absent;
+            crate::status::item(out, false, false, false);
             Ok(None)
         }
     }

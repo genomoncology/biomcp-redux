@@ -25,6 +25,8 @@ pub struct Page {
 /// Exact term card and original retrieval metadata.
 #[derive(Debug)]
 pub struct Record {
+    /// Actual refused native hierarchy records.
+    pub refusals: crate::Refusal,
     /// Rejected native metadata retained for section snapshots.
     pub problems: Vec<biomcp_types::Problem>,
     /// Complete independent source card.
@@ -114,8 +116,11 @@ pub fn get(leg: &Leg<'_>, q: &PhenotypeGet) -> Result<Record, RequestError> {
         record: crate::mapped::record(&id),
         list: std::mem::take(&mut node.problems),
     };
-    let (synonyms, xrefs, hierarchy) = sections::rows(&mut node, &attribution, &mut problems);
+    let mut refusals = crate::Refusal::None;
+    let (synonyms, xrefs, hierarchy) =
+        sections::rows(&mut node, &attribution, &mut problems, &mut refusals);
     Ok(Record {
+        refusals,
         problems: problems.list,
         synonyms,
         xrefs,

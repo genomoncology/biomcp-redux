@@ -40,6 +40,8 @@ pub(super) fn fetch(
         let rows = mapped.value;
         let count = rows.items.len();
         Ok::<_, RequestError>(Saved {
+            dropped: card.refusals == biomcp_adapters::Refusal::Refused
+                || mapped.refusals == biomcp_adapters::Refusal::Refused,
             genes: Some(PathwayGenes {
                 header: PathwayHeader {
                     id: q.id.clone(),

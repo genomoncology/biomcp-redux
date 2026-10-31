@@ -23,7 +23,7 @@ pub mod text;
 use crate::{Action, Ctx, Outcome, status, store::Store};
 use biodata::Text;
 use biomcp_fetch::{CacheError, Deadline, RequestError};
-use biomcp_types::{ArticlePage, ArticleSearch, QueryBody, Request, Status, StepKind};
+use biomcp_types::{ArticlePage, ArticleSearch, QueryBody, Request, StepKind};
 use sha2::{Digest, Sha256};
 /// Run one article command under a single absolute deadline.
 pub fn search(cx: &Ctx<'_>, query: &ArticleSearch) -> Outcome {
@@ -38,7 +38,7 @@ pub fn search(cx: &Ctx<'_>, query: &ArticleSearch) -> Outcome {
     command.finish(deadline.remaining());
     if let Err(error) = result {
         out.local = status::local(error);
-        out.status = Status::Failed;
+        crate::status::item(&mut out, false, true, false);
     }
     if out.sources.iter().any(|source| {
         source.source == biomcp_types::Source::SemanticScholar
@@ -102,11 +102,13 @@ fn execute<'a>(
                     entrez: None,
                 }
             };
-            let Some(mut items) = sources::search(cx, query, &resolved, deadline, out)? else {
-                if out.status != Status::Absent {
+            let mut items = match sources::search(cx, query, &resolved, deadline, out)? {
+                sources::SearchResult::Items(items) => items,
+                sources::SearchResult::Answer => return Ok(()),
+                sources::SearchResult::Unavailable => {
                     retry(query, None, out);
+                    return Ok(());
                 }
-                return Ok(());
             };
             if query.sort() == biomcp_types::ArticleSort::Citations
                 && !order::apply(cx, deadline, &mut items, out)?
@@ -115,7 +117,7 @@ fn execute<'a>(
                 return Ok(());
             }
             store.set_deadline(*deadline);
-            store.publish(&key, &items, &out.sources, &out.problems)?
+            store.publish(&key, &items, &out.sources, &out.problems, out.dropped)?
         }
     };
     out.sources = pool.sources.clone();
@@ -143,18 +145,10 @@ fn retry(query: &ArticleSearch, pool: Option<Text>, out: &mut Outcome) {
     ));
 }
 fn empty() -> Outcome {
-    Outcome {
-        status: Status::Complete,
-        body: QueryBody::ArticlePage(ArticlePage {
-            items: Box::default(),
-            candidates: Vec::new(),
-        }),
-        page: None,
-        sources: Vec::new(),
-        problems: Vec::new(),
-        next: Vec::new(),
-        local: None,
-    }
+    crate::status::ready(QueryBody::ArticlePage(ArticlePage {
+        items: Box::default(),
+        candidates: Vec::new(),
+    }))
 }
 
 // Fetch legs deliberately own independent replay clocks. A sequential article

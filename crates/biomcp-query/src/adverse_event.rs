@@ -4,7 +4,7 @@ mod vaers;
 use crate::{Action, Ctx, Outcome, status};
 use biomcp_adapters::{faers, maude};
 use biomcp_types::{
-    AdverseEventPage, AdverseEventSearch, PageInfo, QueryBody, ReportUnit, Request, Source, Status,
+    AdverseEventPage, AdverseEventSearch, PageInfo, QueryBody, ReportUnit, Request, Source,
     StepKind,
 };
 /// Search report headers through the declared source and its reviewed component admission.
@@ -36,28 +36,32 @@ pub fn search(cx: &Ctx<'_>, query: &AdverseEventSearch) -> Outcome {
         maude::search(&leg, query)
     };
     let error = reply.as_ref().err().copied();
-    let mut out = Outcome {
-        status: Status::Failed,
-        body: QueryBody::AdverseEventPage(AdverseEventPage {
-            reaction_match: query
-                .reaction()
-                .map(|_| biomcp_types::AdverseEventReactionMatch::PhraseMatch),
-            source_query: selector.into_boxed_str(),
-            source_updated: None,
-            fetched: None,
-            items: Box::default(),
-            unit: ReportUnit::Reports,
-            components: Box::default(),
-        }),
-        page: None,
-        sources: vec![status::source(source, leg.finish(), error)],
-        problems: Vec::new(),
-        next: Vec::new(),
-        local: error.and_then(status::local),
-    };
+    let mut out = crate::status::finish(
+        [crate::status::item_status(false, true, false)],
+        crate::status::Parts {
+            dropped: false,
+            body: QueryBody::AdverseEventPage(AdverseEventPage {
+                reaction_match: query
+                    .reaction()
+                    .map(|_| biomcp_types::AdverseEventReactionMatch::PhraseMatch),
+                source_query: selector.into_boxed_str(),
+                source_updated: None,
+                fetched: None,
+                items: Box::default(),
+                unit: ReportUnit::Reports,
+                components: Box::default(),
+            }),
+            page: None,
+            sources: vec![status::source(source, leg.finish(), error)],
+            problems: Vec::new(),
+            next: Vec::new(),
+            local: error.and_then(status::local),
+        },
+    );
     if let Ok(page) = reply {
         let returned = page.items.len() as u32;
         navigation(query, &page, &mut out);
+        out.include_refusals(page.refusals);
         out.problems.extend(page.problems);
         out.page = Some(PageInfo {
             offset: query.offset(),
@@ -66,7 +70,7 @@ pub fn search(cx: &Ctx<'_>, query: &AdverseEventSearch) -> Outcome {
             pool: None,
             truncated: None,
         });
-        out.status = page_status(&out, page.total);
+        crate::status::search(&mut out);
         if let QueryBody::AdverseEventPage(body) = &mut out.body {
             body.items = page.items.into();
             body.components = page.components;
@@ -80,32 +84,10 @@ pub fn search(cx: &Ctx<'_>, query: &AdverseEventSearch) -> Outcome {
     command.finish(deadline.remaining());
     out
 }
-fn page_status(out: &Outcome, total: u64) -> Status {
-    if total == 0 {
-        Status::Absent
-    } else if !out.problems.is_empty()
-        || out
-            .sources
-            .iter()
-            .any(|s| s.state == biomcp_types::SourceState::Stale)
-    {
-        Status::Partial
-    } else {
-        Status::Complete
-    }
-}
 
 /// An unimplemented report get has no source effects until its owning slice lands.
 pub fn unsupported() -> Outcome {
-    Outcome {
-        status: Status::Failed,
-        body: QueryBody::UnsupportedAdverseEvent,
-        page: None,
-        sources: Vec::new(),
-        problems: Vec::new(),
-        next: Vec::new(),
-        local: None,
-    }
+    crate::status::empty(QueryBody::UnsupportedAdverseEvent)
 }
 
 fn navigation(query: &AdverseEventSearch, page: &faers::Page, out: &mut Outcome) {

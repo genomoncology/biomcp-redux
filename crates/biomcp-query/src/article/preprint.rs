@@ -23,7 +23,7 @@ pub(super) fn cards<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut Out
         match europepmc::core(&leg, id) {
             Ok((card, metadata)) => {
                 out.problems.extend(card.problems);
-                item.status = Status::Complete;
+                item.status = crate::status::item_status(true, false, false);
                 item.answer = Some(ArticleResolution::Resolved {
                     card: card.value.card(),
                     r#match: ArticleMatch {
@@ -35,7 +35,7 @@ pub(super) fn cards<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut Out
             Err(e) => {
                 error.get_or_insert(e);
                 out.local = out.local.or(status::local(e));
-                item.status = Status::Failed;
+                item.status = crate::status::item_status(false, true, false);
                 item.answer = None;
             }
         }
@@ -48,12 +48,13 @@ pub(super) fn cards<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut Out
                 if matches!(item.input, ArticleInput::EuropePmc(_))
                     && item.status == Status::Complete
                 {
-                    item.status = Status::Partial;
+                    item.status = crate::status::item_status(true, false, true);
                 }
             }
         }
         out.sources.push(source);
-        out.status = status::status(cards.items.iter().map(|i| i.status));
+        let state = status::status(cards.items.iter().map(|i| i.status));
+        status::get(out, [state].into_iter());
     }
 }
 pub(super) fn fulltext<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut Outcome) {
@@ -76,6 +77,7 @@ pub(super) fn fulltext<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut 
         };
         used = true;
         let result = europepmc::read(&leg, id).map(|mapped| {
+            out.dropped |= mapped.refusals == biomcp_adapters::Refusal::Refused;
             out.problems.extend(mapped.problems);
             mapped.value
         });
@@ -97,7 +99,7 @@ pub(super) fn fulltext<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut 
             Err(e) => {
                 error.get_or_insert(e);
                 out.local = out.local.or(status::local(e));
-                item.status = Status::Partial;
+                item.status = crate::status::item_status(true, false, true);
                 Section::unavailable(
                     Source::EuropePmc,
                     crate::status::reason(e).unwrap_or(biomcp_types::Reason::Unavailable),
@@ -113,7 +115,7 @@ pub(super) fn fulltext<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut 
                 if matches!(item.input, ArticleInput::EuropePmc(_))
                     && item.status == Status::Complete
                 {
-                    item.status = Status::Partial;
+                    item.status = crate::status::item_status(true, false, true);
                 }
             }
         }
@@ -126,6 +128,7 @@ pub(super) fn fulltext<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut 
         } else {
             out.sources.push(source);
         }
-        out.status = status::status(cards.items.iter().map(|i| i.status));
+        let state = status::status(cards.items.iter().map(|i| i.status));
+        status::get(out, [state].into_iter());
     }
 }

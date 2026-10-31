@@ -3,8 +3,8 @@ use crate::{Action, Ctx, Outcome, status};
 
 use biomcp_adapters::{clinvar, myvariant};
 use biomcp_types::{
-    PageInfo, QueryBody, Request, Source, Status, StepKind, VariantGet, VariantPage,
-    VariantResolver, VariantSearch,
+    PageInfo, QueryBody, Request, Source, StepKind, VariantGet, VariantPage, VariantResolver,
+    VariantSearch,
 };
 /// Discover one source-native page; a zero result remains distinct from a failed source.
 pub fn search(cx: &Ctx<'_>, query: &VariantSearch) -> Outcome {
@@ -32,35 +32,26 @@ pub fn search(cx: &Ctx<'_>, query: &VariantSearch) -> Outcome {
     let selector_terms = selector_terms.ok().flatten();
     let error = reply.as_ref().err().copied();
     let source = status::source(spec.source, leg.finish(), error);
-    let mut out = Outcome {
-        status: Status::Failed,
-        body: QueryBody::VariantPage(VariantPage {
-            selector_terms: selector_terms.clone(),
-            filter_terms: terms.clone(),
-            source_query: query.source_query(),
-            build: query.build(),
-            items: Box::default(),
-        }),
-        page: None,
-        sources: vec![source],
-        problems: Vec::new(),
-        next: Vec::new(),
-        local: error.and_then(status::local),
-    };
+    let mut out = crate::status::finish(
+        [crate::status::item_status(false, true, false)],
+        crate::status::Parts {
+            dropped: false,
+            body: QueryBody::VariantPage(VariantPage {
+                selector_terms: selector_terms.clone(),
+                filter_terms: terms.clone(),
+                source_query: query.source_query(),
+                build: query.build(),
+                items: Box::default(),
+            }),
+            page: None,
+            sources: vec![source],
+            problems: Vec::new(),
+            next: Vec::new(),
+            local: error.and_then(status::local),
+        },
+    );
     if let Ok(reply) = reply {
-        out.status = if !reply.rows.problems.is_empty()
-            || reply.total > u64::from(VariantSearch::MAX_RESULTS)
-            || out
-                .sources
-                .iter()
-                .any(|s| s.state == biomcp_types::SourceState::Stale)
-        {
-            Status::Partial
-        } else if reply.total == 0 {
-            Status::Absent
-        } else {
-            Status::Complete
-        };
+        out.include_refusals(reply.rows.refusals);
         let returned = reply.rows.value.len() as u32;
         out.next = next(query, &reply.rows.value, reply.consumed, reply.total);
         out.page = Some(PageInfo {
@@ -79,6 +70,7 @@ pub fn search(cx: &Ctx<'_>, query: &VariantSearch) -> Outcome {
             items: reply.rows.value.into(),
         });
     }
+    status::search(&mut out);
     command.finish(deadline.remaining());
     out
 }
@@ -128,15 +120,18 @@ fn component_terms(
     Ok(Some(myvariant::components::label(terms)?))
 }
 fn policy_error() -> Outcome {
-    Outcome {
-        status: Status::Failed,
-        body: QueryBody::VariantQueryPolicyError,
-        page: None,
-        sources: Vec::new(),
-        problems: Vec::new(),
-        next: Vec::new(),
-        local: None,
-    }
+    crate::status::finish(
+        [crate::status::item_status(false, true, false)],
+        crate::status::Parts {
+            dropped: false,
+            body: QueryBody::VariantQueryPolicyError,
+            page: None,
+            sources: Vec::new(),
+            problems: Vec::new(),
+            next: Vec::new(),
+            local: None,
+        },
+    )
 }
 fn next(
     query: &VariantSearch,
