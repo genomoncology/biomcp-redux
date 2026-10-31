@@ -145,3 +145,29 @@ fn required_write_reserves_before_snapshot_and_preserves_existing_reader() {
     reader.execute_batch("COMMIT").unwrap();
     assert_eq!(value(&reader), "new");
 }
+
+#[test]
+fn schema_admission_clears_ownership_before_poison_is_observed() {
+    let directory = tempfile::tempdir().unwrap();
+    let cache = Cache::open_with_owners(&directory.path().join("cache.sqlite"), &[]).unwrap();
+    let deadline = || Deadline::start(Duration::from_secs(5), None);
+    assert_eq!(
+        cache.admit(deadline(), || {
+            assert!(cache.4.load(std::sync::atomic::Ordering::Acquire));
+            Ok(42)
+        }),
+        Ok(42)
+    );
+    assert!(!cache.4.load(std::sync::atomic::Ordering::Acquire));
+    let failed = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        cache.admit(deadline(), || -> Result<(), CacheError> {
+            panic!("schema owner panic");
+        })
+    }));
+    assert!(failed.is_err());
+    assert!(!cache.4.load(std::sync::atomic::Ordering::Acquire));
+    assert_eq!(
+        cache.try_sql(deadline(), |_| Ok(())),
+        Err(CacheError::Database)
+    );
+}
