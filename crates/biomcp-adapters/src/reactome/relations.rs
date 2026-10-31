@@ -19,7 +19,6 @@ pub struct Members {
 
 /// Read the bounded complete physical-participant relation without interpreting display names.
 pub fn members(leg: &Leg<'_>, id: &ReactomeId) -> Result<Mapped<Members>, RequestError> {
-    let invalid_reply = biomcp_fetch::bad_reply(Source::Reactome, Some(200));
     let endpoint = SPEC
         .get("/data/participants")
         .with_path(format!("/data/participants/{id}"))?
@@ -32,6 +31,10 @@ pub fn members(leg: &Leg<'_>, id: &ReactomeId) -> Result<Mapped<Members>, Reques
             Read::<raw::Participants>::json(),
         )?
         .value;
+    map_members(rows, id)
+}
+fn map_members(rows: raw::Participants, id: &ReactomeId) -> Result<Mapped<Members>, RequestError> {
+    let invalid_reply = biomcp_fetch::bad_reply(Source::Reactome, Some(200));
     let mut problems = fields(id);
     let mut value = Members {
         items: Vec::new(),

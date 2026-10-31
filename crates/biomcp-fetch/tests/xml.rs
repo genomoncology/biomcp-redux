@@ -119,14 +119,21 @@ fn invoke(
     fetch: &Fetch,
     spec: &'static biomcp_fetch::SourceSpec,
 ) -> Result<Answer, biomcp_fetch::RequestError> {
-    fetch
-        .leg(spec, fetch.deadline(Duration::from_secs(10)))
-        .call(
-            &spec.get("/answer").fresh(Freshness::Days(1)),
-            Input::Params(&[]),
-            Read::xml(),
-        )
-        .map(|received| received.value)
+    invoke_leg(
+        &fetch.leg(spec, fetch.deadline(Duration::from_secs(10))),
+        spec,
+    )
+}
+fn invoke_leg(
+    leg: &biomcp_fetch::Leg<'_>,
+    spec: &'static biomcp_fetch::SourceSpec,
+) -> Result<Answer, biomcp_fetch::RequestError> {
+    leg.call(
+        &spec.get("/answer").fresh(Freshness::Days(1)),
+        Input::Params(&[]),
+        Read::xml(),
+    )
+    .map(|received| received.value)
 }
 #[test]
 fn invalid_xml_media_encodings_documents_and_reply_checks_are_input_free() {
@@ -279,14 +286,7 @@ fn xml_cache_codec_invalid_entries_and_stale_fallback_remain_checked() {
         .unwrap();
     let leg = fetch.leg(spec, fetch.deadline(Duration::from_secs(10)));
     thread::scope(|scope| {
-        let worker = scope.spawn(|| {
-            leg.call(
-                &spec.get("/answer").fresh(Freshness::Days(1)),
-                Input::Params(&[]),
-                Read::<Answer>::xml(),
-            )
-            .map(|received| received.value)
-        });
+        let worker = scope.spawn(|| invoke_leg(&leg, spec));
         server.next().respond(403, "", "unchecked-secret");
         assert_eq!(worker.join().unwrap().unwrap().text.as_str(), "BRAFV600E");
     });

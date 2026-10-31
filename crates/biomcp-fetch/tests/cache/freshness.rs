@@ -264,13 +264,11 @@ fn mixed_cached_and_live_replies_keep_their_own_fetch_times() {
                 if *id == 2 {
                     cached_ready.wait();
                 }
-                let reply = child
-                    .call(
-                        &endpoint,
-                        Input::Params(&[("id", Arg::Num(*id))]),
-                        Read::<Answer>::json(),
-                    )
-                    .map(|received| received.value);
+                let reply = child.call(
+                    &endpoint,
+                    Input::Params(&[("id", Arg::Num(*id))]),
+                    Read::<Answer>::json(),
+                );
                 if *id == 1 {
                     cached_ready.wait();
                 }
@@ -285,7 +283,7 @@ fn mixed_cached_and_live_replies_keep_their_own_fetch_times() {
                 .join()
                 .unwrap()
                 .into_iter()
-                .all(|row| row.unwrap().answer)
+                .all(|row| row.unwrap().value.answer)
         );
     });
     let report = leg.finish();
@@ -318,7 +316,6 @@ fn mixed_cached_and_live_replies_keep_their_own_fetch_times() {
         Input::Params(&[("id", Arg::Num(1))]),
         Read::<Answer>::json(),
     )
-    .map(|received| received.value)
     .unwrap();
     assert_eq!(leg.finish().replies[0].fetched, Some(1234567890));
 }
