@@ -88,7 +88,7 @@ fn placement(path: &str, text: &str) -> Check {
         if !(call || reference || import) {
             continue;
         }
-        if !setup && !(path == CREDENTIAL_OWNER && name == "read_file") {
+        if !(setup || path == CREDENTIAL_OWNER && name == "read_file") {
             return Err(format!("{path}: {name} belongs in main or MCP setup").into());
         }
     }
