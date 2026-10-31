@@ -10,6 +10,10 @@ mod witness_proof;
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        #[cfg(unix)]
+        transcript_trial("live-source-checks/report-is-one-json-value", || {
+            stdout_report().map_err(|e| e.to_string().into())
+        }),
         transcript_trial("live-source-checks/cache-retries-and-request-plans", || {
             comparison().map_err(|e| e.to_string().into())
         }),
@@ -32,6 +36,58 @@ pub(super) fn trials() -> Vec<Trial> {
             formats().map_err(|e| e.to_string().into())
         }),
     ]
+}
+
+#[cfg(unix)]
+fn stdout_report() -> Result<(), Box<dyn std::error::Error>> {
+    use std::os::unix::fs::PermissionsExt;
+    let environment = Environment::new()?;
+    let fixtures = environment.root().join("fixtures");
+    fs::create_dir_all(fixtures.join("cases"))?;
+    fs::copy(
+        super::launch::fixtures().join("cases/mcp/research-search.yaml"),
+        fixtures.join("cases/research-search.yaml"),
+    )?;
+    let replay = fixtures.join("replies/trial/condition");
+    response_cases::copy_capture("trial/condition", &replay, |_, _| {})?;
+    let quote = |path: &Path| format!("'{}'", path.display().to_string().replace('\'', "'\\''"));
+    let binary = quote(&super::launch::executable(Path::new(env!(
+        "CARGO_BIN_EXE_biomcp"
+    ))));
+    let wrapper = environment.root().join("recorded-biomcp");
+    // Both sides use recorded provider replies. The existing installed-binary
+    // boundary lets this exercise the real live-check entry point offline.
+    fs::write(
+        &wrapper,
+        format!(
+            "#!/bin/sh\nfor arg do\n  if [ \"$arg\" = --replay ]; then\n    exec {binary} \"$@\"\n  fi\ndone\nexec {binary} \"$@\" --replay {}\n",
+            quote(&replay)
+        ),
+    )?;
+    fs::set_permissions(&wrapper, fs::Permissions::from_mode(0o700))?;
+    let output = environment
+        .command(
+            std::env::current_exe()?,
+            &["--live-check".into(), "--details".into()],
+        )
+        .env("BIOMCP_TEST_EXECUTABLE", &wrapper)
+        .env("BIOMCP_TEST_FIXTURES", &fixtures)
+        .output()?;
+    let report: Value = serde_json::from_slice(&output.stdout).map_err(|error| {
+        format!(
+            "live-check stdout is not one JSON report: {error}; stdout={}",
+            String::from_utf8_lossy(&output.stdout)
+        )
+    })?;
+    if !output.status.success()
+        || report.get("checked") != Some(&json!(1))
+        || report.get("error_cases") != Some(&json!(0))
+        || report.get("drift_cases") != Some(&json!(0))
+        || !String::from_utf8_lossy(&output.stderr).contains("research search compact_bytes=")
+    {
+        return Err(format!("recorded live-check failed: {output:?}").into());
+    }
+    Ok(())
 }
 fn check() -> Result<(), Box<dyn std::error::Error>> {
     let env = Environment::new()?;
