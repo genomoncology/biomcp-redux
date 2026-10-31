@@ -72,12 +72,22 @@ fn fields() -> Check {
     Ok(())
 }
 fn failures() -> Check {
+    case(
+        CAPTURE,
+        ARGS,
+        |source, record| {
+            if source == "semantic-scholar" {
+                reply(
+                    record,
+                    json!({"data":[{"citedPaper":{"paperId":"bad","externalIds":{}}}]}),
+                );
+            }
+        },
+        json!({"/status":"partial","/sources/0/status":"ok","/result/items":[],"/problems/0/field":"paper_id","/problems/0/code":"value.unknown"}),
+        0,
+    )?;
     for (value, reason) in [
         (json!({"data":[],"next":0}), "bad-reply"),
-        (
-            json!({"data":[{"citedPaper":{"paperId":"bad","externalIds":{}}}]}),
-            "bad-reply",
-        ),
         (
             json!({"data":[{"citingPaper":{"paperId":"0123456789abcdef0123456789abcdef01234567","externalIds":{}}}]}),
             "bad-reply",
