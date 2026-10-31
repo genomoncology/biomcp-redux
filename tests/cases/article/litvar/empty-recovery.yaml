@@ -38,8 +38,6 @@
           "article",
           "--gene",
           "AKT1",
-          "--source",
-          "pubmed",
           "--variant",
           "rs121434592"
         ],
@@ -52,9 +50,7 @@
           "search",
           "article",
           "--gene",
-          "AKT1",
-          "--source",
-          "pubmed"
+          "AKT1"
         ],
         "/sources/0/notices/0/message": "If you have an rsID, look it up in LitVar with --variant RSID --source litvar."
       }
