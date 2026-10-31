@@ -9,6 +9,7 @@ use biomcp_fetch::{Input, Read};
 use biomcp_fetch::{Arg, BadReply, Endpoint, Freshness, Leg, Reply, RequestError};
 use biomcp_types::{ArticleHeader, ArticleItem, ArticleKey};
 use serde::Deserialize;
+mod receive;
 const SEARCH: Endpoint = super::SPEC.get("/paper/search").fresh(Freshness::Days(1));
 /// A native search window, before duplicate suppression or DOI resolution.
 #[derive(Debug, Deserialize)]
@@ -28,33 +29,6 @@ pub struct Search {
 struct RawSearch {
     total: u64,
     data: Vec<Field<Paper>>,
-}
-impl From<RawSearch> for Search {
-    fn from(raw: RawSearch) -> Self {
-        let mut refusals = crate::Refusal::None;
-        let received = raw.data.len();
-        let mut p = Problems {
-            source: biomcp_types::Source::SemanticScholar,
-            record: None,
-            list: Vec::new(),
-        };
-        let data = raw
-            .data
-            .into_iter()
-            .filter_map(|v| {
-                let row = p.record("paper_id", v, &mut refusals)?;
-                refusals.include(row.refusals);
-                Some(row)
-            })
-            .collect();
-        Self {
-            refusals,
-            total: raw.total,
-            data,
-            problems: p.list,
-            received,
-        }
-    }
 }
 /// Common paper metadata shared by search and graph expansion.
 #[derive(Debug, Deserialize)]
