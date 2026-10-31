@@ -19,7 +19,6 @@ mod faers_search;
 mod native_fields;
 #[path = "../support/pool_contracts.rs"]
 mod pool_contract;
-mod query_refusals;
 #[path = "../support/synthetic_contracts.rs"]
 mod required_contract;
 tool_only! { pub(super) mod tools_api; }
@@ -250,8 +249,6 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(pdf::trials());
     trials.push(skill::trial());
     trials.extend(credential_containment::trials());
-    // Private Refusal facts are visible only at the public adapter API.
-    trials.extend(query_refusals::trials());
     trials.extend(http::trials());
     trials.extend(remote_tools::trials());
     trials.extend(mcp_boundaries::trials());

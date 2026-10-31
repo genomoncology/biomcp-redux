@@ -1,11 +1,11 @@
 //! Source refusals survive the shared query request boundary.
-use super::{replay_support::replay, transcript::trial};
 use libtest_mimic::Trial;
-use serde_json::json;
+use replay_support::replay;
+use serde_json::Value;
 use std::time::Duration;
 type Check = Result<(), Box<dyn std::error::Error>>;
-pub(super) fn trials() -> Vec<Trial> {
-    vec![trial(
+fn trials() -> Vec<Trial> {
+    vec![Trial::test(
         "gene-identity/query-resolution-keeps-actual-refusals",
         || query_resolution().map_err(|e| e.to_string().into()),
     )]
@@ -20,19 +20,21 @@ fn query_resolution() -> Check {
             {
                 changed = true;
                 *body = if refused {
-                    json!(format!(
+                    Value::String(format!(
                         "{native}invalid\tODC1\trefused identity\tprotein-coding gene\tApproved\n"
                     ))
                 } else {
-                    json!(native.replacen("protein-coding gene", "invalid optional locus group", 1))
+                    Value::String(native.replacen(
+                        "protein-coding gene",
+                        "invalid optional locus group",
+                        1,
+                    ))
                 };
             }
         })?;
         if !changed {
             return Err("HGNC recording did not contain native complete rows".into());
         }
-        biomcp_query::sources::sync(&fetch, biomcp_query::Bundle::Hgnc)
-            .ok_or("missing HGNC sync")??;
         let query = biomcp_types::GeneGet::new(Box::new(["ODC1".parse()?]))?;
         let mapped = biomcp_query::run(
             &biomcp_query::Ctx {
@@ -65,4 +67,24 @@ fn query_resolution() -> Check {
         }
     }
     Ok(())
+}
+
+#[path = "../../biomcp-fetch/tests/support/capture.rs"]
+mod capture_support;
+#[path = "../../biomcp-fetch/tests/support/fixtures.rs"]
+mod fixture_paths;
+#[path = "../../biomcp-fetch/tests/support/recordings.rs"]
+#[expect(
+    clippy::disallowed_methods,
+    reason = "The shared fixture copier owns isolated recording file I/O"
+)]
+#[expect(
+    dead_code,
+    reason = "The shared recording support also serves binary cache setup"
+)]
+mod recording_support;
+#[path = "../../biomcp-fetch/tests/support/replay.rs"]
+mod replay_support;
+fn main() {
+    libtest_mimic::run(&libtest_mimic::Arguments::from_args(), trials()).exit();
 }

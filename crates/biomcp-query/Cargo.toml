@@ -25,3 +25,7 @@ workspace = true
 [[test]]
 name = "collection_refusals"
 harness = false
+
+[[test]]
+name = "query_refusals"
+harness = false
