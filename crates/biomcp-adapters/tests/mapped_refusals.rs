@@ -7,6 +7,11 @@ mod fixture_paths;
 mod mapped_refusals;
 #[path = "../../biomcp-fetch/tests/support/network_stub.rs"]
 #[expect(
+    clippy::disallowed_methods,
+    clippy::disallowed_types,
+    reason = "The shared TLS test peer owns native socket I/O and retained fixture evidence"
+)]
+#[expect(
     dead_code,
     reason = "The TLS fixture also serves binary launch and evidence contracts"
 )]
@@ -30,6 +35,10 @@ fn main() {
 }
 
 #[path = "../../biomcp-fetch/tests/support/recordings.rs"]
+#[expect(
+    clippy::disallowed_methods,
+    reason = "The shared fixture copier owns isolated recording file I/O"
+)]
 #[expect(
     dead_code,
     reason = "The shared recording support also serves binary cache setup"
