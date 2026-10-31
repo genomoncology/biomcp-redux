@@ -19,7 +19,7 @@ def run_selected(target: Sequence[str], cwd: Path, names: Sequence[str],
     command = [str(Path(target[0]).resolve(strict=True)), *target[1:]]
     cwd = cwd.resolve(strict=True)
     listed = subprocess.run([*command, "--list"], cwd=cwd, check=True,
-                            capture_output=True, text=True)
+                            stdout=subprocess.PIPE, text=True)
     available = {line.removesuffix(": test") for line in listed.stdout.splitlines()
                  if line.endswith(": test")}
     selected = list(dict.fromkeys(names))
@@ -67,6 +67,8 @@ if __name__ == "__main__":
     try:
         main()
     except subprocess.CalledProcessError as error:
+        if error.stdout:
+            print(error.stdout, end="", flush=True)
         raise SystemExit(error.returncode)
     except (OSError, ValueError) as error:
         raise SystemExit(str(error))

@@ -24,6 +24,10 @@ RUNNER = '''#!/usr/bin/env python3
 import json, os, sys
 from pathlib import Path
 if '--list' in sys.argv:
+    if os.environ.get('DISCOVERY_EXIT'):
+        print('discovery stdout context')
+        print('cases: malformed YAML', file=sys.stderr)
+        sys.exit(int(os.environ['DISCOVERY_EXIT']))
     print('literal/case.yaml: test')
 else:
     print(json.dumps({'arguments':sys.argv[1:], 'cwd':str(Path.cwd()),
@@ -61,6 +65,14 @@ class FocusedCommand(unittest.TestCase):
                             self.assertEqual(output['product'], str(directory / 'runner'))
                         else:
                             self.assertNotEqual(result.returncode, 0)
+            log.unlink(missing_ok=True)
+            result = subprocess.run([*command, 'literal/case.yaml'], cwd=directory,
+                                    env=dict(environment, DISCOVERY_EXIT='29'),
+                                    capture_output=True, text=True)
+            self.assertEqual(result.returncode, 29)
+            self.assertIn('discovery stdout context', result.stdout)
+            self.assertIn('cases: malformed YAML', result.stderr)
+            self.assertEqual(len(log.read_text().splitlines()), 1)
 
     def test_discovery_preserves_rust_case_and_custom_trial_modes(self):
         from trials import main
