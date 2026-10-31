@@ -31,23 +31,12 @@ fn store(fetch: &Fetch) -> Result<Store<'_>, biomcp_fetch::CacheError> {
     )
 }
 fn source(private: bool) -> SourceOutcome {
-    let spec = if private {
-        &biomcp_adapters::oncokb::SPEC
+    let source = if private {
+        biomcp_types::Source::Oncokb
     } else {
-        &biomcp_adapters::pubmed::SPEC
+        biomcp_types::Source::PubMed
     };
-    SourceOutcome {
-        source: spec.source,
-        usage: spec.terms.usage,
-        terms: spec.terms.name.into(),
-        terms_url: spec.terms.url.into(),
-        state: SourceState::Ok,
-        reason: None,
-        term: None,
-        count: None,
-        retrieved_count: None,
-        notices: Vec::new(),
-    }
+    biomcp_adapters::registry::outcome(source, SourceState::Ok, None)
 }
 fn item() -> ArticleItem {
     ArticleItem {
