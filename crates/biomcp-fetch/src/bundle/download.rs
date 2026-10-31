@@ -1,5 +1,5 @@
 use super::{
-    Bundle, BundleInfo, MAX_BUNDLE_BYTES, Row, parse,
+    Bundle, BundleSync, MAX_BUNDLE_BYTES, Row, parse,
     store::{self, Meta, Part},
 };
 use crate::{
@@ -27,7 +27,7 @@ impl Leg<'_> {
         &self,
         b: &Bundle<R>,
         auto: bool,
-    ) -> Result<BundleInfo, RequestError> {
+    ) -> Result<BundleSync, RequestError> {
         self.bundle_source(b)?;
         if matches!(self.fetch.mode, Mode::Offline) {
             return Err(self.failure(Reason::Offline, None).into());
@@ -108,7 +108,7 @@ impl Leg<'_> {
         }
         result
     }
-    fn replay_bundle<R: Row>(&self, b: &Bundle<R>) -> Result<BundleInfo, RequestError> {
+    fn replay_bundle<R: Row>(&self, b: &Bundle<R>) -> Result<BundleSync, RequestError> {
         let cache = self.bundle_cache()?;
         // The Fetch-local import set is independent of warm case storage.
         let mut imported = self
@@ -120,7 +120,7 @@ impl Leg<'_> {
             return cache
                 .bundle_info(b.name, self.budget())?
                 .as_ref()
-                .map(|m| store::info(b, m))
+                .map(|m| BundleSync::Published(store::info(b, m)))
                 .ok_or(CacheError::Database.into());
         }
         let url = format!("{}{}", self.spec.base.trim_end_matches('/'), b.path);
@@ -140,9 +140,11 @@ impl Leg<'_> {
         );
         meta.rejections = rows.rejections.clone();
         provenance(&mut meta, exchange.body.bytes());
-        cache.publish(b, None, &meta, Some(&rows), self.budget())?;
-        imported.insert(b.name);
-        Ok(store::info(b, &meta))
+        let result = self.publish_checked(b, None, &meta, &rows, 0)?;
+        if matches!(result, BundleSync::Published(_)) {
+            imported.insert(b.name);
+        }
+        Ok(result)
     }
     fn download<R: Row>(
         &self,
@@ -150,7 +152,7 @@ impl Leg<'_> {
         url: &str,
         t: &mut Transfer<'_>,
         old: Option<&Meta>,
-    ) -> Result<BundleInfo, RequestError> {
+    ) -> Result<BundleSync, RequestError> {
         let prepared = Prepared::new(url.into(), Vec::new(), Method::Get, true);
         let mut headers = conditional(t.part, old)?;
         for attempt in 0..crate::retry::ATTEMPTS {
@@ -247,7 +249,7 @@ impl Leg<'_> {
         b: &Bundle<R>,
         holder: &str,
         old: &Meta,
-    ) -> Result<BundleInfo, RequestError> {
+    ) -> Result<BundleSync, RequestError> {
         let mut m = old.clone();
         m.fresh_until = fresh_until(b);
         if !self
@@ -256,14 +258,14 @@ impl Leg<'_> {
         {
             return Err(self.failure(Reason::Syncing, None).into());
         }
-        Ok(store::info(b, &m))
+        Ok(BundleSync::Published(store::info(b, &m)))
     }
     fn consume<R: Row>(
         &self,
         b: &Bundle<R>,
         t: &mut Transfer<'_>,
         response: &mut ureq::http::Response<ureq::Body>,
-    ) -> Result<BundleInfo, RequestError> {
+    ) -> Result<BundleSync, RequestError> {
         let status = response.status().as_u16();
         self.validate_range(t, response)?;
         if !matches!(b.format, super::RowFormat::Tsv) {
@@ -322,15 +324,39 @@ impl Leg<'_> {
                 )
                 .map_err(RequestError::Recording)?;
         }
-        if !self
-            .bundle_cache()?
-            .publish(b, Some(t.holder), &meta, Some(&rows), self.budget())?
-        {
+        self.publish_checked(b, Some(t.holder), &meta, &rows, t.downloaded_bytes)
+    }
+    fn publish_checked<R: Row>(
+        &self,
+        b: &Bundle<R>,
+        holder: Option<&str>,
+        meta: &Meta,
+        rows: &parse::ParsedRows,
+        downloaded_bytes: u64,
+    ) -> Result<BundleSync, RequestError> {
+        let cache = self.bundle_cache()?;
+        if R::REQUIRE_ACCEPTED_ROWS && rows.is_empty() && !rows.rejections.is_empty() {
+            if let Some(holder) = holder {
+                cache.discard(b.name, holder, self.budget())?;
+            }
+            let retained = cache
+                .bundle_info(b.name, self.budget())?
+                .as_ref()
+                .map(|meta| store::info(b, meta));
+            return Ok(BundleSync::Refused {
+                native_rows: rows.rejections.len() as u64,
+                rejections: rows.rejections.clone(),
+                bytes: meta.bytes,
+                downloaded_bytes,
+                retained,
+            });
+        }
+        if !cache.publish(b, holder, meta, Some(rows), self.budget())? {
             return Err(self.failure(Reason::Syncing, None).into());
         }
-        let mut info = store::info(b, &meta);
-        info.downloaded_bytes = t.downloaded_bytes;
-        Ok(info)
+        let mut info = store::info(b, meta);
+        info.downloaded_bytes = downloaded_bytes;
+        Ok(BundleSync::Published(info))
     }
     fn validate_range(
         &self,

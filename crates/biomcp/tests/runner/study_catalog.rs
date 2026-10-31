@@ -23,10 +23,14 @@ pub(super) fn trials() -> Vec<Trial> {
             search().map_err(Into::into)
         }),
     ];
+    trials.extend(admission::trials());
     trials.extend(study_files::trials());
     trials.extend(study_get::trials());
     trials
 }
+
+#[path = "study_catalog_admission.rs"]
+mod admission;
 
 #[path = "study_files.rs"]
 mod study_files;

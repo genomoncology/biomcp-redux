@@ -696,6 +696,15 @@
             "null"
           ]
         },
+        "native_rows": {
+          "description": "Native catalog rows examined before identity admission.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
         "rows": {
           "description": "Imported rows.",
           "format": "uint64",

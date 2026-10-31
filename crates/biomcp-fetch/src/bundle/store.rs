@@ -237,6 +237,21 @@ impl Cache {
             Ok(part)
         })
     }
+    pub(super) fn discard(
+        &self,
+        name: &str,
+        holder: &str,
+        d: Deadline<'_>,
+    ) -> Result<(), CacheError> {
+        self.write_sql(d, |c| {
+            c.execute(
+                "DELETE FROM bundle_sync WHERE name=?1 AND holder=?2",
+                params![name, holder],
+            )
+            .map(|_| ())
+            .map_err(db_error)
+        })
+    }
     pub(super) fn retain(
         &self,
         name: &str,

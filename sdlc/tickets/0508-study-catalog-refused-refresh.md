@@ -1,6 +1,7 @@
 # 0508 — Keep an all-refused study catalog from replacing the last good one
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 7f5c1056bf8ca6c0e0c2c798d109ee47086b77c2
 
 Milestone: 5
 

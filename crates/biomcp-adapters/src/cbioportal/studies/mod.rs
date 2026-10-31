@@ -4,7 +4,7 @@ mod raw;
 mod resource;
 use super::SPEC;
 use biomcp_fetch::{
-    Bundle, BundleInfo, Fetch, Find, Freshness, KeyKind, Leg, RequestError, RowFormat,
+    Bundle, BundleInfo, BundleSync, Fetch, Find, Freshness, KeyKind, Leg, RequestError, RowFormat,
 };
 use biomcp_types::{StudySearch, StudySnapshot, SyncResult};
 use std::marker::PhantomData;
@@ -27,23 +27,67 @@ fn bad() -> RequestError {
     }
     .into()
 }
-/// Acquire one complete metadata catalog and publish only after all rows pass.
-pub fn sync(fetch: &Fetch) -> Result<crate::Mapped<SyncResult>, RequestError> {
-    let info = fetch.sync(&CATALOG)?;
-    let problems = crate::mapped::bundle_problems(SPEC.source, &info);
-    Ok(crate::Mapped {
-        refusals: crate::bundle_mapping::bundle_refusals(&info),
-        problems,
-        value: SyncResult {
-            snapshot: Some(snapshot(&info)?),
-            etag: info.etag,
-            last_modified: info.last_modified,
-            rows: info.rows,
-            bytes: info.bytes,
-            downloaded_bytes: info.downloaded_bytes,
-            duplicate_identities: None,
+/// Acquire a native catalog while preserving the last good catalog on refusal.
+/// The second value reports stale serving from the retained active catalog.
+pub fn sync(fetch: &Fetch) -> Result<(crate::Mapped<SyncResult>, bool), RequestError> {
+    let (info, native_rows, rejections, bytes, downloaded_bytes, stale) =
+        match fetch.sync_catalog(&CATALOG)? {
+            BundleSync::Published(info) => {
+                let native_rows = info.rows + info.rejections.len() as u64;
+                let rejections = info.rejections.clone();
+                let bytes = info.bytes;
+                let downloaded_bytes = info.downloaded_bytes;
+                (
+                    Some(info),
+                    native_rows,
+                    rejections,
+                    bytes,
+                    downloaded_bytes,
+                    false,
+                )
+            }
+            BundleSync::Refused {
+                native_rows,
+                rejections,
+                bytes,
+                downloaded_bytes,
+                retained,
+            } => {
+                let stale = retained.is_some();
+                (
+                    retained,
+                    native_rows,
+                    rejections,
+                    bytes,
+                    downloaded_bytes,
+                    stale,
+                )
+            }
+        };
+    let refusals = if rejections.is_empty() {
+        crate::Refusal::None
+    } else {
+        crate::Refusal::Refused
+    };
+    let problems =
+        crate::bundle_mapping::rejection_problems(SPEC.source, CATALOG.name, &rejections);
+    Ok((
+        crate::Mapped {
+            refusals,
+            problems,
+            value: SyncResult {
+                snapshot: info.as_ref().map(snapshot).transpose()?,
+                etag: info.as_ref().and_then(|info| info.etag.clone()),
+                last_modified: info.as_ref().and_then(|info| info.last_modified.clone()),
+                rows: info.as_ref().map_or(0, |info| info.rows),
+                native_rows: Some(native_rows),
+                bytes,
+                downloaded_bytes,
+                duplicate_identities: None,
+            },
         },
-    })
+        stale,
+    ))
 }
 /// Return literal matches in original catalog order from the accepted local copy.
 pub fn search(

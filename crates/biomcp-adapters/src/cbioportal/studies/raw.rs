@@ -163,6 +163,7 @@ impl CatalogRow {
     }
 }
 impl Row for CatalogRow {
+    const REQUIRE_ACCEPTED_ROWS: bool = true;
     const MAX_BYTES: u64 = 1024 * 1024;
     fn decode_document(body: &[u8]) -> Result<Vec<String>, BadReply> {
         if body.len() > 1024 * 1024 {
@@ -170,9 +171,6 @@ impl Row for CatalogRow {
         }
         let source_rows: Vec<Box<biomcp_fetch::RawValue>> =
             biomcp_fetch::decode_bundle_document(body)?;
-        if source_rows.is_empty() {
-            return Err(BadReply);
-        }
         let mut ids = BTreeSet::new();
         let mut result = Vec::new();
         for source_row in source_rows {
