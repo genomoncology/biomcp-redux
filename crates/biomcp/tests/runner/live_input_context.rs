@@ -1,6 +1,6 @@
 //! Prove diagnostic request equality through the public checked fetch boundary.
 use super::super::super::{launch::Environment, network_stub::Stub};
-use biomcp_fetch::{Arg, BadReply, Certificates, Fetch, FetchConfig, Network, Reply};
+use biomcp_fetch::{Arg, BadReply, Certificates, Fetch, FetchConfig, Input, Network, Read, Reply};
 use std::{fs, sync::Arc, time::Duration};
 
 #[derive(serde::Deserialize)]
@@ -48,9 +48,10 @@ pub(super) fn prove() -> Result<(), Box<dyn std::error::Error>> {
             };
             fetch
                 .leg(spec, fetch.deadline(Duration::from_secs(15)))
-                .json::<Checked>(
+                .call(
                     &endpoint,
-                    &[("id", Arg::Text(id)), ("mode", Arg::Text(mode))],
+                    Input::Params(&[("id", Arg::Text(id)), ("mode", Arg::Text(mode))]),
+                    Read::<Checked>::json(),
                 )?;
         }
     }

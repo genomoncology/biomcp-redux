@@ -35,7 +35,7 @@ article-evidence: Read all source citation contexts and explicit full-text refer
 article-recommendations: Read Semantic Scholar recommendations in source order with stable pages and explicit failures.
 article-saves: Save whole article Markdown or original supplement bytes only to an explicit caller destination.
 article-pdf: Inspect publisher PDF links and download only to an explicit destination through CLI or stdio MCP.
-key-registration: Register, replace, list and remove local source credentials without exposing values, and reload them on the next server call. The private settings cases in `crates/biomcp/src/config/deferred_keys_tests.rs` execute parsed commands with observed environment reads and remain in the excluded binary-test collection.
+key-registration: Register, replace, list and remove local source credentials without exposing values, and reload them on the next server call.
 variant-identity: A caller resolves published variant identifiers, keeps every source candidate, and sees explicit source rejections without local allele repair.
 trial-search: Search the registry with repeated condition, intervention, keyword and exact published country alternatives joined with OR, explicit native filters and exact MyDisease condition resolution, exact totals, opaque pages, one disclosed provider-native sponsor or facility fallback after zero exact matches, factual condition-word mismatch notices, explicit registered-condition phrase restrictions and caller-controlled wider alternatives for short searches.
 trial-get: Retrieve exact registry cards and recover intact eligibility, outcome and arm records through bounded continuations.

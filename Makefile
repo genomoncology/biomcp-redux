@@ -24,6 +24,7 @@ fmt:
 lint:
 	cargo check --locked -p biodata -p biomcp-types --no-default-features
 	cargo clippy --workspace --all-targets --locked -- -D warnings
+	cargo clippy --locked -p biomcp --test tools -- -D warnings
 
 ratchets: plain-cli-build
 	cargo test --locked -p biomcp --test ratchets $(TEST_THREADS)

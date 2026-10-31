@@ -1,4 +1,4 @@
-"""Check generated parity and feature ownership against the checked-out tree."""
+"""Check documentation declarations against the checked-out tree."""
 import argparse
 import re
 import sys
@@ -7,7 +7,23 @@ from pathlib import Path
 from parity import LEDGER_END, LEDGER_START, UPGRADE_END, UPGRADE_START, rows, table, upgrade
 
 
+def architecture(root):
+    text = (root / "sdlc/planning/architecture.md").read_text()
+    sections = re.split(r"(?m)^## ", text)[1:]
+    if not sections:
+        raise ValueError("architecture has no rule sections")
+    for section in sections:
+        checks = re.findall(r"Check: `([^`]+)`", section)
+        if not checks:
+            raise ValueError(f"architecture section lacks a check: {section.splitlines()[0]}")
+        for check in checks:
+            path = Path(check)
+            if path.is_absolute() or ".." in path.parts or not (root / path).is_file():
+                raise ValueError(f"architecture names a missing check file: {check}")
+
+
 def check(root):
+    architecture(root)
     if (root / "skills/SKILL.md").stat().st_size > 4096:
         raise ValueError("agent skill exceeds 4 KB")
     roadmap = (root / "ROADMAP.md").read_text()
@@ -55,4 +71,4 @@ if __name__ == "__main__":
     except (ValueError, OSError) as error:
         print(str(error), file=sys.stderr)
         sys.exit(1)
-    print("Parity ledger and outside-in feature mappings agree")
+    print("Parity, feature declarations and architecture check references agree")

@@ -12,9 +12,11 @@ Run the same selected cases and trials at the base and head commits. Then run `p
 
 Case keys contain the relative case path and zero-based step index. Each case transcript holds its CLI and MCP executions in order. Walk pages append to that same step. MCP records the raw server stdout before parsing. Ordinary trial keys contain the trial name, an argument hash and the number of earlier identical argument lists. The launcher allocates those keys before execution. Isolated environment and checkout paths become placeholders for hashing and comparison.
 
-The comparison masks the version command’s package version line and verbose commit, config and cache lines. It masks the executable command field and launch line from `mcp-config`. It replaces isolated environment and checkout prefixes only in argument path tokens. Source data and other stdout bytes and exit codes remain significant. Calibration uses two commits with unchanged source in separate checkout paths. Every additional mask requires a calibration finding and a comment in the script.
+The comparison normalizes build identity and declared runner paths in `scripts/reply_diff.py`. `scripts/reply_runtime.py` binds supported runtime identifiers, clocks and owned paths within their captured context and checks that their references remain consistent. Its code and calibration tests own the exact substitutions. Public source values remain significant. A new substitution needs a demonstrated runtime-only difference and a calibration test.
 
-Capture covers YAML steps and trial commands whose existing consumer obtains complete stdout and status. It leaves process transport and lifecycle checks unchanged. The script lists every trial with uncaptured commands or no captured command. A structure change touching these areas must use those trials' own assertions. The architecture work decides whether to extend this coverage.
+The comparator does not support every native exchange, HTTP or JSONL form, owned path, clock or pool representation. Unsupported forms can return differences or a tool error. Keep that result and inspect the complete records field by field. Account for all public values, ordering, omissions, errors, status, provenance and follow-up commands. Preserve the original reports and identify every accepted runtime difference and every unresolved difference. Do not mask an unknown value or describe a failed comparison as green. A zero exit does not prove that every operation was captured.
+
+Capture covers YAML steps and trial commands whose existing consumer obtains complete stdout and status. It leaves process transport and lifecycle checks unchanged. The script lists every trial with uncaptured commands or no captured command. A structure change touching these areas must use those trials' own assertions. The architecture decision keeps this tool in its optional diagnostic role. It does not require extending capture coverage.
 
 ## Exercise installed artifacts
 
@@ -22,7 +24,7 @@ The release rehearsal copies all of `tests/` outside the checkout and runs the c
 
 Reports include the YAML case count, total trial count and elapsed time. The first complete installed run measures the suite timeout; later installation channels use that measurement plus 15 percent. The platform job bounds the first measurement. Fixture path checks reject direct manifest-directory reads outside the launcher.
 
-The cases target still contains in-process schema registry and assertion boundary tables, parity validation, synthetic adapter projection and budget calculations. These execute during both routine and installed runs, but their library calls do not test the installed executable. Their removal or replacement belongs to the in-process trial cleanup. Repository ratchets remain a separate target.
+The separate `tools` target contains opt-in schema and assertion boundary proofs, parity validation, synthetic adapter projections, generators and live checks. These library or tooling calls do not test the installed executable. Repository ratchets and library contracts remain separate targets. `make library-tests` runs the retained library and private boundary tests. The architecture's test-placement table records their reasons.
 
 ## Measure command coverage
 

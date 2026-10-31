@@ -1,6 +1,7 @@
 # 0432 — Make the architecture describe the code
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 63d0cb28eeffa9387023901d5ea827558fbbbd42
 
 Milestone: 5
 
