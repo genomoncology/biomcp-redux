@@ -53,7 +53,9 @@ mod date;
 pub use date::received_date;
 
 /// Preserve an adapter header as a neutral source-qualified identity.
-pub fn identity(header: &biomcp_types::DrugHeader) -> Result<biodata::DrugIdentity, biodata::Error> {
+pub fn identity(
+    header: &biomcp_types::DrugHeader,
+) -> Result<biodata::DrugIdentity, biodata::Error> {
     Ok(biodata::DrugIdentity {
         id: header.id.clone(),
         namespace: header.source.to_string().parse()?,

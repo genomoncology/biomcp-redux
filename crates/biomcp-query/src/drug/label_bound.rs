@@ -1,6 +1,6 @@
 //! Keep complete fragment units inside the label section allocation.
-use biomcp_types::{QueryBody, Request, Section, StepKind};
 use biomcp_fetch::{InputError, RequestError};
+use biomcp_types::{QueryBody, Request, Section, StepKind};
 const LABEL_BYTES: usize = 8192;
 pub(crate) fn bound(
     fetch: &biomcp_fetch::Fetch,
@@ -19,7 +19,11 @@ pub(crate) fn bound(
         if !matches!(body.label, Section::Data { .. }) {
             return Ok(());
         }
-        if serde_json::to_vec(&body.label).map_err(|_| InputError::Serialization)?.len() < LABEL_BYTES {
+        if serde_json::to_vec(&body.label)
+            .map_err(|_| InputError::Serialization)?
+            .len()
+            < LABEL_BYTES
+        {
             return Ok(());
         }
         let QueryBody::DrugLabel(Some(body)) = &mut out.body else {

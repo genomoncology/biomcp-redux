@@ -103,6 +103,10 @@ impl From<super::raw::Association> for Association {
         let refusals = row.refusals;
         let mut problems = Vec::new();
         let value = association(row, &mut problems);
-        Self { value, problems, refusals }
+        Self {
+            value,
+            problems,
+            refusals,
+        }
     }
 }

@@ -110,22 +110,26 @@ type DropSite = (String, String, usize);
 pub(crate) fn sites(root: &Path) -> Result<Vec<DropSite>, Box<dyn std::error::Error>> {
     let mut result = Vec::new();
     for directory in ["crates/biomcp-adapters/src", "crates/biomcp-query/src"] {
-    let directory = root.join(directory);
-    if !directory.exists() { continue; }
-    for path in rust_files(&directory)? {
-        let relative = path
-            .strip_prefix(root)?
-            .to_string_lossy()
-            .replace('\\', "/");
-        let text = fs::read_to_string(&path)?;
-        let mut found = fingerprints(root, &tokens(&text), &relative);
-        if relative.starts_with("crates/biomcp-adapters/src/") && text.lines().count() > super::ADAPTER_LIMIT {
-            found.insert("file line limit".into(), text.lines().count());
+        let directory = root.join(directory);
+        if !directory.exists() {
+            continue;
         }
-        for (site, count) in found {
-            result.push((relative.clone(), site, count));
+        for path in rust_files(&directory)? {
+            let relative = path
+                .strip_prefix(root)?
+                .to_string_lossy()
+                .replace('\\', "/");
+            let text = fs::read_to_string(&path)?;
+            let mut found = fingerprints(root, &tokens(&text), &relative);
+            if relative.starts_with("crates/biomcp-adapters/src/")
+                && text.lines().count() > super::ADAPTER_LIMIT
+            {
+                found.insert("file line limit".into(), text.lines().count());
+            }
+            for (site, count) in found {
+                result.push((relative.clone(), site, count));
+            }
         }
-    }
     }
     Ok(result)
 }

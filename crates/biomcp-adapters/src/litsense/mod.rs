@@ -89,7 +89,10 @@ impl Reply for Sentences {
 }
 
 /// Search typed article selectors with the original provider word composition.
-pub fn search_query(leg: &Leg<'_>, query: &biomcp_types::ArticleSearch) -> (Result<Mapped<Vec<ArticleItem>>, RequestError>, String) {
+pub fn search_query(
+    leg: &Leg<'_>,
+    query: &biomcp_types::ArticleSearch,
+) -> (Result<Mapped<Vec<ArticleItem>>, RequestError>, String) {
     let term = query
         .gene()
         .map(ToString::to_string)

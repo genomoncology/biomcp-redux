@@ -3,8 +3,7 @@ use biodata::Text;
 use biomcp_adapters::{europepmc, litvar, pubmed};
 use biomcp_fetch::{Deadline, RequestError};
 use biomcp_types::{
-    ArticleItem, ArticleKey, ArticleSearch, ArticleSource, Source, SourceOutcome,
-    SourceState,
+    ArticleItem, ArticleKey, ArticleSearch, ArticleSource, Source, SourceOutcome, SourceState,
 };
 use std::time::Duration;
 pub(super) struct ResultLeg {
@@ -46,9 +45,7 @@ pub(super) fn search<'a>(
                 ArticleSource::Pubmed => {
                     Box::new(move || pubmed_search(cx, query, &resolved.names, start))
                 }
-                ArticleSource::Europepmc => {
-                    Box::new(move || europe_search(cx, query, start))
-                }
+                ArticleSource::Europepmc => Box::new(move || europe_search(cx, query, start)),
                 ArticleSource::Litsense => {
                     Box::new(move || super::named::litsense(cx, query, start))
                 }
@@ -190,11 +187,7 @@ fn pubmed_search<'a>(
         error,
     }
 }
-fn europe_search<'a>(
-    cx: &Ctx<'a>,
-    query: &ArticleSearch,
-    deadline: Deadline<'a>,
-) -> ResultLeg {
+fn europe_search<'a>(cx: &Ctx<'a>, query: &ArticleSearch, deadline: Deadline<'a>) -> ResultLeg {
     let leg = cx.fetch.leg(&europepmc::SPEC, deadline).fresh(cx.fresh);
     let start = leg.remaining();
     let (result, term) = europepmc::search_query(&leg, query);

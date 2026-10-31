@@ -24,8 +24,8 @@ mod raw;
 mod wire;
 use biodata::{DrugId, Text};
 use biomcp_fetch::{Arg, BadReply, Endpoint, Freshness, Leg, ReplyMetadata, RequestError};
-use raw::Record as RawRecord;
 pub use map::Record;
+use raw::Record as RawRecord;
 /// Exact native headings supported by the label surface.
 pub const HEADINGS: [&str; 5] = [
     "boxed_warning",

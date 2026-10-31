@@ -137,4 +137,3 @@ pub(super) fn doi(item: &ArticleItem) -> Option<&Doi> {
         }
     })
 }
-

@@ -14,7 +14,9 @@ pub fn search_query(
     Option<SourceNotice>,
 ) {
     let mut params = ctgov::parameters(query, gene);
-    if query.condition_id().is_some() && let Some(condition) = conditions.first() {
+    if query.condition_id().is_some()
+        && let Some(condition) = conditions.first()
+    {
         params.insert("query.cond".into(), format!("({condition})"));
     }
     let mut result = ctgov::search(leg, &params, conditions, query.country());

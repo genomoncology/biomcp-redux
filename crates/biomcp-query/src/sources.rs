@@ -1,12 +1,17 @@
 //! Source declarations and access used by the command interfaces.
-pub use biomcp_adapters::registry::{components, disable_groups, disabled, disabled_uses, display_name, group, key_tier, outcome, requests, restore_outcome, terms, SOURCES};
+pub use biomcp_adapters::guidance::{WONDER_QUOTA, deadline};
 pub use biomcp_adapters::registry::records::{RecordKind, declaration, record_url};
-pub use biomcp_adapters::guidance::{deadline, WONDER_QUOTA};
+pub use biomcp_adapters::registry::{
+    SOURCES, components, disable_groups, disabled, disabled_uses, display_name, group, key_tier,
+    outcome, requests, restore_outcome, terms,
+};
 
 use crate::Bundle;
 pub use biomcp_adapters::Mapped;
 /// Synchronize the two WikiPathways catalogs with their native receipt body.
-pub fn sync_wikipathways(fetch: &biomcp_fetch::Fetch) -> Result<Mapped<biomcp_types::WikiPathwaysSync>, biomcp_fetch::RequestError> {
+pub fn sync_wikipathways(
+    fetch: &biomcp_fetch::Fetch,
+) -> Result<Mapped<biomcp_types::WikiPathwaysSync>, biomcp_fetch::RequestError> {
     biomcp_adapters::wikipathways::sync(fetch)
 }
 /// Synchronize one ordinary source bundle.
@@ -30,7 +35,9 @@ pub fn sync(
 }
 
 /// Configuration actions for source transport failures.
-pub fn network(sources: &[biomcp_types::SourceOutcome]) -> Vec<crate::next::Step> { crate::next::network(sources) }
+pub fn network(sources: &[biomcp_types::SourceOutcome]) -> Vec<crate::next::Step> {
+    crate::next::network(sources)
+}
 
 /// Label publisher terms for an independently disclosed aggregator component.
 pub use biomcp_adapters::myvariant::components::label as component_label;

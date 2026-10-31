@@ -8,7 +8,10 @@ use std::collections::BTreeMap;
 
 /// Resolve an input against approved HGNC identity before withdrawn identity.
 /// Rejected source fields remain visible even when no accepted record remains.
-pub(crate) fn resolve(leg: &Leg<'_>, input: &GeneInput) -> Result<Mapped<GeneResolution>, RequestError> {
+pub(crate) fn resolve(
+    leg: &Leg<'_>,
+    input: &GeneInput,
+) -> Result<Mapped<GeneResolution>, RequestError> {
     let mut problems = Vec::new();
     let mut refusals = biomcp_adapters::Refusal::None;
     let mut candidates = Vec::new();

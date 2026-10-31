@@ -1,4 +1,4 @@
-use super::{raw::Record as RawRecord, bad};
+use super::{bad, raw::Record as RawRecord};
 use biodata::{Attribution, DrugIdentityLevel, DrugLabelReference, PartialDate, Text};
 use biomcp_fetch::RequestError;
 use biomcp_types::{DrugCard, DrugHeader, DrugSection, DrugSource};
@@ -92,13 +92,28 @@ impl RawRecord {
 pub struct Record(pub(super) super::raw::Record);
 impl Record {
     /// Map the native identity and optional name.
-    pub fn header(&self) -> Result<DrugHeader, RequestError> { self.0.header() }
+    pub fn header(&self) -> Result<DrugHeader, RequestError> {
+        self.0.header()
+    }
     /// Map the source card and original retrieval date.
-    pub fn card(&self, retrieved: Option<PartialDate>) -> Result<DrugCard, RequestError> { self.0.card(retrieved) }
+    pub fn card(&self, retrieved: Option<PartialDate>) -> Result<DrugCard, RequestError> {
+        self.0.card(retrieved)
+    }
     /// Whether a supported heading has native text.
-    pub fn has_heading(&self, heading: &str) -> bool { self.0.parts(heading).is_some() }
+    pub fn has_heading(&self, heading: &str) -> bool {
+        self.0.parts(heading).is_some()
+    }
     /// Preserve native complete-name matching.
-    pub fn name_match(&self, name: &biodata::Text) -> Option<biomcp_types::DrugNameMatch> { self.0.name_match(name) }
+    pub fn name_match(&self, name: &biodata::Text) -> Option<biomcp_types::DrugNameMatch> {
+        self.0.name_match(name)
+    }
     /// Map bounded original label fragments.
-    pub fn label(&self, heading: &str, offset: u32, limit: u32) -> Result<Option<biomcp_types::DrugLabelText>, RequestError> { self.0.label(heading, offset, limit) }
+    pub fn label(
+        &self,
+        heading: &str,
+        offset: u32,
+        limit: u32,
+    ) -> Result<Option<biomcp_types::DrugLabelText>, RequestError> {
+        self.0.label(heading, offset, limit)
+    }
 }

@@ -115,7 +115,12 @@ fn envelope(value: &Value) -> Result<(), String> {
         .remove("component_terms")
         .ok_or("missing component terms")?;
     let expected = biomcp_query::sources::component_label(
-        biomcp_query::sources::components().find(|component| component.source == biomcp_types::Source::MyVariant && component.name == "clinvar").ok_or("missing component declaration")?.terms,
+        biomcp_query::sources::components()
+            .find(|component| {
+                component.source == biomcp_types::Source::MyVariant && component.name == "clinvar"
+            })
+            .ok_or("missing component declaration")?
+            .terms,
     )
     .map_err(|e| e.to_string())?;
     let payload = serde_json::to_vec(&comparable)

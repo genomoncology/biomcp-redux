@@ -102,4 +102,6 @@ fn check_position(total: Option<u64>, received: u32, next: Option<u32>, offset: 
     );
 }
 
-fn main() { libtest_mimic::run(&libtest_mimic::Arguments::from_args(), trials()).exit(); }
+fn main() {
+    libtest_mimic::run(&libtest_mimic::Arguments::from_args(), trials()).exit();
+}

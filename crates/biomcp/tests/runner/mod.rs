@@ -16,10 +16,10 @@ tool_only! { mod disease_ols; }
 tool_only! { mod disease_seer; }
 mod execution;
 mod faers_search;
-mod query_refusals;
 mod native_fields;
 #[path = "../support/pool_contracts.rs"]
 mod pool_contract;
+mod query_refusals;
 #[path = "../support/synthetic_contracts.rs"]
 mod required_contract;
 #[path = "../../../biomcp-fetch/tests/support/value.rs"]
@@ -467,11 +467,11 @@ tool_only! {
     }
 }
 
-#[path = "../../../biomcp-fetch/tests/support/fixtures.rs"]
-mod fixture_paths;
-#[path = "../../../biomcp-fetch/tests/support/hash.rs"]
-mod stable_hash;
 #[path = "../../../biomcp-fetch/tests/support/capture.rs"]
 mod capture_support;
+#[path = "../../../biomcp-fetch/tests/support/fixtures.rs"]
+mod fixture_paths;
 #[path = "../../../biomcp-fetch/tests/support/replay.rs"]
 mod replay_support;
+#[path = "../../../biomcp-fetch/tests/support/hash.rs"]
+mod stable_hash;

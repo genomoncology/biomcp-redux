@@ -52,7 +52,10 @@ impl Product {
 }
 impl Submission {
     /// Retain the application owner and native date roles without assigning product applicability.
-    pub(super) fn mapped(&self, application: &RawApplication) -> Result<DrugFdaSubmission, RequestError> {
+    pub(super) fn mapped(
+        &self,
+        application: &RawApplication,
+    ) -> Result<DrugFdaSubmission, RequestError> {
         let role = "submission_status_date".parse().map_err(|_| super::bad())?;
         Ok(DrugFdaSubmission {
             event: AuthorizationEvent {
@@ -123,17 +126,46 @@ impl Submission {
 pub struct Application(pub(super) super::raw::Application);
 impl Application {
     /// Actual refused native child records.
-    pub fn refusals(&self) -> crate::Refusal { self.0.refusals }
+    pub fn refusals(&self) -> crate::Refusal {
+        self.0.refusals
+    }
     /// Application-owned identity, without selecting a product.
-    pub fn header(&self) -> biomcp_types::DrugHeader { self.0.header() }
+    pub fn header(&self) -> biomcp_types::DrugHeader {
+        self.0.header()
+    }
     /// Map the independently listed native products.
-    pub fn candidate(&self) -> DrugFdaCandidate { self.0.candidate() }
+    pub fn candidate(&self) -> DrugFdaCandidate {
+        self.0.candidate()
+    }
     /// Map product facts without associating them with submissions.
-    pub fn products(&self) -> Box<[DrugFdaProduct]> { self.0.products.iter().map(Product::mapped).collect() }
+    pub fn products(&self) -> Box<[DrugFdaProduct]> {
+        self.0.products.iter().map(Product::mapped).collect()
+    }
     /// Explicit source-owned SPL set references.
-    pub fn label_ids(&self) -> impl Iterator<Item = &biodata::DrugId> { self.0.openfda.as_ref().and_then(|o| o.spl_set_id.as_ref()).into_iter().flatten() }
+    pub fn label_ids(&self) -> impl Iterator<Item = &biodata::DrugId> {
+        self.0
+            .openfda
+            .as_ref()
+            .and_then(|o| o.spl_set_id.as_ref())
+            .into_iter()
+            .flatten()
+    }
     /// Native application submission count.
-    pub fn submission_count(&self) -> usize { self.0.submissions.len() }
+    pub fn submission_count(&self) -> usize {
+        self.0.submissions.len()
+    }
     /// Map an application-owned submission window in native order.
-    pub fn submissions(&self, offset: u32, limit: u32) -> Result<Box<[DrugFdaSubmission]>, RequestError> { self.0.submissions.iter().skip(offset as usize).take(limit as usize).map(|s| s.mapped(&self.0)).collect() }
+    pub fn submissions(
+        &self,
+        offset: u32,
+        limit: u32,
+    ) -> Result<Box<[DrugFdaSubmission]>, RequestError> {
+        self.0
+            .submissions
+            .iter()
+            .skip(offset as usize)
+            .take(limit as usize)
+            .map(|s| s.mapped(&self.0))
+            .collect()
+    }
 }

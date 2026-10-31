@@ -242,9 +242,13 @@ pub struct Mechanisms(Rows<Mechanism>);
 pub struct Indications(Rows<Indication>);
 impl Drug {
     /// Select the source's original complete mechanism collection.
-    pub fn mechanisms(self) -> Mechanisms { Mechanisms(self.0.mechanisms_of_action) }
+    pub fn mechanisms(self) -> Mechanisms {
+        Mechanisms(self.0.mechanisms_of_action)
+    }
     /// Select the source's original complete indication collection.
-    pub fn indications(self) -> Indications { Indications(self.0.indications) }
+    pub fn indications(self) -> Indications {
+        Indications(self.0.indications)
+    }
 }
 
 /// Map the native source card and supported sections.
@@ -259,7 +263,10 @@ pub fn card(header: DrugHeader, fetched: Option<i64>) -> biomcp_types::DrugCard 
         version: None,
         updated: None,
         retrieved: crate::drug_sources::received_date(fetched),
-        available_sections: Box::new([biomcp_types::DrugSection::Targets, biomcp_types::DrugSection::Indications]),
+        available_sections: Box::new([
+            biomcp_types::DrugSection::Targets,
+            biomcp_types::DrugSection::Indications,
+        ]),
         next: Box::default(),
     }
 }

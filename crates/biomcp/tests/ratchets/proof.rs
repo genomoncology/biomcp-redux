@@ -364,7 +364,11 @@ fn new_optional_drop_requires_its_own_classification() -> Check {
         "fn map() { let title = input.parse() . ok ( ); }",
     ] {
         rejects(path, source, "classify new optional-value drop")?;
-        rejects("crates/biomcp-query/src/new_query.rs", source, "classify new optional-value drop")?;
+        rejects(
+            "crates/biomcp-query/src/new_query.rs",
+            source,
+            "classify new optional-value drop",
+        )?;
     }
     Ok(())
 }

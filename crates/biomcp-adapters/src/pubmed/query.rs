@@ -1,11 +1,26 @@
 //! PubMed wire terms preserve structured selectors and resolved gene names.
-use biomcp_types::{ArticleSearch, ArticleType};
 use biomcp_fetch::{Leg, RequestError, Secret};
+use biomcp_types::{ArticleSearch, ArticleType};
 /// Search typed selectors and retain the exact provider term for disclosure.
-pub fn search_query(leg: &Leg<'_>, query: &ArticleSearch, names: &[String], email: Option<&Secret>) -> (Result<super::SearchIds, RequestError>, String) {
+pub fn search_query(
+    leg: &Leg<'_>,
+    query: &ArticleSearch,
+    names: &[String],
+    email: Option<&Secret>,
+) -> (Result<super::SearchIds, RequestError>, String) {
     let words = query.words();
-    let group = if names.len() > 1 { format!("({})", names.join(" OR ")) } else { names.join("") };
-    let words = if group.is_empty() { words } else if words.is_empty() { group } else { format!("{group} AND {words}") };
+    let group = if names.len() > 1 {
+        format!("({})", names.join(" OR "))
+    } else {
+        names.join("")
+    };
+    let words = if group.is_empty() {
+        words
+    } else if words.is_empty() {
+        group
+    } else {
+        format!("{group} AND {words}")
+    };
     let term = filters(query, words);
     (super::search_ids(leg, &term, query.sort(), email), term)
 }

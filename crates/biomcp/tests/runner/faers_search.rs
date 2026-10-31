@@ -122,8 +122,7 @@ fn measure(value: &Value, args: &[String]) -> Check {
             let source: biomcp_types::Source =
                 serde_json::from_value(row.get("source").ok_or("source identity")?.clone())
                     .map_err(|e| e.to_string())?;
-            let terms =
-                biomcp_query::sources::terms(source).ok_or("source terms declaration")?;
+            let terms = biomcp_query::sources::terms(source).ok_or("source terms declaration")?;
             if row.get("use") != Some(&json!(terms.usage))
                 || row.get("terms") != Some(&json!(terms.name))
                 || row.get("terms_url") != Some(&json!(terms.url))

@@ -190,20 +190,37 @@ pub struct Mechanism(pub(super) RawMechanism);
 pub struct Indication(pub(super) RawIndication);
 impl Molecule {
     /// Actual refused native child identities.
-    pub fn refusals(&self) -> crate::Refusal { self.0.refusals }
+    pub fn refusals(&self) -> crate::Refusal {
+        self.0.refusals
+    }
     /// Rejected native optional metadata.
-    pub fn problems(&self) -> &[biomcp_types::Problem] { &self.0.problems }
+    pub fn problems(&self) -> &[biomcp_types::Problem] {
+        &self.0.problems
+    }
 }
 impl Mechanism {
     /// Rejected native optional metadata.
-    pub fn problems(&self) -> &[biomcp_types::Problem] { &self.0.problems }
-    pub(super) fn target_identity(&self) -> Result<Option<biodata::Text>, Error> { self.0.target_identity() }
+    pub fn problems(&self) -> &[biomcp_types::Problem] {
+        &self.0.problems
+    }
+    pub(super) fn target_identity(&self) -> Result<Option<biodata::Text>, Error> {
+        self.0.target_identity()
+    }
 }
 impl Indication {
     /// Rejected native optional metadata.
-    pub fn problems(&self) -> &[biomcp_types::Problem] { &self.0.problems }
+    pub fn problems(&self) -> &[biomcp_types::Problem] {
+        &self.0.problems
+    }
 }
 /// Map an admitted molecule identity and optional metadata.
-pub fn molecule_header(row: &Molecule) -> Result<crate::Mapped<biomcp_types::DrugHeader>, Error> { super::molecule::header(&row.0) }
+pub fn molecule_header(row: &Molecule) -> Result<crate::Mapped<biomcp_types::DrugHeader>, Error> {
+    super::molecule::header(&row.0)
+}
 /// Map an admitted molecule card and its original retrieval date.
-pub fn molecule_card(row: Molecule, fetched: Option<i64>) -> Result<crate::Mapped<biomcp_types::DrugCard>, Error> { super::molecule::card(row.0, fetched) }
+pub fn molecule_card(
+    row: Molecule,
+    fetched: Option<i64>,
+) -> Result<crate::Mapped<biomcp_types::DrugCard>, Error> {
+    super::molecule::card(row.0, fetched)
+}

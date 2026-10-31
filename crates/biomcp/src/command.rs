@@ -209,7 +209,9 @@ fn response(
     fresh: bool,
     globals: &crate::grammar::Globals,
 ) -> io::Result<Outcome> {
-    result.finish(fetch, &request, fresh).map_err(io::Error::other)?;
+    result
+        .finish(fetch, &request, fresh)
+        .map_err(io::Error::other)?;
     let steps = steps::next(&result, globals)?;
     let meta = ResponseMeta {
         exit: response_status(&result),

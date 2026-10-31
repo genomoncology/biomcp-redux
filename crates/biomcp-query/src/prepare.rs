@@ -5,7 +5,9 @@ impl Action {
     /// Prepare source selectors and preserve existing usage refusal envelopes.
     pub fn prepare(self) -> Result<Self, ErrorEnvelope> {
         let action = prepare_disease(self).map_err(selector_error)?;
-        if let Some(error) = unsupported(&action) { return Err(error); }
+        if let Some(error) = unsupported(&action) {
+            return Err(error);
+        }
         Ok(action)
     }
 }
@@ -79,7 +81,9 @@ fn selector_error(error: biomcp_adapters::seer::SelectorError) -> ErrorEnvelope 
         .iter()
         .map(|code| code.parse())
         .collect::<Result<Vec<biodata::Text>, _>>();
-    let Ok(values) = values else { return ErrorEnvelope::arguments(); };
+    let Ok(values) = values else {
+        return ErrorEnvelope::arguments();
+    };
     let mut envelope = biomcp_types::ErrorEnvelope::source_selector(
         biomcp_types::Source::Seer,
         error.selector.flag().into(),
@@ -128,9 +132,7 @@ fn unsupported(action: &Action) -> Option<ErrorEnvelope> {
             } else {
                 biomcp_types::Source::ClinicalTrialsGov
             };
-            return Some(ErrorEnvelope::unsupported_trial_filter(
-                source, option,
-            ));
+            return Some(ErrorEnvelope::unsupported_trial_filter(source, option));
         }
     }
 

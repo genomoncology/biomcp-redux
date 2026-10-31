@@ -297,4 +297,3 @@ fn disabled_openfda_sources_never_read_credentials() {
     }
     assert_eq!(execute(&["sync", "fda-cdx"], None), 0);
 }
-

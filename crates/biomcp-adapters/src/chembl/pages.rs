@@ -1,6 +1,6 @@
 //! Preserve native page counts before refusing row identities.
-use super::{Indication, Mechanism, Molecule};
 use super::raw::PageMeta;
+use super::{Indication, Mechanism, Molecule};
 use biomcp_fetch::{BadReply, Reply};
 use serde::Deserialize;
 /// Native source page with independent row diagnostics.

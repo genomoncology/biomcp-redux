@@ -1,7 +1,7 @@
 //! Isolated replay source setup shared by adapter and query contracts.
+use super::capture_support::copy_capture;
 use biomcp_fetch::{Fetch, FetchConfig, Mode};
 use serde_json::Value;
-use super::capture_support::copy_capture;
 type Check<T> = Result<T, Box<dyn std::error::Error>>;
 pub(crate) fn replay(
     capture: &str,

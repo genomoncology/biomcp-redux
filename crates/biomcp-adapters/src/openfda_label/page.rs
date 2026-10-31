@@ -1,4 +1,4 @@
-use super::{raw::Record, bad};
+use super::{bad, raw::Record};
 use crate::text_parts::{escaped_bytes, split};
 use biomcp_fetch::RequestError;
 use biomcp_types::{DrugLabelFragment, DrugLabelText};

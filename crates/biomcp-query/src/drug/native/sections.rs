@@ -85,8 +85,8 @@ pub(super) fn opentargets(
     let offset = query.section_offset().unwrap_or(0) as usize;
     match query.sections() {
         [DrugSection::Targets] => {
-            let mut collection = opentargets::map_targets(&drug, row.mechanisms())
-                .map_err(|_| failure(source))?;
+            let mut collection =
+                opentargets::map_targets(&drug, row.mechanisms()).map_err(|_| failure(source))?;
             out.problems.append(&mut collection.problems);
             out.include_refusals(collection.refusals);
             let window = collection::page(&mut collection, offset, limit);

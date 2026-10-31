@@ -175,4 +175,4 @@ pub fn summaries(
 }
 
 mod query;
-pub use query::{search_query, search_dois};
+pub use query::{search_dois, search_query};

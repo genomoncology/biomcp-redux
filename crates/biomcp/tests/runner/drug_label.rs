@@ -116,9 +116,15 @@ fn headings() -> Check {
     let id = identity(4)?;
     let record = record(&id);
     let (env, stub) = get_setup(&id, record.clone())?;
-    for (index, heading) in ["boxed_warning", "dosage_and_administration", "drug_interactions", "indications_and_usage", "warnings_and_cautions"]
-        .into_iter()
-        .enumerate()
+    for (index, heading) in [
+        "boxed_warning",
+        "dosage_and_administration",
+        "drug_interactions",
+        "indications_and_usage",
+        "warnings_and_cautions",
+    ]
+    .into_iter()
+    .enumerate()
     {
         let mut args = get_args(&id)?;
         args.extend(["label".into(), "--label-section".into(), heading.into()]);

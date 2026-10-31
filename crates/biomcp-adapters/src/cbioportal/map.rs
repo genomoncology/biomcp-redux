@@ -19,5 +19,13 @@ pub struct Mutation {
     pub ncbi_build: Option<Text>,
 }
 pub(super) fn mutation(row: super::raw::Mutation) -> Mutation {
-    Mutation { sample_id: row.sample_id, chr: row.chr, start_position: row.start_position, end_position: row.end_position, reference_allele: row.reference_allele, variant_allele: row.variant_allele, ncbi_build: row.ncbi_build }
+    Mutation {
+        sample_id: row.sample_id,
+        chr: row.chr,
+        start_position: row.start_position,
+        end_position: row.end_position,
+        reference_allele: row.reference_allele,
+        variant_allele: row.variant_allele,
+        ncbi_build: row.ncbi_build,
+    }
 }

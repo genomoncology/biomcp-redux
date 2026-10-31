@@ -1,8 +1,11 @@
 //! Europe PMC field syntax stays beside its sending adapter.
-use biomcp_types::{ArticleSearch, ArticleType};
 use biomcp_fetch::{Leg, RequestError};
+use biomcp_types::{ArticleSearch, ArticleType};
 /// Search typed selectors and retain the exact provider term for disclosure.
-pub fn search_query(leg: &Leg<'_>, query: &ArticleSearch) -> (Result<super::Search, RequestError>, String) {
+pub fn search_query(
+    leg: &Leg<'_>,
+    query: &ArticleSearch,
+) -> (Result<super::Search, RequestError>, String) {
     let term = term(query);
     (super::search(leg, &term, query.sort()), term)
 }
