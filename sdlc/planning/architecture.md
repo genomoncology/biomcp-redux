@@ -996,6 +996,19 @@ An adapter is one folder with three files:
 
 `#[serde(default)]` is banned in `raw.rs`. A field the provider may omit is an `Option`, and the top-level `check` decides whether its absence makes the reply an error. A missing result list can therefore never decode as an empty answer.
 
+Private stored refusal flags have one narrow legacy codec classification. The guard requires an exact reviewed owner below, a `crate::Refusal` field, and the paired `default = "crate::mapped::refusal_serde::none"` and `with = "crate::mapped::refusal_serde"` attributes. ClinicalTrials.gov uses `super::refusals` only while its reexport still names that exact codec. Missing legacy flags mean no refusal. The native default inventory and its frozen identities and counts remain unchanged. Native fields, other types, other codecs and other owners receive no allowance.
+
+| Adapter file and field | Private stored owner |
+| --- | --- |
+| `cbioportal/studies/raw.rs`: `ReceivedCatalogRow.refusals` | Checked catalog rows persist member refusals; source admission clears any received stored flag before mapping. |
+| `ctgov/detail.rs`: `Detail.refusals`, `Detail.document_refusals` | The trial snapshot retains accepted details and manifest refusal facts; public body types omit both flags. |
+| `nci/mod.rs`: `Detail.refusals` | The NCI trial snapshot retains accepted details and child refusal facts; public section types omit the flag. |
+| `semantic_scholar/author/papers.rs`: `RawPage.refusals` | Stored papers pages restore their retained native member refusal fact; public author papers omit the flag. |
+| `semantic_scholar/author/papers/row.rs`: `Input::Cached.refusals` | Stored checked paper rows restore child refusal facts beside their detail and problems; public paper detail omits the flag. |
+| `complex_portal/mod.rs`: `Complex.refusals`, `Collection.refusals` | Stored source relations retain participant and collection refusal facts; public headers and member pages omit both flags. |
+
+InterPro transfers its refusal fact into the private stored domains tuple. Its serialized adapter page accepts an explicit optional boolean on receipt to preserve missing legacy flags without a native default allowance.
+
 Every present source field that cannot map is omitted and produces a `Problem` naming that field. The adapter returns the remaining item through `Mapped { value, problems }`. A missing optional field produces no problem. An invalid required identity still fails the item. Mapping never guesses a value from prose. Optional collection members follow the same rule individually.
 
 Complex Portal and InterPro use the following field classifications. These classify conversion sites, not work status.

@@ -24,12 +24,10 @@ use biomcp_fetch::{Arg, Freshness, Leg, RequestError};
 use serde::{Deserialize, Serialize};
 /// One checked native page with its complete native count and opaque continuation.
 #[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(from = "StoredPage")]
 pub struct Page {
     /// Actual refused native records, independent of optional fields.
-    #[serde(
-        default = "crate::mapped::refusal_serde::none",
-        with = "crate::mapped::refusal_serde"
-    )]
+    #[serde(with = "crate::mapped::refusal_serde")]
     pub refusals: crate::Refusal,
 
     /// Whole native match rows.
@@ -40,6 +38,30 @@ pub struct Page {
     pub cursor: Option<Text>,
     /// Rejected optional fields for retained rows.
     pub problems: Vec<biomcp_types::Problem>,
+}
+// Older serialized adapter pages omit the private refusal bit.
+#[derive(Deserialize)]
+struct StoredPage {
+    refusals: Option<bool>,
+    items: Vec<ProteinDomainMatch>,
+    total: u64,
+    cursor: Option<Text>,
+    problems: Vec<biomcp_types::Problem>,
+}
+impl From<StoredPage> for Page {
+    fn from(page: StoredPage) -> Self {
+        Self {
+            refusals: if page.refusals == Some(true) {
+                crate::Refusal::Refused
+            } else {
+                crate::Refusal::None
+            },
+            items: page.items,
+            total: page.total,
+            cursor: page.cursor,
+            problems: page.problems,
+        }
+    }
 }
 /// Fetch a native accession page; type selection remains over the retained complete collection.
 pub fn page(

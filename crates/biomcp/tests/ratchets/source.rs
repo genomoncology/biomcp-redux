@@ -178,7 +178,7 @@ pub(super) fn check(root: &Path) -> Check {
             {
                 return fail(&relative, "source outcomes require registry terms");
             }
-            attributes(&relative, &tokens)?;
+            attributes(root, &relative, &tokens)?;
             references(root, &relative, &text, &tokens, &sqlite, &mut keys)?;
         }
     }
@@ -201,7 +201,7 @@ fn fail(path: &str, rule: &str) -> Check {
     Err(format!("{path}: {rule}").into())
 }
 
-fn attributes(path: &str, tokens: &[String]) -> Check {
+fn attributes(root: &Path, path: &str, tokens: &[String]) -> Check {
     for (i, token) in tokens.iter().enumerate() {
         if token != "#" {
             continue;
@@ -275,6 +275,7 @@ fn attributes(path: &str, tokens: &[String]) -> Check {
         }
         if path.starts_with("crates/biomcp-adapters/src/")
             && let Some(site) = adapter_values::attribute_site(tokens, i)
+            && !adapter_values::private_refusal::allowed(root, path, tokens, i)
             && !adapter_values::pending(path, &site, 1)?
         {
             return fail(path, "raw serde default or deny_unknown_fields forbidden");

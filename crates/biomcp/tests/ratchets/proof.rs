@@ -578,3 +578,8 @@ fn tool_dispatch_stays_outside_cases() -> Check {
 fn mapped_constructions_require_their_own_refusal_decision() -> Check {
     super::proof_support::check_mapped_refusal_decisions()
 }
+
+#[test]
+fn only_owned_private_refusal_defaults_bypass_native_ceiling() -> Check {
+    super::proof_support::private_refusal_defaults()
+}

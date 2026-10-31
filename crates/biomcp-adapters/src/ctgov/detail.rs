@@ -15,12 +15,6 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Detail {
-    /// Actual refused native records, including refused document manifest records.
-    #[serde(default = "super::refusals::none", with = "super::refusals")]
-    pub refusals: crate::Refusal,
-    /// Actual refused document manifest records, independent of optional labels.
-    #[serde(default = "super::refusals::none", with = "super::refusals")]
-    pub document_refusals: crate::Refusal,
     /// Rejected nonidentity fields retained with this snapshot.
     pub problems: Vec<biomcp_types::Problem>,
     /// Whole sites with attached contacts.
@@ -43,6 +37,12 @@ pub struct Detail {
     pub arms: Box<[TrialArm]>,
     /// Whole source intervention rows.
     pub interventions: Box<[TrialIntervention]>,
+    /// Actual refused native records, including refused document manifest records.
+    #[serde(default = "super::refusals::none", with = "super::refusals")]
+    pub refusals: crate::Refusal,
+    /// Actual refused document manifest records, independent of optional labels.
+    #[serde(default = "super::refusals::none", with = "super::refusals")]
+    pub document_refusals: crate::Refusal,
 }
 /// Read one native protocol and preserve that reply's timestamp.
 pub fn get(leg: &Leg<'_>, id: NctId) -> Result<(Detail, ReplyMetadata), RequestError> {

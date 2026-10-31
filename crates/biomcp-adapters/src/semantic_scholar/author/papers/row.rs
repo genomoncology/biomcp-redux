@@ -14,10 +14,7 @@ use std::collections::BTreeMap;
 #[serde(from = "Input")]
 pub struct Paper {
     /// Actual refused native records, independent of optional fields.
-    #[serde(
-        default = "crate::mapped::refusal_serde::none",
-        with = "crate::mapped::refusal_serde"
-    )]
+    #[serde(with = "crate::mapped::refusal_serde")]
     pub refusals: crate::Refusal,
     detail: AuthorPaperDetail,
     problems: Vec<biomcp_types::Problem>,

@@ -9,10 +9,7 @@ use std::collections::BTreeSet;
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase", from = "ReceivedCatalogRow")]
 pub(super) struct CatalogRow {
-    #[serde(
-        default = "crate::mapped::refusal_serde::none",
-        with = "crate::mapped::refusal_serde"
-    )]
+    #[serde(with = "crate::mapped::refusal_serde")]
     refusals: crate::Refusal,
     problems: Vec<biomcp_types::Problem>,
     study_id: StudyId,

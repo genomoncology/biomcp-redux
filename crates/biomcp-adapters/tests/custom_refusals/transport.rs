@@ -74,8 +74,15 @@ fn interpro_fragments_distinguish_record_bounds_and_optional_containers() -> Che
         );
         assert_eq!(page.items.len(), 1);
         let encoded = serde_json::to_value(&page)?;
-        let restored: interpro::Page = serde_json::from_value(encoded)?;
+        let restored: interpro::Page = serde_json::from_value(encoded.clone())?;
         assert_eq!(restored.refusals, expected);
+        let mut legacy = encoded;
+        legacy
+            .as_object_mut()
+            .ok_or("stored page object")?
+            .remove("refusals");
+        let restored: interpro::Page = serde_json::from_value(legacy)?;
+        assert_eq!(restored.refusals, Refusal::None);
     }
     Ok(())
 }

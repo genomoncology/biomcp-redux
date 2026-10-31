@@ -151,3 +151,58 @@ pub(super) fn check_mapped_refusal_decisions() -> Check {
     )?;
     check(tree.path())
 }
+
+/// Private stored facts do not grant native fields a default allowance.
+pub(super) fn private_refusal_defaults() -> Check {
+    let tree = tree()?;
+    let path = "crates/biomcp-adapters/src/nci/mod.rs";
+    let codec = "crate::mapped::refusal_serde";
+    let attribute = format!("#[serde(default = \"{codec}::none\", with = \"{codec}\")] ");
+    let valid = format!("pub struct Detail {{ {attribute} pub refusals: crate::Refusal, }}");
+    put(tree.path(), path, &valid)?;
+    super::source::check(tree.path())?;
+    for planted in [
+        valid.replace("crate::Refusal", "bool"),
+        valid.replace("refusals: crate::Refusal", "data: Vec<String>"),
+        valid.replace("refusals: crate::Refusal", "data: crate::Refusal"),
+        valid.replace("Detail", "Native"),
+        valid.replace(
+            "with = \"crate::mapped::refusal_serde\"",
+            "with = \"other\"",
+        ),
+        valid.replace(", with = \"crate::mapped::refusal_serde\"", ""),
+        valid.replace("::none\"", "::arbitrary\""),
+        valid.replace(&attribute, "#[serde(default)] "),
+    ] {
+        put(tree.path(), path, &planted)?;
+        let failure = super::source::check(tree.path())
+            .expect_err("native or unrelated default passed")
+            .to_string();
+        assert!(failure.contains("raw serde default"), "{failure}");
+    }
+    put(tree.path(), path, &valid)?;
+    rejects(
+        "crates/biomcp-adapters/src/example/details.rs",
+        &valid,
+        "raw serde default",
+    )?;
+    let alias = "crates/biomcp-adapters/src/ctgov/refusals.rs";
+    let definition = "pub(super) use crate::mapped::refusal_serde::{deserialize, none, serialize};";
+    put(tree.path(), alias, definition)?;
+    put(
+        tree.path(),
+        "crates/biomcp-adapters/src/ctgov/detail.rs",
+        &valid.replace(codec, "super::refusals"),
+    )?;
+    super::source::check(tree.path())?;
+    put(
+        tree.path(),
+        alias,
+        &definition.replace("refusal_serde", "other"),
+    )?;
+    let failure = super::source::check(tree.path())
+        .expect_err("changed private codec alias passed")
+        .to_string();
+    assert!(failure.contains("raw serde default"), "{failure}");
+    Ok(())
+}
