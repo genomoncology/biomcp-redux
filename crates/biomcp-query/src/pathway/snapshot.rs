@@ -1,7 +1,7 @@
 use crate::{Ctx, Outcome, store::Store};
 use biomcp_fetch::{CacheError, Deadline, RequestError};
 use biomcp_types::{
-    PathwayPage, PathwaySearch, Problem, QueryBody, Request, SourceOutcome, StepKind,
+    PathwayPage, PathwaySearch, Problem, ReplyData, Request, SourceOutcome, StepKind,
 };
 pub(super) struct Saved {
     pub dropped: bool,
@@ -58,7 +58,7 @@ pub(super) fn load(
             return Ok(None);
         }
     }
-    out.body = QueryBody::PoolError { mismatch: false };
+    out.body = ReplyData::PoolError { mismatch: false };
     out.next.push(crate::next::Step::new(
         StepKind::Restart,
         &super::next::search(q),

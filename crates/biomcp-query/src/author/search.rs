@@ -2,15 +2,16 @@ use super::{empty, retry, run, snapshot};
 use crate::{Ctx, Outcome, status};
 use biomcp_adapters::semantic_scholar::{self, author};
 use biomcp_fetch::{Deadline, RequestError, SourceError};
+use biomcp_types::ReplyBody;
 use biomcp_types::{
-    AuthorGet, AuthorPage, AuthorSearch, PageInfo, QueryBody, Reason, Request, Source, SourceState,
+    AuthorGet, AuthorPage, AuthorSearch, PageInfo, Reason, ReplyData, Request, Source, SourceState,
     StepKind,
 };
 /// Preserve the source's exact query, candidate order and continuation.
 pub(crate) fn search(cx: &Ctx<'_>, q: &AuthorSearch) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
-    let mut out = empty(QueryBody::AuthorPage(None));
+    let mut out = empty(biomcp_types::AuthorPage::into_reply(q.clone(), None));
     if let Err(error) = execute(cx, q, deadline, &mut out) {
         out.local = status::local(error);
         if out.sources.is_empty() {
@@ -54,7 +55,7 @@ fn execute(
         .into());
     }
     let saved = snapshot::load(cx, q, deadline, out)?;
-    if matches!(out.body, QueryBody::PoolError { .. }) {
+    if matches!(out.body, ReplyData::PoolError { .. }) {
         return Ok(());
     }
     let (mut saved, old_pool) = if let Some((saved, pool)) = saved {
@@ -149,9 +150,10 @@ fn present(
         super::key_step(out);
     }
     out.sources = vec![saved.source];
-    out.body = QueryBody::AuthorPage(Some(AuthorPage {
+    out.body = (AuthorPage {
         items,
         matching_records: total,
-    }));
+    })
+    .with_query(q.clone());
     Ok(())
 }

@@ -79,7 +79,7 @@ pub(super) fn parse(params: &Value) -> Option<Call> {
 }
 fn search_args(input: &str) -> Vec<String> {
     let first = input.split_whitespace().next().unwrap_or_default();
-    if crate::grammar::QUERIES
+    if crate::grammar::command_paths()
         .iter()
         .any(|(verb, entity, _)| *verb == "search" && *entity == first)
     {

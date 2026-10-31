@@ -1,11 +1,12 @@
 use super::next;
 use crate::{Ctx, Outcome, status};
 use biodata::{Gene, LocusGroup, MatchKind, Text};
+use biomcp_types::ReplyBody;
 
 use biomcp_adapters::hgnc;
 use biomcp_fetch::{Find, KeyKind, Leg, RequestError};
 use biomcp_types::{GeneHeader, Match};
-use biomcp_types::{GeneSearch, PageInfo, QueryBody, Source, SourceState};
+use biomcp_types::{GeneSearch, PageInfo, Source, SourceState};
 
 pub(crate) fn search(cx: &Ctx<'_>, query: &GeneSearch) -> Outcome {
     let leg = cx
@@ -53,9 +54,10 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &GeneSearch) -> Outcome {
         [state],
         crate::status::Parts {
             dropped,
-            body: QueryBody::GenePage(biomcp_types::GenePage {
+            body: (biomcp_types::GenePage {
                 items: items.into(),
-            }),
+            })
+            .with_query(query.clone()),
             page: Some(page),
             sources: vec![source],
             problems,

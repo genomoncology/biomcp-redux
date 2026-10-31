@@ -1,3 +1,4 @@
+#![deny(clippy::wildcard_enum_match_arm)]
 use crate::{Ctx, gene};
 
 use crate::Outcome;

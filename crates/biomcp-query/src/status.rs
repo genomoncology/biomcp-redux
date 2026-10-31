@@ -1,5 +1,5 @@
 use biomcp_fetch::{LegReport, RequestError};
-use biomcp_types::{PageInfo, Problem, QueryBody, Source, SourceOutcome, SourceState, Status};
+use biomcp_types::{PageInfo, Problem, ReplyData, Source, SourceOutcome, SourceState, Status};
 /// Query result before the interface adds its typed envelope and next spelling.
 #[derive(Debug)]
 pub struct Outcome {
@@ -8,7 +8,7 @@ pub struct Outcome {
     /// At least one native record was refused by its adapter.
     pub(crate) dropped: bool,
     /// Typed response body.
-    pub body: QueryBody,
+    pub body: ReplyData,
     /// Search counts.
     pub page: Option<PageInfo>,
     /// Sources actually asked.
@@ -23,7 +23,7 @@ pub struct Outcome {
 
 /// Entity-owned response parts without authority to assign an outcome status.
 pub(crate) struct Parts {
-    pub body: QueryBody,
+    pub body: ReplyData,
     pub page: Option<PageInfo>,
     pub sources: Vec<SourceOutcome>,
     pub problems: Vec<Problem>,
@@ -80,8 +80,12 @@ impl Outcome {
     pub fn body_visible(&self) -> bool {
         self.status != Status::Failed
             || match &self.body {
-                QueryBody::TrialPage(body) => body.condition_resolution.is_some(),
-                QueryBody::NciTrialPage(body) => body.condition_resolution.is_some(),
+                ReplyData::TrialPage {
+                    body: Some(body), ..
+                } => body.condition_resolution.is_some(),
+                ReplyData::NciTrialPage {
+                    body: Some(body), ..
+                } => body.condition_resolution.is_some(),
                 _ => false,
             }
     }
@@ -133,7 +137,7 @@ pub(crate) fn search_for(out: &mut Outcome, providers: &[Source]) {
 }
 
 /// Start an unanswered query with one body and no source observations.
-pub(crate) fn empty(body: QueryBody) -> Outcome {
+pub(crate) fn empty(body: ReplyData) -> Outcome {
     Outcome {
         dropped: false,
         status: Status::Failed,
@@ -147,7 +151,7 @@ pub(crate) fn empty(body: QueryBody) -> Outcome {
 }
 
 /// Start a body whose successful local construction is already an answer.
-pub(crate) fn ready(body: QueryBody) -> Outcome {
+pub(crate) fn ready(body: ReplyData) -> Outcome {
     let mut out = empty(body);
     item(&mut out, true, false, false);
     out

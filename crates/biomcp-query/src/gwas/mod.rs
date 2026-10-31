@@ -1,4 +1,5 @@
 //! Source-local association search, without clinical interpretation.
+use biomcp_types::ReplyBody;
 mod get;
 pub(crate) mod map;
 pub(crate) use get::get;
@@ -7,7 +8,7 @@ mod threshold;
 use crate::{Ctx, Outcome, status};
 use biomcp_adapters::gwas;
 use biomcp_types::{
-    GwasPage, GwasPageQuery, GwasSearch, PageInfo, Problem, ProblemCode, QueryBody, Source,
+    GwasPage, GwasPageQuery, GwasSearch, PageInfo, Problem, ProblemCode, ReplyData, Source,
     SourceState, Status,
 };
 /// One bounded native page; no per-hit metadata calls.
@@ -15,7 +16,7 @@ pub(crate) fn search(cx: &Ctx<'_>, q: &GwasSearch) -> Outcome {
     if q.p_value().is_some() {
         return threshold::search(cx, q);
     }
-    let mut out = empty();
+    let mut out = empty(q);
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let leg = cx.fetch.leg(&gwas::SPEC, deadline).fresh(cx.fresh);
@@ -50,12 +51,13 @@ pub(crate) fn search(cx: &Ctx<'_>, q: &GwasSearch) -> Outcome {
             truncated: None,
         };
         out.page = Some(page.clone());
-        out.body = QueryBody::GwasPage(Some(GwasPage {
+        out.body = (GwasPage {
             items,
             page,
             continuation,
             qualifying_total: None,
-        }));
+        })
+        .with_query(biomcp_types::GwasPageQuery::Search(q.clone()));
         {
             let unavailable = false;
             crate::status::item(&mut out, true, false, unavailable);
@@ -77,7 +79,7 @@ pub(crate) fn search(cx: &Ctx<'_>, q: &GwasSearch) -> Outcome {
     if out.status() == Status::Complete && source.state == SourceState::Stale {
         crate::status::item(&mut out, true, false, true);
     }
-    let QueryBody::GwasPage(body) = &out.body else {
+    let ReplyData::GwasPage { body, .. } = &out.body else {
         return out;
     };
     out.next = next::search(q, body.as_ref(), source.state, cx.fresh, &mut out.problems);
@@ -88,6 +90,9 @@ pub(crate) fn search(cx: &Ctx<'_>, q: &GwasSearch) -> Outcome {
     out
 }
 
-fn empty() -> Outcome {
-    crate::status::empty(QueryBody::GwasPage(None))
+fn empty(q: &GwasSearch) -> Outcome {
+    crate::status::empty(biomcp_types::GwasPage::into_reply(
+        biomcp_types::GwasPageQuery::Search(q.clone()),
+        None,
+    ))
 }

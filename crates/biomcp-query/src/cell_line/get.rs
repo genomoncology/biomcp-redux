@@ -1,7 +1,9 @@
 use super::{
-    CellLineGet, Ctx, Outcome, QueryBody, Request, Source, Status, StepKind, cellosaurus, empty,
-    recovery, run, status,
+    CellLineGet, Ctx, Outcome, Request, Source, Status, StepKind, cellosaurus, empty, recovery,
+    run, status,
 };
+use biomcp_types::ReplyBody;
+use biomcp_types::ReplyData;
 use biomcp_types::{CellLineCard, CellLineInput, CellLineSection, CellLineSections};
 pub(super) fn get(cx: &Ctx<'_>, query: &CellLineGet) -> Outcome {
     if query.section() == Some(CellLineSection::Chembl)
@@ -16,7 +18,7 @@ pub(super) fn get(cx: &Ctx<'_>, query: &CellLineGet) -> Outcome {
     let mut problems = Vec::new();
     let reply = resolve(&leg, query, &mut card, &mut problems);
     let error = reply.as_ref().err().copied();
-    let mut out = empty(QueryBody::CellLineCard(vacant(query)));
+    let mut out = empty((vacant(query)).with_query(query.clone()));
     out.problems = problems;
     out.sources
         .push(status::source(Source::Cellosaurus, leg.finish(), error));
@@ -63,9 +65,12 @@ pub(super) fn get(cx: &Ctx<'_>, query: &CellLineGet) -> Outcome {
         } else {
             actions(&mut out, &card);
         }
-        out.body = QueryBody::CellLineCard(card);
+        out.body = card.with_query(query.clone());
         super::provenance::attach(cx, deadline, &mut out);
-        if let QueryBody::CellLineCard(card) = &mut out.body {
+        if let ReplyData::CellLineCard {
+            body: Some(card), ..
+        } = &mut out.body
+        {
             super::sections::provenance(card);
         }
     }

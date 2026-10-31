@@ -11,7 +11,7 @@
 mod recording_support;
 use biomcp_fetch::{CacheError, Fetch, FetchConfig, Mode, ReplayCache, RequestError};
 use biomcp_query::{Ctx, Outcome};
-use biomcp_types::{ArticlePage, ArticleSearch, QueryBody, Request, Status};
+use biomcp_types::{ArticlePage, ArticleSearch, ReplyData, Request, Status};
 use std::{path::PathBuf, time::Duration};
 fn recordings(name: &str) -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR"))
@@ -54,7 +54,10 @@ fn page(out: Outcome) -> (biomcp_types::PageInfo, ArticlePage) {
         Status::Complete,
         "Article pages must preserve their snapshot and paging contract"
     );
-    let QueryBody::ArticlePage(page) = out.body else {
+    let ReplyData::ArticlePage {
+        body: Some(page), ..
+    } = out.body
+    else {
         panic!("article page")
     };
     (out.page.unwrap(), page)
@@ -73,7 +76,7 @@ fn expiring_one_snapshot_does_not_expire_its_replacement() {
         .unwrap();
     assert!(matches!(
         run(&fetch, query(Some(old.id.as_str()), 0), false).body,
-        QueryBody::PoolError { mismatch: false }
+        ReplyData::PoolError { mismatch: false }
     ));
     assert_eq!(
         page(run(&fetch, query(Some(new.id.as_str()), 0), false))
@@ -202,7 +205,10 @@ fn concurrent_hydration_retains_accepted_headers_and_snapshot_metadata() {
     let fetch = fetch("synthetic-retry", cache);
     let first = run(&fetch, query(None, 0), false);
     let info = first.page.unwrap().pool.unwrap();
-    let QueryBody::ArticlePage(before) = first.body else {
+    let ReplyData::ArticlePage {
+        body: Some(before), ..
+    } = first.body
+    else {
         panic!("article page")
     };
     assert!(before.items[0].header.is_none());
@@ -383,7 +389,10 @@ fn stale_summary_fallback_stays_partial_when_its_page_is_read_offline() {
     assert_eq!(repeated.local, None);
     assert_eq!(repeated.status(), Status::Partial);
     assert_eq!(repeated.sources, first.sources);
-    let QueryBody::ArticlePage(body) = repeated.body else {
+    let ReplyData::ArticlePage {
+        body: Some(body), ..
+    } = repeated.body
+    else {
         panic!("article page")
     };
     assert!(body.items.iter().all(|i| i.header.is_some()));

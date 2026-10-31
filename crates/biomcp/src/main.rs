@@ -42,7 +42,9 @@ fn main() -> ExitCode {
                     }
                     Err(mcp::http::StartError::AllowHost) => exit::finish(
                         command::encode(
-                            biomcp_types::ErrorEnvelope::argument("--allow-host".into()),
+                            biomcp_types::ErrorEnvelope::from(biomcp_types::UsageError::argument(
+                                "--allow-host".into(),
+                            )),
                             exit::Status::Usage,
                         )
                         .and_then(|outcome| output::bytes(&outcome.cli_bytes)),

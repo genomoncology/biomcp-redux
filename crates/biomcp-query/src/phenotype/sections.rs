@@ -1,18 +1,23 @@
 use super::{run, snapshot::Rows};
 use crate::Outcome;
+use biomcp_types::ReplyBody;
 use biomcp_types::{
     PageInfo, PhenotypeGet, PhenotypeHierarchy, PhenotypeSection, PhenotypeSynonyms,
-    PhenotypeXrefs, QueryBody, Request, StepKind,
+    PhenotypeXrefs, ReplyData, Request, StepKind,
 };
-pub(super) fn empty(q: &PhenotypeGet) -> QueryBody {
+pub(super) fn empty(q: &PhenotypeGet) -> ReplyData {
     match q.section() {
-        Some(PhenotypeSection::Synonyms) => QueryBody::PhenotypeSynonyms(None),
-        Some(PhenotypeSection::Xrefs) => QueryBody::PhenotypeXrefs(None),
-        Some(PhenotypeSection::Hierarchy) => QueryBody::PhenotypeHierarchy(None),
-        _ => QueryBody::PhenotypeCard(None),
+        Some(PhenotypeSection::Synonyms) => {
+            biomcp_types::PhenotypeSynonyms::into_reply(q.clone(), None)
+        }
+        Some(PhenotypeSection::Xrefs) => biomcp_types::PhenotypeXrefs::into_reply(q.clone(), None),
+        Some(PhenotypeSection::Hierarchy) => {
+            biomcp_types::PhenotypeHierarchy::into_reply(q.clone(), None)
+        }
+        _ => biomcp_types::PhenotypeTermCard::into_reply(q.clone(), None),
     }
 }
-pub(super) fn apply(out: &mut Outcome, q: &PhenotypeGet, rows: Rows) {
+pub(super) fn apply(out: &mut Outcome, echo: &PhenotypeGet, q: &PhenotypeGet, rows: Rows) {
     let components = rows.0.components.clone();
     let fetched = rows.4;
     match q.section() {
@@ -30,16 +35,17 @@ pub(super) fn apply(out: &mut Outcome, q: &PhenotypeGet, rows: Rows) {
                     ));
                 }
             }
-            out.body = QueryBody::PhenotypeCard(Some(rows.0));
+            out.body = (rows.0).with_query(echo.clone());
         }
         Some(PhenotypeSection::Synonyms) => {
             if let Some(rows) = rows.1 {
                 let items = page(out, q, &rows);
-                out.body = QueryBody::PhenotypeSynonyms(Some(PhenotypeSynonyms {
+                out.body = (PhenotypeSynonyms {
                     items,
                     components,
                     fetched,
-                }));
+                })
+                .with_query(echo.clone());
             } else {
                 unavailable(out);
             }
@@ -47,11 +53,12 @@ pub(super) fn apply(out: &mut Outcome, q: &PhenotypeGet, rows: Rows) {
         Some(PhenotypeSection::Xrefs) => {
             if let Some(rows) = rows.2 {
                 let items = page(out, q, &rows);
-                out.body = QueryBody::PhenotypeXrefs(Some(PhenotypeXrefs {
+                out.body = (PhenotypeXrefs {
                     items,
                     components,
                     fetched,
-                }));
+                })
+                .with_query(echo.clone());
             } else {
                 unavailable(out);
             }
@@ -59,11 +66,12 @@ pub(super) fn apply(out: &mut Outcome, q: &PhenotypeGet, rows: Rows) {
         Some(PhenotypeSection::Hierarchy) => {
             if let Some(rows) = rows.3 {
                 let items = page(out, q, &rows);
-                out.body = QueryBody::PhenotypeHierarchy(Some(PhenotypeHierarchy {
+                out.body = (PhenotypeHierarchy {
                     items,
                     components,
                     fetched,
-                }));
+                })
+                .with_query(echo.clone());
             } else {
                 unavailable(out);
             }

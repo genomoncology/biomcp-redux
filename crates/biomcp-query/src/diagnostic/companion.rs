@@ -1,18 +1,23 @@
 use crate::{Action, Bundle, Ctx, Outcome, status};
 use biodata::CompanionDiagnosticRelation;
 use biomcp_adapters::fda_cdx;
+use biomcp_types::ReplyBody;
 use biomcp_types::{
-    DiagnosticCompanion, DiagnosticSearch, DrugGet, DrugSource, PageInfo, QueryBody, Reason,
-    Request, Source, SourceState, Status, StepKind,
+    DiagnosticCompanion, DiagnosticSearch, DrugGet, DrugSource, PageInfo, Reason, Request, Source,
+    SourceState, Status, StepKind,
 };
 use std::collections::HashSet;
 
 pub(super) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
-    let mut out = super::empty(QueryBody::DiagnosticCompanion(DiagnosticCompanion {
-        items: Box::default(),
-        count_unit: None,
-        distinct_id_total: None,
-    }));
+    let echo = q;
+    let mut out = super::empty(
+        (DiagnosticCompanion {
+            items: Box::default(),
+            count_unit: None,
+            distinct_id_total: None,
+        })
+        .with_query(q.clone()),
+    );
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let leg = cx.fetch.leg(&fda_cdx::SPEC, deadline);
@@ -50,11 +55,12 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
             pool: None,
             truncated: None,
         });
-        out.body = QueryBody::DiagnosticCompanion(DiagnosticCompanion {
+        out.body = (DiagnosticCompanion {
             items: page.items,
             count_unit: None,
             distinct_id_total: None,
-        });
+        })
+        .with_query(echo.clone());
     }
     out.local = error.and_then(status::local);
     let mut source = status::source(Source::FdaCdx, leg.finish(), error);

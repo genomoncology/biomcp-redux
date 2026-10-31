@@ -1,4 +1,5 @@
 //! Trial discovery delegates filters, totals and ranking to the named registry.
+use biomcp_types::ReplyBody;
 mod condition;
 pub mod document;
 pub(crate) mod get;
@@ -8,14 +9,14 @@ use crate::{Action, Ctx, Outcome, status};
 use biomcp_adapters::{ctgov, hgnc};
 use biomcp_types::GeneResolution;
 use biomcp_types::{
-    QueryBody, Request, Source, SourceState, Status, StepKind, TrialPage, TrialSearch,
+    ReplyData, Request, Source, SourceState, Status, StepKind, TrialPage, TrialSearch,
 };
 /// Execute a checked native search without locally screening returned studies.
 pub(crate) fn search(cx: &Ctx<'_>, query: &TrialSearch) -> Outcome {
     if query.source() == biomcp_types::TrialSource::Nci {
         return nci::search(cx, query);
     }
-    let mut outcome = empty();
+    let mut outcome = empty(query);
     let command = cx.fetch.command_deadline(cx.budget);
     let mut deadline = command.deadline();
     let Some(condition) = condition::resolve(cx, query, &mut outcome, &mut deadline) else {
@@ -73,12 +74,15 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &TrialSearch) -> Outcome {
     }
     if let Ok(version) = version {
         outcome.problems.extend(version.problems);
-        if let QueryBody::TrialPage(body) = &mut outcome.body {
+        if let ReplyData::TrialPage {
+            body: Some(body), ..
+        } = &mut outcome.body
+        {
             body.source_updated = version.value.map(Into::into);
         }
     }
     if rejected {
-        outcome.body = QueryBody::TextPositionError;
+        outcome.body = ReplyData::Usage(biomcp_types::UsageError::TextPositionError);
     }
     outcome.local = error.and_then(status::local);
     outcome.sources.push(source);
@@ -139,23 +143,27 @@ fn apply_page(
             fresh,
         ));
     }
-    if let QueryBody::TrialPage(body) = &mut outcome.body {
+    if let ReplyData::TrialPage {
+        body: Some(body), ..
+    } = &mut outcome.body
+    {
         body.items = page.items.into();
     }
 }
-fn empty() -> Outcome {
+fn empty(query: &TrialSearch) -> Outcome {
     crate::status::finish(
         [crate::status::item_status(false, true, false)],
         crate::status::Parts {
             dropped: false,
-            body: QueryBody::TrialPage(TrialPage {
+            body: (TrialPage {
                 items: Box::default(),
                 source_updated: None,
                 attribution:
                     "ClinicalTrials.gov; source-native discovery, no eligibility assessment".into(),
                 gene_resolution: None,
                 condition_resolution: None,
-            }),
+            })
+            .with_query(query.clone()),
             page: None,
             sources: Vec::new(),
             problems: Vec::new(),
@@ -188,7 +196,10 @@ fn gene<'a>(
                 GeneResolution::Resolved { gene, .. } => Some(Some(gene.symbol.to_string())),
                 resolution => {
                     crate::status::item(outcome, true, false, true);
-                    if let QueryBody::TrialPage(body) = &mut outcome.body {
+                    if let ReplyData::TrialPage {
+                        body: Some(body), ..
+                    } = &mut outcome.body
+                    {
                         body.gene_resolution = Some(resolution);
                     }
                     None

@@ -2,15 +2,16 @@ use crate::{Ctx, Outcome, status, store::Store};
 use biodata::{OrcidId, OrcidWorkGroup};
 use biomcp_adapters::orcid;
 use biomcp_fetch::{CacheError, Deadline, RequestError, SourceError};
+use biomcp_types::ReplyBody;
 use biomcp_types::{
-    AuthorPapersQuery, OrcidWorks, OrcidWorksScope, PageInfo, QueryBody, Reason, Request, Source,
+    AuthorPapersQuery, OrcidWorks, OrcidWorksScope, PageInfo, Reason, ReplyData, Request, Source,
     SourceOutcome, SourceState, StepKind,
 };
 /// Read one whole source reply and retain local group pages.
 pub(super) fn papers(cx: &Ctx<'_>, q: &AuthorPapersQuery, id: &OrcidId) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
-    let mut out = super::empty(QueryBody::OrcidWorks(None));
+    let mut out = super::empty(biomcp_types::OrcidWorks::into_reply(q.clone(), None));
     if let Err(error) = execute(cx, q, id, deadline, &mut out) {
         out.local = status::local(error);
         if out.sources.is_empty() {
@@ -29,7 +30,7 @@ pub(super) fn papers(cx: &Ctx<'_>, q: &AuthorPapersQuery, id: &OrcidId) -> Outco
     out
 }
 fn restart(q: &AuthorPapersQuery, out: &mut Outcome, mismatch: bool) {
-    out.body = QueryBody::PoolError { mismatch };
+    out.body = ReplyData::PoolError { mismatch };
     out.next.push(crate::next::Step::new(
         StepKind::Restart,
         &[biomcp_types::Source::Orcid],
@@ -156,12 +157,13 @@ fn present(
         crate::status::item(out, true, false, unavailable);
     };
     out.sources = vec![source];
-    out.body = QueryBody::OrcidWorks(Some(OrcidWorks {
+    out.body = (OrcidWorks {
         collection_scope: OrcidWorksScope::WholePublicWorksReply,
         author: id.clone(),
         groups: rows,
         observed_groups: total,
-    }));
+    })
+    .with_query(q.clone());
 }
 fn pivots(out: &mut Outcome, rows: &[OrcidWorkGroup]) {
     for id in rows

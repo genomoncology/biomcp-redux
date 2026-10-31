@@ -196,7 +196,7 @@ fn value_schemas_describe_canonical_text_and_coordinate_bounds() {
 
 #[test]
 fn usage_error_round_trips_and_rejects_changed_contract_values() {
-    let envelope = ErrorEnvelope::schema_usage();
+    let envelope = ErrorEnvelope::from(UsageError::Schema);
     let value = serde_json::to_value(&envelope).unwrap();
     assert_eq!(
         value,

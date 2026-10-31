@@ -3,9 +3,10 @@ use crate::{Ctx, Outcome, status};
 use biodata::{ProteinSequence, Text};
 use biomcp_adapters::{Mapped, uniprot};
 use biomcp_fetch::{Leg, RequestError, SourceError};
+use biomcp_types::ReplyBody;
 use biomcp_types::{
-    Problem, ProblemCode, ProteinSequenceQuery, ProteinSequenceResult, QueryBody, Reason, Request,
-    Source, StepKind,
+    Problem, ProblemCode, ProteinSequenceQuery, ProteinSequenceResult, Reason, Request, Source,
+    StepKind,
 };
 pub(super) fn read(
     leg: &Leg<'_>,
@@ -48,7 +49,10 @@ pub(super) fn run(cx: &Ctx<'_>, q: &ProteinSequenceQuery) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let leg = cx.fetch.leg(&uniprot::SPEC, deadline).fresh(cx.fresh);
-    let mut out = super::empty(QueryBody::ProteinSequence(None));
+    let mut out = super::empty(biomcp_types::ProteinSequenceResult::into_reply(
+        q.clone(),
+        None,
+    ));
     let result = read(&leg, q);
     let error = result.as_ref().err().copied();
     if let Ok(mapped) = result {
@@ -58,7 +62,8 @@ pub(super) fn run(cx: &Ctx<'_>, q: &ProteinSequenceQuery) -> Outcome {
             let found = mapped.value.is_some();
             crate::status::item(&mut out, found, false, false);
         };
-        out.body = QueryBody::ProteinSequence(
+        out.body = biomcp_types::ProteinSequenceResult::into_reply(
+            q.clone(),
             mapped
                 .value
                 .map(|sequence| ProteinSequenceResult { sequence }),

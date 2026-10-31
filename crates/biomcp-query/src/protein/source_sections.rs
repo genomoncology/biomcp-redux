@@ -7,7 +7,7 @@ use crate::{Ctx, Outcome, status};
 use biomcp_fetch::Deadline;
 use biomcp_types::{
     ProteinCardItem, ProteinDomainsQuery, ProteinGet, ProteinRelationQuery, ProteinSection,
-    QueryBody, Section, Source, Status,
+    ReplyData, Section, Source, Status,
 };
 pub(super) fn supplement(
     cx: &Ctx<'_>,
@@ -52,7 +52,7 @@ fn apply(item: &mut ProteinCardItem, out: &mut Outcome, result: Outcome) {
     let result_status = result.status();
     if let Some(sections) = &mut item.sections {
         match result.body {
-            QueryBody::ProteinDomains(data) => {
+            ReplyData::ProteinDomains { body: data, .. } => {
                 sections.domains = Some(match data {
                     Some(data) if data.items.is_empty() => Section::Empty {
                         source: Source::InterPro,
@@ -65,7 +65,7 @@ fn apply(item: &mut ProteinCardItem, out: &mut Outcome, result: Outcome) {
                     None => Section::unavailable(Source::InterPro, reason),
                 })
             }
-            QueryBody::ProteinComplexes(data) => {
+            ReplyData::ProteinComplexes { body: data, .. } => {
                 sections.complexes = Some(match data {
                     Some(data) if data.items.is_empty() => Section::Empty {
                         source: Source::ComplexPortal,

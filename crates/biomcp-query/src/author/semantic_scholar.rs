@@ -4,9 +4,10 @@ use crate::{Ctx, Outcome, status};
 use biodata::{AuthorId, AuthorPaperHeader};
 use biomcp_adapters::semantic_scholar::{self, author};
 use biomcp_fetch::{Deadline, RequestError, SourceError};
+use biomcp_types::ReplyBody;
 use biomcp_types::{
     ArticleGet, ArticleInput, AuthorPaperDetails, AuthorPapers, AuthorPapersQuery, PageInfo,
-    QueryBody, Reason, Request, Source, SourceState, StepKind,
+    Reason, ReplyData, Request, Source, SourceState, StepKind,
 };
 /// Read one exact author's native paper page and retain checked continuation state.
 pub(super) fn papers(cx: &Ctx<'_>, q: &AuthorPapersQuery) -> Outcome {
@@ -51,7 +52,7 @@ fn execute(
         .into());
     }
     let saved = snapshot::load(cx, q, deadline, out)?;
-    if matches!(out.body, QueryBody::PoolError { .. }) {
+    if matches!(out.body, ReplyData::PoolError { .. }) {
         return Ok(());
     }
     let (mut saved, old_pool) = if let Some((saved, pool)) = saved {
@@ -155,17 +156,19 @@ fn present(
     out.body = body(q, items);
     Ok(())
 }
-fn body(q: &AuthorPapersQuery, items: Box<[biodata::AuthorPaperDetail]>) -> QueryBody {
+fn body(q: &AuthorPapersQuery, items: Box<[biodata::AuthorPaperDetail]>) -> ReplyData {
     if q.section().is_some() {
-        QueryBody::AuthorPaperDetails(Some(AuthorPaperDetails {
+        (AuthorPaperDetails {
             author: q.id().clone(),
             items,
-        }))
+        })
+        .with_query(q.clone())
     } else {
-        QueryBody::AuthorPapers(Some(AuthorPapers {
+        (AuthorPapers {
             author: q.id().clone(),
             items: items.into_iter().map(|r| r.header).collect(),
-        }))
+        })
+        .with_query(q.clone())
     }
 }
 fn pivot(row: &AuthorPaperHeader, out: &mut Outcome) {

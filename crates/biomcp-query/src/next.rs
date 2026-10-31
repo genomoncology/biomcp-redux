@@ -1,6 +1,6 @@
 //! Checked follow-ups, source restrictions and response navigation policy.
 use crate::{Action, Outcome};
-use biomcp_types::{Source, StepKind};
+use biomcp_types::{ReplyData, Source, StepKind};
 
 /// One typed follow-up and the sources it would contact.
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -121,47 +121,55 @@ enum Navigation<'a> {
     BoundedPma,
 }
 
-fn navigation(body: &biomcp_types::QueryBody) -> Navigation<'_> {
-    use biomcp_types::QueryBody as Body;
+fn navigation(body: &biomcp_types::ReplyData) -> Navigation<'_> {
     match body {
-        Body::BiomarkerPage(_)
-        | Body::BiomarkerResult(_)
-        | Body::OrganizationPage(_)
-        | Body::AuthorPage(_)
-        | Body::CellLinePage(_) => Navigation::NativeOrder,
-        Body::AuthorCards(_) => Navigation::BoundedPma,
-        Body::CellLineChembl(_) | Body::CellLineAssayCount(_) => Navigation::BoundedPma,
-        Body::CellLineCard(_) => Navigation::BoundedPma,
-        Body::GwasAssociation(_)
-        | Body::GwasStudy(_)
-        | Body::GwasLoci(_)
-        | Body::GwasAncestries(_)
-        | Body::GwasPage(_)
-        | Body::PathwayEvents(_)
-        | Body::ProteinComplexes(_) => Navigation::NativeOrder,
-        Body::PathwayCard(card) => pathway_navigation(card.as_ref()),
-        Body::ProteinPage(_) => Navigation::Selectable,
-        Body::ProteinFeatures(_)
-        | Body::ProteinIsoforms(_)
-        | Body::ProteinDomains(_)
-        | Body::ProteinComplexMembers(_)
-        | Body::ProteinStructures(_)
-        | Body::ProteinSequence(_) => Navigation::Bounded,
-        Body::ProteinCard(card) => protein_navigation(card),
-        Body::StudyProfiles(_) | Body::StudySampleLists(_) | Body::StudyFiles(_) => {
-            Navigation::Bounded
-        }
-        Body::PathwayPage(_) | Body::PhenotypePage(_) => Navigation::Selectable,
-        Body::PhenotypeCard(_)
-        | Body::PhenotypeSynonyms(_)
-        | Body::PhenotypeXrefs(_)
-        | Body::PhenotypeHierarchy(_) => Navigation::Bounded,
-        Body::PathwayGenes(_) => Navigation::Bounded,
-        Body::PgxAnnotations(value) => pgx_navigation(value),
-        Body::VariantCard(card) => variant_navigation(card),
-        Body::DiagnosticCard(Some(biomcp_types::DiagnosticCard::PmaSubmission(_))) => {
+        ReplyData::BiomarkerPage { .. }
+        | ReplyData::BiomarkerResult { .. }
+        | ReplyData::OrganizationPage { .. }
+        | ReplyData::AuthorPage { .. }
+        | ReplyData::CellLinePage { .. } => Navigation::NativeOrder,
+        ReplyData::AuthorCards { .. } => Navigation::BoundedPma,
+        ReplyData::CellLineChembl { .. } | ReplyData::CellLineAssayCount { .. } => {
             Navigation::BoundedPma
         }
+        ReplyData::CellLineCard { .. } => Navigation::BoundedPma,
+        ReplyData::GwasAssociationCard { .. }
+        | ReplyData::GwasStudy { .. }
+        | ReplyData::GwasLoci { .. }
+        | ReplyData::GwasAncestries { .. }
+        | ReplyData::GwasPage { .. }
+        | ReplyData::PathwayEvents { .. }
+        | ReplyData::ProteinComplexes { .. } => Navigation::NativeOrder,
+        ReplyData::PathwayCard { body: card, .. } => pathway_navigation(card.as_ref()),
+        ReplyData::ProteinPage { .. } => Navigation::Selectable,
+        ReplyData::ProteinFeatures { .. }
+        | ReplyData::ProteinIsoforms { .. }
+        | ReplyData::ProteinDomains { .. }
+        | ReplyData::ProteinComplexMembers { .. }
+        | ReplyData::ProteinStructures { .. }
+        | ReplyData::ProteinSequenceResult { .. } => Navigation::Bounded,
+        ReplyData::ProteinCard {
+            body: Some(card), ..
+        } => protein_navigation(card),
+        ReplyData::StudyProfiles { .. }
+        | ReplyData::StudySampleLists { .. }
+        | ReplyData::StudyFiles { .. } => Navigation::Bounded,
+        ReplyData::PathwayPage { .. } | ReplyData::PhenotypePage { .. } => Navigation::Selectable,
+        ReplyData::PhenotypeTermCard { .. }
+        | ReplyData::PhenotypeSynonyms { .. }
+        | ReplyData::PhenotypeXrefs { .. }
+        | ReplyData::PhenotypeHierarchy { .. } => Navigation::Bounded,
+        ReplyData::PathwayGenes { .. } => Navigation::Bounded,
+        ReplyData::PgxAnnotations {
+            body: Some(value), ..
+        } => pgx_navigation(value),
+        ReplyData::VariantCard {
+            body: Some(card), ..
+        } => variant_navigation(card),
+        ReplyData::DiagnosticCard {
+            body: Some(biomcp_types::DiagnosticCard::PmaSubmission(_)),
+            ..
+        } => Navigation::BoundedPma,
         _ => bounded_navigation(body),
     }
 }
@@ -267,61 +275,26 @@ fn pgx_navigation(value: &biomcp_types::PgxAnnotations) -> Navigation<'_> {
     }
 }
 
-fn bounded_navigation(body: &biomcp_types::QueryBody) -> Navigation<'_> {
-    use biomcp_types::QueryBody as Body;
+fn bounded_navigation(body: &biomcp_types::ReplyData) -> Navigation<'_> {
     match body {
-        Body::StudyPage(_)
-        | Body::DiagnosticCompanion(_)
-        | Body::DiagnosticPage(_)
-        | Body::DiagnosticGenes(_)
-        | Body::DiagnosticSupplements(_)
-        | Body::AdverseEventPage(_)
-        | Body::DiseasePage(_)
-        | Body::PhenotypeDiseases(_)
-        | Body::PhenotypeGenes(_)
-        | Body::DiseaseGenes(_)
-        | Body::DiseasePhenotypes(_)
-        | Body::DrugPage(_)
-        | Body::DrugWhoPage(_)
-        | Body::DrugRecallCard(_)
-        | Body::DrugRecallPage(_)
-        | Body::DrugFdaPage(_)
-        | Body::DrugCivic(_)
-        | Body::VariantPage(_) => Navigation::Selectable,
-        Body::StudyCard(_) | Body::PgxPage(_) | Body::PgxCard(_) => Navigation::Bounded,
-        Body::PgxRecommendations(_) | Body::PgxGuidelines(_) => Navigation::Bounded,
-        Body::PgxDiplotype(_) => Navigation::Bounded,
-        Body::PgxAnnotation(_) | Body::DiagnosticCard(_) => Navigation::Bounded,
-        Body::DiagnosticConditions(_) | Body::DiagnosticMethods(_) => Navigation::Bounded,
-        Body::DiagnosticRegulatory(_) | Body::UnsupportedAdverseEvent => Navigation::Bounded,
-        Body::AdverseEventFaersCard(_) | Body::AdverseEventDrugs(_) => Navigation::Bounded,
-        Body::AdverseEventReactions(_) => Navigation::Bounded,
-        Body::AdverseEventIdentifiers(_) | Body::VaersSummary(_) => Navigation::Bounded,
-        Body::AdverseEventMaudeCard(_) | Body::AdverseEventDevices(_) => Navigation::Bounded,
-        Body::AdverseEventNarrative(_) | Body::DiseaseCard(_) => Navigation::Bounded,
-        Body::DiseaseSynonyms(_) | Body::DiseaseXrefs(_) => Navigation::Bounded,
-        Body::DiseaseHierarchy(_) | Body::DiseaseSites(_) => Navigation::Bounded,
-        Body::DiseaseIncidence(_) | Body::DiseaseSurvival(_) => Navigation::Bounded,
-        Body::DrugCard(_) | Body::DrugLabel(_) | Body::DrugWhoCard(_) => Navigation::Bounded,
-        Body::DrugRegulatory(_) | Body::DrugApprovals(_) => Navigation::Bounded,
-        Body::DrugInteractions(_) | Body::DrugXrefs(_) => Navigation::Bounded,
-        Body::DrugTargets(_) | Body::DrugIndications(_) => Navigation::Bounded,
-        Body::VariantAssertions(_) | Body::VariantNormalization(_) => Navigation::Bounded,
-        Body::NciTrialPage(_) | Body::NciTrialCards(_) => Navigation::Bounded,
-        Body::BiomarkerTooBroad
-        | Body::OrganizationTooBroad
-        | Body::UnsupportedTrialFilter { .. }
-        | Body::NciDiseaseError => Navigation::Bounded,
-        Body::VariantQueryPolicyError | Body::VariantPopulation(_) => Navigation::Bounded,
-        Body::VariantRecurrence(_) | Body::TrialDocument(_) => Navigation::Bounded,
-        Body::TrialCards(_) | Body::TrialPage(_) | Body::ArticlePdf(_) => Navigation::Bounded,
-        Body::PdfSaveRefused(_) | Body::ArticleSaveRefused(_) => Navigation::Bounded,
-        Body::ArticleEvidence(_) | Body::ArticleRecommendations(_) => Navigation::Bounded,
-        Body::ArticleSupplement(_) | Body::UnsupportedFilter { .. } => Navigation::Bounded,
-        Body::ArticleText(_) | Body::TextPositionError => Navigation::Bounded,
-        Body::ArticleEdges(_) | Body::TooManyPmids { .. } => Navigation::Bounded,
-        Body::ArticleCards(_) | Body::PoolError { .. } => Navigation::Bounded,
-        Body::ArticlePage(_) | Body::GeneCards(_) | Body::GenePage(_) => Navigation::Bounded,
+        ReplyData::StudyPage { .. }
+        | ReplyData::DiagnosticCompanion { .. }
+        | ReplyData::DiagnosticPage { .. }
+        | ReplyData::DiagnosticGenes { .. }
+        | ReplyData::DiagnosticSupplements { .. }
+        | ReplyData::AdverseEventPage { .. }
+        | ReplyData::DiseasePage { .. }
+        | ReplyData::PhenotypeDiseases { .. }
+        | ReplyData::PhenotypeGenes { .. }
+        | ReplyData::DiseaseGenes { .. }
+        | ReplyData::DiseasePhenotypes { .. }
+        | ReplyData::DrugPage { .. }
+        | ReplyData::DrugWhoPage { .. }
+        | ReplyData::DrugRecallCard { .. }
+        | ReplyData::DrugRecallPage { .. }
+        | ReplyData::DrugFdaPage { .. }
+        | ReplyData::DrugCivic { .. }
+        | ReplyData::VariantPage { .. } => Navigation::Selectable,
         _ => Navigation::Bounded,
     }
 }
