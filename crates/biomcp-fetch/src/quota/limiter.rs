@@ -30,7 +30,7 @@ const IDLE_BUCKET_TTL: Duration = Duration::from_secs(300);
 mod tests;
 
 impl Limiters {
-    pub(crate) fn acquire<'a>(
+    pub(super) fn acquire<'a>(
         &self,
         quota: &'static Quota,
         keyed: bool,
