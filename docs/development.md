@@ -42,6 +42,8 @@ Run `shard --plan DIRECTORY/plan.json --index INDEX` as a separate job for each 
 
 Before compiling, each shard discovers its filtered scope using selected filenames and exact mutant names. It compares the complete native identities with the plan's saved inventory. A mismatch stops the shard. The pinned tool can ignore name filters for struct-field deletions, so the filename filter and this comparison both matter. Keep `inventory.json` beside `plan.json` when copying a plan to another job.
 
+The native command selects `biomcp` in its shared Cargo arguments as well as its test-package option. The pinned tool chooses baseline packages from mutated source packages, which may have no `cases` target. The shared Cargo argument includes the owning package in both baseline and mutation phases.
+
 Run `collect --plan DIRECTORY/plan.json` after the shard jobs finish. Attach `mutation-report.json` and the raw shard directories to the candidate. The report separates caught mutants, survivors, build failures, native timeouts and unrun mutants. It preserves native phase durations and reports the number that actually completed. Missing shards, baseline failures and tool errors fail collection. Survivors remain advisory. The release owner chooses at most ten survivors for new outside-in cases, starting with rule modules, and lists the rest.
 
 The release rehearsal exposes each mutation action through `make release-mutations MUTATION_REPORT=REPORT MUTATION_ARGS='ACTION ARGUMENTS'`. Supply a job-owned stage report for each invocation. Submit each planned shard through its own `pm job`; after all shards finish, invoke `collect` through the same target. This entry point records the action's exit status and leaves its native logs and survivor report beside the plan.

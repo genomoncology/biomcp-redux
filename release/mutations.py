@@ -68,7 +68,7 @@ def execute(command, deadline, log, extra_env=None):
 
 def native_args():
     return ['cargo', 'mutants', '--no-shuffle', '--test-package', 'biomcp',
-            '--cargo-arg=--locked', '--cargo-arg=--test=cases']
+            '--cargo-arg=--locked', '--cargo-arg=--test=cases', '--cargo-arg=--package=biomcp']
 
 
 def tool_version(deadline, log, extra_env=None):

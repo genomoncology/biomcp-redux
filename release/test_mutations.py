@@ -154,7 +154,7 @@ class MutationCommands(unittest.TestCase):
             report['caught'] + report['survivors'] + report['unviable'] + report['timeouts']))
         calls = [json.loads(line) for line in (self.root / 'cargo-calls.jsonl').read_text().splitlines()]
         run = next(row for row in calls if '--shard' in row['args'])
-        for argument in ('--test=cases', '--locked'):
+        for argument in ('--test=cases', '--locked', '--package=biomcp'):
             self.assertIn('--cargo-arg=' + argument, run['args'])
         self.assertEqual(run['args'][run['args'].index('--test-package') + 1], 'biomcp')
         self.assertEqual(run['args'][run['args'].index('--baseline') + 1], 'run')
