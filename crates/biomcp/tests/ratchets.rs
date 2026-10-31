@@ -9,6 +9,8 @@ mod feature_contract;
 mod lints;
 #[path = "ratchets/placement.rs"]
 mod placement;
+#[path = "ratchets/process_setup.rs"]
+mod process_setup;
 #[path = "ratchets/proof.rs"]
 mod proof;
 #[path = "ratchets/proof_support.rs"]
@@ -39,6 +41,7 @@ fn check(root: &Path) -> Check {
         reasons::check(root),
         spellings::check(root),
         source::check(root),
+        process_setup::check(root),
         source_declarations::check(root),
     ])
 }

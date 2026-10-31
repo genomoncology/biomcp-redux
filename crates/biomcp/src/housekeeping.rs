@@ -66,9 +66,13 @@ fn display_path(path: Option<std::path::PathBuf>) -> String {
     path.map_or_else(|| "unavailable".into(), |path| path.display().to_string())
 }
 
-pub(crate) fn help() -> Vec<biomcp_types::HelpCommand> {
-    crate::grammar::housekeeping_commands()
-        .into_iter()
+pub(crate) fn recognizes(name: &str) -> bool {
+    matches!(name, "version" | "mcp-config" | "skill")
+}
+
+pub(crate) fn help(root: &clap::Command) -> Vec<biomcp_types::HelpCommand> {
+    root.get_subcommands()
+        .filter(|command| recognizes(command.get_name()))
         .flat_map(|command| {
             let name = command.get_name().to_owned();
             let mut entries = vec![(vec![name.clone()], command.clone())];
@@ -88,6 +92,7 @@ pub(crate) fn help() -> Vec<biomcp_types::HelpCommand> {
                 .unwrap_or_default(),
             arguments: command
                 .get_arguments()
+                .filter(|arg| !arg.is_global_set())
                 .map(|arg| biomcp_types::HelpArgument {
                     name: arg
                         .get_long()

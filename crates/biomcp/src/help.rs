@@ -10,7 +10,7 @@ use biomcp_types::{Help, HelpArgument, HelpCommand, HelpWord};
 use serde_json::Value;
 use std::{collections::BTreeMap, io};
 
-pub(crate) fn dispatch(path: &[String]) -> io::Result<Help> {
+pub(crate) fn dispatch(root: &crate::grammar::Root, path: &[String]) -> io::Result<Help> {
     if let [topic] = path
         && matches!(topic.as_str(), "sources" | "config")
     {
@@ -26,7 +26,7 @@ pub(crate) fn dispatch(path: &[String]) -> io::Result<Help> {
     {
         return Ok(network(setting));
     }
-    let mut commands: Vec<_> = commands()?
+    let mut commands: Vec<_> = commands(root)?
         .into_iter()
         .filter(|c| {
             path.is_empty()
@@ -41,18 +41,18 @@ pub(crate) fn dispatch(path: &[String]) -> io::Result<Help> {
                     && c.command.first() == path.first())
         })
         .collect();
-    if !public_grammar::overview(&mut commands, path)? {
-        public_grammar::scoped_globals(&mut commands);
+    if !public_grammar::overview(root, &mut commands, path)? {
+        public_grammar::scoped_globals(root, &mut commands);
     }
     Ok(Help { commands })
 }
 #[cfg(test)]
-pub(crate) fn reference() -> io::Result<Help> {
-    let mut commands = commands()?;
-    public_grammar::canonical(&mut commands)?;
+pub(crate) fn reference(root: &crate::grammar::Root) -> io::Result<Help> {
+    let mut commands = commands(root)?;
+    public_grammar::canonical(root, &mut commands)?;
     Ok(Help { commands })
 }
-pub(crate) fn commands() -> io::Result<Vec<HelpCommand>> {
+pub(crate) fn commands(root: &crate::grammar::Root) -> io::Result<Vec<HelpCommand>> {
     let examples: BTreeMap<String, Vec<Vec<String>>> =
         serde_json::from_str(include_str!(concat!(env!("OUT_DIR"), "/examples.json")))?;
     let mut commands = Vec::new();
@@ -86,13 +86,13 @@ pub(crate) fn commands() -> io::Result<Vec<HelpCommand>> {
                 .unwrap_or_default(),
         });
     }
-    commands.extend(crate::housekeeping::help());
+    commands.extend_from_slice(root.housekeeping());
     extra_commands(&mut commands, &examples);
     commands.extend(network("ca_bundle").commands);
     commands.extend(network("proxy").commands);
     commands.push(topic("exit", crate::exit::reference()));
 
-    public_grammar::augment(&mut commands)?;
+    public_grammar::augment(root, &mut commands)?;
     discovery::complete(&mut commands);
     for command in &mut commands {
         if command.reply_schemas.is_empty() {
@@ -280,8 +280,8 @@ fn argument(name: &str, node: &Value, root: &Value) -> HelpArgument {
 fn text(node: &Value, key: &str) -> String {
     node[key].as_str().unwrap_or_default().into()
 }
-pub(crate) fn tree() -> String {
-    let Ok(commands) = commands() else {
+pub(crate) fn tree(root: &crate::grammar::Root) -> String {
+    let Ok(commands) = commands(root) else {
         return "BioMCP command help unavailable".into();
     };
     let mut lines = tree_intro();

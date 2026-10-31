@@ -2,8 +2,8 @@
 use serde_json::{Value, json};
 use std::{collections::BTreeSet, io};
 
-pub(super) fn for_tool(name: &str) -> io::Result<Value> {
-    let mut ids = crate::help::commands()?
+pub(super) fn for_tool(root: &crate::grammar::Root, name: &str) -> io::Result<Value> {
+    let mut ids = crate::help::commands(root)?
         .into_iter()
         .filter(|command| match name {
             "search" => command.command.first().is_some_and(|word| word == "search"),

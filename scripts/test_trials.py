@@ -1,11 +1,89 @@
 """Selection refuses names before preparation and keeps target and directory."""
 from pathlib import Path
+import json
+import os
 import subprocess
+import sys
 import tempfile
 import unittest
 from unittest.mock import patch
 
 from trials import run_selected
+
+ROOT = Path(__file__).resolve().parents[1]
+CARGO = '''#!/usr/bin/env python3
+import json, os, sys
+from pathlib import Path
+with open(os.environ['COMMAND_LOG'], 'a') as log:
+    log.write(json.dumps(sys.argv[1:]) + '\\n')
+target = sys.argv[sys.argv.index('--test') + 1] if '--test' in sys.argv else 'biomcp'
+print(json.dumps({'reason':'compiler-artifact', 'target':{'name':target},
+                  'executable':os.environ['FAKE_RUNNER']}))
+'''
+RUNNER = '''#!/usr/bin/env python3
+import json, os, sys
+from pathlib import Path
+if '--list' in sys.argv:
+    if os.environ.get('DISCOVERY_EXIT'):
+        print('discovery stdout context')
+        print('cases: malformed YAML', file=sys.stderr)
+        sys.exit(int(os.environ['DISCOVERY_EXIT']))
+    print('literal/case.yaml: test')
+else:
+    print(json.dumps({'arguments':sys.argv[1:], 'cwd':str(Path.cwd()),
+                      'product':os.environ.get('BIOMCP_TEST_EXECUTABLE')}))
+    sys.exit(int(os.environ.get('TRIAL_EXIT', '0')))
+'''
+
+
+class FocusedCommand(unittest.TestCase):
+    def test_command_validates_then_prepares_and_preserves_runner_exit(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            directory = Path(temporary)
+            for name, source in [('cargo', CARGO), ('runner', RUNNER)]:
+                path = directory / name
+                path.write_text(source)
+                path.chmod(0o755)
+            log = directory / 'commands'
+            environment = dict(os.environ, PATH=str(directory) + os.pathsep + os.environ['PATH'],
+                               COMMAND_LOG=str(log), FAKE_RUNNER=str(directory / 'runner'))
+            command = [sys.executable, str(ROOT / 'scripts/trials.py')]
+            for names, builds in [([], 0), (['unknown'], 1), (['literal/case.yaml'], 2)]:
+                for code in ([0, 37] if builds == 2 else [0]):
+                    with self.subTest(names=names, code=code):
+                        log.unlink(missing_ok=True)
+                        result = subprocess.run([*command, *names], cwd=directory,
+                                                env=dict(environment, TRIAL_EXIT=str(code)),
+                                                capture_output=True, text=True)
+                        calls = [json.loads(line) for line in log.read_text().splitlines()] if log.exists() else []
+                        self.assertEqual(len(calls), builds, result.stderr)
+                        if builds == 2:
+                            self.assertEqual(result.returncode, code, result.stderr)
+                            output = json.loads(result.stdout)
+                            self.assertEqual(output['arguments'], ['literal/case.yaml', '--exact'])
+                            self.assertEqual(output['cwd'], str(ROOT / 'crates/biomcp'))
+                            self.assertEqual(output['product'], str(directory / 'runner'))
+                        else:
+                            self.assertNotEqual(result.returncode, 0)
+            log.unlink(missing_ok=True)
+            result = subprocess.run([*command, 'literal/case.yaml'], cwd=directory,
+                                    env=dict(environment, DISCOVERY_EXIT='29'),
+                                    capture_output=True, text=True)
+            self.assertEqual(result.returncode, 29)
+            self.assertIn('discovery stdout context', result.stdout)
+            self.assertIn('cases: malformed YAML', result.stderr)
+            self.assertEqual(len(log.read_text().splitlines()), 1)
+
+    def test_discovery_preserves_rust_case_and_custom_trial_modes(self):
+        from trials import main
+        for options in [['--target', 'tools', '--proofs'], ['--cases', str(ROOT / 'tests/cases')]]:
+            with self.subTest(options=options), patch('sys.argv', ['trials.py', *options, '--list']), \
+                    patch('trials.cargo', return_value={'executable': '/runner'}) as build, \
+                    patch('trials.subprocess.run') as run, patch('trials.os.chdir'):
+                main()
+                self.assertEqual(build.call_count, 1)
+                expected = ['--proofs'] if '--proofs' in options else ['--cases', str(ROOT / 'tests/cases')]
+                self.assertEqual(run.call_args.args[0], ['/runner', *expected, '--list'])
 
 
 class TrialSelection(unittest.TestCase):

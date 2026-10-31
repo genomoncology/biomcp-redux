@@ -1,6 +1,7 @@
 # 0427 — Build config and grammar once per process
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 6afdca5ca7b6b39acee32d0b28231ea50a48237e
 
 Milestone: 5
 

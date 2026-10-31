@@ -6,6 +6,8 @@ pub(crate) mod rewrite;
 pub(crate) use entry::entry_aliases;
 mod errors;
 mod metadata;
+mod tree;
+pub(crate) use tree::Root;
 mod validation;
 use arguments::command_for;
 mod gwas;
@@ -13,7 +15,6 @@ mod local;
 mod queries;
 #[cfg(test)]
 mod reference;
-pub(crate) use local::housekeeping_commands;
 pub(crate) use queries::command_paths;
 pub(crate) use queries::query_schema;
 
@@ -58,7 +59,7 @@ pub(crate) struct Parsed {
     pub(crate) help: Option<Vec<String>>,
     pub(crate) http: Option<(String, Vec<String>)>,
 }
-pub(crate) fn global_arguments() -> Command {
+fn global_arguments() -> Command {
     let mut root = Command::new("biomcp")
         .disable_help_flag(true)
         .disable_help_subcommand(true)
@@ -115,21 +116,33 @@ pub(crate) fn global_arguments() -> Command {
     }
     root
 }
-pub(crate) fn is_housekeeping(args: &[OsString]) -> bool {
-    scan_command_words(args, true).next().is_some_and(|name| {
-        housekeeping_commands()
-            .iter()
-            .any(|command| command.get_name() == name)
-    })
+pub(crate) fn is_housekeeping(root: &Command, args: &[OsString]) -> bool {
+    scan_command_words(root, args, true)
+        .next()
+        .is_some_and(crate::housekeeping::recognizes)
+}
+
+// Plain housekeeping replies, including refusals, do not depend on configuration.
+pub(crate) fn plain_housekeeping(root: &Command, args: &[OsString]) -> bool {
+    is_housekeeping(root, args)
+        && parse(root, args)
+            .ok()
+            .is_none_or(|parsed| parsed.help.is_none())
 }
 
 // Root recognition must also work when global values or repetitions are invalid.
-pub(crate) fn command_words(args: &[OsString]) -> impl Iterator<Item = &str> {
-    scan_command_words(args, is_housekeeping(args))
+pub(crate) fn command_words<'a>(
+    root: &Command,
+    args: &'a [OsString],
+) -> impl Iterator<Item = &'a str> {
+    scan_command_words(root, args, is_housekeeping(root, args))
 }
 
-fn scan_command_words(args: &[OsString], tolerate_unknown: bool) -> impl Iterator<Item = &str> {
-    let globals = global_arguments();
+fn scan_command_words<'a>(
+    globals: &Command,
+    args: &'a [OsString],
+    tolerate_unknown: bool,
+) -> impl Iterator<Item = &'a str> {
     let mut words = args.iter().peekable();
     while let Some(word) = words.peek().and_then(|word| word.to_str()) {
         if word == "--" {
@@ -158,7 +171,7 @@ fn scan_command_words(args: &[OsString], tolerate_unknown: bool) -> impl Iterato
     words.filter_map(|arg| arg.to_str())
 }
 
-pub(crate) fn root() -> Result<Command, ParseInvalid> {
+pub(crate) fn root() -> Result<Root, ParseInvalid> {
     let mut root = global_arguments();
     let queries = command_paths();
     for (index, &(verb, _, _)) in queries.iter().enumerate() {
@@ -213,7 +226,7 @@ pub(crate) fn root() -> Result<Command, ParseInvalid> {
     );
     let help = local::help_command(&root);
     root = root.subcommand(help);
-    Ok(metadata::describe(root))
+    Ok(Root::new(metadata::describe(root)))
 }
 
 #[derive(Debug, Default)]
@@ -221,14 +234,12 @@ pub(crate) struct ParseInvalid {
     pub(crate) argument: Option<String>,
     pub(crate) usage: Option<biomcp_types::UsageError>,
 }
-pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ParseInvalid> {
-    let mut root = root()?;
-    root.build();
-    let args = entry::arguments(args, &root);
+pub(crate) fn parse(root: &Command, args: &[OsString]) -> Result<Parsed, ParseInvalid> {
+    let args = entry::arguments(args, root);
     let matches = root
         .clone()
         .try_get_matches_from(std::iter::once(OsString::from("biomcp")).chain(args))
-        .map_err(|error| errors::parse_invalid(&root, &error))?;
+        .map_err(|error| errors::parse_invalid(root, &error))?;
     let globals = globals(&matches)?;
     let (verb, matches) = matches.subcommand().ok_or_else(ParseInvalid::default)?;
     if verb == "serve" {
@@ -289,9 +300,11 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ParseInvalid> {
 
 // Presentation uses the same grammar without requiring valid command operands.
 // Unknown tokens still stop the parser; aliases and positional data keep their grammar meaning.
-pub(crate) fn presentation(args: &[OsString]) -> Option<(Option<Format>, Option<PathBuf>)> {
-    let mut parser = root().ok()?.ignore_errors(true);
-    parser.build();
+pub(crate) fn presentation(
+    root: &Command,
+    args: &[OsString],
+) -> Option<(Option<Format>, Option<PathBuf>)> {
+    let parser = root.clone().ignore_errors(true);
     let args = entry::arguments(args, &parser);
     let matches = parser
         .try_get_matches_from(std::iter::once(OsString::from("biomcp")).chain(args))
@@ -504,6 +517,6 @@ fn property_type(property: &Value) -> Option<&str> {
         .then_some(kind)
 }
 
-pub(crate) fn unknown_command(args: &[OsString]) -> Option<Vec<String>> {
-    entry::unknown_command(args, &root().ok()?)
+pub(crate) fn unknown_command(root: &Command, args: &[OsString]) -> Option<Vec<String>> {
+    entry::unknown_command(args, root)
 }

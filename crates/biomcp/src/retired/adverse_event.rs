@@ -21,7 +21,7 @@ const FLAGS: &[(&str, ErrorMessage)] = &[
     ("-j", ErrorMessage::DiseaseJson),
     ("--json", ErrorMessage::DiseaseJson),
 ];
-pub(super) fn message(args: &[OsString]) -> Option<ErrorMessage> {
+pub(super) fn message(root: &clap::Command, args: &[OsString]) -> Option<ErrorMessage> {
     let mut positional = Vec::new();
     let mut source = None;
     let mut serious = None;
@@ -80,7 +80,9 @@ pub(super) fn message(args: &[OsString]) -> Option<ErrorMessage> {
         }
         if adverse && flag == "--serious" {
             serious = Some(inline.or_else(|| args.next().and_then(|v| v.to_str())));
-        } else if flag == "--section" || super::takes_value(flag, &positional).unwrap_or(false) {
+        } else if flag == "--section"
+            || super::takes_value(root, flag, &positional).unwrap_or(false)
+        {
             let value = inline.or_else(|| args.next().and_then(|v| v.to_str()));
             match flag {
                 "--source" => source = value,

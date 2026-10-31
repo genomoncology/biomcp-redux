@@ -1,9 +1,58 @@
 //! Command transport selection preserves server-owned resources under offline restrictions.
 use crate::{command::Context, config::StartupError, grammar::Globals};
-use biomcp_fetch::Fetch;
+use biomcp_fetch::{Fetch, Secrets};
 use std::io;
+use std::sync::Arc;
+pub(super) struct Transport {
+    pub(super) fetch: Fetch,
+    pub(super) settings: Option<Arc<crate::config::Settings>>,
+}
+
 pub(super) fn fetch(
     globals: &Globals,
+    settings: &crate::config::Settings,
+    context: Option<Context<'_>>,
+) -> io::Result<Result<Transport, StartupError>> {
+    if let Some(context) = context
+        && let Some(recovery) = context.recovery
+    {
+        let (ready, fresh) = match recovery.snapshot(context.globals) {
+            Ok(ready) => ready,
+            Err(error) => return Ok(Err(error)),
+        };
+        let credentials = if fresh {
+            match crate::config::secrets(&ready.settings) {
+                Ok(secrets) => Some(secrets),
+                Err(error) => return Ok(Err(error.into())),
+            }
+        } else {
+            None
+        };
+        let fetch = if globals.offline {
+            ready.fetch.offline()
+        } else {
+            ready.fetch.as_ref().clone()
+        };
+        return snapshot(fetch, globals, &ready.settings, Some(context), credentials).map(
+            |result| {
+                result.map(|fetch| Transport {
+                    fetch,
+                    settings: Some(ready.settings),
+                })
+            },
+        );
+    }
+    fetch_using(globals, settings, context).map(|result| {
+        result.map(|fetch| Transport {
+            fetch,
+            settings: None,
+        })
+    })
+}
+
+fn fetch_using(
+    globals: &Globals,
+    settings: &crate::config::Settings,
     context: Option<Context<'_>>,
 ) -> io::Result<Result<Fetch, StartupError>> {
     match context.map(|context| context.fetch) {
@@ -13,20 +62,22 @@ pub(super) fn fetch(
             } else {
                 fetch.as_ref().clone()
             };
-            snapshot(fetch, globals, context)
+            snapshot(fetch, globals, settings, context, None)
         }
         Some(Err(error)) if !globals.offline => Ok(Err(error.clone())),
-        _ if globals.hosted => match crate::config::fetch(globals) {
-            Ok(fetch) => snapshot(fetch, globals, context),
+        _ if globals.hosted => match crate::config::fetch(globals, settings) {
+            Ok(fetch) => snapshot(fetch, globals, settings, context, None),
             Err(error) => Ok(Err(error)),
         },
-        _ => Ok(crate::config::fetch(globals)),
+        _ => Ok(crate::config::fetch(globals, settings)),
     }
 }
 fn snapshot(
     fetch: Fetch,
     globals: &Globals,
+    settings: &crate::config::Settings,
     context: Option<Context<'_>>,
+    credentials: Option<Secrets>,
 ) -> io::Result<Result<Fetch, StartupError>> {
     let fetch = if let Some(scope) = context.and_then(|context| context.scope) {
         match fetch.with_cancellation(scope) {
@@ -36,7 +87,12 @@ fn snapshot(
     } else {
         fetch
     };
-    let secrets = match crate::config::secrets(globals) {
+    let credentials = match credentials {
+        Some(secrets) => Ok(secrets),
+        None if context.is_some() => crate::config::credentials::refresh(globals),
+        None => crate::config::secrets(settings),
+    };
+    let secrets = match credentials {
         Ok(secrets) => secrets,
         Err(error) => return Ok(Err(error.into())),
     };
