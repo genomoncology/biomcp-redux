@@ -1,6 +1,8 @@
+use crate::openfda::{Envelope, Item};
+pub(super) type Response = Envelope<Record>;
 use crate::native_text::NativeText;
 use biodata::{DrugId, Text};
-use biomcp_fetch::{BadReply, Reply};
+use biomcp_fetch::BadReply;
 use serde::Deserialize;
 
 /// A source SPL revision; the label fields retain their native array boundaries.
@@ -63,65 +65,9 @@ impl Record {
         Ok(())
     }
 }
-#[derive(Debug, Deserialize)]
-#[serde(untagged)]
-pub(super) enum Response {
-    Success { meta: Meta, results: Vec<Record> },
-    Absent { error: Absence },
-}
-#[derive(Debug, Deserialize)]
-pub(super) struct Meta {
-    pub results: Counts,
-    #[serde(rename = "last_updated")]
-    _last_updated: Option<biodata::PartialDate>,
-}
-#[derive(Debug, Deserialize)]
-pub(super) struct Counts {
-    pub skip: u32,
-    pub limit: u32,
-    pub total: u64,
-}
-#[derive(Debug, Deserialize)]
-#[serde(deny_unknown_fields)]
-pub(super) struct Absence {
-    code: String,
-    message: String,
-}
-impl Reply for Response {
+
+impl Item for Record {
     fn check(&self) -> Result<(), BadReply> {
-        match self {
-            Self::Success { meta, results } => {
-                let counts = &meta.results;
-                if counts.limit == 0
-                    || results.len() as u64
-                        != counts
-                            .total
-                            .saturating_sub(counts.skip.into())
-                            .min(counts.limit.into())
-                {
-                    return Err(BadReply);
-                }
-                for record in results {
-                    record.check()?;
-                }
-                Ok(())
-            }
-            Self::Absent { error }
-                if error.code == "NOT_FOUND" && error.message == "No matches found!" =>
-            {
-                Ok(())
-            }
-            _ => Err(BadReply),
-        }
-    }
-    fn check_status(&self, status: u16) -> Result<(), BadReply> {
-        if matches!(
-            (self, status),
-            (Self::Success { .. }, 200) | (Self::Absent { .. }, 404)
-        ) {
-            Ok(())
-        } else {
-            Err(BadReply)
-        }
+        Record::check(self)
     }
 }

@@ -1,7 +1,7 @@
 //! Inspect protobuf lengths without allocating before invoking the generated decoder.
 use super::{CodecError, Limits};
 type Result<T> = std::result::Result<T, CodecError>;
-fn bad() -> CodecError {
+fn codec_error() -> CodecError {
     CodecError::BadReply
 }
 pub(super) fn varint(bytes: &mut &[u8]) -> Result<u64> {
@@ -10,17 +10,17 @@ pub(super) fn varint(bytes: &mut &[u8]) -> Result<u64> {
         let (byte, rest) = bytes.split_first().ok_or_else(bad)?;
         *bytes = rest;
         if shift == 63 && *byte > 1 {
-            return Err(bad());
+            return Err(codec_error());
         }
         value |= u64::from(byte & 127) << shift;
         if byte & 128 == 0 {
             return Ok(value);
         }
     }
-    Err(bad())
+    Err(codec_error())
 }
 pub(super) fn length<'a>(bytes: &mut &'a [u8]) -> Result<&'a [u8]> {
-    let len = usize::try_from(varint(bytes)?).map_err(|_| bad())?;
+    let len = usize::try_from(varint(bytes)?).map_err(|_| codec_error())?;
     let (head, tail) = bytes.split_at_checked(len).ok_or_else(bad)?;
     *bytes = tail;
     Ok(head)
@@ -36,14 +36,14 @@ pub(super) fn chunk(mut bytes: &[u8]) -> Result<()> {
             }
             16 => {
                 if varint(&mut bytes)? > 1 {
-                    return Err(bad());
+                    return Err(codec_error());
                 }
                 2
             }
-            _ => return Err(bad()),
+            _ => return Err(codec_error()),
         };
         if seen & bit != 0 {
-            return Err(bad());
+            return Err(codec_error());
         }
         seen |= bit;
     }
@@ -68,7 +68,7 @@ pub(super) fn descriptor(mut bytes: &[u8], limits: Limits) -> Result<()> {
             }
             16 => {
                 if varint(&mut bytes)? > i32::MAX as u64 {
-                    return Err(bad());
+                    return Err(codec_error());
                 }
                 1
             }
@@ -80,22 +80,22 @@ pub(super) fn descriptor(mut bytes: &[u8], limits: Limits) -> Result<()> {
                 varint(&mut bytes)?;
                 2
             }
-            _ => return Err(bad()),
+            _ => return Err(codec_error()),
         };
         if seen & bit != 0 {
-            return Err(bad());
+            return Err(codec_error());
         }
         seen |= bit;
     }
     if seen != 3 {
-        return Err(bad());
+        return Err(codec_error());
     }
     Ok(())
 }
 fn dimension(bytes: &mut &[u8], rank: &mut usize, limits: Limits) -> Result<()> {
     *rank = rank.checked_add(1).ok_or_else(bad)?;
     if *rank > limits.rank || varint(bytes)? > limits.dimension as u64 {
-        return Err(bad());
+        return Err(codec_error());
     }
     Ok(())
 }

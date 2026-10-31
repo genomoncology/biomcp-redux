@@ -39,7 +39,10 @@ pub fn assertions(
         list: mapped.problems,
     };
     if let Some((id, Some(version))) = selection {
-        let record = records.iter().find(|r| r.id == id).ok_or_else(bad)?;
+        let record = records
+            .iter()
+            .find(|r| r.id == id)
+            .ok_or_else(|_| biomcp_fetch::bad_reply(Source::Erepo, None))?;
         // The summary names its own exact current document version.
         // Older selections use their own SEPIO body and cannot borrow these facts.
         if record.version != version {
@@ -47,7 +50,7 @@ pub fn assertions(
                 .uuid
                 .as_ref()
                 .and_then(crate::raw::Field::as_ref)
-                .ok_or_else(bad)?;
+                .ok_or_else(|_| biomcp_fetch::bad_reply(Source::Erepo, None))?;
             if !record
                 .versions
                 .as_ref()
@@ -58,7 +61,7 @@ pub fn assertions(
                         .any(|v| v.as_str() == version)
                 })
             {
-                return Err(bad());
+                return Err(biomcp_fetch::bad_reply(Source::Erepo, None));
             }
             let mapped = history::fetch(leg, caid, id, uuid, version)?;
             refusals.include(mapped.refusals);
@@ -141,15 +144,8 @@ fn records(leg: &Leg<'_>, caid: &str) -> Result<Mapped<Vec<raw::Record>>, Reques
                 problems: cx.list,
             });
         }
-        page = page.checked_add(1).ok_or_else(bad)?;
+        page = page
+            .checked_add(1)
+            .ok_or_else(|_| biomcp_fetch::bad_reply(Source::Erepo, None))?;
     }
-}
-fn bad() -> RequestError {
-    biomcp_fetch::SourceError {
-        source: Source::Erepo,
-        reason: biomcp_types::Reason::BadReply,
-        status: None,
-        retry_after: None,
-    }
-    .into()
 }

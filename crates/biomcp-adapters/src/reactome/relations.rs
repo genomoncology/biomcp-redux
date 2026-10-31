@@ -3,8 +3,8 @@ use crate::Mapped;
 use crate::mapped::problem;
 use crate::mapped::record as record_text;
 use biodata::{PathwayEventRef, PathwayMember, PathwayParticipant, PathwaySourceRef, ReactomeId};
-use biomcp_fetch::{Freshness, Leg, RequestError, SourceError};
-use biomcp_types::{Reason, Source};
+use biomcp_fetch::{Freshness, Leg, RequestError};
+use biomcp_types::Source;
 /// Complete source-reference membership with explicit occurrence and physical-entity counts.
 #[derive(Debug)]
 pub struct Members {
@@ -14,15 +14,6 @@ pub struct Members {
     pub reference_occurrences: u64,
     /// Native physical entities, independent of reference and gene counts.
     pub physical_entities: u64,
-}
-fn bad_reply() -> RequestError {
-    SourceError {
-        source: Source::Reactome,
-        reason: Reason::BadReply,
-        status: Some(200),
-        retry_after: None,
-    }
-    .into()
 }
 
 /// Read the bounded complete physical-participant relation without interpreting display names.
@@ -43,11 +34,15 @@ pub fn members(leg: &Leg<'_>, id: &ReactomeId) -> Result<Mapped<Members>, Reques
         let participant = participant(
             &row,
             &mut problems,
-            crate::mapped::text("Reactome").map_err(|_| bad_reply())?,
+            crate::mapped::text("Reactome")
+                .map_err(|_| biomcp_fetch::bad_reply(Source::Reactome, Some(200)))?,
         );
         for reference in row.ref_entities {
             value.reference_occurrences += 1;
-            let (namespace, identifier) = reference.st_id.split_once(':').ok_or_else(bad_reply)?;
+            let (namespace, identifier) = reference
+                .st_id
+                .split_once(':')
+                .ok_or_else(|_| biomcp_fetch::bad_reply(Source::Reactome, Some(200)))?;
             let name = metadata(
                 &mut problems,
                 "members.name",
@@ -84,9 +79,10 @@ pub fn members(leg: &Leg<'_>, id: &ReactomeId) -> Result<Mapped<Members>, Reques
                     node_id: None,
                     reference: PathwaySourceRef {
                         namespace: crate::mapped::text(namespace)
-                            .map_err(|_| bad_reply())?
+                            .map_err(|_| biomcp_fetch::bad_reply(Source::Reactome, Some(200)))?
                             .into(),
-                        id: crate::mapped::text(identifier).map_err(|_| bad_reply())?,
+                        id: crate::mapped::text(identifier)
+                            .map_err(|_| biomcp_fetch::bad_reply(Source::Reactome, Some(200)))?,
                     },
                     name,
                     source_url,
@@ -140,7 +136,8 @@ pub fn events(
         problems: Vec::new(),
     };
     let mut problems = fields(id);
-    let namespace = crate::mapped::text("Reactome").map_err(|_| bad_reply())?;
+    let namespace = crate::mapped::text("Reactome")
+        .map_err(|_| biomcp_fetch::bad_reply(Source::Reactome, Some(200)))?;
     for row in rows.0 {
         match row {
             raw::Event::Database(db_id) => mapped.value.push(PathwayEventRef::Database {

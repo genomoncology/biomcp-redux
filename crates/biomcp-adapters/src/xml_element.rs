@@ -1,9 +1,28 @@
+//! Borrowed XML element search within transport-checked documents.
 use biomcp_fetch::{BadReply, xml::MixedText};
 use quick_xml::{Reader, events::Event};
 /// Borrowed element in the transport-checked document.
 #[derive(Clone, Copy)]
 pub(crate) struct Element<'a>(pub(crate) &'a str);
 impl<'a> Element<'a> {
+    pub(crate) fn root(xml: &'a str, wanted: &str) -> Result<Self, BadReply> {
+        let mut reader = Reader::from_str(xml);
+        loop {
+            let begin = reader.buffer_position() as usize;
+            match reader.read_event().map_err(|_| BadReply)? {
+                Event::Start(tag) | Event::Empty(tag) => {
+                    return if tag.name().as_ref() == wanted {
+                        Ok(Self(&xml[begin..]))
+                    } else {
+                        Err(BadReply)
+                    };
+                }
+                Event::Eof => return Err(BadReply),
+                _ => {}
+            }
+        }
+    }
+
     pub(crate) fn children(self, wanted: &str) -> Result<Vec<Self>, BadReply> {
         let mut reader = Reader::from_str(self.0);
         let mut root = false;

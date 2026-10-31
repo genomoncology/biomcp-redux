@@ -6,10 +6,8 @@ use crate::{jats, quotas};
 use biodata::License;
 use biodata::{Pmcid, Pmid};
 
-use biomcp_fetch::{
-    Arg, BadReply, Endpoint, Freshness, KeyUse, Leg, RequestError, SourceError, SourceSpec,
-};
-use biomcp_types::{Reason, Source};
+use biomcp_fetch::{Arg, Endpoint, Freshness, KeyUse, Leg, RequestError, SourceSpec};
+use biomcp_types::Source;
 use std::time::Duration;
 pub use supplement::{Download, Supplement, download, download_bytes};
 /// Conservative application policy; no numeric provider limit is claimed.
@@ -47,15 +45,7 @@ pub struct Document {
     /// Rejected metadata and JATS fields.
     pub problems: Vec<biomcp_types::Problem>,
 }
-fn bad(_: impl std::fmt::Debug) -> RequestError {
-    SourceError {
-        source: Source::PmcOa,
-        reason: Reason::BadReply,
-        status: None,
-        retry_after: None,
-    }
-    .into()
-}
+
 /// Return no document only when the bucket has no matching processing record.
 pub fn read(
     leg: &Leg<'_>,
@@ -69,7 +59,7 @@ pub fn read(
     )?;
     let contents = listing.contents.as_deref().unwrap_or(&[]);
     if contents.iter().any(|e| !e.key.starts_with(&prefix)) {
-        return Err(bad(BadReply));
+        return Err(biomcp_fetch::bad_reply(Source::PmcOa, None));
     }
     let Some(version) = contents
         .iter()
@@ -84,9 +74,15 @@ pub fn read(
     };
     let directory = format!("{id}.{version}/");
     let path = format!("/{directory}{id}.{version}.json");
-    let record = leg.json::<raw::Record>(&FILE.clone().with_path(path).map_err(bad)?, &[])?;
+    let record = leg.json::<raw::Record>(
+        &FILE
+            .clone()
+            .with_path(path)
+            .map_err(|_| biomcp_fetch::bad_reply(Source::PmcOa, None))?,
+        &[],
+    )?;
     if record.pmcid != id || pmid.is_some_and(|expected| record.pmid != Some(expected.get())) {
-        return Err(bad(BadReply));
+        return Err(biomcp_fetch::bad_reply(Source::PmcOa, None));
     }
     let mut problems = crate::mapped::Problems {
         source: Source::PmcOa,
@@ -101,9 +97,10 @@ pub fn read(
             problems: problems.list,
         });
     };
-    let loc = location::Location::checked(&record.xml_url, &directory).map_err(bad)?;
+    let loc = location::Location::checked(&record.xml_url, &directory)
+        .map_err(|_| biomcp_fetch::bad_reply(Source::PmcOa, None))?;
     if !loc.path.ends_with(".xml") {
-        return Err(bad(BadReply));
+        return Err(biomcp_fetch::bad_reply(Source::PmcOa, None));
     }
     let params: Vec<_> = loc
         .md5
@@ -120,10 +117,16 @@ pub fn read(
             .map(|v| format!("?md5={v}"))
             .unwrap_or_default()
     ))
-    .map_err(bad)?;
-    let body = leg.xml::<jats::Body>(&FILE.clone().with_path(loc.path).map_err(bad)?, &params)?;
+    .map_err(|_| biomcp_fetch::bad_reply(Source::PmcOa, None))?;
+    let body = leg.xml::<jats::Body>(
+        &FILE
+            .clone()
+            .with_path(loc.path)
+            .map_err(|_| biomcp_fetch::bad_reply(Source::PmcOa, None))?,
+        &params,
+    )?;
     if body.pmcid.is_some_and(|found| found != id) {
-        return Err(bad(BadReply));
+        return Err(biomcp_fetch::bad_reply(Source::PmcOa, None));
     }
     let urls = problems.fields("media_urls", record.media_urls);
     let supplements = supplement::select(&body.supplements, &urls, &directory, &mut problems)?;

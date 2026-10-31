@@ -53,7 +53,7 @@ fn terms(components: &[native::Component]) -> Result<Box<[ComponentLabel]>, Requ
         })
         .collect()
 }
-fn root(component: &native::Component) -> &str {
+fn component_id(component: &native::Component) -> &str {
     if component.name == "doid" {
         "disease_ontology"
     } else {
@@ -61,7 +61,7 @@ fn root(component: &native::Component) -> &str {
     }
 }
 fn predicate(component: &native::Component, field: &str) -> Result<Curie, RequestError> {
-    format!("mydisease:{}.{field}", root(component))
+    format!("mydisease:{}.{field}", component_id(component))
         .parse()
         .map_err(|_| InputError::Serialization.into())
 }
@@ -161,7 +161,7 @@ fn rows(
     for value in &component.synonyms {
         let field = format!("{synonym_field}.{}", value.field);
         let scope = problems.optional(
-            &format!("{}.{}", root(component), field),
+            &format!("{}.{}", component_id(component), field),
             Some(predicate(component, &field)),
         );
         mapped.value.synonyms.push(DiseaseSynonym {
@@ -178,7 +178,7 @@ fn rows(
                 &mut mapped.problems,
                 Source::MyDisease,
                 crate::mapped::record(&component.id),
-                &format!("{}.xrefs.{}", root(component), value.field),
+                &format!("{}.xrefs.{}", component_id(component), value.field),
             );
             continue;
         };

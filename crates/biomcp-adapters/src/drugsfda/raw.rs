@@ -1,7 +1,9 @@
 //! Native FDA application scope; submission rows never acquire a product number.
+use crate::openfda::{Envelope, Item};
+pub(super) type Response = Envelope<Application>;
 use crate::native_text::NativeText;
 use biodata::{DrugId, PartialDate, Text};
-use biomcp_fetch::{BadReply, Reply};
+use biomcp_fetch::BadReply;
 use serde::Deserialize;
 /// One exact native application with independent product and submission collections.
 #[derive(Debug, Deserialize)]
@@ -98,34 +100,7 @@ pub(super) struct Document {
     /// Native document kind.
     pub r#type: Option<Text>,
 }
-#[derive(Debug, Deserialize)]
-#[serde(untagged)]
-pub(super) enum Response {
-    Success {
-        meta: Meta,
-        results: Vec<Application>,
-    },
-    Absent {
-        error: Absence,
-    },
-}
-#[derive(Debug, Deserialize)]
-pub(super) struct Meta {
-    pub results: Counts,
-    pub last_updated: Option<PartialDate>,
-}
-#[derive(Debug, Deserialize)]
-pub(super) struct Counts {
-    pub skip: u32,
-    pub limit: u32,
-    pub total: u64,
-}
-#[derive(Debug, Deserialize)]
-#[serde(deny_unknown_fields)]
-pub(super) struct Absence {
-    code: String,
-    message: String,
-}
+
 /// Convert the source date without assigning it an approval meaning.
 pub(crate) fn date(value: &str) -> Result<PartialDate, BadReply> {
     if value.len() != 8 || !value.bytes().all(|b| b.is_ascii_digit()) {
@@ -158,36 +133,9 @@ impl Application {
         Ok(())
     }
 }
-impl Reply for Response {
+
+impl Item for Application {
     fn check(&self) -> Result<(), BadReply> {
-        match self {
-            Self::Success { meta, results }
-                if meta.results.limit > 0
-                    && results.len() as u64
-                        == meta
-                            .results
-                            .total
-                            .saturating_sub(meta.results.skip.into())
-                            .min(meta.results.limit.into()) =>
-            {
-                results.iter().try_for_each(Application::check)
-            }
-            Self::Absent { error }
-                if error.code == "NOT_FOUND" && error.message == "No matches found!" =>
-            {
-                Ok(())
-            }
-            _ => Err(BadReply),
-        }
-    }
-    fn check_status(&self, status: u16) -> Result<(), BadReply> {
-        if matches!(
-            (self, status),
-            (Self::Success { .. }, 200) | (Self::Absent { .. }, 404)
-        ) {
-            Ok(())
-        } else {
-            Err(BadReply)
-        }
+        Application::check(self)
     }
 }

@@ -1,44 +1,7 @@
 //! Exact native FAERS fields; unrelated publisher fields are ignored at this edge.
 use biodata::ReportId;
-use biomcp_fetch::{BadReply, Reply};
 use serde::Deserialize;
-#[derive(Debug, Deserialize)]
-#[serde(untagged)]
-pub(super) enum Response {
-    Found {
-        meta: super::raw::Meta,
-        results: Vec<Report>,
-    },
-    Absent {
-        error: super::raw::Absence,
-    },
-}
-impl Reply for Response {
-    fn check(&self) -> Result<(), BadReply> {
-        match self {
-            Self::Found { meta, results }
-                if meta.results.skip == 0
-                    && meta.results.limit == 5
-                    && meta.results.total == 1
-                    && results.len() == 1 =>
-            {
-                Ok(())
-            }
-            Self::Absent { error } if error.valid() => Ok(()),
-            _ => Err(BadReply),
-        }
-    }
-    fn check_status(&self, status: u16) -> Result<(), BadReply> {
-        if matches!(
-            (self, status),
-            (Self::Found { .. }, 200) | (Self::Absent { .. }, 404)
-        ) {
-            Ok(())
-        } else {
-            Err(BadReply)
-        }
-    }
-}
+pub(super) type Response = crate::openfda::Envelope<Report>;
 macro_rules! strings {
     ($name:ident { $($field:ident),* $(,)? }) => {
         #[derive(Debug, Deserialize)]
@@ -121,4 +84,10 @@ pub(super) struct Drug {
     pub actiondrug: Option<crate::raw::Field<Box<str>>>,
     pub drugadditional: Option<crate::raw::Field<Box<str>>>,
     pub openfda: Option<crate::raw::Field<Identifiers>>,
+}
+
+impl crate::openfda::Item for Report {
+    fn counts(meta: &crate::openfda::Meta, len: usize) -> bool {
+        meta.results.skip == 0 && meta.results.limit == 5 && meta.results.total == 1 && len == 1
+    }
 }

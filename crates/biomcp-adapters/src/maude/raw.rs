@@ -1,73 +1,8 @@
-use biodata::{PartialDate, ReportId};
-use biomcp_fetch::{BadReply, Reply};
+use crate::openfda::{Envelope, Item};
+pub(super) type Response = Envelope<Report>;
+use biodata::ReportId;
 use serde::Deserialize;
-#[derive(Debug, Deserialize)]
-#[serde(untagged)]
-pub(super) enum Response {
-    Page { meta: Meta, results: Vec<Report> },
-    Absent { error: Absence },
-}
-#[derive(Debug, Deserialize)]
-pub(super) struct Meta {
-    /// Native last_updated without inferred interpretation.
-    pub last_updated: Option<PartialDate>,
-    /// Native results without inferred interpretation.
-    pub results: Counts,
-}
-#[derive(Debug, Deserialize)]
-pub(super) struct Counts {
-    /// Native skip without inferred interpretation.
-    pub skip: u32,
-    /// Native limit without inferred interpretation.
-    pub limit: u32,
-    /// Native total without inferred interpretation.
-    pub total: u64,
-}
-#[derive(Debug, Deserialize)]
-#[serde(deny_unknown_fields)]
-pub(super) struct Absence {
-    code: String,
-    message: String,
-}
-impl Reply for Response {
-    fn check(&self) -> Result<(), BadReply> {
-        match self {
-            Self::Page { meta, results }
-                if meta.results.limit > 0
-                    && results.len() as u64
-                        == meta
-                            .results
-                            .total
-                            .saturating_sub(meta.results.skip.into())
-                            .min(meta.results.limit.into())
-                    && results.iter().all(|r| {
-                        r.mdr_report_key
-                            .as_str()
-                            .bytes()
-                            .all(|b| b.is_ascii_digit())
-                    }) =>
-            {
-                Ok(())
-            }
-            Self::Absent { error }
-                if error.code == "NOT_FOUND" && error.message == "No matches found!" =>
-            {
-                Ok(())
-            }
-            _ => Err(BadReply),
-        }
-    }
-    fn check_status(&self, status: u16) -> Result<(), BadReply> {
-        if matches!(
-            (self, status),
-            (Self::Page { .. }, 200) | (Self::Absent { .. }, 404)
-        ) {
-            Ok(())
-        } else {
-            Err(BadReply)
-        }
-    }
-}
+
 #[derive(Debug, Deserialize)]
 /// Kept native wire fields without administrative metadata.
 pub(super) struct Device {
@@ -162,3 +97,5 @@ pub(super) struct Report {
     /// Native narrative without inferred interpretation.
     pub narrative: Option<crate::raw::Field<Vec<crate::raw::Field<Narrative>>>>,
 }
+
+impl Item for Report {}

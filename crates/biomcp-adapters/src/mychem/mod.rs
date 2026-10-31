@@ -59,7 +59,7 @@ pub fn search(
     let received = reply.hits.len() as u32;
     map::page(reply, leg)
         .map(|page| (page, received))
-        .map_err(|_| bad_reply())
+        .map_err(|_| biomcp_fetch::bad_reply(Source::Mychem, None))
 }
 /// Retrieve an exact native document and verify the returned identity, never searching by name.
 pub fn get(leg: &Leg<'_>, id: &str) -> Result<crate::Mapped<DrugDocument>, RequestError> {
@@ -76,19 +76,10 @@ pub fn get(leg: &Leg<'_>, id: &str) -> Result<crate::Mapped<DrugDocument>, Reque
             }
         },
     )?;
-    let mut card = map::card(reply, leg).map_err(|_| bad_reply())?;
+    let mut card =
+        map::card(reply, leg).map_err(|_| biomcp_fetch::bad_reply(Source::Mychem, None))?;
     card.value.card.retrieved = crate::drug_sources::received_date(received.fetched);
     Ok(card)
-}
-
-fn bad_reply() -> RequestError {
-    biomcp_fetch::SourceError {
-        source: Source::Mychem,
-        reason: biomcp_types::Reason::BadReply,
-        status: None,
-        retry_after: None,
-    }
-    .into()
 }
 
 /// One exact native document, separating its small identity from complete native links.

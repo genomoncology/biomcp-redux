@@ -2,7 +2,7 @@
 use super::SPEC;
 use biodata::Pmid;
 use biomcp_fetch::{Arg, BadReply, Endpoint, Freshness, Leg, Reply, RequestError};
-use biomcp_types::{Reason, Source};
+use biomcp_types::Source;
 use serde::Deserialize;
 const SEARCH: Endpoint = SPEC.get("/search/").fresh(Freshness::Days(1));
 const LIMIT: usize = 100;
@@ -45,7 +45,7 @@ pub fn search(leg: &Leg<'_>, term: &str) -> Result<Search, RequestError> {
             || !ids.is_empty() && ids == previous
             || reply.count != result.count
         {
-            result.error = Some(bad_reply());
+            result.error = Some(biomcp_fetch::bad_reply(Source::PubTator, None));
             break;
         }
         let terminal = ids.is_empty() || page >= reply.total_pages;
@@ -59,20 +59,12 @@ pub fn search(leg: &Leg<'_>, term: &str) -> Result<Search, RequestError> {
             break;
         }
         if page == LIMIT as u64 {
-            result.error = Some(bad_reply());
+            result.error = Some(biomcp_fetch::bad_reply(Source::PubTator, None));
         }
     }
     Ok(result)
 }
-fn bad_reply() -> RequestError {
-    biomcp_fetch::SourceError {
-        source: Source::PubTator,
-        reason: Reason::BadReply,
-        status: None,
-        retry_after: None,
-    }
-    .into()
-}
+
 #[derive(Deserialize)]
 struct Page {
     results: Vec<Row>,

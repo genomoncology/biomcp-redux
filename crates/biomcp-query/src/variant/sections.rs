@@ -22,70 +22,32 @@ pub(super) fn apply(
     let mut collected = Collected::default();
     for candidate in candidates {
         let mut sections = VariantSections::default();
-        for section in selected(query) {
-            let candidates = std::slice::from_ref(&*candidate);
-            macro_rules! attach {
-                ($field:ident, $read:expr) => {
-                    sections.$field = Some(collected.keep(permitted(cx, section, || $read)))
-                };
-            }
-            match section {
-                VariantSection::Clinvar => attach!(
-                    clinvar,
-                    super::assertions::section(
-                        cx,
-                        query,
-                        candidates,
-                        *deadline,
-                        AssertionSource::Clinvar
-                    )
-                ),
-                VariantSection::Erepo => attach!(
-                    erepo,
-                    super::assertions::section(
-                        cx,
-                        query,
-                        candidates,
-                        *deadline,
-                        AssertionSource::Erepo
-                    )
-                ),
-                VariantSection::Predict => attach!(
-                    predict,
-                    super::predict::section(cx, query, candidates, deadline)
-                ),
-                VariantSection::Conservation => attach!(
-                    conservation,
-                    super::conservation::section(cx, query, candidates, deadline)
-                ),
-                VariantSection::Cosmic => attach!(
-                    cosmic,
-                    super::cosmic::section(cx, query, candidates, deadline)
-                ),
-                VariantSection::Population => attach!(
-                    population,
-                    super::population::section(cx, query, candidates, *deadline, population_reason)
-                ),
-                VariantSection::Gwas => {
-                    attach!(gwas, super::gwas::section(cx, query, candidates, *deadline))
-                }
-                VariantSection::Civic => attach!(
-                    civic,
-                    super::civic::section(cx, query, candidates, *deadline)
-                ),
-                VariantSection::Hotspots => attach!(
-                    hotspots,
-                    super::hotspots::section(cx, query, candidates, *deadline)
-                ),
-                VariantSection::AlphaGenome => attach!(
-                    alphagenome,
-                    super::alphagenome::section(cx, query, candidates, *deadline)
-                ),
-                VariantSection::Oncokb => attach!(
-                    oncokb,
-                    super::oncokb::section(cx, query, candidates, *deadline)
-                ),
-                _ => {}
+        let origin = *deadline;
+        let candidate_ref = &*candidate;
+        let jobs: Vec<Box<dyn FnOnce() -> _ + Send + '_>> = selected(query)
+            .map(|section| {
+                Box::new(move || read(cx, query, candidate_ref, origin, population_reason, section))
+                    as Box<dyn FnOnce() -> _ + Send + '_>
+            })
+            .collect();
+        for (result, mut more, completed) in crate::fan_out::run(jobs) {
+            sections.clinvar = sections.clinvar.or(result.clinvar);
+            sections.erepo = sections.erepo.or(result.erepo);
+            sections.population = sections.population.or(result.population);
+            sections.gwas = sections.gwas.or(result.gwas);
+            sections.civic = sections.civic.or(result.civic);
+            sections.hotspots = sections.hotspots.or(result.hotspots);
+            sections.oncokb = sections.oncokb.or(result.oncokb);
+            sections.alphagenome = sections.alphagenome.or(result.alphagenome);
+            sections.predict = sections.predict.or(result.predict);
+            sections.conservation = sections.conservation.or(result.conservation);
+            sections.cosmic = sections.cosmic.or(result.cosmic);
+            collected.sources.append(&mut more.sources);
+            collected.problems.append(&mut more.problems);
+            collected.local = collected.local.or(more.local);
+            collected.incomplete |= more.incomplete;
+            if completed.remaining() < deadline.remaining() {
+                *deadline = completed;
             }
         }
         if !query.sections().is_empty() {
@@ -98,6 +60,71 @@ pub(super) fn apply(
         collected.local,
         collected.incomplete,
     )
+}
+fn read<'a>(
+    cx: &Ctx<'_>,
+    query: &VariantGet,
+    candidate: &VariantHeader,
+    mut deadline: Deadline<'a>,
+    population_reason: Option<Reason>,
+    section: VariantSection,
+) -> (VariantSections, Collected, Deadline<'a>) {
+    let mut sections = VariantSections::default();
+    let mut collected = Collected::default();
+    let candidates = std::slice::from_ref(candidate);
+    macro_rules! attach {
+        ($field:ident, $read:expr) => {
+            sections.$field = Some(collected.keep(permitted(cx, section, || $read)))
+        };
+    }
+    match section {
+        VariantSection::Clinvar => attach!(
+            clinvar,
+            super::assertions::section(cx, query, candidates, deadline, AssertionSource::Clinvar)
+        ),
+        VariantSection::Erepo => attach!(
+            erepo,
+            super::assertions::section(cx, query, candidates, deadline, AssertionSource::Erepo)
+        ),
+        VariantSection::Predict => attach!(
+            predict,
+            super::predict::section(cx, query, candidates, &mut deadline)
+        ),
+        VariantSection::Conservation => attach!(
+            conservation,
+            super::conservation::section(cx, query, candidates, &mut deadline)
+        ),
+        VariantSection::Cosmic => attach!(
+            cosmic,
+            super::cosmic::section(cx, query, candidates, &mut deadline)
+        ),
+        VariantSection::Population => attach!(
+            population,
+            super::population::section(cx, query, candidates, deadline, population_reason)
+        ),
+        VariantSection::Gwas => {
+            attach!(gwas, super::gwas::section(cx, query, candidates, deadline))
+        }
+        VariantSection::Civic => attach!(
+            civic,
+            super::civic::section(cx, query, candidates, deadline)
+        ),
+        VariantSection::Hotspots => attach!(
+            hotspots,
+            super::hotspots::section(cx, query, candidates, deadline)
+        ),
+        VariantSection::AlphaGenome => attach!(
+            alphagenome,
+            super::alphagenome::section(cx, query, candidates, deadline)
+        ),
+        VariantSection::Oncokb => attach!(
+            oncokb,
+            super::oncokb::section(cx, query, candidates, deadline)
+        ),
+        _ => {}
+    }
+
+    (sections, collected, deadline)
 }
 #[derive(Default)]
 struct Collected {

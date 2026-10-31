@@ -73,14 +73,14 @@ pub fn search(leg: &Leg<'_>, anchor: &UniProtIsoform) -> Result<Collection, Requ
         }
         let page = leg.json::<raw::Search>(&endpoint, &args)?;
         if total.is_some_and(|n| n != page.total_number_of_results) {
-            return Err(bad());
+            return Err(biomcp_fetch::bad_reply(Source::ComplexPortal, Some(200)));
         }
         total = Some(page.total_number_of_results);
         let returned = page.elements.len() as u64;
         if offset + returned > page.total_number_of_results
             || returned == 0 && offset < page.total_number_of_results
         {
-            return Err(bad());
+            return Err(biomcp_fetch::bad_reply(Source::ComplexPortal, Some(200)));
         }
         for row in page.elements {
             if row.interactors.is_none() {
@@ -99,7 +99,7 @@ pub fn search(leg: &Leg<'_>, anchor: &UniProtIsoform) -> Result<Collection, Requ
     }
     let mut ids = std::collections::BTreeSet::new();
     if items.iter().any(|c| !ids.insert(c.header.id.to_string())) {
-        return Err(bad());
+        return Err(biomcp_fetch::bad_reply(Source::ComplexPortal, Some(200)));
     }
     let mut refusals = crate::Refusal::None;
     for complex in &items {
@@ -108,7 +108,8 @@ pub fn search(leg: &Leg<'_>, anchor: &UniProtIsoform) -> Result<Collection, Requ
     Ok(Collection {
         refusals,
         items,
-        native_total: total.ok_or_else(bad)?,
+        native_total: total
+            .ok_or_else(|_| biomcp_fetch::bad_reply(Source::ComplexPortal, Some(200)))?,
     })
 }
 fn detail(leg: &Leg<'_>, id: &ComplexPortalId) -> Result<raw::Complex, RequestError> {
@@ -119,7 +120,7 @@ fn detail(leg: &Leg<'_>, id: &ComplexPortalId) -> Result<raw::Complex, RequestEr
         .fresh(Freshness::Days(1));
     let d = leg.json_checked_cache::<raw::Detail>(&endpoint, &[], |d| d.id == *id)?;
     if d.id != *id {
-        return Err(bad());
+        return Err(biomcp_fetch::bad_reply(Source::ComplexPortal, Some(200)));
     }
     Ok(raw::Complex {
         id: d.id,
@@ -136,13 +137,4 @@ pub fn members(
     anchor: &UniProtIsoform,
 ) -> Result<Option<Complex>, RequestError> {
     map::complex(detail(leg, id)?, anchor)
-}
-fn bad() -> RequestError {
-    biomcp_fetch::SourceError {
-        source: Source::ComplexPortal,
-        reason: biomcp_types::Reason::BadReply,
-        status: Some(200),
-        retry_after: None,
-    }
-    .into()
 }
