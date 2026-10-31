@@ -42,7 +42,8 @@ pub(super) fn trials() -> Vec<Trial> {
 fn stdout_report() -> Result<(), Box<dyn std::error::Error>> {
     use std::os::unix::fs::PermissionsExt;
     let environment = Environment::new()?;
-    let fixtures = environment.root().join("fixtures");
+    let root = environment.root().canonicalize()?;
+    let fixtures = root.join("fixtures");
     fs::create_dir_all(fixtures.join("cases"))?;
     fs::copy(
         super::launch::fixtures().join("cases/mcp/research-search.yaml"),
@@ -51,10 +52,10 @@ fn stdout_report() -> Result<(), Box<dyn std::error::Error>> {
     let replay = fixtures.join("replies/trial/condition");
     response_cases::copy_capture("trial/condition", &replay, |_, _| {})?;
     let quote = |path: &Path| format!("'{}'", path.display().to_string().replace('\'', "'\\''"));
-    let binary = quote(&super::launch::executable(Path::new(env!(
-        "CARGO_BIN_EXE_biomcp"
-    ))));
-    let wrapper = environment.root().join("recorded-biomcp");
+    let binary = quote(
+        &super::launch::executable(Path::new(env!("CARGO_BIN_EXE_biomcp"))).canonicalize()?,
+    );
+    let wrapper = root.join("recorded-biomcp");
     // Both sides use recorded provider replies. The existing installed-binary
     // boundary lets this exercise the real live-check entry point offline.
     fs::write(
@@ -70,6 +71,7 @@ fn stdout_report() -> Result<(), Box<dyn std::error::Error>> {
             std::env::current_exe()?,
             &["--live-check".into(), "--details".into()],
         )
+        .env("TMPDIR", &root)
         .env("BIOMCP_TEST_EXECUTABLE", &wrapper)
         .env("BIOMCP_TEST_FIXTURES", &fixtures)
         .output()?;
