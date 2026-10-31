@@ -123,21 +123,29 @@ pub(crate) fn global_arguments() -> Command {
     }
     root
 }
-pub(crate) fn is_housekeeping(args: &[OsString]) -> bool {
-    scan_command_words(args, true).next().is_some_and(|name| {
-        housekeeping_commands()
-            .iter()
-            .any(|command| command.get_name() == name)
-    })
+pub(crate) fn is_housekeeping(root: &Command, args: &[OsString]) -> bool {
+    scan_command_words(root, args, true)
+        .next()
+        .is_some_and(|name| {
+            root.find_subcommand(name).is_some_and(|command| {
+                matches!(command.get_name(), "version" | "mcp-config" | "skill")
+            })
+        })
 }
 
 // Root recognition must also work when global values or repetitions are invalid.
-pub(crate) fn command_words(args: &[OsString]) -> impl Iterator<Item = &str> {
-    scan_command_words(args, is_housekeeping(args))
+pub(crate) fn command_words<'a>(
+    root: &Command,
+    args: &'a [OsString],
+) -> impl Iterator<Item = &'a str> {
+    scan_command_words(root, args, is_housekeeping(root, args))
 }
 
-fn scan_command_words(args: &[OsString], tolerate_unknown: bool) -> impl Iterator<Item = &str> {
-    let globals = global_arguments();
+fn scan_command_words<'a>(
+    globals: &Command,
+    args: &'a [OsString],
+    tolerate_unknown: bool,
+) -> impl Iterator<Item = &'a str> {
     let mut words = args.iter().peekable();
     while let Some(word) = words.peek().and_then(|word| word.to_str()) {
         if word == "--" {
@@ -223,7 +231,9 @@ pub(crate) fn root() -> Result<Command, ParseInvalid> {
     );
     let help = local::help_command(&root);
     root = root.subcommand(help);
-    Ok(metadata::describe(root))
+    let mut root = metadata::describe(root);
+    root.build();
+    Ok(root)
 }
 
 #[derive(Debug, Default)]
@@ -231,9 +241,7 @@ pub(crate) struct ParseInvalid {
     pub(crate) argument: Option<String>,
     pub(crate) usage: Option<biomcp_types::UsageError>,
 }
-pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ParseInvalid> {
-    let mut root = root()?;
-    root.build();
+pub(crate) fn parse(root: &Command, args: &[OsString]) -> Result<Parsed, ParseInvalid> {
     let args = entry::arguments(args, &root);
     let matches = root
         .clone()
@@ -308,9 +316,11 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ParseInvalid> {
 
 // Presentation uses the same grammar without requiring valid command operands.
 // Unknown tokens still stop the parser; aliases and positional data keep their grammar meaning.
-pub(crate) fn presentation(args: &[OsString]) -> Option<(Option<Format>, Option<PathBuf>)> {
-    let mut parser = root().ok()?.ignore_errors(true);
-    parser.build();
+pub(crate) fn presentation(
+    root: &Command,
+    args: &[OsString],
+) -> Option<(Option<Format>, Option<PathBuf>)> {
+    let parser = root.clone().ignore_errors(true);
     let args = entry::arguments(args, &parser);
     let matches = parser
         .try_get_matches_from(std::iter::once(OsString::from("biomcp")).chain(args))
@@ -523,6 +533,6 @@ fn property_type(property: &Value) -> Option<&str> {
         .then_some(kind)
 }
 
-pub(crate) fn unknown_command(args: &[OsString]) -> Option<Vec<String>> {
-    entry::unknown_command(args, &root().ok()?)
+pub(crate) fn unknown_command(root: &Command, args: &[OsString]) -> Option<Vec<String>> {
+    entry::unknown_command(args, root)
 }

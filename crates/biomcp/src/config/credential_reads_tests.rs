@@ -35,11 +35,20 @@ fn run(fetch: &Fetch, words: &[&str]) -> serde_json::Value {
         OsString::from("--config"),
         config.path().as_os_str().to_owned(),
     ]);
-    let parsed = crate::grammar::parse(&args).unwrap();
+    let root = crate::grammar::root().unwrap();
+    let parsed = crate::grammar::parse(&root, &args).unwrap();
+    let settings = Ok(None);
     let fetch = super::restrict(fetch.clone(), &parsed.globals).unwrap();
-    crate::command::execute(&fetch, parsed.action.unwrap(), &parsed.globals, false)
-        .unwrap()
-        .value
+    crate::command::execute(
+        &root,
+        &settings,
+        &fetch,
+        parsed.action.unwrap(),
+        &parsed.globals,
+        false,
+    )
+    .unwrap()
+    .value
 }
 
 #[test]

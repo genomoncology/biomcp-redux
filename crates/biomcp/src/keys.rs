@@ -65,8 +65,9 @@ pub(crate) fn parse(matches: &clap::ArgMatches) -> Result<Command, crate::gramma
 pub(crate) fn run(
     command: Command,
     globals: &crate::grammar::Globals,
+    settings: &crate::config::Settings,
 ) -> io::Result<crate::command::Outcome> {
-    match run_inner(command, globals) {
+    match run_inner(command, globals, settings) {
         Ok(value) => crate::command::encode(
             biomcp_types::Envelope::new(
                 biomcp_types::Status::Complete,
@@ -109,13 +110,14 @@ impl From<io::Error> for Failure {
 fn run_inner(
     command: Command,
     globals: &crate::grammar::Globals,
+    settings: &crate::config::Settings,
 ) -> Result<biomcp_types::RegisteredKeys, Failure> {
     let path = crate::config::config_path(globals.config.as_ref())
         .map_err(|error| Failure::Configuration(error.0))?
         .ok_or(Failure::Local)?;
     // Validate the same config contract used by ordinary commands before preserving it.
     if path.exists() {
-        crate::config::secrets(globals).map_err(|error| Failure::Configuration(error.0))?;
+        crate::config::secrets(settings).map_err(|error| Failure::Configuration(error.0))?;
     }
     if matches!(command, Command::List) {
         let value = crate::config::key_file::read(&path)?;

@@ -62,6 +62,8 @@ impl Calls {
             return protocol::timeout(id);
         }
         let globals = service.globals.clone();
+        let root = service.root.clone();
+        let settings = service.settings.clone();
         let fetch = service.fetch.clone();
         let worker_scope = scope.clone();
         let worker_id = id.clone();
@@ -71,6 +73,8 @@ impl Calls {
             .spawn(move || {
                 let context = Context {
                     globals: &globals,
+                    root: &root,
+                    settings: &settings,
                     fetch: &fetch,
                     secrets: secrets.as_ref(),
                     scope: Some(&worker_scope),
@@ -159,6 +163,8 @@ mod tests {
     )]
     fn expired_calls_keep_capacity_and_shutdown_waits_for_actual_worker_exit() {
         let service = Service {
+            root: std::sync::Arc::new(crate::grammar::root().unwrap()),
+            settings: std::sync::Arc::new(Ok(None)),
             calls: Calls::default(),
             address: "127.0.0.1:1".parse().unwrap(),
             hosts: Vec::new(),

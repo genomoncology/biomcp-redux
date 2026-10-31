@@ -3,17 +3,19 @@ use std::io::{self, Write};
 
 pub(crate) fn command(
     outcome: &crate::command::Outcome,
+    root: &clap::Command,
+    settings: &crate::config::Settings,
     args: &[std::ffi::OsString],
 ) -> io::Result<()> {
-    if crate::grammar::is_housekeeping(args)
-        && crate::grammar::parse(args)
+    if crate::grammar::is_housekeeping(root, args)
+        && crate::grammar::parse(root, args)
             .ok()
             .is_none_or(|parsed| parsed.help.is_none())
     {
         return bytes(&outcome.cli_bytes);
     }
-    let (format, config) = crate::grammar::presentation(args).unwrap_or_default();
-    let format = format.or_else(|| crate::config::format(config.as_ref()));
+    let (format, _) = crate::grammar::presentation(root, args).unwrap_or_default();
+    let format = format.or_else(|| crate::config::format(settings));
     let bytes = match format {
         Some(crate::grammar::Format::Md) if outcome.value.get("schema").is_some() => {
             crate::view::markdown(&outcome.value)?

@@ -3,7 +3,7 @@ mod records;
 use serde_json::{Value, json};
 use std::{ffi::OsString, io};
 
-pub(super) fn tools() -> io::Result<Vec<Value>> {
+pub(super) fn tools(root: &clap::Command) -> io::Result<Vec<Value>> {
     [
         (
             "search",
@@ -18,7 +18,7 @@ pub(super) fn tools() -> io::Result<Vec<Value>> {
     ]
     .into_iter()
     .map(|(name, key, description)| {
-        let output = super::output_schema::for_tool(name)?;
+        let output = super::output_schema::for_tool(root, name)?;
         Ok(json!({"name":name,
 "description":description,
 "inputSchema":{"$schema":super::protocol::SCHEMA_DIALECT,"type":"object",
@@ -98,7 +98,7 @@ pub(super) fn execute(
     let mut outcome = if http {
         crate::command::tool_http(&call.args, context)?
     } else {
-        crate::command::tool(&call.args, context.globals, context.fetch)?
+        crate::command::tool(&call.args, context)?
     };
     if !matches!(
         outcome.status,
@@ -108,9 +108,9 @@ pub(super) fn execute(
     }
     outcome.value = match &call.projection {
         Projection::Cli => return Ok(outcome),
-        Projection::Search => search(call, outcome.value)?,
+        Projection::Search => search(context.root, call, outcome.value)?,
         Projection::Fetch(id) => {
-            let entity = entity(call);
+            let entity = entity(context.root, call);
             let hit = records::fetch(entity, id, &outcome.value);
             let Some(hit) = hit else {
                 outcome.status = crate::exit::Status::Failed;
@@ -131,8 +131,8 @@ pub(super) fn execute(
     };
     Ok(outcome)
 }
-fn search(call: &Call, envelope: Value) -> io::Result<Value> {
-    let entity = entity(call);
+fn search(root: &clap::Command, call: &Call, envelope: Value) -> io::Result<Value> {
+    let entity = entity(root, call);
     let rows = envelope.pointer("/result/items").and_then(Value::as_array);
     let results = rows
         .into_iter()
@@ -184,8 +184,8 @@ fn restrictions(
     Ok(hit)
 }
 
-fn entity(call: &Call) -> &'static str {
-    match crate::grammar::parse(&call.args)
+fn entity(root: &clap::Command, call: &Call) -> &'static str {
+    match crate::grammar::parse(root, &call.args)
         .ok()
         .and_then(|parsed| parsed.action)
     {

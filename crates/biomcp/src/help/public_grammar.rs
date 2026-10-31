@@ -2,10 +2,7 @@
 use biomcp_types::{HelpArgument, HelpCommand};
 use clap::{Arg, Command};
 use std::io;
-pub(super) fn augment(commands: &mut Vec<HelpCommand>) -> io::Result<()> {
-    let mut root =
-        crate::grammar::root().map_err(|_| io::Error::other("command grammar unavailable"))?;
-    root.build();
+pub(super) fn augment(root: &Command, commands: &mut Vec<HelpCommand>) -> io::Result<()> {
     for entry in commands.iter_mut() {
         match entry.command.first().map(String::as_str) {
             Some("help")
@@ -23,7 +20,7 @@ pub(super) fn augment(commands: &mut Vec<HelpCommand>) -> io::Result<()> {
             _ => {}
         }
     }
-    walk(commands, &root, Vec::new());
+    walk(commands, root, Vec::new());
     if let Some(entry) = commands.iter_mut().find(|entry| entry.command == ["help"]) {
         entry.arguments.push(metadata(
             &Arg::new("command")
@@ -31,7 +28,7 @@ pub(super) fn augment(commands: &mut Vec<HelpCommand>) -> io::Result<()> {
                 .help("Command path or discovery topic to describe."),
         ));
     }
-    augment_entries(commands, &root);
+    augment_entries(commands, root);
     if let Some(index) = commands.iter_mut().find(|c| c.command.is_empty()) {
         index.description = root
             .get_subcommands()
@@ -53,13 +50,14 @@ pub(super) fn augment(commands: &mut Vec<HelpCommand>) -> io::Result<()> {
     Ok(())
 }
 // Compact discovery follows the same parser that supplies detailed argument metadata.
-pub(super) fn overview(commands: &mut Vec<HelpCommand>, path: &[String]) -> io::Result<bool> {
-    let mut root =
-        crate::grammar::root().map_err(|_| io::Error::other("command grammar unavailable"))?;
-    root.build();
+pub(super) fn overview(
+    root: &Command,
+    commands: &mut Vec<HelpCommand>,
+    path: &[String],
+) -> io::Result<bool> {
     let Some(parser) = path
         .iter()
-        .try_fold(&root, |parent, name| parent.find_subcommand(name))
+        .try_fold(root, |parent, name| parent.find_subcommand(name))
     else {
         return Ok(false);
     };
@@ -116,14 +114,12 @@ pub(super) fn overview(commands: &mut Vec<HelpCommand>, path: &[String]) -> io::
     Ok(true)
 }
 #[cfg(test)]
-pub(super) fn canonical(commands: &mut Vec<HelpCommand>) -> io::Result<()> {
-    let root =
-        crate::grammar::root().map_err(|_| io::Error::other("command grammar unavailable"))?;
+pub(super) fn canonical(root: &Command, commands: &mut Vec<HelpCommand>) -> io::Result<()> {
     commands.retain(|entry| {
         entry
             .command
             .iter()
-            .try_fold(&root, |parent, name| parent.find_subcommand(name))
+            .try_fold(root, |parent, name| parent.find_subcommand(name))
             .is_some()
     });
     for entry in commands {

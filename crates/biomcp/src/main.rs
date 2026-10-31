@@ -20,7 +20,13 @@ use std::process::ExitCode;
 
 fn main() -> ExitCode {
     let args = config::arguments();
-    if let Ok(parsed) = grammar::parse(&args) {
+    let root = match grammar::root() {
+        Ok(root) => std::sync::Arc::new(root),
+        Err(_) => return exit::failure(std::io::Error::other("command grammar unavailable")),
+    };
+    let (_, path) = grammar::presentation(&root, &args).unwrap_or_default();
+    let settings = std::sync::Arc::new(config::file::read_file(path.as_ref()));
+    if let Ok(parsed) = grammar::parse(&root, &args) {
         if let Some(command) = parsed.housekeeping {
             return match command.render(&parsed.globals) {
                 Ok(bytes) => exit::finish(output::bytes(&bytes), exit::Status::Success),
@@ -30,13 +36,20 @@ fn main() -> ExitCode {
         if parsed.action.is_none() && parsed.key.is_none() {
             let globals = parsed.globals;
             if let Some((address, hosts)) = parsed.http {
-                return match mcp::http::serve(&address, hosts, globals) {
+                return match mcp::http::serve(
+                    &address,
+                    hosts,
+                    globals,
+                    root.clone(),
+                    settings.clone(),
+                ) {
                     Ok(()) => ExitCode::SUCCESS,
                     Err(mcp::http::StartError::Configuration(error)) => {
                         match command::local::startup(error) {
-                            Ok(outcome) => {
-                                exit::finish(output::command(&outcome, &args), outcome.status)
-                            }
+                            Ok(outcome) => exit::finish(
+                                output::command(&outcome, &root, &settings, &args),
+                                outcome.status,
+                            ),
                             Err(error) => exit::failure(error),
                         }
                     }
@@ -54,12 +67,18 @@ fn main() -> ExitCode {
                     Err(mcp::http::StartError::Local) => ExitCode::from(exit::Status::Local.code()),
                 };
             }
-            let fetch = config::fetch(&globals);
-            return exit::finish(mcp::serve(globals, fetch), exit::Status::Success);
+            let fetch = config::fetch(&globals, &settings);
+            return exit::finish(
+                mcp::serve(globals, fetch, root.clone(), settings.clone()),
+                exit::Status::Success,
+            );
         }
     }
-    match command::dispatch(&args) {
-        Ok(outcome) => exit::finish(output::command(&outcome, &args), outcome.status),
+    match command::dispatch(&root, &settings, &args) {
+        Ok(outcome) => exit::finish(
+            output::command(&outcome, &root, &settings, &args),
+            outcome.status,
+        ),
         Err(error) => exit::failure(error),
     }
 }

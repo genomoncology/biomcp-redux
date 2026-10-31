@@ -39,12 +39,16 @@ struct Server {
     active: BTreeMap<String, Call>,
     legacy: bool,
     globals: crate::grammar::Globals,
+    root: std::sync::Arc<clap::Command>,
+    settings: std::sync::Arc<crate::config::Settings>,
     fetch: Result<std::sync::Arc<biomcp_fetch::Fetch>, crate::config::StartupError>,
 }
 
 pub(crate) fn serve(
     globals: crate::grammar::Globals,
     fetch: Result<biomcp_fetch::Fetch, crate::config::StartupError>,
+    root: std::sync::Arc<clap::Command>,
+    settings: std::sync::Arc<crate::config::Settings>,
 ) -> io::Result<()> {
     let (sender, receiver) = mpsc::sync_channel(MAX_RETAINED_EVENTS);
     start_input(sender.clone())?;
@@ -53,6 +57,8 @@ pub(crate) fn serve(
         active: BTreeMap::new(),
         legacy: false,
         globals,
+        root,
+        settings,
         fetch: fetch.map(std::sync::Arc::new),
     };
     let mut output = io::stdout().lock();
@@ -110,7 +116,7 @@ fn start_input(sender: mpsc::SyncSender<Event>) -> io::Result<()> {
 
 impl Server {
     fn message(&mut self, frame: &[u8]) -> io::Result<Option<Value>> {
-        match rpc::message(frame, &mut self.legacy, self.globals.hosted) {
+        match rpc::message(frame, &mut self.legacy, self.globals.hosted, &self.root) {
             rpc::Message::Reply(reply) => Ok(Some(reply)),
             rpc::Message::Tool { id, params, modern } => self.admit(id, &params, modern),
             rpc::Message::Notification { method, params } => {
@@ -140,6 +146,8 @@ impl Server {
             return Ok(Some(protocol::error(id, -31000, "Tool capacity exceeded")));
         }
         let globals = self.globals.clone();
+        let root = self.root.clone();
+        let settings = self.settings.clone();
         let (fetch, cancellation) = match &self.fetch {
             Ok(fetch) => {
                 let Ok((fetch, cancellation)) = fetch.cancellable() else {
@@ -150,7 +158,11 @@ impl Server {
             Err(error) => (Err(error.clone()), None),
         };
         self.start_call(key, id, modern, cancellation, move || {
-            research::execute(&call, crate::command::Context::new(&globals, &fetch), false)
+            research::execute(
+                &call,
+                crate::command::Context::new(&globals, &fetch, &root, &settings),
+                false,
+            )
         })?;
         Ok(None)
     }

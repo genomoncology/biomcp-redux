@@ -6,13 +6,19 @@ use std::{ffi::OsString, fs, path::PathBuf, sync::Arc, time::Duration};
 #[cfg(test)]
 mod credential_reads_tests;
 
-mod file;
+pub(crate) mod file;
 pub(crate) use file::ConfigError;
-use file::{ConfigFile, read_file};
-pub(crate) fn http_hosts(globals: &Globals) -> Result<Vec<String>, ConfigError> {
-    Ok(read_file(globals.config.as_ref())?
-        .and_then(|file| file.http)
-        .map(|http| http.allowed_hosts)
+use file::ConfigFile;
+
+pub(crate) type Settings = Result<Option<ConfigFile>, ConfigError>;
+
+fn configured(settings: &Settings) -> Result<Option<&ConfigFile>, ConfigError> {
+    settings.as_ref().map(Option::as_ref).map_err(Clone::clone)
+}
+pub(crate) fn http_hosts(settings: &Settings) -> Result<Vec<String>, ConfigError> {
+    Ok(configured(settings)?
+        .and_then(|file| file.http.as_ref())
+        .map(|http| http.allowed_hosts.clone())
         .unwrap_or_default())
 }
 #[expect(
@@ -62,21 +68,21 @@ impl From<biomcp_fetch::CacheError> for StartupError {
         Self::Cache(error)
     }
 }
-pub(crate) fn fetch(globals: &Globals) -> Result<Fetch, StartupError> {
+pub(crate) fn fetch(globals: &Globals, settings: &Settings) -> Result<Fetch, StartupError> {
     let home = variable("HOME")?;
-    let file = read_file(globals.config.as_ref())?;
+    let file = configured(settings)?;
     fetch_using(globals, home, file)
 }
-pub(crate) fn ncbi_email(globals: &Globals) -> Result<Option<Secret>, ConfigError> {
-    Ok(read_file(globals.config.as_ref())?
-        .and_then(|file| file.ncbi_email)
+pub(crate) fn ncbi_email(settings: &Settings) -> Result<Option<Secret>, ConfigError> {
+    Ok(configured(settings)?
+        .and_then(|file| file.ncbi_email.clone())
         .filter(|s| !s.is_empty())
         .map(Secret::new))
 }
 fn fetch_using(
     globals: &Globals,
     home: Option<PathBuf>,
-    file: Option<ConfigFile>,
+    file: Option<&ConfigFile>,
 ) -> Result<Fetch, StartupError> {
     let cache = cache_path_using(home)?;
     let mode = if let Some(dir) = &globals.replay {
@@ -108,15 +114,12 @@ fn fetch_using(
     {
         create_cache_directory(parent).map_err(|_| StartupError::Local)?;
     }
-    let secrets = secrets_from(file.as_ref());
-    let network = network(file.as_ref())?;
+    let secrets = secrets_from(file);
+    let network = network(file)?;
     Fetch::open(FetchConfig {
         rate_share: globals.rate_share,
-        disabled_sources: disabled_sources(globals, file.as_ref())?,
-        disabled_uses: biomcp_query::sources::disabled_uses(&disabled_names(
-            globals,
-            file.as_ref(),
-        )),
+        disabled_sources: disabled_sources(globals, file)?,
+        disabled_uses: biomcp_query::sources::disabled_uses(&disabled_names(globals, file)),
         observations: globals
             .observe
             .as_ref()
@@ -134,7 +137,7 @@ fn fetch_using(
             .as_ref()
             .and_then(|file| file.auto_sync_max_bytes)
             .unwrap_or_else(|| FetchConfig::default().auto_sync_max_bytes),
-        proxy: file.and_then(|file| file.proxy).map(Secret::new),
+        proxy: file.and_then(|file| file.proxy.clone()).map(Secret::new),
         ..FetchConfig::default()
     })
     .map_err(|error| match error {
@@ -241,8 +244,11 @@ fn network_variable(
     }
 }
 
-pub(crate) fn format(path: Option<&PathBuf>) -> Option<crate::grammar::Format> {
-    read_file(path).ok().flatten().and_then(|file| file.format)
+pub(crate) fn format(settings: &Settings) -> Option<crate::grammar::Format> {
+    configured(settings)
+        .ok()
+        .flatten()
+        .and_then(|file| file.format)
 }
 
 pub(crate) fn config_path(override_path: Option<&PathBuf>) -> Result<Option<PathBuf>, ConfigError> {
@@ -255,8 +261,8 @@ pub(crate) fn config_path(override_path: Option<&PathBuf>) -> Result<Option<Path
         variable("APPDATA")?,
     ))
 }
-pub(crate) fn secrets(globals: &Globals) -> Result<Secrets, ConfigError> {
-    Ok(secrets_from(read_file(globals.config.as_ref())?.as_ref()))
+pub(crate) fn secrets(settings: &Settings) -> Result<Secrets, ConfigError> {
+    Ok(secrets_from(configured(settings)?))
 }
 fn secrets_from(file: Option<&ConfigFile>) -> Secrets {
     secrets_using(file.and_then(|file| file.keys.clone()), variable)

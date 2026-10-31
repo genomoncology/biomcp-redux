@@ -118,7 +118,7 @@ fn takes_value(
 }
 
 pub(super) fn unknown_command(args: &[OsString], root: &Command) -> Option<Vec<String>> {
-    if super::command_words(args).next() == Some("schema") {
+    if super::command_words(root, args).next() == Some("schema") {
         return None;
     }
     let mut command = root;
