@@ -468,8 +468,6 @@ tool_only! {
 mod capture_support;
 #[path = "../../../biomcp-fetch/tests/support/fixtures.rs"]
 mod fixture_paths;
-#[path = "../../../biomcp-fetch/tests/support/replay.rs"]
-mod replay_support;
 #[path = "../../../biomcp-fetch/tests/support/hash.rs"]
 mod stable_hash;
 
