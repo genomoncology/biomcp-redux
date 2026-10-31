@@ -156,7 +156,9 @@ def shard(args):
                               '--baseline', 'run', '--timeout', str(CAP_SECONDS),
                               '--output', str(output.resolve())]
     started = time.time()
-    code = execute(command, value['deadline'], output / 'command.log')
+    # Native scratch trees omit Git metadata; bind the existing build contract to this plan.
+    code = execute(command, value['deadline'], output / 'command.log',
+                   {'BIOMCP_BUILD_REVISION': value['candidate']})
     save(output / 'command.json', dict(exit=code, started=started, ended=time.time(),
                                      candidate=value['candidate']))
     print(json.dumps(dict(shard=args.index, exit=code, output=str(output))))

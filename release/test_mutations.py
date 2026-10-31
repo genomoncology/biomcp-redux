@@ -15,7 +15,8 @@ args = sys.argv[1:]
 with open('cargo-calls.jsonl', 'a') as stream:
     stream.write(json.dumps(dict(args=args, build=os.environ.get('CARGO_BUILD_JOBS'),
                                 tests=os.environ.get('RUST_TEST_THREADS'),
-                                cargo_home=os.environ.get('CARGO_HOME'))) + '\n')
+                                cargo_home=os.environ.get('CARGO_HOME'),
+                                revision=os.environ.get('BIOMCP_BUILD_REVISION'))) + '\n')
 if '--version' in args:
     if os.environ.get('FAKE_MODE') == 'version-hang':
         time.sleep(60)
@@ -157,6 +158,7 @@ class MutationCommands(unittest.TestCase):
         self.assertEqual(run['args'][run['args'].index('--test-package') + 1], 'biomcp')
         self.assertEqual(run['args'][run['args'].index('--baseline') + 1], 'run')
         self.assertEqual((run['build'], run['tests']), ('2', '2'))
+        self.assertEqual(run['revision'], value['candidate'])
 
     def test_native_exit_cannot_hide_missing_selected_outcomes(self):
         self.prepare('--measure')
