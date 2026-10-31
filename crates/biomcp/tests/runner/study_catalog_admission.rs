@@ -49,7 +49,8 @@ fn call_exit(env: &Environment, replay: &Path, args: &[&str], exit: i32) -> Resu
             return Err(format!("CLI/MCP differ at {pointer}: {cli} / {mcp}"));
         }
     }
-    Ok(cli)
+    // MCP ran last and owns the active snapshot when a sync crosses a clock second.
+    Ok(mcp)
 }
 fn check(value: &Value, status: &str, rows: u64, native: u64, state: &str) -> Check {
     for (pointer, expected) in [
