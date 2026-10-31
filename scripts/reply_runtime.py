@@ -4,6 +4,8 @@ import json
 import re
 import shlex
 
+from reply_acquisitions import acquisition_events, catalog_root
+
 
 def owner(key):
     if isinstance(key, str):
@@ -29,6 +31,7 @@ class Bindings:
         self.reverse = {}
         self.pools = ({}, {})
         self.snapshot_steps = {}
+        self.acquisitions = ({}, {})
 
     def bind(self, kind, left, right):
         a, b = (kind, left), (kind, right)
@@ -36,7 +39,7 @@ class Bindings:
             raise ValueError(f'inconsistent runtime binding: {kind}')
         return '<runtime>'
 
-    def values(self, left, right, scope, path=(), encoded=(), clocks=True, catalog=None, acquisition=None):
+    def values(self, left, right, scope, path=(), encoded=(), clocks=True, catalog=None, acquisition=None, event=None):
         """Return only authorized scalar substitutions, indexed by JSON path."""
         changes = ({}, {})
         def envelope(value):
@@ -106,6 +109,8 @@ class Bindings:
                                     continue
                                 self.bind((scope, 'catalog-root'), *catalog)
                                 kind += (catalog[0], a['revision'])
+                                if event is not None:
+                                    kind += ('sync-event', event)
                             put(child, a[k], b[k], kind)
                     elif (k == 'pool' and position[-1:] == ('query',)
                           and isinstance(a[k], str) and isinstance(b[k], str)):
@@ -154,7 +159,7 @@ class Bindings:
                 # MCP embeds complete JSON replies inside text content.
                 if isinstance(aa, (dict, list)) and isinstance(bb, (dict, list)):
                     nested = self.values(aa, bb, scope, p, clocks=clocks, catalog=catalog,
-                                         acquisition=acquisition)
+                                         acquisition=acquisition, event=event)
                     for index in range(2):
                         if nested[index]:
                             changes[index][p] = nested[index]
@@ -306,6 +311,7 @@ def align(base, head, normalize, bindings=None):
     """Alias changed trial hashes through declared paths and bound opaque IDs."""
     roots = (record_roots(base), record_roots(head))
     bindings = bindings if bindings is not None else Bindings()
+    bindings.acquisitions = tuple(acquisition_events(records, owner) for records in (base, head))
     # Shared capture keys declare runtime IDs before hashed requests are aligned.
     for key in sorted(base.keys() & head.keys()):
         for i, (a, b) in enumerate(zip(base[key]['executions'], head[key]['executions'])):
@@ -439,14 +445,13 @@ def pair(left, right, scope, bindings, roots, normalize):
                     pass
         return paths
     encoded = embedded(values[0], left) & embedded(values[1], right)
-    def catalog_root(execution):
-        args = execution['args']
-        if args.count('--case-cache') == 1 and args.index('--case-cache') + 1 < len(args):
-            return args[args.index('--case-cache') + 1]
-        return execution.get('root')
+    events = tuple(events.get(id(execution)) for events, execution
+                   in zip(bindings.acquisitions, (left, right)))
+    if events[0] != events[1]:
+        raise ValueError('changed active catalog acquisition event')
     changes = bindings.values(*values, scope, encoded=encoded,
                               catalog=tuple(catalog_root(e) for e in (left, right)),
-                              acquisition=acquisition)
+                              acquisition=acquisition, event=events[0])
     # Saved paths are owned only when the literal destination was declared.
     for index, execution in enumerate((left, right)):
         args = execution['args']

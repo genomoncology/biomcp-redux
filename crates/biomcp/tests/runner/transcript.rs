@@ -25,6 +25,7 @@ struct State {
     case_step: Option<usize>,
     records: BTreeMap<String, Vec<Value>>,
     uncaptured: bool,
+    sequence: usize,
 }
 #[derive(Debug)]
 pub(super) struct Context {
@@ -107,6 +108,12 @@ impl Context {
         )
         .map_err(|e| e.to_string())
     }
+    pub(super) fn sequence(&self) -> usize {
+        let mut state = self.state.lock().unwrap_or_else(|e| e.into_inner());
+        let sequence = state.sequence;
+        state.sequence += 1;
+        sequence
+    }
     pub(super) fn allocate(&self, args: &[String]) -> String {
         let mut state = self.state.lock().unwrap_or_else(|e| e.into_inner());
         if let Some(index) = state.case_step {
@@ -124,8 +131,14 @@ impl Context {
             .unwrap_or_else(|e| e.into_inner())
             .uncaptured = true;
     }
-    pub(super) fn record(&self, key: &str, execution: Value) -> Result<(), String> {
+    pub(super) fn record(&self, key: &str, mut execution: Value) -> Result<(), String> {
         let mut state = self.state.lock().map_err(|e| e.to_string())?;
+        if let Some(object) = execution.as_object_mut()
+            && object.contains_key("sequence_start")
+        {
+            object.insert("sequence_end".into(), json!(state.sequence));
+            state.sequence += 1;
+        }
         let executions = state.records.entry(key.into()).or_default();
         executions.push(execution);
         self.write(key, &json!({"key":key,"executions":executions}))

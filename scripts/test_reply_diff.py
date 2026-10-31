@@ -291,6 +291,49 @@ class ReplyDiff(unittest.TestCase):
             result = self.compare()
             self.assertNotEqual(result.returncode, 0)
 
+    def catalog_sync_capture(self, directory, side, mutation=None):
+        root = "/tmp/" + side
+        for step in range(4):
+            clock = 10 if side == "base" else (20 if step == 0 else 21)
+            sync = step < 2 or step == 3
+            stale = step == 3
+            value = {"schema": "biomcp.sync/7" if sync else "biomcp.study-page/5",
+                     "status": "partial" if stale else "complete",
+                     "query": {"source": "cbioportal"},
+                     "sources": [{"source": "cbioportal", "state": "stale" if stale else "ok"}],
+                     "result": {"snapshot": {"revision": "same", "acquired": clock}}}
+            args = ["sync", "cbioportal-studies"] if sync else ["search", "study", "ATLAS"]
+            surface = "cli"
+            if step == 1:
+                frame = {"jsonrpc": "2.0", "method": "tools/call",
+                         "params": {"name": "biomcp", "arguments": {"args": args}}}
+                args = ["serve", "<requests>", json.dumps(frame)]
+                surface = "mcp"
+                value = {"jsonrpc": "2.0", "result": {"structuredContent": value}}
+            extra = dict(sequence_start=step * 2, sequence_end=step * 2 + 1)
+            if mutation == "superseded" and step == 2:
+                value["result"]["snapshot"]["acquired"] = 20
+            if mutation == "overlap" and step == 2:
+                extra["sequence_start"] = 2
+            if mutation == "missing" and step == 2:
+                extra = {}
+            if mutation == "invalid" and step == 2:
+                extra["sequence_start"] = "4"
+            if mutation == "duplicate" and step == 2:
+                extra["sequence_end"] = 1
+            self.write(directory, "case/sync.yaml/step/" + str(step),
+                       json.dumps(value).encode(), args=args, root=root, surface=surface, **extra)
+
+    def test_catalog_reads_follow_latest_accepted_sync_and_refusals_keep_it(self):
+        self.catalog_sync_capture(self.base, "base")
+        self.catalog_sync_capture(self.head, "head")
+        result = self.compare()
+        self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+        for mutation in ["superseded", "overlap", "missing", "invalid", "duplicate"]:
+            with self.subTest(mutation=mutation):
+                self.catalog_sync_capture(self.head, "head", mutation)
+                self.assertNotEqual(self.compare().returncode, 0)
+
     def test_catalog_acquisition_binds_per_root_and_revision(self):
         key = "case/catalog.yaml/step/"
         for directory, side in [(self.base, "base"), (self.head, "head")]:
