@@ -10,6 +10,14 @@ fn complex_without_a_saved_problem_list_preserves_its_identity()
     let saved: Complex = serde_json::from_value(legacy.clone())?;
     assert_eq!(saved.header.id.as_str(), "CPX-715");
     assert!(saved.problems.is_none());
-    assert_eq!(serde_json::to_value(saved)?, legacy);
+    let mut encoded = serde_json::to_value(saved)?;
+    assert_eq!(
+        encoded
+            .as_object_mut()
+            .ok_or("complex snapshot object")?
+            .remove("refusals"),
+        Some(json!(false))
+    );
+    assert_eq!(encoded, legacy);
     Ok(())
 }

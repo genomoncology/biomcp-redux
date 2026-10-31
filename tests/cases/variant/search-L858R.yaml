@@ -20,7 +20,7 @@
       "max_bytes": 1187,
       "expect": {
         "/schema": "biomcp.variant-page/16",
-        "/status": "partial",
+        "/status": "complete",
         "/query": {
           "equals": {
             "gene": "EGFR",
@@ -82,7 +82,17 @@
             "total": 1
           }
         },
-        "/sources/0/source": "myvariant"
+        "/sources/0/source": "myvariant",
+        "/problems": {
+          "equals": [
+            {
+              "source": "myvariant",
+              "record": "chr7:g.55259515T>G",
+              "field": "representations.build",
+              "code": "value.unknown"
+            }
+          ]
+        }
       }
     }
   ]

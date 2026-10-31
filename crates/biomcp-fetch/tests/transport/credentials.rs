@@ -2,6 +2,26 @@
 use super::*;
 
 #[test]
+fn credential_identities_scope_replies_without_disclosing_keys() {
+    let name = SecretName::OncokbApiKey;
+    let mut secrets = biomcp_fetch::Secrets::default();
+    assert_eq!(secrets.fingerprint(name), None);
+    secrets.insert(name, Secret::new(""));
+    assert_eq!(secrets.fingerprint(name), None);
+    secrets.insert(name, Secret::new("synthetic-caller-a"));
+    let first = secrets.fingerprint(name).unwrap();
+    assert_eq!(first, secrets.fingerprint(name).unwrap());
+    assert_eq!(format!("{first:?}"), "KeyFingerprint(***)");
+    let identity = [7; 32];
+    assert_ne!(first.namespace(identity), identity);
+    assert_ne!(first.namespace(identity), first.namespace([8; 32]));
+    secrets.insert(name, Secret::new("synthetic-caller-b"));
+    let second = secrets.fingerprint(name).unwrap();
+    assert_ne!(first, second);
+    assert_ne!(first.namespace(identity), second.namespace(identity));
+}
+
+#[test]
 fn safe_keyed_binary_recording_replays_without_opening_http()
 -> Result<(), Box<dyn std::error::Error>> {
     let dir = tempfile::tempdir()?;

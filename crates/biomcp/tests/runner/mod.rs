@@ -59,6 +59,7 @@ mod replay;
 tool_only! { pub(crate) mod live; }
 tool_only! { mod live_follow_proof; }
 tool_only! { mod live_proof; }
+mod licensed_cache;
 mod maude;
 mod maude_budget;
 mod mcp;
@@ -252,6 +253,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(mcp_boundaries::trials());
     trials.extend(mcp_hosted::trials());
     trials.extend(request_keys::trials());
+    trials.extend(licensed_cache::trials());
     trials.extend(alphagenome_tls::trials());
     trials.extend(housekeeping::trials());
     trials.extend(clinpgx::trials());
