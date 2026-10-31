@@ -37,23 +37,7 @@ pub(super) fn check(root: &Path) -> Check {
     let dispatcher = tokens(&dispatcher).join("");
     let mut registered = BTreeMap::new();
     for declaration in declarations {
-        let target = format!(
-            "&crate::{}::{}",
-            module(&declaration.path),
-            declaration.name
-        );
-        let source = dispatcher
-            .split(',')
-            .find_map(|arm| {
-                let (before, after) = arm.split_once("=>")?;
-                (after == target).then(|| before.rsplit("Source::").next().unwrap_or("").to_owned())
-            })
-            .ok_or_else(|| {
-                format!(
-                    "{}: source declaration must appear in decl(source): {target}",
-                    declaration.path
-                )
-            })?;
+        let source = dispatched_source(&dispatcher, &declaration)?;
         let primary = references(&declaration.spec, &declaration.path);
         if declaration
             .spec
@@ -101,6 +85,30 @@ pub(super) fn check(root: &Path) -> Check {
         }
     }
     Ok(())
+}
+
+fn dispatched_source(
+    dispatcher: &str,
+    declaration: &Declaration,
+) -> Result<String, Box<dyn std::error::Error>> {
+    let target = format!(
+        "&crate::{}::{}",
+        module(&declaration.path),
+        declaration.name
+    );
+    dispatcher
+        .split(',')
+        .find_map(|arm| {
+            let (before, after) = arm.split_once("=>")?;
+            (after == target).then(|| before.rsplit("Source::").next().unwrap_or("").to_owned())
+        })
+        .ok_or_else(|| {
+            format!(
+                "{}: source declaration must appear in decl(source): {target}",
+                declaration.path
+            )
+            .into()
+        })
 }
 
 fn collect(

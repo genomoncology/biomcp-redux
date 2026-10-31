@@ -3,7 +3,7 @@ pub(super) mod adapter_values;
 #[path = "mapped_refusals.rs"]
 mod mapped_refusals;
 use super::Check;
-use std::{collections::BTreeSet, fs, path::Path};
+use std::{collections::BTreeSet, path::Path};
 
 // The sole dead-code exception contains only the private generated closure include.
 const GENERATED_PROTO: &str = "crates/biomcp-adapters/src/alphagenome/proto.rs";

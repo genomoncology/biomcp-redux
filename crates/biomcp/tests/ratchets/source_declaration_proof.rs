@@ -7,36 +7,7 @@ use super::{
 #[test]
 fn source_registry_accepts_directory_and_file_modules_and_names_missing_entry() -> Check {
     let tree = tree()?;
-    let dispatcher = "Source::Directory => &crate::directory::decl::DECL, Source::Single => &crate::single_file::decl::DECL,";
-    put(
-        tree.path(),
-        "crates/biomcp-adapters/src/decl.rs",
-        dispatcher,
-    )?;
-    let declaration = r#"SourceSpec {
-        source: Source::Directory,
-        terms: Terms { name: "Publisher", url: "https://example.org/terms", usage: Open }
-    }"#;
-    for (path, owner) in [
-        ("directory/mod.rs", "directory"),
-        ("single_file.rs", "single_file"),
-    ] {
-        let policy = if owner == "single_file" {
-            declaration.replace("Directory", "Single")
-        } else {
-            declaration.to_owned()
-        };
-        put(
-            tree.path(),
-            &format!("crates/biomcp-adapters/src/{path}"),
-            &format!("pub static SPEC: SourceSpec = {policy};"),
-        )?;
-        put(
-            tree.path(),
-            &format!("crates/biomcp-adapters/src/{owner}/decl.rs"),
-            "pub static DECL: SourceDecl = SourceDecl { spec: &super::SPEC, auxiliary: &[] };",
-        )?;
-    }
+    let declaration = registry_fixture(tree.path())?;
     check(tree.path())?;
     let auxiliary = "crates/biomcp-adapters/src/directory/other.rs";
     put(
@@ -198,4 +169,34 @@ fn transport_source_names_have_no_legacy_exceptions() -> Check {
         )?;
     }
     Ok(())
+}
+
+fn registry_fixture(root: &std::path::Path) -> Result<&'static str, Box<dyn std::error::Error>> {
+    let dispatcher = "Source::Directory => &crate::directory::decl::DECL, Source::Single => &crate::single_file::decl::DECL,";
+    put(root, "crates/biomcp-adapters/src/decl.rs", dispatcher)?;
+    let declaration = r#"SourceSpec {
+        source: Source::Directory,
+        terms: Terms { name: "Publisher", url: "https://example.org/terms", usage: Open }
+    }"#;
+    for (path, owner) in [
+        ("directory/mod.rs", "directory"),
+        ("single_file.rs", "single_file"),
+    ] {
+        let policy = if owner == "single_file" {
+            declaration.replace("Directory", "Single")
+        } else {
+            declaration.to_owned()
+        };
+        put(
+            root,
+            &format!("crates/biomcp-adapters/src/{path}"),
+            &format!("pub static SPEC: SourceSpec = {policy};"),
+        )?;
+        put(
+            root,
+            &format!("crates/biomcp-adapters/src/{owner}/decl.rs"),
+            "pub static DECL: SourceDecl = SourceDecl { spec: &super::SPEC, auxiliary: &[] };",
+        )?;
+    }
+    Ok(declaration)
 }
