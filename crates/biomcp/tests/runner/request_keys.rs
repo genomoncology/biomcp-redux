@@ -181,6 +181,13 @@ fn concurrent(server: &Server, args: &[&str]) -> Check {
             unkeyed.join().map_err(|_| "unkeyed caller stopped")??,
         ))
     })?;
+    if let Some(context) = super::transcript::current() {
+        let key = context.allocate(&["concurrent-licensed-calls".into()]);
+        context.record(
+            &key,
+            json!({"surface":"http-concurrent","keyed_reply":keyed,"unkeyed_reply":unkeyed}),
+        )?;
+    }
     if keyed.pointer("/result/structuredContent/result/items/0/sections/oncokb/state")
         != Some(&json!("data"))
         || unkeyed.pointer("/result/structuredContent/error/source") != Some(&json!("oncokb"))
