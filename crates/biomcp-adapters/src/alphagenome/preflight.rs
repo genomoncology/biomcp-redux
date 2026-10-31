@@ -7,7 +7,7 @@ fn codec_error() -> CodecError {
 pub(super) fn varint(bytes: &mut &[u8]) -> Result<u64> {
     let mut value = 0u64;
     for shift in (0..70).step_by(7) {
-        let (byte, rest) = bytes.split_first().ok_or_else(bad)?;
+        let (byte, rest) = bytes.split_first().ok_or_else(codec_error)?;
         *bytes = rest;
         if shift == 63 && *byte > 1 {
             return Err(codec_error());
@@ -21,7 +21,7 @@ pub(super) fn varint(bytes: &mut &[u8]) -> Result<u64> {
 }
 pub(super) fn length<'a>(bytes: &mut &'a [u8]) -> Result<&'a [u8]> {
     let len = usize::try_from(varint(bytes)?).map_err(|_| codec_error())?;
-    let (head, tail) = bytes.split_at_checked(len).ok_or_else(bad)?;
+    let (head, tail) = bytes.split_at_checked(len).ok_or_else(codec_error)?;
     *bytes = tail;
     Ok(head)
 }
@@ -93,7 +93,7 @@ pub(super) fn descriptor(mut bytes: &[u8], limits: Limits) -> Result<()> {
     Ok(())
 }
 fn dimension(bytes: &mut &[u8], rank: &mut usize, limits: Limits) -> Result<()> {
-    *rank = rank.checked_add(1).ok_or_else(bad)?;
+    *rank = rank.checked_add(1).ok_or_else(codec_error)?;
     if *rank > limits.rank || varint(bytes)? > limits.dimension as u64 {
         return Err(codec_error());
     }

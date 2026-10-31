@@ -39,7 +39,10 @@ pub fn search(leg: &Leg<'_>, query: &DiagnosticSearch) -> Result<Search, Request
         }
         .into());
     }
-    let snapshot = info.content_revision.as_deref().ok_or_else(super::bad)?;
+    let snapshot = info
+        .content_revision
+        .as_deref()
+        .ok_or_else(|| biomcp_fetch::bad_reply(biomcp_types::Source::FdaCdx, None))?;
     let mut matching = Vec::new();
     for row in rows {
         let mut native = row.value;

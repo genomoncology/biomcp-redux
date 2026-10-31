@@ -102,7 +102,10 @@ fn variation(
     }
 }
 pub(super) fn card(mut row: raw::Record) -> Result<crate::Mapped<CellLineCard>, RequestError> {
-    let accession = row.accession().map_err(super::bad)?.clone();
+    let accession = row
+        .accession()
+        .map_err(|_| biomcp_fetch::bad_reply(biomcp_types::Source::Cellosaurus, None))?
+        .clone();
     let mut problems = crate::mapped::Problems {
         source: Source::Cellosaurus,
         record: crate::mapped::record(&accession),
