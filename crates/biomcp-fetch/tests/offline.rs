@@ -1,10 +1,11 @@
 //! Checked cache isolation and offline behavior through the public request API.
 #![expect(
-use biomcp_fetch::{Input, Read};
     clippy::unwrap_used,
     clippy::disallowed_methods,
     reason = "Controlled local peers seed explicit isolated caches"
 )]
+use biomcp_fetch::{Input, Read};
+
 mod support;
 use biomcp_fetch::{
     Fetch, FetchConfig, Freshness, KeyUse, Mode, Quota, Rate, RecordError, ReplayCache,

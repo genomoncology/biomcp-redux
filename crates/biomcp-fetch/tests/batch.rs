@@ -1,11 +1,12 @@
 //! Scoped chunk callbacks preserve caller order and transport ownership.
 #![expect(
-use biomcp_fetch::{Input, Read};
     clippy::disallowed_methods,
     clippy::unwrap_used,
     clippy::indexing_slicing,
     reason = "Scoped public API tests use checked local fixtures; setup and worker failures must fail the test"
 )]
+use biomcp_fetch::{Input, Read};
+
 mod support;
 use biomcp_fetch::{Fetch, FetchConfig, KeyUse, Quota, Rate, RequestError, SourceKey};
 #[expect(

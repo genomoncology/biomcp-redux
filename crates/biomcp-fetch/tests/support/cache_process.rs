@@ -1,10 +1,11 @@
 //! Separate process proof for a shared SQLite cache; control sockets name events.
 #![expect(
-use biomcp_fetch::{Input};
     clippy::unwrap_used,
     clippy::panic,
     reason = "Fixture setup, child processes and failed source assertions must abort the contract test"
 )]
+use biomcp_fetch::Input;
+
 #[path = "evidence.rs"]
 mod evidence;
 

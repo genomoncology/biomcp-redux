@@ -1,9 +1,10 @@
 //! Approved retries and deadline distinctions through the public transport API.
 #![expect(
-use biomcp_fetch::{Input, Read};
     clippy::disallowed_methods,
     reason = "Scoped callers exercise shared public transport state against controlled local HTTP peers"
 )]
+use biomcp_fetch::{Input, Read};
+
 mod support;
 #[path = "support/timing.rs"]
 mod timing;

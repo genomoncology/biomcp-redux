@@ -1,9 +1,10 @@
 //! Declared POST bodies share the checked transport and modes.
 #![expect(
-use biomcp_fetch::{Read, JsonBody};
     clippy::disallowed_methods,
     reason = "Local HTTP fixtures and scoped public API callers"
 )]
+use biomcp_fetch::{JsonBody, Read};
+
 mod support;
 use biomcp_fetch::{Arg, Fetch, FetchConfig, KeyUse, Quota, Rate, SourceKey};
 use std::{thread, time::Duration};

@@ -1,10 +1,11 @@
 //! Bundle contracts through the public transport boundary.
 #![expect(
-use biomcp_fetch::{Input};
     clippy::unwrap_used,
     clippy::disallowed_methods,
     reason = "Fixture failures fail the contract"
 )]
+use biomcp_fetch::Input;
+
 #[path = "support/environment.rs"]
 #[expect(
     clippy::disallowed_types,

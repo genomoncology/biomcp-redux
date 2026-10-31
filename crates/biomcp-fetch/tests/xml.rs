@@ -1,10 +1,11 @@
 //! Checked XML uses the shared request, cache and recording boundaries.
 #![expect(
-use biomcp_fetch::{Input, Read};
     clippy::disallowed_methods,
     clippy::unwrap_used,
     reason = "Local HTTP fixtures and scoped public API callers"
 )]
+use biomcp_fetch::{Input, Read};
+
 mod support;
 use biomcp_fetch::{
     Arg, BadReply, Fetch, FetchConfig, Freshness, KeyUse, Quota, Rate, Reply, SourceKey,

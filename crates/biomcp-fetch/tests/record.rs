@@ -1,10 +1,11 @@
 //! Recordings preserve the public checked transport contract without live providers.
 #![expect(
-use biomcp_fetch::{Input, Read};
     clippy::unwrap_used,
     clippy::disallowed_methods,
     reason = "Local HTTP fixtures and scoped callers exercise public transport modes"
 )]
+use biomcp_fetch::{Input, Read};
+
 mod support;
 use biomcp_fetch::{
     Arg, Fetch, FetchConfig, KeyUse, Mode, Quota, Rate, RecordError, RequestError, SourceKey,
@@ -590,13 +591,5 @@ fn legacy_recording_has_no_acquisition_time() {
     );
 }
 
-#[test]
-fn recording_io_conversion_retains_kind_without_error_text() {
-    let error = RecordError::from(std::io::Error::new(
-        std::io::ErrorKind::PermissionDenied,
-        "synthetic-private-path",
-    ));
-    assert_eq!(error, RecordError::Io(std::io::ErrorKind::PermissionDenied));
-    assert_eq!(error.to_string(), "fetch.record_io");
-    assert!(!format!("{error:?}").contains("synthetic-private-path"));
-}
+#[path = "record/errors.rs"]
+mod errors;
