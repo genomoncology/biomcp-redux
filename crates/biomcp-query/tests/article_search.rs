@@ -2,7 +2,6 @@
 #![expect(
     clippy::unwrap_used,
     clippy::panic,
-    clippy::indexing_slicing,
     clippy::disallowed_methods,
     clippy::disallowed_types,
     reason = "Public store and concurrency contracts own isolated fixture I/O and abort on invalid fixture setup"
