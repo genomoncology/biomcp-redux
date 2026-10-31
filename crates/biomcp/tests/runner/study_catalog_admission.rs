@@ -1,9 +1,12 @@
 //! Feature study-catalog: native admission determines replacement without losing the last good catalog.
-use super::{rows, seed};
+use super::{rows, seed as seed_catalog};
 use crate::runner::{configuration::invoke, launch::Environment, transcript::trial};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
-use std::path::Path;
+use std::{
+    fs,
+    path::{Path, PathBuf},
+};
 
 type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
@@ -20,6 +23,20 @@ pub(super) fn trials() -> Vec<Trial> {
             || mixed().map_err(Into::into),
         ),
     ]
+}
+fn seed(env: &Environment, body: Value, status: u16) -> Result<PathBuf, String> {
+    let replay = seed_catalog(env, body, status)?;
+    if crate::runner::transcript::current().is_some() {
+        let owner = tempfile::tempdir().map_err(|e| e.to_string())?;
+        let recorded = owner.path().join("recordings/cbioportal");
+        fs::create_dir_all(&recorded).map_err(|e| e.to_string())?;
+        for entry in fs::read_dir(replay.join("cbioportal")).map_err(|e| e.to_string())? {
+            let entry = entry.map_err(|e| e.to_string())?;
+            fs::copy(entry.path(), recorded.join(entry.file_name())).map_err(|e| e.to_string())?;
+        }
+        crate::runner::network_stub::retain_replay_owner(&owner).map_err(|e| e.to_string())?;
+    }
+    Ok(replay)
 }
 fn call(env: &Environment, replay: &Path, args: &[&str]) -> Result<Value, String> {
     call_exit(env, replay, args, 0)
