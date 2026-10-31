@@ -89,6 +89,24 @@ impl Secrets {
             }),
         );
     }
+    /// Resolve this command's hosted credentials from caller keys and declared tiers.
+    pub fn hosted(
+        mut self,
+        request: Option<&Self>,
+        no_fallback: impl IntoIterator<Item = SecretName>,
+    ) -> Self {
+        for name in no_fallback {
+            self.0.remove(&name);
+        }
+        if let Some(request) = request {
+            for (&name, value) in &request.0 {
+                if let Some(value) = value.get() {
+                    self.insert(name, Secret::new(value));
+                }
+            }
+        }
+        self
+    }
     pub(crate) fn invalid(&self, name: SecretName) -> bool {
         self.0.get(&name).is_some_and(|value| match value {
             SecretValue::Ready(_) => false,
@@ -136,6 +154,10 @@ impl SecretName {
             Self::AlphaGenomeApiKey => "alphagenome_api_key",
             Self::NciApiKey => "nci_api_key",
         }
+    }
+    /// HTTP header for a hosted request credential, derived from its configuration name.
+    pub fn header(self) -> String {
+        format!("x-biomcp-key-{}", self.config().replace('_', "-"))
     }
     /// Optional environment fallback.
     pub const fn environment(self) -> &'static str {

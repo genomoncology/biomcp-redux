@@ -144,6 +144,7 @@ fn fetch() -> Fetch {
 }
 fn credential(place: KeyPlace) -> Credential {
     Credential {
+        tier: biomcp_types::KeyTier::Fallback,
         secret: SecretName::NcbiApiKey,
         place,
     }
@@ -561,6 +562,7 @@ fn publisher_destinations_refuse_private_hosts_and_applicable_proxies_before_con
     }
     let keyed = stub.spec(
         KeyUse::Optional(Credential {
+            tier: biomcp_types::KeyTier::Fallback,
             secret: SecretName::SemanticScholarApiKey,
             place: KeyPlace::Header("x-api-key"),
         }),

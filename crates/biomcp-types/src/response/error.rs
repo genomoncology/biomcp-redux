@@ -67,6 +67,7 @@ singleton! {
  McpStoreClean => "store clean is unavailable over MCP; run it from the command line",
  McpKey => "key is unavailable over MCP; run it from the command line",
  McpHosted => "this command is unavailable in hosted mode",
+ HostedKey => "add the source key in your account settings",
  UnknownCommand => "unknown command; use the suggested help command",
  Local => "local configuration, cache or recording failed",
 
@@ -329,6 +330,12 @@ impl ErrorEnvelope {
         let mut error = Self::arguments();
         error.error.code = ErrorCode::McpUnavailable;
         error.error.message = message;
+        error
+    }
+    /// Direct a hosted caller to their own source credential settings.
+    pub fn hosted_key(source: crate::Source) -> Self {
+        let mut error = Self::mcp_unavailable(ErrorMessage::HostedKey);
+        error.error.source = Some(source);
         error
     }
     /// Name a rejected configuration field or environment variable without its value.
