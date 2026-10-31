@@ -240,6 +240,11 @@ fn usage(args: &[OsString]) -> io::Result<Outcome> {
     parse_refusal(args, crate::grammar::ParseInvalid::default())
 }
 fn parse_refusal(args: &[OsString], cause: crate::grammar::ParseInvalid) -> io::Result<Outcome> {
+    if let Some(UsageError::Arguments(arguments)) = &cause.usage {
+        if arguments.argument.is_some() && !arguments.next.is_empty() {
+            return usage_envelope(UsageError::Arguments(arguments.clone()));
+        }
+    }
     if let Some(path) = crate::grammar::unknown_command(args) {
         return usage_envelope(UsageError::UnknownCommand {
             next: biomcp_types::Step {
