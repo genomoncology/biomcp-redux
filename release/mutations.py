@@ -36,34 +36,60 @@ def git(*args):
     return subprocess.check_output(['git', *args], text=True).strip()
 
 
-def execute(command, deadline, log, extra_env=None):
-    """Stop the whole native child group and retain its partial output at the cap."""
-    remaining = deadline - time.time()
-    if remaining <= 0:
-        return None
-    with log.open('w') as stream:
-        env = dict(os.environ, CARGO_BUILD_JOBS='2', RUST_TEST_THREADS='2')
-        env.update(extra_env or {})
-        child = subprocess.Popen(command, stdout=stream, stderr=subprocess.STDOUT,
-                                 start_new_session=True, env=env)
-        try:
-            return child.wait(timeout=remaining)
-        except subprocess.TimeoutExpired:
+def stop(child):
+    """Native Cargo children have their own groups; retain them before parents exit."""
+    rows = [tuple(map(int, line.split())) for line in subprocess.check_output(
+        ['ps', '-axo', 'pid=,ppid=,pgid='], text=True, timeout=2).splitlines()]
+    owned = {child.pid}
+    while True:
+        descendants = owned | {pid for pid, parent, _ in rows if parent in owned}
+        if descendants == owned:
+            break
+        owned = descendants
+    groups = {group for pid, _, group in rows if pid in owned} | {child.pid}
+    groups.discard(os.getpgrp())
+    for sig in (signal.SIGTERM, signal.SIGKILL):
+        for group in groups:
             try:
-                os.killpg(child.pid, signal.SIGTERM)
+                os.killpg(group, sig)
             except ProcessLookupError:
                 pass
+        if sig == signal.SIGTERM:
             try:
                 child.wait(timeout=2)
             except subprocess.TimeoutExpired:
                 pass
-            # Test grandchildren may outlive their cargo parent.
+    child.wait()
+
+
+def execute(command, deadline, log, extra_env=None):
+    """Stop every owned child group on the shared cap or caller cancellation."""
+    remaining = deadline - time.time()
+    if remaining <= 0:
+        return None
+    def cancel(number, _frame):
+        raise SystemExit(128 + number)
+    handlers = {number: signal.signal(number, cancel) for number in (signal.SIGTERM, signal.SIGINT)}
+    child = None
+    try:
+        with log.open('w') as stream:
+            env = dict(os.environ, CARGO_BUILD_JOBS='2', RUST_TEST_THREADS='2')
+            env.update(extra_env or {})
+            child = subprocess.Popen(command, stdout=stream, stderr=subprocess.STDOUT,
+                                     start_new_session=True, env=env)
             try:
-                os.killpg(child.pid, signal.SIGKILL)
-            except ProcessLookupError:
-                pass
-            child.wait()
-            return None
+                return child.wait(timeout=remaining)
+            except subprocess.TimeoutExpired:
+                stop(child)
+                child = None
+                return None
+    except BaseException:
+        if child is not None:
+            stop(child)
+        raise
+    finally:
+        for number, handler in handlers.items():
+            signal.signal(number, handler)
 
 
 def native_args():
