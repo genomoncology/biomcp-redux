@@ -181,35 +181,37 @@ fn live_wire_limit_rejects_the_stream_before_spool_admission() -> Check {
     fixture.finish()
 }
 
+fn stream_secrets(key: Option<&str>) -> biomcp_fetch::Secrets {
+    let mut secrets = biomcp_fetch::Secrets::default();
+    if let Some(key) = key {
+        secrets.insert(SecretName::OncokbApiKey, Secret::new(key));
+    }
+    secrets
+}
+fn stream_source(fixture: &Fixture, private: bool) -> &'static SourceSpec {
+    let credential = Credential {
+        tier: if private {
+            biomcp_types::KeyTier::NoFallback
+        } else {
+            biomcp_types::KeyTier::Fallback
+        },
+        secret: SecretName::OncokbApiKey,
+        place: KeyPlace::Header("x-fixture-key"),
+    };
+    fixture.source(
+        false,
+        if private {
+            KeyUse::Required(credential)
+        } else {
+            KeyUse::Optional(credential)
+        },
+    )
+}
 #[test]
 fn hosted_grpc_cache_and_replay_cursors_follow_declared_credential_tiers() -> Check {
-    use biomcp_fetch::Secrets;
-    fn secrets(key: Option<&str>) -> Secrets {
-        let mut secrets = Secrets::default();
-        if let Some(key) = key {
-            secrets.insert(SecretName::OncokbApiKey, Secret::new(key));
-        }
-        secrets
-    }
     for private in [true, false] {
         let fixture = Fixture::with_messages(Hold::None, 0, false, false, messages())?;
-        let credential = Credential {
-            tier: if private {
-                biomcp_types::KeyTier::NoFallback
-            } else {
-                biomcp_types::KeyTier::Fallback
-            },
-            secret: SecretName::OncokbApiKey,
-            place: KeyPlace::Header("x-fixture-key"),
-        };
-        let source = fixture.source(
-            false,
-            if private {
-                KeyUse::Required(credential)
-            } else {
-                KeyUse::Optional(credential)
-            },
-        );
+        let source = stream_source(&fixture, private);
         let directory = tempfile::tempdir()?;
         let record = fetch(
             &fixture,
@@ -221,13 +223,13 @@ fn hosted_grpc_cache_and_replay_cursors_follow_declared_credential_tiers() -> Ch
         )?;
         // An ordinary legacy capture coexists; hosted private callers cannot admit it.
         get(
-            &record.with_secrets(secrets(Some("synthetic-stream-a"))),
+            &record.with_stream_secrets(stream_secrets(Some("synthetic-stream-a"))),
             source,
             METHOD,
             SCHEMA,
             Freshness::Never,
         )?;
-        let keyed = record.with_hosted_secrets(secrets(Some("synthetic-stream-a")));
+        let keyed = record.with_hosted_stream_secrets(stream_secrets(Some("synthetic-stream-a")));
         for _ in 0..2 {
             get(&keyed, source, METHOD, SCHEMA, Freshness::Never)?;
         }
@@ -239,9 +241,9 @@ fn hosted_grpc_cache_and_replay_cursors_follow_declared_credential_tiers() -> Ch
             None,
             Limits::default(),
         )?;
-        let a = replay.with_hosted_secrets(secrets(Some("synthetic-stream-a")));
-        let b = replay.with_hosted_secrets(secrets(Some("synthetic-stream-b")));
-        let missing = replay.with_hosted_secrets(secrets(None));
+        let a = replay.with_hosted_stream_secrets(stream_secrets(Some("synthetic-stream-a")));
+        let b = replay.with_hosted_stream_secrets(stream_secrets(Some("synthetic-stream-b")));
+        let missing = replay.with_hosted_stream_secrets(stream_secrets(None));
         assert_eq!(
             get(&a, source, METHOD, SCHEMA, Freshness::Hours(1))?,
             [1, 2, 3, 4]
