@@ -138,3 +138,6 @@ pub fn members(
 ) -> Result<Option<Complex>, RequestError> {
     map::complex(detail(leg, id)?, anchor)
 }
+
+/// Complete source policy and command declaration.
+pub(crate) mod decl;

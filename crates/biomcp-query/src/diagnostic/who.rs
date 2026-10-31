@@ -27,7 +27,7 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DiagnosticGet) -> Outcome {
             StepKind::Sync,
             &[biomcp_types::Source::WhoIvd],
             Action::Sync {
-                bundle: Bundle::WhoIvd,
+                bundle: Bundle::WHO_IVD,
             },
         ));
         if !cx.fresh {
@@ -44,7 +44,7 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DiagnosticGet) -> Outcome {
         leg,
         error,
         biomcp_types::Source::WhoIvd,
-        Bundle::WhoIvd,
+        Bundle::WHO_IVD,
     );
     command.finish(deadline.remaining());
     out

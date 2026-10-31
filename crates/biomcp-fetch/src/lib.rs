@@ -14,7 +14,6 @@ mod bounded_json;
 mod bundle;
 mod cache;
 mod cache_access;
-mod cache_hgnc;
 mod cleanup;
 mod store_size;
 pub use cache_access::CacheAccess;
@@ -70,6 +69,10 @@ pub trait Reply: serde::de::DeserializeOwned {
     fn check(&self) -> Result<(), BadReply>;
     /// Source-given identities used to discover dependent requests, only for explicit reply types.
     fn discovery(&self) -> Option<Identities> {
+        None
+    }
+    /// Complete checked provider sequences when discovery spans identifier namespaces.
+    fn discoveries(&self) -> Option<Vec<Identities>> {
         None
     }
     /// Explicit namespace and ID parameter used by this dependent request.

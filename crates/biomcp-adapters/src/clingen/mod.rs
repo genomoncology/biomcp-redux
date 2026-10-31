@@ -149,3 +149,6 @@ pub(crate) fn bundle_state(leg: &Leg<'_>) -> Result<biomcp_types::LocalBundleSta
         .stored_bundle_state(&VALIDITY)?
         .with(leg.stored_bundle_state(&DOSAGE)?))
 }
+
+/// Complete source policy and command declaration.
+pub(crate) mod decl;

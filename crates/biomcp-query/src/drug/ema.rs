@@ -152,7 +152,7 @@ fn sync_step(out: &mut Outcome) {
             StepKind::Sync,
             &[biomcp_types::Source::Ema],
             Action::Sync {
-                bundle: Bundle::Ema,
+                bundle: Bundle::EMA,
             },
         ));
     }

@@ -1,5 +1,5 @@
 //! Registry-derived consequences of supported source-disable groups.
-use super::{SOURCES, components};
+use super::{components, sources as registered_sources};
 use biomcp_types::{DisableGroup, DisabledComponent, Source, Use};
 use std::collections::BTreeSet;
 
@@ -23,8 +23,7 @@ pub fn disable_groups() -> Vec<DisableGroup> {
 }
 
 pub(super) fn sources(group: Use) -> BTreeSet<Source> {
-    SOURCES
-        .iter()
+    registered_sources()
         .filter(|s| s.terms.usage == group && !components().any(|c| c.source == s.source))
         .map(|s| s.source)
         .collect()

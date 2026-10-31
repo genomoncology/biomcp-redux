@@ -156,7 +156,7 @@ fn called_sources_read_only_their_own_environment_key_once() {
             .iter()
             .map(|(name, _)| *name)
             .collect::<std::collections::BTreeSet<_>>(),
-        SecretName::ALL
+        biomcp_query::sources::keys()
             .iter()
             .copied()
             // AlphaGenome has source admission but no product section until capture.
@@ -170,7 +170,7 @@ fn called_sources_read_only_their_own_environment_key_once() {
 
 #[test]
 fn config_keys_override_environment_and_resolve_once_per_owner() {
-    for &name in SecretName::ALL {
+    for name in biomcp_query::sources::keys() {
         let keys = Some(
             [(
                 name.config().to_owned(),

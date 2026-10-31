@@ -87,3 +87,6 @@ fn qualify(input: &str, build: Option<biodata::Build>) -> Result<String, Request
         .map_err(|_| biomcp_fetch::bad_reply(Source::AlleleRegistry, None))?;
     Ok(format!("{}:{description}", chromosome.accession(build)))
 }
+
+/// Complete source policy and command declaration.
+pub(crate) mod decl;

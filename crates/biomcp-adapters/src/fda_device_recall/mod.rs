@@ -185,3 +185,6 @@ pub fn classification(
         )
     })
 }
+
+/// Complete source policy and command declaration.
+pub(crate) mod decl;

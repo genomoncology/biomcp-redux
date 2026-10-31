@@ -100,7 +100,7 @@ fn snapshot(
         fetch.with_hosted_secrets(
             secrets.hosted(
                 context.and_then(|context| context.secrets),
-                biomcp_fetch::SecretName::ALL
+                biomcp_query::sources::keys()
                     .iter()
                     .copied()
                     .filter(|&name| {

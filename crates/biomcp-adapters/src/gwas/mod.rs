@@ -104,3 +104,6 @@ fn page(response: raw::Response, skip: usize) -> Page {
         total: response.page.total_elements,
     }
 }
+
+/// Complete source policy and command declaration.
+pub(crate) mod decl;

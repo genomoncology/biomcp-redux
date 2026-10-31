@@ -281,7 +281,7 @@ fn secrets_using(
     let mut secrets = Secrets::default();
     let keys = Arc::new(keys);
     let environment = Arc::new(environment);
-    for &name in SecretName::ALL {
+    for name in biomcp_query::sources::keys() {
         let keys = keys.clone();
         let environment = environment.clone();
         secrets.defer(name, move || {

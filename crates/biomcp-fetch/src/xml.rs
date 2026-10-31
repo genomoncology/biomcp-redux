@@ -9,6 +9,7 @@ const NESTING: usize = 64;
 #[derive(Clone, Copy)]
 pub(crate) enum Codec {
     Json,
+    JsonText,
     Xml,
     Bytes(&'static str),
     Probe,
@@ -17,6 +18,7 @@ impl Codec {
     pub(crate) fn name(self) -> &'static str {
         match self {
             Self::Json => "application/json",
+            Self::JsonText => "text/plain",
             Self::Xml => "application/xml",
             Self::Bytes(media) => media,
             Self::Probe => "*/*",
@@ -28,8 +30,10 @@ impl Codec {
         match self {
             Self::Bytes(_) => true,
             Self::Probe => true,
-            Self::Json => {
-                name == self.name() || name.starts_with("application/") && name.ends_with("+json")
+            Self::Json | Self::JsonText => {
+                name == "application/json"
+                    || name.starts_with("application/") && name.ends_with("+json")
+                    || matches!(self, Self::JsonText) && name == "text/plain"
             }
             Self::Xml => {
                 (name == self.name()
@@ -144,6 +148,11 @@ impl<'a, T: Reply> Decoder<'a, T> {
             json_absence: false,
             parse: |body| serde_json::from_slice(body).ok(),
         }
+    }
+    pub(crate) fn json_text() -> Self {
+        let mut decoder = Self::json();
+        decoder.codec = Codec::JsonText;
+        decoder
     }
     pub(crate) fn checked_xml(check: &'a dyn Fn(&T) -> Result<(), crate::BadReply>) -> Self
     where

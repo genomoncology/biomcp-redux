@@ -154,28 +154,6 @@ impl Secrets {
 }
 
 impl SecretName {
-    /// Every supported credential identity, shared by configuration and CLI discovery.
-    pub const ALL: &[Self] = &[
-        Self::NcbiApiKey,
-        Self::SemanticScholarApiKey,
-        Self::OrcidAccessToken,
-        Self::OncokbApiKey,
-        Self::AlphaGenomeApiKey,
-        Self::NciApiKey,
-        Self::OpenfdaApiKey,
-    ];
-    /// Source name accepted by key registration.
-    pub const fn source(self) -> &'static str {
-        match self {
-            Self::OpenfdaApiKey => "openfda",
-            Self::NcbiApiKey => "ncbi",
-            Self::SemanticScholarApiKey => "semantic-scholar",
-            Self::OrcidAccessToken => "orcid",
-            Self::OncokbApiKey => "oncokb",
-            Self::AlphaGenomeApiKey => "alphagenome",
-            Self::NciApiKey => "nci",
-        }
-    }
     /// Field within the configuration's keys object.
     pub const fn config(self) -> &'static str {
         match self {

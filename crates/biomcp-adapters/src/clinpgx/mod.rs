@@ -25,3 +25,6 @@ pub use read::{annotation, clinical, references};
 
 /// Native clinical annotation collection shared by reads and the bounded health probe.
 pub(crate) const CLINICAL_PATH: &str = "/data/clinicalAnnotation";
+
+/// Complete source policy and command declaration.
+pub(crate) mod decl;

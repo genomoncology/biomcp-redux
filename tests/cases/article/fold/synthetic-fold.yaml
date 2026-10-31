@@ -13,7 +13,7 @@
         "pubmed,pubmed"
       ],
       "exit": 2,
-      "max_bytes": 166,
+      "max_bytes": 418,
       "expect": {
         "/error/code": "usage.arguments"
       }

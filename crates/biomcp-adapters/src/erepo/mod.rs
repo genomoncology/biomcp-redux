@@ -149,3 +149,6 @@ fn records(leg: &Leg<'_>, caid: &str) -> Result<Mapped<Vec<raw::Record>>, Reques
             .ok_or_else(|| biomcp_fetch::bad_reply(Source::Erepo, None))?;
     }
 }
+
+/// Complete source policy and command declaration.
+pub(crate) mod decl;

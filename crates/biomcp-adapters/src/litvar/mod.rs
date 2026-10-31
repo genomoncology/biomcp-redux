@@ -203,3 +203,6 @@ pub fn is_rsid(value: &str) -> bool {
             !digits.is_empty() && digits.bytes().all(|byte| byte.is_ascii_digit())
         })
 }
+
+/// Complete source policy and command declaration.
+pub(crate) mod decl;

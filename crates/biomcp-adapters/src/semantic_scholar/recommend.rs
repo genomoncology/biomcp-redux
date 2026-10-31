@@ -11,7 +11,7 @@ pub static RECOMMEND_SPEC: SourceSpec = SourceSpec {
     destinations: biomcp_fetch::Destinations::Primary,
     user_agent: None,
     base: "https://api.semanticscholar.org/recommendations/v1",
-    source: SPEC.source,
+    source: biomcp_types::Source::SemanticScholar,
     terms: biomcp_fetch::Terms {
         name: SPEC.terms.name,
         url: SPEC.terms.url,
@@ -72,8 +72,11 @@ impl From<RawRecommendations> for Recommendations {
     }
 }
 impl Reply for Recommendations {
-    fn discovery(&self) -> Option<biomcp_fetch::Identities> {
-        super::search::doi_discovery(self.recommended_papers.iter())
+    fn discoveries(&self) -> Option<Vec<biomcp_fetch::Identities>> {
+        if self.refusals != crate::Refusal::None {
+            return None;
+        }
+        super::search::paper_discoveries(self.recommended_papers.iter())
     }
 
     fn check(&self) -> Result<(), BadReply> {

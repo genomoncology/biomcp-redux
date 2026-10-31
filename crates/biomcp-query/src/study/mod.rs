@@ -26,7 +26,7 @@ fn finish(out: &mut Outcome, leg: Leg<'_>, error: Option<RequestError>) {
             StepKind::Sync,
             &[biomcp_types::Source::Cbioportal],
             Action::Sync {
-                bundle: Bundle::CbioportalStudies,
+                bundle: Bundle::CBIOPORTAL_STUDIES,
             },
         ));
     }

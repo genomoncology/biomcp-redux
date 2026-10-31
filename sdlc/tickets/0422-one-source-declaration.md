@@ -1,6 +1,7 @@
 # 0422 — Declare each source once
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 981f3dc95ec8d2f21d2cae926318ef1bf1ff0874
 
 Milestone: 5
 

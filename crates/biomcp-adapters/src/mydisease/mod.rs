@@ -101,3 +101,6 @@ pub fn get(leg: &Leg<'_>, id: &Curie) -> Result<Record, RequestError> {
         metadata,
     })
 }
+
+/// Complete source policy and command declaration.
+pub(crate) mod decl;

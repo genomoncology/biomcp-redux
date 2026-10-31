@@ -11,7 +11,10 @@ pub(crate) enum Command {
     Remove(SecretName),
 }
 pub(crate) fn names() -> Vec<&'static str> {
-    SecretName::ALL.iter().map(|name| name.source()).collect()
+    biomcp_query::sources::keys()
+        .iter()
+        .map(|&name| biomcp_query::sources::key_name(name))
+        .collect()
 }
 pub(crate) fn grammar() -> clap::Command {
     let source = || {
@@ -51,10 +54,10 @@ pub(crate) fn parse(matches: &clap::ArgMatches) -> Result<Command, crate::gramma
     let source = matches
         .get_one::<String>("source")
         .ok_or_else(crate::grammar::ParseInvalid::default)?;
-    let name = SecretName::ALL
+    let name = biomcp_query::sources::keys()
         .iter()
         .copied()
-        .find(|n| n.source() == source)
+        .find(|n| biomcp_query::sources::key_name(*n) == source)
         .ok_or_else(crate::grammar::ParseInvalid::default)?;
     Ok(if verb == "set" {
         Command::Set(name, matches.get_flag("replace"))
@@ -122,7 +125,7 @@ fn run_inner(
     }
     if matches!(command, Command::List) {
         return Ok(biomcp_types::RegisteredKeys {
-            entries: SecretName::ALL
+            entries: biomcp_query::sources::keys()
                 .iter()
                 .map(|&name| entry(name, state(settings, name)?))
                 .collect::<Result<_, _>>()?,
@@ -190,7 +193,7 @@ fn entry(
 ) -> Result<biomcp_types::RegisteredKey, Failure> {
     let text = |s: String| biodata::Text::new(&s).map_err(|_| Failure::Local);
     Ok(biomcp_types::RegisteredKey {
-        source: text(name.source().into())?,
+        source: text(biomcp_query::sources::key_name(name).into())?,
         config: text(format!("keys.{}", name.config()))?,
         environment: text(name.environment().into())?,
         header: text(name.header())?,

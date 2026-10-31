@@ -53,3 +53,6 @@ fn conflict(id: &biodata::GtrTestId) -> biomcp_types::Problem {
 
 /// Small read-only publisher probe; never an export or synchronization.
 pub(crate) const HEALTH_PATH: &str = "/data/";
+
+/// Complete source policy and command declaration.
+pub(crate) mod decl;

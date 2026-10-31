@@ -8,19 +8,12 @@ pub(super) fn run(
     encoding: Encoding,
 ) -> io::Result<Outcome> {
     match biomcp_query::sources::sync(fetch, bundle) {
-        Some(result) => {
-            let (result, stale) = match result {
-                Ok((mapped, stale)) => (Ok(mapped), stale),
-                Err(error) => (Err(error), false),
-            };
+        biomcp_query::sources::BundleReply::Standard(result, stale) => {
             finish(bundle, result, stale, encoding)
         }
-        None => finish(
-            bundle,
-            biomcp_query::sources::sync_wikipathways(fetch),
-            false,
-            encoding,
-        ),
+        biomcp_query::sources::BundleReply::WikiPathways(result) => {
+            finish(bundle, result, false, encoding)
+        }
     }
 }
 fn finish<T: biomcp_types::ResponseBody<Query = biomcp_types::SyncQuery>>(

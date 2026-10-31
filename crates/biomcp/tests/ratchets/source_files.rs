@@ -62,7 +62,6 @@ fn source(
     let mut checks = vec![
         super::width(path, text),
         super::adapter_helpers(path, &input),
-        super::source_terms(root, path, &input),
         super::attributes(root, path, &input),
         super::references(root, path, text, &input, sqlite, keys),
     ];

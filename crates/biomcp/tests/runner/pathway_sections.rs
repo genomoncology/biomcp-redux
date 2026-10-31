@@ -35,7 +35,8 @@ fn continuation(value: &Value) -> Result<Option<Vec<String>>, String> {
     value
         .get("next")
         .and_then(Value::as_array)
-        .ok_or("missing next array")?
+        .map(Vec::as_slice)
+        .unwrap_or_default()
         .iter()
         .find(|s| s.get("kind") == Some(&json!("page")))
         .map(|s| {
@@ -153,7 +154,11 @@ fn check_steps(value: &Value, genes: bool) -> Check {
         .pointer("/result/items")
         .and_then(Value::as_array)
         .ok_or("rows")?;
-    let steps = value.get("next").and_then(Value::as_array).ok_or("steps")?;
+    let steps = value
+        .get("next")
+        .and_then(Value::as_array)
+        .map(Vec::as_slice)
+        .unwrap_or_default();
     if genes {
         check_gene_steps(value, rows, steps)
     } else {

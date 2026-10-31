@@ -18,7 +18,7 @@ pub(super) fn sync_step(out: &mut Outcome) {
             StepKind::Sync,
             &[biomcp_types::Source::WikiPathways],
             Action::Sync {
-                bundle: Bundle::WikiPathways,
+                bundle: Bundle::WIKI_PATHWAYS,
             },
         ));
     }

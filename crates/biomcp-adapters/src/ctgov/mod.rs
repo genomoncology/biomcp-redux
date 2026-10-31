@@ -240,3 +240,6 @@ fn alternatives(values: &[Text]) -> String {
 
 mod search_query;
 pub use search_query::search_query;
+
+/// Complete source policy and command declaration.
+pub(crate) mod decl;

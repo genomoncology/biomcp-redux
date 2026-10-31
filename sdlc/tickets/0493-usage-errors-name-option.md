@@ -1,6 +1,7 @@
 # 0493 — Name the missing or bad option in every usage error
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 137247baba494b03088b21a6d27e2656a5fad0bd
 
 Milestone: 5
 

@@ -16,8 +16,14 @@ pub struct Shape {
     pub fields: BTreeMap<String, bool>,
     /// Array or declared count is positive.
     pub positive: BTreeMap<String, bool>,
+    /// Structure exceeded a sampling bound or could not be inspected completely.
+    #[serde(default = "unknown_shape")]
+    pub incomplete: bool,
     /// Bounded tabular header row.
     pub header: Option<String>,
+}
+fn unknown_shape() -> bool {
+    true
 }
 impl Shape {
     /// Inspect structure without retaining text or scalar values.
@@ -26,10 +32,16 @@ impl Shape {
         if media.contains("json") {
             if let Ok(value) = serde_json::from_slice(body) {
                 shape.json(&value, "", 0);
+            } else {
+                shape.incomplete = true;
             }
         } else if media.contains("xml") {
             shape.xml(body);
         } else if media.contains("csv") || media.contains("tab-separated") {
+            shape.incomplete = body
+                .split(|b| *b == b'\n')
+                .next()
+                .is_some_and(|line| line.len() > 4096);
             shape.header = body
                 .split(|b| *b == b'\n')
                 .next()
@@ -52,6 +64,8 @@ impl Shape {
                         .then(|| name.clone());
                     if name.len() <= 128 {
                         self.fields.insert(name, true);
+                    } else {
+                        self.incomplete = true;
                     }
                 }
                 Ok(quick_xml::events::Event::Text(text)) => {
@@ -61,20 +75,27 @@ impl Shape {
                         self.positive.insert(name, value > 0);
                     }
                 }
-                Ok(quick_xml::events::Event::Eof) | Err(_) => break,
+                Ok(quick_xml::events::Event::Eof) => return,
+                Err(_) => {
+                    self.incomplete = true;
+                    return;
+                }
                 Ok(quick_xml::events::Event::End(_)) => count = None,
                 _ => {}
             }
         }
+        self.incomplete = true;
     }
     fn json(&mut self, value: &serde_json::Value, path: &str, depth: usize) {
         if depth >= 8 || path.len() > 256 || self.fields.len() >= FIELDS {
+            self.incomplete = true;
             return;
         }
         match value {
             serde_json::Value::Object(map) => {
                 for (key, value) in map {
                     if key.len() > 128 || self.fields.len() >= FIELDS {
+                        self.incomplete = true;
                         break;
                     }
                     let segment = if key
@@ -100,6 +121,7 @@ impl Shape {
                 }
             }
             serde_json::Value::Array(items) => {
+                self.incomplete |= items.len() > 3;
                 self.positive.insert(path.to_owned(), !items.is_empty());
                 for item in items.iter().take(3) {
                     self.json(item, &format!("{path}/*"), depth + 1);

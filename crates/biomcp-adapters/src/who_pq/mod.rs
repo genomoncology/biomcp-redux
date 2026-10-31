@@ -78,3 +78,6 @@ pub(crate) fn bundle_state(
 ) -> Result<biomcp_types::LocalBundleState, biomcp_fetch::RequestError> {
     SET.state(leg)
 }
+
+/// Complete source policy and command declaration.
+pub(crate) mod decl;

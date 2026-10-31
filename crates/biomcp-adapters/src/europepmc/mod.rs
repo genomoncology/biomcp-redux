@@ -198,3 +198,6 @@ impl Row {
 
 mod query;
 pub use query::search_query;
+
+/// Complete source policy and command declaration.
+pub(crate) mod decl;

@@ -45,3 +45,6 @@ pub fn expression(
     })
     .transpose()
 }
+
+/// Complete source policy and command declaration.
+pub(crate) mod decl;

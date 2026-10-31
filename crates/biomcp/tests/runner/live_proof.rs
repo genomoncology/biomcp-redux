@@ -198,6 +198,17 @@ fn plan() -> Result<(), Box<dyn std::error::Error>> {
         return Err("eligibility list omitted public capture or failure skip".into());
     }
     for name in [
+        "gene/retired.yaml",
+        "drug/label-controls.yaml",
+        "article/litsense/licensed-subset.yaml",
+    ] {
+        if !cases.iter().any(|case| {
+            case.get("case") == Some(&json!(name)) && case.get("skipped").is_some()
+        }) {
+            return Err(format!("recorded-only control entered live checks: {name}").into());
+        }
+    }
+    for name in [
         "mcp/research-search.yaml",
         "mcp/research-fetch.yaml",
         "pathway-sections/examples.yaml",
@@ -373,6 +384,7 @@ fn comparison() -> Result<(), Box<dyn std::error::Error>> {
     {
         return Err("real HTTP status drift hidden".into());
     }
+    witness_proof::sampling(&after)?;
     cache_after_transport(&after)?;
     bounded_command_drift(&after)?;
     report_context(&after)?;

@@ -274,3 +274,6 @@ pub fn get(
     })?;
     Ok((raw.detail(), metadata))
 }
+
+/// Complete source policy and command declaration.
+pub(crate) mod decl;

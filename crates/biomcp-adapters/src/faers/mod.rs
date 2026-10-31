@@ -27,3 +27,6 @@ mod detail_raw;
 
 mod positions;
 pub use positions::Positions;
+
+/// Complete source policy and command declaration.
+pub(crate) mod decl;

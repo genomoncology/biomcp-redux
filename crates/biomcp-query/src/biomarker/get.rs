@@ -35,7 +35,7 @@ pub(crate) fn get(cx: &Ctx<'_>, q: &BiomarkerGet) -> Outcome {
             out.next.push(crate::next::Step::new(
                 StepKind::Key,
                 &[biomcp_types::Source::Nci],
-                Action::KeyHelp(Source::Nci),
+                Action::KeyHelp(biomcp_fetch::SecretName::NciApiKey),
             ));
         }
     }
