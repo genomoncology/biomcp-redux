@@ -5,6 +5,60 @@ use super::{Cache, CacheError, Connection, Duration};
 use crate::{Deadline, deadline::VirtualClock};
 
 #[test]
+#[expect(
+    clippy::disallowed_methods,
+    reason = "Join the sibling SQL probe before releasing its isolated cache"
+)]
+fn discretionary_read_waits_for_sibling_sql() {
+    let directory = tempfile::tempdir().unwrap();
+    let cache = Cache::open_with_owners(&directory.path().join("cache.sqlite"), &[]).unwrap();
+    let owner = cache.0.lock().unwrap();
+    let (started, starting) = std::sync::mpsc::channel();
+    std::thread::scope(|scope| {
+        let reader = scope.spawn(|| {
+            started.send(()).unwrap();
+            cache.try_sql(
+                Deadline::start(Duration::from_secs(5), None),
+                |connection| {
+                    let busy: u64 = connection
+                        .query_row("PRAGMA busy_timeout", [], |row| row.get(0))
+                        .unwrap();
+                    assert_eq!(busy, 0, "external SQLite contention must remain immediate");
+                    Ok(42)
+                },
+            )
+        });
+        starting.recv().unwrap();
+        drop(owner);
+        assert_eq!(reader.join().unwrap(), Ok(42));
+    });
+}
+
+#[test]
+#[expect(
+    clippy::disallowed_types,
+    reason = "Bind the held-lock probe to the command cancellation flag"
+)]
+fn discretionary_read_refuses_expired_or_cancelled_local_wait() {
+    use std::sync::{Arc, atomic::AtomicBool};
+    let directory = tempfile::tempdir().unwrap();
+    let cache = Cache::open_with_owners(&directory.path().join("cache.sqlite"), &[]).unwrap();
+    let _owner = cache.0.lock().unwrap();
+    let cancelled = Arc::new(AtomicBool::new(true));
+    for deadline in [
+        Deadline::start(Duration::ZERO, None),
+        Deadline::start(Duration::from_secs(5), None).with_cancellation(Some(&cancelled)),
+    ] {
+        assert_eq!(
+            cache.try_sql(deadline, |_| -> Result<(), CacheError> {
+                panic!("expired local wait reached SQL")
+            }),
+            Err(CacheError::Busy)
+        );
+    }
+}
+
+#[test]
 fn replay_admission_preserves_rows_under_an_external_writer() {
     let directory = tempfile::tempdir().unwrap();
     let path = directory.path().join("cache.sqlite");
