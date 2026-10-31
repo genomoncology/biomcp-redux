@@ -91,6 +91,12 @@ fn check(owner: &Owner) -> Result<(), String> {
             .map_err(|error| format!("{} {control} call {}: {error}", owner.name, index + 1))?;
         }
         let requests = stub.finish()?;
+        if let Some(transcript) = transcript::current() {
+            transcript.record(
+                &format!("cache/{}/{control}/requests", owner.name),
+                serde_json::to_value(&requests).map_err(|error| error.to_string())?,
+            )?;
+        }
         let received = requests
             .iter()
             .filter(|(_, request)| request.lines().next() == Some(target.as_str()))
