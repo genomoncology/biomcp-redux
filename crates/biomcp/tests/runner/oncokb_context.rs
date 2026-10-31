@@ -69,6 +69,9 @@ fn run() -> Result<(), String> {
     }
     oncokb::invoke(&env, &["help", "get", "variant"].map(str::to_owned), 0)?;
     let requests = stub.finish()?;
+    if let Some(context) = super::transcript::current() {
+        context.record("cache/variant-oncokb/all/requests", json!(requests))?;
+    }
     let added = component_requests(&requests)?;
     if requests
         .iter()
