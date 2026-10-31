@@ -16,7 +16,7 @@ def document(execution):
         if isinstance(value, dict) and value.get('jsonrpc') == '2.0':
             value = value.get('result', {}).get('structuredContent')
         return value if isinstance(value, dict) else {}
-    except (ValueError, TypeError, KeyError):
+    except (ValueError, TypeError, KeyError, AttributeError):
         return {}
 
 
@@ -46,11 +46,13 @@ def accepted_sync(execution, value, mcp_arguments):
     # This Document catalog cannot revalidate with 304: download passes old=None.
     # One CLI command / MCP frame has no prior Fetch-local replay import to reuse.
     # Other sources and unsupported launch syntax receive no event declaration.
-    return (captured_command(args, ['sync', 'cbioportal-studies'])
+    query, sources = value.get('query'), value.get('sources')
+    return (isinstance(query, dict) and isinstance(sources, list)
+            and captured_command(args, ['sync', 'cbioportal-studies'])
             and execution['exit'] == 0 and value.get('schema') == 'biomcp.sync/7'
-            and value.get('query', {}).get('source') == 'cbioportal'
-            and any(source.get('source') == 'cbioportal' and source.get('state') == 'ok'
-                    for source in value.get('sources', [])))
+            and query.get('source') == 'cbioportal'
+            and any(isinstance(source, dict) and source.get('source') == 'cbioportal' and source.get('state') == 'ok'
+                    for source in sources))
 
 
 def acquisition_events(records, owner, mcp_arguments):
