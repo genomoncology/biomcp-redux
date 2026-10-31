@@ -49,7 +49,10 @@ fn discovery() -> Check {
 fn call(server: &Server, args: &[&str], extra: &str, extra_argument: bool) -> Check<Value> {
     let mut arguments = json!({"args":args});
     if extra_argument {
-        arguments["ncbi_api_key"] = json!(CALLER);
+        arguments
+            .as_object_mut()
+            .ok_or("arguments object")?
+            .insert("ncbi_api_key".into(), json!(CALLER));
     }
     let frame = json!({"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"biomcp","arguments":arguments}});
     let headers = format!(
