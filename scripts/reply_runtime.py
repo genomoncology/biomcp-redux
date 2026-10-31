@@ -345,18 +345,30 @@ def align(base, head, normalize, bindings=None, owned=None):
                     separators=(',', ':')).encode()).hexdigest() == parts[1]
                     for e in record['executions']))
     unmatched = (base.keys() - head.keys(), head.keys() - base.keys())
-    candidates = {}
-    for key in unmatched[1]:
-        if valid_hash(key, head[key]):
-            candidates.setdefault(signature(key, head[key], 1), []).append(key)
     aliases = {}
-    for key in unmatched[0]:
-        if not valid_hash(key, base[key]):
-            continue
-        matches = candidates.get(signature(key, base[key], 0), [])
-        if len(matches) == 1:
-            target = matches.pop()
-            aliases[key] = target
+    while True:
+        candidates = {}
+        for key in sorted(unmatched[1]):
+            if valid_hash(key, head[key]):
+                candidates.setdefault(signature(key, head[key], 1), []).append(key)
+        newly_paired = {}
+        for key in sorted(unmatched[0]):
+            if not valid_hash(key, base[key]):
+                continue
+            matches = candidates.get(signature(key, base[key], 0), [])
+            if len(matches) == 1:
+                newly_paired[key] = matches.pop()
+        if not newly_paired:
+            break
+        # An aligned reply may declare the token needed by a later request.
+        # Every round consumes complete unique pairs; unproven values stay literal.
+        for key, target in newly_paired.items():
+            for i, (a, b) in enumerate(zip(base[key]['executions'], head[target]['executions'])):
+                declared = [context_roots(r, k, i) for r, k in zip(roots, (key, target))]
+                pair(a, b, owner(key), bindings, declared, normalize)
+        aliases.update(newly_paired)
+        unmatched = (unmatched[0] - newly_paired.keys(),
+                     unmatched[1] - set(newly_paired.values()))
     return roots, aliases
 
 
