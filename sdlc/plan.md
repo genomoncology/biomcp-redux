@@ -54,6 +54,7 @@ Robustness and public-text fixes come first, because the parity run, the docs an
 ### 6. Rehearse and release
 
 - Test against public data before the cut: parse every CIViC and ClinVar record into 1.0 values (0460) and turn real user queries into cases (0461).
+- Only 0459 lists the code tickets that must land before the cut, and 0336 depends on 0459, so a new must-ship code ticket goes on 0459's Depends line alone.
 - Switch to the extracted BioData 1.0 crate once every code ticket lands, with an empty reply diff and an unchanged schema comparison (0459).
 - Cut the release candidate from main once every ticket above lands (0336).
 
