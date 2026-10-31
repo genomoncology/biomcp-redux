@@ -6,6 +6,7 @@
     "sdlc/tickets/*.md",
     "sdlc/decisions/*.md",
     "sdlc/records/*.md",
+    "sdlc/data/*.md",
     "ROADMAP.md"
   ],
   "mailroom": {
