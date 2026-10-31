@@ -12,6 +12,7 @@ use biomcp_fetch::{
     xml::{MixedText, XmlReply},
 };
 use std::{thread, time::Duration};
+use support::Answer as JsonAnswer;
 type Server = support::Server;
 #[derive(Debug, serde::Deserialize)]
 struct Answer {
@@ -314,11 +315,7 @@ fn xml_cache_codec_invalid_entries_and_stale_fallback_remain_checked() {
         let worker = scope.spawn(|| {
             fetch
                 .leg(spec, fetch.deadline(Duration::from_secs(10)))
-                .call(
-                    &endpoint,
-                    Input::Params(&[]),
-                    Read::<support::Answer>::json(),
-                )
+                .call(&endpoint, Input::Params(&[]), Read::<JsonAnswer>::json())
                 .map(|received| received.value)
         });
         server.next().ok();
@@ -423,7 +420,7 @@ fn ordinary_xml_replies_use_default_serde_decoding() {
                 .call(
                     &spec.get("/plain"),
                     Input::Params(&[]),
-                    Read::<support::Answer>::xml(),
+                    Read::<JsonAnswer>::xml(),
                 )
                 .map(|received| received.value)
         });
