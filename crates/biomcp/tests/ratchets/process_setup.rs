@@ -2,6 +2,10 @@
 use super::{Check, rust_files, source::tokens};
 use std::{fs, path::Path};
 
+// Only key set/remove may reread configuration under their existing write lock.
+// This persistence owner preserves concurrent edits and the user's JSON field order.
+const KEY_WRITE_OWNER: &str = "config/key_file.rs";
+
 pub(super) fn check(root: &Path) -> Check {
     let source = root.join("crates/biomcp/src");
     for path in rust_files(&source)? {
@@ -27,6 +31,15 @@ fn placement(path: &str, text: &str) -> Check {
     let setup = matches!(path, "main.rs" | "mcp.rs" | "mcp/http.rs");
     let mut import = false;
     for (index, name) in input.iter().enumerate() {
+        if name == "key_file"
+            && path != "keys.rs"
+            && path != KEY_WRITE_OWNER
+            && input
+                .get(index.wrapping_sub(1))
+                .is_none_or(|word| word != "mod")
+        {
+            return Err(format!("{path}: only key writes may use {KEY_WRITE_OWNER}").into());
+        }
         match name.as_str() {
             "use" => import = true,
             ";" => import = false,
@@ -112,6 +125,8 @@ fn reject_config_reads_and_tree_builds_in_commands() -> Check {
         "use crate::grammar as syntax; use syntax::*; let build = root; build()?;",
         "use crate::config::file::*; let load = read_file; load(None)?;",
         "#[cfg(test)]\nmod tests {} fn command() { crate::grammar::root(); }",
+        "crate::config::key_file::read(path)?;",
+        "use crate::config::key_file as persistence; persistence::read(path)?;",
     ] {
         assert!(placement("command/planted.rs", text).is_err(), "{text}");
     }
@@ -122,6 +137,10 @@ fn reject_config_reads_and_tree_builds_in_commands() -> Check {
     placement(
         "mcp/http/call.rs",
         "#[cfg(test)] mod tests { fn fixture() { crate::grammar::root(); } }",
+    )?;
+    placement(
+        "keys.rs",
+        "let lock = config::key_file::lock(path)?; config::key_file::read(path)?;",
     )?;
     Ok(())
 }
