@@ -193,17 +193,26 @@ fn source_outcomes_require_registry_terms() -> Check {
 #[test]
 fn source_registry_accepts_directory_and_file_modules_and_names_missing_entry() -> Check {
     let tree = tree()?;
+    let dispatcher = "Source::Directory => &crate::directory::decl::DECL, Source::Single => &crate::single_file::decl::DECL,";
     put(
         tree.path(),
-        "crates/biomcp-adapters/src/registry.rs",
-        "&crate::directory::SPEC, &crate::single_file::SPEC",
+        "crates/biomcp-adapters/src/decl.rs",
+        dispatcher,
     )?;
     let declaration = r#"SourceSpec { terms: Terms { name: "Publisher", url: "https://example.org/terms", usage: Open } }"#;
-    for path in ["directory/mod.rs", "single_file.rs"] {
+    for (path, owner) in [
+        ("directory/mod.rs", "directory"),
+        ("single_file.rs", "single_file"),
+    ] {
         put(
             tree.path(),
             &format!("crates/biomcp-adapters/src/{path}"),
             &format!("pub static SPEC: SourceSpec = {declaration};"),
+        )?;
+        put(
+            tree.path(),
+            &format!("crates/biomcp-adapters/src/{owner}/decl.rs"),
+            "pub static DECL: SourceDecl = SourceDecl { spec: &super::SPEC, auxiliary: &[] };",
         )?;
     }
     check(tree.path())?;
@@ -215,7 +224,7 @@ fn source_registry_accepts_directory_and_file_modules_and_names_missing_entry() 
     )?;
     let failure = check(tree.path())
         .err()
-        .ok_or("unregistered auxiliary source accepted")?
+        .ok_or("undeclared auxiliary source accepted")?
         .to_string();
     assert!(
         failure.contains("&crate::directory::other::EXTRA"),
@@ -223,20 +232,20 @@ fn source_registry_accepts_directory_and_file_modules_and_names_missing_entry() 
     );
     put(
         tree.path(),
-        "crates/biomcp-adapters/src/registry.rs",
-        "&crate::directory::SPEC, &crate::single_file::SPEC, &crate::directory::other::EXTRA",
+        "crates/biomcp-adapters/src/directory/decl.rs",
+        "pub static DECL: SourceDecl = SourceDecl { spec: &super::SPEC, auxiliary: &[&crate::directory::other::EXTRA] };",
     )?;
     check(tree.path())?;
     put(
         tree.path(),
         auxiliary,
         &format!(
-            "pub static EXTRA: SourceSpec = {declaration};\nfn hidden() {{\n    let other = {declaration};\n}}\n"
+            "pub static EXTRA: SourceSpec = {declaration};\nfn hidden() {{ let other = {declaration}; }}"
         ),
     )?;
     let failure = check(tree.path())
         .err()
-        .ok_or("dynamic source escaped the registry")?
+        .ok_or("dynamic source policy accepted")?
         .to_string();
     assert!(
         failure.contains("source declarations require named statics"),
@@ -247,18 +256,49 @@ fn source_registry_accepts_directory_and_file_modules_and_names_missing_entry() 
         auxiliary,
         &format!("pub static EXTRA: SourceSpec = {declaration};"),
     )?;
-    let path = "crates/biomcp-adapters/src/missing.rs";
     put(
         tree.path(),
-        path,
+        "crates/biomcp-adapters/src/missing.rs",
         &format!("pub static SPEC: SourceSpec = {declaration};"),
     )?;
     let failure = check(tree.path())
         .err()
-        .ok_or("unregistered single-file source accepted")?
+        .ok_or("undeclared single-file source accepted")?
         .to_string();
-    assert!(failure.contains(path), "{failure}");
+    assert!(failure.contains("missing.rs"), "{failure}");
     assert!(failure.contains("&crate::missing::SPEC"), "{failure}");
+    Ok(())
+}
+
+#[test]
+fn source_declaration_rejects_wrong_source_and_missing_dispatch() -> Check {
+    let tree = tree()?;
+    put(
+        tree.path(),
+        "crates/biomcp-adapters/src/decl.rs",
+        "Source::Hgnc => &crate::hgnc::decl::DECL,",
+    )?;
+    put(
+        tree.path(),
+        "crates/biomcp-adapters/src/hgnc/mod.rs",
+        r#"pub static SPEC: SourceSpec = SourceSpec { source: Source::MyGene, terms: Terms { name: "Publisher", url: "https://example.org/terms", usage: Open } };"#,
+    )?;
+    put(
+        tree.path(),
+        "crates/biomcp-adapters/src/hgnc/decl.rs",
+        "pub static DECL: SourceDecl = SourceDecl { spec: &super::SPEC, auxiliary: &[] };",
+    )?;
+    let failure = check(tree.path())
+        .err()
+        .ok_or("wrong source policy accepted")?
+        .to_string();
+    assert!(failure.contains("wrong source"), "{failure}");
+    put(tree.path(), "crates/biomcp-adapters/src/decl.rs", "")?;
+    let failure = check(tree.path())
+        .err()
+        .ok_or("undispatched source accepted")?
+        .to_string();
+    assert!(failure.contains("must appear in decl(source)"), "{failure}");
     Ok(())
 }
 
