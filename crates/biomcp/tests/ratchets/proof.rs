@@ -583,3 +583,8 @@ fn only_owned_private_refusal_defaults_bypass_native_ceiling() -> Check {
 fn structural_diagnostics_keep_independent_categories() -> Check {
     super::proof_support::independent_structural_failures()
 }
+
+#[test]
+fn adapter_mapping_helpers_require_one_owner() -> Check {
+    helper_owner_proof::check()
+}

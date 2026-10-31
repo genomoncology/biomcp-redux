@@ -1,8 +1,7 @@
 //! Copied mapping and protocol helpers fail the source ownership contract.
 use super::{Check, rejects};
 
-#[test]
-fn adapter_mapping_helpers_require_one_owner() -> Check {
+pub(super) fn check() -> Check {
     for declaration in [
         "fn bad() {}",
         "fn bad_reply() {}",

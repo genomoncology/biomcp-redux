@@ -124,8 +124,16 @@ fn invalid_report_key() -> Result<(), Box<dyn std::error::Error>> {
         "adverse-event/maude-filters-synthetic",
         |source, record| {
             if source == "maude" {
-                for exchange in record["exchanges"].as_array_mut().into_iter().flatten() {
-                    exchange["body"]["value"]["results"][0]["mdr_report_key"] = json!("160x");
+                for exchange in record
+                    .get_mut("exchanges")
+                    .and_then(Value::as_array_mut)
+                    .into_iter()
+                    .flatten()
+                {
+                    if let Some(key) = exchange.pointer_mut("/body/value/results/0/mdr_report_key")
+                    {
+                        *key = json!("160x");
+                    }
                 }
             }
         },
