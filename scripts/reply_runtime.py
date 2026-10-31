@@ -1,10 +1,25 @@
 """Bind declared runtime values across one complete pair of captures."""
 import hashlib
 import json
+import re
 
 
 def owner(key):
-    return key.rsplit('/step/', 1)[0] if key.startswith('case/') else '/'.join(key.split('/')[:3])
+    if isinstance(key, str):
+        if key.startswith('case/'):
+            parts = key.rsplit('/step/', 1)
+            if len(parts) == 2 and re.fullmatch(r'0|[1-9][0-9]*', parts[1]):
+                name = parts[0]
+                if all(p not in ('', '.', '..') for p in name.split('/')[1:]):
+                    return name
+        elif key.startswith('trial/'):
+            parts = key.rsplit('/', 2)
+            if (len(parts) == 3 and re.fullmatch(r'[0-9a-f]{64}', parts[1])
+                    and re.fullmatch(r'0|[1-9][0-9]*', parts[2])
+                    and parts[0].startswith('trial/')
+                    and all(p not in ('', '.', '..') for p in parts[0].split('/')[1:])):
+                return parts[0]
+    raise ValueError('invalid transcript key')
 
 
 class Bindings:
@@ -19,19 +34,27 @@ class Bindings:
             raise ValueError(f'inconsistent runtime binding: {kind}')
         return '<runtime>'
 
-    def values(self, left, right, scope, path=(), encoded=(), clocks=True):
+    def values(self, left, right, scope, path=(), encoded=(), clocks=True, catalog=None):
         """Return only authorized scalar substitutions, indexed by JSON path."""
         changes = ({}, {})
+        def envelope(value):
+            if isinstance(value, dict) and value.get('jsonrpc') == '2.0':
+                result = value.get('result')
+                value = result.get('structuredContent') if isinstance(result, dict) else None
+            return value if isinstance(value, dict) else {}
+        documents = [envelope(value) for value in (left, right)]
+        def schema(prefix):
+            return all(str(value.get('schema', '')).startswith(prefix) for value in documents)
         def put(p, a, b, kind):
             if type(a) is not type(b):
                 return
             self.bind(kind, a, b)
             changes[0][p] = changes[1][p] = '<runtime>'
         def visit(a, b, p):
+            position = p[len(path):]
+            if position[:2] == ('result', 'structuredContent'):
+                position = position[2:]
             if isinstance(a, dict) and isinstance(b, dict):
-                position = p[len(path):]
-                if position[:2] == ('result', 'structuredContent'):
-                    position = position[2:]
                 fetched = (position == ('result',)
                            or (position[:2] == ('result', 'items') and len(position) in (3, 4)
                                and isinstance(position[2], int)
@@ -45,9 +68,9 @@ class Bindings:
                         raise ValueError('changed pool lifetime')
                     for index, value in enumerate((a, b)):
                         pool_clocks = (value['created'], value['expires'])
-                        if self.pools[index].setdefault(value['id'], pool_clocks) != pool_clocks:
+                        if self.pools[index].setdefault((scope, value['id']), pool_clocks) != pool_clocks:
                             raise ValueError('inconsistent pool clocks')
-                    put(p + ('id',), a['id'], b['id'], 'pool')
+                    put(p + ('id',), a['id'], b['id'], (scope, 'pool'))
                     for k in ('created', 'expires'):
                         changes[0][p + (k,)] = changes[1][p + (k,)] = '<runtime>'
                 for k in a.keys() & b.keys():
@@ -57,20 +80,48 @@ class Bindings:
                     if clocks and ((k == 'fetched' and fetched)
                                    or (k == 'acquired' and position == ('result', 'snapshot'))):
                         if type(a[k]) is int and type(b[k]) is int:
-                            put(child, a[k], b[k], (scope, k))
+                            kind = (scope, k)
+                            if k == 'acquired':
+                                if (not catalog or not all(catalog) or not isinstance(a.get('revision'), str)
+                                        or a.get('revision') != b.get('revision')):
+                                    continue
+                                self.bind((scope, 'catalog-root'), *catalog)
+                                kind += (catalog[0], a['revision'])
+                            put(child, a[k], b[k], kind)
                     elif (k == 'pool' and position[-1:] == ('query',)
                           and isinstance(a[k], str) and isinstance(b[k], str)):
-                        put(child, a[k], b[k], 'pool')
+                        if (((scope, 'pool'), a[k]) in self.forward
+                                or ((scope, 'pool'), b[k]) in self.reverse):
+                            put(child, a[k], b[k], (scope, 'pool'))
+                    elif (k == 'pool' and schema('biomcp.trial-cards/') and len(position) == 7
+                          and position[:2] == ('result', 'items') and isinstance(position[2], int)
+                          and position[3] == 'sections' and position[5:] == ('data', 'continuation')
+                          and isinstance(a[k], str) and isinstance(b[k], str)):
+                        put(child, a[k], b[k], (scope, 'pool'))
+                    elif (k == 'snapshot' and position == ('query',)
+                          and isinstance(a[k], str) and isinstance(b[k], str)
+                          and ((scope, 'snapshot'), a[k]) in self.forward):
+                        put(child, a[k], b[k], (scope, 'snapshot'))
                     else:
                         visit(a[k], b[k], child)
             elif isinstance(a, list) and isinstance(b, list):
                 argv = (not p or p == ('params', 'arguments', 'args')
-                        or (len(p) >= 3 and p[-3] == 'next'
-                            and isinstance(p[-2], int) and p[-1] == 'args'))
+                        or (len(position) == 3 and position[0] == 'next'
+                            and isinstance(position[1], int) and position[2] == 'args'))
                 for i, (x, y) in enumerate(zip(a, b)):
                     if (argv and i and a[i-1] == b[i-1] == '--pool'
                             and isinstance(x, str) and isinstance(y, str)):
-                        put(p + (i,), x, y, 'pool')
+                        if (len(position) == 3 and position[0] == 'next'
+                                or ((scope, 'pool'), x) in self.forward
+                                or ((scope, 'pool'), y) in self.reverse):
+                            put(p + (i,), x, y, (scope, 'pool'))
+                    elif (argv and i and a[i-1] == b[i-1] == '--snapshot'
+                          and isinstance(x, str) and isinstance(y, str)):
+                        # Phenotype section steps own opaque retained source snapshots.
+                        declared = (len(position) == 3 and position[0] == 'next'
+                                    and schema('biomcp.phenotype-card/'))
+                        if declared or ((scope, 'snapshot'), x) in self.forward:
+                            put(p + (i,), x, y, (scope, 'snapshot'))
                     else:
                         visit(x, y, p + (i,))
             elif p in encoded and isinstance(a, str) and isinstance(b, str):
@@ -80,7 +131,7 @@ class Bindings:
                     return
                 # MCP embeds complete JSON replies inside text content.
                 if isinstance(aa, (dict, list)) and isinstance(bb, (dict, list)):
-                    nested = self.values(aa, bb, scope, p, clocks=clocks)
+                    nested = self.values(aa, bb, scope, p, clocks=clocks, catalog=catalog)
                     for index in range(2):
                         if nested[index]:
                             changes[index][p] = nested[index]
@@ -151,40 +202,87 @@ def rewrite(text, changes, path=(), spans=False):
     return text
 
 
+def context_roots(roots, key, index):
+    return dict(roots.get(owner(key), {}), **roots.get((key, index), {}))
+
+
 def record_roots(records):
     roots = {}
+    recordings = {}
     for key, record in records.items():
         for execution in record['executions']:
             args = execution['args']
+            if (execution.get('root') and execution['exit'] == 0
+                    and args.count('--record') == 1
+                    and args.index('--record') + 1 < len(args)
+                    and ('--' not in args or args.index('--') > args.index('--record'))):
+                recordings.setdefault((owner(key), execution['root']), set()).add(
+                    args[args.index('--record') + 1])
             for flag in ('--record', '--replay'):
                 if flag in args:
                     value = args[args.index(flag) + 1]
                     root = execution.get('root', '')
                     if root and value.startswith(root + '/'):
                         roots.setdefault(owner(key), {})[value] = value[len(root):]
+    for key, record in records.items():
+        for index, execution in enumerate(record['executions']):
+            if 'replay_owner_root' not in execution:
+                continue
+            root, args = execution['replay_owner_root'], execution['args']
+            if (not isinstance(root, str) or not root.startswith('/')
+                    or any(part in ('', '.', '..') for part in root.split('/')[1:])):
+                raise ValueError('invalid captured replay owner root')
+            if (args.count('--replay') != 1 or args.index('--replay') + 1 >= len(args)
+                    or ('--' in args and args.index('--') < args.index('--replay'))):
+                raise ValueError('captured replay owner requires one effective replay argument')
+            path = args[args.index('--replay') + 1]
+            if path not in (root + '/recordings', root + '/all'):
+                raise ValueError('replay argument is outside its captured owner')
+            if path == root + '/all':
+                inputs = recordings.get((owner(key), root), set())
+                if not {root + '/first', root + '/second'} <= inputs:
+                    raise ValueError('combined replay lacks successful owned recording inputs')
+            roots[key, index] = {
+                path: {'owner_root': root, 'relative': path[len(root):]}}
     return roots
 
 
 def declared_args(execution, roots):
     args = execution['args']
     result = []
-    for arg in args:
+    for i, arg in enumerate(args):
         for path, name in roots.items():
             # A declared record directory may be passed by another isolated process.
-            if arg == path:
+            if isinstance(name, dict):
+                if i and args[i - 1] == '--replay' and arg == path:
+                    arg = '<owned-replay>' + name['relative']
+            elif arg == path:
                 arg = '<record-root>' + name
         result.append(arg)
     return result
 
 
-def align(base, head, normalize):
-    """Alias changed trial hashes only through their declared record path arguments."""
+def align(base, head, normalize, bindings=None):
+    """Alias changed trial hashes through declared paths and bound opaque IDs."""
     roots = (record_roots(base), record_roots(head))
+    bindings = bindings if bindings is not None else Bindings()
+    # Shared capture keys declare runtime IDs before hashed requests are aligned.
+    for key in sorted(base.keys() & head.keys()):
+        for i, (a, b) in enumerate(zip(base[key]['executions'], head[key]['executions'])):
+            declared = [context_roots(r, key, i) for r in roots]
+            pair(a, b, owner(key), bindings, declared, normalize)
     def signature(key, record, index):
         values = []
-        for e in record['executions']:
-            n = normalize(dict(e, args=declared_args(e, roots[index].get(owner(key), {}))))
-            values.append({k: n[k] for k in ('args', 'surface', 'exit')})
+        for i, e in enumerate(record['executions']):
+            n = normalize(dict(e, args=declared_args(e, context_roots(roots[index], key, i))))
+            for i, arg in enumerate(n['args']):
+                if i and n['args'][i-1] in ('--pool', '--snapshot'):
+                    kind = (owner(key), n['args'][i-1][2:])
+                    if index == 0 and (kind, arg) in bindings.forward:
+                        n['args'][i] = '<bound>/' + arg
+                    elif index == 1 and (kind, arg) in bindings.reverse:
+                        n['args'][i] = '<bound>/' + bindings.reverse[kind, arg]
+            values.append({k: n[k] for k in ('args', 'surface')})
         return owner(key), key.rsplit('/', 1)[-1], json.dumps(values, sort_keys=True)
     def valid_hash(key, record):
         parts = key.rsplit('/', 2)
@@ -200,22 +298,38 @@ def align(base, head, normalize):
                     separators=(',', ':')).encode()).hexdigest() == parts[1]
                     for e in record['executions']))
     unmatched = (base.keys() - head.keys(), head.keys() - base.keys())
-    candidates = {}
-    for key in unmatched[1]:
-        if owner(key) in roots[1] and valid_hash(key, head[key]):
-            candidates.setdefault(signature(key, head[key], 1), []).append(key)
     aliases = {}
-    for key in unmatched[0]:
-        if owner(key) not in roots[0] or not valid_hash(key, base[key]):
-            continue
-        matches = candidates.get(signature(key, base[key], 0), [])
-        if len(matches) == 1:
-            target = matches.pop()
-            aliases[key] = target
+    while True:
+        candidates = {}
+        for key in sorted(unmatched[1]):
+            if valid_hash(key, head[key]):
+                candidates.setdefault(signature(key, head[key], 1), []).append(key)
+        newly_paired = {}
+        for key in sorted(unmatched[0]):
+            if not valid_hash(key, base[key]):
+                continue
+            matches = candidates.get(signature(key, base[key], 0), [])
+            if len(matches) == 1:
+                newly_paired[key] = matches.pop()
+        if not newly_paired:
+            break
+        # An aligned reply may declare the token needed by a later request.
+        # Every round consumes complete unique pairs; unproven values stay literal.
+        for key, target in newly_paired.items():
+            for i, (a, b) in enumerate(zip(base[key]['executions'], head[target]['executions'])):
+                declared = [context_roots(r, k, i) for r, k in zip(roots, (key, target))]
+                pair(a, b, owner(key), bindings, declared, normalize)
+        aliases.update(newly_paired)
+        unmatched = (unmatched[0] - newly_paired.keys(),
+                     unmatched[1] - set(newly_paired.values()))
     return roots, aliases
 
 
 def pair(left, right, scope, bindings, roots, normalize):
+    owned = [[value['owner_root'] for value in declared.values() if isinstance(value, dict)]
+             for declared in roots]
+    if all(len(values) == 1 for values in owned):
+        bindings.bind((scope, 'replay-owner-root'), owned[0][0], owned[1][0])
     a, b = [normalize(dict(e, args=declared_args(e, declared)))
             for e, declared in zip((left, right), roots)]
     args = bindings.values(a['args'], b['args'], scope, clocks=False)
@@ -269,7 +383,13 @@ def pair(left, right, scope, bindings, roots, normalize):
                     pass
         return paths
     encoded = embedded(values[0], left) & embedded(values[1], right)
-    changes = bindings.values(*values, scope, encoded=encoded)
+    def catalog_root(execution):
+        args = execution['args']
+        if args.count('--case-cache') == 1 and args.index('--case-cache') + 1 < len(args):
+            return args[args.index('--case-cache') + 1]
+        return execution.get('root')
+    changes = bindings.values(*values, scope, encoded=encoded,
+                              catalog=tuple(catalog_root(e) for e in (left, right)))
     # Saved paths are owned only when the literal destination was declared.
     for index, execution in enumerate((left, right)):
         args = execution['args']

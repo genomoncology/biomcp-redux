@@ -6,7 +6,7 @@ import re
 import shlex
 import sys
 
-from reply_runtime import Bindings, align, owner, pair
+from reply_runtime import Bindings, align, context_roots, owner, pair
 
 
 def load(directory):
@@ -21,6 +21,7 @@ def load(directory):
                 uncaptured.append(record["name"])
             continue
         key = record["key"]
+        owner(key)
         if key in records:
             raise ValueError(f"duplicate transcript key: {key}")
         records[key] = record
@@ -106,7 +107,7 @@ def main():
         print("usage: reply_diff.py BASE HEAD", file=sys.stderr)
         return 2
     try:
-        (base, base_missing), (head, head_missing) = (load(d) for d in sys.argv[1:])
+        (base, base_missing), (head, head_missing) = (load(d) for d in sys.argv[1:3])
         for label, missing in (("BASE", base_missing), ("HEAD", head_missing)):
             if missing:
                 print(f"{label} uncaptured trials ({len(missing)}):", file=sys.stderr)
@@ -114,24 +115,26 @@ def main():
                     print(f"  {name}", file=sys.stderr)
         if not base or not head:
             raise ValueError("comparison requires captured steps in both sets")
-        roots, aliases = align(base, head, normalize)
-        paired = {}
         bindings = Bindings()
+        roots, aliases = align(base, head, normalize, bindings)
+        paired = {}
         for key in sorted(base.keys() & head.keys() | aliases.keys()):
             target = aliases.get(key, key)
             a, b = base[key]["executions"], head[target]["executions"]
-            declared = [r.get(owner(key), {}) for r in roots]
             # Collect every declaration before comparing references and Markdown.
-            for x, y in zip(a, b):
+            for i, (x, y) in enumerate(zip(a, b)):
+                declared = [context_roots(r, k, i) for r, k in zip(roots, (key, target))]
                 pair(x, y, owner(key), bindings, declared, normalize)
-            paired[key] = (a, b, declared)
+            paired[key] = (a, b)
         differences = 0
         for key in sorted(base.keys() | (head.keys() - set(aliases.values()))):
             location = ("/ missing in " + ("HEAD" if key in base else "BASE")
                         if key not in paired
                         else pointer(*[list(values) for values in zip(*[
-                            pair(x, y, owner(key), bindings, paired[key][2], normalize)
-                            for x, y in zip(*paired[key][:2])])]))
+                            pair(x, y, owner(key), bindings,
+                                 [context_roots(r, k, i) for r, k in zip(roots, (key, aliases.get(key, key)))],
+                                 normalize)
+                            for i, (x, y) in enumerate(zip(*paired[key]))])]))
             if key in paired and len(paired[key][0]) != len(paired[key][1]):
                 location = "/executions/length"
             if location:
