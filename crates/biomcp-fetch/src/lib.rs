@@ -29,6 +29,7 @@ pub use hosts::Destinations;
 mod error;
 mod network;
 mod prepared;
+mod privacy;
 mod tls;
 pub use network::{Certificates, Network};
 mod json_request;
@@ -156,6 +157,7 @@ impl Default for FetchConfig {
 #[derive(Clone)]
 pub struct Fetch {
     secrets: std::sync::Arc<Secrets>,
+    hosted: bool,
     agents: std::sync::Arc<network::Agents>,
     grpc_worker: std::sync::Arc<grpc::Worker>,
     cancelled: Option<std::sync::Arc<std::sync::atomic::AtomicBool>>,
@@ -220,6 +222,7 @@ impl Fetch {
             matches!(config.mode, Mode::Replay { .. }).then(deadline::VirtualClock::default);
         Ok(Self {
             secrets: std::sync::Arc::new(std::mem::take(&mut config.secrets)),
+            hosted: false,
             agents: std::sync::Arc::new(agents),
             grpc_worker,
             cancelled: None,

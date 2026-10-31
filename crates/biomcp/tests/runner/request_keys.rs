@@ -102,7 +102,12 @@ fn discovery() -> Check {
     }
     Ok(())
 }
-fn call(server: &Server, args: &[&str], extra: &str, extra_argument: bool) -> Check<Value> {
+pub(super) fn call(
+    server: &Server,
+    args: &[&str],
+    extra: &str,
+    extra_argument: bool,
+) -> Check<Value> {
     let mut arguments = json!({"args":args});
     if extra_argument {
         arguments
