@@ -46,7 +46,9 @@ fn recovery() -> Check {
             String::new()
         };
         let reply = call(&server, &args, &extra, false)?;
-        let content = &reply["result"]["structuredContent"];
+        let content = reply
+            .pointer("/result/structuredContent")
+            .ok_or("missing recovery content")?;
         if supplied {
             if content.get("error").is_some()
                 || !content["sources"].as_array().is_some_and(|sources| {
