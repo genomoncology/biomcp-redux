@@ -1,77 +1,76 @@
-//! Variant sections share an absolute replay deadline without adding sibling delays.
-use super::super::{launch::Environment, response_cases::copy_capture};
-use biomcp_fetch::{Fetch, FetchConfig, Mode};
+//! Independent source requests rendezvous before either section reply is released.
+use super::super::{launch::Environment, network_stub};
+use biomcp_fetch::{Certificates, Fetch, FetchConfig, Network, Secret};
 use biomcp_types::{Request, VariantGet, VariantResolver, VariantSection};
 use serde_json::Value;
 use std::time::Duration;
+mod peer;
 
 pub(super) fn check() -> Result<(), Box<dyn std::error::Error>> {
     let env = Environment::new()?;
-    let replay = env.root().join("replay");
-    let delay = Duration::from_millis(600);
-    let budget = Duration::from_secs(1);
-    let mut delayed = 0;
-    copy_capture("variant/synthetic-components", &replay, |_, record| {
-        let url = record.get("url").and_then(Value::as_str).unwrap_or("");
-        let section = url.contains("chr7%3Ag.140453136A%3ET?")
-            && (url.contains("cadd.phred") || url.contains("dbnsfp.gerp"));
-        if section {
-            delayed += 1;
-        }
-        if let Some(exchanges) = record.get_mut("exchanges").and_then(Value::as_array_mut) {
-            for exchange in exchanges {
-                exchange["delay_ms"] = if section { delay.as_millis() as u64 } else { 0 }.into();
-            }
-        }
-    })?;
-    if delayed != 2 || delay >= budget || delay + delay <= budget {
-        return Err("replay must delay exactly two sections that fit only as siblings".into());
-    }
-    super::super::network_stub::retain_replay_owner(env.shared_root().as_ref())?;
+    let inputs = env.root().join("replay");
+    let peer = peer::Peer::start(&inputs)?;
+    let network = Network::new(
+        None,
+        Some(Secret::new(format!("http://{}", peer.address))),
+        "",
+        Certificates::from_pem(peer.certificate.as_bytes())?,
+    )?;
     let fetch = Fetch::open(FetchConfig {
-        mode: Mode::Replay { dir: replay },
+        network,
         ..FetchConfig::default()
     })?;
     let query = VariantGet::new(
-        "chr7:g.140453136A>T".parse()?,
+        "chr7:g.140753336A>T".parse()?,
         VariantResolver::Car,
-        Some(biodata::Build::GRCh37),
+        Some(biodata::Build::GRCh38),
     )?
-    // Request order differs from declaration order, which must still be retained.
     .with_sections(Box::new([
-        VariantSection::Conservation,
-        VariantSection::Predict,
+        VariantSection::Hotspots,
+        VariantSection::Clinvar,
     ]));
+    // Below both existing source caps: the held baseline exhausts the public request budget.
     let outcome = biomcp_query::run(
         &biomcp_query::Ctx {
             fetch: &fetch,
-            budget,
+            budget: Duration::from_secs(5),
             ncbi_email: None,
             fresh: false,
         },
         &Request::GetVariant(query),
     );
+    let events = peer.finish();
+    network_stub::retain_replay_owner(env.shared_root().as_ref())?;
+    let events = events?;
     let biomcp_types::QueryBody::VariantCard(card) = &outcome.body else {
         return Err(format!("variant request returned a different body: {outcome:?}").into());
     };
     let body = serde_json::to_value(card)?;
-    for section in ["predict", "conservation"] {
+    for section in ["clinvar", "hotspots"] {
         if body.pointer(&format!("/candidates/0/sections/{section}/state"))
             != Some(&Value::from("data"))
         {
-            return Err(format!(
-                "{section} did not complete under one replay deadline: {outcome:?}"
-            )
-            .into());
+            let detail = format!("{outcome:?}; peer={events:?}");
+            return Err(
+                format!("{section} did not complete under one request deadline: {detail}").into(),
+            );
         }
     }
-    if outcome.local.is_some()
-        || outcome
-            .sources
-            .iter()
-            .any(|source| source.reason == Some(biomcp_types::Reason::DeadlineExceeded))
+    if outcome.status() != biomcp_types::Status::Complete
+        || outcome.local.is_some()
+        || outcome.sources.iter().any(|source| source.reason.is_some())
     {
-        return Err(format!("a sibling delay exhausted the shared budget: {outcome:?}").into());
+        return Err(format!("independent sections failed: {outcome:?}; peer={events:?}").into());
     }
+    if outcome.sources.iter().map(|s| s.source).collect::<Vec<_>>()
+        != [
+            biomcp_types::Source::MyVariant,
+            biomcp_types::Source::ClinVar,
+            biomcp_types::Source::CancerHotspots,
+        ]
+    {
+        return Err(format!("declared section order changed: {outcome:?}").into());
+    }
+    peer::rendezvous(&events)?;
     Ok(())
 }

@@ -10,7 +10,7 @@ mod section_deadline;
 pub(super) fn trials() -> Vec<Trial> {
     // The real peer checks resolver order, source requests and warm cache admission.
     vec![
-        transcript_trial("variant-identity/sections-share-replay-deadline", || {
+        transcript_trial("variant-identity/sections-share-request-deadline", || {
             section_deadline::check().map_err(|error| error.to_string().into())
         }),
         transcript_trial("variant-identity/car-projection-wire", || {
