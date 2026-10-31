@@ -6,7 +6,12 @@ use biomcp_types::{
     Section, StepKind, VariantGet, VariantInput, VariantResolver, VariantSection,
 };
 
-pub(super) fn civic(body: &mut DrugCivic, fresh: bool, out: &mut Outcome) {
+pub(super) fn civic(
+    fetch: &biomcp_fetch::Fetch,
+    body: &mut DrugCivic,
+    fresh: bool,
+    out: &mut Outcome,
+) {
     let Section::Data { data, .. } = &mut body.civic else {
         return;
     };
@@ -56,10 +61,7 @@ pub(super) fn civic(body: &mut DrugCivic, fresh: bool, out: &mut Outcome) {
             {
                 let action = crate::next::Step::new(
                     StepKind::Disambiguate,
-                    &[
-                        crate::variant::source(&lookup.query).source,
-                        biomcp_types::Source::Oncokb,
-                    ],
+                    &crate::variant::next_sources(fetch, &lookup.query),
                     Action::Run {
                         request: Request::GetVariant(lookup.query.clone()),
                         fresh,

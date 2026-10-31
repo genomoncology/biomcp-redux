@@ -10,6 +10,7 @@ mod continuations;
 use continuations::next;
 mod cosmic;
 mod direct;
+pub(crate) use direct::requirements as next_sources;
 mod hotspots;
 pub mod normalize;
 mod oncokb;
@@ -29,7 +30,7 @@ use biomcp_types::{
 pub fn get(cx: &Ctx<'_>, query: &VariantGet) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let mut deadline = command.deadline();
-    if let Some(source) = direct::source(cx, query) {
+    if let Some(source) = direct::source(cx.fetch, query) {
         let out = direct::get(cx, query, source, deadline);
         command.finish(deadline.remaining());
         return out;
@@ -83,7 +84,14 @@ pub fn get(cx: &Ctx<'_>, query: &VariantGet) -> Outcome {
     sources.extend(section_sources);
     problems.extend(section_problems);
     local = local.or(section_error);
-    let mut next = next(query, resolution, &candidates, page.as_ref(), &mut problems);
+    let mut next = next(
+        cx.fetch,
+        query,
+        resolution,
+        &candidates,
+        page.as_ref(),
+        &mut problems,
+    );
     next.extend(oncokb::next(query, &sources));
     next.extend(alphagenome::next(&sources));
     let out = crate::status::finish(

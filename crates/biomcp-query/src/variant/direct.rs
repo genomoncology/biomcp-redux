@@ -6,28 +6,24 @@ use biomcp_types::{
     QueryBody, Source, VariantCard, VariantGet, VariantHeader, VariantNamespace, VariantResolution,
     VariantSection,
 };
-pub(super) fn source(cx: &Ctx<'_>, query: &VariantGet) -> Option<Source> {
+pub(super) fn source(fetch: &biomcp_fetch::Fetch, query: &VariantGet) -> Option<Source> {
     let [section] = query.sections() else {
         return None;
     };
     use VariantSection as S;
     let source = super::sections::source(*section)?;
-    if cx.fetch.disabled(source) {
+    if fetch.disabled(source) {
         return Some(source);
     }
     if *section == S::Oncokb
-        && (!cx.fetch.has_key(biomcp_fetch::SecretName::OncokbApiKey)
+        && (!fetch.has_key(biomcp_fetch::SecretName::OncokbApiKey)
             || query
                 .build()
                 .is_some_and(|build| super::oncokb::input_genomic(query, build).is_some()))
     {
         return Some(source);
     }
-    if *section == S::AlphaGenome
-        && !cx
-            .fetch
-            .has_key(biomcp_fetch::SecretName::AlphaGenomeApiKey)
-    {
+    if *section == S::AlphaGenome && !fetch.has_key(biomcp_fetch::SecretName::AlphaGenomeApiKey) {
         return Some(source);
     }
     match (query.input().namespace().ok()?, section) {
@@ -38,6 +34,20 @@ pub(super) fn source(cx: &Ctx<'_>, query: &VariantGet) -> Option<Source> {
         _ => None,
     }
 }
+/// Use the execution router before adding any identity-provider requirement.
+pub(crate) fn requirements(fetch: &biomcp_fetch::Fetch, query: &VariantGet) -> Vec<Source> {
+    if let Some(source) = source(fetch, query) {
+        return vec![source];
+    }
+    let mut sources = vec![super::source(query).source];
+    // Prediction, conservation and COSMIC use the MyVariant component path.
+    sources.extend(
+        super::sections::selected(query)
+            .map(|section| super::sections::source(section).unwrap_or(Source::MyVariant)),
+    );
+    sources
+}
+
 pub(super) fn get(
     cx: &Ctx<'_>,
     query: &VariantGet,
@@ -73,7 +83,7 @@ pub(super) fn get(
         sections: None,
         component_terms: Box::default(),
     }];
-    let (sources, problems, local, incomplete) =
+    let (sources, mut problems, local, incomplete) =
         super::sections::apply(cx, query, &mut candidates, &mut deadline, None);
     let status = if sources.is_empty()
         || sources
@@ -92,7 +102,14 @@ pub(super) fn get(
     } else {
         crate::status::item_status(true, false, false)
     };
-    let next = super::next(query, VariantResolution::Unresolved, &candidates, None);
+    let next = super::next(
+        cx.fetch,
+        query,
+        VariantResolution::Unresolved,
+        &candidates,
+        None,
+        &mut problems,
+    );
     crate::status::finish(
         [status],
         crate::status::Parts {

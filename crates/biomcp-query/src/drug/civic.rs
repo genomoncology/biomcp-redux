@@ -115,7 +115,7 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
                 }
             }
         }
-        super::next::civic(&mut value, cx.fresh, &mut out);
+        super::next::civic(cx.fetch, &mut value, cx.fresh, &mut out);
         crate::status::item(&mut out, true, false, false);
         out.body = QueryBody::DrugCivic(Some(value));
     }
