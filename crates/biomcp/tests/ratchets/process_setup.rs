@@ -17,19 +17,26 @@ pub(super) fn check(root: &Path) -> Check {
             continue;
         }
         let text = fs::read_to_string(&path)?;
-        // The HTTP worker ownership test has its own explicit server fixture.
-        let product = text
-            .split("#[cfg(test)]\nmod tests")
-            .next()
-            .unwrap_or(&text);
-        placement(&relative, product)?;
+        placement(&relative, &text)?;
     }
     Ok(())
 }
 
 fn placement(path: &str, text: &str) -> Check {
-    let input = tokens(text);
+    let input = product_tokens(text);
+    let setup = matches!(path, "main.rs" | "mcp.rs" | "mcp/http.rs");
+    let mut import = false;
     for (index, name) in input.iter().enumerate() {
+        match name.as_str() {
+            "use" => import = true,
+            ";" => import = false,
+            "*" if import && !setup => {
+                return Err(
+                    format!("{path}: wildcard imports hide process setup functions").into(),
+                );
+            }
+            _ => {}
+        }
         if !matches!(name.as_str(), "read_file" | "root") {
             continue;
         }
@@ -40,6 +47,10 @@ fn placement(path: &str, text: &str) -> Check {
             continue;
         }
         let call = input.get(index + 1).is_some_and(|word| word == "(");
+        // A function value can be called through a local binding or passed to a callback.
+        let reference = input
+            .get(index.wrapping_sub(2)..index)
+            .is_some_and(|words| words == [":", ":"]);
         let import = input
             .get(index + 1)
             .is_some_and(|word| matches!(word.as_str(), ";" | "," | "}" | "as"))
@@ -48,15 +59,43 @@ fn placement(path: &str, text: &str) -> Check {
                 .rev()
                 .take_while(|word| word.as_str() != ";")
                 .any(|word| word == "use");
-        if !(call || import) {
+        if !(call || reference || import) {
             continue;
         }
-        let setup = matches!(path, "main.rs" | "mcp.rs" | "mcp/http.rs");
         if !setup {
             return Err(format!("{path}: {name} belongs in main or MCP setup").into());
         }
     }
     Ok(())
+}
+
+fn product_tokens(text: &str) -> Vec<String> {
+    let input = tokens(text);
+    let mut product = Vec::new();
+    let mut index = 0;
+    while index < input.len() {
+        // Ignore only the test module body, then resume checking product items after it.
+        let marker = ["#", "[", "cfg", "(", "test", ")", "]", "mod", "tests", "{"];
+        if input
+            .get(index..index + marker.len())
+            .is_some_and(|words| words.iter().map(String::as_str).eq(marker))
+        {
+            index += marker.len();
+            let mut depth = 1;
+            while depth > 0 && index < input.len() {
+                match input[index].as_str() {
+                    "{" => depth += 1,
+                    "}" => depth -= 1,
+                    _ => {}
+                }
+                index += 1;
+            }
+        } else {
+            product.push(input[index].clone());
+            index += 1;
+        }
+    }
+    product
 }
 
 #[test]
@@ -68,12 +107,21 @@ fn reject_config_reads_and_tree_builds_in_commands() -> Check {
         "use crate::grammar::{root as build}; build()?;",
         "use file::{ConfigFile, read_file}; read_file(None)?;",
         "let mut root = root()?;",
+        "let load = crate::config::file::read_file; load(None)?;",
+        "let build = crate::grammar::root; build()?;",
+        "use crate::grammar as syntax; use syntax::*; let build = root; build()?;",
+        "use crate::config::file::*; let load = read_file; load(None)?;",
+        "#[cfg(test)]\nmod tests {} fn command() { crate::grammar::root(); }",
     ] {
         assert!(placement("command/planted.rs", text).is_err(), "{text}");
     }
     placement(
         "main.rs",
         "config::file::read_file(path)?; grammar::root()?;",
+    )?;
+    placement(
+        "mcp/http/call.rs",
+        "#[cfg(test)] mod tests { fn fixture() { crate::grammar::root(); } }",
     )?;
     Ok(())
 }
