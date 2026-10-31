@@ -1,19 +1,23 @@
 //! Registry-owned name broadening follows a checked empty exact first page.
-use biomcp_adapters::ctgov;
+use super as ctgov;
 use biomcp_fetch::{Leg, RequestError};
 use biomcp_types::{SourceNotice, TrialSearch};
-use std::collections::BTreeMap;
 
-pub(super) fn search(
+/// Search typed selectors with the registry name fallback.
+pub fn search_query(
     leg: &Leg<'_>,
     query: &TrialSearch,
-    params: &BTreeMap<String, String>,
+    gene: Option<&str>,
     conditions: &[biodata::Text],
 ) -> (
     Result<ctgov::SearchPage, RequestError>,
     Option<SourceNotice>,
 ) {
-    let mut result = ctgov::search(leg, params, conditions, query.country());
+    let mut params = ctgov::parameters(query, gene);
+    if query.condition_id().is_some() && let Some(condition) = conditions.first() {
+        params.insert("query.cond".into(), format!("({condition})"));
+    }
+    let mut result = ctgov::search(leg, &params, conditions, query.country());
     let mut broader = query.broader_names();
     let notice = if query.next_page().is_none()
         && (query.sponsor().is_some() || query.facility().is_some())
@@ -22,7 +26,7 @@ pub(super) fn search(
         // Replace only the exact name selectors. Keep resolved condition/gene
         // parameters and every other strict filter from the actual first request.
         let mut fallback = ctgov::broader_parameters(query, None);
-        for (name, value) in params {
+        for (name, value) in &params {
             if name != "filter.advanced" {
                 fallback.insert(name.clone(), value.clone());
             }

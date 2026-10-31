@@ -195,3 +195,6 @@ impl Row {
         })
     }
 }
+
+mod query;
+pub use query::search_query;

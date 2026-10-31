@@ -173,3 +173,6 @@ pub fn summaries(
     let reply = leg.json::<raw::Summary>(&SUMMARY, &params)?;
     Ok(map::summaries(reply, &ids))
 }
+
+mod query;
+pub use query::search_query;

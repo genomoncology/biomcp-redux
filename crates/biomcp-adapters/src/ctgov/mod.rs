@@ -244,3 +244,6 @@ fn alternatives(values: &[Text]) -> String {
         .collect::<Vec<_>>()
         .join(" OR ")
 }
+
+mod search_query;
+pub use search_query::search_query;
