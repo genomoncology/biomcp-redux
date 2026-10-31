@@ -171,7 +171,9 @@ fn extra_commands(commands: &mut Vec<HelpCommand>, examples: &BTreeMap<String, V
             "Serve MCP over stdio or --http [ADDR]. Non-loopback binds require --allow-host HOST or \
                 http.allowed_hosts; neither authenticates callers. HTTP refuses sync, store clean and --fresh. \
                 Stdio saves refuse --replace. --hosted refuses file saves, health details, sync, store clean, \
-                --fresh and key commands on every transport with a usage.mcp_unavailable error. MCP revisions: 2026-07-28, 2025-11-25, 2025-06-18, 2025-03-26. \
+                --fresh and key commands on every transport with a usage.mcp_unavailable error. \
+                --rate-share assigns this hosted server a fraction of each source rate. Hosted HTTP calls \
+                have one wall-clock deadline and bounded active work. MCP revisions: 2026-07-28, 2025-11-25, 2025-06-18, 2025-03-26. \
                 Send MCP-Protocol-Version on HTTP requests. Without it, initialize uses its requested legacy revision; \
                 other requests default to 2025-03-26. Unsupported headers return HTTP 400.",
         ),

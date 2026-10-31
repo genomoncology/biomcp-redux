@@ -62,6 +62,8 @@ Use `biomcp serve --hosted` for a shared server, with `--http` for HTTP transpor
 
 The hosting front end must strip all client-sent `x-biomcp-key-` headers before injecting credentials from the authenticated caller's account settings. BioMCP does not authenticate these headers itself.
 
+Hosted source pacing follows each effective key. Keyless calls share one bucket per source. Set `--rate-share` to the fraction of each source rate assigned to this server, such as `--rate-share 0.25` for each of four instances. The front end chooses these shares; servers do not coordinate rates with each other. Hosted HTTP calls have a whole-call wall-clock deadline and return the typed `deadline-exceeded` reason when it expires. The server keeps a bounded number of active calls, including timed-out work until it stops.
+
 ## Develop
 
 The documentation check does not run the exact `uv tool install biomcp-cli` or `uv tool upgrade biomcp-cli` shell instructions. Release artifact checks install and exercise the produced package in an isolated environment.
