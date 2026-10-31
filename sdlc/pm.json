@@ -1,5 +1,9 @@
 {
   "ticketsGate": "make landing-gate",
+  "lightGate": {
+    "command": "test -d sdlc/data",
+    "paths": ["sdlc/data/*.md", "sdlc/tickets/*.md"]
+  },
   "inertPaths": [
     "sdlc/plan.md",
     "sdlc/planning/*.md",
