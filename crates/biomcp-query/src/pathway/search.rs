@@ -89,14 +89,16 @@ fn execute(
         slice(&mut body, q);
     }
     for row in &body.items {
-        out.next.push((
+        out.next.push(crate::next::Step::new(
             StepKind::Disambiguate,
+            &[super::next::identity(&row.id)],
             run(Request::GetPathway(PathwayGet::new(row.id.clone()))),
         ));
     }
     if let Some(offset) = body.page.next_offset {
-        out.next.push((
+        out.next.push(crate::next::Step::new(
             StepKind::Page,
+            &super::next::search(q),
             run(Request::SearchPathway(q.at_offset(offset).with_pool(pool))),
         ));
     }

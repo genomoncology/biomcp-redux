@@ -34,7 +34,12 @@ disallowed-types = [
     { path = "std::time::SystemTime", reason = "Keep values immutable and free of I/O" },
 ]
 
+disallowed-macros = [
+    { path = "serde_json::json", reason = "Construct follow-ups through checked typed queries" },
+]
+
 disallowed-methods = [
+    { path = "serde_json::from_value", reason = "Construct follow-ups through checked typed queries" },
     { path = "std::env::set_current_dir", reason = "Keep I/O and state at their reviewed boundaries" },
     { path = "std::process::exit", reason = "Keep I/O and state at their reviewed boundaries" },
     { path = "std::process::abort", reason = "Keep I/O and state at their reviewed boundaries" },

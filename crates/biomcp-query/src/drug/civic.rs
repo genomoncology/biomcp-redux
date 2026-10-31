@@ -1,5 +1,5 @@
 //! Source-local CIViC therapy candidates and independent native claim streams.
-use crate::{Action, Ctx, Outcome, status};
+use crate::{Ctx, Outcome, status};
 use biomcp_adapters::civic;
 use biomcp_types::{
     DrugGet, DrugPage, DrugSearch, DrugSection, DrugSource, PageInfo, QueryBody, Request, Source,
@@ -43,15 +43,17 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
             truncated: None,
         });
         for item in &page.items {
-            if let Ok(get) = DrugGet::new(item.id.clone(), DrugSource::Civic)
-                .and_then(|q| q.for_section(DrugSection::Civic))
-            {
-                out.next.push((
+            if let Some(get) = crate::next::checked(
+                DrugGet::new(item.id.clone(), DrugSource::Civic)
+                    .and_then(|q| q.for_section(DrugSection::Civic)),
+                biomcp_types::Source::Civic,
+                &mut out.problems,
+            ) {
+                out.next.push(crate::next::Step::run(
                     StepKind::Disambiguate,
-                    Action::Run {
-                        request: Request::GetDrug(get),
-                        fresh: cx.fresh,
-                    },
+                    &[biomcp_types::Source::Civic],
+                    Request::GetDrug(get),
+                    cx.fresh,
                 ));
             }
         }
@@ -60,12 +62,11 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
             .checked_add(consumed)
             .filter(|n| consumed > 0 && page.total.is_some_and(|t| u64::from(*n) < t))
         {
-            out.next.push((
+            out.next.push(crate::next::Step::run(
                 StepKind::Page,
-                Action::Run {
-                    request: Request::SearchDrug(query.at_offset(offset)),
-                    fresh: cx.fresh,
-                },
+                &[biomcp_types::Source::Civic],
+                Request::SearchDrug(query.at_offset(offset)),
+                cx.fresh,
             ));
         }
         out.body = QueryBody::DrugPage(page);
@@ -99,17 +100,16 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
         if let biomcp_types::Section::Data { data, .. } = &value.civic {
             for stream in [&data.evidence, &data.assertions].into_iter().flatten() {
                 if let Some(next) = &stream.page.next {
-                    out.next.push((
+                    out.next.push(crate::next::Step::run(
                         StepKind::Page,
-                        Action::Run {
-                            request: Request::GetDrug(next.clone()),
-                            fresh: cx.fresh,
-                        },
+                        &[biomcp_types::Source::Civic],
+                        Request::GetDrug(next.clone()),
+                        cx.fresh,
                     ));
                 }
             }
         }
-        super::next::civic(&mut value, cx.fresh, &mut out);
+        super::next::civic(cx.fetch, &mut value, cx.fresh, &mut out);
         crate::status::item(&mut out, true, false, false);
         out.body = QueryBody::DrugCivic(Some(value));
     }

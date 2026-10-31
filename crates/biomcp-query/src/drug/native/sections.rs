@@ -1,5 +1,5 @@
 use super::{failure, identity};
-use crate::{Action, Outcome};
+use crate::Outcome;
 use biomcp_adapters::{NativeWindow, chembl, opentargets};
 use biomcp_fetch::{Leg, RequestError};
 use biomcp_types::{
@@ -118,13 +118,16 @@ fn card_next(out: &mut Outcome, query: &DrugGet, fresh: bool, xrefs: bool) {
     .into_iter()
     .filter(|s| *s != DrugSection::Xrefs || xrefs)
     {
-        if let Ok(get) = query.for_section(section) {
-            out.next.push((
+        if let Some(get) = crate::next::checked(
+            query.for_section(section),
+            query.source().source(),
+            &mut out.problems,
+        ) {
+            out.next.push(crate::next::Step::run(
                 StepKind::Section,
-                Action::Run {
-                    request: Request::GetDrug(get),
-                    fresh,
-                },
+                &[get.source().source()],
+                Request::GetDrug(get),
+                fresh,
             ));
         }
     }
@@ -155,14 +158,17 @@ fn page<T>(
         truncated: None,
     });
     if let Some(offset) = next_offset
-        && let Ok(get) = query.at_section_offset(offset)
+        && let Some(get) = crate::next::checked(
+            query.at_section_offset(offset),
+            query.source().source(),
+            &mut out.problems,
+        )
     {
-        out.next.push((
+        out.next.push(crate::next::Step::run(
             StepKind::Page,
-            Action::Run {
-                request: Request::GetDrug(get),
-                fresh,
-            },
+            &[get.source().source()],
+            Request::GetDrug(get),
+            fresh,
         ));
     }
     if total == 0 {
@@ -266,13 +272,16 @@ fn chembl_card(
     crate::status::item(out, true, false, false);
     out.body = QueryBody::DrugCard(Some(card));
     card_next(out, query, fresh, has_xrefs);
-    if let Ok(get) = DrugGet::new(query.input().clone(), biomcp_types::DrugSource::Opentargets) {
-        out.next.push((
+    if let Some(get) = crate::next::checked(
+        DrugGet::new(query.input().clone(), biomcp_types::DrugSource::Opentargets),
+        query.source().source(),
+        &mut out.problems,
+    ) {
+        out.next.push(crate::next::Step::run(
             StepKind::Section,
-            Action::Run {
-                request: Request::GetDrug(get),
-                fresh,
-            },
+            &[get.source().source()],
+            Request::GetDrug(get),
+            fresh,
         ));
     }
     Ok(())

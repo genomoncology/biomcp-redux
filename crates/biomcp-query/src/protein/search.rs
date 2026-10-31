@@ -1,7 +1,7 @@
 //! Retained UniProt windows bind literal selectors and hide native cursors.
 use super::next;
 use crate::{
-    Action, Ctx, Outcome, status,
+    Ctx, Outcome, status,
     store::{Pool, Store},
 };
 use biodata::Text;
@@ -53,12 +53,11 @@ pub fn search(cx: &Ctx<'_>, q: &ProteinSearch) -> Outcome {
     }));
     if let Err(error) = read(cx, q, deadline, &mut out) {
         out.local = status::local(error);
-        out.next.push((
+        out.next.push(crate::next::Step::run(
             StepKind::Fresh,
-            Action::Run {
-                request: Request::SearchProtein(q.restart()),
-                fresh: true,
-            },
+            &[biomcp_types::Source::UniProt],
+            Request::SearchProtein(q.restart()),
+            true,
         ));
     }
     command.finish(deadline.remaining());
@@ -74,12 +73,11 @@ fn key(q: &ProteinSearch) -> Vec<u8> {
 }
 fn restart(q: &ProteinSearch, out: &mut Outcome, mismatch: bool) {
     out.body = QueryBody::PoolError { mismatch };
-    out.next.push((
+    out.next.push(crate::next::Step::run(
         StepKind::Restart,
-        Action::Run {
-            request: Request::SearchProtein(q.restart()),
-            fresh: false,
-        },
+        &[biomcp_types::Source::UniProt],
+        Request::SearchProtein(q.restart()),
+        false,
     ));
 }
 fn read(
@@ -258,6 +256,7 @@ fn render(
         offset,
         returned > 0 && u64::from(offset) < saved.page.total,
         out.status() != Status::Complete,
+        &mut out.problems,
     );
     out.page = Some(PageInfo {
         offset: q.offset(),

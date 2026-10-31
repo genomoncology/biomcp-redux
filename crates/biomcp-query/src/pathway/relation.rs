@@ -84,7 +84,11 @@ fn restart(q: &Selection<'_>, out: &mut Outcome) {
         PathwayEventsQuery::new(q.id.clone(), q.limit).map(Request::PathwayEvents)
     };
     if let Ok(request) = request {
-        out.next.push((StepKind::Restart, super::run(request)));
+        out.next.push(crate::next::Step::new(
+            StepKind::Restart,
+            &[Source::Reactome],
+            super::run(request),
+        ));
     }
 }
 fn read_inner(
@@ -177,7 +181,7 @@ fn present_genes(
         &mut out.sources,
         &mut out.problems,
     );
-    super::relation_steps::genes(&body, q.limit, q.details, &mut out.next);
+    super::relation_steps::genes(&body, q.limit, q.details, &mut out.next, &mut out.problems);
     {
         let absent = body.page.total == 0;
         crate::status::item(out, !absent, false, false);
@@ -198,7 +202,7 @@ fn present_events(
         .cloned()
         .collect();
     body.page = position(body.page, q, body.items.len(), pool);
-    super::relation_steps::events(&body, q.limit, &mut out.next);
+    super::relation_steps::events(&body, q.limit, &mut out.next, &mut out.problems);
     {
         let absent = body.page.total == 0;
         crate::status::item(out, !absent, false, false);

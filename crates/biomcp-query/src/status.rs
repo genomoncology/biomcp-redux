@@ -1,8 +1,5 @@
-use crate::Action;
 use biomcp_fetch::{LegReport, RequestError};
-use biomcp_types::{
-    PageInfo, Problem, QueryBody, Source, SourceOutcome, SourceState, Status, StepKind,
-};
+use biomcp_types::{PageInfo, Problem, QueryBody, Source, SourceOutcome, SourceState, Status};
 /// Query result before the interface adds its typed envelope and next spelling.
 #[derive(Debug)]
 pub struct Outcome {
@@ -19,7 +16,7 @@ pub struct Outcome {
     /// Rejected fields.
     pub problems: Vec<Problem>,
     /// Typed next actions.
-    pub next: Vec<(StepKind, Action)>,
+    pub next: Vec<crate::next::Step>,
     /// Local errors remain distinct even alongside useful answers.
     pub local: Option<RequestError>,
 }
@@ -30,7 +27,7 @@ pub(crate) struct Parts {
     pub page: Option<PageInfo>,
     pub sources: Vec<SourceOutcome>,
     pub problems: Vec<Problem>,
-    pub next: Vec<(StepKind, Action)>,
+    pub next: Vec<crate::next::Step>,
     pub local: Option<RequestError>,
     pub dropped: bool,
 }

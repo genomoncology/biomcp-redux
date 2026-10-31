@@ -1,6 +1,6 @@
 //! Page-local exact sample observations with explicit cohort and source provenance.
 mod matching;
-use crate::{Action, Ctx, Outcome, status};
+use crate::{Ctx, Outcome, status};
 
 use biomcp_adapters::{cbioportal, hgnc};
 use biomcp_fetch::{Deadline, Find, KeyKind, RequestError};
@@ -88,12 +88,11 @@ fn execute(
         crate::status::item(out, true, false, unavailable);
     };
     if more && let Some(next) = query.next_page() {
-        out.next.push((
+        out.next.push(crate::next::Step::run(
             StepKind::Page,
-            Action::Run {
-                request: Request::VariantRecurrence(next),
-                fresh: false,
-            },
+            &[biomcp_types::Source::CancerHotspots],
+            Request::VariantRecurrence(next),
+            false,
         ));
     }
     Ok(())

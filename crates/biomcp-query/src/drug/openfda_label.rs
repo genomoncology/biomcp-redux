@@ -1,5 +1,5 @@
 //! Native SPL identities and unchanged explicit label headings.
-use crate::{Action, Ctx, Outcome, status};
+use crate::{Ctx, Outcome, status};
 use biomcp_adapters::{openfda_label as source, received_date};
 use biomcp_fetch::RequestError;
 use biomcp_types::{
@@ -53,23 +53,25 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
         }
         out.page = Some(page(query.offset(), returned, total));
         for item in &items {
-            if let Ok(get) = DrugGet::new(item.id.clone(), DrugSource::OpenfdaLabel) {
-                out.next.push((
+            if let Some(get) = crate::next::checked(
+                DrugGet::new(item.id.clone(), DrugSource::OpenfdaLabel),
+                biomcp_types::Source::OpenfdaLabel,
+                &mut out.problems,
+            ) {
+                out.next.push(crate::next::Step::run(
                     StepKind::Disambiguate,
-                    Action::Run {
-                        request: Request::GetDrug(get),
-                        fresh: cx.fresh,
-                    },
+                    &[biomcp_types::Source::OpenfdaLabel],
+                    Request::GetDrug(get),
+                    cx.fresh,
                 ));
             }
         }
         if let Some(offset) = next_offset {
-            out.next.push((
+            out.next.push(crate::next::Step::run(
                 StepKind::Page,
-                Action::Run {
-                    request: Request::SearchDrug(query.at_offset(offset)),
-                    fresh: cx.fresh,
-                },
+                &[biomcp_types::Source::OpenfdaLabel],
+                Request::SearchDrug(query.at_offset(offset)),
+                cx.fresh,
             ));
         }
         out.body = QueryBody::DrugPage(DrugPage {
@@ -152,15 +154,20 @@ fn select(
             .into_iter()
             .filter(|h| record.parts(h).is_some())
         {
-            if let Ok(heading) = heading.parse()
-                && let Ok(request) = query.for_label(heading)
-            {
-                out.next.push((
+            if let Some(heading) = crate::next::checked(
+                heading.parse(),
+                biomcp_types::Source::OpenfdaLabel,
+                &mut out.problems,
+            ) && let Some(request) = crate::next::checked(
+                query.for_label(heading),
+                biomcp_types::Source::OpenfdaLabel,
+                &mut out.problems,
+            ) {
+                out.next.push(crate::next::Step::run(
                     StepKind::Section,
-                    Action::Run {
-                        request: Request::GetDrug(request),
-                        fresh: cx.fresh,
-                    },
+                    &[biomcp_types::Source::OpenfdaLabel],
+                    Request::GetDrug(request),
+                    cx.fresh,
                 ));
             }
         }
@@ -178,14 +185,17 @@ fn select(
             if let Some(next) = offset
                 .checked_add(returned)
                 .filter(|n| returned > 0 && u64::from(*n) < total)
-                && let Ok(request) = query.at_section_offset(next)
+                && let Some(request) = crate::next::checked(
+                    query.at_section_offset(next),
+                    biomcp_types::Source::OpenfdaLabel,
+                    &mut out.problems,
+                )
             {
-                out.next.push((
+                out.next.push(crate::next::Step::run(
                     StepKind::Page,
-                    Action::Run {
-                        request: Request::GetDrug(request),
-                        fresh: cx.fresh,
-                    },
+                    &[biomcp_types::Source::OpenfdaLabel],
+                    Request::GetDrug(request),
+                    cx.fresh,
                 ));
             }
             Section::Data {

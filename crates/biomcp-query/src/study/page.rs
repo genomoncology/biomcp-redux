@@ -1,4 +1,4 @@
-use crate::{Action, Ctx, Outcome, store::Store};
+use crate::{Ctx, Outcome, store::Store};
 use biodata::StudyHeader;
 use biomcp_fetch::{BundleInfo, CacheError, Deadline, RequestError};
 use biomcp_types::{
@@ -72,24 +72,25 @@ fn render(
         truncated: None,
     };
     for row in &items {
-        if let Ok(get) = serde_json::from_value::<StudyGet>(serde_json::json!({"id":row.study_id}))
-        {
-            out.next.push((
+        if let Some(get) = crate::next::checked(
+            StudyGet::new(row.study_id.clone()),
+            biomcp_types::Source::Cbioportal,
+            &mut out.problems,
+        ) {
+            out.next.push(crate::next::Step::run(
                 StepKind::Disambiguate,
-                Action::Run {
-                    request: Request::GetStudy(get),
-                    fresh: cx.fresh,
-                },
+                &[biomcp_types::Source::Cbioportal],
+                Request::GetStudy(get),
+                cx.fresh,
             ));
         }
     }
     if u64::from(q.offset()) + u64::from(returned) < total {
-        out.next.push((
+        out.next.push(crate::next::Step::run(
             StepKind::Page,
-            Action::Run {
-                request: Request::SearchStudy(query.at_offset(q.offset() + returned)),
-                fresh: cx.fresh,
-            },
+            &[biomcp_types::Source::Cbioportal],
+            Request::SearchStudy(query.at_offset(q.offset() + returned)),
+            cx.fresh,
         ));
     }
     out.page = Some(page.clone());
@@ -113,11 +114,10 @@ fn request_key(q: &StudySearch, snapshot: &StudySnapshot) -> Result<Vec<u8>, Req
 }
 fn pool_error(cx: &Ctx<'_>, q: &StudySearch, mismatch: bool, out: &mut Outcome) {
     out.body = QueryBody::PoolError { mismatch };
-    out.next.push((
+    out.next.push(crate::next::Step::run(
         StepKind::Restart,
-        Action::Run {
-            request: Request::SearchStudy(q.with_pool(None).at_offset(0)),
-            fresh: cx.fresh,
-        },
+        &[biomcp_types::Source::Cbioportal],
+        Request::SearchStudy(q.with_pool(None).at_offset(0)),
+        cx.fresh,
     ));
 }

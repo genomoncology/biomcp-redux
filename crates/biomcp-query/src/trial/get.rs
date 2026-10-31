@@ -2,7 +2,7 @@
 pub(in crate::trial) mod page;
 mod snapshot;
 use self::snapshot::Snapshot;
-use crate::{Action, Ctx, Outcome, status, store::Store};
+use crate::{Ctx, Outcome, status, store::Store};
 use biodata::NctId;
 use biomcp_adapters::ctgov;
 use biomcp_fetch::{CacheError, RequestError};
@@ -134,12 +134,11 @@ fn restore(
     )?;
     let Some(payload) = payload else {
         out.body = QueryBody::PoolError { mismatch: false };
-        out.next.push((
+        out.next.push(crate::next::Step::run(
             StepKind::Restart,
-            Action::Run {
-                request: Request::GetTrial(query.identity()),
-                fresh: false,
-            },
+            &[query.source().source()],
+            Request::GetTrial(query.identity()),
+            false,
         ));
         return Ok(());
     };

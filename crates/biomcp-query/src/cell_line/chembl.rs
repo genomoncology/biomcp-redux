@@ -49,14 +49,16 @@ pub(super) fn get_at(
         let metadata = page.metadata;
         crate::status::item(&mut out, total != 0, false, more);
         if let Some(offset) = next_offset {
-            out.next.push((
+            out.next.push(crate::next::Step::new(
                 StepKind::Page,
+                &[biomcp_types::Source::Chembl],
                 run(Request::GetCellLine(query.at_section_offset(offset))),
             ));
         }
         for row in &items {
-            out.next.push((
+            out.next.push(crate::next::Step::new(
                 StepKind::Section,
+                &[biomcp_types::Source::Chembl],
                 run(Request::CellLineAssayCount(CellLineAssayCountQuery {
                     id: row.id.clone(),
                 })),

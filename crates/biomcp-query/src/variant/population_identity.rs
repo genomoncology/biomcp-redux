@@ -98,10 +98,13 @@ fn canonical(cx: &Ctx<'_>, deadline: Deadline<'_>, found: &mut Identity) {
 }
 
 /// Recover one candidate using its own source build or its single validated CAid.
-pub(super) fn choice(row: &VariantHeader) -> Option<biomcp_types::Request> {
+pub(super) fn choice(
+    row: &VariantHeader,
+    problems: &mut Vec<Problem>,
+) -> Option<(biomcp_types::Request, Source)> {
     use biomcp_types::{Request, VariantResolver, VariantSearch};
     let build = row.identity.representations.iter().find_map(|r| r.build);
-    let mut input = row.record.id.as_str().parse().ok()?;
+    let mut input = crate::next::checked(row.record.id.as_str().parse(), row.source, problems)?;
     if build.is_none() {
         let ids: Vec<_> = row
             .identity
@@ -110,16 +113,20 @@ pub(super) fn choice(row: &VariantHeader) -> Option<biomcp_types::Request> {
             .filter(|id| matches!(id, VariantId::Ca(_)))
             .collect();
         if let [id] = ids.as_slice() {
-            input = id.to_string().parse().ok()?;
+            input = crate::next::checked(id.to_string().parse(), row.source, problems)?;
         } else {
-            return Some(Request::SearchVariant(
-                VariantSearch::source_record(&input).ok()?,
-            ));
+            let query =
+                crate::next::checked(VariantSearch::source_record(&input), row.source, problems)?;
+            return Some((Request::SearchVariant(query), Source::MyVariant));
         }
     }
-    Some(Request::GetVariant(
-        VariantGet::new(input, VariantResolver::Car, build).ok()?,
-    ))
+    let query = crate::next::checked(
+        VariantGet::new(input, VariantResolver::Car, build),
+        row.source,
+        problems,
+    )?;
+    let source = super::source(&query).source;
+    Some((Request::GetVariant(query), source))
 }
 
 pub(super) fn requested(query: &VariantGet) -> bool {

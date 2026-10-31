@@ -2,7 +2,7 @@
 mod associations;
 mod sections;
 mod snapshot;
-use crate::{Action, Ctx, Outcome, status};
+use crate::{Ctx, Outcome, status};
 use biomcp_adapters::monarch;
 use biomcp_types::{
     PageInfo, PhenotypeGet, PhenotypePage, PhenotypeSearch, QueryBody, Request, Source, StepKind,
@@ -38,14 +38,17 @@ pub fn search(cx: &Ctx<'_>, q: &PhenotypeSearch) -> Outcome {
         out.problems.extend(page.problems);
         let returned = page.items.len() as u32;
         for item in &page.items {
-            out.next.push((
+            let get = PhenotypeGet::new(item.id.clone());
+            out.next.push(crate::next::Step::new(
                 StepKind::Disambiguate,
-                run(Request::GetPhenotype(PhenotypeGet::new(item.id.clone()))),
+                &[snapshot::source(&get)],
+                run(Request::GetPhenotype(get)),
             ));
         }
         if page.received > 0 && u64::from(q.offset()) + u64::from(page.received) < page.total {
-            out.next.push((
+            out.next.push(crate::next::Step::new(
                 StepKind::Page,
+                &[Source::Monarch],
                 run(Request::SearchPhenotype(
                     q.at_offset(q.offset().saturating_add(page.received)),
                 )),
@@ -73,13 +76,8 @@ pub fn search(cx: &Ctx<'_>, q: &PhenotypeSearch) -> Outcome {
     command.finish(deadline.remaining());
     out
 }
+use crate::next::run;
 pub(super) use crate::status::empty;
-fn run(request: Request) -> Action {
-    Action::Run {
-        request,
-        fresh: false,
-    }
-}
 fn problem(out: &mut Outcome, source: Source, record: Option<biodata::Text>) {
     if out
         .sources
@@ -102,12 +100,14 @@ fn recovery(out: &mut Outcome, request: Request) {
             biomcp_types::SourceState::Failed | biomcp_types::SourceState::Stale
         )
     }) {
-        out.next.push((
+        out.next.push(crate::next::Step::run(
             StepKind::Fresh,
-            Action::Run {
-                request,
-                fresh: true,
-            },
+            &out.sources
+                .iter()
+                .map(|source| source.source)
+                .collect::<Vec<_>>(),
+            request,
+            true,
         ));
     }
 }

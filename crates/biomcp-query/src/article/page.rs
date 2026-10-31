@@ -1,7 +1,7 @@
 use super::consume;
 use super::sources;
 use crate::{
-    Action, Ctx, Outcome, status,
+    Ctx, Outcome, status,
     store::{Pool, Store, StoredItem},
 };
 use biodata::Text;
@@ -18,6 +18,14 @@ pub(super) enum Cursor<'a> {
     Edges(&'a ArticleEdges, bool),
 }
 impl Cursor<'_> {
+    fn sources(self) -> Vec<Source> {
+        match self {
+            Self::Search(query) => super::next::search_sources(query),
+            Self::Recommend(_) => vec![Source::SemanticScholar],
+            Self::Edges(query, _) => vec![super::next::edge_source(query)],
+        }
+    }
+
     fn offset(self) -> u32 {
         match self {
             Self::Search(q) => q.offset(),
@@ -41,12 +49,11 @@ impl Cursor<'_> {
         }
     }
     fn retry(self, pool: Option<Text>, out: &mut Outcome) {
-        out.next.push((
+        out.next.push(crate::next::Step::run(
             StepKind::Fresh,
-            Action::Run {
-                request: self.request(self.offset(), pool),
-                fresh: true,
-            },
+            &self.sources(),
+            self.request(self.offset(), pool),
+            true,
         ));
     }
 }
@@ -203,12 +210,11 @@ fn finish(query: Cursor<'_>, pool: &Pool, rows: Vec<StoredItem>, out: &mut Outco
     if let Cursor::Search(search) = query
         && search.sort() != ArticleSort::Citations
     {
-        out.next.push((
+        out.next.push(crate::next::Step::run(
             StepKind::Sort,
-            Action::Run {
-                request: Request::SearchArticle(search.ordered(ArticleSort::Citations)),
-                fresh: false,
-            },
+            &super::next::search_sources(search),
+            Request::SearchArticle(search.ordered(ArticleSort::Citations)),
+            false,
         ));
     }
 }
@@ -219,12 +225,11 @@ fn actions(query: Cursor<'_>, pool: &Pool, returned: u32, total: u64, out: &mut 
         .checked_add(returned)
         .filter(|offset| u64::from(*offset) < total && returned > 0)
     {
-        out.next.push((
+        out.next.push(crate::next::Step::run(
             StepKind::Page,
-            Action::Run {
-                request: query.request(offset, Some(pool.info.id.clone())),
-                fresh: false,
-            },
+            &query.sources(),
+            query.request(offset, Some(pool.info.id.clone())),
+            false,
         ));
     }
     let items = match &out.body {
@@ -255,28 +260,28 @@ fn actions(query: Cursor<'_>, pool: &Pool, returned: u32, total: u64, out: &mut 
             } else {
                 (input, parent.input().clone())
             };
-            out.next.push((
+            let evidence = biomcp_types::ArticleEvidence::new(citing, cited);
+            out.next.push(crate::next::Step::run(
                 StepKind::Disambiguate,
-                Action::Run {
-                    request: Request::ArticleEvidence(biomcp_types::ArticleEvidence::new(
-                        citing, cited,
-                    )),
-                    fresh: false,
-                },
+                &super::next::evidence_sources(&evidence),
+                Request::ArticleEvidence(evidence),
+                false,
             ));
         }
     }
     if let Some(first) = items.first()
         && let Some(id) = first.pmid
-        && let Ok(query) =
-            biomcp_types::ArticleGet::new(vec![biomcp_types::ArticleInput::Pmid(id)].into())
+        && let Some(query) = crate::next::checked(
+            biomcp_types::ArticleGet::new(vec![biomcp_types::ArticleInput::Pmid(id)].into()),
+            biomcp_types::Source::PubMed,
+            &mut out.problems,
+        )
     {
-        out.next.push((
+        out.next.push(crate::next::Step::run(
             StepKind::Disambiguate,
-            Action::Run {
-                request: Request::GetArticle(query),
-                fresh: false,
-            },
+            &super::next::get_sources(&query),
+            Request::GetArticle(query),
+            false,
         ));
     }
     super::next::authors(out);

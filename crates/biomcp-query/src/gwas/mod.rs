@@ -80,7 +80,7 @@ pub fn search(cx: &Ctx<'_>, q: &GwasSearch) -> Outcome {
     let QueryBody::GwasPage(body) = &out.body else {
         return out;
     };
-    out.next = next::search(q, body.as_ref(), source.state, cx.fresh);
+    out.next = next::search(q, body.as_ref(), source.state, cx.fresh, &mut out.problems);
     out.sources.push(source);
     status::search(&mut out);
     out.local = error.and_then(status::local);

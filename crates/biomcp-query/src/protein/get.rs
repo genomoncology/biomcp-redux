@@ -55,7 +55,7 @@ pub fn get(cx: &Ctx<'_>, q: &ProteinGet) -> Outcome {
     super::source_sections::supplement(cx, q, &mut items, &mut out, deadline);
     status::get(&mut out, items.iter().map(|i| i.status));
     if out.next.is_empty() {
-        out.next = next::cards(&items);
+        out.next = next::cards(&items, &mut out.problems);
     }
     recovery(q, &mut out);
     out.body = QueryBody::ProteinCard(ProteinCard {
@@ -200,20 +200,20 @@ fn recovery(q: &ProteinGet, out: &mut Outcome) {
     out.next
         .truncate(5 - usize::from(fresh) - usize::from(sync));
     if sync {
-        out.next.push((
+        out.next.push(crate::next::Step::new(
             StepKind::Sync,
+            &[biomcp_types::Source::Hgnc],
             Action::Sync {
                 bundle: Bundle::Hgnc,
             },
         ));
     }
     if fresh {
-        out.next.push((
+        out.next.push(crate::next::Step::run(
             StepKind::Fresh,
-            Action::Run {
-                request: Request::GetProtein(q.clone()),
-                fresh: true,
-            },
+            &[biomcp_types::Source::UniProt],
+            Request::GetProtein(q.clone()),
+            true,
         ));
     }
 }

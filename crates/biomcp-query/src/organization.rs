@@ -29,8 +29,14 @@ pub fn search(cx: &Ctx<'_>, q: &OrganizationSearch) -> Outcome {
         out.local = status::local(error);
     }
     if out.sources.iter().any(|s| s.reason == Some(Reason::NoKey)) {
-        out.next
-            .insert(0, (StepKind::Key, Action::KeyHelp(Source::Nci)));
+        out.next.insert(
+            0,
+            crate::next::Step::new(
+                StepKind::Key,
+                &[biomcp_types::Source::Nci],
+                Action::KeyHelp(Source::Nci),
+            ),
+        );
     }
     command.finish(deadline.remaining());
     out
@@ -59,7 +65,11 @@ fn execute(
     )?;
     if q.pool().is_some() && !cx.fresh && saved.is_none() {
         out.body = QueryBody::PoolError { mismatch: false };
-        out.next.push((StepKind::Restart, run(q.restart())));
+        out.next.push(crate::next::Step::new(
+            StepKind::Restart,
+            &[biomcp_types::Source::Nci],
+            run(q.restart()),
+        ));
         return Ok(());
     }
     let saved = match saved {
@@ -116,7 +126,11 @@ fn page(
     let returned = items.len() as u32;
     let next = q.offset().saturating_add(returned);
     if returned > 0 && u64::from(next) < total {
-        out.next.push((StepKind::Page, run(q.at_page(next, pool))));
+        out.next.push(crate::next::Step::new(
+            StepKind::Page,
+            &[biomcp_types::Source::Nci],
+            run(q.at_page(next, pool)),
+        ));
     }
     out.page = Some(biomcp_types::PageInfo {
         offset: q.offset(),

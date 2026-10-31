@@ -1,7 +1,7 @@
 //! Source-local native drug requests; selected identities never fan out.
 mod identity;
 mod sections;
-use crate::{Action, Ctx, Outcome, status};
+use crate::{Ctx, Outcome, status};
 use biomcp_adapters::{NativeWindow, chembl, opentargets};
 use biomcp_fetch::{Leg, RequestError, SourceError};
 use biomcp_types::{
@@ -50,23 +50,25 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
             truncated: None,
         });
         for item in &page.items {
-            if let Ok(get) = DrugGet::new(item.id.clone(), query.source()) {
-                out.next.push((
+            if let Some(get) = crate::next::checked(
+                DrugGet::new(item.id.clone(), query.source()),
+                query.source().source(),
+                &mut out.problems,
+            ) {
+                out.next.push(crate::next::Step::run(
                     StepKind::Disambiguate,
-                    Action::Run {
-                        request: Request::GetDrug(get),
-                        fresh: cx.fresh,
-                    },
+                    &[get.source().source()],
+                    Request::GetDrug(get),
+                    cx.fresh,
                 ));
             }
         }
         if let Some(offset) = next_offset {
-            out.next.push((
+            out.next.push(crate::next::Step::run(
                 StepKind::Page,
-                Action::Run {
-                    request: Request::SearchDrug(query.at_offset(offset)),
-                    fresh: cx.fresh,
-                },
+                &[query.source().source()],
+                Request::SearchDrug(query.at_offset(offset)),
+                cx.fresh,
             ));
         }
         out.body = QueryBody::DrugPage(page);

@@ -1,6 +1,6 @@
 //! Exact FAERS report reads and checked immutable section continuation.
 mod render;
-use crate::{Action, Ctx, Outcome, status, store::Store};
+use crate::{Ctx, Outcome, status, store::Store};
 use biodata::{FaersReport, Text};
 use biomcp_adapters::faers;
 use biomcp_fetch::{CacheError, Deadline, RequestError};
@@ -88,12 +88,11 @@ fn read(
             store.source_snapshot(snapshot.as_str(), &key(q), |s| cx.fetch.disabled(s))?
         else {
             out.body = QueryBody::PoolError { mismatch: false };
-            out.next.push((
+            out.next.push(crate::next::Step::run(
                 StepKind::Restart,
-                Action::Run {
-                    request: Request::GetAdverseEvent(q.restart()),
-                    fresh: false,
-                },
+                &[biomcp_types::Source::Faers],
+                Request::GetAdverseEvent(q.restart()),
+                false,
             ));
             return Ok(());
         };

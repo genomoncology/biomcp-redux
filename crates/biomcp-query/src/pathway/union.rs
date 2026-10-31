@@ -110,14 +110,16 @@ fn present(q: &PathwaySearch, saved: Saved, pool: biodata::Text, out: &mut Outco
     out.sources = saved.3;
     out.problems = saved.4;
     for row in &saved.0.items {
-        out.next.push((
+        out.next.push(crate::next::Step::new(
             StepKind::Disambiguate,
+            &[super::next::identity(&row.id)],
             run(Request::GetPathway(PathwayGet::new(row.id.clone()))),
         ));
     }
     if let Some(offset) = saved.0.page.next_offset {
-        out.next.push((
+        out.next.push(crate::next::Step::new(
             StepKind::Page,
+            &super::next::search(q),
             run(Request::SearchPathway(q.at_offset(offset).with_pool(pool))),
         ));
     }
@@ -127,8 +129,11 @@ fn present(q: &PathwaySearch, saved: Saved, pool: biodata::Text, out: &mut Outco
 }
 fn expired(q: &PathwaySearch, out: &mut Outcome) {
     out.body = QueryBody::PoolError { mismatch: false };
-    out.next
-        .push((StepKind::Restart, run(Request::SearchPathway(q.restart()))));
+    out.next.push(crate::next::Step::new(
+        StepKind::Restart,
+        &super::next::search(q),
+        run(Request::SearchPathway(q.restart())),
+    ));
 }
 fn initial(cx: &Ctx<'_>, q: &PathwaySearch, deadline: Deadline<'_>, out: &mut Outcome) -> Saved {
     let mut saved = (page(q), vec![], 0, vec![], vec![], false);

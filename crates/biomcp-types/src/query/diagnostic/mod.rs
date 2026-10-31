@@ -179,6 +179,28 @@ impl TryFrom<SearchFields> for DiagnosticSearch {
     }
 }
 impl DiagnosticSearch {
+    /// Search companion diagnostics for one checked native device identity.
+    pub fn companion(device_id: DiagnosticDeviceId) -> Result<Self, QueryInvalid> {
+        Self::try_from(SearchFields {
+            source: DiagnosticSearchSource::FdaCdx,
+            device_id: Some(device_id),
+            gene_id: None,
+            gene: None,
+            condition_id: None,
+            test_type: None,
+            drug_application: None,
+            biomarker: None,
+            marker: None,
+            manufacturer: None,
+            product_code: None,
+            initiated_from: None,
+            initiated_to: None,
+            limit: limit(),
+            offset: 0,
+            bundle_revision: None,
+        })
+    }
+
     /// Explicit source, without fallback.
     pub fn source(&self) -> DiagnosticSearchSource {
         self.0.source
@@ -298,4 +320,29 @@ fn validate_recall(v: &SearchFields, other: bool, filters: bool) -> Result<(), Q
         return Err(QueryInvalid::new(&["initiated_from", "initiated_to"]));
     }
     Ok(())
+}
+
+impl DiagnosticGetSource {
+    /// Source identity for this explicit native selector.
+    pub const fn source(self) -> crate::Source {
+        match self {
+            Self::Gtr => crate::Source::Gtr,
+            Self::WhoIvd => crate::Source::WhoIvd,
+            Self::FdaPma => crate::Source::FdaPma,
+            Self::Fda510k => crate::Source::Fda510k,
+            Self::FdaDeviceRecall => crate::Source::FdaDeviceRecall,
+        }
+    }
+}
+
+impl DiagnosticSearchSource {
+    /// Source identity for this explicit native selector.
+    pub const fn source(self) -> crate::Source {
+        match self {
+            Self::Gtr => crate::Source::Gtr,
+            Self::FdaCdx => crate::Source::FdaCdx,
+            Self::WhoIvd => crate::Source::WhoIvd,
+            Self::FdaDeviceRecall => crate::Source::FdaDeviceRecall,
+        }
+    }
 }

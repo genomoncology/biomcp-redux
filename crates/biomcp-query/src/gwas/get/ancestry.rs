@@ -38,8 +38,11 @@ pub(super) fn read(
             store.source_snapshot(token.as_str(), &key, |s| cx.fetch.disabled(s))?
         else {
             out.body = QueryBody::PoolError { mismatch: false };
-            out.next
-                .push((StepKind::Restart, action(q.restart(), false)));
+            out.next.push(crate::next::Step::new(
+                StepKind::Restart,
+                &[biomcp_types::Source::Gwas],
+                action(q.restart(), false),
+            ));
             return Ok(());
         };
         let saved: Saved = serde_json::from_str(&payload).map_err(|_| CacheError::Database)?;

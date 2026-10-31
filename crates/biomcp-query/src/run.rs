@@ -31,6 +31,8 @@ pub enum Bundle {
 /// Typed action before an interface spells command arguments.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Action {
+    /// Explain a network configuration setting.
+    NetworkHelp(Box<str>),
     /// Offer a PubMed search with its source explicit in the caller command.
     PubmedSearch(biomcp_types::ArticleSearch),
     /// Follow an exact checked author record to its deferred native paper surface.

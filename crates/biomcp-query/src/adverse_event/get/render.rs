@@ -1,4 +1,4 @@
-use crate::{Action, Outcome};
+use crate::Outcome;
 use biodata::{FaersReport, Text};
 use biomcp_adapters::{NativePositions, faers::Positions};
 use biomcp_fetch::RequestError;
@@ -125,24 +125,26 @@ fn drugs(
     }
 }
 fn section_step(q: &AdverseEventGet, s: S, index: Option<u32>, out: &mut Outcome) {
-    if let Ok(q) = q.with_section(s, index) {
-        out.next.push((
+    if let Some(q) = crate::next::checked(
+        q.with_section(s, index),
+        biomcp_types::Source::Faers,
+        &mut out.problems,
+    ) {
+        out.next.push(crate::next::Step::run(
             StepKind::Section,
-            Action::Run {
-                request: Request::GetAdverseEvent(q),
-                fresh: false,
-            },
+            &[biomcp_types::Source::Faers],
+            Request::GetAdverseEvent(q),
+            false,
         ));
     }
 }
 fn page(q: &AdverseEventGet, offset: u32, total: u64, out: &mut Outcome) {
     if offset > q.section_offset() && u64::from(offset) < total {
-        out.next.push((
+        out.next.push(crate::next::Step::run(
             StepKind::Page,
-            Action::Run {
-                request: Request::GetAdverseEvent(q.at_section_offset(offset)),
-                fresh: false,
-            },
+            &[biomcp_types::Source::Faers],
+            Request::GetAdverseEvent(q.at_section_offset(offset)),
+            false,
         ));
     }
 }

@@ -2,7 +2,6 @@
 #![expect(
     clippy::unwrap_used,
     clippy::panic,
-    clippy::indexing_slicing,
     clippy::disallowed_methods,
     clippy::disallowed_types,
     reason = "Public store and concurrency contracts own isolated fixture I/O and abort on invalid fixture setup"
@@ -31,11 +30,8 @@ fn fetch(name: &str, cache: ReplayCache) -> Fetch {
     .unwrap()
 }
 fn query(pool: Option<&str>, offset: u32) -> ArticleSearch {
-    let mut v = serde_json::json!({"text":"AKT1 E17K","limit":2,"offset":offset});
-    if let Some(pool) = pool {
-        v["pool"] = pool.into();
-    }
-    serde_json::from_value(v).unwrap()
+    let query: ArticleSearch = serde_json::from_str(r#"{"text":"AKT1 E17K","limit":2}"#).unwrap();
+    query.page(offset, pool.map(|value| value.parse().unwrap()))
 }
 fn run(fetch: &Fetch, query: ArticleSearch, fresh: bool) -> Outcome {
     biomcp_query::run(
@@ -367,7 +363,7 @@ fn stale_summary_fallback_stays_partial_when_its_page_is_read_offline() {
     } = first
         .next
         .iter()
-        .find(|(kind, _)| *kind == biomcp_types::StepKind::Fresh)
+        .find(|step| step.0 == biomcp_types::StepKind::Fresh)
         .unwrap()
         .1
         .clone()

@@ -1,5 +1,5 @@
 //! Complete entry-backed pages bind the section and every selector to one snapshot.
-use crate::{Action, Ctx, Outcome, status};
+use crate::{Ctx, Outcome, status};
 use biodata::{Text, UniProtIsoform};
 use biomcp_adapters::uniprot;
 use biomcp_fetch::{CacheError, Deadline, RequestError};
@@ -113,12 +113,11 @@ fn accepts(q: &ProteinFeaturesQuery, row: &biodata::ProteinFeature) -> bool {
 }
 fn restart(q: &Selection, out: &mut Outcome, mismatch: bool) {
     out.body = QueryBody::PoolError { mismatch };
-    out.next.push((
+    out.next.push(crate::next::Step::run(
         StepKind::Restart,
-        Action::Run {
-            request: q.request(None),
-            fresh: false,
-        },
+        &[biomcp_types::Source::UniProt],
+        q.request(None),
+        false,
     ));
 }
 pub(super) fn run(cx: &Ctx<'_>, q: Selection) -> Outcome {
@@ -132,12 +131,11 @@ pub(super) fn run(cx: &Ctx<'_>, q: Selection) -> Outcome {
     let mut out = super::empty(body);
     if let Err(e) = read(cx, &q, deadline, &mut out) {
         out.local = status::local(e);
-        out.next.push((
+        out.next.push(crate::next::Step::run(
             StepKind::Fresh,
-            Action::Run {
-                request: q.request(None),
-                fresh: true,
-            },
+            &[biomcp_types::Source::UniProt],
+            q.request(None),
+            true,
         ));
     }
     command.finish(deadline.remaining());
@@ -195,12 +193,11 @@ fn read(
         crate::status::item(out, true, false, true);
     }
     if (offset + returned) < total as u32 {
-        out.next.push((
+        out.next.push(crate::next::Step::run(
             StepKind::Page,
-            Action::Run {
-                request: q.request(Some((pool.id, offset + returned))),
-                fresh: false,
-            },
+            &[biomcp_types::Source::UniProt],
+            q.request(Some((pool.id, offset + returned))),
+            false,
         ));
     }
     Ok(())

@@ -27,8 +27,9 @@ pub fn get(cx: &Ctx<'_>, query: &DiseaseGet) -> Outcome {
         if page.received > 0
             && u64::from(query.section_offset()) + u64::from(page.received) < page.total
         {
-            out.next.push((
+            out.next.push(crate::next::Step::new(
                 StepKind::Page,
+                &[biomcp_types::Source::Monarch],
                 run(Request::GetDisease(query.at_section_offset(
                     query.section_offset().saturating_add(page.received),
                 ))),
@@ -76,8 +77,12 @@ fn gene_steps(out: &mut Outcome, items: &[biomcp_types::DiseaseAssociationItem])
     for row in items {
         let id = &row.association.subject.id;
         let id = id.to_string();
-        if let Some(query) = gene_query(&id) {
-            let step = (StepKind::Disambiguate, run(Request::GetGene(query)));
+        if let Some(query) = gene_query(&id, &mut out.problems) {
+            let step = crate::next::Step::new(
+                StepKind::Disambiguate,
+                &[biomcp_types::Source::Hgnc],
+                run(Request::GetGene(query)),
+            );
             if !out.next.contains(&step) {
                 out.next.push(step);
             }
@@ -86,15 +91,21 @@ fn gene_steps(out: &mut Outcome, items: &[biomcp_types::DiseaseAssociationItem])
 }
 
 /// Accept only an identifier the existing gene command understands, without symbol repair.
-pub(crate) fn gene_query(id: &str) -> Option<GeneGet> {
-    let checked = match GeneInput::new(id) {
-        Ok(input @ (GeneInput::HgncId(_) | GeneInput::EnsemblId(_) | GeneInput::EntrezId(_))) => {
-            Some(input)
-        }
-        _ => id
-            .strip_prefix("NCBIGene:")
-            .and_then(|value| value.parse::<biodata::NcbiGeneId>().ok())
-            .map(GeneInput::EntrezId),
+pub(crate) fn gene_query(id: &str, problems: &mut Vec<biomcp_types::Problem>) -> Option<GeneGet> {
+    let input = if let Some(value) = id.strip_prefix("NCBIGene:") {
+        crate::next::checked(
+            value.parse::<biodata::NcbiGeneId>(),
+            Source::Monarch,
+            problems,
+        )
+        .map(GeneInput::EntrezId)?
+    } else if id.starts_with("HGNC:")
+        || id.starts_with("ENSG")
+        || id.bytes().all(|byte| byte.is_ascii_digit())
+    {
+        crate::next::checked(GeneInput::new(id), Source::Monarch, problems)?
+    } else {
+        return None;
     };
-    checked.and_then(|input| GeneGet::new(vec![input].into()).ok())
+    crate::next::checked(GeneGet::new(vec![input].into()), Source::Monarch, problems)
 }

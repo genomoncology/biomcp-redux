@@ -48,7 +48,7 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &GeneSearch) -> Outcome {
         returned: items.len() as u32,
         total,
     };
-    let next = next::search(query, &items, &page, &source);
+    let next = next::search(query, &items, &page, &source, &mut problems);
     crate::status::finish(
         [state],
         crate::status::Parts {

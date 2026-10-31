@@ -176,13 +176,13 @@ impl Policy {
             serde_json::from_str(text).map_err(|_| CacheError::Database)?;
         let metadata = if value.is_array() {
             Metadata {
-                sources: serde_json::from_value(value).map_err(|_| CacheError::Database)?,
+                sources: serde_json::from_str(text).map_err(|_| CacheError::Database)?,
                 problems: Vec::new(),
                 dropped: false,
                 ownership: None,
             }
         } else {
-            serde_json::from_value(value).map_err(|_| CacheError::Database)?
+            serde_json::from_str(text).map_err(|_| CacheError::Database)?
         };
         if !self.0.is_hosted() {
             return Ok(Some(metadata));

@@ -5,7 +5,7 @@ pub mod evidence;
 mod fold;
 pub mod get;
 mod named;
-mod next;
+pub(crate) mod next;
 mod order;
 mod page;
 pub mod pdf;
@@ -46,8 +46,9 @@ pub fn search(cx: &Ctx<'_>, query: &ArticleSearch) -> Outcome {
     }) {
         out.next.insert(
             0,
-            (
+            crate::next::Step::new(
                 StepKind::Key,
+                &[biomcp_types::Source::SemanticScholar],
                 Action::KeyHelp(biomcp_types::Source::SemanticScholar),
             ),
         );
@@ -127,21 +128,19 @@ fn execute<'a>(
 }
 fn pool_error(query: &ArticleSearch, mismatch: bool, out: &mut Outcome) {
     out.body = QueryBody::PoolError { mismatch };
-    out.next.push((
+    out.next.push(crate::next::Step::run(
         StepKind::Restart,
-        Action::Run {
-            request: Request::SearchArticle(query.page(0, None)),
-            fresh: false,
-        },
+        &next::search_sources(query),
+        Request::SearchArticle(query.page(0, None)),
+        false,
     ));
 }
 fn retry(query: &ArticleSearch, pool: Option<Text>, out: &mut Outcome) {
-    out.next.push((
+    out.next.push(crate::next::Step::run(
         StepKind::Fresh,
-        Action::Run {
-            request: Request::SearchArticle(query.page(query.offset(), pool)),
-            fresh: true,
-        },
+        &next::search_sources(query),
+        Request::SearchArticle(query.page(query.offset(), pool)),
+        true,
     ));
 }
 fn empty() -> Outcome {

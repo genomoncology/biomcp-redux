@@ -1,6 +1,6 @@
 //! Confined supplement download, local parsing and bounded row selection.
 mod page;
-use crate::{Action, Ctx, Outcome, status};
+use crate::{Ctx, Outcome, status};
 use biodata::Text;
 use biomcp_adapters::pmc_oa;
 use biomcp_fetch::{Deadline, RequestError, SourceError};
@@ -38,12 +38,11 @@ pub fn download(cx: &Ctx<'_>, query: &ArticleSupplement, allow: bool) -> super::
                 crate::status::reason(error).unwrap_or(biomcp_types::Reason::Unavailable),
             );
         }
-        out.next.push((
+        out.next.push(crate::next::Step::run(
             StepKind::Fresh,
-            Action::Run {
-                request: Request::ArticleSupplement(query.clone()),
-                fresh: true,
-            },
+            &super::next::text_sources(query.input()),
+            Request::ArticleSupplement(query.clone()),
+            true,
         ));
     }
     super::save::Download {

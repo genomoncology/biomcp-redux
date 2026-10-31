@@ -15,6 +15,9 @@ pub(crate) fn step(kind: StepKind, action: &Action) -> Result<Step, serde_json::
 }
 pub(crate) fn action_args(action: &Action) -> Result<Vec<String>, serde_json::Error> {
     match action {
+        Action::NetworkHelp(setting) => {
+            Ok(vec!["help".into(), "network".into(), setting.to_string()])
+        }
         Action::PubmedSearch(q) => {
             let mut args = request_args(&Request::SearchArticle(q.clone()))?;
             if !args.iter().any(|arg| arg == "--source") {

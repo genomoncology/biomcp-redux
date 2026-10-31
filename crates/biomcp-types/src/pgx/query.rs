@@ -169,6 +169,21 @@ impl TryFrom<GetFields> for PgxGet {
     }
 }
 impl PgxGet {
+    /// Construct a checked CPIC gene card with the standard section defaults.
+    pub fn new(gene: GeneSymbol) -> Result<Self, QueryInvalid> {
+        Self::try_from(GetFields {
+            gene,
+            source: PgxSource::Cpic,
+            section: None,
+            diplotype: None,
+            drug_id: None,
+            kind: None,
+            section_limit: None,
+            section_offset: 0,
+            snapshot: None,
+        })
+    }
+
     /// Checked gene selector.
     pub fn gene(&self) -> &GeneSymbol {
         &self.0.gene
@@ -272,6 +287,14 @@ impl TryFrom<AnnotationFields> for PgxAnnotationGet {
     }
 }
 impl PgxAnnotationGet {
+    /// Select a checked native ClinPGx accession.
+    pub fn new(id: ClinPgxAccession) -> Result<Self, QueryInvalid> {
+        Self::try_from(AnnotationFields {
+            id,
+            source: PgxSource::Clinpgx,
+        })
+    }
+
     /// Exact selected accession.
     pub fn id(&self) -> &ClinPgxAccession {
         &self.0.id

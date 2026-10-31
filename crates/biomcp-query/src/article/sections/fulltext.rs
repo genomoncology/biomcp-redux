@@ -1,4 +1,4 @@
-use crate::{Action, Ctx, Outcome, status};
+use crate::{Ctx, Outcome, status};
 use biodata::Pmcid;
 use biomcp_adapters::pmc_oa;
 use biomcp_fetch::{Deadline, RequestError};
@@ -63,13 +63,13 @@ pub(super) fn run<'a>(
         if fulltext && sections.fulltext.is_none() {
             sections.fulltext = Some(section(data, |(text, _)| text.clone()));
             if matches!(data,Ok(Some((text,_))) if !text.parts.is_empty()) && out.next.len() < 5 {
-                next(id, 1, &mut out.next);
+                next(id, 1, &mut out.next, &mut out.problems);
             }
         }
         if supplements && sections.supplements.is_none() {
             sections.supplements = Some(section(data, |(_, files)| files.clone()));
             if let Ok(Some((_, files))) = data {
-                supplement_next(id, files, &mut out.next);
+                supplement_next(id, files, &mut out.next, &mut out.problems);
             }
         }
     }
@@ -118,17 +118,25 @@ fn section<T>(content: &Content, map: impl FnOnce(&(FullText, Supplements)) -> T
         Err(reason) => Section::unavailable(Source::PmcOa, *reason),
     }
 }
-fn supplement_next(id: Pmcid, files: &Supplements, out: &mut Vec<(StepKind, Action)>) {
+fn supplement_next(
+    id: Pmcid,
+    files: &Supplements,
+    out: &mut Vec<crate::next::Step>,
+    problems: &mut Vec<biomcp_types::Problem>,
+) {
     if let Some(file) = files.files.iter().find(|v| v.kind.readable())
         && out.len() < 5
-        && let Ok(query) = ArticleSupplement::new(ArticleInput::Pmcid(id), file.name.clone())
+        && let Some(query) = crate::next::checked(
+            ArticleSupplement::new(ArticleInput::Pmcid(id), file.name.clone()),
+            biomcp_types::Source::PmcOa,
+            problems,
+        )
     {
-        out.push((
+        out.push(crate::next::Step::run(
             StepKind::Page,
-            Action::Run {
-                request: Request::ArticleSupplement(query),
-                fresh: false,
-            },
+            &super::super::next::text_sources(query.input()),
+            Request::ArticleSupplement(query),
+            false,
         ));
     }
 }
@@ -141,17 +149,30 @@ pub(crate) fn outline(document: &pmc_oa::Document) -> FullText {
         figures: document.body.figures.clone().into(),
     }
 }
-pub(crate) fn next(id: Pmcid, part: u32, out: &mut Vec<(StepKind, Action)>) {
-    next_input(ArticleInput::Pmcid(id), part, out);
+pub(crate) fn next(
+    id: Pmcid,
+    part: u32,
+    out: &mut Vec<crate::next::Step>,
+    problems: &mut Vec<biomcp_types::Problem>,
+) {
+    next_input(ArticleInput::Pmcid(id), part, out, problems);
 }
-pub(crate) fn next_input(input: ArticleInput, part: u32, out: &mut Vec<(StepKind, Action)>) {
-    if let Ok(query) = ArticleText::part(input, part) {
-        out.push((
+pub(crate) fn next_input(
+    input: ArticleInput,
+    part: u32,
+    out: &mut Vec<crate::next::Step>,
+    problems: &mut Vec<biomcp_types::Problem>,
+) {
+    if let Some(query) = crate::next::checked(
+        ArticleText::part(input, part),
+        biomcp_types::Source::PmcOa,
+        problems,
+    ) {
+        out.push(crate::next::Step::run(
             StepKind::Page,
-            Action::Run {
-                request: Request::ArticleText(query),
-                fresh: false,
-            },
+            &super::super::next::text_sources(query.input()),
+            Request::ArticleText(query),
+            false,
         ));
     }
 }

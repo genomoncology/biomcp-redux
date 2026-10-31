@@ -13,8 +13,9 @@ pub(super) fn sync_step(out: &mut Outcome) {
         s.source == Source::WikiPathways
             && matches!(s.state, SourceState::Stale | SourceState::Syncing)
     }) {
-        out.next.push((
+        out.next.push(crate::next::Step::new(
             StepKind::Sync,
+            &[biomcp_types::Source::WikiPathways],
             Action::Sync {
                 bundle: Bundle::WikiPathways,
             },
@@ -83,10 +84,17 @@ pub(super) fn get(cx: &Ctx<'_>, q: &PathwayGet) -> Outcome {
             for section in &value.sections {
                 if q.section() != Some(PathwaySection::All)
                     && Some(*section) != q.section()
-                    && let Ok(query) = q.with_section(*section)
+                    && let Some(query) = crate::next::checked(
+                        q.with_section(*section),
+                        biomcp_types::Source::WikiPathways,
+                        &mut out.problems,
+                    )
                 {
-                    out.next
-                        .push((StepKind::Section, run(Request::GetPathway(query))));
+                    out.next.push(crate::next::Step::new(
+                        StepKind::Section,
+                        &[biomcp_types::Source::WikiPathways],
+                        run(Request::GetPathway(query)),
+                    ));
                 }
             }
         }

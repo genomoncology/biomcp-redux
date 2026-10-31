@@ -47,7 +47,11 @@ pub fn get(cx: &Ctx<'_>, q: &GwasGet) -> Outcome {
         .iter()
         .any(|s| matches!(s.state, SourceState::Failed | SourceState::Stale))
     {
-        out.next.push((StepKind::Fresh, action(q.restart(), true)));
+        out.next.push(crate::next::Step::new(
+            StepKind::Fresh,
+            &[biomcp_types::Source::Gwas],
+            action(q.restart(), true),
+        ));
     }
     if matches!(
         q,
@@ -113,7 +117,11 @@ fn resource(q: &GwasGet, leg: &Leg<'_>, out: &mut Outcome) -> Result<(), Request
             if let GwasGet::Association { section, .. } = &mut loci {
                 *section = Some(GwasAssociationSection::Loci);
             }
-            out.next.push((StepKind::Section, action(loci, false)));
+            out.next.push(crate::next::Step::new(
+                StepKind::Section,
+                &[biomcp_types::Source::Gwas],
+                action(loci, false),
+            ));
             out.body = QueryBody::GwasAssociation(Some(GwasAssociationCard { association }));
         }
         GwasGet::Association {
@@ -146,7 +154,11 @@ fn resource(q: &GwasGet, leg: &Leg<'_>, out: &mut Outcome) -> Result<(), Request
                     section: Some(section),
                     page: GwasSectionPage::default(),
                 };
-                out.next.push((StepKind::Section, action(q, false)));
+                out.next.push(crate::next::Step::new(
+                    StepKind::Section,
+                    &[biomcp_types::Source::Gwas],
+                    action(q, false),
+                ));
             }
             out.body = QueryBody::GwasStudy(Some(study.value));
         }
@@ -197,7 +209,11 @@ fn page<T: Clone>(q: &GwasGet, rows: &[T], out: &mut Outcome) -> (Box<[T]>, Opti
     let continuation =
         (returned > 0 && (next as usize) < rows.len()).then(|| q.with_page(window.at_offset(next)));
     if let Some(q) = &continuation {
-        out.next.push((StepKind::Page, action(q.clone(), false)));
+        out.next.push(crate::next::Step::new(
+            StepKind::Page,
+            &[biomcp_types::Source::Gwas],
+            action(q.clone(), false),
+        ));
     }
     out.page = Some(PageInfo {
         offset: window.offset(),
@@ -243,7 +259,11 @@ fn associations(
         truncated: None,
     });
     if let Some(GwasPageQuery::Get(q)) = &continuation {
-        out.next.push((StepKind::Page, action(q.clone(), false)));
+        out.next.push(crate::next::Step::new(
+            StepKind::Page,
+            &[biomcp_types::Source::Gwas],
+            action(q.clone(), false),
+        ));
     }
     out.body = QueryBody::GwasPage(Some(GwasPage {
         items,

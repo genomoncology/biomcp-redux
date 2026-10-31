@@ -1,5 +1,5 @@
 //! Retained complete ClinPGx collections reuse the shared immutable source store.
-use crate::{Action, Ctx, Outcome, status, store::Store};
+use crate::{Ctx, Outcome, status, store::Store};
 use biomcp_adapters::clinpgx;
 use biomcp_fetch::{CacheError, Deadline, RequestError, SourceError};
 use biomcp_types::{
@@ -51,12 +51,11 @@ pub(super) fn load(
         })?
         else {
             out.body = QueryBody::PoolError { mismatch: false };
-            out.next.push((
+            out.next.push(crate::next::Step::run(
                 StepKind::Restart,
-                Action::Run {
-                    request: Request::GetPgx(q.restart()),
-                    fresh: false,
-                },
+                &[q.source().source()],
+                Request::GetPgx(q.restart()),
+                false,
             ));
             return Ok(None);
         };

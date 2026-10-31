@@ -16,19 +16,19 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DiagnosticGet) -> Outcome {
             crate::status::item(&mut out, found, false, false);
         };
         out.body = QueryBody::DiagnosticCard(product.map(DiagnosticCard::WhoIvdProduct));
-        out.next.push((
+        out.next.push(crate::next::Step::new(
             StepKind::Sync,
+            &[biomcp_types::Source::WhoIvd],
             Action::Sync {
                 bundle: Bundle::WhoIvd,
             },
         ));
         if !cx.fresh {
-            out.next.push((
+            out.next.push(crate::next::Step::run(
                 StepKind::Fresh,
-                Action::Run {
-                    request: Request::GetDiagnostic(query.clone()),
-                    fresh: true,
-                },
+                &[biomcp_types::Source::WhoIvd],
+                Request::GetDiagnostic(query.clone()),
+                true,
             ));
         }
     }

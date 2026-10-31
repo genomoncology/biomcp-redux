@@ -26,24 +26,34 @@ pub fn search(cx: &Ctx<'_>, query: &DiseaseSearch) -> Outcome {
         out.include_refusals(page.rows.refusals);
         let returned = page.rows.value.len() as u32;
         for row in &page.rows.value {
-            if let Some(id) = &row.concept.id {
-                let value = serde_json::json!({"id":id,"source":"ols","ontology":row.ontology});
-                if let Ok(get) = serde_json::from_value(value) {
-                    out.next
-                        .push((StepKind::Disambiguate, run(Request::GetDisease(get))));
-                }
+            if let Some(id) = &row.concept.id
+                && let Some(get) = crate::next::checked(
+                    id.to_string()
+                        .parse()
+                        .map_err(|_| biomcp_types::QueryInvalid::new(&["id"]))
+                        .and_then(|id| DiseaseGet::ols(id, row.ontology)),
+                    Source::Ols,
+                    &mut out.problems,
+                )
+            {
+                out.next.push(crate::next::Step::new(
+                    StepKind::Disambiguate,
+                    &[biomcp_types::Source::Ols],
+                    run(Request::GetDisease(get)),
+                ));
             }
         }
         if page.received > 0 && u64::from(query.offset()) + u64::from(page.received) < page.total {
-            out.next.push((
+            out.next.push(crate::next::Step::new(
                 StepKind::Page,
+                &[biomcp_types::Source::Ols],
                 run(Request::SearchDisease(
                     query.at_offset(query.offset().saturating_add(page.received)),
                 )),
             ));
         }
         out.page = Some(page_info(query.offset(), returned, page.total));
-        out.problems = page.rows.problems;
+        out.problems.extend(page.rows.problems);
         if let QueryBody::DiseasePage(body) = &mut out.body {
             body.items = page.rows.value.into();
         }
@@ -102,8 +112,9 @@ fn apply(out: &mut Outcome, query: &DiseaseGet, record: ols::Record) {
             out.include_refusals(record.xrefs.refusals);
             out.problems.extend(record.xrefs.problems);
             for section in record.card.sections.iter() {
-                out.next.push((
+                out.next.push(crate::next::Step::new(
                     StepKind::Section,
+                    &[biomcp_types::Source::Ols],
                     run(Request::GetDisease(query.with_section(*section))),
                 ));
             }
@@ -113,8 +124,9 @@ fn apply(out: &mut Outcome, query: &DiseaseGet, record: ols::Record) {
     if let Some(page) = &out.page {
         let offset = page.offset.saturating_add(page.returned);
         if page.returned > 0 && u64::from(offset) < page.total {
-            out.next.push((
+            out.next.push(crate::next::Step::new(
                 StepKind::Page,
+                &[biomcp_types::Source::Ols],
                 run(Request::GetDisease(query.at_section_offset(offset))),
             ));
         }

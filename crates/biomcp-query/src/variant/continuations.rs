@@ -4,18 +4,27 @@ use crate::Action;
 use biomcp_types::{
     Request, Section, Source, StepKind, VariantGet, VariantHeader, VariantResolution,
 };
-pub(super) fn collect(candidates: &[VariantHeader], next: &mut Vec<(StepKind, Action)>) {
+pub(super) fn collect(
+    fetch: &biomcp_fetch::Fetch,
+    candidates: &[VariantHeader],
+    next: &mut Vec<crate::next::Step>,
+) {
     for candidate in candidates {
         let Some(sections) = candidate.sections.as_deref() else {
             continue;
         };
-        for section in [&sections.clinvar, &sections.erepo].into_iter().flatten() {
+        for (source, section) in [
+            (Source::ClinVar, &sections.clinvar),
+            (Source::Erepo, &sections.erepo),
+        ] {
+            let Some(section) = section else { continue };
             if let Section::Data { data, .. } = section
                 && let Some(query) = &data.next
             {
                 push(
                     next,
                     StepKind::Page,
+                    &[source],
                     Request::VariantAssertions(query.clone()),
                 );
             }
@@ -23,7 +32,12 @@ pub(super) fn collect(candidates: &[VariantHeader], next: &mut Vec<(StepKind, Ac
         if let Some(query) =
             data(sections.gwas.as_ref()).and_then(|gwas| gwas.continuation.as_ref())
         {
-            push(next, StepKind::Page, Request::GetVariant(query.clone()));
+            push(
+                next,
+                StepKind::Page,
+                &super::next_sources(fetch, query),
+                Request::GetVariant(query.clone()),
+            );
         }
         for query in [
             data(sections.civic.as_ref()).and_then(|d| d.next.as_ref()),
@@ -32,7 +46,12 @@ pub(super) fn collect(candidates: &[VariantHeader], next: &mut Vec<(StepKind, Ac
         .into_iter()
         .flatten()
         {
-            push(next, StepKind::Page, Request::GetVariant(query.clone()));
+            push(
+                next,
+                StepKind::Page,
+                &super::next_sources(fetch, query),
+                Request::GetVariant(query.clone()),
+            );
         }
         if let Some(civic) = data(sections.civic.as_ref()) {
             for profile in &civic.profiles {
@@ -40,7 +59,12 @@ pub(super) fn collect(candidates: &[VariantHeader], next: &mut Vec<(StepKind, Ac
                     .into_iter()
                     .flatten()
                 {
-                    push(next, StepKind::Page, Request::GetVariant(query.clone()));
+                    push(
+                        next,
+                        StepKind::Page,
+                        &super::next_sources(fetch, query),
+                        Request::GetVariant(query.clone()),
+                    );
                 }
             }
         }
@@ -50,7 +74,12 @@ pub(super) fn collect(candidates: &[VariantHeader], next: &mut Vec<(StepKind, Ac
                 .iter()
                 .filter_map(|scorer| scorer.next.as_ref())
             {
-                push(next, StepKind::Page, Request::GetVariant(query.clone()));
+                push(
+                    next,
+                    StepKind::Page,
+                    &super::next_sources(fetch, query),
+                    Request::GetVariant(query.clone()),
+                );
             }
         }
     }
@@ -61,22 +90,24 @@ fn data<T>(section: Option<&Section<T>>) -> Option<&T> {
         _ => None,
     }
 }
-fn push(next: &mut Vec<(StepKind, Action)>, kind: StepKind, request: Request) {
+fn push(next: &mut Vec<crate::next::Step>, kind: StepKind, sources: &[Source], request: Request) {
     let action = Action::Run {
         request,
         fresh: false,
     };
-    if !next.iter().any(|(_, old)| old == &action) {
-        next.push((kind, action));
+    if !next.iter().any(|step| step.1 == action) {
+        next.push(crate::next::Step::new(kind, sources, action));
     }
 }
 
 pub(super) fn next(
+    fetch: &biomcp_fetch::Fetch,
     query: &VariantGet,
     resolution: VariantResolution,
     candidates: &[VariantHeader],
     page: Option<&biomcp_types::PageInfo>,
-) -> Vec<(StepKind, Action)> {
+    problems: &mut Vec<biomcp_types::Problem>,
+) -> Vec<crate::next::Step> {
     let mut next = Vec::new();
     if resolution == VariantResolution::Candidates
         || resolution == VariantResolution::Resolved
@@ -98,41 +129,41 @@ pub(super) fn next(
             })
     {
         for row in candidates {
-            if let Some(request) = candidate_request(query, resolution, row) {
-                push(&mut next, StepKind::Disambiguate, request);
+            if let Some((request, sources)) =
+                candidate_request(fetch, query, resolution, row, problems)
+            {
+                push(&mut next, StepKind::Disambiguate, &sources, request);
             }
         }
     }
     if let Some(page) = page
         && (page.offset as u64 + page.returned as u64) < page.total
     {
-        next.push((
+        next.push(crate::next::Step::run(
             StepKind::Page,
-            Action::Run {
-                request: Request::GetVariant(query.at_offset(page.offset + page.returned)),
-                fresh: false,
-            },
+            &super::next_sources(fetch, query),
+            Request::GetVariant(query.at_offset(page.offset + page.returned)),
+            false,
         ));
     }
     if query.sections().is_empty() && !candidates.is_empty() {
-        next.push((
+        let section = query
+            .clone()
+            .with_sections(vec![biomcp_types::VariantSection::Clinvar].into());
+        next.push(crate::next::Step::run(
             StepKind::Section,
-            Action::Run {
-                request: Request::GetVariant(
-                    query
-                        .clone()
-                        .with_sections(vec![biomcp_types::VariantSection::Clinvar].into()),
-                ),
-                fresh: false,
-            },
+            &super::next_sources(fetch, &section),
+            Request::GetVariant(section),
+            false,
         ));
     }
-    collect(candidates, &mut next);
+    collect(fetch, candidates, &mut next);
     if query.input().namespace().ok() == Some(biomcp_types::VariantNamespace::Rs) {
         for gene in candidates.iter().flat_map(|row| &row.identity.genes) {
             push(
                 &mut next,
                 StepKind::Pivot,
+                &[Source::PubMed],
                 Request::SearchArticle(biomcp_types::ArticleSearch::for_gene(
                     biomcp_types::GeneInput::Text(gene.label().clone()),
                 )),
@@ -143,28 +174,38 @@ pub(super) fn next(
 }
 
 fn candidate_request(
+    fetch: &biomcp_fetch::Fetch,
     query: &VariantGet,
     resolution: VariantResolution,
     row: &VariantHeader,
-) -> Option<Request> {
+    problems: &mut Vec<biomcp_types::Problem>,
+) -> Option<(Request, Vec<Source>)> {
     if super::population_identity::requested(query) {
-        return Some(match super::population_identity::choice(row)? {
+        let (request, source) = super::population_identity::choice(row, problems)?;
+        let (request, sources) = match request {
             Request::GetVariant(q) if resolution == VariantResolution::Candidates => {
-                Request::GetVariant(q.with_sections(query.sections().into()))
+                let q = q.with_sections(query.sections().into());
+                let sources = super::next_sources(fetch, &q);
+                (Request::GetVariant(q), sources)
             }
-            request => request,
-        });
+            request => (request, vec![source]),
+        };
+        return Some((request, sources));
     }
-    Some(Request::GetVariant(
+    let input = crate::next::checked(row.record.id.as_str().parse(), row.source, problems)?;
+    let query = crate::next::checked(
         VariantGet::new(
-            row.record.id.as_str().parse().ok()?,
+            input,
             query.resolver(),
             row.identity
                 .representations
                 .iter()
                 .find_map(|r| r.build)
                 .or(query.build()),
-        )
-        .ok()?,
-    ))
+        ),
+        row.source,
+        problems,
+    )?;
+    let sources = super::next_sources(fetch, &query);
+    Some((Request::GetVariant(query), sources))
 }

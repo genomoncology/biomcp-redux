@@ -77,8 +77,10 @@ fn finish(
     error: Option<biomcp_fetch::RequestError>,
 ) {
     if source.reason == Some(Reason::NoKey) {
-        out.next
-            .insert(0, (StepKind::Key, Action::KeyHelp(Source::Nci)));
+        out.next.insert(
+            0,
+            crate::next::Step::new(StepKind::Key, &[Source::Nci], Action::KeyHelp(Source::Nci)),
+        );
     }
     out.local = error.and_then(status::local);
     out.sources.push(source);
@@ -121,13 +123,12 @@ fn apply(
     });
     if !q.count_only() && returned > 0 && u64::from(offset.saturating_add(returned)) < page.total {
         let token = Text::new(&offset.saturating_add(returned).to_string());
-        if let Ok(token) = token {
-            out.next.push((
+        if let Some(token) = crate::next::checked(token, Source::Nci, &mut out.problems) {
+            out.next.push(crate::next::Step::run(
                 StepKind::Page,
-                Action::Run {
-                    request: Request::SearchTrial(q.at_page(token)),
-                    fresh,
-                },
+                &[Source::Nci],
+                Request::SearchTrial(q.at_page(token)),
+                fresh,
             ));
         }
     }

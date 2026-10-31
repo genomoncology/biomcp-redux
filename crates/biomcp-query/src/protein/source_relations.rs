@@ -1,5 +1,5 @@
 //! Complete checked source collections page without admitting inferred memberships.
-use crate::{Action, Ctx, Outcome, status, store::Store};
+use crate::{Ctx, Outcome, status, store::Store};
 use biodata::{Text, UniProtIsoform};
 use biomcp_adapters::{complex_portal, interpro};
 use biomcp_fetch::{CacheError, Deadline, RequestError, SourceError};
@@ -79,12 +79,11 @@ pub(super) fn run(cx: &Ctx<'_>, q: Selection) -> Outcome {
     let mut out = super::empty(q.empty());
     if let Err(e) = read(cx, &q, deadline, &mut out) {
         out.local = status::local(e);
-        out.next.push((
+        out.next.push(crate::next::Step::run(
             StepKind::Fresh,
-            Action::Run {
-                request: q.request(None),
-                fresh: true,
-            },
+            &[q.source()],
+            q.request(None),
+            true,
         ));
     }
     command.finish(deadline.remaining());
@@ -92,12 +91,11 @@ pub(super) fn run(cx: &Ctx<'_>, q: Selection) -> Outcome {
 }
 fn restart(q: &Selection, out: &mut Outcome, mismatch: bool) {
     out.body = QueryBody::PoolError { mismatch };
-    out.next.push((
+    out.next.push(crate::next::Step::run(
         StepKind::Restart,
-        Action::Run {
-            request: q.request(None),
-            fresh: false,
-        },
+        &[q.source()],
+        q.request(None),
+        false,
     ));
 }
 pub(super) fn read(
@@ -160,12 +158,11 @@ pub(super) fn read(
         truncated: None,
     });
     if u64::from(offset + returned) < total {
-        out.next.push((
+        out.next.push(crate::next::Step::run(
             StepKind::Page,
-            Action::Run {
-                request: q.request(Some((pool.id, offset + returned))),
-                fresh: false,
-            },
+            &[q.source()],
+            q.request(Some((pool.id, offset + returned))),
+            false,
         ));
     }
     Ok(())

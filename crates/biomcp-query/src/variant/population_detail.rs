@@ -1,5 +1,5 @@
 //! Native ancestry pagination reuses the same identity and gnomAD requests.
-use crate::{Action, Ctx, Outcome, status};
+use crate::{Ctx, Outcome, status};
 use biodata::PopulationDataType;
 use biomcp_adapters::gnomad;
 use biomcp_fetch::RequestError;
@@ -29,15 +29,14 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &VariantPopulationQuery) -> Outcome {
     });
     let mut next = Vec::new();
     if query.offset() as u64 + u64::from(returned) < total {
-        next.push((
+        next.push(crate::next::Step::run(
             StepKind::Page,
-            Action::Run {
-                request: Request::VariantPopulation(query.at_offset(query.offset() + returned)),
-                fresh: false,
-            },
+            &[biomcp_types::Source::Gnomad],
+            Request::VariantPopulation(query.at_offset(query.offset() + returned)),
+            false,
         ));
     }
-    next.extend(choices(query, &read.candidates));
+    next.extend(choices(query, &read.candidates, &mut read.problems));
     let status = match &read.population {
         Section::Data { .. } => status::item_status(true, false, read.dropped),
         _ if read.candidates.len() > 1 => status::item_status(true, false, read.dropped),
@@ -133,26 +132,31 @@ fn read(
 fn choices(
     query: &VariantPopulationQuery,
     candidates: &[biomcp_types::VariantHeader],
-) -> Vec<(StepKind, Action)> {
+    problems: &mut Vec<biomcp_types::Problem>,
+) -> Vec<crate::next::Step> {
     candidates
         .iter()
         .filter_map(|row| {
-            let request = match super::population_identity::choice(row)? {
+            let (request, source) = super::population_identity::choice(row, problems)?;
+            let (request, sources) = match request {
                 Request::GetVariant(identity) if candidates.len() > 1 => {
-                    Request::VariantPopulation(
-                        query
-                            .with_identity(identity.input().clone(), identity.build())
-                            .ok()?,
+                    let query = crate::next::checked(
+                        query.with_identity(identity.input().clone(), identity.build()),
+                        row.source,
+                        problems,
+                    )?;
+                    (
+                        Request::VariantPopulation(query),
+                        vec![source, biomcp_types::Source::Gnomad],
                     )
                 }
-                request => request,
+                request => (request, vec![source]),
             };
-            Some((
+            Some(crate::next::Step::run(
                 StepKind::Disambiguate,
-                Action::Run {
-                    request,
-                    fresh: false,
-                },
+                &sources,
+                request,
+                false,
             ))
         })
         .collect()

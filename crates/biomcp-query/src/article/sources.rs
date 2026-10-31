@@ -314,14 +314,11 @@ fn prepare_litvar<'a>(
                     if query.variant() == Some(variant) {
                         continue;
                     }
-                    out.next.push((
+                    out.next.push(crate::next::Step::run(
                         biomcp_types::StepKind::Disambiguate,
-                        crate::Action::Run {
-                            request: biomcp_types::Request::SearchArticle(
-                                query.with_variant(variant.clone()),
-                            ),
-                            fresh: cx.fresh,
-                        },
+                        &super::next::search_sources(query),
+                        biomcp_types::Request::SearchArticle(query.with_variant(variant.clone())),
+                        cx.fresh,
                     ));
                 }
             }

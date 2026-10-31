@@ -43,12 +43,11 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
             source.retrieved_count = Some(returned);
         }
         for row in &items {
-            out.next.push((
+            out.next.push(crate::next::Step::run(
                 StepKind::Disambiguate,
-                Action::Run {
-                    request: Request::GetWhoMedicine(DrugWhoGet::new(row.reference.clone())),
-                    fresh: cx.fresh,
-                },
+                &[biomcp_types::Source::WhoPq],
+                Request::GetWhoMedicine(DrugWhoGet::new(row.reference.clone())),
+                cx.fresh,
             ));
         }
         if let Some(offset) = query
@@ -56,12 +55,11 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
             .checked_add(returned)
             .filter(|next| returned > 0 && u64::from(*next) < total)
         {
-            out.next.push((
+            out.next.push(crate::next::Step::run(
                 StepKind::Page,
-                Action::Run {
-                    request: Request::SearchDrug(query.at_offset(offset)),
-                    fresh: cx.fresh,
-                },
+                &[biomcp_types::Source::WhoPq],
+                Request::SearchDrug(query.at_offset(offset)),
+                cx.fresh,
             ));
         }
         out.body = QueryBody::DrugWhoPage(DrugWhoPage { items, total });
@@ -96,8 +94,9 @@ fn sync_step(out: &mut Outcome) {
         .iter()
         .any(|s| matches!(s.state, SourceState::Syncing | SourceState::Stale))
     {
-        out.next.push((
+        out.next.push(crate::next::Step::new(
             StepKind::Sync,
+            &[biomcp_types::Source::WhoPq],
             Action::Sync {
                 bundle: Bundle::WhoPq,
             },

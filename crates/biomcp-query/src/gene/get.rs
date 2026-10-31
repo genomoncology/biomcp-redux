@@ -63,7 +63,7 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &GeneGet) -> Outcome {
     }
     sections::offer_oncokb(query, &mut items, &sources);
     let state = status::status(items.iter().map(|item| item.status));
-    let next = next::get(query, &items, &sources);
+    let next = next::get(query, &items, &sources, &mut problems);
     crate::status::finish(
         [state],
         crate::status::Parts {

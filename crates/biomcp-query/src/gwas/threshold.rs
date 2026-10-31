@@ -1,7 +1,7 @@
 //! An exact threshold walk retains received identities without scanning ahead.
 use super::{map, next};
 use crate::{
-    Action, Ctx, Outcome, status,
+    Ctx, Outcome, status,
     store::{Pool, Store},
 };
 use biomcp_adapters::gwas;
@@ -79,6 +79,7 @@ pub(super) fn search(cx: &Ctx<'_>, q: &GwasSearch) -> Outcome {
             None,
             biomcp_types::SourceState::Failed,
             cx.fresh,
+            &mut out.problems,
         );
     }
     command.finish(deadline.remaining());
@@ -102,12 +103,11 @@ fn bad() -> RequestError {
 }
 fn restart(q: &GwasSearch, out: &mut Outcome, mismatch: bool) {
     out.body = QueryBody::PoolError { mismatch };
-    out.next.push((
+    out.next.push(crate::next::Step::run(
         StepKind::Restart,
-        Action::Run {
-            request: Request::SearchGwas(q.restart()),
-            fresh: false,
-        },
+        &[biomcp_types::Source::Gwas],
+        Request::SearchGwas(q.restart()),
+        false,
     ));
 }
 fn read(
@@ -276,7 +276,13 @@ fn render(cx: &Ctx<'_>, q: &GwasSearch, saved: Saved, pool: Pool, out: &mut Outc
         continuation,
         qualifying_total: saved.done.then_some(saved.rows.len() as u64),
     };
-    out.next = next::search(q, Some(&body), biomcp_types::SourceState::Ok, cx.fresh);
+    out.next = next::search(
+        q,
+        Some(&body),
+        biomcp_types::SourceState::Ok,
+        cx.fresh,
+        &mut out.problems,
+    );
     out.page = Some(page);
     out.body = QueryBody::GwasPage(Some(body));
     out.dropped = saved.dropped;

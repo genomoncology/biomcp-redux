@@ -158,19 +158,21 @@ fn failure(query: &ArticleEdges, references: bool, out: &mut Outcome) {
         .iter()
         .any(|s| s.source == Source::SemanticScholar && s.reason == Some(Reason::RateLimited))
     {
-        out.next
-            .push((StepKind::Key, Action::KeyHelp(Source::SemanticScholar)));
+        out.next.push(crate::next::Step::new(
+            StepKind::Key,
+            &[biomcp_types::Source::SemanticScholar],
+            Action::KeyHelp(Source::SemanticScholar),
+        ));
     }
-    out.next.push((
+    out.next.push(crate::next::Step::run(
         StepKind::Fresh,
-        Action::Run {
-            request: if references {
-                biomcp_types::Request::ArticleReferences(query.page(0, None))
-            } else {
-                biomcp_types::Request::ArticleCitations(query.page(0, None))
-            },
-            fresh: true,
+        &[biomcp_types::Source::SemanticScholar],
+        if references {
+            biomcp_types::Request::ArticleReferences(query.page(0, None))
+        } else {
+            biomcp_types::Request::ArticleCitations(query.page(0, None))
         },
+        true,
     ));
 }
 

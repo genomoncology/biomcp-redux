@@ -3,6 +3,7 @@ use biomcp_types::{Envelope, QueryBody, Request, Section, StepKind};
 use std::io;
 const LABEL_BYTES: usize = 8192;
 pub(super) fn bound(
+    fetch: &biomcp_fetch::Fetch,
     request: &Request,
     out: &mut biomcp_query::Outcome,
     fresh: bool,
@@ -12,6 +13,7 @@ pub(super) fn bound(
         return Ok(());
     };
     loop {
+        biomcp_query::next::finish(fetch, out);
         let QueryBody::DrugLabel(Some(body)) = &out.body else {
             return Ok(());
         };
@@ -59,7 +61,7 @@ pub(super) fn bound(
         if let Some(page) = &mut out.page {
             page.returned = returned;
         }
-        out.next.retain(|(kind, _)| *kind != StepKind::Page);
+        out.next.retain(|step| step.0 != StepKind::Page);
         let offset = data
             .offset
             .checked_add(returned)
@@ -67,12 +69,11 @@ pub(super) fn bound(
         let request = query
             .at_section_offset(offset)
             .map_err(|_| io::Error::other("invalid label continuation"))?;
-        out.next.push((
+        out.next.push(biomcp_query::next::Step::run(
             StepKind::Page,
-            biomcp_query::Action::Run {
-                request: Request::GetDrug(request),
-                fresh,
-            },
+            &[biomcp_types::Source::OpenfdaLabel],
+            Request::GetDrug(request),
+            fresh,
         ));
     }
 }

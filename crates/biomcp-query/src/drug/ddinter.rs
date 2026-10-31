@@ -77,14 +77,17 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
             out.problems.extend(card.problems);
             let card = card.value;
             if card.is_some()
-                && let Ok(get) = query.for_section(DrugSection::Interactions)
+                && let Some(get) = crate::next::checked(
+                    query.for_section(DrugSection::Interactions),
+                    biomcp_types::Source::Ddinter,
+                    &mut out.problems,
+                )
             {
-                out.next.push((
+                out.next.push(crate::next::Step::run(
                     StepKind::Section,
-                    Action::Run {
-                        request: Request::GetDrug(get),
-                        fresh: cx.fresh,
-                    },
+                    &[biomcp_types::Source::Ddinter],
+                    Request::GetDrug(get),
+                    cx.fresh,
                 ));
             }
             let found = card.is_some();
@@ -123,14 +126,17 @@ fn page(
             .offset
             .checked_add(returned)
             .filter(|n| returned > 0 && u64::from(*n) < total)
-            && let Ok(get) = query.at_section_offset(offset)
+            && let Some(get) = crate::next::checked(
+                query.at_section_offset(offset),
+                biomcp_types::Source::Ddinter,
+                &mut out.problems,
+            )
         {
-            out.next.push((
+            out.next.push(crate::next::Step::run(
                 StepKind::Page,
-                Action::Run {
-                    request: Request::GetDrug(get),
-                    fresh,
-                },
+                &[biomcp_types::Source::Ddinter],
+                Request::GetDrug(get),
+                fresh,
             ));
         }
     }
@@ -142,8 +148,9 @@ fn sync_step(out: &mut Outcome) {
         .iter()
         .any(|s| matches!(s.state, SourceState::Syncing | SourceState::Stale))
     {
-        out.next.push((
+        out.next.push(crate::next::Step::new(
             StepKind::Sync,
+            &[biomcp_types::Source::Ddinter],
             Action::Sync {
                 bundle: Bundle::Ddinter,
             },

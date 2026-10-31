@@ -2,7 +2,7 @@ mod eligibility;
 mod publications;
 mod sites;
 use super::snapshot::Snapshot;
-use crate::{Action, Outcome};
+use crate::Outcome;
 use biodata::{NctId, Text};
 
 use biomcp_fetch::{CacheError, RequestError};
@@ -55,12 +55,11 @@ pub(super) fn render(
     sites::render(query, &snapshot, pool.as_ref(), &mut sections, out)?;
     publications::render(query, &snapshot, pool.as_ref(), &mut sections, out)?;
     for section in SECTIONS.into_iter().filter(|s| !requested(*s)) {
-        out.next.push((
+        out.next.push(crate::next::Step::run(
             StepKind::Section,
-            Action::Run {
-                request: Request::GetTrial(TrialGet::single(id, Some(section), query.limit())),
-                fresh: false,
-            },
+            &[query.source().source()],
+            Request::GetTrial(TrialGet::single(id, Some(section), query.limit())),
+            false,
         ));
     }
     out.problems
@@ -175,12 +174,11 @@ pub(in crate::trial) fn advance(
     if end < total
         && let Some(pool) = pool
     {
-        out.next.push((
+        out.next.push(crate::next::Step::run(
             StepKind::Page,
-            Action::Run {
-                request: Request::GetTrial(query.page(id, section, pool.clone(), end)),
-                fresh: false,
-            },
+            &[query.source().source()],
+            Request::GetTrial(query.page(id, section, pool.clone(), end)),
+            false,
         ));
     }
 }

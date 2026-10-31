@@ -208,6 +208,17 @@ impl TryFrom<GetFields> for DiseaseGet {
 }
 
 impl DiseaseSearch {
+    /// Select the SEER site catalog with the standard page bounds.
+    pub fn seer() -> Result<Self, QueryInvalid> {
+        Self::try_from(SearchFields {
+            text: None,
+            source: DiseaseSource::Seer,
+            ontology: None,
+            limit: default_limit(),
+            offset: 0,
+        })
+    }
+
     /// Literal search text, absent for a native site catalog.
     pub fn text(&self) -> Option<&str> {
         self.0.text.as_deref()
@@ -236,6 +247,24 @@ impl DiseaseSearch {
     }
 }
 impl DiseaseGet {
+    /// Check an exact OLS concept within its source-listed ontology.
+    pub fn ols(id: Text, ontology: DiseaseOntology) -> Result<Self, QueryInvalid> {
+        Self::try_from(GetFields {
+            id,
+            source: DiseaseSource::Ols,
+            ontology: Some(ontology),
+            section: None,
+            section_limit: None,
+            section_offset: 0,
+            sex: None,
+            race: None,
+            age_range: None,
+            dataset: None,
+            period: None,
+            interval: None,
+        })
+    }
+
     /// Read an exact native disease CURIE through the default disease command.
     pub fn from_id(id: biodata::Curie) -> Result<Self, QueryInvalid> {
         Ok(Self(GetFields {

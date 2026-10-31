@@ -1,7 +1,14 @@
-use crate::{Action, Outcome};
+use crate::Outcome;
 use biomcp_types::{DiagnosticCandidate, DiagnosticGet, DiagnosticSearch, Request, StepKind};
-pub(super) fn push(out: &mut Outcome, kind: StepKind, request: Request, fresh: bool) {
-    out.next.push((kind, Action::Run { request, fresh }));
+pub(super) fn push(
+    out: &mut Outcome,
+    kind: StepKind,
+    sources: &[biomcp_types::Source],
+    request: Request,
+    fresh: bool,
+) {
+    out.next
+        .push(crate::next::Step::run(kind, sources, request, fresh));
 }
 pub(super) fn candidates(
     out: &mut Outcome,
@@ -10,25 +17,32 @@ pub(super) fn candidates(
     fresh: bool,
 ) {
     for row in rows {
-        let fields = match row {
-            DiagnosticCandidate::DeviceRecall { header } => {
-                serde_json::json!({"id":header.recall_number,"source":"fda-device-recall"})
-            }
-            DiagnosticCandidate::Resolved { header, .. } => {
-                serde_json::json!({"id":header.id,"source":"gtr"})
-            }
+        let (id, source) = match row {
+            DiagnosticCandidate::DeviceRecall { header } => (
+                header.recall_number.to_string(),
+                biomcp_types::DiagnosticGetSource::FdaDeviceRecall,
+            ),
+            DiagnosticCandidate::Resolved { header, .. } => (
+                header.id.to_string(),
+                biomcp_types::DiagnosticGetSource::Gtr,
+            ),
             DiagnosticCandidate::WhoIvd { id, .. } => {
-                serde_json::json!({"id":id,"source":"who-ivd"})
+                (id.to_string(), biomcp_types::DiagnosticGetSource::WhoIvd)
             }
             _ => continue,
         };
-        if let Ok(mut get) = serde_json::from_value::<DiagnosticGet>(fields) {
+        let get = id
+            .parse()
+            .map_err(|_| biomcp_types::QueryInvalid::new(&["id"]))
+            .and_then(|id| DiagnosticGet::new(id, source, None));
+        if let Some(mut get) = crate::next::checked(get, source.source(), &mut out.problems) {
             if let Some(revision) = query.bundle_revision() {
                 get = get.with_bundle_revision(revision.clone());
             }
             push(
                 out,
                 StepKind::Disambiguate,
+                &[get.source().source()],
                 Request::GetDiagnostic(get),
                 fresh,
             );

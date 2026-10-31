@@ -1,6 +1,6 @@
 //! Native FDA application discovery; product and submission scope remain separate.
 use super::{empty, searched, unsupported};
-use crate::{Action, Ctx, Outcome, status};
+use crate::{Ctx, Outcome, status};
 use biomcp_adapters::{drugsfda as source, received_date};
 use biomcp_types::{
     DrugCard, DrugFdaPage, DrugGet, DrugPage, DrugSearch, DrugSection, DrugSource, QueryBody,
@@ -99,13 +99,16 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
                     out.local = status::local(error);
                 }
             } else {
-                if let Ok(request) = query.for_section(DrugSection::Approvals) {
-                    out.next.push((
+                if let Some(request) = crate::next::checked(
+                    query.for_section(DrugSection::Approvals),
+                    biomcp_types::Source::Drugsfda,
+                    &mut out.problems,
+                ) {
+                    out.next.push(crate::next::Step::run(
                         StepKind::Section,
-                        Action::Run {
-                            request: Request::GetDrug(request),
-                            fresh: cx.fresh,
-                        },
+                        &[biomcp_types::Source::Drugsfda],
+                        Request::GetDrug(request),
+                        cx.fresh,
                     ));
                 }
                 out.body = QueryBody::DrugCard(Some(DrugCard {
@@ -135,13 +138,16 @@ fn label_steps(cx: &Ctx<'_>, row: &source::Application, out: &mut Outcome) {
         .into_iter()
         .flatten()
     {
-        if let Ok(request) = DrugGet::new(id.clone(), DrugSource::OpenfdaLabel) {
-            out.next.push((
+        if let Some(request) = crate::next::checked(
+            DrugGet::new(id.clone(), DrugSource::OpenfdaLabel),
+            biomcp_types::Source::Drugsfda,
+            &mut out.problems,
+        ) {
+            out.next.push(crate::next::Step::run(
                 StepKind::Disambiguate,
-                Action::Run {
-                    request: Request::GetDrug(request),
-                    fresh: cx.fresh,
-                },
+                &[request.source().source()],
+                Request::GetDrug(request),
+                cx.fresh,
             ));
         }
     }

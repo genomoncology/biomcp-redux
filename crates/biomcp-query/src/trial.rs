@@ -122,12 +122,11 @@ fn apply_page(
                 .wider_searches(symbol.and_then(|value| biodata::Text::new(value).ok()))
                 .into_iter()
                 .map(|query| {
-                    (
+                    crate::next::Step::run(
                         StepKind::Disambiguate,
-                        Action::Run {
-                            request: Request::SearchTrial(query),
-                            fresh,
-                        },
+                        &[query.source().source()],
+                        Request::SearchTrial(query),
+                        fresh,
                     )
                 }),
         );
@@ -140,12 +139,11 @@ fn apply_page(
         truncated: None,
     });
     if let Some(token) = page.next.filter(|_| !query.count_only()) {
-        outcome.next.push((
+        outcome.next.push(crate::next::Step::run(
             StepKind::Page,
-            Action::Run {
-                request: Request::SearchTrial(query.at_page(token)),
-                fresh,
-            },
+            &[query.source().source()],
+            Request::SearchTrial(query.at_page(token)),
+            fresh,
         ));
     }
     if let QueryBody::TrialPage(body) = &mut outcome.body {

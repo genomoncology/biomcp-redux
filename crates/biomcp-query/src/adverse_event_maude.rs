@@ -1,5 +1,5 @@
 //! Explicit MAUDE native cards and whole device/narrative pages.
-use crate::{Action, Ctx, Outcome, status};
+use crate::{Ctx, Outcome, status};
 use biodata::Text;
 use biomcp_adapters::maude;
 use biomcp_types::{AdverseEventGet, AdverseEventSection, QueryBody, Request, Source, StepKind};
@@ -45,23 +45,25 @@ fn navigation(query: &AdverseEventGet, total: u64, returned: u32, offset: u32, o
             truncated: None,
         });
         if offset > query.section_offset() && u64::from(offset) < total {
-            out.next.push((
+            out.next.push(crate::next::Step::run(
                 StepKind::Page,
-                Action::Run {
-                    request: Request::GetAdverseEvent(query.at_section_offset(offset)),
-                    fresh: false,
-                },
+                &[biomcp_types::Source::Maude],
+                Request::GetAdverseEvent(query.at_section_offset(offset)),
+                false,
             ));
         }
     } else {
         for section in [AdverseEventSection::Devices, AdverseEventSection::Narrative] {
-            if let Ok(next) = query.with_section(section, None) {
-                out.next.push((
+            if let Some(next) = crate::next::checked(
+                query.with_section(section, None),
+                biomcp_types::Source::Maude,
+                &mut out.problems,
+            ) {
+                out.next.push(crate::next::Step::run(
                     StepKind::Section,
-                    Action::Run {
-                        request: Request::GetAdverseEvent(next),
-                        fresh: false,
-                    },
+                    &[biomcp_types::Source::Maude],
+                    Request::GetAdverseEvent(next),
+                    false,
                 ));
             }
         }

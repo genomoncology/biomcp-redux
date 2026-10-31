@@ -1,4 +1,4 @@
-use super::{Outcome, bundle_source, encode, steps};
+use super::{Outcome, bundle_source, encode};
 use biomcp_query::Bundle;
 use biomcp_types::{Envelope, Status};
 use std::io;
@@ -71,7 +71,10 @@ fn finish<T: biomcp_types::ResponseBody<Query = biomcp_types::SyncQuery>>(
             code: biomcp_types::ProblemCode::CollectionIncomplete,
         });
     }
-    steps::network_steps(&mut envelope.next, &envelope.sources, None);
+    envelope.next = biomcp_query::next::network(&envelope.sources)
+        .iter()
+        .map(|step| crate::spell::step(step.0, &step.1))
+        .collect::<Result<Vec<_>, _>>()?;
     encode(
         envelope,
         if local {

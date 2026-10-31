@@ -10,6 +10,7 @@ mod continuations;
 use continuations::next;
 mod cosmic;
 mod direct;
+pub(crate) use direct::requirements as next_sources;
 mod hotspots;
 pub mod normalize;
 mod oncokb;
@@ -29,7 +30,7 @@ use biomcp_types::{
 pub fn get(cx: &Ctx<'_>, query: &VariantGet) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let mut deadline = command.deadline();
-    if let Some(source) = direct::source(cx, query) {
+    if let Some(source) = direct::source(cx.fetch, query) {
         let out = direct::get(cx, query, source, deadline);
         command.finish(deadline.remaining());
         return out;
@@ -38,22 +39,12 @@ pub fn get(cx: &Ctx<'_>, query: &VariantGet) -> Outcome {
     let population = population_identity::requested(query) && !cx.fetch.disabled(Source::Gnomad);
     let found = population_identity::read(cx, query, deadline, population);
     deadline = deadline.after_stage(found.elapsed);
+    let found_resolution = identity_resolution(&found);
     let mut dropped = found.dropped;
     let mut problems = found.problems;
     let mut candidates = found.rows;
     let mut rejection = found.rejection;
-    let mut resolution = if found.error.is_some() {
-        VariantResolution::Unavailable
-    } else if rejection.is_some() {
-        VariantResolution::Rejected
-    } else if candidates.is_empty() && dropped {
-        VariantResolution::Unavailable
-    } else {
-        classify(candidates.len())
-    };
-    if matches!(found.error, Some(RequestError::Source(e)) if e.reason == Reason::NotFound) {
-        resolution = VariantResolution::Absent;
-    }
+    let mut resolution = found_resolution;
     let population_reason = population_reason(population, resolution, found.reason);
     let mut sources = found.sources;
     let mut local = found.local;
@@ -83,7 +74,14 @@ pub fn get(cx: &Ctx<'_>, query: &VariantGet) -> Outcome {
     sources.extend(section_sources);
     problems.extend(section_problems);
     local = local.or(section_error);
-    let mut next = next(query, resolution, &candidates, page.as_ref());
+    let mut next = next(
+        cx.fetch,
+        query,
+        resolution,
+        &candidates,
+        page.as_ref(),
+        &mut problems,
+    );
     next.extend(oncokb::next(query, &sources));
     next.extend(alphagenome::next(&sources));
     let out = crate::status::finish(
@@ -292,6 +290,22 @@ fn enrich(
         status::source(Source::MyVariant, leg.finish(), join_error),
         local,
     )
+}
+
+fn identity_resolution(found: &population_identity::Identity) -> VariantResolution {
+    let mut resolution = if found.error.is_some() {
+        VariantResolution::Unavailable
+    } else if found.rejection.is_some() {
+        VariantResolution::Rejected
+    } else if found.rows.is_empty() && found.dropped {
+        VariantResolution::Unavailable
+    } else {
+        classify(found.rows.len())
+    };
+    if matches!(found.error, Some(RequestError::Source(e)) if e.reason == Reason::NotFound) {
+        resolution = VariantResolution::Absent;
+    }
+    resolution
 }
 
 fn candidate_page(

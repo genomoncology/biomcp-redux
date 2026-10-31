@@ -1,7 +1,7 @@
 //! Reuse the shared source snapshot store; admission precedes every retained read.
 use super::{
-    Action, AdverseEventGet, AdverseEventSection, Ctx, Outcome, QueryBody, Request, Source,
-    StepKind, Text, maude,
+    AdverseEventGet, AdverseEventSection, Ctx, Outcome, QueryBody, Request, Source, StepKind, Text,
+    maude,
 };
 use crate::{status, store::Store};
 use biomcp_fetch::{CacheError, Deadline, RequestError, SourceError};
@@ -78,12 +78,11 @@ pub(super) fn load(
             store.source_snapshot(snapshot.as_str(), &key(query), |s| cx.fetch.disabled(s))?
         else {
             out.body = QueryBody::PoolError { mismatch: false };
-            out.next.push((
+            out.next.push(crate::next::Step::run(
                 StepKind::Restart,
-                Action::Run {
-                    request: Request::GetAdverseEvent(query.restart()),
-                    fresh: false,
-                },
+                &[biomcp_types::Source::Maude],
+                Request::GetAdverseEvent(query.restart()),
+                false,
             ));
             return Ok(None);
         };

@@ -39,7 +39,7 @@ pub(super) fn attach(cx: &Ctx<'_>, deadline: biomcp_fetch::Deadline<'_>, out: &m
         metadata
             .next
             .iter()
-            .filter(|(kind, _)| *kind == StepKind::Page)
+            .filter(|step| step.0 == StepKind::Page)
             .cloned(),
     );
     out.sources.extend(metadata.sources);
@@ -70,7 +70,7 @@ fn actions(card: &CellLineCard, out: &mut Outcome) {
         out.next.extend(
             page.next
                 .into_iter()
-                .filter(|(kind, _)| *kind == StepKind::Page)
+                .filter(|step| step.0 == StepKind::Page)
                 .take(4usize.saturating_sub(out.next.len())),
         );
     }

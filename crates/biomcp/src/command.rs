@@ -18,7 +18,6 @@ mod pathway;
 mod pgx;
 mod phenotype;
 mod protein;
-mod step_sources;
 mod steps;
 mod sync;
 mod transport;
@@ -156,6 +155,19 @@ pub(crate) fn execute(
                 crate::exit::Status::Success,
             )
         }
+        Action::NetworkHelp(setting) => {
+            let path = vec!["network".into(), setting.to_string()];
+            encode(
+                Envelope::new(
+                    Status::Complete,
+                    biomcp_types::HelpQuery {
+                        command: path.clone(),
+                    },
+                    Some(crate::help::dispatch(&path)?),
+                ),
+                crate::exit::Status::Success,
+            )
+        }
         Action::StoreClean => maintenance::clean(fetch),
         Action::Health => maintenance::health(fetch),
         Action::KeyHelp(source) => key_help(source),
@@ -202,8 +214,8 @@ fn response(
     fresh: bool,
     globals: &crate::grammar::Globals,
 ) -> io::Result<Outcome> {
-    drug_label::bound(&request, &mut result, fresh, globals)?;
-    step_sources::filter(fetch, &mut result);
+    drug_label::bound(fetch, &request, &mut result, fresh, globals)?;
+    biomcp_query::next::finish(fetch, &mut result);
     let steps = steps::next(&result, globals)?;
     let meta = ResponseMeta {
         exit: response_status(&result),

@@ -1,6 +1,6 @@
 //! Source-native drug recall search and exact retrieval.
 use super::empty;
-use crate::{Action, Ctx, Outcome, status};
+use crate::{Ctx, Outcome, status};
 use biomcp_adapters::fda_drug_recall as source;
 use biomcp_fetch::{Leg, RequestError};
 use biomcp_types::{
@@ -26,15 +26,20 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DrugSearch) -> Outcome {
         };
         out.problems = page.problems;
         for item in &page.items {
-            if let Ok(id) = item.recall_number.to_string().parse()
-                && let Ok(get) = DrugGet::new(id, DrugSource::FdaDrugRecall)
-            {
-                out.next.push((
+            if let Some(id) = crate::next::checked(
+                item.recall_number.to_string().parse(),
+                biomcp_types::Source::FdaDrugRecall,
+                &mut out.problems,
+            ) && let Some(get) = crate::next::checked(
+                DrugGet::new(id, DrugSource::FdaDrugRecall),
+                biomcp_types::Source::FdaDrugRecall,
+                &mut out.problems,
+            ) {
+                out.next.push(crate::next::Step::run(
                     StepKind::Disambiguate,
-                    Action::Run {
-                        request: Request::GetDrug(get),
-                        fresh: cx.fresh,
-                    },
+                    &[biomcp_types::Source::FdaDrugRecall],
+                    Request::GetDrug(get),
+                    cx.fresh,
                 ));
             }
         }
@@ -43,12 +48,11 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DrugSearch) -> Outcome {
             .checked_add(returned)
             .filter(|n| returned > 0 && u64::from(*n) < page.total)
         {
-            out.next.push((
+            out.next.push(crate::next::Step::run(
                 StepKind::Page,
-                Action::Run {
-                    request: Request::SearchDrug(q.at_offset(offset)),
-                    fresh: cx.fresh,
-                },
+                &[biomcp_types::Source::FdaDrugRecall],
+                Request::SearchDrug(q.at_offset(offset)),
+                cx.fresh,
             ));
         }
         out.page = Some(PageInfo {

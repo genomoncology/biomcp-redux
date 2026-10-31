@@ -29,6 +29,7 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
             next::push(
                 &mut out,
                 StepKind::Page,
+                &[q.source().source()],
                 Request::SearchDiagnostic(q.at_offset(q.offset() + returned)),
                 cx.fresh,
             );
@@ -74,13 +75,16 @@ pub(super) fn get(cx: &Ctx<'_>, q: &DiagnosticGet, id: &biodata::DeviceRecallNum
                 }
             }
             if let Some(code) = &mapped.value.header.product_code
-                && let Ok(search) = serde_json::from_value(
-                    serde_json::json!({"source":"maude","product_code":[code]}),
+                && let Some(search) = crate::next::checked(
+                    biomcp_types::AdverseEventSearch::maude_product(code.clone()),
+                    Source::Maude,
+                    &mut out.problems,
                 )
             {
                 next::push(
                     &mut out,
                     StepKind::Pivot,
+                    &[biomcp_types::Source::Maude],
                     Request::SearchAdverseEvent(search),
                     cx.fresh,
                 );
@@ -89,6 +93,7 @@ pub(super) fn get(cx: &Ctx<'_>, q: &DiagnosticGet, id: &biodata::DeviceRecallNum
                 next::push(
                     &mut out,
                     StepKind::Fresh,
+                    &[q.source().source()],
                     Request::GetDiagnostic(q.clone()),
                     true,
                 );

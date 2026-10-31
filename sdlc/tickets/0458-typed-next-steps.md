@@ -1,6 +1,7 @@
 # 0458 — Build next steps from typed constructors in the query layer
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 967a9ff51c37e87af41d9633114f14a286a2d173
 
 Milestone: 5
 

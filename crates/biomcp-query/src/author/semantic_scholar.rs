@@ -125,8 +125,9 @@ fn present(
         pivot(&row.header, out);
     }
     if let Some(offset) = page.next {
-        out.next.push((
+        out.next.push(crate::next::Step::new(
             StepKind::Page,
+            &[biomcp_types::Source::SemanticScholar],
             run(Request::AuthorPapers(
                 q.at_offset(offset).with_pool(pool.info.id.clone()),
             )),
@@ -173,9 +174,16 @@ fn pivot(row: &AuthorPaperHeader, out: &mut Outcome) {
         .map(ArticleInput::Pmid)
         .or_else(|| row.doi.clone().map(ArticleInput::Doi));
     if let Some(input) = input
-        && let Ok(q) = ArticleGet::with_sections(vec![input].into(), Box::default())
+        && let Some(q) = crate::next::checked(
+            ArticleGet::with_sections(vec![input].into(), Box::default()),
+            biomcp_types::Source::SemanticScholar,
+            &mut out.problems,
+        )
     {
-        out.next
-            .push((StepKind::Pivot, run(Request::GetArticle(q))));
+        out.next.push(crate::next::Step::new(
+            StepKind::Pivot,
+            &super::super::article::next::get_sources(&q),
+            run(Request::GetArticle(q)),
+        ));
     }
 }

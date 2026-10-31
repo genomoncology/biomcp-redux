@@ -7,7 +7,7 @@ mod next;
 mod openfda_label;
 mod recall;
 pub(crate) mod who;
-use crate::{Action, Ctx, Outcome, status};
+use crate::{Ctx, Outcome, status};
 use biomcp_adapters::mychem;
 use biomcp_types::{
     DrugGet, DrugPage, DrugSearch, DrugSource, PageInfo, QueryBody, Request, Source, StepKind,
@@ -135,14 +135,17 @@ fn selected_get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
                 .card
                 .available_sections
                 .contains(&biomcp_types::DrugSection::Xrefs)
-                && let Ok(request) = query.for_section(biomcp_types::DrugSection::Xrefs)
+                && let Some(request) = crate::next::checked(
+                    query.for_section(biomcp_types::DrugSection::Xrefs),
+                    biomcp_types::Source::Mychem,
+                    &mut out.problems,
+                )
             {
-                out.next.push((
+                out.next.push(crate::next::Step::run(
                     StepKind::Section,
-                    Action::Run {
-                        request: Request::GetDrug(request),
-                        fresh: cx.fresh,
-                    },
+                    &[request.source().source()],
+                    Request::GetDrug(request),
+                    cx.fresh,
                 ));
             }
             if document.refusals == biomcp_adapters::Refusal::Refused {
@@ -177,14 +180,17 @@ fn link_page(
     if let Some(offset) = offset
         .checked_add(returned)
         .filter(|next| returned > 0 && u64::from(*next) < total)
-        && let Ok(request) = query.at_section_offset(offset)
+        && let Some(request) = crate::next::checked(
+            query.at_section_offset(offset),
+            biomcp_types::Source::Mychem,
+            &mut out.problems,
+        )
     {
-        out.next.push((
+        out.next.push(crate::next::Step::run(
             StepKind::Page,
-            Action::Run {
-                request: Request::GetDrug(request),
-                fresh,
-            },
+            &[request.source().source()],
+            Request::GetDrug(request),
+            fresh,
         ));
     }
     if document.refusals == biomcp_adapters::Refusal::Refused {
@@ -275,13 +281,16 @@ fn search_results(
         truncated: None,
     });
     for item in &page.items {
-        if let Ok(get) = DrugGet::new(item.id.clone(), query.source()) {
-            out.next.push((
+        if let Some(get) = crate::next::checked(
+            DrugGet::new(item.id.clone(), query.source()),
+            biomcp_types::Source::Mychem,
+            &mut out.problems,
+        ) {
+            out.next.push(crate::next::Step::run(
                 StepKind::Disambiguate,
-                Action::Run {
-                    request: Request::GetDrug(get),
-                    fresh,
-                },
+                &[get.source().source()],
+                Request::GetDrug(get),
+                fresh,
             ));
         }
     }
@@ -290,12 +299,11 @@ fn search_results(
         .checked_add(received)
         .filter(|n| received > 0 && page.total.is_some_and(|t| u64::from(*n) < t))
     {
-        out.next.push((
+        out.next.push(crate::next::Step::run(
             StepKind::Page,
-            Action::Run {
-                request: Request::SearchDrug(query.at_offset(offset)),
-                fresh,
-            },
+            &[query.source().source()],
+            Request::SearchDrug(query.at_offset(offset)),
+            fresh,
         ));
     }
     out.body = QueryBody::DrugPage(page);

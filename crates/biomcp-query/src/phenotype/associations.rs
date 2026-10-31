@@ -31,8 +31,9 @@ pub(super) fn get(cx: &Ctx<'_>, q: &PhenotypeGet) -> Outcome {
         if page.received > 0
             && u64::from(q.section_offset()) + u64::from(page.received) < page.total
         {
-            out.next.push((
+            out.next.push(crate::next::Step::new(
                 StepKind::Page,
+                &[Source::Monarch],
                 run(Request::GetPhenotype(q.at_section_offset(
                     q.section_offset().saturating_add(page.received),
                 ))),
@@ -83,16 +84,36 @@ fn pivots(out: &mut Outcome, q: &PhenotypeGet, rows: &[biomcp_types::DiseaseAsso
         let id = &row.association.subject.id;
         let id = id.to_string();
         let request = if q.section() == Some(PhenotypeSection::Genes) {
-            crate::disease::monarch::gene_query(&id).map(Request::GetGene)
+            crate::disease::monarch::gene_query(&id, &mut out.problems).map(Request::GetGene)
         } else {
-            biomcp_adapters::mydisease::supported_id(&id)
-                .then(|| id.parse::<biodata::Curie>().ok())
-                .flatten()
-                .and_then(|id| DiseaseGet::from_id(id).ok())
+            if biomcp_adapters::mydisease::supported_id(&id) {
+                crate::next::checked(
+                    id.parse::<biodata::Curie>(),
+                    Source::Monarch,
+                    &mut out.problems,
+                )
+                .and_then(|id| {
+                    crate::next::checked(
+                        DiseaseGet::from_id(id),
+                        Source::Monarch,
+                        &mut out.problems,
+                    )
+                })
                 .map(Request::GetDisease)
+            } else {
+                None
+            }
         };
         if let Some(request) = request {
-            let step = (StepKind::Pivot, run(request));
+            let step = crate::next::Step::new(
+                StepKind::Pivot,
+                &[if q.section() == Some(PhenotypeSection::Genes) {
+                    Source::Hgnc
+                } else {
+                    Source::MyDisease
+                }],
+                run(request),
+            );
             if !out.next.contains(&step) {
                 out.next.push(step);
             }

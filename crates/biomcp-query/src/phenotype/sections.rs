@@ -18,9 +18,16 @@ pub(super) fn apply(out: &mut Outcome, q: &PhenotypeGet, rows: Rows) {
     match q.section() {
         None => {
             for section in &rows.0.sections {
-                if let Ok(request) = q.with_section(*section) {
-                    out.next
-                        .push((StepKind::Section, run(Request::GetPhenotype(request))));
+                if let Some(request) = crate::next::checked(
+                    q.with_section(*section),
+                    super::snapshot::source(q),
+                    &mut out.problems,
+                ) {
+                    out.next.push(crate::next::Step::new(
+                        StepKind::Section,
+                        &[super::snapshot::source(q)],
+                        run(Request::GetPhenotype(request)),
+                    ));
                 }
             }
             out.body = QueryBody::PhenotypeCard(Some(rows.0));
@@ -85,8 +92,9 @@ fn page<T: Clone>(out: &mut Outcome, q: &PhenotypeGet, rows: &[T]) -> Box<[T]> {
         truncated: None,
     });
     if returned > 0 && (next as usize) < rows.len() {
-        out.next.push((
+        out.next.push(crate::next::Step::new(
             StepKind::Page,
+            &[super::snapshot::source(q)],
             run(Request::GetPhenotype(q.at_section_offset(next))),
         ));
     }

@@ -1,4 +1,4 @@
-use crate::{Action, Ctx, Outcome};
+use crate::{Ctx, Outcome};
 use biomcp_adapters::{drugsfda as source, received_date};
 use biomcp_fetch::RequestError;
 use biomcp_types::{
@@ -47,14 +47,17 @@ pub(super) fn select(
         if let Some(next) = offset
             .checked_add(returned)
             .filter(|n| returned > 0 && u64::from(*n) < total)
-            && let Ok(request) = query.at_section_offset(next)
+            && let Some(request) = crate::next::checked(
+                query.at_section_offset(next),
+                biomcp_types::Source::Drugsfda,
+                &mut out.problems,
+            )
         {
-            out.next.push((
+            out.next.push(crate::next::Step::run(
                 StepKind::Page,
-                Action::Run {
-                    request: Request::GetDrug(request),
-                    fresh: cx.fresh,
-                },
+                &[biomcp_types::Source::Drugsfda],
+                Request::GetDrug(request),
+                cx.fresh,
             ));
         }
         Section::Data {

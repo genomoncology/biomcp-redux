@@ -1,4 +1,4 @@
-use crate::{Action, Ctx, Outcome, gene, status};
+use crate::{Ctx, Outcome, gene, status};
 
 use biomcp_adapters::hgnc;
 use biomcp_fetch::{Deadline, RequestError};
@@ -68,12 +68,11 @@ pub(super) fn resolve<'a>(
         GeneResolution::Ambiguous { candidates } => {
             for candidate in candidates.iter().take(5) {
                 let checked = query.with_gene(GeneInput::HgncId(candidate.hgnc_id));
-                out.next.push((
+                out.next.push(crate::next::Step::run(
                     StepKind::Disambiguate,
-                    Action::Run {
-                        request: Request::SearchArticle(checked),
-                        fresh: cx.fresh,
-                    },
+                    &super::next::search_sources(&checked),
+                    Request::SearchArticle(checked),
+                    cx.fresh,
                 ));
             }
             Ok(None)

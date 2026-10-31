@@ -134,8 +134,9 @@ pub(super) fn word_notice(
         ).into(),
     });
     if let Some(query) = query.exact_condition_search() {
-        outcome.next.push((
+        outcome.next.push(crate::next::Step::new(
             biomcp_types::StepKind::Disambiguate,
+            &[query.source().source()],
             super::Action::Run {
                 request: biomcp_types::Request::SearchTrial(query),
                 fresh,

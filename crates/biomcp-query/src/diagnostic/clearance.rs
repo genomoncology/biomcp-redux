@@ -18,12 +18,19 @@ pub(super) fn get(cx: &Ctx<'_>, q: &DiagnosticGet) -> Outcome {
             });
             crate::status::item(&mut out, card.is_some(), false, false);
             if card.is_some() {
-                if let Ok(search) = serde_json::from_value::<DiagnosticSearch>(
-                    serde_json::json!({"source":"fda-cdx","device_id":q.id()}),
+                if let Some(search) = crate::next::checked(
+                    q.id()
+                        .as_str()
+                        .parse()
+                        .map_err(|_| biomcp_types::QueryInvalid::new(&["device_id"]))
+                        .and_then(DiagnosticSearch::companion),
+                    biomcp_types::Source::FdaCdx,
+                    &mut out.problems,
                 ) {
                     super::next::push(
                         &mut out,
                         StepKind::Pivot,
+                        &[search.source().source()],
                         Request::SearchDiagnostic(search),
                         cx.fresh,
                     );
@@ -32,6 +39,7 @@ pub(super) fn get(cx: &Ctx<'_>, q: &DiagnosticGet) -> Outcome {
                     super::next::push(
                         &mut out,
                         StepKind::Fresh,
+                        &[q.source().source()],
                         Request::GetDiagnostic(q.clone()),
                         true,
                     );

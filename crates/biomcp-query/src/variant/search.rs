@@ -1,5 +1,5 @@
 //! Declared variant searches keep native candidates, totals and page selectors.
-use crate::{Action, Ctx, Outcome, status};
+use crate::{Ctx, Outcome, status};
 
 use biomcp_adapters::{clinvar, myvariant};
 use biomcp_types::{
@@ -53,7 +53,13 @@ pub fn search(cx: &Ctx<'_>, query: &VariantSearch) -> Outcome {
     if let Ok(reply) = reply {
         out.include_refusals(reply.rows.refusals);
         let returned = reply.rows.value.len() as u32;
-        out.next = next(query, &reply.rows.value, reply.consumed, reply.total);
+        out.next = next(
+            query,
+            &reply.rows.value,
+            reply.consumed,
+            reply.total,
+            &mut out.problems,
+        );
         out.page = Some(PageInfo {
             offset: query.offset(),
             returned,
@@ -61,7 +67,7 @@ pub fn search(cx: &Ctx<'_>, query: &VariantSearch) -> Outcome {
             pool: None,
             truncated: (reply.total > u64::from(VariantSearch::MAX_RESULTS)).then_some(true),
         });
-        out.problems = reply.rows.problems;
+        out.problems.extend(reply.rows.problems);
         out.body = QueryBody::VariantPage(VariantPage {
             selector_terms,
             filter_terms: terms,
@@ -138,33 +144,41 @@ fn next(
     rows: &[biomcp_types::VariantHeader],
     consumed: u32,
     total: u64,
-) -> Vec<(StepKind, Action)> {
+    problems: &mut Vec<biomcp_types::Problem>,
+) -> Vec<crate::next::Step> {
     let mut next = Vec::new();
     for row in rows {
-        if let Ok(input) = row.record.id.as_str().parse()
-            && let Ok(q) = VariantGet::new(
-                input,
-                VariantResolver::Car,
-                row.identity.representations.iter().find_map(|r| r.build),
+        if let Some(input) =
+            crate::next::checked(row.record.id.as_str().parse(), row.source, problems)
+            && let Some(q) = crate::next::checked(
+                VariantGet::new(
+                    input,
+                    VariantResolver::Car,
+                    row.identity.representations.iter().find_map(|r| r.build),
+                ),
+                row.source,
+                problems,
             )
         {
-            next.push((
+            next.push(crate::next::Step::run(
                 StepKind::Disambiguate,
-                Action::Run {
-                    request: Request::GetVariant(q),
-                    fresh: false,
-                },
+                &[super::source(&q).source],
+                Request::GetVariant(q),
+                false,
             ));
         }
     }
     let offset = query.offset() + consumed;
     if u64::from(offset) < total && offset < VariantSearch::MAX_RESULTS && consumed > 0 {
-        next.push((
+        next.push(crate::next::Step::run(
             StepKind::Page,
-            Action::Run {
-                request: Request::SearchVariant(query.at_offset(offset)),
-                fresh: false,
-            },
+            &[if query.uses_clinvar_selector() {
+                Source::ClinVar
+            } else {
+                Source::MyVariant
+            }],
+            Request::SearchVariant(query.at_offset(offset)),
+            false,
         ));
     }
     next

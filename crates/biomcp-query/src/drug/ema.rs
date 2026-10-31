@@ -71,14 +71,17 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
             out.problems.extend(card.problems);
             let card = card.value;
             if card.is_some()
-                && let Ok(get) = query.for_section(DrugSection::Regulatory)
+                && let Some(get) = crate::next::checked(
+                    query.for_section(DrugSection::Regulatory),
+                    biomcp_types::Source::Ema,
+                    &mut out.problems,
+                )
             {
-                out.next.push((
+                out.next.push(crate::next::Step::run(
                     StepKind::Section,
-                    Action::Run {
-                        request: Request::GetDrug(get),
-                        fresh: cx.fresh,
-                    },
+                    &[biomcp_types::Source::Ema],
+                    Request::GetDrug(get),
+                    cx.fresh,
                 ));
             }
             let found = card.is_some();
@@ -139,8 +142,9 @@ fn sync_step(out: &mut Outcome) {
         .iter()
         .any(|s| matches!(s.state, SourceState::Syncing | SourceState::Stale))
     {
-        out.next.push((
+        out.next.push(crate::next::Step::new(
             StepKind::Sync,
+            &[biomcp_types::Source::Ema],
             Action::Sync {
                 bundle: Bundle::Ema,
             },

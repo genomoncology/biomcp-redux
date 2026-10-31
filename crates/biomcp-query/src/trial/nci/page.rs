@@ -1,6 +1,6 @@
 //! Intact native records page by source position within an immutable NCI snapshot.
 use super::get::Snapshot;
-use crate::{Action, Outcome};
+use crate::Outcome;
 use biodata::Text;
 use biomcp_fetch::RequestError;
 use biomcp_types::{
@@ -238,14 +238,13 @@ fn omitted(q: &TrialGet, id: biodata::NctId, out: &mut Outcome) -> Box<[TrialSec
         .filter(|s| !q.sections().contains(s) && !q.sections().contains(&TrialSection::All))
         .collect();
     for section in &more {
-        out.next.push((
+        out.next.push(crate::next::Step::run(
             StepKind::Section,
-            Action::Run {
-                request: Request::GetTrial(
-                    TrialGet::single(id, Some(*section), q.limit()).with_source(TrialSource::Nci),
-                ),
-                fresh: false,
-            },
+            &[biomcp_types::Source::Nci],
+            Request::GetTrial(
+                TrialGet::single(id, Some(*section), q.limit()).with_source(TrialSource::Nci),
+            ),
+            false,
         ));
     }
     more

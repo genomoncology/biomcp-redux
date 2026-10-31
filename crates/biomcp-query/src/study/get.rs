@@ -1,7 +1,7 @@
 //! Stored cards and independently acquired bounded metadata sections.
 mod files;
 use super::{empty, finish};
-use crate::{Action, Ctx, Outcome};
+use crate::{Ctx, Outcome};
 use biomcp_adapters::cbioportal::{SPEC, studies};
 use biomcp_fetch::{Leg, RequestError};
 use biomcp_types::{
@@ -192,18 +192,21 @@ fn continuation(
         crate::status::item(out, true, false, false);
     }
     if let Some(offset) = next_offset
-        && let Ok(query) = q.at_section_offset(offset)
+        && let Some(query) = crate::next::checked(
+            q.at_section_offset(offset),
+            biomcp_types::Source::Cbioportal,
+            &mut out.problems,
+        )
     {
         next(out, cx, StepKind::Page, query);
     }
 }
 fn next(out: &mut Outcome, cx: &Ctx<'_>, kind: StepKind, query: StudyGet) {
-    out.next.push((
+    out.next.push(crate::next::Step::run(
         kind,
-        Action::Run {
-            request: Request::GetStudy(query),
-            fresh: cx.fresh,
-        },
+        &[biomcp_types::Source::Cbioportal],
+        Request::GetStudy(query),
+        cx.fresh,
     ));
 }
 fn section_error(out: &mut Outcome, section: StudySection, error: Option<RequestError>) {

@@ -69,6 +69,23 @@ impl TryFrom<GetFields> for DiagnosticGet {
     }
 }
 impl DiagnosticGet {
+    /// Check a source record and optional PMA supplement with the card defaults.
+    pub fn new(
+        id: Text,
+        source: DiagnosticGetSource,
+        supplement: Option<PmaSupplement>,
+    ) -> Result<Self, QueryInvalid> {
+        Self::try_from(GetFields {
+            id,
+            source,
+            section: None,
+            supplement,
+            section_limit: None,
+            section_offset: 0,
+            bundle_revision: None,
+        })
+    }
+
     /// Exact checked source identity.
     pub fn id(&self) -> &Text {
         &self.fields.id

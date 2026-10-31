@@ -1,7 +1,7 @@
 //! One explicit adverse-event source; no inference, drug choice or source probing.
 mod get;
 mod vaers;
-use crate::{Action, Ctx, Outcome, status};
+use crate::{Ctx, Outcome, status};
 use biomcp_adapters::{faers, maude};
 use biomcp_types::{
     AdverseEventPage, AdverseEventSearch, PageInfo, QueryBody, ReportUnit, Request, Source,
@@ -93,26 +93,26 @@ pub fn unsupported() -> Outcome {
 fn navigation(query: &AdverseEventSearch, page: &faers::Page, out: &mut Outcome) {
     let returned = page.items.len() as u32;
     for row in &page.items {
-        if let Ok(get) =
-            serde_json::from_value(serde_json::json!({"id":row.id,"source":query.source()}))
-        {
-            out.next.push((
+        if let Some(get) = crate::next::checked(
+            biomcp_types::AdverseEventGet::new(row.id.clone(), query.source()),
+            query.source().source(),
+            &mut out.problems,
+        ) {
+            out.next.push(crate::next::Step::run(
                 StepKind::Disambiguate,
-                Action::Run {
-                    request: Request::GetAdverseEvent(get),
-                    fresh: false,
-                },
+                &[query.source().source()],
+                Request::GetAdverseEvent(get),
+                false,
             ));
         }
     }
     let offset = query.offset().saturating_add(returned);
     if returned > 0 && u64::from(offset) < page.total {
-        out.next.push((
+        out.next.push(crate::next::Step::run(
             StepKind::Page,
-            Action::Run {
-                request: Request::SearchAdverseEvent(query.at_offset(offset)),
-                fresh: false,
-            },
+            &[query.source().source()],
+            Request::SearchAdverseEvent(query.at_offset(offset)),
+            false,
         ));
     }
 }
