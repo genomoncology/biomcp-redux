@@ -61,13 +61,12 @@ fn resolve<'a>(schema: &'a Value, property: &'a Value) -> &'a Value {
             .pointer(reference.trim_start_matches('#'))
             .unwrap_or(property);
     }
-    if let Some(choices) = property.get("anyOf").and_then(Value::as_array) {
-        if let Some(choice) = choices
+    if let Some(choices) = property.get("anyOf").and_then(Value::as_array)
+        && let Some(choice) = choices
             .iter()
             .find(|choice| choice.get("type").and_then(Value::as_str) != Some("null"))
-        {
-            return resolve(schema, choice);
-        }
+    {
+        return resolve(schema, choice);
     }
     if let Some(items) = property.get("items") {
         return resolve(schema, items);
