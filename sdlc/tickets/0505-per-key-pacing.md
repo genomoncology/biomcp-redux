@@ -1,6 +1,7 @@
 # 0505 — Pace each caller's key separately in hosted mode
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 0c059c3f7b43bb92c579b4174849b60b3c5c10aa
 
 Milestone: 5
 

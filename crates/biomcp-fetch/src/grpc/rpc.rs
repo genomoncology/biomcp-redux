@@ -94,9 +94,7 @@ impl Leg<'_> {
             .rpc_proxy(self.fetch.config.proxy.as_ref(), &uri)
             .map_err(|_| self.failure(Reason::Proxy, None))?;
         let _permit = self
-            .fetch
-            .limiters
-            .acquire(self.spec.quota, self.keyed(), self.budget())
+            .acquire_quota()
             .map_err(|delay| self.quota_failure(delay))?
             .ok_or_else(|| self.failure(Reason::DeadlineExceeded, None))?;
         let mut mark = Instant::now();
