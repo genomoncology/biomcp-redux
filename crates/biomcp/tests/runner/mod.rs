@@ -59,6 +59,7 @@ mod replay;
 tool_only! { pub(crate) mod live; }
 tool_only! { mod live_follow_proof; }
 tool_only! { mod live_proof; }
+mod licensed_cache;
 mod maude;
 mod maude_budget;
 mod mcp;
@@ -66,7 +67,6 @@ mod mcp_boundaries;
 mod mcp_hosted;
 mod nci;
 mod request_keys;
-mod licensed_cache;
 tool_only! { mod negative_cases; }
 mod network_stub;
 mod normalization;
