@@ -71,7 +71,6 @@ The audit retains explicit classified exceptions and ceilings. It does not prove
 | --- | --- | --- |
 | HTTP parameter and JSON-body calls share preparation, decode and checked reuse. | `crates/biomcp-fetch/src/call.rs`, `request.rs`, `request_body.rs`, `read.rs` | Check: `crates/biomcp-fetch/tests/post.rs`; Check: `crates/biomcp-fetch/tests/transport.rs` |
 | Request identity checks run before admission and on replay or cache reuse. | `Read::check` and checked response readers | Check: `crates/biomcp/tests/runner/cache_admission.rs` |
-| Only source not-found becomes absence through `Absent::absent`. | `crates/biomcp-fetch/src/call.rs` | Check: `crates/biomcp-fetch/tests/cache/absence.rs` |
 | Quotas use declared source keys, and required-key sources refuse requests without a key. | `SourceSpec`, quota and credential admission | Check: `crates/biomcp-fetch/tests/quotas.rs`; Check: `crates/biomcp-fetch/tests/transport/credentials.rs` |
 | Replay fails on a missing exchange and preserves captured reply metadata. | Recording reader | Check: `crates/biomcp-fetch/tests/record.rs`; Check: `crates/biomcp-fetch/tests/record/metadata.rs` |
 | Streaming work respects bounded ownership, cancellation and persistence. | `crates/biomcp-fetch/src/grpc` | Check: `crates/biomcp-fetch/tests/grpc_worker/shutdown.rs`; Check: `crates/biomcp-fetch/tests/grpc_persistence.rs` |
