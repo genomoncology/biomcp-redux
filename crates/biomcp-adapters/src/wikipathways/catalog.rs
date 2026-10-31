@@ -28,15 +28,7 @@ const CATALOGS: BundleSet<CatalogRow> = BundleSet {
     fresh: Freshness::Days(7),
     row: PhantomData,
 };
-fn bad() -> RequestError {
-    biomcp_fetch::SourceError {
-        source: biomcp_types::Source::WikiPathways,
-        reason: biomcp_types::Reason::BadReply,
-        status: None,
-        retry_after: None,
-    }
-    .into()
-}
+
 /// Download both metadata catalogs and publish their checked pair atomically.
 pub fn sync(fetch: &Fetch) -> Result<crate::Mapped<WikiPathwaysSync>, RequestError> {
     let info = fetch.sync_set(&CATALOGS)?;
@@ -45,14 +37,14 @@ pub fn sync(fetch: &Fetch) -> Result<crate::Mapped<WikiPathwaysSync>, RequestErr
     let search = rows
         .iter()
         .find(|r| r.part.as_ref() == "search")
-        .ok_or_else(bad)?
+        .ok_or_else(|| biomcp_fetch::bad_reply(biomcp_types::Source::WikiPathways, None))?
         .value
         .receipt
         .clone();
     let get = rows
         .iter()
         .find(|r| r.part.as_ref() == "get")
-        .ok_or_else(bad)?
+        .ok_or_else(|| biomcp_fetch::bad_reply(biomcp_types::Source::WikiPathways, None))?
         .value
         .receipt
         .clone();

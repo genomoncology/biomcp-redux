@@ -1,6 +1,7 @@
 //! Transport-owned SQLite schema. Other owners and tables remain untouched.
 use crate::{CacheError, Deadline};
 use rusqlite::{Connection, OpenFlags, OptionalExtension, params};
+mod admission;
 #[cfg(test)]
 mod contention;
 mod schema;
@@ -12,7 +13,7 @@ pub(crate) use schema::{check_current_owners, check_predecessor, db_error};
 )]
 use std::{
     path::Path,
-    sync::Mutex,
+    sync::{Mutex, RwLock},
     time::{Duration, SystemTime, UNIX_EPOCH},
 };
 
@@ -35,6 +36,7 @@ pub(crate) struct Cache(
     pub(crate) std::path::PathBuf,
     pub(crate) std::path::PathBuf,
     Mutex<()>,
+    RwLock<()>,
 );
 
 #[derive(Debug, serde::Serialize)]
@@ -123,6 +125,7 @@ impl Cache {
             path.with_extension("parts"),
             path.to_owned(),
             Mutex::new(()),
+            RwLock::new(()),
         ))
     }
 
@@ -133,9 +136,22 @@ impl Cache {
         deadline: Deadline<'_>,
         operation: impl FnOnce(&Connection) -> Result<T, CacheError>,
     ) -> Result<T, CacheError> {
-        let connection = wait_mutex(&self.0, deadline, &deadline.local())?;
+        let connection = wait_mutex(&self.0, deadline, &deadline.local(), None)?;
         sql_deadline(&connection, deadline)?;
         operation(&connection)
+    }
+
+    // Other schema owners retain the same connection guard around their callback.
+    // Optional transport reads may bypass this hold so network work can progress.
+    pub(crate) fn admit<T>(
+        &self,
+        deadline: Deadline<'_>,
+        operation: impl FnOnce() -> Result<T, CacheError>,
+    ) -> Result<T, CacheError> {
+        let connection = wait_mutex(&self.0, deadline, &deadline.local(), None)?;
+        sql_deadline(&connection, deadline)?;
+        let _owner = admission::Owner::enter(&self.4, &connection, deadline)?;
+        operation()
     }
 
     // Ordinary transport mutations take the connection before write admission.
@@ -145,8 +161,8 @@ impl Cache {
         operation: impl FnOnce(&Connection) -> Result<T, CacheError>,
     ) -> Result<T, CacheError> {
         let wall_bound = deadline.local();
-        let connection = wait_mutex(&self.0, deadline, &wall_bound)?;
-        let _writer = wait_mutex(&self.3, deadline, &wall_bound)?;
+        let connection = wait_mutex(&self.0, deadline, &wall_bound, None)?;
+        let _writer = wait_mutex(&self.3, deadline, &wall_bound, None)?;
         sql_deadline(&connection, deadline)?;
         operation(&connection)
     }
@@ -157,7 +173,7 @@ impl Cache {
         deadline: Deadline<'_>,
         operation: impl FnOnce() -> Result<T, CacheError>,
     ) -> Result<T, CacheError> {
-        let _writer = wait_mutex(&self.3, deadline, &deadline.local())?;
+        let _writer = wait_mutex(&self.3, deadline, &deadline.local(), None)?;
         operation()
     }
 
@@ -236,7 +252,8 @@ impl Cache {
         }
     }
 
-    // Discretionary reply caching must leave the budget available to the source.
+    // Sibling legs share this connection. Wait for their local SQL work within
+    // the command budget; external SQLite contention still falls through at once.
     fn try_sql<T>(
         &self,
         deadline: Deadline<'_>,
@@ -245,7 +262,7 @@ impl Cache {
         if deadline.expired() {
             return Err(CacheError::Busy);
         }
-        let connection = try_mutex(&self.0)?;
+        let connection = wait_mutex(&self.0, deadline, &deadline.local(), Some(&self.4))?;
         connection.busy_timeout(Duration::ZERO).map_err(db_error)?;
         operation(&connection)
     }
@@ -344,6 +361,7 @@ fn wait_mutex<'a, T>(
     mutex: &'a Mutex<T>,
     deadline: Deadline<'_>,
     wall_bound: &crate::LocalDeadline,
+    admission: Option<&RwLock<()>>,
 ) -> Result<std::sync::MutexGuard<'a, T>, CacheError> {
     loop {
         if deadline.expired() || wall_bound.expired() {
@@ -351,6 +369,15 @@ fn wait_mutex<'a, T>(
         }
         match try_mutex(mutex) {
             Err(CacheError::Busy) => {
+                if let Some(owner) = admission {
+                    match owner.try_read() {
+                        Ok(probe) => drop(probe),
+                        Err(std::sync::TryLockError::WouldBlock) => return Err(CacheError::Busy),
+                        Err(std::sync::TryLockError::Poisoned(_)) => {
+                            return Err(CacheError::Database);
+                        }
+                    }
+                }
                 std::thread::park_timeout(Duration::from_millis(1).min(deadline.remaining()))
             }
             result => return result,

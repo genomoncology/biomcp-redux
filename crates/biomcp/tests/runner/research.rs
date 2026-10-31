@@ -93,7 +93,7 @@ pub(super) fn call_checked(
     }
     use std::io::Write;
     writeln!(
-        std::io::stdout(),
+        std::io::stderr(),
         "research {name} compact_bytes={}",
         value.to_string().len()
     )

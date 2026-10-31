@@ -7,10 +7,14 @@ pub(super) type Check = Result<(), String>;
 
 pub(super) fn trials() -> Vec<Trial> {
     // The test binds runtime report snapshots into complete device/narrative pages and checks that retained reads avoid HTTP.
-    vec![transcript_trial(
-        crate::runner::required_contract::MAUDE_SECTIONS.0,
-        || sections().map_err(Into::into),
-    )]
+    vec![
+        transcript_trial(crate::runner::required_contract::MAUDE_SECTIONS.0, || {
+            sections().map_err(Into::into)
+        }),
+        transcript_trial("maude-reports/rejects-nonnumeric-native-report-key", || {
+            invalid_report_key().map_err(|error| error.to_string().into())
+        }),
+    ]
 }
 pub(super) fn row() -> Value {
     json!(
@@ -112,5 +116,33 @@ fn sections() -> Check {
     {
         return Err("report sections changed snapshot or fetched twice".into());
     }
+    Ok(())
+}
+
+fn invalid_report_key() -> Result<(), Box<dyn std::error::Error>> {
+    super::response_cases::checked_steps(
+        "adverse-event/maude-filters-synthetic",
+        |source, record| {
+            if source == "maude" {
+                for exchange in record
+                    .get_mut("exchanges")
+                    .and_then(Value::as_array_mut)
+                    .into_iter()
+                    .flatten()
+                {
+                    if let Some(key) = exchange.pointer_mut("/body/value/results/0/mdr_report_key")
+                    {
+                        *key = json!("160x");
+                    }
+                }
+            }
+        },
+        json!([{
+            "run": ["search", "adverse-event", "--source", "maude", "--manufacturer", "Synthetic maker",
+                "--product-code", "ABC", "--product-code", "XYZ", "--problem", "Synthetic problem"],
+            "exit": 4, "is_error": true,
+            "expect": {"/status": "failed", "/sources/0/reason": "bad-reply", "": {"omits": ["result"]}}
+        }]),
+    )?;
     Ok(())
 }

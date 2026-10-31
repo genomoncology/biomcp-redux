@@ -34,7 +34,7 @@ impl CacheAccess {
         deadline: crate::Deadline<'_>,
         operation: impl FnOnce() -> Result<T, CacheError>,
     ) -> Result<T, CacheError> {
-        self._cache.sql(deadline, |_| operation())
+        self._cache.admit(deadline, operation)
     }
 
     /// Inspect the selected owned file without creating a database or journal.
