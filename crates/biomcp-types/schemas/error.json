@@ -501,7 +501,7 @@
   },
   "$id": "biomcp.error/4",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "description": "A versioned error response that never contains caller input.",
+  "description": "A versioned error response that never contains rejected caller values.",
   "properties": {
     "error": {
       "$ref": "#/$defs/Reply_ErrorDetail"
