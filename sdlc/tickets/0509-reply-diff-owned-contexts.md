@@ -1,0 +1,16 @@
+# 0509 — Pair the remaining runtime values in the reply diff
+
+Status: OPEN.
+
+Milestone: 5
+
+## Outcome
+
+The reply diff pairs four more kinds of runtime value through 0501's existing helpers, each only where its owner is proven: acquired clocks bound per catalog root and epoch instead of across the whole reply set; declared opaque section and evidence continuation IDs with every reference to them; replay temp paths under an owned response-cases root; and exit codes, which become a compared output field instead of part of the alignment signature, so a command whose status and exit change on purpose still pairs and shows its exit difference. Any other difference still fails.
+
+- Why: the 0419 paired comparison j23373 (m16794). Its normalizer exits 2 on equal head seconds that matched two different baseline clocks, on unpaired continuation IDs and temp paths, and on commands left unpaired only because their intended exit changed.
+- Starts from: the 0501 normalizer, its tests and the j23373 raw archive on Yellow.
+- Rules: pair by one-to-one binding inside the proven owner, never by a string mask; ID, reference and lifetime checks stay; no new framework, source build or whole capture rerun.
+- Proof: the original j23373 counterexamples fail on the current normalizer and pass after; hostile negatives fail: a clock rebound across roots, a broken continuation reference, a temp path outside the owned root and an exit change on a command outside the declared scope.
+- Changes: the reply diff normalizer and its tests.
+- Defers: nothing.
