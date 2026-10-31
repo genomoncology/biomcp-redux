@@ -352,6 +352,76 @@ class ReplyDiff(unittest.TestCase):
         result = self.compare()
         self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
 
+    def pgx_capture(self, directory, token, mutation=None):
+        args = ['get', 'pgx', 'annotations', '--gene', 'DPYD', '--kind', 'clinical',
+                '--section-limit', '1', '--section-offset', '1', '--snapshot', token,
+                '--source', 'clinpgx']
+        reply = {'schema': 'biomcp.pgx-annotations/5',
+                 'query': {'gene': 'DPYD', 'source': 'clinpgx', 'section': 'annotations'},
+                 'next': [{'kind': 'page', 'args': args}]}
+        if mutation == 'schema':
+            reply['schema'] = 'biomcp.pgx-card/4'
+        if mutation == 'kind':
+            reply['next'][0]['kind'] = 'section'
+        if mutation == 'source-nesting':
+            reply = {'source': reply}
+        self.write(directory, 'case/pgx.yaml/step/0', json.dumps(reply).encode())
+        reference = 'broken' if mutation == 'reference' else token
+        self.write(directory, 'case/pgx.yaml/step/1', json.dumps({
+            'schema': 'biomcp.pgx-annotations/5', 'query': {'snapshot': reference},
+            'result': {'lifetime': 86401 if mutation == 'lifetime' else 86400},
+        }).encode(), args=args[:12] + [reference] + args[13:])
+        markdown = '**page:**\n\n```sh\nbiomcp ' + ' '.join(args) + '\n```\n'
+        if mutation == 'markdown-reference':
+            markdown = markdown.replace(token, 'broken')
+        if mutation == 'source-text':
+            markdown += '\nSource says --snapshot ' + token + '\n'
+        self.write(directory, 'case/pgx.yaml/step/2', markdown.encode())
+        if mutation == 'source-field':
+            self.write(directory, 'case/pgx.yaml/step/3', json.dumps({
+                'source': {'snapshot': token, 'next': [{'kind': 'page', 'args': args}]}
+            }).encode())
+        if mutation == 'rotated':
+            reply['next'][0]['args'][12] = token + '-rotated'
+            self.write(directory, 'case/pgx.yaml/step/3', json.dumps(reply).encode())
+
+    def test_pgx_snapshot_declaration_binds_json_argv_and_markdown_references(self):
+        self.pgx_capture(self.base, 'base-token')
+        self.pgx_capture(self.head, 'head-token')
+        result = self.compare()
+        self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+
+    def test_pgx_snapshot_binding_keeps_reference_lifetime_and_source_changes(self):
+        for mutation in ['reference', 'markdown-reference', 'lifetime', 'source-text',
+                         'source-field', 'rotated', 'schema', 'kind', 'source-nesting']:
+            with self.subTest(mutation=mutation):
+                for directory in (self.base, self.head):
+                    for path in directory.glob('*.json'):
+                        path.unlink()
+                # Source collisions differ on both sides, even after a valid declaration.
+                shared = mutation if mutation in ('source-text', 'source-field', 'schema',
+                                                  'kind', 'source-nesting') else None
+                self.pgx_capture(self.base, 'base-token', shared)
+                self.pgx_capture(self.head, 'head-token', mutation)
+                result = self.compare()
+                self.assertNotEqual(result.returncode, 0, result.stdout)
+
+    def test_pgx_declared_snapshot_pairs_hashed_mcp_invocations(self):
+        for directory, token in [(self.base, 'base-token'), (self.head, 'head-token')]:
+            args = ['get', 'pgx', 'annotations', '--gene', 'DPYD', '--kind', 'clinical',
+                    '--section-limit', '1', '--section-offset', '1', '--snapshot', token,
+                    '--source', 'clinpgx']
+            self.write(directory, 'trial/pgx/' + 'a' * 64 + '/0', json.dumps({
+                'schema': 'biomcp.pgx-annotations/5',
+                'next': [{'kind': 'page', 'args': args}]}).encode())
+            frame = {'jsonrpc': '2.0', 'method': 'tools/call',
+                     'params': {'name': 'biomcp', 'arguments': {'args': args}}}
+            command = ['serve', '<requests>', json.dumps(frame)]
+            digest = hashlib.sha256(json.dumps(command, separators=(',', ':')).encode()).hexdigest()
+            self.write(directory, 'trial/pgx/' + digest + '/0', args=command, surface='mcp')
+        result = self.compare()
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
     def owned_replay_capture(self, *, suffix="recordings", mutation=None):
         for directory, side in [(self.base, "base"), (self.head, "head")]:
             root = "/tmp/replies-" + side
