@@ -39,11 +39,15 @@ fn licensed() -> Result<(), String> {
         let stub = Stub::for_source("www.oncokb.org", "application/json", |request| {
             let mut reply: Value =
                 serde_json::from_str(&super::oncokb::reply(request)?).map_err(|e| e.to_string())?;
-            reply["variantSummary"] = json!(if request.contains(SECOND) {
+            let summary = json!(if request.contains(SECOND) {
                 "Synthetic caller B result"
             } else {
                 "Synthetic caller A result"
             });
+            reply
+                .as_object_mut()
+                .ok_or("synthetic source reply object")?
+                .insert("variantSummary".into(), summary);
             Ok(reply.to_string())
         })?;
         stub.retain(&assets);
