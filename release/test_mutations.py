@@ -60,7 +60,7 @@ class MutationCommands(unittest.TestCase):
         self.root = Path(self.directory.name)
         release = self.root / 'release'
         release.mkdir()
-        for name in ('mutations.py', 'toolchain.py', 'toolchain.json'):
+        for name in ('mutations.py', 'toolchain.py', 'toolchain.json', 'rehearse.py'):
             shutil.copyfile(ROOT / 'release' / name, release / name)
         binary = self.root / 'bin'
         binary.mkdir()
@@ -164,6 +164,22 @@ class MutationCommands(unittest.TestCase):
         self.call('shard', '--plan', self.plan, '--index', 0)
         self.call('collect', '--plan', self.plan, ok=False)
         self.assertIn('omitted selected', ' '.join(self.report()['errors']))
+
+    def test_rehearsal_records_advisory_survivors_and_collection_errors(self):
+        self.prepare('--measure')
+        self.call('shard', '--plan', self.plan, '--index', 0)
+        stage = self.root / 'stage.json'
+        command = [sys.executable, str(self.root / 'release/rehearse.py'), 'mutation',
+                   '--report', str(stage), '--', 'collect', '--plan', str(self.plan)]
+        for broken in (False, True):
+            if broken:
+                (self.output / 'shard-0/command.json').unlink()
+            result = subprocess.run(command, cwd=self.root, env=self.env,
+                                    capture_output=True, text=True, timeout=15)
+            self.assertEqual(result.returncode, int(broken), result.stderr)
+            self.assertEqual(json.loads(stage.read_text()),
+                             [dict(stage='mutation', exit=int(broken))])
+            self.assertTrue(self.report()['errors'] if broken else self.report()['survivors'])
 
     def test_failed_baseline_and_missing_shards_are_errors(self):
         self.prepare('--cost-seconds', 200, '--baseline-seconds', 600, '--shards', 2)
