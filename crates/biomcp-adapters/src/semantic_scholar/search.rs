@@ -5,8 +5,7 @@ use crate::{
 };
 use biodata::{Doi, PartialDate, Pmcid, Pmid, SemanticScholarId};
 use biomcp_fetch::{Arg, BadReply, Endpoint, Freshness, Leg, Reply, RequestError};
-use biomcp_types::ArticleHeader;
-use biomcp_types::{ArticleItem, ArticleKey};
+use biomcp_types::{ArticleHeader, ArticleItem, ArticleKey};
 use serde::Deserialize;
 const SEARCH: Endpoint = super::SPEC.get("/paper/search").fresh(Freshness::Days(1));
 /// A native search window, before duplicate suppression or DOI resolution.
