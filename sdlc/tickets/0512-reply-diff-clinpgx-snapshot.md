@@ -1,6 +1,7 @@
 # 0512 — Pair ClinPGx snapshot references in the reply diff
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 275d9101ad8569c404866e1ad0bafb17eb154e4a
 
 Milestone: 5
 

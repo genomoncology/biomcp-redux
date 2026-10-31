@@ -1,6 +1,7 @@
 # 0457 — Run mutation testing once per release candidate
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 0dd91ad71fdcc37d81b6f092cd1073524433372d
 
 Milestone: 5
 
