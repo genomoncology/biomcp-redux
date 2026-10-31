@@ -4636,14 +4636,19 @@ Options:
       --disable-sources <disable-sources>
           Exclude source names or source terms groups.
 
+      --rate-share <rate-share>
+          Use this share of every source rate in hosted mode (greater than 0, at most 1).
+
+          [default: 1]
+
+      --config <config>
+          Read configuration from this file.
+
       --http [<http>]
           Listen on an HTTP address; omit its value for the loopback default.
 
       --allow-host <allow-host>
           Allow an HTTP Host authority; required for non-loopback listeners.
-
-      --config <config>
-          Read configuration from this file.
 
       --offline
           Read local data without source requests.
@@ -4656,9 +4661,10 @@ Example: biomcp help serve
 
 ```
 
-Serve MCP over stdio or --http [ADDR]. Non-loopback binds require --allow-host HOST or http.allowed_hosts; neither authenticates callers. HTTP refuses sync, store clean and --fresh. Stdio saves refuse --replace. --hosted refuses file saves, health details, sync, store clean, --fresh and key commands on every transport with a usage.mcp_unavailable error. MCP revisions: 2026-07-28, 2025-11-25, 2025-06-18, 2025-03-26. Send MCP-Protocol-Version on HTTP requests. Without it, initialize uses its requested legacy revision; other requests default to 2025-03-26. Unsupported headers return HTTP 400.
+Serve MCP over stdio or --http [ADDR]. Non-loopback binds require --allow-host HOST or http.allowed_hosts; neither authenticates callers. HTTP refuses sync, store clean and --fresh. Stdio saves refuse --replace. --hosted refuses file saves, health details, sync, store clean, --fresh and key commands on every transport with a usage.mcp_unavailable error. MCP revisions: 2026-07-28, 2025-11-25, 2025-06-18, 2025-03-26. --rate-share scales hosted source rates. Hosted HTTP calls have bounded work and one whole-call deadline. Send MCP-Protocol-Version on HTTP requests. Without it, initialize uses its requested legacy revision; other requests default to 2025-03-26. Unsupported headers return HTTP 400.
 
 - `--hosted`: Refuse host file saves, health details and store or key changes over MCP.
+- `--rate-share`: Use this share of every source rate in hosted mode (greater than 0, at most 1).
 - `--http`: Listen on an HTTP address; omit its value for the loopback default.
 - `--allow-host`: Allow an HTTP Host authority; required for non-loopback listeners.
 

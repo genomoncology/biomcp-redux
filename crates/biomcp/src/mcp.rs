@@ -150,7 +150,7 @@ impl Server {
             Err(error) => (Err(error.clone()), None),
         };
         self.start_call(key, id, modern, cancellation, move || {
-            research::execute(&call, &globals, &fetch, false, None)
+            research::execute(&call, crate::command::Context::new(&globals, &fetch), false)
         })?;
         Ok(None)
     }

@@ -48,6 +48,8 @@ mod evidence;
 mod faers_get;
 tool_only! { mod hgnc_sync; }
 mod held_proxy;
+mod hosted_deadline;
+mod hosted_pacing;
 mod housekeeping;
 mod http;
 mod http_limits;
@@ -253,6 +255,8 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(mcp_boundaries::trials());
     trials.extend(mcp_hosted::trials());
     trials.extend(request_keys::trials());
+    trials.extend(hosted_pacing::trials());
+    trials.extend(hosted_deadline::trials());
     trials.extend(licensed_cache::trials());
     trials.extend(alphagenome_tls::trials());
     trials.extend(housekeeping::trials());
