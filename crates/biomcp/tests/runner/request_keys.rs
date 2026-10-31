@@ -73,6 +73,16 @@ fn call(server: &Server, args: &[&str], extra: &str, extra_argument: bool) -> Ch
     {
         return Err("request rejected or credential escaped in reply".into());
     }
+    if let Some(context) = super::transcript::current() {
+        let args: Vec<String> = args.iter().map(|arg| (*arg).into()).collect();
+        let key = context.allocate(&args);
+        context.record(
+            &key,
+            json!({"args":args,"surface":"http","http_status":status,
+            "supplied_header":!extra.is_empty(),"extra_argument":extra_argument,
+            "reply":reply}),
+        )?;
+    }
     Ok(reply)
 }
 fn licensed() -> Check {
