@@ -100,8 +100,9 @@ pub(super) fn actions(query: &CellLineGet, card: &CellLineCard, out: &mut Outcom
     if let Some(offset) = query.section_offset().checked_add(limit)
         && total.is_some_and(|total| u64::from(offset) < total)
     {
-        out.next.push((
+        out.next.push(crate::next::Step::new(
             StepKind::Page,
+            &[section_source(query.section())],
             run(Request::GetCellLine(query.at_section_offset(offset))),
         ));
     }
@@ -140,16 +141,22 @@ fn pivots(data: &CellLineVariants, out: &mut Outcome) {
         if out.next.len() < 5
             && let Ok(query) = GeneGet::new(chunk.into())
         {
-            out.next
-                .push((StepKind::Pivot, run(Request::GetGene(query))));
+            out.next.push(crate::next::Step::new(
+                StepKind::Pivot,
+                &[biomcp_types::Source::Hgnc],
+                run(Request::GetGene(query)),
+            ));
         }
     }
     for chunk in articles.chunks(20) {
         if out.next.len() < 5
             && let Ok(query) = ArticleGet::new(chunk.into())
         {
-            out.next
-                .push((StepKind::Pivot, run(Request::GetArticle(query))));
+            out.next.push(crate::next::Step::new(
+                StepKind::Pivot,
+                &[biomcp_types::Source::PubMed],
+                run(Request::GetArticle(query)),
+            ));
         }
     }
 }
@@ -170,5 +177,13 @@ pub(super) fn provenance(card: &mut CellLineCard) {
     if let Some(Section::Data { data, .. }) = &mut card.sections.variants {
         data.release = card.release.clone();
         data.fetched = card.fetched;
+    }
+}
+
+pub(super) fn section_source(section: Option<CellLineSection>) -> biomcp_types::Source {
+    if section == Some(CellLineSection::Chembl) {
+        biomcp_types::Source::Chembl
+    } else {
+        biomcp_types::Source::Cellosaurus
     }
 }

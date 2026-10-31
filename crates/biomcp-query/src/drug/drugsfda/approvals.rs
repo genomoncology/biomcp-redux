@@ -49,8 +49,9 @@ pub(super) fn select(
             .filter(|n| returned > 0 && u64::from(*n) < total)
             && let Ok(request) = query.at_section_offset(next)
         {
-            out.next.push((
+            out.next.push(crate::next::Step::new(
                 StepKind::Page,
+                &[biomcp_types::Source::Drugsfda],
                 Action::Run {
                     request: Request::GetDrug(request),
                     fresh: cx.fresh,

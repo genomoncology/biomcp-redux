@@ -112,14 +112,14 @@ pub(super) fn get(cx: &Ctx<'_>, q: &PgxGet) -> Outcome {
         Ok(Some((body, snapshot))) => match q.with_snapshot(snapshot) {
             Ok(bound) => {
                 out.body = QueryBody::PgxAnnotations(slice(q, body));
-                out.next = next::steps(&Request::GetPgx(bound), &out);
+                out.next = next::steps(&Request::GetPgx(bound), &mut out);
             }
             Err(_) => out.local = Some(biomcp_fetch::InputError::Serialization.into()),
         },
         Ok(None) => {}
         Err(error) => {
             out.local = crate::status::local(error);
-            out.next = next::steps(&Request::GetPgx(q.clone()), &out);
+            out.next = next::steps(&Request::GetPgx(q.clone()), &mut out);
         }
     }
     command.finish(deadline.remaining());
@@ -142,7 +142,7 @@ pub(crate) fn annotation(cx: &Ctx<'_>, q: &PgxAnnotationGet) -> Outcome {
     });
     let mut out = finish(leg, reply, QueryBody::PgxAnnotation(None), Source::ClinPgx);
     crate::status::append(&mut out.problems, problems);
-    out.next = next::steps(&Request::GetPgxAnnotation(q.clone()), &out);
+    out.next = next::steps(&Request::GetPgxAnnotation(q.clone()), &mut out);
     command.finish(deadline.remaining());
     out
 }

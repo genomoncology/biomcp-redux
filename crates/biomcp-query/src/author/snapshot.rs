@@ -71,8 +71,9 @@ pub(super) fn load(
 }
 fn restart(q: &AuthorSearch, out: &mut Outcome, mismatch: bool) {
     out.body = QueryBody::PoolError { mismatch };
-    out.next.push((
+    out.next.push(crate::next::Step::new(
         StepKind::Restart,
+        &[biomcp_types::Source::SemanticScholar],
         super::run(Request::SearchAuthor(q.restart())),
     ));
 }

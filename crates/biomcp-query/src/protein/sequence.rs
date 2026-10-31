@@ -70,8 +70,9 @@ pub(super) fn run(cx: &Ctx<'_>, q: &ProteinSequenceQuery) -> Outcome {
     out.sources
         .push(status::source(Source::UniProt, leg.finish(), error));
     if error.is_some() {
-        out.next.push((
+        out.next.push(crate::next::Step::new(
             StepKind::Fresh,
+            &[biomcp_types::Source::UniProt],
             Action::Run {
                 request: Request::ProteinSequence(q.clone()),
                 fresh: true,

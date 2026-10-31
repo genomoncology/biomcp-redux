@@ -42,9 +42,13 @@ fn finish_bundle(
         && !out
             .next
             .iter()
-            .any(|(_, action)| action == &Action::Sync { bundle })
+            .any(|step| step.1 == Action::Sync { bundle })
     {
-        out.next.push((StepKind::Sync, Action::Sync { bundle }));
+        out.next.push(crate::next::Step::new(
+            StepKind::Sync,
+            &[source],
+            Action::Sync { bundle },
+        ));
     }
 }
 /// Search only stored source-native GTR relations and retain matched selectors.
@@ -88,6 +92,7 @@ pub fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
             next::push(
                 &mut out,
                 StepKind::Page,
+                &[q.source().source()],
                 Request::SearchDiagnostic(q.at_offset(q.offset() + returned)),
                 cx.fresh,
             );

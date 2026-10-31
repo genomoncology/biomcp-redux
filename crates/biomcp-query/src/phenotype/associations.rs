@@ -31,8 +31,9 @@ pub(super) fn get(cx: &Ctx<'_>, q: &PhenotypeGet) -> Outcome {
         if page.received > 0
             && u64::from(q.section_offset()) + u64::from(page.received) < page.total
         {
-            out.next.push((
+            out.next.push(crate::next::Step::new(
                 StepKind::Page,
+                &[Source::Monarch],
                 run(Request::GetPhenotype(q.at_section_offset(
                     q.section_offset().saturating_add(page.received),
                 ))),
@@ -92,7 +93,15 @@ fn pivots(out: &mut Outcome, q: &PhenotypeGet, rows: &[biomcp_types::DiseaseAsso
                 .map(Request::GetDisease)
         };
         if let Some(request) = request {
-            let step = (StepKind::Pivot, run(request));
+            let step = crate::next::Step::new(
+                StepKind::Pivot,
+                &[if q.section() == Some(PhenotypeSection::Genes) {
+                    Source::Hgnc
+                } else {
+                    Source::MyDisease
+                }],
+                run(request),
+            );
             if !out.next.contains(&step) {
                 out.next.push(step);
             }

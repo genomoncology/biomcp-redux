@@ -30,16 +30,18 @@ pub fn search(cx: &Ctx<'_>, query: &CellLineSearch) -> Outcome {
         out.problems.extend(page.problems);
         let full = page.received == query.limit();
         for row in &page.items {
-            out.next.push((
+            out.next.push(crate::next::Step::new(
                 StepKind::Disambiguate,
+                &[biomcp_types::Source::Cellosaurus],
                 run(Request::GetCellLine(CellLineGet::accession(
                     row.accession.clone(),
                 ))),
             ));
         }
         if full && let Some(offset) = query.offset().checked_add(query.limit()) {
-            out.next.push((
+            out.next.push(crate::next::Step::new(
                 StepKind::Page,
+                &[biomcp_types::Source::Cellosaurus],
                 run(Request::SearchCellLine(query.at_offset(offset))),
             ));
         }
@@ -62,13 +64,8 @@ pub fn search(cx: &Ctx<'_>, query: &CellLineSearch) -> Outcome {
 pub fn get(cx: &Ctx<'_>, query: &CellLineGet) -> Outcome {
     get::get(cx, query)
 }
+use crate::next::run;
 pub(super) use crate::status::empty;
-fn run(request: Request) -> Action {
-    Action::Run {
-        request,
-        fresh: false,
-    }
-}
 fn recovery(out: &mut Outcome, request: Request) {
     if out.sources.iter().any(|s| {
         matches!(
@@ -76,8 +73,9 @@ fn recovery(out: &mut Outcome, request: Request) {
             biomcp_types::SourceState::Failed | biomcp_types::SourceState::Stale
         )
     }) {
-        out.next.push((
+        out.next.push(crate::next::Step::new(
             StepKind::Fresh,
+            &[biomcp_types::Source::Cellosaurus],
             Action::Run {
                 request,
                 fresh: true,

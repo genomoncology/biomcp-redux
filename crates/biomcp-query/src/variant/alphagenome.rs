@@ -132,13 +132,14 @@ fn refused(reason: Reason, state: SourceState) -> super::sections::Result<Varian
     )
 }
 
-pub(super) fn next(sources: &[SourceOutcome]) -> Vec<(biomcp_types::StepKind, crate::Action)> {
+pub(super) fn next(sources: &[SourceOutcome]) -> Vec<crate::next::Step> {
     if sources
         .iter()
         .any(|source| source.source == Source::AlphaGenome && source.reason == Some(Reason::NoKey))
     {
-        vec![(
+        vec![crate::next::Step::new(
             biomcp_types::StepKind::Key,
+            &[biomcp_types::Source::AlphaGenome],
             crate::Action::KeyHelp(Source::AlphaGenome),
         )]
     } else {

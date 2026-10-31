@@ -138,7 +138,7 @@ fn next(
     rows: &[biomcp_types::VariantHeader],
     consumed: u32,
     total: u64,
-) -> Vec<(StepKind, Action)> {
+) -> Vec<crate::next::Step> {
     let mut next = Vec::new();
     for row in rows {
         if let Ok(input) = row.record.id.as_str().parse()
@@ -148,8 +148,9 @@ fn next(
                 row.identity.representations.iter().find_map(|r| r.build),
             )
         {
-            next.push((
+            next.push(crate::next::Step::new(
                 StepKind::Disambiguate,
+                &[super::source(&q).source],
                 Action::Run {
                     request: Request::GetVariant(q),
                     fresh: false,
@@ -159,8 +160,9 @@ fn next(
     }
     let offset = query.offset() + consumed;
     if u64::from(offset) < total && offset < VariantSearch::MAX_RESULTS && consumed > 0 {
-        next.push((
+        next.push(crate::next::Step::new(
             StepKind::Page,
+            &[biomcp_types::Source::MyVariant],
             Action::Run {
                 request: Request::SearchVariant(query.at_offset(offset)),
                 fresh: false,

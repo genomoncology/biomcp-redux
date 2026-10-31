@@ -51,8 +51,11 @@ pub fn get(cx: &Ctx<'_>, q: &PathwayGet) -> Outcome {
                     && Some(*section) != q.section()
                     && let Ok(query) = q.with_section(*section)
                 {
-                    out.next
-                        .push((StepKind::Section, run(Request::GetPathway(query))));
+                    out.next.push(crate::next::Step::new(
+                        StepKind::Section,
+                        &[biomcp_types::Source::Reactome],
+                        run(Request::GetPathway(query)),
+                    ));
                 }
             }
         }

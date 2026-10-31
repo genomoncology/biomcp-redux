@@ -45,8 +45,9 @@ fn navigation(query: &AdverseEventGet, total: u64, returned: u32, offset: u32, o
             truncated: None,
         });
         if offset > query.section_offset() && u64::from(offset) < total {
-            out.next.push((
+            out.next.push(crate::next::Step::new(
                 StepKind::Page,
+                &[biomcp_types::Source::Maude],
                 Action::Run {
                     request: Request::GetAdverseEvent(query.at_section_offset(offset)),
                     fresh: false,
@@ -56,8 +57,9 @@ fn navigation(query: &AdverseEventGet, total: u64, returned: u32, offset: u32, o
     } else {
         for section in [AdverseEventSection::Devices, AdverseEventSection::Narrative] {
             if let Ok(next) = query.with_section(section, None) {
-                out.next.push((
+                out.next.push(crate::next::Step::new(
                     StepKind::Section,
+                    &[biomcp_types::Source::Maude],
                     Action::Run {
                         request: Request::GetAdverseEvent(next),
                         fresh: false,

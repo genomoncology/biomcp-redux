@@ -30,7 +30,11 @@ pub fn get(cx: &Ctx<'_>, q: &BiomarkerGet) -> Outcome {
             out.body = QueryBody::BiomarkerTooBroad;
         }
         if status::reason(error) == Some(Reason::NoKey) {
-            out.next.push((StepKind::Key, Action::KeyHelp(Source::Nci)));
+            out.next.push(crate::next::Step::new(
+                StepKind::Key,
+                &[biomcp_types::Source::Nci],
+                Action::KeyHelp(Source::Nci),
+            ));
         }
     }
     if let Ok(reply) = reply {
@@ -44,8 +48,9 @@ pub fn get(cx: &Ctx<'_>, q: &BiomarkerGet) -> Outcome {
         status::item(&mut out, total != 0, false, false);
         for row in &rows {
             for id in &row.header.codes {
-                let step = (
+                let step = crate::next::Step::new(
                     StepKind::Pivot,
+                    &[biomcp_types::Source::Nci],
                     Action::Run {
                         request: biomcp_types::Request::SearchTrial(
                             biomcp_types::TrialSearch::for_nci_biomarker(id.clone()),

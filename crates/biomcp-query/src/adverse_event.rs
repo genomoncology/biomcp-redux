@@ -93,11 +93,14 @@ pub fn unsupported() -> Outcome {
 fn navigation(query: &AdverseEventSearch, page: &faers::Page, out: &mut Outcome) {
     let returned = page.items.len() as u32;
     for row in &page.items {
-        if let Ok(get) =
-            serde_json::from_value(serde_json::json!({"id":row.id,"source":query.source()}))
-        {
-            out.next.push((
+        if let Some(get) = crate::next::checked(
+            biomcp_types::AdverseEventGet::new(row.id.clone(), query.source()),
+            query.source().source(),
+            &mut out.problems,
+        ) {
+            out.next.push(crate::next::Step::new(
                 StepKind::Disambiguate,
+                &[query.source().source()],
                 Action::Run {
                     request: Request::GetAdverseEvent(get),
                     fresh: false,
@@ -107,8 +110,9 @@ fn navigation(query: &AdverseEventSearch, page: &faers::Page, out: &mut Outcome)
     }
     let offset = query.offset().saturating_add(returned);
     if returned > 0 && u64::from(offset) < page.total {
-        out.next.push((
+        out.next.push(crate::next::Step::new(
             StepKind::Page,
+            &[query.source().source()],
             Action::Run {
                 request: Request::SearchAdverseEvent(query.at_offset(offset)),
                 fresh: false,

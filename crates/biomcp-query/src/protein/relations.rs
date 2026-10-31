@@ -113,8 +113,9 @@ fn accepts(q: &ProteinFeaturesQuery, row: &biodata::ProteinFeature) -> bool {
 }
 fn restart(q: &Selection, out: &mut Outcome, mismatch: bool) {
     out.body = QueryBody::PoolError { mismatch };
-    out.next.push((
+    out.next.push(crate::next::Step::new(
         StepKind::Restart,
+        &[biomcp_types::Source::UniProt],
         Action::Run {
             request: q.request(None),
             fresh: false,
@@ -132,8 +133,9 @@ pub(super) fn run(cx: &Ctx<'_>, q: Selection) -> Outcome {
     let mut out = super::empty(body);
     if let Err(e) = read(cx, &q, deadline, &mut out) {
         out.local = status::local(e);
-        out.next.push((
+        out.next.push(crate::next::Step::new(
             StepKind::Fresh,
+            &[biomcp_types::Source::UniProt],
             Action::Run {
                 request: q.request(None),
                 fresh: true,
@@ -195,8 +197,9 @@ fn read(
         crate::status::item(out, true, false, true);
     }
     if (offset + returned) < total as u32 {
-        out.next.push((
+        out.next.push(crate::next::Step::new(
             StepKind::Page,
+            &[biomcp_types::Source::UniProt],
             Action::Run {
                 request: q.request(Some((pool.id, offset + returned))),
                 fresh: false,

@@ -137,8 +137,9 @@ fn selected_get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
                 .contains(&biomcp_types::DrugSection::Xrefs)
                 && let Ok(request) = query.for_section(biomcp_types::DrugSection::Xrefs)
             {
-                out.next.push((
+                out.next.push(crate::next::Step::new(
                     StepKind::Section,
+                    &[request.source().source()],
                     Action::Run {
                         request: Request::GetDrug(request),
                         fresh: cx.fresh,
@@ -179,8 +180,9 @@ fn link_page(
         .filter(|next| returned > 0 && u64::from(*next) < total)
         && let Ok(request) = query.at_section_offset(offset)
     {
-        out.next.push((
+        out.next.push(crate::next::Step::new(
             StepKind::Page,
+            &[request.source().source()],
             Action::Run {
                 request: Request::GetDrug(request),
                 fresh,
@@ -276,8 +278,9 @@ fn search_results(
     });
     for item in &page.items {
         if let Ok(get) = DrugGet::new(item.id.clone(), query.source()) {
-            out.next.push((
+            out.next.push(crate::next::Step::new(
                 StepKind::Disambiguate,
+                &[get.source().source()],
                 Action::Run {
                     request: Request::GetDrug(get),
                     fresh,
@@ -290,8 +293,9 @@ fn search_results(
         .checked_add(received)
         .filter(|n| received > 0 && page.total.is_some_and(|t| u64::from(*n) < t))
     {
-        out.next.push((
+        out.next.push(crate::next::Step::new(
             StepKind::Page,
+            &[query.source().source()],
             Action::Run {
                 request: Request::SearchDrug(query.at_offset(offset)),
                 fresh,

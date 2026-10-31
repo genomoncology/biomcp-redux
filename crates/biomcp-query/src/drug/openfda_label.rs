@@ -54,8 +54,9 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
         out.page = Some(page(query.offset(), returned, total));
         for item in &items {
             if let Ok(get) = DrugGet::new(item.id.clone(), DrugSource::OpenfdaLabel) {
-                out.next.push((
+                out.next.push(crate::next::Step::new(
                     StepKind::Disambiguate,
+                    &[biomcp_types::Source::OpenfdaLabel],
                     Action::Run {
                         request: Request::GetDrug(get),
                         fresh: cx.fresh,
@@ -64,8 +65,9 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
             }
         }
         if let Some(offset) = next_offset {
-            out.next.push((
+            out.next.push(crate::next::Step::new(
                 StepKind::Page,
+                &[biomcp_types::Source::OpenfdaLabel],
                 Action::Run {
                     request: Request::SearchDrug(query.at_offset(offset)),
                     fresh: cx.fresh,
@@ -155,8 +157,9 @@ fn select(
             if let Ok(heading) = heading.parse()
                 && let Ok(request) = query.for_label(heading)
             {
-                out.next.push((
+                out.next.push(crate::next::Step::new(
                     StepKind::Section,
+                    &[biomcp_types::Source::OpenfdaLabel],
                     Action::Run {
                         request: Request::GetDrug(request),
                         fresh: cx.fresh,
@@ -180,8 +183,9 @@ fn select(
                 .filter(|n| returned > 0 && u64::from(*n) < total)
                 && let Ok(request) = query.at_section_offset(next)
             {
-                out.next.push((
+                out.next.push(crate::next::Step::new(
                     StepKind::Page,
+                    &[biomcp_types::Source::OpenfdaLabel],
                     Action::Run {
                         request: Request::GetDrug(request),
                         fresh: cx.fresh,

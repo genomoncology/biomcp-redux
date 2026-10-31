@@ -22,8 +22,9 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &VariantAssertionsGet) -> Outcome {
         .next
         .clone()
         .map(|q| {
-            (
+            crate::next::Step::new(
                 StepKind::Page,
+                &[q.source().source()],
                 Action::Run {
                     request: Request::VariantAssertions(q),
                     fresh: false,

@@ -78,8 +78,9 @@ pub(super) fn load(
             store.source_snapshot(snapshot.as_str(), &key(query), |s| cx.fetch.disabled(s))?
         else {
             out.body = QueryBody::PoolError { mismatch: false };
-            out.next.push((
+            out.next.push(crate::next::Step::new(
                 StepKind::Restart,
+                &[biomcp_types::Source::Maude],
                 Action::Run {
                     request: Request::GetAdverseEvent(query.restart()),
                     fresh: false,

@@ -71,7 +71,13 @@ fn selected(out: &mut Outcome, q: &DiagnosticGet, record: gtr::Record, fresh: bo
             if let Some(card) = &record.card {
                 for &section in &card.sections {
                     if let Ok(query) = q.with_section(section) {
-                        next::push(out, StepKind::Section, Request::GetDiagnostic(query), fresh);
+                        next::push(
+                            out,
+                            StepKind::Section,
+                            &[query.source().source()],
+                            Request::GetDiagnostic(query),
+                            fresh,
+                        );
                     }
                 }
             }
@@ -111,6 +117,7 @@ fn page(out: &mut Outcome, q: &DiagnosticGet, returned: usize, total: usize, fre
         next::push(
             out,
             StepKind::Page,
+            &[q.source().source()],
             Request::GetDiagnostic(q.at_section_offset(q.section_offset() + returned as u32)),
             fresh,
         );
@@ -150,7 +157,13 @@ fn genes(out: &mut Outcome, q: &DiagnosticGet, relations: Vec<GtrTestRelation>, 
         if let Ok(input) = biomcp_types::GeneInput::new(&id.to_string())
             && let Ok(query) = biomcp_types::GeneGet::new(vec![input].into())
         {
-            next::push(out, StepKind::Disambiguate, Request::GetGene(query), fresh);
+            next::push(
+                out,
+                StepKind::Disambiguate,
+                &[biomcp_types::Source::Hgnc],
+                Request::GetGene(query),
+                fresh,
+            );
         }
     }
     page(out, q, items.len(), total, fresh);

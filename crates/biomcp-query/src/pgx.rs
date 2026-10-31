@@ -38,7 +38,7 @@ pub fn search(cx: &Ctx<'_>, query: &PgxSearch) -> Outcome {
     let mut out = finish(leg, reply, empty, Source::Cpic);
     out.include_refusals(refusals);
     status::append(&mut out.problems, problems);
-    out.next = next::steps_with(&Request::SearchPgx(query.clone()), &out, Some(consumed));
+    out.next = next::steps_with(&Request::SearchPgx(query.clone()), &mut out, Some(consumed));
     command.finish(deadline.remaining());
     out
 }
@@ -57,7 +57,7 @@ pub fn get(cx: &Ctx<'_>, query: &PgxGet) -> Outcome {
     let mut out = finish(leg, reply, empty(query), Source::Cpic);
     out.include_refusals(refusals);
     status::append(&mut out.problems, problems);
-    out.next = next::steps_with(&Request::GetPgx(query.clone()), &out, Some(consumed));
+    out.next = next::steps_with(&Request::GetPgx(query.clone()), &mut out, Some(consumed));
     command.finish(deadline.remaining());
     out
 }

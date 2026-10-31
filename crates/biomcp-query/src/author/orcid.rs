@@ -30,8 +30,9 @@ pub(super) fn papers(cx: &Ctx<'_>, q: &AuthorPapersQuery, id: &OrcidId) -> Outco
 }
 fn restart(q: &AuthorPapersQuery, out: &mut Outcome, mismatch: bool) {
     out.body = QueryBody::PoolError { mismatch };
-    out.next.push((
+    out.next.push(crate::next::Step::new(
         StepKind::Restart,
+        &[biomcp_types::Source::Orcid],
         super::run(Request::AuthorPapers(q.restart())),
     ));
 }
@@ -134,8 +135,9 @@ fn present(
     let returned = rows.len() as u32;
     let offset = q.offset().saturating_add(returned);
     if u64::from(offset) < total && returned > 0 {
-        out.next.push((
+        out.next.push(crate::next::Step::new(
             StepKind::Page,
+            &[biomcp_types::Source::Orcid],
             super::run(Request::AuthorPapers(
                 q.at_offset(offset).with_pool(pool.info.id.clone()),
             )),
@@ -188,7 +190,11 @@ fn pivots(out: &mut Outcome, rows: &[OrcidWorkGroup]) {
         if let Some(input) = input
             && let Ok(q) = biomcp_types::ArticleGet::new(vec![input].into())
         {
-            let step = (StepKind::Pivot, super::run(Request::GetArticle(q)));
+            let step = crate::next::Step::new(
+                StepKind::Pivot,
+                &super::super::article::next::get_sources(&q),
+                super::run(Request::GetArticle(q)),
+            );
             if out.next.len() < 5 && !out.next.contains(&step) {
                 out.next.push(step);
             }

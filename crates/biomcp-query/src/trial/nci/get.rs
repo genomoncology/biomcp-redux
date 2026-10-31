@@ -107,8 +107,9 @@ fn restore(
     })?;
     let Some(payload) = payload else {
         out.body = QueryBody::PoolError { mismatch: false };
-        out.next.push((
+        out.next.push(crate::next::Step::new(
             StepKind::Restart,
+            &[biomcp_types::Source::Nci],
             Action::Run {
                 request: Request::GetTrial(q.identity()),
                 fresh: false,

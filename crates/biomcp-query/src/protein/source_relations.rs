@@ -79,8 +79,9 @@ pub(super) fn run(cx: &Ctx<'_>, q: Selection) -> Outcome {
     let mut out = super::empty(q.empty());
     if let Err(e) = read(cx, &q, deadline, &mut out) {
         out.local = status::local(e);
-        out.next.push((
+        out.next.push(crate::next::Step::new(
             StepKind::Fresh,
+            &[q.source()],
             Action::Run {
                 request: q.request(None),
                 fresh: true,
@@ -92,8 +93,9 @@ pub(super) fn run(cx: &Ctx<'_>, q: Selection) -> Outcome {
 }
 fn restart(q: &Selection, out: &mut Outcome, mismatch: bool) {
     out.body = QueryBody::PoolError { mismatch };
-    out.next.push((
+    out.next.push(crate::next::Step::new(
         StepKind::Restart,
+        &[q.source()],
         Action::Run {
             request: q.request(None),
             fresh: false,
@@ -160,8 +162,9 @@ pub(super) fn read(
         truncated: None,
     });
     if u64::from(offset + returned) < total {
-        out.next.push((
+        out.next.push(crate::next::Step::new(
             StepKind::Page,
+            &[q.source()],
             Action::Run {
                 request: q.request(Some((pool.id, offset + returned))),
                 fresh: false,

@@ -27,8 +27,9 @@ pub fn get(cx: &Ctx<'_>, query: &DiseaseGet) -> Outcome {
         if page.received > 0
             && u64::from(query.section_offset()) + u64::from(page.received) < page.total
         {
-            out.next.push((
+            out.next.push(crate::next::Step::new(
                 StepKind::Page,
+                &[biomcp_types::Source::Monarch],
                 run(Request::GetDisease(query.at_section_offset(
                     query.section_offset().saturating_add(page.received),
                 ))),
@@ -77,7 +78,11 @@ fn gene_steps(out: &mut Outcome, items: &[biomcp_types::DiseaseAssociationItem])
         let id = &row.association.subject.id;
         let id = id.to_string();
         if let Some(query) = gene_query(&id) {
-            let step = (StepKind::Disambiguate, run(Request::GetGene(query)));
+            let step = crate::next::Step::new(
+                StepKind::Disambiguate,
+                &[biomcp_types::Source::Hgnc],
+                run(Request::GetGene(query)),
+            );
             if !out.next.contains(&step) {
                 out.next.push(step);
             }

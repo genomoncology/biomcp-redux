@@ -59,8 +59,9 @@ pub(super) fn load(
         }
     }
     out.body = QueryBody::PoolError { mismatch: false };
-    out.next.push((
+    out.next.push(crate::next::Step::new(
         StepKind::Restart,
+        &super::next::search(q),
         super::run(Request::SearchPathway(q.restart())),
     ));
     Ok(None)

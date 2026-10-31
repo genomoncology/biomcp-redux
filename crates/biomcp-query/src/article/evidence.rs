@@ -63,12 +63,19 @@ pub fn run(cx: &Ctx<'_>, query: &ArticleEvidence) -> Outcome {
         .iter()
         .any(|s| s.reason == Some(biomcp_types::Reason::RateLimited))
     {
-        out.next
-            .insert(0, (StepKind::Key, Action::KeyHelp(Source::SemanticScholar)));
+        out.next.insert(
+            0,
+            crate::next::Step::new(
+                StepKind::Key,
+                &[biomcp_types::Source::SemanticScholar],
+                Action::KeyHelp(Source::SemanticScholar),
+            ),
+        );
     }
     if matches!(out.status(), Status::Failed | Status::Partial) && out.next.is_empty() {
-        out.next.push((
+        out.next.push(crate::next::Step::new(
             StepKind::Fresh,
+            &super::next::evidence_sources(query),
             Action::Run {
                 request: Request::ArticleEvidence(query.identity()),
                 fresh: true,
@@ -185,8 +192,9 @@ pub(super) fn bad() -> RequestError {
 }
 
 fn restart(query: &ArticleEvidence, out: &mut Outcome) {
-    out.next.push((
+    out.next.push(crate::next::Step::new(
         StepKind::Restart,
+        &super::next::evidence_sources(query),
         Action::Run {
             request: Request::ArticleEvidence(query.identity()),
             fresh: false,

@@ -66,8 +66,9 @@ pub(super) fn load(
 }
 fn restart(q: &AuthorPapersQuery, out: &mut Outcome, mismatch: bool) {
     out.body = QueryBody::PoolError { mismatch };
-    out.next.push((
+    out.next.push(crate::next::Step::new(
         StepKind::Restart,
+        &[super::next::author(q.id())],
         super::run(Request::AuthorPapers(q.restart())),
     ));
 }

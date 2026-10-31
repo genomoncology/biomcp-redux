@@ -26,12 +26,13 @@ fn request(query: ArticleEdges, references: bool) -> Request {
     }
 }
 fn restart(query: &ArticleEdges, references: bool, out: &mut Outcome, fresh: bool) {
-    out.next.push((
+    out.next.push(crate::next::Step::new(
         if fresh {
             StepKind::Fresh
         } else {
             StepKind::Restart
         },
+        &[super::next::edge_source(query)],
         Action::Run {
             request: request(query.page(0, None), references),
             fresh,

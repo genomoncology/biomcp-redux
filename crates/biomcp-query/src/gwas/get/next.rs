@@ -1,18 +1,31 @@
 use super::{Action, GwasAssociation, GwasGet, GwasLocus, Outcome, Request, StepKind, action};
-use serde_json::json;
+use biomcp_types::Source;
 pub(super) fn association(row: &GwasAssociation, out: &mut Outcome) {
     if let Some(study) = &row.study
         && let Ok(id) = study.as_str().parse()
     {
-        out.next
-            .push((StepKind::Pivot, action(GwasGet::study(id), false)));
+        out.next.push(crate::next::Step::new(
+            StepKind::Pivot,
+            &[biomcp_types::Source::Gwas],
+            action(GwasGet::study(id), false),
+        ));
     }
     for allele in &row.alleles {
-        if allele.rs_id.as_str().parse::<biodata::RsId>().is_ok()
-            && let Ok(q) = serde_json::from_value(json!({"input":allele.rs_id}))
-        {
-            out.next.push((
+        if let Some(q) = crate::next::checked(
+            allele
+                .rs_id
+                .as_str()
+                .parse()
+                .map_err(|_| biomcp_types::QueryInvalid::new(&["input"]))
+                .and_then(|input| {
+                    biomcp_types::VariantGet::new(input, biomcp_types::VariantResolver::Car, None)
+                }),
+            Source::Gwas,
+            &mut out.problems,
+        ) {
+            out.next.push(crate::next::Step::new(
                 StepKind::Pivot,
+                &[biomcp_types::Source::MyVariant],
                 Action::Run {
                     request: Request::GetVariant(q),
                     fresh: false,
@@ -21,10 +34,17 @@ pub(super) fn association(row: &GwasAssociation, out: &mut Outcome) {
         }
     }
     if let Some(publication) = &row.publication
-        && let Ok(q) = serde_json::from_value(json!({"input":[publication]}))
+        && let Some(q) = crate::next::checked(
+            biomcp_types::ArticleGet::new(
+                vec![biomcp_types::ArticleInput::Pmid(*publication)].into(),
+            ),
+            Source::Gwas,
+            &mut out.problems,
+        )
     {
-        out.next.push((
+        out.next.push(crate::next::Step::new(
             StepKind::Pivot,
+            &[biomcp_types::Source::PubMed],
             Action::Run {
                 request: Request::GetArticle(q),
                 fresh: false,
@@ -49,10 +69,18 @@ pub(super) fn loci(rows: &[GwasLocus], out: &mut Outcome) {
             };
             let Some(input) = input else { continue };
             if seen.insert(input.clone())
-                && let Ok(q) = serde_json::from_value(json!({"input":[input]}))
+                && let Some(q) = crate::next::checked(
+                    input
+                        .parse()
+                        .map_err(|_| biomcp_types::QueryInvalid::new(&["input"]))
+                        .and_then(|input| biomcp_types::GeneGet::new(vec![input].into())),
+                    Source::Gwas,
+                    &mut out.problems,
+                )
             {
-                out.next.push((
+                out.next.push(crate::next::Step::new(
                     StepKind::Pivot,
+                    &[biomcp_types::Source::Hgnc],
                     Action::Run {
                         request: Request::GetGene(q),
                         fresh: false,

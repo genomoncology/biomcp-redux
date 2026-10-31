@@ -4,8 +4,9 @@ use biomcp_types::{ArticleSearch, ArticleSource, Request, SourceNotice, StepKind
 
 pub(super) fn recover(query: &ArticleSearch, out: &mut Outcome) {
     for source in [ArticleSource::Europepmc, ArticleSource::Pubmed] {
-        out.next.push((
+        out.next.push(crate::next::Step::new(
             StepKind::Disambiguate,
+            &super::next::search_sources(&query.with_source(source)),
             Action::Run {
                 request: Request::SearchArticle(query.with_source(source)),
                 fresh: false,
@@ -19,8 +20,9 @@ pub(super) fn recover(query: &ArticleSearch, out: &mut Outcome) {
         && let Ok(get) =
             biomcp_types::VariantGet::new(input, biomcp_types::VariantResolver::Car, None)
     {
-        out.next.push((
+        out.next.push(crate::next::Step::new(
             StepKind::Disambiguate,
+            &[biomcp_types::Source::MyVariant],
             Action::Run {
                 request: Request::GetVariant(get),
                 fresh: false,
@@ -28,8 +30,9 @@ pub(super) fn recover(query: &ArticleSearch, out: &mut Outcome) {
         ));
     }
     if let Some(broader) = query.without_variant() {
-        out.next.push((
+        out.next.push(crate::next::Step::new(
             StepKind::Disambiguate,
+            &super::next::search_sources(&broader),
             Action::Run {
                 request: Request::SearchArticle(broader),
                 fresh: false,

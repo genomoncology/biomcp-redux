@@ -53,8 +53,9 @@ pub fn search(cx: &Ctx<'_>, q: &ProteinSearch) -> Outcome {
     }));
     if let Err(error) = read(cx, q, deadline, &mut out) {
         out.local = status::local(error);
-        out.next.push((
+        out.next.push(crate::next::Step::new(
             StepKind::Fresh,
+            &[biomcp_types::Source::UniProt],
             Action::Run {
                 request: Request::SearchProtein(q.restart()),
                 fresh: true,
@@ -74,8 +75,9 @@ fn key(q: &ProteinSearch) -> Vec<u8> {
 }
 fn restart(q: &ProteinSearch, out: &mut Outcome, mismatch: bool) {
     out.body = QueryBody::PoolError { mismatch };
-    out.next.push((
+    out.next.push(crate::next::Step::new(
         StepKind::Restart,
+        &[biomcp_types::Source::UniProt],
         Action::Run {
             request: Request::SearchProtein(q.restart()),
             fresh: false,

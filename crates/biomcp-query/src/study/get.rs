@@ -198,8 +198,9 @@ fn continuation(
     }
 }
 fn next(out: &mut Outcome, cx: &Ctx<'_>, kind: StepKind, query: StudyGet) {
-    out.next.push((
+    out.next.push(crate::next::Step::new(
         kind,
+        &[biomcp_types::Source::Cbioportal],
         Action::Run {
             request: Request::GetStudy(query),
             fresh: cx.fresh,

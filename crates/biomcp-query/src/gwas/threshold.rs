@@ -79,6 +79,7 @@ pub(super) fn search(cx: &Ctx<'_>, q: &GwasSearch) -> Outcome {
             None,
             biomcp_types::SourceState::Failed,
             cx.fresh,
+            &mut out.problems,
         );
     }
     command.finish(deadline.remaining());
@@ -102,8 +103,9 @@ fn bad() -> RequestError {
 }
 fn restart(q: &GwasSearch, out: &mut Outcome, mismatch: bool) {
     out.body = QueryBody::PoolError { mismatch };
-    out.next.push((
+    out.next.push(crate::next::Step::new(
         StepKind::Restart,
+        &[biomcp_types::Source::Gwas],
         Action::Run {
             request: Request::SearchGwas(q.restart()),
             fresh: false,
@@ -276,7 +278,13 @@ fn render(cx: &Ctx<'_>, q: &GwasSearch, saved: Saved, pool: Pool, out: &mut Outc
         continuation,
         qualifying_total: saved.done.then_some(saved.rows.len() as u64),
     };
-    out.next = next::search(q, Some(&body), biomcp_types::SourceState::Ok, cx.fresh);
+    out.next = next::search(
+        q,
+        Some(&body),
+        biomcp_types::SourceState::Ok,
+        cx.fresh,
+        &mut out.problems,
+    );
     out.page = Some(page);
     out.body = QueryBody::GwasPage(Some(body));
     out.dropped = saved.dropped;

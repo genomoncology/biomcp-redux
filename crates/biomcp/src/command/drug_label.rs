@@ -59,7 +59,7 @@ pub(super) fn bound(
         if let Some(page) = &mut out.page {
             page.returned = returned;
         }
-        out.next.retain(|(kind, _)| *kind != StepKind::Page);
+        out.next.retain(|step| step.0 != StepKind::Page);
         let offset = data
             .offset
             .checked_add(returned)
@@ -67,8 +67,9 @@ pub(super) fn bound(
         let request = query
             .at_section_offset(offset)
             .map_err(|_| io::Error::other("invalid label continuation"))?;
-        out.next.push((
+        out.next.push(biomcp_query::next::Step::new(
             StepKind::Page,
+            &[biomcp_types::Source::OpenfdaLabel],
             biomcp_query::Action::Run {
                 request: Request::GetDrug(request),
                 fresh,

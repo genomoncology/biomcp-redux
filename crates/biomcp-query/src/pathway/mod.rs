@@ -5,6 +5,7 @@ mod get_sections;
 mod gpml_membership;
 mod gpml_relation;
 mod membership;
+mod next;
 mod relation;
 mod relation_snapshot;
 mod relation_steps;
@@ -13,14 +14,9 @@ mod snapshot;
 mod union;
 mod wikipathways;
 use crate::Action;
+use crate::next::run;
 pub(super) use crate::status::empty;
 use biomcp_types::Request;
 pub use get::get;
 pub use relation::{events, genes};
 pub use search::search;
-fn run(request: Request) -> Action {
-    Action::Run {
-        request,
-        fresh: false,
-    }
-}

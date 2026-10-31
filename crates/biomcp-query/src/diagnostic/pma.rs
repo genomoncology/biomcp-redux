@@ -89,7 +89,13 @@ fn selected(
             .into();
             for section in &sections {
                 if let Ok(query) = q.with_section(*section) {
-                    next::push(out, StepKind::Section, Request::GetDiagnostic(query), fresh);
+                    next::push(
+                        out,
+                        StepKind::Section,
+                        &[query.source().source()],
+                        Request::GetDiagnostic(query),
+                        fresh,
+                    );
                 }
             }
             association(out, q, fresh);
@@ -104,8 +110,9 @@ fn selected(
         _ => {}
     }
     if !fresh {
-        out.next.push((
+        out.next.push(crate::next::Step::new(
             StepKind::Fresh,
+            &[biomcp_types::Source::FdaPma],
             crate::Action::Run {
                 request: Request::GetDiagnostic(q.clone()),
                 fresh: true,
@@ -120,12 +127,17 @@ fn association(out: &mut Outcome, q: &DiagnosticGet, fresh: bool) {
         q.id(),
         q.supplement().map_or(String::new(), |s| format!("/{s}"))
     );
-    if let Ok(search) = serde_json::from_value::<DiagnosticSearch>(
-        serde_json::json!({"source":"fda-cdx","device_id":id}),
+    if let Some(search) = crate::next::checked(
+        id.parse()
+            .map_err(|_| biomcp_types::QueryInvalid::new(&["device_id"]))
+            .and_then(DiagnosticSearch::companion),
+        biomcp_types::Source::FdaCdx,
+        &mut out.problems,
     ) {
         next::push(
             out,
             StepKind::Pivot,
+            &[search.source().source()],
             Request::SearchDiagnostic(search),
             fresh,
         );
@@ -143,6 +155,7 @@ fn page(out: &mut Outcome, q: &DiagnosticGet, returned: usize, total: usize, fre
         next::push(
             out,
             StepKind::Page,
+            &[q.source().source()],
             Request::GetDiagnostic(q.at_section_offset(q.section_offset() + returned as u32)),
             fresh,
         );
@@ -169,12 +182,19 @@ fn supplements(
         .map(|row| fda_pma::header(row))
         .collect::<Result<Vec<_>, _>>()?;
     for row in &items {
-        if let Ok(query) = serde_json::from_value::<DiagnosticGet>(
-            serde_json::json!({"id":q.id(),"source":"fda-pma","supplement":row.supplement_number}),
+        if let Some(query) = crate::next::checked(
+            DiagnosticGet::new(
+                q.id().clone(),
+                biomcp_types::DiagnosticGetSource::FdaPma,
+                row.supplement_number.clone(),
+            ),
+            biomcp_types::Source::FdaPma,
+            &mut out.problems,
         ) {
             next::push(
                 out,
                 StepKind::Disambiguate,
+                &[query.source().source()],
                 Request::GetDiagnostic(query),
                 fresh,
             );

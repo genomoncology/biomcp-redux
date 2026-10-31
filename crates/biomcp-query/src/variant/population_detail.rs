@@ -29,8 +29,9 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &VariantPopulationQuery) -> Outcome {
     });
     let mut next = Vec::new();
     if query.offset() as u64 + u64::from(returned) < total {
-        next.push((
+        next.push(crate::next::Step::new(
             StepKind::Page,
+            &[biomcp_types::Source::Gnomad],
             Action::Run {
                 request: Request::VariantPopulation(query.at_offset(query.offset() + returned)),
                 fresh: false,
@@ -133,7 +134,7 @@ fn read(
 fn choices(
     query: &VariantPopulationQuery,
     candidates: &[biomcp_types::VariantHeader],
-) -> Vec<(StepKind, Action)> {
+) -> Vec<crate::next::Step> {
     candidates
         .iter()
         .filter_map(|row| {
@@ -147,8 +148,9 @@ fn choices(
                 }
                 request => request,
             };
-            Some((
+            Some(crate::next::Step::new(
                 StepKind::Disambiguate,
+                &[biomcp_types::Source::Gnomad],
                 Action::Run {
                     request,
                     fresh: false,

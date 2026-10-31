@@ -126,8 +126,9 @@ fn drugs(
 }
 fn section_step(q: &AdverseEventGet, s: S, index: Option<u32>, out: &mut Outcome) {
     if let Ok(q) = q.with_section(s, index) {
-        out.next.push((
+        out.next.push(crate::next::Step::new(
             StepKind::Section,
+            &[biomcp_types::Source::Faers],
             Action::Run {
                 request: Request::GetAdverseEvent(q),
                 fresh: false,
@@ -137,8 +138,9 @@ fn section_step(q: &AdverseEventGet, s: S, index: Option<u32>, out: &mut Outcome
 }
 fn page(q: &AdverseEventGet, offset: u32, total: u64, out: &mut Outcome) {
     if offset > q.section_offset() && u64::from(offset) < total {
-        out.next.push((
+        out.next.push(crate::next::Step::new(
             StepKind::Page,
+            &[biomcp_types::Source::Faers],
             Action::Run {
                 request: Request::GetAdverseEvent(q.at_section_offset(offset)),
                 fresh: false,

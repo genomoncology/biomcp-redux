@@ -314,8 +314,9 @@ fn prepare_litvar<'a>(
                     if query.variant() == Some(variant) {
                         continue;
                     }
-                    out.next.push((
+                    out.next.push(crate::next::Step::new(
                         biomcp_types::StepKind::Disambiguate,
+                        &super::next::search_sources(query),
                         crate::Action::Run {
                             request: biomcp_types::Request::SearchArticle(
                                 query.with_variant(variant.clone()),

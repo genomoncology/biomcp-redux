@@ -48,7 +48,7 @@ pub(super) fn get(cx: &Ctx<'_>, q: &PhenotypeGet) -> Outcome {
     command.finish(deadline.remaining());
     out
 }
-fn source(q: &PhenotypeGet) -> Source {
+pub(super) fn source(q: &PhenotypeGet) -> Source {
     match q.source() {
         PhenotypeSource::Hpo => Source::Hpo,
         PhenotypeSource::Monarch => Source::Monarch,
@@ -85,8 +85,11 @@ fn load(
             store.source_snapshot(token.as_str(), &key(q), |source| cx.fetch.disabled(source))?
         else {
             out.body = QueryBody::PoolError { mismatch: false };
-            out.next
-                .push((StepKind::Restart, run(Request::GetPhenotype(q.restart()))));
+            out.next.push(crate::next::Step::new(
+                StepKind::Restart,
+                &[source(q)],
+                run(Request::GetPhenotype(q.restart())),
+            ));
             return Ok(None);
         };
         let saved: Saved = serde_json::from_str(&payload).map_err(|_| CacheError::Database)?;

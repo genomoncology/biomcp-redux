@@ -134,8 +134,9 @@ fn restore(
     )?;
     let Some(payload) = payload else {
         out.body = QueryBody::PoolError { mismatch: false };
-        out.next.push((
+        out.next.push(crate::next::Step::new(
             StepKind::Restart,
+            &[query.source().source()],
             Action::Run {
                 request: Request::GetTrial(query.identity()),
                 fresh: false,

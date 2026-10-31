@@ -46,8 +46,9 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
             if let Ok(get) = DrugGet::new(item.id.clone(), DrugSource::Civic)
                 .and_then(|q| q.for_section(DrugSection::Civic))
             {
-                out.next.push((
+                out.next.push(crate::next::Step::new(
                     StepKind::Disambiguate,
+                    &[biomcp_types::Source::Civic],
                     Action::Run {
                         request: Request::GetDrug(get),
                         fresh: cx.fresh,
@@ -60,8 +61,9 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
             .checked_add(consumed)
             .filter(|n| consumed > 0 && page.total.is_some_and(|t| u64::from(*n) < t))
         {
-            out.next.push((
+            out.next.push(crate::next::Step::new(
                 StepKind::Page,
+                &[biomcp_types::Source::Civic],
                 Action::Run {
                     request: Request::SearchDrug(query.at_offset(offset)),
                     fresh: cx.fresh,
@@ -99,8 +101,9 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
         if let biomcp_types::Section::Data { data, .. } = &value.civic {
             for stream in [&data.evidence, &data.assertions].into_iter().flatten() {
                 if let Some(next) = &stream.page.next {
-                    out.next.push((
+                    out.next.push(crate::next::Step::new(
                         StepKind::Page,
+                        &[biomcp_types::Source::Civic],
                         Action::Run {
                             request: Request::GetDrug(next.clone()),
                             fresh: cx.fresh,

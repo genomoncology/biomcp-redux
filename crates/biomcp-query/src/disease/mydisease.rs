@@ -60,8 +60,9 @@ fn apply(out: &mut Outcome, query: &DiseaseGet, record: mydisease::Annotation) {
         }
         _ => {
             for section in &record.card.sections {
-                out.next.push((
+                out.next.push(crate::next::Step::new(
                     StepKind::Section,
+                    &[biomcp_types::Source::MyDisease],
                     run(Request::GetDisease(query.with_section(*section))),
                 ));
             }
@@ -71,8 +72,9 @@ fn apply(out: &mut Outcome, query: &DiseaseGet, record: mydisease::Annotation) {
     if let Some(page) = &out.page {
         let offset = page.offset.saturating_add(page.returned);
         if page.returned > 0 && u64::from(offset) < page.total {
-            out.next.push((
+            out.next.push(crate::next::Step::new(
                 StepKind::Page,
+                &[biomcp_types::Source::MyDisease],
                 run(Request::GetDisease(query.at_section_offset(offset))),
             ));
         }

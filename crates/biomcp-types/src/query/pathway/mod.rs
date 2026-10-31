@@ -51,3 +51,13 @@ mod native_id {
         v.as_str().parse().map_err(serde::de::Error::custom)
     }
 }
+
+impl PathwaySource {
+    /// Native source identity for the selected provider.
+    pub const fn source(self) -> crate::Source {
+        match self {
+            Self::Reactome => crate::Source::Reactome,
+            Self::Wikipathways => crate::Source::WikiPathways,
+        }
+    }
+}

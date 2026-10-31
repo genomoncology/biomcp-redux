@@ -68,8 +68,9 @@ pub(super) fn resolve<'a>(
         GeneResolution::Ambiguous { candidates } => {
             for candidate in candidates.iter().take(5) {
                 let checked = query.with_gene(GeneInput::HgncId(candidate.hgnc_id));
-                out.next.push((
+                out.next.push(crate::next::Step::new(
                     StepKind::Disambiguate,
+                    &super::next::search_sources(&checked),
                     Action::Run {
                         request: Request::SearchArticle(checked),
                         fresh: cx.fresh,

@@ -24,7 +24,7 @@ pub fn search(cx: &Ctx<'_>, q: &AuthorSearch) -> Outcome {
     let key = out
         .next
         .iter()
-        .position(|(kind, _)| *kind == StepKind::Key)
+        .position(|step| step.0 == StepKind::Key)
         .map(|index| out.next.remove(index));
     retry(&mut out, Request::SearchAuthor(q.restart()));
     if let Some(key) = key {
@@ -120,14 +120,16 @@ fn present(
         .map(|r| r.header(&mut out.problems))
         .collect();
     for row in &items {
-        out.next.push((
+        out.next.push(crate::next::Step::new(
             StepKind::Disambiguate,
+            &[super::next::author(&row.id)],
             run(Request::GetAuthor(AuthorGet::one(row.id.clone()))),
         ));
     }
     if let Some(offset) = page.next {
-        out.next.push((
+        out.next.push(crate::next::Step::new(
             StepKind::Page,
+            &[biomcp_types::Source::SemanticScholar],
             run(Request::SearchAuthor(
                 q.at_offset(offset).with_pool(pool.info.id.clone()),
             )),

@@ -75,8 +75,9 @@ pub(super) fn render(
         unavailable || !snapshot.terminal,
     );
     if more || !snapshot.terminal {
-        out.next.push((
+        out.next.push(crate::next::Step::new(
             StepKind::Page,
+            &super::super::next::evidence_sources(query),
             Action::Run {
                 request: Request::ArticleEvidence(query.page(id, context_end, paragraph_end)),
                 fresh: false,

@@ -79,8 +79,9 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
             if card.is_some()
                 && let Ok(get) = query.for_section(DrugSection::Interactions)
             {
-                out.next.push((
+                out.next.push(crate::next::Step::new(
                     StepKind::Section,
+                    &[biomcp_types::Source::Ddinter],
                     Action::Run {
                         request: Request::GetDrug(get),
                         fresh: cx.fresh,
@@ -125,8 +126,9 @@ fn page(
             .filter(|n| returned > 0 && u64::from(*n) < total)
             && let Ok(get) = query.at_section_offset(offset)
         {
-            out.next.push((
+            out.next.push(crate::next::Step::new(
                 StepKind::Page,
+                &[biomcp_types::Source::Ddinter],
                 Action::Run {
                     request: Request::GetDrug(get),
                     fresh,
@@ -142,8 +144,9 @@ fn sync_step(out: &mut Outcome) {
         .iter()
         .any(|s| matches!(s.state, SourceState::Syncing | SourceState::Stale))
     {
-        out.next.push((
+        out.next.push(crate::next::Step::new(
             StepKind::Sync,
+            &[biomcp_types::Source::Ddinter],
             Action::Sync {
                 bundle: Bundle::Ddinter,
             },

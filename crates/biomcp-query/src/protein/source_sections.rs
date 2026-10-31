@@ -108,7 +108,7 @@ fn merge(
     item: &mut ProteinCardItem,
     out: &mut Outcome,
     sources: Vec<biomcp_types::SourceOutcome>,
-    steps: Vec<(biomcp_types::StepKind, crate::Action)>,
+    steps: Vec<crate::next::Step>,
     problems: Vec<biomcp_types::Problem>,
     state: Status,
 ) {

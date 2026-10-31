@@ -4,6 +4,7 @@ pub mod gene;
 pub mod store;
 
 mod context;
+pub mod next;
 mod run;
 mod status;
 pub use context::Ctx;

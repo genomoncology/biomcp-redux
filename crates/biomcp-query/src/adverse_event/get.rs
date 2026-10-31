@@ -88,8 +88,9 @@ fn read(
             store.source_snapshot(snapshot.as_str(), &key(q), |s| cx.fetch.disabled(s))?
         else {
             out.body = QueryBody::PoolError { mismatch: false };
-            out.next.push((
+            out.next.push(crate::next::Step::new(
                 StepKind::Restart,
+                &[biomcp_types::Source::Faers],
                 Action::Run {
                     request: Request::GetAdverseEvent(q.restart()),
                     fresh: false,

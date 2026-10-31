@@ -35,8 +35,9 @@ pub(super) fn render(
             .collect();
         for chunk in inputs.chunks(20) {
             if let Ok(request) = ArticleGet::new(chunk.into()) {
-                out.next.push((
+                out.next.push(crate::next::Step::new(
                     StepKind::Section,
+                    &[biomcp_types::Source::PubMed],
                     Action::Run {
                         request: Request::GetArticle(request),
                         fresh: false,
@@ -62,6 +63,6 @@ pub(super) fn render(
     }
     // All checked section continuations precede optional discovery actions under the shared next budget.
     out.next
-        .sort_by_key(|(kind, _)| if *kind == StepKind::Page { 0 } else { 1 });
+        .sort_by_key(|step| if step.0 == StepKind::Page { 0 } else { 1 });
     Ok(())
 }

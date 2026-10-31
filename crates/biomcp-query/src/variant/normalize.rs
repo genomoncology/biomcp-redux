@@ -63,8 +63,9 @@ pub fn normalize(cx: &Ctx<'_>, query: &VariantNormalize) -> Outcome {
         local = local.or(error);
     }
     let next = if more {
-        vec![(
+        vec![crate::next::Step::new(
             StepKind::Page,
+            &selected(query.source()).iter().map(|spec| spec.source).collect::<Vec<_>>(),
             Action::Run {
                 request: Request::VariantNormalize(
                     query.at_offset(query.offset().saturating_add(query.limit())),

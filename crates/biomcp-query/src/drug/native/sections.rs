@@ -119,8 +119,9 @@ fn card_next(out: &mut Outcome, query: &DrugGet, fresh: bool, xrefs: bool) {
     .filter(|s| *s != DrugSection::Xrefs || xrefs)
     {
         if let Ok(get) = query.for_section(section) {
-            out.next.push((
+            out.next.push(crate::next::Step::new(
                 StepKind::Section,
+                &[get.source().source()],
                 Action::Run {
                     request: Request::GetDrug(get),
                     fresh,
@@ -157,8 +158,9 @@ fn page<T>(
     if let Some(offset) = next_offset
         && let Ok(get) = query.at_section_offset(offset)
     {
-        out.next.push((
+        out.next.push(crate::next::Step::new(
             StepKind::Page,
+            &[get.source().source()],
             Action::Run {
                 request: Request::GetDrug(get),
                 fresh,
@@ -267,8 +269,9 @@ fn chembl_card(
     out.body = QueryBody::DrugCard(Some(card));
     card_next(out, query, fresh, has_xrefs);
     if let Ok(get) = DrugGet::new(query.input().clone(), biomcp_types::DrugSource::Opentargets) {
-        out.next.push((
+        out.next.push(crate::next::Step::new(
             StepKind::Section,
+            &[get.source().source()],
             Action::Run {
                 request: Request::GetDrug(get),
                 fresh,

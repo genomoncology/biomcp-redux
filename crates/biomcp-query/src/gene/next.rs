@@ -4,27 +4,30 @@ use biomcp_types::{
     GeneGet, GeneItem, GeneSearch, PageInfo, Request, SourceOutcome, SourceState, StepKind,
 };
 use biomcp_types::{GeneHeader, GeneResolution};
-fn retry(request: Request) -> (StepKind, Action) {
-    (
+fn retry(request: Request) -> crate::next::Step {
+    crate::next::Step::new(
         StepKind::Fresh,
+        &[biomcp_types::Source::Hgnc],
         Action::Run {
             request,
             fresh: true,
         },
     )
 }
-fn sync() -> (StepKind, Action) {
-    (
+fn sync() -> crate::next::Step {
+    crate::next::Step::new(
         StepKind::Sync,
+        &[biomcp_types::Source::Hgnc],
         Action::Sync {
             bundle: Bundle::Hgnc,
         },
     )
 }
-fn get_id(id: biodata::HgncId) -> Option<(StepKind, Action)> {
+fn get_id(id: biodata::HgncId) -> Option<crate::next::Step> {
     let query = GeneGet::new(vec![biomcp_types::GeneInput::HgncId(id)].into()).ok()?;
-    Some((
+    Some(crate::next::Step::new(
         StepKind::Disambiguate,
+        &[biomcp_types::Source::Hgnc],
         Action::Run {
             request: Request::GetGene(query),
             fresh: false,
@@ -35,7 +38,7 @@ pub(crate) fn get(
     query: &GeneGet,
     items: &[GeneItem],
     sources: &[SourceOutcome],
-) -> Vec<(StepKind, Action)> {
+) -> Vec<crate::next::Step> {
     let mut steps = Vec::new();
     if sources.iter().any(|source| {
         matches!(
@@ -62,7 +65,11 @@ pub(crate) fn get(
             .iter()
             .any(|outcome| outcome.source == source && outcome.state != SourceState::Ok)
         {
-            steps.push((StepKind::Sync, Action::Sync { bundle }));
+            steps.push(crate::next::Step::new(
+                StepKind::Sync,
+                &[source],
+                Action::Sync { bundle },
+            ));
         }
     }
     if sources.iter().any(|source| {
@@ -70,7 +77,11 @@ pub(crate) fn get(
             && source.state == SourceState::Skipped
             && source.reason == Some(biomcp_types::Reason::NoKey)
     }) {
-        steps.push((StepKind::Key, Action::KeyHelp(biomcp_types::Source::Oncokb)));
+        steps.push(crate::next::Step::new(
+            StepKind::Key,
+            &[biomcp_types::Source::Oncokb],
+            Action::KeyHelp(biomcp_types::Source::Oncokb),
+        ));
     }
     for item in items {
         if let Some(GeneResolution::Ambiguous { candidates }) = &item.answer {
@@ -97,8 +108,9 @@ pub(crate) fn get(
                 vec![biomcp_types::GeneInput::HgncId(gene.hgnc_id)].into(),
                 words,
             ) {
-                let step = (
+                let step = crate::next::Step::new(
                     StepKind::Section,
+                    &[biomcp_types::Source::Hgnc],
                     Action::Run {
                         request: Request::GetGene(query),
                         fresh: false,
@@ -117,7 +129,7 @@ pub(crate) fn search(
     items: &[GeneHeader],
     page: &PageInfo,
     source: &SourceOutcome,
-) -> Vec<(StepKind, Action)> {
+) -> Vec<crate::next::Step> {
     let mut steps = Vec::new();
     if matches!(
         source.state,
@@ -129,8 +141,9 @@ pub(crate) fn search(
     if let Some(offset) = page.offset.checked_add(page.returned)
         && u64::from(offset) < page.total
     {
-        steps.push((
+        steps.push(crate::next::Step::new(
             StepKind::Page,
+            &[biomcp_types::Source::Hgnc],
             Action::Run {
                 request: Request::SearchGene(query.at_offset(offset)),
                 fresh: false,

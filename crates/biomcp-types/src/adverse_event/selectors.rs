@@ -98,3 +98,14 @@ biodata::wire_enum! { described
         Reports => "reports",
     }
 }
+
+impl AdverseEventSource {
+    /// Source identity for this explicit native selector.
+    pub const fn source(self) -> crate::Source {
+        match self {
+            Self::Faers => crate::Source::Faers,
+            Self::Maude => crate::Source::Maude,
+            Self::Vaers => crate::Source::Vaers,
+        }
+    }
+}

@@ -29,8 +29,9 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DrugSearch) -> Outcome {
             if let Ok(id) = item.recall_number.to_string().parse()
                 && let Ok(get) = DrugGet::new(id, DrugSource::FdaDrugRecall)
             {
-                out.next.push((
+                out.next.push(crate::next::Step::new(
                     StepKind::Disambiguate,
+                    &[biomcp_types::Source::FdaDrugRecall],
                     Action::Run {
                         request: Request::GetDrug(get),
                         fresh: cx.fresh,
@@ -43,8 +44,9 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DrugSearch) -> Outcome {
             .checked_add(returned)
             .filter(|n| returned > 0 && u64::from(*n) < page.total)
         {
-            out.next.push((
+            out.next.push(crate::next::Step::new(
                 StepKind::Page,
+                &[biomcp_types::Source::FdaDrugRecall],
                 Action::Run {
                     request: Request::SearchDrug(q.at_offset(offset)),
                     fresh: cx.fresh,

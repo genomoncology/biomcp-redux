@@ -73,8 +73,9 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
             if card.is_some()
                 && let Ok(get) = query.for_section(DrugSection::Regulatory)
             {
-                out.next.push((
+                out.next.push(crate::next::Step::new(
                     StepKind::Section,
+                    &[biomcp_types::Source::Ema],
                     Action::Run {
                         request: Request::GetDrug(get),
                         fresh: cx.fresh,
@@ -139,8 +140,9 @@ fn sync_step(out: &mut Outcome) {
         .iter()
         .any(|s| matches!(s.state, SourceState::Syncing | SourceState::Stale))
     {
-        out.next.push((
+        out.next.push(crate::next::Step::new(
             StepKind::Sync,
+            &[biomcp_types::Source::Ema],
             Action::Sync {
                 bundle: Bundle::Ema,
             },

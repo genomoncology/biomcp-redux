@@ -238,8 +238,9 @@ fn omitted(q: &TrialGet, id: biodata::NctId, out: &mut Outcome) -> Box<[TrialSec
         .filter(|s| !q.sections().contains(s) && !q.sections().contains(&TrialSection::All))
         .collect();
     for section in &more {
-        out.next.push((
+        out.next.push(crate::next::Step::new(
             StepKind::Section,
+            &[biomcp_types::Source::Nci],
             Action::Run {
                 request: Request::GetTrial(
                     TrialGet::single(id, Some(*section), q.limit()).with_source(TrialSource::Nci),

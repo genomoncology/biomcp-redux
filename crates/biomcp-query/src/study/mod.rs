@@ -21,8 +21,9 @@ fn finish(out: &mut Outcome, leg: Leg<'_>, error: Option<RequestError>) {
         .iter()
         .any(|s| matches!(s.state, SourceState::Stale | SourceState::Syncing))
     {
-        out.next.push((
+        out.next.push(crate::next::Step::new(
             StepKind::Sync,
+            &[biomcp_types::Source::Cbioportal],
             Action::Sync {
                 bundle: Bundle::CbioportalStudies,
             },

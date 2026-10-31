@@ -43,8 +43,11 @@ pub(super) fn run<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut Outco
     *deadline = super::super::consume(*deadline, started, leg.remaining());
     let source = status::source(Source::SemanticScholar, leg.finish(), error);
     if source.reason == Some(Reason::RateLimited) {
-        out.next
-            .push((StepKind::Key, Action::KeyHelp(Source::SemanticScholar)));
+        out.next.push(crate::next::Step::new(
+            StepKind::Key,
+            &[biomcp_types::Source::SemanticScholar],
+            Action::KeyHelp(Source::SemanticScholar),
+        ));
     }
     if source.state == biomcp_types::SourceState::Stale {
         for item in &mut cards.items {

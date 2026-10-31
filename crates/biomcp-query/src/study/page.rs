@@ -72,10 +72,14 @@ fn render(
         truncated: None,
     };
     for row in &items {
-        if let Ok(get) = serde_json::from_value::<StudyGet>(serde_json::json!({"id":row.study_id}))
-        {
-            out.next.push((
+        if let Some(get) = crate::next::checked(
+            StudyGet::new(row.study_id.clone()),
+            biomcp_types::Source::Cbioportal,
+            &mut out.problems,
+        ) {
+            out.next.push(crate::next::Step::new(
                 StepKind::Disambiguate,
+                &[biomcp_types::Source::Cbioportal],
                 Action::Run {
                     request: Request::GetStudy(get),
                     fresh: cx.fresh,
@@ -84,8 +88,9 @@ fn render(
         }
     }
     if u64::from(q.offset()) + u64::from(returned) < total {
-        out.next.push((
+        out.next.push(crate::next::Step::new(
             StepKind::Page,
+            &[biomcp_types::Source::Cbioportal],
             Action::Run {
                 request: Request::SearchStudy(query.at_offset(q.offset() + returned)),
                 fresh: cx.fresh,
@@ -113,8 +118,9 @@ fn request_key(q: &StudySearch, snapshot: &StudySnapshot) -> Result<Vec<u8>, Req
 }
 fn pool_error(cx: &Ctx<'_>, q: &StudySearch, mismatch: bool, out: &mut Outcome) {
     out.body = QueryBody::PoolError { mismatch };
-    out.next.push((
+    out.next.push(crate::next::Step::new(
         StepKind::Restart,
+        &[biomcp_types::Source::Cbioportal],
         Action::Run {
             request: Request::SearchStudy(q.with_pool(None).at_offset(0)),
             fresh: cx.fresh,

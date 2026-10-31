@@ -100,8 +100,9 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
                 }
             } else {
                 if let Ok(request) = query.for_section(DrugSection::Approvals) {
-                    out.next.push((
+                    out.next.push(crate::next::Step::new(
                         StepKind::Section,
+                        &[biomcp_types::Source::Drugsfda],
                         Action::Run {
                             request: Request::GetDrug(request),
                             fresh: cx.fresh,
@@ -136,8 +137,9 @@ fn label_steps(cx: &Ctx<'_>, row: &source::Application, out: &mut Outcome) {
         .flatten()
     {
         if let Ok(request) = DrugGet::new(id.clone(), DrugSource::OpenfdaLabel) {
-            out.next.push((
+            out.next.push(crate::next::Step::new(
                 StepKind::Disambiguate,
+                &[biomcp_types::Source::Drugsfda],
                 Action::Run {
                     request: Request::GetDrug(request),
                     fresh: cx.fresh,

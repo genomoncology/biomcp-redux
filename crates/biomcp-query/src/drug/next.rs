@@ -52,8 +52,9 @@ pub(super) fn civic(body: &mut DrugCivic, fresh: bool, out: &mut Outcome) {
                 continue;
             };
             if let Some(lookup) = member.and_then(|m| lookup(m, variant, build, tumor)) {
-                let action = (
+                let action = crate::next::Step::new(
                     StepKind::Disambiguate,
+                    &[biomcp_types::Source::Oncokb],
                     Action::Run {
                         request: Request::GetVariant(lookup.query.clone()),
                         fresh,

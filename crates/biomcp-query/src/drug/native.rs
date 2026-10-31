@@ -51,8 +51,9 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
         });
         for item in &page.items {
             if let Ok(get) = DrugGet::new(item.id.clone(), query.source()) {
-                out.next.push((
+                out.next.push(crate::next::Step::new(
                     StepKind::Disambiguate,
+                    &[get.source().source()],
                     Action::Run {
                         request: Request::GetDrug(get),
                         fresh: cx.fresh,
@@ -61,8 +62,9 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
             }
         }
         if let Some(offset) = next_offset {
-            out.next.push((
+            out.next.push(crate::next::Step::new(
                 StepKind::Page,
+                &[query.source().source()],
                 Action::Run {
                     request: Request::SearchDrug(query.at_offset(offset)),
                     fresh: cx.fresh,

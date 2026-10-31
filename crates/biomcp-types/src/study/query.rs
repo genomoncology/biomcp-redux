@@ -144,6 +144,16 @@ impl TryFrom<GetFields> for StudyGet {
     }
 }
 impl StudyGet {
+    /// Check an exact study card with the standard section bounds.
+    pub fn new(id: StudyId) -> Result<Self, QueryInvalid> {
+        Self::try_from(GetFields {
+            id,
+            section: None,
+            section_limit: limit(),
+            section_offset: 0,
+        })
+    }
+
     /// Exact checked study ID.
     pub fn id(&self) -> &StudyId {
         &self.0.id

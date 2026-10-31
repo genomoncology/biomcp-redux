@@ -19,7 +19,7 @@ pub struct Outcome {
     /// Rejected fields.
     pub problems: Vec<Problem>,
     /// Typed next actions.
-    pub next: Vec<(StepKind, Action)>,
+    pub next: Vec<crate::next::Step>,
     /// Local errors remain distinct even alongside useful answers.
     pub local: Option<RequestError>,
 }
@@ -30,7 +30,7 @@ pub(crate) struct Parts {
     pub page: Option<PageInfo>,
     pub sources: Vec<SourceOutcome>,
     pub problems: Vec<Problem>,
-    pub next: Vec<(StepKind, Action)>,
+    pub next: Vec<crate::next::Step>,
     pub local: Option<RequestError>,
     pub dropped: bool,
 }

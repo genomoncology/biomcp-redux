@@ -26,12 +26,13 @@ pub fn search(cx: &Ctx<'_>, query: &DiseaseSearch) -> Outcome {
         let returned = page.window.rows.len() as u32;
         out.page = Some(page_info(query.offset(), returned, total));
         if let Some(offset) = page.window.next_offset() {
-            out.next.push((
+            out.next.push(crate::next::Step::new(
                 StepKind::Page,
+                &[biomcp_types::Source::Seer],
                 run(Request::SearchDisease(query.at_offset(offset))),
             ));
         }
-        out.problems = page.problems;
+        out.problems.extend(page.problems);
         out.body = QueryBody::DiseaseSites(DiseaseSites {
             items: page.window.rows.into(),
             components: Box::default(),
@@ -81,16 +82,24 @@ pub fn get(cx: &Ctx<'_>, query: &DiseaseGet) -> Outcome {
         let returned = page.window.rows.len() as u32;
         out.page = Some(page_info(query.section_offset(), returned, total));
         if let Some(offset) = page.window.next_offset() {
-            out.next.push((
+            out.next.push(crate::next::Step::new(
                 StepKind::Page,
+                &[biomcp_types::Source::Seer],
                 run(Request::GetDisease(query.at_section_offset(offset))),
             ));
         }
-        if let Ok(catalog) = serde_json::from_value(serde_json::json!({"source":"seer"})) {
-            out.next
-                .push((StepKind::Disambiguate, run(Request::SearchDisease(catalog))));
+        if let Some(catalog) = crate::next::checked(
+            biomcp_types::DiseaseSearch::seer(),
+            biomcp_types::Source::Seer,
+            &mut out.problems,
+        ) {
+            out.next.push(crate::next::Step::new(
+                StepKind::Disambiguate,
+                &[biomcp_types::Source::Seer],
+                run(Request::SearchDisease(catalog)),
+            ));
         }
-        out.problems = page.problems;
+        out.problems.extend(page.problems);
         out.body = if survival {
             QueryBody::DiseaseSurvival(DiseaseSurvival {
                 items: page.window.rows.into(),
@@ -113,11 +122,6 @@ pub fn get(cx: &Ctx<'_>, query: &DiseaseGet) -> Outcome {
 fn fetched(value: Option<i64>) -> Option<u64> {
     value.and_then(|value| u64::try_from(value).ok())
 }
+use crate::next::run;
 pub(super) use crate::status::empty;
 pub(super) use crate::status::page_info;
-fn run(request: Request) -> Action {
-    Action::Run {
-        request,
-        fresh: false,
-    }
-}

@@ -34,8 +34,9 @@ fn key(q: &AdverseEventSearch) -> Vec<u8> {
 }
 fn expired(q: &AdverseEventSearch, out: &mut Outcome) {
     out.body = QueryBody::PoolError { mismatch: false };
-    out.next.push((
+    out.next.push(crate::next::Step::new(
         StepKind::Restart,
+        &[biomcp_types::Source::Vaers],
         Action::Run {
             request: Request::SearchAdverseEvent(q.restart()),
             fresh: false,
@@ -116,8 +117,9 @@ fn render(q: &AdverseEventSearch, mut table: VaersSummary, snapshot: Text, out: 
     });
     let offset = q.offset().saturating_add(returned);
     if returned > 0 && u64::from(offset) < total {
-        out.next.push((
+        out.next.push(crate::next::Step::new(
             StepKind::Page,
+            &[biomcp_types::Source::Vaers],
             Action::Run {
                 request: Request::SearchAdverseEvent(q.with_snapshot(snapshot).at_offset(offset)),
                 fresh: false,
@@ -130,8 +132,9 @@ fn render(q: &AdverseEventSearch, mut table: VaersSummary, snapshot: Text, out: 
         VaersSection::Age,
     ] {
         if section != q.vaers_section() {
-            out.next.push((
+            out.next.push(crate::next::Step::new(
                 StepKind::Section,
+                &[biomcp_types::Source::Vaers],
                 Action::Run {
                     request: Request::SearchAdverseEvent(q.with_vaers_section(section)),
                     fresh: false,

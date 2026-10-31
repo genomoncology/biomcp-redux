@@ -44,8 +44,9 @@ pub fn download(cx: &Ctx<'_>, query: &ArticleText, allow: bool) -> super::save::
             let reason = crate::status::reason(error).unwrap_or(Reason::Unavailable);
             body.content = Section::unavailable(source, reason);
         }
-        out.next.push((
+        out.next.push(crate::next::Step::new(
             StepKind::Fresh,
+            &super::next::text_sources(query.input()),
             Action::Run {
                 request: Request::ArticleText(query.clone()),
                 fresh: true,
@@ -252,8 +253,9 @@ fn find(
     let total = u64::try_from(hits.len()).ok()?;
     let following = query.offset().checked_add(returned)?;
     if returned > 0 && u64::from(following) < total {
-        out.next.push((
+        out.next.push(crate::next::Step::new(
             StepKind::Page,
+            &super::next::text_sources(query.input()),
             Action::Run {
                 request: Request::ArticleText(query.page(following)),
                 fresh: false,

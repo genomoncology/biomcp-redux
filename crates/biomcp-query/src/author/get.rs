@@ -68,8 +68,9 @@ pub fn get(cx: &Ctx<'_>, q: &AuthorGet) -> Outcome {
     recovery(cx, &mut out, Request::GetAuthor(q.clone()));
     for item in &items {
         if item.card.is_some() && out.next.len() < 5 {
-            let step = (
+            let step = crate::next::Step::new(
                 biomcp_types::StepKind::Pivot,
+                &[super::next::author(&item.input)],
                 crate::Action::AuthorPapers(biomcp_types::AuthorPapersQuery::new(
                     item.input.clone(),
                 )),

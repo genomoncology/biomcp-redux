@@ -118,13 +118,14 @@ fn section<T>(content: &Content, map: impl FnOnce(&(FullText, Supplements)) -> T
         Err(reason) => Section::unavailable(Source::PmcOa, *reason),
     }
 }
-fn supplement_next(id: Pmcid, files: &Supplements, out: &mut Vec<(StepKind, Action)>) {
+fn supplement_next(id: Pmcid, files: &Supplements, out: &mut Vec<crate::next::Step>) {
     if let Some(file) = files.files.iter().find(|v| v.kind.readable())
         && out.len() < 5
         && let Ok(query) = ArticleSupplement::new(ArticleInput::Pmcid(id), file.name.clone())
     {
-        out.push((
+        out.push(crate::next::Step::new(
             StepKind::Page,
+            &super::super::next::text_sources(query.input()),
             Action::Run {
                 request: Request::ArticleSupplement(query),
                 fresh: false,
@@ -141,13 +142,14 @@ pub(crate) fn outline(document: &pmc_oa::Document) -> FullText {
         figures: document.body.figures.clone().into(),
     }
 }
-pub(crate) fn next(id: Pmcid, part: u32, out: &mut Vec<(StepKind, Action)>) {
+pub(crate) fn next(id: Pmcid, part: u32, out: &mut Vec<crate::next::Step>) {
     next_input(ArticleInput::Pmcid(id), part, out);
 }
-pub(crate) fn next_input(input: ArticleInput, part: u32, out: &mut Vec<(StepKind, Action)>) {
+pub(crate) fn next_input(input: ArticleInput, part: u32, out: &mut Vec<crate::next::Step>) {
     if let Ok(query) = ArticleText::part(input, part) {
-        out.push((
+        out.push(crate::next::Step::new(
             StepKind::Page,
+            &super::super::next::text_sources(query.input()),
             Action::Run {
                 request: Request::ArticleText(query),
                 fresh: false,

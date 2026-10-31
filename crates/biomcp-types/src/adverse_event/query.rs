@@ -144,6 +144,25 @@ impl TryFrom<SearchFields> for AdverseEventSearch {
     }
 }
 impl AdverseEventSearch {
+    /// Discover MAUDE reports for one source-listed native product code.
+    pub fn maude_product(code: Text) -> Result<Self, QueryInvalid> {
+        Self::try_from(SearchFields {
+            text: None,
+            manufacturer: None,
+            product_code: vec![code],
+            problem: None,
+            source: AdverseEventSource::Maude,
+            section: None,
+            snapshot: None,
+            reaction: None,
+            serious: None,
+            received_from: None,
+            received_to: None,
+            limit: default_limit(),
+            offset: 0,
+        })
+    }
+
     /// Selected VAERS grouping.
     pub fn vaers_section(&self) -> super::VaersSection {
         self.0.section.unwrap_or(super::VaersSection::Symptoms)
@@ -291,6 +310,19 @@ impl TryFrom<GetFields> for AdverseEventGet {
     }
 }
 impl AdverseEventGet {
+    /// Check a source-owned report identity with the default card bounds.
+    pub fn new(id: ReportId, source: AdverseEventSource) -> Result<Self, QueryInvalid> {
+        Self::try_from(GetFields {
+            id,
+            source,
+            section: None,
+            snapshot: None,
+            drug_index: None,
+            section_limit: default_limit(),
+            section_offset: 0,
+        })
+    }
+
     /// Exact published identity.
     pub fn id(&self) -> &ReportId {
         &self.0.id

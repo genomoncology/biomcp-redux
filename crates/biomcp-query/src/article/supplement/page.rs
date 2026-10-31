@@ -95,8 +95,9 @@ pub(super) fn select(
         .checked_add(returned)
         .ok_or(Reason::TooLarge)?;
     if next < page.total && returned > 0 {
-        out.next.push((
+        out.next.push(crate::next::Step::new(
             StepKind::Page,
+            &super::super::next::text_sources(query.input()),
             Action::Run {
                 request: Request::ArticleSupplement(query.page(next)),
                 fresh: false,
@@ -126,8 +127,9 @@ fn context_steps(
         .iter()
         .filter(|sheet| rows.iter().any(|row| row.sheet.as_str() == sheet.name))
     {
-        out.next.push((
+        out.next.push(crate::next::Step::new(
             StepKind::Section,
+            &super::super::next::text_sources(query.input()),
             Action::Run {
                 request: Request::ArticleSupplement(query.first_rows(
                     Text::new(&sheet.name).map_err(|_| Reason::BadReply)?,
@@ -197,8 +199,9 @@ fn overview(
     if let Some(first) = sheets.first()
         && let Ok(name) = Text::new(&first.name)
     {
-        out.next.push((
+        out.next.push(crate::next::Step::new(
             StepKind::Page,
+            &super::super::next::text_sources(query.input()),
             Action::Run {
                 request: Request::ArticleSupplement(
                     query.first_rows(name, first.rows.last().map_or(1, |r| r.number)),

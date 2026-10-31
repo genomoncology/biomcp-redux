@@ -51,8 +51,9 @@ pub(super) fn load(
         })?
         else {
             out.body = QueryBody::PoolError { mismatch: false };
-            out.next.push((
+            out.next.push(crate::next::Step::new(
                 StepKind::Restart,
+                &[q.source().source()],
                 Action::Run {
                     request: Request::GetPgx(q.restart()),
                     fresh: false,

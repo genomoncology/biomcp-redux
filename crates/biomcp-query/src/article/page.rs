@@ -18,6 +18,14 @@ pub(super) enum Cursor<'a> {
     Edges(&'a ArticleEdges, bool),
 }
 impl Cursor<'_> {
+    fn sources(self) -> Vec<Source> {
+        match self {
+            Self::Search(query) => super::next::search_sources(query),
+            Self::Recommend(_) => vec![Source::SemanticScholar],
+            Self::Edges(query, _) => vec![super::next::edge_source(query)],
+        }
+    }
+
     fn offset(self) -> u32 {
         match self {
             Self::Search(q) => q.offset(),
@@ -41,8 +49,9 @@ impl Cursor<'_> {
         }
     }
     fn retry(self, pool: Option<Text>, out: &mut Outcome) {
-        out.next.push((
+        out.next.push(crate::next::Step::new(
             StepKind::Fresh,
+            &self.sources(),
             Action::Run {
                 request: self.request(self.offset(), pool),
                 fresh: true,
@@ -203,8 +212,9 @@ fn finish(query: Cursor<'_>, pool: &Pool, rows: Vec<StoredItem>, out: &mut Outco
     if let Cursor::Search(search) = query
         && search.sort() != ArticleSort::Citations
     {
-        out.next.push((
+        out.next.push(crate::next::Step::new(
             StepKind::Sort,
+            &super::next::search_sources(search),
             Action::Run {
                 request: Request::SearchArticle(search.ordered(ArticleSort::Citations)),
                 fresh: false,
@@ -219,8 +229,9 @@ fn actions(query: Cursor<'_>, pool: &Pool, returned: u32, total: u64, out: &mut 
         .checked_add(returned)
         .filter(|offset| u64::from(*offset) < total && returned > 0)
     {
-        out.next.push((
+        out.next.push(crate::next::Step::new(
             StepKind::Page,
+            &query.sources(),
             Action::Run {
                 request: query.request(offset, Some(pool.info.id.clone())),
                 fresh: false,
@@ -255,8 +266,9 @@ fn actions(query: Cursor<'_>, pool: &Pool, returned: u32, total: u64, out: &mut 
             } else {
                 (input, parent.input().clone())
             };
-            out.next.push((
+            out.next.push(crate::next::Step::new(
                 StepKind::Disambiguate,
+                &[Source::SemanticScholar, Source::PubMed],
                 Action::Run {
                     request: Request::ArticleEvidence(biomcp_types::ArticleEvidence::new(
                         citing, cited,
@@ -271,8 +283,9 @@ fn actions(query: Cursor<'_>, pool: &Pool, returned: u32, total: u64, out: &mut 
         && let Ok(query) =
             biomcp_types::ArticleGet::new(vec![biomcp_types::ArticleInput::Pmid(id)].into())
     {
-        out.next.push((
+        out.next.push(crate::next::Step::new(
             StepKind::Disambiguate,
+            &super::next::get_sources(&query),
             Action::Run {
                 request: Request::GetArticle(query),
                 fresh: false,

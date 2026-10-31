@@ -490,6 +490,13 @@ biodata::wire_enum! {
 }
 
 impl TrialSource {
+    /// Native source identity for the selected provider.
+    pub const fn source(self) -> crate::Source {
+        match self {
+            Self::Ctgov => crate::Source::ClinicalTrialsGov,
+            Self::Nci => crate::Source::Nci,
+        }
+    }
     /// Whether the registry default can be omitted from a serialized query.
     pub fn is_default(&self) -> bool {
         *self == Self::Ctgov

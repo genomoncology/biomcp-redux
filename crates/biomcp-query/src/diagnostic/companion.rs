@@ -32,6 +32,7 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
             super::next::push(
                 &mut out,
                 StepKind::Page,
+                &[q.source().source()],
                 Request::SearchDiagnostic(q.at_offset(q.offset() + returned)),
                 cx.fresh,
             );
@@ -64,8 +65,9 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
         crate::status::item(&mut out, true, false, true);
     }
     if matches!(source.state, SourceState::Syncing | SourceState::Stale) {
-        out.next.push((
+        out.next.push(crate::next::Step::new(
             StepKind::Sync,
+            &[biomcp_types::Source::FdaCdx],
             Action::Sync {
                 bundle: Bundle::FdaCdx,
             },
@@ -99,14 +101,29 @@ fn pivots(out: &mut Outcome, rows: &[CompanionDiagnosticRelation], fresh: bool) 
             }
             let mut parts = device.as_str().split('/');
             if let Some(base) = parts.next() {
-                let mut fields = serde_json::json!({"id":base,"source":if base.starts_with('K') {"fda-510k"}else{"fda-pma"}});
-                if let Some(supplement) = parts.next() {
-                    fields
-                        .as_object_mut()
-                        .map(|v| v.insert("supplement".into(), serde_json::json!(supplement)));
-                }
-                if let Ok(get) = serde_json::from_value(fields) {
-                    super::next::push(out, StepKind::Pivot, Request::GetDiagnostic(get), fresh);
+                let source = if base.starts_with('K') {
+                    biomcp_types::DiagnosticGetSource::Fda510k
+                } else {
+                    biomcp_types::DiagnosticGetSource::FdaPma
+                };
+                let get =
+                    base.parse()
+                        .map_err(|_| biomcp_types::QueryInvalid::new(&["id"]))
+                        .and_then(|id| {
+                            let supplement =
+                                parts.next().map(str::parse).transpose().map_err(|_| {
+                                    biomcp_types::QueryInvalid::new(&["supplement"])
+                                })?;
+                            biomcp_types::DiagnosticGet::new(id, source, supplement)
+                        });
+                if let Some(get) = crate::next::checked(get, source.source(), &mut out.problems) {
+                    super::next::push(
+                        out,
+                        StepKind::Pivot,
+                        &[get.source().source()],
+                        Request::GetDiagnostic(get),
+                        fresh,
+                    );
                 }
             }
         }
@@ -115,7 +132,13 @@ fn pivots(out: &mut Outcome, rows: &[CompanionDiagnosticRelation], fresh: bool) 
                 && let Ok(id) = application.id.as_str().parse()
                 && let Ok(get) = DrugGet::new(id, DrugSource::Drugsfda)
             {
-                super::next::push(out, StepKind::Pivot, Request::GetDrug(get), fresh);
+                super::next::push(
+                    out,
+                    StepKind::Pivot,
+                    &[get.source().source()],
+                    Request::GetDrug(get),
+                    fresh,
+                );
             }
         }
     }

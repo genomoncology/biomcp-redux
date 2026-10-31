@@ -159,8 +159,9 @@ fn resolve(
 }
 fn actions(out: &mut Outcome, card: &CellLineCard) {
     for candidate in &card.candidates {
-        out.next.push((
+        out.next.push(crate::next::Step::new(
             StepKind::Disambiguate,
+            &[biomcp_types::Source::Cellosaurus],
             run(Request::GetCellLine(CellLineGet::accession(
                 candidate.accession.clone(),
             ))),
@@ -168,8 +169,9 @@ fn actions(out: &mut Outcome, card: &CellLineCard) {
     }
     if let Some(header) = &card.header {
         for section in card.more.iter().take(5) {
-            out.next.push((
+            out.next.push(crate::next::Step::new(
                 StepKind::Section,
+                &[super::sections::section_source(Some(*section))],
                 run(Request::GetCellLine(
                     CellLineGet::accession(header.accession.clone()).with_section(*section),
                 )),

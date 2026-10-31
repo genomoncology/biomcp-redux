@@ -200,16 +200,18 @@ fn recovery(q: &ProteinGet, out: &mut Outcome) {
     out.next
         .truncate(5 - usize::from(fresh) - usize::from(sync));
     if sync {
-        out.next.push((
+        out.next.push(crate::next::Step::new(
             StepKind::Sync,
+            &[biomcp_types::Source::Hgnc],
             Action::Sync {
                 bundle: Bundle::Hgnc,
             },
         ));
     }
     if fresh {
-        out.next.push((
+        out.next.push(crate::next::Step::new(
             StepKind::Fresh,
+            &[biomcp_types::Source::UniProt],
             Action::Run {
                 request: Request::GetProtein(q.clone()),
                 fresh: true,

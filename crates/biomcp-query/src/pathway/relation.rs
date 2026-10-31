@@ -84,7 +84,11 @@ fn restart(q: &Selection<'_>, out: &mut Outcome) {
         PathwayEventsQuery::new(q.id.clone(), q.limit).map(Request::PathwayEvents)
     };
     if let Ok(request) = request {
-        out.next.push((StepKind::Restart, super::run(request)));
+        out.next.push(crate::next::Step::new(
+            StepKind::Restart,
+            &[Source::Reactome],
+            super::run(request),
+        ));
     }
 }
 fn read_inner(

@@ -1,5 +1,6 @@
 //! Provider-record author search and independent exact cards.
 mod get;
+mod next;
 mod orcid;
 mod papers;
 pub use papers::papers;
@@ -7,17 +8,12 @@ mod papers_snapshot;
 mod search;
 mod semantic_scholar;
 mod snapshot;
+use crate::next::run;
 pub(super) use crate::status::empty;
 use crate::{Action, Outcome};
 use biomcp_types::{Problem, ProblemCode, Reason, Request, Source, SourceState, StepKind};
 pub use get::get;
 pub use search::search;
-fn run(request: Request) -> Action {
-    Action::Run {
-        request,
-        fresh: false,
-    }
-}
 fn recovery(cx: &crate::Ctx<'_>, out: &mut Outcome, request: Request) {
     retry(out, request);
     key_recovery(cx, out);
@@ -38,8 +34,12 @@ fn retry(out: &mut Outcome, request: Request) {
         .iter()
         .any(|s| matches!(s.state, SourceState::Failed | SourceState::Stale))
     {
-        out.next.push((
+        out.next.push(crate::next::Step::new(
             StepKind::Fresh,
+            &out.sources
+                .iter()
+                .map(|source| source.source)
+                .collect::<Vec<_>>(),
             Action::Run {
                 request,
                 fresh: true,
@@ -60,9 +60,12 @@ fn key_recovery(cx: &crate::Ctx<'_>, out: &mut Outcome) {
     }
 }
 fn key_step(out: &mut Outcome) {
-    if !out.next.iter().any(|(kind, _)| *kind == StepKind::Key) {
-        out.next
-            .push((StepKind::Key, Action::KeyHelp(Source::SemanticScholar)));
+    if !out.next.iter().any(|step| step.0 == StepKind::Key) {
+        out.next.push(crate::next::Step::new(
+            StepKind::Key,
+            &[Source::SemanticScholar],
+            Action::KeyHelp(Source::SemanticScholar),
+        ));
     }
 }
 

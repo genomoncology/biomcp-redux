@@ -1,12 +1,13 @@
 use crate::Action;
+use crate::next::Step;
 use biodata::ProteinHeader;
 use biomcp_types::{ProteinCardItem, ProteinGet, ProteinInput, ProteinSearch, Request, StepKind};
-type Step = (StepKind, Action);
 pub(super) fn accession(header: &ProteinHeader) -> Option<Step> {
     let q = ProteinGet::new(vec![ProteinInput::Accession(header.protein.accession.clone())].into())
         .ok()?;
-    Some((
+    Some(crate::next::Step::new(
         StepKind::Disambiguate,
+        &[biomcp_types::Source::UniProt],
         Action::Run {
             request: Request::GetProtein(q),
             fresh: false,
@@ -36,8 +37,9 @@ pub(super) fn cards(items: &[ProteinCardItem]) -> Vec<Step> {
                     if steps.len() >= 5 {
                         break;
                     }
-                    steps.push((
+                    steps.push(crate::next::Step::new(
                         StepKind::Section,
+                        &[section_source(*section)],
                         Action::Run {
                             request: Request::GetProtein(q.with_section(*section)),
                             fresh: false,
@@ -52,8 +54,9 @@ pub(super) fn cards(items: &[ProteinCardItem]) -> Vec<Step> {
                 if let Ok(input) = biomcp_types::GeneInput::new(name.as_str())
                     && let Ok(q) = biomcp_types::GeneGet::new(vec![input].into())
                 {
-                    let step = (
+                    let step = crate::next::Step::new(
                         StepKind::Pivot,
+                        &[biomcp_types::Source::Hgnc],
                         Action::Run {
                             request: Request::GetGene(q),
                             fresh: false,
@@ -79,8 +82,9 @@ pub(super) fn search(
 ) -> Vec<Step> {
     let mut steps: Vec<_> = rows.iter().filter_map(accession).collect();
     if more {
-        steps.push((
+        steps.push(crate::next::Step::new(
             StepKind::Page,
+            &[biomcp_types::Source::UniProt],
             Action::Run {
                 request: Request::SearchProtein(q.at_page(pool, offset)),
                 fresh: false,
@@ -88,8 +92,9 @@ pub(super) fn search(
         ));
     }
     if partial {
-        steps.push((
+        steps.push(crate::next::Step::new(
             StepKind::Fresh,
+            &[biomcp_types::Source::UniProt],
             Action::Run {
                 request: Request::SearchProtein(q.restart()),
                 fresh: true,
@@ -97,4 +102,12 @@ pub(super) fn search(
         ));
     }
     steps
+}
+
+fn section_source(section: biomcp_types::ProteinSection) -> biomcp_types::Source {
+    match section {
+        biomcp_types::ProteinSection::Domains => biomcp_types::Source::InterPro,
+        biomcp_types::ProteinSection::Complexes => biomcp_types::Source::ComplexPortal,
+        _ => biomcp_types::Source::UniProt,
+    }
 }

@@ -1,3 +1,8 @@
+#![expect(
+    clippy::disallowed_macros,
+    clippy::disallowed_methods,
+    reason = "Stored pool metadata retains its versioned JSON representation; it constructs no follow-up queries"
+)]
 use super::{CacheError, Store, db};
 use biodata::{Pmid, Text};
 

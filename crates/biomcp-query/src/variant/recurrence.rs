@@ -88,8 +88,9 @@ fn execute(
         crate::status::item(out, true, false, unavailable);
     };
     if more && let Some(next) = query.next_page() {
-        out.next.push((
+        out.next.push(crate::next::Step::new(
             StepKind::Page,
+            &[biomcp_types::Source::CancerHotspots],
             Action::Run {
                 request: Request::VariantRecurrence(next),
                 fresh: false,

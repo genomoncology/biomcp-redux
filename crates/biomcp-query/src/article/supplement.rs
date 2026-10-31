@@ -38,8 +38,9 @@ pub fn download(cx: &Ctx<'_>, query: &ArticleSupplement, allow: bool) -> super::
                 crate::status::reason(error).unwrap_or(biomcp_types::Reason::Unavailable),
             );
         }
-        out.next.push((
+        out.next.push(crate::next::Step::new(
             StepKind::Fresh,
+            &super::next::text_sources(query.input()),
             Action::Run {
                 request: Request::ArticleSupplement(query.clone()),
                 fresh: true,

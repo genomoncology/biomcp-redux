@@ -25,11 +25,15 @@ pub fn run(cx: &Ctx<'_>, query: &ArticleRecommend) -> Outcome {
             .iter()
             .any(|s| s.reason == Some(biomcp_types::Reason::RateLimited))
         {
-            out.next
-                .push((StepKind::Key, Action::KeyHelp(Source::SemanticScholar)));
+            out.next.push(crate::next::Step::new(
+                StepKind::Key,
+                &[biomcp_types::Source::SemanticScholar],
+                Action::KeyHelp(Source::SemanticScholar),
+            ));
         }
-        out.next.push((
+        out.next.push(crate::next::Step::new(
             StepKind::Fresh,
+            &[biomcp_types::Source::SemanticScholar],
             Action::Run {
                 request: Request::ArticleRecommend(query.page(0, None)),
                 fresh: true,
@@ -152,8 +156,9 @@ fn create<'a>(
 }
 
 fn restart(query: &ArticleRecommend, out: &mut Outcome) {
-    out.next.push((
+    out.next.push(crate::next::Step::new(
         StepKind::Restart,
+        &[biomcp_types::Source::SemanticScholar],
         Action::Run {
             request: Request::ArticleRecommend(query.page(0, None)),
             fresh: false,
