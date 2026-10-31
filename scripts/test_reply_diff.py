@@ -352,6 +352,61 @@ class ReplyDiff(unittest.TestCase):
         result = self.compare()
         self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
 
+    def owned_replay_capture(self, *, suffix="recordings", mutation=None):
+        for directory, side in [(self.base, "base"), (self.head, "head")]:
+            root = "/tmp/replies-" + side
+            if suffix == "all":
+                for step, name in enumerate(["first", "second"]):
+                    self.write(directory, "case/owned.yaml/step/" + str(step),
+                               args=["help", "--record", root + "/" + name], root=root,
+                               code=4 if side == "head" and mutation == "failed-input" else 0)
+            args = ["help", "--replay", root + "/" + suffix]
+            extra = dict(root="/tmp/runtime-" + side, replay_owner_root=root)
+            if side == "head":
+                if mutation == "root":
+                    extra["replay_owner_root"] += "/other"
+                elif mutation == "noncanonical":
+                    extra["replay_owner_root"] += "/../" + root.rsplit("/", 1)[1]
+                elif mutation == "missing":
+                    extra.pop("replay_owner_root")
+                elif mutation == "delimiter":
+                    args.insert(1, "--")
+                elif mutation == "duplicate":
+                    args += ["--replay", root + "/" + suffix]
+                elif mutation == "suffix":
+                    args[-1] += "/other"
+                elif mutation == "other-owner":
+                    path = directory / (hashlib.sha256(b"case/owned.yaml/step/1").hexdigest() + ".json")
+                    path.unlink()
+                    self.write(directory, "case/unrelated.yaml/step/1",
+                               args=["help", "--record", root + "/second"], root=root)
+            self.write(directory, "case/owned.yaml/step/2", args=args, **extra)
+
+    def test_runner_owned_replay_metadata_binds_exact_argv_only(self):
+        self.owned_replay_capture()
+        result = self.compare()
+        self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+        for mutation in ["root", "noncanonical", "missing", "delimiter", "duplicate", "suffix"]:
+            with self.subTest(mutation=mutation):
+                self.owned_replay_capture(mutation=mutation)
+                self.assertNotEqual(self.compare().returncode, 0)
+        self.owned_replay_capture()
+        for directory, side in [(self.base, "base"), (self.head, "head")]:
+            path = directory / (hashlib.sha256(b"case/owned.yaml/step/2").hexdigest() + ".json")
+            record = json.loads(path.read_text())
+            record["executions"][0]["stdout"] = list(json.dumps({"source": "/tmp/replies-" + side}).encode())
+            path.write_text(json.dumps(record))
+        self.assertEqual(self.compare().returncode, 1)
+
+    def test_combined_replay_metadata_requires_successful_same_owner_inputs(self):
+        self.owned_replay_capture(suffix="all")
+        result = self.compare()
+        self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+        for mutation in ["failed-input", "other-owner"]:
+            with self.subTest(mutation=mutation):
+                self.owned_replay_capture(suffix="all", mutation=mutation)
+                self.assertNotEqual(self.compare().returncode, 0)
+
     def test_operator_map_cannot_declare_external_replay_ownership(self):
         key = "case/unrelated.yaml/step/0"
         owners = Path(self.directory.name, "owners.json")
