@@ -1,5 +1,5 @@
 //! Explain source policy from the same registry used by health.
-use biomcp_adapters::registry;
+use biomcp_query::sources as registry;
 use biomcp_types::{Help, HelpCommand};
 
 pub(super) fn help(topic: &str) -> Help {
@@ -60,7 +60,7 @@ pub(super) fn timing(commands: &mut [HelpCommand]) {
             &[]
         };
         for &source in sources {
-            if let Some(guidance) = biomcp_adapters::guidance::deadline(source) {
+            if let Some(guidance) = biomcp_query::sources::deadline(source) {
                 command.description.push(' ');
                 command.description.push_str(guidance);
             }
@@ -68,7 +68,7 @@ pub(super) fn timing(commands: &mut [HelpCommand]) {
                 command.description.push(' ');
                 command
                     .description
-                    .push_str(biomcp_adapters::guidance::WONDER_QUOTA);
+                    .push_str(biomcp_query::sources::WONDER_QUOTA);
             }
         }
     }

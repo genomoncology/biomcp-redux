@@ -308,3 +308,5 @@ fn search_results(
     }
     out.body = QueryBody::DrugPage(page);
 }
+
+pub(crate) mod label_bound;

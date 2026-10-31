@@ -4,7 +4,7 @@ use crate::grammar::Globals;
 use biomcp_fetch::{Fetch, FetchConfig, Mode, ReplayCache, Secret, SecretName, Secrets};
 use std::{ffi::OsString, fs, path::PathBuf, sync::Arc, time::Duration};
 #[cfg(test)]
-mod deferred_keys_tests;
+mod credential_reads_tests;
 
 mod file;
 pub(crate) use file::ConfigError;
@@ -113,7 +113,7 @@ fn fetch_using(
     Fetch::open(FetchConfig {
         rate_share: globals.rate_share,
         disabled_sources: disabled_sources(globals, file.as_ref())?,
-        disabled_uses: biomcp_adapters::registry::disabled_uses(&disabled_names(
+        disabled_uses: biomcp_query::sources::disabled_uses(&disabled_names(
             globals,
             file.as_ref(),
         )),
@@ -159,7 +159,7 @@ fn disabled_sources(
     globals: &Globals,
     file: Option<&ConfigFile>,
 ) -> Result<std::collections::BTreeSet<biomcp_types::Source>, ConfigError> {
-    biomcp_adapters::registry::disabled(&disabled_names(globals, file))
+    biomcp_query::sources::disabled(&disabled_names(globals, file))
         .map_err(|_| ConfigError::field("disable_sources"))
 }
 fn disabled_names(globals: &Globals, file: Option<&ConfigFile>) -> Vec<String> {
@@ -306,11 +306,11 @@ pub(crate) fn has_environment_key(name: SecretName) -> Result<bool, ConfigError>
 
 /// Apply per-call policy as a union with the already configured transport policy.
 pub(crate) fn restrict(fetch: Fetch, globals: &Globals) -> std::io::Result<Fetch> {
-    let disabled = biomcp_adapters::registry::disabled(&globals.disable_sources)
+    let disabled = biomcp_query::sources::disabled(&globals.disable_sources)
         .map_err(|_| std::io::Error::other("unchecked source policy"))?;
     Ok(fetch
         .restrict_sources(disabled)
-        .restrict_uses(biomcp_adapters::registry::disabled_uses(
+        .restrict_uses(biomcp_query::sources::disabled_uses(
             &globals.disable_sources,
         )))
 }

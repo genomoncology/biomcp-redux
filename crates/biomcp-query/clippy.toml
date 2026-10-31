@@ -6,6 +6,9 @@ allow-panic-in-tests = true
 allow-indexing-slicing-in-tests = true
 
 disallowed-types = [
+    { path = "biomcp_fetch::Arg", reason = "Adapters own provider request syntax" },
+    { path = "biomcp_fetch::Endpoint", reason = "Adapters own provider endpoints" },
+    { path = "biomcp_fetch::Input", reason = "Adapters own provider request inputs" },
     { path = "std::cell::Cell", reason = "Interior state needs an item-level reason" },
     { path = "std::cell::RefCell", reason = "Interior state needs an item-level reason" },
     { path = "std::sync::Mutex", reason = "Interior state needs an item-level reason" },

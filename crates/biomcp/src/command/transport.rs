@@ -48,7 +48,7 @@ fn snapshot(
                     .iter()
                     .copied()
                     .filter(|&name| {
-                        biomcp_adapters::registry::key_tier(name)
+                        biomcp_query::sources::key_tier(name)
                             == biomcp_types::KeyTier::NoFallback
                     }),
             ),

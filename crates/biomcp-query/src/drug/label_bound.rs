@@ -1,36 +1,25 @@
-//! Keep complete fragment units inside the label envelope allocation.
-use biomcp_types::{Envelope, QueryBody, Request, Section, StepKind};
-use std::io;
+//! Keep complete fragment units inside the label section allocation.
+use biomcp_types::{QueryBody, Request, Section, StepKind};
+use biomcp_fetch::{InputError, RequestError};
 const LABEL_BYTES: usize = 8192;
-pub(super) fn bound(
+pub(crate) fn bound(
     fetch: &biomcp_fetch::Fetch,
     request: &Request,
-    out: &mut biomcp_query::Outcome,
+    out: &mut crate::Outcome,
     fresh: bool,
-    globals: &crate::grammar::Globals,
-) -> io::Result<()> {
+) -> Result<(), RequestError> {
     let Request::GetDrug(query) = request else {
         return Ok(());
     };
     loop {
-        biomcp_query::next::finish(fetch, out);
+        crate::next::finish(fetch, out);
         let QueryBody::DrugLabel(Some(body)) = &out.body else {
             return Ok(());
         };
         if !matches!(body.label, Section::Data { .. }) {
             return Ok(());
         }
-        let mut envelope = Envelope::new(out.status(), query.clone(), Some(body.clone()));
-        envelope.sources = out
-            .sources
-            .iter()
-            .cloned()
-            .map(biomcp_adapters::registry::restore_outcome)
-            .collect();
-        envelope.next = super::steps::next(out, globals)?;
-        envelope.problems = out.problems.clone();
-        envelope.page = out.page.clone();
-        if serde_json::to_vec(&envelope)?.len() < LABEL_BYTES {
+        if serde_json::to_vec(&body.label).map_err(|_| InputError::Serialization)?.len() < LABEL_BYTES {
             return Ok(());
         }
         let QueryBody::DrugLabel(Some(body)) = &mut out.body else {
@@ -41,9 +30,7 @@ pub(super) fn bound(
         };
         let mut fragments = std::mem::take(&mut data.fragments).into_vec();
         if fragments.len() <= 1 {
-            return Err(io::Error::other(
-                "label identity and one fragment exceed the output allocation",
-            ));
+            return Err(InputError::Serialization.into());
         }
         fragments.pop();
         let characters = fragments
@@ -65,11 +52,11 @@ pub(super) fn bound(
         let offset = data
             .offset
             .checked_add(returned)
-            .ok_or_else(|| io::Error::other("label offset overflow"))?;
+            .ok_or(InputError::Serialization)?;
         let request = query
             .at_section_offset(offset)
-            .map_err(|_| io::Error::other("invalid label continuation"))?;
-        out.next.push(biomcp_query::next::Step::run(
+            .map_err(|_| InputError::Serialization)?;
+        out.next.push(crate::next::Step::run(
             StepKind::Page,
             &[biomcp_types::Source::OpenfdaLabel],
             Request::GetDrug(request),

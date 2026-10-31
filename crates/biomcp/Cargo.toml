@@ -17,7 +17,6 @@ ctrlc.workspace = true
 clap = { workspace = true, features = ["error-context"] }
 serde.workspace = true
 biomcp-fetch = { workspace = true }
-biomcp-adapters = { workspace = true }
 biomcp-query = { workspace = true }
 serde_json.workspace = true
 biodata = { workspace = true, features = ["schema"] }
@@ -27,6 +26,7 @@ serde-saphyr.workspace = true
 serde_json.workspace = true
 
 [dev-dependencies]
+biomcp-adapters = { workspace = true }
 url.workspace = true
 h2 = { workspace = true }
 tokio = { workspace = true }

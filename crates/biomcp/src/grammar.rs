@@ -430,7 +430,7 @@ impl Globals {
         self.check()
     }
     fn check(&self) -> Result<(), ParseInvalid> {
-        biomcp_adapters::registry::disabled(&self.disable_sources)
+        biomcp_query::sources::disabled(&self.disable_sources)
             .map_err(|_| ParseInvalid::default())?;
         if usize::from(self.replay.is_some())
             + usize::from(self.record.is_some())
