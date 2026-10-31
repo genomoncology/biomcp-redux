@@ -10,6 +10,7 @@ use std::{
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        // Drop actual launcher and capture owners separately; YAML cannot inspect their TempDir lifetime.
         transcript_trial("schema-discovery/capture-retains-replay-owner", || {
             replay_owner().map_err(|error| error.to_string().into())
         }),

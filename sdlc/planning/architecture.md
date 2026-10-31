@@ -1948,6 +1948,8 @@ The landing gate fails when line coverage falls more than 0.2 points below `cove
 
 The ratchet owns the authoritative file and reason list below and checks this table against it. Every other test of reachable command behavior runs through the runner. Public library contracts remain only where the binary cannot construct the state without a test hook.
 
+The runner tool proof `schema-discovery/capture-retains-replay-owner` drops the actual launcher and command capture separately, observes the owned temporary directory's lifetime and reads retained fixture bytes after deletion. YAML cannot perform those private ownership operations. Its version command only exercises the real capture boundary.
+
 | File | Reason |
 | --- | --- |
 | `crates/biomcp-fetch/src/hosts_tests.rs` | Check credential-free exact publisher origins at the private admission boundary without a product inventory helper. |
