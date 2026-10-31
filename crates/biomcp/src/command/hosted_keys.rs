@@ -10,7 +10,10 @@ pub(super) fn outcome(outcome: Outcome, hosted: bool) -> io::Result<Outcome> {
             .and_then(Value::as_array)
             .into_iter()
             .flatten()
-            .find(|row| row.get("reason").and_then(Value::as_str) == Some("no-key"))
+            .find(|row| {
+                row.get("reason").and_then(Value::as_str)
+                    == Some(biomcp_types::Reason::NoKey.into())
+            })
             .and_then(|row| row.get("source"))
             .and_then(|source| serde_json::from_value(source.clone()).ok());
         if let Some(source) = source {
