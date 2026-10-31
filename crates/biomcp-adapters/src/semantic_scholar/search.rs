@@ -4,7 +4,6 @@ use crate::{
     raw::Field,
 };
 use biodata::{Doi, PartialDate, Pmcid, Pmid, SemanticScholarId};
-
 use biomcp_fetch::{Arg, BadReply, Endpoint, Freshness, Leg, Reply, RequestError};
 use biomcp_types::ArticleHeader;
 use biomcp_types::{ArticleItem, ArticleKey};
@@ -176,7 +175,6 @@ impl Reply for Search {
         }
         paper_discoveries(self.data.iter())
     }
-
     fn check(&self) -> Result<(), BadReply> {
         if self.received > 100 || self.received as u64 > self.total {
             return Err(BadReply);
@@ -279,7 +277,6 @@ impl Paper {
         }
     }
 }
-
 pub(super) fn paper_discoveries<'a>(
     papers: impl Iterator<Item = &'a Paper>,
 ) -> Option<Vec<biomcp_fetch::Identities>> {
