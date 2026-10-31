@@ -17,6 +17,9 @@ pub(super) fn trials() -> Vec<Trial> {
         transcript_trial("mcp-hosted/keys/public-wire-fallback", || {
             public().map_err(Into::into)
         }),
+        transcript_trial("mcp-hosted/keys/stdio-license", || {
+            stdio().map_err(Into::into)
+        }),
     ]
 }
 fn discovery() -> Check {
@@ -240,6 +243,36 @@ fn public() -> Check {
         });
         if value != Some(expected) {
             return Err("public source selected wrong request credential".into());
+        }
+    }
+    Ok(())
+}
+
+fn stdio() -> Check {
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    env.config(&json!({"keys":{"oncokb_api_key":SERVER,"alphagenome_api_key":SERVER}}))
+        .map_err(|e| e.to_string())?;
+    let mut globals = env.globals(
+        Some(&super::launch::fixtures().join("replies/gene/oncokb-synthetic/data")),
+        false,
+    );
+    globals.push("--hosted".into());
+    for (source, args) in [
+        ("oncokb", vec!["get", "gene", "TP53", "oncokb"]),
+        (
+            "alphagenome",
+            vec!["get", "variant", "rs113488022", "alphagenome"],
+        ),
+    ] {
+        let frame = json!({"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"biomcp","arguments":{"args":args}}});
+        let replies = super::mcp::exchange_with_globals(&env, &[frame], &globals)?;
+        let reply = replies.first().ok_or("missing stdio reply")?;
+        if reply.pointer("/result/structuredContent/error/source") != Some(&json!(source))
+            || reply.pointer("/result/structuredContent/error/message")
+                != Some(&json!("add the source key in your account settings"))
+            || reply.to_string().contains(SERVER)
+        {
+            return Err("hosted stdio used a server credential or omitted account guidance".into());
         }
     }
     Ok(())
