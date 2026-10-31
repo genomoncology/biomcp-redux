@@ -43,11 +43,19 @@ impl Store<'_> {
             .iter()
             .map(|b| format!("{b:02x}"))
             .collect::<String>();
+        let hosted = self._access.is_hosted();
+        let policy = self.policy();
         self.write(|tx| {
             Self::collect_expired(tx)?;
+            if hosted {
+                let exists: bool = tx.query_row("SELECT EXISTS(SELECT 1 FROM trial_snapshot WHERE id=?1)", [&id], |r| r.get(0)).map_err(db)?;
+                if exists {
+                    policy.authorize_update(tx, super::ownership::Table::Snapshot, &id, &outcomes)?;
+                }
+            }
             tx.execute(
                 "INSERT INTO trial_snapshot(id,request_key,expires,payload,outcomes) VALUES (?1,?2,?3,?4,?5) ON \
-                CONFLICT(id) DO UPDATE SET expires=excluded.expires WHERE trial_snapshot.outcomes=excluded.outcomes",
+                CONFLICT(id) DO UPDATE SET expires=excluded.expires",
                 params![id, key, Self::now().saturating_add(86400), payload, outcomes],
             )
             .map_err(db)?;
