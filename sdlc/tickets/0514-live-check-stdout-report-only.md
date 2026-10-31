@@ -1,6 +1,7 @@
 # 0514 — Keep the live check's standard output to its JSON report
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 82b871733e0d5262ac2e726fcd633b5408e67a24
 
 Milestone: 5
 
