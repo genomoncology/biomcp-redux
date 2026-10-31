@@ -2,7 +2,7 @@
 #[path = "../../../biomcp-fetch/tests/support/recordings.rs"]
 mod recording_support;
 use serde_json::{Value, json};
-use std::{fs, path::Path};
+use std::{fs, path::Path, sync::Arc};
 type Check = Result<(), Box<dyn std::error::Error>>;
 tool_only! {
 pub(super) fn case(
@@ -35,8 +35,8 @@ pub(super) fn checked_steps(
     mut change: impl FnMut(&str, &mut Value),
     steps: Value,
 ) -> Result<Value, Box<dyn std::error::Error>> {
-    let directory = tempfile::tempdir()?;
-    let recordings = directory.path().join("recordings");
+    let directory = Arc::new(tempfile::tempdir()?);
+    let recordings = directory.path().canonicalize()?.join("recordings");
     copy_capture(capture, &recordings, &mut change)?;
     let path = directory.path().join("case.yaml");
     fs::write(
@@ -48,9 +48,10 @@ pub(super) fn checked_steps(
             "steps": steps
         }))?,
     )?;
-    Ok(super::run_case(
+    Ok(super::run_case_owned(
         &path,
         super::schema::Registry::embedded()?.as_ref(),
+        Some(Arc::clone(&directory)),
     )?)
 }
 

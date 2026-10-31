@@ -19,6 +19,7 @@ pub(super) struct Capture {
     spawned: bool,
     executable: String,
     root: String,
+    replay_owner: Option<Arc<tempfile::TempDir>>,
     finished: bool,
 }
 impl Capture {
@@ -27,6 +28,7 @@ impl Capture {
         context: Option<Arc<Context>>,
         args: &[String],
         root: &Path,
+        replay_owner: Option<Arc<tempfile::TempDir>>,
     ) -> Self {
         let stable = args
             .iter()
@@ -47,6 +49,7 @@ impl Capture {
             spawned: false,
             args: args.to_vec(),
             root: root.to_string_lossy().into(),
+            replay_owner,
             finished: false,
         }
     }
@@ -77,16 +80,20 @@ impl Capture {
         surface: &str,
     ) -> io::Result<()> {
         if let (Some(context), Some(key)) = (&self.context, &self.key) {
-            context
-                .record(
-                    key,
-                    json!({"args":self.args,"surface":surface,
+            let mut execution = json!({"args":self.args,"surface":surface,
                 "exit":status.code(),"stdout":stdout,
                 "executable":self.executable,"root":self.root,
                 "checkout":crate::runner::launch::checkout().to_string_lossy().as_ref(),
-                "version":env!("CARGO_PKG_VERSION")}),
-                )
-                .map_err(io::Error::other)?;
+                "version":env!("CARGO_PKG_VERSION")});
+            if let Some(owner) = &self.replay_owner {
+                let root = owner.path().canonicalize()?;
+                super::network_stub::retain_replay_owner(owner)?;
+                execution
+                    .as_object_mut()
+                    .ok_or_else(|| io::Error::other("execution object"))?
+                    .insert("replay_owner_root".into(), json!(root));
+            }
+            context.record(key, execution).map_err(io::Error::other)?;
         }
         self.finished = true;
         Ok(())

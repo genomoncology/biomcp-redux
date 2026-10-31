@@ -10,6 +10,9 @@ use std::{
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        transcript_trial("schema-discovery/capture-retains-replay-owner", || {
+            replay_owner().map_err(|error| error.to_string().into())
+        }),
         transcript_trial("schema-discovery/retains-failed-local-peer-state", || {
             check().map_err(Into::into)
         }),
@@ -207,6 +210,43 @@ fn persistence() -> Result<(), Box<dyn std::error::Error>> {
             return Err("fixture evidence did not survive scratch cleanup".into());
         }
         fs::remove_dir_all(retained)?;
+    }
+    Ok(())
+}
+
+fn replay_owner() -> Result<(), Box<dyn std::error::Error>> {
+    let owner = std::sync::Arc::new(tempfile::tempdir()?);
+    let root = owner.path().canonicalize()?;
+    let recordings = root.join("recordings");
+    fs::create_dir(&recordings)?;
+    fs::write(recordings.join("witness.txt"), b"owned fixture bytes")?;
+    let recording = crate::runner::transcript::current().is_some();
+    let environment = Environment::new()?.with_replay_owner(owner);
+    let mut args = environment.globals(Some(&recordings), false);
+    args.push("version".into());
+    let mut command = environment.command(env!("CARGO_BIN_EXE_biomcp"), &args);
+    let output = command.output()?;
+    if !output.status.success() || output.stdout.is_empty() {
+        return Err("owned replay capture command failed".into());
+    }
+    drop(environment);
+    if !root.is_dir() {
+        return Err("replay owner expired before its capture".into());
+    }
+    drop(command);
+    if root.exists() {
+        return Err("replay owner survived its last capture".into());
+    }
+    if recording {
+        let retained = super::super::network_stub::evidence_directory()?
+            .join("replay-owners")
+            .join(crate::runner::transcript::hash(
+                root.to_string_lossy().as_bytes(),
+            ))
+            .join("recordings/witness.txt");
+        if fs::read(retained)? != b"owned fixture bytes" {
+            return Err("replay input bytes changed after owner expired".into());
+        }
     }
     Ok(())
 }
