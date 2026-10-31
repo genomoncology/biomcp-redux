@@ -5,33 +5,36 @@ use super::{Cache, CacheError, Connection, Duration};
 use crate::{Deadline, deadline::VirtualClock};
 
 #[test]
-#[expect(
-    clippy::disallowed_methods,
-    reason = "Join the sibling SQL probe before releasing its isolated cache"
-)]
-fn discretionary_read_waits_for_sibling_sql() {
+fn discretionary_read_waits_for_held_local_sql_until_deadline() {
     let directory = tempfile::tempdir().unwrap();
     let cache = Cache::open_with_owners(&directory.path().join("cache.sqlite"), &[]).unwrap();
     let owner = cache.0.lock().unwrap();
-    let (started, starting) = std::sync::mpsc::channel();
-    std::thread::scope(|scope| {
-        let reader = scope.spawn(|| {
-            started.send(()).unwrap();
-            cache.try_sql(
-                Deadline::start(Duration::from_secs(5), None),
-                |connection| {
-                    let busy: u64 = connection
-                        .query_row("PRAGMA busy_timeout", [], |row| row.get(0))
-                        .unwrap();
-                    assert_eq!(busy, 0, "external SQLite contention must remain immediate");
-                    Ok(42)
-                },
-            )
-        });
-        starting.recv().unwrap();
-        drop(owner);
-        assert_eq!(reader.join().unwrap(), Ok(42));
-    });
+    let deadline = Deadline::start(Duration::from_millis(20), None);
+    let wall_bound = deadline.local();
+    assert_eq!(
+        cache.try_sql(deadline, |_| -> Result<(), CacheError> {
+            panic!("held local SQL became available")
+        }),
+        Err(CacheError::Busy)
+    );
+    assert!(
+        wall_bound.expired(),
+        "local contention returned before its bound"
+    );
+    drop(owner);
+    assert_eq!(
+        cache.try_sql(
+            Deadline::start(Duration::from_secs(5), None),
+            |connection| {
+                let busy: u64 = connection
+                    .query_row("PRAGMA busy_timeout", [], |row| row.get(0))
+                    .unwrap();
+                assert_eq!(busy, 0, "external SQLite contention must remain immediate");
+                Ok(42)
+            }
+        ),
+        Ok(42)
+    );
 }
 
 #[test]
