@@ -2,7 +2,6 @@ use super::{
     CellLineGet, Ctx, Outcome, Request, Source, Status, StepKind, cellosaurus, empty, recovery,
     run, status,
 };
-use biomcp_fetch::Input;
 use biomcp_types::ReplyBody;
 use biomcp_types::ReplyData;
 use biomcp_types::{CellLineCard, CellLineInput, CellLineSection, CellLineSections};
