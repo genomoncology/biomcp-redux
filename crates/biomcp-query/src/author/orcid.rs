@@ -29,7 +29,7 @@ pub(super) fn papers(cx: &Ctx<'_>, q: &AuthorPapersQuery, id: &OrcidId) -> Outco
     out
 }
 fn restart(q: &AuthorPapersQuery, out: &mut Outcome, mismatch: bool) {
-    out.body = QueryBody::PoolError { mismatch };
+    out.body = QueryBody::Usage(biomcp_types::UsageError::PoolError { mismatch });
     out.next.push(crate::next::Step::new(
         StepKind::Restart,
         &[biomcp_types::Source::Orcid],

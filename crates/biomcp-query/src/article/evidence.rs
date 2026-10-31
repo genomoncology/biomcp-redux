@@ -98,7 +98,7 @@ fn execute<'a>(
     let mut snapshot = if let Some(id) = query.pool() {
         match store.evidence(id.as_str(), &key, |source| cx.fetch.disabled(source))? {
             crate::store::EvidenceState::Missing => {
-                out.body = QueryBody::PoolError { mismatch: false };
+                out.body = QueryBody::Usage(biomcp_types::UsageError::PoolError { mismatch: false });
                 restart(query, out);
                 return Ok(());
             }

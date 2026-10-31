@@ -98,7 +98,7 @@ pub(super) fn get(cx: &Ctx<'_>, q: &PathwayGet) -> Outcome {
                 }
             }
         }
-        if !matches!(out.body, QueryBody::PoolError { .. }) {
+        if !matches!(out.body, QueryBody::Usage(biomcp_types::UsageError::PoolError { .. })) {
             out.body = QueryBody::PathwayCard(card);
             {
                 crate::status::item(&mut out, !absent, false, false);

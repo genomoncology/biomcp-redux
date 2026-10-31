@@ -45,7 +45,7 @@ pub(crate) fn get(cx: &Ctx<'_>, q: &PathwayGet) -> Outcome {
         .push(status::source(Source::Reactome, leg.finish(), error));
     if let Some(value) = &mut card {
         super::get_sections::attach(cx, q, value, deadline, &mut out);
-        if !matches!(out.body, QueryBody::PoolError { .. }) {
+        if !matches!(out.body, QueryBody::Usage(biomcp_types::UsageError::PoolError { .. })) {
             for section in &value.sections {
                 if q.section() != Some(PathwaySection::All)
                     && Some(*section) != q.section()
@@ -64,7 +64,7 @@ pub(crate) fn get(cx: &Ctx<'_>, q: &PathwayGet) -> Outcome {
             }
         }
     }
-    if !matches!(out.body, QueryBody::PoolError { .. }) {
+    if !matches!(out.body, QueryBody::Usage(biomcp_types::UsageError::PoolError { .. })) {
         if card.is_some() || error.is_none() {
             {
                 let absent = card.is_none();

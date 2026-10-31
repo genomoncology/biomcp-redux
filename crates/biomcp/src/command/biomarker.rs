@@ -12,8 +12,8 @@ pub(super) fn search(
             let body = Some(body);
             meta.encode(q, body)
         }
-        QueryBody::BiomarkerTooBroad => super::usage_envelope(ErrorEnvelope::biomarker_too_broad()),
-        QueryBody::PoolError { mismatch } => super::pool_error(mismatch, meta.next),
+        QueryBody::Usage(biomcp_types::UsageError::BiomarkerTooBroad) => super::usage_envelope(ErrorEnvelope::biomarker_too_broad()),
+        QueryBody::Usage(biomcp_types::UsageError::PoolError { mismatch }) => super::pool_error(mismatch, meta.next),
         _ => Err(io::Error::other("biomarker response mismatch")),
     }
 }
@@ -23,7 +23,7 @@ pub(super) fn get(meta: ResponseMeta, q: BiomarkerGet, body: QueryBody) -> io::R
             let body = Some(body);
             meta.encode(q, body)
         }
-        QueryBody::BiomarkerTooBroad => super::usage_envelope(ErrorEnvelope::biomarker_too_broad()),
+        QueryBody::Usage(biomcp_types::UsageError::BiomarkerTooBroad) => super::usage_envelope(ErrorEnvelope::biomarker_too_broad()),
         _ => Err(io::Error::other("biomarker response mismatch")),
     }
 }

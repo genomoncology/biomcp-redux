@@ -5,13 +5,11 @@ mod author;
 mod cell_line;
 mod diagnostic;
 mod drug;
-mod gwas;
 mod pathway;
 mod pgx;
 mod phenotype;
 mod protein;
 mod study;
-pub(crate) use gwas::usage as gwas_usage;
 
 use biomcp_types::{ArticleSectionWord, ErrorMessage, GeneSectionWord, VariantSection};
 use std::ffi::OsString;

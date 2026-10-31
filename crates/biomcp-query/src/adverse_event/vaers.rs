@@ -33,7 +33,7 @@ fn key(q: &AdverseEventSearch) -> Vec<u8> {
     .to_vec()
 }
 fn expired(q: &AdverseEventSearch, out: &mut Outcome) {
-    out.body = QueryBody::PoolError { mismatch: false };
+    out.body = QueryBody::Usage(biomcp_types::UsageError::PoolError { mismatch: false });
     out.next.push(crate::next::Step::run(
         StepKind::Restart,
         &[biomcp_types::Source::Vaers],

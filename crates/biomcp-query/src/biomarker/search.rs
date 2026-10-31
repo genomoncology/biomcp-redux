@@ -22,7 +22,7 @@ pub(crate) fn search(cx: &Ctx<'_>, q: &BiomarkerSearch) -> Outcome {
             ));
         }
         if status::reason(error) == Some(Reason::TooLarge) {
-            out.body = QueryBody::BiomarkerTooBroad;
+            out.body = QueryBody::Usage(biomcp_types::UsageError::BiomarkerTooBroad);
         }
         out.local = status::local(error);
     }
@@ -62,7 +62,7 @@ fn execute(
         deadline,
     )?;
     if q.pool().is_some() && !cx.fresh && saved.is_none() {
-        out.body = QueryBody::PoolError { mismatch: false };
+        out.body = QueryBody::Usage(biomcp_types::UsageError::PoolError { mismatch: false });
         out.next.push(crate::next::Step::new(
             StepKind::Restart,
             &[biomcp_types::Source::Nci],

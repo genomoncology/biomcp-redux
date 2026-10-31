@@ -27,7 +27,7 @@ pub(crate) fn get(cx: &Ctx<'_>, q: &BiomarkerGet) -> Outcome {
     );
     if let Some(error) = error {
         if status::reason(error) == Some(Reason::TooLarge) {
-            out.body = QueryBody::BiomarkerTooBroad;
+            out.body = QueryBody::Usage(biomcp_types::UsageError::BiomarkerTooBroad);
         }
         if status::reason(error) == Some(Reason::NoKey) {
             out.next.push(crate::next::Step::new(

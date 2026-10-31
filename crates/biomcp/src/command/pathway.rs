@@ -3,7 +3,7 @@ use biomcp_types::{QueryBody, Request};
 use std::io;
 pub(super) fn encode(meta: ResponseMeta, request: Request, body: QueryBody) -> io::Result<Outcome> {
     match (request, body) {
-        (_, QueryBody::PoolError { mismatch }) => super::pool_error(mismatch, meta.next),
+        (_, QueryBody::Usage(biomcp_types::UsageError::PoolError { mismatch })) => super::pool_error(mismatch, meta.next),
         (Request::SearchPathway(q), QueryBody::PathwayPage(body)) => {
             let body = Some(body);
             meta.encode(q, body)

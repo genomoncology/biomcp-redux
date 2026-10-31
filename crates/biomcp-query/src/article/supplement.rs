@@ -24,7 +24,7 @@ pub fn download(cx: &Ctx<'_>, query: &ArticleSupplement, allow: bool) -> super::
         content: Section::NotApplicable,
     }));
     let Ok(selection) = super::protein_change::Selection::new(query.find(), query.variant()) else {
-        out.body = QueryBody::TextPositionError;
+        out.body = QueryBody::Usage(biomcp_types::UsageError::TextPositionError);
         return super::save::Download { out, file: None };
     };
     let result = execute(cx, query, &selection, &mut deadline, &mut out, &mut save);
@@ -97,7 +97,7 @@ fn execute<'a>(
     }
     out.sources.push(source);
     let content = result?;
-    if !matches!(out.body, QueryBody::TextPositionError) {
+    if !matches!(out.body, QueryBody::Usage(biomcp_types::UsageError::TextPositionError)) {
         out.body = QueryBody::ArticleSupplement(ArticleSupplementResult {
             pmcid: Some(id),
             content,
@@ -133,7 +133,7 @@ fn content(
         .iter()
         .find(|v| v.file.name == *query.file())
     else {
-        out.body = QueryBody::TextPositionError;
+        out.body = QueryBody::Usage(biomcp_types::UsageError::TextPositionError);
         return Ok(Section::NotApplicable);
     };
     let mut content = empty(document.license, selection.forms.clone());
@@ -170,7 +170,7 @@ fn content(
         )
         .map_err(failure)?
         {
-            out.body = QueryBody::TextPositionError;
+            out.body = QueryBody::Usage(biomcp_types::UsageError::TextPositionError);
             return Ok(Section::NotApplicable);
         }
     }

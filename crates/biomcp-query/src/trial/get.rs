@@ -133,7 +133,7 @@ fn restore(
         |s| cx.fetch.disabled(s),
     )?;
     let Some(payload) = payload else {
-        out.body = QueryBody::PoolError { mismatch: false };
+        out.body = QueryBody::Usage(biomcp_types::UsageError::PoolError { mismatch: false });
         out.next.push(crate::next::Step::run(
             StepKind::Restart,
             &[query.source().source()],
@@ -147,7 +147,7 @@ fn restore(
         return Err(CacheError::Database.into());
     }
     if !page::valid(query, &snapshot) {
-        out.body = QueryBody::TextPositionError;
+        out.body = QueryBody::Usage(biomcp_types::UsageError::TextPositionError);
         return Ok(());
     }
     let version = snapshot.version.clone();

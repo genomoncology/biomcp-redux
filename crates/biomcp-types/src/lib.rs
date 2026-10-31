@@ -254,3 +254,5 @@ pub use response::{Organization, OrganizationCoordinates, OrganizationPage};
 
 pub use query::{BiomarkerGet, BiomarkerSearch, BiomarkerSource};
 pub use response::{BiomarkerCard, BiomarkerHeader, BiomarkerPage, BiomarkerResult};
+
+pub use response::UsageError;

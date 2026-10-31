@@ -16,21 +16,21 @@ pub(super) fn search(cx: &Ctx<'_>, q: &TrialSearch) -> Outcome {
         attribution: ATTRIBUTION.into(),
     }));
     if q.nci_disease_invalid() {
-        out.body = QueryBody::NciDiseaseError;
+        out.body = QueryBody::Usage(biomcp_types::UsageError::NciDiseaseError);
         return out;
     }
     if let Some(option) = q.unsupported() {
-        out.body = QueryBody::UnsupportedTrialFilter {
+        out.body = QueryBody::Usage(biomcp_types::UsageError::UnsupportedTrialFilter {
             source: Source::Nci,
             option,
-        };
+        });
         return out;
     }
     if q.limit() > nci::PAGE_LIMIT
         || q.next_page()
             .is_some_and(|p| p.as_str().parse::<u32>().is_err())
     {
-        out.body = QueryBody::TextPositionError;
+        out.body = QueryBody::Usage(biomcp_types::UsageError::TextPositionError);
         return out;
     }
     let command = cx.fetch.command_deadline(cx.budget);

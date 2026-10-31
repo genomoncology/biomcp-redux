@@ -69,7 +69,7 @@ pub(super) fn read(cx: &Ctx<'_>, q: Selection<'_>, deadline: Deadline<'_>) -> Ou
     out
 }
 fn restart(q: &Selection<'_>, out: &mut Outcome) {
-    out.body = QueryBody::PoolError { mismatch: false };
+    out.body = QueryBody::Usage(biomcp_types::UsageError::PoolError { mismatch: false });
     let request = if q.genes {
         PathwayGenesQuery::new(q.id.clone(), q.limit)
             .map(|query| {

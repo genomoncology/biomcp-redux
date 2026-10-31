@@ -67,7 +67,7 @@ fn dispatch_using(
     }
     let mut parsed = match crate::grammar::parse(args) {
         Ok(parsed) => parsed,
-        Err(cause) => return usage_with_argument(args, cause.argument),
+        Err(cause) => return usage_with_argument(args, cause),
     };
     if let Some(context) = context
         && parsed.globals.inherit(context.globals).is_err()
@@ -237,7 +237,7 @@ fn response_body(meta: ResponseMeta, request: Request, body: QueryBody) -> io::R
         Request::GetGwasStudy(q) => gwas_get(meta, q.into(), body),
         Request::SearchGwas(q) => match body {
             QueryBody::GwasPage(body) => meta.encode(biomcp_types::GwasPageQuery::Search(q), body),
-            QueryBody::PoolError { mismatch } => pool_error(mismatch, meta.next),
+            QueryBody::Usage(biomcp_types::UsageError::PoolError { mismatch }) => pool_error(mismatch, meta.next),
             _ => Err(io::Error::other("gwas response mismatch")),
         },
         Request::SearchProtein(_)
@@ -261,7 +261,7 @@ fn response_body(meta: ResponseMeta, request: Request, body: QueryBody) -> io::R
         }
         Request::SearchStudy(q) => match body {
             QueryBody::StudyPage(body) => meta.encode(q, body),
-            QueryBody::PoolError { mismatch } => pool_error(mismatch, meta.next),
+            QueryBody::Usage(biomcp_types::UsageError::PoolError { mismatch }) => pool_error(mismatch, meta.next),
             _ => Err(io::Error::other("study response mismatch")),
         },
         Request::GetStudy(q) => match body {
@@ -269,7 +269,7 @@ fn response_body(meta: ResponseMeta, request: Request, body: QueryBody) -> io::R
             QueryBody::StudyProfiles(body) => meta.encode(q, body),
             QueryBody::StudySampleLists(body) => meta.encode(q, body),
             QueryBody::StudyFiles(body) => meta.encode(q, body),
-            QueryBody::PoolError { mismatch } => pool_error(mismatch, meta.next),
+            QueryBody::Usage(biomcp_types::UsageError::PoolError { mismatch }) => pool_error(mismatch, meta.next),
             _ => Err(io::Error::other("study response mismatch")),
         },
         Request::SearchPgx(_) | Request::GetPgx(_) | Request::GetPgxAnnotation(_) => {
@@ -290,13 +290,13 @@ fn response_body(meta: ResponseMeta, request: Request, body: QueryBody) -> io::R
 }
 fn response_common(meta: ResponseMeta, request: Request, body: QueryBody) -> io::Result<Outcome> {
     match (request, body) {
-        (_, QueryBody::VariantQueryPolicyError) => {
+        (_, QueryBody::Usage(biomcp_types::UsageError::VariantQueryPolicyError)) => {
             usage_envelope(ErrorEnvelope::variant_query_policy())
         }
-        (_, QueryBody::UnsupportedTrialFilter { source, option }) => {
+        (_, QueryBody::Usage(biomcp_types::UsageError::UnsupportedTrialFilter { source, option })) => {
             usage_envelope(ErrorEnvelope::unsupported_trial_filter(source, option))
         }
-        (_, QueryBody::NciDiseaseError) => usage_envelope(ErrorEnvelope::nci_disease()),
+        (_, QueryBody::Usage(biomcp_types::UsageError::NciDiseaseError)) => usage_envelope(ErrorEnvelope::nci_disease()),
         (Request::GetTrial(query), QueryBody::NciTrialCards(body)) => {
             meta.encode(query, Some(body))
         }
@@ -313,15 +313,15 @@ fn response_common(meta: ResponseMeta, request: Request, body: QueryBody) -> io:
             let body = Some(body);
             meta.encode(query, body)
         }
-        (_, QueryBody::ArticleSaveRefused(url)) => usage_envelope(ErrorEnvelope::save_refused(url)),
-        (_, QueryBody::PdfSaveRefused(link)) => {
+        (_, QueryBody::Usage(biomcp_types::UsageError::ArticleSaveRefused(url))) => usage_envelope(ErrorEnvelope::save_refused(url)),
+        (_, QueryBody::Usage(biomcp_types::UsageError::PdfSaveRefused(link))) => {
             usage_envelope(ErrorEnvelope::save_refused(link.url))
         }
         (Request::ArticlePdf(query), QueryBody::ArticlePdf(body)) => meta.encode(query, Some(body)),
-        (_, QueryBody::UnsupportedFilter { source, option }) => {
+        (_, QueryBody::Usage(biomcp_types::UsageError::UnsupportedFilter { source, option })) => {
             usage_envelope(ErrorEnvelope::unsupported_filter(source, option))
         }
-        (_, QueryBody::TextPositionError) => {
+        (_, QueryBody::Usage(biomcp_types::UsageError::TextPositionError)) => {
             encode(ErrorEnvelope::arguments(), crate::exit::Status::Usage)
         }
         (Request::ArticleEvidence(query), QueryBody::ArticleEvidence(body)) => {
@@ -337,11 +337,11 @@ fn response_common(meta: ResponseMeta, request: Request, body: QueryBody) -> io:
         (Request::ArticleText(query), QueryBody::ArticleText(body)) => {
             meta.encode(query, Some(body))
         }
-        (_, QueryBody::TooManyPmids { count }) => encode(
+        (_, QueryBody::Usage(biomcp_types::UsageError::TooManyPmids { count })) => encode(
             ErrorEnvelope::too_many_pmids(count),
             crate::exit::Status::Usage,
         ),
-        (_, QueryBody::PoolError { mismatch }) => pool_error(mismatch, meta.next),
+        (_, QueryBody::Usage(biomcp_types::UsageError::PoolError { mismatch })) => pool_error(mismatch, meta.next),
         (
             Request::ArticleCitations(query) | Request::ArticleReferences(query),
             QueryBody::ArticleEdges(body),
@@ -386,9 +386,9 @@ fn tool_using(args: &[OsString], context: Context<'_>, allow_save: bool) -> io::
     dispatch_using(args, allow_save, Some(context))
 }
 fn usage(args: &[OsString]) -> io::Result<Outcome> {
-    usage_with_argument(args, None)
+    usage_with_argument(args, crate::grammar::ParseInvalid::default())
 }
-fn usage_with_argument(args: &[OsString], argument: Option<String>) -> io::Result<Outcome> {
+fn usage_with_argument(args: &[OsString], cause: crate::grammar::ParseInvalid) -> io::Result<Outcome> {
     if let Some(path) = crate::grammar::unknown_command(args) {
         let mut error = ErrorEnvelope::unknown_command();
         error.next = vec![biomcp_types::Step {
@@ -400,12 +400,9 @@ fn usage_with_argument(args: &[OsString], argument: Option<String>) -> io::Resul
         }];
         return encode(error, crate::exit::Status::Usage);
     }
-    if let Some(error) = crate::grammar::normalization_build(args) {
-        return encode(error, crate::exit::Status::Usage);
-    }
     let mut words = crate::grammar::command_words(args);
     let root = words.next();
-    let option = argument.or_else(|| crate::grammar::argument_error(args));
+    let option = cause.argument.or_else(|| crate::grammar::argument_error(args));
     let mut error = if option.is_some()
         || matches!(
             root,
@@ -423,25 +420,8 @@ fn usage_with_argument(args: &[OsString], argument: Option<String>) -> io::Resul
     if root == Some("get") && words.next() == Some("variant") {
         error = ErrorEnvelope::variant_arguments();
     }
-    if root == Some("search") && args.get(1).and_then(|word| word.to_str()) == Some("trial") {
-        let flags: Vec<_> = args
-            .iter()
-            .filter_map(|arg| arg.to_str())
-            .map(|arg| arg.split('=').next().unwrap_or(arg))
-            .collect();
-        if flags.contains(&"--facility")
-            && flags
-                .iter()
-                .any(|flag| ["--lat", "--lon", "--distance"].contains(flag))
-        {
-            error = ErrorEnvelope::trial_facility_radius();
-        }
-    }
-    if let Some(message) = crate::retired::gwas_usage(args) {
-        error = ErrorEnvelope::gwas_arguments(message);
-    }
-    if crate::grammar::gwas::invalid_threshold(args) {
-        error = ErrorEnvelope::gwas_threshold();
+    if let Some(envelope) = cause.envelope {
+        error = envelope;
     }
     if root == Some("mcp-config") {
         error.next = vec![biomcp_types::Step {
@@ -585,7 +565,7 @@ fn gwas_get(meta: ResponseMeta, q: biomcp_types::GwasGet, body: QueryBody) -> io
         QueryBody::GwasLoci(body) => meta.encode(q, body),
         QueryBody::GwasAncestries(body) => meta.encode(q, body),
         QueryBody::GwasPage(body) => meta.encode(biomcp_types::GwasPageQuery::Get(q), body),
-        QueryBody::PoolError { mismatch } => pool_error(mismatch, meta.next),
+        QueryBody::Usage(biomcp_types::UsageError::PoolError { mismatch }) => pool_error(mismatch, meta.next),
         _ => Err(io::Error::other("gwas get response mismatch")),
     }
 }

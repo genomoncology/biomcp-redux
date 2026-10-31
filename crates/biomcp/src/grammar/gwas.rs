@@ -52,25 +52,3 @@ pub(super) fn aliases(command: clap::Command, schema: &Value) -> clap::Command {
     }
 }
 
-/// Recognize an invalid threshold for the checked usage explanation.
-pub(crate) fn invalid_threshold(args: &[std::ffi::OsString]) -> bool {
-    let words: Vec<_> = args.iter().filter_map(|arg| arg.to_str()).collect();
-    if !words.windows(2).any(|pair| pair == ["search", "gwas"]) {
-        return false;
-    }
-    let mut words = words.into_iter();
-    while let Some(word) = words.next() {
-        if word == "--" {
-            break;
-        }
-        let threshold = if word == "--p-value" {
-            words.next()
-        } else {
-            word.strip_prefix("--p-value=")
-        };
-        if let Some(value) = threshold {
-            return value.parse::<biodata::ScientificPValue>().is_err();
-        }
-    }
-    false
-}

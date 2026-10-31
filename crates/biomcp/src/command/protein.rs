@@ -4,7 +4,7 @@ use biomcp_types::{QueryBody, Request};
 use std::io;
 pub(super) fn encode(meta: ResponseMeta, request: Request, body: QueryBody) -> io::Result<Outcome> {
     match (request, body) {
-        (_, QueryBody::PoolError { mismatch }) => super::pool_error(mismatch, meta.next),
+        (_, QueryBody::Usage(biomcp_types::UsageError::PoolError { mismatch })) => super::pool_error(mismatch, meta.next),
         (Request::SearchProtein(q), QueryBody::ProteinPage(body)) => meta.encode(q, Some(body)),
         (Request::ProteinDomains(q), QueryBody::ProteinDomains(body)) => meta.encode(q, body),
         (Request::ProteinComplexes(q), QueryBody::ProteinComplexes(body)) => meta.encode(q, body),

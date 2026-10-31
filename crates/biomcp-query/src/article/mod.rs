@@ -29,7 +29,7 @@ use sha2::{Digest, Sha256};
 pub(crate) fn search(cx: &Ctx<'_>, query: &ArticleSearch) -> Outcome {
     let mut out = empty();
     if let Some((source, option)) = unsupported(query) {
-        out.body = QueryBody::UnsupportedFilter { source, option };
+        out.body = QueryBody::Usage(biomcp_types::UsageError::UnsupportedFilter { source, option });
         return out;
     }
     let command = cx.fetch.command_deadline(cx.budget);
@@ -127,7 +127,7 @@ fn execute<'a>(
     result
 }
 fn pool_error(query: &ArticleSearch, mismatch: bool, out: &mut Outcome) {
-    out.body = QueryBody::PoolError { mismatch };
+    out.body = QueryBody::Usage(biomcp_types::UsageError::PoolError { mismatch });
     out.next.push(crate::next::Step::run(
         StepKind::Restart,
         &next::search_sources(query),

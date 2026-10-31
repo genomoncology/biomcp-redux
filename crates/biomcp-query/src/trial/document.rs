@@ -39,7 +39,7 @@ pub fn download(cx: &Ctx<'_>, query: &TrialDocumentGet, allow: bool) -> Download
             return Ok(None);
         };
         if !allow {
-            out.body = QueryBody::ArticleSaveRefused(document.url);
+            out.body = QueryBody::Usage(biomcp_types::UsageError::ArticleSaveRefused(document.url));
             return Ok(None);
         }
         ctgov::document::download(&leg, &document).map(|bytes| Some((document, bytes)))
@@ -75,6 +75,6 @@ fn missing_document(out: &mut Outcome, incomplete_manifest: bool) {
             file: Section::unavailable(Source::ClinicalTrialsGov, biomcp_types::Reason::BadReply),
         });
     } else {
-        out.body = QueryBody::TextPositionError;
+        out.body = QueryBody::Usage(biomcp_types::UsageError::TextPositionError);
     }
 }

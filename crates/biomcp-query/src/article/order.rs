@@ -104,8 +104,8 @@ pub(super) fn refuse(count: usize, out: &mut Outcome) -> bool {
         return false;
     }
     crate::status::item(out, false, true, false);
-    out.body = QueryBody::TooManyPmids {
+    out.body = QueryBody::Usage(biomcp_types::UsageError::TooManyPmids {
         count: count as u64,
-    };
+    });
     true
 }

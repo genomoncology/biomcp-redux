@@ -73,7 +73,7 @@ fn execute(
         .into());
     }
     let saved = snapshot::load(cx, q, deadline, out)?;
-    if matches!(out.body, QueryBody::PoolError { .. }) {
+    if matches!(out.body, QueryBody::Usage(biomcp_types::UsageError::PoolError { .. })) {
         return Ok(());
     }
     let saved = match saved {

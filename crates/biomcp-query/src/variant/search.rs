@@ -130,7 +130,7 @@ fn policy_error() -> Outcome {
         [crate::status::item_status(false, true, false)],
         crate::status::Parts {
             dropped: false,
-            body: QueryBody::VariantQueryPolicyError,
+            body: QueryBody::Usage(biomcp_types::UsageError::VariantQueryPolicyError),
             page: None,
             sources: Vec::new(),
             problems: Vec::new(),

@@ -43,7 +43,7 @@ fn execute<'a>(
         return Ok(());
     };
     if !allow_save {
-        out.body = QueryBody::PdfSaveRefused(link);
+        out.body = QueryBody::Usage(biomcp_types::UsageError::PdfSaveRefused(link));
         return Ok(());
     }
     let leg = cx

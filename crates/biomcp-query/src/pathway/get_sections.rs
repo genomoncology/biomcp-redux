@@ -62,8 +62,8 @@ pub(super) fn attach(
                     |data| Section::Data { source, data },
                 ))
             }
-            QueryBody::PoolError { mismatch } => {
-                out.body = QueryBody::PoolError { mismatch };
+            QueryBody::Usage(biomcp_types::UsageError::PoolError { mismatch }) => {
+                out.body = QueryBody::Usage(biomcp_types::UsageError::PoolError { mismatch });
                 out.next.clear();
             }
             _ => {}

@@ -106,7 +106,7 @@ fn restore(
         cx.fetch.disabled(s)
     })?;
     let Some(payload) = payload else {
-        out.body = QueryBody::PoolError { mismatch: false };
+        out.body = QueryBody::Usage(biomcp_types::UsageError::PoolError { mismatch: false });
         out.next.push(crate::next::Step::run(
             StepKind::Restart,
             &[biomcp_types::Source::Nci],
@@ -120,7 +120,7 @@ fn restore(
         return Err(CacheError::Database.into());
     }
     if !page::valid(q, &snapshot) {
-        out.body = QueryBody::TextPositionError;
+        out.body = QueryBody::Usage(biomcp_types::UsageError::TextPositionError);
         return Ok(());
     }
     out.sources = snapshot.sources.clone();

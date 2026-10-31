@@ -66,7 +66,7 @@ pub(super) fn load(
     Ok(None)
 }
 fn restart(q: &AuthorSearch, out: &mut Outcome, mismatch: bool) {
-    out.body = QueryBody::PoolError { mismatch };
+    out.body = QueryBody::Usage(biomcp_types::UsageError::PoolError { mismatch });
     out.next.push(crate::next::Step::new(
         StepKind::Restart,
         &[biomcp_types::Source::SemanticScholar],

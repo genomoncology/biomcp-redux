@@ -72,7 +72,7 @@ fn key(q: &ProteinSearch) -> Vec<u8> {
     .to_vec()
 }
 fn restart(q: &ProteinSearch, out: &mut Outcome, mismatch: bool) {
-    out.body = QueryBody::PoolError { mismatch };
+    out.body = QueryBody::Usage(biomcp_types::UsageError::PoolError { mismatch });
     out.next.push(crate::next::Step::run(
         StepKind::Restart,
         &[biomcp_types::Source::UniProt],

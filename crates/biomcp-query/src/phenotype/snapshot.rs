@@ -84,7 +84,7 @@ fn load(
         let Some(payload) =
             store.source_snapshot(token.as_str(), &key(q), |source| cx.fetch.disabled(source))?
         else {
-            out.body = QueryBody::PoolError { mismatch: false };
+            out.body = QueryBody::Usage(biomcp_types::UsageError::PoolError { mismatch: false });
             out.next.push(crate::next::Step::new(
                 StepKind::Restart,
                 &[source(q)],

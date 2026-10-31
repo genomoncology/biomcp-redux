@@ -66,6 +66,8 @@ impl ResponseBody for GenePage {
 /// Typed dispatch result before the interface constructs an envelope.
 #[derive(Clone, Debug)]
 pub enum QueryBody {
+    /// Checked refusal before a reply is produced.
+    Usage(crate::UsageError),
     /// Native source author candidates.
     AuthorPage(Option<crate::AuthorPage>),
     /// Exact provider author cards and per-input outcomes.
@@ -132,12 +134,8 @@ pub enum QueryBody {
     BiomarkerPage(crate::BiomarkerPage),
     /// Exact native biomarker card or candidates.
     BiomarkerResult(crate::BiomarkerResult),
-    /// Biomarker observation exceeded its bound.
-    BiomarkerTooBroad,
     /// Native NCI organization observation.
     OrganizationPage(crate::OrganizationPage),
-    /// Unsized organization observation exceeded its byte bound.
-    OrganizationTooBroad,
     /// Checked exact pathway card or summary.
     PathwayCard(Option<crate::PathwayCard>),
     /// Retained native membership references.
@@ -184,8 +182,6 @@ pub enum QueryBody {
     DiagnosticRegulatory(crate::DiagnosticRegulatory),
     /// Native supplement headers for one exact application.
     DiagnosticSupplements(crate::DiagnosticSupplements),
-    /// Report get belongs to its next runtime slice.
-    UnsupportedAdverseEvent,
     /// Exact checked FAERS report.
     AdverseEventFaersCard(Option<crate::AdverseEventFaersCard>),
     /// Independent native drug rows.
@@ -263,17 +259,6 @@ pub enum QueryBody {
     NciTrialPage(crate::NciTrialPage),
     /// Native NCI exact cards.
     NciTrialCards(crate::NciTrialCards),
-    /// A selected trial provider cannot apply a checked capability.
-    UnsupportedTrialFilter {
-        /// Explicit source that cannot apply the option.
-        source: crate::Source,
-        /// Checked trial selector, without caller values.
-        option: crate::TrialFilter,
-    },
-    /// Fixed NCI disease identity guidance.
-    NciDiseaseError,
-    /// Opaque source syntax cannot enforce a selected component terms restriction.
-    VariantQueryPolicyError,
 
     /// Source-qualified variant identity.
     VariantCard(crate::VariantCard),
@@ -291,41 +276,18 @@ pub enum QueryBody {
     TrialPage(crate::TrialPage),
     /// Explicit PDF save result.
     ArticlePdf(crate::ArticlePdfResult),
-    /// Invalid destination or unavailable save surface, retaining the source link.
-    PdfSaveRefused(crate::PdfLink),
-    /// An explicit article save was refused, retaining its source URL.
-    ArticleSaveRefused(crate::Text),
     /// Citation context evidence.
     ArticleEvidence(crate::ArticleEvidenceResult),
     /// Source-native recommendations.
     ArticleRecommendations(crate::ArticleRecommendations),
     /// Licensed supplement reader.
     ArticleSupplement(crate::ArticleSupplementResult),
-    /// A selected source cannot apply the checked filters.
-    UnsupportedFilter {
-        /// Selected source that cannot apply the filter.
-        source: crate::Source,
-        /// Exact unsupported selector, without caller text.
-        option: crate::ArticleFilter,
-    },
     /// Bounded licensed body reader.
     ArticleText(crate::ArticleTextResult),
-    /// Invalid body reader position.
-    TextPositionError,
     /// Citation graph page.
     ArticleEdges(crate::ArticleEdgePage),
-    /// Citation ordering exceeds the supported PMID window.
-    TooManyPmids {
-        /// Unique PMID count before enrichment.
-        count: u64,
-    },
     /// PubMed article cards.
     ArticleCards(crate::ArticleCards),
-    /// Invalid snapshot selector; the interface spells its typed restart.
-    PoolError {
-        /// Whether selectors differ from an existing snapshot.
-        mismatch: bool,
-    },
     /// PubMed search page.
     ArticlePage(crate::ArticlePage),
     /// Gene get answers.

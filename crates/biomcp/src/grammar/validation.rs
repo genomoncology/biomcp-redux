@@ -7,14 +7,21 @@ pub(super) fn decode<T: CheckedQuery>(value: Value) -> Result<T, QueryInvalid> {
     let Value::Object(fields) = value else {
         return Err(QueryInvalid::default());
     };
+    let message = T::USAGE_MESSAGE;
     T::from_fields(serde::de::value::MapAccessDeserializer::new(Fields {
         fields: fields.into_iter(),
         pending: None,
-    }))
+        message,
+    })).map_err(|cause| {
+        if cause.message().is_none() {
+            if let Some(message) = message { cause.with_message(message) } else { cause }
+        } else { cause }
+    })
 }
 struct Fields {
     fields: serde_json::map::IntoIter,
     pending: Option<(String, Value)>,
+    message: Option<biomcp_types::ErrorMessage>,
 }
 impl<'de> MapAccess<'de> for Fields {
     type Error = QueryInvalid;
@@ -34,7 +41,12 @@ impl<'de> MapAccess<'de> for Fields {
     ) -> Result<V::Value, Self::Error> {
         let (key, value) = self.pending.take().ok_or_else(QueryInvalid::default)?;
         seed.deserialize(value)
-            .map_err(|_| QueryInvalid::new(&[&key]))
+            .map_err(|_| {
+                let cause = QueryInvalid::new(&[&key]);
+                if key == "p_value" && self.message == Some(biomcp_types::ErrorMessage::GwasSearchArguments) {
+                    cause.with_message(biomcp_types::ErrorMessage::GwasPositiveThreshold)
+                } else { cause }
+            })
     }
 }
 

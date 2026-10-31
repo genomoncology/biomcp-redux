@@ -129,9 +129,9 @@ pub(crate) fn run(
                         },
                     })
                 }
-                _ => biomcp_types::QueryBody::PdfSaveRefused(link),
+                _ => biomcp_types::QueryBody::Usage(biomcp_types::UsageError::PdfSaveRefused(link)),
             },
-            None => biomcp_types::QueryBody::PdfSaveRefused(link),
+            None => biomcp_types::QueryBody::Usage(biomcp_types::UsageError::PdfSaveRefused(link)),
         };
     }
     out

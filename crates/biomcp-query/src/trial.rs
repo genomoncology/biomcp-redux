@@ -78,7 +78,7 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &TrialSearch) -> Outcome {
         }
     }
     if rejected {
-        outcome.body = QueryBody::TextPositionError;
+        outcome.body = QueryBody::Usage(biomcp_types::UsageError::TextPositionError);
     }
     outcome.local = error.and_then(status::local);
     outcome.sources.push(source);

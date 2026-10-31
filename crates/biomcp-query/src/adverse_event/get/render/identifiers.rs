@@ -44,7 +44,7 @@ pub(super) fn render(
         .drug_index()
         .ok_or(biomcp_fetch::InputError::Serialization)?;
     let Some(drug) = drug else {
-        out.body = QueryBody::TextPositionError;
+        out.body = QueryBody::Usage(biomcp_types::UsageError::TextPositionError);
         return Ok(());
     };
     let array = drug.openfda.as_ref().and_then(|v| values(v, section));

@@ -87,7 +87,7 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &AdverseEventSearch) -> Outcome {
 
 /// An unimplemented report get has no source effects until its owning slice lands.
 pub(crate) fn unsupported() -> Outcome {
-    crate::status::empty(QueryBody::UnsupportedAdverseEvent)
+    crate::status::empty(QueryBody::Usage(biomcp_types::UsageError::UnsupportedAdverseEvent))
 }
 
 fn navigation(query: &AdverseEventSearch, page: &faers::Page, out: &mut Outcome) {

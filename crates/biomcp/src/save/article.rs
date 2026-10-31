@@ -59,10 +59,10 @@ fn finish(download: article::text::Download, target: Option<SaveTarget>) -> Outc
                     data.saved = Some(saved);
                 }
             }
-            _ => out.body = QueryBody::ArticleSaveRefused(file.url),
+            _ => out.body = QueryBody::Usage(biomcp_types::UsageError::ArticleSaveRefused(file.url)),
         }
     } else if let Some(url) = url {
-        out.body = QueryBody::ArticleSaveRefused(url);
+        out.body = QueryBody::Usage(biomcp_types::UsageError::ArticleSaveRefused(url));
     }
     out
 }

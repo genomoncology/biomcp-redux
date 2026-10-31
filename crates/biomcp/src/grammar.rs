@@ -7,7 +7,7 @@ mod errors;
 mod metadata;
 mod validation;
 use arguments::command_for;
-pub(crate) use errors::{argument_error, normalization_build};
+pub(crate) use errors::argument_error;
 pub(crate) mod gwas;
 mod local;
 mod queries;
@@ -231,14 +231,15 @@ pub(crate) fn root() -> Result<Command, ParseInvalid> {
 #[derive(Debug, Default)]
 pub(crate) struct ParseInvalid {
     pub(crate) argument: Option<String>,
+    pub(crate) envelope: Option<biomcp_types::ErrorEnvelope>,
 }
 pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ParseInvalid> {
     let mut root = root()?;
     root.build();
     let args = entry::arguments(args, &root);
-    let matches = root
+    let matches = root.clone()
         .try_get_matches_from(std::iter::once(OsString::from("biomcp")).chain(args))
-        .map_err(|_| ParseInvalid::default())?;
+        .map_err(|error| errors::parse_invalid(&root, &error))?;
     let globals = globals(&matches)?;
     let (verb, matches) = matches.subcommand().ok_or_else(ParseInvalid::default)?;
     if verb == "serve" {
@@ -289,9 +290,8 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ParseInvalid> {
         }
     } else {
         let (entity, matches) = matches.subcommand().ok_or_else(ParseInvalid::default)?;
-        let request = request(verb, entity, matches).map_err(|cause| ParseInvalid {
-            argument: validation::argument_names(verb, entity, matches, &cause),
-        })?;
+        let request = request(verb, entity, matches)
+            .map_err(|cause| errors::checked_invalid(verb, entity, matches, &cause))?;
         Action::Run {
             request,
             fresh: globals.fresh,

@@ -185,3 +185,6 @@ pub use organization::{Organization, OrganizationCoordinates, OrganizationPage};
 mod biomarker;
 mod registry;
 pub use biomarker::{BiomarkerCard, BiomarkerHeader, BiomarkerPage, BiomarkerResult};
+
+mod usage;
+pub use usage::UsageError;

@@ -293,7 +293,7 @@ fn bounded_navigation(body: &biomcp_types::QueryBody) -> Navigation<'_> {
         Body::PgxDiplotype(_) => Navigation::Bounded,
         Body::PgxAnnotation(_) | Body::DiagnosticCard(_) => Navigation::Bounded,
         Body::DiagnosticConditions(_) | Body::DiagnosticMethods(_) => Navigation::Bounded,
-        Body::DiagnosticRegulatory(_) | Body::UnsupportedAdverseEvent => Navigation::Bounded,
+        Body::DiagnosticRegulatory(_) | Body::Usage(biomcp_types::UsageError::UnsupportedAdverseEvent) => Navigation::Bounded,
         Body::AdverseEventFaersCard(_) | Body::AdverseEventDrugs(_) => Navigation::Bounded,
         Body::AdverseEventReactions(_) => Navigation::Bounded,
         Body::AdverseEventIdentifiers(_) | Body::VaersSummary(_) => Navigation::Bounded,
@@ -308,19 +308,19 @@ fn bounded_navigation(body: &biomcp_types::QueryBody) -> Navigation<'_> {
         Body::DrugTargets(_) | Body::DrugIndications(_) => Navigation::Bounded,
         Body::VariantAssertions(_) | Body::VariantNormalization(_) => Navigation::Bounded,
         Body::NciTrialPage(_) | Body::NciTrialCards(_) => Navigation::Bounded,
-        Body::BiomarkerTooBroad
-        | Body::OrganizationTooBroad
-        | Body::UnsupportedTrialFilter { .. }
-        | Body::NciDiseaseError => Navigation::Bounded,
-        Body::VariantQueryPolicyError | Body::VariantPopulation(_) => Navigation::Bounded,
+        Body::Usage(biomcp_types::UsageError::BiomarkerTooBroad)
+        | Body::Usage(biomcp_types::UsageError::OrganizationTooBroad)
+        | Body::Usage(biomcp_types::UsageError::UnsupportedTrialFilter { .. })
+        | Body::Usage(biomcp_types::UsageError::NciDiseaseError) => Navigation::Bounded,
+        Body::Usage(biomcp_types::UsageError::VariantQueryPolicyError) | Body::VariantPopulation(_) => Navigation::Bounded,
         Body::VariantRecurrence(_) | Body::TrialDocument(_) => Navigation::Bounded,
         Body::TrialCards(_) | Body::TrialPage(_) | Body::ArticlePdf(_) => Navigation::Bounded,
-        Body::PdfSaveRefused(_) | Body::ArticleSaveRefused(_) => Navigation::Bounded,
+        Body::Usage(biomcp_types::UsageError::PdfSaveRefused(_)) | Body::Usage(biomcp_types::UsageError::ArticleSaveRefused(_)) => Navigation::Bounded,
         Body::ArticleEvidence(_) | Body::ArticleRecommendations(_) => Navigation::Bounded,
-        Body::ArticleSupplement(_) | Body::UnsupportedFilter { .. } => Navigation::Bounded,
-        Body::ArticleText(_) | Body::TextPositionError => Navigation::Bounded,
-        Body::ArticleEdges(_) | Body::TooManyPmids { .. } => Navigation::Bounded,
-        Body::ArticleCards(_) | Body::PoolError { .. } => Navigation::Bounded,
+        Body::ArticleSupplement(_) | Body::Usage(biomcp_types::UsageError::UnsupportedFilter { .. }) => Navigation::Bounded,
+        Body::ArticleText(_) | Body::Usage(biomcp_types::UsageError::TextPositionError) => Navigation::Bounded,
+        Body::ArticleEdges(_) | Body::Usage(biomcp_types::UsageError::TooManyPmids { .. }) => Navigation::Bounded,
+        Body::ArticleCards(_) | Body::Usage(biomcp_types::UsageError::PoolError { .. }) => Navigation::Bounded,
         Body::ArticlePage(_) | Body::GeneCards(_) | Body::GenePage(_) => Navigation::Bounded,
         _ => Navigation::Bounded,
     }

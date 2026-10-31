@@ -103,7 +103,7 @@ struct SearchFields {
 fn limit() -> u32 {
     3
 }
-crate::query::validation::checked_query!(GwasSearch, SearchFields);
+crate::query::validation::checked_query!(GwasSearch, SearchFields, Some(crate::ErrorMessage::GwasSearchArguments));
 impl TryFrom<SearchFields> for GwasSearch {
     type Error = QueryInvalid;
     fn try_from(f: SearchFields) -> Result<Self, Self::Error> {

@@ -50,7 +50,7 @@ pub(super) fn load(
             cx.fetch.disabled(source)
         })?
         else {
-            out.body = QueryBody::PoolError { mismatch: false };
+            out.body = QueryBody::Usage(biomcp_types::UsageError::PoolError { mismatch: false });
             out.next.push(crate::next::Step::run(
                 StepKind::Restart,
                 &[q.source().source()],

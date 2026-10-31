@@ -24,7 +24,7 @@ pub fn download(cx: &Ctx<'_>, query: &ArticleText, allow: bool) -> super::save::
         content: Section::NotApplicable,
     }));
     let Ok(selection) = super::protein_change::Selection::new(query.find(), query.variant()) else {
-        out.body = QueryBody::TextPositionError;
+        out.body = QueryBody::Usage(biomcp_types::UsageError::TextPositionError);
         return super::save::Download { out, file: None };
     };
     let result = execute(cx, query, &selection, &mut deadline, &mut out, &mut save);
@@ -142,7 +142,7 @@ fn execute<'a>(
                 out,
                 save,
             ) else {
-                out.body = QueryBody::TextPositionError;
+                out.body = QueryBody::Usage(biomcp_types::UsageError::TextPositionError);
                 return Ok(());
             };
             Section::Data {
@@ -355,7 +355,7 @@ fn preprint<'a>(
         out,
         save,
     ) else {
-        out.body = QueryBody::TextPositionError;
+        out.body = QueryBody::Usage(biomcp_types::UsageError::TextPositionError);
         return Ok(());
     };
     out.body = QueryBody::ArticleText(ArticleTextResult {

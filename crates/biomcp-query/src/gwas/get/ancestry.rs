@@ -37,7 +37,7 @@ pub(super) fn read(
         let Some(payload) =
             store.source_snapshot(token.as_str(), &key, |s| cx.fetch.disabled(s))?
         else {
-            out.body = QueryBody::PoolError { mismatch: false };
+            out.body = QueryBody::Usage(biomcp_types::UsageError::PoolError { mismatch: false });
             out.next.push(crate::next::Step::new(
                 StepKind::Restart,
                 &[biomcp_types::Source::Gwas],

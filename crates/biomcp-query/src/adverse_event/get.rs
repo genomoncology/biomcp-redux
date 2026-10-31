@@ -87,7 +87,7 @@ fn read(
         let Some(payload) =
             store.source_snapshot(snapshot.as_str(), &key(q), |s| cx.fetch.disabled(s))?
         else {
-            out.body = QueryBody::PoolError { mismatch: false };
+            out.body = QueryBody::Usage(biomcp_types::UsageError::PoolError { mismatch: false });
             out.next.push(crate::next::Step::run(
                 StepKind::Restart,
                 &[biomcp_types::Source::Faers],

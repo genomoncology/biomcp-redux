@@ -73,7 +73,7 @@ fn expiring_one_snapshot_does_not_expire_its_replacement() {
         .unwrap();
     assert!(matches!(
         run(&fetch, query(Some(old.id.as_str()), 0), false).body,
-        QueryBody::PoolError { mismatch: false }
+        QueryBody::Usage(biomcp_types::UsageError::PoolError { mismatch: false })
     ));
     assert_eq!(
         page(run(&fetch, query(Some(new.id.as_str()), 0), false))

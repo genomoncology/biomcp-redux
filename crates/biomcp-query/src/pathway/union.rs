@@ -59,7 +59,7 @@ fn execute(
     let mut store = Store::open(cx.fetch.cache_access()?, deadline)?;
     let identity = key(q)?;
     let loaded = load(cx, q, &store, &identity, out)?;
-    if matches!(out.body, QueryBody::PoolError { .. }) {
+    if matches!(out.body, QueryBody::Usage(biomcp_types::UsageError::PoolError { .. })) {
         return Ok(());
     }
     let replay = loaded
@@ -128,7 +128,7 @@ fn present(q: &PathwaySearch, saved: Saved, pool: biodata::Text, out: &mut Outco
     out.body = QueryBody::PathwayPage(saved.0);
 }
 fn expired(q: &PathwaySearch, out: &mut Outcome) {
-    out.body = QueryBody::PoolError { mismatch: false };
+    out.body = QueryBody::Usage(biomcp_types::UsageError::PoolError { mismatch: false });
     out.next.push(crate::next::Step::new(
         StepKind::Restart,
         &super::next::search(q),

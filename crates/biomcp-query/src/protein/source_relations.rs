@@ -90,7 +90,7 @@ pub(super) fn run(cx: &Ctx<'_>, q: Selection) -> Outcome {
     out
 }
 fn restart(q: &Selection, out: &mut Outcome, mismatch: bool) {
-    out.body = QueryBody::PoolError { mismatch };
+    out.body = QueryBody::Usage(biomcp_types::UsageError::PoolError { mismatch });
     out.next.push(crate::next::Step::run(
         StepKind::Restart,
         &[q.source()],

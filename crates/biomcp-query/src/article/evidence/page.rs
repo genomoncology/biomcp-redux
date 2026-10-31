@@ -39,7 +39,7 @@ pub(super) fn render(
         let total = data.contexts.items.len();
         let start = query.offset() as usize;
         if start > total {
-            out.body = QueryBody::TextPositionError;
+            out.body = QueryBody::Usage(biomcp_types::UsageError::TextPositionError);
             return Ok(());
         }
         let items = page(&data.contexts.items, start, 4500, |item| {
@@ -53,7 +53,7 @@ pub(super) fn render(
         let total = data.paragraphs.items.len();
         let start = query.paragraph_offset() as usize;
         if start > total {
-            out.body = QueryBody::TextPositionError;
+            out.body = QueryBody::Usage(biomcp_types::UsageError::TextPositionError);
             return Ok(());
         }
         let items = page(&data.paragraphs.items, start, 8500, |item| {

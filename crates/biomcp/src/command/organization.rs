@@ -26,10 +26,10 @@ pub(super) fn encode(
             let body = Some(body);
             meta.encode(q, body)
         }
-        QueryBody::OrganizationTooBroad => {
+        QueryBody::Usage(biomcp_types::UsageError::OrganizationTooBroad) => {
             super::usage_envelope(ErrorEnvelope::organization_too_broad())
         }
-        QueryBody::PoolError { mismatch } => super::pool_error(mismatch, meta.next),
+        QueryBody::Usage(biomcp_types::UsageError::PoolError { mismatch }) => super::pool_error(mismatch, meta.next),
         _ => Err(io::Error::other("organization response mismatch")),
     }
 }

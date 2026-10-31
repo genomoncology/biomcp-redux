@@ -64,13 +64,13 @@ fn execute<'a>(
     };
     let pool = match old {
         Some(pool) if pool.key != key.as_slice() => {
-            out.body = QueryBody::PoolError { mismatch: true };
+            out.body = QueryBody::Usage(biomcp_types::UsageError::PoolError { mismatch: true });
             restart(query, out);
             return Ok(());
         }
         Some(pool) => pool,
         None if explicit.is_some() => {
-            out.body = QueryBody::PoolError { mismatch: false };
+            out.body = QueryBody::Usage(biomcp_types::UsageError::PoolError { mismatch: false });
             restart(query, out);
             return Ok(());
         }

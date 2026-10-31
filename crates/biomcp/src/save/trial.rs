@@ -29,7 +29,7 @@ pub(crate) fn document(cx: &Ctx<'_>, query: &TrialDocumentGet, allow: bool) -> O
                     },
                 },
             }),
-            None => QueryBody::ArticleSaveRefused(document.url),
+            None => QueryBody::Usage(biomcp_types::UsageError::ArticleSaveRefused(document.url)),
         };
     }
     out

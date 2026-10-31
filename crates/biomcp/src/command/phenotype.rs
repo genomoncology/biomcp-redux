@@ -12,7 +12,7 @@ pub(super) fn encode(meta: ResponseMeta, request: Request, body: QueryBody) -> i
             meta.encode(q, Some(body))
         }
         (Request::GetPhenotype(q), QueryBody::PhenotypeGenes(body)) => meta.encode(q, Some(body)),
-        (_, QueryBody::PoolError { mismatch }) => super::pool_error(mismatch, meta.next),
+        (_, QueryBody::Usage(biomcp_types::UsageError::PoolError { mismatch })) => super::pool_error(mismatch, meta.next),
         _ => Err(io::Error::other("phenotype response mismatch")),
     }
 }

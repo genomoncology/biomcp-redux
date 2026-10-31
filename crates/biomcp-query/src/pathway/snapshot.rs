@@ -58,7 +58,7 @@ pub(super) fn load(
             return Ok(None);
         }
     }
-    out.body = QueryBody::PoolError { mismatch: false };
+    out.body = QueryBody::Usage(biomcp_types::UsageError::PoolError { mismatch: false });
     out.next.push(crate::next::Step::new(
         StepKind::Restart,
         &super::next::search(q),
