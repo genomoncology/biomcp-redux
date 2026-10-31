@@ -172,6 +172,7 @@ mod tests {
             hosts: Vec::new(),
             globals: Globals::default(),
             fetch: Err(StartupError::Local),
+            recovery: None,
         };
         let mut releases = Vec::new();
         let mut exits = Vec::new();
