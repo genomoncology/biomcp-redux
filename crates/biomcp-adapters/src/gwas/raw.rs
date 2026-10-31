@@ -207,7 +207,7 @@ impl Response {
 
 impl Association {
     /// Decode exact native parts without converting the probability to a double.
-    pub fn exact_p_value(&self) -> Option<biodata::ScientificPValue> {
+    pub(super) fn exact_p_value(&self) -> Option<biodata::ScientificPValue> {
         let mantissa = self.p_value_mantissa?;
         format!("{mantissa}e{}", self.p_value_exponent?)
             .parse()

@@ -8,7 +8,7 @@ use biomcp_types::{
 };
 impl RawApplication {
     /// Expose an application name only when all native products share exact brand wording.
-    pub fn candidate(&self) -> DrugFdaCandidate {
+    pub(super) fn candidate(&self) -> DrugFdaCandidate {
         let identity = self.header();
         let name = self
             .products
@@ -29,7 +29,7 @@ impl RawApplication {
 }
 impl Product {
     /// Map a native product without associating it with any submission.
-    pub fn mapped(&self) -> DrugFdaProduct {
+    pub(super) fn mapped(&self) -> DrugFdaProduct {
         DrugFdaProduct {
             product_number: self.product_number.clone(),
             brand_name: self.brand_name.clone(),
@@ -52,7 +52,7 @@ impl Product {
 }
 impl Submission {
     /// Retain the application owner and native date roles without assigning product applicability.
-    pub fn mapped(&self, application: &RawApplication) -> Result<DrugFdaSubmission, RequestError> {
+    pub(super) fn mapped(&self, application: &RawApplication) -> Result<DrugFdaSubmission, RequestError> {
         let role = "submission_status_date".parse().map_err(|_| super::bad())?;
         Ok(DrugFdaSubmission {
             event: AuthorizationEvent {

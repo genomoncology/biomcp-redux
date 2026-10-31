@@ -59,7 +59,7 @@ fn normalize_name(value: &str) -> String {
 }
 impl RawRecord {
     /// Compare complete publisher values after the established case and spacing normalization.
-    pub fn name_match(&self, input: &Text) -> Option<biomcp_types::DrugNameMatch> {
+    pub(super) fn name_match(&self, input: &Text) -> Option<biomcp_types::DrugNameMatch> {
         let input = normalize_name(input.as_str());
         let matches = |names: &Option<Vec<crate::native_text::NativeText>>| {
             names

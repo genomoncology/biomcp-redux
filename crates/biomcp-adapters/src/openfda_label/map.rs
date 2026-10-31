@@ -12,7 +12,7 @@ impl RawRecord {
         .map_err(|_| bad())
     }
     /// Identity comes from the SPL endpoint; no name or field-shape identity join occurs.
-    pub fn header(&self) -> Result<DrugHeader, RequestError> {
+    pub(super) fn header(&self) -> Result<DrugHeader, RequestError> {
         self.check().map_err(|_| bad())?;
         Ok(DrugHeader {
             matched_name: None,
@@ -34,7 +34,7 @@ impl RawRecord {
         })
     }
     /// Version and revision ID remain source-scoped and separate from the set ID.
-    pub fn reference(&self) -> Result<DrugLabelReference, RequestError> {
+    pub(super) fn reference(&self) -> Result<DrugLabelReference, RequestError> {
         self.check().map_err(|_| bad())?;
         let url = self.url()?;
         Ok(DrugLabelReference {
@@ -54,7 +54,7 @@ impl RawRecord {
         })
     }
     /// An identity-only card does not copy any clinical text or authorization facts.
-    pub fn card(&self, retrieved: Option<PartialDate>) -> Result<DrugCard, RequestError> {
+    pub(super) fn card(&self, retrieved: Option<PartialDate>) -> Result<DrugCard, RequestError> {
         let alternate_names = self
             .openfda
             .brand_name

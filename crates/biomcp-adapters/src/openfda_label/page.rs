@@ -12,7 +12,7 @@ impl Record {
     /// Page bounded text fragments, defaulting in the consumer to one fragment.
     /// The payload budget may return fewer fragments than the supplied maximum.
     /// Offsets and totals count fragments, never characters, sentences or source array elements.
-    pub fn label(
+    pub(super) fn label(
         &self,
         heading: &str,
         offset: u32,

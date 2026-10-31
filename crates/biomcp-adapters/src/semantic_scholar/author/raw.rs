@@ -123,7 +123,7 @@ impl From<RawRecord> for Record {
 }
 impl Record {
     /// Preserve optional metadata and its provider-record count scope.
-    pub fn header(self, problems: &mut Vec<biomcp_types::Problem>) -> AuthorHeader {
+    pub(super) fn header(self, problems: &mut Vec<biomcp_types::Problem>) -> AuthorHeader {
         problems.extend(self.problems);
         let counts =
             (self.paper_count.is_some() || self.citation_count.is_some() || self.h_index.is_some())
@@ -143,7 +143,7 @@ impl Record {
         }
     }
     /// Keep the provider link separate from the candidate metadata.
-    pub fn card(self) -> Mapped<AuthorCard> {
+    pub(super) fn card(self) -> Mapped<AuthorCard> {
         let mut problems = Vec::new();
         let url = self.url.clone();
         let value = AuthorCard {
