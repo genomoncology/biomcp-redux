@@ -12,12 +12,14 @@
         "chembl"
       ],
       "expect": {
-        "/result/items/items": {
-          "count": 0
-        },
         "/result/items/total": 1,
         "/problems/*/field": {
           "includes": "cell_chembl_id"
+        },
+        "/result/items": {
+          "omits": [
+            "items"
+          ]
         }
       }
     },
@@ -29,12 +31,14 @@
         "chembl"
       ],
       "expect": {
-        "/result/items/items": {
-          "count": 0
-        },
         "/result/items/total": 1,
         "/problems/*/field": {
           "includes": "cell_chembl_id"
+        },
+        "/result/items": {
+          "omits": [
+            "items"
+          ]
         }
       }
     }

@@ -16,12 +16,14 @@
         "/problems/*/field": {
           "includes": "accession-list"
         },
-        "/result/items": {
-          "count": 0
-        },
         "/next/0/kind": "page",
         "/next/0/args": {
           "includes": "--offset"
+        },
+        "/result": {
+          "omits": [
+            "items"
+          ]
         }
       }
     },
@@ -37,12 +39,14 @@
         "/problems/*/field": {
           "includes": "accession-list"
         },
-        "/result/items": {
-          "count": 0
-        },
         "/next/0/kind": "page",
         "/next/0/args": {
           "includes": "--offset"
+        },
+        "/result": {
+          "omits": [
+            "items"
+          ]
         }
       }
     }

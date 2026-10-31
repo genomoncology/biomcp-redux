@@ -17,14 +17,19 @@ pub(super) fn prepare(
     if control != "refused" {
         step.expect.clear();
         let count = usize::from(control == "optional");
-        step.expect.insert(
-            owner.count.into(),
-            if owner.count.ends_with("items") {
-                json!({"count":count})
-            } else {
-                json!(count)
-            },
-        );
+        if count == 0 && owner.count.ends_with("items") {
+            let (parent, field) = owner.count.rsplit_once('/').ok_or("native items pointer")?;
+            step.expect.insert(parent.into(), json!({"omits":[field]}));
+        } else {
+            step.expect.insert(
+                owner.count.into(),
+                if owner.count.ends_with("items") {
+                    json!({"count":count})
+                } else {
+                    json!(count)
+                },
+            );
+        }
         if !owner.total.is_empty() {
             step.expect.insert(owner.total.into(), json!(count));
         }
