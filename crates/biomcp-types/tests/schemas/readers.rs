@@ -12,7 +12,7 @@ where
     serde_json::to_vec(&reply)
 }
 macro_rules! readers {
-    ($($body:ty => $name:literal),+ $(,)?) => {
+    ($($method:ident: $body:ty => $name:literal),+ $(,)?) => {
         &[$((<$body as ResponseBody>::SCHEMA, read_write::<$body> as Reader)),+]
     };
 }

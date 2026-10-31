@@ -4,7 +4,7 @@ use biodata::{Text, UniProtIsoform};
 use biomcp_adapters::{complex_portal, interpro};
 use biomcp_fetch::{CacheError, Deadline, RequestError, SourceError};
 use biomcp_types::{
-    PageInfo, ProteinComplexMembersQuery, ProteinDomainsQuery, ProteinRelationQuery, QueryBody,
+    PageInfo, ProteinComplexMembersQuery, ProteinDomainsQuery, ProteinRelationQuery, ReplyData,
     Request, Source, StepKind,
 };
 use sha2::{Digest, Sha256};
@@ -65,11 +65,20 @@ impl Selection {
         h.update(serde_json::to_vec(&self.request(None)).map_err(|_| CacheError::Database)?);
         Ok(h.finalize().to_vec())
     }
-    pub(super) fn empty(&self) -> QueryBody {
+    pub(super) fn empty(&self) -> ReplyData {
         match self {
-            Self::Domains(_) => QueryBody::ProteinDomains(None),
-            Self::Complexes(_) => QueryBody::ProteinComplexes(None),
-            Self::Members(_) => QueryBody::ProteinComplexMembers(None),
+            Self::Domains(q) => ReplyData::ProteinDomains {
+                query: q.clone(),
+                body: None,
+            },
+            Self::Complexes(q) => ReplyData::ProteinComplexes {
+                query: q.clone(),
+                body: None,
+            },
+            Self::Members(q) => ReplyData::ProteinComplexMembers {
+                query: q.clone(),
+                body: None,
+            },
         }
     }
 }
@@ -90,7 +99,7 @@ pub(super) fn run(cx: &Ctx<'_>, q: Selection) -> Outcome {
     out
 }
 fn restart(q: &Selection, out: &mut Outcome, mismatch: bool) {
-    out.body = QueryBody::Usage(biomcp_types::UsageError::PoolError { mismatch });
+    out.body = ReplyData::PoolError { mismatch };
     out.next.push(crate::next::Step::run(
         StepKind::Restart,
         &[q.source()],

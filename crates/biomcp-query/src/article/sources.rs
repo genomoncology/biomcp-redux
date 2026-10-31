@@ -265,10 +265,13 @@ fn prepare_litvar<'a>(
                     ));
                 }
             }
-            out.body = biomcp_types::QueryBody::ArticlePage(biomcp_types::ArticlePage {
-                items: Box::default(),
-                candidates,
-            });
+            out.body = biomcp_types::ReplyData::ArticlePage {
+                query: query.clone(),
+                body: Some(biomcp_types::ArticlePage {
+                    items: Box::default(),
+                    candidates,
+                }),
+            };
             Preparation::Answer
         }
     }

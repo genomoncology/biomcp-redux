@@ -2,13 +2,16 @@ use super::{empty, run};
 use crate::{Ctx, Outcome, status};
 use biodata::PathwayId;
 use biomcp_adapters::reactome;
-use biomcp_types::{PathwayGet, PathwaySection, QueryBody, Request, Source, StepKind};
+use biomcp_types::{PathwayGet, PathwaySection, ReplyData, Request, Source, StepKind};
 /// Read one exact native human pathway and only its requested bounded disclosures.
 pub(crate) fn get(cx: &Ctx<'_>, q: &PathwayGet) -> Outcome {
     if matches!(q.id(), PathwayId::Wikipathways(_)) {
         return super::wikipathways::get(cx, q);
     }
-    let mut out = empty(QueryBody::PathwayCard(None));
+    let mut out = empty(ReplyData::PathwayCard {
+        query: q.clone(),
+        body: None,
+    });
     let PathwayId::Reactome(id) = q.id() else {
         return out;
     };
@@ -45,7 +48,7 @@ pub(crate) fn get(cx: &Ctx<'_>, q: &PathwayGet) -> Outcome {
         .push(status::source(Source::Reactome, leg.finish(), error));
     if let Some(value) = &mut card {
         super::get_sections::attach(cx, q, value, deadline, &mut out);
-        if !matches!(out.body, QueryBody::Usage(biomcp_types::UsageError::PoolError { .. })) {
+        if !matches!(out.body, ReplyData::PoolError { .. }) {
             for section in &value.sections {
                 if q.section() != Some(PathwaySection::All)
                     && Some(*section) != q.section()
@@ -64,14 +67,17 @@ pub(crate) fn get(cx: &Ctx<'_>, q: &PathwayGet) -> Outcome {
             }
         }
     }
-    if !matches!(out.body, QueryBody::Usage(biomcp_types::UsageError::PoolError { .. })) {
+    if !matches!(out.body, ReplyData::PoolError { .. }) {
         if card.is_some() || error.is_none() {
             {
                 let absent = card.is_none();
                 crate::status::item(&mut out, !absent, false, false);
             }
         }
-        out.body = QueryBody::PathwayCard(card);
+        out.body = ReplyData::PathwayCard {
+            query: q.clone(),
+            body: card,
+        };
     }
     out.local = out.local.or_else(|| error.and_then(status::local));
     command.finish(deadline.remaining());

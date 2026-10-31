@@ -4,7 +4,7 @@ use biodata::{ProteinSequence, Text};
 use biomcp_adapters::{Mapped, uniprot};
 use biomcp_fetch::{Leg, RequestError, SourceError};
 use biomcp_types::{
-    Problem, ProblemCode, ProteinSequenceQuery, ProteinSequenceResult, QueryBody, Reason, Request,
+    Problem, ProblemCode, ProteinSequenceQuery, ProteinSequenceResult, Reason, ReplyData, Request,
     Source, StepKind,
 };
 pub(super) fn read(
@@ -48,7 +48,10 @@ pub(super) fn run(cx: &Ctx<'_>, q: &ProteinSequenceQuery) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let leg = cx.fetch.leg(&uniprot::SPEC, deadline).fresh(cx.fresh);
-    let mut out = super::empty(QueryBody::ProteinSequence(None));
+    let mut out = super::empty(ReplyData::ProteinSequenceResult {
+        query: q.clone(),
+        body: None,
+    });
     let result = read(&leg, q);
     let error = result.as_ref().err().copied();
     if let Ok(mapped) = result {
@@ -58,11 +61,12 @@ pub(super) fn run(cx: &Ctx<'_>, q: &ProteinSequenceQuery) -> Outcome {
             let found = mapped.value.is_some();
             crate::status::item(&mut out, found, false, false);
         };
-        out.body = QueryBody::ProteinSequence(
-            mapped
+        out.body = ReplyData::ProteinSequenceResult {
+            query: q.clone(),
+            body: mapped
                 .value
                 .map(|sequence| ProteinSequenceResult { sequence }),
-        );
+        };
     }
     if error.is_some_and(|e| matches!(e, RequestError::Source(e) if e.reason == Reason::BadReply)) {
         out.problems.push(problem(&q.isoform));

@@ -1,4 +1,4 @@
-use super::{AdverseEventGet, AdverseEventSection, QueryBody, Source, Text, rows, text};
+use super::{AdverseEventGet, AdverseEventSection, ReplyData, Source, Text, rows, text};
 use biomcp_adapters::{NativePositions, maude::Positions};
 use biomcp_types::{
     AdverseEventDevices, AdverseEventMaudeCard, AdverseEventNarrative, AdverseEventRecords,
@@ -10,7 +10,7 @@ pub(super) fn project(
     report: biodata::MaudeReport,
     snapshot: Text,
     positions: Positions,
-) -> Result<(QueryBody, u64, u32, u32), biomcp_types::QueryInvalid> {
+) -> Result<(ReplyData, u64, u32, u32), biomcp_types::QueryInvalid> {
     let header = header(&report);
     let row = report;
     let offset = query.section_offset();
@@ -30,23 +30,29 @@ pub(super) fn project(
             let (records, end) = narrative_page(candidates, end)?;
             let returned = records.len() as u32;
             (
-                QueryBody::AdverseEventNarrative(Some(AdverseEventNarrative {
-                    header,
-                    snapshot,
-                    narrative: AdverseEventRecords {
-                        records,
-                        offset: query.section_offset(),
-                        total,
-                    },
-                    components: Box::default(),
-                })),
+                ReplyData::AdverseEventNarrative {
+                    query: query.clone(),
+                    body: Some(AdverseEventNarrative {
+                        header,
+                        snapshot,
+                        narrative: AdverseEventRecords {
+                            records,
+                            offset: query.section_offset(),
+                            total,
+                        },
+                        components: Box::default(),
+                    }),
+                },
                 total,
                 returned,
                 end,
             )
         }
         _ => (
-            QueryBody::AdverseEventMaudeCard(Some(card(query, row, header, snapshot, &positions)?)),
+            ReplyData::AdverseEventMaudeCard {
+                query: query.clone(),
+                body: Some(card(query, row, header, snapshot, &positions)?),
+            },
             0,
             0,
             0,
@@ -61,7 +67,7 @@ fn devices(
     positions: &Positions,
     header: biomcp_types::AdverseEventHeader,
     snapshot: Text,
-) -> Result<(QueryBody, u64, u32, u32), biomcp_types::QueryInvalid> {
+) -> Result<(ReplyData, u64, u32, u32), biomcp_types::QueryInvalid> {
     let offset = query.section_offset();
     let end = offset.saturating_add(query.section_limit());
     let total = positions
@@ -75,20 +81,23 @@ fn devices(
         .collect();
     let returned = records.len() as u32;
     Ok((
-        QueryBody::AdverseEventDevices(Some(AdverseEventDevices {
-            header,
-            snapshot,
-            devices: AdverseEventRecords {
-                records,
-                offset: query.section_offset(),
-                total,
-            },
-            components: biomcp_adapters::adverse_event_sources::components::labels(
-                Source::Maude,
-                Source::Gmdn,
-            )
-            .map_err(|_| biomcp_types::QueryInvalid::default())?,
-        })),
+        ReplyData::AdverseEventDevices {
+            query: query.clone(),
+            body: Some(AdverseEventDevices {
+                header,
+                snapshot,
+                devices: AdverseEventRecords {
+                    records,
+                    offset: query.section_offset(),
+                    total,
+                },
+                components: biomcp_adapters::adverse_event_sources::components::labels(
+                    Source::Maude,
+                    Source::Gmdn,
+                )
+                .map_err(|_| biomcp_types::QueryInvalid::default())?,
+            }),
+        },
         total,
         returned,
         end,

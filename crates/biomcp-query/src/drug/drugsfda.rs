@@ -3,16 +3,19 @@ use super::{empty, searched, unsupported};
 use crate::{Ctx, Outcome, status};
 use biomcp_adapters::{drugsfda as source, received_date};
 use biomcp_types::{
-    DrugCard, DrugFdaPage, DrugGet, DrugPage, DrugSearch, DrugSection, DrugSource, QueryBody,
+    DrugCard, DrugFdaPage, DrugGet, DrugPage, DrugSearch, DrugSection, DrugSource, ReplyData,
     Request, Source, SourceState, StepKind,
 };
 mod approvals;
 pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
-    let mut out = empty(QueryBody::DrugFdaPage(DrugFdaPage {
-        items: Box::default(),
-        total: 0,
-        source_updated: None,
-    }));
+    let mut out = empty(ReplyData::DrugFdaPage {
+        query: query.clone(),
+        body: Some(DrugFdaPage {
+            items: Box::default(),
+            total: 0,
+            source_updated: None,
+        }),
+    });
     let Some(name) = query.query() else {
         return super::unsupported(query.source(), out);
     };
@@ -36,15 +39,18 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
             },
             &mut out,
         );
-        out.body = QueryBody::DrugFdaPage(DrugFdaPage {
-            items: page
-                .records
-                .iter()
-                .map(source::Application::candidate)
-                .collect(),
-            total: page.total,
-            source_updated: page.updated.map(Into::into),
-        });
+        out.body = ReplyData::DrugFdaPage {
+            query: query.clone(),
+            body: Some(DrugFdaPage {
+                items: page
+                    .records
+                    .iter()
+                    .map(source::Application::candidate)
+                    .collect(),
+                total: page.total,
+                source_updated: page.updated.map(Into::into),
+            }),
+        };
     }
     command.finish(deadline.remaining());
     out
@@ -52,9 +58,15 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
 pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     let is_approvals = query.sections() == [DrugSection::Approvals];
     let mut out = empty(if is_approvals {
-        QueryBody::DrugApprovals(None)
+        ReplyData::DrugApprovals {
+            query: query.clone(),
+            body: None,
+        }
     } else {
-        QueryBody::DrugCard(None)
+        ReplyData::DrugCard {
+            query: query.clone(),
+            body: None,
+        }
     });
     if !matches!(query.sections(), [] | [DrugSection::Approvals]) {
         return unsupported(query.source(), out);
@@ -111,19 +123,22 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
                         cx.fresh,
                     ));
                 }
-                out.body = QueryBody::DrugCard(Some(DrugCard {
-                    header: row.header(),
-                    alternate_names: Box::default(),
-                    cross_references: Box::default(),
-                    parents: Box::default(),
-                    products: Box::default(),
-                    formulations: Box::default(),
-                    version: None,
-                    updated: None,
-                    retrieved: received_date(page.metadata.fetched),
-                    available_sections: vec![DrugSection::Approvals].into(),
-                    next: Box::default(),
-                }));
+                out.body = ReplyData::DrugCard {
+                    query: query.clone(),
+                    body: Some(DrugCard {
+                        header: row.header(),
+                        alternate_names: Box::default(),
+                        cross_references: Box::default(),
+                        parents: Box::default(),
+                        products: Box::default(),
+                        formulations: Box::default(),
+                        version: None,
+                        updated: None,
+                        retrieved: received_date(page.metadata.fetched),
+                        available_sections: vec![DrugSection::Approvals].into(),
+                        next: Box::default(),
+                    }),
+                };
             }
         }
     }

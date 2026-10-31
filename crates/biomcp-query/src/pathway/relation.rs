@@ -5,7 +5,7 @@ use biomcp_adapters::reactome;
 use biomcp_fetch::{Deadline, RequestError, SourceError};
 use biomcp_types::{
     PathwayEventsQuery, PathwayGenesQuery, PathwayHeader, PathwayPageInfo, PathwayTotalKind,
-    QueryBody, Reason, Request, Source, StepKind,
+    Reason, ReplyData, Request, Source, StepKind,
 };
 pub(super) struct Selection<'a> {
     pub id: &'a PathwayId,
@@ -58,9 +58,15 @@ fn execute(cx: &Ctx<'_>, q: Selection<'_>) -> Outcome {
 }
 pub(super) fn read(cx: &Ctx<'_>, q: Selection<'_>, deadline: Deadline<'_>) -> Outcome {
     let mut out = empty(if q.genes {
-        QueryBody::PathwayGenes(None)
+        ReplyData::PathwayGenes {
+            query: q.clone(),
+            body: None,
+        }
     } else {
-        QueryBody::PathwayEvents(None)
+        ReplyData::PathwayEvents {
+            query: q.clone(),
+            body: None,
+        }
     });
     if let Err(error) = read_inner(cx, &q, deadline, &mut out) {
         out.local = status::local(error);
@@ -69,7 +75,7 @@ pub(super) fn read(cx: &Ctx<'_>, q: Selection<'_>, deadline: Deadline<'_>) -> Ou
     out
 }
 fn restart(q: &Selection<'_>, out: &mut Outcome) {
-    out.body = QueryBody::Usage(biomcp_types::UsageError::PoolError { mismatch: false });
+    out.body = ReplyData::PoolError { mismatch: false };
     let request = if q.genes {
         PathwayGenesQuery::new(q.id.clone(), q.limit)
             .map(|query| {
@@ -186,7 +192,10 @@ fn present_genes(
         let absent = body.page.total == 0;
         crate::status::item(out, !absent, false, false);
     }
-    out.body = QueryBody::PathwayGenes(Some(body));
+    out.body = ReplyData::PathwayGenes {
+        query: q.clone(),
+        body: Some(body),
+    };
 }
 fn present_events(
     q: &Selection<'_>,
@@ -207,7 +216,10 @@ fn present_events(
         let absent = body.page.total == 0;
         crate::status::item(out, !absent, false, false);
     }
-    out.body = QueryBody::PathwayEvents(Some(body));
+    out.body = ReplyData::PathwayEvents {
+        query: q.clone(),
+        body: Some(body),
+    };
 }
 
 fn position(

@@ -1,5 +1,5 @@
 use super::{
-    CacheError, Outcome, QueryBody, Request, RequestError, Selection, Source, SourceError,
+    CacheError, Outcome, ReplyData, Request, RequestError, Selection, Source, SourceError,
     StepKind, Store, complex_portal, interpro,
 };
 use biomcp_types::{ProteinComplexMembers, ProteinComplexes, ProteinDomains};
@@ -157,16 +157,19 @@ impl Saved {
     ) -> Result<(), RequestError> {
         let offset = offset as usize;
         let limit = limit as usize;
-        match self {
-            Self::Domains(items, native_total, problems, dropped) => {
+        match (self, q) {
+            (Self::Domains(items, native_total, problems, dropped), Selection::Domains(query)) => {
                 out.dropped |= dropped;
                 out.problems.extend(problems);
-                out.body = QueryBody::ProteinDomains(Some(ProteinDomains {
-                    items: items.into_iter().skip(offset).take(limit).collect(),
-                    native_total,
-                }))
+                out.body = ReplyData::ProteinDomains {
+                    query: query.clone(),
+                    body: Some(ProteinDomains {
+                        items: items.into_iter().skip(offset).take(limit).collect(),
+                        native_total,
+                    }),
+                }
             }
-            Self::Complexes(c) => {
+            (Self::Complexes(c), Selection::Complexes(query)) => {
                 out.include_refusals(c.refusals);
                 out.problems.extend(
                     c.items
@@ -180,12 +183,15 @@ impl Saved {
                     .take(limit)
                     .map(|c| c.header)
                     .collect();
-                out.body = QueryBody::ProteinComplexes(Some(ProteinComplexes {
-                    items: items.into(),
-                    native_total: c.native_total,
-                }));
+                out.body = ReplyData::ProteinComplexes {
+                    query: query.clone(),
+                    body: Some(ProteinComplexes {
+                        items: items.into(),
+                        native_total: c.native_total,
+                    }),
+                };
             }
-            Self::Members(Some(c)) => {
+            (Self::Members(Some(c)), Selection::Members(query)) => {
                 out.include_refusals(c.refusals);
                 out.problems.extend(c.problems.into_iter().flatten());
                 let items: Vec<_> = c.members.into_iter().skip(offset).take(limit).collect();
@@ -203,11 +209,15 @@ impl Saved {
                         ));
                     }
                 }
-                out.body = QueryBody::ProteinComplexMembers(Some(ProteinComplexMembers {
-                    items: items.into(),
-                }));
+                out.body = ReplyData::ProteinComplexMembers {
+                    query: query.clone(),
+                    body: Some(ProteinComplexMembers {
+                        items: items.into(),
+                    }),
+                };
             }
-            Self::Members(None) => {}
+            (Self::Members(None), Selection::Members(_)) => {}
+            _ => return Err(bad(q.source())),
         }
         Ok(())
     }

@@ -54,6 +54,10 @@ impl serde::de::Error for QueryInvalid {
 pub trait CheckedQuery: Sized {
     /// Fixed command guidance for failed checked input.
     const USAGE_MESSAGE: Option<crate::ErrorMessage> = None;
+    /// Name a rejected field without retaining its value.
+    fn invalid_field(name: &str) -> QueryInvalid {
+        QueryInvalid::new(&[name])
+    }
     /// Decode checked fields once, then call the owning constructor.
     fn from_fields<'de, D: Deserializer<'de, Error = QueryInvalid>>(
         deserializer: D,

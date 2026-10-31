@@ -299,120 +299,10 @@ pub struct ErrorEnvelope {
     pub next: Vec<super::Step>,
 }
 
-impl ErrorEnvelope {
-    /// Refuse the complete serialized MCP result without cutting source text.
-    pub fn mcp_result_too_broad(cap: u64) -> Self {
-        let mut error = Self::arguments();
-        error.error.code = ErrorCode::TooBroad;
-        error.error.message = ErrorMessage::McpResultTooBroad;
-        error.error.count = Some(cap);
-        error
-    }
-
-    /// Refuse a biomarker observation beyond its byte bound.
-    pub fn biomarker_too_broad() -> Self {
-        let mut error = Self::arguments();
-        error.error.code = ErrorCode::TooBroad;
-        error.error.message = ErrorMessage::BiomarkerTooBroad;
-        error.error.source = Some(crate::Source::Nci);
-        error
-    }
-    /// Refuse an organization collection beyond its bounded observation.
-    pub fn organization_too_broad() -> Self {
-        let mut error = Self::arguments();
-        error.error.code = ErrorCode::TooBroad;
-        error.error.message = ErrorMessage::OrganizationTooBroad;
-        error.error.source = Some(crate::Source::Nci);
-        error
-    }
-    /// Name a refused command with fixed guidance and no caller arguments.
-    pub fn mcp_unavailable(message: ErrorMessage) -> Self {
-        let mut error = Self::arguments();
-        error.error.code = ErrorCode::McpUnavailable;
-        error.error.message = message;
-        error
-    }
-    /// Direct a hosted caller to their own source credential settings.
-    pub fn hosted_key(source: crate::Source) -> Self {
-        let mut error = Self::mcp_unavailable(ErrorMessage::HostedKey);
-        error.error.source = Some(source);
-        error
-    }
-    /// Name a rejected configuration field or environment variable without its value.
-    pub fn configuration(option: String) -> Self {
-        let mut envelope = Self::local();
-        envelope.error.option = Some(option.into_boxed_str());
-        envelope
-    }
-    /// Refuse opaque source syntax when a component terms restriction is selected.
-    pub fn variant_query_policy() -> Self {
-        let mut error = Self::arguments();
-        error.error.message = ErrorMessage::VariantQueryPolicy;
-        error
-    }
-    /// Explain the published variant identifier boundary without interpreting caller text.
-    pub fn variant_arguments() -> Self {
-        let mut error = Self::arguments();
-        error.error.message = ErrorMessage::VariantIdentifier;
-        error
-    }
-    /// Construct the fixed response for every invalid schema request.
-    pub fn schema_usage() -> Self {
-        Self {
-            local_error: None,
-            next: Vec::new(),
-            schema: ErrorSchema::V2,
-            status: ErrorStatus::Usage,
-            error: ErrorDetail {
-                url: None,
-                source: None,
-                option: None,
-                valid_values: None,
-                count: None,
-                code: ErrorCode::SchemaUsage,
-                message: ErrorMessage::SchemaUsage,
-            },
-        }
-    }
-}
-
-impl ErrorEnvelope {
-    /// Report fixed migration guidance without accepting caller input.
-    pub fn retired(message: ErrorMessage) -> Self {
-        let valid_values = (message == ErrorMessage::VaersInfluenzaCodes).then(|| {
-            crate::VAERS_INFLUENZA
-                .iter()
-                .filter_map(|(code, label)| crate::Text::new(&format!("{code}: {label}")).ok())
-                .collect()
-        });
-        Self {
-            local_error: None,
-            next: Vec::new(),
-            schema: ErrorSchema::V2,
-            status: ErrorStatus::Usage,
-            error: ErrorDetail {
-                url: None,
-                source: None,
-                option: None,
-                valid_values,
-                count: None,
-                code: ErrorCode::Retired,
-                message,
-            },
-        }
-    }
-    /// Report an unknown command with recovery supplied only from the known grammar.
-    pub fn unknown_command() -> Self {
-        let mut error = Self::arguments();
-        error.error.code = ErrorCode::UnknownCommand;
-        error.error.message = ErrorMessage::UnknownCommand;
-        error
-    }
-    /// Refuse invalid command arguments without echoing input.
-    pub fn arguments() -> Self {
-        Self {
-            local_error: None,
-            next: Vec::new(),
+impl From<crate::UsageError> for ErrorEnvelope {
+    fn from(usage: crate::UsageError) -> Self {
+        use crate::UsageError;
+        let mut out = Self {
             schema: ErrorSchema::V2,
             status: ErrorStatus::Usage,
             error: ErrorDetail {
@@ -424,58 +314,112 @@ impl ErrorEnvelope {
                 code: ErrorCode::Arguments,
                 message: ErrorMessage::Arguments,
             },
+            local_error: None,
+            next: Vec::new(),
+        };
+        match usage {
+            UsageError::Arguments(arguments) => {
+                out.error.option = arguments.argument;
+                out.error.message = arguments.message.unwrap_or(ErrorMessage::Arguments);
+                out.error.valid_values = arguments.valid_values;
+                out.next = arguments.next;
+            }
+            UsageError::Schema => {
+                out.error.code = ErrorCode::SchemaUsage;
+                out.error.message = ErrorMessage::SchemaUsage;
+            }
+            UsageError::UnknownCommand { next } => {
+                out.error.code = ErrorCode::UnknownCommand;
+                out.error.message = ErrorMessage::UnknownCommand;
+                out.next = vec![next];
+            }
+            UsageError::Retired(message) => {
+                out.error.code = ErrorCode::Retired;
+                out.error.message = message;
+                out.error.valid_values =
+                    (message == ErrorMessage::VaersInfluenzaCodes).then(|| {
+                        crate::VAERS_INFLUENZA
+                            .iter()
+                            .filter_map(|(code, label)| {
+                                crate::Text::new(&format!("{code}: {label}")).ok()
+                            })
+                            .collect()
+                    });
+            }
+            UsageError::McpUnavailable(message) => {
+                out.error.code = ErrorCode::McpUnavailable;
+                out.error.message = message;
+            }
+            UsageError::HostedKey(source) => {
+                out.error.code = ErrorCode::McpUnavailable;
+                out.error.message = ErrorMessage::HostedKey;
+                out.error.source = Some(source);
+            }
+            UsageError::McpResultTooBroad { cap } => {
+                out.error.code = ErrorCode::TooBroad;
+                out.error.message = ErrorMessage::McpResultTooBroad;
+                out.error.count = Some(cap);
+            }
+            UsageError::BiomarkerTooBroad => {
+                out.error.code = ErrorCode::TooBroad;
+                out.error.message = ErrorMessage::BiomarkerTooBroad;
+                out.error.source = Some(crate::Source::Nci);
+            }
+            UsageError::OrganizationTooBroad => {
+                out.error.code = ErrorCode::TooBroad;
+                out.error.message = ErrorMessage::OrganizationTooBroad;
+                out.error.source = Some(crate::Source::Nci);
+            }
+            UsageError::UnsupportedAdverseEvent | UsageError::TextPositionError => {}
+            UsageError::UnsupportedTrialFilter { source, option } => {
+                out.error.source = Some(source);
+                out.error.option = Some(option.as_str().into());
+                out.error.code = ErrorCode::UnsupportedFilter;
+                out.error.message = ErrorMessage::UnsupportedFilter;
+            }
+            UsageError::UnsupportedFilter { source, option } => {
+                out.error.source = Some(source);
+                out.error.option = Some(option.as_str().into());
+                out.error.code = ErrorCode::UnsupportedFilter;
+                out.error.message = ErrorMessage::UnsupportedFilter;
+            }
+            UsageError::NciDiseaseError => out.error.message = ErrorMessage::NciDisease,
+            UsageError::VariantQueryPolicyError => {
+                out.error.message = ErrorMessage::VariantQueryPolicy
+            }
+            UsageError::PdfSaveRefused(link) => out.error.url = Some(link.url),
+            UsageError::ArticleSaveRefused(url) => out.error.url = Some(url),
+            UsageError::TooManyPmids { count } => {
+                out.error.code = ErrorCode::TooManyPmids;
+                out.error.message = ErrorMessage::TooManyPmids;
+                out.error.count = Some(count);
+            }
+            UsageError::SourceSelector {
+                source,
+                option,
+                valid_values,
+                next,
+            } => {
+                out.error.source = Some(source);
+                out.error.option = Some(option);
+                out.error.valid_values = Some(valid_values);
+                out.error.message = ErrorMessage::SourceSelector;
+                out.next = next;
+            }
+            UsageError::PoolMismatch { restart } => {
+                out.error.code = ErrorCode::PoolMismatch;
+                out.error.message = ErrorMessage::PoolMismatch;
+                out.next = vec![restart];
+            }
         }
+        out
     }
-    /// Name a grammar-owned argument without retaining its rejected value.
-    pub fn argument(option: Box<str>) -> Self {
-        Self::arguments().with_argument(option)
-    }
-    /// Name a checked argument and its supported vocabulary without echoing input.
-    pub fn argument_values(option: Box<str>, values: Box<[crate::Text]>) -> Self {
-        let mut error = Self::argument(option);
-        error.error.valid_values = Some(values);
-        error
-    }
-    /// Attach a grammar-owned identity while preserving fixed command guidance.
-    pub fn with_argument(mut self, option: Box<str>) -> Self {
-        self.error.option = Some(option);
-        self
-    }
-    /// Direct composite readers to independently paged named sections.
-    pub fn cell_line_all_paging() -> Self {
-        let mut error = Self::arguments();
-        error.error.message = ErrorMessage::CellLineAllPaging;
-        error
-    }
-    /// Explain a failed checked GWAS command without changing its usage code.
-    pub fn gwas_arguments(message: ErrorMessage) -> Self {
-        let mut error = Self::arguments();
-        error.error.message = message;
-        error
-    }
-    /// Explain the exact positive threshold boundary before source access.
-    pub fn gwas_threshold() -> Self {
-        let mut error = Self::arguments();
-        error.error.message = ErrorMessage::GwasPositiveThreshold;
-        error
-    }
-    /// Explain explicit NCI identity and keyword modes.
-    pub fn nci_disease() -> Self {
-        let mut error = Self::arguments();
-        error.error.message = ErrorMessage::NciDisease;
-        error
-    }
-    /// Explain the registry's facility and radius limitation before any request.
-    pub fn trial_facility_radius() -> Self {
-        let mut error = Self::arguments();
-        error.error.message = ErrorMessage::TrialFacilityRadius;
-        error
-    }
+}
+
+impl ErrorEnvelope {
     /// Report a local failure without paths or provider diagnostics.
     pub fn local() -> Self {
         Self {
-            local_error: None,
-            next: Vec::new(),
             schema: ErrorSchema::V2,
             status: ErrorStatus::Local,
             error: ErrorDetail {
@@ -487,106 +431,32 @@ impl ErrorEnvelope {
                 code: ErrorCode::Local,
                 message: ErrorMessage::Local,
             },
+            local_error: None,
+            next: Vec::new(),
         }
     }
-}
-
-impl ErrorEnvelope {
-    /// Report an unavailable or mismatched pool with its typed restart.
-    pub fn pool(mismatch: bool, next: super::Step) -> Self {
+    /// Name a rejected configuration field without its value.
+    pub fn configuration(option: String) -> Self {
+        let mut out = Self::local();
+        out.error.option = Some(option.into_boxed_str());
+        out
+    }
+    /// Report an expired pool independently of command usage.
+    pub fn expired_pool(restart: super::Step) -> Self {
         Self {
             schema: ErrorSchema::V2,
-            status: if mismatch {
-                ErrorStatus::Usage
-            } else {
-                ErrorStatus::Expired
-            },
+            status: ErrorStatus::Expired,
             error: ErrorDetail {
                 url: None,
                 source: None,
                 option: None,
                 valid_values: None,
                 count: None,
-                code: if mismatch {
-                    ErrorCode::PoolMismatch
-                } else {
-                    ErrorCode::PoolExpired
-                },
-                message: if mismatch {
-                    ErrorMessage::PoolMismatch
-                } else {
-                    ErrorMessage::PoolExpired
-                },
+                code: ErrorCode::PoolExpired,
+                message: ErrorMessage::PoolExpired,
             },
             local_error: None,
-            next: vec![next],
+            next: vec![restart],
         }
-    }
-}
-
-impl ErrorEnvelope {
-    /// Refuse citation enrichment above its checked PMID window.
-    pub fn too_many_pmids(count: u64) -> Self {
-        Self {
-            schema: ErrorSchema::V2,
-            status: ErrorStatus::Usage,
-            error: ErrorDetail {
-                url: None,
-                source: None,
-                option: None,
-                valid_values: None,
-                count: Some(count),
-                code: ErrorCode::TooManyPmids,
-                message: ErrorMessage::TooManyPmids,
-            },
-            local_error: None,
-            next: Vec::new(),
-        }
-    }
-}
-
-impl ErrorEnvelope {
-    /// Refuse a source-native trial capability without borrowing article semantics.
-    pub fn unsupported_trial_filter(source: crate::Source, option: crate::TrialFilter) -> Self {
-        let mut out = Self::arguments();
-        out.error.source = Some(source);
-        out.error.option = Some(option.as_str().into());
-        out.error.code = ErrorCode::UnsupportedFilter;
-        out.error.message = ErrorMessage::UnsupportedFilter;
-        out
-    }
-    /// Refuse a source/filter combination before requesting any source.
-    pub fn unsupported_filter(source: crate::Source, option: crate::ArticleFilter) -> Self {
-        let mut out = Self::arguments();
-        out.error.source = Some(source);
-        out.error.option = Some(option.as_str().into());
-        out.error.code = ErrorCode::UnsupportedFilter;
-        out.error.message = ErrorMessage::UnsupportedFilter;
-        out
-    }
-}
-
-impl ErrorEnvelope {
-    /// Refuse a save while retaining the source URL for the caller.
-    pub fn save_refused(url: crate::Text) -> Self {
-        let mut out = Self::arguments();
-        out.error.url = Some(url);
-        out
-    }
-}
-
-impl ErrorEnvelope {
-    /// Refuse an absent or unknown native selector without echoing caller input.
-    pub fn source_selector(
-        source: crate::Source,
-        option: Box<str>,
-        valid_values: Box<[crate::Text]>,
-    ) -> Self {
-        let mut out = Self::arguments();
-        out.error.source = Some(source);
-        out.error.option = Some(option);
-        out.error.valid_values = Some(valid_values);
-        out.error.message = ErrorMessage::SourceSelector;
-        out
     }
 }

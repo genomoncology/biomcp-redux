@@ -3,7 +3,7 @@ use crate::{Ctx, Outcome, status};
 use biomcp_adapters::reactome;
 use biomcp_fetch::{Deadline, RequestError, SourceError};
 use biomcp_types::{
-    PathwayGet, PathwayPage, PathwayPageInfo, PathwaySearch, PathwayTotalKind, QueryBody, Reason,
+    PathwayGet, PathwayPage, PathwayPageInfo, PathwaySearch, PathwayTotalKind, Reason, ReplyData,
     Request, Source, SourceState, StepKind,
 };
 fn page(q: &PathwaySearch) -> PathwayPage {
@@ -26,7 +26,10 @@ pub(crate) fn search(cx: &Ctx<'_>, q: &PathwaySearch) -> Outcome {
     }
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
-    let mut out = empty(QueryBody::PathwayPage(page(q)));
+    let mut out = empty(ReplyData::PathwayPage {
+        query: q.clone(),
+        body: Some(page(q)),
+    });
     let source = if q.source() == biomcp_types::PathwaySource::Wikipathways {
         Source::WikiPathways
     } else {
@@ -73,7 +76,7 @@ fn execute(
         .into());
     }
     let saved = snapshot::load(cx, q, deadline, out)?;
-    if matches!(out.body, QueryBody::Usage(biomcp_types::UsageError::PoolError { .. })) {
+    if matches!(out.body, ReplyData::PoolError { .. }) {
         return Ok(());
     }
     let saved = match saved {
@@ -103,7 +106,10 @@ fn execute(
         ));
     }
     crate::status::search(out);
-    out.body = QueryBody::PathwayPage(body);
+    out.body = ReplyData::PathwayPage {
+        query: q.clone(),
+        body: Some(body),
+    };
     Ok(())
 }
 fn fetch(

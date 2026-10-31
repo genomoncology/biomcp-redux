@@ -2,7 +2,7 @@ use crate::{Ctx, Outcome};
 use biomcp_adapters::{drugsfda as source, received_date};
 use biomcp_fetch::RequestError;
 use biomcp_types::{
-    DrugApprovals, DrugGet, DrugRecords, PageInfo, QueryBody, Reason, Request, Section, Source,
+    DrugApprovals, DrugGet, DrugRecords, PageInfo, Reason, ReplyData, Request, Section, Source,
     StepKind,
 };
 pub(super) fn select(
@@ -66,11 +66,14 @@ pub(super) fn select(
             },
         }
     };
-    out.body = QueryBody::DrugApprovals(Some(DrugApprovals {
-        identity: row.header(),
-        products,
-        source_updated: updated.map(Into::into),
-        approvals,
-    }));
+    out.body = ReplyData::DrugApprovals {
+        query: query.clone(),
+        body: Some(DrugApprovals {
+            identity: row.header(),
+            products,
+            source_updated: updated.map(Into::into),
+            approvals,
+        }),
+    };
     Ok(())
 }

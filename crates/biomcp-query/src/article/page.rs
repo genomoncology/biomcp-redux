@@ -8,7 +8,7 @@ use biodata::Text;
 use biomcp_adapters::pubmed;
 use biomcp_fetch::RequestError;
 use biomcp_types::{
-    ArticleEdgePage, ArticleEdges, ArticlePage, ArticleSearch, ArticleSort, PageInfo, QueryBody,
+    ArticleEdgePage, ArticleEdges, ArticlePage, ArticleSearch, ArticleSort, PageInfo, ReplyData,
     Request, Source, StepKind,
 };
 #[derive(Clone, Copy)]
@@ -184,14 +184,21 @@ fn finish(query: Cursor<'_>, pool: &Pool, rows: Vec<StoredItem>, out: &mut Outco
     });
     let items = rows.into_iter().map(|r| r.item).collect();
     out.body = match query {
-        Cursor::Search(_) => QueryBody::ArticlePage(ArticlePage {
-            items,
-            candidates: Vec::new(),
-        }),
-        Cursor::Edges(_, _) => QueryBody::ArticleEdges(ArticleEdgePage { items }),
-        Cursor::Recommend(_) => {
-            QueryBody::ArticleRecommendations(super::recommend::body(items, total == 0))
-        }
+        Cursor::Search(q) => ReplyData::ArticlePage {
+            query: q.clone(),
+            body: Some(ArticlePage {
+                items,
+                candidates: Vec::new(),
+            }),
+        },
+        Cursor::Edges(q, _) => ReplyData::ArticleEdgePage {
+            query: q.clone(),
+            body: Some(ArticleEdgePage { items }),
+        },
+        Cursor::Recommend(q) => ReplyData::ArticleRecommendations {
+            query: q.clone(),
+            body: Some(super::recommend::body(items, total == 0)),
+        },
     };
     actions(query, pool, returned, total, out);
     if let Cursor::Search(search) = query {
@@ -233,8 +240,12 @@ fn actions(query: Cursor<'_>, pool: &Pool, returned: u32, total: u64, out: &mut 
         ));
     }
     let items = match &out.body {
-        QueryBody::ArticlePage(page) => page.items.as_ref(),
-        QueryBody::ArticleEdges(page) => page.items.as_ref(),
+        ReplyData::ArticlePage {
+            body: Some(page), ..
+        } => page.items.as_ref(),
+        ReplyData::ArticleEdgePage {
+            body: Some(page), ..
+        } => page.items.as_ref(),
         _ => &[],
     };
     if let Cursor::Edges(parent, references) = query

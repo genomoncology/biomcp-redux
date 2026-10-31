@@ -4,9 +4,12 @@ use crate::{Action, Ctx, Outcome, status};
 use biomcp_adapters::semantic_scholar;
 use biomcp_fetch::Deadline;
 use biomcp_types::ArticleInput;
-use biomcp_types::{ArticleResolution, QueryBody, Reason, Section, Source, StepKind};
+use biomcp_types::{ArticleResolution, Reason, ReplyData, Section, Source, StepKind};
 pub(super) fn run<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut Outcome) {
-    let QueryBody::ArticleCards(cards) = &mut out.body else {
+    let ReplyData::ArticleCards {
+        body: Some(cards), ..
+    } = &mut out.body
+    else {
         return;
     };
     let leg = cx

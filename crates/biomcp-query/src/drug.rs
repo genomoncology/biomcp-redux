@@ -10,7 +10,7 @@ pub(crate) mod who;
 use crate::{Ctx, Outcome, status};
 use biomcp_adapters::mychem;
 use biomcp_types::{
-    DrugGet, DrugPage, DrugSearch, DrugSource, PageInfo, QueryBody, Request, Source, StepKind,
+    DrugGet, DrugPage, DrugSearch, DrugSource, PageInfo, ReplyData, Request, Source, StepKind,
 };
 /// Search the one selected source, without fan-out or selecting an identity.
 pub(crate) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
@@ -38,10 +38,13 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     if query.source() == DrugSource::Ddinter {
         return ddinter::search(cx, query);
     }
-    let mut out = empty(QueryBody::DrugPage(DrugPage {
-        items: Box::default(),
-        total: None,
-    }));
+    let mut out = empty(ReplyData::DrugPage {
+        query: query.clone(),
+        body: Some(DrugPage {
+            items: Box::default(),
+            total: None,
+        }),
+    });
     let Some(name) = query.query() else {
         return unsupported(query.source(), out);
     };
@@ -102,9 +105,15 @@ fn selected_get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     }
     let xrefs = matches!(query.sections(), [biomcp_types::DrugSection::Xrefs]);
     let mut out = empty(if xrefs {
-        QueryBody::DrugXrefs(None)
+        ReplyData::DrugXrefs {
+            query: query.clone(),
+            body: None,
+        }
     } else {
-        QueryBody::DrugCard(None)
+        ReplyData::DrugCard {
+            query: query.clone(),
+            body: None,
+        }
     });
     if query.source() != DrugSource::Mychem
         || !matches!(query.sections(), [] | [biomcp_types::DrugSection::Xrefs])
@@ -152,7 +161,10 @@ fn selected_get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
                 crate::status::item(&mut out, true, false, true);
             }
             out.problems = document.problems;
-            out.body = QueryBody::DrugCard(Some(document.value.card));
+            out.body = ReplyData::DrugCard {
+                query: query.clone(),
+                body: Some(document.value.card),
+            };
         }
     }
     component_outcomes(cx, &mut out, false);
@@ -204,20 +216,23 @@ fn link_page(
         pool: None,
         truncated: None,
     });
-    out.body = QueryBody::DrugXrefs(Some(biomcp_types::DrugXrefs {
-        identity: card.header,
-        xrefs: biomcp_types::Section::Data {
-            source: Source::Mychem,
-            data: biomcp_types::DrugRecords {
-                records,
-                offset,
-                total: Some(total),
-                truncated: None,
-                version: card.version,
-                retrieved: card.retrieved,
+    out.body = ReplyData::DrugXrefs {
+        query: query.clone(),
+        body: Some(biomcp_types::DrugXrefs {
+            identity: card.header,
+            xrefs: biomcp_types::Section::Data {
+                source: Source::Mychem,
+                data: biomcp_types::DrugRecords {
+                    records,
+                    offset,
+                    total: Some(total),
+                    truncated: None,
+                    version: card.version,
+                    retrieved: card.retrieved,
+                },
             },
-        },
-    }));
+        }),
+    };
 }
 
 pub(super) use crate::status::empty;
@@ -306,7 +321,10 @@ fn search_results(
             fresh,
         ));
     }
-    out.body = QueryBody::DrugPage(page);
+    out.body = ReplyData::DrugPage {
+        query: query.clone(),
+        body: Some(page),
+    };
 }
 
 pub(crate) mod label_bound;

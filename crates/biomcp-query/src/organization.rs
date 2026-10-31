@@ -4,13 +4,13 @@ use crate::{Action, Ctx, Outcome, status};
 use biomcp_adapters::nci;
 use biomcp_fetch::{Deadline, RequestError, SourceError};
 use biomcp_types::{
-    OrganizationPage, OrganizationSearch, QueryBody, Reason, Request, Source, StepKind,
+    OrganizationPage, OrganizationSearch, Reason, ReplyData, Request, Source, StepKind,
 };
 /// Find published organizations without assigning identities to names.
 pub(crate) fn search(cx: &Ctx<'_>, q: &OrganizationSearch) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
-    let mut out = empty();
+    let mut out = empty(q);
     if let Err(error) = execute(cx, q, deadline, &mut out) {
         if out.sources.is_empty() {
             out.sources.push(biomcp_adapters::registry::outcome(
@@ -24,7 +24,7 @@ pub(crate) fn search(cx: &Ctx<'_>, q: &OrganizationSearch) -> Outcome {
             ));
         }
         if status::reason(error) == Some(Reason::TooLarge) {
-            out.body = QueryBody::Usage(biomcp_types::UsageError::OrganizationTooBroad);
+            out.body = ReplyData::Usage(biomcp_types::UsageError::OrganizationTooBroad);
         }
         out.local = status::local(error);
     }
@@ -64,7 +64,7 @@ fn execute(
         deadline,
     )?;
     if q.pool().is_some() && !cx.fresh && saved.is_none() {
-        out.body = QueryBody::Usage(biomcp_types::UsageError::PoolError { mismatch: false });
+        out.body = ReplyData::PoolError { mismatch: false };
         out.next.push(crate::next::Step::new(
             StepKind::Restart,
             &[biomcp_types::Source::Nci],
@@ -143,16 +143,22 @@ fn page(
     out.problems = saved.problems;
     out.dropped = saved.dropped;
     status::search(out);
-    out.body = QueryBody::OrganizationPage(OrganizationPage { items });
+    out.body = ReplyData::OrganizationPage {
+        query: q.clone(),
+        body: Some(OrganizationPage { items }),
+    };
 }
-fn empty() -> Outcome {
+fn empty(q: &OrganizationSearch) -> Outcome {
     crate::status::finish(
         [crate::status::item_status(false, true, false)],
         crate::status::Parts {
             dropped: false,
-            body: QueryBody::OrganizationPage(OrganizationPage {
-                items: Box::default(),
-            }),
+            body: ReplyData::OrganizationPage {
+                query: q.clone(),
+                body: Some(OrganizationPage {
+                    items: Box::default(),
+                }),
+            },
             page: None,
             sources: Vec::new(),
             problems: Vec::new(),

@@ -4,7 +4,7 @@ use crate::{Ctx, Outcome, status};
 use biomcp_adapters::{allele_registry, mutalyzer, variantvalidator};
 use biomcp_fetch::{Deadline, RequestError, SourceSpec};
 use biomcp_types::{
-    NormalizationResult, NormalizationSource, QueryBody, Request, SourceOutcome, SourceState,
+    NormalizationResult, NormalizationSource, ReplyData, Request, SourceOutcome, SourceState,
     StepKind, VariantNormalization, VariantNormalize, VariantResolution,
 };
 type Row = (
@@ -81,9 +81,12 @@ pub(crate) fn normalize(cx: &Ctx<'_>, query: &VariantNormalize) -> Outcome {
         [status::status(states.into_iter())],
         crate::status::Parts {
             dropped: false,
-            body: QueryBody::VariantNormalization(VariantNormalization {
-                results: results.into(),
-            }),
+            body: ReplyData::VariantNormalization {
+                query: query.clone(),
+                body: Some(VariantNormalization {
+                    results: results.into(),
+                }),
+            },
             sources,
             problems,
             next,

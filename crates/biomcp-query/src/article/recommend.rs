@@ -4,14 +4,16 @@ use biodata::Text;
 use biomcp_adapters::semantic_scholar;
 use biomcp_fetch::{CacheError, Deadline, RequestError};
 use biomcp_types::{
-    ArticleRecommend, ArticleRecommendations, EvidenceNotice, QueryBody, Request, Source, Status,
+    ArticleRecommend, ArticleRecommendations, EvidenceNotice, ReplyData, Request, Source, Status,
     StepKind,
 };
 use sha2::{Digest, Sha256};
 /// Read one recommendation window without local topic filtering or ranking.
 pub(crate) fn run(cx: &Ctx<'_>, query: &ArticleRecommend) -> Outcome {
-    let mut out = super::empty();
-    out.body = QueryBody::ArticleRecommendations(body(Box::default(), false));
+    let mut out = super::empty(ReplyData::ArticleRecommendations {
+        query: query.clone(),
+        body: Some(body(Box::default(), false)),
+    });
     let command = cx.fetch.command_deadline(cx.budget);
     let mut deadline = command.deadline();
     if let Err(error) = execute(cx, query, &mut deadline, &mut out) {
@@ -64,13 +66,13 @@ fn execute<'a>(
     };
     let pool = match old {
         Some(pool) if pool.key != key.as_slice() => {
-            out.body = QueryBody::Usage(biomcp_types::UsageError::PoolError { mismatch: true });
+            out.body = ReplyData::PoolError { mismatch: true };
             restart(query, out);
             return Ok(());
         }
         Some(pool) => pool,
         None if explicit.is_some() => {
-            out.body = QueryBody::Usage(biomcp_types::UsageError::PoolError { mismatch: false });
+            out.body = ReplyData::PoolError { mismatch: false };
             restart(query, out);
             return Ok(());
         }

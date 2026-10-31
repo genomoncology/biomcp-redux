@@ -2,7 +2,7 @@ use crate::{Ctx, Outcome, store::Store};
 use biodata::StudyHeader;
 use biomcp_fetch::{BundleInfo, CacheError, Deadline, RequestError};
 use biomcp_types::{
-    PageInfo, QueryBody, Request, StepKind, StudyGet, StudyPage, StudySearch, StudySnapshot,
+    PageInfo, ReplyData, Request, StepKind, StudyGet, StudyPage, StudySearch, StudySnapshot,
 };
 type Retained = (
     Vec<StudyHeader>,
@@ -94,11 +94,14 @@ fn render(
         ));
     }
     out.page = Some(page.clone());
-    out.body = QueryBody::StudyPage(Some(StudyPage {
-        items,
-        page,
-        snapshot,
-    }));
+    out.body = ReplyData::StudyPage {
+        query: q.clone(),
+        body: Some(StudyPage {
+            items,
+            page,
+            snapshot,
+        }),
+    };
     crate::status::item(out, true, false, false);
     Ok(())
 }
@@ -113,7 +116,7 @@ fn request_key(q: &StudySearch, snapshot: &StudySnapshot) -> Result<Vec<u8>, Req
     .map_err(|_| CacheError::Database.into())
 }
 fn pool_error(cx: &Ctx<'_>, q: &StudySearch, mismatch: bool, out: &mut Outcome) {
-    out.body = QueryBody::Usage(biomcp_types::UsageError::PoolError { mismatch });
+    out.body = ReplyData::PoolError { mismatch };
     out.next.push(crate::next::Step::run(
         StepKind::Restart,
         &[biomcp_types::Source::Cbioportal],

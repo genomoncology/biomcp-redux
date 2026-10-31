@@ -2,15 +2,18 @@ use super::{empty, searched, unsupported};
 use crate::{Action, Bundle, Ctx, Outcome, status};
 use biomcp_adapters::ema;
 use biomcp_types::{
-    DrugGet, DrugPage, DrugSearch, DrugSection, PageInfo, QueryBody, Request, Section, Source,
+    DrugGet, DrugPage, DrugSearch, DrugSection, PageInfo, ReplyData, Request, Section, Source,
     SourceState, StepKind,
 };
 
 pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
-    let mut out = empty(QueryBody::DrugPage(DrugPage {
-        items: Box::default(),
-        total: None,
-    }));
+    let mut out = empty(ReplyData::DrugPage {
+        query: query.clone(),
+        body: Some(DrugPage {
+            items: Box::default(),
+            total: None,
+        }),
+    });
     let Some(name) = query.query() else {
         return super::unsupported(query.source(), out);
     };
@@ -45,9 +48,15 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
 pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     let regulatory = query.sections() == [DrugSection::Regulatory];
     let mut out = empty(if regulatory {
-        QueryBody::DrugRegulatory(None)
+        ReplyData::DrugRegulatory {
+            query: query.clone(),
+            body: None,
+        }
     } else {
-        QueryBody::DrugCard(None)
+        ReplyData::DrugCard {
+            query: query.clone(),
+            body: None,
+        }
     });
     if !matches!(query.sections(), [] | [DrugSection::Regulatory]) {
         return unsupported(query.source(), out);
@@ -61,8 +70,10 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
             out.problems.extend(body.problems);
             let body = body.value;
             let found = body.is_some();
-            out.body =
-                QueryBody::DrugRegulatory(body.map(|body| regulatory_page(query, body, &mut out)));
+            out.body = ReplyData::DrugRegulatory {
+                query: query.clone(),
+                body: body.map(|body| regulatory_page(query, body, &mut out)),
+            };
             found
         })
     } else {
@@ -85,7 +96,10 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
                 ));
             }
             let found = card.is_some();
-            out.body = QueryBody::DrugCard(card);
+            out.body = ReplyData::DrugCard {
+                query: query.clone(),
+                body: card,
+            };
             found
         })
     };

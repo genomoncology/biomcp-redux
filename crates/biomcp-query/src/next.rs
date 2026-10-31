@@ -1,6 +1,6 @@
 //! Checked follow-ups, source restrictions and response navigation policy.
 use crate::{Action, Outcome};
-use biomcp_types::{Source, StepKind};
+use biomcp_types::{ReplyData, Source, StepKind};
 
 /// One typed follow-up and the sources it would contact.
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -121,47 +121,57 @@ enum Navigation<'a> {
     BoundedPma,
 }
 
-fn navigation(body: &biomcp_types::QueryBody) -> Navigation<'_> {
-    use biomcp_types::QueryBody as Body;
+fn navigation(body: &biomcp_types::ReplyData) -> Navigation<'_> {
+    use biomcp_types::ReplyData as Body;
     match body {
-        Body::BiomarkerPage(_)
-        | Body::BiomarkerResult(_)
-        | Body::OrganizationPage(_)
-        | Body::AuthorPage(_)
-        | Body::CellLinePage(_) => Navigation::NativeOrder,
-        Body::AuthorCards(_) => Navigation::BoundedPma,
-        Body::CellLineChembl(_) | Body::CellLineAssayCount(_) => Navigation::BoundedPma,
-        Body::CellLineCard(_) => Navigation::BoundedPma,
-        Body::GwasAssociation(_)
-        | Body::GwasStudy(_)
-        | Body::GwasLoci(_)
-        | Body::GwasAncestries(_)
-        | Body::GwasPage(_)
-        | Body::PathwayEvents(_)
-        | Body::ProteinComplexes(_) => Navigation::NativeOrder,
-        Body::PathwayCard(card) => pathway_navigation(card.as_ref()),
-        Body::ProteinPage(_) => Navigation::Selectable,
-        Body::ProteinFeatures(_)
-        | Body::ProteinIsoforms(_)
-        | Body::ProteinDomains(_)
-        | Body::ProteinComplexMembers(_)
-        | Body::ProteinStructures(_)
-        | Body::ProteinSequence(_) => Navigation::Bounded,
-        Body::ProteinCard(card) => protein_navigation(card),
-        Body::StudyProfiles(_) | Body::StudySampleLists(_) | Body::StudyFiles(_) => {
-            Navigation::Bounded
+        ReplyData::BiomarkerPage { body: _, .. }
+        | ReplyData::BiomarkerResult { body: _, .. }
+        | ReplyData::OrganizationPage { body: _, .. }
+        | ReplyData::AuthorPage { body: _, .. }
+        | ReplyData::CellLinePage { body: _, .. } => Navigation::NativeOrder,
+        ReplyData::AuthorCards { body: _, .. } => Navigation::BoundedPma,
+        ReplyData::CellLineChembl { body: _, .. }
+        | ReplyData::CellLineAssayCount { body: _, .. } => Navigation::BoundedPma,
+        ReplyData::CellLineCard { body: _, .. } => Navigation::BoundedPma,
+        ReplyData::GwasAssociationCard { body: _, .. }
+        | ReplyData::GwasStudy { body: _, .. }
+        | ReplyData::GwasLoci { body: _, .. }
+        | ReplyData::GwasAncestries { body: _, .. }
+        | ReplyData::GwasPage { body: _, .. }
+        | ReplyData::PathwayEvents { body: _, .. }
+        | ReplyData::ProteinComplexes { body: _, .. } => Navigation::NativeOrder,
+        ReplyData::PathwayCard { body: card, .. } => pathway_navigation(card.as_ref()),
+        ReplyData::ProteinPage { body: _, .. } => Navigation::Selectable,
+        ReplyData::ProteinFeatures { body: _, .. }
+        | ReplyData::ProteinIsoforms { body: _, .. }
+        | ReplyData::ProteinDomains { body: _, .. }
+        | ReplyData::ProteinComplexMembers { body: _, .. }
+        | ReplyData::ProteinStructures { body: _, .. }
+        | ReplyData::ProteinSequenceResult { body: _, .. } => Navigation::Bounded,
+        ReplyData::ProteinCard {
+            body: Some(card), ..
+        } => protein_navigation(card),
+        ReplyData::StudyProfiles { body: _, .. }
+        | ReplyData::StudySampleLists { body: _, .. }
+        | ReplyData::StudyFiles { body: _, .. } => Navigation::Bounded,
+        ReplyData::PathwayPage { body: _, .. } | ReplyData::PhenotypePage { body: _, .. } => {
+            Navigation::Selectable
         }
-        Body::PathwayPage(_) | Body::PhenotypePage(_) => Navigation::Selectable,
-        Body::PhenotypeCard(_)
-        | Body::PhenotypeSynonyms(_)
-        | Body::PhenotypeXrefs(_)
-        | Body::PhenotypeHierarchy(_) => Navigation::Bounded,
-        Body::PathwayGenes(_) => Navigation::Bounded,
-        Body::PgxAnnotations(value) => pgx_navigation(value),
-        Body::VariantCard(card) => variant_navigation(card),
-        Body::DiagnosticCard(Some(biomcp_types::DiagnosticCard::PmaSubmission(_))) => {
-            Navigation::BoundedPma
-        }
+        ReplyData::PhenotypeTermCard { body: _, .. }
+        | ReplyData::PhenotypeSynonyms { body: _, .. }
+        | ReplyData::PhenotypeXrefs { body: _, .. }
+        | ReplyData::PhenotypeHierarchy { body: _, .. } => Navigation::Bounded,
+        ReplyData::PathwayGenes { body: _, .. } => Navigation::Bounded,
+        ReplyData::PgxAnnotations {
+            body: Some(value), ..
+        } => pgx_navigation(value),
+        ReplyData::VariantCard {
+            body: Some(card), ..
+        } => variant_navigation(card),
+        ReplyData::DiagnosticCard {
+            body: Some(biomcp_types::DiagnosticCard::PmaSubmission(_)),
+            ..
+        } => Navigation::BoundedPma,
         _ => bounded_navigation(body),
     }
 }
@@ -267,61 +277,99 @@ fn pgx_navigation(value: &biomcp_types::PgxAnnotations) -> Navigation<'_> {
     }
 }
 
-fn bounded_navigation(body: &biomcp_types::QueryBody) -> Navigation<'_> {
-    use biomcp_types::QueryBody as Body;
+fn bounded_navigation(body: &biomcp_types::ReplyData) -> Navigation<'_> {
+    use biomcp_types::ReplyData as Body;
     match body {
-        Body::StudyPage(_)
-        | Body::DiagnosticCompanion(_)
-        | Body::DiagnosticPage(_)
-        | Body::DiagnosticGenes(_)
-        | Body::DiagnosticSupplements(_)
-        | Body::AdverseEventPage(_)
-        | Body::DiseasePage(_)
-        | Body::PhenotypeDiseases(_)
-        | Body::PhenotypeGenes(_)
-        | Body::DiseaseGenes(_)
-        | Body::DiseasePhenotypes(_)
-        | Body::DrugPage(_)
-        | Body::DrugWhoPage(_)
-        | Body::DrugRecallCard(_)
-        | Body::DrugRecallPage(_)
-        | Body::DrugFdaPage(_)
-        | Body::DrugCivic(_)
-        | Body::VariantPage(_) => Navigation::Selectable,
-        Body::StudyCard(_) | Body::PgxPage(_) | Body::PgxCard(_) => Navigation::Bounded,
-        Body::PgxRecommendations(_) | Body::PgxGuidelines(_) => Navigation::Bounded,
-        Body::PgxDiplotype(_) => Navigation::Bounded,
-        Body::PgxAnnotation(_) | Body::DiagnosticCard(_) => Navigation::Bounded,
-        Body::DiagnosticConditions(_) | Body::DiagnosticMethods(_) => Navigation::Bounded,
-        Body::DiagnosticRegulatory(_) | Body::Usage(biomcp_types::UsageError::UnsupportedAdverseEvent) => Navigation::Bounded,
-        Body::AdverseEventFaersCard(_) | Body::AdverseEventDrugs(_) => Navigation::Bounded,
-        Body::AdverseEventReactions(_) => Navigation::Bounded,
-        Body::AdverseEventIdentifiers(_) | Body::VaersSummary(_) => Navigation::Bounded,
-        Body::AdverseEventMaudeCard(_) | Body::AdverseEventDevices(_) => Navigation::Bounded,
-        Body::AdverseEventNarrative(_) | Body::DiseaseCard(_) => Navigation::Bounded,
-        Body::DiseaseSynonyms(_) | Body::DiseaseXrefs(_) => Navigation::Bounded,
-        Body::DiseaseHierarchy(_) | Body::DiseaseSites(_) => Navigation::Bounded,
-        Body::DiseaseIncidence(_) | Body::DiseaseSurvival(_) => Navigation::Bounded,
-        Body::DrugCard(_) | Body::DrugLabel(_) | Body::DrugWhoCard(_) => Navigation::Bounded,
-        Body::DrugRegulatory(_) | Body::DrugApprovals(_) => Navigation::Bounded,
-        Body::DrugInteractions(_) | Body::DrugXrefs(_) => Navigation::Bounded,
-        Body::DrugTargets(_) | Body::DrugIndications(_) => Navigation::Bounded,
-        Body::VariantAssertions(_) | Body::VariantNormalization(_) => Navigation::Bounded,
-        Body::NciTrialPage(_) | Body::NciTrialCards(_) => Navigation::Bounded,
+        ReplyData::StudyPage { body: _, .. }
+        | ReplyData::DiagnosticCompanion { body: _, .. }
+        | ReplyData::DiagnosticPage { body: _, .. }
+        | ReplyData::DiagnosticGenes { body: _, .. }
+        | ReplyData::DiagnosticSupplements { body: _, .. }
+        | ReplyData::AdverseEventPage { body: _, .. }
+        | ReplyData::DiseasePage { body: _, .. }
+        | ReplyData::PhenotypeDiseases { body: _, .. }
+        | ReplyData::PhenotypeGenes { body: _, .. }
+        | ReplyData::DiseaseGenes { body: _, .. }
+        | ReplyData::DiseasePhenotypes { body: _, .. }
+        | ReplyData::DrugPage { body: _, .. }
+        | ReplyData::DrugWhoPage { body: _, .. }
+        | ReplyData::DrugRecallCard { body: _, .. }
+        | ReplyData::DrugRecallPage { body: _, .. }
+        | ReplyData::DrugFdaPage { body: _, .. }
+        | ReplyData::DrugCivic { body: _, .. }
+        | ReplyData::VariantPage { body: _, .. } => Navigation::Selectable,
+        ReplyData::StudyCard { body: _, .. }
+        | ReplyData::PgxPage { body: _, .. }
+        | ReplyData::PgxCard { body: _, .. } => Navigation::Bounded,
+        ReplyData::PgxRecommendations { body: _, .. }
+        | ReplyData::PgxGuidelines { body: _, .. } => Navigation::Bounded,
+        ReplyData::PgxDiplotype { body: _, .. } => Navigation::Bounded,
+        ReplyData::PgxAnnotation { body: _, .. } | ReplyData::DiagnosticCard { body: _, .. } => {
+            Navigation::Bounded
+        }
+        ReplyData::DiagnosticConditions { body: _, .. }
+        | ReplyData::DiagnosticMethods { body: _, .. } => Navigation::Bounded,
+        ReplyData::DiagnosticRegulatory { body: _, .. }
+        | Body::Usage(biomcp_types::UsageError::UnsupportedAdverseEvent) => Navigation::Bounded,
+        ReplyData::AdverseEventFaersCard { body: _, .. }
+        | ReplyData::AdverseEventDrugs { body: _, .. } => Navigation::Bounded,
+        ReplyData::AdverseEventReactions { body: _, .. } => Navigation::Bounded,
+        ReplyData::AdverseEventIdentifiers { body: _, .. }
+        | ReplyData::VaersSummary { body: _, .. } => Navigation::Bounded,
+        ReplyData::AdverseEventMaudeCard { body: _, .. }
+        | ReplyData::AdverseEventDevices { body: _, .. } => Navigation::Bounded,
+        ReplyData::AdverseEventNarrative { body: _, .. }
+        | ReplyData::DiseaseCard { body: _, .. } => Navigation::Bounded,
+        ReplyData::DiseaseSynonyms { body: _, .. } | ReplyData::DiseaseXrefs { body: _, .. } => {
+            Navigation::Bounded
+        }
+        ReplyData::DiseaseHierarchy { body: _, .. } | ReplyData::DiseaseSites { body: _, .. } => {
+            Navigation::Bounded
+        }
+        ReplyData::DiseaseIncidence { body: _, .. }
+        | ReplyData::DiseaseSurvival { body: _, .. } => Navigation::Bounded,
+        ReplyData::DrugCard { body: _, .. }
+        | ReplyData::DrugLabel { body: _, .. }
+        | ReplyData::DrugWhoCard { body: _, .. } => Navigation::Bounded,
+        ReplyData::DrugRegulatory { body: _, .. } | ReplyData::DrugApprovals { body: _, .. } => {
+            Navigation::Bounded
+        }
+        ReplyData::DrugInteractions { body: _, .. } | ReplyData::DrugXrefs { body: _, .. } => {
+            Navigation::Bounded
+        }
+        ReplyData::DrugTargets { body: _, .. } | ReplyData::DrugIndications { body: _, .. } => {
+            Navigation::Bounded
+        }
+        ReplyData::VariantAssertions { body: _, .. }
+        | ReplyData::VariantNormalization { body: _, .. } => Navigation::Bounded,
+        ReplyData::NciTrialPage { body: _, .. } | ReplyData::NciTrialCards { body: _, .. } => {
+            Navigation::Bounded
+        }
         Body::Usage(biomcp_types::UsageError::BiomarkerTooBroad)
         | Body::Usage(biomcp_types::UsageError::OrganizationTooBroad)
         | Body::Usage(biomcp_types::UsageError::UnsupportedTrialFilter { .. })
         | Body::Usage(biomcp_types::UsageError::NciDiseaseError) => Navigation::Bounded,
-        Body::Usage(biomcp_types::UsageError::VariantQueryPolicyError) | Body::VariantPopulation(_) => Navigation::Bounded,
-        Body::VariantRecurrence(_) | Body::TrialDocument(_) => Navigation::Bounded,
-        Body::TrialCards(_) | Body::TrialPage(_) | Body::ArticlePdf(_) => Navigation::Bounded,
-        Body::Usage(biomcp_types::UsageError::PdfSaveRefused(_)) | Body::Usage(biomcp_types::UsageError::ArticleSaveRefused(_)) => Navigation::Bounded,
-        Body::ArticleEvidence(_) | Body::ArticleRecommendations(_) => Navigation::Bounded,
-        Body::ArticleSupplement(_) | Body::Usage(biomcp_types::UsageError::UnsupportedFilter { .. }) => Navigation::Bounded,
-        Body::ArticleText(_) | Body::Usage(biomcp_types::UsageError::TextPositionError) => Navigation::Bounded,
-        Body::ArticleEdges(_) | Body::Usage(biomcp_types::UsageError::TooManyPmids { .. }) => Navigation::Bounded,
-        Body::ArticleCards(_) | Body::Usage(biomcp_types::UsageError::PoolError { .. }) => Navigation::Bounded,
-        Body::ArticlePage(_) | Body::GeneCards(_) | Body::GenePage(_) => Navigation::Bounded,
+        Body::Usage(biomcp_types::UsageError::VariantQueryPolicyError)
+        | ReplyData::VariantPopulationResult { body: _, .. } => Navigation::Bounded,
+        ReplyData::VariantRecurrence { body: _, .. }
+        | ReplyData::TrialDocumentResult { body: _, .. } => Navigation::Bounded,
+        ReplyData::TrialCards { body: _, .. }
+        | ReplyData::TrialPage { body: _, .. }
+        | ReplyData::ArticlePdfResult { body: _, .. } => Navigation::Bounded,
+        Body::Usage(biomcp_types::UsageError::PdfSaveRefused(_))
+        | Body::Usage(biomcp_types::UsageError::ArticleSaveRefused(_)) => Navigation::Bounded,
+        ReplyData::ArticleEvidenceResult { body: _, .. }
+        | ReplyData::ArticleRecommendations { body: _, .. } => Navigation::Bounded,
+        ReplyData::ArticleSupplementResult { body: _, .. }
+        | Body::Usage(biomcp_types::UsageError::UnsupportedFilter { .. }) => Navigation::Bounded,
+        ReplyData::ArticleTextResult { body: _, .. }
+        | Body::Usage(biomcp_types::UsageError::TextPositionError) => Navigation::Bounded,
+        ReplyData::ArticleEdgePage { body: _, .. }
+        | Body::Usage(biomcp_types::UsageError::TooManyPmids { .. }) => Navigation::Bounded,
+        ReplyData::ArticleCards { body: _, .. } | Body::PoolError { .. } => Navigation::Bounded,
+        ReplyData::ArticlePage { body: _, .. }
+        | ReplyData::GeneCards { body: _, .. }
+        | ReplyData::GenePage { body: _, .. } => Navigation::Bounded,
         _ => Navigation::Bounded,
     }
 }

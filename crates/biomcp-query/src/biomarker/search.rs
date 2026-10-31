@@ -3,12 +3,12 @@ use crate::source_snapshot as snapshot;
 use crate::{Action, Ctx, Outcome, status};
 use biomcp_adapters::nci;
 use biomcp_fetch::{Deadline, RequestError, SourceError};
-use biomcp_types::{BiomarkerPage, BiomarkerSearch, QueryBody, Reason, Request, Source, StepKind};
+use biomcp_types::{BiomarkerPage, BiomarkerSearch, Reason, ReplyData, Request, Source, StepKind};
 /// Find native biomarker concept headers without interpretation.
 pub(crate) fn search(cx: &Ctx<'_>, q: &BiomarkerSearch) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
-    let mut out = empty();
+    let mut out = empty(q);
     if let Err(error) = execute(cx, q, deadline, &mut out) {
         if out.sources.is_empty() {
             out.sources.push(biomcp_adapters::registry::outcome(
@@ -22,7 +22,7 @@ pub(crate) fn search(cx: &Ctx<'_>, q: &BiomarkerSearch) -> Outcome {
             ));
         }
         if status::reason(error) == Some(Reason::TooLarge) {
-            out.body = QueryBody::Usage(biomcp_types::UsageError::BiomarkerTooBroad);
+            out.body = ReplyData::Usage(biomcp_types::UsageError::BiomarkerTooBroad);
         }
         out.local = status::local(error);
     }
@@ -62,7 +62,7 @@ fn execute(
         deadline,
     )?;
     if q.pool().is_some() && !cx.fresh && saved.is_none() {
-        out.body = QueryBody::Usage(biomcp_types::UsageError::PoolError { mismatch: false });
+        out.body = ReplyData::PoolError { mismatch: false };
         out.next.push(crate::next::Step::new(
             StepKind::Restart,
             &[biomcp_types::Source::Nci],
@@ -161,16 +161,22 @@ fn page(
     out.problems = saved.problems;
     out.dropped = saved.dropped;
     status::search(out);
-    out.body = QueryBody::BiomarkerPage(BiomarkerPage { items });
+    out.body = ReplyData::BiomarkerPage {
+        query: q.clone(),
+        body: Some(BiomarkerPage { items }),
+    };
 }
-fn empty() -> Outcome {
+fn empty(q: &BiomarkerSearch) -> Outcome {
     crate::status::finish(
         [crate::status::item_status(false, true, false)],
         crate::status::Parts {
             dropped: false,
-            body: QueryBody::BiomarkerPage(BiomarkerPage {
-                items: Box::default(),
-            }),
+            body: ReplyData::BiomarkerPage {
+                query: q.clone(),
+                body: Some(BiomarkerPage {
+                    items: Box::default(),
+                }),
+            },
             page: None,
             sources: Vec::new(),
             problems: Vec::new(),

@@ -4,7 +4,7 @@ pub(super) use crate::status::empty;
 use crate::{Action, Bundle, Ctx, Outcome, status};
 use biomcp_adapters::cbioportal::{SPEC, studies};
 use biomcp_fetch::{Leg, RequestError};
-use biomcp_types::{QueryBody, Source, SourceState, Status, StepKind, StudySearch};
+use biomcp_types::{ReplyData, Source, SourceState, Status, StepKind, StudySearch};
 fn finish(out: &mut Outcome, leg: Leg<'_>, error: Option<RequestError>) {
     out.local = error.and_then(status::local);
     out.sources
@@ -32,7 +32,10 @@ fn finish(out: &mut Outcome, leg: Leg<'_>, error: Option<RequestError>) {
 }
 /// Search only the last accepted metadata catalog; no implicit refresh.
 pub(crate) fn search(cx: &Ctx<'_>, q: &StudySearch) -> Outcome {
-    let mut out = empty(QueryBody::StudyPage(None));
+    let mut out = empty(ReplyData::StudyPage {
+        query: q.clone(),
+        body: None,
+    });
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let leg = cx.fetch.leg(&SPEC, deadline);

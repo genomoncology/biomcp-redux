@@ -2,7 +2,7 @@ use crate::{Ctx, Outcome, status};
 use biomcp_adapters::seer;
 use biomcp_types::{
     DiseaseGet, DiseaseIncidence, DiseaseSearch, DiseaseSection, DiseaseSites, DiseaseSurvival,
-    QueryBody, Request, Source, StepKind,
+    ReplyData, Request, Source, StepKind,
 };
 
 /// Page the native site catalog without selecting an ontology identity.
@@ -12,11 +12,14 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &DiseaseSearch) -> Outcome {
     let leg = cx.fetch.leg(&seer::SPEC, deadline).fresh(cx.fresh);
     let reply = seer::catalog(&leg, query.limit(), query.offset());
     let error = reply.as_ref().err().copied();
-    let mut out = empty(QueryBody::DiseaseSites(DiseaseSites {
-        items: Box::default(),
-        components: Box::default(),
-        fetched: None,
-    }));
+    let mut out = empty(ReplyData::DiseaseSites {
+        query: query.clone(),
+        body: Some(DiseaseSites {
+            items: Box::default(),
+            components: Box::default(),
+            fetched: None,
+        }),
+    });
     out.sources
         .push(status::source(Source::Seer, leg.finish(), error));
     out.local = error.and_then(status::local);
@@ -33,11 +36,14 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &DiseaseSearch) -> Outcome {
             ));
         }
         out.problems.extend(page.problems);
-        out.body = QueryBody::DiseaseSites(DiseaseSites {
-            items: page.window.rows.into(),
-            components: Box::default(),
-            fetched: fetched(page.metadata.fetched),
-        });
+        out.body = ReplyData::DiseaseSites {
+            query: query.clone(),
+            body: Some(DiseaseSites {
+                items: page.window.rows.into(),
+                components: Box::default(),
+                fetched: fetched(page.metadata.fetched),
+            }),
+        };
         crate::status::search(&mut out);
     }
     command.finish(deadline.remaining());
@@ -47,17 +53,23 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &DiseaseSearch) -> Outcome {
 pub(crate) fn get(cx: &Ctx<'_>, query: &DiseaseGet) -> Outcome {
     let survival = query.section() == Some(DiseaseSection::Survival);
     let body = if survival {
-        QueryBody::DiseaseSurvival(DiseaseSurvival {
-            items: Box::default(),
-            components: Box::default(),
-            fetched: None,
-        })
+        ReplyData::DiseaseSurvival {
+            query: query.clone(),
+            body: Some(DiseaseSurvival {
+                items: Box::default(),
+                components: Box::default(),
+                fetched: None,
+            }),
+        }
     } else {
-        QueryBody::DiseaseIncidence(DiseaseIncidence {
-            items: Box::default(),
-            components: Box::default(),
-            fetched: None,
-        })
+        ReplyData::DiseaseIncidence {
+            query: query.clone(),
+            body: Some(DiseaseIncidence {
+                items: Box::default(),
+                components: Box::default(),
+                fetched: None,
+            }),
+        }
     };
     let mut out = empty(body);
     let Ok(selection) = seer::selection(query) else {
@@ -101,17 +113,23 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &DiseaseGet) -> Outcome {
         }
         out.problems.extend(page.problems);
         out.body = if survival {
-            QueryBody::DiseaseSurvival(DiseaseSurvival {
-                items: page.window.rows.into(),
-                components: Box::default(),
-                fetched: fetched(page.metadata.fetched),
-            })
+            ReplyData::DiseaseSurvival {
+                query: query.clone(),
+                body: Some(DiseaseSurvival {
+                    items: page.window.rows.into(),
+                    components: Box::default(),
+                    fetched: fetched(page.metadata.fetched),
+                }),
+            }
         } else {
-            QueryBody::DiseaseIncidence(DiseaseIncidence {
-                items: page.window.rows.into(),
-                components: Box::default(),
-                fetched: fetched(page.metadata.fetched),
-            })
+            ReplyData::DiseaseIncidence {
+                query: query.clone(),
+                body: Some(DiseaseIncidence {
+                    items: page.window.rows.into(),
+                    components: Box::default(),
+                    fetched: fetched(page.metadata.fetched),
+                }),
+            }
         };
         crate::status::item(&mut out, total != 0, false, false);
     }

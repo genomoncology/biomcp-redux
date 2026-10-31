@@ -9,7 +9,7 @@ use biomcp_fetch::{Leg, RequestError};
 use biomcp_types::{
     PgxCard, PgxDiplotype, PgxGet, PgxGuidelines, PgxHeader, PgxPage, PgxPageInfo,
     PgxRecommendations, PgxSearch, PgxSection, PgxSource, PgxTotalKind, Problem, ProblemCode,
-    QueryBody, Reason, Request, Source, SourceOutcome, SourceState,
+    Reason, ReplyData, Request, Source, SourceOutcome, SourceState,
 };
 /// Discover one independent native CPIC pair page.
 pub(crate) fn search(cx: &Ctx<'_>, query: &PgxSearch) -> Outcome {
@@ -24,17 +24,23 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &PgxSearch) -> Outcome {
         problems.extend(page.problems);
         consumed = page.consumed;
         let info = page_info(query.offset(), page.items.len(), page.total);
-        QueryBody::PgxPage(PgxPage {
+        ReplyData::PgxPage {
+            query: query.clone(),
+            body: Some(PgxPage {
+                header: header(query.gene()),
+                items: page.items.into(),
+                page: info,
+            }),
+        }
+    });
+    let empty = ReplyData::PgxPage {
+        query: query.clone(),
+        body: Some(PgxPage {
             header: header(query.gene()),
-            items: page.items.into(),
-            page: info,
-        })
-    });
-    let empty = QueryBody::PgxPage(PgxPage {
-        header: header(query.gene()),
-        items: Box::default(),
-        page: page_info(query.offset(), 0, 0),
-    });
+            items: Box::default(),
+            page: page_info(query.offset(), 0, 0),
+        }),
+    };
     let mut out = finish(leg, reply, empty, Source::Cpic);
     out.include_refusals(refusals);
     status::append(&mut out.problems, problems);
@@ -67,7 +73,7 @@ fn read(
     problems: &mut Vec<Problem>,
     consumed: &mut u32,
     refusals: &mut biomcp_adapters::Refusal,
-) -> Result<QueryBody, RequestError> {
+) -> Result<ReplyData, RequestError> {
     let header = header(q.gene());
     Ok(match q.section() {
         None => {
@@ -75,93 +81,120 @@ fn read(
             *consumed = page.consumed;
             refusals.include(page.refusals);
             problems.extend(page.problems);
-            QueryBody::PgxCard(
-                page.items
+            ReplyData::PgxCard {
+                query: q.clone(),
+                body: page
+                    .items
                     .into_iter()
                     .next()
                     .map(|identity| PgxCard { header, identity }),
-            )
+            }
         }
         Some(PgxSection::Recommendations) if q.drug_id().is_some() => {
             let p = cpic::drug_recommendations(leg, q)?;
             *consumed = p.consumed;
             refusals.include(p.refusals);
             problems.extend(p.problems);
-            QueryBody::PgxRecommendations(PgxRecommendations::Table {
-                header,
-                page: page_info(q.section_offset(), p.items.len(), p.total),
-                items: p.items.into(),
-            })
+            ReplyData::PgxRecommendations {
+                query: q.clone(),
+                body: Some(PgxRecommendations::Table {
+                    header,
+                    page: page_info(q.section_offset(), p.items.len(), p.total),
+                    items: p.items.into(),
+                }),
+            }
         }
         Some(PgxSection::Recommendations) => {
             let p = cpic::recommendations(leg, q)?;
             *consumed = p.consumed;
             refusals.include(p.refusals);
             problems.extend(p.problems);
-            QueryBody::PgxRecommendations(PgxRecommendations::View {
-                header,
-                page: page_info(q.section_offset(), p.items.len(), p.total),
-                items: p.items.into(),
-            })
+            ReplyData::PgxRecommendations {
+                query: q.clone(),
+                body: Some(PgxRecommendations::View {
+                    header,
+                    page: page_info(q.section_offset(), p.items.len(), p.total),
+                    items: p.items.into(),
+                }),
+            }
         }
         Some(PgxSection::Guidelines) => {
             let p = cpic::guidelines(leg, q)?;
             *consumed = p.consumed;
             refusals.include(p.refusals);
             problems.extend(p.problems);
-            QueryBody::PgxGuidelines(PgxGuidelines {
-                header,
-                page: page_info(q.section_offset(), p.items.len(), p.total),
-                items: p.items.into(),
-            })
+            ReplyData::PgxGuidelines {
+                query: q.clone(),
+                body: Some(PgxGuidelines {
+                    header,
+                    page: page_info(q.section_offset(), p.items.len(), p.total),
+                    items: p.items.into(),
+                }),
+            }
         }
         Some(PgxSection::Diplotype) => {
             let page = cpic::diplotype(leg, q)?;
             *consumed = page.consumed;
             refusals.include(page.refusals);
             problems.extend(page.problems);
-            QueryBody::PgxDiplotype(PgxDiplotype {
-                header,
-                diplotypes: page.items.into(),
-            })
+            ReplyData::PgxDiplotype {
+                query: q.clone(),
+                body: Some(PgxDiplotype {
+                    header,
+                    diplotypes: page.items.into(),
+                }),
+            }
         }
         Some(PgxSection::Annotations) => return Err(biomcp_fetch::InputError::Serialization.into()),
     })
 }
-fn empty(q: &PgxGet) -> QueryBody {
+fn empty(q: &PgxGet) -> ReplyData {
     let header = header(q.gene());
     let page = page_info(q.section_offset(), 0, 0);
     match q.section() {
-        None | Some(PgxSection::Annotations) => QueryBody::PgxCard(None),
+        None | Some(PgxSection::Annotations) => ReplyData::PgxCard {
+            query: q.clone(),
+            body: None,
+        },
         Some(PgxSection::Recommendations) if q.drug_id().is_some() => {
-            QueryBody::PgxRecommendations(PgxRecommendations::Table {
+            ReplyData::PgxRecommendations {
+                query: q.clone(),
+                body: Some(PgxRecommendations::Table {
+                    header,
+                    items: Box::default(),
+                    page,
+                }),
+            }
+        }
+        Some(PgxSection::Recommendations) => ReplyData::PgxRecommendations {
+            query: q.clone(),
+            body: Some(PgxRecommendations::View {
                 header,
                 items: Box::default(),
                 page,
-            })
-        }
-        Some(PgxSection::Recommendations) => {
-            QueryBody::PgxRecommendations(PgxRecommendations::View {
+            }),
+        },
+        Some(PgxSection::Guidelines) => ReplyData::PgxGuidelines {
+            query: q.clone(),
+            body: Some(PgxGuidelines {
                 header,
                 items: Box::default(),
                 page,
-            })
-        }
-        Some(PgxSection::Guidelines) => QueryBody::PgxGuidelines(PgxGuidelines {
-            header,
-            items: Box::default(),
-            page,
-        }),
-        Some(PgxSection::Diplotype) => QueryBody::PgxDiplotype(PgxDiplotype {
-            header,
-            diplotypes: Box::default(),
-        }),
+            }),
+        },
+        Some(PgxSection::Diplotype) => ReplyData::PgxDiplotype {
+            query: q.clone(),
+            body: Some(PgxDiplotype {
+                header,
+                diplotypes: Box::default(),
+            }),
+        },
     }
 }
 fn finish(
     leg: Leg<'_>,
-    reply: Result<QueryBody, RequestError>,
-    empty: QueryBody,
+    reply: Result<ReplyData, RequestError>,
+    empty: ReplyData,
     source: Source,
 ) -> Outcome {
     let error = reply.as_ref().err().copied();

@@ -23,7 +23,7 @@ use biodata::Text;
 use biomcp_adapters::{allele_registry, mutalyzer, myvariant, variantvalidator};
 use biomcp_fetch::{Leg, RequestError};
 use biomcp_types::{
-    QueryBody, Reason, Source, Status, VariantCard, VariantGet, VariantHeader, VariantNamespace,
+    Reason, ReplyData, Source, Status, VariantCard, VariantGet, VariantHeader, VariantNamespace,
     VariantResolution,
 };
 /// Resolve one checked input without guessing a build, allele or preferred candidate.
@@ -88,12 +88,18 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &VariantGet) -> Outcome {
         [overall(resolution, dropped || incomplete, &sources)],
         crate::status::Parts {
             dropped,
-            body: QueryBody::VariantCard(VariantCard {
-                resolution,
-                source: spec.source,
-                candidates: candidates.into(),
-                rejection,
-            }),
+            body: {
+                let body = VariantCard {
+                    resolution,
+                    source: spec.source,
+                    candidates: candidates.into(),
+                    rejection,
+                };
+                ReplyData::VariantCard {
+                    query: biomcp_types::VariantGetQuery::new(query.clone(), body.source),
+                    body: Some(body),
+                }
+            },
             page,
             sources,
             problems,

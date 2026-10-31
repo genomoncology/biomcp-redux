@@ -2,7 +2,7 @@ use super::relation::{self, Selection};
 use crate::{Ctx, Outcome, status};
 use biomcp_fetch::Deadline;
 use biomcp_types::{
-    PathwayCard, PathwayGet, PathwayHeader, PathwaySection, QueryBody, Reason, Section, Source,
+    PathwayCard, PathwayGet, PathwayHeader, PathwaySection, Reason, ReplyData, Section, Source,
 };
 pub(super) fn attach(
     cx: &Ctx<'_>,
@@ -50,20 +50,20 @@ pub(super) fn attach(
             .find_map(|s| s.reason)
             .unwrap_or(Reason::BadReply);
         match result.body {
-            QueryBody::PathwayGenes(body) => {
+            ReplyData::PathwayGenes { body: body, .. } => {
                 card.genes = Some(body.map_or_else(
                     || Section::unavailable(source, reason),
                     |data| Section::Data { source, data },
                 ))
             }
-            QueryBody::PathwayEvents(body) => {
+            ReplyData::PathwayEvents { body: body, .. } => {
                 card.events = Some(body.map_or_else(
                     || Section::unavailable(source, reason),
                     |data| Section::Data { source, data },
                 ))
             }
-            QueryBody::Usage(biomcp_types::UsageError::PoolError { mismatch }) => {
-                out.body = QueryBody::Usage(biomcp_types::UsageError::PoolError { mismatch });
+            ReplyData::PoolError { mismatch } => {
+                out.body = ReplyData::PoolError { mismatch };
                 out.next.clear();
             }
             _ => {}

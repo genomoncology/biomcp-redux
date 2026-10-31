@@ -7,7 +7,7 @@ use crate::{Action, Ctx, Outcome, status, store::Store};
 
 use biomcp_fetch::{CacheError, Deadline, RequestError};
 use biomcp_types::{
-    ArticleEvidence, ArticleEvidenceResult, CitationContexts, CitationParagraphs, QueryBody,
+    ArticleEvidence, ArticleEvidenceResult, CitationContexts, CitationParagraphs, ReplyData,
     Request, Section, Source, SourceOutcome, Status, StepKind,
 };
 use sha2::{Digest, Sha256};
@@ -43,13 +43,15 @@ impl Snapshot {
 }
 /// Keep every successful evidence part beside any independent source failure.
 pub(crate) fn run(cx: &Ctx<'_>, query: &ArticleEvidence) -> Outcome {
-    let mut out = super::empty();
-    out.body = QueryBody::ArticleEvidence(ArticleEvidenceResult {
-        semantic_scholar: Section::Empty {
-            source: Source::SemanticScholar,
-            record: None,
-        },
-        fulltext: query.fulltext().then_some(Section::NotApplicable),
+    let mut out = super::empty(ReplyData::ArticleEvidenceResult {
+        query: query.clone(),
+        body: Some(ArticleEvidenceResult {
+            semantic_scholar: Section::Empty {
+                source: Source::SemanticScholar,
+                record: None,
+            },
+            fulltext: query.fulltext().then_some(Section::NotApplicable),
+        }),
     });
     let command = cx.fetch.command_deadline(cx.budget);
     let mut deadline = command.deadline();
@@ -98,7 +100,7 @@ fn execute<'a>(
     let mut snapshot = if let Some(id) = query.pool() {
         match store.evidence(id.as_str(), &key, |source| cx.fetch.disabled(source))? {
             crate::store::EvidenceState::Missing => {
-                out.body = QueryBody::Usage(biomcp_types::UsageError::PoolError { mismatch: false });
+                out.body = ReplyData::PoolError { mismatch: false };
                 restart(query, out);
                 return Ok(());
             }

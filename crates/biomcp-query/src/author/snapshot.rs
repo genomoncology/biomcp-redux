@@ -4,7 +4,7 @@ use crate::{
 };
 use biomcp_adapters::semantic_scholar::author::Page;
 use biomcp_fetch::{CacheError, Deadline, RequestError};
-use biomcp_types::{AuthorSearch, QueryBody, Request, SourceOutcome, StepKind};
+use biomcp_types::{AuthorSearch, ReplyData, Request, SourceOutcome, StepKind};
 #[derive(Debug)]
 pub(super) struct Saved {
     pub pages: Vec<Page>,
@@ -66,7 +66,7 @@ pub(super) fn load(
     Ok(None)
 }
 fn restart(q: &AuthorSearch, out: &mut Outcome, mismatch: bool) {
-    out.body = QueryBody::Usage(biomcp_types::UsageError::PoolError { mismatch });
+    out.body = ReplyData::PoolError { mismatch };
     out.next.push(crate::next::Step::new(
         StepKind::Restart,
         &[biomcp_types::Source::SemanticScholar],

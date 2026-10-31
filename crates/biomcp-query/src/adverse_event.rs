@@ -4,7 +4,7 @@ mod vaers;
 use crate::{Ctx, Outcome, status};
 use biomcp_adapters::{faers, maude};
 use biomcp_types::{
-    AdverseEventPage, AdverseEventSearch, PageInfo, QueryBody, ReportUnit, Request, Source,
+    AdverseEventPage, AdverseEventSearch, PageInfo, ReplyData, ReportUnit, Request, Source,
     StepKind,
 };
 /// Search report headers through the declared source and its reviewed component admission.
@@ -40,17 +40,20 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &AdverseEventSearch) -> Outcome {
         [crate::status::item_status(false, true, false)],
         crate::status::Parts {
             dropped: false,
-            body: QueryBody::AdverseEventPage(AdverseEventPage {
-                reaction_match: query
-                    .reaction()
-                    .map(|_| biomcp_types::AdverseEventReactionMatch::PhraseMatch),
-                source_query: selector.into_boxed_str(),
-                source_updated: None,
-                fetched: None,
-                items: Box::default(),
-                unit: ReportUnit::Reports,
-                components: Box::default(),
-            }),
+            body: ReplyData::AdverseEventPage {
+                query: query.clone(),
+                body: Some(AdverseEventPage {
+                    reaction_match: query
+                        .reaction()
+                        .map(|_| biomcp_types::AdverseEventReactionMatch::PhraseMatch),
+                    source_query: selector.into_boxed_str(),
+                    source_updated: None,
+                    fetched: None,
+                    items: Box::default(),
+                    unit: ReportUnit::Reports,
+                    components: Box::default(),
+                }),
+            },
             page: None,
             sources: vec![status::source(source, leg.finish(), error)],
             problems: Vec::new(),
@@ -71,7 +74,10 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &AdverseEventSearch) -> Outcome {
             truncated: None,
         });
         crate::status::search(&mut out);
-        if let QueryBody::AdverseEventPage(body) = &mut out.body {
+        if let ReplyData::AdverseEventPage {
+            body: Some(body), ..
+        } = &mut out.body
+        {
             body.items = page.items.into();
             body.components = page.components;
             body.source_updated = page.updated.map(Into::into);
@@ -87,7 +93,9 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &AdverseEventSearch) -> Outcome {
 
 /// An unimplemented report get has no source effects until its owning slice lands.
 pub(crate) fn unsupported() -> Outcome {
-    crate::status::empty(QueryBody::Usage(biomcp_types::UsageError::UnsupportedAdverseEvent))
+    crate::status::empty(ReplyData::Usage(
+        biomcp_types::UsageError::UnsupportedAdverseEvent,
+    ))
 }
 
 fn navigation(query: &AdverseEventSearch, page: &faers::Page, out: &mut Outcome) {

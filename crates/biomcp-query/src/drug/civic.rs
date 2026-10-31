@@ -2,15 +2,18 @@
 use crate::{Ctx, Outcome, status};
 use biomcp_adapters::civic;
 use biomcp_types::{
-    DrugGet, DrugPage, DrugSearch, DrugSection, DrugSource, PageInfo, QueryBody, Request, Source,
+    DrugGet, DrugPage, DrugSearch, DrugSection, DrugSource, PageInfo, ReplyData, Request, Source,
     StepKind,
 };
 
 pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
-    let mut out = super::empty(QueryBody::DrugPage(DrugPage {
-        items: Box::default(),
-        total: None,
-    }));
+    let mut out = super::empty(ReplyData::DrugPage {
+        query: query.clone(),
+        body: Some(DrugPage {
+            items: Box::default(),
+            total: None,
+        }),
+    });
     let Some(name) = query.query() else {
         return super::unsupported(query.source(), out);
     };
@@ -69,7 +72,10 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
                 cx.fresh,
             ));
         }
-        out.body = QueryBody::DrugPage(page);
+        out.body = ReplyData::DrugPage {
+            query: query.clone(),
+            body: Some(page),
+        };
     }
     status::search(&mut out);
     command.finish(deadline.remaining());
@@ -77,7 +83,10 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
 }
 
 pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
-    let mut out = super::empty(QueryBody::DrugCivic(None));
+    let mut out = super::empty(ReplyData::DrugCivic {
+        query: query.clone(),
+        body: None,
+    });
     if !matches!(query.sections(), [DrugSection::Civic]) {
         return super::unsupported(query.source(), out);
     }
@@ -111,7 +120,10 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
         }
         super::next::civic(cx.fetch, &mut value, cx.fresh, &mut out);
         crate::status::item(&mut out, true, false, false);
-        out.body = QueryBody::DrugCivic(Some(value));
+        out.body = ReplyData::DrugCivic {
+            query: query.clone(),
+            body: Some(value),
+        };
     }
     command.finish(deadline.remaining());
     out

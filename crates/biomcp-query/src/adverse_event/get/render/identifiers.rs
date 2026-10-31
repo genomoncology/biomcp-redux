@@ -1,4 +1,4 @@
-use super::{QueryBody, S, page};
+use super::{ReplyData, S, page};
 use crate::Outcome;
 use biodata::{FaersDrug, FaersIdentifiers, Text};
 use biomcp_fetch::RequestError;
@@ -44,13 +44,16 @@ pub(super) fn render(
         .drug_index()
         .ok_or(biomcp_fetch::InputError::Serialization)?;
     let Some(drug) = drug else {
-        out.body = QueryBody::Usage(biomcp_types::UsageError::TextPositionError);
+        out.body = ReplyData::Usage(biomcp_types::UsageError::TextPositionError);
         return Ok(());
     };
     let array = drug.openfda.as_ref().and_then(|v| values(v, section));
     let Some(array) = array else {
         crate::status::item(out, false, false, false);
-        out.body = QueryBody::AdverseEventIdentifiers(None);
+        out.body = ReplyData::AdverseEventIdentifiers {
+            query: q.clone(),
+            body: None,
+        };
         return Ok(());
     };
     let total = array.len() as u64;
@@ -61,7 +64,7 @@ pub(super) fn render(
         .cloned()
         .collect();
     page(
-        q,
+        &q.with_snapshot(snapshot.clone()),
         q.section_offset().saturating_add(records.len() as u32),
         total,
         out,
@@ -117,6 +120,9 @@ pub(super) fn render(
         },
         _ => return Err(biomcp_fetch::InputError::Serialization.into()),
     };
-    out.body = QueryBody::AdverseEventIdentifiers(Some(result));
+    out.body = ReplyData::AdverseEventIdentifiers {
+        query: q.clone(),
+        body: Some(result),
+    };
     Ok(())
 }

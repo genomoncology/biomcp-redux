@@ -4,7 +4,7 @@ use biodata::GtrTestRelation;
 use biomcp_adapters::gtr;
 use biomcp_types::{
     DiagnosticCard, DiagnosticConditions, DiagnosticGenes, DiagnosticGet, DiagnosticGetSource,
-    DiagnosticMethods, DiagnosticSection, PageInfo, QueryBody, Request, Source, StepKind,
+    DiagnosticMethods, DiagnosticSection, PageInfo, ReplyData, Request, Source, StepKind,
 };
 use std::collections::BTreeSet;
 /// Read one exact GTR test or its independently paged native relations.
@@ -21,7 +21,10 @@ pub(crate) fn get(cx: &Ctx<'_>, q: &DiagnosticGet) -> Outcome {
     if q.source() == DiagnosticGetSource::FdaPma {
         return super::pma::get(cx, q);
     }
-    let mut out = empty(QueryBody::DiagnosticCard(None));
+    let mut out = empty(ReplyData::DiagnosticCard {
+        query: q.clone(),
+        body: None,
+    });
     if q.source() != DiagnosticGetSource::Gtr {
         return unsupported(
             if q.source() == DiagnosticGetSource::WhoIvd {
@@ -85,9 +88,10 @@ fn selected(out: &mut Outcome, q: &DiagnosticGet, record: gtr::Record, fresh: bo
                     }
                 }
             }
-            out.body = QueryBody::DiagnosticCard(
-                record.card.map(|v| DiagnosticCard::GtrTest(Box::new(v))),
-            );
+            out.body = ReplyData::DiagnosticCard {
+                query: q.clone(),
+                body: record.card.map(|v| DiagnosticCard::GtrTest(Box::new(v))),
+            };
         }
         Some(DiagnosticSection::Genes) => genes(out, q, record.relations, fresh),
         Some(DiagnosticSection::Conditions) => conditions(out, q, record.relations, fresh),
@@ -100,11 +104,14 @@ fn selected(out: &mut Outcome, q: &DiagnosticGet, record: gtr::Record, fresh: bo
                 .take(q.section_limit() as usize)
                 .collect::<Box<[_]>>();
             page(out, q, items.len(), total, fresh);
-            out.body = QueryBody::DiagnosticMethods(DiagnosticMethods {
-                items,
-                count_unit: Some(biomcp_types::DiagnosticCountUnit::NativeMethodEntries),
-                distinct_id_total: None,
-            });
+            out.body = ReplyData::DiagnosticMethods {
+                query: q.clone(),
+                body: Some(DiagnosticMethods {
+                    items,
+                    count_unit: Some(biomcp_types::DiagnosticCountUnit::NativeMethodEntries),
+                    distinct_id_total: None,
+                }),
+            };
         }
         _ => {}
     }
@@ -177,11 +184,14 @@ fn genes(out: &mut Outcome, q: &DiagnosticGet, relations: Vec<GtrTestRelation>, 
         }
     }
     page(out, q, items.len(), total, fresh);
-    out.body = QueryBody::DiagnosticGenes(DiagnosticGenes {
-        items,
-        count_unit: Some(biomcp_types::DiagnosticCountUnit::NativeRelationRows),
-        distinct_id_total,
-    });
+    out.body = ReplyData::DiagnosticGenes {
+        query: q.clone(),
+        body: Some(DiagnosticGenes {
+            items,
+            count_unit: Some(biomcp_types::DiagnosticCountUnit::NativeRelationRows),
+            distinct_id_total,
+        }),
+    };
 }
 
 fn conditions(out: &mut Outcome, q: &DiagnosticGet, relations: Vec<GtrTestRelation>, fresh: bool) {
@@ -208,9 +218,12 @@ fn conditions(out: &mut Outcome, q: &DiagnosticGet, relations: Vec<GtrTestRelati
         .take(q.section_limit() as usize)
         .collect::<Box<[_]>>();
     page(out, q, items.len(), total, fresh);
-    out.body = QueryBody::DiagnosticConditions(DiagnosticConditions {
-        items,
-        count_unit: Some(biomcp_types::DiagnosticCountUnit::NativeRelationRows),
-        distinct_id_total,
-    });
+    out.body = ReplyData::DiagnosticConditions {
+        query: q.clone(),
+        body: Some(DiagnosticConditions {
+            items,
+            count_unit: Some(biomcp_types::DiagnosticCountUnit::NativeRelationRows),
+            distinct_id_total,
+        }),
+    };
 }

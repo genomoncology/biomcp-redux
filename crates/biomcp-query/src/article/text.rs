@@ -7,7 +7,7 @@ use biomcp_adapters::{europepmc, jats, pmc_oa, pubmed};
 use biomcp_fetch::{Deadline, RequestError};
 use biomcp_types::ArticleInput;
 use biomcp_types::{
-    ArticleText, ArticleTextResult, PageInfo, QueryBody, Reason, Request, Section, Source,
+    ArticleText, ArticleTextResult, PageInfo, Reason, ReplyData, Request, Section, Source,
     StepKind, TextContent, TextHit,
 };
 /// Read a bounded part or find page through the same transport and command budget.
@@ -19,12 +19,15 @@ pub fn download(cx: &Ctx<'_>, query: &ArticleText, allow: bool) -> super::save::
     let mut save = super::save::State::new(allow);
     let command = cx.fetch.command_deadline(cx.budget);
     let mut deadline = command.deadline();
-    let mut out = crate::status::ready(QueryBody::ArticleText(ArticleTextResult {
-        pmcid: None,
-        content: Section::NotApplicable,
-    }));
+    let mut out = crate::status::ready(ReplyData::ArticleTextResult {
+        query: query.clone(),
+        body: Some(ArticleTextResult {
+            pmcid: None,
+            content: Section::NotApplicable,
+        }),
+    });
     let Ok(selection) = super::protein_change::Selection::new(query.find(), query.variant()) else {
-        out.body = QueryBody::Usage(biomcp_types::UsageError::TextPositionError);
+        out.body = ReplyData::Usage(biomcp_types::UsageError::TextPositionError);
         return super::save::Download { out, file: None };
     };
     let result = execute(cx, query, &selection, &mut deadline, &mut out, &mut save);
@@ -32,7 +35,10 @@ pub fn download(cx: &Ctx<'_>, query: &ArticleText, allow: bool) -> super::save::
     if let Err(error) = result {
         out.local = out.local.or(status::local(error));
         crate::status::item(&mut out, false, true, false);
-        if let QueryBody::ArticleText(body) = &mut out.body {
+        if let ReplyData::ArticleTextResult {
+            body: Some(body), ..
+        } = &mut out.body
+        {
             let default_source = if matches!(query.input(), ArticleInput::EuropePmc(_)) {
                 Source::EuropePmc
             } else {
@@ -142,7 +148,7 @@ fn execute<'a>(
                 out,
                 save,
             ) else {
-                out.body = QueryBody::Usage(biomcp_types::UsageError::TextPositionError);
+                out.body = ReplyData::Usage(biomcp_types::UsageError::TextPositionError);
                 return Ok(());
             };
             Section::Data {
@@ -151,10 +157,13 @@ fn execute<'a>(
             }
         }
     };
-    out.body = QueryBody::ArticleText(ArticleTextResult {
-        pmcid: Some(id),
-        content,
-    });
+    out.body = ReplyData::ArticleTextResult {
+        query: query.clone(),
+        body: Some(ArticleTextResult {
+            pmcid: Some(id),
+            content,
+        }),
+    };
     Ok(())
 }
 fn select(
@@ -341,10 +350,13 @@ fn preprint<'a>(
     out.include_refusals(mapped.refusals);
     out.problems.extend(mapped.problems);
     let Some(document) = mapped.value else {
-        out.body = QueryBody::ArticleText(ArticleTextResult {
-            pmcid: None,
-            content: Section::unavailable(Source::EuropePmc, Reason::NotOpen),
-        });
+        out.body = ReplyData::ArticleTextResult {
+            query: query.clone(),
+            body: Some(ArticleTextResult {
+                pmcid: None,
+                content: Section::unavailable(Source::EuropePmc, Reason::NotOpen),
+            }),
+        };
         return Ok(());
     };
     let Some(content) = select(
@@ -355,15 +367,18 @@ fn preprint<'a>(
         out,
         save,
     ) else {
-        out.body = QueryBody::Usage(biomcp_types::UsageError::TextPositionError);
+        out.body = ReplyData::Usage(biomcp_types::UsageError::TextPositionError);
         return Ok(());
     };
-    out.body = QueryBody::ArticleText(ArticleTextResult {
-        pmcid: None,
-        content: Section::Data {
-            source: Source::EuropePmc,
-            data: content,
-        },
-    });
+    out.body = ReplyData::ArticleTextResult {
+        query: query.clone(),
+        body: Some(ArticleTextResult {
+            pmcid: None,
+            content: Section::Data {
+                source: Source::EuropePmc,
+                data: content,
+            },
+        }),
+    };
     Ok(())
 }

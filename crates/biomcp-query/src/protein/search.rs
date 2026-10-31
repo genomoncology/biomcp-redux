@@ -8,7 +8,7 @@ use biodata::Text;
 use biomcp_adapters::uniprot;
 use biomcp_fetch::{CacheError, Deadline, RequestError};
 use biomcp_types::{
-    PageInfo, ProteinPage, ProteinSearch, QueryBody, Request, Source, SourceOutcome, Status,
+    PageInfo, ProteinPage, ProteinSearch, ReplyData, Request, Source, SourceOutcome, Status,
     StepKind,
 };
 use sha2::{Digest, Sha256};
@@ -48,9 +48,12 @@ struct Loaded {
 pub(crate) fn search(cx: &Ctx<'_>, q: &ProteinSearch) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
-    let mut out = super::empty(QueryBody::ProteinPage(ProteinPage {
-        items: Box::default(),
-    }));
+    let mut out = super::empty(ReplyData::ProteinPage {
+        query: q.clone(),
+        body: Some(ProteinPage {
+            items: Box::default(),
+        }),
+    });
     if let Err(error) = read(cx, q, deadline, &mut out) {
         out.local = status::local(error);
         out.next.push(crate::next::Step::run(
@@ -72,7 +75,7 @@ fn key(q: &ProteinSearch) -> Vec<u8> {
     .to_vec()
 }
 fn restart(q: &ProteinSearch, out: &mut Outcome, mismatch: bool) {
-    out.body = QueryBody::Usage(biomcp_types::UsageError::PoolError { mismatch });
+    out.body = ReplyData::PoolError { mismatch };
     out.next.push(crate::next::Step::run(
         StepKind::Restart,
         &[biomcp_types::Source::UniProt],
@@ -265,5 +268,8 @@ fn render(
         pool: Some(info),
         truncated: Some(saved.page.cursor.is_some()),
     });
-    out.body = QueryBody::ProteinPage(ProteinPage { items: rows.into() });
+    out.body = ReplyData::ProteinPage {
+        query: q.clone(),
+        body: Some(ProteinPage { items: rows.into() }),
+    };
 }

@@ -4,23 +4,26 @@ mod page;
 use crate::{Action, Ctx, Outcome, status};
 use biodata::Text;
 use biomcp_adapters::nci;
-use biomcp_types::{NciTrialPage, QueryBody, Reason, Request, Source, StepKind, TrialSearch};
+use biomcp_types::{NciTrialPage, Reason, ReplyData, Request, Source, StepKind, TrialSearch};
 pub(super) use get::run as get;
 const ATTRIBUTION: &str =
     "NCI Clinical Trials Search; source-native fields, no eligibility assessment";
 pub(super) fn search(cx: &Ctx<'_>, q: &TrialSearch) -> Outcome {
-    let mut out = empty(QueryBody::NciTrialPage(NciTrialPage {
-        items: Box::default(),
-        request: Box::default(),
-        condition_resolution: None,
-        attribution: ATTRIBUTION.into(),
-    }));
+    let mut out = empty(ReplyData::NciTrialPage {
+        query: q.clone(),
+        body: Some(NciTrialPage {
+            items: Box::default(),
+            request: Box::default(),
+            condition_resolution: None,
+            attribution: ATTRIBUTION.into(),
+        }),
+    });
     if q.nci_disease_invalid() {
-        out.body = QueryBody::Usage(biomcp_types::UsageError::NciDiseaseError);
+        out.body = ReplyData::Usage(biomcp_types::UsageError::NciDiseaseError);
         return out;
     }
     if let Some(option) = q.unsupported() {
-        out.body = QueryBody::Usage(biomcp_types::UsageError::UnsupportedTrialFilter {
+        out.body = ReplyData::Usage(biomcp_types::UsageError::UnsupportedTrialFilter {
             source: Source::Nci,
             option,
         });
@@ -30,7 +33,7 @@ pub(super) fn search(cx: &Ctx<'_>, q: &TrialSearch) -> Outcome {
         || q.next_page()
             .is_some_and(|p| p.as_str().parse::<u32>().is_err())
     {
-        out.body = QueryBody::Usage(biomcp_types::UsageError::TextPositionError);
+        out.body = ReplyData::Usage(biomcp_types::UsageError::TextPositionError);
         return out;
     }
     let command = cx.fetch.command_deadline(cx.budget);
@@ -50,7 +53,10 @@ pub(super) fn search(cx: &Ctx<'_>, q: &TrialSearch) -> Outcome {
             ),
         );
     }
-    if let QueryBody::NciTrialPage(body) = &mut out.body {
+    if let ReplyData::NciTrialPage {
+        body: Some(body), ..
+    } = &mut out.body
+    {
         body.request = params
             .iter()
             .map(|(name, value)| biomcp_types::TrialParameter {
@@ -132,7 +138,9 @@ fn apply(
             ));
         }
     }
-    if let QueryBody::NciTrialPage(body) = &mut out.body
+    if let ReplyData::NciTrialPage {
+        body: Some(body), ..
+    } = &mut out.body
         && !q.count_only()
     {
         body.items = page

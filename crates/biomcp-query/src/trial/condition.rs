@@ -3,7 +3,7 @@ use crate::{Ctx, Outcome, status};
 use biodata::{Curie, Text};
 use biomcp_adapters::mydisease;
 use biomcp_fetch::Deadline;
-use biomcp_types::{QueryBody, Source, TrialConditionResolution, TrialSearch, TrialSource};
+use biomcp_types::{ReplyData, Source, TrialConditionResolution, TrialSearch, TrialSource};
 
 pub(super) fn resolve<'a>(
     cx: &Ctx<'a>,
@@ -113,8 +113,12 @@ fn ncit_code(id: &Curie) -> Option<String> {
 }
 fn assign(out: &mut Outcome, resolution: TrialConditionResolution) {
     match &mut out.body {
-        QueryBody::TrialPage(page) => page.condition_resolution = Some(resolution),
-        QueryBody::NciTrialPage(page) => page.condition_resolution = Some(resolution),
+        ReplyData::TrialPage {
+            body: Some(page), ..
+        } => page.condition_resolution = Some(resolution),
+        ReplyData::NciTrialPage {
+            body: Some(page), ..
+        } => page.condition_resolution = Some(resolution),
         _ => (),
     }
 }

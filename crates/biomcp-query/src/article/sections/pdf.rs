@@ -5,12 +5,15 @@ use biomcp_adapters::semantic_scholar;
 use biomcp_fetch::{Deadline, RequestError, SourceError};
 use biomcp_types::ArticleInput;
 use biomcp_types::{
-    ArticlePdf, ArticleResolution, OpenAccessStatus, PdfLink, QueryBody, Reason, Request, Section,
+    ArticlePdf, ArticleResolution, OpenAccessStatus, PdfLink, Reason, ReplyData, Request, Section,
     Source, StepKind,
 };
 
 pub(super) fn run<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut Outcome) {
-    let QueryBody::ArticleCards(cards) = &out.body else {
+    let ReplyData::ArticleCards {
+        body: Some(cards), ..
+    } = &out.body
+    else {
         return;
     };
     let inputs: Vec<_> = cards
@@ -57,7 +60,10 @@ pub(super) fn run<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut Outco
                 ));
             }
         }
-        let QueryBody::ArticleCards(cards) = &mut out.body else {
+        let ReplyData::ArticleCards {
+            body: Some(cards), ..
+        } = &mut out.body
+        else {
             return;
         };
         if let Some(item) = cards.items.get_mut(index) {
@@ -69,7 +75,10 @@ pub(super) fn run<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut Outco
             }
         }
     }
-    if let QueryBody::ArticleCards(cards) = &out.body {
+    if let ReplyData::ArticleCards {
+        body: Some(cards), ..
+    } = &out.body
+    {
         let state = status::status(cards.items.iter().map(|i| i.status));
         status::get(out, [state].into_iter());
     }

@@ -4,15 +4,18 @@ use crate::{Ctx, Outcome, status};
 use biomcp_adapters::fda_drug_recall as source;
 use biomcp_fetch::{Leg, RequestError};
 use biomcp_types::{
-    DrugGet, DrugRecallPage, DrugSearch, DrugSource, PageInfo, QueryBody, Request, Source,
+    DrugGet, DrugRecallPage, DrugSearch, DrugSource, PageInfo, ReplyData, Request, Source,
     SourceState, Status, StepKind,
 };
 pub(super) fn search(cx: &Ctx<'_>, q: &DrugSearch) -> Outcome {
-    let mut out = empty(QueryBody::DrugRecallPage(DrugRecallPage {
-        count_unit: biomcp_types::DrugRecallCountUnit::RecallRecords,
-        items: Box::default(),
-        total: 0,
-    }));
+    let mut out = empty(ReplyData::DrugRecallPage {
+        query: q.clone(),
+        body: Some(DrugRecallPage {
+            count_unit: biomcp_types::DrugRecallCountUnit::RecallRecords,
+            items: Box::default(),
+            total: 0,
+        }),
+    });
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let leg = cx.fetch.leg(&source::SPEC, deadline).fresh(cx.fresh);
@@ -62,11 +65,14 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DrugSearch) -> Outcome {
             pool: None,
             truncated: None,
         });
-        out.body = QueryBody::DrugRecallPage(DrugRecallPage {
-            count_unit: biomcp_types::DrugRecallCountUnit::RecallRecords,
-            items: page.items,
-            total: page.total,
-        });
+        out.body = ReplyData::DrugRecallPage {
+            query: q.clone(),
+            body: Some(DrugRecallPage {
+                count_unit: biomcp_types::DrugRecallCountUnit::RecallRecords,
+                items: page.items,
+                total: page.total,
+            }),
+        };
     }
     finish(&mut out, leg, error);
     status::search(&mut out);
@@ -74,7 +80,10 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DrugSearch) -> Outcome {
     out
 }
 pub(super) fn get(cx: &Ctx<'_>, q: &DrugGet) -> Outcome {
-    let mut out = empty(QueryBody::DrugRecallCard(None));
+    let mut out = empty(ReplyData::DrugRecallCard {
+        query: q.clone(),
+        body: None,
+    });
     let Ok(id) = q.input().to_string().parse() else {
         return out;
     };
@@ -87,7 +96,10 @@ pub(super) fn get(cx: &Ctx<'_>, q: &DrugGet) -> Outcome {
             crate::status::item(&mut out, true, false, false);
             out.include_refusals(row.refusals);
             out.problems = row.problems;
-            out.body = QueryBody::DrugRecallCard(Some(row.value));
+            out.body = ReplyData::DrugRecallCard {
+                query: q.clone(),
+                body: Some(row.value),
+            };
         }
         Ok(None) => crate::status::item(&mut out, false, false, false),
         Err(failure) => {

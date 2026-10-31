@@ -4,7 +4,7 @@ use biodata::Text;
 use biomcp_adapters::{hgnc, mygene};
 use biomcp_types::GeneResolution;
 use biomcp_types::{
-    GeneCards, GeneGet, GeneItem, Problem, ProblemCode, QueryBody, Source, SourceState, Status,
+    GeneCards, GeneGet, GeneItem, Problem, ProblemCode, ReplyData, Source, SourceState, Status,
 };
 
 pub(crate) fn get(cx: &Ctx<'_>, query: &GeneGet) -> Outcome {
@@ -68,9 +68,12 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &GeneGet) -> Outcome {
         [state],
         crate::status::Parts {
             dropped: false,
-            body: QueryBody::GeneCards(GeneCards {
-                items: items.into(),
-            }),
+            body: ReplyData::GeneCards {
+                query: query.clone(),
+                body: Some(GeneCards {
+                    items: items.into(),
+                }),
+            },
             page: None,
             sources,
             problems,

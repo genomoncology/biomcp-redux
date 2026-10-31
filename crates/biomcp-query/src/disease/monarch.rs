@@ -2,7 +2,7 @@ use super::page::{empty, page_info, run};
 use crate::{Ctx, Outcome, status};
 use biomcp_adapters::monarch;
 use biomcp_types::{
-    DiseaseGenes, DiseaseGet, DiseasePhenotypes, DiseaseSection, GeneGet, GeneInput, QueryBody,
+    DiseaseGenes, DiseaseGet, DiseasePhenotypes, DiseaseSection, GeneGet, GeneInput, ReplyData,
     Request, Source, StepKind,
 };
 /// Read one native association page without identity choice or cross-source joins.
@@ -58,19 +58,25 @@ fn body(
     items: Vec<biomcp_types::DiseaseAssociationItem>,
     components: Box<[biomcp_types::ComponentLabel]>,
     fetched: Option<u64>,
-) -> QueryBody {
+) -> ReplyData {
     if query.section() == Some(DiseaseSection::Genes) {
-        QueryBody::DiseaseGenes(DiseaseGenes {
-            items: items.into(),
-            components,
-            fetched,
-        })
+        ReplyData::DiseaseGenes {
+            query: query.clone(),
+            body: Some(DiseaseGenes {
+                items: items.into(),
+                components,
+                fetched,
+            }),
+        }
     } else {
-        QueryBody::DiseasePhenotypes(DiseasePhenotypes {
-            items: items.into(),
-            components,
-            fetched,
-        })
+        ReplyData::DiseasePhenotypes {
+            query: query.clone(),
+            body: Some(DiseasePhenotypes {
+                items: items.into(),
+                components,
+                fetched,
+            }),
+        }
     }
 }
 fn gene_steps(out: &mut Outcome, items: &[biomcp_types::DiseaseAssociationItem]) {

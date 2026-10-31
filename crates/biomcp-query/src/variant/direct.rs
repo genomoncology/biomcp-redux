@@ -3,7 +3,7 @@ use crate::{Ctx, Outcome};
 use biodata::Variant;
 use biomcp_fetch::Deadline;
 use biomcp_types::{
-    QueryBody, Source, VariantCard, VariantGet, VariantHeader, VariantNamespace, VariantResolution,
+    ReplyData, Source, VariantCard, VariantGet, VariantHeader, VariantNamespace, VariantResolution,
     VariantSection,
 };
 pub(super) fn source(fetch: &biomcp_fetch::Fetch, query: &VariantGet) -> Option<Source> {
@@ -114,12 +114,18 @@ pub(super) fn get(
         [status],
         crate::status::Parts {
             dropped: false,
-            body: QueryBody::VariantCard(VariantCard {
-                resolution: VariantResolution::Unresolved,
-                source,
-                candidates: candidates.into(),
-                rejection: None,
-            }),
+            body: {
+                let body = VariantCard {
+                    resolution: VariantResolution::Unresolved,
+                    source,
+                    candidates: candidates.into(),
+                    rejection: None,
+                };
+                ReplyData::VariantCard {
+                    query: biomcp_types::VariantGetQuery::new(query.clone(), body.source),
+                    body: Some(body),
+                }
+            },
             page: None,
             sources: sources.clone(),
             problems,

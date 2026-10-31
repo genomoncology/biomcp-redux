@@ -12,17 +12,24 @@ pub fn decode_query<T: CheckedQuery>(value: Value) -> Result<T, QueryInvalid> {
     T::from_fields(serde::de::value::MapAccessDeserializer::new(Fields {
         fields: fields.into_iter(),
         pending: None,
-        message,
-    })).map_err(|cause| {
+        invalid_field: T::invalid_field,
+    }))
+    .map_err(|cause| {
         if cause.message().is_none() {
-            if let Some(message) = message { cause.with_message(message) } else { cause }
-        } else { cause }
+            if let Some(message) = message {
+                cause.with_message(message)
+            } else {
+                cause
+            }
+        } else {
+            cause
+        }
     })
 }
 struct Fields {
     fields: serde_json::map::IntoIter,
     pending: Option<(String, Value)>,
-    message: Option<crate::ErrorMessage>,
+    invalid_field: fn(&str) -> QueryInvalid,
 }
 impl<'de> MapAccess<'de> for Fields {
     type Error = QueryInvalid;
@@ -42,12 +49,6 @@ impl<'de> MapAccess<'de> for Fields {
     ) -> Result<V::Value, Self::Error> {
         let (key, value) = self.pending.take().ok_or_else(QueryInvalid::default)?;
         seed.deserialize(value)
-            .map_err(|_| {
-                let cause = QueryInvalid::new(&[&key]);
-                if key == "p_value" && self.message == Some(crate::ErrorMessage::GwasSearchArguments) {
-                    cause.with_message(crate::ErrorMessage::GwasPositiveThreshold)
-                } else { cause }
-            })
+            .map_err(|_| (self.invalid_field)(&key))
     }
 }
-

@@ -1,11 +1,14 @@
 use crate::{Ctx, Outcome, status};
 use biomcp_adapters::fda_510k;
 use biomcp_types::{
-    DiagnosticCard, DiagnosticGet, DiagnosticSearch, Problem, ProblemCode, QueryBody, Request,
+    DiagnosticCard, DiagnosticGet, DiagnosticSearch, Problem, ProblemCode, ReplyData, Request,
     Source, SourceState, Status, StepKind,
 };
 pub(super) fn get(cx: &Ctx<'_>, q: &DiagnosticGet) -> Outcome {
-    let mut out = super::empty(QueryBody::DiagnosticCard(None));
+    let mut out = super::empty(ReplyData::DiagnosticCard {
+        query: q.clone(),
+        body: None,
+    });
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let leg = cx.fetch.leg(&fda_510k::SPEC, deadline).fresh(cx.fresh);
@@ -45,7 +48,10 @@ pub(super) fn get(cx: &Ctx<'_>, q: &DiagnosticGet) -> Outcome {
                     );
                 }
             }
-            out.body = QueryBody::DiagnosticCard(card.map(DiagnosticCard::Clearance));
+            out.body = ReplyData::DiagnosticCard {
+                query: q.clone(),
+                body: card.map(DiagnosticCard::Clearance),
+            };
             None
         }
         Err(failure) => {

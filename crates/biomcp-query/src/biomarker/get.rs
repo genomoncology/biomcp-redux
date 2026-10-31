@@ -1,7 +1,7 @@
 //! Exact NCIt lookups keep multiple native rows as candidates.
 use crate::{Action, Ctx, Outcome, status};
 use biomcp_adapters::nci;
-use biomcp_types::{BiomarkerGet, BiomarkerResult, QueryBody, Reason, Source, StepKind};
+use biomcp_types::{BiomarkerGet, BiomarkerResult, Reason, ReplyData, Source, StepKind};
 /// Read every native row attached to one exact code.
 pub(crate) fn get(cx: &Ctx<'_>, q: &BiomarkerGet) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
@@ -14,10 +14,13 @@ pub(crate) fn get(cx: &Ctx<'_>, q: &BiomarkerGet) -> Outcome {
         [crate::status::item_status(false, true, false)],
         crate::status::Parts {
             dropped: false,
-            body: QueryBody::BiomarkerResult(BiomarkerResult {
-                card: None,
-                candidates: Box::default(),
-            }),
+            body: ReplyData::BiomarkerResult {
+                query: q.clone(),
+                body: Some(BiomarkerResult {
+                    card: None,
+                    candidates: Box::default(),
+                }),
+            },
             page: None,
             sources: vec![source],
             problems: Vec::new(),
@@ -27,7 +30,7 @@ pub(crate) fn get(cx: &Ctx<'_>, q: &BiomarkerGet) -> Outcome {
     );
     if let Some(error) = error {
         if status::reason(error) == Some(Reason::TooLarge) {
-            out.body = QueryBody::Usage(biomcp_types::UsageError::BiomarkerTooBroad);
+            out.body = ReplyData::Usage(biomcp_types::UsageError::BiomarkerTooBroad);
         }
         if status::reason(error) == Some(Reason::NoKey) {
             out.next.push(crate::next::Step::new(
@@ -60,10 +63,13 @@ pub(crate) fn get(cx: &Ctx<'_>, q: &BiomarkerGet) -> Outcome {
             }
         }
         out.problems = reply.problems;
-        out.body = QueryBody::BiomarkerResult(BiomarkerResult {
-            card: if total == 1 { rows.pop() } else { None },
-            candidates: rows.into(),
-        });
+        out.body = ReplyData::BiomarkerResult {
+            query: q.clone(),
+            body: Some(BiomarkerResult {
+                card: if total == 1 { rows.pop() } else { None },
+                candidates: rows.into(),
+            }),
+        };
     }
     command.finish(deadline.remaining());
     out

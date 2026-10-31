@@ -103,7 +103,24 @@ struct SearchFields {
 fn limit() -> u32 {
     3
 }
-crate::query::validation::checked_query!(GwasSearch, SearchFields, Some(crate::ErrorMessage::GwasSearchArguments));
+impl crate::CheckedQuery for GwasSearch {
+    const USAGE_MESSAGE: Option<crate::ErrorMessage> =
+        Some(crate::ErrorMessage::GwasSearchArguments);
+    fn invalid_field(name: &str) -> QueryInvalid {
+        let cause = QueryInvalid::new(&[name]);
+        if name == "p_value" {
+            cause.with_message(crate::ErrorMessage::GwasPositiveThreshold)
+        } else {
+            cause
+        }
+    }
+    fn from_fields<'de, D: serde::Deserializer<'de, Error = QueryInvalid>>(
+        deserializer: D,
+    ) -> Result<Self, QueryInvalid> {
+        Self::try_from(SearchFields::deserialize(deserializer)?)
+    }
+}
+
 impl TryFrom<SearchFields> for GwasSearch {
     type Error = QueryInvalid;
     fn try_from(f: SearchFields) -> Result<Self, Self::Error> {

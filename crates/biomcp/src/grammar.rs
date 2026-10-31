@@ -1,13 +1,12 @@
 //! Schema-fed command parsing shared by CLI and MCP.
 mod arguments;
-pub(crate) mod rewrite;
 mod entry;
+pub(crate) mod rewrite;
 pub(crate) use entry::entry_aliases;
 mod errors;
 mod metadata;
 mod validation;
 use arguments::command_for;
-pub(crate) use errors::argument_error;
 mod gwas;
 mod local;
 mod queries;
@@ -32,9 +31,7 @@ pub(crate) const BUNDLE_HELP: &[&str] = &[
 ];
 
 use biomcp_query::{Action, Bundle};
-use biomcp_types::{
-    Help, Request, ResponseBody,
-};
+use biomcp_types::{Help, Request, ResponseBody};
 use clap::{Arg, ArgAction, Command};
 use serde_json::{Map, Value};
 use std::{ffi::OsString, path::PathBuf};
@@ -230,13 +227,14 @@ pub(crate) fn root() -> Result<Command, ParseInvalid> {
 #[derive(Debug, Default)]
 pub(crate) struct ParseInvalid {
     pub(crate) argument: Option<String>,
-    pub(crate) envelope: Option<biomcp_types::ErrorEnvelope>,
+    pub(crate) usage: Option<biomcp_types::UsageError>,
 }
 pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ParseInvalid> {
     let mut root = root()?;
     root.build();
     let args = entry::arguments(args, &root);
-    let matches = root.clone()
+    let matches = root
+        .clone()
         .try_get_matches_from(std::iter::once(OsString::from("biomcp")).chain(args))
         .map_err(|error| errors::parse_invalid(&root, &error))?;
     let globals = globals(&matches)?;
@@ -483,7 +481,8 @@ fn request(
 ) -> Result<Request, biomcp_types::QueryInvalid> {
     let value = request_arguments(verb, entity, matches)
         .map_err(|_| biomcp_types::QueryInvalid::default())?;
-    let command = biomcp_types::COMMANDS.iter()
+    let command = biomcp_types::COMMANDS
+        .iter()
         .find(|command| (command.verb, command.entity) == (verb, entity))
         .ok_or_else(biomcp_types::QueryInvalid::default)?;
     rewrite::request(command.via, verb, entity, value, matches)

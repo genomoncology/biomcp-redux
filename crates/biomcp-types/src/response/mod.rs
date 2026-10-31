@@ -56,7 +56,7 @@ mod store;
 pub use store::{BundleSize, StoreClean, StoreSize};
 mod step;
 pub use envelope::{EmptyQuery, Envelope, ResponseBody};
-pub use gene::{GeneCards, GeneItem, GenePage, QueryBody};
+pub use gene::{GeneCards, GeneItem, GenePage};
 pub use page::{PageInfo, PoolInfo};
 pub use section::{Section, SourceRecord};
 pub use source::{CacheProblem, SourceNotice, SourceOutcome, SourceState};
@@ -187,4 +187,9 @@ mod registry;
 pub use biomarker::{BiomarkerCard, BiomarkerHeader, BiomarkerPage, BiomarkerResult};
 
 mod usage;
-pub use usage::UsageError;
+pub use usage::{UsageArguments, UsageError};
+
+mod packet;
+mod reply;
+pub use packet::ReplyData;
+pub use reply::{Reply, ReplyBody};

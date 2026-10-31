@@ -2,7 +2,7 @@ use crate::{Ctx, Outcome, status};
 use biodata::Pmid;
 use biomcp_adapters::icite;
 use biomcp_fetch::{Deadline, RequestError};
-use biomcp_types::{ArticleItem, QueryBody, Source, SourceOutcome};
+use biomcp_types::{ArticleItem, ReplyData, Source, SourceOutcome};
 /// Application citation enrichment window, shared by searches and graph pages.
 const MAX_PMIDS: usize = 10_000;
 pub(super) struct Counts {
@@ -104,7 +104,7 @@ pub(super) fn refuse(count: usize, out: &mut Outcome) -> bool {
         return false;
     }
     crate::status::item(out, false, true, false);
-    out.body = QueryBody::Usage(biomcp_types::UsageError::TooManyPmids {
+    out.body = ReplyData::Usage(biomcp_types::UsageError::TooManyPmids {
         count: count as u64,
     });
     true

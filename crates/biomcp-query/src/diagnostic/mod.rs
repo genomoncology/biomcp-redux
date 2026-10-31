@@ -11,7 +11,7 @@ use crate::{Action, Bundle, Ctx, Outcome, status};
 use biomcp_adapters::gtr;
 use biomcp_fetch::{Leg, RequestError};
 use biomcp_types::{
-    DiagnosticPage, DiagnosticSearch, DiagnosticSearchSource, PageInfo, QueryBody, Request, Source,
+    DiagnosticPage, DiagnosticSearch, DiagnosticSearchSource, PageInfo, ReplyData, Request, Source,
     SourceState, Status, StepKind,
 };
 pub(crate) use get::get;
@@ -61,11 +61,14 @@ pub(crate) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
     }
     let (spec, source, bundle, count) = search_source(q.source());
     let who = q.source() == DiagnosticSearchSource::WhoIvd;
-    let mut out = empty(QueryBody::DiagnosticPage(DiagnosticPage {
-        items: Box::default(),
-        count_unit: Some(count),
-        distinct_id_total: None,
-    }));
+    let mut out = empty(ReplyData::DiagnosticPage {
+        query: q.clone(),
+        body: Some(DiagnosticPage {
+            items: Box::default(),
+            count_unit: Some(count),
+            distinct_id_total: None,
+        }),
+    });
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let leg = cx.fetch.leg(spec, deadline);
@@ -104,11 +107,14 @@ pub(crate) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
             pool: None,
             truncated: None,
         });
-        out.body = QueryBody::DiagnosticPage(DiagnosticPage {
-            items,
-            count_unit: Some(count),
-            distinct_id_total: None,
-        });
+        out.body = ReplyData::DiagnosticPage {
+            query: q.clone(),
+            body: Some(DiagnosticPage {
+                items,
+                count_unit: Some(count),
+                distinct_id_total: None,
+            }),
+        };
     }
     finish_bundle(&mut out, leg, error, source, bundle);
     status::search(&mut out);

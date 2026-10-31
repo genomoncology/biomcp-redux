@@ -44,9 +44,9 @@ pub use query::{
 };
 pub use query::{ArticleGet, ArticleSection, ArticleSectionWord};
 pub use query::{ArticleSupplement, ArticleText, SheetRows};
+pub use query::{COMMAND_PATHS, COMMANDS, CommandSpec, Rewrite};
 pub use query::{CivicClaimKind, VariantSection};
 pub use query::{GeneGet, GeneSearch, GeneSection, GeneSectionWord, Request};
-pub use query::{Rewrite, CommandSpec, COMMANDS, COMMAND_PATHS};
 pub use query::{
     MyVariantQuery, VariantRegion, VariantSearch, VariantSearchField, VariantSearchSource,
     protein_query_forms,
@@ -98,8 +98,8 @@ pub use response::{
 };
 pub use response::{Constraint, GeneSections, Protein};
 pub use response::{
-    EmptyQuery, Envelope, GeneCards, GeneItem, GenePage, ItemStatus, PageInfo, QueryBody,
-    ResponseBody, Section, SourceOutcome, SourceRecord, SourceState, Status, Step, StepKind,
+    EmptyQuery, Envelope, GeneCards, GeneItem, GenePage, ItemStatus, PageInfo, ResponseBody,
+    Section, SourceOutcome, SourceRecord, SourceState, Status, Step, StepKind,
 };
 pub use response::{ErrorCode, ErrorEnvelope, ErrorMessage, ErrorStatus, Problem, ProblemCode};
 pub use response::{
@@ -256,6 +256,8 @@ pub use response::{Organization, OrganizationCoordinates, OrganizationPage};
 pub use query::{BiomarkerGet, BiomarkerSearch, BiomarkerSource};
 pub use response::{BiomarkerCard, BiomarkerHeader, BiomarkerPage, BiomarkerResult};
 
-pub use response::UsageError;
+pub use response::{UsageArguments, UsageError};
 
 pub use query::decode_query;
+
+pub use response::{Reply, ReplyBody, ReplyData};

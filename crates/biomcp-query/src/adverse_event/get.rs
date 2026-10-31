@@ -5,7 +5,7 @@ use biodata::{FaersReport, Text};
 use biomcp_adapters::faers;
 use biomcp_fetch::{CacheError, Deadline, RequestError};
 use biomcp_types::{
-    AdverseEventGet, AdverseEventSection, QueryBody, Request, Source, SourceOutcome, StepKind,
+    AdverseEventGet, AdverseEventSection, ReplyData, Request, Source, SourceOutcome, StepKind,
 };
 use sha2::{Digest, Sha256};
 #[derive(serde::Deserialize)]
@@ -42,7 +42,10 @@ impl serde::Serialize for Saved {
 }
 pub(super) fn get(cx: &Ctx<'_>, q: &AdverseEventGet) -> Outcome {
     let mut out = super::unsupported();
-    out.body = QueryBody::AdverseEventFaersCard(None);
+    out.body = ReplyData::AdverseEventFaersCard {
+        query: q.clone(),
+        body: None,
+    };
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     if let Err(e) = read(cx, q, deadline, &mut out) {
@@ -87,7 +90,7 @@ fn read(
         let Some(payload) =
             store.source_snapshot(snapshot.as_str(), &key(q), |s| cx.fetch.disabled(s))?
         else {
-            out.body = QueryBody::Usage(biomcp_types::UsageError::PoolError { mismatch: false });
+            out.body = ReplyData::PoolError { mismatch: false };
             out.next.push(crate::next::Step::run(
                 StepKind::Restart,
                 &[biomcp_types::Source::Faers],

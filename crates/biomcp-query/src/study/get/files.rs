@@ -4,10 +4,10 @@ use crate::{Ctx, Outcome};
 use biomcp_adapters::cbioportal::{SPEC, studies};
 use biomcp_fetch::{Deadline, RequestError};
 use biomcp_types::{
-    PageInfo, QueryBody, Section, Source, Status, StepKind, StudyFiles, StudyGet, StudySection,
+    PageInfo, ReplyData, Section, Source, Status, StepKind, StudyFiles, StudyGet, StudySection,
 };
 pub(super) fn section(cx: &Ctx<'_>, q: &StudyGet, deadline: Deadline<'_>, out: &mut Outcome) {
-    let on_card = matches!(out.body, QueryBody::StudyCard(Some(_)));
+    let on_card = matches!(out.body, ReplyData::StudyCard { body: Some(_), .. });
     if !matches!(q.section(), Some(StudySection::Files | StudySection::All)) {
         return;
     }
@@ -16,7 +16,9 @@ pub(super) fn section(cx: &Ctx<'_>, q: &StudyGet, deadline: Deadline<'_>, out: &
         .and_then(|directory| apply(cx, q, out, directory));
     let error = result.err();
     if let Some(error) = error
-        && let QueryBody::StudyCard(Some(card)) = &mut out.body
+        && let ReplyData::StudyCard {
+            body: Some(card), ..
+        } = &mut out.body
     {
         let reason = crate::status::reason(error).unwrap_or(biomcp_types::Reason::BadReply);
         card.files = Some(Section::unavailable(Source::Cbioportal, reason));
@@ -34,7 +36,10 @@ fn apply(
     directory: studies::Directory,
 ) -> Result<(), RequestError> {
     let Some(window) = directory.window else {
-        if let QueryBody::StudyCard(Some(card)) = &mut out.body {
+        if let ReplyData::StudyCard {
+            body: Some(card), ..
+        } = &mut out.body
+        {
             card.files = Some(Section::Empty {
                 source: Source::Cbioportal,
                 record: None,
@@ -65,7 +70,10 @@ fn apply(
         acquired: directory.acquired,
         license_notice: directory.license_notice,
     };
-    if let QueryBody::StudyCard(Some(card)) = &mut out.body {
+    if let ReplyData::StudyCard {
+        body: Some(card), ..
+    } = &mut out.body
+    {
         card.files = Some(Section::Data {
             source: Source::Cbioportal,
             data,
@@ -74,7 +82,10 @@ fn apply(
         if q.section() != Some(StudySection::Files) {
             return Err(bad());
         }
-        out.body = QueryBody::StudyFiles(Some(data));
+        out.body = ReplyData::StudyFiles {
+            query: q.clone(),
+            body: Some(data),
+        };
         out.page = Some(bounds.clone());
         crate::status::item(out, true, false, false);
     }

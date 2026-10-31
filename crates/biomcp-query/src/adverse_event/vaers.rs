@@ -4,7 +4,7 @@ use biodata::Text;
 use biomcp_adapters::vaers;
 use biomcp_fetch::{CacheError, Deadline, RequestError};
 use biomcp_types::{
-    AdverseEventSearch, PageInfo, QueryBody, Reason, Request, Source, SourceOutcome, StepKind,
+    AdverseEventSearch, PageInfo, Reason, ReplyData, Request, Source, SourceOutcome, StepKind,
     VaersSection, VaersSummary,
 };
 use sha2::{Digest, Sha256};
@@ -12,7 +12,10 @@ type Saved = (VaersSummary, Vec<SourceOutcome>);
 
 pub(super) fn search(cx: &Ctx<'_>, q: &AdverseEventSearch) -> Outcome {
     let mut out = super::unsupported();
-    out.body = QueryBody::VaersSummary(None);
+    out.body = ReplyData::VaersSummary {
+        query: q.clone(),
+        body: None,
+    };
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     if let Err(error) = read(cx, q, deadline, &mut out) {
@@ -33,7 +36,7 @@ fn key(q: &AdverseEventSearch) -> Vec<u8> {
     .to_vec()
 }
 fn expired(q: &AdverseEventSearch, out: &mut Outcome) {
-    out.body = QueryBody::Usage(biomcp_types::UsageError::PoolError { mismatch: false });
+    out.body = ReplyData::PoolError { mismatch: false };
     out.next.push(crate::next::Step::run(
         StepKind::Restart,
         &[biomcp_types::Source::Vaers],
@@ -136,5 +139,8 @@ fn render(q: &AdverseEventSearch, mut table: VaersSummary, snapshot: Text, out: 
             ));
         }
     }
-    out.body = QueryBody::VaersSummary(Some(table));
+    out.body = ReplyData::VaersSummary {
+        query: q.clone(),
+        body: Some(table),
+    };
 }

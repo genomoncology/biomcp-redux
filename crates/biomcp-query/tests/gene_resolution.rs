@@ -23,7 +23,7 @@ fn replay(dir: PathBuf) -> Fetch {
 fn stale_identity_and_annotation_sources_make_only_their_answers_partial() {
     use biomcp_fetch::ReplayCache;
     use biomcp_query::{Ctx, run};
-    use biomcp_types::{GeneGet, GeneSearch, QueryBody, Request, Source, SourceState, Status};
+    use biomcp_types::{GeneGet, GeneSearch, ReplyData, Request, Source, SourceState, Status};
     let directory = tempfile::tempdir().unwrap();
     let case_path = directory.path().join("case");
     let cache = ReplayCache::create_case_with_owners(&case_path, &[]).unwrap();
@@ -75,7 +75,10 @@ fn stale_identity_and_annotation_sources_make_only_their_answers_partial() {
     assert_eq!(outcome.sources[0].source, Source::Hgnc);
     assert_eq!(outcome.sources[0].state, SourceState::Stale);
     assert_eq!(outcome.sources[1].state, SourceState::Ok);
-    let QueryBody::GeneCards(cards) = outcome.body else {
+    let ReplyData::GeneCards {
+        body: Some(cards), ..
+    } = outcome.body
+    else {
         panic!("gene cards");
     };
     assert_eq!(cards.items[0].status, Status::Partial);

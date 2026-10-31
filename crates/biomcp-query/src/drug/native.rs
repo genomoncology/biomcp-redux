@@ -5,7 +5,7 @@ use crate::{Ctx, Outcome, status};
 use biomcp_adapters::{NativeWindow, chembl, opentargets};
 use biomcp_fetch::{Leg, RequestError, SourceError};
 use biomcp_types::{
-    DrugGet, DrugPage, DrugSearch, DrugSection, DrugSource, PageInfo, QueryBody, Reason, Request,
+    DrugGet, DrugPage, DrugSearch, DrugSection, DrugSource, PageInfo, Reason, ReplyData, Request,
     Source, Status, StepKind,
 };
 fn failure(source: Source) -> RequestError {
@@ -25,10 +25,13 @@ fn spec(source: DrugSource) -> &'static biomcp_fetch::SourceSpec {
     }
 }
 pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
-    let mut out = empty(QueryBody::DrugPage(DrugPage {
-        items: Box::default(),
-        total: None,
-    }));
+    let mut out = empty(ReplyData::DrugPage {
+        query: query.clone(),
+        body: Some(DrugPage {
+            items: Box::default(),
+            total: None,
+        }),
+    });
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let leg = cx.fetch.leg(spec(query.source()), deadline).fresh(cx.fresh);
@@ -71,7 +74,10 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
                 cx.fresh,
             ));
         }
-        out.body = QueryBody::DrugPage(page);
+        out.body = ReplyData::DrugPage {
+            query: query.clone(),
+            body: Some(page),
+        };
     }
     finish(&mut out, leg, query.source().source(), error);
     status::search(&mut out);
@@ -127,10 +133,22 @@ fn search_page(
 
 pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     let mut out = empty(match query.sections() {
-        [DrugSection::Targets] => QueryBody::DrugTargets(None),
-        [DrugSection::Indications] => QueryBody::DrugIndications(None),
-        [DrugSection::Xrefs] => QueryBody::DrugXrefs(None),
-        _ => QueryBody::DrugCard(None),
+        [DrugSection::Targets] => ReplyData::DrugTargets {
+            query: query.clone(),
+            body: None,
+        },
+        [DrugSection::Indications] => ReplyData::DrugIndications {
+            query: query.clone(),
+            body: None,
+        },
+        [DrugSection::Xrefs] => ReplyData::DrugXrefs {
+            query: query.clone(),
+            body: None,
+        },
+        _ => ReplyData::DrugCard {
+            query: query.clone(),
+            body: None,
+        },
     });
     if !matches!(
         query.sections(),

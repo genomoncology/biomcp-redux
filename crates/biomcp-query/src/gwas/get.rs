@@ -8,7 +8,7 @@ use biomcp_fetch::{Deadline, Leg, RequestError};
 use biomcp_types::{
     GwasAncestries, GwasAncestry, GwasAssociation, GwasAssociationCard, GwasAssociationSection,
     GwasGet, GwasLoci, GwasLocus, GwasPage, GwasPageQuery, GwasSearch, GwasSectionPage,
-    GwasStudySection, PageInfo, Problem, ProblemCode, QueryBody, Reason, Request, Source,
+    GwasStudySection, PageInfo, Problem, ProblemCode, Reason, ReplyData, Request, Source,
     SourceOutcome, SourceState, Status, StepKind,
 };
 /// Read only the explicitly selected source resource.
@@ -69,16 +69,31 @@ pub(crate) fn get(cx: &Ctx<'_>, q: &GwasGet) -> Outcome {
     command.finish(deadline.remaining());
     out
 }
-fn empty(q: &GwasGet) -> QueryBody {
+fn empty(q: &GwasGet) -> ReplyData {
     match q {
-        GwasGet::Association { section: None, .. } => QueryBody::GwasAssociation(None),
-        GwasGet::Association { .. } => QueryBody::GwasLoci(None),
-        GwasGet::Study { section: None, .. } => QueryBody::GwasStudy(None),
+        GwasGet::Association { section: None, .. } => ReplyData::GwasAssociationCard {
+            query: q.clone(),
+            body: None,
+        },
+        GwasGet::Association { .. } => ReplyData::GwasLoci {
+            query: q.clone(),
+            body: None,
+        },
+        GwasGet::Study { section: None, .. } => ReplyData::GwasStudy {
+            query: q.clone(),
+            body: None,
+        },
         GwasGet::Study {
             section: Some(GwasStudySection::Associations),
             ..
-        } => QueryBody::GwasPage(None),
-        GwasGet::Study { .. } => QueryBody::GwasAncestries(None),
+        } => ReplyData::GwasPage {
+            query: biomcp_types::GwasPageQuery::Get(q.clone()),
+            body: None,
+        },
+        GwasGet::Study { .. } => ReplyData::GwasAncestries {
+            query: q.clone(),
+            body: None,
+        },
     }
 }
 fn read(
@@ -122,7 +137,10 @@ fn resource(q: &GwasGet, leg: &Leg<'_>, out: &mut Outcome) -> Result<(), Request
                 &[biomcp_types::Source::Gwas],
                 action(loci, false),
             ));
-            out.body = QueryBody::GwasAssociation(Some(GwasAssociationCard { association }));
+            out.body = ReplyData::GwasAssociationCard {
+                query: q.clone(),
+                body: Some(GwasAssociationCard { association }),
+            };
         }
         GwasGet::Association {
             id,
@@ -136,11 +154,14 @@ fn resource(q: &GwasGet, leg: &Leg<'_>, out: &mut Outcome) -> Result<(), Request
             rejected(out, rows.rejected);
             let (items, continuation) = page(q, &rows.items, out);
             next::loci(&items, out);
-            out.body = QueryBody::GwasLoci(Some(GwasLoci {
-                association: *id,
-                items,
-                continuation,
-            }));
+            out.body = ReplyData::GwasLoci {
+                query: q.clone(),
+                body: Some(GwasLoci {
+                    association: *id,
+                    items,
+                    continuation,
+                }),
+            };
         }
         GwasGet::Study {
             id, section: None, ..
@@ -160,7 +181,10 @@ fn resource(q: &GwasGet, leg: &Leg<'_>, out: &mut Outcome) -> Result<(), Request
                     action(q, false),
                 ));
             }
-            out.body = QueryBody::GwasStudy(Some(study.value));
+            out.body = ReplyData::GwasStudy {
+                query: q.clone(),
+                body: Some(study.value),
+            };
         }
         GwasGet::Study {
             id,
@@ -265,11 +289,14 @@ fn associations(
             action(q.clone(), false),
         ));
     }
-    out.body = QueryBody::GwasPage(Some(GwasPage {
-        items,
-        page: out.page.clone().ok_or(biomcp_fetch::CacheError::Database)?,
-        qualifying_total: None,
-        continuation,
-    }));
+    out.body = ReplyData::GwasPage {
+        query: biomcp_types::GwasPageQuery::Get(q.clone()),
+        body: Some(GwasPage {
+            items,
+            page: out.page.clone().ok_or(biomcp_fetch::CacheError::Database)?,
+            qualifying_total: None,
+            continuation,
+        }),
+    };
     Ok(())
 }

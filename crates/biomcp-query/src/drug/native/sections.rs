@@ -4,7 +4,7 @@ use biomcp_adapters::{NativeWindow, chembl, opentargets};
 use biomcp_fetch::{Leg, RequestError};
 use biomcp_types::{
     DrugGet, DrugHeader, DrugIndications, DrugRecords, DrugSection, DrugTargets, PageInfo,
-    QueryBody, Request, Section, Source, StepKind,
+    ReplyData, Request, Section, Source, StepKind,
 };
 #[path = "collection_page.rs"]
 mod collection;
@@ -102,7 +102,10 @@ pub(super) fn opentargets(
         }
         _ => {
             crate::status::item(out, true, false, false);
-            out.body = QueryBody::DrugCard(Some(opentargets::card(header, meta.fetched)));
+            out.body = ReplyData::DrugCard {
+                query: query.clone(),
+                body: Some(opentargets::card(header, meta.fetched)),
+            };
             card_next(out, query, fresh, false);
         }
     }
@@ -208,7 +211,10 @@ fn targets(
     fresh: bool,
 ) {
     let targets = page(out, query, window, fetched, fresh);
-    out.body = QueryBody::DrugTargets(Some(DrugTargets { identity, targets }));
+    out.body = ReplyData::DrugTargets {
+        query: query.clone(),
+        body: Some(DrugTargets { identity, targets }),
+    };
 }
 fn indications(
     out: &mut Outcome,
@@ -219,10 +225,13 @@ fn indications(
     fresh: bool,
 ) {
     let indications = page(out, query, window, fetched, fresh);
-    out.body = QueryBody::DrugIndications(Some(DrugIndications {
-        identity,
-        indications,
-    }));
+    out.body = ReplyData::DrugIndications {
+        query: query.clone(),
+        body: Some(DrugIndications {
+            identity,
+            indications,
+        }),
+    };
 }
 
 fn chembl_card(
@@ -263,14 +272,20 @@ fn chembl_card(
             fetched,
             fresh,
         );
-        out.body = QueryBody::DrugXrefs(Some(biomcp_types::DrugXrefs {
-            identity: card.header,
-            xrefs,
-        }));
+        out.body = ReplyData::DrugXrefs {
+            query: query.clone(),
+            body: Some(biomcp_types::DrugXrefs {
+                identity: card.header,
+                xrefs,
+            }),
+        };
         return Ok(());
     }
     crate::status::item(out, true, false, false);
-    out.body = QueryBody::DrugCard(Some(card));
+    out.body = ReplyData::DrugCard {
+        query: query.clone(),
+        body: Some(card),
+    };
     card_next(out, query, fresh, has_xrefs);
     if let Some(get) = crate::next::checked(
         DrugGet::new(query.input().clone(), biomcp_types::DrugSource::Opentargets),

@@ -2,7 +2,7 @@
 use crate::{Ctx, Outcome, status};
 use biodata::Text;
 use biomcp_adapters::maude;
-use biomcp_types::{AdverseEventGet, AdverseEventSection, QueryBody, Request, Source, StepKind};
+use biomcp_types::{AdverseEventGet, AdverseEventSection, ReplyData, Request, Source, StepKind};
 mod projection;
 mod rows;
 mod snapshot;
@@ -14,7 +14,7 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &AdverseEventGet) -> Outcome {
     match snapshot::load(cx, query, deadline, &mut out) {
         Ok(Some((report, positions, snapshot))) => {
             let bound = query.with_snapshot(snapshot.clone());
-            match projection::project(&bound, report, snapshot, positions) {
+            match projection::project(query, report, snapshot, positions) {
                 Ok((body, total, returned, offset)) => {
                     out.body = body;
                     navigation(&bound, total, returned, offset, &mut out);
@@ -28,11 +28,20 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &AdverseEventGet) -> Outcome {
     command.finish(deadline.remaining());
     out
 }
-fn empty(query: &AdverseEventGet) -> QueryBody {
+fn empty(query: &AdverseEventGet) -> ReplyData {
     match query.section() {
-        Some(AdverseEventSection::Devices) => QueryBody::AdverseEventDevices(None),
-        Some(AdverseEventSection::Narrative) => QueryBody::AdverseEventNarrative(None),
-        _ => QueryBody::AdverseEventMaudeCard(None),
+        Some(AdverseEventSection::Devices) => ReplyData::AdverseEventDevices {
+            query: query.clone(),
+            body: None,
+        },
+        Some(AdverseEventSection::Narrative) => ReplyData::AdverseEventNarrative {
+            query: query.clone(),
+            body: None,
+        },
+        _ => ReplyData::AdverseEventMaudeCard {
+            query: query.clone(),
+            body: None,
+        },
     }
 }
 fn navigation(query: &AdverseEventGet, total: u64, returned: u32, offset: u32, out: &mut Outcome) {

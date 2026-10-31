@@ -1,4 +1,4 @@
-use super::{Ctx, Outcome, QueryBody, Source, cellosaurus, status};
+use super::{Ctx, Outcome, ReplyData, Source, cellosaurus, status};
 /// Release metadata is an independent cacheable read, with its own failure state.
 pub(super) fn attach(cx: &Ctx<'_>, deadline: biomcp_fetch::Deadline<'_>, out: &mut Outcome) {
     let leg = cx.fetch.leg(&cellosaurus::SPEC, deadline).fresh(cx.fresh);
@@ -24,8 +24,12 @@ pub(super) fn attach(cx: &Ctx<'_>, deadline: biomcp_fetch::Deadline<'_>, out: &m
         mapped.value
     });
     match &mut out.body {
-        QueryBody::CellLinePage(page) => page.release = release.clone(),
-        QueryBody::CellLineCard(card) => card.release = release.clone(),
+        ReplyData::CellLinePage {
+            body: Some(page), ..
+        } => page.release = release.clone(),
+        ReplyData::CellLineCard {
+            body: Some(card), ..
+        } => card.release = release.clone(),
         _ => {}
     }
     if out

@@ -77,7 +77,7 @@ macro_rules! contracts {
     }
 
 macro_rules! reply_contracts {
-    ($($body:ty => $name:literal),+ $(,)?) => {
+    ($($method:ident: $body:ty => $name:literal),+ $(,)?) => {
         vec![$(Contract {
             kind: policy::ContractKind::Reply,
             name: $name,
@@ -103,12 +103,6 @@ fn article_registry() -> Vec<Contract> {
         Pmid => ("pmid", "biodata.pmid/2"),
         Pmcid => ("pmcid", "biodata.pmcid/2"),
         Doi => ("doi", "biodata.doi/2"),
-    }
-}
-
-
-fn nci_discovery_contracts() -> Vec<Contract> {
-    contracts! {
     }
 }
 
@@ -153,33 +147,16 @@ fn registry() -> Vec<Contract> {
         Build => ("build", "biodata.build/2"),
         Strand => ("strand", "biodata.strand/1"),
     };
-    contracts.extend(contracts! {
-    });
-    contracts.extend(nci_discovery_contracts());
-    contracts.extend(diagnostic_contracts());
-    contracts.extend(pathway_contracts());
-    contracts.extend(protein_contracts());
     contracts.extend(common_registry());
     contracts.extend(article_registry());
     contracts.extend(research_registry());
     contracts.extend(disease::registry());
-    contracts.extend(study_registry());
-    contracts.extend(adverse_event_contracts());
     contracts.extend(variant_contracts());
     contracts.extend(trial_contracts());
     contracts.extend(drug_contracts());
     contracts.extend(commands::registry());
     contracts.extend(biomcp_types::reply_types!(reply_contracts));
     contracts
-}
-fn study_registry() -> Vec<Contract> {
-    contracts! {
-    }
-}
-
-fn adverse_event_contracts() -> Vec<Contract> {
-    contracts! {
-    }
 }
 
 fn variant_contracts() -> Vec<Contract> {
@@ -213,11 +190,6 @@ fn drug_contracts() -> Vec<Contract> {
         DrugSection => ("drug-section", "biomcp.drug-section/1"),
         DrugHeader => ("drug-header", "biomcp.drug-header/3"),
         DrugRecallHeader => ("drug-recall-header", "biomcp.drug-recall-header/2"),
-    }
-}
-
-fn diagnostic_contracts() -> Vec<Contract> {
-    contracts! {
     }
 }
 
@@ -356,17 +328,6 @@ fn flat_value(root: &Value, node: &Value) {
         );
     }
 }
-
-fn pathway_contracts() -> Vec<Contract> {
-    contracts! {
-    }
-}
-
-fn protein_contracts() -> Vec<Contract> {
-    contracts! {
-    }
-}
-
 
 #[test]
 fn generated_schemas_preserve_release_contracts() -> Result<(), Box<dyn std::error::Error>> {
