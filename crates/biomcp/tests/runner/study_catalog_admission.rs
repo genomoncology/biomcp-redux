@@ -85,7 +85,7 @@ fn empty() -> Check {
     Ok(())
 }
 fn refused() -> Check {
-    for prior in [false, true] {
+    for prior in [true, false] {
         let env = Environment::new().map_err(|e| e.to_string())?;
         let replay = seed(&env, rows(), 200)?;
         let old = prior
@@ -98,6 +98,15 @@ fn refused() -> Check {
             .truncate(native_rows as usize);
         seed(&env, body, 200)?;
         let refusal = call(&env, &replay, &["sync", "cbioportal-studies"])?;
+        if let Some(old) = &old {
+            if refusal.pointer("/result/rows") != Some(&json!(12))
+                || refusal.pointer("/result/snapshot") != old.pointer("/result/snapshot")
+            {
+                return Err(format!(
+                    "refused refresh replaced last good rows or snapshot: {refusal}"
+                ));
+            }
+        }
         check(
             &refusal,
             "partial",
@@ -108,10 +117,7 @@ fn refused() -> Check {
         if refusal["problems"].as_array().map(Vec::len) != Some(native_rows as usize) {
             return Err(format!("native refusals were lost: {refusal}"));
         }
-        if let Some(old) = old {
-            if refusal.pointer("/result/snapshot") != old.pointer("/result/snapshot") {
-                return Err(format!("refused refresh replaced the snapshot: {refusal}"));
-            }
+        if old.is_some() {
             let found = call(&env, &replay, &["search", "study", "atlas"])?;
             if found.pointer("/page/total") != Some(&json!(12)) {
                 return Err(format!("refused refresh lost active rows: {found}"));
