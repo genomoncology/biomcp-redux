@@ -17,6 +17,8 @@ mod proof_support;
 mod reasons;
 #[path = "ratchets/source.rs"]
 mod source;
+#[path = "ratchets/source_declaration_proof.rs"]
+mod source_declaration_proof;
 #[path = "ratchets/source_declarations.rs"]
 mod source_declarations;
 #[path = "ratchets/spellings.rs"]
