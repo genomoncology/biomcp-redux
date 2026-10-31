@@ -63,8 +63,6 @@ macro_rules! relation {
             }
             /// Retain the same immutable relation on subsequent pages.
             pub fn with_pool(mut self, pool: Text) -> Self { self.0.pool = Some(pool); self }
-            /// Restart the same disclosure mode at its first page.
-
             /// Checked source identity owning this relation.
             pub fn id(&self) -> &PathwayId { &self.0.id }
             /// Complete relation rows per page.
@@ -73,8 +71,6 @@ macro_rules! relation {
             pub fn offset(&self) -> u32 { self.0.offset }
             /// Immutable relation snapshot.
             pub fn pool(&self) -> Option<&Text> { self.0.pool.as_ref() }
-            /// Continue without changing relation identity, mode or page size.
-
         }
 impl crate::Paged for $name {
     type Offset = u32;

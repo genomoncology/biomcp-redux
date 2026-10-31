@@ -42,8 +42,6 @@ macro_rules! relation {
             pub fn at_page(&self, pool: Text, offset: u32) -> Self {
                 let mut q = self.clone(); q.0.pool = Some(pool); q.0.offset = offset; q
             }
-            /// Restart the same source selection.
-
             /// Exact anchor accession.
             pub fn accession(&self) -> &UniProtIsoform { &self.0.accession }
             /// Bounded page size.
