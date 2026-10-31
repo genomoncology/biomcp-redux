@@ -203,7 +203,7 @@ def rewrite(text, changes, path=(), spans=False):
 
 
 def context_roots(roots, key, index):
-    return dict(roots.get(owner(key), {}), **roots.get(key + "/execution/" + str(index), {}))
+    return dict(roots.get(owner(key), {}), **roots.get((key, index), {}))
 
 
 def record_roots(records):
@@ -242,7 +242,7 @@ def record_roots(records):
                 inputs = recordings.get((owner(key), root), set())
                 if not {root + '/first', root + '/second'} <= inputs:
                     raise ValueError('combined replay lacks successful owned recording inputs')
-            roots[key + '/execution/' + str(index)] = {
+            roots[key, index] = {
                 path: {'owner_root': root, 'relative': path[len(root):]}}
     return roots
 
