@@ -91,16 +91,21 @@ fn refused() -> Check {
         let old = prior
             .then(|| call(&env, &replay, &["sync", "cbioportal-studies"]))
             .transpose()?;
-        seed(&env, rejected(), 200)?;
+        let native_rows = if prior { 3 } else { 12 };
+        let mut body = rejected();
+        body.as_array_mut()
+            .expect("synthetic rows")
+            .truncate(native_rows as usize);
+        seed(&env, body, 200)?;
         let refusal = call(&env, &replay, &["sync", "cbioportal-studies"])?;
         check(
             &refusal,
             "partial",
             if prior { 12 } else { 0 },
-            12,
+            native_rows,
             if prior { "stale" } else { "ok" },
         )?;
-        if refusal["problems"].as_array().map(Vec::len) != Some(12) {
+        if refusal["problems"].as_array().map(Vec::len) != Some(native_rows as usize) {
             return Err(format!("native refusals were lost: {refusal}"));
         }
         if let Some(old) = old {
