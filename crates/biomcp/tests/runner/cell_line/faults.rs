@@ -1,15 +1,9 @@
 //! Synthetic source and identity faults never establish empty biology or poison the cache.
 use super::{
-    Environment, Stub, Trial, Value, compared, fixture, fs, invoke, json, parity, path,
+    Environment, Stub, Value, compared, fixture, fs, invoke, json, parity, path,
     recorded_stub, setup,
 };
-use crate::runner::transcript::trial as transcript_trial;
-pub(super) fn trials() -> Vec<Trial> {
-    vec![transcript_trial(
-        "cell-line-identity/synthetic-faults-no-cache-and-provenance",
-        || run(false).map_err(Into::into),
-    )]
-}
+
 pub(super) fn run(measure: bool) -> Result<(), String> {
     for surface in ["search", "card"] {
         for fault in ["429", "500", "broken", "html", "timeout"] {

@@ -8,92 +8,15 @@ use std::{
     fs,
     path::{Path, PathBuf},
 };
-mod mechanics;
-mod native;
+
 mod state;
-mod threshold;
-mod usage;
+
 mod wire;
 pub(super) fn trials() -> Vec<Trial> {
-    let native_directory = super::launch::fixtures().join("gwas-native-cases");
-    let absent = !native_directory.is_dir();
-    vec![
-        transcript_trial("gwas-search/stale-source-is-partial", || {
-            state::stale().map_err(Into::into)
-        }),
-        transcript_trial(required_contract::GWAS_POOL.0, || {
-            state::expired().map_err(Into::into)
-        }),
-        transcript_trial("gwas-search/native-trait-id-is-never-rewritten", || {
-            state::literal().map_err(Into::into)
-        }),
-        transcript_trial("gwas-search/malformed-input-guidance-before-io", || {
-            usage::run().map_err(Into::into)
-        }),
-        transcript_trial("gwas-search/retained-threshold-witnesses-and-costs", || {
-            threshold::native(&super::launch::fixtures().join("gwas-threshold-cases"))
-                .map_err(Into::into)
-        })
-        .with_ignored_flag(
-            !super::launch::fixtures()
-                .join("gwas-threshold-cases")
-                .is_dir(),
-        ),
-        transcript_trial("gwas-search/threshold-later-page-failures", || {
-            threshold::failures().map_err(Into::into)
-        }),
-        transcript_trial("gwas-search/exact-threshold-page-walk", || {
-            threshold::walk().map_err(Into::into)
-        }),
-        transcript_trial(
-            "gwas-search/retained-native-witnesses-and-costs",
-            move || native::run(&native_directory).map_err(Into::into),
-        )
-        .with_ignored_flag(absent),
-        transcript_trial("gwas-search/restricted-policy-before-io", || {
-            policy().map_err(Into::into)
-        }),
-        transcript_trial(required_contract::GWAS_SELECTORS.0, || {
-            wire::selectors().map_err(Into::into)
-        }),
-        transcript_trial(required_contract::GWAS_PAGES.0, || {
-            wire::paging().map_err(Into::into)
-        }),
-        transcript_trial("gwas-search/live-warm-cache-and-explicit-fresh", || {
-            wire::warm().map_err(Into::into)
-        }),
-        transcript_trial("gwas-search/reject-before-cache-admission", || {
-            mechanics::admission().map_err(Into::into)
-        }),
-        transcript_trial("gwas-search/failures-are-never-empty", || {
-            mechanics::failures().map_err(Into::into)
-        }),
-        transcript_trial("gwas-search/cli-mcp-help-markdown", || {
-            wire::surfaces().map_err(Into::into)
-        }),
-    ]
-}
-fn policy() -> Result<(), String> {
-    let env = Environment::new().map_err(|e| e.to_string())?;
-    let replay = env.root().join("empty-replay");
-    fs::create_dir(&replay).map_err(|e| e.to_string())?;
-    let mut args = env.globals(Some(&replay), false);
-    args.extend(
-        [
-            "search",
-            "gwas",
-            "--pubmed",
-            "17529967",
-            "--disable-sources",
-            "restricted",
-        ]
-        .map(str::to_owned),
-    );
-    let value = gwas_budgets::invoke("gwas_search/policy/1", &env, args, 4)?;
-    if value.pointer("/sources/0/reason") != Some(&json!("disabled")) {
-        return Err(format!("restricted source was not refused: {value}"));
-    }
-    Ok(())
+    // The test expires the actual SQLite pool and removes its replay source before checking the executable restart action.
+    vec![transcript_trial(required_contract::GWAS_POOL.0, || {
+        state::expired().map_err(Into::into)
+    })]
 }
 
 const BASE: &str = "https://www.ebi.ac.uk/gwas/rest/api/v2/associations";

@@ -1,6 +1,7 @@
 # 0484 — Keep only the runner trials a command line cannot express
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 474ac5323c530272e942d30558aa2a27f54ae355
 
 Milestone: 5
 

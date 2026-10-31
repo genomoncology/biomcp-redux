@@ -16,9 +16,6 @@ pub(super) struct Peer {
     reader: Option<thread::JoinHandle<()>>,
 }
 impl Peer {
-    fn new(env: &Environment) -> Result<Self, String> {
-        Self::with_globals(env, &[])
-    }
     pub(super) fn with_globals(env: &Environment, globals: &[String]) -> Result<Self, String> {
         let mut args = vec!["serve".into()];
         args.extend_from_slice(globals);
@@ -93,7 +90,7 @@ pub(super) fn check(
     env: &Environment,
     release: impl FnOnce() -> Result<(), String>,
 ) -> Result<Vec<Value>, String> {
-    let mut peers = [Peer::new(env)?, Peer::new(env)?];
+    let mut peers = [Peer::with_globals(env, &[])?, Peer::with_globals(env, &[])?];
     for peer in &mut peers {
         peer.send(&request(
             json!("search"),

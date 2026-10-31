@@ -1,0 +1,20 @@
+{
+  "feature": "diagnostic-retirements",
+  "story": "Each retired command returns fixed migration guidance before source access.",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "diagnostic",
+        "GTR000006692.3",
+        "--source",
+        "gtr",
+        "--full"
+      ],
+      "exit": 2,
+      "expect": {
+        "/error/code": "usage.retired"
+      }
+    }
+  ]
+}

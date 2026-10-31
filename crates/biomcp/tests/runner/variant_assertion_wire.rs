@@ -3,16 +3,11 @@ use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 pub(super) fn trials() -> Vec<Trial> {
-    vec![
-        transcript_trial(
-            crate::runner::required_contract::CLINVAR_ASSERTION.0,
-            || assertions_wire().map_err(Into::into),
-        ),
-        transcript_trial(
-            "variant-assertions/clinvar-parent-identities-stay-uncached",
-            || parent_identity().map_err(Into::into),
-        ),
-    ]
+    // The XML peer checks the exact native assertion request and refuses extra requests.
+    vec![transcript_trial(
+        crate::runner::required_contract::CLINVAR_ASSERTION.0,
+        || assertions_wire().map_err(Into::into),
+    )]
 }
 fn assertions_wire() -> Result<(), String> {
     let stub = Stub::for_source("eutils.ncbi.nlm.nih.gov", "application/xml", clinvar_body)?;
@@ -79,80 +74,4 @@ pub(super) fn clinvar_body(_: &str) -> Result<String, String> {
         ID=\"259500\"/></Trait><Trait><XRef DB=\"OMIM\" \
         ID=\"609265\"/></Trait></TraitSet></ClinicalAssertion></ClinicalAssertionList></ClassifiedRecord></VariationArchive></ClinVarResult-Set>"
         .into())
-}
-
-fn parent_identity() -> Result<(), String> {
-    for (original, changed, field, selection) in [
-        (
-            "VariationID=\"128042\"",
-            "VariationID=\"bad\"",
-            "VariationID",
-            false,
-        ),
-        (
-            "VariationID=\"128042\"",
-            "VariationID=\"999\"",
-            "VariationID",
-            false,
-        ),
-        ("VariationID=\"128042\"", "", "VariationID", false),
-        (
-            "Accession=\"VCV000128042\"",
-            "Accession=\"VCV000000999\"",
-            "Accession",
-            true,
-        ),
-        ("Version=\"175\"", "Version=\"176\"", "Version", true),
-    ] {
-        let stub = Stub::for_source(
-            "eutils.ncbi.nlm.nih.gov",
-            "application/xml",
-            move |request| Ok(clinvar_body(request)?.replace(original, changed)),
-        )?;
-        let env = super::variant::source_environment(&stub)?;
-        let mut args = [
-            "variant",
-            "assertions",
-            "clinvar:128042",
-            "--source",
-            "clinvar",
-        ]
-        .map(str::to_owned)
-        .to_vec();
-        if selection {
-            args.extend(["--assertion", "VCV000128042", "--version", "175"].map(str::to_owned));
-        }
-        for _ in 0..2 {
-            let output = env
-                .command(env!("CARGO_BIN_EXE_biomcp"), &args)
-                .output()
-                .map_err(|e| e.to_string())?;
-            let value: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
-            let problems = value
-                .get("problems")
-                .and_then(Value::as_array)
-                .ok_or("missing parent identity problem")?;
-            if problems.len() != 1
-                || problems.first().and_then(|p| p.get("field")) != Some(&json!(field))
-                || value.pointer("/result/assertions").is_some()
-                || value.pointer("/sources/0/state") != Some(&json!("ok"))
-            {
-                return Err(format!(
-                    "bad parent identity admitted assertions or failed source: {value}"
-                ));
-            }
-        }
-        args.push("--offline".into());
-        let output = env
-            .command(env!("CARGO_BIN_EXE_biomcp"), &args)
-            .output()
-            .map_err(|e| e.to_string())?;
-        let value: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
-        if value.pointer("/sources/0/reason") != Some(&json!("offline"))
-            || stub.finish()?.len() != 2
-        {
-            return Err(format!("mismatched parent XML entered cache: {value}"));
-        }
-    }
-    Ok(())
 }
