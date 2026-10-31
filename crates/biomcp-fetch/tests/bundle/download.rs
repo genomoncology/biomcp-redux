@@ -1,4 +1,5 @@
 use super::*;
+use biomcp_fetch::{Input, Read};
 
 #[test]
 fn auto_download_limit_keeps_owned_part_and_offline_miss_stays_offline() {
@@ -389,7 +390,12 @@ fn bundle_publication_finishes_while_another_owner_holds_the_reply_connection() 
                 let answer = scope.spawn(|| {
                     let leg = fetch.leg(bundle.spec, fetch.deadline(Duration::from_secs(5)));
                     let endpoint = bundle.spec.get("/answer").fresh(Freshness::Hours(1));
-                    assert!(leg.json::<support::Answer>(&endpoint, &[]).unwrap().answer);
+                    assert!(
+                        leg.call::<support::Answer>(&endpoint, Input::Params(&[]), Read::json())
+                            .map(|received| received.value)
+                            .unwrap()
+                            .answer
+                    );
                     leg.finish()
                 });
                 server.next().ok();

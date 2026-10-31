@@ -1,5 +1,6 @@
 //! Declared variant searches keep native candidates, totals and page selectors.
 use crate::{Ctx, Outcome, status};
+use biomcp_fetch::Input;
 use biomcp_types::ReplyBody;
 
 use biomcp_adapters::{clinvar, myvariant};
@@ -124,8 +125,7 @@ fn component_terms(
     if !selected {
         return Ok(None);
     }
-    let terms =
-        myvariant::components::terms(name).ok_or(biomcp_fetch::InputError::Serialization)?;
+    let terms = myvariant::components::terms(name).ok_or(InputError::Serialization)?;
     Ok(Some(myvariant::components::label(terms)?))
 }
 fn policy_error() -> Outcome {

@@ -1,6 +1,7 @@
 use super::{SPEC, map, raw};
 use crate::Mapped;
 use biomcp_fetch::{Arg, BadReply, Freshness, Leg, RequestError};
+use biomcp_fetch::{Input, Read};
 use biomcp_types::{DiseaseHeader, DiseaseSearch};
 /// A single native page without local ranking or identity selection.
 #[derive(Debug)]
@@ -16,37 +17,37 @@ pub struct SearchPage {
 pub fn search(leg: &Leg<'_>, query: &DiseaseSearch) -> Result<SearchPage, RequestError> {
     let ontology = crate::disease_sources::components::ontology(
         leg,
-        query
-            .ontology()
-            .ok_or(biomcp_fetch::InputError::Serialization)?,
+        query.ontology().ok_or(InputError::Serialization)?,
     )?;
-    let text = query
-        .text()
-        .ok_or(biomcp_fetch::InputError::Serialization)?;
+    let text = query.text().ok_or(InputError::Serialization)?;
     let endpoint = SPEC.get("/api/search").fresh(Freshness::Days(1));
-    let (page, _) = leg.json_received_checked::<raw::Search>(
-        &endpoint,
-        &[
-            ("q", Arg::Text(text)),
-            ("rows", Arg::Num(u64::from(query.limit()))),
-            ("start", Arg::Num(u64::from(query.offset()))),
-            ("ontology", Arg::Text(ontology.as_str())),
-            ("groupField", Arg::Text("iri")),
-        ],
-        |page| {
-            let response = &page.response;
-            if response.start != query.offset()
-                || response.docs.len() > query.limit() as usize
-                || response
-                    .docs
-                    .iter()
-                    .any(|d| d.ontology_name.as_str() != ontology.as_str())
-            {
-                return Err(BadReply);
-            }
-            Ok(())
-        },
-    )?;
+    let (page, _) = leg
+        .call::<raw::Search>(
+            &endpoint,
+            Input::Params(&[
+                ("q", Arg::Text(text)),
+                ("rows", Arg::Num(u64::from(query.limit()))),
+                ("start", Arg::Num(u64::from(query.offset()))),
+                ("ontology", Arg::Text(ontology.as_str())),
+                ("groupField", Arg::Text("iri")),
+            ]),
+            Read::json().check(
+                &(|page| {
+                    let response = &page.response;
+                    if response.start != query.offset()
+                        || response.docs.len() > query.limit() as usize
+                        || response
+                            .docs
+                            .iter()
+                            .any(|d| d.ontology_name.as_str() != ontology.as_str())
+                    {
+                        return Err(BadReply);
+                    }
+                    Ok(())
+                }),
+            ),
+        )
+        .map(|received| (received.value, received.meta))?;
     let mut problems = crate::mapped::Problems {
         source: biomcp_types::Source::Ols,
         record: None,

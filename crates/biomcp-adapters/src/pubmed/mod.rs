@@ -1,4 +1,5 @@
 //! PubMed native search order and citation metadata, without abstracts.
+use biomcp_fetch::{Input, Read};
 mod efetch;
 mod indexing;
 mod map;
@@ -94,8 +95,16 @@ pub fn search_ids_with_inputs(
         &SEARCH
     };
     let raw = match inputs {
-        Some(ids) => leg.json_with_inputs::<raw::Search>(endpoint, &params, ids, "term"),
-        None => leg.json::<raw::Search>(endpoint, &params),
+        Some(ids) => leg
+            .call::<raw::Search>(
+                endpoint,
+                Input::Params(&params),
+                Read::json().inputs(ids, "term"),
+            )
+            .map(|received| received.value),
+        None => leg
+            .call::<raw::Search>(endpoint, Input::Params(&params), Read::json())
+            .map(|received| received.value),
     }?
     .esearchresult;
     Ok(search_result(raw))
@@ -170,7 +179,9 @@ pub fn summaries(
     if let Some(email) = email {
         params.push(("email", Arg::Contact(email)));
     }
-    let reply = leg.json::<raw::Summary>(&SUMMARY, &params)?;
+    let reply = leg
+        .call::<raw::Summary>(&SUMMARY, Input::Params(&params), Read::json())
+        .map(|received| received.value)?;
     Ok(map::summaries(reply, &ids))
 }
 

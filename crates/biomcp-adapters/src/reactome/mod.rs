@@ -1,6 +1,7 @@
 //! Lowest-level human pathway mappings from Reactome.
 use crate::{Mapped, quotas};
 use biodata::UniProtAcc;
+use biomcp_fetch::{Input, Read};
 
 use biomcp_fetch::{Arg, BadReply, Freshness, KeyUse, Leg, Reply, RequestError, SourceSpec};
 use biomcp_types::{PathwayRef, Source};
@@ -52,7 +53,14 @@ pub fn pathways(
         .get("/data/mapping/UniProt")
         .with_path(format!("/data/mapping/UniProt/{accession}/pathways"))?
         .fresh(Freshness::Days(7));
-    let rows = match leg.json::<Rows>(&endpoint, &[("species", Arg::Text("9606"))]) {
+    let rows = match leg
+        .call::<Rows>(
+            &endpoint,
+            Input::Params(&[("species", Arg::Text("9606"))]),
+            Read::json(),
+        )
+        .map(|received| received.value)
+    {
         Ok(rows) => rows,
         Err(RequestError::Source(error)) if error.reason == biomcp_types::Reason::NotFound => {
             return Ok(Mapped {

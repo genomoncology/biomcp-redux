@@ -1,6 +1,7 @@
 //! Explicit Mutalyzer GET resolution; no inferred transcript or local correction.
 use crate::{quotas, raw::Field};
 use biodata::{Representation, Text, Variant};
+use biomcp_fetch::{Input, Read};
 
 use biomcp_fetch::{BadReply, Endpoint, KeyUse, Leg, PathSegment, Reply, RequestError, SourceSpec};
 use biomcp_types::{Source, SourceRecord, VariantHeader};
@@ -116,9 +117,14 @@ impl Reply for Normalized {
 /// Route only the explicitly selected service, preserving the supplied description.
 fn fetch(leg: &Leg<'_>, input: &str) -> Result<Normalized, RequestError> {
     let endpoint = NORMALIZE.clone().with_segments(&[PathSegment::new(input)?]);
-    let mut raw = leg.json_checked_cache::<Normalized>(&endpoint, &[], |reply| {
-        reply.errors().is_empty() && reply.identity(input).is_ok()
-    })?;
+    let mut raw = leg
+        .call::<Normalized>(
+            &endpoint,
+            Input::Params(&[]),
+            Read::json()
+                .cache_if(&(|reply| reply.errors().is_empty() && reply.identity(input).is_ok())),
+        )
+        .map(|received| received.value)?;
     Ok(if let Some(custom) = raw.custom.take() {
         *custom
     } else {

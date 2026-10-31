@@ -1,5 +1,6 @@
 use super::{SPEC, raw};
 use biodata::PartialDate;
+use biomcp_fetch::Input;
 use biomcp_fetch::{Arg, BadReply, Freshness, Leg, ReplyMetadata, RequestError};
 use biomcp_types::{
     AdverseEventHeader, AdverseEventSearch, AdverseEventSerious, AdverseEventSource,
@@ -63,7 +64,7 @@ pub fn expression(query: &AdverseEventSearch) -> String {
 /// Read one checked native page; component policy applies before cache, replay or HTTP.
 pub fn search(leg: &Leg<'_>, query: &AdverseEventSearch) -> Result<Page, RequestError> {
     if query.source() != AdverseEventSource::Faers {
-        return Err(biomcp_fetch::InputError::Serialization.into());
+        return Err(InputError::Serialization.into());
     }
     let selector = expression(query);
     if query.reaction().is_some() {
@@ -78,23 +79,28 @@ pub fn search(leg: &Leg<'_>, query: &AdverseEventSearch) -> Result<Page, Request
         Box::default()
     };
     let endpoint = SPEC.get("").fresh(Freshness::Days(1)).json_absence();
-    let (response, metadata) = leg.json_received_checked::<raw::Response>(
-        &endpoint,
-        &[
-            ("search", Arg::Text(&selector)),
-            ("limit", Arg::Num(query.limit().into())),
-            ("skip", Arg::Num(query.offset().into())),
-            ("sort", Arg::Text("receivedate:desc")),
-        ],
-        |reply| {
-            if let raw::Response::Page { meta, .. } = reply
-                && (meta.results.skip != query.offset() || meta.results.limit != query.limit())
-            {
-                return Err(BadReply);
-            }
-            Ok(())
-        },
-    )?;
+    let (response, metadata) = leg
+        .call::<raw::Response>(
+            &endpoint,
+            Input::Params(&[
+                ("search", Arg::Text(&selector)),
+                ("limit", Arg::Num(query.limit().into())),
+                ("skip", Arg::Num(query.offset().into())),
+                ("sort", Arg::Text("receivedate:desc")),
+            ]),
+            biomcp_fetch::Read::json().check(
+                &(|reply| {
+                    if let raw::Response::Page { meta, .. } = reply
+                        && (meta.results.skip != query.offset()
+                            || meta.results.limit != query.limit())
+                    {
+                        return Err(BadReply);
+                    }
+                    Ok(())
+                }),
+            ),
+        )
+        .map(|received| (received.value, received.meta))?;
     let mut problems = crate::mapped::Problems {
         source: biomcp_types::Source::Faers,
         record: None,

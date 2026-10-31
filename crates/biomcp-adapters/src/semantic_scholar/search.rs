@@ -4,6 +4,7 @@ use crate::{
     raw::Field,
 };
 use biodata::{Doi, PartialDate, Pmcid, Pmid, SemanticScholarId};
+use biomcp_fetch::{Input, Read};
 
 use biomcp_fetch::{Arg, BadReply, Endpoint, Freshness, Leg, Reply, RequestError};
 use biomcp_types::ArticleHeader;
@@ -202,7 +203,8 @@ pub fn search(
     if open_access {
         args.push(("openAccessPdf", Arg::Text("")));
     }
-    leg.json(&SEARCH, &args)
+    leg.call(&SEARCH, Input::Params(&args), Read::json())
+        .map(|received| received.value)
 }
 impl Paper {
     /// Map identifiers and source metadata without joining another provider.

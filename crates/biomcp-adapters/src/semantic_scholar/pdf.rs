@@ -2,6 +2,7 @@
 
 use crate::{mapped::Problems, raw::Field};
 use biodata::License;
+use biomcp_fetch::Input;
 use biomcp_fetch::{Arg, BadReply, Leg, Reply, RequestError};
 use biomcp_types::ArticleInput;
 use biomcp_types::OpenAccessStatus;
@@ -103,10 +104,12 @@ impl PdfLink {
 }
 /// Read only the open-access PDF fields using the shared paper path and API quota.
 pub fn pdf(leg: &Leg<'_>, input: &ArticleInput) -> Result<PdfRecord, RequestError> {
-    leg.json(
+    leg.call(
         &super::paper_endpoint(input)?,
-        &[("fields", Arg::Text("openAccessPdf"))],
+        Input::Params(&[("fields", Arg::Text("openAccessPdf"))]),
+        biomcp_fetch::Read::json(),
     )
+    .map(|received| received.value)
 }
 
 /// Credential-free publisher declaration, distinct from the optional-key API.

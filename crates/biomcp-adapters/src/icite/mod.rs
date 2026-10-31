@@ -1,6 +1,7 @@
 //! Public iCite metadata; no abstracts or provider-specific scoring blend.
 use crate::{quotas, raw::Field};
 use biodata::{FiniteNumber, Pmid, Text};
+use biomcp_fetch::{Input, Read};
 
 use biomcp_fetch::{
     Arg, BadReply, Endpoint, Freshness, KeyUse, Leg, Reply, RequestError, SourceSpec,
@@ -53,14 +54,17 @@ pub fn publications(
         .iter()
         .map(|id| id.to_string().into_boxed_str())
         .collect();
-    let raw = leg.json::<Raw>(
-        &PUBS,
-        &[
-            ("pmids", Arg::Ids(&names)),
-            ("legacy", Arg::Text("false")),
-            ("fl", Arg::Text(FIELDS)),
-        ],
-    )?;
+    let raw = leg
+        .call::<Raw>(
+            &PUBS,
+            Input::Params(&[
+                ("pmids", Arg::Ids(&names)),
+                ("legacy", Arg::Text("false")),
+                ("fl", Arg::Text(FIELDS)),
+            ]),
+            Read::json(),
+        )
+        .map(|received| received.value)?;
     if raw
         .data
         .iter()

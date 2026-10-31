@@ -5,6 +5,7 @@ use crate::{
     raw::{Field, OneOrMany},
 };
 use biodata::{Build, FiniteNumber, Text};
+use biomcp_fetch::Input;
 
 use biomcp_fetch::{Arg, BadReply, Leg, PathSegment, Reply, RequestError};
 use biomcp_types::{CosmicCoordinates, CosmicIdentity, CosmicRecord, Source, VariantCosmic};
@@ -19,20 +20,24 @@ pub fn get(leg: &Leg<'_>, id: &str, build: Build) -> Result<Mapped<VariantCosmic
     } else {
         "hg19"
     };
-    let raw = leg.json_checked_cache::<Record>(
-        &endpoint,
-        &[
-            ("fields", Arg::Text("_id,cosmic")),
-            ("assembly", Arg::Text(assembly)),
-        ],
-        |record| {
-            record
-                .id
-                .as_ref()
-                .and_then(Field::as_ref)
-                .is_some_and(|given| given.as_str() == id)
-        },
-    )?;
+    let raw = leg
+        .call::<Record>(
+            &endpoint,
+            Input::Params(&[
+                ("fields", Arg::Text("_id,cosmic")),
+                ("assembly", Arg::Text(assembly)),
+            ]),
+            biomcp_fetch::Read::json().cache_if(
+                &(|record| {
+                    record
+                        .id
+                        .as_ref()
+                        .and_then(Field::as_ref)
+                        .is_some_and(|given| given.as_str() == id)
+                }),
+            ),
+        )
+        .map(|received| received.value)?;
     let mut problems = Problems {
         source: Source::MyVariant,
         record: crate::mapped::record(id),

@@ -1,5 +1,6 @@
 //! Checked cache isolation and offline behavior through the public request API.
 #![expect(
+use biomcp_fetch::{Input, Read};
     clippy::unwrap_used,
     clippy::disallowed_methods,
     reason = "Controlled local peers seed explicit isolated caches"
@@ -55,7 +56,8 @@ fn offline_rechecks_fresh_stale_negative_expired_and_corrupt_entries_without_htt
     let get = |fetch: &Fetch| {
         fetch
             .leg(spec, fetch.deadline(Duration::from_secs(10)))
-            .json::<Answer>(&ep, &[])
+            .call::<Answer>(&ep, Input::Params(&[]), Read::json())
+            .map(|received| received.value)
     };
     assert!(matches!(get(&offline), Err(RequestError::Source(e)) if e.reason == Reason::Offline));
     thread::scope(|scope| {
@@ -66,7 +68,12 @@ fn offline_rechecks_fresh_stale_negative_expired_and_corrupt_entries_without_htt
     assert!(get(&offline).unwrap().answer);
     expire(&cache);
     let leg = offline.leg(spec, offline.deadline(Duration::from_secs(10)));
-    assert!(leg.json::<Answer>(&ep, &[]).unwrap().answer);
+    assert!(
+        leg.call::<Answer>(&ep, Input::Params(&[]), Read::json())
+            .map(|received| received.value)
+            .unwrap()
+            .answer
+    );
     let report = leg.finish();
     assert!(report.stale);
     assert!(report.failures.is_empty());
@@ -78,7 +85,14 @@ fn offline_rechecks_fresh_stale_negative_expired_and_corrupt_entries_without_htt
     assert!(
         offline
             .leg(spec, offline.deadline(Duration::from_secs(10)))
-            .json_opt::<Answer>(&ep, &[])
+            .call::<Answer>(&ep, Input::Params(&[]), Read::json())
+            .map(|received| Some(received.value))
+            .or_else(|error| match error {
+                biomcp_fetch::RequestError::Source(source)
+                    if source.reason == biomcp_types::Reason::NotFound =>
+                    Ok(None),
+                error => Err(error),
+            })
             .unwrap()
             .is_none()
     );
@@ -107,7 +121,8 @@ fn record_bypasses_warm_cache_and_replay_ignores_user_cache_and_writes_only_owne
     let get = |fetch: &Fetch| {
         fetch
             .leg(spec, fetch.deadline(Duration::from_secs(10)))
-            .json::<Answer>(&ep, &[])
+            .call::<Answer>(&ep, Input::Params(&[]), Read::json())
+            .map(|received| received.value)
     };
     let live = Fetch::open(config(&cache, Mode::default())).unwrap();
     thread::scope(|scope| {
@@ -151,7 +166,8 @@ fn record_bypasses_warm_cache_and_replay_ignores_user_cache_and_writes_only_owne
         replay
             .leg(spec, replay.deadline(Duration::from_secs(10)))
             .fresh(true)
-            .json::<Answer>(&ep, &[])
+            .call::<Answer>(&ep, Input::Params(&[]), Read::json())
+            .map(|received| received.value)
             .unwrap_err(),
         RequestError::Recording(RecordError::Exhausted)
     );
@@ -199,7 +215,8 @@ fn replay_does_not_open_an_invalid_ordinary_cache() {
         let worker = scope.spawn(|| {
             capture
                 .leg(spec, capture.deadline(Duration::from_secs(10)))
-                .json::<Answer>(&ep, &[])
+                .call::<Answer>(&ep, Input::Params(&[]), Read::json())
+                .map(|received| received.value)
         });
         server.next().ok();
         worker.join().unwrap().unwrap();
@@ -209,7 +226,8 @@ fn replay_does_not_open_an_invalid_ordinary_cache() {
     assert!(
         replay
             .leg(spec, replay.deadline(Duration::from_secs(10)))
-            .json::<Answer>(&ep, &[])
+            .call::<Answer>(&ep, Input::Params(&[]), Read::json())
+            .map(|received| received.value)
             .unwrap()
             .answer
     );

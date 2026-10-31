@@ -1,5 +1,6 @@
 //! Canonical seer publisher declaration.
 use crate::mapped::problem;
+use biomcp_fetch::Input;
 use biomcp_fetch::{KeyUse, SourceSpec, Terms};
 use biomcp_types::{Source, Use};
 use std::time::Duration;
@@ -89,7 +90,9 @@ const CATALOG: Endpoint = SPEC.get("/get_var_formats.php").fresh(Freshness::Days
 const SERIES: Endpoint = SPEC.get("/render_region_5.php").fresh(Freshness::Days(1));
 /// Read the native catalog without selecting an ontology mapping.
 pub fn catalog(leg: &Leg<'_>, limit: u32, offset: u32) -> Result<Page<DiseaseSite>, RequestError> {
-    let (raw, metadata) = leg.json_received::<raw::Catalog>(&CATALOG, &[])?;
+    let (raw, metadata) = leg
+        .call::<raw::Catalog>(&CATALOG, Input::Params(&[]), biomcp_fetch::Read::json())
+        .map(|received| (received.value, received.meta))?;
     let total = raw.sites.len() as u64;
     let mut problems = crate::mapped::Problems {
         source: Source::Seer,
@@ -113,7 +116,7 @@ pub fn catalog(leg: &Leg<'_>, limit: u32, offset: u32) -> Result<Page<DiseaseSit
         problems.record = None;
         if let Some(site) = problems.field("CancerSites.value", Some(site)) {
             let code = crate::mapped::text(&site.value.to_string())
-                .map_err(|_| biomcp_fetch::InputError::Serialization)?;
+                .map_err(|_| InputError::Serialization)?;
             problems.record = Some(code.clone());
             let label = problems
                 .required(
@@ -173,29 +176,34 @@ pub fn statistics(
     limit: u32,
     offset: u32,
 ) -> Result<Page<DiseaseStatistic>, RequestError> {
-    let (raw, metadata) = leg.json_string_received_checked_admission::<raw::Document>(
-        &SERIES,
-        &query.params(),
-        |r| {
-            let expected = if matches!(query.statistic, Statistic::Survival { .. }) {
-                "rel_rate"
-            } else {
-                "rate"
-            };
-            let site_index = r.info.keys.iter().position(|key| key == "site");
-            let matching_site = site_index.is_some_and(|index| {
-                r.data
-                    .iter()
-                    .all(|(key, _)| key.split('_').nth(index) == Some(query.site.as_str()))
-            });
-            if r.info.measure == expected && matching_site {
-                Ok(())
-            } else {
-                Err(biomcp_fetch::BadReply)
-            }
-        },
-        map::identities_admitted,
-    )?;
+    let (raw, metadata) = leg
+        .call::<raw::Document>(
+            &SERIES,
+            Input::Params(&query.params()),
+            biomcp_fetch::Read::json_string()
+                .check(
+                    &(|r| {
+                        let expected = if matches!(query.statistic, Statistic::Survival { .. }) {
+                            "rel_rate"
+                        } else {
+                            "rate"
+                        };
+                        let site_index = r.info.keys.iter().position(|key| key == "site");
+                        let matching_site = site_index.is_some_and(|index| {
+                            r.data.iter().all(|(key, _)| {
+                                key.split('_').nth(index) == Some(query.site.as_str())
+                            })
+                        });
+                        if r.info.measure == expected && matching_site {
+                            Ok(())
+                        } else {
+                            Err(biomcp_fetch::BadReply)
+                        }
+                    }),
+                )
+                .cache_if(&(map::identities_admitted)),
+        )
+        .map(|received| (received.value, received.meta))?;
     let (rows, problems) = map::rows(raw, query).map_err(|_| {
         RequestError::Source(biomcp_fetch::SourceError {
             source: Source::Seer,

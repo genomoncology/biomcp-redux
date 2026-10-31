@@ -1,5 +1,6 @@
 //! Direct exact-term HPO service policy; no discovery or bundle endpoint.
 use crate::disease_sources::components::HPO;
+use biomcp_fetch::Input;
 use biomcp_fetch::{KeyUse, SourceSpec, Terms};
 use biomcp_types::Source;
 use std::time::Duration;
@@ -44,13 +45,21 @@ pub fn get(leg: &Leg<'_>, query: &PhenotypeGet) -> Result<Record, RequestError> 
         .get("/api/hp/terms")
         .with_segments(&[biomcp_fetch::PathSegment::new(query.id().as_str())?])
         .fresh(Freshness::Days(1));
-    let (term, metadata) = leg.json_received_checked::<raw::Term>(&endpoint, &[], |term| {
-        if &term.id == query.id() {
-            Ok(())
-        } else {
-            Err(BadReply)
-        }
-    })?;
+    let (term, metadata) = leg
+        .call::<raw::Term>(
+            &endpoint,
+            Input::Params(&[]),
+            biomcp_fetch::Read::json().check(
+                &(|term| {
+                    if &term.id == query.id() {
+                        Ok(())
+                    } else {
+                        Err(BadReply)
+                    }
+                }),
+            ),
+        )
+        .map(|received| (received.value, received.meta))?;
     map(term, metadata, query)
 }
 fn map(

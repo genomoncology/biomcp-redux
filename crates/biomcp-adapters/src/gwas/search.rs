@@ -1,5 +1,6 @@
 //! One native association conjunction; no local prefix intersection.
 use super::{ASSOCIATIONS, Page, raw};
+use biomcp_fetch::Input;
 use biomcp_fetch::{Arg, BadReply, Leg, RequestError};
 use biomcp_types::GwasSearch;
 use std::collections::BTreeMap;
@@ -12,12 +13,15 @@ pub fn search(leg: &Leg<'_>, q: &GwasSearch) -> Result<Page, RequestError> {
         .iter()
         .map(|(k, v)| (k.as_str(), Arg::Text(v)))
         .collect();
-    let response = leg.json_checked_admission::<raw::Response>(
-        &ASSOCIATIONS,
-        &params,
-        |reply| admission(reply, q, &values),
-        raw::Response::identities_admitted,
-    )?;
+    let response = leg
+        .call::<raw::Response>(
+            &ASSOCIATIONS,
+            Input::Params(&params),
+            biomcp_fetch::Read::json()
+                .check(&(|reply| admission(reply, q, &values)))
+                .cache_if(&(raw::Response::identities_admitted)),
+        )
+        .map(|received| received.value)?;
     Ok(super::page(response, (q.offset() % q.limit()) as usize))
 }
 

@@ -3,6 +3,7 @@ use super::{relation::Selection, relation_snapshot::Saved};
 use crate::{Ctx, Outcome, status};
 use biodata::{PathwayId, PathwaySpecies};
 use biomcp_adapters::wikipathways;
+use biomcp_fetch::Input;
 use biomcp_fetch::{Deadline, RequestError, SourceError};
 use biomcp_types::{
     PathwayGenes, PathwayHeader, PathwayPageInfo, PathwayTotalKind, Reason, Source,
@@ -15,7 +16,7 @@ pub(super) fn fetch(
     out: &mut Outcome,
 ) -> Result<Saved, RequestError> {
     let PathwayId::Wikipathways(id) = q.id else {
-        return Err(biomcp_fetch::InputError::Serialization.into());
+        return Err(InputError::Serialization.into());
     };
     let leg = cx
         .fetch

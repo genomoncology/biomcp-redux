@@ -1,5 +1,6 @@
 //! Public transport contract against isolated local servers.
 
+use biomcp_fetch::Input;
 use biomcp_fetch::{
     Arg, BadReply, Credential, Fetch, FetchConfig, KeyPlace, KeyUse, Reply, Secret, SecretName,
     SourceSpec,
@@ -163,14 +164,16 @@ fn checked_json_encodes_parameters_and_sorts_identifier_sets() {
     let leg = fetch.leg(spec, fetch.deadline(Duration::from_secs(10)));
     let ids = ["b".into(), "a".into()];
     let reply: Answer = leg
-        .json(
+        .call(
             &spec.get("/answer"),
-            &[
+            Input::Params(&[
                 ("ids", Arg::Ids(&ids)),
                 ("text", Arg::Text("a b&c")),
                 ("n", Arg::Num(2)),
-            ],
+            ]),
+            biomcp_fetch::Read::json(),
         )
+        .map(|received| received.value)
         .unwrap();
     assert_eq!(reply.answer.as_deref(), Some("yes"));
     let requests = stub.finish();
@@ -197,16 +200,34 @@ fn http_failures_preserve_status_and_optional_404_is_absent() {
         let spec = stub.spec(KeyUse::None, Duration::from_secs(10));
         let fetch = fetch();
         let leg = fetch.leg(spec, fetch.deadline(Duration::from_secs(10)));
-        let error = leg.json::<Answer>(&spec.get("/answer"), &[]).unwrap_err();
+        let error = leg
+            .call::<Answer>(
+                &spec.get("/answer"),
+                Input::Params(&[]),
+                biomcp_fetch::Read::json(),
+            )
+            .map(|received| received.value)
+            .unwrap_err();
         let biomcp_fetch::RequestError::Source(error) = error else {
             panic!("expected provider failure: {error}");
         };
         assert_eq!((error.reason, error.status), (reason, Some(status)));
         if status == 404 {
             assert!(
-                leg.json_opt::<Answer>(&spec.get("/answer"), &[])
-                    .unwrap()
-                    .is_none()
+                leg.call::<Answer>(
+                    &spec.get("/answer"),
+                    Input::Params(&[]),
+                    biomcp_fetch::Read::json()
+                )
+                .map(|received| Some(received.value))
+                .or_else(|error| match error {
+                    biomcp_fetch::RequestError::Source(source)
+                        if source.reason == biomcp_types::Reason::NotFound =>
+                        Ok(None),
+                    error => Err(error),
+                })
+                .unwrap()
+                .is_none()
             );
         }
     }
@@ -229,7 +250,12 @@ fn unusable_success_replies_are_bad_reply() {
         .unwrap();
         let error = fetch
             .leg(spec, fetch.deadline(Duration::from_secs(10)))
-            .json::<Answer>(&spec.get("/answer"), &[])
+            .call::<Answer>(
+                &spec.get("/answer"),
+                Input::Params(&[]),
+                biomcp_fetch::Read::json(),
+            )
+            .map(|received| received.value)
             .unwrap_err();
         let biomcp_fetch::RequestError::Source(error) = error else {
             panic!("expected provider failure: {error}");
@@ -279,7 +305,8 @@ fn octet_stream_requires_endpoint_permission_and_keeps_decode_and_body_limits() 
         };
         let result = fetch
             .leg(spec, fetch.deadline(Duration::from_secs(10)))
-            .json::<Answer>(&endpoint, &[]);
+            .call::<Answer>(&endpoint, Input::Params(&[]), biomcp_fetch::Read::json())
+            .map(|received| received.value);
         assert_eq!(result.is_ok(), accepted);
         if let Err(biomcp_fetch::RequestError::Source(error)) = result {
             assert_eq!(error.reason, Reason::BadReply);
@@ -311,7 +338,8 @@ fn refusals_send_zero_requests() {
         };
         let error = fetch
             .leg(spec, deadline)
-            .json::<Answer>(&endpoint, &[])
+            .call::<Answer>(&endpoint, Input::Params(&[]), biomcp_fetch::Read::json())
+            .map(|received| received.value)
             .unwrap_err();
         let biomcp_fetch::RequestError::Source(error) = error else {
             panic!("expected provider failure: {error}");
@@ -336,7 +364,12 @@ fn source_budget_caps_supplied_deadline_during_headers_and_body() {
         let fetch = fetch();
         let error = fetch
             .leg(spec, fetch.deadline(Duration::from_secs(30)))
-            .json::<Answer>(&spec.get("/answer"), &[])
+            .call::<Answer>(
+                &spec.get("/answer"),
+                Input::Params(&[]),
+                biomcp_fetch::Read::json(),
+            )
+            .map(|received| received.value)
             .unwrap_err();
         let biomcp_fetch::RequestError::Source(error) = error else {
             panic!("expected provider failure: {error}");
@@ -385,7 +418,12 @@ fn deadline_exhausted_during_reply_check_returns_deadline_exceeded() {
     CHECK_DEADLINE.with(|timer| timer.set(Some(std::time::Instant::now() + deadline.remaining())));
     let error = fetch
         .leg(spec, deadline)
-        .json::<CheckedAnswer>(&spec.get("/answer"), &[])
+        .call::<CheckedAnswer>(
+            &spec.get("/answer"),
+            Input::Params(&[]),
+            biomcp_fetch::Read::json(),
+        )
+        .map(|received| received.value)
         .unwrap_err();
     let biomcp_fetch::RequestError::Source(error) = error else {
         panic!("expected provider failure: {error}");
@@ -404,9 +442,20 @@ fn identity_encoding_is_explicit_and_does_not_change_default_requests() {
     let spec = stub.spec(KeyUse::None, Duration::from_secs(10));
     let fetch = fetch();
     let leg = fetch.leg(spec, fetch.deadline(Duration::from_secs(10)));
-    leg.json::<Answer>(&spec.get("/answer").identity_encoding(), &[])
-        .unwrap();
-    leg.json::<Answer>(&spec.get("/answer"), &[]).unwrap();
+    leg.call::<Answer>(
+        &spec.get("/answer").identity_encoding(),
+        Input::Params(&[]),
+        biomcp_fetch::Read::json(),
+    )
+    .map(|received| received.value)
+    .unwrap();
+    leg.call::<Answer>(
+        &spec.get("/answer"),
+        Input::Params(&[]),
+        biomcp_fetch::Read::json(),
+    )
+    .map(|received| received.value)
+    .unwrap();
     let requests = stub.finish();
     assert!(
         requests
@@ -451,13 +500,15 @@ fn outgoing_contact_and_optional_key_never_enter_persistent_identity() {
     for endpoint in [spec.get("/search"), spec.post_form("/summary").idempotent()] {
         let result = fetch
             .leg(spec, fetch.deadline(Duration::from_secs(10)))
-            .json::<Answer>(
+            .call::<Answer>(
                 &endpoint,
-                &[
+                Input::Params(&[
                     ("tool", Arg::Text("biomcp")),
                     ("email", Arg::Contact(&email)),
-                ],
+                ]),
+                biomcp_fetch::Read::json(),
             )
+            .map(|received| received.value)
             .unwrap();
         assert_eq!(result.answer.as_deref(), Some("checked"));
     }
@@ -554,7 +605,10 @@ fn publisher_destinations_refuse_private_hosts_and_applicable_proxies_before_con
         let deadline = fetch.deadline(Duration::from_secs(5));
         let leg = fetch.leg(spec, deadline);
         let endpoint = spec.download(&url).unwrap().bytes(1024);
-        let error = leg.bytes(&endpoint, &[]).unwrap_err();
+        let error = leg
+            .call(&endpoint, Input::Params(&[]), biomcp_fetch::Read::bytes())
+            .map(|received| received.value.0)
+            .unwrap_err();
         assert!(
             matches!(error, biomcp_fetch::RequestError::Source(e) if e.reason == expected),
             "{error:?}"

@@ -3,6 +3,7 @@ use crate::Mapped;
 use crate::mapped::problem;
 use crate::mapped::record as record_text;
 use biodata::{PathwayEventRef, PathwayMember, PathwayParticipant, PathwaySourceRef, ReactomeId};
+use biomcp_fetch::Input;
 use biomcp_fetch::{Freshness, Leg, RequestError};
 use biomcp_types::Source;
 /// Complete source-reference membership with explicit occurrence and physical-entity counts.
@@ -24,7 +25,9 @@ pub fn members(leg: &Leg<'_>, id: &ReactomeId) -> Result<Mapped<Members>, Reques
         .with_path(format!("/data/participants/{id}"))?
         .bytes(8 * 1024 * 1024)
         .fresh(Freshness::Days(7));
-    let rows = leg.json::<raw::Participants>(&endpoint, &[])?;
+    let rows = leg
+        .call::<raw::Participants>(&endpoint, Input::Params(&[]), biomcp_fetch::Read::json())
+        .map(|received| received.value)?;
     let mut problems = fields(id);
     let mut value = Members {
         items: Vec::new(),
@@ -198,19 +201,26 @@ fn event_rows(leg: &Leg<'_>, id: &ReactomeId) -> Result<raw::Events, RequestErro
         .with_path(format!("/data/pathway/{id}/containedEvents"))?
         .bytes(8 * 1024 * 1024)
         .fresh(Freshness::Days(7));
-    leg.json_checked_cache::<raw::Events>(&endpoint, &[], |rows| {
-        rows.0.iter().all(|row| match row {
-            raw::Event::Database(_) => true,
-            raw::Event::Object(v) => {
-                v.species_name
-                    .as_deref()
-                    .is_none_or(|s| s == "Homo sapiens")
-                    && v.st_id
-                        .as_deref()
-                        .is_none_or(|id| id.parse::<ReactomeId>().is_ok())
-            }
-        })
-    })
+    leg.call::<raw::Events>(
+        &endpoint,
+        Input::Params(&[]),
+        biomcp_fetch::Read::json().cache_if(
+            &(|rows| {
+                rows.0.iter().all(|row| match row {
+                    raw::Event::Database(_) => true,
+                    raw::Event::Object(v) => {
+                        v.species_name
+                            .as_deref()
+                            .is_none_or(|s| s == "Homo sapiens")
+                            && v.st_id
+                                .as_deref()
+                                .is_none_or(|id| id.parse::<ReactomeId>().is_ok())
+                    }
+                })
+            }),
+        ),
+    )
+    .map(|received| received.value)
 }
 
 fn fields(id: &ReactomeId) -> crate::mapped::Problems {

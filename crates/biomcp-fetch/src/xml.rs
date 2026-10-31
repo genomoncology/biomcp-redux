@@ -1,5 +1,5 @@
 //! Bounded UTF-8 XML replies and ordered inline text.
-use crate::{Reply, read::Read};
+use crate::Reply;
 use quick_xml::{Reader, events::Event};
 use std::borrow::Cow;
 
@@ -237,29 +237,5 @@ impl Reply for Bytes {
         } else {
             Err(crate::BadReply)
         }
-    }
-}
-
-impl crate::Leg<'_> {
-    /// Apply a request-bound XML check on cache/replay reads and before live cache admission.
-    pub fn xml_received_checked<T: XmlReply>(
-        &self,
-        ep: &crate::Endpoint,
-        params: &[(&str, crate::Arg<'_>)],
-        check: impl Fn(&T) -> Result<(), crate::BadReply>,
-    ) -> Result<(T, crate::ReplyMetadata), crate::RequestError> {
-        self.parameters(ep, params, Read::checked_xml(&check))
-    }
-}
-
-impl crate::Leg<'_> {
-    /// Preserve XML metadata while withholding refused record identities from raw cache.
-    pub fn xml_received_checked_cache<T: XmlReply>(
-        &self,
-        ep: &crate::Endpoint,
-        params: &[(&str, crate::Arg<'_>)],
-        cache_if: impl Fn(&T) -> bool,
-    ) -> Result<(T, crate::ReplyMetadata), crate::RequestError> {
-        self.parameters(ep, params, Read::xml().cache_if(&cache_if))
     }
 }

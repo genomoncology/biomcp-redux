@@ -4,6 +4,7 @@ use super::SPEC;
 use crate::{Mapped, mapped::Problems, raw::Field};
 use biodata::{ClinVarVariationId, Variant, VariantId};
 use biomcp_fetch::{Arg, BadReply, Endpoint, Freshness, Leg, Reply, RequestError};
+use biomcp_fetch::{Input, Read};
 use biomcp_types::{Source, SourceRecord, VariantHeader, VariantSearch};
 use serde::Deserialize;
 const SEARCH: Endpoint = SPEC.get("/esearch.fcgi").fresh(Freshness::Days(1));
@@ -86,30 +87,37 @@ pub fn search(leg: &Leg<'_>, query: &VariantSearch) -> Result<SearchPage, Reques
     if query.offset() != 0 {
         args.push(("retstart", Arg::Num(u64::from(query.offset()))));
     }
-    let reply = leg.json_checked_admission::<Search>(
-        &SEARCH,
-        &args,
-        |reply| {
-            let page = &reply.esearchresult;
-            let total = page.count;
-            if page.retstart != query.offset().to_string()
-                || page.idlist.len() as u64
-                    != total
-                        .saturating_sub(u64::from(query.offset()))
-                        .min(u64::from(query.limit()))
-            {
-                return Err(BadReply);
-            }
-            Ok(())
-        },
-        |reply| {
-            reply
-                .esearchresult
-                .idlist
-                .iter()
-                .all(|id| id.as_ref().is_some())
-        },
-    )?;
+    let reply = leg
+        .call::<Search>(
+            &SEARCH,
+            Input::Params(&args),
+            Read::json()
+                .check(
+                    &(|reply| {
+                        let page = &reply.esearchresult;
+                        let total = page.count;
+                        if page.retstart != query.offset().to_string()
+                            || page.idlist.len() as u64
+                                != total
+                                    .saturating_sub(u64::from(query.offset()))
+                                    .min(u64::from(query.limit()))
+                        {
+                            return Err(BadReply);
+                        }
+                        Ok(())
+                    }),
+                )
+                .cache_if(
+                    &(|reply| {
+                        reply
+                            .esearchresult
+                            .idlist
+                            .iter()
+                            .all(|id| id.as_ref().is_some())
+                    }),
+                ),
+        )
+        .map(|received| received.value)?;
     Ok(mapped_page(reply.esearchresult))
 }
 

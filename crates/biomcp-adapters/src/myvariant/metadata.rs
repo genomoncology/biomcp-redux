@@ -3,6 +3,7 @@ use crate::native_text::NativeText;
 use crate::{Mapped, mapped::Problems, raw::Field};
 use biodata::Text;
 use biomcp_fetch::{BadReply, Endpoint, Freshness, Leg, Reply, RequestError};
+use biomcp_fetch::{Input, Read};
 use biomcp_types::{ComponentUpload, Source, SourceDateTimeValue, VariantComponent};
 use serde::Deserialize;
 use std::collections::BTreeMap;
@@ -14,7 +15,9 @@ pub(super) fn components(
     leg: &Leg<'_>,
     selected: &[super::components::Component],
 ) -> Result<Mapped<Vec<VariantComponent>>, RequestError> {
-    let mut raw = leg.json::<Metadata>(&METADATA, &[])?;
+    let mut raw = leg
+        .call::<Metadata>(&METADATA, Input::Params(&[]), Read::json())
+        .map(|received| received.value)?;
     let mut problems = Problems {
         source: Source::MyVariant,
         record: None,

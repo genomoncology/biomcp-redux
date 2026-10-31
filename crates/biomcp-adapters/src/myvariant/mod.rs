@@ -1,4 +1,5 @@
 //! MyVariant exact source identities and compact component-attributed facts.
+use biomcp_fetch::{Input, Read};
 /// Independent terms for carried components.
 pub mod components;
 /// MyVariant-carried historical COSMIC fragments.
@@ -80,23 +81,27 @@ fn lookup_with(
     let mut offset = 0;
     let mut hits = Vec::new();
     loop {
-        let page = leg.json_checked_cache::<raw::Page>(
-            &QUERY,
-            &[
-                ("q", Arg::Text(query)),
-                ("size", Arg::Num(1000)),
-                ("from", Arg::Num(offset)),
-                ("fields", Arg::Text(&fields)),
-                ("assembly", Arg::Text(assembly)),
-            ],
-            |page| {
-                page.hits.iter().all(|hit| {
-                    hit.as_ref().is_some_and(|hit| {
-                        biomcp_fetch::Reply::check(hit).is_ok() && hit.matches(query)
-                    })
-                })
-            },
-        )?;
+        let page = leg
+            .call::<raw::Page>(
+                &QUERY,
+                Input::Params(&[
+                    ("q", Arg::Text(query)),
+                    ("size", Arg::Num(1000)),
+                    ("from", Arg::Num(offset)),
+                    ("fields", Arg::Text(&fields)),
+                    ("assembly", Arg::Text(assembly)),
+                ]),
+                Read::json().cache_if(
+                    &(|page| {
+                        page.hits.iter().all(|hit| {
+                            hit.as_ref().is_some_and(|hit| {
+                                biomcp_fetch::Reply::check(hit).is_ok() && hit.matches(query)
+                            })
+                        })
+                    }),
+                ),
+            )
+            .map(|received| received.value)?;
         let count = page.hits.len() as u64;
         hits.extend(page.hits);
         offset += count;
@@ -138,19 +143,22 @@ fn annotation(
     };
     let endpoint = VARIANT.clone().with_segments(&[PathSegment::new(id)?]);
     let fields = projection(leg, population);
-    let annotation = leg.json_checked_cache::<raw::Annotation>(
-        &endpoint,
-        &[
-            ("fields", Arg::Text(&fields)),
-            ("assembly", Arg::Text(assembly)),
-        ],
-        |annotation| {
-            annotation
-                .hit
-                .as_ref()
-                .is_some_and(|hit| biomcp_fetch::Reply::check(hit).is_ok() && hit.matches(id))
-        },
-    )?;
+    let annotation = leg
+        .call::<raw::Annotation>(
+            &endpoint,
+            Input::Params(&[
+                ("fields", Arg::Text(&fields)),
+                ("assembly", Arg::Text(assembly)),
+            ]),
+            Read::json().cache_if(
+                &(|annotation| {
+                    annotation.hit.as_ref().is_some_and(|hit| {
+                        biomcp_fetch::Reply::check(hit).is_ok() && hit.matches(id)
+                    })
+                }),
+            ),
+        )
+        .map(|received| received.value)?;
     Ok(mapped(leg, vec![annotation.hit], id, build, population))
 }
 

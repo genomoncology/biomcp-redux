@@ -1,7 +1,7 @@
+use crate::read::Read;
 use crate::record::{Body, Exchange};
 use crate::{Arg, Endpoint, Leg, Reply, RequestError, SourceError};
 use crate::{InputError, declaration::Method, prepared::Prepared};
-use crate::{read::Read, xml::XmlReply};
 use biomcp_types::Reason;
 use std::time::{Duration, Instant};
 
@@ -30,46 +30,6 @@ pub(crate) enum Failure {
 }
 
 impl Leg<'_> {
-    /// Read opaque bytes from an endpoint declaring its own bounded binary policy.
-    pub fn bytes(
-        &self,
-        ep: &Endpoint,
-        params: &[(&str, Arg<'_>)],
-    ) -> Result<Vec<u8>, RequestError> {
-        let limit = ep
-            .byte_limit
-            .filter(|v| *v > 0 && *v < u64::MAX)
-            .ok_or(InputError::BodyLimit)?;
-        self.parameters(ep, params, Read::bytes(limit))
-            .map(|(v, _)| v.0)
-    }
-    /// Read binary bytes only after the source-owned parser accepts them for cache admission.
-    pub fn bytes_checked(
-        &self,
-        ep: &Endpoint,
-        params: &[(&str, Arg<'_>)],
-        check: impl Fn(&[u8]) -> Result<(), Reason>,
-    ) -> Result<Vec<u8>, RequestError> {
-        self.bytes_checked_media(ep, params, None, check)
-    }
-    pub(crate) fn bytes_checked_media(
-        &self,
-        ep: &Endpoint,
-        params: &[(&str, Arg<'_>)],
-        media: Option<crate::DocumentMedia>,
-        check: impl Fn(&[u8]) -> Result<(), Reason>,
-    ) -> Result<Vec<u8>, RequestError> {
-        let limit = ep
-            .byte_limit
-            .filter(|v| *v > 0 && *v < u64::MAX)
-            .ok_or(InputError::BodyLimit)?;
-        let decoder = Read::checked_bytes(limit, &check);
-        let decoder = match media {
-            Some(media) => decoder.document_media(media),
-            None => decoder,
-        };
-        self.parameters(ep, params, decoder).map(|(v, _)| v.0)
-    }
     /// Probe declared reachability through the same bounded transport, quota and replay policy.
     /// Probe replies never enter the checked data cache.
     pub fn probe(&self, ep: &Endpoint, params: &[(&str, Arg<'_>)]) -> Result<(), RequestError> {
@@ -100,64 +60,6 @@ impl Leg<'_> {
             Read::probe(),
         )
         .map(|_| ())
-    }
-
-    /// Send checked JSON from a GET or form POST. A missing record returns `not_found`.
-    pub fn json<T: Reply>(
-        &self,
-        ep: &Endpoint,
-        params: &[(&str, Arg<'_>)],
-    ) -> Result<T, RequestError> {
-        self.parameters(ep, params, Read::json())
-            .map(|(reply, _)| reply)
-    }
-
-    /// Read checked JSON and the timestamp belonging to that received record.
-    pub fn json_received<T: Reply>(
-        &self,
-        ep: &Endpoint,
-        params: &[(&str, Arg<'_>)],
-    ) -> Result<(T, crate::ReplyMetadata), RequestError> {
-        self.parameters(ep, params, Read::json())
-    }
-
-    /// Apply a request-bound JSON check before cache admission and on cache or replay reads.
-    pub fn json_received_checked<T: Reply>(
-        &self,
-        ep: &Endpoint,
-        params: &[(&str, Arg<'_>)],
-        check: impl Fn(&T) -> Result<(), crate::BadReply>,
-    ) -> Result<(T, crate::ReplyMetadata), RequestError> {
-        self.parameters(ep, params, Read::checked_json(&check))
-    }
-    /// Decode exactly one JSON-string wrapper, then validate the typed inner reply.
-    /// Cache and replay reads use the same decoder and request-bound check.
-    pub fn json_string_received_checked<T: Reply>(
-        &self,
-        ep: &Endpoint,
-        params: &[(&str, Arg<'_>)],
-        check: impl Fn(&T) -> Result<(), crate::BadReply>,
-    ) -> Result<(T, crate::ReplyMetadata), RequestError> {
-        self.parameters(ep, params, Read::checked_json_string(&check))
-    }
-
-    /// Send checked XML from a GET or form POST.
-    pub fn xml<T: XmlReply>(
-        &self,
-        ep: &Endpoint,
-        params: &[(&str, Arg<'_>)],
-    ) -> Result<T, RequestError> {
-        self.parameters(ep, params, Read::xml())
-            .map(|(reply, _)| reply)
-    }
-
-    /// Read XML and its own original fetch time without borrowing another reply's metadata.
-    pub fn xml_received<T: XmlReply>(
-        &self,
-        ep: &Endpoint,
-        params: &[(&str, Arg<'_>)],
-    ) -> Result<(T, crate::ReplyMetadata), RequestError> {
-        self.parameters(ep, params, Read::xml())
     }
 
     pub(crate) fn parameters<T: Reply>(
@@ -194,18 +96,6 @@ impl Leg<'_> {
             })
             .collect();
         self.send(ep, prepared, codec)
-    }
-
-    /// Send checked JSON from a GET or form POST, treating HTTP 404 as an absent record.
-    pub fn json_opt<T: Reply>(
-        &self,
-        ep: &Endpoint,
-        params: &[(&str, Arg<'_>)],
-    ) -> Result<Option<T>, RequestError> {
-        match self.json(ep, params) {
-            Err(RequestError::Source(error)) if error.reason == Reason::NotFound => Ok(None),
-            result => result.map(Some),
-        }
     }
 
     pub(crate) fn failure(&self, reason: Reason, status: Option<u16>) -> SourceError {

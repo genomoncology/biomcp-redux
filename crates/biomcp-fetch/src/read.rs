@@ -66,16 +66,7 @@ impl<'a, T: Reply> Read<'a, T> {
         self.diagnostic_inputs = Some((ids, parameter.into()));
         self
     }
-    pub(crate) fn checked_json(check: &'a dyn Fn(&T) -> Result<(), crate::BadReply>) -> Self {
-        let mut codec = Self::json();
-        codec.check = Some(check);
-        codec
-    }
-    pub(crate) fn counted_json(check: &'a RangeCheck<'a, T>) -> Self {
-        let mut codec = Self::json();
-        codec.range_check = Some(check);
-        codec
-    }
+
     pub(crate) fn decode_response(
         &self,
         body: &[u8],
@@ -89,16 +80,7 @@ impl<'a, T: Reply> Read<'a, T> {
         }
         Some(reply)
     }
-    pub(crate) fn checked_json_string(
-        check: &'a dyn Fn(&T) -> Result<(), crate::BadReply>,
-    ) -> Self {
-        let mut codec = Self::checked_json(check);
-        codec.parse = |body| {
-            let inner: String = serde_json::from_slice(body).ok()?;
-            serde_json::from_str(&inner).ok()
-        };
-        codec
-    }
+
     /// Decode a checked native JSON reply.
     pub fn json() -> Self {
         Self {
@@ -124,14 +106,7 @@ impl<'a, T: Reply> Read<'a, T> {
         read.codec = Codec::JsonText;
         read
     }
-    pub(crate) fn checked_xml(check: &'a dyn Fn(&T) -> Result<(), crate::BadReply>) -> Self
-    where
-        T: XmlReply,
-    {
-        let mut codec = Self::xml();
-        codec.check = Some(check);
-        codec
-    }
+
     /// Decode checked XML with source media and encoding rules.
     pub fn xml() -> Self
     where
@@ -232,16 +207,8 @@ impl<'a> Read<'a, Bytes> {
         self
     }
 
-    pub(crate) fn checked_bytes(
-        limit: u64,
-        check: &'a dyn Fn(&[u8]) -> Result<(), biomcp_types::Reason>,
-    ) -> Self {
-        let mut codec = Self::bytes(limit);
-        codec.validate = Some(check);
-        codec
-    }
     /// Read opaque bytes under an explicit bound.
-    pub fn bytes(limit: u64) -> Self {
+    pub fn bytes() -> Self {
         Self {
             codec: Codec::Bytes("application/octet-stream"),
             xml_media: None,
@@ -252,7 +219,7 @@ impl<'a> Read<'a, Bytes> {
             range_check: None,
             diagnostic_inputs: None,
             octet_stream: None,
-            limit: Some(limit),
+            limit: None,
             overflow_reason: biomcp_types::Reason::BadReply,
             json_rejections: false,
             json_absence: false,

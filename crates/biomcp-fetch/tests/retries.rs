@@ -1,5 +1,6 @@
 //! Approved retries and deadline distinctions through the public transport API.
 #![expect(
+use biomcp_fetch::{Input, Read};
     clippy::disallowed_methods,
     reason = "Scoped callers exercise shared public transport state against controlled local HTTP peers"
 )]
@@ -45,7 +46,8 @@ fn only_approved_get_statuses_retry_and_exhaust_after_three_attempts() {
             let worker = scope.spawn(|| {
                 fetch
                     .leg(spec, fetch.deadline(Duration::from_secs(5)))
-                    .json::<Answer>(&spec.get("/answer"), &[])
+                    .call::<Answer>(&spec.get("/answer"), Input::Params(&[]), Read::json())
+                    .map(|received| received.value)
             });
             for _ in 0..attempts {
                 server
@@ -78,7 +80,8 @@ fn retry_after_seconds_dates_and_malformed_fallback_replace_backoff() {
             let worker = scope.spawn(|| {
                 fetch
                     .leg(spec, fetch.deadline(Duration::from_secs(5)))
-                    .json::<Answer>(&spec.get("/answer"), &[])
+                    .call::<Answer>(&spec.get("/answer"), Input::Params(&[]), Read::json())
+                    .map(|received| received.value)
             });
             let first = server.next();
             let started = first.started;
@@ -105,7 +108,8 @@ fn provider_wait_beyond_budget_is_rate_limited_with_typed_duration() {
             let worker = scope.spawn(|| {
                 fetch
                     .leg(spec, fetch.deadline(Duration::from_secs(5)))
-                    .json::<Answer>(&spec.get("/answer"), &[])
+                    .call::<Answer>(&spec.get("/answer"), Input::Params(&[]), Read::json())
+                    .map(|received| received.value)
             });
             server
                 .next()
@@ -133,7 +137,8 @@ fn ordinary_backoff_expiry_is_deadline_exceeded_and_releases_permit() {
         let worker = scope.spawn(|| {
             fetch
                 .leg(spec, fetch.deadline(Duration::from_millis(100)))
-                .json::<Answer>(&spec.get("/answer"), &[])
+                .call::<Answer>(&spec.get("/answer"), Input::Params(&[]), Read::json())
+                .map(|received| received.value)
         });
         server.next().respond(503, "Retry-After: malformed\r\n", "");
         let error = worker.join().unwrap().unwrap_err();
@@ -146,7 +151,8 @@ fn ordinary_backoff_expiry_is_deadline_exceeded_and_releases_permit() {
         let next = scope.spawn(|| {
             fetch
                 .leg(spec, fetch.deadline(Duration::from_secs(5)))
-                .json::<Answer>(&spec.get("/next"), &[])
+                .call::<Answer>(&spec.get("/next"), Input::Params(&[]), Read::json())
+                .map(|received| received.value)
         });
         server.next().ok();
         assert!(next.join().unwrap().unwrap().answer);
@@ -162,13 +168,15 @@ fn retry_backoff_releases_in_flight_permit_before_reacquiring() {
         let retrying = scope.spawn(|| {
             fetch
                 .leg(spec, fetch.deadline(Duration::from_secs(5)))
-                .json::<Answer>(&spec.get("/retry"), &[])
+                .call::<Answer>(&spec.get("/retry"), Input::Params(&[]), Read::json())
+                .map(|received| received.value)
         });
         server.next().respond(503, "Retry-After: 1\r\n", "");
         let peer = scope.spawn(|| {
             fetch
                 .leg(spec, fetch.deadline(Duration::from_secs(5)))
-                .json::<Answer>(&spec.get("/peer"), &[])
+                .call::<Answer>(&spec.get("/peer"), Input::Params(&[]), Read::json())
+                .map(|received| received.value)
         });
         let next = server.next();
         assert!(next.text.contains("/peer"));
@@ -195,7 +203,8 @@ fn body_truncation_decode_and_check_failures_do_not_retry_and_release_permits() 
             let worker = scope.spawn(|| {
                 fetch
                     .leg(spec, fetch.deadline(Duration::from_secs(5)))
-                    .json::<Answer>(&spec.get("/bad"), &[])
+                    .call::<Answer>(&spec.get("/bad"), Input::Params(&[]), Read::json())
+                    .map(|received| received.value)
             });
             server.next().raw(response);
             assert_eq!(
@@ -206,7 +215,8 @@ fn body_truncation_decode_and_check_failures_do_not_retry_and_release_permits() 
             let peer = scope.spawn(|| {
                 fetch
                     .leg(spec, fetch.deadline(Duration::from_secs(5)))
-                    .json::<Answer>(&spec.get("/peer"), &[])
+                    .call::<Answer>(&spec.get("/peer"), Input::Params(&[]), Read::json())
+                    .map(|received| received.value)
             });
             server.next().ok();
             assert!(peer.join().unwrap().unwrap().answer);

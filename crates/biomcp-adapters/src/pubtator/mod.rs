@@ -1,4 +1,5 @@
 //! PubTator3 abstract annotation export, joined by each document's own PMID.
+use biomcp_fetch::{Input, Read};
 mod map;
 mod search;
 pub use search::{Search, query_term, search};
@@ -51,7 +52,13 @@ pub fn annotations(leg: &Leg<'_>, ids: &[Pmid]) -> Result<Vec<ArticleAnnotations
         .iter()
         .map(|id| id.to_string().into_boxed_str())
         .collect();
-    let reply = leg.json::<raw::Export>(&EXPORT, &[("pmids", Arg::Ids(&names))])?;
+    let reply = leg
+        .call::<raw::Export>(
+            &EXPORT,
+            Input::Params(&[("pmids", Arg::Ids(&names))]),
+            Read::json(),
+        )
+        .map(|received| received.value)?;
     let malformed_identity = reply.documents.iter().any(|v| v.as_ref().is_none());
     let mut results: Vec<_> = ids
         .iter()

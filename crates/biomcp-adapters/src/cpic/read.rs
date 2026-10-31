@@ -5,6 +5,7 @@ use biodata::{
     PgxDiplotypeResult, PgxDrugRecommendation, PgxGeneIdentity, PgxGuidelineReference, PgxPair,
     PgxRecommendation,
 };
+use biomcp_fetch::Input;
 use biomcp_fetch::{Arg, BadReply, Freshness, Leg, Reply, RequestError};
 use biomcp_types::{PgxGet, PgxSearch};
 use serde::Deserialize;
@@ -40,17 +41,22 @@ fn read<T: serde::de::DeserializeOwned + Native>(
     check: impl Fn(&[T::Value], biomcp_fetch::ContentRange) -> bool,
 ) -> Result<Page<T::Value>, RequestError> {
     let endpoint = SPEC.get(path).fresh(Freshness::Days(1));
-    let (rows, metadata) =
-        leg.json_counted::<Rows<T>>(&endpoint, args, |rows, range, status| {
-            range.check(offset, limit, rows.0.len(), status)?;
-            if complete && range.total != rows.0.len() as u64 {
-                return Err(BadReply);
-            }
-            Ok(())
-        })?;
-    let range = metadata
-        .content_range
-        .ok_or(biomcp_fetch::InputError::Serialization)?;
+    let (rows, metadata) = leg
+        .call::<Rows<T>>(
+            &endpoint,
+            Input::Params(args),
+            biomcp_fetch::Read::json().counted(&|reply, range, status| {
+                (|rows, range, status| {
+                    range.check(offset, limit, rows.0.len(), status)?;
+                    if complete && range.total != rows.0.len() as u64 {
+                        return Err(BadReply);
+                    }
+                    Ok(())
+                })(reply, range.ok_or(biomcp_fetch::BadReply)?, status)
+            }),
+        )
+        .map(|received| (received.value, received.meta))?;
+    let range = metadata.content_range.ok_or(InputError::Serialization)?;
     let consumed = rows.0.len() as u32;
     let mut problems = Problems {
         source: biomcp_types::Source::Cpic,
@@ -180,9 +186,7 @@ pub fn drug_recommendations(
     leg: &Leg<'_>,
     query: &PgxGet,
 ) -> Result<Page<PgxDrugRecommendation>, RequestError> {
-    let id = query
-        .drug_id()
-        .ok_or(biomcp_fetch::InputError::Serialization)?;
+    let id = query.drug_id().ok_or(InputError::Serialization)?;
     let drug = format!("eq.{id}");
     let key = format!("lookupkey->>{}", query.gene());
     read::<super::raw::PgxDrugRecommendation>(
@@ -240,9 +244,7 @@ pub fn guidelines(
 }
 /// Retrieve every mapping for the unchanged expression; literal empty is success.
 pub fn diplotype(leg: &Leg<'_>, query: &PgxGet) -> Result<Page<PgxDiplotypeResult>, RequestError> {
-    let expression = query
-        .diplotype()
-        .ok_or(biomcp_fetch::InputError::Serialization)?;
+    let expression = query.diplotype().ok_or(InputError::Serialization)?;
     let gene = format!("eq.{}", query.gene());
     let value = format!("eq.{expression}");
     read::<super::raw::PgxDiplotypeResult>(

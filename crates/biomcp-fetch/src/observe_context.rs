@@ -128,18 +128,3 @@ impl<T: Reply> crate::read::Read<'_, T> {
         provenance
     }
 }
-
-impl crate::Leg<'_> {
-    /// Send checked JSON with explicit discovery inputs supplied by the request builder.
-    pub fn json_with_inputs<T: Reply>(
-        &self,
-        ep: &crate::Endpoint,
-        params: &[(&str, crate::Arg<'_>)],
-        ids: crate::Identities,
-        parameter: &str,
-    ) -> Result<T, crate::RequestError> {
-        let mut codec = crate::read::Read::json();
-        codec.diagnostic_inputs = Some((ids, parameter.into()));
-        self.parameters(ep, params, codec).map(|(reply, _)| reply)
-    }
-}

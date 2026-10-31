@@ -26,6 +26,7 @@ pub enum Input<'a> {
     },
 }
 /// A checked value and the metadata of the response that supplied it.
+#[derive(Debug)]
 pub struct Received<T> {
     /// Decoded and checked response.
     pub value: T,
@@ -55,6 +56,13 @@ impl Leg<'_> {
         input: Input<'_>,
         mut read: Read<'_, T>,
     ) -> Result<Received<T>, RequestError> {
+        if read.binary() {
+            let limit = endpoint
+                .byte_limit
+                .filter(|limit| *limit > 0 && *limit < u64::MAX)
+                .ok_or(crate::InputError::BodyLimit)?;
+            read.limit = Some(read.limit.map_or(limit, |requested| requested.min(limit)));
+        }
         if let Some(limit) = read.limit {
             if limit == 0 || limit == u64::MAX {
                 return Err(crate::InputError::BodyLimit.into());

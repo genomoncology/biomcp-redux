@@ -1,4 +1,5 @@
 //! Exact native Complex Portal participants; no inferred membership.
+use biomcp_fetch::Input;
 use biomcp_fetch::{KeyUse, SourceSpec, Terms};
 use biomcp_types::{Source, Use};
 use std::time::Duration;
@@ -71,7 +72,9 @@ pub fn search(leg: &Leg<'_>, anchor: &UniProtIsoform) -> Result<Collection, Requ
         if offset > 0 {
             args.push(("first", Arg::Num(offset)));
         }
-        let page = leg.json::<raw::Search>(&endpoint, &args)?;
+        let page = leg
+            .call::<raw::Search>(&endpoint, Input::Params(&args), biomcp_fetch::Read::json())
+            .map(|received| received.value)?;
         if total.is_some_and(|n| n != page.total_number_of_results) {
             return Err(biomcp_fetch::bad_reply(Source::ComplexPortal, Some(200)));
         }
@@ -118,7 +121,13 @@ fn detail(leg: &Leg<'_>, id: &ComplexPortalId) -> Result<raw::Complex, RequestEr
         .with_path(format!("/complex/{id}"))?
         .identity_encoding()
         .fresh(Freshness::Days(1));
-    let d = leg.json_checked_cache::<raw::Detail>(&endpoint, &[], |d| d.id == *id)?;
+    let d = leg
+        .call::<raw::Detail>(
+            &endpoint,
+            Input::Params(&[]),
+            biomcp_fetch::Read::json().cache_if(&(|d| d.id == *id)),
+        )
+        .map(|received| received.value)?;
     if d.id != *id {
         return Err(biomcp_fetch::bad_reply(Source::ComplexPortal, Some(200)));
     }

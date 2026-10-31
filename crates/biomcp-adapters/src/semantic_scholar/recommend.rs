@@ -4,6 +4,7 @@ use crate::{mapped::Problems, raw::Field};
 use biomcp_fetch::{
     Arg, BadReply, Endpoint, Freshness, Leg, PathSegment, Reply, RequestError, SourceSpec,
 };
+use biomcp_fetch::{JsonBody, Read};
 use biomcp_types::ArticleInput;
 use serde::{Deserialize, Serialize};
 /// Recommendation API shares credentials, publisher terms and pacing with graph calls.
@@ -109,7 +110,13 @@ pub fn recommendations(
     {
         let id = paper_id(seed)?;
         let segment = PathSegment::new(&id).map_err(RequestError::Input)?;
-        return leg.json(&GET.clone().with_segments(&[segment]), &args);
+        return leg
+            .call(
+                &GET.clone().with_segments(&[segment]),
+                biomcp_fetch::Input::Params(&args),
+                Read::json(),
+            )
+            .map(|received| received.value);
     }
     #[derive(Serialize)]
     #[serde(rename_all = "camelCase")]
@@ -121,5 +128,13 @@ pub fn recommendations(
         positive_paper_ids: seeds.iter().map(paper_id).collect::<Result<_, _>>()?,
         negative_paper_ids: negative.iter().map(paper_id).collect::<Result<_, _>>()?,
     };
-    leg.post_json_with_args(&POST, &args, &body)
+    leg.call(
+        &POST,
+        biomcp_fetch::Input::Json {
+            params: &args,
+            body: JsonBody::new(&body),
+        },
+        Read::json(),
+    )
+    .map(|received| received.value)
 }

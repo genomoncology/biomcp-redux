@@ -4,6 +4,7 @@ use crate::mapped::Problems;
 use crate::raw::Field;
 use biodata::{StudyId, StudyProfile, StudyProfileId, StudySampleList, StudySampleListId, Text};
 use biomcp_fetch::{Arg, BadReply, Freshness, Leg, PathSegment, Reply, RequestError};
+use biomcp_fetch::{Input, Read};
 use serde::Deserialize;
 /// Measured MSK DETAILED response plus fifteen percent, rounded upward.
 const MAX_SAMPLE_LIST_BYTES: u64 = 1_526_432;
@@ -106,20 +107,24 @@ pub fn profiles(
     offset: u32,
     limit: u32,
 ) -> Result<Records<StudyProfile>, RequestError> {
-    let (reply, metadata) = leg.json_received_checked_cache::<Profiles>(
-        &endpoint(id, "molecular-profiles")?,
-        &[("projection", Arg::Text("DETAILED"))],
-        |r| {
-            let accepted = r.0.iter().filter(|v| v.value.as_ref().is_some()).count();
-            let refusals = if accepted < r.0.len() {
-                crate::Refusal::Refused
-            } else {
-                crate::Refusal::None
-            };
-            r.0.iter().all(|v| v.scope.study_id == *id)
-                && refusals.identities_admitted(accepted, r.0.len())
-        },
-    )?;
+    let (reply, metadata) = leg
+        .call::<Profiles>(
+            &endpoint(id, "molecular-profiles")?,
+            Input::Params(&[("projection", Arg::Text("DETAILED"))]),
+            Read::json().cache_if(
+                &(|r| {
+                    let accepted = r.0.iter().filter(|v| v.value.as_ref().is_some()).count();
+                    let refusals = if accepted < r.0.len() {
+                        crate::Refusal::Refused
+                    } else {
+                        crate::Refusal::None
+                    };
+                    r.0.iter().all(|v| v.scope.study_id == *id)
+                        && refusals.identities_admitted(accepted, r.0.len())
+                }),
+            ),
+        )
+        .map(|received| (received.value, received.meta))?;
     let mut problems = Problems {
         source: biomcp_types::Source::Cbioportal,
         record: None,
@@ -159,20 +164,24 @@ pub fn sample_lists(
     offset: u32,
     limit: u32,
 ) -> Result<Records<StudySampleList>, RequestError> {
-    let (reply, metadata) = leg.json_received_checked_cache::<SampleLists>(
-        &endpoint(id, "sample-lists")?,
-        &[("projection", Arg::Text("DETAILED"))],
-        |r| {
-            let accepted = r.0.iter().filter(|v| v.value.as_ref().is_some()).count();
-            let refusals = if accepted < r.0.len() {
-                crate::Refusal::Refused
-            } else {
-                crate::Refusal::None
-            };
-            r.0.iter().all(|v| v.scope.study_id == *id)
-                && refusals.identities_admitted(accepted, r.0.len())
-        },
-    )?;
+    let (reply, metadata) = leg
+        .call::<SampleLists>(
+            &endpoint(id, "sample-lists")?,
+            Input::Params(&[("projection", Arg::Text("DETAILED"))]),
+            Read::json().cache_if(
+                &(|r| {
+                    let accepted = r.0.iter().filter(|v| v.value.as_ref().is_some()).count();
+                    let refusals = if accepted < r.0.len() {
+                        crate::Refusal::Refused
+                    } else {
+                        crate::Refusal::None
+                    };
+                    r.0.iter().all(|v| v.scope.study_id == *id)
+                        && refusals.identities_admitted(accepted, r.0.len())
+                }),
+            ),
+        )
+        .map(|received| (received.value, received.meta))?;
     let mut problems = Problems {
         source: biomcp_types::Source::Cbioportal,
         record: None,

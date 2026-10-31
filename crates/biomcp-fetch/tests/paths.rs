@@ -43,7 +43,12 @@ fn runtime_paths_share_literal_capture_and_cache_identity_without_host_override(
         let worker = scope.spawn(|| {
             fetch
                 .leg(spec, fetch.deadline(Duration::from_secs(10)))
-                .json::<Answer>(&dynamic, &[])
+                .call::<Answer>(
+                    &dynamic,
+                    biomcp_fetch::Input::Params(&[]),
+                    biomcp_fetch::Read::json(),
+                )
+                .map(|received| received.value)
         });
         let request = server.next();
         assert!(
@@ -61,14 +66,37 @@ fn runtime_paths_share_literal_capture_and_cache_identity_without_host_override(
     })
     .unwrap();
     let leg = fetch.leg(spec, fetch.deadline(Duration::from_secs(10)));
-    assert!(leg.json::<Answer>(&literal, &[]).unwrap().answer);
-    assert!(leg.json::<Answer>(&dynamic, &[]).unwrap().answer);
+    assert!(
+        leg.call::<Answer>(
+            &literal,
+            biomcp_fetch::Input::Params(&[]),
+            biomcp_fetch::Read::json()
+        )
+        .map(|received| received.value)
+        .unwrap()
+        .answer
+    );
+    assert!(
+        leg.call::<Answer>(
+            &dynamic,
+            biomcp_fetch::Input::Params(&[]),
+            biomcp_fetch::Read::json()
+        )
+        .map(|received| received.value)
+        .unwrap()
+        .answer
+    );
     let different = spec
         .get("/mapping")
         .with_path("/mapping/P04637/pathways")
         .unwrap();
     assert!(matches!(
-        leg.json::<Answer>(&different, &[]),
+        leg.call::<Answer>(
+            &different,
+            biomcp_fetch::Input::Params(&[]),
+            biomcp_fetch::Read::json()
+        )
+        .map(|received| received.value),
         Err(biomcp_fetch::RequestError::Recording(
             biomcp_fetch::RecordError::Missing
         ))
@@ -131,7 +159,12 @@ fn raw_segments_encode_identifier_delimiters_once_and_preserve_literal_identity(
         let worker = scope.spawn(|| {
             fetch
                 .leg(spec, fetch.deadline(Duration::from_secs(10)))
-                .json::<Answer>(&endpoint, &[])
+                .call::<Answer>(
+                    &endpoint,
+                    biomcp_fetch::Input::Params(&[]),
+                    biomcp_fetch::Read::json(),
+                )
+                .map(|received| received.value)
         });
         let request = server.next();
         assert!(request.text.starts_with(
@@ -152,7 +185,12 @@ fn raw_segments_encode_identifier_delimiters_once_and_preserve_literal_identity(
     assert!(
         fetch
             .leg(spec, fetch.deadline(Duration::from_secs(10)))
-            .json::<Answer>(&literal, &[])
+            .call::<Answer>(
+                &literal,
+                biomcp_fetch::Input::Params(&[]),
+                biomcp_fetch::Read::json()
+            )
+            .map(|received| received.value)
             .unwrap()
             .answer
     );
@@ -200,7 +238,12 @@ fn undeclared_download_host_is_refused_before_replay_admission() {
     let endpoint = spec.download("https://undeclared.example/data").unwrap();
     let error = fetch
         .leg(spec, fetch.deadline(Duration::from_secs(1)))
-        .json::<Answer>(&endpoint, &[])
+        .call::<Answer>(
+            &endpoint,
+            biomcp_fetch::Input::Params(&[]),
+            biomcp_fetch::Read::json(),
+        )
+        .map(|received| received.value)
         .unwrap_err();
     assert_eq!(error.to_string(), "fetch.input_host");
     assert!(server.requests.try_recv().is_err());
@@ -235,7 +278,12 @@ fn undeclared_origin_refuses_live_and_offline_without_contacting_the_local_peer(
         assert!(matches!(
             fetch
                 .leg(spec, fetch.deadline(Duration::from_secs(1)))
-                .json::<Answer>(&endpoint, &[]),
+                .call::<Answer>(
+                    &endpoint,
+                    biomcp_fetch::Input::Params(&[]),
+                    biomcp_fetch::Read::json()
+                )
+                .map(|received| received.value),
             Err(biomcp_fetch::RequestError::Input(InputError::Host))
         ));
     }
@@ -277,7 +325,12 @@ fn declared_secondary_origins_are_exact_and_publisher_policy_is_explicit() {
         let endpoint = spec.download(url).unwrap();
         let error = fetch
             .leg(spec, fetch.deadline(Duration::from_secs(1)))
-            .json::<Answer>(&endpoint, &[])
+            .call::<Answer>(
+                &endpoint,
+                biomcp_fetch::Input::Params(&[]),
+                biomcp_fetch::Read::json(),
+            )
+            .map(|received| received.value)
             .unwrap_err();
         assert_eq!(
             error.to_string(),

@@ -1,5 +1,6 @@
 //! Bundle contracts through the public transport boundary.
 #![expect(
+use biomcp_fetch::{Input};
     clippy::unwrap_used,
     clippy::disallowed_methods,
     reason = "Fixture failures fail the contract"
@@ -401,7 +402,12 @@ fn release_large_bundle_capture_round_trips() {
     assert!(matches!(
         ordinary
             .leg(b.spec, ordinary.deadline(Duration::from_secs(5)))
-            .json::<support::Answer>(&b.spec.get(b.path), &[]),
+            .call::<support::Answer>(
+                &b.spec.get(b.path),
+                Input::Params(&[]),
+                biomcp_fetch::Read::json()
+            )
+            .map(|received| received.value),
         Err(biomcp_fetch::RequestError::Recording(
             biomcp_fetch::RecordError::Limit
         ))

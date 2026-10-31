@@ -1,5 +1,6 @@
 //! Reviewed field ownership; no dictionaries, inferred mappings or fetch-and-discard.
 use crate::registry::Component;
+use biomcp_fetch::Input;
 use biomcp_fetch::{Leg, RequestError, SourceError};
 use biomcp_types::{Reason, Source};
 /// Exact native field paths owned by the MedDRA component.
@@ -43,10 +44,8 @@ pub fn labels(
 ) -> Result<Box<[biomcp_types::ComponentLabel]>, RequestError> {
     let declaration = all()
         .find(|v| v.source == owner && v.native_source == Some(component))
-        .ok_or(biomcp_fetch::InputError::Serialization)?;
-    let text = |value: &str| {
-        biodata::Text::new(value).map_err(|_| biomcp_fetch::InputError::Serialization)
-    };
+        .ok_or(InputError::Serialization)?;
+    let text = |value: &str| biodata::Text::new(value).map_err(|_| InputError::Serialization);
     Ok(vec![biomcp_types::ComponentLabel {
         component: text(declaration.name)?,
         terms: biomcp_types::ComponentTerms {

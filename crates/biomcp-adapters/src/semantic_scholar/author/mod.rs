@@ -1,4 +1,5 @@
 //! Literal native author candidates and request-checked exact provider cards.
+use biomcp_fetch::Input;
 mod papers;
 mod raw;
 use super::SPEC;
@@ -12,22 +13,26 @@ const FIELDS: &str = "authorId,name,affiliations,paperCount,citationCount,hIndex
 /// Read one unchanged source query in native order.
 pub fn search(leg: &Leg<'_>, q: &AuthorSearch) -> Result<Page, RequestError> {
     let endpoint = SPEC.get("/author/search").fresh(Freshness::Days(1));
-    let (page, _) = leg.json_received_checked::<raw::Page>(
-        &endpoint,
-        &[
-            ("query", Arg::Text(q.query())),
-            ("fields", Arg::Text(FIELDS)),
-            ("offset", Arg::Num(u64::from(q.offset()))),
-            ("limit", Arg::Num(u64::from(q.limit()))),
-        ],
-        |page| {
-            if page.offset == q.offset() && page.received <= q.limit() as usize {
-                Ok(())
-            } else {
-                Err(BadReply)
-            }
-        },
-    )?;
+    let (page, _) = leg
+        .call::<raw::Page>(
+            &endpoint,
+            Input::Params(&[
+                ("query", Arg::Text(q.query())),
+                ("fields", Arg::Text(FIELDS)),
+                ("offset", Arg::Num(u64::from(q.offset()))),
+                ("limit", Arg::Num(u64::from(q.limit()))),
+            ]),
+            biomcp_fetch::Read::json().check(
+                &(|page| {
+                    if page.offset == q.offset() && page.received <= q.limit() as usize {
+                        Ok(())
+                    } else {
+                        Err(BadReply)
+                    }
+                }),
+            ),
+        )
+        .map(|received| (received.value, received.meta))?;
     Ok(map::Page::new(page))
 }
 /// Reject a mismatched returned identity before cache admission and on cache reads.
@@ -39,16 +44,20 @@ pub fn card(
         .get("")
         .with_path(format!("/author/{id}"))?
         .fresh(Freshness::Days(1));
-    let (row, _) = leg.json_received_checked::<raw::Record>(
-        &endpoint,
-        &[("fields", Arg::Text(FIELDS))],
-        |row| {
-            if &row.author_id == id {
-                Ok(())
-            } else {
-                Err(BadReply)
-            }
-        },
-    )?;
+    let (row, _) = leg
+        .call::<raw::Record>(
+            &endpoint,
+            Input::Params(&[("fields", Arg::Text(FIELDS))]),
+            biomcp_fetch::Read::json().check(
+                &(|row| {
+                    if &row.author_id == id {
+                        Ok(())
+                    } else {
+                        Err(BadReply)
+                    }
+                }),
+            ),
+        )
+        .map(|received| (received.value, received.meta))?;
     Ok(row.card())
 }

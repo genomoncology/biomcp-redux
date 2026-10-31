@@ -1,6 +1,7 @@
 //! Validate shared human request identity before serializing either RPC.
 use super::proto;
-use biomcp_fetch::InputError;
+use InputError;
+use biomcp_fetch::Input;
 pub(super) fn checked(
     build: biodata::Build,
     chromosome: &str,

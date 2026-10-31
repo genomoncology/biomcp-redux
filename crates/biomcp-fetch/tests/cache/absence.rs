@@ -1,5 +1,6 @@
 //! One replay cache owns the acquisition and absence regression fixture.
 use super::*;
+use biomcp_fetch::{Input, Read};
 
 pub(super) fn legacy_json_absence_removes_a_positive() {
     use sha2::{Digest, Sha256};
@@ -41,7 +42,12 @@ pub(super) fn legacy_json_absence_removes_a_positive() {
         .leg(spec, replay.deadline(Duration::from_secs(10)))
         .fresh(true);
     let (absence, metadata) = leg
-        .json_received::<Absence>(&endpoint.clone().json_absence(), &[])
+        .call::<Absence>(
+            &endpoint.clone().json_absence(),
+            Input::Params(&[]),
+            Read::json(),
+        )
+        .map(|received| (received.value, received.meta))
         .unwrap();
     assert!(
         absence.absent,
@@ -61,7 +67,10 @@ pub(super) fn legacy_json_absence_removes_a_positive() {
     std::fs::write(file, unknown_positive.to_string()).unwrap();
     let replay = replay_case(directory.path(), case);
     let leg = replay.leg(spec, replay.deadline(Duration::from_secs(10)));
-    let (answer, metadata) = leg.json_received::<Answer>(&endpoint, &[]).unwrap();
+    let (answer, metadata) = leg
+        .call::<Answer>(&endpoint, Input::Params(&[]), Read::json())
+        .map(|received| (received.value, received.meta))
+        .unwrap();
     assert!(
         answer.answer,
         "unknown-time positive must retain its checked source answer"

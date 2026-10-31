@@ -1,4 +1,5 @@
 //! Canonical mydisease publisher declaration.
+use biomcp_fetch::Input;
 mod map;
 mod native;
 mod raw;
@@ -58,17 +59,21 @@ pub fn get(leg: &Leg<'_>, id: &Curie) -> Result<Record, RequestError> {
     }
     let fields = crate::disease_sources::components::allowed_fields(leg, FIELDS)?;
     let endpoint = GET.clone().with_segments(&[PathSegment::new(&identifier)?]);
-    let (raw, metadata) = leg.json_received_checked::<raw::Document>(
-        &endpoint,
-        &[("fields", Arg::Text(&fields))],
-        |record| {
-            if record.matches(id, &fields) {
-                Ok(())
-            } else {
-                Err(BadReply)
-            }
-        },
-    )?;
+    let (raw, metadata) = leg
+        .call::<raw::Document>(
+            &endpoint,
+            Input::Params(&[("fields", Arg::Text(&fields))]),
+            biomcp_fetch::Read::json().check(
+                &(|record| {
+                    if record.matches(id, &fields) {
+                        Ok(())
+                    } else {
+                        Err(BadReply)
+                    }
+                }),
+            ),
+        )
+        .map(|received| (received.value, received.meta))?;
     // Ignore any unrequested component even when an old replay contains it.
     let mut components = Vec::new();
     let mut problems = crate::mapped::Problems {

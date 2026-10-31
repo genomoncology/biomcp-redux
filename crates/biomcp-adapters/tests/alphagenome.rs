@@ -1,8 +1,9 @@
 //! Feature alphagenome-protocol: one documented request and complete bounded DNASE envelopes.
 use biomcp_adapters::alphagenome::DnaseRequest;
+use biomcp_fetch::Input;
 use biomcp_fetch::grpc::{Limits, StreamDecoder};
 type Check = Result<(), Box<dyn std::error::Error + Send + Sync>>;
-fn request() -> Result<DnaseRequest, biomcp_fetch::InputError> {
+fn request() -> Result<DnaseRequest, InputError> {
     DnaseRequest::human_lung_all_folds(
         biodata::Build::GRCh38,
         "chr7",

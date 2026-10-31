@@ -1,12 +1,15 @@
 //! Admit optional registry processing metadata under its documented UTC convention.
 use super::{VERSION, raw::Version};
+use biomcp_fetch::{Input, Read};
 use biomcp_fetch::{Leg, RequestError};
 
 /// Source processing timestamp, distinct from request time and record update dates.
 pub fn version(
     leg: &Leg<'_>,
 ) -> Result<crate::Mapped<Option<biomcp_types::SourceTimestamp>>, RequestError> {
-    let raw = leg.json::<Version>(&VERSION, &[])?;
+    let raw = leg
+        .call::<Version>(&VERSION, Input::Params(&[]), Read::json())
+        .map(|received| received.value)?;
     let mut problems = crate::mapped::Problems {
         source: biomcp_types::Source::ClinicalTrialsGov,
         record: None,

@@ -1,4 +1,5 @@
 //! Explicit CDC WONDER summaries; no report retrieval or vaccine-name bridge.
+use biomcp_fetch::Input;
 mod encoding;
 mod raw;
 use biomcp_fetch::{Arg, BadReply, Freshness, KeyUse, Leg, SourceSpec, Terms};
@@ -39,28 +40,32 @@ pub fn read(
     let endpoint = SPEC
         .post_form("/controller/datarequest/D8")
         .fresh(Freshness::Days(1));
-    let (reply, _) = leg.xml_received_checked::<raw::Native>(
-        &endpoint,
-        &[
-            ("request_xml", Arg::Text(&xml)),
-            ("accept_datause_restrictions", Arg::Text("true")),
-        ],
-        |v| {
-            if v.0
-                .vaccine
-                .get("code")
-                .is_some_and(|c| c.as_ref() == vaccine)
-                && v.0
-                    .grouping
-                    .get("code")
-                    .is_some_and(|c| c.as_ref() == section.code())
-            {
-                Ok(())
-            } else {
-                Err(BadReply)
-            }
-        },
-    )?;
+    let (reply, _) = leg
+        .call::<raw::Native>(
+            &endpoint,
+            Input::Params(&[
+                ("request_xml", Arg::Text(&xml)),
+                ("accept_datause_restrictions", Arg::Text("true")),
+            ]),
+            biomcp_fetch::Read::xml().check(
+                &(|v| {
+                    if v.0
+                        .vaccine
+                        .get("code")
+                        .is_some_and(|c| c.as_ref() == vaccine)
+                        && v.0
+                            .grouping
+                            .get("code")
+                            .is_some_and(|c| c.as_ref() == section.code())
+                    {
+                        Ok(())
+                    } else {
+                        Err(BadReply)
+                    }
+                }),
+            ),
+        )
+        .map(|received| (received.value, received.meta))?;
     Ok(reply.0)
 }
 

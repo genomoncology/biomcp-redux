@@ -3,6 +3,7 @@ use super::{GENES, variant::failure, variant_map, variant_raw::Connection};
 use crate::{Mapped, mapped::Problems, native_text::NativeText, raw::Field};
 use biodata::{DrugIdentityLevel, Text};
 use biomcp_fetch::{BadReply, Leg, Reply, RequestError};
+use biomcp_fetch::{Input, JsonBody, Read};
 use biomcp_types::{DrugHeader, DrugPage, DrugSource, Reason};
 use serde::{Deserialize, Serialize};
 
@@ -90,17 +91,27 @@ pub fn drug_search(
                 after: after.as_ref(),
             },
         };
-        let reply: SearchReply =
-            leg.post_json_checked_cache(&GENES, &body, |reply: &SearchReply| {
-                reply.data.therapies.nodes.len() <= count as usize
-                    && reply.data.therapies.progresses(after.as_ref())
-                    && reply.data.therapies.nodes.iter().all(|row| {
-                        row.id
-                            .as_ref()
-                            .and_then(Field::as_ref)
-                            .is_some_and(|id| super::variant_raw::id(*id))
-                    })
-            })?;
+        let reply: SearchReply = leg
+            .call(
+                &GENES,
+                Input::Json {
+                    params: &[],
+                    body: JsonBody::new(&body),
+                },
+                Read::json().cache_if(
+                    &(|reply: &SearchReply| {
+                        reply.data.therapies.nodes.len() <= count as usize
+                            && reply.data.therapies.progresses(after.as_ref())
+                            && reply.data.therapies.nodes.iter().all(|row| {
+                                row.id
+                                    .as_ref()
+                                    .and_then(Field::as_ref)
+                                    .is_some_and(|id| super::variant_raw::id(*id))
+                            })
+                    }),
+                ),
+            )
+            .map(|received| received.value)?;
         let rows = reply.data.therapies;
         if rows.nodes.len() > count as usize || !rows.progresses(after.as_ref()) {
             return Err(failure(Reason::BadReply));

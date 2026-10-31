@@ -1,4 +1,5 @@
 //! Canonical DRUGSFDA source declaration.
+use biomcp_fetch::Input;
 use biomcp_fetch::{SourceSpec, Terms};
 use biomcp_types::Source;
 use std::time::Duration;
@@ -91,20 +92,27 @@ fn page(
     if offset > 0 {
         args.push(("skip", Arg::Num(offset.into())));
     }
-    let (response, metadata) =
-        leg.json_received_checked(&APPLICATION, &args, |r: &raw::Response| match r {
-            raw::Response::Page { meta, results }
-                if meta.results.skip != offset
-                    || meta.results.limit != limit
-                    || id.is_some_and(|id| {
-                        meta.results.total != 1
-                            || results.iter().any(|r| r.application_number != *id)
-                    }) =>
-            {
-                Err(BadReply)
-            }
-            _ => Ok(()),
-        })?;
+    let (response, metadata) = leg
+        .call(
+            &APPLICATION,
+            Input::Params(&args),
+            biomcp_fetch::Read::json().check(
+                &(|r: &raw::Response| match r {
+                    raw::Response::Page { meta, results }
+                        if meta.results.skip != offset
+                            || meta.results.limit != limit
+                            || id.is_some_and(|id| {
+                                meta.results.total != 1
+                                    || results.iter().any(|r| r.application_number != *id)
+                            }) =>
+                    {
+                        Err(BadReply)
+                    }
+                    _ => Ok(()),
+                }),
+            ),
+        )
+        .map(|received| (received.value, received.meta))?;
     let mut problems = crate::mapped::Problems {
         source: biomcp_types::Source::Drugsfda,
         record: None,

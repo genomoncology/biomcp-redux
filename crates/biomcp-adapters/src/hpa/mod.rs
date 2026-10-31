@@ -1,4 +1,5 @@
 //! Human Protein Atlas gene-level RNA expression and subcellular annotations.
+use biomcp_fetch::{Input, Read};
 mod map;
 mod raw;
 use crate::{Mapped, quotas};
@@ -30,7 +31,17 @@ pub fn expression(
         .get("/")
         .fresh(Freshness::Days(7))
         .with_path(format!("/{}.json", id.base()))?;
-    let raw = leg.json_opt::<raw::Gene>(&endpoint, &[])?;
+    let raw = leg
+        .call::<raw::Gene>(&endpoint, Input::Params(&[]), Read::json())
+        .map(|received| Some(received.value))
+        .or_else(|error| match error {
+            biomcp_fetch::RequestError::Source(source)
+                if source.reason == biomcp_types::Reason::NotFound =>
+            {
+                Ok(None)
+            }
+            error => Err(error),
+        })?;
     raw.map(|raw| {
         if raw.ensembl != id.base() {
             return Err(SourceError {

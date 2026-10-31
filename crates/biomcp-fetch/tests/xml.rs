@@ -1,5 +1,6 @@
 //! Checked XML uses the shared request, cache and recording boundaries.
 #![expect(
+use biomcp_fetch::{Input, Read};
     clippy::disallowed_methods,
     clippy::unwrap_used,
     reason = "Local HTTP fixtures and scoped public API callers"
@@ -77,7 +78,8 @@ fn checked_get_and_form_xml_preserve_text_and_select_media() {
             let worker = scope.spawn(|| {
                 fetch
                     .leg(spec, fetch.deadline(Duration::from_secs(10)))
-                    .xml::<Answer>(&ep, &[("q", Arg::Num(1))])
+                    .call::<Answer>(&ep, Input::Params(&[("q", Arg::Num(1))]), Read::xml())
+                    .map(|received| received.value)
             });
             let request = server.next();
             assert!(
@@ -114,7 +116,12 @@ fn invoke(
 ) -> Result<Answer, biomcp_fetch::RequestError> {
     fetch
         .leg(spec, fetch.deadline(Duration::from_secs(10)))
-        .xml(&spec.get("/answer").fresh(Freshness::Days(1)), &[])
+        .call(
+            &spec.get("/answer").fresh(Freshness::Days(1)),
+            Input::Params(&[]),
+            Read::xml(),
+        )
+        .map(|received| received.value)
 }
 #[test]
 fn invalid_xml_media_encodings_documents_and_reply_checks_are_input_free() {
@@ -267,8 +274,14 @@ fn xml_cache_codec_invalid_entries_and_stale_fallback_remain_checked() {
         .unwrap();
     let leg = fetch.leg(spec, fetch.deadline(Duration::from_secs(10)));
     thread::scope(|scope| {
-        let worker =
-            scope.spawn(|| leg.xml::<Answer>(&spec.get("/answer").fresh(Freshness::Days(1)), &[]));
+        let worker = scope.spawn(|| {
+            leg.call::<Answer>(
+                &spec.get("/answer").fresh(Freshness::Days(1)),
+                Input::Params(&[]),
+                Read::xml(),
+            )
+            .map(|received| received.value)
+        });
         server.next().respond(403, "", "unchecked-secret");
         assert_eq!(worker.join().unwrap().unwrap().text.as_str(), "BRAFV600E");
     });
@@ -295,7 +308,12 @@ fn xml_cache_codec_invalid_entries_and_stale_fallback_remain_checked() {
         let worker = scope.spawn(|| {
             fetch
                 .leg(spec, fetch.deadline(Duration::from_secs(10)))
-                .json::<support::Answer>(&spec.get("/answer").fresh(Freshness::Days(1)), &[])
+                .call::<support::Answer>(
+                    &spec.get("/answer").fresh(Freshness::Days(1)),
+                    Input::Params(&[]),
+                    Read::json(),
+                )
+                .map(|received| received.value)
         });
         server.next().ok();
         assert!(worker.join().unwrap().unwrap().answer);
@@ -375,8 +393,13 @@ fn record_xml_text_replays_without_http_and_offline_uses_checked_codec() {
     .unwrap();
     let leg = offline.leg(spec, offline.deadline(Duration::from_secs(10)));
     assert!(
-        leg.xml::<Answer>(&spec.get("/answer").fresh(Freshness::Days(1)), &[])
-            .is_ok()
+        leg.call::<Answer>(
+            &spec.get("/answer").fresh(Freshness::Days(1)),
+            Input::Params(&[]),
+            Read::xml()
+        )
+        .map(|received| received.value)
+        .is_ok()
     );
     assert!(leg.finish().stale);
 }
@@ -391,7 +414,8 @@ fn ordinary_xml_replies_use_default_serde_decoding() {
         let worker = scope.spawn(|| {
             fetch
                 .leg(spec, fetch.deadline(Duration::from_secs(10)))
-                .xml::<support::Answer>(&spec.get("/plain"), &[])
+                .call::<support::Answer>(&spec.get("/plain"), Input::Params(&[]), Read::xml())
+                .map(|received| received.value)
         });
         respond(
             server.next(),
@@ -459,7 +483,8 @@ fn application_octet_stream_permission_keeps_xml_checks_and_bounds() {
             let worker = scope.spawn(|| {
                 fetch
                     .leg(spec, fetch.deadline(Duration::from_secs(10)))
-                    .xml::<Answer>(&endpoint, &[])
+                    .call::<Answer>(&endpoint, Input::Params(&[]), Read::xml())
+                    .map(|received| received.value)
             });
             respond(server.next(), media, body.as_bytes());
             assert_eq!(worker.join().unwrap().is_ok(), accepted);

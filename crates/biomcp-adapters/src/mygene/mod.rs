@@ -1,4 +1,5 @@
 //! MyGene.info annotations queried only by checked Entrez gene identifiers.
+use biomcp_fetch::{Input, Read};
 mod map;
 mod raw;
 use crate::{Mapped, quotas};
@@ -66,14 +67,16 @@ pub fn genes(leg: &Leg<'_>, ids: &[NcbiGeneId]) -> Vec<GeneBatch> {
     let chunks: Vec<_> = ids.chunks(BATCH).collect();
     let results = leg.batch(&chunks, |leg, chunk| {
         let ids: Vec<Box<str>> = chunk.iter().map(|id| id.to_string().into()).collect();
-        leg.json::<raw::Genes>(
+        leg.call::<raw::Genes>(
             &GENES,
-            &[
+            Input::Params(&[
                 ("ids", Arg::Ids(&ids)),
                 ("fields", Arg::Text(FIELDS)),
                 ("species", Arg::Text("human")),
-            ],
+            ]),
+            Read::json(),
         )
+        .map(|received| received.value)
     });
     chunks
         .into_iter()

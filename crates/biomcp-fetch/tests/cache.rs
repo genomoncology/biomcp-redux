@@ -1,5 +1,6 @@
 //! Checked reply cache through the public transport API and documented SQLite schema.
 #![expect(
+use biomcp_fetch::{Input, Read};
     clippy::unwrap_used,
     clippy::panic,
     reason = "Fixture setup, child processes and failed source assertions must abort the contract test"
@@ -47,7 +48,8 @@ fn get(
 ) -> Result<Answer, RequestError> {
     fetch
         .leg(spec, fetch.deadline(Duration::from_secs(10)))
-        .json(endpoint, params)
+        .call(endpoint, Input::Params(params), Read::json())
+        .map(|received| received.value)
 }
 fn exchange<T: Send>(
     server: &Server,

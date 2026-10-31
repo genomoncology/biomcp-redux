@@ -1,11 +1,12 @@
 //! Feature alphagenome-score-protocol: preserve the ruled request and admit complete scorer streams.
 use biomcp_adapters::alphagenome::ScoreRequest;
+use biomcp_fetch::Input;
 use biomcp_fetch::grpc::{Limits, StreamDecoder};
 type Check = Result<(), Box<dyn std::error::Error + Send + Sync>>;
-fn request(position: i64) -> Result<ScoreRequest, biomcp_fetch::InputError> {
+fn request(position: i64) -> Result<ScoreRequest, InputError> {
     ScoreRequest::human_legacy(
         biodata::Build::GRCh38,
-        "7".parse().map_err(|_| biomcp_fetch::InputError::Path)?,
+        "7".parse().map_err(|_| InputError::Path)?,
         position,
         "A",
         "T",

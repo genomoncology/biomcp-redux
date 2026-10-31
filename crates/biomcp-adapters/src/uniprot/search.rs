@@ -3,6 +3,7 @@ use super::{SPEC, entry};
 use crate::Mapped;
 use biodata::{ProteinHeader, Text};
 use biomcp_fetch::{Arg, BadReply, Freshness, Leg, Reply, RequestError};
+use biomcp_fetch::{Input, Read};
 use biomcp_types::{Problem, ProblemCode, ProteinSearch, Source};
 use serde::{Deserialize, Serialize};
 const PATH: &str = "/uniprotkb/search";
@@ -48,7 +49,13 @@ pub fn search(
         args.push(("cursor", Arg::Text(cursor.as_str())));
     }
     let ep = SPEC.get(PATH).identity_encoding().fresh(Freshness::Days(1));
-    let (raw, meta) = leg.json_received_checked_cache::<Rows>(&ep, &args, |_| true)?;
+    let (raw, meta) = leg
+        .call::<Rows>(
+            &ep,
+            Input::Params(&args),
+            Read::json().cache_if(&(|_| true)),
+        )
+        .map(|received| (received.value, received.meta))?;
     let page = meta
         .pagination
         .ok_or_else(|| biomcp_fetch::bad_reply(Source::UniProt, Some(200)))?;

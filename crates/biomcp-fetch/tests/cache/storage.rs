@@ -1,4 +1,5 @@
 use super::*;
+use biomcp_fetch::{Input, Read};
 
 #[test]
 fn fresh_hit_and_force_refresh_and_never_and_disabled_storage() {
@@ -78,7 +79,14 @@ fn rejected_bodies_are_not_stored_and_negative_expiry_never_falls_back() {
     assert!(
         exchange(&server, 404, "unchecked-private-error-text", || fetch
             .leg(spec, fetch.deadline(Duration::from_secs(10)))
-            .json_opt::<Answer>(&endpoint, &[]))
+            .call::<Answer>(&endpoint, Input::Params(&[]), Read::json())
+            .map(|received| Some(received.value))
+            .or_else(|error| match error {
+                biomcp_fetch::RequestError::Source(source)
+                    if source.reason == biomcp_types::Reason::NotFound =>
+                    Ok(None),
+                error => Err(error),
+            }))
         .unwrap()
         .is_none()
     );
@@ -86,7 +94,14 @@ fn rejected_bodies_are_not_stored_and_negative_expiry_never_falls_back() {
     assert!(
         fetch
             .leg(spec, fetch.deadline(Duration::from_secs(10)))
-            .json_opt::<Answer>(&endpoint, &[])
+            .call::<Answer>(&endpoint, Input::Params(&[]), Read::json())
+            .map(|received| Some(received.value))
+            .or_else(|error| match error {
+                biomcp_fetch::RequestError::Source(source)
+                    if source.reason == biomcp_types::Reason::NotFound =>
+                    Ok(None),
+                error => Err(error),
+            })
             .unwrap()
             .is_none()
     );
@@ -121,9 +136,19 @@ fn stale_fallback_retains_original_failure_across_later_success() {
         let worker = scope.spawn(|| {
             let leg = fetch.leg(spec, fetch.deadline(Duration::from_secs(10)));
             for _ in 0..3 {
-                assert!(leg.json::<Answer>(&endpoint, &[]).unwrap().answer);
+                assert!(
+                    leg.call::<Answer>(&endpoint, Input::Params(&[]), Read::json())
+                        .map(|received| received.value)
+                        .unwrap()
+                        .answer
+                );
             }
-            assert!(leg.json::<Answer>(&endpoint, &[]).unwrap().answer);
+            assert!(
+                leg.call::<Answer>(&endpoint, Input::Params(&[]), Read::json())
+                    .map(|received| received.value)
+                    .unwrap()
+                    .answer
+            );
             leg.finish()
         });
         for (status, body) in [
@@ -195,7 +220,8 @@ fn every_cached_read_obeys_current_reply_type_body_limit_and_sql_contract() {
     let strict = exchange(&server, 200, r#"{"answer":false}"#, || {
         fetch
             .leg(spec, fetch.deadline(Duration::from_secs(10)))
-            .json::<Strict>(&endpoint, &[])
+            .call::<Strict>(&endpoint, Input::Params(&[]), Read::json())
+            .map(|received| received.value)
     })
     .unwrap();
     assert!(!strict.answer);
@@ -208,7 +234,8 @@ fn every_cached_read_obeys_current_reply_type_body_limit_and_sql_contract() {
     let error = exchange(&server, 400, "rejected", || {
         limited
             .leg(spec, limited.deadline(Duration::from_secs(10)))
-            .json::<Strict>(&endpoint, &[])
+            .call::<Strict>(&endpoint, Input::Params(&[]), Read::json())
+            .map(|received| received.value)
     })
     .unwrap_err();
     assert_eq!(source(error).reason, Reason::Rejected);

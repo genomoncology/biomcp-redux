@@ -4,6 +4,7 @@ use super::{QUERY, map, raw};
 use crate::Mapped;
 use biodata::Build;
 use biomcp_fetch::{Arg, BadReply, Leg, Reply, RequestError};
+use biomcp_fetch::{Input, Read};
 use biomcp_types::{VariantHeader, VariantSearch};
 use serde::Deserialize;
 const FIELDS: &str = "_id,dbsnp.rsid,dbsnp.gene.symbol,clinvar.variant_id,chrom,hg19,hg38";
@@ -56,28 +57,35 @@ pub fn search(leg: &Leg<'_>, query: &VariantSearch) -> Result<SearchPage, Reques
             }),
         ));
     }
-    let page = leg.json_checked_admission::<Page>(
-        &QUERY,
-        &args,
-        |page| {
-            if page.hits.len() <= query.limit() as usize
-                && page.hits.len() as u64
-                    == page
-                        .total
-                        .saturating_sub(u64::from(query.offset()))
-                        .min(u64::from(query.limit()))
-            {
-                Ok(())
-            } else {
-                Err(BadReply)
-            }
-        },
-        |page| {
-            page.hits
-                .iter()
-                .all(|raw| raw.as_ref().is_some_and(|hit| hit.check().is_ok()))
-        },
-    )?;
+    let page = leg
+        .call::<Page>(
+            &QUERY,
+            Input::Params(&args),
+            Read::json()
+                .check(
+                    &(|page| {
+                        if page.hits.len() <= query.limit() as usize
+                            && page.hits.len() as u64
+                                == page
+                                    .total
+                                    .saturating_sub(u64::from(query.offset()))
+                                    .min(u64::from(query.limit()))
+                        {
+                            Ok(())
+                        } else {
+                            Err(BadReply)
+                        }
+                    }),
+                )
+                .cache_if(
+                    &(|page| {
+                        page.hits
+                            .iter()
+                            .all(|raw| raw.as_ref().is_some_and(|hit| hit.check().is_ok()))
+                    }),
+                ),
+        )
+        .map(|received| received.value)?;
     Ok(mapped_page(page, leg, query))
 }
 

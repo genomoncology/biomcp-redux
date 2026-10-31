@@ -1,4 +1,5 @@
 //! Literal HP discovery and independent exact Monarch term cards.
+use biomcp_fetch::{Input, Read};
 pub mod associations;
 mod counts;
 mod raw;
@@ -51,18 +52,23 @@ pub fn search(leg: &Leg<'_>, q: &PhenotypeSearch) -> Result<Page, RequestError> 
         ("limit", Arg::Num(q.limit().into())),
         ("offset", Arg::Num(q.offset().into())),
     ];
-    let (page, metadata) = leg.json_received_checked_admission::<raw::Page>(
-        &endpoint,
-        &args,
-        |page| {
-            if page.limit != q.limit() || page.offset != q.offset() {
-                Err(BadReply)
-            } else {
-                Ok(())
-            }
-        },
-        |page| page.items.iter().all(|node| node.id.is_some()),
-    )?;
+    let (page, metadata) = leg
+        .call::<raw::Page>(
+            &endpoint,
+            Input::Params(&args),
+            Read::json()
+                .check(
+                    &(|page| {
+                        if page.limit != q.limit() || page.offset != q.offset() {
+                            Err(BadReply)
+                        } else {
+                            Ok(())
+                        }
+                    }),
+                )
+                .cache_if(&(|page| page.items.iter().all(|node| node.id.is_some()))),
+        )
+        .map(|received| (received.value, received.meta))?;
     let received = page.items.len() as u32;
     let mut problems = Vec::new();
     let mut refusals = crate::Refusal::None;
@@ -101,13 +107,21 @@ pub fn get(leg: &Leg<'_>, q: &PhenotypeGet) -> Result<Record, RequestError> {
         .get("/v3/api/entity")
         .with_segments(&[biomcp_fetch::PathSegment::new(q.id().as_str())?])
         .fresh(Freshness::Days(1));
-    let (mut node, metadata) = leg.json_received_checked::<raw::Node>(&endpoint, &[], |node| {
-        if node.id.as_ref() == Some(q.id()) {
-            Ok(())
-        } else {
-            Err(BadReply)
-        }
-    })?;
+    let (mut node, metadata) = leg
+        .call::<raw::Node>(
+            &endpoint,
+            Input::Params(&[]),
+            Read::json().check(
+                &(|node| {
+                    if node.id.as_ref() == Some(q.id()) {
+                        Ok(())
+                    } else {
+                        Err(BadReply)
+                    }
+                }),
+            ),
+        )
+        .map(|received| (received.value, received.meta))?;
     let id = node.id.as_ref().ok_or(InputError::Serialization)?.clone();
     let sections = sections(&node);
     let attribution = attribution(&id)?;

@@ -2,6 +2,7 @@ use super::{
     CellLineGet, Ctx, Outcome, Request, Source, Status, StepKind, cellosaurus, empty, recovery,
     run, status,
 };
+use biomcp_fetch::Input;
 use biomcp_types::ReplyBody;
 use biomcp_types::ReplyData;
 use biomcp_types::{CellLineCard, CellLineInput, CellLineSection, CellLineSections};
@@ -92,7 +93,7 @@ fn resolve(
         CellLineInput::Accession(id) => (id.clone(), None),
         CellLineInput::Source(id) => {
             if cellosaurus::native_database(id).is_none() {
-                return Err(biomcp_fetch::InputError::Path.into());
+                return Err(InputError::Path.into());
             }
             let page = cellosaurus::reverse(leg, id)?;
             dropped |= page.refusals == biomcp_adapters::Refusal::Refused;
@@ -117,7 +118,7 @@ fn resolve(
             (
                 page.items
                     .first()
-                    .ok_or(biomcp_fetch::InputError::Serialization)?
+                    .ok_or(InputError::Serialization)?
                     .accession
                     .clone(),
                 Some(id),

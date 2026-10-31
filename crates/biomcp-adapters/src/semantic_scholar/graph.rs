@@ -78,13 +78,15 @@ pub fn paper_endpoint(input: &ArticleInput) -> Result<Endpoint, RequestError> {
 }
 /// Read the summary under the shared optional-key source declaration.
 pub fn summary(leg: &Leg<'_>, input: &ArticleInput) -> Result<PaperSummary, RequestError> {
-    leg.json(
+    leg.call(
         &paper_endpoint(input)?,
-        &[(
+        biomcp_fetch::Input::Params(&[(
             "fields",
             Arg::Text("tldr,citationCount,influentialCitationCount"),
-        )],
+        )]),
+        biomcp_fetch::Read::json(),
     )
+    .map(|received| received.value)
 }
 /// One source graph page; `next` is a provider offset, never a client guess.
 #[derive(Debug)]
@@ -263,7 +265,13 @@ pub fn edges(
     if let Some(offset) = offset {
         args.push(("offset", Arg::Num(u64::from(offset))));
     }
-    let raw = leg.json::<RawEdges>(&endpoint, &args)?;
+    let raw = leg
+        .call::<RawEdges>(
+            &endpoint,
+            biomcp_fetch::Input::Params(&args),
+            biomcp_fetch::Read::json(),
+        )
+        .map(|received| received.value)?;
     let data = raw.data.ok_or(biomcp_fetch::SourceError {
         source: biomcp_types::Source::SemanticScholar,
         reason: biomcp_types::Reason::Unavailable,

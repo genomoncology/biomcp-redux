@@ -2,6 +2,7 @@
 use super::{finish, next};
 use crate::{Ctx, Outcome};
 use biomcp_adapters::clinpgx;
+use biomcp_fetch::Input;
 use biomcp_types::ReplyBody;
 use biomcp_types::{
     PgxAnnotation, PgxAnnotationGet, PgxAnnotationIdentity, PgxAnnotationKind, PgxAnnotations,
@@ -115,7 +116,7 @@ pub(super) fn get(cx: &Ctx<'_>, q: &PgxGet) -> Outcome {
                 out.body = (slice(q, body)).with_query(q.clone());
                 out.next = next::steps(&Request::GetPgx(bound), &mut out);
             }
-            Err(_) => out.local = Some(biomcp_fetch::InputError::Serialization.into()),
+            Err(_) => out.local = Some(InputError::Serialization.into()),
         },
         Ok(None) => {}
         Err(error) => {

@@ -1,6 +1,7 @@
 //! Explicit VariantValidator GET reads; warning envelopes never resolve identity.
 use crate::quotas;
 use biodata::Build;
+use biomcp_fetch::{Input, Read};
 
 use biomcp_fetch::{Arg, Endpoint, KeyUse, Leg, PathSegment, RequestError, SourceSpec};
 use biomcp_types::{Source, VariantHeader};
@@ -48,12 +49,15 @@ fn fetch(leg: &Leg<'_>, input: &str, build: Build) -> Result<Response, RequestEr
         PathSegment::new(input)?,
         PathSegment::new("all")?,
     ]);
-    let raw = leg.json_checked_admission::<Response>(
-        &endpoint,
-        &[("content-type", Arg::Text("application/json"))],
-        |_| Ok(()),
-        |reply| reply.flag.as_str() != "warning" && reply.eligible(input),
-    )?;
+    let raw = leg
+        .call::<Response>(
+            &endpoint,
+            Input::Params(&[("content-type", Arg::Text("application/json"))]),
+            Read::json()
+                .check(&(|_| Ok(())))
+                .cache_if(&(|reply| reply.flag.as_str() != "warning" && reply.eligible(input))),
+        )
+        .map(|received| received.value)?;
     Ok(raw)
 }
 /// Preserve caller assembly, unchanged input and every service-returned identity.

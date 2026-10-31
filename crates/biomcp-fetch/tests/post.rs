@@ -1,5 +1,6 @@
 //! Declared POST bodies share the checked transport and modes.
 #![expect(
+use biomcp_fetch::{Read, JsonBody};
     clippy::disallowed_methods,
     reason = "Local HTTP fixtures and scoped public API callers"
 )]
@@ -29,14 +30,16 @@ fn declared_form_preserves_order_duplicates_and_encodes_sorted_ids() {
         let worker = scope.spawn(|| {
             fetch
                 .leg(spec, fetch.deadline(Duration::from_secs(10)))
-                .json::<Answer>(
+                .call::<Answer>(
                     &spec.post_form("/answer"),
-                    &[
+                    biomcp_fetch::Input::Params(&[
                         ("q", Arg::Text("a +é")),
                         ("q", Arg::Num(2)),
                         ("ids", Arg::Ids(&ids)),
-                    ],
+                    ]),
+                    Read::json(),
                 )
+                .map(|received| received.value)
         });
         let request = server.next();
         assert!(request.text.starts_with("POST /answer HTTP/1.1\r\n"));
@@ -81,7 +84,15 @@ fn json_serializes_once_and_only_declared_idempotent_posts_retry() {
         let worker = scope.spawn(|| {
             fetch
                 .leg(spec, fetch.deadline(Duration::from_secs(10)))
-                .post_json::<_, Answer>(&spec.post_json("/answer").idempotent(), &Once(&calls))
+                .call::<Answer>(
+                    &spec.post_json("/answer").idempotent(),
+                    biomcp_fetch::Input::Json {
+                        params: &[],
+                        body: JsonBody::new(&Once(&calls)),
+                    },
+                    Read::json(),
+                )
+                .map(|received| received.value)
         });
         for status in [503, 429, 200] {
             let request = server.next();
@@ -101,7 +112,15 @@ fn json_serializes_once_and_only_declared_idempotent_posts_retry() {
             let worker = scope.spawn(|| {
                 fetch
                     .leg(spec, fetch.deadline(Duration::from_secs(10)))
-                    .post_json::<_, Answer>(&spec.post_json("/answer"), &true)
+                    .call::<Answer>(
+                        &spec.post_json("/answer"),
+                        biomcp_fetch::Input::Json {
+                            params: &[],
+                            body: JsonBody::new(&true),
+                        },
+                        Read::json(),
+                    )
+                    .map(|received| received.value)
             });
             server
                 .next()
@@ -149,28 +168,57 @@ fn preparation_errors_precede_locked_cache_and_malformed_replay_without_echo() {
         let endpoint = spec.post_json("/answer").fresh(Freshness::Days(1));
         for (error, expected) in [
             (
-                leg.post_json::<_, Answer>(&endpoint, &Broken).unwrap_err(),
+                leg.call::<Answer>(
+                    &endpoint,
+                    biomcp_fetch::Input::Json {
+                        params: &[],
+                        body: JsonBody::new(&Broken),
+                    },
+                    Read::json(),
+                )
+                .map(|received| received.value)
+                .unwrap_err(),
                 InputError::Serialization,
             ),
             (
-                leg.post_json::<_, Answer>(&endpoint, &"x".repeat(33))
-                    .unwrap_err(),
+                leg.call::<Answer>(
+                    &endpoint,
+                    biomcp_fetch::Input::Json {
+                        params: &[],
+                        body: JsonBody::new(&"x".repeat(33)),
+                    },
+                    Read::json(),
+                )
+                .map(|received| received.value)
+                .unwrap_err(),
                 InputError::BodyLimit,
             ),
             (
-                leg.json::<Answer>(&endpoint, &[]).unwrap_err(),
-                InputError::Method,
-            ),
-            (
-                leg.post_json::<_, Answer>(&spec.get("/answer"), &Broken)
+                leg.call::<Answer>(&endpoint, biomcp_fetch::Input::Params(&[]), Read::json())
+                    .map(|received| received.value)
                     .unwrap_err(),
                 InputError::Method,
             ),
             (
-                leg.json::<Answer>(
-                    &spec.post_form("/answer"),
-                    &[("q", Arg::Text(&"é".repeat(20)))],
+                leg.call::<Answer>(
+                    &spec.get("/answer"),
+                    biomcp_fetch::Input::Json {
+                        params: &[],
+                        body: JsonBody::new(&Broken),
+                    },
+                    Read::json(),
                 )
+                .map(|received| received.value)
+                .unwrap_err(),
+                InputError::Method,
+            ),
+            (
+                leg.call::<Answer>(
+                    &spec.post_form("/answer"),
+                    biomcp_fetch::Input::Params(&[("q", Arg::Text(&"é".repeat(20)))]),
+                    Read::json(),
+                )
+                .map(|received| received.value)
                 .unwrap_err(),
                 InputError::BodyLimit,
             ),
@@ -192,22 +240,40 @@ fn invoke(
     use biomcp_fetch::Freshness;
     let leg = fetch.leg(spec, fetch.deadline(Duration::from_secs(10)));
     match kind {
-        0 => leg.json(
-            &spec.get("/answer").fresh(Freshness::Days(1)),
-            &[("q", Arg::Num(1))],
-        ),
-        1 => leg.json(
-            &spec.post_form("/answer").fresh(Freshness::Days(1)),
-            &[("q", Arg::Num(1))],
-        ),
-        2 => leg.post_json(
-            &spec.post_json("/answer").fresh(Freshness::Days(1)),
-            &serde_json::json!({"q":1}),
-        ),
-        _ => leg.post_json(
-            &spec.post_json("/answer").fresh(Freshness::Days(1)),
-            &serde_json::json!({"q":2}),
-        ),
+        0 => leg
+            .call(
+                &spec.get("/answer").fresh(Freshness::Days(1)),
+                biomcp_fetch::Input::Params(&[("q", Arg::Num(1))]),
+                Read::json(),
+            )
+            .map(|received| received.value),
+        1 => leg
+            .call(
+                &spec.post_form("/answer").fresh(Freshness::Days(1)),
+                biomcp_fetch::Input::Params(&[("q", Arg::Num(1))]),
+                Read::json(),
+            )
+            .map(|received| received.value),
+        2 => leg
+            .call(
+                &spec.post_json("/answer").fresh(Freshness::Days(1)),
+                biomcp_fetch::Input::Json {
+                    params: &[],
+                    body: JsonBody::new(&serde_json::json!({"q":1})),
+                },
+                Read::json(),
+            )
+            .map(|received| received.value),
+        _ => leg
+            .call(
+                &spec.post_json("/answer").fresh(Freshness::Days(1)),
+                biomcp_fetch::Input::Json {
+                    params: &[],
+                    body: JsonBody::new(&serde_json::json!({"q":2})),
+                },
+                Read::json(),
+            )
+            .map(|received| received.value),
     }
 }
 #[test]
@@ -267,8 +333,16 @@ fn cache_capture_replay_and_offline_distinguish_method_encoding_and_body() {
     }
     let leg = replay.leg(spec, replay.deadline(Duration::from_secs(10)));
     assert_eq!(
-        leg.post_json::<_, Answer>(&spec.post_json("/answer"), &serde_json::json!({"q":3}))
-            .unwrap_err(),
+        leg.call::<Answer>(
+            &spec.post_json("/answer"),
+            biomcp_fetch::Input::Json {
+                params: &[],
+                body: JsonBody::new(&serde_json::json!({"q":3}))
+            },
+            Read::json()
+        )
+        .map(|received| received.value)
+        .unwrap_err(),
         RequestError::Recording(RecordError::Missing)
     );
     let offline = Fetch::open(FetchConfig {
@@ -336,13 +410,15 @@ fn credentials_are_inserted_only_on_wire_and_capture_metadata_is_checked_before_
         let get = || {
             replay
                 .leg(spec, replay.deadline(Duration::from_secs(10)))
-                .json::<Answer>(
+                .call::<Answer>(
                     &spec.post_form("/answer"),
-                    &[
+                    biomcp_fetch::Input::Params(&[
                         ("q", Arg::Text("user-text")),
                         ("api_key", Arg::Text("caller-secret")),
-                    ],
+                    ]),
+                    Read::json(),
                 )
+                .map(|received| received.value)
         };
         for field in ["request_content_type", "request_body_sha256"] {
             let mut changed = value.clone();
@@ -388,13 +464,15 @@ fn capture_credentials(
         let worker = scope.spawn(|| {
             recording
                 .leg(spec, recording.deadline(Duration::from_secs(10)))
-                .json::<Answer>(
+                .call::<Answer>(
                     &spec.post_form("/answer"),
-                    &[
+                    biomcp_fetch::Input::Params(&[
                         ("q", Arg::Text("user-text")),
                         ("api_key", Arg::Text("caller-secret")),
-                    ],
+                    ]),
+                    Read::json(),
                 )
+                .map(|received| received.value)
         });
         let request = server.next();
         let wire = request.text.to_ascii_lowercase();

@@ -1,5 +1,6 @@
 //! Separate process proof for a shared SQLite cache; control sockets name events.
 #![expect(
+use biomcp_fetch::{Input};
     clippy::unwrap_used,
     clippy::panic,
     reason = "Fixture setup, child processes and failed source assertions must abort the contract test"
@@ -238,7 +239,12 @@ fn child() {
         assert!(
             fetch
                 .leg(spec, fetch.deadline(Duration::from_secs(10)))
-                .json::<Answer>(&endpoint, &[("key", Arg::Text(key))])
+                .call::<Answer>(
+                    &endpoint,
+                    Input::Params(&[("key", Arg::Text(key))]),
+                    biomcp_fetch::Read::json()
+                )
+                .map(|received| received.value)
                 .unwrap()
                 .answer
         );

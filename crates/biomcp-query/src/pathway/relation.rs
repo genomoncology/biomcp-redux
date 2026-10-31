@@ -2,6 +2,7 @@ use super::{empty, relation_snapshot as snapshot};
 use crate::{Ctx, Outcome, status};
 use biodata::{PathwayId, Text};
 use biomcp_adapters::reactome;
+use biomcp_fetch::Input;
 use biomcp_fetch::{Deadline, RequestError, SourceError};
 use biomcp_types::ReplyBody;
 use biomcp_types::{
@@ -244,7 +245,7 @@ fn fetch(
         return super::gpml_relation::fetch(cx, q, deadline, out);
     }
     let PathwayId::Reactome(id) = q.id else {
-        return Err(biomcp_fetch::InputError::Serialization.into());
+        return Err(InputError::Serialization.into());
     };
     let leg = cx.fetch.leg(&reactome::SPEC, deadline).fresh(q.fresh);
     let reply = (|| {

@@ -2,6 +2,7 @@ use super::super::SPEC;
 use crate::{mapped::Problems, raw::Field};
 use biodata::SemanticScholarAuthorId;
 use biomcp_fetch::{Arg, BadReply, Freshness, Leg, Reply, RequestError};
+use biomcp_fetch::{Input, Read};
 use biomcp_types::AuthorPapersQuery;
 use serde::{Deserialize, Serialize};
 mod row;
@@ -101,20 +102,24 @@ pub fn papers(
     } else {
         COMPACT
     };
-    let (page, _) = leg.json_received_checked::<PapersPage>(
-        &endpoint,
-        &[
-            ("fields", Arg::Text(fields)),
-            ("offset", Arg::Num(u64::from(q.offset()))),
-            ("limit", Arg::Num(u64::from(q.limit()))),
-        ],
-        |page| {
-            if page.offset == q.offset() && page.received <= q.limit() as usize {
-                Ok(())
-            } else {
-                Err(BadReply)
-            }
-        },
-    )?;
+    let (page, _) = leg
+        .call::<PapersPage>(
+            &endpoint,
+            Input::Params(&[
+                ("fields", Arg::Text(fields)),
+                ("offset", Arg::Num(u64::from(q.offset()))),
+                ("limit", Arg::Num(u64::from(q.limit()))),
+            ]),
+            Read::json().check(
+                &(|page| {
+                    if page.offset == q.offset() && page.received <= q.limit() as usize {
+                        Ok(())
+                    } else {
+                        Err(BadReply)
+                    }
+                }),
+            ),
+        )
+        .map(|received| (received.value, received.meta))?;
     Ok(page)
 }

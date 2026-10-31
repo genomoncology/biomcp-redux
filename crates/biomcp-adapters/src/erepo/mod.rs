@@ -1,4 +1,5 @@
 //! ClinGen evidence documents by exact CAid, without gene-wide fallback.
+use biomcp_fetch::Input;
 mod history;
 mod raw;
 use crate::{Mapped, mapped::Problems, quotas};
@@ -106,15 +107,22 @@ fn records(leg: &Leg<'_>, caid: &str) -> Result<Mapped<Vec<raw::Record>>, Reques
             ("pgSize", Arg::Num(3)),
             ("pg", Arg::Num(page)),
         ];
-        let (reply, _) =
-            leg.json_received_checked_cache::<raw::ReplyBody>(&FETCH, &params, |reply| {
-                reply.data.as_ref().is_some_and(|rows| {
-                    !rows.is_empty()
-                        && rows
-                            .iter()
-                            .all(|row| row.as_ref().is_some_and(|row| row.matches(caid)))
-                })
-            })?;
+        let (reply, _) = leg
+            .call::<raw::ReplyBody>(
+                &FETCH,
+                Input::Params(&params),
+                biomcp_fetch::Read::json().cache_if(
+                    &(|reply| {
+                        reply.data.as_ref().is_some_and(|rows| {
+                            !rows.is_empty()
+                                && rows
+                                    .iter()
+                                    .all(|row| row.as_ref().is_some_and(|row| row.matches(caid)))
+                        })
+                    }),
+                ),
+            )
+            .map(|received| (received.value, received.meta))?;
         let data = reply.data.unwrap_or_default();
         let complete = data.len() < 3;
         for raw in data {

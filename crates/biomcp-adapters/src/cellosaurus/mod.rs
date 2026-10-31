@@ -1,4 +1,5 @@
 //! Literal native Cellosaurus queries and request-bound identity checks.
+use biomcp_fetch::{Input, Read};
 mod map;
 mod raw;
 mod receive;
@@ -101,30 +102,39 @@ fn candidates(
     if let Some(offset) = offset {
         args.push(("start", Arg::Num(offset.into())));
     }
-    let (reply, metadata) = leg.json_received_checked_admission::<raw::Response>(
-        &endpoint,
-        &args,
-        |reply| match reply {
-            raw::Response::Records { data } if data.rows.len() <= limit as usize => Ok(()),
-            _ => Err(BadReply),
-        },
-        |reply| {
-            let raw::Response::Records { data } = reply else {
-                return false;
-            };
-            let accepted = data
-                .rows
-                .iter()
-                .filter(|row| row.accession().is_ok())
-                .count();
-            let refusals = if accepted < data.rows.len() {
-                crate::Refusal::Refused
-            } else {
-                crate::Refusal::None
-            };
-            refusals.identities_admitted(accepted, data.rows.len())
-        },
-    )?;
+    let (reply, metadata) = leg
+        .call::<raw::Response>(
+            &endpoint,
+            Input::Params(&args),
+            Read::json()
+                .check(
+                    &(|reply| match reply {
+                        raw::Response::Records { data } if data.rows.len() <= limit as usize => {
+                            Ok(())
+                        }
+                        _ => Err(BadReply),
+                    }),
+                )
+                .cache_if(
+                    &(|reply| {
+                        let raw::Response::Records { data } = reply else {
+                            return false;
+                        };
+                        let accepted = data
+                            .rows
+                            .iter()
+                            .filter(|row| row.accession().is_ok())
+                            .count();
+                        let refusals = if accepted < data.rows.len() {
+                            crate::Refusal::Refused
+                        } else {
+                            crate::Refusal::None
+                        };
+                        refusals.identities_admitted(accepted, data.rows.len())
+                    }),
+                ),
+        )
+        .map(|received| (received.value, received.meta))?;
     let raw::Response::Records { data } = reply else {
         return Err(InputError::Serialization.into());
     };
@@ -184,40 +194,44 @@ fn fetch_card(
     } else {
         CARD_FIELDS
     };
-    let (reply, metadata) = leg.json_received_checked::<raw::Response>(
-        &endpoint,
-        &[("format", Arg::Text("json")), ("fields", Arg::Text(fields))],
-        |reply| match reply {
-            raw::Response::Missing { code: 404, message }
-                if message == &format!("Item not found, ac: {accession}") =>
-            {
-                Ok(())
-            }
-            raw::Response::Records { data } if data.rows.len() == 1 => {
-                let row = data.rows.first().ok_or(BadReply)?;
-                if row.accession()? != accession {
-                    return Err(BadReply);
-                }
-                if let Some(id) = source {
-                    let database = native_database(id).ok_or(BadReply)?;
-                    if !row
-                        .xref_list
-                        .as_deref()
-                        .unwrap_or_default()
-                        .iter()
-                        .any(|r| {
-                            r.database.as_str() == database
-                                && r.accession.as_str() == id.accession()
-                        })
+    let (reply, metadata) = leg
+        .call::<raw::Response>(
+            &endpoint,
+            Input::Params(&[("format", Arg::Text("json")), ("fields", Arg::Text(fields))]),
+            Read::json().check(
+                &(|reply| match reply {
+                    raw::Response::Missing { code: 404, message }
+                        if message == &format!("Item not found, ac: {accession}") =>
                     {
-                        return Err(BadReply);
+                        Ok(())
                     }
-                }
-                Ok(())
-            }
-            _ => Err(BadReply),
-        },
-    )?;
+                    raw::Response::Records { data } if data.rows.len() == 1 => {
+                        let row = data.rows.first().ok_or(BadReply)?;
+                        if row.accession()? != accession {
+                            return Err(BadReply);
+                        }
+                        if let Some(id) = source {
+                            let database = native_database(id).ok_or(BadReply)?;
+                            if !row
+                                .xref_list
+                                .as_deref()
+                                .unwrap_or_default()
+                                .iter()
+                                .any(|r| {
+                                    r.database.as_str() == database
+                                        && r.accession.as_str() == id.accession()
+                                })
+                            {
+                                return Err(BadReply);
+                            }
+                        }
+                        Ok(())
+                    }
+                    _ => Err(BadReply),
+                }),
+            ),
+        )
+        .map(|received| (received.value, received.meta))?;
     let mut problems = Vec::new();
     let mut refusals = crate::Refusal::None;
     let card = match reply {
@@ -269,7 +283,13 @@ pub fn release(
     leg: &Leg<'_>,
 ) -> Result<crate::Mapped<biomcp_types::CellLineRelease>, RequestError> {
     let endpoint = SPEC.get("/release-info").fresh(Freshness::Days(1));
-    let reply: raw::ReleaseReply = leg.json(&endpoint, &[("format", Arg::Text("json"))])?;
+    let reply: raw::ReleaseReply = leg
+        .call(
+            &endpoint,
+            Input::Params(&[("format", Arg::Text("json"))]),
+            Read::json(),
+        )
+        .map(|received| received.value)?;
     let release = reply.data.header.release;
     let mut problems = crate::mapped::Problems {
         source: Source::Cellosaurus,

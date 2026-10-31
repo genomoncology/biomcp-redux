@@ -2,6 +2,7 @@ use super::{SPEC, map::publication_type};
 use crate::mapped::{Problems, record};
 use crate::xml_element::Element;
 use biodata::{PartialDate, Pmid, Text};
+use biomcp_fetch::{Input, Read};
 use biomcp_types::{Problem, Source};
 
 use biomcp_fetch::{
@@ -53,7 +54,8 @@ pub fn resolve_ids(
         params.push(("email", Arg::Contact(email)));
     }
     Ok(leg
-        .json::<super::raw::Search>(&RESOLVE, &params)?
+        .call::<super::raw::Search>(&RESOLVE, Input::Params(&params), Read::json())
+        .map(|received| received.value)?
         .esearchresult
         .idlist)
 }
@@ -64,7 +66,7 @@ pub fn fetch_articles(
     email: Option<&Secret>,
 ) -> Result<(Vec<FetchedArticle>, ReplyMetadata), RequestError> {
     if ids.len() > 200 || ids.is_empty() {
-        return Err(biomcp_fetch::InputError::Method.into());
+        return Err(InputError::Method.into());
     }
     let ids: Vec<_> = ids
         .iter()
@@ -79,7 +81,9 @@ pub fn fetch_articles(
     if let Some(email) = email {
         params.push(("email", Arg::Contact(email)));
     }
-    let (reply, metadata) = leg.xml_received::<Records>(&FETCH, &params)?;
+    let (reply, metadata) = leg
+        .call::<Records>(&FETCH, Input::Params(&params), Read::xml())
+        .map(|received| (received.value, received.meta))?;
     Ok((reply.articles, metadata))
 }
 #[derive(Deserialize)]

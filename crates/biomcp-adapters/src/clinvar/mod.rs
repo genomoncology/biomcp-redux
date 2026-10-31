@@ -1,4 +1,5 @@
 //! ClinVar VCV XML by a checked Variation ID, without text-search identity.
+use biomcp_fetch::{Input, Read};
 mod detail;
 mod map;
 mod raw;
@@ -51,10 +52,13 @@ pub fn assertions(
         params.push(("is_variationid", Arg::Text("true")));
     }
     params.extend([("retmode", Arg::Text("xml")), ("tool", Arg::Text("biomcp"))]);
-    let (mut reply, _) =
-        leg.xml_received_checked_cache::<raw::Records>(&FETCH, &params, |reply| {
-            reply.identity_problem(id, vcv).is_none()
-        })?;
+    let (mut reply, _) = leg
+        .call::<raw::Records>(
+            &FETCH,
+            Input::Params(&params),
+            Read::xml().cache_if(&(|reply| reply.identity_problem(id, vcv).is_none())),
+        )
+        .map(|received| (received.value, received.meta))?;
     if let Some(field) = reply.identity_problem(id, vcv) {
         reply.refusals = crate::Refusal::Refused;
         reply.rows.clear();

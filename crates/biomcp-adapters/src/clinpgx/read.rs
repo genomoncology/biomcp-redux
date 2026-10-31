@@ -3,6 +3,7 @@ use super::SPEC;
 use crate::{Mapped, mapped::Problems, pgx_sources::Native as NativeRow, raw::Field};
 use biodata::{PgxAnnotationDetail, PgxAnnotationHeader, PgxAnnotationReference};
 use biomcp_fetch::{Arg, BadReply, Freshness, Leg, Reply, RequestError};
+use biomcp_fetch::{Input, Read};
 use biomcp_types::{PgxAnnotationGet, PgxAnnotationKind, PgxGet};
 use serde::Deserialize;
 /// Bounded whole native collection with no claimed server-wide total.
@@ -34,12 +35,13 @@ fn collection<T: serde::de::DeserializeOwned + NativeRow>(
         .fresh(Freshness::Days(1))
         .bytes(4 * 1024 * 1024);
     let gene = q.gene().to_string();
-    let body: Native<Vec<Field<T>>> = leg.json_checked_admission(
-        &endpoint,
-        &[(key, Arg::Text(&gene)), ("view", Arg::Text("min"))],
-        |_| Ok(()),
-        |_| true,
-    )?;
+    let body: Native<Vec<Field<T>>> = leg
+        .call(
+            &endpoint,
+            Input::Params(&[(key, Arg::Text(&gene)), ("view", Arg::Text("min"))]),
+            Read::json().check(&(|_| Ok(()))).cache_if(&(|_| true)),
+        )
+        .map(|received| received.value)?;
     let mut cx = Problems {
         source: biomcp_types::Source::ClinPgx,
         record: None,
@@ -108,7 +110,7 @@ pub fn references(
     let (path, class) = match q.kind() {
         Some(PgxAnnotationKind::Guideline) => ("/data/guidelineAnnotation", "GuidelineAnnotation"),
         Some(PgxAnnotationKind::Label) => ("/data/labelAnnotation", "LabelAnnotation"),
-        _ => return Err(biomcp_fetch::InputError::Serialization.into()),
+        _ => return Err(InputError::Serialization.into()),
     };
     collection::<super::annotation_raw::PgxAnnotationReference>(
         leg,
@@ -134,12 +136,13 @@ pub fn annotation(
         .with_path(format!("/data/clinicalAnnotation/{}", q.id()))?
         .fresh(Freshness::Days(1))
         .bytes(4 * 1024 * 1024);
-    let body: Native<Field<super::detail_raw::PgxAnnotationDetail>> = leg.json_checked_admission(
-        &endpoint,
-        &[("view", Arg::Text("base"))],
-        |_| Ok(()),
-        |_| true,
-    )?;
+    let body: Native<Field<super::detail_raw::PgxAnnotationDetail>> = leg
+        .call(
+            &endpoint,
+            Input::Params(&[("view", Arg::Text("base"))]),
+            Read::json().check(&(|_| Ok(()))).cache_if(&(|_| true)),
+        )
+        .map(|received| received.value)?;
     let mut cx = Problems {
         source: biomcp_types::Source::ClinPgx,
         record: None,

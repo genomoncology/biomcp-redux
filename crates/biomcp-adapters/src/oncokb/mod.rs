@@ -1,4 +1,5 @@
 //! Keyed gene annotations, joined only by checked HGNC Entrez identity.
+use biomcp_fetch::Input;
 mod narrative;
 use crate::mapped::push_problem;
 use crate::mapped::record as record_text;
@@ -53,13 +54,24 @@ pub fn gene(
     symbol: &GeneSymbol,
     id: NcbiGeneId,
 ) -> Result<Mapped<Option<GeneData>>, RequestError> {
-    let reply = leg.json_opt::<raw::Genes>(
-        &GENES,
-        &[
-            ("hugoSymbol", Arg::Text(symbol.as_str())),
-            ("includeEvidence", Arg::Text("true")),
-        ],
-    )?;
+    let reply = leg
+        .call::<raw::Genes>(
+            &GENES,
+            Input::Params(&[
+                ("hugoSymbol", Arg::Text(symbol.as_str())),
+                ("includeEvidence", Arg::Text("true")),
+            ]),
+            biomcp_fetch::Read::json(),
+        )
+        .map(|received| Some(received.value))
+        .or_else(|error| match error {
+            biomcp_fetch::RequestError::Source(source)
+                if source.reason == biomcp_types::Reason::NotFound =>
+            {
+                Ok(None)
+            }
+            error => Err(error),
+        })?;
     let rows = reply.map(|reply| reply.0).unwrap_or_default();
     let mut problems = Vec::new();
     let mut accepted = Vec::new();
@@ -93,7 +105,9 @@ pub fn gene(
 }
 /// Read the data version once for the command's accepted gene data.
 pub fn version(leg: &Leg<'_>) -> Result<Mapped<Option<Text>>, RequestError> {
-    let info = leg.json::<raw::Info>(&INFO, &[])?;
+    let info = leg
+        .call::<raw::Info>(&INFO, Input::Params(&[]), biomcp_fetch::Read::json())
+        .map(|received| received.value)?;
     let mut cx = crate::mapped::Problems {
         source: Source::Oncokb,
         record: None,

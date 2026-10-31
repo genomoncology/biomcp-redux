@@ -1,4 +1,5 @@
 //! Explicit keyed NCI Clinical Trials Search access, without vocabulary translation.
+use biomcp_fetch::{Input, Read};
 pub mod biomarker;
 mod biomarker_map;
 mod biomarker_raw;
@@ -250,13 +251,20 @@ pub fn search(leg: &Leg<'_>, params: &[(String, String)]) -> Result<Page, Reques
                 .flatten()
         })
         .unwrap_or(PAGE_LIMIT as usize);
-    leg.json_received_checked::<Page>(&SEARCH, &args, |page| {
-        if page.data.len() <= limit {
-            Ok(())
-        } else {
-            Err(BadReply)
-        }
-    })
+    leg.call::<Page>(
+        &SEARCH,
+        Input::Params(&args),
+        Read::json().check(
+            &(|page| {
+                if page.data.len() <= limit {
+                    Ok(())
+                } else {
+                    Err(BadReply)
+                }
+            }),
+        ),
+    )
+    .map(|received| (received.value, received.meta))
     .map(|(page, _)| page)
 }
 /// Exact identity check runs before cache admission and on replay or cache hits.
@@ -265,13 +273,21 @@ pub fn get(
     id: NctId,
 ) -> Result<(Detail, biomcp_fetch::ReplyMetadata), RequestError> {
     let endpoint = DETAIL.clone().with_path(format!("/trials/{id}"))?;
-    let (raw, metadata) = leg.json_received_checked::<Trial>(&endpoint, &[], |r| {
-        if r.nct_id == id {
-            Ok(())
-        } else {
-            Err(BadReply)
-        }
-    })?;
+    let (raw, metadata) = leg
+        .call::<Trial>(
+            &endpoint,
+            Input::Params(&[]),
+            Read::json().check(
+                &(|r| {
+                    if r.nct_id == id {
+                        Ok(())
+                    } else {
+                        Err(BadReply)
+                    }
+                }),
+            ),
+        )
+        .map(|received| (received.value, received.meta))?;
     Ok((raw.detail(), metadata))
 }
 

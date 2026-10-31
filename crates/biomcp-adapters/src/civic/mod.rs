@@ -1,4 +1,5 @@
 //! Checked CIViC gene-level curation joined to HGNC Entrez identities.
+use biomcp_fetch::{Input, JsonBody, Read};
 mod claim_content;
 mod claim_vocab;
 mod drug;
@@ -69,7 +70,7 @@ pub fn genes(
     macro_rules! fetch {
         ($($n:literal),+) => {
             match ids.len() {
-                $( $n => leg.post_json::<_, raw::Genes<$n>>(&GENES, &body).map(|raw| raw.data), )+
+                $( $n => leg.call::<raw::Genes<$n>>(&GENES, Input::Json { params: &[], body: JsonBody::new(&body) }, Read::json()).map(|received| received.value).map(|raw| raw.data), )+
                 _ => return Err(biomcp_fetch::bad_reply(Source::Civic, None)),
             }
         };

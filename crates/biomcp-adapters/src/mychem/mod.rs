@@ -1,4 +1,5 @@
 //! Canonical MYCHEM source declaration.
+use biomcp_fetch::Read;
 use biomcp_fetch::{KeyUse, SourceSpec, Terms};
 use biomcp_types::Source;
 use std::time::Duration;
@@ -45,17 +46,20 @@ pub fn search(
     offset: u32,
 ) -> Result<(crate::Mapped<DrugPage>, u32), RequestError> {
     let fields = crate::drug_sources::components::allowed_fields(leg, SEARCH_FIELDS);
-    let reply = leg.json_checked_admission::<raw::Page>(
-        &SEARCH,
-        &[
-            ("q", Arg::Text(query)),
-            ("size", Arg::Num(limit as u64)),
-            ("from", Arg::Num(offset as u64)),
-            ("fields", Arg::Text(&fields)),
-        ],
-        |_| Ok(()),
-        raw::Page::identities_admitted,
-    )?;
+    let reply = leg
+        .call::<raw::Page>(
+            &SEARCH,
+            biomcp_fetch::Input::Params(&[
+                ("q", Arg::Text(query)),
+                ("size", Arg::Num(limit as u64)),
+                ("from", Arg::Num(offset as u64)),
+                ("fields", Arg::Text(&fields)),
+            ]),
+            Read::json()
+                .check(&(|_| Ok(())))
+                .cache_if(&(raw::Page::identities_admitted)),
+        )
+        .map(|received| received.value)?;
     let received = reply.hits.len() as u32;
     map::page(reply, leg)
         .map(|page| (page, received))
@@ -65,17 +69,21 @@ pub fn search(
 pub fn get(leg: &Leg<'_>, id: &str) -> Result<crate::Mapped<DrugDocument>, RequestError> {
     let segment = PathSegment::new(id).map_err(RequestError::Input)?;
     let fields = crate::drug_sources::components::allowed_fields(leg, CARD_FIELDS);
-    let (reply, received) = leg.json_received_checked::<raw::Hit>(
-        &GET.clone().with_segments(&[segment]),
-        &[("fields", Arg::Text(&fields))],
-        |hit| {
-            if hit.id == id {
-                Ok(())
-            } else {
-                Err(biomcp_fetch::BadReply)
-            }
-        },
-    )?;
+    let (reply, received) = leg
+        .call::<raw::Hit>(
+            &GET.clone().with_segments(&[segment]),
+            biomcp_fetch::Input::Params(&[("fields", Arg::Text(&fields))]),
+            Read::json().check(
+                &(|hit| {
+                    if hit.id == id {
+                        Ok(())
+                    } else {
+                        Err(biomcp_fetch::BadReply)
+                    }
+                }),
+            ),
+        )
+        .map(|received| (received.value, received.meta))?;
     let mut card =
         map::card(reply, leg).map_err(|_| biomcp_fetch::bad_reply(Source::Mychem, None))?;
     card.value.card.retrieved = crate::drug_sources::received_date(received.fetched);
