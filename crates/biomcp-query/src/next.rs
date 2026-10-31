@@ -174,6 +174,13 @@ fn candidate_navigation(candidates: bool) -> Navigation<'static> {
     }
 }
 
+/// Build source network guidance for housekeeping results with the same bounded policy.
+pub fn network(sources: &[biomcp_types::SourceOutcome]) -> Vec<Step> {
+    let mut steps = Vec::new();
+    network_steps(&mut steps, sources, None);
+    steps
+}
+
 fn network_steps(
     steps: &mut Vec<Step>,
     sources: &[biomcp_types::SourceOutcome],
