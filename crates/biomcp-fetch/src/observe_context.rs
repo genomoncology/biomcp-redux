@@ -16,11 +16,13 @@ pub struct Identities {
 impl Identities {
     /// Bound diagnostic metadata; absent context cannot establish causation.
     pub fn bounded(namespace: &str, ids: Vec<String>) -> Option<Self> {
-        (ids.len() <= MAX_IDENTITIES && ids.iter().all(|id| !id.is_empty() && id.len() <= 256 && !id.chars().any(char::is_control))).then(|| {
-            Self {
-                namespace: namespace.into(),
-                ids,
-            }
+        (ids.len() <= MAX_IDENTITIES
+            && ids
+                .iter()
+                .all(|id| !id.is_empty() && id.len() <= 256 && !id.chars().any(char::is_control)))
+        .then(|| Self {
+            namespace: namespace.into(),
+            ids,
         })
     }
 }
@@ -64,7 +66,12 @@ impl Provenance {
                 && ids.namespace.len() <= 128
                 && namespaces.insert(&ids.namespace)
                 && Identities::bounded(&ids.namespace, ids.ids.clone()).is_some()
-                && ids.ids.iter().collect::<std::collections::BTreeSet<_>>().len() == ids.ids.len()
+                && ids
+                    .ids
+                    .iter()
+                    .collect::<std::collections::BTreeSet<_>>()
+                    .len()
+                    == ids.ids.len()
         });
         if !valid || total > MAX_IDENTITIES {
             discovery = None;

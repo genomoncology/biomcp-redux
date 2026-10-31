@@ -171,7 +171,10 @@ struct RawEdges {
 impl Reply for RawEdges {
     fn discoveries(&self) -> Option<Vec<biomcp_fetch::Identities>> {
         let rows = self.data.as_ref()?;
-        if rows.iter().any(|row| row.as_ref().is_none_or(|edge| edge.refusals != crate::Refusal::None)) {
+        if rows.iter().any(|row| {
+            row.as_ref()
+                .is_none_or(|edge| edge.refusals != crate::Refusal::None)
+        }) {
             return None;
         }
         super::search::paper_discoveries(

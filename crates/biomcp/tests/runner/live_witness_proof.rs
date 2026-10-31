@@ -366,21 +366,32 @@ fn long_walk_shapes() -> Result<(), String> {
 }
 
 fn scholar_context() -> Result<(), Box<dyn std::error::Error>> {
-    let env = Environment::new()?;
-    let replay = super::super::launch::fixtures().join("replies/article/recommendations/single");
-    let rows = super::observe(&env, &replay, "scholar-identities", &[
-        "article", "recommendations", "34096690", "--limit", "5",
-    ])?;
-    let sequences = rows.iter()
-        .find(|row| row.source == biomcp_types::Source::SemanticScholar)
-        .and_then(|row| row.provenance.discoveries.as_ref())
-        .ok_or("provider namespace sequences absent")?;
-    let find = |namespace| sequences.iter().find(|ids| ids.namespace == namespace)
-        .map(|ids| ids.ids.iter().map(String::as_str).collect::<Vec<_>>());
-    if find("pmid") != Some(vec!["42745055", "42685317", "42846599", "42891951"])
-        || find("doi") != Some(vec!["10.1158/1538-7445.pancreatic26-b074"])
-    {
-        return Err("provider PMIDs were inferred, reordered or mixed with DOI fallback".into());
+    for (case, args, pmids, doi) in [
+        ("single", vec!["article", "recommendations", "34096690", "--limit", "5"],
+         vec!["42745055", "42685317", "42846599", "42891951"],
+         "10.1158/1538-7445.pancreatic26-b074"),
+        ("multi", vec!["article", "recommendations", "34096690", "32955176", "--negative", "33433946", "--limit", "5"],
+         vec!["42745055", "42685317", "42748921", "42830785"],
+         "10.64898/2026.09.28.26364204"),
+    ] {
+        let env = Environment::new()?;
+        let replay = super::super::launch::fixtures().join(format!("replies/article/recommendations/{case}"));
+        let rows = super::observe(&env, &replay, "scholar-identities", &args)?;
+        let sequences = rows.iter()
+            .find(|row| row.source == biomcp_types::Source::SemanticScholar)
+            .and_then(|row| row.provenance.discoveries.as_ref())
+            .ok_or("provider namespace sequences absent")?;
+        let find = |namespace| sequences.iter().find(|ids| ids.namespace == namespace)
+            .map(|ids| ids.ids.iter().map(String::as_str).collect::<Vec<_>>());
+        if find("pmid") != Some(pmids) || find("doi") != Some(vec![doi]) {
+            return Err("provider PMIDs were inferred, reordered or mixed with DOI fallback".into());
+        }
+        let metadata: Vec<_> = rows.iter().map(|row| json!({
+            "identity": row.identity, "source": row.source, "role": row.role,
+            "status": row.status, "url": row.url, "provenance": row.provenance,
+        })).collect();
+        use std::io::Write;
+        writeln!(std::io::stderr(), "SCHOLAR_DISCOVERY {}", json!({"case":case,"requests":metadata}))?;
     }
     Ok(())
 }

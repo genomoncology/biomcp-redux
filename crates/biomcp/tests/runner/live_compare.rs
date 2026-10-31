@@ -61,7 +61,11 @@ pub(crate) fn compare(
             "before_identity": old.identity, "after_identity": paired.map(|item| &item.identity),
             "before_shape_incomplete": old.shape.incomplete,
             "after_shape_incomplete": paired.map(|item| item.shape.incomplete),
-            "shape_comparison": match paired {None => "unexamined", Some(item) if old.shape.incomplete || item.shape.incomplete => "incomplete", Some(_) => "complete"},
+            "shape_comparison": match paired {
+                None => "unexamined",
+                Some(item) if old.shape.incomplete || item.shape.incomplete => "incomplete",
+                Some(_) => "complete"
+            },
             "before_statuses": statuses(before, &old.identity),
             "after_statuses": paired.map(|item| statuses(after, &item.identity))}));
     }
