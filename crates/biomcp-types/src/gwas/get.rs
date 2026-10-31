@@ -94,7 +94,8 @@ impl GwasSectionPage {
     }
 }
 impl crate::Paged for GwasSectionPage {
-    fn set_page_offset(&mut self, offset: u32) {
+    type Offset = u32;
+    fn set_page_offset(&mut self, offset: Self::Offset) {
         self.0.section_offset = offset;
     }
     fn clear_page_context(&mut self) {
@@ -156,10 +157,11 @@ impl GwasGet {
     }
 }
 impl crate::Paged for GwasGet {
-    fn set_page_offset(&mut self, offset: u32) {
+    type Offset = ();
+    fn set_page_offset(&mut self, _offset: Self::Offset) {
         match self {
             Self::Association { page, .. } | Self::Study { page, .. } => {
-                crate::Paged::set_page_offset(page, offset)
+                crate::Paged::set_page_offset(page, 0)
             }
         }
     }

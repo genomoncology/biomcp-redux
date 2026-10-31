@@ -171,7 +171,8 @@ impl PhenotypeSearch {
     }
 }
 impl crate::Paged for PhenotypeSearch {
-    fn set_page_offset(&mut self, offset: u32) {
+    type Offset = u32;
+    fn set_page_offset(&mut self, offset: Self::Offset) {
         self.0.offset = offset;
     }
 }
@@ -251,8 +252,9 @@ impl PhenotypeGet {
     }
 }
 impl crate::Paged for PhenotypeGet {
-    fn set_page_offset(&mut self, offset: u32) {
-        self.0.section_offset = offset;
+    type Offset = ();
+    fn set_page_offset(&mut self, _offset: Self::Offset) {
+        self.0.section_offset = 0;
     }
     fn clear_page_context(&mut self) {
         self.0.snapshot = None;

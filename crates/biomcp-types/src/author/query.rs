@@ -98,7 +98,8 @@ impl AuthorSearch {
     }
 }
 impl crate::Paged for AuthorSearch {
-    fn set_page_offset(&mut self, offset: u32) {
+    type Offset = u32;
+    fn set_page_offset(&mut self, offset: Self::Offset) {
         self.0.offset = offset;
     }
     fn clear_page_context(&mut self) {
@@ -236,7 +237,8 @@ impl AuthorPapersQuery {
     }
 }
 impl crate::Paged for AuthorPapersQuery {
-    fn set_page_offset(&mut self, offset: u32) {
+    type Offset = u32;
+    fn set_page_offset(&mut self, offset: Self::Offset) {
         self.0.offset = offset;
     }
     fn clear_page_context(&mut self) {

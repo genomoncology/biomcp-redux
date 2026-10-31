@@ -138,8 +138,9 @@ impl ProteinSearch {
     }
 }
 impl crate::Paged for ProteinSearch {
-    fn set_page_offset(&mut self, offset: u32) {
-        self.0.offset = offset;
+    type Offset = ();
+    fn set_page_offset(&mut self, _offset: Self::Offset) {
+        self.0.offset = 0;
     }
     fn clear_page_context(&mut self) {
         self.0.pool = None;

@@ -77,7 +77,8 @@ macro_rules! relation {
 
         }
 impl crate::Paged for $name {
-    fn set_page_offset(&mut self, offset: u32) { self.0.offset = offset; }
+    type Offset = u32;
+    fn set_page_offset(&mut self, offset: Self::Offset) { self.0.offset = offset; }
     fn clear_page_context(&mut self) { self.0.pool = None; }
 }
 
