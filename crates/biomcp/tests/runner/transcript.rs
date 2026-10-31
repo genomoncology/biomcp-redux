@@ -1,7 +1,6 @@
 //! Optional transcripts at complete-output boundaries.
 use libtest_mimic::{Failed, Trial};
 use serde_json::{Value, json};
-use sha2::{Digest, Sha256};
 use std::{collections::BTreeMap, fs, path::PathBuf, sync::Arc};
 
 #[expect(
@@ -90,12 +89,7 @@ pub(super) fn case_step(index: usize) {
             .case_step = Some(index);
     }
 }
-pub(super) fn hash(value: &[u8]) -> String {
-    Sha256::digest(value)
-        .iter()
-        .map(|byte| format!("{byte:02x}"))
-        .collect()
-}
+pub(super) use super::stable_hash::hash;
 impl Context {
     fn write(&self, key: &str, value: &Value) -> Result<(), String> {
         fs::create_dir_all(&self.directory).map_err(|e| e.to_string())?;

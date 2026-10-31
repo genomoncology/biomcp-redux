@@ -28,6 +28,8 @@ pub(crate) mod pdf;
 pub use pdf::{PUBLISHER, PdfLink, PdfRecord, pdf};
 mod graph;
 pub use graph::{Edge, Edges, PaperSummary, edges, paper_endpoint, summary};
+mod query;
+pub use query::search_query;
 pub use search::{Author, ExternalIds, Paper, Search, search};
 
 pub(crate) mod recommend;

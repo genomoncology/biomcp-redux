@@ -87,3 +87,16 @@ impl Reply for Sentences {
         Ok(())
     }
 }
+
+/// Search typed article selectors with the original provider word composition.
+pub fn search_query(leg: &Leg<'_>, query: &biomcp_types::ArticleSearch) -> (Result<Mapped<Vec<ArticleItem>>, RequestError>, String) {
+    let term = query
+        .gene()
+        .map(ToString::to_string)
+        .into_iter()
+        .chain([query.words()])
+        .filter(|s| !s.is_empty())
+        .collect::<Vec<_>>()
+        .join(" ");
+    (search(leg, &term), term)
+}

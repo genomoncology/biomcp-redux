@@ -98,3 +98,15 @@ impl Reply for Page {
         Ok(())
     }
 }
+
+/// Compose the native term for checked gene and literal article selectors.
+pub fn query_term(query: &biomcp_types::ArticleSearch, entrez: Option<biodata::NcbiGeneId>) -> String {
+    let term = entrez
+        .map(|id| format!("@GENE_{id}"))
+        .into_iter()
+        .chain([query.words()])
+        .filter(|s| !s.is_empty())
+        .collect::<Vec<_>>()
+        .join(" AND ");
+    term
+}

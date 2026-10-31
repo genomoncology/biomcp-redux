@@ -1,8 +1,7 @@
 //! Existing native recordings expose the private mapping fact through public adapter calls.
-use super::super::{response_cases::copy_capture, transcript::trial};
-use crate::runner::trial_bad_values::replace;
+use crate::trial;
+use crate::value::replace;
 use biomcp_adapters::{Refusal, gencc, gnomad, hgnc, mygene, pubmed};
-use biomcp_fetch::{Fetch, FetchConfig, Mode};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::time::Duration;
@@ -10,10 +9,6 @@ pub(super) type Check<T = ()> = Result<T, Box<dyn std::error::Error>>;
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        trial(
-            "gene-identity/query-resolution-keeps-actual-refusals",
-            || query_resolution().map_err(|e| e.to_string().into()),
-        ),
         trial(
             "gene-identity/refused-annotation-hits-carry-batch-facts",
             || mygene_hits().map_err(|e| e.to_string().into()),
@@ -32,28 +27,7 @@ pub(super) fn trials() -> Vec<Trial> {
     ]
 }
 
-pub(super) fn replay(
-    capture: &str,
-    change: impl FnMut(&str, &mut Value),
-) -> Check<(tempfile::TempDir, Fetch)> {
-    let root = tempfile::tempdir()?;
-    let recordings = root.path().join("recordings");
-    copy_capture(capture, &recordings, change)?;
-    let mut secrets = biomcp_fetch::Secrets::default();
-    for name in [
-        biomcp_fetch::SecretName::OncokbApiKey,
-        biomcp_fetch::SecretName::NciApiKey,
-    ] {
-        secrets.insert(name, biomcp_fetch::Secret::new("synthetic-replay-key"));
-    }
-    let fetch = Fetch::open(FetchConfig {
-        mode: Mode::Replay { dir: recordings },
-        cache: Some(root.path().join("cache.sqlite")),
-        secrets,
-        ..Default::default()
-    })?;
-    Ok((root, fetch))
-}
+pub(super) use crate::replay_support::replay;
 
 fn mygene_hits() -> Check {
     for case in ["optional", "unknown", "duplicate", "mismatched", "absent"] {
@@ -326,44 +300,3 @@ fn summaries() -> Check {
     Ok(())
 }
 
-fn query_resolution() -> Check {
-    for refused in [false, true] {
-        let mut changed = false;
-        let (_root, fetch) = replay("gene/gencc", |source, recording| {
-            if source == "hgnc"
-                && let Some(body) = recording.pointer_mut("/exchanges/0/body/value")
-                && let Some(native) = body.as_str()
-            {
-                changed = true;
-                *body = if refused {
-                    json!(format!(
-                        "{native}invalid\tODC1\trefused identity\tprotein-coding gene\tApproved\n"
-                    ))
-                } else {
-                    json!(native.replacen("protein-coding gene", "invalid optional locus group", 1))
-                };
-            }
-        })?;
-        if !changed {
-            return Err("HGNC recording did not contain native complete rows".into());
-        }
-        hgnc::sync(&fetch, hgnc::HgncBundle::Complete)?;
-        let query = biomcp_types::GeneGet::new(Box::new(["ODC1".parse()?]))?;
-        let mapped = biomcp_query::run(&biomcp_query::Ctx {
-            fetch: &fetch, budget: Duration::from_secs(20), fresh: false, ncbi_email: None,
-        }, &biomcp_types::Request::GetGene(query));
-        let expected = if refused { biomcp_types::Status::Partial } else { biomcp_types::Status::Complete };
-        if mapped.status() != expected || !matches!(mapped.body, biomcp_types::QueryBody::GeneCards(ref cards) if !cards.items.is_empty()) {
-            return Err("HGNC query aggregation lost a retained gene or its actual refusal fact".into());
-        }
-        if !refused
-            && !mapped
-                .problems
-                .iter()
-                .any(|p| p.field.as_ref() == "locus_group")
-        {
-            return Err("HGNC optional-field control did not reach its problem".into());
-        }
-    }
-    Ok(())
-}

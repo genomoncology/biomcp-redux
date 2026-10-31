@@ -54,3 +54,29 @@ fn filters(query: &ArticleSearch, words: String) -> String {
     }
     term
 }
+
+/// Resolve an explicit DOI group with native PubMed syntax and request identities.
+pub fn search_dois(
+    leg: &biomcp_fetch::Leg<'_>,
+    batch: &[biodata::Doi],
+    email: Option<&biomcp_fetch::Secret>,
+) -> Result<super::SearchIds, RequestError> {
+    let term = batch
+        .iter()
+        .map(|doi| {
+            format!(
+                "\"{}\"[doi]",
+                doi.to_string()
+                    .to_ascii_lowercase()
+                    .replace('\\', "\\\\")
+                    .replace('"', "\\\"")
+            )
+        })
+        .collect::<Vec<_>>()
+        .join(" OR ");
+    let inputs = Some(biomcp_fetch::Identities {
+        namespace: "doi".into(),
+        ids: batch.iter().map(ToString::to_string).collect(),
+    });
+    super::search_ids_with_inputs(leg, &term, biomcp_types::ArticleSort::Rank, email, inputs)
+}

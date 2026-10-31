@@ -72,7 +72,6 @@ const LAYERS: &[(&str, &[&str])] = &[
             "biodata",
             "biomcp-types",
             "biomcp-fetch",
-            "biomcp-adapters",
             "biomcp-query",
             "clap",
             "shlex",

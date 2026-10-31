@@ -14,7 +14,7 @@ fn tls() -> Result<(), String> {
     for trusted in [false, true] {
         let env = Environment::new().map_err(|e| e.to_string())?;
         let stub = super::network_stub::Stub::new()?;
-        stub.retain(&env);
+        stub.retain(env.shared_root());
         let record = env.root().join("capture");
         if trusted {
             let cert = env.root().join("private-ca.pem");

@@ -4,31 +4,18 @@ use biodata::{Doi, Text};
 
 use biomcp_adapters::{pubmed, semantic_scholar};
 use biomcp_fetch::{Deadline, RequestError};
-use biomcp_types::{ArticleItem, ArticleKey, ArticleSearch, ArticleSort, ArticleSource, Source};
+use biomcp_types::{ArticleItem, ArticleKey, ArticleSearch, ArticleSource, Source};
 pub(super) fn search<'a>(
     cx: &Ctx<'a>,
     query: &ArticleSearch,
     deadline: Deadline<'a>,
 ) -> super::sources::ResultLeg {
-    let term = query
-        .gene()
-        .map_or_else(|| query.words(), |gene| format!("{gene} {}", query.words()))
-        .trim()
-        .to_owned();
-    let (since, until) = query.dates();
-    let year = (since.is_some() || until.is_some()).then(|| {
-        format!(
-            "{}-{}",
-            since.map_or_else(String::new, |v| v.year().to_string()),
-            until.map_or_else(String::new, |v| v.year().to_string())
-        )
-    });
     let leg = cx
         .fetch
         .leg(&semantic_scholar::SPEC, deadline)
         .fresh(cx.fresh);
     let start = leg.remaining();
-    let result = semantic_scholar::search(&leg, &term, year.as_deref(), query.open_access());
+    let (result, term) = semantic_scholar::search_query(&leg, query);
     let elapsed = start.saturating_sub(leg.remaining());
     let error = result.as_ref().err().copied();
     let mut outcome = status::source(Source::SemanticScholar, leg.finish(), error);
@@ -101,7 +88,7 @@ pub(super) fn resolve_dois_with<'a>(
     let mut problems = Vec::new();
     let result: Result<(), RequestError> = (|| {
         for batch in dois.chunks(100) {
-            let ids = doi_batch(&leg, batch, cx.ncbi_email.as_ref())?;
+            let ids = pubmed::search_dois(&leg, batch, cx.ncbi_email.as_ref())?;
             problems.extend(ids.problems);
             for chunk in ids.ids.chunks(50) {
                 let mapped = pubmed::summaries(&leg, chunk, cx.ncbi_email.as_ref())?;
@@ -151,27 +138,3 @@ pub(super) fn doi(item: &ArticleItem) -> Option<&Doi> {
     })
 }
 
-fn doi_batch(
-    leg: &biomcp_fetch::Leg<'_>,
-    batch: &[Doi],
-    email: Option<&biomcp_fetch::Secret>,
-) -> Result<pubmed::SearchIds, RequestError> {
-    let term = batch
-        .iter()
-        .map(|doi| {
-            format!(
-                "\"{}\"[doi]",
-                doi.to_string()
-                    .to_ascii_lowercase()
-                    .replace('\\', "\\\\")
-                    .replace('"', "\\\"")
-            )
-        })
-        .collect::<Vec<_>>()
-        .join(" OR ");
-    let inputs = Some(biomcp_fetch::Identities {
-        namespace: "doi".into(),
-        ids: batch.iter().map(ToString::to_string).collect(),
-    });
-    pubmed::search_ids_with_inputs(leg, &term, ArticleSort::Rank, email, inputs)
-}

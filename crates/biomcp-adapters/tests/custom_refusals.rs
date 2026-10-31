@@ -146,7 +146,7 @@ fn association_children_distinguish_required_identity_and_optional_properties() 
             row.refusals, expected,
             "association lost actual child refusal"
         );
-        assert_eq!(row.association_id.get(), 1);
+        assert_eq!(row.value.id.get(), 1);
     }
     Ok(())
 }

@@ -18,8 +18,16 @@ csv.workspace = true
 zip.workspace = true
 
 [dev-dependencies]
+sha2.workspace = true
+rcgen = { workspace = true, features = ["pem", "ring"] }
+rustls.workspace = true
+libtest-mimic.workspace = true
 serde_json.workspace = true
 tempfile.workspace = true
 
 [lints]
 workspace = true
+
+[[test]]
+name = "mapped_refusals"
+harness = false

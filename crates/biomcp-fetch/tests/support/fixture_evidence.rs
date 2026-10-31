@@ -3,7 +3,6 @@
     clippy::disallowed_types,
     reason = "The local fixture shares I/O diagnostics and owned scratch with its worker thread"
 )]
-use super::super::launch::Environment;
 use serde::Serialize;
 use std::{
     fs, io,
@@ -41,8 +40,7 @@ impl Evidence {
             roots: Mutex::new(Vec::new()),
         })
     }
-    pub(super) fn attach(&self, env: &Environment) {
-        let root = env.shared_root();
+    pub(super) fn attach(&self, root: Arc<tempfile::TempDir>) {
         let mut roots = self
             .roots
             .lock()
@@ -175,7 +173,7 @@ pub(super) fn retain_replay_owner(owner: &tempfile::TempDir) -> io::Result<()> {
     let root = owner.path().canonicalize()?;
     let retained = directory()?
         .join("replay-owners")
-        .join(crate::runner::transcript::hash(
+        .join(super::super::stable_hash::hash(
             root.to_string_lossy().as_bytes(),
         ));
     fs::create_dir_all(&retained)?;

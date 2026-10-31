@@ -87,9 +87,22 @@ fn optional_text(
     }
 }
 
-pub(super) fn mapped(row: super::raw::Association) -> crate::Mapped<GwasAssociation> {
-    let refusals = row.refusals;
-    let mut problems = Vec::new();
-    let value = association(row, &mut problems);
-    crate::Mapped { value, problems, refusals }
+/// Accepted association values and source diagnostics after native admission.
+#[derive(Debug, serde::Deserialize)]
+#[serde(from = "super::raw::Association")]
+pub struct Association {
+    /// Mapped association identity and facts.
+    pub value: GwasAssociation,
+    /// Rejected native optional values.
+    pub problems: Vec<biomcp_types::Problem>,
+    /// Actual refused native child identities.
+    pub refusals: crate::Refusal,
+}
+impl From<super::raw::Association> for Association {
+    fn from(row: super::raw::Association) -> Self {
+        let refusals = row.refusals;
+        let mut problems = Vec::new();
+        let value = association(row, &mut problems);
+        Self { value, problems, refusals }
+    }
 }

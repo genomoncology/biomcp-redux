@@ -1,0 +1,27 @@
+//! Isolated replay source setup shared by adapter and query contracts.
+use biomcp_fetch::{Fetch, FetchConfig, Mode};
+use serde_json::Value;
+use super::capture_support::copy_capture;
+type Check<T> = Result<T, Box<dyn std::error::Error>>;
+pub(crate) fn replay(
+    capture: &str,
+    change: impl FnMut(&str, &mut Value),
+) -> Check<(tempfile::TempDir, Fetch)> {
+    let root = tempfile::tempdir()?;
+    let recordings = root.path().join("recordings");
+    copy_capture(capture, &recordings, change)?;
+    let mut secrets = biomcp_fetch::Secrets::default();
+    for name in [
+        biomcp_fetch::SecretName::OncokbApiKey,
+        biomcp_fetch::SecretName::NciApiKey,
+    ] {
+        secrets.insert(name, biomcp_fetch::Secret::new("synthetic-replay-key"));
+    }
+    let fetch = Fetch::open(FetchConfig {
+        mode: Mode::Replay { dir: recordings },
+        cache: Some(root.path().join("cache.sqlite")),
+        secrets,
+        ..Default::default()
+    })?;
+    Ok((root, fetch))
+}

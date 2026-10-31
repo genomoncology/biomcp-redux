@@ -291,3 +291,4 @@ pub(super) fn doi_discovery<'a>(
         ids,
     })
 }
+

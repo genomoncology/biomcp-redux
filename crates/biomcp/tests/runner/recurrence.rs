@@ -40,7 +40,7 @@ pub(super) fn args() -> Vec<String> {
 }
 pub(super) fn config(env: &Environment, stub: &Stub) -> Result<(), String> {
     let ca = env.root().join("synthetic.pem");
-    stub.retain(env);
+    stub.retain(env.shared_root());
     fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
     env.config(&json!({"proxy":format!("http://{}",stub.address),"ca_bundle":ca}))
         .map_err(|e| e.to_string())

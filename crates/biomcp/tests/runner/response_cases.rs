@@ -55,15 +55,7 @@ pub(super) fn checked_steps(
     )?)
 }
 
-/// Copy transport-owned identities unchanged and mutate only response exchanges.
-pub(super) fn copy_capture(
-    capture: &str,
-    recordings: &Path,
-    change: impl FnMut(&str, &mut Value),
-) -> Check {
-    let original = super::launch::fixtures().join("replies").join(capture);
-    recording_support::copy_capture(&original, recordings, change)
-}
+pub(super) use super::capture_support::copy_capture;
 
 /// Acquisition is synthetic cache setup, never a claim about a retained capture.
 pub(super) const CACHE_ACQUIRED: i64 = 42;

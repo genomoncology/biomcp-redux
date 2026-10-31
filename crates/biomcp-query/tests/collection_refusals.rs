@@ -2,10 +2,10 @@
 use biomcp_adapters::{Refusal, opentargets};
 use libtest_mimic::Trial;
 use serde_json::json;
-#[path = "../../../../biomcp-query/src/drug/native/collection_page.rs"]
+#[path = "../src/drug/native/collection_page.rs"]
 mod projection;
-pub(super) fn trials() -> Vec<Trial> {
-    vec![super::trial(
+fn trials() -> Vec<Trial> {
+    vec![Trial::test(
         "drug-native-sources/collection-refusals-stay-with-accepted-collection",
         || {
             opentargets_collection_owns_refusals_across_pages()
@@ -101,3 +101,5 @@ fn check_position(total: Option<u64>, received: u32, next: Option<u32>, offset: 
         "accepted continuation changed"
     );
 }
+
+fn main() { libtest_mimic::run(&libtest_mimic::Arguments::from_args(), trials()).exit(); }

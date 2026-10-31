@@ -1,5 +1,5 @@
 //! Source declarations and access used by the command interfaces.
-pub use biomcp_adapters::registry::{components, disable_groups, disabled, disabled_uses, display_name, group, key_tier, outcome, requests, restore_outcome};
+pub use biomcp_adapters::registry::{components, disable_groups, disabled, disabled_uses, display_name, group, key_tier, outcome, requests, restore_outcome, terms, SOURCES};
 pub use biomcp_adapters::registry::records::{RecordKind, declaration, record_url};
 pub use biomcp_adapters::guidance::{deadline, WONDER_QUOTA};
 
@@ -31,3 +31,6 @@ pub fn sync(
 
 /// Configuration actions for source transport failures.
 pub fn network(sources: &[biomcp_types::SourceOutcome]) -> Vec<crate::next::Step> { crate::next::network(sources) }
+
+/// Label publisher terms for an independently disclosed aggregator component.
+pub use biomcp_adapters::myvariant::components::label as component_label;

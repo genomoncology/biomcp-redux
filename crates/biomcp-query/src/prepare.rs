@@ -3,7 +3,7 @@ use crate::Action;
 use biomcp_types::{DiseaseSection, DiseaseSource, ErrorEnvelope, Request};
 impl Action {
     /// Prepare source selectors and preserve existing usage refusal envelopes.
-    pub(crate) fn prepare(self) -> Result<Self, ErrorEnvelope> {
+    pub fn prepare(self) -> Result<Self, ErrorEnvelope> {
         let action = prepare_disease(self).map_err(selector_error)?;
         if let Some(error) = unsupported(&action) { return Err(error); }
         Ok(action)

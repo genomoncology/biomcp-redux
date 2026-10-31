@@ -9,6 +9,7 @@ use biodata::VariantId;
 use biomcp_fetch::{Arg, BadReply, Endpoint, Freshness, KeyUse, Leg, RequestError, SourceSpec};
 use biomcp_types::Source;
 mod map;
+pub use map::Association;
 pub use search::search;
 use std::time::Duration;
 /// Current catalog API; retired v1 is never used.
@@ -37,7 +38,7 @@ pub struct Page {
     /// Rejected source fields and row identities.
     pub problems: Vec<biomcp_types::Problem>,
     /// Selected source rows.
-    pub rows: Vec<crate::Mapped<biomcp_types::GwasAssociation>>,
+    pub rows: Vec<Association>,
     /// Source-reported total associations.
     pub total: u64,
 }
@@ -90,7 +91,7 @@ fn page(response: raw::Response, skip: usize) -> Page {
             refusals.include(row.refusals);
             row.refusals = crate::Refusal::None;
             problems.list.append(&mut row.problems);
-            rows.push(map::mapped(row));
+            rows.push(row.into());
         } else {
             refusals = crate::Refusal::Refused;
         }

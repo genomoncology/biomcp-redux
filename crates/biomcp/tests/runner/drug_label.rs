@@ -52,7 +52,7 @@ fn setup_raw(body: String, selector: String, status: u16) -> Result<(Environment
 fn environment(stub: Stub) -> Result<(Environment, Stub), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let cert = env.root().join("ca.pem");
-    stub.retain(&env);
+    stub.retain(env.shared_root());
     std::fs::write(&cert, &stub.certificate).map_err(|e| e.to_string())?;
     env.config(&json!({"ca_bundle":cert,"proxy":format!("http://{}",stub.address)}))
         .map_err(|e| e.to_string())?;
@@ -116,7 +116,7 @@ fn headings() -> Check {
     let id = identity(4)?;
     let record = record(&id);
     let (env, stub) = get_setup(&id, record.clone())?;
-    for (index, heading) in biomcp_adapters::openfda_label::HEADINGS
+    for (index, heading) in ["boxed_warning", "dosage_and_administration", "drug_interactions", "indications_and_usage", "warnings_and_cautions"]
         .into_iter()
         .enumerate()
     {

@@ -9,7 +9,7 @@ pub(super) fn check(value: &Value) -> Result<(), String> {
             let source: biomcp_types::Source =
                 serde_json::from_value(fields.get("source").ok_or("source identity")?.clone())
                     .map_err(|e| e.to_string())?;
-            let terms = biomcp_adapters::registry::terms(source).ok_or("source declaration")?;
+            let terms = biomcp_query::sources::terms(source).ok_or("source declaration")?;
             if fields.get("use") != Some(&json!(terms.usage))
                 || fields.get("terms") != Some(&json!(terms.name))
                 || fields.get("terms_url") != Some(&json!(terms.url))

@@ -18,7 +18,7 @@ pub struct Rows<T> {
     pub rejected: usize,
 }
 /// Read one source association without fetching its study.
-pub fn association(leg: &Leg<'_>, id: GwasAssociationId) -> Result<crate::Mapped<biomcp_types::GwasAssociation>, RequestError> {
+pub fn association(leg: &Leg<'_>, id: GwasAssociationId) -> Result<super::Association, RequestError> {
     let endpoint = SPEC
         .get("")
         .with_path(format!("/associations/{}", id.get()))?
@@ -30,7 +30,7 @@ pub fn association(leg: &Leg<'_>, id: GwasAssociationId) -> Result<crate::Mapped
             Err(BadReply)
         }
     })?;
-    Ok(super::map::mapped(row))
+    Ok(row.into())
 }
 impl Reply for Association {
     fn check(&self) -> Result<(), BadReply> {

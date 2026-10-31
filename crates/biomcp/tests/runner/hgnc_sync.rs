@@ -76,7 +76,7 @@ fn stub(env: &Environment) -> Result<Stub, String> {
     Ok(stub)
 }
 fn configure(env: &Environment, stub: &Stub) -> Check {
-    stub.retain(env);
+    stub.retain(env.shared_root());
     let cert = env.root().join("ca.pem");
     fs::write(&cert, &stub.certificate).map_err(|e| e.to_string())?;
     env.config(&json!({"proxy":format!("http://{}",stub.address),"ca_bundle":cert}))
@@ -224,9 +224,9 @@ fn first() -> Check {
     Ok(())
 }
 
-// The public fetch API admits a short per-leg deadline that the CLI cannot set.
+// The public query API admits a short command budget that the CLI cannot set.
 fn bounded() -> Check {
-    use biomcp_fetch::{Fetch, FetchConfig, Find, KeyKind, RequestError, Secret};
+    use biomcp_fetch::{Fetch, FetchConfig, Secret};
     let env = Environment::new().map_err(|e| e.to_string())?;
     let _pending = Pending::start(&env)?;
     let db = database(&env)?;
@@ -240,18 +240,12 @@ fn bounded() -> Check {
         ..Default::default()
     })
     .map_err(|e| e.to_string())?;
-    let leg = fetch.leg(
-        &biomcp_adapters::hgnc::SPEC,
-        fetch.deadline(Duration::from_millis(30)),
+    let request = biomcp_types::Request::GetGene(
+        biomcp_types::GeneGet::new(Box::new(["BRAF".parse().map_err(|e: biodata::Error| e.to_string())?])).map_err(|e| e.to_string())?
     );
-    let result = biomcp_adapters::hgnc::lookup(&leg, Find::Exact(KeyKind::Symbol, "BRAF"));
-    if !matches!(result, Err(RequestError::Source(e)) if e.reason == biomcp_types::Reason::Syncing)
-        || !leg.remaining().is_zero()
-    {
-        return Err(format!(
-            "first snapshot did not wait within its deadline: {result:?}; remaining={:?}",
-            leg.remaining()
-        ));
+    let result = biomcp_query::run(&biomcp_query::Ctx { fetch: &fetch, budget: Duration::from_millis(30), ncbi_email: None, fresh: false }, &request);
+    if !result.sources.iter().any(|source| source.source == biomcp_types::Source::Hgnc && source.reason == Some(biomcp_types::Reason::Syncing)) {
+        return Err(format!("first snapshot did not wait within its deadline: {result:?}"));
     }
     Ok(())
 }

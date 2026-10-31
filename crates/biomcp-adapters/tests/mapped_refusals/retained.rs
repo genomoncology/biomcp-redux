@@ -3,7 +3,7 @@ use super::{
     families::{Check, replay},
     trial,
 };
-use crate::runner::trial_bad_values::replace;
+use crate::value::replace;
 use biomcp_adapters::{Refusal, nci, openfda_label};
 use biomcp_fetch::RequestError;
 use biomcp_types::Reason;

@@ -1,4 +1,4 @@
-//! Classify optional-value drops beside the existing source ratchet.
+//! Classify adapter and query value drops beside the existing source ratchet.
 #[path = "private_refusal.rs"]
 pub(crate) mod private_refusal;
 use super::super::{Check, rust_files};
@@ -53,6 +53,7 @@ pub(crate) fn validate(text: &str) -> Result<Audit, Box<dyn std::error::Error>> 
         let adapter = entry
             .path
             .strip_prefix("crates/biomcp-adapters/src/")
+            .or_else(|| entry.path.strip_prefix("crates/biomcp-query/src/"))
             .and_then(|path| path.split('/').next())
             .unwrap_or("");
         if !seen.insert((&entry.path, &entry.site))
@@ -108,19 +109,23 @@ pub(super) fn pending(
 type DropSite = (String, String, usize);
 pub(crate) fn sites(root: &Path) -> Result<Vec<DropSite>, Box<dyn std::error::Error>> {
     let mut result = Vec::new();
-    for path in rust_files(&root.join("crates/biomcp-adapters/src"))? {
+    for directory in ["crates/biomcp-adapters/src", "crates/biomcp-query/src"] {
+    let directory = root.join(directory);
+    if !directory.exists() { continue; }
+    for path in rust_files(&directory)? {
         let relative = path
             .strip_prefix(root)?
             .to_string_lossy()
             .replace('\\', "/");
         let text = fs::read_to_string(&path)?;
         let mut found = fingerprints(root, &tokens(&text), &relative);
-        if text.lines().count() > super::ADAPTER_LIMIT {
+        if relative.starts_with("crates/biomcp-adapters/src/") && text.lines().count() > super::ADAPTER_LIMIT {
             found.insert("file line limit".into(), text.lines().count());
         }
         for (site, count) in found {
             result.push((relative.clone(), site, count));
         }
+    }
     }
     Ok(result)
 }
@@ -134,7 +139,8 @@ fn fingerprints(root: &Path, tokens: &[String], path: &str) -> BTreeMap<String, 
         {
             function = name;
         }
-        if let Some(site) = attribute_site(tokens, index)
+        if path.starts_with("crates/biomcp-adapters/src/")
+            && let Some(site) = attribute_site(tokens, index)
             && !private_refusal::allowed(root, path, tokens, index)
         {
             *result.entry(site).or_default() += 1;
