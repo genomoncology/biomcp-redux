@@ -50,6 +50,9 @@ impl Policy {
         id: &str,
         outcome: Option<&SourceOutcome>,
     ) -> Result<(), CacheError> {
+        if !self.0.is_hosted() {
+            return Ok(());
+        }
         self.authorize(cx, Table::Pool, id)?;
         let Some(outcome) = outcome else {
             return Ok(());
@@ -73,6 +76,9 @@ impl Policy {
         id: &str,
         next: &str,
     ) -> Result<(), CacheError> {
+        if !self.0.is_hosted() {
+            return Ok(());
+        }
         let text: String = cx
             .query_row(table.select(), rusqlite::params![id, Store::now()], |r| {
                 r.get(0)
@@ -91,6 +97,9 @@ impl Policy {
         table: Table,
         id: &str,
     ) -> Result<(), CacheError> {
+        if !self.0.is_hosted() {
+            return Ok(());
+        }
         let text: Option<String> = cx
             .query_row(table.select(), rusqlite::params![id, Store::now()], |r| {
                 r.get(0)
