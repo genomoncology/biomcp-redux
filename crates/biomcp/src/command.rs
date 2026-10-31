@@ -56,7 +56,7 @@ fn dispatch_using(
             cli_bytes: text.as_bytes().to_vec(),
         });
     }
-    if let Some(message) = crate::retired::message(args) {
+    if let Some(message) = crate::retired::message(root, args) {
         return usage_envelope(UsageError::Retired(message));
     }
     let mut parsed = match crate::grammar::parse(root, args) {

@@ -95,7 +95,7 @@ pub(super) fn help_source(
         .map_err(|_| super::ParseInvalid::default())
 }
 
-pub(crate) fn housekeeping_commands() -> [Command; 3] {
+pub(super) fn housekeeping_commands() -> [Command; 3] {
     [
         crate::skill::grammar(),
         Command::new("version").after_help("Example: biomcp version")

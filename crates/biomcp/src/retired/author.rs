@@ -1,7 +1,7 @@
 //! Author migration guidance preserves literal queries and exact source identities.
 use biomcp_types::ErrorMessage;
 use std::ffi::OsString;
-pub(super) fn message(args: &[OsString]) -> Option<ErrorMessage> {
+pub(super) fn message(root: &clap::Command, args: &[OsString]) -> Option<ErrorMessage> {
     let mut positional = Vec::new();
     let mut args = args.iter();
     while let Some(word) = args.next() {
@@ -53,7 +53,7 @@ pub(super) fn message(args: &[OsString]) -> Option<ErrorMessage> {
                 continue;
             }
         }
-        if inline.is_none() && super::takes_value(flag, &positional)? {
+        if inline.is_none() && super::takes_value(root, flag, &positional)? {
             args.next();
         }
     }

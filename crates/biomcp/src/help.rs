@@ -42,7 +42,7 @@ pub(crate) fn dispatch(root: &clap::Command, path: &[String]) -> io::Result<Help
         })
         .collect();
     if !public_grammar::overview(root, &mut commands, path)? {
-        public_grammar::scoped_globals(&mut commands);
+        public_grammar::scoped_globals(root, &mut commands);
     }
     Ok(Help { commands })
 }
@@ -86,7 +86,7 @@ pub(crate) fn commands(root: &clap::Command) -> io::Result<Vec<HelpCommand>> {
                 .unwrap_or_default(),
         });
     }
-    commands.extend(crate::housekeeping::help());
+    commands.extend(crate::housekeeping::help(root));
     extra_commands(&mut commands, &examples);
     commands.extend(network("ca_bundle").commands);
     commands.extend(network("proxy").commands);

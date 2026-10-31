@@ -103,35 +103,35 @@ fn find(table: &[(&str, ErrorMessage)], word: &str) -> Option<ErrorMessage> {
         .find_map(|(key, value)| (*key == word).then_some(*value))
 }
 
-pub(crate) fn message(args: &[OsString]) -> Option<ErrorMessage> {
-    if let Some(message) = author::message(args) {
+pub(crate) fn message(root: &clap::Command, args: &[OsString]) -> Option<ErrorMessage> {
+    if let Some(message) = author::message(root, args) {
         return Some(message);
     }
-    if retired_source(args) {
+    if retired_source(root, args) {
         return Some(ErrorMessage::Pharmgkb);
     }
-    if let Some(message) = study::message(args) {
+    if let Some(message) = study::message(root, args) {
         return Some(message);
     }
-    if let Some(message) = pathway::message(args) {
+    if let Some(message) = pathway::message(root, args) {
         return Some(message);
     }
-    if let Some(message) = adverse_event::message(args) {
+    if let Some(message) = adverse_event::message(root, args) {
         return Some(message);
     }
-    if let Some(message) = phenotype::message(args) {
+    if let Some(message) = phenotype::message(root, args) {
         return Some(message);
     }
-    if let Some(message) = disease::message(args) {
+    if let Some(message) = disease::message(root, args) {
         return Some(message);
     }
-    if let Some(message) = pgx::message(args) {
+    if let Some(message) = pgx::message(root, args) {
         return Some(message);
     }
-    if let Some(message) = diagnostic::message(args) {
+    if let Some(message) = diagnostic::message(root, args) {
         return Some(message);
     }
-    let words = words(args)?;
+    let words = words(root, args)?;
     if let Some(message) = cell_line::message(&words) {
         return Some(message);
     }
@@ -262,7 +262,7 @@ struct Words<'a> {
     sections: Vec<&'a str>,
     retired_option: Option<ErrorMessage>,
 }
-fn words(args: &[OsString]) -> Option<Words<'_>> {
+fn words<'a>(root: &clap::Command, args: &'a [OsString]) -> Option<Words<'a>> {
     let mut result = Words {
         positional: Vec::new(),
         literal: false,
@@ -312,7 +312,7 @@ fn words(args: &[OsString]) -> Option<Words<'_>> {
         let retired = find(table, flag);
         if retired.is_some() {
             result.retired_option = result.retired_option.or(retired);
-        } else if !takes_value(flag, &result.positional)? && inline.is_none() {
+        } else if !takes_value(root, flag, &result.positional)? && inline.is_none() {
             continue;
         }
         let value = inline.or_else(|| args.next().and_then(|arg| arg.to_str()));
@@ -332,15 +332,14 @@ fn words(args: &[OsString]) -> Option<Words<'_>> {
     Some(result)
 }
 
-fn takes_value(flag: &str, positional: &[&str]) -> Option<bool> {
+fn takes_value(root: &clap::Command, flag: &str, positional: &[&str]) -> Option<bool> {
     if flag == "--section" && matches!(positional.get(..2), Some(["get", "cell-line" | "drug"])) {
         return Some(true);
     }
     if flag == "-l" && matches!(positional.get(..2), Some(["search", "phenotype"])) {
         return Some(true);
     }
-    let globals = crate::grammar::global_arguments();
-    if let Some(argument) = globals
+    if let Some(argument) = root
         .get_arguments()
         .find(|argument| argument.get_long() == flag.strip_prefix("--"))
     {
@@ -373,7 +372,7 @@ fn takes_value(flag: &str, positional: &[&str]) -> Option<bool> {
         })
 }
 
-fn retired_source(args: &[OsString]) -> bool {
+fn retired_source(root: &clap::Command, args: &[OsString]) -> bool {
     let mut positional = Vec::new();
     let mut args = args.iter();
     while let Some(word) = args.next().and_then(|word| word.to_str()) {
@@ -392,7 +391,7 @@ fn retired_source(args: &[OsString]) -> bool {
             if value.is_some_and(|value| value.split(',').any(|part| part == "pharmgkb")) {
                 return true;
             }
-        } else if value.is_none() && takes_value(flag, &positional).unwrap_or(false) {
+        } else if value.is_none() && takes_value(root, flag, &positional).unwrap_or(false) {
             args.next();
         }
     }

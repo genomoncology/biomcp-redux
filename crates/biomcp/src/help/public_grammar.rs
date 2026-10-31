@@ -78,7 +78,7 @@ pub(super) fn overview(
             parent.reply_schemas.clear();
             result.push(parent);
         }
-        scoped_globals(&mut result);
+        scoped_globals(root, &mut result);
     }
     for child in parser.get_subcommands().filter(|c| !c.is_hide_set()) {
         let mut child_path = path.to_vec();
@@ -269,9 +269,7 @@ fn metadata(arg: &Arg) -> HelpArgument {
     }
 }
 
-pub(super) fn scoped_globals(commands: &mut [HelpCommand]) {
-    let mut parser = crate::grammar::global_arguments();
-    parser.build();
+pub(super) fn scoped_globals(parser: &Command, commands: &mut [HelpCommand]) {
     for command in commands {
         for argument in parser.get_arguments().filter(|arg| !arg.is_hide_set()) {
             let value = metadata(argument);

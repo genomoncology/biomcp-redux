@@ -13,7 +13,6 @@ mod local;
 mod queries;
 #[cfg(test)]
 mod reference;
-pub(crate) use local::housekeeping_commands;
 pub(crate) use queries::command_paths;
 pub(crate) use queries::query_schema;
 
@@ -66,7 +65,7 @@ pub(crate) struct Parsed {
     pub(crate) help: Option<Vec<String>>,
     pub(crate) http: Option<(String, Vec<String>)>,
 }
-pub(crate) fn global_arguments() -> Command {
+fn global_arguments() -> Command {
     let mut root = Command::new("biomcp")
         .disable_help_flag(true)
         .disable_help_subcommand(true)
@@ -126,11 +125,7 @@ pub(crate) fn global_arguments() -> Command {
 pub(crate) fn is_housekeeping(root: &Command, args: &[OsString]) -> bool {
     scan_command_words(root, args, true)
         .next()
-        .is_some_and(|name| {
-            root.find_subcommand(name).is_some_and(|command| {
-                matches!(command.get_name(), "version" | "mcp-config" | "skill")
-            })
-        })
+        .is_some_and(|name| crate::housekeeping::recognizes(name))
 }
 
 // Root recognition must also work when global values or repetitions are invalid.
