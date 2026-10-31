@@ -1,4 +1,4 @@
-use super::{Complex, bad, raw};
+use super::{Complex, raw};
 use biodata::{ProteinComplexHeader, ProteinComplexMember, UniProtIsoform};
 use biomcp_fetch::RequestError;
 pub(super) fn members(
@@ -46,8 +46,12 @@ pub(super) fn members(
                 r.organism_name,
             );
             Ok(ProteinComplexMember {
-                id: crate::mapped::text(&r.identifier).map_err(|_| bad())?,
-                participant_type: crate::mapped::text(&r.interactor_type).map_err(|_| bad())?,
+                id: crate::mapped::text(&r.identifier).map_err(|_| {
+                    biomcp_fetch::bad_reply(biomcp_types::Source::ComplexPortal, Some(200))
+                })?,
+                participant_type: crate::mapped::text(&r.interactor_type).map_err(|_| {
+                    biomcp_fetch::bad_reply(biomcp_types::Source::ComplexPortal, Some(200))
+                })?,
                 taxon: problems
                     .optional(
                         "participants.taxon",
@@ -107,12 +111,13 @@ pub(super) fn complex(
             .predicted_complex
             .and_then(|v| problems.required("predictedComplex", v.value())),
         participant_total: members.len() as u64,
-        matched_participant: crate::mapped::text(anchor.as_str()).map_err(|_| bad())?,
+        matched_participant: crate::mapped::text(anchor.as_str())
+            .map_err(|_| biomcp_fetch::bad_reply(biomcp_types::Source::ComplexPortal, Some(200)))?,
         url: crate::mapped::text(&format!(
             "https://www.ebi.ac.uk/complexportal/complex/{}",
             raw.id
         ))
-        .map_err(|_| bad())?,
+        .map_err(|_| biomcp_fetch::bad_reply(biomcp_types::Source::ComplexPortal, Some(200)))?,
     };
     Ok(Some(Complex {
         refusals,

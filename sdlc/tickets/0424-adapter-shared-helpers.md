@@ -1,6 +1,7 @@
 # 0424 — Share adapter helpers and run variant sections through fan-out
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 63caf10889d231102277e8818b6f3a19036477bc
 
 Milestone: 5
 

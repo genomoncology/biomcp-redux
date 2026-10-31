@@ -54,7 +54,12 @@ pub(super) fn check(tools: &[Value], reply: &Value) -> Result<(), String> {
         )?;
     }
     let env = Environment::new().map_err(|e| e.to_string())?;
-    let health = super::super::research::call(&env, "biomcp", json!({"args":["health"]}), &[])?;
+    let health = super::super::research::call(
+        &env,
+        "biomcp",
+        json!({"args":["health"]}),
+        &["--offline".into()],
+    )?;
     let complete = super::super::research::call(
         &env,
         "biomcp",

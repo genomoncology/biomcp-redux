@@ -31,7 +31,7 @@ pub fn get(leg: &Leg<'_>, id: &ReportId) -> Result<Detail, RequestError> {
             ("sort", Arg::Text("receivedate:desc")),
         ],
         |response| {
-            if let raw::Response::Found { results, .. } = response
+            if let raw::Response::Page { results, .. } = response
                 && results.first().is_none_or(|r| r.safetyreportid != *id)
             {
                 return Err(BadReply);
@@ -40,7 +40,7 @@ pub fn get(leg: &Leg<'_>, id: &ReportId) -> Result<Detail, RequestError> {
         },
     )?;
     let report = match reply {
-        raw::Response::Found { results, .. } => {
+        raw::Response::Page { results, .. } => {
             results.into_iter().next().map(super::detail_map::report)
         }
         raw::Response::Absent { .. } => None,

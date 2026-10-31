@@ -11,6 +11,10 @@ const GENERATED_PROTO: &str = "crates/biomcp-adapters/src/alphagenome/proto.rs";
 // New exceptions require a reviewed path and reason here.
 const EXCEPTIONS: &[(&str, &str)] = &[
     (
+        "crates/biomcp-fetch/src/cache/admission.rs",
+        "Bind the explicit admission latch to its acquired connection while optional readers probe ownership",
+    ),
+    (
         "crates/biomcp-fetch/src/grpc/dns_tests.rs",
         "Observe completion of the joined test resolver without shared state outside its fixture",
     ),
@@ -425,6 +429,31 @@ fn source_terms(root: &Path, path: &str, tokens: &[String]) -> Check {
 }
 
 fn adapter_helpers(path: &str, tokens: &[String]) -> Check {
+    if !path.starts_with("crates/biomcp-adapters/src/")
+        && !path.starts_with("crates/biomcp-fetch/src/")
+        && !path.starts_with("crates/biomcp-query/src/")
+    {
+        return Ok(());
+    }
+    for pair in tokens.windows(2) {
+        let [word, name] = pair else {
+            continue;
+        };
+        if word != "fn" {
+            continue;
+        }
+        let home = match name.as_str() {
+            "bad" => Some(""),
+            "bad_reply" => Some("crates/biomcp-fetch/src/error.rs"),
+            "received_date" => Some("crates/biomcp-adapters/src/received.rs"),
+            "root" => Some("crates/biomcp-adapters/src/xml_element.rs"),
+            _ => None,
+        };
+        if home.is_some_and(|home| path != home) {
+            return fail(path, "copied helper must use its shared home");
+        }
+    }
+
     if !path.starts_with("crates/biomcp-adapters/src/")
         || path == "crates/biomcp-adapters/src/mapped.rs"
     {

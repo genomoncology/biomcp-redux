@@ -1,7 +1,7 @@
 //! Unfielded search recovers labels without harmonized names.
 //! Native application numbers remain exact, separate from brand or ingredient identity.
 //! Publisher fields: https://open.fda.gov/apis/drug/label/searchable-fields/.
-use super::{Page, bad, literal, page};
+use super::{Page, literal, page};
 use biodata::{DrugId, Text};
 use biomcp_fetch::{Leg, RequestError};
 
@@ -27,7 +27,10 @@ fn discover(
     free_text: &mut Option<Text>,
 ) -> Result<Page, RequestError> {
     if !(1..=50).contains(&limit) {
-        return Err(bad());
+        return Err(biomcp_fetch::bad_reply(
+            biomcp_types::Source::OpenfdaLabel,
+            Some(200),
+        ));
     }
     if name
         .as_str()
@@ -75,7 +78,11 @@ fn discover(
         return Ok(fallback);
     }
     let selector = literal(name.as_str());
-    *free_text = Some(selector.parse().map_err(|_| bad())?);
+    *free_text = Some(
+        selector
+            .parse()
+            .map_err(|_| biomcp_fetch::bad_reply(biomcp_types::Source::OpenfdaLabel, Some(200)))?,
+    );
     let mut fallback = page(leg, &selector, limit, offset, None)?;
     fallback
         .window

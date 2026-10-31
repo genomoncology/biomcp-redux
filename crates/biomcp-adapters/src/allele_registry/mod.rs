@@ -62,16 +62,6 @@ fn read(leg: &Leg<'_>, input: &str, by_id: bool) -> Result<raw::Allele, RequestE
     Ok(reply)
 }
 
-fn bad() -> RequestError {
-    biomcp_fetch::SourceError {
-        source: Source::AlleleRegistry,
-        reason: biomcp_types::Reason::BadReply,
-        status: None,
-        retry_after: None,
-    }
-    .into()
-}
-
 /// Preserve the registry's own mapped forms and validation rejection.
 pub fn normalize(
     leg: &Leg<'_>,
@@ -92,8 +82,8 @@ fn qualify(input: &str, build: Option<biodata::Build>) -> Result<String, Request
     else {
         return Ok(input.into());
     };
-    let build = build.ok_or(bad())?;
+    let build = build.ok_or(biomcp_fetch::bad_reply(Source::AlleleRegistry, None))?;
     let chromosome = biodata::Chromosome::parse(if chromosome == "M" { "MT" } else { chromosome })
-        .map_err(|_| bad())?;
+        .map_err(|_| biomcp_fetch::bad_reply(Source::AlleleRegistry, None))?;
     Ok(format!("{}:{description}", chromosome.accession(build)))
 }
