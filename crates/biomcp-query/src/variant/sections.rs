@@ -25,15 +25,13 @@ pub(super) fn apply<'a>(
         let mut sections = VariantSections::default();
         let origin = *deadline;
         let candidate_ref = &*candidate;
-        let jobs: Vec<Box<dyn FnOnce() -> Vec<Completed<'a>> + Send + '_>> = groups(query)
-            .into_iter()
-            .map(|group| {
-                Box::new(move || {
-                    read_group(cx, query, candidate_ref, origin, population_reason, group)
-                }) as Box<dyn FnOnce() -> Vec<Completed<'a>> + Send + '_>
+        let jobs: Vec<Box<dyn FnOnce() -> Completed<'a> + Send + '_>> = selected(query)
+            .map(|section| {
+                Box::new(move || read(cx, query, candidate_ref, origin, population_reason, section))
+                    as Box<dyn FnOnce() -> Completed<'a> + Send + '_>
             })
             .collect();
-        for (result, mut more, completed) in crate::fan_out::run(jobs).into_iter().flatten() {
+        for (result, mut more, completed) in crate::fan_out::run(jobs) {
             sections.clinvar = sections.clinvar.or(result.clinvar);
             sections.erepo = sections.erepo.or(result.erepo);
             sections.population = sections.population.or(result.population);
@@ -63,42 +61,6 @@ pub(super) fn apply<'a>(
         collected.local,
         collected.incomplete,
     )
-}
-// The MyVariant components share a quota and a checked cache. Keep their
-// existing sequence so sibling cache probes cannot turn a warm hit into I/O.
-fn groups(query: &VariantGet) -> Vec<Vec<VariantSection>> {
-    let mut groups: Vec<Vec<VariantSection>> = Vec::new();
-    for section in selected(query) {
-        if source(section).is_none()
-            && let Some(group) = groups.last_mut().filter(|group| {
-                group
-                    .first()
-                    .is_some_and(|section| source(*section).is_none())
-            })
-        {
-            group.push(section);
-        } else {
-            groups.push(vec![section]);
-        }
-    }
-    groups
-}
-fn read_group<'a>(
-    cx: &Ctx<'_>,
-    query: &VariantGet,
-    candidate: &VariantHeader,
-    mut deadline: Deadline<'a>,
-    population_reason: Option<Reason>,
-    group: Vec<VariantSection>,
-) -> Vec<Completed<'a>> {
-    group
-        .into_iter()
-        .map(|section| {
-            let completed = read(cx, query, candidate, deadline, population_reason, section);
-            deadline = completed.2;
-            completed
-        })
-        .collect()
 }
 fn read<'a>(
     cx: &Ctx<'_>,
