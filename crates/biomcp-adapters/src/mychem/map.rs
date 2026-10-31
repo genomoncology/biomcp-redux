@@ -84,10 +84,7 @@ pub(super) fn page(page: Page, leg: &Leg<'_>) -> Result<crate::Mapped<DrugPage>,
             continue;
         };
         problems.record = crate::mapped::record(&hit.id);
-        if problems
-            .optional("_id", Some(hit.id.parse::<biodata::DrugId>()))
-            .is_none()
-        {
+        if problems.optional("_id", Some(hit.identity())).is_none() {
             refusals = crate::Refusal::Refused;
             continue;
         }

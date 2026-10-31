@@ -78,8 +78,10 @@ pub fn associations(leg: &Leg<'_>, query: &DiseaseGet) -> Result<Page, RequestEr
         ("limit", Arg::Num(query.section_limit().into())),
         ("offset", Arg::Num(query.section_offset().into())),
     ];
-    let (page, metadata) =
-        leg.json_received_checked::<raw::Page>(&ASSOCIATIONS, &args, |page| {
+    let (page, metadata) = leg.json_received_checked_admission::<raw::Page>(
+        &ASSOCIATIONS,
+        &args,
+        |page| {
             if page.limit != query.section_limit() || page.offset != query.section_offset() {
                 return Err(BadReply);
             }
@@ -96,18 +98,16 @@ pub fn associations(leg: &Leg<'_>, query: &DiseaseGet) -> Result<Page, RequestEr
                 return Err(BadReply);
             }
             Ok(())
-        })?;
+        },
+        raw::Page::identities_admitted,
+    )?;
     let received = page.items.len() as u32;
     let mut problems = Vec::new();
     let mut items = Vec::new();
     let mut refusals = crate::Refusal::None;
     for mut row in page.items {
         problems.append(&mut row.problems);
-        if row.id.is_some()
-            && row.subject.is_some()
-            && row.object.is_some()
-            && row.predicate.is_some()
-        {
+        if row.identity_admitted() {
             let mapped = map::row(row, &id)?;
             refusals.include(mapped.refusals);
             problems.extend(mapped.problems);

@@ -115,6 +115,21 @@ impl From<ReceivedMechanisms> for Mechanisms {
         }
     }
 }
+impl Mechanisms {
+    pub(super) fn identities_admitted(&self) -> bool {
+        let accepted = self
+            .window
+            .rows
+            .iter()
+            .filter(|row| matches!(row.target_identity(), Ok(Some(_))))
+            .count();
+        let mut refusals = self.window.refusals();
+        if accepted < self.window.rows.len() {
+            refusals.include(crate::Refusal::Refused);
+        }
+        refusals.identities_admitted(accepted, self.window.received() as usize)
+    }
+}
 impl Reply for Mechanisms {
     fn check(&self) -> Result<(), BadReply> {
         Ok(())
