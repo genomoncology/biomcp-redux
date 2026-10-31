@@ -33,8 +33,8 @@ fn environment(stub: &Stub) -> Result<Environment, String> {
         .map_err(|e| e.to_string())?;
     Ok(env)
 }
-fn article(source: &'static str) -> Result<(), String> {
-    let expected = match source {
+fn article_request(source: &str) -> &'static str {
+    match source {
         "pubtator" => {
             "GET /research/pubtator3-api/search/?text=%40GENE_673+AND+synthetic+words&page=1 HTTP/1.1"
         }
@@ -47,7 +47,10 @@ fn article(source: &'static str) -> Result<(), String> {
                 "externalIds%2Ctitle%2Cvenue%2Cyear%2CpublicationDate%2Cauthors&year=2000-2020 HTTP/1.1"
             )
         }
-    };
+    }
+}
+fn article(source: &'static str) -> Result<(), String> {
+    let expected = article_request(source);
     let stub = Stub::for_sources(
         &[
             "storage.googleapis.com",
