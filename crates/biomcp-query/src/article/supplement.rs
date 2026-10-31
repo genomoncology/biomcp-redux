@@ -1,4 +1,5 @@
 //! Confined supplement download, local parsing and bounded row selection.
+use biomcp_types::ReplyBody;
 mod page;
 use crate::{Ctx, Outcome, status};
 use biodata::Text;
@@ -19,13 +20,13 @@ pub fn download(cx: &Ctx<'_>, query: &ArticleSupplement, allow: bool) -> super::
     let mut save = super::save::State::new(allow);
     let command = cx.fetch.command_deadline(cx.budget);
     let mut deadline = command.deadline();
-    let mut out = crate::status::ready(ReplyData::ArticleSupplementResult {
-        query: query.clone(),
-        body: Some(ArticleSupplementResult {
+    let mut out = crate::status::ready(
+        (ArticleSupplementResult {
             pmcid: None,
             content: Section::NotApplicable,
-        }),
-    });
+        })
+        .with_query(query.clone()),
+    );
     let Ok(selection) = super::protein_change::Selection::new(query.find(), query.variant()) else {
         out.body = ReplyData::Usage(biomcp_types::UsageError::TextPositionError);
         return super::save::Download { out, file: None };
@@ -107,13 +108,11 @@ fn execute<'a>(
         out.body,
         ReplyData::Usage(biomcp_types::UsageError::TextPositionError)
     ) {
-        out.body = ReplyData::ArticleSupplementResult {
-            query: query.clone(),
-            body: Some(ArticleSupplementResult {
-                pmcid: Some(id),
-                content,
-            }),
-        };
+        out.body = (ArticleSupplementResult {
+            pmcid: Some(id),
+            content,
+        })
+        .with_query(query.clone());
     }
     Ok(())
 }

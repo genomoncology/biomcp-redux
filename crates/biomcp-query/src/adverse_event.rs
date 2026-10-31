@@ -1,4 +1,5 @@
 //! One explicit adverse-event source; no inference, drug choice or source probing.
+use biomcp_types::ReplyBody;
 mod get;
 mod vaers;
 use crate::{Ctx, Outcome, status};
@@ -40,20 +41,18 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &AdverseEventSearch) -> Outcome {
         [crate::status::item_status(false, true, false)],
         crate::status::Parts {
             dropped: false,
-            body: ReplyData::AdverseEventPage {
-                query: query.clone(),
-                body: Some(AdverseEventPage {
-                    reaction_match: query
-                        .reaction()
-                        .map(|_| biomcp_types::AdverseEventReactionMatch::PhraseMatch),
-                    source_query: selector.into_boxed_str(),
-                    source_updated: None,
-                    fetched: None,
-                    items: Box::default(),
-                    unit: ReportUnit::Reports,
-                    components: Box::default(),
-                }),
-            },
+            body: (AdverseEventPage {
+                reaction_match: query
+                    .reaction()
+                    .map(|_| biomcp_types::AdverseEventReactionMatch::PhraseMatch),
+                source_query: selector.into_boxed_str(),
+                source_updated: None,
+                fetched: None,
+                items: Box::default(),
+                unit: ReportUnit::Reports,
+                components: Box::default(),
+            })
+            .with_query(query.clone()),
             page: None,
             sources: vec![status::source(source, leg.finish(), error)],
             problems: Vec::new(),

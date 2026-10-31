@@ -2,20 +2,21 @@
 use super::{empty, searched, unsupported};
 use crate::{Ctx, Outcome, status};
 use biomcp_adapters::{drugsfda as source, received_date};
+use biomcp_types::ReplyBody;
 use biomcp_types::{
-    DrugCard, DrugFdaPage, DrugGet, DrugPage, DrugSearch, DrugSection, DrugSource, ReplyData,
-    Request, Source, SourceState, StepKind,
+    DrugCard, DrugFdaPage, DrugGet, DrugPage, DrugSearch, DrugSection, DrugSource, Request, Source,
+    SourceState, StepKind,
 };
 mod approvals;
 pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
-    let mut out = empty(ReplyData::DrugFdaPage {
-        query: query.clone(),
-        body: Some(DrugFdaPage {
+    let mut out = empty(
+        (DrugFdaPage {
             items: Box::default(),
             total: 0,
             source_updated: None,
-        }),
-    });
+        })
+        .with_query(query.clone()),
+    );
     let Some(name) = query.query() else {
         return super::unsupported(query.source(), out);
     };
@@ -39,18 +40,16 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
             },
             &mut out,
         );
-        out.body = ReplyData::DrugFdaPage {
-            query: query.clone(),
-            body: Some(DrugFdaPage {
-                items: page
-                    .records
-                    .iter()
-                    .map(source::Application::candidate)
-                    .collect(),
-                total: page.total,
-                source_updated: page.updated.map(Into::into),
-            }),
-        };
+        out.body = (DrugFdaPage {
+            items: page
+                .records
+                .iter()
+                .map(source::Application::candidate)
+                .collect(),
+            total: page.total,
+            source_updated: page.updated.map(Into::into),
+        })
+        .with_query(query.clone());
     }
     command.finish(deadline.remaining());
     out
@@ -58,15 +57,9 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
 pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     let is_approvals = query.sections() == [DrugSection::Approvals];
     let mut out = empty(if is_approvals {
-        ReplyData::DrugApprovals {
-            query: query.clone(),
-            body: None,
-        }
+        biomcp_types::DrugApprovals::into_reply(query.clone(), None)
     } else {
-        ReplyData::DrugCard {
-            query: query.clone(),
-            body: None,
-        }
+        biomcp_types::DrugCard::into_reply(query.clone(), None)
     });
     if !matches!(query.sections(), [] | [DrugSection::Approvals]) {
         return unsupported(query.source(), out);
@@ -123,22 +116,20 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
                         cx.fresh,
                     ));
                 }
-                out.body = ReplyData::DrugCard {
-                    query: query.clone(),
-                    body: Some(DrugCard {
-                        header: row.header(),
-                        alternate_names: Box::default(),
-                        cross_references: Box::default(),
-                        parents: Box::default(),
-                        products: Box::default(),
-                        formulations: Box::default(),
-                        version: None,
-                        updated: None,
-                        retrieved: received_date(page.metadata.fetched),
-                        available_sections: vec![DrugSection::Approvals].into(),
-                        next: Box::default(),
-                    }),
-                };
+                out.body = (DrugCard {
+                    header: row.header(),
+                    alternate_names: Box::default(),
+                    cross_references: Box::default(),
+                    parents: Box::default(),
+                    products: Box::default(),
+                    formulations: Box::default(),
+                    version: None,
+                    updated: None,
+                    retrieved: received_date(page.metadata.fetched),
+                    available_sections: vec![DrugSection::Approvals].into(),
+                    next: Box::default(),
+                })
+                .with_query(query.clone());
             }
         }
     }

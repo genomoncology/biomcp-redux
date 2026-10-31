@@ -11,12 +11,11 @@ pub use article_pdf::ArticlePdf;
 mod article_text;
 pub use article_get::{ArticleGet, ArticleSection, ArticleSectionWord};
 pub use article_text::ArticleText;
-mod gene;
 mod commands;
-mod decode;
+mod gene;
+pub use commands::{COMMANDS, CommandSpec, Request, Rewrite, command_paths};
 pub(crate) use gene::present;
 pub use gene::{GeneGet, GeneSearch, GeneSection, GeneSectionWord};
-pub use commands::{Request, Rewrite, CommandSpec, COMMANDS, COMMAND_PATHS};
 
 mod article_edges;
 pub use article_edges::{ArticleEdges, EdgeSource};
@@ -85,5 +84,3 @@ pub use validation::CheckedQuery;
 
 mod biomarker;
 pub use biomarker::{BiomarkerGet, BiomarkerSearch, BiomarkerSource};
-
-pub use decode::decode_query;

@@ -2,6 +2,7 @@ use super::{empty, retry, run, snapshot};
 use crate::{Ctx, Outcome, status};
 use biomcp_adapters::semantic_scholar::{self, author};
 use biomcp_fetch::{Deadline, RequestError, SourceError};
+use biomcp_types::ReplyBody;
 use biomcp_types::{
     AuthorGet, AuthorPage, AuthorSearch, PageInfo, Reason, ReplyData, Request, Source, SourceState,
     StepKind,
@@ -10,10 +11,7 @@ use biomcp_types::{
 pub(crate) fn search(cx: &Ctx<'_>, q: &AuthorSearch) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
-    let mut out = empty(ReplyData::AuthorPage {
-        query: q.clone(),
-        body: None,
-    });
+    let mut out = empty(biomcp_types::AuthorPage::into_reply(q.clone(), None));
     if let Err(error) = execute(cx, q, deadline, &mut out) {
         out.local = status::local(error);
         if out.sources.is_empty() {
@@ -152,12 +150,10 @@ fn present(
         super::key_step(out);
     }
     out.sources = vec![saved.source];
-    out.body = ReplyData::AuthorPage {
-        query: q.clone(),
-        body: Some(AuthorPage {
-            items,
-            matching_records: total,
-        }),
-    };
+    out.body = (AuthorPage {
+        items,
+        matching_records: total,
+    })
+    .with_query(q.clone());
     Ok(())
 }

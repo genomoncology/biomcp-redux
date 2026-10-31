@@ -68,4 +68,8 @@ impl<'de> Deserialize<'de> for GwasGet {
         Self::try_from(Fields::deserialize(deserializer)?).map_err(serde::de::Error::custom)
     }
 }
-crate::query::validation::checked_query!(GwasGet, Fields, Some(crate::ErrorMessage::GwasGetArguments));
+crate::query::validation::checked_query!(
+    GwasGet,
+    Fields,
+    Some(crate::ErrorMessage::GwasGetArguments)
+);

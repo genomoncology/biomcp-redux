@@ -4,6 +4,7 @@ use crate::{Ctx, Outcome, status};
 use biodata::{AuthorId, AuthorPaperHeader};
 use biomcp_adapters::semantic_scholar::{self, author};
 use biomcp_fetch::{Deadline, RequestError, SourceError};
+use biomcp_types::ReplyBody;
 use biomcp_types::{
     ArticleGet, ArticleInput, AuthorPaperDetails, AuthorPapers, AuthorPapersQuery, PageInfo,
     Reason, ReplyData, Request, Source, SourceState, StepKind,
@@ -157,21 +158,17 @@ fn present(
 }
 fn body(q: &AuthorPapersQuery, items: Box<[biodata::AuthorPaperDetail]>) -> ReplyData {
     if q.section().is_some() {
-        ReplyData::AuthorPaperDetails {
-            query: q.clone(),
-            body: Some(AuthorPaperDetails {
-                author: q.id().clone(),
-                items,
-            }),
-        }
+        (AuthorPaperDetails {
+            author: q.id().clone(),
+            items,
+        })
+        .with_query(q.clone())
     } else {
-        ReplyData::AuthorPapers {
-            query: q.clone(),
-            body: Some(AuthorPapers {
-                author: q.id().clone(),
-                items: items.into_iter().map(|r| r.header).collect(),
-            }),
-        }
+        (AuthorPapers {
+            author: q.id().clone(),
+            items: items.into_iter().map(|r| r.header).collect(),
+        })
+        .with_query(q.clone())
     }
 }
 fn pivot(row: &AuthorPaperHeader, out: &mut Outcome) {

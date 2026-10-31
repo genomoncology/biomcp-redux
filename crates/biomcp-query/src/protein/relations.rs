@@ -3,6 +3,7 @@ use crate::{Ctx, Outcome, status};
 use biodata::{Text, UniProtIsoform};
 use biomcp_adapters::uniprot;
 use biomcp_fetch::{CacheError, Deadline, RequestError};
+use biomcp_types::ReplyBody;
 use biomcp_types::{
     PageInfo, ProteinFeatures, ProteinFeaturesQuery, ProteinIsoforms, ProteinRelationQuery,
     ProteinStructures, ReplyData, Request, Source, StepKind,
@@ -65,46 +66,40 @@ impl Selection {
                     .filter(|r| accepts(q, r))
                     .collect();
                 let total = rows.len();
-                out.body = ReplyData::ProteinFeatures {
-                    query: q.clone(),
-                    body: Some(ProteinFeatures {
-                        items: rows
-                            .into_iter()
-                            .skip(offset as usize)
-                            .take(limit as usize)
-                            .collect(),
-                    }),
-                };
+                out.body = (ProteinFeatures {
+                    items: rows
+                        .into_iter()
+                        .skip(offset as usize)
+                        .take(limit as usize)
+                        .collect(),
+                })
+                .with_query(q.clone());
                 total
             }
             Self::Isoforms(q) => {
                 let total = entry.isoforms.len();
-                out.body = ReplyData::ProteinIsoforms {
-                    query: q.clone(),
-                    body: Some(ProteinIsoforms {
-                        items: entry
-                            .isoforms
-                            .into_iter()
-                            .skip(offset as usize)
-                            .take(limit as usize)
-                            .collect(),
-                    }),
-                };
+                out.body = (ProteinIsoforms {
+                    items: entry
+                        .isoforms
+                        .into_iter()
+                        .skip(offset as usize)
+                        .take(limit as usize)
+                        .collect(),
+                })
+                .with_query(q.clone());
                 total
             }
             Self::Structures(q) => {
                 let total = entry.structures.len();
-                out.body = ReplyData::ProteinStructures {
-                    query: q.clone(),
-                    body: Some(ProteinStructures {
-                        items: entry
-                            .structures
-                            .into_iter()
-                            .skip(offset as usize)
-                            .take(limit as usize)
-                            .collect(),
-                    }),
-                };
+                out.body = (ProteinStructures {
+                    items: entry
+                        .structures
+                        .into_iter()
+                        .skip(offset as usize)
+                        .take(limit as usize)
+                        .collect(),
+                })
+                .with_query(q.clone());
                 total
             }
         }
@@ -133,18 +128,15 @@ pub(super) fn run(cx: &Ctx<'_>, q: Selection) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let body = match &q {
-        Selection::Features(query) => ReplyData::ProteinFeatures {
-            query: query.clone(),
-            body: None,
-        },
-        Selection::Isoforms(query) => ReplyData::ProteinIsoforms {
-            query: query.clone(),
-            body: None,
-        },
-        Selection::Structures(query) => ReplyData::ProteinStructures {
-            query: query.clone(),
-            body: None,
-        },
+        Selection::Features(query) => {
+            biomcp_types::ProteinFeatures::into_reply(query.clone(), None)
+        }
+        Selection::Isoforms(query) => {
+            biomcp_types::ProteinIsoforms::into_reply(query.clone(), None)
+        }
+        Selection::Structures(query) => {
+            biomcp_types::ProteinStructures::into_reply(query.clone(), None)
+        }
     };
     let mut out = super::empty(body);
     if let Err(e) = read(cx, &q, deadline, &mut out) {

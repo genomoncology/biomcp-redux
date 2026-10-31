@@ -7,6 +7,7 @@ use crate::{
 use biodata::Text;
 use biomcp_adapters::pubmed;
 use biomcp_fetch::RequestError;
+use biomcp_types::ReplyBody;
 use biomcp_types::{
     ArticleEdgePage, ArticleEdges, ArticlePage, ArticleSearch, ArticleSort, PageInfo, ReplyData,
     Request, Source, StepKind,
@@ -184,21 +185,13 @@ fn finish(query: Cursor<'_>, pool: &Pool, rows: Vec<StoredItem>, out: &mut Outco
     });
     let items = rows.into_iter().map(|r| r.item).collect();
     out.body = match query {
-        Cursor::Search(q) => ReplyData::ArticlePage {
-            query: q.clone(),
-            body: Some(ArticlePage {
-                items,
-                candidates: Vec::new(),
-            }),
-        },
-        Cursor::Edges(q, _) => ReplyData::ArticleEdgePage {
-            query: q.clone(),
-            body: Some(ArticleEdgePage { items }),
-        },
-        Cursor::Recommend(q) => ReplyData::ArticleRecommendations {
-            query: q.clone(),
-            body: Some(super::recommend::body(items, total == 0)),
-        },
+        Cursor::Search(q) => (ArticlePage {
+            items,
+            candidates: Vec::new(),
+        })
+        .with_query(q.clone()),
+        Cursor::Edges(q, _) => (ArticleEdgePage { items }).with_query(q.clone()),
+        Cursor::Recommend(q) => (super::recommend::body(items, total == 0)).with_query(q.clone()),
     };
     actions(query, pool, returned, total, out);
     if let Cursor::Search(search) = query {

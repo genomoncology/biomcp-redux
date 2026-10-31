@@ -3,6 +3,7 @@ use crate::source_snapshot as snapshot;
 use crate::{Action, Ctx, Outcome, status};
 use biomcp_adapters::nci;
 use biomcp_fetch::{Deadline, RequestError, SourceError};
+use biomcp_types::ReplyBody;
 use biomcp_types::{
     OrganizationPage, OrganizationSearch, Reason, ReplyData, Request, Source, StepKind,
 };
@@ -143,22 +144,17 @@ fn page(
     out.problems = saved.problems;
     out.dropped = saved.dropped;
     status::search(out);
-    out.body = ReplyData::OrganizationPage {
-        query: q.clone(),
-        body: Some(OrganizationPage { items }),
-    };
+    out.body = (OrganizationPage { items }).with_query(q.clone());
 }
 fn empty(q: &OrganizationSearch) -> Outcome {
     crate::status::finish(
         [crate::status::item_status(false, true, false)],
         crate::status::Parts {
             dropped: false,
-            body: ReplyData::OrganizationPage {
-                query: q.clone(),
-                body: Some(OrganizationPage {
-                    items: Box::default(),
-                }),
-            },
+            body: (OrganizationPage {
+                items: Box::default(),
+            })
+            .with_query(q.clone()),
             page: None,
             sources: Vec::new(),
             problems: Vec::new(),

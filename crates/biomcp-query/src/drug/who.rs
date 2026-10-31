@@ -2,18 +2,18 @@
 use super::empty;
 use crate::{Action, Bundle, Ctx, Outcome, status};
 use biomcp_adapters::who_pq;
+use biomcp_types::ReplyBody;
 use biomcp_types::{
-    DrugSearch, DrugWhoGet, DrugWhoPage, PageInfo, ReplyData, Request, Source, SourceState,
-    StepKind,
+    DrugSearch, DrugWhoGet, DrugWhoPage, PageInfo, Request, Source, SourceState, StepKind,
 };
 pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
-    let mut out = empty(ReplyData::DrugWhoPage {
-        query: query.clone(),
-        body: Some(DrugWhoPage {
+    let mut out = empty(
+        (DrugWhoPage {
             items: Box::default(),
             total: 0,
-        }),
-    });
+        })
+        .with_query(query.clone()),
+    );
     let Some(name) = query.query() else {
         return super::unsupported(query.source(), out);
     };
@@ -65,10 +65,7 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
                 cx.fresh,
             ));
         }
-        out.body = ReplyData::DrugWhoPage {
-            query: query.clone(),
-            body: Some(DrugWhoPage { items, total }),
-        };
+        out.body = (DrugWhoPage { items, total }).with_query(query.clone());
     }
     sync_step(&mut out);
     status::search(&mut out);
@@ -76,10 +73,7 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     out
 }
 pub(crate) fn get(cx: &Ctx<'_>, query: &DrugWhoGet) -> Outcome {
-    let mut out = empty(ReplyData::DrugWhoCard {
-        query: query.clone(),
-        body: None,
-    });
+    let mut out = empty(biomcp_types::DrugWhoCard::into_reply(query.clone(), None));
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let leg = cx.fetch.leg(&who_pq::SPEC, deadline).fresh(cx.fresh);
@@ -90,10 +84,7 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &DrugWhoGet) -> Outcome {
         .push(status::source(Source::WhoPq, leg.finish(), error));
     if let Ok((card, _)) = result {
         crate::status::item(&mut out, card.is_some(), false, false);
-        out.body = ReplyData::DrugWhoCard {
-            query: query.clone(),
-            body: card,
-        };
+        out.body = biomcp_types::DrugWhoCard::into_reply(query.clone(), card);
     }
     sync_step(&mut out);
     command.finish(deadline.remaining());

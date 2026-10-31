@@ -1,6 +1,7 @@
 use crate::{Ctx, Outcome, store::Store};
 use biodata::StudyHeader;
 use biomcp_fetch::{BundleInfo, CacheError, Deadline, RequestError};
+use biomcp_types::ReplyBody;
 use biomcp_types::{
     PageInfo, ReplyData, Request, StepKind, StudyGet, StudyPage, StudySearch, StudySnapshot,
 };
@@ -94,14 +95,12 @@ fn render(
         ));
     }
     out.page = Some(page.clone());
-    out.body = ReplyData::StudyPage {
-        query: q.clone(),
-        body: Some(StudyPage {
-            items,
-            page,
-            snapshot,
-        }),
-    };
+    out.body = (StudyPage {
+        items,
+        page,
+        snapshot,
+    })
+    .with_query(q.clone());
     crate::status::item(out, true, false, false);
     Ok(())
 }

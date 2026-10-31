@@ -8,7 +8,7 @@ pub(super) fn argument_names(
     matches: &clap::ArgMatches,
     cause: &QueryInvalid,
 ) -> Option<String> {
-    let id = super::QUERIES
+    let id = super::command_paths()
         .iter()
         .find(|(v, e, _)| *v == verb && *e == entity)?
         .2;

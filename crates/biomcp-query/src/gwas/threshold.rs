@@ -6,6 +6,7 @@ use crate::{
 };
 use biomcp_adapters::gwas;
 use biomcp_fetch::{CacheError, Deadline, RequestError};
+use biomcp_types::ReplyBody;
 use biomcp_types::{
     GwasAssociation, GwasPage, GwasPageQuery, GwasSearch, PageInfo, Reason, ReplyData, Request,
     Source, SourceOutcome, StepKind,
@@ -52,16 +53,16 @@ impl Saved {
 pub(super) fn search(cx: &Ctx<'_>, q: &GwasSearch) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
-    let mut out = crate::status::empty(ReplyData::GwasPage {
-        query: biomcp_types::GwasPageQuery::Search(q.clone()),
-        body: None,
-    });
+    let mut out = crate::status::empty(biomcp_types::GwasPage::into_reply(
+        biomcp_types::GwasPageQuery::Search(q.clone()),
+        None,
+    ));
     if let Err(error) = read(cx, q, deadline, &mut out) {
         out.local = status::local(error);
-        out.body = ReplyData::GwasPage {
-            query: biomcp_types::GwasPageQuery::Search(q.clone()),
-            body: None,
-        };
+        out.body = biomcp_types::GwasPage::into_reply(
+            biomcp_types::GwasPageQuery::Search(q.clone()),
+            None,
+        );
         out.page = None;
         out.sources = vec![status::source(
             Source::Gwas,
@@ -290,10 +291,7 @@ fn render(cx: &Ctx<'_>, q: &GwasSearch, saved: Saved, pool: Pool, out: &mut Outc
         &mut out.problems,
     );
     out.page = Some(page);
-    out.body = ReplyData::GwasPage {
-        query: biomcp_types::GwasPageQuery::Search(q.clone()),
-        body: Some(body),
-    };
+    out.body = body.with_query(biomcp_types::GwasPageQuery::Search(q.clone()));
     out.dropped = saved.dropped;
     status::search(out);
 }

@@ -1,4 +1,5 @@
 //! Literal source discovery and exact cell identity; no name-based joins.
+use biomcp_types::ReplyBody;
 mod all;
 mod chembl;
 mod get;
@@ -7,9 +8,7 @@ mod provenance;
 mod sections;
 use crate::{Ctx, Outcome, status};
 use biomcp_adapters::cellosaurus;
-use biomcp_types::{
-    CellLineGet, CellLinePage, CellLineSearch, ReplyData, Request, Source, Status, StepKind,
-};
+use biomcp_types::{CellLineGet, CellLinePage, CellLineSearch, Request, Source, Status, StepKind};
 /// One native window, with no fabricated total or extra-page fetch.
 pub(crate) fn search(cx: &Ctx<'_>, query: &CellLineSearch) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
@@ -17,14 +16,14 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &CellLineSearch) -> Outcome {
     let leg = cx.fetch.leg(&cellosaurus::SPEC, deadline).fresh(cx.fresh);
     let reply = cellosaurus::search(&leg, query);
     let error = reply.as_ref().err().copied();
-    let mut out = empty(ReplyData::CellLinePage {
-        query: query.clone(),
-        body: Some(CellLinePage {
+    let mut out = empty(
+        (CellLinePage {
             items: Box::default(),
             release: None,
             fetched: None,
-        }),
-    });
+        })
+        .with_query(query.clone()),
+    );
     out.sources
         .push(status::source(Source::Cellosaurus, leg.finish(), error));
     out.local = error.and_then(status::local);
@@ -49,17 +48,15 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &CellLineSearch) -> Outcome {
             ));
         }
         status::search(&mut out);
-        out.body = ReplyData::CellLinePage {
-            query: query.clone(),
-            body: Some(CellLinePage {
-                items: page.items.into(),
-                release: None,
-                fetched: page
-                    .metadata
-                    .fetched
-                    .and_then(|value| u64::try_from(value).ok()),
-            }),
-        };
+        out.body = (CellLinePage {
+            items: page.items.into(),
+            release: None,
+            fetched: page
+                .metadata
+                .fetched
+                .and_then(|value| u64::try_from(value).ok()),
+        })
+        .with_query(query.clone());
         provenance::attach(cx, deadline, &mut out);
     }
     recovery(&mut out, Request::SearchCellLine(query.clone()));

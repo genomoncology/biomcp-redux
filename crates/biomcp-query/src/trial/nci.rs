@@ -1,4 +1,5 @@
 //! Independent NCI source: never a registry fallback or local disease matcher.
+use biomcp_types::ReplyBody;
 mod get;
 mod page;
 use crate::{Action, Ctx, Outcome, status};
@@ -9,15 +10,15 @@ pub(super) use get::run as get;
 const ATTRIBUTION: &str =
     "NCI Clinical Trials Search; source-native fields, no eligibility assessment";
 pub(super) fn search(cx: &Ctx<'_>, q: &TrialSearch) -> Outcome {
-    let mut out = empty(ReplyData::NciTrialPage {
-        query: q.clone(),
-        body: Some(NciTrialPage {
+    let mut out = empty(
+        (NciTrialPage {
             items: Box::default(),
             request: Box::default(),
             condition_resolution: None,
             attribution: ATTRIBUTION.into(),
-        }),
-    });
+        })
+        .with_query(q.clone()),
+    );
     if q.nci_disease_invalid() {
         out.body = ReplyData::Usage(biomcp_types::UsageError::NciDiseaseError);
         return out;

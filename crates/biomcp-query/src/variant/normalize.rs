@@ -1,11 +1,12 @@
 //! Explicit provider normalization with independent source outcomes.
 use crate::{Ctx, Outcome, status};
+use biomcp_types::ReplyBody;
 
 use biomcp_adapters::{allele_registry, mutalyzer, variantvalidator};
 use biomcp_fetch::{Deadline, RequestError, SourceSpec};
 use biomcp_types::{
-    NormalizationResult, NormalizationSource, ReplyData, Request, SourceOutcome, SourceState,
-    StepKind, VariantNormalization, VariantNormalize, VariantResolution,
+    NormalizationResult, NormalizationSource, Request, SourceOutcome, SourceState, StepKind,
+    VariantNormalization, VariantNormalize, VariantResolution,
 };
 type Row = (
     biomcp_adapters::Mapped<NormalizationResult>,
@@ -81,12 +82,10 @@ pub(crate) fn normalize(cx: &Ctx<'_>, query: &VariantNormalize) -> Outcome {
         [status::status(states.into_iter())],
         crate::status::Parts {
             dropped: false,
-            body: ReplyData::VariantNormalization {
-                query: query.clone(),
-                body: Some(VariantNormalization {
-                    results: results.into(),
-                }),
-            },
+            body: (VariantNormalization {
+                results: results.into(),
+            })
+            .with_query(query.clone()),
             sources,
             problems,
             next,

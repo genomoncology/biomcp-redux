@@ -2,6 +2,7 @@
 pub use super::save::Download;
 use crate::{Ctx, Outcome, status};
 use biodata::{Pmcid, Text};
+use biomcp_types::ReplyBody;
 
 use biomcp_adapters::{europepmc, jats, pmc_oa, pubmed};
 use biomcp_fetch::{Deadline, RequestError};
@@ -19,13 +20,13 @@ pub fn download(cx: &Ctx<'_>, query: &ArticleText, allow: bool) -> super::save::
     let mut save = super::save::State::new(allow);
     let command = cx.fetch.command_deadline(cx.budget);
     let mut deadline = command.deadline();
-    let mut out = crate::status::ready(ReplyData::ArticleTextResult {
-        query: query.clone(),
-        body: Some(ArticleTextResult {
+    let mut out = crate::status::ready(
+        (ArticleTextResult {
             pmcid: None,
             content: Section::NotApplicable,
-        }),
-    });
+        })
+        .with_query(query.clone()),
+    );
     let Ok(selection) = super::protein_change::Selection::new(query.find(), query.variant()) else {
         out.body = ReplyData::Usage(biomcp_types::UsageError::TextPositionError);
         return super::save::Download { out, file: None };
@@ -157,13 +158,11 @@ fn execute<'a>(
             }
         }
     };
-    out.body = ReplyData::ArticleTextResult {
-        query: query.clone(),
-        body: Some(ArticleTextResult {
-            pmcid: Some(id),
-            content,
-        }),
-    };
+    out.body = (ArticleTextResult {
+        pmcid: Some(id),
+        content,
+    })
+    .with_query(query.clone());
     Ok(())
 }
 fn select(
@@ -350,13 +349,11 @@ fn preprint<'a>(
     out.include_refusals(mapped.refusals);
     out.problems.extend(mapped.problems);
     let Some(document) = mapped.value else {
-        out.body = ReplyData::ArticleTextResult {
-            query: query.clone(),
-            body: Some(ArticleTextResult {
-                pmcid: None,
-                content: Section::unavailable(Source::EuropePmc, Reason::NotOpen),
-            }),
-        };
+        out.body = (ArticleTextResult {
+            pmcid: None,
+            content: Section::unavailable(Source::EuropePmc, Reason::NotOpen),
+        })
+        .with_query(query.clone());
         return Ok(());
     };
     let Some(content) = select(
@@ -370,15 +367,13 @@ fn preprint<'a>(
         out.body = ReplyData::Usage(biomcp_types::UsageError::TextPositionError);
         return Ok(());
     };
-    out.body = ReplyData::ArticleTextResult {
-        query: query.clone(),
-        body: Some(ArticleTextResult {
-            pmcid: None,
-            content: Section::Data {
-                source: Source::EuropePmc,
-                data: content,
-            },
-        }),
-    };
+    out.body = (ArticleTextResult {
+        pmcid: None,
+        content: Section::Data {
+            source: Source::EuropePmc,
+            data: content,
+        },
+    })
+    .with_query(query.clone());
     Ok(())
 }

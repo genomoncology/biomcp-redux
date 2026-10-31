@@ -3,6 +3,7 @@ use super::{empty, run};
 use crate::{Ctx, Outcome, status, store::Store};
 use biomcp_adapters::{reactome, wikipathways};
 use biomcp_fetch::{CacheError, Deadline, RequestError};
+use biomcp_types::ReplyBody;
 use biomcp_types::{
     PathwayGet, PathwayHeader, PathwayPage, PathwayPageInfo, PathwaySearch, PathwaySource,
     PathwayTotalKind, Problem, ReplyData, Request, Source, SourceOutcome, SourceState, StepKind,
@@ -34,10 +35,7 @@ fn page(q: &PathwaySearch) -> PathwayPage {
     }
 }
 pub(super) fn search(cx: &Ctx<'_>, q: &PathwaySearch) -> Outcome {
-    let mut out = empty(ReplyData::PathwayPage {
-        query: q.clone(),
-        body: Some(page(q)),
-    });
+    let mut out = empty((page(q)).with_query(q.clone()));
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     if let Err(error) = execute(cx, q, deadline, &mut out) {
@@ -128,10 +126,7 @@ fn present(q: &PathwaySearch, saved: Saved, pool: biodata::Text, out: &mut Outco
     }
     out.dropped = saved.5;
     status::search(out);
-    out.body = ReplyData::PathwayPage {
-        query: q.clone(),
-        body: Some(saved.0),
-    };
+    out.body = (saved.0).with_query(q.clone());
 }
 fn expired(q: &PathwaySearch, out: &mut Outcome) {
     out.body = ReplyData::PoolError { mismatch: false };

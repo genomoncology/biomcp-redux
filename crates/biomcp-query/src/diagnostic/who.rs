@@ -1,13 +1,14 @@
 use super::{empty, finish_bundle};
 use crate::{Action, Bundle, Ctx, Outcome};
 use biomcp_adapters::who_ivd;
-use biomcp_types::{DiagnosticCard, DiagnosticGet, ReplyData, Request, StepKind};
+use biomcp_types::ReplyBody;
+use biomcp_types::{DiagnosticCard, DiagnosticGet, Request, StepKind};
 
 pub(super) fn get(cx: &Ctx<'_>, query: &DiagnosticGet) -> Outcome {
-    let mut out = empty(ReplyData::DiagnosticCard {
-        query: query.clone(),
-        body: None,
-    });
+    let mut out = empty(biomcp_types::DiagnosticCard::into_reply(
+        query.clone(),
+        None,
+    ));
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let leg = cx.fetch.leg(&who_ivd::SPEC, deadline);
@@ -18,10 +19,10 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DiagnosticGet) -> Outcome {
             let found = product.is_some();
             crate::status::item(&mut out, found, false, false);
         };
-        out.body = ReplyData::DiagnosticCard {
-            query: query.clone(),
-            body: product.map(DiagnosticCard::WhoIvdProduct),
-        };
+        out.body = biomcp_types::DiagnosticCard::into_reply(
+            query.clone(),
+            product.map(DiagnosticCard::WhoIvdProduct),
+        );
         out.next.push(crate::next::Step::new(
             StepKind::Sync,
             &[biomcp_types::Source::WhoIvd],

@@ -1,5 +1,7 @@
-use super::{AdverseEventGet, AdverseEventSection, ReplyData, Source, Text, rows, text};
+use super::{AdverseEventGet, AdverseEventSection, Source, Text, rows, text};
 use biomcp_adapters::{NativePositions, maude::Positions};
+use biomcp_types::ReplyBody;
+use biomcp_types::ReplyData;
 use biomcp_types::{
     AdverseEventDevices, AdverseEventMaudeCard, AdverseEventNarrative, AdverseEventRecords,
 };
@@ -30,29 +32,24 @@ pub(super) fn project(
             let (records, end) = narrative_page(candidates, end)?;
             let returned = records.len() as u32;
             (
-                ReplyData::AdverseEventNarrative {
-                    query: query.clone(),
-                    body: Some(AdverseEventNarrative {
-                        header,
-                        snapshot,
-                        narrative: AdverseEventRecords {
-                            records,
-                            offset: query.section_offset(),
-                            total,
-                        },
-                        components: Box::default(),
-                    }),
-                },
+                (AdverseEventNarrative {
+                    header,
+                    snapshot,
+                    narrative: AdverseEventRecords {
+                        records,
+                        offset: query.section_offset(),
+                        total,
+                    },
+                    components: Box::default(),
+                })
+                .with_query(query.clone()),
                 total,
                 returned,
                 end,
             )
         }
         _ => (
-            ReplyData::AdverseEventMaudeCard {
-                query: query.clone(),
-                body: Some(card(query, row, header, snapshot, &positions)?),
-            },
+            (card(query, row, header, snapshot, &positions)?).with_query(query.clone()),
             0,
             0,
             0,
@@ -81,23 +78,21 @@ fn devices(
         .collect();
     let returned = records.len() as u32;
     Ok((
-        ReplyData::AdverseEventDevices {
-            query: query.clone(),
-            body: Some(AdverseEventDevices {
-                header,
-                snapshot,
-                devices: AdverseEventRecords {
-                    records,
-                    offset: query.section_offset(),
-                    total,
-                },
-                components: biomcp_adapters::adverse_event_sources::components::labels(
-                    Source::Maude,
-                    Source::Gmdn,
-                )
-                .map_err(|_| biomcp_types::QueryInvalid::default())?,
-            }),
-        },
+        (AdverseEventDevices {
+            header,
+            snapshot,
+            devices: AdverseEventRecords {
+                records,
+                offset: query.section_offset(),
+                total,
+            },
+            components: biomcp_adapters::adverse_event_sources::components::labels(
+                Source::Maude,
+                Source::Gmdn,
+            )
+            .map_err(|_| biomcp_types::QueryInvalid::default())?,
+        })
+        .with_query(query.clone()),
         total,
         returned,
         end,

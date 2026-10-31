@@ -1,10 +1,12 @@
 //! The existing store retains one complete received ancestry collection.
 use super::{
-    Ctx, Deadline, GwasAncestries, GwasAncestry, GwasGet, Outcome, Problem, Reason, ReplyData,
-    RequestError, Source, SourceOutcome, StepKind, action, gwas, page, rejected, status,
+    Ctx, Deadline, GwasAncestries, GwasAncestry, GwasGet, Outcome, Problem, Reason, RequestError,
+    Source, SourceOutcome, StepKind, action, gwas, page, rejected, status,
 };
 use crate::store::Store;
 use biomcp_fetch::{CacheError, SourceError};
+use biomcp_types::ReplyBody;
+use biomcp_types::ReplyData;
 use sha2::{Digest, Sha256};
 type Saved = (Vec<GwasAncestry>, Vec<SourceOutcome>, Vec<Problem>, bool);
 pub(super) fn read(
@@ -81,13 +83,11 @@ pub(super) fn read(
     };
     let navigation = q.with_page(window.with_snapshot(token));
     let (items, continuation) = page(&navigation, &saved.0, out);
-    out.body = ReplyData::GwasAncestries {
-        query: q.clone(),
-        body: Some(GwasAncestries {
-            study: id.clone(),
-            items,
-            continuation,
-        }),
-    };
+    out.body = (GwasAncestries {
+        study: id.clone(),
+        items,
+        continuation,
+    })
+    .with_query(q.clone());
     Ok(())
 }

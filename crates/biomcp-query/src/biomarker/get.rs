@@ -1,6 +1,7 @@
 //! Exact NCIt lookups keep multiple native rows as candidates.
 use crate::{Action, Ctx, Outcome, status};
 use biomcp_adapters::nci;
+use biomcp_types::ReplyBody;
 use biomcp_types::{BiomarkerGet, BiomarkerResult, Reason, ReplyData, Source, StepKind};
 /// Read every native row attached to one exact code.
 pub(crate) fn get(cx: &Ctx<'_>, q: &BiomarkerGet) -> Outcome {
@@ -14,13 +15,11 @@ pub(crate) fn get(cx: &Ctx<'_>, q: &BiomarkerGet) -> Outcome {
         [crate::status::item_status(false, true, false)],
         crate::status::Parts {
             dropped: false,
-            body: ReplyData::BiomarkerResult {
-                query: q.clone(),
-                body: Some(BiomarkerResult {
-                    card: None,
-                    candidates: Box::default(),
-                }),
-            },
+            body: (BiomarkerResult {
+                card: None,
+                candidates: Box::default(),
+            })
+            .with_query(q.clone()),
             page: None,
             sources: vec![source],
             problems: Vec::new(),
@@ -63,13 +62,11 @@ pub(crate) fn get(cx: &Ctx<'_>, q: &BiomarkerGet) -> Outcome {
             }
         }
         out.problems = reply.problems;
-        out.body = ReplyData::BiomarkerResult {
-            query: q.clone(),
-            body: Some(BiomarkerResult {
-                card: if total == 1 { rows.pop() } else { None },
-                candidates: rows.into(),
-            }),
-        };
+        out.body = (BiomarkerResult {
+            card: if total == 1 { rows.pop() } else { None },
+            candidates: rows.into(),
+        })
+        .with_query(q.clone());
     }
     command.finish(deadline.remaining());
     out

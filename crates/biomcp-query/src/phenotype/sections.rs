@@ -1,30 +1,23 @@
 use super::{run, snapshot::Rows};
 use crate::Outcome;
+use biomcp_types::ReplyBody;
 use biomcp_types::{
     PageInfo, PhenotypeGet, PhenotypeHierarchy, PhenotypeSection, PhenotypeSynonyms,
     PhenotypeXrefs, ReplyData, Request, StepKind,
 };
 pub(super) fn empty(q: &PhenotypeGet) -> ReplyData {
     match q.section() {
-        Some(PhenotypeSection::Synonyms) => ReplyData::PhenotypeSynonyms {
-            query: q.clone(),
-            body: None,
-        },
-        Some(PhenotypeSection::Xrefs) => ReplyData::PhenotypeXrefs {
-            query: q.clone(),
-            body: None,
-        },
-        Some(PhenotypeSection::Hierarchy) => ReplyData::PhenotypeHierarchy {
-            query: q.clone(),
-            body: None,
-        },
-        _ => ReplyData::PhenotypeTermCard {
-            query: q.clone(),
-            body: None,
-        },
+        Some(PhenotypeSection::Synonyms) => {
+            biomcp_types::PhenotypeSynonyms::into_reply(q.clone(), None)
+        }
+        Some(PhenotypeSection::Xrefs) => biomcp_types::PhenotypeXrefs::into_reply(q.clone(), None),
+        Some(PhenotypeSection::Hierarchy) => {
+            biomcp_types::PhenotypeHierarchy::into_reply(q.clone(), None)
+        }
+        _ => biomcp_types::PhenotypeTermCard::into_reply(q.clone(), None),
     }
 }
-pub(super) fn apply(out: &mut Outcome, q: &PhenotypeGet, rows: Rows) {
+pub(super) fn apply(out: &mut Outcome, echo: &PhenotypeGet, q: &PhenotypeGet, rows: Rows) {
     let components = rows.0.components.clone();
     let fetched = rows.4;
     match q.section() {
@@ -42,22 +35,17 @@ pub(super) fn apply(out: &mut Outcome, q: &PhenotypeGet, rows: Rows) {
                     ));
                 }
             }
-            out.body = ReplyData::PhenotypeTermCard {
-                query: q.clone(),
-                body: Some(rows.0),
-            };
+            out.body = (rows.0).with_query(echo.clone());
         }
         Some(PhenotypeSection::Synonyms) => {
             if let Some(rows) = rows.1 {
                 let items = page(out, q, &rows);
-                out.body = ReplyData::PhenotypeSynonyms {
-                    query: q.clone(),
-                    body: Some(PhenotypeSynonyms {
-                        items,
-                        components,
-                        fetched,
-                    }),
-                };
+                out.body = (PhenotypeSynonyms {
+                    items,
+                    components,
+                    fetched,
+                })
+                .with_query(echo.clone());
             } else {
                 unavailable(out);
             }
@@ -65,14 +53,12 @@ pub(super) fn apply(out: &mut Outcome, q: &PhenotypeGet, rows: Rows) {
         Some(PhenotypeSection::Xrefs) => {
             if let Some(rows) = rows.2 {
                 let items = page(out, q, &rows);
-                out.body = ReplyData::PhenotypeXrefs {
-                    query: q.clone(),
-                    body: Some(PhenotypeXrefs {
-                        items,
-                        components,
-                        fetched,
-                    }),
-                };
+                out.body = (PhenotypeXrefs {
+                    items,
+                    components,
+                    fetched,
+                })
+                .with_query(echo.clone());
             } else {
                 unavailable(out);
             }
@@ -80,14 +66,12 @@ pub(super) fn apply(out: &mut Outcome, q: &PhenotypeGet, rows: Rows) {
         Some(PhenotypeSection::Hierarchy) => {
             if let Some(rows) = rows.3 {
                 let items = page(out, q, &rows);
-                out.body = ReplyData::PhenotypeHierarchy {
-                    query: q.clone(),
-                    body: Some(PhenotypeHierarchy {
-                        items,
-                        components,
-                        fetched,
-                    }),
-                };
+                out.body = (PhenotypeHierarchy {
+                    items,
+                    components,
+                    fetched,
+                })
+                .with_query(echo.clone());
             } else {
                 unavailable(out);
             }

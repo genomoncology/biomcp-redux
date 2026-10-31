@@ -1,4 +1,5 @@
 //! Trial discovery delegates filters, totals and ranking to the named registry.
+use biomcp_types::ReplyBody;
 mod condition;
 pub mod document;
 pub(crate) mod get;
@@ -154,18 +155,15 @@ fn empty(query: &TrialSearch) -> Outcome {
         [crate::status::item_status(false, true, false)],
         crate::status::Parts {
             dropped: false,
-            body: ReplyData::TrialPage {
-                query: query.clone(),
-                body: Some(TrialPage {
-                    items: Box::default(),
-                    source_updated: None,
-                    attribution:
-                        "ClinicalTrials.gov; source-native discovery, no eligibility assessment"
-                            .into(),
-                    gene_resolution: None,
-                    condition_resolution: None,
-                }),
-            },
+            body: (TrialPage {
+                items: Box::default(),
+                source_updated: None,
+                attribution:
+                    "ClinicalTrials.gov; source-native discovery, no eligibility assessment".into(),
+                gene_resolution: None,
+                condition_resolution: None,
+            })
+            .with_query(query.clone()),
             page: None,
             sources: Vec::new(),
             problems: Vec::new(),

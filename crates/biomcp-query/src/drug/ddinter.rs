@@ -1,19 +1,20 @@
 use super::{empty, searched, unsupported};
 use crate::{Action, Bundle, Ctx, Outcome, status};
 use biomcp_adapters::ddinter;
+use biomcp_types::ReplyBody;
 use biomcp_types::{
-    DrugGet, DrugInteractions, DrugPage, DrugSearch, DrugSection, PageInfo, ReplyData, Request,
-    Section, Source, SourceState, StepKind,
+    DrugGet, DrugInteractions, DrugPage, DrugSearch, DrugSection, PageInfo, Request, Section,
+    Source, SourceState, StepKind,
 };
 
 pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
-    let mut out = empty(ReplyData::DrugPage {
-        query: query.clone(),
-        body: Some(DrugPage {
+    let mut out = empty(
+        (DrugPage {
             items: Box::default(),
             total: None,
-        }),
-    });
+        })
+        .with_query(query.clone()),
+    );
     let Some(name) = query.query() else {
         return super::unsupported(query.source(), out);
     };
@@ -48,15 +49,9 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
 pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     let interactions = query.sections() == [DrugSection::Interactions];
     let mut out = empty(if interactions {
-        ReplyData::DrugInteractions {
-            query: query.clone(),
-            body: None,
-        }
+        biomcp_types::DrugInteractions::into_reply(query.clone(), None)
     } else {
-        ReplyData::DrugCard {
-            query: query.clone(),
-            body: None,
-        }
+        biomcp_types::DrugCard::into_reply(query.clone(), None)
     });
     if !matches!(query.sections(), [] | [DrugSection::Interactions]) {
         return unsupported(query.source(), out);
@@ -76,10 +71,10 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
             out.problems.extend(body.problems);
             let body = body.value;
             let found = body.is_some();
-            out.body = ReplyData::DrugInteractions {
-                query: query.clone(),
-                body: body.map(|body| page(query, cx.fresh, body, &mut out)),
-            };
+            out.body = biomcp_types::DrugInteractions::into_reply(
+                query.clone(),
+                body.map(|body| page(query, cx.fresh, body, &mut out)),
+            );
             found
         })
     } else {
@@ -102,10 +97,7 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
                 ));
             }
             let found = card.is_some();
-            out.body = ReplyData::DrugCard {
-                query: query.clone(),
-                body: card,
-            };
+            out.body = biomcp_types::DrugCard::into_reply(query.clone(), card);
             found
         })
     };

@@ -2,19 +2,20 @@ use super::{empty, next};
 use crate::{Ctx, Outcome, status};
 use biomcp_adapters::fda_device_recall as adapter;
 use biomcp_fetch::{Leg, RequestError};
+use biomcp_types::ReplyBody;
 use biomcp_types::{
     DiagnosticCard, DiagnosticCountUnit, DiagnosticGet, DiagnosticPage, DiagnosticSearch, PageInfo,
-    Problem, ProblemCode, ReplyData, Request, Source, SourceState, Status, StepKind,
+    Problem, ProblemCode, Request, Source, SourceState, Status, StepKind,
 };
 pub(super) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
-    let mut out = empty(ReplyData::DiagnosticPage {
-        query: q.clone(),
-        body: Some(DiagnosticPage {
+    let mut out = empty(
+        (DiagnosticPage {
             items: Box::default(),
             count_unit: Some(DiagnosticCountUnit::RecallRecords),
             distinct_id_total: None,
-        }),
-    });
+        })
+        .with_query(q.clone()),
+    );
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let leg = cx.fetch.leg(&adapter::SPEC, deadline).fresh(cx.fresh);
@@ -44,14 +45,12 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
             pool: None,
             truncated: None,
         });
-        out.body = ReplyData::DiagnosticPage {
-            query: q.clone(),
-            body: Some(DiagnosticPage {
-                items: page.items,
-                count_unit: Some(DiagnosticCountUnit::RecallRecords),
-                distinct_id_total: None,
-            }),
-        };
+        out.body = (DiagnosticPage {
+            items: page.items,
+            count_unit: Some(DiagnosticCountUnit::RecallRecords),
+            distinct_id_total: None,
+        })
+        .with_query(q.clone());
     }
     finish(&mut out, leg, error);
     status::search(&mut out);
@@ -59,10 +58,7 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
     out
 }
 pub(super) fn get(cx: &Ctx<'_>, q: &DiagnosticGet, id: &biodata::DeviceRecallNumber) -> Outcome {
-    let mut out = empty(ReplyData::DiagnosticCard {
-        query: q.clone(),
-        body: None,
-    });
+    let mut out = empty(biomcp_types::DiagnosticCard::into_reply(q.clone(), None));
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let leg = cx.fetch.leg(&adapter::SPEC, deadline).fresh(cx.fresh);
@@ -107,10 +103,7 @@ pub(super) fn get(cx: &Ctx<'_>, q: &DiagnosticGet, id: &biodata::DeviceRecallNum
                     true,
                 );
             }
-            out.body = ReplyData::DiagnosticCard {
-                query: q.clone(),
-                body: Some(DiagnosticCard::DeviceRecall(Box::new(mapped.value))),
-            };
+            out.body = (DiagnosticCard::DeviceRecall(Box::new(mapped.value))).with_query(q.clone());
         }
         Ok(None) => crate::status::item(&mut out, false, false, false),
         Err(failure) => error = Some(failed(&mut out, q, failure)),

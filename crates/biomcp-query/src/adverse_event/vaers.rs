@@ -3,6 +3,7 @@ use crate::{Ctx, Outcome, status, store::Store};
 use biodata::Text;
 use biomcp_adapters::vaers;
 use biomcp_fetch::{CacheError, Deadline, RequestError};
+use biomcp_types::ReplyBody;
 use biomcp_types::{
     AdverseEventSearch, PageInfo, Reason, ReplyData, Request, Source, SourceOutcome, StepKind,
     VaersSection, VaersSummary,
@@ -12,10 +13,7 @@ type Saved = (VaersSummary, Vec<SourceOutcome>);
 
 pub(super) fn search(cx: &Ctx<'_>, q: &AdverseEventSearch) -> Outcome {
     let mut out = super::unsupported();
-    out.body = ReplyData::VaersSummary {
-        query: q.clone(),
-        body: None,
-    };
+    out.body = biomcp_types::VaersSummary::into_reply(q.clone(), None);
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     if let Err(error) = read(cx, q, deadline, &mut out) {
@@ -139,8 +137,5 @@ fn render(q: &AdverseEventSearch, mut table: VaersSummary, snapshot: Text, out: 
             ));
         }
     }
-    out.body = ReplyData::VaersSummary {
-        query: q.clone(),
-        body: Some(table),
-    };
+    out.body = table.with_query(q.clone());
 }

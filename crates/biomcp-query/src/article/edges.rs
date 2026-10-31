@@ -2,15 +2,16 @@ use super::{empty, order, page};
 use crate::{Ctx, Outcome, store::Store};
 use biodata::Text;
 use biomcp_fetch::{CacheError, Deadline, RequestError};
+use biomcp_types::ReplyBody;
 use biomcp_types::{ArticleEdges, ArticleItem, ArticleKey, ReplyData, Request, StepKind};
 use sha2::{Digest, Sha256};
 pub(super) fn run(cx: &Ctx<'_>, query: &ArticleEdges, references: bool) -> Outcome {
-    let mut out = empty(ReplyData::ArticleEdgePage {
-        query: query.clone(),
-        body: Some(biomcp_types::ArticleEdgePage {
+    let mut out = empty(
+        (biomcp_types::ArticleEdgePage {
             items: Box::default(),
-        }),
-    });
+        })
+        .with_query(query.clone()),
+    );
     let command = cx.fetch.command_deadline(cx.budget);
     let mut deadline = command.deadline();
     if let Err(error) = execute(cx, query, references, &mut deadline, &mut out) {

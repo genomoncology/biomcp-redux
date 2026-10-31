@@ -1,4 +1,5 @@
 //! PubMed snapshots and stable pages through one checked command consumer.
+use biomcp_types::ReplyBody;
 mod edges;
 mod empty_litvar;
 pub(crate) mod evidence;
@@ -27,13 +28,13 @@ use biomcp_types::{ArticlePage, ArticleSearch, ReplyData, Request, StepKind};
 use sha2::{Digest, Sha256};
 /// Run one article command under a single absolute deadline.
 pub(crate) fn search(cx: &Ctx<'_>, query: &ArticleSearch) -> Outcome {
-    let mut out = empty(ReplyData::ArticlePage {
-        query: query.clone(),
-        body: Some(ArticlePage {
+    let mut out = empty(
+        (ArticlePage {
             items: Box::default(),
             candidates: Vec::new(),
-        }),
-    });
+        })
+        .with_query(query.clone()),
+    );
     if let Some((source, option)) = unsupported(query) {
         out.body = ReplyData::Usage(biomcp_types::UsageError::UnsupportedFilter { source, option });
         return out;

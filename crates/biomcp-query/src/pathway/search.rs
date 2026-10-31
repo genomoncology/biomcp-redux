@@ -2,6 +2,7 @@ use super::{empty, run, snapshot};
 use crate::{Ctx, Outcome, status};
 use biomcp_adapters::reactome;
 use biomcp_fetch::{Deadline, RequestError, SourceError};
+use biomcp_types::ReplyBody;
 use biomcp_types::{
     PathwayGet, PathwayPage, PathwayPageInfo, PathwaySearch, PathwayTotalKind, Reason, ReplyData,
     Request, Source, SourceState, StepKind,
@@ -26,10 +27,7 @@ pub(crate) fn search(cx: &Ctx<'_>, q: &PathwaySearch) -> Outcome {
     }
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
-    let mut out = empty(ReplyData::PathwayPage {
-        query: q.clone(),
-        body: Some(page(q)),
-    });
+    let mut out = empty((page(q)).with_query(q.clone()));
     let source = if q.source() == biomcp_types::PathwaySource::Wikipathways {
         Source::WikiPathways
     } else {
@@ -106,10 +104,7 @@ fn execute(
         ));
     }
     crate::status::search(out);
-    out.body = ReplyData::PathwayPage {
-        query: q.clone(),
-        body: Some(body),
-    };
+    out.body = body.with_query(q.clone());
     Ok(())
 }
 fn fetch(

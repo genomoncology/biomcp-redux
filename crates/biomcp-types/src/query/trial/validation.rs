@@ -115,7 +115,8 @@ fn validate_source_filters(f: &Fields) -> Result<(), QueryInvalid> {
 
 fn validate_location(f: &Fields) -> Result<(), QueryInvalid> {
     if f.facility.is_some() && (f.lat.is_some() || f.lon.is_some() || f.distance.is_some()) {
-        return Err(QueryInvalid::new(&["facility", "lat", "lon", "distance"]).with_message(crate::ErrorMessage::TrialFacilityRadius));
+        return Err(QueryInvalid::new(&["facility", "lat", "lon", "distance"])
+            .with_message(crate::ErrorMessage::TrialFacilityRadius));
     }
     if [f.lat.is_some(), f.lon.is_some(), f.distance.is_some()]
         .iter()

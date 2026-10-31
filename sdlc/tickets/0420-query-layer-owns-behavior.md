@@ -1,6 +1,7 @@
 # 0420 — Make the query layer own behavior and adapters own wire syntax
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 307b71667e309d60e9819f33780218f07c4eb411
 
 Milestone: 5
 

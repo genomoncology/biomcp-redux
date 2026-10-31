@@ -14,6 +14,7 @@ pub(super) struct Capture {
     command: Command,
     context: Option<Arc<Context>>,
     key: Option<String>,
+    sequence_start: Option<usize>,
     args: Vec<String>,
     stable_args: Vec<String>,
     spawned: bool,
@@ -45,6 +46,7 @@ impl Capture {
             command,
             context,
             key: None,
+            sequence_start: None,
             stable_args: stable,
             spawned: false,
             args: args.to_vec(),
@@ -55,6 +57,7 @@ impl Capture {
     }
     fn prepare(&mut self) {
         self.key = self.context.as_ref().map(|c| c.allocate(&self.stable_args));
+        self.sequence_start = self.context.as_ref().map(|c| c.sequence());
         self.spawned = true;
         self.finished = false;
     }
@@ -81,7 +84,7 @@ impl Capture {
     ) -> io::Result<()> {
         if let (Some(context), Some(key)) = (&self.context, &self.key) {
             let mut execution = json!({"args":self.args,"surface":surface,
-                "exit":status.code(),"stdout":stdout,
+                "exit":status.code(),"stdout":stdout,"sequence_start":self.sequence_start,
                 "executable":self.executable,"root":self.root,
                 "checkout":crate::runner::launch::checkout().to_string_lossy().as_ref(),
                 "version":env!("CARGO_PKG_VERSION")});

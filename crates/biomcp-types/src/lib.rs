@@ -44,7 +44,7 @@ pub use query::{
 };
 pub use query::{ArticleGet, ArticleSection, ArticleSectionWord};
 pub use query::{ArticleSupplement, ArticleText, SheetRows};
-pub use query::{COMMAND_PATHS, COMMANDS, CommandSpec, Rewrite};
+pub use query::{COMMANDS, CommandSpec, Rewrite, command_paths};
 pub use query::{CivicClaimKind, VariantSection};
 pub use query::{GeneGet, GeneSearch, GeneSection, GeneSectionWord, Request};
 pub use query::{
@@ -257,7 +257,5 @@ pub use query::{BiomarkerGet, BiomarkerSearch, BiomarkerSource};
 pub use response::{BiomarkerCard, BiomarkerHeader, BiomarkerPage, BiomarkerResult};
 
 pub use response::{UsageArguments, UsageError};
-
-pub use query::decode_query;
 
 pub use response::{Reply, ReplyBody, ReplyData};

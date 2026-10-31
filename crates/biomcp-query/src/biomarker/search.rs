@@ -3,6 +3,7 @@ use crate::source_snapshot as snapshot;
 use crate::{Action, Ctx, Outcome, status};
 use biomcp_adapters::nci;
 use biomcp_fetch::{Deadline, RequestError, SourceError};
+use biomcp_types::ReplyBody;
 use biomcp_types::{BiomarkerPage, BiomarkerSearch, Reason, ReplyData, Request, Source, StepKind};
 /// Find native biomarker concept headers without interpretation.
 pub(crate) fn search(cx: &Ctx<'_>, q: &BiomarkerSearch) -> Outcome {
@@ -161,22 +162,17 @@ fn page(
     out.problems = saved.problems;
     out.dropped = saved.dropped;
     status::search(out);
-    out.body = ReplyData::BiomarkerPage {
-        query: q.clone(),
-        body: Some(BiomarkerPage { items }),
-    };
+    out.body = (BiomarkerPage { items }).with_query(q.clone());
 }
 fn empty(q: &BiomarkerSearch) -> Outcome {
     crate::status::finish(
         [crate::status::item_status(false, true, false)],
         crate::status::Parts {
             dropped: false,
-            body: ReplyData::BiomarkerPage {
-                query: q.clone(),
-                body: Some(BiomarkerPage {
-                    items: Box::default(),
-                }),
-            },
+            body: (BiomarkerPage {
+                items: Box::default(),
+            })
+            .with_query(q.clone()),
             page: None,
             sources: Vec::new(),
             problems: Vec::new(),

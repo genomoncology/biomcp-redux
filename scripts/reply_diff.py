@@ -12,6 +12,7 @@ from reply_runtime import Bindings, align, context_roots, owner, pair
 def load(directory):
     records = {}
     uncaptured = []
+    native = {}
     for path in sorted(Path(directory).rglob("*.json")):
         if path.name.startswith("._"):
             continue
@@ -21,13 +22,28 @@ def load(directory):
                 uncaptured.append(record["name"])
             continue
         key = record["key"]
+        # Context::record stores native wire request pairs separately from executions.
+        if (isinstance(key, str) and key.startswith("cache/") and key.endswith("/requests")
+                and len(key.split("/")) == 4
+                and all(part not in ("", ".", "..") for part in key.split("/"))):
+            executions = record.get("executions")
+            if (set(record) != {"key", "executions"} or not isinstance(executions, list)
+                    or not all(isinstance(batch, list) and all(
+                        isinstance(pair, list) and len(pair) == 2
+                        and all(isinstance(value, str) for value in pair)
+                        for pair in batch) for batch in executions)):
+                raise ValueError("invalid native request metadata")
+            if key in native:
+                raise ValueError(f"duplicate native request key: {key}")
+            native[key] = record
+            continue
         owner(key)
         if key in records:
             raise ValueError(f"duplicate transcript key: {key}")
         records[key] = record
     if not records and not uncaptured:
         raise ValueError(f"no transcripts: {directory}")
-    return records, uncaptured
+    return records, uncaptured, native
 
 
 def normalize(record):
@@ -107,7 +123,7 @@ def main():
         print("usage: reply_diff.py BASE HEAD", file=sys.stderr)
         return 2
     try:
-        (base, base_missing), (head, head_missing) = (load(d) for d in sys.argv[1:3])
+        (base, base_missing, base_native), (head, head_missing, head_native) = (load(d) for d in sys.argv[1:3])
         for label, missing in (("BASE", base_missing), ("HEAD", head_missing)):
             if missing:
                 print(f"{label} uncaptured trials ({len(missing)}):", file=sys.stderr)
@@ -127,6 +143,14 @@ def main():
                 pair(x, y, owner(key), bindings, declared, normalize)
             paired[key] = (a, b)
         differences = 0
+        for key in sorted(base_native.keys() | head_native.keys()):
+            location = ("/ missing in " + ("HEAD" if key in base_native else "BASE")
+                        if key not in base_native or key not in head_native
+                        else pointer(base_native[key], head_native[key]))
+            if location:
+                differences += 1
+                if differences <= 20:
+                    print(f"{key}: {location}")
         for key in sorted(base.keys() | (head.keys() - set(aliases.values()))):
             location = ("/ missing in " + ("HEAD" if key in base else "BASE")
                         if key not in paired

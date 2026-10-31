@@ -2,6 +2,7 @@
 use crate::{Ctx, Outcome, status};
 use biodata::Text;
 use biomcp_adapters::maude;
+use biomcp_types::ReplyBody;
 use biomcp_types::{AdverseEventGet, AdverseEventSection, ReplyData, Request, Source, StepKind};
 mod projection;
 mod rows;
@@ -30,18 +31,13 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &AdverseEventGet) -> Outcome {
 }
 fn empty(query: &AdverseEventGet) -> ReplyData {
     match query.section() {
-        Some(AdverseEventSection::Devices) => ReplyData::AdverseEventDevices {
-            query: query.clone(),
-            body: None,
-        },
-        Some(AdverseEventSection::Narrative) => ReplyData::AdverseEventNarrative {
-            query: query.clone(),
-            body: None,
-        },
-        _ => ReplyData::AdverseEventMaudeCard {
-            query: query.clone(),
-            body: None,
-        },
+        Some(AdverseEventSection::Devices) => {
+            biomcp_types::AdverseEventDevices::into_reply(query.clone(), None)
+        }
+        Some(AdverseEventSection::Narrative) => {
+            biomcp_types::AdverseEventNarrative::into_reply(query.clone(), None)
+        }
+        _ => biomcp_types::AdverseEventMaudeCard::into_reply(query.clone(), None),
     }
 }
 fn navigation(query: &AdverseEventGet, total: u64, returned: u32, offset: u32, out: &mut Outcome) {

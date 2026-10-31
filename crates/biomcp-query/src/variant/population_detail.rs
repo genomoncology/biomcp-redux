@@ -3,9 +3,10 @@ use crate::{Ctx, Outcome, status};
 use biodata::PopulationDataType;
 use biomcp_adapters::gnomad;
 use biomcp_fetch::RequestError;
+use biomcp_types::ReplyBody;
 use biomcp_types::{
-    GnomadCounts, PageInfo, Reason, ReplyData, Request, Section, Source, StepKind,
-    VariantPopulationQuery, VariantPopulationResult,
+    GnomadCounts, PageInfo, Reason, Request, Section, Source, StepKind, VariantPopulationQuery,
+    VariantPopulationResult,
 };
 
 pub(crate) fn get(cx: &Ctx<'_>, query: &VariantPopulationQuery) -> Outcome {
@@ -47,14 +48,12 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &VariantPopulationQuery) -> Outcome {
         [status],
         crate::status::Parts {
             dropped: read.dropped,
-            body: ReplyData::VariantPopulationResult {
-                query: query.clone(),
-                body: Some(VariantPopulationResult {
-                    population: read.population,
-                    groups,
-                    candidates: std::mem::take(&mut read.candidates).into(),
-                }),
-            },
+            body: (VariantPopulationResult {
+                population: read.population,
+                groups,
+                candidates: std::mem::take(&mut read.candidates).into(),
+            })
+            .with_query(query.clone()),
             page,
             sources: read.sources,
             problems: read.problems,

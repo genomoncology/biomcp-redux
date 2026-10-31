@@ -3,6 +3,7 @@ use crate::{Action, Bundle, Ctx, Outcome, status};
 use biodata::PathwayId;
 use biomcp_adapters::wikipathways;
 use biomcp_fetch::{Deadline, RequestError};
+use biomcp_types::ReplyBody;
 use biomcp_types::{
     PathwayGet, PathwayPage, PathwayPageInfo, PathwaySearch, PathwaySection, PathwayTotalKind,
     ReplyData, Request, Source, SourceState, StepKind,
@@ -56,10 +57,7 @@ pub(super) fn headers(
 }
 /// Exact stored human WikiPathways metadata, without an implicit refresh.
 pub(super) fn get(cx: &Ctx<'_>, q: &PathwayGet) -> Outcome {
-    let mut out = empty(ReplyData::PathwayCard {
-        query: q.clone(),
-        body: None,
-    });
+    let mut out = empty(biomcp_types::PathwayCard::into_reply(q.clone(), None));
     let PathwayId::Wikipathways(id) = q.id() else {
         return out;
     };
@@ -102,10 +100,7 @@ pub(super) fn get(cx: &Ctx<'_>, q: &PathwayGet) -> Outcome {
             }
         }
         if !matches!(out.body, ReplyData::PoolError { .. }) {
-            out.body = ReplyData::PathwayCard {
-                query: q.clone(),
-                body: card,
-            };
+            out.body = biomcp_types::PathwayCard::into_reply(q.clone(), card);
             {
                 crate::status::item(&mut out, !absent, false, false);
             }

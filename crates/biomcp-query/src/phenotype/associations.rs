@@ -2,6 +2,7 @@
 use super::{empty, problem, recovery, run};
 use crate::{Ctx, Outcome, status};
 use biomcp_adapters::monarch;
+use biomcp_types::ReplyBody;
 use biomcp_types::{
     DiseaseGet, PageInfo, PhenotypeDiseases, PhenotypeGenes, PhenotypeGet, PhenotypeSection,
     ReplyData, Request, Source, StepKind,
@@ -64,25 +65,21 @@ fn body(
     fetched: Option<u64>,
 ) -> ReplyData {
     if q.section() == Some(PhenotypeSection::Genes) {
-        ReplyData::PhenotypeGenes {
-            query: q.clone(),
-            body: Some(PhenotypeGenes {
-                items: items.into(),
-                components,
-                fetched,
-                direct: true,
-            }),
-        }
+        (PhenotypeGenes {
+            items: items.into(),
+            components,
+            fetched,
+            direct: true,
+        })
+        .with_query(q.clone())
     } else {
-        ReplyData::PhenotypeDiseases {
-            query: q.clone(),
-            body: Some(PhenotypeDiseases {
-                items: items.into(),
-                components,
-                fetched,
-                direct: true,
-            }),
-        }
+        (PhenotypeDiseases {
+            items: items.into(),
+            components,
+            fetched,
+            direct: true,
+        })
+        .with_query(q.clone())
     }
 }
 fn pivots(out: &mut Outcome, q: &PhenotypeGet, rows: &[biomcp_types::DiseaseAssociationItem]) {

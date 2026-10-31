@@ -10,7 +10,9 @@ pub enum UsageError {
     UnsupportedAdverseEvent,
     /// A trial provider cannot apply the selected filter.
     UnsupportedTrialFilter {
+        /// Explicit provider that refused the request.
         source: crate::Source,
+        /// Checked trial filter.
         option: crate::TrialFilter,
     },
     /// NCI requires explicit disease identities.
@@ -23,19 +25,27 @@ pub enum UsageError {
     ArticleSaveRefused(crate::Text),
     /// A provider cannot apply the selected article filter.
     UnsupportedFilter {
+        /// Explicit provider that refused the request.
         source: crate::Source,
+        /// Checked article filter.
         option: crate::ArticleFilter,
     },
     /// A body position is invalid.
     TextPositionError,
     /// Citation ordering exceeds its checked bound.
-    TooManyPmids { count: u64 },
+    TooManyPmids {
+        /// Unique PMID count before enrichment.
+        count: u64,
+    },
     /// Generic checked arguments and fixed grammar guidance.
     Arguments(UsageArguments),
     /// An invalid schema identity.
     Schema,
     /// An unknown command and its grammar-owned recovery.
-    UnknownCommand { next: crate::Step },
+    UnknownCommand {
+        /// Grammar-owned help command.
+        next: crate::Step,
+    },
     /// Fixed migration guidance.
     Retired(crate::ErrorMessage),
     /// A transport cannot execute this command.
@@ -43,16 +53,26 @@ pub enum UsageError {
     /// A hosted source key belongs in account settings.
     HostedKey(crate::Source),
     /// A complete MCP result exceeds its bound.
-    McpResultTooBroad { cap: u64 },
+    McpResultTooBroad {
+        /// Maximum complete serialized result size.
+        cap: u64,
+    },
     /// Native source selector vocabulary and recovery.
     SourceSelector {
+        /// Explicit provider that refused the request.
         source: crate::Source,
+        /// Grammar-owned selector flag.
         option: Box<str>,
+        /// Native selector vocabulary.
         valid_values: Box<[crate::Text]>,
+        /// Native discovery commands.
         next: Vec<crate::Step>,
     },
     /// Checked selectors differ from the retained pool.
-    PoolMismatch { restart: crate::Step },
+    PoolMismatch {
+        /// Checked restart command.
+        restart: crate::Step,
+    },
 }
 
 /// Fixed grammar guidance without rejected caller values.

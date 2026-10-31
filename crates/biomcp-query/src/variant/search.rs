@@ -1,5 +1,6 @@
 //! Declared variant searches keep native candidates, totals and page selectors.
 use crate::{Ctx, Outcome, status};
+use biomcp_types::ReplyBody;
 
 use biomcp_adapters::{clinvar, myvariant};
 use biomcp_types::{
@@ -36,16 +37,14 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &VariantSearch) -> Outcome {
         [crate::status::item_status(false, true, false)],
         crate::status::Parts {
             dropped: false,
-            body: ReplyData::VariantPage {
-                query: query.clone(),
-                body: Some(VariantPage {
-                    selector_terms: selector_terms.clone(),
-                    filter_terms: terms.clone(),
-                    source_query: query.source_query(),
-                    build: query.build(),
-                    items: Box::default(),
-                }),
-            },
+            body: (VariantPage {
+                selector_terms: selector_terms.clone(),
+                filter_terms: terms.clone(),
+                source_query: query.source_query(),
+                build: query.build(),
+                items: Box::default(),
+            })
+            .with_query(query.clone()),
             page: None,
             sources: vec![source],
             problems: Vec::new(),
@@ -71,16 +70,14 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &VariantSearch) -> Outcome {
             truncated: (reply.total > u64::from(VariantSearch::MAX_RESULTS)).then_some(true),
         });
         out.problems.extend(reply.rows.problems);
-        out.body = ReplyData::VariantPage {
-            query: query.clone(),
-            body: Some(VariantPage {
-                selector_terms,
-                filter_terms: terms,
-                source_query: query.source_query(),
-                build: query.build(),
-                items: reply.rows.value.into(),
-            }),
-        };
+        out.body = (VariantPage {
+            selector_terms,
+            filter_terms: terms,
+            source_query: query.source_query(),
+            build: query.build(),
+            items: reply.rows.value.into(),
+        })
+        .with_query(query.clone());
     }
     status::search(&mut out);
     command.finish(deadline.remaining());

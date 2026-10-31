@@ -1,6 +1,7 @@
 use super::page::{empty, page_info, run};
 use crate::{Ctx, Outcome, status};
 use biomcp_adapters::monarch;
+use biomcp_types::ReplyBody;
 use biomcp_types::{
     DiseaseGenes, DiseaseGet, DiseasePhenotypes, DiseaseSection, GeneGet, GeneInput, ReplyData,
     Request, Source, StepKind,
@@ -60,23 +61,19 @@ fn body(
     fetched: Option<u64>,
 ) -> ReplyData {
     if query.section() == Some(DiseaseSection::Genes) {
-        ReplyData::DiseaseGenes {
-            query: query.clone(),
-            body: Some(DiseaseGenes {
-                items: items.into(),
-                components,
-                fetched,
-            }),
-        }
+        (DiseaseGenes {
+            items: items.into(),
+            components,
+            fetched,
+        })
+        .with_query(query.clone())
     } else {
-        ReplyData::DiseasePhenotypes {
-            query: query.clone(),
-            body: Some(DiseasePhenotypes {
-                items: items.into(),
-                components,
-                fetched,
-            }),
-        }
+        (DiseasePhenotypes {
+            items: items.into(),
+            components,
+            fetched,
+        })
+        .with_query(query.clone())
     }
 }
 fn gene_steps(out: &mut Outcome, items: &[biomcp_types::DiseaseAssociationItem]) {

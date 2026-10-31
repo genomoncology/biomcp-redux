@@ -1,4 +1,5 @@
 //! Stored cards and independently acquired bounded metadata sections.
+use biomcp_types::ReplyBody;
 mod files;
 use super::{empty, finish};
 use crate::{Ctx, Outcome};
@@ -13,22 +14,12 @@ pub(crate) fn get(cx: &Ctx<'_>, q: &StudyGet) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let mut out = empty(match q.section() {
-        Some(StudySection::Profiles) => ReplyData::StudyProfiles {
-            query: q.clone(),
-            body: None,
-        },
-        Some(StudySection::SampleLists) => ReplyData::StudySampleLists {
-            query: q.clone(),
-            body: None,
-        },
-        Some(StudySection::Files) => ReplyData::StudyFiles {
-            query: q.clone(),
-            body: None,
-        },
-        _ => ReplyData::StudyCard {
-            query: q.clone(),
-            body: None,
-        },
+        Some(StudySection::Profiles) => biomcp_types::StudyProfiles::into_reply(q.clone(), None),
+        Some(StudySection::SampleLists) => {
+            biomcp_types::StudySampleLists::into_reply(q.clone(), None)
+        }
+        Some(StudySection::Files) => biomcp_types::StudyFiles::into_reply(q.clone(), None),
+        _ => biomcp_types::StudyCard::into_reply(q.clone(), None),
     });
     if matches!(q.section(), None | Some(StudySection::All)) {
         let leg = cx.fetch.leg(&SPEC, deadline);
@@ -108,9 +99,9 @@ fn card(leg: &Leg<'_>, q: &StudyGet, out: &mut Outcome) -> Result<(), RequestErr
     let source_url = format!("https://www.cbioportal.org/study/summary?id={}", q.id())
         .parse()
         .map_err(|_| bad())?;
-    out.body = ReplyData::StudyCard {
-        query: q.clone(),
-        body: row.map(|study| StudyCard {
+    out.body = biomcp_types::StudyCard::into_reply(
+        q.clone(),
+        row.map(|study| StudyCard {
             source_url,
             study,
             snapshot,
@@ -118,7 +109,7 @@ fn card(leg: &Leg<'_>, q: &StudyGet, out: &mut Outcome) -> Result<(), RequestErr
             sample_lists: None,
             files: None,
         }),
-    };
+    );
     Ok(())
 }
 fn section_page(
@@ -157,10 +148,7 @@ fn section_page(
                     data,
                 });
             } else {
-                out.body = ReplyData::StudyProfiles {
-                    query: q.clone(),
-                    body: Some(data),
-                };
+                out.body = data.with_query(q.clone());
                 out.page = Some(page.clone());
             }
             continuation(out, cx, q, rejected, next_offset);
@@ -195,10 +183,7 @@ fn section_page(
                     data,
                 });
             } else {
-                out.body = ReplyData::StudySampleLists {
-                    query: q.clone(),
-                    body: Some(data),
-                };
+                out.body = data.with_query(q.clone());
                 out.page = Some(page.clone());
             }
             continuation(out, cx, q, rejected, next_offset);

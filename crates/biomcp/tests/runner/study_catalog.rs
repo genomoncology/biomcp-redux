@@ -60,6 +60,10 @@ pub(super) fn seed(env: &Environment, body: Value, status: u16) -> Result<PathBu
         "retry_after_ms":null,"body":{"kind":"text","value":body.to_string()}}]}
     );
     fs::write(dir.join(format!("{key}.json")), recording.to_string()).map_err(|e| e.to_string())?;
+    if crate::runner::transcript::current().is_some() {
+        crate::runner::network_stub::retain_replay_owner(env.shared_root().as_ref())
+            .map_err(|e| e.to_string())?;
+    }
     Ok(env.root().join("replay"))
 }
 pub(super) fn call(

@@ -1,10 +1,10 @@
 //! Decode each field once and retain only its grammar-owned identity on failure.
-use crate::{CheckedQuery, QueryInvalid};
+use biomcp_types::{CheckedQuery, QueryInvalid};
 use serde::de::{DeserializeSeed, IntoDeserializer, MapAccess};
 use serde_json::Value;
 
 /// Decode one checked query and retain only fixed guidance and field identities.
-pub fn decode_query<T: CheckedQuery>(value: Value) -> Result<T, QueryInvalid> {
+pub(super) fn decode_query<T: CheckedQuery>(value: Value) -> Result<T, QueryInvalid> {
     let Value::Object(fields) = value else {
         return Err(QueryInvalid::default());
     };

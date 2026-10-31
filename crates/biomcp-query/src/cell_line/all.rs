@@ -1,5 +1,7 @@
 //! Compose bounded first pages under the identity command's original deadline.
-use super::{CellLineGet, Ctx, Outcome, ReplyData, Source, Status, StepKind, empty};
+use super::{CellLineGet, Ctx, Outcome, Source, Status, StepKind, empty};
+use biomcp_types::ReplyBody;
+use biomcp_types::ReplyData;
 use biomcp_types::{CellLineCard, CellLineSection, Reason, Section};
 pub(super) fn attach(cx: &Ctx<'_>, deadline: biomcp_fetch::Deadline<'_>, out: &mut Outcome) {
     let ReplyData::CellLineCard {
@@ -76,10 +78,7 @@ fn actions(card: &CellLineCard, out: &mut Outcome) {
         CellLineSection::Variants,
     ] {
         let query = CellLineGet::accession(header.accession.clone()).with_section(section);
-        let mut page = empty(ReplyData::CellLineCard {
-            query: query.clone(),
-            body: Some(card.clone()),
-        });
+        let mut page = empty((card.clone()).with_query(query.clone()));
         super::sections::actions(&query, card, &mut page);
         out.next.extend(
             page.next

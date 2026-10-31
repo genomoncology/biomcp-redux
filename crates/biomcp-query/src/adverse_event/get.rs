@@ -1,4 +1,5 @@
 //! Exact FAERS report reads and checked immutable section continuation.
+use biomcp_types::ReplyBody;
 mod render;
 use crate::{Ctx, Outcome, status, store::Store};
 use biodata::{FaersReport, Text};
@@ -42,10 +43,7 @@ impl serde::Serialize for Saved {
 }
 pub(super) fn get(cx: &Ctx<'_>, q: &AdverseEventGet) -> Outcome {
     let mut out = super::unsupported();
-    out.body = ReplyData::AdverseEventFaersCard {
-        query: q.clone(),
-        body: None,
-    };
+    out.body = biomcp_types::AdverseEventFaersCard::into_reply(q.clone(), None);
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     if let Err(e) = read(cx, q, deadline, &mut out) {

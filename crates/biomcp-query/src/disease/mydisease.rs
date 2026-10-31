@@ -1,9 +1,10 @@
 use super::page::{empty, page_info, run, slice};
 use crate::{Ctx, Outcome, status};
 use biomcp_adapters::mydisease;
+use biomcp_types::ReplyBody;
 use biomcp_types::{
-    DiseaseGet, DiseaseHierarchy, DiseaseSection, DiseaseSynonyms, DiseaseXrefs, ReplyData,
-    Request, Source, StepKind,
+    DiseaseGet, DiseaseHierarchy, DiseaseSection, DiseaseSynonyms, DiseaseXrefs, Request, Source,
+    StepKind,
 };
 
 /// Read only the selected exact annotation, then page its native component facts.
@@ -18,10 +19,7 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &DiseaseGet) -> Outcome {
         .map_err(|_| biomcp_fetch::RequestError::Input(biomcp_fetch::InputError::Path))
         .and_then(|id| mydisease::annotation(&leg, &id));
     let error = reply.as_ref().err().copied();
-    let mut out = empty(ReplyData::DiseaseCard {
-        query: query.clone(),
-        body: None,
-    });
+    let mut out = empty(biomcp_types::DiseaseCard::into_reply(query.clone(), None));
     out.sources
         .push(status::source(Source::MyDisease, leg.finish(), error));
     out.local = error.and_then(status::local);
@@ -40,35 +38,29 @@ fn apply(out: &mut Outcome, query: &DiseaseGet, record: mydisease::Annotation) {
         Some(DiseaseSection::Synonyms) => {
             let (items, total) = slice(record.synonyms, query);
             out.page = Some(page_info(query.section_offset(), items.len() as u32, total));
-            out.body = ReplyData::DiseaseSynonyms {
-                query: query.clone(),
-                body: Some(DiseaseSynonyms {
-                    items: items.into(),
-                    components,
-                }),
-            };
+            out.body = (DiseaseSynonyms {
+                items: items.into(),
+                components,
+            })
+            .with_query(query.clone());
         }
         Some(DiseaseSection::Xrefs) => {
             let (items, total) = slice(record.xrefs, query);
             out.page = Some(page_info(query.section_offset(), items.len() as u32, total));
-            out.body = ReplyData::DiseaseXrefs {
-                query: query.clone(),
-                body: Some(DiseaseXrefs {
-                    items: items.into(),
-                    components,
-                }),
-            };
+            out.body = (DiseaseXrefs {
+                items: items.into(),
+                components,
+            })
+            .with_query(query.clone());
         }
         Some(DiseaseSection::Hierarchy) => {
             let (items, total) = slice(record.parents, query);
             out.page = Some(page_info(query.section_offset(), items.len() as u32, total));
-            out.body = ReplyData::DiseaseHierarchy {
-                query: query.clone(),
-                body: Some(DiseaseHierarchy {
-                    items: items.into(),
-                    components,
-                }),
-            };
+            out.body = (DiseaseHierarchy {
+                items: items.into(),
+                components,
+            })
+            .with_query(query.clone());
         }
         _ => {
             for section in &record.card.sections {
@@ -78,10 +70,7 @@ fn apply(out: &mut Outcome, query: &DiseaseGet, record: mydisease::Annotation) {
                     run(Request::GetDisease(query.with_section(*section))),
                 ));
             }
-            out.body = ReplyData::DiseaseCard {
-                query: query.clone(),
-                body: Some(record.card),
-            };
+            out.body = (record.card).with_query(query.clone());
         }
     }
     if let Some(page) = &out.page {

@@ -3,6 +3,7 @@ use crate::{Action, Ctx, Outcome, status, store::Store};
 use biodata::Text;
 use biomcp_adapters::semantic_scholar;
 use biomcp_fetch::{CacheError, Deadline, RequestError};
+use biomcp_types::ReplyBody;
 use biomcp_types::{
     ArticleRecommend, ArticleRecommendations, EvidenceNotice, ReplyData, Request, Source, Status,
     StepKind,
@@ -10,10 +11,7 @@ use biomcp_types::{
 use sha2::{Digest, Sha256};
 /// Read one recommendation window without local topic filtering or ranking.
 pub(crate) fn run(cx: &Ctx<'_>, query: &ArticleRecommend) -> Outcome {
-    let mut out = super::empty(ReplyData::ArticleRecommendations {
-        query: query.clone(),
-        body: Some(body(Box::default(), false)),
-    });
+    let mut out = super::empty((body(Box::default(), false)).with_query(query.clone()));
     let command = cx.fetch.command_deadline(cx.budget);
     let mut deadline = command.deadline();
     if let Err(error) = execute(cx, query, &mut deadline, &mut out) {

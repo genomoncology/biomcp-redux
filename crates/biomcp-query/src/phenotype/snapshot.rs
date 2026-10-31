@@ -34,7 +34,9 @@ pub(super) fn get(cx: &Ctx<'_>, q: &PhenotypeGet) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     match load(cx, q, deadline, &mut out) {
-        Ok(Some((rows, token))) => super::sections::apply(&mut out, &q.with_snapshot(token), rows),
+        Ok(Some((rows, token))) => {
+            super::sections::apply(&mut out, q, &q.with_snapshot(token), rows)
+        }
         Ok(None) => (),
         Err(error) => {
             out.local = status::local(error);

@@ -1,7 +1,8 @@
 use super::{
-    CacheError, Outcome, ReplyData, Request, RequestError, Selection, Source, SourceError,
-    StepKind, Store, complex_portal, interpro,
+    CacheError, Outcome, Request, RequestError, Selection, Source, SourceError, StepKind, Store,
+    complex_portal, interpro,
 };
+use biomcp_types::ReplyBody;
 use biomcp_types::{ProteinComplexMembers, ProteinComplexes, ProteinDomains};
 pub(super) enum Saved {
     Domains(
@@ -161,13 +162,11 @@ impl Saved {
             (Self::Domains(items, native_total, problems, dropped), Selection::Domains(query)) => {
                 out.dropped |= dropped;
                 out.problems.extend(problems);
-                out.body = ReplyData::ProteinDomains {
-                    query: query.clone(),
-                    body: Some(ProteinDomains {
-                        items: items.into_iter().skip(offset).take(limit).collect(),
-                        native_total,
-                    }),
-                }
+                out.body = (ProteinDomains {
+                    items: items.into_iter().skip(offset).take(limit).collect(),
+                    native_total,
+                })
+                .with_query(query.clone())
             }
             (Self::Complexes(c), Selection::Complexes(query)) => {
                 out.include_refusals(c.refusals);
@@ -183,13 +182,11 @@ impl Saved {
                     .take(limit)
                     .map(|c| c.header)
                     .collect();
-                out.body = ReplyData::ProteinComplexes {
-                    query: query.clone(),
-                    body: Some(ProteinComplexes {
-                        items: items.into(),
-                        native_total: c.native_total,
-                    }),
-                };
+                out.body = (ProteinComplexes {
+                    items: items.into(),
+                    native_total: c.native_total,
+                })
+                .with_query(query.clone());
             }
             (Self::Members(Some(c)), Selection::Members(query)) => {
                 out.include_refusals(c.refusals);
@@ -209,12 +206,10 @@ impl Saved {
                         ));
                     }
                 }
-                out.body = ReplyData::ProteinComplexMembers {
-                    query: query.clone(),
-                    body: Some(ProteinComplexMembers {
-                        items: items.into(),
-                    }),
-                };
+                out.body = (ProteinComplexMembers {
+                    items: items.into(),
+                })
+                .with_query(query.clone());
             }
             (Self::Members(None), Selection::Members(_)) => {}
             _ => return Err(bad(q.source())),

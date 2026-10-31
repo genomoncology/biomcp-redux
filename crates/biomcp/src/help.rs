@@ -56,7 +56,7 @@ pub(crate) fn commands() -> io::Result<Vec<HelpCommand>> {
     let examples: BTreeMap<String, Vec<Vec<String>>> =
         serde_json::from_str(include_str!(concat!(env!("OUT_DIR"), "/examples.json")))?;
     let mut commands = Vec::new();
-    for &(verb, entity, id) in crate::grammar::QUERIES.iter() {
+    for &(verb, entity, id) in crate::grammar::command_paths().iter() {
         let schema: Value = serde_json::from_str(
             crate::schema::find(id).ok_or_else(|| io::Error::other("missing query schema"))?,
         )?;

@@ -1,7 +1,9 @@
-use super::{ReplyData, S, page};
+use super::{S, page};
 use crate::Outcome;
 use biodata::{FaersDrug, FaersIdentifiers, Text};
 use biomcp_fetch::RequestError;
+use biomcp_types::ReplyBody;
+use biomcp_types::ReplyData;
 use biomcp_types::{
     AdverseEventGet, AdverseEventHeader, AdverseEventIdentifierRecords,
     AdverseEventIdentifiers as I, ComponentLabel,
@@ -50,10 +52,7 @@ pub(super) fn render(
     let array = drug.openfda.as_ref().and_then(|v| values(v, section));
     let Some(array) = array else {
         crate::status::item(out, false, false, false);
-        out.body = ReplyData::AdverseEventIdentifiers {
-            query: q.clone(),
-            body: None,
-        };
+        out.body = biomcp_types::AdverseEventIdentifiers::into_reply(q.clone(), None);
         return Ok(());
     };
     let total = array.len() as u64;
@@ -120,9 +119,6 @@ pub(super) fn render(
         },
         _ => return Err(biomcp_fetch::InputError::Serialization.into()),
     };
-    out.body = ReplyData::AdverseEventIdentifiers {
-        query: q.clone(),
-        body: Some(result),
-    };
+    out.body = result.with_query(q.clone());
     Ok(())
 }

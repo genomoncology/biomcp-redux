@@ -1,4 +1,5 @@
 //! Independent citation graph and explicit JATS reference evidence with stored continuations.
+use biomcp_types::ReplyBody;
 mod graph;
 mod locator;
 mod page;
@@ -43,16 +44,16 @@ impl Snapshot {
 }
 /// Keep every successful evidence part beside any independent source failure.
 pub(crate) fn run(cx: &Ctx<'_>, query: &ArticleEvidence) -> Outcome {
-    let mut out = super::empty(ReplyData::ArticleEvidenceResult {
-        query: query.clone(),
-        body: Some(ArticleEvidenceResult {
+    let mut out = super::empty(
+        (ArticleEvidenceResult {
             semantic_scholar: Section::Empty {
                 source: Source::SemanticScholar,
                 record: None,
             },
             fulltext: query.fulltext().then_some(Section::NotApplicable),
-        }),
-    });
+        })
+        .with_query(query.clone()),
+    );
     let command = cx.fetch.command_deadline(cx.budget);
     let mut deadline = command.deadline();
     if let Err(error) = execute(cx, query, &mut deadline, &mut out) {

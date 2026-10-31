@@ -1,6 +1,7 @@
 //! NCI native snapshots use the existing trial store and provider policy admission.
 use super::{ATTRIBUTION, empty, finish, page};
 use crate::{Ctx, Outcome, status, store::Store};
+use biomcp_types::ReplyBody;
 
 use biomcp_adapters::nci;
 use biomcp_fetch::{CacheError, RequestError};
@@ -17,13 +18,13 @@ fn key(id: biodata::NctId) -> Vec<u8> {
     Sha256::digest(format!("biomcp.nci_trial_snapshot/3\0{id}").as_bytes()).to_vec()
 }
 pub(in crate::trial) fn run(cx: &Ctx<'_>, q: &TrialGet) -> Outcome {
-    let mut out = empty(ReplyData::NciTrialCards {
-        query: q.clone(),
-        body: Some(NciTrialCards {
+    let mut out = empty(
+        (NciTrialCards {
             items: Box::default(),
             attribution: ATTRIBUTION.into(),
-        }),
-    });
+        })
+        .with_query(q.clone()),
+    );
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let result = if q.pool().is_some() && !cx.fetch.disabled(Source::Nci) {

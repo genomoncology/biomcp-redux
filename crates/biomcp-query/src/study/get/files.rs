@@ -3,6 +3,7 @@ use super::{bad, finish, next};
 use crate::{Ctx, Outcome};
 use biomcp_adapters::cbioportal::{SPEC, studies};
 use biomcp_fetch::{Deadline, RequestError};
+use biomcp_types::ReplyBody;
 use biomcp_types::{
     PageInfo, ReplyData, Section, Source, Status, StepKind, StudyFiles, StudyGet, StudySection,
 };
@@ -82,10 +83,7 @@ fn apply(
         if q.section() != Some(StudySection::Files) {
             return Err(bad());
         }
-        out.body = ReplyData::StudyFiles {
-            query: q.clone(),
-            body: Some(data),
-        };
+        out.body = data.with_query(q.clone());
         out.page = Some(bounds.clone());
         crate::status::item(out, true, false, false);
     }

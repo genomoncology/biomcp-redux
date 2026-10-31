@@ -1,4 +1,5 @@
 //! Exact trial cards and immutable source section continuations.
+use biomcp_types::ReplyBody;
 pub(in crate::trial) mod page;
 mod snapshot;
 use self::snapshot::Snapshot;
@@ -177,25 +178,22 @@ fn finish(
     out: &mut Outcome,
 ) {
     status::get(out, items.iter().map(|i| i.status));
-    out.body = ReplyData::TrialCards {
-        query: query.clone(),
-        body: Some(TrialCards {
-            items: items.into(),
-            source_updated: source_updated.map(Into::into),
-            attribution: "ClinicalTrials.gov; registry protocol text, no eligibility assessment"
-                .into(),
-        }),
-    };
+    out.body = (TrialCards {
+        items: items.into(),
+        source_updated: source_updated.map(Into::into),
+        attribution: "ClinicalTrials.gov; registry protocol text, no eligibility assessment".into(),
+    })
+    .with_query(query.clone());
 }
 fn empty(query: &TrialGet) -> Outcome {
-    crate::status::empty(ReplyData::TrialCards {
-        query: query.clone(),
-        body: Some(TrialCards {
+    crate::status::empty(
+        (TrialCards {
             items: Box::default(),
             source_updated: None,
             attribution: "ClinicalTrials.gov".into(),
-        }),
-    })
+        })
+        .with_query(query.clone()),
+    )
 }
 fn partial(snapshot: &Snapshot) -> bool {
     snapshot.detail.refusals == biomcp_adapters::Refusal::Refused

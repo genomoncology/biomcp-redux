@@ -1,19 +1,19 @@
 //! Source-local CIViC therapy candidates and independent native claim streams.
 use crate::{Ctx, Outcome, status};
 use biomcp_adapters::civic;
+use biomcp_types::ReplyBody;
 use biomcp_types::{
-    DrugGet, DrugPage, DrugSearch, DrugSection, DrugSource, PageInfo, ReplyData, Request, Source,
-    StepKind,
+    DrugGet, DrugPage, DrugSearch, DrugSection, DrugSource, PageInfo, Request, Source, StepKind,
 };
 
 pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
-    let mut out = super::empty(ReplyData::DrugPage {
-        query: query.clone(),
-        body: Some(DrugPage {
+    let mut out = super::empty(
+        (DrugPage {
             items: Box::default(),
             total: None,
-        }),
-    });
+        })
+        .with_query(query.clone()),
+    );
     let Some(name) = query.query() else {
         return super::unsupported(query.source(), out);
     };
@@ -72,10 +72,7 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
                 cx.fresh,
             ));
         }
-        out.body = ReplyData::DrugPage {
-            query: query.clone(),
-            body: Some(page),
-        };
+        out.body = page.with_query(query.clone());
     }
     status::search(&mut out);
     command.finish(deadline.remaining());
@@ -83,10 +80,7 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
 }
 
 pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
-    let mut out = super::empty(ReplyData::DrugCivic {
-        query: query.clone(),
-        body: None,
-    });
+    let mut out = super::empty(biomcp_types::DrugCivic::into_reply(query.clone(), None));
     if !matches!(query.sections(), [DrugSection::Civic]) {
         return super::unsupported(query.source(), out);
     }
@@ -120,10 +114,7 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
         }
         super::next::civic(cx.fetch, &mut value, cx.fresh, &mut out);
         crate::status::item(&mut out, true, false, false);
-        out.body = ReplyData::DrugCivic {
-            query: query.clone(),
-            body: Some(value),
-        };
+        out.body = value.with_query(query.clone());
     }
     command.finish(deadline.remaining());
     out

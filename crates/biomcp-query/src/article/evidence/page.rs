@@ -2,6 +2,7 @@ use super::Snapshot;
 use crate::Outcome;
 use biodata::Text;
 use biomcp_fetch::RequestError;
+use biomcp_types::ReplyBody;
 use biomcp_types::{ArticleEvidence, ArticleEvidenceResult, ReplyData, Request, Section, StepKind};
 /// Exact Unicode fragments leave room for both independent evidence sections and envelope.
 pub(super) fn split(text: &str) -> Vec<(u32, String)> {
@@ -82,13 +83,11 @@ pub(super) fn render(
             false,
         ));
     }
-    out.body = ReplyData::ArticleEvidenceResult {
-        query: query.clone(),
-        body: Some(ArticleEvidenceResult {
-            semantic_scholar: snapshot.graph,
-            fulltext: snapshot.fulltext,
-        }),
-    };
+    out.body = (ArticleEvidenceResult {
+        semantic_scholar: snapshot.graph,
+        fulltext: snapshot.fulltext,
+    })
+    .with_query(query.clone());
     Ok(())
 }
 fn page<T: Clone>(

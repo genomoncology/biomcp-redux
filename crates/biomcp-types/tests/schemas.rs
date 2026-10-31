@@ -2,8 +2,6 @@
 #![cfg(feature = "schema")]
 #[path = "schemas/annotations.rs"]
 mod annotations;
-#[path = "schemas/commands.rs"]
-mod commands;
 #[path = "schemas/compatibility.rs"]
 mod compatibility;
 #[path = "schemas/compatibility_cases.rs"]
@@ -87,6 +85,9 @@ macro_rules! reply_contracts {
         }),+]
     };
 }
+
+#[path = "schemas/commands.rs"]
+mod commands;
 
 #[path = "schemas/disease.rs"]
 mod disease;
@@ -486,4 +487,25 @@ fn source_forms_and_profile_members_match_admitted_subject_levels()
 #[test]
 fn identifier_objects_use_namespace_and_id() -> Result<(), Box<dyn std::error::Error>> {
     release::identifier_objects_use_namespace_and_id()
+}
+
+#[test]
+#[expect(
+    clippy::disallowed_methods,
+    reason = "Schema contracts read published files at the existing test I/O boundary"
+)]
+fn every_command_path_has_one_grammar_or_one_shared_rewrite()
+-> Result<(), Box<dyn std::error::Error>> {
+    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("schemas");
+    let schemas = fs::read_dir(root)?
+        .map(|entry| {
+            let schema: Value = serde_json::from_str(&fs::read_to_string(entry?.path())?)?;
+            Ok(schema
+                .get("$id")
+                .and_then(Value::as_str)
+                .unwrap_or_default()
+                .to_owned())
+        })
+        .collect::<Result<std::collections::BTreeSet<_>, Box<dyn std::error::Error>>>()?;
+    commands::every_path_has_one_grammar_or_one_shared_rewrite(&schemas)
 }

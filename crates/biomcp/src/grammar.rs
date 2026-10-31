@@ -1,5 +1,6 @@
 //! Schema-fed command parsing shared by CLI and MCP.
 mod arguments;
+mod decode;
 mod entry;
 pub(crate) mod rewrite;
 pub(crate) use entry::entry_aliases;
@@ -13,7 +14,7 @@ mod queries;
 #[cfg(test)]
 mod reference;
 pub(crate) use local::housekeeping_commands;
-pub(crate) use queries::QUERIES;
+pub(crate) use queries::command_paths;
 pub(crate) use queries::query_schema;
 
 pub(crate) const BUNDLE_HELP: &[&str] = &[
@@ -167,8 +168,9 @@ fn scan_command_words(args: &[OsString], tolerate_unknown: bool) -> impl Iterato
 
 pub(crate) fn root() -> Result<Command, ParseInvalid> {
     let mut root = global_arguments();
-    for (index, &(verb, _, _)) in QUERIES.iter().enumerate() {
-        if QUERIES
+    let queries = command_paths();
+    for (index, &(verb, _, _)) in queries.iter().enumerate() {
+        if queries
             .iter()
             .take(index)
             .any(|(prior, _, _)| *prior == verb)
@@ -176,7 +178,7 @@ pub(crate) fn root() -> Result<Command, ParseInvalid> {
             continue;
         }
         let mut command = Command::new(verb).subcommand_required(true);
-        for &(_, entity, id) in QUERIES.iter().filter(|(v, _, _)| *v == verb) {
+        for &(_, entity, id) in queries.iter().filter(|(v, _, _)| *v == verb) {
             let schema: Value =
                 serde_json::from_str(crate::schema::find(id).ok_or_else(ParseInvalid::default)?)
                     .map_err(|_| ParseInvalid::default())?;
@@ -493,7 +495,7 @@ fn request_arguments(
     entity: &str,
     matches: &clap::ArgMatches,
 ) -> Result<Value, ParseInvalid> {
-    let id = QUERIES
+    let id = command_paths()
         .iter()
         .find(|(v, e, _)| *v == verb && *e == entity)
         .map(|(_, _, id)| *id)

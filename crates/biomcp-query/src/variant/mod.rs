@@ -1,4 +1,5 @@
 //! Published-identifier resolution with source-owned allele identity checks.
+use biomcp_types::ReplyBody;
 mod alphagenome;
 mod alphagenome_join;
 mod alphagenome_page;
@@ -23,7 +24,7 @@ use biodata::Text;
 use biomcp_adapters::{allele_registry, mutalyzer, myvariant, variantvalidator};
 use biomcp_fetch::{Leg, RequestError};
 use biomcp_types::{
-    Reason, ReplyData, Source, Status, VariantCard, VariantGet, VariantHeader, VariantNamespace,
+    Reason, Source, Status, VariantCard, VariantGet, VariantHeader, VariantNamespace,
     VariantResolution,
 };
 /// Resolve one checked input without guessing a build, allele or preferred candidate.
@@ -88,18 +89,15 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &VariantGet) -> Outcome {
         [overall(resolution, dropped || incomplete, &sources)],
         crate::status::Parts {
             dropped,
-            body: {
-                let body = VariantCard {
+            body: reply(
+                query,
+                VariantCard {
                     resolution,
                     source: spec.source,
                     candidates: candidates.into(),
                     rejection,
-                };
-                ReplyData::VariantCard {
-                    query: biomcp_types::VariantGetQuery::new(query.clone(), body.source),
-                    body: Some(body),
-                }
-            },
+                },
+            ),
             page,
             sources,
             problems,
@@ -408,4 +406,9 @@ fn population_reason(
     } else {
         None
     }
+}
+
+fn reply(query: &VariantGet, body: VariantCard) -> biomcp_types::ReplyData {
+    let echo = biomcp_types::VariantGetQuery::new(query.clone(), body.source);
+    body.with_query(echo)
 }

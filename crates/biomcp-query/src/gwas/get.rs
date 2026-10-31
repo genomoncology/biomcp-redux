@@ -1,4 +1,5 @@
 //! Exact get and independent context pages share the native association mapping.
+use biomcp_types::ReplyBody;
 mod ancestry;
 mod next;
 use super::map;
@@ -71,29 +72,18 @@ pub(crate) fn get(cx: &Ctx<'_>, q: &GwasGet) -> Outcome {
 }
 fn empty(q: &GwasGet) -> ReplyData {
     match q {
-        GwasGet::Association { section: None, .. } => ReplyData::GwasAssociationCard {
-            query: q.clone(),
-            body: None,
-        },
-        GwasGet::Association { .. } => ReplyData::GwasLoci {
-            query: q.clone(),
-            body: None,
-        },
-        GwasGet::Study { section: None, .. } => ReplyData::GwasStudy {
-            query: q.clone(),
-            body: None,
-        },
+        GwasGet::Association { section: None, .. } => {
+            biomcp_types::GwasAssociationCard::into_reply(q.clone(), None)
+        }
+        GwasGet::Association { .. } => biomcp_types::GwasLoci::into_reply(q.clone(), None),
+        GwasGet::Study { section: None, .. } => {
+            biomcp_types::GwasStudy::into_reply(q.clone(), None)
+        }
         GwasGet::Study {
             section: Some(GwasStudySection::Associations),
             ..
-        } => ReplyData::GwasPage {
-            query: biomcp_types::GwasPageQuery::Get(q.clone()),
-            body: None,
-        },
-        GwasGet::Study { .. } => ReplyData::GwasAncestries {
-            query: q.clone(),
-            body: None,
-        },
+        } => biomcp_types::GwasPage::into_reply(biomcp_types::GwasPageQuery::Get(q.clone()), None),
+        GwasGet::Study { .. } => biomcp_types::GwasAncestries::into_reply(q.clone(), None),
     }
 }
 fn read(
@@ -137,10 +127,7 @@ fn resource(q: &GwasGet, leg: &Leg<'_>, out: &mut Outcome) -> Result<(), Request
                 &[biomcp_types::Source::Gwas],
                 action(loci, false),
             ));
-            out.body = ReplyData::GwasAssociationCard {
-                query: q.clone(),
-                body: Some(GwasAssociationCard { association }),
-            };
+            out.body = (GwasAssociationCard { association }).with_query(q.clone());
         }
         GwasGet::Association {
             id,
@@ -154,14 +141,12 @@ fn resource(q: &GwasGet, leg: &Leg<'_>, out: &mut Outcome) -> Result<(), Request
             rejected(out, rows.rejected);
             let (items, continuation) = page(q, &rows.items, out);
             next::loci(&items, out);
-            out.body = ReplyData::GwasLoci {
-                query: q.clone(),
-                body: Some(GwasLoci {
-                    association: *id,
-                    items,
-                    continuation,
-                }),
-            };
+            out.body = (GwasLoci {
+                association: *id,
+                items,
+                continuation,
+            })
+            .with_query(q.clone());
         }
         GwasGet::Study {
             id, section: None, ..
@@ -181,10 +166,7 @@ fn resource(q: &GwasGet, leg: &Leg<'_>, out: &mut Outcome) -> Result<(), Request
                     action(q, false),
                 ));
             }
-            out.body = ReplyData::GwasStudy {
-                query: q.clone(),
-                body: Some(study.value),
-            };
+            out.body = (study.value).with_query(q.clone());
         }
         GwasGet::Study {
             id,
@@ -289,14 +271,12 @@ fn associations(
             action(q.clone(), false),
         ));
     }
-    out.body = ReplyData::GwasPage {
-        query: biomcp_types::GwasPageQuery::Get(q.clone()),
-        body: Some(GwasPage {
-            items,
-            page: out.page.clone().ok_or(biomcp_fetch::CacheError::Database)?,
-            qualifying_total: None,
-            continuation,
-        }),
-    };
+    out.body = (GwasPage {
+        items,
+        page: out.page.clone().ok_or(biomcp_fetch::CacheError::Database)?,
+        qualifying_total: None,
+        continuation,
+    })
+    .with_query(biomcp_types::GwasPageQuery::Get(q.clone()));
     Ok(())
 }

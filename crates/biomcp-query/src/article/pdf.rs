@@ -1,6 +1,7 @@
 //! Explicit PDF download orchestration; the binary owns atomic file I/O.
 use super::sections::pdf::{bad, load};
 use crate::{Ctx, Outcome, status};
+use biomcp_types::ReplyBody;
 
 use biomcp_adapters::{pdf, semantic_scholar};
 use biomcp_fetch::{Deadline, RequestError};
@@ -9,25 +10,23 @@ use biomcp_types::{ArticlePdf, ArticlePdfResult, PdfLink, Reason, ReplyData, Sec
 pub fn download(cx: &Ctx<'_>, query: &ArticlePdf, allow_save: bool) -> Download {
     let command = cx.fetch.command_deadline(cx.budget);
     let mut deadline = command.deadline();
-    let mut out = crate::status::ready(ReplyData::ArticlePdfResult {
-        query: query.clone(),
-        body: Some(ArticlePdfResult {
+    let mut out = crate::status::ready(
+        (ArticlePdfResult {
             file: Section::NotApplicable,
-        }),
-    });
+        })
+        .with_query(query.clone()),
+    );
     let mut file = None;
     if let Err(error) = execute(cx, query, allow_save, &mut deadline, &mut out, &mut file) {
         out.local = out.local.or(status::local(error));
         crate::status::item(&mut out, false, true, false);
-        out.body = ReplyData::ArticlePdfResult {
-            query: query.clone(),
-            body: Some(ArticlePdfResult {
-                file: Section::unavailable(
-                    Source::SemanticScholar,
-                    crate::status::reason(error).unwrap_or(biomcp_types::Reason::Unavailable),
-                ),
-            }),
-        };
+        out.body = (ArticlePdfResult {
+            file: Section::unavailable(
+                Source::SemanticScholar,
+                crate::status::reason(error).unwrap_or(biomcp_types::Reason::Unavailable),
+            ),
+        })
+        .with_query(query.clone());
     }
     command.finish(deadline.remaining());
     Download { out, file }
@@ -43,12 +42,10 @@ fn execute<'a>(
     let section = load(cx, &query.input, deadline, out)?;
     let Section::Data { data: link, .. } = section else {
         crate::status::item(out, false, true, false);
-        out.body = ReplyData::ArticlePdfResult {
-            query: query.clone(),
-            body: Some(ArticlePdfResult {
-                file: Section::unavailable(Source::SemanticScholar, Reason::NotOpen),
-            }),
-        };
+        out.body = (ArticlePdfResult {
+            file: Section::unavailable(Source::SemanticScholar, Reason::NotOpen),
+        })
+        .with_query(query.clone());
         return Ok(());
     };
     if !allow_save {

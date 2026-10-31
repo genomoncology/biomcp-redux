@@ -3,6 +3,7 @@ use crate::{Ctx, Outcome, status, store::Store};
 use biodata::{Text, UniProtIsoform};
 use biomcp_adapters::{complex_portal, interpro};
 use biomcp_fetch::{CacheError, Deadline, RequestError, SourceError};
+use biomcp_types::ReplyBody;
 use biomcp_types::{
     PageInfo, ProteinComplexMembersQuery, ProteinDomainsQuery, ProteinRelationQuery, ReplyData,
     Request, Source, StepKind,
@@ -67,18 +68,9 @@ impl Selection {
     }
     pub(super) fn empty(&self) -> ReplyData {
         match self {
-            Self::Domains(q) => ReplyData::ProteinDomains {
-                query: q.clone(),
-                body: None,
-            },
-            Self::Complexes(q) => ReplyData::ProteinComplexes {
-                query: q.clone(),
-                body: None,
-            },
-            Self::Members(q) => ReplyData::ProteinComplexMembers {
-                query: q.clone(),
-                body: None,
-            },
+            Self::Domains(q) => biomcp_types::ProteinDomains::into_reply(q.clone(), None),
+            Self::Complexes(q) => biomcp_types::ProteinComplexes::into_reply(q.clone(), None),
+            Self::Members(q) => biomcp_types::ProteinComplexMembers::into_reply(q.clone(), None),
         }
     }
 }

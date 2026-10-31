@@ -4,6 +4,8 @@ import json
 import re
 import shlex
 
+from reply_acquisitions import acquisition_events, catalog_root
+
 
 def owner(key):
     if isinstance(key, str):
@@ -29,6 +31,7 @@ class Bindings:
         self.reverse = {}
         self.pools = ({}, {})
         self.snapshot_steps = {}
+        self.acquisitions = ({}, {})
 
     def bind(self, kind, left, right):
         a, b = (kind, left), (kind, right)
@@ -36,7 +39,7 @@ class Bindings:
             raise ValueError(f'inconsistent runtime binding: {kind}')
         return '<runtime>'
 
-    def values(self, left, right, scope, path=(), encoded=(), clocks=True, catalog=None):
+    def values(self, left, right, scope, path=(), encoded=(), clocks=True, catalog=None, acquisition=None, event=None):
         """Return only authorized scalar substitutions, indexed by JSON path."""
         changes = ({}, {})
         def envelope(value):
@@ -83,7 +86,7 @@ class Bindings:
                         raise ValueError('changed pool lifetime')
                     for index, value in enumerate((a, b)):
                         pool_clocks = (value['created'], value['expires'])
-                        if self.pools[index].setdefault((scope, value['id']), pool_clocks) != pool_clocks:
+                        if self.pools[index].setdefault((scope, acquisition, value['id']), pool_clocks) != pool_clocks:
                             raise ValueError('inconsistent pool clocks')
                     put(p + ('id',), a['id'], b['id'], (scope, 'pool'))
                     for k in ('created', 'expires'):
@@ -96,12 +99,18 @@ class Bindings:
                                    or (k == 'acquired' and position == ('result', 'snapshot'))):
                         if type(a[k]) is int and type(b[k]) is int:
                             kind = (scope, k)
+                            if k == 'fetched':
+                                if not acquisition:
+                                    continue
+                                kind += (acquisition,)
                             if k == 'acquired':
                                 if (not catalog or not all(catalog) or not isinstance(a.get('revision'), str)
                                         or a.get('revision') != b.get('revision')):
                                     continue
                                 self.bind((scope, 'catalog-root'), *catalog)
                                 kind += (catalog[0], a['revision'])
+                                if event is not None:
+                                    kind += ('sync-event', event)
                             put(child, a[k], b[k], kind)
                     elif (k == 'pool' and position[-1:] == ('query',)
                           and isinstance(a[k], str) and isinstance(b[k], str)):
@@ -149,7 +158,8 @@ class Bindings:
                     return
                 # MCP embeds complete JSON replies inside text content.
                 if isinstance(aa, (dict, list)) and isinstance(bb, (dict, list)):
-                    nested = self.values(aa, bb, scope, p, clocks=clocks, catalog=catalog)
+                    nested = self.values(aa, bb, scope, p, clocks=clocks, catalog=catalog,
+                                         acquisition=acquisition, event=event)
                     for index in range(2):
                         if nested[index]:
                             changes[index][p] = nested[index]
@@ -301,6 +311,7 @@ def align(base, head, normalize, bindings=None):
     """Alias changed trial hashes through declared paths and bound opaque IDs."""
     roots = (record_roots(base), record_roots(head))
     bindings = bindings if bindings is not None else Bindings()
+    bindings.acquisitions = tuple(acquisition_events(records, owner, _mcp_arguments) for records in (base, head))
     # Shared capture keys declare runtime IDs before hashed requests are aligned.
     for key in sorted(base.keys() & head.keys()):
         for i, (a, b) in enumerate(zip(base[key]['executions'], head[key]['executions'])):
@@ -374,6 +385,11 @@ def pair(left, right, scope, bindings, roots, normalize):
              for declared in roots]
     if all(len(values) == 1 for values in owned):
         bindings.bind((scope, 'replay-owner-root'), owned[0][0], owned[1][0])
+    recorded = tuple(e.get('root') for e in (left, right))
+    acquisition = None
+    if all(isinstance(root, str) and root.startswith('/') for root in recorded):
+        bindings.bind((scope, 'execution-root'), *recorded)
+        acquisition = recorded[0]
     a, b = [normalize(dict(e, args=declared_args(e, declared)))
             for e, declared in zip((left, right), roots)]
     args = bindings.values(a['args'], b['args'], scope, clocks=False)
@@ -404,10 +420,10 @@ def pair(left, right, scope, bindings, roots, normalize):
                 prefix = '**page:**\n\n```sh\nbiomcp '
                 n['stdout'] = n['stdout'].replace(prefix + command + '\n```',
                                                 prefix + replacement + '\n```')
-        # Markdown clocks bind only to a JSON fetched declaration in this owner.
+        # Markdown clocks reference a JSON declaration in this owner's cache root.
         for before, after in bindings.forward.items():
             kind, value = before
-            if isinstance(kind, tuple) and kind[0] == scope and kind[1] == 'fetched':
+            if isinstance(kind, tuple) and kind[0] == scope and kind[1:] == ('fetched', acquisition):
                 for n, clock in ((a, value), (b, after)):
                     n['stdout'] = n['stdout'].replace(
                         '**fetched:** ' + str(clock) + '\n', '**fetched:** <runtime>\n')
@@ -429,13 +445,13 @@ def pair(left, right, scope, bindings, roots, normalize):
                     pass
         return paths
     encoded = embedded(values[0], left) & embedded(values[1], right)
-    def catalog_root(execution):
-        args = execution['args']
-        if args.count('--case-cache') == 1 and args.index('--case-cache') + 1 < len(args):
-            return args[args.index('--case-cache') + 1]
-        return execution.get('root')
+    events = tuple(events.get(id(execution)) for events, execution
+                   in zip(bindings.acquisitions, (left, right)))
+    if events[0] != events[1]:
+        raise ValueError('changed active catalog acquisition event')
     changes = bindings.values(*values, scope, encoded=encoded,
-                              catalog=tuple(catalog_root(e) for e in (left, right)))
+                              catalog=tuple(catalog_root(e) for e in (left, right)),
+                              acquisition=acquisition, event=events[0])
     # Saved paths are owned only when the literal destination was declared.
     for index, execution in enumerate((left, right)):
         args = execution['args']

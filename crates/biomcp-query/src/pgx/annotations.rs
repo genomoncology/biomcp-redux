@@ -2,9 +2,10 @@
 use super::{finish, next};
 use crate::{Ctx, Outcome};
 use biomcp_adapters::clinpgx;
+use biomcp_types::ReplyBody;
 use biomcp_types::{
     PgxAnnotation, PgxAnnotationGet, PgxAnnotationIdentity, PgxAnnotationKind, PgxAnnotations,
-    PgxGet, PgxHeader, PgxPageInfo, PgxSource, PgxTotalKind, ReplyData, Request, Source,
+    PgxGet, PgxHeader, PgxPageInfo, PgxSource, PgxTotalKind, Request, Source,
 };
 fn page<T>(rows: Vec<T>) -> (Box<[T]>, PgxPageInfo) {
     let total = rows.len() as u64;
@@ -107,17 +108,11 @@ fn local_page<T>(q: &PgxGet, items: Box<[T]>, mut page: PgxPageInfo) -> (Box<[T]
 pub(super) fn get(cx: &Ctx<'_>, q: &PgxGet) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
-    let mut out = crate::status::empty(ReplyData::PgxAnnotations {
-        query: q.clone(),
-        body: Some(body(q, vec![], vec![])),
-    });
+    let mut out = crate::status::empty((body(q, vec![], vec![])).with_query(q.clone()));
     match super::snapshot::load(cx, q, deadline, &mut out) {
         Ok(Some((body, snapshot))) => match q.with_snapshot(snapshot) {
             Ok(bound) => {
-                out.body = ReplyData::PgxAnnotations {
-                    query: q.clone(),
-                    body: Some(slice(q, body)),
-                };
+                out.body = (slice(q, body)).with_query(q.clone());
                 out.next = next::steps(&Request::GetPgx(bound), &mut out);
             }
             Err(_) => out.local = Some(biomcp_fetch::InputError::Serialization.into()),
@@ -138,24 +133,21 @@ pub(crate) fn annotation(cx: &Ctx<'_>, q: &PgxAnnotationGet) -> Outcome {
     let mut problems = Vec::new();
     let reply = clinpgx::annotation(&leg, q).map(|mapped| {
         problems = mapped.problems;
-        ReplyData::PgxAnnotation {
-            query: q.clone(),
-            body: mapped.value.map(|annotation| PgxAnnotation {
+        biomcp_types::PgxAnnotation::into_reply(
+            q.clone(),
+            mapped.value.map(|annotation| PgxAnnotation {
                 header: PgxAnnotationIdentity {
                     source: PgxSource::Clinpgx,
                     id: q.id().clone(),
                 },
                 annotation,
             }),
-        }
+        )
     });
     let mut out = finish(
         leg,
         reply,
-        ReplyData::PgxAnnotation {
-            query: q.clone(),
-            body: None,
-        },
+        biomcp_types::PgxAnnotation::into_reply(q.clone(), None),
         Source::ClinPgx,
     );
     crate::status::append(&mut out.problems, problems);

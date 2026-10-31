@@ -1,6 +1,7 @@
 use super::page::{empty, page_info, run, slice};
 use crate::{Ctx, Outcome, status};
 use biomcp_adapters::ols;
+use biomcp_types::ReplyBody;
 use biomcp_types::{
     DiseaseGet, DiseasePage, DiseaseSearch, DiseaseSection, DiseaseSynonyms, DiseaseXrefs,
     ReplyData, Request, Source, StepKind,
@@ -12,16 +13,16 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &DiseaseSearch) -> Outcome {
     let leg = cx.fetch.leg(&ols::SPEC, deadline).fresh(cx.fresh);
     let reply = ols::search(&leg, query);
     let error = reply.as_ref().err().copied();
-    let mut out = empty(ReplyData::DiseasePage {
-        query: query.clone(),
-        body: Some(DiseasePage {
+    let mut out = empty(
+        (DiseasePage {
             items: Box::default(),
             components: query
                 .ontology()
                 .and_then(|v| ols::components(v).ok())
                 .unwrap_or_default(),
-        }),
-    });
+        })
+        .with_query(query.clone()),
+    );
     out.sources
         .push(status::source(Source::Ols, leg.finish(), error));
     out.local = error.and_then(status::local);
@@ -75,10 +76,7 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &DiseaseGet) -> Outcome {
     let leg = cx.fetch.leg(&ols::SPEC, deadline).fresh(cx.fresh);
     let reply = ols::get(&leg, query);
     let error = reply.as_ref().err().copied();
-    let mut out = empty(ReplyData::DiseaseCard {
-        query: query.clone(),
-        body: None,
-    });
+    let mut out = empty(biomcp_types::DiseaseCard::into_reply(query.clone(), None));
     out.sources
         .push(status::source(Source::Ols, leg.finish(), error));
     out.local = error.and_then(status::local);
@@ -100,26 +98,22 @@ fn apply(out: &mut Outcome, query: &DiseaseGet, record: ols::Record) {
             out.problems.extend(record.synonyms.problems);
             let (items, total) = slice(record.synonyms.value, query);
             out.page = Some(page_info(query.section_offset(), items.len() as u32, total));
-            out.body = ReplyData::DiseaseSynonyms {
-                query: query.clone(),
-                body: Some(DiseaseSynonyms {
-                    items: items.into(),
-                    components,
-                }),
-            };
+            out.body = (DiseaseSynonyms {
+                items: items.into(),
+                components,
+            })
+            .with_query(query.clone());
         }
         Some(DiseaseSection::Xrefs) => {
             out.include_refusals(record.xrefs.refusals);
             out.problems.extend(record.xrefs.problems);
             let (items, total) = slice(record.xrefs.value, query);
             out.page = Some(page_info(query.section_offset(), items.len() as u32, total));
-            out.body = ReplyData::DiseaseXrefs {
-                query: query.clone(),
-                body: Some(DiseaseXrefs {
-                    items: items.into(),
-                    components,
-                }),
-            };
+            out.body = (DiseaseXrefs {
+                items: items.into(),
+                components,
+            })
+            .with_query(query.clone());
         }
         _ => {
             out.include_refusals(record.synonyms.refusals);
@@ -133,10 +127,7 @@ fn apply(out: &mut Outcome, query: &DiseaseGet, record: ols::Record) {
                     run(Request::GetDisease(query.with_section(*section))),
                 ));
             }
-            out.body = ReplyData::DiseaseCard {
-                query: query.clone(),
-                body: Some(record.card),
-            };
+            out.body = (record.card).with_query(query.clone());
         }
     }
     if let Some(page) = &out.page {

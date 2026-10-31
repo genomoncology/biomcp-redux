@@ -1,11 +1,12 @@
 //! Literal source term discovery and independent exact term cards.
+use biomcp_types::ReplyBody;
 mod associations;
 mod sections;
 mod snapshot;
 use crate::{Ctx, Outcome, status};
 use biomcp_adapters::monarch;
 use biomcp_types::{
-    PageInfo, PhenotypeGet, PhenotypePage, PhenotypeSearch, ReplyData, Request, Source, StepKind,
+    PageInfo, PhenotypeGet, PhenotypePage, PhenotypeSearch, Request, Source, StepKind,
 };
 /// Read a native association page or one exact source term reply.
 pub(crate) fn get(cx: &Ctx<'_>, q: &PhenotypeGet) -> Outcome {
@@ -25,14 +26,14 @@ pub(crate) fn search(cx: &Ctx<'_>, q: &PhenotypeSearch) -> Outcome {
     let leg = cx.fetch.leg(&monarch::SPEC, deadline).fresh(cx.fresh);
     let reply = monarch::phenotype::search(&leg, q);
     let error = reply.as_ref().err().copied();
-    let mut out = empty(ReplyData::PhenotypePage {
-        query: q.clone(),
-        body: Some(PhenotypePage {
+    let mut out = empty(
+        (PhenotypePage {
             items: Box::default(),
             components: Box::default(),
             fetched: None,
-        }),
-    });
+        })
+        .with_query(q.clone()),
+    );
     out.sources
         .push(status::source(Source::Monarch, leg.finish(), error));
     out.local = error.and_then(status::local);
@@ -64,17 +65,15 @@ pub(crate) fn search(cx: &Ctx<'_>, q: &PhenotypeSearch) -> Outcome {
             pool: None,
             truncated: None,
         });
-        out.body = ReplyData::PhenotypePage {
-            query: q.clone(),
-            body: Some(PhenotypePage {
-                items: page.items.into(),
-                components: monarch::components().unwrap_or_default(),
-                fetched: page
-                    .metadata
-                    .fetched
-                    .and_then(|value| u64::try_from(value).ok()),
-            }),
-        };
+        out.body = (PhenotypePage {
+            items: page.items.into(),
+            components: monarch::components().unwrap_or_default(),
+            fetched: page
+                .metadata
+                .fetched
+                .and_then(|value| u64::try_from(value).ok()),
+        })
+        .with_query(q.clone());
         crate::status::search(&mut out);
     }
     problem(&mut out, Source::Monarch, None);

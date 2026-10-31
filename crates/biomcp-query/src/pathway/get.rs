@@ -2,16 +2,14 @@ use super::{empty, run};
 use crate::{Ctx, Outcome, status};
 use biodata::PathwayId;
 use biomcp_adapters::reactome;
+use biomcp_types::ReplyBody;
 use biomcp_types::{PathwayGet, PathwaySection, ReplyData, Request, Source, StepKind};
 /// Read one exact native human pathway and only its requested bounded disclosures.
 pub(crate) fn get(cx: &Ctx<'_>, q: &PathwayGet) -> Outcome {
     if matches!(q.id(), PathwayId::Wikipathways(_)) {
         return super::wikipathways::get(cx, q);
     }
-    let mut out = empty(ReplyData::PathwayCard {
-        query: q.clone(),
-        body: None,
-    });
+    let mut out = empty(biomcp_types::PathwayCard::into_reply(q.clone(), None));
     let PathwayId::Reactome(id) = q.id() else {
         return out;
     };
@@ -74,10 +72,7 @@ pub(crate) fn get(cx: &Ctx<'_>, q: &PathwayGet) -> Outcome {
                 crate::status::item(&mut out, !absent, false, false);
             }
         }
-        out.body = ReplyData::PathwayCard {
-            query: q.clone(),
-            body: card,
-        };
+        out.body = biomcp_types::PathwayCard::into_reply(q.clone(), card);
     }
     out.local = out.local.or_else(|| error.and_then(status::local));
     command.finish(deadline.remaining());

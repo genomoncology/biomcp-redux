@@ -302,28 +302,13 @@ pub struct ErrorEnvelope {
 impl From<crate::UsageError> for ErrorEnvelope {
     fn from(usage: crate::UsageError) -> Self {
         use crate::UsageError;
-        let mut out = Self {
-            schema: ErrorSchema::V2,
-            status: ErrorStatus::Usage,
-            error: ErrorDetail {
-                url: None,
-                source: None,
-                option: None,
-                valid_values: None,
-                count: None,
-                code: ErrorCode::Arguments,
-                message: ErrorMessage::Arguments,
-            },
-            local_error: None,
-            next: Vec::new(),
-        };
+        let mut out = Self::empty(
+            ErrorStatus::Usage,
+            ErrorCode::Arguments,
+            ErrorMessage::Arguments,
+        );
         match usage {
-            UsageError::Arguments(arguments) => {
-                out.error.option = arguments.argument;
-                out.error.message = arguments.message.unwrap_or(ErrorMessage::Arguments);
-                out.error.valid_values = arguments.valid_values;
-                out.next = arguments.next;
-            }
+            UsageError::Arguments(arguments) => out.next = out.error.arguments(arguments),
             UsageError::Schema => {
                 out.error.code = ErrorCode::SchemaUsage;
                 out.error.message = ErrorMessage::SchemaUsage;
@@ -336,15 +321,7 @@ impl From<crate::UsageError> for ErrorEnvelope {
             UsageError::Retired(message) => {
                 out.error.code = ErrorCode::Retired;
                 out.error.message = message;
-                out.error.valid_values =
-                    (message == ErrorMessage::VaersInfluenzaCodes).then(|| {
-                        crate::VAERS_INFLUENZA
-                            .iter()
-                            .filter_map(|(code, label)| {
-                                crate::Text::new(&format!("{code}: {label}")).ok()
-                            })
-                            .collect()
-                    });
+                out.error.valid_values = retired_values(message);
             }
             UsageError::McpUnavailable(message) => {
                 out.error.code = ErrorCode::McpUnavailable;
@@ -372,16 +349,10 @@ impl From<crate::UsageError> for ErrorEnvelope {
             }
             UsageError::UnsupportedAdverseEvent | UsageError::TextPositionError => {}
             UsageError::UnsupportedTrialFilter { source, option } => {
-                out.error.source = Some(source);
-                out.error.option = Some(option.as_str().into());
-                out.error.code = ErrorCode::UnsupportedFilter;
-                out.error.message = ErrorMessage::UnsupportedFilter;
+                out.error.filter(source, option.as_str())
             }
             UsageError::UnsupportedFilter { source, option } => {
-                out.error.source = Some(source);
-                out.error.option = Some(option.as_str().into());
-                out.error.code = ErrorCode::UnsupportedFilter;
-                out.error.message = ErrorMessage::UnsupportedFilter;
+                out.error.filter(source, option.as_str())
             }
             UsageError::NciDiseaseError => out.error.message = ErrorMessage::NciDisease,
             UsageError::VariantQueryPolicyError => {
@@ -400,10 +371,7 @@ impl From<crate::UsageError> for ErrorEnvelope {
                 valid_values,
                 next,
             } => {
-                out.error.source = Some(source);
-                out.error.option = Some(option);
-                out.error.valid_values = Some(valid_values);
-                out.error.message = ErrorMessage::SourceSelector;
+                out.error.source_selector(source, option, valid_values);
                 out.next = next;
             }
             UsageError::PoolMismatch { restart } => {
@@ -419,21 +387,7 @@ impl From<crate::UsageError> for ErrorEnvelope {
 impl ErrorEnvelope {
     /// Report a local failure without paths or provider diagnostics.
     pub fn local() -> Self {
-        Self {
-            schema: ErrorSchema::V2,
-            status: ErrorStatus::Local,
-            error: ErrorDetail {
-                url: None,
-                source: None,
-                option: None,
-                valid_values: None,
-                count: None,
-                code: ErrorCode::Local,
-                message: ErrorMessage::Local,
-            },
-            local_error: None,
-            next: Vec::new(),
-        }
+        Self::empty(ErrorStatus::Local, ErrorCode::Local, ErrorMessage::Local)
     }
     /// Name a rejected configuration field without its value.
     pub fn configuration(option: String) -> Self {
@@ -443,20 +397,63 @@ impl ErrorEnvelope {
     }
     /// Report an expired pool independently of command usage.
     pub fn expired_pool(restart: super::Step) -> Self {
+        let mut out = Self::empty(
+            ErrorStatus::Expired,
+            ErrorCode::PoolExpired,
+            ErrorMessage::PoolExpired,
+        );
+        out.next = vec![restart];
+        out
+    }
+    fn empty(status: ErrorStatus, code: ErrorCode, message: ErrorMessage) -> Self {
         Self {
             schema: ErrorSchema::V2,
-            status: ErrorStatus::Expired,
+            status,
             error: ErrorDetail {
                 url: None,
                 source: None,
                 option: None,
                 valid_values: None,
                 count: None,
-                code: ErrorCode::PoolExpired,
-                message: ErrorMessage::PoolExpired,
+                code,
+                message,
             },
             local_error: None,
-            next: vec![restart],
+            next: Vec::new(),
         }
     }
+}
+
+impl ErrorDetail {
+    fn arguments(&mut self, arguments: crate::UsageArguments) -> Vec<super::Step> {
+        self.option = arguments.argument;
+        self.message = arguments.message.unwrap_or(ErrorMessage::Arguments);
+        self.valid_values = arguments.valid_values;
+        arguments.next
+    }
+    fn source_selector(
+        &mut self,
+        source: crate::Source,
+        option: Box<str>,
+        values: Box<[crate::Text]>,
+    ) {
+        self.source = Some(source);
+        self.option = Some(option);
+        self.valid_values = Some(values);
+        self.message = ErrorMessage::SourceSelector;
+    }
+    fn filter(&mut self, source: crate::Source, option: &str) {
+        self.source = Some(source);
+        self.option = Some(option.into());
+        self.code = ErrorCode::UnsupportedFilter;
+        self.message = ErrorMessage::UnsupportedFilter;
+    }
+}
+fn retired_values(message: ErrorMessage) -> Option<Box<[crate::Text]>> {
+    (message == ErrorMessage::VaersInfluenzaCodes).then(|| {
+        crate::VAERS_INFLUENZA
+            .iter()
+            .filter_map(|(code, label)| crate::Text::new(&format!("{code}: {label}")).ok())
+            .collect()
+    })
 }

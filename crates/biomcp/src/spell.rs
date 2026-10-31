@@ -177,4 +177,3 @@ fn fields(schema: &Value, query: &Value, args: &mut Vec<String>) -> Vec<String> 
     positional.extend(trailing);
     positional
 }
-

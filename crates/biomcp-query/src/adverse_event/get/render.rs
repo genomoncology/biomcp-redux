@@ -2,9 +2,10 @@ use crate::Outcome;
 use biodata::{FaersReport, Text};
 use biomcp_adapters::{NativePositions, faers::Positions};
 use biomcp_fetch::RequestError;
+use biomcp_types::ReplyBody;
 use biomcp_types::{
-    AdverseEventGet, AdverseEventHeader, AdverseEventSection as S, AdverseEventSource, ReplyData,
-    Request, StepKind,
+    AdverseEventGet, AdverseEventHeader, AdverseEventSection as S, AdverseEventSource, Request,
+    StepKind,
 };
 mod identifiers;
 mod rows;
@@ -55,19 +56,17 @@ pub(super) fn render(
                 total,
                 out,
             );
-            out.body = ReplyData::AdverseEventReactions {
-                query: q.clone(),
-                body: Some(biomcp_types::AdverseEventReactions {
-                    header,
-                    snapshot,
-                    reactions: biomcp_types::AdverseEventRecords {
-                        records,
-                        offset: q.section_offset(),
-                        total,
-                    },
-                    components,
-                }),
-            };
+            out.body = (biomcp_types::AdverseEventReactions {
+                header,
+                snapshot,
+                reactions: biomcp_types::AdverseEventRecords {
+                    records,
+                    offset: q.section_offset(),
+                    total,
+                },
+                components,
+            })
+            .with_query(q.clone());
         }
         Some(section) => {
             let drug = NativePositions::enumerate(&r.drugs, positions.drugs.as_ref())
@@ -101,19 +100,17 @@ fn drugs(
         total,
         out,
     );
-    out.body = ReplyData::AdverseEventDrugs {
-        query: q.clone(),
-        body: Some(biomcp_types::AdverseEventDrugs {
-            header,
-            snapshot,
-            drugs: biomcp_types::AdverseEventRecords {
-                records,
-                offset: q.section_offset(),
-                total,
-            },
-            components,
-        }),
-    };
+    out.body = (biomcp_types::AdverseEventDrugs {
+        header,
+        snapshot,
+        drugs: biomcp_types::AdverseEventRecords {
+            records,
+            offset: q.section_offset(),
+            total,
+        },
+        components,
+    })
+    .with_query(q.clone());
     let initial = out.next.len();
     for (index, drug) in
         NativePositions::enumerate(&r.drugs, positions.drugs.as_ref()).filter(|(index, _)| {
@@ -164,33 +161,31 @@ fn card(
     positions: &Positions,
     out: &mut Outcome,
 ) -> Result<(), RequestError> {
-    out.body = ReplyData::AdverseEventFaersCard {
-        query: q.clone(),
-        body: Some(biomcp_types::AdverseEventFaersCard {
-            header,
-            snapshot,
-            latest_received: r.receiptdate,
-            latest_received_format: r.receiptdateformat,
-            transmitted: r.transmissiondate,
-            transmitted_format: r.transmissiondateformat,
-            first_received_format: r.receivedateformat,
-            seriousness: r.seriousness,
-            patient: r.patient,
-            reporter: r.reporter,
-            drug_count: positions
-                .drugs
-                .as_ref()
-                .map_or(r.drugs.len() as u32, |p| p.total),
-            reaction_count: positions
-                .reactions
-                .as_ref()
-                .map_or(r.reactions.len() as u32, |p| p.total),
-            source_url: Text::new("https://open.fda.gov/apis/drug/event/")
-                .map_err(|_| biomcp_fetch::InputError::Serialization)?,
-            report_url: url,
-            available_sections: vec![S::Drugs, S::Reactions].into(),
-            components: Box::default(),
-        }),
-    };
+    out.body = (biomcp_types::AdverseEventFaersCard {
+        header,
+        snapshot,
+        latest_received: r.receiptdate,
+        latest_received_format: r.receiptdateformat,
+        transmitted: r.transmissiondate,
+        transmitted_format: r.transmissiondateformat,
+        first_received_format: r.receivedateformat,
+        seriousness: r.seriousness,
+        patient: r.patient,
+        reporter: r.reporter,
+        drug_count: positions
+            .drugs
+            .as_ref()
+            .map_or(r.drugs.len() as u32, |p| p.total),
+        reaction_count: positions
+            .reactions
+            .as_ref()
+            .map_or(r.reactions.len() as u32, |p| p.total),
+        source_url: Text::new("https://open.fda.gov/apis/drug/event/")
+            .map_err(|_| biomcp_fetch::InputError::Serialization)?,
+        report_url: url,
+        available_sections: vec![S::Drugs, S::Reactions].into(),
+        components: Box::default(),
+    })
+    .with_query(q.clone());
     Ok(())
 }

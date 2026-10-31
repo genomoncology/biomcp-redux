@@ -12,6 +12,10 @@ use crate::{ReplyData, ResponseBody, UsageError};
 pub trait ReplyBody: ResponseBody + Sized {
     /// Retain one type-correct reply pair.
     fn into_reply(query: Self::Query, body: Option<Self>) -> ReplyData;
+    /// Retain a present body with its associated checked query.
+    fn with_query(self, query: Self::Query) -> ReplyData {
+        Self::into_reply(query, Some(self))
+    }
 }
 
 macro_rules! replies {

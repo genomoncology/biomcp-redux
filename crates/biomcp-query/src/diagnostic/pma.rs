@@ -2,17 +2,14 @@ use super::{empty, next};
 use crate::{Ctx, Outcome, status};
 use biodata::DeviceSubmission;
 use biomcp_adapters::fda_pma;
+use biomcp_types::ReplyBody;
 use biomcp_types::{
     DiagnosticCard, DiagnosticGet, DiagnosticPmaCard, DiagnosticRegulatory,
     DiagnosticRegulatoryField, DiagnosticRegulatoryFragment, DiagnosticSearch, DiagnosticSection,
-    DiagnosticSupplements, PageInfo, Problem, ProblemCode, ReplyData, Request, Source, Status,
-    StepKind,
+    DiagnosticSupplements, PageInfo, Problem, ProblemCode, Request, Source, Status, StepKind,
 };
 pub(super) fn get(cx: &Ctx<'_>, q: &DiagnosticGet) -> Outcome {
-    let mut out = empty(ReplyData::DiagnosticCard {
-        query: q.clone(),
-        body: None,
-    });
+    let mut out = empty(biomcp_types::DiagnosticCard::into_reply(q.clone(), None));
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let leg = cx.fetch.leg(&fda_pma::SPEC, deadline).fresh(cx.fresh);
@@ -126,13 +123,11 @@ fn card(
         }
     }
     association(out, q, fresh);
-    out.body = ReplyData::DiagnosticCard {
-        query: q.clone(),
-        body: Some(DiagnosticCard::PmaSubmission(DiagnosticPmaCard {
-            header: fda_pma::header(row)?,
-            sections,
-        })),
-    };
+    out.body = (DiagnosticCard::PmaSubmission(DiagnosticPmaCard {
+        header: fda_pma::header(row)?,
+        sections,
+    }))
+    .with_query(q.clone());
     Ok(())
 }
 fn association(out: &mut Outcome, q: &DiagnosticGet, fresh: bool) {
@@ -222,14 +217,12 @@ fn supplements(
         }
     }
     page(out, q, items.len(), rows.len(), fresh);
-    out.body = ReplyData::DiagnosticSupplements {
-        query: q.clone(),
-        body: Some(DiagnosticSupplements {
-            items: items.into(),
-            count_unit: None,
-            distinct_id_total: None,
-        }),
-    };
+    out.body = (DiagnosticSupplements {
+        items: items.into(),
+        count_unit: None,
+        distinct_id_total: None,
+    })
+    .with_query(q.clone());
     Ok(())
 }
 fn regulatory(
@@ -263,13 +256,11 @@ fn regulatory(
         });
     }
     page(out, q, items.len(), total, fresh);
-    out.body = ReplyData::DiagnosticRegulatory {
-        query: q.clone(),
-        body: Some(DiagnosticRegulatory {
-            items: items.into(),
-            count_unit: None,
-            distinct_id_total: None,
-        }),
-    };
+    out.body = (DiagnosticRegulatory {
+        items: items.into(),
+        count_unit: None,
+        distinct_id_total: None,
+    })
+    .with_query(q.clone());
     Ok(())
 }

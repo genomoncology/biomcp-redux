@@ -7,6 +7,7 @@ use crate::{
 use biodata::Text;
 use biomcp_adapters::uniprot;
 use biomcp_fetch::{CacheError, Deadline, RequestError};
+use biomcp_types::ReplyBody;
 use biomcp_types::{
     PageInfo, ProteinPage, ProteinSearch, ReplyData, Request, Source, SourceOutcome, Status,
     StepKind,
@@ -48,12 +49,12 @@ struct Loaded {
 pub(crate) fn search(cx: &Ctx<'_>, q: &ProteinSearch) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
-    let mut out = super::empty(ReplyData::ProteinPage {
-        query: q.clone(),
-        body: Some(ProteinPage {
+    let mut out = super::empty(
+        (ProteinPage {
             items: Box::default(),
-        }),
-    });
+        })
+        .with_query(q.clone()),
+    );
     if let Err(error) = read(cx, q, deadline, &mut out) {
         out.local = status::local(error);
         out.next.push(crate::next::Step::run(
@@ -268,8 +269,5 @@ fn render(
         pool: Some(info),
         truncated: Some(saved.page.cursor.is_some()),
     });
-    out.body = ReplyData::ProteinPage {
-        query: q.clone(),
-        body: Some(ProteinPage { items: rows.into() }),
-    };
+    out.body = (ProteinPage { items: rows.into() }).with_query(q.clone());
 }

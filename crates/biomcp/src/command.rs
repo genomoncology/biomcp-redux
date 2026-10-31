@@ -263,7 +263,7 @@ fn parse_refusal(args: &[OsString], cause: crate::grammar::ParseInvalid) -> io::
                     Some("sync" | "key" | "store" | "version" | "mcp-config" | "skill")
                 )
                 && !root.is_some_and(|root| {
-                    crate::grammar::QUERIES
+                    crate::grammar::command_paths()
                         .iter()
                         .any(|(verb, _, _)| *verb == root)
                 })
