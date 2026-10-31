@@ -223,13 +223,13 @@ fn hosted_grpc_cache_and_replay_cursors_follow_declared_credential_tiers() -> Ch
         )?;
         // An ordinary legacy capture coexists; hosted private callers cannot admit it.
         get(
-            &record.with_stream_secrets(stream_secrets(Some("synthetic-stream-a"))),
+            &record.with_secrets(stream_secrets(Some("synthetic-stream-a"))),
             source,
             METHOD,
             SCHEMA,
             Freshness::Never,
         )?;
-        let keyed = record.with_hosted_stream_secrets(stream_secrets(Some("synthetic-stream-a")));
+        let keyed = record.with_hosted_secrets(stream_secrets(Some("synthetic-stream-a")));
         for _ in 0..2 {
             get(&keyed, source, METHOD, SCHEMA, Freshness::Never)?;
         }
@@ -241,9 +241,9 @@ fn hosted_grpc_cache_and_replay_cursors_follow_declared_credential_tiers() -> Ch
             None,
             Limits::default(),
         )?;
-        let a = replay.with_hosted_stream_secrets(stream_secrets(Some("synthetic-stream-a")));
-        let b = replay.with_hosted_stream_secrets(stream_secrets(Some("synthetic-stream-b")));
-        let missing = replay.with_hosted_stream_secrets(stream_secrets(None));
+        let a = replay.with_hosted_secrets(stream_secrets(Some("synthetic-stream-a")));
+        let b = replay.with_hosted_secrets(stream_secrets(Some("synthetic-stream-b")));
+        let missing = replay.with_hosted_secrets(stream_secrets(None));
         assert_eq!(
             get(&a, source, METHOD, SCHEMA, Freshness::Hours(1))?,
             [1, 2, 3, 4]
