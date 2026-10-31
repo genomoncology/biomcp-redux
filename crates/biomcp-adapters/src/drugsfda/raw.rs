@@ -127,7 +127,7 @@ pub(super) struct Absence {
     message: String,
 }
 /// Convert the source date without assigning it an approval meaning.
-pub(super) fn date(value: &str) -> Result<PartialDate, BadReply> {
+pub(crate) fn date(value: &str) -> Result<PartialDate, BadReply> {
     if value.len() != 8 || !value.bytes().all(|b| b.is_ascii_digit()) {
         return Err(BadReply);
     }

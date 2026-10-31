@@ -43,6 +43,7 @@ fn discover(
         )?;
         found.window.rows.retain(|record| {
             record
+                .0
                 .openfda
                 .application_number
                 .iter()
