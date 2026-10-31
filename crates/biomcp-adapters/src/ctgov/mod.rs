@@ -153,7 +153,10 @@ pub fn search(
             .filter_map(crate::raw::Field::as_ref)
             .any(|row| !row.protocol_section.has_country(countries))
     {
-        return Err(bad());
+        return Err(biomcp_fetch::bad_reply(
+            biomcp_types::Source::ClinicalTrialsGov,
+            Some(200),
+        ));
     }
     let mut total = raw.total_count;
     let mut count_error = None;
@@ -195,7 +198,7 @@ pub fn search(
             }
         })
         .collect::<Result<Vec<_>, _>>()
-        .map_err(|_| bad())?;
+        .map_err(|_| biomcp_fetch::bad_reply(biomcp_types::Source::ClinicalTrialsGov, Some(200)))?;
     let (items, problems): (Vec<_>, Vec<_>) = mapped
         .into_iter()
         .map(|row| {
@@ -225,16 +228,6 @@ fn fetch_page(leg: &Leg<'_>, params: &BTreeMap<String, String>) -> Result<RawPag
     } else {
         leg.json::<FirstPage>(&SEARCH, &args).map(|page| page.0)
     }
-}
-
-fn bad() -> RequestError {
-    biomcp_fetch::SourceError {
-        source: biomcp_types::Source::ClinicalTrialsGov,
-        reason: biomcp_types::Reason::BadReply,
-        status: Some(200),
-        retry_after: None,
-    }
-    .into()
 }
 
 fn alternatives(values: &[Text]) -> String {

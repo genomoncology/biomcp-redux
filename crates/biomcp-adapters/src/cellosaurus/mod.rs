@@ -143,7 +143,10 @@ fn candidates(
             crate::mapped::push_problem(
                 &mut problems,
                 Source::Cellosaurus,
-                crate::mapped::record(row.accession().map_err(bad)?),
+                crate::mapped::record(
+                    row.accession()
+                        .map_err(|_| biomcp_fetch::bad_reply(Source::Cellosaurus, None))?,
+                ),
                 "name-list",
             );
         }
@@ -282,16 +285,6 @@ pub fn release(
         value,
         problems: problems.list,
     })
-}
-
-fn bad(_: BadReply) -> RequestError {
-    biomcp_fetch::SourceError {
-        source: Source::Cellosaurus,
-        reason: biomcp_types::Reason::BadReply,
-        status: None,
-        retry_after: None,
-    }
-    .into()
 }
 
 /// Complete source policy and command declaration.

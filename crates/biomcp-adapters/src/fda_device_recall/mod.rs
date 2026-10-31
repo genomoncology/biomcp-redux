@@ -116,7 +116,7 @@ pub struct Failure {
     /// Wrong returned recall identity; never admitted to the cache.
     pub identity_field: Option<&'static str>,
 }
-fn exact<T: DeserializeOwned + Identity>(
+fn exact<T: DeserializeOwned + Identity + crate::openfda::Item>(
     leg: &Leg<'_>,
     path: &'static str,
     field: &'static str,

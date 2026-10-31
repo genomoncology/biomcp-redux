@@ -47,7 +47,7 @@ pub fn publications(
     ids: &[Pmid],
 ) -> Result<crate::Mapped<Vec<Publication>>, RequestError> {
     if ids.is_empty() || ids.len() > BATCH_LIMIT {
-        return Err(bad());
+        return Err(biomcp_fetch::bad_reply(Source::Icite, Some(200)));
     }
     let names: Vec<_> = ids
         .iter()
@@ -67,7 +67,7 @@ pub fn publications(
         .filter_map(Field::as_ref)
         .any(|r| !ids.contains(&r.pmid.0))
     {
-        return Err(bad());
+        return Err(biomcp_fetch::bad_reply(Source::Icite, Some(200)));
     }
     let mut p = crate::mapped::Problems {
         source: Source::Icite,
@@ -93,15 +93,7 @@ pub fn publications(
         problems: p.list,
     })
 }
-fn bad() -> RequestError {
-    biomcp_fetch::SourceError {
-        source: Source::Icite,
-        reason: biomcp_types::Reason::BadReply,
-        status: Some(200),
-        retry_after: None,
-    }
-    .into()
-}
+
 #[derive(Deserialize)]
 #[serde(try_from = "u32")]
 struct Id(Pmid);

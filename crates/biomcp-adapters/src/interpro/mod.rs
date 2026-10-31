@@ -71,7 +71,7 @@ pub fn page(
     size: u32,
 ) -> Result<Page, RequestError> {
     if ![5, 25].contains(&size) {
-        return Err(bad());
+        return Err(biomcp_fetch::bad_reply(Source::InterPro, Some(200)));
     }
     let path = format!("/entry/interpro/protein/uniprot/{id}/");
     let endpoint = SPEC
@@ -86,7 +86,7 @@ pub fn page(
     }
     let raw = leg.json_checked_cache::<raw::Page>(&endpoint, &args, |p| p.admitted(id))?;
     if !raw.admitted(id) {
-        return Err(bad());
+        return Err(biomcp_fetch::bad_reply(Source::InterPro, Some(200)));
     }
     let expected = [("page", Arg::Num(1)), ("page_size", Arg::Num(size.into()))];
     let cursor = raw
@@ -94,12 +94,14 @@ pub fn page(
         .as_deref()
         .map(|next| {
             SPEC.next_cursor(next, &path, &expected, "cursor")
-                .map_err(|_| bad())
-                .and_then(|s| Text::new(&s).map_err(|_| bad()))
+                .map_err(|_| biomcp_fetch::bad_reply(Source::InterPro, Some(200)))
+                .and_then(|s| {
+                    Text::new(&s).map_err(|_| biomcp_fetch::bad_reply(Source::InterPro, Some(200)))
+                })
         })
         .transpose()?;
     if raw.results.is_empty() && cursor.is_some() {
-        return Err(bad());
+        return Err(biomcp_fetch::bad_reply(Source::InterPro, Some(200)));
     }
     let mapped = map::rows(raw.results, id)?;
     Ok(Page {
@@ -109,15 +111,6 @@ pub fn page(
         total: raw.count,
         cursor,
     })
-}
-fn bad() -> RequestError {
-    biomcp_fetch::SourceError {
-        source: Source::InterPro,
-        reason: biomcp_types::Reason::BadReply,
-        status: Some(200),
-        retry_after: None,
-    }
-    .into()
 }
 
 /// Complete source policy and command declaration.

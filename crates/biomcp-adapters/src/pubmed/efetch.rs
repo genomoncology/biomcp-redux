@@ -11,7 +11,6 @@ use biomcp_fetch::{
 use biomcp_types::{
     AbstractPart, Article, ArticleInput, Correction, CorrectionKind, CorrectionRelation,
 };
-use quick_xml::events::Event;
 use serde::Deserialize;
 /// One citation and its separately requested indexing facts.
 #[derive(Debug, Deserialize)]
@@ -94,26 +93,11 @@ impl Reply for Records {
 }
 impl XmlReply for Records {
     fn decode_xml(xml: &str) -> Result<Self, BadReply> {
-        let mut reader = quick_xml::Reader::from_str(xml);
-        let start = loop {
-            let begin = reader.buffer_position() as usize;
-            match reader.read_event().map_err(|_| BadReply)? {
-                Event::Start(tag) if tag.name().as_ref() == "PubmedArticleSet" => {
-                    break begin;
-                }
-                Event::Empty(tag) if tag.name().as_ref() == "PubmedArticleSet" => {
-                    return Ok(Self {
-                        articles: Vec::new(),
-                    });
-                }
-                Event::Eof | Event::Start(_) => return Err(BadReply),
-                _ => {}
-            }
-        };
-        if Element(&xml[start..]).child("ERROR")?.is_some() {
+        let root = Element::root(xml, "PubmedArticleSet")?;
+        if root.child("ERROR")?.is_some() {
             return Err(BadReply);
         }
-        let articles = Element(&xml[start..])
+        let articles = root
             .children("PubmedArticle")?
             .into_iter()
             .map(article)

@@ -50,7 +50,9 @@ pub fn card(
                 Err(BadReply)
             }
         })?;
-    record.card(id).map_err(|_| bad_reply())
+    record
+        .card(id)
+        .map_err(|_| biomcp_fetch::bad_reply(Source::Orcid, None))
 }
 /// Read one whole bounded works reply and preserve groups and assertion order.
 pub fn works(
@@ -66,16 +68,6 @@ pub fn works(
             }
         })?;
     Ok(record.groups())
-}
-
-fn bad_reply() -> RequestError {
-    biomcp_fetch::SourceError {
-        source: Source::Orcid,
-        reason: biomcp_types::Reason::BadReply,
-        status: None,
-        retry_after: None,
-    }
-    .into()
 }
 
 /// Complete source policy and command declaration.

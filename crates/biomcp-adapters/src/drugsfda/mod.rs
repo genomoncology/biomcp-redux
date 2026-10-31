@@ -64,7 +64,7 @@ pub fn search(leg: &Leg<'_>, text: &Text, limit: u32, offset: u32) -> Result<Pag
 /// Read exactly the named native application; reject a wrong identity before caching it.
 pub fn get(leg: &Leg<'_>, id: &DrugId) -> Result<Page, RequestError> {
     if !DrugSource::Drugsfda.accepts(id) {
-        return Err(bad());
+        return Err(biomcp_fetch::bad_reply(Source::Drugsfda, Some(200)));
     }
     page(
         leg,
@@ -82,7 +82,7 @@ fn page(
     id: Option<&DrugId>,
 ) -> Result<Page, RequestError> {
     if !(1..=50).contains(&limit) {
-        return Err(bad());
+        return Err(biomcp_fetch::bad_reply(Source::Drugsfda, Some(200)));
     }
     let mut args = vec![
         ("search", Arg::Text(selector)),
@@ -93,7 +93,7 @@ fn page(
     }
     let (response, metadata) =
         leg.json_received_checked(&APPLICATION, &args, |r: &raw::Response| match r {
-            raw::Response::Success { meta, results }
+            raw::Response::Page { meta, results }
                 if meta.results.skip != offset
                     || meta.results.limit != limit
                     || id.is_some_and(|id| {
@@ -111,9 +111,7 @@ fn page(
         list: Vec::new(),
     };
     let (records, total, updated) = match response {
-        raw::Response::Success { meta, results } => {
-            (results, meta.results.total, meta.last_updated)
-        }
+        raw::Response::Page { meta, results } => (results, meta.results.total, meta.last_updated),
         raw::Response::Absent { .. } => (Vec::new(), 0, None),
     };
     problems
@@ -146,15 +144,6 @@ impl RawApplication {
             url: None,
         }
     }
-}
-fn bad() -> RequestError {
-    biomcp_fetch::SourceError {
-        source: Source::Drugsfda,
-        reason: biomcp_types::Reason::BadReply,
-        status: Some(200),
-        retry_after: None,
-    }
-    .into()
 }
 
 /// Complete source policy and command declaration.

@@ -56,7 +56,7 @@ pub use declaration::{
     Terms,
 };
 pub use error::{
-    BadReply, CacheError, FetchError, InputError, RecordError, RequestError, SourceError,
+    BadReply, CacheError, FetchError, InputError, RecordError, RequestError, SourceError, bad_reply,
 };
 pub use quota::{InvalidRateShare, Quota, Rate, RateShare, SourceKey};
 pub use record::ReplayCache;

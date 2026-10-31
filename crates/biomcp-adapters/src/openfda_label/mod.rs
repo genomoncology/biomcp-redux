@@ -82,7 +82,7 @@ impl RawRecord {
 /// Read only the explicitly selected SPL set, refusing a mismatched returned set before caching.
 pub fn get(leg: &Leg<'_>, set: &DrugId) -> Result<Page, RequestError> {
     if !biomcp_types::DrugSource::OpenfdaLabel.accepts(set) {
-        return Err(bad());
+        return Err(biomcp_fetch::bad_reply(Source::OpenfdaLabel, Some(200)));
     }
     let found = page(
         leg,
@@ -119,7 +119,7 @@ fn page(
     }
     let (reply, metadata) =
         leg.json_received_checked::<raw::Response>(&LABEL, &args, |reply| match reply {
-            raw::Response::Success { meta, results }
+            raw::Response::Page { meta, results }
                 if meta.results.skip != offset
                     || meta.results.limit != limit
                     || set.is_some_and(|set| results.iter().any(|r| r.set_id != *set)) =>
@@ -129,7 +129,7 @@ fn page(
             _ => Ok(()),
         })?;
     let (records, total) = match reply {
-        raw::Response::Success { meta, results } => (results, meta.results.total),
+        raw::Response::Page { meta, results } => (results, meta.results.total),
         raw::Response::Absent { .. } => (Vec::new(), 0),
     };
     let problems = records
@@ -149,15 +149,6 @@ fn page(
         problems,
         metadata,
     })
-}
-fn bad() -> RequestError {
-    biomcp_fetch::SourceError {
-        source: Source::OpenfdaLabel,
-        reason: biomcp_types::Reason::BadReply,
-        status: Some(200),
-        retry_after: None,
-    }
-    .into()
 }
 
 /// Complete source policy and command declaration.

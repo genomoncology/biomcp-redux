@@ -37,7 +37,10 @@ pub(super) fn fetch(
     )?;
     let mut cx = Problems {
         source: Source::Erepo,
-        record: Some(crate::mapped::text(record).map_err(|_| super::bad())?),
+        record: Some(
+            crate::mapped::text(record)
+                .map_err(|_| biomcp_fetch::bad_reply(biomcp_types::Source::Erepo, None))?,
+        ),
         list: Vec::new(),
     };
     let mut refusals = crate::Refusal::None;

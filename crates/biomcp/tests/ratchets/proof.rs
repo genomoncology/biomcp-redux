@@ -1,3 +1,5 @@
+#[path = "helper_owner_proof.rs"]
+mod helper_owner_proof;
 use super::proof_support::{put, rejects, tree};
 use super::{Check, check};
 use std::fs;
@@ -338,18 +340,6 @@ include!("generated/mod.rs");
 }
 
 #[test]
-fn adapter_mapping_helpers_require_one_owner() -> Check {
-    for declaration in ["fn problem() {}", "fn text() {}"] {
-        rejects(
-            "crates/biomcp-adapters/src/example/map.rs",
-            declaration,
-            "mapping helpers belong in mapped.rs",
-        )?;
-    }
-    Ok(())
-}
-
-#[test]
 fn new_optional_drop_requires_its_own_classification() -> Check {
     let tree = tree()?;
     let path = "crates/biomcp-adapters/src/new_source/details.rs";
@@ -592,4 +582,9 @@ fn only_owned_private_refusal_defaults_bypass_native_ceiling() -> Check {
 #[test]
 fn structural_diagnostics_keep_independent_categories() -> Check {
     super::proof_support::independent_structural_failures()
+}
+
+#[test]
+fn adapter_mapping_helpers_require_one_owner() -> Check {
+    helper_owner_proof::check()
 }
