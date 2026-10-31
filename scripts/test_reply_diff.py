@@ -407,6 +407,14 @@ class ReplyDiff(unittest.TestCase):
                        root="/tmp/runtime-" + side, replay_owner_root=root)
         self.assertNotEqual(self.compare().returncode, 0)
 
+    def test_nested_case_name_cannot_inherit_another_execution_owner(self):
+        self.owned_replay_capture()
+        for directory, side in [(self.base, "base"), (self.head, "head")]:
+            self.write(directory, "case/owned.yaml/step/2/execution/0/step/0",
+                       args=["help", "--replay", "/tmp/replies-" + side + "/recordings"],
+                       root="/tmp/unrelated-" + side)
+        self.assertEqual(self.compare().returncode, 1)
+
     def test_combined_replay_metadata_requires_successful_same_owner_inputs(self):
         self.owned_replay_capture(suffix="all")
         result = self.compare()
