@@ -2,6 +2,7 @@
 import hashlib
 import json
 import re
+import shlex
 
 
 def owner(key):
@@ -27,6 +28,7 @@ class Bindings:
         self.forward = {}
         self.reverse = {}
         self.pools = ({}, {})
+        self.snapshot_steps = {}
 
     def bind(self, kind, left, right):
         a, b = (kind, left), (kind, right)
@@ -45,6 +47,19 @@ class Bindings:
         documents = [envelope(value) for value in (left, right)]
         def schema(prefix):
             return all(str(value.get('schema', '')).startswith(prefix) for value in documents)
+        def pgx_page(position, a, b):
+            # PgxAnnotations::SCHEMA; pgx/annotations.rs binds the stored collection
+            # before pgx/next.rs emits its typed page command. Only this slot declares.
+            flags = {3: '--gene', 5: '--kind', 7: '--section-limit',
+                     9: '--section-offset', 11: '--snapshot', 13: '--source'}
+            return (len(position) == 3 and position[0] == 'next'
+                    and all(d.get('schema') == 'biomcp.pgx-annotations/5'
+                            and d['next'][position[1]].get('kind') == 'page'
+                            for d in documents)
+                    and all(len(args) == 15 and args[:3] == ['get', 'pgx', 'annotations']
+                            and args[14] == 'clinpgx'
+                            and all(args[i] == flag for i, flag in flags.items())
+                            for args in (a, b)))
         def put(p, a, b, kind):
             if type(a) is not type(b):
                 return
@@ -117,11 +132,14 @@ class Bindings:
                             put(p + (i,), x, y, (scope, 'pool'))
                     elif (argv and i and a[i-1] == b[i-1] == '--snapshot'
                           and isinstance(x, str) and isinstance(y, str)):
-                        # Phenotype section steps own opaque retained source snapshots.
+                        pgx = i == 12 and pgx_page(position, a, b)
+                        # Retained phenotype sections and ClinPGx pages declare snapshots.
                         declared = (len(position) == 3 and position[0] == 'next'
-                                    and schema('biomcp.phenotype-card/'))
+                                    and schema('biomcp.phenotype-card/')) or pgx
                         if declared or ((scope, 'snapshot'), x) in self.forward:
                             put(p + (i,), x, y, (scope, 'snapshot'))
+                            if pgx:
+                                self.snapshot_steps[scope, tuple(a)] = tuple(b)
                     else:
                         visit(x, y, p + (i,))
             elif p in encoded and isinstance(a, str) and isinstance(b, str):
@@ -262,6 +280,23 @@ def declared_args(execution, roots):
     return result
 
 
+def _mcp_arguments(execution):
+    """Yield only captured BioMCP tools/call request frames and their argv."""
+    args = execution['args']
+    if execution['surface'] != 'mcp' or '<requests>' not in args:
+        return
+    for i in range(args.index('<requests>') + 1, len(args)):
+        try:
+            frame = json.loads(args[i])
+            if (frame.get('jsonrpc') == '2.0' and frame.get('method') == 'tools/call'
+                    and frame['params'].get('name') == 'biomcp'):
+                vector = frame['params']['arguments']['args']
+                if isinstance(vector, list):
+                    yield i, frame, vector
+        except (ValueError, KeyError, TypeError, AttributeError):
+            continue
+
+
 def align(base, head, normalize, bindings=None):
     """Alias changed trial hashes through declared paths and bound opaque IDs."""
     roots = (record_roots(base), record_roots(head))
@@ -275,13 +310,22 @@ def align(base, head, normalize, bindings=None):
         values = []
         for i, e in enumerate(record['executions']):
             n = normalize(dict(e, args=declared_args(e, context_roots(roots[index], key, i))))
-            for i, arg in enumerate(n['args']):
-                if i and n['args'][i-1] in ('--pool', '--snapshot'):
-                    kind = (owner(key), n['args'][i-1][2:])
-                    if index == 0 and (kind, arg) in bindings.forward:
-                        n['args'][i] = '<bound>/' + arg
-                    elif index == 1 and (kind, arg) in bindings.reverse:
-                        n['args'][i] = '<bound>/' + bindings.reverse[kind, arg]
+            def tokens(args):
+                changes = {}
+                for j, arg in enumerate(args):
+                    if j and args[j-1] in ('--pool', '--snapshot') and isinstance(arg, str):
+                        kind = (owner(key), args[j-1][2:])
+                        if index == 0 and (kind, arg) in bindings.forward:
+                            changes[j,] = '<bound>/' + arg
+                        elif index == 1 and (kind, arg) in bindings.reverse:
+                            changes[j,] = '<bound>/' + bindings.reverse[kind, arg]
+                return changes
+            for j, value in tokens(n['args']).items():
+                n['args'][j[0]] = value
+            for j, frame, vector in _mcp_arguments(n):
+                changes = {('params', 'arguments', 'args') + p: v
+                           for p, v in tokens(vector).items()}
+                n['args'][j] = rewrite(n['args'][j], changes)
             values.append({k: n[k] for k in ('args', 'surface')})
         return owner(key), key.rsplit('/', 1)[-1], json.dumps(values, sort_keys=True)
     def valid_hash(key, record):
@@ -338,26 +382,28 @@ def pair(left, right, scope, bindings, roots, normalize):
             # Executed argv can also contain a JSON MCP request token.
             n['args'][p[0]] = value
     # Only captured MCP request frames own JSON-encoded argument vectors.
-    if (left['surface'] == right['surface'] == 'mcp'
-            and '<requests>' in a['args'] and '<requests>' in b['args']):
-        start = a['args'].index('<requests>') + 1
-        if start == b['args'].index('<requests>') + 1:
-            for i in range(start, min(len(a['args']), len(b['args']))):
-                try:
-                    frames = [json.loads(n['args'][i]) for n in (a, b)]
-                    if not all(f.get('jsonrpc') == '2.0' and f.get('method') == 'tools/call'
-                               and f['params'].get('name') == 'biomcp' for f in frames):
-                        continue
-                    vectors = [f['params']['arguments']['args'] for f in frames]
-                except (ValueError, KeyError, TypeError, AttributeError):
-                    continue
-                path = ('params', 'arguments', 'args')
-                changes = bindings.values(*vectors, scope, path, clocks=False)
-                for n, change in zip((a, b), changes):
-                    n['args'][i] = rewrite(n['args'][i], change)
+    for (i, _, av), (j, _, bv) in zip(_mcp_arguments(a), _mcp_arguments(b)):
+        if i == j:
+            path = ('params', 'arguments', 'args')
+            changes = bindings.values(av, bv, scope, path, clocks=False)
+            for n, change in zip((a, b), changes):
+                n['args'][i] = rewrite(n['args'][i], change)
     try:
         values = [json.loads(n['stdout']) for n in (a, b)]
     except ValueError:
+        # Markdown can reference an already declared typed page command. Match the
+        # complete renderer-owned block, never a source string containing its token.
+        for (step_scope, before), after in bindings.snapshot_steps.items():
+            if step_scope != scope:
+                continue
+            for n, args in ((a, before), (b, after)):
+                command = ' '.join(shlex.quote(arg) for arg in args)
+                canonical = list(args)
+                canonical[12] = '<runtime>'
+                replacement = ' '.join(shlex.quote(arg) for arg in canonical)
+                prefix = '**page:**\n\n```sh\nbiomcp '
+                n['stdout'] = n['stdout'].replace(prefix + command + '\n```',
+                                                prefix + replacement + '\n```')
         # Markdown clocks bind only to a JSON fetched declaration in this owner.
         for before, after in bindings.forward.items():
             kind, value = before
