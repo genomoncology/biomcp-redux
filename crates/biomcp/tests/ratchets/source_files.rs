@@ -34,9 +34,8 @@ pub(super) fn check(root: &Path) -> Check {
 
 fn test(path: &str, text: &str) -> Check {
     let mut checks = vec![super::tool_modes(path, text), super::width(path, text)];
-    if path.contains("/tests/")
+    if path.starts_with("crates/biomcp/tests/")
         && path != "crates/biomcp/tests/runner/launch.rs"
-        && path != "crates/biomcp-fetch/tests/support/fixtures.rs"
         && tokens(text)
             .iter()
             .any(|token| token == "\"CARGO_MANIFEST_DIR\"")
