@@ -236,7 +236,8 @@ impl Cache {
         }
     }
 
-    // Discretionary reply caching must leave the budget available to the source.
+    // Sibling legs share this connection. Wait for their local SQL work within
+    // the command budget; external SQLite contention still falls through at once.
     fn try_sql<T>(
         &self,
         deadline: Deadline<'_>,
@@ -245,7 +246,7 @@ impl Cache {
         if deadline.expired() {
             return Err(CacheError::Busy);
         }
-        let connection = try_mutex(&self.0)?;
+        let connection = wait_mutex(&self.0, deadline, &deadline.local())?;
         connection.busy_timeout(Duration::ZERO).map_err(db_error)?;
         operation(&connection)
     }

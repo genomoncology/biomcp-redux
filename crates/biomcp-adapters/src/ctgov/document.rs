@@ -9,18 +9,18 @@ pub fn download(leg: &Leg<'_>, document: &TrialDocument) -> Result<Vec<u8>, Requ
         .as_str()
         .starts_with(&format!("{}/large-docs/", super::DOCUMENT_ORIGIN))
     {
-        return Err(bad(Reason::Rejected));
+        return Err(document_error(Reason::Rejected));
     }
     let endpoint = super::SPEC
         .download(document.url.as_str())?
         .bytes(crate::pdf::MAX_BYTES);
     let bytes = leg.bytes(&endpoint, &[])?;
     if !bytes.starts_with(b"%PDF-") {
-        return Err(bad(Reason::NotPdf));
+        return Err(document_error(Reason::NotPdf));
     }
     Ok(bytes)
 }
-fn bad(reason: Reason) -> RequestError {
+fn document_error(reason: Reason) -> RequestError {
     SourceError {
         source: biomcp_types::Source::ClinicalTrialsGov,
         reason,

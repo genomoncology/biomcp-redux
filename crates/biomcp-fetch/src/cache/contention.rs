@@ -5,6 +5,60 @@ use super::{Cache, CacheError, Connection, Duration};
 use crate::{Deadline, deadline::VirtualClock};
 
 #[test]
+fn discretionary_read_waits_for_held_local_sql_until_deadline() {
+    let directory = tempfile::tempdir().unwrap();
+    let cache = Cache::open_with_owners(&directory.path().join("cache.sqlite"), &[]).unwrap();
+    let owner = cache.0.lock().unwrap();
+    let deadline = Deadline::start(Duration::from_millis(20), None);
+    let wall_bound = deadline.local();
+    assert_eq!(
+        cache.try_sql(deadline, |_| -> Result<(), CacheError> {
+            panic!("held local SQL became available")
+        }),
+        Err(CacheError::Busy)
+    );
+    assert!(
+        wall_bound.expired(),
+        "local contention returned before its bound"
+    );
+    drop(owner);
+    assert_eq!(
+        cache.try_sql(
+            Deadline::start(Duration::from_secs(5), None),
+            |connection| {
+                let busy: i64 = connection
+                    .query_row("PRAGMA busy_timeout", [], |row| row.get(0))
+                    .unwrap();
+                assert_eq!(busy, 0, "external SQLite contention must remain immediate");
+                Ok(42)
+            }
+        ),
+        Ok(42)
+    );
+}
+
+#[test]
+fn discretionary_read_refuses_expired_or_cancelled_local_wait() {
+    let directory = tempfile::tempdir().unwrap();
+    let cache = Cache::open_with_owners(&directory.path().join("cache.sqlite"), &[]).unwrap();
+    let _owner = cache.0.lock().unwrap();
+    let (fetch, cancellation) = crate::Fetch::open(crate::FetchConfig::default())
+        .unwrap()
+        .cancellable()
+        .unwrap();
+    let cancelled = fetch.deadline(Duration::from_secs(5));
+    cancellation.cancel();
+    for deadline in [Deadline::start(Duration::ZERO, None), cancelled] {
+        assert_eq!(
+            cache.try_sql(deadline, |_| -> Result<(), CacheError> {
+                panic!("expired local wait reached SQL")
+            }),
+            Err(CacheError::Busy)
+        );
+    }
+}
+
+#[test]
 fn replay_admission_preserves_rows_under_an_external_writer() {
     let directory = tempfile::tempdir().unwrap();
     let path = directory.path().join("cache.sqlite");

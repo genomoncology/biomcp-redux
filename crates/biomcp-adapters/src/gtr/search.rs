@@ -1,5 +1,5 @@
 use super::{
-    bad, bundle, map,
+    bundle, map,
     raw::{Native, Object, Relation},
 };
 use biodata::GtrTestId;
@@ -70,7 +70,7 @@ pub fn search(leg: &Leg<'_>, query: &DiagnosticSearch) -> Result<Search, Request
     let keys: Vec<_> = ids.iter().map(String::as_str).collect();
     let (versions, other) = bundle::read(leg, Find::AnyExact(KeyKind::Id, &keys))?;
     if other.content_revision != info.content_revision {
-        return Err(bad());
+        return Err(biomcp_fetch::bad_reply(biomcp_types::Source::Gtr, None));
     }
     let mut by_id: HashMap<GtrTestId, Vec<_>> = HashMap::new();
     for row in versions {

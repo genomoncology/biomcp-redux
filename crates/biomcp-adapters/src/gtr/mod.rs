@@ -27,15 +27,6 @@ pub static SPEC: SourceSpec = SourceSpec {
     deadline: Duration::from_secs(15),
 };
 
-fn bad() -> biomcp_fetch::RequestError {
-    biomcp_fetch::SourceError {
-        source: Source::Gtr,
-        reason: biomcp_types::Reason::BadReply,
-        status: None,
-        retry_after: None,
-    }
-    .into()
-}
 fn revision(
     expected: Option<&biodata::Text>,
     info: &biomcp_fetch::BundleInfo,

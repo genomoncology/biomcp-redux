@@ -120,15 +120,6 @@ pub fn files(
             .fetched
             .map(u64::try_from)
             .transpose()
-            .map_err(|_| bad())?,
+            .map_err(|_| biomcp_fetch::bad_reply(biomcp_types::Source::Cbioportal, None))?,
     })
-}
-fn bad() -> RequestError {
-    biomcp_fetch::SourceError {
-        source: biomcp_types::Source::Cbioportal,
-        reason: biomcp_types::Reason::BadReply,
-        status: None,
-        retry_after: None,
-    }
-    .into()
 }

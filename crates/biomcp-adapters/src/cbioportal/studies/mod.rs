@@ -18,15 +18,7 @@ const CATALOG: Bundle<raw::CatalogRow> = Bundle {
     fresh: Freshness::Days(7),
     row: PhantomData,
 };
-fn bad() -> RequestError {
-    biomcp_fetch::SourceError {
-        source: biomcp_types::Source::Cbioportal,
-        reason: biomcp_types::Reason::BadReply,
-        status: None,
-        retry_after: None,
-    }
-    .into()
-}
+
 /// Acquire a native catalog while preserving the last good catalog on refusal.
 /// The second value reports stale serving from the retained active catalog.
 pub fn sync(fetch: &Fetch) -> Result<(crate::Mapped<SyncResult>, bool), RequestError> {
@@ -98,7 +90,10 @@ pub fn search(
     let items = rows
         .into_iter()
         .filter(|r| r.matches(query))
-        .map(|r| r.header().map_err(|_| bad()))
+        .map(|r| {
+            r.header()
+                .map_err(|_| biomcp_fetch::bad_reply(biomcp_types::Source::Cbioportal, None))
+        })
         .collect::<Result<Vec<_>, _>>()?;
     let mut problems = Vec::new();
     let mut refusals = crate::Refusal::None;
@@ -127,7 +122,10 @@ pub fn card(
     let (rows, info) = leg.stored_rows(&CATALOG, Find::Exact(KeyKind::Id, id.as_str()))?;
     let row = rows
         .into_iter()
-        .map(|r| r.card().map_err(|_| bad()))
+        .map(|r| {
+            r.card()
+                .map_err(|_| biomcp_fetch::bad_reply(biomcp_types::Source::Cbioportal, None))
+        })
         .collect::<Result<Vec<_>, _>>()?
         .into_iter()
         .find(|v| v.value.header.study_id == *id);
@@ -153,13 +151,13 @@ pub fn snapshot(info: &BundleInfo) -> Result<StudySnapshot, RequestError> {
         revision: info
             .content_revision
             .as_deref()
-            .ok_or_else(bad)?
+            .ok_or_else(|| biomcp_fetch::bad_reply(biomcp_types::Source::Cbioportal, None))?
             .parse()
-            .map_err(|_| bad())?,
+            .map_err(|_| biomcp_fetch::bad_reply(biomcp_types::Source::Cbioportal, None))?,
         acquired: info
             .retrieved_at
             .and_then(|v| u64::try_from(v).ok())
-            .ok_or_else(bad)?,
+            .ok_or_else(|| biomcp_fetch::bad_reply(biomcp_types::Source::Cbioportal, None))?,
     })
 }
 

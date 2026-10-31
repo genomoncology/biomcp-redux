@@ -1,4 +1,4 @@
-use super::{bad, raw};
+use super::raw;
 use biodata::{
     Attribution, Bound, ProteinDomainFragment, ProteinDomainLocation, ProteinDomainMatch,
     ProteinMemberSignature, UncertainSpan0, UniProtIsoform,
@@ -56,17 +56,22 @@ pub(super) fn rows(
                 locations,
                 member_signatures: signatures.clone().into(),
                 attribution: Attribution {
-                    source: crate::mapped::text("interpro").map_err(|_| bad())?,
+                    source: crate::mapped::text("interpro").map_err(|_| {
+                        biomcp_fetch::bad_reply(biomcp_types::Source::InterPro, Some(200))
+                    })?,
                     record: Some(
-                        crate::mapped::text(entry.metadata.accession.as_str())
-                            .map_err(|_| bad())?,
+                        crate::mapped::text(entry.metadata.accession.as_str()).map_err(|_| {
+                            biomcp_fetch::bad_reply(biomcp_types::Source::InterPro, Some(200))
+                        })?,
                     ),
                     url: Some(
                         crate::mapped::text(&format!(
                             "https://www.ebi.ac.uk/interpro/entry/InterPro/{}",
                             entry.metadata.accession
                         ))
-                        .map_err(|_| bad())?,
+                        .map_err(|_| {
+                            biomcp_fetch::bad_reply(biomcp_types::Source::InterPro, Some(200))
+                        })?,
                     ),
                     version: None,
                     release: None,

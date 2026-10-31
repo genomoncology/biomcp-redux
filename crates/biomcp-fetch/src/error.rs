@@ -215,3 +215,14 @@ impl From<std::io::Error> for RecordError {
         Self::Io(error.kind())
     }
 }
+
+/// Construct a rejected source reply while retaining its known HTTP status.
+pub fn bad_reply(source: Source, status: Option<u16>) -> RequestError {
+    SourceError {
+        source,
+        reason: Reason::BadReply,
+        status,
+        retry_after: None,
+    }
+    .into()
+}

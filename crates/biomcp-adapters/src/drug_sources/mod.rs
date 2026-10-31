@@ -49,8 +49,7 @@ pub(crate) const DDINTER_TERMS: Terms = Terms {
     usage: Use::Noncommercial,
 };
 
-mod date;
-pub use date::received_date;
+pub use crate::received_date;
 
 /// Preserve an adapter header as a neutral source-qualified identity.
 pub fn identity(
