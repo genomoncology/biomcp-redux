@@ -1,4 +1,5 @@
 //! The process argument and settings boundary.
+pub(crate) mod credentials;
 pub(crate) mod key_file;
 use crate::grammar::Globals;
 use biomcp_fetch::{Fetch, FetchConfig, Mode, ReplayCache, Secret, SecretName, Secrets};

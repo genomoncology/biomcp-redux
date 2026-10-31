@@ -5,6 +5,8 @@ use std::{fs, path::Path};
 // Only key set/remove may reread configuration under their existing write lock.
 // This persistence owner preserves concurrent edits and the user's JSON field order.
 const KEY_WRITE_OWNER: &str = "config/key_file.rs";
+// MCP alone refreshes credentials through the existing reader, preserving live key updates.
+const CREDENTIAL_OWNER: &str = "config/credentials.rs";
 
 pub(super) fn check(root: &Path) -> Check {
     let source = root.join("crates/biomcp/src");
@@ -39,6 +41,15 @@ fn placement(path: &str, text: &str) -> Check {
                 .is_none_or(|word| word != "mod")
         {
             return Err(format!("{path}: only key writes may use {KEY_WRITE_OWNER}").into());
+        }
+        if name == "credentials"
+            && path != "command/transport.rs"
+            && path != CREDENTIAL_OWNER
+            && input
+                .get(index.wrapping_sub(1))
+                .is_none_or(|word| word != "mod")
+        {
+            return Err(format!("{path}: only MCP transport may refresh credentials").into());
         }
         match name.as_str() {
             "use" => import = true,
@@ -77,7 +88,7 @@ fn placement(path: &str, text: &str) -> Check {
         if !(call || reference || import) {
             continue;
         }
-        if !setup {
+        if !setup && !(path == CREDENTIAL_OWNER && name == "read_file") {
             return Err(format!("{path}: {name} belongs in main or MCP setup").into());
         }
     }
@@ -129,6 +140,8 @@ pub(super) fn reject_config_reads_and_tree_builds_in_commands() -> Check {
         "use crate::grammar as syntax; use syntax::*; let build = root; build()?;",
         "use crate::config::file::*; let load = read_file; load(None)?;",
         "#[cfg(test)]\nmod tests {} fn command() { crate::grammar::root(); }",
+        "crate::config::credentials::refresh(globals)?;",
+        "use crate::config::credentials as keys; keys::refresh(globals)?;",
         "crate::config::key_file::read(path)?;",
         "use crate::config::key_file as persistence; persistence::read(path)?;",
     ] {
@@ -141,6 +154,11 @@ pub(super) fn reject_config_reads_and_tree_builds_in_commands() -> Check {
     placement(
         "mcp/http/call.rs",
         "#[cfg(test)] mod tests { fn fixture() { crate::grammar::root(); } }",
+    )?;
+    placement(CREDENTIAL_OWNER, "super::file::read_file(path)?;")?;
+    placement(
+        "command/transport.rs",
+        "crate::config::credentials::refresh(globals)?;",
     )?;
     placement(
         "keys.rs",

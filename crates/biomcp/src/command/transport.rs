@@ -38,7 +38,12 @@ fn snapshot(
     } else {
         fetch
     };
-    let secrets = match crate::config::secrets(settings) {
+    let credentials = if context.is_some() {
+        crate::config::credentials::refresh(globals)
+    } else {
+        crate::config::secrets(settings)
+    };
+    let secrets = match credentials {
         Ok(secrets) => secrets,
         Err(error) => return Ok(Err(error.into())),
     };
