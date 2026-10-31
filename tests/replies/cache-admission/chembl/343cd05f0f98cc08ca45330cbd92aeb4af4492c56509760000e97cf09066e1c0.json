@@ -15,7 +15,8 @@
             {
               "mec_id": 0,
               "molecule_chembl_id": "CHEMBL1201585",
-              "mechanism_of_action": {}
+              "mechanism_of_action": {},
+              "target_chembl_id": "CHEMBL1824"
             }
           ],
           "page_meta": {
