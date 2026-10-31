@@ -20,7 +20,7 @@
       "max_bytes": 1202,
       "expect": {
         "/schema": "biomcp.variant-page/16",
-        "/status": "partial",
+        "/status": "complete",
         "/query": {
           "equals": {
             "gene": "CHEK2",
@@ -82,7 +82,17 @@
             "total": 1
           }
         },
-        "/sources/0/source": "myvariant"
+        "/sources/0/source": "myvariant",
+        "/problems": {
+          "equals": [
+            {
+              "source": "myvariant",
+              "record": "chr22:g.29121326T>C",
+              "field": "representations.build",
+              "code": "value.unknown"
+            }
+          ]
+        }
       }
     }
   ]

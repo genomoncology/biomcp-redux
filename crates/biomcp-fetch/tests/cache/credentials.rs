@@ -126,3 +126,48 @@ fn keyed_cache_refuses_missing_credentials_and_never_masks_rejected_credentials(
         assert_eq!(source(failure).status, Some(status));
     }
 }
+
+#[test]
+fn hosted_public_reply_cache_ignores_caller_credentials() {
+    let directory = tempfile::tempdir().unwrap();
+    let path = directory.path().join("cache.sqlite");
+    let server = Server::new();
+    let spec = spec(
+        &server,
+        KeyUse::Optional(Credential {
+            tier: biomcp_types::KeyTier::Fallback,
+            secret: SecretName::NcbiApiKey,
+            place: KeyPlace::Query("api_key"),
+        }),
+    );
+    let endpoint = spec.get("/answer").fresh(Freshness::Hours(1));
+    let shared = Fetch::open(config(&path)).unwrap();
+    for (index, key) in [Some("synthetic-public-a"), Some("synthetic-public-b"), None]
+        .into_iter()
+        .enumerate()
+    {
+        let mut secrets = biomcp_fetch::Secrets::default();
+        if let Some(key) = key {
+            secrets.insert(SecretName::NcbiApiKey, Secret::new(key));
+        }
+        secrets.insert(
+            SecretName::OncokbApiKey,
+            Secret::new(format!("synthetic-unrelated-{index}")),
+        );
+        let fetch = shared.with_hosted_secrets(secrets);
+        let reply = if index == 0 {
+            exchange(&server, 200, r#"{"answer":true}"#, || {
+                get(&fetch, spec, &endpoint, &[])
+            })
+        } else {
+            get(&fetch, spec, &endpoint, &[])
+        };
+        assert!(reply.unwrap().answer);
+    }
+    assert!(server.requests.try_recv().is_err());
+    let count: u32 = Connection::open(path)
+        .unwrap()
+        .query_row("SELECT count(*) FROM reply", [], |r| r.get(0))
+        .unwrap();
+    assert_eq!(count, 1);
+}
