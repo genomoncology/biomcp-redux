@@ -172,7 +172,7 @@ pub(super) fn retain<T>(
     section
 }
 
-fn selected(query: &VariantGet) -> impl Iterator<Item = VariantSection> + '_ {
+pub(super) fn selected(query: &VariantGet) -> impl Iterator<Item = VariantSection> + '_ {
     [
         VariantSection::Clinvar,
         VariantSection::Erepo,

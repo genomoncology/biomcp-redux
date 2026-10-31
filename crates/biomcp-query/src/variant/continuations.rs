@@ -20,7 +20,7 @@ pub(super) fn collect(candidates: &[VariantHeader], next: &mut Vec<crate::next::
                 push(
                     next,
                     StepKind::Page,
-                    source,
+                    &[source],
                     Request::VariantAssertions(query.clone()),
                 );
             }
@@ -31,7 +31,7 @@ pub(super) fn collect(candidates: &[VariantHeader], next: &mut Vec<crate::next::
             push(
                 next,
                 StepKind::Page,
-                Source::Gwas,
+                &[super::source(query).source, Source::Gwas],
                 Request::GetVariant(query.clone()),
             );
         }
@@ -49,7 +49,7 @@ pub(super) fn collect(candidates: &[VariantHeader], next: &mut Vec<crate::next::
             push(
                 next,
                 StepKind::Page,
-                source,
+                &[super::source(query).source, source],
                 Request::GetVariant(query.clone()),
             );
         }
@@ -62,7 +62,7 @@ pub(super) fn collect(candidates: &[VariantHeader], next: &mut Vec<crate::next::
                     push(
                         next,
                         StepKind::Page,
-                        Source::Civic,
+                        &[super::source(query).source, Source::Civic],
                         Request::GetVariant(query.clone()),
                     );
                 }
@@ -77,7 +77,7 @@ pub(super) fn collect(candidates: &[VariantHeader], next: &mut Vec<crate::next::
                 push(
                     next,
                     StepKind::Page,
-                    Source::AlphaGenome,
+                    &[super::source(query).source, Source::AlphaGenome],
                     Request::GetVariant(query.clone()),
                 );
             }
@@ -90,13 +90,13 @@ fn data<T>(section: Option<&Section<T>>) -> Option<&T> {
         _ => None,
     }
 }
-fn push(next: &mut Vec<crate::next::Step>, kind: StepKind, source: Source, request: Request) {
+fn push(next: &mut Vec<crate::next::Step>, kind: StepKind, sources: &[Source], request: Request) {
     let action = Action::Run {
         request,
         fresh: false,
     };
     if !next.iter().any(|step| step.1 == action) {
-        next.push(crate::next::Step::new(kind, &[source], action));
+        next.push(crate::next::Step::new(kind, sources, action));
     }
 }
 
@@ -128,8 +128,8 @@ pub(super) fn next(
             })
     {
         for row in candidates {
-            if let Some((request, source)) = candidate_request(query, resolution, row, problems) {
-                push(&mut next, StepKind::Disambiguate, source, request);
+            if let Some((request, sources)) = candidate_request(query, resolution, row, problems) {
+                push(&mut next, StepKind::Disambiguate, &sources, request);
             }
         }
     }
@@ -148,7 +148,7 @@ pub(super) fn next(
     if query.sections().is_empty() && !candidates.is_empty() {
         next.push(crate::next::Step::new(
             StepKind::Section,
-            &[Source::ClinVar],
+            &[super::source(query).source, Source::ClinVar],
             Action::Run {
                 request: Request::GetVariant(
                     query
@@ -165,7 +165,7 @@ pub(super) fn next(
             push(
                 &mut next,
                 StepKind::Pivot,
-                Source::PubMed,
+                &[Source::PubMed],
                 Request::SearchArticle(biomcp_types::ArticleSearch::for_gene(
                     biomcp_types::GeneInput::Text(gene.label().clone()),
                 )),
@@ -180,18 +180,23 @@ fn candidate_request(
     resolution: VariantResolution,
     row: &VariantHeader,
     problems: &mut Vec<biomcp_types::Problem>,
-) -> Option<(Request, Source)> {
+) -> Option<(Request, Vec<Source>)> {
     if super::population_identity::requested(query) {
         let (request, source) = super::population_identity::choice(row, problems)?;
-        return Some((
+        let mut sources = vec![source];
+        let request =
             match request {
                 Request::GetVariant(q) if resolution == VariantResolution::Candidates => {
-                    Request::GetVariant(q.with_sections(query.sections().into()))
+                    let q = q.with_sections(query.sections().into());
+                    // Prediction, conservation and COSMIC use the MyVariant component path.
+                    sources.extend(super::sections::selected(&q).map(|section| {
+                        super::sections::source(section).unwrap_or(Source::MyVariant)
+                    }));
+                    Request::GetVariant(q)
                 }
                 request => request,
-            },
-            source,
-        ));
+            };
+        return Some((request, sources));
     }
     let input = crate::next::checked(row.record.id.as_str().parse(), row.source, problems)?;
     let query = crate::next::checked(
@@ -208,5 +213,5 @@ fn candidate_request(
         problems,
     )?;
     let source = super::source(&query).source;
-    Some((Request::GetVariant(query), source))
+    Some((Request::GetVariant(query), vec![source]))
 }

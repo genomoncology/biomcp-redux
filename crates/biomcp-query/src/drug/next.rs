@@ -56,7 +56,10 @@ pub(super) fn civic(body: &mut DrugCivic, fresh: bool, out: &mut Outcome) {
             {
                 let action = crate::next::Step::new(
                     StepKind::Disambiguate,
-                    &[biomcp_types::Source::Oncokb],
+                    &[
+                        crate::variant::source(&lookup.query).source,
+                        biomcp_types::Source::Oncokb,
+                    ],
                     Action::Run {
                         request: Request::GetVariant(lookup.query.clone()),
                         fresh,

@@ -140,7 +140,7 @@ fn choices(
         .iter()
         .filter_map(|row| {
             let (request, source) = super::population_identity::choice(row, problems)?;
-            let (request, source) = match request {
+            let (request, sources) = match request {
                 Request::GetVariant(identity) if candidates.len() > 1 => {
                     let query = crate::next::checked(
                         query.with_identity(identity.input().clone(), identity.build()),
@@ -149,14 +149,14 @@ fn choices(
                     )?;
                     (
                         Request::VariantPopulation(query),
-                        biomcp_types::Source::Gnomad,
+                        vec![source, biomcp_types::Source::Gnomad],
                     )
                 }
-                request => (request, source),
+                request => (request, vec![source]),
             };
             Some(crate::next::Step::new(
                 StepKind::Disambiguate,
-                &[source],
+                &sources,
                 Action::Run {
                     request,
                     fresh: false,
