@@ -296,6 +296,7 @@ fn credentials_are_inserted_only_on_wire_and_capture_metadata_is_checked_before_
         let spec = server.spec(
             spec(&server).quota,
             KeyUse::Required(Credential {
+                tier: biomcp_types::KeyTier::Fallback,
                 secret: SecretName::NcbiApiKey,
                 place,
             }),

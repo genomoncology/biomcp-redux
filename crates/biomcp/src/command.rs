@@ -7,6 +7,7 @@ mod diagnostic;
 mod disease;
 mod drug;
 mod drug_label;
+mod hosted_keys;
 pub(crate) mod local;
 mod maintenance;
 mod mcp_policy;
@@ -114,7 +115,8 @@ fn dispatch_using(
         Ok(fetch) => fetch,
         Err(error) => return local::startup(error),
     };
-    execute(&fetch, action, &parsed.globals, allow_save)
+    let outcome = execute(&fetch, action, &parsed.globals, allow_save)?;
+    hosted_keys::outcome(outcome, parsed.globals.hosted)
 }
 
 pub(crate) fn execute(

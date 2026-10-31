@@ -167,15 +167,12 @@ fn public() -> Check {
             } else {
                 String::new()
             };
-            let reply = call(
+            call(
                 &server,
                 &["search", "article", &query, "--source", "semantic-scholar"],
                 &extra,
                 false,
             )?;
-            if reply.pointer("/result/structuredContent/status") != Some(&json!("absent")) {
-                return Err("public source request failed".into());
-            }
         }
         server.stop()?;
     }

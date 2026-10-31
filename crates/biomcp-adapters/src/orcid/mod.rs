@@ -19,6 +19,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     },
     base: "https://pub.orcid.org/v3.0",
     key: KeyUse::Optional(Credential {
+        tier: biomcp_types::KeyTier::Fallback,
         secret: SecretName::OrcidAccessToken,
         place: KeyPlace::Bearer,
     }),

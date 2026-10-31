@@ -199,7 +199,25 @@ impl Service {
                         Some(revision),
                     );
                 };
-                match super::research::execute(&call, &self.globals, &self.fetch, true) {
+                let fetch = if self.globals.hosted {
+                    let keys = match request.source_keys() {
+                        Ok(keys) => keys,
+                        Err(_) => {
+                            return (
+                                400,
+                                Some(json!({"error":"Invalid source key headers"})),
+                                Some(revision),
+                            );
+                        }
+                    };
+                    self.fetch
+                        .as_ref()
+                        .map(|fetch| Arc::new(fetch.with_request_secrets(keys)))
+                        .map_err(Clone::clone)
+                } else {
+                    self.fetch.clone()
+                };
+                match super::research::execute(&call, &self.globals, &fetch, true) {
                     Ok(outcome) => super::protocol::tool_result(id, &outcome, modern),
                     Err(_) => super::protocol::error(id, -32603, "Internal error"),
                 }

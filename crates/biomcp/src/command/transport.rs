@@ -12,6 +12,20 @@ pub(super) fn fetch(
                 Ok(secrets) => secrets,
                 Err(error) => return Ok(Err(error.into())),
             };
+            let secrets = if globals.hosted {
+                fetch.hosted_secrets(
+                    secrets,
+                    biomcp_fetch::SecretName::ALL
+                        .iter()
+                        .copied()
+                        .filter(|&name| {
+                            biomcp_adapters::registry::key_tier(name)
+                                == biomcp_types::KeyTier::NoFallback
+                        }),
+                )
+            } else {
+                secrets
+            };
             let fetch = if globals.offline {
                 fetch.offline()
             } else {
