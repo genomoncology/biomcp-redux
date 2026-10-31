@@ -9,10 +9,10 @@ impl Reply for ResponseMeta {
         self.encode(query, body)
     }
     fn usage(self, error: UsageError) -> Self::Output {
-        super::usage_envelope(error)
+        super::usage_envelope(error, self.encoding)
     }
     fn pool(self, mismatch: bool) -> Self::Output {
-        super::pool_error(mismatch, self.next)
+        super::pool_error(mismatch, self.next, self.encoding)
     }
 
     fn organization_page(

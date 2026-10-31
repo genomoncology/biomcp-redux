@@ -49,22 +49,23 @@ fn main() -> ExitCode {
             {
                 Ok(()) => ExitCode::SUCCESS,
                 Err(mcp::http::StartError::Configuration(error)) => {
-                    match command::local::startup(error) {
-                        Ok(outcome) => exit::finish(
-                            output::command(&outcome, &root, &settings, &args),
-                            outcome.status,
-                        ),
+                    match command::local::startup(
+                        error,
+                        command::Encoding::cli(&root, &settings, &args),
+                    ) {
+                        Ok(outcome) => exit::finish(output::command(&outcome), outcome.status),
                         Err(error) => exit::failure(error),
                     }
                 }
                 Err(mcp::http::StartError::AllowHost) => exit::finish(
-                    command::encode(
-                        biomcp_types::ErrorEnvelope::from(biomcp_types::UsageError::argument(
-                            "--allow-host".into(),
-                        )),
-                        exit::Status::Usage,
-                    )
-                    .and_then(|outcome| output::bytes(&outcome.cli_bytes)),
+                    command::Encoding::Json
+                        .encode(
+                            biomcp_types::ErrorEnvelope::from(biomcp_types::UsageError::argument(
+                                "--allow-host".into(),
+                            )),
+                            exit::Status::Usage,
+                        )
+                        .and_then(|outcome| output::command(&outcome)),
                     exit::Status::Usage,
                 ),
                 Err(mcp::http::StartError::Usage) => ExitCode::from(exit::Status::Usage.code()),
@@ -78,10 +79,7 @@ fn main() -> ExitCode {
         );
     }
     match command::dispatch(&root, &settings, &args) {
-        Ok(outcome) => exit::finish(
-            output::command(&outcome, &root, &settings, &args),
-            outcome.status,
-        ),
+        Ok(outcome) => exit::finish(output::command(&outcome), outcome.status),
         Err(error) => exit::failure(error),
     }
 }

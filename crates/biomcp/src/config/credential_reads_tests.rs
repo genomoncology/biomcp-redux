@@ -46,9 +46,12 @@ fn run(fetch: &Fetch, words: &[&str]) -> serde_json::Value {
         parsed.action.unwrap(),
         &parsed.globals,
         false,
+        crate::command::Encoding::Mcp,
     )
     .unwrap()
-    .value
+    .value()
+    .unwrap()
+    .clone()
 }
 
 #[test]

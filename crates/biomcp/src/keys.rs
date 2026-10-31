@@ -66,9 +66,10 @@ pub(crate) fn run(
     command: Command,
     globals: &crate::grammar::Globals,
     settings: &crate::config::Settings,
+    encoding: crate::command::Encoding,
 ) -> io::Result<crate::command::Outcome> {
     match run_inner(command, globals, settings) {
-        Ok(value) => crate::command::encode(
+        Ok(value) => encoding.encode(
             biomcp_types::Envelope::new(
                 biomcp_types::Status::Complete,
                 biomcp_types::EmptyQuery {},
@@ -76,21 +77,21 @@ pub(crate) fn run(
             ),
             crate::exit::Status::Success,
         ),
-        Err(Failure::Usage) => crate::command::encode(
+        Err(Failure::Usage) => encoding.encode(
             biomcp_types::ErrorEnvelope::from(biomcp_types::UsageError::arguments()),
             crate::exit::Status::Usage,
         ),
-        Err(Failure::Configuration(field)) => crate::command::encode(
+        Err(Failure::Configuration(field)) => encoding.encode(
             biomcp_types::ErrorEnvelope::configuration(field),
             crate::exit::Status::Local,
         ),
-        Err(Failure::Replace) => crate::command::encode(
+        Err(Failure::Replace) => encoding.encode(
             biomcp_types::ErrorEnvelope::from(biomcp_types::UsageError::argument(
                 "--replace".into(),
             )),
             crate::exit::Status::Usage,
         ),
-        Err(Failure::Local) => crate::command::encode(
+        Err(Failure::Local) => encoding.encode(
             biomcp_types::ErrorEnvelope::local(),
             crate::exit::Status::Local,
         ),

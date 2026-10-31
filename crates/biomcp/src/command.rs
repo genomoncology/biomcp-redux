@@ -1,7 +1,9 @@
 //! Shared command interpretation and typed outcomes for CLI and MCP.
 mod context;
+mod encoding;
 mod reply;
 pub(crate) use context::Context;
+pub(crate) use encoding::{Encoding, Outcome};
 mod hosted_keys;
 pub(crate) mod local;
 mod maintenance;
@@ -12,20 +14,21 @@ mod transport;
 
 use biomcp_query::{Action, Bundle};
 use biomcp_types::{Envelope, ErrorEnvelope, Request, Status, UsageArguments, UsageError};
-use serde_json::Value;
 use std::{ffi::OsString, io};
 
-pub(crate) struct Outcome {
-    pub(crate) value: Value,
-    pub(crate) status: crate::exit::Status,
-    pub(crate) cli_bytes: Vec<u8>,
-}
 pub(crate) fn dispatch(
     root: &clap::Command,
     settings: &crate::config::Settings,
     args: &[OsString],
 ) -> io::Result<Outcome> {
-    dispatch_using(root, settings, args, true, None)
+    dispatch_using(
+        root,
+        settings,
+        args,
+        true,
+        None,
+        Encoding::cli(root, settings, args),
+    )
 }
 fn dispatch_using(
     root: &clap::Command,
@@ -33,11 +36,12 @@ fn dispatch_using(
     args: &[OsString],
     allow_save: bool,
     context: Option<Context<'_>>,
+    encoding: Encoding,
 ) -> io::Result<Outcome> {
     if let [command] = args
         && command == "schema"
     {
-        return encode(
+        return encoding.encode(
             Envelope::new(
                 Status::Complete,
                 biomcp_types::EmptyQuery {},
@@ -50,37 +54,33 @@ fn dispatch_using(
         && command == "schema"
         && let Some(text) = name.to_str().and_then(crate::schema::find)
     {
-        return Ok(Outcome {
-            value: serde_json::from_str(text)?,
-            status: crate::exit::Status::Success,
-            cli_bytes: text.as_bytes().to_vec(),
-        });
+        return encoding.schema(text);
     }
     if let Some(message) = crate::retired::message(root, args) {
-        return usage_envelope(UsageError::Retired(message));
+        return usage_envelope(UsageError::Retired(message), encoding);
     }
     let mut parsed = match crate::grammar::parse(root, args) {
         Ok(parsed) => parsed,
-        Err(cause) => return parse_refusal(root, args, cause),
+        Err(cause) => return parse_refusal(root, args, cause, encoding),
     };
     if let Some(context) = context
         && parsed.globals.inherit(context.globals).is_err()
     {
-        return usage(root, args);
+        return usage(root, args, encoding);
     }
     if context.is_some()
         && let Some(error) = mcp_policy::refusal(&parsed, !allow_save)
     {
-        return usage_envelope(error);
+        return usage_envelope(error, encoding);
     }
     if let Some(command) = parsed.key {
-        return crate::keys::run(command, &parsed.globals, settings);
+        return crate::keys::run(command, &parsed.globals, settings, encoding);
     }
     let Some(action) = parsed.action else {
-        return usage(root, args);
+        return usage(root, args, encoding);
     };
     if let Some(path) = parsed.help {
-        return encode(
+        return encoding.encode(
             Envelope::new(
                 Status::Complete,
                 biomcp_types::HelpQuery {
@@ -92,18 +92,26 @@ fn dispatch_using(
         );
     }
     if let Action::KeyHelp(source) = action {
-        return key_help(source);
+        return key_help(source, encoding);
     }
     let action = match action.prepare() {
         Ok(action) => action,
-        Err(error) => return usage_envelope(error),
+        Err(error) => return usage_envelope(error, encoding),
     };
     let fetch = match transport::fetch(&parsed.globals, settings, context)? {
         Ok(fetch) => fetch,
-        Err(error) => return local::startup(error),
+        Err(error) => return local::startup(error, encoding),
     };
-    let outcome = execute(root, settings, &fetch, action, &parsed.globals, allow_save)?;
-    hosted_keys::outcome(outcome, parsed.globals.hosted)
+    let outcome = execute(
+        root,
+        settings,
+        &fetch,
+        action,
+        &parsed.globals,
+        allow_save,
+        encoding,
+    )?;
+    hosted_keys::outcome(outcome, parsed.globals.hosted, encoding)
 }
 
 pub(crate) fn execute(
@@ -113,6 +121,7 @@ pub(crate) fn execute(
     action: Action,
     globals: &crate::grammar::Globals,
     allow_save: bool,
+    encoding: Encoding,
 ) -> io::Result<Outcome> {
     match action {
         Action::PubmedSearch(q) => execute(
@@ -125,6 +134,7 @@ pub(crate) fn execute(
             },
             globals,
             allow_save,
+            encoding,
         ),
         Action::AuthorPapers(q) => execute(
             root,
@@ -136,10 +146,11 @@ pub(crate) fn execute(
             },
             globals,
             allow_save,
+            encoding,
         ),
         Action::QueryHelp(request) => {
             let path = crate::spell::command_words(&request);
-            encode(
+            encoding.encode(
                 Envelope::new(
                     Status::Complete,
                     biomcp_types::HelpQuery {
@@ -152,7 +163,7 @@ pub(crate) fn execute(
         }
         Action::NetworkHelp(setting) => {
             let path = vec!["network".into(), setting.to_string()];
-            encode(
+            encoding.encode(
                 Envelope::new(
                     Status::Complete,
                     biomcp_types::HelpQuery {
@@ -163,17 +174,18 @@ pub(crate) fn execute(
                 crate::exit::Status::Success,
             )
         }
-        Action::StoreClean => maintenance::clean(fetch),
-        Action::Health => maintenance::health(fetch),
-        Action::KeyHelp(source) => key_help(source),
-        Action::Sync { bundle } => sync::run(fetch, bundle),
+        Action::StoreClean => maintenance::clean(fetch, encoding),
+        Action::Health => maintenance::health(fetch, encoding),
+        Action::KeyHelp(source) => key_help(source, encoding),
+        Action::Sync { bundle } => sync::run(fetch, bundle, encoding),
         Action::Run { request, fresh } => {
             let result = run_request(fetch, &request, fresh, settings, allow_save)?;
-            response(fetch, request, result, fresh, globals)
+            response(fetch, request, result, fresh, globals, encoding)
         }
     }
 }
 struct ResponseMeta {
+    encoding: Encoding,
     status: Status,
     body_visible: bool,
     local_error: Option<biomcp_types::CacheProblem>,
@@ -199,7 +211,7 @@ impl ResponseMeta {
         envelope.next = self.next;
         envelope.page = self.page;
         envelope.local_error = self.local_error;
-        encode(envelope, self.exit)
+        self.encoding.encode(envelope, self.exit)
     }
 }
 fn response(
@@ -208,12 +220,14 @@ fn response(
     mut result: biomcp_query::Outcome,
     fresh: bool,
     globals: &crate::grammar::Globals,
+    encoding: Encoding,
 ) -> io::Result<Outcome> {
     result
         .finish(fetch, &request, fresh)
         .map_err(io::Error::other)?;
     let steps = steps::next(&result, globals)?;
     let meta = ResponseMeta {
+        encoding,
         exit: response_status(&result),
         body_visible: result.body_visible(),
         local_error: local::kind(result.local),
@@ -237,10 +251,7 @@ fn tool_using(args: &[OsString], context: Context<'_>, allow_save: bool) -> io::
             .iter()
             .any(|flag| arg == *flag || arg.starts_with(&format!("{flag}=")))
     }) {
-        return usage_envelope(UsageError::arguments());
-    }
-    if args.first().is_some_and(|arg| arg == "schema") {
-        return dispatch(context.root, context.settings, args);
+        return usage_envelope(UsageError::arguments(), Encoding::Mcp);
     }
     dispatch_using(
         context.root,
@@ -248,32 +259,42 @@ fn tool_using(args: &[OsString], context: Context<'_>, allow_save: bool) -> io::
         args,
         allow_save,
         Some(context),
+        Encoding::Mcp,
     )
 }
-fn usage(root: &clap::Command, args: &[OsString]) -> io::Result<Outcome> {
-    parse_refusal(root, args, crate::grammar::ParseInvalid::default())
+fn usage(root: &clap::Command, args: &[OsString], encoding: Encoding) -> io::Result<Outcome> {
+    parse_refusal(
+        root,
+        args,
+        crate::grammar::ParseInvalid::default(),
+        encoding,
+    )
 }
 fn parse_refusal(
     root: &clap::Command,
     args: &[OsString],
     cause: crate::grammar::ParseInvalid,
+    encoding: Encoding,
 ) -> io::Result<Outcome> {
     if let Some(path) = crate::grammar::unknown_command(root, args) {
-        return usage_envelope(UsageError::UnknownCommand {
-            next: biomcp_types::Step {
-                kind: biomcp_types::StepKind::Configure,
-                args: std::iter::once("help".into())
-                    .chain(path.into_iter().map(String::into_boxed_str))
-                    .collect::<Vec<_>>()
-                    .into(),
+        return usage_envelope(
+            UsageError::UnknownCommand {
+                next: biomcp_types::Step {
+                    kind: biomcp_types::StepKind::Configure,
+                    args: std::iter::once("help".into())
+                        .chain(path.into_iter().map(String::into_boxed_str))
+                        .collect::<Vec<_>>()
+                        .into(),
+                },
             },
-        });
+            encoding,
+        );
     }
     let mut words = crate::grammar::command_words(root, args);
     let root = words.next();
     let mut arguments = match cause.usage {
         Some(UsageError::Arguments(arguments)) => arguments,
-        Some(error) => return usage_envelope(error),
+        Some(error) => return usage_envelope(error, encoding),
         None => {
             if cause.argument.is_none()
                 && !matches!(
@@ -286,7 +307,7 @@ fn parse_refusal(
                         .any(|(verb, _, _)| *verb == root)
                 })
             {
-                return usage_envelope(UsageError::Schema);
+                return usage_envelope(UsageError::Schema, encoding);
             }
             UsageArguments::default()
         }
@@ -312,10 +333,10 @@ fn parse_refusal(
     if let Some(option) = cause.argument {
         arguments.argument = Some(option.into());
     }
-    usage_envelope(UsageError::Arguments(arguments))
+    usage_envelope(UsageError::Arguments(arguments), encoding)
 }
 
-fn key_help(source: biomcp_types::Source) -> io::Result<Outcome> {
+fn key_help(source: biomcp_types::Source, encoding: Encoding) -> io::Result<Outcome> {
     let name = match source {
         biomcp_types::Source::SemanticScholar => biomcp_fetch::SecretName::SemanticScholarApiKey,
         biomcp_types::Source::PubMed => biomcp_fetch::SecretName::NcbiApiKey,
@@ -342,23 +363,10 @@ fn key_help(source: biomcp_types::Source) -> io::Result<Outcome> {
         config: biodata::Text::new(&format!("keys.{}", name.config())).map_err(io::Error::other)?,
         environment: biodata::Text::new(name.environment()).map_err(io::Error::other)?,
     };
-    encode(
+    encoding.encode(
         Envelope::new(Status::Complete, biomcp_types::EmptyQuery {}, Some(data)),
         crate::exit::Status::Success,
     )
-}
-pub(crate) fn encode(
-    value: impl serde::Serialize,
-    status: crate::exit::Status,
-) -> io::Result<Outcome> {
-    let value = serde_json::to_value(value)?;
-    let mut bytes = serde_json::to_vec(&value)?;
-    bytes.push(b'\n');
-    Ok(Outcome {
-        value,
-        status,
-        cli_bytes: bytes,
-    })
 }
 
 fn run_request(
@@ -388,23 +396,27 @@ fn run_request(
     })
 }
 
-fn pool_error(mismatch: bool, steps: Vec<biomcp_types::Step>) -> io::Result<Outcome> {
+fn pool_error(
+    mismatch: bool,
+    steps: Vec<biomcp_types::Step>,
+    encoding: Encoding,
+) -> io::Result<Outcome> {
     let restart = steps
         .into_iter()
         .next()
         .ok_or_else(|| io::Error::other("missing restart"))?;
     if mismatch {
-        usage_envelope(UsageError::PoolMismatch { restart })
+        usage_envelope(UsageError::PoolMismatch { restart }, encoding)
     } else {
-        encode(
+        encoding.encode(
             ErrorEnvelope::expired_pool(restart),
             crate::exit::Status::Expired,
         )
     }
 }
 
-fn usage_envelope(error: UsageError) -> io::Result<Outcome> {
-    encode(ErrorEnvelope::from(error), crate::exit::Status::Usage)
+fn usage_envelope(error: UsageError, encoding: Encoding) -> io::Result<Outcome> {
+    encoding.encode(ErrorEnvelope::from(error), crate::exit::Status::Usage)
 }
 
 fn response_status(result: &biomcp_query::Outcome) -> crate::exit::Status {

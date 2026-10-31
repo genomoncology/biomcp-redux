@@ -106,14 +106,19 @@ pub(super) fn execute(
     ) {
         return Ok(outcome);
     }
-    outcome.value = match &call.projection {
-        Projection::Cli => return Ok(outcome),
-        Projection::Search => search(context.root, call, outcome.value)?,
+    if matches!(&call.projection, Projection::Cli) {
+        return Ok(outcome);
+    }
+    let original = std::mem::take(outcome.value_mut()?);
+    let projected = match &call.projection {
+        Projection::Cli => original,
+        Projection::Search => search(context.root, call, original)?,
         Projection::Fetch(id) => {
             let entity = entity(context.root, call);
-            let hit = records::fetch(entity, id, &outcome.value);
+            let hit = records::fetch(entity, id, &original);
             let Some(hit) = hit else {
                 outcome.status = crate::exit::Status::Failed;
+                *outcome.value_mut()? = original;
                 return Ok(outcome);
             };
             serde_json::to_value(biomcp_types::ResearchFetch {
@@ -121,14 +126,15 @@ pub(super) fn execute(
                 title: hit.title,
                 url: hit.url,
                 text: biodata::Markdown::new(
-                    &String::from_utf8(crate::view::markdown(&outcome.value)?)
+                    &String::from_utf8(crate::view::markdown(&original)?)
                         .map_err(io::Error::other)?,
                 )
                 .map_err(io::Error::other)?,
-                metadata: outcome.value,
+                metadata: original,
             })?
         }
     };
+    *outcome.value_mut()? = projected;
     Ok(outcome)
 }
 fn search(root: &clap::Command, call: &Call, envelope: Value) -> io::Result<Value> {

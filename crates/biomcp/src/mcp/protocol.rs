@@ -79,7 +79,10 @@ pub(super) fn tool_result(id: Value, outcome: &crate::command::Outcome, modern: 
         outcome.status,
         crate::exit::Status::Success | crate::exit::Status::Absent
     );
-    let reply = result(id.clone(), content(outcome.value.clone(), failed), modern);
+    let Ok(value) = outcome.value() else {
+        return self::error(id, -32603, "Internal error");
+    };
+    let reply = result(id.clone(), content(value.clone(), failed), modern);
     if reply.get("result").is_some_and(within_cap) {
         return reply;
     }
