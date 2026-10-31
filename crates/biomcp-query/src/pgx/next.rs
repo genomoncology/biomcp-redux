@@ -2,7 +2,7 @@
 use crate::Outcome;
 use crate::next::run;
 use biomcp_types::{
-    PgxAnnotations, PgxGet, PgxPageInfo, PgxRecommendations, PgxSection, PgxSource, QueryBody,
+    PgxAnnotations, PgxGet, PgxPageInfo, PgxRecommendations, PgxSection, PgxSource, ReplyData,
     Request, SourceState, Status, StepKind,
 };
 fn gene_query(
@@ -38,7 +38,7 @@ pub(super) fn steps_with(
     let mut next = vec![];
     let association = matches!(
         &out.body,
-        QueryBody::PgxGuidelines(_) | QueryBody::PgxAnnotations(_)
+        ReplyData::PgxGuidelines { .. } | ReplyData::PgxAnnotations { .. }
     );
     if out.status() == Status::Failed {
         if !diplotype(request) && out.sources.iter().any(|s| s.state != SourceState::Skipped) {
@@ -79,7 +79,12 @@ fn success_steps(
 ) {
     let body = out.body.clone();
     match (request, &body) {
-        (Request::SearchPgx(q), QueryBody::PgxPage(body)) => {
+        (
+            Request::SearchPgx(q),
+            ReplyData::PgxPage {
+                body: Some(body), ..
+            },
+        ) => {
             let consumed = native_consumed.unwrap_or(body.page.returned);
             let offset = body.page.offset.saturating_add(consumed);
             if consumed > 0 && u64::from(offset) < body.page.total {
@@ -104,41 +109,35 @@ fn success_steps(
                 }
             }
         }
-        (Request::GetPgx(q), QueryBody::PgxCard(Some(_))) => card_steps(q, next, &mut out.problems),
-        (Request::GetPgx(q), QueryBody::PgxAnnotations(body)) => {
-            annotation_steps(q, body, next, &mut out.problems)
+        (Request::GetPgx(q), ReplyData::PgxCard { body: Some(_), .. }) => {
+            card_steps(q, next, &mut out.problems)
         }
         (
             Request::GetPgx(q),
-            QueryBody::PgxRecommendations(
-                PgxRecommendations::View { page, .. } | PgxRecommendations::Table { page, .. },
-            ),
+            ReplyData::PgxAnnotations {
+                body: Some(body), ..
+            },
+        ) => annotation_steps(q, body, next, &mut out.problems),
+        (
+            Request::GetPgx(q),
+            ReplyData::PgxRecommendations {
+                body:
+                    Some(
+                        PgxRecommendations::View { page, .. }
+                        | PgxRecommendations::Table { page, .. },
+                    ),
+                ..
+            },
         ) => page_step(q, page, next, native_consumed, &mut out.problems),
-        (Request::GetPgx(q), QueryBody::PgxGuidelines(body)) => {
-            let mut seen = std::collections::BTreeSet::new();
-            for gene in body.items.iter().flat_map(|r| r.genes.iter()) {
-                if gene.symbol == *q.gene() || !seen.insert(gene.symbol.to_string()) {
-                    continue;
-                }
-                if let Some(query) = crate::next::checked(
-                    gene.symbol
-                        .as_str()
-                        .parse()
-                        .map_err(|_| biomcp_types::QueryInvalid::new(&["input"]))
-                        .and_then(|input| biomcp_types::GeneGet::new(vec![input].into())),
-                    biomcp_types::Source::Hgnc,
-                    &mut out.problems,
-                ) {
-                    next.push(crate::next::Step::new(
-                        StepKind::Pivot,
-                        &[biomcp_types::Source::Hgnc],
-                        run(Request::GetGene(query)),
-                    ));
-                }
-            }
-            page_step(q, &body.page, next, native_consumed, &mut out.problems);
+        (
+            Request::GetPgx(q),
+            ReplyData::PgxGuidelines {
+                body: Some(body), ..
+            },
+        ) => {
+            guideline_steps(q, body, next, native_consumed, &mut out.problems);
         }
-        (Request::GetPgx(q), QueryBody::PgxDiplotype(_)) => {
+        (Request::GetPgx(q), ReplyData::PgxDiplotype { .. }) => {
             if let Some(card) = gene_query(q.gene(), &mut out.problems)
                 && let Some(r) = section(&card, PgxSection::Recommendations, &mut out.problems)
             {
@@ -152,6 +151,37 @@ fn success_steps(
         _ => {}
     }
 }
+fn guideline_steps(
+    q: &PgxGet,
+    body: &biomcp_types::PgxGuidelines,
+    next: &mut Vec<crate::next::Step>,
+    native_consumed: Option<u32>,
+    problems: &mut Vec<biomcp_types::Problem>,
+) {
+    let mut seen = std::collections::BTreeSet::new();
+    for gene in body.items.iter().flat_map(|r| r.genes.iter()) {
+        if gene.symbol == *q.gene() || !seen.insert(gene.symbol.to_string()) {
+            continue;
+        }
+        if let Some(query) = crate::next::checked(
+            gene.symbol
+                .as_str()
+                .parse()
+                .map_err(|_| biomcp_types::QueryInvalid::new(&["input"]))
+                .and_then(|input| biomcp_types::GeneGet::new(vec![input].into())),
+            biomcp_types::Source::Hgnc,
+            problems,
+        ) {
+            next.push(crate::next::Step::new(
+                StepKind::Pivot,
+                &[biomcp_types::Source::Hgnc],
+                run(Request::GetGene(query)),
+            ));
+        }
+    }
+    page_step(q, &body.page, next, native_consumed, problems);
+}
+
 fn page_step(
     q: &PgxGet,
     p: &PgxPageInfo,

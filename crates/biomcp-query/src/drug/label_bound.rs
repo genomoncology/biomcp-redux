@@ -1,6 +1,6 @@
 //! Keep complete fragment units inside the label section allocation.
 use biomcp_fetch::{InputError, RequestError};
-use biomcp_types::{QueryBody, Request, Section, StepKind};
+use biomcp_types::{ReplyData, Request, Section, StepKind};
 const LABEL_BYTES: usize = 8192;
 pub(crate) fn bound(
     fetch: &biomcp_fetch::Fetch,
@@ -13,7 +13,10 @@ pub(crate) fn bound(
     };
     loop {
         crate::next::finish(fetch, out);
-        let QueryBody::DrugLabel(Some(body)) = &out.body else {
+        let ReplyData::DrugLabel {
+            body: Some(body), ..
+        } = &out.body
+        else {
             return Ok(());
         };
         if !matches!(body.label, Section::Data { .. }) {
@@ -26,7 +29,10 @@ pub(crate) fn bound(
         {
             return Ok(());
         }
-        let QueryBody::DrugLabel(Some(body)) = &mut out.body else {
+        let ReplyData::DrugLabel {
+            body: Some(body), ..
+        } = &mut out.body
+        else {
             return Ok(());
         };
         let Section::Data { data, .. } = &mut body.label else {

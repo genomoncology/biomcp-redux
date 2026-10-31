@@ -81,8 +81,10 @@ pub(super) fn tool_result(id: Value, outcome: &crate::command::Outcome, modern: 
     if reply.get("result").is_some_and(within_cap) {
         return reply;
     }
-    let Ok(error) = serde_json::to_value(biomcp_types::ErrorEnvelope::mcp_result_too_broad(
-        RESULT_CHARACTER_CAP as u64,
+    let Ok(error) = serde_json::to_value(biomcp_types::ErrorEnvelope::from(
+        biomcp_types::UsageError::McpResultTooBroad {
+            cap: RESULT_CHARACTER_CAP as u64,
+        },
     )) else {
         return self::error(id, -32603, "Internal error");
     };

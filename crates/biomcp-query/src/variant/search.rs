@@ -1,9 +1,10 @@
 //! Declared variant searches keep native candidates, totals and page selectors.
 use crate::{Ctx, Outcome, status};
+use biomcp_types::ReplyBody;
 
 use biomcp_adapters::{clinvar, myvariant};
 use biomcp_types::{
-    PageInfo, QueryBody, Request, Source, StepKind, VariantGet, VariantPage, VariantResolver,
+    PageInfo, ReplyData, Request, Source, StepKind, VariantGet, VariantPage, VariantResolver,
     VariantSearch,
 };
 /// Discover one source-native page; a zero result remains distinct from a failed source.
@@ -36,13 +37,14 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &VariantSearch) -> Outcome {
         [crate::status::item_status(false, true, false)],
         crate::status::Parts {
             dropped: false,
-            body: QueryBody::VariantPage(VariantPage {
+            body: (VariantPage {
                 selector_terms: selector_terms.clone(),
                 filter_terms: terms.clone(),
                 source_query: query.source_query(),
                 build: query.build(),
                 items: Box::default(),
-            }),
+            })
+            .with_query(query.clone()),
             page: None,
             sources: vec![source],
             problems: Vec::new(),
@@ -68,13 +70,14 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &VariantSearch) -> Outcome {
             truncated: (reply.total > u64::from(VariantSearch::MAX_RESULTS)).then_some(true),
         });
         out.problems.extend(reply.rows.problems);
-        out.body = QueryBody::VariantPage(VariantPage {
+        out.body = (VariantPage {
             selector_terms,
             filter_terms: terms,
             source_query: query.source_query(),
             build: query.build(),
             items: reply.rows.value.into(),
-        });
+        })
+        .with_query(query.clone());
     }
     status::search(&mut out);
     command.finish(deadline.remaining());
@@ -130,7 +133,7 @@ fn policy_error() -> Outcome {
         [crate::status::item_status(false, true, false)],
         crate::status::Parts {
             dropped: false,
-            body: QueryBody::VariantQueryPolicyError,
+            body: ReplyData::Usage(biomcp_types::UsageError::VariantQueryPolicyError),
             page: None,
             sources: Vec::new(),
             problems: Vec::new(),

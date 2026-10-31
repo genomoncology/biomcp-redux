@@ -17,7 +17,10 @@ pub(super) fn run<'a>(
     fulltext: bool,
     supplements: bool,
 ) {
-    let biomcp_types::QueryBody::ArticleCards(cards) = &mut out.body else {
+    let biomcp_types::ReplyData::ArticleCards {
+        body: Some(cards), ..
+    } = &mut out.body
+    else {
         return;
     };
     let leg = cx.fetch.leg(&pmc_oa::SPEC, *deadline).fresh(cx.fresh);

@@ -1,4 +1,5 @@
 //! PubMed snapshots and stable pages through one checked command consumer.
+use biomcp_types::ReplyBody;
 mod edges;
 mod empty_litvar;
 pub(crate) mod evidence;
@@ -23,13 +24,19 @@ pub mod text;
 use crate::{Action, Ctx, Outcome, status, store::Store};
 use biodata::Text;
 use biomcp_fetch::{CacheError, Deadline, RequestError};
-use biomcp_types::{ArticlePage, ArticleSearch, QueryBody, Request, StepKind};
+use biomcp_types::{ArticlePage, ArticleSearch, ReplyData, Request, StepKind};
 use sha2::{Digest, Sha256};
 /// Run one article command under a single absolute deadline.
 pub(crate) fn search(cx: &Ctx<'_>, query: &ArticleSearch) -> Outcome {
-    let mut out = empty();
+    let mut out = empty(
+        (ArticlePage {
+            items: Box::default(),
+            candidates: Vec::new(),
+        })
+        .with_query(query.clone()),
+    );
     if let Some((source, option)) = unsupported(query) {
-        out.body = QueryBody::UnsupportedFilter { source, option };
+        out.body = ReplyData::Usage(biomcp_types::UsageError::UnsupportedFilter { source, option });
         return out;
     }
     let command = cx.fetch.command_deadline(cx.budget);
@@ -127,7 +134,7 @@ fn execute<'a>(
     result
 }
 fn pool_error(query: &ArticleSearch, mismatch: bool, out: &mut Outcome) {
-    out.body = QueryBody::PoolError { mismatch };
+    out.body = ReplyData::PoolError { mismatch };
     out.next.push(crate::next::Step::run(
         StepKind::Restart,
         &next::search_sources(query),
@@ -143,11 +150,8 @@ fn retry(query: &ArticleSearch, pool: Option<Text>, out: &mut Outcome) {
         true,
     ));
 }
-fn empty() -> Outcome {
-    crate::status::ready(QueryBody::ArticlePage(ArticlePage {
-        items: Box::default(),
-        candidates: Vec::new(),
-    }))
+fn empty(body: ReplyData) -> Outcome {
+    crate::status::ready(body)
 }
 
 // Fetch legs deliberately own independent replay clocks. A sequential article

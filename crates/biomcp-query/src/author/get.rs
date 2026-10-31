@@ -2,16 +2,15 @@ use super::{empty, recovery};
 use crate::{Ctx, Outcome, status};
 use biodata::AuthorId;
 use biomcp_adapters::semantic_scholar::{self, author};
+use biomcp_types::ReplyBody;
 use biomcp_types::{
-    AuthorCardItem, AuthorCards, AuthorGet, QueryBody, Reason, Request, Source, SourceState, Status,
+    AuthorCardItem, AuthorCards, AuthorGet, Reason, Request, Source, SourceState, Status,
 };
 /// Read each exact requested record once and preserve every input slot.
 pub(crate) fn get(cx: &Ctx<'_>, q: &AuthorGet) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
-    let mut out = empty(QueryBody::AuthorCards(AuthorCards {
-        items: Box::default(),
-    }));
+    let mut out = empty(cards(q, Vec::new()));
     let mut items = Vec::new();
     for input in q.ids() {
         let (spec, source) = match input {
@@ -80,10 +79,15 @@ pub(crate) fn get(cx: &Ctx<'_>, q: &AuthorGet) -> Outcome {
             }
         }
     }
-    out.body = QueryBody::AuthorCards(AuthorCards {
-        items: items.into(),
-    });
+    out.body = cards(q, items);
     out.next.truncate(5);
     command.finish(deadline.remaining());
     out
+}
+
+fn cards(query: &AuthorGet, items: Vec<AuthorCardItem>) -> biomcp_types::ReplyData {
+    AuthorCards {
+        items: items.into(),
+    }
+    .with_query(query.clone())
 }

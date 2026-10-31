@@ -1,29 +1,17 @@
 //! Shared command interpretation and typed outcomes for CLI and MCP.
-mod adverse_event;
-mod author;
-mod biomarker;
-mod cell_line;
 mod context;
+mod reply;
 pub(crate) use context::Context;
-mod diagnostic;
-mod disease;
-mod drug;
 mod hosted_keys;
 pub(crate) mod local;
 mod maintenance;
 mod mcp_policy;
-mod organization;
-mod pathway;
-mod pgx;
-mod phenotype;
-mod protein;
 mod steps;
 mod sync;
 mod transport;
-mod variant;
 
 use biomcp_query::{Action, Bundle};
-use biomcp_types::{Envelope, ErrorEnvelope, QueryBody, Request, Status};
+use biomcp_types::{Envelope, ErrorEnvelope, Request, Status, UsageArguments, UsageError};
 use serde_json::Value;
 use std::{ffi::OsString, io};
 
@@ -63,11 +51,11 @@ fn dispatch_using(
         });
     }
     if let Some(message) = crate::retired::message(args) {
-        return encode(ErrorEnvelope::retired(message), crate::exit::Status::Usage);
+        return usage_envelope(UsageError::Retired(message));
     }
     let mut parsed = match crate::grammar::parse(args) {
         Ok(parsed) => parsed,
-        Err(cause) => return usage_with_argument(args, cause.argument),
+        Err(cause) => return parse_refusal(args, cause),
     };
     if let Some(context) = context
         && parsed.globals.inherit(context.globals).is_err()
@@ -77,7 +65,7 @@ fn dispatch_using(
     if context.is_some()
         && let Some(error) = mcp_policy::refusal(&parsed, !allow_save)
     {
-        return encode(error, crate::exit::Status::Usage);
+        return usage_envelope(error);
     }
     if let Some(command) = parsed.key {
         return crate::keys::run(command, &parsed.globals);
@@ -223,145 +211,8 @@ fn response(
         sources: result.sources,
         problems: result.problems,
     };
-    response_body(meta, request, result.body)
+    result.body.visit(meta)
 }
-fn response_body(meta: ResponseMeta, request: Request, body: QueryBody) -> io::Result<Outcome> {
-    match request {
-        Request::AuthorPapers(_) | Request::SearchAuthor(_) | Request::GetAuthor(_) => {
-            author::response(meta, request, body)
-        }
-        Request::SearchCellLine(_) | Request::GetCellLine(_) | Request::CellLineAssayCount(_) => {
-            cell_line::encode(meta, request, body)
-        }
-        Request::GetGwasAssociation(q) => gwas_get(meta, q.into(), body),
-        Request::GetGwasStudy(q) => gwas_get(meta, q.into(), body),
-        Request::SearchGwas(q) => match body {
-            QueryBody::GwasPage(body) => meta.encode(biomcp_types::GwasPageQuery::Search(q), body),
-            QueryBody::PoolError { mismatch } => pool_error(mismatch, meta.next),
-            _ => Err(io::Error::other("gwas response mismatch")),
-        },
-        Request::SearchProtein(_)
-        | Request::GetProtein(_)
-        | Request::ProteinFeatures(_)
-        | Request::ProteinIsoforms(_)
-        | Request::ProteinDomains(_)
-        | Request::ProteinComplexes(_)
-        | Request::ProteinComplexMembers(_)
-        | Request::ProteinStructures(_)
-        | Request::ProteinSequence(_) => protein::encode(meta, request, body),
-        Request::SearchBiomarker(q) => biomarker::search(meta, q, body),
-        Request::GetBiomarker(q) => biomarker::get(meta, q, body),
-        Request::SearchOrganization(q) => organization::encode(meta, q, body),
-        Request::SearchPathway(_)
-        | Request::GetPathway(_)
-        | Request::PathwayGenes(_)
-        | Request::PathwayEvents(_) => pathway::encode(meta, request, body),
-        Request::SearchPhenotype(_) | Request::GetPhenotype(_) => {
-            phenotype::encode(meta, request, body)
-        }
-        Request::SearchStudy(q) => match body {
-            QueryBody::StudyPage(body) => meta.encode(q, body),
-            QueryBody::PoolError { mismatch } => pool_error(mismatch, meta.next),
-            _ => Err(io::Error::other("study response mismatch")),
-        },
-        Request::GetStudy(q) => match body {
-            QueryBody::StudyCard(body) => meta.encode(q, body),
-            QueryBody::StudyProfiles(body) => meta.encode(q, body),
-            QueryBody::StudySampleLists(body) => meta.encode(q, body),
-            QueryBody::StudyFiles(body) => meta.encode(q, body),
-            QueryBody::PoolError { mismatch } => pool_error(mismatch, meta.next),
-            _ => Err(io::Error::other("study response mismatch")),
-        },
-        Request::SearchPgx(_) | Request::GetPgx(_) | Request::GetPgxAnnotation(_) => {
-            pgx::encode(meta, request, body)
-        }
-        Request::SearchDiagnostic(_) | Request::GetDiagnostic(_) => {
-            diagnostic::encode(meta, request, body)
-        }
-        Request::SearchAdverseEvent(_) | Request::GetAdverseEvent(_) => {
-            adverse_event::encode(meta, request, body)
-        }
-        Request::SearchDisease(_) | Request::GetDisease(_) => disease::encode(meta, request, body),
-        Request::SearchDrug(_) | Request::GetWhoMedicine(_) | Request::GetDrug(_) => {
-            drug::encode(meta, request, body)
-        }
-        _ => response_common(meta, request, body),
-    }
-}
-fn response_common(meta: ResponseMeta, request: Request, body: QueryBody) -> io::Result<Outcome> {
-    match (request, body) {
-        (_, QueryBody::VariantQueryPolicyError) => {
-            usage_envelope(ErrorEnvelope::variant_query_policy())
-        }
-        (_, QueryBody::UnsupportedTrialFilter { source, option }) => {
-            usage_envelope(ErrorEnvelope::unsupported_trial_filter(source, option))
-        }
-        (_, QueryBody::NciDiseaseError) => usage_envelope(ErrorEnvelope::nci_disease()),
-        (Request::GetTrial(query), QueryBody::NciTrialCards(body)) => {
-            meta.encode(query, Some(body))
-        }
-        (Request::SearchTrial(query), QueryBody::NciTrialPage(body)) => {
-            let body = Some(body);
-            meta.encode(query, body)
-        }
-
-        (Request::TrialDocument(query), QueryBody::TrialDocument(body)) => {
-            meta.encode(query, Some(body))
-        }
-        (Request::GetTrial(query), QueryBody::TrialCards(body)) => meta.encode(query, Some(body)),
-        (Request::SearchTrial(query), QueryBody::TrialPage(body)) => {
-            let body = Some(body);
-            meta.encode(query, body)
-        }
-        (_, QueryBody::ArticleSaveRefused(url)) => usage_envelope(ErrorEnvelope::save_refused(url)),
-        (_, QueryBody::PdfSaveRefused(link)) => {
-            usage_envelope(ErrorEnvelope::save_refused(link.url))
-        }
-        (Request::ArticlePdf(query), QueryBody::ArticlePdf(body)) => meta.encode(query, Some(body)),
-        (_, QueryBody::UnsupportedFilter { source, option }) => {
-            usage_envelope(ErrorEnvelope::unsupported_filter(source, option))
-        }
-        (_, QueryBody::TextPositionError) => {
-            encode(ErrorEnvelope::arguments(), crate::exit::Status::Usage)
-        }
-        (Request::ArticleEvidence(query), QueryBody::ArticleEvidence(body)) => {
-            meta.encode(query, Some(body))
-        }
-        (Request::ArticleRecommend(query), QueryBody::ArticleRecommendations(body)) => {
-            let body = Some(body);
-            meta.encode(query, body)
-        }
-        (Request::ArticleSupplement(query), QueryBody::ArticleSupplement(body)) => {
-            meta.encode(query, Some(body))
-        }
-        (Request::ArticleText(query), QueryBody::ArticleText(body)) => {
-            meta.encode(query, Some(body))
-        }
-        (_, QueryBody::TooManyPmids { count }) => encode(
-            ErrorEnvelope::too_many_pmids(count),
-            crate::exit::Status::Usage,
-        ),
-        (_, QueryBody::PoolError { mismatch }) => pool_error(mismatch, meta.next),
-        (
-            Request::ArticleCitations(query) | Request::ArticleReferences(query),
-            QueryBody::ArticleEdges(body),
-        ) => {
-            let body = Some(body);
-            meta.encode(query, body)
-        }
-        (Request::SearchArticle(query), QueryBody::ArticlePage(body)) => {
-            let body = Some(body);
-            meta.encode(query, body)
-        }
-        (Request::GetArticle(query), QueryBody::ArticleCards(body)) => {
-            meta.encode(query, Some(body))
-        }
-        (Request::GetGene(query), QueryBody::GeneCards(body)) => meta.encode(query, Some(body)),
-        (Request::SearchGene(query), QueryBody::GenePage(body)) => meta.encode(query, Some(body)),
-        (request, body) => variant::response(meta, request, body),
-    }
-}
-
 pub(crate) fn tool(
     args: &[OsString],
     globals: &crate::grammar::Globals,
@@ -378,7 +229,7 @@ fn tool_using(args: &[OsString], context: Context<'_>, allow_save: bool) -> io::
             .iter()
             .any(|flag| arg == *flag || arg.starts_with(&format!("{flag}=")))
     }) {
-        return encode(ErrorEnvelope::arguments(), crate::exit::Status::Usage);
+        return usage_envelope(UsageError::arguments());
     }
     if args.first().is_some_and(|arg| arg == "schema") {
         return dispatch(args);
@@ -386,71 +237,53 @@ fn tool_using(args: &[OsString], context: Context<'_>, allow_save: bool) -> io::
     dispatch_using(args, allow_save, Some(context))
 }
 fn usage(args: &[OsString]) -> io::Result<Outcome> {
-    usage_with_argument(args, None)
+    parse_refusal(args, crate::grammar::ParseInvalid::default())
 }
-fn usage_with_argument(args: &[OsString], argument: Option<String>) -> io::Result<Outcome> {
+fn parse_refusal(args: &[OsString], cause: crate::grammar::ParseInvalid) -> io::Result<Outcome> {
     if let Some(path) = crate::grammar::unknown_command(args) {
-        let mut error = ErrorEnvelope::unknown_command();
-        error.next = vec![biomcp_types::Step {
-            kind: biomcp_types::StepKind::Configure,
-            args: std::iter::once("help".into())
-                .chain(path.into_iter().map(String::into_boxed_str))
-                .collect::<Vec<_>>()
-                .into(),
-        }];
-        return encode(error, crate::exit::Status::Usage);
-    }
-    if let Some(error) = crate::grammar::normalization_build(args) {
-        return encode(error, crate::exit::Status::Usage);
+        return usage_envelope(UsageError::UnknownCommand {
+            next: biomcp_types::Step {
+                kind: biomcp_types::StepKind::Configure,
+                args: std::iter::once("help".into())
+                    .chain(path.into_iter().map(String::into_boxed_str))
+                    .collect::<Vec<_>>()
+                    .into(),
+            },
+        });
     }
     let mut words = crate::grammar::command_words(args);
     let root = words.next();
-    let option = argument.or_else(|| crate::grammar::argument_error(args));
-    let mut error = if option.is_some()
-        || matches!(
-            root,
-            Some("sync" | "key" | "store" | "version" | "mcp-config" | "skill")
-        )
-        || root.is_some_and(|root| {
-            crate::grammar::QUERIES
-                .iter()
-                .any(|(verb, _, _)| *verb == root)
-        }) {
-        ErrorEnvelope::arguments()
-    } else {
-        ErrorEnvelope::schema_usage()
+    let mut arguments = match cause.usage {
+        Some(UsageError::Arguments(arguments)) => arguments,
+        Some(error) => return usage_envelope(error),
+        None => {
+            if cause.argument.is_none()
+                && !matches!(
+                    root,
+                    Some("sync" | "key" | "store" | "version" | "mcp-config" | "skill")
+                )
+                && !root.is_some_and(|root| {
+                    crate::grammar::command_paths()
+                        .iter()
+                        .any(|(verb, _, _)| *verb == root)
+                })
+            {
+                return usage_envelope(UsageError::Schema);
+            }
+            UsageArguments::default()
+        }
     };
     if root == Some("get") && words.next() == Some("variant") {
-        error = ErrorEnvelope::variant_arguments();
-    }
-    if root == Some("search") && args.get(1).and_then(|word| word.to_str()) == Some("trial") {
-        let flags: Vec<_> = args
-            .iter()
-            .filter_map(|arg| arg.to_str())
-            .map(|arg| arg.split('=').next().unwrap_or(arg))
-            .collect();
-        if flags.contains(&"--facility")
-            && flags
-                .iter()
-                .any(|flag| ["--lat", "--lon", "--distance"].contains(flag))
-        {
-            error = ErrorEnvelope::trial_facility_radius();
-        }
-    }
-    if let Some(message) = crate::retired::gwas_usage(args) {
-        error = ErrorEnvelope::gwas_arguments(message);
-    }
-    if crate::grammar::gwas::invalid_threshold(args) {
-        error = ErrorEnvelope::gwas_threshold();
+        arguments.message = Some(biomcp_types::ErrorMessage::VariantIdentifier);
     }
     if root == Some("mcp-config") {
-        error.next = vec![biomcp_types::Step {
+        arguments.next = vec![biomcp_types::Step {
             kind: biomcp_types::StepKind::Configure,
             args: vec!["mcp-config".into(), "--client".into(), "mcp-servers".into()].into(),
         }];
     }
     if root == Some("key") {
-        error.next = biomcp_fetch::SecretName::ALL
+        arguments.next = biomcp_fetch::SecretName::ALL
             .iter()
             .map(|name| biomcp_types::Step {
                 kind: biomcp_types::StepKind::Configure,
@@ -458,11 +291,12 @@ fn usage_with_argument(args: &[OsString], argument: Option<String>) -> io::Resul
             })
             .collect();
     }
-    if let Some(option) = option {
-        error = error.with_argument(option.into());
+    if let Some(option) = cause.argument {
+        arguments.argument = Some(option.into());
     }
-    encode(error, crate::exit::Status::Usage)
+    usage_envelope(UsageError::Arguments(arguments))
 }
+
 fn key_help(source: biomcp_types::Source) -> io::Result<Outcome> {
     let name = match source {
         biomcp_types::Source::SemanticScholar => biomcp_fetch::SecretName::SemanticScholarApiKey,
@@ -540,18 +374,18 @@ fn pool_error(mismatch: bool, steps: Vec<biomcp_types::Step>) -> io::Result<Outc
         .into_iter()
         .next()
         .ok_or_else(|| io::Error::other("missing restart"))?;
-    encode(
-        ErrorEnvelope::pool(mismatch, restart),
-        if mismatch {
-            crate::exit::Status::Usage
-        } else {
-            crate::exit::Status::Expired
-        },
-    )
+    if mismatch {
+        usage_envelope(UsageError::PoolMismatch { restart })
+    } else {
+        encode(
+            ErrorEnvelope::expired_pool(restart),
+            crate::exit::Status::Expired,
+        )
+    }
 }
 
-fn usage_envelope(error: ErrorEnvelope) -> io::Result<Outcome> {
-    encode(error, crate::exit::Status::Usage)
+fn usage_envelope(error: UsageError) -> io::Result<Outcome> {
+    encode(ErrorEnvelope::from(error), crate::exit::Status::Usage)
 }
 
 fn response_status(result: &biomcp_query::Outcome) -> crate::exit::Status {
@@ -575,17 +409,5 @@ fn bundle_source(bundle: Bundle) -> biomcp_types::Source {
         Bundle::Hgnc => biomcp_types::Source::Hgnc,
         Bundle::ClinGen => biomcp_types::Source::ClinGen,
         Bundle::Gencc => biomcp_types::Source::Gencc,
-    }
-}
-
-fn gwas_get(meta: ResponseMeta, q: biomcp_types::GwasGet, body: QueryBody) -> io::Result<Outcome> {
-    match body {
-        QueryBody::GwasAssociation(body) => meta.encode(q, body),
-        QueryBody::GwasStudy(body) => meta.encode(q, body),
-        QueryBody::GwasLoci(body) => meta.encode(q, body),
-        QueryBody::GwasAncestries(body) => meta.encode(q, body),
-        QueryBody::GwasPage(body) => meta.encode(biomcp_types::GwasPageQuery::Get(q), body),
-        QueryBody::PoolError { mismatch } => pool_error(mismatch, meta.next),
-        _ => Err(io::Error::other("gwas get response mismatch")),
     }
 }

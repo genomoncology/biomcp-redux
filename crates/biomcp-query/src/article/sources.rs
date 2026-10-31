@@ -2,6 +2,7 @@ use crate::{Ctx, Outcome, fan_out, status};
 use biodata::Text;
 use biomcp_adapters::{europepmc, litvar, pubmed};
 use biomcp_fetch::{Deadline, RequestError};
+use biomcp_types::ReplyBody;
 use biomcp_types::{
     ArticleItem, ArticleKey, ArticleSearch, ArticleSource, Source, SourceOutcome, SourceState,
 };
@@ -265,10 +266,11 @@ fn prepare_litvar<'a>(
                     ));
                 }
             }
-            out.body = biomcp_types::QueryBody::ArticlePage(biomcp_types::ArticlePage {
+            out.body = (biomcp_types::ArticlePage {
                 items: Box::default(),
                 candidates,
-            });
+            })
+            .with_query(query.clone());
             Preparation::Answer
         }
     }

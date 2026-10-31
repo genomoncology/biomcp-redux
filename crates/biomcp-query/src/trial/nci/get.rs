@@ -1,11 +1,12 @@
 //! NCI native snapshots use the existing trial store and provider policy admission.
 use super::{ATTRIBUTION, empty, finish, page};
 use crate::{Ctx, Outcome, status, store::Store};
+use biomcp_types::ReplyBody;
 
 use biomcp_adapters::nci;
 use biomcp_fetch::{CacheError, RequestError};
 use biomcp_types::{
-    NciTrialCards, QueryBody, Reason, Request, Source, SourceOutcome, StepKind, TrialGet,
+    NciTrialCards, Reason, ReplyData, Request, Source, SourceOutcome, StepKind, TrialGet,
 };
 use sha2::{Digest, Sha256};
 pub(super) struct Snapshot {
@@ -17,10 +18,13 @@ fn key(id: biodata::NctId) -> Vec<u8> {
     Sha256::digest(format!("biomcp.nci_trial_snapshot/3\0{id}").as_bytes()).to_vec()
 }
 pub(in crate::trial) fn run(cx: &Ctx<'_>, q: &TrialGet) -> Outcome {
-    let mut out = empty(QueryBody::NciTrialCards(NciTrialCards {
-        items: Box::default(),
-        attribution: ATTRIBUTION.into(),
-    }));
+    let mut out = empty(
+        (NciTrialCards {
+            items: Box::default(),
+            attribution: ATTRIBUTION.into(),
+        })
+        .with_query(q.clone()),
+    );
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let result = if q.pool().is_some() && !cx.fetch.disabled(Source::Nci) {
@@ -88,7 +92,10 @@ fn fetch(
         }
     }
     status::get(out, items.iter().map(|i| i.status));
-    if let QueryBody::NciTrialCards(body) = &mut out.body {
+    if let ReplyData::NciTrialCards {
+        body: Some(body), ..
+    } = &mut out.body
+    {
         body.items = items.into();
     }
     finish(out, source, error);
@@ -106,7 +113,7 @@ fn restore(
         cx.fetch.disabled(s)
     })?;
     let Some(payload) = payload else {
-        out.body = QueryBody::PoolError { mismatch: false };
+        out.body = ReplyData::PoolError { mismatch: false };
         out.next.push(crate::next::Step::run(
             StepKind::Restart,
             &[biomcp_types::Source::Nci],
@@ -120,14 +127,17 @@ fn restore(
         return Err(CacheError::Database.into());
     }
     if !page::valid(q, &snapshot) {
-        out.body = QueryBody::TextPositionError;
+        out.body = ReplyData::Usage(biomcp_types::UsageError::TextPositionError);
         return Ok(());
     }
     out.sources = snapshot.sources.clone();
     let item = page::render(q, snapshot, q.pool().cloned(), out)?;
     let state = item.status;
     crate::status::get(out, [state].into_iter());
-    if let QueryBody::NciTrialCards(body) = &mut out.body {
+    if let ReplyData::NciTrialCards {
+        body: Some(body), ..
+    } = &mut out.body
+    {
         body.items = Box::new([item]);
     }
     Ok(())

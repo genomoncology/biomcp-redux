@@ -1,9 +1,9 @@
 //! Capability and selector checks run before transport admission.
 use crate::Action;
-use biomcp_types::{DiseaseSection, DiseaseSource, ErrorEnvelope, Request};
+use biomcp_types::{DiseaseSection, DiseaseSource, Request, UsageError};
 impl Action {
     /// Prepare source selectors and preserve existing usage refusal envelopes.
-    pub fn prepare(self) -> Result<Self, ErrorEnvelope> {
+    pub fn prepare(self) -> Result<Self, UsageError> {
         let action = prepare_disease(self).map_err(selector_error)?;
         if let Some(error) = unsupported(&action) {
             return Err(error);
@@ -74,7 +74,7 @@ fn prepare_disease(action: Action) -> Result<Action, biomcp_adapters::seer::Sele
     }
     Ok(action)
 }
-fn selector_error(error: biomcp_adapters::seer::SelectorError) -> ErrorEnvelope {
+fn selector_error(error: biomcp_adapters::seer::SelectorError) -> UsageError {
     let values = error
         .selector
         .valid_codes()
@@ -82,29 +82,28 @@ fn selector_error(error: biomcp_adapters::seer::SelectorError) -> ErrorEnvelope 
         .map(|code| code.parse())
         .collect::<Result<Vec<biodata::Text>, _>>();
     let Ok(values) = values else {
-        return ErrorEnvelope::arguments();
+        return UsageError::arguments();
     };
-    let mut envelope = biomcp_types::ErrorEnvelope::source_selector(
-        biomcp_types::Source::Seer,
-        error.selector.flag().into(),
-        values.into(),
-    );
-    envelope.next.push(biomcp_types::Step {
-        kind: biomcp_types::StepKind::Disambiguate,
-        args: ["search", "disease", "--source", "seer"]
-            .map(Into::into)
-            .into(),
-    });
-    envelope
+    UsageError::SourceSelector {
+        source: biomcp_types::Source::Seer,
+        option: error.selector.flag().into(),
+        valid_values: values.into(),
+        next: vec![biomcp_types::Step {
+            kind: biomcp_types::StepKind::Disambiguate,
+            args: ["search", "disease", "--source", "seer"]
+                .map(Into::into)
+                .into(),
+        }],
+    }
 }
-fn unsupported(action: &Action) -> Option<ErrorEnvelope> {
+fn unsupported(action: &Action) -> Option<UsageError> {
     if let Action::Run {
         request: Request::GetCellLine(q),
         ..
     } = action
         && matches!(q.id(), biomcp_types::CellLineInput::Source(id) if biomcp_adapters::cellosaurus::native_database(id).is_none())
     {
-        return Some(ErrorEnvelope::arguments());
+        return Some(UsageError::arguments());
     }
     if let Action::Run {
         request: Request::GetCellLine(query),
@@ -113,10 +112,12 @@ fn unsupported(action: &Action) -> Option<ErrorEnvelope> {
         && query.section() == Some(biomcp_types::CellLineSection::All)
         && (query.section_limit().is_some() || query.section_offset() != 0)
     {
-        return Some(ErrorEnvelope::cell_line_all_paging());
+        return Some(UsageError::message(
+            biomcp_types::ErrorMessage::CellLineAllPaging,
+        ));
     }
     if disease_unsupported(action) {
-        return Some(ErrorEnvelope::arguments());
+        return Some(UsageError::arguments());
     }
     if let Action::Run {
         request: Request::SearchTrial(q),
@@ -124,7 +125,7 @@ fn unsupported(action: &Action) -> Option<ErrorEnvelope> {
     } = action
     {
         if q.nci_disease_invalid() {
-            return Some(ErrorEnvelope::nci_disease());
+            return Some(UsageError::NciDiseaseError);
         }
         if let Some(option) = q.unsupported() {
             let source = if q.source() == biomcp_types::TrialSource::Nci {
@@ -132,7 +133,7 @@ fn unsupported(action: &Action) -> Option<ErrorEnvelope> {
             } else {
                 biomcp_types::Source::ClinicalTrialsGov
             };
-            return Some(ErrorEnvelope::unsupported_trial_filter(source, option));
+            return Some(UsageError::UnsupportedTrialFilter { source, option });
         }
     }
 
@@ -142,7 +143,7 @@ fn unsupported(action: &Action) -> Option<ErrorEnvelope> {
     } = action
         && let Some((source, option)) = crate::article::unsupported(query)
     {
-        return Some(ErrorEnvelope::unsupported_filter(source, option));
+        return Some(UsageError::UnsupportedFilter { source, option });
     }
     None
 }

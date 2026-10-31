@@ -1,11 +1,12 @@
 //! Stored cards and independently acquired bounded metadata sections.
+use biomcp_types::ReplyBody;
 mod files;
 use super::{empty, finish};
 use crate::{Ctx, Outcome};
 use biomcp_adapters::cbioportal::{SPEC, studies};
 use biomcp_fetch::{Leg, RequestError};
 use biomcp_types::{
-    PageInfo, Problem, ProblemCode, QueryBody, Request, Section, Source, Status, StepKind,
+    PageInfo, Problem, ProblemCode, ReplyData, Request, Section, Source, Status, StepKind,
     StudyCard, StudyGet, StudyProfiles, StudySampleLists, StudySection,
 };
 /// Exact case-sensitive catalog card or one bounded independent metadata collection.
@@ -13,16 +14,18 @@ pub(crate) fn get(cx: &Ctx<'_>, q: &StudyGet) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let mut out = empty(match q.section() {
-        Some(StudySection::Profiles) => QueryBody::StudyProfiles(None),
-        Some(StudySection::SampleLists) => QueryBody::StudySampleLists(None),
-        Some(StudySection::Files) => QueryBody::StudyFiles(None),
-        _ => QueryBody::StudyCard(None),
+        Some(StudySection::Profiles) => biomcp_types::StudyProfiles::into_reply(q.clone(), None),
+        Some(StudySection::SampleLists) => {
+            biomcp_types::StudySampleLists::into_reply(q.clone(), None)
+        }
+        Some(StudySection::Files) => biomcp_types::StudyFiles::into_reply(q.clone(), None),
+        _ => biomcp_types::StudyCard::into_reply(q.clone(), None),
     });
     if matches!(q.section(), None | Some(StudySection::All)) {
         let leg = cx.fetch.leg(&SPEC, deadline);
         let result = card(&leg, q, &mut out);
         finish(&mut out, leg, result.err());
-        if let QueryBody::StudyCard(Some(_)) = out.body {
+        if let ReplyData::StudyCard { body: Some(_), .. } = out.body {
             for section in [
                 StudySection::Profiles,
                 StudySection::SampleLists,
@@ -32,7 +35,8 @@ pub(crate) fn get(cx: &Ctx<'_>, q: &StudyGet) -> Outcome {
             }
         }
     }
-    if q.section() == Some(StudySection::All) && !matches!(out.body, QueryBody::StudyCard(Some(_)))
+    if q.section() == Some(StudySection::All)
+        && !matches!(out.body, ReplyData::StudyCard { body: Some(_), .. })
     {
         command.finish(deadline.remaining());
         return out;
@@ -95,14 +99,17 @@ fn card(leg: &Leg<'_>, q: &StudyGet, out: &mut Outcome) -> Result<(), RequestErr
     let source_url = format!("https://www.cbioportal.org/study/summary?id={}", q.id())
         .parse()
         .map_err(|_| bad())?;
-    out.body = QueryBody::StudyCard(row.map(|study| StudyCard {
-        source_url,
-        study,
-        snapshot,
-        profiles: None,
-        sample_lists: None,
-        files: None,
-    }));
+    out.body = biomcp_types::StudyCard::into_reply(
+        q.clone(),
+        row.map(|study| StudyCard {
+            source_url,
+            study,
+            snapshot,
+            profiles: None,
+            sample_lists: None,
+            files: None,
+        }),
+    );
     Ok(())
 }
 fn section_page(
@@ -132,13 +139,16 @@ fn section_page(
                 page: page.clone(),
                 acquired: records.acquired,
             };
-            if let QueryBody::StudyCard(Some(card)) = &mut out.body {
+            if let ReplyData::StudyCard {
+                body: Some(card), ..
+            } = &mut out.body
+            {
                 card.profiles = Some(Section::Data {
                     source: Source::Cbioportal,
                     data,
                 });
             } else {
-                out.body = QueryBody::StudyProfiles(Some(data));
+                out.body = data.with_query(q.clone());
                 out.page = Some(page.clone());
             }
             continuation(out, cx, q, rejected, next_offset);
@@ -164,13 +174,16 @@ fn section_page(
                 page: page.clone(),
                 acquired: records.acquired,
             };
-            if let QueryBody::StudyCard(Some(card)) = &mut out.body {
+            if let ReplyData::StudyCard {
+                body: Some(card), ..
+            } = &mut out.body
+            {
                 card.sample_lists = Some(Section::Data {
                     source: Source::Cbioportal,
                     data,
                 });
             } else {
-                out.body = QueryBody::StudySampleLists(Some(data));
+                out.body = data.with_query(q.clone());
                 out.page = Some(page.clone());
             }
             continuation(out, cx, q, rejected, next_offset);
@@ -212,7 +225,10 @@ fn next(out: &mut Outcome, cx: &Ctx<'_>, kind: StepKind, query: StudyGet) {
 fn section_error(out: &mut Outcome, section: StudySection, error: Option<RequestError>) {
     let Some(error) = error else { return };
     let reason = crate::status::reason(error).unwrap_or(biomcp_types::Reason::BadReply);
-    if let QueryBody::StudyCard(Some(card)) = &mut out.body {
+    if let ReplyData::StudyCard {
+        body: Some(card), ..
+    } = &mut out.body
+    {
         match section {
             StudySection::Profiles => {
                 card.profiles = Some(Section::unavailable(Source::Cbioportal, reason))

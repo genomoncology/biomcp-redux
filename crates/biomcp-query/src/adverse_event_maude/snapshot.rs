@@ -1,10 +1,10 @@
 //! Reuse the shared source snapshot store; admission precedes every retained read.
 use super::{
-    AdverseEventGet, AdverseEventSection, Ctx, Outcome, QueryBody, Request, Source, StepKind, Text,
-    maude,
+    AdverseEventGet, AdverseEventSection, Ctx, Outcome, Request, Source, StepKind, Text, maude,
 };
 use crate::{status, store::Store};
 use biomcp_fetch::{CacheError, Deadline, RequestError, SourceError};
+use biomcp_types::ReplyData;
 use biomcp_types::{Reason, SourceOutcome};
 use sha2::{Digest, Sha256};
 #[derive(serde::Deserialize)]
@@ -77,7 +77,7 @@ pub(super) fn load(
         let Some(payload) =
             store.source_snapshot(snapshot.as_str(), &key(query), |s| cx.fetch.disabled(s))?
         else {
-            out.body = QueryBody::PoolError { mismatch: false };
+            out.body = ReplyData::PoolError { mismatch: false };
             out.next.push(crate::next::Step::run(
                 StepKind::Restart,
                 &[biomcp_types::Source::Maude],

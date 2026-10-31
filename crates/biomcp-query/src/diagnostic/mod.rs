@@ -1,4 +1,5 @@
 //! Explicit diagnostic source ownership; reads consume only complete local snapshots.
+use biomcp_types::ReplyBody;
 mod clearance;
 mod companion;
 mod get;
@@ -11,7 +12,7 @@ use crate::{Action, Bundle, Ctx, Outcome, status};
 use biomcp_adapters::gtr;
 use biomcp_fetch::{Leg, RequestError};
 use biomcp_types::{
-    DiagnosticPage, DiagnosticSearch, DiagnosticSearchSource, PageInfo, QueryBody, Request, Source,
+    DiagnosticPage, DiagnosticSearch, DiagnosticSearchSource, PageInfo, Request, Source,
     SourceState, Status, StepKind,
 };
 pub(crate) use get::get;
@@ -61,11 +62,14 @@ pub(crate) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
     }
     let (spec, source, bundle, count) = search_source(q.source());
     let who = q.source() == DiagnosticSearchSource::WhoIvd;
-    let mut out = empty(QueryBody::DiagnosticPage(DiagnosticPage {
-        items: Box::default(),
-        count_unit: Some(count),
-        distinct_id_total: None,
-    }));
+    let mut out = empty(
+        (DiagnosticPage {
+            items: Box::default(),
+            count_unit: Some(count),
+            distinct_id_total: None,
+        })
+        .with_query(q.clone()),
+    );
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let leg = cx.fetch.leg(spec, deadline);
@@ -81,34 +85,35 @@ pub(crate) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
     let error = result.as_ref().err().copied();
     if let Ok((items, total, info)) = result {
         crate::status::item(&mut out, true, false, false);
-        let q = info
+        let bound = info
             .content_revision
             .as_deref()
             .and_then(|v| v.parse().ok())
             .map_or_else(|| q.clone(), |v| q.with_bundle_revision(v));
-        next::candidates(&mut out, &q, &items, cx.fresh);
+        next::candidates(&mut out, &bound, &items, cx.fresh);
         let returned = items.len() as u32;
-        if u64::from(q.offset()) + u64::from(returned) < total {
+        if u64::from(bound.offset()) + u64::from(returned) < total {
             next::push(
                 &mut out,
                 StepKind::Page,
-                &[q.source().source()],
-                Request::SearchDiagnostic(q.at_offset(q.offset() + returned)),
+                &[bound.source().source()],
+                Request::SearchDiagnostic(bound.at_offset(bound.offset() + returned)),
                 cx.fresh,
             );
         }
         out.page = Some(PageInfo {
-            offset: q.offset(),
+            offset: bound.offset(),
             returned,
             total,
             pool: None,
             truncated: None,
         });
-        out.body = QueryBody::DiagnosticPage(DiagnosticPage {
+        out.body = (DiagnosticPage {
             items,
             count_unit: Some(count),
             distinct_id_total: None,
-        });
+        })
+        .with_query(q.clone());
     }
     finish_bundle(&mut out, leg, error, source, bundle);
     status::search(&mut out);

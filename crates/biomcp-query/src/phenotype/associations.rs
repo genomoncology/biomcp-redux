@@ -2,9 +2,10 @@
 use super::{empty, problem, recovery, run};
 use crate::{Ctx, Outcome, status};
 use biomcp_adapters::monarch;
+use biomcp_types::ReplyBody;
 use biomcp_types::{
     DiseaseGet, PageInfo, PhenotypeDiseases, PhenotypeGenes, PhenotypeGet, PhenotypeSection,
-    QueryBody, Request, Source, StepKind,
+    ReplyData, Request, Source, StepKind,
 };
 pub(super) fn get(cx: &Ctx<'_>, q: &PhenotypeGet) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
@@ -62,21 +63,23 @@ fn body(
     items: Vec<biomcp_types::DiseaseAssociationItem>,
     components: Box<[biomcp_types::ComponentLabel]>,
     fetched: Option<u64>,
-) -> QueryBody {
+) -> ReplyData {
     if q.section() == Some(PhenotypeSection::Genes) {
-        QueryBody::PhenotypeGenes(PhenotypeGenes {
+        (PhenotypeGenes {
             items: items.into(),
             components,
             fetched,
             direct: true,
         })
+        .with_query(q.clone())
     } else {
-        QueryBody::PhenotypeDiseases(PhenotypeDiseases {
+        (PhenotypeDiseases {
             items: items.into(),
             components,
             fetched,
             direct: true,
         })
+        .with_query(q.clone())
     }
 }
 fn pivots(out: &mut Outcome, q: &PhenotypeGet, rows: &[biomcp_types::DiseaseAssociationItem]) {

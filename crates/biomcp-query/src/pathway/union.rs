@@ -3,9 +3,10 @@ use super::{empty, run};
 use crate::{Ctx, Outcome, status, store::Store};
 use biomcp_adapters::{reactome, wikipathways};
 use biomcp_fetch::{CacheError, Deadline, RequestError};
+use biomcp_types::ReplyBody;
 use biomcp_types::{
     PathwayGet, PathwayHeader, PathwayPage, PathwayPageInfo, PathwaySearch, PathwaySource,
-    PathwayTotalKind, Problem, QueryBody, Request, Source, SourceOutcome, SourceState, StepKind,
+    PathwayTotalKind, Problem, ReplyData, Request, Source, SourceOutcome, SourceState, StepKind,
 };
 // Queued whole rows, next native position, source total and catalog content revision.
 type LegState = (Vec<PathwayHeader>, Option<u32>, u64, Option<biodata::Text>);
@@ -34,7 +35,7 @@ fn page(q: &PathwaySearch) -> PathwayPage {
     }
 }
 pub(super) fn search(cx: &Ctx<'_>, q: &PathwaySearch) -> Outcome {
-    let mut out = empty(QueryBody::PathwayPage(page(q)));
+    let mut out = empty((page(q)).with_query(q.clone()));
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     if let Err(error) = execute(cx, q, deadline, &mut out) {
@@ -59,7 +60,7 @@ fn execute(
     let mut store = Store::open(cx.fetch.cache_access()?, deadline)?;
     let identity = key(q)?;
     let loaded = load(cx, q, &store, &identity, out)?;
-    if matches!(out.body, QueryBody::PoolError { .. }) {
+    if matches!(out.body, ReplyData::PoolError { .. }) {
         return Ok(());
     }
     let replay = loaded
@@ -125,10 +126,10 @@ fn present(q: &PathwaySearch, saved: Saved, pool: biodata::Text, out: &mut Outco
     }
     out.dropped = saved.5;
     status::search(out);
-    out.body = QueryBody::PathwayPage(saved.0);
+    out.body = (saved.0).with_query(q.clone());
 }
 fn expired(q: &PathwaySearch, out: &mut Outcome) {
-    out.body = QueryBody::PoolError { mismatch: false };
+    out.body = ReplyData::PoolError { mismatch: false };
     out.next.push(crate::next::Step::new(
         StepKind::Restart,
         &super::next::search(q),

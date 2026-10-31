@@ -1,20 +1,20 @@
 //! Schema-fed command parsing shared by CLI and MCP.
 mod arguments;
-mod entity;
+mod decode;
 mod entry;
+pub(crate) mod rewrite;
 pub(crate) use entry::entry_aliases;
 mod errors;
 mod metadata;
 mod validation;
 use arguments::command_for;
-pub(crate) use errors::{argument_error, normalization_build};
-pub(crate) mod gwas;
+mod gwas;
 mod local;
 mod queries;
 #[cfg(test)]
 mod reference;
 pub(crate) use local::housekeeping_commands;
-pub(crate) use queries::QUERIES;
+pub(crate) use queries::command_paths;
 pub(crate) use queries::query_schema;
 
 pub(crate) const BUNDLE_HELP: &[&str] = &[
@@ -32,10 +32,7 @@ pub(crate) const BUNDLE_HELP: &[&str] = &[
 ];
 
 use biomcp_query::{Action, Bundle};
-use biomcp_types::{
-    ArticleEdges, ArticleGet, ArticleSearch, ArticleText, GeneGet, GeneSearch, Help, Request,
-    ResponseBody, VariantAssertionsGet, VariantPopulationQuery, VariantRecurrenceQuery,
-};
+use biomcp_types::{Help, Request, ResponseBody};
 use clap::{Arg, ArgAction, Command};
 use serde_json::{Map, Value};
 use std::{ffi::OsString, path::PathBuf};
@@ -171,8 +168,9 @@ fn scan_command_words(args: &[OsString], tolerate_unknown: bool) -> impl Iterato
 
 pub(crate) fn root() -> Result<Command, ParseInvalid> {
     let mut root = global_arguments();
-    for (index, &(verb, _, _)) in QUERIES.iter().enumerate() {
-        if QUERIES
+    let queries = command_paths();
+    for (index, &(verb, _, _)) in queries.iter().enumerate() {
+        if queries
             .iter()
             .take(index)
             .any(|(prior, _, _)| *prior == verb)
@@ -180,7 +178,7 @@ pub(crate) fn root() -> Result<Command, ParseInvalid> {
             continue;
         }
         let mut command = Command::new(verb).subcommand_required(true);
-        for &(_, entity, id) in QUERIES.iter().filter(|(v, _, _)| *v == verb) {
+        for &(_, entity, id) in queries.iter().filter(|(v, _, _)| *v == verb) {
             let schema: Value =
                 serde_json::from_str(crate::schema::find(id).ok_or_else(ParseInvalid::default)?)
                     .map_err(|_| ParseInvalid::default())?;
@@ -231,14 +229,16 @@ pub(crate) fn root() -> Result<Command, ParseInvalid> {
 #[derive(Debug, Default)]
 pub(crate) struct ParseInvalid {
     pub(crate) argument: Option<String>,
+    pub(crate) usage: Option<biomcp_types::UsageError>,
 }
 pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ParseInvalid> {
     let mut root = root()?;
     root.build();
     let args = entry::arguments(args, &root);
     let matches = root
+        .clone()
         .try_get_matches_from(std::iter::once(OsString::from("biomcp")).chain(args))
-        .map_err(|_| ParseInvalid::default())?;
+        .map_err(|error| errors::parse_invalid(&root, &error))?;
     let globals = globals(&matches)?;
     let (verb, matches) = matches.subcommand().ok_or_else(ParseInvalid::default)?;
     if verb == "serve" {
@@ -289,9 +289,8 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ParseInvalid> {
         }
     } else {
         let (entity, matches) = matches.subcommand().ok_or_else(ParseInvalid::default)?;
-        let request = request(verb, entity, matches).map_err(|cause| ParseInvalid {
-            argument: validation::argument_names(verb, entity, matches, &cause),
-        })?;
+        let request = request(verb, entity, matches)
+            .map_err(|cause| errors::checked_invalid(verb, entity, matches, &cause))?;
         Action::Run {
             request,
             fresh: globals.fresh,
@@ -484,69 +483,11 @@ fn request(
 ) -> Result<Request, biomcp_types::QueryInvalid> {
     let value = request_arguments(verb, entity, matches)
         .map_err(|_| biomcp_types::QueryInvalid::default())?;
-    match (verb, entity) {
-        ("search" | "get", "gwas") => gwas::request(verb, value),
-        ("cell-line", "assay-count") => entity::request(verb, entity, value),
-        ("protein", _) | ("author", "papers") => entity::request(verb, entity, value),
-        ("pathway", "genes" | "events") => entity::request(verb, entity, value),
-        (
-            "search" | "get",
-            "pgx" | "adverse-event" | "disease" | "drug" | "diagnostic" | "pathway" | "phenotype"
-            | "protein" | "study" | "cell-line" | "author" | "organization" | "biomarker",
-        ) => entity::request(verb, entity, value),
-        ("variant", "assertions") => {
-            validation::decode::<VariantAssertionsGet>(value).map(Request::VariantAssertions)
-        }
-        ("variant", "population") => {
-            validation::decode::<VariantPopulationQuery>(value).map(Request::VariantPopulation)
-        }
-        ("variant", "normalize") => validation::decode::<biomcp_types::VariantNormalize>(value)
-            .map(Request::VariantNormalize),
-        ("search", "variant") => {
-            validation::decode::<biomcp_types::VariantSearch>(value).map(Request::SearchVariant)
-        }
-        ("variant", "recurrence") => {
-            validation::decode::<VariantRecurrenceQuery>(value).map(Request::VariantRecurrence)
-        }
-        ("get", "variant") => {
-            validation::decode::<biomcp_types::VariantGet>(value).map(Request::GetVariant)
-        }
-        ("get", "trial") => {
-            validation::decode::<biomcp_types::TrialGet>(value).map(Request::GetTrial)
-        }
-        ("search", "trial") => {
-            validation::decode::<biomcp_types::TrialSearch>(value).map(Request::SearchTrial)
-        }
-        ("trial", "document") => {
-            validation::decode::<biomcp_types::TrialDocumentGet>(value).map(Request::TrialDocument)
-        }
-        ("article", "pdf") => {
-            validation::decode::<biomcp_types::ArticlePdf>(value).map(Request::ArticlePdf)
-        }
-        ("article", "citation-evidence") => {
-            validation::decode::<biomcp_types::ArticleEvidence>(value).map(Request::ArticleEvidence)
-        }
-        ("article", "recommendations") => {
-            validation::decode::<biomcp_types::ArticleRecommend>(value)
-                .map(Request::ArticleRecommend)
-        }
-        ("article", "supplement") => validation::decode::<biomcp_types::ArticleSupplement>(value)
-            .map(Request::ArticleSupplement),
-        ("article", "text") => validation::decode::<ArticleText>(value).map(Request::ArticleText),
-        ("article", "citations") => {
-            validation::decode::<ArticleEdges>(value).map(Request::ArticleCitations)
-        }
-        ("article", "references") => {
-            validation::decode::<ArticleEdges>(value).map(Request::ArticleReferences)
-        }
-        ("get", "article") => validation::decode::<ArticleGet>(value).map(Request::GetArticle),
-        ("search", "article") => {
-            validation::decode::<ArticleSearch>(value).map(Request::SearchArticle)
-        }
-        ("get", "gene") => validation::decode::<GeneGet>(value).map(Request::GetGene),
-        ("search", "gene") => validation::decode::<GeneSearch>(value).map(Request::SearchGene),
-        _ => Err(biomcp_types::QueryInvalid::default()),
-    }
+    let command = biomcp_types::COMMANDS
+        .iter()
+        .find(|command| (command.verb, command.entity) == (verb, entity))
+        .ok_or_else(biomcp_types::QueryInvalid::default)?;
+    rewrite::request(command.via, verb, entity, value, matches)
 }
 
 fn request_arguments(
@@ -554,7 +495,7 @@ fn request_arguments(
     entity: &str,
     matches: &clap::ArgMatches,
 ) -> Result<Value, ParseInvalid> {
-    let id = QUERIES
+    let id = command_paths()
         .iter()
         .find(|(v, e, _)| *v == verb && *e == entity)
         .map(|(_, _, id)| *id)
@@ -562,16 +503,7 @@ fn request_arguments(
     let schema: Value =
         serde_json::from_str(crate::schema::find(id).ok_or_else(ParseInvalid::default)?)
             .map_err(|_| ParseInvalid::default())?;
-    let mut value = arguments(matches, &schema)?;
-    if verb == "search"
-        && matches!(entity, "cell-line" | "author")
-        && let Some(query) = matches.get_one::<String>("query_option")
-    {
-        value
-            .as_object_mut()
-            .ok_or_else(ParseInvalid::default)?
-            .insert("query".into(), query.clone().into());
-    }
+    let value = arguments(matches, &schema)?;
     Ok(value)
 }
 

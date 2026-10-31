@@ -1,12 +1,13 @@
 //! Source-local native drug requests; selected identities never fan out.
+use biomcp_types::ReplyBody;
 mod identity;
 mod sections;
 use crate::{Ctx, Outcome, status};
 use biomcp_adapters::{NativeWindow, chembl, opentargets};
 use biomcp_fetch::{Leg, RequestError, SourceError};
 use biomcp_types::{
-    DrugGet, DrugPage, DrugSearch, DrugSection, DrugSource, PageInfo, QueryBody, Reason, Request,
-    Source, Status, StepKind,
+    DrugGet, DrugPage, DrugSearch, DrugSection, DrugSource, PageInfo, Reason, Request, Source,
+    Status, StepKind,
 };
 fn failure(source: Source) -> RequestError {
     RequestError::Source(SourceError {
@@ -25,10 +26,13 @@ fn spec(source: DrugSource) -> &'static biomcp_fetch::SourceSpec {
     }
 }
 pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
-    let mut out = empty(QueryBody::DrugPage(DrugPage {
-        items: Box::default(),
-        total: None,
-    }));
+    let mut out = empty(
+        (DrugPage {
+            items: Box::default(),
+            total: None,
+        })
+        .with_query(query.clone()),
+    );
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let leg = cx.fetch.leg(spec(query.source()), deadline).fresh(cx.fresh);
@@ -71,7 +75,7 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
                 cx.fresh,
             ));
         }
-        out.body = QueryBody::DrugPage(page);
+        out.body = page.with_query(query.clone());
     }
     finish(&mut out, leg, query.source().source(), error);
     status::search(&mut out);
@@ -127,10 +131,12 @@ fn search_page(
 
 pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     let mut out = empty(match query.sections() {
-        [DrugSection::Targets] => QueryBody::DrugTargets(None),
-        [DrugSection::Indications] => QueryBody::DrugIndications(None),
-        [DrugSection::Xrefs] => QueryBody::DrugXrefs(None),
-        _ => QueryBody::DrugCard(None),
+        [DrugSection::Targets] => biomcp_types::DrugTargets::into_reply(query.clone(), None),
+        [DrugSection::Indications] => {
+            biomcp_types::DrugIndications::into_reply(query.clone(), None)
+        }
+        [DrugSection::Xrefs] => biomcp_types::DrugXrefs::into_reply(query.clone(), None),
+        _ => biomcp_types::DrugCard::into_reply(query.clone(), None),
     });
     if !matches!(
         query.sections(),

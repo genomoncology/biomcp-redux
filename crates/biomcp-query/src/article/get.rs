@@ -3,9 +3,10 @@ use crate::{Ctx, Outcome, status};
 use biodata::Pmid;
 use biomcp_adapters::pubmed;
 use biomcp_fetch::{Leg, RequestError};
+use biomcp_types::ReplyBody;
 use biomcp_types::{Article, ArticleInput};
 use biomcp_types::{
-    ArticleCardItem, ArticleCards, ArticleGet, ArticleMatch, ArticleResolution, QueryBody, Source,
+    ArticleCardItem, ArticleCards, ArticleGet, ArticleMatch, ArticleResolution, ReplyData, Source,
     SourceState, Status,
 };
 /// Resolve and hydrate article cards under one absolute command deadline.
@@ -58,9 +59,10 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &ArticleGet) -> Outcome {
             dropped: records
                 .iter()
                 .any(|(record, _)| record.refusals == biomcp_adapters::Refusal::Refused),
-            body: QueryBody::ArticleCards(ArticleCards {
+            body: (ArticleCards {
                 items: items.into(),
-            }),
+            })
+            .with_query(query.clone()),
             sources: sources(query, source),
             page: None,
             problems: records
@@ -73,7 +75,10 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &ArticleGet) -> Outcome {
     );
     let mut deadline = deadline.after_stage(started.saturating_sub(remaining));
     super::preprint::cards(cx, &mut deadline, &mut out);
-    let requested = if let QueryBody::ArticleCards(cards) = &mut out.body {
+    let requested = if let ReplyData::ArticleCards {
+        body: Some(cards), ..
+    } = &mut out.body
+    {
         super::sections::prepare(query, &mut cards.items)
     } else {
         false

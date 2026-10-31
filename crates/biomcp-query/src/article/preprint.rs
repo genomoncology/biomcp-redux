@@ -5,10 +5,13 @@ use biomcp_adapters::europepmc;
 use biomcp_fetch::Deadline;
 use biomcp_types::ArticleInput;
 use biomcp_types::{
-    ArticleMatch, ArticleResolution, QueryBody, Section, Source, SourceState, Status,
+    ArticleMatch, ArticleResolution, ReplyData, Section, Source, SourceState, Status,
 };
 pub(super) fn cards<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut Outcome) {
-    let QueryBody::ArticleCards(cards) = &mut out.body else {
+    let ReplyData::ArticleCards {
+        body: Some(cards), ..
+    } = &mut out.body
+    else {
         return;
     };
     let leg = cx.fetch.leg(&europepmc::SPEC, *deadline).fresh(cx.fresh);
@@ -58,7 +61,10 @@ pub(super) fn cards<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut Out
     }
 }
 pub(super) fn fulltext<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut Outcome) {
-    let QueryBody::ArticleCards(cards) = &mut out.body else {
+    let ReplyData::ArticleCards {
+        body: Some(cards), ..
+    } = &mut out.body
+    else {
         return;
     };
     let leg = cx.fetch.leg(&europepmc::SPEC, *deadline).fresh(cx.fresh);

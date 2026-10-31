@@ -1,17 +1,16 @@
 //! Page-local exact sample observations with explicit cohort and source provenance.
+use biomcp_types::ReplyBody;
 mod matching;
 use crate::{Ctx, Outcome, status};
 
 use biomcp_adapters::{cbioportal, hgnc};
 use biomcp_fetch::{Deadline, Find, KeyKind, RequestError};
-use biomcp_types::{
-    QueryBody, Reason, Request, Source, StepKind, VariantRecurrence, VariantRecurrenceQuery,
-};
+use biomcp_types::{Reason, Request, Source, StepKind, VariantRecurrence, VariantRecurrenceQuery};
 /// Read one native page without inventing an assayed denominator or selecting an ambiguous allele.
 pub(crate) fn run(cx: &Ctx<'_>, query: &VariantRecurrenceQuery) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
-    let mut out = crate::status::empty(QueryBody::VariantRecurrence(empty()));
+    let mut out = crate::status::empty((empty()).with_query(query.clone()));
     if let Err(error) = execute(cx, query, deadline, &mut out) {
         out.local = status::local(error);
     }
@@ -79,7 +78,7 @@ fn execute(
     body.examined_rows = window.received();
     body.all_pages_read = query.page() == 0 && !more;
     body.more = more;
-    out.body = QueryBody::VariantRecurrence(body);
+    out.body = body.with_query(query.clone());
     {
         let unavailable = !(out
             .sources
