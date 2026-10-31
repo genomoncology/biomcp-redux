@@ -1,5 +1,5 @@
 //! Cross-entity commands require complete source context, never a drug-name inference.
-use crate::{Action, Outcome};
+use crate::Outcome;
 use biodata::{Build, Chromosome, GeneSymbol, Text};
 use biomcp_types::{
     DrugCivic, DrugCivicClaim, DrugCivicMember, DrugOncokbLookup, DrugOncokbMissing, Request,
@@ -59,13 +59,11 @@ pub(super) fn civic(
             if let Some(lookup) =
                 member.and_then(|m| lookup(m, variant, build, tumor, &mut out.problems))
             {
-                let action = crate::next::Step::new(
+                let action = crate::next::Step::run(
                     StepKind::Disambiguate,
                     &crate::variant::next_sources(fetch, &lookup.query),
-                    Action::Run {
-                        request: Request::GetVariant(lookup.query.clone()),
-                        fresh,
-                    },
+                    Request::GetVariant(lookup.query.clone()),
+                    fresh,
                 );
                 row.oncokb_lookup = Some(lookup);
                 if !out.next.contains(&action) {

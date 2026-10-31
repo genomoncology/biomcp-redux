@@ -45,13 +45,11 @@ fn navigation(query: &AdverseEventGet, total: u64, returned: u32, offset: u32, o
             truncated: None,
         });
         if offset > query.section_offset() && u64::from(offset) < total {
-            out.next.push(crate::next::Step::new(
+            out.next.push(crate::next::Step::run(
                 StepKind::Page,
                 &[biomcp_types::Source::Maude],
-                Action::Run {
-                    request: Request::GetAdverseEvent(query.at_section_offset(offset)),
-                    fresh: false,
-                },
+                Request::GetAdverseEvent(query.at_section_offset(offset)),
+                false,
             ));
         }
     } else {
@@ -61,13 +59,11 @@ fn navigation(query: &AdverseEventGet, total: u64, returned: u32, offset: u32, o
                 biomcp_types::Source::Maude,
                 &mut out.problems,
             ) {
-                out.next.push(crate::next::Step::new(
+                out.next.push(crate::next::Step::run(
                     StepKind::Section,
                     &[biomcp_types::Source::Maude],
-                    Action::Run {
-                        request: Request::GetAdverseEvent(next),
-                        fresh: false,
-                    },
+                    Request::GetAdverseEvent(next),
+                    false,
                 ));
             }
         }

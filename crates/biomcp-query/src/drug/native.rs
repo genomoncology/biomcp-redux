@@ -55,24 +55,20 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
                 query.source().source(),
                 &mut out.problems,
             ) {
-                out.next.push(crate::next::Step::new(
+                out.next.push(crate::next::Step::run(
                     StepKind::Disambiguate,
                     &[get.source().source()],
-                    Action::Run {
-                        request: Request::GetDrug(get),
-                        fresh: cx.fresh,
-                    },
+                    Request::GetDrug(get),
+                    cx.fresh,
                 ));
             }
         }
         if let Some(offset) = next_offset {
-            out.next.push(crate::next::Step::new(
+            out.next.push(crate::next::Step::run(
                 StepKind::Page,
                 &[query.source().source()],
-                Action::Run {
-                    request: Request::SearchDrug(query.at_offset(offset)),
-                    fresh: cx.fresh,
-                },
+                Request::SearchDrug(query.at_offset(offset)),
+                cx.fresh,
             ));
         }
         out.body = QueryBody::DrugPage(page);

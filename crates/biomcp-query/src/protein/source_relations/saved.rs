@@ -1,5 +1,5 @@
 use super::{
-    Action, CacheError, Outcome, QueryBody, Request, RequestError, Selection, Source, SourceError,
+    CacheError, Outcome, QueryBody, Request, RequestError, Selection, Source, SourceError,
     StepKind, Store, complex_portal, interpro,
 };
 use biomcp_types::{ProteinComplexMembers, ProteinComplexes, ProteinDomains};
@@ -139,13 +139,11 @@ impl Saved {
                     &out.sources,
                 )?
             };
-            out.next.push(crate::next::Step::new(
+            out.next.push(crate::next::Step::run(
                 StepKind::Section,
                 &[biomcp_types::Source::ComplexPortal],
-                Action::Run {
-                    request: Request::ProteinComplexMembers(query.at_page(pool.info.id, 0)),
-                    fresh: false,
-                },
+                Request::ProteinComplexMembers(query.at_page(pool.info.id, 0)),
+                false,
             ));
         }
         Ok(())
@@ -197,13 +195,11 @@ impl Saved {
                             vec![biomcp_types::ProteinInput::Accession(id.clone())].into(),
                         )
                         .map_err(|_| bad(q.source()))?;
-                        out.next.push(crate::next::Step::new(
+                        out.next.push(crate::next::Step::run(
                             StepKind::Pivot,
                             &[biomcp_types::Source::UniProt],
-                            Action::Run {
-                                request: Request::GetProtein(q),
-                                fresh: false,
-                            },
+                            Request::GetProtein(q),
+                            false,
                         ));
                     }
                 }

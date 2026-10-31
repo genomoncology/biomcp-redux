@@ -1,5 +1,5 @@
 //! Declared variant searches keep native candidates, totals and page selectors.
-use crate::{Action, Ctx, Outcome, status};
+use crate::{Ctx, Outcome, status};
 
 use biomcp_adapters::{clinvar, myvariant};
 use biomcp_types::{
@@ -160,29 +160,25 @@ fn next(
                 problems,
             )
         {
-            next.push(crate::next::Step::new(
+            next.push(crate::next::Step::run(
                 StepKind::Disambiguate,
                 &[super::source(&q).source],
-                Action::Run {
-                    request: Request::GetVariant(q),
-                    fresh: false,
-                },
+                Request::GetVariant(q),
+                false,
             ));
         }
     }
     let offset = query.offset() + consumed;
     if u64::from(offset) < total && offset < VariantSearch::MAX_RESULTS && consumed > 0 {
-        next.push(crate::next::Step::new(
+        next.push(crate::next::Step::run(
             StepKind::Page,
             &[if query.uses_clinvar_selector() {
                 Source::ClinVar
             } else {
                 Source::MyVariant
             }],
-            Action::Run {
-                request: Request::SearchVariant(query.at_offset(offset)),
-                fresh: false,
-            },
+            Request::SearchVariant(query.at_offset(offset)),
+            false,
         ));
     }
     next

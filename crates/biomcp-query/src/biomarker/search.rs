@@ -124,23 +124,17 @@ fn page(
         .collect();
     for header in &items {
         for id in &header.codes {
-            out.next.push(crate::next::Step::new(
+            out.next.push(crate::next::Step::run(
                 StepKind::Pivot,
                 &[biomcp_types::Source::Nci],
-                Action::Run {
-                    request: Request::SearchTrial(biomcp_types::TrialSearch::for_nci_biomarker(
-                        id.clone(),
-                    )),
-                    fresh: false,
-                },
+                Request::SearchTrial(biomcp_types::TrialSearch::for_nci_biomarker(id.clone())),
+                false,
             ));
-            out.next.push(crate::next::Step::new(
+            out.next.push(crate::next::Step::run(
                 StepKind::Disambiguate,
                 &[biomcp_types::Source::Nci],
-                Action::Run {
-                    request: Request::GetBiomarker(biomcp_types::BiomarkerGet::one(id.clone())),
-                    fresh: false,
-                },
+                Request::GetBiomarker(biomcp_types::BiomarkerGet::one(id.clone())),
+                false,
             ));
         }
     }

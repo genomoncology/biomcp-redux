@@ -100,16 +100,14 @@ fn recovery(out: &mut Outcome, request: Request) {
             biomcp_types::SourceState::Failed | biomcp_types::SourceState::Stale
         )
     }) {
-        out.next.push(crate::next::Step::new(
+        out.next.push(crate::next::Step::run(
             StepKind::Fresh,
             &out.sources
                 .iter()
                 .map(|source| source.source)
                 .collect::<Vec<_>>(),
-            Action::Run {
-                request,
-                fresh: true,
-            },
+            request,
+            true,
         ));
     }
 }

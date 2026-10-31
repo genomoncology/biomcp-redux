@@ -164,17 +164,15 @@ fn failure(query: &ArticleEdges, references: bool, out: &mut Outcome) {
             Action::KeyHelp(Source::SemanticScholar),
         ));
     }
-    out.next.push(crate::next::Step::new(
+    out.next.push(crate::next::Step::run(
         StepKind::Fresh,
         &[biomcp_types::Source::SemanticScholar],
-        Action::Run {
-            request: if references {
-                biomcp_types::Request::ArticleReferences(query.page(0, None))
-            } else {
-                biomcp_types::Request::ArticleCitations(query.page(0, None))
-            },
-            fresh: true,
+        if references {
+            biomcp_types::Request::ArticleReferences(query.page(0, None))
+        } else {
+            biomcp_types::Request::ArticleCitations(query.page(0, None))
         },
+        true,
     ));
 }
 

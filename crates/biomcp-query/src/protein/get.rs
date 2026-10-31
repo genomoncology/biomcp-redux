@@ -209,13 +209,11 @@ fn recovery(q: &ProteinGet, out: &mut Outcome) {
         ));
     }
     if fresh {
-        out.next.push(crate::next::Step::new(
+        out.next.push(crate::next::Step::run(
             StepKind::Fresh,
             &[biomcp_types::Source::UniProt],
-            Action::Run {
-                request: Request::GetProtein(q.clone()),
-                fresh: true,
-            },
+            Request::GetProtein(q.clone()),
+            true,
         ));
     }
 }

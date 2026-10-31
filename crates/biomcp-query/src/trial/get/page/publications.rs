@@ -1,5 +1,5 @@
 use super::{Snapshot, advance, continue_records, records, section};
-use crate::{Action, Outcome};
+use crate::Outcome;
 use biodata::Text;
 use biomcp_fetch::RequestError;
 use biomcp_types::ArticleInput;
@@ -39,13 +39,11 @@ pub(super) fn render(
                 biomcp_types::Source::ClinicalTrialsGov,
                 &mut out.problems,
             ) {
-                out.next.push(crate::next::Step::new(
+                out.next.push(crate::next::Step::run(
                     StepKind::Section,
                     &[biomcp_types::Source::PubMed],
-                    Action::Run {
-                        request: Request::GetArticle(request),
-                        fresh: false,
-                    },
+                    Request::GetArticle(request),
+                    false,
                 ));
             }
         }

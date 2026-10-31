@@ -1,5 +1,5 @@
 //! Native ancestry pagination reuses the same identity and gnomAD requests.
-use crate::{Action, Ctx, Outcome, status};
+use crate::{Ctx, Outcome, status};
 use biodata::PopulationDataType;
 use biomcp_adapters::gnomad;
 use biomcp_fetch::RequestError;
@@ -29,13 +29,11 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &VariantPopulationQuery) -> Outcome {
     });
     let mut next = Vec::new();
     if query.offset() as u64 + u64::from(returned) < total {
-        next.push(crate::next::Step::new(
+        next.push(crate::next::Step::run(
             StepKind::Page,
             &[biomcp_types::Source::Gnomad],
-            Action::Run {
-                request: Request::VariantPopulation(query.at_offset(query.offset() + returned)),
-                fresh: false,
-            },
+            Request::VariantPopulation(query.at_offset(query.offset() + returned)),
+            false,
         ));
     }
     next.extend(choices(query, &read.candidates, &mut read.problems));
@@ -154,13 +152,11 @@ fn choices(
                 }
                 request => (request, vec![source]),
             };
-            Some(crate::next::Step::new(
+            Some(crate::next::Step::run(
                 StepKind::Disambiguate,
                 &sources,
-                Action::Run {
-                    request,
-                    fresh: false,
-                },
+                request,
+                false,
             ))
         })
         .collect()

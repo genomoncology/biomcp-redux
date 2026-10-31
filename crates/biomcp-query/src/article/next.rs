@@ -4,13 +4,11 @@ use biomcp_types::{ArticleGet, ArticleResolution, QueryBody, Request, Status, St
 use biomcp_types::{ArticleInput, Source};
 pub(super) fn get(query: &ArticleGet, out: &mut Outcome) {
     if matches!(out.status(), Status::Failed | Status::Partial) {
-        out.next.push(crate::next::Step::new(
+        out.next.push(crate::next::Step::run(
             StepKind::Fresh,
             &get_sources(query),
-            Action::Run {
-                request: Request::GetArticle(query.clone()),
-                fresh: true,
-            },
+            Request::GetArticle(query.clone()),
+            true,
         ));
     }
     let QueryBody::ArticleCards(cards) = &out.body else {
@@ -20,37 +18,7 @@ pub(super) fn get(query: &ArticleGet, out: &mut Outcome) {
         let Some(ArticleResolution::Resolved { card, .. }) = &item.answer else {
             continue;
         };
-        if item.sections.as_ref().is_some_and(|s| {
-            matches!(
-                s.fulltext,
-                Some(
-                    biomcp_types::Section::NotApplicable
-                        | biomcp_types::Section::Unavailable {
-                            reason: biomcp_types::Reason::NotOpen,
-                            ..
-                        }
-                )
-            )
-        }) && let Some(input) = card
-            .pmid
-            .map(ArticleInput::Pmid)
-            .or_else(|| card.doi.clone().map(ArticleInput::Doi))
-            && let Some(query) = crate::next::checked(
-                ArticleGet::with_sections(
-                    vec![input].into(),
-                    vec![biomcp_types::ArticleSectionWord::Pdf].into(),
-                ),
-                biomcp_types::Source::PubMed,
-                &mut out.problems,
-            )
-        {
-            push(
-                &mut out.next,
-                StepKind::Section,
-                &get_sources(&query),
-                Request::GetArticle(query),
-            );
-        }
+        pdf(item, &mut out.next, &mut out.problems);
         let input = card
             .pmid
             .map(ArticleInput::Pmid)
@@ -106,15 +74,49 @@ pub(super) fn get(query: &ArticleGet, out: &mut Outcome) {
         );
     }
 }
+fn pdf(
+    item: &biomcp_types::ArticleCardItem,
+    next: &mut Vec<crate::next::Step>,
+    problems: &mut Vec<biomcp_types::Problem>,
+) {
+    let Some(ArticleResolution::Resolved { card, .. }) = &item.answer else {
+        return;
+    };
+    if item.sections.as_ref().is_some_and(|s| {
+        matches!(
+            s.fulltext,
+            Some(
+                biomcp_types::Section::NotApplicable
+                    | biomcp_types::Section::Unavailable {
+                        reason: biomcp_types::Reason::NotOpen,
+                        ..
+                    }
+            )
+        )
+    }) && let Some(input) = card
+        .pmid
+        .map(ArticleInput::Pmid)
+        .or_else(|| card.doi.clone().map(ArticleInput::Doi))
+        && let Some(query) = crate::next::checked(
+            ArticleGet::with_sections(
+                vec![input].into(),
+                vec![biomcp_types::ArticleSectionWord::Pdf].into(),
+            ),
+            biomcp_types::Source::PubMed,
+            problems,
+        )
+    {
+        push(
+            next,
+            StepKind::Section,
+            &get_sources(&query),
+            Request::GetArticle(query),
+        );
+    }
+}
+
 fn push(next: &mut Vec<crate::next::Step>, kind: StepKind, sources: &[Source], request: Request) {
-    let step = crate::next::Step::new(
-        kind,
-        sources,
-        Action::Run {
-            request,
-            fresh: false,
-        },
-    );
+    let step = crate::next::Step::run(kind, sources, request, false);
     if next.len() < 5 && !next.contains(&step) {
         next.push(step);
     }
@@ -149,13 +151,11 @@ pub(super) fn search(
     }
     if !partial && total < u64::from(query.limit()) {
         out.next.extend(query.term_drops().into_iter().map(|query| {
-            crate::next::Step::new(
+            crate::next::Step::run(
                 StepKind::Disambiguate,
                 &search_sources(&query),
-                Action::Run {
-                    request: Request::SearchArticle(query),
-                    fresh: false,
-                },
+                Request::SearchArticle(query),
+                false,
             )
         }));
         if let Some(broader) = query.without_variant() {
@@ -175,13 +175,11 @@ fn variant_step(search: &biomcp_types::ArticleSearch, out: &mut Outcome) {
         && search.gene().is_some()
         && search.variant().is_some()
     {
-        out.next.push(crate::next::Step::new(
+        out.next.push(crate::next::Step::run(
             StepKind::Disambiguate,
             &[Source::PubMed, Source::LitVar],
-            crate::Action::Run {
-                request: Request::SearchArticle(search.with_litvar()),
-                fresh: false,
-            },
+            Request::SearchArticle(search.with_litvar()),
+            false,
         ));
     }
 }
@@ -199,15 +197,13 @@ pub(super) fn authors(out: &mut Outcome) {
         .filter_map(|row| row.header.as_ref())
         .filter_map(|header| header.first_author_id.as_ref())
     {
-        let step = crate::next::Step::new(
+        let step = crate::next::Step::run(
             StepKind::Pivot,
             &[Source::SemanticScholar],
-            Action::Run {
-                request: Request::GetAuthor(biomcp_types::AuthorGet::one(
-                    biodata::AuthorId::SemanticScholar(id.clone()),
-                )),
-                fresh: false,
-            },
+            Request::GetAuthor(biomcp_types::AuthorGet::one(
+                biodata::AuthorId::SemanticScholar(id.clone()),
+            )),
+            false,
         );
         if !out.next.contains(&step) {
             out.next.push(step);
@@ -225,13 +221,11 @@ pub(super) fn text(query: &biomcp_types::ArticleText, out: &mut Outcome) {
             &mut out.problems,
         )
     {
-        out.next.push(crate::next::Step::new(
+        out.next.push(crate::next::Step::run(
             StepKind::Disambiguate,
             &get_sources(&get),
-            Action::Run {
-                request: Request::GetArticle(get),
-                fresh: false,
-            },
+            Request::GetArticle(get),
+            false,
         ));
     }
 }

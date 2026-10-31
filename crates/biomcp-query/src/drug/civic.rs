@@ -1,5 +1,5 @@
 //! Source-local CIViC therapy candidates and independent native claim streams.
-use crate::{Action, Ctx, Outcome, status};
+use crate::{Ctx, Outcome, status};
 use biomcp_adapters::civic;
 use biomcp_types::{
     DrugGet, DrugPage, DrugSearch, DrugSection, DrugSource, PageInfo, QueryBody, Request, Source,
@@ -49,13 +49,11 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
                 biomcp_types::Source::Civic,
                 &mut out.problems,
             ) {
-                out.next.push(crate::next::Step::new(
+                out.next.push(crate::next::Step::run(
                     StepKind::Disambiguate,
                     &[biomcp_types::Source::Civic],
-                    Action::Run {
-                        request: Request::GetDrug(get),
-                        fresh: cx.fresh,
-                    },
+                    Request::GetDrug(get),
+                    cx.fresh,
                 ));
             }
         }
@@ -64,13 +62,11 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
             .checked_add(consumed)
             .filter(|n| consumed > 0 && page.total.is_some_and(|t| u64::from(*n) < t))
         {
-            out.next.push(crate::next::Step::new(
+            out.next.push(crate::next::Step::run(
                 StepKind::Page,
                 &[biomcp_types::Source::Civic],
-                Action::Run {
-                    request: Request::SearchDrug(query.at_offset(offset)),
-                    fresh: cx.fresh,
-                },
+                Request::SearchDrug(query.at_offset(offset)),
+                cx.fresh,
             ));
         }
         out.body = QueryBody::DrugPage(page);
@@ -104,13 +100,11 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
         if let biomcp_types::Section::Data { data, .. } = &value.civic {
             for stream in [&data.evidence, &data.assertions].into_iter().flatten() {
                 if let Some(next) = &stream.page.next {
-                    out.next.push(crate::next::Step::new(
+                    out.next.push(crate::next::Step::run(
                         StepKind::Page,
                         &[biomcp_types::Source::Civic],
-                        Action::Run {
-                            request: Request::GetDrug(next.clone()),
-                            fresh: cx.fresh,
-                        },
+                        Request::GetDrug(next.clone()),
+                        cx.fresh,
                     ));
                 }
             }

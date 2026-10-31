@@ -1,5 +1,5 @@
 use super::Snapshot;
-use crate::{Action, Outcome};
+use crate::Outcome;
 use biodata::Text;
 use biomcp_fetch::RequestError;
 use biomcp_types::{ArticleEvidence, ArticleEvidenceResult, QueryBody, Request, Section, StepKind};
@@ -75,13 +75,11 @@ pub(super) fn render(
         unavailable || !snapshot.terminal,
     );
     if more || !snapshot.terminal {
-        out.next.push(crate::next::Step::new(
+        out.next.push(crate::next::Step::run(
             StepKind::Page,
             &super::super::next::evidence_sources(query),
-            Action::Run {
-                request: Request::ArticleEvidence(query.page(id, context_end, paragraph_end)),
-                fresh: false,
-            },
+            Request::ArticleEvidence(query.page(id, context_end, paragraph_end)),
+            false,
         ));
     }
     out.body = QueryBody::ArticleEvidence(ArticleEvidenceResult {

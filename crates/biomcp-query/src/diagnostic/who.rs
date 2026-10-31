@@ -24,13 +24,11 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DiagnosticGet) -> Outcome {
             },
         ));
         if !cx.fresh {
-            out.next.push(crate::next::Step::new(
+            out.next.push(crate::next::Step::run(
                 StepKind::Fresh,
                 &[biomcp_types::Source::WhoIvd],
-                Action::Run {
-                    request: Request::GetDiagnostic(query.clone()),
-                    fresh: true,
-                },
+                Request::GetDiagnostic(query.clone()),
+                true,
             ));
         }
     }

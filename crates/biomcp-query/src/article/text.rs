@@ -1,5 +1,5 @@
 //! Bounded body selection under one command budget, including PMID resolution.
-use crate::{Action, Ctx, Outcome, status};
+use crate::{Ctx, Outcome, status};
 use biodata::{Pmcid, Text};
 
 use biomcp_adapters::{europepmc, jats, pmc_oa, pubmed};
@@ -44,13 +44,11 @@ pub fn download(cx: &Ctx<'_>, query: &ArticleText, allow: bool) -> super::save::
             let reason = crate::status::reason(error).unwrap_or(Reason::Unavailable);
             body.content = Section::unavailable(source, reason);
         }
-        out.next.push(crate::next::Step::new(
+        out.next.push(crate::next::Step::run(
             StepKind::Fresh,
             &super::next::text_sources(query.input()),
-            Action::Run {
-                request: Request::ArticleText(query.clone()),
-                fresh: true,
-            },
+            Request::ArticleText(query.clone()),
+            true,
         ));
     }
     super::next::text(query, &mut out);
@@ -258,13 +256,11 @@ fn find(
     let total = u64::try_from(hits.len()).ok()?;
     let following = query.offset().checked_add(returned)?;
     if returned > 0 && u64::from(following) < total {
-        out.next.push(crate::next::Step::new(
+        out.next.push(crate::next::Step::run(
             StepKind::Page,
             &super::next::text_sources(query.input()),
-            Action::Run {
-                request: Request::ArticleText(query.page(following)),
-                fresh: false,
-            },
+            Request::ArticleText(query.page(following)),
+            false,
         ));
     }
     out.page = Some(PageInfo {

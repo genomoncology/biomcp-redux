@@ -1,6 +1,6 @@
 //! NCI native snapshots use the existing trial store and provider policy admission.
 use super::{ATTRIBUTION, empty, finish, page};
-use crate::{Action, Ctx, Outcome, status, store::Store};
+use crate::{Ctx, Outcome, status, store::Store};
 
 use biomcp_adapters::nci;
 use biomcp_fetch::{CacheError, RequestError};
@@ -107,13 +107,11 @@ fn restore(
     })?;
     let Some(payload) = payload else {
         out.body = QueryBody::PoolError { mismatch: false };
-        out.next.push(crate::next::Step::new(
+        out.next.push(crate::next::Step::run(
             StepKind::Restart,
             &[biomcp_types::Source::Nci],
-            Action::Run {
-                request: Request::GetTrial(q.identity()),
-                fresh: false,
-            },
+            Request::GetTrial(q.identity()),
+            false,
         ));
         return Ok(());
     };

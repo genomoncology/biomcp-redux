@@ -139,26 +139,22 @@ pub(super) fn next(
     if let Some(page) = page
         && (page.offset as u64 + page.returned as u64) < page.total
     {
-        next.push(crate::next::Step::new(
+        next.push(crate::next::Step::run(
             StepKind::Page,
             &super::next_sources(fetch, query),
-            Action::Run {
-                request: Request::GetVariant(query.at_offset(page.offset + page.returned)),
-                fresh: false,
-            },
+            Request::GetVariant(query.at_offset(page.offset + page.returned)),
+            false,
         ));
     }
     if query.sections().is_empty() && !candidates.is_empty() {
         let section = query
             .clone()
             .with_sections(vec![biomcp_types::VariantSection::Clinvar].into());
-        next.push(crate::next::Step::new(
+        next.push(crate::next::Step::run(
             StepKind::Section,
             &super::next_sources(fetch, &section),
-            Action::Run {
-                request: Request::GetVariant(section),
-                fresh: false,
-            },
+            Request::GetVariant(section),
+            false,
         ));
     }
     collect(fetch, candidates, &mut next);

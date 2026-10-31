@@ -17,6 +17,15 @@ impl Step {
     pub fn new(kind: StepKind, sources: &[Source], action: Action) -> Self {
         Self(kind, action, sources.into())
     }
+    /// Retain a checked query and its cache policy with the declared provider requirements.
+    pub fn run(
+        kind: StepKind,
+        sources: &[Source],
+        request: biomcp_types::Request,
+        fresh: bool,
+    ) -> Self {
+        Self::new(kind, sources, Action::Run { request, fresh })
+    }
     fn is_get(&self) -> bool {
         use biomcp_types::Request::*;
         matches!(

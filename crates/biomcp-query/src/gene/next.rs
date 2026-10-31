@@ -5,14 +5,7 @@ use biomcp_types::{
 };
 use biomcp_types::{GeneHeader, GeneResolution};
 fn retry(sources: &[biomcp_types::Source], request: Request) -> crate::next::Step {
-    crate::next::Step::new(
-        StepKind::Fresh,
-        sources,
-        Action::Run {
-            request,
-            fresh: true,
-        },
-    )
+    crate::next::Step::run(StepKind::Fresh, sources, request, true)
 }
 fn sync() -> crate::next::Step {
     crate::next::Step::new(
@@ -32,13 +25,11 @@ fn get_id(
         biomcp_types::Source::Hgnc,
         problems,
     )?;
-    Some(crate::next::Step::new(
+    Some(crate::next::Step::run(
         StepKind::Disambiguate,
         &[biomcp_types::Source::Hgnc],
-        Action::Run {
-            request: Request::GetGene(query),
-            fresh: false,
-        },
+        Request::GetGene(query),
+        false,
     ))
 }
 pub(crate) fn get(
@@ -103,6 +94,14 @@ pub(crate) fn get(
             }
         }
     }
+    section_steps(items, &mut steps, problems);
+    steps
+}
+fn section_steps(
+    items: &[GeneItem],
+    steps: &mut Vec<crate::next::Step>,
+    problems: &mut Vec<biomcp_types::Problem>,
+) {
     for item in items {
         if !item.more.is_empty()
             && let Some(GeneResolution::Resolved { gene, .. }) = &item.answer
@@ -126,13 +125,11 @@ pub(crate) fn get(
                 biomcp_types::Source::Hgnc,
                 problems,
             ) {
-                let step = crate::next::Step::new(
+                let step = crate::next::Step::run(
                     StepKind::Section,
                     &get_sources(&query),
-                    Action::Run {
-                        request: Request::GetGene(query),
-                        fresh: false,
-                    },
+                    Request::GetGene(query),
+                    false,
                 );
                 if steps.len() < 5 && !steps.contains(&step) {
                     steps.push(step);
@@ -140,7 +137,6 @@ pub(crate) fn get(
             }
         }
     }
-    steps
 }
 pub(crate) fn search(
     query: &GeneSearch,
@@ -163,13 +159,11 @@ pub(crate) fn search(
     if let Some(offset) = page.offset.checked_add(page.returned)
         && u64::from(offset) < page.total
     {
-        steps.push(crate::next::Step::new(
+        steps.push(crate::next::Step::run(
             StepKind::Page,
             &[biomcp_types::Source::Hgnc],
-            Action::Run {
-                request: Request::SearchGene(query.at_offset(offset)),
-                fresh: false,
-            },
+            Request::SearchGene(query.at_offset(offset)),
+            false,
         ));
     }
     if let Some(header) = items.first()

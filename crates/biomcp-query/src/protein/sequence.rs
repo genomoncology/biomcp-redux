@@ -1,5 +1,5 @@
 //! Direct sequence identity never inherits another isoform's residues or audit.
-use crate::{Action, Ctx, Outcome, status};
+use crate::{Ctx, Outcome, status};
 use biodata::{ProteinSequence, Text};
 use biomcp_adapters::{Mapped, uniprot};
 use biomcp_fetch::{Leg, RequestError, SourceError};
@@ -70,13 +70,11 @@ pub(super) fn run(cx: &Ctx<'_>, q: &ProteinSequenceQuery) -> Outcome {
     out.sources
         .push(status::source(Source::UniProt, leg.finish(), error));
     if error.is_some() {
-        out.next.push(crate::next::Step::new(
+        out.next.push(crate::next::Step::run(
             StepKind::Fresh,
             &[biomcp_types::Source::UniProt],
-            Action::Run {
-                request: Request::ProteinSequence(q.clone()),
-                fresh: true,
-            },
+            Request::ProteinSequence(q.clone()),
+            true,
         ));
     } else if out
         .sources

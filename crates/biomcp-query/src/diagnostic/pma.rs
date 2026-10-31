@@ -77,52 +77,56 @@ fn selected(
         return Ok(());
     };
     match q.section() {
-        None => {
-            let sections: Box<[_]> = if q.supplement().is_some() {
-                vec![DiagnosticSection::Regulatory]
-            } else {
-                vec![
-                    DiagnosticSection::Regulatory,
-                    DiagnosticSection::Supplements,
-                ]
-            }
-            .into();
-            for section in &sections {
-                if let Some(query) = crate::next::checked(
-                    q.with_section(*section),
-                    biomcp_types::Source::FdaPma,
-                    &mut out.problems,
-                ) {
-                    next::push(
-                        out,
-                        StepKind::Section,
-                        &[query.source().source()],
-                        Request::GetDiagnostic(query),
-                        fresh,
-                    );
-                }
-            }
-            association(out, q, fresh);
-            out.body =
-                QueryBody::DiagnosticCard(Some(DiagnosticCard::PmaSubmission(DiagnosticPmaCard {
-                    header: fda_pma::header(row)?,
-                    sections,
-                })));
-        }
+        None => card(out, q, row, fresh)?,
         Some(DiagnosticSection::Supplements) => supplements(out, q, &records.rows, fresh)?,
         Some(DiagnosticSection::Regulatory) => regulatory(out, q, row, fresh)?,
         _ => {}
     }
     if !fresh {
-        out.next.push(crate::next::Step::new(
+        out.next.push(crate::next::Step::run(
             StepKind::Fresh,
             &[biomcp_types::Source::FdaPma],
-            crate::Action::Run {
-                request: Request::GetDiagnostic(q.clone()),
-                fresh: true,
-            },
+            Request::GetDiagnostic(q.clone()),
+            true,
         ));
     }
+    Ok(())
+}
+fn card(
+    out: &mut Outcome,
+    q: &DiagnosticGet,
+    row: &DeviceSubmission,
+    fresh: bool,
+) -> Result<(), biomcp_fetch::RequestError> {
+    let sections: Box<[_]> = if q.supplement().is_some() {
+        vec![DiagnosticSection::Regulatory]
+    } else {
+        vec![
+            DiagnosticSection::Regulatory,
+            DiagnosticSection::Supplements,
+        ]
+    }
+    .into();
+    for section in &sections {
+        if let Some(query) = crate::next::checked(
+            q.with_section(*section),
+            biomcp_types::Source::FdaPma,
+            &mut out.problems,
+        ) {
+            next::push(
+                out,
+                StepKind::Section,
+                &[query.source().source()],
+                Request::GetDiagnostic(query),
+                fresh,
+            );
+        }
+    }
+    association(out, q, fresh);
+    out.body = QueryBody::DiagnosticCard(Some(DiagnosticCard::PmaSubmission(DiagnosticPmaCard {
+        header: fda_pma::header(row)?,
+        sections,
+    })));
     Ok(())
 }
 fn association(out: &mut Outcome, q: &DiagnosticGet, fresh: bool) {

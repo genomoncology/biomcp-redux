@@ -1,4 +1,4 @@
-use crate::{Action, Ctx, Outcome};
+use crate::{Ctx, Outcome};
 use biomcp_adapters::{drugsfda as source, received_date};
 use biomcp_fetch::RequestError;
 use biomcp_types::{
@@ -53,13 +53,11 @@ pub(super) fn select(
                 &mut out.problems,
             )
         {
-            out.next.push(crate::next::Step::new(
+            out.next.push(crate::next::Step::run(
                 StepKind::Page,
                 &[biomcp_types::Source::Drugsfda],
-                Action::Run {
-                    request: Request::GetDrug(request),
-                    fresh: cx.fresh,
-                },
+                Request::GetDrug(request),
+                cx.fresh,
             ));
         }
         Section::Data {

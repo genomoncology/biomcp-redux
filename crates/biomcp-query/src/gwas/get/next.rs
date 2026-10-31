@@ -1,4 +1,4 @@
-use super::{Action, GwasAssociation, GwasGet, GwasLocus, Outcome, Request, StepKind, action};
+use super::{GwasAssociation, GwasGet, GwasLocus, Outcome, Request, StepKind, action};
 use biomcp_types::Source;
 pub(super) fn association(row: &GwasAssociation, out: &mut Outcome) {
     if let Some(study) = &row.study
@@ -24,13 +24,11 @@ pub(super) fn association(row: &GwasAssociation, out: &mut Outcome) {
             Source::Gwas,
             &mut out.problems,
         ) {
-            out.next.push(crate::next::Step::new(
+            out.next.push(crate::next::Step::run(
                 StepKind::Pivot,
                 &[biomcp_types::Source::MyVariant],
-                Action::Run {
-                    request: Request::GetVariant(q),
-                    fresh: false,
-                },
+                Request::GetVariant(q),
+                false,
             ));
         }
     }
@@ -43,13 +41,11 @@ pub(super) fn association(row: &GwasAssociation, out: &mut Outcome) {
             &mut out.problems,
         )
     {
-        out.next.push(crate::next::Step::new(
+        out.next.push(crate::next::Step::run(
             StepKind::Pivot,
             &[biomcp_types::Source::PubMed],
-            Action::Run {
-                request: Request::GetArticle(q),
-                fresh: false,
-            },
+            Request::GetArticle(q),
+            false,
         ));
     }
 }
@@ -83,13 +79,11 @@ pub(super) fn loci(rows: &[GwasLocus], out: &mut Outcome) {
                     &mut out.problems,
                 )
             {
-                out.next.push(crate::next::Step::new(
+                out.next.push(crate::next::Step::run(
                     StepKind::Pivot,
                     &[biomcp_types::Source::Hgnc],
-                    Action::Run {
-                        request: Request::GetGene(q),
-                        fresh: false,
-                    },
+                    Request::GetGene(q),
+                    false,
                 ));
             }
         }

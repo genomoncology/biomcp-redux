@@ -1,4 +1,4 @@
-use crate::{Action, Ctx, Outcome, status};
+use crate::{Ctx, Outcome, status};
 use biomcp_adapters::seer;
 use biomcp_types::{
     DiseaseGet, DiseaseIncidence, DiseaseSearch, DiseaseSection, DiseaseSites, DiseaseSurvival,

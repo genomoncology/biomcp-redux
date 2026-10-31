@@ -43,13 +43,11 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
             source.retrieved_count = Some(returned);
         }
         for row in &items {
-            out.next.push(crate::next::Step::new(
+            out.next.push(crate::next::Step::run(
                 StepKind::Disambiguate,
                 &[biomcp_types::Source::WhoPq],
-                Action::Run {
-                    request: Request::GetWhoMedicine(DrugWhoGet::new(row.reference.clone())),
-                    fresh: cx.fresh,
-                },
+                Request::GetWhoMedicine(DrugWhoGet::new(row.reference.clone())),
+                cx.fresh,
             ));
         }
         if let Some(offset) = query
@@ -57,13 +55,11 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
             .checked_add(returned)
             .filter(|next| returned > 0 && u64::from(*next) < total)
         {
-            out.next.push(crate::next::Step::new(
+            out.next.push(crate::next::Step::run(
                 StepKind::Page,
                 &[biomcp_types::Source::WhoPq],
-                Action::Run {
-                    request: Request::SearchDrug(query.at_offset(offset)),
-                    fresh: cx.fresh,
-                },
+                Request::SearchDrug(query.at_offset(offset)),
+                cx.fresh,
             ));
         }
         out.body = QueryBody::DrugWhoPage(DrugWhoPage { items, total });

@@ -55,13 +55,11 @@ pub(super) fn render(
     sites::render(query, &snapshot, pool.as_ref(), &mut sections, out)?;
     publications::render(query, &snapshot, pool.as_ref(), &mut sections, out)?;
     for section in SECTIONS.into_iter().filter(|s| !requested(*s)) {
-        out.next.push(crate::next::Step::new(
+        out.next.push(crate::next::Step::run(
             StepKind::Section,
             &[query.source().source()],
-            Action::Run {
-                request: Request::GetTrial(TrialGet::single(id, Some(section), query.limit())),
-                fresh: false,
-            },
+            Request::GetTrial(TrialGet::single(id, Some(section), query.limit())),
+            false,
         ));
     }
     out.problems
@@ -176,13 +174,11 @@ pub(in crate::trial) fn advance(
     if end < total
         && let Some(pool) = pool
     {
-        out.next.push(crate::next::Step::new(
+        out.next.push(crate::next::Step::run(
             StepKind::Page,
             &[query.source().source()],
-            Action::Run {
-                request: Request::GetTrial(query.page(id, section, pool.clone(), end)),
-                fresh: false,
-            },
+            Request::GetTrial(query.page(id, section, pool.clone(), end)),
+            false,
         ));
     }
 }

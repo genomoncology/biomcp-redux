@@ -1,4 +1,4 @@
-use crate::{Action, Ctx, Outcome, store::Store};
+use crate::{Ctx, Outcome, store::Store};
 use biodata::StudyHeader;
 use biomcp_fetch::{BundleInfo, CacheError, Deadline, RequestError};
 use biomcp_types::{
@@ -77,24 +77,20 @@ fn render(
             biomcp_types::Source::Cbioportal,
             &mut out.problems,
         ) {
-            out.next.push(crate::next::Step::new(
+            out.next.push(crate::next::Step::run(
                 StepKind::Disambiguate,
                 &[biomcp_types::Source::Cbioportal],
-                Action::Run {
-                    request: Request::GetStudy(get),
-                    fresh: cx.fresh,
-                },
+                Request::GetStudy(get),
+                cx.fresh,
             ));
         }
     }
     if u64::from(q.offset()) + u64::from(returned) < total {
-        out.next.push(crate::next::Step::new(
+        out.next.push(crate::next::Step::run(
             StepKind::Page,
             &[biomcp_types::Source::Cbioportal],
-            Action::Run {
-                request: Request::SearchStudy(query.at_offset(q.offset() + returned)),
-                fresh: cx.fresh,
-            },
+            Request::SearchStudy(query.at_offset(q.offset() + returned)),
+            cx.fresh,
         ));
     }
     out.page = Some(page.clone());
@@ -118,12 +114,10 @@ fn request_key(q: &StudySearch, snapshot: &StudySnapshot) -> Result<Vec<u8>, Req
 }
 fn pool_error(cx: &Ctx<'_>, q: &StudySearch, mismatch: bool, out: &mut Outcome) {
     out.body = QueryBody::PoolError { mismatch };
-    out.next.push(crate::next::Step::new(
+    out.next.push(crate::next::Step::run(
         StepKind::Restart,
         &[biomcp_types::Source::Cbioportal],
-        Action::Run {
-            request: Request::SearchStudy(q.with_pool(None).at_offset(0)),
-            fresh: cx.fresh,
-        },
+        Request::SearchStudy(q.with_pool(None).at_offset(0)),
+        cx.fresh,
     ));
 }

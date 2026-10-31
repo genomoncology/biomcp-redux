@@ -1,7 +1,7 @@
 //! An exact threshold walk retains received identities without scanning ahead.
 use super::{map, next};
 use crate::{
-    Action, Ctx, Outcome, status,
+    Ctx, Outcome, status,
     store::{Pool, Store},
 };
 use biomcp_adapters::gwas;
@@ -103,13 +103,11 @@ fn bad() -> RequestError {
 }
 fn restart(q: &GwasSearch, out: &mut Outcome, mismatch: bool) {
     out.body = QueryBody::PoolError { mismatch };
-    out.next.push(crate::next::Step::new(
+    out.next.push(crate::next::Step::run(
         StepKind::Restart,
         &[biomcp_types::Source::Gwas],
-        Action::Run {
-            request: Request::SearchGwas(q.restart()),
-            fresh: false,
-        },
+        Request::SearchGwas(q.restart()),
+        false,
     ));
 }
 fn read(

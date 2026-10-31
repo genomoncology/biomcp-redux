@@ -83,13 +83,11 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
                     &mut out.problems,
                 )
             {
-                out.next.push(crate::next::Step::new(
+                out.next.push(crate::next::Step::run(
                     StepKind::Section,
                     &[biomcp_types::Source::Ddinter],
-                    Action::Run {
-                        request: Request::GetDrug(get),
-                        fresh: cx.fresh,
-                    },
+                    Request::GetDrug(get),
+                    cx.fresh,
                 ));
             }
             let found = card.is_some();
@@ -134,13 +132,11 @@ fn page(
                 &mut out.problems,
             )
         {
-            out.next.push(crate::next::Step::new(
+            out.next.push(crate::next::Step::run(
                 StepKind::Page,
                 &[biomcp_types::Source::Ddinter],
-                Action::Run {
-                    request: Request::GetDrug(get),
-                    fresh,
-                },
+                Request::GetDrug(get),
+                fresh,
             ));
         }
     }

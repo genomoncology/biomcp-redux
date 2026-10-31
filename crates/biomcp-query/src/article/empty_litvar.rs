@@ -1,16 +1,14 @@
 //! Recover an empty LitVar selection without inferring another variant identity.
-use crate::{Action, Outcome};
+use crate::Outcome;
 use biomcp_types::{ArticleSearch, ArticleSource, Request, SourceNotice, StepKind};
 
 pub(super) fn recover(query: &ArticleSearch, out: &mut Outcome) {
     for source in [ArticleSource::Europepmc, ArticleSource::Pubmed] {
-        out.next.push(crate::next::Step::new(
+        out.next.push(crate::next::Step::run(
             StepKind::Disambiguate,
             &super::next::search_sources(&query.with_source(source)),
-            Action::Run {
-                request: Request::SearchArticle(query.with_source(source)),
-                fresh: false,
-            },
+            Request::SearchArticle(query.with_source(source)),
+            false,
         ));
     }
     if let Some(input) = query
@@ -29,23 +27,19 @@ pub(super) fn recover(query: &ArticleSearch, out: &mut Outcome) {
             &mut out.problems,
         )
     {
-        out.next.push(crate::next::Step::new(
+        out.next.push(crate::next::Step::run(
             StepKind::Disambiguate,
             &[biomcp_types::Source::MyVariant],
-            Action::Run {
-                request: Request::GetVariant(get),
-                fresh: false,
-            },
+            Request::GetVariant(get),
+            false,
         ));
     }
     if let Some(broader) = query.without_variant() {
-        out.next.push(crate::next::Step::new(
+        out.next.push(crate::next::Step::run(
             StepKind::Disambiguate,
             &super::next::search_sources(&broader),
-            Action::Run {
-                request: Request::SearchArticle(broader),
-                fresh: false,
-            },
+            Request::SearchArticle(broader),
+            false,
         ));
     }
     if let Some(source) = out.sources.last_mut() {

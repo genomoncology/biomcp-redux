@@ -31,13 +31,11 @@ pub fn run(cx: &Ctx<'_>, query: &ArticleRecommend) -> Outcome {
                 Action::KeyHelp(Source::SemanticScholar),
             ));
         }
-        out.next.push(crate::next::Step::new(
+        out.next.push(crate::next::Step::run(
             StepKind::Fresh,
             &[biomcp_types::Source::SemanticScholar],
-            Action::Run {
-                request: Request::ArticleRecommend(query.page(0, None)),
-                fresh: true,
-            },
+            Request::ArticleRecommend(query.page(0, None)),
+            true,
         ));
     }
     out
@@ -156,12 +154,10 @@ fn create<'a>(
 }
 
 fn restart(query: &ArticleRecommend, out: &mut Outcome) {
-    out.next.push(crate::next::Step::new(
+    out.next.push(crate::next::Step::run(
         StepKind::Restart,
         &[biomcp_types::Source::SemanticScholar],
-        Action::Run {
-            request: Request::ArticleRecommend(query.page(0, None)),
-            fresh: false,
-        },
+        Request::ArticleRecommend(query.page(0, None)),
+        false,
     ));
 }

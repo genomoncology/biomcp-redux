@@ -1,5 +1,5 @@
 //! Cheap publisher-link sections never download a file.
-use crate::{Action, Ctx, Outcome, status};
+use crate::{Ctx, Outcome, status};
 use biodata::Text;
 use biomcp_adapters::semantic_scholar;
 use biomcp_fetch::{Deadline, RequestError, SourceError};
@@ -45,17 +45,15 @@ pub(super) fn run<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut Outco
                 biomcp_types::Source::SemanticScholar,
                 &mut out.problems,
             ) {
-                out.next.push(crate::next::Step::new(
+                out.next.push(crate::next::Step::run(
                     StepKind::Section,
                     &[biomcp_types::Source::SemanticScholar],
-                    Action::Run {
-                        request: Request::ArticlePdf(ArticlePdf {
-                            input,
-                            save,
-                            replace: false,
-                        }),
-                        fresh: false,
-                    },
+                    Request::ArticlePdf(ArticlePdf {
+                        input,
+                        save,
+                        replace: false,
+                    }),
+                    false,
                 ));
             }
         }

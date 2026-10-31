@@ -1,6 +1,6 @@
 //! Source-native drug recall search and exact retrieval.
 use super::empty;
-use crate::{Action, Ctx, Outcome, status};
+use crate::{Ctx, Outcome, status};
 use biomcp_adapters::fda_drug_recall as source;
 use biomcp_fetch::{Leg, RequestError};
 use biomcp_types::{
@@ -35,13 +35,11 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DrugSearch) -> Outcome {
                 biomcp_types::Source::FdaDrugRecall,
                 &mut out.problems,
             ) {
-                out.next.push(crate::next::Step::new(
+                out.next.push(crate::next::Step::run(
                     StepKind::Disambiguate,
                     &[biomcp_types::Source::FdaDrugRecall],
-                    Action::Run {
-                        request: Request::GetDrug(get),
-                        fresh: cx.fresh,
-                    },
+                    Request::GetDrug(get),
+                    cx.fresh,
                 ));
             }
         }
@@ -50,13 +48,11 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DrugSearch) -> Outcome {
             .checked_add(returned)
             .filter(|n| returned > 0 && u64::from(*n) < page.total)
         {
-            out.next.push(crate::next::Step::new(
+            out.next.push(crate::next::Step::run(
                 StepKind::Page,
                 &[biomcp_types::Source::FdaDrugRecall],
-                Action::Run {
-                    request: Request::SearchDrug(q.at_offset(offset)),
-                    fresh: cx.fresh,
-                },
+                Request::SearchDrug(q.at_offset(offset)),
+                cx.fresh,
             ));
         }
         out.page = Some(PageInfo {

@@ -104,13 +104,11 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
                     biomcp_types::Source::Drugsfda,
                     &mut out.problems,
                 ) {
-                    out.next.push(crate::next::Step::new(
+                    out.next.push(crate::next::Step::run(
                         StepKind::Section,
                         &[biomcp_types::Source::Drugsfda],
-                        Action::Run {
-                            request: Request::GetDrug(request),
-                            fresh: cx.fresh,
-                        },
+                        Request::GetDrug(request),
+                        cx.fresh,
                     ));
                 }
                 out.body = QueryBody::DrugCard(Some(DrugCard {
@@ -145,13 +143,11 @@ fn label_steps(cx: &Ctx<'_>, row: &source::Application, out: &mut Outcome) {
             biomcp_types::Source::Drugsfda,
             &mut out.problems,
         ) {
-            out.next.push(crate::next::Step::new(
+            out.next.push(crate::next::Step::run(
                 StepKind::Disambiguate,
                 &[request.source().source()],
-                Action::Run {
-                    request: Request::GetDrug(request),
-                    fresh: cx.fresh,
-                },
+                Request::GetDrug(request),
+                cx.fresh,
             ));
         }
     }

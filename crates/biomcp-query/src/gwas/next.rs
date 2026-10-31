@@ -1,5 +1,4 @@
 //! One source-order navigation policy for an association page.
-use crate::Action;
 use biomcp_types::Source;
 use biomcp_types::{GwasPageQuery, GwasSearch, Request, StepKind};
 type Steps = Vec<crate::next::Step>;
@@ -78,9 +77,5 @@ pub(super) fn search(
     next
 }
 fn push(next: &mut Steps, kind: StepKind, request: Request, fresh: bool, source: Source) {
-    next.push(crate::next::Step::new(
-        kind,
-        &[source],
-        Action::Run { request, fresh },
-    ));
+    next.push(crate::next::Step::run(kind, &[source], request, fresh));
 }

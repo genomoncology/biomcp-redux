@@ -202,13 +202,11 @@ fn continuation(
     }
 }
 fn next(out: &mut Outcome, cx: &Ctx<'_>, kind: StepKind, query: StudyGet) {
-    out.next.push(crate::next::Step::new(
+    out.next.push(crate::next::Step::run(
         kind,
         &[biomcp_types::Source::Cbioportal],
-        Action::Run {
-            request: Request::GetStudy(query),
-            fresh: cx.fresh,
-        },
+        Request::GetStudy(query),
+        cx.fresh,
     ));
 }
 fn section_error(out: &mut Outcome, section: StudySection, error: Option<RequestError>) {

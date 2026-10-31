@@ -1,7 +1,7 @@
 //! Retained UniProt windows bind literal selectors and hide native cursors.
 use super::next;
 use crate::{
-    Action, Ctx, Outcome, status,
+    Ctx, Outcome, status,
     store::{Pool, Store},
 };
 use biodata::Text;
@@ -53,13 +53,11 @@ pub fn search(cx: &Ctx<'_>, q: &ProteinSearch) -> Outcome {
     }));
     if let Err(error) = read(cx, q, deadline, &mut out) {
         out.local = status::local(error);
-        out.next.push(crate::next::Step::new(
+        out.next.push(crate::next::Step::run(
             StepKind::Fresh,
             &[biomcp_types::Source::UniProt],
-            Action::Run {
-                request: Request::SearchProtein(q.restart()),
-                fresh: true,
-            },
+            Request::SearchProtein(q.restart()),
+            true,
         ));
     }
     command.finish(deadline.remaining());
@@ -75,13 +73,11 @@ fn key(q: &ProteinSearch) -> Vec<u8> {
 }
 fn restart(q: &ProteinSearch, out: &mut Outcome, mismatch: bool) {
     out.body = QueryBody::PoolError { mismatch };
-    out.next.push(crate::next::Step::new(
+    out.next.push(crate::next::Step::run(
         StepKind::Restart,
         &[biomcp_types::Source::UniProt],
-        Action::Run {
-            request: Request::SearchProtein(q.restart()),
-            fresh: false,
-        },
+        Request::SearchProtein(q.restart()),
+        false,
     ));
 }
 fn read(

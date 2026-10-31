@@ -73,13 +73,11 @@ pub fn run(cx: &Ctx<'_>, query: &ArticleEvidence) -> Outcome {
         );
     }
     if matches!(out.status(), Status::Failed | Status::Partial) && out.next.is_empty() {
-        out.next.push(crate::next::Step::new(
+        out.next.push(crate::next::Step::run(
             StepKind::Fresh,
             &super::next::evidence_sources(query),
-            Action::Run {
-                request: Request::ArticleEvidence(query.identity()),
-                fresh: true,
-            },
+            Request::ArticleEvidence(query.identity()),
+            true,
         ));
     }
     out
@@ -192,13 +190,11 @@ pub(super) fn bad() -> RequestError {
 }
 
 fn restart(query: &ArticleEvidence, out: &mut Outcome) {
-    out.next.push(crate::next::Step::new(
+    out.next.push(crate::next::Step::run(
         StepKind::Restart,
         &super::next::evidence_sources(query),
-        Action::Run {
-            request: Request::ArticleEvidence(query.identity()),
-            fresh: false,
-        },
+        Request::ArticleEvidence(query.identity()),
+        false,
     ));
 }
 

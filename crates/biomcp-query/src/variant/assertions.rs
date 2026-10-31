@@ -1,5 +1,5 @@
 //! Source assertions with independent row paging and exact record selection.
-use crate::{Action, Ctx, Outcome, status};
+use crate::{Ctx, Outcome, status};
 use biodata::VariantId;
 use biomcp_fetch::Deadline;
 use biomcp_types::{
@@ -22,13 +22,11 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &VariantAssertionsGet) -> Outcome {
         .next
         .clone()
         .map(|q| {
-            crate::next::Step::new(
+            crate::next::Step::run(
                 StepKind::Page,
                 &[q.source().source()],
-                Action::Run {
-                    request: Request::VariantAssertions(q),
-                    fresh: false,
-                },
+                Request::VariantAssertions(q),
+                false,
             )
         })
         .into_iter()

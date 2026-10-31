@@ -98,25 +98,21 @@ fn navigation(query: &AdverseEventSearch, page: &faers::Page, out: &mut Outcome)
             query.source().source(),
             &mut out.problems,
         ) {
-            out.next.push(crate::next::Step::new(
+            out.next.push(crate::next::Step::run(
                 StepKind::Disambiguate,
                 &[query.source().source()],
-                Action::Run {
-                    request: Request::GetAdverseEvent(get),
-                    fresh: false,
-                },
+                Request::GetAdverseEvent(get),
+                false,
             ));
         }
     }
     let offset = query.offset().saturating_add(returned);
     if returned > 0 && u64::from(offset) < page.total {
-        out.next.push(crate::next::Step::new(
+        out.next.push(crate::next::Step::run(
             StepKind::Page,
             &[query.source().source()],
-            Action::Run {
-                request: Request::SearchAdverseEvent(query.at_offset(offset)),
-                fresh: false,
-            },
+            Request::SearchAdverseEvent(query.at_offset(offset)),
+            false,
         ));
     }
 }

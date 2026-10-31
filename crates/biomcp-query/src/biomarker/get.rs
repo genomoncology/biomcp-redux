@@ -48,15 +48,13 @@ pub fn get(cx: &Ctx<'_>, q: &BiomarkerGet) -> Outcome {
         status::item(&mut out, total != 0, false, false);
         for row in &rows {
             for id in &row.header.codes {
-                let step = crate::next::Step::new(
+                let step = crate::next::Step::run(
                     StepKind::Pivot,
                     &[biomcp_types::Source::Nci],
-                    Action::Run {
-                        request: biomcp_types::Request::SearchTrial(
-                            biomcp_types::TrialSearch::for_nci_biomarker(id.clone()),
-                        ),
-                        fresh: false,
-                    },
+                    biomcp_types::Request::SearchTrial(
+                        biomcp_types::TrialSearch::for_nci_biomarker(id.clone()),
+                    ),
+                    false,
                 );
                 out.next.push(step);
             }

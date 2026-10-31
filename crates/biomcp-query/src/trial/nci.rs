@@ -124,13 +124,11 @@ fn apply(
     if !q.count_only() && returned > 0 && u64::from(offset.saturating_add(returned)) < page.total {
         let token = Text::new(&offset.saturating_add(returned).to_string());
         if let Some(token) = crate::next::checked(token, Source::Nci, &mut out.problems) {
-            out.next.push(crate::next::Step::new(
+            out.next.push(crate::next::Step::run(
                 StepKind::Page,
                 &[Source::Nci],
-                Action::Run {
-                    request: Request::SearchTrial(q.at_page(token)),
-                    fresh,
-                },
+                Request::SearchTrial(q.at_page(token)),
+                fresh,
             ));
         }
     }

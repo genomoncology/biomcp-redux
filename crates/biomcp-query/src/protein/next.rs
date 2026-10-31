@@ -1,4 +1,3 @@
-use crate::Action;
 use crate::next::Step;
 use biodata::ProteinHeader;
 use biomcp_types::{ProteinCardItem, ProteinGet, ProteinInput, ProteinSearch, Request, StepKind};
@@ -11,13 +10,11 @@ pub(super) fn accession(
         biomcp_types::Source::UniProt,
         problems,
     )?;
-    Some(crate::next::Step::new(
+    Some(crate::next::Step::run(
         StepKind::Disambiguate,
         &[biomcp_types::Source::UniProt],
-        Action::Run {
-            request: Request::GetProtein(q),
-            fresh: false,
-        },
+        Request::GetProtein(q),
+        false,
     ))
 }
 pub(super) fn cards(
@@ -50,13 +47,11 @@ pub(super) fn cards(
                     if steps.len() >= 5 {
                         break;
                     }
-                    steps.push(crate::next::Step::new(
+                    steps.push(crate::next::Step::run(
                         StepKind::Section,
                         &[section_source(*section)],
-                        Action::Run {
-                            request: Request::GetProtein(q.with_section(*section)),
-                            fresh: false,
-                        },
+                        Request::GetProtein(q.with_section(*section)),
+                        false,
                     ));
                 }
             }
@@ -73,13 +68,11 @@ pub(super) fn cards(
                     biomcp_types::Source::UniProt,
                     problems,
                 ) {
-                    let step = crate::next::Step::new(
+                    let step = crate::next::Step::run(
                         StepKind::Pivot,
                         &[biomcp_types::Source::Hgnc],
-                        Action::Run {
-                            request: Request::GetGene(q),
-                            fresh: false,
-                        },
+                        Request::GetGene(q),
+                        false,
                     );
                     if !steps.contains(&step) {
                         steps.push(step);
@@ -105,23 +98,19 @@ pub(super) fn search(
         .filter_map(|row| accession(row, problems))
         .collect();
     if more {
-        steps.push(crate::next::Step::new(
+        steps.push(crate::next::Step::run(
             StepKind::Page,
             &[biomcp_types::Source::UniProt],
-            Action::Run {
-                request: Request::SearchProtein(q.at_page(pool, offset)),
-                fresh: false,
-            },
+            Request::SearchProtein(q.at_page(pool, offset)),
+            false,
         ));
     }
     if partial {
-        steps.push(crate::next::Step::new(
+        steps.push(crate::next::Step::run(
             StepKind::Fresh,
             &[biomcp_types::Source::UniProt],
-            Action::Run {
-                request: Request::SearchProtein(q.restart()),
-                fresh: true,
-            },
+            Request::SearchProtein(q.restart()),
+            true,
         ));
     }
     steps

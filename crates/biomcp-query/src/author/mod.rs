@@ -34,16 +34,14 @@ fn retry(out: &mut Outcome, request: Request) {
         .iter()
         .any(|s| matches!(s.state, SourceState::Failed | SourceState::Stale))
     {
-        out.next.push(crate::next::Step::new(
+        out.next.push(crate::next::Step::run(
             StepKind::Fresh,
             &out.sources
                 .iter()
                 .map(|source| source.source)
                 .collect::<Vec<_>>(),
-            Action::Run {
-                request,
-                fresh: true,
-            },
+            request,
+            true,
         ));
     }
 }

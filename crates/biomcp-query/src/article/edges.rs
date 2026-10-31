@@ -1,5 +1,5 @@
 use super::{empty, order, page};
-use crate::{Action, Ctx, Outcome, store::Store};
+use crate::{Ctx, Outcome, store::Store};
 use biodata::Text;
 use biomcp_fetch::{CacheError, Deadline, RequestError};
 use biomcp_types::{ArticleEdges, ArticleItem, ArticleKey, QueryBody, Request, StepKind};
@@ -26,17 +26,15 @@ fn request(query: ArticleEdges, references: bool) -> Request {
     }
 }
 fn restart(query: &ArticleEdges, references: bool, out: &mut Outcome, fresh: bool) {
-    out.next.push(crate::next::Step::new(
+    out.next.push(crate::next::Step::run(
         if fresh {
             StepKind::Fresh
         } else {
             StepKind::Restart
         },
         &[super::next::edge_source(query)],
-        Action::Run {
-            request: request(query.page(0, None), references),
-            fresh,
-        },
+        request(query.page(0, None), references),
+        fresh,
     ));
 }
 fn execute<'a>(

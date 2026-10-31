@@ -1,7 +1,7 @@
 use super::consume;
 use super::sources;
 use crate::{
-    Action, Ctx, Outcome, status,
+    Ctx, Outcome, status,
     store::{Pool, Store, StoredItem},
 };
 use biodata::Text;
@@ -49,13 +49,11 @@ impl Cursor<'_> {
         }
     }
     fn retry(self, pool: Option<Text>, out: &mut Outcome) {
-        out.next.push(crate::next::Step::new(
+        out.next.push(crate::next::Step::run(
             StepKind::Fresh,
             &self.sources(),
-            Action::Run {
-                request: self.request(self.offset(), pool),
-                fresh: true,
-            },
+            self.request(self.offset(), pool),
+            true,
         ));
     }
 }
@@ -212,13 +210,11 @@ fn finish(query: Cursor<'_>, pool: &Pool, rows: Vec<StoredItem>, out: &mut Outco
     if let Cursor::Search(search) = query
         && search.sort() != ArticleSort::Citations
     {
-        out.next.push(crate::next::Step::new(
+        out.next.push(crate::next::Step::run(
             StepKind::Sort,
             &super::next::search_sources(search),
-            Action::Run {
-                request: Request::SearchArticle(search.ordered(ArticleSort::Citations)),
-                fresh: false,
-            },
+            Request::SearchArticle(search.ordered(ArticleSort::Citations)),
+            false,
         ));
     }
 }
@@ -229,13 +225,11 @@ fn actions(query: Cursor<'_>, pool: &Pool, returned: u32, total: u64, out: &mut 
         .checked_add(returned)
         .filter(|offset| u64::from(*offset) < total && returned > 0)
     {
-        out.next.push(crate::next::Step::new(
+        out.next.push(crate::next::Step::run(
             StepKind::Page,
             &query.sources(),
-            Action::Run {
-                request: query.request(offset, Some(pool.info.id.clone())),
-                fresh: false,
-            },
+            query.request(offset, Some(pool.info.id.clone())),
+            false,
         ));
     }
     let items = match &out.body {
@@ -267,13 +261,11 @@ fn actions(query: Cursor<'_>, pool: &Pool, returned: u32, total: u64, out: &mut 
                 (input, parent.input().clone())
             };
             let evidence = biomcp_types::ArticleEvidence::new(citing, cited);
-            out.next.push(crate::next::Step::new(
+            out.next.push(crate::next::Step::run(
                 StepKind::Disambiguate,
                 &super::next::evidence_sources(&evidence),
-                Action::Run {
-                    request: Request::ArticleEvidence(evidence),
-                    fresh: false,
-                },
+                Request::ArticleEvidence(evidence),
+                false,
             ));
         }
     }
@@ -285,13 +277,11 @@ fn actions(query: Cursor<'_>, pool: &Pool, returned: u32, total: u64, out: &mut 
             &mut out.problems,
         )
     {
-        out.next.push(crate::next::Step::new(
+        out.next.push(crate::next::Step::run(
             StepKind::Disambiguate,
             &super::next::get_sources(&query),
-            Action::Run {
-                request: Request::GetArticle(query),
-                fresh: false,
-            },
+            Request::GetArticle(query),
+            false,
         ));
     }
     super::next::authors(out);

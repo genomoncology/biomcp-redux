@@ -1,5 +1,5 @@
 //! Native SPL identities and unchanged explicit label headings.
-use crate::{Action, Ctx, Outcome, status};
+use crate::{Ctx, Outcome, status};
 use biomcp_adapters::{openfda_label as source, received_date};
 use biomcp_fetch::RequestError;
 use biomcp_types::{
@@ -58,24 +58,20 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
                 biomcp_types::Source::OpenfdaLabel,
                 &mut out.problems,
             ) {
-                out.next.push(crate::next::Step::new(
+                out.next.push(crate::next::Step::run(
                     StepKind::Disambiguate,
                     &[biomcp_types::Source::OpenfdaLabel],
-                    Action::Run {
-                        request: Request::GetDrug(get),
-                        fresh: cx.fresh,
-                    },
+                    Request::GetDrug(get),
+                    cx.fresh,
                 ));
             }
         }
         if let Some(offset) = next_offset {
-            out.next.push(crate::next::Step::new(
+            out.next.push(crate::next::Step::run(
                 StepKind::Page,
                 &[biomcp_types::Source::OpenfdaLabel],
-                Action::Run {
-                    request: Request::SearchDrug(query.at_offset(offset)),
-                    fresh: cx.fresh,
-                },
+                Request::SearchDrug(query.at_offset(offset)),
+                cx.fresh,
             ));
         }
         out.body = QueryBody::DrugPage(DrugPage {
@@ -167,13 +163,11 @@ fn select(
                 biomcp_types::Source::OpenfdaLabel,
                 &mut out.problems,
             ) {
-                out.next.push(crate::next::Step::new(
+                out.next.push(crate::next::Step::run(
                     StepKind::Section,
                     &[biomcp_types::Source::OpenfdaLabel],
-                    Action::Run {
-                        request: Request::GetDrug(request),
-                        fresh: cx.fresh,
-                    },
+                    Request::GetDrug(request),
+                    cx.fresh,
                 ));
             }
         }
@@ -197,13 +191,11 @@ fn select(
                     &mut out.problems,
                 )
             {
-                out.next.push(crate::next::Step::new(
+                out.next.push(crate::next::Step::run(
                     StepKind::Page,
                     &[biomcp_types::Source::OpenfdaLabel],
-                    Action::Run {
-                        request: Request::GetDrug(request),
-                        fresh: cx.fresh,
-                    },
+                    Request::GetDrug(request),
+                    cx.fresh,
                 ));
             }
             Section::Data {

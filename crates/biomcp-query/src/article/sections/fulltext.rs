@@ -1,4 +1,4 @@
-use crate::{Action, Ctx, Outcome, status};
+use crate::{Ctx, Outcome, status};
 use biodata::Pmcid;
 use biomcp_adapters::pmc_oa;
 use biomcp_fetch::{Deadline, RequestError};
@@ -132,13 +132,11 @@ fn supplement_next(
             problems,
         )
     {
-        out.push(crate::next::Step::new(
+        out.push(crate::next::Step::run(
             StepKind::Page,
             &super::super::next::text_sources(query.input()),
-            Action::Run {
-                request: Request::ArticleSupplement(query),
-                fresh: false,
-            },
+            Request::ArticleSupplement(query),
+            false,
         ));
     }
 }
@@ -170,13 +168,11 @@ pub(crate) fn next_input(
         biomcp_types::Source::PmcOa,
         problems,
     ) {
-        out.push(crate::next::Step::new(
+        out.push(crate::next::Step::run(
             StepKind::Page,
             &super::super::next::text_sources(query.input()),
-            Action::Run {
-                request: Request::ArticleText(query),
-                fresh: false,
-            },
+            Request::ArticleText(query),
+            false,
         ));
     }
 }

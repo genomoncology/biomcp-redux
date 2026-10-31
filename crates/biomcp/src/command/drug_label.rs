@@ -69,13 +69,11 @@ pub(super) fn bound(
         let request = query
             .at_section_offset(offset)
             .map_err(|_| io::Error::other("invalid label continuation"))?;
-        out.next.push(biomcp_query::next::Step::new(
+        out.next.push(biomcp_query::next::Step::run(
             StepKind::Page,
             &[biomcp_types::Source::OpenfdaLabel],
-            biomcp_query::Action::Run {
-                request: Request::GetDrug(request),
-                fresh,
-            },
+            Request::GetDrug(request),
+            fresh,
         ));
     }
 }

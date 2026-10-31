@@ -128,23 +128,19 @@ fn execute<'a>(
 }
 fn pool_error(query: &ArticleSearch, mismatch: bool, out: &mut Outcome) {
     out.body = QueryBody::PoolError { mismatch };
-    out.next.push(crate::next::Step::new(
+    out.next.push(crate::next::Step::run(
         StepKind::Restart,
         &next::search_sources(query),
-        Action::Run {
-            request: Request::SearchArticle(query.page(0, None)),
-            fresh: false,
-        },
+        Request::SearchArticle(query.page(0, None)),
+        false,
     ));
 }
 fn retry(query: &ArticleSearch, pool: Option<Text>, out: &mut Outcome) {
-    out.next.push(crate::next::Step::new(
+    out.next.push(crate::next::Step::run(
         StepKind::Fresh,
         &next::search_sources(query),
-        Action::Run {
-            request: Request::SearchArticle(query.page(query.offset(), pool)),
-            fresh: true,
-        },
+        Request::SearchArticle(query.page(query.offset(), pool)),
+        true,
     ));
 }
 fn empty() -> Outcome {

@@ -1,5 +1,5 @@
 //! Explicit provider normalization with independent source outcomes.
-use crate::{Action, Ctx, Outcome, status};
+use crate::{Ctx, Outcome, status};
 
 use biomcp_adapters::{allele_registry, mutalyzer, variantvalidator};
 use biomcp_fetch::{Deadline, RequestError, SourceSpec};
@@ -63,15 +63,16 @@ pub fn normalize(cx: &Ctx<'_>, query: &VariantNormalize) -> Outcome {
         local = local.or(error);
     }
     let next = if more {
-        vec![crate::next::Step::new(
+        vec![crate::next::Step::run(
             StepKind::Page,
-            &selected(query.source()).iter().map(|spec| spec.source).collect::<Vec<_>>(),
-            Action::Run {
-                request: Request::VariantNormalize(
-                    query.at_offset(query.offset().saturating_add(query.limit())),
-                ),
-                fresh: false,
-            },
+            &selected(query.source())
+                .iter()
+                .map(|spec| spec.source)
+                .collect::<Vec<_>>(),
+            Request::VariantNormalize(
+                query.at_offset(query.offset().saturating_add(query.limit())),
+            ),
+            false,
         )]
     } else {
         Vec::new()

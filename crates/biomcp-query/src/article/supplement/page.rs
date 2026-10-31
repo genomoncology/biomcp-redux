@@ -95,13 +95,11 @@ pub(super) fn select(
         .checked_add(returned)
         .ok_or(Reason::TooLarge)?;
     if next < page.total && returned > 0 {
-        out.next.push(crate::next::Step::new(
+        out.next.push(crate::next::Step::run(
             StepKind::Page,
             &super::super::next::text_sources(query.input()),
-            Action::Run {
-                request: Request::ArticleSupplement(query.page(next)),
-                fresh: false,
-            },
+            Request::ArticleSupplement(query.page(next)),
+            false,
         ));
     }
     out.page = Some(PageInfo {
@@ -127,16 +125,14 @@ fn context_steps(
         .iter()
         .filter(|sheet| rows.iter().any(|row| row.sheet.as_str() == sheet.name))
     {
-        out.next.push(crate::next::Step::new(
+        out.next.push(crate::next::Step::run(
             StepKind::Section,
             &super::super::next::text_sources(query.input()),
-            Action::Run {
-                request: Request::ArticleSupplement(query.first_rows(
-                    Text::new(&sheet.name).map_err(|_| Reason::BadReply)?,
-                    sheet.rows.last().map_or(1, |row| row.number),
-                )),
-                fresh: false,
-            },
+            Request::ArticleSupplement(query.first_rows(
+                Text::new(&sheet.name).map_err(|_| Reason::BadReply)?,
+                sheet.rows.last().map_or(1, |row| row.number),
+            )),
+            false,
         ));
     }
     Ok(())
@@ -203,15 +199,13 @@ fn overview(
             &mut out.problems,
         )
     {
-        out.next.push(crate::next::Step::new(
+        out.next.push(crate::next::Step::run(
             StepKind::Page,
             &super::super::next::text_sources(query.input()),
-            Action::Run {
-                request: Request::ArticleSupplement(
-                    query.first_rows(name, first.rows.last().map_or(1, |r| r.number)),
-                ),
-                fresh: false,
-            },
+            Request::ArticleSupplement(
+                query.first_rows(name, first.rows.last().map_or(1, |r| r.number)),
+            ),
+            false,
         ));
     }
 }

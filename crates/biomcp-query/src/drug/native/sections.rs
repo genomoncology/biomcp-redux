@@ -123,13 +123,11 @@ fn card_next(out: &mut Outcome, query: &DrugGet, fresh: bool, xrefs: bool) {
             query.source().source(),
             &mut out.problems,
         ) {
-            out.next.push(crate::next::Step::new(
+            out.next.push(crate::next::Step::run(
                 StepKind::Section,
                 &[get.source().source()],
-                Action::Run {
-                    request: Request::GetDrug(get),
-                    fresh,
-                },
+                Request::GetDrug(get),
+                fresh,
             ));
         }
     }
@@ -166,13 +164,11 @@ fn page<T>(
             &mut out.problems,
         )
     {
-        out.next.push(crate::next::Step::new(
+        out.next.push(crate::next::Step::run(
             StepKind::Page,
             &[get.source().source()],
-            Action::Run {
-                request: Request::GetDrug(get),
-                fresh,
-            },
+            Request::GetDrug(get),
+            fresh,
         ));
     }
     if total == 0 {
@@ -281,13 +277,11 @@ fn chembl_card(
         query.source().source(),
         &mut out.problems,
     ) {
-        out.next.push(crate::next::Step::new(
+        out.next.push(crate::next::Step::run(
             StepKind::Section,
             &[get.source().source()],
-            Action::Run {
-                request: Request::GetDrug(get),
-                fresh,
-            },
+            Request::GetDrug(get),
+            fresh,
         ));
     }
     Ok(())

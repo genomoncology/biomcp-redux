@@ -1,4 +1,4 @@
-use crate::{Action, Outcome};
+use crate::Outcome;
 use biomcp_types::{DiagnosticCandidate, DiagnosticGet, DiagnosticSearch, Request, StepKind};
 pub(super) fn push(
     out: &mut Outcome,
@@ -7,11 +7,8 @@ pub(super) fn push(
     request: Request,
     fresh: bool,
 ) {
-    out.next.push(crate::next::Step::new(
-        kind,
-        sources,
-        Action::Run { request, fresh },
-    ));
+    out.next
+        .push(crate::next::Step::run(kind, sources, request, fresh));
 }
 pub(super) fn candidates(
     out: &mut Outcome,

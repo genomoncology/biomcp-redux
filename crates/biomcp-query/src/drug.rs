@@ -141,13 +141,11 @@ fn selected_get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
                     &mut out.problems,
                 )
             {
-                out.next.push(crate::next::Step::new(
+                out.next.push(crate::next::Step::run(
                     StepKind::Section,
                     &[request.source().source()],
-                    Action::Run {
-                        request: Request::GetDrug(request),
-                        fresh: cx.fresh,
-                    },
+                    Request::GetDrug(request),
+                    cx.fresh,
                 ));
             }
             if document.refusals == biomcp_adapters::Refusal::Refused {
@@ -188,13 +186,11 @@ fn link_page(
             &mut out.problems,
         )
     {
-        out.next.push(crate::next::Step::new(
+        out.next.push(crate::next::Step::run(
             StepKind::Page,
             &[request.source().source()],
-            Action::Run {
-                request: Request::GetDrug(request),
-                fresh,
-            },
+            Request::GetDrug(request),
+            fresh,
         ));
     }
     if document.refusals == biomcp_adapters::Refusal::Refused {
@@ -290,13 +286,11 @@ fn search_results(
             biomcp_types::Source::Mychem,
             &mut out.problems,
         ) {
-            out.next.push(crate::next::Step::new(
+            out.next.push(crate::next::Step::run(
                 StepKind::Disambiguate,
                 &[get.source().source()],
-                Action::Run {
-                    request: Request::GetDrug(get),
-                    fresh,
-                },
+                Request::GetDrug(get),
+                fresh,
             ));
         }
     }
@@ -305,13 +299,11 @@ fn search_results(
         .checked_add(received)
         .filter(|n| received > 0 && page.total.is_some_and(|t| u64::from(*n) < t))
     {
-        out.next.push(crate::next::Step::new(
+        out.next.push(crate::next::Step::run(
             StepKind::Page,
             &[query.source().source()],
-            Action::Run {
-                request: Request::SearchDrug(query.at_offset(offset)),
-                fresh,
-            },
+            Request::SearchDrug(query.at_offset(offset)),
+            fresh,
         ));
     }
     out.body = QueryBody::DrugPage(page);

@@ -1,6 +1,6 @@
 //! Pure typed follow-up requests; source names never become chosen drug identities.
+use crate::Outcome;
 use crate::next::run;
-use crate::{Action, Outcome};
 use biomcp_types::{
     PgxAnnotations, PgxGet, PgxPageInfo, PgxRecommendations, PgxSection, PgxSource, QueryBody,
     Request, SourceState, Status, StepKind,
@@ -42,20 +42,41 @@ pub(super) fn steps_with(
     );
     if out.status() == Status::Failed {
         if !diplotype(request) && out.sources.iter().any(|s| s.state != SourceState::Skipped) {
-            next.push(crate::next::Step::new(
+            next.push(crate::next::Step::run(
                 StepKind::Fresh,
                 &out.sources
                     .iter()
                     .map(|source| source.source)
                     .collect::<Vec<_>>(),
-                Action::Run {
-                    request: request.clone(),
-                    fresh: true,
-                },
+                request.clone(),
+                true,
             ));
         }
         return next;
     }
+    success_steps(request, out, native_consumed, &mut next);
+    if out.status() == Status::Partial && !diplotype(request) {
+        next.push(crate::next::Step::run(
+            StepKind::Fresh,
+            &out.sources
+                .iter()
+                .map(|source| source.source)
+                .collect::<Vec<_>>(),
+            request.clone(),
+            true,
+        ));
+    }
+    if !association {
+        next.truncate(5);
+    }
+    next
+}
+fn success_steps(
+    request: &Request,
+    out: &mut Outcome,
+    native_consumed: Option<u32>,
+    next: &mut Vec<crate::next::Step>,
+) {
     let body = out.body.clone();
     match (request, &body) {
         (Request::SearchPgx(q), QueryBody::PgxPage(body)) => {
@@ -83,18 +104,16 @@ pub(super) fn steps_with(
                 }
             }
         }
-        (Request::GetPgx(q), QueryBody::PgxCard(Some(_))) => {
-            card_steps(q, &mut next, &mut out.problems)
-        }
+        (Request::GetPgx(q), QueryBody::PgxCard(Some(_))) => card_steps(q, next, &mut out.problems),
         (Request::GetPgx(q), QueryBody::PgxAnnotations(body)) => {
-            annotation_steps(q, body, &mut next, &mut out.problems)
+            annotation_steps(q, body, next, &mut out.problems)
         }
         (
             Request::GetPgx(q),
             QueryBody::PgxRecommendations(
                 PgxRecommendations::View { page, .. } | PgxRecommendations::Table { page, .. },
             ),
-        ) => page_step(q, page, &mut next, native_consumed, &mut out.problems),
+        ) => page_step(q, page, next, native_consumed, &mut out.problems),
         (Request::GetPgx(q), QueryBody::PgxGuidelines(body)) => {
             let mut seen = std::collections::BTreeSet::new();
             for gene in body.items.iter().flat_map(|r| r.genes.iter()) {
@@ -117,7 +136,7 @@ pub(super) fn steps_with(
                     ));
                 }
             }
-            page_step(q, &body.page, &mut next, native_consumed, &mut out.problems);
+            page_step(q, &body.page, next, native_consumed, &mut out.problems);
         }
         (Request::GetPgx(q), QueryBody::PgxDiplotype(_)) => {
             if let Some(card) = gene_query(q.gene(), &mut out.problems)
@@ -132,23 +151,6 @@ pub(super) fn steps_with(
         }
         _ => {}
     }
-    if out.status() == Status::Partial && !diplotype(request) {
-        next.push(crate::next::Step::new(
-            StepKind::Fresh,
-            &out.sources
-                .iter()
-                .map(|source| source.source)
-                .collect::<Vec<_>>(),
-            Action::Run {
-                request: request.clone(),
-                fresh: true,
-            },
-        ));
-    }
-    if !association {
-        next.truncate(5);
-    }
-    next
 }
 fn page_step(
     q: &PgxGet,
