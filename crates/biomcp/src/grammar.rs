@@ -50,6 +50,7 @@ pub(crate) struct Globals {
     pub(crate) offline: bool,
     pub(crate) fresh: bool,
     pub(crate) hosted: bool,
+    pub(crate) rate_share: biomcp_fetch::RateShare,
     pub(crate) format: Option<Format>,
     pub(crate) disable_sources: Vec<String>,
 }
@@ -350,6 +351,7 @@ fn globals(matches: &clap::ArgMatches) -> Result<Globals, ParseInvalid> {
         offline: matches.get_flag("offline"),
         fresh: matches.get_flag("fresh"),
         hosted: false,
+        rate_share: biomcp_fetch::RateShare::default(),
         format: explicit_format(matches),
     };
     globals.check()?;
@@ -422,6 +424,7 @@ impl Globals {
         self.case_cache = process.case_cache.clone();
         self.fresh |= process.fresh;
         self.hosted = process.hosted;
+        self.rate_share = process.rate_share;
         self.format = self.format.or(process.format);
         self.offline |= process.offline;
         self.check()
