@@ -122,6 +122,8 @@ impl Submission {
 #[serde(transparent)]
 pub struct Application(pub(super) super::raw::Application);
 impl Application {
+    /// Actual refused native child records.
+    pub fn refusals(&self) -> crate::Refusal { self.0.refusals }
     /// Application-owned identity, without selecting a product.
     pub fn header(&self) -> biomcp_types::DrugHeader { self.0.header() }
     /// Map the independently listed native products.

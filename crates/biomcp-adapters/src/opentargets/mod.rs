@@ -96,7 +96,7 @@ pub fn drug(
     .map(|(r, meta)| (r.data.drug.map(map::Drug), meta))
 }
 mod map;
-pub use map::{header, indications as map_indications, search_headers, targets as map_targets};
+pub use map::{card, header, indications as map_indications, search_headers, targets as map_targets};
 
 fn search_query(index: u32, size: u32) -> String {
     format!(

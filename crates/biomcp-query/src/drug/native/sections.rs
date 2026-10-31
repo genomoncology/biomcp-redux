@@ -24,7 +24,7 @@ pub(super) fn chembl(
         return Ok(());
     }
     let header = identity::chembl_header(&row, &mut out.problems).map_err(|_| failure(source))?;
-    let drug = identity::neutral(&header).map_err(|_| failure(source))?;
+    let drug = biomcp_adapters::drug_sources::identity(&header).map_err(|_| failure(source))?;
     let limit = query.section_limit().unwrap_or(10);
     let offset = query.section_offset().unwrap_or(0);
     match query.sections() {
@@ -80,7 +80,7 @@ pub(super) fn opentargets(
     out.problems.extend(header.problems);
     out.include_refusals(header.refusals);
     let header = header.value;
-    let drug = identity::neutral(&header).map_err(|_| failure(source))?;
+    let drug = biomcp_adapters::drug_sources::identity(&header).map_err(|_| failure(source))?;
     let limit = query.section_limit().unwrap_or(10) as usize;
     let offset = query.section_offset().unwrap_or(0) as usize;
     match query.sections() {
@@ -102,7 +102,7 @@ pub(super) fn opentargets(
         }
         _ => {
             crate::status::item(out, true, false, false);
-            out.body = QueryBody::DrugCard(Some(identity::card(header, meta.fetched)));
+            out.body = QueryBody::DrugCard(Some(opentargets::card(header, meta.fetched)));
             card_next(out, query, fresh, false);
         }
     }

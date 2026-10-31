@@ -246,3 +246,20 @@ impl Drug {
     /// Select the source's original complete indication collection.
     pub fn indications(self) -> Indications { Indications(self.0.indications) }
 }
+
+/// Map the native source card and supported sections.
+pub fn card(header: DrugHeader, fetched: Option<i64>) -> biomcp_types::DrugCard {
+    biomcp_types::DrugCard {
+        header,
+        alternate_names: Box::default(),
+        cross_references: Box::default(),
+        parents: Box::default(),
+        products: Box::default(),
+        formulations: Box::default(),
+        version: None,
+        updated: None,
+        retrieved: crate::drug_sources::received_date(fetched),
+        available_sections: Box::new([biomcp_types::DrugSection::Targets, biomcp_types::DrugSection::Indications]),
+        next: Box::default(),
+    }
+}

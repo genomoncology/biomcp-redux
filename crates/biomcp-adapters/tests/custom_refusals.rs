@@ -123,8 +123,8 @@ fn application_children_distinguish_native_members_and_optional_metadata() -> Ch
     ] {
         let row: drugsfda::Application =
             serde_json::from_value(json!({"application_number":"NDA020895","products":products}))?;
-        assert_eq!(row.refusals, expected, "application lost child refusal");
-        assert_eq!(row.application_number.to_string(), "NDA020895");
+        assert_eq!(row.refusals(), expected, "application lost child refusal");
+        assert_eq!(row.header().id.to_string(), "NDA020895");
     }
     Ok(())
 }
