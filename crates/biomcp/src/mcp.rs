@@ -39,7 +39,7 @@ struct Server {
     active: BTreeMap<String, Call>,
     legacy: bool,
     globals: crate::grammar::Globals,
-    root: std::sync::Arc<clap::Command>,
+    root: std::sync::Arc<crate::grammar::Root>,
     settings: std::sync::Arc<crate::config::Settings>,
     fetch: Result<std::sync::Arc<biomcp_fetch::Fetch>, crate::config::StartupError>,
     recovery: Option<std::sync::Arc<Recovery>>,
@@ -48,7 +48,7 @@ struct Server {
 pub(crate) fn serve(
     globals: crate::grammar::Globals,
     fetch: Result<biomcp_fetch::Fetch, crate::config::StartupError>,
-    root: std::sync::Arc<clap::Command>,
+    root: std::sync::Arc<crate::grammar::Root>,
     settings: std::sync::Arc<crate::config::Settings>,
 ) -> io::Result<()> {
     let (sender, receiver) = mpsc::sync_channel(MAX_RETAINED_EVENTS);

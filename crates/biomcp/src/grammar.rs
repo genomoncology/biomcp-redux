@@ -6,6 +6,8 @@ pub(crate) mod rewrite;
 pub(crate) use entry::entry_aliases;
 mod errors;
 mod metadata;
+mod tree;
+pub(crate) use tree::Root;
 mod validation;
 use arguments::command_for;
 mod gwas;
@@ -177,7 +179,7 @@ fn scan_command_words<'a>(
     words.filter_map(|arg| arg.to_str())
 }
 
-pub(crate) fn root() -> Result<Command, ParseInvalid> {
+pub(crate) fn root() -> Result<Root, ParseInvalid> {
     let mut root = global_arguments();
     let queries = command_paths();
     for (index, &(verb, _, _)) in queries.iter().enumerate() {
@@ -234,9 +236,7 @@ pub(crate) fn root() -> Result<Command, ParseInvalid> {
     );
     let help = local::help_command(&root);
     root = root.subcommand(help);
-    let mut root = metadata::describe(root);
-    root.build();
-    Ok(root)
+    Ok(Root::new(metadata::describe(root)))
 }
 
 #[derive(Debug, Default)]

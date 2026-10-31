@@ -17,7 +17,7 @@ pub(super) fn message(
     frame: &[u8],
     legacy: &mut bool,
     read_only: bool,
-    root: &clap::Command,
+    root: &crate::grammar::Root,
 ) -> Message {
     let Ok(value) = serde_json::from_slice::<Value>(frame) else {
         return Message::Reply(protocol::error(Value::Null, -32700, "Parse error"));

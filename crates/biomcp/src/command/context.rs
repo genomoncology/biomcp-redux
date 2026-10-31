@@ -6,7 +6,7 @@ use std::sync::Arc;
 #[derive(Clone, Copy)]
 pub(crate) struct Context<'a> {
     pub(crate) globals: &'a Globals,
-    pub(crate) root: &'a clap::Command,
+    pub(crate) root: &'a crate::grammar::Root,
     pub(crate) settings: &'a crate::config::Settings,
     pub(crate) fetch: &'a Result<Arc<Fetch>, StartupError>,
     pub(crate) recovery: Option<&'a crate::mcp::Recovery>,
@@ -17,7 +17,7 @@ impl<'a> Context<'a> {
     pub(crate) fn new(
         globals: &'a Globals,
         fetch: &'a Result<Arc<Fetch>, StartupError>,
-        root: &'a clap::Command,
+        root: &'a crate::grammar::Root,
         settings: &'a crate::config::Settings,
     ) -> Self {
         Self {

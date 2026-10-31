@@ -61,6 +61,30 @@ fn placement(path: &str, text: &str) -> Check {
             }
             _ => {}
         }
+        if name == "Root" {
+            let tail = input.get(index + 1..).unwrap_or_default();
+            let constructor = tail
+                .iter()
+                .take(3)
+                .map(String::as_str)
+                .eq([":", ":", "new"]);
+            let alias = tail.first().is_some_and(|word| word == "as")
+                || input
+                    .get(..index)
+                    .unwrap_or_default()
+                    .iter()
+                    .rev()
+                    .take_while(|word| word.as_str() != ";")
+                    .any(|word| word == "type");
+            if (constructor || alias)
+                && !matches!(
+                    path,
+                    "grammar.rs" | "grammar/tree.rs" | "mcp/worker_tests.rs"
+                )
+            {
+                return Err(format!("{path}: Root construction belongs in grammar setup").into());
+            }
+        }
         if !matches!(name.as_str(), "read_file" | "root") {
             continue;
         }
@@ -132,6 +156,10 @@ pub(super) fn reject_config_reads_and_tree_builds_in_commands() -> Check {
         "crate::config::file::read_file(None)?;",
         "use crate::config::file::read_file as load; load(None)?;",
         "crate::grammar::root()?;",
+        "crate::grammar::Root::new(command);",
+        "let build = crate::grammar::Root::new; build(command);",
+        "use crate::grammar::Root as Tree; Tree::new(command);",
+        "type Tree = crate::grammar::Root; Tree::new(command);",
         "use crate::grammar::{root as build}; build()?;",
         "use file::{ConfigFile, read_file}; read_file(None)?;",
         "let mut root = root()?;",

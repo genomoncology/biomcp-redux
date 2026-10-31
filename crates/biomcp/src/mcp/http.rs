@@ -27,7 +27,7 @@ struct Service {
     address: SocketAddr,
     hosts: Vec<Authority>,
     globals: crate::grammar::Globals,
-    root: Arc<clap::Command>,
+    root: Arc<crate::grammar::Root>,
     settings: Arc<crate::config::Settings>,
     fetch: Result<Arc<biomcp_fetch::Fetch>, crate::config::StartupError>,
     recovery: Option<Arc<super::Recovery>>,
@@ -36,7 +36,7 @@ pub(crate) fn serve(
     address: &str,
     hosts: Vec<String>,
     globals: crate::grammar::Globals,
-    root: Arc<clap::Command>,
+    root: Arc<crate::grammar::Root>,
     settings: Arc<crate::config::Settings>,
 ) -> Result<(), StartError> {
     let address: SocketAddr = address.parse().map_err(|_| StartError::Usage)?;

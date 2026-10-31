@@ -10,7 +10,7 @@ use biomcp_types::{Help, HelpArgument, HelpCommand, HelpWord};
 use serde_json::Value;
 use std::{collections::BTreeMap, io};
 
-pub(crate) fn dispatch(root: &clap::Command, path: &[String]) -> io::Result<Help> {
+pub(crate) fn dispatch(root: &crate::grammar::Root, path: &[String]) -> io::Result<Help> {
     if let [topic] = path
         && matches!(topic.as_str(), "sources" | "config")
     {
@@ -47,12 +47,12 @@ pub(crate) fn dispatch(root: &clap::Command, path: &[String]) -> io::Result<Help
     Ok(Help { commands })
 }
 #[cfg(test)]
-pub(crate) fn reference(root: &clap::Command) -> io::Result<Help> {
+pub(crate) fn reference(root: &crate::grammar::Root) -> io::Result<Help> {
     let mut commands = commands(root)?;
     public_grammar::canonical(root, &mut commands)?;
     Ok(Help { commands })
 }
-pub(crate) fn commands(root: &clap::Command) -> io::Result<Vec<HelpCommand>> {
+pub(crate) fn commands(root: &crate::grammar::Root) -> io::Result<Vec<HelpCommand>> {
     let examples: BTreeMap<String, Vec<Vec<String>>> =
         serde_json::from_str(include_str!(concat!(env!("OUT_DIR"), "/examples.json")))?;
     let mut commands = Vec::new();
@@ -86,7 +86,7 @@ pub(crate) fn commands(root: &clap::Command) -> io::Result<Vec<HelpCommand>> {
                 .unwrap_or_default(),
         });
     }
-    commands.extend(crate::housekeeping::help(root));
+    commands.extend_from_slice(root.housekeeping());
     extra_commands(&mut commands, &examples);
     commands.extend(network("ca_bundle").commands);
     commands.extend(network("proxy").commands);
@@ -281,7 +281,7 @@ fn argument(name: &str, node: &Value, root: &Value) -> HelpArgument {
 fn text(node: &Value, key: &str) -> String {
     node[key].as_str().unwrap_or_default().into()
 }
-pub(crate) fn tree(root: &clap::Command) -> String {
+pub(crate) fn tree(root: &crate::grammar::Root) -> String {
     let Ok(commands) = commands(root) else {
         return "BioMCP command help unavailable".into();
     };

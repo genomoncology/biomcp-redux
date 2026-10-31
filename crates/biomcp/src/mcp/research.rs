@@ -3,7 +3,7 @@ mod records;
 use serde_json::{Value, json};
 use std::{ffi::OsString, io};
 
-pub(super) fn tools(root: &clap::Command) -> io::Result<Vec<Value>> {
+pub(super) fn tools(root: &crate::grammar::Root) -> io::Result<Vec<Value>> {
     [
         (
             "search",
@@ -137,7 +137,7 @@ pub(super) fn execute(
     *outcome.value_mut()? = projected;
     Ok(outcome)
 }
-fn search(root: &clap::Command, call: &Call, envelope: Value) -> io::Result<Value> {
+fn search(root: &crate::grammar::Root, call: &Call, envelope: Value) -> io::Result<Value> {
     let entity = entity(root, call);
     let rows = envelope.pointer("/result/items").and_then(Value::as_array);
     let results = rows
@@ -190,7 +190,7 @@ fn restrictions(
     Ok(hit)
 }
 
-fn entity(root: &clap::Command, call: &Call) -> &'static str {
+fn entity(root: &crate::grammar::Root, call: &Call) -> &'static str {
     match crate::grammar::parse(root, &call.args)
         .ok()
         .and_then(|parsed| parsed.action)

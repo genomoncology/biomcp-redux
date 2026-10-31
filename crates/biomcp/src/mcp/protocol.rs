@@ -46,7 +46,7 @@ pub(super) fn valid_params(method: &str, params: &Value) -> bool {
 pub(super) const SCHEMA_DIALECT: &str = "https://json-schema.org/draft/2020-12/schema";
 const RESULT_CHARACTER_CAP: usize = 150_000;
 
-pub(super) fn tool(root: &clap::Command, read_only: bool) -> std::io::Result<Value> {
+pub(super) fn tool(root: &crate::grammar::Root, read_only: bool) -> std::io::Result<Value> {
     Ok(
         json!({"name":"biomcp", "description":crate::help::tree(root),
         "annotations":{"readOnlyHint":read_only,"destructiveHint":false,"openWorldHint":true},
@@ -55,7 +55,7 @@ pub(super) fn tool(root: &clap::Command, read_only: bool) -> std::io::Result<Val
     )
 }
 
-pub(super) fn tools(root: &clap::Command, read_only: bool) -> std::io::Result<Vec<Value>> {
+pub(super) fn tools(root: &crate::grammar::Root, read_only: bool) -> std::io::Result<Vec<Value>> {
     let mut tools = vec![tool(root, read_only)?];
     tools.extend(super::research::tools(root)?);
     Ok(tools)

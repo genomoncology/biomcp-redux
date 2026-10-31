@@ -17,7 +17,7 @@ use biomcp_types::{Envelope, ErrorEnvelope, Request, Status, UsageArguments, Usa
 use std::{ffi::OsString, io};
 
 pub(crate) fn dispatch(
-    root: &clap::Command,
+    root: &crate::grammar::Root,
     settings: &crate::config::Settings,
     args: &[OsString],
 ) -> io::Result<Outcome> {
@@ -31,7 +31,7 @@ pub(crate) fn dispatch(
     )
 }
 fn dispatch_using(
-    root: &clap::Command,
+    root: &crate::grammar::Root,
     settings: &crate::config::Settings,
     args: &[OsString],
     allow_save: bool,
@@ -116,7 +116,7 @@ fn dispatch_using(
 }
 
 pub(crate) fn execute(
-    root: &clap::Command,
+    root: &crate::grammar::Root,
     settings: &crate::config::Settings,
     fetch: &biomcp_fetch::Fetch,
     action: Action,
@@ -263,7 +263,11 @@ fn tool_using(args: &[OsString], context: Context<'_>, allow_save: bool) -> io::
         Encoding::Mcp,
     )
 }
-fn usage(root: &clap::Command, args: &[OsString], encoding: Encoding) -> io::Result<Outcome> {
+fn usage(
+    root: &crate::grammar::Root,
+    args: &[OsString],
+    encoding: Encoding,
+) -> io::Result<Outcome> {
     parse_refusal(
         root,
         args,
@@ -272,7 +276,7 @@ fn usage(root: &clap::Command, args: &[OsString], encoding: Encoding) -> io::Res
     )
 }
 fn parse_refusal(
-    root: &clap::Command,
+    root: &crate::grammar::Root,
     args: &[OsString],
     cause: crate::grammar::ParseInvalid,
     encoding: Encoding,

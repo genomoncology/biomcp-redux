@@ -2,7 +2,7 @@
 use serde_json::{Value, json};
 use std::{collections::BTreeSet, io};
 
-pub(super) fn for_tool(root: &clap::Command, name: &str) -> io::Result<Value> {
+pub(super) fn for_tool(root: &crate::grammar::Root, name: &str) -> io::Result<Value> {
     let mut ids = crate::help::commands(root)?
         .into_iter()
         .filter(|command| match name {
