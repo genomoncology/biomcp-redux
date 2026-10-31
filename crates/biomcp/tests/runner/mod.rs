@@ -48,11 +48,11 @@ mod evidence;
 mod faers_get;
 tool_only! { mod hgnc_sync; }
 mod held_proxy;
+mod hosted_deadline;
+mod hosted_pacing;
 mod housekeeping;
 mod http;
 mod http_limits;
-mod hosted_pacing;
-mod hosted_deadline;
 mod key_registration;
 pub(super) mod launch;
 mod recurrence;

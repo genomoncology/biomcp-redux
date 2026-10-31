@@ -3,8 +3,9 @@
     clippy::unwrap_used,
     reason = "Fixture setup and worker failures must fail the contract test"
 )]
-use biomcp_fetch::{BadReply, KeyUse, Quota, Reply, SourceSpec};
-use serde::Deserialize;
+mod answer;
+pub(super) use answer::Answer;
+use biomcp_fetch::{KeyUse, Quota, SourceSpec};
 use std::{
     io::{Read, Write},
     net::{TcpListener, TcpStream},
@@ -12,16 +13,6 @@ use std::{
     thread,
     time::Duration,
 };
-
-#[derive(Debug, Deserialize)]
-pub(super) struct Answer {
-    pub(super) answer: bool,
-}
-impl Reply for Answer {
-    fn check(&self) -> Result<(), BadReply> {
-        if self.answer { Ok(()) } else { Err(BadReply) }
-    }
-}
 
 pub(super) struct Request<T> {
     pub(super) text: String,

@@ -61,7 +61,11 @@ impl Cancellation {
 }
 impl Clone for Cancellation {
     fn clone(&self) -> Self {
-        Self { agents: self.agents.clone(), cancelled: self.cancelled.clone(), end: self.end }
+        Self {
+            agents: self.agents.clone(),
+            cancelled: self.cancelled.clone(),
+            end: self.end,
+        }
     }
 }
 impl Fetch {
@@ -81,7 +85,10 @@ impl Fetch {
             &self.config.network,
             self.config.proxy.as_ref(),
         )?);
-        let mut owners = cancellation.agents.lock().unwrap_or_else(|e| e.into_inner());
+        let mut owners = cancellation
+            .agents
+            .lock()
+            .unwrap_or_else(|e| e.into_inner());
         owners.retain(|owner| owner.strong_count() > 0);
         owners.push(Arc::downgrade(&agents));
         if cancellation.cancelled.load(Ordering::Acquire) {

@@ -1,5 +1,7 @@
 //! Hosted callers share only their effective credential's source pacing budget.
-mod support;
+#[path = "support/answer.rs"]
+mod answer;
+use answer::Answer;
 use biomcp_fetch::{
     Credential, Fetch, FetchConfig, KeyPlace, KeyUse, Mode, Quota, Rate, RateShare, RequestError,
     Secret, SecretName, Secrets, SourceKey, SourceSpec,
@@ -7,7 +9,6 @@ use biomcp_fetch::{
 use biomcp_types::Reason;
 use sha2::{Digest, Sha256};
 use std::time::Duration;
-use support::Answer;
 
 type Check = Result<(), Box<dyn std::error::Error>>;
 
@@ -19,7 +20,9 @@ fn caller(fetch: &Fetch, key: Option<&str>) -> Fetch {
     fetch.with_hosted_secrets(secrets)
 }
 
-fn fixture(share: RateShare) -> Result<(tempfile::TempDir, Fetch, &'static SourceSpec), Box<dyn std::error::Error>> {
+fn fixture(
+    share: RateShare,
+) -> Result<(tempfile::TempDir, Fetch, &'static SourceSpec), Box<dyn std::error::Error>> {
     let dir = tempfile::tempdir()?;
     let url = "https://example.invalid/answer";
     let hash = Sha256::digest([b"GET\0".as_slice(), url.as_bytes()].concat())
@@ -46,22 +49,33 @@ fn fixture(share: RateShare) -> Result<(tempfile::TempDir, Fetch, &'static Sourc
             tier: biomcp_types::KeyTier::Fallback,
         }),
         quota: Box::leak(Box::new(Quota::new(
-            SourceKey::declare("hosted-test"), Rate::per_second(2), Some(Rate::per_second(4)), 1,
+            SourceKey::declare("hosted-test"),
+            Rate::per_second(2),
+            Some(Rate::per_second(4)),
+            1,
         ))),
         deadline: Duration::from_secs(10),
         terms: biomcp_fetch::Terms {
-            name: "Synthetic test data", url: "https://example.test/terms", usage: biomcp_types::Use::Open,
+            name: "Synthetic test data",
+            url: "https://example.test/terms",
+            usage: biomcp_types::Use::Open,
         },
     }));
     let fetch = Fetch::open(FetchConfig {
-        mode: Mode::Replay { dir: dir.path().into() },
+        mode: Mode::Replay {
+            dir: dir.path().into(),
+        },
         rate_share: share,
         ..FetchConfig::default()
     })?;
     Ok((dir, fetch, spec))
 }
 
-fn get(fetch: &Fetch, spec: &'static SourceSpec, budget: Duration) -> Result<Duration, RequestError> {
+fn get(
+    fetch: &Fetch,
+    spec: &'static SourceSpec,
+    budget: Duration,
+) -> Result<Duration, RequestError> {
     let leg = fetch.leg(spec, fetch.deadline(budget));
     let reply: Answer = leg.json(&spec.get("/answer"), &[])?;
     assert!(reply.answer, "the recorded request must complete");
@@ -75,10 +89,15 @@ fn one_callers_exhausted_bucket_does_not_delay_another_key() -> Check {
     let b = caller(&shared, Some("placeholder-caller-b"));
     get(&a, spec, Duration::from_secs(1))?;
     let error = get(&a, spec, Duration::from_millis(50));
-    assert!(matches!(error, Err(RequestError::Source(e)) if e.reason == Reason::DeadlineExceeded),
-        "the exhausted caller must reach its typed pacing deadline");
-    assert_eq!(get(&b, spec, Duration::from_millis(50))?, Duration::from_millis(50),
-        "another credential must have its own initial token");
+    assert!(
+        matches!(error, Err(RequestError::Source(e)) if e.reason == Reason::DeadlineExceeded),
+        "the exhausted caller must reach its typed pacing deadline"
+    );
+    assert_eq!(
+        get(&b, spec, Duration::from_millis(50))?,
+        Duration::from_millis(50),
+        "another credential must have its own initial token"
+    );
     Ok(())
 }
 
@@ -87,8 +106,10 @@ fn separate_keyless_callers_share_one_source_bucket() -> Check {
     let (_dir, shared, spec) = fixture(RateShare::default())?;
     get(&caller(&shared, None), spec, Duration::from_secs(1))?;
     let error = get(&caller(&shared, None), spec, Duration::from_millis(50));
-    assert!(matches!(error, Err(RequestError::Source(e)) if e.reason == Reason::DeadlineExceeded),
-        "a second keyless caller must not receive a new bucket");
+    assert!(
+        matches!(error, Err(RequestError::Source(e)) if e.reason == Reason::DeadlineExceeded),
+        "a second keyless caller must not receive a new bucket"
+    );
     Ok(())
 }
 
@@ -98,9 +119,11 @@ fn rate_share_scales_both_keyed_and_keyless_source_rates() -> Check {
         let (_dir, shared, spec) = fixture("0.5".parse()?)?;
         let fetch = caller(&shared, key);
         get(&fetch, spec, Duration::from_secs(2))?;
-        assert_eq!(get(&fetch, spec, Duration::from_secs(2))?,
+        assert_eq!(
+            get(&fetch, spec, Duration::from_secs(2))?,
             Duration::from_millis(2000 - expected),
-            "replay token accounting must scale without wall-clock timing noise");
+            "replay token accounting must scale without wall-clock timing noise"
+        );
     }
     Ok(())
 }
@@ -108,9 +131,15 @@ fn rate_share_scales_both_keyed_and_keyless_source_rates() -> Check {
 #[test]
 fn rate_share_rejects_zero_nonfinite_and_excess_shares() {
     for value in ["0", "-0.5", "1.01", "NaN", "inf", "-inf", "", "bad"] {
-        assert!(value.parse::<RateShare>().is_err(), "invalid rate share {value}");
+        assert!(
+            value.parse::<RateShare>().is_err(),
+            "invalid rate share {value}"
+        );
     }
     for value in ["1", "0.5", "1e-20"] {
-        assert!(value.parse::<RateShare>().is_ok(), "positive rate share {value}");
+        assert!(
+            value.parse::<RateShare>().is_ok(),
+            "positive rate share {value}"
+        );
     }
 }

@@ -41,15 +41,18 @@ fn snapshot(
         Err(error) => return Ok(Err(error.into())),
     };
     let fetch = if globals.hosted {
-        fetch.with_hosted_secrets(secrets.hosted(
-            context.and_then(|context| context.secrets),
-            biomcp_fetch::SecretName::ALL
-                .iter()
-                .copied()
-                .filter(|&name| {
-                    biomcp_adapters::registry::key_tier(name) == biomcp_types::KeyTier::NoFallback
-                }),
-        ))
+        fetch.with_hosted_secrets(
+            secrets.hosted(
+                context.and_then(|context| context.secrets),
+                biomcp_fetch::SecretName::ALL
+                    .iter()
+                    .copied()
+                    .filter(|&name| {
+                        biomcp_adapters::registry::key_tier(name)
+                            == biomcp_types::KeyTier::NoFallback
+                    }),
+            ),
+        )
     } else {
         fetch.with_secrets(secrets)
     };

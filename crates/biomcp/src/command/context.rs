@@ -12,6 +12,11 @@ pub(crate) struct Context<'a> {
 }
 impl<'a> Context<'a> {
     pub(crate) fn new(globals: &'a Globals, fetch: &'a Result<Arc<Fetch>, StartupError>) -> Self {
-        Self { globals, fetch, secrets: None, scope: None }
+        Self {
+            globals,
+            fetch,
+            secrets: None,
+            scope: None,
+        }
     }
 }

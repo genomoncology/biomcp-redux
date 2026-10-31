@@ -361,17 +361,10 @@ pub(crate) fn tool(
 ) -> io::Result<Outcome> {
     tool_using(args, Context::new(globals, fetch), true)
 }
-pub(crate) fn tool_http(
-    args: &[OsString],
-    context: Context<'_>,
-) -> io::Result<Outcome> {
+pub(crate) fn tool_http(args: &[OsString], context: Context<'_>) -> io::Result<Outcome> {
     tool_using(args, context, false)
 }
-fn tool_using(
-    args: &[OsString],
-    context: Context<'_>,
-    allow_save: bool,
-) -> io::Result<Outcome> {
+fn tool_using(args: &[OsString], context: Context<'_>, allow_save: bool) -> io::Result<Outcome> {
     if args.iter().filter_map(|arg| arg.to_str()).any(|arg| {
         ["--record", "--replay", "--case-cache"]
             .iter()

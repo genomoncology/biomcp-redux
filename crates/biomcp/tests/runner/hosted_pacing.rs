@@ -26,17 +26,36 @@ fn check(keyed: bool) -> Check {
     )?).map_err(|e| e.to_string())?;
     for query in ["PacingA", "PacingSpent", "PacingB"] {
         let mut record = original.clone();
-        let old = record["url"].as_str().ok_or("recorded URL missing")?;
-        let (_, rest) = old.split_once("&fields=").ok_or("recorded fields missing")?;
-        let url = format!("https://api.semanticscholar.org/graph/v1/author/search?query={query}&fields={rest}");
+        let old = record
+            .get("url")
+            .and_then(Value::as_str)
+            .ok_or("recorded URL missing")?;
+        let (_, rest) = old
+            .split_once("&fields=")
+            .ok_or("recorded fields missing")?;
+        let url = format!(
+            "https://api.semanticscholar.org/graph/v1/author/search?query={query}&fields={rest}"
+        );
         let hash = Sha256::digest([b"GET\0".as_slice(), url.as_bytes()].concat())
-            .iter().map(|byte| format!("{byte:02x}")).collect::<String>();
-        record["url"] = json!(url);
-        std::fs::write(source.join(format!("{hash}.json")), serde_json::to_vec(&record).map_err(|e| e.to_string())?)
-            .map_err(|e| e.to_string())?;
+            .iter()
+            .map(|byte| format!("{byte:02x}"))
+            .collect::<String>();
+        record
+            .as_object_mut()
+            .ok_or("recorded request is not an object")?
+            .insert("url".into(), json!(url));
+        std::fs::write(
+            source.join(format!("{hash}.json")),
+            serde_json::to_vec(&record).map_err(|e| e.to_string())?,
+        )
+        .map_err(|e| e.to_string())?;
     }
     let mut server = Server::configured_globals(
-        "127.0.0.1:0", Some(json!({})), Some(recordings), None, None,
+        "127.0.0.1:0",
+        Some(json!({})),
+        Some(recordings),
+        None,
+        None,
         &["--hosted".into(), "--rate-share".into(), "0.00001".into()],
     )?;
     let a = keyed.then_some("synthetic-pacing-caller-a");
@@ -46,18 +65,38 @@ fn check(keyed: bool) -> Check {
         return Err(format!("first caller did not spend its token: {first}"));
     }
     let spent = call(&server, "PacingSpent", a)?;
-    if !spent.pointer("/result/structuredContent/sources").and_then(Value::as_array)
-        .is_some_and(|sources| sources.iter().any(|source| source["reason"] == "deadline-exceeded")) {
-        return Err(format!("exhausted caller did not reach its typed pacing deadline: {spent}"));
+    if !spent
+        .pointer("/result/structuredContent/sources")
+        .and_then(Value::as_array)
+        .is_some_and(|sources| {
+            sources.iter().any(|source| {
+                source.get("reason").and_then(Value::as_str) == Some("deadline-exceeded")
+            })
+        })
+    {
+        return Err(format!(
+            "exhausted caller did not reach its typed pacing deadline: {spent}"
+        ));
     }
     let other = call(&server, "PacingB", b)?;
     if keyed {
         if other.pointer("/result/isError") != Some(&json!(false)) {
-            return Err(format!("another header key shared the exhausted bucket: {other}"));
+            return Err(format!(
+                "another header key shared the exhausted bucket: {other}"
+            ));
         }
-    } else if !other.pointer("/result/structuredContent/sources").and_then(Value::as_array)
-        .is_some_and(|sources| sources.iter().any(|source| source["reason"] == "deadline-exceeded")) {
-        return Err(format!("another keyless call received its own token: {other}"));
+    } else if !other
+        .pointer("/result/structuredContent/sources")
+        .and_then(Value::as_array)
+        .is_some_and(|sources| {
+            sources.iter().any(|source| {
+                source.get("reason").and_then(Value::as_str) == Some("deadline-exceeded")
+            })
+        })
+    {
+        return Err(format!(
+            "another keyless call received its own token: {other}"
+        ));
     }
     server.stop()
 }
@@ -65,9 +104,21 @@ fn check(keyed: bool) -> Check {
 fn call(server: &Server, query: &str, key: Option<&str>) -> Check<Value> {
     let body = json!({"jsonrpc":"2.0", "id":1,"method":"tools/call",
         "params":{"name":"biomcp","arguments":{"args":["search","author",query]}}});
-    let key = key.map_or_else(String::new, |key| format!("x-biomcp-key-semantic-scholar-api-key: {key}\r\n"));
-    let headers = format!("Content-Type: application/json\r\nAccept: application/json, text/event-stream\r\nMCP-Protocol-Version: 2025-11-25\r\n{key}");
-    let (status, reply, _) = server.raw("POST", "/mcp", &server.address.to_string(), &headers, &body.to_string())?;
-    if status != 200 { return Err(format!("pacing HTTP status {status}")); }
+    let key = key.map_or_else(String::new, |key| {
+        format!("x-biomcp-key-semantic-scholar-api-key: {key}\r\n")
+    });
+    let headers = format!(
+        "Content-Type: application/json\r\nAccept: application/json, text/event-stream\r\nMCP-Protocol-Version: 2025-11-25\r\n{key}"
+    );
+    let (status, reply, _) = server.raw(
+        "POST",
+        "/mcp",
+        &server.address.to_string(),
+        &headers,
+        &body.to_string(),
+    )?;
+    if status != 200 {
+        return Err(format!("pacing HTTP status {status}"));
+    }
     reply.ok_or("missing pacing reply".into())
 }
