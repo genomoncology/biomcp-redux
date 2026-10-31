@@ -3,6 +3,7 @@ import json
 import os
 from pathlib import Path
 import shutil
+import signal
 import subprocess
 import sys
 import tempfile
@@ -36,6 +37,13 @@ phase = lambda duration: dict(phase='Test', duration=duration, process_status='S
                              argv=['cargo', 'test', '--package=biomcp', '--test=cases'])
 baseline = dict(scenario='Baseline', summary='Success', phase_results=[phase(40)])
 mode = os.environ.get('FAKE_MODE', 'mixed')
+if mode == 'nested-group':
+    import subprocess, signal
+    child = subprocess.Popen([sys.executable, '-c',
+        'import signal,time; signal.signal(signal.SIGTERM, signal.SIG_IGN); '
+        'open("nested-ready", "w").write("ready"); time.sleep(60)'], start_new_session=True)
+    pathlib.Path('nested-pid').write_text(str(child.pid))
+    child.wait()
 if mode == 'baseline-failure':
     baseline['summary'] = 'Failure'
     outcomes = [baseline]
@@ -122,6 +130,47 @@ class MutationCommands(unittest.TestCase):
 
     def report(self):
         return json.loads((self.output / 'mutation-report.json').read_text())
+
+    def assert_owned_children_stop(self, cancel=False):
+        self.prepare('--measure')
+        if not cancel:
+            value = json.loads(self.plan.read_text())
+            value['deadline'] = time.time() + 5
+            self.plan.write_text(json.dumps(value))
+        self.env['FAKE_MODE'] = 'nested-group'
+        runner = subprocess.Popen([sys.executable, self.script, 'shard', '--plan', str(self.plan),
+                                   '--index', '0'], cwd=self.root, env=self.env,
+                                  stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        self.addCleanup(lambda: runner.poll() is None and runner.kill())
+        deadline = time.monotonic() + 15
+        while not (self.root / 'nested-ready').exists():
+            if runner.poll() is not None or time.monotonic() >= deadline:
+                self.fail('Native descendant never became ready')
+            time.sleep(0.01)
+        child = int((self.root / 'nested-pid').read_text())
+        def cleanup():
+            try:
+                os.killpg(child, signal.SIGKILL)
+            except ProcessLookupError:
+                pass
+        self.addCleanup(cleanup)
+        if cancel:
+            runner.terminate()
+        runner.wait(timeout=15)
+        # A separate native Cargo group must not outlive its runner.
+        while time.monotonic() < deadline:
+            try:
+                os.kill(child, 0)
+            except ProcessLookupError:
+                return
+            time.sleep(0.01)
+        self.fail('Native descendant outlived the mutation runner')
+
+    def test_cap_stops_separate_native_child_groups(self):
+        self.assert_owned_children_stop()
+
+    def test_cancellation_stops_separate_native_child_groups(self):
+        self.assert_owned_children_stop(cancel=True)
 
     def test_calibration_requires_one_shard_of_twenty_mutants(self):
         result = self.call('plan', '--previous', self.previous, '--output', self.output,
