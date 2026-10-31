@@ -27,6 +27,7 @@ pub(super) fn check() -> Result<(), Box<dyn std::error::Error>> {
     if delayed != 2 || delay >= budget || delay + delay <= budget {
         return Err("replay must delay exactly two sections that fit only as siblings".into());
     }
+    super::super::network_stub::retain_replay_owner(env.shared_root().as_ref())?;
     let fetch = Fetch::open(FetchConfig {
         mode: Mode::Replay { dir: replay },
         ..FetchConfig::default()
