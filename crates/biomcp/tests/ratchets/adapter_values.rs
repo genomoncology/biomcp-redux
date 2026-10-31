@@ -25,6 +25,7 @@ struct Site {
 }
 pub(super) fn check(root: &Path) -> Check {
     let audit = validate(include_str!("adapter_value_audit.json"))?;
+    let mut violations = Vec::new();
     for (relative, site, count) in sites(root)? {
         if !audit
             .sites
@@ -36,10 +37,14 @@ pub(super) fn check(root: &Path) -> Check {
             } else {
                 "classify new optional-value drop or file rule"
             };
-            return Err(format!("{relative}: {rule}: {site}").into());
+            violations.push(format!("{relative}: {rule}: {site}"));
         }
     }
-    Ok(())
+    if violations.is_empty() {
+        Ok(())
+    } else {
+        Err(violations.join("\n").into())
+    }
 }
 pub(crate) fn validate(text: &str) -> Result<Audit, Box<dyn std::error::Error>> {
     let audit: Audit = serde_json::from_str(text)?;

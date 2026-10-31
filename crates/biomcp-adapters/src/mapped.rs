@@ -4,23 +4,8 @@ use biodata::Text;
 use biomcp_types::Problem;
 
 pub(crate) mod refusal_serde;
-
-/// Whether a mapper refused a record, independent of field diagnostics.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, serde::Deserialize)]
-pub enum Refusal {
-    /// No record was refused.
-    None,
-    /// At least one record was refused at its mapping boundary.
-    Refused,
-}
-impl Refusal {
-    /// Preserve an actual refusal from either mapping stage.
-    pub fn include(&mut self, other: Self) {
-        if other == Self::Refused {
-            *self = other;
-        }
-    }
-}
+mod refusals;
+pub use refusals::Refusal;
 
 /// A source value with rejected fields retained as problems.
 #[derive(Debug)]
@@ -118,34 +103,6 @@ impl Problems {
     ) -> Option<T> {
         let value = self.field(field, value);
         self.required(field, value)
-    }
-    /// Decline an examined native record while preserving its field diagnostic.
-    pub(crate) fn record<T>(
-        &mut self,
-        field: &str,
-        value: Field<T>,
-        refusals: &mut Refusal,
-    ) -> Option<T> {
-        match value {
-            Field::Value(value) => Some(value),
-            invalid @ Field::Invalid(_) => {
-                *refusals = Refusal::Refused;
-                self.field(field, Some(invalid))
-            }
-        }
-    }
-    /// Inspect members only after admitting their optional collection container.
-    pub(crate) fn records<T>(
-        &mut self,
-        field: &str,
-        value: Option<Field<Vec<Field<T>>>>,
-        refusals: &mut Refusal,
-    ) -> Box<[T]> {
-        self.field(field, value)
-            .unwrap_or_default()
-            .into_iter()
-            .filter_map(|row| self.record(field, row, refusals))
-            .collect()
     }
     /// Preserve a supplied empty list while rejecting only malformed members.
     pub(crate) fn optional_fields<T>(
