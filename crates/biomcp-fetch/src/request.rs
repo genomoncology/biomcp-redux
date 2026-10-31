@@ -112,6 +112,16 @@ impl Leg<'_> {
             .map(|(reply, _)| reply)
     }
 
+    /// Request a native JSON value served as text/plain, retaining typed checks.
+    pub fn json_text<T: Reply>(
+        &self,
+        ep: &Endpoint,
+        params: &[(&str, Arg<'_>)],
+    ) -> Result<T, RequestError> {
+        self.parameters(ep, params, Decoder::json_text())
+            .map(|(reply, _)| reply)
+    }
+
     /// Read checked JSON and the timestamp belonging to that received record.
     pub fn json_received<T: Reply>(
         &self,

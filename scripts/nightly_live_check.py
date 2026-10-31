@@ -85,26 +85,85 @@ def cut(value):
     return isinstance(value, list) and any(cut(item) for item in value)
 
 
+def discovery_sequences(request):
+    provenance = request.get('provenance') or {}
+    sequences = provenance.get('discoveries')
+    if sequences is None:
+        sequence = provenance.get('discovery')
+        sequences = [sequence] if sequence else []
+    if not isinstance(sequences, list):
+        return {}
+    result, total = {}, 0
+    for sequence in sequences:
+        if not isinstance(sequence, dict):
+            return {}
+        namespace, ids = sequence.get('namespace'), sequence.get('ids')
+        if (not isinstance(namespace, str) or not namespace or len(namespace) > 128
+                or namespace in result or not valid_ids(ids)):
+            return {}
+        total += len(ids)
+        if total > 10_000:
+            return {}
+        result[namespace] = ids
+    return result
+
+
+def valid_ids(ids):
+    return (isinstance(ids, list) and len(ids) <= 10_000
+            and all(isinstance(value, str) and 0 < len(value) <= 256
+                    and not any(ord(char) < 32 or ord(char) == 127 for char in value)
+                    for value in ids) and len(ids) == len(set(ids)))
+
+
 def discovery_changes(before, after):
     changes = {}
     for key in before.keys() & after.keys():
         old, new = before[key], after[key]
-        left = old.get('provenance', {}).get('discovery')
-        right = new.get('provenance', {}).get('discovery')
-        if (left and right and left['namespace'] == right['namespace']
-                and old.get('status') == new.get('status') == 200
-                and left['ids'] != right['ids']):
-            changes.setdefault(left['namespace'], []).append((left['ids'], right['ids']))
+        left, right = discovery_sequences(old), discovery_sequences(new)
+        same = (old.get('source') == new.get('source')
+                and old.get('role') == new.get('role') and old.get('url') == new.get('url')
+                and old.get('status') == new.get('status') == 200)
+        for namespace in left.keys() | right.keys():
+            changes.setdefault(namespace, []).append({
+                'request': key, 'left': left.get(namespace), 'right': right.get(namespace),
+                'valid': same and namespace in left and namespace in right})
     return changes
 
 
-def dependent_change(removed, added, discoveries, before, after):
+def consumed_selection(group, before, after, left, right):
+    selections, batch_sizes = [], []
+    for requests in (before, after):
+        rows = []
+        sizes = []
+        for request in requests.values():
+            provenance = request.get('provenance') or {}
+            inputs = provenance.get('inputs') or {}
+            key = (request['source'], request['role'], inputs.get('namespace'),
+                   provenance.get('input_context'))
+            if key == group:
+                ids = inputs.get('ids')
+                if request.get('status') != 200 or not valid_ids(ids):
+                    return False
+                rows.extend(ids)
+                sizes.append(len(ids))
+        if not valid_ids(rows) or not sizes:
+            return False
+        selections.append(set(rows))
+        batch_sizes.append(max(sizes))
+    return (batch_sizes[0] == batch_sizes[1]
+            and selections == [set(left), set(right)]
+            and (set(left) < set(right) or set(right) < set(left)))
+
+
+def dependent_change(removed, added, discoveries, before, after, peers):
     groups = {}
     for side, requests in enumerate((removed, added)):
         for request in requests:
             inputs = request.get('provenance', {}).get('inputs')
             if not inputs:
                 return 'uncertain'
+            if not valid_ids(inputs.get('ids')):
+                return 'failure'
             context = request.get('provenance', {}).get('input_context')
             if not context:
                 return 'uncertain'
@@ -125,17 +184,24 @@ def dependent_change(removed, added, discoveries, before, after):
                        provenance.get('input_context'))
                 if key == group:
                     rows[side].append(inputs['ids'])
-    for (_, _, namespace, _), (old_rows, new_rows) in groups.items():
+    for group, (old_rows, new_rows) in groups.items():
+        namespace = group[2]
         old = {value for row in old_rows for value in row}
         new = {value for row in new_rows for value in row}
-        if old == new or not old_rows or not new_rows:
+        if (old == new or not old_rows or not new_rows
+                or sum(map(len, old_rows)) != len(old)
+                or sum(map(len, new_rows)) != len(new)):
             return 'failure'
         candidates = discoveries.get(namespace, [])
         if not candidates:
             return 'failure'
         # Transport sorts ID parameters. Require the same contiguous discovery
         # window, not merely arbitrary subsets of two changed reply bodies.
-        if not any(same_window(old, new, left, right) for left, right in candidates):
+        if not any(candidate['valid']
+                   and candidate['left'] != candidate['right']
+                   and (same_window(old, new, candidate['left'], candidate['right'])
+                        or consumed_selection(group, *peers, candidate['left'], candidate['right']))
+                   for candidate in candidates):
             return 'failure'
     return 'churn'
 
@@ -151,7 +217,7 @@ def same_window(old, new, left, right):
             return False
         start = len(left) - len(old)
         return (start >= 0 and len(right) - len(new) == start
-                and left[:start] == right[:start]
+                and set(left[:start]) == set(right[:start])
                 and set(left[start:]) == old and set(right[start:]) == new)
     for start in range(len(left) - len(old) + 1):
         stop = start + len(old)
@@ -160,7 +226,7 @@ def same_window(old, new, left, right):
     return False
 
 
-def command_classification(capture, discoveries):
+def command_classification(capture, discoveries, peers):
     before = terminal(capture['baseline']['requests'])
     after = terminal(capture['live']['requests'])
     statuses = [item.get('status') for item in after.values()]
@@ -170,7 +236,7 @@ def command_classification(capture, discoveries):
     removed = [before[key] for key in before.keys() - after.keys()]
     added = [after[key] for key in after.keys() - before.keys()]
     # Proven 429-only outcomes are nonfatal; unrelated plan changes still need proof.
-    plan = dependent_change(removed, added, discoveries, before, after) if removed or added else 'healthy'
+    plan = dependent_change(removed, added, discoveries, before, after, peers) if removed or added else 'healthy'
     if plan in ('failure', 'uncertain'):
         return plan
     return 'throttled' if 429 in statuses else plan
@@ -243,14 +309,23 @@ def classify_case(row):
     if invariant:
         return 'failure'
     discoveries = {}
+    peers = tuple(terminal([request for command in witness
+                            for request in command[side]['requests']])
+                  for side in ('baseline', 'live'))
     outcomes = []
     output_changes = {item for item in drift if ': output status changed:' in item}
     for command in witness:
         before = terminal(command['baseline']['requests'])
         after = terminal(command['live']['requests'])
+        seen = before.keys() & after.keys()
+        for current in discoveries.values():
+            current[:] = [change for change in current if change['request'] not in seen]
         for namespace, changes in discovery_changes(before, after).items():
-            discoveries.setdefault(namespace, []).extend(changes)
-        outcomes.append(command_classification(command, discoveries))
+            current = discoveries.setdefault(namespace, [])
+            replaced = {change['request'] for change in changes}
+            current[:] = [change for change in current if change['request'] not in replaced]
+            current.extend(changes)
+        outcomes.append(command_classification(command, discoveries, peers))
         matched = {item for item in output_changes
                    if item.startswith('command ' + str(command['ordinal'])
                                       + ': output status changed:')}

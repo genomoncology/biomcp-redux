@@ -175,6 +175,6 @@ pub fn card(
 /// Read the source database release independently from pathway version.
 pub fn release(leg: &Leg<'_>) -> Result<Text, RequestError> {
     let endpoint = SPEC.get("/data/database/version").fresh(Freshness::Days(1));
-    let value = leg.json::<raw::Version>(&endpoint, &[])?;
+    let value = leg.json_text::<raw::Version>(&endpoint, &[])?;
     Text::new(&value.0.to_string()).map_err(|_| biomcp_fetch::InputError::Serialization.into())
 }
