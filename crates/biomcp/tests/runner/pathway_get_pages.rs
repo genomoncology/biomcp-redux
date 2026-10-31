@@ -4,11 +4,7 @@ use serde_json::{Value, json};
 pub(super) fn check(env: &Environment, globals: &[String]) -> Result<(), String> {
     let mut pool: Option<String> = None;
     for (offset, id, name) in [
-        (
-            0,
-            "R-HSA-5675206",
-            "PEA15 binds MAPK monomers and dimers",
-        ),
+        (0, "R-HSA-5675206", "PEA15 binds MAPK monomers and dimers"),
         (4, "R-HSA-5675433", "PP5 dephosphorylates RAF1 S338"),
     ] {
         let mut args = [
