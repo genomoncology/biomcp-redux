@@ -1,6 +1,5 @@
 //! Source facts shared by discovery, health and commands.
 use crate::decl::{Guidance, Probe, SourceDecl};
-use biomcp_fetch::Arg;
 pub(crate) static DECL: SourceDecl = SourceDecl {
     spec: &super::SPEC,
     display: "LitVar",
