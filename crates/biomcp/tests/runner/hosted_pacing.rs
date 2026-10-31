@@ -71,25 +71,10 @@ fn check(keyed: bool) -> Check {
 }
 
 fn call(server: &Server, query: &str, key: Option<&str>) -> Check<Value> {
-    let body = json!({"jsonrpc":"2.0", "id":1,"method":"tools/call",
-        "params":{"name":"biomcp","arguments":{"args":["search","author",query]}}});
-    let key = key.map_or_else(String::new, |key| {
+    let extra = key.map_or_else(String::new, |key| {
         format!("x-biomcp-key-semantic-scholar-api-key: {key}\r\n")
     });
-    let headers = format!(
-        "Content-Type: application/json\r\nAccept: application/json, text/event-stream\r\nMCP-Protocol-Version: 2025-11-25\r\n{key}"
-    );
-    let (status, reply, _) = server.raw(
-        "POST",
-        "/mcp",
-        &server.address.to_string(),
-        &headers,
-        &body.to_string(),
-    )?;
-    if status != 200 {
-        return Err(format!("pacing HTTP status {status}"));
-    }
-    reply.ok_or("missing pacing reply".into())
+    super::request_keys::call(server, &["search", "author", query], &extra, false)
 }
 
 fn recordings(assets: &Environment) -> Check<std::path::PathBuf> {

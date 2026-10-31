@@ -40,7 +40,9 @@ fn blocked_settings() -> Result<(), String> {
     std::fs::remove_file(&path).map_err(|e| e.to_string())?;
     mkfifo(&path, Mode::S_IRUSR | Mode::S_IWUSR).map_err(|e| e.to_string())?;
     let address = server.address;
-    let worker = std::thread::spawn(move || request(address));
+    let workers: Vec<_> = (0..8)
+        .map(|_| std::thread::spawn(move || request(address)))
+        .collect();
     // A successful nonblocking writer open witnesses the blocked reader's admission.
     let end = Instant::now() + Duration::from_secs(5);
     let mut writer = loop {
@@ -61,13 +63,19 @@ fn blocked_settings() -> Result<(), String> {
                     .environment()
                     .config(&serde_json::json!({}))
                     .map_err(|e| e.to_string())?;
-                let _ = worker.join();
+                for worker in workers {
+                    let _ = worker.join();
+                }
                 return Err(format!("settings reader did not enter the FIFO: {error}"));
             }
         }
     };
     // The response must arrive while the settings read still has no EOF.
-    let reply = worker.join().map_err(|_| "deadline client stopped")?;
+    let replies = workers
+        .into_iter()
+        .map(|worker| worker.join().map_err(|_| "deadline client stopped"))
+        .collect::<Result<Vec<_>, _>>()?;
+    let capacity = request(address);
     writer.write_all(b"{}").map_err(|e| e.to_string())?;
     drop(writer);
     std::fs::remove_file(&path).map_err(|e| e.to_string())?;
@@ -75,27 +83,8 @@ fn blocked_settings() -> Result<(), String> {
         .environment()
         .config(&serde_json::json!({}))
         .map_err(|e| e.to_string())?;
-    let reply = reply?;
-    if reply.pointer("/error/data/reason") != Some(&serde_json::json!("deadline-exceeded")) {
-        return Err(format!(
-            "whole call did not return the typed timeout: {reply}"
-        ));
-    }
-    // Finished timed-out work must release ownership so the same service can answer again.
-    let (status, reply) = server.request(
-        "POST",
-        "/mcp",
-        &serde_json::json!({
-            "jsonrpc":"2.0","id":2,"method":"tools/list","params":{}
-        })
-        .to_string(),
-    )?;
-    if status != 200 || reply.pointer("/result/tools/0/name") != Some(&serde_json::json!("biomcp"))
-    {
-        return Err(format!(
-            "service did not recover after timed-out settings read: {reply}"
-        ));
-    }
+    verify(replies, capacity)?;
+    recovered(address)?;
     server.stop()
 }
 
@@ -118,4 +107,44 @@ fn request(address: std::net::SocketAddr) -> Result<serde_json::Value, String> {
         .split_once("\r\n\r\n")
         .ok_or("deadline response has no body")?;
     serde_json::from_str(body).map_err(|e| e.to_string())
+}
+
+#[cfg(unix)]
+fn verify(
+    replies: Vec<Result<serde_json::Value, String>>,
+    capacity: Result<serde_json::Value, String>,
+) -> Result<(), String> {
+    for reply in replies {
+        let reply = reply?;
+        if reply.pointer("/error/data/reason") != Some(&serde_json::json!("deadline-exceeded")) {
+            return Err(format!(
+                "whole call did not return the typed timeout: {reply}"
+            ));
+        }
+    }
+    let capacity = capacity?;
+    if capacity.pointer("/error/code") != Some(&serde_json::json!(-31000)) {
+        return Err(format!(
+            "timed-out running work released server capacity: {capacity}"
+        ));
+    }
+    Ok(())
+}
+#[cfg(unix)]
+fn recovered(address: std::net::SocketAddr) -> Result<(), String> {
+    let end = std::time::Instant::now() + std::time::Duration::from_secs(5);
+    loop {
+        let reply = request(address)?;
+        if reply.get("result").is_some() {
+            return Ok(());
+        }
+        if reply.pointer("/error/code") != Some(&serde_json::json!(-31000))
+            || std::time::Instant::now() >= end
+        {
+            return Err(format!(
+                "service did not recover after timed-out settings reads: {reply}"
+            ));
+        }
+        std::thread::yield_now();
+    }
 }
