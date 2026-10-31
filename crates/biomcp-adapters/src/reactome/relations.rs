@@ -42,7 +42,7 @@ pub fn members(leg: &Leg<'_>, id: &ReactomeId) -> Result<Mapped<Members>, Reques
             let (namespace, identifier) = reference
                 .st_id
                 .split_once(':')
-                .ok_or_else(|_| biomcp_fetch::bad_reply(Source::Reactome, Some(200)))?;
+                .ok_or_else(|| biomcp_fetch::bad_reply(Source::Reactome, Some(200)))?;
             let name = metadata(
                 &mut problems,
                 "members.name",

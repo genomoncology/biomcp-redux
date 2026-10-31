@@ -51,7 +51,7 @@ pub fn search(
     let (raw, meta) = leg.json_received_checked_cache::<Rows>(&ep, &args, |_| true)?;
     let page = meta
         .pagination
-        .ok_or_else(|_| biomcp_fetch::bad_reply(Source::UniProt, Some(200)))?;
+        .ok_or_else(|| biomcp_fetch::bad_reply(Source::UniProt, Some(200)))?;
     let returned = raw.results.len() as u64;
     if returned > page.total
         || returned == 0 && page.total > 0

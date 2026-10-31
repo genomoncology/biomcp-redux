@@ -37,14 +37,14 @@ pub fn sync(fetch: &Fetch) -> Result<crate::Mapped<WikiPathwaysSync>, RequestErr
     let search = rows
         .iter()
         .find(|r| r.part.as_ref() == "search")
-        .ok_or_else(|_| biomcp_fetch::bad_reply(biomcp_types::Source::WikiPathways, None))?
+        .ok_or_else(|| biomcp_fetch::bad_reply(biomcp_types::Source::WikiPathways, None))?
         .value
         .receipt
         .clone();
     let get = rows
         .iter()
         .find(|r| r.part.as_ref() == "get")
-        .ok_or_else(|_| biomcp_fetch::bad_reply(biomcp_types::Source::WikiPathways, None))?
+        .ok_or_else(|| biomcp_fetch::bad_reply(biomcp_types::Source::WikiPathways, None))?
         .value
         .receipt
         .clone();

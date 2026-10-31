@@ -42,7 +42,7 @@ pub fn assertions(
         let record = records
             .iter()
             .find(|r| r.id == id)
-            .ok_or_else(|_| biomcp_fetch::bad_reply(Source::Erepo, None))?;
+            .ok_or_else(|| biomcp_fetch::bad_reply(Source::Erepo, None))?;
         // The summary names its own exact current document version.
         // Older selections use their own SEPIO body and cannot borrow these facts.
         if record.version != version {
@@ -50,7 +50,7 @@ pub fn assertions(
                 .uuid
                 .as_ref()
                 .and_then(crate::raw::Field::as_ref)
-                .ok_or_else(|_| biomcp_fetch::bad_reply(Source::Erepo, None))?;
+                .ok_or_else(|| biomcp_fetch::bad_reply(Source::Erepo, None))?;
             if !record
                 .versions
                 .as_ref()
@@ -146,6 +146,6 @@ fn records(leg: &Leg<'_>, caid: &str) -> Result<Mapped<Vec<raw::Record>>, Reques
         }
         page = page
             .checked_add(1)
-            .ok_or_else(|_| biomcp_fetch::bad_reply(Source::Erepo, None))?;
+            .ok_or_else(|| biomcp_fetch::bad_reply(Source::Erepo, None))?;
     }
 }

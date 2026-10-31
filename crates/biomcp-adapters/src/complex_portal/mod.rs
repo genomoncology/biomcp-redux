@@ -109,7 +109,7 @@ pub fn search(leg: &Leg<'_>, anchor: &UniProtIsoform) -> Result<Collection, Requ
         refusals,
         items,
         native_total: total
-            .ok_or_else(|_| biomcp_fetch::bad_reply(Source::ComplexPortal, Some(200)))?,
+            .ok_or_else(|| biomcp_fetch::bad_reply(Source::ComplexPortal, Some(200)))?,
     })
 }
 fn detail(leg: &Leg<'_>, id: &ComplexPortalId) -> Result<raw::Complex, RequestError> {

@@ -145,7 +145,7 @@ pub fn resolve(leg: &Leg<'_>, input: &str) -> Result<Resolution, RequestError> {
             raw.errors.into_iter().flatten().map(|e| e.code).collect(),
         ));
     }
-    let notation = identity.ok_or_else(|_| biomcp_fetch::bad_reply(Source::Mutalyzer, None))?;
+    let notation = identity.ok_or_else(|| biomcp_fetch::bad_reply(Source::Mutalyzer, None))?;
     let expression = biodata::Expression::hgvs(notation.clone())
         .map_err(|_| biomcp_fetch::bad_reply(Source::Mutalyzer, None))?;
     Ok(Resolution::Found(VariantHeader {

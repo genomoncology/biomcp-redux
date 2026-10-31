@@ -151,13 +151,13 @@ pub fn snapshot(info: &BundleInfo) -> Result<StudySnapshot, RequestError> {
         revision: info
             .content_revision
             .as_deref()
-            .ok_or_else(|_| biomcp_fetch::bad_reply(biomcp_types::Source::Cbioportal, None))?
+            .ok_or_else(|| biomcp_fetch::bad_reply(biomcp_types::Source::Cbioportal, None))?
             .parse()
             .map_err(|_| biomcp_fetch::bad_reply(biomcp_types::Source::Cbioportal, None))?,
         acquired: info
             .retrieved_at
             .and_then(|v| u64::try_from(v).ok())
-            .ok_or_else(|_| biomcp_fetch::bad_reply(biomcp_types::Source::Cbioportal, None))?,
+            .ok_or_else(|| biomcp_fetch::bad_reply(biomcp_types::Source::Cbioportal, None))?,
     })
 }
 
