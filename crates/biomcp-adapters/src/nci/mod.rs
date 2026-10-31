@@ -26,6 +26,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     source: biomcp_types::Source::Nci,
     base: "https://clinicaltrialsapi.cancer.gov/api/v2",
     key: KeyUse::Required(Credential {
+        tier: biomcp_types::KeyTier::Fallback,
         secret: SecretName::NciApiKey,
         place: KeyPlace::Header("X-API-KEY"),
     }),

@@ -35,6 +35,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     },
     base: "https://gdmscience.googleapis.com:443",
     key: KeyUse::Required(Credential {
+        tier: biomcp_types::KeyTier::NoFallback,
         secret: SecretName::AlphaGenomeApiKey,
         place: KeyPlace::Header("x-goog-api-key"),
     }),

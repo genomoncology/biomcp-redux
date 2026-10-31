@@ -14,6 +14,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     source: Source::SemanticScholar,
     base: "https://api.semanticscholar.org/graph/v1",
     key: KeyUse::Optional(Credential {
+        tier: biomcp_types::KeyTier::Fallback,
         secret: SecretName::SemanticScholarApiKey,
         place: KeyPlace::Header("x-api-key"),
     }),

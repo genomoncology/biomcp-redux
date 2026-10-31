@@ -23,6 +23,7 @@ fn required_key_refuses_without_connections_and_keyed_request_uses_metadata() ->
         },
         base: Box::leak(format!("https://127.0.0.1:{}", fixture.address.port()).into_boxed_str()),
         key: KeyUse::Required(Credential {
+            tier: biomcp_types::KeyTier::Fallback,
             secret: SecretName::AlphaGenomeApiKey,
             place: KeyPlace::Header("x-goog-api-key"),
         }),

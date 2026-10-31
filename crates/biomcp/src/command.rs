@@ -7,6 +7,7 @@ mod diagnostic;
 mod disease;
 mod drug;
 mod drug_label;
+mod hosted_keys;
 pub(crate) mod local;
 mod maintenance;
 mod mcp_policy;
@@ -33,7 +34,7 @@ pub(crate) struct Outcome {
     pub(crate) cli_bytes: Vec<u8>,
 }
 pub(crate) fn dispatch(args: &[OsString]) -> io::Result<Outcome> {
-    dispatch_using(args, true, None)
+    dispatch_using(args, true, None, None)
 }
 fn dispatch_using(
     args: &[OsString],
@@ -42,6 +43,7 @@ fn dispatch_using(
         &crate::grammar::Globals,
         &Result<std::sync::Arc<biomcp_fetch::Fetch>, crate::config::StartupError>,
     )>,
+    request_secrets: Option<&biomcp_fetch::Secrets>,
 ) -> io::Result<Outcome> {
     if let [command] = args
         && command == "schema"
@@ -110,11 +112,12 @@ fn dispatch_using(
     if let Some(outcome) = unsupported::check(&action) {
         return outcome;
     }
-    let fetch = match transport::fetch(&parsed.globals, shared.map(|(_, fetch)| fetch))? {
+    let fetch = match transport::fetch(&parsed.globals, shared.map(|(_, f)| f), request_secrets)? {
         Ok(fetch) => fetch,
         Err(error) => return local::startup(error),
     };
-    execute(&fetch, action, &parsed.globals, allow_save)
+    let outcome = execute(&fetch, action, &parsed.globals, allow_save)?;
+    hosted_keys::outcome(outcome, parsed.globals.hosted)
 }
 
 pub(crate) fn execute(
@@ -358,20 +361,22 @@ pub(crate) fn tool(
     globals: &crate::grammar::Globals,
     fetch: &Result<std::sync::Arc<biomcp_fetch::Fetch>, crate::config::StartupError>,
 ) -> io::Result<Outcome> {
-    tool_using(args, globals, fetch, true)
+    tool_using(args, globals, fetch, true, None)
 }
 pub(crate) fn tool_http(
     args: &[OsString],
     globals: &crate::grammar::Globals,
     fetch: &Result<std::sync::Arc<biomcp_fetch::Fetch>, crate::config::StartupError>,
+    request_secrets: Option<&biomcp_fetch::Secrets>,
 ) -> io::Result<Outcome> {
-    tool_using(args, globals, fetch, false)
+    tool_using(args, globals, fetch, false, request_secrets)
 }
 fn tool_using(
     args: &[OsString],
     globals: &crate::grammar::Globals,
     fetch: &Result<std::sync::Arc<biomcp_fetch::Fetch>, crate::config::StartupError>,
     allow_save: bool,
+    request_secrets: Option<&biomcp_fetch::Secrets>,
 ) -> io::Result<Outcome> {
     if args.iter().filter_map(|arg| arg.to_str()).any(|arg| {
         ["--record", "--replay", "--case-cache"]
@@ -383,7 +388,7 @@ fn tool_using(
     if args.first().is_some_and(|arg| arg == "schema") {
         return dispatch(args);
     }
-    dispatch_using(args, allow_save, Some((globals, fetch)))
+    dispatch_using(args, allow_save, Some((globals, fetch)), request_secrets)
 }
 fn usage(args: &[OsString]) -> io::Result<Outcome> {
     usage_with_argument(args, None)

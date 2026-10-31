@@ -86,6 +86,19 @@ pub const AUXILIARY: &[&SourceSpec] = &[
 pub fn requests() -> impl Iterator<Item = &'static SourceSpec> {
     SOURCES.iter().chain(AUXILIARY).copied()
 }
+/// Declared credential policy shared by hosted admission and key discovery.
+/// Multiple APIs using one credential must retain the strongest declared tier.
+pub fn key_tier(name: biomcp_fetch::SecretName) -> biomcp_types::KeyTier {
+    if requests().any(|spec| {
+        matches!(spec.key,
+        biomcp_fetch::KeyUse::Optional(c) | biomcp_fetch::KeyUse::Required(c)
+            if c.secret == name && c.tier == biomcp_types::KeyTier::NoFallback)
+    }) {
+        biomcp_types::KeyTier::NoFallback
+    } else {
+        biomcp_types::KeyTier::Fallback
+    }
+}
 /// Independently labeled fields from every implemented aggregator.
 pub fn components() -> impl Iterator<Item = &'static Component> {
     crate::myvariant::components::all()

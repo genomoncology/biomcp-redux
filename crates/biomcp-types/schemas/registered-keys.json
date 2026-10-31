@@ -22,6 +22,14 @@
       ],
       "type": "string"
     },
+    "Reply_KeyTier": {
+      "description": "Whether hosted calls may use the server's configured source credential.",
+      "enum": [
+        "no-fallback",
+        "fallback"
+      ],
+      "type": "string"
+    },
     "Reply_PageInfo": {
       "description": "Search counts after filtering and deduplication.",
       "properties": {
@@ -208,6 +216,10 @@
           "$ref": "#/$defs/Reply_Text",
           "description": "Environment fallback name."
         },
+        "header": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "Header accepted by the hosted HTTP transport."
+        },
         "source": {
           "$ref": "#/$defs/Reply_Text",
           "description": "Source accepted by key set."
@@ -215,12 +227,18 @@
         "state": {
           "$ref": "#/$defs/Reply_KeyState",
           "description": "Current credential origin."
+        },
+        "tier": {
+          "$ref": "#/$defs/Reply_KeyTier",
+          "description": "Declared server credential fallback policy."
         }
       },
       "required": [
         "source",
         "config",
         "environment",
+        "header",
+        "tier",
         "state"
       ],
       "type": "object"

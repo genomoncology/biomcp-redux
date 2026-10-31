@@ -125,7 +125,7 @@ impl Server {
             self.raw(method, path, &self.address.to_string(), &headers, body)?;
         Ok((status, body.unwrap_or(Value::Null)))
     }
-    fn raw(
+    pub(super) fn raw(
         &self,
         method: &str,
         path: &str,

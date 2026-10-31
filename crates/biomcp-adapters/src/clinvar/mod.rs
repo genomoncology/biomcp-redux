@@ -24,6 +24,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     source: Source::ClinVar,
     base: "https://eutils.ncbi.nlm.nih.gov/entrez/eutils",
     key: KeyUse::Optional(Credential {
+        tier: biomcp_types::KeyTier::Fallback,
         secret: SecretName::NcbiApiKey,
         place: KeyPlace::Query("api_key"),
     }),
