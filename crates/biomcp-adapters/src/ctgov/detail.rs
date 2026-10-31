@@ -319,30 +319,16 @@ impl Eligibility {
 }
 impl Outcomes {
     fn rows(self, problems: &mut Problems, refusals: &mut crate::Refusal) -> Box<[TrialOutcome]> {
+        use TrialOutcomeKind::{Other, Primary, Secondary};
         [
-            (
-                TrialOutcomeKind::Primary,
-                super::refusals::records(
-                    problems,
-                    refusals,
-                    "primaryOutcomes",
-                    self.primary_outcomes,
-                ),
-            ),
-            (
-                TrialOutcomeKind::Secondary,
-                super::refusals::records(
-                    problems,
-                    refusals,
-                    "secondaryOutcomes",
-                    self.secondary_outcomes,
-                ),
-            ),
-            (
-                TrialOutcomeKind::Other,
-                super::refusals::records(problems, refusals, "otherOutcomes", self.other_outcomes),
-            ),
+            (Primary, "primaryOutcomes", self.primary_outcomes),
+            (Secondary, "secondaryOutcomes", self.secondary_outcomes),
+            (Other, "otherOutcomes", self.other_outcomes),
         ]
+        .map(|(kind, field, rows)| {
+            let rows = super::refusals::records(problems, refusals, field, rows);
+            (kind, rows)
+        })
         .into_iter()
         .flat_map(|(kind, rows)| rows.into_vec().into_iter().map(move |v| (kind, v)))
         .map(|(kind, v)| TrialOutcome {

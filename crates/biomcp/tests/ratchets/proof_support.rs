@@ -175,9 +175,10 @@ pub(super) fn private_refusal_defaults() -> Check {
         valid.replace(&attribute, "#[serde(default)] "),
     ] {
         put(tree.path(), path, &planted)?;
-        let failure = super::source::check(tree.path())
-            .expect_err("native or unrelated default passed")
-            .to_string();
+        let failure = match super::source::check(tree.path()) {
+            Ok(()) => return Err("native or unrelated default passed".into()),
+            Err(error) => error.to_string(),
+        };
         assert!(failure.contains("raw serde default"), "{failure}");
     }
     put(tree.path(), path, &valid)?;
@@ -200,9 +201,10 @@ pub(super) fn private_refusal_defaults() -> Check {
         alias,
         &definition.replace("refusal_serde", "other"),
     )?;
-    let failure = super::source::check(tree.path())
-        .expect_err("changed private codec alias passed")
-        .to_string();
+    let failure = match super::source::check(tree.path()) {
+        Ok(()) => return Err("changed private codec alias passed".into()),
+        Err(error) => error.to_string(),
+    };
     assert!(failure.contains("raw serde default"), "{failure}");
     Ok(())
 }
