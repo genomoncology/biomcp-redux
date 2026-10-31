@@ -303,6 +303,29 @@ class ReplyDiff(unittest.TestCase):
         self.assertIn("/0/exit", result.stdout)
         self.assertNotIn("missing", result.stdout)
 
+    def test_aliased_reply_declarations_align_the_next_request(self):
+        for directory, side in [(self.base, "base"), (self.head, "head")]:
+            parent, child = "/tmp/" + side, "/tmp/child-" + side
+            first, second = side + "-first", side + "-second"
+            for stage in range(3):
+                root = parent if stage == 0 else child
+                args = ["article", "citation-evidence", "33123537", "10.1038/nature05933"]
+                if stage == 2:
+                    args += ["--pool", second]
+                args += ["--record" if stage == 0 else "--replay", parent + "/record"]
+                stable = [arg.replace(root, "<root>") for arg in args]
+                digest = hashlib.sha256(json.dumps(stable, separators=(",", ":")).encode()).hexdigest()
+                reply = {"schema": "biomcp.article-evidence/6", "query": {}}
+                if stage < 2:
+                    reply["next"] = [{"kind": "page", "args": ["article", "citation-evidence",
+                        "33123537", "10.1038/nature05933", "--pool", first if stage == 0 else second]}]
+                else:
+                    reply["query"]["pool"] = second
+                self.write(directory, "trial/evidence/chain/" + digest + "/0",
+                           json.dumps(reply).encode(), args=args, root=root)
+        result = self.compare()
+        self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+
     def test_snapshot_sections_bind_only_their_declared_token_slots(self):
         for directory, token in [(self.base, "base-token"), (self.head, "head-token")]:
             reply = {"schema": "biomcp.phenotype-card/5", "query": {"id": "HP:0000001"},
