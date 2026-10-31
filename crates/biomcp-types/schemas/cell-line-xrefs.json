@@ -73,18 +73,28 @@
       "description": "Publisher release identity, fetched independently from record data.",
       "properties": {
         "updated": {
-          "$ref": "#/$defs/Reply_PartialDate",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_PartialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Native release update date."
         },
         "version": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Native release version."
         }
       },
-      "required": [
-        "version",
-        "updated"
-      ],
       "type": "object"
     },
     "Reply_CellLineSection": {
@@ -110,10 +120,6 @@
     "Reply_CellLineXref": {
       "description": "One complete native cross-reference; database and accession form the source identity.",
       "properties": {
-        "accession": {
-          "$ref": "#/$defs/Reply_Text",
-          "description": "Native accession, including any internal prefix."
-        },
         "category": {
           "anyOf": [
             {
@@ -125,10 +131,6 @@
           ],
           "description": "Native source category when supplied."
         },
-        "database": {
-          "$ref": "#/$defs/Reply_Text",
-          "description": "Native database name; no fixed vocabulary."
-        },
         "discontinued": {
           "anyOf": [
             {
@@ -139,6 +141,10 @@
             }
           ],
           "description": "Native discontinuation qualifier, including values such as probable."
+        },
+        "id": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "Native accession, including any internal prefix."
         },
         "iri": {
           "anyOf": [
@@ -162,6 +168,10 @@
           ],
           "description": "Native display label when supplied."
         },
+        "namespace": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "Native database name; no fixed vocabulary."
+        },
         "url": {
           "anyOf": [
             {
@@ -176,10 +186,11 @@
         }
       },
       "required": [
-        "database",
-        "accession"
+        "namespace",
+        "id"
       ],
-      "type": "object"
+      "type": "object",
+      "x-identifier": true
     },
     "Reply_CellLineXrefs": {
       "description": "Native source cross-references with collection-local totals and offset.",
@@ -726,15 +737,6 @@
             "null"
           ]
         },
-        "fetched": {
-          "description": "Retrieved identity depth.",
-          "format": "uint32",
-          "minimum": 0,
-          "type": [
-            "integer",
-            "null"
-          ]
-        },
         "notices": {
           "description": "Source notices and request recovery guidance.",
           "items": {
@@ -752,6 +754,15 @@
             }
           ],
           "description": "Failure or stale-fallback reason."
+        },
+        "retrieved_count": {
+          "description": "Number of retrieved identities.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
         },
         "source": {
           "$ref": "#/$defs/Reply_Source",
@@ -870,7 +881,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.cell-line-xrefs/3",
+  "$id": "biomcp.cell-line-xrefs/6",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -926,7 +937,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.cell-line-xrefs/3",
+      "const": "biomcp.cell-line-xrefs/6",
       "type": "string"
     },
     "sources": {

@@ -30,6 +30,7 @@ pub(crate) fn dispatch(path: &[String]) -> io::Result<Help> {
         .into_iter()
         .filter(|c| {
             path.is_empty()
+                || (path == ["help"] && c.command.is_empty())
                 || c.command.starts_with(path)
                 || (path.len() == 1
                     && path.first().is_some_and(|word| word == "skill")
@@ -40,12 +41,18 @@ pub(crate) fn dispatch(path: &[String]) -> io::Result<Help> {
                     && c.command.first() == path.first())
         })
         .collect();
-    if !path.is_empty() {
+    if !public_grammar::overview(&mut commands, path)? {
         public_grammar::scoped_globals(&mut commands);
     }
     Ok(Help { commands })
 }
-fn commands() -> io::Result<Vec<HelpCommand>> {
+#[cfg(test)]
+pub(crate) fn reference() -> io::Result<Help> {
+    let mut commands = commands()?;
+    public_grammar::canonical(&mut commands)?;
+    Ok(Help { commands })
+}
+pub(crate) fn commands() -> io::Result<Vec<HelpCommand>> {
     let examples: BTreeMap<String, Vec<Vec<String>>> =
         serde_json::from_str(include_str!(concat!(env!("OUT_DIR"), "/examples.json")))?;
     let mut commands = Vec::new();
@@ -163,7 +170,8 @@ fn extra_commands(commands: &mut Vec<HelpCommand>, examples: &BTreeMap<String, V
             vec!["serve"],
             "Serve MCP over stdio or --http [ADDR]. Non-loopback binds require --allow-host HOST or \
                 http.allowed_hosts; neither authenticates callers. HTTP refuses sync, store clean and --fresh. \
-                Stdio saves refuse --replace. MCP revisions: 2026-07-28, 2025-11-25, 2025-06-18, 2025-03-26. \
+                Stdio saves refuse --replace. --hosted refuses file saves, health details, sync, store clean, \
+                --fresh and key commands on every transport with a usage.mcp_unavailable error. MCP revisions: 2026-07-28, 2025-11-25, 2025-06-18, 2025-03-26. \
                 Send MCP-Protocol-Version on HTTP requests. Without it, initialize uses its requested legacy revision; \
                 other requests default to 2025-03-26. Unsupported headers return HTTP 400.",
         ),

@@ -10,8 +10,9 @@ use std::{
 };
 
 pub(super) fn trials() -> Vec<Trial> {
+    // Keep dynamic state, source bindings or wire checks that YAML cannot express.
     vec![transcript_trial(
-        "drug-next-steps/native-d05-source-listed-lookup",
+        crate::runner::pool_contract::DRUG_CIVIC.0,
         || run().map_err(Into::into),
     )]
 }
@@ -185,8 +186,7 @@ fn reply(request: &str) -> Result<String, String> {
 }
 
 fn evidence_root() -> Result<PathBuf, String> {
-    let parent = std::env::temp_dir().join("biomcp-native-proof/drug-next");
-    fs::create_dir_all(&parent).map_err(|e| e.to_string())?;
+    let parent = super::super::network_stub::evidence_directory().map_err(|e| e.to_string())?;
     let root = tempfile::Builder::new()
         .prefix("d05-")
         .tempdir_in(parent)

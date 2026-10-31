@@ -1,6 +1,8 @@
 //! Native GWAS Catalog v2 association pages, without clinical interpretation.
 pub mod get;
 mod raw;
+mod receive;
+mod scope;
 mod search;
 use crate::quotas;
 use biodata::VariantId;
@@ -28,6 +30,12 @@ const ASSOCIATIONS: Endpoint = SPEC.get("/associations").fresh(Freshness::Days(1
 /// Source-native page and its exact catalog denominator.
 #[derive(Debug)]
 pub struct Page {
+    /// Actual record refusals in the selected source slots.
+    pub refusals: crate::Refusal,
+    /// Native page rows before identity refusals.
+    pub received: u32,
+    /// Rejected source fields and row identities.
+    pub problems: Vec<biomcp_types::Problem>,
     /// Selected source rows.
     pub rows: Vec<Association>,
     /// Source-reported total associations.
@@ -39,13 +47,14 @@ pub fn associations(
     rs: &VariantId,
     page: u32,
     size: u32,
+    skip: u32,
 ) -> Result<Page, RequestError> {
     let id = rs.to_string();
     let expected = format!(
         "{}/associations?rs_id={id}&page={page}&size={size}",
         SPEC.base
     );
-    let (response, _) = leg.json_received_checked::<raw::Response>(
+    let response = leg.json_checked_admission::<raw::Response>(
         &ASSOCIATIONS,
         &[
             ("rs_id", Arg::Text(&id)),
@@ -59,12 +68,36 @@ pub fn associations(
                 Err(BadReply)
             }
         },
+        raw::Response::identities_admitted,
     )?;
-    Ok(Page {
-        rows: response
-            .embedded
-            .map(|e| e.associations)
-            .unwrap_or_default(),
+    Ok(self::page(response, skip as usize))
+}
+fn page(response: raw::Response, skip: usize) -> Page {
+    let received_rows = response
+        .embedded
+        .map(|e| e.associations)
+        .unwrap_or_default();
+    let received = received_rows.len() as u32;
+    let mut problems = crate::mapped::Problems {
+        source: Source::Gwas,
+        record: None,
+        list: Vec::new(),
+    };
+    let mut rows = Vec::new();
+    let mut refusals = crate::Refusal::None;
+    for row in received_rows.into_iter().skip(skip) {
+        if let Some(mut row) = problems.field("association_id", Some(row.value)) {
+            problems.list.append(&mut row.problems);
+            rows.push(row);
+        } else {
+            refusals = crate::Refusal::Refused;
+        }
+    }
+    Page {
+        refusals,
+        rows,
+        received,
+        problems: problems.list,
         total: response.page.total_elements,
-    })
+    }
 }

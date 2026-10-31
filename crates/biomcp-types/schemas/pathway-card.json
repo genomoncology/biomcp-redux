@@ -14,6 +14,34 @@
       "pattern": "^HGNC:(?:4294967295|[1-9][0-9]{0,8}|[1-3][0-9]{9}|4[0-1][0-9]{8}|42[0-8][0-9]{7}|429[0-3][0-9]{6}|4294[0-8][0-9]{5}|42949[0-5][0-9]{4}|429496[0-6][0-9]{3}|4294967[0-1][0-9]{2}|42949672[0-8][0-9]{1}|429496729[0-4][0-9]{0})$",
       "type": "string"
     },
+    "Reply_IdentifierNamespace": {
+      "description": "A source-stated authority or an explicit unknown authority, represented by the string unknown.",
+      "maxLength": 1048576,
+      "minLength": 1,
+      "pattern": "^(?![\\s\\S]*[\\x00-\\x1f\\x7f-\\x9f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069])",
+      "type": "string"
+    },
+    "Reply_Identifier_NonZeroU64": {
+      "description": "An authority and its unchanged native identifier; unknown means the authority was not stated.",
+      "properties": {
+        "id": {
+          "description": "Native identifier value, with its original scalar type and precision.",
+          "format": "uint64",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "namespace": {
+          "$ref": "#/$defs/Reply_IdentifierNamespace",
+          "description": "Native authority spelling; the literal unknown carries an unstated authority."
+        }
+      },
+      "required": [
+        "namespace",
+        "id"
+      ],
+      "type": "object",
+      "x-identifier": true
+    },
     "Reply_PageInfo": {
       "description": "Search counts after filtering and deduplication.",
       "properties": {
@@ -83,7 +111,14 @@
           "description": "Checked source-owned identity."
         },
         "name": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Whole native pathway name."
         },
         "references": {
@@ -135,7 +170,6 @@
       },
       "required": [
         "id",
-        "name",
         "species"
       ],
       "type": "object"
@@ -207,10 +241,8 @@
           "description": "Native unresolved integer database reference.",
           "properties": {
             "db_id": {
-              "description": "Positive native database reference.",
-              "format": "uint64",
-              "minimum": 1,
-              "type": "integer"
+              "$ref": "#/$defs/Reply_Identifier_NonZeroU64",
+              "description": "Positive native database reference."
             },
             "kind": {
               "const": "database",
@@ -227,10 +259,8 @@
           "description": "Native event object; fields are absent only when omitted by the source.",
           "properties": {
             "db_id": {
-              "description": "Native object database identity.",
-              "format": "uint64",
-              "minimum": 1,
-              "type": "integer"
+              "$ref": "#/$defs/Reply_Identifier_NonZeroU64",
+              "description": "Native object database identity."
             },
             "id": {
               "anyOf": [
@@ -416,7 +446,14 @@
           "description": "Checked source-owned identity."
         },
         "name": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Whole native name."
         },
         "revision": {
@@ -448,7 +485,6 @@
       },
       "required": [
         "id",
-        "name",
         "species"
       ],
       "type": "object"
@@ -462,13 +498,13 @@
             "id": {
               "$ref": "#/$defs/Reply_ReactomeId"
             },
-            "source": {
+            "namespace": {
               "const": "reactome",
               "type": "string"
             }
           },
           "required": [
-            "source",
+            "namespace",
             "id"
           ],
           "type": "object"
@@ -479,27 +515,26 @@
             "id": {
               "$ref": "#/$defs/Reply_WikiPathwaysId"
             },
-            "source": {
+            "namespace": {
               "const": "wikipathways",
               "type": "string"
             }
           },
           "required": [
-            "source",
+            "namespace",
             "id"
           ],
           "type": "object"
         }
-      ]
+      ],
+      "x-identifier": true
     },
     "Reply_PathwayLiteratureRef": {
       "description": "A native pathway-level literature reference; never inferred from prose.",
       "properties": {
         "db_id": {
-          "description": "Native literature database reference.",
-          "format": "uint64",
-          "minimum": 1,
-          "type": "integer"
+          "$ref": "#/$defs/Reply_Identifier_NonZeroU64",
+          "description": "Native literature database reference."
         },
         "pubmed": {
           "anyOf": [
@@ -685,24 +720,34 @@
       "description": "One native physical entity carrying a membership reference.",
       "properties": {
         "db_id": {
-          "description": "Native physical entity database identity, distinct from reference identity.",
-          "format": "uint64",
-          "minimum": 1,
-          "type": "integer"
+          "$ref": "#/$defs/Reply_Identifier_NonZeroU64",
+          "description": "Native physical entity database identity, distinct from reference identity."
         },
         "name": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Whole physical entity label, including source-stated modification context."
         },
         "schema_class": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Native physical entity schema class, separate from reference schema class."
         }
       },
       "required": [
-        "db_id",
-        "name",
-        "schema_class"
+        "db_id"
       ],
       "type": "object"
     },
@@ -725,22 +770,21 @@
     "Reply_PathwaySourceRef": {
       "description": "An open source namespace paired with its complete native identifier.",
       "properties": {
-        "namespace": {
-          "description": "Native namespace; never discarded during a gene join.",
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "value": {
+        "id": {
           "$ref": "#/$defs/Reply_Text",
           "description": "Complete namespace-local identifier, including native isoform suffixes."
+        },
+        "namespace": {
+          "$ref": "#/$defs/Reply_IdentifierNamespace",
+          "description": "Native namespace; never discarded during a gene join."
         }
       },
       "required": [
-        "value"
+        "namespace",
+        "id"
       ],
-      "type": "object"
+      "type": "object",
+      "x-identifier": true
     },
     "Reply_PathwaySpecies": {
       "description": "Source-stated human species; no species inference from a title.",
@@ -753,19 +797,19 @@
       "description": "One native summation, with its own database identity and whole text.",
       "properties": {
         "db_id": {
-          "description": "Native summation database identity, not the pathway identity.",
-          "format": "uint64",
-          "minimum": 1,
-          "type": "integer"
+          "$ref": "#/$defs/Reply_Identifier_NonZeroU64",
+          "description": "Native summation database identity, not the pathway identity."
         },
         "text": {
           "description": "Complete native text; no sentence clipping or reference reassignment.",
-          "type": "string"
+          "type": [
+            "string",
+            "null"
+          ]
         }
       },
       "required": [
-        "db_id",
-        "text"
+        "db_id"
       ],
       "type": "object"
     },
@@ -1464,15 +1508,6 @@
             "null"
           ]
         },
-        "fetched": {
-          "description": "Retrieved identity depth.",
-          "format": "uint32",
-          "minimum": 0,
-          "type": [
-            "integer",
-            "null"
-          ]
-        },
         "notices": {
           "description": "Source notices and request recovery guidance.",
           "items": {
@@ -1490,6 +1525,15 @@
             }
           ],
           "description": "Failure or stale-fallback reason."
+        },
+        "retrieved_count": {
+          "description": "Number of retrieved identities.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
         },
         "source": {
           "$ref": "#/$defs/Reply_Source",
@@ -1540,6 +1584,10 @@
           "$ref": "#/$defs/Reply_Text",
           "description": "Native source identifier."
         },
+        "namespace": {
+          "$ref": "#/$defs/Reply_IdentifierNamespace",
+          "description": "Native authority; unknown means the source did not state one."
+        },
         "url": {
           "anyOf": [
             {
@@ -1554,9 +1602,11 @@
         }
       },
       "required": [
+        "namespace",
         "id"
       ],
-      "type": "object"
+      "type": "object",
+      "x-identifier": true
     },
     "Reply_SourceState": {
       "description": "State of a source actually asked by the command.",
@@ -1638,7 +1688,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.pathway-card/7",
+  "$id": "biomcp.pathway-card/10",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -1694,7 +1744,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.pathway-card/7",
+      "const": "biomcp.pathway-card/10",
       "type": "string"
     },
     "sources": {

@@ -27,7 +27,7 @@ pub(super) fn fetch(
     let reply = (|| {
         // The stored human catalog admits the identity; its date is never a GPML revision.
         let card = wikipathways::card(&leg, id, false)?;
-        if card.is_none() {
+        if card.value.is_none() {
             return Err(SourceError {
                 source: Source::WikiPathways,
                 reason: Reason::NotFound,
@@ -62,7 +62,7 @@ pub(super) fn fetch(
             }),
             events: None,
             sources: Vec::new(),
-            problems: mapped.problems,
+            problems: card.problems.into_iter().chain(mapped.problems).collect(),
         })
     })();
     out.sources.push(status::source(

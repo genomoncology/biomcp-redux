@@ -61,6 +61,7 @@ impl super::Trial {
         }
         card.matched_biomarkers = entries.into();
         Mapped {
+            refusals: crate::Refusal::None,
             value: card,
             problems: p.list,
         }

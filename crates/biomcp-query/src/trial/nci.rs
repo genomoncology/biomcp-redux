@@ -104,7 +104,7 @@ fn apply(
     page: nci::Page,
 ) {
     source.count = Some(page.total);
-    source.fetched = Some(page.data.len() as u32);
+    source.retrieved_count = Some(page.data.len() as u32);
     out.status = if source.state == biomcp_types::SourceState::Stale
         || out
             .sources
@@ -150,6 +150,7 @@ fn apply(
             .data
             .into_iter()
             .map(|mut r| {
+                out.problems.extend(r.problems().iter().cloned());
                 let card = if let Some(name) = q.facility() {
                     let mapped = r.facility_card(name);
                     out.problems.extend(mapped.problems);

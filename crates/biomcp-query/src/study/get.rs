@@ -84,6 +84,8 @@ fn sections(cx: &Ctx<'_>, q: &StudyGet, deadline: biomcp_fetch::Deadline<'_>, ou
 }
 fn card(leg: &Leg<'_>, q: &StudyGet, out: &mut Outcome) -> Result<(), RequestError> {
     let (row, info) = studies::card(leg, q.id())?;
+    out.problems.extend(row.problems);
+    let row = row.value;
     let snapshot = studies::snapshot(&info)?;
     out.status = if row.is_some() {
         Status::Complete
@@ -111,9 +113,18 @@ fn section_page(
 ) -> Result<(), RequestError> {
     match q.section() {
         Some(StudySection::Profiles) => {
-            let records = studies::profiles(leg, q.id())?;
+            let records = studies::profiles(leg, q.id(), q.section_offset(), q.section_limit())?;
+            out.problems.extend(records.problems);
             let rejected = records.rejected;
-            let (items, page) = page(records.rows, q);
+            let next_offset = records.window.next_offset();
+            let page = PageInfo {
+                offset: records.window.offset(),
+                returned: records.window.rows.len() as u32,
+                total: records.window.total().unwrap_or(0),
+                pool: None,
+                truncated: None,
+            };
+            let items = records.window.rows.into();
             let data = StudyProfiles {
                 study_id: q.id().clone(),
                 items,
@@ -129,12 +140,22 @@ fn section_page(
                 out.body = QueryBody::StudyProfiles(Some(data));
                 out.page = Some(page.clone());
             }
-            continuation(out, cx, q, &page, rejected);
+            continuation(out, cx, q, rejected, next_offset);
         }
         Some(StudySection::SampleLists) => {
-            let records = studies::sample_lists(leg, q.id())?;
+            let records =
+                studies::sample_lists(leg, q.id(), q.section_offset(), q.section_limit())?;
+            out.problems.extend(records.problems);
             let rejected = records.rejected;
-            let (items, page) = page(records.rows, q);
+            let next_offset = records.window.next_offset();
+            let page = PageInfo {
+                offset: records.window.offset(),
+                returned: records.window.rows.len() as u32,
+                total: records.window.total().unwrap_or(0),
+                pool: None,
+                truncated: None,
+            };
+            let items = records.window.rows.into();
             let data = StudySampleLists {
                 study_id: q.id().clone(),
                 items,
@@ -150,42 +171,26 @@ fn section_page(
                 out.body = QueryBody::StudySampleLists(Some(data));
                 out.page = Some(page.clone());
             }
-            continuation(out, cx, q, &page, rejected);
+            continuation(out, cx, q, rejected, next_offset);
         }
         _ => {}
     }
     Ok(())
 }
-fn page<T>(rows: Vec<T>, q: &StudyGet) -> (Box<[T]>, PageInfo) {
-    let total = rows.len() as u64;
-    let items: Box<[_]> = rows
-        .into_iter()
-        .skip(q.section_offset() as usize)
-        .take(q.section_limit() as usize)
-        .collect();
-    let page = PageInfo {
-        offset: q.section_offset(),
-        returned: items.len() as u32,
-        total,
-        pool: None,
-        truncated: None,
-    };
-    (items, page)
-}
-fn continuation(out: &mut Outcome, cx: &Ctx<'_>, q: &StudyGet, page: &PageInfo, rejected: usize) {
+fn continuation(
+    out: &mut Outcome,
+    cx: &Ctx<'_>,
+    q: &StudyGet,
+    rejected: usize,
+    next_offset: Option<u32>,
+) {
     if rejected != 0 {
         out.status = Status::Partial;
-        out.problems.push(Problem {
-            source: Source::Cbioportal,
-            record: biodata::Text::new(q.id().as_str()).ok(),
-            field: "studyId".into(),
-            code: ProblemCode::IdentityConflict,
-        });
     } else if out.status != Status::Partial {
         out.status = Status::Complete;
     }
-    if u64::from(page.offset) + u64::from(page.returned) < page.total
-        && let Ok(query) = q.at_section_offset(page.offset + page.returned)
+    if let Some(offset) = next_offset
+        && let Ok(query) = q.at_section_offset(offset)
     {
         next(out, cx, StepKind::Page, query);
     }

@@ -22,7 +22,9 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     out.local = error.and_then(status::local);
     out.sources
         .push(status::source(Source::Ddinter, leg.finish(), error));
-    if let Ok(rows) = result {
+    if let Ok(mapped) = result {
+        out.problems.extend(mapped.problems);
+        let rows = mapped.value;
         let total = rows.len() as u64;
         let page = DrugPage {
             items: rows
@@ -60,6 +62,8 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
             query.section_offset().unwrap_or(0),
         )
         .map(|body| {
+            out.problems.extend(body.problems);
+            let body = body.value;
             let found = body.is_some();
             out.body =
                 QueryBody::DrugInteractions(body.map(|body| page(query, cx.fresh, body, &mut out)));
@@ -67,6 +71,8 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
         })
     } else {
         ddinter::card(&leg, query.input()).map(|card| {
+            out.problems.extend(card.problems);
+            let card = card.value;
             if card.is_some()
                 && let Ok(get) = query.for_section(DrugSection::Interactions)
             {
@@ -90,7 +96,9 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     if let Ok(found) = result {
         out.status = if !found {
             Status::Absent
-        } else if out.sources.iter().any(|s| s.state == SourceState::Stale) {
+        } else if !out.problems.is_empty()
+            || out.sources.iter().any(|s| s.state == SourceState::Stale)
+        {
             Status::Partial
         } else {
             Status::Complete

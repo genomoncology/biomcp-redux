@@ -16,7 +16,7 @@ pub struct VariantAssertions {
     pub next: Option<VariantAssertionsGet>,
 }
 impl super::ResponseBody for VariantAssertions {
-    const SCHEMA: &'static str = "biomcp.variant-assertions/6";
+    const SCHEMA: &'static str = "biomcp.variant-assertions/8";
     type Query = VariantAssertionsGet;
 }
 /// A native record/domain pair, never a vote or merged classification.
@@ -27,7 +27,7 @@ pub struct VariantAssertion {
     pub kind: AssertionKind,
     /// Source classification domain.
     pub domain: AssertionDomain,
-    /// Native category has no approved common-model proposition.
+    /// The native conclusion has no common-model statement.
     #[serde(default, skip_serializing_if = "is_false")]
     pub statement_unmapped: bool,
     /// Supported mapping into the common model.
@@ -49,12 +49,13 @@ impl VariantAssertion {
             .or_else(|| self.unmapped.as_ref().map(|s| &s.attribution))
     }
 }
-/// Source classification retained when its category has no approved shared proposition.
+/// Source conclusion and provenance retained without a shared statement.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct UnmappedAssertion {
-    /// Unchanged source label.
-    pub classification: Text,
+    /// Unchanged source label, when valid and supplied.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub classification: Option<Text>,
     /// Original record provenance.
     pub attribution: Attribution,
     /// Native review status.
@@ -101,6 +102,12 @@ pub struct AssertionDetail {
     /// Criteria explicitly marked unmet.
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     pub unmet_criteria: Box<[Text]>,
+    /// Native met criteria retained when no common statement can carry them.
+    #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
+    pub met_criteria: Box<[Text]>,
+    /// Native gene context retained when the conclusion cannot map to a statement.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub gene_context: Option<biodata::GeneRef>,
     /// Source publication date; never an inferred evaluation date.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub published: Option<PartialDate>,
@@ -208,7 +215,8 @@ pub struct AssertionDocument {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct AssertionAssessment {
     /// Native criterion code.
-    pub criterion: Text,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub criterion: Option<Text>,
     /// Native criterion identifier.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub criterion_id: Option<Text>,
@@ -225,7 +233,8 @@ pub struct AssertionAssessment {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub default_strength_iri: Option<Text>,
     /// Source outcome label.
-    pub outcome: Text,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub outcome: Option<Text>,
     /// The supplied outcome identifier contradicts its supplied Met/Not Met label.
     #[serde(default, skip_serializing_if = "is_false")]
     pub outcome_conflict: bool,

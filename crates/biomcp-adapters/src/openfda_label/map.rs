@@ -1,17 +1,8 @@
 use super::{Record, bad};
 use biodata::{Attribution, DrugIdentityLevel, DrugLabelReference, PartialDate, Text};
-use biomcp_fetch::{BadReply, RequestError};
+use biomcp_fetch::RequestError;
 use biomcp_types::{DrugCard, DrugHeader, DrugSection, DrugSource};
 impl Record {
-    pub(super) fn revised(&self) -> Result<PartialDate, BadReply> {
-        let date = &self.effective_time;
-        if date.len() != 8 || !date.bytes().all(|b| b.is_ascii_digit()) {
-            return Err(BadReply);
-        }
-        format!("{}-{}-{}", &date[..4], &date[4..6], &date[6..])
-            .parse()
-            .map_err(|_| BadReply)
-    }
     fn url(&self) -> Result<Text, RequestError> {
         format!(
             "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid={}",
@@ -27,24 +18,16 @@ impl Record {
             matched_name: None,
             id: self.set_id.clone(),
             source: DrugSource::OpenfdaLabel,
-            version: Some(self.version.clone()),
-            name: Some(
-                self.openfda
-                    .brand_name
-                    .as_deref()
-                    .unwrap_or_default()
-                    .first()
-                    .or_else(|| {
-                        self.openfda
-                            .generic_name
-                            .as_deref()
-                            .unwrap_or_default()
-                            .first()
-                    })
-                    .cloned()
-                    .map(Into::into)
-                    .ok_or_else(bad)?,
-            ),
+            version: self.version.clone(),
+            name: self
+                .openfda
+                .brand_name
+                .iter()
+                .flatten()
+                .next()
+                .or_else(|| self.openfda.generic_name.iter().flatten().next())
+                .cloned()
+                .map(Into::into),
             identity_level: DrugIdentityLevel::SplSet,
             r#type: None,
             url: Some(self.url()?),
@@ -56,13 +39,13 @@ impl Record {
         let url = self.url()?;
         Ok(DrugLabelReference {
             id: self.set_id.clone(),
-            version: Some(self.version.clone()),
-            revised: Some(self.revised().map_err(|_| bad())?),
+            version: self.version.clone(),
+            revised: self.effective_time,
             url: Some(url.clone()),
             attribution: Attribution {
                 source: "openfda-label".parse().map_err(|_| bad())?,
                 record: Some(self.id.to_string().parse().map_err(|_| bad())?),
-                version: Some(self.version.clone()),
+                version: self.version.clone(),
                 release: None,
                 submitter: None,
                 evaluated: None,
@@ -88,8 +71,8 @@ impl Record {
             parents: Box::default(),
             products: Box::default(),
             formulations: Box::default(),
-            version: Some(self.version.clone()),
-            updated: Some(self.revised().map_err(|_| bad())?),
+            version: self.version.clone(),
+            updated: self.effective_time,
             retrieved,
             available_sections: if super::HEADINGS
                 .iter()

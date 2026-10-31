@@ -1,4 +1,5 @@
 {
+  "live_check": "local-only command help, validation or stored-state behavior; no recorded source replies",
   "feature": "cell-line-identity",
   "steps": [
     {
@@ -18,11 +19,6 @@
       },
       "full_output_bytes": true,
       "max_bytes": 2136,
-      "mcp": [
-        "help",
-        "search",
-        "cell-line"
-      ],
       "run": [
         "help",
         "search",
@@ -58,11 +54,6 @@
       },
       "full_output_bytes": true,
       "max_bytes": 3111,
-      "mcp": [
-        "help",
-        "get",
-        "cell-line"
-      ],
       "run": [
         "help",
         "get",
@@ -84,11 +75,6 @@
       },
       "full_output_bytes": true,
       "max_bytes": 1691,
-      "mcp": [
-        "help",
-        "cell-line",
-        "assay-count"
-      ],
       "run": [
         "help",
         "cell-line",

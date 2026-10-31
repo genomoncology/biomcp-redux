@@ -106,7 +106,7 @@ fn requests_reject_bad_bounds_and_identities_before_io() {
 // Synthetic contract rows preserve only the multiplicity and absence observed in the
 // retained capture archives. They are not native replies or curation answers.
 fn xref(database: &str, accession: &str) -> Value {
-    json!({"database":database,"accession":accession})
+    json!({"namespace":database,"id":accession})
 }
 #[test]
 fn whole_variations_keep_fusion_members_and_non_pubmed_provenance() {
@@ -155,8 +155,7 @@ fn collections_keep_independent_totals_and_complete_qualified_text() {
 }
 #[test]
 fn chembl_absence_and_synthetic_zero_remain_source_local() {
-    let record =
-        json!({"id":"CHEMBL3706573","cell_id":5547,"cellosaurus_id":"CVCL_2119","name":"MOLM-13"});
+    let record = json!({"id":"CHEMBL3706573","cell_id":{"namespace":"ChEMBL","id":5547},"cellosaurus_id":"CVCL_2119","name":"MOLM-13"});
     let got = roundtrip::<CellLineChemblRecord>(record.clone()).unwrap();
     assert_eq!(got, record);
     assert!(got.get("clo").is_none());

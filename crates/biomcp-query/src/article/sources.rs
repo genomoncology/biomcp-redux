@@ -154,7 +154,7 @@ fn pubmed_search<'a>(
     let items = match result {
         Ok(ids) => {
             outcome.count = Some(ids.count);
-            outcome.fetched = Some(ids.ids.len() as u32);
+            outcome.retrieved_count = Some(ids.ids.len() as u32);
             outcome.notices.extend(ids.notices);
             problems.extend(ids.problems);
             ids.ids
@@ -197,16 +197,18 @@ fn europe_search<'a>(
     let error = result.as_ref().err().copied();
     let mut outcome = status::source(Source::EuropePmc, leg.finish(), error);
     outcome.term = Text::new(term).ok();
+    let mut problems = Vec::new();
     let items = match result {
         Ok(reply) => {
             outcome.count = Some(reply.count);
-            outcome.fetched = Some(reply.items.len() as u32);
+            outcome.retrieved_count = Some(reply.items.len() as u32);
+            problems = reply.problems;
             reply.items
         }
         Err(_) => Vec::new(),
     };
     ResultLeg {
-        problems: Vec::new(),
+        problems,
         source: ArticleSource::Europepmc,
         outcome,
         items,
@@ -279,7 +281,11 @@ fn prepare_litvar<'a>(
     }
     let leg = cx.fetch.leg(&litvar::SPEC, *deadline).fresh(cx.fresh);
     let start = leg.remaining();
-    let result = litvar::select(&leg, gene, query.variant().map_or("", Text::as_str));
+    let result =
+        litvar::select(&leg, gene, query.variant().map_or("", Text::as_str)).map(|mapped| {
+            out.problems.extend(mapped.problems);
+            mapped.value
+        });
     *deadline = super::consume(*deadline, start, leg.remaining());
     match result {
         Ok(litvar::Selection::Exact(selected)) => Some((leg, Ok(selected))),
@@ -292,11 +298,7 @@ fn prepare_litvar<'a>(
                 super::empty_litvar::recover(query, out);
             }
             for candidate in &candidates {
-                for variant in candidate
-                    .rsid
-                    .iter()
-                    .chain(std::iter::once(&candidate.name))
-                {
+                for variant in candidate.rsid.iter().chain(candidate.name.iter()) {
                     if query.variant() == Some(variant) {
                         continue;
                     }
@@ -330,11 +332,18 @@ fn litvar_search((leg, selected): PreparedLitvar<'_>) -> ResultLeg {
     let error = result.as_ref().err().copied();
     let mut outcome = status::source(Source::LitVar, leg.finish(), error);
     outcome.term = term;
+    let mut problems = Vec::new();
     let items = match result {
-        Ok(litvar::Search { term, count, ids }) => {
+        Ok(litvar::Search {
+            term,
+            count,
+            ids,
+            problems: rejected,
+        }) => {
+            problems = rejected;
             outcome.term = Some(term);
-            outcome.count = Some(count);
-            outcome.fetched = Some(ids.len() as u32);
+            outcome.count = count;
+            outcome.retrieved_count = Some(ids.len() as u32);
             ids.into_iter()
                 .map(|id| ArticleItem {
                     key: Some(ArticleKey::Pubmed(id)),
@@ -352,7 +361,7 @@ fn litvar_search((leg, selected): PreparedLitvar<'_>) -> ResultLeg {
         Err(_) => Vec::new(),
     };
     ResultLeg {
-        problems: Vec::new(),
+        problems,
         source: ArticleSource::Litvar,
         outcome,
         items,

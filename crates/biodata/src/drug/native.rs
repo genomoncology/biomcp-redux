@@ -4,9 +4,10 @@ use serde::{Deserialize, Serialize};
 /// One source-native target identity, without inventing a gene label.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", schemars(extend("x-identifier" = true)))]
 pub struct DrugNativeTarget {
     /// Source responsible for the native identifier.
-    pub source: Text,
+    pub namespace: Text,
     /// Exact published target identifier.
     pub id: Text,
     /// Native target label, only when supplied.
@@ -21,6 +22,7 @@ pub struct DrugNativeTarget {
 /// One native disease identifier and its own source label.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", schemars(extend("x-identifier" = true)))]
 pub struct DrugDiseaseReference {
     /// Source namespace spelling, such as EFO or MeSH.
     pub namespace: Text,

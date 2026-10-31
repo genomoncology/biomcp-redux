@@ -1,4 +1,5 @@
 {
+  "live_check": "local-only command help, validation or stored-state behavior; no recorded source replies",
   "feature": "gwas-search",
   "steps": [
     {
@@ -31,11 +32,6 @@
         "/status": "complete"
       },
       "max_bytes": 3775,
-      "mcp": [
-        "help",
-        "search",
-        "gwas"
-      ],
       "run": [
         "help",
         "search",
@@ -70,11 +66,6 @@
       },
       "max_bytes": 2680,
       "max_tokens": 671,
-      "mcp": [
-        "help",
-        "get",
-        "gwas"
-      ],
       "run": [
         "help",
         "get",

@@ -216,7 +216,7 @@
         "source_updated": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Reply_PartialDate"
+              "$ref": "#/$defs/Reply_SourceUpdated"
             },
             {
               "type": "null"
@@ -235,7 +235,14 @@
       "description": "A native application document link; the command does not download it.",
       "properties": {
         "date": {
-          "$ref": "#/$defs/Reply_PartialDate",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_PartialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Native document date, independent of event dates."
         },
         "id": {
@@ -243,20 +250,31 @@
           "description": "Source document identifier."
         },
         "type": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Original document type."
         },
         "url": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Original source URL.",
           "format": "uri"
         }
       },
       "required": [
-        "id",
-        "url",
-        "date",
-        "type"
+        "id"
       ],
       "type": "object"
     },
@@ -264,7 +282,14 @@
       "description": "An unchanged native ingredient and strength, without local normalization.",
       "properties": {
         "name": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Native ingredient name."
         },
         "strength": {
@@ -272,9 +297,6 @@
           "description": "Full source strength wording."
         }
       },
-      "required": [
-        "name"
-      ],
       "type": "object"
     },
     "Reply_DrugFdaProduct": {
@@ -288,15 +310,36 @@
           "type": "array"
         },
         "brand_name": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Source brand wording, without inferred ingredient equivalence."
         },
         "dosage_form": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Native dosage form."
         },
         "marketing_status": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Product marketing status, independent of submission history."
         },
         "product_number": {
@@ -304,7 +347,14 @@
           "description": "Exact source product number, scoped by the response application."
         },
         "reference_drug": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Original source reference-drug designation."
         },
         "reference_standard": {
@@ -342,11 +392,7 @@
         }
       },
       "required": [
-        "product_number",
-        "brand_name",
-        "dosage_form",
-        "marketing_status",
-        "reference_drug"
+        "product_number"
       ],
       "type": "object"
     },
@@ -354,13 +400,17 @@
       "description": "A source-stated submission property, without interpretation.",
       "properties": {
         "code": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Original property code."
         }
       },
-      "required": [
-        "code"
-      ],
       "type": "object"
     },
     "Reply_DrugFdaSubmission": {
@@ -758,6 +808,13 @@
         "ema",
         "ddinter"
       ]
+    },
+    "Reply_IdentifierNamespace": {
+      "description": "A source-stated authority or an explicit unknown authority, represented by the string unknown.",
+      "maxLength": 1048576,
+      "minLength": 1,
+      "pattern": "^(?![\\s\\S]*[\\x00-\\x1f\\x7f-\\x9f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069])",
+      "type": "string"
     },
     "Reply_PageInfo": {
       "description": "Search counts after filtering and deduplication.",
@@ -1370,15 +1427,6 @@
             "null"
           ]
         },
-        "fetched": {
-          "description": "Retrieved identity depth.",
-          "format": "uint32",
-          "minimum": 0,
-          "type": [
-            "integer",
-            "null"
-          ]
-        },
         "notices": {
           "description": "Source notices and request recovery guidance.",
           "items": {
@@ -1396,6 +1444,15 @@
             }
           ],
           "description": "Failure or stale-fallback reason."
+        },
+        "retrieved_count": {
+          "description": "Number of retrieved identities.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
         },
         "source": {
           "$ref": "#/$defs/Reply_Source",
@@ -1446,6 +1503,10 @@
           "$ref": "#/$defs/Reply_Text",
           "description": "Native source identifier."
         },
+        "namespace": {
+          "$ref": "#/$defs/Reply_IdentifierNamespace",
+          "description": "Native authority; unknown means the source did not state one."
+        },
         "url": {
           "anyOf": [
             {
@@ -1460,9 +1521,11 @@
         }
       },
       "required": [
+        "namespace",
         "id"
       ],
-      "type": "object"
+      "type": "object",
+      "x-identifier": true
     },
     "Reply_SourceState": {
       "description": "State of a source actually asked by the command.",
@@ -1474,6 +1537,51 @@
         "skipped"
       ],
       "type": "string"
+    },
+    "Reply_SourceTimestamp": {
+      "description": "Checked source timestamp with its stated precision and offset.",
+      "properties": {
+        "timezone": {
+          "$ref": "#/$defs/Reply_SourceTimestampTimezone",
+          "description": "Whether the native timestamp includes a timezone."
+        },
+        "value": {
+          "$ref": "#/$defs/Reply_SourceTimestampValue",
+          "description": "Checked RFC 3339 source timestamp.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "value",
+        "timezone"
+      ],
+      "type": "object"
+    },
+    "Reply_SourceTimestampTimezone": {
+      "description": "Availability of timezone information in a native timestamp.",
+      "enum": [
+        "in-value",
+        "source-gave-none"
+      ],
+      "type": "string"
+    },
+    "Reply_SourceTimestampValue": {
+      "description": "RFC 3339 source text preserving offset and precision. The parser additionally validates the calendar day and UTC month-end position of leap seconds. Years follow PartialDate's 0001–9999 range.",
+      "pattern": "^(?!0000)[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])[Tt]([01][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)(\\.[0-9]+)?([Zz]|[+-]([01][0-9]|2[0-3]):[0-5][0-9])(?![\\s\\S])",
+      "type": "string"
+    },
+    "Reply_SourceUpdated": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Reply_PartialDate",
+          "description": "A source date keeps its year, month or day precision."
+        },
+        {
+          "$ref": "#/$defs/Reply_SourceTimestamp",
+          "description": "A source timestamp keeps its stated fractional precision and offset."
+        }
+      ],
+      "description": "Source update metadata preserving the date or timestamp supplied by its publisher."
     },
     "Reply_Status": {
       "description": "Overall command outcome.",
@@ -1539,7 +1647,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.drug-approvals/5",
+  "$id": "biomcp.drug-approvals/8",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -1595,7 +1703,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.drug-approvals/5",
+      "const": "biomcp.drug-approvals/8",
       "type": "string"
     },
     "sources": {

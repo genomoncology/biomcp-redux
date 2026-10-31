@@ -12,12 +12,12 @@ pub struct TrialCards {
     pub items: Box<[TrialCardItem]>,
     /// Registry processing timestamp, distinct from each study's update and fetch times.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub source_updated: Option<super::SourceTimestamp>,
+    pub source_updated: Option<crate::SourceUpdated>,
     /// Publisher attribution and scope.
     pub attribution: Box<str>,
 }
 impl super::ResponseBody for TrialCards {
-    const SCHEMA: &'static str = "biomcp.trial-cards/7";
+    const SCHEMA: &'static str = "biomcp.trial-cards/9";
     type Query = crate::TrialGet;
 }
 /// Result for one exact requested NCT identity.

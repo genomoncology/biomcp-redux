@@ -56,6 +56,7 @@ pub fn pathways(
         Ok(rows) => rows,
         Err(RequestError::Source(error)) if error.reason == biomcp_types::Reason::NotFound => {
             return Ok(Mapped {
+                refusals: crate::Refusal::None,
                 value: Vec::new(),
                 problems: Vec::new(),
             });
@@ -63,24 +64,27 @@ pub fn pathways(
         Err(error) => return Err(error),
     };
     let mut value = Vec::new();
+    let mut refusals = crate::Refusal::None;
     let mut problems = map::fields(accession.as_str());
     for row in rows.0 {
         let id = row.st_id.parse().ok();
         if row.species_name != "Homo sapiens" || row.schema_class != "Pathway" || id.is_none() {
             problems.required::<()>("pathways", None);
+            refusals = crate::Refusal::Refused;
             continue;
         }
-        if let Some(name) = map::metadata(
-            &mut problems,
-            "pathways.name",
-            row.display_name.as_ref(),
-            true,
-        ) && let Some(id) = id
-        {
+        if let Some(id) = id {
+            let name = map::metadata(
+                &mut problems,
+                "pathways.name",
+                row.display_name.as_ref(),
+                false,
+            );
             value.push(PathwayRef { id, name });
         }
     }
     Ok(Mapped {
+        refusals,
         value,
         problems: problems.list,
     })

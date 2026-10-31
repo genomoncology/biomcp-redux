@@ -36,6 +36,10 @@ impl TryFrom<Parts> for ScientificPValue {
     }
 }
 impl ScientificPValue {
+    fn identity_mantissa(&self) -> &str {
+        self.mantissa().trim_end_matches('0').trim_end_matches('.')
+    }
+
     /// Unchanged decimal mantissa.
     pub fn mantissa(&self) -> &str {
         self.0.mantissa.as_str()
@@ -66,12 +70,9 @@ impl fmt::Display for ScientificPValue {
 }
 impl Ord for ScientificPValue {
     fn cmp(&self, other: &Self) -> Ordering {
-        self.exponent().cmp(&other.exponent()).then_with(|| {
-            self.mantissa()
-                .trim_end_matches('0')
-                .trim_end_matches('.')
-                .cmp(other.mantissa().trim_end_matches('0').trim_end_matches('.'))
-        })
+        self.exponent()
+            .cmp(&other.exponent())
+            .then_with(|| self.identity_mantissa().cmp(other.identity_mantissa()))
     }
 }
 impl PartialOrd for ScientificPValue {
@@ -85,3 +86,10 @@ impl PartialEq for ScientificPValue {
     }
 }
 impl Eq for ScientificPValue {}
+
+impl std::hash::Hash for ScientificPValue {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.exponent().hash(state);
+        self.identity_mantissa().hash(state);
+    }
+}

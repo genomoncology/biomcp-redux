@@ -1,44 +1,16 @@
 //! Feature cell-line-identity: unchanged retained native requests through the real CLI and MCP.
-use crate::runner::transcript::trial as transcript_trial;
 use std::io::Write;
-mod all;
 mod chembl;
-mod examples;
+tool_only! { mod examples; }
 mod faults;
 mod help;
 mod native;
 mod research;
 mod sections;
 use super::{launch::Environment, network_stub::Stub};
-use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
-pub(super) fn trials() -> Vec<Trial> {
-    let mut tests = vec![transcript_trial(
-        "cell-line-identity/native-requests-order-exact-cards-and-costs",
-        || native::run(false).map_err(Into::into),
-    )];
-    tests.push(transcript_trial(
-        "cell-line-identity/help-and-markdown-parity",
-        || help::run(false).map_err(Into::into),
-    ));
-    tests.push(transcript_trial(
-        "cell-line-identity/research-search-fetch-runtime",
-        || research::run(false).map_err(Into::into),
-    ));
-    tests.push(transcript_trial(
-        "cell-line-identity/checked-canonical-accession-search",
-        || native::canonical(false).map_err(Into::into),
-    ));
-    tests.push(transcript_trial(
-        "cell-line-sections/native-whole-rows-and-independent-pages",
-        || sections::run(false).map_err(Into::into),
-    ));
-    tests.extend(faults::trials());
-    tests.extend(chembl::trials());
-    tests.extend(all::trials());
-    tests
-}
+
 fn setup(stub: &Stub) -> Result<Environment, String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let ca = env.root().join("cellosaurus-ca.pem");
@@ -127,8 +99,8 @@ fn compared(
     Ok(value)
 }
 fn ceiling(phase: &str, surface: &str) -> Result<usize, String> {
-    let measured: std::collections::BTreeMap<String, usize> = serde_json::from_str(
-        &crate::runner::launch::fixture_text("cell-line-command-budgets.json")?,
+    let measured: std::collections::BTreeMap<String, usize> = serde_saphyr::from_str(
+        &crate::runner::launch::fixture_text("cell-line-command-budgets.yaml")?,
     )
     .map_err(|e| e.to_string())?;
     measured
@@ -219,11 +191,13 @@ fn path(value: &Value, path: &str, mut expected: Value) -> Result<(), String> {
     Ok(())
 }
 
+tool_only! {
 pub(crate) fn measure() -> Result<(), String> {
     native::run(true)?;
     faults::run(true)?;
     help::run(true)?;
     research::run(true)
+}
 }
 
 fn markdown(
@@ -294,33 +268,47 @@ fn markdown(
     Ok(())
 }
 
+tool_only! {
 pub(crate) fn generate_examples(directory: &std::path::Path) -> Result<(), String> {
     examples::generate(directory)
 }
+}
 
+tool_only! {
 pub(crate) fn measure_remaining() -> Result<(), String> {
     native::remaining()?;
     faults::run(true)?;
     help::run(true)?;
     research::run(true)
 }
+}
 
+tool_only! {
 pub(crate) fn measure_canonical() -> Result<(), String> {
     native::canonical(true)
 }
+}
 
+tool_only! {
 pub(crate) fn measure_sections() -> Result<(), String> {
     sections::run(true)
 }
+}
 
+tool_only! {
 pub(crate) fn generate_xrefs(directory: &std::path::Path) -> Result<(), String> {
     examples::generate_xrefs(directory)
 }
+}
 
+tool_only! {
 pub(crate) fn measure_section_release() -> Result<(), String> {
     sections::measure_release()
 }
+}
 
+tool_only! {
 pub(crate) fn measure_help() -> Result<(), String> {
     help::run(true)
+}
 }

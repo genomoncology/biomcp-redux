@@ -21,9 +21,9 @@ pub(super) struct Counts {
 #[derive(Debug, Deserialize)]
 pub(super) struct Header {
     pub safetyreportid: ReportId,
-    pub safetyreportversion: Option<Box<str>>,
-    pub serious: Option<Box<str>>,
-    pub receivedate: Option<Box<str>>,
+    pub safetyreportversion: Option<crate::raw::Field<Box<str>>>,
+    pub serious: Option<crate::raw::Field<Box<str>>>,
+    pub receivedate: Option<crate::raw::Field<Box<str>>>,
 }
 #[derive(Debug, Deserialize)]
 #[serde(deny_unknown_fields)]

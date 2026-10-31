@@ -8,12 +8,14 @@ pub struct BiomarkerHeader {
     /// Published NCIt codes, in source order.
     pub codes: Box<[NcitId]>,
     /// Native biomarker concept name.
-    pub name: Text,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub name: Option<Text>,
     /// Native type values; an empty source list is omitted.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub r#type: Box<[Text]>,
     /// Native NCI trial count across trial statuses.
-    pub count: u64,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub count: Option<u64>,
 }
 /// Native terminology card; source criteria remain uninterpreted.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -43,7 +45,7 @@ pub struct BiomarkerPage {
     pub items: Box<[BiomarkerHeader]>,
 }
 impl crate::ResponseBody for BiomarkerPage {
-    const SCHEMA: &'static str = "biomcp.biomarker-page/2";
+    const SCHEMA: &'static str = "biomcp.biomarker-page/4";
     type Query = crate::BiomarkerSearch;
 }
 /// Exact code result; multiple rows are candidates, never a selected card.
@@ -58,6 +60,6 @@ pub struct BiomarkerResult {
     pub candidates: Box<[BiomarkerCard]>,
 }
 impl crate::ResponseBody for BiomarkerResult {
-    const SCHEMA: &'static str = "biomcp.biomarker-result/2";
+    const SCHEMA: &'static str = "biomcp.biomarker-result/4";
     type Query = crate::BiomarkerGet;
 }

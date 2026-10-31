@@ -71,7 +71,8 @@ pub struct AuthorPaperHeader {
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub external_ids: Box<[AuthorPaperExternalId]>,
     /// Whole source title.
-    pub title: Text,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub title: Option<Text>,
     /// Source publication year.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub year: Option<u32>,
@@ -82,7 +83,10 @@ pub struct AuthorPaperHeader {
 /// An open native identifier namespace and value; no identity inference.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", schemars(extend("x-identifier" = true)))]
 pub struct AuthorPaperExternalId {
+    /// Explicit native namespace supplied with the external identifier.
+    pub namespace: Text,
     /// Native namespace and identifier.
     pub id: Curie,
 }
@@ -94,7 +98,8 @@ pub struct AuthorByline {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<SemanticScholarAuthorId>,
     /// Native display name.
-    pub name: Text,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub name: Option<Text>,
 }
 /// Native access metadata; access does not establish reuse rights.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

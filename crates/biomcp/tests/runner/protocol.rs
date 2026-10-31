@@ -14,32 +14,34 @@ type Check = Result<(), String>;
 
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = vec![
-        transcript_trial("mcp/cancellation-suppresses-later-output", || {
+        transcript_trial("mcp-parity/cancellation-suppresses-later-output", || {
             cancellation().map_err(Into::into)
         }),
-        transcript_trial("mcp/versions-and-validation", || {
+        transcript_trial("mcp-parity/versions-and-validation", || {
             validation().map_err(Into::into)
         }),
-        transcript_trial("mcp/correlated-calls-drain-on-eof", || {
+        transcript_trial("mcp-parity/correlated-calls-drain-on-eof", || {
             concurrent().map_err(Into::into)
         }),
-        transcript_trial("mcp/offline-observations-reuse", || {
+        transcript_trial("mcp-parity/offline-observations-reuse", || {
             offline_observations().map_err(Into::into)
         }),
-        transcript_trial("mcp/oversized-frame-drains-active-call", || {
+        transcript_trial("mcp-parity/oversized-frame-drains-active-call", || {
             super::held_proxy::oversized().map_err(Into::into)
         }),
-        transcript_trial("mcp/cancel-stops-work-and-frees-capacity", || {
+        transcript_trial("mcp-parity/cancel-stops-work-and-frees-capacity", || {
             super::held_proxy::cancelled().map_err(Into::into)
         }),
-        transcript_trial("mcp/cancel-preserves-another-active-call", || {
+        transcript_trial("mcp-parity/cancel-preserves-another-active-call", || {
             super::held_proxy::isolated_cancel().map_err(Into::into)
         }),
-        transcript_trial("mcp/bounded-framing", || framing().map_err(Into::into)),
-        transcript_trial("mcp/broken-output-with-open-input", || {
+        transcript_trial("mcp-parity/bounded-framing", || {
+            framing().map_err(Into::into)
+        }),
+        transcript_trial("mcp-parity/broken-output-with-open-input", || {
             broken_output().map_err(Into::into)
         }),
-        transcript_trial("mcp/discovers-artifact-command-tree", || {
+        transcript_trial("mcp-parity/discovers-artifact-command-tree", || {
             discovery().map_err(Into::into)
         }),
     ];
@@ -228,7 +230,7 @@ fn concurrent() -> Check {
         return Err("EOF failed to drain accepted calls".into());
     }
     if reply(&replies, &json!("gwas"))?.pointer("/result/structuredContent/result/items/0/id")
-        != Some(&json!(6110))
+        != Some(&json!("association:6110"))
     {
         return Err("concurrent GWAS cache-writing call failed".into());
     }
@@ -349,9 +351,13 @@ fn discovery() -> Check {
         .ok_or("expected three tools")?;
     if tool.get("name") != Some(&json!("biomcp"))
         || tool.get("inputSchema")
-            != Some(
-                &json!({"type":"object","properties":{"args":{"type":"array","items":{"type":"string"}}},"required":["args"],"additionalProperties":false}),
-            )
+            != Some(&json!({
+                "$schema":"https://json-schema.org/draft/2020-12/schema",
+                "type":"object",
+                "properties":{"args":{"type":"array","items":{"type":"string"}}},
+                "required":["args"],
+                "additionalProperties":false
+            }))
     {
         return Err("tool contract differs".into());
     }
@@ -382,7 +388,7 @@ fn discovery() -> Check {
         "RESEARCH_DESCRIPTION_BYTES={descriptions}"
     )
     .map_err(|e| e.to_string())?;
-    if descriptions > 226 {
+    if descriptions > crate::runner::output_limit("research-descriptions")? {
         return Err("research descriptions exceed budget".into());
     }
     discovery_description(text)
@@ -489,7 +495,7 @@ fn discovery_description(text: &str) -> Check {
     writeln!(std::io::stdout(), "MCP_DESCRIPTION_BYTES={}", text.len())
         .map_err(|e| e.to_string())?;
     // The output budget uses j15878 measured 3840 bytes plus fifteen percent.
-    if text.len() > 4416 {
+    if text.len() > crate::runner::output_limit("command-description")? {
         return Err("command description exceeds budget".into());
     }
     for word in [

@@ -9,26 +9,16 @@
         "get",
         "variant"
       ],
-      "mcp": [
-        "help",
-        "get",
-        "variant"
-      ],
       "expect": {
         "/result/commands/0/examples": {
           "count": 2
         },
-        "/result/commands/0/description": "Read an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation requires --build. Use search variant --gene BRAF --protein V600E for shorthand. Every candidate remains available; source assertions do not classify the variant for the caller."
+        "/result/commands/0/description": "Read an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation requires --build. Use search variant --gene BRAF --protein V600E or search variant --gene PTEN --coding c.333G>T for gene shorthand. Every candidate remains available; source assertions do not classify the variant for the caller."
       },
       "max_bytes": 5514
     },
     {
       "run": [
-        "help",
-        "search",
-        "variant"
-      ],
-      "mcp": [
         "help",
         "search",
         "variant"
@@ -46,11 +36,6 @@
         "variant",
         "assertions"
       ],
-      "mcp": [
-        "help",
-        "variant",
-        "assertions"
-      ],
       "expect": {
         "/result/commands/0/examples": {
           "count": 2
@@ -60,11 +45,6 @@
     },
     {
       "run": [
-        "help",
-        "variant",
-        "population"
-      ],
-      "mcp": [
         "help",
         "variant",
         "population"
@@ -82,11 +62,6 @@
         "variant",
         "normalize"
       ],
-      "mcp": [
-        "help",
-        "variant",
-        "normalize"
-      ],
       "expect": {
         "/result/commands/0/examples": {
           "count": 2
@@ -96,11 +71,6 @@
     },
     {
       "run": [
-        "help",
-        "variant",
-        "recurrence"
-      ],
-      "mcp": [
         "help",
         "variant",
         "recurrence"

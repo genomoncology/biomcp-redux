@@ -12,7 +12,7 @@ import sys
 import tarfile
 import tempfile
 
-COMMAND = ['cargo', 'test', '--locked', '-p', 'biomcp', '--test', 'cases',
+COMMAND = ['cargo', 'test', '--locked', '-p', 'biomcp', '--test', 'tools',
            '--', '--live-check', '--details']
 FILES = ('report.json', 'build.log', 'exit-status', 'run.json')
 
@@ -190,6 +190,34 @@ def throttled_output(command):
                     and source.get('source') in throttled for source in failed))
 
 
+def omitted_diagnostics(value):
+    if isinstance(value, dict):
+        return any((key in ('omitted', 'drift_omitted')
+                    and (type(item) is not int or item != 0))
+                   or omitted_diagnostics(item) for key, item in value.items())
+    return isinstance(value, list) and any(omitted_diagnostics(item) for item in value)
+
+
+def complete_diagnostics(result, witness, changed):
+    commands = result.get('commands', [])
+    if not isinstance(commands, list) or omitted_diagnostics(commands):
+        return False
+    if not changed:
+        return True
+    if not commands or not isinstance(witness, list):
+        return False
+    expected = [command.get('ordinal') if isinstance(command, dict) else None
+                for command in commands]
+    actual = [command.get('ordinal') if isinstance(command, dict) else None
+              for command in witness]
+    if (any(type(ordinal) is not int for ordinal in expected + actual)
+            or expected != list(range(1, len(commands) + 1)) or actual != expected):
+        return False
+    return all(isinstance(command.get(side), dict)
+               and isinstance(command[side].get('requests'), list)
+               for command in witness for side in ('baseline', 'live'))
+
+
 def classify_case(row):
     if not isinstance(row, dict) or not isinstance(row.get('case'), str):
         raise ValueError('invalid case row')
@@ -201,23 +229,19 @@ def classify_case(row):
         raise ValueError('invalid case drift')
     if row.get('error') is not None:
         return 'failure'
+    witness = row.get('witness')
+    if cut(witness) or not complete_diagnostics(result, witness, bool(drift)):
+        return 'failure'
     if not drift:
-        return 'uncertain' if cut(row.get('witness')) else 'healthy'
+        return 'healthy'
     # Omitted diagnostics may hide an invariant or schema failure.
-    if (any(item.startswith('more drift details omitted;') for item in drift)
-            or any(command.get('exchanges', {}).get('drift_omitted', 0)
-                   for command in result.get('commands', []))):
-        return 'uncertain'
+    if any(item.startswith('more drift details omitted;') for item in drift):
+        return 'failure'
     # Schema and equivalent-request invariants always retain their failure status.
     invariant = any(not (': request-plan-' in item or ': HTTP status ' in item
                          or ': output status changed:' in item) for item in drift)
     if invariant:
         return 'failure'
-    witness = row.get('witness')
-    if not witness or cut(witness):
-        return 'uncertain'
-    if not isinstance(witness, list):
-        return 'uncertain'
     discoveries = {}
     outcomes = []
     output_changes = {item for item in drift if ': output status changed:' in item}
@@ -235,7 +259,7 @@ def classify_case(row):
                 return 'failure'
             output_changes -= matched
     if output_changes:
-        return 'uncertain'
+        return 'failure'
     for outcome in ('failure', 'uncertain', 'throttled', 'churn'):
         if outcome in outcomes:
             return outcome
@@ -243,6 +267,10 @@ def classify_case(row):
 
 
 def classify_report(report):
+    eligible, checked = report.get('eligible'), report.get('checked')
+    if (type(eligible) is not int or type(checked) is not int
+            or eligible < 0 or checked != eligible):
+        raise ValueError('checked count does not match eligible cases')
     counts = [report['drift_cases'], report['error_cases']]
     if any(type(count) is not int or count < 0 for count in counts):
         raise ValueError('invalid drift/error counts')

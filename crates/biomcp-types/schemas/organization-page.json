@@ -49,10 +49,20 @@
           "description": "NCI trial count across all statuses, including closed trials.",
           "format": "uint64",
           "minimum": 0,
-          "type": "integer"
+          "type": [
+            "integer",
+            "null"
+          ]
         },
         "name": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Exact publisher organization name, never a unique identifier."
         },
         "next": {
@@ -184,10 +194,6 @@
           ]
         }
       },
-      "required": [
-        "name",
-        "count"
-      ],
       "type": "object"
     },
     "Reply_OrganizationCoordinates": {
@@ -795,15 +801,6 @@
             "null"
           ]
         },
-        "fetched": {
-          "description": "Retrieved identity depth.",
-          "format": "uint32",
-          "minimum": 0,
-          "type": [
-            "integer",
-            "null"
-          ]
-        },
         "notices": {
           "description": "Source notices and request recovery guidance.",
           "items": {
@@ -821,6 +818,15 @@
             }
           ],
           "description": "Failure or stale-fallback reason."
+        },
+        "retrieved_count": {
+          "description": "Number of retrieved identities.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
         },
         "source": {
           "$ref": "#/$defs/Reply_Source",
@@ -939,7 +945,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.organization-page/2",
+  "$id": "biomcp.organization-page/4",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -995,7 +1001,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.organization-page/2",
+      "const": "biomcp.organization-page/4",
       "type": "string"
     },
     "sources": {

@@ -1,6 +1,6 @@
 {
   "feature": "organization-nci",
-  "live_check": "bounded keyed NCI capture retained outside Git",
+  "live_check": "missing nightly NCI user-owned API key; retained native public-tier replies use an isolated replay key",
   "story": "Documented native filters return positive actual organization counts.",
   "replay": "organization/native",
   "config": {
@@ -12,16 +12,6 @@
   "steps": [
     {
       "run": [
-        "search",
-        "organization",
-        "--source",
-        "nci",
-        "--name",
-        "Dana-Farber",
-        "--limit",
-        "5"
-      ],
-      "mcp": [
         "search",
         "organization",
         "--source",

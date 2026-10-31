@@ -192,13 +192,13 @@
     "Reply_ProteinStructureRef": {
       "description": "A source structure cross-reference link; no residue coverage claim.",
       "properties": {
-        "database": {
-          "$ref": "#/$defs/Reply_Text",
-          "description": "Native cross-reference database."
-        },
         "id": {
           "$ref": "#/$defs/Reply_Text",
           "description": "Native cross-reference identifier."
+        },
+        "namespace": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "Native cross-reference database."
         },
         "properties": {
           "description": "All native property pairs, including method, resolution and chains.",
@@ -208,17 +208,24 @@
           "type": "array"
         },
         "url": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Publisher link; no structure file is retrieved.",
           "format": "uri"
         }
       },
       "required": [
-        "database",
-        "id",
-        "url"
+        "namespace",
+        "id"
       ],
-      "type": "object"
+      "type": "object",
+      "x-identifier": true
     },
     "Reply_ProteinStructures": {
       "description": "Source structure links and native properties; no residue coverage claim.",
@@ -594,15 +601,6 @@
             "null"
           ]
         },
-        "fetched": {
-          "description": "Retrieved identity depth.",
-          "format": "uint32",
-          "minimum": 0,
-          "type": [
-            "integer",
-            "null"
-          ]
-        },
         "notices": {
           "description": "Source notices and request recovery guidance.",
           "items": {
@@ -620,6 +618,15 @@
             }
           ],
           "description": "Failure or stale-fallback reason."
+        },
+        "retrieved_count": {
+          "description": "Number of retrieved identities.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
         },
         "source": {
           "$ref": "#/$defs/Reply_Source",
@@ -743,7 +750,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.protein-structures/2",
+  "$id": "biomcp.protein-structures/5",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -799,7 +806,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.protein-structures/2",
+      "const": "biomcp.protein-structures/5",
       "type": "string"
     },
     "sources": {

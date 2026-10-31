@@ -5,6 +5,8 @@ use biomcp_types::{DiseaseHeader, DiseaseSearch};
 /// A single native page without local ranking or identity selection.
 #[derive(Debug)]
 pub struct SearchPage {
+    /// Native window size before identity refusals.
+    pub received: u32,
     /// Publisher total for the literal query and one ontology.
     pub total: u64,
     /// Headers in publisher order and field-level problems.
@@ -50,24 +52,33 @@ pub fn search(leg: &Leg<'_>, query: &DiseaseSearch) -> Result<SearchPage, Reques
         record: None,
         list: Vec::new(),
     };
+    let received = page.response.docs.len() as u32;
     let mut value = Vec::new();
+    let mut refusals = crate::Refusal::None;
     for hit in page.response.docs {
-        problems.record = crate::mapped::record(&hit.obo_id);
+        problems.record = None;
+        let Some(id) = problems.required_field("obo_id", hit.obo_id) else {
+            refusals = crate::Refusal::Refused;
+            continue;
+        };
+        problems.record = crate::mapped::record(&id);
         let iri = problems.optional("iri", hit.iri.map(|v| v.value().ok_or(())));
         let label = problems.optional("label", hit.label.map(|v| v.value().ok_or(())));
         value.push(DiseaseHeader {
-            attribution: map::attribution(&hit.obo_id, iri, ontology)?,
+            attribution: map::attribution(&id, iri, ontology)?,
             concept: biomcp_types::DiseaseConcept {
-                id: Some(hit.obo_id),
+                id: Some(id),
                 label: label.map(Into::into),
             },
             ontology,
-            obsolete: hit.is_obsolete,
+            obsolete: problems.field("is_obsolete", hit.is_obsolete),
         });
     }
     Ok(SearchPage {
+        received,
         total: page.response.total,
         rows: Mapped {
+            refusals,
             value,
             problems: problems.list,
         },

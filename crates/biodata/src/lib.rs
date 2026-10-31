@@ -2,6 +2,9 @@
 
 pub use id::{Doi, EuropePmcId, Pmcid, Pmid, SemanticScholarId};
 
+mod identifier;
+pub use identifier::{Identifier, IdentifierNamespace};
+
 mod source_text;
 pub use source_text::SourceText;
 mod ontology_id;
@@ -41,8 +44,8 @@ pub use variant::{Representation, Variant};
 pub use coord::Chromosome;
 
 pub use variant::{
-    Accession, AccessionBase, Allele, Base, EnsemblFeature, LrgPart, RefSeqPrefix, Sequence,
-    SequenceLocation,
+    Accession, AccessionBase, Allele, Base, CodingChange, EnsemblFeature, LrgPart, RefSeqPrefix,
+    Sequence, SequenceLocation,
 };
 
 pub use variant::{
@@ -79,8 +82,9 @@ pub use trial_upload_time::TrialUploadTime;
 pub use variant::{
     AcmgAmp2015Code, AmpAscoCap2017LevelCode, AmpAscoCap2017TierCode, Attribution,
     CivicEvidenceLevelCode, ClingenCgcVicc2022Code, ClingenLowPenetrance2024Code,
-    ClinvarAlleleOriginCode, ClinvarReviewStatusCode, Coding, Concept, Curie, Direction,
-    OncokbLevelCode, OncokbOncogenicityCode, Predicate, Proposition, Statement, Term, VariantRef,
+    ClinvarAlleleOriginCode, ClinvarHaplotype, ClinvarHaplotypeMember, ClinvarReviewStatusCode,
+    Coding, Concept, Curie, Direction, OncokbLevelCode, OncokbOncogenicityCode, Predicate,
+    ProfileExpression, ProfileNode, Proposition, Statement, Term, VariantRef,
 };
 
 pub use variant::{GenotypeFilter, PopulationDataType, PopulationFrequency, PopulationSex};

@@ -1,6 +1,7 @@
 # 0472 — Apply the bad-value rule in the disease, drug, study and remaining adapters
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 0e9d541be551d6bff42bd017613ff4277e8e674b
 
 Milestone: 5
 

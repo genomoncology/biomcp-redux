@@ -19,14 +19,14 @@ pub struct SearchPage {
 }
 #[derive(Debug, Deserialize)]
 struct Rows {
-    results: Vec<entry::raw::Entry>,
+    results: Vec<crate::raw::Field<entry::raw::Entry>>,
 }
 impl Reply for Rows {
     fn check(&self) -> Result<(), BadReply> {
         if self.results.len() > 5 {
             return Err(BadReply);
         }
-        self.results.iter().try_for_each(Reply::check)
+        Ok(())
     }
 }
 /// Send the exact proved search shape and admit only reviewed human rows.
@@ -48,9 +48,7 @@ pub fn search(
         args.push(("cursor", Arg::Text(cursor.as_str())));
     }
     let ep = SPEC.get(PATH).identity_encoding().fresh(Freshness::Days(1));
-    let (raw, meta) = leg.json_received_checked_cache::<Rows>(&ep, &args, |rows| {
-        rows.results.iter().all(entry::raw::Entry::human_reviewed)
-    })?;
+    let (raw, meta) = leg.json_received_checked_cache::<Rows>(&ep, &args, |_| true)?;
     let page = meta.pagination.ok_or_else(bad)?;
     let returned = raw.results.len() as u64;
     if returned > page.total
@@ -70,18 +68,26 @@ pub fn search(
         .transpose()?;
     let mut items = Vec::new();
     let mut problems = Vec::new();
+    let mut refusals = crate::Refusal::None;
     for raw in raw.results {
+        let Some(raw) = raw.value() else {
+            refusals = crate::Refusal::Refused;
+            crate::mapped::push_problem(&mut problems, Source::UniProt, None, "identity");
+            continue;
+        };
         let id = raw.primary_accession.clone();
         let mapped = entry::map::entry(raw, &id);
+        refusals.include(mapped.refusals);
         problems.extend(mapped.problems);
         if let Some(row) = mapped.value {
             if items
                 .iter()
                 .any(|h: &ProteinHeader| h.protein.accession == id)
             {
+                refusals = crate::Refusal::Refused;
                 problems.push(Problem {
                     source: Source::UniProt,
-                    record: Text::new(id.as_str()).ok(),
+                    record: crate::mapped::record(&id),
                     field: "primaryAccession".into(),
                     code: ProblemCode::ValueUnknown,
                 });
@@ -91,6 +97,7 @@ pub fn search(
         }
     }
     Ok(Mapped {
+        refusals,
         value: SearchPage {
             items,
             total: page.total,

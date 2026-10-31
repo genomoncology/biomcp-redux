@@ -37,16 +37,10 @@ const SET: BundleSet<raw::Native> = BundleSet {
     row: PhantomData,
 };
 /// Validate the whole native export before atomically replacing its stored snapshot.
-pub fn sync(fetch: &Fetch) -> Result<biomcp_types::SyncResult, RequestError> {
-    fetch.sync_set(&SET).map(|info| biomcp_types::SyncResult {
-        snapshot: None,
-        etag: None,
-        last_modified: None,
-        rows: info.rows,
-        bytes: info.bytes,
-        downloaded_bytes: info.downloaded_bytes,
-        duplicate_identities: None,
-    })
+pub fn sync(fetch: &Fetch) -> Result<crate::Mapped<biomcp_types::SyncResult>, RequestError> {
+    fetch
+        .sync_set(&SET)
+        .map(|info| crate::mapped::bundle_sync(SPEC.source, info))
 }
 /// Literal whole-word matches in native order; read never downloads or resolves synonyms.
 pub fn search(leg: &Leg<'_>, text: &str) -> Result<Vec<DrugWhoRow>, RequestError> {

@@ -6,8 +6,9 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 
 pub(super) fn trials() -> Vec<Trial> {
+    // The test mutates emitted pool arguments to check that foreign selectors cannot reuse a runtime snapshot.
     vec![transcript_trial(
-        "pathway-command/pool-bindings-before-source-io",
+        crate::runner::pool_contract::PATHWAY_SEARCH.0,
         || bindings().map_err(Into::into),
     )]
 }

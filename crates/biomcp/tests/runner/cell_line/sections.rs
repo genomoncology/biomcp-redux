@@ -266,6 +266,8 @@ fn next(section: &str, value: &Value) -> Result<(), String> {
     Ok(())
 }
 
+tool_only! {
 pub(super) fn measure_release() -> Result<(), String> {
     controls::release_failure(true)
+}
 }

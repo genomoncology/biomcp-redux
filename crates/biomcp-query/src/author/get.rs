@@ -22,8 +22,9 @@ pub fn get(cx: &Ctx<'_>, q: &AuthorGet) -> Outcome {
         let reply = match input {
             AuthorId::SemanticScholar(id) => {
                 author::card(&leg, id).map(|value| biomcp_adapters::Mapped {
-                    value: Some(value),
-                    problems: Vec::new(),
+                    refusals: biomcp_adapters::Refusal::None,
+                    value: Some(value.value),
+                    problems: value.problems,
                 })
             }
             AuthorId::Orcid(id) => biomcp_adapters::orcid::card(&leg, id),

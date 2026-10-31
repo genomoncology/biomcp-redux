@@ -18,6 +18,8 @@ pub static SPEC: SourceSpec = SourceSpec {
     deadline: Duration::from_secs(15),
 };
 
+mod annotation_raw;
+mod detail_raw;
 mod read;
 pub use read::{annotation, clinical, references};
 

@@ -61,6 +61,9 @@ pub(super) fn run() -> Result<(), String> {
             return Err("domain continuation renewed source snapshot".into());
         }
     }
+    if ids.first() != Some(&json!("IPR000001")) || ids.last() != Some(&json!("IPR000026")) {
+        return Err("retained domain order changed".into());
+    }
     if ids
         .iter()
         .map(Value::to_string)

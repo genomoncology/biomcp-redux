@@ -1,5 +1,6 @@
 //! Literal HP discovery and independent exact Monarch term cards.
 pub mod associations;
+mod counts;
 mod raw;
 mod sections;
 use biodata::{Attribution, PhenotypeCard, PhenotypeHeader, Text};
@@ -8,6 +9,12 @@ use biomcp_types::{PhenotypeGet, PhenotypeSearch, PhenotypeSection, PhenotypeTer
 /// Native ordered HP page and retrieval metadata.
 #[derive(Debug)]
 pub struct Page {
+    /// Actual HP records refused at the native identity boundary.
+    pub refusals: crate::Refusal,
+    /// Native row count before refusing invalid row identities.
+    pub received: u32,
+    /// Rejected native metadata on returned rows.
+    pub problems: Vec<biomcp_types::Problem>,
     /// Publisher order without reranking or deduplication.
     pub items: Vec<PhenotypeHeader>,
     /// Source total, without local extrapolation.
@@ -18,6 +25,8 @@ pub struct Page {
 /// Exact term card and original retrieval metadata.
 #[derive(Debug)]
 pub struct Record {
+    /// Rejected native metadata retained for section snapshots.
+    pub problems: Vec<biomcp_types::Problem>,
     /// Complete independent source card.
     pub card: PhenotypeTermCard,
     /// Native source synonyms with their original classes.
@@ -40,28 +49,44 @@ pub fn search(leg: &Leg<'_>, q: &PhenotypeSearch) -> Result<Page, RequestError> 
         ("limit", Arg::Num(q.limit().into())),
         ("offset", Arg::Num(q.offset().into())),
     ];
-    let (page, metadata) = leg.json_received_checked::<raw::Page>(&endpoint, &args, |page| {
-        if page.limit != q.limit() || page.offset != q.offset() {
-            Err(BadReply)
-        } else {
-            Ok(())
-        }
-    })?;
+    let (page, metadata) = leg.json_received_checked_admission::<raw::Page>(
+        &endpoint,
+        &args,
+        |page| {
+            if page.limit != q.limit() || page.offset != q.offset() {
+                Err(BadReply)
+            } else {
+                Ok(())
+            }
+        },
+        |page| page.items.iter().all(|node| node.id.is_some()),
+    )?;
+    let received = page.items.len() as u32;
+    let mut problems = Vec::new();
+    let mut refusals = crate::Refusal::None;
     let items = page
         .items
         .into_iter()
-        .map(|node| {
-            Ok(PhenotypeHeader {
-                attribution: attribution(&node.id)?,
-                id: node.id,
+        .filter_map(|node| {
+            problems.extend(node.problems);
+            let Some(id) = node.id else {
+                refusals = crate::Refusal::Refused;
+                return None;
+            };
+            Some(attribution(&id).map(|attribution| PhenotypeHeader {
+                attribution,
+                id,
                 label: node.name,
                 match_score: node.score,
                 matched_field: node.matched_field,
                 match_type: node.match_type,
-            })
+            }))
         })
         .collect::<Result<Vec<_>, RequestError>>()?;
     Ok(Page {
+        refusals,
+        received,
+        problems,
         items,
         total: page.total,
         metadata,
@@ -74,17 +99,24 @@ pub fn get(leg: &Leg<'_>, q: &PhenotypeGet) -> Result<Record, RequestError> {
         .get("/v3/api/entity")
         .with_segments(&[biomcp_fetch::PathSegment::new(q.id().as_str())?])
         .fresh(Freshness::Days(1));
-    let (node, metadata) = leg.json_received_checked::<raw::Node>(&endpoint, &[], |node| {
-        if &node.id == q.id() {
+    let (mut node, metadata) = leg.json_received_checked::<raw::Node>(&endpoint, &[], |node| {
+        if node.id.as_ref() == Some(q.id()) {
             Ok(())
         } else {
             Err(BadReply)
         }
     })?;
+    let id = node.id.as_ref().ok_or(InputError::Serialization)?.clone();
     let sections = sections(&node);
-    let attribution = attribution(&node.id)?;
-    let (synonyms, xrefs, hierarchy) = sections::rows(&node, &attribution);
+    let attribution = attribution(&id)?;
+    let mut problems = crate::mapped::Problems {
+        source: biomcp_types::Source::Monarch,
+        record: crate::mapped::record(&id),
+        list: std::mem::take(&mut node.problems),
+    };
+    let (synonyms, xrefs, hierarchy) = sections::rows(&mut node, &attribution, &mut problems);
     Ok(Record {
+        problems: problems.list,
         synonyms,
         xrefs,
         hierarchy,
@@ -92,7 +124,7 @@ pub fn get(leg: &Leg<'_>, q: &PhenotypeGet) -> Result<Record, RequestError> {
             term: PhenotypeCard::Monarch {
                 attribution,
                 requested_id: q.id().clone(),
-                returned_id: node.id,
+                returned_id: id.clone(),
                 label: node.name,
                 description: node.description,
                 deprecated: node.deprecated,

@@ -190,7 +190,7 @@ None. The PM owns source eligibility, defaults, budgets and the proposed legacy 
 
 ## Measured disclosure budget
 
-Complete emitted envelopes replace the investigation's offline payload projections. CLI bytes include the newline; MCP bytes count actual tool text; Markdown counts actual UTF-8 stdout. Separate full RPC entries do not become content budgets. The canonical YAML steps own their `max_bytes` and `max_tokens`; the existing exact Rust phases own their measurements in `tests/cell-line-command-budgets.json`. Each ceiling adds fifteen percent to that same case and surface. Source policy fields count in the complete envelope.
+Complete emitted envelopes replace the investigation's offline payload projections. CLI bytes include the newline; MCP bytes count actual tool text; Markdown counts actual UTF-8 stdout. Separate full RPC entries do not become content budgets. The canonical YAML steps own their `max_bytes` and `max_tokens`; the existing exact Rust phases own their measurements in `tests/cell-line-command-budgets.yaml`. Each ceiling adds fifteen percent to that same case and surface. Source policy fields count in the complete envelope.
 
 | Measured envelope | Owning phase | CLI bytes | MCP text bytes | Markdown bytes |
 | --- | --- | ---: | ---: | ---: |
@@ -371,7 +371,7 @@ The native ChEMBL fixtures contain unchanged bodies from the verified 0196 porta
 
 Each row owns one fixture or synthetic variant, phase and actual output surface. CLI bytes include the emitted newline. MCP bytes measure the emitted tool text that is checked against structured content. The full RPC framing is measured separately. Markdown bytes measure actual UTF-8 stdout. These complete envelopes include provenance, source terms and typed next commands. The earlier native projections are payload design samples and supply no full-envelope ceiling. The established source-term-subtracted comparable basis removes exactly the registry's three policy fields; one ChEMBL outcome contributes 107 bytes. Help has no term subtraction. The executable cell-line YAML examples retain their existing canonical limits and own no ChEMBL phase.
 
-Native and help measurements come from `j15181`; completed metadata source-fault measurements come from `j15185`; the remaining source-fault, cache, provenance and synthetic-zero measurements come from `j15189`. The contradictory paging controls and complete five-row synthetic continuation come from `j15195`. The actual-byte helper verifies the same emitted surfaces in the routine suite. Each exact Rust phase resolves through `tests/cell-line-command-budgets.json`. Unlisted phases fail. No source or fault group supplies a shared maximum, and no argv table duplicates these limits.
+Native and help measurements come from `j15181`; completed metadata source-fault measurements come from `j15185`; the remaining source-fault, cache, provenance and synthetic-zero measurements come from `j15189`. The contradictory paging controls and complete five-row synthetic continuation come from `j15195`. The actual-byte helper verifies the same emitted surfaces in the routine suite. Each exact Rust phase resolves through `tests/cell-line-command-budgets.yaml`. Unlisted phases fail. No source or fault group supplies a shared maximum, and no argv table duplicates these limits.
 
 | Owning phase | Surface | Observed bytes | Ceiling bytes | Estimated token ceiling |
 | --- | --- | ---: | ---: | ---: |
@@ -527,7 +527,7 @@ Composite paging controls return fixed usage guidance before provider access. Ea
 
 The outside-in composite cases reuse the protected native fixtures and the existing independent source fault matrices. Additional composites label synthetic failures and distinguish successful empty, failed, skipped and unavailable states. The ordinary-cache policy cases reject disabled sources before retained replies or requests. A local HTML verification page proves that neither source follows or retries a verification route. No live provider request, licensed fixture or analysis tool is involved.
 
-The `all/` keys in `tests/cell-line-command-budgets.json` own measured output sizes and derive each ceiling independently through the existing measured-size helper. CLI bytes include the emitted newline. MCP text bytes and the complete RPC reply have distinct entries. Markdown has its own measured entry for each native composite. No group maximum or shared budget replaces a fixture and phase measurement.
+The `all/` keys in `tests/cell-line-command-budgets.yaml` own measured output sizes and derive each ceiling independently through the existing measured-size helper. CLI bytes include the emitted newline. MCP text bytes and the complete RPC reply have distinct entries. Markdown has its own measured entry for each native composite. No group maximum or shared budget replaces a fixture and phase measurement.
 
 
 ## Generated cell line help

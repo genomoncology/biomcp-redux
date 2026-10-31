@@ -4,39 +4,24 @@
     reason = "Synthetic recording mutations fail directly on fixture shape drift"
 )]
 use super::{launch::Environment, network_stub::Stub};
-use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::{fs, path::Path};
 mod biomarker;
-mod facility;
+
 mod organization;
-mod trial_biomarker;
-type Check = Result<(), String>;
+
 const KEY: &str = "synthetic-nci-stored-key";
 pub(super) fn trials() -> Vec<Trial> {
-    let mut trials = vec![transcript_trial("trial/nci/wire-and-failures", || {
-        wire().map_err(Into::into)
-    })];
-    trials.extend(organization::trials());
-    trials.extend(facility::trials());
-    trials.extend(biomarker::trials());
-    trials.extend(trial_biomarker::trials());
-    trials
+    std::iter::once(super::transcript::trial(
+        "trial-nci/nci/wire-and-failures",
+        || wire().map_err(Into::into),
+    ))
+    .chain(organization::trials())
+    .chain(biomarker::trials())
+    .collect()
 }
-fn reply(request: &str) -> Result<String, String> {
-    let card = json!(
-        {"nci_id":"NCI-2026-00001","nct_id":"NCT02296125","brief_title":"Synthetic trial",
-        "current_trial_status":"Temporarily Closed to Accrual","phase":"II/III","brief_summary":"Original source summary Ω",
-        "diseases":[{"name":"Synthetic disease","nci_thesaurus_concept_id":"C3224"}]}
-    );
-    Ok(if request.starts_with("GET /api/v2/trials/NCT02296125 ") {
-        card
-    } else {
-        json!({"total":7,"data":[card]})
-    }
-    .to_string())
-}
+
 pub(super) fn invoke(env: &Environment, args: &[String], exit: i32) -> Result<Value, String> {
     let output = env
         .command(env!("CARGO_BIN_EXE_biomcp"), args)
@@ -59,13 +44,29 @@ pub(super) fn invoke(env: &Environment, args: &[String], exit: i32) -> Result<Va
     super::schema::Registry::embedded()?.validate(&value, args, exit == 0)?;
     Ok(value)
 }
+
+fn reply(request: &str) -> Result<String, String> {
+    let card = json!(
+        {"nci_id":"NCI-2026-00001","nct_id":"NCT02296125","brief_title":"Synthetic trial",
+        "current_trial_status":"Temporarily Closed to Accrual","phase":"II/III","brief_summary":"Original source summary Ω",
+        "diseases":[{"name":"Synthetic disease","nci_thesaurus_concept_id":"C3224"}]}
+    );
+    Ok(if request.starts_with("GET /api/v2/trials/NCT02296125 ") {
+        card
+    } else {
+        json!({"total":7,"data":[card]})
+    }
+    .to_string())
+}
+
 fn globals(args: &[&str], flag: &str, path: &Path) -> Vec<String> {
     args.iter()
         .map(|s| (*s).to_owned())
         .chain([flag.to_owned(), path.to_string_lossy().into_owned()])
         .collect()
 }
-fn wire() -> Check {
+
+fn wire() -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let stub = Stub::for_source("clinicaltrialsapi.cancer.gov", "application/json", reply)?;
     let ca = env.root().join("ca.pem");
@@ -132,7 +133,8 @@ fn wire() -> Check {
     failures(&env, &search, &search_dir)?;
     policies(&env, &get, &get_dir)
 }
-fn policies(env: &Environment, get: &[&str], dir: &Path) -> Check {
+
+fn policies(env: &Environment, get: &[&str], dir: &Path) -> Result<(), String> {
     let mut args = globals(get, "--replay", dir);
     args.extend(["--disable-sources".into(), "nci".into()]);
     let out = invoke(env, &args, 4)?;
@@ -156,7 +158,8 @@ fn policies(env: &Environment, get: &[&str], dir: &Path) -> Check {
     }
     Ok(())
 }
-fn failures(env: &Environment, search: &[&str], dir: &Path) -> Check {
+
+fn failures(env: &Environment, search: &[&str], dir: &Path) -> Result<(), String> {
     let entry = fs::read_dir(dir.join("nci"))
         .map_err(|e| e.to_string())?
         .next()

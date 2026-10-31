@@ -11,7 +11,8 @@ pub struct PathwayHeader {
     /// Checked source-owned identity.
     pub id: PathwayId,
     /// Whole native name.
-    pub name: Text,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub name: Option<Text>,
     /// Explicit native human species.
     pub species: PathwaySpecies,
     /// Whole native Reactome stIdVersion, separate from stable identity.
@@ -60,7 +61,7 @@ pub struct PathwayPage {
     pub page: PathwayPageInfo,
 }
 impl ResponseBody for PathwayPage {
-    const SCHEMA: &'static str = "biomcp.pathway-page/5";
+    const SCHEMA: &'static str = "biomcp.pathway-page/8";
     type Query = PathwaySearch;
 }
 /// One checked source pathway with supported disclosures and whole native text.
@@ -86,7 +87,7 @@ pub struct PathwayCard {
     pub events: Option<crate::Section<PathwayEvents>>,
 }
 impl ResponseBody for PathwayCard {
-    const SCHEMA: &'static str = "biomcp.pathway-card/7";
+    const SCHEMA: &'static str = "biomcp.pathway-card/10";
     type Query = PathwayGet;
 }
 macro_rules! relation_page {
@@ -126,14 +127,14 @@ pub struct PathwayGenes {
     pub physical_entities: u64,
 }
 impl ResponseBody for PathwayGenes {
-    const SCHEMA: &'static str = "biomcp.pathway-genes/6";
+    const SCHEMA: &'static str = "biomcp.pathway-genes/9";
     type Query = PathwayGenesQuery;
 }
 relation_page!(
     PathwayEvents,
     PathwayEventRef,
     PathwayEventsQuery,
-    "biomcp.pathway-events/3"
+    "biomcp.pathway-events/6"
 );
 /// Receipt for one independently validated WikiPathways metadata catalog.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -163,6 +164,6 @@ pub struct WikiPathwaysSync {
 }
 
 impl ResponseBody for WikiPathwaysSync {
-    const SCHEMA: &'static str = "biomcp.wikipathways-sync/3";
+    const SCHEMA: &'static str = "biomcp.wikipathways-sync/4";
     type Query = crate::SyncQuery;
 }

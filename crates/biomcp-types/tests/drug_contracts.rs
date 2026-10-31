@@ -211,9 +211,9 @@ fn civic_therapy_streams_keep_independent_totals_and_profile_context() {
     assert_eq!(serde_json::to_value(selected).expect("query JSON"), next);
     let response = json!(
         { "identity":{"id":"5","source":"civic","name":"synthetic therapy","identity_level":"unknown"},"civic":{"state":"data",
-        "source":"civic","data":{ "evidence":{"records":[{ "profile":{"record":{"id":"1"},"label":"synthetic profile","compound":false,
-        "members":[{"record":{"id":"1"},"label":"synthetic allele","feature":"BRAF","reference_build":"GRCH38"}]},
-        "oncokb_missing":["variant"],"claim":{"record":{"id":"EID259"},"kind":"PREDICTIVE","status":"ACCEPTED"},"therapies":[{"id":"5",
+        "source":"civic","data":{ "evidence":{"records":[{ "profile":{"record":{"namespace":"unknown","id":"1"},"label":"synthetic profile","compound":false,
+        "members":[{"record":{"namespace":"unknown","id":"1"},"label":"synthetic allele","feature":"BRAF","reference_build":"GRCH38"}]},
+        "oncokb_missing":["variant"],"claim":{"record":{"namespace":"unknown","id":"EID259"},"kind":"PREDICTIVE","status":"ACCEPTED"},"therapies":[{"id":"5",
         "source":"civic","name":"synthetic therapy","identity_level":"unknown"}] }],"page":{"returned":1,"total":169,"next":next}},
         "assertions":{"page":{"returned":0,"total":1}} }} }
     );
@@ -269,7 +269,7 @@ fn label_candidate_versions_are_native_optional_identity_metadata() {
 fn native_target_identity_does_not_require_an_invented_gene() {
     use biodata::{DrugNativeReference, DrugNativeTarget, DrugTargetRelation};
     let value = json!(
-        {"drug":{"id":"CHEMBL1","source":"chembl","name":"synthetic drug","identity_level":"unknown"},"native_target":{"source":"chembl",
+        {"drug":{"id":"CHEMBL1","namespace":"chembl","name":"synthetic drug","identity_level":"unknown"},"native_target":{"namespace":"chembl",
         "id":"CHEMBL999","label":"synthetic target complex","url":"https://example.org/target"},"relation":"native action",
         "mechanism":"source mechanism wording","references":[{"ref_type":"native publication","ref_id":"synthetic-1",
         "ref_url":"https://example.org/reference"}],"attribution":{"source":"chembl"}}
@@ -277,13 +277,16 @@ fn native_target_identity_does_not_require_an_invented_gene() {
     let parsed: DrugTargetRelation =
         serde_json::from_value(value.clone()).expect("native target without gene");
     assert!(parsed.target().is_none());
-    assert_eq!(parsed.relation().as_str(), "native action");
+    assert_eq!(
+        parsed.relation().expect("native relation").as_str(),
+        "native action"
+    );
     assert_eq!(
         parsed.mechanism().expect("native mechanism").as_str(),
         "source mechanism wording"
     );
     let native = DrugNativeTarget {
-        source: "chembl".parse().expect("source"),
+        namespace: "chembl".parse().expect("source"),
         id: "CHEMBL999".parse().expect("id"),
         label: Some("synthetic target complex".parse().expect("label")),
         url: Some("https://example.org/target".parse().expect("link")),
@@ -298,7 +301,7 @@ fn native_target_identity_does_not_require_an_invented_gene() {
         parsed.drug().clone(),
         None,
         Some(native),
-        parsed.relation().clone(),
+        parsed.relation().cloned(),
         parsed.mechanism().cloned(),
         parsed.references().into(),
         parsed.attribution().clone(),
@@ -310,7 +313,7 @@ fn native_target_identity_does_not_require_an_invented_gene() {
             parsed.drug().clone(),
             None,
             None,
-            parsed.relation().clone(),
+            parsed.relation().cloned(),
             None,
             Box::default(),
             parsed.attribution().clone()
@@ -323,7 +326,7 @@ fn native_target_identity_does_not_require_an_invented_gene() {
         parsed.drug().clone(),
         Some(gene.clone()),
         None,
-        parsed.relation().clone(),
+        parsed.relation().cloned(),
         None,
         Box::default(),
         parsed.attribution().clone(),
@@ -349,7 +352,7 @@ fn native_target_identity_does_not_require_an_invented_gene() {
 fn native_indication_ids_keep_their_own_labels_stage_and_references() {
     use biodata::{DrugDiseaseReference, DrugIndicationClaim, DrugStage};
     let value = json!(
-        {"drug":{"id":"CHEMBL1","source":"chembl","name":"synthetic drug","identity_level":"unknown"},
+        {"drug":{"id":"CHEMBL1","namespace":"chembl","name":"synthetic drug","identity_level":"unknown"},
         "indication":"source indication wording","disease_references":[{"namespace":"EFO","id":"EFO:synthetic",
         "label":"native EFO wording"},{"namespace":"MeSH","id":"Dsynthetic","label":"different native MeSH wording"}],
         "stage":{"field":"max_phase_for_ind","value":"3.0"},"references":[{"ref_type":"native trial","ref_id":"synthetic-trial",
@@ -386,15 +389,15 @@ fn native_indication_ids_keep_their_own_labels_stage_and_references() {
 fn interaction_keeps_both_bundle_origins_and_refuses_duplicate_attribution() {
     use biodata::DrugInteractionClaim;
     let value = json!(
-        {"anchor":{"id":"DDInter1","source":"ddinter","name":"synthetic anchor","identity_level":"unknown"},"partner":{"id":"DDInter2",
-        "source":"ddinter","name":"synthetic partner","identity_level":"unknown"},"level":"native level","attribution":{"source":"ddinter",
+        {"anchor":{"id":"DDInter1","namespace":"ddinter","name":"synthetic anchor","identity_level":"unknown"},"partner":{"id":"DDInter2",
+        "namespace":"ddinter","name":"synthetic partner","identity_level":"unknown"},"level":"native level","attribution":{"source":"ddinter",
         "record":"B-synthetic"},"additional_attributions":[{"source":"ddinter","record":"L-synthetic"}]}
     );
     let parsed: DrugInteractionClaim =
         serde_json::from_value(value.clone()).expect("both bundle origins");
     assert_eq!(parsed.anchor().id.to_string(), "DDInter1");
     assert_eq!(parsed.partner().id.to_string(), "DDInter2");
-    assert_eq!(parsed.level().as_str(), "native level");
+    assert_eq!(parsed.level().map(|v| v.as_str()), Some("native level"));
     assert_eq!(
         parsed
             .attribution()
@@ -420,7 +423,7 @@ fn interaction_keeps_both_bundle_origins_and_refuses_duplicate_attribution() {
     let rebuilt = DrugInteractionClaim::new(
         parsed.anchor().clone(),
         parsed.partner().clone(),
-        parsed.level().clone(),
+        parsed.level().cloned(),
         parsed.attribution().clone(),
         additional,
     )
@@ -430,7 +433,7 @@ fn interaction_keeps_both_bundle_origins_and_refuses_duplicate_attribution() {
         DrugInteractionClaim::new(
             parsed.anchor().clone(),
             parsed.partner().clone(),
-            parsed.level().clone(),
+            parsed.level().cloned(),
             parsed.attribution().clone(),
             vec![parsed.attribution().clone()].into()
         )
@@ -466,14 +469,14 @@ fn interaction_keeps_both_bundle_origins_and_refuses_duplicate_attribution() {
 fn changed_native_record_responses_publish_version_three_and_checked_target_schema() {
     use biodata::DrugTargetRelation;
     use biomcp_types::{DrugIndications, DrugInteractions, DrugTargets, ResponseBody};
-    assert_eq!(DrugTargets::SCHEMA, "biomcp.drug-targets/5");
-    assert_eq!(DrugIndications::SCHEMA, "biomcp.drug-indications/5");
-    assert_eq!(DrugInteractions::SCHEMA, "biomcp.drug-interactions/5");
+    assert_eq!(DrugTargets::SCHEMA, "biomcp.drug-targets/8");
+    assert_eq!(DrugIndications::SCHEMA, "biomcp.drug-indications/8");
+    assert_eq!(DrugInteractions::SCHEMA, "biomcp.drug-interactions/8");
     let validator =
         jsonschema::draft202012::new(&schemars::schema_for!(DrugTargetRelation).to_value())
             .expect("target schema");
     let base = json!(
-        {"drug":{"id":"CHEMBL1","source":"chembl","name":"synthetic drug","identity_level":"unknown"},"relation":"source action",
+        {"drug":{"id":"CHEMBL1","namespace":"chembl","name":"synthetic drug","identity_level":"unknown"},"relation":"source action",
         "attribution":{"source":"chembl"}}
     );
     for selectors in [
@@ -492,8 +495,8 @@ fn changed_native_record_responses_publish_version_three_and_checked_target_sche
     }
     for selectors in [
         json!({"target":{"label":"source gene"}}),
-        json!({"native_target":{"source":"chembl","id":"CHEMBL999"}}),
-        json!({"target":{"label":"source gene"},"native_target":{"source":"chembl","id":"CHEMBL999"}}),
+        json!({"native_target":{"namespace":"chembl","id":"CHEMBL999"}}),
+        json!({"target":{"label":"source gene"},"native_target":{"namespace":"chembl","id":"CHEMBL999"}}),
     ] {
         let mut valid = base.clone();
         valid

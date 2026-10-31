@@ -1,6 +1,6 @@
 {
   "feature": "trial-nci",
-  "live_check": "bounded keyed NCI native capture retained outside Git",
+  "live_check": "missing nightly NCI user-owned API key; retained native public-tier replies use an isolated replay key",
   "story": "Exact organization trial total equals the separately captured organization count, with a compact header from a trial with 1273 sites.",
   "replay": "trial/nci/facility/native",
   "config": {
@@ -12,16 +12,6 @@
   "steps": [
     {
       "run": [
-        "search",
-        "trial",
-        "--source",
-        "nci",
-        "--facility",
-        "Dana-Farber Cancer Institute",
-        "--limit",
-        "1"
-      ],
-      "mcp": [
         "search",
         "trial",
         "--source",

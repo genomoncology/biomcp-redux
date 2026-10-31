@@ -66,6 +66,13 @@
       ],
       "type": "string"
     },
+    "Reply_IdentifierNamespace": {
+      "description": "A source-stated authority or an explicit unknown authority, represented by the string unknown.",
+      "maxLength": 1048576,
+      "minLength": 1,
+      "pattern": "^(?![\\s\\S]*[\\x00-\\x1f\\x7f-\\x9f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069])",
+      "type": "string"
+    },
     "Reply_OrcidAssertionSource": {
       "description": "Source and assertion origin remain distinct provider claims.",
       "properties": {
@@ -146,8 +153,12 @@
     "Reply_OrcidExternalId": {
       "description": "Native ORCID external identifier before any article pivot.",
       "properties": {
-        "kind": {
+        "id": {
           "$ref": "#/$defs/Reply_Text",
+          "description": "Unchanged native identifier value."
+        },
+        "namespace": {
+          "$ref": "#/$defs/Reply_IdentifierNamespace",
           "description": "Open native external-id-type."
         },
         "relationship": {
@@ -165,17 +176,14 @@
           ],
           "description": "Native identifier URL.",
           "format": "uri"
-        },
-        "value": {
-          "$ref": "#/$defs/Reply_Text",
-          "description": "Unchanged native identifier value."
         }
       },
       "required": [
-        "kind",
-        "value"
+        "namespace",
+        "id"
       ],
-      "type": "object"
+      "type": "object",
+      "x-identifier": true
     },
     "Reply_OrcidId": {
       "description": "A checksummed ORCID iD, identifying only the requested ORCID record. The parser additionally validates the ISO 7064 checksum.",
@@ -240,7 +248,14 @@
           "type": "integer"
         },
         "source": {
-          "$ref": "#/$defs/Reply_OrcidAssertionSource",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_OrcidAssertionSource"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Native source and origin provenance."
         },
         "subtitle": {
@@ -299,7 +314,6 @@
       },
       "required": [
         "put_code",
-        "source",
         "visibility"
       ],
       "type": "object"
@@ -858,15 +872,6 @@
             "null"
           ]
         },
-        "fetched": {
-          "description": "Retrieved identity depth.",
-          "format": "uint32",
-          "minimum": 0,
-          "type": [
-            "integer",
-            "null"
-          ]
-        },
         "notices": {
           "description": "Source notices and request recovery guidance.",
           "items": {
@@ -884,6 +889,15 @@
             }
           ],
           "description": "Failure or stale-fallback reason."
+        },
+        "retrieved_count": {
+          "description": "Number of retrieved identities.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
         },
         "source": {
           "$ref": "#/$defs/Reply_Source",
@@ -1002,7 +1016,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.orcid-works/5",
+  "$id": "biomcp.orcid-works/8",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -1058,7 +1072,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.orcid-works/5",
+      "const": "biomcp.orcid-works/8",
       "type": "string"
     },
     "sources": {

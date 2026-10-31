@@ -8,6 +8,7 @@ use biodata::{Gene, GeneStatus, GeneSymbol, HgncId, Text};
 
 pub(super) fn genes(rows: Vec<raw::Gene>) -> Mapped<Vec<Gene>> {
     let mut problems = Vec::new();
+    let mut refusals = crate::Refusal::None;
     let value = rows
         .into_iter()
         .filter_map(|row| {
@@ -15,12 +16,22 @@ pub(super) fn genes(rows: Vec<raw::Gene>) -> Mapped<Vec<Gene>> {
                 id: raw::cell(row.hgnc_id.as_deref()).parse().ok(),
                 problems: Vec::new(),
             };
-            let gene = gene(row, &mut fields);
+            let gene = match gene(row, &mut fields) {
+                Some(gene) => Some(gene),
+                None => {
+                    refusals = crate::Refusal::Refused;
+                    None
+                }
+            };
             problems.extend(fields.problems);
             gene
         })
         .collect();
-    Mapped { value, problems }
+    Mapped {
+        refusals,
+        value,
+        problems,
+    }
 }
 fn gene(row: raw::Gene, f: &mut Fields) -> Option<Gene> {
     let id = f.required("hgnc_id", f.id);
@@ -28,20 +39,25 @@ fn gene(row: raw::Gene, f: &mut Fields) -> Option<Gene> {
         "symbol",
         GeneSymbol::new(raw::cell(row.symbol.as_deref())).ok(),
     );
-    let name = f.required(
-        "name",
-        Text::from_source(raw::cell(row.name.as_deref())).ok(),
-    );
-    let locus_group = f.required(
-        "locus_group",
-        fields::group(raw::cell(row.locus_group.as_deref())),
-    );
+    let name = if raw::cell(row.name.as_deref()).is_empty() {
+        None
+    } else {
+        f.required(
+            "name",
+            Text::from_source(raw::cell(row.name.as_deref())).ok(),
+        )
+    };
+    let locus_group = row
+        .locus_group
+        .as_deref()
+        .filter(|v| !v.is_empty())
+        .and_then(|group| f.required("locus_group", fields::group(group)));
     let status = f.required(
         "status",
         (raw::cell(row.status.as_deref()) == "Approved").then_some(GeneStatus::Approved),
     );
     // All required fields are checked before dropping a record.
-    let (hgnc_id, symbol, name, locus_group, status) = (id?, symbol?, name?, locus_group?, status?);
+    let (hgnc_id, symbol, status) = (id?, symbol?, status?);
     let locus_type = if raw::cell(row.locus_type.as_deref()).is_empty() {
         None
     } else {
@@ -80,6 +96,7 @@ fn gene(row: raw::Gene, f: &mut Fields) -> Option<Gene> {
 }
 pub(super) fn withdrawn(rows: Vec<raw::Withdrawn>) -> Mapped<Vec<Withdrawn>> {
     let mut problems = Vec::new();
+    let mut refusals = crate::Refusal::None;
     let value = rows
         .into_iter()
         .filter_map(|row| {
@@ -115,13 +132,21 @@ pub(super) fn withdrawn(rows: Vec<raw::Withdrawn>) -> Mapped<Vec<Withdrawn>> {
                     .collect()
             };
             problems.extend(f.problems);
+            let (Some(hgnc_id), Some(symbol), Some(hgnc_status)) = (id, symbol, hgnc_status) else {
+                refusals = crate::Refusal::Refused;
+                return None;
+            };
             Some(Withdrawn {
-                hgnc_id: id?,
-                symbol: symbol?,
-                hgnc_status: hgnc_status?,
+                hgnc_id,
+                symbol,
+                hgnc_status,
                 merged_into: merged_into.into(),
             })
         })
         .collect();
-    Mapped { value, problems }
+    Mapped {
+        refusals,
+        value,
+        problems,
+    }
 }

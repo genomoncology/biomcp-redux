@@ -546,3 +546,35 @@ fn provider_codecs_stay_outside_transport_and_query() -> Check {
         "forbidden dependencies dependency",
     )
 }
+
+#[test]
+fn discovery_rejects_unknown_missing_and_unfeatured_trials() -> Check {
+    let features =
+        "known: A caller receives a known answer.\nother: A caller receives another answer.\n";
+    super::feature_contract::validate(features, ["known/case", "other/trial"], true)?;
+    for (names, expected) in [
+        (vec!["unknown/case", "other/trial"], "unlisted feature"),
+        (vec!["known/case"], "features without tests"),
+        (vec!["unfeatured", "other/trial"], "trial lacks feature"),
+    ] {
+        let failure = super::feature_contract::validate(features, names, true)
+            .err()
+            .ok_or("invalid discovery was accepted")?;
+        assert!(failure.contains(expected), "{failure}");
+    }
+    Ok(())
+}
+
+#[test]
+fn tool_dispatch_stays_outside_cases() -> Check {
+    rejects(
+        "crates/biomcp/tests/cases.rs",
+        r#"fn main() { if arg == "--planted-tool-mode" { tool(); } }"#,
+        "tool modes belong in tools.rs",
+    )
+}
+
+#[test]
+fn mapped_constructions_require_their_own_refusal_decision() -> Check {
+    super::proof_support::check_mapped_refusal_decisions()
+}

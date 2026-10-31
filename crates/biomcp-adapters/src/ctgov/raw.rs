@@ -24,7 +24,7 @@ impl Reply for FirstPage {
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub(super) struct Version {
-    pub(super) data_timestamp: Text,
+    pub(super) data_timestamp: Option<Field<Box<str>>>,
 }
 impl Reply for Version {
     fn check(&self) -> Result<(), BadReply> {
@@ -81,6 +81,7 @@ pub(super) struct Protocol {
     design_module: Option<Field<Design>>,
     conditions_module: Option<Field<Conditions>>,
     arms_interventions_module: Option<Field<Interventions>>,
+    contacts_locations_module: Option<Field<CountryLocations>>,
 }
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -115,7 +116,28 @@ struct Interventions {
 struct Intervention {
     name: Option<Field<Text>>,
 }
+#[derive(Deserialize)]
+struct CountryLocations {
+    locations: Option<Field<Vec<Field<CountryLocation>>>>,
+}
+#[derive(Deserialize)]
+struct CountryLocation {
+    country: Option<Field<Box<str>>>,
+}
 impl Protocol {
+    pub(super) fn has_country(&self, countries: &[Box<str>]) -> bool {
+        self.contacts_locations_module
+            .as_ref()
+            .and_then(Field::as_ref)
+            .and_then(|module| module.locations.as_ref())
+            .and_then(Field::as_ref)
+            .into_iter()
+            .flatten()
+            .filter_map(Field::as_ref)
+            .filter_map(|site| site.country.as_ref().and_then(Field::as_ref))
+            .any(|country| countries.contains(country))
+    }
+
     pub(super) fn contains_condition_words(&self, condition: &str) -> bool {
         let requested = words(condition);
         let present: Vec<String> = self
@@ -189,6 +211,7 @@ impl Protocol {
             updated,
         };
         Ok(Mapped {
+            refusals: crate::Refusal::None,
             value,
             problems: problems.list,
         })

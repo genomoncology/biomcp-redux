@@ -33,11 +33,11 @@ pub fn search(cx: &Ctx<'_>, query: &DiseaseSearch) -> Outcome {
                 }
             }
         }
-        if returned > 0 && u64::from(query.offset()) + u64::from(returned) < page.total {
+        if page.received > 0 && u64::from(query.offset()) + u64::from(page.received) < page.total {
             out.next.push((
                 StepKind::Page,
                 run(Request::SearchDisease(
-                    query.at_offset(query.offset().saturating_add(returned)),
+                    query.at_offset(query.offset().saturating_add(page.received)),
                 )),
             ));
         }

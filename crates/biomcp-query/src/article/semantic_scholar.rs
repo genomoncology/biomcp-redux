@@ -37,8 +37,9 @@ pub(super) fn search<'a>(
     let mut problems = Vec::new();
     let items = match result {
         Ok(reply) => {
+            problems.extend(reply.problems);
             outcome.count = Some(reply.total);
-            outcome.fetched = Some(reply.data.len() as u32);
+            outcome.retrieved_count = Some(reply.data.len() as u32);
             dois = reply
                 .data
                 .iter()
@@ -96,20 +97,7 @@ pub(super) fn resolve_dois_with<'a>(
     let mut problems = Vec::new();
     let result: Result<(), RequestError> = (|| {
         for batch in dois.chunks(100) {
-            let term = batch
-                .iter()
-                .map(|doi| {
-                    format!(
-                        "\"{}\"[doi]",
-                        doi.to_string()
-                            .to_ascii_lowercase()
-                            .replace('\\', "\\\\")
-                            .replace('"', "\\\"")
-                    )
-                })
-                .collect::<Vec<_>>()
-                .join(" OR ");
-            let ids = pubmed::search_ids(&leg, &term, ArticleSort::Rank, cx.ncbi_email.as_ref())?;
+            let ids = doi_batch(&leg, batch, cx.ncbi_email.as_ref())?;
             problems.extend(ids.problems);
             for chunk in ids.ids.chunks(50) {
                 let mapped = pubmed::summaries(&leg, chunk, cx.ncbi_email.as_ref())?;
@@ -157,4 +145,29 @@ pub(super) fn doi(item: &ArticleItem) -> Option<&Doi> {
             None
         }
     })
+}
+
+fn doi_batch(
+    leg: &biomcp_fetch::Leg<'_>,
+    batch: &[Doi],
+    email: Option<&biomcp_fetch::Secret>,
+) -> Result<pubmed::SearchIds, RequestError> {
+    let term = batch
+        .iter()
+        .map(|doi| {
+            format!(
+                "\"{}\"[doi]",
+                doi.to_string()
+                    .to_ascii_lowercase()
+                    .replace('\\', "\\\\")
+                    .replace('"', "\\\"")
+            )
+        })
+        .collect::<Vec<_>>()
+        .join(" OR ");
+    let inputs = Some(biomcp_fetch::Identities {
+        namespace: "doi".into(),
+        ids: batch.iter().map(ToString::to_string).collect(),
+    });
+    pubmed::search_ids_with_inputs(leg, &term, ArticleSort::Rank, email, inputs)
 }

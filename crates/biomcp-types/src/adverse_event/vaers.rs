@@ -155,6 +155,6 @@ pub struct VaersSummary {
     pub interpretation: Box<str>,
 }
 impl ResponseBody for VaersSummary {
-    const SCHEMA: &'static str = "biomcp.vaers-summary/4";
+    const SCHEMA: &'static str = "biomcp.vaers-summary/5";
     type Query = super::AdverseEventSearch;
 }

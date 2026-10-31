@@ -12,13 +12,6 @@
         "semantic-scholar:123",
         "semantic-scholar:999"
       ],
-      "mcp": [
-        "get",
-        "author",
-        "semanticscholar:456",
-        "semantic-scholar:123",
-        "semantic-scholar:999"
-      ],
       "is_error": false,
       "exit": 0,
       "expect": {

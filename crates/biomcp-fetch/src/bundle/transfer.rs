@@ -15,6 +15,11 @@ struct Table {
 }
 const TABLES: &[Table] = &[
     Table {
+        name: "bundle_rejection",
+        key: "name",
+        columns: "name,rejections",
+    },
+    Table {
         name: "bundle",
         key: "name",
         columns: "name,bytes,rows,fresh_until,etag,modified",
@@ -160,7 +165,12 @@ fn stage_table(
     deadline: Deadline<'_>,
 ) -> Result<(), CacheError> {
     let present = source_table(connection, table.name)?;
-    if !present && (table.name != "bundle_content" || version >= crate::VERSION) {
+    if !present
+        && !matches!(
+            (table.name, version),
+            ("bundle_content", 1..=3) | ("bundle_rejection", 1..=4)
+        )
+    {
         return Err(CacheError::Version);
     }
     let source = if present { "predecessor" } else { "main" };

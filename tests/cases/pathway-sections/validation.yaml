@@ -1,15 +1,11 @@
 {
+  "live_check": "local-only unsupported WikiPathways events refusals; every step exits before source access",
   "feature": "pathway-reactome",
   "story": "validation",
   "replay": "pathway/sections",
   "steps": [
     {
       "run": [
-        "pathway",
-        "events",
-        "WP382"
-      ],
-      "mcp": [
         "pathway",
         "events",
         "WP382"
@@ -23,12 +19,6 @@
     },
     {
       "run": [
-        "get",
-        "pathway",
-        "WP382",
-        "events"
-      ],
-      "mcp": [
         "get",
         "pathway",
         "WP382",

@@ -1,8 +1,6 @@
 //! Research wrappers map the existing CLI result without provider calls.
 #[path = "research_links.rs"]
 mod links;
-#[path = "research_registry.rs"]
-mod registry;
 use super::{
     launch::Environment,
     mcp::{exchange, request},
@@ -14,16 +12,13 @@ use serde_json::{Value, json};
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        transcript_trial("mcp/research-registry-record-links", || {
+        transcript_trial("mcp-research/research-registry-projection-paths", || {
             links::check().map_err(Into::into)
         }),
-        transcript_trial("mcp/research-registry-projection-paths", || {
-            registry::check().map_err(Into::into)
-        }),
-        transcript_trial("mcp/research-search-fetch-parity", || {
+        transcript_trial("mcp-research/research-search-fetch-parity", || {
             parity().map_err(Into::into)
         }),
-        transcript_trial("mcp/research-phenotype-search-fetch", || {
+        transcript_trial("mcp-research/research-phenotype-search-fetch", || {
             phenotype().map_err(Into::into)
         }),
     ]
@@ -33,6 +28,15 @@ pub(super) fn call(
     name: &str,
     arguments: Value,
     globals: &[String],
+) -> Result<Value, String> {
+    call_checked(env, name, arguments, globals, None)
+}
+pub(super) fn call_checked(
+    env: &Environment,
+    name: &str,
+    arguments: Value,
+    globals: &[String],
+    expected_error: Option<bool>,
 ) -> Result<Value, String> {
     let replies = super::mcp::exchange_with_globals(
         env,
@@ -51,6 +55,9 @@ pub(super) fn call(
         .find(|v| v.get("id") == Some(&json!(1)))
         .and_then(|v| v.get("result"))
         .ok_or("missing tool result")?;
+    if expected_error.is_some_and(|expected| result.get("isError") != Some(&json!(expected))) {
+        return Err("named MCP is_error mismatch".into());
+    }
     let value = result
         .get("structuredContent")
         .ok_or("missing structured content")?;
@@ -180,9 +187,9 @@ fn scenario(query: &str, args: Vec<&str>, capture: &str) -> Result<(), String> {
         .and_then(Value::as_array)
         .ok_or("CLI rows missing")?;
     let search_cap = match args.get(1).map(String::as_str) {
-        Some("article") => 1732,
-        Some("trial") => 8192,
-        _ => 2864,
+        Some("article") => crate::runner::output_limit("research-measured-1732")?,
+        Some("trial") => crate::runner::output_limit("research-measured-8192")?,
+        _ => crate::runner::output_limit("research-measured-2864")?,
     };
     bounded(&wrapped, search_cap)?;
     let hits = wrapped
@@ -259,10 +266,10 @@ fn fetch_parity(
         let cli_get = command(env, &get, &fetch_globals, 0)?;
         let fetched = call(env, "fetch", json!({"id":id}), &fetch_globals)?;
         let cap = match args.get(1).map(String::as_str) {
-            Some("article") => 6289,
-            Some("trial") => 5047,
+            Some("article") => crate::runner::output_limit("research-measured-6289")?,
+            Some("trial") => crate::runner::output_limit("research-measured-5047")?,
             // Literal Markdown projection: j17918 measured 2459 bytes plus 15%.
-            _ => 2828,
+            _ => crate::runner::output_limit("research-measured-2828")?,
         };
         bounded(&fetched, cap)?;
         if fetched.get("metadata") != Some(&cli_get)

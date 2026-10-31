@@ -14,18 +14,10 @@ use std::{
     net::{TcpListener, TcpStream},
     sync::{Arc, mpsc},
     thread,
-    time::Duration,
 };
 
 type Requests = Vec<(String, String)>;
 
-#[derive(Clone)]
-pub(super) struct RecordedReply {
-    pub(super) status: u16,
-    pub(super) content_type: String,
-    pub(super) body: Vec<u8>,
-    pub(super) delay_ms: u64,
-}
 pub(super) struct Stub {
     pub(super) address: std::net::SocketAddr,
     pub(super) certificate: String,
@@ -171,49 +163,6 @@ impl Stub {
         Ok(Self {
             address,
             certificate,
-            stop,
-            evidence,
-            worker: Some(worker),
-        })
-    }
-    // Released clients can ignore system proxies. An explicit endpoint override
-    // reaches this peer directly and gives its logical source sole ownership.
-    pub(super) fn loopback(
-        host: String,
-        mut reply: impl FnMut(&str, &str) -> Result<RecordedReply, String> + Send + 'static,
-    ) -> Result<Self, String> {
-        let listener = TcpListener::bind("127.0.0.1:0").map_err(|e| e.to_string())?;
-        let address = listener.local_addr().map_err(|e| e.to_string())?;
-        let (stop, stopping) = mpsc::channel();
-        let evidence = evidence::Evidence::new(address, &[&host]);
-        let observed = Arc::clone(&evidence);
-        let worker = thread::spawn(move || {
-            let mut requests = Vec::new();
-            for stream in listener.incoming() {
-                if stopping.try_recv().is_ok() {
-                    break;
-                }
-                let mut socket = observed.accept(stream)?;
-                observed.destination(&host);
-                let request = observed.check("HTTP request", source_request(&mut socket))?;
-                let recorded = reply(&host, &request)?;
-                if !(100..=599).contains(&recorded.status)
-                    || recorded.content_type.chars().any(char::is_control)
-                {
-                    return Err("invalid recorded HTTP status or content type".into());
-                }
-                thread::sleep(Duration::from_millis(recorded.delay_ms));
-                observed.check("HTTP reply", write!(socket, "HTTP/1.1 {} Recorded\r\nContent-Type: {}\r\nContent-Length: {}\r\nConnection: close\r\n\r\n",
-                    recorded.status, recorded.content_type, recorded.body.len()))?;
-                observed.check("HTTP body", socket.write_all(&recorded.body))?;
-                observed.check("HTTP flush", socket.flush())?;
-                requests.push((host.clone(), request));
-            }
-            Ok(requests)
-        });
-        Ok(Self {
-            address,
-            certificate: String::new(),
             stop,
             evidence,
             worker: Some(worker),

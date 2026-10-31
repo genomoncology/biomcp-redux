@@ -66,6 +66,7 @@ if '/bin/bash' in args:
         pathlib.Path('target/debug/container-output').touch()
         pathlib.Path('proof/fixtures').mkdir(parents=True)
         pathlib.Path('proof/case-runner').touch()
+        pathlib.Path('proof/tool-runner').touch()
         gate = pathlib.Path('proof/tools/release/gate.py')
         gate.parent.mkdir(parents=True)
         gate.write_text(os.environ['GATE_FIXTURE'])
@@ -89,7 +90,10 @@ elif args[-2:] == ['schema', 'biomcp.problem/1']:
     print('{"$id":"biomcp.problem/1"}')
 elif args[-1] == 'help':
     print('{"result":{"commands":["get"]}}')
-elif '--entrypoint' in args and args[args.index('--entrypoint') + 1] == '/proof/case-runner':
+elif '--entrypoint' in args and args[args.index('--entrypoint') + 1] in ('/proof/case-runner', '/proof/tool-runner'):
+    entry = args[args.index('--entrypoint') + 1]
+    assert pathlib.Path('container', pathlib.Path(entry).name).is_file(), entry
+    assert (entry == '/proof/tool-runner') == ('--proofs' in args), args
     print('test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out')
 elif args[-1] == 'serve':
     for frame in sys.stdin:
@@ -133,6 +137,7 @@ class LinuxContainers(unittest.TestCase):
                           if line.startswith('{') and json.loads(line).get('artifact') == 'docker']
             self.assertEqual(len(containers), 1, result.stdout)
             self.assertEqual(containers[0]['result'], 'pass')
+            self.assertIn('runner-proofs', containers[0]['checks'])
             self.assertIn('all-cases-and-trials', containers[0]['checks'])
             self.assertEqual(containers[0]['trials'], 2)
             self.assertFalse((root / 'injected').exists())
@@ -154,9 +159,9 @@ class LinuxContainers(unittest.TestCase):
                  '--user=0:0', '--env=HOME=/root']
         baseline = self.run_release([])
         supplied = self.run_release(extra)
-        self.assertEqual(len(baseline), 12)
+        self.assertEqual(len(baseline), 13)
         self.assertEqual(len(supplied), len(baseline))
-        self.assertEqual(sum(row[0] == 'run' for row in baseline), 9)
+        self.assertEqual(sum(row[0] == 'run' for row in baseline), 10)
         pins = json.loads((ROOT / 'release/toolchain.json').read_text())
         build, = [row for row in baseline if row[0] == 'build']
         self.assertIn('runtime_image=' + pins['images']['runtime'], build)
@@ -174,10 +179,10 @@ class LinuxContainers(unittest.TestCase):
                                         '<revision>' if arg.startswith('BIOMCP_BUILD_REVISION=') else arg
                                         for arg in row]
                 self.assertEqual(normalize(labeled), normalize(plain))
-        self.assertEqual([row[-1] for row in baseline[3:10]],
+        self.assertEqual([row[-1] for row in baseline[3:11]],
                          ['/usr/local/bin/biomcp', '/usr/share/doc/biomcp/LICENSE',
                           '/usr/share/doc/biomcp/THIRD-PARTY-NOTICES.txt', 'biomcp.problem/1', 'help', 'serve',
-                          '2'])
+                          '2', '2'])
 
 
 if __name__ == '__main__':

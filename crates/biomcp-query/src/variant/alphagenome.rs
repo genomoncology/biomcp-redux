@@ -56,11 +56,15 @@ pub(super) fn section(
         .and_then(|reply| super::alphagenome_page::page(query, &request, reply));
     let error = reply.as_ref().err().copied();
     let source = status::source(Source::AlphaGenome, leg.finish(), error);
+    let mut problems = joined.problems;
     let section = match reply {
-        Ok(data) => Section::Data {
-            source: Source::AlphaGenome,
-            data,
-        },
+        Ok(data) => {
+            problems.extend(data.problems);
+            Section::Data {
+                source: Source::AlphaGenome,
+                data: data.value,
+            }
+        }
         Err(error) => Section::unavailable(
             Source::AlphaGenome,
             status::reason(error).unwrap_or(Reason::Unavailable),
@@ -69,7 +73,7 @@ pub(super) fn section(
     (
         section,
         joined.sources.into_iter().chain([source]).collect(),
-        joined.problems,
+        problems,
         joined.local.or(error.and_then(status::local)),
     )
 }

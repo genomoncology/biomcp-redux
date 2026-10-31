@@ -39,50 +39,72 @@ impl PageMeta {
 }
 #[derive(Debug, Deserialize)]
 struct Cells {
-    cell_lines: Vec<Cell>,
+    cell_lines: Vec<super::scope::Row<Cell, CellScope>>,
     page_meta: PageMeta,
+}
+#[derive(Debug, Deserialize)]
+struct CellScope {
+    cellosaurus_id: CellosaurusAccession,
 }
 #[derive(Debug, Deserialize)]
 struct Cell {
     cell_chembl_id: ChemblCellId,
     cell_id: u64,
     cellosaurus_id: CellosaurusAccession,
-    cell_name: Option<NativeText>,
-    cell_description: Option<NativeText>,
-    cell_source_organism: Option<NativeText>,
-    cell_source_tax_id: Option<u32>,
-    cell_source_tissue: Option<NativeText>,
-    clo_id: Option<biodata::Text>,
-    efo_id: Option<biodata::Text>,
+    cell_name: Option<crate::raw::Field<NativeText>>,
+    cell_description: Option<crate::raw::Field<NativeText>>,
+    cell_source_organism: Option<crate::raw::Field<NativeText>>,
+    cell_source_tax_id: Option<crate::raw::Field<u32>>,
+    cell_source_tissue: Option<crate::raw::Field<NativeText>>,
+    clo_id: Option<crate::raw::Field<biodata::Text>>,
+    efo_id: Option<crate::raw::Field<biodata::Text>>,
 }
 impl Reply for Cells {
     fn check(&self) -> Result<(), BadReply> {
-        if self
-            .cell_lines
-            .iter()
-            .all(|r| r.cell_id > 0 && r.cell_source_tax_id != Some(0))
-        {
-            Ok(())
-        } else {
-            Err(BadReply)
+        Ok(())
+    }
+}
+impl Cell {
+    fn mapped(self, problems: &mut crate::mapped::Problems) -> CellLineChemblRecord {
+        let r = self;
+        problems.record = crate::mapped::record(&r.cell_chembl_id);
+        let taxon = problems.field("cell_source_tax_id", r.cell_source_tax_id);
+        let taxon = problems.optional(
+            "cell_source_tax_id",
+            taxon.map(|n| std::num::NonZeroU32::new(n).map(|n| n.get()).ok_or(())),
+        );
+        CellLineChemblRecord {
+            id: r.cell_chembl_id,
+            cell_id: biodata::Identifier {
+                namespace: problems.text("cell_id.namespace", Some("ChEMBL")).into(),
+                id: r.cell_id,
+            },
+            cellosaurus_id: r.cellosaurus_id,
+            name: problems.field("cell_name", r.cell_name).map(Into::into),
+            description: problems
+                .field("cell_description", r.cell_description)
+                .map(Into::into),
+            organism: problems
+                .field("cell_source_organism", r.cell_source_organism)
+                .map(Into::into),
+            taxon,
+            tissue: problems
+                .field("cell_source_tissue", r.cell_source_tissue)
+                .map(Into::into),
+            clo: problems.field("clo_id", r.clo_id),
+            efo: problems.field("efo_id", r.efo_id),
         }
     }
 }
-impl From<Cell> for CellLineChemblRecord {
-    fn from(r: Cell) -> Self {
-        Self {
-            id: r.cell_chembl_id,
-            cell_id: r.cell_id,
-            cellosaurus_id: r.cellosaurus_id,
-            name: r.cell_name.map(Into::into),
-            description: r.cell_description.map(Into::into),
-            organism: r.cell_source_organism.map(Into::into),
-            taxon: r.cell_source_tax_id,
-            tissue: r.cell_source_tissue.map(Into::into),
-            clo: r.clo_id,
-            efo: r.efo_id,
-        }
-    }
+/// Checked cell records, native total, retrieval metadata and native window size.
+#[derive(Debug)]
+pub struct CellPage {
+    /// Accepted cells and their native window.
+    pub window: crate::NativeWindow<CellLineChemblRecord>,
+    /// Original acquisition metadata.
+    pub metadata: ReplyMetadata,
+    /// Independent field diagnostics.
+    pub problems: Vec<biomcp_types::Problem>,
 }
 /// Read one native cell metadata page and check every exact accession before cache admission.
 pub fn cells(
@@ -90,7 +112,7 @@ pub fn cells(
     id: &CellosaurusAccession,
     limit: u32,
     offset: u32,
-) -> Result<(Vec<CellLineChemblRecord>, u64, ReplyMetadata), RequestError> {
+) -> Result<CellPage, RequestError> {
     let text = id.to_string();
     let (reply, metadata) = leg.json_received_checked(
         &CELLS,
@@ -101,18 +123,46 @@ pub fn cells(
         ],
         |r: &Cells| {
             r.page_meta.check(r.cell_lines.len(), limit, offset)?;
-            if r.cell_lines.iter().all(|r| &r.cellosaurus_id == id) {
+            if r.cell_lines.iter().all(|r| &r.scope.cellosaurus_id == id) {
                 Ok(())
             } else {
                 Err(BadReply)
             }
         },
     )?;
-    Ok((
-        reply.cell_lines.into_iter().map(Into::into).collect(),
-        reply.page_meta.total_count,
+    let received = reply.cell_lines.len() as u32;
+    let mut problems = crate::mapped::Problems {
+        source: biomcp_types::Source::Chembl,
+        record: crate::mapped::record(id),
+        list: Vec::new(),
+    };
+    let mut values = Vec::new();
+    let mut refusals = crate::Refusal::None;
+    for row in reply.cell_lines {
+        if let Some(row) = problems.field("cell_chembl_id", Some(row.value)) {
+            if row.cell_id == 0 {
+                refusals = crate::Refusal::Refused;
+                problems.record = crate::mapped::record(&row.cell_chembl_id);
+                problems.required::<()>("cell_id", None);
+            } else {
+                values.push(row.mapped(&mut problems));
+            }
+        } else {
+            refusals = crate::Refusal::Refused;
+        }
+    }
+    Ok(CellPage {
+        window: crate::NativeWindow::new(
+            values,
+            offset,
+            limit,
+            Some(reply.page_meta.total_count),
+            received,
+            refusals,
+        ),
         metadata,
-    ))
+        problems: problems.list,
+    })
 }
 #[derive(Debug, Deserialize)]
 struct Assays {
@@ -153,8 +203,8 @@ pub fn assay_count(leg: &Leg<'_>, id: &ChemblCellId) -> Result<(u64, ReplyMetada
 }
 #[derive(Debug, Deserialize)]
 struct Release {
-    chembl_db_version: biodata::Text,
-    chembl_release_date: biodata::PartialDate,
+    chembl_db_version: Option<crate::raw::Field<biodata::Text>>,
+    chembl_release_date: Option<crate::raw::Field<biodata::PartialDate>>,
 }
 impl Reply for Release {
     fn check(&self) -> Result<(), BadReply> {
@@ -162,10 +212,20 @@ impl Reply for Release {
     }
 }
 /// Read publisher release independently from data retrieval time.
-pub fn release(leg: &Leg<'_>) -> Result<CellLineRelease, RequestError> {
+pub fn release(leg: &Leg<'_>) -> Result<crate::Mapped<CellLineRelease>, RequestError> {
     let r: Release = leg.json(&STATUS, &[])?;
-    Ok(CellLineRelease {
-        version: r.chembl_db_version,
-        updated: r.chembl_release_date,
+    let mut problems = crate::mapped::Problems {
+        source: biomcp_types::Source::Chembl,
+        record: None,
+        list: Vec::new(),
+    };
+    let value = CellLineRelease {
+        version: problems.required_field("chembl_db_version", r.chembl_db_version),
+        updated: problems.required_field("chembl_release_date", r.chembl_release_date),
+    };
+    Ok(crate::Mapped {
+        refusals: crate::Refusal::None,
+        value,
+        problems: problems.list,
     })
 }

@@ -90,6 +90,7 @@ pub(super) fn annotation(record: native::Record) -> Result<Mapped<Annotation>, R
         .find(|c| c.id == record.returned_id)
         .ok_or(InputError::Serialization)?;
     let mut mapped = Mapped {
+        refusals: crate::Refusal::None,
         value: Annotation {
             card: DiseaseCard {
                 requested_id: record.requested_id.clone(),
@@ -111,7 +112,7 @@ pub(super) fn annotation(record: native::Record) -> Result<Mapped<Annotation>, R
             xrefs: Vec::new(),
             parents: Vec::new(),
         },
-        problems: Vec::new(),
+        problems: record.problems,
     };
     for component in &record.components {
         mapped.problems.extend(component.problems.iter().cloned());

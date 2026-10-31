@@ -1,4 +1,5 @@
 {
+  "live_check": "local-only command help, validation or stored-state behavior; no recorded source replies",
   "feature": "pathway-help",
   "steps": [
     {
@@ -32,11 +33,6 @@
         "/status": "complete"
       },
       "max_bytes": 2918,
-      "mcp": [
-        "help",
-        "search",
-        "pathway"
-      ],
       "run": [
         "help",
         "search",
@@ -74,11 +70,6 @@
         "/status": "complete"
       },
       "max_bytes": 3001,
-      "mcp": [
-        "help",
-        "get",
-        "pathway"
-      ],
       "run": [
         "help",
         "get",
@@ -107,11 +98,6 @@
         "/status": "complete"
       },
       "max_bytes": 2487,
-      "mcp": [
-        "help",
-        "pathway",
-        "genes"
-      ],
       "run": [
         "help",
         "pathway",
@@ -139,11 +125,6 @@
         "/status": "complete"
       },
       "max_bytes": 2218,
-      "mcp": [
-        "help",
-        "pathway",
-        "events"
-      ],
       "run": [
         "help",
         "pathway",
@@ -166,11 +147,6 @@
         "/status": "complete"
       },
       "max_bytes": 1479,
-      "mcp": [
-        "help",
-        "sync",
-        "wikipathways"
-      ],
       "run": [
         "help",
         "sync",

@@ -1,14 +1,10 @@
 {
+  "live_check": "local-only command help, validation or stored-state behavior; no recorded source replies",
   "feature": "diagnostic-cdx",
   "story": "Diagnostic help describes source-owned commands and safety boundaries with two executable examples per command.",
   "steps": [
     {
       "run": [
-        "help",
-        "search",
-        "diagnostic"
-      ],
-      "mcp": [
         "help",
         "search",
         "diagnostic"
@@ -47,11 +43,6 @@
     },
     {
       "run": [
-        "help",
-        "get",
-        "diagnostic"
-      ],
-      "mcp": [
         "help",
         "get",
         "diagnostic"
@@ -95,11 +86,6 @@
         "sync",
         "gtr"
       ],
-      "mcp": [
-        "help",
-        "sync",
-        "gtr"
-      ],
       "expect": {
         "/result/commands/0/examples": {
           "count": 2
@@ -109,29 +95,6 @@
     },
     {
       "run": [
-        "help",
-        "sync",
-        "who-ivd"
-      ],
-      "mcp": [
-        "help",
-        "sync",
-        "who-ivd"
-      ],
-      "expect": {
-        "/result/commands/0/examples": {
-          "count": 2
-        }
-      },
-      "max_bytes": 1391
-    },
-    {
-      "run": [
-        "help",
-        "sync",
-        "fda-cdx"
-      ],
-      "mcp": [
         "help",
         "sync",
         "fda-cdx"

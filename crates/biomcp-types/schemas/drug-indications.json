@@ -124,7 +124,8 @@
         "namespace",
         "id"
       ],
-      "type": "object"
+      "type": "object",
+      "x-identifier": true
     },
     "Reply_DrugGet": {
       "description": "Exact native ID retrieval with an explicitly selected source.",
@@ -318,7 +319,7 @@
           "$ref": "#/$defs/Reply_Text",
           "description": "Original source name."
         },
-        "source": {
+        "namespace": {
           "$ref": "#/$defs/Reply_Text",
           "description": "Source responsible for this identity."
         },
@@ -348,10 +349,11 @@
       },
       "required": [
         "id",
-        "source",
+        "namespace",
         "identity_level"
       ],
-      "type": "object"
+      "type": "object",
+      "x-identifier": true
     },
     "Reply_DrugIdentityLevel": {
       "description": "Identity level established by the source endpoint or record type, never inferred from ID shape.",
@@ -413,7 +415,14 @@
           "description": "Source drug identity."
         },
         "indication": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Complete native indication wording."
         },
         "population": {
@@ -448,7 +457,6 @@
       },
       "required": [
         "drug",
-        "indication",
         "attribution"
       ],
       "type": "object"
@@ -638,6 +646,13 @@
         "value"
       ],
       "type": "object"
+    },
+    "Reply_IdentifierNamespace": {
+      "description": "A source-stated authority or an explicit unknown authority, represented by the string unknown.",
+      "maxLength": 1048576,
+      "minLength": 1,
+      "pattern": "^(?![\\s\\S]*[\\x00-\\x1f\\x7f-\\x9f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069])",
+      "type": "string"
     },
     "Reply_PageInfo": {
       "description": "Search counts after filtering and deduplication.",
@@ -1250,15 +1265,6 @@
             "null"
           ]
         },
-        "fetched": {
-          "description": "Retrieved identity depth.",
-          "format": "uint32",
-          "minimum": 0,
-          "type": [
-            "integer",
-            "null"
-          ]
-        },
         "notices": {
           "description": "Source notices and request recovery guidance.",
           "items": {
@@ -1276,6 +1282,15 @@
             }
           ],
           "description": "Failure or stale-fallback reason."
+        },
+        "retrieved_count": {
+          "description": "Number of retrieved identities.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
         },
         "source": {
           "$ref": "#/$defs/Reply_Source",
@@ -1326,6 +1341,10 @@
           "$ref": "#/$defs/Reply_Text",
           "description": "Native source identifier."
         },
+        "namespace": {
+          "$ref": "#/$defs/Reply_IdentifierNamespace",
+          "description": "Native authority; unknown means the source did not state one."
+        },
         "url": {
           "anyOf": [
             {
@@ -1340,9 +1359,11 @@
         }
       },
       "required": [
+        "namespace",
         "id"
       ],
-      "type": "object"
+      "type": "object",
+      "x-identifier": true
     },
     "Reply_SourceState": {
       "description": "State of a source actually asked by the command.",
@@ -1419,7 +1440,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.drug-indications/5",
+  "$id": "biomcp.drug-indications/8",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -1475,7 +1496,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.drug-indications/5",
+      "const": "biomcp.drug-indications/8",
       "type": "string"
     },
     "sources": {

@@ -1,17 +1,12 @@
 {
+  "live_check": "public",
   "feature": "article-evidence",
   "story": "Read source citation evidence without local ranking.",
-  "verified": "Reuse accepted actual CC BY graph/JATS and actual keyless PubMed locator captures from command j10188. Every request identity remains unchanged.",
+  "verified": "Reuse accepted actual CC BY graph/JATS and actual keyless PubMed locator captures from command j10188. Every request identity remains unchanged. The existing verification records actual CC BY graph/JATS and keyless PubMed locator captures; the nightly run executes article citation-evidence.",
   "replay": "article/evidence/source",
   "steps": [
     {
       "run": [
-        "article",
-        "citation-evidence",
-        "33123537",
-        "17611497"
-      ],
-      "mcp": [
         "article",
         "citation-evidence",
         "33123537",
@@ -29,13 +24,6 @@
     },
     {
       "run": [
-        "article",
-        "citation-evidence",
-        "33123537",
-        "17611497",
-        "--fulltext"
-      ],
-      "mcp": [
         "article",
         "citation-evidence",
         "33123537",

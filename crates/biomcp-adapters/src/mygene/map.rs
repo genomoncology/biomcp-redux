@@ -1,6 +1,6 @@
 use super::raw::Pos;
-use crate::mapped::problem;
 use crate::mapped::record as record_text;
+use crate::mapped::{problem, push_problem};
 use biodata::{Build, GenomicInterval, PartialDate, Span0, Strand, Summary, SummarySource, Text};
 
 pub(super) fn summary(value: String) -> Result<Summary, biodata::Error> {
@@ -25,7 +25,13 @@ pub(super) fn summary(value: String) -> Result<Summary, biodata::Error> {
     })
 }
 
-pub(super) fn interval(value: Pos, build: Build) -> Option<GenomicInterval> {
+pub(super) fn interval(
+    value: Pos,
+    build: Build,
+    id: NcbiGeneId,
+    field: &str,
+    problems: &mut Vec<Problem>,
+) -> Option<GenomicInterval> {
     let start = value.start?.value()?;
     let end = value.end?.value()?;
     if start == 0 || end < start {
@@ -33,11 +39,17 @@ pub(super) fn interval(value: Pos, build: Build) -> Option<GenomicInterval> {
     }
     let strand = match value.strand {
         None => None,
-        Some(field) => Some(match field.value()? {
-            1 => Strand::Plus,
-            -1 => Strand::Minus,
-            _ => return None,
-        }),
+        Some(Field::Value(1)) => Some(Strand::Plus),
+        Some(Field::Value(-1)) => Some(Strand::Minus),
+        Some(_) => {
+            push_problem(
+                problems,
+                Source::MyGene,
+                record_text(id),
+                &format!("{field}.strand"),
+            );
+            None
+        }
     };
     // Source-chain inference: the pinned MyGene parser copies Ensembl bounds.
     // Ensembl counts closed one-based positions; equal endpoints span one base.
@@ -68,12 +80,16 @@ pub(super) fn extras(
     reply: Genes,
     ids: &[NcbiGeneId],
     problems: &mut Vec<Problem>,
+    refusals: &mut crate::Refusal,
 ) -> Vec<Mapped<GeneExtras>> {
     let mut hits: BTreeMap<NcbiGeneId, Vec<Hit>> = BTreeMap::new();
     for hit in reply.0 {
         match hit.query.parse::<NcbiGeneId>() {
             Ok(id) if ids.contains(&id) => hits.entry(id).or_default().push(hit),
-            _ => problems.push(problem(Source::MyGene, None, "query")),
+            _ => {
+                *refusals = crate::Refusal::Refused;
+                problems.push(problem(Source::MyGene, None, "query"));
+            }
         }
     }
     for id in ids {
@@ -84,15 +100,21 @@ pub(super) fn extras(
     hits.into_iter()
         .filter_map(|(id, mut hits)| {
             if hits.len() != 1 {
+                *refusals = crate::Refusal::Refused;
                 problems.push(problem(Source::MyGene, record_text(id), "query"));
                 return None;
             }
-            map_hit(hits.pop()?, id, problems)
+            map_hit(hits.pop()?, id, problems, refusals)
         })
         .collect()
 }
 
-fn map_hit(hit: Hit, id: NcbiGeneId, problems: &mut Vec<Problem>) -> Option<Mapped<GeneExtras>> {
+fn map_hit(
+    hit: Hit,
+    id: NcbiGeneId,
+    problems: &mut Vec<Problem>,
+    refusals: &mut crate::Refusal,
+) -> Option<Mapped<GeneExtras>> {
     if hit.notfound == Some(true) {
         return None;
     }
@@ -101,6 +123,7 @@ fn map_hit(hit: Hit, id: NcbiGeneId, problems: &mut Vec<Problem>) -> Option<Mapp
         .and_then(Field::value)
         .and_then(|value| value.parse::<NcbiGeneId>().ok());
     if returned != Some(id) {
+        *refusals = crate::Refusal::Refused;
         problems.push(problem(Source::MyGene, record_text(id), "entrez_id"));
         return None;
     }
@@ -110,6 +133,7 @@ fn map_hit(hit: Hit, id: NcbiGeneId, problems: &mut Vec<Problem>) -> Option<Mapp
         .and_then(Field::value)
         .and_then(|value| format!("HGNC:{value}").parse::<HgncId>().ok());
     let mut mapped = Mapped {
+        refusals: crate::Refusal::None,
         value: GeneExtras {
             query_id: id,
             entrez_id: returned?,
@@ -169,7 +193,10 @@ fn positions(
         None => problems.push(problem(Source::MyGene, record_text(id), name)),
         Some(values) => {
             for value in values.values() {
-                match value.value().and_then(|value| interval(value, build)) {
+                match value
+                    .value()
+                    .and_then(|value| interval(value, build, id, name, problems))
+                {
                     Some(value) => spans.push(value),
                     None => problems.push(problem(Source::MyGene, record_text(id), name)),
                 }

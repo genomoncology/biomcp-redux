@@ -7,11 +7,15 @@ use biomcp_types::{
     SourceState, Status, StepKind,
 };
 use sha2::{Digest, Sha256};
-type Saved = (PgxAnnotations, Vec<SourceOutcome>);
+type Saved = (
+    PgxAnnotations,
+    Vec<SourceOutcome>,
+    Vec<biomcp_types::Problem>,
+);
 fn key(q: &PgxGet) -> Vec<u8> {
     Sha256::digest(
         format!(
-            "biomcp.clinpgx_annotations/1\0{}\0{}",
+            "biomcp.clinpgx_annotations/3\0{}\0{}",
             q.gene(),
             q.kind()
                 .map(PgxAnnotationKind::as_str)
@@ -59,23 +63,28 @@ pub(super) fn load(
         (saved, snapshot.clone())
     } else {
         let reply = match q.kind() {
-            Some(PgxAnnotationKind::Clinical) => {
-                clinpgx::clinical(&leg, q).map(|rows| super::annotations::body(q, rows, vec![]))
-            }
-            _ => clinpgx::references(&leg, q).map(|rows| super::annotations::body(q, vec![], rows)),
+            Some(PgxAnnotationKind::Clinical) => clinpgx::clinical(&leg, q).map(|rows| {
+                out.problems.extend(rows.problems);
+                super::annotations::body(q, rows.value, vec![])
+            }),
+            _ => clinpgx::references(&leg, q).map(|rows| {
+                out.problems.extend(rows.problems);
+                super::annotations::body(q, vec![], rows.value)
+            }),
         };
         let error = reply.as_ref().err().copied();
         out.sources
             .push(status::source(Source::ClinPgx, leg.finish(), error));
         out.problems
             .extend(out.sources.iter().filter_map(super::record_problem));
-        let saved = (reply?, out.sources.clone());
+        let saved = (reply?, out.sources.clone(), out.problems.clone());
         let payload = serde_json::to_string(&saved).map_err(|_| CacheError::Database)?;
         let mut store = Store::open(cx.fetch.cache_access()?, deadline)?;
         let snapshot = store.save_source_snapshot(&key(q), &payload, &out.sources)?;
         (saved, snapshot)
     };
     out.sources = saved.1;
+    out.problems = saved.2;
     out.status = if out.sources.iter().any(|s| s.state == SourceState::Stale) {
         Status::Partial
     } else {

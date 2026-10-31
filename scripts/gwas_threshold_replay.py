@@ -20,7 +20,7 @@ def case(root, name, args, first_count, first_total, second_count=None, second_t
         follow.pop('mcp')
         follow['follow'] = 'page'
         steps.append(follow)
-    budgets = json.loads((Path(__file__).resolve().parent.parent / 'tests/gwas-threshold-budgets.json').read_text())
+    budgets = json.loads((Path(__file__).resolve().parent.parent / 'tests/gwas-threshold-budgets.yaml').read_text())
     first_key = name.split('-')[0] + '-crossing-first'
     for index, item in enumerate(steps):
         measured = budgets[first_key if index == 0 and len(steps) > 1 else name][1]

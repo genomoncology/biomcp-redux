@@ -1,14 +1,10 @@
 {
+  "live_check": "local-only command help, validation or stored-state behavior; no recorded source replies",
   "feature": "cpic-pgx",
   "story": "PGx help lists source-scoped selectors, sections and two parsed executable examples without calculating phenotype, phase or dose.",
   "steps": [
     {
       "run": [
-        "help",
-        "search",
-        "pgx"
-      ],
-      "mcp": [
         "help",
         "search",
         "pgx"
@@ -42,11 +38,6 @@
     },
     {
       "run": [
-        "help",
-        "get",
-        "pgx"
-      ],
-      "mcp": [
         "help",
         "get",
         "pgx"

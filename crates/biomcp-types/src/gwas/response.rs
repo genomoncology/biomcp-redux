@@ -20,7 +20,7 @@ pub struct GwasPage {
     pub continuation: Option<GwasPageQuery>,
 }
 impl ResponseBody for GwasPage {
-    const SCHEMA: &'static str = "biomcp.gwas-page/5";
+    const SCHEMA: &'static str = "biomcp.gwas-page/8";
     type Query = GwasPageQuery;
 }
 /// Exact association card; no second association representation.
@@ -31,7 +31,7 @@ pub struct GwasAssociationCard {
     pub association: GwasAssociation,
 }
 impl ResponseBody for GwasAssociationCard {
-    const SCHEMA: &'static str = "biomcp.gwas-association/3";
+    const SCHEMA: &'static str = "biomcp.gwas-association/6";
     type Query = GwasGet;
 }
 /// Source reported gene identity, without a causal-gene interpretation.
@@ -81,7 +81,7 @@ pub struct GwasLoci {
     pub continuation: Option<GwasGet>,
 }
 impl ResponseBody for GwasLoci {
-    const SCHEMA: &'static str = "biomcp.gwas-loci/3";
+    const SCHEMA: &'static str = "biomcp.gwas-loci/4";
     type Query = GwasGet;
 }
 /// Native study card; independent source descriptions are never reconciled.
@@ -151,7 +151,7 @@ pub struct GwasStudy {
     pub license_url: Option<Text>,
 }
 impl ResponseBody for GwasStudy {
-    const SCHEMA: &'static str = "biomcp.gwas-study/3";
+    const SCHEMA: &'static str = "biomcp.gwas-study/6";
     type Query = GwasGet;
 }
 /// Native country and region metadata.
@@ -159,7 +159,8 @@ impl ResponseBody for GwasStudy {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct GwasCountry {
     /// Original country label including NR.
-    pub country: Text,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub country: Option<Text>,
     /// Native source major area when supplied.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub major_area: Option<Text>,
@@ -172,7 +173,8 @@ pub struct GwasCountry {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct GwasAncestry {
     /// Native discovery or replication stage.
-    pub stage: Text,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub stage: Option<Text>,
     /// Source row count; no unique-person denominator is inferred.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub number_of_individuals: Option<u64>,
@@ -204,7 +206,7 @@ pub struct GwasAncestries {
     pub continuation: Option<GwasGet>,
 }
 impl ResponseBody for GwasAncestries {
-    const SCHEMA: &'static str = "biomcp.gwas-ancestries/3";
+    const SCHEMA: &'static str = "biomcp.gwas-ancestries/5";
     type Query = GwasGet;
 }
 

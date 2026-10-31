@@ -23,6 +23,7 @@ mod containment;
 mod deadline;
 mod declaration;
 mod destination;
+pub use destination::check_annotation_url;
 mod hosts;
 pub use hosts::Destinations;
 mod error;
@@ -39,9 +40,12 @@ mod secret;
 mod wire_request;
 pub mod xml;
 
+/// Original JSON row bytes carried through a typed transport document boundary.
+pub use serde_json::value::RawValue;
+
 pub use batch::MAX_BATCH_WORKERS;
 pub use bundle::{
-    Bundle, BundleInfo, BundlePart, BundleSet, DocumentMedia, Find, KeyKind, Keys,
+    Bundle, BundleInfo, BundlePart, BundleRejection, BundleSet, DocumentMedia, Find, KeyKind, Keys,
     MAX_BUNDLE_BYTES, Row, RowFormat, SetRow, bundle_sha256, decode_bundle_document,
     encode_bundle_row,
 };

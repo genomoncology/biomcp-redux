@@ -2,6 +2,13 @@ use super::raw;
 use biodata::{Attribution, AuthorizationDate, AuthorizationEvent, DrugIdentityLevel, Text};
 use biomcp_types::{DrugCard, DrugHeader, DrugSection, DrugSource};
 pub(super) fn header(row: &raw::Medicine, problems: &mut crate::mapped::Problems) -> DrugHeader {
+    problems.required(
+        "_bundle_meta.timestamp",
+        row.meta
+            .timestamp
+            .as_ref()
+            .and_then(crate::raw::Field::as_ref),
+    );
     DrugHeader {
         matched_name: None,
         id: row.id.clone(),
@@ -50,7 +57,7 @@ pub(super) fn event(
         .filter(|(key, _)| key.ends_with("_date"))
         .filter_map(|(key, _)| {
             Some(AuthorizationDate {
-                role: Text::new(key).ok()?,
+                role: problems.optional(key, Some(Text::new(key)))?,
                 date: problems.optional(
                     key,
                     row.field(key)
@@ -75,7 +82,14 @@ pub(super) fn event(
             source: row.source.clone(),
             record: Some(row.record.clone()),
             version: item(row, problems, "revision_number"),
-            release: Some(row.meta.timestamp.clone()),
+            release: problems.required(
+                "_bundle_meta.timestamp",
+                row.meta
+                    .timestamp
+                    .as_ref()
+                    .and_then(crate::raw::Field::as_ref)
+                    .cloned(),
+            ),
             submitter: item(
                 row,
                 problems,
@@ -91,6 +105,6 @@ fn item(row: &raw::Medicine, problems: &mut crate::mapped::Problems, field: &str
     problems.optional(
         field,
         row.field(field)
-            .map(|value| value.and_then(crate::mapped::text)),
+            .map(|value| value.and_then(crate::mapped::source_text)),
     )
 }

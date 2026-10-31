@@ -2,7 +2,7 @@ use crate::{Error, text_value};
 use std::{fmt, str::FromStr};
 /// One nucleotide: the four DNA bases and the IUPAC ambiguity codes.
 /// It renders as its upper-case letter.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 #[repr(u8)]
 pub enum Base {
     /// IUPAC code A.
@@ -91,7 +91,7 @@ text_value!(
     "One nucleotide: the four DNA bases and the IUPAC ambiguity codes. It renders as its upper-case letter."
 );
 /// A literal IUPAC DNA sequence; empty sequences express insertions or deletions.
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct Sequence(Box<[Base]>);
 impl Sequence {
     /// Preserve all source bases without normalization or case conversion.

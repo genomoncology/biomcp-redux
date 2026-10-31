@@ -81,7 +81,7 @@ biomcp get gwas GCST000035
 ## biomcp search gwas
 
 ```sh
-biomcp search gwas --pubmed 17529967
+biomcp search gwas --pubmed 17529967 --limit 3
 biomcp search gwas --variant rs2981582
 ```
 
@@ -480,12 +480,6 @@ biomcp health --offline
 biomcp sync hgnc
 ```
 
-## biomcp help
-
-```sh
-biomcp help
-```
-
 ## biomcp key list
 
 ```sh
@@ -509,140 +503,6 @@ biomcp key remove oncokb
 ```sh
 biomcp serve
 biomcp help serve
-```
-
-## biomcp sync hgnc
-
-```sh
-biomcp sync hgnc
-```
-
-## biomcp sync clingen
-
-```sh
-biomcp sync clingen
-```
-
-## biomcp sync gencc
-
-```sh
-biomcp sync gencc
-```
-
-## biomcp sync wikipathways
-
-```sh
-biomcp sync wikipathways
-biomcp sync wikipathways --fresh
-```
-
-## biomcp sync cbioportal-studies
-
-```sh
-biomcp sync cbioportal-studies
-biomcp sync cbioportal-studies --fresh
-```
-
-## biomcp sync ema
-
-```sh
-biomcp sync ema
-biomcp sync ema --fresh
-```
-
-## biomcp sync ddinter
-
-```sh
-biomcp sync ddinter
-biomcp sync ddinter --fresh
-```
-
-## biomcp sync who-pq
-
-```sh
-biomcp sync who-pq
-biomcp sync who-pq --fresh
-```
-
-## biomcp sync gtr
-
-```sh
-biomcp sync gtr
-biomcp sync gtr --fresh
-```
-
-## biomcp sync who-ivd
-
-```sh
-biomcp sync who-ivd
-biomcp sync who-ivd --fresh
-```
-
-## biomcp sync fda-cdx
-
-```sh
-biomcp sync fda-cdx
-biomcp sync fda-cdx --fresh
-```
-
-## biomcp help key ncbi
-
-```sh
-biomcp help key ncbi
-```
-
-## biomcp help key semantic-scholar
-
-```sh
-biomcp help key semantic-scholar
-```
-
-## biomcp help key orcid
-
-```sh
-biomcp help key orcid
-```
-
-## biomcp help key oncokb
-
-```sh
-biomcp help key oncokb
-```
-
-## biomcp help key alphagenome
-
-```sh
-biomcp help key alphagenome
-```
-
-## biomcp help key nci
-
-```sh
-biomcp help key nci
-```
-
-## biomcp help key openfda
-
-```sh
-biomcp help key openfda
-```
-
-## biomcp help network ca_bundle
-
-```sh
-biomcp help network ca_bundle
-```
-
-## biomcp help network proxy
-
-```sh
-biomcp help network proxy
-```
-
-## biomcp help exit
-
-```sh
-biomcp help exit
 ```
 
 ## biomcp search
@@ -715,12 +575,6 @@ biomcp key list
 
 ```sh
 biomcp schema
-biomcp schema biomcp.help/4
-```
-
-## biomcp help relations
-
-```sh
-biomcp help relations
+biomcp schema biomcp.help/6
 ```
 

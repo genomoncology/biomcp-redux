@@ -1,6 +1,7 @@
 # 0480 — Filter trial search by country
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: ea95d704bfccb3f2633964ff3ad372eaa57d77d3
 
 Milestone: 5
 

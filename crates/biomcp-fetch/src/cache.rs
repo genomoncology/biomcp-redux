@@ -17,7 +17,7 @@ use std::{
 };
 
 /// Transport SQLite schema version checked by other owners of the shared database.
-pub const VERSION: u32 = 4;
+pub const VERSION: u32 = 5;
 /// Compatible cache namespace used by callers when naming shared cache files.
 pub const CACHE_NAMESPACE_VERSION: u32 = 1;
 const OWNER: &str = "biomcp-fetch";

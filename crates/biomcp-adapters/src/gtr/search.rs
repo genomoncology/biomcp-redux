@@ -37,12 +37,23 @@ pub fn search(leg: &Leg<'_>, query: &DiagnosticSearch) -> Result<Search, Request
     super::revision(query.bundle_revision(), &info)?;
     let mut seen = HashSet::new();
     let mut matched = Vec::new();
+    let mut cx = crate::mapped::Problems {
+        source: biomcp_types::Source::Gtr,
+        record: None,
+        list: Vec::new(),
+    };
     for row in rows {
+        if let Native::Refused(r) = &row.value
+            && r.matches(query)
+        {
+            r.disclose(&mut cx);
+        }
         if let Native::Relation(r) = row.value
+            && let Some(relation) = map::relation(&r, &mut cx)
             && matches(&r, query)
             && seen.insert(r.id.clone())
         {
-            matched.push(r);
+            matched.push((r, relation));
         }
     }
     let total = matched.len() as u64;
@@ -51,7 +62,7 @@ pub fn search(leg: &Leg<'_>, query: &DiagnosticSearch) -> Result<Search, Request
         .skip(query.offset() as usize)
         .take(query.limit() as usize)
         .collect();
-    let ids: Vec<_> = page.iter().map(|r| r.id.to_string()).collect();
+    let ids: Vec<_> = page.iter().map(|(r, _)| r.id.to_string()).collect();
     let keys: Vec<_> = ids.iter().map(String::as_str).collect();
     let (versions, other) = bundle::read(leg, Find::AnyExact(KeyKind::Id, &keys))?;
     if other.content_revision != info.content_revision {
@@ -66,12 +77,13 @@ pub fn search(leg: &Leg<'_>, query: &DiagnosticSearch) -> Result<Search, Request
                 .push(v);
         }
     }
-    let mut problems = Vec::new();
+    let mut problems = cx.list;
     let items = page
         .iter()
-        .map(|r| {
+        .map(|(r, relation)| {
             candidate(
                 r,
+                relation.clone(),
                 by_id.get(&r.id).map(Vec::as_slice).unwrap_or_default(),
                 &mut problems,
             )
@@ -85,7 +97,8 @@ pub fn search(leg: &Leg<'_>, query: &DiagnosticSearch) -> Result<Search, Request
     })
 }
 fn matches(r: &Relation, q: &DiagnosticSearch) -> bool {
-    q.test_type().is_none_or(|v| r.test_type == v)
+    q.test_type()
+        .is_none_or(|v| r.test_type.as_ref().and_then(crate::raw::Field::as_ref) == Some(&v))
         && q.gene()
             .is_none_or(|v| r.object == Object::Gene && &*r.gene_symbol == v.as_str())
         && q.gene_id()
@@ -96,17 +109,18 @@ fn matches(r: &Relation, q: &DiagnosticSearch) -> bool {
 }
 fn candidate(
     r: &Relation,
+    relation: biodata::GtrTestRelation,
     versions: &[Box<biodata::GtrTestVersion>],
     problems: &mut Vec<biomcp_types::Problem>,
 ) -> Result<DiagnosticCandidate, RequestError> {
     Ok(match versions {
         [v] if v.now_current.as_ref() == "1" => DiagnosticCandidate::Resolved {
             header: map::header(v, problems)?,
-            matched: Some(map::relation(r)?),
+            matched: Some(relation),
         },
         [] | [_] => DiagnosticCandidate::MissingCard {
             id: r.id.clone(),
-            matched: map::relation(r)?,
+            matched: relation,
         },
         _ => DiagnosticCandidate::Conflict {
             id: r.id.clone(),

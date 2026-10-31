@@ -5,14 +5,11 @@ use libtest_mimic::Trial;
 use std::{io::Read, process::Stdio};
 
 pub(super) fn trials() -> Vec<Trial> {
-    vec![
-        transcript_trial("schema/closed-output-reader", || {
-            closed_reader().map_err(Into::into)
-        }),
-        transcript_trial("markdown-view/absent-query", || {
-            absent_query().map_err(Into::into)
-        }),
-    ]
+    // Keep dynamic state, source bindings or wire checks that YAML cannot express.
+    vec![transcript_trial(
+        "schema-discovery/closed-output-reader",
+        || closed_reader().map_err(Into::into),
+    )]
 }
 
 fn closed_reader() -> Result<(), String> {
@@ -45,26 +42,6 @@ fn closed_reader() -> Result<(), String> {
                 String::from_utf8_lossy(&stderr)
             ));
         }
-    }
-    Ok(())
-}
-
-fn absent_query() -> Result<(), String> {
-    let output = Environment::new()
-        .map_err(|e| e.to_string())?
-        .command(
-            env!("CARGO_BIN_EXE_biomcp"),
-            &["key".into(), "list".into(), "--format".into(), "md".into()],
-        )
-        .output()
-        .map_err(|e| e.to_string())?;
-    let text = String::from_utf8(output.stdout).map_err(|e| e.to_string())?;
-    if !output.status.success()
-        || !output.stderr.is_empty()
-        || !text.starts_with("## Result\n")
-        || text.contains("**query:**")
-    {
-        return Err(format!("key list must start with its result: {text}"));
     }
     Ok(())
 }

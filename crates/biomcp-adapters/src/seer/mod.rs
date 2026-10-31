@@ -63,10 +63,8 @@ pub struct Selection {
 /// A locally paged checked source response.
 #[derive(Debug)]
 pub struct Page<T> {
-    /// Rows in native order.
-    pub rows: Vec<T>,
-    /// Total native rows before local paging.
-    pub total: u64,
+    /// Accepted rows and native traversal facts.
+    pub window: crate::NativeWindow<T>,
     /// Original response metadata, never the page-read time.
     pub metadata: ReplyMetadata,
     /// Source fields that remain unverified or contradict a request.
@@ -93,29 +91,54 @@ const SERIES: Endpoint = SPEC.get("/render_region_5.php").fresh(Freshness::Days(
 pub fn catalog(leg: &Leg<'_>, limit: u32, offset: u32) -> Result<Page<DiseaseSite>, RequestError> {
     let (raw, metadata) = leg.json_received::<raw::Catalog>(&CATALOG, &[])?;
     let total = raw.sites.len() as u64;
-    let labels = &raw.formats.site;
-    let rows = raw
+    let mut problems = crate::mapped::Problems {
+        source: Source::Seer,
+        record: None,
+        list: vec![
+            problem(Source::Seer, None, "catalog.publisher_date"),
+            problem(Source::Seer, None, "catalog.publisher_version"),
+        ],
+    };
+    let labels = problems.field("VariableFormats.site", raw.formats.site);
+    let mut rows = Vec::new();
+    let mut refusals = crate::Refusal::None;
+    let window: Vec<_> = raw
         .sites
         .into_iter()
         .skip(offset as usize)
         .take(limit as usize)
-        .filter_map(|site| {
-            let code = site.value.to_string().parse().ok()?;
-            Some(DiseaseSite {
-                label: labels.get(&site.value.to_string())?.clone().into(),
-                code,
-                active: site.active,
-            })
-        })
         .collect();
+    let received = window.len() as u32;
+    for site in window {
+        problems.record = None;
+        if let Some(site) = problems.field("CancerSites.value", Some(site)) {
+            let code = crate::mapped::text(&site.value.to_string())
+                .map_err(|_| biomcp_fetch::InputError::Serialization)?;
+            problems.record = Some(code.clone());
+            let label = problems
+                .required(
+                    "VariableFormats.site",
+                    labels
+                        .as_ref()
+                        .and_then(|v| v.get(&site.value.to_string()))
+                        .and_then(crate::raw::Field::as_ref)
+                        .cloned(),
+                )
+                .map(Into::into);
+            let active = problems.required_field("CancerSites.active", site.active);
+            rows.push(DiseaseSite {
+                code,
+                label,
+                active,
+            });
+        } else {
+            refusals = crate::Refusal::Refused;
+        }
+    }
     Ok(Page {
-        rows,
-        total,
+        window: crate::NativeWindow::new(rows, offset, limit, Some(total), received, refusals),
         metadata,
-        problems: vec![
-            problem(Source::Seer, None, "catalog.publisher_date"),
-            problem(Source::Seer, None, "catalog.publisher_version"),
-        ],
+        problems: problems.list,
     })
 }
 impl Selection {
@@ -177,14 +200,8 @@ pub fn statistics(
             retry_after: None,
         })
     })?;
-    let total = rows.len() as u64;
     Ok(Page {
-        rows: rows
-            .into_iter()
-            .skip(offset as usize)
-            .take(limit as usize)
-            .collect(),
-        total,
+        window: crate::NativeWindow::local(rows, offset, limit),
         metadata,
         problems,
     })

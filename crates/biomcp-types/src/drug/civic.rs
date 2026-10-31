@@ -29,7 +29,8 @@ pub struct DrugCivicPage {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DrugCivicClaim {
     /// Source molecular profile context; its member expression is never collapsed.
-    pub profile: DrugCivicProfile,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub profile: Option<DrugCivicProfile>,
     /// Existing source claim mapping, including unmapped native facts.
     pub claim: CivicStatement,
     /// Complete native therapy identities, without cross-source equivalence.
@@ -52,9 +53,17 @@ pub struct DrugCivicProfile {
     /// Native profile identity and link.
     pub record: SourceRecord,
     /// Complete source expression.
-    pub label: Text,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub label: Option<Text>,
+    /// Exact source expression with native variant references.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub raw_name: Option<Text>,
+    /// Checked source profile subject, independent of an allele join or a clinical claim.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub subject: Option<crate::VariantRef>,
     /// Source complex-profile flag.
-    pub compound: bool,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub compound: Option<bool>,
     /// Every source member, including members without a common-model subject.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub members: Box<[DrugCivicMember]>,

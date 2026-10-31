@@ -1,6 +1,6 @@
 {
   "live_check": "synthetic response case",
-  "feature": "article-annotations",
+  "feature": "article-sections",
   "story": "An annotation cut failure preserves the article card and the later offline result.",
   "replay": "article/annotations/synthetic-cut",
   "steps": [
@@ -18,20 +18,6 @@
         "/result/items/0/sections/annotations/reason": "bad-reply",
         "/next/0/kind": "fresh"
       },
-      "max_bytes": 3400
-    },
-    {
-      "run": [
-        "get",
-        "article",
-        "33123537",
-        "annotations"
-      ],
-      "expect": {
-        "/status": "partial",
-        "/result/items/0/sections/annotations/reason": "offline"
-      },
-      "offline": true,
       "max_bytes": 3400
     }
   ]

@@ -30,7 +30,9 @@ pub(super) fn section(
     let leg = cx.fetch.leg(&gnomad::SPEC, deadline).fresh(cx.fresh);
     let mut problems = Vec::new();
     let result = gnomad::variant::population(&leg, &id).and_then(|raw| {
-        raw.map(|raw| summary(&raw, candidates, &mut problems))
+        problems.extend(raw.problems);
+        raw.value
+            .map(|raw| summary(&raw, candidates, &mut problems))
             .transpose()
     });
     let error = result.as_ref().err().copied();
@@ -42,9 +44,11 @@ pub(super) fn section(
         },
         Ok(None) => Section::Empty {
             source: Source::Gnomad,
-            record: Text::new(&id)
-                .ok()
-                .map(|id| biomcp_types::SourceRecord { id, url: None }),
+            record: Text::new(&id).ok().map(|id| biomcp_types::SourceRecord {
+                namespace: biodata::IdentifierNamespace::Unknown,
+                id,
+                url: None,
+            }),
         },
         Err(e) => Section::unavailable(
             Source::Gnomad,
@@ -154,7 +158,7 @@ pub(super) fn counts(
         sex,
         ac: group.map_or(raw.ac, |g| g.ac),
         an: group.map_or(raw.an, |g| g.an),
-        filters: raw.filters.clone().into(),
+        filters: raw.filters.clone().map(Into::into),
     }
 }
 fn stratum(id: &Text) -> (Option<Text>, Option<PopulationSex>) {

@@ -7,6 +7,8 @@ use biomcp_types::{
 /// One native ordered report page; no drug/reaction-array join.
 #[derive(Debug)]
 pub struct Page {
+    /// Rejected optional source metadata.
+    pub problems: Vec<biomcp_types::Problem>,
     /// Applicable filtered terminology terms, independent of service terms.
     pub components: Box<[biomcp_types::ComponentLabel]>,
     /// Whole report headers in source order.
@@ -91,22 +93,31 @@ pub fn search(leg: &Leg<'_>, query: &AdverseEventSearch) -> Result<Page, Request
             Ok(())
         },
     )?;
+    let mut problems = crate::mapped::Problems {
+        source: biomcp_types::Source::Faers,
+        record: None,
+        list: Vec::new(),
+    };
     match response {
         raw::Response::Page { meta, results } => Ok(Page {
             components,
             items: results
                 .into_iter()
-                .map(|v| AdverseEventHeader {
-                    id: v.safetyreportid,
-                    source: AdverseEventSource::Faers,
-                    version: v.safetyreportversion,
-                    serious: v.serious,
-                    event_type: None,
-                    first_received: v.receivedate,
+                .map(|v| {
+                    problems.record = crate::mapped::record(&v.safetyreportid);
+                    AdverseEventHeader {
+                        id: v.safetyreportid,
+                        source: AdverseEventSource::Faers,
+                        version: problems.field("safetyreportversion", v.safetyreportversion),
+                        serious: problems.field("serious", v.serious),
+                        event_type: None,
+                        first_received: problems.field("receivedate", v.receivedate),
+                    }
                 })
                 .collect(),
             total: meta.results.total,
             updated: meta.last_updated,
+            problems: problems.list,
             metadata,
         }),
         raw::Response::Absent { .. } => Ok(Page {
@@ -114,6 +125,7 @@ pub fn search(leg: &Leg<'_>, query: &AdverseEventSearch) -> Result<Page, Request
             items: Vec::new(),
             total: 0,
             updated: None,
+            problems: Vec::new(),
             metadata,
         }),
     }

@@ -9,6 +9,8 @@ pub struct Detail {
     pub problems: Vec<biomcp_types::Problem>,
     /// Exact selected native record.
     pub report: Option<FaersReport>,
+    /// Native positions for independently rejected report rows.
+    pub positions: super::Positions,
     /// Credential-free URL used for this successful request.
     pub report_url: biodata::Text,
     /// Metadata belongs to the original source reply.
@@ -49,13 +51,18 @@ pub fn get(leg: &Leg<'_>, id: &ReportId) -> Result<Detail, RequestError> {
     .ok_or(biomcp_fetch::InputError::Serialization)?;
     let report_url =
         biodata::Text::new(&url).map_err(|_| biomcp_fetch::InputError::Serialization)?;
-    let (report, problems) = match report {
-        Some(mapped) => (Some(mapped.value), mapped.problems),
-        None => (None, Vec::new()),
+    let (report, positions, problems) = match report {
+        Some(mapped) => (
+            Some(mapped.value.data),
+            mapped.value.positions,
+            mapped.problems,
+        ),
+        None => (None, super::Positions::default(), Vec::new()),
     };
     Ok(Detail {
         problems,
         report,
+        positions,
         report_url,
         metadata,
     })

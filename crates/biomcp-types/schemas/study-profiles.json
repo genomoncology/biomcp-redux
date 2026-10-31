@@ -499,15 +499,6 @@
             "null"
           ]
         },
-        "fetched": {
-          "description": "Retrieved identity depth.",
-          "format": "uint32",
-          "minimum": 0,
-          "type": [
-            "integer",
-            "null"
-          ]
-        },
         "notices": {
           "description": "Source notices and request recovery guidance.",
           "items": {
@@ -525,6 +516,15 @@
             }
           ],
           "description": "Failure or stale-fallback reason."
+        },
+        "retrieved_count": {
+          "description": "Number of retrieved identities.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
         },
         "source": {
           "$ref": "#/$defs/Reply_Source",
@@ -675,12 +675,22 @@
       "description": "Molecular profile reference with exact study membership.",
       "properties": {
         "datatype": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Extensible native data-type label."
         },
         "description": {
           "description": "Source description.",
-          "type": "string"
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "genericAssayType": {
           "anyOf": [
@@ -694,7 +704,14 @@
           "description": "Native generic assay type, absent outside those profiles."
         },
         "molecularAlterationType": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Extensible source alteration-type label."
         },
         "molecularProfileId": {
@@ -703,15 +720,24 @@
         },
         "name": {
           "description": "Source profile name.",
-          "type": "string"
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "patientLevel": {
           "description": "Native patient-level flag, not a unit inferred for other records.",
-          "type": "boolean"
+          "type": [
+            "boolean",
+            "null"
+          ]
         },
         "showProfileInAnalysisTab": {
           "description": "Native profile display setting.",
-          "type": "boolean"
+          "type": [
+            "boolean",
+            "null"
+          ]
         },
         "studyId": {
           "$ref": "#/$defs/Reply_StudyId",
@@ -720,13 +746,7 @@
       },
       "required": [
         "molecularProfileId",
-        "studyId",
-        "molecularAlterationType",
-        "datatype",
-        "name",
-        "description",
-        "patientLevel",
-        "showProfileInAnalysisTab"
+        "studyId"
       ],
       "type": "object"
     },
@@ -803,7 +823,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.study-profiles/2",
+  "$id": "biomcp.study-profiles/4",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -859,7 +879,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.study-profiles/2",
+      "const": "biomcp.study-profiles/4",
       "type": "string"
     },
     "sources": {

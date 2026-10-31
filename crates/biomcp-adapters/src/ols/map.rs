@@ -105,7 +105,7 @@ pub(super) fn record(term: raw::Term, ontology: DiseaseOntology) -> Result<Recor
                 label,
             },
             definition,
-            obsolete: term.is_obsolete,
+            obsolete: problems.field("is_obsolete", term.is_obsolete),
             consider,
             replaced_by,
             attribution,
@@ -229,12 +229,14 @@ fn synonyms(term: &raw::Term, attribution: &Attribution) -> Mapped<Vec<DiseaseSy
         }
     }
     Mapped {
+        refusals: crate::Refusal::None,
         value,
         problems: problems.list,
     }
 }
 fn xrefs(term: &raw::Term, attribution: &Attribution) -> Mapped<Vec<DiseaseRelation>> {
     let mut mapped = Mapped {
+        refusals: crate::Refusal::None,
         value: Vec::new(),
         problems: Vec::new(),
     };

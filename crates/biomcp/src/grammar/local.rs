@@ -4,6 +4,12 @@ pub(super) fn serve_command() -> Command {
     Command::new("serve")
         .after_help("Example: biomcp serve\nExample: biomcp help serve")
         .arg(
+            Arg::new("hosted")
+                .long("hosted")
+                .help("Refuse host file saves, health details and store or key changes over MCP.")
+                .action(ArgAction::SetTrue),
+        )
+        .arg(
             Arg::new("http")
                 .long("http")
                 .help("Listen on an HTTP address; omit its value for the loopback default.")
@@ -24,23 +30,37 @@ pub(super) fn help_command(root: &Command) -> Command {
     for command in root.get_subcommands() {
         let mut child = help_tree(command);
         if command.get_name() == "key" {
-            child = child.arg(Arg::new("source").value_parser(crate::keys::names()));
+            child = child.arg(
+                Arg::new("source")
+                    .help("Credential source to describe.")
+                    .value_parser(crate::keys::names()),
+            );
         }
         if command.get_name() == "sync" {
             child = child.subcommands(BUNDLE_HELP.iter().map(|&name| Command::new(name)));
         }
         help = help.subcommand(child);
     }
-    help.subcommand(Command::new("help"))
-        .subcommand(
-            Command::new("network").arg(Arg::new("setting").value_parser(["ca_bundle", "proxy"])),
-        )
-        .subcommand(Command::new("sources"))
-        .subcommand(Command::new("config"))
-        .subcommand(Command::new("exit").about("Explain process exit and error codes."))
-        .subcommand(
-            Command::new("relations").about("Map entities through sections and search filters."),
-        )
+    help.subcommand(
+        Command::new("help").arg(
+            Arg::new("command")
+                .num_args(0..)
+                .help("Command help path to describe."),
+        ),
+    )
+    .subcommand(
+        Command::new("network").arg(
+            Arg::new("setting")
+                .help("Network setting to describe.")
+                .value_parser(["ca_bundle", "proxy"]),
+        ),
+    )
+    .subcommand(Command::new("sources"))
+    .subcommand(Command::new("config"))
+    .subcommand(Command::new("exit").about("Explain process exit and error codes."))
+    .subcommand(
+        Command::new("relations").about("Map entities through sections and search filters."),
+    )
 }
 
 fn help_tree(command: &Command) -> Command {
@@ -116,7 +136,8 @@ pub(super) fn housekeeping(
     }
 }
 
-pub(super) fn serve(matches: &clap::ArgMatches, globals: super::Globals) -> super::Parsed {
+pub(super) fn serve(matches: &clap::ArgMatches, mut globals: super::Globals) -> super::Parsed {
+    globals.hosted = matches.get_flag("hosted");
     super::Parsed {
         key: None,
         housekeeping: None,

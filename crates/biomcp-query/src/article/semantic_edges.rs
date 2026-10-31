@@ -42,7 +42,7 @@ pub(super) fn create<'a>(
         }
     };
     source.count = (!truncated).then_some(count);
-    source.fetched = Some(count as u32);
+    source.retrieved_count = Some(count as u32);
     if truncated {
         source
             .notices
@@ -98,6 +98,7 @@ fn collect(
     let mut count = 0;
     for _ in 0..5 {
         let reply = semantic_scholar::edges(leg, input, references, offset)?;
+        problems.extend(reply.problems);
         count += reply.data.len() as u64;
         for edge in reply.data {
             let paper = if references {

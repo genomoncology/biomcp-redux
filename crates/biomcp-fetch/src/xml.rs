@@ -78,6 +78,7 @@ type RangeCheck<'a, T> =
     dyn Fn(&T, Option<crate::ContentRange>, u16) -> Result<(), crate::BadReply> + 'a;
 type BodyNormalizer = for<'a> fn(&str, &'a [u8]) -> Cow<'a, [u8]>;
 pub(crate) struct Decoder<'a, T> {
+    pub(crate) diagnostic_inputs: Option<(crate::Identities, String)>,
     validate: Option<&'a BodyCheck<'a>>,
     check: Option<&'a ReplyCheck<'a, T>>,
     cache_if: Option<&'a dyn Fn(&T) -> bool>,
@@ -135,6 +136,7 @@ impl<'a, T: Reply> Decoder<'a, T> {
             check: None,
             cache_if: None,
             range_check: None,
+            diagnostic_inputs: None,
             octet_stream: None,
             limit: None,
             overflow_reason: biomcp_types::Reason::BadReply,
@@ -163,6 +165,7 @@ impl<'a, T: Reply> Decoder<'a, T> {
             check: None,
             cache_if: None,
             range_check: None,
+            diagnostic_inputs: None,
             octet_stream: None,
             limit: None,
             overflow_reason: biomcp_types::Reason::BadReply,
@@ -377,6 +380,7 @@ impl Decoder<'_, Probe> {
             check: None,
             cache_if: None,
             range_check: None,
+            diagnostic_inputs: None,
             limit: None,
             overflow_reason: biomcp_types::Reason::BadReply,
             json_rejections: false,
@@ -424,6 +428,7 @@ impl<'a> Decoder<'a, Bytes> {
             check: None,
             cache_if: None,
             range_check: None,
+            diagnostic_inputs: None,
             octet_stream: None,
             limit: Some(limit),
             overflow_reason: biomcp_types::Reason::BadReply,
@@ -443,5 +448,17 @@ impl crate::Leg<'_> {
         check: impl Fn(&T) -> Result<(), crate::BadReply>,
     ) -> Result<(T, crate::ReplyMetadata), crate::RequestError> {
         self.parameters(ep, params, Decoder::checked_xml(&check))
+    }
+}
+
+impl crate::Leg<'_> {
+    /// Preserve XML metadata while withholding refused record identities from raw cache.
+    pub fn xml_received_checked_cache<T: XmlReply>(
+        &self,
+        ep: &crate::Endpoint,
+        params: &[(&str, crate::Arg<'_>)],
+        cache_if: impl Fn(&T) -> bool,
+    ) -> Result<(T, crate::ReplyMetadata), crate::RequestError> {
+        self.parameters(ep, params, Decoder::xml().cache_if(&cache_if))
     }
 }

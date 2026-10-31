@@ -72,7 +72,7 @@ pub(super) fn select(
     out.body = QueryBody::DrugApprovals(Some(DrugApprovals {
         identity: row.header(),
         products,
-        source_updated: updated,
+        source_updated: updated.map(Into::into),
         approvals,
     }));
     Ok(())

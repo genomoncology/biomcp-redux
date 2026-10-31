@@ -302,7 +302,7 @@
       "type": "string"
     }
   },
-  "$id": "biodata.gene/6",
+  "$id": "biodata.gene/7",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "Human gene identity and whole source annotations, independent of response cards.",
   "properties": {
@@ -351,7 +351,14 @@
       "description": "Source-stated location, including unparsed publisher text."
     },
     "locus_group": {
-      "$ref": "#/$defs/Reply_LocusGroup",
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Reply_LocusGroup"
+        },
+        {
+          "type": "null"
+        }
+      ],
       "description": "HGNC locus group."
     },
     "locus_type": {
@@ -373,7 +380,14 @@
       "type": "array"
     },
     "name": {
-      "$ref": "#/$defs/Reply_Text",
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Reply_Text"
+        },
+        {
+          "type": "null"
+        }
+      ],
       "description": "Gene name."
     },
     "omim": {
@@ -427,9 +441,7 @@
   "required": [
     "hgnc_id",
     "symbol",
-    "status",
-    "locus_group",
-    "name"
+    "status"
   ],
   "title": "Gene",
   "type": "object"

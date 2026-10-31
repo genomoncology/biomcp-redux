@@ -58,14 +58,16 @@ pub struct ProteinFunction {
 /// A source structure cross-reference link; no residue coverage claim.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", schemars(extend("x-identifier" = true)))]
 pub struct ProteinStructureRef {
     /// Native cross-reference database.
-    pub database: Text,
+    pub namespace: Text,
     /// Native cross-reference identifier.
     pub id: Text,
     /// Publisher link; no structure file is retrieved.
     #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
-    pub url: Text,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub url: Option<Text>,
     /// All native property pairs, including method, resolution and chains.
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     pub properties: Box<[ProteinStructureProperty]>,

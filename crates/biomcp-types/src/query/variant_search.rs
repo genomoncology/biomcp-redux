@@ -1,6 +1,7 @@
 use super::ProteinQuery;
 use super::gene::{QueryInvalid, present};
 use crate::{Build, Chromosome, GeneSymbol, Text, text_value};
+use biodata::CodingChange;
 use serde::{Deserialize, Serialize};
 use std::{fmt, str::FromStr};
 const MAX_FILTER_CHARS: usize = 256;
@@ -100,6 +101,7 @@ text_value!(
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 #[cfg_attr(feature = "schema", schemars(with = "Fields", extend("anyOf" = [
     {"required":["gene","protein"]},
+    {"required":["gene","coding"]},
     {"required":["region","build"]},
     {"required":["query","source"]}
 ])))]
@@ -108,7 +110,7 @@ pub struct VariantSearch(Fields);
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct Fields {
-    /// Exact checked gene symbol for the fixed dbNSFP gene/protein field query; obeys component terms switches.
+    /// Checked gene symbol for the dbNSFP substitution or ClinVar coding/synonymous selector.
     #[serde(
         default,
         deserialize_with = "present",
@@ -116,7 +118,7 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "GeneSymbol"))]
     gene: Option<GeneSymbol>,
-    /// Explicit substitution using checked one-letter or three-letter amino-acid codes.
+    /// Explicit substitution or synonymous change using checked amino-acid codes.
     #[serde(
         default,
         deserialize_with = "present",
@@ -124,6 +126,14 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "ProteinQuery"))]
     protein: Option<ProteinQuery>,
+    /// Coding HGVS change searched literally in ClinVar with --gene, without choosing a transcript.
+    #[serde(
+        default,
+        deserialize_with = "present",
+        skip_serializing_if = "Option::is_none"
+    )]
+    #[cfg_attr(feature = "schema", schemars(with = "CodingChange"))]
+    coding: Option<CodingChange>,
     /// Exact one-based inclusive MyVariant region, such as chr7:55259500-55259600; requires --build.
     #[serde(
         default,
@@ -197,21 +207,36 @@ crate::query::validation::checked_query!(VariantSearch, Fields);
 impl TryFrom<Fields> for VariantSearch {
     type Error = QueryInvalid;
     fn try_from(f: Fields) -> Result<Self, Self::Error> {
-        let protein =
-            f.gene.is_some() && f.protein.is_some() && f.region.is_none() && f.query.is_none();
+        let protein = f.gene.is_some()
+            && f.protein.is_some()
+            && f.coding.is_none()
+            && f.region.is_none()
+            && f.query.is_none()
+            && (!f.protein.as_ref().is_some_and(ProteinQuery::is_synonymous)
+                || (f.build.is_none() && f.source.is_none() && !f.filtered()));
+        let coding = f.gene.is_some()
+            && f.coding.is_some()
+            && f.protein.is_none()
+            && f.region.is_none()
+            && f.query.is_none()
+            && f.build.is_none()
+            && f.source.is_none()
+            && !f.filtered();
         let region = f.region.is_some()
             && f.build.is_some()
             && f.gene.is_none()
             && f.protein.is_none()
+            && f.coding.is_none()
             && f.query.is_none();
         let raw = f.query.is_some()
             && f.source.is_some()
             && f.gene.is_none()
             && f.protein.is_none()
+            && f.coding.is_none()
             && f.region.is_none();
-        if !(protein || region || raw) {
+        if !(protein || coding || region || raw) {
             return Err(QueryInvalid::new(&[
-                "gene", "protein", "region", "build", "query", "source",
+                "gene", "protein", "coding", "region", "build", "query", "source",
             ]));
         }
         if !(1..=50).contains(&f.limit) {
@@ -248,6 +273,7 @@ impl VariantSearch {
         Self::try_from(Fields {
             gene: None,
             protein: None,
+            coding: None,
             region: None,
             build: None,
             query: Some(format!("_id:\"{}\"", literal(id.as_str())).parse()?),
@@ -271,7 +297,16 @@ impl VariantSearch {
     }
     /// Whether the declared selector searches dbNSFP's gene and protein fields.
     pub fn uses_dbnsfp_selector(&self) -> bool {
-        self.0.gene.is_some()
+        self.0.protein.as_ref().is_some_and(|p| !p.is_synonymous())
+    }
+    /// Whether the caller selected native ClinVar coding or synonymous notation.
+    pub fn uses_clinvar_selector(&self) -> bool {
+        self.0.coding.is_some()
+            || self
+                .0
+                .protein
+                .as_ref()
+                .is_some_and(ProteinQuery::is_synonymous)
     }
     /// Compare a source protein spelling with the caller's checked substitution spellings.
     pub fn matches_protein(&self, gene: Option<&str>, notation: &str) -> bool {
@@ -289,6 +324,14 @@ impl VariantSearch {
     pub fn source_query(&self) -> String {
         if let Some(q) = &self.0.query {
             return q.to_string();
+        }
+        if let (Some(gene), Some(coding)) = (&self.0.gene, &self.0.coding) {
+            return format!("{gene}[GENE] AND \"{coding}\"[VRNM]");
+        }
+        if let (Some(gene), Some(protein)) = (&self.0.gene, &self.0.protein)
+            && protein.is_synonymous()
+        {
+            return format!("{gene}[GENE] AND \"{protein}\"[VRNM]");
         }
         let mut term = if let Some(region) = &self.0.region {
             region.to_string()

@@ -5,7 +5,7 @@ use biomcp_types::{AdverseEventGet, AdverseEventSection};
 pub fn get(
     leg: &Leg<'_>,
     query: &AdverseEventGet,
-) -> Result<Option<biodata::MaudeReport>, RequestError> {
+) -> Result<Option<crate::Mapped<super::Report>>, RequestError> {
     if query.section() == Some(AdverseEventSection::Devices) {
         crate::adverse_event_sources::components::gmdn(leg)?;
     }

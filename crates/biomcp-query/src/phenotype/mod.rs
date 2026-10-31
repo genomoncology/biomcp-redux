@@ -35,6 +35,7 @@ pub fn search(cx: &Ctx<'_>, q: &PhenotypeSearch) -> Outcome {
         .push(status::source(Source::Monarch, leg.finish(), error));
     out.local = error.and_then(status::local);
     if let Ok(page) = reply {
+        out.problems.extend(page.problems);
         let returned = page.items.len() as u32;
         for item in &page.items {
             out.next.push((
@@ -42,11 +43,11 @@ pub fn search(cx: &Ctx<'_>, q: &PhenotypeSearch) -> Outcome {
                 run(Request::GetPhenotype(PhenotypeGet::new(item.id.clone()))),
             ));
         }
-        if returned > 0 && u64::from(q.offset()) + u64::from(returned) < page.total {
+        if page.received > 0 && u64::from(q.offset()) + u64::from(page.received) < page.total {
             out.next.push((
                 StepKind::Page,
                 run(Request::SearchPhenotype(
-                    q.at_offset(q.offset().saturating_add(returned)),
+                    q.at_offset(q.offset().saturating_add(page.received)),
                 )),
             ));
         }

@@ -69,7 +69,14 @@
           "description": "Checked source-owned identity."
         },
         "name": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Whole native name."
         },
         "revision": {
@@ -101,7 +108,6 @@
       },
       "required": [
         "id",
-        "name",
         "species"
       ],
       "type": "object"
@@ -115,13 +121,13 @@
             "id": {
               "$ref": "#/$defs/Reply_ReactomeId"
             },
-            "source": {
+            "namespace": {
               "const": "reactome",
               "type": "string"
             }
           },
           "required": [
-            "source",
+            "namespace",
             "id"
           ],
           "type": "object"
@@ -132,18 +138,19 @@
             "id": {
               "$ref": "#/$defs/Reply_WikiPathwaysId"
             },
-            "source": {
+            "namespace": {
               "const": "wikipathways",
               "type": "string"
             }
           },
           "required": [
-            "source",
+            "namespace",
             "id"
           ],
           "type": "object"
         }
-      ]
+      ],
+      "x-identifier": true
     },
     "Reply_PathwayPage": {
       "description": "Source-ordered header page; class admission never changes the native total.",
@@ -747,15 +754,6 @@
             "null"
           ]
         },
-        "fetched": {
-          "description": "Retrieved identity depth.",
-          "format": "uint32",
-          "minimum": 0,
-          "type": [
-            "integer",
-            "null"
-          ]
-        },
         "notices": {
           "description": "Source notices and request recovery guidance.",
           "items": {
@@ -773,6 +771,15 @@
             }
           ],
           "description": "Failure or stale-fallback reason."
+        },
+        "retrieved_count": {
+          "description": "Number of retrieved identities.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
         },
         "source": {
           "$ref": "#/$defs/Reply_Source",
@@ -896,7 +903,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.pathway-page/5",
+  "$id": "biomcp.pathway-page/8",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -952,7 +959,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.pathway-page/5",
+      "const": "biomcp.pathway-page/8",
       "type": "string"
     },
     "sources": {

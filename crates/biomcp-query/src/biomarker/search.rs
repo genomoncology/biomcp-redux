@@ -76,7 +76,7 @@ fn execute(
             let mut sources = std::mem::take(&mut out.sources);
             if let Some(source) = sources.first_mut() {
                 source.count = Some(reply.value.len() as u64);
-                source.fetched = Some(reply.value.len() as u32);
+                source.retrieved_count = Some(reply.value.len() as u32);
             }
             snapshot::Saved {
                 items: reply.value,

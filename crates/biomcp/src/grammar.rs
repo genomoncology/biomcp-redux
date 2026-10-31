@@ -33,8 +33,8 @@ pub(crate) const BUNDLE_HELP: &[&str] = &[
 
 use biomcp_query::{Action, Bundle};
 use biomcp_types::{
-    ArticleEdges, ArticleGet, ArticleSearch, ArticleText, GeneGet, GeneSearch, Request,
-    VariantAssertionsGet, VariantPopulationQuery, VariantRecurrenceQuery,
+    ArticleEdges, ArticleGet, ArticleSearch, ArticleText, GeneGet, GeneSearch, Help, Request,
+    ResponseBody, VariantAssertionsGet, VariantPopulationQuery, VariantRecurrenceQuery,
 };
 use clap::{Arg, ArgAction, Command};
 use serde_json::{Map, Value};
@@ -49,6 +49,7 @@ pub(crate) struct Globals {
     pub(crate) case_cache: Option<PathBuf>,
     pub(crate) offline: bool,
     pub(crate) fresh: bool,
+    pub(crate) hosted: bool,
     pub(crate) format: Option<Format>,
     pub(crate) disable_sources: Vec<String>,
 }
@@ -208,9 +209,12 @@ pub(crate) fn root() -> Result<Command, ParseInvalid> {
     root = root.subcommand(
         Command::new("schema")
             .about("List every schema identity and description with biomcp schema, or print one schema artifact with biomcp schema <id>.")
-            .after_help(concat!(
-                "JSON reply readers ignore unknown fields and unknown growable enum values within a major. ",
-                "Query schemas remain closed.\n\nExample: biomcp schema\nExample: biomcp schema biomcp.help/4"
+            .after_help(format!(
+                concat!(
+                    "JSON reply readers ignore unknown fields and unknown growable enum values within a major. ",
+                    "Query schemas remain closed.\n\nExample: biomcp schema\nExample: biomcp schema {}"
+                ),
+                Help::SCHEMA
             ))
             .arg(
                 Arg::new("artifact-id")
@@ -345,6 +349,7 @@ fn globals(matches: &clap::ArgMatches) -> Result<Globals, ParseInvalid> {
         case_cache: matches.get_one::<PathBuf>("case-cache").cloned(),
         offline: matches.get_flag("offline"),
         fresh: matches.get_flag("fresh"),
+        hosted: false,
         format: explicit_format(matches),
     };
     globals.check()?;
@@ -416,6 +421,7 @@ impl Globals {
         self.record = process.record.clone();
         self.case_cache = process.case_cache.clone();
         self.fresh |= process.fresh;
+        self.hosted = process.hosted;
         self.format = self.format.or(process.format);
         self.offline |= process.offline;
         self.check()

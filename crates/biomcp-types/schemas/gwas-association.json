@@ -80,10 +80,8 @@
           "description": "Authoritative exact source probability, including double underflow."
         },
         "id": {
-          "description": "Native association identity.",
-          "format": "uint64",
-          "minimum": 0,
-          "type": "integer"
+          "$ref": "#/$defs/Reply_GwasAssociationId",
+          "description": "Native association identity."
         },
         "interval": {
           "anyOf": [
@@ -129,7 +127,14 @@
           "type": "array"
         },
         "p_value": {
-          "$ref": "#/$defs/Reply_FiniteNumber",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_FiniteNumber"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Reported p value."
         },
         "publication": {
@@ -155,7 +160,14 @@
           "description": "Source allele frequency text, without interpreting NR."
         },
         "study": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Study accession."
         },
         "traits": {
@@ -167,9 +179,7 @@
         }
       },
       "required": [
-        "id",
-        "study",
-        "p_value"
+        "id"
       ],
       "type": "object"
     },
@@ -205,7 +215,14 @@
       "description": "Catalog effect allele paired with its exact rsID.",
       "properties": {
         "allele": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Source allele text."
         },
         "rs_id": {
@@ -214,8 +231,7 @@
         }
       },
       "required": [
-        "rs_id",
-        "allele"
+        "rs_id"
       ],
       "type": "object"
     },
@@ -345,15 +361,34 @@
           "description": "Exact source ontology identifier spelling."
         },
         "label": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Whole source trait label."
+        },
+        "namespace": {
+          "$ref": "#/$defs/Reply_IdentifierNamespace",
+          "description": "Native authority; unknown means the source did not state one."
         }
       },
       "required": [
-        "id",
-        "label"
+        "namespace",
+        "id"
       ],
-      "type": "object"
+      "type": "object",
+      "x-identifier": true
+    },
+    "Reply_IdentifierNamespace": {
+      "description": "A source-stated authority or an explicit unknown authority, represented by the string unknown.",
+      "maxLength": 1048576,
+      "minLength": 1,
+      "pattern": "^(?![\\s\\S]*[\\x00-\\x1f\\x7f-\\x9f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069])",
+      "type": "string"
     },
     "Reply_PageInfo": {
       "description": "Search counts after filtering and deduplication.",
@@ -866,15 +901,6 @@
             "null"
           ]
         },
-        "fetched": {
-          "description": "Retrieved identity depth.",
-          "format": "uint32",
-          "minimum": 0,
-          "type": [
-            "integer",
-            "null"
-          ]
-        },
         "notices": {
           "description": "Source notices and request recovery guidance.",
           "items": {
@@ -892,6 +918,15 @@
             }
           ],
           "description": "Failure or stale-fallback reason."
+        },
+        "retrieved_count": {
+          "description": "Number of retrieved identities.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
         },
         "source": {
           "$ref": "#/$defs/Reply_Source",
@@ -1010,7 +1045,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.gwas-association/3",
+  "$id": "biomcp.gwas-association/6",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -1066,7 +1101,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.gwas-association/3",
+      "const": "biomcp.gwas-association/6",
       "type": "string"
     },
     "sources": {

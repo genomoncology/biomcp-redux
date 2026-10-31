@@ -1,6 +1,7 @@
 # 0442 — Check source timestamps and give each property name one type
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 3806e07aae77b4fae503355d5fd340df9734c1fc
 
 Milestone: 5
 

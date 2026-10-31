@@ -1,17 +1,11 @@
 {
   "live_check": "synthetic response case",
-  "feature": "gene-sections",
+  "feature": "gene-oncokb",
   "story": "A missing user key skips OncoKB without changing gene status",
   "replay": "gene/oncokb-synthetic/no-key",
   "steps": [
     {
       "run": [
-        "get",
-        "gene",
-        "NOTCH1",
-        "oncokb"
-      ],
-      "mcp": [
         "get",
         "gene",
         "NOTCH1",
@@ -40,11 +34,6 @@
     },
     {
       "run": [
-        "help",
-        "key",
-        "oncokb"
-      ],
-      "mcp": [
         "help",
         "key",
         "oncokb"

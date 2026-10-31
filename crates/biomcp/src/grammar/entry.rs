@@ -191,6 +191,17 @@ pub(super) fn help_path(
             Some(("author", matches)) if matches.subcommand().is_none() => {
                 Some(vec!["author".into()])
             }
+            Some(("help", matches)) => Some(
+                std::iter::once("help".into())
+                    .chain(
+                        matches
+                            .get_many::<String>("command")
+                            .into_iter()
+                            .flatten()
+                            .cloned(),
+                    )
+                    .collect(),
+            ),
             Some(("network", matches)) => Some(
                 std::iter::once("network".into())
                     .chain(matches.get_one::<String>("setting").cloned())

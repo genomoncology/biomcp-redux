@@ -55,7 +55,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.drug-search/3",
+  "$id": "biomcp.drug-search/4",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "Search one drug source. FDA drug recalls accept a name or native firm, classification, status, reason and initiation dates; counts are recall records. Other sources require a name.",
@@ -125,7 +125,7 @@
     },
     "query": {
       "$ref": "#/$defs/Text",
-      "description": "Literal name phrase; optional for FDA drug recalls. Harmonized recall names match but never become display names.",
+      "description": "Literal name phrase; optional for FDA drug recalls. Drugs@FDA searches brands and ingredients,\nexact names before word matches. Harmonized recall names match but never become display names.",
       "x-positional": 0
     },
     "reason": {

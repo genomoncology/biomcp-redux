@@ -42,7 +42,10 @@ pub struct Publication {
     pub references: Option<Vec<Pmid>>,
 }
 /// Request one documented metadata batch, joining only requested identities.
-pub fn publications(leg: &Leg<'_>, ids: &[Pmid]) -> Result<Vec<Publication>, RequestError> {
+pub fn publications(
+    leg: &Leg<'_>,
+    ids: &[Pmid],
+) -> Result<crate::Mapped<Vec<Publication>>, RequestError> {
     if ids.is_empty() || ids.len() > BATCH_LIMIT {
         return Err(bad());
     }
@@ -58,10 +61,37 @@ pub fn publications(leg: &Leg<'_>, ids: &[Pmid]) -> Result<Vec<Publication>, Req
             ("fl", Arg::Text(FIELDS)),
         ],
     )?;
-    if raw.data.iter().any(|r| !ids.contains(&r.pmid.0)) {
+    if raw
+        .data
+        .iter()
+        .filter_map(Field::as_ref)
+        .any(|r| !ids.contains(&r.pmid.0))
+    {
         return Err(bad());
     }
-    Ok(raw.data.into_iter().map(Row::map).collect())
+    let mut p = crate::mapped::Problems {
+        source: Source::Icite,
+        record: None,
+        list: Vec::new(),
+    };
+    let mut refusals = crate::Refusal::None;
+    let value = raw
+        .data
+        .into_iter()
+        .filter_map(|r| match p.required("pmid", r.value()) {
+            Some(row) => Some(row),
+            None => {
+                refusals = crate::Refusal::Refused;
+                None
+            }
+        })
+        .map(Row::map)
+        .collect();
+    Ok(crate::Mapped {
+        refusals,
+        value,
+        problems: p.list,
+    })
 }
 fn bad() -> RequestError {
     biomcp_fetch::SourceError {
@@ -83,15 +113,22 @@ impl TryFrom<u32> for Id {
 }
 #[derive(Deserialize)]
 struct Raw {
-    data: Vec<Row>,
+    data: Vec<Field<Row>>,
 }
 impl Reply for Raw {
     fn input_parameter() -> Option<(&'static str, &'static str)> {
         Some(("pmid", "pmids"))
     }
     fn check(&self) -> Result<(), BadReply> {
-        let ids: BTreeSet<_> = self.data.iter().map(|r| r.pmid.0).collect();
-        if self.data.len() > BATCH_LIMIT || ids.len() != self.data.len() {
+        let ids: BTreeSet<_> = self
+            .data
+            .iter()
+            .filter_map(Field::as_ref)
+            .map(|r| r.pmid.0)
+            .collect();
+        if self.data.len() > BATCH_LIMIT
+            || ids.len() != self.data.iter().filter_map(Field::as_ref).count()
+        {
             return Err(BadReply);
         }
         Ok(())

@@ -1,5 +1,24 @@
-use crate::native_text::NativeText;
+pub(crate) use crate::bundle_mapping::{bundle_problems, bundle_sync};
+use crate::{native_text::NativeText, raw::Field};
+use biodata::Text;
 use biomcp_types::Problem;
+
+/// Whether a mapper refused a record, independent of field diagnostics.
+#[derive(Clone, Copy, Debug, Eq, PartialEq, serde::Deserialize)]
+pub enum Refusal {
+    /// No record was refused.
+    None,
+    /// At least one record was refused at its mapping boundary.
+    Refused,
+}
+impl Refusal {
+    /// Preserve an actual refusal from either mapping stage.
+    pub fn include(&mut self, other: Self) {
+        if other == Self::Refused {
+            *self = other;
+        }
+    }
+}
 
 /// A source value with rejected fields retained as problems.
 #[derive(Debug)]
@@ -8,6 +27,8 @@ pub struct Mapped<T> {
     pub value: T,
     /// Fields that could not be accepted.
     pub problems: Vec<Problem>,
+    /// Actual record refusals, independent of optional-field problems.
+    pub refusals: Refusal,
 }
 
 /// Construct a rejected-field disclosure in one place for every adapter.
@@ -40,6 +61,14 @@ pub(crate) fn push_problem(
 /// Strict construction for required text such as source identity.
 pub(crate) fn text(value: &str) -> Result<biodata::Text, biomcp_fetch::BadReply> {
     biodata::Text::new(value).map_err(|_| biomcp_fetch::BadReply)
+}
+
+/// Pair an unchanged native scalar with its checked authority at the mapping boundary.
+pub(crate) fn identifier<T>(
+    namespace: &str,
+    id: T,
+) -> Result<biodata::Identifier<T>, biomcp_fetch::BadReply> {
+    Ok(biodata::Identifier::new(text(namespace)?, id))
 }
 
 /// Mapping context for optional fields; absent values produce no problem.
@@ -87,6 +116,19 @@ impl Problems {
     ) -> Option<T> {
         let value = self.field(field, value);
         self.required(field, value)
+    }
+    /// Preserve a supplied empty list while rejecting only malformed members.
+    pub(crate) fn optional_fields<T>(
+        &mut self,
+        field: &str,
+        value: Option<crate::raw::Field<Vec<crate::raw::Field<T>>>>,
+    ) -> Option<Vec<T>> {
+        Some(
+            self.field(field, value)?
+                .into_iter()
+                .filter_map(|v| self.field(field, Some(v)))
+                .collect(),
+        )
     }
     pub(crate) fn fields<T>(
         &mut self,
@@ -143,6 +185,19 @@ impl Problems {
             .into_iter()
             .filter_map(|value| self.native_text(field, Some(value)))
             .collect()
+    }
+    /// Keep the native spelling of a checked annotation URL without download policy.
+    pub(crate) fn url(
+        &mut self,
+        field: &str,
+        value: Option<crate::raw::Field<biodata::Text>>,
+    ) -> Option<biodata::Text> {
+        let value = self.field(field, value)?;
+        self.optional(
+            field,
+            Some(biomcp_fetch::check_annotation_url(value.as_str())),
+        )?;
+        Some(value)
     }
     pub(crate) fn checked_text(
         &mut self,
@@ -210,4 +265,34 @@ pub(crate) fn record(value: impl std::fmt::Display) -> Option<biodata::Text> {
 /// Admit source prose while keeping the strict identity helper separate.
 pub(crate) fn source_text(value: &str) -> Result<biodata::Text, biomcp_fetch::BadReply> {
     biodata::Text::from_source(value).map_err(|_| biomcp_fetch::BadReply)
+}
+
+pub(crate) fn optional_text(
+    raw: Option<Field<String>>,
+    field: &str,
+    cx: &mut Problems,
+) -> Option<Text> {
+    field_text(&mut cx.list, cx.source, cx.record.clone(), field, raw)
+}
+pub(crate) fn optional_texts(
+    raw: Option<Field<Vec<Field<String>>>>,
+    field: &str,
+    cx: &mut Problems,
+) -> Box<[Text]> {
+    cx.fields(field, raw)
+        .into_vec()
+        .into_iter()
+        .filter_map(|value| cx.text(field, Some(&value)))
+        .collect()
+}
+pub(crate) fn optional_pmids(
+    raw: Option<Field<Vec<Field<String>>>>,
+    field: &str,
+    cx: &mut Problems,
+) -> Box<[biodata::Pmid]> {
+    cx.fields(field, raw)
+        .into_vec()
+        .into_iter()
+        .filter_map(|value| cx.optional(field, Some(value.parse())))
+        .collect()
 }

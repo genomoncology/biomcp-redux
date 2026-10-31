@@ -140,6 +140,8 @@ pub enum Find<'a> {
 /// Public bundle metadata contains no local filenames or provider diagnostics.
 #[derive(Clone, Debug)]
 pub struct BundleInfo {
+    /// Rejected logical source rows, retained across synchronization reuse.
+    pub rejections: Vec<BundleRejection>,
     /// Native publisher revision validator, when supplied.
     pub etag: Option<Box<str>>,
     /// Native publisher modification header, when supplied.
@@ -196,4 +198,17 @@ impl DocumentMedia {
             Self::Json => "application/json",
         }
     }
+}
+
+/// A redacted rejection at a stable logical source row.
+#[derive(Clone, Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+pub struct BundleRejection {
+    /// One-based logical row number, counting the header.
+    pub row: u64,
+    /// Fixed reason without provider row contents.
+    pub reason: String,
+}
+
+fn query_word(word: &str) -> bool {
+    word.chars().any(char::is_alphanumeric)
 }

@@ -47,12 +47,23 @@ impl Leg<'_> {
         check: impl Fn(&T) -> Result<(), crate::BadReply>,
         cache_if: impl Fn(&T) -> bool,
     ) -> Result<T, RequestError> {
+        self.json_received_checked_admission(endpoint, params, check, cache_if)
+            .map(|(reply, _)| reply)
+    }
+
+    /// Preserve retrieval metadata while checking scope and withholding refused identities from cache.
+    pub fn json_received_checked_admission<T: Reply>(
+        &self,
+        endpoint: &Endpoint,
+        params: &[(&str, crate::Arg<'_>)],
+        check: impl Fn(&T) -> Result<(), crate::BadReply>,
+        cache_if: impl Fn(&T) -> bool,
+    ) -> Result<(T, crate::ReplyMetadata), RequestError> {
         self.parameters(
             endpoint,
             params,
             Decoder::checked_json(&check).cache_if(&cache_if),
         )
-        .map(|(reply, _)| reply)
     }
 
     /// Return checked JSON while withholding a response from cache when request identity differs.
@@ -269,7 +280,7 @@ impl Leg<'_> {
                         std::any::type_name::<T>(),
                         true,
                         &prepared.url,
-                        crate::Provenance::received::<T>(prepared, &entry.body, Some(entry.status)),
+                        codec.provenance(prepared, &entry.body, Some(entry.status)),
                     ),
                 );
             }
@@ -302,7 +313,7 @@ impl Leg<'_> {
                     std::any::type_name::<T>(),
                     true,
                     &prepared.url,
-                    crate::Provenance::received::<T>(prepared, &entry.body, Some(entry.status)),
+                    codec.provenance(prepared, &entry.body, Some(entry.status)),
                 ),
             );
         }

@@ -17,8 +17,10 @@ pub static SPEC: SourceSpec = SourceSpec {
     key: crate::openfda_key::OPTIONAL,
     deadline: Duration::from_secs(15),
 };
+mod admit;
 mod map;
 mod raw;
+mod wire;
 use biodata::{DrugId, DrugIdentityLevel, Text};
 use biomcp_fetch::{Arg, BadReply, Endpoint, Freshness, Leg, ReplyMetadata, RequestError};
 use biomcp_types::{DrugHeader, DrugSource};
@@ -27,6 +29,8 @@ const APPLICATION: Endpoint = SPEC.get("").fresh(Freshness::Days(1)).json_absenc
 /// One native application candidate page and its original retrieval metadata.
 #[derive(Debug)]
 pub struct Page {
+    /// Rejected optional source metadata.
+    pub problems: Vec<biomcp_types::Problem>,
     /// Native applications, without selecting a first product.
     pub records: Vec<Application>,
     /// Native application total, independent of product count.
@@ -39,18 +43,19 @@ pub struct Page {
 fn literal(value: &str) -> String {
     format!("\"{}\"", value.replace('\\', "\\\\").replace('"', "\\\""))
 }
-/// Discover source-native applications using the unchanged literal ingredient phrase.
+/// Discover exact brand or ingredient names, then try their native word fields after a zero total.
 pub fn search(leg: &Leg<'_>, text: &Text, limit: u32, offset: u32) -> Result<Page, RequestError> {
-    page(
-        leg,
-        &format!(
-            "products.active_ingredients.name:{}",
-            literal(text.as_str())
-        ),
-        limit,
-        offset,
-        None,
-    )
+    let selector = |suffix: &str| {
+        let name = literal(text.as_str());
+        format!(
+            "products.brand_name{suffix}:{name} OR products.active_ingredients.name{suffix}:{name}"
+        )
+    };
+    let exact = page(leg, &selector(".exact"), limit, offset, None)?;
+    if exact.total > 0 {
+        return Ok(exact);
+    }
+    page(leg, &selector(""), limit, offset, None)
 }
 /// Read exactly the named native application; reject a wrong identity before caching it.
 pub fn get(leg: &Leg<'_>, id: &DrugId) -> Result<Page, RequestError> {
@@ -96,13 +101,22 @@ fn page(
             }
             _ => Ok(()),
         })?;
+    let mut problems = crate::mapped::Problems {
+        source: biomcp_types::Source::Drugsfda,
+        record: None,
+        list: Vec::new(),
+    };
     let (records, total, updated) = match response {
         raw::Response::Success { meta, results } => {
             (results, meta.results.total, meta.last_updated)
         }
         raw::Response::Absent { .. } => (Vec::new(), 0, None),
     };
+    problems
+        .list
+        .extend(records.iter().flat_map(|r| r.problems.iter().cloned()));
     Ok(Page {
+        problems: problems.list,
         records,
         total,
         metadata,

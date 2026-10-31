@@ -44,7 +44,7 @@ impl Selection {
     fn key(&self) -> Result<Vec<u8>, CacheError> {
         let request = serde_json::to_vec(&self.request(None)).map_err(|_| CacheError::Database)?;
         let mut hash = Sha256::new();
-        hash.update(b"biomcp.protein_sections/1\0");
+        hash.update(b"biomcp.protein_sections/2\0");
         hash.update(request);
         Ok(hash.finalize().to_vec())
     }
@@ -153,9 +153,13 @@ fn read(
         return Ok(());
     };
     if let Selection::Features(query) = q
-        && query
-            .position()
-            .is_some_and(|p| p.get() > entry.header.protein.length)
+        && query.position().is_some_and(|p| {
+            entry
+                .header
+                .protein
+                .length
+                .is_some_and(|length| p.get() > length)
+        })
     {
         out.problems.push(biomcp_types::Problem {
             source: Source::UniProt,

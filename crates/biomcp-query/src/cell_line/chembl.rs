@@ -40,18 +40,21 @@ pub(super) fn get_at(
     out.sources
         .push(status::source(Source::Chembl, leg.finish(), error));
     out.local = error.and_then(status::local);
-    if let Ok((items, total, metadata)) = reply {
-        let end = u64::from(body.offset) + items.len() as u64;
+    if let Ok(page) = reply {
+        out.problems.extend(page.problems);
+        let total = page.window.total().unwrap_or(0);
+        let next_offset = page.window.next_offset();
+        let more = page.window.has_more();
+        let items = page.window.rows;
+        let metadata = page.metadata;
         out.status = if total == 0 {
             Status::Absent
-        } else if end < total {
+        } else if !out.problems.is_empty() || more {
             Status::Partial
         } else {
             Status::Complete
         };
-        if end < total
-            && let Some(offset) = body.offset.checked_add(limit)
-        {
+        if let Some(offset) = next_offset {
             out.next.push((
                 StepKind::Page,
                 run(Request::GetCellLine(query.at_section_offset(offset))),
@@ -131,9 +134,16 @@ fn attach(cx: &Ctx<'_>, deadline: biomcp_fetch::Deadline<'_>, out: &mut Outcome)
         out.local = error.and_then(status::local);
         out.problems.push(problem("release"));
     }
+    let release = release.ok().map(|mapped| {
+        out.problems.extend(mapped.problems);
+        mapped.value
+    });
+    if !out.problems.is_empty() && out.status == Status::Complete {
+        out.status = Status::Partial;
+    }
     match &mut out.body {
-        QueryBody::CellLineChembl(body) => body.release = release.ok(),
-        QueryBody::CellLineAssayCount(body) => body.release = release.ok(),
+        QueryBody::CellLineChembl(body) => body.release = release.clone(),
+        QueryBody::CellLineAssayCount(body) => body.release = release.clone(),
         _ => {}
     }
     if out

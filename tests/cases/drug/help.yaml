@@ -1,14 +1,10 @@
 {
-  "feature": "generated-help",
+  "live_check": "local-only command help, validation or stored-state behavior; no recorded source replies",
+  "feature": "drug-help",
   "story": "Drug help exposes source-scoped sections and options with two executable examples per command and bundle sync.",
   "steps": [
     {
       "run": [
-        "help",
-        "search",
-        "drug"
-      ],
-      "mcp": [
         "help",
         "search",
         "drug"
@@ -31,11 +27,6 @@
     },
     {
       "run": [
-        "help",
-        "get",
-        "drug"
-      ],
-      "mcp": [
         "help",
         "get",
         "drug"
@@ -77,11 +68,6 @@
         "sync",
         "ema"
       ],
-      "mcp": [
-        "help",
-        "sync",
-        "ema"
-      ],
       "expect": {
         "/result/commands/0/command": [
           "sync",
@@ -95,11 +81,6 @@
     },
     {
       "run": [
-        "help",
-        "sync",
-        "ddinter"
-      ],
-      "mcp": [
         "help",
         "sync",
         "ddinter"

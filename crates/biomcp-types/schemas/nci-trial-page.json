@@ -158,7 +158,7 @@
       "type": "object"
     },
     "Reply_DiseaseEndpoint": {
-      "description": "One native endpoint with an identifier and an optional source label.",
+      "description": "One native endpoint with an identifier and an optional source label.\nNative associations use this reference because a source may omit a display label.",
       "properties": {
         "id": {
           "$ref": "#/$defs/Reply_Curie",
@@ -233,7 +233,14 @@
       "description": "Compact source disease reference; the diseases section retains every coding field.",
       "properties": {
         "name": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Native source name."
         },
         "nci_thesaurus_concept_id": {
@@ -242,7 +249,6 @@
         }
       },
       "required": [
-        "name",
         "nci_thesaurus_concept_id"
       ],
       "type": "object"
@@ -346,11 +352,25 @@
           "description": "Native short summary, only on exact retrieval."
         },
         "brief_title": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Native title."
         },
         "current_trial_status": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Native status, without a registry translation."
         },
         "diseases": {
@@ -407,8 +427,6 @@
       "required": [
         "nci_id",
         "nct_id",
-        "brief_title",
-        "current_trial_status",
         "diseases"
       ],
       "type": "object"
@@ -987,15 +1005,6 @@
             "null"
           ]
         },
-        "fetched": {
-          "description": "Retrieved identity depth.",
-          "format": "uint32",
-          "minimum": 0,
-          "type": [
-            "integer",
-            "null"
-          ]
-        },
         "notices": {
           "description": "Source notices and request recovery guidance.",
           "items": {
@@ -1013,6 +1022,15 @@
             }
           ],
           "description": "Failure or stale-fallback reason."
+        },
+        "retrieved_count": {
+          "description": "Number of retrieved identities.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
         },
         "source": {
           "$ref": "#/$defs/Reply_Source",
@@ -1383,6 +1401,242 @@
           "description": "Source total only; no returned study rows.",
           "type": "boolean"
         },
+        "country": {
+          "description": "Exact ClinicalTrials.gov country label; repeat for OR. Trials must list a site in a named country. NCI uses its native country filter.",
+          "items": {
+            "enum": [
+              "Afghanistan",
+              "Aland Islands",
+              "Albania",
+              "Algeria",
+              "American Samoa",
+              "Andorra",
+              "Angola",
+              "Anguilla",
+              "Antarctica",
+              "Antigua and Barbuda",
+              "Argentina",
+              "Armenia",
+              "Aruba",
+              "Australia",
+              "Austria",
+              "Azerbaijan",
+              "Bahrain",
+              "Bangladesh",
+              "Barbados",
+              "Belarus",
+              "Belgium",
+              "Belize",
+              "Benin",
+              "Bermuda",
+              "Bhutan",
+              "Bolivia",
+              "Bonaire, Saint Eustatius and Saba ",
+              "Bosnia and Herzegovina",
+              "Botswana",
+              "Brazil",
+              "Brunei",
+              "Bulgaria",
+              "Burkina Faso",
+              "Burma",
+              "Burundi",
+              "Cabo Verde",
+              "Cambodia",
+              "Cameroon",
+              "Canada",
+              "Cayman Islands",
+              "Central African Republic",
+              "Chad",
+              "Chile",
+              "China",
+              "Christmas Island",
+              "Colombia",
+              "Comoros",
+              "Costa Rica",
+              "Croatia",
+              "Cuba",
+              "Curacao",
+              "Cyprus",
+              "Czechia",
+              "Côte d’Ivoire",
+              "Democratic Republic of the Congo",
+              "Denmark",
+              "Djibouti",
+              "Dominica",
+              "Dominican Republic",
+              "Ecuador",
+              "Egypt",
+              "El Salvador",
+              "Equatorial Guinea",
+              "Eritrea",
+              "Estonia",
+              "Eswatini",
+              "Ethiopia",
+              "Faroe Islands",
+              "Federal Republic of Yugoslavia",
+              "Fiji",
+              "Finland",
+              "France",
+              "French Guiana",
+              "French Polynesia",
+              "French Southern and Antarctic Lands",
+              "Gabon",
+              "Georgia",
+              "Germany",
+              "Ghana",
+              "Gibraltar",
+              "Greece",
+              "Greenland",
+              "Grenada",
+              "Guadeloupe",
+              "Guam",
+              "Guatemala",
+              "Guinea",
+              "Guinea-Bissau",
+              "Guyana",
+              "Haiti",
+              "Holy See",
+              "Honduras",
+              "Hong Kong",
+              "Hungary",
+              "Iceland",
+              "India",
+              "Indonesia",
+              "Iran",
+              "Iraq",
+              "Ireland",
+              "Israel",
+              "Italy",
+              "Jamaica",
+              "Japan",
+              "Jersey",
+              "Jordan",
+              "Kazakhstan",
+              "Kenya",
+              "Kiribati",
+              "Kosovo",
+              "Kuwait",
+              "Kyrgyzstan",
+              "Laos",
+              "Latvia",
+              "Lebanon",
+              "Lesotho",
+              "Liberia",
+              "Libya",
+              "Liechtenstein",
+              "Lithuania",
+              "Luxembourg",
+              "Macau",
+              "Madagascar",
+              "Malawi",
+              "Malaysia",
+              "Maldives",
+              "Mali",
+              "Malta",
+              "Martinique",
+              "Mauritania",
+              "Mauritius",
+              "Mayotte",
+              "Mexico",
+              "Micronesia",
+              "Moldova",
+              "Monaco",
+              "Mongolia",
+              "Montenegro",
+              "Montserrat",
+              "Morocco",
+              "Mozambique",
+              "Namibia",
+              "Nepal",
+              "Netherlands",
+              "Netherlands Antilles",
+              "New Caledonia",
+              "New Zealand",
+              "Nicaragua",
+              "Niger",
+              "Nigeria",
+              "Niue",
+              "North Korea",
+              "North Macedonia",
+              "Northern Mariana Islands",
+              "Norway",
+              "Oman",
+              "Pakistan",
+              "Palestinian Territories",
+              "Panama",
+              "Papua New Guinea",
+              "Paraguay",
+              "Peru",
+              "Philippines",
+              "Poland",
+              "Portugal",
+              "Puerto Rico",
+              "Qatar",
+              "Republic of the Congo",
+              "Reunion",
+              "Romania",
+              "Russia",
+              "Rwanda",
+              "Saint Kitts and Nevis",
+              "Saint Lucia",
+              "Saint Martin",
+              "Saint Vincent and the Grenadines",
+              "Samoa",
+              "San Marino",
+              "Saudi Arabia",
+              "Senegal",
+              "Serbia",
+              "Serbia and Montenegro",
+              "Seychelles",
+              "Sierra Leone",
+              "Singapore",
+              "Slovakia",
+              "Slovenia",
+              "Solomon Islands",
+              "Somalia",
+              "South Africa",
+              "South Korea",
+              "South Sudan",
+              "Spain",
+              "Sri Lanka",
+              "Sudan",
+              "Suriname",
+              "Sweden",
+              "Switzerland",
+              "Syria",
+              "Taiwan",
+              "Tajikistan",
+              "Tanzania",
+              "Thailand",
+              "The Bahamas",
+              "The Gambia",
+              "Timor-Leste",
+              "Togo",
+              "Trinidad and Tobago",
+              "Tunisia",
+              "Turkey (Türkiye)",
+              "Turkmenistan",
+              "Uganda",
+              "Ukraine",
+              "United Arab Emirates",
+              "United Kingdom",
+              "United States",
+              "United States Minor Outlying Islands",
+              "Uruguay",
+              "Uzbekistan",
+              "Vanuatu",
+              "Venezuela",
+              "Vietnam",
+              "Virgin Islands",
+              "Yemen",
+              "Zambia",
+              "Zimbabwe"
+            ],
+            "type": "string"
+          },
+          "maxItems": 5,
+          "type": "array"
+        },
         "criteria": {
           "$ref": "#/$defs/Reply_Text",
           "description": "Search literal registry eligibility text for discovery only; no eligibility judgment."
@@ -1397,7 +1651,7 @@
         },
         "facility": {
           "$ref": "#/$defs/Reply_Text",
-          "description": "Exact facility name; NCI matches organization names case-insensitively. A listed site is not necessarily enrolling. Cannot combine with radius."
+          "description": "Facility phrase; ClinicalTrials.gov broadens after zero exact matches. NCI matches exact names. Cannot combine with radius."
         },
         "gene": {
           "$ref": "#/$defs/Reply_GeneInput",
@@ -1466,11 +1720,11 @@
         },
         "sponsor": {
           "$ref": "#/$defs/Reply_Text",
-          "description": "Exact lead sponsor field."
+          "description": "Sponsor name; ClinicalTrials.gov broadens after zero exact matches. Use --sponsor-type for the funding category."
         },
         "sponsor_type": {
           "$ref": "#/$defs/Reply_SponsorType",
-          "description": "Registry sponsor funding facet."
+          "description": "Registry sponsor funding category; use --sponsor for a sponsor name."
         },
         "status": {
           "$ref": "#/$defs/Reply_TrialStatusFilter",
@@ -1581,7 +1835,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.nci-trial-page/7",
+  "$id": "biomcp.nci-trial-page/10",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -1637,7 +1891,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.nci-trial-page/7",
+      "const": "biomcp.nci-trial-page/10",
       "type": "string"
     },
     "sources": {

@@ -22,7 +22,10 @@ mod query;
 // `unreachable_pub` reports a missing crate-root re-export.
 mod response;
 pub use response::{SchemaCatalog, SchemaEntry};
-pub use response::{SourceTimestamp, SourceTimestampTimezone};
+pub use response::{
+    SourceDateTime, SourceDateTimeValue, SourceLocalTimestampValue, SourceTimestamp,
+    SourceTimestampTimezone, SourceTimestampValue, SourceUpdated,
+};
 mod source;
 
 pub use predictor::{
@@ -83,9 +86,10 @@ pub use response::{
     GeneExpression, PathwayRef, ReactomeId, RnaAbundance, RnaUnit, TissueNtpm,
 };
 pub use response::{
-    CivicClaimPage, CivicMember, CivicMembership, CivicNativeClaim, CivicProfile, CivicStatement,
-    HotspotAlternate, HotspotMembership, HotspotRecord, OncokbCitation, OncokbVariantRecord,
-    VariantCivic, VariantHotspots, VariantOncokb, VariantSections,
+    CivicClaimPage, CivicCondition, CivicMember, CivicMembership, CivicNativeClaim, CivicProfile,
+    CivicStatement, CivicTherapy, HotspotAlternate, HotspotMembership, HotspotRecord,
+    OncokbCitation, OncokbConcept, OncokbVariantRecord, VariantCivic, VariantHotspots,
+    VariantOncokb, VariantSections,
 };
 pub use response::{
     ConfigurationHealth, ConfigurationNotice, ConfigurationNoticeCode, ConfigurationVariable,

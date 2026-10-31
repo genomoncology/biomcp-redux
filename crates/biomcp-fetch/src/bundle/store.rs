@@ -6,10 +6,12 @@ use crate::{
 use rusqlite::{Connection, OptionalExtension, params};
 const PART_PREFIX: &str = ".tmp";
 const PART_RANDOM: usize = 6;
-const METADATA: &str = "SELECT b.bytes,b.rows,b.fresh_until,b.etag,b.modified,c.revision,c.retrieved_at FROM bundle b LEFT \
+const METADATA: &str = "SELECT b.bytes,b.rows,b.fresh_until,b.etag,b.modified,c.revision,c.retrieved_at,\
+    COALESCE((SELECT rejections FROM bundle_rejection WHERE name=b.name),'[]') FROM bundle b LEFT \
     JOIN bundle_content c ON c.name=b.name WHERE b.name=?1";
 #[derive(Clone, Debug)]
 pub(super) struct Meta {
+    pub rejections: Vec<super::BundleRejection>,
     pub bytes: u64,
     pub rows: u64,
     pub fresh_until: i64,
@@ -26,6 +28,25 @@ pub(super) struct Part {
     pub total: Option<u64>,
 }
 impl Part {
+    fn in_use(&self, folder: &std::path::Path) -> Result<bool, CacheError> {
+        if !self.validate(folder)? {
+            return Ok(false);
+        }
+        let file = match std::fs::OpenOptions::new()
+            .read(true)
+            .write(true)
+            .open(&self.path)
+        {
+            Ok(file) => file,
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(false),
+            Err(_) => return Err(CacheError::Database),
+        };
+        match file.try_lock() {
+            Ok(()) => Ok(false),
+            Err(std::fs::TryLockError::WouldBlock) => Ok(true),
+            Err(std::fs::TryLockError::Error(_)) => Err(CacheError::Database),
+        }
+    }
     fn validate(&self, folder: &std::path::Path) -> Result<bool, CacheError> {
         let path = std::path::Path::new(&self.path);
         let parent = path.parent().ok_or(CacheError::Database)?;
@@ -51,11 +72,16 @@ pub(crate) fn part_name(name: &str) -> bool {
         .is_some_and(|n| n.len() == PART_RANDOM && n.bytes().all(|b| b.is_ascii_alphanumeric()))
 }
 pub(super) fn create_part(folder: &std::path::Path) -> Result<tempfile::NamedTempFile, CacheError> {
-    tempfile::Builder::new()
+    let file = tempfile::Builder::new()
         .prefix(PART_PREFIX)
         .rand_bytes(PART_RANDOM)
         .tempfile_in(folder)
-        .map_err(|_| CacheError::Database)
+        .map_err(|_| CacheError::Database)?;
+    // The transfer file witnesses this holder's lifetime, including process death.
+    file.as_file()
+        .try_lock()
+        .map_err(|_| CacheError::Database)?;
+    Ok(file)
 }
 pub(crate) fn initialize(c: &Connection) -> Result<(), CacheError> {
     c.execute_batch(
@@ -67,6 +93,8 @@ pub(crate) fn initialize(c: &Connection) -> Result<(), CacheError> {
     CREATE TABLE IF NOT EXISTS bundle_key(bundle TEXT NOT NULL,kind INTEGER NOT NULL,key TEXT NOT NULL,n INTEGER NOT NULL);
     CREATE INDEX IF NOT EXISTS bundle_key_find ON bundle_key(bundle,kind,key,n);
     CREATE VIRTUAL TABLE IF NOT EXISTS bundle_words USING fts5(bundle UNINDEXED,n UNINDEXED,words);
+    CREATE TABLE IF NOT EXISTS bundle_rejection(name TEXT PRIMARY KEY,rejections TEXT NOT NULL);
+    CREATE TRIGGER IF NOT EXISTS bundle_rejection_delete BEFORE DELETE ON bundle BEGIN DELETE FROM bundle_rejection WHERE name=OLD.name; END;
     CREATE TABLE IF NOT EXISTS bundle_content(name TEXT PRIMARY KEY,revision TEXT NOT NULL,retrieved_at INTEGER NOT NULL);
     CREATE TRIGGER IF NOT EXISTS bundle_content_insert BEFORE INSERT ON bundle BEGIN DELETE FROM \
         bundle_content WHERE name=NEW.name; END;
@@ -89,6 +117,7 @@ pub(super) fn kind(k: KeyKind) -> u8 {
 }
 pub(super) fn info<R: Row>(b: &Bundle<R>, m: &Meta) -> BundleInfo {
     BundleInfo {
+        rejections: m.rejections.clone(),
         etag: m.etag.as_deref().map(Into::into),
         last_modified: m.modified.as_deref().map(Into::into),
         name: b.name,
@@ -139,6 +168,16 @@ impl Cache {
             Ok(value)
         })
     }
+    pub(super) fn syncing(&self, name: &str, d: Deadline<'_>) -> Result<bool, CacheError> {
+        self.sql(d, |c| {
+            let part = c.query_row(
+                "SELECT part FROM bundle_sync WHERE name=?1 AND holder IS NOT NULL AND lease_until>?2",
+                params![name, now()],
+                |r| Ok(Part { path: r.get(0)?, bytes: 0, etag: None, total: None }),
+            ).optional().map_err(db_error)?;
+            part.map(|part| part.in_use(&self.1)).transpose().map(|used| used.unwrap_or(false))
+        })
+    }
     pub(super) fn claim(
         &self,
         name: &str,
@@ -170,7 +209,10 @@ impl Cache {
                 )
                 .optional()
                 .map_err(db_error)?;
-            if old.as_ref().is_some_and(|(h, until, _, _)| h.is_some() && *until > now()) {
+            if let Some((Some(_), until, _, part)) = &old
+                && *until > now()
+                && part.in_use(&self.1)?
+            {
                 return Err(CacheError::Busy);
             }
             // Released and expired files transfer to this claim. A still-running
@@ -263,7 +305,7 @@ fn selected_rows(c: &Connection, name: &str, find: Find<'_>) -> Result<Vec<Strin
         Find::Words(v) => {
             let words: Vec<_> = v
                 .split_whitespace()
-                .filter(|w| w.chars().any(char::is_alphanumeric))
+                .filter(|w| super::query_word(w))
                 .map(|w| format!("\"{}\"", w.replace('"', "\"\"")))
                 .collect();
             if words.is_empty() {
@@ -295,6 +337,13 @@ fn selected_rows(c: &Connection, name: &str, find: Find<'_>) -> Result<Vec<Strin
 
 fn metadata(row: &rusqlite::Row<'_>) -> rusqlite::Result<Meta> {
     Ok(Meta {
+        rejections: serde_json::from_str(&row.get::<_, String>(7)?).map_err(|error| {
+            rusqlite::Error::FromSqlConversionFailure(
+                7,
+                rusqlite::types::Type::Text,
+                Box::new(error),
+            )
+        })?,
         bytes: u64::from(row.get::<_, u32>(0)?),
         rows: u64::from(row.get::<_, u32>(1)?),
         fresh_until: row.get(2)?,

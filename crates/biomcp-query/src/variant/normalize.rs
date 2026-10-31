@@ -7,7 +7,11 @@ use biomcp_types::{
     NormalizationResult, NormalizationSource, QueryBody, Request, SourceOutcome, SourceState,
     Status, StepKind, VariantNormalization, VariantNormalize, VariantResolution,
 };
-type Row = (NormalizationResult, SourceOutcome, Option<RequestError>);
+type Row = (
+    biomcp_adapters::Mapped<NormalizationResult>,
+    SourceOutcome,
+    Option<RequestError>,
+);
 /// Call each explicitly selected service independently under the shared deadline.
 pub fn normalize(cx: &Ctx<'_>, query: &VariantNormalize) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
@@ -23,7 +27,10 @@ pub fn normalize(cx: &Ctx<'_>, query: &VariantNormalize) -> Outcome {
     let mut local = None;
     let mut more = false;
     let mut states = Vec::new();
-    for (mut result, source, error) in crate::fan_out::run(jobs) {
+    let mut problems = Vec::new();
+    for (mapped, source, error) in crate::fan_out::run(jobs) {
+        problems.extend(mapped.problems);
+        let mut result = mapped.value;
         states.push(
             if matches!(
                 result.outcome,
@@ -74,7 +81,7 @@ pub fn normalize(cx: &Ctx<'_>, query: &VariantNormalize) -> Outcome {
             results: results.into(),
         }),
         sources,
-        problems: Vec::new(),
+        problems,
         next,
         page: None,
         local,
@@ -121,8 +128,12 @@ fn service(
     };
     let error = result.as_ref().err().copied();
     let mut source = status::source(spec.source, leg.finish(), error);
-    let result = result.unwrap_or_else(|_| NormalizationResult::unavailable(spec.source));
-    if result.outcome == VariantResolution::Rejected {
+    let result = result.unwrap_or_else(|_| biomcp_adapters::Mapped {
+        refusals: biomcp_adapters::Refusal::None,
+        value: NormalizationResult::unavailable(spec.source),
+        problems: Vec::new(),
+    });
+    if result.value.outcome == VariantResolution::Rejected {
         source.state = SourceState::Failed;
         source.reason = Some(biomcp_types::Reason::Rejected);
     }

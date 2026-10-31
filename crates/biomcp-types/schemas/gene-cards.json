@@ -86,13 +86,18 @@
           "description": "Complete source description, absent when the source has none."
         },
         "id": {
-          "description": "CIViC feature identifier.",
-          "format": "uint64",
-          "minimum": 0,
-          "type": "integer"
+          "$ref": "#/$defs/Reply_Identifier_uint64",
+          "description": "CIViC feature identifier."
         },
         "url": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Link to the source entry.",
           "format": "uri"
         },
@@ -100,13 +105,14 @@
           "description": "Number of curated variants reported by the source.",
           "format": "uint64",
           "minimum": 0,
-          "type": "integer"
+          "type": [
+            "integer",
+            "null"
+          ]
         }
       },
       "required": [
-        "id",
-        "variant_count",
-        "url"
+        "id"
       ],
       "type": "object"
     },
@@ -172,19 +178,47 @@
       "description": "One published ClinGen gene–disease validity record.",
       "properties": {
         "classification": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Source classification without inference."
         },
         "classification_date": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Source classification date, preserving its original spelling."
         },
         "disease": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Source disease label."
         },
         "expert_panel": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Source expert panel."
         },
         "mode_of_inheritance": {
@@ -196,19 +230,21 @@
           "description": "Source MONDO identifier."
         },
         "report_url": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Source report URL.",
           "format": "uri"
         }
       },
       "required": [
-        "disease",
         "mondo_id",
-        "mode_of_inheritance",
-        "classification",
-        "classification_date",
-        "expert_panel",
-        "report_url"
+        "mode_of_inheritance"
       ],
       "type": "object"
     },
@@ -223,23 +259,58 @@
           "type": "array"
         },
         "loeuf": {
-          "$ref": "#/$defs/Reply_FiniteNumber",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_FiniteNumber"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Upper confidence bound of the observed-to-expected loss-of-function ratio."
         },
         "mis_z": {
-          "$ref": "#/$defs/Reply_FiniteNumber",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_FiniteNumber"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Missense Z score."
         },
         "oe_lof": {
-          "$ref": "#/$defs/Reply_FiniteNumber",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_FiniteNumber"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Observed-to-expected loss-of-function ratio."
         },
         "pli": {
-          "$ref": "#/$defs/Reply_FiniteNumber",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_FiniteNumber"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Probability of loss-of-function intolerance."
         },
         "syn_z": {
-          "$ref": "#/$defs/Reply_FiniteNumber",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_FiniteNumber"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Synonymous Z score."
         },
         "transcript": {
@@ -252,11 +323,6 @@
         }
       },
       "required": [
-        "pli",
-        "loeuf",
-        "oe_lof",
-        "mis_z",
-        "syn_z",
         "transcript",
         "version"
       ],
@@ -292,19 +358,47 @@
       "description": "One source submission; no clinical validity is inferred.",
       "properties": {
         "classification": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Source classification title without inference."
         },
         "classification_id": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Source classification identifier."
         },
         "disease": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Source disease title."
         },
         "disease_id": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Source disease identifier."
         },
         "evaluated_date": {
@@ -323,11 +417,25 @@
           "description": "Source submission identifier."
         },
         "mode_of_inheritance": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Source inheritance title."
         },
         "mode_of_inheritance_id": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Source inheritance identifier."
         },
         "submitted_date": {
@@ -342,11 +450,25 @@
           "description": "Source submitted_run_date, preserving its spelling."
         },
         "submitter": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Source submitter title."
         },
         "submitter_id": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Source submitter identifier."
         },
         "version": {
@@ -356,15 +478,7 @@
       },
       "required": [
         "id",
-        "version",
-        "disease_id",
-        "disease",
-        "classification_id",
-        "classification",
-        "mode_of_inheritance_id",
-        "mode_of_inheritance",
-        "submitter_id",
-        "submitter"
+        "version"
       ],
       "type": "object"
     },
@@ -416,7 +530,14 @@
           "description": "Source-stated location, including unparsed publisher text."
         },
         "locus_group": {
-          "$ref": "#/$defs/Reply_LocusGroup",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_LocusGroup"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "HGNC locus group."
         },
         "locus_type": {
@@ -438,7 +559,14 @@
           "type": "array"
         },
         "name": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Gene name."
         },
         "omim": {
@@ -492,9 +620,7 @@
       "required": [
         "hgnc_id",
         "symbol",
-        "status",
-        "locus_group",
-        "name"
+        "status"
       ],
       "type": "object"
     },
@@ -624,7 +750,14 @@
           "description": "Source-stated location, including unparsed publisher text."
         },
         "locus_group": {
-          "$ref": "#/$defs/Reply_LocusGroup",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_LocusGroup"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "HGNC locus group."
         },
         "match": {
@@ -639,7 +772,14 @@
           "description": "Match information when this header answers an input."
         },
         "name": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Gene name."
         },
         "status": {
@@ -654,9 +794,7 @@
       "required": [
         "hgnc_id",
         "symbol",
-        "locus_group",
-        "status",
-        "name"
+        "status"
       ],
       "type": "object"
     },
@@ -1041,6 +1179,34 @@
         "merged_split"
       ]
     },
+    "Reply_IdentifierNamespace": {
+      "description": "A source-stated authority or an explicit unknown authority, represented by the string unknown.",
+      "maxLength": 1048576,
+      "minLength": 1,
+      "pattern": "^(?![\\s\\S]*[\\x00-\\x1f\\x7f-\\x9f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069])",
+      "type": "string"
+    },
+    "Reply_Identifier_uint64": {
+      "description": "An authority and its unchanged native identifier; unknown means the authority was not stated.",
+      "properties": {
+        "id": {
+          "description": "Native identifier value, with its original scalar type and precision.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "namespace": {
+          "$ref": "#/$defs/Reply_IdentifierNamespace",
+          "description": "Native authority spelling; the literal unknown carries an unstated authority."
+        }
+      },
+      "required": [
+        "namespace",
+        "id"
+      ],
+      "type": "object",
+      "x-identifier": true
+    },
     "Reply_LocusGroup": {
       "description": "HGNC locus group, separate from a missing source value.",
       "type": "string",
@@ -1266,8 +1432,26 @@
       "description": "Short source-stated annotation on a gene card.",
       "properties": {
         "gene_type": {
-          "$ref": "#/$defs/Reply_OncokbGeneType",
-          "description": "Source gene classification."
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_SourceText"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Exact native classification, including an unpublished future literal."
+        },
+        "gene_type_code": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_OncokbGeneType"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Coding for the five published source literals only."
         },
         "highest_resistance_level": {
           "anyOf": [
@@ -1303,9 +1487,6 @@
           "description": "Data release version, when verified."
         }
       },
-      "required": [
-        "gene_type"
-      ],
       "type": "object"
     },
     "Reply_OncokbGeneType": {
@@ -1414,13 +1595,19 @@
           "description": "Human stable identifier."
         },
         "name": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Whole source pathway name."
         }
       },
       "required": [
-        "id",
-        "name"
+        "id"
       ],
       "type": "object"
     },
@@ -1524,10 +1711,20 @@
           "description": "Sequence length in amino acids.",
           "format": "uint32",
           "minimum": 0,
-          "type": "integer"
+          "type": [
+            "integer",
+            "null"
+          ]
         },
         "name": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Recommended protein name."
         },
         "subcellular_locations": {
@@ -1539,9 +1736,7 @@
         }
       },
       "required": [
-        "accession",
-        "name",
-        "length"
+        "accession"
       ],
       "type": "object"
     },
@@ -2856,15 +3051,6 @@
             "null"
           ]
         },
-        "fetched": {
-          "description": "Retrieved identity depth.",
-          "format": "uint32",
-          "minimum": 0,
-          "type": [
-            "integer",
-            "null"
-          ]
-        },
         "notices": {
           "description": "Source notices and request recovery guidance.",
           "items": {
@@ -2882,6 +3068,15 @@
             }
           ],
           "description": "Failure or stale-fallback reason."
+        },
+        "retrieved_count": {
+          "description": "Number of retrieved identities.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
         },
         "source": {
           "$ref": "#/$defs/Reply_Source",
@@ -2932,6 +3127,10 @@
           "$ref": "#/$defs/Reply_Text",
           "description": "Native source identifier."
         },
+        "namespace": {
+          "$ref": "#/$defs/Reply_IdentifierNamespace",
+          "description": "Native authority; unknown means the source did not state one."
+        },
         "url": {
           "anyOf": [
             {
@@ -2946,9 +3145,11 @@
         }
       },
       "required": [
+        "namespace",
         "id"
       ],
-      "type": "object"
+      "type": "object",
+      "x-identifier": true
     },
     "Reply_SourceState": {
       "description": "State of a source actually asked by the command.",
@@ -2959,6 +3160,10 @@
         "failed",
         "skipped"
       ],
+      "type": "string"
+    },
+    "Reply_SourceText": {
+      "description": "Unchanged free source text, including empty values and surrounding whitespace.",
       "type": "string"
     },
     "Reply_Span0": {
@@ -3145,7 +3350,7 @@
       "type": "object"
     }
   },
-  "$id": "biomcp.gene-cards/10",
+  "$id": "biomcp.gene-cards/13",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -3201,7 +3406,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.gene-cards/10",
+      "const": "biomcp.gene-cards/13",
       "type": "string"
     },
     "sources": {

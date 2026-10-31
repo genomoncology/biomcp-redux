@@ -3,7 +3,7 @@ use biodata::*;
 use biomcp_types::*;
 pub(super) fn registry() -> Vec<Contract> {
     contracts! {
-        DiseaseAssociation => ("disease-association", "biodata.disease-association/6"),
+        DiseaseAssociation => ("disease-association", "biodata.disease-association/7"),
         DiseaseRelation => ("disease-relation", "biodata.disease-relation/4"),
         DiseaseEndpoint => ("disease-endpoint", "biodata.disease-endpoint/3"),
         DiseaseSynonym => ("disease-synonym", "biodata.disease-synonym/3"),

@@ -131,7 +131,7 @@ fn canonical_request_preserves_legacy_interval_scorers_and_provider_default_chec
     Ok(())
 }
 #[test]
-fn scorer_admission_requires_exact_outputs_variant_echo_and_descriptor_chunk_order() -> Check {
+fn scorer_admission_requires_exact_outputs_and_descriptor_chunk_order() -> Check {
     let req = request(140753336)?;
     let mut complete = req
         .decoder(Limits::default())
@@ -166,14 +166,6 @@ fn scorer_admission_requires_exact_outputs_variant_echo_and_descriptor_chunk_ord
             descriptor(140753336),
             chunk(),
             descriptor(140753336),
-            chunk(),
-            descriptor(140753336),
-            chunk(),
-            descriptor(140753336),
-            chunk(),
-        ],
-        vec![
-            descriptor(140753335),
             chunk(),
             descriptor(140753336),
             chunk(),
@@ -229,5 +221,46 @@ fn scoring_stream_refuses_cumulative_envelope_and_tensor_limits() -> Check {
             .is_ok();
         assert!(!accepted || decoder.finish().is_err());
     }
+    Ok(())
+}
+
+#[test]
+fn mismatched_native_variant_refuses_only_its_scorer_identity() -> Check {
+    let req = request(140753336)?;
+    let mut decoder = req.decoder(Limits::default()).map_err(|_| "limits")?;
+    for message in [
+        descriptor(140753335),
+        chunk(),
+        descriptor(140753336),
+        chunk(),
+        descriptor(140753336),
+        chunk(),
+    ] {
+        decoder
+            .message(&message)
+            .map_err(|_| "well-formed native stream refused")?;
+    }
+    let reply = decoder.finish().map_err(|_| "complete stream refused")?;
+    assert_eq!(reply.problems.len(), 1);
+    assert_eq!(
+        reply
+            .problems
+            .first()
+            .ok_or("missing identity problem")?
+            .field
+            .as_ref(),
+        "scorers.0.variant"
+    );
+    let first = reply.groups.first().ok_or("missing native scorer")?;
+    assert_eq!(first.tensor.shape(), &[1, 1, 1]);
+    assert_eq!(first.tracks.len(), 1);
+    assert!(first.tracks.iter().all(Option::is_none));
+    assert!(
+        reply
+            .groups
+            .iter()
+            .skip(1)
+            .all(|group| group.tracks.iter().all(Option::is_some))
+    );
     Ok(())
 }

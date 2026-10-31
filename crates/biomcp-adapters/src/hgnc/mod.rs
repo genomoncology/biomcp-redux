@@ -63,6 +63,28 @@ pub fn sync(fetch: &Fetch, selector: HgncBundle) -> Result<BundleInfo, RequestEr
         HgncBundle::Withdrawn => fetch.sync(&WITHDRAWN),
     }
 }
+/// Synchronize both identity files and retain rejected row disclosures.
+pub fn sync_all(fetch: &Fetch) -> Result<Mapped<biomcp_types::SyncResult>, RequestError> {
+    let complete = sync(fetch, HgncBundle::Complete)?;
+    let withdrawn = sync(fetch, HgncBundle::Withdrawn)?;
+    let mut problems = crate::mapped::bundle_problems(Source::Hgnc, &complete);
+    problems.extend(crate::mapped::bundle_problems(Source::Hgnc, &withdrawn));
+    let mut refusals = crate::bundle_mapping::bundle_refusals(&complete);
+    refusals.include(crate::bundle_mapping::bundle_refusals(&withdrawn));
+    Ok(Mapped {
+        refusals,
+        problems,
+        value: biomcp_types::SyncResult {
+            snapshot: None,
+            etag: None,
+            last_modified: None,
+            duplicate_identities: None,
+            rows: complete.rows + withdrawn.rows,
+            bytes: complete.bytes + withdrawn.bytes,
+            downloaded_bytes: complete.downloaded_bytes + withdrawn.downloaded_bytes,
+        },
+    })
+}
 /// Map approved genes from one literal indexed lookup, retaining rejected fields.
 pub fn lookup(leg: &Leg<'_>, find: Find<'_>) -> Result<Mapped<Vec<Gene>>, RequestError> {
     Ok(map::genes(leg.rows(&COMPLETE, find)?))
@@ -87,6 +109,7 @@ pub fn withdrawn(leg: &Leg<'_>, input: &GeneInput) -> Result<Mapped<Vec<Withdraw
         GeneInput::Text(_) => KeyKind::Symbol,
         _ => {
             return Ok(Mapped {
+                refusals: crate::Refusal::None,
                 value: Vec::new(),
                 problems: Vec::new(),
             });
@@ -120,6 +143,7 @@ pub fn in_band(leg: &Leg<'_>, prefix: &str) -> Result<Mapped<Vec<GeneHeader>>, R
         })
         .collect();
     Ok(Mapped {
+        refusals: rows.refusals,
         value,
         problems: rows.problems,
     })

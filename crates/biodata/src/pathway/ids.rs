@@ -46,7 +46,8 @@ pub struct PathwayRef {
     /// Human stable identifier.
     pub id: ReactomeId,
     /// Whole source pathway name.
-    pub name: Text,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub name: Option<Text>,
 }
 
 /// A checked WikiPathways identity without its revision.
@@ -90,8 +91,9 @@ text_value!(
 );
 /// Source-owned pathway identity; equal names never merge sources.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
-#[serde(tag = "source", content = "id", rename_all = "lowercase")]
+#[serde(tag = "namespace", content = "id", rename_all = "lowercase")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", schemars(extend("x-identifier" = true)))]
 pub enum PathwayId {
     /// Human Reactome stable identity without a version suffix.
     Reactome(ReactomeId),

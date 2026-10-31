@@ -45,6 +45,7 @@ impl super::Trial {
             p.required::<Text>("sites.org_name", None);
         }
         Mapped {
+            refusals: crate::Refusal::None,
             value: card,
             problems: p.list,
         }

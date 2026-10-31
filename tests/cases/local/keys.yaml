@@ -1,0 +1,51 @@
+{
+  "live_check": "local-only command help, validation or stored-state behavior; no recorded source replies",
+  "feature": "key-registration",
+  "story": "A caller registers and replaces a synthetic credential, sees only its origin, and removes it.",
+  "steps": [
+    {
+      "run": [
+        "key",
+        "set",
+        "semantic-scholar"
+      ],
+      "stdin": "synthetic-registration-first\n",
+      "expect": {
+        "/result/entries/0/source": "semantic-scholar",
+        "/result/entries/0/state": "stored"
+      }
+    },
+    {
+      "run": [
+        "key",
+        "list"
+      ],
+      "expect": {
+        "/result/entries/1/source": "semantic-scholar",
+        "/result/entries/1/state": "stored"
+      }
+    },
+    {
+      "run": [
+        "key",
+        "set",
+        "semantic-scholar",
+        "--replace"
+      ],
+      "stdin": "synthetic-registration-second\n",
+      "expect": {
+        "/result/entries/0/state": "stored"
+      }
+    },
+    {
+      "run": [
+        "key",
+        "remove",
+        "semantic-scholar"
+      ],
+      "expect": {
+        "/result/entries/0/state": "none"
+      }
+    }
+  ]
+}

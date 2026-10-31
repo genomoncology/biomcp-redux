@@ -13,7 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 CARGO = '''#!/usr/bin/env python3
 import json, os, sys
 from pathlib import Path
-assert sys.argv[1:] == ['test','--locked','-p','biomcp','--test','cases','--','--live-check','--details']
+assert sys.argv[1:] == ['test','--locked','-p','biomcp','--test','tools','--','--live-check','--details']
 print(json.dumps(json.loads(os.environ['FAKE_REPORT'])))
 print('offline build log', file=sys.stderr)
 sys.exit(int(os.environ.get('FAKE_EXIT', '0')))
@@ -104,7 +104,8 @@ def classification_case(change):
         if change == 'clean-cut':
             drift = []
         witness = {"cut": True}
-    result = {"drift": drift}
+    result = {"drift": drift, "commands": [{'ordinal': 1, 'exchanges': {
+        'items': [], 'omitted': 0, 'drift': drift, 'drift_omitted': 0}}]}
     if change == 'omitted-count':
         result['commands'] = [{'ordinal': 1, 'exchanges': {'drift_omitted': 1}}]
     return {"case": change, "result": result, "witness": witness}
@@ -138,7 +139,8 @@ def publication_growth_case(change='addition', count=1590, insertion=650):
     if change == 'unproven':
         after[0]['provenance']['discovery']['ids'] = old
     return {'case': 'article/litvar/akt1-rsid-citations.yaml',
-            'result': {'drift': ['icite: request-plan-changed', 'icite: request-plan-added']},
+            'result': {'drift': ['icite: request-plan-changed', 'icite: request-plan-added'],
+                       'commands': [{'ordinal': 1, 'exchanges': {'omitted': 0, 'drift_omitted': 0}}]},
             'witness': [{'ordinal': 1, 'baseline': {'requests': before},
                          'live': {'requests': after}}]}
 
@@ -170,7 +172,7 @@ class NightlyCommand(unittest.TestCase):
                         BIOMCP_EVIDENCE_DIR=str(self.store),
                         BIOMCP_SCRATCH_DIR=str(self.scratch_root),
                         PATH=str(self.tools) + os.pathsep + os.environ['PATH'],
-                        FAKE_REPORT='{"drift_cases":0,"error_cases":0}')
+                        FAKE_REPORT='{"drift_cases":0,"error_cases":0,"eligible":0,"checked":0}')
         Path(self.env['TMPDIR']).mkdir()
 
     def run_command(self, args=(), **values):
@@ -315,6 +317,8 @@ class NightlyCommand(unittest.TestCase):
     def test_drift_errors_and_failed_runner_still_copy(self):
         for overrides in [dict(FAKE_REPORT='{"drift_cases":1,"error_cases":0}'),
                           dict(FAKE_REPORT='{"drift_cases":0,"error_cases":1}'),
+                          dict(FAKE_REPORT='{"drift_cases":0,"error_cases":0,"eligible":1,"checked":0}'),
+                          dict(FAKE_REPORT='{"drift_cases":0,"error_cases":0,"checked":0}'),
                           dict(FAKE_EXIT='7'), dict(FAKE_REPORT='{}')]:
             with self.subTest(overrides=overrides):
                 result = self.run_command(**overrides)
@@ -328,7 +332,7 @@ class NightlyCommand(unittest.TestCase):
             "requests": [{"url": "https://example.org/search?q=cancer", "status": 200,
                           "shape": {"fields": {"/id": True}}}],
             "result_ids": [{"field": "id", "value": "new"}], "output": {"id": "new"}}}
-        report = {"drift_cases": 1, "error_cases": 0,
+        report = {"drift_cases": 1, "error_cases": 0, "eligible": 2, "checked": 2,
                   "case_sample": [{"case": "changed", "witness": witness,
                                    "result": {"drift": ["x: request-plan-changed"]}},
                                   {"case": "clean", "result": {"drift": []}}]}
@@ -336,13 +340,13 @@ class NightlyCommand(unittest.TestCase):
         self.assertNotEqual(result.returncode, 0)
         copied = json.loads((self.copied() / 'report.json').read_text())
         self.assertEqual(copied['case_sample'][0]['witness'], witness)
-        self.assertEqual(copied['case_sample'][0]['classification'], 'uncertain')
+        self.assertEqual(copied['case_sample'][0]['classification'], 'failure')
         self.assertEqual(self.scratch(), [])
 
     def classified(self, row, expected, exit_code):
         shutil.rmtree(self.store, ignore_errors=True)
         report = {"drift_cases": int(bool(row["result"]["drift"])), "error_cases": 0,
-                  "checked": 1, "omitted": 0, "case_sample": [row]}
+                  "eligible": 1, "checked": 1, "omitted": 0, "case_sample": [row]}
         result = self.run_command(FAKE_REPORT=json.dumps(report))
         self.assertEqual(result.returncode == 0, exit_code == 0, result.stdout + result.stderr)
         saved = json.loads((self.copied() / 'report.json').read_text())
@@ -354,21 +358,83 @@ class NightlyCommand(unittest.TestCase):
                 ('discovery', 'churn', 0), ('unchanged', 'failure', 1),
                 ('order', 'healthy', 0), ('schema', 'failure', 1),
                 ('500', 'failure', 1), ('429', 'throttled', 0),
-                ('cut', 'uncertain', 1), ('clean-cut', 'uncertain', 1), ('missing', 'uncertain', 1),
+                ('cut', 'failure', 1), ('clean-cut', 'failure', 1), ('missing', 'uncertain', 1),
                 ('unrelated', 'failure', 1), ('invariant', 'failure', 1)]:
             with self.subTest(change=change):
                 self.classified(classification_case(change), expected, code)
 
+    def test_doi_group_change_tracks_graph_discovery_input(self):
+        row = classification_case('discovery')
+        for side in ('baseline', 'live'):
+            for request in row['witness'][0][side]['requests']:
+                for kind in ('discovery', 'inputs'):
+                    ids = request['provenance'].get(kind)
+                    if ids:
+                        ids['namespace'] = 'doi'
+                        ids['ids'] = ['10.1000/' + value for value in ids['ids']]
+        self.classified(row, 'churn', 0)
+        row['witness'][0]['live']['requests'][1]['provenance']['input_context'] = 'changed-query-mode'
+        self.classified(row, 'failure', 1)
+
     def test_causality_requires_ordered_selection_complete_diagnostics_and_fixed_parameters(self):
         for change, expected, code in [
                 ('rank', 'churn', 0), ('unused-tail', 'failure', 1),
-                ('parameter', 'failure', 1), ('omitted', 'uncertain', 1),
-                ('omitted-count', 'uncertain', 1),
+                ('parameter', 'failure', 1), ('omitted', 'failure', 1),
+                ('omitted-count', 'failure', 1),
                 ('429-output', 'throttled', 0), ('429-schema', 'failure', 1),
                 ('429-other-error', 'failure', 1),
                 ('500-output', 'failure', 1)]:
             with self.subTest(change=change):
                 self.classified(classification_case(change), expected, code)
+
+    def test_incomplete_command_coverage_cannot_clear_changed_cases(self):
+        for change in ('plan-drift', 'output-drift', 'unmatched-output', 'duplicate', 'extra', 'reordered',
+                       'missing-side', 'missing-requests', 'missing-commands', 'wrong-ordinal'):
+            with self.subTest(change=change):
+                row = classification_case('order')
+                row['result']['commands'].append({'ordinal': 2, 'exchanges': {'omitted': 0}})
+                row['result']['drift'] = ['second: request-plan-changed']
+                if change == 'output-drift':
+                    row['result']['drift'] = ['command 2: output status changed: complete -> partial']
+                if change in ('duplicate', 'extra', 'reordered', 'missing-side', 'missing-requests',
+                              'wrong-ordinal', 'unmatched-output'):
+                    second = json.loads(json.dumps(row['witness'][0]))
+                    second['ordinal'] = 2
+                    row['witness'].append(second)
+                    if change == 'unmatched-output':
+                        row['result']['drift'] = ['command 3: output status changed: complete -> partial']
+                    elif change == 'duplicate':
+                        second['ordinal'] = 1
+                    elif change == 'extra':
+                        row['witness'].append(dict(second, ordinal=3))
+                    elif change == 'reordered':
+                        row['witness'].reverse()
+                    elif change == 'missing-side':
+                        second.pop('live')
+                    elif change == 'missing-requests':
+                        second['live'].pop('requests')
+                    elif change == 'wrong-ordinal':
+                        row['result']['commands'][1]['ordinal'] = 3
+                if change == 'missing-commands':
+                    row['result'].pop('commands')
+                self.classified(row, 'failure', 1)
+
+    def test_any_exchange_omission_fails_before_source_classification(self):
+        for clean in (False, True):
+            for location in ('drift', 'exchanges', 'before-statuses', 'after-statuses'):
+                with self.subTest(clean=clean, location=location):
+                    row = classification_case('rank')
+                    exchanges = row['result']['commands'][0]['exchanges']
+                    if clean:
+                        row['result']['drift'] = []
+                    if location == 'drift':
+                        exchanges['drift_omitted'] = 1
+                    elif location == 'exchanges':
+                        exchanges['omitted'] = 1
+                    else:
+                        side = 'before_statuses' if location == 'before-statuses' else 'after_statuses'
+                        exchanges['items'] = [{side: {'values': [200], 'omitted': 1}}]
+                    self.classified(row, 'failure', 1)
 
     def test_publication_count_change_keeps_request_diagnostics(self):
         for change, expected in [('addition', 'churn'), ('removal', 'churn'),
@@ -420,13 +486,14 @@ class NightlyCommand(unittest.TestCase):
         first['baseline']['requests'] = before[:1]
         first['live']['requests'] = after[:1]
         row['witness'].append(second)
+        row['result']['commands'].append({'ordinal': 2, 'exchanges': {'omitted': 0, 'drift_omitted': 0}})
         self.classified(row, 'churn', 0)
         second['live']['requests'][0]['status'] = 400
         row['result']['drift'].append('continuation: HTTP status Some(200) -> Some(400)')
         self.classified(row, 'failure', 1)
 
     def test_trial_continuation_uses_live_follow_and_excludes_recorded_mcp_token(self):
-        case = json.loads((ROOT / 'tests/cases/trial/walk.yaml').read_text())
+        case = json.loads((ROOT / 'tests/native/case-inputs/trial/walk.yaml').read_text())
         live = [step for step in case['steps'] if not step.get('offline')]
         self.assertEqual(live[0]['run'], ['search', 'trial', '--condition', 'melanoma'])
         self.assertEqual(live[1]['follow'], 'page')

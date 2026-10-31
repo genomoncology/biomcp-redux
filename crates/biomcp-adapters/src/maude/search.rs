@@ -56,15 +56,28 @@ pub fn search(
             Ok(())
         },
     )?;
+    let mut problems = crate::mapped::Problems {
+        source: Source::Maude,
+        record: None,
+        list: Vec::new(),
+    };
     let (items, total, updated) = match reply {
         raw::Response::Page { meta, results } => (
-            results.into_iter().map(|r| header(&r)).collect(),
+            results
+                .into_iter()
+                .map(|r| {
+                    let mapped = super::map::report(r);
+                    problems.list.extend(mapped.problems);
+                    header(&mapped.value.data)
+                })
+                .collect(),
             meta.results.total,
             meta.last_updated,
         ),
         raw::Response::Absent { .. } => (Vec::new(), 0, None),
     };
     Ok(crate::faers::Page {
+        problems: problems.list,
         components: crate::adverse_event_sources::components::labels(Source::Maude, Source::Gmdn)?,
         items,
         total,
@@ -72,7 +85,7 @@ pub fn search(
         metadata,
     })
 }
-pub(super) fn header(row: &raw::Report) -> AdverseEventHeader {
+pub(super) fn header(row: &biodata::MaudeReport) -> AdverseEventHeader {
     AdverseEventHeader {
         id: row.mdr_report_key.clone(),
         source: AdverseEventSource::Maude,

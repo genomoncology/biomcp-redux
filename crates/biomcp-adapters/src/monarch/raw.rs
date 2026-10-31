@@ -21,20 +21,19 @@ impl Reply for Page {
     }
 }
 #[derive(Debug, Deserialize)]
+#[serde(from = "super::receive::ReceivedRow")]
 pub(super) struct Row {
-    pub id: Text,
-    pub subject: Curie,
+    pub problems: Vec<biomcp_types::Problem>,
+    pub id: Option<Text>,
+    pub subject: Option<Curie>,
     pub subject_taxon: Option<Curie>,
-    #[serde(deserialize_with = "crate::native_text::deserialize")]
-    pub subject_label: biodata::Text,
-    pub predicate: Curie,
-    pub object: Curie,
-    #[serde(deserialize_with = "crate::native_text::deserialize")]
-    pub object_label: biodata::Text,
+    pub subject_label: Option<biodata::Text>,
+    pub predicate: Option<Curie>,
+    pub object: Option<Curie>,
+    pub object_label: Option<biodata::Text>,
     pub original_subject: Option<Curie>,
     pub original_object: Option<Curie>,
     pub primary_knowledge_source: Option<Curie>,
-    #[serde(flatten)]
     pub aggregators: super::presence::Aggregators,
     pub provided_by: Option<Text>,
     pub provided_by_link: Option<Link>,
@@ -70,11 +69,11 @@ pub(super) struct Row {
 }
 #[derive(Debug, Deserialize)]
 pub(super) struct Link {
-    pub url: Text,
+    pub url: Option<crate::raw::Field<Text>>,
 }
 #[derive(Debug, Deserialize)]
 pub(super) struct Reference {
     pub id: Curie,
-    pub label: Option<NativeText>,
-    pub url: Option<Text>,
+    pub label: Option<crate::raw::Field<NativeText>>,
+    pub url: Option<crate::raw::Field<Text>>,
 }

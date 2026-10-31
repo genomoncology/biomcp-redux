@@ -1,6 +1,6 @@
 {
   "feature": "biomarker-nci",
-  "live_check": "bounded keyed NCI public-tier capture",
+  "live_check": "missing nightly NCI user-owned API key; retained native public-tier replies use an isolated replay key",
   "story": "Exact code search returns the complete sole native terminology row.",
   "replay": "biomarker/native",
   "config": {
@@ -44,12 +44,23 @@
           "exclusion"
         ]
       },
-      "max_bytes": 5000,
-      "mcp": [
+      "max_bytes": 5000
+    },
+    {
+      "run": [
         "get",
         "biomarker",
-        "C96022"
-      ]
+        "C96022",
+        "--source",
+        "nci"
+      ],
+      "expect": {
+        "/result/card/header/codes": [
+          "C96022"
+        ],
+        "/result/card/header/name": "CD274 Gene",
+        "/result/card/header/count": 326
+      }
     }
   ]
 }

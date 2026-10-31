@@ -204,7 +204,10 @@
           "description": "Native closure-expanded count.",
           "format": "uint64",
           "minimum": 0,
-          "type": "integer"
+          "type": [
+            "integer",
+            "null"
+          ]
         },
         "count_direct": {
           "description": "Native direct count.",
@@ -230,14 +233,15 @@
         },
         "label": {
           "description": "Native scope label.",
-          "type": "string"
+          "type": [
+            "string",
+            "null"
+          ]
         }
       },
       "required": [
         "key",
-        "category",
-        "label",
-        "count"
+        "category"
       ],
       "type": "object"
     },
@@ -276,7 +280,10 @@
             },
             "label": {
               "description": "Whole source label.",
-              "type": "string"
+              "type": [
+                "string",
+                "null"
+              ]
             },
             "publication_references": {
               "description": "Source publication references, omitted when empty.",
@@ -305,7 +312,6 @@
             "source",
             "requested_id",
             "returned_id",
-            "label",
             "attribution"
           ],
           "type": "object"
@@ -343,7 +349,10 @@
             },
             "label": {
               "description": "Whole native label.",
-              "type": "string"
+              "type": [
+                "string",
+                "null"
+              ]
             },
             "monarch_descendant_count": {
               "description": "Monarch native descendant count, independent of HPO.",
@@ -371,7 +380,6 @@
             "source",
             "requested_id",
             "returned_id",
-            "label",
             "attribution"
           ],
           "type": "object"
@@ -919,15 +927,6 @@
             "null"
           ]
         },
-        "fetched": {
-          "description": "Retrieved identity depth.",
-          "format": "uint32",
-          "minimum": 0,
-          "type": [
-            "integer",
-            "null"
-          ]
-        },
         "notices": {
           "description": "Source notices and request recovery guidance.",
           "items": {
@@ -945,6 +944,15 @@
             }
           ],
           "description": "Failure or stale-fallback reason."
+        },
+        "retrieved_count": {
+          "description": "Number of retrieved identities.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
         },
         "source": {
           "$ref": "#/$defs/Reply_Source",
@@ -1063,7 +1071,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.phenotype-card/3",
+  "$id": "biomcp.phenotype-card/5",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -1119,7 +1127,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.phenotype-card/3",
+      "const": "biomcp.phenotype-card/5",
       "type": "string"
     },
     "sources": {

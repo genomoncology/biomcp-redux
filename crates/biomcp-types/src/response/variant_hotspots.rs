@@ -32,7 +32,8 @@ pub struct HotspotRecord {
     /// Native residue label; no genomic allele is inferred.
     pub residue: Text,
     /// Tumors reported for this residue by the source.
-    pub tumor_count: u64,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub tumor_count: Option<u64>,
     /// Source alternate amino acids and their counts.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub alternates: Box<[HotspotAlternate]>,
@@ -45,7 +46,8 @@ pub struct HotspotAlternate {
     /// Source alternate amino-acid spelling.
     pub amino_acid: Text,
     /// Source count, without deriving a frequency.
-    pub count: u64,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub count: Option<u64>,
 }
 
 biodata::wire_enum! {

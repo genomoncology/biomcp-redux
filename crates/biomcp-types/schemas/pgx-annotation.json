@@ -19,6 +19,33 @@
       "format": "double",
       "type": "number"
     },
+    "Reply_IdentifierNamespace": {
+      "description": "A source-stated authority or an explicit unknown authority, represented by the string unknown.",
+      "maxLength": 1048576,
+      "minLength": 1,
+      "pattern": "^(?![\\s\\S]*[\\x00-\\x1f\\x7f-\\x9f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069])",
+      "type": "string"
+    },
+    "Reply_Identifier_int64": {
+      "description": "An authority and its unchanged native identifier; unknown means the authority was not stated.",
+      "properties": {
+        "id": {
+          "description": "Native identifier value, with its original scalar type and precision.",
+          "format": "int64",
+          "type": "integer"
+        },
+        "namespace": {
+          "$ref": "#/$defs/Reply_IdentifierNamespace",
+          "description": "Native authority spelling; the literal unknown carries an unstated authority."
+        }
+      },
+      "required": [
+        "namespace",
+        "id"
+      ],
+      "type": "object",
+      "x-identifier": true
+    },
     "Reply_PageInfo": {
       "description": "Search counts after filtering and deduplication.",
       "properties": {
@@ -71,27 +98,32 @@
       "properties": {
         "allele": {
           "description": "Native `allele`; literal source value.",
-          "type": "string"
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "id": {
-          "description": "Native `id`; literal source value.",
-          "format": "int64",
-          "type": "integer"
+          "$ref": "#/$defs/Reply_Identifier_int64",
+          "description": "Native `id`; literal source value."
         },
         "limitedEvidence": {
           "description": "Native `limitedEvidence`; literal source value.",
-          "type": "boolean"
+          "type": [
+            "boolean",
+            "null"
+          ]
         },
         "phenotype": {
           "description": "Native `phenotype`; literal source value.",
-          "type": "string"
+          "type": [
+            "string",
+            "null"
+          ]
         }
       },
       "required": [
-        "id",
-        "allele",
-        "limitedEvidence",
-        "phenotype"
+        "id"
       ],
       "type": "object"
     },
@@ -130,8 +162,7 @@
         "conflictingVariantAnnotationIds": {
           "description": "Native `conflictingVariantAnnotationIds`; literal source value.",
           "items": {
-            "format": "int64",
-            "type": "integer"
+            "$ref": "#/$defs/Reply_Identifier_int64"
           },
           "type": "array"
         },
@@ -143,29 +174,51 @@
           "type": "array"
         },
         "id": {
-          "description": "Native `id`; literal source value.",
-          "format": "int64",
-          "type": "integer"
+          "$ref": "#/$defs/Reply_Identifier_int64",
+          "description": "Native `id`; literal source value."
         },
         "levelOfEvidence": {
-          "$ref": "#/$defs/Reply_PgxEvidenceTerm",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_PgxEvidenceTerm"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Native `levelOfEvidence`; literal source value."
         },
         "location": {
-          "$ref": "#/$defs/Reply_PgxLocation",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_PgxLocation"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Native `location`; literal source value."
         },
         "name": {
           "description": "Native `name`; literal source value.",
-          "type": "string"
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "objCls": {
           "description": "Native `objCls`; literal source value.",
-          "type": "string"
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "overrideLevel": {
           "description": "Native `overrideLevel`; literal source value.",
-          "type": "boolean"
+          "type": [
+            "boolean",
+            "null"
+          ]
         },
         "overrideLevelDescription": {
           "description": "Native `overrideLevelDescription` when supplied.",
@@ -176,7 +229,10 @@
         },
         "pediatric": {
           "description": "Native `pediatric`; literal source value.",
-          "type": "boolean"
+          "type": [
+            "boolean",
+            "null"
+          ]
         },
         "relatedAlleles": {
           "description": "Native `relatedAlleles`; literal source value.",
@@ -194,7 +250,10 @@
         },
         "relatedChemicalsLogic": {
           "description": "Native `relatedChemicalsLogic`; literal source value.",
-          "type": "string"
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "relatedDiseases": {
           "description": "Native `relatedDiseases`; literal source value.",
@@ -218,12 +277,22 @@
           "type": "array"
         },
         "score": {
-          "$ref": "#/$defs/Reply_FiniteNumber",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_FiniteNumber"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Native `score`; literal source value."
         },
         "scoreDetails": {
           "description": "Native `scoreDetails`; literal source value.",
-          "type": "string"
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "types": {
           "description": "Native `types`; literal source value.",
@@ -235,16 +304,7 @@
       },
       "required": [
         "id",
-        "accessionId",
-        "levelOfEvidence",
-        "location",
-        "name",
-        "objCls",
-        "overrideLevel",
-        "pediatric",
-        "relatedChemicalsLogic",
-        "score",
-        "scoreDetails"
+        "accessionId"
       ],
       "type": "object"
     },
@@ -271,7 +331,10 @@
       "properties": {
         "date": {
           "description": "Native `date`; literal source value.",
-          "type": "string"
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "description": {
           "description": "Native `description` when supplied.",
@@ -281,25 +344,27 @@
           ]
         },
         "id": {
-          "description": "Native `id`; literal source value.",
-          "format": "int64",
-          "type": "integer"
+          "$ref": "#/$defs/Reply_Identifier_int64",
+          "description": "Native `id`; literal source value."
         },
         "type": {
           "description": "Native `type`; literal source value.",
-          "type": "string"
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "version": {
           "description": "Native `version`; literal source value.",
           "format": "int64",
-          "type": "integer"
+          "type": [
+            "integer",
+            "null"
+          ]
         }
       },
       "required": [
-        "id",
-        "date",
-        "type",
-        "version"
+        "id"
       ],
       "type": "object"
     },
@@ -327,12 +392,14 @@
         "_url": {
           "description": "Native `_url`; literal source value.",
           "format": "uri",
-          "type": "string"
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "id": {
-          "description": "Native `id`; literal source value.",
-          "format": "int64",
-          "type": "integer"
+          "$ref": "#/$defs/Reply_Identifier_int64",
+          "description": "Native `id`; literal source value."
         },
         "name": {
           "description": "Native `name` when supplied.",
@@ -343,18 +410,21 @@
         },
         "resource": {
           "description": "Native `resource`; literal source value.",
-          "type": "string"
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "resourceId": {
           "description": "Native `resourceId`; literal source value.",
-          "type": "string"
+          "type": [
+            "string",
+            "null"
+          ]
         }
       },
       "required": [
-        "id",
-        "resource",
-        "resourceId",
-        "_url"
+        "id"
       ],
       "type": "object"
     },
@@ -362,9 +432,8 @@
       "description": "Native location diplotype reference; its numeric ID is not a ClinPGx accession.",
       "properties": {
         "id": {
-          "description": "Native `id`; no expression, phase or phenotype is inferred.",
-          "format": "int64",
-          "type": "integer"
+          "$ref": "#/$defs/Reply_Identifier_int64",
+          "description": "Native `id`; no expression, phase or phenotype is inferred."
         }
       },
       "required": [
@@ -376,13 +445,15 @@
       "description": "Source-native PgxEvidenceTerm fields; no clinical interpretation.",
       "properties": {
         "id": {
-          "description": "Native `id`; literal source value.",
-          "format": "int64",
-          "type": "integer"
+          "$ref": "#/$defs/Reply_Identifier_int64",
+          "description": "Native `id`; literal source value."
         },
         "resource": {
           "description": "Native `resource`; literal source value.",
-          "type": "string"
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "synonyms": {
           "description": "Native `synonyms` when supplied.",
@@ -396,11 +467,17 @@
         },
         "term": {
           "description": "Native `term`; literal source value.",
-          "type": "string"
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "termId": {
           "description": "Native `termId`; literal source value.",
-          "type": "string"
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "valid": {
           "description": "Native `valid` when supplied.",
@@ -411,10 +488,7 @@
         }
       },
       "required": [
-        "id",
-        "resource",
-        "term",
-        "termId"
+        "id"
       ],
       "type": "object"
     },
@@ -444,7 +518,10 @@
         },
         "copyNumber": {
           "description": "Native `copyNumber`; literal source value.",
-          "type": "string"
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "diplotypes": {
           "description": "Native `diplotypes`; literal source value.",
@@ -455,7 +532,10 @@
         },
         "displayName": {
           "description": "Native `displayName`; literal source value.",
-          "type": "string"
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "genes": {
           "description": "Native `genes`; literal source value.",
@@ -467,7 +547,10 @@
         "gpPosition": {
           "description": "Native `gpPosition`; literal source value.",
           "format": "int64",
-          "type": "integer"
+          "type": [
+            "integer",
+            "null"
+          ]
         },
         "haplotypes": {
           "description": "Native `haplotypes`; literal source value.",
@@ -477,9 +560,8 @@
           "type": "array"
         },
         "id": {
-          "description": "Native `id`; literal source value.",
-          "format": "int64",
-          "type": "integer"
+          "$ref": "#/$defs/Reply_Identifier_int64",
+          "description": "Native `id`; literal source value."
         },
         "linkedObjects": {
           "description": "Native `linkedObjects`; literal source value.",
@@ -502,7 +584,10 @@
         "refSeqPosition": {
           "description": "Native `refSeqPosition`; literal source value.",
           "format": "int64",
-          "type": "integer"
+          "type": [
+            "integer",
+            "null"
+          ]
         },
         "rsid": {
           "description": "Native `rsid` when supplied.",
@@ -513,11 +598,17 @@
         },
         "tagGene": {
           "description": "Native `tagGene`; literal source value.",
-          "type": "boolean"
+          "type": [
+            "boolean",
+            "null"
+          ]
         },
         "type": {
           "description": "Native `type`; literal source value.",
-          "type": "string"
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "variant": {
           "anyOf": [
@@ -532,13 +623,7 @@
         }
       },
       "required": [
-        "id",
-        "copyNumber",
-        "displayName",
-        "gpPosition",
-        "refSeqPosition",
-        "tagGene",
-        "type"
+        "id"
       ],
       "type": "object"
     },
@@ -1035,15 +1120,6 @@
             "null"
           ]
         },
-        "fetched": {
-          "description": "Retrieved identity depth.",
-          "format": "uint32",
-          "minimum": 0,
-          "type": [
-            "integer",
-            "null"
-          ]
-        },
         "notices": {
           "description": "Source notices and request recovery guidance.",
           "items": {
@@ -1061,6 +1137,15 @@
             }
           ],
           "description": "Failure or stale-fallback reason."
+        },
+        "retrieved_count": {
+          "description": "Number of retrieved identities.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
         },
         "source": {
           "$ref": "#/$defs/Reply_Source",
@@ -1179,7 +1264,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.pgx-annotation/3",
+  "$id": "biomcp.pgx-annotation/5",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -1235,7 +1320,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.pgx-annotation/3",
+      "const": "biomcp.pgx-annotation/5",
       "type": "string"
     },
     "sources": {

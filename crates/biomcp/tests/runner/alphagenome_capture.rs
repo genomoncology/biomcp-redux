@@ -11,7 +11,7 @@ pub(super) fn trials() -> Vec<Trial> {
         return Vec::new();
     };
     vec![transcript_trial(
-        "variant/alphagenome-original-score-capture",
+        "variant-alphagenome/alphagenome-original-score-capture",
         move || captured(&PathBuf::from(&root)).map_err(Into::into),
     )]
 }

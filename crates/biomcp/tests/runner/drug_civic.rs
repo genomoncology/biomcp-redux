@@ -6,33 +6,11 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
 
-const CASES: [&str; 15] = [
-    "imatinib-search",
-    "trastuzumab-search",
-    "ivosidenib-search",
-    "literal-empty",
-    "candidate-next",
-    "imatinib-streams",
-    "trastuzumab-combination",
-    "ivosidenib-streams",
-    "profile-evidence",
-    "profile-evidence-next",
-    "profile-assertion",
-    "profile-assertion-terminal",
-    "profile-evidence-offset",
-    "profile-assertion-offset",
-    "synthetic-distinct-therapy-candidates",
-];
 pub(super) fn trials() -> Vec<Trial> {
-    CASES
-        .into_iter()
-        .enumerate()
-        .map(|(n, name)| {
-            transcript_trial(format!("drug-civic/{name}"), move || {
-                check(n).map_err(Into::into)
-            })
-        })
-        .collect()
+    vec![transcript_trial(
+        crate::runner::pool_contract::DRUG_CIVIC_CURSOR.0,
+        || check(9).map_err(Into::into),
+    )]
 }
 fn arguments(n: usize) -> Result<Vec<String>, String> {
     let mut args = if n == 14 {

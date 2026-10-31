@@ -47,7 +47,7 @@
       "type": "string"
     }
   },
-  "$id": "biodata.drug-identity/3",
+  "$id": "biodata.drug-identity/4",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One source record identity, without any equivalence or authorization claim.",
   "properties": {
@@ -63,7 +63,7 @@
       "$ref": "#/$defs/Reply_Text",
       "description": "Original source name."
     },
-    "source": {
+    "namespace": {
       "$ref": "#/$defs/Reply_Text",
       "description": "Source responsible for this identity."
     },
@@ -93,9 +93,10 @@
   },
   "required": [
     "id",
-    "source",
+    "namespace",
     "identity_level"
   ],
   "title": "DrugIdentity",
-  "type": "object"
+  "type": "object",
+  "x-identifier": true
 }

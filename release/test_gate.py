@@ -93,6 +93,9 @@ class InstalledCli(unittest.TestCase):
                 runner = scratch / 'case-runner'
                 runner.write_text(f'#!{sys.executable}\nprint(\"test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out\")\n')
                 runner.chmod(0o755)
+                tool = runner.with_name("tool-runner")
+                tool.write_text(runner.read_text())
+                tool.chmod(0o755)
                 env = {**os.environ, 'ONCOKB_API_KEY': 'synthetic-must-not-inherit'}
                 # Homebrew has separate installation proof; this fixture uses the shared gate on five channels.
                 env['PATH'] = os.defpath

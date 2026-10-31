@@ -40,7 +40,8 @@ pub struct DrugSearch(SearchFields);
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct SearchFields {
-    /// Literal name phrase; optional for FDA drug recalls. Harmonized recall names match but never become display names.
+    /// Literal name phrase; optional for FDA drug recalls. Drugs@FDA searches brands and ingredients,
+    /// exact names before word matches. Harmonized recall names match but never become display names.
     #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 0)))]
     #[serde(
         default,

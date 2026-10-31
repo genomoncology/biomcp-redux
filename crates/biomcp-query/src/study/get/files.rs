@@ -1,10 +1,10 @@
 //! File references share the command deadline and retain independent section outcomes.
-use super::{bad, finish, next, page};
+use super::{bad, finish, next};
 use crate::{Ctx, Outcome};
 use biomcp_adapters::cbioportal::{SPEC, studies};
 use biomcp_fetch::{Deadline, RequestError};
 use biomcp_types::{
-    QueryBody, Section, Source, Status, StepKind, StudyFiles, StudyGet, StudySection,
+    PageInfo, QueryBody, Section, Source, Status, StepKind, StudyFiles, StudyGet, StudySection,
 };
 pub(super) fn section(cx: &Ctx<'_>, q: &StudyGet, deadline: Deadline<'_>, out: &mut Outcome) {
     let on_card = matches!(out.body, QueryBody::StudyCard(Some(_)));
@@ -12,7 +12,8 @@ pub(super) fn section(cx: &Ctx<'_>, q: &StudyGet, deadline: Deadline<'_>, out: &
         return;
     }
     let leg = cx.fetch.leg(&SPEC, deadline).fresh(cx.fresh);
-    let result = studies::files(&leg, q.id()).and_then(|directory| apply(cx, q, out, directory));
+    let result = studies::files(&leg, q.id(), q.section_offset(), q.section_limit())
+        .and_then(|directory| apply(cx, q, out, directory));
     let error = result.err();
     if let Some(error) = error
         && let QueryBody::StudyCard(Some(card)) = &mut out.body
@@ -32,7 +33,7 @@ fn apply(
     out: &mut Outcome,
     directory: studies::Directory,
 ) -> Result<(), RequestError> {
-    let Some(rows) = directory.rows else {
+    let Some(window) = directory.window else {
         if let QueryBody::StudyCard(Some(card)) = &mut out.body {
             card.files = Some(Section::Empty {
                 source: Source::Cbioportal,
@@ -48,7 +49,15 @@ fn apply(
     } else {
         q.clone()
     };
-    let (items, bounds) = page(rows, &query);
+    let next_offset = window.next_offset();
+    let bounds = PageInfo {
+        offset: window.offset(),
+        returned: window.rows.len() as u32,
+        total: window.total().unwrap_or(0),
+        pool: None,
+        truncated: None,
+    };
+    let items = window.rows.into();
     let data = StudyFiles {
         study_id: q.id().clone(),
         items,
@@ -69,10 +78,8 @@ fn apply(
         out.page = Some(bounds.clone());
         out.status = Status::Complete;
     }
-    if u64::from(bounds.offset) + u64::from(bounds.returned) < bounds.total {
-        let query = query
-            .at_section_offset(bounds.offset + bounds.returned)
-            .map_err(|_| bad())?;
+    if let Some(offset) = next_offset {
+        let query = query.at_section_offset(offset).map_err(|_| bad())?;
         next(out, cx, StepKind::Page, query);
     }
     Ok(())

@@ -1,11 +1,13 @@
 use super::{failure, identity};
 use crate::{Action, Outcome};
-use biomcp_adapters::{chembl, opentargets};
+use biomcp_adapters::{NativeWindow, chembl, opentargets};
 use biomcp_fetch::{Leg, RequestError};
 use biomcp_types::{
     DrugGet, DrugHeader, DrugIndications, DrugRecords, DrugSection, DrugTargets, PageInfo,
     QueryBody, Request, Section, Source, Status, StepKind,
 };
+#[path = "collection_page.rs"]
+mod collection;
 pub(super) fn chembl(
     leg: &Leg<'_>,
     query: &DrugGet,
@@ -14,40 +16,51 @@ pub(super) fn chembl(
 ) -> Result<(), RequestError> {
     let source = Source::Chembl;
     let (row, metadata) = chembl::molecule(leg, query.input())?;
-    let header = identity::chembl_header(&row).map_err(|_| failure(source))?;
+    if !matches!(
+        query.sections(),
+        [DrugSection::Targets] | [DrugSection::Indications]
+    ) {
+        chembl_card(row, metadata.fetched, query, fresh, out)?;
+        return Ok(());
+    }
+    let header = identity::chembl_header(&row, &mut out.problems).map_err(|_| failure(source))?;
     let drug = identity::neutral(&header).map_err(|_| failure(source))?;
     let limit = query.section_limit().unwrap_or(10);
     let offset = query.section_offset().unwrap_or(0);
     match query.sections() {
         [DrugSection::Targets] => {
-            let (page, meta) = chembl::mechanisms(leg, query.input(), limit, offset)?;
-            let records =
-                chembl::map_targets(&drug, page.mechanisms).map_err(|_| failure(source))?;
+            let (mut page, meta) = chembl::mechanisms(leg, query.input(), limit, offset)?;
+            let records = chembl::map_targets(&drug, std::mem::take(&mut page.window.rows))
+                .map_err(|_| failure(source))?;
+            out.problems.extend(page.problems);
+            out.problems.extend(records.problems);
+            page.window.include_refusals(records.refusals);
             targets(
                 out,
                 query,
                 header,
-                records,
-                page.page_meta.total_count,
+                page.window.with_rows(records.value.into_vec()),
                 meta.fetched,
                 fresh,
             );
         }
         [DrugSection::Indications] => {
-            let (page, meta) = chembl::indications(leg, query.input(), limit, offset)?;
-            let records = chembl::map_indications(&drug, page.drug_indications)
+            let (mut page, meta) = chembl::indications(leg, query.input(), limit, offset)?;
+            let records = chembl::map_indications(&drug, std::mem::take(&mut page.window.rows))
                 .map_err(|_| failure(source))?;
+            out.problems.extend(page.problems);
+            out.problems.extend(records.problems);
+            page.window.include_refusals(records.refusals);
             indications(
                 out,
                 query,
                 header,
-                records,
-                page.page_meta.total_count,
+                page.window.with_rows(records.value.into_vec()),
                 meta.fetched,
                 fresh,
             );
         }
-        _ => chembl_card(row, metadata.fetched, query, fresh, out)?,
+        _ => return Ok(()),
     }
     Ok(())
 }
@@ -63,34 +76,30 @@ pub(super) fn opentargets(
         return Ok(());
     };
     let source = Source::Opentargets;
-    let header = identity::ot_identity(&row).map_err(|_| failure(source))?;
+    let header = opentargets::header(&row).map_err(|_| failure(source))?;
+    out.problems.extend(header.problems);
+    let header = header.value;
     let drug = identity::neutral(&header).map_err(|_| failure(source))?;
     let limit = query.section_limit().unwrap_or(10) as usize;
     let offset = query.section_offset().unwrap_or(0) as usize;
     match query.sections() {
         [DrugSection::Targets] => {
-            let rows = opentargets::map_targets(&drug, row.mechanisms_of_action.rows)
+            let mut collection = opentargets::map_targets(&drug, row.mechanisms_of_action)
                 .map_err(|_| failure(source))?;
-            let total = rows.len() as u64;
-            let records = rows
-                .into_vec()
-                .into_iter()
-                .skip(offset)
-                .take(limit)
-                .collect();
-            targets(out, query, header, records, total, meta.fetched, fresh);
+            out.problems.append(&mut collection.problems);
+            // The collection owns refusals across its complete accepted-row paging surface.
+            // Its fact remains directly available here for the later status owner.
+            let window = collection::page(&mut collection, offset, limit);
+            targets(out, query, header, window, meta.fetched, fresh);
         }
         [DrugSection::Indications] => {
-            let rows = opentargets::map_indications(&drug, row.indications.rows)
+            let mut collection = opentargets::map_indications(&drug, row.indications)
                 .map_err(|_| failure(source))?;
-            let total = rows.len() as u64;
-            let records = rows
-                .into_vec()
-                .into_iter()
-                .skip(offset)
-                .take(limit)
-                .collect();
-            indications(out, query, header, records, total, meta.fetched, fresh);
+            out.problems.append(&mut collection.problems);
+            // The collection owns refusals across its complete accepted-row paging surface.
+            // Its fact remains directly available here for the later status owner.
+            let window = collection::page(&mut collection, offset, limit);
+            indications(out, query, header, window, meta.fetched, fresh);
         }
         _ => {
             out.status = Status::Complete;
@@ -100,6 +109,7 @@ pub(super) fn opentargets(
     }
     Ok(())
 }
+
 fn card_next(out: &mut Outcome, query: &DrugGet, fresh: bool, xrefs: bool) {
     for section in [
         DrugSection::Targets,
@@ -123,12 +133,14 @@ fn card_next(out: &mut Outcome, query: &DrugGet, fresh: bool, xrefs: bool) {
 fn page<T>(
     out: &mut Outcome,
     query: &DrugGet,
-    records: Box<[T]>,
-    total: u64,
+    window: NativeWindow<T>,
     fetched: Option<i64>,
     fresh: bool,
 ) -> Section<DrugRecords<T>> {
-    let offset = query.section_offset().unwrap_or(0);
+    let offset = window.offset();
+    let total = window.total().unwrap_or(0);
+    let next_offset = window.next_offset();
+    let records = window.rows.into_boxed_slice();
     let returned = records.len() as u32;
     let source = query.source().source();
     out.status = if total == 0 {
@@ -143,9 +155,7 @@ fn page<T>(
         pool: None,
         truncated: None,
     });
-    if let Some(offset) = offset
-        .checked_add(returned)
-        .filter(|n| returned > 0 && u64::from(*n) < total)
+    if let Some(offset) = next_offset
         && let Ok(get) = query.at_section_offset(offset)
     {
         out.next.push((
@@ -164,7 +174,11 @@ fn page<T>(
                 .to_string()
                 .parse()
                 .ok()
-                .map(|id| biomcp_types::SourceRecord { id, url: None }),
+                .map(|id| biomcp_types::SourceRecord {
+                    namespace: biodata::IdentifierNamespace::Unknown,
+                    id,
+                    url: None,
+                }),
         }
     } else {
         Section::Data {
@@ -184,24 +198,22 @@ fn targets(
     out: &mut Outcome,
     query: &DrugGet,
     identity: DrugHeader,
-    records: Box<[biodata::DrugTargetRelation]>,
-    total: u64,
+    window: NativeWindow<biodata::DrugTargetRelation>,
     fetched: Option<i64>,
     fresh: bool,
 ) {
-    let targets = page(out, query, records, total, fetched, fresh);
+    let targets = page(out, query, window, fetched, fresh);
     out.body = QueryBody::DrugTargets(Some(DrugTargets { identity, targets }));
 }
 fn indications(
     out: &mut Outcome,
     query: &DrugGet,
     identity: DrugHeader,
-    records: Box<[biodata::DrugIndicationClaim]>,
-    total: u64,
+    window: NativeWindow<biodata::DrugIndicationClaim>,
     fetched: Option<i64>,
     fresh: bool,
 ) {
-    let indications = page(out, query, records, total, fetched, fresh);
+    let indications = page(out, query, window, fetched, fresh);
     out.body = QueryBody::DrugIndications(Some(DrugIndications {
         identity,
         indications,
@@ -218,7 +230,8 @@ fn chembl_card(
     let source = Source::Chembl;
     let limit = query.section_limit().unwrap_or(10);
     let offset = query.section_offset().unwrap_or(0);
-    let mut card = identity::chembl_card(row, fetched).map_err(|_| failure(source))?;
+    let mut card =
+        identity::chembl_card(row, fetched, &mut out.problems).map_err(|_| failure(source))?;
     let has_xrefs = !card.cross_references.is_empty();
     let xrefs = std::mem::take(&mut card.cross_references);
     if query.sections() == [DrugSection::Xrefs] {
@@ -229,7 +242,22 @@ fn chembl_card(
             .skip(offset as usize)
             .take(limit as usize)
             .collect();
-        let xrefs = page(out, query, records, total, fetched, fresh);
+        let xrefs = page(
+            out,
+            query,
+            NativeWindow::new(
+                records,
+                offset,
+                limit,
+                Some(total),
+                total
+                    .saturating_sub(u64::from(offset))
+                    .min(u64::from(limit)) as u32,
+                biomcp_adapters::Refusal::None,
+            ),
+            fetched,
+            fresh,
+        );
         out.body = QueryBody::DrugXrefs(Some(biomcp_types::DrugXrefs {
             identity: card.header,
             xrefs,
