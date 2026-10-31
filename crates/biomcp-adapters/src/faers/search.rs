@@ -88,17 +88,14 @@ pub fn search(leg: &Leg<'_>, query: &AdverseEventSearch) -> Result<Page, Request
                 ("skip", Arg::Num(query.offset().into())),
                 ("sort", Arg::Text("receivedate:desc")),
             ]),
-            biomcp_fetch::Read::<raw::Response>::json().check(
-                &(|reply| {
-                    if let raw::Response::Page { meta, .. } = reply
-                        && (meta.results.skip != query.offset()
-                            || meta.results.limit != query.limit())
-                    {
-                        return Err(BadReply);
-                    }
-                    Ok(())
-                }),
-            ),
+            biomcp_fetch::Read::<raw::Response>::json().check(&|reply| {
+                if let raw::Response::Page { meta, .. } = reply
+                    && (meta.results.skip != query.offset() || meta.results.limit != query.limit())
+                {
+                    return Err(BadReply);
+                }
+                Ok(())
+            }),
         )
         .map(|received| (received.value, received.meta))?;
     let mut problems = crate::mapped::Problems {

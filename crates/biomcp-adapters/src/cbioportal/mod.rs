@@ -47,15 +47,13 @@ pub fn cohort(leg: &Leg<'_>, query: &VariantRecurrenceQuery) -> Result<Cohort, R
         .call(
             &endpoint,
             Input::Params(&[]),
-            Read::<raw::Study>::json().check(
-                &(|v| {
-                    if v.study_id == *query.study() {
-                        Ok(())
-                    } else {
-                        Err(BadReply)
-                    }
-                }),
-            ),
+            Read::<raw::Study>::json().check(&|v| {
+                if v.study_id == *query.study() {
+                    Ok(())
+                } else {
+                    Err(BadReply)
+                }
+            }),
         )
         .map(|received| (received.value, received.meta))?;
     let endpoint = SPEC
@@ -65,18 +63,16 @@ pub fn cohort(leg: &Leg<'_>, query: &VariantRecurrenceQuery) -> Result<Cohort, R
     leg.call(
         &endpoint,
         Input::Params(&[]),
-        Read::<raw::Profile>::json().check(
-            &(|v| {
-                if v.study_id == *query.study()
-                    && v.molecular_profile_id == *query.profile()
-                    && v.molecular_alteration_type.as_str() == "MUTATION_EXTENDED"
-                {
-                    Ok(())
-                } else {
-                    Err(BadReply)
-                }
-            }),
-        ),
+        Read::<raw::Profile>::json().check(&|v| {
+            if v.study_id == *query.study()
+                && v.molecular_profile_id == *query.profile()
+                && v.molecular_alteration_type.as_str() == "MUTATION_EXTENDED"
+            {
+                Ok(())
+            } else {
+                Err(BadReply)
+            }
+        }),
     )
     .map(|received| (received.value, received.meta))?;
     let mut problems = crate::mapped::Problems {
@@ -140,22 +136,20 @@ pub fn mutations(
             &endpoint,
             Input::Params(&params),
             Read::<raw::Mutations>::json()
-                .check(
-                    &(|rows| {
-                        if rows.0.len() <= query.limit() as usize
-                            && rows.0.iter().all(|v| {
-                                v.scope.study_id == *query.study()
-                                    && v.scope.molecular_profile_id == *query.profile()
-                                    && v.scope.entrez_gene_id == gene.get()
-                            })
-                        {
-                            Ok(())
-                        } else {
-                            Err(BadReply)
-                        }
-                    }),
-                )
-                .cache_if(&(raw::Mutations::identities_admitted)),
+                .check(&|rows| {
+                    if rows.0.len() <= query.limit() as usize
+                        && rows.0.iter().all(|v| {
+                            v.scope.study_id == *query.study()
+                                && v.scope.molecular_profile_id == *query.profile()
+                                && v.scope.entrez_gene_id == gene.get()
+                        })
+                    {
+                        Ok(())
+                    } else {
+                        Err(BadReply)
+                    }
+                })
+                .cache_if(&raw::Mutations::identities_admitted),
         )
         .map(|received| (received.value, received.meta))?;
     let received = rows.0.len() as u32;
@@ -213,17 +207,15 @@ fn sample_count(
             .call(
                 &endpoint,
                 Input::Params(&params),
-                Read::<raw::SampleLists>::json().check(
-                    &(|v| {
-                        if v.0.len() <= LIST_PAGE_SIZE as usize
-                            && v.0.iter().all(|l| l.study_id == *query.study())
-                        {
-                            Ok(())
-                        } else {
-                            Err(BadReply)
-                        }
-                    }),
-                ),
+                Read::<raw::SampleLists>::json().check(&|v| {
+                    if v.0.len() <= LIST_PAGE_SIZE as usize
+                        && v.0.iter().all(|l| l.study_id == *query.study())
+                    {
+                        Ok(())
+                    } else {
+                        Err(BadReply)
+                    }
+                }),
             )
             .map(|received| (received.value, received.meta))?;
         let count = lists.0.len();

@@ -29,14 +29,14 @@ pub(super) fn fetch(
         .call(
             &endpoint,
             biomcp_fetch::Input::Params(&[]),
-            Read::json().check(&(|_| Ok(()))).cache_if(
-                &(|reply: &DocumentReply| {
+            Read::json()
+                .check(&|_| Ok(()))
+                .cache_if(&|reply: &DocumentReply| {
                     reply
                         .data
                         .as_ref()
                         .is_some_and(|data| data.matches(caid, uuid, version))
                 }),
-            ),
         )
         .map(|received| received.value)?;
     let mut cx = Problems {

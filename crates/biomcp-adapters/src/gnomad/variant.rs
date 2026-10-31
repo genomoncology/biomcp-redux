@@ -4,8 +4,8 @@
 use super::SPEC;
 use crate::graphql::Query;
 use biodata::Text;
+use biomcp_fetch::Input;
 use biomcp_fetch::{Endpoint, Freshness, Leg, RequestError};
-use biomcp_fetch::{Input, JsonBody};
 use std::collections::BTreeMap;
 const VARIANT: Endpoint = SPEC
     .post_json("/api")
@@ -94,19 +94,14 @@ pub fn population(leg: &Leg<'_>, id: &str) -> Result<crate::Mapped<Option<Varian
     let response = leg
         .call(
             &VARIANT,
-            Input::Json {
-                params: &[],
-                body: JsonBody::new(&body),
-            },
-            biomcp_fetch::Read::<raw::Response>::json().cache_if(
-                &(|response| {
-                    response.data.variant.as_ref().is_none_or(|value| {
-                        value
-                            .as_ref()
-                            .is_some_and(|variant| variant.variant_id.as_str() == id)
-                    })
-                }),
-            ),
+            Input::json(&[], &body),
+            biomcp_fetch::Read::<raw::Response>::json().cache_if(&|response| {
+                response.data.variant.as_ref().is_none_or(|value| {
+                    value
+                        .as_ref()
+                        .is_some_and(|variant| variant.variant_id.as_str() == id)
+                })
+            }),
         )
         .map(|received| received.value)?;
     Ok(map::variant(response.data.variant, id))

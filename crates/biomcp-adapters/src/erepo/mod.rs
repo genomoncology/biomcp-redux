@@ -111,16 +111,14 @@ fn records(leg: &Leg<'_>, caid: &str) -> Result<Mapped<Vec<raw::Record>>, Reques
             .call(
                 &FETCH,
                 Input::Params(&params),
-                biomcp_fetch::Read::<raw::ReplyBody>::json().cache_if(
-                    &(|reply| {
-                        reply.data.as_ref().is_some_and(|rows| {
-                            !rows.is_empty()
-                                && rows
-                                    .iter()
-                                    .all(|row| row.as_ref().is_some_and(|row| row.matches(caid)))
-                        })
-                    }),
-                ),
+                biomcp_fetch::Read::<raw::ReplyBody>::json().cache_if(&|reply| {
+                    reply.data.as_ref().is_some_and(|rows| {
+                        !rows.is_empty()
+                            && rows
+                                .iter()
+                                .all(|row| row.as_ref().is_some_and(|row| row.matches(caid)))
+                    })
+                }),
             )
             .map(|received| (received.value, received.meta))?;
         let data = reply.data.unwrap_or_default();

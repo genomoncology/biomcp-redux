@@ -16,19 +16,17 @@ pub fn get(
         .call(
             &endpoint,
             Input::Params(&[("search", Arg::Text(&selector)), ("limit", Arg::Num(1))]),
-            Read::<raw::Response>::json().check(
-                &(|reply| {
-                    if let raw::Response::Page { meta, results } = reply
-                        && (meta.results.total != 1
-                            || meta.results.skip != 0
-                            || meta.results.limit != 1
-                            || results.iter().any(|r| r.mdr_report_key != *query.id()))
-                    {
-                        return Err(BadReply);
-                    }
-                    Ok(())
-                }),
-            ),
+            Read::<raw::Response>::json().check(&|reply| {
+                if let raw::Response::Page { meta, results } = reply
+                    && (meta.results.total != 1
+                        || meta.results.skip != 0
+                        || meta.results.limit != 1
+                        || results.iter().any(|r| r.mdr_report_key != *query.id()))
+                {
+                    return Err(BadReply);
+                }
+                Ok(())
+            }),
         )
         .map(|received| (received.value, received.meta))?;
     Ok(match reply {

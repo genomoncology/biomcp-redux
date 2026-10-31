@@ -27,15 +27,13 @@ pub fn get(leg: &Leg<'_>, id: &str, build: Build) -> Result<Mapped<VariantCosmic
                 ("fields", Arg::Text("_id,cosmic")),
                 ("assembly", Arg::Text(assembly)),
             ]),
-            biomcp_fetch::Read::<Record>::json().cache_if(
-                &(|record| {
-                    record
-                        .id
-                        .as_ref()
-                        .and_then(Field::as_ref)
-                        .is_some_and(|given| given.as_str() == id)
-                }),
-            ),
+            biomcp_fetch::Read::<Record>::json().cache_if(&|record| {
+                record
+                    .id
+                    .as_ref()
+                    .and_then(Field::as_ref)
+                    .is_some_and(|given| given.as_str() == id)
+            }),
         )
         .map(|received| received.value)?;
     let mut problems = Problems {

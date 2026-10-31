@@ -47,23 +47,21 @@ pub fn read(
                 ("request_xml", Arg::Text(&xml)),
                 ("accept_datause_restrictions", Arg::Text("true")),
             ]),
-            biomcp_fetch::Read::<raw::Native>::xml().check(
-                &(|v| {
-                    if v.0
-                        .vaccine
+            biomcp_fetch::Read::<raw::Native>::xml().check(&|v| {
+                if v.0
+                    .vaccine
+                    .get("code")
+                    .is_some_and(|c| c.as_ref() == vaccine)
+                    && v.0
+                        .grouping
                         .get("code")
-                        .is_some_and(|c| c.as_ref() == vaccine)
-                        && v.0
-                            .grouping
-                            .get("code")
-                            .is_some_and(|c| c.as_ref() == section.code())
-                    {
-                        Ok(())
-                    } else {
-                        Err(BadReply)
-                    }
-                }),
-            ),
+                        .is_some_and(|c| c.as_ref() == section.code())
+                {
+                    Ok(())
+                } else {
+                    Err(BadReply)
+                }
+            }),
         )
         .map(|received| (received.value, received.meta))?;
     Ok(reply.0)

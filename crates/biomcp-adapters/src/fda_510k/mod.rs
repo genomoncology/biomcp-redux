@@ -47,19 +47,17 @@ pub fn get(
                 ("skip", Arg::Num(0)),
             ]),
             Read::<raw::Response>::json()
-                .check(
-                    &(|reply| {
-                        if let raw::Response::Page { meta, .. } = reply
-                            && (meta.results.skip != 0
-                                || meta.results.limit != 1
-                                || meta.results.total != 1)
-                        {
-                            return Err(BadReply);
-                        }
-                        Ok(())
-                    }),
-                )
-                .cache_if(&(|reply| identity(reply, q))),
+                .check(&|reply| {
+                    if let raw::Response::Page { meta, .. } = reply
+                        && (meta.results.skip != 0
+                            || meta.results.limit != 1
+                            || meta.results.total != 1)
+                    {
+                        return Err(BadReply);
+                    }
+                    Ok(())
+                })
+                .cache_if(&|reply| identity(reply, q)),
         )
         .map(|received| received.value)
         .map_err(|error| Failure {

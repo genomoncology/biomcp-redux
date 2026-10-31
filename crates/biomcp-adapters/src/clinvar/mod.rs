@@ -57,7 +57,7 @@ pub fn assertions(
             &FETCH,
             Input::Params(&params),
             Read::<raw::Records>::xml()
-                .cache_if(&(|reply| reply.identity_problem(id, vcv).is_none())),
+                .cache_if(&|reply| reply.identity_problem(id, vcv).is_none()),
         )
         .map(|received| (received.value, received.meta))?;
     if let Some(field) = reply.identity_problem(id, vcv) {

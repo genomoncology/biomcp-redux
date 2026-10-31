@@ -109,32 +109,26 @@ fn candidates(
             &endpoint,
             Input::Params(&args),
             Read::<raw::Response>::json()
-                .check(
-                    &(|reply| match reply {
-                        raw::Response::Records { data } if data.rows.len() <= limit as usize => {
-                            Ok(())
-                        }
-                        _ => Err(BadReply),
-                    }),
-                )
-                .cache_if(
-                    &(|reply| {
-                        let raw::Response::Records { data } = reply else {
-                            return false;
-                        };
-                        let accepted = data
-                            .rows
-                            .iter()
-                            .filter(|row| row.accession().is_ok())
-                            .count();
-                        let refusals = if accepted < data.rows.len() {
-                            crate::Refusal::Refused
-                        } else {
-                            crate::Refusal::None
-                        };
-                        refusals.identities_admitted(accepted, data.rows.len())
-                    }),
-                ),
+                .check(&|reply| match reply {
+                    raw::Response::Records { data } if data.rows.len() <= limit as usize => Ok(()),
+                    _ => Err(BadReply),
+                })
+                .cache_if(&|reply| {
+                    let raw::Response::Records { data } = reply else {
+                        return false;
+                    };
+                    let accepted = data
+                        .rows
+                        .iter()
+                        .filter(|row| row.accession().is_ok())
+                        .count();
+                    let refusals = if accepted < data.rows.len() {
+                        crate::Refusal::Refused
+                    } else {
+                        crate::Refusal::None
+                    };
+                    refusals.identities_admitted(accepted, data.rows.len())
+                }),
         )
         .map(|received| (received.value, received.meta))?;
     let raw::Response::Records { data } = reply else {
@@ -200,38 +194,36 @@ fn fetch_card(
         .call(
             &endpoint,
             Input::Params(&[("format", Arg::Text("json")), ("fields", Arg::Text(fields))]),
-            Read::<raw::Response>::json().check(
-                &(|reply| match reply {
-                    raw::Response::Missing { code: 404, message }
-                        if message == &format!("Item not found, ac: {accession}") =>
-                    {
-                        Ok(())
+            Read::<raw::Response>::json().check(&|reply| match reply {
+                raw::Response::Missing { code: 404, message }
+                    if message == &format!("Item not found, ac: {accession}") =>
+                {
+                    Ok(())
+                }
+                raw::Response::Records { data } if data.rows.len() == 1 => {
+                    let row = data.rows.first().ok_or(BadReply)?;
+                    if row.accession()? != accession {
+                        return Err(BadReply);
                     }
-                    raw::Response::Records { data } if data.rows.len() == 1 => {
-                        let row = data.rows.first().ok_or(BadReply)?;
-                        if row.accession()? != accession {
+                    if let Some(id) = source {
+                        let database = native_database(id).ok_or(BadReply)?;
+                        if !row
+                            .xref_list
+                            .as_deref()
+                            .unwrap_or_default()
+                            .iter()
+                            .any(|r| {
+                                r.database.as_str() == database
+                                    && r.accession.as_str() == id.accession()
+                            })
+                        {
                             return Err(BadReply);
                         }
-                        if let Some(id) = source {
-                            let database = native_database(id).ok_or(BadReply)?;
-                            if !row
-                                .xref_list
-                                .as_deref()
-                                .unwrap_or_default()
-                                .iter()
-                                .any(|r| {
-                                    r.database.as_str() == database
-                                        && r.accession.as_str() == id.accession()
-                                })
-                            {
-                                return Err(BadReply);
-                            }
-                        }
-                        Ok(())
                     }
-                    _ => Err(BadReply),
-                }),
-            ),
+                    Ok(())
+                }
+                _ => Err(BadReply),
+            }),
         )
         .map(|received| (received.value, received.meta))?;
     let mut problems = Vec::new();

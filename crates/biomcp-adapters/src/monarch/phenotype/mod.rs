@@ -57,16 +57,14 @@ pub fn search(leg: &Leg<'_>, q: &PhenotypeSearch) -> Result<Page, RequestError> 
             &endpoint,
             Input::Params(&args),
             Read::<raw::Page>::json()
-                .check(
-                    &(|page| {
-                        if page.limit != q.limit() || page.offset != q.offset() {
-                            Err(BadReply)
-                        } else {
-                            Ok(())
-                        }
-                    }),
-                )
-                .cache_if(&(|page| page.items.iter().all(|node| node.id.is_some()))),
+                .check(&|page| {
+                    if page.limit != q.limit() || page.offset != q.offset() {
+                        Err(BadReply)
+                    } else {
+                        Ok(())
+                    }
+                })
+                .cache_if(&|page| page.items.iter().all(|node| node.id.is_some())),
         )
         .map(|received| (received.value, received.meta))?;
     let received = page.items.len() as u32;
@@ -111,15 +109,13 @@ pub fn get(leg: &Leg<'_>, q: &PhenotypeGet) -> Result<Record, RequestError> {
         .call(
             &endpoint,
             Input::Params(&[]),
-            Read::<raw::Node>::json().check(
-                &(|node| {
-                    if node.id.as_ref() == Some(q.id()) {
-                        Ok(())
-                    } else {
-                        Err(BadReply)
-                    }
-                }),
-            ),
+            Read::<raw::Node>::json().check(&|node| {
+                if node.id.as_ref() == Some(q.id()) {
+                    Ok(())
+                } else {
+                    Err(BadReply)
+                }
+            }),
         )
         .map(|received| (received.value, received.meta))?;
     let id = node.id.as_ref().ok_or(InputError::Serialization)?.clone();

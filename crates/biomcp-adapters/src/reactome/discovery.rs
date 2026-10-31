@@ -36,26 +36,22 @@ pub fn search(leg: &Leg<'_>, q: &PathwaySearch) -> Result<Page, RequestError> {
                 ("Force filters", Arg::Text("true")),
             ]),
             biomcp_fetch::Read::<raw::Search>::json()
-                .check(
-                    &(|v| match v {
-                        raw::Search::Page { count, .. } if *count <= q.limit() => Ok(()),
-                        raw::Search::Empty(v)
-                            if v.messages == [format!("No entries found for query: {text}")] =>
-                        {
-                            Ok(())
-                        }
-                        _ => Err(BadReply),
-                    }),
-                )
-                .cache_if(
-                    &(|v| match v {
-                        raw::Search::Page { results, .. } => results
-                            .iter()
-                            .flat_map(|g| &g.entries)
-                            .all(|r| map::hit(r, &mut map::fields(&r.st_id)).is_some()),
-                        raw::Search::Empty(_) => false,
-                    }),
-                ),
+                .check(&|v| match v {
+                    raw::Search::Page { count, .. } if *count <= q.limit() => Ok(()),
+                    raw::Search::Empty(v)
+                        if v.messages == [format!("No entries found for query: {text}")] =>
+                    {
+                        Ok(())
+                    }
+                    _ => Err(BadReply),
+                })
+                .cache_if(&|v| match v {
+                    raw::Search::Page { results, .. } => results
+                        .iter()
+                        .flat_map(|g| &g.entries)
+                        .all(|r| map::hit(r, &mut map::fields(&r.st_id)).is_some()),
+                    raw::Search::Empty(_) => false,
+                }),
         )
         .map(|received| received.value)?;
     let mut rows = Mapped {
@@ -105,12 +101,10 @@ pub fn top_level(leg: &Leg<'_>) -> Result<Mapped<Vec<PathwayHeader>>, RequestErr
         .call(
             &endpoint,
             Input::Params(&[]),
-            biomcp_fetch::Read::<raw::Cards>::json().cache_if(
-                &(|v| {
-                    v.0.iter()
-                        .all(|r| map::header(r, &mut map::fields(&r.st_id)).is_some())
-                }),
-            ),
+            biomcp_fetch::Read::<raw::Cards>::json().cache_if(&|v| {
+                v.0.iter()
+                    .all(|r| map::header(r, &mut map::fields(&r.st_id)).is_some())
+            }),
         )
         .map(|received| received.value)?;
     let mut mapped = Mapped {
@@ -151,11 +145,9 @@ pub fn card(
         .call(
             &endpoint,
             Input::Params(&[]),
-            biomcp_fetch::Read::<raw::Card>::json().cache_if(
-                &(|r| {
-                    r.st_id == id.as_str() && map::header(r, &mut map::fields(&r.st_id)).is_some()
-                }),
-            ),
+            biomcp_fetch::Read::<raw::Card>::json().cache_if(&|r| {
+                r.st_id == id.as_str() && map::header(r, &mut map::fields(&r.st_id)).is_some()
+            }),
         )
         .map(|received| received.value)
     {

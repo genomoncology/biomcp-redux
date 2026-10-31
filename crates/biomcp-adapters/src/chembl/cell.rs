@@ -128,31 +128,27 @@ pub fn cells(
                 ("offset", Arg::Num(offset.into())),
             ]),
             biomcp_fetch::Read::json()
-                .check(
-                    &(|r: &Cells| {
-                        r.page_meta.check(r.cell_lines.len(), limit, offset)?;
-                        if r.cell_lines.iter().all(|r| &r.scope.cellosaurus_id == id) {
-                            Ok(())
-                        } else {
-                            Err(BadReply)
-                        }
-                    }),
-                )
-                .cache_if(
-                    &(|r| {
-                        let accepted = r
-                            .cell_lines
-                            .iter()
-                            .filter(|row| row.value.as_ref().is_some_and(Cell::identity_admitted))
-                            .count();
-                        let refusals = if accepted < r.cell_lines.len() {
-                            crate::Refusal::Refused
-                        } else {
-                            crate::Refusal::None
-                        };
-                        refusals.identities_admitted(accepted, r.cell_lines.len())
-                    }),
-                ),
+                .check(&|r: &Cells| {
+                    r.page_meta.check(r.cell_lines.len(), limit, offset)?;
+                    if r.cell_lines.iter().all(|r| &r.scope.cellosaurus_id == id) {
+                        Ok(())
+                    } else {
+                        Err(BadReply)
+                    }
+                })
+                .cache_if(&|r| {
+                    let accepted = r
+                        .cell_lines
+                        .iter()
+                        .filter(|row| row.value.as_ref().is_some_and(Cell::identity_admitted))
+                        .count();
+                    let refusals = if accepted < r.cell_lines.len() {
+                        crate::Refusal::Refused
+                    } else {
+                        crate::Refusal::None
+                    };
+                    refusals.identities_admitted(accepted, r.cell_lines.len())
+                }),
         )
         .map(|received| (received.value, received.meta))?;
     let received = reply.cell_lines.len() as u32;
@@ -214,18 +210,16 @@ pub fn assay_count(leg: &Leg<'_>, id: &ChemblCellId) -> Result<(u64, ReplyMetada
                 ("limit", Arg::Num(1)),
                 ("offset", Arg::Num(0)),
             ]),
-            biomcp_fetch::Read::json().check(
-                &(|r: &Assays| {
-                    r.page_meta.check(r.assays.len(), 1, 0)?;
-                    if (r.page_meta.total_count == 0) == r.assays.is_empty()
-                        && r.assays.iter().all(|r| &r.cell_chembl_id == id)
-                    {
-                        Ok(())
-                    } else {
-                        Err(BadReply)
-                    }
-                }),
-            ),
+            biomcp_fetch::Read::json().check(&|r: &Assays| {
+                r.page_meta.check(r.assays.len(), 1, 0)?;
+                if (r.page_meta.total_count == 0) == r.assays.is_empty()
+                    && r.assays.iter().all(|r| &r.cell_chembl_id == id)
+                {
+                    Ok(())
+                } else {
+                    Err(BadReply)
+                }
+            }),
         )
         .map(|received| (received.value, received.meta))?;
     Ok((reply.page_meta.total_count, metadata))

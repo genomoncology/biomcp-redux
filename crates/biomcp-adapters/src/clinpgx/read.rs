@@ -39,7 +39,7 @@ fn collection<T: serde::de::DeserializeOwned + NativeRow>(
         .call(
             &endpoint,
             Input::Params(&[(key, Arg::Text(&gene)), ("view", Arg::Text("min"))]),
-            Read::json().check(&(|_| Ok(()))).cache_if(&(|_| true)),
+            Read::json().check(&|_| Ok(())).cache_if(&|_| true),
         )
         .map(|received| received.value)?;
     let mut cx = Problems {
@@ -140,7 +140,7 @@ pub fn annotation(
         .call(
             &endpoint,
             Input::Params(&[("view", Arg::Text("base"))]),
-            Read::json().check(&(|_| Ok(()))).cache_if(&(|_| true)),
+            Read::json().check(&|_| Ok(())).cache_if(&|_| true),
         )
         .map(|received| received.value)?;
     let mut cx = Problems {

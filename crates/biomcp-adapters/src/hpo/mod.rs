@@ -49,15 +49,13 @@ pub fn get(leg: &Leg<'_>, query: &PhenotypeGet) -> Result<Record, RequestError> 
         .call(
             &endpoint,
             Input::Params(&[]),
-            biomcp_fetch::Read::<raw::Term>::json().check(
-                &(|term| {
-                    if &term.id == query.id() {
-                        Ok(())
-                    } else {
-                        Err(BadReply)
-                    }
-                }),
-            ),
+            biomcp_fetch::Read::<raw::Term>::json().check(&|term| {
+                if &term.id == query.id() {
+                    Ok(())
+                } else {
+                    Err(BadReply)
+                }
+            }),
         )
         .map(|received| (received.value, received.meta))?;
     map(term, metadata, query)

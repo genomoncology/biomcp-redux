@@ -104,14 +104,12 @@ pub fn download(leg: &Leg<'_>, file: &Supplement) -> Result<Download, RequestErr
         .call(
             &ep,
             Input::Params(&params),
-            Read::bytes().validate_body(
-                &(|bytes| {
-                    let end = local_end.earlier(leg.local_deadline());
-                    let sheets = crate::sheet::read(bytes, file.file.kind, end.clone())?;
-                    *parsed.borrow_mut() = Some((sheets, end));
-                    Ok(())
-                }),
-            ),
+            Read::bytes().validate_body(&|bytes| {
+                let end = local_end.earlier(leg.local_deadline());
+                let sheets = crate::sheet::read(bytes, file.file.kind, end.clone())?;
+                *parsed.borrow_mut() = Some((sheets, end));
+                Ok(())
+            }),
         )
         .map(|received| received.value.0)?;
     let (sheets, deadline) = parsed

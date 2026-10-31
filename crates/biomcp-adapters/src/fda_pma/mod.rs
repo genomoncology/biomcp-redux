@@ -52,7 +52,7 @@ pub fn get(leg: &Leg<'_>, query: &DiagnosticGet) -> Result<Records, RequestError
             ("search", Arg::Text(&selector)),
             ("limit", Arg::Num(100)),
             ("skip", Arg::Num(0)),
-        ]), Read::<raw::Response>::json().check(&(|reply| {
+        ]), Read::<raw::Response>::json().check(&|reply| {
             if let raw::Response::Page { meta, results } = reply {
                 if meta.results.skip != 0 || meta.results.limit != 100 {
                     return Err(BadReply);
@@ -69,10 +69,10 @@ pub fn get(leg: &Leg<'_>, query: &DiagnosticGet) -> Result<Records, RequestError
                 }
             }
             Ok(())
-        })).cache_if(&(|reply| {
+        }).cache_if(&|reply| {
             identity(reply, query).is_none()
                 && !matches!(reply, raw::Response::Page {meta,..} if meta.results.total > 100)
-        }))).map(|received| received.value)?;
+        })).map(|received| received.value)?;
     let identity_conflict = identity(&reply, query);
     let mut problems = Vec::new();
     Ok(match reply {

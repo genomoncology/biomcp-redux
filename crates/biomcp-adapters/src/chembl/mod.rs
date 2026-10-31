@@ -50,8 +50,8 @@ pub fn search(
             ("offset", Arg::Num(offset.into())),
         ]),
         biomcp_fetch::Read::json()
-            .check(&(|r: &Molecules| page(&r.window, limit, offset)))
-            .cache_if(&(|r| r.window.identities_admitted())),
+            .check(&|r: &Molecules| page(&r.window, limit, offset))
+            .cache_if(&|r| r.window.identities_admitted()),
     )
     .map(|received| (received.value, received.meta))
 }
@@ -65,15 +65,13 @@ pub fn molecule(
     leg.call(
         &MOLECULE.clone().with_segments(&[path]),
         Input::Params(&[]),
-        biomcp_fetch::Read::json().check(
-            &(|r: &raw::Molecule| {
-                if r.molecule_chembl_id == id {
-                    Ok(())
-                } else {
-                    Err(BadReply)
-                }
-            }),
-        ),
+        biomcp_fetch::Read::json().check(&|r: &raw::Molecule| {
+            if r.molecule_chembl_id == id {
+                Ok(())
+            } else {
+                Err(BadReply)
+            }
+        }),
     )
     .map(|received| (received.value, received.meta))
     .map(|(row, meta)| (map::Molecule(row), meta))
@@ -94,17 +92,15 @@ pub fn mechanisms(
             ("offset", Arg::Num(offset.into())),
         ]),
         biomcp_fetch::Read::json()
-            .check(
-                &(|r: &Mechanisms| {
-                    page(&r.window, limit, offset)?;
-                    if r.molecules.iter().all(|molecule| molecule == &id) {
-                        Ok(())
-                    } else {
-                        Err(BadReply)
-                    }
-                }),
-            )
-            .cache_if(&(Mechanisms::identities_admitted)),
+            .check(&|r: &Mechanisms| {
+                page(&r.window, limit, offset)?;
+                if r.molecules.iter().all(|molecule| molecule == &id) {
+                    Ok(())
+                } else {
+                    Err(BadReply)
+                }
+            })
+            .cache_if(&Mechanisms::identities_admitted),
     )
     .map(|received| (received.value, received.meta))
 }
@@ -124,17 +120,15 @@ pub fn indications(
             ("offset", Arg::Num(offset.into())),
         ]),
         biomcp_fetch::Read::json()
-            .check(
-                &(|r: &Indications| {
-                    page(&r.window, limit, offset)?;
-                    if r.molecules.iter().all(|molecule| molecule == &id) {
-                        Ok(())
-                    } else {
-                        Err(BadReply)
-                    }
-                }),
-            )
-            .cache_if(&(|r| r.window.identities_admitted())),
+            .check(&|r: &Indications| {
+                page(&r.window, limit, offset)?;
+                if r.molecules.iter().all(|molecule| molecule == &id) {
+                    Ok(())
+                } else {
+                    Err(BadReply)
+                }
+            })
+            .cache_if(&|r| r.window.identities_admitted()),
     )
     .map(|received| (received.value, received.meta))
 }

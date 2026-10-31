@@ -36,15 +36,13 @@ pub fn get(leg: &Leg<'_>, id: &NcitId) -> Result<crate::Mapped<Vec<BiomarkerCard
         Input::Params(&[("codes", Arg::Text(&code))]),
         Read::<super::biomarker_raw::Page>::json()
             .bounded(MAX_BYTES, biomcp_types::Reason::TooLarge)
-            .check(
-                &(|page| {
-                    if page.data.iter().all(|row| row.codes.contains(id)) {
-                        Ok(())
-                    } else {
-                        Err(BadReply)
-                    }
-                }),
-            ),
+            .check(&|page| {
+                if page.data.iter().all(|row| row.codes.contains(id)) {
+                    Ok(())
+                } else {
+                    Err(BadReply)
+                }
+            }),
     )
     .map(|received| received.value)
     .map(super::biomarker_map::page)

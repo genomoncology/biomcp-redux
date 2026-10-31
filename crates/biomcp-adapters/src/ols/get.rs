@@ -31,17 +31,15 @@ pub fn get(leg: &Leg<'_>, query: &DiseaseGet) -> Result<Option<Record>, RequestE
         .call(
             &endpoint,
             Input::Params(&[("obo_id", Arg::Text(query.id().as_str()))]),
-            Read::<raw::Exact>::json().check(
-                &(|reply| {
-                    if reply.embedded.terms.iter().any(|t| {
-                        t.obo_id.to_string() != query.id().as_str()
-                            || t.ontology_name.as_str() != ontology.as_str()
-                    }) {
-                        return Err(BadReply);
-                    }
-                    Ok(())
-                }),
-            ),
+            Read::<raw::Exact>::json().check(&|reply| {
+                if reply.embedded.terms.iter().any(|t| {
+                    t.obo_id.to_string() != query.id().as_str()
+                        || t.ontology_name.as_str() != ontology.as_str()
+                }) {
+                    return Err(BadReply);
+                }
+                Ok(())
+            }),
         )
         .map(|received| (received.value, received.meta))?;
     reply

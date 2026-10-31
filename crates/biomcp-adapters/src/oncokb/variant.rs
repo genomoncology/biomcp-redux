@@ -172,18 +172,16 @@ pub fn annotation(
             ("referenceGenome", Arg::Text(&assembly)),
             ("tumorType", Arg::Text(tumor_type)),
         ]),
-        biomcp_fetch::Read::json().check(
-            &(|row: &Annotation| {
-                if row.query.hgvs.as_str() == hgvsg
-                    && row.query.reference_genome == build
-                    && row.query.tumor_type == tumor_type
-                {
-                    Ok(())
-                } else {
-                    Err(BadReply)
-                }
-            }),
-        ),
+        biomcp_fetch::Read::json().check(&|row: &Annotation| {
+            if row.query.hgvs.as_str() == hgvsg
+                && row.query.reference_genome == build
+                && row.query.tumor_type == tumor_type
+            {
+                Ok(())
+            } else {
+                Err(BadReply)
+            }
+        }),
     )
     .map(|received| (received.value, received.meta))
     .map(|(row, _)| row)

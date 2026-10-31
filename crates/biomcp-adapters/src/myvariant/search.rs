@@ -62,28 +62,24 @@ pub fn search(leg: &Leg<'_>, query: &VariantSearch) -> Result<SearchPage, Reques
             &QUERY,
             Input::Params(&args),
             Read::<Page>::json()
-                .check(
-                    &(|page| {
-                        if page.hits.len() <= query.limit() as usize
-                            && page.hits.len() as u64
-                                == page
-                                    .total
-                                    .saturating_sub(u64::from(query.offset()))
-                                    .min(u64::from(query.limit()))
-                        {
-                            Ok(())
-                        } else {
-                            Err(BadReply)
-                        }
-                    }),
-                )
-                .cache_if(
-                    &(|page| {
-                        page.hits
-                            .iter()
-                            .all(|raw| raw.as_ref().is_some_and(|hit| hit.check().is_ok()))
-                    }),
-                ),
+                .check(&|page| {
+                    if page.hits.len() <= query.limit() as usize
+                        && page.hits.len() as u64
+                            == page
+                                .total
+                                .saturating_sub(u64::from(query.offset()))
+                                .min(u64::from(query.limit()))
+                    {
+                        Ok(())
+                    } else {
+                        Err(BadReply)
+                    }
+                })
+                .cache_if(&|page| {
+                    page.hits
+                        .iter()
+                        .all(|raw| raw.as_ref().is_some_and(|hit| hit.check().is_ok()))
+                }),
         )
         .map(|received| received.value)?;
     Ok(mapped_page(page, leg, query))

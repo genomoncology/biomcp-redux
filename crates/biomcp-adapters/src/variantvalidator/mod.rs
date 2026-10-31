@@ -54,8 +54,8 @@ fn fetch(leg: &Leg<'_>, input: &str, build: Build) -> Result<Response, RequestEr
             &endpoint,
             Input::Params(&[("content-type", Arg::Text("application/json"))]),
             Read::<Response>::json()
-                .check(&(|_| Ok(())))
-                .cache_if(&(|reply| reply.flag.as_str() != "warning" && reply.eligible(input))),
+                .check(&|_| Ok(()))
+                .cache_if(&|reply| reply.flag.as_str() != "warning" && reply.eligible(input)),
         )
         .map(|received| received.value)?;
     Ok(raw)

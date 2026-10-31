@@ -208,21 +208,19 @@ fn event_rows(leg: &Leg<'_>, id: &ReactomeId) -> Result<raw::Events, RequestErro
     leg.call(
         &endpoint,
         Input::Params(&[]),
-        biomcp_fetch::Read::<raw::Events>::json().cache_if(
-            &(|rows| {
-                rows.0.iter().all(|row| match row {
-                    raw::Event::Database(_) => true,
-                    raw::Event::Object(v) => {
-                        v.species_name
+        biomcp_fetch::Read::<raw::Events>::json().cache_if(&|rows| {
+            rows.0.iter().all(|row| match row {
+                raw::Event::Database(_) => true,
+                raw::Event::Object(v) => {
+                    v.species_name
+                        .as_deref()
+                        .is_none_or(|s| s == "Homo sapiens")
+                        && v.st_id
                             .as_deref()
-                            .is_none_or(|s| s == "Homo sapiens")
-                            && v.st_id
-                                .as_deref()
-                                .is_none_or(|id| id.parse::<ReactomeId>().is_ok())
-                    }
-                })
-            }),
-        ),
+                            .is_none_or(|id| id.parse::<ReactomeId>().is_ok())
+                }
+            })
+        }),
     )
     .map(|received| received.value)
 }

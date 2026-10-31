@@ -32,16 +32,14 @@ pub fn get(leg: &Leg<'_>, id: &ReportId) -> Result<Detail, RequestError> {
                 ("skip", Arg::Num(0)),
                 ("sort", Arg::Text("receivedate:desc")),
             ]),
-            Read::<raw::Response>::json().check(
-                &(|response| {
-                    if let raw::Response::Page { results, .. } = response
-                        && results.first().is_none_or(|r| r.safetyreportid != *id)
-                    {
-                        return Err(BadReply);
-                    }
-                    Ok(())
-                }),
-            ),
+            Read::<raw::Response>::json().check(&|response| {
+                if let raw::Response::Page { results, .. } = response
+                    && results.first().is_none_or(|r| r.safetyreportid != *id)
+                {
+                    return Err(BadReply);
+                }
+                Ok(())
+            }),
         )
         .map(|received| (received.value, received.meta))?;
     let report = match reply {

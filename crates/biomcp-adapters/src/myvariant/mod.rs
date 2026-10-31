@@ -91,15 +91,13 @@ fn lookup_with(
                     ("fields", Arg::Text(&fields)),
                     ("assembly", Arg::Text(assembly)),
                 ]),
-                Read::<raw::Page>::json().cache_if(
-                    &(|page| {
-                        page.hits.iter().all(|hit| {
-                            hit.as_ref().is_some_and(|hit| {
-                                biomcp_fetch::Reply::check(hit).is_ok() && hit.matches(query)
-                            })
+                Read::<raw::Page>::json().cache_if(&|page| {
+                    page.hits.iter().all(|hit| {
+                        hit.as_ref().is_some_and(|hit| {
+                            biomcp_fetch::Reply::check(hit).is_ok() && hit.matches(query)
                         })
-                    }),
-                ),
+                    })
+                }),
             )
             .map(|received| received.value)?;
         let count = page.hits.len() as u64;
@@ -150,13 +148,12 @@ fn annotation(
                 ("fields", Arg::Text(&fields)),
                 ("assembly", Arg::Text(assembly)),
             ]),
-            Read::<raw::Annotation>::json().cache_if(
-                &(|annotation| {
-                    annotation.hit.as_ref().is_some_and(|hit| {
-                        biomcp_fetch::Reply::check(hit).is_ok() && hit.matches(id)
-                    })
-                }),
-            ),
+            Read::<raw::Annotation>::json().cache_if(&|annotation| {
+                annotation
+                    .hit
+                    .as_ref()
+                    .is_some_and(|hit| biomcp_fetch::Reply::check(hit).is_ok() && hit.matches(id))
+            }),
         )
         .map(|received| received.value)?;
     Ok(mapped(leg, vec![annotation.hit], id, build, population))

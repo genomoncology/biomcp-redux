@@ -111,18 +111,16 @@ pub fn profiles(
         .call(
             &endpoint(id, "molecular-profiles")?,
             Input::Params(&[("projection", Arg::Text("DETAILED"))]),
-            Read::<Profiles>::json().cache_if(
-                &(|r| {
-                    let accepted = r.0.iter().filter(|v| v.value.as_ref().is_some()).count();
-                    let refusals = if accepted < r.0.len() {
-                        crate::Refusal::Refused
-                    } else {
-                        crate::Refusal::None
-                    };
-                    r.0.iter().all(|v| v.scope.study_id == *id)
-                        && refusals.identities_admitted(accepted, r.0.len())
-                }),
-            ),
+            Read::<Profiles>::json().cache_if(&|r| {
+                let accepted = r.0.iter().filter(|v| v.value.as_ref().is_some()).count();
+                let refusals = if accepted < r.0.len() {
+                    crate::Refusal::Refused
+                } else {
+                    crate::Refusal::None
+                };
+                r.0.iter().all(|v| v.scope.study_id == *id)
+                    && refusals.identities_admitted(accepted, r.0.len())
+            }),
         )
         .map(|received| (received.value, received.meta))?;
     let mut problems = Problems {
@@ -168,18 +166,16 @@ pub fn sample_lists(
         .call(
             &endpoint(id, "sample-lists")?,
             Input::Params(&[("projection", Arg::Text("DETAILED"))]),
-            Read::<SampleLists>::json().cache_if(
-                &(|r| {
-                    let accepted = r.0.iter().filter(|v| v.value.as_ref().is_some()).count();
-                    let refusals = if accepted < r.0.len() {
-                        crate::Refusal::Refused
-                    } else {
-                        crate::Refusal::None
-                    };
-                    r.0.iter().all(|v| v.scope.study_id == *id)
-                        && refusals.identities_admitted(accepted, r.0.len())
-                }),
-            ),
+            Read::<SampleLists>::json().cache_if(&|r| {
+                let accepted = r.0.iter().filter(|v| v.value.as_ref().is_some()).count();
+                let refusals = if accepted < r.0.len() {
+                    crate::Refusal::Refused
+                } else {
+                    crate::Refusal::None
+                };
+                r.0.iter().all(|v| v.scope.study_id == *id)
+                    && refusals.identities_admitted(accepted, r.0.len())
+            }),
         )
         .map(|received| (received.value, received.meta))?;
     let mut problems = Problems {

@@ -2,7 +2,7 @@
 use super::{GENES, variant_map as map, variant_raw as raw};
 use crate::Mapped;
 use biodata::{Text, VariantId};
-use biomcp_fetch::{Input, JsonBody};
+use biomcp_fetch::Input;
 
 use biomcp_fetch::{Leg, RequestError};
 use biomcp_types::{
@@ -50,17 +50,12 @@ pub fn variant(
         let reply: raw::Profiles = leg
             .call(
                 &GENES,
-                Input::Json {
-                    params: &[],
-                    body: JsonBody::new(&body),
-                },
-                biomcp_fetch::Read::json().cache_if(
-                    &(|page: &raw::Profiles| {
-                        !page.has_errors()
-                            && page.matches(&allele, query.civic_profile())
-                            && page.progresses(query, after.as_ref())
-                    }),
-                ),
+                Input::json(&[], &body),
+                biomcp_fetch::Read::json().cache_if(&|page: &raw::Profiles| {
+                    !page.has_errors()
+                        && page.matches(&allele, query.civic_profile())
+                        && page.progresses(query, after.as_ref())
+                }),
             )
             .map(|received| received.value)?;
         if !reply.progresses(query, after.as_ref()) {

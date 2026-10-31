@@ -53,7 +53,7 @@ pub fn search(
         .call(
             &ep,
             Input::Params(&args),
-            Read::<Rows>::json().cache_if(&(|_| true)),
+            Read::<Rows>::json().cache_if(&|_| true),
         )
         .map(|received| (received.value, received.meta))?;
     let page = meta

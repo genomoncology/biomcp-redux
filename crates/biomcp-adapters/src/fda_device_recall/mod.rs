@@ -79,7 +79,7 @@ pub fn search(leg: &Leg<'_>, q: &DiagnosticSearch) -> Result<Page, RequestError>
                 .json_absence(),
             Input::Params(&args),
             Read::<raw::Response<raw::Record>>::json()
-                .check(&(|reply| counts(reply, q.offset(), q.limit(), false))),
+                .check(&|reply| counts(reply, q.offset(), q.limit(), false)),
         )
         .map(|received| (received.value, received.meta))?;
     let mut page = Page {
@@ -142,8 +142,8 @@ fn exact<T: DeserializeOwned + Identity + crate::openfda::Item>(
                 ("skip", Arg::Num(0)),
             ]),
             Read::<raw::Response<T>>::json()
-                .check(&(|reply| counts(reply, 0, 1, true)))
-                .cache_if(&(identity)),
+                .check(&|reply| counts(reply, 0, 1, true))
+                .cache_if(&identity),
         )
         .map(|received| received.value)
         .map_err(|error| Failure {

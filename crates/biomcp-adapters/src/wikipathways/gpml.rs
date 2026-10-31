@@ -46,7 +46,7 @@ pub fn members(leg: &Leg<'_>, id: &WikiPathwaysId) -> Result<Mapped<Members>, Re
         .call(
             &endpoint,
             Input::Params(&[]),
-            Read::<Document>::xml().check(&(|value| value.matches(id))),
+            Read::<Document>::xml().check(&|value| value.matches(id)),
         )
         .map(|received| (received.value, received.meta))?;
     let mut p = Problems {

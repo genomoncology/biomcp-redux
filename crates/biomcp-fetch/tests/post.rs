@@ -3,7 +3,7 @@
     clippy::disallowed_methods,
     reason = "Local HTTP fixtures and scoped public API callers"
 )]
-use biomcp_fetch::{JsonBody, Read};
+use biomcp_fetch::Read;
 
 mod support;
 use biomcp_fetch::{Arg, Fetch, FetchConfig, KeyUse, Quota, Rate, SourceKey};
@@ -87,10 +87,7 @@ fn json_serializes_once_and_only_declared_idempotent_posts_retry() {
                 .leg(spec, fetch.deadline(Duration::from_secs(10)))
                 .call(
                     &spec.post_json("/answer").idempotent(),
-                    biomcp_fetch::Input::Json {
-                        params: &[],
-                        body: JsonBody::new(&Once(&calls)),
-                    },
+                    biomcp_fetch::Input::json(&[], &Once(&calls)),
                     Read::<Answer>::json(),
                 )
                 .map(|received| received.value)
@@ -115,10 +112,7 @@ fn json_serializes_once_and_only_declared_idempotent_posts_retry() {
                     .leg(spec, fetch.deadline(Duration::from_secs(10)))
                     .call(
                         &spec.post_json("/answer"),
-                        biomcp_fetch::Input::Json {
-                            params: &[],
-                            body: JsonBody::new(&true),
-                        },
+                        biomcp_fetch::Input::json(&[], &true),
                         Read::<Answer>::json(),
                     )
                     .map(|received| received.value)
@@ -171,10 +165,7 @@ fn preparation_errors_precede_locked_cache_and_malformed_replay_without_echo() {
             (
                 leg.call(
                     &endpoint,
-                    biomcp_fetch::Input::Json {
-                        params: &[],
-                        body: JsonBody::new(&Broken),
-                    },
+                    biomcp_fetch::Input::json(&[], &Broken),
                     Read::<Answer>::json(),
                 )
                 .map(|received| received.value)
@@ -184,10 +175,7 @@ fn preparation_errors_precede_locked_cache_and_malformed_replay_without_echo() {
             (
                 leg.call(
                     &endpoint,
-                    biomcp_fetch::Input::Json {
-                        params: &[],
-                        body: JsonBody::new(&"x".repeat(33)),
-                    },
+                    biomcp_fetch::Input::json(&[], &"x".repeat(33)),
                     Read::<Answer>::json(),
                 )
                 .map(|received| received.value)
@@ -207,10 +195,7 @@ fn preparation_errors_precede_locked_cache_and_malformed_replay_without_echo() {
             (
                 leg.call(
                     &spec.get("/answer"),
-                    biomcp_fetch::Input::Json {
-                        params: &[],
-                        body: JsonBody::new(&Broken),
-                    },
+                    biomcp_fetch::Input::json(&[], &Broken),
                     Read::<Answer>::json(),
                 )
                 .map(|received| received.value)
@@ -262,20 +247,14 @@ fn invoke(
         2 => leg
             .call(
                 &spec.post_json("/answer").fresh(Freshness::Days(1)),
-                biomcp_fetch::Input::Json {
-                    params: &[],
-                    body: JsonBody::new(&serde_json::json!({"q":1})),
-                },
+                biomcp_fetch::Input::json(&[], &serde_json::json!({"q":1})),
                 Read::json(),
             )
             .map(|received| received.value),
         _ => leg
             .call(
                 &spec.post_json("/answer").fresh(Freshness::Days(1)),
-                biomcp_fetch::Input::Json {
-                    params: &[],
-                    body: JsonBody::new(&serde_json::json!({"q":2})),
-                },
+                biomcp_fetch::Input::json(&[], &serde_json::json!({"q":2})),
                 Read::json(),
             )
             .map(|received| received.value),
@@ -340,10 +319,7 @@ fn cache_capture_replay_and_offline_distinguish_method_encoding_and_body() {
     assert_eq!(
         leg.call(
             &spec.post_json("/answer"),
-            biomcp_fetch::Input::Json {
-                params: &[],
-                body: JsonBody::new(&serde_json::json!({"q":3}))
-            },
+            biomcp_fetch::Input::json(&[], &serde_json::json!({"q":3})),
             Read::<Answer>::json()
         )
         .map(|received| received.value)

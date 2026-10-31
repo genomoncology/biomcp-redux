@@ -22,15 +22,13 @@ pub fn search(leg: &Leg<'_>, q: &AuthorSearch) -> Result<Page, RequestError> {
                 ("offset", Arg::Num(u64::from(q.offset()))),
                 ("limit", Arg::Num(u64::from(q.limit()))),
             ]),
-            biomcp_fetch::Read::<raw::Page>::json().check(
-                &(|page| {
-                    if page.offset == q.offset() && page.received <= q.limit() as usize {
-                        Ok(())
-                    } else {
-                        Err(BadReply)
-                    }
-                }),
-            ),
+            biomcp_fetch::Read::<raw::Page>::json().check(&|page| {
+                if page.offset == q.offset() && page.received <= q.limit() as usize {
+                    Ok(())
+                } else {
+                    Err(BadReply)
+                }
+            }),
         )
         .map(|received| (received.value, received.meta))?;
     Ok(map::Page::new(page))
@@ -48,15 +46,13 @@ pub fn card(
         .call(
             &endpoint,
             Input::Params(&[("fields", Arg::Text(FIELDS))]),
-            biomcp_fetch::Read::<raw::Record>::json().check(
-                &(|row| {
-                    if &row.author_id == id {
-                        Ok(())
-                    } else {
-                        Err(BadReply)
-                    }
-                }),
-            ),
+            biomcp_fetch::Read::<raw::Record>::json().check(&|row| {
+                if &row.author_id == id {
+                    Ok(())
+                } else {
+                    Err(BadReply)
+                }
+            }),
         )
         .map(|received| (received.value, received.meta))?;
     Ok(row.card())

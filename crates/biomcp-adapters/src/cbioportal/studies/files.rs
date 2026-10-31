@@ -89,15 +89,13 @@ pub fn files(
         .call(
             &endpoint,
             Input::Params(&[]),
-            biomcp_fetch::Read::<Entries>::json().check(
-                &(|r| {
-                    if r.0.iter().all(|v| v.matches(id)) {
-                        Ok(())
-                    } else {
-                        Err(BadReply)
-                    }
-                }),
-            ),
+            biomcp_fetch::Read::<Entries>::json().check(&|r| {
+                if r.0.iter().all(|v| v.matches(id)) {
+                    Ok(())
+                } else {
+                    Err(BadReply)
+                }
+            }),
         )
         .map(|received| (received.value, received.meta));
     let (reply, metadata) = match result {

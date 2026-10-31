@@ -254,15 +254,13 @@ pub fn search(leg: &Leg<'_>, params: &[(String, String)]) -> Result<Page, Reques
     leg.call(
         &SEARCH,
         Input::Params(&args),
-        Read::<Page>::json().check(
-            &(|page| {
-                if page.data.len() <= limit {
-                    Ok(())
-                } else {
-                    Err(BadReply)
-                }
-            }),
-        ),
+        Read::<Page>::json().check(&|page| {
+            if page.data.len() <= limit {
+                Ok(())
+            } else {
+                Err(BadReply)
+            }
+        }),
     )
     .map(|received| (received.value, received.meta))
     .map(|(page, _)| page)
@@ -277,15 +275,13 @@ pub fn get(
         .call(
             &endpoint,
             Input::Params(&[]),
-            Read::<Trial>::json().check(
-                &(|r| {
-                    if r.nct_id == id {
-                        Ok(())
-                    } else {
-                        Err(BadReply)
-                    }
-                }),
-            ),
+            Read::<Trial>::json().check(&|r| {
+                if r.nct_id == id {
+                    Ok(())
+                } else {
+                    Err(BadReply)
+                }
+            }),
         )
         .map(|received| (received.value, received.meta))?;
     Ok((raw.detail(), metadata))

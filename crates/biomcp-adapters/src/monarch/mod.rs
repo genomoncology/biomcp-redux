@@ -84,29 +84,26 @@ pub fn associations(leg: &Leg<'_>, query: &DiseaseGet) -> Result<Page, RequestEr
             &ASSOCIATIONS,
             Input::Params(&args),
             Read::<raw::Page>::json()
-                .check(
-                    &(|page| {
-                        if page.limit != query.section_limit()
-                            || page.offset != query.section_offset()
-                        {
-                            return Err(BadReply);
-                        }
-                        // Native parent expansion may return a child endpoint; require its native closure proof.
-                        if page.items.iter().any(|row| {
-                            let (endpoint, closure) = if genes {
-                                (&row.object, &row.object_closure)
-                            } else {
-                                (&row.subject, &row.subject_closure)
-                            };
-                            endpoint.as_ref() != Some(&id)
-                                && closure.as_ref().is_none_or(|values| !values.contains(&id))
-                        }) {
-                            return Err(BadReply);
-                        }
-                        Ok(())
-                    }),
-                )
-                .cache_if(&(raw::Page::identities_admitted)),
+                .check(&|page| {
+                    if page.limit != query.section_limit() || page.offset != query.section_offset()
+                    {
+                        return Err(BadReply);
+                    }
+                    // Native parent expansion may return a child endpoint; require its native closure proof.
+                    if page.items.iter().any(|row| {
+                        let (endpoint, closure) = if genes {
+                            (&row.object, &row.object_closure)
+                        } else {
+                            (&row.subject, &row.subject_closure)
+                        };
+                        endpoint.as_ref() != Some(&id)
+                            && closure.as_ref().is_none_or(|values| !values.contains(&id))
+                    }) {
+                        return Err(BadReply);
+                    }
+                    Ok(())
+                })
+                .cache_if(&raw::Page::identities_admitted),
         )
         .map(|received| (received.value, received.meta))?;
     let received = page.items.len() as u32;

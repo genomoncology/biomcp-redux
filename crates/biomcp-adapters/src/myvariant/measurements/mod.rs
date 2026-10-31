@@ -49,15 +49,13 @@ pub fn get(
                     }),
                 ),
             ]),
-            biomcp_fetch::Read::<raw::Record>::json().cache_if(
-                &(|record| {
-                    record
-                        .id
-                        .as_ref()
-                        .and_then(crate::raw::Field::as_ref)
-                        .is_some_and(|given| given.as_str() == id)
-                }),
-            ),
+            biomcp_fetch::Read::<raw::Record>::json().cache_if(&|record| {
+                record
+                    .id
+                    .as_ref()
+                    .and_then(crate::raw::Field::as_ref)
+                    .is_some_and(|given| given.as_str() == id)
+            }),
         )
         .map(|received| received.value)?;
     let mut mapped = map::project(record, id, build, conservation, cadd, dbnsfp)?;

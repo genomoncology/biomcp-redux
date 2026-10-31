@@ -45,17 +45,15 @@ pub fn card(
         .call(
             &endpoint(id, "person")?,
             Input::Params(&[]),
-            biomcp_fetch::Read::<raw::Person>::json().check(
-                &(|r| {
-                    if r.path == format!("/{id}/person")
-                        && r.name.as_ref().is_none_or(|n| n.path == id.to_string())
-                    {
-                        Ok(())
-                    } else {
-                        Err(BadReply)
-                    }
-                }),
-            ),
+            biomcp_fetch::Read::<raw::Person>::json().check(&|r| {
+                if r.path == format!("/{id}/person")
+                    && r.name.as_ref().is_none_or(|n| n.path == id.to_string())
+                {
+                    Ok(())
+                } else {
+                    Err(BadReply)
+                }
+            }),
         )
         .map(|received| (received.value, received.meta))?;
     record
@@ -71,15 +69,13 @@ pub fn works(
         .call(
             &endpoint(id, "works")?,
             Input::Params(&[]),
-            biomcp_fetch::Read::<works::Works>::json().check(
-                &(|r| {
-                    if r.identity(id) {
-                        Ok(())
-                    } else {
-                        Err(BadReply)
-                    }
-                }),
-            ),
+            biomcp_fetch::Read::<works::Works>::json().check(&|r| {
+                if r.identity(id) {
+                    Ok(())
+                } else {
+                    Err(BadReply)
+                }
+            }),
         )
         .map(|received| (received.value, received.meta))?;
     Ok(record.groups())

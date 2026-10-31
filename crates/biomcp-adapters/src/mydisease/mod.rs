@@ -63,15 +63,13 @@ pub fn get(leg: &Leg<'_>, id: &Curie) -> Result<Record, RequestError> {
         .call(
             &endpoint,
             Input::Params(&[("fields", Arg::Text(&fields))]),
-            biomcp_fetch::Read::<raw::Document>::json().check(
-                &(|record| {
-                    if record.matches(id, &fields) {
-                        Ok(())
-                    } else {
-                        Err(BadReply)
-                    }
-                }),
-            ),
+            biomcp_fetch::Read::<raw::Document>::json().check(&|record| {
+                if record.matches(id, &fields) {
+                    Ok(())
+                } else {
+                    Err(BadReply)
+                }
+            }),
         )
         .map(|received| (received.value, received.meta))?;
     // Ignore any unrequested component even when an old replay contains it.

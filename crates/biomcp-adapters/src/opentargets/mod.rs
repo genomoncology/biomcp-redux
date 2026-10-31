@@ -1,5 +1,5 @@
 //! Canonical OPENTARGETS source declaration.
-use biomcp_fetch::{Input, JsonBody};
+use biomcp_fetch::Input;
 use biomcp_fetch::{KeyUse, SourceSpec, Terms};
 use biomcp_types::Source;
 use std::time::Duration;
@@ -61,23 +61,18 @@ pub fn search(
     };
     leg.call(
         &GRAPHQL,
-        Input::Json {
-            params: &[],
-            body: JsonBody::new(&body),
-        },
-        biomcp_fetch::Read::json().check(
-            &(|r: &raw::Response<raw::SearchData>| {
-                if r.data.search.hits.len() <= size as usize
-                    && (r.data.search.hits.is_empty()
-                        || u64::from(index) * u64::from(size) + r.data.search.hits.len() as u64
-                            <= r.data.search.total)
-                {
-                    Ok(())
-                } else {
-                    Err(BadReply)
-                }
-            }),
-        ),
+        Input::json(&[], &body),
+        biomcp_fetch::Read::json().check(&|r: &raw::Response<raw::SearchData>| {
+            if r.data.search.hits.len() <= size as usize
+                && (r.data.search.hits.is_empty()
+                    || u64::from(index) * u64::from(size) + r.data.search.hits.len() as u64
+                        <= r.data.search.total)
+            {
+                Ok(())
+            } else {
+                Err(BadReply)
+            }
+        }),
     )
     .map(|received| (received.value, received.meta))
     .map(|(r, meta)| (map::Search(r.data.search), meta))
@@ -94,19 +89,14 @@ pub fn drug(
     };
     leg.call(
         &GRAPHQL,
-        Input::Json {
-            params: &[],
-            body: JsonBody::new(&body),
-        },
-        biomcp_fetch::Read::json().check(
-            &(|r: &raw::Response<raw::DrugData>| {
-                if r.data.drug.as_ref().is_none_or(|d| d.id == id) {
-                    Ok(())
-                } else {
-                    Err(BadReply)
-                }
-            }),
-        ),
+        Input::json(&[], &body),
+        biomcp_fetch::Read::json().check(&|r: &raw::Response<raw::DrugData>| {
+            if r.data.drug.as_ref().is_none_or(|d| d.id == id) {
+                Ok(())
+            } else {
+                Err(BadReply)
+            }
+        }),
     )
     .map(|received| (received.value, received.meta))
     .map(|(r, meta)| (r.data.drug.map(map::Drug), meta))

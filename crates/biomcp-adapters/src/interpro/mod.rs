@@ -89,7 +89,7 @@ pub fn page(
         .call(
             &endpoint,
             Input::Params(&args),
-            Read::<raw::Page>::json().cache_if(&(|p| p.admitted(id))),
+            Read::<raw::Page>::json().cache_if(&|p| p.admitted(id)),
         )
         .map(|received| received.value)?;
     if !raw.admitted(id) {

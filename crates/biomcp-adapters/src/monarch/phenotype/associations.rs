@@ -42,21 +42,19 @@ pub fn get(leg: &Leg<'_>, query: &PhenotypeGet) -> Result<super::super::Page, Re
             &super::super::ASSOCIATIONS,
             Input::Params(&args),
             biomcp_fetch::Read::<super::super::raw::Page>::json()
-                .check(
-                    &(|page| {
-                        if page.limit != query.section_limit()
-                            || page.offset != query.section_offset()
-                            || page.items.iter().any(|row| {
-                                row.object.as_ref() != Some(&requested)
-                                    || (genes && row.subject_taxon.as_ref() != Some(&human))
-                            })
-                        {
-                            return Err(BadReply);
-                        }
-                        Ok(())
-                    }),
-                )
-                .cache_if(&(super::super::raw::Page::identities_admitted)),
+                .check(&|page| {
+                    if page.limit != query.section_limit()
+                        || page.offset != query.section_offset()
+                        || page.items.iter().any(|row| {
+                            row.object.as_ref() != Some(&requested)
+                                || (genes && row.subject_taxon.as_ref() != Some(&human))
+                        })
+                    {
+                        return Err(BadReply);
+                    }
+                    Ok(())
+                })
+                .cache_if(&super::super::raw::Page::identities_admitted),
         )
         .map(|received| (received.value, received.meta))?;
     let received = page.items.len() as u32;

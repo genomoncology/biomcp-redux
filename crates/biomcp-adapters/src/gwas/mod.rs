@@ -65,16 +65,14 @@ pub fn associations(
                 ("size", Arg::Num(size.into())),
             ]),
             biomcp_fetch::Read::<raw::Response>::json()
-                .check(
-                    &(|r| {
-                        if r.matches(&id, page, size, &expected) {
-                            Ok(())
-                        } else {
-                            Err(BadReply)
-                        }
-                    }),
-                )
-                .cache_if(&(raw::Response::identities_admitted)),
+                .check(&|r| {
+                    if r.matches(&id, page, size, &expected) {
+                        Ok(())
+                    } else {
+                        Err(BadReply)
+                    }
+                })
+                .cache_if(&raw::Response::identities_admitted),
         )
         .map(|received| received.value)?;
     Ok(self::page(response, skip as usize))

@@ -129,7 +129,7 @@ fn detail(leg: &Leg<'_>, id: &ComplexPortalId) -> Result<raw::Complex, RequestEr
         .call(
             &endpoint,
             Input::Params(&[]),
-            biomcp_fetch::Read::<raw::Detail>::json().cache_if(&(|d| d.id == *id)),
+            biomcp_fetch::Read::<raw::Detail>::json().cache_if(&|d| d.id == *id),
         )
         .map(|received| received.value)?;
     if d.id != *id {

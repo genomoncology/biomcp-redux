@@ -55,15 +55,13 @@ pub fn get(leg: &Leg<'_>, id: NctId) -> Result<(Detail, ReplyMetadata), RequestE
         .call(
             &endpoint,
             Input::Params(&[]),
-            biomcp_fetch::Read::<Study>::json().check(
-                &(|raw| {
-                    if raw.protocol_section.identification_module.nct_id == id {
-                        Ok(())
-                    } else {
-                        Err(BadReply)
-                    }
-                }),
-            ),
+            biomcp_fetch::Read::<Study>::json().check(&|raw| {
+                if raw.protocol_section.identification_module.nct_id == id {
+                    Ok(())
+                } else {
+                    Err(BadReply)
+                }
+            }),
         )
         .map(|received| (received.value, received.meta))?;
     let id = raw.protocol_section.identification_module.nct_id;

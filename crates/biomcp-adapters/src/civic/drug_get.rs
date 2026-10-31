@@ -2,7 +2,7 @@
 use super::{GENES, drug_map, drug_raw as raw, variant::failure, variant_raw::Connection};
 use crate::Mapped;
 use biodata::Text;
-use biomcp_fetch::{Input, JsonBody, Read};
+use biomcp_fetch::{Input, Read};
 use biomcp_fetch::{Leg, RequestError};
 use biomcp_types::{
     CivicClaimKind, CivicClaimPage, DrugCivic, DrugCivicPage, DrugCivicStreams, DrugGet, Reason,
@@ -73,15 +73,10 @@ fn fetch(
     let reply: raw::ReplyBody = leg
         .call(
             &GENES,
-            Input::Json {
-                params: &[],
-                body: JsonBody::new(&body),
-            },
-            Read::json().cache_if(
-                &(|reply: &raw::ReplyBody| {
-                    matches(&reply.data, kind, after, count) && raw::cacheable(&reply.data, query)
-                }),
-            ),
+            Input::json(&[], &body),
+            Read::json().cache_if(&|reply: &raw::ReplyBody| {
+                matches(&reply.data, kind, after, count) && raw::cacheable(&reply.data, query)
+            }),
         )
         .map(|received| received.value)?;
     if reply.data.therapy.is_none() {

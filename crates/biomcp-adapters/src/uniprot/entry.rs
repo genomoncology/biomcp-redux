@@ -38,7 +38,7 @@ pub fn entry(leg: &Leg<'_>, id: &UniProtIsoform) -> Result<Mapped<Option<Entry>>
         .call(
             &ep,
             Input::Params(&[]),
-            Read::<raw::Entry>::json().cache_if(&(|raw| raw.admitted(id))),
+            Read::<raw::Entry>::json().cache_if(&|raw| raw.admitted(id)),
         )
         .map(|received| received.value)
     {

@@ -31,15 +31,13 @@ pub fn association(
         .call(
             &endpoint,
             Input::Params(&[]),
-            biomcp_fetch::Read::<Association>::json().check(
-                &(|r| {
-                    if r.association_id == id {
-                        Ok(())
-                    } else {
-                        Err(BadReply)
-                    }
-                }),
-            ),
+            biomcp_fetch::Read::<Association>::json().check(&|r| {
+                if r.association_id == id {
+                    Ok(())
+                } else {
+                    Err(BadReply)
+                }
+            }),
         )
         .map(|received| (received.value, received.meta))?;
     Ok(row.into())
@@ -59,15 +57,13 @@ pub fn study(leg: &Leg<'_>, id: &GwasStudyId) -> Result<crate::Mapped<GwasStudy>
         .call(
             &endpoint,
             Input::Params(&[]),
-            biomcp_fetch::Read::<study::Study>::json().check(
-                &(|r| {
-                    if &r.accession_id == id {
-                        Ok(())
-                    } else {
-                        Err(BadReply)
-                    }
-                }),
-            ),
+            biomcp_fetch::Read::<study::Study>::json().check(&|r| {
+                if &r.accession_id == id {
+                    Ok(())
+                } else {
+                    Err(BadReply)
+                }
+            }),
         )
         .map(|received| (received.value, received.meta))?;
     Ok(row.card())
@@ -81,14 +77,12 @@ pub fn ancestries(leg: &Leg<'_>, id: &GwasStudyId) -> Result<Rows<GwasAncestry>,
         .call(
             &endpoint,
             Input::Params(&[]),
-            biomcp_fetch::Read::<raw::Ancestries>::json().cache_if(
-                &(|r| {
-                    r.embedded
-                        .ancestries
-                        .iter()
-                        .all(|a| raw::owned(&a.links.current.href, &prefix))
-                }),
-            ),
+            biomcp_fetch::Read::<raw::Ancestries>::json().cache_if(&|r| {
+                r.embedded
+                    .ancestries
+                    .iter()
+                    .all(|a| raw::owned(&a.links.current.href, &prefix))
+            }),
         )
         .map(|received| (received.value, received.meta))?;
     let total = rows.embedded.ancestries.len();
@@ -127,14 +121,12 @@ pub fn loci(leg: &Leg<'_>, id: GwasAssociationId) -> Result<Rows<GwasLocus>, Req
         .call(
             &endpoint,
             Input::Params(&[]),
-            biomcp_fetch::Read::<raw::Loci>::json().cache_if(
-                &(|r| {
-                    r.embedded
-                        .loci
-                        .iter()
-                        .all(|a| raw::owned(&a.links.current.href, &prefix))
-                }),
-            ),
+            biomcp_fetch::Read::<raw::Loci>::json().cache_if(&|r| {
+                r.embedded
+                    .loci
+                    .iter()
+                    .all(|a| raw::owned(&a.links.current.href, &prefix))
+            }),
         )
         .map(|received| (received.value, received.meta))?;
     let total = rows.embedded.loci.len();

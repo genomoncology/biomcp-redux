@@ -56,8 +56,8 @@ pub fn search(
                 ("fields", Arg::Text(&fields)),
             ]),
             Read::<raw::Page>::json()
-                .check(&(|_| Ok(())))
-                .cache_if(&(raw::Page::identities_admitted)),
+                .check(&|_| Ok(()))
+                .cache_if(&raw::Page::identities_admitted),
         )
         .map(|received| received.value)?;
     let received = reply.hits.len() as u32;
@@ -73,15 +73,13 @@ pub fn get(leg: &Leg<'_>, id: &str) -> Result<crate::Mapped<DrugDocument>, Reque
         .call(
             &GET.clone().with_segments(&[segment]),
             biomcp_fetch::Input::Params(&[("fields", Arg::Text(&fields))]),
-            Read::<raw::Hit>::json().check(
-                &(|hit| {
-                    if hit.id == id {
-                        Ok(())
-                    } else {
-                        Err(biomcp_fetch::BadReply)
-                    }
-                }),
-            ),
+            Read::<raw::Hit>::json().check(&|hit| {
+                if hit.id == id {
+                    Ok(())
+                } else {
+                    Err(biomcp_fetch::BadReply)
+                }
+            }),
         )
         .map(|received| (received.value, received.meta))?;
     let mut card =

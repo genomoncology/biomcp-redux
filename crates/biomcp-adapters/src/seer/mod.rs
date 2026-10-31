@@ -185,27 +185,25 @@ pub fn statistics(
             &SERIES,
             Input::Params(&query.params()),
             biomcp_fetch::Read::<raw::Document>::json_string()
-                .check(
-                    &(|r| {
-                        let expected = if matches!(query.statistic, Statistic::Survival { .. }) {
-                            "rel_rate"
-                        } else {
-                            "rate"
-                        };
-                        let site_index = r.info.keys.iter().position(|key| key == "site");
-                        let matching_site = site_index.is_some_and(|index| {
-                            r.data.iter().all(|(key, _)| {
-                                key.split('_').nth(index) == Some(query.site.as_str())
-                            })
-                        });
-                        if r.info.measure == expected && matching_site {
-                            Ok(())
-                        } else {
-                            Err(biomcp_fetch::BadReply)
-                        }
-                    }),
-                )
-                .cache_if(&(map::identities_admitted)),
+                .check(&|r| {
+                    let expected = if matches!(query.statistic, Statistic::Survival { .. }) {
+                        "rel_rate"
+                    } else {
+                        "rate"
+                    };
+                    let site_index = r.info.keys.iter().position(|key| key == "site");
+                    let matching_site = site_index.is_some_and(|index| {
+                        r.data
+                            .iter()
+                            .all(|(key, _)| key.split('_').nth(index) == Some(query.site.as_str()))
+                    });
+                    if r.info.measure == expected && matching_site {
+                        Ok(())
+                    } else {
+                        Err(biomcp_fetch::BadReply)
+                    }
+                })
+                .cache_if(&map::identities_admitted),
         )
         .map(|received| (received.value, received.meta))?;
     let (rows, problems) = map::rows(raw, query).map_err(|_| {

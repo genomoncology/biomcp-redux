@@ -552,10 +552,7 @@ fn bounded_reachability_probes_share_policy_and_never_cache_data() {
         .unwrap();
     leg.probe(
         &spec.post_json("/probe").idempotent(),
-        biomcp_fetch::Input::Json {
-            params: &[],
-            body: biomcp_fetch::JsonBody::new(&serde_json::json!({"query":"health"})),
-        },
+        biomcp_fetch::Input::json(&[], &serde_json::json!({"query":"health"})),
     )
     .unwrap();
     assert_eq!(stub.finish().len(), 2);

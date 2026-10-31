@@ -92,30 +92,26 @@ pub fn search(leg: &Leg<'_>, query: &VariantSearch) -> Result<SearchPage, Reques
             &SEARCH,
             Input::Params(&args),
             Read::<Search>::json()
-                .check(
-                    &(|reply| {
-                        let page = &reply.esearchresult;
-                        let total = page.count;
-                        if page.retstart != query.offset().to_string()
-                            || page.idlist.len() as u64
-                                != total
-                                    .saturating_sub(u64::from(query.offset()))
-                                    .min(u64::from(query.limit()))
-                        {
-                            return Err(BadReply);
-                        }
-                        Ok(())
-                    }),
-                )
-                .cache_if(
-                    &(|reply| {
-                        reply
-                            .esearchresult
-                            .idlist
-                            .iter()
-                            .all(|id| id.as_ref().is_some())
-                    }),
-                ),
+                .check(&|reply| {
+                    let page = &reply.esearchresult;
+                    let total = page.count;
+                    if page.retstart != query.offset().to_string()
+                        || page.idlist.len() as u64
+                            != total
+                                .saturating_sub(u64::from(query.offset()))
+                                .min(u64::from(query.limit()))
+                    {
+                        return Err(BadReply);
+                    }
+                    Ok(())
+                })
+                .cache_if(&|reply| {
+                    reply
+                        .esearchresult
+                        .idlist
+                        .iter()
+                        .all(|id| id.as_ref().is_some())
+                }),
         )
         .map(|received| received.value)?;
     Ok(mapped_page(reply.esearchresult))

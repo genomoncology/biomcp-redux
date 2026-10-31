@@ -35,21 +35,19 @@ pub fn search(leg: &Leg<'_>, query: &DiseaseSearch) -> Result<SearchPage, Reques
                 ("ontology", Arg::Text(ontology.as_str())),
                 ("groupField", Arg::Text("iri")),
             ]),
-            Read::<raw::Search>::json().check(
-                &(|page| {
-                    let response = &page.response;
-                    if response.start != query.offset()
-                        || response.docs.len() > query.limit() as usize
-                        || response
-                            .docs
-                            .iter()
-                            .any(|d| d.ontology_name.as_str() != ontology.as_str())
-                    {
-                        return Err(BadReply);
-                    }
-                    Ok(())
-                }),
-            ),
+            Read::<raw::Search>::json().check(&|page| {
+                let response = &page.response;
+                if response.start != query.offset()
+                    || response.docs.len() > query.limit() as usize
+                    || response
+                        .docs
+                        .iter()
+                        .any(|d| d.ontology_name.as_str() != ontology.as_str())
+                {
+                    return Err(BadReply);
+                }
+                Ok(())
+            }),
         )
         .map(|received| (received.value, received.meta))?;
     let mut problems = crate::mapped::Problems {

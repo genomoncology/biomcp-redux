@@ -17,7 +17,7 @@ pub fn sequence(leg: &Leg<'_>, id: &UniProtIsoform) -> Result<ProteinSequence, R
             &ep,
             Input::Params(&[]),
             Read::bytes()
-                .validate_body(&(|bytes| parse(bytes, id).map(|_| ()).ok_or(Reason::BadReply))),
+                .validate_body(&|bytes| parse(bytes, id).map(|_| ()).ok_or(Reason::BadReply)),
         )
         .map(|received| received.value.0)?;
     parse(&bytes, id).ok_or(RequestError::Source(biomcp_fetch::SourceError {

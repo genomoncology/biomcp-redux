@@ -122,18 +122,16 @@ fn page(
         .call(
             &LABEL,
             Input::Params(&args),
-            biomcp_fetch::Read::<raw::Response>::json().check(
-                &(|reply| match reply {
-                    raw::Response::Page { meta, results }
-                        if meta.results.skip != offset
-                            || meta.results.limit != limit
-                            || set.is_some_and(|set| results.iter().any(|r| r.set_id != *set)) =>
-                    {
-                        Err(BadReply)
-                    }
-                    _ => Ok(()),
-                }),
-            ),
+            biomcp_fetch::Read::<raw::Response>::json().check(&|reply| match reply {
+                raw::Response::Page { meta, results }
+                    if meta.results.skip != offset
+                        || meta.results.limit != limit
+                        || set.is_some_and(|set| results.iter().any(|r| r.set_id != *set)) =>
+                {
+                    Err(BadReply)
+                }
+                _ => Ok(()),
+            }),
         )
         .map(|received| (received.value, received.meta))?;
     let (records, total) = match reply {

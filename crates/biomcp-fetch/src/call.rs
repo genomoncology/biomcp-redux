@@ -32,6 +32,15 @@ pub enum Input<'a> {
         body: JsonBody<'a>,
     },
 }
+impl<'a> Input<'a> {
+    /// Borrow canonical query arguments and a bounded JSON POST body.
+    pub fn json<B: serde::Serialize + 'a>(params: &'a [(&'a str, Arg<'a>)], body: &'a B) -> Self {
+        Self::Json {
+            params,
+            body: JsonBody::new(body),
+        }
+    }
+}
 /// A checked value and the metadata of the response that supplied it.
 #[derive(Debug)]
 pub struct Received<T> {

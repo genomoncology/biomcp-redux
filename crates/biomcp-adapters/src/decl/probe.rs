@@ -23,12 +23,12 @@ impl Probe {
             }
             Self::GraphQl(path) => leg.probe(
                 &spec.post_json(path).idempotent(),
-                biomcp_fetch::Input::Json {
-                    params: &[],
-                    body: biomcp_fetch::JsonBody::new(&ProbeQuery {
+                biomcp_fetch::Input::json(
+                    &[],
+                    &ProbeQuery {
                         query: "{ __typename }",
-                    }),
-                },
+                    },
+                ),
             ),
             Self::Custom(probe) => probe(leg),
             Self::Unavailable | Self::Component => Err(biomcp_fetch::SourceError {
