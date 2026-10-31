@@ -5,7 +5,7 @@ use std::{
     ffi::OsStr,
     io,
     ops::{Deref, DerefMut},
-    path::Path,
+    path::{Path, PathBuf},
     process::{Child, Command, ExitStatus, Output, Stdio},
     sync::Arc,
 };
@@ -85,8 +85,7 @@ impl Capture {
                 "executable":self.executable,"root":self.root,
                 "checkout":crate::runner::launch::checkout().to_string_lossy().as_ref(),
                 "version":env!("CARGO_PKG_VERSION")});
-            if let Some(owner) = &self.replay_owner {
-                let root = owner.path().canonicalize()?;
+            if let Some((owner, root)) = self.owned_replay()? {
                 super::network_stub::retain_replay_owner(owner)?;
                 execution
                     .as_object_mut()
@@ -98,6 +97,34 @@ impl Capture {
         self.finished = true;
         Ok(())
     }
+    fn owned_replay(&self) -> io::Result<Option<(&tempfile::TempDir, PathBuf)>> {
+        let Some(owner) = self.replay_owner.as_deref() else {
+            return Ok(None);
+        };
+        let mut flags = self
+            .args
+            .iter()
+            .enumerate()
+            .take_while(|(_, arg)| arg.as_str() != "--")
+            .filter(|(_, arg)| arg.as_str() == "--replay");
+        let Some((index, _)) = flags.next() else {
+            return Ok(None);
+        };
+        if flags.next().is_some() {
+            return Ok(None);
+        }
+        let root = owner.path().canonicalize()?;
+        let allowed = [root.join("recordings"), root.join("all")];
+        if self.args.get(index + 1).is_none_or(|arg| {
+            !allowed
+                .iter()
+                .any(|path| path.to_str() == Some(arg.as_str()))
+        }) {
+            return Ok(None);
+        }
+        Ok(Some((owner, root)))
+    }
+
     pub(super) fn stdin(&mut self, value: impl Into<Stdio>) -> &mut Self {
         self.command.stdin(value);
         self

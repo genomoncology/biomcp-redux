@@ -230,11 +230,22 @@ fn replay_owner() -> Result<(), Box<dyn std::error::Error>> {
     if !output.status.success() || output.stdout.is_empty() {
         return Err("owned replay capture command failed".into());
     }
+    let mut offline_args = environment.globals(None, true);
+    offline_args.push("version".into());
+    let mut offline = environment.command(env!("CARGO_BIN_EXE_biomcp"), &offline_args);
+    let output = offline.output()?;
+    if !output.status.success() || output.stdout.is_empty() {
+        return Err("offline owned capture command failed".into());
+    }
     drop(environment);
     if !root.is_dir() {
         return Err("replay owner expired before its capture".into());
     }
     drop(command);
+    if !root.is_dir() {
+        return Err("offline capture lost its live owner".into());
+    }
+    drop(offline);
     if root.exists() {
         return Err("replay owner survived its last capture".into());
     }
