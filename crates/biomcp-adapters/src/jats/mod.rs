@@ -25,6 +25,8 @@ use serde::{Deserialize, Deserializer};
 /// Body text with source row boundaries and deterministic reading order.
 #[derive(Debug)]
 pub struct Body {
+    /// Actual refused source bibliography records.
+    pub refusals: crate::Refusal,
     /// Source title from article metadata, without an extra lookup.
     pub title: Option<Text>,
     /// Optional values rejected independently of the document.
@@ -88,8 +90,10 @@ impl XmlReply for Body {
                 caption: markdown(caption.0)?,
             });
         }
-        let references = references::rows(root.0, &mut problems)?;
+        let mut refusals = crate::Refusal::None;
+        let references = references::rows(root.0, &mut problems, &mut refusals)?;
         Ok(Self {
+            refusals,
             title,
             identifiers,
             pmcid,

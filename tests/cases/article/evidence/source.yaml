@@ -36,6 +36,29 @@
         "/result/fulltext/data/paragraphs/total": 7
       },
       "max_bytes": 16000
+    },
+    {
+      "run": [
+        "article",
+        "citation-evidence",
+        "33123537",
+        "17611497",
+        "--fulltext",
+        "--disable-sources",
+        "semantic-scholar"
+      ],
+      "exit": 0,
+      "max_bytes": 16000,
+      "expect": {
+        "/status": "complete",
+        "/result/semantic_scholar/state": "skipped",
+        "/result/semantic_scholar/reason": "disabled",
+        "/result/fulltext/state": "data",
+        "/result/fulltext/data/paragraphs/total": 7,
+        "/sources/2/source": "semantic-scholar",
+        "/sources/2/state": "skipped",
+        "/sources/2/reason": "disabled"
+      }
     }
   ]
 }

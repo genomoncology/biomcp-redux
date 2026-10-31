@@ -10,6 +10,7 @@ pub(super) type Result<T> = (
     Vec<SourceOutcome>,
     Vec<Problem>,
     Option<RequestError>,
+    bool,
 );
 pub(super) fn apply(
     cx: &Ctx<'_>,
@@ -17,7 +18,7 @@ pub(super) fn apply(
     candidates: &mut [VariantHeader],
     deadline: &mut Deadline<'_>,
     population_reason: Option<Reason>,
-) -> (Vec<SourceOutcome>, Vec<Problem>, Option<RequestError>) {
+) -> (Vec<SourceOutcome>, Vec<Problem>, Option<RequestError>, bool) {
     let mut collected = Collected::default();
     for candidate in candidates {
         let mut sections = VariantSections::default();
@@ -91,13 +92,19 @@ pub(super) fn apply(
             candidate.sections = Some(Box::new(sections));
         }
     }
-    (collected.sources, collected.problems, collected.local)
+    (
+        collected.sources,
+        collected.problems,
+        collected.local,
+        collected.incomplete,
+    )
 }
 #[derive(Default)]
 struct Collected {
     sources: Vec<SourceOutcome>,
     problems: Vec<Problem>,
     local: Option<RequestError>,
+    incomplete: bool,
 }
 impl Collected {
     fn keep<T>(&mut self, value: Result<T>) -> Section<T> {
@@ -106,6 +113,7 @@ impl Collected {
             &mut self.sources,
             &mut self.problems,
             &mut self.local,
+            &mut self.incomplete,
         )
     }
 }
@@ -144,6 +152,7 @@ fn permitted<T>(
             )],
             Vec::new(),
             None,
+            false,
         );
     }
     read()
@@ -153,8 +162,10 @@ pub(super) fn retain<T>(
     sources: &mut Vec<SourceOutcome>,
     problems: &mut Vec<Problem>,
     local: &mut Option<RequestError>,
+    incomplete: &mut bool,
 ) -> Section<T> {
-    let (section, more, issues, error) = value;
+    let (section, more, issues, error, dropped) = value;
+    *incomplete |= dropped || matches!(section, Section::Unavailable { .. });
     sources.extend(more);
     problems.extend(issues);
     *local = local.or(error);

@@ -22,13 +22,13 @@ struct Structured {
     accepts_healthy_volunteers: Option<Field<bool>>,
 }
 impl Eligibility {
-    pub(super) fn map(self, p: &mut Problems) -> NciEligibility {
+    pub(super) fn map(self, p: &mut Problems, refusals: &mut crate::Refusal) -> NciEligibility {
         NciEligibility {
             structured: p
                 .field("eligibility.structured", self.structured)
                 .map(|s| s.map(p)),
             unstructured: p
-                .fields("eligibility.unstructured", self.unstructured)
+                .records("eligibility.unstructured", self.unstructured, refusals)
                 .into_vec()
                 .into_iter()
                 .map(|v| v.map(p))

@@ -5,6 +5,7 @@ use crate::{
 use biomcp_fetch::{CacheError, Deadline, RequestError};
 use biomcp_types::{PathwayEvents, PathwayGenes, Problem, SourceOutcome};
 pub(super) struct Saved {
+    pub dropped: bool,
     pub genes: Option<PathwayGenes>,
     pub events: Option<PathwayEvents>,
     pub sources: Vec<SourceOutcome>,
@@ -17,10 +18,12 @@ impl Saved {
             Option<PathwayEvents>,
             Vec<SourceOutcome>,
             Vec<Problem>,
+            bool,
         );
-        let (genes, events, sources, problems): Wire =
+        let (genes, events, sources, problems, dropped): Wire =
             serde_json::from_str(payload).map_err(|_| CacheError::Database)?;
         Ok(Self {
+            dropped,
             genes,
             events,
             sources,
@@ -28,13 +31,19 @@ impl Saved {
         })
     }
     fn encode(&self) -> Result<String, RequestError> {
-        serde_json::to_string(&(&self.genes, &self.events, &self.sources, &self.problems))
-            .map_err(|_| CacheError::Database.into())
+        serde_json::to_string(&(
+            &self.genes,
+            &self.events,
+            &self.sources,
+            &self.problems,
+            self.dropped,
+        ))
+        .map_err(|_| CacheError::Database.into())
     }
 }
 pub(super) fn key(id: &biodata::PathwayId, genes: bool) -> Vec<u8> {
     format!(
-        "biomcp.pathway_relation/2\0{id}\0{}",
+        "biomcp.pathway_relation/3\0{id}\0{}",
         if genes { "genes" } else { "events" }
     )
     .into_bytes()

@@ -1,12 +1,12 @@
 //! The existing store retains one complete received ancestry collection.
 use super::{
     Ctx, Deadline, GwasAncestries, GwasAncestry, GwasGet, Outcome, Problem, QueryBody, Reason,
-    RequestError, Source, SourceOutcome, Status, StepKind, action, gwas, page, rejected, status,
+    RequestError, Source, SourceOutcome, StepKind, action, gwas, page, rejected, status,
 };
 use crate::store::Store;
 use biomcp_fetch::{CacheError, SourceError};
 use sha2::{Digest, Sha256};
-type Saved = (Vec<GwasAncestry>, Vec<SourceOutcome>, Vec<Problem>);
+type Saved = (Vec<GwasAncestry>, Vec<SourceOutcome>, Vec<Problem>, bool);
 pub(super) fn read(
     cx: &Ctx<'_>,
     q: &GwasGet,
@@ -19,7 +19,7 @@ pub(super) fn read(
     else {
         return Ok(());
     };
-    let key = Sha256::digest(format!("biomcp.gwas-ancestries/5\0{id}"));
+    let key = Sha256::digest(format!("biomcp.gwas-ancestries/6\0{id}"));
     let leg = cx.fetch.leg(&gwas::SPEC, deadline).fresh(cx.fresh);
     if cx.fetch.disabled(Source::Gwas) {
         let error = RequestError::Source(SourceError {
@@ -52,9 +52,15 @@ pub(super) fn read(
             rows.as_ref().err().copied(),
         ));
         let rows = rows?;
+        out.include_refusals(rows.refusals);
         out.problems.extend(rows.problems);
         rejected(out, rows.rejected);
-        let saved = (rows.items, out.sources.clone(), out.problems.clone());
+        let saved = (
+            rows.items,
+            out.sources.clone(),
+            out.problems.clone(),
+            out.dropped,
+        );
         let payload = serde_json::to_string(&saved).map_err(|_| CacheError::Database)?;
         let token = Store::open(cx.fetch.cache_access()?, deadline)?.save_source_snapshot(
             &key,
@@ -65,10 +71,10 @@ pub(super) fn read(
     };
     out.sources = saved.1;
     out.problems = saved.2;
-    out.status = if out.problems.is_empty() {
-        Status::Complete
-    } else {
-        Status::Partial
+    out.dropped = saved.3;
+    {
+        let unavailable = false;
+        crate::status::item(out, true, false, unavailable);
     };
     let q = q.with_page(window.with_snapshot(token));
     let (items, continuation) = page(&q, &saved.0, out);

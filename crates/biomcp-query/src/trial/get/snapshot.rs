@@ -10,7 +10,7 @@ pub(super) struct Snapshot {
     pub(super) sources: Vec<SourceOutcome>,
 }
 // Detail owns mandatory named fields; fixed query metadata follows it. The
-// /5 key separates optional acquisition times from earlier zero sentinels.
+// The key separates snapshots that retain native record refusal facts.
 type Saved = (
     Detail,
     Option<u64>,
@@ -20,7 +20,7 @@ type Saved = (
 );
 impl Snapshot {
     pub(super) fn key(id: biodata::NctId) -> Vec<u8> {
-        Sha256::digest(format!("biomcp.trial_snapshot/5\0{id}").as_bytes()).to_vec()
+        Sha256::digest(format!("biomcp.trial_snapshot/6\0{id}").as_bytes()).to_vec()
     }
     pub(super) fn encode(&self) -> Result<String, CacheError> {
         serde_json::to_string(&(

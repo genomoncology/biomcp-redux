@@ -19,10 +19,9 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
     let error = result.as_ref().err().copied();
     if let Ok(page) = result {
         let returned = page.items.len() as u32;
-        out.status = if page.total == 0 {
-            Status::Absent
-        } else {
-            Status::Complete
+        {
+            let found = page.total != 0;
+            crate::status::item(&mut out, found, false, false);
         };
         out.problems = page.problems;
         next::candidates(&mut out, q, &page.items, cx.fresh);
@@ -48,6 +47,7 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
         });
     }
     finish(&mut out, leg, error);
+    status::search(&mut out);
     command.finish(deadline.remaining());
     out
 }
@@ -59,16 +59,18 @@ pub(super) fn get(cx: &Ctx<'_>, q: &DiagnosticGet, id: &biodata::DeviceRecallNum
     let mut error = None;
     match adapter::get(&leg, id) {
         Ok(Some(mut mapped)) => {
-            out.status = Status::Complete;
+            crate::status::item(&mut out, true, false, false);
+            out.include_refusals(mapped.refusals);
             out.problems.append(&mut mapped.problems);
             match adapter::classification(&leg, id) {
                 Ok(mut classification) => {
                     mapped.value.classification = classification.value;
+                    out.include_refusals(classification.refusals);
                     out.problems.append(&mut classification.problems);
                 }
                 Err(failure) => {
                     error = Some(failed(&mut out, q, failure));
-                    out.status = Status::Partial;
+                    crate::status::item(&mut out, true, false, true);
                 }
             }
             if let Some(code) = &mapped.value.header.product_code
@@ -95,7 +97,7 @@ pub(super) fn get(cx: &Ctx<'_>, q: &DiagnosticGet, id: &biodata::DeviceRecallNum
                 mapped.value,
             ))));
         }
-        Ok(None) => out.status = Status::Absent,
+        Ok(None) => crate::status::item(&mut out, false, false, false),
         Err(failure) => error = Some(failed(&mut out, q, failure)),
     }
     finish(&mut out, leg, error);
@@ -116,10 +118,8 @@ fn failed(out: &mut Outcome, q: &DiagnosticGet, failure: adapter::Failure) -> Re
 fn finish(out: &mut Outcome, leg: Leg<'_>, error: Option<RequestError>) {
     out.local = error.and_then(status::local);
     let source = status::source(Source::FdaDeviceRecall, leg.finish(), error);
-    if out.status == Status::Complete
-        && (source.state == SourceState::Stale || !out.problems.is_empty())
-    {
-        out.status = Status::Partial;
+    if out.status() == Status::Complete && (source.state == SourceState::Stale || out.dropped) {
+        crate::status::item(out, true, false, true);
     }
     out.sources.push(source);
 }

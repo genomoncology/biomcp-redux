@@ -1,9 +1,9 @@
-use super::page::{empty, overall, page_info, run, slice};
+use super::page::{empty, page_info, run, slice};
 use crate::{Ctx, Outcome, status};
 use biomcp_adapters::ols;
 use biomcp_types::{
     DiseaseGet, DiseasePage, DiseaseSearch, DiseaseSection, DiseaseSynonyms, DiseaseXrefs,
-    QueryBody, Request, Source, Status, StepKind,
+    QueryBody, Request, Source, StepKind,
 };
 /// Discover one source-ordered page from one explicit ontology.
 pub fn search(cx: &Ctx<'_>, query: &DiseaseSearch) -> Outcome {
@@ -23,6 +23,7 @@ pub fn search(cx: &Ctx<'_>, query: &DiseaseSearch) -> Outcome {
         .push(status::source(Source::Ols, leg.finish(), error));
     out.local = error.and_then(status::local);
     if let Ok(page) = reply {
+        out.include_refusals(page.rows.refusals);
         let returned = page.rows.value.len() as u32;
         for row in &page.rows.value {
             if let Some(id) = &row.concept.id {
@@ -46,7 +47,7 @@ pub fn search(cx: &Ctx<'_>, query: &DiseaseSearch) -> Outcome {
         if let QueryBody::DiseasePage(body) = &mut out.body {
             body.items = page.rows.value.into();
         }
-        out.status = overall(&out, page.total == 0);
+        crate::status::search(&mut out);
     }
     command.finish(deadline.remaining());
     out
@@ -64,7 +65,7 @@ pub fn get(cx: &Ctx<'_>, query: &DiseaseGet) -> Outcome {
     out.local = error.and_then(status::local);
     match reply {
         Ok(Some(record)) => apply(&mut out, query, record),
-        Ok(None) => out.status = Status::Absent,
+        Ok(None) => crate::status::item(&mut out, false, false, false),
         _ => (),
     }
     super::page::record_problem(&mut out, query, Source::Ols);
@@ -76,6 +77,7 @@ fn apply(out: &mut Outcome, query: &DiseaseGet, record: ols::Record) {
     out.problems = record.problems;
     match query.section() {
         Some(DiseaseSection::Synonyms) => {
+            out.include_refusals(record.synonyms.refusals);
             out.problems.extend(record.synonyms.problems);
             let (items, total) = slice(record.synonyms.value, query);
             out.page = Some(page_info(query.section_offset(), items.len() as u32, total));
@@ -85,6 +87,7 @@ fn apply(out: &mut Outcome, query: &DiseaseGet, record: ols::Record) {
             });
         }
         Some(DiseaseSection::Xrefs) => {
+            out.include_refusals(record.xrefs.refusals);
             out.problems.extend(record.xrefs.problems);
             let (items, total) = slice(record.xrefs.value, query);
             out.page = Some(page_info(query.section_offset(), items.len() as u32, total));
@@ -94,7 +97,9 @@ fn apply(out: &mut Outcome, query: &DiseaseGet, record: ols::Record) {
             });
         }
         _ => {
+            out.include_refusals(record.synonyms.refusals);
             out.problems.extend(record.synonyms.problems);
+            out.include_refusals(record.xrefs.refusals);
             out.problems.extend(record.xrefs.problems);
             for section in record.card.sections.iter() {
                 out.next.push((
@@ -114,5 +119,5 @@ fn apply(out: &mut Outcome, query: &DiseaseGet, record: ols::Record) {
             ));
         }
     }
-    out.status = overall(out, out.page.as_ref().is_some_and(|p| p.total == 0));
+    crate::status::item(out, true, false, false);
 }

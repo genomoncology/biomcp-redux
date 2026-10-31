@@ -12,7 +12,11 @@ pub(crate) const TERMS: Terms = Terms {
 pub(crate) trait Native {
     type Value;
     fn record(&self) -> Option<biodata::Text>;
-    fn map(self, problems: &mut crate::mapped::Problems) -> Option<Self::Value>;
+    fn map(
+        self,
+        problems: &mut crate::mapped::Problems,
+        refusals: &mut crate::Refusal,
+    ) -> Option<Self::Value>;
 }
 
 macro_rules! pgx_row {
@@ -39,7 +43,12 @@ macro_rules! pgx_row {
                 self.$record.as_ref().and_then(crate::raw::Field::as_ref)
                     .and_then(crate::mapped::record)
             }
-            fn map(self, problems: &mut crate::mapped::Problems) -> Option<Self::Value> {
+            fn map(
+                self,
+                problems: &mut crate::mapped::Problems,
+                refusals: &mut crate::Refusal,
+            ) -> Option<Self::Value> {
+                let mapped = (|| {
                 $(let $id = problems.required_field($ip, self.$id)?;)*
                 problems.text(stringify!($record), Some(&$record.to_string()))?;
                 $(let $id = pgx_row!(@identity problems, $ip, $id $(, $authority)?);)*
@@ -47,13 +56,20 @@ macro_rules! pgx_row {
                 Some(Output {
                     $($id,)*
                     $($value: pgx_row!(@value problems, $vp, self.$value $(, $value_authority)?),)*
-                    $($nested: problems.field($np, self.$nested).and_then(|row| row.map(problems)),)*
+                    $($nested: self.$nested
+                        .and_then(|row| problems.record($np, row, refusals))
+                        .and_then(|row| row.map(problems, refusals)),)*
                     $($list: pgx_row!(@list problems, $lp, self.$list $(, $list_authority)?),)*
-                    $($members: problems.fields($mp, self.$members).into_vec().into_iter()
-                        .filter_map(|row| row.map(problems)).collect(),)*
+                    $($members: problems.records($mp, self.$members, refusals).into_vec().into_iter()
+                        .filter_map(|row| row.map(problems, refusals)).collect(),)*
                     $($optional: problems.field($op, self.$optional).map(|values| values.into_iter()
                         .filter_map(|value| problems.field($op, Some(value))).collect()),)*
                 })
+                })();
+                if mapped.is_none() {
+                    *refusals = crate::Refusal::Refused;
+                }
+                mapped
             }
         }
     };

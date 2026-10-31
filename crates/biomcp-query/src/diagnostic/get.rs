@@ -4,7 +4,7 @@ use biodata::GtrTestRelation;
 use biomcp_adapters::gtr;
 use biomcp_types::{
     DiagnosticCard, DiagnosticConditions, DiagnosticGenes, DiagnosticGet, DiagnosticGetSource,
-    DiagnosticMethods, DiagnosticSection, PageInfo, QueryBody, Request, Source, Status, StepKind,
+    DiagnosticMethods, DiagnosticSection, PageInfo, QueryBody, Request, Source, StepKind,
 };
 use std::collections::BTreeSet;
 /// Read one exact GTR test or its independently paged native relations.
@@ -55,11 +55,16 @@ pub fn get(cx: &Ctx<'_>, q: &DiagnosticGet) -> Outcome {
     out
 }
 fn selected(out: &mut Outcome, q: &DiagnosticGet, record: gtr::Record, fresh: bool) {
+    out.include_refusals(record.refusals);
     status::append(&mut out.problems, record.problems);
-    out.status = if record.card.is_some() || q.section().is_some() && !record.relations.is_empty() {
-        Status::Complete
-    } else {
-        Status::Absent
+    {
+        let (found, identity_failed, unavailable) =
+            if record.card.is_some() || q.section().is_some() && !record.relations.is_empty() {
+                (true, false, false)
+            } else {
+                (false, false, false)
+            };
+        crate::status::item(out, found, identity_failed, unavailable);
     };
     match q.section() {
         None => {

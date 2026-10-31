@@ -36,6 +36,8 @@ pub(super) struct Page {
 #[derive(Debug, Deserialize)]
 #[serde(from = "super::receive::ReceivedAssociation")]
 pub struct Association {
+    /// Actual refused native child records.
+    pub refusals: crate::Refusal,
     /// Rejected source metadata attributed to the association.
     pub problems: Vec<biomcp_types::Problem>,
     /// Stable association record identity.

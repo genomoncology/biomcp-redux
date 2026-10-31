@@ -6,7 +6,7 @@ use biomcp_fetch::{Deadline, RequestError, SourceError};
 use biomcp_types::ArticleInput;
 use biomcp_types::{
     ArticlePdf, ArticleResolution, OpenAccessStatus, PdfLink, QueryBody, Reason, Request, Section,
-    Source, Status, StepKind,
+    Source, StepKind,
 };
 
 pub(super) fn run<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut Outcome) {
@@ -59,7 +59,7 @@ pub(super) fn run<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut Outco
         };
         if let Some(item) = cards.items.get_mut(index) {
             if matches!(section, Section::Unavailable { reason, .. } if reason != Reason::NotOpen) {
-                item.status = Status::Partial;
+                item.status = crate::status::item_status(true, false, true);
             }
             if let Some(sections) = &mut item.sections {
                 sections.pdf = Some(section);
@@ -67,7 +67,8 @@ pub(super) fn run<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut Outco
         }
     }
     if let QueryBody::ArticleCards(cards) = &out.body {
-        out.status = status::status(cards.items.iter().map(|i| i.status));
+        let state = status::status(cards.items.iter().map(|i| i.status));
+        status::get(out, [state].into_iter());
     }
 }
 pub(in crate::article) fn load<'a>(

@@ -5,7 +5,7 @@ use biomcp_adapters::{complex_portal, interpro};
 use biomcp_fetch::{CacheError, Deadline, RequestError, SourceError};
 use biomcp_types::{
     PageInfo, ProteinComplexMembersQuery, ProteinDomainsQuery, ProteinRelationQuery, QueryBody,
-    Request, Source, Status, StepKind,
+    Request, Source, StepKind,
 };
 use sha2::{Digest, Sha256};
 mod saved;
@@ -145,15 +145,12 @@ pub(super) fn read(
     let returned = limit.min(total.saturating_sub(offset.into()) as u32);
     saved.member_steps(q, offset, limit, &mut store, out)?;
     saved.render(q, offset, limit, out)?;
-    out.status = if !out.problems.is_empty()
-        || out
+    {
+        let unavailable = out
             .sources
             .iter()
-            .any(|s| s.state != biomcp_types::SourceState::Ok)
-    {
-        Status::Partial
-    } else {
-        Status::Complete
+            .any(|s| s.state != biomcp_types::SourceState::Ok);
+        crate::status::item(out, true, false, unavailable);
     };
     out.page = Some(PageInfo {
         offset,

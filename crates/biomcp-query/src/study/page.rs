@@ -2,9 +2,14 @@ use crate::{Action, Ctx, Outcome, store::Store};
 use biodata::StudyHeader;
 use biomcp_fetch::{BundleInfo, CacheError, Deadline, RequestError};
 use biomcp_types::{
-    PageInfo, QueryBody, Request, Status, StepKind, StudyGet, StudyPage, StudySearch, StudySnapshot,
+    PageInfo, QueryBody, Request, StepKind, StudyGet, StudyPage, StudySearch, StudySnapshot,
 };
-type Retained = (Vec<StudyHeader>, StudySnapshot, Vec<biomcp_types::Problem>);
+type Retained = (
+    Vec<StudyHeader>,
+    StudySnapshot,
+    Vec<biomcp_types::Problem>,
+    bool,
+);
 pub(super) fn search(
     cx: &Ctx<'_>,
     q: &StudySearch,
@@ -24,7 +29,7 @@ pub(super) fn search(
         return Ok(());
     } else {
         let size = u32::try_from(rows.len()).map_err(|_| CacheError::Database)?;
-        let payload = serde_json::to_string(&(rows, snapshot, &out.problems))
+        let payload = serde_json::to_string(&(rows, snapshot, &out.problems, out.dropped))
             .map_err(|_| CacheError::Database)?;
         store.publish_source_pool(&key, &payload, size, &[])?
     };
@@ -48,7 +53,8 @@ fn render(
     retained: Retained,
     out: &mut Outcome,
 ) -> Result<(), RequestError> {
-    let (rows, snapshot, problems) = retained;
+    let (rows, snapshot, problems, dropped) = retained;
+    out.dropped = dropped;
     out.problems = problems;
     let query = q.with_pool(Some(pool.id.clone()));
     let total = rows.len() as u64;
@@ -92,13 +98,13 @@ fn render(
         page,
         snapshot,
     }));
-    out.status = Status::Complete;
+    crate::status::item(out, true, false, false);
     Ok(())
 }
 
 fn request_key(q: &StudySearch, snapshot: &StudySnapshot) -> Result<Vec<u8>, RequestError> {
     serde_json::to_vec(&(
-        "study-catalog/2",
+        "study-catalog/3",
         q.text(),
         q.cancer_type(),
         &snapshot.revision,

@@ -17,8 +17,14 @@ impl Resource {
     pub(super) fn mapped(
         self,
         problems: &mut crate::mapped::Problems,
+        refusals: &mut crate::Refusal,
     ) -> Option<biodata::StudyResourceCount> {
-        let resource_id = problems.required_field("resourceCounts.resourceId", self.resource_id)?;
+        let Some(resource_id) =
+            problems.required_field("resourceCounts.resourceId", self.resource_id)
+        else {
+            *refusals = crate::Refusal::Refused;
+            return None;
+        };
         Some(biodata::StudyResourceCount {
             resource_id,
             display_name: problems.required_field("resourceCounts.displayName", self.display_name),

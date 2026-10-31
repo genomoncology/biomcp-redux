@@ -3,7 +3,7 @@ use super::empty;
 use crate::{Action, Bundle, Ctx, Outcome, status};
 use biomcp_adapters::who_pq;
 use biomcp_types::{
-    DrugSearch, DrugWhoGet, DrugWhoPage, PageInfo, QueryBody, Request, Source, SourceState, Status,
+    DrugSearch, DrugWhoGet, DrugWhoPage, PageInfo, QueryBody, Request, Source, SourceState,
     StepKind,
 };
 pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
@@ -30,7 +30,7 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
             .take(query.limit() as usize)
             .collect();
         let returned = items.len() as u32;
-        out.status = found(!items.is_empty(), &out);
+        crate::status::item(&mut out, !items.is_empty(), false, false);
         out.page = Some(PageInfo {
             offset: query.offset(),
             returned,
@@ -67,6 +67,7 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
         out.body = QueryBody::DrugWhoPage(DrugWhoPage { items, total });
     }
     sync_step(&mut out);
+    status::search(&mut out);
     command.finish(deadline.remaining());
     out
 }
@@ -81,22 +82,14 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &DrugWhoGet) -> Outcome {
     out.sources
         .push(status::source(Source::WhoPq, leg.finish(), error));
     if let Ok((card, _)) = result {
-        out.status = found(card.is_some(), &out);
+        crate::status::item(&mut out, card.is_some(), false, false);
         out.body = QueryBody::DrugWhoCard(card);
     }
     sync_step(&mut out);
     command.finish(deadline.remaining());
     out
 }
-fn found(found: bool, out: &Outcome) -> Status {
-    if !found {
-        Status::Absent
-    } else if out.sources.iter().any(|s| s.state == SourceState::Stale) {
-        Status::Partial
-    } else {
-        Status::Complete
-    }
-}
+
 fn sync_step(out: &mut Outcome) {
     if out
         .sources

@@ -7,6 +7,8 @@ use serde::Deserialize;
 #[derive(Debug, Deserialize)]
 #[serde(from = "super::wire::Application")]
 pub struct Application {
+    /// Actual refused native records, independent of optional fields.
+    pub refusals: crate::Refusal,
     /// Rejected native source fields.
     pub problems: Vec<biomcp_types::Problem>,
     /// Native application identifier.

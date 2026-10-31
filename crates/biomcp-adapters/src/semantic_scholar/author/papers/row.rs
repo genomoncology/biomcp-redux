@@ -13,6 +13,9 @@ use std::collections::BTreeMap;
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(from = "Input")]
 pub struct Paper {
+    /// Actual refused native records, independent of optional fields.
+    #[serde(with = "crate::mapped::refusal_serde")]
+    pub refusals: crate::Refusal,
     detail: AuthorPaperDetail,
     problems: Vec<biomcp_types::Problem>,
 }
@@ -22,6 +25,11 @@ pub struct Paper {
 #[serde(untagged)]
 enum Input {
     Cached {
+        #[serde(
+            default = "crate::mapped::refusal_serde::none",
+            with = "crate::mapped::refusal_serde"
+        )]
+        refusals: crate::Refusal,
         detail: AuthorPaperDetail,
         problems: Vec<biomcp_types::Problem>,
     },
@@ -90,7 +98,15 @@ impl Access {
 impl From<Input> for Paper {
     fn from(input: Input) -> Self {
         match input {
-            Input::Cached { detail, problems } => Self { detail, problems },
+            Input::Cached {
+                detail,
+                problems,
+                refusals,
+            } => Self {
+                detail,
+                problems,
+                refusals,
+            },
             Input::Native(raw) => raw.checked(),
         }
     }
@@ -156,6 +172,7 @@ impl Raw {
             list: Vec::new(),
         };
         let header = self.header(&mut p);
+        let mut refusals = crate::Refusal::None;
         let fields_of_study = p
             .field("fields_of_study", self.fields_of_study)
             .map(|rows| {
@@ -173,7 +190,7 @@ impl Raw {
         let authors = p.field("authors", self.authors).map(|rows| {
             rows.into_iter()
                 .filter_map(|r| {
-                    let r = p.field("authors", Some(r))?;
+                    let r = p.record("authors", r, &mut refusals)?;
                     Some(AuthorByline {
                         id: p.field("authors.id", r.id),
                         name: p.source_field("authors.name", r.name),
@@ -201,6 +218,7 @@ impl Raw {
             authors,
         };
         Paper {
+            refusals,
             detail,
             problems: p.list,
         }

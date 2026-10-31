@@ -38,6 +38,7 @@ pub fn get(cx: &Ctx<'_>, query: &VariantGet) -> Outcome {
     let population = population_identity::requested(query) && !cx.fetch.disabled(Source::Gnomad);
     let found = population_identity::read(cx, query, deadline, population);
     deadline = deadline.after_stage(found.elapsed);
+    let mut dropped = found.dropped;
     let mut problems = found.problems;
     let mut candidates = found.rows;
     let mut rejection = found.rejection;
@@ -45,7 +46,7 @@ pub fn get(cx: &Ctx<'_>, query: &VariantGet) -> Outcome {
         VariantResolution::Unavailable
     } else if rejection.is_some() {
         VariantResolution::Rejected
-    } else if candidates.is_empty() && !problems.is_empty() {
+    } else if candidates.is_empty() && dropped {
         VariantResolution::Unavailable
     } else {
         classify(candidates.len())
@@ -53,20 +54,20 @@ pub fn get(cx: &Ctx<'_>, query: &VariantGet) -> Outcome {
     if matches!(found.error, Some(RequestError::Source(e)) if e.reason == Reason::NotFound) {
         resolution = VariantResolution::Absent;
     }
-    let population_reason = if population && resolution == VariantResolution::Candidates {
-        Some(Reason::NoJoinId)
-    } else if population {
-        found.reason
-    } else {
-        None
-    };
+    let population_reason = population_reason(population, resolution, found.reason);
     let mut sources = found.sources;
     let mut local = found.local;
     if query.sections().is_empty()
         && spec.source == Source::AlleleRegistry
         && resolution == VariantResolution::Resolved
     {
-        let (source, error) = enrich(cx, &mut deadline, &mut candidates, &mut problems);
+        let (source, error) = enrich(
+            cx,
+            &mut deadline,
+            &mut candidates,
+            &mut problems,
+            &mut dropped,
+        );
         sources.push(source);
         local = local.or(error);
     }
@@ -77,7 +78,7 @@ pub fn get(cx: &Ctx<'_>, query: &VariantGet) -> Outcome {
     }
     match_transcripts(query, &mut candidates);
     let page = candidate_page(query, resolution, &mut candidates);
-    let (section_sources, section_problems, section_error) =
+    let (section_sources, section_problems, section_error, incomplete) =
         sections::apply(cx, query, &mut candidates, &mut deadline, population_reason);
     sources.extend(section_sources);
     problems.extend(section_problems);
@@ -85,20 +86,23 @@ pub fn get(cx: &Ctx<'_>, query: &VariantGet) -> Outcome {
     let mut next = next(query, resolution, &candidates, page.as_ref());
     next.extend(oncokb::next(query, &sources));
     next.extend(alphagenome::next(&sources));
-    let out = Outcome {
-        status: overall(resolution, &problems, &sources),
-        body: QueryBody::VariantCard(VariantCard {
-            resolution,
-            source: spec.source,
-            candidates: candidates.into(),
-            rejection,
-        }),
-        page,
-        sources,
-        problems,
-        next,
-        local,
-    };
+    let out = crate::status::finish(
+        [overall(resolution, dropped || incomplete, &sources)],
+        crate::status::Parts {
+            dropped,
+            body: QueryBody::VariantCard(VariantCard {
+                resolution,
+                source: spec.source,
+                candidates: candidates.into(),
+                rejection,
+            }),
+            page,
+            sources,
+            problems,
+            next,
+            local,
+        },
+    );
     command.finish(deadline.remaining());
     out
 }
@@ -153,19 +157,23 @@ pub(crate) fn resolve(
     query: &VariantGet,
     leg: &Leg<'_>,
     problems: &mut Vec<biomcp_types::Problem>,
+    dropped: &mut bool,
 ) -> Result<(Vec<VariantHeader>, Option<Text>), RequestError> {
     let native = query.input().native_hgvs();
     let input = native.as_ref();
     match query.input().namespace() {
         Ok(VariantNamespace::Rs | VariantNamespace::ClinVar | VariantNamespace::Chromosome) => {
-            myvariant_identity(query, leg, problems, false)
+            myvariant_identity(query, leg, problems, dropped, false)
         }
-        Ok(VariantNamespace::Ca) => car(allele_registry::by_id(leg, input)?, problems),
+        Ok(VariantNamespace::Ca) => car(allele_registry::by_id(leg, input)?, problems, dropped),
         _ => match query.resolver() {
-            biomcp_types::VariantResolver::Car => car(allele_registry::hgvs(leg, input)?, problems),
+            biomcp_types::VariantResolver::Car => {
+                car(allele_registry::hgvs(leg, input)?, problems, dropped)
+            }
             biomcp_types::VariantResolver::Mutalyzer => match mutalyzer::resolve(leg, input)? {
                 mutalyzer::Resolution::Found(row) => Ok((vec![row], None)),
                 mutalyzer::Resolution::Refused(fields) => {
+                    *dropped = true;
                     problems.extend(fields);
                     Ok((Vec::new(), None))
                 }
@@ -184,6 +192,7 @@ pub(crate) fn resolve(
                         retry_after: None,
                     })?,
                 )?;
+                *dropped |= result.refusals == biomcp_adapters::Refusal::Refused;
                 problems.extend(result.problems);
                 Ok((
                     result.candidates,
@@ -200,14 +209,17 @@ pub(crate) fn resolve(
 fn car(
     result: allele_registry::Resolution,
     problems: &mut Vec<biomcp_types::Problem>,
+    dropped: &mut bool,
 ) -> Result<(Vec<VariantHeader>, Option<Text>), RequestError> {
     Ok(match result {
         allele_registry::Resolution::Found(row) => {
+            *dropped |= row.refusals == biomcp_adapters::Refusal::Refused;
             problems.extend(row.problems);
             (vec![row.value], None)
         }
         allele_registry::Resolution::Rejected(code) => (Vec::new(), Some(code)),
         allele_registry::Resolution::Refused(fields) => {
+            *dropped = true;
             problems.extend(fields);
             (Vec::new(), None)
         }
@@ -249,6 +261,7 @@ fn enrich(
     deadline: &mut biomcp_fetch::Deadline<'_>,
     candidates: &mut [VariantHeader],
     problems: &mut Vec<biomcp_types::Problem>,
+    dropped: &mut bool,
 ) -> (biomcp_types::SourceOutcome, Option<RequestError>) {
     let mut local = None;
     let leg = cx.fetch.leg(&myvariant::SPEC, *deadline).fresh(cx.fresh);
@@ -258,6 +271,8 @@ fn enrich(
         if let Some(id) = join_id(candidate) {
             match myvariant::lookup(&leg, &id, biodata::Build::GRCh37) {
                 Ok(found) => {
+                    *dropped |= found.refusals == biomcp_adapters::Refusal::Refused;
+                    *dropped |= found.refusals == biomcp_adapters::Refusal::Refused;
                     problems.extend(found.problems);
                     for row in found.value {
                         candidate.myvariant = Some(row.identity);
@@ -304,17 +319,17 @@ fn candidate_page(
 
 pub(crate) fn overall(
     resolution: VariantResolution,
-    problems: &[biomcp_types::Problem],
+    incomplete: bool,
     sources: &[biomcp_types::SourceOutcome],
 ) -> Status {
     if matches!(
         resolution,
         VariantResolution::Unavailable | VariantResolution::Rejected
     ) {
-        Status::Failed
+        crate::status::item_status(false, true, false)
     } else if resolution == VariantResolution::Absent {
-        Status::Absent
-    } else if !problems.is_empty()
+        crate::status::item_status(false, false, false)
+    } else if incomplete
         || sources.iter().any(|s| {
             matches!(
                 s.state,
@@ -322,9 +337,9 @@ pub(crate) fn overall(
             )
         })
     {
-        Status::Partial
+        crate::status::item_status(true, false, true)
     } else {
-        Status::Complete
+        crate::status::item_status(true, false, false)
     }
 }
 
@@ -338,6 +353,7 @@ fn myvariant_identity(
     query: &VariantGet,
     leg: &Leg<'_>,
     problems: &mut Vec<biomcp_types::Problem>,
+    dropped: &mut bool,
     population: bool,
 ) -> Result<(Vec<VariantHeader>, Option<Text>), RequestError> {
     let input = query.input().as_str();
@@ -355,6 +371,21 @@ fn myvariant_identity(
     } else {
         myvariant::lookup(leg, &term, build)?
     };
+    *dropped |= found.refusals == biomcp_adapters::Refusal::Refused;
     problems.extend(found.problems);
     Ok((found.value, None))
+}
+
+fn population_reason(
+    population: bool,
+    resolution: VariantResolution,
+    reason: Option<Reason>,
+) -> Option<Reason> {
+    if population && resolution == VariantResolution::Candidates {
+        Some(Reason::NoJoinId)
+    } else if population {
+        reason
+    } else {
+        None
+    }
 }

@@ -49,7 +49,10 @@ pub const SEARCH: Endpoint = SPEC.get("/trials").fresh(Freshness::Days(1));
 const DETAIL: Endpoint = SPEC.get("/trials").fresh(Freshness::Days(1));
 /// Native page, preserving provider counts and order.
 #[derive(Debug, Deserialize)]
+#[serde(from = "trial_map::Page")]
 pub struct Page {
+    /// Actual refused native records in this collection.
+    pub refusals: crate::Refusal,
     /// Publisher total, never a local count.
     pub total: u64,
     /// Checked publisher trial rows.
@@ -67,6 +70,8 @@ impl Reply for Page {
 #[derive(Debug, Deserialize)]
 #[serde(from = "trial_raw::Trial")]
 pub struct Trial {
+    /// Actual refused native child records.
+    pub refusals: crate::Refusal,
     nci_id: Text,
     nct_id: NctId,
     brief_title: Option<Text>,
@@ -84,6 +89,12 @@ pub struct Trial {
 /// Native sections and compact card from one validated source record.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Detail {
+    /// Actual refused native child records persisted with the snapshot.
+    #[serde(
+        default = "crate::mapped::refusal_serde::none",
+        with = "crate::mapped::refusal_serde"
+    )]
+    pub refusals: crate::Refusal,
     /// Rejected optional source fields.
     pub problems: Vec<biomcp_types::Problem>,
     /// Compact source-native card.
@@ -154,6 +165,7 @@ impl Trial {
     fn detail(self) -> Detail {
         let card = self.card(true);
         Detail {
+            refusals: self.refusals,
             problems: self.problems,
             card,
             summary: self.brief_summary,

@@ -155,6 +155,7 @@ impl Protocol {
     }
 
     pub(super) fn header(self) -> Result<Mapped<TrialHeader>, BadReply> {
+        let mut refusals = crate::Refusal::None;
         let mut problems = Problems {
             source: Source::ClinicalTrialsGov,
             record: crate::mapped::record(self.identification_module.nct_id),
@@ -202,7 +203,13 @@ impl Protocol {
                 problems
                     .field("armsInterventionsModule", self.arms_interventions_module)
                     .map_or_else(Vec::new, |v| {
-                        problems.fields("interventions", v.interventions).into_vec()
+                        super::refusals::records(
+                            &mut problems,
+                            &mut refusals,
+                            "interventions",
+                            v.interventions,
+                        )
+                        .into_vec()
                     })
                     .into_iter()
                     .filter_map(|v| problems.field("interventions.name", v.name))
@@ -211,7 +218,7 @@ impl Protocol {
             updated,
         };
         Ok(Mapped {
-            refusals: crate::Refusal::None,
+            refusals,
             value,
             problems: problems.list,
         })

@@ -4,6 +4,7 @@ use biomcp_fetch::RequestError;
 pub(super) fn members(
     rows: Vec<raw::Member>,
     problems: &mut crate::mapped::Problems,
+    refusals: &mut crate::Refusal,
 ) -> Result<Vec<ProteinComplexMember>, RequestError> {
     rows.into_iter()
         .map(|r| {
@@ -32,6 +33,8 @@ pub(super) fn members(
                         .and_then(|x| format!("{}:{}", x.database, x.identifier).parse().ok());
                     if let Some(value) = problems.required(field_name, parsed) {
                         xrefs.push(value);
+                    } else {
+                        *refusals = crate::Refusal::Refused;
                     }
                 }
             }
@@ -85,7 +88,8 @@ pub(super) fn complex(
         record: crate::mapped::record(&raw.id),
         list: Vec::new(),
     };
-    let members = members(rows, &mut problems)?;
+    let mut refusals = crate::Refusal::None;
+    let members = members(rows, &mut problems, &mut refusals)?;
     if !members.iter().any(|m| m.protein.as_ref() == Some(anchor)) {
         return Ok(None);
     }
@@ -111,6 +115,7 @@ pub(super) fn complex(
         .map_err(|_| bad())?,
     };
     Ok(Some(Complex {
+        refusals,
         header,
         members,
         problems: Some(problems.list),

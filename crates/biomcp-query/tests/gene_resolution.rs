@@ -50,7 +50,7 @@ fn stale_identity_and_annotation_sources_make_only_their_answers_partial() {
             },
             &query
         )
-        .status,
+        .status(),
         Status::Complete
     );
     drop(fetch);
@@ -71,7 +71,7 @@ fn stale_identity_and_annotation_sources_make_only_their_answers_partial() {
         fresh: false,
     };
     let outcome = run(&cx, &query);
-    assert_eq!(outcome.status, Status::Partial);
+    assert_eq!(outcome.status(), Status::Partial);
     assert_eq!(outcome.sources[0].source, Source::Hgnc);
     assert_eq!(outcome.sources[0].state, SourceState::Stale);
     assert_eq!(outcome.sources[1].state, SourceState::Ok);
@@ -81,7 +81,7 @@ fn stale_identity_and_annotation_sources_make_only_their_answers_partial() {
     assert_eq!(cards.items[0].status, Status::Partial);
     let search =
         Request::SearchGene(GeneSearch::new(None, Some("9p21.3".parse().unwrap()), 10, 0).unwrap());
-    assert_eq!(run(&cx, &search).status, Status::Partial);
+    assert_eq!(run(&cx, &search).status(), Status::Partial);
     database
         .execute("UPDATE bundle SET fresh_until=9223372036854775807", [])
         .unwrap();
@@ -89,7 +89,7 @@ fn stale_identity_and_annotation_sources_make_only_their_answers_partial() {
         .execute("UPDATE reply SET fresh_until=0", [])
         .unwrap();
     let outcome = run(&cx, &query);
-    assert_eq!(outcome.status, Status::Partial);
+    assert_eq!(outcome.status(), Status::Partial);
     assert_eq!(outcome.sources[0].state, SourceState::Ok);
     assert_eq!(outcome.sources[1].source, Source::MyGene);
     assert_eq!(outcome.sources[1].state, SourceState::Stale);
@@ -205,7 +205,7 @@ fn concurrent_replay_annotations_and_bundle_publication_keep_checked_sections() 
             &query,
         );
         assert_eq!(
-            outcome.status,
+            outcome.status(),
             Status::Complete,
             "concurrent replay attempt {attempt}: local={:?}; sources={:?}",
             outcome.local,

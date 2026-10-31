@@ -30,14 +30,14 @@ pub fn get(cx: &Ctx<'_>, q: &AuthorGet) -> Outcome {
             AuthorId::Orcid(id) => biomcp_adapters::orcid::card(&leg, id),
         };
         let mut state = match &reply {
-            Ok(mapped) if mapped.value.is_some() => Status::Complete,
-            Ok(_) => Status::Absent,
+            Ok(mapped) if mapped.value.is_some() => crate::status::item_status(true, false, false),
+            Ok(_) => crate::status::item_status(false, false, false),
             Err(biomcp_fetch::RequestError::Source(e)) if e.reason == Reason::NotFound => {
-                Status::Absent
+                crate::status::item_status(false, false, false)
             }
             Err(e) => {
                 out.local = out.local.or(status::local(*e));
-                Status::Failed
+                crate::status::item_status(false, true, false)
             }
         };
         let outcome = status::source(
@@ -46,7 +46,7 @@ pub fn get(cx: &Ctx<'_>, q: &AuthorGet) -> Outcome {
             super::source_error(reply.as_ref().err().copied()),
         );
         if outcome.state == SourceState::Stale && state == Status::Complete {
-            state = Status::Partial;
+            state = crate::status::item_status(true, false, true);
         }
         if let Some(existing) = out.sources.iter_mut().find(|s| s.source == source) {
             status::retain_source_state(existing, &outcome);
@@ -54,6 +54,7 @@ pub fn get(cx: &Ctx<'_>, q: &AuthorGet) -> Outcome {
             out.sources.push(outcome);
         }
         let card = reply.ok().and_then(|mapped| {
+            out.include_refusals(mapped.refusals);
             out.problems.extend(mapped.problems);
             mapped.value
         });
@@ -63,7 +64,7 @@ pub fn get(cx: &Ctx<'_>, q: &AuthorGet) -> Outcome {
             card,
         });
     }
-    out.status = status::status(items.iter().map(|i| i.status));
+    status::get(&mut out, items.iter().map(|i| i.status));
     recovery(cx, &mut out, Request::GetAuthor(q.clone()));
     for item in &items {
         if item.card.is_some() && out.next.len() < 5 {

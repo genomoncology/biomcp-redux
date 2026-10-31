@@ -8,6 +8,7 @@ use biomcp_types::{ClinGenGene, Section, Source, SourceOutcome};
 pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]) -> SectionResult {
     let leg = cx.fetch.leg(&clingen::SPEC, deadline).fresh(cx.fresh);
     let mut local = None;
+    let mut dropped = false;
     let mut problems = Vec::new();
     let mut error = None;
     let mut report = LegReport::default();
@@ -26,12 +27,14 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
                 .or(dosage_error.and_then(status::local));
             let dosage = dosage
                 .map(|mapped| {
+                    dropped |= mapped.refusals == biomcp_adapters::Refusal::Refused;
                     problems.extend(mapped.problems);
                     mapped.value
                 })
                 .unwrap_or_default();
             let validity = validity
                 .map(|mapped| {
+                    dropped |= mapped.refusals == biomcp_adapters::Refusal::Refused;
                     problems.extend(mapped.problems);
                     mapped.value
                 })
@@ -58,6 +61,7 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
         })
         .collect();
     SectionResult {
+        dropped,
         values,
         source: status::source(Source::ClinGen, report, error),
         problems,

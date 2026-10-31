@@ -1,26 +1,26 @@
 //! Encode source-local drug responses through the shared envelope contract.
 use super::{Outcome, ResponseMeta};
-use biomcp_types::{QueryBody, Request, Status};
+use biomcp_types::{QueryBody, Request};
 use std::io;
 
 pub(super) fn encode(meta: ResponseMeta, request: Request, body: QueryBody) -> io::Result<Outcome> {
     match (request, body) {
         (Request::SearchDrug(query), QueryBody::DrugRecallPage(body)) => {
-            let body = (meta.status != Status::Failed).then_some(body);
+            let body = Some(body);
             meta.encode(query, body)
         }
         (Request::GetDrug(query), QueryBody::DrugRecallCard(body)) => meta.encode(query, body),
         (Request::SearchDrug(query), QueryBody::DrugWhoPage(body)) => {
-            let body = (meta.status != Status::Failed).then_some(body);
+            let body = Some(body);
             meta.encode(query, body)
         }
         (Request::GetWhoMedicine(query), QueryBody::DrugWhoCard(body)) => meta.encode(query, body),
         (Request::SearchDrug(query), QueryBody::DrugFdaPage(body)) => {
-            let body = (meta.status != Status::Failed).then_some(body);
+            let body = Some(body);
             meta.encode(query, body)
         }
         (Request::SearchDrug(query), QueryBody::DrugPage(body)) => {
-            let body = (meta.status != Status::Failed).then_some(body);
+            let body = Some(body);
             meta.encode(query, body)
         }
         (Request::GetDrug(query), QueryBody::DrugCard(body)) => meta.encode(query, body),

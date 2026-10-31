@@ -12,6 +12,7 @@ pub(super) fn rows(
     node: &mut raw::Node,
     attribution: &Attribution,
     problems: &mut crate::mapped::Problems,
+    refusals: &mut crate::Refusal,
 ) -> Rows {
     let mut synonyms = Vec::new();
     let mut available = false;
@@ -57,7 +58,7 @@ pub(super) fn rows(
                 PhenotypeHierarchyRelation::Child,
             ),
         ] {
-            for row in problems.fields(field, rows) {
+            for row in problems.records(field, rows, refusals) {
                 links.push(PhenotypeHierarchyLink {
                     id: row.id,
                     label: problems.required_field(&format!("{field}.name"), row.name),

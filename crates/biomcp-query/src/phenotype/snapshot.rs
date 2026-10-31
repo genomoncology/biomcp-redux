@@ -1,12 +1,12 @@
 //! One exact term reply supplies every local section page.
-use super::{empty, overall, problem, recovery, run};
+use super::{empty, problem, recovery, run};
 use crate::{Ctx, Outcome, status, store::Store};
 use biodata::{PhenotypeHierarchyLink, PhenotypeSynonym, PhenotypeXref, Text};
 use biomcp_adapters::{hpo, monarch};
 use biomcp_fetch::{CacheError, Deadline, RequestError, SourceError};
 use biomcp_types::{
     PhenotypeGet, PhenotypeSource, PhenotypeTermCard, QueryBody, Reason, Request, Source,
-    SourceOutcome, Status, StepKind,
+    SourceOutcome, StepKind,
 };
 use sha2::{Digest, Sha256};
 pub(super) type Rows = (
@@ -16,11 +16,11 @@ pub(super) type Rows = (
     Option<Box<[PhenotypeHierarchyLink]>>,
     Option<u64>,
 );
-type Saved = (Rows, Vec<SourceOutcome>, Vec<biomcp_types::Problem>);
+type Saved = (Rows, Vec<SourceOutcome>, Vec<biomcp_types::Problem>, bool);
 fn key(q: &PhenotypeGet) -> Vec<u8> {
     Sha256::digest(
         format!(
-            "biomcp.phenotype-reply/2\0{}\0{}",
+            "biomcp.phenotype-reply/3\0{}\0{}",
             q.source().as_str(),
             q.id()
         )
@@ -39,7 +39,7 @@ pub(super) fn get(cx: &Ctx<'_>, q: &PhenotypeGet) -> Outcome {
         Err(error) => {
             out.local = status::local(error);
             if matches!(error,RequestError::Source(e) if e.reason==Reason::NotFound) {
-                out.status = Status::Absent;
+                crate::status::item(&mut out, false, false, false);
             }
         }
     }
@@ -103,7 +103,11 @@ fn load(
     };
     out.sources = saved.1;
     out.problems = saved.2;
-    out.status = overall(out, false);
+    out.dropped = saved.3;
+    {
+        let absent = false;
+        crate::status::item(out, !absent, false, false);
+    }
     Ok(Some((saved.0, token)))
 }
 
@@ -121,6 +125,7 @@ fn acquire(
             (r.card, r.synonyms, r.xrefs, None, fetched(r.metadata))
         }),
         PhenotypeSource::Monarch => monarch::phenotype::get(&leg, q).map(|r| {
+            out.include_refusals(r.refusals);
             out.problems.extend(r.problems);
             (
                 r.card,
@@ -139,5 +144,10 @@ fn acquire(
             |e| !matches!(e, RequestError::Source(source) if source.reason == Reason::NotFound),
         ),
     ));
-    Ok((reply?, out.sources.clone(), out.problems.clone()))
+    Ok((
+        reply?,
+        out.sources.clone(),
+        out.problems.clone(),
+        out.dropped,
+    ))
 }

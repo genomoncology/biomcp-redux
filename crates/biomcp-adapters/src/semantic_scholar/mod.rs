@@ -31,6 +31,6 @@ pub use graph::{Edge, Edges, PaperSummary, edges, paper_endpoint, summary};
 pub use search::{Author, ExternalIds, Paper, Search, search};
 
 pub(crate) mod recommend;
-pub use recommend::{RECOMMEND_SPEC, paper_id, recommendations};
+pub use recommend::{RECOMMEND_SPEC, Recommendations, paper_id, recommendations};
 /// Provider-local author discovery and exact metadata.
 pub mod author;

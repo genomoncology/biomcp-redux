@@ -1,7 +1,7 @@
 //! Exact NCIt lookups keep multiple native rows as candidates.
 use crate::{Action, Ctx, Outcome, status};
 use biomcp_adapters::nci;
-use biomcp_types::{BiomarkerGet, BiomarkerResult, QueryBody, Reason, Source, Status, StepKind};
+use biomcp_types::{BiomarkerGet, BiomarkerResult, QueryBody, Reason, Source, StepKind};
 /// Read every native row attached to one exact code.
 pub fn get(cx: &Ctx<'_>, q: &BiomarkerGet) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
@@ -10,18 +10,21 @@ pub fn get(cx: &Ctx<'_>, q: &BiomarkerGet) -> Outcome {
     let reply = nci::biomarker::get(&leg, &q.id);
     let error = reply.as_ref().err().copied();
     let source = status::source(Source::Nci, leg.finish(), error);
-    let mut out = Outcome {
-        status: Status::Failed,
-        body: QueryBody::BiomarkerResult(BiomarkerResult {
-            card: None,
-            candidates: Box::default(),
-        }),
-        page: None,
-        sources: vec![source],
-        problems: Vec::new(),
-        next: Vec::new(),
-        local: error.and_then(status::local),
-    };
+    let mut out = crate::status::finish(
+        [crate::status::item_status(false, true, false)],
+        crate::status::Parts {
+            dropped: false,
+            body: QueryBody::BiomarkerResult(BiomarkerResult {
+                card: None,
+                candidates: Box::default(),
+            }),
+            page: None,
+            sources: vec![source],
+            problems: Vec::new(),
+            next: Vec::new(),
+            local: error.and_then(status::local),
+        },
+    );
     if let Some(error) = error {
         if status::reason(error) == Some(Reason::TooLarge) {
             out.body = QueryBody::BiomarkerTooBroad;
@@ -31,24 +34,14 @@ pub fn get(cx: &Ctx<'_>, q: &BiomarkerGet) -> Outcome {
         }
     }
     if let Ok(reply) = reply {
+        out.include_refusals(reply.refusals);
         let mut rows = reply.value;
         let total = rows.len();
         if let Some(source) = out.sources.first_mut() {
             source.count = Some(total as u64);
             source.retrieved_count = Some(total as u32);
         }
-        out.status = if !reply.problems.is_empty()
-            || out
-                .sources
-                .iter()
-                .any(|s| s.state == biomcp_types::SourceState::Stale)
-        {
-            Status::Partial
-        } else if total == 0 {
-            Status::Absent
-        } else {
-            Status::Complete
-        };
+        status::item(&mut out, total != 0, false, false);
         for row in &rows {
             for id in &row.header.codes {
                 let step = (

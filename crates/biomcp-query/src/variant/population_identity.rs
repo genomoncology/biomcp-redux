@@ -8,6 +8,7 @@ use biomcp_types::{Problem, Reason, Source, SourceOutcome, VariantGet, VariantHe
 
 #[derive(Default)]
 pub(super) struct Identity {
+    pub dropped: bool,
     pub rows: Vec<VariantHeader>,
     pub sources: Vec<SourceOutcome>,
     pub problems: Vec<Problem>,
@@ -28,9 +29,9 @@ pub(super) fn read(
     let leg = cx.fetch.leg(spec, deadline).fresh(cx.fresh);
     let started = leg.remaining();
     let result = if population && spec.source == Source::MyVariant {
-        super::myvariant_identity(query, &leg, &mut found.problems, true)
+        super::myvariant_identity(query, &leg, &mut found.problems, &mut found.dropped, true)
     } else {
-        super::resolve(query, &leg, &mut found.problems)
+        super::resolve(query, &leg, &mut found.problems, &mut found.dropped)
     };
     found.elapsed = started.saturating_sub(leg.remaining());
     let error = result.as_ref().err().copied();
@@ -84,6 +85,7 @@ fn canonical(cx: &Ctx<'_>, deadline: Deadline<'_>, found: &mut Identity) {
     found.reason = error.and_then(status::reason);
     match result {
         Ok(allele_registry::Resolution::Found(mapped)) => {
+            found.dropped |= mapped.refusals == biomcp_adapters::Refusal::Refused;
             found.problems.extend(mapped.problems);
             let mut representations = row.identity.representations.to_vec();
             representations.extend(mapped.value.identity.representations);

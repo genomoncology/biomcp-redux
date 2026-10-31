@@ -22,12 +22,14 @@ impl super::Trial {
             record: Some(self.nci_id),
             list: Vec::new(),
         };
+        let mut refusals = self.refusals;
         let mut entries = Vec::new();
-        for row in p.fields("biomarkers", self.biomarkers) {
+        for row in p.records("biomarkers", self.biomarkers, &mut refusals) {
             let Some(id) = p.required_field(
                 "biomarkers.nci_thesaurus_concept_id",
                 row.nci_thesaurus_concept_id,
             ) else {
+                refusals = crate::Refusal::Refused;
                 continue;
             };
             if &id != code {
@@ -61,7 +63,7 @@ impl super::Trial {
         }
         card.matched_biomarkers = entries.into();
         Mapped {
-            refusals: crate::Refusal::None,
+            refusals,
             value: card,
             problems: p.list,
         }

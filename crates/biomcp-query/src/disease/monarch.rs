@@ -1,4 +1,4 @@
-use super::page::{empty, overall, page_info, run};
+use super::page::{empty, page_info, run};
 use crate::{Ctx, Outcome, status};
 use biomcp_adapters::monarch;
 use biomcp_types::{
@@ -17,6 +17,7 @@ pub fn get(cx: &Ctx<'_>, query: &DiseaseGet) -> Outcome {
         .push(status::source(Source::Monarch, leg.finish(), error));
     out.local = error.and_then(status::local);
     if let Ok(page) = reply {
+        out.include_refusals(page.refusals);
         out.problems.extend(page.problems);
         let returned = page.items.len() as u32;
         out.page = Some(page_info(query.section_offset(), returned, page.total));
@@ -42,7 +43,10 @@ pub fn get(cx: &Ctx<'_>, query: &DiseaseGet) -> Outcome {
                 .fetched
                 .and_then(|value| u64::try_from(value).ok()),
         );
-        out.status = overall(&out, page.total == 0);
+        {
+            let absent = page.total == 0;
+            crate::status::item(&mut out, !absent, false, false);
+        }
     }
     super::page::record_problem(&mut out, query, Source::Monarch);
     command.finish(deadline.remaining());

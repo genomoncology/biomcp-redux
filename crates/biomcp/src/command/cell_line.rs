@@ -1,18 +1,13 @@
 use super::{Outcome, ResponseMeta};
-use biomcp_types::{CellLineSection, QueryBody, Request, Section, Status};
+use biomcp_types::{CellLineSection, QueryBody, Request, Section};
 use std::io;
 pub(super) fn encode(meta: ResponseMeta, request: Request, body: QueryBody) -> io::Result<Outcome> {
-    let success = meta.status != Status::Failed;
     match (request, body) {
-        (Request::SearchCellLine(q), QueryBody::CellLinePage(body)) => {
-            meta.encode(q, success.then_some(body))
-        }
+        (Request::SearchCellLine(q), QueryBody::CellLinePage(body)) => meta.encode(q, Some(body)),
         (Request::CellLineAssayCount(q), QueryBody::CellLineAssayCount(body)) => {
-            meta.encode(q, success.then_some(body))
+            meta.encode(q, Some(body))
         }
-        (Request::GetCellLine(q), QueryBody::CellLineChembl(body)) => {
-            meta.encode(q, success.then_some(body))
-        }
+        (Request::GetCellLine(q), QueryBody::CellLineChembl(body)) => meta.encode(q, Some(body)),
         (Request::GetCellLine(q), QueryBody::CellLineCard(body)) if !body.candidates.is_empty() => {
             meta.encode(q, Some(body))
         }

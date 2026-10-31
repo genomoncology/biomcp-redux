@@ -4,9 +4,7 @@ mod page;
 use crate::{Action, Ctx, Outcome, status};
 use biodata::Text;
 use biomcp_adapters::nci;
-use biomcp_types::{
-    NciTrialPage, QueryBody, Reason, Request, Source, Status, StepKind, TrialSearch,
-};
+use biomcp_types::{NciTrialPage, QueryBody, Reason, Request, Source, StepKind, TrialSearch};
 pub(super) use get::run as get;
 const ATTRIBUTION: &str =
     "NCI Clinical Trials Search; source-native fields, no eligibility assessment";
@@ -68,6 +66,7 @@ pub(super) fn search(cx: &Ctx<'_>, q: &TrialSearch) -> Outcome {
         apply(q, cx.fresh, &mut out, &mut source, page);
     }
     finish(&mut out, source, error);
+    status::search_for(&mut out, &[Source::Nci]);
     command.finish(deadline.remaining());
     out
 }
@@ -84,17 +83,7 @@ fn finish(
     out.local = error.and_then(status::local);
     out.sources.push(source);
 }
-fn empty(body: QueryBody) -> Outcome {
-    Outcome {
-        status: Status::Failed,
-        body,
-        page: None,
-        sources: Vec::new(),
-        problems: Vec::new(),
-        next: Vec::new(),
-        local: None,
-    }
-}
+pub(super) use crate::status::empty;
 
 fn apply(
     q: &TrialSearch,
@@ -103,17 +92,16 @@ fn apply(
     source: &mut biomcp_types::SourceOutcome,
     page: nci::Page,
 ) {
+    out.include_refusals(page.refusals);
     source.count = Some(page.total);
     source.retrieved_count = Some(page.data.len() as u32);
-    out.status = if source.state == biomcp_types::SourceState::Stale
-        || out
-            .sources
-            .iter()
-            .any(|s| s.state != biomcp_types::SourceState::Ok)
     {
-        Status::Partial
-    } else {
-        Status::Complete
+        let unavailable = source.state == biomcp_types::SourceState::Stale
+            || out
+                .sources
+                .iter()
+                .any(|s| s.state != biomcp_types::SourceState::Ok);
+        crate::status::item(out, true, false, unavailable);
     };
     let offset = q
         .next_page()
@@ -153,6 +141,7 @@ fn apply(
                 out.problems.extend(r.problems().iter().cloned());
                 let card = if let Some(name) = q.facility() {
                     let mapped = r.facility_card(name);
+                    out.dropped |= mapped.refusals == biomcp_adapters::Refusal::Refused;
                     out.problems.extend(mapped.problems);
                     mapped.value
                 } else {
@@ -160,6 +149,7 @@ fn apply(
                 };
                 if let Some(code) = q.biomarker_code() {
                     let mapped = r.biomarker_card(code, q.biomarker_use(), card);
+                    out.dropped |= mapped.refusals == biomcp_adapters::Refusal::Refused;
                     out.problems.extend(mapped.problems);
                     mapped.value
                 } else {

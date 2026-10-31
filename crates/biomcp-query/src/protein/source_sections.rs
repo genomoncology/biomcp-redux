@@ -49,6 +49,7 @@ pub(super) fn supplement(
 }
 fn apply(item: &mut ProteinCardItem, out: &mut Outcome, result: Outcome) {
     let reason = reason(&result);
+    let result_status = result.status();
     if let Some(sections) = &mut item.sections {
         match result.body {
             QueryBody::ProteinDomains(data) => {
@@ -86,7 +87,7 @@ fn apply(item: &mut ProteinCardItem, out: &mut Outcome, result: Outcome) {
         result.sources,
         result.next,
         result.problems,
-        result.status,
+        result_status,
     );
 }
 
@@ -115,6 +116,6 @@ fn merge(
     out.next.extend(steps);
     out.problems.extend(problems);
     if state != Status::Complete {
-        item.status = Status::Partial;
+        item.status = crate::status::item_status(true, false, true);
     }
 }

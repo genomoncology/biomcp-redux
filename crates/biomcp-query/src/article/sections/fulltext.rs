@@ -5,7 +5,7 @@ use biomcp_fetch::{Deadline, RequestError};
 use biomcp_types::ArticleInput;
 use biomcp_types::{
     ArticleResolution, ArticleSupplement, ArticleText, FullText, Reason, Request, Section, Source,
-    Status, StepKind, Supplements,
+    StepKind, Supplements,
 };
 type Identity = (Pmcid, Option<biodata::Pmid>);
 type Content = Result<Option<(FullText, Supplements)>, Reason>;
@@ -40,6 +40,7 @@ pub(super) fn run<'a>(
         let identity = (id, card.pmid);
         if !loaded.iter().any(|(found, _)| *found == identity) {
             let result = pmc_oa::read(&leg, id, card.pmid).map(|mapped| {
+                out.dropped |= mapped.refusals == biomcp_adapters::Refusal::Refused;
                 out.problems.extend(mapped.problems);
                 mapped.value
             });
@@ -48,6 +49,7 @@ pub(super) fn run<'a>(
                 out.local = out.local.or(status::local(e));
             }
             if let Ok(Some(doc)) = &result {
+                out.dropped |= doc.body.refusals == biomcp_adapters::Refusal::Refused;
                 out.problems.extend(doc.problems.clone());
             }
             loaded.push((identity, content(result)));
@@ -56,7 +58,7 @@ pub(super) fn run<'a>(
             continue;
         };
         if data.is_err() || matches!(data, Ok(None)) {
-            item.status = Status::Partial;
+            item.status = crate::status::item_status(true, false, true);
         }
         if fulltext && sections.fulltext.is_none() {
             sections.fulltext = Some(section(data, |(text, _)| text.clone()));
@@ -80,13 +82,14 @@ pub(super) fn run<'a>(
                     matches!(s.fulltext, Some(Section::Data { .. }))
                         || matches!(s.supplements, Some(Section::Data { .. }))
                 }) {
-                    item.status = Status::Partial;
+                    item.status = crate::status::item_status(true, false, true);
                 }
             }
         }
         out.sources.push(source);
     }
-    out.status = status::status(cards.items.iter().map(|i| i.status));
+    let state = status::status(cards.items.iter().map(|i| i.status));
+    status::get(out, [state].into_iter());
 }
 fn content(result: Result<Option<pmc_oa::Document>, RequestError>) -> Content {
     result

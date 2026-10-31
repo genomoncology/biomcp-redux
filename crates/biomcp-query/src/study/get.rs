@@ -73,10 +73,10 @@ fn sections(cx: &Ctx<'_>, q: &StudyGet, deadline: biomcp_fetch::Deadline<'_>, ou
                 if q.section() == Some(StudySection::All) {
                     section_error(out, section, error);
                 }
-                let was_partial = out.status == Status::Partial;
+                let was_partial = out.status() == Status::Partial;
                 finish(out, leg, error);
                 if q.section() == Some(StudySection::All) && (error.is_some() || was_partial) {
-                    out.status = Status::Partial;
+                    crate::status::item(out, true, false, true);
                 }
             }
         }
@@ -84,13 +84,13 @@ fn sections(cx: &Ctx<'_>, q: &StudyGet, deadline: biomcp_fetch::Deadline<'_>, ou
 }
 fn card(leg: &Leg<'_>, q: &StudyGet, out: &mut Outcome) -> Result<(), RequestError> {
     let (row, info) = studies::card(leg, q.id())?;
+    out.include_refusals(row.refusals);
     out.problems.extend(row.problems);
     let row = row.value;
     let snapshot = studies::snapshot(&info)?;
-    out.status = if row.is_some() {
-        Status::Complete
-    } else {
-        Status::Absent
+    {
+        let found = row.is_some();
+        crate::status::item(out, found, false, false);
     };
     let source_url = format!("https://www.cbioportal.org/study/summary?id={}", q.id())
         .parse()
@@ -114,6 +114,7 @@ fn section_page(
     match q.section() {
         Some(StudySection::Profiles) => {
             let records = studies::profiles(leg, q.id(), q.section_offset(), q.section_limit())?;
+            out.include_refusals(records.window.refusals());
             out.problems.extend(records.problems);
             let rejected = records.rejected;
             let next_offset = records.window.next_offset();
@@ -145,6 +146,7 @@ fn section_page(
         Some(StudySection::SampleLists) => {
             let records =
                 studies::sample_lists(leg, q.id(), q.section_offset(), q.section_limit())?;
+            out.include_refusals(records.window.refusals());
             out.problems.extend(records.problems);
             let rejected = records.rejected;
             let next_offset = records.window.next_offset();
@@ -185,9 +187,9 @@ fn continuation(
     next_offset: Option<u32>,
 ) {
     if rejected != 0 {
-        out.status = Status::Partial;
-    } else if out.status != Status::Partial {
-        out.status = Status::Complete;
+        crate::status::item(out, true, false, true);
+    } else if out.status() != Status::Partial {
+        crate::status::item(out, true, false, false);
     }
     if let Some(offset) = next_offset
         && let Ok(query) = q.at_section_offset(offset)

@@ -26,6 +26,7 @@ pub fn search(cx: &Ctx<'_>, query: &CellLineSearch) -> Outcome {
         .push(status::source(Source::Cellosaurus, leg.finish(), error));
     out.local = error.and_then(status::local);
     if let Ok(page) = reply {
+        out.include_refusals(page.refusals);
         out.problems.extend(page.problems);
         let full = page.received == query.limit();
         for row in &page.items {
@@ -42,13 +43,7 @@ pub fn search(cx: &Ctx<'_>, query: &CellLineSearch) -> Outcome {
                 run(Request::SearchCellLine(query.at_offset(offset))),
             ));
         }
-        out.status = if !out.problems.is_empty() {
-            Status::Partial
-        } else if page.items.is_empty() {
-            Status::Absent
-        } else {
-            Status::Complete
-        };
+        status::search(&mut out);
         out.body = QueryBody::CellLinePage(CellLinePage {
             items: page.items.into(),
             release: None,
@@ -67,17 +62,7 @@ pub fn search(cx: &Ctx<'_>, query: &CellLineSearch) -> Outcome {
 pub fn get(cx: &Ctx<'_>, query: &CellLineGet) -> Outcome {
     get::get(cx, query)
 }
-fn empty(body: QueryBody) -> Outcome {
-    Outcome {
-        status: Status::Failed,
-        body,
-        page: None,
-        sources: Vec::new(),
-        problems: Vec::new(),
-        next: Vec::new(),
-        local: None,
-    }
-}
+pub(super) use crate::status::empty;
 fn run(request: Request) -> Action {
     Action::Run {
         request,

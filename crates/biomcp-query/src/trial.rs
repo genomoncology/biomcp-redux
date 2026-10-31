@@ -53,19 +53,22 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &TrialSearch) -> Outcome {
     deadline = deadline.after_stage(started.saturating_sub(leg.remaining()));
     let mut source = status::source(Source::ClinicalTrialsGov, leg.finish(), error);
     source.notices.extend(name_notice);
-    outcome.status = if result.is_err() {
-        Status::Failed
-    } else if version.is_err()
-        || error.is_some()
-        || source.state == SourceState::Stale
-        || outcome
-            .sources
-            .iter()
-            .any(|source| source.state != SourceState::Ok)
     {
-        Status::Partial
-    } else {
-        Status::Complete
+        let (found, identity_failed, unavailable) = if result.is_err() {
+            (false, true, false)
+        } else if version.is_err()
+            || error.is_some()
+            || source.state == SourceState::Stale
+            || outcome
+                .sources
+                .iter()
+                .any(|source| source.state != SourceState::Ok)
+        {
+            (true, false, true)
+        } else {
+            (true, false, false)
+        };
+        crate::status::item(&mut outcome, found, identity_failed, unavailable);
     };
     if let Ok(page) = result {
         if page.condition_word_mismatch {
@@ -80,15 +83,13 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &TrialSearch) -> Outcome {
         if let QueryBody::TrialPage(body) = &mut outcome.body {
             body.source_updated = version.value.map(Into::into);
         }
-        if !outcome.problems.is_empty() && outcome.status == Status::Complete {
-            outcome.status = Status::Partial;
-        }
     }
     if rejected {
         outcome.body = QueryBody::TextPositionError;
     }
     outcome.local = error.and_then(status::local);
     outcome.sources.push(source);
+    status::search_for(&mut outcome, &[Source::ClinicalTrialsGov]);
     command.finish(deadline.remaining());
     outcome
 }
@@ -103,8 +104,9 @@ fn apply_page(
     outcome: &mut Outcome,
     mut page: ctgov::SearchPage,
 ) {
-    if !page.problems.is_empty() {
-        outcome.status = Status::Partial;
+    outcome.dropped = page.refusals == biomcp_adapters::Refusal::Refused;
+    if outcome.dropped {
+        crate::status::item(outcome, true, false, false);
     }
     outcome.problems.append(&mut page.problems);
     let short = page.items.len() < query.limit() as usize
@@ -114,7 +116,7 @@ fn apply_page(
     if query.count_only() {
         page.items.clear();
     }
-    if short && outcome.status == Status::Complete {
+    if short && outcome.status() == Status::Complete {
         outcome.next.extend(
             query
                 .wider_searches(symbol.and_then(|value| biodata::Text::new(value).ok()))
@@ -151,22 +153,25 @@ fn apply_page(
     }
 }
 fn empty() -> Outcome {
-    Outcome {
-        status: Status::Failed,
-        body: QueryBody::TrialPage(TrialPage {
-            items: Box::default(),
-            source_updated: None,
-            attribution: "ClinicalTrials.gov; source-native discovery, no eligibility assessment"
-                .into(),
-            gene_resolution: None,
-            condition_resolution: None,
-        }),
-        page: None,
-        sources: Vec::new(),
-        problems: Vec::new(),
-        next: Vec::new(),
-        local: None,
-    }
+    crate::status::finish(
+        [crate::status::item_status(false, true, false)],
+        crate::status::Parts {
+            dropped: false,
+            body: QueryBody::TrialPage(TrialPage {
+                items: Box::default(),
+                source_updated: None,
+                attribution:
+                    "ClinicalTrials.gov; source-native discovery, no eligibility assessment".into(),
+                gene_resolution: None,
+                condition_resolution: None,
+            }),
+            page: None,
+            sources: Vec::new(),
+            problems: Vec::new(),
+            next: Vec::new(),
+            local: None,
+        },
+    )
 }
 fn gene<'a>(
     cx: &Ctx<'a>,
@@ -191,7 +196,7 @@ fn gene<'a>(
             match mapped.value {
                 GeneResolution::Resolved { gene, .. } => Some(Some(gene.symbol.to_string())),
                 resolution => {
-                    outcome.status = Status::Partial;
+                    crate::status::item(outcome, true, false, true);
                     if let QueryBody::TrialPage(body) = &mut outcome.body {
                         body.gene_resolution = Some(resolution);
                     }
