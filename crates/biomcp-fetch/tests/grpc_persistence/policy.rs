@@ -257,8 +257,15 @@ fn hosted_grpc_cache_and_replay_cursors_follow_declared_credential_tiers() -> Ch
                 get(&b, source, METHOD, SCHEMA, Freshness::Never),
                 Err(RequestError::Recording(biomcp_fetch::RecordError::Missing))
             ));
+            let keyless = get(
+                &missing.offline(),
+                source,
+                METHOD,
+                SCHEMA,
+                Freshness::Hours(1),
+            );
             assert!(
-                matches!(get(&missing.offline(), source, METHOD, SCHEMA, Freshness::Hours(1)), Err(RequestError::Source(e)) if e.reason == biomcp_types::Reason::NoKey)
+                matches!(keyless, Err(RequestError::Source(e)) if e.reason == biomcp_types::Reason::NoKey)
             );
             assert_eq!(
                 get(&a, source, METHOD, SCHEMA, Freshness::Never)?,

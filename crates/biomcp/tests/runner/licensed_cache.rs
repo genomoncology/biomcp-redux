@@ -157,8 +157,10 @@ fn recordings() -> Result<(), String> {
     let ca = assets.root().join("ca.pem");
     std::fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
     let directory = assets.root().join("recordings");
+    let legacy = assets.root().join("legacy-recordings");
     for hosted in [false, true] {
-        let mut globals = vec!["--record".into(), directory.to_string_lossy().into()];
+        let capture = if hosted { &directory } else { &legacy };
+        let mut globals = vec!["--record".into(), capture.to_string_lossy().into()];
         if hosted {
             globals.push("--hosted".into());
         }
@@ -176,6 +178,14 @@ fn recordings() -> Result<(), String> {
             return Err("synthetic licensed capture was not published".into());
         }
         server.stop()?;
+    }
+    for entry in std::fs::read_dir(legacy.join("oncokb")).map_err(|e| e.to_string())? {
+        let entry = entry.map_err(|e| e.to_string())?;
+        std::fs::copy(
+            entry.path(),
+            directory.join("oncokb").join(entry.file_name()),
+        )
+        .map_err(|e| e.to_string())?;
     }
     let mut server = Server::configured_globals(
         "127.0.0.1:0",
