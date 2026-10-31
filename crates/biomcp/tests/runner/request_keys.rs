@@ -133,7 +133,38 @@ fn licensed() -> Check {
         if reply.pointer("/error/code") != Some(&json!(-32602)) {
             return Err("tool argument accepted a source key".into());
         }
+        header_boundaries(&server, hosted)?;
         server.stop()?;
+    }
+    Ok(())
+}
+fn header_boundaries(server: &Server, hosted: bool) -> Check {
+    let frame = json!({"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"biomcp","arguments":{"args":["help"]}}});
+    for extra in [
+        format!(
+            "x-biomcp-key-oncokb-api-key: {CALLER}\r\nX-BIOMCP-KEY-ONCOKB-API-KEY: {SERVER}\r\n"
+        ),
+        "x-biomcp-key-oncokb-api-key: \r\n".into(),
+    ] {
+        let headers = format!(
+            "Content-Type: application/json\r\nAccept: application/json, text/event-stream\r\nMCP-Protocol-Version: 2025-11-25\r\n{extra}"
+        );
+        let (status, reply, _) = server.raw(
+            "POST",
+            "/mcp",
+            &server.address.to_string(),
+            &headers,
+            &frame.to_string(),
+        )?;
+        if status != if hosted { 400 } else { 200 }
+            || reply.as_ref().is_some_and(|value| {
+                [CALLER, SERVER]
+                    .iter()
+                    .any(|key| value.to_string().contains(key))
+            })
+        {
+            return Err("ambiguous credential headers were accepted or reflected".into());
+        }
     }
     Ok(())
 }
