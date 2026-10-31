@@ -102,7 +102,12 @@ fn discovery() -> Check {
     }
     Ok(())
 }
-fn call(server: &Server, args: &[&str], extra: &str, extra_argument: bool) -> Check<Value> {
+pub(super) fn call(
+    server: &Server,
+    args: &[&str],
+    extra: &str,
+    extra_argument: bool,
+) -> Check<Value> {
     let mut arguments = json!({"args":args});
     if extra_argument {
         arguments
@@ -143,6 +148,8 @@ fn call(server: &Server, args: &[&str], extra: &str, extra_argument: bool) -> Ch
 }
 fn licensed() -> Check {
     let replay = super::launch::fixtures().join("replies/gene/oncokb-synthetic/data");
+    let assets = Environment::new().map_err(|e| e.to_string())?;
+    let scoped = super::licensed_cache::scoped_gene_fixture(&assets, CALLER)?;
     for hosted in [true, false] {
         let globals = if hosted {
             vec!["--hosted".into()]
@@ -152,7 +159,11 @@ fn licensed() -> Check {
         let mut server = Server::configured_globals(
             "127.0.0.1:0",
             Some(json!({"keys":{"oncokb_api_key":SERVER}})),
-            Some(replay.clone()),
+            Some(if hosted {
+                scoped.clone()
+            } else {
+                replay.clone()
+            }),
             None,
             None,
             &globals,
@@ -230,10 +241,12 @@ fn header_boundaries(server: &Server, hosted: bool) -> Check {
     Ok(())
 }
 fn concurrent(args: &[&str]) -> Check {
+    let assets = Environment::new().map_err(|e| e.to_string())?;
+    let scoped = super::licensed_cache::scoped_gene_fixture(&assets, CALLER)?;
     let mut server = Server::configured_globals(
         "127.0.0.1:0",
         Some(json!({"keys":{"oncokb_api_key":SERVER}})),
-        Some(super::launch::fixtures().join("replies/gene/oncokb-synthetic/data")),
+        Some(scoped),
         None,
         None,
         &["--hosted".into()],
