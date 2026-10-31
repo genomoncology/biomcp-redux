@@ -12,7 +12,7 @@ use biomcp_types::{
     SourceOutcome, SourceState, Status, StepKind,
 };
 /// Read only the explicitly selected source resource.
-pub fn get(cx: &Ctx<'_>, q: &GwasGet) -> Outcome {
+pub(crate) fn get(cx: &Ctx<'_>, q: &GwasGet) -> Outcome {
     let mut out = crate::status::empty(empty(q));
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();

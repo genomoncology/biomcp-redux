@@ -42,7 +42,7 @@ fn test(path: &str, text: &str) -> Check {
     {
         checks.push(super::fail(
             path,
-            "test fixture paths belong in runner/launch.rs",
+            "test fixture paths belong in shared support/fixtures.rs",
         ));
     }
     if text.lines().count() > super::FILE_LIMIT {

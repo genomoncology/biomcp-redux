@@ -51,6 +51,18 @@ pub(crate) fn finish(items: impl IntoIterator<Item = Status>, parts: Parts) -> O
 }
 
 impl Outcome {
+    /// Complete section bounding and navigation before the interface spells steps.
+    pub fn finish(
+        &mut self,
+        fetch: &biomcp_fetch::Fetch,
+        request: &biomcp_types::Request,
+        fresh: bool,
+    ) -> Result<(), RequestError> {
+        crate::drug::label_bound::bound(fetch, request, self, fresh)?;
+        crate::next::finish(fetch, self);
+        Ok(())
+    }
+
     /// The shared owner exposes status for readers only.
     pub fn status(&self) -> Status {
         self.status

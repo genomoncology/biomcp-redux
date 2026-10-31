@@ -3,7 +3,7 @@ use super::{
     families::{Check, replay},
     trial,
 };
-use crate::runner::trial_bad_values::replace;
+use crate::value::replace;
 use biomcp_adapters::{Refusal, cbioportal, cellosaurus, monarch, seer};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};

@@ -11,17 +11,9 @@ pub(super) fn litsense<'a>(
     query: &ArticleSearch,
     deadline: Deadline<'a>,
 ) -> ResultLeg {
-    let term = query
-        .gene()
-        .map(ToString::to_string)
-        .into_iter()
-        .chain([query.words()])
-        .filter(|s| !s.is_empty())
-        .collect::<Vec<_>>()
-        .join(" ");
     let leg = cx.fetch.leg(&litsense::SPEC, deadline).fresh(cx.fresh);
     let start = leg.remaining();
-    let result = litsense::search(&leg, &term);
+    let (result, term) = litsense::search_query(&leg, query);
     let elapsed = start.saturating_sub(leg.remaining());
     let error = result.as_ref().err().copied();
     let mut outcome = status::source(Source::LitSense, leg.finish(), error);
@@ -53,13 +45,7 @@ pub(super) fn pubtator<'a>(
 ) -> ResultLeg {
     let leg = cx.fetch.leg(&pubtator::SPEC, deadline).fresh(cx.fresh);
     let start = leg.remaining();
-    let term = entrez
-        .map(|id| format!("@GENE_{id}"))
-        .into_iter()
-        .chain([query.words()])
-        .filter(|s| !s.is_empty())
-        .collect::<Vec<_>>()
-        .join(" AND ");
+    let term = pubtator::query_term(query, entrez);
     let result =
         if query.gene().is_some() && entrez.is_none() && !cx.fetch.disabled(Source::PubTator) {
             Err(biomcp_fetch::SourceError {

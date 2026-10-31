@@ -1,8 +1,8 @@
-use super::{Record, bad};
+use super::{bad, raw::Record as RawRecord};
 use biodata::{Attribution, DrugIdentityLevel, DrugLabelReference, PartialDate, Text};
 use biomcp_fetch::RequestError;
 use biomcp_types::{DrugCard, DrugHeader, DrugSection, DrugSource};
-impl Record {
+impl RawRecord {
     fn url(&self) -> Result<Text, RequestError> {
         format!(
             "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid={}",
@@ -12,7 +12,7 @@ impl Record {
         .map_err(|_| bad())
     }
     /// Identity comes from the SPL endpoint; no name or field-shape identity join occurs.
-    pub fn header(&self) -> Result<DrugHeader, RequestError> {
+    pub(super) fn header(&self) -> Result<DrugHeader, RequestError> {
         self.check().map_err(|_| bad())?;
         Ok(DrugHeader {
             matched_name: None,
@@ -34,7 +34,7 @@ impl Record {
         })
     }
     /// Version and revision ID remain source-scoped and separate from the set ID.
-    pub fn reference(&self) -> Result<DrugLabelReference, RequestError> {
+    pub(super) fn reference(&self) -> Result<DrugLabelReference, RequestError> {
         self.check().map_err(|_| bad())?;
         let url = self.url()?;
         Ok(DrugLabelReference {
@@ -54,7 +54,7 @@ impl Record {
         })
     }
     /// An identity-only card does not copy any clinical text or authorization facts.
-    pub fn card(&self, retrieved: Option<PartialDate>) -> Result<DrugCard, RequestError> {
+    pub(super) fn card(&self, retrieved: Option<PartialDate>) -> Result<DrugCard, RequestError> {
         let alternate_names = self
             .openfda
             .brand_name
@@ -84,5 +84,36 @@ impl Record {
             },
             next: Box::default(),
         })
+    }
+}
+
+/// Accepted SPL record whose provider fields remain private to the adapter.
+#[derive(Debug)]
+pub struct Record(pub(super) super::raw::Record);
+impl Record {
+    /// Map the native identity and optional name.
+    pub fn header(&self) -> Result<DrugHeader, RequestError> {
+        self.0.header()
+    }
+    /// Map the source card and original retrieval date.
+    pub fn card(&self, retrieved: Option<PartialDate>) -> Result<DrugCard, RequestError> {
+        self.0.card(retrieved)
+    }
+    /// Whether a supported heading has native text.
+    pub fn has_heading(&self, heading: &str) -> bool {
+        self.0.parts(heading).is_some()
+    }
+    /// Preserve native complete-name matching.
+    pub fn name_match(&self, name: &biodata::Text) -> Option<biomcp_types::DrugNameMatch> {
+        self.0.name_match(name)
+    }
+    /// Map bounded original label fragments.
+    pub fn label(
+        &self,
+        heading: &str,
+        offset: u32,
+        limit: u32,
+    ) -> Result<Option<biomcp_types::DrugLabelText>, RequestError> {
+        self.0.label(heading, offset, limit)
     }
 }

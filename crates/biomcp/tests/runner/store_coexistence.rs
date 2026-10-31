@@ -291,7 +291,7 @@ fn recorded() -> Check {
     let before = fs::read(&old)?;
     let stub = super::network_stub::Stub::new()?;
     let ca = env.root().join("ca.pem");
-    stub.retain(&env);
+    stub.retain(env.shared_root());
     fs::write(&ca, &stub.certificate)?;
     env.config(&json!({"ca_bundle":ca,"proxy":format!("http://{}",stub.address)}))?;
     let records = env.root().join("records");

@@ -13,7 +13,7 @@ use serde::{Deserialize, Serialize};
 /// Native source page, with no inferred next offset or result total.
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(from = "RawPage")]
-pub struct Page {
+pub(super) struct Page {
     /// Native start offset.
     pub offset: u32,
     /// Native next offset, only when supplied.
@@ -73,7 +73,7 @@ impl From<RawPage> for Page {
 /// Native author metadata; omitted optional fields remain absent.
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase", from = "RawRecord")]
-pub struct Record {
+pub(super) struct Record {
     /// Exact provider record identity.
     pub author_id: SemanticScholarAuthorId,
     name: Option<biodata::Text>,
@@ -123,7 +123,7 @@ impl From<RawRecord> for Record {
 }
 impl Record {
     /// Preserve optional metadata and its provider-record count scope.
-    pub fn header(self, problems: &mut Vec<biomcp_types::Problem>) -> AuthorHeader {
+    pub(super) fn header(self, problems: &mut Vec<biomcp_types::Problem>) -> AuthorHeader {
         problems.extend(self.problems);
         let counts =
             (self.paper_count.is_some() || self.citation_count.is_some() || self.h_index.is_some())
@@ -143,7 +143,7 @@ impl Record {
         }
     }
     /// Keep the provider link separate from the candidate metadata.
-    pub fn card(self) -> Mapped<AuthorCard> {
+    pub(super) fn card(self) -> Mapped<AuthorCard> {
         let mut problems = Vec::new();
         let url = self.url.clone();
         let value = AuthorCard {

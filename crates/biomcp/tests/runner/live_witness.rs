@@ -96,7 +96,7 @@ pub(in crate::runner) fn context(output: &Value, observations: &[Observation]) -
     // Open-only retention is conservative for mixed, restricted, unknown and
     // noncommercial terms. Never retain raw provider bodies or any headers.
     let permitted = observations.iter().all(|observation| {
-        biomcp_adapters::registry::terms(observation.source)
+        biomcp_query::sources::terms(observation.source)
             .is_some_and(|terms| terms.usage == Use::Open)
     }) && open_labels(output);
     let mut ids = Vec::new();

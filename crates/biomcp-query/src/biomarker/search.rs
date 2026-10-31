@@ -5,7 +5,7 @@ use biomcp_adapters::nci;
 use biomcp_fetch::{Deadline, RequestError, SourceError};
 use biomcp_types::{BiomarkerPage, BiomarkerSearch, QueryBody, Reason, Request, Source, StepKind};
 /// Find native biomarker concept headers without interpretation.
-pub fn search(cx: &Ctx<'_>, q: &BiomarkerSearch) -> Outcome {
+pub(crate) fn search(cx: &Ctx<'_>, q: &BiomarkerSearch) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let mut out = empty();

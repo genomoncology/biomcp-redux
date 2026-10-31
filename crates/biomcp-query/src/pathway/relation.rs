@@ -18,7 +18,7 @@ pub(super) struct Selection<'a> {
     pub header: Option<PathwayHeader>,
 }
 /// Page retained source membership with checked gene pivots.
-pub fn genes(cx: &Ctx<'_>, q: &PathwayGenesQuery) -> Outcome {
+pub(crate) fn genes(cx: &Ctx<'_>, q: &PathwayGenesQuery) -> Outcome {
     execute(
         cx,
         Selection {
@@ -34,7 +34,7 @@ pub fn genes(cx: &Ctx<'_>, q: &PathwayGenesQuery) -> Outcome {
     )
 }
 /// Page retained source event objects and unresolved integer references.
-pub fn events(cx: &Ctx<'_>, q: &PathwayEventsQuery) -> Outcome {
+pub(crate) fn events(cx: &Ctx<'_>, q: &PathwayEventsQuery) -> Outcome {
     execute(
         cx,
         Selection {

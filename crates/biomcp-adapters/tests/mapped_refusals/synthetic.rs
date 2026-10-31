@@ -1,7 +1,7 @@
 //! Native synthetic replies exercise source boundaries without live publisher access.
 use super::{families::Check, trial};
-use crate::runner::network_stub::Stub;
-use crate::runner::trial_bad_values::replace;
+use crate::network_stub::Stub;
+use crate::value::replace;
 use biomcp_adapters::{Refusal, chembl, hotspots, litsense, mychem, ols};
 use biomcp_fetch::{Certificates, Fetch, FetchConfig, Network, Secret};
 use libtest_mimic::Trial;

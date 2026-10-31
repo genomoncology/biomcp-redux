@@ -30,8 +30,8 @@ pub(super) struct Stub {
     worker: Option<thread::JoinHandle<Result<Requests, String>>>,
 }
 impl Stub {
-    pub(super) fn retain(&self, env: &super::launch::Environment) {
-        self.evidence.attach(env);
+    pub(super) fn retain(&self, root: Arc<tempfile::TempDir>) {
+        self.evidence.attach(root);
     }
 
     pub(super) fn new() -> Result<Self, String> {
@@ -211,8 +211,8 @@ fn header(input: &mut impl Read) -> Result<String, String> {
     }
     String::from_utf8(bytes).map_err(|e| e.to_string())
 }
-fn body(withdrawn: bool) -> Result<String, String> {
-    let root = crate::runner::launch::fixtures().join("replies/gene/main/hgnc");
+pub(super) fn body(withdrawn: bool) -> Result<String, String> {
+    let root = super::fixture_paths::fixtures().join("replies/gene/main/hgnc");
     for file in fs::read_dir(root).map_err(|e| e.to_string())? {
         let value: Value = serde_json::from_slice(
             &fs::read(file.map_err(|e| e.to_string())?.path()).map_err(|e| e.to_string())?,

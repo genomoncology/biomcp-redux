@@ -59,9 +59,10 @@ impl From<ReceivedSynonym> for Synonym {
             record: None,
             list: Vec::new(),
         };
+        let molecule_synonym = problems.required_field("molecule_synonym", row.molecule_synonym);
+        let _ = problems.required_field("syn_type", row.syn_type);
         Self {
-            molecule_synonym: problems.required_field("molecule_synonym", row.molecule_synonym),
-            syn_type: problems.required_field("syn_type", row.syn_type),
+            molecule_synonym,
             problems: problems.list,
         }
     }
@@ -71,8 +72,6 @@ impl From<ReceivedSynonym> for Synonym {
 pub(super) struct ReceivedMechanism {
     /// Source relation ID.
     pub mec_id: u64,
-    /// Exact drug identity.
-    pub molecule_chembl_id: String,
     /// Native target record, without an inferred gene mapping.
     pub target_chembl_id: Option<crate::raw::Field<String>>,
     /// Native action type.
@@ -100,7 +99,6 @@ impl From<ReceivedMechanism> for Mechanism {
         Self {
             refusals,
             mec_id: row.mec_id,
-            molecule_chembl_id: row.molecule_chembl_id,
             target_chembl_id,
             action_type,
             mechanism_of_action,
@@ -114,8 +112,6 @@ impl From<ReceivedMechanism> for Mechanism {
 pub(super) struct ReceivedIndication {
     /// Native indication ID.
     pub drugind_id: u64,
-    /// Exact drug identity.
-    pub molecule_chembl_id: String,
     /// Native disease ID.
     pub efo_id: Option<crate::raw::Field<String>>,
     /// Native disease name.
@@ -148,7 +144,6 @@ impl From<ReceivedIndication> for Indication {
         Self {
             refusals,
             drugind_id: row.drugind_id,
-            molecule_chembl_id: row.molecule_chembl_id,
             efo_id,
             efo_term,
             mesh_id,

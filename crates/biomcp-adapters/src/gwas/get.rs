@@ -1,7 +1,7 @@
 //! Exact native identities and independent bounded context collections.
 mod raw;
 mod study;
-use super::{Association, SPEC};
+use super::{SPEC, raw::Association};
 use biodata::{GwasAssociationId, GwasStudyId};
 use biomcp_fetch::{BadReply, Freshness, Leg, Reply, RequestError};
 use biomcp_types::{GwasAncestry, GwasLocus, GwasStudy};
@@ -18,7 +18,10 @@ pub struct Rows<T> {
     pub rejected: usize,
 }
 /// Read one source association without fetching its study.
-pub fn association(leg: &Leg<'_>, id: GwasAssociationId) -> Result<Association, RequestError> {
+pub fn association(
+    leg: &Leg<'_>,
+    id: GwasAssociationId,
+) -> Result<super::Association, RequestError> {
     let endpoint = SPEC
         .get("")
         .with_path(format!("/associations/{}", id.get()))?
@@ -30,7 +33,7 @@ pub fn association(leg: &Leg<'_>, id: GwasAssociationId) -> Result<Association, 
             Err(BadReply)
         }
     })?;
-    Ok(row)
+    Ok(row.into())
 }
 impl Reply for Association {
     fn check(&self) -> Result<(), BadReply> {

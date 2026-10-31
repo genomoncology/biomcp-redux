@@ -12,11 +12,11 @@ mod cosmic;
 mod direct;
 pub(crate) use direct::requirements as next_sources;
 mod hotspots;
-pub mod normalize;
+pub(crate) mod normalize;
 mod oncokb;
 mod predict;
-pub mod recurrence;
-pub mod search;
+pub(crate) mod recurrence;
+pub(crate) mod search;
 mod sections;
 use crate::{Ctx, Outcome, status};
 use biodata::Text;
@@ -27,7 +27,7 @@ use biomcp_types::{
     VariantResolution,
 };
 /// Resolve one checked input without guessing a build, allele or preferred candidate.
-pub fn get(cx: &Ctx<'_>, query: &VariantGet) -> Outcome {
+pub(crate) fn get(cx: &Ctx<'_>, query: &VariantGet) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let mut deadline = command.deadline();
     if let Some(source) = direct::source(cx.fetch, query) {

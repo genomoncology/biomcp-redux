@@ -2,7 +2,6 @@
 mod condition;
 pub mod document;
 pub(crate) mod get;
-mod names;
 mod nci;
 use crate::{Action, Ctx, Outcome, status};
 
@@ -29,16 +28,10 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &TrialSearch) -> Outcome {
     };
     let leg = cx.fetch.leg(&ctgov::SPEC, deadline).fresh(cx.fresh);
     let started = leg.remaining();
-    let mut params = ctgov::parameters(query, gene.as_deref());
     let conditions = condition
         .as_ref()
         .map_or(query.condition(), std::slice::from_ref);
-    if query.condition_id().is_some()
-        && let Some(condition) = conditions.first()
-    {
-        params.insert("query.cond".into(), format!("({condition})"));
-    }
-    let (result, name_notice) = names::search(&leg, query, &params, conditions);
+    let (result, name_notice) = ctgov::search_query(&leg, query, gene.as_deref(), conditions);
     let rejected = name_notice.is_none() && request_rejected(result.as_ref().err());
     let version = match &result {
         Ok(_) => ctgov::version(&leg),

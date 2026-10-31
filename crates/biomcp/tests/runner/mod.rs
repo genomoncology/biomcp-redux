@@ -16,13 +16,11 @@ tool_only! { mod disease_ols; }
 tool_only! { mod disease_seer; }
 mod execution;
 mod faers_search;
-mod mapped_refusals;
 mod native_fields;
 #[path = "../support/pool_contracts.rs"]
 mod pool_contract;
 #[path = "../support/synthetic_contracts.rs"]
 mod required_contract;
-mod trial_bad_values;
 tool_only! { pub(super) mod tools_api; }
 mod features;
 use crate::runner::transcript::trial as transcript_trial;
@@ -70,6 +68,7 @@ mod mcp_hosted;
 mod nci;
 mod request_keys;
 tool_only! { mod negative_cases; }
+#[path = "../../../biomcp-fetch/tests/support/network_stub.rs"]
 mod network_stub;
 mod normalization;
 mod oncokb;
@@ -97,6 +96,7 @@ mod skill;
 tool_only! { mod schema_evolution; }
 mod schema_proof;
 tool_only! { mod semantic_tables; }
+mod source_queries;
 mod source_terms;
 mod store_clean;
 mod store_coexistence;
@@ -244,12 +244,11 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(cache_admission::trials());
     trials.extend(corporate::trials());
     trials.extend(drug_identity::trials());
+    trials.extend(source_queries::trials());
     trials.extend(key_registration::trials());
     trials.extend(pdf::trials());
     trials.push(skill::trial());
     trials.extend(credential_containment::trials());
-    // Private Refusal facts are visible only at the public adapter API.
-    trials.extend(mapped_refusals::trials());
     trials.extend(http::trials());
     trials.extend(remote_tools::trials());
     trials.extend(mcp_boundaries::trials());
@@ -464,3 +463,13 @@ tool_only! {
         Ok(trials)
     }
 }
+
+#[path = "../../../biomcp-fetch/tests/support/capture.rs"]
+mod capture_support;
+#[path = "../../../biomcp-fetch/tests/support/fixtures.rs"]
+mod fixture_paths;
+#[path = "../../../biomcp-fetch/tests/support/hash.rs"]
+mod stable_hash;
+
+#[path = "../../../biomcp-fetch/tests/support/recordings.rs"]
+mod recording_support;

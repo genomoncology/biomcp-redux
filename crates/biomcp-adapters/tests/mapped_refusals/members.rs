@@ -3,7 +3,7 @@ use super::{
     families::{Check, replay},
     trial,
 };
-use crate::runner::trial_bad_values::replace;
+use crate::value::replace;
 use biomcp_adapters::{Refusal, civic, icite, litvar, myvariant, oncokb, pubtator};
 use biomcp_types::Section;
 use libtest_mimic::Trial;

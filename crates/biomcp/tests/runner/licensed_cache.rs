@@ -95,7 +95,7 @@ fn licensed() -> Result<(), String> {
                 .insert("variantSummary".into(), summary);
             Ok(reply.to_string())
         })?;
-        stub.retain(&assets);
+        stub.retain(assets.shared_root());
         let ca = assets.root().join("ca.pem");
         std::fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
         let globals = if hosted {
@@ -153,7 +153,7 @@ fn licensed() -> Result<(), String> {
 fn recordings() -> Result<(), String> {
     let assets = Environment::new().map_err(|e| e.to_string())?;
     let stub = Stub::for_source("www.oncokb.org", "application/json", super::oncokb::reply)?;
-    stub.retain(&assets);
+    stub.retain(assets.shared_root());
     let ca = assets.root().join("ca.pem");
     std::fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
     let directory = assets.root().join("recordings");

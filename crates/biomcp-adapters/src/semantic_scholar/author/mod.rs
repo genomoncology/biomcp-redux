@@ -6,12 +6,13 @@ use biodata::{AuthorCard, SemanticScholarAuthorId};
 use biomcp_fetch::{Arg, BadReply, Freshness, Leg, RequestError};
 use biomcp_types::AuthorSearch;
 pub use papers::{Paper, PapersPage, papers};
-pub use raw::Page;
+mod map;
+pub use map::Page;
 const FIELDS: &str = "authorId,name,affiliations,paperCount,citationCount,hIndex,url";
 /// Read one unchanged source query in native order.
 pub fn search(leg: &Leg<'_>, q: &AuthorSearch) -> Result<Page, RequestError> {
     let endpoint = SPEC.get("/author/search").fresh(Freshness::Days(1));
-    let (page, _) = leg.json_received_checked::<Page>(
+    let (page, _) = leg.json_received_checked::<raw::Page>(
         &endpoint,
         &[
             ("query", Arg::Text(q.query())),
@@ -27,7 +28,7 @@ pub fn search(leg: &Leg<'_>, q: &AuthorSearch) -> Result<Page, RequestError> {
             }
         },
     )?;
-    Ok(page)
+    Ok(map::Page::new(page))
 }
 /// Reject a mismatched returned identity before cache admission and on cache reads.
 pub fn card(

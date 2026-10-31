@@ -2,7 +2,7 @@
 mod all;
 mod chembl;
 mod get;
-pub use chembl::assay_count;
+pub(crate) use chembl::assay_count;
 mod provenance;
 mod sections;
 use crate::{Ctx, Outcome, status};
@@ -11,7 +11,7 @@ use biomcp_types::{
     CellLineGet, CellLinePage, CellLineSearch, QueryBody, Request, Source, Status, StepKind,
 };
 /// One native window, with no fabricated total or extra-page fetch.
-pub fn search(cx: &Ctx<'_>, query: &CellLineSearch) -> Outcome {
+pub(crate) fn search(cx: &Ctx<'_>, query: &CellLineSearch) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let leg = cx.fetch.leg(&cellosaurus::SPEC, deadline).fresh(cx.fresh);
@@ -61,7 +61,7 @@ pub fn search(cx: &Ctx<'_>, query: &CellLineSearch) -> Outcome {
     out
 }
 /// Retrieve one verified identity, with unselected candidates on ambiguity.
-pub fn get(cx: &Ctx<'_>, query: &CellLineGet) -> Outcome {
+pub(crate) fn get(cx: &Ctx<'_>, query: &CellLineGet) -> Outcome {
     get::get(cx, query)
 }
 use crate::next::run;

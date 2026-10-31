@@ -2,14 +2,13 @@
 mod documents;
 mod families;
 mod members;
-mod opentargets;
 mod pages;
 mod records;
 mod retained;
 mod source_pages;
 mod stored;
 mod synthetic;
-use super::transcript::trial;
+use crate::trial;
 use biomcp_adapters::{NativeWindow, Refusal, chembl};
 use libtest_mimic::Trial;
 use serde_json::json;
@@ -27,7 +26,6 @@ pub(super) fn trials() -> Vec<Trial> {
     ];
     tests.extend(families::trials());
     tests.extend(pages::trials());
-    tests.extend(opentargets::trials());
     tests.extend(members::trials());
     tests.extend(records::trials());
     tests.extend(synthetic::trials());
@@ -100,17 +98,17 @@ fn chembl_pages() -> Result<(), String> {
                 .window
                 .rows
                 .first()
-                .is_none_or(|row| row.problems.is_empty())
+                .is_none_or(|row| row.problems().is_empty())
                 || mechanism
                     .window
                     .rows
                     .first()
-                    .is_none_or(|row| row.problems.is_empty())
+                    .is_none_or(|row| row.problems().is_empty())
                 || indication
                     .window
                     .rows
                     .first()
-                    .is_none_or(|row| row.problems.is_empty()))
+                    .is_none_or(|row| row.problems().is_empty()))
         {
             return Err("optional-field control did not produce retained-row problems".into());
         }

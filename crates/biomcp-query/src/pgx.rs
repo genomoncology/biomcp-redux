@@ -12,7 +12,7 @@ use biomcp_types::{
     QueryBody, Reason, Request, Source, SourceOutcome, SourceState,
 };
 /// Discover one independent native CPIC pair page.
-pub fn search(cx: &Ctx<'_>, query: &PgxSearch) -> Outcome {
+pub(crate) fn search(cx: &Ctx<'_>, query: &PgxSearch) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let leg = cx.fetch.leg(&cpic::SPEC, deadline).fresh(cx.fresh);
@@ -43,7 +43,7 @@ pub fn search(cx: &Ctx<'_>, query: &PgxSearch) -> Outcome {
     out
 }
 /// Read one explicit card or section with the same source policy on every path.
-pub fn get(cx: &Ctx<'_>, query: &PgxGet) -> Outcome {
+pub(crate) fn get(cx: &Ctx<'_>, query: &PgxGet) -> Outcome {
     if query.source() == PgxSource::Clinpgx {
         return annotations::get(cx, query);
     }

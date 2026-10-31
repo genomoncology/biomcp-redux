@@ -43,6 +43,7 @@ fn discover(
         )?;
         found.window.rows.retain(|record| {
             record
+                .0
                 .openfda
                 .application_number
                 .iter()
@@ -92,6 +93,7 @@ fn phrase(value: &str) -> String {
 // Missing harmonized names are not evidence of a different product. Both primary
 // product fields must identify the complete requested name before admitting it.
 fn primary_name(record: &super::Record, name: &Text) -> bool {
+    let record = &record.0;
     if record.openfda.brand_name.iter().flatten().next().is_some()
         || record
             .openfda

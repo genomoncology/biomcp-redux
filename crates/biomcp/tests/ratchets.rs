@@ -82,7 +82,7 @@ fn outbound_registry_lists_only_request_hosts_and_explicit_publisher_policy() ->
     use biomcp_fetch::Destinations;
     let mut rows = std::collections::BTreeSet::new();
     let mut publisher_policies = 0;
-    for spec in biomcp_adapters::registry::requests() {
+    for spec in biomcp_query::sources::requests() {
         for host in request_hosts(spec)? {
             rows.insert(format!("{} {host}", spec.source));
         }
@@ -125,7 +125,7 @@ fn registry_declarations_reject_unsafe_additional_origins() -> Check {
         &["https://*.example"],
         &["ftp://cdn.example"],
     ];
-    let template = biomcp_adapters::registry::requests()
+    let template = biomcp_query::sources::requests()
         .find(|spec| matches!(spec.destinations, biomcp_fetch::Destinations::Additional(_)))
         .ok_or("missing registry declaration with additional origins")?;
     request_hosts(template)?;

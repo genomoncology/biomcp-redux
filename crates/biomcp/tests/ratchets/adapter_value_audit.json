@@ -393,6 +393,30 @@
       "reason": "Bad present association/study/context metadata is omitted with source-record field problems. Exact p-value admission excludes only unprovable threshold candidates and retains native received offsets."
     },
     {
+      "path": "crates/biomcp-adapters/src/gwas/map.rs",
+      "site": "association: ( ) , locations : row . locations . clone ( ) . unwrap_or_default ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "gwas",
+      "reason": "This existing optional query projection keeps its established None or fallback path. The refactor preserves the owning caller and independently retained source outcome; no new source record is silently admitted."
+    },
+    {
+      "path": "crates/biomcp-adapters/src/gwas/map.rs",
+      "site": "association: . get ( ) . to_string ( ) . parse ( ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "gwas",
+      "reason": "This existing optional query projection keeps its established None or fallback path. The refactor preserves the owning caller and independently retained source outcome; no new source record is silently admitted."
+    },
+    {
+      "path": "crates/biomcp-adapters/src/gwas/map.rs",
+      "site": "association: problems ) , mapped_genes : row . mapped_gene . clone ( ) . unwrap_or_default ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "gwas",
+      "reason": "This existing optional query projection keeps its established None or fallback path. The refactor preserves the owning caller and independently retained source outcome; no new source record is silently admitted."
+    },
+    {
       "path": "crates/biomcp-adapters/src/gwas/raw.rs",
       "site": "check: ( | e | e . associations . as_slice ( ) ) . unwrap_or_default ( )",
       "maximum": 1,
@@ -1191,6 +1215,1430 @@
       "class": "identity_refusal",
       "owner": "wikipathways",
       "reason": "The GPML revision must be a positive exact native revision matching the requested pathway before raw HTTP caching"
+    },
+    {
+      "path": "crates/biomcp-query/src/adverse_event.rs",
+      "site": "search: and_then ( status : : local ) , } , ) ; if let Ok ( page ) = reply { let returned = page . items .",
+      "maximum": 1,
+      "class": "migrated",
+      "owner": "adverse_event.rs",
+      "reason": "This existing success or checked-selector branch retains its established failure or absence path in the owning function; it does not admit a source record by ignoring an identity error."
+    },
+    {
+      "path": "crates/biomcp-query/src/adverse_event.rs",
+      "site": "search: and_then ( | value | u64 : : try_from ( value ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "adverse_event.rs",
+      "reason": "A local size, offset or signed transport timestamp converts to an optional bounded representation; the owning caller retains the existing absence or local failure path on overflow."
+    },
+    {
+      "path": "crates/biomcp-query/src/adverse_event/get.rs",
+      "site": "read: new ( q . id ( ) . as_str ( ) ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "adverse_event",
+      "reason": "The optional disclosure or projection parses an already checked identifier or bounded text. Its absence does not remove the independently retained source record or its existing source problems."
+    },
+    {
+      "path": "crates/biomcp-query/src/adverse_event_maude.rs",
+      "site": "too_large: new ( query . id ( ) . as_str ( ) ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "adverse_event_maude.rs",
+      "reason": "The optional disclosure or projection parses an already checked identifier or bounded text. Its absence does not remove the independently retained source record or its existing source problems."
+    },
+    {
+      "path": "crates/biomcp-query/src/adverse_event_maude/snapshot.rs",
+      "site": "load: new ( query . id ( ) . as_str ( ) ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "adverse_event_maude",
+      "reason": "The optional disclosure or projection parses an already checked identifier or bounded text. Its absence does not remove the independently retained source record or its existing source problems."
+    },
+    {
+      "path": "crates/biomcp-query/src/article/evidence/graph.rs",
+      "site": "target: : None } ) } result = > result , } ; if let Ok ( target ) = & result { snapshot . target = Some (",
+      "maximum": 1,
+      "class": "migrated",
+      "owner": "article",
+      "reason": "This existing success or checked-selector branch retains its established failure or absence path in the owning function; it does not admit a source record by ignoring an identity error."
+    },
+    {
+      "path": "crates/biomcp-query/src/article/get.rs",
+      "site": "append: and_then ( | value | u64 : : try_from ( value ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "article",
+      "reason": "A local size, offset or signed transport timestamp converts to an optional bounded representation; the owning caller retains the existing absence or local failure path on overflow."
+    },
+    {
+      "path": "crates/biomcp-query/src/article/get.rs",
+      "site": "get: or ( status : : local ( e ) ) ; } if let Ok ( found ) = & result { for id in found { if",
+      "maximum": 1,
+      "class": "migrated",
+      "owner": "article",
+      "reason": "This existing success or checked-selector branch retains its established failure or absence path in the owning function; it does not admit a source record by ignoring an identity error."
+    },
+    {
+      "path": "crates/biomcp-query/src/article/named.rs",
+      "site": "litsense: outcome . term = Text : : new ( & term ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "article",
+      "reason": "The optional disclosure or projection parses an already checked identifier or bounded text. Its absence does not remove the independently retained source record or its existing source problems."
+    },
+    {
+      "path": "crates/biomcp-query/src/article/named.rs",
+      "site": "pubtator: ( ) . or_else ( | | result . as_ref ( ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "article",
+      "reason": "This existing optional query projection keeps its established None or fallback path. The refactor preserves the owning caller and independently retained source outcome; no new source record is silently admitted."
+    },
+    {
+      "path": "crates/biomcp-query/src/article/named.rs",
+      "site": "pubtator: outcome . term = Text : : new ( & term ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "article",
+      "reason": "The optional disclosure or projection parses an already checked identifier or bounded text. Its absence does not remove the independently retained source record or its existing source problems."
+    },
+    {
+      "path": "crates/biomcp-query/src/article/preprint.rs",
+      "site": "cards: and_then ( | value | u64 : : try_from ( value ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "article",
+      "reason": "A local size, offset or signed transport timestamp converts to an optional bounded representation; the owning caller retains the existing absence or local failure path on overflow."
+    },
+    {
+      "path": "crates/biomcp-query/src/article/save.rs",
+      "site": "text: try_from ( doc . body . parts . len ( ) ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "article",
+      "reason": "A local size, offset or signed transport timestamp converts to an optional bounded representation; the owning caller retains the existing absence or local failure path on overflow."
+    },
+    {
+      "path": "crates/biomcp-query/src/article/sections/fulltext.rs",
+      "site": "run: , files ) | files . clone ( ) ) ) ; if let Ok ( Some ( ( _ , files ) ) ) = data {",
+      "maximum": 1,
+      "class": "migrated",
+      "owner": "article",
+      "reason": "This existing success or checked-selector branch retains its established failure or absence path in the owning function; it does not admit a source record by ignoring an identity error."
+    },
+    {
+      "path": "crates/biomcp-query/src/article/sections/fulltext.rs",
+      "site": "run: or ( status : : local ( e ) ) ; } if let Ok ( Some ( doc ) ) = & result { out . dropped",
+      "maximum": 1,
+      "class": "migrated",
+      "owner": "article",
+      "reason": "This existing success or checked-selector branch retains its established failure or absence path in the owning function; it does not admit a source record by ignoring an identity error."
+    },
+    {
+      "path": "crates/biomcp-query/src/article/semantic_edges.rs",
+      "site": "create: insert ( serde_json : : to_string ( & item . key ) . unwrap_or_default ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "article",
+      "reason": "This existing optional query projection keeps its established None or fallback path. The refactor preserves the owning caller and independently retained source outcome; no new source record is silently admitted."
+    },
+    {
+      "path": "crates/biomcp-query/src/article/semantic_scholar.rs",
+      "site": "search: outcome . term = Text : : new ( & term ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "article",
+      "reason": "The optional disclosure or projection parses an already checked identifier or bounded text. Its absence does not remove the independently retained source record or its existing source problems."
+    },
+    {
+      "path": "crates/biomcp-query/src/article/sources.rs",
+      "site": "europe_search: outcome . term = Text : : new ( & term ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "article",
+      "reason": "The optional disclosure or projection parses an already checked identifier or bounded text. Its absence does not remove the independently retained source record or its existing source problems."
+    },
+    {
+      "path": "crates/biomcp-query/src/article/sources.rs",
+      "site": "litvar_search: remaining ( ) ; let term = selected . as_ref ( ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "article",
+      "reason": "This existing optional query projection keeps its established None or fallback path. The refactor preserves the owning caller and independently retained source outcome; no new source record is silently admitted."
+    },
+    {
+      "path": "crates/biomcp-query/src/article/sources.rs",
+      "site": "pubmed_search: outcome . term = Text : : new ( & term ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "article",
+      "reason": "The optional disclosure or projection parses an already checked identifier or bounded text. Its absence does not remove the independently retained source record or its existing source problems."
+    },
+    {
+      "path": "crates/biomcp-query/src/article/supplement.rs",
+      "site": "download: , content : Section : : NotApplicable , } ) ) ; let Ok ( selection ) = super : : protein_change : : Selection : : new",
+      "maximum": 1,
+      "class": "migrated",
+      "owner": "article",
+      "reason": "This existing success or checked-selector branch retains its established failure or absence path in the owning function; it does not admit a source record by ignoring an identity error."
+    },
+    {
+      "path": "crates/biomcp-query/src/article/supplement/page.rs",
+      "site": "overview: name : Text : : new ( & s . name ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "article",
+      "reason": "The optional disclosure or projection parses an already checked identifier or bounded text. Its absence does not remove the independently retained source record or its existing source problems."
+    },
+    {
+      "path": "crates/biomcp-query/src/article/text.rs",
+      "site": "download: , content : Section : : NotApplicable , } ) ) ; let Ok ( selection ) = super : : protein_change : : Selection : : new",
+      "maximum": 1,
+      "class": "migrated",
+      "owner": "article",
+      "reason": "This existing success or checked-selector branch retains its established failure or absence path in the owning function; it does not admit a source record by ignoring an identity error."
+    },
+    {
+      "path": "crates/biomcp-query/src/article/text.rs",
+      "site": "find: = u32 : : try_from ( page . len ( ) ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "article",
+      "reason": "A local size, offset or signed transport timestamp converts to an optional bounded representation; the owning caller retains the existing absence or local failure path on overflow."
+    },
+    {
+      "path": "crates/biomcp-query/src/article/text.rs",
+      "site": "find: = u64 : : try_from ( hits . len ( ) ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "article",
+      "reason": "A local size, offset or signed transport timestamp converts to an optional bounded representation; the owning caller retains the existing absence or local failure path on overflow."
+    },
+    {
+      "path": "crates/biomcp-query/src/article/text.rs",
+      "site": "find: = usize : : try_from ( query . offset ( ) ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "article",
+      "reason": "A local size, offset or signed transport timestamp converts to an optional bounded representation; the owning caller retains the existing absence or local failure path on overflow."
+    },
+    {
+      "path": "crates/biomcp-query/src/article/text.rs",
+      "site": "find: escaped_bytes ( row ) + serde_json : : to_vec ( path ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "article",
+      "reason": "This existing optional query projection keeps its established None or fallback path. The refactor preserves the owning caller and independently retained source outcome; no new source record is silently admitted."
+    },
+    {
+      "path": "crates/biomcp-query/src/article/text.rs",
+      "site": "find: markdown : biodata : : Markdown : : new ( row ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "article",
+      "reason": "This existing optional query projection keeps its established None or fallback path. The refactor preserves the owning caller and independently retained source outcome; no new source record is silently admitted."
+    },
+    {
+      "path": "crates/biomcp-query/src/article/text.rs",
+      "site": "select: ( _ ) ) { \"Europe PMC body sections and tables\" } else { \"PMC body sections and tables\" } ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "article",
+      "reason": "This existing optional query projection keeps its established None or fallback path. The refactor preserves the owning caller and independently retained source outcome; no new source record is silently admitted."
+    },
+    {
+      "path": "crates/biomcp-query/src/article/text.rs",
+      "site": "select: > ( ) . join ( part . separator ) , ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "article",
+      "reason": "This existing optional query projection keeps its established None or fallback path. The refactor preserves the owning caller and independently retained source outcome; no new source record is silently admitted."
+    },
+    {
+      "path": "crates/biomcp-query/src/author/get.rs",
+      "site": "get: sources . push ( outcome ) ; } let card = reply . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "author",
+      "reason": "This existing optional query projection keeps its established None or fallback path. The refactor preserves the owning caller and independently retained source outcome; no new source record is silently admitted."
+    },
+    {
+      "path": "crates/biomcp-query/src/biomarker/get.rs",
+      "site": "get: ( Source : : Nci ) , ) ) ; } } if let Ok ( reply ) = reply { out . include_refusals ( reply . refusals",
+      "maximum": 1,
+      "class": "migrated",
+      "owner": "biomarker",
+      "reason": "This existing success or checked-selector branch retains its established failure or absence path in the owning function; it does not admit a source record by ignoring an identity error."
+    },
+    {
+      "path": "crates/biomcp-query/src/cell_line/chembl.rs",
+      "site": "assay_count: and_then ( | value | u64 : : try_from ( value ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "cell_line",
+      "reason": "A local size, offset or signed transport timestamp converts to an optional bounded representation; the owning caller retains the existing absence or local failure path on overflow."
+    },
+    {
+      "path": "crates/biomcp-query/src/cell_line/chembl.rs",
+      "site": "assay_count: local = error . and_then ( status : : local ) ; if let Ok ( ( assay_count , metadata ) ) = reply { crate : :",
+      "maximum": 1,
+      "class": "migrated",
+      "owner": "cell_line",
+      "reason": "This existing success or checked-selector branch retains its established failure or absence path in the owning function; it does not admit a source record by ignoring an identity error."
+    },
+    {
+      "path": "crates/biomcp-query/src/cell_line/chembl.rs",
+      "site": "attach: ( problem ( \"release\" ) ) ; } let release = release . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "cell_line",
+      "reason": "This existing optional query projection keeps its established None or fallback path. The refactor preserves the owning caller and independently retained source outcome; no new source record is silently admitted."
+    },
+    {
+      "path": "crates/biomcp-query/src/cell_line/chembl.rs",
+      "site": "get_at: and_then ( | value | u64 : : try_from ( value ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "cell_line",
+      "reason": "A local size, offset or signed transport timestamp converts to an optional bounded representation; the owning caller retains the existing absence or local failure path on overflow."
+    },
+    {
+      "path": "crates/biomcp-query/src/cell_line/chembl.rs",
+      "site": "get_at: local = error . and_then ( status : : local ) ; if let Ok ( page ) = reply { out . problems . extend ( page",
+      "maximum": 1,
+      "class": "migrated",
+      "owner": "cell_line",
+      "reason": "This existing success or checked-selector branch retains its established failure or absence path in the owning function; it does not admit a source record by ignoring an identity error."
+    },
+    {
+      "path": "crates/biomcp-query/src/cell_line/get.rs",
+      "site": "get: : : new ( h . accession . as_str ( ) ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "cell_line",
+      "reason": "An optional specialized lookup or exact-match projection rejects an unsupported checked input. The caller retains its existing unavailable or unmatched path rather than inventing a source value."
+    },
+    {
+      "path": "crates/biomcp-query/src/cell_line/get.rs",
+      "site": "resolve: and_then ( | value | u64 : : try_from ( value ) . ok ( )",
+      "maximum": 3,
+      "class": "legitimate_absence",
+      "owner": "cell_line",
+      "reason": "A local size, offset or signed transport timestamp converts to an optional bounded representation; the owning caller retains the existing absence or local failure path on overflow."
+    },
+    {
+      "path": "crates/biomcp-query/src/cell_line/mod.rs",
+      "site": "search: and_then ( | value | u64 : : try_from ( value ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "cell_line",
+      "reason": "A local size, offset or signed transport timestamp converts to an optional bounded representation; the owning caller retains the existing absence or local failure path on overflow."
+    },
+    {
+      "path": "crates/biomcp-query/src/cell_line/mod.rs",
+      "site": "search: local = error . and_then ( status : : local ) ; if let Ok ( page ) = reply { out . include_refusals ( page . refusals",
+      "maximum": 1,
+      "class": "migrated",
+      "owner": "cell_line",
+      "reason": "This existing success or checked-selector branch retains its established failure or absence path in the owning function; it does not admit a source record by ignoring an identity error."
+    },
+    {
+      "path": "crates/biomcp-query/src/cell_line/provenance.rs",
+      "site": "attach: : : ValueUnknown , } ) ; } let release = release . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "cell_line",
+      "reason": "This existing optional query projection keeps its established None or fallback path. The refactor preserves the owning caller and independently retained source outcome; no new source record is silently admitted."
+    },
+    {
+      "path": "crates/biomcp-query/src/diagnostic/companion.rs",
+      "site": "search: ) . and_then ( | v | v . parse ( ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "diagnostic",
+      "reason": "This existing optional query projection keeps its established None or fallback path. The refactor preserves the owning caller and independently retained source outcome; no new source record is silently admitted."
+    },
+    {
+      "path": "crates/biomcp-query/src/diagnostic/companion.rs",
+      "site": "search: ) . copied ( ) ; let mut group_unsupported = false ; if let Ok ( page ) = result { let q = page . info .",
+      "maximum": 1,
+      "class": "migrated",
+      "owner": "diagnostic",
+      "reason": "This existing success or checked-selector branch retains its established failure or absence path in the owning function; it does not admit a source record by ignoring an identity error."
+    },
+    {
+      "path": "crates/biomcp-query/src/diagnostic/get.rs",
+      "site": "get: ) . and_then ( | v | v . parse ( ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "diagnostic",
+      "reason": "This existing optional query projection keeps its established None or fallback path. The refactor preserves the owning caller and independently retained source outcome; no new source record is silently admitted."
+    },
+    {
+      "path": "crates/biomcp-query/src/diagnostic/get.rs",
+      "site": "get: as_ref ( ) . err ( ) . copied ( ) ; if let Ok ( record ) = result { let query = record . info .",
+      "maximum": 1,
+      "class": "migrated",
+      "owner": "diagnostic",
+      "reason": "This existing success or checked-selector branch retains its established failure or absence path in the owning function; it does not admit a source record by ignoring an identity error."
+    },
+    {
+      "path": "crates/biomcp-query/src/diagnostic/mod.rs",
+      "site": "search: ) . and_then ( | v | v . parse ( ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "diagnostic",
+      "reason": "This existing optional query projection keeps its established None or fallback path. The refactor preserves the owning caller and independently retained source outcome; no new source record is silently admitted."
+    },
+    {
+      "path": "crates/biomcp-query/src/diagnostic/mod.rs",
+      "site": "search: as_ref ( ) . err ( ) . copied ( ) ; if let Ok ( ( items , total , info ) ) = result { crate",
+      "maximum": 1,
+      "class": "migrated",
+      "owner": "diagnostic",
+      "reason": "This existing success or checked-selector branch retains its established failure or absence path in the owning function; it does not admit a source record by ignoring an identity error."
+    },
+    {
+      "path": "crates/biomcp-query/src/diagnostic/recall.rs",
+      "site": "search: as_ref ( ) . err ( ) . copied ( ) ; if let Ok ( page ) = result { let returned = page . items .",
+      "maximum": 1,
+      "class": "migrated",
+      "owner": "diagnostic",
+      "reason": "This existing success or checked-selector branch retains its established failure or absence path in the owning function; it does not admit a source record by ignoring an identity error."
+    },
+    {
+      "path": "crates/biomcp-query/src/diagnostic/who.rs",
+      "site": "get: as_ref ( ) . err ( ) . copied ( ) ; if let Ok ( ( product , _info ) ) = result { { let found",
+      "maximum": 1,
+      "class": "migrated",
+      "owner": "diagnostic",
+      "reason": "This existing success or checked-selector branch retains its established failure or absence path in the owning function; it does not admit a source record by ignoring an identity error."
+    },
+    {
+      "path": "crates/biomcp-query/src/disease/monarch.rs",
+      "site": "get: and_then ( | value | u64 : : try_from ( value ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "disease",
+      "reason": "A local size, offset or signed transport timestamp converts to an optional bounded representation; the owning caller retains the existing absence or local failure path on overflow."
+    },
+    {
+      "path": "crates/biomcp-query/src/disease/monarch.rs",
+      "site": "get: local = error . and_then ( status : : local ) ; if let Ok ( page ) = reply { out . include_refusals ( page . refusals",
+      "maximum": 1,
+      "class": "migrated",
+      "owner": "disease",
+      "reason": "This existing success or checked-selector branch retains its established failure or absence path in the owning function; it does not admit a source record by ignoring an identity error."
+    },
+    {
+      "path": "crates/biomcp-query/src/disease/mydisease.rs",
+      "site": "get: local = error . and_then ( status : : local ) ; if let Ok ( mapped ) = reply { out . include_refusals ( mapped . refusals",
+      "maximum": 1,
+      "class": "migrated",
+      "owner": "disease",
+      "reason": "This existing success or checked-selector branch retains its established failure or absence path in the owning function; it does not admit a source record by ignoring an identity error."
+    },
+    {
+      "path": "crates/biomcp-query/src/disease/ols.rs",
+      "site": "search: and_then ( | v | ols : : components ( v ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "disease",
+      "reason": "This existing optional query projection keeps its established None or fallback path. The refactor preserves the owning caller and independently retained source outcome; no new source record is silently admitted."
+    },
+    {
+      "path": "crates/biomcp-query/src/disease/ols.rs",
+      "site": "search: local = error . and_then ( status : : local ) ; if let Ok ( page ) = reply { out . include_refusals ( page . rows",
+      "maximum": 1,
+      "class": "migrated",
+      "owner": "disease",
+      "reason": "This existing success or checked-selector branch retains its established failure or absence path in the owning function; it does not admit a source record by ignoring an identity error."
+    },
+    {
+      "path": "crates/biomcp-query/src/disease/seer.rs",
+      "site": "fetched: and_then ( | value | u64 : : try_from ( value ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "disease",
+      "reason": "A local size, offset or signed transport timestamp converts to an optional bounded representation; the owning caller retains the existing absence or local failure path on overflow."
+    },
+    {
+      "path": "crates/biomcp-query/src/disease/seer.rs",
+      "site": "get: ) } ; let mut out = empty ( body ) ; let Ok ( selection ) = seer : : selection ( query ) else { return",
+      "maximum": 1,
+      "class": "migrated",
+      "owner": "disease",
+      "reason": "This existing success or checked-selector branch retains its established failure or absence path in the owning function; it does not admit a source record by ignoring an identity error."
+    },
+    {
+      "path": "crates/biomcp-query/src/disease/seer.rs",
+      "site": "get: local = error . and_then ( status : : local ) ; if let Ok ( page ) = reply { out . include_refusals ( page . window",
+      "maximum": 1,
+      "class": "migrated",
+      "owner": "disease",
+      "reason": "This existing success or checked-selector branch retains its established failure or absence path in the owning function; it does not admit a source record by ignoring an identity error."
+    },
+    {
+      "path": "crates/biomcp-query/src/disease/seer.rs",
+      "site": "search: local = error . and_then ( status : : local ) ; if let Ok ( page ) = reply { out . include_refusals ( page . window",
+      "maximum": 1,
+      "class": "migrated",
+      "owner": "disease",
+      "reason": "This existing success or checked-selector branch retains its established failure or absence path in the owning function; it does not admit a source record by ignoring an identity error."
+    },
+    {
+      "path": "crates/biomcp-query/src/drug.rs",
+      "site": "search: Mychem , leg . finish ( ) , error ) ) ; if let Ok ( ( page , received ) ) = result { out . include_refusals",
+      "maximum": 1,
+      "class": "migrated",
+      "owner": "drug.rs",
+      "reason": "This existing success or checked-selector branch retains its established failure or absence path in the owning function; it does not admit a source record by ignoring an identity error."
+    },
+    {
+      "path": "crates/biomcp-query/src/drug.rs",
+      "site": "selected_get: Mychem , leg . finish ( ) , error ) ) ; if let Ok ( document ) = result { { let unavailable = out . sources",
+      "maximum": 1,
+      "class": "migrated",
+      "owner": "drug.rs",
+      "reason": "This existing success or checked-selector branch retains its established failure or absence path in the owning function; it does not admit a source record by ignoring an identity error."
+    },
+    {
+      "path": "crates/biomcp-query/src/drug/civic.rs",
+      "site": "get: Civic , leg . finish ( ) , error ) ) ; if let Ok ( mapped ) = result { out . include_refusals ( mapped . refusals",
+      "maximum": 1,
+      "class": "migrated",
+      "owner": "drug",
+      "reason": "This existing success or checked-selector branch retains its established failure or absence path in the owning function; it does not admit a source record by ignoring an identity error."
+    },
+    {
+      "path": "crates/biomcp-query/src/drug/civic.rs",
+      "site": "search: Civic , leg . finish ( ) , error ) ) ; if let Ok ( mapped ) = result { out . include_refusals ( mapped . refusals",
+      "maximum": 1,
+      "class": "migrated",
+      "owner": "drug",
+      "reason": "This existing success or checked-selector branch retains its established failure or absence path in the owning function; it does not admit a source record by ignoring an identity error."
+    },
+    {
+      "path": "crates/biomcp-query/src/drug/ddinter.rs",
+      "site": "get: Ddinter , leg . finish ( ) , error ) ) ; if let Ok ( found ) = result { status : : item ( & mut",
+      "maximum": 1,
+      "class": "migrated",
+      "owner": "drug",
+      "reason": "This existing success or checked-selector branch retains its established failure or absence path in the owning function; it does not admit a source record by ignoring an identity error."
+    },
+    {
+      "path": "crates/biomcp-query/src/drug/ddinter.rs",
+      "site": "search: Ddinter , leg . finish ( ) , error ) ) ; if let Ok ( mapped ) = result { out . include_refusals ( mapped . refusals",
+      "maximum": 1,
+      "class": "migrated",
+      "owner": "drug",
+      "reason": "This existing success or checked-selector branch retains its established failure or absence path in the owning function; it does not admit a source record by ignoring an identity error."
+    },
+    {
+      "path": "crates/biomcp-query/src/drug/drugsfda.rs",
+      "site": "get: Drugsfda , leg . finish ( ) , error ) ) ; if let Ok ( page ) = result { if let Some ( source ) =",
+      "maximum": 1,
+      "class": "migrated",
+      "owner": "drug",
+      "reason": "This existing success or checked-selector branch retains its established failure or absence path in the owning function; it does not admit a source record by ignoring an identity error."
+    },
+    {
+      "path": "crates/biomcp-query/src/drug/drugsfda.rs",
+      "site": "search: Drugsfda , leg . finish ( ) , error ) ) ; if let Ok ( page ) = result { out . include_refusals ( page . refusals",
+      "maximum": 1,
+      "class": "migrated",
+      "owner": "drug",
+      "reason": "This existing success or checked-selector branch retains its established failure or absence path in the owning function; it does not admit a source record by ignoring an identity error."
+    },
+    {
+      "path": "crates/biomcp-query/src/drug/ema.rs",
+      "site": "get: Ema , leg . finish ( ) , error ) ) ; if let Ok ( found ) = result { { let ( found , identity_failed ,",
+      "maximum": 1,
+      "class": "migrated",
+      "owner": "drug",
+      "reason": "This existing success or checked-selector branch retains its established failure or absence path in the owning function; it does not admit a source record by ignoring an identity error."
+    },
+    {
+      "path": "crates/biomcp-query/src/drug/ema.rs",
+      "site": "search: Ema , leg . finish ( ) , error ) ) ; if let Ok ( rows ) = result { out . include_refusals ( rows . refusals",
+      "maximum": 1,
+      "class": "migrated",
+      "owner": "drug",
+      "reason": "This existing success or checked-selector branch retains its established failure or absence path in the owning function; it does not admit a source record by ignoring an identity error."
+    },
+    {
+      "path": "crates/biomcp-query/src/drug/native.rs",
+      "site": "search: as_ref ( ) . err ( ) . copied ( ) ; if let Ok ( window ) = result { out . include_refusals ( window . refusals",
+      "maximum": 1,
+      "class": "migrated",
+      "owner": "drug",
+      "reason": "This existing success or checked-selector branch retains its established failure or absence path in the owning function; it does not admit a source record by ignoring an identity error."
+    },
+    {
+      "path": "crates/biomcp-query/src/drug/native/sections.rs",
+      "site": "page: . input ( ) . to_string ( ) . parse ( ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "drug",
+      "reason": "This existing optional query projection keeps its established None or fallback path. The refactor preserves the owning caller and independently retained source outcome; no new source record is silently admitted."
+    },
+    {
+      "path": "crates/biomcp-query/src/drug/next.rs",
+      "site": "civic: as_str ( ) . parse : : < GeneSymbol > ( ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "drug",
+      "reason": "This existing optional query projection keeps its established None or fallback path. The refactor preserves the owning caller and independently retained source outcome; no new source record is silently admitted."
+    },
+    {
+      "path": "crates/biomcp-query/src/drug/next.rs",
+      "site": "genomic: ) ? ; expression . as_str ( ) . parse ( ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "drug",
+      "reason": "This existing optional query projection keeps its established None or fallback path. The refactor preserves the owning caller and independently retained source outcome; no new source record is silently admitted."
+    },
+    {
+      "path": "crates/biomcp-query/src/drug/next.rs",
+      "site": "genomic: . parse ( ) . ok ( ) ? , build ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "drug",
+      "reason": "This existing optional query projection keeps its established None or fallback path. The refactor preserves the owning caller and independently retained source outcome; no new source record is silently admitted."
+    },
+    {
+      "path": "crates/biomcp-query/src/drug/next.rs",
+      "site": "genomic: ; } Chromosome : : from_accession ( accession . parse ( ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "drug",
+      "reason": "An optional specialized lookup or exact-match projection rejects an unsupported checked input. The caller retains its existing unavailable or unmatched path rather than inventing a source value."
+    },
+    {
+      "path": "crates/biomcp-query/src/drug/openfda_label.rs",
+      "site": "get: SOURCE , leg . finish ( ) , error ) ) ; if let Ok ( page ) = result { out . problems . extend ( page",
+      "maximum": 1,
+      "class": "migrated",
+      "owner": "drug",
+      "reason": "This existing success or checked-selector branch retains its established failure or absence path in the owning function; it does not admit a source record by ignoring an identity error."
+    },
+    {
+      "path": "crates/biomcp-query/src/drug/openfda_label.rs",
+      "site": "search: ; disclosure ( & mut out , discovery . free_text ) ; if let Ok ( window ) = result { let total = window . total (",
+      "maximum": 1,
+      "class": "migrated",
+      "owner": "drug",
+      "reason": "This existing success or checked-selector branch retains its established failure or absence path in the owning function; it does not admit a source record by ignoring an identity error."
+    },
+    {
+      "path": "crates/biomcp-query/src/drug/recall.rs",
+      "site": "get: . input ( ) . to_string ( ) . parse ( ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "drug",
+      "reason": "This existing optional query projection keeps its established None or fallback path. The refactor preserves the owning caller and independently retained source outcome; no new source record is silently admitted."
+    },
+    {
+      "path": "crates/biomcp-query/src/drug/recall.rs",
+      "site": "get: = empty ( QueryBody : : DrugRecallCard ( None ) ) ; let Ok ( id ) = q . input ( ) . to_string ( ) .",
+      "maximum": 1,
+      "class": "migrated",
+      "owner": "drug",
+      "reason": "This existing success or checked-selector branch retains its established failure or absence path in the owning function; it does not admit a source record by ignoring an identity error."
+    },
+    {
+      "path": "crates/biomcp-query/src/drug/recall.rs",
+      "site": "search: as_ref ( ) . err ( ) . copied ( ) ; if let Ok ( page ) = result { let returned = page . items .",
+      "maximum": 1,
+      "class": "migrated",
+      "owner": "drug",
+      "reason": "This existing success or checked-selector branch retains its established failure or absence path in the owning function; it does not admit a source record by ignoring an identity error."
+    },
+    {
+      "path": "crates/biomcp-query/src/drug/who.rs",
+      "site": "get: WhoPq , leg . finish ( ) , error ) ) ; if let Ok ( ( card , _ ) ) = result { crate : :",
+      "maximum": 1,
+      "class": "migrated",
+      "owner": "drug",
+      "reason": "This existing success or checked-selector branch retains its established failure or absence path in the owning function; it does not admit a source record by ignoring an identity error."
+    },
+    {
+      "path": "crates/biomcp-query/src/drug/who.rs",
+      "site": "search: WhoPq , leg . finish ( ) , error ) ) ; if let Ok ( rows ) = result { let total = rows . len (",
+      "maximum": 1,
+      "class": "migrated",
+      "owner": "drug",
+      "reason": "This existing success or checked-selector branch retains its established failure or absence path in the owning function; it does not admit a source record by ignoring an identity error."
+    },
+    {
+      "path": "crates/biomcp-query/src/gene/get.rs",
+      "site": "join: Text : : new ( & id . to_string ( ) ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "gene",
+      "reason": "The optional disclosure or projection parses an already checked identifier or bounded text. Its absence does not remove the independently retained source record or its existing source problems."
+    },
+    {
+      "path": "crates/biomcp-query/src/gene/resolve.rs",
+      "site": "match_text: None , } ; Text : : new ( & value ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "gene",
+      "reason": "The optional disclosure or projection parses an already checked identifier or bounded text. Its absence does not remove the independently retained source record or its existing source problems."
+    },
+    {
+      "path": "crates/biomcp-query/src/gene/search.rs",
+      "site": "header: kind , text : Text : : new ( & value ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "gene",
+      "reason": "The optional disclosure or projection parses an already checked identifier or bounded text. Its absence does not remove the independently retained source record or its existing source problems."
+    },
+    {
+      "path": "crates/biomcp-query/src/gene/sections/civic.rs",
+      "site": "run: Text : : new ( & id . to_string ( ) ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "gene",
+      "reason": "The optional disclosure or projection parses an already checked identifier or bounded text. Its absence does not remove the independently retained source record or its existing source problems."
+    },
+    {
+      "path": "crates/biomcp-query/src/gene/sections/protein.rs",
+      "site": "run: ; let mut problems = Vec : : new ( ) ; if let Ok ( mapped ) = & result { dropped | = mapped . refusals",
+      "maximum": 1,
+      "class": "migrated",
+      "owner": "gene",
+      "reason": "This existing success or checked-selector branch retains its established failure or absence path in the owning function; it does not admit a source record by ignoring an identity error."
+    },
+    {
+      "path": "crates/biomcp-query/src/gwas/mod.rs",
+      "site": "search: copied ( ) ; let counts = result . as_ref ( ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "gwas",
+      "reason": "This existing optional query projection keeps its established None or fallback path. The refactor preserves the owning caller and independently retained source outcome; no new source record is silently admitted."
+    },
+    {
+      "path": "crates/biomcp-query/src/gwas/mod.rs",
+      "site": "search: len ( ) as u32 , page . total ) ) ; if let Ok ( page ) = result { out . include_refusals ( page . refusals",
+      "maximum": 1,
+      "class": "migrated",
+      "owner": "gwas",
+      "reason": "This existing success or checked-selector branch retains its established failure or absence path in the owning function; it does not admit a source record by ignoring an identity error."
+    },
+    {
+      "path": "crates/biomcp-query/src/gwas/next.rs",
+      "site": "search: { let key = serde_json : : to_string ( & request ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "gwas",
+      "reason": "This existing optional query projection keeps its established None or fallback path. The refactor preserves the owning caller and independently retained source outcome; no new source record is silently admitted."
+    },
+    {
+      "path": "crates/biomcp-query/src/gwas/threshold.rs",
+      "site": "append: . get ( ) . to_string ( ) . parse ( ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "gwas",
+      "reason": "This existing optional query projection keeps its established None or fallback path. The refactor preserves the owning caller and independently retained source outcome; no new source record is silently admitted."
+    },
+    {
+      "path": "crates/biomcp-query/src/gwas/threshold.rs",
+      "site": "read: : Gwas , leg . finish ( ) , error ) ; if let Ok ( page ) = & result { incoming . retrieved_count = Some (",
+      "maximum": 1,
+      "class": "migrated",
+      "owner": "gwas",
+      "reason": "This existing success or checked-selector branch retains its established failure or absence path in the owning function; it does not admit a source record by ignoring an identity error."
+    },
+    {
+      "path": "crates/biomcp-query/src/pathway/gene.rs",
+      "site": "headers: , record : input . to_string ( ) . parse ( ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "pathway",
+      "reason": "The optional disclosure or projection parses an already checked identifier or bounded text. Its absence does not remove the independently retained source record or its existing source problems."
+    },
+    {
+      "path": "crates/biomcp-query/src/pathway/gpml_membership.rs",
+      "site": "hgnc_id: ; } biodata : : HgncId : : new ( number ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "pathway",
+      "reason": "This existing optional query projection keeps its established None or fallback path. The refactor preserves the owning caller and independently retained source outcome; no new source record is silently admitted."
+    },
+    {
+      "path": "crates/biomcp-query/src/pathway/gpml_membership.rs",
+      "site": "hgnc_id: number = value . parse : : < u32 > ( ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "pathway",
+      "reason": "This existing optional query projection keeps its established None or fallback path. The refactor preserves the owning caller and independently retained source outcome; no new source record is silently admitted."
+    },
+    {
+      "path": "crates/biomcp-query/src/pathway/gpml_membership.rs",
+      "site": "hgnc_id: str ) - > Option < biodata : : HgncId > { if let Ok ( id ) = value . parse ( ) { return Some (",
+      "maximum": 1,
+      "class": "migrated",
+      "owner": "pathway",
+      "reason": "This existing success or checked-selector branch retains its established failure or absence path in the owning function; it does not admit a source record by ignoring an identity error."
+    },
+    {
+      "path": "crates/biomcp-query/src/pathway/gpml_membership.rs",
+      "site": "resolve: ; } else { sources . push ( outcome ) ; } if let Ok ( mapped ) = mapped { candidates . extend ( mapped . value",
+      "maximum": 1,
+      "class": "migrated",
+      "owner": "pathway",
+      "reason": "This existing success or checked-selector branch retains its established failure or absence path in the owning function; it does not admit a source record by ignoring an identity error."
+    },
+    {
+      "path": "crates/biomcp-query/src/pathway/membership.rs",
+      "site": "accession: ) | base ) ; UniProtAcc : : new ( base ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "pathway",
+      "reason": "An optional specialized lookup or exact-match projection rejects an unsupported checked input. The caller retains its existing unavailable or unmatched path rather than inventing a source value."
+    },
+    {
+      "path": "crates/biomcp-query/src/pathway/membership.rs",
+      "site": "accession: new ( row . reference . id . as_str ( ) ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "pathway",
+      "reason": "The optional disclosure or projection parses an already checked identifier or bounded text. Its absence does not remove the independently retained source record or its existing source problems."
+    },
+    {
+      "path": "crates/biomcp-query/src/pathway/membership.rs",
+      "site": "resolve: ) , row . reference . id ) . parse ( ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "pathway",
+      "reason": "The optional disclosure or projection parses an already checked identifier or bounded text. Its absence does not remove the independently retained source record or its existing source problems."
+    },
+    {
+      "path": "crates/biomcp-query/src/pathway/membership.rs",
+      "site": "resolve: . err ( ) . copied ( ) , ) ) ; if let Ok ( mapped ) = mapped { genes = mapped . value ; problems",
+      "maximum": 1,
+      "class": "migrated",
+      "owner": "pathway",
+      "reason": "This existing success or checked-selector branch retains its established failure or absence path in the owning function; it does not admit a source record by ignoring an identity error."
+    },
+    {
+      "path": "crates/biomcp-query/src/pathway/relation.rs",
+      "site": "restart: limit ) . map ( Request : : PathwayEvents ) } ; if let Ok ( request ) = request { out . next . push ( crate",
+      "maximum": 1,
+      "class": "migrated",
+      "owner": "pathway",
+      "reason": "This existing success or checked-selector branch retains its established failure or absence path in the owning function; it does not admit a source record by ignoring an identity error."
+    },
+    {
+      "path": "crates/biomcp-query/src/pathway/union.rs",
+      "site": "initial: content_revision . and_then ( | s | s . parse ( ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "pathway",
+      "reason": "This existing optional query projection keeps its established None or fallback path. The refactor preserves the owning caller and independently retained source outcome; no new source record is silently admitted."
+    },
+    {
+      "path": "crates/biomcp-query/src/pathway/wikipathways.rs",
+      "site": "get: WikiPathways , leg . finish ( ) , error ) ) ; if let Ok ( mapped ) = reply { out . include_refusals ( mapped . refusals",
+      "maximum": 1,
+      "class": "migrated",
+      "owner": "pathway",
+      "reason": "This existing success or checked-selector branch retains its established failure or absence path in the owning function; it does not admit a source record by ignoring an identity error."
+    },
+    {
+      "path": "crates/biomcp-query/src/pathway/wikipathways.rs",
+      "site": "headers: content_revision . and_then ( | s | s . parse ( ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "pathway",
+      "reason": "This existing optional query projection keeps its established None or fallback path. The refactor preserves the owning caller and independently retained source outcome; no new source record is silently admitted."
+    },
+    {
+      "path": "crates/biomcp-query/src/phenotype/associations.rs",
+      "site": "get: . id ( ) . as_str ( ) . parse ( ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "phenotype",
+      "reason": "The optional disclosure or projection parses an already checked identifier or bounded text. Its absence does not remove the independently retained source record or its existing source problems."
+    },
+    {
+      "path": "crates/biomcp-query/src/phenotype/associations.rs",
+      "site": "get: and_then ( | value | u64 : : try_from ( value ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "phenotype",
+      "reason": "A local size, offset or signed transport timestamp converts to an optional bounded representation; the owning caller retains the existing absence or local failure path on overflow."
+    },
+    {
+      "path": "crates/biomcp-query/src/phenotype/associations.rs",
+      "site": "get: local = error . and_then ( status : : local ) ; if let Ok ( page ) = reply { out . include_refusals ( page . refusals",
+      "maximum": 1,
+      "class": "migrated",
+      "owner": "phenotype",
+      "reason": "This existing success or checked-selector branch retains its established failure or absence path in the owning function; it does not admit a source record by ignoring an identity error."
+    },
+    {
+      "path": "crates/biomcp-query/src/phenotype/mod.rs",
+      "site": "search: and_then ( | value | u64 : : try_from ( value ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "phenotype",
+      "reason": "A local size, offset or signed transport timestamp converts to an optional bounded representation; the owning caller retains the existing absence or local failure path on overflow."
+    },
+    {
+      "path": "crates/biomcp-query/src/phenotype/mod.rs",
+      "site": "search: local = error . and_then ( status : : local ) ; if let Ok ( page ) = reply { out . include_refusals ( page . refusals",
+      "maximum": 1,
+      "class": "migrated",
+      "owner": "phenotype",
+      "reason": "This existing success or checked-selector branch retains its established failure or absence path in the owning function; it does not admit a source record by ignoring an identity error."
+    },
+    {
+      "path": "crates/biomcp-query/src/phenotype/snapshot.rs",
+      "site": "acquire: and_then ( | value | u64 : : try_from ( value ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "phenotype",
+      "reason": "A local size, offset or signed transport timestamp converts to an optional bounded representation; the owning caller retains the existing absence or local failure path on overflow."
+    },
+    {
+      "path": "crates/biomcp-query/src/phenotype/snapshot.rs",
+      "site": "get: . id ( ) . as_str ( ) . parse ( ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "phenotype",
+      "reason": "The optional disclosure or projection parses an already checked identifier or bounded text. Its absence does not remove the independently retained source record or its existing source problems."
+    },
+    {
+      "path": "crates/biomcp-query/src/prepare.rs",
+      "site": "selector_error: biodata : : Text > , _ > > ( ) ; let Ok ( values ) = values else { return ErrorEnvelope : : arguments ( )",
+      "maximum": 1,
+      "class": "migrated",
+      "owner": "prepare.rs",
+      "reason": "This existing success or checked-selector branch retains its established failure or absence path in the owning function; it does not admit a source record by ignoring an identity error."
+    },
+    {
+      "path": "crates/biomcp-query/src/protein/get.rs",
+      "site": "get: mut item = empty_item ( input . clone ( ) ) ; if let Ok ( ids ) = result { asked | = ! ids . is_empty",
+      "maximum": 1,
+      "class": "migrated",
+      "owner": "protein",
+      "reason": "This existing success or checked-selector branch retains its established failure or absence path in the owning function; it does not admit a source record by ignoring an identity error."
+    },
+    {
+      "path": "crates/biomcp-query/src/protein/get.rs",
+      "site": "ids: as_str ( ) ) { for id in gene . uniprot { if let Ok ( id ) = UniProtIsoform : : new ( id . as_str (",
+      "maximum": 1,
+      "class": "migrated",
+      "owner": "protein",
+      "reason": "This existing success or checked-selector branch retains its established failure or absence path in the owning function; it does not admit a source record by ignoring an identity error."
+    },
+    {
+      "path": "crates/biomcp-query/src/protein/mod.rs",
+      "site": "reply_problem: : Text : : new ( id . as_str ( ) ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "protein",
+      "reason": "The optional disclosure or projection parses an already checked identifier or bounded text. Its absence does not remove the independently retained source record or its existing source problems."
+    },
+    {
+      "path": "crates/biomcp-query/src/protein/relations.rs",
+      "site": "read: new ( q . accession ( ) . as_str ( ) ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "protein",
+      "reason": "An optional specialized lookup or exact-match projection rejects an unsupported checked input. The caller retains its existing unavailable or unmatched path rather than inventing a source value."
+    },
+    {
+      "path": "crates/biomcp-query/src/protein/sections.rs",
+      "site": "alternative_sequence: : Text : : new ( id . as_str ( ) ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "protein",
+      "reason": "The optional disclosure or projection parses an already checked identifier or bounded text. Its absence does not remove the independently retained source record or its existing source problems."
+    },
+    {
+      "path": "crates/biomcp-query/src/protein/sequence.rs",
+      "site": "problem: : Text : : new ( id . as_str ( ) ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "protein",
+      "reason": "The optional disclosure or projection parses an already checked identifier or bounded text. Its absence does not remove the independently retained source record or its existing source problems."
+    },
+    {
+      "path": "crates/biomcp-query/src/protein/sequence.rs",
+      "site": "run: as_ref ( ) . err ( ) . copied ( ) ; if let Ok ( mapped ) = result { out . include_refusals ( mapped . refusals",
+      "maximum": 1,
+      "class": "migrated",
+      "owner": "protein",
+      "reason": "This existing success or checked-selector branch retains its established failure or absence path in the owning function; it does not admit a source record by ignoring an identity error."
+    },
+    {
+      "path": "crates/biomcp-query/src/protein/source_relations.rs",
+      "site": "read: new ( query . complex ( ) . as_str ( ) ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "protein",
+      "reason": "This existing optional query projection keeps its established None or fallback path. The refactor preserves the owning caller and independently retained source outcome; no new source record is silently admitted."
+    },
+    {
+      "path": "crates/biomcp-query/src/protein/source_sections.rs",
+      "site": "supplement: if wants ( q , ProteinSection : : Complexes ) & & let Ok ( query ) = ProteinRelationQuery : : new ( id , q . section_limit",
+      "maximum": 1,
+      "class": "migrated",
+      "owner": "protein",
+      "reason": "This existing success or checked-selector branch retains its established failure or absence path in the owning function; it does not admit a source record by ignoring an identity error."
+    },
+    {
+      "path": "crates/biomcp-query/src/protein/source_sections.rs",
+      "site": "supplement: if wants ( q , ProteinSection : : Domains ) & & let Ok ( query ) = ProteinDomainsQuery : : new ( id . clone ( )",
+      "maximum": 1,
+      "class": "migrated",
+      "owner": "protein",
+      "reason": "This existing success or checked-selector branch retains its established failure or absence path in the owning function; it does not admit a source record by ignoring an identity error."
+    },
+    {
+      "path": "crates/biomcp-query/src/study/get.rs",
+      "site": "sections: new ( q . id ( ) . as_str ( ) ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "study",
+      "reason": "The optional disclosure or projection parses an already checked identifier or bounded text. Its absence does not remove the independently retained source record or its existing source problems."
+    },
+    {
+      "path": "crates/biomcp-query/src/trial.rs",
+      "site": "apply_page: value | biodata : : Text : : new ( value ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "trial.rs",
+      "reason": "The optional disclosure or projection parses an already checked identifier or bounded text. Its absence does not remove the independently retained source record or its existing source problems."
+    },
+    {
+      "path": "crates/biomcp-query/src/trial.rs",
+      "site": "search: ( ) . or_else ( | | result . as_ref ( ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "trial.rs",
+      "reason": "This existing optional query projection keeps its established None or fallback path. The refactor preserves the owning caller and independently retained source outcome; no new source record is silently admitted."
+    },
+    {
+      "path": "crates/biomcp-query/src/trial.rs",
+      "site": "search: as_deref ( ) , & mut outcome , page ) ; } if let Ok ( version ) = version { outcome . problems . extend ( version",
+      "maximum": 1,
+      "class": "migrated",
+      "owner": "trial.rs",
+      "reason": "This existing success or checked-selector branch retains its established failure or absence path in the owning function; it does not admit a source record by ignoring an identity error."
+    },
+    {
+      "path": "crates/biomcp-query/src/trial.rs",
+      "site": "search: mut outcome , found , identity_failed , unavailable ) ; } ; if let Ok ( page ) = result { if page . condition_word_mismatch { condition :",
+      "maximum": 1,
+      "class": "migrated",
+      "owner": "trial.rs",
+      "reason": "This existing success or checked-selector branch retains its established failure or absence path in the owning function; it does not admit a source record by ignoring an identity error."
+    },
+    {
+      "path": "crates/biomcp-query/src/trial/condition.rs",
+      "site": "resolve: Text : : new ( & input . to_string ( ) ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "trial",
+      "reason": "The optional disclosure or projection parses an already checked identifier or bounded text. Its absence does not remove the independently retained source record or its existing source problems."
+    },
+    {
+      "path": "crates/biomcp-query/src/trial/condition.rs",
+      "site": "resolve: { let value = Text : : new ( & code ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "trial",
+      "reason": "The optional disclosure or projection parses an already checked identifier or bounded text. Its absence does not remove the independently retained source record or its existing source problems."
+    },
+    {
+      "path": "crates/biomcp-query/src/trial/condition.rs",
+      "site": "resolved: ; let value = Text : : new ( & code ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "trial",
+      "reason": "The optional disclosure or projection parses an already checked identifier or bounded text. Its absence does not remove the independently retained source record or its existing source problems."
+    },
+    {
+      "path": "crates/biomcp-query/src/trial/condition.rs",
+      "site": "resolved: ? ; let unique : Curie = unique . parse ( ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "trial",
+      "reason": "This existing optional query projection keeps its established None or fallback path. The refactor preserves the owning caller and independently retained source outcome; no new source record is silently admitted."
+    },
+    {
+      "path": "crates/biomcp-query/src/trial/document.rs",
+      "site": "download: finish ( remaining ) ; Download { out , file : result . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "trial",
+      "reason": "This existing optional query projection keeps its established None or fallback path. The refactor preserves the owning caller and independently retained source outcome; no new source record is silently admitted."
+    },
+    {
+      "path": "crates/biomcp-query/src/trial/get.rs",
+      "site": "fetch: and_then ( | value | u64 : : try_from ( value ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "trial",
+      "reason": "A local size, offset or signed transport timestamp converts to an optional bounded representation; the owning caller retains the existing absence or local failure path on overflow."
+    },
+    {
+      "path": "crates/biomcp-query/src/trial/get/page.rs",
+      "site": "record: Text : : new ( & id . to_string ( ) ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "trial",
+      "reason": "The optional disclosure or projection parses an already checked identifier or bounded text. Its absence does not remove the independently retained source record or its existing source problems."
+    },
+    {
+      "path": "crates/biomcp-query/src/trial/nci.rs",
+      "site": "apply: : : < u32 > ( ) . ok ( ) ) . unwrap_or_default ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "trial",
+      "reason": "This existing optional query projection keeps its established None or fallback path. The refactor preserves the owning caller and independently retained source outcome; no new source record is silently admitted."
+    },
+    {
+      "path": "crates/biomcp-query/src/trial/nci.rs",
+      "site": "apply: as_str ( ) . parse : : < u32 > ( ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "trial",
+      "reason": "This existing optional query projection keeps its established None or fallback path. The refactor preserves the owning caller and independently retained source outcome; no new source record is silently admitted."
+    },
+    {
+      "path": "crates/biomcp-query/src/trial/nci.rs",
+      "site": "search: : Nci , leg . finish ( ) , error ) ; if let Ok ( page ) = result { apply ( q , cx . fresh",
+      "maximum": 1,
+      "class": "migrated",
+      "owner": "trial",
+      "reason": "This existing success or checked-selector branch retains its established failure or absence path in the owning function; it does not admit a source record by ignoring an identity error."
+    },
+    {
+      "path": "crates/biomcp-query/src/trial/nci/get.rs",
+      "site": "fetch: and_then ( | value | u64 : : try_from ( value ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "trial",
+      "reason": "A local size, offset or signed transport timestamp converts to an optional bounded representation; the owning caller retains the existing absence or local failure path on overflow."
+    },
+    {
+      "path": "crates/biomcp-query/src/variant/alphagenome.rs",
+      "site": "request: & allele . alternate ( ) . to_string ( ) , ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "variant",
+      "reason": "This existing optional query projection keeps its established None or fallback path. The refactor preserves the owning caller and independently retained source outcome; no new source record is silently admitted."
+    },
+    {
+      "path": "crates/biomcp-query/src/variant/alphagenome.rs",
+      "site": "request: . location ( ) . sequence , Build : : GRCh38 ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "variant",
+      "reason": "This existing optional query projection keeps its established None or fallback path. The refactor preserves the owning caller and independently retained source outcome; no new source record is silently admitted."
+    },
+    {
+      "path": "crates/biomcp-query/src/variant/alphagenome_join.rs",
+      "site": "notation: = reference . strip_prefix ( \"chr\" ) ? . parse ( ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "variant",
+      "reason": "This existing optional query projection keeps its established None or fallback path. The refactor preserves the owning caller and independently retained source outcome; no new source record is silently admitted."
+    },
+    {
+      "path": "crates/biomcp-query/src/variant/assertions.rs",
+      "site": "section: . assertion_limit ( source ) , query . section_offset ( ) ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "variant",
+      "reason": "This existing optional query projection keeps its established None or fallback path. The refactor preserves the owning caller and independently retained source outcome; no new source record is silently admitted."
+    },
+    {
+      "path": "crates/biomcp-query/src/variant/assertions.rs",
+      "site": "section: q ) = id . to_string ( ) . parse ( ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "variant",
+      "reason": "This existing optional query projection keeps its established None or fallback path. The refactor preserves the owning caller and independently retained source outcome; no new source record is silently admitted."
+    },
+    {
+      "path": "crates/biomcp-query/src/variant/assertions.rs",
+      "site": "section: | input | VariantAssertionsGet : : new ( input , source ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "variant",
+      "reason": "This existing optional query projection keeps its established None or fallback path. The refactor preserves the owning caller and independently retained source outcome; no new source record is silently admitted."
+    },
+    {
+      "path": "crates/biomcp-query/src/variant/continuations.rs",
+      "site": "next: ) ; if query . input ( ) . namespace ( ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "variant",
+      "reason": "An optional specialized lookup or exact-match projection rejects an unsupported checked input. The caller retains its existing unavailable or unmatched path rather than inventing a source value."
+    },
+    {
+      "path": "crates/biomcp-query/src/variant/direct.rs",
+      "site": "get: \"clinvar:\" ) . unwrap_or ( input ) ) . parse ( ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "variant",
+      "reason": "This existing optional query projection keeps its established None or fallback path. The refactor preserves the owning caller and independently retained source outcome; no new source record is silently admitted."
+    },
+    {
+      "path": "crates/biomcp-query/src/variant/direct.rs",
+      "site": "get: . ok ( ) } else { input . parse ( ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "variant",
+      "reason": "This existing optional query projection keeps its established None or fallback path. The refactor preserves the owning caller and independently retained source outcome; no new source record is silently admitted."
+    },
+    {
+      "path": "crates/biomcp-query/src/variant/direct.rs",
+      "site": "get: requested = if query . input ( ) . namespace ( ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "variant",
+      "reason": "An optional specialized lookup or exact-match projection rejects an unsupported checked input. The caller retains its existing unavailable or unmatched path rather than inventing a source value."
+    },
+    {
+      "path": "crates/biomcp-query/src/variant/direct.rs",
+      "site": "source: } match ( query . input ( ) . namespace ( ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "variant",
+      "reason": "An optional specialized lookup or exact-match projection rejects an unsupported checked input. The caller retains its existing unavailable or unmatched path rather than inventing a source value."
+    },
+    {
+      "path": "crates/biomcp-query/src/variant/gwas.rs",
+      "site": "continuation: ( ) . parse ( ) . ok ( ) ? ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "variant",
+      "reason": "This existing optional query projection keeps its established None or fallback path. The refactor preserves the owning caller and independently retained source outcome; no new source record is silently admitted."
+    },
+    {
+      "path": "crates/biomcp-query/src/variant/gwas.rs",
+      "site": "continuation: . for_candidate ( id . to_string ( ) . parse ( ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "variant",
+      "reason": "This existing optional query projection keeps its established None or fallback path. The refactor preserves the owning caller and independently retained source outcome; no new source record is silently admitted."
+    },
+    {
+      "path": "crates/biomcp-query/src/variant/gwas.rs",
+      "site": "rs_id: & [ VariantHeader ] ) - > Option < VariantId > { if let Ok ( id @ VariantId : : Rs ( _ ) ) = query",
+      "maximum": 1,
+      "class": "migrated",
+      "owner": "variant",
+      "reason": "This existing success or checked-selector branch retains its established failure or absence path in the owning function; it does not admit a source record by ignoring an identity error."
+    },
+    {
+      "path": "crates/biomcp-query/src/variant/gwas.rs",
+      "site": "section: : Gwas , leg . finish ( ) , error ) ; if let Ok ( page ) = & result { source . retrieved_count = Some (",
+      "maximum": 1,
+      "class": "migrated",
+      "owner": "variant",
+      "reason": "This existing success or checked-selector branch retains its established failure or absence path in the owning function; it does not admit a source record by ignoring an identity error."
+    },
+    {
+      "path": "crates/biomcp-query/src/variant/gwas.rs",
+      "site": "source_record: SourceRecord > { id . to_string ( ) . parse ( ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "variant",
+      "reason": "The optional disclosure or projection parses an already checked identifier or bounded text. Its absence does not remove the independently retained source record or its existing source problems."
+    },
+    {
+      "path": "crates/biomcp-query/src/variant/hotspots.rs",
+      "site": "section: . parse : : < biodata : : GeneSymbol > ( ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "variant",
+      "reason": "This existing optional query projection keeps its established None or fallback path. The refactor preserves the owning caller and independently retained source outcome; no new source record is silently admitted."
+    },
+    {
+      "path": "crates/biomcp-query/src/variant/mod.rs",
+      "site": "get: : Rejected ; rejection = Text : : new ( \"transcript_gene_mismatch\" ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "variant",
+      "reason": "The optional disclosure or projection parses an already checked identifier or bounded text. Its absence does not remove the independently retained source record or its existing source problems."
+    },
+    {
+      "path": "crates/biomcp-query/src/variant/mod.rs",
+      "site": "join_id: ) . sequence , biodata : : Build : : GRCh37 ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "variant",
+      "reason": "This existing optional query projection keeps its established None or fallback path. The refactor preserves the owning caller and independently retained source outcome; no new source record is silently admitted."
+    },
+    {
+      "path": "crates/biomcp-query/src/variant/mod.rs",
+      "site": "myvariant_identity: term = if query . input ( ) . namespace ( ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "variant",
+      "reason": "An optional specialized lookup or exact-match projection rejects an unsupported checked input. The caller retains its existing unavailable or unmatched path rather than inventing a source value."
+    },
+    {
+      "path": "crates/biomcp-query/src/variant/mod.rs",
+      "site": "resolve: if result . rejected { Text : : new ( \"validation_warning\" ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "variant",
+      "reason": "The optional disclosure or projection parses an already checked identifier or bounded text. Its absence does not remove the independently retained source record or its existing source problems."
+    },
+    {
+      "path": "crates/biomcp-query/src/variant/oncokb.rs",
+      "site": "genomic: ( \"chr\" ) . unwrap_or ( reference ) . parse ( ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "variant",
+      "reason": "This existing optional query projection keeps its established None or fallback path. The refactor preserves the owning caller and independently retained source outcome; no new source record is silently admitted."
+    },
+    {
+      "path": "crates/biomcp-query/src/variant/oncokb.rs",
+      "site": "genomic: from_accession ( allele . location ( ) . sequence , build ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "variant",
+      "reason": "An optional specialized lookup or exact-match projection rejects an unsupported checked input. The caller retains its existing unavailable or unmatched path rather than inventing a source value."
+    },
+    {
+      "path": "crates/biomcp-query/src/variant/oncokb.rs",
+      "site": "input_genomic: ( \"chr\" ) . unwrap_or ( reference ) . parse ( ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "variant",
+      "reason": "This existing optional query projection keeps its established None or fallback path. The refactor preserves the owning caller and independently retained source outcome; no new source record is silently admitted."
+    },
+    {
+      "path": "crates/biomcp-query/src/variant/oncokb.rs",
+      "site": "input_genomic: biodata : : Chromosome : : from_accession ( accession , build ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "variant",
+      "reason": "An optional specialized lookup or exact-match projection rejects an unsupported checked input. The caller retains its existing unavailable or unmatched path rather than inventing a source value."
+    },
+    {
+      "path": "crates/biomcp-query/src/variant/oncokb.rs",
+      "site": "input_genomic: starts_with ( \"g.\" ) { return None ; } let chromosome = if let Ok ( accession ) = reference . parse : : < biodata : :",
+      "maximum": 1,
+      "class": "migrated",
+      "owner": "variant",
+      "reason": "This existing success or checked-selector branch retains its established failure or absence path in the owning function; it does not admit a source record by ignoring an identity error."
+    },
+    {
+      "path": "crates/biomcp-query/src/variant/population.rs",
+      "site": "join: . location ( ) . sequence , Build : : GRCh38 ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "variant",
+      "reason": "This existing optional query projection keeps its established None or fallback path. The refactor preserves the owning caller and independently retained source outcome; no new source record is silently admitted."
+    },
+    {
+      "path": "crates/biomcp-query/src/variant/population.rs",
+      "site": "section: Gnomad , record : Text : : new ( & id ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "variant",
+      "reason": "The optional disclosure or projection parses an already checked identifier or bounded text. Its absence does not remove the independently retained source record or its existing source problems."
+    },
+    {
+      "path": "crates/biomcp-query/src/variant/population.rs",
+      "site": "stratum: & ancestry ) { ( Text : : new ( ancestry ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "variant",
+      "reason": "The optional disclosure or projection parses an already checked identifier or bounded text. Its absence does not remove the independently retained source record or its existing source problems."
+    },
+    {
+      "path": "crates/biomcp-query/src/variant/population_detail.rs",
+      "site": "read: Gnomad , Reason : : Disabled ) ; return read ; } if let Ok ( identity ) = query . identity ( ) { let found =",
+      "maximum": 1,
+      "class": "migrated",
+      "owner": "variant",
+      "reason": "This existing success or checked-selector branch retains its established failure or absence path in the owning function; it does not admit a source record by ignoring an identity error."
+    },
+    {
+      "path": "crates/biomcp-query/src/variant/population_identity.rs",
+      "site": "read: reason = error . and_then ( status : : reason ) ; if let Ok ( ( rows , rejection ) ) = result { found . rows",
+      "maximum": 1,
+      "class": "migrated",
+      "owner": "variant",
+      "reason": "This existing success or checked-selector branch retains its established failure or absence path in the owning function; it does not admit a source record by ignoring an identity error."
+    },
+    {
+      "path": "crates/biomcp-query/src/variant/population_release.rs",
+      "site": "checked: and_then ( | version | Text : : new ( version ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "variant",
+      "reason": "The optional disclosure or projection parses an already checked identifier or bounded text. Its absence does not remove the independently retained source record or its existing source problems."
+    },
+    {
+      "path": "crates/biomcp-query/src/variant/recurrence/matching.rs",
+      "site": "matches: . parse : : < biodata : : Sequence > ( ) . ok ( )",
+      "maximum": 2,
+      "class": "legitimate_absence",
+      "owner": "variant",
+      "reason": "An optional specialized lookup or exact-match projection rejects an unsupported checked input. The caller retains its existing unavailable or unmatched path rather than inventing a source value."
+    },
+    {
+      "path": "crates/biomcp-query/src/variant/recurrence/matching.rs",
+      "site": "matches: as_str ( ) . parse : : < Chromosome > ( ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "variant",
+      "reason": "An optional specialized lookup or exact-match projection rejects an unsupported checked input. The caller retains its existing unavailable or unmatched path rather than inventing a source value."
+    },
+    {
+      "path": "crates/biomcp-query/src/variant/recurrence/matching.rs",
+      "site": "matches: from_accession ( allele . location ( ) . sequence , build ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "variant",
+      "reason": "An optional specialized lookup or exact-match projection rejects an unsupported checked input. The caller retains its existing unavailable or unmatched path rather than inventing a source value."
+    },
+    {
+      "path": "crates/biomcp-query/src/variant/recurrence/matching.rs",
+      "site": "problem: { source , record : Text : : new ( record ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "variant",
+      "reason": "The optional disclosure or projection parses an already checked identifier or bounded text. Its absence does not remove the independently retained source record or its existing source problems."
+    },
+    {
+      "path": "crates/biomcp-query/src/variant/search.rs",
+      "site": "search: Err ( * error ) , } ; let terms = terms . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "variant",
+      "reason": "This existing optional query projection keeps its established None or fallback path. The refactor preserves the owning caller and independently retained source outcome; no new source record is silently admitted."
+    },
+    {
+      "path": "crates/biomcp-query/src/variant/search.rs",
+      "site": "search: and_then ( status : : local ) , } , ) ; if let Ok ( reply ) = reply { out . include_refusals ( reply . rows",
+      "maximum": 1,
+      "class": "migrated",
+      "owner": "variant",
+      "reason": "This existing success or checked-selector branch retains its established failure or absence path in the owning function; it does not admit a source record by ignoring an identity error."
+    },
+    {
+      "path": "crates/biomcp-query/src/variant/search.rs",
+      "site": "search: ok ( ) . flatten ( ) ; let selector_terms = selector_terms . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "variant",
+      "reason": "This existing optional query projection keeps its established None or fallback path. The refactor preserves the owning caller and independently retained source outcome; no new source record is silently admitted."
     }
   ],
   "fields": [

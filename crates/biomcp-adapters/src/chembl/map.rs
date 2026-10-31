@@ -1,5 +1,5 @@
 //! Map each native relation independently from its descriptive metadata.
-use super::{Indication, Mechanism, Reference};
+use super::raw::{Indication as RawIndication, Mechanism as RawMechanism, Reference};
 use crate::mapped::Problems;
 use biodata::{
     Attribution, DrugDiseaseReference, DrugIdentity, DrugIndicationClaim, DrugNativeReference,
@@ -14,6 +14,7 @@ pub fn targets(
     let mut refusals = crate::Refusal::None;
     let mut rejected = Vec::new();
     for r in rows {
+        let r = r.0;
         refusals.include(r.refusals);
         let target_identity = r.target_identity();
         let mut problems = Problems {
@@ -83,6 +84,7 @@ pub fn indications(
     let mut refusals = crate::Refusal::None;
     let mut rejected = Vec::new();
     for r in rows {
+        let r = r.0;
         refusals.include(r.refusals);
         let mut problems = Problems {
             source: biomcp_types::Source::Chembl,
@@ -174,4 +176,51 @@ fn attribution(record: String) -> Result<Attribution, Error> {
         evaluated: None,
         url: None,
     })
+}
+
+/// Accepted molecule storage with private provider fields.
+#[derive(Debug, serde::Deserialize)]
+#[serde(transparent)]
+pub struct Molecule(pub(super) super::raw::Molecule);
+/// Accepted mechanism storage with private provider fields.
+#[derive(Debug)]
+pub struct Mechanism(pub(super) RawMechanism);
+/// Accepted indication storage with private provider fields.
+#[derive(Debug)]
+pub struct Indication(pub(super) RawIndication);
+impl Molecule {
+    /// Actual refused native child identities.
+    pub fn refusals(&self) -> crate::Refusal {
+        self.0.refusals
+    }
+    /// Rejected native optional metadata.
+    pub fn problems(&self) -> &[biomcp_types::Problem] {
+        &self.0.problems
+    }
+}
+impl Mechanism {
+    /// Rejected native optional metadata.
+    pub fn problems(&self) -> &[biomcp_types::Problem] {
+        &self.0.problems
+    }
+    pub(super) fn target_identity(&self) -> Result<Option<biodata::Text>, Error> {
+        self.0.target_identity()
+    }
+}
+impl Indication {
+    /// Rejected native optional metadata.
+    pub fn problems(&self) -> &[biomcp_types::Problem] {
+        &self.0.problems
+    }
+}
+/// Map an admitted molecule identity and optional metadata.
+pub fn molecule_header(row: &Molecule) -> Result<crate::Mapped<biomcp_types::DrugHeader>, Error> {
+    super::molecule::header(&row.0)
+}
+/// Map an admitted molecule card and its original retrieval date.
+pub fn molecule_card(
+    row: Molecule,
+    fetched: Option<i64>,
+) -> Result<crate::Mapped<biomcp_types::DrugCard>, Error> {
+    super::molecule::card(row.0, fetched)
 }

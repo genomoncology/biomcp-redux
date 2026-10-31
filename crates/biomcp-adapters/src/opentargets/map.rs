@@ -1,5 +1,5 @@
 //! Map native source metadata with field-local disclosure.
-use super::raw::{Drug, Hit, Indication, Mechanism, Rows, Search};
+use super::raw::{Hit, Indication, Mechanism, Rows};
 use crate::{
     Mapped,
     mapped::{Problems, field_text},
@@ -36,6 +36,7 @@ fn native_header(
 }
 /// Preserve the source drug identity independently of its optional name.
 pub fn header(row: &Drug) -> Result<Mapped<DrugHeader>, Error> {
+    let row = &row.0;
     let mut p = problems(&row.id);
     let name = row.name.as_ref().map(|f| match f.as_ref() {
         Some(s) => Field::Value(s.clone()),
@@ -50,6 +51,7 @@ pub fn header(row: &Drug) -> Result<Mapped<DrugHeader>, Error> {
 }
 /// Refuse malformed candidate identities while preserving their native page total.
 pub fn search_headers(raw: Search, skip: usize) -> Mapped<biomcp_types::DrugPage> {
+    let raw = raw.0;
     let mut p = problems("");
     let mut items = Vec::new();
     let mut refusals = crate::Refusal::None;
@@ -85,12 +87,12 @@ pub fn search_headers(raw: Search, skip: usize) -> Mapped<biomcp_types::DrugPage
 /// Preserve each admitted native target while omitting rejected mechanism metadata.
 pub fn targets(
     drug: &DrugIdentity,
-    rows: Rows<Mechanism>,
+    rows: Mechanisms,
 ) -> Result<Mapped<Box<[DrugTargetRelation]>>, Error> {
     let mut p = problems(&drug.id.to_string());
     let mut values = Vec::new();
     let mut refusals = crate::Refusal::None;
-    for row in rows.rows {
+    for row in rows.0.rows {
         let Some(row) = p.required_field("mechanismsOfAction", Some(row)) else {
             refusals = crate::Refusal::Refused;
             continue;
@@ -158,12 +160,12 @@ pub fn targets(
 /// Preserve disease identities independently of optional indication labels and stages.
 pub fn indications(
     drug: &DrugIdentity,
-    rows: Rows<Indication>,
+    rows: Indications,
 ) -> Result<Mapped<Box<[DrugIndicationClaim]>>, Error> {
     let mut p = problems(&drug.id.to_string());
     let mut values = Vec::new();
     let mut refusals = crate::Refusal::None;
-    for row in rows.rows {
+    for row in rows.0.rows {
         let Some(row) = p.required_field("indications", Some(row)) else {
             refusals = crate::Refusal::Refused;
             continue;
@@ -222,4 +224,49 @@ fn attribution(drug: &DrugIdentity) -> Result<Attribution, Error> {
         evaluated: None,
         url: None,
     })
+}
+
+/// Accepted source search with private provider fields.
+#[derive(Debug)]
+pub struct Search(pub(super) super::raw::Search);
+/// Accepted source drug with private provider fields.
+#[derive(Debug)]
+pub struct Drug(pub(super) super::raw::Drug);
+/// Native mechanism collection retained privately until mapping.
+#[derive(Debug, serde::Deserialize)]
+#[serde(transparent)]
+pub struct Mechanisms(Rows<Mechanism>);
+/// Native indication collection retained privately until mapping.
+#[derive(Debug, serde::Deserialize)]
+#[serde(transparent)]
+pub struct Indications(Rows<Indication>);
+impl Drug {
+    /// Select the source's original complete mechanism collection.
+    pub fn mechanisms(self) -> Mechanisms {
+        Mechanisms(self.0.mechanisms_of_action)
+    }
+    /// Select the source's original complete indication collection.
+    pub fn indications(self) -> Indications {
+        Indications(self.0.indications)
+    }
+}
+
+/// Map the native source card and supported sections.
+pub fn card(header: DrugHeader, fetched: Option<i64>) -> biomcp_types::DrugCard {
+    biomcp_types::DrugCard {
+        header,
+        alternate_names: Box::default(),
+        cross_references: Box::default(),
+        parents: Box::default(),
+        products: Box::default(),
+        formulations: Box::default(),
+        version: None,
+        updated: None,
+        retrieved: crate::drug_sources::received_date(fetched),
+        available_sections: Box::new([
+            biomcp_types::DrugSection::Targets,
+            biomcp_types::DrugSection::Indications,
+        ]),
+        next: Box::default(),
+    }
 }

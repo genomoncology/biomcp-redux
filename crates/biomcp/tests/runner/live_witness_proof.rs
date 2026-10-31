@@ -174,7 +174,7 @@ pub(super) fn credentials() -> Result<(), String> {
             },
         )?;
         let ca = env.root().join("ca.pem");
-        stub.retain(&env);
+        stub.retain(env.shared_root());
         fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
         env.config(&json!({"proxy":format!("http://{}",stub.address),"ca_bundle":ca,"keys":{"ncbi_api_key":KEY,"nci_api_key":KEY}}))
             .map_err(|e| e.to_string())?;

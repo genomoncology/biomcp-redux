@@ -14,7 +14,7 @@ use biomcp_types::{
     DiagnosticPage, DiagnosticSearch, DiagnosticSearchSource, PageInfo, QueryBody, Request, Source,
     SourceState, Status, StepKind,
 };
-pub use get::get;
+pub(crate) use get::get;
 fn finish(out: &mut Outcome, leg: Leg<'_>, error: Option<RequestError>) {
     finish_bundle(out, leg, error, Source::Gtr, Bundle::Gtr);
 }
@@ -52,7 +52,7 @@ fn finish_bundle(
     }
 }
 /// Search only stored source-native GTR relations and retain matched selectors.
-pub fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
+pub(crate) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
     if q.source() == DiagnosticSearchSource::FdaDeviceRecall {
         return recall::search(cx, q);
     }

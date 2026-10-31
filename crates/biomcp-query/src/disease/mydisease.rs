@@ -7,7 +7,7 @@ use biomcp_types::{
 };
 
 /// Read only the selected exact annotation, then page its native component facts.
-pub fn get(cx: &Ctx<'_>, query: &DiseaseGet) -> Outcome {
+pub(crate) fn get(cx: &Ctx<'_>, query: &DiseaseGet) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let leg = cx.fetch.leg(&mydisease::SPEC, deadline).fresh(cx.fresh);

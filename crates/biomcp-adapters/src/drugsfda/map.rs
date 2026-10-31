@@ -1,14 +1,14 @@
 //! Preserve independent native FDA products and application submission facts.
-use super::{Application, Product, Submission};
+use super::raw::{Application as RawApplication, Product, Submission};
 use biodata::{Attribution, AuthorizationDate, AuthorizationEvent};
 use biomcp_fetch::RequestError;
 use biomcp_types::{
     DrugFdaCandidate, DrugFdaDocument, DrugFdaIngredient, DrugFdaProduct, DrugFdaProperty,
     DrugFdaSubmission,
 };
-impl Application {
+impl RawApplication {
     /// Expose an application name only when all native products share exact brand wording.
-    pub fn candidate(&self) -> DrugFdaCandidate {
+    pub(super) fn candidate(&self) -> DrugFdaCandidate {
         let identity = self.header();
         let name = self
             .products
@@ -29,7 +29,7 @@ impl Application {
 }
 impl Product {
     /// Map a native product without associating it with any submission.
-    pub fn mapped(&self) -> DrugFdaProduct {
+    pub(super) fn mapped(&self) -> DrugFdaProduct {
         DrugFdaProduct {
             product_number: self.product_number.clone(),
             brand_name: self.brand_name.clone(),
@@ -52,7 +52,10 @@ impl Product {
 }
 impl Submission {
     /// Retain the application owner and native date roles without assigning product applicability.
-    pub fn mapped(&self, application: &Application) -> Result<DrugFdaSubmission, RequestError> {
+    pub(super) fn mapped(
+        &self,
+        application: &RawApplication,
+    ) -> Result<DrugFdaSubmission, RequestError> {
         let role = "submission_status_date".parse().map_err(|_| super::bad())?;
         Ok(DrugFdaSubmission {
             event: AuthorizationEvent {
@@ -114,5 +117,55 @@ impl Submission {
                 })
                 .transpose()?,
         })
+    }
+}
+
+/// Accepted application facts with native wire fields private to the adapter.
+#[derive(Debug, serde::Deserialize)]
+#[serde(transparent)]
+pub struct Application(pub(super) super::raw::Application);
+impl Application {
+    /// Actual refused native child records.
+    pub fn refusals(&self) -> crate::Refusal {
+        self.0.refusals
+    }
+    /// Application-owned identity, without selecting a product.
+    pub fn header(&self) -> biomcp_types::DrugHeader {
+        self.0.header()
+    }
+    /// Map the independently listed native products.
+    pub fn candidate(&self) -> DrugFdaCandidate {
+        self.0.candidate()
+    }
+    /// Map product facts without associating them with submissions.
+    pub fn products(&self) -> Box<[DrugFdaProduct]> {
+        self.0.products.iter().map(Product::mapped).collect()
+    }
+    /// Explicit source-owned SPL set references.
+    pub fn label_ids(&self) -> impl Iterator<Item = &biodata::DrugId> {
+        self.0
+            .openfda
+            .as_ref()
+            .and_then(|o| o.spl_set_id.as_ref())
+            .into_iter()
+            .flatten()
+    }
+    /// Native application submission count.
+    pub fn submission_count(&self) -> usize {
+        self.0.submissions.len()
+    }
+    /// Map an application-owned submission window in native order.
+    pub fn submissions(
+        &self,
+        offset: u32,
+        limit: u32,
+    ) -> Result<Box<[DrugFdaSubmission]>, RequestError> {
+        self.0
+            .submissions
+            .iter()
+            .skip(offset as usize)
+            .take(limit as usize)
+            .map(|s| s.mapped(&self.0))
+            .collect()
     }
 }

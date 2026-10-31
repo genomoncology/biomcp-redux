@@ -6,7 +6,7 @@ use biomcp_types::{
     AuthorCardItem, AuthorCards, AuthorGet, QueryBody, Reason, Request, Source, SourceState, Status,
 };
 /// Read each exact requested record once and preserve every input slot.
-pub fn get(cx: &Ctx<'_>, q: &AuthorGet) -> Outcome {
+pub(crate) fn get(cx: &Ctx<'_>, q: &AuthorGet) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let mut out = empty(QueryBody::AuthorCards(AuthorCards {

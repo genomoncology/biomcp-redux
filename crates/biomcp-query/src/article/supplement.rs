@@ -11,7 +11,7 @@ use biomcp_types::{
 };
 use sha2::{Digest, Sha256};
 /// Read only a file named by both JATS and its owning bucket record.
-pub fn read(cx: &Ctx<'_>, query: &ArticleSupplement) -> Outcome {
+pub(crate) fn read(cx: &Ctx<'_>, query: &ArticleSupplement) -> Outcome {
     download(cx, query, false).out
 }
 /// Return original source bytes for a binary-owned explicit save.

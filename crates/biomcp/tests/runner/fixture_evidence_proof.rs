@@ -39,7 +39,7 @@ fn capturing_callback() -> Result<(), Box<dyn std::error::Error>> {
         Ok(reply.clone())
     })?;
     let env = Environment::new()?;
-    stub.retain(&env);
+    stub.retain(env.shared_root());
     let fetch = Fetch::open(FetchConfig {
         network: Network::new(
             None,
@@ -49,7 +49,7 @@ fn capturing_callback() -> Result<(), Box<dyn std::error::Error>> {
         )?,
         ..FetchConfig::default()
     })?;
-    let source = &biomcp_adapters::pubmed::SPEC;
+    let source = biomcp_query::sources::requests().find(|spec| spec.source == biomcp_types::Source::PubMed).ok_or("missing source declaration")?;
     for (path, expected) in [("/first", "captured!"), ("/second", "captured!!")] {
         let body = fetch
             .leg(source, fetch.deadline(Duration::from_secs(5)))
@@ -67,7 +67,7 @@ fn check() -> Result<(), String> {
     let healthy = Environment::new().map_err(|e| e.to_string())?;
     let healthy_root = healthy.root().to_owned();
     let peer = Stub::for_source("healthy.invalid", "text/plain", |_| Ok("healthy".into()))?;
-    peer.retain(&healthy);
+    peer.retain(healthy.shared_root());
     fs::write(healthy.root().join("healthy-marker"), b"unrelated scratch")
         .map_err(|e| e.to_string())?;
     std::thread::scope(|scope| {
@@ -99,7 +99,7 @@ fn retained(env: &Environment) -> Result<std::path::PathBuf, String> {
 fn aborted(finish: bool) -> Result<std::path::PathBuf, String> {
     let stub = Stub::for_source("fixture.invalid", "text/plain", |_| Ok("synthetic".into()))?;
     let env = Environment::new().map_err(|e| e.to_string())?;
-    stub.retain(&env);
+    stub.retain(env.shared_root());
     let retained = retained(&env)?;
     fs::write(env.root().join("synthetic-marker"), b"retained scratch")
         .map_err(|e| e.to_string())?;

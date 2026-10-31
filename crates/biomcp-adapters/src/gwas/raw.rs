@@ -35,7 +35,7 @@ pub(super) struct Page {
 /// A source association retains publisher labels and numbers unchanged.
 #[derive(Debug, Deserialize)]
 #[serde(from = "super::receive::ReceivedAssociation")]
-pub struct Association {
+pub(super) struct Association {
     /// Actual refused native child records.
     pub refusals: crate::Refusal,
     /// Rejected source metadata attributed to the association.
@@ -84,7 +84,7 @@ pub struct Association {
 /// Source trait identity and label.
 #[derive(Debug, Deserialize)]
 #[serde(from = "ReceivedTrait")]
-pub struct Trait {
+pub(super) struct Trait {
     /// Rejected display metadata.
     pub problems: Vec<biomcp_types::Problem>,
     /// Source ontology ID.
@@ -118,7 +118,7 @@ impl From<ReceivedTrait> for Trait {
 /// Effect allele qualified by its exact source rsID.
 #[derive(Debug, Deserialize)]
 #[serde(from = "ReceivedEffectAllele")]
-pub struct EffectAllele {
+pub(super) struct EffectAllele {
     /// Rejected display metadata.
     pub problems: Vec<biomcp_types::Problem>,
     /// Source rsID.
@@ -207,7 +207,7 @@ impl Response {
 
 impl Association {
     /// Decode exact native parts without converting the probability to a double.
-    pub fn exact_p_value(&self) -> Option<biodata::ScientificPValue> {
+    pub(super) fn exact_p_value(&self) -> Option<biodata::ScientificPValue> {
         let mantissa = self.p_value_mantissa?;
         format!("{mantissa}e{}", self.p_value_exponent?)
             .parse()

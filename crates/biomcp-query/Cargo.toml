@@ -16,7 +16,16 @@ biomcp-fetch = { workspace = true }
 biomcp-adapters = { workspace = true }
 
 [dev-dependencies]
+libtest-mimic.workspace = true
 tempfile.workspace = true
 
 [lints]
 workspace = true
+
+[[test]]
+name = "collection_refusals"
+harness = false
+
+[[test]]
+name = "query_refusals"
+harness = false

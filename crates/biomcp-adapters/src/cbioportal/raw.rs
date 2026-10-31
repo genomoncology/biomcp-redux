@@ -27,17 +27,11 @@ pub(super) struct SampleList {
 /// Native source mutation identity and sample, without inferred equivalence.
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase", from = "ReceivedMutation")]
-pub struct Mutation {
+pub(super) struct Mutation {
     /// Rejected native fields on this source mutation.
     pub problems: Vec<biomcp_types::Problem>,
-    /// Source profile; checked before cache admission.
-    pub molecular_profile_id: Text,
-    /// Source study; checked before cache admission.
-    pub study_id: Text,
     /// Source sample identity, used only for page-local distinct counting.
     pub sample_id: Text,
-    /// Source gene, checked against the HGNC-resolved request.
-    pub entrez_gene_id: u32,
     /// Source chromosome.
     pub chr: Option<Text>,
     /// Source one-based inclusive start.
@@ -54,14 +48,8 @@ pub struct Mutation {
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub(super) struct ReceivedMutation {
-    /// Source profile; checked before cache admission.
-    pub molecular_profile_id: Text,
-    /// Source study; checked before cache admission.
-    pub study_id: Text,
     /// Source sample identity, used only for page-local distinct counting.
     pub sample_id: Text,
-    /// Source gene, checked against the HGNC-resolved request.
-    pub entrez_gene_id: u32,
     /// Source chromosome.
     pub chr: Option<crate::raw::Field<Text>>,
     /// Source one-based inclusive start.
@@ -83,10 +71,7 @@ impl From<ReceivedMutation> for Mutation {
             list: Vec::new(),
         };
         Self {
-            molecular_profile_id: row.molecular_profile_id,
-            study_id: row.study_id,
             sample_id: row.sample_id,
-            entrez_gene_id: row.entrez_gene_id,
             chr: problems.field("chr", row.chr),
             start_position: problems.field("startPosition", row.start_position),
             end_position: problems.field("endPosition", row.end_position),

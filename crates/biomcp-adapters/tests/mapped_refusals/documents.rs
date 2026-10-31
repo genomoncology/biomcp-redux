@@ -4,8 +4,8 @@ use super::{
     synthetic::{configured, stubbed},
     trial,
 };
-use crate::runner::network_stub::Stub;
-use crate::runner::trial_bad_values::replace;
+use crate::network_stub::Stub;
+use crate::value::replace;
 use biomcp_adapters::{Refusal, clinpgx, europepmc, pmc_oa};
 use libtest_mimic::Trial;
 use serde_json::json;

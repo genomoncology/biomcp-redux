@@ -8,7 +8,8 @@ use crate::quotas;
 use biodata::VariantId;
 use biomcp_fetch::{Arg, BadReply, Endpoint, Freshness, KeyUse, Leg, RequestError, SourceSpec};
 use biomcp_types::Source;
-pub use raw::{Association, EffectAllele, Trait};
+mod map;
+pub use map::Association;
 pub use search::search;
 use std::time::Duration;
 /// Current catalog API; retired v1 is never used.
@@ -90,7 +91,7 @@ fn page(response: raw::Response, skip: usize) -> Page {
             refusals.include(row.refusals);
             row.refusals = crate::Refusal::None;
             problems.list.append(&mut row.problems);
-            rows.push(row);
+            rows.push(row.into());
         } else {
             refusals = crate::Refusal::Refused;
         }

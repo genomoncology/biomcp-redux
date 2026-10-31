@@ -28,8 +28,12 @@ const ALLOWED: &[(&str, &str)] = &[
         "Prove hosted tool capacity and shutdown ownership with held worker exits using the private server limit.",
     ),
     (
-        "crates/biomcp/src/config/deferred_keys_tests.rs",
+        "crates/biomcp/src/config/credential_reads_tests.rs",
         "Observe forbidden credential environment reads at the private settings boundary while executing real commands.",
+    ),
+    (
+        "crates/biomcp-adapters/tests/deferred_keys_tests.rs",
+        "Exercise deferred credential admission through the public AlphaGenome adapter without reading binary settings.",
     ),
     (
         "crates/biomcp-types/tests/author_contracts.rs",

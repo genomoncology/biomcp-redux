@@ -6,7 +6,7 @@ use biomcp_types::{
     QueryBody, Request, Source, StepKind,
 };
 /// Discover one source-ordered page from one explicit ontology.
-pub fn search(cx: &Ctx<'_>, query: &DiseaseSearch) -> Outcome {
+pub(crate) fn search(cx: &Ctx<'_>, query: &DiseaseSearch) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let leg = cx.fetch.leg(&ols::SPEC, deadline).fresh(cx.fresh);
@@ -63,7 +63,7 @@ pub fn search(cx: &Ctx<'_>, query: &DiseaseSearch) -> Outcome {
     out
 }
 /// Get an exact OLS record; section slicing reuses the checked original response.
-pub fn get(cx: &Ctx<'_>, query: &DiseaseGet) -> Outcome {
+pub(crate) fn get(cx: &Ctx<'_>, query: &DiseaseGet) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let leg = cx.fetch.leg(&ols::SPEC, deadline).fresh(cx.fresh);

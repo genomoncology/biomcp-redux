@@ -7,7 +7,7 @@ fn strip_row(row: &mut Value) -> Result<(), String> {
     let outcome: biomcp_types::SourceOutcome =
         serde_json::from_value(row.clone()).map_err(|e| e.to_string())?;
     let source = outcome.source;
-    let terms = biomcp_adapters::registry::terms(source).ok_or("unregistered outcome source")?;
+    let terms = biomcp_query::sources::terms(source).ok_or("unregistered outcome source")?;
     let object = row
         .as_object_mut()
         .ok_or("source outcome is not an object")?;
@@ -160,7 +160,7 @@ fn markdown_object_bytes(table: &str, rows: &[Value]) -> Result<usize, String> {
 
 tool_only! {
 fn subtraction() -> Result<(), String> {
-    let outcome = biomcp_adapters::registry::outcome(
+    let outcome = biomcp_query::sources::outcome(
         biomcp_types::Source::Hgnc,
         biomcp_types::SourceState::Ok,
         None,
@@ -212,7 +212,7 @@ fn subtraction() -> Result<(), String> {
 
 tool_only! {
 fn markdown_subtraction() -> Result<(), String> {
-    let outcome = biomcp_adapters::registry::outcome(
+    let outcome = biomcp_query::sources::outcome(
         biomcp_types::Source::Hgnc,
         biomcp_types::SourceState::Ok,
         None,

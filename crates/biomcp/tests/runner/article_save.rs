@@ -427,7 +427,7 @@ fn cut_body() -> Check {
     )?;
     let env = Environment::new()?;
     let ca = env.root().join("source.pem");
-    stub.retain(&env);
+    stub.retain(env.shared_root());
     fs::write(&ca, &stub.certificate)?;
     env.config(&json!({"ca_bundle":ca, "proxy":format!("http://{}",stub.address)}))?;
     let folder = env.root().join("cut");

@@ -1,10 +1,10 @@
 //! Resolve checked human gene inputs through authoritative source adapters.
 pub mod article;
-pub mod gene;
+mod gene;
 pub mod store;
 
 mod context;
-pub mod next;
+mod next;
 mod run;
 mod status;
 pub use context::Ctx;
@@ -16,40 +16,45 @@ mod fan_out;
 pub mod health;
 
 pub mod trial;
-pub mod variant;
+mod variant;
 
-pub mod disease;
+mod disease;
 /// Single-source drug discovery and exact native cards.
-pub mod drug;
+mod drug;
 
 /// Source-owned adverse event search.
-pub mod adverse_event;
+mod adverse_event;
 
 /// Source-owned diagnostic laboratory tests and relations.
-pub mod diagnostic;
+mod diagnostic;
 /// Explicit CPIC gene and native context retrieval.
-pub mod pgx;
+mod pgx;
 
 /// Explicit native device report cards and sections.
-pub mod adverse_event_maude;
+mod adverse_event_maude;
 
-pub mod biomarker;
-pub mod organization;
+mod biomarker;
+mod organization;
 /// Native human pathway discovery and exact cards.
-pub mod pathway;
+mod pathway;
 /// Literal phenotype discovery and exact independent source cards.
-pub mod phenotype;
+mod phenotype;
 mod source_snapshot;
 /// Stored study catalog discovery.
-pub mod study;
+mod study;
 
 /// Exact reviewed-human protein discovery and cards.
-pub mod protein;
+mod protein;
 
 /// Checked native GWAS association search.
-pub mod gwas;
+mod gwas;
 
 /// Provider-local author discovery and exact cards.
-pub mod author;
+mod author;
 /// Literal Cellosaurus discovery and exact cell identity.
-pub mod cell_line;
+mod cell_line;
+
+mod prepare;
+
+/// Source facts used by command interfaces.
+pub mod sources;

@@ -170,7 +170,6 @@ version = "1.0.0"
 dependencies = [
  "base64 0.23.1",
  "biodata",
- "biomcp-adapters",
  "biomcp-fetch",
  "biomcp-query",
  "biomcp-types",
@@ -209,12 +208,17 @@ dependencies = [
  "biomcp-types",
  "calamine",
  "csv",
+ "libtest-mimic",
  "prost",
  "quick-xml",
+ "rcgen",
+ "rustls",
  "serde",
  "serde_ignored",
  "serde_json",
+ "sha2",
  "tempfile",
+ "time",
  "zip",
 ]
 
@@ -256,6 +260,7 @@ dependencies = [
  "biomcp-adapters",
  "biomcp-fetch",
  "biomcp-types",
+ "libtest-mimic",
  "rusqlite",
  "serde",
  "serde_json",

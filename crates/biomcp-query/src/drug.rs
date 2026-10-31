@@ -13,7 +13,7 @@ use biomcp_types::{
     DrugGet, DrugPage, DrugSearch, DrugSource, PageInfo, QueryBody, Request, Source, StepKind,
 };
 /// Search the one selected source, without fan-out or selecting an identity.
-pub fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
+pub(crate) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     if query.source() == DrugSource::FdaDrugRecall {
         return recall::search(cx, query);
     }
@@ -63,7 +63,7 @@ pub fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     out
 }
 /// Get one exact native document, without fallback or automatic section expansion.
-pub fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
+pub(crate) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     let mut out = selected_get(cx, query);
     let source = query.source().source();
     if out.sources.iter().any(|outcome| {
@@ -308,3 +308,5 @@ fn search_results(
     }
     out.body = QueryBody::DrugPage(page);
 }
+
+pub(crate) mod label_bound;

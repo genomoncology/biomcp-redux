@@ -26,7 +26,7 @@ pub(super) struct SearchData {
 }
 /// Candidate rows retain their native order.
 #[derive(Debug, Deserialize)]
-pub struct Search {
+pub(super) struct Search {
     /// Source total.
     pub total: u64,
     /// Source candidates.
@@ -34,7 +34,7 @@ pub struct Search {
 }
 /// One native candidate identity.
 #[derive(Debug, Deserialize)]
-pub struct Hit {
+pub(super) struct Hit {
     /// Native ChEMBL identifier.
     pub id: String,
     /// Native source name.
@@ -50,7 +50,7 @@ pub(super) struct DrugData {
 }
 /// Native source drug and its complete returned collections.
 #[derive(Debug, Deserialize)]
-pub struct Drug {
+pub(super) struct Drug {
     /// Exact native ChEMBL identifier.
     pub id: String,
     /// Native source name.
@@ -63,13 +63,13 @@ pub struct Drug {
 }
 /// A native returned collection.
 #[derive(Debug, Deserialize)]
-pub struct Rows<T> {
+pub(super) struct Rows<T> {
     /// Native ordered rows.
     pub(super) rows: Vec<Field<T>>,
 }
 /// Source indication and clinical stage, without regulatory interpretation.
 #[derive(Debug, Deserialize)]
-pub struct Indication {
+pub(super) struct Indication {
     /// Native clinical stage spelling.
     #[serde(rename = "maxClinicalStage")]
     pub(super) max_clinical_stage: Option<Field<String>>,
@@ -78,7 +78,7 @@ pub struct Indication {
 }
 /// A native disease reference without a name join.
 #[derive(Debug, Deserialize)]
-pub struct Disease {
+pub(super) struct Disease {
     /// Native source identifier.
     pub id: String,
     /// Original source label.
@@ -86,7 +86,7 @@ pub struct Disease {
 }
 /// Native mechanism and its complete target members.
 #[derive(Debug, Deserialize)]
-pub struct Mechanism {
+pub(super) struct Mechanism {
     /// Complete original mechanism wording.
     #[serde(rename = "mechanismOfAction")]
     pub(super) mechanism_of_action: Option<Field<String>>,
@@ -98,7 +98,7 @@ pub struct Mechanism {
 }
 /// Native target gene identities and labels.
 #[derive(Debug, Deserialize)]
-pub struct Target {
+pub(super) struct Target {
     /// Native Ensembl gene ID.
     pub id: String,
     /// Original gene symbol.

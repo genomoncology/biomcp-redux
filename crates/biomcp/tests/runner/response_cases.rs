@@ -1,10 +1,8 @@
 //! Response-only fixture edits run through the ordinary command case machinery.
-#[path = "../../../biomcp-fetch/tests/support/recordings.rs"]
-mod recording_support;
 use serde_json::{Value, json};
 use std::{fs, path::Path, sync::Arc};
-type Check = Result<(), Box<dyn std::error::Error>>;
 tool_only! {
+type Check = Result<(), Box<dyn std::error::Error>>;
 pub(super) fn case(
     capture: &str,
     args: &[&str],
@@ -55,19 +53,11 @@ pub(super) fn checked_steps(
     )?)
 }
 
-/// Copy transport-owned identities unchanged and mutate only response exchanges.
-pub(super) fn copy_capture(
-    capture: &str,
-    recordings: &Path,
-    change: impl FnMut(&str, &mut Value),
-) -> Check {
-    let original = super::launch::fixtures().join("replies").join(capture);
-    recording_support::copy_capture(&original, recordings, change)
-}
+pub(super) use super::capture_support::copy_capture;
 
 /// Acquisition is synthetic cache setup, never a claim about a retained capture.
 pub(super) const CACHE_ACQUIRED: i64 = 42;
-pub(super) use recording_support::cache_acquisition;
+pub(super) use super::recording_support::cache_acquisition;
 
 pub(super) fn cache_capture(capture: &str, target: &Path, acquired: i64) -> Result<(), String> {
     copy_capture(capture, target, |_, record| {

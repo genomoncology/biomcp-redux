@@ -210,10 +210,10 @@ fn append(q: &GwasSearch, saved: &mut Saved, page: gwas::Page) -> Result<(), Req
     saved.problems.extend(page.problems);
     saved.total = Some(page.total);
     for row in page.rows {
-        let Some(exact) = row.exact_p_value() else {
+        let Some(exact) = row.value.exact_p_value.clone() else {
             let problem = biomcp_types::Problem {
                 source: Source::Gwas,
-                record: row.association_id.get().to_string().parse().ok(),
+                record: row.value.id.get().to_string().parse().ok(),
                 field: "pvalue_mantissa".into(),
                 code: biomcp_types::ProblemCode::ValueUnknown,
             };
@@ -226,7 +226,7 @@ fn append(q: &GwasSearch, saved: &mut Saved, page: gwas::Page) -> Result<(), Req
             }
             continue;
         };
-        if saved.rows.iter().any(|old| old.id == row.association_id)
+        if saved.rows.iter().any(|old| old.id == row.value.id)
             || saved
                 .rows
                 .last()

@@ -3,8 +3,7 @@ use biodata::Text;
 use biomcp_adapters::{europepmc, litvar, pubmed};
 use biomcp_fetch::{Deadline, RequestError};
 use biomcp_types::{
-    ArticleItem, ArticleKey, ArticleSearch, ArticleSource, ArticleType, Source, SourceOutcome,
-    SourceState,
+    ArticleItem, ArticleKey, ArticleSearch, ArticleSource, Source, SourceOutcome, SourceState,
 };
 use std::time::Duration;
 pub(super) struct ResultLeg {
@@ -37,7 +36,6 @@ pub(super) fn search<'a>(
         Preparation::Ready(prepared) => prepared,
         Preparation::Answer => return Ok(SearchResult::Answer),
     };
-    let epmc_term = term(query);
     let start = *deadline;
     let jobs: Vec<Box<dyn FnOnce() -> ResultLeg + Send + '_>> = query
         .sources()
@@ -45,12 +43,9 @@ pub(super) fn search<'a>(
         .filter_map(|selector| {
             let job: Box<dyn FnOnce() -> ResultLeg + Send + '_> = match selector {
                 ArticleSource::Pubmed => {
-                    Box::new(move || pubmed_search(cx, query, &resolved.term, start))
+                    Box::new(move || pubmed_search(cx, query, &resolved.names, start))
                 }
-                ArticleSource::Europepmc => {
-                    let term = &epmc_term;
-                    Box::new(move || europe_search(cx, query, term, start))
-                }
+                ArticleSource::Europepmc => Box::new(move || europe_search(cx, query, start)),
                 ArticleSource::Litsense => {
                     Box::new(move || super::named::litsense(cx, query, start))
                 }
@@ -146,16 +141,16 @@ fn resolve_rows<'a>(
 fn pubmed_search<'a>(
     cx: &Ctx<'a>,
     query: &ArticleSearch,
-    term: &str,
+    names: &[String],
     deadline: Deadline<'a>,
 ) -> ResultLeg {
     let leg = cx.fetch.leg(&pubmed::SPEC, deadline).fresh(cx.fresh);
     let start = leg.remaining();
-    let result = pubmed::search_ids(&leg, term, query.sort(), cx.ncbi_email.as_ref());
+    let (result, term) = pubmed::search_query(&leg, query, names, cx.ncbi_email.as_ref());
     let elapsed = start.saturating_sub(leg.remaining());
     let error = result.as_ref().err().copied();
     let mut outcome = status::source(Source::PubMed, leg.finish(), error);
-    outcome.term = Text::new(term).ok();
+    outcome.term = Text::new(&term).ok();
     let dropped = false;
     let mut problems = Vec::new();
     let items = match result {
@@ -192,19 +187,14 @@ fn pubmed_search<'a>(
         error,
     }
 }
-fn europe_search<'a>(
-    cx: &Ctx<'a>,
-    query: &ArticleSearch,
-    term: &str,
-    deadline: Deadline<'a>,
-) -> ResultLeg {
+fn europe_search<'a>(cx: &Ctx<'a>, query: &ArticleSearch, deadline: Deadline<'a>) -> ResultLeg {
     let leg = cx.fetch.leg(&europepmc::SPEC, deadline).fresh(cx.fresh);
     let start = leg.remaining();
-    let result = europepmc::search(&leg, term, query.sort());
+    let (result, term) = europepmc::search_query(&leg, query);
     let elapsed = start.saturating_sub(leg.remaining());
     let error = result.as_ref().err().copied();
     let mut outcome = status::source(Source::EuropePmc, leg.finish(), error);
-    outcome.term = Text::new(term).ok();
+    outcome.term = Text::new(&term).ok();
     let mut dropped = false;
     let mut problems = Vec::new();
     let items = match result {
@@ -230,53 +220,6 @@ fn europe_search<'a>(
 }
 pub(super) fn failed(sources: &[SourceOutcome]) -> bool {
     sources.iter().any(|s| s.state == SourceState::Failed)
-}
-fn term(query: &ArticleSearch) -> String {
-    let mut parts = Vec::new();
-    if let Some(gene) = query.gene() {
-        parts.push(gene.to_string());
-    }
-    let words = query.words();
-    if !words.is_empty() {
-        parts.push(words);
-    }
-    if let Some(author) = query.author() {
-        parts.push(format!("AUTH:{}", field(author.as_str())));
-    }
-    if let Some(journal) = query.journal() {
-        parts.push(format!("JOURNAL:{}", field(journal.as_str())));
-    }
-    let (since, until) = query.dates();
-    if since.is_some() || until.is_some() {
-        parts.push(format!(
-            "FIRST_PDATE:[{} TO {}]",
-            since.map_or_else(|| "1800".into(), |v| v.to_string()),
-            until.map_or_else(|| "3000".into(), |v| v.to_string())
-        ));
-    }
-    if let Some(kind) = query.kind() {
-        let name = match kind {
-            ArticleType::Trial => "clinical trial",
-            ArticleType::Randomized => "randomized controlled trial",
-            ArticleType::Review => "review",
-            ArticleType::SystematicReview => "systematic review",
-            ArticleType::MetaAnalysis => "meta-analysis",
-            ArticleType::Guideline => "guideline",
-            ArticleType::CaseReport => "case reports",
-        };
-        parts.push(format!("PUB_TYPE:\"{name}\""));
-    }
-    let mut term = parts.join(" AND ");
-    if query.open_access() {
-        term.push_str(" AND OPEN_ACCESS:y");
-    }
-    if query.no_preprints() {
-        term.push_str(" NOT SRC:PPR");
-    }
-    if query.exclude_retracted() {
-        term.push_str(" NOT PUB_TYPE:\"retracted publication\"");
-    }
-    term
 }
 
 type PreparedLitvar<'a> = (biomcp_fetch::Leg<'a>, Result<litvar::Variant, RequestError>);
@@ -386,15 +329,4 @@ fn litvar_search((leg, selected): PreparedLitvar<'_>) -> ResultLeg {
 
 fn results_have_pubmed(query: &ArticleSearch) -> bool {
     query.sources().contains(&ArticleSource::Pubmed)
-}
-// Structured selectors are literal field values, not additional query syntax.
-fn field(value: &str) -> String {
-    if value
-        .bytes()
-        .all(|b| b.is_ascii_alphanumeric() || matches!(b, b'-' | b'.' | b'_'))
-    {
-        value.to_owned()
-    } else {
-        format!("\"{}\"", value.replace('\\', "\\\\").replace('"', "\\\""))
-    }
 }

@@ -290,7 +290,7 @@ fn public() -> Check {
         "application/json",
         move |_| Ok(body.clone()),
     )?;
-    stub.retain(&assets);
+    stub.retain(assets.shared_root());
     let ca = assets.root().join("ca.pem");
     std::fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
     for hosted in [true, false] {

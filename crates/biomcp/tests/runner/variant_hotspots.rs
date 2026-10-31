@@ -19,7 +19,7 @@ fn candidate() -> Result<(), String> {
     )?;
     let environment = Environment::new().map_err(|e| e.to_string())?;
     let ca = environment.root().join("synthetic-ca.pem");
-    stub.retain(&environment);
+    stub.retain(environment.shared_root());
     fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
     environment
         .config(&json!({"proxy":format!("http://{}",stub.address),"ca_bundle":ca}))
@@ -114,8 +114,13 @@ fn envelope(value: &Value) -> Result<(), String> {
     let terms = header
         .remove("component_terms")
         .ok_or("missing component terms")?;
-    let expected = biomcp_adapters::myvariant::components::label(
-        biomcp_adapters::myvariant::components::CLINVAR.terms,
+    let expected = biomcp_query::sources::component_label(
+        biomcp_query::sources::components()
+            .find(|component| {
+                component.source == biomcp_types::Source::MyVariant && component.name == "clinvar"
+            })
+            .ok_or("missing component declaration")?
+            .terms,
     )
     .map_err(|e| e.to_string())?;
     let payload = serde_json::to_vec(&comparable)

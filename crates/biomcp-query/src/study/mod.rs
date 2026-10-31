@@ -31,7 +31,7 @@ fn finish(out: &mut Outcome, leg: Leg<'_>, error: Option<RequestError>) {
     }
 }
 /// Search only the last accepted metadata catalog; no implicit refresh.
-pub fn search(cx: &Ctx<'_>, q: &StudySearch) -> Outcome {
+pub(crate) fn search(cx: &Ctx<'_>, q: &StudySearch) -> Outcome {
     let mut out = empty(QueryBody::StudyPage(None));
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
@@ -47,4 +47,4 @@ pub fn search(cx: &Ctx<'_>, q: &StudySearch) -> Outcome {
     out
 }
 mod get;
-pub use get::get;
+pub(crate) use get::get;

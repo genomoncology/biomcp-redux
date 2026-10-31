@@ -216,7 +216,7 @@ fn article_owners() -> Result<(), String> {
         connection
             .execute(
                 "INSERT INTO meta(owner,version) VALUES ('biomcp-query',?1)",
-                [biomcp_query::store::VERSION + 1],
+                [biomcp_query::store::OWNER.version + 1],
             )
             .map_err(|e| e.to_string())?;
         connection

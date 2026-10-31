@@ -1,5 +1,6 @@
 //! Preserve native page counts before refusing row identities.
-use super::raw::{Indication, Mechanism, Molecule, PageMeta};
+use super::raw::PageMeta;
+use super::{Indication, Mechanism, Molecule};
 use biomcp_fetch::{BadReply, Reply};
 use serde::Deserialize;
 /// Native source page with independent row diagnostics.
@@ -13,7 +14,7 @@ pub struct Molecules {
 }
 #[derive(Deserialize)]
 struct ReceivedMolecules {
-    molecules: Vec<crate::raw::Field<Molecule>>,
+    molecules: Vec<crate::raw::Field<super::raw::Molecule>>,
     page_meta: PageMeta,
 }
 impl From<ReceivedMolecules> for Molecules {
@@ -34,7 +35,7 @@ impl From<ReceivedMolecules> for Molecules {
                 {
                     refusals.include(row.refusals);
                     row.refusals = crate::Refusal::None;
-                    rows.push(row);
+                    rows.push(Molecule(row));
                 } else {
                     refusals = crate::Refusal::Refused;
                     problems.record = crate::mapped::record(&row.molecule_chembl_id);
@@ -74,7 +75,7 @@ pub struct Mechanisms {
 }
 #[derive(Deserialize)]
 struct ReceivedMechanisms {
-    mechanisms: Vec<super::scope::Row<Mechanism>>,
+    mechanisms: Vec<super::scope::Row<super::raw::Mechanism>>,
     page_meta: PageMeta,
 }
 impl From<ReceivedMechanisms> for Mechanisms {
@@ -95,7 +96,7 @@ impl From<ReceivedMechanisms> for Mechanisms {
                 if row.mec_id > 0 {
                     refusals.include(row.refusals);
                     row.refusals = crate::Refusal::None;
-                    rows.push(row);
+                    rows.push(Mechanism(row));
                 } else {
                     refusals = crate::Refusal::Refused;
                     problems.record = crate::mapped::record(row.mec_id);
@@ -151,7 +152,7 @@ pub struct Indications {
 }
 #[derive(Deserialize)]
 struct ReceivedIndications {
-    drug_indications: Vec<super::scope::Row<Indication>>,
+    drug_indications: Vec<super::scope::Row<super::raw::Indication>>,
     page_meta: PageMeta,
 }
 impl From<ReceivedIndications> for Indications {
@@ -172,7 +173,7 @@ impl From<ReceivedIndications> for Indications {
                 if row.drugind_id > 0 {
                     refusals.include(row.refusals);
                     row.refusals = crate::Refusal::None;
-                    rows.push(row);
+                    rows.push(Indication(row));
                 } else {
                     refusals = crate::Refusal::Refused;
                     problems.record = crate::mapped::record(row.drugind_id);

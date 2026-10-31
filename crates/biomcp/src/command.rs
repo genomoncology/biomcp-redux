@@ -8,7 +8,6 @@ pub(crate) use context::Context;
 mod diagnostic;
 mod disease;
 mod drug;
-mod drug_label;
 mod hosted_keys;
 pub(crate) mod local;
 mod maintenance;
@@ -21,7 +20,6 @@ mod protein;
 mod steps;
 mod sync;
 mod transport;
-mod unsupported;
 mod variant;
 
 use biomcp_query::{Action, Bundle};
@@ -102,13 +100,10 @@ fn dispatch_using(
     if let Action::KeyHelp(source) = action {
         return key_help(source);
     }
-    let action = match disease::prepare(action) {
+    let action = match action.prepare() {
         Ok(action) => action,
-        Err(error) => return disease::selector_error(error),
+        Err(error) => return usage_envelope(error),
     };
-    if let Some(outcome) = unsupported::check(&action) {
-        return outcome;
-    }
     let fetch = match transport::fetch(&parsed.globals, context)? {
         Ok(fetch) => fetch,
         Err(error) => return local::startup(error),
@@ -198,7 +193,7 @@ impl ResponseMeta {
         envelope.sources = self
             .sources
             .into_iter()
-            .map(biomcp_adapters::registry::restore_outcome)
+            .map(biomcp_query::sources::restore_outcome)
             .collect();
         envelope.problems = self.problems;
         envelope.next = self.next;
@@ -214,8 +209,9 @@ fn response(
     fresh: bool,
     globals: &crate::grammar::Globals,
 ) -> io::Result<Outcome> {
-    drug_label::bound(fetch, &request, &mut result, fresh, globals)?;
-    biomcp_query::next::finish(fetch, &mut result);
+    result
+        .finish(fetch, &request, fresh)
+        .map_err(io::Error::other)?;
     let steps = steps::next(&result, globals)?;
     let meta = ResponseMeta {
         exit: response_status(&result),

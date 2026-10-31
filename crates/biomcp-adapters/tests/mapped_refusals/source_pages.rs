@@ -3,7 +3,7 @@ use super::{
     families::{Check, replay},
     trial,
 };
-use crate::runner::trial_bad_values::replace;
+use crate::value::replace;
 use biomcp_adapters::{Refusal, gwas, orcid, semantic_scholar, variantvalidator};
 use libtest_mimic::Trial;
 use serde_json::json;
@@ -47,9 +47,9 @@ fn authors() -> Check {
         } else {
             Refusal::None
         };
-        if page.refusals != expected
-            || page.data.len() != usize::from(case == "optional")
-            || page.next != Some(1)
+        if page.refusals() != expected
+            || page.len() != usize::from(case == "optional")
+            || page.next() != Some(1)
         {
             return Err(format!(
                 "Semantic Scholar {case}: actual author refusal or continuation changed"
