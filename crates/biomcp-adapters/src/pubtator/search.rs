@@ -104,12 +104,11 @@ pub fn query_term(
     query: &biomcp_types::ArticleSearch,
     entrez: Option<biodata::NcbiGeneId>,
 ) -> String {
-    let term = entrez
+    entrez
         .map(|id| format!("@GENE_{id}"))
         .into_iter()
         .chain([query.words()])
         .filter(|s| !s.is_empty())
         .collect::<Vec<_>>()
-        .join(" AND ");
-    term
+        .join(" AND ")
 }

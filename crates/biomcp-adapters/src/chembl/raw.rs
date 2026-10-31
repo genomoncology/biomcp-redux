@@ -30,8 +30,6 @@ pub(super) struct Synonym {
     pub problems: Vec<biomcp_types::Problem>,
     /// Original name.
     pub molecule_synonym: Option<String>,
-    /// Native name kind.
-    pub syn_type: Option<String>,
 }
 /// Source molecule parent relationship.
 #[derive(Debug, Deserialize)]
@@ -60,8 +58,6 @@ pub(super) struct Mechanism {
     pub problems: Vec<biomcp_types::Problem>,
     /// Source relation ID.
     pub mec_id: u64,
-    /// Exact drug identity.
-    pub molecule_chembl_id: String,
     /// Native target record, without an inferred gene mapping.
     pub target_chembl_id: Option<String>,
     /// Native action type.
@@ -89,8 +85,6 @@ pub(super) struct Indication {
     pub problems: Vec<biomcp_types::Problem>,
     /// Native indication ID.
     pub drugind_id: u64,
-    /// Exact drug identity.
-    pub molecule_chembl_id: String,
     /// Native disease ID.
     pub efo_id: Option<String>,
     /// Native disease name.

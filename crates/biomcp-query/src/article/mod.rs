@@ -98,7 +98,7 @@ fn execute<'a>(
                 term
             } else {
                 term::Resolved {
-                    term: String::new(),
+                    names: Vec::new(),
                     symbol: None,
                     entrez: None,
                 }
