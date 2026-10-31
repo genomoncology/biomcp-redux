@@ -129,17 +129,20 @@ fn stored_licensed_owners_admit_same_key_and_refuse_other_or_missing_keys() -> C
         a.source_snapshot(snapshot.as_str(), KEY, |_| false)?,
         Some(PAYLOAD.into())
     );
-    let connection = first.cache_access()?.connect()?;
-    let outcomes: String = connection.query_row(
-        "SELECT outcomes FROM pool WHERE id=?1",
-        [pool.info.id.as_str()],
-        |r| r.get(0),
-    )?;
+    storage_privacy(&first, pool.info.id.as_str())?;
+    Ok(())
+}
+
+fn storage_privacy(fetch: &Fetch, id: &str) -> Check {
+    let connection = fetch.cache_access()?.connect()?;
+    let outcomes: String =
+        connection.query_row("SELECT outcomes FROM pool WHERE id=?1", [id], |r| r.get(0))?;
     assert!(outcomes.contains("ownership"));
     assert!(!outcomes.contains("synthetic-owner"));
     assert!(
         !serde_json::to_string(
-            &a.find(KEY, Some(pool.info.id.as_str()))?
+            &store(fetch)?
+                .find(KEY, Some(id))?
                 .ok_or("pool missing")?
                 .sources
         )?
