@@ -25,8 +25,11 @@ class ReplyDiff(unittest.TestCase):
         path = directory / (hashlib.sha256(key.encode()).hexdigest() + ".json")
         path.write_text(json.dumps(dict(key=key, executions=[execution])))
 
-    def compare(self):
-        return subprocess.run([sys.executable, str(SCRIPT), str(self.base), str(self.head)],
+    def compare(self, owners=None):
+        args = [sys.executable, str(SCRIPT), str(self.base), str(self.head)]
+        if owners:
+            args.append(str(owners))
+        return subprocess.run(args,
                               capture_output=True, text=True, check=False)
 
     def test_reply_and_exit_changes_name_the_case_pointer(self):
@@ -89,7 +92,7 @@ class ReplyDiff(unittest.TestCase):
         }).encode(), **common)
         self.write(directory, "case/runtime.yaml/step/1", json.dumps({
             "query": {"pool": pool},
-            "result": {"snapshot": {"acquired": 50 if suffix == "base" else 60}},
+            "result": {"snapshot": {"revision": "same", "acquired": 50 if suffix == "base" else 60}},
         }).encode(), root=root,
             args=["search", "trial", "--pool", "broken" if bad_reference else pool])
         markdown = "# Trial\n**fetched:** " + ("30" if suffix == "base" else "40") + "\n"
@@ -288,6 +291,64 @@ class ReplyDiff(unittest.TestCase):
         self.assertEqual(result.returncode, 1, result.stderr)
         self.assertIn("/0/exit", result.stdout)
         self.assertNotIn("missing", result.stdout)
+
+    def test_external_replays_require_exact_source_bound_contexts(self):
+        key = "case/response.yaml/step/0"
+        owners = Path(self.directory.name, "owners.json")
+        source = Path(self.directory.name, "source.rs")
+        source.write_text("// Reviewed fixture: checked_steps owns its temporary recordings root.\n")
+        source_binding = {"file": source.name, "sha256": hashlib.sha256(source.read_bytes()).hexdigest()}
+
+        def declare():
+            entries = {}
+            for side, directory in [("base", self.base), ("head", self.head)]:
+                path = next(directory.glob("*.json"))
+                record = json.loads(path.read_text())
+                args = record["executions"][0]["args"]
+                entries[side] = [{"key": key, "execution": 0,
+                    "capture": {"file": path.name, "sha256": hashlib.sha256(path.read_bytes()).hexdigest()},
+                    "replay_root": args[args.index("--replay") + 1],
+                    "source": dict(source_binding, helper="checked_steps"),
+                    "helper_source": source_binding}]
+            owners.write_text(json.dumps(entries))
+
+        def capture(*, source_text=False, suffix="recordings"):
+            for directory, side in [(self.base, "base"), (self.head, "head")]:
+                replay = "/tmp/response-" + side + "/" + (suffix if side == "head" else "recordings")
+                self.write(directory, key, json.dumps({"source": replay if source_text else "same"}).encode(),
+                           args=["get", "trial", "--replay", replay], root="/tmp/command-" + side)
+
+        capture()
+        self.assertEqual(self.compare().returncode, 1)
+        declare()
+        result = self.compare(owners)
+        self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+        for mutation in ["capture", "key", "execution", "replay_root", "source", "duplicate"]:
+            with self.subTest(mutation=mutation):
+                declare()
+                data = json.loads(owners.read_text())
+                row = data["head"][0]
+                if mutation in ("capture", "source"):
+                    row[mutation]["sha256"] = "0" * 64
+                elif mutation == "execution":
+                    row[mutation] = 1
+                elif mutation == "duplicate":
+                    data["head"].append(row)
+                else:
+                    row[mutation] += "/outside"
+                owners.write_text(json.dumps(data))
+                self.assertNotEqual(self.compare(owners).returncode, 0)
+        for mutation in ["source_text", "suffix"]:
+            with self.subTest(mutation=mutation):
+                capture(**({"source_text": True} if mutation == "source_text" else {"suffix": "other"}))
+                declare()
+                self.assertEqual(self.compare(owners).returncode, 1)
+        capture()
+        declare()
+        data = json.loads(owners.read_text())
+        data["head"] = []
+        owners.write_text(json.dumps(data))
+        self.assertEqual(self.compare(owners).returncode, 1)
 
     def test_uncaptured_trials_are_disclosed(self):
         for directory in [self.base, self.head]:
