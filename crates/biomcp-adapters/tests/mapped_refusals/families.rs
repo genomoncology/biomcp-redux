@@ -1,7 +1,7 @@
 //! Existing native recordings expose the private mapping fact through public adapter calls.
 use crate::trial;
 use crate::value::replace;
-use biomcp_adapters::{Refusal, gencc, gnomad, hgnc, mygene, pubmed};
+use biomcp_adapters::{Refusal, gencc, gnomad, mygene, pubmed};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::time::Duration;

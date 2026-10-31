@@ -25,7 +25,7 @@ use biodata::{DrugId, DrugIdentityLevel, Text};
 use biomcp_fetch::{Arg, BadReply, Endpoint, Freshness, Leg, ReplyMetadata, RequestError};
 use biomcp_types::{DrugHeader, DrugSource};
 pub use map::Application;
-use raw::{Application as RawApplication, Product, Submission};
+use raw::Application as RawApplication;
 const APPLICATION: Endpoint = SPEC.get("").fresh(Freshness::Days(1)).json_absence();
 /// One native application candidate page and its original retrieval metadata.
 #[derive(Debug)]

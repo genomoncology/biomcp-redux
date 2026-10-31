@@ -1,5 +1,5 @@
 //! Source refusals survive the shared query request boundary.
-use super::{replay_support::replay, transcript::trial, trial_bad_values::replace};
+use super::{replay_support::replay, transcript::trial};
 use libtest_mimic::Trial;
 use serde_json::json;
 use std::time::Duration;
