@@ -2,7 +2,8 @@ use super::Snapshot;
 use crate::Outcome;
 use biodata::Text;
 use biomcp_fetch::RequestError;
-use biomcp_types::{ArticleEvidence, ArticleEvidenceResult, QueryBody, Request, Section, StepKind};
+use biomcp_types::ReplyBody;
+use biomcp_types::{ArticleEvidence, ArticleEvidenceResult, ReplyData, Request, Section, StepKind};
 /// Exact Unicode fragments leave room for both independent evidence sections and envelope.
 pub(super) fn split(text: &str) -> Vec<(u32, String)> {
     let mut out = Vec::new();
@@ -39,7 +40,7 @@ pub(super) fn render(
         let total = data.contexts.items.len();
         let start = query.offset() as usize;
         if start > total {
-            out.body = QueryBody::TextPositionError;
+            out.body = ReplyData::Usage(biomcp_types::UsageError::TextPositionError);
             return Ok(());
         }
         let items = page(&data.contexts.items, start, 4500, |item| {
@@ -53,7 +54,7 @@ pub(super) fn render(
         let total = data.paragraphs.items.len();
         let start = query.paragraph_offset() as usize;
         if start > total {
-            out.body = QueryBody::TextPositionError;
+            out.body = ReplyData::Usage(biomcp_types::UsageError::TextPositionError);
             return Ok(());
         }
         let items = page(&data.paragraphs.items, start, 8500, |item| {
@@ -82,10 +83,11 @@ pub(super) fn render(
             false,
         ));
     }
-    out.body = QueryBody::ArticleEvidence(ArticleEvidenceResult {
+    out.body = (ArticleEvidenceResult {
         semantic_scholar: snapshot.graph,
         fulltext: snapshot.fulltext,
-    });
+    })
+    .with_query(query.clone());
     Ok(())
 }
 fn page<T: Clone>(

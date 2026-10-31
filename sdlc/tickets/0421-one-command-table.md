@@ -1,6 +1,7 @@
 # 0421 — Declare each command once and type every usage error
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 8495305fb85f6490f3070217e29c34aaff3a6d27
 
 Milestone: 5
 

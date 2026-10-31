@@ -3,9 +3,10 @@ use crate::{Action, Bundle, Ctx, Outcome, status};
 use biodata::UniProtIsoform;
 use biomcp_adapters::{hgnc, uniprot};
 use biomcp_fetch::{Find, KeyKind, Leg, RequestError};
+use biomcp_types::ReplyBody;
 use biomcp_types::{
-    ProteinCard, ProteinCardItem, ProteinGet, ProteinInput, QueryBody, Request, Source,
-    SourceState, Status, StepKind,
+    ProteinCard, ProteinCardItem, ProteinGet, ProteinInput, Request, Source, SourceState, Status,
+    StepKind,
 };
 /// Exact accessions resolve independently and remain in caller order.
 pub(crate) fn get(cx: &Ctx<'_>, q: &ProteinGet) -> Outcome {
@@ -13,9 +14,12 @@ pub(crate) fn get(cx: &Ctx<'_>, q: &ProteinGet) -> Outcome {
     let deadline = command.deadline();
     let hgnc_leg = cx.fetch.leg(&hgnc::SPEC, deadline).fresh(cx.fresh);
     let leg = cx.fetch.leg(&uniprot::SPEC, deadline).fresh(cx.fresh);
-    let mut out = super::empty(QueryBody::ProteinCard(ProteinCard {
-        items: Box::default(),
-    }));
+    let mut out = super::empty(
+        (ProteinCard {
+            items: Box::default(),
+        })
+        .with_query(q.clone()),
+    );
     let mut hgnc_error = None;
     let mut protein_error = None;
     let mut items = Vec::new();
@@ -58,9 +62,10 @@ pub(crate) fn get(cx: &Ctx<'_>, q: &ProteinGet) -> Outcome {
         out.next = next::cards(&items, &mut out.problems);
     }
     recovery(q, &mut out);
-    out.body = QueryBody::ProteinCard(ProteinCard {
+    out.body = (ProteinCard {
         items: items.into(),
-    });
+    })
+    .with_query(q.clone());
     command.finish(deadline.remaining());
     out
 }

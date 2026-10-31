@@ -2,13 +2,16 @@ use super::{empty, order, page};
 use crate::{Ctx, Outcome, store::Store};
 use biodata::Text;
 use biomcp_fetch::{CacheError, Deadline, RequestError};
-use biomcp_types::{ArticleEdges, ArticleItem, ArticleKey, QueryBody, Request, StepKind};
+use biomcp_types::ReplyBody;
+use biomcp_types::{ArticleEdges, ArticleItem, ArticleKey, ReplyData, Request, StepKind};
 use sha2::{Digest, Sha256};
 pub(super) fn run(cx: &Ctx<'_>, query: &ArticleEdges, references: bool) -> Outcome {
-    let mut out = empty();
-    out.body = QueryBody::ArticleEdges(biomcp_types::ArticleEdgePage {
-        items: Box::default(),
-    });
+    let mut out = empty(
+        (biomcp_types::ArticleEdgePage {
+            items: Box::default(),
+        })
+        .with_query(query.clone()),
+    );
     let command = cx.fetch.command_deadline(cx.budget);
     let mut deadline = command.deadline();
     if let Err(error) = execute(cx, query, references, &mut deadline, &mut out) {
@@ -56,13 +59,13 @@ fn execute<'a>(
     };
     let pool = match pool {
         Some(pool) if pool.key != key.as_slice() => {
-            out.body = QueryBody::PoolError { mismatch: true };
+            out.body = ReplyData::PoolError { mismatch: true };
             restart(query, references, out, false);
             return Ok(());
         }
         Some(pool) => pool,
         None if explicit.is_some() => {
-            out.body = QueryBody::PoolError { mismatch: false };
+            out.body = ReplyData::PoolError { mismatch: false };
             restart(query, references, out, false);
             return Ok(());
         }

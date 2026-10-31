@@ -1,6 +1,6 @@
 use crate::{Action, Outcome};
 
-use biomcp_types::{ArticleGet, ArticleResolution, QueryBody, Request, Status, StepKind};
+use biomcp_types::{ArticleGet, ArticleResolution, ReplyData, Request, Status, StepKind};
 use biomcp_types::{ArticleInput, Source};
 pub(super) fn get(query: &ArticleGet, out: &mut Outcome) {
     if matches!(out.status(), Status::Failed | Status::Partial) {
@@ -11,7 +11,10 @@ pub(super) fn get(query: &ArticleGet, out: &mut Outcome) {
             true,
         ));
     }
-    let QueryBody::ArticleCards(cards) = &out.body else {
+    let ReplyData::ArticleCards {
+        body: Some(cards), ..
+    } = &out.body
+    else {
         return;
     };
     for item in &cards.items {
@@ -187,9 +190,15 @@ fn variant_step(search: &biomcp_types::ArticleSearch, out: &mut Outcome) {
 /// Existing source-given author identities survive ordinary pool paging.
 pub(super) fn authors(out: &mut Outcome) {
     let items = match &out.body {
-        QueryBody::ArticlePage(page) => page.items.as_ref(),
-        QueryBody::ArticleEdges(page) => page.items.as_ref(),
-        QueryBody::ArticleRecommendations(page) => page.items.as_ref(),
+        ReplyData::ArticlePage {
+            body: Some(page), ..
+        } => page.items.as_ref(),
+        ReplyData::ArticleEdgePage {
+            body: Some(page), ..
+        } => page.items.as_ref(),
+        ReplyData::ArticleRecommendations {
+            body: Some(page), ..
+        } => page.items.as_ref(),
         _ => return,
     };
     for id in items
@@ -213,7 +222,7 @@ pub(super) fn authors(out: &mut Outcome) {
 
 /// Unsearchable bodies still permit an explicit abstract read.
 pub(super) fn text(query: &biomcp_types::ArticleText, out: &mut Outcome) {
-    if matches!(&out.body, QueryBody::ArticleText(body)
+    if matches!(&out.body, ReplyData::ArticleTextResult { body: Some(body), .. }
         if !matches!(body.content, biomcp_types::Section::Data { .. }))
         && let Some(get) = crate::next::checked(
             ArticleGet::new(vec![query.input().clone()].into()),

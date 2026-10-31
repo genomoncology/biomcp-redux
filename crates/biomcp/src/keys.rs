@@ -76,7 +76,7 @@ pub(crate) fn run(
             crate::exit::Status::Success,
         ),
         Err(Failure::Usage) => crate::command::encode(
-            biomcp_types::ErrorEnvelope::arguments(),
+            biomcp_types::ErrorEnvelope::from(biomcp_types::UsageError::arguments()),
             crate::exit::Status::Usage,
         ),
         Err(Failure::Configuration(field)) => crate::command::encode(
@@ -84,7 +84,9 @@ pub(crate) fn run(
             crate::exit::Status::Local,
         ),
         Err(Failure::Replace) => crate::command::encode(
-            biomcp_types::ErrorEnvelope::argument("--replace".into()),
+            biomcp_types::ErrorEnvelope::from(biomcp_types::UsageError::argument(
+                "--replace".into(),
+            )),
             crate::exit::Status::Usage,
         ),
         Err(Failure::Local) => crate::command::encode(

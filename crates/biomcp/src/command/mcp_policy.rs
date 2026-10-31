@@ -1,8 +1,8 @@
 //! Transport authority is checked on parsed commands before fetch or save work.
 use biomcp_query::Action;
-use biomcp_types::{ErrorEnvelope, ErrorMessage, Request};
+use biomcp_types::{ErrorMessage, Request, UsageError};
 
-pub(super) fn refusal(parsed: &crate::grammar::Parsed, http: bool) -> Option<ErrorEnvelope> {
+pub(super) fn refusal(parsed: &crate::grammar::Parsed, http: bool) -> Option<UsageError> {
     let globals = &parsed.globals;
     let action = parsed.action.as_ref();
     if globals.hosted
@@ -14,10 +14,10 @@ pub(super) fn refusal(parsed: &crate::grammar::Parsed, http: bool) -> Option<Err
             )
             || matches!(action, Some(Action::Run { request, .. }) if saves(request)))
     {
-        return Some(ErrorEnvelope::mcp_unavailable(ErrorMessage::McpHosted));
+        return Some(UsageError::McpUnavailable(ErrorMessage::McpHosted));
     }
     if parsed.key.is_some() {
-        return Some(ErrorEnvelope::mcp_unavailable(ErrorMessage::McpKey));
+        return Some(UsageError::McpUnavailable(ErrorMessage::McpKey));
     }
     let action = action?;
     if http {
@@ -27,14 +27,14 @@ pub(super) fn refusal(parsed: &crate::grammar::Parsed, http: bool) -> Option<Err
             _ => None,
         };
         if let Some(command) = command {
-            return Some(ErrorEnvelope::mcp_unavailable(command));
+            return Some(UsageError::McpUnavailable(command));
         }
         if globals.fresh {
-            return Some(ErrorEnvelope::arguments());
+            return Some(UsageError::arguments());
         }
     }
     match action {
-        Action::Run { request, .. } if replaces(request) => Some(ErrorEnvelope::arguments()),
+        Action::Run { request, .. } if replaces(request) => Some(UsageError::arguments()),
         _ => None,
     }
 }

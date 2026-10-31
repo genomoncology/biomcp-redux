@@ -5,13 +5,11 @@ mod author;
 mod cell_line;
 mod diagnostic;
 mod drug;
-mod gwas;
 mod pathway;
 mod pgx;
 mod phenotype;
 mod protein;
 mod study;
-pub(crate) use gwas::usage as gwas_usage;
 
 use biomcp_types::{ArticleSectionWord, ErrorMessage, GeneSectionWord, VariantSection};
 use std::ffi::OsString;
@@ -351,9 +349,9 @@ fn takes_value(flag: &str, positional: &[&str]) -> Option<bool> {
     let Some([verb, entity]) = positional.get(..2) else {
         return None;
     };
-    let (_, _, id) = crate::grammar::QUERIES
-        .iter()
-        .find(|(v, e, _)| v == verb && e == entity)?;
+    let (_, _, id) = crate::grammar::command_paths()
+        .into_iter()
+        .find(|row| row.0 == *verb && row.1 == *entity)?;
     crate::schema::find(id)
         .and_then(|text| serde_json::from_str::<serde_json::Value>(text).ok())
         .and_then(|schema| {

@@ -18,7 +18,7 @@ pub(super) fn outcome(outcome: Outcome, hosted: bool) -> io::Result<Outcome> {
             .and_then(|source| serde_json::from_value(source.clone()).ok());
         if let Some(source) = source {
             return super::encode(
-                biomcp_types::ErrorEnvelope::hosted_key(source),
+                biomcp_types::ErrorEnvelope::from(biomcp_types::UsageError::HostedKey(source)),
                 crate::exit::Status::Usage,
             );
         }

@@ -2,16 +2,20 @@
 use crate::{Ctx, Outcome, status};
 use biomcp_adapters::{openfda_label as source, received_date};
 use biomcp_fetch::RequestError;
+use biomcp_types::ReplyBody;
 use biomcp_types::{
-    DrugGet, DrugLabel, DrugPage, DrugSearch, DrugSection, DrugSource, PageInfo, QueryBody, Reason,
-    Request, Section, Source, StepKind,
+    DrugGet, DrugLabel, DrugPage, DrugSearch, DrugSection, DrugSource, PageInfo, Reason, Request,
+    Section, Source, StepKind,
 };
 const SOURCE: Source = Source::OpenfdaLabel;
 pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
-    let mut out = super::empty(QueryBody::DrugPage(DrugPage {
-        items: Box::default(),
-        total: None,
-    }));
+    let mut out = super::empty(
+        (DrugPage {
+            items: Box::default(),
+            total: None,
+        })
+        .with_query(query.clone()),
+    );
     let Some(name) = query.query() else {
         return super::unsupported(query.source(), out);
     };
@@ -74,10 +78,11 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
                 cx.fresh,
             ));
         }
-        out.body = QueryBody::DrugPage(DrugPage {
+        out.body = (DrugPage {
             items: items.into(),
             total: Some(total),
-        });
+        })
+        .with_query(query.clone());
     }
     status::search(&mut out);
     command.finish(deadline.remaining());
@@ -101,9 +106,9 @@ fn disclosure(out: &mut Outcome, selector: Option<biodata::Text>) {
 pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     let label = matches!(query.sections(), [DrugSection::Label]);
     let mut out = super::empty(if label {
-        QueryBody::DrugLabel(None)
+        biomcp_types::DrugLabel::into_reply(query.clone(), None)
     } else {
-        QueryBody::DrugCard(None)
+        biomcp_types::DrugCard::into_reply(query.clone(), None)
     });
     if !matches!(query.sections(), [] | [DrugSection::Label])
         || label
@@ -171,7 +176,7 @@ fn select(
                 ));
             }
         }
-        out.body = QueryBody::DrugCard(Some(card));
+        out.body = card.with_query(query.clone());
         return Ok(());
     }
     let heading = query.label_section().map_or("", |h| h.as_str());
@@ -208,10 +213,11 @@ fn select(
             Section::unavailable(SOURCE, Reason::NotFound)
         }
     };
-    out.body = QueryBody::DrugLabel(Some(DrugLabel {
+    out.body = (DrugLabel {
         identity: record.header()?,
         label,
-    }));
+    })
+    .with_query(query.clone());
     Ok(())
 }
 

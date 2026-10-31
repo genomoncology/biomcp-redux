@@ -1,4 +1,5 @@
 //! Exact trial cards and immutable source section continuations.
+use biomcp_types::ReplyBody;
 pub(in crate::trial) mod page;
 mod snapshot;
 use self::snapshot::Snapshot;
@@ -7,7 +8,7 @@ use biodata::NctId;
 use biomcp_adapters::ctgov;
 use biomcp_fetch::{CacheError, RequestError};
 use biomcp_types::{
-    QueryBody, Request, Source, SourceState, Status, StepKind, TrialCardItem, TrialCards, TrialGet,
+    ReplyData, Request, Source, SourceState, Status, StepKind, TrialCardItem, TrialCards, TrialGet,
 };
 /// Retrieve independent input states under one shared command deadline.
 pub(crate) fn get(cx: &Ctx<'_>, query: &TrialGet) -> Outcome {
@@ -15,7 +16,7 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &TrialGet) -> Outcome {
         return super::nci::get(cx, query);
     }
 
-    let mut out = empty();
+    let mut out = empty(query);
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let result = if query.pool().is_some() {
@@ -97,7 +98,7 @@ fn fetch(
             )),
         }
     }
-    finish(items, source_updated, out);
+    finish(query, items, source_updated, out);
     Ok(())
 }
 fn restore(
@@ -117,6 +118,7 @@ fn restore(
             error,
         ));
         finish(
+            query,
             vec![unresolved(
                 id,
                 crate::status::item_status(false, true, false),
@@ -133,7 +135,7 @@ fn restore(
         |s| cx.fetch.disabled(s),
     )?;
     let Some(payload) = payload else {
-        out.body = QueryBody::PoolError { mismatch: false };
+        out.body = ReplyData::PoolError { mismatch: false };
         out.next.push(crate::next::Step::run(
             StepKind::Restart,
             &[query.source().source()],
@@ -147,13 +149,13 @@ fn restore(
         return Err(CacheError::Database.into());
     }
     if !page::valid(query, &snapshot) {
-        out.body = QueryBody::TextPositionError;
+        out.body = ReplyData::Usage(biomcp_types::UsageError::TextPositionError);
         return Ok(());
     }
     let version = snapshot.version.clone();
     out.sources = snapshot.sources.clone();
     let item = page::render(query, snapshot, query.pool().cloned(), out)?;
-    finish(vec![item], version, out);
+    finish(query, vec![item], version, out);
     Ok(())
 }
 fn not_found(error: RequestError) -> bool {
@@ -170,23 +172,28 @@ fn unresolved(input: NctId, status: Status) -> TrialCardItem {
     }
 }
 fn finish(
+    query: &TrialGet,
     items: Vec<TrialCardItem>,
     source_updated: Option<biomcp_types::SourceTimestamp>,
     out: &mut Outcome,
 ) {
     status::get(out, items.iter().map(|i| i.status));
-    out.body = QueryBody::TrialCards(TrialCards {
+    out.body = (TrialCards {
         items: items.into(),
         source_updated: source_updated.map(Into::into),
         attribution: "ClinicalTrials.gov; registry protocol text, no eligibility assessment".into(),
-    });
+    })
+    .with_query(query.clone());
 }
-fn empty() -> Outcome {
-    crate::status::empty(QueryBody::TrialCards(TrialCards {
-        items: Box::default(),
-        source_updated: None,
-        attribution: "ClinicalTrials.gov".into(),
-    }))
+fn empty(query: &TrialGet) -> Outcome {
+    crate::status::empty(
+        (TrialCards {
+            items: Box::default(),
+            source_updated: None,
+            attribution: "ClinicalTrials.gov".into(),
+        })
+        .with_query(query.clone()),
+    )
 }
 fn partial(snapshot: &Snapshot) -> bool {
     snapshot.detail.refusals == biomcp_adapters::Refusal::Refused

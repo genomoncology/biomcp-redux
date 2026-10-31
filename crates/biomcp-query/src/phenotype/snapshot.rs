@@ -5,7 +5,7 @@ use biodata::{PhenotypeHierarchyLink, PhenotypeSynonym, PhenotypeXref, Text};
 use biomcp_adapters::{hpo, monarch};
 use biomcp_fetch::{CacheError, Deadline, RequestError, SourceError};
 use biomcp_types::{
-    PhenotypeGet, PhenotypeSource, PhenotypeTermCard, QueryBody, Reason, Request, Source,
+    PhenotypeGet, PhenotypeSource, PhenotypeTermCard, Reason, ReplyData, Request, Source,
     SourceOutcome, StepKind,
 };
 use sha2::{Digest, Sha256};
@@ -34,7 +34,9 @@ pub(super) fn get(cx: &Ctx<'_>, q: &PhenotypeGet) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     match load(cx, q, deadline, &mut out) {
-        Ok(Some((rows, token))) => super::sections::apply(&mut out, &q.with_snapshot(token), rows),
+        Ok(Some((rows, token))) => {
+            super::sections::apply(&mut out, q, &q.with_snapshot(token), rows)
+        }
         Ok(None) => (),
         Err(error) => {
             out.local = status::local(error);
@@ -84,7 +86,7 @@ fn load(
         let Some(payload) =
             store.source_snapshot(token.as_str(), &key(q), |source| cx.fetch.disabled(source))?
         else {
-            out.body = QueryBody::PoolError { mismatch: false };
+            out.body = ReplyData::PoolError { mismatch: false };
             out.next.push(crate::next::Step::new(
                 StepKind::Restart,
                 &[source(q)],

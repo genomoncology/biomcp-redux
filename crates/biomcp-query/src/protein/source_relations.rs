@@ -3,8 +3,9 @@ use crate::{Ctx, Outcome, status, store::Store};
 use biodata::{Text, UniProtIsoform};
 use biomcp_adapters::{complex_portal, interpro};
 use biomcp_fetch::{CacheError, Deadline, RequestError, SourceError};
+use biomcp_types::ReplyBody;
 use biomcp_types::{
-    PageInfo, ProteinComplexMembersQuery, ProteinDomainsQuery, ProteinRelationQuery, QueryBody,
+    PageInfo, ProteinComplexMembersQuery, ProteinDomainsQuery, ProteinRelationQuery, ReplyData,
     Request, Source, StepKind,
 };
 use sha2::{Digest, Sha256};
@@ -65,11 +66,11 @@ impl Selection {
         h.update(serde_json::to_vec(&self.request(None)).map_err(|_| CacheError::Database)?);
         Ok(h.finalize().to_vec())
     }
-    pub(super) fn empty(&self) -> QueryBody {
+    pub(super) fn empty(&self) -> ReplyData {
         match self {
-            Self::Domains(_) => QueryBody::ProteinDomains(None),
-            Self::Complexes(_) => QueryBody::ProteinComplexes(None),
-            Self::Members(_) => QueryBody::ProteinComplexMembers(None),
+            Self::Domains(q) => biomcp_types::ProteinDomains::into_reply(q.clone(), None),
+            Self::Complexes(q) => biomcp_types::ProteinComplexes::into_reply(q.clone(), None),
+            Self::Members(q) => biomcp_types::ProteinComplexMembers::into_reply(q.clone(), None),
         }
     }
 }
@@ -90,7 +91,7 @@ pub(super) fn run(cx: &Ctx<'_>, q: Selection) -> Outcome {
     out
 }
 fn restart(q: &Selection, out: &mut Outcome, mismatch: bool) {
-    out.body = QueryBody::PoolError { mismatch };
+    out.body = ReplyData::PoolError { mismatch };
     out.next.push(crate::next::Step::run(
         StepKind::Restart,
         &[q.source()],

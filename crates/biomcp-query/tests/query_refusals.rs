@@ -51,7 +51,7 @@ fn query_resolution() -> Check {
             biomcp_types::Status::Complete
         };
         if mapped.status() != expected
-            || !matches!(mapped.body, biomcp_types::QueryBody::GeneCards(ref cards) if !cards.items.is_empty())
+            || !matches!(mapped.body, biomcp_types::ReplyData::GeneCards { body: Some(ref cards), .. } if !cards.items.is_empty())
         {
             return Err(
                 "HGNC query aggregation lost a retained gene or its actual refusal fact".into(),

@@ -1378,7 +1378,7 @@
     },
     {
       "path": "crates/biomcp-query/src/article/supplement.rs",
-      "site": "download: , content : Section : : NotApplicable , } ) ) ; let Ok ( selection ) = super : : protein_change : : Selection : : new",
+      "site": "download: . with_query ( query . clone ( ) ) , ) ; let Ok ( selection ) = super : : protein_change : : Selection : : new",
       "maximum": 1,
       "class": "migrated",
       "owner": "article",
@@ -1394,7 +1394,7 @@
     },
     {
       "path": "crates/biomcp-query/src/article/text.rs",
-      "site": "download: , content : Section : : NotApplicable , } ) ) ; let Ok ( selection ) = super : : protein_change : : Selection : : new",
+      "site": "download: . with_query ( query . clone ( ) ) , ) ; let Ok ( selection ) = super : : protein_change : : Selection : : new",
       "maximum": 1,
       "class": "migrated",
       "owner": "article",
@@ -1842,7 +1842,7 @@
     },
     {
       "path": "crates/biomcp-query/src/drug/recall.rs",
-      "site": "get: = empty ( QueryBody : : DrugRecallCard ( None ) ) ; let Ok ( id ) = q . input ( ) . to_string ( ) .",
+      "site": "get: into_reply ( q . clone ( ) , None ) ) ; let Ok ( id ) = q . input ( ) . to_string ( ) .",
       "maximum": 1,
       "class": "migrated",
       "owner": "drug",
@@ -2114,7 +2114,7 @@
     },
     {
       "path": "crates/biomcp-query/src/prepare.rs",
-      "site": "selector_error: biodata : : Text > , _ > > ( ) ; let Ok ( values ) = values else { return ErrorEnvelope : : arguments ( )",
+      "site": "selector_error: biodata : : Text > , _ > > ( ) ; let Ok ( values ) = values else { return UsageError : : arguments ( )",
       "maximum": 1,
       "class": "migrated",
       "owner": "prepare.rs",

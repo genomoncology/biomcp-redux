@@ -3,7 +3,7 @@ use crate::{Ctx, Outcome, status, store::Store};
 use biomcp_adapters::clinpgx;
 use biomcp_fetch::{CacheError, Deadline, RequestError, SourceError};
 use biomcp_types::{
-    PgxAnnotationKind, PgxAnnotations, PgxGet, QueryBody, Reason, Request, Source, SourceOutcome,
+    PgxAnnotationKind, PgxAnnotations, PgxGet, Reason, ReplyData, Request, Source, SourceOutcome,
     SourceState, StepKind,
 };
 use sha2::{Digest, Sha256};
@@ -50,7 +50,7 @@ pub(super) fn load(
             cx.fetch.disabled(source)
         })?
         else {
-            out.body = QueryBody::PoolError { mismatch: false };
+            out.body = ReplyData::PoolError { mismatch: false };
             out.next.push(crate::next::Step::run(
                 StepKind::Restart,
                 &[q.source().source()],

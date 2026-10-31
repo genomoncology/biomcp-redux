@@ -11,11 +11,11 @@ pub use article_pdf::ArticlePdf;
 mod article_text;
 pub use article_get::{ArticleGet, ArticleSection, ArticleSectionWord};
 pub use article_text::ArticleText;
+mod commands;
 mod gene;
-mod request;
+pub use commands::{COMMANDS, CommandSpec, Request, Rewrite, command_paths};
 pub(crate) use gene::present;
 pub use gene::{GeneGet, GeneSearch, GeneSection, GeneSectionWord};
-pub use request::Request;
 
 mod article_edges;
 pub use article_edges::{ArticleEdges, EdgeSource};

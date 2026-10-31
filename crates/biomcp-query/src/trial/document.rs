@@ -2,7 +2,8 @@
 use crate::{Ctx, Outcome, status};
 use biodata::TrialDocument;
 use biomcp_adapters::ctgov;
-use biomcp_types::{QueryBody, Section, Source, TrialDocumentGet, TrialDocumentResult};
+use biomcp_types::ReplyBody;
+use biomcp_types::{ReplyData, Section, Source, TrialDocumentGet, TrialDocumentResult};
 /// A typed source result before the binary writes a caller-owned file.
 #[derive(Debug)]
 pub struct Download {
@@ -18,12 +19,15 @@ pub fn download(cx: &Ctx<'_>, query: &TrialDocumentGet, allow: bool) -> Download
         .fetch
         .leg(&ctgov::SPEC, command.deadline())
         .fresh(cx.fresh);
-    let mut out = crate::status::ready(QueryBody::TrialDocument(TrialDocumentResult {
-        file: Section::Empty {
-            source: Source::ClinicalTrialsGov,
-            record: None,
-        },
-    }));
+    let mut out = crate::status::ready(
+        (TrialDocumentResult {
+            file: Section::Empty {
+                source: Source::ClinicalTrialsGov,
+                record: None,
+            },
+        })
+        .with_query(query.clone()),
+    );
     let result = ctgov::detail::get(&leg, query.input).and_then(|(detail, _)| {
         let incomplete_manifest = detail.document_refusals == biomcp_adapters::Refusal::Refused;
         out.include_refusals(detail.refusals);
@@ -35,11 +39,11 @@ pub fn download(cx: &Ctx<'_>, query: &TrialDocumentGet, allow: bool) -> Download
             .into_iter()
             .find(|d| d.filename == query.file)
         else {
-            missing_document(&mut out, incomplete_manifest);
+            missing_document(query, &mut out, incomplete_manifest);
             return Ok(None);
         };
         if !allow {
-            out.body = QueryBody::ArticleSaveRefused(document.url);
+            out.body = ReplyData::Usage(biomcp_types::UsageError::ArticleSaveRefused(document.url));
             return Ok(None);
         }
         ctgov::document::download(&leg, &document).map(|bytes| Some((document, bytes)))
@@ -48,12 +52,13 @@ pub fn download(cx: &Ctx<'_>, query: &TrialDocumentGet, allow: bool) -> Download
     if let Some(error) = error {
         crate::status::item(&mut out, false, true, false);
         out.local = status::local(error);
-        out.body = QueryBody::TrialDocument(TrialDocumentResult {
+        out.body = (TrialDocumentResult {
             file: Section::unavailable(
                 Source::ClinicalTrialsGov,
                 crate::status::reason(error).unwrap_or(biomcp_types::Reason::Unavailable),
             ),
-        });
+        })
+        .with_query(query.clone());
     }
     let remaining = leg.remaining();
     out.sources.push(status::source(
@@ -68,13 +73,14 @@ pub fn download(cx: &Ctx<'_>, query: &TrialDocumentGet, allow: bool) -> Download
     }
 }
 
-fn missing_document(out: &mut Outcome, incomplete_manifest: bool) {
+fn missing_document(query: &TrialDocumentGet, out: &mut Outcome, incomplete_manifest: bool) {
     if incomplete_manifest {
         crate::status::item(out, false, true, false);
-        out.body = QueryBody::TrialDocument(TrialDocumentResult {
+        out.body = (TrialDocumentResult {
             file: Section::unavailable(Source::ClinicalTrialsGov, biomcp_types::Reason::BadReply),
-        });
+        })
+        .with_query(query.clone());
     } else {
-        out.body = QueryBody::TextPositionError;
+        out.body = ReplyData::Usage(biomcp_types::UsageError::TextPositionError);
     }
 }

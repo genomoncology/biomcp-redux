@@ -1,4 +1,5 @@
 //! Confined supplement download, local parsing and bounded row selection.
+use biomcp_types::ReplyBody;
 mod page;
 use crate::{Ctx, Outcome, status};
 use biodata::Text;
@@ -6,7 +7,7 @@ use biomcp_adapters::pmc_oa;
 use biomcp_fetch::{Deadline, RequestError, SourceError};
 use biomcp_types::ArticleInput;
 use biomcp_types::{
-    ArticleSupplement, ArticleSupplementResult, QueryBody, Reason, Request, Section, Source,
+    ArticleSupplement, ArticleSupplementResult, Reason, ReplyData, Request, Section, Source,
     StepKind, SupplementContent,
 };
 use sha2::{Digest, Sha256};
@@ -19,12 +20,15 @@ pub fn download(cx: &Ctx<'_>, query: &ArticleSupplement, allow: bool) -> super::
     let mut save = super::save::State::new(allow);
     let command = cx.fetch.command_deadline(cx.budget);
     let mut deadline = command.deadline();
-    let mut out = crate::status::ready(QueryBody::ArticleSupplement(ArticleSupplementResult {
-        pmcid: None,
-        content: Section::NotApplicable,
-    }));
+    let mut out = crate::status::ready(
+        (ArticleSupplementResult {
+            pmcid: None,
+            content: Section::NotApplicable,
+        })
+        .with_query(query.clone()),
+    );
     let Ok(selection) = super::protein_change::Selection::new(query.find(), query.variant()) else {
-        out.body = QueryBody::TextPositionError;
+        out.body = ReplyData::Usage(biomcp_types::UsageError::TextPositionError);
         return super::save::Download { out, file: None };
     };
     let result = execute(cx, query, &selection, &mut deadline, &mut out, &mut save);
@@ -32,7 +36,10 @@ pub fn download(cx: &Ctx<'_>, query: &ArticleSupplement, allow: bool) -> super::
     if let Err(error) = result {
         out.local = out.local.or(status::local(error));
         crate::status::item(&mut out, false, true, false);
-        if let QueryBody::ArticleSupplement(body) = &mut out.body {
+        if let ReplyData::ArticleSupplementResult {
+            body: Some(body), ..
+        } = &mut out.body
+        {
             body.content = Section::unavailable(
                 Source::PmcOa,
                 crate::status::reason(error).unwrap_or(biomcp_types::Reason::Unavailable),
@@ -97,11 +104,15 @@ fn execute<'a>(
     }
     out.sources.push(source);
     let content = result?;
-    if !matches!(out.body, QueryBody::TextPositionError) {
-        out.body = QueryBody::ArticleSupplement(ArticleSupplementResult {
+    if !matches!(
+        out.body,
+        ReplyData::Usage(biomcp_types::UsageError::TextPositionError)
+    ) {
+        out.body = (ArticleSupplementResult {
             pmcid: Some(id),
             content,
-        });
+        })
+        .with_query(query.clone());
     }
     Ok(())
 }
@@ -133,7 +144,7 @@ fn content(
         .iter()
         .find(|v| v.file.name == *query.file())
     else {
-        out.body = QueryBody::TextPositionError;
+        out.body = ReplyData::Usage(biomcp_types::UsageError::TextPositionError);
         return Ok(Section::NotApplicable);
     };
     let mut content = empty(document.license, selection.forms.clone());
@@ -170,7 +181,7 @@ fn content(
         )
         .map_err(failure)?
         {
-            out.body = QueryBody::TextPositionError;
+            out.body = ReplyData::Usage(biomcp_types::UsageError::TextPositionError);
             return Ok(Section::NotApplicable);
         }
     }

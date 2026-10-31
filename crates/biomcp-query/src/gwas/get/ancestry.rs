@@ -1,10 +1,12 @@
 //! The existing store retains one complete received ancestry collection.
 use super::{
-    Ctx, Deadline, GwasAncestries, GwasAncestry, GwasGet, Outcome, Problem, QueryBody, Reason,
-    RequestError, Source, SourceOutcome, StepKind, action, gwas, page, rejected, status,
+    Ctx, Deadline, GwasAncestries, GwasAncestry, GwasGet, Outcome, Problem, Reason, RequestError,
+    Source, SourceOutcome, StepKind, action, gwas, page, rejected, status,
 };
 use crate::store::Store;
 use biomcp_fetch::{CacheError, SourceError};
+use biomcp_types::ReplyBody;
+use biomcp_types::ReplyData;
 use sha2::{Digest, Sha256};
 type Saved = (Vec<GwasAncestry>, Vec<SourceOutcome>, Vec<Problem>, bool);
 pub(super) fn read(
@@ -37,7 +39,7 @@ pub(super) fn read(
         let Some(payload) =
             store.source_snapshot(token.as_str(), &key, |s| cx.fetch.disabled(s))?
         else {
-            out.body = QueryBody::PoolError { mismatch: false };
+            out.body = ReplyData::PoolError { mismatch: false };
             out.next.push(crate::next::Step::new(
                 StepKind::Restart,
                 &[biomcp_types::Source::Gwas],
@@ -79,12 +81,13 @@ pub(super) fn read(
         let unavailable = false;
         crate::status::item(out, true, false, unavailable);
     };
-    let q = q.with_page(window.with_snapshot(token));
-    let (items, continuation) = page(&q, &saved.0, out);
-    out.body = QueryBody::GwasAncestries(Some(GwasAncestries {
+    let navigation = q.with_page(window.with_snapshot(token));
+    let (items, continuation) = page(&navigation, &saved.0, out);
+    out.body = (GwasAncestries {
         study: id.clone(),
         items,
         continuation,
-    }));
+    })
+    .with_query(q.clone());
     Ok(())
 }
