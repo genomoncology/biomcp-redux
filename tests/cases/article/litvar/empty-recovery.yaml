@@ -8,8 +8,6 @@
       "run": [
         "search",
         "article",
-        "--gene",
-        "AKT1",
         "--variant",
         "rs121434592",
         "--source",
@@ -21,13 +19,11 @@
         "/sources/0/source": "litvar",
         "/sources/0/state": "ok",
         "/next": {
-          "count": 4
+          "count": 3
         },
         "/next/0/args": [
           "search",
           "article",
-          "--gene",
-          "AKT1",
           "--source",
           "europepmc",
           "--variant",
@@ -36,8 +32,6 @@
         "/next/1/args": [
           "search",
           "article",
-          "--gene",
-          "AKT1",
           "--variant",
           "rs121434592"
         ],
@@ -45,12 +39,6 @@
           "get",
           "variant",
           "rs121434592"
-        ],
-        "/next/3/args": [
-          "search",
-          "article",
-          "--gene",
-          "AKT1"
         ],
         "/sources/0/notices/0/message": "If you have an rsID, look it up in LitVar with --variant RSID --source litvar."
       }
