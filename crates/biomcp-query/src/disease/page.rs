@@ -1,7 +1,7 @@
+use crate::Outcome;
 pub(super) use crate::next::run;
 pub(super) use crate::status::empty;
 pub(super) use crate::status::page_info;
-use crate::Outcome;
 use biomcp_types::DiseaseGet;
 pub(super) fn slice<T>(rows: Vec<T>, query: &DiseaseGet) -> (Vec<T>, u64) {
     let total = rows.len() as u64;

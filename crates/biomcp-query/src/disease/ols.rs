@@ -28,7 +28,10 @@ pub fn search(cx: &Ctx<'_>, query: &DiseaseSearch) -> Outcome {
         for row in &page.rows.value {
             if let Some(id) = &row.concept.id {
                 if let Some(get) = crate::next::checked(
-                    id.to_string().parse().map_err(|_| biomcp_types::QueryInvalid::new(&["id"])).and_then(|id| DiseaseGet::ols(id, row.ontology)),
+                    id.to_string()
+                        .parse()
+                        .map_err(|_| biomcp_types::QueryInvalid::new(&["id"]))
+                        .and_then(|id| DiseaseGet::ols(id, row.ontology)),
                     Source::Ols,
                     &mut out.problems,
                 ) {
