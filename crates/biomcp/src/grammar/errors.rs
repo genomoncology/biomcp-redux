@@ -62,7 +62,7 @@ fn parser_usage(command: &Command, path: &[&str], error: &clap::Error) -> Option
                 let values: Vec<_> = argument
                     .get_value_parser()
                     .possible_values()?
-                    .map(|value| biomcp_types::Text::new(value.get_name()).ok())
+                    .map(|value| biodata::Text::new(value.get_name()).ok())
                     .collect::<Option<_>>()?;
                 (!values.is_empty()).then(|| values.into())
             })
@@ -72,7 +72,7 @@ fn parser_usage(command: &Command, path: &[&str], error: &clap::Error) -> Option
                 } else {
                     "a flag without a value"
                 };
-                Some(vec![biomcp_types::Text::new(form).ok()?].into())
+                Some(vec![biodata::Text::new(form).ok()?].into())
             });
         (identity, values)
     } else if error.kind() == ErrorKind::UnknownArgument {
@@ -92,7 +92,7 @@ fn parser_usage(command: &Command, path: &[&str], error: &clap::Error) -> Option
         let values = command
             .get_arguments()
             .filter_map(|argument| argument.get_long())
-            .map(|name| biomcp_types::Text::new(&format!("--{name}")).ok())
+            .map(|name| biodata::Text::new(&format!("--{name}")).ok())
             .collect::<Option<Vec<_>>>()?;
         (spelling.to_owned(), Some(values.into()))
     } else {

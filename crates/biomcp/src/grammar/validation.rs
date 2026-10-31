@@ -75,7 +75,7 @@ fn resolve<'a>(schema: &'a Value, property: &'a Value) -> &'a Value {
     property
 }
 
-pub(super) fn accepted(schema: &Value, property: &Value) -> Option<Box<[biomcp_types::Text]>> {
+pub(super) fn accepted(schema: &Value, property: &Value) -> Option<Box<[biodata::Text]>> {
     let value = resolve(schema, property);
     let forms = if let Some(values) = value.get("enum").and_then(Value::as_array) {
         values
@@ -107,7 +107,7 @@ pub(super) fn accepted(schema: &Value, property: &Value) -> Option<Box<[biomcp_t
     };
     forms
         .into_iter()
-        .map(|form| biomcp_types::Text::new(&form).ok())
+        .map(|form| biodata::Text::new(&form).ok())
         .collect::<Option<Vec<_>>>()
         .map(Into::into)
 }
