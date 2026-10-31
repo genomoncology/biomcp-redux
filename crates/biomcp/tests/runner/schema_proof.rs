@@ -61,7 +61,7 @@ fn results(registry: &Registry) -> Result<(), String> {
         .validate(&long_id, &args, false)
         .err()
         .ok_or("long unknown identity accepted")?;
-    if diagnostic.chars().count() > 240 {
+    if diagnostic.chars().count() > super::output_limit("schema-diagnostic-characters")? {
         return Err("unbounded schema identity diagnostic".into());
     }
     nulls()?;
@@ -253,7 +253,7 @@ fn discovery() -> Result<(), String> {
         .pointer("/result/commands")
         .and_then(Value::as_array)
         .ok_or("missing commands")?;
-    parent_replies(commands)?;
+    parent_and_child_replies(commands)?;
     let mut replies = std::collections::BTreeSet::new();
     for command in commands {
         let schemas = command["reply_schemas"]
@@ -283,7 +283,8 @@ fn discovery() -> Result<(), String> {
                     | "author"
                     | "cell-line"
             )
-        ) && schemas.is_empty()
+        ) && command["command"].as_array().is_some_and(|path| path.len() > 1)
+            && schemas.is_empty()
         {
             return Err(format!("missing reply schemas for {}", command["command"]));
         }
@@ -321,25 +322,26 @@ fn resolve_replies(
 }
 
 tool_only! {
-fn parent_replies(commands: &[Value]) -> Result<(), String> {
+fn parent_and_child_replies(commands: &[Value]) -> Result<(), String> {
     let parent = commands
         .iter()
         .find(|command| command["command"] == json!(["get"]))
         .ok_or("missing get parent command")?;
-    let replies = parent["reply_schemas"]
-        .as_array()
-        .ok_or("missing parent reply schemas")?;
-    for id in ["biomcp.drug-who-card/3", "biomcp.pgx-annotation/5"] {
-        if !replies.iter().any(|reply| reply.as_str() == Some(id)) {
-            return Err(format!("missing child reply {id} for get parent"));
-        }
+    if parent.get("reply_schemas").is_some() {
+        return Err("non-executable get header advertises reply schemas".into());
     }
-    if replies
-        .iter()
-        .zip(replies.iter().skip(1))
-        .any(|(left, right)| left.as_str() >= right.as_str())
-    {
-        return Err("parent reply schemas are not sorted and unique".into());
+    for command in commands {
+        let Some(replies) = command.get("reply_schemas").and_then(Value::as_array) else {
+            continue;
+        };
+        if replies.iter().any(|id| id.as_str().is_none())
+            || replies.windows(2).any(|pair| match pair {
+                [left, right] => left.as_str() >= right.as_str(),
+                _ => false,
+            })
+        {
+            return Err(format!("child reply schemas are not sorted unique strings: {}", command["command"]));
+        }
     }
     Ok(())
 }

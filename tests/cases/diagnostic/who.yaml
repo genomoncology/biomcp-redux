@@ -1,4 +1,5 @@
 {
+  "live_check": "synthetic authored or response-edited replies; no live provider observation",
   "feature": "diagnostic-who",
   "story": "Synthetic WHO product rows retain their own complete cells and source order; exact cards do not infer FDA identity or clinical scope.",
   "replay": "diagnostic/who-synthetic",

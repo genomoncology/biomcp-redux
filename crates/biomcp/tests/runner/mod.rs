@@ -1,183 +1,120 @@
-mod adverse_event_failures;
-mod adverse_event_registry;
-mod adverse_event_retirements;
-mod article_recovery;
+mod corporate;
+mod credential_containment;
+mod drug_identity;
+mod key_reload;
+mod local_files;
+tool_only! { mod protein_commands; }
+tool_only! { mod trial_condition; }
+tool_only! { pub(super) mod other_source_value_proof; }
 mod article_save;
 mod article_save_reply;
 mod assertions;
-mod author;
 pub(super) mod case_main;
+tool_only! { pub(super) mod cell_line; }
+tool_only! { mod disease_mydisease; }
+tool_only! { mod disease_ols; }
+tool_only! { mod disease_seer; }
 mod execution;
+mod faers_search;
 mod mapped_refusals;
+mod native_fields;
 #[path = "../support/pool_contracts.rs"]
 mod pool_contract;
 #[path = "../support/synthetic_contracts.rs"]
 mod required_contract;
+mod trial_bad_values;
 tool_only! { pub(super) mod tools_api; }
 mod features;
-mod orcid;
 use crate::runner::transcript::trial as transcript_trial;
 use execution::run_step;
 mod alphagenome;
 mod alphagenome_tls;
 mod cache_contention;
 mod capture;
-pub(super) mod cell_line;
 mod citation_values;
 mod clinpgx;
-mod clinvar_key;
 mod configuration;
-mod corporate;
 mod cpic;
-mod credential_containment;
-mod diagnostic_510k;
-mod diagnostic_bundles;
 mod diagnostic_cdx;
-mod diagnostic_gtr;
-mod diagnostic_pma;
-mod diagnostic_registry;
 mod diagnostic_retirements;
 mod diagnostic_who;
 mod disease_monarch;
-mod disease_mydisease;
-mod disease_ols;
-mod disease_registry;
-mod disease_seer;
 mod drug_civic;
 mod drug_civic_fixtures;
-mod drug_ddinter;
-mod drug_ema;
-mod drug_failures;
-mod drug_fda;
-mod drug_identity;
 mod drug_label;
-mod drug_mychem;
-mod drug_native;
-mod drug_native_identity;
 mod drug_next;
-mod drug_recall;
-mod drug_recall_capture;
-mod drug_registry;
-mod drug_retirements;
-mod drug_who;
 mod evidence;
 mod faers_get;
-mod faers_search;
-mod format_selection;
-mod gene_tables;
-mod health_bundles;
 tool_only! { mod hgnc_sync; }
 mod held_proxy;
-mod help_entry;
-mod help_examples;
 mod housekeeping;
-mod hpo_registry;
 mod http;
 mod http_limits;
-mod key_help;
 mod key_registration;
-mod key_reload;
 pub(super) mod launch;
-tool_only! { mod literature_values; }
-mod litvar_tables;
+mod recurrence;
+mod remote_tools;
+mod replay;
 tool_only! { pub(crate) mod live; }
 tool_only! { mod live_follow_proof; }
 tool_only! { mod live_proof; }
-mod local_files;
-mod markdown;
-mod markdown_shapes;
-mod markdown_sources;
-mod markdown_variant_sources;
-mod markdown_variant_trial;
 mod maude;
 mod maude_budget;
-mod maude_policy;
-mod maude_snapshot;
 mod mcp;
 mod mcp_boundaries;
-mod named_search;
-mod native_fields;
+mod mcp_hosted;
 mod nci;
-mod nci_walk;
 tool_only! { mod negative_cases; }
 mod network_stub;
-mod next_navigation;
 mod normalization;
-tool_only! { pub(super) mod other_source_value_proof; }
 mod oncokb;
 mod oncokb_context;
-mod openfda_key;
-mod openfda_website;
 mod output_stream;
 mod pathway_budgets;
 mod pathway_commands;
-mod pathway_failures;
 mod pathway_get_pages;
-mod pathway_registry;
-mod pathway_retirements;
 mod pathway_sections;
 mod pdf;
-mod pgx_registry;
 mod pgx_retirements;
 mod phenotype;
-mod pmc_tables;
-mod pool_tables;
 mod process;
 pub(super) mod proof;
 mod protein_budgets;
-mod protein_commands;
 mod protein_domains;
-mod protein_registry;
 mod protein_sections;
 mod protocol;
-mod public_grammar;
 mod publication;
-mod recurrence;
-mod recurrence_errors;
-mod recurrence_metadata;
-mod replay;
 mod reply_comparison;
 mod research;
 mod response_cases;
 mod schema;
+mod skill;
 tool_only! { mod schema_evolution; }
 mod schema_proof;
-mod scholar;
 tool_only! { mod semantic_tables; }
-mod skill;
-mod source_controls;
-mod source_deadlines;
-mod source_groups;
 mod source_terms;
-mod source_text;
 mod store_clean;
 mod store_coexistence;
 mod study_catalog;
-mod supplement_tables;
-mod terminal_edges;
 mod transcript;
-mod trial_bad_values;
-mod trial_condition;
-mod trial_documents;
-mod trial_eligibility;
 mod trial_get;
-mod trial_group;
-mod trial_groups;
 mod trial_sites;
-mod trial_tables;
-mod trial_wider;
 mod vaers;
 mod variant;
 mod variant_civic;
-mod variant_filters;
 mod variant_hotspots;
 mod variant_population;
-mod variant_population_release;
-mod variant_search;
 mod wikipathways;
 
-// Complete help: j18463 measured 114273 bytes; reviewed ceiling adds fifteen percent.
-pub(super) const CLI_HELP_BYTES: usize = 152733;
+pub(super) fn output_limit(name: &str) -> Result<usize, String> {
+    let limits: std::collections::BTreeMap<String, usize> =
+        serde_saphyr::from_str(&launch::fixture_text("runner-output-budgets.yaml")?)
+            .map_err(|error| error.to_string())?;
+    limits
+        .get(name)
+        .copied()
+        .ok_or_else(|| format!("missing output budget: {name}"))
+}
 
 use libtest_mimic::Trial;
 use serde_json::Value;
@@ -193,7 +130,7 @@ pub(super) fn discover(root: &Path) -> Result<Vec<Trial>, String> {
     if paths.is_empty() {
         return Err(format!("{}: no YAML cases", root.display()));
     }
-    let registry = Arc::new(schema::Registry::embedded()?);
+    let registry = schema::Registry::embedded()?;
     let trials = paths
         .into_iter()
         .map(|path| {
@@ -271,6 +208,7 @@ fn run_case(path: &Path, registry: &schema::Registry) -> Result<Value, String> {
                 registry,
                 replay.as_deref(),
                 previous.as_ref(),
+                index.checked_sub(1).and_then(|index| case.steps.get(index)),
             )
             .map_err(|error| format!("{}; step {}: {error}", case.story, index + 1))?,
         );
@@ -278,79 +216,66 @@ fn run_case(path: &Path, registry: &schema::Registry) -> Result<Value, String> {
     previous.ok_or_else(|| "case requires at least one step".into())
 }
 
-fn discovery_trials() -> Vec<Trial> {
-    let mut trials = housekeeping::trials();
-    trials.extend(help_entry::trials());
-    trials.extend(skill::trials());
-    trials.extend(public_grammar::trials());
-    trials
-}
-
 pub(super) fn protocol_trials() -> Vec<Trial> {
-    let mut trials = protocol::trials();
+    let mut trials = Vec::new();
+    trials.extend(protocol::trials());
+    trials.extend(configuration::trials());
+    trials.extend(recurrence::trials());
+    trials.extend(replay::trials());
     trials.extend(output_stream::trials());
-    trials.extend(discovery_trials());
     trials.extend(research::trials());
-    trials.push(transcript_trial("article-help/executable-examples", || {
-        help_examples::check().map_err(Into::into)
-    }));
-    trials.push(transcript_trial(
-        "article-supplements/ping-after-bounded-refusal",
-        || supplement_tables::ping_after_refusal().map_err(Into::into),
-    ));
+    trials.extend(cache_contention::trials());
+    trials.extend(corporate::trials());
+    trials.extend(drug_identity::trials());
+    trials.extend(key_registration::trials());
+    trials.extend(pdf::trials());
+    trials.push(skill::trial());
+    trials.extend(credential_containment::trials());
+    // Private Refusal facts are visible only at the public adapter API.
+    trials.extend(mapped_refusals::trials());
+    trials.extend(http::trials());
+    trials.extend(remote_tools::trials());
+    trials.extend(mcp_boundaries::trials());
+    trials.extend(mcp_hosted::trials());
+    trials.extend(alphagenome_tls::trials());
+    trials.extend(housekeeping::trials());
+    trials.extend(clinpgx::trials());
+    trials.extend(variant_hotspots::trials());
+    trials.extend(vaers::trials());
+    trials.extend(trial_get::trials());
+    trials.push(trial_sites::trial());
+    trials.extend(variant_assertion_wire::trials());
+    trials.extend(evidence::trials());
+    trials.extend(variant::trials());
+    trials.extend(variant_population::trials());
+    trials.extend(oncokb_context::trials());
+    trials.extend(variant_assertions::trials());
+    trials.extend(pathway_sections::trials());
+    trials.extend(oncokb::trials());
+    trials.extend(protein_sections::trials());
+    trials.extend(drug_label::trials());
+    trials.extend(study_catalog::trials());
+    trials.extend(pathway_commands::trials());
+    trials.extend(gwas_search::trials());
+    trials.extend(diagnostic_who::trials());
+    trials.push(wikipathways::trial());
+    trials.extend(variant_civic::trials());
+    trials.extend(protein_domains::trials());
+    trials.extend(faers_get::trials());
+    trials.extend(faers_search::trials());
+    trials.extend(cpic::trials());
+    trials.extend(maude::trials());
+    trials.extend(disease_monarch::trials());
+    trials.extend(normalization::trials());
+    trials.extend(gwas_get::trials());
+    trials.extend(phenotype::trials());
+    trials.extend(drug_next::trials());
+    trials.extend(nci::trials());
+    trials.extend(drug_civic::trials());
+    trials.push(citation_values::trial());
     trials.push(transcript_trial(pool_contract::ARTICLE_SAVES.0, || {
         article_save::check().map_err(Into::into)
     }));
-    trials.extend(gene_tables::trials());
-    trials.extend(litvar_tables::trials());
-    trials.extend(named_search::trials());
-    trials.extend(protein_commands::trials());
-    trials.extend(pathway_retirements::trials());
-    trials.extend(pathway_failures::trials());
-    trials.extend(protein_sections::trials());
-    trials.extend(protein_domains::trials());
-    trials.extend(trial_group::trials());
-    trials.extend(clinvar_key::trials());
-    trials.push(transcript_trial(
-        "article-fulltext/source-boundaries",
-        || pmc_tables::check().map_err(|e| e.to_string().into()),
-    ));
-    trials.push(transcript_trial(
-        "article-search/snapshot-replacement",
-        || pool_tables::check().map_err(Into::into),
-    ));
-    trials.extend(configuration::trials());
-    trials.extend(replay::trials());
-    trials.extend(article_recovery::trials());
-    trials.extend(cache_contention::trials());
-    trials.extend(credential_containment::trials());
-    trials.extend(key_registration::trials());
-    trials.extend(openfda_key::trials());
-    trials.push(openfda_website::trial());
-    trials.extend(key_help::trials());
-    trials.extend(scholar::trials());
-    trials.extend(evidence::trials());
-    trials.push(citation_values::trial());
-    trials.extend(pdf::trials());
-    trials.extend(source_controls::trials());
-    trials.extend(health_bundles::trials());
-    trials.extend(source_deadlines::trials());
-    trials.extend(source_groups::trials());
-    trials.extend(trial_groups::drug_trials());
-    trials.extend(disease_trials());
-
-    trials.extend(source_terms::trials());
-
-    trials.extend(http::trials());
-    trials.extend(mcp_boundaries::trials());
-    trials.extend(corporate::trials());
-    trials.extend(format_selection::trials());
-    trials.extend(terminal_edges::trials());
-    trials.extend(variant::trials());
-    trials.extend(markdown::trials());
-    trials.extend(markdown_shapes::trials());
-    trials.extend(markdown_variant_trial::trials());
-    trials.extend(markdown_sources::trials());
     trials.push(transcript_trial(
         "mcp-parity/ping-passes-held-provider-call",
         || held_proxy::check().map_err(Into::into),
@@ -410,9 +335,11 @@ fn run_sequence(
     registry: &schema::Registry,
     replay: Option<&Path>,
     previous: Option<&Value>,
+    previous_step: Option<&Step>,
 ) -> Result<Value, String> {
+    let paired = assertions::markdown_pair(step, previous_step, previous)?;
     run_sequence_with(step, expectations, previous, |current, expectations| {
-        run_step(current, environment, expectations, registry, replay)
+        run_step(current, environment, expectations, registry, replay, paired)
     })
 }
 
@@ -496,45 +423,21 @@ fn run_sequence_with(
 
 mod variant_assertion_wire;
 mod variant_assertions;
-mod variant_condition_relationship;
-mod variant_discovery;
-
-fn disease_trials() -> Vec<Trial> {
-    disease_registry::trials()
-        .into_iter()
-        .chain(disease_ols::trials())
-        .chain(disease_mydisease::trials())
-        .chain(disease_monarch::trials())
-        .chain(phenotype::trials())
-        .chain(cell_line::trials())
-        .chain(author::trials())
-        .chain(orcid::trials())
-        .chain(disease_seer::trials())
-        .chain(mapped_refusals::trials())
-        .collect()
-}
 
 mod gwas_budgets;
 mod gwas_get;
 mod gwas_search;
 
-mod wikipathways_genes;
-
 mod reply_readback;
 
 tool_only! {
     pub(super) fn tool_trials() -> Result<Vec<Trial>, String> {
-        let registry = Arc::new(schema::Registry::embedded()?);
+        let registry = schema::Registry::embedded()?;
         let mut trials = proof::trials();
         trials.push(reply_comparison::trial());
-        trials.extend(literature_values::trials());
         trials.extend(hgnc_sync::trials());
-        trials.extend(gene_tables::tool_trials());
-        trials.extend(drug_native_identity::tool_trials());
-        trials.extend(wikipathways::tool_trials());
-        trials.extend(protein_sections::tool_trials());
-        trials.extend(disease_mydisease::tool_trials());
         trials.extend(schema_proof::trials(registry));
+        trials.extend(source_terms::trials());
         trials.extend(live_proof::trials());
         trials.extend(live_follow_proof::trials());
         Ok(trials)

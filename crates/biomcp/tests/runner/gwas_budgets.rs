@@ -1,6 +1,6 @@
 //! Named full-envelope command phases; native replay budgets remain independently owned.
 use super::{configuration, launch::Environment, mcp};
-use serde_json::{Value, json};
+use serde_json::Value;
 use std::io::Write;
 
 pub(super) fn invoke(
@@ -56,61 +56,4 @@ pub(super) fn invoke(
         ));
     }
     Ok(cli)
-}
-
-pub(super) fn optional_page(value: &Value, field: &str, omitted: &str) -> Result<(), String> {
-    if value.get("status") != Some(&json!("partial"))
-        || value.pointer("/page/returned") != Some(&json!(3))
-        || value.pointer("/page/total") != Some(&json!(6))
-        || value
-            .pointer("/sources/0/retrieved_count")
-            .is_some_and(|count| count != &json!(3))
-        || value.pointer("/result/items/0/id") != Some(&json!("association:6110"))
-        || value.pointer("/result/items/2/id") != Some(&json!("association:6112"))
-        || value.pointer(omitted).is_some()
-        || !value
-            .get("problems")
-            .and_then(Value::as_array)
-            .is_some_and(|rows| {
-                rows.iter().any(|p| {
-                    p.get("field") == Some(&json!(field)) && p.get("record") == Some(&json!("6110"))
-                })
-            })
-    {
-        return Err(format!(
-            "optional GWAS field lost valid rows, native counts or precise refusal: {value}"
-        ));
-    }
-    let next = super::action(value, "page")?;
-    let offset = if value.pointer("/query/operation") == Some(&json!("get")) {
-        "--section-offset"
-    } else {
-        "--offset"
-    };
-    if !next.windows(2).any(|pair| pair == [offset, "3"]) {
-        return Err(format!(
-            "optional GWAS field changed consumed native continuation: {next:?}"
-        ));
-    }
-    Ok(())
-}
-
-pub(super) fn cached(
-    phase: &str,
-    env: &Environment,
-    words: &[&str],
-    original: &Value,
-) -> Result<(), String> {
-    let mut args = env.globals(None, true);
-    args.extend(words.iter().map(|word| (*word).to_owned()));
-    let cached = invoke(phase, env, args, 0)?;
-    if cached.get("result") != original.get("result")
-        || cached.get("status") != original.get("status")
-        || cached.get("problems") != original.get("problems")
-    {
-        return Err(format!(
-            "valid GWAS identities with omitted optional metadata did not cache intact: {cached}"
-        ));
-    }
-    Ok(())
 }

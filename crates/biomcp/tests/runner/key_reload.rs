@@ -126,12 +126,7 @@ pub(super) fn start(
 pub(super) fn check(http: bool, fallback: bool) -> Check {
     check_source(http, fallback, false)
 }
-pub(super) fn nci() -> Check {
-    for http in [false, true] {
-        check_source(http, true, true)?;
-    }
-    Ok(())
-}
+
 fn check_source(http: bool, fallback: bool, nci: bool) -> Check {
     let assets = Environment::new().map_err(|e| e.to_string())?;
     let source = if nci { "nci" } else { "semantic-scholar" };

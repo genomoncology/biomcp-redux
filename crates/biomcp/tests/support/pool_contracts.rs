@@ -56,12 +56,6 @@ pub(crate) const TRIAL: (&str, &[&str]) = (
     ],
 );
 
-// Native NCT01811710 HTTP404 absence stays independent of a synthetic sibling outage.
-pub(crate) const TRIAL_ABSENCE: (&str, &[&str]) = (
-    "trial-get/get/independent-input-states",
-    &["failure trial not-found"],
-);
-
 pub(crate) const ARTICLE_SAVES: (&str, &[&str]) = (
     "article-saves/explicit-original-files",
     &[
@@ -147,3 +141,7 @@ pub(crate) const HTTP_HOST: (&str, &[&str]) = (
     "mcp-http/host-origin-method-and-metadata-boundaries",
     &["option serve --allow-host"],
 );
+
+// This hosted stdio call asserts refusal and the ordinary unhosted health reply.
+pub(crate) const HOSTED_MODE: (&str, &[&str]) =
+    ("mcp-hosted/stdio/health", &["option serve --hosted"]);

@@ -1,6 +1,6 @@
 {
   "feature": "trial-search",
-  "live_check": "bounded public ClinicalTrials.gov country capture; retained bodies for request-mapping stubs",
+  "live_check": "local-only configured request-mapping controls combine a retained registry body, synthetic country contradictions and an NCI replay key; tests/replies/trial/country/README.md records the native body",
   "story": "Country filters reach the source and echo exact labels; one recorded US trial lists a US site. OR, NCI mapping and refusal boundaries share this case.",
   "steps": [
     {

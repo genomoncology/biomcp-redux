@@ -1,6 +1,6 @@
 {
   "feature": "gene-help",
-  "live_check": "public",
+  "live_check": "local-only generated command help; no source requests",
   "replay": "gene/main",
   "steps": [
     {

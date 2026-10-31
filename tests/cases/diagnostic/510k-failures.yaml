@@ -1,4 +1,5 @@
 {
+  "live_check": "synthetic rate-limit, server-error, deadline and malformed clearance replies",
   "feature": "diagnostic-510k",
   "story": "Synthetic rate limits, upstream errors, deadlines and malformed replies stay failures with the clearance source policy.",
   "replay": "diagnostic/510k-failures",

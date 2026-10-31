@@ -245,7 +245,10 @@ pub(super) fn mcp(
         .map_err(|e| e.to_string())?,
     )
     .map_err(|e| e.to_string())?;
-    super::super::run_case(file.path(), &super::super::schema::Registry::embedded()?)?;
+    super::super::run_case(
+        file.path(),
+        super::super::schema::Registry::embedded()?.as_ref(),
+    )?;
     Ok(())
 }
 

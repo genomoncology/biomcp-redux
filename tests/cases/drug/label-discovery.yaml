@@ -1,4 +1,6 @@
 {
+  "verified": "tests/replies/drug/label-discovery/provenance.json records the native openFDA identity and product fields and original body hashes. Local request wrappers and synthetic absences are declared there. Nightly execution checks the public label discovery and section requests.",
+  "live_check": "public",
   "feature": "drug-label",
   "story": "Recorded labels support free-text discovery without harmonized names and exact application searches without product substitution. The guide section command preserves the recorded identity/display subset and reports its unavailable warning section.",
   "replay": "drug/label-discovery",

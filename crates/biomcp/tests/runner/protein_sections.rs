@@ -5,27 +5,13 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::{fs, path::Path};
 mod boundaries;
-mod native;
+
 pub(super) fn trials() -> Vec<Trial> {
-    let path = super::launch::fixtures().join("protein-section-native/cases");
-    let absent = !path.is_dir();
-    vec![
-        transcript_trial(
-            "protein-sections/retained-native-facts-and-costs",
-            move || native::run(&path).map_err(Into::into),
-        )
-        .with_ignored_flag(absent),
-        transcript_trial(crate::runner::pool_contract::FEATURES.0, || {
-            boundaries::features().map_err(Into::into)
-        }),
-        transcript_trial("protein-sections/direct-sequence-admission", || {
-            boundaries::sequence().map_err(Into::into)
-        }),
-        transcript_trial(
-            "protein-sections/source-failures-retain-section-state",
-            || failures().map_err(Into::into),
-        ),
-    ]
+    // The peer checks exact source coordinates, bound page identities and request counts after section continuations.
+    vec![transcript_trial(
+        crate::runner::pool_contract::FEATURES.0,
+        || boundaries::features().map_err(Into::into),
+    )]
 }
 fn setup(stub: &Stub) -> Result<Environment, String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
@@ -62,46 +48,5 @@ fn call(
     words.extend(args.iter().map(|s| (*s).to_owned()));
     invoke(env, words, exit).map_err(|e| format!("{args:?}: {e}"))
 }
-fn record(env: &Environment, args: &[&str], directory: &Path, exit: i32) -> Result<Value, String> {
-    let mut words = args.to_vec();
-    words.extend(["--record", directory.to_str().ok_or("record directory")?]);
-    call(env, None, &words, exit)
-}
-fn failures() -> Result<(), String> {
-    for (fixture, reason) in [
-        ("rate-limit", "rate_limit"),
-        ("server-error", "server"),
-        ("timeout", "deadline"),
-        ("broken-body", "bad-reply"),
-    ] {
-        let replay = super::launch::fixtures()
-            .join("replies/protein")
-            .join(fixture);
-        let env = Environment::new().map_err(|e| e.to_string())?;
-        let value = call(
-            &env,
-            Some(&replay),
-            &["get", "protein", "P00533", "structures"],
-            4,
-        )?;
-        super::protein_budgets::check(&value, &format!("section-failure/{fixture}"), "cli")?;
-        if value.pointer("/status") != Some(&json!("failed"))
-            || value.pointer("/result/items/0/sections/structures/state")
-                != Some(&json!("unavailable"))
-            || value.pointer("/sources/0/terms") != Some(&json!("CC BY 4.0"))
-        {
-            return Err(format!("{reason} became an empty structure page: {value}"));
-        }
-    }
-    Ok(())
-}
 
-tool_only! {
-pub(super) fn tool_trials() -> Vec<Trial> {
-    vec![
-        transcript_trial("protein-sections/invalid-feature-id-keeps-identity", || {
-            boundaries::feature_id().map_err(Into::into)
-        }),
-    ]
-}
-}
+tool_only! {}

@@ -1,5 +1,5 @@
 {
-  "feature": "disease-ols",
+  "feature": "disease-seer",
   "live_check": "Synthetic local replay; no provider requests.",
   "story": "Generated disease examples select publisher sites and explicit native statistic selectors.",
   "replay": "disease/seer-synthetic",

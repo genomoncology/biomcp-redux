@@ -1,4 +1,5 @@
 {
+  "live_check": "local-only command help, validation or stored-state behavior; no recorded source replies",
   "feature": "drug-help",
   "story": "Drug help exposes source-scoped sections and options with two executable examples per command and bundle sync.",
   "steps": [

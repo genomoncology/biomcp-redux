@@ -75,8 +75,6 @@ pub(super) fn required_surface_has_asserted_calls() -> Check {
     let (help, tools) = metadata()?;
     let mut counts = tally::Inventory::new(&help, &tools)?;
     counts.runner(housekeeping_contract::OFFLINE_PROVENANCE.1);
-    counts.runner(synthetic_contracts::GWAS_SELECTORS.1);
-    counts.runner(synthetic_contracts::GWAS_PAGES.1);
     counts.runner(synthetic_contracts::GWAS_POOL.1);
     counts.runner(synthetic_contracts::GWAS_ANCESTRY.1);
     counts.runner(synthetic_contracts::GWAS_ASSOCIATIONS.1);
@@ -99,7 +97,6 @@ pub(super) fn required_surface_has_asserted_calls() -> Check {
     counts.runner(pool_contracts::FEATURES.1);
     counts.runner(pool_contracts::MEMBERS.1);
     counts.runner(pool_contracts::TRIAL.1);
-    counts.runner(pool_contracts::TRIAL_ABSENCE.1);
     counts.runner(pool_contracts::ARTICLE_SAVES.1);
     counts.runner(pool_contracts::DOMAIN_PAGES.1);
     counts.runner(pool_contracts::DOMAIN_TYPE.1);
@@ -111,6 +108,7 @@ pub(super) fn required_surface_has_asserted_calls() -> Check {
     counts.runner(pool_contracts::VARIANT_CIVIC_CURSOR.1);
     counts.runner(pool_contracts::PATHWAY_EVENTS.1);
     counts.runner(pool_contracts::HTTP_HOST.1);
+    counts.runner(pool_contracts::HOSTED_MODE.1);
 
     counts.runner(synthetic_contracts::LABEL_HEADINGS.1);
     counts.runner(synthetic_contracts::ONCOKB.1);

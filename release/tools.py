@@ -10,10 +10,10 @@ import tempfile
 def declared(root):
     protocol = (root / "crates/biomcp/src/mcp/protocol.rs").read_text()
     research = (root / "crates/biomcp/src/mcp/research.rs").read_text()
-    primary = protocol.split("pub(super) fn tool()", 1)[1].split("pub(super) fn tools()", 1)[0]
+    primary = protocol.split("pub(super) fn tool(", 1)[1].split("pub(super) fn tools(", 1)[0]
     projections = research.split("pub(super) fn tools()", 1)[1].split("#[derive", 1)[0]
-    assembly = protocol.split("pub(super) fn tools()", 1)[1].split("pub(super) fn result", 1)[0]
-    if re.sub(r"\s+", "", assembly) != "->std::io::Result<Vec<Value>>{letmuttools=vec![tool()?];tools.extend(super::research::tools()?);Ok(tools)}":
+    assembly = protocol.split("pub(super) fn tools(", 1)[1].split("pub(super) fn result", 1)[0]
+    if re.sub(r"\s+", "", assembly) != "read_only:bool)->std::io::Result<Vec<Value>>{letmuttools=vec![tool(read_only)?];tools.extend(super::research::tools()?);Ok(tools)}":
         raise ValueError("unrecognized server tool assembly")
     names = re.findall(r'"name"\s*:\s*"([a-z][a-z0-9_-]*)"', primary)
     rows = re.fullmatch(r'\s*->\s*io::Result<Vec<Value>>\s*\{\s*\[(.*?)\]\s*\.into_iter\(\)\s*\.map\(\|\(name,\s*key,\s*description\)\|\s*\{.*\}\)\s*\.collect\(\)\s*\}\s*', projections, re.S)

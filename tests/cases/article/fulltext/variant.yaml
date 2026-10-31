@@ -1,4 +1,5 @@
 {
+  "live_check": "synthetic authored or response-edited replies; no live provider observation",
   "feature": "article-fulltext",
   "story": "explicit-protein-change",
   "replay": "article/fulltext/synthetic",

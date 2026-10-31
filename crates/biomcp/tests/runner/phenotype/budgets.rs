@@ -1,7 +1,6 @@
 //! Named full-envelope phenotype phases; CLI includes its newline.
 use serde_json::Value;
 use std::io::Write;
-use std::path::Path;
 pub(super) fn check(value: &Value, phase: &str, surface: &str) -> Result<(), String> {
     let observed =
         serde_json::to_vec(value).map_err(|e| e.to_string())?.len() + usize::from(surface == "cli");
@@ -24,20 +23,10 @@ pub(super) fn bytes(observed: usize, phase: &str, surface: &str) -> Result<(), S
     }
     Ok(())
 }
-pub(super) fn mcp(
-    phase: &str,
-    directory: &Path,
-    words: &[&str],
-    value: &Value,
-    exit: i32,
-) -> Result<(), String> {
-    check(value, phase, "mcp")?;
-    super::native::mcp(directory, words, value, exit, Some(ceiling(phase, "mcp")?))
-}
 
 fn ceiling(phase: &str, surface: &str) -> Result<usize, String> {
     if (phase, surface) == ("mod/help/invoke1", "cli") {
-        return Ok(super::super::CLI_HELP_BYTES);
+        return super::super::output_limit("cli-help");
     }
     let measurements: std::collections::BTreeMap<String, usize> = serde_saphyr::from_str(
         &crate::runner::launch::fixture_text("phenotype-command-budgets.yaml")?,

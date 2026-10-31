@@ -267,6 +267,10 @@ def classify_case(row):
 
 
 def classify_report(report):
+    eligible, checked = report.get('eligible'), report.get('checked')
+    if (type(eligible) is not int or type(checked) is not int
+            or eligible < 0 or checked != eligible):
+        raise ValueError('checked count does not match eligible cases')
     counts = [report['drift_cases'], report['error_cases']]
     if any(type(count) is not int or count < 0 for count in counts):
         raise ValueError('invalid drift/error counts')

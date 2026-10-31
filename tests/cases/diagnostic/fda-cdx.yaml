@@ -1,4 +1,5 @@
 {
+  "live_check": "synthetic authored or response-edited replies; no live provider observation",
   "feature": "diagnostic-cdx",
   "story": "Synthetic companion tables preserve whole cells, native row order, owned identifiers and pinned continuations through CLI and MCP. Ceilings use measured complete CLI wire replies with fifteen percent headroom.",
   "replay": "diagnostic/fda-cdx-synthetic",

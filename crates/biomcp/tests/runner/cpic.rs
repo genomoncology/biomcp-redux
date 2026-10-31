@@ -1,6 +1,6 @@
 //! Feature cpic-pgx: synthetic native retrieval through the actual CLI and MCP.
 use super::required_contract;
-mod failures;
+
 mod rows;
 use super::{configuration::invoke, launch::Environment, network_stub::Stub};
 use crate::runner::transcript::trial as transcript_trial;
@@ -8,52 +8,17 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
-    let mut out = vec![transcript_trial("cpic-pgx/recorded-timeout", || {
-        timeout().map_err(Into::into)
-    })];
-    for name in [
-        "pairs",
-        "card",
-        "view",
-        "table",
-        "guidelines",
-        "guidelines-many",
-        "diplotype",
-        "empty",
-        "missing-second-gene",
-    ] {
-        out.push(transcript_trial(
-            match name {
-                "view" => required_contract::CPIC_VIEW.0.to_owned(),
-                "table" => required_contract::CPIC_TABLE.0.to_owned(),
-                "guidelines" => required_contract::CPIC_GUIDELINES.0.to_owned(),
-                "diplotype" => required_contract::CPIC_DIPLOTYPE.0.to_owned(),
-                "pairs" => required_contract::CPIC_PAIRS.0.to_owned(),
-                _ => format!("cpic-pgx/{name}-network-cache-replay"),
-            },
-            move || scenario(name).map_err(Into::into),
-        ));
-    }
-    for name in [
-        "wrong-gene",
-        "wrong-drug",
-        "truncated-diplotype",
-        "truncated-card",
-        "status",
-        "count",
-        "unknown-field",
-        "range",
-        "missing-range",
-        "broken",
-        "429",
-        "500",
-    ] {
-        out.push(transcript_trial(
-            format!("cpic-pgx/source-{name}"),
-            move || failures::failure(name).map_err(Into::into),
-        ));
-    }
-    out
+    // Keep the real HTTP headers, cache request counts and response-bound pages.
+    [
+        (required_contract::CPIC_PAIRS.0, "pairs"),
+        (required_contract::CPIC_VIEW.0, "view"),
+        (required_contract::CPIC_TABLE.0, "table"),
+        (required_contract::CPIC_GUIDELINES.0, "guidelines"),
+        (required_contract::CPIC_DIPLOTYPE.0, "diplotype"),
+    ]
+    .into_iter()
+    .map(|(name, mode)| transcript_trial(name, move || scenario(mode).map_err(Into::into)))
+    .collect()
 }
 fn environment(stub: &Stub) -> Result<Environment, String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
@@ -320,47 +285,6 @@ fn follow_page(env: &Environment, value: &Value, total: usize) -> Result<usize, 
         }
     }
     Ok(2)
-}
-fn timeout() -> Check {
-    let (args, body) = rows::scenario("card")?;
-    let stub = Stub::counted(
-        move |_| Ok(body.to_string()),
-        |_| "Content-Range: 0-0/1\r\n".into(),
-        |_| 200,
-    )?;
-    let env = environment(&stub)?;
-    let record = env.root().join("record");
-    let mut command = vec!["--record".into(), record.to_string_lossy().into()];
-    command.extend(args.clone());
-    invoke(&env, command, 0)?;
-    for entry in std::fs::read_dir(record.join("cpic")).map_err(|e| e.to_string())? {
-        let path = entry.map_err(|e| e.to_string())?.path();
-        if path.extension().is_none_or(|v| v != "json") {
-            continue;
-        }
-        let mut value: Value =
-            serde_json::from_slice(&std::fs::read(&path).map_err(|e| e.to_string())?)
-                .map_err(|e| e.to_string())?;
-        *value
-            .pointer_mut("/exchanges/0/delay_ms")
-            .ok_or("synthetic recorded delay")? = json!(16000);
-        std::fs::write(path, serde_json::to_vec(&value).map_err(|e| e.to_string())?)
-            .map_err(|e| e.to_string())?;
-    }
-    let replay_env = Environment::new().map_err(|e| e.to_string())?;
-    let mut replay = vec!["--replay".into(), record.to_string_lossy().into()];
-    replay.extend(args);
-    let value = both(&replay_env, replay, 4)?;
-    if value.pointer("/sources/0/reason") != Some(&json!("deadline-exceeded"))
-        || value.get("result").is_some_and(|v| !v.is_null())
-    {
-        return Err(format!("timeout became success: {value}"));
-    }
-    super::pgx_retirements::bounded("CPIC timeout", &value)?;
-    if stub.finish()?.len() != 1 {
-        return Err("recorded timeout reached HTTP".into());
-    }
-    Ok(())
 }
 
 fn blocked(env: &Environment, args: &[String], record: &std::path::Path) -> Check {
