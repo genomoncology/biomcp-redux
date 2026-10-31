@@ -123,7 +123,6 @@ fn record_bypasses_warm_cache_and_replay_ignores_user_cache_and_writes_only_owne
         fetch
             .leg(spec, fetch.deadline(Duration::from_secs(10)))
             .call(&ep, Input::Params(&[]), Read::<Answer>::json())
-            .map(|received| received.value)
     };
     let live = Fetch::open(config(&cache, Mode::default())).unwrap();
     thread::scope(|scope| {
@@ -144,7 +143,7 @@ fn record_bypasses_warm_cache_and_replay_ignores_user_cache_and_writes_only_owne
         server.next().ok();
         let replies = worker.join().unwrap();
         assert!(replies[0].is_err());
-        assert!(replies[1].as_ref().unwrap().answer);
+        assert!(replies[1].as_ref().unwrap().value.answer);
     });
     drop(capture);
     let connection = rusqlite::Connection::open(&cache).unwrap();
@@ -161,8 +160,8 @@ fn record_bypasses_warm_cache_and_replay_ignores_user_cache_and_writes_only_owne
     })
     .unwrap();
     assert!(get(&replay).is_err());
-    assert!(get(&replay).unwrap().answer);
-    assert!(get(&replay).unwrap().answer);
+    assert!(get(&replay).unwrap().value.answer);
+    assert!(get(&replay).unwrap().value.answer);
     assert_eq!(
         replay
             .leg(spec, replay.deadline(Duration::from_secs(10)))
@@ -177,7 +176,7 @@ fn record_bypasses_warm_cache_and_replay_ignores_user_cache_and_writes_only_owne
     })
     .unwrap();
     drop(replay);
-    assert!(get(&offline).unwrap().answer);
+    assert!(get(&offline).unwrap().value.answer);
     assert!(!dir.path().join("must-not-open").exists());
     let after = cached_body(&connection);
     assert_eq!(before, after);

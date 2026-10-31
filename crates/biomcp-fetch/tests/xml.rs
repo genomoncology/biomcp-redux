@@ -309,12 +309,13 @@ fn xml_cache_codec_invalid_entries_and_stale_fallback_remain_checked() {
     );
     assert!(exchange(&server, &fetch, spec, "text/xml", body).is_ok());
     // A caller selecting JSON for the same request replaces the XML entry.
+    let endpoint = spec.get("/answer").fresh(Freshness::Days(1));
     thread::scope(|scope| {
         let worker = scope.spawn(|| {
             fetch
                 .leg(spec, fetch.deadline(Duration::from_secs(10)))
                 .call(
-                    &spec.get("/answer").fresh(Freshness::Days(1)),
+                    &endpoint,
                     Input::Params(&[]),
                     Read::<support::Answer>::json(),
                 )

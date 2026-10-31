@@ -41,20 +41,19 @@ pub(super) fn legacy_json_absence_removes_a_positive() {
     let leg = replay
         .leg(spec, replay.deadline(Duration::from_secs(10)))
         .fresh(true);
-    let (absence, metadata) = leg
+    let absence = leg
         .call(
             &endpoint.clone().json_absence(),
             Input::Params(&[]),
             Read::<Absence>::json(),
         )
-        .map(|received| (received.value, received.meta))
         .unwrap();
     assert!(
-        absence.absent,
+        absence.value.absent,
         "legacy JSON404 must retain its checked source absence"
     );
     assert_eq!(
-        metadata.fetched, None,
+        absence.meta.fetched, None,
         "legacy recording metadata must retain unknown acquisition"
     );
     assert!(
@@ -67,16 +66,15 @@ pub(super) fn legacy_json_absence_removes_a_positive() {
     std::fs::write(file, unknown_positive.to_string()).unwrap();
     let replay = replay_case(directory.path(), case);
     let leg = replay.leg(spec, replay.deadline(Duration::from_secs(10)));
-    let (answer, metadata) = leg
+    let answer = leg
         .call(&endpoint, Input::Params(&[]), Read::<Answer>::json())
-        .map(|received| (received.value, received.meta))
         .unwrap();
     assert!(
-        answer.answer,
+        answer.value.answer,
         "unknown-time positive must retain its checked source answer"
     );
     assert_eq!(
-        metadata.fetched, None,
+        answer.meta.fetched, None,
         "legacy recording metadata must retain unknown acquisition"
     );
     assert!(
