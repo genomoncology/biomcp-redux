@@ -43,9 +43,6 @@ pub fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
         items: Box::default(),
         total: None,
     }));
-    if query.source() != DrugSource::Mychem {
-        return unsupported(query.source(), out);
-    }
     let Some(name) = query.query() else {
         return unsupported(query.source(), out);
     };
