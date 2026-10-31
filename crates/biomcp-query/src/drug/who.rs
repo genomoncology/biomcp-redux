@@ -101,7 +101,7 @@ fn sync_step(out: &mut Outcome) {
             StepKind::Sync,
             &[biomcp_types::Source::WhoPq],
             Action::Sync {
-                bundle: Bundle::WhoPq,
+                bundle: Bundle::WHO_PQ,
             },
         ));
     }

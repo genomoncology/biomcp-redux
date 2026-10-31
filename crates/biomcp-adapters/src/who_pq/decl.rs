@@ -22,11 +22,7 @@ pub(crate) static BUNDLE: crate::decl::BundleDecl = crate::decl::BundleDecl {
     sync: |fetch| crate::decl::BundleReply::Standard(super::sync(fetch), false),
     state: super::bundle_state,
 };
-#[expect(
-    non_upper_case_globals,
-    reason = "Retain the established typed bundle selector names"
-)]
 impl crate::decl::Bundle {
     /// Synchronize the WHO prequalified medicine local catalog.
-    pub const WhoPq: Self = Self(&BUNDLE);
+    pub const WHO_PQ: Self = Self(&BUNDLE);
 }

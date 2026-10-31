@@ -12,7 +12,7 @@ fn sync() -> crate::next::Step {
         StepKind::Sync,
         &[biomcp_types::Source::Hgnc],
         Action::Sync {
-            bundle: Bundle::Hgnc,
+            bundle: Bundle::HGNC,
         },
     )
 }
@@ -57,8 +57,8 @@ pub(crate) fn get(
         steps.push(sync());
     }
     for (source, bundle) in [
-        (biomcp_types::Source::ClinGen, Bundle::ClinGen),
-        (biomcp_types::Source::Gencc, Bundle::Gencc),
+        (biomcp_types::Source::ClinGen, Bundle::CLIN_GEN),
+        (biomcp_types::Source::Gencc, Bundle::GENCC),
     ] {
         if sources
             .iter()

@@ -22,11 +22,7 @@ pub(crate) static BUNDLE: crate::decl::BundleDecl = crate::decl::BundleDecl {
     sync: |fetch| crate::decl::BundleReply::Standard(super::sync(fetch), false),
     state: super::bundle_state,
 };
-#[expect(
-    non_upper_case_globals,
-    reason = "Retain the established typed bundle selector names"
-)]
 impl crate::decl::Bundle {
     /// Synchronize the GenCC local catalog.
-    pub const Gencc: Self = Self(&BUNDLE);
+    pub const GENCC: Self = Self(&BUNDLE);
 }

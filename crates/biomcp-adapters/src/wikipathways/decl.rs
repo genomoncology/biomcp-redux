@@ -15,18 +15,16 @@ pub(crate) static DECL: SourceDecl = SourceDecl {
     key: None,
 };
 pub(crate) static BUNDLE: crate::decl::BundleDecl = crate::decl::BundleDecl {
-    help: "Replace WikiPathways search/get metadata catalogs atomically; reads never sync. Membership names a source and release; it implies no therapy, response or actionability. No enrichment is calculated.",
+    help: "Replace WikiPathways search/get metadata catalogs atomically; reads never sync. \
+        Membership names a source and release; it implies no therapy, response or actionability. \
+        No enrichment is calculated.",
     name: "wikipathways",
     source: biomcp_types::Source::WikiPathways,
     order: 3,
     sync: |fetch| crate::decl::BundleReply::WikiPathways(super::sync(fetch)),
     state: super::bundle_state,
 };
-#[expect(
-    non_upper_case_globals,
-    reason = "Retain the established typed bundle selector names"
-)]
 impl crate::decl::Bundle {
     /// Synchronize the WikiPathways local catalog.
-    pub const WikiPathways: Self = Self(&BUNDLE);
+    pub const WIKI_PATHWAYS: Self = Self(&BUNDLE);
 }

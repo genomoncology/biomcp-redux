@@ -355,3 +355,65 @@ pub(super) fn tokens(text: &str) -> Vec<String> {
     }
     result
 }
+
+fn adapter_helpers(path: &str, tokens: &[String]) -> Check {
+    if !path.starts_with("crates/biomcp-adapters/src/")
+        && !path.starts_with("crates/biomcp-fetch/src/")
+        && !path.starts_with("crates/biomcp-query/src/")
+    {
+        return Ok(());
+    }
+    for pair in tokens.windows(2) {
+        let [word, name] = pair else {
+            continue;
+        };
+        if word != "fn" {
+            continue;
+        }
+        let home = match name.as_str() {
+            "bad" => Some(""),
+            "bad_reply" => Some("crates/biomcp-fetch/src/error.rs"),
+            "received_date" => Some("crates/biomcp-adapters/src/received.rs"),
+            "root" => Some("crates/biomcp-adapters/src/xml_element.rs"),
+            _ => None,
+        };
+        if home.is_some_and(|home| path != home) {
+            return fail(path, "copied helper must use its shared home");
+        }
+    }
+
+    if !path.starts_with("crates/biomcp-adapters/src/")
+        || path == "crates/biomcp-adapters/src/mapped.rs"
+    {
+        return Ok(());
+    }
+    // These decode or render text formats; they do not construct neutral Text values.
+    let format_text = matches!(
+        path,
+        "crates/biomcp-adapters/src/xml_element.rs"
+            | "crates/biomcp-adapters/src/jats/markdown.rs"
+            | "crates/biomcp-adapters/src/sheet/xlsx.rs"
+    );
+    if tokens
+        .windows(2)
+        .any(|pair| matches!(pair, [word, name] if word == "fn" && (name == "problem" || name == "text" && !format_text)))
+    {
+        return fail(path, "adapter mapping helpers belong in mapped.rs");
+    }
+    Ok(())
+}
+
+fn tool_modes(relative: &str, text: &str) -> Check {
+    if matches!(
+        relative,
+        "crates/biomcp/tests/cases.rs" | "crates/biomcp/tests/runner/case_main.rs"
+    ) && tokens(text)
+        .iter()
+        .filter_map(|v| v.strip_prefix("\"--"))
+        .filter_map(|v| v.strip_suffix('"'))
+        .any(|flag| flag != "cases" && !flag.contains(char::is_whitespace))
+    {
+        return fail(relative, "tool modes belong in tools.rs");
+    }
+    Ok(())
+}

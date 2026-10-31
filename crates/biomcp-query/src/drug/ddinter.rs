@@ -158,7 +158,7 @@ fn sync_step(out: &mut Outcome) {
             StepKind::Sync,
             &[biomcp_types::Source::Ddinter],
             Action::Sync {
-                bundle: Bundle::Ddinter,
+                bundle: Bundle::DDINTER,
             },
         ));
     }

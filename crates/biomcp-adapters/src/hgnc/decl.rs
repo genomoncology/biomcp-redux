@@ -22,11 +22,7 @@ pub(crate) static BUNDLE: crate::decl::BundleDecl = crate::decl::BundleDecl {
     sync: |fetch| crate::decl::BundleReply::Standard(super::sync_all(fetch), false),
     state: super::bundle_state,
 };
-#[expect(
-    non_upper_case_globals,
-    reason = "Retain the established typed bundle selector names"
-)]
 impl crate::decl::Bundle {
     /// Synchronize the HGNC local catalog.
-    pub const Hgnc: Self = Self(&BUNDLE);
+    pub const HGNC: Self = Self(&BUNDLE);
 }

@@ -26,11 +26,7 @@ pub(crate) static BUNDLE: crate::decl::BundleDecl = crate::decl::BundleDecl {
     },
     state: super::bundle_state,
 };
-#[expect(
-    non_upper_case_globals,
-    reason = "Retain the established typed bundle selector names"
-)]
 impl crate::decl::Bundle {
     /// Synchronize the cBioPortal local catalog.
-    pub const CbioportalStudies: Self = Self(&BUNDLE);
+    pub const CBIOPORTAL_STUDIES: Self = Self(&BUNDLE);
 }

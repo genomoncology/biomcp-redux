@@ -18,6 +18,8 @@ pub struct Guidance {
 /// Credential command identity, attached to its primary adapter.
 #[derive(Debug)]
 pub struct KeyDecl {
+    /// Shared publisher contract for the key help source identity.
+    pub spec: &'static SourceSpec,
     /// Transport credential identity.
     pub name: SecretName,
     /// Command spelling retained across credential commands.
@@ -47,7 +49,7 @@ pub struct SourceDecl {
     /// Provider-reviewed timing and admission text.
     pub guidance: Guidance,
     /// Credential command identity, declared once for a shared credential.
-    pub key: Option<KeyDecl>,
+    pub key: Option<&'static KeyDecl>,
 }
 /// Resolve every source without a fallback.
 pub const fn decl(source: Source) -> &'static SourceDecl {
@@ -156,31 +158,19 @@ pub fn key_suffix(name: SecretName) -> &'static str {
     key_decl(name).suffix
 }
 /// Resolve the source represented in credential help.
-#[expect(
-    clippy::expect_used,
-    reason = "Every credential identity is declared by its adapter"
-)]
 pub fn key_source(name: SecretName) -> Source {
-    Source::ALL
-        .iter()
-        .copied()
-        .find(|&source| {
-            decl(source)
-                .key
-                .as_ref()
-                .is_some_and(|key| key.name == name)
-        })
-        .expect("every credential has a source declaration")
+    key_decl(name).spec.source
 }
-#[expect(
-    clippy::expect_used,
-    reason = "Every credential identity is declared by its adapter"
-)]
 fn key_decl(name: SecretName) -> &'static KeyDecl {
-    Source::ALL
-        .iter()
-        .find_map(|&source| decl(source).key.as_ref().filter(|key| key.name == name))
-        .expect("every credential has a source declaration")
+    match name {
+        SecretName::SemanticScholarApiKey => &crate::semantic_scholar::decl::KEY,
+        SecretName::AlphaGenomeApiKey => &crate::alphagenome::decl::KEY,
+        SecretName::OncokbApiKey => &crate::oncokb::decl::KEY,
+        SecretName::NcbiApiKey => &crate::pubmed::decl::KEY,
+        SecretName::OrcidAccessToken => &crate::orcid::decl::KEY,
+        SecretName::OpenfdaApiKey => &crate::openfda_label::decl::KEY,
+        SecretName::NciApiKey => &crate::nci::decl::KEY,
+    }
 }
 /// Describe carried publisher terms without registering another request endpoint.
 pub(crate) const fn component_spec(

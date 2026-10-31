@@ -13,10 +13,13 @@ pub(crate) static DECL: SourceDecl = SourceDecl {
         deadline: None,
         quota: None,
     },
-    key: Some(crate::decl::KeyDecl {
-        name: biomcp_fetch::SecretName::OpenfdaApiKey,
-        suffix: "",
-        word: "openfda",
-        order: 6,
-    }),
+    key: Some(&KEY),
+};
+
+pub(crate) static KEY: crate::decl::KeyDecl = crate::decl::KeyDecl {
+    spec: &super::SPEC,
+    name: biomcp_fetch::SecretName::OpenfdaApiKey,
+    suffix: "",
+    word: "openfda",
+    order: 6,
 };

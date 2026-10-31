@@ -73,6 +73,7 @@ pub fn bundles() -> impl Iterator<Item = Bundle> {
 }
 
 /// Shared help for a complete explicit replacement.
-pub(crate) const REPLACE_HELP: &str = "Replace the complete validated local bundle atomically. Reads use stored data and never synchronize. Failed replacement preserves the last usable bundle.";
+pub(crate) const REPLACE_HELP: &str = "Replace the complete validated local bundle atomically. Reads use stored data and never \
+    synchronize. Failed replacement preserves the last usable bundle.";
 /// Shared help for a bundle that can also refresh during reads.
 pub(crate) const REFRESH_HELP: &str = "Synchronize a local source bundle.";

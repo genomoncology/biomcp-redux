@@ -182,7 +182,7 @@ pub(crate) fn root() -> Result<Command, ParseInvalid> {
         Command::new("sync").arg(
             Arg::new("bundle")
                 .help("Local source bundle to synchronize.")
-                .default_value(Bundle::Hgnc.name())
+                .default_value(Bundle::HGNC.name())
                 .value_parser(clap::builder::PossibleValuesParser::new(bundle_names())),
         ),
     );
@@ -265,7 +265,7 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ParseInvalid> {
         Action::Sync {
             bundle: match matches.get_one::<String>("bundle") {
                 Some(name) => Bundle::named(name).ok_or_else(ParseInvalid::default)?,
-                None => Bundle::Hgnc,
+                None => Bundle::HGNC,
             },
         }
     } else {
