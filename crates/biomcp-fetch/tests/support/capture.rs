@@ -1,5 +1,5 @@
 //! Copy source recordings from the common public fixture root.
-use super::recording_support;
+use super::recording_support as recordings;
 pub(crate) fn copy_capture(
     capture: &str,
     target: &std::path::Path,
