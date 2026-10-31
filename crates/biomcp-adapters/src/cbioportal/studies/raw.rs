@@ -9,6 +9,8 @@ use std::collections::BTreeSet;
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase", from = "ReceivedCatalogRow")]
 pub(super) struct CatalogRow {
+    #[serde(with = "crate::mapped::refusal_serde")]
+    refusals: crate::Refusal,
     problems: Vec<biomcp_types::Problem>,
     study_id: StudyId,
     name: Option<biodata::Text>,
@@ -31,6 +33,11 @@ pub(super) struct CatalogRow {
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub(super) struct ReceivedCatalogRow {
+    #[serde(
+        default = "crate::mapped::refusal_serde::none",
+        with = "crate::mapped::refusal_serde"
+    )]
+    refusals: crate::Refusal,
     problems: Option<Vec<biomcp_types::Problem>>,
     study_id: StudyId,
     name: Option<crate::raw::Field<crate::native_text::NativeText>>,
@@ -61,6 +68,7 @@ impl From<ReceivedCatalogRow> for CatalogRow {
         if let Some(stored) = row.problems {
             problems.list = stored;
         }
+        let mut refusals = row.refusals;
         Self {
             study_id: row.study_id,
             name: problems.required_field("name", row.name).map(Into::into),
@@ -79,13 +87,14 @@ impl From<ReceivedCatalogRow> for CatalogRow {
             resource_counts: row
                 .resource_counts
                 .into_iter()
-                .filter_map(|r| r.mapped(&mut problems))
+                .filter_map(|r| r.mapped(&mut problems, &mut refusals))
                 .collect(),
             import_date: problems.required_field("importDate", row.import_date),
             groups: row.groups,
             read_permission: row.read_permission,
             public_study: row.public_study,
             problems: problems.list,
+            refusals,
         }
     }
 }
@@ -110,7 +119,7 @@ impl CatalogRow {
             reference_genome: self.reference_genome.clone(),
         };
         Ok(crate::Mapped {
-            refusals: crate::Refusal::None,
+            refusals: self.refusals,
             value,
             problems: problems.list,
         })
@@ -181,6 +190,7 @@ impl Row for CatalogRow {
                 }
             };
             received.problems = None;
+            received.refusals = crate::Refusal::None;
             let row = Self::from(received);
             if !ids.insert(row.study_id.clone()) {
                 return Err(BadReply);

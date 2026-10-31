@@ -1,5 +1,5 @@
 use super::{Outcome, ResponseMeta};
-use biomcp_types::{QueryBody, Request, Status};
+use biomcp_types::{QueryBody, Request};
 use std::io;
 pub(super) fn encode(meta: ResponseMeta, request: Request, body: QueryBody) -> io::Result<Outcome> {
     match (request, body) {
@@ -7,7 +7,7 @@ pub(super) fn encode(meta: ResponseMeta, request: Request, body: QueryBody) -> i
             meta.encode(query, body)
         }
         (Request::SearchAdverseEvent(query), QueryBody::AdverseEventPage(body)) => {
-            let body = (meta.status != Status::Failed).then_some(body);
+            let body = Some(body);
             meta.encode(query, body)
         }
         (Request::GetAdverseEvent(query), QueryBody::AdverseEventMaudeCard(body)) => {

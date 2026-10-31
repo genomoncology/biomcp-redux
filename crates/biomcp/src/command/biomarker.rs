@@ -1,6 +1,6 @@
 //! Encode native biomarker concepts and bounded source refusals.
 use super::{Outcome, ResponseMeta};
-use biomcp_types::{BiomarkerGet, BiomarkerSearch, ErrorEnvelope, QueryBody, Status};
+use biomcp_types::{BiomarkerGet, BiomarkerSearch, ErrorEnvelope, QueryBody};
 use std::io;
 pub(super) fn search(
     meta: ResponseMeta,
@@ -9,7 +9,7 @@ pub(super) fn search(
 ) -> io::Result<Outcome> {
     match body {
         QueryBody::BiomarkerPage(body) => {
-            let body = (meta.status != Status::Failed).then_some(body);
+            let body = Some(body);
             meta.encode(q, body)
         }
         QueryBody::BiomarkerTooBroad => super::usage_envelope(ErrorEnvelope::biomarker_too_broad()),
@@ -20,7 +20,7 @@ pub(super) fn search(
 pub(super) fn get(meta: ResponseMeta, q: BiomarkerGet, body: QueryBody) -> io::Result<Outcome> {
     match body {
         QueryBody::BiomarkerResult(body) => {
-            let body = (meta.status != Status::Failed).then_some(body);
+            let body = Some(body);
             meta.encode(q, body)
         }
         QueryBody::BiomarkerTooBroad => super::usage_envelope(ErrorEnvelope::biomarker_too_broad()),

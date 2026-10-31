@@ -29,6 +29,8 @@ const APPLICATION: Endpoint = SPEC.get("").fresh(Freshness::Days(1)).json_absenc
 /// One native application candidate page and its original retrieval metadata.
 #[derive(Debug)]
 pub struct Page {
+    /// Actual refused native records, independent of optional fields.
+    pub refusals: crate::Refusal,
     /// Rejected optional source metadata.
     pub problems: Vec<biomcp_types::Problem>,
     /// Native applications, without selecting a first product.
@@ -115,7 +117,12 @@ fn page(
     problems
         .list
         .extend(records.iter().flat_map(|r| r.problems.iter().cloned()));
+    let mut refusals = crate::Refusal::None;
+    for record in &records {
+        refusals.include(record.refusals);
+    }
     Ok(Page {
+        refusals,
         problems: problems.list,
         records,
         total,

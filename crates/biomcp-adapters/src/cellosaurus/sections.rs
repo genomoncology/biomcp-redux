@@ -34,10 +34,14 @@ pub(super) fn xref(
         discontinued: problems.field(&format!("{field}.discontinued"), row.discontinued),
     }
 }
-fn variation(row: raw::Variation, problems: &mut crate::mapped::Problems) -> CellLineVariation {
+fn variation(
+    row: raw::Variation,
+    problems: &mut crate::mapped::Problems,
+    refusals: &mut crate::Refusal,
+) -> CellLineVariation {
     let field = "sequence-variation-list";
     let (genes, references): (Vec<_>, Vec<_>) = problems
-        .fields("sequence-variation-list.xref-list", row.xref_list)
+        .records("sequence-variation-list.xref-list", row.xref_list, refusals)
         .into_vec()
         .into_iter()
         .map(|r| xref(r, "sequence-variation-list.xref-list", problems))
@@ -68,7 +72,11 @@ fn variation(row: raw::Variation, problems: &mut crate::mapped::Problems) -> Cel
             .collect(),
         references: references.into(),
         provenance: problems
-            .fields("sequence-variation-list.source-list", row.source_list)
+            .records(
+                "sequence-variation-list.source-list",
+                row.source_list,
+                refusals,
+            )
             .into_vec()
             .into_iter()
             .map(|r| CellLineProvenance {
@@ -100,6 +108,7 @@ pub(super) fn card(mut row: raw::Record) -> Result<crate::Mapped<CellLineCard>, 
         record: crate::mapped::record(&accession),
         list: Vec::new(),
     };
+    let mut refusals = crate::Refusal::None;
     let names = names(&row.name_list);
     let species = row.species_list.clone().unwrap_or_default().0.into_vec();
     let diseases = row.disease_list.clone().unwrap_or_default().0.into_vec();
@@ -118,7 +127,7 @@ pub(super) fn card(mut row: raw::Record) -> Result<crate::Mapped<CellLineCard>, 
         .unwrap_or_default()
         .into_vec()
         .into_iter()
-        .map(|r| variation(r, &mut problems))
+        .map(|r| variation(r, &mut problems, &mut refusals))
         .collect();
     let mut card = super::map::card(row)?;
     let data = |data| Section::Data {
@@ -165,7 +174,7 @@ pub(super) fn card(mut row: raw::Record) -> Result<crate::Mapped<CellLineCard>, 
         },
     });
     Ok(crate::Mapped {
-        refusals: crate::Refusal::None,
+        refusals,
         value: card,
         problems: problems.list,
     })

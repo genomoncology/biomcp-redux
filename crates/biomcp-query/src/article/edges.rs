@@ -2,7 +2,7 @@ use super::{empty, order, page};
 use crate::{Action, Ctx, Outcome, store::Store};
 use biodata::Text;
 use biomcp_fetch::{CacheError, Deadline, RequestError};
-use biomcp_types::{ArticleEdges, ArticleItem, ArticleKey, QueryBody, Request, Status, StepKind};
+use biomcp_types::{ArticleEdges, ArticleItem, ArticleKey, QueryBody, Request, StepKind};
 use sha2::{Digest, Sha256};
 pub(super) fn run(cx: &Ctx<'_>, query: &ArticleEdges, references: bool) -> Outcome {
     let mut out = empty();
@@ -13,7 +13,7 @@ pub(super) fn run(cx: &Ctx<'_>, query: &ArticleEdges, references: bool) -> Outco
     let mut deadline = command.deadline();
     if let Err(error) = execute(cx, query, references, &mut deadline, &mut out) {
         out.local = crate::status::local(error);
-        out.status = Status::Failed;
+        crate::status::item(&mut out, false, true, false);
     }
     command.finish(deadline.remaining());
     out
@@ -72,7 +72,7 @@ fn execute<'a>(
                 return Ok(());
             };
             store.set_deadline(*deadline);
-            store.publish(&key, &items, &out.sources, &out.problems)?
+            store.publish(&key, &items, &out.sources, &out.problems, out.dropped)?
         }
     };
     out.sources = pool.sources.clone();
@@ -107,7 +107,7 @@ fn create<'a>(
         return Err(error);
     }
     if parent.error.is_some() {
-        out.status = Status::Failed;
+        crate::status::item(out, false, true, false);
         restart(query, references, out, true);
         return Ok(None);
     }
@@ -123,7 +123,7 @@ fn create<'a>(
             }
         });
     let Some(ids) = ids else {
-        out.status = Status::Failed;
+        crate::status::item(out, false, true, false);
         if let Some(source) = out.sources.last_mut() {
             source.state = biomcp_types::SourceState::Failed;
             source.reason = Some(biomcp_types::Reason::BadReply);

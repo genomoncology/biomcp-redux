@@ -54,7 +54,7 @@ fn page(out: Outcome) -> (biomcp_types::PageInfo, ArticlePage) {
         "Article pages must preserve their snapshot and paging contract"
     );
     assert_eq!(
-        out.status,
+        out.status(),
         Status::Complete,
         "Article pages must preserve their snapshot and paging contract"
     );
@@ -103,7 +103,7 @@ fn store_corruption_and_exhausted_budget_remain_typed_local_failures() {
         )
         .unwrap();
     let out = run(&fetch, query(Some(id.as_str()), 0), false);
-    assert_eq!(out.status, Status::Failed);
+    assert_eq!(out.status(), Status::Failed);
     assert_eq!(out.local, Some(RequestError::Cache(CacheError::Database)));
     assert!(out.sources.is_empty());
     fetch
@@ -173,7 +173,7 @@ fn search_and_hydration_share_one_budget_while_pool_age_uses_wall_time() {
         },
         &Request::SearchArticle(query(None, 0)),
     );
-    assert_eq!(first.status, Status::Failed);
+    assert_eq!(first.status(), Status::Failed);
     assert_eq!(first.local, None);
     assert_eq!(
         first.sources[0].reason,
@@ -359,7 +359,7 @@ fn stale_summary_fallback_stays_partial_when_its_page_is_read_offline() {
     .unwrap();
     let first = run(&live, query(Some(id.as_str()), 0), false);
     assert_eq!(first.local, None);
-    assert_eq!(first.status, Status::Partial);
+    assert_eq!(first.status(), Status::Partial);
     assert_eq!(first.sources[0].state, biomcp_types::SourceState::Stale);
     let biomcp_query::Action::Run {
         request: Request::SearchArticle(retry),
@@ -385,7 +385,7 @@ fn stale_summary_fallback_stays_partial_when_its_page_is_read_offline() {
     .unwrap();
     let repeated = run(&offline, query(Some(id.as_str()), 0), false);
     assert_eq!(repeated.local, None);
-    assert_eq!(repeated.status, Status::Partial);
+    assert_eq!(repeated.status(), Status::Partial);
     assert_eq!(repeated.sources, first.sources);
     let QueryBody::ArticlePage(body) = repeated.body else {
         panic!("article page")

@@ -52,7 +52,7 @@ fn collection<T: serde::de::DeserializeOwned + NativeRow>(
         if let Some(raw) = cx.field("record", Some(row)) {
             cx.record = raw.record();
             let before = cx.list.len();
-            if let Some(row) = raw.map(&mut cx) {
+            if let Some(row) = raw.map(&mut cx, &mut refusals) {
                 match check(&row) {
                     Ok(()) => value.push(row),
                     Err(field) if cx.list.len() == before => {
@@ -155,7 +155,7 @@ pub fn annotation(
     };
     let value = record.and_then(|raw| {
         cx.record = raw.record();
-        let Some(row) = raw.map(&mut cx) else {
+        let Some(row) = raw.map(&mut cx, &mut refusals) else {
             refusals = crate::Refusal::Refused;
             return None;
         };

@@ -14,6 +14,8 @@ const SEARCH: Endpoint = super::SPEC.get("/paper/search").fresh(Freshness::Days(
 #[derive(Debug, Deserialize)]
 #[serde(from = "RawSearch")]
 pub struct Search {
+    /// Actual refused native records, independent of optional fields.
+    pub refusals: crate::Refusal,
     /// Whole source-reported result count.
     pub total: u64,
     /// Native result order.
@@ -29,6 +31,7 @@ struct RawSearch {
 }
 impl From<RawSearch> for Search {
     fn from(raw: RawSearch) -> Self {
+        let mut refusals = crate::Refusal::None;
         let received = raw.data.len();
         let mut p = Problems {
             source: biomcp_types::Source::SemanticScholar,
@@ -38,9 +41,14 @@ impl From<RawSearch> for Search {
         let data = raw
             .data
             .into_iter()
-            .filter_map(|v| p.required("paper_id", v.value()))
+            .filter_map(|v| {
+                let row = p.record("paper_id", v, &mut refusals)?;
+                refusals.include(row.refusals);
+                Some(row)
+            })
             .collect();
         Self {
+            refusals,
             total: raw.total,
             data,
             problems: p.list,
@@ -52,6 +60,8 @@ impl From<RawSearch> for Search {
 #[derive(Debug, Deserialize)]
 #[serde(from = "RawPaper")]
 pub struct Paper {
+    /// Actual refused native records, independent of optional fields.
+    pub refusals: crate::Refusal,
     /// Stable source identity, never a title-derived fallback.
     pub paper_id: Option<SemanticScholarId>,
     /// Identifiers explicitly reported by the source.
@@ -111,6 +121,7 @@ impl From<RawPaper> for Paper {
             record: raw.paper_id.as_ref().and_then(record),
             list: Vec::new(),
         };
+        let mut refusals = crate::Refusal::None;
         let external_ids = p.field("external_ids", raw.external_ids).map(|ids| {
             let pmc = p.field("pmcid", ids.pmc).and_then(|id| {
                 let id = if id.starts_with("PMC") {
@@ -129,7 +140,7 @@ impl From<RawPaper> for Paper {
         let authors = p.field("authors", raw.authors).map(|rows| {
             rows.into_iter()
                 .filter_map(|r| {
-                    let r = p.field("authors", Some(r))?;
+                    let r = p.record("authors", r, &mut refusals)?;
                     Some(Author {
                         id: p.field("authors.id", r.id),
                         name: p.source_field("authors.name", r.name),
@@ -138,6 +149,7 @@ impl From<RawPaper> for Paper {
                 .collect()
         });
         Self {
+            refusals,
             paper_id: raw.paper_id,
             external_ids,
             title: p.field("title", raw.title),

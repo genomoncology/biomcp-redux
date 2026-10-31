@@ -42,19 +42,22 @@ pub(super) fn section(
         } else {
             Reason::NoJoinId
         };
-        let (section, mut sources, _, _) = refused(reason, SourceState::Failed);
+        let (section, mut sources, _, _, _) = refused(reason, SourceState::Failed);
         sources.extend(joined.sources);
-        return (section, sources, joined.problems, joined.local);
+        return (section, sources, joined.problems, joined.local, false);
     };
     if request.bytes().len() > biomcp_adapters::alphagenome::SCORE_LIMITS.request_bytes {
-        let (section, mut sources, _, _) = refused(Reason::TooLarge, SourceState::Failed);
+        let (section, mut sources, _, _, _) = refused(Reason::TooLarge, SourceState::Failed);
         sources.extend(joined.sources);
-        return (section, sources, joined.problems, joined.local);
+        return (section, sources, joined.problems, joined.local, false);
     }
     let leg = cx.fetch.leg(&alphagenome::SPEC, deadline).fresh(cx.fresh);
     let reply = alphagenome::score(&leg, &request)
         .and_then(|reply| super::alphagenome_page::page(query, &request, reply));
     let error = reply.as_ref().err().copied();
+    let dropped = reply
+        .as_ref()
+        .is_ok_and(|mapped| mapped.refusals == biomcp_adapters::Refusal::Refused);
     let source = status::source(Source::AlphaGenome, leg.finish(), error);
     let mut problems = joined.problems;
     let section = match reply {
@@ -75,6 +78,7 @@ pub(super) fn section(
         joined.sources.into_iter().chain([source]).collect(),
         problems,
         joined.local.or(error.and_then(status::local)),
+        dropped,
     )
 }
 
@@ -124,6 +128,7 @@ fn refused(reason: Reason, state: SourceState) -> super::sections::Result<Varian
         )],
         Vec::new(),
         None,
+        false,
     )
 }
 

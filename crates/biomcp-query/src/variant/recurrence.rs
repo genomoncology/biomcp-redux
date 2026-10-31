@@ -5,21 +5,13 @@ use crate::{Action, Ctx, Outcome, status};
 use biomcp_adapters::{cbioportal, hgnc};
 use biomcp_fetch::{Deadline, Find, KeyKind, RequestError};
 use biomcp_types::{
-    QueryBody, Reason, Request, Source, Status, StepKind, VariantRecurrence, VariantRecurrenceQuery,
+    QueryBody, Reason, Request, Source, StepKind, VariantRecurrence, VariantRecurrenceQuery,
 };
 /// Read one native page without inventing an assayed denominator or selecting an ambiguous allele.
 pub fn run(cx: &Ctx<'_>, query: &VariantRecurrenceQuery) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
-    let mut out = Outcome {
-        status: Status::Failed,
-        body: QueryBody::VariantRecurrence(empty()),
-        page: None,
-        sources: Vec::new(),
-        problems: Vec::new(),
-        next: Vec::new(),
-        local: None,
-    };
+    let mut out = crate::status::empty(QueryBody::VariantRecurrence(empty()));
     if let Err(error) = execute(cx, query, deadline, &mut out) {
         out.local = status::local(error);
     }
@@ -73,6 +65,7 @@ fn execute(
     let (cohort, rows) = result?;
     out.problems.extend(rows.problems);
     let window = rows.window;
+    out.include_refusals(window.refusals());
     metadata(query, &cohort, out);
     let (count, problems) = matching::count(&identity, &window.rows, query.study());
     out.problems.extend(problems);
@@ -87,15 +80,12 @@ fn execute(
     body.all_pages_read = query.page() == 0 && !more;
     body.more = more;
     out.body = QueryBody::VariantRecurrence(body);
-    out.status = if out.problems.is_empty()
-        && out
+    {
+        let unavailable = !(out
             .sources
             .iter()
-            .all(|s| s.state == biomcp_types::SourceState::Ok)
-    {
-        Status::Complete
-    } else {
-        Status::Partial
+            .all(|s| s.state == biomcp_types::SourceState::Ok));
+        crate::status::item(out, true, false, unavailable);
     };
     if more && let Some(next) = query.next_page() {
         out.next.push((
@@ -147,7 +137,7 @@ fn identity(
     .map_err(|_| rejected(Source::AlleleRegistry, Reason::Rejected))?;
     let spec = super::source(&q);
     let leg = cx.fetch.leg(spec, deadline).fresh(cx.fresh);
-    let result = super::resolve(&q, &leg, &mut out.problems);
+    let result = super::resolve(&q, &leg, &mut out.problems, &mut out.dropped);
     out.sources.push(status::source(
         spec.source,
         leg.finish(),
@@ -187,6 +177,8 @@ fn gene(
         result.as_ref().err().copied(),
     ));
     let mapped = result?;
+    out.include_refusals(mapped.refusals);
+    out.include_refusals(mapped.refusals);
     out.problems.extend(mapped.problems);
     if mapped.value.len() == 1
         && let Some(id) = mapped.value.first().and_then(|v| v.entrez_id)

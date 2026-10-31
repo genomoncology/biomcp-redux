@@ -86,7 +86,7 @@ fn check(n: usize) -> Result<(), String> {
     let recorded = env.root().join("recorded");
     let mut record_args = args.clone();
     record_args.extend(["--record".into(), recorded.display().to_string()]);
-    let exit = if n == 3 { 1 } else { 0 };
+    let exit = 0;
     let value = invoke(&env, record_args, exit)?;
     super::schema::Registry::embedded()?.validate(&value, &args, true)?;
     verify(n, &value)?;
@@ -198,7 +198,7 @@ fn search_expected(n: usize) -> Result<Vec<(&'static str, Value)>, String> {
             ("/result/total", json!(3)),
             ("/result/items/0/id", json!("25758")),
         ],
-        3 => vec![("/result/total", json!(0)), ("/status", json!("absent"))],
+        3 => vec![("/result/total", json!(0)), ("/status", json!("complete"))],
         4 => vec![
             ("/result/total", json!(104)),
             ("/result/items/0/id", json!("2988")),

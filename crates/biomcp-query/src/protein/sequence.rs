@@ -5,7 +5,7 @@ use biomcp_adapters::{Mapped, uniprot};
 use biomcp_fetch::{Leg, RequestError, SourceError};
 use biomcp_types::{
     Problem, ProblemCode, ProteinSequenceQuery, ProteinSequenceResult, QueryBody, Reason, Request,
-    Source, Status, StepKind,
+    Source, StepKind,
 };
 pub(super) fn read(
     leg: &Leg<'_>,
@@ -52,15 +52,12 @@ pub(super) fn run(cx: &Ctx<'_>, q: &ProteinSequenceQuery) -> Outcome {
     let result = read(&leg, q);
     let error = result.as_ref().err().copied();
     if let Ok(mapped) = result {
+        out.include_refusals(mapped.refusals);
         out.problems = mapped.problems;
-        out.status = if mapped.value.is_some() {
-            Status::Complete
-        } else {
-            Status::Absent
+        {
+            let found = mapped.value.is_some();
+            crate::status::item(&mut out, found, false, false);
         };
-        if !out.problems.is_empty() {
-            out.status = Status::Failed;
-        }
         out.body = QueryBody::ProteinSequence(
             mapped
                 .value
@@ -85,7 +82,7 @@ pub(super) fn run(cx: &Ctx<'_>, q: &ProteinSequenceQuery) -> Outcome {
         .iter()
         .any(|s| s.state == biomcp_types::SourceState::Stale)
     {
-        out.status = Status::Partial;
+        crate::status::item(&mut out, true, false, true);
     }
     out.local = error.and_then(status::local);
     command.finish(deadline.remaining());

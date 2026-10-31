@@ -1,4 +1,4 @@
-use super::page::{empty, overall, page_info, run, slice};
+use super::page::{empty, page_info, run, slice};
 use crate::{Ctx, Outcome, status};
 use biomcp_adapters::mydisease;
 use biomcp_types::{
@@ -23,6 +23,7 @@ pub fn get(cx: &Ctx<'_>, query: &DiseaseGet) -> Outcome {
         .push(status::source(Source::MyDisease, leg.finish(), error));
     out.local = error.and_then(status::local);
     if let Ok(mapped) = reply {
+        out.include_refusals(mapped.refusals);
         out.problems = mapped.problems;
         apply(&mut out, query, mapped.value);
     }
@@ -76,5 +77,5 @@ fn apply(out: &mut Outcome, query: &DiseaseGet, record: mydisease::Annotation) {
             ));
         }
     }
-    out.status = overall(out, out.page.as_ref().is_some_and(|p| p.total == 0));
+    crate::status::item(out, true, false, false);
 }

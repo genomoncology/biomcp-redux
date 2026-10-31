@@ -170,6 +170,7 @@ pub(crate) fn execute(
 }
 struct ResponseMeta {
     status: Status,
+    body_visible: bool,
     local_error: Option<biomcp_types::CacheProblem>,
     sources: Vec<biomcp_types::SourceOutcome>,
     problems: Vec<biomcp_types::Problem>,
@@ -183,7 +184,7 @@ impl ResponseMeta {
         query: B::Query,
         body: Option<B>,
     ) -> io::Result<Outcome> {
-        let mut envelope = Envelope::new(self.status, query, body);
+        let mut envelope = Envelope::new(self.status, query, body.filter(|_| self.body_visible));
         envelope.sources = self
             .sources
             .into_iter()
@@ -208,8 +209,9 @@ fn response(
     let steps = steps::next(&result, globals)?;
     let meta = ResponseMeta {
         exit: response_status(&result),
+        body_visible: result.body_visible(),
         local_error: local::kind(result.local),
-        status: result.status,
+        status: result.status(),
         next: steps,
         page: result.page,
         sources: result.sources,
@@ -293,8 +295,7 @@ fn response_common(meta: ResponseMeta, request: Request, body: QueryBody) -> io:
             meta.encode(query, Some(body))
         }
         (Request::SearchTrial(query), QueryBody::NciTrialPage(body)) => {
-            let body = (meta.status != Status::Failed || body.condition_resolution.is_some())
-                .then_some(body);
+            let body = Some(body);
             meta.encode(query, body)
         }
 
@@ -303,8 +304,7 @@ fn response_common(meta: ResponseMeta, request: Request, body: QueryBody) -> io:
         }
         (Request::GetTrial(query), QueryBody::TrialCards(body)) => meta.encode(query, Some(body)),
         (Request::SearchTrial(query), QueryBody::TrialPage(body)) => {
-            let body = (meta.status != Status::Failed || body.condition_resolution.is_some())
-                .then_some(body);
+            let body = Some(body);
             meta.encode(query, body)
         }
         (_, QueryBody::ArticleSaveRefused(url)) => usage_envelope(ErrorEnvelope::save_refused(url)),
@@ -322,7 +322,7 @@ fn response_common(meta: ResponseMeta, request: Request, body: QueryBody) -> io:
             meta.encode(query, Some(body))
         }
         (Request::ArticleRecommend(query), QueryBody::ArticleRecommendations(body)) => {
-            let body = (meta.status != Status::Failed).then_some(body);
+            let body = Some(body);
             meta.encode(query, body)
         }
         (Request::ArticleSupplement(query), QueryBody::ArticleSupplement(body)) => {
@@ -340,11 +340,11 @@ fn response_common(meta: ResponseMeta, request: Request, body: QueryBody) -> io:
             Request::ArticleCitations(query) | Request::ArticleReferences(query),
             QueryBody::ArticleEdges(body),
         ) => {
-            let body = (meta.status != Status::Failed).then_some(body);
+            let body = Some(body);
             meta.encode(query, body)
         }
         (Request::SearchArticle(query), QueryBody::ArticlePage(body)) => {
-            let body = (meta.status != Status::Failed).then_some(body);
+            let body = Some(body);
             meta.encode(query, body)
         }
         (Request::GetArticle(query), QueryBody::ArticleCards(body)) => {
@@ -563,7 +563,7 @@ fn response_status(result: &biomcp_query::Outcome) -> crate::exit::Status {
     if result.local.is_some() {
         crate::exit::Status::Local
     } else {
-        crate::exit::Status::from(result.status)
+        crate::exit::Status::from(result.status())
     }
 }
 

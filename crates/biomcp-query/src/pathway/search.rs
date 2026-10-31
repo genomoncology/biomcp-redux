@@ -1,10 +1,10 @@
-use super::{empty, overall, run, snapshot};
+use super::{empty, run, snapshot};
 use crate::{Ctx, Outcome, status};
 use biomcp_adapters::reactome;
 use biomcp_fetch::{Deadline, RequestError, SourceError};
 use biomcp_types::{
     PathwayGet, PathwayPage, PathwayPageInfo, PathwaySearch, PathwayTotalKind, QueryBody, Reason,
-    Request, Source, SourceState, Status, StepKind,
+    Request, Source, SourceState, StepKind,
 };
 fn page(q: &PathwaySearch) -> PathwayPage {
     PathwayPage {
@@ -46,7 +46,7 @@ pub fn search(cx: &Ctx<'_>, q: &PathwaySearch) -> Outcome {
             ));
         }
         out.local = status::local(error);
-        out.status = Status::Failed;
+        crate::status::item(&mut out, false, true, false);
     }
     super::wikipathways::sync_step(&mut out);
     command.finish(deadline.remaining());
@@ -81,6 +81,7 @@ fn execute(
         None => fetch(cx, q, deadline, out)?,
     };
     let pool = snapshot::save(cx, q, deadline, &saved)?;
+    out.dropped = saved.dropped;
     out.sources = saved.sources;
     out.problems = saved.problems;
     let mut body = saved.body;
@@ -99,7 +100,7 @@ fn execute(
             run(Request::SearchPathway(q.at_offset(offset).with_pool(pool))),
         ));
     }
-    out.status = overall(out, body.page.total == 0);
+    crate::status::search(out);
     out.body = QueryBody::PathwayPage(body);
     Ok(())
 }
@@ -116,6 +117,7 @@ fn fetch(
     let complete = q.top_level() || q.gene().is_some();
     if q.gene().is_some() {
         let mapped = super::gene::headers(cx, q, deadline, out)?;
+        out.include_refusals(mapped.refusals);
         out.problems.extend(mapped.problems);
         body.items = mapped.value.into();
     } else {
@@ -138,6 +140,7 @@ fn fetch(
             reply.as_ref().err().copied(),
         ));
         let reply = reply?;
+        out.include_refusals(reply.rows.refusals);
         out.problems.extend(reply.rows.problems);
         body.items = reply.rows.value.into();
         body.page.total = reply.total;
@@ -151,6 +154,7 @@ fn fetch(
     }
     body.page.returned = body.items.len() as u32;
     Ok(snapshot::Saved {
+        dropped: out.dropped,
         body,
         complete,
         catalog_revision: None,

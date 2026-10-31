@@ -9,7 +9,7 @@ use biomcp_adapters::pubmed;
 use biomcp_fetch::RequestError;
 use biomcp_types::{
     ArticleEdgePage, ArticleEdges, ArticlePage, ArticleSearch, ArticleSort, PageInfo, QueryBody,
-    Request, Source, Status, StepKind,
+    Request, Source, StepKind,
 };
 #[derive(Clone, Copy)]
 pub(super) enum Cursor<'a> {
@@ -76,9 +76,10 @@ pub(super) fn read<'a>(
                 s
             })
             .collect();
-        out.status = Status::Failed;
+        crate::status::item(out, false, true, false);
         return Ok(());
     }
+    out.dropped |= pool.dropped;
     status::append(&mut out.problems, pool.problems.clone());
     let id = pool.info.id.as_str();
     let mut rows = store.page(id, query.offset(), query.limit())?;
@@ -95,13 +96,21 @@ pub(super) fn read<'a>(
         store.set_deadline(consume(deadline, started, leg.remaining()));
         match result {
             Ok(mapped) => {
+                out.include_refusals(mapped.refusals);
                 let source = status::source(Source::PubMed, leg.finish(), None);
                 if let Some(current) = out.sources.iter_mut().find(|s| s.source == Source::PubMed) {
                     status::retain_source_state(current, &source);
                 } else {
                     out.sources.push(source.clone());
                 }
-                store.hydrate(id, &missing, &mapped.value, &mapped.problems, Some(&source))?;
+                store.hydrate(
+                    id,
+                    &missing,
+                    &mapped.value,
+                    &mapped.problems,
+                    Some(&source),
+                    out.dropped,
+                )?;
                 rows = store.page(id, query.offset(), query.limit())?;
             }
             Err(error) => {
@@ -116,7 +125,7 @@ pub(super) fn read<'a>(
                 out.sources.push(source);
                 if !matches!(error, RequestError::Source(e) if e.reason == biomcp_types::Reason::Disabled)
                 {
-                    out.status = Status::Failed;
+                    crate::status::item(out, false, true, false);
                     query.retry(Some(pool.info.id.clone()), out);
                     return Err(error);
                 }
@@ -139,18 +148,13 @@ fn finish(query: Cursor<'_>, pool: &Pool, rows: Vec<StoredItem>, out: &mut Outco
         .iter()
         .any(|s| s.state == biomcp_types::SourceState::Stale);
     let failed = sources::failed(&out.sources);
-    let partial = stale
-        || failed
-        || rows.iter().any(|r| {
-            r.item.header.is_none() || r.problems.iter().any(|p| p.source == Source::Icite)
-        });
+    let partial = stale || failed || rows.iter().any(|r| r.item.header.is_none());
     for row in &rows {
         status::append(&mut out.problems, row.problems.clone());
     }
-    out.status = if partial {
-        Status::Partial
-    } else {
-        Status::Complete
+    {
+        let unavailable = partial;
+        crate::status::item(out, true, false, unavailable);
     };
     let missing_external = rows
         .iter()

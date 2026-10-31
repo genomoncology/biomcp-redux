@@ -50,9 +50,12 @@ struct Document {
     has_icf: Option<Field<bool>>,
 }
 impl References {
-    pub(super) fn rows(self, problems: &mut Problems) -> Box<[TrialReference]> {
-        problems
-            .fields("references", self.references)
+    pub(super) fn rows(
+        self,
+        problems: &mut Problems,
+        refusals: &mut crate::Refusal,
+    ) -> Box<[TrialReference]> {
+        super::super::refusals::records(problems, refusals, "references", self.references)
             .into_vec()
             .into_iter()
             .map(|v| v.mapped(problems))
@@ -60,37 +63,59 @@ impl References {
     }
 }
 impl Documents {
-    pub(super) fn mapped(self, id: NctId, problems: &mut Problems) -> Box<[TrialDocument]> {
+    pub(super) fn mapped(
+        self,
+        id: NctId,
+        problems: &mut Problems,
+        refusals: &mut crate::Refusal,
+    ) -> Box<[TrialDocument]> {
         problems
             .field("largeDocumentModule", self.large_document_module)
-            .map_or_else(Box::default, |m| problems.fields("largeDocs", m.large_docs))
+            .map_or_else(Box::default, |m| {
+                super::super::refusals::records(problems, refusals, "largeDocs", m.large_docs)
+            })
             .into_vec()
             .into_iter()
-            .filter_map(|d| d.mapped(id, problems))
+            .filter_map(|d| d.mapped(id, problems, refusals))
             .collect()
     }
 }
 impl Document {
-    fn mapped(self, id: NctId, problems: &mut Problems) -> Option<TrialDocument> {
-        let name = problems.required_checked_native_text("largeDocs.filename", self.filename)?;
-        let name = problems.optional(
+    fn mapped(
+        self,
+        id: NctId,
+        problems: &mut Problems,
+        refusals: &mut crate::Refusal,
+    ) -> Option<TrialDocument> {
+        let Some(name) = problems.required_checked_native_text("largeDocs.filename", self.filename)
+        else {
+            *refusals = crate::Refusal::Refused;
+            return None;
+        };
+        let Some(name) = problems.optional(
             "largeDocs.filename",
             Some(if filename(&name) {
                 Text::new(&name).map_err(|_| ())
             } else {
                 Err(())
             }),
-        )?;
+        ) else {
+            *refusals = crate::Refusal::Refused;
+            return None;
+        };
         // Only the validated source manifest supplies the filename.
         let id = id.to_string();
         let suffix = id.get(9..).unwrap_or_default();
-        let url = problems.optional(
+        let Some(url) = problems.optional(
             "largeDocs.filename",
             Some(Text::new(&format!(
                 "{}/large-docs/{suffix}/{id}/{name}",
                 super::super::DOCUMENT_ORIGIN
             ))),
-        )?;
+        ) else {
+            *refusals = crate::Refusal::Refused;
+            return None;
+        };
         Some(TrialDocument {
             filename: name,
             url,

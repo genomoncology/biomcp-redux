@@ -30,10 +30,25 @@ use std::{fs, path::Path};
 type Check = Result<(), Box<dyn std::error::Error>>;
 
 fn check(root: &Path) -> Check {
-    dependencies::check(root)?;
-    reasons::check(root)?;
-    spellings::check(root)?;
-    source::check(root)
+    diagnostics(vec![
+        dependencies::check(root),
+        reasons::check(root),
+        spellings::check(root),
+        source::check(root),
+    ])
+}
+
+fn diagnostics(results: Vec<Check>) -> Check {
+    let failures: Vec<_> = results
+        .into_iter()
+        .filter_map(Result::err)
+        .map(|error| error.to_string())
+        .collect();
+    if failures.is_empty() {
+        Ok(())
+    } else {
+        Err(failures.join("\n").into())
+    }
 }
 
 fn rust_files(path: &Path) -> Result<Vec<std::path::PathBuf>, std::io::Error> {
@@ -59,8 +74,7 @@ fn rust_files(path: &Path) -> Result<Vec<std::path::PathBuf>, std::io::Error> {
 )]
 fn repository_obeys_structural_contract() -> Check {
     let root = std::env::current_dir()?.join("../..");
-    lints::check(&root)?;
-    check(&root)
+    diagnostics(vec![lints::check(&root), check(&root)])
 }
 
 #[test]

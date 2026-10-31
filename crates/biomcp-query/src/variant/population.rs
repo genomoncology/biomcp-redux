@@ -22,14 +22,17 @@ pub(super) fn section(
             Vec::new(),
             Vec::new(),
             None,
+            false,
         );
     }
     let Some(id) = join(candidates) else {
         return missing();
     };
     let leg = cx.fetch.leg(&gnomad::SPEC, deadline).fresh(cx.fresh);
+    let mut dropped = false;
     let mut problems = Vec::new();
     let result = gnomad::variant::population(&leg, &id).and_then(|raw| {
+        dropped |= raw.refusals == biomcp_adapters::Refusal::Refused;
         problems.extend(raw.problems);
         raw.value
             .map(|raw| summary(&raw, candidates, &mut problems))
@@ -55,7 +58,13 @@ pub(super) fn section(
             crate::status::reason(e).unwrap_or(biomcp_types::Reason::Unavailable),
         ),
     };
-    (value, vec![source], problems, error.and_then(status::local))
+    (
+        value,
+        vec![source],
+        problems,
+        error.and_then(status::local),
+        dropped,
+    )
 }
 /// Keep only source-qualified SNVs; indels need an explicit padded source representation.
 pub(super) fn join(candidates: &[VariantHeader]) -> Option<String> {
@@ -213,6 +222,7 @@ fn missing() -> (
     Vec<SourceOutcome>,
     Vec<Problem>,
     Option<RequestError>,
+    bool,
 ) {
     (
         Section::Unavailable {
@@ -227,6 +237,7 @@ fn missing() -> (
             code: ProblemCode::ValueUnknown,
         }],
         None,
+        false,
     )
 }
 fn text(value: &str) -> Result<Text, RequestError> {

@@ -8,12 +8,13 @@ use biomcp_adapters::gwas;
 use biomcp_fetch::{CacheError, Deadline, RequestError};
 use biomcp_types::{
     GwasAssociation, GwasPage, GwasPageQuery, GwasSearch, PageInfo, QueryBody, Reason, Request,
-    Source, SourceOutcome, Status, StepKind,
+    Source, SourceOutcome, StepKind,
 };
 use sha2::{Digest, Sha256};
 
 #[derive(Default)]
 struct Saved {
+    dropped: bool,
     rows: Vec<GwasAssociation>,
     received: u32,
     problems: Vec<biomcp_types::Problem>,
@@ -30,13 +31,15 @@ impl Saved {
             &self.sources,
             self.received,
             &self.problems,
+            self.dropped,
         ))
         .map_err(|_| CacheError::Database)
     }
     fn decode(payload: &str) -> Result<Self, CacheError> {
-        let (rows, total, done, sources, received, problems) =
+        let (rows, total, done, sources, received, problems, dropped) =
             serde_json::from_str(payload).map_err(|_| CacheError::Database)?;
         Ok(Self {
+            dropped,
             rows,
             received,
             problems,
@@ -49,15 +52,7 @@ impl Saved {
 pub(super) fn search(cx: &Ctx<'_>, q: &GwasSearch) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
-    let mut out = Outcome {
-        status: Status::Failed,
-        body: QueryBody::GwasPage(None),
-        page: None,
-        sources: vec![],
-        problems: vec![],
-        next: vec![],
-        local: None,
-    };
+    let mut out = crate::status::empty(QueryBody::GwasPage(None));
     if let Err(error) = read(cx, q, deadline, &mut out) {
         out.local = status::local(error);
         out.body = QueryBody::GwasPage(None);
@@ -91,7 +86,7 @@ pub(super) fn search(cx: &Ctx<'_>, q: &GwasSearch) -> Outcome {
 }
 fn key(q: &GwasSearch) -> Vec<u8> {
     Sha256::digest(format!(
-        "biomcp.gwas_threshold/3\0{}",
+        "biomcp.gwas_threshold/4\0{}",
         serde_json::to_string(&q.restart()).unwrap_or_default()
     ))
     .to_vec()
@@ -211,6 +206,7 @@ fn append(q: &GwasSearch, saved: &mut Saved, page: gwas::Page) -> Result<(), Req
     if u64::from(saved.received) > page.total {
         return Err(bad());
     }
+    saved.dropped |= page.refusals == biomcp_adapters::Refusal::Refused;
     saved.problems.extend(page.problems);
     saved.total = Some(page.total);
     for row in page.rows {
@@ -283,14 +279,6 @@ fn render(cx: &Ctx<'_>, q: &GwasSearch, saved: Saved, pool: Pool, out: &mut Outc
     out.next = next::search(q, Some(&body), biomcp_types::SourceState::Ok, cx.fresh);
     out.page = Some(page);
     out.body = QueryBody::GwasPage(Some(body));
-    out.status = if !out.problems.is_empty()
-        || out
-            .sources
-            .iter()
-            .any(|s| s.state == biomcp_types::SourceState::Stale)
-    {
-        Status::Partial
-    } else {
-        Status::Complete
-    };
+    out.dropped = saved.dropped;
+    status::search(out);
 }

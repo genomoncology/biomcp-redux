@@ -5,7 +5,7 @@ use crate::{Action, Ctx, Outcome, status, store::Store};
 use biomcp_adapters::nci;
 use biomcp_fetch::{CacheError, RequestError};
 use biomcp_types::{
-    NciTrialCards, QueryBody, Reason, Request, Source, SourceOutcome, Status, StepKind, TrialGet,
+    NciTrialCards, QueryBody, Reason, Request, Source, SourceOutcome, StepKind, TrialGet,
 };
 use sha2::{Digest, Sha256};
 pub(super) struct Snapshot {
@@ -29,7 +29,7 @@ pub(in crate::trial) fn run(cx: &Ctx<'_>, q: &TrialGet) -> Outcome {
         fetch(cx, q, deadline, &mut out)
     };
     if let Err(error) = result {
-        out.status = Status::Failed;
+        crate::status::item(&mut out, false, true, false);
         out.local = status::local(error);
     }
     command.finish(deadline.remaining());
@@ -75,9 +75,9 @@ fn fetch(
             Err(e) => items.push(biomcp_types::NciTrialItem {
                 input: *id,
                 status: if absent(e) {
-                    Status::Absent
+                    crate::status::item_status(false, false, false)
                 } else {
-                    Status::Failed
+                    crate::status::item_status(false, true, false)
                 },
                 card: None,
                 fetched: None,
@@ -87,7 +87,7 @@ fn fetch(
             }),
         }
     }
-    out.status = status::status(items.iter().map(|i| i.status));
+    status::get(out, items.iter().map(|i| i.status));
     if let QueryBody::NciTrialCards(body) = &mut out.body {
         body.items = items.into();
     }
@@ -126,7 +126,8 @@ fn restore(
     }
     out.sources = snapshot.sources.clone();
     let item = page::render(q, snapshot, q.pool().cloned(), out)?;
-    out.status = item.status;
+    let state = item.status;
+    crate::status::get(out, [state].into_iter());
     if let QueryBody::NciTrialCards(body) = &mut out.body {
         body.items = Box::new([item]);
     }

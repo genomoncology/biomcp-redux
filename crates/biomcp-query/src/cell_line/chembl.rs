@@ -1,7 +1,6 @@
 //! ChEMBL metadata and independent assay-count disclosure.
 use super::{
-    CellLineGet, Ctx, Outcome, QueryBody, Request, Source, Status, StepKind, empty, recovery, run,
-    status,
+    CellLineGet, Ctx, Outcome, QueryBody, Request, Source, StepKind, empty, recovery, run, status,
 };
 use biodata::CellosaurusAccession;
 use biomcp_adapters::chembl;
@@ -45,15 +44,10 @@ pub(super) fn get_at(
         let total = page.window.total().unwrap_or(0);
         let next_offset = page.window.next_offset();
         let more = page.window.has_more();
+        out.include_refusals(page.window.refusals());
         let items = page.window.rows;
         let metadata = page.metadata;
-        out.status = if total == 0 {
-            Status::Absent
-        } else if !out.problems.is_empty() || more {
-            Status::Partial
-        } else {
-            Status::Complete
-        };
+        crate::status::item(&mut out, total != 0, false, more);
         if let Some(offset) = next_offset {
             out.next.push((
                 StepKind::Page,
@@ -98,7 +92,7 @@ pub fn assay_count(cx: &Ctx<'_>, query: &CellLineAssayCountQuery) -> Outcome {
         .push(status::source(Source::Chembl, leg.finish(), error));
     out.local = error.and_then(status::local);
     if let Ok((assay_count, metadata)) = reply {
-        out.status = Status::Complete;
+        crate::status::item(&mut out, true, false, false);
         out.body = QueryBody::CellLineAssayCount(CellLineAssayCount {
             id: query.id.clone(),
             assay_count,
@@ -130,17 +124,15 @@ fn attach(cx: &Ctx<'_>, deadline: biomcp_fetch::Deadline<'_>, out: &mut Outcome)
         status::retain_source_state(source, &incoming);
     }
     if error.is_some() {
-        out.status = Status::Partial;
+        crate::status::item(out, true, false, true);
         out.local = error.and_then(status::local);
         out.problems.push(problem("release"));
     }
     let release = release.ok().map(|mapped| {
+        out.include_refusals(mapped.refusals);
         out.problems.extend(mapped.problems);
         mapped.value
     });
-    if !out.problems.is_empty() && out.status == Status::Complete {
-        out.status = Status::Partial;
-    }
     match &mut out.body {
         QueryBody::CellLineChembl(body) => body.release = release.clone(),
         QueryBody::CellLineAssayCount(body) => body.release = release.clone(),
@@ -151,6 +143,6 @@ fn attach(cx: &Ctx<'_>, deadline: biomcp_fetch::Deadline<'_>, out: &mut Outcome)
         .iter()
         .any(|s| s.state == biomcp_types::SourceState::Stale)
     {
-        out.status = Status::Partial;
+        crate::status::item(out, true, false, true);
     }
 }

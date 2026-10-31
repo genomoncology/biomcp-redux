@@ -4,28 +4,18 @@ use crate::{Ctx, Outcome, status};
 
 use biomcp_adapters::{pdf, semantic_scholar};
 use biomcp_fetch::{Deadline, RequestError};
-use biomcp_types::{
-    ArticlePdf, ArticlePdfResult, PdfLink, QueryBody, Reason, Section, Source, Status,
-};
+use biomcp_types::{ArticlePdf, ArticlePdfResult, PdfLink, QueryBody, Reason, Section, Source};
 /// Download only when the caller supplied a path and the interface permits local writes.
 pub fn download(cx: &Ctx<'_>, query: &ArticlePdf, allow_save: bool) -> Download {
     let command = cx.fetch.command_deadline(cx.budget);
     let mut deadline = command.deadline();
-    let mut out = Outcome {
-        status: Status::Complete,
-        body: QueryBody::ArticlePdf(ArticlePdfResult {
-            file: Section::NotApplicable,
-        }),
-        page: None,
-        sources: Vec::new(),
-        problems: Vec::new(),
-        next: Vec::new(),
-        local: None,
-    };
+    let mut out = crate::status::ready(QueryBody::ArticlePdf(ArticlePdfResult {
+        file: Section::NotApplicable,
+    }));
     let mut file = None;
     if let Err(error) = execute(cx, query, allow_save, &mut deadline, &mut out, &mut file) {
         out.local = out.local.or(status::local(error));
-        out.status = Status::Failed;
+        crate::status::item(&mut out, false, true, false);
         out.body = QueryBody::ArticlePdf(ArticlePdfResult {
             file: Section::unavailable(
                 Source::SemanticScholar,
@@ -46,7 +36,7 @@ fn execute<'a>(
 ) -> Result<(), RequestError> {
     let section = load(cx, &query.input, deadline, out)?;
     let Section::Data { data: link, .. } = section else {
-        out.status = Status::Failed;
+        crate::status::item(out, false, true, false);
         out.body = QueryBody::ArticlePdf(ArticlePdfResult {
             file: Section::unavailable(Source::SemanticScholar, Reason::NotOpen),
         });

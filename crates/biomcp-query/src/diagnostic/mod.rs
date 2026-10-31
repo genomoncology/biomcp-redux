@@ -6,6 +6,7 @@ mod next;
 mod pma;
 mod recall;
 mod who;
+pub(super) use crate::status::empty;
 use crate::{Action, Bundle, Ctx, Outcome, status};
 use biomcp_adapters::gtr;
 use biomcp_fetch::{Leg, RequestError};
@@ -14,17 +15,6 @@ use biomcp_types::{
     SourceState, Status, StepKind,
 };
 pub use get::get;
-fn empty(body: QueryBody) -> Outcome {
-    Outcome {
-        status: Status::Failed,
-        body,
-        page: None,
-        sources: Vec::new(),
-        problems: Vec::new(),
-        next: Vec::new(),
-        local: None,
-    }
-}
 fn finish(out: &mut Outcome, leg: Leg<'_>, error: Option<RequestError>) {
     finish_bundle(out, leg, error, Source::Gtr, Bundle::Gtr);
 }
@@ -39,12 +29,11 @@ fn finish_bundle(
     out.sources
         .push(status::source(source, leg.finish(), error));
     if error.is_some() {
-        out.status = Status::Failed;
-    } else if (!out.problems.is_empty()
-        || out.sources.iter().any(|s| s.state == SourceState::Stale))
-        && out.status == Status::Complete
+        crate::status::item(out, false, true, false);
+    } else if (out.dropped || out.sources.iter().any(|s| s.state == SourceState::Stale))
+        && out.status() == Status::Complete
     {
-        out.status = Status::Partial;
+        crate::status::item(out, true, false, true);
     }
     if out
         .sources
@@ -80,13 +69,14 @@ pub fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
         biomcp_adapters::who_ivd::search(&leg, q).map(|p| (p.items, p.total, p.info))
     } else {
         gtr::search(&leg, q).map(|p| {
+            out.include_refusals(p.refusals);
             status::append(&mut out.problems, p.problems);
             (p.items, p.total, p.info)
         })
     };
     let error = result.as_ref().err().copied();
     if let Ok((items, total, info)) = result {
-        out.status = Status::Complete;
+        crate::status::item(&mut out, true, false, false);
         let q = info
             .content_revision
             .as_deref()
@@ -116,6 +106,7 @@ pub fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
         });
     }
     finish_bundle(&mut out, leg, error, source, bundle);
+    status::search(&mut out);
     command.finish(deadline.remaining());
     out
 }

@@ -18,6 +18,7 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
     };
     let error = result.as_ref().err().copied();
     let mut source = status::source(Source::Civic, leg.finish(), error);
+    let mut dropped = false;
     let mut problems = Vec::new();
     let values = genes
         .iter()
@@ -29,6 +30,7 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
                         .find(|value| value.id == entrez && value.symbol == gene.symbol)
                     {
                         Some(value) => {
+                            dropped |= value.civic.refusals == biomcp_adapters::Refusal::Refused;
                             status::append(&mut problems, value.civic.problems.clone());
                             value.civic.value.clone()
                         }
@@ -56,6 +58,7 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
         source.reason = Some(Reason::NoJoinId);
     }
     SectionResult {
+        dropped,
         values,
         source,
         problems,

@@ -241,6 +241,7 @@ fn mismatched_native_variant_refuses_only_its_scorer_identity() -> Check {
             .map_err(|_| "well-formed native stream refused")?;
     }
     let reply = decoder.finish().map_err(|_| "complete stream refused")?;
+    assert_eq!(reply.refusals, biomcp_adapters::Refusal::Refused);
     assert_eq!(reply.problems.len(), 1);
     assert_eq!(
         reply

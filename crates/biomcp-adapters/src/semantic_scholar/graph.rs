@@ -89,6 +89,8 @@ pub fn summary(leg: &Leg<'_>, input: &ArticleInput) -> Result<PaperSummary, Requ
 /// One source graph page; `next` is a provider offset, never a client guess.
 #[derive(Debug)]
 pub struct Edges {
+    /// Actual refused native records, independent of optional fields.
+    pub refusals: crate::Refusal,
     /// Provider continuation offset.
     pub next: Option<u32>,
     /// Native citation order.
@@ -100,6 +102,8 @@ pub struct Edges {
 #[derive(Debug, Deserialize)]
 #[serde(from = "RawEdge")]
 pub struct Edge {
+    /// Actual refused native records, independent of optional fields.
+    pub refusals: crate::Refusal,
     /// Present in a citation reply.
     pub citing_paper: Option<super::Paper>,
     /// Present in a references reply.
@@ -143,7 +147,12 @@ impl From<RawEdge> for Edge {
                 .filter_map(|v| p.field("contexts", Some(v)))
                 .collect()
         });
+        let mut refusals = crate::Refusal::None;
+        for paper in [&raw.citing_paper, &raw.cited_paper].into_iter().flatten() {
+            refusals.include(paper.refusals);
+        }
         Self {
+            refusals,
             citing_paper: raw.citing_paper,
             cited_paper: raw.cited_paper,
             intents,
@@ -266,11 +275,17 @@ pub fn edges(
         record: None,
         list: Vec::new(),
     };
+    let mut refusals = crate::Refusal::None;
     let data = data
         .into_iter()
-        .filter_map(|v| p.required("paper_id", v.value()))
+        .filter_map(|v| {
+            let row = p.record("paper_id", v, &mut refusals)?;
+            refusals.include(row.refusals);
+            Some(row)
+        })
         .collect();
     Ok(Edges {
+        refusals,
         next: raw.next,
         data,
         problems: p.list,

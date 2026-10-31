@@ -22,10 +22,8 @@ pub(super) fn get(cx: &Ctx<'_>, query: &CellLineGet) -> Outcome {
         .push(status::source(Source::Cellosaurus, leg.finish(), error));
     out.local = error.and_then(status::local);
     if reply.is_ok() {
-        if !out.problems.is_empty() {
-            card.status = Status::Partial;
-        }
-        out.status = card.status;
+        let state = card.status;
+        crate::status::restored(&mut out, state);
         if card
             .sex
             .as_ref()
@@ -46,13 +44,13 @@ pub(super) fn get(cx: &Ctx<'_>, query: &CellLineGet) -> Outcome {
         {
             let mut metadata = super::chembl::get_at(cx, query, &header.accession, deadline);
             metadata.sources.splice(0..0, out.sources);
-            if metadata.status != Status::Failed
+            if metadata.status() != Status::Failed
                 && metadata
                     .sources
                     .iter()
                     .any(|source| source.state == biomcp_types::SourceState::Stale)
             {
-                metadata.status = Status::Partial;
+                crate::status::item(&mut metadata, true, false, true);
             }
             command.finish(deadline.remaining());
             return metadata;
@@ -71,7 +69,7 @@ pub(super) fn get(cx: &Ctx<'_>, query: &CellLineGet) -> Outcome {
             super::sections::provenance(card);
         }
     }
-    if query.section() == Some(CellLineSection::All) && out.status != Status::Failed {
+    if query.section() == Some(CellLineSection::All) && out.status() != Status::Failed {
         super::all::attach(cx, deadline, &mut out);
     }
     recovery(&mut out, Request::GetCellLine(query.clone()));
@@ -84,6 +82,7 @@ fn resolve(
     card: &mut CellLineCard,
     problems: &mut Vec<biomcp_types::Problem>,
 ) -> Result<(), biomcp_fetch::RequestError> {
+    let mut dropped = false;
     let (accession, source) = match query.id() {
         CellLineInput::Accession(id) => (id.clone(), None),
         CellLineInput::Source(id) => {
@@ -91,6 +90,7 @@ fn resolve(
                 return Err(biomcp_fetch::InputError::Path.into());
             }
             let page = cellosaurus::reverse(leg, id)?;
+            dropped |= page.refusals == biomcp_adapters::Refusal::Refused;
             problems.extend(page.problems);
             card.fetched = page
                 .metadata
@@ -98,9 +98,13 @@ fn resolve(
                 .and_then(|value| u64::try_from(value).ok());
             if page.items.len() != 1 {
                 card.status = if page.items.is_empty() {
-                    Status::Absent
+                    crate::status::item_status(false, false, false)
                 } else {
-                    Status::Partial
+                    crate::status::item_status(
+                        true,
+                        false,
+                        page.refusals == biomcp_adapters::Refusal::Refused,
+                    )
                 };
                 card.candidates = page.items.into();
                 return Ok(());
@@ -120,9 +124,11 @@ fn resolve(
     } else {
         cellosaurus::get(leg, &accession, source)?
     };
+    dropped |= reply.refusals == biomcp_adapters::Refusal::Refused;
     problems.extend(reply.problems);
     if let Some(mut selected) = reply.card {
         selected.input = query.id().clone();
+        selected.status = status::item_status(true, false, dropped);
         selected.fetched = reply
             .metadata
             .fetched
@@ -143,7 +149,7 @@ fn resolve(
         super::sections::select(query, &mut selected);
         *card = selected;
     } else {
-        card.status = Status::Absent;
+        card.status = crate::status::item_status(false, false, false);
         card.fetched = reply
             .metadata
             .fetched
@@ -174,7 +180,7 @@ fn actions(out: &mut Outcome, card: &CellLineCard) {
 fn vacant(query: &CellLineGet) -> CellLineCard {
     CellLineCard {
         input: query.id().clone(),
-        status: Status::Failed,
+        status: crate::status::item_status(false, true, false),
         header: None,
         candidates: Box::default(),
         dates: None,

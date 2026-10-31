@@ -4,7 +4,7 @@ use biomcp_adapters::{openfda_label as source, received_date};
 use biomcp_fetch::RequestError;
 use biomcp_types::{
     DrugGet, DrugLabel, DrugPage, DrugSearch, DrugSection, DrugSource, PageInfo, QueryBody, Reason,
-    Request, Section, Source, SourceState, Status, StepKind,
+    Request, Section, Source, StepKind,
 };
 const SOURCE: Source = Source::OpenfdaLabel;
 pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
@@ -43,10 +43,9 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
         let next_offset = window.next_offset();
         let items = window.rows;
         let returned = items.len() as u32;
-        out.status = if returned == 0 {
-            Status::Absent
-        } else {
-            state(&out)
+        {
+            let found = returned != 0;
+            crate::status::item(&mut out, found, false, false);
         };
         if let Some(source) = out.sources.first_mut() {
             source.count = Some(total);
@@ -78,6 +77,7 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
             total: Some(total),
         });
     }
+    status::search(&mut out);
     command.finish(deadline.remaining());
     out
 }
@@ -121,18 +121,19 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
         .push(status::source(SOURCE, leg.finish(), error));
     if let Ok(page) = result {
         out.problems.extend(page.problems);
-        out.status = state(&out);
+        out.include_refusals(page.window.refusals());
+        crate::status::item(&mut out, true, false, false);
         if let Some(source) = out.sources.first_mut() {
             source.count = Some(page.window.total().unwrap_or(0));
             source.retrieved_count = Some(page.window.rows.len() as u32);
         }
         if let Some(record) = page.window.rows.first() {
             if let Err(error) = select(cx, query, record, page.metadata.fetched, &mut out) {
-                out.status = Status::Failed;
+                crate::status::item(&mut out, false, true, false);
                 out.local = status::local(error);
             }
         } else {
-            out.status = Status::Absent;
+            crate::status::item(&mut out, false, false, false);
         }
     }
     command.finish(deadline.remaining());
@@ -193,7 +194,7 @@ fn select(
             }
         }
         None => {
-            out.status = Status::Partial;
+            crate::status::item(out, true, false, true);
             Section::unavailable(SOURCE, Reason::NotFound)
         }
     };
@@ -203,13 +204,7 @@ fn select(
     }));
     Ok(())
 }
-fn state(out: &Outcome) -> Status {
-    if out.sources.iter().any(|s| s.state == SourceState::Stale) {
-        Status::Partial
-    } else {
-        Status::Complete
-    }
-}
+
 fn page(offset: u32, returned: u32, total: u64) -> PageInfo {
     PageInfo {
         offset,

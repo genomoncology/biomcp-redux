@@ -23,16 +23,22 @@ impl From<ReceivedMolecule> for Molecule {
             record: crate::mapped::record(&row.molecule_chembl_id),
             list: Vec::new(),
         };
+        let pref_name = problems.field("pref_name", row.pref_name);
+        let molecule_type = problems.required_field("molecule_type", row.molecule_type);
+        let mut refusals = crate::Refusal::None;
+        let molecule_synonyms = problems
+            .records("molecule_synonyms", row.molecule_synonyms, &mut refusals)
+            .into_vec();
+        let cross_references = problems
+            .records("cross_references", row.cross_references, &mut refusals)
+            .into_vec();
         Self {
+            refusals,
             molecule_chembl_id: row.molecule_chembl_id,
-            pref_name: problems.field("pref_name", row.pref_name),
-            molecule_type: problems.required_field("molecule_type", row.molecule_type),
-            molecule_synonyms: problems
-                .fields("molecule_synonyms", row.molecule_synonyms)
-                .into_vec(),
-            cross_references: problems
-                .fields("cross_references", row.cross_references)
-                .into_vec(),
+            pref_name,
+            molecule_type,
+            molecule_synonyms,
+            cross_references,
             molecule_hierarchy: problems.field("molecule_hierarchy", row.molecule_hierarchy),
             problems: problems.list,
         }
@@ -83,16 +89,22 @@ impl From<ReceivedMechanism> for Mechanism {
             record: crate::mapped::record(row.mec_id),
             list: Vec::new(),
         };
+        let target_chembl_id = problems.field("target_chembl_id", row.target_chembl_id);
+        let action_type = problems.field("action_type", row.action_type);
+        let mechanism_of_action =
+            problems.required_field("mechanism_of_action", row.mechanism_of_action);
+        let mut refusals = crate::Refusal::None;
+        let mechanism_refs = problems
+            .records("mechanism_refs", row.mechanism_refs, &mut refusals)
+            .into_vec();
         Self {
+            refusals,
             mec_id: row.mec_id,
             molecule_chembl_id: row.molecule_chembl_id,
-            target_chembl_id: problems.field("target_chembl_id", row.target_chembl_id),
-            action_type: problems.field("action_type", row.action_type),
-            mechanism_of_action: problems
-                .required_field("mechanism_of_action", row.mechanism_of_action),
-            mechanism_refs: problems
-                .fields("mechanism_refs", row.mechanism_refs)
-                .into_vec(),
+            target_chembl_id,
+            action_type,
+            mechanism_of_action,
+            mechanism_refs,
             problems: problems.list,
         }
     }
@@ -124,17 +136,25 @@ impl From<ReceivedIndication> for Indication {
             record: crate::mapped::record(row.drugind_id),
             list: Vec::new(),
         };
+        let efo_id = problems.field("efo_id", row.efo_id);
+        let efo_term = problems.field("efo_term", row.efo_term);
+        let mesh_id = problems.field("mesh_id", row.mesh_id);
+        let mesh_heading = problems.field("mesh_heading", row.mesh_heading);
+        let max_phase_for_ind = problems.field("max_phase_for_ind", row.max_phase_for_ind);
+        let mut refusals = crate::Refusal::None;
+        let indication_refs = problems
+            .records("indication_refs", row.indication_refs, &mut refusals)
+            .into_vec();
         Self {
+            refusals,
             drugind_id: row.drugind_id,
             molecule_chembl_id: row.molecule_chembl_id,
-            efo_id: problems.field("efo_id", row.efo_id),
-            efo_term: problems.field("efo_term", row.efo_term),
-            mesh_id: problems.field("mesh_id", row.mesh_id),
-            mesh_heading: problems.field("mesh_heading", row.mesh_heading),
-            max_phase_for_ind: problems.field("max_phase_for_ind", row.max_phase_for_ind),
-            indication_refs: problems
-                .fields("indication_refs", row.indication_refs)
-                .into_vec(),
+            efo_id,
+            efo_term,
+            mesh_id,
+            mesh_heading,
+            max_phase_for_ind,
+            indication_refs,
             problems: problems.list,
         }
     }

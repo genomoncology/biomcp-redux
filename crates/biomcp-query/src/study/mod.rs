@@ -1,30 +1,20 @@
 //! Literal study catalog reads with checked source admission and fixed continuation state.
 mod page;
+pub(super) use crate::status::empty;
 use crate::{Action, Bundle, Ctx, Outcome, status};
 use biomcp_adapters::cbioportal::{SPEC, studies};
 use biomcp_fetch::{Leg, RequestError};
 use biomcp_types::{QueryBody, Source, SourceState, Status, StepKind, StudySearch};
-fn empty(body: QueryBody) -> Outcome {
-    Outcome {
-        status: Status::Failed,
-        body,
-        page: None,
-        sources: vec![],
-        problems: vec![],
-        next: vec![],
-        local: None,
-    }
-}
 fn finish(out: &mut Outcome, leg: Leg<'_>, error: Option<RequestError>) {
     out.local = error.and_then(status::local);
     out.sources
         .push(status::source(Source::Cbioportal, leg.finish(), error));
     if error.is_some() {
-        out.status = Status::Failed
-    } else if out.status == Status::Complete
-        && (!out.problems.is_empty() || out.sources.iter().any(|s| s.state == SourceState::Stale))
+        crate::status::item(out, false, true, false)
+    } else if out.status() == Status::Complete
+        && (out.dropped || out.sources.iter().any(|s| s.state == SourceState::Stale))
     {
-        out.status = Status::Partial
+        crate::status::item(out, true, false, true)
     }
     if out
         .sources
@@ -46,6 +36,7 @@ pub fn search(cx: &Ctx<'_>, q: &StudySearch) -> Outcome {
     let deadline = command.deadline();
     let leg = cx.fetch.leg(&SPEC, deadline);
     let result = studies::search(&leg, q).and_then(|(rows, info)| {
+        out.include_refusals(rows.refusals);
         out.problems.extend(rows.problems);
         page::search(cx, q, rows.value, info, deadline, &mut out)
     });

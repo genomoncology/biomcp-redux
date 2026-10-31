@@ -3,9 +3,7 @@ use crate::source_snapshot as snapshot;
 use crate::{Action, Ctx, Outcome, status};
 use biomcp_adapters::nci;
 use biomcp_fetch::{Deadline, RequestError, SourceError};
-use biomcp_types::{
-    BiomarkerPage, BiomarkerSearch, QueryBody, Reason, Request, Source, Status, StepKind,
-};
+use biomcp_types::{BiomarkerPage, BiomarkerSearch, QueryBody, Reason, Request, Source, StepKind};
 /// Find native biomarker concept headers without interpretation.
 pub fn search(cx: &Ctx<'_>, q: &BiomarkerSearch) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
@@ -52,7 +50,7 @@ fn execute(
     }
     let saved = snapshot::load(
         cx,
-        "biomcp.biomarker-snapshot/1",
+        "biomcp.biomarker-snapshot/2",
         &q.snapshot_query(),
         q.pool(),
         deadline,
@@ -79,6 +77,7 @@ fn execute(
                 source.retrieved_count = Some(reply.value.len() as u32);
             }
             snapshot::Saved {
+                dropped: reply.refusals == biomcp_adapters::Refusal::Refused,
                 items: reply.value,
                 sources,
                 problems: reply.problems,
@@ -90,7 +89,7 @@ fn execute(
     } else {
         snapshot::save(
             cx,
-            "biomcp.biomarker-snapshot/1",
+            "biomcp.biomarker-snapshot/2",
             &q.snapshot_query(),
             deadline,
             &saved,
@@ -139,18 +138,6 @@ fn page(
         out.next
             .insert(0, (StepKind::Page, run(q.at_page(next, pool))));
     }
-    out.status = if saved
-        .sources
-        .iter()
-        .any(|s| s.state == biomcp_types::SourceState::Stale)
-        || !saved.problems.is_empty()
-    {
-        Status::Partial
-    } else if total == 0 {
-        Status::Absent
-    } else {
-        Status::Complete
-    };
     out.page = Some(biomcp_types::PageInfo {
         offset: q.offset(),
         returned,
@@ -160,20 +147,25 @@ fn page(
     });
     out.sources = saved.sources;
     out.problems = saved.problems;
+    out.dropped = saved.dropped;
+    status::search(out);
     out.body = QueryBody::BiomarkerPage(BiomarkerPage { items });
 }
 fn empty() -> Outcome {
-    Outcome {
-        status: Status::Failed,
-        body: QueryBody::BiomarkerPage(BiomarkerPage {
-            items: Box::default(),
-        }),
-        page: None,
-        sources: Vec::new(),
-        problems: Vec::new(),
-        next: Vec::new(),
-        local: None,
-    }
+    crate::status::finish(
+        [crate::status::item_status(false, true, false)],
+        crate::status::Parts {
+            dropped: false,
+            body: QueryBody::BiomarkerPage(BiomarkerPage {
+                items: Box::default(),
+            }),
+            page: None,
+            sources: Vec::new(),
+            problems: Vec::new(),
+            next: Vec::new(),
+            local: None,
+        },
+    )
 }
 fn run(q: BiomarkerSearch) -> Action {
     Action::Run {

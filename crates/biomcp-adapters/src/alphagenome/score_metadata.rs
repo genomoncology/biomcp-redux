@@ -24,13 +24,20 @@ pub(super) fn gene(
     value: proto::GeneScorerMetadata,
     path: &str,
     problems: &mut Problems,
+    refusals: &mut crate::Refusal,
 ) -> Option<AlphaGenomeGene> {
     let field = format!("{path}.gene_id");
-    problems.optional(
+    let Some(_) = problems.optional(
         &field,
         Some(value.gene_id.parse::<biodata::EnsemblGeneId>()),
-    )?;
-    let gene_id = problems.optional(&field, Some(crate::mapped::text(&value.gene_id)))?;
+    ) else {
+        *refusals = crate::Refusal::Refused;
+        return None;
+    };
+    let Some(gene_id) = problems.optional(&field, Some(crate::mapped::text(&value.gene_id))) else {
+        *refusals = crate::Refusal::Refused;
+        return None;
+    };
     Some(AlphaGenomeGene {
         gene_id,
         name: value.name,
@@ -51,19 +58,26 @@ pub(super) fn track(
     value: proto::TrackMetadata,
     path: &str,
     problems: &mut Problems,
+    refusals: &mut crate::Refusal,
 ) -> Option<AlphaGenomeTrack> {
-    problems.optional(
+    let Some(_) = problems.optional(
         &format!("{path}.name"),
         Some(crate::mapped::text(&value.name)),
-    )?;
-    let strand = problems.optional(
+    ) else {
+        *refusals = crate::Refusal::Refused;
+        return None;
+    };
+    let Some(strand) = problems.optional(
         &format!("{path}.strand"),
         Some(
             proto::Strand::try_from(value.strand)
                 .map_err(|_| BadReply)
                 .and_then(|value| native(value.as_str_name())),
         ),
-    )?;
+    ) else {
+        *refusals = crate::Refusal::Refused;
+        return None;
+    };
     let nonzero_mean = problems.optional(
         &format!("{path}.nonzero_mean"),
         value.nonzero_mean.map(|value| {
@@ -79,7 +93,7 @@ pub(super) fn track(
         strand,
         ontology_term: value
             .ontology_term
-            .and_then(|value| ontology(value, path, problems)),
+            .and_then(|value| ontology(value, path, problems, refusals)),
         biosample: value
             .biosample
             .map(|value| biosample(value, path, problems)),
@@ -104,15 +118,19 @@ fn ontology(
     value: proto::OntologyTerm,
     path: &str,
     problems: &mut Problems,
+    refusals: &mut crate::Refusal,
 ) -> Option<AlphaGenomeOntology> {
-    let ontology_type = problems.optional(
+    let Some(ontology_type) = problems.optional(
         &format!("{path}.ontology_term.ontology_type"),
         Some(
             proto::OntologyType::try_from(value.ontology_type)
                 .map_err(|_| BadReply)
                 .and_then(|value| native(value.as_str_name())),
         ),
-    )?;
+    ) else {
+        *refusals = crate::Refusal::Refused;
+        return None;
+    };
     Some(AlphaGenomeOntology {
         namespace: ontology_type,
         id: value.id,

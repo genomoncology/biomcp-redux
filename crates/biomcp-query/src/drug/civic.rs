@@ -3,7 +3,7 @@ use crate::{Action, Ctx, Outcome, status};
 use biomcp_adapters::civic;
 use biomcp_types::{
     DrugGet, DrugPage, DrugSearch, DrugSection, DrugSource, PageInfo, QueryBody, Request, Source,
-    SourceState, Status, StepKind,
+    StepKind,
 };
 
 pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
@@ -23,12 +23,12 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     out.sources
         .push(status::source(Source::Civic, leg.finish(), error));
     if let Ok(mapped) = result {
+        out.include_refusals(mapped.refusals);
         out.problems = mapped.problems;
         let (page, consumed) = mapped.value;
-        out.status = if page.items.is_empty() {
-            Status::Absent
-        } else {
-            state(&out)
+        {
+            let found = !page.items.is_empty();
+            crate::status::item(&mut out, found, false, false);
         };
         let returned = page.items.len() as u32;
         out.sources.iter_mut().for_each(|s| {
@@ -70,16 +70,11 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
         }
         out.body = QueryBody::DrugPage(page);
     }
+    status::search(&mut out);
     command.finish(deadline.remaining());
     out
 }
-fn state(out: &Outcome) -> Status {
-    if !out.problems.is_empty() || out.sources.iter().any(|s| s.state == SourceState::Stale) {
-        Status::Partial
-    } else {
-        Status::Complete
-    }
-}
+
 pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     let mut out = super::empty(QueryBody::DrugCivic(None));
     if !matches!(query.sections(), [DrugSection::Civic]) {
@@ -94,9 +89,10 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     out.sources
         .push(status::source(Source::Civic, leg.finish(), error));
     if let Ok(mapped) = result {
+        out.include_refusals(mapped.refusals);
         out.problems = mapped.problems;
         let Some(mut value) = mapped.value else {
-            out.status = state(&out);
+            crate::status::item(&mut out, true, false, false);
             command.finish(deadline.remaining());
             return out;
         };
@@ -114,7 +110,7 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
             }
         }
         super::next::civic(&mut value, cx.fresh, &mut out);
-        out.status = state(&out);
+        crate::status::item(&mut out, true, false, false);
         out.body = QueryBody::DrugCivic(Some(value));
     }
     command.finish(deadline.remaining());

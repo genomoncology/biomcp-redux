@@ -4,7 +4,7 @@ use biomcp_adapters::semantic_scholar::{self, author};
 use biomcp_fetch::{Deadline, RequestError, SourceError};
 use biomcp_types::{
     AuthorGet, AuthorPage, AuthorSearch, PageInfo, QueryBody, Reason, Request, Source, SourceState,
-    Status, StepKind,
+    StepKind,
 };
 /// Preserve the source's exact query, candidate order and continuation.
 pub fn search(cx: &Ctx<'_>, q: &AuthorSearch) -> Outcome {
@@ -112,6 +112,7 @@ fn present(
         .into_iter()
         .find(|p| p.offset == q.offset())
         .ok_or(biomcp_fetch::CacheError::Database)?;
+    out.include_refusals(page.refusals);
     out.problems.extend(page.problems);
     let items: Box<[_]> = page
         .data
@@ -139,10 +140,9 @@ fn present(
         pool: Some(pool.info),
         truncated: None,
     });
-    out.status = if saved.source.state == SourceState::Stale {
-        Status::Partial
-    } else {
-        Status::Complete
+    {
+        let unavailable = saved.source.state == SourceState::Stale;
+        crate::status::item(out, true, false, unavailable);
     };
     if saved.key_needed && saved.source.reason == Some(Reason::RateLimited) {
         super::key_step(out);

@@ -93,7 +93,11 @@ pub(super) fn card(
         .into(),
     })
 }
-pub(super) fn relation(r: &Relation, cx: &mut crate::mapped::Problems) -> Option<GtrTestRelation> {
+pub(super) fn relation(
+    r: &Relation,
+    cx: &mut crate::mapped::Problems,
+    refusals: &mut crate::Refusal,
+) -> Option<GtrTestRelation> {
     cx.record = crate::mapped::record(&r.id);
     let test_type = cx.optional(
         "test_type",
@@ -113,6 +117,7 @@ pub(super) fn relation(r: &Relation, cx: &mut crate::mapped::Problems) -> Option
             (!r.gene_symbol.is_empty()).then_some(&r.gene_symbol),
         );
         if gene_id.is_none() && label.is_none() {
+            *refusals = crate::Refusal::Refused;
             cx.required::<()>("gene_symbol", None);
             return None;
         }
@@ -130,7 +135,10 @@ pub(super) fn relation(r: &Relation, cx: &mut crate::mapped::Problems) -> Option
             object_name: r.object_name.clone(),
         }))
     } else {
-        let id = cx.required("GTR_identifier", medgen)?;
+        let Some(id) = cx.required("GTR_identifier", medgen) else {
+            *refusals = crate::Refusal::Refused;
+            return None;
+        };
         let label = cx.text(
             "object_name",
             (!r.object_name.is_empty()).then_some(&r.object_name),

@@ -169,3 +169,30 @@ fn copy(source: &Path, destination: &Path) -> io::Result<()> {
     }
     Ok(())
 }
+
+/// Keep actual replay inputs while their capture still owns the temporary directory.
+pub(super) fn retain_replay_owner(owner: &tempfile::TempDir) -> io::Result<()> {
+    let root = owner.path().canonicalize()?;
+    let retained = directory()?
+        .join("replay-owners")
+        .join(crate::runner::transcript::hash(
+            root.to_string_lossy().as_bytes(),
+        ));
+    fs::create_dir_all(&retained)?;
+    let mut inputs = Vec::new();
+    for name in ["recordings", "first", "second", "all"] {
+        let source = root.join(name);
+        if source.is_dir() {
+            let destination = retained.join(name);
+            if !destination.exists() {
+                copy(&source, &destination)?;
+            }
+            inputs.push(name);
+        }
+    }
+    fs::write(
+        retained.join("manifest.json"),
+        serde_json::to_vec(&serde_json::json!({"owner_root":root,"inputs":inputs}))?,
+    )?;
+    Ok(())
+}

@@ -8,6 +8,7 @@ use biomcp_types::{Reason, Section, Source};
 pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]) -> SectionResult {
     let leg = cx.fetch.leg(&gencc::SPEC, deadline).fresh(cx.fresh);
     let mut error = None;
+    let mut dropped = false;
     let mut problems = Vec::new();
     let mut local = None;
     let values = genes
@@ -15,6 +16,7 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
         .map(|(id, gene)| {
             let section = match gencc::gene(&leg, *id, &gene.symbol) {
                 Ok(mapped) => {
+                    dropped |= mapped.refusals == biomcp_adapters::Refusal::Refused;
                     status::append(&mut problems, mapped.problems);
                     match mapped.value {
                         Some(data) => Section::Data {
@@ -51,6 +53,7 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
         }
     }
     SectionResult {
+        dropped,
         values,
         source: status::source(Source::Gencc, report, error),
         problems,
