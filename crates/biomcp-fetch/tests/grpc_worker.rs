@@ -277,6 +277,7 @@ fn stream_worker_maps_status_without_retrying_or_reflecting_provider_text() -> C
     ] {
         let fixture = Fixture::new(Hold::None, status, false, false)?;
         let key = KeyUse::Required(Credential {
+            tier: biomcp_types::KeyTier::Fallback,
             secret: SecretName::OncokbApiKey,
             place: KeyPlace::Header("x-fixture-key"),
         });

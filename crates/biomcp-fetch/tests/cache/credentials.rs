@@ -6,6 +6,7 @@ fn query_identity_distinguishes_arguments_and_excludes_configured_credentials() 
     let path = directory.path().join("cache.sqlite");
     let server = Server::new();
     let credential = Credential {
+        tier: biomcp_types::KeyTier::Fallback,
         secret: SecretName::NcbiApiKey,
         place: KeyPlace::Query("api_key"),
     };
@@ -82,6 +83,7 @@ fn keyed_cache_refuses_missing_credentials_and_never_masks_rejected_credentials(
     let spec = spec(
         &server,
         KeyUse::Required(Credential {
+            tier: biomcp_types::KeyTier::Fallback,
             secret: SecretName::OncokbApiKey,
             place: KeyPlace::Bearer,
         }),

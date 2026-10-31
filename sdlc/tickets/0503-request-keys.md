@@ -1,6 +1,7 @@
 # 0503 — Take each caller's source keys from request headers in hosted mode
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 6020a636e9a5aa9eb372ad4df3cd8c4cf21282b4
 
 Milestone: 5
 

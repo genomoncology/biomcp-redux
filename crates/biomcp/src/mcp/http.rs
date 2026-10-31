@@ -199,7 +199,28 @@ impl Service {
                         Some(revision),
                     );
                 };
-                match super::research::execute(&call, &self.globals, &self.fetch, true) {
+                let keys = if self.globals.hosted {
+                    let keys = match request.source_keys() {
+                        Ok(keys) => keys,
+                        Err(_) => {
+                            return (
+                                400,
+                                Some(json!({"error":"Invalid source key headers"})),
+                                Some(revision),
+                            );
+                        }
+                    };
+                    Some(keys)
+                } else {
+                    None
+                };
+                match super::research::execute(
+                    &call,
+                    &self.globals,
+                    &self.fetch,
+                    true,
+                    keys.as_ref(),
+                ) {
                     Ok(outcome) => super::protocol::tool_result(id, &outcome, modern),
                     Err(_) => super::protocol::error(id, -32603, "Internal error"),
                 }
