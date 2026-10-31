@@ -1,4 +1,6 @@
 //! Provider declarations and shared FIFO admission.
+mod rate_share;
+pub use rate_share::{InvalidRateShare, RateShare};
 
 use crate::Deadline;
 #[expect(

@@ -1,5 +1,5 @@
 //! A validated process share of each provider's published rate.
-use std::{fmt, str::FromStr, time::Duration};
+use std::{fmt, str::FromStr};
 
 /// A finite provider rate multiplier greater than zero and no greater than one.
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -30,15 +30,5 @@ impl FromStr for RateShare {
 impl Default for RateShare {
     fn default() -> Self {
         Self(1.0)
-    }
-}
-impl RateShare {
-    pub(super) fn gained(self, elapsed: Duration, per_second: u16, seconds: u16) -> u128 {
-        (elapsed.as_nanos() as f64 * f64::from(per_second) * self.0 / f64::from(seconds))
-            as u128
-    }
-    pub(super) fn delay(self, missing: u128, per_second: u16, seconds: u16) -> Duration {
-        let nanos = (missing as f64 * f64::from(seconds) / (f64::from(per_second) * self.0)).ceil();
-        Duration::try_from_secs_f64(nanos / 1_000_000_000.0).unwrap_or(Duration::MAX)
     }
 }

@@ -216,10 +216,13 @@ impl Service {
                 };
                 match super::research::execute(
                     &call,
-                    &self.globals,
-                    &self.fetch,
+                    crate::command::Context {
+                        globals: &self.globals,
+                        fetch: &self.fetch,
+                        secrets: keys.as_ref(),
+                        scope: None,
+                    },
                     true,
-                    keys.as_ref(),
                 ) {
                     Ok(outcome) => super::protocol::tool_result(id, &outcome, modern),
                     Err(_) => super::protocol::error(id, -32603, "Internal error"),
