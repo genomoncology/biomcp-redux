@@ -83,7 +83,7 @@ fn failures() -> Check {
                 );
             }
         },
-        json!({"/status":"partial","/sources/0/status":"ok","/result/items":[],"/problems/0/field":"paper_id","/problems/0/code":"value.unknown"}),
+        json!({"/status":"partial","/sources/0/state":"ok","/result":{"equals":{}},"/page/returned":0,"/page/total":0,"/problems":[{"source":"semantic-scholar","field":"paper_id","code":"value.unknown"}]}),
         0,
     )?;
     for (value, reason) in [
