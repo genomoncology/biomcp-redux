@@ -38,7 +38,17 @@ fn recovery() -> Check {
         .environment()
         .config(&json!({"keys":{"oncokb_api_key":SERVER}}))
         .map_err(|e| e.to_string())?;
-    let args = ["get", "gene", "TP53", "oncokb", "--offline"];
+    let args = [
+        "get",
+        "variant",
+        "chr7:g.140753336A>T",
+        "oncokb",
+        "--build",
+        "GRCh38",
+        "--tumor-type",
+        "Synthetic tumor",
+        "--offline",
+    ];
     for supplied in [true, false] {
         let extra = if supplied {
             format!("x-biomcp-key-oncokb-api-key: {CALLER}\r\n")
