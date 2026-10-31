@@ -46,5 +46,13 @@ fn snapshot(
     } else {
         secrets
     };
-    crate::config::restrict(fetch.with_secrets(secrets), globals).map(Ok)
+    crate::config::restrict(
+        if globals.hosted {
+            fetch.with_hosted_secrets(secrets)
+        } else {
+            fetch.with_secrets(secrets)
+        },
+        globals,
+    )
+    .map(Ok)
 }
