@@ -35,7 +35,10 @@ impl Shape {
         } else if media.contains("xml") {
             shape.xml(body);
         } else if media.contains("csv") || media.contains("tab-separated") {
-            shape.incomplete = body.split(|b| *b == b'\n').next().is_some_and(|line| line.len() > 4096);
+            shape.incomplete = body
+                .split(|b| *b == b'\n')
+                .next()
+                .is_some_and(|line| line.len() > 4096);
             shape.header = body
                 .split(|b| *b == b'\n')
                 .next()
