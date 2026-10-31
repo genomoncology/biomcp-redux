@@ -201,7 +201,11 @@ pub fn card(
 pub fn release(leg: &Leg<'_>) -> Result<Text, RequestError> {
     let endpoint = SPEC.get("/data/database/version").fresh(Freshness::Days(1));
     let value = leg
-        .call::<raw::Version>(&endpoint, Input::Params(&[]), biomcp_fetch::Read::json())
+        .call::<raw::Version>(
+            &endpoint,
+            Input::Params(&[]),
+            biomcp_fetch::Read::json_text(),
+        )
         .map(|received| received.value)?;
     Text::new(&value.0.to_string()).map_err(|_| biomcp_fetch::InputError::Serialization.into())
 }

@@ -75,14 +75,14 @@ pub enum UsageError {
     },
 }
 
-/// Fixed grammar guidance without rejected caller values.
+/// Parser or checked-constructor guidance without rejected caller values.
 #[derive(Clone, Debug, Default)]
 pub struct UsageArguments {
-    /// Grammar-owned argument identity.
+    /// Grammar-owned argument identity or a parser-owned unknown option spelling.
     pub argument: Option<Box<str>>,
     /// Constructor-owned refusal message.
     pub message: Option<crate::ErrorMessage>,
-    /// Supported vocabulary for the checked argument.
+    /// Accepted vocabulary or schema-owned form for the checked argument.
     pub valid_values: Option<Box<[crate::Text]>>,
     /// Grammar-owned recovery steps.
     pub next: Vec<crate::Step>,

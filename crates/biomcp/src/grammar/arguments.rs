@@ -108,22 +108,49 @@ fn aliases(
 }
 
 fn value_argument(argument: Arg, property: &Value) -> Arg {
-    argument.allow_negative_numbers(true).value_parser(
-        clap::builder::StringValueParser::new().try_map({
-            let integer = property_type(property) == Some("integer");
-            let minimum = property.get("minimum").and_then(Value::as_u64);
-            let maximum = property.get("maximum").and_then(Value::as_u64);
-            move |value: String| {
-                if integer
-                    && !value.parse::<u64>().is_ok_and(|n| {
-                        minimum.is_none_or(|min| n >= min) && maximum.is_none_or(|max| n <= max)
-                    })
-                {
-                    Err("expected an integer within the supported range")
-                } else {
-                    Ok(value)
-                }
+    argument
+        .allow_negative_numbers(true)
+        .value_parser(QueryValueParser {
+            integer: property_type(property) == Some("integer"),
+            minimum: property.get("minimum").and_then(Value::as_u64),
+            maximum: property.get("maximum").and_then(Value::as_u64),
+        })
+}
+
+#[derive(Clone)]
+struct QueryValueParser {
+    integer: bool,
+    minimum: Option<u64>,
+    maximum: Option<u64>,
+}
+impl TypedValueParser for QueryValueParser {
+    type Value = String;
+    fn parse_ref(
+        &self,
+        command: &Command,
+        argument: Option<&Arg>,
+        value: &std::ffi::OsStr,
+    ) -> Result<String, clap::Error> {
+        let value = clap::builder::StringValueParser::new().parse_ref(command, argument, value)?;
+        if self.integer
+            && !value.parse::<u64>().is_ok_and(|n| {
+                self.minimum.is_none_or(|min| n >= min) && self.maximum.is_none_or(|max| n <= max)
+            })
+        {
+            use clap::error::{ContextKind, ContextValue, ErrorKind};
+            let mut error = clap::Error::new(ErrorKind::ValueValidation).with_cmd(command);
+            if let Some(argument) = argument {
+                error.insert(
+                    ContextKind::InvalidArg,
+                    ContextValue::String(argument.to_string()),
+                );
             }
-        }),
-    )
+            error.insert(
+                ContextKind::Usage,
+                ContextValue::StyledStr(command.clone().render_usage()),
+            );
+            return Err(error);
+        }
+        Ok(value)
+    }
 }

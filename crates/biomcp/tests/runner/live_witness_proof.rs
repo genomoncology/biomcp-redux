@@ -78,6 +78,7 @@ pub(super) fn retained() -> Result<(), String> {
     long_walk_shapes()?;
     retained_context()?;
     doi_context()?;
+    scholar_context().map_err(|error| error.to_string())?;
     discovery_context()
         .and_then(|()| input_context::prove())
         .map_err(|error| error.to_string())
@@ -278,7 +279,8 @@ fn doi_context() -> Result<(), String> {
     .map_err(|error| error.to_string())?;
     let discovery = rows
         .iter()
-        .filter_map(|row| row.provenance.discovery.as_ref())
+        .filter_map(|row| row.provenance.discoveries.as_ref())
+        .flatten()
         .find(|ids| ids.namespace == "doi")
         .ok_or("missing graph DOI discovery")?;
     let inputs = rows
@@ -359,6 +361,85 @@ fn long_walk_shapes() -> Result<(), String> {
     }
     if rows.len() != counts.len() {
         return Err("retained nightly walks omitted".into());
+    }
+    Ok(())
+}
+
+fn scholar_context() -> Result<(), Box<dyn std::error::Error>> {
+    for (case, args, pmids, doi) in [
+        ("single", vec!["article", "recommendations", "34096690", "--limit", "5"],
+         vec!["42745055", "42685317", "42846599", "42891951"],
+         "10.1158/1538-7445.pancreatic26-b074"),
+        ("multi", vec!["article", "recommendations", "34096690", "32955176", "--negative", "33433946", "--limit", "5"],
+         vec!["42745055", "42685317", "42748921", "42830785"],
+         "10.64898/2026.09.28.26364204"),
+    ] {
+        let env = Environment::new()?;
+        let replay = super::super::launch::fixtures().join(format!("replies/article/recommendations/{case}"));
+        let rows = super::observe(&env, &replay, "scholar-identities", &args)?;
+        let sequences = rows.iter()
+            .find(|row| row.source == biomcp_types::Source::SemanticScholar)
+            .and_then(|row| row.provenance.discoveries.as_ref())
+            .ok_or("provider namespace sequences absent")?;
+        let find = |namespace| sequences.iter().find(|ids| ids.namespace == namespace)
+            .map(|ids| ids.ids.iter().map(String::as_str).collect::<Vec<_>>());
+        if find("pmid") != Some(pmids) || find("doi") != Some(vec![doi]) {
+            return Err("provider PMIDs were inferred, reordered or mixed with DOI fallback".into());
+        }
+        let metadata: Vec<_> = rows.iter().map(|row| json!({
+            "identity": row.identity, "source": row.source, "role": row.role,
+            "status": row.status, "url": row.url, "provenance": row.provenance,
+        })).collect();
+        use std::io::Write;
+        writeln!(std::io::stderr(), "SCHOLAR_DISCOVERY {}", json!({"case":case,"requests":metadata}))?;
+    }
+    Ok(())
+}
+
+// A sampler cannot prove absence beyond its field or array window.
+pub(super) fn sampling(observations: &[biomcp_fetch::Observation]) -> Result<(), Box<dyn std::error::Error>> {
+    use biomcp_fetch::Shape;
+    let historical: Shape = serde_json::from_value(json!({"fields": {}, "positive": {}, "header": null}))?;
+    if !historical.incomplete || Shape::inspect(br#"{}"#, "application/json").incomplete {
+        return Err("unknown historical shape was treated as a complete new inspection".into());
+    }
+    let sample = observations.first().ok_or("missing native observation")?;
+    let report = live::compare(&[sample.clone()], &[], &mut Vec::new(), &mut BTreeMap::new());
+    if report.pointer("/items/0/shape_comparison") != Some(&json!("unexamined")) {
+        return Err("unpaired request was described as examined".into());
+    }
+    let before = Shape::inspect(br#"{"z":1}"#, "application/json");
+    let mut crowded = serde_json::Map::new();
+    for index in 0..70 {
+        crowded.insert(format!("a{index:03}"), json!(index));
+    }
+    crowded.insert("z".into(), json!(1));
+    let crowded = serde_json::to_vec(&crowded)?;
+    let arrays = br#"{"rows":[{}, {}, {}, {"optional":1}]}"#;
+    let complete = br#"{"other":1}"#;
+    for (body, incomplete) in [
+        (crowded.as_slice(), true),
+        (arrays.as_slice(), true),
+        (complete.as_slice(), false),
+    ] {
+        let mut old = sample.clone();
+        old.shape = before.clone();
+        let mut new = old.clone();
+        new.shape = Shape::inspect(body, "application/json");
+        if new.shape.incomplete != incomplete {
+            return Err("sampling limit was not reported".into());
+        }
+        let mut changes = Vec::new();
+        let report = live::compare(&[old], &[new], &mut changes, &mut BTreeMap::new());
+        if incomplete {
+            if !changes.is_empty()
+                || report.pointer("/items/0/shape_comparison") != Some(&json!("incomplete"))
+            {
+                return Err("incomplete sampling invented a field removal or hid its limit".into());
+            }
+        } else if !changes.iter().any(|item| item.ends_with("field removed: /z")) {
+            return Err("complete shape lost genuine removal detection".into());
+        }
     }
     Ok(())
 }

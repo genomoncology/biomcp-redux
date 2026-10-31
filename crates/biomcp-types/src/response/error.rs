@@ -63,6 +63,7 @@ singleton! {
  --limit or --section-limit, select one source or section, or fetch one exact record",
  SchemaUsage => "use biomcp schema to list known artifact IDs",
  Arguments => "expected a supported command with checked arguments",
+ ArgumentGuidance => "option is missing or invalid; choose an accepted value or form and use the suggested help command",
  McpSync => "sync is unavailable over MCP; run it from the command line",
  McpStoreClean => "store clean is unavailable over MCP; run it from the command line",
  McpKey => "key is unavailable over MCP; run it from the command line",
@@ -284,7 +285,7 @@ struct ErrorDetail {
     message: ErrorMessage,
 }
 
-/// A versioned error response that never contains caller input.
+/// A versioned error response that never contains rejected caller values.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ErrorEnvelope {
@@ -427,7 +428,13 @@ impl ErrorEnvelope {
 impl ErrorDetail {
     fn arguments(&mut self, arguments: crate::UsageArguments) -> Vec<super::Step> {
         self.option = arguments.argument;
-        self.message = arguments.message.unwrap_or(ErrorMessage::Arguments);
+        self.message = arguments.message.unwrap_or_else(|| {
+            if self.option.is_some() && arguments.valid_values.is_some() {
+                ErrorMessage::ArgumentGuidance
+            } else {
+                ErrorMessage::Arguments
+            }
+        });
         self.valid_values = arguments.valid_values;
         arguments.next
     }

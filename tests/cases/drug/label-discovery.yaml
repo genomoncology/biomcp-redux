@@ -1,8 +1,8 @@
 {
-  "verified": "tests/replies/drug/label-discovery/provenance.json records the native openFDA identity and product fields and original body hashes. Local request wrappers and synthetic absences are declared there. Nightly execution checks the public label discovery and section requests.",
+  "verified": "tests/replies/drug/label-discovery/provenance.json records the native openFDA identity and product fields and original body hashes. Local request wrappers and synthetic absences are declared there. Nightly execution checks the public label discovery and section requests. Synthetic longer-brand, incidental-warning, mismatched-application and warning-section controls run in label-controls.yaml and do not enter live checks.",
   "live_check": "public",
   "feature": "drug-label",
-  "story": "Recorded labels support free-text discovery without harmonized names and exact application searches without product substitution. The guide section command preserves the recorded identity/display subset and reports its unavailable warning section.",
+  "story": "Public label identities support free-text discovery and exact application search.",
   "replay": "drug/label-discovery",
   "steps": [
     {
@@ -103,108 +103,6 @@
         "/result/items/0/name": "Sarclisa Escena"
       },
       "max_bytes": 1600
-    },
-    {
-      "run": [
-        "search",
-        "drug",
-        "CAVHANZA EXTRA",
-        "--source",
-        "openfda-label",
-        "--limit",
-        "1"
-      ],
-      "exit": 0,
-      "expect": {
-        "/status": "complete",
-        "/result": {
-          "omits": [
-            "items"
-          ]
-        },
-        "/sources/0/term": "\"CAVHANZA EXTRA\"",
-        "": {
-          "omits": [
-            "problems"
-          ]
-        }
-      },
-      "max_bytes": 1500
-    },
-    {
-      "run": [
-        "search",
-        "drug",
-        "REFERENCE BRAND",
-        "--source",
-        "openfda-label",
-        "--limit",
-        "1"
-      ],
-      "exit": 0,
-      "expect": {
-        "/status": "complete",
-        "/result": {
-          "omits": [
-            "items"
-          ]
-        },
-        "/sources/0/term": "\"REFERENCE BRAND\"",
-        "": {
-          "omits": [
-            "problems"
-          ]
-        }
-      },
-      "max_bytes": 1500
-    },
-    {
-      "run": [
-        "search",
-        "drug",
-        "NDA000001",
-        "--source",
-        "openfda-label",
-        "--limit",
-        "1"
-      ],
-      "exit": 0,
-      "expect": {
-        "/status": "complete",
-        "/result": {
-          "omits": [
-            "items"
-          ]
-        },
-        "": {
-          "omits": [
-            "problems"
-          ]
-        },
-        "/sources/0/source": "openfda-label",
-        "/sources/0/state": "ok"
-      },
-      "max_bytes": 1000
-    },
-    {
-      "run": [
-        "get",
-        "drug",
-        "98b197ea-bca4-427e-8737-97f70a3262bc",
-        "label",
-        "--source",
-        "openfda-label",
-        "--label-section",
-        "warnings_and_cautions"
-      ],
-      "expect": {
-        "/status": "partial",
-        "/result/identity/id": "98b197ea-bca4-427e-8737-97f70a3262bc",
-        "/result/label/state": "unavailable",
-        "/result/label/reason": "not-found",
-        "/sources/0/source": "openfda-label"
-      },
-      "max_bytes": 2000
     }
   ]
 }

@@ -22,7 +22,7 @@ pub(super) fn drift(before: &Shape, after: &Shape) -> Vec<String> {
     for key in before
         .fields
         .keys()
-        .filter(|key| !after.fields.contains_key(*key))
+        .filter(|key| !after.incomplete && !after.fields.contains_key(*key))
     {
         changes.push(format!("field removed: {key}"));
     }

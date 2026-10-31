@@ -46,7 +46,7 @@
         "/result/pathway/name": "Signaling by MAPK mutants",
         "/result/pathway/species": "Homo sapiens",
         "/result/pathway/version": "R-HSA-9652817.2",
-        "/result/release": "97"
+        "/result/release": "98"
       },
       "max_bytes": 707
     },
@@ -67,7 +67,7 @@
         "/result/pathway/name": "Signaling by EGFR",
         "/result/pathway/species": "Homo sapiens",
         "/result/pathway/version": "R-HSA-177929.6",
-        "/result/release": "97"
+        "/result/release": "98"
       },
       "max_bytes": 690
     }
