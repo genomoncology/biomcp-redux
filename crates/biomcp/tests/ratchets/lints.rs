@@ -62,11 +62,18 @@ fn compare(base: &Value, config: &Value) -> Check {
         let actual = config
             .get(key)
             .ok_or_else(|| format!("missing shared {key}"))?;
-        if key == "disallowed-types" {
-            let actual = actual.as_array().ok_or("disallowed-types is not a list")?;
-            for item in expected.as_array().ok_or("shared types is not a list")? {
+        if matches!(key.as_str(), "disallowed-types" | "disallowed-methods") {
+            let actual = actual
+                .as_array()
+                .ok_or("shared disallowed entries must be a list")?;
+            for item in expected
+                .as_array()
+                .ok_or("shared disallowed entries must be a list")?
+            {
                 if !actual.contains(item) {
-                    return Err(format!("shared Clippy type drift: {item:?}").into());
+                    return Err(
+                        format!("shared Clippy disallowed entry drift: {key}: {item:?}").into(),
+                    );
                 }
             }
         } else if actual != expected {

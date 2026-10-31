@@ -111,6 +111,7 @@ fn fetch_using(
     let secrets = secrets_from(file.as_ref());
     let network = network(file.as_ref())?;
     Fetch::open(FetchConfig {
+        rate_share: globals.rate_share,
         disabled_sources: disabled_sources(globals, file.as_ref())?,
         disabled_uses: biomcp_adapters::registry::disabled_uses(&disabled_names(
             globals,

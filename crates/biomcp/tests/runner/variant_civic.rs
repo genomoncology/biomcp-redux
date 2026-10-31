@@ -26,6 +26,9 @@ fn run(environment: &Environment, args: &[&str]) -> Result<Value, String> {
         .command(env!("CARGO_BIN_EXE_biomcp"), &args)
         .output()
         .map_err(|e| e.to_string())?;
+    if out.status.code() != Some(4) || !out.stderr.is_empty() {
+        return Err(format!("wrong cursor refusal exit {:?}", out.status.code()));
+    }
     serde_json::from_slice(&out.stdout)
         .map_err(|e| format!("{e}: {}", String::from_utf8_lossy(&out.stdout)))
 }
@@ -135,7 +138,11 @@ fn stalled_cursor() -> Result<(), String> {
                 cursor,
             ],
         )?;
-        if value.pointer("/result/candidates/0/sections/civic/reason") != Some(&json!("bad-reply"))
+        if value.get("result").is_some()
+            || value.pointer("/status") != Some(&json!("failed"))
+            || value.pointer("/sources/0/source") != Some(&json!("civic"))
+            || value.pointer("/sources/0/state") != Some(&json!("failed"))
+            || value.pointer("/sources/0/reason") != Some(&json!("bad-reply"))
         {
             return Err(format!(
                 "nonprogressing native stream emitted evidence or a repeating action: {value}"

@@ -29,6 +29,7 @@ pub use hosts::Destinations;
 mod error;
 mod network;
 mod prepared;
+mod privacy;
 mod tls;
 pub use network::{Certificates, Network};
 mod json_request;
@@ -58,9 +59,9 @@ pub use declaration::{
 pub use error::{
     BadReply, CacheError, FetchError, InputError, RecordError, RequestError, SourceError,
 };
-pub use quota::{Quota, Rate, SourceKey};
+pub use quota::{InvalidRateShare, Quota, Rate, RateShare, SourceKey};
 pub use record::ReplayCache;
-pub use secret::{Secret, Secrets};
+pub use secret::{KeyFingerprint, Secret, Secrets};
 use std::{collections::BTreeMap, fmt, time::Duration};
 
 /// A decoded response must verify that it contains a usable answer.
@@ -88,6 +89,8 @@ pub trait Reply: serde::de::DeserializeOwned {
 /// Explicit transport configuration. Construction reads no environment settings.
 #[derive(Debug)]
 pub struct FetchConfig {
+    /// This process's share of provider rates in hosted mode.
+    pub rate_share: RateShare,
     /// Bounded streaming RPC resources, independent of blocking HTTP requests.
     pub grpc_limits: grpc::Limits,
     /// Explicit bounded wire summaries, disabled by default.
@@ -125,6 +128,7 @@ pub struct FetchConfig {
 impl Default for FetchConfig {
     fn default() -> Self {
         Self {
+            rate_share: RateShare::default(),
             grpc_limits: grpc::Limits::default(),
             observations: None,
             cache_owners: Vec::new(),
@@ -153,9 +157,11 @@ impl Default for FetchConfig {
 #[derive(Clone)]
 pub struct Fetch {
     secrets: std::sync::Arc<Secrets>,
+    hosted: bool,
     agents: std::sync::Arc<network::Agents>,
     grpc_worker: std::sync::Arc<grpc::Worker>,
     cancelled: Option<std::sync::Arc<std::sync::atomic::AtomicBool>>,
+    call_end: Option<std::time::Instant>,
     mode: Mode,
     limiters: std::sync::Arc<quota::Limiters>,
     cache: Option<std::sync::Arc<cache::Cache>>,
@@ -216,9 +222,11 @@ impl Fetch {
             matches!(config.mode, Mode::Replay { .. }).then(deadline::VirtualClock::default);
         Ok(Self {
             secrets: std::sync::Arc::new(std::mem::take(&mut config.secrets)),
+            hosted: false,
             agents: std::sync::Arc::new(agents),
             grpc_worker,
             cancelled: None,
+            call_end: None,
             mode: std::mem::take(&mut config.mode),
             cache,
             recordings: std::sync::Arc::new(recordings),
@@ -285,13 +293,19 @@ impl Fetch {
 
     /// Create a real deadline or an initial replay budget for independent legs.
     pub fn deadline(&self, budget: Duration) -> Deadline<'_> {
-        Deadline::start(budget, self.clock.as_deref()).with_cancellation(self.cancelled.as_ref())
+        Deadline::start(self.bounded_budget(budget), self.clock.as_deref())
+            .with_cancellation(self.cancelled.as_ref())
     }
 
     /// Own a sequential command's replay origin without changing independent leg consumers.
     pub fn command_deadline(&self, budget: Duration) -> CommandDeadline<'_> {
-        CommandDeadline::start(budget, self.clock.as_deref())
+        CommandDeadline::start(self.bounded_budget(budget), self.clock.as_deref())
             .with_cancellation(self.cancelled.as_ref())
+    }
+    fn bounded_budget(&self, budget: Duration) -> Duration {
+        self.call_end.map_or(budget, |end| {
+            budget.min(end.saturating_duration_since(std::time::Instant::now()))
+        })
     }
 
     /// Start a leg capped by this source's budget.

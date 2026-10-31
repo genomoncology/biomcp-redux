@@ -8,6 +8,7 @@ pub use cleanup::clean;
 mod evidence;
 mod trial;
 pub(crate) use evidence::EvidenceState;
+mod ownership;
 mod pool;
 use biomcp_fetch::{CacheAccess, CacheError, Deadline, SchemaOwner};
 pub(crate) use pool::{Pool, StoredItem};
@@ -115,8 +116,15 @@ impl<'a> Store<'a> {
         operation: impl FnOnce(&Connection) -> Result<T, CacheError>,
     ) -> Result<T, CacheError> {
         self.prepare()?;
-        self._access
-            .admit(self.deadline(), || operation(&self.connection))
+        self._access.admit(self.deadline(), || {
+            if !self._access.is_hosted() {
+                return operation(&self.connection);
+            }
+            let tx = self.connection.unchecked_transaction().map_err(db)?;
+            let result = operation(&tx)?;
+            tx.commit().map_err(db)?;
+            Ok(result)
+        })
     }
     pub(super) fn write<T>(
         &mut self,
@@ -186,3 +194,6 @@ pub fn health(fetch: &biomcp_fetch::Fetch, budget: std::time::Duration) -> Resul
         )
     })
 }
+
+#[cfg(test)]
+mod privacy_tests;

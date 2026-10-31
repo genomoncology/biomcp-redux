@@ -285,6 +285,7 @@ impl Leg<'_> {
             hash.update(prepared.identity);
             prepared.identity = hash.finalize().into();
         }
+        prepared.identity = self.licensed_identity(prepared.identity);
         prepared.publisher = ep.publisher;
         let mut codec = codec.octet_stream(ep.octet_stream);
         if let Some(limit) = ep.byte_limit {
@@ -295,11 +296,8 @@ impl Leg<'_> {
         }
         codec.json_rejections = ep.json_rejections && codec.name() == "application/json";
         codec.json_absence = ep.json_absence && codec.name() == "application/json";
-        let keyed = self.keyed();
         let (reply, fetched, content_range, pagination) =
-            self.cached(ep, &prepared, &codec, || {
-                self.attempts(&prepared, keyed, &codec)
-            })?;
+            self.cached(ep, &prepared, &codec, || self.attempts(&prepared, &codec))?;
         let metadata = crate::ReplyMetadata {
             identity: prepared.identity,
             fetched,
@@ -317,14 +315,11 @@ impl Leg<'_> {
     fn attempts<T: Reply>(
         &self,
         prepared: &Prepared,
-        keyed: bool,
         codec: &Decoder<T>,
     ) -> Result<Decoded<T>, RequestError> {
         for attempt in 0..crate::retry::ATTEMPTS {
             let permit = self
-                .fetch
-                .limiters
-                .acquire(self.spec.quota, keyed, self.budget())
+                .acquire_quota()
                 .map_err(|delay| self.quota_failure(delay))?
                 .ok_or_else(|| self.failure(Reason::DeadlineExceeded, None))?;
             let started = Instant::now();

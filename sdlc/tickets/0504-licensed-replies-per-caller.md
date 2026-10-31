@@ -1,6 +1,7 @@
 # 0504 — Never serve one caller's licensed reply to another
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 480d41e71d53d71fc43d4cc5256073b928d8cd8c
 
 Milestone: 5
 

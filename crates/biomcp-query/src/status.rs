@@ -1,8 +1,5 @@
-use crate::Action;
 use biomcp_fetch::{LegReport, RequestError};
-use biomcp_types::{
-    PageInfo, Problem, QueryBody, Source, SourceOutcome, SourceState, Status, StepKind,
-};
+use biomcp_types::{PageInfo, Problem, QueryBody, Source, SourceOutcome, SourceState, Status};
 /// Query result before the interface adds its typed envelope and next spelling.
 #[derive(Debug)]
 pub struct Outcome {
