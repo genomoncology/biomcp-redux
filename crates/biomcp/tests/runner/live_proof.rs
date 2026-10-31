@@ -384,58 +384,11 @@ fn comparison() -> Result<(), Box<dyn std::error::Error>> {
     {
         return Err("real HTTP status drift hidden".into());
     }
-    sampling(&after)?;
+    witness_proof::sampling(&after)?;
     cache_after_transport(&after)?;
     bounded_command_drift(&after)?;
     report_context(&after)?;
     cache_reuse(&env, &original, &after)?;
-    Ok(())
-}
-// A sampler cannot prove absence beyond its field or array window.
-fn sampling(observations: &[Observation]) -> Result<(), Box<dyn std::error::Error>> {
-    use biomcp_fetch::Shape;
-    let historical: Shape = serde_json::from_value(json!({"fields": {}, "positive": {}, "header": null}))?;
-    if !historical.incomplete || Shape::inspect(br#"{}"#, "application/json").incomplete {
-        return Err("unknown historical shape was treated as a complete new inspection".into());
-    }
-    let sample = observations.first().ok_or("missing native observation")?;
-    let report = live::compare(&[sample.clone()], &[], &mut Vec::new(), &mut BTreeMap::new());
-    if report.pointer("/items/0/shape_comparison") != Some(&json!("unexamined")) {
-        return Err("unpaired request was described as examined".into());
-    }
-    let before = Shape::inspect(br#"{"z":1}"#, "application/json");
-    let mut crowded = serde_json::Map::new();
-    for index in 0..70 {
-        crowded.insert(format!("a{index:03}"), json!(index));
-    }
-    crowded.insert("z".into(), json!(1));
-    let crowded = serde_json::to_vec(&crowded)?;
-    let arrays = br#"{"rows":[{}, {}, {}, {"optional":1}]}"#;
-    let complete = br#"{"other":1}"#;
-    for (body, incomplete) in [
-        (crowded.as_slice(), true),
-        (arrays.as_slice(), true),
-        (complete.as_slice(), false),
-    ] {
-        let mut old = sample.clone();
-        old.shape = before.clone();
-        let mut new = old.clone();
-        new.shape = Shape::inspect(body, "application/json");
-        if new.shape.incomplete != incomplete {
-            return Err("sampling limit was not reported".into());
-        }
-        let mut changes = Vec::new();
-        let report = live::compare(&[old], &[new], &mut changes, &mut BTreeMap::new());
-        if incomplete {
-            if !changes.is_empty()
-                || report.pointer("/items/0/shape_comparison") != Some(&json!("incomplete"))
-            {
-                return Err("incomplete sampling invented a field removal or hid its limit".into());
-            }
-        } else if !changes.iter().any(|item| item.ends_with("field removed: /z")) {
-            return Err("complete shape lost genuine removal detection".into());
-        }
-    }
     Ok(())
 }
 fn cache_reuse(
