@@ -94,7 +94,7 @@ fn card(leg: &Leg<'_>, q: &StudyGet, out: &mut Outcome) -> Result<(), RequestErr
     };
     let source_url = format!("https://www.cbioportal.org/study/summary?id={}", q.id())
         .parse()
-        .map_err(|_| bad())?;
+        .map_err(|_| biomcp_fetch::bad_reply(Source::Cbioportal, None))?;
     out.body = QueryBody::StudyCard(row.map(|study| StudyCard {
         source_url,
         study,
@@ -223,14 +223,4 @@ fn section_error(out: &mut Outcome, section: StudySection, error: Option<Request
             _ => {}
         }
     }
-}
-
-fn bad() -> RequestError {
-    biomcp_fetch::SourceError {
-        source: Source::Cbioportal,
-        reason: biomcp_types::Reason::BadReply,
-        status: None,
-        retry_after: None,
-    }
-    .into()
 }

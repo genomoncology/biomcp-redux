@@ -179,15 +179,6 @@ pub(super) fn source(snapshot: &mut Snapshot, incoming: SourceOutcome) {
         snapshot.sources.push(incoming)
     }
 }
-pub(super) fn bad() -> RequestError {
-    biomcp_fetch::SourceError {
-        source: Source::SemanticScholar,
-        reason: biomcp_types::Reason::BadReply,
-        status: None,
-        retry_after: None,
-    }
-    .into()
-}
 
 fn restart(query: &ArticleEvidence, out: &mut Outcome) {
     out.next.push(crate::next::Step::run(

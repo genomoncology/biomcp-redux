@@ -1,5 +1,5 @@
 //! File references share the command deadline and retain independent section outcomes.
-use super::{bad, finish, next};
+use super::{finish, next};
 use crate::{Ctx, Outcome};
 use biomcp_adapters::cbioportal::{SPEC, studies};
 use biomcp_fetch::{Deadline, RequestError};
@@ -72,14 +72,16 @@ fn apply(
         });
     } else {
         if q.section() != Some(StudySection::Files) {
-            return Err(bad());
+            return Err(biomcp_fetch::bad_reply(Source::Cbioportal, None));
         }
         out.body = QueryBody::StudyFiles(Some(data));
         out.page = Some(bounds.clone());
         crate::status::item(out, true, false, false);
     }
     if let Some(offset) = next_offset {
-        let query = query.at_section_offset(offset).map_err(|_| bad())?;
+        let query = query
+            .at_section_offset(offset)
+            .map_err(|_| biomcp_fetch::bad_reply(Source::Cbioportal, None))?;
         next(out, cx, StepKind::Page, query);
     }
     Ok(())

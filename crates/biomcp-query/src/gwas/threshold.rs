@@ -92,15 +92,7 @@ fn key(q: &GwasSearch) -> Vec<u8> {
     ))
     .to_vec()
 }
-fn bad() -> RequestError {
-    biomcp_fetch::SourceError {
-        source: Source::Gwas,
-        reason: Reason::BadReply,
-        status: Some(200),
-        retry_after: None,
-    }
-    .into()
-}
+
 fn restart(q: &GwasSearch, out: &mut Outcome, mismatch: bool) {
     out.body = QueryBody::PoolError { mismatch };
     out.next.push(crate::next::Step::run(
@@ -199,12 +191,17 @@ fn load(
 }
 fn append(q: &GwasSearch, saved: &mut Saved, page: gwas::Page) -> Result<(), RequestError> {
     if saved.total.is_some_and(|total| total != page.total) {
-        return Err(bad());
+        return Err(biomcp_fetch::bad_reply(Source::Gwas, Some(200)));
     }
-    let threshold = q.p_value().ok_or_else(bad)?;
-    saved.received = saved.received.checked_add(page.received).ok_or_else(bad)?;
+    let threshold = q
+        .p_value()
+        .ok_or_else(|| biomcp_fetch::bad_reply(Source::Gwas, Some(200)))?;
+    saved.received = saved
+        .received
+        .checked_add(page.received)
+        .ok_or_else(|| biomcp_fetch::bad_reply(Source::Gwas, Some(200)))?;
     if u64::from(saved.received) > page.total {
-        return Err(bad());
+        return Err(biomcp_fetch::bad_reply(Source::Gwas, Some(200)));
     }
     saved.dropped |= page.refusals == biomcp_adapters::Refusal::Refused;
     saved.problems.extend(page.problems);
@@ -233,7 +230,7 @@ fn append(q: &GwasSearch, saved: &mut Saved, page: gwas::Page) -> Result<(), Req
                 .and_then(|old| old.exact_p_value.as_ref())
                 .is_some_and(|last| last > &exact)
         {
-            return Err(bad());
+            return Err(biomcp_fetch::bad_reply(Source::Gwas, Some(200)));
         }
         if exact > *threshold {
             saved.done = true;
@@ -242,11 +239,11 @@ fn append(q: &GwasSearch, saved: &mut Saved, page: gwas::Page) -> Result<(), Req
         saved.rows.push(map::association(row, &mut saved.problems));
     }
     if saved.rows.len() as u64 > page.total {
-        return Err(bad());
+        return Err(biomcp_fetch::bad_reply(Source::Gwas, Some(200)));
     }
     saved.done |= u64::from(saved.received) == page.total;
     if !saved.done && page.received == 0 {
-        return Err(bad());
+        return Err(biomcp_fetch::bad_reply(Source::Gwas, Some(200)));
     }
     Ok(())
 }

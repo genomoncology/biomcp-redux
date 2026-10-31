@@ -427,6 +427,7 @@ fn source_terms(root: &Path, path: &str, tokens: &[String]) -> Check {
 fn adapter_helpers(path: &str, tokens: &[String]) -> Check {
     if !path.starts_with("crates/biomcp-adapters/src/")
         && !path.starts_with("crates/biomcp-fetch/src/")
+        && !path.starts_with("crates/biomcp-query/src/")
     {
         return Ok(());
     }

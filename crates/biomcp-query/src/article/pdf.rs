@@ -1,5 +1,5 @@
 //! Explicit PDF download orchestration; the binary owns atomic file I/O.
-use super::sections::pdf::{bad, load};
+use super::sections::pdf::{load, pdf_error};
 use crate::{Ctx, Outcome, status};
 
 use biomcp_adapters::{pdf, semantic_scholar};
@@ -53,7 +53,7 @@ fn execute<'a>(
     let started = leg.remaining();
     let result = pdf::download(&leg, link.url.as_str()).map_err(|error| {
         if matches!(error, RequestError::Input(_)) {
-            bad(Reason::Rejected)
+            pdf_error(Reason::Rejected)
         } else {
             error
         }
@@ -75,7 +75,7 @@ fn execute<'a>(
     }
     let bytes = result?;
     if !bytes.starts_with(b"%PDF-") {
-        return Err(bad(Reason::NotPdf));
+        return Err(pdf_error(Reason::NotPdf));
     }
     *file = Some((link, bytes));
     Ok(())
