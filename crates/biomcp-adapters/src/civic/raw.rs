@@ -11,7 +11,7 @@ pub(super) struct Genes<const N: usize> {
 pub(super) type Aliases = crate::graphql::Aliases<Gene>;
 impl<const N: usize> Reply for Genes<N> {
     fn check(&self) -> Result<(), BadReply> {
-        if self.extra.contains_key("errors") || self.data.0.len() != N {
+        if self.extra.contains_key("errors") {
             return Err(BadReply);
         }
         self.data.check::<N>()?;

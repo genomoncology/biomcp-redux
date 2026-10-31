@@ -18,9 +18,6 @@ pub(super) struct GraphError {
 pub(super) type Aliases = crate::graphql::Aliases<Field<Gene>>;
 impl<const N: usize> Reply for Genes<N> {
     fn check(&self) -> Result<(), BadReply> {
-        if self.data.0.len() != N {
-            return Err(BadReply);
-        }
         self.data.check::<N>()?;
         let missing = self
             .data
