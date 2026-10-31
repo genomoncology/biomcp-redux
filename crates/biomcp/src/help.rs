@@ -189,11 +189,11 @@ fn extra_commands(commands: &mut Vec<HelpCommand>, examples: &BTreeMap<String, V
     }
     bundle_commands(commands, examples);
     commands.extend(
-        biomcp_fetch::SecretName::ALL
+        biomcp_query::sources::keys()
             .iter()
             .map(|name| HelpCommand {
                 reply_schemas: Vec::new(),
-                command: vec!["help".into(), "key".into(), name.source().into()],
+                command: vec!["help".into(), "key".into(), biomcp_query::sources::key_name(*name).into()],
                 description: "Show credential registration and environment fallback names.".into(),
                 arguments: Vec::new(),
                 sections: Vec::new(),
@@ -203,7 +203,7 @@ fn extra_commands(commands: &mut Vec<HelpCommand>, examples: &BTreeMap<String, V
     );
 }
 fn bundle_commands(commands: &mut Vec<HelpCommand>, examples: &BTreeMap<String, Vec<Vec<String>>>) {
-    for &bundle in crate::grammar::BUNDLE_HELP {
+    for bundle in crate::grammar::bundle_names() {
         commands.push(HelpCommand {
             reply_schemas: Vec::new(),
             command: vec!["sync".into(), bundle.into()],

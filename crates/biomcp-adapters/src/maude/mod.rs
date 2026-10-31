@@ -26,3 +26,6 @@ pub use search::{expression, search};
 
 mod positions;
 pub use positions::{Positions, Report};
+
+/// Complete source policy and command declaration.
+pub(crate) mod decl;

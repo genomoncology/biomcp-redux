@@ -115,3 +115,6 @@ fn fields(id: Option<&DrugId>) -> crate::mapped::Problems {
 pub(crate) fn bundle_state(leg: &Leg<'_>) -> Result<biomcp_types::LocalBundleState, RequestError> {
     leg.stored_bundle_state(&MEDICINES)
 }
+
+/// Complete source policy and command declaration.
+pub(crate) mod decl;

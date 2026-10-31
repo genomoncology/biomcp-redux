@@ -120,8 +120,7 @@ fn reply(request: &str) -> Result<String, String> {
 fn unrelated_sources() -> Vec<String> {
     use biomcp_types::Source;
     let allowed = [Source::MyVariant, Source::AlleleRegistry, Source::Oncokb];
-    biomcp_query::sources::SOURCES
-        .iter()
+    biomcp_query::sources::sources()
         .filter(|spec| !allowed.contains(&spec.source))
         .map(|spec| spec.source.to_string())
         .collect()

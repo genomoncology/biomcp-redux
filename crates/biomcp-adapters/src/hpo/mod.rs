@@ -133,3 +133,6 @@ fn attribution(id: &biodata::HpId) -> Result<Attribution, RequestError> {
         evaluated: None,
     })
 }
+
+/// Complete source policy and command declaration.
+pub(crate) mod decl;

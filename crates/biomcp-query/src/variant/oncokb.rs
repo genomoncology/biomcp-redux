@@ -154,7 +154,7 @@ pub(super) fn next(query: &VariantGet, sources: &[SourceOutcome]) -> Vec<crate::
         vec![crate::next::Step::new(
             biomcp_types::StepKind::Key,
             &[biomcp_types::Source::Oncokb],
-            crate::Action::KeyHelp(Source::Oncokb),
+            crate::Action::KeyHelp(biomcp_fetch::SecretName::OncokbApiKey),
         )]
     } else if (query.build().is_none() || query.tumor_type().is_none())
         && sources

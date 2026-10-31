@@ -108,3 +108,6 @@ pub fn version(leg: &Leg<'_>) -> Result<Mapped<Option<Text>>, RequestError> {
         problems: cx.list,
     })
 }
+
+/// Complete source policy and command declaration.
+pub(crate) mod decl;

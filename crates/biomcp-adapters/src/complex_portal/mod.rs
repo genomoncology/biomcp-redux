@@ -146,3 +146,6 @@ fn bad() -> RequestError {
     }
     .into()
 }
+
+/// Complete source policy and command declaration.
+pub(crate) mod decl;

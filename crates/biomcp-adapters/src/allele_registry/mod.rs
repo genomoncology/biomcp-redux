@@ -97,3 +97,6 @@ fn qualify(input: &str, build: Option<biodata::Build>) -> Result<String, Request
         .map_err(|_| bad())?;
     Ok(format!("{}:{description}", chromosome.accession(build)))
 }
+
+/// Complete source policy and command declaration.
+pub(crate) mod decl;

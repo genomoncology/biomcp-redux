@@ -100,3 +100,6 @@ fn bad() -> RequestError {
 
 /// Exact source-qualified population observations.
 pub mod variant;
+
+/// Complete source policy and command declaration.
+pub(crate) mod decl;

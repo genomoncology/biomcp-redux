@@ -71,7 +71,7 @@ pub(crate) fn run(cx: &Ctx<'_>, query: &ArticleEvidence) -> Outcome {
             crate::next::Step::new(
                 StepKind::Key,
                 &[biomcp_types::Source::SemanticScholar],
-                Action::KeyHelp(Source::SemanticScholar),
+                Action::KeyHelp(biomcp_fetch::SecretName::SemanticScholarApiKey),
             ),
         );
     }

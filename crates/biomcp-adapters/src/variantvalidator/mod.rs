@@ -63,3 +63,6 @@ pub fn resolve(leg: &Leg<'_>, input: &str, build: Build) -> Result<Resolution, R
 
 /// Native service descriptions, warnings and version metadata.
 pub use normalization::normalize;
+
+/// Complete source policy and command declaration.
+pub(crate) mod decl;

@@ -23,3 +23,6 @@ pub use read::{Page, card, diplotype, drug_recommendations, guidelines, recommen
 
 /// Native gene collection shared by record reads and the bounded health probe.
 pub(crate) const GENE_PATH: &str = "/gene";
+
+/// Complete source policy and command declaration.
+pub(crate) mod decl;

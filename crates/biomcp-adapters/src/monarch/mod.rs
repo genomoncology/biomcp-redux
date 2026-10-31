@@ -152,3 +152,6 @@ pub mod phenotype;
 
 #[cfg(test)]
 mod native_contracts;
+
+/// Complete source policy and command declaration.
+pub(crate) mod decl;

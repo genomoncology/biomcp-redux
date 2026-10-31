@@ -1,4 +1,5 @@
 //! Bounded publisher probes with independent local bundle availability.
+#![deny(clippy::wildcard_enum_match_arm)]
 use biodata::Text;
 use biomcp_adapters::registry;
 use biomcp_fetch::{Fetch, KeyUse, RequestError};
@@ -10,9 +11,8 @@ pub fn run(fetch: &Fetch, budget: Duration) -> Result<Health, RequestError> {
     let deadline = fetch.deadline(budget);
     let store = fetch.store_size(deadline)?;
     let sources = crate::fan_out::run(
-        registry::SOURCES
-            .iter()
-            .map(|&spec| {
+        registry::sources()
+            .map(|spec| {
                 Box::new(move || {
                     let disabled = fetch.disabled(spec.source);
                     let skip = if disabled {

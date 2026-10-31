@@ -171,3 +171,6 @@ pub fn get(
 ) -> Result<Option<crate::Mapped<DrugRecallCard>>, Failure> {
     exact(leg, "/drug/enforcement.json", "recall_number", id).map(|row| row.map(map::mapped))
 }
+
+/// Complete source policy and command declaration.
+pub(crate) mod decl;

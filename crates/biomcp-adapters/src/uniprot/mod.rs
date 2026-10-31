@@ -48,3 +48,6 @@ pub fn proteins(leg: &Leg<'_>, ids: &[UniProtAcc]) -> Result<Mapped<Vec<Protein>
     )?;
     Ok(map::proteins(raw, &ids))
 }
+
+/// Complete source policy and command declaration.
+pub(crate) mod decl;

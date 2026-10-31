@@ -62,7 +62,7 @@ fn key_step(out: &mut Outcome) {
         out.next.push(crate::next::Step::new(
             StepKind::Key,
             &[Source::SemanticScholar],
-            Action::KeyHelp(Source::SemanticScholar),
+            Action::KeyHelp(biomcp_fetch::SecretName::SemanticScholarApiKey),
         ));
     }
 }

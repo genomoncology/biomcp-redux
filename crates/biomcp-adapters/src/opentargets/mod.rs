@@ -107,3 +107,6 @@ fn search_query(index: u32, size: u32) -> String {
         }}}){{total hits{{id name entity}}}}}}"
     )
 }
+
+/// Complete source policy and command declaration.
+pub(crate) mod decl;

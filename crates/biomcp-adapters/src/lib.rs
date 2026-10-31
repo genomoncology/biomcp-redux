@@ -149,3 +149,6 @@ mod native_text;
 
 mod native_window;
 pub use native_window::NativeWindow;
+
+/// Adapter-owned source and bundle declarations.
+pub mod decl;

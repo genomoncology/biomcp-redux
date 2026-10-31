@@ -66,3 +66,6 @@ pub fn read(
 
 /// Small read-only publisher probe; never an export or synchronization.
 pub(crate) const HEALTH_PATH: &str = "/datause.html";
+
+/// Complete source policy and command declaration.
+pub(crate) mod decl;

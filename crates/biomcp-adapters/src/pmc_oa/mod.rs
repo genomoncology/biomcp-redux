@@ -157,3 +157,6 @@ pub(crate) fn license(value: &str) -> License {
         _ => License::Other,
     }
 }
+
+/// Complete source policy and command declaration.
+pub(crate) mod decl;

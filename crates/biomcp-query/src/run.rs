@@ -3,32 +3,7 @@ use crate::{Ctx, gene};
 
 use crate::Outcome;
 use biomcp_types::Request;
-/// Housekeeping selector independent of an entity query.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum Bundle {
-    /// Both checked WikiPathways metadata catalogs.
-    WikiPathways,
-    /// Complete public cBioPortal metadata catalog.
-    CbioportalStudies,
-    /// Complete WHO finished pharmaceutical products CSV.
-    WhoPq,
-    /// Complete WHO prequalified diagnostics export.
-    WhoIvd,
-    /// Complete FDA companion diagnostic page.
-    FdaCdx,
-    /// Complete GTR version and relation pair.
-    Gtr,
-    /// The complete eight-file DDInter interaction set.
-    Ddinter,
-    /// EMA medicines, synchronized only by an explicit command.
-    Ema,
-    /// The HGNC identity source, including approved and withdrawn records.
-    Hgnc,
-    /// ClinGen validity and dosage files.
-    ClinGen,
-    /// GenCC submission export.
-    Gencc,
-}
+pub use biomcp_adapters::decl::Bundle;
 /// Typed action before an interface spells command arguments.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Action {
@@ -50,7 +25,7 @@ pub enum Action {
         fresh: bool,
     },
     /// Explain configuration names for a keyed source.
-    KeyHelp(biomcp_types::Source),
+    KeyHelp(biomcp_fetch::SecretName),
     /// Explain the required arguments for an existing query.
     QueryHelp(Request),
     /// Synchronize one declared file.

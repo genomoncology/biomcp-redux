@@ -283,11 +283,11 @@ fn parse_refusal(args: &[OsString], cause: crate::grammar::ParseInvalid) -> io::
         }];
     }
     if root == Some("key") {
-        arguments.next = biomcp_fetch::SecretName::ALL
+        arguments.next = biomcp_query::sources::keys()
             .iter()
             .map(|name| biomcp_types::Step {
                 kind: biomcp_types::StepKind::Configure,
-                args: vec!["help".into(), "key".into(), name.source().into()].into(),
+                args: vec!["help".into(), "key".into(), biomcp_query::sources::key_name(*name).into()].into(),
             })
             .collect();
     }
@@ -297,21 +297,13 @@ fn parse_refusal(args: &[OsString], cause: crate::grammar::ParseInvalid) -> io::
     usage_envelope(UsageError::Arguments(arguments))
 }
 
-fn key_help(source: biomcp_types::Source) -> io::Result<Outcome> {
-    let name = match source {
-        biomcp_types::Source::SemanticScholar => biomcp_fetch::SecretName::SemanticScholarApiKey,
-        biomcp_types::Source::PubMed => biomcp_fetch::SecretName::NcbiApiKey,
-        biomcp_types::Source::AlphaGenome => biomcp_fetch::SecretName::AlphaGenomeApiKey,
-        biomcp_types::Source::Nci => biomcp_fetch::SecretName::NciApiKey,
-        biomcp_types::Source::OpenfdaLabel => biomcp_fetch::SecretName::OpenfdaApiKey,
-        biomcp_types::Source::Orcid => biomcp_fetch::SecretName::OrcidAccessToken,
-        _ => biomcp_fetch::SecretName::OncokbApiKey,
-    };
+fn key_help(name: biomcp_fetch::SecretName) -> io::Result<Outcome> {
+    let source = biomcp_query::sources::key_source(name);
     let data = biomcp_types::KeyHelp {
         guidance: Some(
             biodata::Text::new(&format!(
                 "biomcp key set {}{}",
-                name.source(),
+                biomcp_query::sources::key_name(name),
                 if source == biomcp_types::Source::SemanticScholar {
                     "; a free key raises the request limit"
                 } else {
@@ -396,18 +388,4 @@ fn response_status(result: &biomcp_query::Outcome) -> crate::exit::Status {
     }
 }
 
-fn bundle_source(bundle: Bundle) -> biomcp_types::Source {
-    match bundle {
-        Bundle::FdaCdx => biomcp_types::Source::FdaCdx,
-        Bundle::WikiPathways => biomcp_types::Source::WikiPathways,
-        Bundle::CbioportalStudies => biomcp_types::Source::Cbioportal,
-        Bundle::Gtr => biomcp_types::Source::Gtr,
-        Bundle::WhoIvd => biomcp_types::Source::WhoIvd,
-        Bundle::Ema => biomcp_types::Source::Ema,
-        Bundle::WhoPq => biomcp_types::Source::WhoPq,
-        Bundle::Ddinter => biomcp_types::Source::Ddinter,
-        Bundle::Hgnc => biomcp_types::Source::Hgnc,
-        Bundle::ClinGen => biomcp_types::Source::ClinGen,
-        Bundle::Gencc => biomcp_types::Source::Gencc,
-    }
-}
+fn bundle_source(bundle: Bundle) -> biomcp_types::Source { bundle.source() }

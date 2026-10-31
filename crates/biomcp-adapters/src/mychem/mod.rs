@@ -113,3 +113,6 @@ pub fn requested_components(
                 .any(|field| field.split('.').next() == Some(component.name))
         })
 }
+
+/// Complete source policy and command declaration.
+pub(crate) mod decl;

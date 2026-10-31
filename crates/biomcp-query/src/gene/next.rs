@@ -79,7 +79,7 @@ pub(crate) fn get(
         steps.push(crate::next::Step::new(
             StepKind::Key,
             &[biomcp_types::Source::Oncokb],
-            Action::KeyHelp(biomcp_types::Source::Oncokb),
+            Action::KeyHelp(biomcp_fetch::SecretName::OncokbApiKey),
         ));
     }
     for item in items {
