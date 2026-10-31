@@ -97,6 +97,7 @@ mod maude_snapshot;
 mod mcp;
 mod mcp_boundaries;
 mod mcp_hosted;
+mod request_keys;
 mod named_search;
 mod native_fields;
 mod nci;
@@ -347,6 +348,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(remote_tools::trials());
     trials.extend(mcp_boundaries::trials());
     trials.extend(mcp_hosted::trials());
+    trials.extend(request_keys::trials());
     trials.extend(corporate::trials());
     trials.extend(format_selection::trials());
     trials.extend(terminal_edges::trials());
