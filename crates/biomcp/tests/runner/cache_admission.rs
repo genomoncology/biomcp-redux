@@ -59,7 +59,7 @@ fn check(owner: &Owner) -> Result<(), String> {
     let mut failures = Vec::new();
     // Positive controls qualify the exact command and peer before the regression witness.
     for &control in controls::kinds(owner) {
-        let (hosts, mut routes) = routes()?;
+        let (hosts, mut routes) = routes("cache-admission")?;
         let entry = routes
             .iter_mut()
             .find(|(request, _)| request == &target)
@@ -103,10 +103,10 @@ fn check(owner: &Owner) -> Result<(), String> {
         Err(failures.join("\n"))
     }
 }
-fn routes() -> Result<(Vec<String>, Routes), String> {
+pub(super) fn routes(recording: &str) -> Result<(Vec<String>, Routes), String> {
     let mut routes = Vec::new();
     let mut hosts = Vec::new();
-    for source in fs::read_dir(launch::fixtures().join("replies/cache-admission"))
+    for source in fs::read_dir(launch::fixtures().join("replies").join(recording))
         .map_err(|e| e.to_string())?
     {
         for file in
@@ -136,8 +136,16 @@ fn routes() -> Result<(Vec<String>, Routes), String> {
             );
             let body = record
                 .pointer("/exchanges/0/body/value")
-                .ok_or("recorded JSON body")?
-                .to_string();
+                .ok_or("recorded body")?;
+            let body = if record
+                .pointer("/exchanges/0/body/kind")
+                .and_then(Value::as_str)
+                == Some("text")
+            {
+                body.as_str().ok_or("recorded text body")?.to_owned()
+            } else {
+                body.to_string()
+            };
             routes.push((target, body));
         }
     }
