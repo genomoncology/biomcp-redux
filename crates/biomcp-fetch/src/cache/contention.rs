@@ -153,19 +153,25 @@ fn schema_admission_clears_ownership_before_poison_is_observed() {
     let deadline = || Deadline::start(Duration::from_secs(5), None);
     assert_eq!(
         cache.admit(deadline(), || {
-            assert!(cache.4.load(std::sync::atomic::Ordering::Acquire));
+            assert!(matches!(
+                cache.4.try_read(),
+                Err(std::sync::TryLockError::WouldBlock)
+            ));
             Ok(42)
         }),
         Ok(42)
     );
-    assert!(!cache.4.load(std::sync::atomic::Ordering::Acquire));
+    assert!(cache.4.try_read().is_ok());
     let failed = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
         cache.admit(deadline(), || -> Result<(), CacheError> {
             panic!("schema owner panic");
         })
     }));
     assert!(failed.is_err());
-    assert!(!cache.4.load(std::sync::atomic::Ordering::Acquire));
+    assert!(matches!(
+        cache.4.try_read(),
+        Err(std::sync::TryLockError::Poisoned(_))
+    ));
     assert_eq!(
         cache.try_sql(deadline(), |_| Ok(())),
         Err(CacheError::Database)

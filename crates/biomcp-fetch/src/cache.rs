@@ -13,10 +13,7 @@ pub(crate) use schema::{check_current_owners, check_predecessor, db_error};
 )]
 use std::{
     path::Path,
-    sync::{
-        Mutex,
-        atomic::{AtomicBool, Ordering},
-    },
+    sync::{Mutex, RwLock},
     time::{Duration, SystemTime, UNIX_EPOCH},
 };
 
@@ -39,7 +36,7 @@ pub(crate) struct Cache(
     pub(crate) std::path::PathBuf,
     pub(crate) std::path::PathBuf,
     Mutex<()>,
-    AtomicBool,
+    RwLock<()>,
 );
 
 #[derive(Debug, serde::Serialize)]
@@ -128,7 +125,7 @@ impl Cache {
             path.with_extension("parts"),
             path.to_owned(),
             Mutex::new(()),
-            AtomicBool::new(false),
+            RwLock::new(()),
         ))
     }
 
@@ -153,7 +150,7 @@ impl Cache {
     ) -> Result<T, CacheError> {
         let connection = wait_mutex(&self.0, deadline, &deadline.local(), None)?;
         sql_deadline(&connection, deadline)?;
-        let _owner = admission::Owner::enter(&self.4, &connection);
+        let _owner = admission::Owner::enter(&self.4, &connection, deadline)?;
         operation()
     }
 
@@ -364,19 +361,23 @@ fn wait_mutex<'a, T>(
     mutex: &'a Mutex<T>,
     deadline: Deadline<'_>,
     wall_bound: &crate::LocalDeadline,
-    admission: Option<&AtomicBool>,
+    admission: Option<&RwLock<()>>,
 ) -> Result<std::sync::MutexGuard<'a, T>, CacheError> {
     loop {
         if deadline.expired() || wall_bound.expired() {
             return Err(CacheError::Busy);
         }
         match try_mutex(mutex) {
-            Err(CacheError::Busy)
-                if admission.is_some_and(|owner| owner.load(Ordering::Acquire)) =>
-            {
-                return Err(CacheError::Busy);
-            }
             Err(CacheError::Busy) => {
+                if let Some(owner) = admission {
+                    match owner.try_read() {
+                        Ok(probe) => drop(probe),
+                        Err(std::sync::TryLockError::WouldBlock) => return Err(CacheError::Busy),
+                        Err(std::sync::TryLockError::Poisoned(_)) => {
+                            return Err(CacheError::Database);
+                        }
+                    }
+                }
                 std::thread::park_timeout(Duration::from_millis(1).min(deadline.remaining()))
             }
             result => return result,
