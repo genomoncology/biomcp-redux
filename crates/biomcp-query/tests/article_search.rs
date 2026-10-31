@@ -367,7 +367,7 @@ fn stale_summary_fallback_stays_partial_when_its_page_is_read_offline() {
     } = first
         .next
         .iter()
-        .find(|(kind, _)| *kind == biomcp_types::StepKind::Fresh)
+        .find(|step| step.0 == biomcp_types::StepKind::Fresh)
         .unwrap()
         .1
         .clone()
