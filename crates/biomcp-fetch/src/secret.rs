@@ -1,5 +1,27 @@
 use crate::SecretName;
+use sha2::{Digest, Sha256};
 use std::{collections::BTreeMap, fmt};
+
+/// Opaque identity of an effective credential, with no credential disclosure.
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct KeyFingerprint([u8; 32]);
+
+impl KeyFingerprint {
+    /// Scope an existing identity without exposing the credential fingerprint.
+    pub fn namespace(self, identity: [u8; 32]) -> [u8; 32] {
+        let mut hash = Sha256::new();
+        hash.update(b"biomcp/key-namespace/v1\0");
+        hash.update(self.0);
+        hash.update(identity);
+        hash.finalize().into()
+    }
+}
+
+impl fmt::Debug for KeyFingerprint {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str("KeyFingerprint(***)")
+    }
+}
 
 /// A credential that never formats its value.
 pub struct Secret(Box<str>);
@@ -66,6 +88,17 @@ impl SecretValue {
 }
 
 impl Secrets {
+    /// Identify the resolved nonempty effective credential without exposing it.
+    pub fn fingerprint(&self, name: SecretName) -> Option<KeyFingerprint> {
+        self.get(name).map(|value| {
+            let mut hash = Sha256::new();
+            hash.update(b"biomcp/key-fingerprint/v1\0");
+            hash.update((value.len() as u64).to_be_bytes());
+            hash.update(value.as_bytes());
+            KeyFingerprint(hash.finalize().into())
+        })
+    }
+
     /// Insert or replace a configured secret.
     pub fn insert(&mut self, name: SecretName, value: Secret) {
         self.0.insert(name, SecretValue::Ready(value));

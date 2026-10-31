@@ -60,7 +60,7 @@ pub use error::{
 };
 pub use quota::{Quota, Rate, SourceKey};
 pub use record::ReplayCache;
-pub use secret::{Secret, Secrets};
+pub use secret::{KeyFingerprint, Secret, Secrets};
 use std::{collections::BTreeMap, fmt, time::Duration};
 
 /// A decoded response must verify that it contains a usable answer.
