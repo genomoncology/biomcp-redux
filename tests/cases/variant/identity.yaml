@@ -15,7 +15,13 @@
       "is_error": true,
       "expect": {
         "/schema": "biomcp.error/4",
-        "/error/message": "get variant needs an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation needs --build; use search variant --gene BRAF --protein V600E or search variant --gene PTEN --coding c.333G>T for gene shorthand"
+        "/error/message": "option is missing or invalid; choose an accepted value or form and use the suggested help command",
+        "/error/option": "--limit",
+        "/next/0/args": [
+          "help",
+          "get",
+          "variant"
+        ]
       }
     },
     {
@@ -30,7 +36,13 @@
       "is_error": true,
       "expect": {
         "/schema": "biomcp.error/4",
-        "/error/message": "get variant needs an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation needs --build; use search variant --gene BRAF --protein V600E or search variant --gene PTEN --coding c.333G>T for gene shorthand"
+        "/error/message": "option is missing or invalid; choose an accepted value or form and use the suggested help command",
+        "/error/option": "--offset",
+        "/next/0/args": [
+          "help",
+          "get",
+          "variant"
+        ]
       }
     }
   ]
