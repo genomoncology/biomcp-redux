@@ -191,10 +191,17 @@ fn concurrent(server: &Server, args: &[&str]) -> Check {
 }
 fn public() -> Check {
     let assets = Environment::new().map_err(|e| e.to_string())?;
+    let recorded: Value = serde_json::from_str(&super::launch::fixture_text(
+        "replies/author/synthetic/semantic-scholar/90d8b5261ee71845c924edbc2407040f440b73da2ab1fd8e51159839ba6ca612.json",
+    )?).map_err(|e| e.to_string())?;
+    let body = recorded
+        .pointer("/exchanges/0/body/value")
+        .ok_or("missing recorded source reply")?
+        .to_string();
     let stub = super::network_stub::Stub::for_source(
         "api.semanticscholar.org",
         "application/json",
-        |_| Ok(r#"{"total":0,"data":[]}"#.into()),
+        move |_| Ok(body.clone()),
     )?;
     stub.retain(&assets);
     let ca = assets.root().join("ca.pem");
@@ -222,12 +229,7 @@ fn public() -> Check {
             } else {
                 String::new()
             };
-            call(
-                &server,
-                &["search", "article", &query, "--source", "semantic-scholar"],
-                &extra,
-                false,
-            )?;
+            call(&server, &["search", "author", &query], &extra, false)?;
         }
         server.stop()?;
     }
