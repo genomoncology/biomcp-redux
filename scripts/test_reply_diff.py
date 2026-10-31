@@ -25,8 +25,11 @@ class ReplyDiff(unittest.TestCase):
         path = directory / (hashlib.sha256(key.encode()).hexdigest() + ".json")
         path.write_text(json.dumps(dict(key=key, executions=[execution])))
 
-    def compare(self):
-        return subprocess.run([sys.executable, str(SCRIPT), str(self.base), str(self.head)],
+    def compare(self, owners=None):
+        args = [sys.executable, str(SCRIPT), str(self.base), str(self.head)]
+        if owners:
+            args.append(str(owners))
+        return subprocess.run(args,
                               capture_output=True, text=True, check=False)
 
     def test_reply_and_exit_changes_name_the_case_pointer(self):
@@ -45,7 +48,7 @@ class ReplyDiff(unittest.TestCase):
                 self.assertIn(pointer, result.stdout)
 
     def test_trial_output_and_arguments_remain_significant(self):
-        key = "trial/housekeeping/version/argument-hash/0"
+        key = "trial/housekeeping/version/" + "a" * 64 + "/0"
         self.write(self.base, key, b"original\n")
         for output, args in [(b"changed\n", ["help"]), (b"original\n", ["version"])]:
             self.write(self.head, key, output, args=args)
@@ -89,7 +92,7 @@ class ReplyDiff(unittest.TestCase):
         }).encode(), **common)
         self.write(directory, "case/runtime.yaml/step/1", json.dumps({
             "query": {"pool": pool},
-            "result": {"snapshot": {"acquired": 50 if suffix == "base" else 60}},
+            "result": {"snapshot": {"revision": "same", "acquired": 50 if suffix == "base" else 60}},
         }).encode(), root=root,
             args=["search", "trial", "--pool", "broken" if bad_reference else pool])
         markdown = "# Trial\n**fetched:** " + ("30" if suffix == "base" else "40") + "\n"
@@ -135,7 +138,8 @@ class ReplyDiff(unittest.TestCase):
 
     def test_json_source_text_and_literal_arguments_remain_significant(self):
         key = 'case/literal.yaml/step/0'
-        for place in ['source', 'args', 'mcp-source', 'source-args', 'source-clock']:
+        for place in ['source', 'args', 'mcp-source', 'source-args', 'source-clock',
+                      'source-continuation', 'source-snapshot']:
             with self.subTest(place=place):
                 for directory, clock in [(self.base, 10), (self.head, 20)]:
                     literal = json.dumps({'fetched': clock})
@@ -153,6 +157,12 @@ class ReplyDiff(unittest.TestCase):
                         output = {'result': {'args': ['search', 'trial', '--pool', literal]}}
                     elif place == 'source-clock':
                         output = {'result': {'notes': {'fetched': clock}}}
+                    elif place == 'source-continuation':
+                        output = {'result': {'items': [{'sections': {'locations': {'data': {
+                            'continuation': {'pool': literal}}}}}]}}
+                    elif place == 'source-snapshot':
+                        output = {'next': [{'kind': 'section', 'args': [
+                            'get', 'phenotype', 'HP:0000001', '--snapshot', literal]}]}
                     self.write(directory, key, json.dumps(output).encode(), **extra)
                 result = self.compare()
                 self.assertEqual(result.returncode, 1, result.stderr + result.stdout)
@@ -197,7 +207,7 @@ class ReplyDiff(unittest.TestCase):
             self.write(directory, 'trial/cache/replay/' + digest + '/0', args=args,
                        root='/tmp/other-' + suffix)
             # Declare the record directory in the same trial owner too.
-            self.write(directory, 'trial/cache/replay/declaration/0',
+            self.write(directory, 'trial/cache/replay/' + 'd' * 64 + '/0',
                        args=['get', 'gene', '--record', root + '/record'], root=root)
         result = self.compare()
         self.assertEqual(result.returncode, 1, result.stderr + result.stdout)
@@ -216,6 +226,239 @@ class ReplyDiff(unittest.TestCase):
                        args=args, root='/tmp/other-' + suffix)
         result = self.compare()
         self.assertEqual(result.returncode, 1, result.stderr + result.stdout)
+
+    def test_catalog_acquisition_binds_per_root_and_revision(self):
+        key = "case/catalog.yaml/step/"
+        for directory, side in [(self.base, "base"), (self.head, "head")]:
+            for step, (root, revision, clock) in enumerate([
+                ("first", "old", 10), ("second", "old", 11),
+                ("first", "new", 11), ("first", "old", 10),
+            ]):
+                self.write(directory, key + str(step), json.dumps({
+                    "result": {"snapshot": {"revision": revision,
+                                              "acquired": clock if side == "base" else 20}},
+                }).encode(), root="/tmp/" + side + "/" + root)
+        result = self.compare()
+        self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+        # A coincidence between independent roots does not permit one epoch to change.
+        self.write(self.head, key + "3", json.dumps({
+            "result": {"snapshot": {"revision": "old", "acquired": 21}},
+        }).encode(), root="/tmp/head/first")
+        self.assertNotEqual(self.compare().returncode, 0)
+        self.write(self.head, key + "3", json.dumps({
+            "result": {"snapshot": {"revision": "old", "acquired": 20}},
+        }).encode(), root="/tmp/head/second")
+        self.assertNotEqual(self.compare().returncode, 0)
+
+    def test_section_continuation_preserves_every_reference(self):
+        for directory, token in [(self.base, "base-token"), (self.head, "head-token")]:
+            reply = {"schema": "biomcp.trial-cards/9", "query": {"input": ["NCT03511664"]},
+                     "result": {"items": [{"sections": {"locations": {
+                         "state": "data", "source": "ctgov", "data": {"continuation": {
+                             "input": ["NCT03511664"], "section": ["locations"],
+                             "limit": 10, "offset": 10, "pool": token}}}}}]},
+                     "next": [{"kind": "page", "args": ["get", "trial", "NCT03511664",
+                                                          "locations", "--pool", token]}]}
+            self.write(directory, "case/section.yaml/step/0", json.dumps(reply).encode())
+        result = self.compare()
+        self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+        path = next(self.head.glob("*.json"))
+        record = json.loads(path.read_text())
+        reply = json.loads(bytes(record["executions"][0]["stdout"]))
+        reply["result"]["items"][0]["sections"]["locations"]["data"]["continuation"]["pool"] = "broken"
+        record["executions"][0]["stdout"] = list(json.dumps(reply).encode())
+        path.write_text(json.dumps(record))
+        self.assertNotEqual(self.compare().returncode, 0)
+
+    def test_opaque_next_tokens_align_later_requests_and_keep_exit_visible(self):
+        for directory, suffix in [(self.base, "base"), (self.head, "head")]:
+            root, token = "/tmp/" + suffix, suffix + "-token"
+            reply = {"schema": "biomcp.article-evidence/6", "query": {"citing": "33123537",
+                     "cited": "10.1038/nature05933"}, "next": [{"kind": "page", "args": [
+                         "article", "citation-evidence", "33123537", "10.1038/nature05933",
+                         "--pool", token]}]}
+            args = ["article", "citation-evidence", "33123537", "10.1038/nature05933",
+                    "--record", root + "/record"]
+            digest = hashlib.sha256(json.dumps([a.replace(root, "<root>") for a in args],
+                                     separators=(",", ":")).encode()).hexdigest()
+            self.write(directory, "trial/evidence/continuation/" + digest + "/0",
+                       json.dumps(reply).encode(), args=args, root=root)
+            args = ["article", "citation-evidence", "33123537", "10.1038/nature05933",
+                    "--pool", token, "--replay", root + "/record"]
+            digest = hashlib.sha256(json.dumps([a.replace(root, "<root>") for a in args],
+                                     separators=(",", ":")).encode()).hexdigest()
+            reply["query"]["pool"] = token
+            reply.pop("next")
+            self.write(directory, "trial/evidence/continuation/" + digest + "/0",
+                       json.dumps(reply).encode(), args=args, root=root)
+        result = self.compare()
+        self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+        for path in self.head.glob("*.json"):
+            record = json.loads(path.read_text())
+            if "--pool" in record["executions"][0]["args"]:
+                record["executions"][0]["exit"] = 4
+                path.write_text(json.dumps(record))
+        result = self.compare()
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertIn("/0/exit", result.stdout)
+        self.assertNotIn("missing", result.stdout)
+
+    def test_aliased_reply_declarations_align_the_next_request(self):
+        for directory, side in [(self.base, "base"), (self.head, "head")]:
+            parent, child = "/tmp/" + side, "/tmp/child-" + side
+            first, second = side + "-first", side + "-second"
+            for stage in range(3):
+                root = parent if stage == 0 else child
+                args = ["article", "citation-evidence", "33123537", "10.1038/nature05933"]
+                if stage == 2:
+                    args += ["--pool", second]
+                args += ["--record" if stage == 0 else "--replay", parent + "/record"]
+                stable = [arg.replace(root, "<root>") for arg in args]
+                digest = hashlib.sha256(json.dumps(stable, separators=(",", ":")).encode()).hexdigest()
+                reply = {"schema": "biomcp.article-evidence/6", "query": {}}
+                if stage < 2:
+                    reply["next"] = [{"kind": "page", "args": ["article", "citation-evidence",
+                        "33123537", "10.1038/nature05933", "--pool", first if stage == 0 else second]}]
+                else:
+                    reply["query"]["pool"] = second
+                self.write(directory, "trial/evidence/chain/" + digest + "/0",
+                           json.dumps(reply).encode(), args=args, root=root)
+        result = self.compare()
+        self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+
+    def test_snapshot_sections_bind_only_their_declared_token_slots(self):
+        for directory, token in [(self.base, "base-token"), (self.head, "head-token")]:
+            reply = {"schema": "biomcp.phenotype-card/5", "query": {"id": "HP:0000001"},
+                     "next": [{"kind": "section", "args": ["get", "phenotype", "HP:0000001",
+                                                               "synonyms", "--snapshot", token]}]}
+            self.write(directory, "case/phenotype.yaml/step/0", json.dumps(reply).encode())
+            self.write(directory, "case/phenotype.yaml/step/1", json.dumps({
+                "schema": "biomcp.phenotype-card/5", "query": {"snapshot": token}}).encode(),
+                args=["get", "phenotype", "HP:0000001", "synonyms", "--snapshot", token])
+        result = self.compare()
+        self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+        for directory, token in [(self.base, "base-token"), (self.head, "head-token")]:
+            self.write(directory, "case/phenotype.yaml/step/2", json.dumps({
+                "result": {"description": token}}).encode())
+        self.assertEqual(self.compare().returncode, 1)
+
+    def test_nested_trial_names_keep_independent_runtime_owners(self):
+        for directory, side in [(self.base, "base"), (self.head, "head")]:
+            for name, clock in [("first", 10), ("second", 11)]:
+                self.write(directory, "trial/article-evidence/evidence/" + name + "/" + "a" * 64 + "/0",
+                           json.dumps({"result": {"fetched": clock if side == "base" else 20},
+                               "page": {"pool": {"id": "shared" if side == "base" else name,
+                                                  "created": 10, "expires": 20, "size": 1}}}).encode())
+        result = self.compare()
+        self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+
+    def owned_replay_capture(self, *, suffix="recordings", mutation=None):
+        for directory, side in [(self.base, "base"), (self.head, "head")]:
+            root = "/tmp/replies-" + side
+            if suffix == "all":
+                for step, name in enumerate(["first", "second"]):
+                    self.write(directory, "case/owned.yaml/step/" + str(step),
+                               args=["help", "--record", root + "/" + name], root=root,
+                               code=4 if side == "head" and mutation == "failed-input" else 0)
+            args = ["help", "--replay", root + "/" + suffix]
+            extra = dict(root="/tmp/runtime-" + side, replay_owner_root=root)
+            if side == "head":
+                if mutation == "root":
+                    extra["replay_owner_root"] += "/other"
+                elif mutation == "noncanonical":
+                    extra["replay_owner_root"] += "/../" + root.rsplit("/", 1)[1]
+                elif mutation == "missing":
+                    extra.pop("replay_owner_root")
+                elif mutation == "delimiter":
+                    args.insert(1, "--")
+                elif mutation == "duplicate":
+                    args += ["--replay", root + "/" + suffix]
+                elif mutation == "suffix":
+                    args[-1] += "/other"
+                elif mutation == "other-owner":
+                    path = directory / (hashlib.sha256(b"case/owned.yaml/step/1").hexdigest() + ".json")
+                    path.unlink()
+                    self.write(directory, "case/unrelated.yaml/step/1",
+                               args=["help", "--record", root + "/second"], root=root)
+            self.write(directory, "case/owned.yaml/step/2", args=args, **extra)
+
+    def test_runner_owned_replay_metadata_binds_exact_argv_only(self):
+        self.owned_replay_capture()
+        result = self.compare()
+        self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+        for mutation in ["root", "noncanonical", "missing", "delimiter", "duplicate", "suffix"]:
+            with self.subTest(mutation=mutation):
+                self.owned_replay_capture(mutation=mutation)
+                self.assertNotEqual(self.compare().returncode, 0)
+        self.owned_replay_capture()
+        for directory, side in [(self.base, "base"), (self.head, "head")]:
+            path = directory / (hashlib.sha256(b"case/owned.yaml/step/2").hexdigest() + ".json")
+            record = json.loads(path.read_text())
+            record["executions"][0]["stdout"] = list(json.dumps({"source": "/tmp/replies-" + side}).encode())
+            path.write_text(json.dumps(record))
+        self.assertEqual(self.compare().returncode, 1)
+
+    def test_replay_owner_root_cannot_rebind_within_one_capture_owner(self):
+        self.owned_replay_capture()
+        for directory, side in [(self.base, "base"), (self.head, "head")]:
+            root = "/tmp/replies-" + side + ("-other" if side == "head" else "")
+            self.write(directory, "case/owned.yaml/step/3",
+                       args=["help", "--replay", root + "/recordings"],
+                       root="/tmp/runtime-" + side, replay_owner_root=root)
+        self.assertNotEqual(self.compare().returncode, 0)
+
+    def test_nested_case_name_cannot_inherit_another_execution_owner(self):
+        self.owned_replay_capture()
+        for directory, side in [(self.base, "base"), (self.head, "head")]:
+            self.write(directory, "case/owned.yaml/step/2/execution/0/step/0",
+                       args=["help", "--replay", "/tmp/replies-" + side + "/recordings"],
+                       root="/tmp/unrelated-" + side)
+        self.assertEqual(self.compare().returncode, 1)
+
+    def test_combined_replay_metadata_requires_successful_same_owner_inputs(self):
+        self.owned_replay_capture(suffix="all")
+        result = self.compare()
+        self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+        for mutation in ["failed-input", "other-owner"]:
+            with self.subTest(mutation=mutation):
+                self.owned_replay_capture(suffix="all", mutation=mutation)
+                self.assertNotEqual(self.compare().returncode, 0)
+
+    def test_operator_map_cannot_declare_external_replay_ownership(self):
+        key = "case/unrelated.yaml/step/0"
+        owners = Path(self.directory.name, "owners.json")
+        source = Path(self.directory.name, "source.rs")
+        source.write_text("// This comment proves no capture ownership.\n")
+        binding = {"file": source.name, "sha256": hashlib.sha256(source.read_bytes()).hexdigest()}
+        declarations = {}
+        for side, directory in [("base", self.base), ("head", self.head)]:
+            replay = "/tmp/unrelated-" + side + "/recordings"
+            self.write(directory, key, args=["get", "trial", "--replay", replay],
+                       root="/tmp/command-" + side)
+            capture = next(directory.glob("*.json"))
+            declarations[side] = [{"key": key, "execution": 0,
+                "capture": {"file": capture.name,
+                            "sha256": hashlib.sha256(capture.read_bytes()).hexdigest()},
+                "replay_root": replay, "source": dict(binding, helper="checked_steps"),
+                "helper_source": binding}]
+        self.assertEqual(self.compare().returncode, 1)
+        owners.write_text(json.dumps(declarations))
+        result = self.compare(owners)
+        self.assertEqual(result.returncode, 2, result.stderr + result.stdout)
+        self.assertIn("usage:", result.stderr)
+
+    def test_invalid_capture_keys_do_not_invent_an_owner(self):
+        for key in ["unknown/name/0", "case/name/step/no", "case//step/0",
+                    "trial/evidence/name/hash/0", "trial//" + "a" * 64 + "/0",
+                    "trial/" + "a" * 64 + "/0"]:
+            with self.subTest(key=key):
+                for directory in (self.base, self.head):
+                    for path in directory.glob("*.json"):
+                        path.unlink()
+                    self.write(directory, key)
+                result = self.compare()
+                self.assertEqual(result.returncode, 2, result.stderr + result.stdout)
+                self.assertIn("invalid transcript key", result.stderr)
 
     def test_uncaptured_trials_are_disclosed(self):
         for directory in [self.base, self.head]:
