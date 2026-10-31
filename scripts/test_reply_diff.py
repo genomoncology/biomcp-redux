@@ -339,6 +339,17 @@ class ReplyDiff(unittest.TestCase):
                 self.catalog_sync_capture(self.head, "head", mutation)
                 self.assertNotEqual(self.compare().returncode, 0)
 
+    def test_case_cache_after_delimiter_does_not_declare_catalog_ownership(self):
+        for directory, side in [(self.base, "base"), (self.head, "head")]:
+            root = "/tmp/" + side
+            for step in range(2):
+                self.write(directory, "case/delimiter.yaml/step/" + str(step), json.dumps({
+                    "result": {"snapshot": {"revision": "same",
+                        "acquired": 10 if side == "base" else 20 + step}},
+                }).encode(), root=root,
+                    args=["help", "--", "--case-cache", root + "/cache" + str(step)])
+        self.assertNotEqual(self.compare().returncode, 0)
+
     def test_catalog_acquisition_binds_per_root_and_revision(self):
         key = "case/catalog.yaml/step/"
         for directory, side in [(self.base, "base"), (self.head, "head")]:
