@@ -3,12 +3,12 @@
     clippy::unwrap_used,
     clippy::panic,
     reason = "Fixture setup, child processes and failed source assertions must abort the contract test"
-)]use biomcp_fetch::{Input, Read};
-
+)]
 #![expect(
     clippy::disallowed_methods,
     reason = "Scoped callers exercise public cache behavior against controlled local peers"
 )]
+use biomcp_fetch::{Input, Read};
 #[path = "support/cache_process.rs"]
 mod cache_process;
 mod support;
