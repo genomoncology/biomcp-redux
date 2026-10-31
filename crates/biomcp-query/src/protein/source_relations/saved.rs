@@ -1,6 +1,6 @@
 use super::{
-    CacheError, Outcome, Request, RequestError, Selection, StepKind, Store,
-    complex_portal, interpro,
+    CacheError, Outcome, Request, RequestError, Selection, StepKind, Store, complex_portal,
+    interpro,
 };
 use biomcp_types::ReplyBody;
 use biomcp_types::{ProteinComplexMembers, ProteinComplexes, ProteinDomains};
