@@ -36,14 +36,14 @@ fn environment(stub: &Stub) -> Result<Environment, String> {
 fn article_request(source: &str) -> &'static str {
     match source {
         "pubtator" => {
-            "GET /research/pubtator3-api/search/?text=%40GENE_673+AND+synthetic+words&page=1 HTTP/1.1"
+            "GET /research/pubtator3-api/search/?text=%40GENE_673%20AND%20synthetic%20words&page=1 HTTP/1.1"
         }
         "litsense" => {
-            "GET /research/litsense2-api/api/sentences/?query=BRAF+synthetic+words&rerank=true HTTP/1.1"
+            "GET /research/litsense2-api/api/sentences/?query=BRAF%20synthetic%20words&rerank=true HTTP/1.1"
         }
         _ => {
             concat!(
-                "GET /graph/v1/paper/search?query=BRAF+synthetic+words&limit=100&fields=",
+                "GET /graph/v1/paper/search?query=BRAF%20synthetic%20words&limit=100&fields=",
                 "externalIds%2Ctitle%2Cvenue%2Cyear%2CpublicationDate%2Cauthors&year=2000-2020 HTTP/1.1"
             )
         }
@@ -94,7 +94,10 @@ fn article(source: &'static str) -> Result<(), String> {
     if source == "semantic-scholar" {
         args.extend(["--since", "2000", "--until", "2020"]);
     }
-    let value = invoke(&env, args.into_iter().map(str::to_owned).collect(), 0)?;
+    let result = invoke(&env, args.into_iter().map(str::to_owned).collect(), 0);
+    let requests = stub.finish()?;
+    record_requests(&requests)?;
+    let value = result?;
     let term = if source == "pubtator" {
         "@GENE_673 AND synthetic words"
     } else {
@@ -116,8 +119,6 @@ fn article(source: &'static str) -> Result<(), String> {
             "native query changed its public empty reply: {value}"
         ));
     }
-    let requests = stub.finish()?;
-    record_requests(&requests)?;
     if requests
         .iter()
         .filter(|(_, request)| request.lines().next() == Some(expected))
