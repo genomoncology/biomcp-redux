@@ -61,7 +61,7 @@ pub(crate) fn compare(
             "before_identity": old.identity, "after_identity": paired.map(|item| &item.identity),
             "before_shape_incomplete": old.shape.incomplete,
             "after_shape_incomplete": paired.map(|item| item.shape.incomplete),
-            "shape_comparison": if old.shape.incomplete || paired.is_some_and(|item| item.shape.incomplete) {"incomplete"} else {"complete"},
+            "shape_comparison": match paired {None => "unexamined", Some(item) if old.shape.incomplete || item.shape.incomplete => "incomplete", Some(_) => "complete"},
             "before_statuses": statuses(before, &old.identity),
             "after_statuses": paired.map(|item| statuses(after, &item.identity))}));
     }
@@ -72,7 +72,8 @@ pub(crate) fn compare(
         if !used.contains(&item.identity) {
             found.push(format!("{}: request-plan-added", item.identity));
             evidence.push(json!({"kind": "request-plan-added", "source": item.source, "role": item.role,
-                "after_identity": item.identity, "after_statuses": statuses(after, &item.identity)}));
+                "after_identity": item.identity, "shape_comparison": "unexamined",
+                "after_shape_incomplete": item.shape.incomplete, "after_statuses": statuses(after, &item.identity)}));
         }
     }
     changes.extend(found.iter().cloned());

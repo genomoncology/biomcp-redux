@@ -17,10 +17,13 @@ pub struct Shape {
     /// Array or declared count is positive.
     pub positive: BTreeMap<String, bool>,
     /// Structure exceeded a sampling bound or could not be inspected completely.
-    #[serde(default)]
+    #[serde(default = "unknown_shape")]
     pub incomplete: bool,
     /// Bounded tabular header row.
     pub header: Option<String>,
+}
+fn unknown_shape() -> bool {
+    true
 }
 impl Shape {
     /// Inspect structure without retaining text or scalar values.
