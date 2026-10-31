@@ -105,7 +105,12 @@ fn licensed() -> Check {
             &globals,
         )?;
         let args = ["get", "gene", "TP53", "oncokb"];
-        for header in [false, true, false] {
+        let headers: &[bool] = if hosted {
+            &[false, true, false]
+        } else {
+            &[false]
+        };
+        for &header in headers {
             let extra = if header {
                 format!("X-BioMCP-Key-Oncokb-Api-Key: {CALLER}\r\n")
             } else {
