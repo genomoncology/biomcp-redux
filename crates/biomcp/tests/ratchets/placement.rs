@@ -328,6 +328,14 @@ const ALLOWED: &[(&str, &str)] = &[
         "Exercise transport ownership, local server behavior and cache/record failures through its public API.",
     ),
     (
+        "crates/biomcp-fetch/tests/record/errors.rs",
+        "Exercise transport ownership, local server behavior and cache/record failures through its public API.",
+    ),
+    (
+        "crates/biomcp-fetch/tests/record/metadata.rs",
+        "Exercise transport ownership, local server behavior and cache/record failures through its public API.",
+    ),
+    (
         "crates/biomcp-fetch/tests/retries.rs",
         "Exercise transport ownership, local server behavior and cache/record failures through its public API.",
     ),
@@ -341,6 +349,14 @@ const ALLOWED: &[(&str, &str)] = &[
     ),
     (
         "crates/biomcp-fetch/tests/transport.rs",
+        "Exercise transport ownership, local server behavior and cache/record failures through its public API.",
+    ),
+    (
+        "crates/biomcp-fetch/tests/transport/cancellation.rs",
+        "Exercise transport ownership, local server behavior and cache/record failures through its public API.",
+    ),
+    (
+        "crates/biomcp-fetch/tests/transport/publisher.rs",
         "Exercise transport ownership, local server behavior and cache/record failures through its public API.",
     ),
     (
