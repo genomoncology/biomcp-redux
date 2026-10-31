@@ -56,7 +56,9 @@ impl Submission {
         &self,
         application: &RawApplication,
     ) -> Result<DrugFdaSubmission, RequestError> {
-        let role = "submission_status_date".parse().map_err(|_| super::bad())?;
+        let role = "submission_status_date"
+            .parse()
+            .map_err(|_| biomcp_fetch::bad_reply(biomcp_types::Source::Drugsfda, Some(200)))?;
         Ok(DrugFdaSubmission {
             event: AuthorizationEvent {
                 record: application.application_number.clone(),
@@ -71,14 +73,12 @@ impl Submission {
                     .collect(),
                 indication: None,
                 attribution: Attribution {
-                    source: "drugsfda".parse().map_err(|_| super::bad())?,
-                    record: Some(
-                        application
-                            .application_number
-                            .to_string()
-                            .parse()
-                            .map_err(|_| super::bad())?,
-                    ),
+                    source: "drugsfda".parse().map_err(|_| {
+                        biomcp_fetch::bad_reply(biomcp_types::Source::Drugsfda, Some(200))
+                    })?,
+                    record: Some(application.application_number.to_string().parse().map_err(
+                        |_| biomcp_fetch::bad_reply(biomcp_types::Source::Drugsfda, Some(200)),
+                    )?),
                     version: None,
                     release: None,
                     submitter: application.sponsor_name.clone(),

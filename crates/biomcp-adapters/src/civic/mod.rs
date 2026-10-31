@@ -18,8 +18,7 @@ use biomcp_fetch::{Endpoint, Freshness, KeyUse, Leg, RequestError, SourceSpec};
 use biomcp_types::{CivicGene, Section, Source, SourceRecord};
 pub use drug::drug_search;
 pub use drug_get::drug_civic;
-use serde::Serialize;
-use std::{collections::BTreeMap, time::Duration};
+use std::time::Duration;
 pub use variant::variant;
 /// Public CIViC GraphQL source policy.
 pub static SPEC: SourceSpec = SourceSpec {
@@ -40,11 +39,7 @@ const GENES: Endpoint = SPEC
     .post_json("/api/graphql")
     .idempotent()
     .fresh(Freshness::Days(7));
-#[derive(Serialize)]
-struct Query {
-    query: String,
-    variables: BTreeMap<String, String>,
-}
+
 /// A requested identity and its independently mapped source section.
 #[derive(Debug)]
 pub struct GeneCivic {
@@ -63,26 +58,21 @@ pub fn genes(
     let mut ids = ids.to_vec();
     ids.sort_unstable_by(|a, b| a.0.as_str().cmp(b.0.as_str()));
     ids.dedup();
-    let mut variables = BTreeMap::new();
-    let mut declarations = Vec::new();
-    let mut aliases = Vec::new();
-    for (index, (symbol, _)) in ids.iter().enumerate() {
-        variables.insert(format!("id{index}"), symbol.to_string());
-        declarations.push(format!("$id{index}: String!"));
-        aliases.push(format!(
-            "g{index}: gene(entrezSymbol: $id{index}) {{ id name entrezId description link variants {{ totalCount }} }}"
-        ));
-    }
-    let body = Query {
-        query: format!(
-            "query({}) {{ {} }}",
-            declarations.join(", "),
-            aliases.join(" ")
-        ),
-        variables,
-    };
+    let body = crate::graphql::Query::aliases(
+        ids.iter().map(|(symbol, _)| symbol.to_string()),
+        |index| {
+            format!(
+                "gene(entrezSymbol: $id{index}) {{ id name entrezId description link variants {{ totalCount }} }}"
+            )
+        },
+    );
     macro_rules! fetch {
-        ($($n:literal),+) => { match ids.len() { $( $n => leg.post_json::<_, raw::Genes<$n>>(&GENES, &body).map(|raw| raw.data), )+ _ => return Err(bad()) } };
+        ($($n:literal),+) => {
+            match ids.len() {
+                $( $n => leg.post_json::<_, raw::Genes<$n>>(&GENES, &body).map(|raw| raw.data), )+
+                _ => return Err(biomcp_fetch::bad_reply(Source::Civic, None)),
+            }
+        };
     }
     let raw = fetch!(
         1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20
@@ -208,13 +198,4 @@ fn map(
             },
         }
     })
-}
-fn bad() -> RequestError {
-    biomcp_fetch::SourceError {
-        source: Source::Civic,
-        reason: biomcp_types::Reason::BadReply,
-        status: None,
-        retry_after: None,
-    }
-    .into()
 }

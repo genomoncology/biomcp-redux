@@ -1,5 +1,5 @@
 use super::{
-    CacheError, Outcome, Request, RequestError, Selection, Source, SourceError, StepKind, Store,
+    CacheError, Outcome, Request, RequestError, Selection, StepKind, Store,
     complex_portal, interpro,
 };
 use biomcp_types::ReplyBody;
@@ -22,7 +22,7 @@ impl Saved {
                 let mut cursors = std::collections::BTreeSet::new();
                 while let Some(cursor) = page.cursor.take() {
                     if !cursors.insert(cursor.to_string()) {
-                        return Err(bad(q.source()));
+                        return Err(biomcp_fetch::bad_reply(q.source(), Some(200)));
                     }
                     let next = interpro::page(leg, q.accession(), Some(&cursor), 25)?;
                     if next.total != page.total
@@ -32,7 +32,7 @@ impl Saved {
                             .iter()
                             .any(|r| page.items.iter().any(|old| old.id == r.id))
                     {
-                        return Err(bad(q.source()));
+                        return Err(biomcp_fetch::bad_reply(q.source(), Some(200)));
                     }
                     page.refusals.include(next.refusals);
                     page.items.extend(next.items);
@@ -40,7 +40,7 @@ impl Saved {
                     page.cursor = next.cursor;
                 }
                 if page.items.len() as u64 != page.total {
-                    return Err(bad(q.source()));
+                    return Err(biomcp_fetch::bad_reply(q.source(), Some(200)));
                 }
                 let total = page.total;
                 page.items.retain(|r| {
@@ -197,7 +197,7 @@ impl Saved {
                         let q = biomcp_types::ProteinGet::new(
                             vec![biomcp_types::ProteinInput::Accession(id.clone())].into(),
                         )
-                        .map_err(|_| bad(q.source()))?;
+                        .map_err(|_| biomcp_fetch::bad_reply(q.source(), Some(200)))?;
                         out.next.push(crate::next::Step::run(
                             StepKind::Pivot,
                             &[biomcp_types::Source::UniProt],
@@ -212,17 +212,8 @@ impl Saved {
                 .with_query(query.clone());
             }
             (Self::Members(None), Selection::Members(_)) => {}
-            _ => return Err(bad(q.source())),
+            _ => return Err(biomcp_fetch::bad_reply(q.source(), Some(200))),
         }
         Ok(())
     }
-}
-fn bad(source: Source) -> RequestError {
-    SourceError {
-        source,
-        reason: biomcp_types::Reason::BadReply,
-        status: Some(200),
-        retry_after: None,
-    }
-    .into()
 }

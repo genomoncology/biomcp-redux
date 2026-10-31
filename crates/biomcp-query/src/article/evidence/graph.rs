@@ -1,4 +1,4 @@
-use super::{Snapshot, bad, source};
+use super::{Snapshot, source};
 use crate::{Ctx, Outcome, status};
 use biodata::{Doi, Pmid};
 
@@ -38,7 +38,7 @@ pub(super) fn target<'a>(
             input => pubmed::resolve_ids(&leg, input, cx.ncbi_email.as_ref())?,
         };
         if ids.len() != 1 {
-            return Err(bad());
+            return Err(biomcp_fetch::bad_reply(Source::SemanticScholar, None));
         }
         let mapped = pubmed::summaries(&leg, &ids, cx.ncbi_email.as_ref())?;
         out.include_refusals(mapped.refusals);
@@ -47,7 +47,7 @@ pub(super) fn target<'a>(
             .value
             .into_iter()
             .find(|h| h.pmid == ids.first().copied())
-            .ok_or_else(bad)?;
+            .ok_or_else(|| biomcp_fetch::bad_reply(Source::SemanticScholar, None))?;
         Ok(Target {
             pmid: header.pmid,
             doi: header.doi,
@@ -120,7 +120,7 @@ pub(super) fn read<'a>(
                         snapshot.cursor = Some(next)
                     }
                     Some(_) => {
-                        result = Err(bad());
+                        result = Err(biomcp_fetch::bad_reply(Source::SemanticScholar, None));
                         break;
                     }
                 }
@@ -161,7 +161,8 @@ fn retain(snapshot: &mut Snapshot, edge: semantic_scholar::Edge) -> Result<(), R
     for (index, text) in edge.contexts.unwrap_or_default().into_iter().enumerate() {
         for (offset, text) in super::page::split(&text) {
             contexts.push(EvidenceContext {
-                position: u32::try_from(index + 1).map_err(|_| bad())?,
+                position: u32::try_from(index + 1)
+                    .map_err(|_| biomcp_fetch::bad_reply(Source::SemanticScholar, None))?,
                 character_offset: offset,
                 text: text.into(),
             });

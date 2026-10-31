@@ -43,7 +43,7 @@ pub fn sync(fetch: &Fetch) -> Result<crate::Mapped<SyncResult>, RequestError> {
     let leg = fetch.leg(&SPEC, deadline);
     let (rows, snapshot) = read(&leg, Find::Exact(KeyKind::Band, "versions"))?;
     if info.content_revision != snapshot.content_revision {
-        return Err(super::bad());
+        return Err(biomcp_fetch::bad_reply(biomcp_types::Source::Gtr, None));
     }
     let mut counts = BTreeMap::new();
     for row in rows {

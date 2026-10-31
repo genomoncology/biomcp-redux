@@ -2,7 +2,7 @@
 use crate::{Action, Ctx, Outcome, status};
 
 use biomcp_adapters::semantic_scholar;
-use biomcp_fetch::{Deadline, RequestError, SourceError};
+use biomcp_fetch::{Deadline, RequestError};
 use biomcp_types::{ArticleEdges, ArticleItem, Reason, Source, StepKind};
 pub(super) fn create<'a>(
     cx: &Ctx<'a>,
@@ -120,7 +120,9 @@ fn collect(
                     .and_then(|paper| paper.external_ids.as_ref())
                     .and_then(|ids| ids.doi.clone()),
             );
-            let item = edge.item(references, problems).map_err(|_| bad_reply())?;
+            let item = edge
+                .item(references, problems)
+                .map_err(|_| biomcp_fetch::bad_reply(Source::SemanticScholar, None))?;
             items.push(item);
         }
         match reply.next {
@@ -133,7 +135,7 @@ fn collect(
                 });
             }
             Some(next) if next > offset.unwrap_or(0) => offset = Some(next),
-            Some(_) => return Err(bad_reply()),
+            Some(_) => return Err(biomcp_fetch::bad_reply(Source::SemanticScholar, None)),
         }
     }
     Ok(Window {
@@ -143,15 +145,7 @@ fn collect(
         dois,
     })
 }
-fn bad_reply() -> RequestError {
-    SourceError {
-        source: Source::SemanticScholar,
-        reason: Reason::BadReply,
-        status: None,
-        retry_after: None,
-    }
-    .into()
-}
+
 fn failure(query: &ArticleEdges, references: bool, out: &mut Outcome) {
     if out
         .sources

@@ -59,20 +59,12 @@ impl Reply for Raw {
         Ok(())
     }
 }
-fn bad(_: impl std::fmt::Debug) -> RequestError {
-    biomcp_fetch::SourceError {
-        source: biomcp_types::Source::EuropePmc,
-        reason: biomcp_types::Reason::BadReply,
-        status: None,
-        retry_after: None,
-    }
-    .into()
-}
+
 fn record(leg: &Leg<'_>, id: &EuropePmcId) -> Result<(Record, ReplyMetadata), RequestError> {
     let endpoint = CORE
         .clone()
         .with_path(format!("/article/PPR/{id}"))
-        .map_err(bad)?;
+        .map_err(|_| biomcp_fetch::bad_reply(biomcp_types::Source::EuropePmc, None))?;
     let (raw, meta) = leg.json_received::<Raw>(
         &endpoint,
         &[
@@ -81,7 +73,10 @@ fn record(leg: &Leg<'_>, id: &EuropePmcId) -> Result<(Record, ReplyMetadata), Re
         ],
     )?;
     if raw.result.id != *id {
-        return Err(bad(BadReply));
+        return Err(biomcp_fetch::bad_reply(
+            biomcp_types::Source::EuropePmc,
+            None,
+        ));
     }
     Ok((raw.result, meta))
 }
@@ -175,13 +170,14 @@ pub fn read(
     let endpoint = FULLTEXT
         .clone()
         .with_path(format!("/{id}/fullTextXML"))
-        .map_err(bad)?;
+        .map_err(|_| biomcp_fetch::bad_reply(biomcp_types::Source::EuropePmc, None))?;
     let mut body = leg.xml::<jats::Body>(&endpoint, &[])?;
     if body.title.is_none() {
         body.title = p.source_field("title", raw.title);
     }
     let value = pmc_oa::Document {
-        url: Text::new(&format!("{}/{id}/fullTextXML", SPEC.base)).map_err(bad)?,
+        url: Text::new(&format!("{}/{id}/fullTextXML", SPEC.base))
+            .map_err(|_| biomcp_fetch::bad_reply(biomcp_types::Source::EuropePmc, None))?,
         license: pmc_oa::license(license.as_deref().unwrap_or("")),
         version: None,
         manuscript: None,
