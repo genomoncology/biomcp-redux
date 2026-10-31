@@ -4,6 +4,10 @@ use std::{fs, path::Path};
 // One authoritative list; architecture 10.4 must reproduce each path and reason.
 const ALLOWED: &[(&str, &str)] = &[
     (
+        "crates/biomcp-adapters/tests/source_declarations.rs",
+        "Check unique declared bundle command names and their stable public discovery order through the adapter registry.",
+    ),
+    (
         "crates/biomcp-fetch/src/hosts_tests.rs",
         "Check credential-free exact publisher origins at the private admission boundary without a product inventory helper.",
     ),

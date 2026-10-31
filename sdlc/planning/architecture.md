@@ -1952,6 +1952,7 @@ The runner tool proof `schema-discovery/capture-retains-replay-owner` drops the 
 
 | File | Reason |
 | --- | --- |
+| `crates/biomcp-adapters/tests/source_declarations.rs` | Check unique declared bundle command names and their stable public discovery order through the adapter registry. |
 | `crates/biomcp-fetch/src/hosts_tests.rs` | Check credential-free exact publisher origins at the private admission boundary without a product inventory helper. |
 | `crates/biomcp-fetch/tests/grpc_worker/shutdown.rs` | Prove cancellation joins active network work at the private worker boundary without exporting shutdown control. |
 | `crates/biomcp-fetch/tests/quotas/expiry.rs` | Check idle bucket expiry after scaled refill without sleeping or exposing transport state. |

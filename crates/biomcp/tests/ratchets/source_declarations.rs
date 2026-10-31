@@ -4,7 +4,7 @@ use std::{collections::BTreeMap, fs, path::Path};
 
 struct Policy {
     path: String,
-    source: Option<String>,
+    source: String,
 }
 struct Declaration {
     path: String,
@@ -55,7 +55,7 @@ pub(super) fn check(root: &Path) -> Check {
             .iter()
             .any(|token| token == "component_spec")
         {
-            if source_name(&declaration.spec).as_deref() != Some(source.as_str()) {
+            if constructor_source(&declaration.spec).as_deref() != Some(source.as_str()) {
                 return Err(format!(
                     "{}: source declaration references the wrong source",
                     declaration.path
@@ -63,6 +63,13 @@ pub(super) fn check(root: &Path) -> Check {
                 .into());
             }
         } else {
+            if primary.len() != 1 {
+                return Err(format!(
+                    "{}: source declaration requires one exact policy reference",
+                    declaration.path
+                )
+                .into());
+            }
             register(
                 &declaration.path,
                 &source,
@@ -112,11 +119,7 @@ fn collect(
             if field(body, "terms").is_none() {
                 return Err(format!("{path}: source declaration requires publisher terms").into());
             }
-            // A generic constructor carries policy arguments and declares no source facts.
-            if source_name(body).is_none()
-                && body.starts_with(&["source".into(), ",".into(), "terms".into(), ",".into()])
-                && field(body, "terms").is_some_and(|value| value == ["terms"])
-            {
+            if generic_constructor(path, input.get(..i).unwrap_or_default(), body) {
                 continue;
             }
             let name = named(input.get(..i).unwrap_or_default(), "static")
@@ -125,7 +128,13 @@ fn collect(
                 format!("&crate::{}::{name}", module(path)),
                 Policy {
                     path: path.into(),
-                    source: source_name(field(body, "source").unwrap_or_default()),
+                    source: source_variant(field(body, "source").unwrap_or_default()).ok_or_else(
+                        || {
+                            format!(
+                                "{path}: concrete source policy requires an exact Source variant"
+                            )
+                        },
+                    )?,
                 },
             );
         } else if token == "SourceDecl" {
@@ -153,11 +162,7 @@ fn register(
         let policy = policies.get(&reference).ok_or_else(|| {
             format!("{path}: source declaration references an unknown policy: {reference}")
         })?;
-        if policy
-            .source
-            .as_deref()
-            .is_some_and(|declared| declared != source)
-        {
+        if policy.source != source {
             return Err(format!(
                 "{path}: source declaration references the wrong source: {reference}"
             )
@@ -199,14 +204,48 @@ fn module(path: &str) -> String {
         .replace('/', "::")
 }
 
-fn source_name(input: &[String]) -> Option<String> {
-    input.windows(4).find_map(|part| {
-        (part.first().is_some_and(|token| token == "Source")
-            && part.get(1).is_some_and(|token| token == ":")
-            && part.get(2).is_some_and(|token| token == ":"))
-        .then(|| part.get(3).cloned())
-        .flatten()
-    })
+fn source_variant(input: &[String]) -> Option<String> {
+    let value = input.join("");
+    let value = value.strip_prefix("biomcp_types::").unwrap_or(&value);
+    value
+        .strip_prefix("Source::")
+        .filter(|variant| {
+            !variant.is_empty() && variant.chars().all(|c| c.is_alphanumeric() || c == '_')
+        })
+        .map(str::to_owned)
+}
+
+fn constructor_source(input: &[String]) -> Option<String> {
+    let start = input.iter().position(|token| token == "(")? + 1;
+    let rest = input.get(start..)?;
+    let end = rest.iter().position(|token| token == ",")?;
+    source_variant(rest.get(..end)?)
+}
+
+fn generic_constructor(path: &str, prefix: &[String], input: &[String]) -> bool {
+    let function = prefix
+        .iter()
+        .rposition(|token| token == "fn")
+        .and_then(|i| prefix.get(i + 1));
+    if path != "decl.rs" || function.is_none_or(|name| name != "component_spec") {
+        return false;
+    }
+    // Only the reviewed argument-preserving constructor may build an unnamed policy.
+    // Every field is fixed here; literals or computed provider facts require named statics.
+    let expected = [
+        ("source", "source"),
+        ("terms", "terms"),
+        ("base", "carrier.base"),
+        ("destinations", "biomcp_fetch::Destinations::Primary"),
+        ("user_agent", "carrier.user_agent"),
+        ("key", "KeyUse::None"),
+        ("quota", "carrier.quota"),
+        ("deadline", "carrier.deadline"),
+    ];
+    expected
+        .iter()
+        .all(|(name, value)| field(input, name).is_some_and(|actual| actual.join("") == *value))
+        && !input.iter().any(|token| token.starts_with('"'))
 }
 
 fn references(input: &[String], path: &str) -> Vec<String> {

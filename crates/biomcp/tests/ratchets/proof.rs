@@ -199,15 +199,20 @@ fn source_registry_accepts_directory_and_file_modules_and_names_missing_entry() 
         "crates/biomcp-adapters/src/decl.rs",
         dispatcher,
     )?;
-    let declaration = r#"SourceSpec { terms: Terms { name: "Publisher", url: "https://example.org/terms", usage: Open } }"#;
+    let declaration = r#"SourceSpec { source: Source::Directory, terms: Terms { name: "Publisher", url: "https://example.org/terms", usage: Open } }"#;
     for (path, owner) in [
         ("directory/mod.rs", "directory"),
         ("single_file.rs", "single_file"),
     ] {
+        let policy = if owner == "single_file" {
+            declaration.replace("Directory", "Single")
+        } else {
+            declaration.to_owned()
+        };
         put(
             tree.path(),
             &format!("crates/biomcp-adapters/src/{path}"),
-            &format!("pub static SPEC: SourceSpec = {declaration};"),
+            &format!("pub static SPEC: SourceSpec = {policy};"),
         )?;
         put(
             tree.path(),
@@ -627,4 +632,60 @@ fn structural_diagnostics_keep_independent_categories() -> Check {
 #[test]
 fn adapter_mapping_helpers_require_one_owner() -> Check {
     helper_owner_proof::check()
+}
+
+#[test]
+fn source_policy_rejects_aliased_and_computed_identity() -> Check {
+    for identity in [
+        "WRONG_SOURCE",
+        "if true { Source::Hgnc } else { Source::MyGene }",
+    ] {
+        let tree = tree()?;
+        put(
+            tree.path(),
+            "crates/biomcp-adapters/src/hgnc/mod.rs",
+            &format!(
+                r#"pub static SPEC: SourceSpec = SourceSpec {{ source: {identity}, terms: Terms {{ name: "Publisher", url: "https://example.org/terms", usage: Open }} }};"#
+            ),
+        )?;
+        let failure = check(tree.path())
+            .err()
+            .ok_or("unrecognized concrete identity accepted")?
+            .to_string();
+        assert!(
+            failure.contains("requires an exact Source variant"),
+            "{failure}"
+        );
+    }
+    Ok(())
+}
+
+#[test]
+fn generic_source_constructor_rejects_unnamed_provider_facts() -> Check {
+    for (path, name, base) in [
+        ("other.rs", "other", "carrier.base"),
+        (
+            "decl.rs",
+            "component_spec",
+            "\"https://unregistered.example.org\"",
+        ),
+    ] {
+        let tree = tree()?;
+        put(
+            tree.path(),
+            &format!("crates/biomcp-adapters/src/{path}"),
+            &format!(
+                "fn {name}(source: Source, carrier: &SourceSpec, terms: Terms) -> SourceSpec {{ SourceSpec {{ source, terms, base: {base}, destinations: biomcp_fetch::Destinations::Primary, user_agent: carrier.user_agent, key: KeyUse::None, quota: carrier.quota, deadline: carrier.deadline }} }}"
+            ),
+        )?;
+        let failure = check(tree.path())
+            .err()
+            .ok_or("unnamed provider facts accepted")?
+            .to_string();
+        assert!(
+            failure.contains("source declarations require named statics"),
+            "{failure}"
+        );
+    }
+    Ok(())
 }

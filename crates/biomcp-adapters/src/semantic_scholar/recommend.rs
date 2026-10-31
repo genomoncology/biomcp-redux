@@ -11,7 +11,7 @@ pub static RECOMMEND_SPEC: SourceSpec = SourceSpec {
     destinations: biomcp_fetch::Destinations::Primary,
     user_agent: None,
     base: "https://api.semanticscholar.org/recommendations/v1",
-    source: SPEC.source,
+    source: biomcp_types::Source::SemanticScholar,
     terms: biomcp_fetch::Terms {
         name: SPEC.terms.name,
         url: SPEC.terms.url,
