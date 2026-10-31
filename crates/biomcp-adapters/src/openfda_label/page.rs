@@ -1,4 +1,4 @@
-use super::{bad, raw::Record};
+use super::raw::Record;
 use crate::text_parts::{escaped_bytes, split};
 use biomcp_fetch::RequestError;
 use biomcp_types::{DrugLabelFragment, DrugLabelText};
@@ -19,7 +19,10 @@ impl Record {
         limit: u32,
     ) -> Result<Option<DrugLabelText>, RequestError> {
         if !(1..=50).contains(&limit) {
-            return Err(bad());
+            return Err(biomcp_fetch::bad_reply(
+                biomcp_types::Source::OpenfdaLabel,
+                Some(200),
+            ));
         }
         let Some(parts) = self.parts(heading) else {
             return Ok(None);
@@ -40,7 +43,9 @@ impl Record {
         }
         Ok(Some(DrugLabelText {
             label: self.reference()?,
-            heading: heading.parse().map_err(|_| bad())?,
+            heading: heading.parse().map_err(|_| {
+                biomcp_fetch::bad_reply(biomcp_types::Source::OpenfdaLabel, Some(200))
+            })?,
             text: text.into(),
             retrieved: None,
             fragments: selected.into(),
@@ -59,16 +64,22 @@ fn fragments(parts: &[String]) -> Result<Vec<Fragment>, RequestError> {
             split(part, PAYLOAD_BYTES)
         };
         for text in pieces {
-            let characters = u32::try_from(text.chars().count()).map_err(|_| bad())?;
+            let characters = u32::try_from(text.chars().count()).map_err(|_| {
+                biomcp_fetch::bad_reply(biomcp_types::Source::OpenfdaLabel, Some(200))
+            })?;
             fragments.push(Fragment {
                 meta: DrugLabelFragment {
-                    source_part: u32::try_from(source_part).map_err(|_| bad())?,
+                    source_part: u32::try_from(source_part).map_err(|_| {
+                        biomcp_fetch::bad_reply(biomcp_types::Source::OpenfdaLabel, Some(200))
+                    })?,
                     source_offset,
                     characters,
                 },
                 text,
             });
-            source_offset = source_offset.checked_add(characters).ok_or_else(bad)?;
+            source_offset = source_offset.checked_add(characters).ok_or_else(|| {
+                biomcp_fetch::bad_reply(biomcp_types::Source::OpenfdaLabel, Some(200))
+            })?;
         }
     }
     Ok(fragments)

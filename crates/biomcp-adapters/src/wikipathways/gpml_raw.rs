@@ -49,7 +49,7 @@ fn required(tag: &BytesStart<'_>, key: &str) -> Result<String, BadReply> {
         .ok_or(BadReply)
 }
 impl Document {
-    fn root(tag: &BytesStart<'_>) -> Result<Self, BadReply> {
+    fn document_header(tag: &BytesStart<'_>) -> Result<Self, BadReply> {
         if tag.name().as_ref() != "Pathway"
             || required(tag, "xmlns")? != NAMESPACE
             || required(tag, "Data-Source")? != "WikiPathways"
@@ -107,7 +107,7 @@ impl XmlReply for Document {
                         if document.is_some() {
                             return Err(BadReply);
                         }
-                        document = Some(Self::root(&tag)?);
+                        document = Some(Self::document_header(&tag)?);
                     } else {
                         read_child(&tag, depth, &mut node)?;
                     }

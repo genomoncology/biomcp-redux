@@ -123,13 +123,3 @@ fn identity(reply: &raw::Response, query: &DiagnosticGet) -> Option<&'static str
     }
     None
 }
-
-fn bad() -> RequestError {
-    biomcp_fetch::SourceError {
-        source: Source::FdaPma,
-        reason: biomcp_types::Reason::BadReply,
-        status: Some(200),
-        retry_after: None,
-    }
-    .into()
-}

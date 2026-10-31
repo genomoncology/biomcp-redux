@@ -1,4 +1,4 @@
-use super::{bad, bundle, map, raw::Native};
+use super::{bundle, map, raw::Native};
 use biodata::{GtrMethod, GtrTestRelation};
 use biomcp_fetch::{BundleInfo, Find, KeyKind, Leg, RequestError};
 use biomcp_types::{DiagnosticGet, GtrCard, Problem};
@@ -47,9 +47,9 @@ pub fn get(leg: &Leg<'_>, query: &DiagnosticGet) -> Result<Record, RequestError>
         }
     }
     let conflict = if versions.len() > 1 {
-        Some(super::conflict(
-            &query.id().as_str().parse().map_err(|_| bad())?,
-        ))
+        Some(super::conflict(&query.id().as_str().parse().map_err(
+            |_| biomcp_fetch::bad_reply(biomcp_types::Source::Gtr, None),
+        )?))
     } else {
         None
     };

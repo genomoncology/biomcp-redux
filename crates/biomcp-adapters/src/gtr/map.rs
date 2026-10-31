@@ -1,7 +1,4 @@
-use super::{
-    bad,
-    raw::{Object, Relation},
-};
+use super::raw::{Object, Relation};
 use biodata::{
     GtrConditionReference, GtrConditionRelation, GtrGeneReference, GtrGeneRelation, GtrMethod,
     GtrMethodList, GtrTestRelation, GtrTestVersion, Text,
@@ -37,9 +34,11 @@ pub(super) fn header(
         .as_str()
         .strip_prefix("GTR")
         .and_then(|id| id.split_once('.'))
-        .ok_or_else(bad)?
+        .ok_or_else(|| biomcp_fetch::bad_reply(biomcp_types::Source::Gtr, None))?
         .0;
-    let base: u32 = base.parse().map_err(|_| bad())?;
+    let base: u32 = base
+        .parse()
+        .map_err(|_| biomcp_fetch::bad_reply(biomcp_types::Source::Gtr, None))?;
     Ok(GtrHeader {
         id: v.test_accession_ver.clone(),
         name: optional(&v.lab_test_name, "lab_test_name", v, problems),
@@ -59,7 +58,7 @@ pub(super) fn header(
         url: Text::new(&format!(
             "https://www.ncbi.nlm.nih.gov/gtr/tests/classic/{base}/"
         ))
-        .map_err(|_| bad())?,
+        .map_err(|_| biomcp_fetch::bad_reply(biomcp_types::Source::Gtr, None))?,
     })
 }
 pub(super) fn card(

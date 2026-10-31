@@ -122,7 +122,7 @@ pub(in crate::article) fn load<'a>(
         ));
     };
     let data = PdfLink {
-        url: Text::new(&link.url).map_err(|_| bad(Reason::BadReply))?,
+        url: Text::new(&link.url).map_err(|_| pdf_error(Reason::BadReply))?,
         status: link.status,
         license: link.license(),
     };
@@ -131,7 +131,7 @@ pub(in crate::article) fn load<'a>(
         data,
     })
 }
-pub(in crate::article) fn bad(reason: Reason) -> RequestError {
+pub(in crate::article) fn pdf_error(reason: Reason) -> RequestError {
     SourceError {
         source: Source::SemanticScholar,
         reason,

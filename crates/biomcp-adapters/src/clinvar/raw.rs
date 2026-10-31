@@ -18,7 +18,7 @@ impl Reply for Records {
 }
 impl XmlReply for Records {
     fn decode_xml(xml: &str) -> Result<Self, BadReply> {
-        let root = root(xml)?;
+        let root = Element::root(xml, "ClinVarResult-Set")?;
         if root.child("ERROR")?.is_some() {
             return Err(BadReply);
         }
@@ -78,23 +78,6 @@ impl XmlReply for Records {
             accession,
             version,
         })
-    }
-}
-fn root(xml: &str) -> Result<Element<'_>, BadReply> {
-    let mut reader = quick_xml::Reader::from_str(xml);
-    loop {
-        let begin = reader.buffer_position() as usize;
-        match reader.read_event().map_err(|_| BadReply)? {
-            quick_xml::events::Event::Start(tag) | quick_xml::events::Event::Empty(tag) => {
-                return if tag.name().as_ref() == "ClinVarResult-Set" {
-                    Ok(Element(&xml[begin..]))
-                } else {
-                    Err(BadReply)
-                };
-            }
-            quick_xml::events::Event::Eof => return Err(BadReply),
-            _ => {}
-        }
     }
 }
 

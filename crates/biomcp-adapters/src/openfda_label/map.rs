@@ -1,4 +1,4 @@
-use super::{bad, raw::Record as RawRecord};
+use super::raw::Record as RawRecord;
 use biodata::{Attribution, DrugIdentityLevel, DrugLabelReference, PartialDate, Text};
 use biomcp_fetch::RequestError;
 use biomcp_types::{DrugCard, DrugHeader, DrugSection, DrugSource};
@@ -9,11 +9,12 @@ impl RawRecord {
             self.set_id
         )
         .parse()
-        .map_err(|_| bad())
+        .map_err(|_| biomcp_fetch::bad_reply(biomcp_types::Source::OpenfdaLabel, Some(200)))
     }
     /// Identity comes from the SPL endpoint; no name or field-shape identity join occurs.
     pub(super) fn header(&self) -> Result<DrugHeader, RequestError> {
-        self.check().map_err(|_| bad())?;
+        self.check()
+            .map_err(|_| biomcp_fetch::bad_reply(biomcp_types::Source::OpenfdaLabel, Some(200)))?;
         Ok(DrugHeader {
             matched_name: None,
             id: self.set_id.clone(),
@@ -35,7 +36,8 @@ impl RawRecord {
     }
     /// Version and revision ID remain source-scoped and separate from the set ID.
     pub(super) fn reference(&self) -> Result<DrugLabelReference, RequestError> {
-        self.check().map_err(|_| bad())?;
+        self.check()
+            .map_err(|_| biomcp_fetch::bad_reply(biomcp_types::Source::OpenfdaLabel, Some(200)))?;
         let url = self.url()?;
         Ok(DrugLabelReference {
             id: self.set_id.clone(),
@@ -43,8 +45,12 @@ impl RawRecord {
             revised: self.effective_time,
             url: Some(url.clone()),
             attribution: Attribution {
-                source: "openfda-label".parse().map_err(|_| bad())?,
-                record: Some(self.id.to_string().parse().map_err(|_| bad())?),
+                source: "openfda-label".parse().map_err(|_| {
+                    biomcp_fetch::bad_reply(biomcp_types::Source::OpenfdaLabel, Some(200))
+                })?,
+                record: Some(self.id.to_string().parse().map_err(|_| {
+                    biomcp_fetch::bad_reply(biomcp_types::Source::OpenfdaLabel, Some(200))
+                })?),
                 version: self.version.clone(),
                 release: None,
                 submitter: None,

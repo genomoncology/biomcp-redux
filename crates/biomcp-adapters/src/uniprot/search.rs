@@ -49,21 +49,26 @@ pub fn search(
     }
     let ep = SPEC.get(PATH).identity_encoding().fresh(Freshness::Days(1));
     let (raw, meta) = leg.json_received_checked_cache::<Rows>(&ep, &args, |_| true)?;
-    let page = meta.pagination.ok_or_else(bad)?;
+    let page = meta
+        .pagination
+        .ok_or_else(|| biomcp_fetch::bad_reply(Source::UniProt, Some(200)))?;
     let returned = raw.results.len() as u64;
     if returned > page.total
         || returned == 0 && page.total > 0
         || cursor.is_none() && returned < page.total && page.next.is_none()
     {
-        return Err(bad());
+        return Err(biomcp_fetch::bad_reply(Source::UniProt, Some(200)));
     }
     let cursor = page
         .next
         .as_deref()
         .map(|url| {
             SPEC.next_cursor(url, PATH, &args, "cursor")
-                .map_err(|_| bad())
-                .and_then(|value| Text::new(&value).map_err(|_| bad()))
+                .map_err(|_| biomcp_fetch::bad_reply(Source::UniProt, Some(200)))
+                .and_then(|value| {
+                    Text::new(&value)
+                        .map_err(|_| biomcp_fetch::bad_reply(Source::UniProt, Some(200)))
+                })
         })
         .transpose()?;
     let mut items = Vec::new();
@@ -112,13 +117,4 @@ fn native_query(q: &ProteinSearch) -> String {
         .map(|v| format!("gene_exact:{v}"))
         .unwrap_or_else(|| q.query().map_or("", Text::as_str).into());
     format!("({literal}) AND (organism_id:9606) AND (reviewed:true)")
-}
-fn bad() -> RequestError {
-    biomcp_fetch::SourceError {
-        source: Source::UniProt,
-        reason: biomcp_types::Reason::BadReply,
-        status: Some(200),
-        retry_after: None,
-    }
-    .into()
 }

@@ -145,8 +145,9 @@ pub fn resolve(leg: &Leg<'_>, input: &str) -> Result<Resolution, RequestError> {
             raw.errors.into_iter().flatten().map(|e| e.code).collect(),
         ));
     }
-    let notation = identity.ok_or_else(bad)?;
-    let expression = biodata::Expression::hgvs(notation.clone()).map_err(|_| bad())?;
+    let notation = identity.ok_or_else(|| biomcp_fetch::bad_reply(Source::Mutalyzer, None))?;
+    let expression = biodata::Expression::hgvs(notation.clone())
+        .map_err(|_| biomcp_fetch::bad_reply(Source::Mutalyzer, None))?;
     Ok(Resolution::Found(VariantHeader {
         identity: Variant {
             ids: Box::default(),
@@ -171,16 +172,6 @@ pub fn resolve(leg: &Leg<'_>, input: &str) -> Result<Resolution, RequestError> {
         sections: None,
         component_terms: Box::default(),
     }))
-}
-
-fn bad() -> RequestError {
-    biomcp_fetch::SourceError {
-        source: Source::Mutalyzer,
-        reason: biomcp_types::Reason::BadReply,
-        status: None,
-        retry_after: None,
-    }
-    .into()
 }
 
 /// Source normalization descriptions, mappings and native messages.

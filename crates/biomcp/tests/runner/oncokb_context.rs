@@ -3,7 +3,7 @@ use super::{launch::Environment, network_stub::Stub, oncokb};
 use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
-use std::fs;
+use std::{fs, io::Write};
 const SECTION: &str = "/result/candidates/0/sections/oncokb";
 pub(super) fn trials() -> Vec<Trial> {
     // The peer binds request context and verifies that independent tool calls do not inherit earlier annotation context.
@@ -13,11 +13,7 @@ pub(super) fn trials() -> Vec<Trial> {
     )]
 }
 fn run() -> Result<(), String> {
-    let stub = Stub::for_sources(
-        &["myvariant.info", "www.oncokb.org", "reg.genome.network"],
-        |_| "application/json",
-        reply,
-    )?;
+    let (stub, observed) = peer()?;
     let env = Environment::new().map_err(|e| e.to_string())?;
     let ca = env.root().join("ca.pem");
     stub.retain(env.shared_root());
@@ -63,12 +59,15 @@ fn run() -> Result<(), String> {
         ));
     }
     empty_components(&missing)?;
+    let cold: Vec<_> = observed.try_iter().collect();
     let mcp = super::mcp::call_with_globals(&env, &all, false, &[])?;
+    let warm: Vec<_> = observed.try_iter().collect();
     if missing.get("result") != mcp.get("result") || missing.get("next") != mcp.get("next") {
         return Err("all context CLI/MCP differs".into());
     }
     oncokb::invoke(&env, &["help", "get", "variant"].map(str::to_owned), 0)?;
     let requests = stub.finish()?;
+    retain_requests(&requests, cold, warm)?;
     let added = component_requests(&requests)?;
     if requests
         .iter()
@@ -81,6 +80,39 @@ fn run() -> Result<(), String> {
             "keyless or contextless request escaped, or warm cache missed: {}",
             requests.len()
         ));
+    }
+    Ok(())
+}
+fn peer() -> Result<(Stub, std::sync::mpsc::Receiver<String>), String> {
+    let (observed, observation) = std::sync::mpsc::channel();
+    let stub = Stub::for_sources(
+        &["myvariant.info", "www.oncokb.org", "reg.genome.network"],
+        |_| "application/json",
+        move |request| {
+            observed
+                .send(request.to_owned())
+                .map_err(|e| e.to_string())?;
+            reply(request)
+        },
+    )?;
+    Ok((stub, observation))
+}
+fn retain_requests(
+    requests: &[(String, String)],
+    cold: Vec<String>,
+    warm: Vec<String>,
+) -> Result<(), String> {
+    writeln!(
+        std::io::stdout(),
+        "WARM_CACHE_REQUEST_PHASES {}",
+        json!({"cold_setup":cold,"warm":warm})
+    )
+    .map_err(|e| e.to_string())?;
+    if let Some(context) = super::transcript::current() {
+        context.record("cache/variant-oncokb/all/requests", json!(requests))?;
+    }
+    if !warm.is_empty() {
+        return Err(format!("warm call made {} extra live requests", warm.len()));
     }
     Ok(())
 }
