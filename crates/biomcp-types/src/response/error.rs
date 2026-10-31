@@ -285,7 +285,7 @@ struct ErrorDetail {
     message: ErrorMessage,
 }
 
-/// A versioned error response that never contains caller input.
+/// A versioned error response that never contains rejected caller values.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ErrorEnvelope {
