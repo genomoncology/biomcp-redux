@@ -249,6 +249,13 @@ fn hosted_grpc_cache_and_replay_cursors_follow_declared_credential_tiers() -> Ch
             [1, 2, 3, 4]
         );
         let cached = get(&b.offline(), source, METHOD, SCHEMA, Freshness::Hours(1));
+        let keyless = get(
+            &missing.offline(),
+            source,
+            METHOD,
+            SCHEMA,
+            Freshness::Hours(1),
+        );
         if private {
             assert!(
                 matches!(cached, Err(RequestError::Source(e)) if e.reason == biomcp_types::Reason::Offline)
@@ -257,13 +264,6 @@ fn hosted_grpc_cache_and_replay_cursors_follow_declared_credential_tiers() -> Ch
                 get(&b, source, METHOD, SCHEMA, Freshness::Never),
                 Err(RequestError::Recording(biomcp_fetch::RecordError::Missing))
             ));
-            let keyless = get(
-                &missing.offline(),
-                source,
-                METHOD,
-                SCHEMA,
-                Freshness::Hours(1),
-            );
             assert!(
                 matches!(keyless, Err(RequestError::Source(e)) if e.reason == biomcp_types::Reason::NoKey)
             );
@@ -273,16 +273,7 @@ fn hosted_grpc_cache_and_replay_cursors_follow_declared_credential_tiers() -> Ch
             );
         } else {
             assert_eq!(cached?, [1, 2, 3, 4]);
-            assert_eq!(
-                get(
-                    &missing.offline(),
-                    source,
-                    METHOD,
-                    SCHEMA,
-                    Freshness::Hours(1)
-                )?,
-                [1, 2, 3, 4]
-            );
+            assert_eq!(keyless?, [1, 2, 3, 4]);
             assert_eq!(
                 get(&b, source, METHOD, SCHEMA, Freshness::Never)?,
                 [1, 2, 3, 4]
