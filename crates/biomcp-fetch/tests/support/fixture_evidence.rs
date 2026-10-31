@@ -178,7 +178,7 @@ pub(super) fn retain_replay_owner(owner: &tempfile::TempDir) -> io::Result<()> {
         ));
     fs::create_dir_all(&retained)?;
     let mut inputs = Vec::new();
-    for name in ["recordings", "first", "second", "all"] {
+    for name in ["recordings", "first", "second", "all", "replay"] {
         let source = root.join(name);
         if source.is_dir() {
             let destination = retained.join(name);

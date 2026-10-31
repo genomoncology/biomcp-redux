@@ -1,6 +1,7 @@
 # 0513 — Bind fetched clocks to each cache acquisition in the reply diff
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: f0d87d8c8fca634eb5e464a5f6843072f073989e
 
 Milestone: 5
 

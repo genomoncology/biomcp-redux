@@ -2,36 +2,13 @@
 import hashlib
 import json
 from pathlib import Path
-import subprocess
-import sys
-import tempfile
 import unittest
 
-SCRIPT = Path(__file__).with_name("reply_diff.py")
+from reply_diff_acquisition_tests import ReplyAcquisitions
+from reply_diff_test_support import ReplyDiffCase
 
 
-class ReplyDiff(unittest.TestCase):
-    def setUp(self):
-        self.directory = tempfile.TemporaryDirectory()
-        self.addCleanup(self.directory.cleanup)
-        self.base = Path(self.directory.name, "base")
-        self.head = Path(self.directory.name, "head")
-        self.base.mkdir()
-        self.head.mkdir()
-
-    def write(self, directory, key, stdout=b'{"status":"complete"}\n', code=0, **extra):
-        execution = dict(args=["help"], surface="cli", exit=code, stdout=list(stdout))
-        execution.update(extra)
-        path = directory / (hashlib.sha256(key.encode()).hexdigest() + ".json")
-        path.write_text(json.dumps(dict(key=key, executions=[execution])))
-
-    def compare(self, owners=None):
-        args = [sys.executable, str(SCRIPT), str(self.base), str(self.head)]
-        if owners:
-            args.append(str(owners))
-        return subprocess.run(args,
-                              capture_output=True, text=True, check=False)
-
+class ReplyDiff(ReplyDiffCase):
     def test_reply_and_exit_changes_name_the_case_pointer(self):
         key = "case/schema/help.yaml/step/0"
         self.write(self.base, key)
@@ -227,29 +204,6 @@ class ReplyDiff(unittest.TestCase):
         result = self.compare()
         self.assertEqual(result.returncode, 1, result.stderr + result.stdout)
 
-    def test_catalog_acquisition_binds_per_root_and_revision(self):
-        key = "case/catalog.yaml/step/"
-        for directory, side in [(self.base, "base"), (self.head, "head")]:
-            for step, (root, revision, clock) in enumerate([
-                ("first", "old", 10), ("second", "old", 11),
-                ("first", "new", 11), ("first", "old", 10),
-            ]):
-                self.write(directory, key + str(step), json.dumps({
-                    "result": {"snapshot": {"revision": revision,
-                                              "acquired": clock if side == "base" else 20}},
-                }).encode(), root="/tmp/" + side + "/" + root)
-        result = self.compare()
-        self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
-        # A coincidence between independent roots does not permit one epoch to change.
-        self.write(self.head, key + "3", json.dumps({
-            "result": {"snapshot": {"revision": "old", "acquired": 21}},
-        }).encode(), root="/tmp/head/first")
-        self.assertNotEqual(self.compare().returncode, 0)
-        self.write(self.head, key + "3", json.dumps({
-            "result": {"snapshot": {"revision": "old", "acquired": 20}},
-        }).encode(), root="/tmp/head/second")
-        self.assertNotEqual(self.compare().returncode, 0)
-
     def test_section_continuation_preserves_every_reference(self):
         for directory, token in [(self.base, "base-token"), (self.head, "head-token")]:
             reply = {"schema": "biomcp.trial-cards/9", "query": {"input": ["NCT03511664"]},
@@ -348,7 +302,8 @@ class ReplyDiff(unittest.TestCase):
                 self.write(directory, "trial/article-evidence/evidence/" + name + "/" + "a" * 64 + "/0",
                            json.dumps({"result": {"fetched": clock if side == "base" else 20},
                                "page": {"pool": {"id": "shared" if side == "base" else name,
-                                                  "created": 10, "expires": 20, "size": 1}}}).encode())
+                                                  "created": 10, "expires": 20, "size": 1}}}).encode(),
+                           root="/tmp/" + side + "/" + name)
         result = self.compare()
         self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
 
