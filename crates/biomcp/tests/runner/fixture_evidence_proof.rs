@@ -30,7 +30,7 @@ pub(super) fn trials() -> Vec<Trial> {
     ]
 }
 fn capturing_callback() -> Result<(), Box<dyn std::error::Error>> {
-    use biomcp_fetch::{Certificates, Fetch, FetchConfig, Network, Secret};
+    use biomcp_fetch::{Certificates, Fetch, FetchConfig, Input, Network, Read, Secret};
     use std::time::Duration;
 
     let mut reply = String::from("captured");
@@ -53,8 +53,8 @@ fn capturing_callback() -> Result<(), Box<dyn std::error::Error>> {
     for (path, expected) in [("/first", "captured!"), ("/second", "captured!!")] {
         let body = fetch
             .leg(source, fetch.deadline(Duration::from_secs(5)))
-            .bytes(&source.get(path).bytes(64), &[])?;
-        if body != expected.as_bytes() {
+            .call(&source.get(path).bytes(64), Input::Params(&[]), Read::bytes())?;
+        if body.value.0 != expected.as_bytes() {
             return Err("single-source callback lost its captured mutable state".into());
         }
     }

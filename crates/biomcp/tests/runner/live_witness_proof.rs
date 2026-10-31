@@ -404,7 +404,7 @@ pub(super) fn sampling(observations: &[biomcp_fetch::Observation]) -> Result<(),
         return Err("unknown historical shape was treated as a complete new inspection".into());
     }
     let sample = observations.first().ok_or("missing native observation")?;
-    let report = live::compare(&[sample.clone()], &[], &mut Vec::new(), &mut BTreeMap::new());
+    let report = live::compare(std::slice::from_ref(sample), &[], &mut Vec::new(), &mut BTreeMap::new());
     if report.pointer("/items/0/shape_comparison") != Some(&json!("unexamined")) {
         return Err("unpaired request was described as examined".into());
     }
