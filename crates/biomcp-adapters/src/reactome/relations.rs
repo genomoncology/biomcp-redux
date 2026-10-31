@@ -18,6 +18,7 @@ pub struct Members {
 
 /// Read the bounded complete physical-participant relation without interpreting display names.
 pub fn members(leg: &Leg<'_>, id: &ReactomeId) -> Result<Mapped<Members>, RequestError> {
+    let invalid_reply = biomcp_fetch::bad_reply(Source::Reactome, Some(200));
     let endpoint = SPEC
         .get("/data/participants")
         .with_path(format!("/data/participants/{id}"))?
@@ -34,15 +35,11 @@ pub fn members(leg: &Leg<'_>, id: &ReactomeId) -> Result<Mapped<Members>, Reques
         let participant = participant(
             &row,
             &mut problems,
-            crate::mapped::text("Reactome")
-                .map_err(|_| biomcp_fetch::bad_reply(Source::Reactome, Some(200)))?,
+            crate::mapped::text("Reactome").map_err(|_| invalid_reply)?,
         );
         for reference in row.ref_entities {
             value.reference_occurrences += 1;
-            let (namespace, identifier) = reference
-                .st_id
-                .split_once(':')
-                .ok_or_else(|| biomcp_fetch::bad_reply(Source::Reactome, Some(200)))?;
+            let (namespace, identifier) = reference.st_id.split_once(':').ok_or(invalid_reply)?;
             let name = metadata(
                 &mut problems,
                 "members.name",
@@ -79,10 +76,9 @@ pub fn members(leg: &Leg<'_>, id: &ReactomeId) -> Result<Mapped<Members>, Reques
                     node_id: None,
                     reference: PathwaySourceRef {
                         namespace: crate::mapped::text(namespace)
-                            .map_err(|_| biomcp_fetch::bad_reply(Source::Reactome, Some(200)))?
+                            .map_err(|_| invalid_reply)?
                             .into(),
-                        id: crate::mapped::text(identifier)
-                            .map_err(|_| biomcp_fetch::bad_reply(Source::Reactome, Some(200)))?,
+                        id: crate::mapped::text(identifier).map_err(|_| invalid_reply)?,
                     },
                     name,
                     source_url,

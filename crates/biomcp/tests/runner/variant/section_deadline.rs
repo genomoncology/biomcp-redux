@@ -50,7 +50,10 @@ pub(super) fn check() -> Result<(), Box<dyn std::error::Error>> {
         },
         &Request::GetVariant(query),
     );
-    let body = serde_json::to_value(&outcome.body)?;
+    let biomcp_types::QueryBody::VariantCard(card) = &outcome.body else {
+        return Err(format!("variant request returned a different body: {outcome:?}").into());
+    };
+    let body = serde_json::to_value(card)?;
     for section in ["predict", "conservation"] {
         if body.pointer(&format!("/candidates/0/sections/{section}/state"))
             != Some(&Value::from("data"))

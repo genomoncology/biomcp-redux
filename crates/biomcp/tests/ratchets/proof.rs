@@ -1,3 +1,5 @@
+#[path = "helper_owner_proof.rs"]
+mod helper_owner_proof;
 use super::proof_support::{put, rejects, tree};
 use super::{Check, check};
 use std::fs;
@@ -334,31 +336,6 @@ include!("generated/mod.rs");
         wrapper,
         "suppressions forbidden",
     )?;
-    Ok(())
-}
-
-#[test]
-fn adapter_mapping_helpers_require_one_owner() -> Check {
-    for declaration in [
-        "fn bad() {}",
-        "fn bad_reply() {}",
-        "fn received_date() {}",
-        "fn root() {}",
-    ] {
-        rejects(
-            "crates/biomcp-adapters/src/example/map.rs",
-            declaration,
-            "copied helper",
-        )?;
-    }
-
-    for declaration in ["fn problem() {}", "fn text() {}"] {
-        rejects(
-            "crates/biomcp-adapters/src/example/map.rs",
-            declaration,
-            "mapping helpers belong in mapped.rs",
-        )?;
-    }
     Ok(())
 }
 

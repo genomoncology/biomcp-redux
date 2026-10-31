@@ -17,6 +17,7 @@ pub struct Search {
 }
 /// Search source-owned fields without synchronizing or parsing clinical text.
 pub fn search(leg: &Leg<'_>, query: &DiagnosticSearch) -> Result<Search, RequestError> {
+    let invalid_reply = biomcp_fetch::bad_reply(biomcp_types::Source::FdaCdx, None);
     let find = if let Some(id) = query.device_id() {
         Find::Exact(KeyKind::Id, id.as_str())
     } else if let Some(id) = query.drug_application() {
@@ -39,10 +40,7 @@ pub fn search(leg: &Leg<'_>, query: &DiagnosticSearch) -> Result<Search, Request
         }
         .into());
     }
-    let snapshot = info
-        .content_revision
-        .as_deref()
-        .ok_or_else(|| biomcp_fetch::bad_reply(biomcp_types::Source::FdaCdx, None))?;
+    let snapshot = info.content_revision.as_deref().ok_or(invalid_reply)?;
     let mut matching = Vec::new();
     for row in rows {
         let mut native = row.value;
