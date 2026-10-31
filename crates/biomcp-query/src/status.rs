@@ -201,6 +201,11 @@ pub(crate) fn search_status(sources: &[SourceOutcome], dropped: bool) -> Status 
     }
 }
 
+/// Classify synchronization from source outcomes and actual native row refusals.
+pub fn sync_status(sources: &[SourceOutcome], refusals: biomcp_adapters::Refusal) -> Status {
+    search_status(sources, refusals == biomcp_adapters::Refusal::Refused)
+}
+
 /// Combine input outcomes without hiding a failed input behind a found one.
 pub(crate) fn status(items: impl Iterator<Item = Status>) -> Status {
     let values: Vec<_> = items.collect();

@@ -163,6 +163,21 @@
           "equals": [
             {
               "source": "myvariant",
+              "field": "next",
+              "code": "value.unknown"
+            },
+            {
+              "source": "myvariant",
+              "field": "next",
+              "code": "value.unknown"
+            },
+            {
+              "source": "myvariant",
+              "field": "next",
+              "code": "value.unknown"
+            },
+            {
+              "source": "myvariant",
               "record": "chr7:g.140453136A>T",
               "field": "representations.build",
               "code": "value.unknown"
@@ -182,7 +197,7 @@
           ]
         }
       },
-      "max_bytes": 2625
+      "max_bytes": 2808
     }
   ]
 }

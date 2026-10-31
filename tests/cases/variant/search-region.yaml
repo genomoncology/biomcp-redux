@@ -17,7 +17,7 @@
         "--limit",
         "2"
       ],
-      "max_bytes": 1525,
+      "max_bytes": 1647,
       "expect": {
         "/schema": "biomcp.variant-page/16",
         "/status": "complete",
@@ -110,6 +110,16 @@
         "/sources/0/source": "myvariant",
         "/problems": {
           "equals": [
+            {
+              "source": "myvariant",
+              "field": "next",
+              "code": "value.unknown"
+            },
+            {
+              "source": "myvariant",
+              "field": "next",
+              "code": "value.unknown"
+            },
             {
               "source": "myvariant",
               "record": "chr7:g.55259515T>A",

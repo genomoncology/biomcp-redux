@@ -17,7 +17,7 @@
         "--build",
         "GRCh37"
       ],
-      "max_bytes": 1202,
+      "max_bytes": 1263,
       "expect": {
         "/schema": "biomcp.variant-page/16",
         "/status": "complete",
@@ -85,6 +85,11 @@
         "/sources/0/source": "myvariant",
         "/problems": {
           "equals": [
+            {
+              "source": "myvariant",
+              "field": "next",
+              "code": "value.unknown"
+            },
             {
               "source": "myvariant",
               "record": "chr22:g.29121326T>C",

@@ -46,8 +46,8 @@ pub use serde_json::value::RawValue;
 
 pub use batch::MAX_BATCH_WORKERS;
 pub use bundle::{
-    Bundle, BundleInfo, BundlePart, BundleRejection, BundleSet, DocumentMedia, Find, KeyKind, Keys,
-    MAX_BUNDLE_BYTES, Row, RowFormat, SetRow, bundle_sha256, decode_bundle_document,
+    Bundle, BundleInfo, BundlePart, BundleRejection, BundleSet, BundleSync, DocumentMedia, Find,
+    KeyKind, Keys, MAX_BUNDLE_BYTES, Row, RowFormat, SetRow, bundle_sha256, decode_bundle_document,
     encode_bundle_row,
 };
 pub use cache::{CACHE_NAMESPACE_VERSION, SchemaOwner, VERSION, check_owners};

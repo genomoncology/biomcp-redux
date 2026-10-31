@@ -9,7 +9,7 @@ mod run;
 mod status;
 pub use context::Ctx;
 pub use run::{Action, Bundle, run};
-pub use status::Outcome;
+pub use status::{Outcome, sync_status};
 
 mod fan_out;
 
