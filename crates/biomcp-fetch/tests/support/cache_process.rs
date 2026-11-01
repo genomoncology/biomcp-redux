@@ -179,8 +179,11 @@ fn concurrent_first_opens_and_distinct_writes_survive_into_a_new_process() {
         worker.send(b'G');
     }
     // Requests and writes overlap while the shared database writer is held.
+    let requests_started = Instant::now();
     let request_a = server.next();
+    eprintln!("cache parent: first request {:?}", requests_started.elapsed());
     let request_b = server.next();
+    eprintln!("cache parent: second request {:?}", requests_started.elapsed());
     assert_ne!(request_a.text, request_b.text);
     request_a.ok();
     request_b.ok();
@@ -240,17 +243,18 @@ fn child() {
     };
     for key in keys {
         let started = Instant::now();
-        let received = fetch
-            .leg(spec, fetch.deadline(Duration::from_secs(10)))
+        let leg = fetch.leg(spec, fetch.deadline(Duration::from_secs(10)));
+        let received = leg
             .call(
                 &endpoint,
                 Input::Params(&[("key", Arg::Text(key))]),
-                biomcp_fetch::Read::<Answer>::json()
+                biomcp_fetch::Read::<Answer>::json(),
             )
             .map(|received| received.value);
         eprintln!(
-            "cache child {key}: fetch {:?}, result {received:?}",
-            started.elapsed()
+            "cache child {key}: fetch {:?}, result {received:?}, report {:?}",
+            started.elapsed(),
+            leg.take_report()
         );
         assert!(received.unwrap().answer);
     }
