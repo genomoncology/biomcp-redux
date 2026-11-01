@@ -8,7 +8,7 @@ import subprocess
 import tempfile
 import time
 
-SCHEMA_ID = "biomcp.problem/1"
+SCHEMA_ID = "biomcp.problem/2"
 
 
 def require(condition, message):
