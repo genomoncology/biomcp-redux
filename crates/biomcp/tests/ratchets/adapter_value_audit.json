@@ -1553,6 +1553,14 @@
       "reason": "This existing optional query projection keeps its established None or fallback path. The refactor preserves the owning caller and independently retained source outcome; no new source record is silently admitted."
     },
     {
+      "path": "crates/biomcp-query/src/diagnostic/clearance.rs",
+      "site": "get: new ( q . id ( ) . as_str ( ) ) . ok ( )",
+      "maximum": 1,
+      "class": "migrated",
+      "owner": "diagnostic",
+      "reason": "The query boundary has already checked the identifier as bounded Text before retaining its native typed identity. This projection preserves the existing generic record attribution and cannot discard an admitted identifier or source record."
+    },
+    {
       "path": "crates/biomcp-query/src/diagnostic/companion.rs",
       "site": "search: ) . and_then ( | v | v . parse ( ) . ok ( )",
       "maximum": 1,
@@ -1599,6 +1607,22 @@
       "class": "migrated",
       "owner": "diagnostic",
       "reason": "This existing success or checked-selector branch retains its established failure or absence path in the owning function; it does not admit a source record by ignoring an identity error."
+    },
+    {
+      "path": "crates/biomcp-query/src/diagnostic/pma.rs",
+      "site": "selected: new ( q . id ( ) . as_str ( ) ) . ok ( )",
+      "maximum": 2,
+      "class": "migrated",
+      "owner": "diagnostic",
+      "reason": "The query boundary has already checked the identifier as bounded Text before retaining its native typed identity. This projection preserves the existing generic record attribution and cannot discard an admitted identifier or source record."
+    },
+    {
+      "path": "crates/biomcp-query/src/diagnostic/recall.rs",
+      "site": "failed: new ( q . id ( ) . as_str ( ) ) . ok ( )",
+      "maximum": 1,
+      "class": "migrated",
+      "owner": "diagnostic",
+      "reason": "The query boundary has already checked the identifier as bounded Text before retaining its native typed identity. This projection preserves the existing generic record attribution and cannot discard an admitted identifier or source record."
     },
     {
       "path": "crates/biomcp-query/src/diagnostic/recall.rs",
@@ -1657,6 +1681,14 @@
       "reason": "This existing success or checked-selector branch retains its established failure or absence path in the owning function; it does not admit a source record by ignoring an identity error."
     },
     {
+      "path": "crates/biomcp-query/src/disease/page.rs",
+      "site": "record_problem: new ( query . id ( ) . as_str ( ) ) . ok ( )",
+      "maximum": 1,
+      "class": "migrated",
+      "owner": "disease",
+      "reason": "The query boundary has already checked the identifier as bounded Text before retaining its native typed identity. This projection preserves the existing generic record attribution and cannot discard an admitted identifier or source record."
+    },
+    {
       "path": "crates/biomcp-query/src/disease/seer.rs",
       "site": "fetched: and_then ( | value | u64 : : try_from ( value ) . ok ( )",
       "maximum": 1,
@@ -1666,7 +1698,7 @@
     },
     {
       "path": "crates/biomcp-query/src/disease/seer.rs",
-      "site": "get: ) } ; let mut out = empty ( body ) ; let Ok ( selection ) = seer : : selection ( query ) else { return",
+      "site": "get: ) } ; let mut out = empty ( body ) ; let Ok ( selection ) = seer : : selection ( query , id ) else",
       "maximum": 1,
       "class": "migrated",
       "owner": "disease",
