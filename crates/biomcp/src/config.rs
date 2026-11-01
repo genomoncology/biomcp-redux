@@ -1,6 +1,7 @@
 //! The process argument and settings boundary.
 pub(crate) mod credentials;
 pub(crate) mod key_file;
+mod pacing;
 use crate::grammar::Globals;
 use biomcp_fetch::{Fetch, FetchConfig, Mode, ReplayCache, Secret, SecretName, Secrets};
 use std::{ffi::OsString, fs, path::PathBuf, sync::Arc, time::Duration};
@@ -142,6 +143,7 @@ fn fetch_using(
     let network = network(file)?;
     Fetch::open(FetchConfig {
         rate_share: globals.rate_share,
+        source_pacing: pacing::resolve(globals, file)?,
         disabled_sources: disabled_sources(globals, file)?,
         disabled_uses: biomcp_query::sources::disabled_uses(&disabled_names(globals, file)),
         observations: globals

@@ -13,7 +13,7 @@ impl ConfigError {
             && name.len() <= 96
             && name
                 .bytes()
-                .all(|b| b.is_ascii_alphanumeric() || b == b'_' || b == b'.');
+                .all(|b| b.is_ascii_alphanumeric() || b == b'_' || b == b'.' || b == b'-');
         Self(if safe {
             name.into()
         } else {
@@ -32,6 +32,7 @@ pub(crate) struct ConfigFile {
     pub(super) ncbi_email: Option<String>,
     pub(super) keys: Option<BTreeMap<String, String>>,
     pub(super) auto_sync_max_bytes: Option<u64>,
+    pub(super) source_pacing: Option<BTreeMap<String, biomcp_fetch::PacingOverride>>,
     pub(super) http_max_calls: Option<std::num::NonZeroUsize>,
     pub(super) http_max_connections: Option<std::num::NonZeroUsize>,
 }
@@ -136,6 +137,11 @@ fn diagnose(bytes: &[u8]) -> Result<ConfigFile, ConfigError> {
         ncbi_email: take(&mut map, "ncbi_email")?,
         keys,
         auto_sync_max_bytes: take(&mut map, "auto_sync_max_bytes")?,
+        source_pacing: map
+            .remove("source_pacing")
+            .filter(|v| !v.is_null())
+            .map(pacing)
+            .transpose()?,
         http_max_calls: take(&mut map, "http_max_calls")?,
         http_max_connections: take(&mut map, "http_max_connections")?,
     };
@@ -157,4 +163,19 @@ pub(crate) fn read_file(
         })
         .transpose()
         .map(Option::flatten)
+}
+
+/// Decode one map entry at a time so errors name a source without exposing values.
+pub(super) fn pacing(
+    value: Value,
+) -> Result<BTreeMap<String, biomcp_fetch::PacingOverride>, ConfigError> {
+    object(value, "source_pacing")?
+        .into_iter()
+        .map(|(name, value)| {
+            let field = format!("source_pacing.{name}");
+            serde_json::from_value(value)
+                .map(|value| (name, value))
+                .map_err(|_| ConfigError::field(&field))
+        })
+        .collect()
 }
