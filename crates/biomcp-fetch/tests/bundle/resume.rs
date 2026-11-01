@@ -7,7 +7,7 @@ fn complete_part_recovers_from_an_unsatisfiable_resume() {
     let dir = tempfile::tempdir().unwrap();
     let path = dir.path().join("cache.sqlite");
     let fetch = cached(&path);
-    let invalid = "wrong\theader\nBRAF\tkinase\n";
+    let invalid = "symbol\tsymbol\nBRAF\tkinase\n";
     assert!(matches!(
         sync_reply(&fetch, &bundle, &server, 200, "ETag: \"one\"\r\n", invalid),
         Err(biomcp_fetch::RequestError::Source(error))
