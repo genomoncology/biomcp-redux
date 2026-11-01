@@ -69,7 +69,10 @@ fn hidden_save(request: &Request) -> bool {
     };
     destination.is_some_and(|path| {
         let path = std::path::Path::new(path.as_str());
-        dotted(path)
+        path.as_os_str()
+            .to_string_lossy()
+            .split(['/', '\\'])
+            .any(|part| part.starts_with('.'))
             || std::fs::canonicalize(path)
                 .or_else(|_| std::fs::canonicalize(path.parent().unwrap_or(path)))
                 .is_ok_and(|resolved| dotted(&resolved))

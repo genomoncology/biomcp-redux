@@ -135,10 +135,7 @@ fn run_inner(
                 .collect::<Result<_, _>>()?,
         });
     }
-    let key = if let Command::Set(name, replace) = command {
-        if stored(&crate::config::key_file::read(&path)?, name).is_some() && !replace {
-            return Err(Failure::Replace);
-        }
+    let key = if matches!(command, Command::Set(..)) {
         Some(input()?)
     } else {
         None

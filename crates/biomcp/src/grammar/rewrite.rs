@@ -9,7 +9,6 @@ pub(super) fn request(
     verb: &str,
     entity: &str,
     mut value: Value,
-    _matches: &clap::ArgMatches,
 ) -> Result<Request, QueryInvalid> {
     match via {
         Rewrite::Direct | Rewrite::GetPhenotype => direct(verb, entity, value),
