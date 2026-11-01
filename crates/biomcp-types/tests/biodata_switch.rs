@@ -43,3 +43,50 @@ fn accessions_write_canonical_variable_width_numbers() -> Result<(), Box<dyn std
     }
     Ok(())
 }
+
+#[test]
+fn consumer_parser_errors_keep_existing_codes() {
+    for (input, code) in [("HGNC:0", "id.hgnc.invalid"), ("0", "id.ncbi_gene.invalid")] {
+        let error = input
+            .parse::<biomcp_types::GeneInput>()
+            .expect_err("invalid gene selector");
+        assert_eq!(
+            error.to_string(),
+            code,
+            "selector retains its namespace error"
+        );
+    }
+    let article = "0"
+        .parse::<biomcp_types::ArticleInput>()
+        .expect_err("invalid PMID");
+    assert_eq!(
+        article.to_string(),
+        "id.article.invalid",
+        "article error remains stable"
+    );
+    for value in [f64::NAN, f64::INFINITY, -1.0] {
+        let error = biomcp_types::RnaAbundance::try_from(value).expect_err("invalid abundance");
+        assert_eq!(
+            error.to_string(),
+            "number.value.non_finite",
+            "abundance error remains stable"
+        );
+    }
+    let invalid = "2024-02-30T12:00:00";
+    let local = invalid
+        .parse::<biomcp_types::SourceLocalTimestampValue>()
+        .expect_err("invalid local date");
+    let timestamp = format!("{invalid}Z")
+        .parse::<biomcp_types::SourceTimestampValue>()
+        .expect_err("invalid date");
+    assert_eq!(
+        local.to_string(),
+        "date.invalid",
+        "local date error remains stable"
+    );
+    assert_eq!(
+        timestamp.to_string(),
+        "date.invalid",
+        "date error remains stable"
+    );
+}
