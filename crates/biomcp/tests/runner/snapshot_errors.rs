@@ -39,12 +39,12 @@ fn corrupted() -> Check {
 fn name_lookup() -> Check {
     let env = Environment::new()?;
     let replay = env.root().join("recordings");
-    copy_capture("author/synthetic", &replay, |_, _| {})?;
-    copy_capture("author/papers", &replay, |_, record| {
-        if let Some(url) = record.get_mut("url").and_then(serde_json::Value::as_str).map(str::to_owned) {
-            record["url"] = json!(url.replace("/author/123/", "/author/2162869982/"));
+    copy_capture("author/synthetic", &replay, |_, record| {
+        if let Some(id) = record.pointer_mut("/exchanges/0/body/value/data/0/authorId") {
+            *id = json!("123");
         }
     })?;
+    copy_capture("author/papers", &replay, |_, _| {})?;
     let search = ["search", "author", "Louis Williams"].map(str::to_owned);
     let found = command(&env, &search, &env.globals(Some(&replay), false), 0)?;
     let id = found.pointer("/result/items/0/id").and_then(serde_json::Value::as_str).ok_or("author ID")?;
