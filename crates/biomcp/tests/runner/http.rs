@@ -33,6 +33,10 @@ pub(super) fn trials() -> Vec<Trial> {
     ]
 }
 
+#[expect(
+    clippy::disallowed_types,
+    reason = "Serialize diagnostic observations while HTTP callers share the server"
+)]
 pub(super) struct Server {
     pub(super) child: Child,
     pub(super) address: SocketAddr,

@@ -12,6 +12,10 @@ impl Server {
     ) -> Result<Self, String> {
         Self::configured_globals(bind, config, replay, key, allowed_host, &[])
     }
+    #[expect(
+        clippy::disallowed_types,
+        reason = "Own the HTTP diagnostic receiver shared by concurrent test callers"
+    )]
     pub(in crate::runner) fn configured_globals(
         bind: &str,
         config: Option<Value>,
