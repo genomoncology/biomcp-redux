@@ -323,6 +323,11 @@ fn scientific_vocabularies_preserve_identity() -> Check {
         assert!(serde_json::from_value::<biodata::EnsemblFeature>(json!("ENSG")).is_err());
         assert!(serde_json::from_value::<biodata::EnsemblFeature>(json!("gene!")).is_err());
     }
+    Ok(())
+}
+
+#[test]
+fn population_and_assertion_vocabularies_preserve_identity() -> Check {
     value_contract::<biodata::PopulationDataType>(&["exomes"], &["exomes!"])?;
     value_contract::<biodata::PopulationSex>(&["xx"], &["xx!"])?;
     value_contract::<biodata::GenotypeFilter>(&["raw"], &["raw!"])?;
