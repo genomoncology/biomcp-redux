@@ -42,5 +42,13 @@ policy)
     cargo clippy --workspace --all-targets --locked -- -D warnings
     cargo test --locked -p biomcp --test ratchets -- --test-threads=4
     ;;
+contracts)
+    cargo test --locked -p biomcp-types --features schema --test biodata_switch --test gene_ids --test protein_contracts --test rust_api --test value_conventions --test variant_values
+    cargo test --locked -p biomcp-types --features schema --test schemas policy::
+    ;;
+case)
+    cargo build --locked -p biomcp --bin biomcp
+    cargo test --locked -p biomcp --test cases -- "${4:?case name required}" --exact --test-threads=1
+    ;;
 *) echo 'unknown switch check phase' >&2; exit 1;;
 esac
