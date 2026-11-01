@@ -20,7 +20,7 @@ class ReplyDiff(ReplyDiffCase):
             with self.subTest(pointer=pointer):
                 self.write(self.head, key, stdout, code)
                 result = self.compare()
-                self.assertEqual(result.returncode, 987, result.stderr)
+                self.assertEqual(result.returncode, 1, result.stderr)
                 self.assertIn(key, result.stdout)
                 self.assertIn(pointer, result.stdout)
 
