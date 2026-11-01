@@ -1,7 +1,6 @@
 """Local release commands refuse to mislabel modified source as a clean commit."""
 import os
 from pathlib import Path
-import shutil
 import subprocess
 import sys
 import tempfile
@@ -11,6 +10,27 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class SourceRevision(unittest.TestCase):
+    def test_python_check_imports_leave_release_source_clean(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory) / 'source'
+            subprocess.run(['git', 'clone', '--quiet', '--shared', str(ROOT), str(root)], check=True)
+            env = dict(os.environ, GIT_CONFIG_COUNT='1', GIT_CONFIG_KEY_0='core.excludesFile',
+                       GIT_CONFIG_VALUE_0='')
+            for name in ('BIOMCP_BUILD_REVISION', 'PYTHONDONTWRITEBYTECODE', 'PYTHONPYCACHEPREFIX'):
+                env.pop(name, None)
+            subprocess.run([sys.executable, '-c', 'import release.artifacts; import scripts.trials'],
+                           cwd=root, env=env, check=True)
+            for name in ('release', 'scripts'):
+                self.assertTrue(list((root / name / '__pycache__').glob('*.pyc')))
+            status = subprocess.check_output(['git', 'status', '--porcelain', '--untracked-files=all'],
+                                             cwd=root, env=env, text=True)
+            self.assertEqual(status, '')
+            result = subprocess.run([sys.executable, 'release/source_revision.py'], cwd=root, env=env,
+                                    capture_output=True, text=True, timeout=30)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(result.stdout.strip(), subprocess.check_output(
+                ['git', 'rev-parse', 'HEAD'], cwd=root, env=env, text=True).strip())
+
     def test_local_recipes_refuse_dirty_source_before_build_or_download(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory) / 'source'
