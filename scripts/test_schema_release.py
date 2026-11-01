@@ -83,8 +83,12 @@ class SchemaRelease(unittest.TestCase):
                             or not (member.isfile() or member.isdir())):
                         raise ValueError(f"unsafe source archive member: {member.name}")
                 tree.extractall(candidate, members=members)
+            # Keep the job's compiled dependencies when the source copy changes.
+            target = Path(os.environ.get("CARGO_TARGET_DIR", ROOT / "target")).resolve()
+            environment = dict(os.environ, CARGO_TARGET_DIR=str(target))
             command = [sys.executable, str(candidate / "scripts/schema_release.py")]
-            subprocess.run(command + ["--generate"], cwd=candidate, check=True)
+            subprocess.run(command + ["--generate"], cwd=candidate, env=environment, check=True)
+            self.assertFalse((candidate / "target").exists(), "schema proof must reuse the job target")
             # The mechanism test owns its baseline; release qualification owns the release copy.
             schemas = sorted((candidate / "crates/biomcp-types/schemas").glob("*.json"))
             baseline_archive = candidate / "mechanism-baseline.tar.gz"
@@ -101,7 +105,7 @@ class SchemaRelease(unittest.TestCase):
                 "schemas": [schema.name for schema in schemas],
             }))
             command += ["--baseline", str(baseline)]
-            subprocess.run(command, cwd=candidate, check=True)
+            subprocess.run(command, cwd=candidate, env=environment, check=True)
             # Narrow the shared class in both scalar patterns and derived snapshots.
             before, after = "[ACGTNRYSWKMBDHV]", "[ACGT]"
             source = candidate / "crates/biodata/src/variant/sequence.rs"
@@ -113,9 +117,9 @@ class SchemaRelease(unittest.TestCase):
             subprocess.run([
                 "cargo", "test", "--locked", "-p", "biomcp-types", "--features", "schema",
                 "--test", "schemas", "checked_in_schemas_match_types", "--", "--exact",
-            ], cwd=candidate, check=True)
+            ], cwd=candidate, env=environment, check=True)
             result = subprocess.run(
-                command, cwd=candidate,
+                command, cwd=candidate, env=environment,
                 capture_output=True, text=True,
             )
             self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)

@@ -21,6 +21,8 @@ case "${1:-focused}" in
     ;;
   focused)
     python3.13 -m unittest release.test_licenses release.test_publication
+    df -k . "${TMPDIR:-/tmp}"
+    trap 'df -k . "${TMPDIR:-/tmp}"; du -sk "$CARGO_TARGET_DIR"' EXIT
     python3.13 scripts/test_schema_release.py
     ;;
   *) exit 2 ;;

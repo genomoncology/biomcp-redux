@@ -47,7 +47,8 @@ def generate(output):
     for entry in policy.get('exceptions', []):
         config.setdefault(entry['name'], {'accepted': []})['accepted'] += entry['allow']
     # Derive the tool's policy from the existing reviewed dependency policy.
-    lines = ['accepted = ' + json.dumps(config.pop('accepted')), 'workarounds = ["ring"]']
+    lines = ['accepted = ' + json.dumps(config.pop('accepted')), 'workarounds = ["ring"]',
+             'ignore-dev-dependencies = true', 'ignore-build-dependencies = true']
     for name, entry in sorted(config.items()):
         lines += ['[' + name + ']', 'accepted = ' + json.dumps(sorted(set(entry['accepted'])))]
     with tempfile.TemporaryDirectory(prefix='biomcp-notices-') as temp:
