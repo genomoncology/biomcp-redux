@@ -30,6 +30,7 @@ def main():
         root = Path(directory)
         for name in (
             "ROADMAP.md",
+            "README.md",
             "skills/SKILL.md",
             "docs/reference/commands.md",
             "sdlc/features.md",
@@ -49,6 +50,12 @@ def main():
             "crates/biomcp-adapters",
         ):
             shutil.copytree(ROOT / name, root / name)
+        readme = root / "README.md"
+        original_readme = readme.read_text()
+        readme.write_text(original_readme.replace("get gene KRAS", "get gene INVENTED"))
+        result = check(root)
+        assert result.returncode != 0 and "README examples differ" in result.stderr, result
+        readme.write_text(original_readme)
         architecture = root / "sdlc/planning/architecture.md"
         original_architecture = architecture.read_text()
         for name in re.findall(r"Check: `([^`]+)`", original_architecture):

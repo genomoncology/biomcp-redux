@@ -109,7 +109,7 @@ docs-check:
 	python3 scripts/test_trials.py
 	python3 scripts/test_nightly_live_check.py
 	python3 -m unittest release.test_installer release.test_checks release.test_gate release.test_windows
-	python3 -m unittest release.test_workflow release.test_security release.test_licenses
+	python3 -m unittest release.test_workflow release.test_security release.test_licenses release.test_docs
 	python3 -m unittest release.test_source_revision release.test_workflow_contracts release.test_publication release.test_promotion
 .PHONY: release-linux
 release-linux:
