@@ -18,7 +18,6 @@ csv.workspace = true
 flate2.workspace = true
 biomcp-types = { workspace = true }
 url.workspace = true
-biodata = { workspace = true }
 serde.workspace = true
 serde_json = { workspace = true, features = ["raw_value"] }
 ureq.workspace = true

@@ -56,6 +56,8 @@ pub(super) fn rows(
                 locations,
                 member_signatures: signatures.clone().into(),
                 attribution: Attribution {
+                    approved: None,
+                    published: None,
                     source: crate::mapped::text("interpro").map_err(|_| {
                         biomcp_fetch::bad_reply(biomcp_types::Source::InterPro, Some(200))
                     })?,

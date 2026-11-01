@@ -21,7 +21,7 @@ fn variant_consumer_reads_coding_representations_statements_and_frequencies() ->
             allele: None,
         }]
         .into(),
-        genes: vec![GeneRef::try_from(GeneSymbol::new("EGFR")?)?].into(),
+        genes: vec![SourceGeneRef::try_from(GeneSymbol::new("EGFR")?)?].into(),
     };
     let coding = variant
         .representations
@@ -35,6 +35,8 @@ fn variant_consumer_reads_coding_representations_statements_and_frequencies() ->
     );
     let subject = VariantRef::allele_hgvs(notation.parse()?);
     let attribution = Attribution {
+        approved: None,
+        published: None,
         source: Text::new("synthetic")?,
         record: None,
         version: None,
@@ -86,7 +88,7 @@ fn variant_consumer_reads_coding_representations_statements_and_frequencies() ->
 
 #[test]
 fn consumers_read_each_subject_level_without_json() -> Check {
-    let gene = GeneRef::try_from(GeneSymbol::new("EGFR")?)?;
+    let gene = SourceGeneRef::try_from(GeneSymbol::new("EGFR")?)?;
     let allele = VariantRef::allele("VCV000013961.3".parse()?);
     let protein = VariantRef::protein_hgvs(
         gene.clone(),

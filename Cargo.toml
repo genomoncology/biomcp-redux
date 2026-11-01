@@ -1,5 +1,6 @@
 [workspace]
-members = ["crates/biomcp-types", "crates/biodata", "crates/biomcp-adapters", "crates/biomcp-fetch", "crates/biomcp-query", "crates/biomcp"]
+members = ["crates/biomcp-types", "crates/biomcp-adapters", "crates/biomcp-fetch", "crates/biomcp-query", "crates/biomcp"]
+exclude = ["crates/biodata"]
 resolver = "3"
 
 [workspace.package]
@@ -21,7 +22,7 @@ debug = "line-tables-only"
 debug = false
 
 [workspace.dependencies]
-biodata = { version = "=1.0.0", path = "crates/biodata" }
+biodata = { version = "=1.0.0", git = "https://github.com/genomoncology/biodata-next", rev = "859d6539797586a13317763a38a0ea4ab5d616a5", features = ["schema"] }
 biomcp-adapters = { version = "=1.0.0", path = "crates/biomcp-adapters" }
 biomcp-fetch = { version = "=1.0.0", path = "crates/biomcp-fetch" }
 biomcp-query = { version = "=1.0.0", path = "crates/biomcp-query" }

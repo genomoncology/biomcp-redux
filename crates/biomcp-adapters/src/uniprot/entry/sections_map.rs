@@ -89,6 +89,8 @@ pub(super) fn features(
                     evidence: evidence(evidence_rows.into_vec(), p),
                 },
                 attribution: Attribution {
+                    approved: None,
+                    published: None,
                     source: p
                         .optional("attribution.source", Some(crate::mapped::text("uniprot")))?,
                     record: crate::mapped::record(id),

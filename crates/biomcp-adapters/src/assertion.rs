@@ -26,7 +26,7 @@ pub(crate) fn row(
         let coding = acmg(&label, row.detail.as_ref());
         let clinvar = attribution.source.as_str() == "clinvar";
         let mut statement = Statement::new(
-            subject,
+            subject.into(),
             proposition,
             Term {
                 label,

@@ -264,16 +264,16 @@ fn identifier_levels_are_checked_and_never_promoted() {
 }
 #[test]
 fn gene_references_keep_only_stated_ids_and_require_a_label() {
-    use biodata::GeneRef;
+    use biodata::SourceGeneRef;
     let text = r#"{"label":"BRAF","ncbi_gene_id":"673"}"#;
-    let value: GeneRef = serde_json::from_str(text).expect("source ids");
+    let value: SourceGeneRef = serde_json::from_str(text).expect("source ids");
     assert!(value.hgnc_id().is_none());
     assert_eq!(value.ncbi_gene_id().expect("stated id").get(), 673);
     assert_eq!(
         serde_json::to_value(value).expect("serialize"),
         serde_json::from_str::<serde_json::Value>(text).expect("json")
     );
-    assert!(serde_json::from_str::<GeneRef>(r#"{"label":" "}"#).is_err());
+    assert!(serde_json::from_str::<SourceGeneRef>(r#"{"label":" "}"#).is_err());
 }
 #[test]
 fn interval_comparison_requires_both_source_builds() {
