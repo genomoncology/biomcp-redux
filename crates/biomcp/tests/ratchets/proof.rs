@@ -557,7 +557,15 @@ fn module_shape_rejects_new_source_debt() -> Check {
             .to_string();
         assert!(failure.contains("parent modules with logic"), "{failure}");
     }
-    for literal in ["'{'", "'}'", "'\"'", "'\\''", "'\\\\'", "r#\"\" }\"#", "br##\"\" }\"##"] {
+    for literal in [
+        "'{'",
+        "'}'",
+        "'\"'",
+        "'\\''",
+        "'\\\\'",
+        "r#\"\" }\"#",
+        "br##\"\" }\"##",
+    ] {
         put(
             root,
             parent,

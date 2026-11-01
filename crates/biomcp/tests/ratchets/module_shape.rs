@@ -124,15 +124,6 @@ fn shape(input: &[String]) -> (bool, bool) {
 fn group_end(input: &[String], start: usize, open: &str, close: &str) -> usize {
     let mut depth = 0;
     for (index, token) in input.iter().enumerate().skip(start) {
-        // A quoted delimiter is a character literal, not Rust item structure.
-        if index
-            .checked_sub(1)
-            .and_then(|index| input.get(index))
-            .is_some_and(|previous| previous == "'")
-            && input.get(index + 1).is_some_and(|next| next == "'")
-        {
-            continue;
-        }
         if token == open {
             depth += 1;
         }
