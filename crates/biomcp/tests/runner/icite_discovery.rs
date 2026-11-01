@@ -1,5 +1,5 @@
 //! Source-owned citation order and rebatching through the checked adapter boundary.
-use super::super::{launch::Environment, network_stub::Stub};
+use super::super::super::{launch::Environment, network_stub::Stub};
 use biomcp_fetch::{Certificates, Fetch, FetchConfig, Network, Observations};
 use serde_json::json;
 use std::{fs, sync::Arc, time::Duration};
@@ -83,7 +83,7 @@ pub(super) fn prove() -> Result<(), Box<dyn std::error::Error>> {
             &report,
             serde_json::to_vec(&json!({"baseline":sides[0],"live":sides[1],"ordinal":1}))?,
         )?;
-        let script = super::super::launch::fixtures()
+        let script = super::super::super::launch::fixtures()
             .parent()
             .ok_or("missing root")?
             .join("scripts/icite_discovery_proof.py");
