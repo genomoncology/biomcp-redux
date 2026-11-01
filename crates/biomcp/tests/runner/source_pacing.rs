@@ -29,7 +29,7 @@ fn check() -> Result<(), String> {
         ("typo", json!({"in_flight":1})),
     ] {
         env.config(&json!({"source_pacing":{source:value}})).map_err(|e| e.to_string())?;
-        let rejected = invoke(&env, args.clone(), 2)?;
+        let rejected = invoke(&env, args.clone(), 5)?;
         if !rejected.to_string().contains(&format!("source_pacing.{source}")) {
             return Err(format!("pacing error did not name {source}: {rejected}"));
         }
