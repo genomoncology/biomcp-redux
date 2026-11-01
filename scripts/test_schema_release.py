@@ -85,7 +85,7 @@ class SchemaRelease(unittest.TestCase):
             # Plant a same-major narrowing in both generated types and snapshots.
             before, after = "^[ACGTNRYSWKMBDHV]$", "^[ACGT]$"
             source = candidate / "crates/biodata/src/variant/sequence.rs"
-            self.assertNotIn(before, source.read_text())
+            self.assertIn(before, source.read_text())
             source.write_text(source.read_text().replace(before, after))
             for schema in (candidate / "crates/biomcp-types/schemas").glob("*.json"):
                 schema.write_text(schema.read_text().replace(before, after))
