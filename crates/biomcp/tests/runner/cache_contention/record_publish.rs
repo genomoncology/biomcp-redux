@@ -6,7 +6,7 @@ use std::{
     sync::{Arc, Mutex},
 };
 
-pub(super) fn check(device: bool) -> Result<(), String> {
+pub(super) fn check(device: bool, section: Option<&str>) -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let path = env.root().join(format!(
         "cache/biomcp/cache-{}-{}.sqlite",
@@ -39,7 +39,7 @@ pub(super) fn check(device: bool) -> Result<(), String> {
     fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
     env.config(&json!({"proxy":format!("http://{}",stub.address),"ca_bundle":ca}))
         .map_err(|e| e.to_string())?;
-    let args = if device {
+    let mut args = if device {
         vec!["get", "adverse-event", "160", "--source", "maude"]
     } else {
         vec!["get", "adverse-event", "100"]
@@ -47,6 +47,21 @@ pub(super) fn check(device: bool) -> Result<(), String> {
     .into_iter()
     .map(str::to_owned)
     .collect::<Vec<_>>();
+    if let Some(section) = section {
+        args.push(section.to_owned());
+        if matches!(
+            section,
+            "unii"
+                | "rxcui"
+                | "product-ndc"
+                | "package-ndc"
+                | "spl-id"
+                | "spl-set-id"
+                | "application-number"
+        ) {
+            args.extend(["--drug-index".into(), "0".into()]);
+        }
+    }
     let output = env
         .command(env!("CARGO_BIN_EXE_biomcp"), &args)
         .output()

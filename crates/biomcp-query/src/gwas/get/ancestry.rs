@@ -76,8 +76,10 @@ pub(super) fn read(
         let unavailable = false;
         crate::status::item(out, true, false, unavailable);
     };
+    let retained = token.is_some();
     let navigation = token.map_or_else(|| q.clone(), |t| q.with_page(window.with_snapshot(t)));
     let (items, continuation) = page(&navigation, &saved.0, out);
+    let continuation = continuation.filter(|_| retained);
     out.body = (GwasAncestries {
         study: id.clone(),
         items,

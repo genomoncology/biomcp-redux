@@ -35,12 +35,30 @@ pub(super) fn trials() -> Vec<Trial> {
     ));
     trials.push(transcript_trial(
         "adverse-event-get/late-store-lock-keeps-fetched-faers-record",
-        || record_publish::check(false).map_err(Into::into),
+        || record_publish::check(false, None).map_err(Into::into),
     ));
     trials.push(transcript_trial(
         "maude-reports/late-store-lock-keeps-fetched-maude-record",
-        || record_publish::check(true).map_err(Into::into),
+        || record_publish::check(true, None).map_err(Into::into),
     ));
+    for (device, section) in [
+        (false, "drugs"),
+        (false, "reactions"),
+        (false, "unii"),
+        (false, "rxcui"),
+        (false, "product-ndc"),
+        (false, "package-ndc"),
+        (false, "spl-id"),
+        (false, "spl-set-id"),
+        (false, "application-number"),
+        (true, "devices"),
+        (true, "narrative"),
+    ] {
+        trials.push(transcript_trial(
+            format!("cache-resilience/late-store-lock-keeps-fetched-{section}"),
+            move || record_publish::check(device, Some(section)).map_err(Into::into),
+        ));
+    }
     trials.extend(store_locks::trials());
     trials.push(transcript_trial(
         "article-search/late-store-lock-keeps-fetched-items",

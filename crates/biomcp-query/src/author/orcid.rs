@@ -108,7 +108,7 @@ fn execute(
             ),
             out,
         )?;
-        (groups, source, Some(pool))
+        (groups, source, pool)
     };
     present(q, id, out, groups, source, pool);
     Ok(())

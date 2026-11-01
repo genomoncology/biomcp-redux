@@ -1,7 +1,6 @@
 //! Retained UniProt windows bind literal selectors and hide native cursors.
 use super::next;
 use crate::{Ctx, Outcome, source_snapshot, status, store::Pool};
-use biodata::Text;
 use biomcp_adapters::uniprot;
 use biomcp_fetch::{Deadline, RequestError};
 use biomcp_types::Paged;
