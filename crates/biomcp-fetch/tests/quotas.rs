@@ -56,23 +56,19 @@ fn quota(key: &'static str, rate: Rate, keyed: Option<Rate>, in_flight: u8) -> &
     )))
 }
 
-fn serial_override(shared: &Quota) -> Fetch {
+fn serial_override(shared: &Quota) -> Result<Fetch, Box<dyn std::error::Error>> {
     let mut source_pacing = biomcp_fetch::SourcePacing::default();
-    source_pacing
-        .insert(
-            shared,
-            biomcp_fetch::PacingOverride {
-                in_flight: Some(1),
-                ..Default::default()
-            },
-        )
-        .unwrap();
-    let fetch = Fetch::open(FetchConfig {
+    source_pacing.insert(
+        shared,
+        biomcp_fetch::PacingOverride {
+            in_flight: Some(1),
+            ..Default::default()
+        },
+    )?;
+    Ok(Fetch::open(FetchConfig {
         source_pacing,
         ..Default::default()
-    })
-    .unwrap();
-    fetch
+    })?)
 }
 
 #[test]
@@ -85,7 +81,7 @@ fn canceled_waiter_leaves_shared_in_flight_queue_and_releases_successor() {
         quota("independent", Rate::per_second(1000), None, 1),
         KeyUse::None,
     );
-    let fetch = serial_override(shared);
+    let fetch = serial_override(shared).unwrap();
     let restricted = fetch.restrict_sources([biomcp_types::Source::Oncokb].into());
     assert!(!fetch.disabled(biomcp_types::Source::Oncokb));
     assert!(
