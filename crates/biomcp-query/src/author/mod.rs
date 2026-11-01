@@ -74,5 +74,4 @@ struct NativePages<P> {
     pages: Vec<P>,
     source: biomcp_types::SourceOutcome,
     key_needed: bool,
-    refusals: Vec<bool>,
 }

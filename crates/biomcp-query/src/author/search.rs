@@ -65,7 +65,6 @@ fn execute(
     } else {
         (
             super::NativePages {
-                refusals: vec![],
                 pages: vec![],
                 key_needed: false,
                 source: biomcp_adapters::registry::outcome(
@@ -77,10 +76,10 @@ fn execute(
             None,
         )
     };
-    for (page, refused) in saved.pages.iter_mut().zip(&saved.refusals) {
+    for (page, refused) in &mut saved.pages {
         page.restore_refusals(*refused);
     }
-    let cached = saved.pages.iter().any(|p| p.offset() == q.offset());
+    let cached = saved.pages.iter().any(|p| p.0.offset() == q.offset());
     if !cached {
         let leg = cx
             .fetch
@@ -99,10 +98,8 @@ fn execute(
         }
         saved.key_needed |= key_needed;
         let page = result?;
-        saved
-            .refusals
-            .push(page.refusals() == biomcp_adapters::Refusal::Refused);
-        saved.pages.push(page);
+        let refused = page.refusals() == biomcp_adapters::Refusal::Refused;
+        saved.pages.push((page, refused));
         status::retain_source_state(&mut saved.source, &source);
     }
     let pool = if cached {
@@ -112,7 +109,7 @@ fn execute(
             cx,
             &key,
             &saved,
-            saved.pages.iter().map(|p| p.len() as u32).sum(),
+            saved.pages.iter().map(|p| p.0.len() as u32).sum(),
             std::slice::from_ref(&saved.source),
             old_pool,
             deadline,
@@ -123,14 +120,15 @@ fn execute(
 fn present(
     q: &AuthorSearch,
     out: &mut Outcome,
-    saved: super::NativePages<author::Page>,
+    saved: super::NativePages<(author::Page, bool)>,
     pool: crate::store::Pool,
 ) -> Result<(), RequestError> {
     let page = saved
         .pages
         .into_iter()
-        .find(|p| p.offset() == q.offset())
-        .ok_or(biomcp_fetch::CacheError::Database)?;
+        .find(|p| p.0.offset() == q.offset())
+        .ok_or(biomcp_fetch::CacheError::Database)?
+        .0;
     let next = page.next();
     let total = page.total();
     let mapped = page.headers();
@@ -182,18 +180,18 @@ fn retained(
     key: &[u8],
     deadline: Deadline<'_>,
     out: &mut Outcome,
-) -> Result<Option<(super::NativePages<author::Page>, crate::store::Pool)>, RequestError> {
+) -> Result<Option<(super::NativePages<(author::Page, bool)>, crate::store::Pool)>, RequestError> {
     let (saved, mismatch) = if cx.fresh {
         (None, false)
     } else {
-        snapshot::find::<super::NativePages<author::Page>>(cx, key, q.pool(), deadline)?
+        snapshot::find::<super::NativePages<(author::Page, bool)>>(cx, key, q.pool(), deadline)?
     };
     let saved = saved.filter(|(saved, _)| {
-        saved.pages.iter().any(|p| q.offset() == p.offset())
+        saved.pages.iter().any(|p| q.offset() == p.0.offset())
             || saved
                 .pages
                 .last()
-                .is_some_and(|p| p.next() == Some(q.offset()))
+                .is_some_and(|p| p.0.next() == Some(q.offset()))
     });
     if saved.is_none() && q.pool().is_some() {
         out.body = ReplyData::PoolError { mismatch };

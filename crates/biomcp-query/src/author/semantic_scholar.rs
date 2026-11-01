@@ -62,7 +62,6 @@ fn execute(
     } else {
         (
             super::NativePages {
-                refusals: vec![],
                 pages: vec![],
                 key_needed: false,
                 source: biomcp_adapters::registry::outcome(
