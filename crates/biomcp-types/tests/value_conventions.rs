@@ -132,7 +132,10 @@ fn coordinates_enforce_integer_bounds_and_half_open_span_order() {
         json!([0, 1]),
         json!(null),
     ] {
-        assert!(serde_json::from_value::<Span0>(value).is_err());
+        assert!(
+            serde_json::from_value::<Span0>(value.clone()).is_err(),
+            "Span0 admitted {value}"
+        );
     }
 }
 

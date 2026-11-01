@@ -43,8 +43,10 @@ policy)
     cargo test --locked -p biomcp --test ratchets -- --test-threads=4
     ;;
 contracts)
-    cargo test --locked -p biomcp-types --features schema --test biodata_switch --test gene_ids --test protein_contracts --test rust_api --test value_conventions --test variant_values
-    cargo test --locked -p biomcp-types --features schema --test schemas policy::
+    status=0
+    cargo test --locked --no-fail-fast -p biomcp-types --features schema --test biodata_switch --test gene_ids --test protein_contracts --test rust_api --test value_conventions --test variant_values || status=1
+    cargo test --locked -p biomcp-types --features schema --test schemas policy:: || status=1
+    exit "$status"
     ;;
 case)
     cargo build --locked -p biomcp --bin biomcp
