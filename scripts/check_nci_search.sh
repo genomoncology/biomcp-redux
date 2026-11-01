@@ -2,6 +2,12 @@
 # Reuse the existing NCI cases and transcript comparator for this shared flow.
 set -eu
 case "${1:-focused}" in
+qualify)
+    make fmt lint ratchets
+    sh "$0" focused
+    sh "$0" cases
+    sh "$0" diagnostic "$2" "$3"
+    ;;
 focused)
     cargo test --locked -p biomcp --test cases organization
     cargo test --locked -p biomcp --test cases biomarker
@@ -39,5 +45,5 @@ PY
     done
     python3 scripts/reply_diff.py "$destination/reference" "$destination/current"
     ;;
-*) echo 'expected focused, cases or diagnostic REFERENCE DESTINATION' >&2; exit 2 ;;
+*) echo 'expected focused, cases, diagnostic or qualify REFERENCE DESTINATION' >&2; exit 2 ;;
 esac
