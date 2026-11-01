@@ -162,7 +162,10 @@ jobs:
         run: python3 release/workflow.py subjects --artifacts staged --output "$RUNNER_TEMP/subjects.sha256"
       # https://github.com/actions/attest/tree/v4.2.2
       # No registry push or storage record needs additional write permissions.
+      # Private no-op rehearsals cannot sign on GitHub Team. Release tags always sign.
       - name: Attest every staged artifact
+        id: provenance
+        if: github.event_name != 'workflow_dispatch' || inputs.rehearsal != true || github.event.repository.private != true
         uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
         with:
           subject-checksums: ${{ runner.temp }}/subjects.sha256
@@ -173,12 +176,24 @@ jobs:
           name: release-candidate
           path: staged
           if-no-files-found: error
+      - name: Retain every staged artifact checksum
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: release-subject-checksums
+          path: ${{ runner.temp }}/subjects.sha256
+          if-no-files-found: error
       - name: State the rehearsal boundary
+        env:
+          SIGNED: ${{ steps.provenance.outcome == 'success' }}
         run: |
           {
             echo 'All five native install gates, both Linux container gates and publication payload checks passed.'
             echo 'No channel was published. Authentication, uploads, directory acceptance, site delivery and latest pointer movement remain unexercised.'
-            echo 'Every staged file has signed build provenance. Verify downloaded files against this repository, workflow and source commit.'
+            if [ "$SIGNED" = true ]; then
+              echo 'Every staged file has signed build provenance. Verify downloaded files against this repository, workflow and source commit.'
+            else
+              echo 'Unsigned private rehearsal: GitHub Team cannot attest private artifacts. Retained checksums and candidate source commit bind the outputs but do not provide signed provenance.'
+            fi
           } >> "$GITHUB_STEP_SUMMARY"
 
   staged-homebrew:
