@@ -16,6 +16,9 @@ case "${1:-focused}" in
     cargo deny --version
     cargo deny --locked check licenses
     ;;
+  fixture)
+    python3.13 -m unittest release.test_licenses.Licensing.test_generation_excludes_dependencies_that_do_not_ship
+    ;;
   focused)
     python3.13 -m unittest release.test_licenses release.test_publication
     python3.13 scripts/test_schema_release.py
