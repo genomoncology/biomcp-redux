@@ -170,10 +170,17 @@ impl DiagnosticGet {
             record: self.record.clone(),
         })
     }
-    /// Select a supplement while retaining the parsed source identity.
+    /// Open a base or supplemental card with the original constructor defaults.
     pub fn with_supplement(&self, supplement: Option<PmaSupplement>) -> Result<Self, QueryInvalid> {
-        let mut fields = self.fields.clone();
-        fields.supplement = supplement;
+        let fields = GetFields {
+            id: self.fields.id.clone(),
+            source: self.source(),
+            section: None,
+            supplement,
+            section_limit: None,
+            section_offset: 0,
+            bundle_revision: None,
+        };
         validate_source(&fields)?;
         Ok(Self {
             fields,

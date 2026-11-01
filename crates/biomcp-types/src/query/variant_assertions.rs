@@ -131,6 +131,31 @@ impl VariantAssertionsGet {
         }
         .try_into()
     }
+    /// Select the assertion provider and page from a parsed candidate identity.
+    pub fn from_identity(
+        id: crate::VariantId,
+        limit: u32,
+        offset: u32,
+    ) -> Result<Self, crate::QueryInvalid> {
+        let source = match &id {
+            crate::VariantId::ClinVarVariation(_) => AssertionSource::Clinvar,
+            crate::VariantId::Ca(_) => AssertionSource::Erepo,
+            _ => return Err(crate::QueryInvalid::new(&["input", "source"])),
+        };
+        if !(1..=50).contains(&limit) {
+            return Err(crate::QueryInvalid::new(&["limit"]));
+        }
+        let input =
+            VariantInput::from_identity(id).map_err(|_| crate::QueryInvalid::new(&["input"]))?;
+        Ok(Self(Fields {
+            input,
+            source,
+            assertion: None,
+            version: None,
+            limit: Some(limit),
+            offset,
+        }))
+    }
     /// Select an existing native assertion and its exact source version.
     pub fn select(
         &self,

@@ -77,23 +77,21 @@ pub(super) fn section(
             false,
         );
     };
-    let Some(q) = id
-        .to_string()
-        .parse()
-        .ok()
-        .and_then(|input| VariantAssertionsGet::new(input, source).ok())
-        .and_then(|q| {
-            q.page(query.assertion_limit(source), query.section_offset())
-                .ok()
-        })
-    else {
-        return (
-            Section::unavailable(source.source(), Reason::NoJoinId),
-            Vec::new(),
-            Vec::new(),
-            None,
-            false,
-        );
+    let q = match VariantAssertionsGet::from_identity(
+        id.clone(),
+        query.assertion_limit(source),
+        query.section_offset(),
+    ) {
+        Ok(query) => query,
+        Err(_) => {
+            return (
+                Section::unavailable(source.source(), Reason::NoJoinId),
+                Vec::new(),
+                Vec::new(),
+                None,
+                false,
+            );
+        }
     };
     read(cx, &q, deadline)
 }

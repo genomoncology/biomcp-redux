@@ -37,12 +37,6 @@ impl VariantInput {
     pub const MAX_BYTES: usize = 2048;
     /// Check the identifier spelling and canonicalize the ClinVar namespace prefix.
     pub fn new(value: &str) -> Result<Self, Error> {
-        if value.is_empty()
-            || value.len() > Self::MAX_BYTES
-            || !value.bytes().all(|b| b.is_ascii_graphic())
-        {
-            return Err(Error::VariantInputInvalid);
-        }
         let value = if value
             .get(..8)
             .is_some_and(|prefix| prefix.eq_ignore_ascii_case("clinvar:"))
@@ -51,7 +45,7 @@ impl VariantInput {
         } else {
             Cow::Borrowed(value)
         };
-        let text = crate::Text::new(value.as_ref()).map_err(|_| Error::VariantInputInvalid)?;
+        let text = input_text(value.as_ref())?;
         let kind = if let Ok(id) = value.parse::<crate::VariantId>() {
             InputKind::Id(id)
         } else if positive(&value) && value.parse::<u64>().is_ok() {
@@ -69,6 +63,14 @@ impl VariantInput {
             return Err(Error::VariantInputInvalid);
         };
         Ok(Self { text, kind })
+    }
+    /// Preserve a parsed candidate identity and apply the input text bounds once.
+    pub fn from_identity(id: crate::VariantId) -> Result<Self, Error> {
+        let text = input_text(&id.to_string())?;
+        Ok(Self {
+            text,
+            kind: InputKind::Id(id),
+        })
     }
     /// Return the checked identifier with a canonical ClinVar prefix.
     pub fn as_str(&self) -> &str {
@@ -124,6 +126,15 @@ impl VariantInput {
             InputKind::Chromosome => VariantNamespace::Chromosome,
         }
     }
+}
+fn input_text(value: &str) -> Result<crate::Text, Error> {
+    if value.is_empty()
+        || value.len() > VariantInput::MAX_BYTES
+        || !value.bytes().all(|byte| byte.is_ascii_graphic())
+    {
+        return Err(Error::VariantInputInvalid);
+    }
+    crate::Text::new(value).map_err(|_| Error::VariantInputInvalid)
 }
 fn positive(value: &str) -> bool {
     !value.is_empty() && !value.starts_with('0') && value.bytes().all(|b| b.is_ascii_digit())
