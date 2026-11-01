@@ -65,6 +65,17 @@ with tempfile.TemporaryDirectory(prefix='biomcp-notices-check-') as folder:
 PYTHON
     cargo deny --locked check licenses
     ;;
+  schema-reuse)
+    cargo --version
+    python3.13 --version
+    ruff check --select F401,F841,ERA,BLE,E722,S110 scripts/test_schema_release.py
+    cargo test --locked -p biomcp-types --features schema --test schemas checked_in_schemas_match_types -- --exact
+    du -sk "$CARGO_TARGET_DIR"
+    df -k . "${TMPDIR:-/tmp}"
+    trap 'df -k . "${TMPDIR:-/tmp}"; du -sk "$CARGO_TARGET_DIR"' EXIT
+    python3.13 scripts/test_schema_release.py
+    cargo test --locked -p biomcp-types --features schema --test schemas
+    ;;
   focused)
     python3.13 -m unittest release.test_licenses release.test_publication
     cargo test --locked -p biomcp-types --features schema --test schemas checked_in_schemas_match_types -- --exact

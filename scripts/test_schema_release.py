@@ -110,20 +110,29 @@ class SchemaRelease(unittest.TestCase):
             before, after = "[ACGTNRYSWKMBDHV]", "[ACGT]"
             source = candidate / "crates/biodata/src/variant/sequence.rs"
             self.assertIn(before, source.read_text())
-            source.write_text(source.read_text().replace(before, after))
-            for schema in (candidate / "crates/biomcp-types/schemas").glob("*.json"):
-                schema.write_text(schema.read_text().replace(before, after))
-            # Ordinary in-tree generation accepts the jointly changed copies.
-            subprocess.run([
-                "cargo", "test", "--locked", "-p", "biomcp-types", "--features", "schema",
-                "--test", "schemas", "checked_in_schemas_match_types", "--", "--exact",
-            ], cwd=candidate, env=environment, check=True)
-            result = subprocess.run(
-                command, cwd=candidate, env=environment,
-                capture_output=True, text=True,
-            )
-            self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
-            self.assertIn("incompatible contract", result.stdout + result.stderr)
+            originals = {path: path.read_bytes() for path in [source, *schemas]}
+            try:
+                source.write_text(source.read_text().replace(before, after))
+                for schema in (candidate / "crates/biomcp-types/schemas").glob("*.json"):
+                    schema.write_text(schema.read_text().replace(before, after))
+                # Ordinary in-tree generation accepts the jointly changed copies.
+                subprocess.run([
+                    "cargo", "test", "--locked", "-p", "biomcp-types", "--features", "schema",
+                    "--test", "schemas", "checked_in_schemas_match_types", "--", "--exact",
+                ], cwd=candidate, env=environment, check=True)
+                result = subprocess.run(
+                    command, cwd=candidate, env=environment,
+                    capture_output=True, text=True,
+                )
+                self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+                self.assertIn("incompatible contract", result.stdout + result.stderr)
+            finally:
+                # Cargo shares local-crate artifacts across these source copies.
+                # Restore and rebuild before removing the copy, even on a failed proof.
+                for path, content in originals.items():
+                    path.write_bytes(content)
+                subprocess.run(command + ["--generate"], cwd=candidate,
+                               env=environment, check=True)
 
 
 if __name__ == "__main__":
