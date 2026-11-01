@@ -29,10 +29,9 @@ for workspace in ([], ['--workspace']):
                             capture_output=True, text=True, check=True)
     data = json.loads(result.stdout)
     print('cargo-deny workspace:', bool(workspace), 'crate inventory:', flush=True)
-    print(json.dumps(data)[:400] if not isinstance(data, dict) else list(data)[:8], flush=True)
-    for line in result.stdout.splitlines():
-        if any(name in line for name in ('borrow-or-share', 'foldhash', 'jsonschema')):
-            print(line, flush=True)
+    suspects = {name: entry for name, entry in data.items()
+                if name.split()[0] in ('borrow-or-share', 'foldhash', 'jsonschema')}
+    print('total:', len(data), 'suspects:', json.dumps(suspects), flush=True)
     result = subprocess.run(command + ['check', 'licenses'], check=False)
     print('licenses exit:', result.returncode, flush=True)
 PYTHON
