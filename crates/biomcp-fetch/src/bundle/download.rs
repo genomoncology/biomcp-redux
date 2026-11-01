@@ -81,7 +81,6 @@ impl Leg<'_> {
             &mut file,
             !record && matches!(b.format, super::RowFormat::Tsv),
         )?;
-        let started = Instant::now();
         let mut transfer = Transfer {
             holder: &holder,
             file: &mut file,
@@ -89,7 +88,7 @@ impl Leg<'_> {
             auto,
             downloaded_bytes: 0,
             complete: false,
-            started,
+            started: Instant::now(),
         };
         let result = self.download(
             b,
