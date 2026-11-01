@@ -89,36 +89,37 @@ class SchemaRelease(unittest.TestCase):
             # Keep the job's compiled dependencies when the source copy changes.
             target = Path(os.environ.get("CARGO_TARGET_DIR", ROOT / "target")).resolve()
             environment = dict(os.environ, CARGO_TARGET_DIR=str(target))
-            command = [sys.executable, str(candidate / "scripts/schema_release.py")]
-            subprocess.run(command + ["--generate"], cwd=candidate, env=environment, check=True)
-            self.assertFalse((candidate / "target").exists(), "schema proof must reuse the job target")
-            # The mechanism test owns its baseline; release qualification owns the release copy.
-            schemas = sorted((candidate / "crates/biomcp-types/schemas").glob("*.json"))
-            baseline_archive = candidate / "mechanism-baseline.tar.gz"
-            with tarfile.open(baseline_archive, "w:gz") as baseline_tree:
-                for schema in schemas:
-                    baseline_tree.add(schema, arcname=schema.name)
-            baseline = candidate / "mechanism-baseline.json"
-            baseline.write_text(json.dumps({
-                "version": "1.0.0", "status": "provisional-candidate",
-                "source_commit": subprocess.check_output(
-                    ["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip(),
-                "archive": baseline_archive.name,
-                "sha256": hashlib.sha256(baseline_archive.read_bytes()).hexdigest(),
-                "schemas": [schema.name for schema in schemas],
-            }))
-            command += ["--baseline", str(baseline)]
-            subprocess.run(command, cwd=candidate, env=environment, check=True)
-            # Narrow the shared class in both scalar patterns and derived snapshots.
-            before, after = "[ACGTNRYSWKMBDHV]", "[ACGT]"
-            source = candidate / "crates/biodata/src/variant/sequence.rs"
-            self.assertIn(before, source.read_text())
-            originals = {path: path.read_bytes() for path in [source, *schemas]}
             schema_test = [
                 "cargo", "test", "--locked", "-p", "biomcp-types", "--features", "schema",
                 "--test", "schemas", "checked_in_schemas_match_types", "--", "--exact",
             ]
+            originals = {}
             try:
+                command = [sys.executable, str(candidate / "scripts/schema_release.py")]
+                subprocess.run(command + ["--generate"], cwd=candidate, env=environment, check=True)
+                self.assertFalse((candidate / "target").exists(), "schema proof must reuse the job target")
+                # The mechanism test owns its baseline; release qualification owns the release copy.
+                schemas = sorted((candidate / "crates/biomcp-types/schemas").glob("*.json"))
+                baseline_archive = candidate / "mechanism-baseline.tar.gz"
+                with tarfile.open(baseline_archive, "w:gz") as baseline_tree:
+                    for schema in schemas:
+                        baseline_tree.add(schema, arcname=schema.name)
+                baseline = candidate / "mechanism-baseline.json"
+                baseline.write_text(json.dumps({
+                    "version": "1.0.0", "status": "provisional-candidate",
+                    "source_commit": subprocess.check_output(
+                        ["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip(),
+                    "archive": baseline_archive.name,
+                    "sha256": hashlib.sha256(baseline_archive.read_bytes()).hexdigest(),
+                    "schemas": [schema.name for schema in schemas],
+                }))
+                command += ["--baseline", str(baseline)]
+                subprocess.run(command, cwd=candidate, env=environment, check=True)
+                # Narrow the shared class in both scalar patterns and derived snapshots.
+                before, after = "[ACGTNRYSWKMBDHV]", "[ACGT]"
+                source = candidate / "crates/biodata/src/variant/sequence.rs"
+                self.assertIn(before, source.read_text())
+                originals = {path: path.read_bytes() for path in [source, *schemas]}
                 source.write_text(source.read_text().replace(before, after))
                 for schema in (candidate / "crates/biomcp-types/schemas").glob("*.json"):
                     schema.write_text(schema.read_text().replace(before, after))
