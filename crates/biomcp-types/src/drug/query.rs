@@ -126,7 +126,12 @@ impl DrugSearch {
 #[serde(try_from = "GetFields")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 #[cfg_attr(feature = "schema", schemars(with = "GetFields"))]
-pub struct DrugGet(GetFields);
+pub struct DrugGet {
+    #[serde(flatten)]
+    fields: GetFields,
+    #[serde(skip)]
+    recall_number: Option<biodata::DrugRecallNumber>,
+}
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
@@ -189,9 +194,20 @@ impl TryFrom<GetFields> for DrugGet {
         if fields.source == DrugSource::FdaDrugRecall && !fields.section.is_empty() {
             return Err(QueryInvalid::new(&["source", "section"]));
         }
-        if !fields.source.accepts(&fields.input) {
-            return Err(QueryInvalid::new(&["source", "input"]));
-        }
+        let recall_number = if fields.source == DrugSource::FdaDrugRecall {
+            Some(
+                fields
+                    .input
+                    .to_string()
+                    .parse()
+                    .map_err(|_| QueryInvalid::new(&["source", "input"]))?,
+            )
+        } else {
+            if !fields.source.accepts(&fields.input) {
+                return Err(QueryInvalid::new(&["source", "input"]));
+            }
+            None
+        };
         if fields
             .civic_profile
             .is_some_and(|id| id == 0 || id > i32::MAX as u64)
@@ -209,10 +225,17 @@ impl TryFrom<GetFields> for DrugGet {
         {
             return Err(QueryInvalid::new(&["civic_kind", "source", "section"]));
         }
-        Ok(Self(fields))
+        Ok(Self {
+            fields,
+            recall_number,
+        })
     }
 }
 impl DrugGet {
+    /// FDA recall identity retained by the checked boundary.
+    pub fn recall_number(&self) -> Option<&biodata::DrugRecallNumber> {
+        self.recall_number.as_ref()
+    }
     /// Select one exact native identity, with no sections requested.
     pub fn new(input: DrugId, source: DrugSource) -> Result<Self, QueryInvalid> {
         GetFields {
@@ -236,7 +259,7 @@ impl DrugGet {
         kind: CivicClaimKind,
         cursor: Option<Text>,
     ) -> Result<Self, QueryInvalid> {
-        let mut fields = self.0.clone();
+        let mut fields = self.fields.clone();
         fields.civic_profile = Some(profile);
         fields.civic_kind = Some(kind);
         fields.civic_cursor = cursor;
@@ -248,38 +271,38 @@ impl DrugGet {
         kind: CivicClaimKind,
         cursor: Option<Text>,
     ) -> Result<Self, QueryInvalid> {
-        let mut fields = self.0.clone();
+        let mut fields = self.fields.clone();
         fields.civic_kind = Some(kind);
         fields.civic_cursor = cursor;
         fields.try_into()
     }
     /// Selected native drug-scoped CIViC molecular profile.
     pub fn civic_profile(&self) -> Option<u64> {
-        self.0.civic_profile
+        self.fields.civic_profile
     }
     /// Selected independent native claim collection.
     pub fn civic_kind(&self) -> Option<CivicClaimKind> {
-        self.0.civic_kind
+        self.fields.civic_kind
     }
     /// Original native cursor for that selected claim collection.
     pub fn civic_cursor(&self) -> Option<&Text> {
-        self.0.civic_cursor.as_ref()
+        self.fields.civic_cursor.as_ref()
     }
     /// Unchanged published identifier.
     pub fn input(&self) -> &DrugId {
-        &self.0.input
+        &self.fields.input
     }
     /// Required selected source.
     pub fn source(&self) -> DrugSource {
-        self.0.source
+        self.fields.source
     }
     /// Explicit page bound; command handlers apply their existing default when absent.
     pub fn section_limit(&self) -> Option<u32> {
-        self.0.section_limit
+        self.fields.section_limit
     }
     /// Explicit section continuation offset.
     pub fn section_offset(&self) -> Option<u32> {
-        self.0.section_offset
+        self.fields.section_offset
     }
 }
 impl DrugSource {
@@ -386,31 +409,31 @@ impl crate::Paged for DrugSearch {
 impl DrugGet {
     /// Explicit requested disclosures.
     pub fn sections(&self) -> &[DrugSection] {
-        &self.0.section
+        &self.fields.section
     }
 }
 
 impl DrugGet {
     /// Continue the same named section without changing source, identity or section selectors.
     pub fn at_section_offset(&self, offset: u32) -> Result<Self, QueryInvalid> {
-        let mut fields = self.0.clone();
+        let mut fields = self.fields.clone();
         fields.section_offset = Some(offset);
         fields.try_into()
     }
     /// Exact selected native label heading.
     pub fn label_section(&self) -> Option<&Text> {
-        self.0.label_section.as_ref()
+        self.fields.label_section.as_ref()
     }
     /// Exact application product selector.
     pub fn product_number(&self) -> Option<&Text> {
-        self.0.product_number.as_ref()
+        self.fields.product_number.as_ref()
     }
 }
 
 impl DrugGet {
     /// Select one named disclosure without changing the exact source identity.
     pub fn for_section(&self, section: DrugSection) -> Result<Self, QueryInvalid> {
-        let mut fields = self.0.clone();
+        let mut fields = self.fields.clone();
         fields.section = vec![section].into();
         fields.try_into()
     }
@@ -419,7 +442,7 @@ impl DrugGet {
 impl DrugGet {
     /// Select an explicit native label heading for the same source identity.
     pub fn for_label(&self, heading: Text) -> Result<Self, QueryInvalid> {
-        let mut fields = self.0.clone();
+        let mut fields = self.fields.clone();
         fields.section = vec![DrugSection::Label].into();
         fields.label_section = Some(heading);
         fields.try_into()

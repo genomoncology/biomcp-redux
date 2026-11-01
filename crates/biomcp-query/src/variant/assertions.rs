@@ -162,7 +162,7 @@ fn page(query: &VariantAssertionsGet, mut rows: Vec<VariantAssertion>) -> Varian
     if let Some(id) = query.assertion() {
         rows.retain(|r| {
             r.attribution().is_some_and(|a| {
-                a.record.as_ref() == Some(id)
+                a.record.as_ref().map(|record| record.as_str()) == Some(id.as_str())
                     && query
                         .version()
                         .is_none_or(|v| a.version.as_ref() == Some(v))

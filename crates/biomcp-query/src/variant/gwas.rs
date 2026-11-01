@@ -93,8 +93,8 @@ pub(super) fn section(
     )
 }
 fn rs_id(query: &VariantGet, candidates: &[VariantHeader]) -> Option<VariantId> {
-    if let Ok(id @ VariantId::Rs(_)) = query.input().as_str().parse() {
-        return Some(id);
+    if let Some(id @ VariantId::Rs(_)) = query.input().identity() {
+        return Some(id.clone());
     }
     let mut ids = Vec::new();
     for id in candidates

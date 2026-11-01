@@ -54,17 +54,7 @@ pub(super) fn get(
     source: Source,
     mut deadline: Deadline<'_>,
 ) -> Outcome {
-    let input = query.input().as_str();
-    let requested = if query.input().namespace().ok() == Some(VariantNamespace::ClinVar) {
-        format!(
-            "clinvar:{}",
-            input.strip_prefix("clinvar:").unwrap_or(input)
-        )
-        .parse()
-        .ok()
-    } else {
-        input.parse().ok()
-    };
+    let requested = query.input().identity().cloned();
     let mut candidates = vec![VariantHeader {
         identity: Variant {
             ids: Box::default(),

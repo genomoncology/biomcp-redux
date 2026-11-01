@@ -42,7 +42,7 @@ fn selected(
         crate::status::item(out, false, true, false);
         out.problems.push(Problem {
             source: Source::FdaPma,
-            record: Some(q.id().clone()),
+            record: biomcp_types::Text::new(q.id().as_str()).ok(),
             field: field.into(),
             code: ProblemCode::IdentityConflict,
         });
@@ -58,7 +58,7 @@ fn selected(
         crate::status::item(out, true, false, true);
         out.problems.push(Problem {
             source: Source::FdaPma,
-            record: Some(q.id().clone()),
+            record: biomcp_types::Text::new(q.id().as_str()).ok(),
             field: "meta.results.total".into(),
             code: ProblemCode::CollectionIncomplete,
         });
@@ -199,7 +199,8 @@ fn supplements(
                 .map_err(|_| biomcp_types::QueryInvalid::new(&["supplement"]))
                 .and_then(|supplement| {
                     DiagnosticGet::new(
-                        q.id().clone(),
+                        biomcp_types::Text::new(q.id().as_str())
+                            .map_err(|_| biomcp_types::QueryInvalid::new(&["id"]))?,
                         biomcp_types::DiagnosticGetSource::FdaPma,
                         supplement,
                     )
