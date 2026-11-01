@@ -9,6 +9,12 @@ export BIOMCP_BUILD_REVISION="$revision"
 source="$root/source-$revision"
 mkdir -p "$source"
 git archive "$revision" | /usr/bin/tar -xf - -C "$source"
+if [ "$phase" = prepare ]; then
+    baseline=${4:?same-main schema reference required}
+    mkdir -p "$root/reference"
+    git archive "$baseline" crates/biomcp-types/schemas | /usr/bin/tar -xf - -C "$root/reference"
+    export BIOMCP_SCHEMA_BASELINE="$root/reference/crates/biomcp-types/schemas"
+fi
 cd "$source"
 export CARGO_TARGET_DIR="$root/target"
 printf 'Qualification root: %s\n' "$root"
@@ -46,6 +52,17 @@ contracts)
     status=0
     cargo test --locked --no-fail-fast -p biomcp-types --features schema --test biodata_switch --test gene_ids --test protein_contracts --test rust_api --test value_conventions --test variant_values || status=1
     cargo test --locked -p biomcp-types --features schema --test schemas policy:: || status=1
+    exit "$status"
+    ;;
+prepare)
+    status=0
+    cargo test --locked --no-fail-fast -p biomcp-types --features schema --test biodata_switch --test gene_ids --test protein_contracts --test rust_api --test value_conventions --test variant_values || status=1
+    if UPDATE_SCHEMAS=1 cargo test --locked -p biomcp-types --features schema --test schemas checked_in_schemas_match_types -- --exact; then
+        tar -czf "$root/consumer-schemas-$revision.tar.gz" -C crates/biomcp-types/schemas .
+    else
+        status=1
+    fi
+    cargo test --locked -p biomcp-types --features schema --test schemas || status=1
     exit "$status"
     ;;
 case)
