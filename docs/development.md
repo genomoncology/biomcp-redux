@@ -8,7 +8,7 @@ Run `make schema-release-check` to compare the generated schemas with the record
 
 Set `BIOMCP_TRANSCRIPT_DIR` to an empty output directory when running the case runner. It records exact stdout bytes, exit codes, surfaces and arguments before assertions or JSON parsing. Without the variable, tests run normally. Keep transcript directories outside Git.
 
-Run the same selected cases and trials at the base and head commits. Then run `python3 scripts/reply_diff.py BASE HEAD` through `pm job`. A difference exits nonzero and names the step and JSON pointer, or a character offset for text and formatting differences. The default report stops after twenty differences. This comparison is optional and does not run in the routine gate.
+Run the same selected cases and trials at the base and head commits. Then run `python3 scripts/reply_diff.py BASE HEAD`. A difference exits nonzero and names the step and JSON pointer, or a character offset for text and formatting differences. The default report stops after twenty differences. This comparison is optional and does not run in the routine gate.
 
 Case keys contain the relative case path and zero-based step index. Each case transcript holds its CLI and MCP executions in order. Walk pages append to that same step. MCP records the raw server stdout before parsing. Ordinary trial keys contain the trial name, an argument hash and the number of earlier identical argument lists. The launcher allocates those keys before execution. Isolated environment and checkout paths become placeholders for hashing and comparison.
 
@@ -30,7 +30,7 @@ The separate `tools` target contains opt-in schema and assertion boundary proofs
 
 `make coverage` runs `cases` against an instrumented product binary. The launcher gives every child a `bin-%m-%p.profraw` profile name. The script merges only those profiles and reports only the actual binary object through LLVM tools. The denominator contains linked product source lines and excludes generated protobuf code. Harness execution and in-process library contracts never count. `make library-tests` validates those libraries separately in the routine gate.
 
-The PM sets `coverage.floor` from the first binary-only measurement and owns subsequent increases. `make unreached` displays line execution counts from the last complete collection. Raw child and harness profiles remain in the coverage target directory for diagnosis until the next collection.
+The release maintainer sets `coverage.floor` from the first binary-only measurement and owns subsequent increases. `make unreached` displays line execution counts from the last complete collection. Raw child and harness profiles remain in the coverage target directory for diagnosis until the next collection.
 
 ## Inspect a candidate with mutation testing
 
