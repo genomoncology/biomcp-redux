@@ -125,3 +125,13 @@ release-mutations:
 workflow-lint:
 	cargo check --locked -p biodata -p biomcp-types --no-default-features
 	actionlint
+
+.PHONY: cli-fixes-check
+cli-fixes-check: fmt lint ratchets
+	$(MAKE) schema-generate docs-generate
+	mkdir -p dist
+	tar -czf dist/cli-generated.tar.gz crates/biomcp-types/schemas docs/reference/commands.md
+	$(MAKE) docs-check
+	@set -e; for selection in local/ key-registration/ article-saves/ trial/name-fallback-continuation author/help author/papers-help author/source-alias cell-line/aliases cell-line/examples mcp-parity/discovers-artifact-command-tree; do \
+		cargo test --locked -p biomcp --test cases "$$selection" $(TEST_THREADS); \
+	done
