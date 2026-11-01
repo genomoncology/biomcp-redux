@@ -82,7 +82,7 @@ fn identifiers_and_variant_text_preserve_identity() -> Check {
         &["ENSG00000157764", "ENSG00000157764.2"],
         &["ENSG00000157764.0"],
     )?;
-    constructor_contract(biodata::OmimId::new, &["001234"], &["12345"])?;
+    value_contract::<biodata::OmimId>(&["100000", "699999"], &["099999", "700000"])?;
     constructor_contract(
         biodata::UniProtAcc::new,
         &["P15056", "A0A024RBG1"],
@@ -436,8 +436,8 @@ fn structured_text_values_reject_invalid_native_parts() -> Check {
     Ok(())
 }
 
-fn constructor_contract<T>(
-    new: fn(&str) -> Result<T, biodata::Error>,
+fn constructor_contract<T, E>(
+    new: fn(&str) -> Result<T, E>,
     valid: &[&str],
     invalid: &[&str],
 ) -> Check

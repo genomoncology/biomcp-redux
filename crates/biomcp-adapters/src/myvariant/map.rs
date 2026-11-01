@@ -74,7 +74,14 @@ fn candidate(
         let id = problems.field("clinvar.variant_id", Some(cv.variant_id));
         if let Some(id) = problems.optional(
             "clinvar.variant_id",
-            id.map(biodata::ClinVarVariationId::new),
+            id.map(|id| {
+                u32::try_from(id)
+                    .map_err(|_| biodata::Error::ClinVarVariationIdInvalid)
+                    .and_then(|id| {
+                        biodata::ClinVarVariationId::new(id)
+                            .map_err(|_| biodata::Error::ClinVarVariationIdInvalid)
+                    })
+            }),
         ) {
             ids.push(VariantId::ClinVarVariation(id));
         }
