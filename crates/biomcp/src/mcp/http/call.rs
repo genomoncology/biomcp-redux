@@ -229,283 +229,283 @@ mod tests {
         finish.recv_timeout(DEADLOCK_GUARD).unwrap();
         cleanup.join().unwrap();
     }
-}
 
-#[cfg(test)]
-#[expect(
-    clippy::disallowed_types,
-    clippy::disallowed_methods,
-    reason = "Measure explicitly invoked bounded HTTP load against one owned service and Fetch"
-)]
-mod load_benchmark {
-    use super::{Calls, Service};
-    use crate::{command, grammar::Globals};
-    use serde_json::{Value, json};
-    use std::{
-        io::{self, Read, Write},
-        net::{SocketAddr, TcpListener, TcpStream},
-        path::Path,
-        sync::{
-            Arc, Barrier,
-            atomic::{AtomicBool, AtomicUsize, Ordering},
-            mpsc,
-        },
-        time::{Duration, Instant},
-    };
-    const CALLS: usize = 300;
-    const WINDOW: Duration = Duration::from_secs(5 * 60);
-
-    #[test]
-    #[ignore = "Explicit load measurement; run make hosted-http-load"]
-    fn hosted_http_sync_load() -> Result<(), Box<dyn std::error::Error>> {
-        let directory = tempfile::tempdir()?;
-        let records = directory.path().join("records");
-        fixtures(
-            &Path::new(env!("CARGO_MANIFEST_DIR")).join("../../tests/replies/gene/main"),
-            &records,
-        )?;
-        let config = directory.path().join("config.json");
-        std::fs::write(&config, b"{}")?;
-        let globals = Globals {
-            config: Some(config),
-            hosted: true,
-            replay: Some(records.clone()),
-            ..Globals::default()
+    #[expect(
+        clippy::disallowed_types,
+        clippy::disallowed_methods,
+        reason = "Measure explicitly invoked bounded HTTP load against one owned service and Fetch"
+    )]
+    mod load_benchmark {
+        use super::super::{Calls, Service};
+        use crate::{command, grammar::Globals};
+        use serde_json::{Value, json};
+        use std::{
+            io::{self, Read, Write},
+            net::{SocketAddr, TcpListener, TcpStream},
+            path::Path,
+            sync::{
+                Arc, Barrier,
+                atomic::{AtomicBool, AtomicUsize, Ordering},
+                mpsc,
+            },
+            time::{Duration, Instant},
         };
-        let fetch = biomcp_fetch::Fetch::open(biomcp_fetch::FetchConfig {
-            mode: biomcp_fetch::Mode::Replay { dir: records },
-            cache_owners: vec![biomcp_query::store::OWNER],
-            ..Default::default()
-        })?;
-        let listener = TcpListener::bind("127.0.0.1:0")?;
-        let address = listener.local_addr()?;
-        let service = Arc::new(Service {
-            calls: Calls::default(),
-            requests: super::super::admission::Slots::default(),
-            address,
-            hosts: Vec::new(),
-            globals,
-            root: Arc::new(crate::grammar::root().map_err(|_| io::Error::other("grammar"))?),
-            settings: Arc::new(Ok(None)),
-            fetch: Ok(Arc::new(fetch)),
-            recovery: None,
-        });
-        let initial_rows = sync(&service)?;
-        let (stop, stopped) = mpsc::sync_channel(1);
-        let server_service = service.clone();
-        let server = std::thread::spawn(move || {
-            super::super::connections(listener, server_service, stopped)
-        });
-        let running = AtomicBool::new(true);
-        let next = AtomicUsize::new(0);
-        let barrier = Barrier::new(super::MAX_CONNECTIONS + 1);
-        let started = Instant::now();
-        let (samples, syncs, health) = std::thread::scope(|scope| {
-            let sync = scope.spawn(|| {
-                barrier.wait();
-                let mut results = Vec::new();
-                while running.load(Ordering::Acquire)
-                    && results.len() < CALLS
-                    && started.elapsed() < WINDOW
-                {
-                    results.push(sync(&service).map_err(|error| error.to_string()));
-                }
-                results
+        const CALLS: usize = 300;
+        const WINDOW: Duration = Duration::from_secs(5 * 60);
+
+        #[test]
+        #[ignore = "Explicit load measurement; run make hosted-http-load"]
+        fn hosted_http_sync_load() -> Result<(), Box<dyn std::error::Error>> {
+            let directory = tempfile::tempdir()?;
+            let records = directory.path().join("records");
+            fixtures(
+                &Path::new(env!("CARGO_MANIFEST_DIR")).join("../../tests/replies/gene/main"),
+                &records,
+            )?;
+            let config = directory.path().join("config.json");
+            std::fs::write(&config, b"{}")?;
+            let globals = Globals {
+                config: Some(config),
+                hosted: true,
+                replay: Some(records.clone()),
+                ..Globals::default()
+            };
+            let fetch = biomcp_fetch::Fetch::open(biomcp_fetch::FetchConfig {
+                mode: biomcp_fetch::Mode::Replay { dir: records },
+                cache_owners: vec![biomcp_query::store::OWNER],
+                ..Default::default()
+            })?;
+            let listener = TcpListener::bind("127.0.0.1:0")?;
+            let address = listener.local_addr()?;
+            let service = Arc::new(Service {
+                calls: Calls::default(),
+                requests: super::super::super::admission::Slots::default(),
+                address,
+                hosts: Vec::new(),
+                globals,
+                root: Arc::new(crate::grammar::root().map_err(|_| io::Error::other("grammar"))?),
+                settings: Arc::new(Ok(None)),
+                fetch: Ok(Arc::new(fetch)),
+                recovery: None,
             });
-            let health = scope.spawn(|| {
-                let mut codes = Vec::new();
-                while running.load(Ordering::Acquire) {
-                    codes.push(
-                        request(address, None)
-                            .map(|(code, _)| code)
-                            .map_err(|error| error.to_string()),
-                    );
-                    let end = Instant::now() + Duration::from_secs(1);
-                    while running.load(Ordering::Acquire) && Instant::now() < end {
-                        std::thread::park_timeout(Duration::from_millis(20));
+            let initial_rows = sync(&service)?;
+            let (stop, stopped) = mpsc::sync_channel(1);
+            let server_service = service.clone();
+            let server = std::thread::spawn(move || {
+                super::super::super::connections(listener, server_service, stopped)
+            });
+            let running = AtomicBool::new(true);
+            let next = AtomicUsize::new(0);
+            let barrier = Barrier::new(super::super::MAX_CONNECTIONS + 1);
+            let started = Instant::now();
+            let (samples, syncs, health) = std::thread::scope(|scope| {
+                let sync = scope.spawn(|| {
+                    barrier.wait();
+                    let mut results = Vec::new();
+                    while running.load(Ordering::Acquire)
+                        && results.len() < CALLS
+                        && started.elapsed() < WINDOW
+                    {
+                        results.push(sync(&service).map_err(|error| error.to_string()));
                     }
-                }
-                codes
-            });
-            let workers: Vec<_> = (0..super::MAX_CONNECTIONS)
-                .map(|_| {
-                    scope.spawn(|| {
-                        barrier.wait();
-                        let mut samples = Vec::new();
-                        loop {
-                            let index = next.fetch_add(1, Ordering::AcqRel);
-                            if index >= CALLS || started.elapsed() >= WINDOW {
-                                break;
-                            }
-                            let args = if index % 2 == 0 {
-                                json!(["search", "gene", "kinase"])
-                            } else {
-                                json!(["get", "gene", "BRAF"])
-                            };
-                            let body = json!({"jsonrpc":"2.0","id":index,"method":"tools/call",
-                        "params":{"name":"biomcp","arguments":{"args":args}}})
-                            .to_string();
-                            let began = Instant::now();
-                            let result =
-                                request(address, Some(&body)).and_then(|(status, value)| {
-                                    let has_rows = value
-                                        .pointer("/result/structuredContent/result/items")
-                                        .and_then(Value::as_array)
-                                        .is_some_and(|items| !items.is_empty());
-                                    if status != 200
-                                        || !has_rows
-                                        || value.pointer("/result/isError") != Some(&json!(false))
-                                    {
-                                        Err(io::Error::other(format!("HTTP {status}: {value}")))
-                                    } else {
-                                        Ok(())
-                                    }
-                                });
-                            samples.push((
-                                began.elapsed().as_secs_f64(),
-                                result.map_err(|error| error.to_string()),
-                            ));
+                    results
+                });
+                let health = scope.spawn(|| {
+                    let mut codes = Vec::new();
+                    while running.load(Ordering::Acquire) {
+                        codes.push(
+                            request(address, None)
+                                .map(|(code, _)| code)
+                                .map_err(|error| error.to_string()),
+                        );
+                        let end = Instant::now() + Duration::from_secs(1);
+                        while running.load(Ordering::Acquire) && Instant::now() < end {
+                            std::thread::park_timeout(Duration::from_millis(20));
                         }
-                        samples
+                    }
+                    codes
+                });
+                let workers: Vec<_> = (0..super::super::MAX_CONNECTIONS)
+                    .map(|_| {
+                        scope.spawn(|| {
+                            barrier.wait();
+                            let mut samples = Vec::new();
+                            loop {
+                                let index = next.fetch_add(1, Ordering::AcqRel);
+                                if index >= CALLS || started.elapsed() >= WINDOW {
+                                    break;
+                                }
+                                let args = if index % 2 == 0 {
+                                    json!(["search", "gene", "kinase"])
+                                } else {
+                                    json!(["get", "gene", "BRAF"])
+                                };
+                                let body = json!({"jsonrpc":"2.0","id":index,"method":"tools/call",
+                        "params":{"name":"biomcp","arguments":{"args":args}}})
+                                .to_string();
+                                let began = Instant::now();
+                                let result =
+                                    request(address, Some(&body)).and_then(|(status, value)| {
+                                        let has_rows = value
+                                            .pointer("/result/structuredContent/result/items")
+                                            .and_then(Value::as_array)
+                                            .is_some_and(|items| !items.is_empty());
+                                        if status != 200
+                                            || !has_rows
+                                            || value.pointer("/result/isError")
+                                                != Some(&json!(false))
+                                        {
+                                            Err(io::Error::other(format!("HTTP {status}: {value}")))
+                                        } else {
+                                            Ok(())
+                                        }
+                                    });
+                                samples.push((
+                                    began.elapsed().as_secs_f64(),
+                                    result.map_err(|error| error.to_string()),
+                                ));
+                            }
+                            samples
+                        })
                     })
-                })
-                .collect();
-            let samples = workers
-                .into_iter()
-                .flat_map(|worker| worker.join().expect("load client stopped"))
+                    .collect();
+                let samples = workers
+                    .into_iter()
+                    .flat_map(|worker| worker.join().expect("load client stopped"))
+                    .collect::<Vec<_>>();
+                running.store(false, Ordering::Release);
+                (
+                    samples,
+                    sync.join().expect("sync worker stopped"),
+                    health.join().expect("health worker stopped"),
+                )
+            });
+            let _ = stop.send(());
+            server
+                .join()
+                .map_err(|_| io::Error::other("HTTP load server stopped"))??;
+            let mut latencies = samples
+                .iter()
+                .map(|(elapsed, _)| *elapsed)
                 .collect::<Vec<_>>();
-            running.store(false, Ordering::Release);
-            (
-                samples,
-                sync.join().expect("sync worker stopped"),
-                health.join().expect("health worker stopped"),
-            )
-        });
-        let _ = stop.send(());
-        server
-            .join()
-            .map_err(|_| io::Error::other("HTTP load server stopped"))??;
-        let mut latencies = samples
-            .iter()
-            .map(|(elapsed, _)| *elapsed)
-            .collect::<Vec<_>>();
-        latencies.sort_by(f64::total_cmp);
-        let percentile = |percent: usize| {
-            latencies
-                .get((latencies.len() * percent).div_ceil(100).saturating_sub(1))
-                .copied()
-        };
-        let failures = samples
-            .iter()
-            .filter_map(|(_, result)| result.as_ref().err())
-            .collect::<Vec<_>>();
-        println!(
-            "{}",
-            json!({"benchmark":"hosted-http-sync", "host":std::env::consts::OS,
+            latencies.sort_by(f64::total_cmp);
+            let percentile = |percent: usize| {
+                latencies
+                    .get((latencies.len() * percent).div_ceil(100).saturating_sub(1))
+                    .copied()
+            };
+            let failures = samples
+                .iter()
+                .filter_map(|(_, result)| result.as_ref().err())
+                .collect::<Vec<_>>();
+            println!(
+                "{}",
+                json!({"benchmark":"hosted-http-sync", "host":std::env::consts::OS,
             "cache":"cold replay store, then shared warm Fetch with concurrent repeated sync",
             "publisher_delay":"zero; measure local shared cache work",
             "latency_seconds":latencies,
-            "workers":super::MAX_CONNECTIONS,"call_limit":CALLS,"window_seconds":WINDOW.as_secs(),
+            "workers":super::super::MAX_CONNECTIONS,"call_limit":CALLS,"window_seconds":WINDOW.as_secs(),
             "elapsed_seconds":started.elapsed().as_secs_f64(),"completed_calls":samples.len(),
             "p50_seconds":percentile(50),"p95_seconds":percentile(95),"max_seconds":latencies.last(),
             "failed_calls":failures,"initial_sync_rows":initial_rows,
             "sync_completed":syncs.iter().filter(|result| result.is_ok()).count(),
             "sync_failed":syncs.iter().filter_map(|result| result.as_ref().err()).collect::<Vec<_>>(),
             "health_statuses":health})
-        );
-        if samples.is_empty()
-            || !failures.is_empty()
-            || syncs.is_empty()
-            || syncs.iter().any(Result::is_err)
-            || health.is_empty()
-            || health.iter().any(|result| !matches!(result, Ok(200)))
-        {
-            return Err(
-                io::Error::other("load measurement contains failed or missing work").into(),
             );
-        }
-        Ok(())
-    }
-    fn sync(service: &Service) -> io::Result<u64> {
-        let fetch = service
-            .fetch
-            .as_ref()
-            .map_err(|_| io::Error::other("Fetch unavailable"))?;
-        let outcome = command::execute(
-            &service.root,
-            &service.settings,
-            fetch,
-            biomcp_query::Action::Sync {
-                bundle: biomcp_query::Bundle::named("hgnc")
-                    .ok_or_else(|| io::Error::other("HGNC missing"))?,
-            },
-            &service.globals,
-            false,
-            command::Encoding::Mcp,
-        )?;
-        if !matches!(outcome.status, crate::exit::Status::Success) {
-            return Err(io::Error::other(format!(
-                "sync failed: {}",
-                outcome.value()?
-            )));
-        }
-        outcome
-            .value()?
-            .pointer("/result/rows")
-            .and_then(Value::as_u64)
-            .filter(|rows| *rows > 0)
-            .ok_or_else(|| io::Error::other("sync imported no rows"))
-    }
-    fn request(address: SocketAddr, body: Option<&str>) -> io::Result<(u16, Value)> {
-        let mut socket = TcpStream::connect(address)?;
-        socket.set_read_timeout(Some(Duration::from_secs(30)))?;
-        let (method, path) = if body.is_some() {
-            ("POST", "/mcp")
-        } else {
-            ("GET", "/health")
-        };
-        let body = body.unwrap_or_default();
-        write!(
-            socket,
-            "{method} {path} HTTP/1.1\r\nHost: {address}\r\nContent-Type: application/json\r\nAccept: application/json, text/event-stream\r\n\
-            MCP-Protocol-Version: 2025-11-25\r\nConnection: close\r\nContent-Length: {}\r\n\r\n{body}",
-            body.len()
-        )?;
-        let mut response = String::new();
-        socket.read_to_string(&mut response)?;
-        let (head, body) = response
-            .split_once("\r\n\r\n")
-            .ok_or_else(|| io::Error::other("HTTP reply missing"))?;
-        let status = head
-            .split_whitespace()
-            .nth(1)
-            .and_then(|status| status.parse().ok())
-            .ok_or_else(|| io::Error::other("HTTP status missing"))?;
-        Ok((status, serde_json::from_str(body)?))
-    }
-    fn fixtures(source: &Path, target: &Path) -> io::Result<()> {
-        std::fs::create_dir_all(target)?;
-        for entry in std::fs::read_dir(source)? {
-            let entry = entry?;
-            let destination = target.join(entry.file_name());
-            if entry.file_type()?.is_dir() {
-                fixtures(&entry.path(), &destination)?;
-            } else {
-                let mut value: Value = serde_json::from_slice(&std::fs::read(entry.path())?)?;
-                let exchanges = value
-                    .get_mut("exchanges")
-                    .and_then(Value::as_array_mut)
-                    .ok_or_else(|| io::Error::other("recorded exchanges missing"))?;
-                for exchange in exchanges.iter_mut() {
-                    exchange["delay_ms"] = json!(0);
-                }
-                let original = exchanges.clone();
-                for _ in 0..CALLS {
-                    exchanges.extend(original.clone());
-                }
-                std::fs::write(destination, serde_json::to_vec(&value)?)?;
+            if samples.is_empty()
+                || !failures.is_empty()
+                || syncs.is_empty()
+                || syncs.iter().any(Result::is_err)
+                || health.is_empty()
+                || health.iter().any(|result| !matches!(result, Ok(200)))
+            {
+                return Err(
+                    io::Error::other("load measurement contains failed or missing work").into(),
+                );
             }
+            Ok(())
         }
-        Ok(())
+        fn sync(service: &Service) -> io::Result<u64> {
+            let fetch = service
+                .fetch
+                .as_ref()
+                .map_err(|_| io::Error::other("Fetch unavailable"))?;
+            let outcome = command::execute(
+                &service.root,
+                &service.settings,
+                fetch,
+                biomcp_query::Action::Sync {
+                    bundle: biomcp_query::Bundle::named("hgnc")
+                        .ok_or_else(|| io::Error::other("HGNC missing"))?,
+                },
+                &service.globals,
+                false,
+                command::Encoding::Mcp,
+            )?;
+            if !matches!(outcome.status, crate::exit::Status::Success) {
+                return Err(io::Error::other(format!(
+                    "sync failed: {}",
+                    outcome.value()?
+                )));
+            }
+            outcome
+                .value()?
+                .pointer("/result/rows")
+                .and_then(Value::as_u64)
+                .filter(|rows| *rows > 0)
+                .ok_or_else(|| io::Error::other("sync imported no rows"))
+        }
+        fn request(address: SocketAddr, body: Option<&str>) -> io::Result<(u16, Value)> {
+            let mut socket = TcpStream::connect(address)?;
+            socket.set_read_timeout(Some(Duration::from_secs(30)))?;
+            let (method, path) = if body.is_some() {
+                ("POST", "/mcp")
+            } else {
+                ("GET", "/health")
+            };
+            let body = body.unwrap_or_default();
+            write!(
+                socket,
+                "{method} {path} HTTP/1.1\r\nHost: {address}\r\nContent-Type: application/json\r\nAccept: application/json, text/event-stream\r\n\
+            MCP-Protocol-Version: 2025-11-25\r\nConnection: close\r\nContent-Length: {}\r\n\r\n{body}",
+                body.len()
+            )?;
+            let mut response = String::new();
+            socket.read_to_string(&mut response)?;
+            let (head, body) = response
+                .split_once("\r\n\r\n")
+                .ok_or_else(|| io::Error::other("HTTP reply missing"))?;
+            let status = head
+                .split_whitespace()
+                .nth(1)
+                .and_then(|status| status.parse().ok())
+                .ok_or_else(|| io::Error::other("HTTP status missing"))?;
+            Ok((status, serde_json::from_str(body)?))
+        }
+        fn fixtures(source: &Path, target: &Path) -> io::Result<()> {
+            std::fs::create_dir_all(target)?;
+            for entry in std::fs::read_dir(source)? {
+                let entry = entry?;
+                let destination = target.join(entry.file_name());
+                if entry.file_type()?.is_dir() {
+                    fixtures(&entry.path(), &destination)?;
+                } else {
+                    let mut value: Value = serde_json::from_slice(&std::fs::read(entry.path())?)?;
+                    let exchanges = value
+                        .get_mut("exchanges")
+                        .and_then(Value::as_array_mut)
+                        .ok_or_else(|| io::Error::other("recorded exchanges missing"))?;
+                    for exchange in exchanges.iter_mut() {
+                        exchange["delay_ms"] = json!(0);
+                    }
+                    let original = exchanges.clone();
+                    for _ in 0..CALLS {
+                        exchanges.extend(original.clone());
+                    }
+                    std::fs::write(destination, serde_json::to_vec(&value)?)?;
+                }
+            }
+            Ok(())
+        }
     }
 }
