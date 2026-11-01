@@ -112,7 +112,7 @@ fn receipt(value: &Value, path: &Path, bytes: &[u8], parts: Option<u32>) -> Chec
 }
 fn text() -> Check {
     let env = Environment::new()?;
-    let folder = env.root().join("papers");
+    let folder = env.root().join(".papers");
     fs::create_dir(&folder)?;
     let capture = "article/fulltext/live-introduction";
     let value = command(&env, capture, &args("text", &folder), 0)?;
