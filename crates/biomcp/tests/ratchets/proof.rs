@@ -557,11 +557,11 @@ fn module_shape_rejects_new_source_debt() -> Check {
             .to_string();
         assert!(failure.contains("parent modules with logic"), "{failure}");
     }
-    for delimiter in ['{', '}'] {
+    for literal in ["'{'", "'}'", "'\"'", "'\\''", "'\\\\'", "r#\"\" }\"#", "br##\"\" }\"##"] {
         put(
             root,
             parent,
-            &format!("//! Values.\nfn value() {{ let _ = '{delimiter}'; }}\nmod value;\n"),
+            &format!("//! Values.\nfn value() {{ let _ = {literal}; }}\nmod value;\n"),
         )?;
         let failure = super::module_shape::limits(root, 0, 0)
             .expect_err("quoted delimiters must not hide a parent")
