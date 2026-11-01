@@ -8,10 +8,9 @@ macro_rules! quotas {
     ($(#[doc = $citation:literal] $symbol:ident = $quota:expr;)*) => {
         $(#[doc = $citation]
         pub(crate) static $symbol: Quota = $quota;)*
+        static POLICIES: &[SourcePolicy] = &[$(SourcePolicy { quota: &$symbol, citation: $citation },)*];
         /// Every provider bucket and its published policy or bounded absence finding.
-        pub fn policies() -> &'static [SourcePolicy] {
-            &[$(SourcePolicy { quota: &$symbol, citation: $citation },)*]
-        }
+        pub fn policies() -> &'static [SourcePolicy] { POLICIES }
     };
 }
 

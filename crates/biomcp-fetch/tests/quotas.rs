@@ -59,14 +59,28 @@ fn quota(key: &'static str, rate: Rate, keyed: Option<Rate>, in_flight: u8) -> &
 #[test]
 fn canceled_waiter_leaves_shared_in_flight_queue_and_releases_successor() {
     let server = Server::new();
-    let shared = quota("shared", Rate::per_second(1000), None, 1);
+    let shared = quota("shared", Rate::per_second(1000), None, 2);
     let first = server.spec(shared, KeyUse::None);
     let second = server.spec(shared, KeyUse::None);
     let independent = server.spec(
         quota("independent", Rate::per_second(1000), None, 1),
         KeyUse::None,
     );
-    let fetch = Fetch::open(FetchConfig::default()).unwrap();
+    let mut source_pacing = biomcp_fetch::SourcePacing::default();
+    source_pacing
+        .insert(
+            shared,
+            biomcp_fetch::PacingOverride {
+                in_flight: Some(1),
+                ..Default::default()
+            },
+        )
+        .unwrap();
+    let fetch = Fetch::open(FetchConfig {
+        source_pacing,
+        ..Default::default()
+    })
+    .unwrap();
     let restricted = fetch.restrict_sources([biomcp_types::Source::Oncokb].into());
     assert!(!fetch.disabled(biomcp_types::Source::Oncokb));
     assert!(

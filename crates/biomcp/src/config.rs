@@ -83,6 +83,11 @@ pub(crate) enum StartupError {
     Configuration(ConfigError),
     Local,
 }
+impl StartupError {
+    pub(crate) fn is_pacing(&self) -> bool {
+        matches!(self, Self::Configuration(error) if error.0 == "source_pacing" || error.0.starts_with("source_pacing."))
+    }
+}
 impl From<ConfigError> for StartupError {
     fn from(error: ConfigError) -> Self {
         Self::Configuration(error)
