@@ -6,6 +6,11 @@ root=${2:-$(mktemp -d /private/tmp/biomcp-0459.XXXXXX)}
 case "$root" in /private/tmp/biomcp-0459.*) ;; *) echo 'unexpected qualification root' >&2; exit 1;; esac
 revision=${3:-$(git rev-parse HEAD)}
 export BIOMCP_BUILD_REVISION="$revision"
+if [ "$phase" = fixture ]; then
+    [ "$(git rev-parse HEAD)" = "$revision" ] || exit 1
+    export CARGO_TARGET_DIR="$root/target"
+    exec sh scripts/check_release_recipe.sh schema-reuse
+fi
 source="$root/source-$revision"
 mkdir -p "$source"
 git archive "$revision" | /usr/bin/tar -xf - -C "$source"
