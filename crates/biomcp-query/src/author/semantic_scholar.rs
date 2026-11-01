@@ -206,8 +206,11 @@ fn retained(
     deadline: Deadline<'_>,
     out: &mut Outcome,
 ) -> Result<Option<(super::NativePages<author::PapersPage>, crate::store::Pool)>, RequestError> {
-    let (saved, mismatch) =
-        snapshot::find::<super::NativePages<author::PapersPage>>(cx, key, q.pool(), deadline)?;
+    let (saved, mismatch) = if cx.fresh {
+        (None, false)
+    } else {
+        snapshot::find::<super::NativePages<author::PapersPage>>(cx, key, q.pool(), deadline)?
+    };
     let saved = saved.filter(|(saved, _)| {
         saved.pages.iter().any(|p| q.offset() == p.offset)
             || saved

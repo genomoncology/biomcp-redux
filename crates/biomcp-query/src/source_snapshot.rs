@@ -86,9 +86,6 @@ pub(crate) fn find<T: DeserializeOwned>(
     token: Option<&biodata::Text>,
     deadline: Deadline<'_>,
 ) -> Result<Found<T>, RequestError> {
-    if cx.fresh {
-        return Ok((None, false));
-    }
     let store = Store::open(cx.fetch.cache_access()?, deadline)?;
     let pool = store.find(key, token.map(biodata::Text::as_str))?;
     let mismatch = pool.as_ref().is_some_and(|p| p.key != key);

@@ -28,7 +28,11 @@ pub(super) fn load(
     }
     let key = q.key()?;
     type Saved = (Entry, Vec<biomcp_types::Problem>, bool);
-    let (saved, mismatch) = source_snapshot::find::<Saved>(cx, &key, selected, deadline)?;
+    let (saved, mismatch) = if cx.fresh {
+        (None, false)
+    } else {
+        source_snapshot::find::<Saved>(cx, &key, selected, deadline)?
+    };
     if let Some(((entry, problems, dropped), pool)) = saved {
         out.sources = pool.sources;
         out.problems = problems;

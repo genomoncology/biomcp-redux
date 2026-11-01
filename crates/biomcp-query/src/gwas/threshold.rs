@@ -99,7 +99,11 @@ fn read(
         return Ok(());
     }
     let key = key(q)?;
-    let (prior, mismatch) = source_snapshot::find::<Saved>(cx, &key, q.pool(), deadline)?;
+    let (prior, mismatch) = if cx.fresh {
+        (None, false)
+    } else {
+        source_snapshot::find::<Saved>(cx, &key, q.pool(), deadline)?
+    };
     let (mut saved, prior) = match prior {
         Some((saved, pool)) => (saved, Some(pool)),
         None if q.pool().is_some() => {

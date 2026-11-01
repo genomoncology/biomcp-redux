@@ -115,7 +115,11 @@ fn load(
     cx: &Ctx<'_>,
     out: &mut Outcome,
 ) -> Result<Option<Loaded>, RequestError> {
-    let (saved, mismatch) = source_snapshot::find::<Saved>(cx, &key(q)?, q.pool(), deadline)?;
+    let (saved, mismatch) = if cx.fresh {
+        (None, false)
+    } else {
+        source_snapshot::find::<Saved>(cx, &key(q)?, q.pool(), deadline)?
+    };
     if let Some((saved, pool)) = saved {
         return Ok(Some(Loaded {
             saved,

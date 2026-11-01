@@ -171,7 +171,11 @@ fn load(
 ) -> Result<Option<(Saved, biomcp_types::PoolInfo)>, RequestError> {
     let (_, _, selected) = q.window();
     let key = q.key()?;
-    let (saved, mismatch) = source_snapshot::find::<Saved>(cx, &key, selected, deadline)?;
+    let (saved, mismatch) = if cx.fresh {
+        (None, false)
+    } else {
+        source_snapshot::find::<Saved>(cx, &key, selected, deadline)?
+    };
     let loaded = if let Some((saved, pool)) = saved {
         out.sources = pool.sources;
         (saved, pool.info)

@@ -69,7 +69,11 @@ fn execute(
         Vec<biomcp_types::Problem>,
         bool,
     );
-    let (saved, mismatch) = source_snapshot::find::<Saved>(cx, &expected, q.pool(), deadline)?;
+    let (saved, mismatch) = if cx.fresh {
+        (None, false)
+    } else {
+        source_snapshot::find::<Saved>(cx, &expected, q.pool(), deadline)?
+    };
     let (groups, source, pool) = if let Some(((groups, source, problems, dropped), pool)) = saved {
         out.problems.extend(problems);
         out.dropped = dropped;
