@@ -16,37 +16,62 @@ use std::{
 };
 use tokio::io::{AsyncRead, AsyncReadExt, AsyncWrite, AsyncWriteExt};
 use tonic::codegen::http;
+/// A fixture result that may cross worker threads.
 pub type Check<T = ()> = Result<T, Box<dyn std::error::Error + Send + Sync>>;
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+/// The transport phase deliberately held by a local peer.
 pub enum Hold {
+    /// Run without a held phase.
     None,
+    /// Hold before the TLS handshake.
     Tls,
+    /// Hold the proxy CONNECT reply.
     Connect,
+    /// Hold while reading the request body.
     Upload,
+    /// Hold before sending response headers.
     Headers,
+    /// Hold before sending messages.
     Message,
+    /// Hold before sending trailers.
     Trailers,
+    /// Reset the stream after messages.
     Interrupt,
+    /// Omit HTTP/2 protocol negotiation.
     NoAlpn,
 }
 #[derive(Debug)]
+/// One observed transport event from the owned local peer.
 pub enum Seen {
+    /// Accepted a TCP socket.
     Tcp,
+    /// Received an HTTP request.
     Http(String),
+    /// Received the gRPC path.
     Path(String),
+    /// Received a CONNECT request.
     Connect(String),
+    /// Received the headers and protobuf body.
     Request(http::HeaderMap, Vec<u8>),
+    /// Hold before sending messages.
     Message,
+    /// Hold before sending trailers.
     Trailers,
 }
 #[expect(
     clippy::disallowed_types,
     reason = "Count sockets only across this fixture and its joined worker"
 )]
+#[derive(Debug)]
+/// A local TLS peer whose worker stops and joins with its owner.
 pub struct Fixture {
+    /// The ephemeral local listener address.
     pub address: std::net::SocketAddr,
+    /// The synthetic PEM trust anchor.
     pub certificate: String,
+    /// Events emitted by the local transport worker.
     pub events: mpsc::Receiver<Seen>,
+    /// The number of accepted sockets.
     pub count: Arc<AtomicUsize>,
     stop: Option<tokio::sync::oneshot::Sender<()>>,
     thread: Option<thread::JoinHandle<Check>>,
@@ -57,17 +82,22 @@ struct Replies {
     status: u16,
 }
 #[derive(Debug)]
+/// Additional HTTP replies served by the same synthetic TLS peer.
 pub struct HttpReply {
+    /// Extra host names included in the certificate.
     pub hosts: Vec<String>,
+    /// HTTP request prefixes paired with response bodies.
     pub replies: Vec<(String, Vec<u8>)>,
 }
 trait Io: AsyncRead + AsyncWrite + Send + Unpin {}
 impl<T: AsyncRead + AsyncWrite + Send + Unpin> Io for T {}
 type Socket = Box<dyn Io>;
 impl Fixture {
+    /// Start a local TLS peer with a synthetic protobuf reply.
     pub fn new(hold: Hold, status: u8, proxy: bool, proxy_tls: bool) -> Check<Self> {
         Self::with_messages(hold, status, proxy, proxy_tls, vec![vec![8, 42]])
     }
+    /// Start a peer returning the supplied protobuf messages.
     pub fn with_messages(
         hold: Hold,
         status: u8,
@@ -81,6 +111,7 @@ impl Fixture {
         clippy::disallowed_types,
         reason = "Count sockets only across this fixture and its joined worker"
     )]
+    /// Start a peer serving synthetic gRPC and optional HTTP responses.
     pub fn with_http(
         hold: Hold,
         status: u8,
@@ -159,14 +190,17 @@ impl Fixture {
             thread: Some(thread),
         })
     }
+    /// Trust this fixture and apply explicit proxy settings.
     pub fn network(&self, proxy: Option<biomcp_fetch::Secret>, bypass: &str) -> Check<Network> {
         Ok(Network::new(
+            /// Run without a held phase.
             None,
             proxy,
             bypass,
             Certificates::from_pem(self.certificate.as_bytes())?,
         )?)
     }
+    /// Declare a synthetic source using the caller-owned admission quota.
     pub fn with_quota(
         &self,
         proxy: bool,
@@ -193,9 +227,11 @@ impl Fixture {
             deadline: Duration::from_secs(5),
         }))
     }
+    /// Wait for the next observed transport event.
     pub fn received(&self) -> Check<Seen> {
         Ok(self.events.recv_timeout(Duration::from_secs(5))?)
     }
+    /// Wait until a response message has been written.
     pub fn wait_message(&self) -> Check {
         loop {
             if matches!(self.received()?, Seen::Message) {
@@ -203,6 +239,7 @@ impl Fixture {
             }
         }
     }
+    /// Stop and join the owned worker, returning its error.
     pub fn finish(mut self) -> Check {
         self.stop();
         if let Some(thread) = self.thread.take() {
@@ -368,11 +405,15 @@ async fn reply(
     Ok(())
 }
 
+#[derive(Debug)]
+/// A blocking request whose worker is joined on completion or drop.
 pub struct Call {
     thread: Option<thread::JoinHandle<Result<(), biomcp_fetch::RequestError>>>,
+    /// The request deadline reported by the caller worker.
     pub end: std::time::Instant,
 }
 impl Call {
+    /// Start a blocking gRPC call and report its deadline.
     pub fn start(
         fetch: biomcp_fetch::Fetch,
         source: &'static SourceSpec,
@@ -398,11 +439,13 @@ impl Call {
         call.end = start.recv_timeout(Duration::from_secs(5))?;
         Ok(call)
     }
+    /// Report whether the owned caller has completed.
     pub fn is_finished(&self) -> bool {
         self.thread
             .as_ref()
             .is_none_or(thread::JoinHandle::is_finished)
     }
+    /// Stop and join the owned worker, returning its error.
     pub fn finish(mut self) -> Check<Result<(), biomcp_fetch::RequestError>> {
         Ok(self
             .thread

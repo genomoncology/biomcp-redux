@@ -7,6 +7,7 @@ license.workspace = true
 publish = false
 
 [dependencies]
+time = { version = "0.3.55", default-features = false, features = ["std"] }
 biomcp-fetch.workspace = true
 biomcp-types.workspace = true
 serde.workspace = true
@@ -20,3 +21,6 @@ tokio.workspace = true
 tokio-rustls.workspace = true
 tonic = { workspace = true, features = ["codegen"] }
 prost.workspace = true
+
+[lints]
+workspace = true

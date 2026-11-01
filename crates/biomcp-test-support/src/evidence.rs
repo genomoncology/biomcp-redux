@@ -8,6 +8,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
+/// Create a retained evidence directory outside disposable test scratch.
 pub fn directory() -> io::Result<PathBuf> {
     let fallback = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../target/fixture-evidence");
     let directory = std::env::var_os("BIOMCP_EVIDENCE_DIR").map_or_else(

@@ -33,7 +33,6 @@ tempfile.workspace = true
 
 [dev-dependencies]
 biomcp-test-support.workspace = true
-rcgen = { workspace = true, features = ["crypto", "ring", "pem"] }
 rusqlite = { workspace = true, features = ["trace"] }
 
 [lints]

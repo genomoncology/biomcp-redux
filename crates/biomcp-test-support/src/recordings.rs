@@ -38,6 +38,7 @@ pub fn copy_capture(
     Ok(())
 }
 
+/// Assign a synthetic acquisition date to successful exchanges.
 pub fn cache_acquisition(record: &mut Value, acquired: i64) {
     if let Some(exchanges) = record.get_mut("exchanges").and_then(Value::as_array_mut) {
         for exchange in exchanges {

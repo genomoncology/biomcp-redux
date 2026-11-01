@@ -1,5 +1,6 @@
 //! Copy source recordings from the common public fixture root.
 use super::recordings;
+/// Copy a recording tree while mutating each JSON exchange.
 pub fn copy_capture(
     capture: &str,
     target: &std::path::Path,

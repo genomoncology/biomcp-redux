@@ -2,7 +2,7 @@
 pub mod capture;
 pub mod environment;
 pub mod evidence;
-pub mod fixture_evidence;
+mod fixture_evidence;
 pub mod fixtures;
 pub mod grpc;
 pub mod hash;

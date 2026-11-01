@@ -19,9 +19,7 @@ zip.workspace = true
 
 [dev-dependencies]
 biomcp-test-support.workspace = true
-time = { version = "0.3.55", default-features = false, features = ["std"] }
 sha2.workspace = true
-rcgen = { workspace = true, features = ["pem", "ring"] }
 rustls.workspace = true
 libtest-mimic.workspace = true
 serde_json.workspace = true

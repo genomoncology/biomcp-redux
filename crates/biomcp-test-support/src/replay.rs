@@ -3,6 +3,7 @@ use super::capture::copy_capture;
 use biomcp_fetch::{Fetch, FetchConfig, Mode};
 use serde_json::Value;
 type Check<T> = Result<T, Box<dyn std::error::Error>>;
+/// Open an isolated replay fetcher from a named public capture.
 pub fn replay(
     capture: &str,
     change: impl FnMut(&str, &mut Value),

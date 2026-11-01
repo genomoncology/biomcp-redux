@@ -11,7 +11,7 @@ use std::{
     sync::{Arc, Mutex},
 };
 
-#[derive(Serialize)]
+#[derive(Debug, Serialize)]
 struct Context {
     local: SocketAddr,
     peer: Option<SocketAddr>,
@@ -21,12 +21,13 @@ struct Context {
     phase: &'static str,
     io_error: Option<String>,
 }
-pub struct Evidence {
+#[derive(Debug)]
+pub(crate) struct Evidence {
     context: Mutex<Context>,
     roots: Mutex<Vec<Arc<tempfile::TempDir>>>,
 }
 impl Evidence {
-    pub fn new(local: SocketAddr, hosts: &[&str]) -> Arc<Self> {
+    pub(crate) fn new(local: SocketAddr, hosts: &[&str]) -> Arc<Self> {
         Arc::new(Self {
             context: Mutex::new(Context {
                 local,
@@ -40,7 +41,7 @@ impl Evidence {
             roots: Mutex::new(Vec::new()),
         })
     }
-    pub fn attach(&self, root: Arc<tempfile::TempDir>) {
+    pub(crate) fn attach(&self, root: Arc<tempfile::TempDir>) {
         let mut roots = self
             .roots
             .lock()
@@ -49,7 +50,7 @@ impl Evidence {
             roots.push(root);
         }
     }
-    pub fn accept(&self, stream: io::Result<TcpStream>) -> Result<TcpStream, String> {
+    pub(crate) fn accept(&self, stream: io::Result<TcpStream>) -> Result<TcpStream, String> {
         let socket = self.check("accept", stream)?;
         {
             let mut context = self
@@ -70,13 +71,13 @@ impl Evidence {
         )?;
         Ok(socket)
     }
-    pub fn destination(&self, host: &str) {
+    pub(crate) fn destination(&self, host: &str) {
         self.context
             .lock()
             .unwrap_or_else(std::sync::PoisonError::into_inner)
             .host = Some(host.into());
     }
-    pub fn check<T, E: std::fmt::Display>(
+    pub(crate) fn check<T, E: std::fmt::Display>(
         &self,
         phase: &'static str,
         result: Result<T, E>,
@@ -94,7 +95,7 @@ impl Evidence {
             )
         })
     }
-    pub fn preserve(&self, reason: &'static str) -> String {
+    pub(crate) fn preserve(&self, reason: &'static str) -> String {
         let context = self
             .context
             .lock()
@@ -149,7 +150,7 @@ fn retain(root: &Path, context: &Context, reason: &str) -> io::Result<PathBuf> {
     )?;
     Ok(path)
 }
-pub use crate::evidence::directory;
+pub(crate) use crate::evidence::directory;
 
 fn copy(source: &Path, destination: &Path) -> io::Result<()> {
     fs::create_dir(destination)?;
@@ -167,7 +168,7 @@ fn copy(source: &Path, destination: &Path) -> io::Result<()> {
 }
 
 /// Keep actual replay inputs while their capture still owns the temporary directory.
-pub fn retain_replay_owner(owner: &tempfile::TempDir) -> io::Result<()> {
+pub(crate) fn retain_replay_owner(owner: &tempfile::TempDir) -> io::Result<()> {
     let root = owner.path().canonicalize()?;
     let retained = directory()?
         .join("replay-owners")

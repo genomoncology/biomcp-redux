@@ -1,10 +1,12 @@
 //! A local CONNECT peer terminates TLS with a synthetic private trust anchor.
 use crate::fixture_evidence as evidence;
 
+/// Create the shared retained evidence directory.
 pub fn evidence_directory() -> std::io::Result<std::path::PathBuf> {
     evidence::directory()
 }
 
+/// Retain the replay inputs before their temporary owner is dropped.
 pub fn retain_replay_owner(owner: &tempfile::TempDir) -> std::io::Result<()> {
     evidence::retain_replay_owner(owner)
 }
@@ -21,18 +23,24 @@ use std::{
 
 type Requests = Vec<(String, String)>;
 
+#[derive(Debug)]
+/// A local CONNECT peer with owned worker and retained failure evidence.
 pub struct Stub {
+    /// The ephemeral local proxy address.
     pub address: std::net::SocketAddr,
+    /// The synthetic PEM trust anchor.
     pub certificate: String,
     stop: mpsc::Sender<()>,
     evidence: Arc<evidence::Evidence>,
     worker: Option<thread::JoinHandle<Result<Requests, String>>>,
 }
 impl Stub {
+    /// Attach an isolated environment to failure evidence.
     pub fn retain(&self, root: Arc<tempfile::TempDir>) {
         self.evidence.attach(root);
     }
 
+    /// Start a synthetic HGNC publisher behind a local CONNECT proxy.
     pub fn new() -> Result<Self, String> {
         Self::for_source(
             "storage.googleapis.com",
@@ -40,6 +48,7 @@ impl Stub {
             |request| body(request.contains("withdrawn.txt")),
         )
     }
+    /// Serve synthetic responses for one publisher host.
     pub fn for_source(
         host: &'static str,
         content_type: &'static str,
@@ -47,6 +56,7 @@ impl Stub {
     ) -> Result<Self, String> {
         Self::for_sources(&[host], move |_| content_type, reply)
     }
+    /// Serve responses with a controlled content length.
     pub fn with_length(
         host: &'static str,
         content_type: impl Fn(&str) -> &'static str + Send + 'static,
@@ -55,6 +65,7 @@ impl Stub {
     ) -> Result<Self, String> {
         Self::with_status(host, content_type, reply, length, |_| 200)
     }
+    /// Serve responses with controlled status and content length.
     pub fn with_status(
         host: &'static str,
         content_type: impl Fn(&str) -> &'static str + Send + 'static,
@@ -64,6 +75,7 @@ impl Stub {
     ) -> Result<Self, String> {
         Self::with_hosts(&[host], content_type, reply, length, status)
     }
+    /// Serve synthetic responses for several publisher hosts.
     pub fn for_sources(
         hosts: &[&str],
         content_type: impl Fn(&str) -> &'static str + Send + 'static,
@@ -71,6 +83,7 @@ impl Stub {
     ) -> Result<Self, String> {
         Self::with_hosts(hosts, content_type, reply, |_, bytes| bytes, |_| 200)
     }
+    /// Serve one publisher with controlled response status.
     pub fn for_source_status(
         host: &'static str,
         content_type: &'static str,
@@ -96,6 +109,7 @@ impl Stub {
             String::new()
         })
     }
+    /// Serve CPIC responses with caller-controlled body, range and status.
     pub fn counted(
         reply: impl FnMut(&str) -> Result<String, String> + Send + 'static,
         range: impl FnMut(&str) -> String + Send + 'static,
@@ -110,6 +124,7 @@ impl Stub {
             range,
         )
     }
+    /// Start a CONNECT peer with caller-controlled response headers.
     pub fn with_headers(
         hosts: &[&str],
         content_type: impl Fn(&str) -> &'static str + Send + 'static,
@@ -171,6 +186,7 @@ impl Stub {
             worker: Some(worker),
         })
     }
+    /// Stop and join the peer, returning all observed requests.
     pub fn finish(mut self) -> Result<Vec<(String, String)>, String> {
         let _ = self.stop.send(());
         let _ = TcpStream::connect(self.address);
@@ -210,6 +226,7 @@ fn header(input: &mut impl Read) -> Result<String, String> {
     }
     String::from_utf8(bytes).map_err(|e| e.to_string())
 }
+/// Read the synthetic HGNC response from the public fixtures.
 pub fn body(withdrawn: bool) -> Result<String, String> {
     let root = super::fixtures::fixtures().join("replies/gene/main/hgnc");
     for file in fs::read_dir(root).map_err(|e| e.to_string())? {
@@ -232,6 +249,7 @@ pub fn body(withdrawn: bool) -> Result<String, String> {
     Err("missing HGNC fixture".into())
 }
 
+/// Issue a synthetic TLS identity for the given test hosts.
 pub fn identity(hosts: &[&str]) -> Result<(String, Arc<ServerConfig>), String> {
     use rcgen::{
         BasicConstraints, CertificateParams, ExtendedKeyUsagePurpose, IsCa, KeyPair,
@@ -270,6 +288,7 @@ pub fn identity(hosts: &[&str]) -> Result<(String, Arc<ServerConfig>), String> {
     Ok((ca.pem(), Arc::new(config)))
 }
 
+/// Read a bounded HTTP request including its body.
 pub fn source_request(input: &mut impl Read) -> Result<String, String> {
     let mut request = header(input)?;
     let length = request
