@@ -339,7 +339,8 @@ fn busy_health() -> Check {
         }
         if status != 200 || Instant::now() >= end {
             return Err(format!(
-                "eight long calls did not occupy capacity: {status}"
+                "eight long calls did not occupy capacity: {status}; held={}",
+                held_outcomes(&mut held)
             ));
         }
     }
@@ -350,4 +351,33 @@ fn busy_health() -> Check {
     drop(writer);
     drop(held);
     Ok(())
+}
+
+#[cfg(unix)]
+fn held_outcomes(held: &mut [TcpStream]) -> String {
+    held.iter_mut()
+        .map(|socket| {
+            if let Err(error) = socket.set_nonblocking(true) {
+                return error.to_string();
+            }
+            let mut response = String::new();
+            let result = socket.take(8192).read_to_string(&mut response);
+            if response.is_empty() {
+                return format!("pending {result:?}");
+            }
+            let Some((head, body)) = response.split_once("\r\n\r\n") else {
+                return format!("incomplete header: {} bytes", response.len());
+            };
+            let value = serde_json::from_str::<serde_json::Value>(body).ok();
+            format!(
+                "{} rpc_error={:?} tool_error={:?}",
+                head.lines().next().unwrap_or_default(),
+                value.as_ref().and_then(|value| value.get("error")),
+                value
+                    .as_ref()
+                    .and_then(|value| value.pointer("/result/structuredContent/error"))
+            )
+        })
+        .collect::<Vec<_>>()
+        .join("; ")
 }

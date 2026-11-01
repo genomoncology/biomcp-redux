@@ -247,3 +247,8 @@ test-support-checks: pre-job
 public-docs-check:
 	+$(MAKE) --no-print-directory pre-job
 	+$(MAKE) --no-print-directory docs-check
+
+.PHONY: http-busy-diagnosis
+http-busy-diagnosis: fmt
+	cargo test --locked -p biomcp --test cases mcp-http/framing-resource-deadlines-and-shutdown $(TEST_THREADS)
+	cargo llvm-cov test --no-report --locked -p biomcp --test cases mcp-http/framing-resource-deadlines-and-shutdown $(TEST_THREADS)
