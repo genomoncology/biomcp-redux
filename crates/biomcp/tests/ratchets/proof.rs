@@ -557,6 +557,17 @@ fn module_shape_rejects_new_source_debt() -> Check {
             .to_string();
         assert!(failure.contains("parent modules with logic"), "{failure}");
     }
+    for delimiter in ['{', '}'] {
+        put(
+            root,
+            parent,
+            &format!("//! Values.\nfn value() {{ let _ = '{delimiter}'; }}\nmod value;\n"),
+        )?;
+        let failure = super::module_shape::limits(root, 0, 0)
+            .expect_err("quoted delimiters must not hide a parent")
+            .to_string();
+        assert!(failure.contains("parent modules with logic"), "{failure}");
+    }
     put(
         root,
         parent,

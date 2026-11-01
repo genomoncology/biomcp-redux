@@ -75,8 +75,8 @@ fn shape(input: &[String]) -> (bool, bool) {
     let mut parent = false;
     let mut declarations_only = true;
     let mut index = 0;
-    while index < input.len() {
-        if input[index] == "#" {
+    while let Some(token) = input.get(index) {
+        if token == "#" {
             index += 1;
             if input.get(index).is_some_and(|token| token == "!") {
                 index += 1;
@@ -84,7 +84,7 @@ fn shape(input: &[String]) -> (bool, bool) {
             index = group_end(input, index, "[", "]");
             continue;
         }
-        if input[index] == "pub" {
+        if token == "pub" {
             index += 1;
             if input.get(index).is_some_and(|token| token == "(") {
                 index = group_end(input, index, "(", ")");
@@ -96,8 +96,8 @@ fn shape(input: &[String]) -> (bool, bool) {
         let declaration = matches!(kind, "mod" | "use")
             || kind == "extern" && input.get(index + 1).is_some_and(|token| token == "crate");
         declarations_only &= declaration;
-        while index < input.len() {
-            match input[index].as_str() {
+        while let Some(token) = input.get(index) {
+            match token.as_str() {
                 ";" => {
                     index += 1;
                     break;
@@ -124,6 +124,15 @@ fn shape(input: &[String]) -> (bool, bool) {
 fn group_end(input: &[String], start: usize, open: &str, close: &str) -> usize {
     let mut depth = 0;
     for (index, token) in input.iter().enumerate().skip(start) {
+        // A quoted delimiter is a character literal, not Rust item structure.
+        if index
+            .checked_sub(1)
+            .and_then(|index| input.get(index))
+            .is_some_and(|previous| previous == "'")
+            && input.get(index + 1).is_some_and(|next| next == "'")
+        {
+            continue;
+        }
         if token == open {
             depth += 1;
         }
