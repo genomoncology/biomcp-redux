@@ -141,7 +141,11 @@ fn headers() -> Result<(), String> {
         };
         let mut server =
             Server::configured_globals("127.0.0.1:0", None, None, None, None, &globals)?;
-        let frame = json!({"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"biomcp","arguments":{"args":["get","pgx","--gene","DPYD","--source","cpic","--offline"]}}});
+        let frame = json!({"jsonrpc":"2.0","id":1,"method":"tools/call", "params":{
+            "name":"biomcp", "arguments":{
+                "args":["get","pgx","--gene","DPYD","--source","cpic","--offline"]
+            }
+        }});
         for extra in [
             "x-biomcp-use: invalid\r\n",
             "x-biomcp-use: \r\n",
