@@ -26,8 +26,17 @@ fn failure(kind: &str, error: CacheError) -> Check {
     }
     let env = Environment::new()?;
     let replay = env.root().join("recordings");
-    copy_capture("trial/get/NCT03734029", &replay, |_, _| {})?;
-    let args = ["get", "trial", "NCT03734029", "locations"].map(str::to_owned);
+    let args = if matches!(kind, "encoding" | "limit") {
+        copy_capture("article/search/synthetic-small", &replay, |_, _| {})?;
+        ["search", "article", "AKT1 E17K", "--limit", "2"]
+            .map(str::to_owned)
+            .to_vec()
+    } else {
+        copy_capture("trial/get/NCT03734029", &replay, |_, _| {})?;
+        ["get", "trial", "NCT03734029", "locations"]
+            .map(str::to_owned)
+            .to_vec()
+    };
     let first = command(&env, &args, &env.globals(Some(&replay), false), 0)?;
     let next = super::action(&first, "page")?;
     let path = env.root().join("case-cache/replay.sqlite");
@@ -40,11 +49,15 @@ fn failure(kind: &str, error: CacheError) -> Check {
     let db = fetch.cache_access()?.connect()?;
     let args = match kind {
         "encoding" => {
-            db.execute("UPDATE pool SET outcomes='invalid JSON'", [])?;
+            if db.execute("UPDATE pool SET outcomes='invalid JSON'", [])? != 1 {
+                return Err("expected one article pool".into());
+            }
             next
         }
         "limit" => {
-            db.execute("UPDATE pool SET created=-1", [])?;
+            if db.execute("UPDATE pool SET created=-1", [])? != 1 {
+                return Err("expected one article pool".into());
+            }
             next
         }
         "internal" => {
