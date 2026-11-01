@@ -125,3 +125,8 @@ release-mutations:
 workflow-lint:
 	cargo check --locked -p biodata -p biomcp-types --no-default-features
 	actionlint
+
+.PHONY: publication-check
+publication-check:
+	actionlint
+	python3 -m unittest release.test_publication release.test_workflow release.test_workflow_contracts
