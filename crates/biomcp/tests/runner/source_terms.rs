@@ -9,7 +9,10 @@ pub(super) mod text {
             '&' => "&amp;".into(), '<' => "&lt;".into(), '>' => "&gt;".into(),
             ':' => "&#58;".into(), '.' => "&#46;".into(), '@' => "&#64;".into(),
             '\n' => "&#10;".into(), '\r' => "&#13;".into(),
-            ch if ch.is_control() || matches!(ch, '\u{061c}' | '\u{200e}' | '\u{200f}' | '\u{202a}'..='\u{202e}' | '\u{2066}'..='\u{2069}') => format!("\\u{{{:04x}}}", u32::from(ch)),
+            ch if ch.is_control()
+                || matches!(ch, '\u{061c}' | '\u{200e}' | '\u{200f}' | '\u{202a}'..='\u{202e}' | '\u{2066}'..='\u{2069}') => {
+                format!("\\u{{{:04x}}}", u32::from(ch))
+            },
             ch if "\\*_`|[]#!~".contains(ch) => format!("\\{ch}"),
             ch => ch.to_string(),
         }).collect()
