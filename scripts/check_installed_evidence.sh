@@ -29,9 +29,10 @@ case "${1:-linux}" in
   focused)
     cargo fmt --all -- --check
     python3.13 scripts/check_shell.py
-    cargo test --locked -p biomcp --test tools schema-discovery/retains-failed-local-peer-state -- --exact
-    cargo test --locked -p biomcp --test tools schema-discovery/persistent-fixture-evidence -- --exact
-    cargo test --locked -p biomcp --test tools schema-discovery/persistent-native-evidence -- --exact
+    cargo test --locked -p biomcp --test tools -- --proofs --exact schema-discovery/retains-failed-local-peer-state
+    cargo test --locked -p biomcp --test tools -- --proofs --exact schema-discovery/persistent-fixture-evidence
+    cargo test --locked -p biomcp --test tools -- --proofs --exact schema-discovery/persistent-native-evidence
+    cargo clippy --locked -p biomcp --test tools -- -D warnings
     ;;
   *) exit 2 ;;
 esac
