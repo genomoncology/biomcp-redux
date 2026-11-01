@@ -17,7 +17,7 @@ landing-gate:
 	+python3 scripts/landing_gate.py
 
 # Keep these sequential even when the caller uses make -j.
-.PHONY: pre-job proof-check proof-list proof proof-unpack
+.PHONY: pre-job proof-check proof-list proof proof-unpack gate-stage-check
 pre-job:
 	+$(MAKE) --no-print-directory fmt
 	+$(MAKE) --no-print-directory lint
@@ -41,6 +41,9 @@ proof-check:
 	python3 scripts/test_trials.py
 	python3 scripts/test_reply_diff.py
 	python3 scripts/test_schema_release.py
+	+$(MAKE) --no-print-directory gate-stage-check
+
+gate-stage-check:
 	python3 -m unittest scripts.test_gate_stages
 
 plain-cli-build:
@@ -100,7 +103,7 @@ docs-check:
 	python3 scripts/test_coverage.py
 	python3 scripts/test_reply_diff.py
 	python3 scripts/test_schema_release.py
-	python3 -m unittest scripts.test_gate_stages
+	+$(MAKE) --no-print-directory gate-stage-check
 	python3 scripts/test_build_workers.py
 	python3 scripts/test_trials.py
 	python3 scripts/test_nightly_live_check.py
