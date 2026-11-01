@@ -85,8 +85,8 @@ pub(super) fn features(
                     ),
                     id: p.source_field("features.featureId", r.feature_id),
                     original,
-                    alternative,
-                    evidence: evidence(evidence_rows.into_vec(), p),
+                    alternative: alternative.into_vec(),
+                    evidence: evidence(evidence_rows.into_vec(), p).into_vec(),
                 },
                 attribution: Attribution {
                     approved: None,
