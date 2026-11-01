@@ -776,6 +776,66 @@
           ]
         }
       ]
+    },
+    {
+      "from": "^((semantic-scholar|semanticscholar):[1-9][0-9]*|orcid:[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[0-9X])$",
+      "to": "^(semantic-scholar:[1-9][0-9]*|orcid:[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[0-9X])$",
+      "review": "Remove the reviewed author identifier alias and preserve canonical source IDs.",
+      "sites": [
+        {
+          "schema": "biomcp.author-card/6",
+          "paths": [
+            "/query/ids/[]",
+            "/result/items/[]/card/header/id",
+            "/result/items/[]/input"
+          ]
+        },
+        {
+          "schema": "biomcp.author-get-query/2",
+          "paths": [
+            "/ids/[]"
+          ]
+        },
+        {
+          "schema": "biomcp.author-page/5",
+          "paths": [
+            "/result/items/[]/id"
+          ]
+        },
+        {
+          "schema": "biomcp.author-paper-details/6",
+          "paths": [
+            "/query/id",
+            "/result/author"
+          ]
+        },
+        {
+          "schema": "biomcp.author-papers-query/2",
+          "paths": [
+            "/id"
+          ]
+        },
+        {
+          "schema": "biomcp.author-papers/6",
+          "paths": [
+            "/query/id",
+            "/result/author"
+          ]
+        },
+        {
+          "schema": "biomcp.orcid-works/8",
+          "paths": [
+            "/query/id"
+          ]
+        },
+        {
+          "schema": "biomcp.request/32",
+          "paths": [
+            "/@command=author-papers/id",
+            "/@command=get-author/ids/[]"
+          ]
+        }
+      ]
     }
   ]
 }
