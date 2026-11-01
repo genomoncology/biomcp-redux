@@ -411,6 +411,7 @@ mod tests {
                 json!({"benchmark":"hosted-http-sync", "host":std::env::consts::OS,
             "cache":"cold replay store, then shared warm Fetch with concurrent repeated sync",
             "publisher_delay":"zero; measure local shared cache work",
+            "acquisition":"measurement time assigned to copied captures for cache admission",
             "latency_seconds":latencies,
             "workers":super::super::MAX_CONNECTIONS,"call_limit":CALLS,"window_seconds":WINDOW.as_secs(),
             "elapsed_seconds":started.elapsed().as_secs_f64(),"completed_calls":samples.len(),
@@ -505,6 +506,13 @@ mod tests {
                         .ok_or_else(|| io::Error::other("recorded exchanges missing"))?;
                     for exchange in exchanges.iter_mut() {
                         exchange["delay_ms"] = json!(0);
+                        // Give copied captures a current acquisition time so real cache writes run.
+                        exchange["fetched"] = json!(
+                            std::time::SystemTime::now()
+                                .duration_since(std::time::UNIX_EPOCH)
+                                .map_err(io::Error::other)?
+                                .as_secs()
+                        );
                     }
                     let original = exchanges.clone();
                     for _ in 0..SYNCS {
