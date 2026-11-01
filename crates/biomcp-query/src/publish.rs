@@ -59,8 +59,11 @@ fn restart(request: &Request) -> Request {
         Request::SearchAdverseEvent(q) => Request::SearchAdverseEvent(q.restart()),
         Request::GetPhenotype(q) => Request::GetPhenotype(q.restart()),
         Request::GetPgx(q) => Request::GetPgx(q.restart()),
-        Request::GetGwasStudy(q) => Request::GetGwasStudy(q.restart()),
-        Request::GetTrial(q) => Request::GetTrial(q.restart()),
+        Request::GetGwasStudy(q) => Request::GetGwasStudy(biomcp_types::GwasStudyGet {
+            page: q.page.restart(),
+            ..q.clone()
+        }),
+        Request::GetTrial(q) => Request::GetTrial(q.identity()),
         Request::ProteinFeatures(q) => Request::ProteinFeatures(q.restart()),
         Request::ProteinIsoforms(q) => Request::ProteinIsoforms(q.restart()),
         Request::ProteinStructures(q) => Request::ProteinStructures(q.restart()),

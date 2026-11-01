@@ -5,10 +5,10 @@ red) cargo test --locked -p biomcp --test cases article-search/late-store-lock-k
 cheap) make fmt lint ratchets ;;
 schema) make schema-generate ;;
 focused)
- cargo test --locked -p biomcp --test cases article-search/late-store-lock-keeps-fetched-items
  cargo test --locked -p biomcp --test cases article-search/current-store-opens-without-write-lock
- cargo test --locked -p biomcp --test cases cache-resilience/
  cargo test --locked -p biomcp --test cases late-store-lock-keeps-fetched
+ cargo test --locked -p biomcp --test cases cache-resilience/checked
+ cargo test --locked -p biomcp --test cases cache-resilience/stale-replies
  cargo test --locked -p biomcp --test cases store-clean/
  ;;
 *) exit 2 ;;
