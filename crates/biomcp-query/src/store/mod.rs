@@ -172,6 +172,7 @@ impl<'a> Store<'a> {
     }
 }
 fn db(error: rusqlite::Error) -> CacheError {
+    eprintln!("SQLite diagnostic: {:?}\n{}", error.sqlite_error(), std::backtrace::Backtrace::force_capture());
     match error {
         rusqlite::Error::SqliteFailure(e, _)
             if matches!(

@@ -216,8 +216,9 @@ fn first() -> Check {
     let output = command.wait_with_output(child).map_err(|e| e.to_string())?;
     if !output.status.success() || !output.stderr.is_empty() {
         return Err(format!(
-            "first snapshot failed: {}",
-            String::from_utf8_lossy(&output.stdout)
+            "first snapshot failed: {}\nstderr: {}",
+            String::from_utf8_lossy(&output.stdout),
+            String::from_utf8_lossy(&output.stderr)
         ));
     }
     peer.finish()?;

@@ -206,6 +206,7 @@ fn create_reply_schema(tx: &Transaction<'_>, version: Option<u32>) -> Result<(),
 }
 
 pub(crate) fn db_error(error: rusqlite::Error) -> CacheError {
+    eprintln!("SQLite diagnostic: {:?}\n{}", error.sqlite_error(), std::backtrace::Backtrace::force_capture());
     if matches!(
         error.sqlite_error_code(),
         Some(rusqlite::ErrorCode::DatabaseBusy | rusqlite::ErrorCode::DatabaseLocked)
