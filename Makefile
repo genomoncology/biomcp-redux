@@ -192,6 +192,7 @@ bundle-checks: fmt
 
 .PHONY: test-support-checks
 test-support-checks: pre-job
+	cargo test --locked -p biomcp-fetch --lib stream_worker_shutdown_cancels_and_joins_active_network_work $(TEST_THREADS)
 	cargo test --locked -p biomcp-types --test response $(TEST_THREADS)
 	cargo test --locked -p biomcp-fetch --test alphagenome --test grpc_worker --test grpc_persistence --test bundle $(TEST_THREADS)
 	cargo test --locked -p biomcp-adapters --test mapped_refusals --test custom_refusals --test ctgov_refusals $(TEST_THREADS)

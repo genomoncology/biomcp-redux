@@ -120,8 +120,10 @@ fn query_page(
         "accepted offset changed"
     );
     assert_eq!(
-        data.get("records").and_then(Value::as_array).map(Vec::len),
-        Some(usize::from(offset < 2)),
+        data.get("records")
+            .and_then(Value::as_array)
+            .map_or(0, Vec::len),
+        usize::from(offset < 2),
         "accepted rows changed"
     );
     let page = result.page.ok_or("query lost page metadata")?;
