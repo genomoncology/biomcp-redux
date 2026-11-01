@@ -1,8 +1,6 @@
 //! Source contracts exercise the adapters that own native admission and mapping.
-use biomcp_test_support::capture as capture_support;
 #[path = "mapped_refusals/mod.rs"]
 mod mapped_refusals;
-use biomcp_test_support::hash as stable_hash;
 use biomcp_test_support::network_stub;
 use biomcp_test_support::replay as replay_support;
 use biomcp_test_support::value;
