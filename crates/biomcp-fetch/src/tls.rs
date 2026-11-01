@@ -153,5 +153,9 @@ impl std::fmt::Debug for TlsTransport {
 
 #[cfg(test)]
 thread_local! {
+    #[expect(
+        clippy::disallowed_types,
+        reason = "Count configuration builds on one test thread without cross-test state"
+    )]
     pub(crate) static BUILDS: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
 }
