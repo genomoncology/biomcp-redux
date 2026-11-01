@@ -285,29 +285,35 @@ fn dropped_peer() -> Check {
 
 #[cfg(unix)]
 fn busy_health() -> Check {
-    busy_capacity(false)
+    busy_capacity(false, false)
 }
 
 #[cfg(unix)]
 fn configured_capacity() -> Check {
-    busy_capacity(true)
+    busy_capacity(true, false)?;
+    busy_capacity(true, true)
 }
 
 #[cfg(unix)]
-fn busy_capacity(configured: bool) -> Check {
-    let config = if configured {
+fn busy_capacity(configured: bool, flags: bool) -> Check {
+    let config = if flags {
+        serde_json::json!({"http_max_calls":6,"http_max_connections":1})
+    } else if configured {
         serde_json::json!({"http_max_calls":2,"http_max_connections":4})
     } else {
         serde_json::json!({})
     };
-    let server = Server::configured_globals(
-        "127.0.0.1:0",
-        Some(config),
-        None,
-        None,
-        None,
-        &["--hosted".into()],
-    )?;
+    let mut globals = vec!["--hosted".into()];
+    if flags {
+        globals.extend([
+            "--http_max_calls".into(),
+            "2".into(),
+            "--http_max_connections".into(),
+            "4".into(),
+        ]);
+    }
+    let server =
+        Server::configured_globals("127.0.0.1:0", Some(config), None, None, None, &globals)?;
     let mut held = Vec::new();
     let mut writers = Vec::new();
     for index in 1..=if configured { 2 } else { 8 } {

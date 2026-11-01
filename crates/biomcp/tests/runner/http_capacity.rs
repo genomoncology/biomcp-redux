@@ -5,7 +5,7 @@ pub(super) fn check() -> Result<(), String> {
     for (config, flags) in [
         (json!({"http_max_calls":2,"http_max_connections":4}), vec![]),
         (
-            json!({"http_max_calls":6,"http_max_connections":6}),
+            json!({"http_max_calls":6,"http_max_connections":1}),
             vec![
                 "--http_max_calls".into(),
                 "2".into(),

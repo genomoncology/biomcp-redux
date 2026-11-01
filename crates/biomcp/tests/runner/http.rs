@@ -14,7 +14,7 @@ mod start;
 type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        transcript_trial("mcp-http/configured-capacity-and-refusals", || {
+        transcript_trial(crate::runner::pool_contract::HTTP_CAPACITY.0, || {
             super::http_capacity::check().map_err(Into::into)
         }),
         transcript_trial("mcp-http/local-health-and-discovery", || {
