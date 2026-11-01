@@ -137,15 +137,14 @@ pub(crate) fn intern(
 ) -> Result<crate::store::Pool, RequestError> {
     let payload = encode(payload)?;
     let mut store = Store::open(cx.fetch.cache_access()?, deadline)?;
-    if let Some(pool) = store.find(key, None)? {
-        if pool.key == key
-            && store
-                .source_snapshot(pool.info.id.as_str(), key, |s| cx.fetch.disabled(s))?
-                .as_deref()
-                == Some(payload.as_str())
-        {
-            return Ok(pool);
-        }
+    if let Some(pool) = store.find(key, None)?
+        && pool.key == key
+        && store
+            .source_snapshot(pool.info.id.as_str(), key, |s| cx.fetch.disabled(s))?
+            .as_deref()
+            == Some(payload.as_str())
+    {
+        return Ok(pool);
     }
     Ok(store.publish_source_pool(key, &payload, size, sources)?)
 }
