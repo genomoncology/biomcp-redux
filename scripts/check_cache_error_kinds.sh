@@ -5,6 +5,7 @@ cheap)
     make fmt lint ratchets
     ;;
 generate)
+    sh "$0" cheap
     make schema-generate
     tar -czf cache-error-schemas.tar.gz crates/biomcp-types/schemas
     ;;
