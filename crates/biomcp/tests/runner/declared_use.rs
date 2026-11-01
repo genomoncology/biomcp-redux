@@ -3,6 +3,7 @@ use super::{http::Server, launch::Environment, network_stub::Stub, request_keys:
 use crate::runner::transcript::trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
+mod components;
 const ACADEMIC: &str = "x-biomcp-use: academic\r\n";
 const KEY: &str = "synthetic-declared-use-key";
 const CPIC: &[&str] = &["get", "pgx", "--gene", "DPYD", "--source", "cpic"];
@@ -10,6 +11,9 @@ const ONCOKB: &[&str] = &["get", "gene", "TP53", "oncokb"];
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        trial("mcp-hosted/use/components", || {
+            components::check().map_err(Into::into)
+        }),
         trial("mcp-hosted/use/source-admission", || {
             admission().map_err(Into::into)
         }),
