@@ -140,34 +140,18 @@ fn check_page(
 pub fn components() -> Result<Box<[biomcp_types::ComponentLabel]>, RequestError> {
     use crate::disease_sources::components::{HPO, ORPHANET};
     use biodata::TextLiteral;
-    #[expect(
-        clippy::panic,
-        reason = "Invalid shared static terms fail const evaluation"
-    )]
     const HPO_NAME: TextLiteral = match TextLiteral::new(HPO.name) {
         Ok(value) => value,
         Err(_) => panic!("invalid static HPO name"),
     };
-    #[expect(
-        clippy::panic,
-        reason = "Invalid shared static terms fail const evaluation"
-    )]
     const HPO_URL: TextLiteral = match TextLiteral::new(HPO.url) {
         Ok(value) => value,
         Err(_) => panic!("invalid static HPO URL"),
     };
-    #[expect(
-        clippy::panic,
-        reason = "Invalid shared static terms fail const evaluation"
-    )]
     const ORPHANET_NAME: TextLiteral = match TextLiteral::new(ORPHANET.name) {
         Ok(value) => value,
         Err(_) => panic!("invalid static Orphanet name"),
     };
-    #[expect(
-        clippy::panic,
-        reason = "Invalid shared static terms fail const evaluation"
-    )]
     const ORPHANET_URL: TextLiteral = match TextLiteral::new(ORPHANET.url) {
         Ok(value) => value,
         Err(_) => panic!("invalid static Orphanet URL"),
