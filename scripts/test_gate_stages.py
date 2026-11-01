@@ -45,6 +45,16 @@ class GateStages(unittest.TestCase):
         self.assertIn('scripts/coverage.sh run', result.stdout)
         self.assertIn('research-search-fetch-parity', result.stdout)
 
+    def test_release_workflow_retains_complete_history_scan(self):
+        workflow = (ROOT / '.github/workflows/release.yml').read_text()
+        self.assertIn('run: make secrets-full\n', workflow)
+        self.assertNotIn('run: make secrets\n', workflow)
+        result = subprocess.run(['make', '--no-print-directory', '-n', 'secrets-full'],
+                                cwd=ROOT, capture_output=True, text=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn('release/secrets.py history .', result.stdout)
+        self.assertNotIn('--since', result.stdout)
+
     def test_incremental_scan_keeps_removed_and_merge_blobs(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
