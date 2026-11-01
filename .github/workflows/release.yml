@@ -406,6 +406,15 @@ jobs:
         with:
           name: release-candidate
           path: staged
+      - name: Read publisher tool pins
+        if: github.event_name == 'push' && github.repository == 'genomoncology/biomcp'
+        id: tools
+        run: python3 release/toolchain.py outputs >> "$GITHUB_OUTPUT"
+      - name: Install the pinned Sigstore verifier
+        if: github.event_name == 'push' && github.repository == 'genomoncology/biomcp'
+        uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6
+        with:
+          cosign-release: ${{ steps.tools.outputs.cosign }}
       - name: Install the pinned MCP Registry publisher
         if: github.event_name == 'push' && github.repository == 'genomoncology/biomcp'
         run: python3 release/toolchain.py install-mcp-publisher
