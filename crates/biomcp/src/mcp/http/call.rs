@@ -169,7 +169,7 @@ mod tests {
             root: std::sync::Arc::new(crate::grammar::root().unwrap()),
             settings: std::sync::Arc::new(Ok(None)),
             calls: Calls::default(),
-            requests: super::super::admission::Slots::new(MAX_CONNECTIONS),
+            connections: super::super::admission::Slots::new(MAX_CONNECTIONS),
             max_calls: MAX_CONNECTIONS,
             max_connections: MAX_CONNECTIONS,
             address: "127.0.0.1:1".parse().unwrap(),
@@ -321,7 +321,7 @@ mod tests {
             let address = listener.local_addr()?;
             let service = Arc::new(Service {
                 calls: Calls::default(),
-                requests: super::super::super::admission::Slots::new(super::MAX_CONNECTIONS),
+                connections: super::super::super::admission::Slots::new(super::MAX_CONNECTIONS),
                 max_calls: super::MAX_CONNECTIONS,
                 max_connections: super::MAX_CONNECTIONS,
                 address,

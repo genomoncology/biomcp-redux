@@ -24,7 +24,7 @@ pub(crate) enum StartError {
 }
 struct Service {
     calls: Calls,
-    requests: admission::Slots,
+    connections: admission::Slots,
     max_calls: usize,
     max_connections: usize,
     address: SocketAddr,
@@ -73,7 +73,7 @@ pub(crate) fn serve(
     let recovery = fetch.is_err().then(|| Arc::new(super::Recovery::new()));
     let service = Arc::new(Service {
         calls: Calls::default(),
-        requests: admission::Slots::new(max_connections),
+        connections: admission::Slots::new(max_connections),
         max_calls,
         max_connections,
         address,
@@ -127,7 +127,7 @@ fn connections(
             Err(error) if error.kind() == io::ErrorKind::Interrupted => continue,
             Err(error) => return Err(error),
         };
-        let mut retained = Vec::with_capacity(max_workers);
+        let mut retained = Vec::with_capacity(workers.len());
         for worker in workers {
             if worker.is_finished() {
                 let _ = worker.join();
@@ -146,13 +146,13 @@ fn connections(
             record(wire::unavailable(&mut stream));
             continue;
         };
-        let request = service.requests.take();
+        let connection = service.connections.take();
         let service = service.clone();
         workers.push(
             thread::Builder::new()
                 .name("mcp-http".into())
                 .spawn(move || {
-                    record(service.handle(stream, reader, request));
+                    record(service.handle(stream, reader, connection));
                 })?,
         );
     }
@@ -182,7 +182,7 @@ impl Service {
         // A malformed or oversized framing closes without reflecting untrusted headers.
         let request = wire::read(&mut stream)?;
         // A reserved reader classifies health even when ordinary connections are full.
-        let _request = if request.path == "/health" {
+        let _connection = if request.path == "/health" {
             drop(connection);
             None
         } else {
