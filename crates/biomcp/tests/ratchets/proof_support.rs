@@ -9,7 +9,10 @@ pub(super) fn tree() -> Result<tempfile::TempDir, Box<dyn std::error::Error>> {
         "[workspace]\n[workspace.dependencies]\nhttp = { package = 'ureq', version = '3' }\n",
     )?;
     fs::write(tree.path().join("deny.toml"), "[sources]\nallow-git = []\n")?;
-    fs::write(tree.path().join("Cargo.lock"), "version = 4\npackage = []\n")?;
+    fs::write(
+        tree.path().join("Cargo.lock"),
+        "version = 4\npackage = []\n",
+    )?;
     put(
         tree.path(),
         "crates/biodata/Cargo.toml",
