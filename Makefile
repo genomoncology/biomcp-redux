@@ -135,8 +135,10 @@ cli-fixes-check: fmt lint ratchets
 	python3 scripts/check_docs.py
 	$(MAKE) cli-fixes-cases
 
+CLI_FIX_CASES ?= local/ key-registration/ article-saves/ trial/name-fallback-continuation trial/input-boundaries author/help author/papers-help author/source-alias cell-line/aliases cell-line/examples mcp-parity/discovers-artifact-command-tree
+
 .PHONY: cli-fixes-cases
 cli-fixes-cases:
-	@set -e; for selection in local/ key-registration/ article-saves/ trial/name-fallback-continuation trial/input-boundaries author/help author/papers-help author/source-alias cell-line/aliases cell-line/examples mcp-parity/discovers-artifact-command-tree; do \
+	@set -e; for selection in $(CLI_FIX_CASES); do \
 		cargo test --locked -p biomcp --test cases "$$selection" $(TEST_THREADS); \
 	done
