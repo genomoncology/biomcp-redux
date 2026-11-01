@@ -92,6 +92,8 @@ docs-check:
 	python3 scripts/test_source_capture.py
 	python3 scripts/test_source_capture_plan.py
 	python3 scripts/test_coverage.py
+	python3 scripts/test_reply_diff.py
+	python3 scripts/test_schema_release.py
 	python3 -m unittest scripts.test_gate_stages
 	python3 scripts/test_build_workers.py
 	python3 scripts/test_trials.py
