@@ -65,13 +65,7 @@ fn execute<Q: Query, T: Serialize + DeserializeOwned>(
     page: impl FnOnce(&Q, snapshot::Saved<T>, Option<biodata::Text>, &mut Outcome),
 ) -> Result<(), RequestError> {
     if cx.fetch.disabled(Source::Nci) {
-        return Err(SourceError {
-            source: Source::Nci,
-            reason: Reason::Disabled,
-            status: None,
-            retry_after: None,
-        }
-        .into());
+        return Err(SourceError::disabled(Source::Nci).into());
     }
     let saved = snapshot::load(cx, namespace, &q.snapshot_query(), q.pool(), deadline)?;
     if q.pool().is_some() && !cx.fresh && saved.is_none() {
