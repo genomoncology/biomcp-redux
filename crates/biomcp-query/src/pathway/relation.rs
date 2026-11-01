@@ -140,26 +140,29 @@ fn read_inner(
         .0
     };
     let (saved, pool) = match loaded {
-        Some(pair) => pair,
+        Some((saved, pool)) => (saved, Some(pool)),
         None if q.pool.is_some() => {
             restart(q, out);
             return Ok(());
         }
         None => {
             let saved = fetch(cx, q, deadline, out)?;
-            let pool = source_snapshot::publish(
-                cx,
-                &source_snapshot::key("pathway-relation", &(q.id, q.genes))?,
-                &saved,
-                saved
-                    .genes
-                    .as_ref()
-                    .map(|g| g.items.len())
-                    .or_else(|| saved.events.as_ref().map(|e| e.items.len()))
-                    .unwrap_or(0) as u32,
-                &saved.sources,
-                None,
-                deadline,
+            let pool = crate::publish::keep(
+                source_snapshot::publish(
+                    cx,
+                    &source_snapshot::key("pathway-relation", &(q.id, q.genes))?,
+                    &saved,
+                    saved
+                        .genes
+                        .as_ref()
+                        .map(|g| g.items.len())
+                        .or_else(|| saved.events.as_ref().map(|e| e.items.len()))
+                        .unwrap_or(0) as u32,
+                    &saved.sources,
+                    None,
+                    deadline,
+                ),
+                out,
             )?;
             (saved, pool)
         }
@@ -169,9 +172,11 @@ fn read_inner(
     out.problems = saved.problems;
     match (&q.echo, saved.genes, saved.events) {
         (Echo::Genes(query), Some(body), _) => {
-            present_genes(cx, q, query, deadline, body, pool.info, out)
+            present_genes(cx, q, query, deadline, body, pool.map(|p| p.info), out)
         }
-        (Echo::Events(query), _, Some(body)) => present_events(q, query, body, pool.info, out),
+        (Echo::Events(query), _, Some(body)) => {
+            present_events(q, query, body, pool.map(|p| p.info), out)
+        }
         _ => {}
     }
     Ok(())
@@ -182,7 +187,7 @@ fn present_genes(
     query: &PathwayGenesQuery,
     deadline: Deadline<'_>,
     mut body: biomcp_types::PathwayGenes,
-    pool: biomcp_types::PoolInfo,
+    pool: Option<biomcp_types::PoolInfo>,
     out: &mut Outcome,
 ) {
     body.items = body
@@ -221,7 +226,7 @@ fn present_events(
     q: &Selection<'_>,
     query: &PathwayEventsQuery,
     mut body: biomcp_types::PathwayEvents,
-    pool: biomcp_types::PoolInfo,
+    pool: Option<biomcp_types::PoolInfo>,
     out: &mut Outcome,
 ) {
     body.items = body
@@ -244,13 +249,13 @@ fn position(
     mut page: PathwayPageInfo,
     q: &Selection<'_>,
     returned: usize,
-    pool: biomcp_types::PoolInfo,
+    pool: Option<biomcp_types::PoolInfo>,
 ) -> PathwayPageInfo {
     page.offset = q.offset;
     page.returned = returned as u32;
     let next = q.offset.saturating_add(q.limit);
-    page.next_offset = (u64::from(next) < page.total).then_some(next);
-    page.pool = Some(pool);
+    page.next_offset = (pool.is_some() && u64::from(next) < page.total).then_some(next);
+    page.pool = pool;
     page
 }
 fn fetch(

@@ -38,7 +38,7 @@ pub(super) fn render(
     drug: Option<&FaersDrug>,
     section: S,
     header: AdverseEventHeader,
-    snapshot: Text,
+    snapshot: Option<Text>,
     components: Box<[ComponentLabel]>,
     out: &mut Outcome,
 ) -> Result<(), RequestError> {
@@ -63,7 +63,9 @@ pub(super) fn render(
         .cloned()
         .collect();
     page(
-        &q.with_snapshot(snapshot.clone()),
+        &snapshot
+            .clone()
+            .map_or_else(|| q.clone(), |t| q.with_snapshot(t)),
         q.section_offset().saturating_add(records.len() as u32),
         total,
         out,
