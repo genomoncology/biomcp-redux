@@ -71,6 +71,7 @@ mod mcp_boundaries;
 mod mcp_hosted;
 mod nci;
 mod request_keys;
+mod declared_use;
 tool_only! { mod negative_cases; }
 use biomcp_test_support::network_stub;
 mod normalization;
@@ -260,6 +261,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(mcp_boundaries::trials());
     trials.extend(mcp_hosted::trials());
     trials.extend(request_keys::trials());
+    trials.extend(declared_use::trials());
     trials.extend(hosted_pacing::trials());
     trials.extend(hosted_deadline::trials());
     trials.extend(licensed_cache::trials());
