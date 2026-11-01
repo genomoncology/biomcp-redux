@@ -6,10 +6,19 @@ root=${2:-$(mktemp -d /private/tmp/biomcp-0459.XXXXXX)}
 case "$root" in /private/tmp/biomcp-0459.*) ;; *) echo 'unexpected qualification root' >&2; exit 1;; esac
 revision=${3:-$(git rev-parse HEAD)}
 export BIOMCP_BUILD_REVISION="$revision"
-if [ "$phase" = fixture ]; then
+if [ "$phase" = fixture ] || [ "$phase" = policy ] || [ "$phase" = docs ]; then
     [ "$(git rev-parse HEAD)" = "$revision" ] || exit 1
     export CARGO_TARGET_DIR="$root/target"
-    exec sh scripts/check_release_recipe.sh schema-reuse
+    python_bin=$(python3.13 -c 'import pathlib, sys; print(pathlib.Path(sys.executable).resolve().parent)')
+    export PATH="$python_bin:$PATH"
+    python3 release/toolchain.py python-check
+    if [ "$phase" = fixture ]; then
+        exec sh scripts/check_release_recipe.sh schema-reuse
+    fi
+    if [ "$phase" = docs ]; then
+        exec make docs-check
+    fi
+    exec make check-cheap
 fi
 source="$root/source-$revision"
 mkdir -p "$source"
@@ -46,9 +55,6 @@ qualify)
 cases)
     cargo build --locked -p biomcp --bin biomcp
     BIOMCP_TRANSCRIPT_DIR="$root/replies" cargo test --locked -p biomcp --test cases -- --test-threads=4
-    ;;
-policy)
-    make check-cheap
     ;;
 contracts)
     status=0

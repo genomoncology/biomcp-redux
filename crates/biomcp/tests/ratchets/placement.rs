@@ -148,6 +148,10 @@ const ALLOWED: &[(&str, &str)] = &[
         "Exercise checked values and schema contracts through the public library API.",
     ),
     (
+        "crates/biomcp-types/tests/schemas/policy.rs",
+        "Test reviewed schema pattern changes at exact paths and reject near misses.",
+    ),
+    (
         "crates/biomcp-types/tests/schemas/compatibility_recursive_cases.rs",
         "Exercise recursive public schema graphs and their compatibility constraints.",
     ),
@@ -398,6 +402,10 @@ const ALLOWED: &[(&str, &str)] = &[
     (
         "crates/biomcp/tests/ratchets/lints.rs",
         "Prove the shared Clippy settings reject planted scalar, banned-type and reason drift.",
+    ),
+    (
+        "crates/biomcp/tests/ratchets/dependency_sources.rs",
+        "Reject unapproved Git revisions and missing source policy inputs through the dependency guard.",
     ),
     (
         "crates/biomcp/tests/ratchets/proof.rs",

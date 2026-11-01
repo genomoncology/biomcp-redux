@@ -187,11 +187,13 @@ The runner tool proof `schema-discovery/capture-retains-replay-owner` drops the 
 | `crates/biomcp-types/tests/gene_ids.rs` | Exercise checked values and schema contracts through the public library API. |
 | `crates/biomcp-types/tests/gene_model.rs` | Exercise checked values and schema contracts through the public library API. |
 | `crates/biomcp-types/tests/rust_api.rs` | Exercise the external Rust API consumer compile/runtime contract. |
+| `crates/biomcp-types/tests/biodata_switch.rs` | Exercise reviewed shared identifier identity, selector wire text and refusal codes through the consumer API. |
 | `crates/biomcp-types/tests/query.rs` | Exercise checked values and schema contracts through the public library API. |
 | `crates/biomcp-types/tests/response.rs` | Exercise checked values and schema contracts through the public library API. |
 | `crates/biomcp-types/tests/schemas.rs` | Exercise checked values and schema contracts through the public library API. |
 | `crates/biomcp-types/tests/schemas/disease.rs` | Exercise standalone disease option metadata and synthetic envelope schema contracts before command registration. |
 | `crates/biomcp-types/tests/schemas/compatibility_cases.rs` | Exercise checked values and schema contracts through the public library API. |
+| `crates/biomcp-types/tests/schemas/policy.rs` | Test reviewed schema pattern changes at exact paths and reject near misses. |
 | `crates/biomcp-types/tests/schemas/compatibility_recursive_cases.rs` | Exercise recursive public schema graphs and their compatibility constraints. |
 | `crates/biomcp-types/tests/schemas/temporal.rs` | Exercise native timestamp schema spelling and temporal property consistency. |
 | `crates/biomcp-types/tests/schemas/drug.rs` | Exercise public drug header and card disclosure boundaries through their serialized values and schemas. |
@@ -255,6 +257,7 @@ The runner tool proof `schema-discovery/capture-retains-replay-owner` drops the 
 | `crates/biomcp-query/tests/gene_resolution.rs` | Mutate isolated cache freshness and preserve a local bundle failure under an API-only short command deadline. |
 | `crates/biomcp/tests/ratchets.rs` | Enforce repository structure and prove refusal of planted violations in isolated trees. |
 | `crates/biomcp/tests/ratchets/lints.rs` | Prove the shared Clippy settings reject planted scalar, banned-type and reason drift. |
+| `crates/biomcp/tests/ratchets/dependency_sources.rs` | Reject unapproved Git revisions and missing source policy inputs through the dependency guard. |
 | `crates/biomcp/tests/ratchets/proof.rs` | Enforce repository structure and prove refusal of planted violations in isolated trees. |
 
 Everything else goes through the runner.
