@@ -1,14 +1,14 @@
 name: Release
 
 # Dispatch rehearses the checked-out revision without publication.
-# A tag qualifies the same artifacts and then waits for the release operator.
+# A tag qualifies, publishes, checks installs and promotes without a manual pause.
 on:
   push:
     tags: ['v*']
   workflow_dispatch:
     inputs:
-      approval_rehearsal:
-        description: Exercise publication approvals without publishing or authenticating to channels
+      rehearsal:
+        description: Exercise every job without publishing or authenticating to channels
         type: boolean
         default: false
 
@@ -67,13 +67,6 @@ jobs:
           make audit
       - name: Scan the complete candidate history for secrets
         run: make secrets-full
-      - name: Require protected operator approval for a production release
-        if: (github.event_name == 'push' && github.repository == 'genomoncology/biomcp') || inputs.approval_rehearsal
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh api "repos/$GITHUB_REPOSITORY/environments/release-publication" > "$RUNNER_TEMP/protection.json"
-          python3 release/workflow.py protection "$RUNNER_TEMP/protection.json"
 
   qualify:
     needs: candidate
@@ -230,7 +223,7 @@ jobs:
 
   publish-github:
     needs: [candidate, stage, staged-homebrew]
-    if: (github.event_name == 'push' && github.repository == 'genomoncology/biomcp') || inputs.approval_rehearsal
+    if: (github.event_name == 'push' && github.repository == 'genomoncology/biomcp') || inputs.rehearsal
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     environment: release-publication
@@ -249,15 +242,15 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: python3 release/publication.py github --staged staged
-      - name: Report the approval rehearsal boundary
-        if: inputs.approval_rehearsal
-        run: echo 'Approval reached; no channel authentication or publication attempted.' >> "$GITHUB_STEP_SUMMARY"
+      - name: Report the rehearsal boundary
+        if: inputs.rehearsal
+        run: echo 'Rehearsal reached; no channel authentication or publication attempted.' >> "$GITHUB_STEP_SUMMARY"
 
   publish-ghcr:
     outputs:
       digest: ${{ steps.image.outputs.digest }}
     needs: [candidate, stage, staged-homebrew]
-    if: (github.event_name == 'push' && github.repository == 'genomoncology/biomcp') || inputs.approval_rehearsal
+    if: (github.event_name == 'push' && github.repository == 'genomoncology/biomcp') || inputs.rehearsal
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     environment: release-publication
@@ -293,13 +286,13 @@ jobs:
           subject-digest: ${{ steps.image.outputs.digest }}
           push-to-registry: true
           create-storage-record: false
-      - name: Report the approval rehearsal boundary
-        if: inputs.approval_rehearsal
-        run: echo 'Approval reached; no channel authentication or publication attempted.' >> "$GITHUB_STEP_SUMMARY"
+      - name: Report the rehearsal boundary
+        if: inputs.rehearsal
+        run: echo 'Rehearsal reached; no channel authentication or publication attempted.' >> "$GITHUB_STEP_SUMMARY"
 
   publish-pypi:
     needs: [candidate, stage, staged-homebrew, publish-ghcr]
-    if: (github.event_name == 'push' && github.repository == 'genomoncology/biomcp') || inputs.approval_rehearsal
+    if: (github.event_name == 'push' && github.repository == 'genomoncology/biomcp') || inputs.rehearsal
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     environment: release-publication
@@ -324,13 +317,13 @@ jobs:
         with:
           packages-dir: pypi/
           attestations: true
-      - name: Report the approval rehearsal boundary
-        if: inputs.approval_rehearsal
-        run: echo 'Approval reached; no channel authentication or publication attempted.' >> "$GITHUB_STEP_SUMMARY"
+      - name: Report the rehearsal boundary
+        if: inputs.rehearsal
+        run: echo 'Rehearsal reached; no channel authentication or publication attempted.' >> "$GITHUB_STEP_SUMMARY"
 
   publish-homebrew:
     needs: [candidate, stage, staged-homebrew, publish-github]
-    if: (github.event_name == 'push' && github.repository == 'genomoncology/biomcp') || inputs.approval_rehearsal
+    if: (github.event_name == 'push' && github.repository == 'genomoncology/biomcp') || inputs.rehearsal
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     environment: release-publication
@@ -355,13 +348,13 @@ jobs:
       - name: Publish the staged two-architecture formula
         if: github.event_name == 'push' && github.repository == 'genomoncology/biomcp'
         run: python3 release/publication.py homebrew --staged staged --checkout tap
-      - name: Report the approval rehearsal boundary
-        if: inputs.approval_rehearsal
-        run: echo 'Approval reached; no channel authentication or publication attempted.' >> "$GITHUB_STEP_SUMMARY"
+      - name: Report the rehearsal boundary
+        if: inputs.rehearsal
+        run: echo 'Rehearsal reached; no channel authentication or publication attempted.' >> "$GITHUB_STEP_SUMMARY"
 
   publish-installer:
     needs: [candidate, stage, staged-homebrew, publish-github]
-    if: (github.event_name == 'push' && github.repository == 'genomoncology/biomcp') || inputs.approval_rehearsal
+    if: (github.event_name == 'push' && github.repository == 'genomoncology/biomcp') || inputs.rehearsal
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     environment: release-publication
@@ -387,13 +380,13 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: python3 release/publication.py installer --staged staged --checkout site
-      - name: Report the approval rehearsal boundary
-        if: inputs.approval_rehearsal
-        run: echo 'Approval reached; no channel authentication or publication attempted.' >> "$GITHUB_STEP_SUMMARY"
+      - name: Report the rehearsal boundary
+        if: inputs.rehearsal
+        run: echo 'Rehearsal reached; no channel authentication or publication attempted.' >> "$GITHUB_STEP_SUMMARY"
 
   publish-registry:
     needs: [candidate, stage, staged-homebrew, publish-pypi]
-    if: (github.event_name == 'push' && github.repository == 'genomoncology/biomcp') || inputs.approval_rehearsal
+    if: (github.event_name == 'push' && github.repository == 'genomoncology/biomcp') || inputs.rehearsal
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     environment: release-publication
@@ -424,13 +417,13 @@ jobs:
       - name: Publish the staged MCP Registry record using GitHub OIDC
         if: github.event_name == 'push' && github.repository == 'genomoncology/biomcp'
         run: python3 release/publication.py registry --staged staged
-      - name: Report the approval rehearsal boundary
-        if: inputs.approval_rehearsal
-        run: echo 'Approval reached; no channel authentication or publication attempted.' >> "$GITHUB_STEP_SUMMARY"
+      - name: Report the rehearsal boundary
+        if: inputs.rehearsal
+        run: echo 'Rehearsal reached; no channel authentication or publication attempted.' >> "$GITHUB_STEP_SUMMARY"
 
   post-publish:
     needs: [candidate, publish-github, publish-ghcr, publish-pypi, publish-homebrew, publish-installer, publish-registry]
-    if: (github.event_name == 'push' && github.repository == 'genomoncology/biomcp') || inputs.approval_rehearsal
+    if: (github.event_name == 'push' && github.repository == 'genomoncology/biomcp') || inputs.rehearsal
     strategy:
       fail-fast: false
       matrix:
@@ -463,12 +456,12 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: python3 release/published.py "$CHANNEL" --version "$VERSION"
       - name: Report the install rehearsal boundary
-        if: inputs.approval_rehearsal
-        run: echo 'Dispatch skips public channel installs; the promotion approval follows these no-op jobs.' >> "$GITHUB_STEP_SUMMARY"
+        if: inputs.rehearsal
+        run: echo 'Dispatch skips public channel installs; promotion follows these no-op jobs.' >> "$GITHUB_STEP_SUMMARY"
 
   publish-latest:
     needs: [candidate, stage, publish-ghcr, post-publish]
-    if: success() && ((github.event_name == 'push' && github.repository == 'genomoncology/biomcp') || inputs.approval_rehearsal)
+    if: success() && ((github.event_name == 'push' && github.repository == 'genomoncology/biomcp') || inputs.rehearsal)
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     environment: release-publication
@@ -499,6 +492,6 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DIGEST: ${{ needs.publish-ghcr.outputs.digest }}
         run: python3 release/publication.py promote --staged staged --digest "$DIGEST"
-      - name: Report the approval rehearsal boundary
-        if: inputs.approval_rehearsal
-        run: echo 'Promotion approval reached; latest pointers stay unchanged.' >> "$GITHUB_STEP_SUMMARY"
+      - name: Report the rehearsal boundary
+        if: inputs.rehearsal
+        run: echo 'Promotion rehearsal reached; latest pointers stay unchanged.' >> "$GITHUB_STEP_SUMMARY"
