@@ -8,6 +8,11 @@ focused)
  cargo test --locked -p biomcp --test cases article-search/current-store-opens-without-write-lock
  cargo test --locked -p biomcp --test cases late-store-lock-keeps-fetched
  cargo test --locked -p biomcp --test cases cache-resilience/checked
+ sh "$0" retention
+ ;;
+retention)
+ cargo fmt --all -- --check
+ cargo clippy --locked -p biomcp --test cases -- -D warnings
  cargo test --locked -p biomcp --test cases cache-resilience/stale-replies
  cargo test --locked -p biomcp --test cases held-store-lock
  cargo test --locked -p biomcp --test cases store-clean/

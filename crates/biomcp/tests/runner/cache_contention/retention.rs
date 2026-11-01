@@ -8,16 +8,32 @@ use serde_json::json;
 pub(super) fn stale() -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let case = env.root().join("case");
-    let protein = fixtures().join("replies/protein/synthetic");
-    let gene = fixtures().join("replies/gene/main");
+    let protein = env.root().join("protein-recordings");
+    let gene = env.root().join("gene-recordings");
+    super::super::response_cases::cache_capture(
+        "protein/synthetic",
+        &protein,
+        super::super::response_cases::CACHE_ACQUIRED,
+    )?;
+    super::super::response_cases::cache_capture(
+        "gene/main",
+        &gene,
+        super::super::response_cases::CACHE_ACQUIRED,
+    )?;
     let args = cached(&["get", "protein", "P00533"], &case, Some(&protein));
     let first = invoke(&env, args.clone(), 0)?;
     let db = rusqlite::Connection::open(case.join("replay.sqlite")).map_err(|e| e.to_string())?;
-    db.execute(
-        "UPDATE reply SET fresh_until=unixepoch()-1 WHERE source='uniprot'",
-        [],
-    )
-    .map_err(|e| e.to_string())?;
+    let expired = db
+        .execute(
+            "UPDATE reply SET fresh_until=unixepoch()-1 WHERE source='uniprot'",
+            [],
+        )
+        .map_err(|e| e.to_string())?;
+    if expired != 1 {
+        return Err(format!(
+            "expected one checked protein cache row, expired {expired}"
+        ));
+    }
     let unrelated = cached(&["get", "gene", "BRAF"], &case, Some(&gene));
     invoke(&env, unrelated.clone(), 0)?;
     let offline = cached(&["get", "protein", "P00533"], &case, None);
