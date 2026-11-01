@@ -23,7 +23,7 @@ class HostedWorkflow(unittest.TestCase):
             checks = re.search(r'make audit|make [^\n]*docs-check|(?:release[/.]test_security)', commands)
             if checks:
                 checked.append(step)
-                self.assertIn(install, commands[:checks.start()],
+                self.assertIn(install, commands[:checks.start()].splitlines(),
                               'security checks need an active pinned cargo-deny install first in the same run block')
         self.assertTrue(checked, 'the release workflow must run security checks')
 
