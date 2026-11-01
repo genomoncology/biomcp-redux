@@ -1,10 +1,7 @@
 //! Feature article-search: a writer arriving during fetch cannot erase checked items.
 use super::super::{launch::Environment, network_stub::Stub};
 use serde_json::{Value, json};
-use std::{
-    fs,
-    sync::{Arc, Mutex},
-};
+use std::{fs, sync::mpsc};
 
 pub(super) fn check() -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
@@ -13,8 +10,7 @@ pub(super) fn check() -> Result<(), String> {
         biomcp_fetch::CACHE_NAMESPACE_VERSION,
         biomcp_query::store::CACHE_NAMESPACE_VERSION
     ));
-    let held = Arc::new(Mutex::new(None));
-    let writer = Arc::clone(&held);
+    let (writer, held) = mpsc::channel();
     let stub = Stub::for_source(
         "api.semanticscholar.org",
         "application/json",
@@ -25,7 +21,7 @@ pub(super) fn check() -> Result<(), String> {
             let db = rusqlite::Connection::open(&path).map_err(|e| e.to_string())?;
             db.execute_batch("BEGIN IMMEDIATE")
                 .map_err(|e| e.to_string())?;
-            *writer.lock().map_err(|e| e.to_string())? = Some(db);
+            writer.send(db).map_err(|e| e.to_string())?;
             Ok(json!({"total":2,"offset":0,"data":[{"paperId":"0123456789abcdef0123456789abcdef01234567","title":"Synthetic fetched article","externalIds":{},"year":2026}]}).to_string())
         },
     )?;
@@ -48,7 +44,7 @@ pub(super) fn check() -> Result<(), String> {
         .command(env!("CARGO_BIN_EXE_biomcp"), &args)
         .output()
         .map_err(|e| e.to_string())?;
-    held.lock().map_err(|e| e.to_string())?.take();
+    drop(held.recv().map_err(|e| e.to_string())?);
     let requests = stub.finish()?;
     let answer: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
     if requests.len() != 1
