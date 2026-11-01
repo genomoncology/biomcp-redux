@@ -1,0 +1,55 @@
+"""Check stage diagnostics and incremental secret history against real Git."""
+import os
+from pathlib import Path
+import subprocess
+import sys
+import tempfile
+import unittest
+
+from release.secrets import inputs
+
+ROOT = Path(__file__).resolve().parents[1]
+
+
+class GateStages(unittest.TestCase):
+    def test_stage_reports_failure_and_stops(self):
+        result = subprocess.run([sys.executable, str(ROOT / 'scripts/timed_stage.py'),
+                                 'fixture', sys.executable, '-c', 'raise SystemExit(7)'],
+                                capture_output=True, text=True)
+        self.assertEqual(result.returncode, 7)
+        self.assertRegex(result.stdout, r'gate stage=fixture elapsed_seconds=\d+\.\d+ exit=7')
+
+    def test_incremental_scan_keeps_removed_and_merge_blobs(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            env = {'PATH': os.defpath, 'HOME': temporary, 'GIT_CONFIG_NOSYSTEM': '1'}
+            def git(*args):
+                return subprocess.check_output(['git', '-C', str(root), *args], env=env,
+                                               stderr=subprocess.DEVNULL).decode().strip()
+            git('init', '-q')
+            git('config', 'user.name', 'Fixture')
+            git('config', 'user.email', 'fixture@example.invalid')
+            (root / 'old').write_text('already screened')
+            git('add', '.'); git('commit', '-qm', 'Base')
+            base = git('rev-parse', 'HEAD')
+            git('checkout', '-qb', 'side')
+            (root / 'removed').write_text('new historical content')
+            git('add', '.'); git('commit', '-qm', 'Add')
+            git('rm', 'removed'); git('commit', '-qm', 'Remove')
+            git('checkout', '-qb', 'candidate', base)
+            (root / 'main').write_text('new main content')
+            git('add', '.'); git('commit', '-qm', 'Main')
+            unrelated = git('rev-parse', 'HEAD')
+            git('merge', '--no-ff', '-qm', 'Merge', 'side')
+            rows = dict(inputs('history', root, env, base))
+            self.assertEqual(set(rows), {'removed', 'main'})
+            self.assertEqual(rows['removed'], b'new historical content')
+            git('checkout', '-q', 'side')
+            with self.assertRaises(subprocess.CalledProcessError):
+                list(inputs('history', root, env, unrelated))
+            with self.assertRaises(ValueError):
+                list(inputs('history', root, env, 'HEAD'))
+
+
+if __name__ == '__main__':
+    unittest.main()
