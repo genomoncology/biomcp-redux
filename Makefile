@@ -180,4 +180,5 @@ dependency-graph:
 
 # Deliberately add an unused dependency and require the real lint entry point to fail.
 dependency-proof:
+	python3 -m unittest release.test_toolchain
 	python3 scripts/dependency_proof.py
