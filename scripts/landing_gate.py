@@ -12,8 +12,10 @@ def main():
     status = 0
     try:
         for stage in STAGES:
+            # Coverage's prerequisites were timed above in this same gate.
+            options = ['-o', 'docs-check', '-o', 'library-tests'] if stage == 'coverage' else []
             status = subprocess.run([sys.executable, 'scripts/timed_stage.py', stage,
-                                     'make', '--no-print-directory', stage]).returncode
+                                     'make', '--no-print-directory', *options, stage]).returncode
             if status:
                 return status
         return 0

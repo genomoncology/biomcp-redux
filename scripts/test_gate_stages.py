@@ -35,6 +35,16 @@ class GateStages(unittest.TestCase):
             self.assertNotIn('cargo clippy', result.stdout)
             self.assertNotIn('cargo test', result.stdout)
 
+    def test_coverage_reuses_completed_gate_prerequisites(self):
+        result = subprocess.run(['make', '--no-print-directory', '-n',
+                                 '-o', 'docs-check', '-o', 'library-tests', 'coverage'],
+                                cwd=ROOT, capture_output=True, text=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertNotIn('reference_matches_grammar', result.stdout)
+        self.assertNotIn('cargo test --workspace --exclude biomcp', result.stdout)
+        self.assertIn('scripts/coverage.sh run', result.stdout)
+        self.assertIn('research-search-fetch-parity', result.stdout)
+
     def test_incremental_scan_keeps_removed_and_merge_blobs(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
