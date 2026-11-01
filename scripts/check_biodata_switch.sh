@@ -22,5 +22,13 @@ vendor)
 check)
     cargo check --workspace --all-targets --locked
     ;;
+qualify)
+    status=0
+    cargo test --locked -p biomcp-types --features schema --tests || status=1
+    python3 scripts/schema_release.py || status=1
+    cargo build --locked -p biomcp --bin biomcp || exit 1
+    BIOMCP_TRANSCRIPT_DIR="$root/replies" cargo test --locked -p biomcp --test cases -- --test-threads=4 || status=1
+    exit "$status"
+    ;;
 *) echo 'unknown switch check phase' >&2; exit 1;;
 esac
