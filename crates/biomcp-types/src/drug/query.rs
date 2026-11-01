@@ -179,27 +179,7 @@ crate::query::validation::checked_query!(DrugGet, GetFields);
 impl TryFrom<GetFields> for DrugGet {
     type Error = QueryInvalid;
     fn try_from(fields: GetFields) -> Result<Self, Self::Error> {
-        if fields.section_limit.is_some_and(|n| !(1..=50).contains(&n)) {
-            return Err(QueryInvalid::new(&["section_limit"]));
-        }
-        if fields.section.is_empty()
-            && (fields.section_limit.is_some() || fields.section_offset.is_some())
-        {
-            return Err(QueryInvalid::new(&[
-                "section",
-                "section_limit",
-                "section_offset",
-            ]));
-        }
-        if fields.section.contains(&DrugSection::Label) != fields.label_section.is_some() {
-            return Err(QueryInvalid::new(&["section", "label_section"]));
-        }
-        if fields.product_number.is_some() && !fields.section.contains(&DrugSection::Approvals) {
-            return Err(QueryInvalid::new(&["product_number", "section"]));
-        }
-        if fields.source == DrugSource::FdaDrugRecall && !fields.section.is_empty() {
-            return Err(QueryInvalid::new(&["source", "section"]));
-        }
+        validate_sections(&fields)?;
         let native_id = match fields.source {
             DrugSource::FdaDrugRecall => NativeDrugId::Recall(
                 fields
@@ -219,27 +199,63 @@ impl TryFrom<GetFields> for DrugGet {
                 NativeDrugId::Other
             }
         };
-        if fields
-            .civic_profile
-            .is_some_and(|id| id == 0 || id > i32::MAX as u64)
-        {
-            return Err(QueryInvalid::new(&["civic_profile"]));
-        }
-        if fields.civic_profile.is_some() && fields.civic_kind.is_none() {
-            return Err(QueryInvalid::new(&["civic_profile", "civic_kind"]));
-        }
-        if fields.civic_cursor.is_some() && fields.civic_kind.is_none() {
-            return Err(QueryInvalid::new(&["civic_cursor", "civic_kind"]));
-        }
-        if fields.civic_kind.is_some()
-            && (fields.source != DrugSource::Civic || !fields.section.contains(&DrugSection::Civic))
-        {
-            return Err(QueryInvalid::new(&["civic_kind", "source", "section"]));
-        }
+        validate_civic(&fields)?;
         Ok(Self { fields, native_id })
     }
 }
+fn validate_sections(fields: &GetFields) -> Result<(), QueryInvalid> {
+    if fields.section_limit.is_some_and(|n| !(1..=50).contains(&n)) {
+        return Err(QueryInvalid::new(&["section_limit"]));
+    }
+    if fields.section.is_empty()
+        && (fields.section_limit.is_some() || fields.section_offset.is_some())
+    {
+        return Err(QueryInvalid::new(&[
+            "section",
+            "section_limit",
+            "section_offset",
+        ]));
+    }
+    if fields.section.contains(&DrugSection::Label) != fields.label_section.is_some() {
+        return Err(QueryInvalid::new(&["section", "label_section"]));
+    }
+    if fields.product_number.is_some() && !fields.section.contains(&DrugSection::Approvals) {
+        return Err(QueryInvalid::new(&["product_number", "section"]));
+    }
+    if fields.source == DrugSource::FdaDrugRecall && !fields.section.is_empty() {
+        return Err(QueryInvalid::new(&["source", "section"]));
+    }
+    Ok(())
+}
+fn validate_civic(fields: &GetFields) -> Result<(), QueryInvalid> {
+    if fields
+        .civic_profile
+        .is_some_and(|id| id == 0 || id > i32::MAX as u64)
+    {
+        return Err(QueryInvalid::new(&["civic_profile"]));
+    }
+    if fields.civic_profile.is_some() && fields.civic_kind.is_none() {
+        return Err(QueryInvalid::new(&["civic_profile", "civic_kind"]));
+    }
+    if fields.civic_cursor.is_some() && fields.civic_kind.is_none() {
+        return Err(QueryInvalid::new(&["civic_cursor", "civic_kind"]));
+    }
+    if fields.civic_kind.is_some()
+        && (fields.source != DrugSource::Civic || !fields.section.contains(&DrugSection::Civic))
+    {
+        return Err(QueryInvalid::new(&["civic_kind", "source", "section"]));
+    }
+    Ok(())
+}
 impl DrugGet {
+    fn with_fields(&self, fields: GetFields) -> Result<Self, QueryInvalid> {
+        validate_sections(&fields)?;
+        validate_civic(&fields)?;
+        Ok(Self {
+            fields,
+            native_id: self.native_id.clone(),
+        })
+    }
     /// FDA recall identity retained by the checked boundary.
     pub fn recall_number(&self) -> Option<&biodata::DrugRecallNumber> {
         match &self.native_id {
@@ -281,7 +297,7 @@ impl DrugGet {
         fields.civic_profile = Some(profile);
         fields.civic_kind = Some(kind);
         fields.civic_cursor = cursor;
-        fields.try_into()
+        self.with_fields(fields)
     }
     /// Continue a therapy-wide claim stream without selecting a molecular profile.
     pub fn with_civic_stream(
@@ -292,7 +308,7 @@ impl DrugGet {
         let mut fields = self.fields.clone();
         fields.civic_kind = Some(kind);
         fields.civic_cursor = cursor;
-        fields.try_into()
+        self.with_fields(fields)
     }
     /// Selected native drug-scoped CIViC molecular profile.
     pub fn civic_profile(&self) -> Option<u64> {
@@ -431,7 +447,7 @@ impl DrugGet {
     pub fn at_section_offset(&self, offset: u32) -> Result<Self, QueryInvalid> {
         let mut fields = self.fields.clone();
         fields.section_offset = Some(offset);
-        fields.try_into()
+        self.with_fields(fields)
     }
     /// Exact selected native label heading.
     pub fn label_section(&self) -> Option<&Text> {
@@ -448,7 +464,7 @@ impl DrugGet {
     pub fn for_section(&self, section: DrugSection) -> Result<Self, QueryInvalid> {
         let mut fields = self.fields.clone();
         fields.section = vec![section].into();
-        fields.try_into()
+        self.with_fields(fields)
     }
 }
 
@@ -458,7 +474,7 @@ impl DrugGet {
         let mut fields = self.fields.clone();
         fields.section = vec![DrugSection::Label].into();
         fields.label_section = Some(heading);
-        fields.try_into()
+        self.with_fields(fields)
     }
 }
 
