@@ -33,7 +33,6 @@ mod capture;
 mod citation_values;
 mod clinpgx;
 mod configuration;
-mod source_pacing;
 mod cpic;
 mod diagnostic_cdx;
 mod diagnostic_retirements;
@@ -45,6 +44,7 @@ mod drug_label;
 mod drug_next;
 mod evidence;
 mod faers_get;
+mod source_pacing;
 tool_only! { mod hgnc_sync; }
 mod held_proxy;
 mod hosted_deadline;
