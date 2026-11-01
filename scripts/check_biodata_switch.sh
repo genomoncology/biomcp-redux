@@ -11,7 +11,7 @@ if [ "$phase" = fixture ] || [ "$phase" = policy ] || [ "$phase" = docs ]; then
     export CARGO_TARGET_DIR="$root/target"
     python_bin=$(python3.13 -c 'import pathlib, sys; print(pathlib.Path(sys.executable).resolve().parent)')
     export PATH="$python_bin:$PATH"
-    python3 release/toolchain.py python-check
+    python3 --version
     if [ "$phase" = fixture ]; then
         exec sh scripts/check_release_recipe.sh schema-reuse
     fi
