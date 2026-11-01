@@ -48,6 +48,7 @@ PYTHON
     ;;
   linux)
     image=$(python3.13 release/toolchain.py image manylinux-aarch64)
+    revision=$(python3.13 release/source_revision.py)
     mkdir -p .release-cache/icite-cargo .release-cache/icite-rustup .release-cache/icite-target
     docker run --rm ${JOB_LABEL_FILE:+--label-file "$JOB_LABEL_FILE"} \
       -v "$PWD:/source:ro" -w /source \
@@ -55,6 +56,7 @@ PYTHON
       -v "$PWD/.release-cache/icite-rustup:/rustup" \
       -v "$PWD/.release-cache/icite-target:/target" \
       -e CARGO_HOME=/cargo -e RUSTUP_HOME=/rustup -e CARGO_TARGET_DIR=/target \
+      -e "BIOMCP_BUILD_REVISION=$revision" \
       -e CARGO_BUILD_JOBS=2 -e RUST_TEST_THREADS=2 "$image" /bin/bash -c '
         set -eu
         export PATH=/cargo/bin:/opt/python/cp313-cp313/bin:$PATH
