@@ -44,7 +44,7 @@ pub(super) fn check() -> Result<(), String> {
         .command(env!("CARGO_BIN_EXE_biomcp"), &args)
         .output()
         .map_err(|e| e.to_string())?;
-    drop(held.recv().map_err(|e| e.to_string())?);
+    drop(held.try_recv().map_err(|e| e.to_string())?);
     let requests = stub.finish()?;
     let answer: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
     if requests.len() != 1

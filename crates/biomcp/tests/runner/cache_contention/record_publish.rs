@@ -62,7 +62,7 @@ pub(super) fn check(device: bool, section: Option<&str>) -> Result<(), String> {
         .command(env!("CARGO_BIN_EXE_biomcp"), &args)
         .output()
         .map_err(|e| e.to_string())?;
-    drop(held.recv().map_err(|e| e.to_string())?);
+    drop(held.try_recv().map_err(|e| e.to_string())?);
     let requests = stub.finish()?;
     let answer: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
     Registry::embedded()?.validate(&answer, &args, true)?;
@@ -76,9 +76,9 @@ pub(super) fn check(device: bool, section: Option<&str>) -> Result<(), String> {
 }
 
 fn retained_answer(answer: &Value, id: &str) -> bool {
-    !(answer.pointer("/result/header/id") != Some(&json!(id))
-        || answer.pointer("/result/snapshot").is_some()
-        || !answer
+    answer.pointer("/result/header/id") == Some(&json!(id))
+        && answer.pointer("/result/snapshot").is_none()
+        && answer
             .get("sources")
             .and_then(Value::as_array)
             .is_some_and(|sources| {
@@ -89,10 +89,10 @@ fn retained_answer(answer: &Value, id: &str) -> bool {
                     })
                 })
             })
-        || !answer
+        && answer
             .get("next")
             .and_then(Value::as_array)
             .is_some_and(|next| {
                 next.len() == 1 && next.iter().all(|n| n.get("kind") == Some(&json!("fresh")))
-            }))
+            })
 }
