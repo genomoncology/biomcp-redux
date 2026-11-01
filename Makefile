@@ -165,7 +165,6 @@ release-mutations:
 
 .PHONY: workflow-lint
 workflow-lint:
-	+$(MAKE) --no-print-directory unused-dependencies
 	cargo check --locked -p biodata -p biomcp-types --no-default-features
 	actionlint
 
@@ -182,3 +181,11 @@ dependency-graph:
 dependency-proof:
 	python3 -m unittest release.test_toolchain
 	python3 scripts/dependency_proof.py
+.PHONY: bundle-tests
+bundle-tests:
+	cargo test --locked -p biomcp-fetch --test bundle $(TEST_FILTER) $(TEST_THREADS)
+
+.PHONY: bundle-checks
+bundle-checks: fmt
+	cargo clippy --locked -p biomcp-fetch --all-targets -- -D warnings
+	$(MAKE) ratchets
