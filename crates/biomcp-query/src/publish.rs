@@ -44,6 +44,7 @@ fn restart(request: &Request) -> Request {
         Request::SearchArticle(q) => Request::SearchArticle(q.page(0, None)),
         Request::ArticleCitations(q) => Request::ArticleCitations(q.page(0, None)),
         Request::ArticleReferences(q) => Request::ArticleReferences(q.page(0, None)),
+        Request::ArticleEvidence(q) => Request::ArticleEvidence(q.identity()),
         Request::ArticleRecommend(q) => Request::ArticleRecommend(q.page(0, None)),
         Request::SearchAuthor(q) => Request::SearchAuthor(q.restart()),
         Request::AuthorPapers(q) => Request::AuthorPapers(q.restart()),
