@@ -10,9 +10,12 @@ MCP clients must replace the separate typed tools with the `biomcp` tool and its
 
 The [upgrade table](https://github.com/genomoncology/biomcp/blob/main/sdlc/planning/upgrade.md#commands) lists every 0.9 leaf command and each removed or deferred option, with its replacement or retirement ruling. Read the linked entity sections for positional sections and aliases. The [1.0 command reference](https://github.com/genomoncology/biomcp/blob/main/docs/reference/commands.md) gives accepted arguments. Major changes include:
 
+- Replace global `-j` and `--json` with `--format json`. Replace `--no-cache` with `--fresh`; this requests fresh source replies under the 1.0 store rules.
+- Run `mcp-config` without `--absolute-path`; it always prints the executable's absolute path. Keep `--client CLIENT` for client-specific configuration.
+- Use positional text for `search author` and `search cell-line`; their `-q` and `--query` options retire.
 - Use `get ENTITY` with repeated IDs instead of batch wrappers. Use trailing section words instead of batch `--sections`.
 - Use `sync SOURCE` for stored bundles and `store clean` for expired replies and collections. `cache clean --dry-run`, `--max-age` and `--max-size` have no maintenance-policy replacement.
-- Use returned `--next-page` and `--pool` commands for continuation. Keep the returned argument arrays and policy settings together. Search offsets and hidden sessions do not identify the new collections.
+- Use returned `--next-page` and `--pool` commands for continuation. Keep the returned argument arrays and policy settings together. Trial `--offset` is continuation bookkeeping and requires `--next-page` when nonzero. Hidden sessions do not identify the new collections.
 - Use explicit entity search and get commands. Discover, chart generation, local study analysis, self-update and automatic text-based classification or identity merging retire. Patient reading moves to 1.1.
 - Trial discovery uses literal `--variant` and `--criteria`; mutation and biomarker aliases and semantic therapy-line filters retire. Discovery never determines eligibility.
 - Article downloads use exact file selections and `--save PATH`. Text readers, PDFs and supplements have separate commands. HTTP MCP refuses file saves.
@@ -20,7 +23,7 @@ The [upgrade table](https://github.com/genomoncology/biomcp/blob/main/sdlc/plann
 
 ## Configuration migration
 
-Create a JSON configuration file at the platform path described in the [upgrade guide](https://github.com/genomoncology/biomcp/blob/main/sdlc/planning/upgrade.md#configuration-and-keys). Unknown fields fail. Replace the old `cache.toml` and its `[cache].max_age_secs`, cache mode, size and disk policies. The following 0.9 operator variables no longer configure 1.0:
+Create a JSON configuration file at the platform path described in the [upgrade guide](https://github.com/genomoncology/biomcp/blob/main/sdlc/planning/upgrade.md#configuration-and-keys). Unknown fields fail. Replace the old `cache.toml` fields `[cache].dir`, `[cache].max_size`, `[cache].min_disk_free` and `[cache].max_age_secs`. The old cache mode, size and disk policies no longer apply. The following 0.9 operator variables no longer configure 1.0:
 
 - `BIOMCP_CACHE_DIR`, `BIOMCP_CACHE_MODE`, `BIOMCP_CACHE_MAX_AGE`, `BIOMCP_CACHE_MAX_SIZE`, `BIOMCP_CACHE_MIN_DISK_FREE`: use the platform store and explicit `store clean`; there is no user cache eviction policy.
 - `BIOMCP_DEFAULT_ASSEMBLY`: pass the command's explicit `--build` when required.
@@ -54,5 +57,17 @@ The 0.9 metadata and error fields change as follows:
 | Preview `values`, `returned`, `total`, `has_more`, `omitted_oversized` | Read the section or page schema and follow its continuation. A preview count never supplies a population denominator. |
 
 The seven 0.9 public entity schemas also change their entire root contract: gene, variant, article, trial, drug, disease and pathway records now sit inside command-specific envelopes. Their [1.0 schemas](https://github.com/genomoncology/biomcp/tree/main/crates/biomcp-types/schemas) define every field. Source-specific sections no longer flatten into those seven shared records. Rebuild integrations against their command schema rather than treating a field of the same name as the same contract.
+
+The following 0.9 entity fields leave the reply root. Every nested path beneath these roots also changes. Read each command's `result` schema for the new nesting and source-specific values. Derived clinical summaries and local analysis fields have no replacement unless their source record appears in that schema.
+
+| Entity | 0.9 root fields replaced |
+| --- | --- |
+| gene | `symbol`, `name`, `entrez_id`, `ensembl_id`, `location`, `genomic_coordinates`, `omim_id`, `uniprot_id`, `summary`, `gene_type`, `aliases`, `clinical_diseases`, `clinical_drugs`, `clingen`, `gencc` |
+| variant | `id`, `genome_build`, `genome_build_provenance`, `gene`, `hgvs_p`, `legacy_name`, `hgvs_c`, `rsid`, `cosmic_id`, `significance`, `significance_source`, `significance_evaluated`, `significance_note`, `clinvar_id`, `clinvar_review_status`, `clinvar_review_stars`, `conditions`, `consequence`, `cadd_score`, `polyphen_pred`, `sift_pred`, `conservation`, `expanded_predictions`, `population`, `cosmic_context`, `cgi_associations`, `civic`, `clinvar_conditions`, `clinvar_condition_reports`, `top_disease`, `cancer_frequencies`, `cancer_frequency_source`, `supporting_pmids`, `prediction` |
+| article | `pmid`, `pmcid`, `doi`, `title`, `authors`, `journal`, `date`, `citation_count`, `publication_type`, `open_access`, `abstract_text`, `annotations`, `pubtator_fallback`, `source`, `score`, `is_retracted` |
+| trial | `nct_id`, `source`, `title`, `status`, `phase`, `study_type`, `conditions`, `interventions`, `arms`, `arm_intervention_assignments`, `sponsor`, `enrollment`, `summary`, `start_date`, `completion_date`, `eligibility` |
+| drug | `name`, `drugbank_id`, `chembl_id`, `unii`, `drug_type`, `mechanism`, `mechanisms`, `approval_date`, `approval_date_raw`, `approval_date_display`, `approval_summary`, `brand_names`, `route`, `targets`, `target`, `indications`, `pharm_classes`, `top_adverse_events` |
+| disease | `id`, `name`, `definition`, `synonyms`, `parents`, `top_genes`, `associated_genes`, `treatment_landscape`, `recruiting_trial_count`, `top_variant`, `xrefs` |
+| pathway | `id`, `name`, `species`, `summary`, `genes`, `events`, `enrichment` |
 
 The candidate's schema identity changes appear below when these notes are staged. The [schema directory](https://github.com/genomoncology/biomcp/tree/main/crates/biomcp-types/schemas) defines output fields and required values. In particular, adverse-event snapshot fields become optional when a cache write fails; callers must handle their absence. A major bump permits an intentional breaking schema change. The schema check does not prohibit all breaking changes.

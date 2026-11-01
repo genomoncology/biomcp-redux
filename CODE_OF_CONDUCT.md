@@ -1,7 +1,6 @@
 # BioMCP Code of Conduct
 
-BioMCP community spaces must stay respectful, technical, and safe for everyone
-participating in the project.
+BioMCP community spaces must stay respectful, technical, and safe for everyone participating in the project.
 
 ## Expected behavior
 
@@ -18,14 +17,10 @@ participating in the project.
 
 ## Scope
 
-This code of conduct applies to GitHub Issues, GitHub Discussions, release
-threads, and other project-run community spaces for BioMCP.
+This code of conduct applies to GitHub Issues, GitHub Discussions, release threads, and other project-run community spaces for BioMCP.
 
 ## Reporting and enforcement
 
-For non-sensitive conduct concerns, open a GitHub Discussion or Issue so the
-maintainers can review and act on it. For sensitive or private concerns, use
-GitHub's built-in reporting and abuse tools.
+For non-sensitive conduct concerns, open a GitHub Discussion or Issue so the maintainers can review and act on it. For sensitive or private concerns, use GitHub's built-in reporting and abuse tools.
 
-Maintainers may remove comments, lock threads, or restrict participation when
-behavior violates this policy.
+Maintainers may remove comments, lock threads, or restrict participation when behavior violates this policy.
