@@ -48,10 +48,7 @@ cases)
     BIOMCP_TRANSCRIPT_DIR="$root/replies" cargo test --locked -p biomcp --test cases -- --test-threads=4
     ;;
 policy)
-    cargo fmt --all -- --check
-    make unused-dependencies
-    cargo clippy --workspace --all-targets --locked -- -D warnings
-    cargo test --locked -p biomcp --test ratchets -- --test-threads=4
+    make check-cheap
     ;;
 contracts)
     status=0
