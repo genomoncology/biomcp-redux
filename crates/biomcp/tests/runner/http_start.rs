@@ -55,7 +55,7 @@ impl Server {
             child,
             address,
             _environment: environment,
-            diagnostics: messages,
+            diagnostics: std::sync::Mutex::new(messages),
             diagnostic_reader: None,
         };
         let stderr = server.child.stderr.take().ok_or("HTTP stderr missing")?;

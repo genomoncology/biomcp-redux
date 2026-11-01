@@ -265,6 +265,8 @@ fn dropped_peer() -> Check {
     drop(socket);
     let event = server
         .diagnostics
+        .lock()
+        .map_err(|_| "HTTP diagnostics receiver poisoned")?
         .recv_timeout(Duration::from_secs(5))
         .map_err(|_| "dropped HTTP peer was not recorded")?;
     if event != "biomcp: HTTP connection failed (InvalidData)" {

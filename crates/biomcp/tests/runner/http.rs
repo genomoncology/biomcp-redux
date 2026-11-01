@@ -37,7 +37,7 @@ pub(super) struct Server {
     pub(super) child: Child,
     pub(super) address: SocketAddr,
     _environment: Environment,
-    pub(super) diagnostics: std::sync::mpsc::Receiver<String>,
+    pub(super) diagnostics: std::sync::Mutex<std::sync::mpsc::Receiver<String>>,
     diagnostic_reader: Option<std::thread::JoinHandle<()>>,
 }
 impl Drop for Server {
