@@ -11,6 +11,10 @@ export CARGO_TARGET_DIR="$root/target"
 printf 'Qualification root: %s\n' "$root"
 rustc --version
 case "$phase" in
+cheap)
+    cargo fmt --all -- --check
+    make lint ratchets
+    ;;
 check)
     cargo check --workspace --all-targets --locked
     ;;

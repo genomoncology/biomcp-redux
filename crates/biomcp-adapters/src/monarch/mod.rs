@@ -138,13 +138,13 @@ fn check_page(
 }
 /// Reviewed terms for the carried components remain explicit on pages and rows.
 pub fn components() -> Result<Box<[biomcp_types::ComponentLabel]>, RequestError> {
-    ["hpo", "orphanet"]
+    [("hpo", biodata::text!("hpo")), ("orphanet", biodata::text!("orphanet"))]
         .into_iter()
-        .map(|name| {
+        .map(|(name, label)| {
             let component = crate::disease_sources::components::get(Source::Monarch, name)
                 .ok_or(InputError::Serialization)?;
             Ok(biomcp_types::ComponentLabel {
-                component: biodata::Text::new(name).map_err(|_| InputError::Serialization)?,
+                component: label,
                 terms: biomcp_types::ComponentTerms {
                     usage: component.terms.usage,
                     name: biodata::Text::new(component.terms.name)

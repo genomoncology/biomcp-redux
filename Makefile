@@ -13,7 +13,38 @@ TEST_THREADS = $(if $(strip $(RUST_TEST_THREADS)),-- --test-threads $(RUST_TEST_
 
 .PHONY: landing-gate plain-cli-build fmt lint ratchets test audit coverage unreached
 
-landing-gate: workflow-lint plain-cli-build fmt lint docs-check tensor-proto-check audit secrets library-tests coverage
+landing-gate:
+	+python3 scripts/landing_gate.py
+
+# Keep these sequential even when the caller uses make -j.
+.PHONY: pre-job proof-check proof-list proof proof-unpack gate-stage-check
+pre-job:
+	+$(MAKE) --no-print-directory fmt
+	+$(MAKE) --no-print-directory lint
+	+$(MAKE) --no-print-directory ratchets
+
+# Retained proof archives use the platform tar, including Python 3.9 machines.
+proof-unpack:
+	@test -n "$(ARCHIVE)" -a -n "$(OUT)" || (echo 'Set ARCHIVE and OUT'; exit 1)
+	mkdir -p "$(OUT)"
+	tar -xf "$(ARCHIVE)" -C "$(OUT)"
+
+# Select literal names printed by proof-list, for example make proof PROOFS='name'.
+proof-list: pre-job
+	python3 scripts/trials.py --target tools --proofs --list
+
+proof: pre-job
+	python3 scripts/trials.py --target tools --proofs $(PROOFS)
+
+# Reuse the committed proof discovery and comparison checks.
+proof-check:
+	python3 scripts/test_trials.py
+	python3 scripts/test_reply_diff.py
+	python3 scripts/test_schema_release.py
+	+$(MAKE) --no-print-directory gate-stage-check
+
+gate-stage-check:
+	python3 -m unittest scripts.test_gate_stages
 
 plain-cli-build:
 	cargo build --locked -p biomcp --bin biomcp --timings
@@ -22,6 +53,7 @@ fmt:
 	cargo fmt --all -- --check
 
 lint:
+	+$(MAKE) --no-print-directory unused-dependencies
 	cargo check --locked -p biodata -p biomcp-types --no-default-features
 	cargo clippy --workspace --all-targets --locked -- -D warnings
 	cargo clippy --locked -p biomcp --test tools -- -D warnings
@@ -72,6 +104,7 @@ docs-check:
 	python3 scripts/test_coverage.py
 	python3 scripts/test_reply_diff.py
 	python3 scripts/test_schema_release.py
+	+$(MAKE) --no-print-directory gate-stage-check
 	python3 scripts/test_build_workers.py
 	python3 scripts/test_trials.py
 	python3 scripts/test_nightly_live_check.py
@@ -110,6 +143,13 @@ tensor-proto-check:
 
 .PHONY: secrets
 secrets:
+	python3 release/secrets.py history . --since "$(SECRET_SCAN_BASE)"
+
+# This ancestor was covered by the retained j24209 full-history scan.
+# Advance only after the replacement ancestor has passed secret screening.
+SECRET_SCAN_BASE ?= $(shell cat release/secrets-main)
+.PHONY: secrets-full
+secrets-full:
 	python3 release/secrets.py history .
 
 COLD_REPORT ?= $(CURDIR)/dist/cold-report.json
@@ -128,6 +168,19 @@ workflow-lint:
 	cargo check --locked -p biodata -p biomcp-types --no-default-features
 	actionlint
 
+.PHONY: unused-dependencies dependency-graph dependency-proof
+unused-dependencies:
+	python3 release/toolchain.py install-machete
+	cargo machete
+
+dependency-graph:
+	cargo tree --locked -p biomcp --edges normal,build
+	cargo tree --locked --target all --edges normal,build --prefix none --format "{p}"
+
+# Deliberately add an unused dependency and require the real lint entry point to fail.
+dependency-proof:
+	python3 -m unittest release.test_toolchain
+	python3 scripts/dependency_proof.py
 .PHONY: bundle-tests
 bundle-tests:
 	cargo test --locked -p biomcp-fetch --test bundle $(TEST_FILTER) $(TEST_THREADS)
@@ -136,3 +189,35 @@ bundle-tests:
 bundle-checks: fmt
 	cargo clippy --locked -p biomcp-fetch --all-targets -- -D warnings
 	$(MAKE) ratchets
+.PHONY: cli-fixes-check
+cli-fixes-check: fmt lint ratchets
+	$(MAKE) schema-generate docs-generate
+	mkdir -p dist
+	COPYFILE_DISABLE=1 tar -czf dist/cli-generated.tar.gz crates/biomcp-types/schemas docs/reference/commands.md
+	cargo test --locked -p biomcp --bin biomcp grammar::reference::reference_matches_grammar $(TEST_THREADS)
+	python3 scripts/check_docs.py
+	$(MAKE) cli-fixes-cases
+
+CLI_FIX_CASES ?= local/ key-registration/ article-saves/ trial/name-fallback-continuation trial/input-boundaries author/help author/papers-help author/source-alias cell-line/aliases cell-line/examples mcp-parity/discovers-artifact-command-tree
+
+.PHONY: cli-fixes-cases
+cli-fixes-cases:
+	@set -e; for selection in $(CLI_FIX_CASES); do \
+		cargo test --locked -p biomcp --test cases "$$selection" $(TEST_THREADS); \
+	done
+.PHONY: http-edge-check
+http-edge-check: fmt
+	cargo clippy --locked -p biomcp --all-targets -- -D warnings
+	cargo test --locked -p biomcp --test ratchets $(TEST_THREADS)
+	cargo test --locked -p biomcp --test cases mcp-http/ $(TEST_THREADS)
+
+.PHONY: hosted-http-load
+hosted-http-load:
+	cargo test --locked -p biomcp --bin biomcp hosted_http_sync_load -- --ignored --nocapture
+
+.PHONY: cli-candidate-check
+cli-candidate-check: fmt
+	cargo clippy --locked -p biomcp --test cases -- -D warnings
+	$(MAKE) ratchets
+	python3 -c 'import json,subprocess,sys; out=subprocess.run([sys.argv[1], "mcp-config", "--client", "mcp-servers", "--absolute-path", "--offline"],capture_output=True,check=False); print("REMOVED_CONFIG_OPTION bytes="+str(len(out.stdout))+" exit="+str(out.returncode)); print(out.stdout[:1024].decode()); assert out.returncode == 2; assert json.loads(out.stdout)["error"]["code"] == "usage.arguments"' "$(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target)/debug/biomcp"
+	$(MAKE) cli-fixes-cases CLI_FIX_CASES='trial/ housekeeping/ local/mcp-config local/removed-options local/key-list-help'
