@@ -20,7 +20,7 @@ pub(crate) fn configuration(
     roots: Vec<CertificateDer<'static>>,
 ) -> Result<ClientConfig, FetchError> {
     #[cfg(test)]
-    BUILDS.with(|count| count.set(count.get() + 1));
+    crate::tls_build_tests::BUILDS.with(|count| count.set(count.get() + 1));
     let provider = Arc::new(rustls::crypto::ring::default_provider());
     let verifier =
         rustls_platform_verifier::Verifier::new_with_extra_roots(roots, provider.clone())
@@ -149,13 +149,4 @@ impl std::fmt::Debug for TlsTransport {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("TlsTransport").finish_non_exhaustive()
     }
-}
-
-#[cfg(test)]
-thread_local! {
-    #[expect(
-        clippy::disallowed_types,
-        reason = "Count configuration builds on one test thread without cross-test state"
-    )]
-    pub(crate) static BUILDS: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
 }

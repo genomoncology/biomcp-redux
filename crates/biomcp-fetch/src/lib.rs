@@ -470,3 +470,7 @@ mod counted;
 pub use counted::ContentRange;
 
 mod request_body;
+
+#[cfg(test)]
+#[path = "../tests/tls_builds.rs"]
+mod tls_build_tests;
