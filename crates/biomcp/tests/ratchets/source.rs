@@ -359,11 +359,12 @@ pub(super) fn tokens(text: &str) -> Vec<String> {
             if matches!(value.as_str(), "r" | "br" | "cr") {
                 let hashes = input.clone().take_while(|ch| *ch == '#').count();
                 if input.clone().nth(hashes) == Some('"') {
-                    value.extend(input.by_ref().take(hashes + 1));
+                    input.by_ref().take(hashes + 1).for_each(drop);
+                    value = String::from("\"");
                     while let Some(ch) = input.next() {
                         value.push(ch);
                         if ch == '"' && input.clone().take(hashes).all(|ch| ch == '#') {
-                            value.extend(input.by_ref().take(hashes));
+                            input.by_ref().take(hashes).for_each(drop);
                             break;
                         }
                     }
