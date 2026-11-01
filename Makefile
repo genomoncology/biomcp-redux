@@ -213,3 +213,8 @@ cli-fixes-cases:
 	@set -e; for selection in $(CLI_FIX_CASES); do \
 		cargo test --locked -p biomcp --test cases "$$selection" $(TEST_THREADS); \
 	done
+
+.PHONY: public-docs-check
+public-docs-check:
+	+$(MAKE) --no-print-directory pre-job
+	+$(MAKE) --no-print-directory docs-check
