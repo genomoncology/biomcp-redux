@@ -16,10 +16,10 @@ pub(super) fn common(
         .zip(row.native.classification.clone())
         .filter(|_| direction.is_some() && row.significance.is_some())
         .map(|((subject, proposition), classification)| Statement {
-                method: None,
-                mode_of_inheritance: None,
-                criteria_not_met: Box::default(),
-                status: None,
+            method: None,
+            mode_of_inheritance: None,
+            criteria_not_met: Box::default(),
+            status: None,
             subject: subject.clone().into(),
             proposition,
             predicate: row.kind.as_ref().zip(row.significance.as_ref()).and_then(

@@ -104,10 +104,6 @@ fn classification(
 ) -> Record {
     if let Some(subject) = subject {
         Record::Statement {
-                method: None,
-                mode_of_inheritance: None,
-                criteria_not_met: Box::default(),
-                status: None,
             statement: Box::new(Statement {
                 method: None,
                 mode_of_inheritance: None,
