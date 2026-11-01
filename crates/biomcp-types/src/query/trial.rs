@@ -439,10 +439,10 @@ impl TrialSearch {
         alternatives
     }
     /// Continue the identical source query with its opaque cursor.
-    pub fn at_page(&self, token: Text, returned: u32) -> Self {
+    pub fn at_page(&self, token: Text, offset: u32) -> Self {
         let mut next = self.clone();
         next.0.next_page = Some(token);
-        next.0.offset = self.0.offset.saturating_add(returned);
+        next.0.offset = offset;
         next
     }
 }

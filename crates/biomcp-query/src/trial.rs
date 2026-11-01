@@ -139,7 +139,10 @@ fn apply_page(
         outcome.next.push(crate::next::Step::run(
             StepKind::Page,
             &[query.source().source()],
-            Request::SearchTrial(query.at_page(token, page.items.len() as u32)),
+            Request::SearchTrial(query.at_page(
+                token,
+                query.offset().saturating_add(page.items.len() as u32),
+            )),
             fresh,
         ));
     }
