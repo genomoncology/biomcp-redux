@@ -20,7 +20,6 @@ pub enum VariantNamespace {
     Unsupported,
 }
 impl VariantInput {
-    #[cfg(feature = "schema")]
     pub(crate) const CHROMOSOME_PATTERN: &'static str =
         r"^chr([1-9]|1[0-9]|2[0-2]|X|Y|M|MT):g\.[\x21-\x7e]*[0-9][\x21-\x7e]*$";
 
