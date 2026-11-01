@@ -104,6 +104,7 @@ mod study_catalog;
 mod transcript;
 mod trial_get;
 mod trial_sites;
+mod snapshot_errors;
 mod vaers;
 mod variant;
 mod variant_civic;
@@ -264,6 +265,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(vaers::trials());
     trials.extend(trial_get::trials());
     trials.push(trial_sites::trial());
+    trials.extend(snapshot_errors::trials());
     trials.extend(variant_assertion_wire::trials());
     trials.extend(evidence::trials());
     trials.extend(variant::trials());
