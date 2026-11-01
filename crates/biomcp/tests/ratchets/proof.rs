@@ -521,3 +521,46 @@ fn adapter_mapping_helpers_require_one_owner() -> Check {
 fn reject_config_reads_and_tree_builds_in_commands() -> Check {
     super::process_setup::reject_config_reads_and_tree_builds_in_commands()
 }
+
+#[test]
+fn module_shape_rejects_new_source_debt() -> Check {
+    let tree = tree()?;
+    let root = tree.path();
+    let parent = "crates/biodata/src/lib.rs";
+    let leaf = "crates/biodata/src/value.rs";
+    put(
+        root,
+        parent,
+        "//! Values.\n#[cfg(any())] pub(crate) mod value;\npub use value::{Value};\n",
+    )?;
+    put(root, leaf, "//! A value.\npub struct Value;\n")?;
+    super::module_shape::limits(root, 0, 0)?;
+    put(root, "crates/biodata/src/new.rs", "pub struct New;\n")?;
+    let failure = super::module_shape::limits(root, 0, 0)
+        .expect_err("undocumented file must fail")
+        .to_string();
+    assert!(
+        failure.contains("missing first-line module docs"),
+        "{failure}"
+    );
+    fs::remove_file(root.join("crates/biodata/src/new.rs"))?;
+    for item in [
+        "pub fn value() {}",
+        "pub struct Value;",
+        "const VALUE: u8 = 1;",
+        "mod nested {}",
+        "macro_rules! value { () => {} }",
+    ] {
+        put(root, parent, &format!("//! Values.\nmod value;\n{item}\n"))?;
+        let failure = super::module_shape::limits(root, 0, 0)
+            .expect_err("parent logic must fail")
+            .to_string();
+        assert!(failure.contains("parent modules with logic"), "{failure}");
+    }
+    put(
+        root,
+        parent,
+        "/*! Values. */\nmod value;\nextern crate core;\nuse core::{fmt, hash};\n",
+    )?;
+    super::module_shape::limits(root, 0, 0)
+}
