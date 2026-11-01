@@ -32,6 +32,8 @@ pub(super) fn check() -> Check {
     dropped_peer().map_err(|error| format!("dropped peer: {error}"))?;
     #[cfg(unix)]
     busy_health().map_err(|error| format!("busy health: {error}"))?;
+    #[cfg(unix)]
+    configured_capacity().map_err(|error| format!("configured capacity: {error}"))?;
     let mut server = Server::start()?;
     for bytes in [
         format!(
@@ -283,9 +285,24 @@ fn dropped_peer() -> Check {
 
 #[cfg(unix)]
 fn busy_health() -> Check {
+    busy_capacity(false)
+}
+
+#[cfg(unix)]
+fn configured_capacity() -> Check {
+    busy_capacity(true)
+}
+
+#[cfg(unix)]
+fn busy_capacity(configured: bool) -> Check {
+    let config = if configured {
+        serde_json::json!({"http_max_calls":2,"http_max_connections":4})
+    } else {
+        serde_json::json!({})
+    };
     let server = Server::configured_globals(
         "127.0.0.1:0",
-        Some(serde_json::json!({})),
+        Some(config),
         None,
         None,
         None,
@@ -293,7 +310,7 @@ fn busy_health() -> Check {
     )?;
     let mut held = Vec::new();
     let mut writers = Vec::new();
-    for index in 1..=8 {
+    for index in 1..=if configured { 2 } else { 8 } {
         let body = super::mcp::request(
             serde_json::json!(index),
             "tools/call",
@@ -310,11 +327,23 @@ fn busy_health() -> Check {
     let probe =
         super::mcp::request(serde_json::json!(9), "tools/list", serde_json::json!({})).to_string();
     let status = server.request("POST", "/mcp", &probe)?.0;
-    if status != 503 {
+    if status != if configured { 200 } else { 503 } {
         return Err(format!(
-            "eight admitted long calls did not retain capacity: {status}; held={}",
+            "admitted long calls did not retain capacity: {status}; held={}",
             held_outcomes(&mut held)
         ));
+    }
+    if configured {
+        let call = super::mcp::request(
+            serde_json::json!(10),
+            "tools/call",
+            serde_json::json!({"name":"biomcp","arguments":{"args":["get","protein","P00003"]}}),
+        )
+        .to_string();
+        let (status, body) = server.request("POST", "/mcp", &call)?;
+        if status != 200 || body.pointer("/error/code") != Some(&serde_json::json!(-31000)) {
+            return Err(format!("third tool escaped call cap: {status} {body}"));
+        }
     }
     let (status, body) = server.request("GET", "/health", "")?;
     if status != 200 || body.get("store") != Some(&serde_json::json!(true)) {
