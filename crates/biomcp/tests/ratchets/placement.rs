@@ -124,6 +124,10 @@ const ALLOWED: &[(&str, &str)] = &[
         "Exercise the external Rust API consumer compile/runtime contract.",
     ),
     (
+        "crates/biomcp-types/tests/biodata_switch.rs",
+        "Exercise reviewed shared identifier identity, selector wire text and refusal codes through the consumer API.",
+    ),
+    (
         "crates/biomcp-types/tests/query.rs",
         "Exercise checked values and schema contracts through the public library API.",
     ),
