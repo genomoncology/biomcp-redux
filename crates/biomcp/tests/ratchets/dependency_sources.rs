@@ -10,8 +10,10 @@ pub(super) fn check(root: &Path, workspace: &Value) -> Check {
 }
 
 fn validate(workspace: &Value, policy: &Value, lock: &Value) -> Check {
-    let allowed = policy["sources"]["allow-git"]
-        .as_array()
+    let allowed = policy
+        .get("sources")
+        .and_then(|sources| sources.get("allow-git"))
+        .and_then(Value::as_array)
         .ok_or("source policy requires an explicit Git allowlist")?;
     let mut sources = Vec::new();
     for value in allowed {
@@ -24,8 +26,10 @@ fn validate(workspace: &Value, policy: &Value, lock: &Value) -> Check {
         }
         sources.push(format!("git+{source}#{rev}"));
     }
-    for spec in workspace["workspace"]["dependencies"]
-        .as_table()
+    for spec in workspace
+        .get("workspace")
+        .and_then(|workspace| workspace.get("dependencies"))
+        .and_then(Value::as_table)
         .ok_or("workspace dependencies missing")?
         .values()
     {
@@ -40,7 +44,11 @@ fn validate(workspace: &Value, policy: &Value, lock: &Value) -> Check {
             }
         }
     }
-    for package in lock["package"].as_array().ok_or("lock packages missing")? {
+    for package in lock
+        .get("package")
+        .and_then(Value::as_array)
+        .ok_or("lock packages missing")?
+    {
         if let Some(source) = package.get("source").and_then(Value::as_str)
             && source.starts_with("git+")
             && !sources.iter().any(|allowed| allowed == source)
@@ -64,6 +72,14 @@ fn another_revision_in_the_allowed_repository_is_refused() -> Check {
         "[[package]]\nsource = 'git+{url}?rev={revision}#{revision}'"
     ))?;
     validate(&workspace, &policy, &lock)?;
+    let empty = Value::Table(Default::default());
+    for (workspace, policy, lock) in [
+        (&empty, &policy, &lock),
+        (&workspace, &empty, &lock),
+        (&workspace, &policy, &empty),
+    ] {
+        assert!(validate(workspace, policy, lock).is_err());
+    }
     let mut changed = workspace.clone();
     changed["workspace"]["dependencies"]["values"]["rev"] = Value::String("b".repeat(40));
     assert!(validate(&changed, &policy, &lock).is_err());
