@@ -38,7 +38,6 @@ fn failure(kind: &str, error: CacheError) -> Check {
             .to_vec()
     };
     let first = command(&env, &args, &env.globals(Some(&replay), false), 0)?;
-    let next = super::action(&first, "page")?;
     let path = env.root().join("case-cache/replay.sqlite");
     let fetch = Fetch::open(FetchConfig {
         cache: Some(path.clone()),
@@ -47,33 +46,42 @@ fn failure(kind: &str, error: CacheError) -> Check {
         ..Default::default()
     })?;
     let db = fetch.cache_access()?.connect()?;
+    let mut globals = env.globals(None, true);
     let args = match kind {
         "encoding" => {
             if db.execute("UPDATE pool SET outcomes='invalid JSON'", [])? != 1 {
                 return Err("expected one article pool".into());
             }
-            next
+            args
         }
         "limit" => {
             if db.execute("UPDATE pool SET created=-1", [])? != 1 {
                 return Err("expected one article pool".into());
             }
-            next
+            args
         }
         "internal" => {
             db.execute(
                 "UPDATE trial_snapshot SET payload=replace(payload,'NCT03734029','NCT00000001')",
                 [],
             )?;
-            next
+            super::action(&first, "page")?
         }
         "filesystem" => {
-            std::fs::write(path.with_extension("parts"), [])?;
-            ["store", "size"].map(str::to_owned).to_vec()
+            globals = vec![
+                "--replay".into(),
+                replay.to_string_lossy().into(),
+                "--case-cache".into(),
+                env.root()
+                    .join("missing-parent/case")
+                    .to_string_lossy()
+                    .into(),
+            ];
+            args
         }
         _ => return Err("unknown failure kind".into()),
     };
-    let broken = command(&env, &args, &env.globals(None, true), 5)?;
+    let broken = command(&env, &args, &globals, 5)?;
     if broken.pointer("/local_error") != Some(&json!(kind)) {
         return Err(format!("cache failure lost {kind}: {broken}").into());
     }
