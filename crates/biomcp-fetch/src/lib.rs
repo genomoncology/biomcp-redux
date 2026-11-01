@@ -472,5 +472,5 @@ pub use counted::ContentRange;
 mod request_body;
 
 #[cfg(test)]
-#[path = "../tests/tls_builds.rs"]
+#[path = "../tests/transport/tls_builds.rs"]
 mod tls_build_tests;

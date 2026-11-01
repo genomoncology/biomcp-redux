@@ -11,7 +11,7 @@ const GENERATED_PROTO: &str = "crates/biomcp-adapters/src/alphagenome/proto.rs";
 // New exceptions require a reviewed path and reason here.
 const EXCEPTIONS: &[(&str, &str)] = &[
     (
-        "crates/biomcp-fetch/tests/tls_builds.rs",
+        "crates/biomcp-fetch/tests/transport/tls_builds.rs",
         "Count TLS configuration builds on one isolated test thread",
     ),
     (

@@ -4,7 +4,7 @@ use std::{fs, path::Path};
 // One authoritative list; architecture 10.4 must reproduce each path and reason.
 const ALLOWED: &[(&str, &str)] = &[
     (
-        "crates/biomcp-fetch/tests/tls_builds.rs",
+        "crates/biomcp-fetch/tests/transport/tls_builds.rs",
         "Count TLS configuration builds across hosted calls at the private constructor boundary without exposing test controls.",
     ),
     (
