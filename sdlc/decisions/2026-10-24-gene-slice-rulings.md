@@ -10,5 +10,5 @@ Decided by Ian, approving the recommendations in `planning/slices/gene.md`.
 - The 0.9 gene features the slice drops stay dropped: Enrichr, GO, STRING, funding, DisGeNET and KEGG.
 - The default card carries the full RefSeq summary with its date.
 - Positions are shown on both genome builds.
-- Genes are human only.
+- 1.0 gene search returns human genes (HGNC).
 - OncoKB is a source when the user supplies an OncoKB API key, under `2026-10-24-keyed-sources-run-only-with-the-user-s-key.md`.

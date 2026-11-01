@@ -9,4 +9,4 @@ Before 1.0 is published, a fresh agent that knows nothing about this project com
 - The agent works in an empty folder with only the two installed binaries and the task list. It reads each binary's own help and has no repository, docs site or prior notes.
 - The comparison covers ease of use, the tokens each answer costs, chaining commands together, use with `jq`, getting at the underlying data, and whether each task's question is answered correctly.
 - Every case where 1.0 does worse is either fixed before publication or explained by a recorded ruling.
-- Ian is told when the final candidate is ready for this comparison. Publication waits for its result and Ian's approval.
+- Ian is told when the final candidate is ready for this comparison. Publication waits for its result.

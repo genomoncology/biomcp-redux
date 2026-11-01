@@ -30,7 +30,7 @@ Robustness and public-text fixes come first, because the parity run, the docs an
 
 - Carry the 0.9 release pipeline over, with publication gated on Ian's approval (0289).
 - Compare schemas with the last released copy (0290).
-- AlphaGenome: Ian approved the streaming gRPC transport. Build it in the shared fetch layer with zero provider calls: codec (0320), worker (0321), persistence (0322), then cost and target proof (0323), source and key registration (0333), the ScoreVariant encoder (0337); then the variant section with one clinically chosen capture (0198). It ships in 1.0, as `decisions/2026-10-27-1-0-ships-every-known-fix.md` says.
+- AlphaGenome: Ian approved the streaming gRPC transport. Build it in the shared fetch layer with zero provider calls: codec (0320), worker (0321), persistence (0322), then cost and target proof (0323), source and key registration (0333), the ScoreVariant encoder (0337); then the variant section with one bounded capture (0198). It ships in 1.0, as `decisions/2026-10-27-1-0-ships-every-known-fix.md` says.
 
 ### 5. Close every known gap
 
@@ -62,10 +62,10 @@ Robustness and public-text fixes come first, because the parity run, the docs an
 
 - Rehearse the final candidate on every platform (0293).
 - A fresh agent compares the 0.9.3 and 1.0 CLIs blind on about 20 tasks, and every 1.0 regression is fixed or explained (0402).
-- Run MCP-Bench's BioMCP tasks, and InfoMosaic-Bench's if public, against 0.4.6 and 1.0: tool-call replay first, then agent runs on Ian's subscription within a run count he approves (0405).
+- Run MCP-Bench's BioMCP tasks, and InfoMosaic-Bench's if public, against 0.4.6 and 1.0: tool-call replay first, then agent runs on Ian's subscription (0405).
 - Check the installed candidate against cBioPortal's 62 numeric agent questions (0462).
 - Ian approves BioData's public repository and its v1.0.0 tag, which 0459 pins (asked through Jarvis on 2026-11-01).
-- Ian approves the publication credentials and settings 0533 lists, and the 0405 phase 2 run count. The release workflow has no manual approval pause (0554).
+- Ian approves the publication credentials and settings 0533 lists. The release workflow has no manual approval pause (0554).
 - Ian approves the public append, the 1.0 tag and publication.
 - Append this repository's history to the public repository with one merge commit, keeping old tags and releases (0294).
 - Tag v1.0.0 on that public merge commit, let the release workflow qualify the tag, and have the release operators publish from that run (0294). The installer and Homebrew download from the public repository's release, so the append and tag come before publication.
@@ -79,5 +79,5 @@ Ian's direction of 2026-10-29 (relayed in m14819): BioMCP becomes the data and c
 - OMOP commands: concept search and hierarchy, concept set resolution, person search and profile, Phenotype Library cohorts, counts and attrition, characteristics, incidence, and database summary and quality, running OHDSI's declarative artifacts (Circe, SqlRender, QueryLibrary, Achilles, DataQualityDashboard) natively in Rust, with OHDSI tools only as reference answers in tests.
 - Open questions for planning: cohort counts break get study's promise to calculate no frequencies; real databases need a minimum cell count (OHDSI's default is 5); and whether linking a FHIR library counts as running another tool.
 - BioData's experiments 507 and 508 tested shared clinical records and found that they failed across backends; planning starts from 508's record findings (encounter kind, observation stay, microbiology shape, medication kind).
-- Licensed data stays private: GENIE, UMLS, TCGA, JAX-CKB and all other licensed material live only in private repositories, private experiments or our machines, and public ISCN tests share nothing with the ISCN book's examples.
+- GENIE, UMLS and JAX-CKB content, and TCGA controlled-access data, stay out of public repos and public test fixtures (Ian, 2026-10-29: "We just can't redistribute it."). Public ISCN tests share nothing with the ISCN book's examples.
 

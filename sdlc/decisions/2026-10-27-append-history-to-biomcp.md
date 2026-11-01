@@ -8,4 +8,4 @@ The public BioMCP repository keeps its existing history and release tags, and th
 
 - Old tags such as v0.9.3 keep working, and `git log` shows both histories.
 - This repository is public, so its history needs no scrub, as `2026-10-19-public-repos-skip-history-scrubs.md` says.
-- This replaces the history replacement in `2026-10-23-a-clean-repo-whose-history-replaces-biomcp.md`. Pushing the merge to the public repository still needs Ian's approval at the time.
+- This replaces the history replacement in `2026-10-23-a-clean-repo-whose-history-replaces-biomcp.md`.

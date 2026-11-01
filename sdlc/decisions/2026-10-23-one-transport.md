@@ -1,8 +1,8 @@
 # One transport
 
-Decided 2026-10-23 by Ian, as one of the ratchets enforced by lint. Details applied by the PM. Updated 2026-10-31 to describe the approved transport and streaming implementations.
+Decided 2026-10-23 by the PM. The quota-key rule is Ian's (2026-10-24: "Throttling needs to be using a source key not a url/hostname key."). Updated 2026-10-31 to describe the approved transport and streaming implementations.
 
-`biomcp-fetch` owns network clients, deadlines, quotas, retry, body limits, checked reply caching, recording, replay and bundle transfer. Ordinary HTTP uses blocking `ureq` with rustls and platform trust. The bounded streaming RPC worker uses its async dependencies inside the same crate. Adapters own provider declarations and codecs. They construct no network clients and perform no sleeps or environment reads.
+`biomcp-fetch` owns network clients, deadlines, quotas, retry, body limits, checked reply caching, recording, replay and bundle transfer. Ordinary HTTP uses blocking `ureq` with rustls and platform trust. The bounded streaming RPC worker uses its async dependencies inside the same crate. Adapters own provider declarations and codecs.
 
 `Fetch::leg` binds declared source policy and a deadline. `Leg::call` accepts an endpoint, `Input` and `Read`, and returns `Received<T>` with checked data and reply metadata. Response readers carry request-bound checks and cache-admission policy. Probe, batch, bundle and streaming operations keep specialized entry points within the transport.
 
