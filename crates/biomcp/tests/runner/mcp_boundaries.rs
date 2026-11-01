@@ -208,19 +208,63 @@ fn hidden() -> Check {
     ] {
         let path = env.root().join(relative);
         fs::create_dir_all(path.parent().ok_or("missing parent")?)?;
-        for mut args in [
-            vec!["article", "text", "PPR1295425"],
-            vec!["article", "supplement", "28944238", "MGG3-5-553-s002.xlsx"],
-            vec!["article", "pdf", "28944238"],
-            vec!["trial", "document", "NCT04303780", "SAP_001.pdf"],
-        ]
-        .map(|args| args.into_iter().map(str::to_owned).collect::<Vec<_>>())
-        {
-            args.extend(["--save".into(), path.to_string_lossy().into_owned()]);
-            let value = super::mcp::call_with_globals(&env, &args, true, &[])?;
-            refusal(&value, "usage.arguments")?;
-            assert!(!path.exists(), "MCP created a hidden destination");
-        }
+        hidden_destination(&env, &path)?;
     }
+    #[cfg(unix)]
+    {
+        let hidden = env.root().join(".target");
+        fs::create_dir(&hidden)?;
+        let link = env.root().join("link");
+        std::os::unix::fs::symlink(&hidden, &link)?;
+        hidden_destination(&env, &link.join("out.txt"))?;
+    }
+    hidden_cwd(&env)
+}
+fn hidden_destination(env: &Environment, path: &std::path::Path) -> Check {
+    for mut args in [
+        vec!["article", "text", "PPR1295425"],
+        vec!["article", "supplement", "28944238", "MGG3-5-553-s002.xlsx"],
+        vec!["article", "pdf", "28944238"],
+        vec!["trial", "document", "NCT04303780", "SAP_001.pdf"],
+    ]
+    .map(|args| args.into_iter().map(str::to_owned).collect::<Vec<_>>())
+    {
+        args.extend(["--save".into(), path.to_string_lossy().into_owned()]);
+        let value = super::mcp::call_with_globals(env, &args, true, &[])?;
+        refusal(&value, "usage.arguments")?;
+        assert!(!path.exists(), "MCP created a hidden destination");
+    }
+    Ok(())
+}
+fn hidden_cwd(env: &Environment) -> Check {
+    let cwd = env.root().join(".cwd");
+    fs::create_dir(&cwd)?;
+    let mut command = env.command(
+        env!("CARGO_BIN_EXE_biomcp"),
+        &["serve".into(), "--offline".into()],
+    );
+    let child = command
+        .current_dir(&cwd)
+        .stdin(std::process::Stdio::piped())
+        .stdout(std::process::Stdio::piped())
+        .stderr(std::process::Stdio::piped())
+        .spawn()?;
+    let request = super::mcp::request(
+        json!(1),
+        "tools/call",
+        json!({"name":"biomcp","arguments":{"args":["article","text","PPR1295425","--save","out.txt"]}}),
+    );
+    let (status, stdout, stderr) = super::process::exchange(child, &[request])?;
+    command.record(status, &stdout, "mcp")?;
+    let replies = super::process::messages(status, &stdout, &stderr)?;
+    let value = replies
+        .first()
+        .and_then(|reply| reply.pointer("/result/structuredContent"))
+        .ok_or("missing hidden-cwd response")?;
+    refusal(value, "usage.arguments")?;
+    assert!(
+        !cwd.join("out.txt").exists(),
+        "MCP created a file under hidden cwd"
+    );
     Ok(())
 }

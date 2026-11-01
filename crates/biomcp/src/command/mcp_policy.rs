@@ -69,12 +69,16 @@ fn hidden_save(request: &Request) -> bool {
     };
     destination.is_some_and(|path| {
         let path = std::path::Path::new(path.as_str());
+        let parent = path
+            .parent()
+            .filter(|parent| !parent.as_os_str().is_empty())
+            .unwrap_or(std::path::Path::new("."));
         path.as_os_str()
             .to_string_lossy()
             .split(['/', '\\'])
             .any(|part| part.starts_with('.'))
             || std::fs::canonicalize(path)
-                .or_else(|_| std::fs::canonicalize(path.parent().unwrap_or(path)))
+                .or_else(|_| std::fs::canonicalize(parent))
                 .is_ok_and(|resolved| dotted(&resolved))
     })
 }
