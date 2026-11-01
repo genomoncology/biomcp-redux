@@ -46,7 +46,7 @@ biomcp search organization --source nci --city Boston --state MA --limit 5
 ## biomcp get author
 
 ```sh
-biomcp get author semanticscholar:456 semantic-scholar:123 semantic-scholar:999
+biomcp get author semantic-scholar:456 semantic-scholar:123 semantic-scholar:999
 biomcp get author semantic-scholar:123 semantic-scholar:123
 ```
 

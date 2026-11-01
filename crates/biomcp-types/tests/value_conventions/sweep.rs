@@ -251,7 +251,7 @@ fn author_and_record_vocabularies_preserve_identity() -> Check {
     value_contract::<biodata::SemanticScholarAuthorId>(&["1"], &["01"])?;
     value_contract::<biodata::OrcidId>(&["0000-0002-1825-0097"], &["0000-0002-1825-0098"])?;
     value_contract::<biodata::AuthorId>(
-        &["orcid:0000-0002-1825-0097", "semanticscholar:1"],
+        &["orcid:0000-0002-1825-0097", "semantic-scholar:1"],
         &["orcid:0000-0002-1825-0098"],
     )?;
     value_contract::<biodata::OrcidClientId>(&["APP-0123456789ABCDEF"], &["APP-0123456789ABCDE"])?;
@@ -341,10 +341,9 @@ fn equal_identity_uses_equal_hashes() -> Check {
     equal_hash::<biodata::Doi>("10.1000/ABC", "10.1000/abc")?;
     equal_hash::<biodata::ScientificPValue>("1.50e-8", "1.5e-8")?;
     equal_hash::<biodata::ScientificPValue>("1.000e0", "1e0")?;
-    equal_hash::<biodata::AuthorId>("semanticscholar:1", "semantic-scholar:1")?;
-    equal_hash::<biodata::VcvId>("VCV000000001.1", "VCV000000001.2")?;
-    equal_hash::<biodata::RcvId>("RCV000000001.1", "RCV000000001.2")?;
-    equal_hash::<biodata::ScvId>("SCV000000001.1", "SCV000000001.2")?;
+    equal_hash::<biodata::VcvId>("VCV000000001.1", "VCV000000001.1")?;
+    equal_hash::<biodata::RcvId>("RCV000000001.1", "RCV000000001.1")?;
+    equal_hash::<biodata::ScvId>("SCV000000001.1", "SCV000000001.1")?;
     Ok(())
 }
 

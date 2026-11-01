@@ -46,7 +46,7 @@ fn variant_consumer_reads_coding_representations_statements_and_frequencies() ->
         evaluated: None,
     };
     let statement = Statement::new(
-        subject.clone(),
+        subject.clone().into(),
         "pathogenicity".parse()?,
         Term {
             label: Text::new("source label")?,
@@ -55,10 +55,10 @@ fn variant_consumer_reads_coding_representations_statements_and_frequencies() ->
         attribution.clone(),
     );
     assert_eq!(
-        statement.subject.hgvs().map(HgvsText::as_str),
-        Some(notation)
+        serde_json::to_value(&statement.subject)?,
+        serde_json::to_value(&subject)?,
+        "Subject conversion preserves the variant wire"
     );
-    assert!(statement.subject.id().is_none());
     let frequency: PopulationFrequency = serde_json::from_value(json!({
         "subject": subject,
         "build": Build::GRCh38,
