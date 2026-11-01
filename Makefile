@@ -17,11 +17,13 @@ landing-gate:
 	+python3 scripts/landing_gate.py
 
 # Keep these sequential even when the caller uses make -j.
-.PHONY: pre-job proof-check proof-list proof proof-unpack gate-stage-check
-pre-job:
-	+$(MAKE) --no-print-directory fmt
-	+$(MAKE) --no-print-directory lint
-	+$(MAKE) --no-print-directory ratchets
+.PHONY: pre-job check-cheap proof-check proof-list proof proof-unpack gate-stage-check
+pre-job: check-cheap
+
+LINT_GOALS = unused-dependencies check-no-default-features lint-workspace lint-tools
+
+check-cheap:
+	+$(MAKE) --no-print-directory --keep-going -j1 fmt $(LINT_GOALS) ratchets
 
 # Retained proof archives use the platform tar, including Python 3.9 machines.
 proof-unpack:
@@ -52,11 +54,18 @@ plain-cli-build:
 fmt:
 	cargo fmt --all -- --check
 
+.PHONY: $(LINT_GOALS)
 lint:
-	+$(MAKE) --no-print-directory unused-dependencies
-	cargo check --locked -p biodata -p biomcp-types --no-default-features
-	cargo clippy --workspace --all-targets --locked -- -D warnings
-	cargo clippy --locked -p biomcp --test tools -- -D warnings
+	+$(MAKE) --no-print-directory --keep-going -j1 $(LINT_GOALS)
+
+check-no-default-features:
+	cargo check --keep-going --locked -p biodata -p biomcp-types --no-default-features
+
+lint-workspace:
+	cargo clippy --keep-going --workspace --all-targets --locked -- -D warnings
+
+lint-tools:
+	cargo clippy --keep-going --locked -p biomcp --test tools -- -D warnings
 
 ratchets: plain-cli-build
 	cargo test --locked -p biomcp --test ratchets $(TEST_THREADS)
@@ -90,6 +99,7 @@ unreached:
 
 .PHONY: docs-check
 docs-check:
+	cargo test --locked -p biomcp --test cases readme/ $(TEST_THREADS)
 	cargo test --locked -p biomcp --bin biomcp grammar::reference::reference_matches_grammar $(TEST_THREADS)
 	python3 release/toolchain.py check
 	python3 -m unittest release.test_toolchain
@@ -109,8 +119,8 @@ docs-check:
 	python3 scripts/test_trials.py
 	python3 scripts/test_nightly_live_check.py
 	python3 -m unittest release.test_installer release.test_checks release.test_gate release.test_windows
-	python3 -m unittest release.test_workflow release.test_security release.test_licenses
-	python3 -m unittest release.test_source_revision release.test_workflow_contracts
+	python3 -m unittest release.test_workflow release.test_security release.test_licenses release.test_docs
+	python3 -m unittest release.test_source_revision release.test_workflow_contracts release.test_publication release.test_promotion
 .PHONY: release-linux
 release-linux:
 	sh release/linux.sh $(CONTAINER_ARGS)
@@ -136,6 +146,10 @@ schema-generate:
 
 schema-release-check:
 	python3 scripts/schema_release.py
+
+.PHONY: current-schema-check
+current-schema-check:
+	cargo test --locked -p biomcp-types --features schema --test schemas checked_in_schemas_match_types -- --exact
 
 .PHONY: tensor-proto-check
 tensor-proto-check:
@@ -168,6 +182,12 @@ workflow-lint:
 	cargo check --locked -p biodata -p biomcp-types --no-default-features
 	actionlint
 
+.PHONY: publication-check
+publication-check:
+	actionlint
+	python3 -m unittest release.test_publication release.test_workflow release.test_workflow_contracts release.test_toolchain release.test_promotion
+	python3 release/toolchain.py check
+	python3 scripts/check_docs.py
 .PHONY: unused-dependencies dependency-graph dependency-proof
 unused-dependencies:
 	python3 release/toolchain.py install-machete
@@ -221,3 +241,34 @@ cli-candidate-check: fmt
 	$(MAKE) ratchets
 	python3 -c 'import json,subprocess,sys; out=subprocess.run([sys.argv[1], "mcp-config", "--client", "mcp-servers", "--absolute-path", "--offline"],capture_output=True,check=False); print("REMOVED_CONFIG_OPTION bytes="+str(len(out.stdout))+" exit="+str(out.returncode)); print(out.stdout[:1024].decode()); assert out.returncode == 2; assert json.loads(out.stdout)["error"]["code"] == "usage.arguments"' "$(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target)/debug/biomcp"
 	$(MAKE) cli-fixes-cases CLI_FIX_CASES='trial/ housekeeping/ local/mcp-config local/removed-options local/key-list-help'
+
+.PHONY: test-support-checks
+test-support-checks: pre-job
+	cargo test --locked -p biomcp-fetch --lib stream_worker_shutdown_cancels_and_joins_active_network_work $(TEST_THREADS)
+	cargo test --locked -p biomcp-types --test response $(TEST_THREADS)
+	cargo test --locked -p biomcp-fetch --test alphagenome --test grpc_worker --test grpc_persistence --test bundle $(TEST_THREADS)
+	cargo test --locked -p biomcp-adapters --test mapped_refusals --test custom_refusals --test ctgov_refusals $(TEST_THREADS)
+	cargo test --locked -p biomcp-query --test article_search --test gene_resolution --test query_refusals --test collection_refusals $(TEST_THREADS)
+	python3 scripts/trials.py --target tools --proofs schema-discovery/terms-subtraction-keeps-payload-ceilings schema-discovery/markdown-terms-subtraction-keeps-payload-ceilings schema-discovery/capture-retains-replay-owner schema-discovery/persistent-fixture-evidence
+	python3 scripts/trials.py --target cases variant-alphagenome/alphagenome-source-identity-refusals
+
+.PHONY: public-docs-check
+public-docs-check:
+	+$(MAKE) --no-print-directory pre-job
+	+$(MAKE) --no-print-directory docs-check
+
+.PHONY: http-busy-diagnosis
+http-busy-diagnosis: fmt
+	cargo test --locked -p biomcp --test cases mcp-http/framing-resource-deadlines-and-shutdown $(TEST_THREADS)
+	cargo llvm-cov test --no-report --locked -p biomcp --test cases mcp-http/framing-resource-deadlines-and-shutdown $(TEST_THREADS)
+
+.PHONY: http-edge-coverage
+http-edge-coverage:
+	cargo llvm-cov test --no-report --locked -p biomcp --test cases mcp-http/ $(TEST_THREADS)
+	cargo llvm-cov test --no-report --locked -p biomcp --test cases mcp-hosted/ $(TEST_THREADS)
+	cargo llvm-cov test --no-report --locked -p biomcp --test cases key-registration/ $(TEST_THREADS)
+	cargo llvm-cov test --no-report --locked -p biomcp --test tools -- --proofs schema-discovery/isolates-child-environments $(if $(strip $(RUST_TEST_THREADS)),--test-threads $(RUST_TEST_THREADS))
+
+.PHONY: http-capacity-check
+http-capacity-check: pre-job docs-check
+	cargo test --locked -p biomcp --test cases mcp-http/ $(TEST_THREADS)

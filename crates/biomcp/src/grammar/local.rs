@@ -12,7 +12,7 @@ pub(super) fn serve_command() -> Command {
         .arg(
             Arg::new("rate-share")
                 .long("rate-share")
-                .help("Use this share of every source rate in hosted mode (greater than 0, at most 1).")
+                .help("Use this share of keyed source rates in hosted mode (greater than 0, at most 1).")
                 .value_parser(clap::value_parser!(biomcp_fetch::RateShare))
                 .default_value("1")
                 .requires("hosted"),
@@ -23,6 +23,20 @@ pub(super) fn serve_command() -> Command {
                 .help("Listen on an HTTP address; omit its value for the loopback default.")
                 .num_args(0..=1)
                 .default_missing_value("127.0.0.1:8080"),
+        )
+        .arg(
+            Arg::new("http_max_calls")
+                .long("http_max_calls")
+                .help("Limit tool calls in flight.")
+                .value_parser(clap::value_parser!(std::num::NonZeroUsize))
+                .requires("http"),
+        )
+        .arg(
+            Arg::new("http_max_connections")
+                .long("http_max_connections")
+                .help("Limit open HTTP connections; must cover http_max_calls.")
+                .value_parser(clap::value_parser!(std::num::NonZeroUsize))
+                .requires("http"),
         )
         .arg(
             Arg::new("allow-host")
@@ -137,6 +151,12 @@ pub(super) fn housekeeping(
 
 pub(super) fn serve(matches: &clap::ArgMatches, mut globals: super::Globals) -> super::Parsed {
     globals.hosted = matches.get_flag("hosted");
+    globals.http_max_calls = matches
+        .get_one::<std::num::NonZeroUsize>("http_max_calls")
+        .copied();
+    globals.http_max_connections = matches
+        .get_one::<std::num::NonZeroUsize>("http_max_connections")
+        .copied();
     globals.rate_share = matches
         .get_one::<biomcp_fetch::RateShare>("rate-share")
         .copied()

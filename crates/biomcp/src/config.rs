@@ -1,6 +1,7 @@
 //! The process argument and settings boundary.
 pub(crate) mod credentials;
 pub(crate) mod key_file;
+mod pacing;
 use crate::grammar::Globals;
 use biomcp_fetch::{Fetch, FetchConfig, Mode, ReplayCache, Secret, SecretName, Secrets};
 use std::{ffi::OsString, fs, path::PathBuf, sync::Arc, time::Duration};
@@ -10,6 +11,29 @@ mod credential_reads_tests;
 pub(crate) mod file;
 pub(crate) use file::ConfigError;
 use file::ConfigFile;
+
+pub(crate) const DEFAULT_HTTP_CAPACITY: usize = 8;
+
+pub(crate) fn http_capacity(
+    globals: &Globals,
+    settings: &Settings,
+) -> Result<(usize, usize), ConfigError> {
+    let file = configured(settings)?;
+    let calls = globals
+        .http_max_calls
+        .or_else(|| file.and_then(|f| f.http_max_calls))
+        .map(std::num::NonZeroUsize::get)
+        .unwrap_or(DEFAULT_HTTP_CAPACITY);
+    let connections = globals
+        .http_max_connections
+        .or_else(|| file.and_then(|f| f.http_max_connections))
+        .map(std::num::NonZeroUsize::get)
+        .unwrap_or(DEFAULT_HTTP_CAPACITY);
+    if connections < calls || connections > (usize::MAX - 1) / 2 {
+        return Err(ConfigError::field("http_max_connections"));
+    }
+    Ok((calls, connections))
+}
 
 pub(crate) type Settings = Result<Option<ConfigFile>, ConfigError>;
 
@@ -58,6 +82,11 @@ pub(crate) enum StartupError {
     Cache(biomcp_fetch::CacheError),
     Configuration(ConfigError),
     Local,
+}
+impl StartupError {
+    pub(crate) fn is_pacing(&self) -> bool {
+        matches!(self, Self::Configuration(error) if error.is_pacing())
+    }
 }
 impl From<ConfigError> for StartupError {
     fn from(error: ConfigError) -> Self {
@@ -119,6 +148,7 @@ fn fetch_using(
     let network = network(file)?;
     Fetch::open(FetchConfig {
         rate_share: globals.rate_share,
+        source_pacing: pacing::resolve(globals, file)?,
         disabled_sources: disabled_sources(globals, file)?,
         disabled_uses: biomcp_query::sources::disabled_uses(&disabled_names(globals, file)),
         observations: globals

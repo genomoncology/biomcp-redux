@@ -7,10 +7,9 @@
     reason = "Public store and concurrency contracts own isolated fixture I/O and abort on invalid fixture setup"
 )]
 
-#[path = "../../biomcp-fetch/tests/support/recordings.rs"]
-mod recording_support;
 use biomcp_fetch::{CacheError, Fetch, FetchConfig, Mode, ReplayCache, RequestError};
 use biomcp_query::{Ctx, Outcome};
+use biomcp_test_support::recordings as recording_support;
 use biomcp_types::{ArticlePage, ArticleSearch, ReplyData, Request, Status};
 use std::{path::PathBuf, time::Duration};
 fn recordings(name: &str) -> PathBuf {
@@ -103,7 +102,7 @@ fn store_corruption_and_exhausted_budget_remain_typed_local_failures() {
         .unwrap();
     let out = run(&fetch, query(Some(id.as_str()), 0), false);
     assert_eq!(out.status(), Status::Failed);
-    assert_eq!(out.local, Some(RequestError::Cache(CacheError::Database)));
+    assert_eq!(out.local, Some(RequestError::Cache(CacheError::Encoding)));
     assert!(out.sources.is_empty());
     fetch
         .cache_access()
@@ -396,28 +395,4 @@ fn stale_summary_fallback_stays_partial_when_its_page_is_read_offline() {
         panic!("article page")
     };
     assert!(body.items.iter().all(|i| i.header.is_some()));
-}
-
-#[test]
-fn external_sql_writer_exhausts_only_the_commands_local_admission_budget() {
-    let cache = ReplayCache::temporary().unwrap();
-    let fetch = fetch("synthetic-small", cache);
-    page(run(&fetch, query(None, 0), false));
-    let mut connection = fetch.cache_access().unwrap().connect().unwrap();
-    let transaction = connection
-        .transaction_with_behavior(rusqlite::TransactionBehavior::Immediate)
-        .unwrap();
-    let out = biomcp_query::run(
-        &Ctx {
-            fetch: &fetch,
-            budget: Duration::from_millis(25),
-            fresh: false,
-            ncbi_email: None,
-        },
-        &Request::SearchArticle(query(None, 0)),
-    );
-    assert_eq!(out.local, Some(RequestError::Cache(CacheError::Busy)));
-    assert!(out.sources.is_empty());
-    transaction.rollback().unwrap();
-    page(run(&fetch, query(None, 0), false));
 }

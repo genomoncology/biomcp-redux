@@ -32,7 +32,7 @@ mod tests;
 impl Limiters {
     pub(super) fn acquire<'a>(
         &self,
-        quota: &'static Quota,
+        quota: Quota,
         keyed: bool,
         caller: Caller,
         share: RateShare,
@@ -44,10 +44,10 @@ impl Limiters {
                 || Arc::strong_count(limiter) > 1
                 || !limiter.expired_at(Instant::now(), deadline.now())
         });
-        let share = if matches!(caller, Caller::Process) {
-            RateShare::default()
-        } else {
+        let share = if matches!(caller, Caller::Hosted(Some(_))) {
             share
+        } else {
+            RateShare::default()
         };
         let limiter = buckets
             .entry((quota.key, caller))
@@ -64,7 +64,7 @@ impl Limiters {
     reason = "Share source quota counters and FIFO waits within one Fetch"
 )]
 struct Limiter {
-    quota: &'static Quota,
+    quota: Quota,
     share: RateShare,
     expiry_rate: Rate,
     state: Mutex<State>,
@@ -122,7 +122,7 @@ impl Limiter {
         clippy::disallowed_types,
         reason = "Share source quota counters and FIFO waits within one Fetch"
     )]
-    fn new(quota: &'static Quota, keyed: bool, share: RateShare) -> Self {
+    fn new(quota: Quota, keyed: bool, share: RateShare) -> Self {
         Self {
             quota,
             share,

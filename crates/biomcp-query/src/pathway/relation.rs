@@ -1,5 +1,5 @@
-use super::{empty, relation_snapshot as snapshot};
-use crate::{Ctx, Outcome, status};
+use super::empty;
+use crate::{Ctx, Outcome, source_snapshot, status};
 use biodata::{PathwayId, Text};
 use biomcp_adapters::reactome;
 use biomcp_fetch::{Deadline, RequestError, SourceError};
@@ -110,13 +110,7 @@ fn read_inner(
         Source::Reactome
     };
     if cx.fetch.disabled(source) {
-        let error: RequestError = SourceError {
-            source,
-            reason: Reason::Disabled,
-            status: None,
-            retry_after: None,
-        }
-        .into();
+        let error: RequestError = SourceError::disabled(source).into();
         out.sources.push(biomcp_adapters::registry::outcome(
             source,
             biomcp_types::SourceState::Skipped,
@@ -131,17 +125,39 @@ fn read_inner(
     let loaded = if q.fresh {
         None
     } else {
-        snapshot::load(cx, q.id, q.genes, q.pool, deadline)?
+        source_snapshot::find::<Saved>(
+            cx,
+            &source_snapshot::key("pathway-relation", &(q.id, q.genes))?,
+            q.pool,
+            deadline,
+        )?
+        .0
     };
     let (saved, pool) = match loaded {
-        Some(pair) => pair,
+        Some((saved, pool)) => (saved, Some(pool)),
         None if q.pool.is_some() => {
             restart(q, out);
             return Ok(());
         }
         None => {
             let saved = fetch(cx, q, deadline, out)?;
-            let pool = snapshot::save(cx, q.id, q.genes, deadline, &saved)?;
+            let pool = crate::publish::keep(
+                source_snapshot::publish(
+                    cx,
+                    &source_snapshot::key("pathway-relation", &(q.id, q.genes))?,
+                    &saved,
+                    saved
+                        .genes
+                        .as_ref()
+                        .map(|g| g.items.len())
+                        .or_else(|| saved.events.as_ref().map(|e| e.items.len()))
+                        .unwrap_or(0) as u32,
+                    &saved.sources,
+                    None,
+                    deadline,
+                ),
+                out,
+            )?;
             (saved, pool)
         }
     };
@@ -150,9 +166,11 @@ fn read_inner(
     out.problems = saved.problems;
     match (&q.echo, saved.genes, saved.events) {
         (Echo::Genes(query), Some(body), _) => {
-            present_genes(cx, q, query, deadline, body, pool.info, out)
+            present_genes(cx, q, query, deadline, body, pool.map(|p| p.info), out)
         }
-        (Echo::Events(query), _, Some(body)) => present_events(q, query, body, pool.info, out),
+        (Echo::Events(query), _, Some(body)) => {
+            present_events(q, query, body, pool.map(|p| p.info), out)
+        }
         _ => {}
     }
     Ok(())
@@ -163,7 +181,7 @@ fn present_genes(
     query: &PathwayGenesQuery,
     deadline: Deadline<'_>,
     mut body: biomcp_types::PathwayGenes,
-    pool: biomcp_types::PoolInfo,
+    pool: Option<biomcp_types::PoolInfo>,
     out: &mut Outcome,
 ) {
     body.items = body
@@ -202,7 +220,7 @@ fn present_events(
     q: &Selection<'_>,
     query: &PathwayEventsQuery,
     mut body: biomcp_types::PathwayEvents,
-    pool: biomcp_types::PoolInfo,
+    pool: Option<biomcp_types::PoolInfo>,
     out: &mut Outcome,
 ) {
     body.items = body
@@ -225,13 +243,13 @@ fn position(
     mut page: PathwayPageInfo,
     q: &Selection<'_>,
     returned: usize,
-    pool: biomcp_types::PoolInfo,
+    pool: Option<biomcp_types::PoolInfo>,
 ) -> PathwayPageInfo {
     page.offset = q.offset;
     page.returned = returned as u32;
     let next = q.offset.saturating_add(q.limit);
-    page.next_offset = (u64::from(next) < page.total).then_some(next);
-    page.pool = Some(pool);
+    page.next_offset = (pool.is_some() && u64::from(next) < page.total).then_some(next);
+    page.pool = pool;
     page
 }
 fn fetch(
@@ -239,7 +257,7 @@ fn fetch(
     q: &Selection<'_>,
     deadline: Deadline<'_>,
     out: &mut Outcome,
-) -> Result<snapshot::Saved, RequestError> {
+) -> Result<Saved, RequestError> {
     if matches!(q.id, PathwayId::Wikipathways(_)) {
         return super::gpml_relation::fetch(cx, q, deadline, out);
     }
@@ -269,7 +287,7 @@ fn fetch(
                 }
             }
         };
-        let mut saved = snapshot::Saved {
+        let mut saved = Saved {
             dropped: out.dropped,
             genes: None,
             events: None,
@@ -318,4 +336,13 @@ fn full_page(size: usize, kind: PathwayTotalKind) -> PathwayPageInfo {
         next_offset: None,
         pool: None,
     }
+}
+
+#[derive(serde::Serialize, serde::Deserialize)]
+pub(super) struct Saved {
+    pub dropped: bool,
+    pub genes: Option<biomcp_types::PathwayGenes>,
+    pub events: Option<biomcp_types::PathwayEvents>,
+    pub sources: Vec<biomcp_types::SourceOutcome>,
+    pub problems: Vec<biomcp_types::Problem>,
 }

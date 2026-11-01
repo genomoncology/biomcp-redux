@@ -151,3 +151,18 @@ pub(crate) const HOSTED_PACING: (&str, &[&str]) = (
     "mcp-hosted/pacing/two-header-keys",
     &["option serve --rate-share"],
 );
+
+// Operator flags override file settings and keep discovery available under tool load.
+pub(crate) const HTTP_CAPACITY: (&str, &[&str]) = (
+    "mcp-http/configured-capacity-and-refusals",
+    &[
+        "option serve --http_max_calls",
+        "option serve --http_max_connections",
+    ],
+);
+
+// The process settings case proves the source pacing map flag and its file precedence.
+pub(crate) const SOURCE_PACING: (&str, &[&str]) = (
+    "source-pacing/settings-and-ceilings",
+    &["global --source_pacing"],
+);

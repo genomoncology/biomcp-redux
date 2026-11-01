@@ -44,12 +44,14 @@ mod drug_label;
 mod drug_next;
 mod evidence;
 mod faers_get;
+mod source_pacing;
 tool_only! { mod hgnc_sync; }
 mod held_proxy;
 mod hosted_deadline;
 mod hosted_pacing;
 mod housekeeping;
 mod http;
+mod http_capacity;
 mod http_limits;
 #[cfg(unix)]
 mod key_input;
@@ -61,6 +63,7 @@ mod replay;
 tool_only! { pub(crate) mod live; }
 tool_only! { mod live_follow_proof; }
 tool_only! { mod live_proof; }
+mod declared_use;
 mod licensed_cache;
 mod maude;
 mod maude_budget;
@@ -70,8 +73,7 @@ mod mcp_hosted;
 mod nci;
 mod request_keys;
 tool_only! { mod negative_cases; }
-#[path = "../../../biomcp-fetch/tests/support/network_stub.rs"]
-mod network_stub;
+use biomcp_test_support::network_stub;
 mod normalization;
 mod oncokb;
 mod oncokb_context;
@@ -98,6 +100,7 @@ mod skill;
 tool_only! { mod schema_evolution; }
 mod schema_proof;
 tool_only! { mod semantic_tables; }
+mod cache_errors;
 mod snapshot_errors;
 mod source_queries;
 mod source_terms;
@@ -239,6 +242,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     let mut trials = Vec::new();
     trials.extend(protocol::trials());
     trials.extend(configuration::trials());
+    trials.extend(source_pacing::trials());
     trials.extend(recurrence::trials());
     trials.extend(replay::trials());
     trials.extend(output_stream::trials());
@@ -257,6 +261,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(mcp_boundaries::trials());
     trials.extend(mcp_hosted::trials());
     trials.extend(request_keys::trials());
+    trials.extend(declared_use::trials());
     trials.extend(hosted_pacing::trials());
     trials.extend(hosted_deadline::trials());
     trials.extend(licensed_cache::trials());
@@ -268,6 +273,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(trial_get::trials());
     trials.push(trial_sites::trial());
     trials.extend(snapshot_errors::trials());
+    trials.extend(cache_errors::trials());
     trials.extend(variant_assertion_wire::trials());
     trials.extend(evidence::trials());
     trials.extend(variant::trials());
@@ -468,12 +474,8 @@ tool_only! {
     }
 }
 
-#[path = "../../../biomcp-fetch/tests/support/capture.rs"]
-mod capture_support;
-#[path = "../../../biomcp-fetch/tests/support/fixtures.rs"]
-mod fixture_paths;
-#[path = "../../../biomcp-fetch/tests/support/hash.rs"]
-mod stable_hash;
+use biomcp_test_support::capture as capture_support;
+use biomcp_test_support::fixtures as fixture_paths;
+use biomcp_test_support::hash as stable_hash;
 
-#[path = "../../../biomcp-fetch/tests/support/recordings.rs"]
-mod recording_support;
+use biomcp_test_support::recordings as recording_support;

@@ -32,6 +32,8 @@ pub(super) fn check() -> Check {
     dropped_peer().map_err(|error| format!("dropped peer: {error}"))?;
     #[cfg(unix)]
     busy_health().map_err(|error| format!("busy health: {error}"))?;
+    #[cfg(unix)]
+    configured_capacity().map_err(|error| format!("configured capacity: {error}"))?;
     let mut server = Server::start()?;
     for bytes in [
         format!(
@@ -283,34 +285,38 @@ fn dropped_peer() -> Check {
 
 #[cfg(unix)]
 fn busy_health() -> Check {
-    use std::os::unix::fs::OpenOptionsExt;
-    // Every tool blocks in the existing per-call settings read until this writer closes.
-    let server = Server::configured_globals(
-        "127.0.0.1:0",
-        Some(serde_json::json!({})),
-        None,
-        None,
-        None,
-        &["--hosted".into()],
-    )?;
-    let config = server
-        .environment()
-        .root()
-        .join("config/biomcp/config.json");
-    std::fs::remove_file(&config).map_err(|e| e.to_string())?;
-    nix::unistd::mkfifo(
-        &config,
-        nix::sys::stat::Mode::S_IRUSR | nix::sys::stat::Mode::S_IWUSR,
-    )
-    .map_err(|e| e.to_string())?;
-    let writer = std::fs::OpenOptions::new()
-        .read(true)
-        .write(true)
-        .custom_flags(nix::libc::O_NONBLOCK)
-        .open(&config)
-        .map_err(|e| e.to_string())?;
+    busy_capacity(false, false)
+}
+
+#[cfg(unix)]
+fn configured_capacity() -> Check {
+    busy_capacity(true, false)?;
+    busy_capacity(true, true)
+}
+
+#[cfg(unix)]
+fn busy_capacity(configured: bool, flags: bool) -> Check {
+    let config = if flags {
+        serde_json::json!({"http_max_calls":6,"http_max_connections":1})
+    } else if configured {
+        serde_json::json!({"http_max_calls":2,"http_max_connections":4})
+    } else {
+        serde_json::json!({})
+    };
+    let mut globals = vec!["--hosted".into()];
+    if flags {
+        globals.extend([
+            "--http_max_calls".into(),
+            "2".into(),
+            "--http_max_connections".into(),
+            "4".into(),
+        ]);
+    }
+    let server =
+        Server::configured_globals("127.0.0.1:0", Some(config), None, None, None, &globals)?;
     let mut held = Vec::new();
-    for index in 1..=8 {
+    let mut writers = Vec::new();
+    for index in 1..=if configured { 2 } else { 8 } {
         let body = super::mcp::request(
             serde_json::json!(index),
             "tools/call",
@@ -319,35 +325,138 @@ fn busy_health() -> Check {
             }),
         )
         .to_string();
-        let mut socket = TcpStream::connect(server.address).map_err(|e| e.to_string())?;
-        socket.write_all(format!(
-            "POST /mcp HTTP/1.1\r\nHost: {}\r\nContent-Type: application/json\r\n\
-             Accept: application/json, text/event-stream\r\nMCP-Protocol-Version: 2026-07-28\r\nMcp-Method: tools/call\r\nMcp-Name: biomcp\r\n\
-             Content-Length: {}\r\n\r\n{body}",
-            server.address, body.len()
-        ).as_bytes()).map_err(|e| e.to_string())?;
+        let (socket, writer) = hold_settings_reader(&server, &body)?;
         held.push(socket);
+        writers.push(writer);
     }
-    // A refused ordinary request observes that all eight tool slots are occupied.
+    if configured {
+        held.push(hold_header(&server)?);
+    }
+    // Every FIFO open witnesses a real admitted tool call before this probe competes.
     let probe =
         super::mcp::request(serde_json::json!(9), "tools/list", serde_json::json!({})).to_string();
-    let end = Instant::now() + Duration::from_secs(5);
-    loop {
-        let status = server.request("POST", "/mcp", &probe)?.0;
-        if status == 503 {
-            break;
-        }
-        if status != 200 || Instant::now() >= end {
-            return Err(format!(
-                "eight long calls did not occupy capacity: {status}"
-            ));
-        }
+    let status = server.request("POST", "/mcp", &probe)?.0;
+    if status != if configured { 200 } else { 503 } {
+        return Err(format!(
+            "admitted long calls did not retain capacity: {status}; held={}",
+            held_outcomes(&mut held)
+        ));
+    }
+    if configured {
+        refuse_over_capacity(&server, &probe, &mut held)?;
     }
     let (status, body) = server.request("GET", "/health", "")?;
     if status != 200 || body.get("store") != Some(&serde_json::json!(true)) {
         return Err(format!("busy server failed health: {status} {body}"));
     }
-    drop(writer);
+    drop(writers);
     drop(held);
     Ok(())
+}
+
+#[cfg(unix)]
+fn hold_header(server: &Server) -> Result<TcpStream, String> {
+    let mut socket = TcpStream::connect(server.address).map_err(|e| e.to_string())?;
+    socket
+        .write_all(b"POST /mcp HTTP/1.1\r\n")
+        .map_err(|e| e.to_string())?;
+    Ok(socket)
+}
+
+#[cfg(unix)]
+fn refuse_over_capacity(server: &Server, probe: &str, held: &mut Vec<TcpStream>) -> Check {
+    let call = super::mcp::request(
+        serde_json::json!(10),
+        "tools/call",
+        serde_json::json!({"name":"biomcp","arguments":{"args":["get","protein","P00003"]}}),
+    )
+    .to_string();
+    let (status, body) = server.request("POST", "/mcp", &call)?;
+    if status != 200 || body.pointer("/error/code") != Some(&serde_json::json!(-31000)) {
+        return Err(format!("third tool escaped call cap: {status} {body}"));
+    }
+    // Two tool connections plus two unfinished headers fill the normal budget.
+    held.push(hold_header(server)?);
+    let (status, body) = server.request("POST", "/mcp", probe)?;
+    if status != 503 || body != serde_json::json!({"error":"Service unavailable"}) {
+        return Err(format!(
+            "fifth connection escaped connection cap: {status} {body}"
+        ));
+    }
+    Ok(())
+}
+
+#[cfg(unix)]
+fn hold_settings_reader(server: &Server, body: &str) -> Result<(TcpStream, std::fs::File), String> {
+    use std::os::unix::fs::OpenOptionsExt;
+    let config = server
+        .environment()
+        .root()
+        .join("config/biomcp/config.json");
+    // Unlinking preserves each previous reader's inode and its owned writer.
+    std::fs::remove_file(&config).map_err(|e| e.to_string())?;
+    nix::unistd::mkfifo(
+        &config,
+        nix::sys::stat::Mode::S_IRUSR | nix::sys::stat::Mode::S_IWUSR,
+    )
+    .map_err(|e| e.to_string())?;
+    let mut socket = TcpStream::connect(server.address).map_err(|e| e.to_string())?;
+    socket
+        .write_all(
+            format!(
+                "POST /mcp HTTP/1.1\r\nHost: {}\r\nContent-Type: application/json\r\n\
+         Accept: application/json, text/event-stream\r\nMCP-Protocol-Version: 2026-07-28\r\n\
+         Mcp-Method: tools/call\r\nMcp-Name: biomcp\r\nContent-Length: {}\r\n\r\n{body}",
+                server.address,
+                body.len()
+            )
+            .as_bytes(),
+        )
+        .map_err(|e| e.to_string())?;
+    // A writer cannot open until this call has opened the fresh FIFO for reading.
+    let end = Instant::now() + Duration::from_secs(60);
+    loop {
+        match std::fs::OpenOptions::new()
+            .write(true)
+            .custom_flags(nix::libc::O_NONBLOCK)
+            .open(&config)
+        {
+            Ok(writer) => return Ok((socket, writer)),
+            Err(error)
+                if error.raw_os_error() == Some(nix::libc::ENXIO) && Instant::now() < end =>
+            {
+                std::thread::yield_now();
+            }
+            Err(error) => return Err(format!("settings reader did not enter its FIFO: {error}")),
+        }
+    }
+}
+
+#[cfg(unix)]
+fn held_outcomes(held: &mut [TcpStream]) -> String {
+    held.iter_mut()
+        .map(|socket| {
+            if let Err(error) = socket.set_nonblocking(true) {
+                return error.to_string();
+            }
+            let mut response = String::new();
+            let result = socket.take(8192).read_to_string(&mut response);
+            if response.is_empty() {
+                return format!("pending {result:?}");
+            }
+            let Some((head, body)) = response.split_once("\r\n\r\n") else {
+                return format!("incomplete header: {} bytes", response.len());
+            };
+            let value = serde_json::from_str::<serde_json::Value>(body).ok();
+            format!(
+                "{} rpc_error={:?} tool_error={:?}",
+                head.lines().next().unwrap_or_default(),
+                value.as_ref().and_then(|value| value.get("error")),
+                value
+                    .as_ref()
+                    .and_then(|value| value.pointer("/result/structuredContent/error"))
+            )
+        })
+        .collect::<Vec<_>>()
+        .join("; ")
 }

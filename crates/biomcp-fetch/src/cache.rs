@@ -22,6 +22,8 @@ pub const VERSION: u32 = 5;
 /// Compatible cache namespace used by callers when naming shared cache files.
 pub const CACHE_NAMESPACE_VERSION: u32 = 1;
 const OWNER: &str = "biomcp-fetch";
+/// Retain expired replies for stale and offline fallback before automatic pruning.
+pub const STALE_GRACE_SECONDS: i64 = 30 * 24 * 60 * 60;
 const OPEN_WAIT: Duration = Duration::from_secs(5);
 
 // One connection is shared by source legs. Its lock covers only SQLite work;
@@ -104,7 +106,7 @@ impl Cache {
             {
                 Ok(_) => {}
                 Err(error) if error.kind() == std::io::ErrorKind::AlreadyExists => {}
-                Err(_) => return Err(CacheError::Database),
+                Err(_) => return Err(CacheError::Filesystem),
             }
         }
         let mut connection = Connection::open(path).map_err(db_error)?;
@@ -289,7 +291,7 @@ impl Cache {
     ) -> Result<(), CacheError> {
         self.write_sql(deadline, |connection| {
             let tx = connection.unchecked_transaction().map_err(db_error)?;
-            tx.execute("DELETE FROM reply WHERE fresh_until<=?1", [now()]).map_err(db_error)?;
+            tx.execute("DELETE FROM reply WHERE fresh_until<=?1", [now().saturating_sub(STALE_GRACE_SECONDS)]).map_err(db_error)?;
             tx.execute(
                 "INSERT INTO reply(key,source,url,status,content_type,body,fetched_at,fresh_until,content_range,pagination) \
         VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10)
@@ -311,7 +313,7 @@ impl Cache {
                         .as_ref()
                         .map(serde_json::to_string)
                         .transpose()
-                        .map_err(|_| CacheError::Database)?
+                        .map_err(|_| CacheError::Encoding)?
                 ],
             )
             .map_err(db_error)?;
@@ -350,7 +352,7 @@ pub(crate) fn sql_deadline(
 fn try_mutex<T>(mutex: &Mutex<T>) -> Result<std::sync::MutexGuard<'_, T>, CacheError> {
     mutex.try_lock().map_err(|error| match error {
         std::sync::TryLockError::WouldBlock => CacheError::Busy,
-        std::sync::TryLockError::Poisoned(_) => CacheError::Database,
+        std::sync::TryLockError::Poisoned(_) => CacheError::Internal,
     })
 }
 #[expect(
@@ -374,7 +376,7 @@ fn wait_mutex<'a, T>(
                         Ok(probe) => drop(probe),
                         Err(std::sync::TryLockError::WouldBlock) => return Err(CacheError::Busy),
                         Err(std::sync::TryLockError::Poisoned(_)) => {
-                            return Err(CacheError::Database);
+                            return Err(CacheError::Internal);
                         }
                     }
                 }

@@ -52,7 +52,7 @@ pub use bundle::{
     KeyKind, Keys, MAX_BUNDLE_BYTES, Row, RowFormat, SetRow, bundle_sha256, decode_bundle_document,
     encode_bundle_row,
 };
-pub use cache::{CACHE_NAMESPACE_VERSION, SchemaOwner, VERSION, check_owners};
+pub use cache::{CACHE_NAMESPACE_VERSION, STALE_GRACE_SECONDS, SchemaOwner, VERSION, check_owners};
 pub use deadline::{CommandDeadline, Deadline, LocalDeadline};
 pub use declaration::{
     Arg, Credential, Endpoint, Freshness, KeyPlace, KeyUse, PathSegment, SecretName, SourceSpec,
@@ -61,7 +61,9 @@ pub use declaration::{
 pub use error::{
     BadReply, CacheError, FetchError, InputError, RecordError, RequestError, SourceError, bad_reply,
 };
-pub use quota::{InvalidRateShare, Quota, Rate, RateShare, SourceKey};
+pub use quota::{
+    InvalidRateShare, PacingOverride, PacingRate, Quota, Rate, RateShare, SourceKey, SourcePacing,
+};
 pub use record::ReplayCache;
 pub use secret::{KeyFingerprint, Secret, Secrets};
 use std::{collections::BTreeMap, fmt, time::Duration};
@@ -97,6 +99,8 @@ pub trait Reply: serde::de::DeserializeOwned {
 pub struct FetchConfig {
     /// This process's share of provider rates in hosted mode.
     pub rate_share: RateShare,
+    /// Checked source-specific rates and simultaneous request counts.
+    pub source_pacing: SourcePacing,
     /// Bounded streaming RPC resources, independent of blocking HTTP requests.
     pub grpc_limits: grpc::Limits,
     /// Explicit bounded wire summaries, disabled by default.
@@ -135,6 +139,7 @@ impl Default for FetchConfig {
     fn default() -> Self {
         Self {
             rate_share: RateShare::default(),
+            source_pacing: SourcePacing::default(),
             grpc_limits: grpc::Limits::default(),
             observations: None,
             cache_owners: Vec::new(),
@@ -165,6 +170,7 @@ pub struct Fetch {
     secrets: std::sync::Arc<Secrets>,
     hosted: bool,
     agents: std::sync::Arc<network::Agents>,
+    tls: std::sync::Arc<rustls::ClientConfig>,
     grpc_worker: std::sync::Arc<grpc::Worker>,
     cancelled: Option<std::sync::Arc<std::sync::atomic::AtomicBool>>,
     call_end: Option<std::time::Instant>,
@@ -197,11 +203,9 @@ impl Fetch {
         if config.max_body == u64::MAX {
             return Err(FetchError::BodyLimit);
         }
-        let grpc_worker = std::sync::Arc::new(grpc::Worker::new(
-            config.network.clone(),
-            config.grpc_limits,
-        )?);
-        let agents = network::Agents::new(&config.network, config.proxy.as_ref())?;
+        let tls = std::sync::Arc::new(config.network.tls_configuration()?);
+        let grpc_worker = std::sync::Arc::new(grpc::Worker::new(tls.clone(), config.grpc_limits)?);
+        let agents = network::Agents::new(&config.network, config.proxy.as_ref(), tls.clone())?;
         if matches!(config.mode, Mode::Replay { .. }) && config.replay_cache.is_none() {
             config.replay_cache = Some(
                 ReplayCache::temporary_with_owners(&config.cache_owners)
@@ -231,6 +235,7 @@ impl Fetch {
             hosted: false,
             agents: std::sync::Arc::new(agents),
             grpc_worker,
+            tls,
             cancelled: None,
             call_end: None,
             mode: std::mem::take(&mut config.mode),
@@ -470,3 +475,7 @@ mod counted;
 pub use counted::ContentRange;
 
 mod request_body;
+
+#[cfg(test)]
+#[path = "../tests/transport/tls_builds.rs"]
+mod tls_build_tests;

@@ -15,8 +15,6 @@ use std::{
     thread,
 };
 const ACCEPT_POLL: std::time::Duration = std::time::Duration::from_millis(20);
-const MAX_CONNECTIONS: usize = 8;
-const MAX_READERS: usize = MAX_CONNECTIONS + 1;
 const HEALTH_BUDGET: std::time::Duration = std::time::Duration::from_secs(2);
 pub(crate) enum StartError {
     Configuration(crate::config::StartupError),
@@ -26,7 +24,9 @@ pub(crate) enum StartError {
 }
 struct Service {
     calls: Calls,
-    requests: admission::Slots<MAX_CONNECTIONS>,
+    connections: admission::Slots,
+    max_calls: usize,
+    max_connections: usize,
     address: SocketAddr,
     hosts: Vec<Authority>,
     globals: crate::grammar::Globals,
@@ -65,13 +65,22 @@ pub(crate) fn serve(
     if !address.ip().is_loopback() && hosts.is_empty() {
         return Err(StartError::AllowHost);
     }
+    let (max_calls, max_connections) = crate::config::http_capacity(&globals, &settings)
+        .map_err(|error| StartError::Configuration(error.into()))?;
+    let fetch = crate::config::fetch(&globals, &settings).map(Arc::new);
+    if let Err(error) = &fetch
+        && error.is_pacing()
+    {
+        return Err(StartError::Configuration(error.clone()));
+    }
     let listener = TcpListener::bind(address).map_err(|_| StartError::Local)?;
     let address = listener.local_addr().map_err(|_| StartError::Local)?;
-    let fetch = crate::config::fetch(&globals, &settings).map(Arc::new);
     let recovery = fetch.is_err().then(|| Arc::new(super::Recovery::new()));
     let service = Arc::new(Service {
         calls: Calls::default(),
-        requests: admission::Slots::default(),
+        connections: admission::Slots::new(max_connections),
+        max_calls,
+        max_connections,
         address,
         hosts,
         fetch,
@@ -103,7 +112,8 @@ fn connections(
 ) -> io::Result<()> {
     listener.set_nonblocking(true)?;
     let mut workers: Vec<thread::JoinHandle<()>> = Vec::new();
-    let readers = admission::Slots::<MAX_READERS>::default();
+    let max_workers = service.max_connections * 2 + 1;
+    let readers = admission::Slots::new(service.max_connections + 1);
     loop {
         if stopped.try_recv().is_ok() {
             break;
@@ -122,7 +132,7 @@ fn connections(
             Err(error) if error.kind() == io::ErrorKind::Interrupted => continue,
             Err(error) => return Err(error),
         };
-        let mut retained = Vec::with_capacity(MAX_CONNECTIONS + MAX_READERS);
+        let mut retained = Vec::with_capacity(workers.len());
         for worker in workers {
             if worker.is_finished() {
                 let _ = worker.join();
@@ -132,7 +142,7 @@ fn connections(
         }
         workers = retained;
         // Retain a whole-worker bound while phase permits change hands or diagnostics run.
-        let reader = if workers.len() < MAX_CONNECTIONS + MAX_READERS {
+        let reader = if workers.len() < max_workers {
             readers.take()
         } else {
             None
@@ -141,12 +151,13 @@ fn connections(
             record(wire::unavailable(&mut stream));
             continue;
         };
+        let connection = service.connections.take();
         let service = service.clone();
         workers.push(
             thread::Builder::new()
                 .name("mcp-http".into())
                 .spawn(move || {
-                    record(service.handle(stream, reader));
+                    record(service.handle(stream, reader, connection));
                 })?,
         );
     }
@@ -167,14 +178,20 @@ fn record(result: io::Result<()>) {
     }
 }
 impl Service {
-    fn handle(&self, mut stream: TcpStream, reader: admission::Permit) -> io::Result<()> {
+    fn handle(
+        &self,
+        mut stream: TcpStream,
+        reader: admission::Permit,
+        connection: Option<admission::Permit>,
+    ) -> io::Result<()> {
         // A malformed or oversized framing closes without reflecting untrusted headers.
         let request = wire::read(&mut stream)?;
-        // Health uses a framing slot and never waits for an active tool slot.
-        let _request = if request.path == "/health" {
+        // A reserved reader classifies health even when ordinary connections are full.
+        let _connection = if request.path == "/health" {
+            drop(connection);
             None
         } else {
-            let Some(permit) = self.requests.take() else {
+            let Some(permit) = connection else {
                 return wire::unavailable(&mut stream);
             };
             drop(reader);
@@ -223,12 +240,28 @@ impl Service {
             Ok(revision) => revision,
             Err(error) => return (400, Some(error), None),
         };
+        let declared_use = if self.globals.hosted {
+            match request.declared_use() {
+                Ok(usage) => Some(usage),
+                Err(_) => {
+                    return (
+                        400,
+                        Some(
+                            json!({"error":"Invalid x-biomcp-use header; allowed values: commercial, academic"}),
+                        ),
+                        Some(revision),
+                    );
+                }
+            }
+        } else {
+            None
+        };
         let mut legacy = revision != super::protocol::REVISIONS[0];
         let result = match super::rpc::message(&request.body, &mut legacy, true, &self.root) {
             super::rpc::Message::Reply(reply) => reply,
             super::rpc::Message::Notification { .. } => return (202, None, Some(revision)),
             super::rpc::Message::Tool { id, params, modern } => {
-                return self.tool(request, id, &params, modern, revision);
+                return self.tool(request, id, &params, modern, revision, declared_use);
             }
         };
         let status = if result.pointer("/error/code") == Some(&json!(-32601)) {
@@ -245,6 +278,7 @@ impl Service {
         params: &Value,
         modern: bool,
         revision: &'static str,
+        declared_use: Option<crate::command::DeclaredUse>,
     ) -> (u16, Option<Value>, Option<&'static str>) {
         let scope = self
             .globals
@@ -280,6 +314,7 @@ impl Service {
                     modern,
                     call,
                     secrets: keys,
+                    declared_use: declared_use.unwrap_or(crate::command::DeclaredUse::Commercial),
                     scope,
                 },
             )
@@ -293,6 +328,7 @@ impl Service {
                     fetch: &self.fetch,
                     recovery: self.recovery.as_deref(),
                     secrets: keys.as_ref(),
+                    declared_use,
                     scope: None,
                 },
                 true,

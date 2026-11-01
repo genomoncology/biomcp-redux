@@ -29,7 +29,7 @@ pub(super) fn split(text: &str) -> Vec<(u32, String)> {
 pub(super) fn render(
     query: &ArticleEvidence,
     mut snapshot: Snapshot,
-    id: Text,
+    id: Option<Text>,
     out: &mut Outcome,
 ) -> Result<(), RequestError> {
     out.dropped |= snapshot.dropped;
@@ -75,7 +75,7 @@ pub(super) fn render(
         unavailable && !answered,
         unavailable || !snapshot.terminal,
     );
-    if more || !snapshot.terminal {
+    if let Some(id) = id.filter(|_| more || !snapshot.terminal) {
         out.next.push(crate::next::Step::run(
             StepKind::Page,
             &super::super::next::evidence_sources(query),
@@ -99,7 +99,7 @@ fn page<T: Clone>(
     let mut out = Vec::new();
     let mut bytes = 0;
     for item in items.iter().skip(offset) {
-        let size = size(item).map_err(|_| biomcp_fetch::CacheError::Database)? + 1;
+        let size = size(item).map_err(|_| biomcp_fetch::CacheError::Encoding)? + 1;
         if !out.is_empty() && bytes + size > budget {
             break;
         }

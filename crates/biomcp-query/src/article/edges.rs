@@ -49,7 +49,7 @@ fn execute<'a>(
 ) -> Result<(), RequestError> {
     let mut store = Store::open(cx.fetch.cache_access()?, *deadline)?;
     let identity = serde_json::to_vec(&request(query.identity(), references))
-        .map_err(|_| CacheError::Database)?;
+        .map_err(|_| CacheError::Encoding)?;
     let key = Sha256::digest([b"biomcp.article_edges/2\0".as_slice(), &identity].concat());
     let explicit = query.pool().map(Text::as_str);
     let pool = if cx.fresh && explicit.is_none() {
@@ -74,7 +74,18 @@ fn execute<'a>(
                 return Ok(());
             };
             store.set_deadline(*deadline);
-            store.publish(&key, &items, &out.sources, &out.problems, out.dropped)?
+            match crate::publish::keep(
+                store
+                    .publish(&key, &items, &out.sources, &out.problems, out.dropped)
+                    .map_err(Into::into),
+                out,
+            )? {
+                Some(pool) => pool,
+                None => {
+                    page::fetched(page::Cursor::Edges(query, references), items, out);
+                    return Ok(());
+                }
+            }
         }
     };
     out.sources = pool.sources.clone();

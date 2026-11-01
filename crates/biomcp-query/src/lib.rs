@@ -34,11 +34,13 @@ mod pgx;
 mod adverse_event_maude;
 
 mod biomarker;
+mod nci_search;
 mod organization;
 /// Native human pathway discovery and exact cards.
 mod pathway;
 /// Literal phenotype discovery and exact independent source cards.
 mod phenotype;
+mod publish;
 mod source_snapshot;
 /// Stored study catalog discovery.
 mod study;

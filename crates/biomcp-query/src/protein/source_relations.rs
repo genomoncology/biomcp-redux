@@ -1,15 +1,14 @@
 //! Complete checked source collections page without admitting inferred memberships.
-use crate::{Ctx, Outcome, status, store::Store};
+use crate::{Ctx, Outcome, source_snapshot, status};
 use biodata::{Text, UniProtIsoform};
 use biomcp_adapters::{complex_portal, interpro};
-use biomcp_fetch::{CacheError, Deadline, RequestError, SourceError};
+use biomcp_fetch::{Deadline, RequestError, SourceError};
 use biomcp_types::Paged;
 use biomcp_types::ReplyBody;
 use biomcp_types::{
     PageInfo, ProteinComplexMembersQuery, ProteinDomainsQuery, ProteinRelationQuery, ReplyData,
     Request, Source, StepKind,
 };
-use sha2::{Digest, Sha256};
 mod saved;
 use saved::Saved;
 #[derive(Clone)]
@@ -58,14 +57,8 @@ impl Selection {
             ),
         }
     }
-    fn key(&self) -> Result<Vec<u8>, CacheError> {
-        let mut h = Sha256::new();
-        h.update(match self {
-            Self::Domains(_) => b"biomcp.protein_source_relations/3\0",
-            Self::Complexes(_) | Self::Members(_) => b"biomcp.protein_source_relations/2\0",
-        });
-        h.update(serde_json::to_vec(&self.request(None)).map_err(|_| CacheError::Database)?);
-        Ok(h.finalize().to_vec())
+    fn key(&self) -> Result<Vec<u8>, RequestError> {
+        source_snapshot::key("protein-source-relations", &self.request(None))
     }
     pub(super) fn empty(&self) -> ReplyData {
         match self {
@@ -108,13 +101,7 @@ pub(super) fn read(
 ) -> Result<(), RequestError> {
     let leg = cx.fetch.leg(q.spec(), deadline).fresh(cx.fresh);
     if cx.fetch.disabled(q.source()) {
-        let e = SourceError {
-            source: q.source(),
-            reason: biomcp_types::Reason::Disabled,
-            status: None,
-            retry_after: None,
-        }
-        .into();
+        let e = SourceError::disabled(q.source()).into();
         out.sources
             .push(status::source(q.source(), leg.finish(), Some(e)));
         return Err(e);
@@ -124,8 +111,7 @@ pub(super) fn read(
         restart(q, out, false);
         return Ok(());
     }
-    let mut store = Store::open(cx.fetch.cache_access()?, deadline)?;
-    let Some((saved, pool)) = load(cx, q, leg, &mut store, out)? else {
+    let Some((saved, pool)) = load(cx, q, leg, deadline, out)? else {
         return Ok(());
     };
     if let (Selection::Members(query), Saved::Members(None)) = (q, &saved) {
@@ -143,7 +129,7 @@ pub(super) fn read(
         return Ok(());
     }
     let returned = limit.min(total.saturating_sub(offset.into()) as u32);
-    saved.member_steps(q, offset, limit, &mut store, out)?;
+    saved.member_steps(q, offset, limit, cx, deadline, out)?;
     saved.render(q, offset, limit, out)?;
     {
         let unavailable = out
@@ -156,10 +142,10 @@ pub(super) fn read(
         offset,
         returned,
         total,
-        pool: Some(pool.clone()),
+        pool: pool.clone(),
         truncated: None,
     });
-    if u64::from(offset + returned) < total {
+    if let Some(pool) = pool.filter(|_| u64::from(offset + returned) < total) {
         out.next.push(crate::next::Step::run(
             StepKind::Page,
             &[q.source()],
@@ -174,32 +160,22 @@ fn load(
     cx: &Ctx<'_>,
     q: &Selection,
     leg: biomcp_fetch::Leg<'_>,
-    store: &mut Store<'_>,
+    deadline: Deadline<'_>,
     out: &mut Outcome,
-) -> Result<Option<(Saved, biomcp_types::PoolInfo)>, RequestError> {
+) -> Result<Option<(Saved, Option<biomcp_types::PoolInfo>)>, RequestError> {
     let (_, _, selected) = q.window();
     let key = q.key()?;
-    let pool = if cx.fresh {
-        None
+    let (saved, mismatch) = if cx.fresh {
+        (None, false)
     } else {
-        store.find(&key, selected.map(Text::as_str))?
+        source_snapshot::find::<Saved>(cx, &key, selected, deadline)?
     };
-    let loaded = if let Some(pool) = pool {
-        if pool.key != key {
-            restart(q, out, true);
-            return Ok(None);
-        }
-        let Some(payload) =
-            store.source_snapshot(pool.info.id.as_str(), &key, |s| cx.fetch.disabled(s))?
-        else {
-            restart(q, out, false);
-            return Ok(None);
-        };
+    let loaded = if let Some((saved, pool)) = saved {
         out.sources = pool.sources;
-        (Saved::decode(q, &payload)?, pool.info)
+        (saved, Some(pool.info))
     } else {
         if selected.is_some() {
-            restart(q, out, false);
+            restart(q, out, mismatch);
             return Ok(None);
         }
         let result = Saved::fetch(q, &leg);
@@ -214,8 +190,11 @@ fn load(
             }
         };
         let size = saved.total() as u32;
-        let pool = store.publish_source_pool(&key, &saved.encode()?, size, &out.sources)?;
-        (saved, pool.info)
+        let pool = crate::publish::keep(
+            source_snapshot::publish(cx, &key, &saved, size, &out.sources, None, deadline),
+            out,
+        )?;
+        (saved, pool.map(|p| p.info))
     };
     Ok(Some(loaded))
 }

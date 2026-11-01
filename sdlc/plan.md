@@ -55,6 +55,7 @@ Robustness and public-text fixes come first, because the parity run, the docs an
 
 - Test against public data before the cut: parse every CIViC and ClinVar record into 1.0 values (0460) and turn real user queries into cases (0461).
 - Close the release review of 2026-10-31 (weighed 2026-11-01) and the code review tickets before the cut: bundle resume 0528, store failures 0529, the hosted HTTP edge 0530, compatibility options and small CLI fixes 0531, dependency trims and the unused-dependency check 0532, gated publication 0533, release notes and public docs 0534, and 0521 to 0526. They touch nothing in `crates/biodata`, so they run while the BioData switch waits. Job failures and gate time (0535) run alongside and gate nothing.
+- Lift the hosted capacity limits the hosted team asked for on 2026-11-01: call and connection caps as settings (0548), keyed-only rate share (0549), shared TLS settings (0550), then published source pacing with config overrides (0551), and per-request declared use (0553).
 - 0459 lists the code tickets that must land before the BioData switch, and 0336 lists those that must land before the cut. A new must-ship ticket goes on 0336's Depends line, or on 0459's when the switch needs it.
 - Switch to the extracted BioData 1.0 crate once every code ticket lands, with an empty reply diff and an unchanged schema comparison (0459).
 - Cut the release candidate from main once every ticket above lands (0336).
@@ -64,7 +65,7 @@ Robustness and public-text fixes come first, because the parity run, the docs an
 - Run MCP-Bench's BioMCP tasks, and InfoMosaic-Bench's if public, against 0.4.6 and 1.0: tool-call replay first, then agent runs on Ian's subscription within a run count he approves (0405).
 - Check the installed candidate against cBioPortal's 62 numeric agent questions (0462).
 - Ian approves BioData's public repository and its v1.0.0 tag, which 0459 pins (asked through Jarvis on 2026-11-01).
-- Ian approves the publication credentials and settings 0533 lists, and the 0405 phase 2 run count.
+- Ian approves the publication credentials and settings 0533 lists, and the 0405 phase 2 run count. The release workflow has no manual approval pause (0554).
 - Ian approves the public append, the 1.0 tag and publication.
 - Append this repository's history to the public repository with one merge commit, keeping old tags and releases (0294).
 - Tag v1.0.0 on that public merge commit, let the release workflow qualify the tag, and have the release operators publish from that run (0294). The installer and Homebrew download from the public repository's release, so the append and tag come before publication.

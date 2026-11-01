@@ -28,7 +28,7 @@ The dependency direction follows `../decisions/2026-10-23-crates-enforce-depende
 | Each command path has one grammar or one declared shared rewrite, with a registered schema. | `command_types!` consumers | Check: `crates/biomcp-types/tests/schemas/commands.rs` |
 | Generated help and reference text agree with the grammar. | `crates/biomcp/src/grammar/reference.rs` | Check: `crates/biomcp/src/grammar/reference.rs` |
 | Case replies validate against their advertised schemas before assertions. | `crates/biomcp/tests/runner/schema.rs` | Check: `crates/biomcp/tests/runner/schema_proof.rs` |
-| Schema generation and release comparison reject incompatible transitions outside explicit reviewed changes. | `scripts/schema_release.py` | Check: `scripts/test_schema_release.py` |
+| Schema generation and release comparison require a major-version bump for incompatible transitions. | `scripts/schema_release.py` | Check: `scripts/test_schema_release.py` |
 
 The command reference owns the public command inventory. This file carries no second command or schema list.
 
@@ -161,6 +161,7 @@ The runner tool proof `schema-discovery/capture-retains-replay-owner` drops the 
 | `crates/biomcp/tests/ratchets/source_declaration_proof.rs` | Plant source declaration omissions, identity mismatches, unnamed provider facts and transport source literals at the structural boundary. |
 | `crates/biomcp-adapters/tests/source_declarations.rs` | Check unique declared bundle command names and their stable public discovery order through the adapter registry. |
 | `crates/biomcp-fetch/src/hosts_tests.rs` | Check credential-free exact publisher origins at the private admission boundary without a product inventory helper. |
+| `crates/biomcp-fetch/tests/transport/tls_builds.rs` | Count TLS configuration builds across hosted calls at the private constructor boundary without exposing test controls. |
 | `crates/biomcp-fetch/tests/grpc_worker/shutdown.rs` | Prove cancellation joins active network work at the private worker boundary without exporting shutdown control. |
 | `crates/biomcp-fetch/tests/quotas/expiry.rs` | Check idle bucket expiry after scaled refill without sleeping or exposing transport state. |
 | `crates/biomcp/src/grammar/reference.rs` | Generate and compare documentation at the private parser boundary without adding a public command. |
