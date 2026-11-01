@@ -1,11 +1,23 @@
 //! Bound framing readers separately from active requests so health stays reachable.
+#[expect(
+    clippy::disallowed_types,
+    reason = "Share bounded HTTP admission counts across connection workers"
+)]
 use std::sync::{
     Arc,
     atomic::{AtomicUsize, Ordering},
 };
 
+#[expect(
+    clippy::disallowed_types,
+    reason = "Bound HTTP framing readers separately from active requests"
+)]
 #[derive(Default)]
 pub(super) struct Slots(Arc<AtomicUsize>);
+#[expect(
+    clippy::disallowed_types,
+    reason = "Release one HTTP admission count when its worker leaves the phase"
+)]
 pub(super) struct Permit(Arc<AtomicUsize>);
 impl Slots {
     pub(super) fn take(&self) -> Option<Permit> {
