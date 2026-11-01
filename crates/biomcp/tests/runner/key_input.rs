@@ -1,13 +1,10 @@
 //! Observe the first caller consuming stdin before starting the competing writer.
 use super::{capture::Capture, launch::Environment, process::Process};
-use nix::{
-    errno::Errno,
-    sys::socket::{MsgFlags, recv},
-};
+use nix::poll::{PollFd, PollFlags, PollTimeout, poll};
 use serde_json::Value;
 use std::{
     io::Write,
-    os::fd::{AsRawFd, OwnedFd},
+    os::fd::{AsFd, OwnedFd},
     os::unix::net::UnixStream,
     process::Stdio,
     time::{Duration, Instant},
@@ -94,14 +91,11 @@ fn spawn(env: &Environment, args: &[String]) -> Result<(Capture, Process), Strin
 }
 fn consumed(observer: &UnixStream) -> Result<(), String> {
     let deadline = Instant::now() + Duration::from_secs(30);
+    let mut descriptors = [PollFd::new(observer.as_fd(), PollFlags::POLLIN)];
     loop {
-        match recv(
-            observer.as_raw_fd(),
-            &mut [0],
-            MsgFlags::MSG_PEEK | MsgFlags::MSG_DONTWAIT,
-        ) {
-            Err(Errno::EAGAIN) => return Ok(()),
-            Ok(1) if Instant::now() < deadline => std::thread::yield_now(),
+        match poll(&mut descriptors, PollTimeout::ZERO) {
+            Ok(0) => return Ok(()),
+            Ok(_) if Instant::now() < deadline => std::thread::yield_now(),
             other => {
                 return Err(format!(
                     "first caller did not consume its input byte: {other:?}"
