@@ -50,6 +50,7 @@ The 0.9 metadata and error fields change as follows:
 | `_meta.next_commands[]` | Read `next[].args` arrays with typed actions; do not split shell command strings. |
 | `_meta.suggestions[]` | Read explicit next actions and source problems. No generated suggestion text is a compatibility field. |
 | `_meta.section_sources[]` | Read `sources[]` and the source-native identities in each result. |
+| `_meta.source_status[]`, `_meta.warnings[]`, `_meta.notes[]` | Read typed `sources[]`, `problems[]` and `status` for source failures, warnings and stale data. The old message strings are not compatibility fields. |
 | `_meta.workflow`, `_meta.workflow_rationale`, `_meta.workflow_playbook` | Removed with automatic workflow selection. |
 | `_meta.discovery_sources[]` | Removed with discover. Use explicit entity and source queries. |
 | `_meta.not_found` | Read the typed problem and status for the requested command. |
