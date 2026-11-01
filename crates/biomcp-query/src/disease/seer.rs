@@ -50,7 +50,7 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &DiseaseSearch) -> Outcome {
     out
 }
 /// Preserve source stage or annual rows behind an explicit native site selection.
-pub(crate) fn get(cx: &Ctx<'_>, query: &DiseaseGet, id: &biomcp_types::Text) -> Outcome {
+pub(crate) fn get(cx: &Ctx<'_>, query: &DiseaseGet, id: &biodata::Text) -> Outcome {
     let survival = query.section() == Some(DiseaseSection::Survival);
     let body = if survival {
         (DiseaseSurvival {

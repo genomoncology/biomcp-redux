@@ -99,6 +99,13 @@ impl VariantInput {
             Cow::Borrowed(self.as_str())
         }
     }
+    /// Borrow the checked reference-qualified notation.
+    pub fn hgvs(&self) -> Option<&crate::HgvsText> {
+        match &self.kind {
+            InputKind::Hgvs(value) => Some(value),
+            _ => None,
+        }
+    }
     /// Retain the source identity parsed at the input boundary.
     pub fn identity(&self) -> Option<&crate::VariantId> {
         match &self.kind {

@@ -54,7 +54,7 @@ pub(super) fn get(cx: &Ctx<'_>, q: &DiagnosticGet) -> Outcome {
             if failure.identity_conflict {
                 out.problems.push(Problem {
                     source: Source::Fda510k,
-                    record: biomcp_types::Text::new(q.id().as_str()).ok(),
+                    record: biodata::Text::new(q.id().as_str()).ok(),
                     field: "k_number".into(),
                     code: ProblemCode::IdentityConflict,
                 });

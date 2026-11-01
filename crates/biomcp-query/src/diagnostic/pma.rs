@@ -42,7 +42,7 @@ fn selected(
         crate::status::item(out, false, true, false);
         out.problems.push(Problem {
             source: Source::FdaPma,
-            record: biomcp_types::Text::new(q.id().as_str()).ok(),
+            record: biodata::Text::new(q.id().as_str()).ok(),
             field: field.into(),
             code: ProblemCode::IdentityConflict,
         });
@@ -58,7 +58,7 @@ fn selected(
         crate::status::item(out, true, false, true);
         out.problems.push(Problem {
             source: Source::FdaPma,
-            record: biomcp_types::Text::new(q.id().as_str()).ok(),
+            record: biodata::Text::new(q.id().as_str()).ok(),
             field: "meta.results.total".into(),
             code: ProblemCode::CollectionIncomplete,
         });
