@@ -42,12 +42,7 @@ fn read(
     // Source and component admission precede any retained payload read.
     let denied = if cx.fetch.disabled(Source::Faers) {
         Some(
-            biomcp_fetch::SourceError {
-                source: Source::Faers,
-                reason: biomcp_types::Reason::Disabled,
-                status: None,
-                retry_after: None,
-            }
+            biomcp_fetch::SourceError::disabled(Source::Faers)
             .into(),
         )
     } else if q.section() == Some(AdverseEventSection::Reactions) {

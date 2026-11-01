@@ -27,12 +27,7 @@ pub(super) fn load(
     let leg = cx.fetch.leg(&maude::SPEC, deadline).fresh(cx.fresh);
     let denied = if cx.fetch.disabled(Source::Maude) {
         Some(
-            SourceError {
-                source: Source::Maude,
-                reason: Reason::Disabled,
-                status: None,
-                retry_after: None,
-            }
+            SourceError::disabled(Source::Maude)
             .into(),
         )
     } else if query.section() == Some(AdverseEventSection::Devices) {

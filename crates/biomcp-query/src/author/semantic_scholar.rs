@@ -44,12 +44,7 @@ fn execute(
             SourceState::Skipped,
             Some(Reason::Disabled),
         ));
-        return Err(SourceError {
-            source: Source::SemanticScholar,
-            reason: Reason::Disabled,
-            status: None,
-            retry_after: None,
-        }
+        return Err(SourceError::disabled(Source::SemanticScholar)
         .into());
     }
     let key = snapshot::key("author-papers", &(q.id(), q.section(), q.limit()))?;

@@ -101,12 +101,7 @@ pub(super) fn read(
 ) -> Result<(), RequestError> {
     let leg = cx.fetch.leg(q.spec(), deadline).fresh(cx.fresh);
     if cx.fetch.disabled(q.source()) {
-        let e = SourceError {
-            source: q.source(),
-            reason: biomcp_types::Reason::Disabled,
-            status: None,
-            retry_after: None,
-        }
+        let e = SourceError::disabled(q.source())
         .into();
         out.sources
             .push(status::source(q.source(), leg.finish(), Some(e)));

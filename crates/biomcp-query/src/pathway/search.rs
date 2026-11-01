@@ -66,12 +66,7 @@ fn execute(
         Source::Reactome
     };
     if cx.fetch.disabled(source) {
-        return Err(SourceError {
-            source,
-            reason: Reason::Disabled,
-            status: None,
-            retry_after: None,
-        }
+        return Err(SourceError::disabled(source)
         .into());
     }
     let key = source_snapshot::key("pathway-search", &q.restart())?;

@@ -66,12 +66,7 @@ fn read(
 ) -> Result<(), RequestError> {
     let leg = cx.fetch.leg(&uniprot::SPEC, deadline).fresh(cx.fresh);
     if cx.fetch.disabled(Source::UniProt) {
-        let error = biomcp_fetch::SourceError {
-            source: Source::UniProt,
-            reason: biomcp_types::Reason::Disabled,
-            status: None,
-            retry_after: None,
-        }
+        let error = biomcp_fetch::SourceError::disabled(Source::UniProt)
         .into();
         out.sources
             .push(status::source(Source::UniProt, leg.finish(), Some(error)));
