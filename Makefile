@@ -70,6 +70,8 @@ docs-check:
 	python3 scripts/test_source_capture.py
 	python3 scripts/test_source_capture_plan.py
 	python3 scripts/test_coverage.py
+	python3 scripts/test_reply_diff.py
+	python3 scripts/test_schema_release.py
 	python3 scripts/test_build_workers.py
 	python3 scripts/test_trials.py
 	python3 scripts/test_nightly_live_check.py
@@ -125,3 +127,12 @@ release-mutations:
 workflow-lint:
 	cargo check --locked -p biodata -p biomcp-types --no-default-features
 	actionlint
+
+.PHONY: bundle-tests
+bundle-tests:
+	cargo test --locked -p biomcp-fetch --test bundle $(TEST_FILTER) $(TEST_THREADS)
+
+.PHONY: bundle-checks
+bundle-checks: fmt
+	cargo clippy --locked -p biomcp-fetch --all-targets -- -D warnings
+	$(MAKE) ratchets
