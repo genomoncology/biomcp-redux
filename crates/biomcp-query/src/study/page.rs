@@ -1,4 +1,4 @@
-use crate::{Ctx, Outcome, source_snapshot};
+use crate::{Ctx, Outcome, source_snapshot, store::Store};
 use biodata::StudyHeader;
 use biomcp_fetch::{BundleInfo, CacheError, Deadline, RequestError};
 use biomcp_types::Paged;
@@ -22,11 +22,19 @@ pub(super) fn search(
 ) -> Result<(), RequestError> {
     let snapshot = biomcp_adapters::cbioportal::studies::snapshot(&info)?;
     let key = request_key(q, &snapshot)?;
-    let (existing, mismatch) = source_snapshot::find::<Retained>(cx, &key, q.pool(), deadline)?;
-    let (retained, pool) = if let Some(saved) = existing {
-        saved
+    // An explicit pool keeps its accepted catalog revision after a replacement sync.
+    let store = Store::open(cx.fetch.cache_access()?, deadline)?;
+    let existing = store.find(&key, q.pool().map(|p| p.as_str()))?;
+    let (retained, pool) = if let Some(pool) = existing {
+        let retained: Option<Retained> =
+            source_snapshot::read(cx, &pool.key, pool.info.id.as_str(), deadline)?;
+        let Some(retained) = retained else {
+            pool_error(cx, q, false, out);
+            return Ok(());
+        };
+        (retained, pool)
     } else if q.pool().is_some() {
-        pool_error(cx, q, mismatch, out);
+        pool_error(cx, q, false, out);
         return Ok(());
     } else {
         let size = u32::try_from(rows.len()).map_err(|_| CacheError::Database)?;
