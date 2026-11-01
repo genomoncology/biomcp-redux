@@ -160,6 +160,13 @@ impl DiagnosticGet {
         validate_source(&q)?;
         Ok(Self { fields: q })
     }
+    /// Select a supplement while retaining the parsed source identity.
+    pub fn with_supplement(&self, supplement: Option<PmaSupplement>) -> Result<Self, QueryInvalid> {
+        let mut fields = self.fields.clone();
+        fields.supplement = supplement;
+        validate_source(&fields)?;
+        Ok(Self { fields })
+    }
     /// Bind the selected record to one immutable stored revision.
     pub fn with_bundle_revision(&self, revision: Text) -> Self {
         let mut q = self.clone();

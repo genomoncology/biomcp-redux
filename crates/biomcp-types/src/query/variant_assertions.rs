@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 #[cfg_attr(feature = "schema", schemars(with = "Fields"))]
 pub struct VariantAssertionsGet(Fields<AssertionId>);
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
+#[serde(deny_unknown_fields, bound(deserialize = "I: Deserialize<'de>"))]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 #[cfg_attr(feature = "schema", schemars(rename = "Fields"))]
 struct Fields<I = Text> {

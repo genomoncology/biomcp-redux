@@ -197,14 +197,7 @@ fn supplements(
                 .map(|supplement| supplement.as_str().parse())
                 .transpose()
                 .map_err(|_| biomcp_types::QueryInvalid::new(&["supplement"]))
-                .and_then(|supplement| {
-                    DiagnosticGet::new(
-                        biomcp_types::Text::new(q.id().as_str())
-                            .map_err(|_| biomcp_types::QueryInvalid::new(&["id"]))?,
-                        biomcp_types::DiagnosticGetSource::FdaPma,
-                        supplement,
-                    )
-                }),
+                .and_then(|supplement| q.with_supplement(supplement)),
             biomcp_types::Source::FdaPma,
             &mut out.problems,
         ) {

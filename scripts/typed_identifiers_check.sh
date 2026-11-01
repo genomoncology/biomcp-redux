@@ -5,10 +5,10 @@ case "${1:-static}" in
   static)
     make fmt
     cargo clippy --workspace --all-targets --locked -- -D warnings
-    cargo test --locked -p biomcp --test ratchets
+    make ratchets
     ;;
   focused)
-    cargo test --locked -p biomcp-types --features schema --test queries --test diagnostic_contracts
+    cargo test --locked -p biomcp-types --features schema --test query --test diagnostic_contracts --test disease_contracts --test drug_contracts --test phenotype_contracts
     cargo test --locked -p biomcp-types --features schema --test schemas checked_in_schemas_match_types
     cargo test --locked -p biomcp --test cases disease/
     cargo test --locked -p biomcp --test cases diagnostic/
