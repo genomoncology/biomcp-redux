@@ -13,12 +13,18 @@ class HostedWorkflow(unittest.TestCase):
         workflow = Path('.github/workflows/release.yml').read_text()
         install = 'cargo install cargo-deny --version "${{ steps.tools.outputs.cargo_deny }}" --locked'
         checked = []
-        for job in re.split(r'\n  [a-z-]+:\n', workflow.split('jobs:\n', 1)[1]):
-            checks = re.search(r'make audit|make [^\n]*docs-check|(?:release[/.]test_security)', job)
+        for step in workflow.split('\n      - ')[1:]:
+            run = re.search(r'^        run: (.*)$', step, re.M)
+            if not run:
+                continue
+            body = step[run.end():] if run[1] == '|' else run[1]
+            commands = '\n'.join(line.strip() for line in body.splitlines()
+                                 if line.strip() and not line.lstrip().startswith('#'))
+            checks = re.search(r'make audit|make [^\n]*docs-check|(?:release[/.]test_security)', commands)
             if checks:
-                checked.append(job)
-                self.assertIn(install, job[:checks.start()],
-                              'security checks need the pinned cargo-deny installed first')
+                checked.append(step)
+                self.assertIn(install, commands[:checks.start()],
+                              'security checks need an active pinned cargo-deny install first in the same run block')
         self.assertTrue(checked, 'the release workflow must run security checks')
 
     def test_release_uses_supported_apple_arm_runner(self):
