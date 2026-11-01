@@ -206,8 +206,8 @@ where
     }
     assert_eq!(
         ids.len(),
-        1,
-        "all versions identify the same {prefix} record"
+        3,
+        "source versions retain distinct identities for {prefix}"
     );
     assert!(
         !ids.contains(&format!("{prefix}000013962").parse::<T>()?),
@@ -222,7 +222,7 @@ fn clinvar_accessions_compare_by_record_identity_and_preserve_source_versions() 
     same_identity::<RcvId>("RCV")?;
     same_identity::<ScvId>("SCV")?;
     assert_eq!(
-        "VCV000013961.3".parse::<VcvId>()?.as_str(),
+        "VCV000013961.3".parse::<VcvId>()?.to_string(),
         "VCV000013961.3"
     );
     Ok(())

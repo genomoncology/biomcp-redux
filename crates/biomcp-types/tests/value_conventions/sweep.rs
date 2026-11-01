@@ -169,7 +169,7 @@ fn source_identifiers_preserve_identity() -> Check {
     constructor_contract(biodata::WikiPathwaysId::new, &["WP1"], &["WP01"])?;
     value_contract::<biodata::PathwayId>(&["R-HSA-1", "WP1"], &["WP01"])?;
     constructor_contract(
-        biodata::UniProtIsoform::new,
+        |value| biodata::UniProtIsoform::new(value).ok_or(biodata::UniProtIsoformError),
         &["P15056", "P15056-2"],
         &["P15056-0"],
     )?;
@@ -299,8 +299,30 @@ fn scientific_vocabularies_preserve_identity() -> Check {
     )?;
     value_contract::<biodata::FaersAgeUnit>(&["800"], &["800!"])?;
     value_contract::<biodata::ExpressionSyntax>(&["hgvs.g"], &["hgvs.g!"])?;
-    value_contract::<biodata::RefSeqPrefix>(&["NC_"], &["NC_!"])?;
-    value_contract::<biodata::EnsemblFeature>(&["ENSG"], &["ENSG!"])?;
+    {
+        let value = "NC_".parse::<biodata::RefSeqPrefix>()?;
+        assert_eq!(value.to_string(), "NC_");
+        assert_eq!(serde_json::to_value(value)?, json!("nc"));
+        assert_eq!(
+            serde_json::from_value::<biodata::RefSeqPrefix>(json!("nc"))?,
+            value
+        );
+        assert!("NC_!".parse::<biodata::RefSeqPrefix>().is_err());
+        assert!(serde_json::from_value::<biodata::RefSeqPrefix>(json!("NC_")).is_err());
+        assert!(serde_json::from_value::<biodata::RefSeqPrefix>(json!("nc!")).is_err());
+    }
+    {
+        let value = "ENSG".parse::<biodata::EnsemblFeature>()?;
+        assert_eq!(value.to_string(), "ENSG");
+        assert_eq!(serde_json::to_value(value)?, json!("gene"));
+        assert_eq!(
+            serde_json::from_value::<biodata::EnsemblFeature>(json!("gene"))?,
+            value
+        );
+        assert!("ENSG!".parse::<biodata::EnsemblFeature>().is_err());
+        assert!(serde_json::from_value::<biodata::EnsemblFeature>(json!("ENSG")).is_err());
+        assert!(serde_json::from_value::<biodata::EnsemblFeature>(json!("gene!")).is_err());
+    }
     value_contract::<biodata::PopulationDataType>(&["exomes"], &["exomes!"])?;
     value_contract::<biodata::PopulationSex>(&["xx"], &["xx!"])?;
     value_contract::<biodata::GenotypeFilter>(&["raw"], &["raw!"])?;
@@ -310,11 +332,32 @@ fn scientific_vocabularies_preserve_identity() -> Check {
     )?;
     value_contract::<biodata::ProteinIsoformStatus>(&["Displayed"], &["Displayed!"])?;
     value_contract::<biodata::ProteinSequenceAvailability>(&["available"], &["available!"])?;
-    value_contract::<biodata::ClinvarReviewStatusCode>(
-        &["practice_guideline"],
-        &["practice_guideline!"],
-    )?;
-    value_contract::<biodata::ClinvarAlleleOriginCode>(&["germline"], &["germline!"])?;
+    {
+        let value = "practice guideline".parse::<biodata::ReviewStatus>()?;
+        assert_eq!(value.to_string(), "practice guideline");
+        assert_eq!(serde_json::to_value(value)?, json!("practice_guideline"));
+        assert_eq!(
+            serde_json::from_value::<biodata::ReviewStatus>(json!("practice_guideline"))?,
+            value
+        );
+        assert!(
+            "practice guideline!"
+                .parse::<biodata::ReviewStatus>()
+                .is_err()
+        );
+        assert!(
+            "practice_guideline"
+                .parse::<biodata::ReviewStatus>()
+                .is_err()
+        );
+        assert!(
+            serde_json::from_value::<biodata::ReviewStatus>(json!("practice guideline")).is_err()
+        );
+        assert!(
+            serde_json::from_value::<biodata::ReviewStatus>(json!("practice_guideline!")).is_err()
+        );
+    }
+    value_contract::<biodata::AlleleOrigin>(&["germline"], &["germline!"])?;
     value_contract::<biodata::AcmgAmp2015Code>(&["pathogenic"], &["pathogenic!"])?;
     value_contract::<biodata::ClingenLowPenetrance2024Code>(
         &["pathogenic_low_penetrance"],

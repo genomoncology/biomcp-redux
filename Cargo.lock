@@ -158,7 +158,7 @@ checksum = "ac07cdecf99051d9a5238b80f35af32cdeba5b336e55d957b318b50137e18da5"
 [[package]]
 name = "biodata"
 version = "1.0.0"
-source = "git+https://github.com/genomoncology/biodata-next?rev=efee32f76f0a10f2c75e7809b4e36321a290ad2a#efee32f76f0a10f2c75e7809b4e36321a290ad2a"
+source = "git+https://github.com/genomoncology/biodata-next?rev=7659da832e2add79bf1156f06bb2b55ecc0544fb#7659da832e2add79bf1156f06bb2b55ecc0544fb"
 dependencies = [
  "schemars",
  "serde",

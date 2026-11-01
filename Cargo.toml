@@ -22,7 +22,7 @@ debug = "line-tables-only"
 debug = false
 
 [workspace.dependencies]
-biodata = { version = "=1.0.0", git = "https://github.com/genomoncology/biodata-next", rev = "efee32f76f0a10f2c75e7809b4e36321a290ad2a", features = ["schema"] }
+biodata = { version = "=1.0.0", git = "https://github.com/genomoncology/biodata-next", rev = "7659da832e2add79bf1156f06bb2b55ecc0544fb", features = ["schema"] }
 biomcp-adapters = { version = "=1.0.0", path = "crates/biomcp-adapters" }
 biomcp-fetch = { version = "=1.0.0", path = "crates/biomcp-fetch" }
 biomcp-query = { version = "=1.0.0", path = "crates/biomcp-query" }

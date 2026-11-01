@@ -31,7 +31,7 @@ fn accessions_write_canonical_variable_width_numbers() -> Result<(), Box<dyn std
     for (input, output) in [("LRG_0001t01", "LRG_1t1"), ("NM_000546", "NM_000546")] {
         let accession: AccessionBase = input.parse()?;
         assert_eq!(
-            accession.as_str(),
+            accession.to_string(),
             output,
             "the accession scheme controls digit width"
         );
