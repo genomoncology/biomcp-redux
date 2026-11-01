@@ -108,7 +108,7 @@ const AUTHOR_BOUNDARY: &str = " Author IDs identify source records, not resolved
     --disable-sources noncommercial or config disable_sources. Optional keys: biomcp key set \
     semantic-scholar or S2_API_KEY; biomcp key set orcid or ORCID_ACCESS_TOKEN. IDs use \
     semantic-scholar:ID (alias semanticscholar:ID) or orcid:ID. Search supports --source \
-    semantic-scholar (alias semanticscholar), --query/-q and --limit/-l; papers supports --limit/-l \
+    semantic-scholar (alias semanticscholar), positional text and --limit/-l; papers supports --limit/-l \
     and Semantic Scholar details/--full.";
 const CELL_LINE_BOUNDARY: &str = "An assay count is not an activity or sensitivity count. No treatment response is inferred; no bioinformatics tool runs.";
 
@@ -390,14 +390,14 @@ fn author_selectors(command: &HelpCommand, line: &mut String) {
     }
     if command.command == ["search", "author"] {
         line.push_str(
-            " --source semantic-scholar|semanticscholar --query/-q --limit/-l --offset --pool",
+            " --source semantic-scholar|semanticscholar --limit/-l --offset --pool",
         );
     }
 }
 
 fn cell_line_selectors(command: &HelpCommand, line: &mut String) {
     if command.command == ["search", "cell-line"] {
-        line.push_str(" query --query/-q --limit/-l --offset");
+        line.push_str(" query --limit/-l --offset");
     }
     if command.command == ["get", "cell-line"] {
         line.push_str(" CVCL_ID|SOURCE:ID --section-limit --section-offset");

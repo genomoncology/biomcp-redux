@@ -34,7 +34,9 @@ pub(super) fn refusal(parsed: &crate::grammar::Parsed, http: bool) -> Option<Usa
         }
     }
     match action {
-        Action::Run { request, .. } if replaces(request) => Some(UsageError::arguments()),
+        Action::Run { request, .. } if replaces(request) || hidden_save(request) => {
+            Some(UsageError::arguments())
+        }
         _ => None,
     }
 }
@@ -55,4 +57,25 @@ fn saves(request: &Request) -> bool {
         Request::ArticleSupplement(query) => query.save().is_some(),
         _ => false,
     }
+}
+
+fn hidden_save(request: &Request) -> bool {
+    let destination = match request {
+        Request::ArticlePdf(query) => Some(&query.save),
+        Request::TrialDocument(query) => Some(&query.save),
+        Request::ArticleText(query) => query.save(),
+        Request::ArticleSupplement(query) => query.save(),
+        _ => None,
+    };
+    destination.is_some_and(|path| {
+        let path = std::path::Path::new(path.as_str());
+        dotted(path)
+            || std::fs::canonicalize(path)
+                .or_else(|_| std::fs::canonicalize(path.parent().unwrap_or(path)))
+                .is_ok_and(|resolved| dotted(&resolved))
+    })
+}
+fn dotted(path: &std::path::Path) -> bool {
+    path.iter()
+        .any(|part| part.to_string_lossy().starts_with('.'))
 }

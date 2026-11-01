@@ -91,7 +91,7 @@ The closed public issue inventory was read on 2026-10-26: all 57 closed issues w
 <!-- parity-accounting -->
 | 0.9 leaf command | Command outcome | Ported or renamed options | Dropped options | Deferred options | Undecided options | Ruling |
 | --- | --- | --- | --- | --- | --- | --- |
-| `search author` | Ported or renamed | `--query`, `--source`, `--limit`, `--offset` | — | — | — | Keep literal positional text and -q/--query, numeric -l/--limit, native order and source alias semanticscholar. Shared --pool retains checked pages. ORCID name search, topic ranking and coauthor aggregation remain unsupported because the accepted sources establish no such scope. |
+| `search author` | Ported or renamed | `--source`, `--limit`, `--offset` | `--query` | — | — | Keep literal positional text, numeric -l/--limit, native order and source alias semanticscholar. Shared --pool retains checked pages. ORCID name search, topic ranking and coauthor aggregation remain unsupported because the accepted sources establish no such scope. |
 | `get author` | Ported or renamed | — | — | — | — | Keep exact semantic-scholar:ID, alias semanticscholar:ID and checksummed orcid:ID in caller order. Counts describe provider records. No person link or cross-provider merge is computed. |
 | `author papers` | Ported or renamed | `--full`, `--limit`, `--offset` | — | — | — | Keep provider-qualified papers and numeric -l. Semantic Scholar details and --full select the same native rich page. ORCID pages public groups with native assertion provenance. Shared --pool preserves the retained collection. |
 <!-- /parity-accounting -->

@@ -64,7 +64,7 @@ The closed public-issue inventory reads every closed issue returned by the repos
 <!-- parity-accounting -->
 | 0.9 leaf command | Command outcome | Ported or renamed options | Dropped options | Deferred options | Undecided options | Ruling |
 | --- | --- | --- | --- | --- | --- | --- |
-| `search cell-line` | Ported or renamed | `--query`, `--limit`, `--offset` | — | — | — | Keep unchanged literal text, explicit query aliases and native paging. Drop normalization and reranking because text rewriting can join different lines and invented order can imply identity. |
+| `search cell-line` | Ported or renamed | `--limit`, `--offset` | `--query` | — | — | Keep unchanged literal positional text and native paging. Drop normalization and reranking because text rewriting can join different lines and invented order can imply identity. |
 | `get cell-line` | Ported or renamed | — | — | — | — | Keep exact primary accession and verified source-ID candidate resolution. Keep variants, xrefs, chembl and bounded all. The drug_response section defers PharmacoDB until affirmative database reuse terms exist. New names and identity sections disclose bounded source facts; assay-count remains a separate explicit request. |
 | `cell-line drug-response` | Deferred by ruling | — | — | `--dataset`, `--limit`, `--offset` | — | Deferred with PharmacoDB until an affirmative database reuse grant exists. No name fallback, experiment download or local response inference runs. |
 <!-- /parity-accounting -->

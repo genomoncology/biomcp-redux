@@ -26,7 +26,11 @@ pub(crate) fn grammar() -> clap::Command {
     clap::Command::new("key")
         .after_help("Example: biomcp key list")
         .subcommand_required(true)
-        .subcommand(clap::Command::new("list").after_help("Example: biomcp key list"))
+        .subcommand(
+            clap::Command::new("list")
+                .about("List source credentials and their origins without showing values.")
+                .after_help("Example: biomcp key list"),
+        )
         .subcommand(
             clap::Command::new("set")
                 .after_help("Example: biomcp key set oncokb")
@@ -131,6 +135,14 @@ fn run_inner(
                 .collect::<Result<_, _>>()?,
         });
     }
+    let key = if let Command::Set(name, replace) = command {
+        if stored(&crate::config::key_file::read(&path)?, name).is_some() && !replace {
+            return Err(Failure::Replace);
+        }
+        Some(input()?)
+    } else {
+        None
+    };
     let _lock = crate::config::key_file::lock(&path)?;
     let mut value = crate::config::key_file::read(&path)?;
     let (name, status) = match command {
@@ -138,7 +150,7 @@ fn run_inner(
             if stored(&value, name).is_some() && !replace {
                 return Err(Failure::Replace);
             }
-            let key = input()?;
+            let key = key.ok_or(Failure::Local)?;
             let object = value.as_object_mut().ok_or(Failure::Local)?;
             let keys = object.entry("keys").or_insert_with(|| json!({}));
             if keys.is_null() {

@@ -8,6 +8,9 @@ type Check = Result<(), Box<dyn std::error::Error>>;
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        transcript_trial("article-saves/stdio-refuse-hidden-components", || {
+            hidden().map_err(|e| e.to_string().into())
+        }),
         transcript_trial("mcp-parity/stdio-command-refusal-reasons", || {
             command_reasons(false).map_err(|e| e.to_string().into())
         }),
@@ -192,6 +195,32 @@ fn command_reasons(http: bool) -> Check {
             })),
             "{value}"
         );
+    }
+    Ok(())
+}
+
+fn hidden() -> Check {
+    let env = Environment::new()?;
+    for relative in [
+        ".zshenv",
+        ".ssh/authorized_keys",
+        "visible/.secret/file.txt",
+    ] {
+        let path = env.root().join(relative);
+        fs::create_dir_all(path.parent().ok_or("missing parent")?)?;
+        for mut args in [
+            vec!["article", "text", "PPR1295425"],
+            vec!["article", "supplement", "28944238", "MGG3-5-553-s002.xlsx"],
+            vec!["article", "pdf", "28944238"],
+            vec!["trial", "document", "NCT04303780", "SAP_001.pdf"],
+        ]
+        .map(|args| args.into_iter().map(str::to_owned).collect::<Vec<_>>())
+        {
+            args.extend(["--save".into(), path.to_string_lossy().into_owned()]);
+            let value = super::mcp::call_with_globals(&env, &args, true, &[])?;
+            refusal(&value, "usage.arguments")?;
+            assert!(!path.exists(), "MCP created a hidden destination");
+        }
     }
     Ok(())
 }

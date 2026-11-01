@@ -13,7 +13,7 @@ pub(super) fn schema(verb: &str, entity: &str) -> Option<Value> {
 pub(super) fn checked(
     verb: &str,
     entity: &str,
-    matches: &clap::ArgMatches,
+    _matches: &clap::ArgMatches,
     cause: &QueryInvalid,
 ) -> Option<UsageArguments> {
     let schema = schema(verb, entity)?;
@@ -23,15 +23,7 @@ pub(super) fn checked(
             .get(name.as_ref())
             .map(|property| (name.as_ref(), property))
     })?;
-    let argument = if name == "query"
-        && matches
-            .try_get_one::<String>("query_option")
-            .ok()
-            .flatten()
-            .is_some()
-    {
-        "--query".into()
-    } else if property.get("x-positional").is_some() {
+    let argument = if property.get("x-positional").is_some() {
         name.into()
     } else {
         format!("--{}", name.replace('_', "-"))
