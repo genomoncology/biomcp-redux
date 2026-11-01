@@ -1,4 +1,4 @@
-"""Derive changed schema identities from the candidate and portable baseline."""
+"""Derive changed schema identities from the candidate and preserved migration history."""
 import json
 from pathlib import Path
 import tarfile
@@ -8,7 +8,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def schema_changes():
     rows = []
-    with tarfile.open(ROOT / 'release/schema-baseline.tar.gz') as archive:
+    with tarfile.open(ROOT / 'release/migration-schema-baseline.tar.gz') as archive:
         for member in archive.getmembers():
             if not member.isfile() or not member.name.endswith('.json'):
                 continue
@@ -18,6 +18,6 @@ def schema_changes():
                 new = json.loads(path.read_text())['$id']
                 if old != new:
                     rows.append(f'| `{old}` | `{new}` |')
-    return ('## Changed schema identities\n\nCompared with the portable pre-release schema baseline. '
+    return ('## Changed schema identities\n\nCompared with the preserved pre-release migration schemas. '
             'These are the schemas in this candidate; they do not describe a final release until the candidate ships.\n\n'
             '| Baseline | Candidate |\n| --- | --- |\n' + '\n'.join(sorted(rows)))
