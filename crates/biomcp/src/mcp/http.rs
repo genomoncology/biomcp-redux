@@ -137,14 +137,7 @@ fn connections(
             None
         };
         let Some(reader) = reader else {
-            stream.set_nonblocking(true)?;
-            record(wire::write(
-                &mut stream,
-                503,
-                br#"{"error":"Service unavailable"}"#,
-                None,
-                None,
-            ));
+            record(wire::unavailable(&mut stream));
             continue;
         };
         let service = service.clone();
@@ -181,13 +174,7 @@ impl Service {
             None
         } else {
             let Some(permit) = self.requests.take() else {
-                return wire::write(
-                    &mut stream,
-                    503,
-                    br#"{"error":"Service unavailable"}"#,
-                    None,
-                    None,
-                );
+                return wire::unavailable(&mut stream);
             };
             drop(reader);
             Some(permit)
