@@ -8,7 +8,7 @@ use serde_json::json;
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![super::transcript::trial(
-        "source-pacing/settings-and-ceilings",
+        super::pool_contract::SOURCE_PACING.0,
         || check().map_err(Into::into),
     )]
 }
