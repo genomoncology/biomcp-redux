@@ -31,6 +31,7 @@ class SourceRevision(unittest.TestCase):
                     result = subprocess.run(command, cwd=root, env=env, capture_output=True, text=True, timeout=30)
                     self.assertNotEqual(result.returncode, 0)
                     self.assertIn('dirty source tree', result.stderr)
+                    self.assertIn(' M README.md', result.stderr)
                     self.assertNotIn('unexpected-build', result.stderr)
             command = [sys.executable, str(root / 'release/source_revision.py'), '--revision', 'a' * 40]
             result = subprocess.run(command, cwd=root, env=env, capture_output=True, text=True)
@@ -40,6 +41,23 @@ class SourceRevision(unittest.TestCase):
                                     capture_output=True, text=True)
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertEqual(result.stdout.strip(), 'b' * 40)
+
+    def test_dirty_diagnostic_limits_paths_and_output(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory) / 'source'
+            subprocess.run(['git', 'clone', '--quiet', '--shared', str(ROOT), str(root)], check=True)
+            for index in range(30):
+                (root / (f'{index:03d}-' + 'x' * 220)).touch()
+            env = dict(os.environ)
+            env.pop('BIOMCP_BUILD_REVISION', None)
+            result = subprocess.run([sys.executable, 'release/source_revision.py'], cwd=root, env=env,
+                                    capture_output=True, text=True, timeout=30)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertEqual(result.stdout, '')
+            self.assertIn('?? 000-', result.stderr)
+            self.assertNotIn('?? 029-', result.stderr)
+            self.assertIn('(status truncated)', result.stderr)
+            self.assertLess(len(result.stderr), 4300)
 
 
 if __name__ == '__main__':
