@@ -5,8 +5,7 @@ mod collections;
     clippy::disallowed_methods,
     reason = "The shared recording boundary copies isolated replay fixtures"
 )]
-#[path = "../../biomcp-fetch/tests/support/recordings.rs"]
-mod recordings;
+use biomcp_test_support::recordings;
 #[path = "custom_refusals/replay.rs"]
 mod replay;
 #[path = "custom_refusals/stored.rs"]

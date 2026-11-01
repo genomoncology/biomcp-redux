@@ -1,12 +1,11 @@
 //! A local CONNECT peer terminates TLS with a synthetic private trust anchor.
-#[path = "fixture_evidence.rs"]
-mod evidence;
+use crate::fixture_evidence as evidence;
 
-pub(super) fn evidence_directory() -> std::io::Result<std::path::PathBuf> {
+pub fn evidence_directory() -> std::io::Result<std::path::PathBuf> {
     evidence::directory()
 }
 
-pub(super) fn retain_replay_owner(owner: &tempfile::TempDir) -> std::io::Result<()> {
+pub fn retain_replay_owner(owner: &tempfile::TempDir) -> std::io::Result<()> {
     evidence::retain_replay_owner(owner)
 }
 
@@ -22,33 +21,33 @@ use std::{
 
 type Requests = Vec<(String, String)>;
 
-pub(super) struct Stub {
-    pub(super) address: std::net::SocketAddr,
-    pub(super) certificate: String,
+pub struct Stub {
+    pub address: std::net::SocketAddr,
+    pub certificate: String,
     stop: mpsc::Sender<()>,
     evidence: Arc<evidence::Evidence>,
     worker: Option<thread::JoinHandle<Result<Requests, String>>>,
 }
 impl Stub {
-    pub(super) fn retain(&self, root: Arc<tempfile::TempDir>) {
+    pub fn retain(&self, root: Arc<tempfile::TempDir>) {
         self.evidence.attach(root);
     }
 
-    pub(super) fn new() -> Result<Self, String> {
+    pub fn new() -> Result<Self, String> {
         Self::for_source(
             "storage.googleapis.com",
             "text/tab-separated-values",
             |request| body(request.contains("withdrawn.txt")),
         )
     }
-    pub(super) fn for_source(
+    pub fn for_source(
         host: &'static str,
         content_type: &'static str,
         reply: impl FnMut(&str) -> Result<String, String> + Send + 'static,
     ) -> Result<Self, String> {
         Self::for_sources(&[host], move |_| content_type, reply)
     }
-    pub(super) fn with_length(
+    pub fn with_length(
         host: &'static str,
         content_type: impl Fn(&str) -> &'static str + Send + 'static,
         reply: fn(&str) -> Result<String, String>,
@@ -56,7 +55,7 @@ impl Stub {
     ) -> Result<Self, String> {
         Self::with_status(host, content_type, reply, length, |_| 200)
     }
-    pub(super) fn with_status(
+    pub fn with_status(
         host: &'static str,
         content_type: impl Fn(&str) -> &'static str + Send + 'static,
         reply: fn(&str) -> Result<String, String>,
@@ -65,14 +64,14 @@ impl Stub {
     ) -> Result<Self, String> {
         Self::with_hosts(&[host], content_type, reply, length, status)
     }
-    pub(super) fn for_sources(
+    pub fn for_sources(
         hosts: &[&str],
         content_type: impl Fn(&str) -> &'static str + Send + 'static,
         reply: impl FnMut(&str) -> Result<String, String> + Send + 'static,
     ) -> Result<Self, String> {
         Self::with_hosts(hosts, content_type, reply, |_, bytes| bytes, |_| 200)
     }
-    pub(super) fn for_source_status(
+    pub fn for_source_status(
         host: &'static str,
         content_type: &'static str,
         reply: impl FnMut(&str) -> Result<String, String> + Send + 'static,
@@ -97,7 +96,7 @@ impl Stub {
             String::new()
         })
     }
-    pub(super) fn counted(
+    pub fn counted(
         reply: impl FnMut(&str) -> Result<String, String> + Send + 'static,
         range: impl FnMut(&str) -> String + Send + 'static,
         status: impl FnMut(&str) -> u16 + Send + 'static,
@@ -111,7 +110,7 @@ impl Stub {
             range,
         )
     }
-    pub(super) fn with_headers(
+    pub fn with_headers(
         hosts: &[&str],
         content_type: impl Fn(&str) -> &'static str + Send + 'static,
         mut reply: impl FnMut(&str) -> Result<String, String> + Send + 'static,
@@ -172,7 +171,7 @@ impl Stub {
             worker: Some(worker),
         })
     }
-    pub(super) fn finish(mut self) -> Result<Vec<(String, String)>, String> {
+    pub fn finish(mut self) -> Result<Vec<(String, String)>, String> {
         let _ = self.stop.send(());
         let _ = TcpStream::connect(self.address);
         let result = self
@@ -211,8 +210,8 @@ fn header(input: &mut impl Read) -> Result<String, String> {
     }
     String::from_utf8(bytes).map_err(|e| e.to_string())
 }
-pub(super) fn body(withdrawn: bool) -> Result<String, String> {
-    let root = super::fixture_paths::fixtures().join("replies/gene/main/hgnc");
+pub fn body(withdrawn: bool) -> Result<String, String> {
+    let root = super::fixtures::fixtures().join("replies/gene/main/hgnc");
     for file in fs::read_dir(root).map_err(|e| e.to_string())? {
         let value: Value = serde_json::from_slice(
             &fs::read(file.map_err(|e| e.to_string())?.path()).map_err(|e| e.to_string())?,
@@ -233,7 +232,7 @@ pub(super) fn body(withdrawn: bool) -> Result<String, String> {
     Err("missing HGNC fixture".into())
 }
 
-pub(super) fn identity(hosts: &[&str]) -> Result<(String, Arc<ServerConfig>), String> {
+pub fn identity(hosts: &[&str]) -> Result<(String, Arc<ServerConfig>), String> {
     use rcgen::{
         BasicConstraints, CertificateParams, ExtendedKeyUsagePurpose, IsCa, KeyPair,
         KeyUsagePurpose,
@@ -271,7 +270,7 @@ pub(super) fn identity(hosts: &[&str]) -> Result<(String, Arc<ServerConfig>), St
     Ok((ca.pem(), Arc::new(config)))
 }
 
-pub(super) fn source_request(input: &mut impl Read) -> Result<String, String> {
+pub fn source_request(input: &mut impl Read) -> Result<String, String> {
     let mut request = header(input)?;
     let length = request
         .lines()

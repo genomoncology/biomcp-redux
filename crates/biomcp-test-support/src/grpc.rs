@@ -16,9 +16,9 @@ use std::{
 };
 use tokio::io::{AsyncRead, AsyncReadExt, AsyncWrite, AsyncWriteExt};
 use tonic::codegen::http;
-pub(super) type Check<T = ()> = Result<T, Box<dyn std::error::Error + Send + Sync>>;
+pub type Check<T = ()> = Result<T, Box<dyn std::error::Error + Send + Sync>>;
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub(super) enum Hold {
+pub enum Hold {
     None,
     Tls,
     Connect,
@@ -30,11 +30,7 @@ pub(super) enum Hold {
     NoAlpn,
 }
 #[derive(Debug)]
-#[expect(
-    dead_code,
-    reason = "Consumers read different events from this shared transport and CLI fixture"
-)]
-pub(super) enum Seen {
+pub enum Seen {
     Tcp,
     Http(String),
     Path(String),
@@ -47,11 +43,11 @@ pub(super) enum Seen {
     clippy::disallowed_types,
     reason = "Count sockets only across this fixture and its joined worker"
 )]
-pub(super) struct Fixture {
-    pub(super) address: std::net::SocketAddr,
-    pub(super) certificate: String,
-    pub(super) events: mpsc::Receiver<Seen>,
-    pub(super) count: Arc<AtomicUsize>,
+pub struct Fixture {
+    pub address: std::net::SocketAddr,
+    pub certificate: String,
+    pub events: mpsc::Receiver<Seen>,
+    pub count: Arc<AtomicUsize>,
     stop: Option<tokio::sync::oneshot::Sender<()>>,
     thread: Option<thread::JoinHandle<Check>>,
 }
@@ -61,18 +57,18 @@ struct Replies {
     status: u16,
 }
 #[derive(Debug)]
-pub(super) struct HttpReply {
-    pub(super) hosts: Vec<String>,
-    pub(super) replies: Vec<(String, Vec<u8>)>,
+pub struct HttpReply {
+    pub hosts: Vec<String>,
+    pub replies: Vec<(String, Vec<u8>)>,
 }
 trait Io: AsyncRead + AsyncWrite + Send + Unpin {}
 impl<T: AsyncRead + AsyncWrite + Send + Unpin> Io for T {}
 type Socket = Box<dyn Io>;
 impl Fixture {
-    pub(super) fn new(hold: Hold, status: u8, proxy: bool, proxy_tls: bool) -> Check<Self> {
+    pub fn new(hold: Hold, status: u8, proxy: bool, proxy_tls: bool) -> Check<Self> {
         Self::with_messages(hold, status, proxy, proxy_tls, vec![vec![8, 42]])
     }
-    pub(super) fn with_messages(
+    pub fn with_messages(
         hold: Hold,
         status: u8,
         proxy: bool,
@@ -85,7 +81,7 @@ impl Fixture {
         clippy::disallowed_types,
         reason = "Count sockets only across this fixture and its joined worker"
     )]
-    pub(super) fn with_http(
+    pub fn with_http(
         hold: Hold,
         status: u8,
         proxy: bool,
@@ -163,11 +159,7 @@ impl Fixture {
             thread: Some(thread),
         })
     }
-    pub(super) fn network(
-        &self,
-        proxy: Option<biomcp_fetch::Secret>,
-        bypass: &str,
-    ) -> Check<Network> {
+    pub fn network(&self, proxy: Option<biomcp_fetch::Secret>, bypass: &str) -> Check<Network> {
         Ok(Network::new(
             None,
             proxy,
@@ -175,10 +167,7 @@ impl Fixture {
             Certificates::from_pem(self.certificate.as_bytes())?,
         )?)
     }
-    pub(super) fn source(&self, proxy: bool, key: KeyUse) -> &'static SourceSpec {
-        self.with_quota(proxy, key, &super::QUOTA)
-    }
-    pub(super) fn with_quota(
+    pub fn with_quota(
         &self,
         proxy: bool,
         key: KeyUse,
@@ -204,17 +193,17 @@ impl Fixture {
             deadline: Duration::from_secs(5),
         }))
     }
-    pub(super) fn received(&self) -> Check<Seen> {
+    pub fn received(&self) -> Check<Seen> {
         Ok(self.events.recv_timeout(Duration::from_secs(5))?)
     }
-    pub(super) fn wait_message(&self) -> Check {
+    pub fn wait_message(&self) -> Check {
         loop {
             if matches!(self.received()?, Seen::Message) {
                 return Ok(());
             }
         }
     }
-    pub(super) fn finish(mut self) -> Check {
+    pub fn finish(mut self) -> Check {
         self.stop();
         if let Some(thread) = self.thread.take() {
             thread.join().map_err(|_| "fixture worker panicked")??;
@@ -379,12 +368,12 @@ async fn reply(
     Ok(())
 }
 
-pub(super) struct Call {
+pub struct Call {
     thread: Option<thread::JoinHandle<Result<(), biomcp_fetch::RequestError>>>,
-    pub(super) end: std::time::Instant,
+    pub end: std::time::Instant,
 }
 impl Call {
-    pub(super) fn start(
+    pub fn start(
         fetch: biomcp_fetch::Fetch,
         source: &'static SourceSpec,
         budget: Duration,
@@ -409,12 +398,12 @@ impl Call {
         call.end = start.recv_timeout(Duration::from_secs(5))?;
         Ok(call)
     }
-    pub(super) fn is_finished(&self) -> bool {
+    pub fn is_finished(&self) -> bool {
         self.thread
             .as_ref()
             .is_none_or(thread::JoinHandle::is_finished)
     }
-    pub(super) fn finish(mut self) -> Check<Result<(), biomcp_fetch::RequestError>> {
+    pub fn finish(mut self) -> Check<Result<(), biomcp_fetch::RequestError>> {
         Ok(self
             .thread
             .take()

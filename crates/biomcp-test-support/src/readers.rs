@@ -16,4 +16,4 @@ macro_rules! readers {
         &[$((<$body as ResponseBody>::SCHEMA, read_write::<$body> as Reader)),+]
     };
 }
-pub(crate) const READERS: &[(&str, Reader)] = biomcp_types::reply_types!(readers);
+pub const READERS: &[(&str, Reader)] = biomcp_types::reply_types!(readers);

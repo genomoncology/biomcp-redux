@@ -4,7 +4,7 @@
     reason = "The shared test launcher owns child environment and executable selection"
 )]
 use std::{fs, io, path::Path, process::Command};
-pub(crate) const ENV_PATHS: &[(&str, &str)] = &[
+pub const ENV_PATHS: &[(&str, &str)] = &[
     ("HOME", "home"),
     ("USERPROFILE", "home"),
     ("APPDATA", "config"),
@@ -12,14 +12,14 @@ pub(crate) const ENV_PATHS: &[(&str, &str)] = &[
     ("XDG_CONFIG_HOME", "config"),
     ("XDG_CACHE_HOME", "cache"),
 ];
-pub(crate) fn new() -> io::Result<tempfile::TempDir> {
+pub fn new() -> io::Result<tempfile::TempDir> {
     let root = tempfile::tempdir()?;
     for directory in ["home", "config", "cache"] {
         fs::create_dir(root.path().join(directory))?;
     }
     Ok(root)
 }
-pub(crate) fn command(program: &Path, root: &Path, args: &[String]) -> Command {
+pub fn command(program: &Path, root: &Path, args: &[String]) -> Command {
     let mut command = Command::new(program);
     command
         .args(args)

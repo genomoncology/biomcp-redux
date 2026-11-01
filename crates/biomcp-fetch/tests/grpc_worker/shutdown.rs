@@ -1,12 +1,7 @@
 //! Prove joined shutdown without exporting a test-only transport control.
 use crate::{Fetch, FetchConfig, KeyUse, Quota, Rate, SourceKey};
+use biomcp_test_support::grpc as support;
 use std::time::Duration;
-#[path = "support.rs"]
-#[expect(
-    dead_code,
-    reason = "Reuse the existing local TLS fixture for one private shutdown boundary"
-)]
-mod support;
 use support::{Call, Check, Fixture, Hold};
 static QUOTA: Quota = Quota::new(
     SourceKey::declare("grpc-shutdown"),
@@ -21,7 +16,7 @@ fn stream_worker_shutdown_cancels_and_joins_active_network_work() -> Check {
         network: fixture.network(None, "")?,
         ..Default::default()
     })?;
-    let source = fixture.source(false, KeyUse::None);
+    let source = fixture.with_quota(false, KeyUse::None, &QUOTA);
     let call = Call::start(fetch.clone(), source, Duration::from_secs(5))?;
     while !matches!(fixture.received()?, support::Seen::Request(_, _)) {}
     fetch.grpc_worker.shutdown();

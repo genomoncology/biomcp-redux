@@ -1,12 +1,11 @@
 //! Public registry adapter boundaries distinguish refused records from retained fields.
+use biomcp_adapters::{Refusal, ctgov};
+use biomcp_fetch::{Fetch, FetchConfig, Mode};
 #[expect(
     clippy::disallowed_methods,
     reason = "The shared recording boundary copies isolated replay fixtures"
 )]
-#[path = "../../biomcp-fetch/tests/support/recordings.rs"]
-mod recordings;
-use biomcp_adapters::{Refusal, ctgov};
-use biomcp_fetch::{Fetch, FetchConfig, Mode};
+use biomcp_test_support::recordings;
 use serde_json::{Value, json};
 use std::{collections::BTreeMap, path::Path, time::Duration};
 type Check<T = ()> = Result<T, Box<dyn std::error::Error>>;
