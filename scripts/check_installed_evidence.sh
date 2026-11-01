@@ -25,10 +25,20 @@ case "${1:-linux}" in
         export BIOMCP_TEST_FIXTURES=/tmp/check/fixtures TMPDIR=/tmp/fixture-scratch
         /tmp/check/evidence-probe /tmp/check/target/fixture-evidence
       '
+    cp "$scratch/evidence-probe" "$scratch/case-runner"
+    cp "$scratch/evidence-probe" "$scratch/tool-runner"
+    chmod 555 "$scratch"
+    setup=$(python3.13 -c 'import sys; sys.path.insert(0, "release"); from container_check import RUNNER_SETUP; print(RUNNER_SETUP)')
+    docker run --rm ${JOB_LABEL_FILE:+--label-file "$JOB_LABEL_FILE"} \
+      --user "$(id -u):$(id -g)" -v "$scratch:/proof:ro" \
+      -e BIOMCP_TEST_FIXTURES=/tmp/check/fixtures -e TMPDIR=/tmp/fixture-scratch \
+      "$image" /bin/sh -ec "mkdir /tmp/fixture-scratch; $setup" installed-runner \
+      /tmp/check/tool-runner /tmp/check/target/fixture-evidence
     ;;
   focused)
     cargo fmt --all -- --check
     python3.13 scripts/check_shell.py
+    python3.13 -m unittest release.test_linux
     cargo test --locked -p biomcp --test tools -- --proofs --exact schema-discovery/retains-failed-local-peer-state
     cargo test --locked -p biomcp --test tools -- --proofs --exact schema-discovery/persistent-fixture-evidence
     cargo test --locked -p biomcp --test tools -- --proofs --exact schema-discovery/persistent-native-evidence
