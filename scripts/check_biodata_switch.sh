@@ -16,6 +16,9 @@ cheap)
     cargo fmt --all -- --check
     make lint ratchets
     ;;
+vendor)
+    python3 release/vendor.py -- cargo metadata --frozen --format-version 1 > "$root/offline-metadata.json"
+    ;;
 check)
     cargo check --workspace --all-targets --locked
     ;;
