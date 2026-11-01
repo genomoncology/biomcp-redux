@@ -130,7 +130,13 @@ pub struct DrugGet {
     #[serde(flatten)]
     fields: GetFields,
     #[serde(skip)]
-    recall_number: Option<biodata::DrugRecallNumber>,
+    native_id: NativeDrugId,
+}
+#[derive(Clone, Debug, PartialEq, Eq)]
+enum NativeDrugId {
+    Recall(biodata::DrugRecallNumber),
+    Civic(std::num::NonZeroU32),
+    Other,
 }
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -194,19 +200,24 @@ impl TryFrom<GetFields> for DrugGet {
         if fields.source == DrugSource::FdaDrugRecall && !fields.section.is_empty() {
             return Err(QueryInvalid::new(&["source", "section"]));
         }
-        let recall_number = if fields.source == DrugSource::FdaDrugRecall {
-            Some(
+        let native_id = match fields.source {
+            DrugSource::FdaDrugRecall => NativeDrugId::Recall(
                 fields
                     .input
                     .to_string()
                     .parse()
                     .map_err(|_| QueryInvalid::new(&["source", "input"]))?,
-            )
-        } else {
-            if !fields.source.accepts(&fields.input) {
-                return Err(QueryInvalid::new(&["source", "input"]));
+            ),
+            DrugSource::Civic => NativeDrugId::Civic(
+                civic_id(&fields.input.to_string())
+                    .ok_or_else(|| QueryInvalid::new(&["source", "input"]))?,
+            ),
+            source => {
+                if !source.accepts(&fields.input) {
+                    return Err(QueryInvalid::new(&["source", "input"]));
+                }
+                NativeDrugId::Other
             }
-            None
         };
         if fields
             .civic_profile
@@ -225,16 +236,23 @@ impl TryFrom<GetFields> for DrugGet {
         {
             return Err(QueryInvalid::new(&["civic_kind", "source", "section"]));
         }
-        Ok(Self {
-            fields,
-            recall_number,
-        })
+        Ok(Self { fields, native_id })
     }
 }
 impl DrugGet {
     /// FDA recall identity retained by the checked boundary.
     pub fn recall_number(&self) -> Option<&biodata::DrugRecallNumber> {
-        self.recall_number.as_ref()
+        match &self.native_id {
+            NativeDrugId::Recall(id) => Some(id),
+            _ => None,
+        }
+    }
+    /// CIViC therapy number retained by the checked boundary.
+    pub fn civic_id(&self) -> Option<std::num::NonZeroU32> {
+        match self.native_id {
+            NativeDrugId::Civic(id) => Some(id),
+            _ => None,
+        }
     }
     /// Select one exact native identity, with no sections requested.
     pub fn new(input: DrugId, source: DrugSource) -> Result<Self, QueryInvalid> {
@@ -322,12 +340,7 @@ impl DrugSource {
             Self::WhoPq => false,
             Self::Mychem => true,
             Self::Chembl | Self::Opentargets => id.strip_prefix("CHEMBL").is_some_and(digits),
-            Self::Civic => {
-                digits(&id)
-                    && id
-                        .parse::<u32>()
-                        .is_ok_and(|n| n > 0 && n <= i32::MAX as u32)
-            }
+            Self::Civic => civic_id(&id).is_some(),
             Self::Ddinter => id.strip_prefix("DDInter").is_some_and(digits),
             Self::Drugsfda => ["NDA", "ANDA", "BLA"].iter().any(|p| {
                 id.strip_prefix(p)
@@ -447,4 +460,14 @@ impl DrugGet {
         fields.label_section = Some(heading);
         fields.try_into()
     }
+}
+
+fn civic_id(value: &str) -> Option<std::num::NonZeroU32> {
+    if !value.bytes().all(|byte| byte.is_ascii_digit()) {
+        return None;
+    }
+    value
+        .parse::<std::num::NonZeroU32>()
+        .ok()
+        .filter(|id| id.get() <= i32::MAX as u32)
 }

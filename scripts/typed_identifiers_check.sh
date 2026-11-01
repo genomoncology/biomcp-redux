@@ -16,5 +16,10 @@ case "${1:-static}" in
     cargo test --locked -p biomcp --test cases variant/
     cargo test --locked -p biomcp --test cases phenotype/
     ;;
+  drug)
+    cargo test --locked -p biomcp-types --features schema --test drug_contracts
+    cargo test --locked -p biomcp-types --features schema --test schemas checked_in_schemas_match_types
+    cargo test --locked -p biomcp --test cases drug/
+    ;;
   *) exit 2 ;;
 esac
