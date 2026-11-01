@@ -61,7 +61,7 @@ pub(crate) fn read<T: DeserializeOwned>(
         .map(|payload| decode(&payload))
         .transpose()
 }
-pub(crate) fn decode<T: DeserializeOwned>(payload: &str) -> Result<T, RequestError> {
+fn decode<T: DeserializeOwned>(payload: &str) -> Result<T, RequestError> {
     serde_json::from_str(payload).map_err(|_| CacheError::Snapshot.into())
 }
 fn encode(payload: &impl Serialize) -> Result<String, RequestError> {
@@ -78,13 +78,14 @@ pub(crate) fn write(
     let mut store = Store::open(cx.fetch.cache_access()?, deadline)?;
     Ok(store.save_source_snapshot(key, &payload, sources)?)
 }
+type Found<T> = (Option<(T, crate::store::Pool)>, bool);
 /// Find the current retained native window, or validate its explicit continuation.
 pub(crate) fn find<T: DeserializeOwned>(
     cx: &Ctx<'_>,
     key: &[u8],
     token: Option<&biodata::Text>,
     deadline: Deadline<'_>,
-) -> Result<(Option<(T, crate::store::Pool)>, bool), RequestError> {
+) -> Result<Found<T>, RequestError> {
     if cx.fresh {
         return Ok((None, false));
     }
@@ -112,8 +113,39 @@ pub(crate) fn publish(
     let payload = encode(payload)?;
     let mut store = Store::open(cx.fetch.cache_access()?, deadline)?;
     Ok(if let Some(pool) = pool {
+        if store
+            .source_snapshot(pool.info.id.as_str(), key, |s| cx.fetch.disabled(s))?
+            .as_deref()
+            == Some(payload.as_str())
+        {
+            return Ok(pool);
+        }
         store.extend_source_pool(pool, &payload, size, sources)?
     } else {
         store.publish_source_pool(key, &payload, size, sources)?
     })
+}
+
+/// Reuse an identical complete collection, otherwise publish a new immutable pool.
+pub(crate) fn intern(
+    cx: &Ctx<'_>,
+    key: &[u8],
+    payload: &impl Serialize,
+    size: u32,
+    sources: &[SourceOutcome],
+    deadline: Deadline<'_>,
+) -> Result<crate::store::Pool, RequestError> {
+    let payload = encode(payload)?;
+    let mut store = Store::open(cx.fetch.cache_access()?, deadline)?;
+    if let Some(pool) = store.find(key, None)? {
+        if pool.key == key
+            && store
+                .source_snapshot(pool.info.id.as_str(), key, |s| cx.fetch.disabled(s))?
+                .as_deref()
+                == Some(payload.as_str())
+        {
+            return Ok(pool);
+        }
+    }
+    Ok(store.publish_source_pool(key, &payload, size, sources)?)
 }
