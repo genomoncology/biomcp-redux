@@ -52,3 +52,44 @@ fn complete_part_recovers_from_an_unsatisfiable_resume() {
     });
     assert_eq!(std::fs::read_dir(parts).unwrap().count(), 0);
 }
+
+#[test]
+fn a_completed_body_with_a_bad_header_is_discarded_before_the_next_sync() {
+    let server = support::Server::new();
+    let bundle = declared(&server);
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("cache.sqlite");
+    let fetch = cached(&path);
+    assert!(sync_reply(
+        &fetch,
+        &bundle,
+        &server,
+        200,
+        "ETag: \"one\"\r\n",
+        "symbol\tsymbol\nBRAF\tkinase\n",
+    )
+    .is_err());
+    assert_eq!(
+        std::fs::read_dir(path.with_extension("parts"))
+            .unwrap()
+            .count(),
+        0
+    );
+    let db = rusqlite::Connection::open(&path).unwrap();
+    assert_eq!(
+        db.query_row("SELECT count(*) FROM bundle_sync", [], |row| {
+            row.get::<_, u32>(0)
+        })
+            .unwrap(),
+        0
+    );
+    std::thread::scope(|scope| {
+        let call = scope.spawn(|| fetch.sync(&bundle));
+        let request = server.next();
+        let headers = request.text.to_ascii_lowercase();
+        assert!(!headers.contains("range:"));
+        assert!(!headers.contains("if-match:"));
+        request.respond(200, "ETag: \"one\"\r\n", TSV);
+        assert_eq!(call.join().unwrap().unwrap().rows, 1);
+    });
+}

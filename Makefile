@@ -129,3 +129,8 @@ workflow-lint:
 .PHONY: bundle-tests
 bundle-tests:
 	cargo test --locked -p biomcp-fetch --test bundle $(TEST_FILTER) $(TEST_THREADS)
+
+.PHONY: bundle-checks
+bundle-checks: fmt
+	cargo clippy --locked -p biomcp-fetch --all-targets -- -D warnings
+	$(MAKE) ratchets
