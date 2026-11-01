@@ -438,8 +438,6 @@ fn replace_recorded_body(path: &std::path::Path, body: &str) {
 
 #[path = "bundle/download.rs"]
 mod download;
-#[path = "bundle/resume.rs"]
-mod resume;
 #[path = "bundle/rows.rs"]
 mod rows;
 
