@@ -21,8 +21,7 @@ case "${1:-static}" in
     cargo test --locked -p biomcp-types --features schema --test variant_values typed_candidate_assertions_preserve_source_identity_and_page
     cargo test --locked -p biomcp-types --features schema --test schemas checked_in_schemas_match_types
     cargo test --locked -p biomcp --test cases diagnostic/pma.yaml
-    cargo test --locked -p biomcp --test cases assertions-domains
-    cargo test --locked -p biomcp --test cases assertions-erepo-current
+    cargo test --locked -p biomcp --test cases variant/
     ;;
   drug-final)
     sh "$0" static
