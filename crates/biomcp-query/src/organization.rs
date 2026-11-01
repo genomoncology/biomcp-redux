@@ -4,7 +4,7 @@ use crate::{Action, Ctx, Outcome, status};
 use biomcp_adapters::nci;
 use biomcp_types::Paged;
 use biomcp_types::ReplyBody;
-use biomcp_types::{OrganizationPage, OrganizationSearch, Request, Source, StepKind};
+use biomcp_types::{OrganizationPage, OrganizationSearch, Request, StepKind};
 /// Find published organizations without assigning identities to names.
 pub(crate) fn search(cx: &Ctx<'_>, q: &OrganizationSearch) -> Outcome {
     crate::nci_search::search(

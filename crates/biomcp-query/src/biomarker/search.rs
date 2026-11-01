@@ -4,7 +4,7 @@ use crate::{Action, Ctx, Outcome, status};
 use biomcp_adapters::nci;
 use biomcp_types::Paged;
 use biomcp_types::ReplyBody;
-use biomcp_types::{BiomarkerPage, BiomarkerSearch, Request, Source, StepKind};
+use biomcp_types::{BiomarkerPage, BiomarkerSearch, Request, StepKind};
 /// Find native biomarker concept headers without interpretation.
 pub(crate) fn search(cx: &Ctx<'_>, q: &BiomarkerSearch) -> Outcome {
     crate::nci_search::search(
