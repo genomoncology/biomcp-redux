@@ -9,6 +9,7 @@ use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 
+mod article_publish;
 mod store_locks;
 
 pub(super) fn trials() -> Vec<Trial> {
@@ -23,6 +24,10 @@ pub(super) fn trials() -> Vec<Trial> {
         ),
     ];
     trials.extend(store_locks::trials());
+    trials.push(transcript_trial(
+        "article-search/late-store-lock-keeps-fetched-items",
+        || article_publish::check().map_err(Into::into),
+    ));
     trials
 }
 
