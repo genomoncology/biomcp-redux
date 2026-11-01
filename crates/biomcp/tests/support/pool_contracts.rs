@@ -164,5 +164,5 @@ pub(crate) const HTTP_CAPACITY: (&str, &[&str]) = (
 // The process settings case proves the source pacing map flag and its file precedence.
 pub(crate) const SOURCE_PACING: (&str, &[&str]) = (
     "source-pacing/settings-and-ceilings",
-    &["option --source_pacing"],
+    &["global --source_pacing"],
 );
