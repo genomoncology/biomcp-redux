@@ -45,7 +45,7 @@ pub(super) fn read(
             ));
             return Ok(());
         };
-        (saved, token.clone())
+        (saved, Some(token.clone()))
     } else {
         let rows = gwas::get::ancestries(&leg, id);
         out.sources.push(status::source(
@@ -63,7 +63,10 @@ pub(super) fn read(
             out.problems.clone(),
             out.dropped,
         );
-        let token = source_snapshot::write(cx, &key, &saved, &out.sources, deadline)?;
+        let token = crate::publish::keep(
+            source_snapshot::write(cx, &key, &saved, &out.sources, deadline),
+            out,
+        )?;
         (saved, token)
     };
     out.sources = saved.1;
@@ -73,8 +76,10 @@ pub(super) fn read(
         let unavailable = false;
         crate::status::item(out, true, false, unavailable);
     };
-    let navigation = q.with_page(window.with_snapshot(token));
+    let retained = token.is_some();
+    let navigation = token.map_or_else(|| q.clone(), |t| q.with_page(window.with_snapshot(t)));
     let (items, continuation) = page(&navigation, &saved.0, out);
+    let continuation = continuation.filter(|_| retained);
     out.body = (GwasAncestries {
         study: id.clone(),
         items,
