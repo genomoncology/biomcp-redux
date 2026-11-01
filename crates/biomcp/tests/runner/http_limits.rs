@@ -30,6 +30,7 @@ pub(super) fn check() -> Check {
     chunked()?;
     overload()?;
     dropped_peer()?;
+    busy_health()?;
     let mut server = Server::start()?;
     for bytes in [
         format!(
@@ -275,5 +276,59 @@ fn dropped_peer() -> Check {
     if server.request("GET", "/health", "")?.0 != 200 {
         return Err("server stopped after the client dropped".into());
     }
+    Ok(())
+}
+
+fn busy_health() -> Check {
+    // The local proxy accepts no requests, so each tool stays in source work.
+    let proxy = std::net::TcpListener::bind("127.0.0.1:0").map_err(|e| e.to_string())?;
+    let server = Server::configured_globals(
+        "127.0.0.1:0",
+        Some(
+            serde_json::json!({"proxy":format!("http://{}", proxy.local_addr().map_err(|e| e.to_string())?)}),
+        ),
+        None,
+        None,
+        None,
+        &["--hosted".into()],
+    )?;
+    let mut held = Vec::new();
+    for index in 1..=8 {
+        let body = super::mcp::request(
+            serde_json::json!(index),
+            "tools/call",
+            serde_json::json!({
+                "name":"biomcp", "arguments":{"args":["get","protein",format!("P0000{index}")]}
+            }),
+        )
+        .to_string();
+        let mut socket = TcpStream::connect(server.address).map_err(|e| e.to_string())?;
+        socket.write_all(format!(
+            "POST /mcp HTTP/1.1\r\nHost: {}\r\nContent-Type: application/json\r\nAccept: application/json, text/event-stream\r\nMCP-Protocol-Version: 2026-07-28\r\nMcp-Method: tools/call\r\nMcp-Name: biomcp\r\nContent-Length: {}\r\n\r\n{body}",
+            server.address, body.len()
+        ).as_bytes()).map_err(|e| e.to_string())?;
+        held.push(socket);
+    }
+    // A refused ordinary request observes that all eight tool slots are occupied.
+    let probe =
+        super::mcp::request(serde_json::json!(9), "tools/list", serde_json::json!({})).to_string();
+    let end = Instant::now() + Duration::from_secs(5);
+    loop {
+        let status = server.request("POST", "/mcp", &probe)?.0;
+        if status == 503 {
+            break;
+        }
+        if status != 200 || Instant::now() >= end {
+            return Err(format!(
+                "eight long calls did not occupy capacity: {status}"
+            ));
+        }
+    }
+    let (status, body) = server.request("GET", "/health", "")?;
+    if status != 200 || body.get("store") != Some(&serde_json::json!(true)) {
+        return Err(format!("busy server failed health: {status} {body}"));
+    }
+    drop(proxy);
+    drop(held);
     Ok(())
 }

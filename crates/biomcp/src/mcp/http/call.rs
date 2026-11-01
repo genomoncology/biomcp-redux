@@ -168,6 +168,7 @@ mod tests {
             root: std::sync::Arc::new(crate::grammar::root().unwrap()),
             settings: std::sync::Arc::new(Ok(None)),
             calls: Calls::default(),
+            requests: super::super::admission::Slots::default(),
             address: "127.0.0.1:1".parse().unwrap(),
             hosts: Vec::new(),
             globals: Globals::default(),

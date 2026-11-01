@@ -1,4 +1,5 @@
 //! Bounded blocking HTTP transport with independent request protocol state.
+mod admission;
 mod authority;
 mod call;
 mod chunked;
@@ -24,6 +25,7 @@ pub(crate) enum StartError {
 }
 struct Service {
     calls: Calls,
+    requests: admission::Slots,
     address: SocketAddr,
     hosts: Vec<Authority>,
     globals: crate::grammar::Globals,
@@ -68,6 +70,7 @@ pub(crate) fn serve(
     let recovery = fetch.is_err().then(|| Arc::new(super::Recovery::new()));
     let service = Arc::new(Service {
         calls: Calls::default(),
+        requests: admission::Slots::default(),
         address,
         hosts,
         fetch,
@@ -99,6 +102,7 @@ fn connections(
 ) -> io::Result<()> {
     listener.set_nonblocking(true)?;
     let mut workers: Vec<thread::JoinHandle<()>> = Vec::new();
+    let readers = admission::Slots::default();
     loop {
         if stopped.try_recv().is_ok() {
             break;
@@ -126,7 +130,7 @@ fn connections(
             }
         }
         workers = retained;
-        if workers.len() >= MAX_CONNECTIONS {
+        let Some(reader) = readers.take() else {
             stream.set_nonblocking(true)?;
             record(wire::write(
                 &mut stream,
@@ -136,13 +140,13 @@ fn connections(
                 None,
             ));
             continue;
-        }
+        };
         let service = service.clone();
         workers.push(
             thread::Builder::new()
                 .name("mcp-http".into())
                 .spawn(move || {
-                    record(service.handle(stream));
+                    record(service.handle(stream, reader));
                 })?,
         );
     }
@@ -163,9 +167,25 @@ fn record(result: io::Result<()>) {
     }
 }
 impl Service {
-    fn handle(&self, mut stream: TcpStream) -> io::Result<()> {
+    fn handle(&self, mut stream: TcpStream, reader: admission::Permit) -> io::Result<()> {
         // A malformed or oversized framing closes without reflecting untrusted headers.
         let request = wire::read(&mut stream)?;
+        // Health uses a framing slot and never waits for an active tool slot.
+        let _request = if request.path == "/health" {
+            None
+        } else {
+            let Some(permit) = self.requests.take() else {
+                return wire::write(
+                    &mut stream,
+                    503,
+                    br#"{"error":"Service unavailable"}"#,
+                    None,
+                    None,
+                );
+            };
+            drop(reader);
+            Some(permit)
+        };
         let (status, value, revision) = self.route(&request);
         let body = value
             .map(|v| serde_json::to_vec(&v))
