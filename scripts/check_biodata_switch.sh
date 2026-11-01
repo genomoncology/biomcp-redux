@@ -12,8 +12,7 @@ printf 'Qualification root: %s\n' "$root"
 rustc --version
 case "$phase" in
 check)
-    cargo check --workspace --all-targets
-    cp Cargo.lock "$root/Cargo.lock"
+    cargo check --workspace --all-targets --locked
     ;;
 *) echo 'unknown switch check phase' >&2; exit 1;;
 esac
