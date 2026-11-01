@@ -51,10 +51,11 @@ class GateStages(unittest.TestCase):
             (root / 'untracked.sh').write_text('#!/bin/sh\nif\n')
             (root / 'other.sh').write_text('#!/bin/bash\nif\n')
             subprocess.run(['git', '-C', str(root), 'add', 'release fixture.txt', 'other.sh'], check=True)
-            command = ['make', '--no-print-directory', 'check-cheap']
-            for goal in ('fmt', 'unused-dependencies', 'check-no-default-features',
-                         'lint-workspace', 'lint-tools', 'ratchets'):
-                command += ['-o', goal]
+            goals = ('fmt', 'unused-dependencies', 'check-no-default-features',
+                     'lint-workspace', 'lint-tools', 'ratchets')
+            # check-cheap invokes a recursive make; pass omissions to that child.
+            command = ['make', '--no-print-directory', 'check-cheap',
+                       'MAKE=make ' + ' '.join('-o ' + goal for goal in goals)]
             for broken in (False, True):
                 if broken:
                     script.write_text('#!/bin/sh\nif true; then\n')
