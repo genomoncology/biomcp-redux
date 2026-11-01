@@ -34,11 +34,11 @@ fn collection_pages() -> Check {
     Ok(())
 }
 
-fn query_page(
-    section: &str,
-    offset: u32,
-    refused: bool,
-) -> Result<Value, Box<dyn std::error::Error>> {
+#[expect(
+    clippy::disallowed_macros,
+    reason = "The synthetic publisher supplies malformed native rows to the public query"
+)]
+fn synthetic_body(refused: bool) -> String {
     let mut targets = vec![
         json!({"id":"ENSG00000141510"}),
         json!({"id":"ENSG00000146648"}),
@@ -51,10 +51,18 @@ fn query_page(
         targets.insert(1, json!({"id":"invalid"}));
         indications.insert(1, json!({"disease":{"id":" "}}));
     }
-    let body = json!({"data":{"drug":{"id":"CHEMBL1","name":"synthetic",
+    json!({"data":{"drug":{"id":"CHEMBL1","name":"synthetic",
         "mechanismsOfAction":{"rows":[{"targets":targets}]},
         "indications":{"rows":indications}}}})
-    .to_string();
+    .to_string()
+}
+
+fn query_page(
+    section: &str,
+    offset: u32,
+    refused: bool,
+) -> Result<Value, Box<dyn std::error::Error>> {
+    let body = synthetic_body(refused);
     let stub = Stub::for_source(
         "api.platform.opentargets.org",
         "application/json",
@@ -69,8 +77,9 @@ fn query_page(
         )?,
         ..Default::default()
     })?;
-    let query = serde_json::from_value(json!({"input":"CHEMBL1","source":"opentargets",
-        "section":[section],"section_offset":offset,"section_limit":1}))?;
+    let query = serde_json::from_str(&format!(
+        r#"{{"input":"CHEMBL1","source":"opentargets","section":["{section}"],"section_offset":{offset},"section_limit":1}}"#
+    ))?;
     let result = biomcp_query::run(
         &biomcp_query::Ctx {
             fetch: &fetch,
@@ -100,10 +109,14 @@ fn query_page(
     };
     let data = value.pointer(&format!("/{section}/data"));
     let data = data.ok_or("accepted page missing")?;
-    assert_eq!(data.get("total"), Some(&json!(2)), "accepted total changed");
+    assert_eq!(
+        data.get("total"),
+        Some(&Value::from(2)),
+        "accepted total changed"
+    );
     assert_eq!(
         data.get("offset"),
-        Some(&json!(offset)),
+        Some(&Value::from(offset)),
         "accepted offset changed"
     );
     assert_eq!(
