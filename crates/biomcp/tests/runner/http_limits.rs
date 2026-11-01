@@ -185,21 +185,21 @@ fn overload() -> Check {
             .map_err(|e| e.to_string())?;
         held.push(socket);
     }
-    let mut excess = TcpStream::connect(server.address).map_err(|e| e.to_string())?;
-    excess
-        .set_read_timeout(Some(Duration::from_millis(800)))
-        .map_err(|e| e.to_string())?;
-    excess
-        .write_all(format!("GET /health HTTP/1.1\r\nHost: {}\r\n\r\n", server.address).as_bytes())
-        .map_err(|e| e.to_string())?;
-    let mut response = String::new();
-    excess
-        .read_to_string(&mut response)
-        .map_err(|e| e.to_string())?;
-    if !response.starts_with("HTTP/1.1 503 ") {
-        return Err(format!(
-            "excess connection did not receive 503: {response:?}"
-        ));
+    // A silent refused peer must not consume the read budget or delay the next accept.
+    for _ in 0..2 {
+        let mut excess = TcpStream::connect(server.address).map_err(|e| e.to_string())?;
+        excess
+            .set_read_timeout(Some(Duration::from_millis(800)))
+            .map_err(|e| e.to_string())?;
+        let mut response = String::new();
+        excess
+            .read_to_string(&mut response)
+            .map_err(|e| e.to_string())?;
+        if !response.starts_with("HTTP/1.1 503 ") {
+            return Err(format!(
+                "excess connection did not receive 503: {response:?}"
+            ));
+        }
     }
     drop(held);
     Ok(())

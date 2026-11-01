@@ -127,14 +127,14 @@ fn connections(
         }
         workers = retained;
         if workers.len() >= MAX_CONNECTIONS {
-            let _ = wire::read(&mut stream);
-            let _ = wire::write(
+            stream.set_nonblocking(true)?;
+            record(wire::write(
                 &mut stream,
                 503,
                 br#"{"error":"Service unavailable"}"#,
                 None,
                 None,
-            );
+            ));
             continue;
         }
         let service = service.clone();
@@ -142,12 +142,7 @@ fn connections(
             thread::Builder::new()
                 .name("mcp-http".into())
                 .spawn(move || {
-                    if let Err(error) = service.handle(stream) {
-                        crate::output::diagnostic(
-                            format!("biomcp: HTTP connection failed ({:?})\n", error.kind())
-                                .as_bytes(),
-                        );
-                    }
+                    record(service.handle(stream));
                 })?,
         );
     }
@@ -159,6 +154,13 @@ fn connections(
             .map_err(|_| io::Error::other("HTTP worker stopped"))?;
     }
     Ok(())
+}
+fn record(result: io::Result<()>) {
+    if let Err(error) = result {
+        crate::output::diagnostic(
+            format!("biomcp: HTTP connection failed ({:?})\n", error.kind()).as_bytes(),
+        );
+    }
 }
 impl Service {
     fn handle(&self, mut stream: TcpStream) -> io::Result<()> {
