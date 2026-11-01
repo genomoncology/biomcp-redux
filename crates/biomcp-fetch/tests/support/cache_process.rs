@@ -105,6 +105,7 @@ impl Worker {
             Err(error) => failure(&mut self.process, &format!("child wait: {error}")),
         };
         let output = output(&mut self.process);
+        eprint!("{output}");
         assert!(status.success(), "cache child failed: {output}");
     }
 }
@@ -223,7 +224,9 @@ fn child() {
         .unwrap();
     event(&mut control, b'S');
     control.write_all(b"O").unwrap();
+    let started = Instant::now();
     let fetch = Fetch::open(config(Path::new(&path))).unwrap();
+    eprintln!("cache child {key}: open {:?}", started.elapsed());
     let quota_server = Server::new();
     let template = spec(&quota_server, KeyUse::None);
     let spec = Box::leak(Box::new(SourceSpec { base, ..*template }));
@@ -236,18 +239,17 @@ fn child() {
         vec![key.as_str()]
     };
     for key in keys {
-        assert!(
-            fetch
+        let started = Instant::now();
+        let received = fetch
                 .leg(spec, fetch.deadline(Duration::from_secs(10)))
                 .call(
                     &endpoint,
                     Input::Params(&[("key", Arg::Text(key))]),
                     biomcp_fetch::Read::<Answer>::json()
                 )
-                .map(|received| received.value)
-                .unwrap()
-                .answer
-        );
+                .map(|received| received.value);
+        eprintln!("cache child {key}: fetch {:?}, result {received:?}", started.elapsed());
+        assert!(received.unwrap().answer);
     }
     control.write_all(b"D").unwrap();
     event(&mut control, b'E');
