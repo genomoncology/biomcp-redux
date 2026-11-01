@@ -36,17 +36,6 @@ name = "webpki-root-certs"
 version = "=1.0.11"
 allow = ["CDLA-Permissive-2.0"]
 
-# Approved SQLite and schema-checking dependencies use these permissive licenses.
-[[licenses.exceptions]]
-name = "borrow-or-share"
-version = "=0.2.4"
-allow = ["MIT-0"]
-
-[[licenses.exceptions]]
-name = "foldhash"
-version = "=0.2.0"
-allow = ["Zlib"]
-
 # The approved build-time YAML parser reads encoded input through encoding_rs.
 # Its WHATWG tables retain the upstream BSD notice alongside MIT/Apache code.
 [[licenses.exceptions]]
