@@ -10,6 +10,8 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 
 mod article_publish;
+mod record_publish;
+mod retention;
 mod store_locks;
 
 pub(super) fn trials() -> Vec<Trial> {
@@ -23,6 +25,22 @@ pub(super) fn trials() -> Vec<Trial> {
             || checked_protein().map_err(Into::into),
         ),
     ];
+    trials.push(transcript_trial(
+        "cache-resilience/stale-replies-survive-unrelated-write-until-grace",
+        || retention::stale().map_err(Into::into),
+    ));
+    trials.push(transcript_trial(
+        "article-search/current-store-opens-without-write-lock",
+        || retention::open_reader().map_err(Into::into),
+    ));
+    trials.push(transcript_trial(
+        "adverse-event-get/late-store-lock-keeps-fetched-faers-record",
+        || record_publish::check(false).map_err(Into::into),
+    ));
+    trials.push(transcript_trial(
+        "maude-reports/late-store-lock-keeps-fetched-maude-record",
+        || record_publish::check(true).map_err(Into::into),
+    ));
     trials.extend(store_locks::trials());
     trials.push(transcript_trial(
         "article-search/late-store-lock-keeps-fetched-items",
