@@ -96,6 +96,7 @@ mod skill;
 tool_only! { mod schema_evolution; }
 mod schema_proof;
 tool_only! { mod semantic_tables; }
+mod snapshot_errors;
 mod source_queries;
 mod source_terms;
 mod store_clean;
@@ -104,7 +105,6 @@ mod study_catalog;
 mod transcript;
 mod trial_get;
 mod trial_sites;
-mod snapshot_errors;
 mod vaers;
 mod variant;
 mod variant_civic;
