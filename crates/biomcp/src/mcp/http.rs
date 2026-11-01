@@ -274,6 +274,22 @@ impl Service {
                 Some(revision),
             );
         };
+        let declared_use = if self.globals.hosted {
+            match request.declared_use() {
+                Ok(usage) => Some(usage),
+                Err(_) => {
+                    return (
+                        400,
+                        Some(
+                            json!({"error":"Invalid x-biomcp-use header; allowed values: commercial, academic"}),
+                        ),
+                        Some(revision),
+                    );
+                }
+            }
+        } else {
+            None
+        };
         let keys = if self.globals.hosted {
             let keys = match request.source_keys() {
                 Ok(keys) => keys,
@@ -297,6 +313,7 @@ impl Service {
                     modern,
                     call,
                     secrets: keys,
+                    declared_use: declared_use.unwrap_or(crate::command::DeclaredUse::Commercial),
                     scope,
                 },
             )
@@ -310,6 +327,7 @@ impl Service {
                     fetch: &self.fetch,
                     recovery: self.recovery.as_deref(),
                     secrets: keys.as_ref(),
+                    declared_use,
                     scope: None,
                 },
                 true,
