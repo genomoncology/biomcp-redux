@@ -12,7 +12,7 @@ case "${1:-static}" in
     cargo test --locked -p biomcp-types --features schema --test schemas checked_in_schemas_match_types
     cargo test --locked -p biomcp --test cases disease/
     cargo test --locked -p biomcp --test cases diagnostic/
-    cargo test --locked -p biomcp --test cases drug-recall/
+    cargo test --locked -p biomcp --test cases drug/
     cargo test --locked -p biomcp --test cases variant/
     cargo test --locked -p biomcp --test cases phenotype/
     ;;

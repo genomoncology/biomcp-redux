@@ -59,7 +59,10 @@ pub fn get(leg: &Leg<'_>, query: &PhenotypeGet) -> Result<super::super::Page, Re
     for mut row in page.items {
         problems.append(&mut row.problems);
         if row.identity_admitted() {
-            let requested = row.object.clone().ok_or(BadReply)?;
+            let requested = row
+                .object
+                .clone()
+                .ok_or_else(|| biomcp_fetch::bad_reply(biomcp_types::Source::Monarch, None))?;
             let mapped = super::super::map::row(row, &requested)?;
             refusals.include(mapped.refusals);
             problems.extend(mapped.problems);
