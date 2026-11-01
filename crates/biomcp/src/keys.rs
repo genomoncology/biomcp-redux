@@ -4,6 +4,9 @@ use clap::{Arg, ArgAction};
 use serde_json::{Value, json};
 use std::io::{self, BufRead, IsTerminal};
 
+pub(crate) const LIST_HELP: &str =
+    "List source credentials and their origins without showing values.";
+
 #[derive(Debug)]
 pub(crate) enum Command {
     Set(SecretName, bool),
@@ -28,7 +31,7 @@ pub(crate) fn grammar() -> clap::Command {
         .subcommand_required(true)
         .subcommand(
             clap::Command::new("list")
-                .about("List source credentials and their origins without showing values.")
+                .about(LIST_HELP)
                 .after_help("Example: biomcp key list"),
         )
         .subcommand(
