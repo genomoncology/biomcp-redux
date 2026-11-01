@@ -1,5 +1,6 @@
 """Hosted release contracts preserve candidate checks and truthful summaries."""
 from pathlib import Path
+import re
 import unittest
 import subprocess
 import sys
@@ -8,6 +9,18 @@ from release.workflow import PLATFORMS
 
 
 class HostedWorkflow(unittest.TestCase):
+    def test_security_checks_install_pinned_cargo_deny_first(self):
+        workflow = Path('.github/workflows/release.yml').read_text()
+        install = 'cargo install cargo-deny --version "${{ steps.tools.outputs.cargo_deny }}" --locked'
+        checked = []
+        for job in re.split(r'\n  [a-z-]+:\n', workflow.split('jobs:\n', 1)[1]):
+            checks = re.search(r'make audit|make [^\n]*docs-check|(?:release[/.]test_security)', job)
+            if checks:
+                checked.append(job)
+                self.assertIn(install, job[:checks.start()],
+                              'security checks need the pinned cargo-deny installed first')
+        self.assertTrue(checked, 'the release workflow must run security checks')
+
     def test_release_uses_supported_apple_arm_runner(self):
         workflow = Path('.github/workflows/release.yml').read_text()
         self.assertNotIn('macos-14', workflow)
