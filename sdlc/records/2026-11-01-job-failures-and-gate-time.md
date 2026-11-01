@@ -4,7 +4,7 @@ Ticket 0535 cites this bounded analysis. Severity: Medium. The failures waste bu
 
 ## Observed cases and limits
 
-The ticket reports 445 failures among its last 800 jobs and classifies 165 recent failures: 87 lint, compile, test or ratchet failures; 21 inline Python failures; 15 reply comparison failures; four unsupported Python archive calls; and about 32 native proof failures without an error line. These are the review's counts, not a reproduced classification. Their source window and case list were not supplied with the brief. The groups must not be treated as independently verified or disjoint.
+The ticket reports 445 failures among its last 800 jobs and classifies 165 recent failures: 87 lint, compile, test or ratchet failures; 21 inline Python failures; 15 reply comparison failures; four unsupported Python archive calls; and about 32 native proof failures without an error line. The PM confirmed in m18218 that the 165-case classification came from an unretained one-off read of log tails. It is not a retained measurement. The source window and case list cannot be reproduced. The groups must not be treated as independently verified or disjoint.
 
 A read of `pm job list --all` on 2026-11-01 returned 7,044 rows. Its newest 800 contained 442 failed, 310 passed, 40 cancelled, three refused and four waiting rows, plus one row whose position differed. This moving window does not reproduce the earlier review window. Refusals, cancellations and waiting jobs are not failed tests.
 
@@ -36,7 +36,7 @@ The recipe and request handling causes also concern shared job tooling. The coor
 
 Ticket 0060 defines the Oct 26 check as coordinator asks per day and externally held lanes, the Oct 30 check as missing-license landing failures, and the Oct 31 checks as separate failure classes. `pm job list` does not expose dates or these classifications. Its failed-job total cannot answer those checks.
 
-The ticket itself records minimum observed recurrences: two failed-step continuations, one useless test command, one source probe that misread an empty response, two reopened accepted shared type contracts, and at least three unsupported archive calls when its original two jobs and the later 0061 j14243 case are combined. These are lower bounds in the recorded historical window, not exact final daily counts. Unknown totals stay unknown. The coordinator must request the dated PM history for complete counts and record results through pm. This analysis does not edit the 0060 ticket.
+The ticket itself records minimum observed recurrences: two failed-step continuations, one useless test command, one source probe that misread an empty response, two reopened accepted shared type contracts, and at least three unsupported archive calls when its original two jobs and the later 0061 j14243 case are combined. These are lower bounds in the recorded historical window, not exact final daily counts. Unknown totals stay unknown. The PM confirmed in m18218 that no recorded source supports complete dated counts and recorded the Oct 26, Oct 30 and Oct 31 checks as not measured through pm. This analysis does not edit the 0060 ticket.
 
 ## Stopping rule
 
