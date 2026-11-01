@@ -492,7 +492,7 @@ fn discovery_rejects_unknown_missing_and_unfeatured_trials() -> Check {
 fn tool_dispatch_stays_outside_cases() -> Check {
     rejects(
         "crates/biomcp/tests/cases.rs",
-        r#"fn main() { if arg == "--planted-tool-mode" { tool(); } }"#,
+        r##"fn main() { if arg == r#"--planted-tool-mode"# { tool(); } }"##,
         "tool modes belong in tools.rs",
     )
 }
