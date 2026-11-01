@@ -21,7 +21,7 @@ pub(super) fn stale() -> Result<(), String> {
     let unrelated = cached(&["get", "gene", "BRAF"], &case, Some(&gene));
     invoke(&env, unrelated.clone(), 0)?;
     let offline = cached(&["get", "protein", "P00533"], &case, None);
-    let stale = invoke(&env, offline.clone(), 1)?;
+    let stale = invoke(&env, offline.clone(), 0)?;
     if stale.get("result") != first.get("result")
         || stale.pointer("/sources/0/state") != Some(&json!("stale"))
     {
@@ -44,7 +44,7 @@ pub(super) fn stale() -> Result<(), String> {
             |r| r.get(0),
         )
         .map_err(|e| e.to_string())?;
-    let expired = invoke(&env, offline, 3)?;
+    let expired = invoke(&env, offline, 4)?;
     if remaining != 0 || expired.pointer("/sources/0/reason") != Some(&json!("offline")) {
         return Err(format!(
             "grace-expired reply survived automatic pruning: {expired}"
