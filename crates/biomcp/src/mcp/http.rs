@@ -93,7 +93,7 @@ pub(crate) fn serve(
 }
 #[expect(
     clippy::disallowed_methods,
-    reason = "Own at most MAX_CONNECTIONS blocking socket workers"
+    reason = "Own bounded framing and active request workers through completion"
 )]
 fn connections(
     listener: TcpListener,
@@ -121,7 +121,7 @@ fn connections(
             Err(error) if error.kind() == io::ErrorKind::Interrupted => continue,
             Err(error) => return Err(error),
         };
-        let mut retained = Vec::with_capacity(MAX_CONNECTIONS);
+        let mut retained = Vec::with_capacity(MAX_CONNECTIONS * 2);
         for worker in workers {
             if worker.is_finished() {
                 let _ = worker.join();
@@ -130,7 +130,13 @@ fn connections(
             }
         }
         workers = retained;
-        let Some(reader) = readers.take() else {
+        // Retain a whole-worker bound while phase permits change hands or diagnostics run.
+        let reader = if workers.len() < MAX_CONNECTIONS * 2 {
+            readers.take()
+        } else {
+            None
+        };
+        let Some(reader) = reader else {
             stream.set_nonblocking(true)?;
             record(wire::write(
                 &mut stream,
