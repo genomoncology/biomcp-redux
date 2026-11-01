@@ -3,7 +3,7 @@ use super::super::{
     configuration::{cached, invoke},
     launch::{Environment, fixtures},
 };
-use serde_json::json;
+use serde_json::{Value, json};
 
 pub(super) fn stale() -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
@@ -38,7 +38,8 @@ pub(super) fn stale() -> Result<(), String> {
     invoke(&env, unrelated.clone(), 0)?;
     let offline = cached(&["get", "protein", "P00533"], &case, None);
     let stale = invoke(&env, offline.clone(), 0)?;
-    if stale.get("result") != first.get("result")
+    if payload(&stale)? != payload(&first)?
+        || stale.pointer("/result/items/0/status") != Some(&json!("partial"))
         || stale.pointer("/sources/0/state") != Some(&json!("stale"))
     {
         return Err(format!(
@@ -92,4 +93,22 @@ pub(super) fn open_reader() -> Result<(), String> {
         ));
     }
     Ok(())
+}
+
+// Staleness changes item status while retaining every fetched record field.
+fn payload(reply: &Value) -> Result<Value, String> {
+    let mut body = reply
+        .get("result")
+        .cloned()
+        .ok_or("fetched result missing")?;
+    for row in body
+        .get_mut("items")
+        .and_then(Value::as_array_mut)
+        .ok_or("fetched items missing")?
+    {
+        row.as_object_mut()
+            .ok_or("record object missing")?
+            .remove("status");
+    }
+    Ok(body)
 }
