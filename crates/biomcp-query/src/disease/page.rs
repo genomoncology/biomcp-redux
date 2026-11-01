@@ -20,7 +20,7 @@ pub(super) fn record_problem(out: &mut Outcome, query: &DiseaseGet, source: biom
     }) {
         out.problems.push(biomcp_types::Problem {
             source,
-            record: biodata::Text::new(query.id().as_str()).ok(),
+            record: Some(query.record().clone()),
             field: "record".into(),
             code: biomcp_types::ProblemCode::ValueUnknown,
         });

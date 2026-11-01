@@ -10,6 +10,8 @@ use serde::{Deserialize, Serialize};
 pub struct DiagnosticGet {
     #[serde(flatten)]
     fields: GetFields<DiagnosticId>,
+    #[serde(skip)]
+    record: Text,
 }
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -75,6 +77,7 @@ impl TryFrom<GetFields> for DiagnosticGet {
             return Err(QueryInvalid::new(&["section_limit"]));
         }
         Ok(Self {
+            record: v.id,
             fields: GetFields {
                 id,
                 source: v.source,
@@ -108,6 +111,10 @@ impl DiagnosticGet {
     /// Exact checked source identity.
     pub fn id(&self) -> &DiagnosticId {
         &self.fields.id
+    }
+    /// Original edge-admitted spelling for source record attribution.
+    pub fn record(&self) -> &Text {
+        &self.record
     }
     /// Native recall identity parsed once by the checked input boundary.
     pub fn recall_number(&self) -> Option<&biodata::DeviceRecallNumber> {
@@ -158,14 +165,20 @@ impl DiagnosticGet {
         q.section = Some(section);
         q.section_offset = 0;
         validate_source(&q)?;
-        Ok(Self { fields: q })
+        Ok(Self {
+            fields: q,
+            record: self.record.clone(),
+        })
     }
     /// Select a supplement while retaining the parsed source identity.
     pub fn with_supplement(&self, supplement: Option<PmaSupplement>) -> Result<Self, QueryInvalid> {
         let mut fields = self.fields.clone();
         fields.supplement = supplement;
         validate_source(&fields)?;
-        Ok(Self { fields })
+        Ok(Self {
+            fields,
+            record: self.record.clone(),
+        })
     }
     /// Bind the selected record to one immutable stored revision.
     pub fn with_bundle_revision(&self, revision: Text) -> Self {
