@@ -56,23 +56,7 @@ fn execute(
         .into());
     }
     let key = snapshot::key("author-search", &(q.query(), q.source(), q.limit()))?;
-    let (saved, mismatch) =
-        snapshot::find::<super::NativePages<author::Page>>(cx, &key, q.pool(), deadline)?;
-    let saved = saved.filter(|(saved, _)| {
-        saved.pages.iter().any(|p| q.offset() == p.offset())
-            || saved
-                .pages
-                .last()
-                .is_some_and(|p| p.next() == Some(q.offset()))
-    });
-    if saved.is_none() && q.pool().is_some() {
-        out.body = ReplyData::PoolError { mismatch };
-        out.next.push(crate::next::Step::new(
-            StepKind::Restart,
-            &[Source::SemanticScholar],
-            super::run(Request::SearchAuthor(q.restart())),
-        ));
-    }
+    let saved = retained(cx, q, &key, deadline, out)?;
     if matches!(out.body, ReplyData::PoolError { .. }) {
         return Ok(());
     }
@@ -190,4 +174,31 @@ fn present(
     })
     .with_query(q.clone());
     Ok(())
+}
+
+fn retained(
+    cx: &Ctx<'_>,
+    q: &AuthorSearch,
+    key: &[u8],
+    deadline: Deadline<'_>,
+    out: &mut Outcome,
+) -> Result<Option<(super::NativePages<author::Page>, crate::store::Pool)>, RequestError> {
+    let (saved, mismatch) =
+        snapshot::find::<super::NativePages<author::Page>>(cx, key, q.pool(), deadline)?;
+    let saved = saved.filter(|(saved, _)| {
+        saved.pages.iter().any(|p| q.offset() == p.offset())
+            || saved
+                .pages
+                .last()
+                .is_some_and(|p| p.next() == Some(q.offset()))
+    });
+    if saved.is_none() && q.pool().is_some() {
+        out.body = ReplyData::PoolError { mismatch };
+        out.next.push(crate::next::Step::new(
+            StepKind::Restart,
+            &[Source::SemanticScholar],
+            super::run(Request::SearchAuthor(q.restart())),
+        ));
+    }
+    Ok(saved)
 }

@@ -53,23 +53,7 @@ fn execute(
         .into());
     }
     let key = snapshot::key("author-papers", &(q.id(), q.section(), q.limit()))?;
-    let (saved, mismatch) =
-        snapshot::find::<super::NativePages<author::PapersPage>>(cx, &key, q.pool(), deadline)?;
-    let saved = saved.filter(|(saved, _)| {
-        saved.pages.iter().any(|p| q.offset() == p.offset)
-            || saved
-                .pages
-                .last()
-                .is_some_and(|p| p.next == Some(q.offset()))
-    });
-    if saved.is_none() && q.pool().is_some() {
-        out.body = ReplyData::PoolError { mismatch };
-        out.next.push(crate::next::Step::new(
-            StepKind::Restart,
-            &[super::next::author(q.id())],
-            super::run(Request::AuthorPapers(q.restart())),
-        ));
-    }
+    let saved = retained(cx, q, &key, deadline, out)?;
     if matches!(out.body, ReplyData::PoolError { .. }) {
         return Ok(());
     }
@@ -213,4 +197,31 @@ fn pivot(row: &AuthorPaperHeader, out: &mut Outcome) {
             run(Request::GetArticle(q)),
         ));
     }
+}
+
+fn retained(
+    cx: &Ctx<'_>,
+    q: &AuthorPapersQuery,
+    key: &[u8],
+    deadline: Deadline<'_>,
+    out: &mut Outcome,
+) -> Result<Option<(super::NativePages<author::PapersPage>, crate::store::Pool)>, RequestError> {
+    let (saved, mismatch) =
+        snapshot::find::<super::NativePages<author::PapersPage>>(cx, key, q.pool(), deadline)?;
+    let saved = saved.filter(|(saved, _)| {
+        saved.pages.iter().any(|p| q.offset() == p.offset)
+            || saved
+                .pages
+                .last()
+                .is_some_and(|p| p.next == Some(q.offset()))
+    });
+    if saved.is_none() && q.pool().is_some() {
+        out.body = ReplyData::PoolError { mismatch };
+        out.next.push(crate::next::Step::new(
+            StepKind::Restart,
+            &[super::next::author(q.id())],
+            super::run(Request::AuthorPapers(q.restart())),
+        ));
+    }
+    Ok(saved)
 }
