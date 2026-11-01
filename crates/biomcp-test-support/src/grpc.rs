@@ -53,9 +53,9 @@ pub enum Seen {
     Connect(String),
     /// Received the headers and protobuf body.
     Request(http::HeaderMap, Vec<u8>),
-    /// Hold before sending messages.
+    /// Wrote a protobuf response message.
     Message,
-    /// Hold before sending trailers.
+    /// Wrote the gRPC response trailers.
     Trailers,
 }
 #[expect(
@@ -193,7 +193,6 @@ impl Fixture {
     /// Trust this fixture and apply explicit proxy settings.
     pub fn network(&self, proxy: Option<biomcp_fetch::Secret>, bypass: &str) -> Check<Network> {
         Ok(Network::new(
-            /// Run without a held phase.
             None,
             proxy,
             bypass,
