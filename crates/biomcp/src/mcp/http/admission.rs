@@ -13,17 +13,17 @@ use std::sync::{
     reason = "Bound HTTP framing readers separately from active requests"
 )]
 #[derive(Default)]
-pub(super) struct Slots(Arc<AtomicUsize>);
+pub(super) struct Slots<const LIMIT: usize>(Arc<AtomicUsize>);
 #[expect(
     clippy::disallowed_types,
     reason = "Release one HTTP admission count when its worker leaves the phase"
 )]
 pub(super) struct Permit(Arc<AtomicUsize>);
-impl Slots {
+impl<const LIMIT: usize> Slots<LIMIT> {
     pub(super) fn take(&self) -> Option<Permit> {
         self.0
             .fetch_update(Ordering::AcqRel, Ordering::Acquire, |count| {
-                (count < super::MAX_CONNECTIONS).then_some(count + 1)
+                (count < LIMIT).then_some(count + 1)
             })
             .ok()
             .map(|_| Permit(self.0.clone()))

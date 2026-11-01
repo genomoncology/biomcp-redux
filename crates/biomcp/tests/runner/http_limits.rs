@@ -180,7 +180,8 @@ fn chunked() -> Check {
 fn overload() -> Check {
     let server = Server::start()?;
     let mut held = Vec::new();
-    for _ in 0..8 {
+    // Framing reserves one reader beyond the eight active call slots for health.
+    for _ in 0..9 {
         let mut socket = TcpStream::connect(server.address).map_err(|e| e.to_string())?;
         socket
             .write_all(b"GET /health HTTP/1.1\r\n")

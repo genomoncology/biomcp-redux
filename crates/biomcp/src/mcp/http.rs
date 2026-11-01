@@ -16,6 +16,7 @@ use std::{
 };
 const ACCEPT_POLL: std::time::Duration = std::time::Duration::from_millis(20);
 const MAX_CONNECTIONS: usize = 8;
+const MAX_READERS: usize = MAX_CONNECTIONS + 1;
 const HEALTH_BUDGET: std::time::Duration = std::time::Duration::from_secs(2);
 pub(crate) enum StartError {
     Configuration(crate::config::StartupError),
@@ -25,7 +26,7 @@ pub(crate) enum StartError {
 }
 struct Service {
     calls: Calls,
-    requests: admission::Slots,
+    requests: admission::Slots<MAX_CONNECTIONS>,
     address: SocketAddr,
     hosts: Vec<Authority>,
     globals: crate::grammar::Globals,
@@ -102,7 +103,7 @@ fn connections(
 ) -> io::Result<()> {
     listener.set_nonblocking(true)?;
     let mut workers: Vec<thread::JoinHandle<()>> = Vec::new();
-    let readers = admission::Slots::default();
+    let readers = admission::Slots::<MAX_READERS>::default();
     loop {
         if stopped.try_recv().is_ok() {
             break;
@@ -121,7 +122,7 @@ fn connections(
             Err(error) if error.kind() == io::ErrorKind::Interrupted => continue,
             Err(error) => return Err(error),
         };
-        let mut retained = Vec::with_capacity(MAX_CONNECTIONS * 2);
+        let mut retained = Vec::with_capacity(MAX_CONNECTIONS + MAX_READERS);
         for worker in workers {
             if worker.is_finished() {
                 let _ = worker.join();
@@ -131,7 +132,7 @@ fn connections(
         }
         workers = retained;
         // Retain a whole-worker bound while phase permits change hands or diagnostics run.
-        let reader = if workers.len() < MAX_CONNECTIONS * 2 {
+        let reader = if workers.len() < MAX_CONNECTIONS + MAX_READERS {
             readers.take()
         } else {
             None
