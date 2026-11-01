@@ -131,7 +131,8 @@ cli-fixes-check: fmt lint ratchets
 	$(MAKE) schema-generate docs-generate
 	mkdir -p dist
 	COPYFILE_DISABLE=1 tar -czf dist/cli-generated.tar.gz crates/biomcp-types/schemas docs/reference/commands.md
-	$(MAKE) docs-check
+	cargo test --locked -p biomcp --bin biomcp grammar::reference::reference_matches_grammar $(TEST_THREADS)
+	python3 scripts/check_docs.py
 	@set -e; for selection in local/ key-registration/ article-saves/ trial/name-fallback-continuation author/help author/papers-help author/source-alias cell-line/aliases cell-line/examples mcp-parity/discovers-artifact-command-tree; do \
 		cargo test --locked -p biomcp --test cases "$$selection" $(TEST_THREADS); \
 	done
