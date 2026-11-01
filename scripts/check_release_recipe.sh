@@ -16,6 +16,27 @@ case "${1:-focused}" in
     cargo deny --version
     cargo deny --locked check licenses
     ;;
+  policy)
+    ruff --version
+    ruff check --select F401,F841,ERA,BLE,E722,S110 release/notices.py release/test_licenses.py scripts/test_schema_release.py
+    python3.13 - <<'PYTHON'
+import json
+import subprocess
+
+for workspace in ([], ['--workspace']):
+    command = ['cargo', 'deny', '--locked', *workspace]
+    result = subprocess.run(command + ['list', '--format', 'json', '--layout', 'crate'],
+                            capture_output=True, text=True, check=True)
+    data = json.loads(result.stdout)
+    print('cargo-deny workspace:', bool(workspace), 'crate inventory:', flush=True)
+    print(json.dumps(data)[:400] if not isinstance(data, dict) else list(data)[:8], flush=True)
+    for line in result.stdout.splitlines():
+        if any(name in line for name in ('borrow-or-share', 'foldhash', 'jsonschema')):
+            print(line, flush=True)
+    result = subprocess.run(command + ['check', 'licenses'], check=False)
+    print('licenses exit:', result.returncode, flush=True)
+PYTHON
+    ;;
   fixture)
     python3.13 -m unittest release.test_licenses.Licensing.test_generation_excludes_dependencies_that_do_not_ship
     ;;
