@@ -70,4 +70,6 @@ The following 0.9 entity fields leave the reply root. Every nested path beneath 
 | disease | `id`, `name`, `definition`, `synonyms`, `parents`, `top_genes`, `associated_genes`, `treatment_landscape`, `recruiting_trial_count`, `top_variant`, `xrefs` |
 | pathway | `id`, `name`, `species`, `summary`, `genes`, `events`, `enrichment` |
 
+Cache failures now distinguish `fetch.cache_encoding`, `fetch.cache_filesystem`, `fetch.cache_internal` and `fetch.cache_limit`. Their `CacheProblem` wire values are `encoding`, `filesystem`, `internal` and `limit`. Genuine SQLite failures keep `fetch.cache_database`; unreadable stored snapshots keep `fetch.cache_snapshot`. The former use of the database code for these other failures has no compatibility alias. Handle each typed code instead of treating every local failure as a database failure.
+
 The candidate's schema identity changes appear below when these notes are staged. The [schema directory](https://github.com/genomoncology/biomcp/tree/main/crates/biomcp-types/schemas) defines output fields and required values. In particular, adverse-event snapshot fields become optional when a cache write fails; callers must handle their absence. A major bump permits an intentional breaking schema change. The schema check does not prohibit all breaking changes.
