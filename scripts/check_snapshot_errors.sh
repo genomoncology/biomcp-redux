@@ -4,6 +4,8 @@ case "${1:-focused}" in
 focused)
     cargo test --locked -p biomcp --test cases corrupted-snapshot-reports-payload-error
     cargo test --locked -p biomcp --test cases name-search-selects-paper-author
+    unset UPDATE_SCHEMAS
+    cargo test --locked -p biomcp-types --features schema --test schemas checked_in_schemas_match_types -- --exact
     ;;
 cheap)
     make fmt lint ratchets
