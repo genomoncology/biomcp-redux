@@ -293,7 +293,7 @@ fn concurrent(args: &[&str]) -> Check {
         None,
         &["--hosted".into()],
     )?;
-    let extra = format!("x-biomcp-key-oncokb-api-key: {CALLER}\r\n");
+    let extra = format!("x-biomcp-key-oncokb-api-key: {CALLER}\r\nx-biomcp-use: academic\r\n");
     let (keyed, unkeyed) = std::thread::scope(|scope| {
         let keyed = scope.spawn(|| call(&server, args, &extra, false));
         let unkeyed = scope.spawn(|| call(&server, args, "x-biomcp-use: academic\r\n", false));
@@ -370,7 +370,12 @@ fn public() -> Check {
             } else {
                 String::new()
             };
-            call(&server, &["search", "author", &query], &extra, false)?;
+            call(
+                &server,
+                &["search", "author", &query],
+                &format!("{extra}x-biomcp-use: academic\r\n"),
+                false,
+            )?;
         }
         server.stop()?;
     }

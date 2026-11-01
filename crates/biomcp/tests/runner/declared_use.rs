@@ -49,15 +49,7 @@ fn admission() -> Result<(), String> {
             &["--hosted".into()],
         )?;
         for use_header in ["", "x-biomcp-use: commercial\r\n", ACADEMIC] {
-            let args = [
-                "get",
-                "pgx",
-                "--gene",
-                "DPYD",
-                "--source",
-                "cpic",
-                "--offline",
-            ];
+            let args = ["get", "pgx", "--gene", "DPYD", "--source", "cpic"];
             let cpic = call(&server, &args, use_header, false)?;
             if disabled(&cpic, "cpic") != (excluded || use_header != ACADEMIC) {
                 return Err(format!("wrong noncommercial source admission: {cpic}"));
