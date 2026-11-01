@@ -157,7 +157,7 @@ text_value!(
         Self::MAX_BYTES,
         crate::VariantId::pattern().replace("clinvar:", "[cC][lL][iI][nN][vV][aA][rR]:"),
         crate::HgvsText::pattern(),
-        crate::ClinVarVariationId::pattern().replace("clinvar:", ""),
+        biodata::ClinVarVariationId::pattern().replace("clinvar:", ""),
         Self::CHROMOSOME_PATTERN
     )
 );
