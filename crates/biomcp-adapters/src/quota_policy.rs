@@ -14,7 +14,7 @@ pub struct SourcePolicy {
 pub fn configure(input: &BTreeMap<String, PacingOverride>) -> Result<SourcePacing, String> {
     let mut pacing = SourcePacing::default();
     for (name, value) in input {
-        let policy = super::policies()
+        let policy = crate::quotas::policies()
             .iter()
             .find(|p| p.quota.key().name() == name)
             .ok_or_else(|| format!("source_pacing.{name}"))?;

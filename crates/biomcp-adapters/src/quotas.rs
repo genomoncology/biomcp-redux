@@ -1,7 +1,6 @@
 //! Provider defaults and ceilings, with bounded primary-source policy research.
+pub use crate::quota_policy::{SourcePolicy, configure};
 use biomcp_fetch::{Quota, Rate, SourceKey};
-mod policy;
-pub use policy::{SourcePolicy, configure};
 
 // One declaration supplies transport limits, policy inventory and generated reference rows.
 macro_rules! quotas {
