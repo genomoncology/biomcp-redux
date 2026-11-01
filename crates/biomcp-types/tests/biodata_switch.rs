@@ -3,6 +3,30 @@ use biodata::{AccessionBase, RcvId, ScvId, VcvId};
 use std::collections::HashSet;
 
 #[test]
+fn assertion_selectors_preserve_native_wire_text() -> Result<(), Box<dyn std::error::Error>> {
+    for (input, source, selector) in [
+        ("clinvar:13961", "clinvar", "VCV000013961"),
+        ("clinvar:13961", "clinvar", "RCV000014992"),
+        ("clinvar:13961", "clinvar", "SCV000001234"),
+        ("CA000434", "erepo", "PCER000001171"),
+    ] {
+        let wire = serde_json::json!({
+            "input":input,"source":source,"assertion":selector,"offset":0
+        });
+        let query: biomcp_types::VariantAssertionsGet = serde_json::from_value(wire.clone())?;
+        assert_eq!(
+            query.assertion().ok_or("missing selector")?.to_string(),
+            selector
+        );
+        assert_eq!(serde_json::to_value(query)?, wire);
+        let mut invalid = wire;
+        invalid["assertion"] = serde_json::json!(format!("{selector}.1"));
+        assert!(serde_json::from_value::<biomcp_types::VariantAssertionsGet>(invalid).is_err());
+    }
+    Ok(())
+}
+
+#[test]
 fn clinvar_versions_preserve_distinct_identity() -> Result<(), Box<dyn std::error::Error>> {
     macro_rules! versions {
         ($ty:ty, $prefix:literal) => {{
