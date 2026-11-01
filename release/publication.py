@@ -80,15 +80,45 @@ def commit_payload(checkout, source, target, version, branch):
     run(['git', '-C', str(checkout), 'push', 'origin', 'HEAD:' + branch])
 
 
+def promote(staged, version, digest):
+    if digest is None or not re.fullmatch(r'sha256:[0-9a-f]{64}', digest):
+        raise ValueError('promotion requires the attested container manifest digest')
+    # Paginate rather than trusting publication time order or GitHub's current latest.
+    pages = json.loads(run(['gh', 'api', '--paginate', '--slurp',
+                            'repos/' + REPOSITORY + '/releases?per_page=100']))
+    stable = re.compile(r'v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)')
+    candidate = stable.fullmatch('v' + version)
+    if candidate is None:
+        raise ValueError('latest promotion requires a stable version without a suffix')
+    releases = [release for page in pages for release in page
+                if release['draft'] is False and release['prerelease'] is False]
+    if not any(release['tag_name'] == 'v' + version for release in releases):
+        raise ValueError('latest promotion requires the candidate to be a published stable release')
+    candidate_version = tuple(map(int, candidate.groups()))
+    for release in releases:
+        match = stable.fullmatch(release['tag_name'])
+        if match and release['tag_name'] != 'v' + version and tuple(map(int, match.groups())) >= candidate_version:
+            print('A newer stable release exists; latest pointers stay unchanged')
+            return
+    # One source index is copied without rebuilding, so its digest keeps its attestation.
+    # https://docs.docker.com/reference/cli/docker/buildx/imagetools/create/
+    run(['docker', 'buildx', 'imagetools', 'create', '--tag', IMAGE + ':latest', IMAGE + '@' + digest])
+    run(['gh', 'release', 'edit', 'v' + version, '--repo', REPOSITORY, '--latest'])
+    print('Promoted the checked stable release to latest')
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('channel', choices=['github', 'ghcr', 'wheels', 'homebrew', 'installer', 'registry'])
+    parser.add_argument('channel', choices=['github', 'ghcr', 'wheels', 'homebrew', 'installer', 'registry', 'promote'])
     parser.add_argument('--staged', type=Path, required=True)
     parser.add_argument('--checkout', type=Path)
+    parser.add_argument('--digest')
     args = parser.parse_args()
     version = identity(args.staged)
     if args.channel in ('github', 'ghcr', 'wheels'):
         globals()[args.channel](args.staged, version)
+    elif args.channel == 'promote':
+        promote(args.staged, version, args.digest)
     elif args.channel == 'registry':
         subprocess.run(['mcp-publisher', 'login', 'github-oidc'], cwd=args.staged, check=True)
         subprocess.run(['mcp-publisher', 'publish'], cwd=args.staged, check=True)

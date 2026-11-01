@@ -30,6 +30,7 @@ class Promotion(unittest.TestCase):
             ('newer-on-later-page', [[current, older], [newer]], False, False),
             ('draft-and-prerelease', [[current, older, dict(newer, draft=True), dict(newer, prerelease=True)]], False, True),
             ('query-fails', [[current, older]], True, False),
+            ('container-push-fails', [[current, older]], False, False),
             ('candidate-missing', [[older]], False, False),
             ('candidate-prerelease', [[dict(current, prerelease=True), older]], False, False),
         ]
@@ -50,6 +51,8 @@ if name == 'gh' and sys.argv[1] == 'api':
     if os.environ['QUERY_FAILS'] == 'yes':
         sys.exit(7)
     print(os.environ['PAGES'])
+if name == 'docker' and os.environ['DOCKER_FAILS'] == 'yes':
+    sys.exit(8)
 '''
                 for tool in ['gh', 'docker']:
                     path = tools / tool
@@ -59,7 +62,8 @@ if name == 'gh' and sys.argv[1] == 'api':
                 env = {**os.environ, 'PATH': str(tools) + os.pathsep + os.defpath,
                        'GITHUB_REPOSITORY': 'genomoncology/biomcp', 'GITHUB_EVENT_NAME': 'push',
                        'GITHUB_REF': 'refs/tags/v1.0.0', 'GITHUB_SHA': 'a' * 40,
-                       'CALLS': str(calls), 'PAGES': json.dumps(pages), 'QUERY_FAILS': 'yes' if query_fails else 'no'}
+                       'CALLS': str(calls), 'PAGES': json.dumps(pages), 'QUERY_FAILS': 'yes' if query_fails else 'no',
+                       'DOCKER_FAILS': 'yes' if name == 'container-push-fails' else 'no'}
                 result = subprocess.run([sys.executable, 'release/publication.py', 'promote', '--staged', str(staged),
                                          '--digest', 'sha256:' + 'b' * 64], env=env, capture_output=True, text=True)
                 actual = [json.loads(line) for line in calls.read_text().splitlines()]
@@ -71,6 +75,10 @@ if name == 'gh' and sys.argv[1] == 'api':
                         ['docker', 'buildx', 'imagetools', 'create', '--tag', 'ghcr.io/genomoncology/biomcp:latest',
                          'ghcr.io/genomoncology/biomcp@sha256:' + 'b' * 64],
                         ['gh', 'release', 'edit', 'v1.0.0', '--repo', 'genomoncology/biomcp', '--latest']])
+                elif name == 'container-push-fails':
+                    self.assertNotEqual(result.returncode, 0)
+                    self.assertEqual(len(actual), 2)
+                    self.assertEqual(actual[-1][0], 'docker', 'GitHub latest must not move after a failed container promotion')
                 else:
                     self.assertEqual(len(actual), 1, 'failed or ineligible promotion must leave both pointers unchanged')
 

@@ -254,6 +254,8 @@ jobs:
         run: echo 'Approval reached; no channel authentication or publication attempted.' >> "$GITHUB_STEP_SUMMARY"
 
   publish-ghcr:
+    outputs:
+      digest: ${{ steps.image.outputs.digest }}
     needs: [candidate, stage, staged-homebrew]
     if: (github.event_name == 'push' && github.repository == 'genomoncology/biomcp') || inputs.approval_rehearsal
     runs-on: ubuntu-24.04
@@ -428,7 +430,7 @@ jobs:
 
   post-publish:
     needs: [candidate, publish-github, publish-ghcr, publish-pypi, publish-homebrew, publish-installer, publish-registry]
-    if: github.event_name == 'push' && github.repository == 'genomoncology/biomcp'
+    if: (github.event_name == 'push' && github.repository == 'genomoncology/biomcp') || inputs.approval_rehearsal
     strategy:
       fail-fast: false
       matrix:
@@ -454,8 +456,49 @@ jobs:
         with:
           persist-credentials: false
       - name: Install from the published channel and check the candidate version
+        if: github.event_name == 'push' && github.repository == 'genomoncology/biomcp'
         env:
           CHANNEL: ${{ matrix.channel }}
           VERSION: ${{ needs.candidate.outputs.version }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: python3 release/published.py "$CHANNEL" --version "$VERSION"
+      - name: Report the install rehearsal boundary
+        if: inputs.approval_rehearsal
+        run: echo 'Dispatch skips public channel installs; the promotion approval follows these no-op jobs.' >> "$GITHUB_STEP_SUMMARY"
+
+  publish-latest:
+    needs: [candidate, stage, publish-ghcr, post-publish]
+    if: success() && ((github.event_name == 'push' && github.repository == 'genomoncology/biomcp') || inputs.approval_rehearsal)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    environment: release-publication
+    concurrency:
+      group: release-latest
+      cancel-in-progress: false
+    permissions:
+      contents: write
+      packages: write
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: release-candidate
+          path: staged
+      - name: Log in to GHCR for promotion
+        if: github.event_name == 'push' && github.repository == 'genomoncology/biomcp'
+        uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Promote only the newest checked stable release
+        if: github.event_name == 'push' && github.repository == 'genomoncology/biomcp'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DIGEST: ${{ needs.publish-ghcr.outputs.digest }}
+        run: python3 release/publication.py promote --staged staged --digest "$DIGEST"
+      - name: Report the approval rehearsal boundary
+        if: inputs.approval_rehearsal
+        run: echo 'Promotion approval reached; latest pointers stay unchanged.' >> "$GITHUB_STEP_SUMMARY"

@@ -16,7 +16,7 @@ from unittest.mock import patch
 class Publication(unittest.TestCase):
     def test_every_channel_waits_for_approval_and_dispatch_cannot_publish(self):
         workflow = Path('.github/workflows/release.yml').read_text()
-        for name in ['github', 'ghcr', 'pypi', 'homebrew', 'installer', 'registry']:
+        for name in ['github', 'ghcr', 'pypi', 'homebrew', 'installer', 'registry', 'latest']:
             job = workflow.split('\n  publish-' + name + ':\n', 1)[1]
             job = re.split(r'\n  [a-z-]+:\n', job, maxsplit=1)[0]
             self.assertIn('environment: release-publication', job)
