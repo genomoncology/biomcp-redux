@@ -89,5 +89,28 @@ fn check() -> Result<(), String> {
         args.extend(["--source_pacing".into(), flags.to_string()]);
         invoke(&env, args, exit)?;
     }
+    startup()?;
+    Ok(())
+}
+
+fn startup() -> Result<(), String> {
+    for name in ["hgnc", "hostile/name", "非ascii"] {
+        let env = Environment::new().map_err(|e| e.to_string())?;
+        let config = json!({"source_pacing":{name:{"in_flight":0}}});
+        env.config(&config).map_err(|e| e.to_string())?;
+        invoke(&env, vec!["serve".into()], 5)?;
+        let server = super::http::Server::configured_globals(
+            "127.0.0.1:0",
+            Some(config),
+            None,
+            None,
+            None,
+            &[],
+        );
+        if let Ok(mut server) = server {
+            server.stop()?;
+            return Err("HTTP recovery started despite invalid pacing".into());
+        }
+    }
     Ok(())
 }

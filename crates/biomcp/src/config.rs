@@ -85,7 +85,7 @@ pub(crate) enum StartupError {
 }
 impl StartupError {
     pub(crate) fn is_pacing(&self) -> bool {
-        matches!(self, Self::Configuration(error) if error.0 == "source_pacing" || error.0.starts_with("source_pacing."))
+        matches!(self, Self::Configuration(error) if error.is_pacing())
     }
 }
 impl From<ConfigError> for StartupError {

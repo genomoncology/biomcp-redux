@@ -56,16 +56,7 @@ fn quota(key: &'static str, rate: Rate, keyed: Option<Rate>, in_flight: u8) -> &
     )))
 }
 
-#[test]
-fn canceled_waiter_leaves_shared_in_flight_queue_and_releases_successor() {
-    let server = Server::new();
-    let shared = quota("shared", Rate::per_second(1000), None, 2);
-    let first = server.spec(shared, KeyUse::None);
-    let second = server.spec(shared, KeyUse::None);
-    let independent = server.spec(
-        quota("independent", Rate::per_second(1000), None, 1),
-        KeyUse::None,
-    );
+fn serial_override(shared: &Quota) -> Fetch {
     let mut source_pacing = biomcp_fetch::SourcePacing::default();
     source_pacing
         .insert(
@@ -81,6 +72,20 @@ fn canceled_waiter_leaves_shared_in_flight_queue_and_releases_successor() {
         ..Default::default()
     })
     .unwrap();
+    fetch
+}
+
+#[test]
+fn canceled_waiter_leaves_shared_in_flight_queue_and_releases_successor() {
+    let server = Server::new();
+    let shared = quota("shared", Rate::per_second(1000), None, 2);
+    let first = server.spec(shared, KeyUse::None);
+    let second = server.spec(shared, KeyUse::None);
+    let independent = server.spec(
+        quota("independent", Rate::per_second(1000), None, 1),
+        KeyUse::None,
+    );
+    let fetch = serial_override(shared);
     let restricted = fetch.restrict_sources([biomcp_types::Source::Oncokb].into());
     assert!(!fetch.disabled(biomcp_types::Source::Oncokb));
     assert!(

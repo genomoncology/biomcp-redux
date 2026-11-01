@@ -210,7 +210,12 @@ fn unscoped_help_uses_parser_nodes_and_scoped_topics_remain_available() -> Check
 
 fn pacing_document() -> Result<String, std::fmt::Error> {
     let mut text = String::from(
-        "# Source pacing\n\nGenerated from the source quota registry. Run `make docs-generate` to update.\n\nDefaults equal ceilings. Where no authoritative numeric policy was found, the ceiling remains conservative. Unpublished concurrency keeps the existing local ceiling. All rates space requests evenly without bursts. Daily quotas and shared upstream pools remain separate provider constraints.\n\n| Source | Keyless default / ceiling | Keyed default / ceiling | In flight default / ceiling | Policy checked |\n| --- | --- | --- | --- | --- |\n",
+        "# Source pacing\n\nGenerated from the source quota registry. Run `make docs-generate` to update.\n\n\
+        Defaults equal ceilings. Where no authoritative numeric policy was found, the ceiling remains conservative. \
+        Unpublished concurrency keeps the existing local ceiling. All rates space requests evenly without bursts. \
+        Daily quotas and shared upstream pools remain separate provider constraints.\n\n\
+        | Source | Keyless default / ceiling | Keyed default / ceiling | In flight default / ceiling | Policy checked |\n\
+        | --- | --- | --- | --- | --- |\n",
     );
     let rate = |rate: biomcp_fetch::Rate| {
         let (requests, seconds) = rate.ratio();

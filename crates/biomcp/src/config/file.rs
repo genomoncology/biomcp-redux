@@ -5,8 +5,16 @@ use serde_json::{Map, Value};
 use std::{collections::BTreeMap, fs, path::PathBuf};
 
 #[derive(Clone, Debug)]
-pub(crate) struct ConfigError(pub(crate) String);
+pub(crate) struct ConfigError(pub(crate) String, ConfigScope);
+#[derive(Clone, Debug)]
+enum ConfigScope {
+    SourcePacing,
+    Other,
+}
 impl ConfigError {
+    pub(super) fn is_pacing(&self) -> bool {
+        matches!(self.1, ConfigScope::SourcePacing)
+    }
     pub(crate) fn field(name: &str) -> Self {
         // An unknown key is a name, but arbitrary JSON strings are not safe diagnostics.
         let safe = !name.is_empty()
@@ -14,11 +22,19 @@ impl ConfigError {
             && name
                 .bytes()
                 .all(|b| b.is_ascii_alphanumeric() || b == b'_' || b == b'.' || b == b'-');
-        Self(if safe {
-            name.into()
+        let scope = if name == "source_pacing" || name.starts_with("source_pacing.") {
+            ConfigScope::SourcePacing
         } else {
-            "config.json".into()
-        })
+            ConfigScope::Other
+        };
+        Self(
+            if safe {
+                name.into()
+            } else {
+                "config.json".into()
+            },
+            scope,
+        )
     }
 }
 #[derive(Deserialize)]
