@@ -154,14 +154,28 @@ impl Server {
             .write_all(wire.as_bytes())
             .map_err(|e| e.to_string())?;
         let mut bytes = Vec::new();
-        socket
-            .take(1024 * 1024)
-            .read_to_end(&mut bytes)
-            .map_err(|e| e.to_string())?;
+        // A refusal closes without reading caller bytes, which can end with TCP reset.
+        if let Err(error) = socket.take(1024 * 1024).read_to_end(&mut bytes)
+            && error.kind() != std::io::ErrorKind::ConnectionReset
+        {
+            return Err(error.to_string());
+        }
         let response = String::from_utf8(bytes).map_err(|e| e.to_string())?;
         let (headers, body) = response
             .split_once("\r\n\r\n")
             .ok_or("missing HTTP headers")?;
+        let length = headers
+            .lines()
+            .find_map(|line| {
+                let (name, value) = line.split_once(':')?;
+                name.eq_ignore_ascii_case("content-length")
+                    .then(|| value.trim().parse::<usize>().ok())
+                    .flatten()
+            })
+            .ok_or("missing response length")?;
+        if body.len() != length {
+            return Err("incomplete HTTP response body".into());
+        }
         let status = headers
             .split_whitespace()
             .nth(1)

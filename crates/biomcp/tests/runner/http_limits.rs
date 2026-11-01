@@ -27,10 +27,10 @@ fn closed(address: SocketAddr, data: &[u8]) -> Check {
     }
 }
 pub(super) fn check() -> Check {
-    chunked()?;
-    overload()?;
-    dropped_peer()?;
-    busy_health()?;
+    chunked().map_err(|error| format!("chunked: {error}"))?;
+    overload().map_err(|error| format!("overload: {error}"))?;
+    dropped_peer().map_err(|error| format!("dropped peer: {error}"))?;
+    busy_health().map_err(|error| format!("busy health: {error}"))?;
     let mut server = Server::start()?;
     for bytes in [
         format!(

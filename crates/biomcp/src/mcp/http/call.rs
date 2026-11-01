@@ -268,12 +268,14 @@ mod tests {
             let globals = Globals {
                 config: Some(config),
                 hosted: true,
+                disable_sources: vec!["oncokb".into()],
                 replay: Some(records.clone()),
                 ..Globals::default()
             };
             let fetch = biomcp_fetch::Fetch::open(biomcp_fetch::FetchConfig {
                 mode: biomcp_fetch::Mode::Replay { dir: records },
                 cache_owners: vec![biomcp_query::store::OWNER],
+                disabled_sources: [biomcp_types::Source::Oncokb].into_iter().collect(),
                 ..Default::default()
             })?;
             let listener = TcpListener::bind("127.0.0.1:0")?;
