@@ -17,11 +17,17 @@ landing-gate:
 	+python3 scripts/landing_gate.py
 
 # Keep these sequential even when the caller uses make -j.
-.PHONY: pre-job proof-check proof-list proof
+.PHONY: pre-job proof-check proof-list proof proof-unpack
 pre-job:
 	+$(MAKE) --no-print-directory fmt
 	+$(MAKE) --no-print-directory lint
 	+$(MAKE) --no-print-directory ratchets
+
+# Retained proof archives use the platform tar, including Python 3.9 machines.
+proof-unpack:
+	@test -n "$(ARCHIVE)" -a -n "$(OUT)" || (echo 'Set ARCHIVE and OUT'; exit 1)
+	mkdir -p "$(OUT)"
+	tar -xf "$(ARCHIVE)" -C "$(OUT)"
 
 # Select literal names printed by proof-list, for example make proof PROOFS='name'.
 proof-list: pre-job
