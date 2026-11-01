@@ -181,9 +181,15 @@ fn concurrent_first_opens_and_distinct_writes_survive_into_a_new_process() {
     // Requests and writes overlap while the shared database writer is held.
     let requests_started = Instant::now();
     let request_a = server.next();
-    eprintln!("cache parent: first request {:?}", requests_started.elapsed());
+    eprintln!(
+        "cache parent: first request {:?}",
+        requests_started.elapsed()
+    );
     let request_b = server.next();
-    eprintln!("cache parent: second request {:?}", requests_started.elapsed());
+    eprintln!(
+        "cache parent: second request {:?}",
+        requests_started.elapsed()
+    );
     assert_ne!(request_a.text, request_b.text);
     request_a.ok();
     request_b.ok();
