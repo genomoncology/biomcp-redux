@@ -9,10 +9,10 @@ pub(crate) struct Saved<T> {
     pub sources: Vec<SourceOutcome>,
     pub problems: Vec<Problem>,
 }
+const VERSION: &str = "biomcp.source_snapshot/1";
 type Wire<T> = (Vec<T>, Vec<SourceOutcome>, Vec<Problem>, bool);
 pub(crate) fn key(namespace: &str, q: &impl Serialize) -> Result<Vec<u8>, RequestError> {
-    serde_json::to_vec(&("biomcp.source_snapshot/1", namespace, q))
-        .map_err(|_| CacheError::Database.into())
+    serde_json::to_vec(&(VERSION, namespace, q)).map_err(|_| CacheError::Database.into())
 }
 pub(crate) fn load<T: DeserializeOwned>(
     cx: &Ctx<'_>,
@@ -55,6 +55,12 @@ pub(crate) fn read<T: DeserializeOwned>(
     token: &str,
     deadline: Deadline<'_>,
 ) -> Result<Option<T>, RequestError> {
+    // Catalog pools supply their retained key; reject older formats before payload decoding.
+    type Selector<'a> = (&'a str, serde::de::IgnoredAny, serde::de::IgnoredAny);
+    if !serde_json::from_slice::<Selector<'_>>(key).is_ok_and(|(version, _, _)| version == VERSION)
+    {
+        return Ok(None);
+    }
     let store = Store::open(cx.fetch.cache_access()?, deadline)?;
     store
         .source_snapshot(token, key, |s| cx.fetch.disabled(s))?
