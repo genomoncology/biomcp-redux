@@ -1,3 +1,4 @@
+//! Shared public fixture root lookup.
 use std::path::Path;
 #[expect(
     clippy::disallowed_methods,

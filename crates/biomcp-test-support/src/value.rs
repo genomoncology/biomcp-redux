@@ -1,3 +1,4 @@
+//! Shared recorded JSON mutation.
 //! Features trial-search and trial-get: malformed nonidentity fields retain their sibling facts.
 use serde_json::Value;
 
