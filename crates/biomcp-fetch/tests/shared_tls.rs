@@ -25,7 +25,7 @@ fn second_hosted_call_resumes_tls_after_first_calls_connections_close() -> Check
         ..Default::default()
     })?
     .with_hosted_secrets(Secrets::default());
-    let spec = SourceSpec {
+    static SPEC: SourceSpec = SourceSpec {
         source: Source::PubMed,
         base: "https://example.test",
         destinations: Destinations::Primary,
@@ -44,10 +44,11 @@ fn second_hosted_call_resumes_tls_after_first_calls_connections_close() -> Check
         ),
         deadline: Duration::from_secs(10),
     };
+    let spec = &SPEC;
     for path in ["/first", "/second"] {
         let (call, cancellation) = shared.cancellable()?;
-        let reply = call.leg(&spec, call.deadline(spec.deadline)).call(
-            &spec.get(path),
+        let reply = call.leg(spec, call.deadline(spec.deadline)).call(
+            &spec.get(path).bytes(1024),
             Input::Params(&[]),
             Read::bytes(),
         )?;
