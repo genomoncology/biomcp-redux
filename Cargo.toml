@@ -23,7 +23,7 @@ debug = false
 
 [workspace.dependencies]
 biomcp-test-support = { version = "=1.0.0", path = "crates/biomcp-test-support" }
-biodata = { version = "=1.0.0", git = "https://github.com/genomoncology/biodata-next", rev = "7659da832e2add79bf1156f06bb2b55ecc0544fb", features = ["schema"] }
+biodata = { version = "=1.0.0", git = "https://github.com/genomoncology/biodata-next", rev = "ef6bff1b7f415b05142264aa8ce93c8dbe6d2291", features = ["schema"] }
 biomcp-adapters = { version = "=1.0.0", path = "crates/biomcp-adapters" }
 biomcp-fetch = { version = "=1.0.0", path = "crates/biomcp-fetch" }
 biomcp-query = { version = "=1.0.0", path = "crates/biomcp-query" }

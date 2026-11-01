@@ -75,4 +75,4 @@ unknown-git = "deny"
 allow-registry = ["https://github.com/rust-lang/crates.io-index"]
 required-git-spec = "rev"
 # The dependency ratchet also checks these revisions; cargo-deny compares repository paths.
-allow-git = ["https://github.com/genomoncology/biodata-next?rev=7659da832e2add79bf1156f06bb2b55ecc0544fb"]
+allow-git = ["https://github.com/genomoncology/biodata-next?rev=ef6bff1b7f415b05142264aa8ce93c8dbe6d2291"]
