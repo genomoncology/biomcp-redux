@@ -241,14 +241,17 @@ fn child() {
     for key in keys {
         let started = Instant::now();
         let received = fetch
-                .leg(spec, fetch.deadline(Duration::from_secs(10)))
-                .call(
-                    &endpoint,
-                    Input::Params(&[("key", Arg::Text(key))]),
-                    biomcp_fetch::Read::<Answer>::json()
-                )
-                .map(|received| received.value);
-        eprintln!("cache child {key}: fetch {:?}, result {received:?}", started.elapsed());
+            .leg(spec, fetch.deadline(Duration::from_secs(10)))
+            .call(
+                &endpoint,
+                Input::Params(&[("key", Arg::Text(key))]),
+                biomcp_fetch::Read::<Answer>::json()
+            )
+            .map(|received| received.value);
+        eprintln!(
+            "cache child {key}: fetch {:?}, result {received:?}",
+            started.elapsed()
+        );
         assert!(received.unwrap().answer);
     }
     control.write_all(b"D").unwrap();
