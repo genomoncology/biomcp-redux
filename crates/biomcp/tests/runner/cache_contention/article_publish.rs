@@ -22,7 +22,11 @@ pub(super) fn check() -> Result<(), String> {
             db.execute_batch("BEGIN IMMEDIATE")
                 .map_err(|e| e.to_string())?;
             writer.send(db).map_err(|e| e.to_string())?;
-            Ok(json!({"total":2,"offset":0,"data":[{"paperId":"0123456789abcdef0123456789abcdef01234567","title":"Synthetic fetched article","externalIds":{},"year":2026}]}).to_string())
+            Ok(json!({"total":2,"offset":0,"data":[{
+                "paperId":"0123456789abcdef0123456789abcdef01234567",
+                "title":"Synthetic fetched article","externalIds":{},"year":2026
+            }]})
+            .to_string())
         },
     )?;
     stub.retain(env.shared_root());

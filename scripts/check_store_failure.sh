@@ -9,6 +9,7 @@ focused)
  cargo test --locked -p biomcp --test cases late-store-lock-keeps-fetched
  cargo test --locked -p biomcp --test cases cache-resilience/checked
  cargo test --locked -p biomcp --test cases cache-resilience/stale-replies
+ cargo test --locked -p biomcp --test cases held-store-lock
  cargo test --locked -p biomcp --test cases store-clean/
  ;;
 *) exit 2 ;;
