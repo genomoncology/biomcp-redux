@@ -348,7 +348,12 @@ mod load_benchmark {
                             let began = Instant::now();
                             let result =
                                 request(address, Some(&body)).and_then(|(status, value)| {
+                                    let has_rows = value
+                                        .pointer("/result/structuredContent/result/items")
+                                        .and_then(Value::as_array)
+                                        .is_some_and(|items| !items.is_empty());
                                     if status != 200
+                                        || !has_rows
                                         || value.pointer("/result/isError") != Some(&json!(false))
                                     {
                                         Err(io::Error::other(format!("HTTP {status}: {value}")))
