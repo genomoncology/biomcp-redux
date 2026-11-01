@@ -157,7 +157,7 @@ fn text() -> Check {
         original,
         "Full text saves must preserve complete content and existing files"
     );
-    let stdio = folder.join("stdio.md");
+    let stdio = env.root().join("stdio.md");
     let value = super::mcp::call_with_globals(
         &env,
         &args("text", &stdio),
