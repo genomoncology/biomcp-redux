@@ -13,7 +13,38 @@ TEST_THREADS = $(if $(strip $(RUST_TEST_THREADS)),-- --test-threads $(RUST_TEST_
 
 .PHONY: landing-gate plain-cli-build fmt lint ratchets test audit coverage unreached
 
-landing-gate: workflow-lint plain-cli-build fmt lint docs-check tensor-proto-check audit secrets library-tests coverage
+landing-gate:
+	+python3 scripts/landing_gate.py
+
+# Keep these sequential even when the caller uses make -j.
+.PHONY: pre-job proof-check proof-list proof proof-unpack gate-stage-check
+pre-job:
+	+$(MAKE) --no-print-directory fmt
+	+$(MAKE) --no-print-directory lint
+	+$(MAKE) --no-print-directory ratchets
+
+# Retained proof archives use the platform tar, including Python 3.9 machines.
+proof-unpack:
+	@test -n "$(ARCHIVE)" -a -n "$(OUT)" || (echo 'Set ARCHIVE and OUT'; exit 1)
+	mkdir -p "$(OUT)"
+	tar -xf "$(ARCHIVE)" -C "$(OUT)"
+
+# Select literal names printed by proof-list, for example make proof PROOFS='name'.
+proof-list: pre-job
+	python3 scripts/trials.py --target tools --proofs --list
+
+proof: pre-job
+	python3 scripts/trials.py --target tools --proofs $(PROOFS)
+
+# Reuse the committed proof discovery and comparison checks.
+proof-check:
+	python3 scripts/test_trials.py
+	python3 scripts/test_reply_diff.py
+	python3 scripts/test_schema_release.py
+	+$(MAKE) --no-print-directory gate-stage-check
+
+gate-stage-check:
+	python3 -m unittest scripts.test_gate_stages
 
 plain-cli-build:
 	cargo build --locked -p biomcp --bin biomcp --timings
@@ -22,6 +53,7 @@ fmt:
 	cargo fmt --all -- --check
 
 lint:
+	+$(MAKE) --no-print-directory unused-dependencies
 	cargo check --locked -p biodata -p biomcp-types --no-default-features
 	cargo clippy --workspace --all-targets --locked -- -D warnings
 	cargo clippy --locked -p biomcp --test tools -- -D warnings
@@ -70,6 +102,9 @@ docs-check:
 	python3 scripts/test_source_capture.py
 	python3 scripts/test_source_capture_plan.py
 	python3 scripts/test_coverage.py
+	python3 scripts/test_reply_diff.py
+	python3 scripts/test_schema_release.py
+	+$(MAKE) --no-print-directory gate-stage-check
 	python3 scripts/test_build_workers.py
 	python3 scripts/test_trials.py
 	python3 scripts/test_nightly_live_check.py
@@ -108,6 +143,13 @@ tensor-proto-check:
 
 .PHONY: secrets
 secrets:
+	python3 release/secrets.py history . --since "$(SECRET_SCAN_BASE)"
+
+# This ancestor was covered by the retained j24209 full-history scan.
+# Advance only after the replacement ancestor has passed secret screening.
+SECRET_SCAN_BASE ?= $(shell cat release/secrets-main)
+.PHONY: secrets-full
+secrets-full:
 	python3 release/secrets.py history .
 
 COLD_REPORT ?= $(CURDIR)/dist/cold-report.json
@@ -123,6 +165,7 @@ release-mutations:
 
 .PHONY: workflow-lint
 workflow-lint:
+	+$(MAKE) --no-print-directory unused-dependencies
 	cargo check --locked -p biodata -p biomcp-types --no-default-features
 	actionlint
 
@@ -130,3 +173,16 @@ workflow-lint:
 publication-check:
 	actionlint
 	python3 -m unittest release.test_publication release.test_workflow release.test_workflow_contracts
+.PHONY: unused-dependencies dependency-graph dependency-proof
+unused-dependencies:
+	python3 release/toolchain.py install-machete
+	cargo machete
+
+dependency-graph:
+	cargo tree --locked -p biomcp --edges normal,build
+	cargo tree --locked --target all --edges normal,build --prefix none --format "{p}"
+
+# Deliberately add an unused dependency and require the real lint entry point to fail.
+dependency-proof:
+	python3 -m unittest release.test_toolchain
+	python3 scripts/dependency_proof.py
