@@ -4643,7 +4643,7 @@ Options:
           Limit tool calls in flight.
 
       --http_max_connections <http_max_connections>
-          Limit active HTTP connections; must cover http_max_calls.
+          Limit open HTTP connections; must cover http_max_calls.
 
       --allow-host <allow-host>
           Allow an HTTP Host authority; required for non-loopback listeners.
@@ -4665,7 +4665,7 @@ Serve MCP over stdio or --http [ADDR]. Non-loopback binds require --allow-host H
 - `--rate-share`: Use this share of every source rate in hosted mode (greater than 0, at most 1).
 - `--http`: Listen on an HTTP address; omit its value for the loopback default.
 - `--http_max_calls`: Limit tool calls in flight.
-- `--http_max_connections`: Limit active HTTP connections; must cover http_max_calls.
+- `--http_max_connections`: Limit open HTTP connections; must cover http_max_calls.
 - `--allow-host`: Allow an HTTP Host authority; required for non-loopback listeners.
 
 ## biomcp schema

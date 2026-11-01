@@ -34,7 +34,7 @@ pub(super) fn serve_command() -> Command {
         .arg(
             Arg::new("http_max_connections")
                 .long("http_max_connections")
-                .help("Limit active HTTP connections; must cover http_max_calls.")
+                .help("Limit open HTTP connections; must cover http_max_calls.")
                 .value_parser(clap::value_parser!(std::num::NonZeroUsize))
                 .requires("http"),
         )

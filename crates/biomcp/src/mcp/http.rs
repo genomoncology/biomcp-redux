@@ -146,12 +146,13 @@ fn connections(
             record(wire::unavailable(&mut stream));
             continue;
         };
+        let request = service.requests.take();
         let service = service.clone();
         workers.push(
             thread::Builder::new()
                 .name("mcp-http".into())
                 .spawn(move || {
-                    record(service.handle(stream, reader));
+                    record(service.handle(stream, reader, request));
                 })?,
         );
     }
@@ -172,14 +173,20 @@ fn record(result: io::Result<()>) {
     }
 }
 impl Service {
-    fn handle(&self, mut stream: TcpStream, reader: admission::Permit) -> io::Result<()> {
+    fn handle(
+        &self,
+        mut stream: TcpStream,
+        reader: admission::Permit,
+        connection: Option<admission::Permit>,
+    ) -> io::Result<()> {
         // A malformed or oversized framing closes without reflecting untrusted headers.
         let request = wire::read(&mut stream)?;
-        // Health uses a framing slot and never waits for an active tool slot.
+        // A reserved reader classifies health even when ordinary connections are full.
         let _request = if request.path == "/health" {
+            drop(connection);
             None
         } else {
-            let Some(permit) = self.requests.take() else {
+            let Some(permit) = connection else {
                 return wire::unavailable(&mut stream);
             };
             drop(reader);

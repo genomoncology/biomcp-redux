@@ -4,7 +4,7 @@ BioMCP reads the configuration file described in the README. Unknown keys cause 
 
 ## HTTP capacity
 
-`http_max_calls` limits tool calls in flight. `http_max_connections` limits active HTTP requests. Each key accepts a positive integer. The server refuses `http_max_connections` when it is below `http_max_calls`. Framing readers follow the connection setting and reserve a reader for health checks. `/health` uses neither the active request cap nor the tool call cap.
+`http_max_calls` limits tool calls in flight. `http_max_connections` limits open non-health HTTP connections. Each key accepts a positive integer. The server refuses `http_max_connections` when it is below `http_max_calls`. Pending framing readers and active requests share the connection cap. Framing readers follow the connection setting and reserve a reader to classify health checks. `/health` uses neither the connection cap nor the tool call cap.
 
 Use the same names as flags on `serve --http`: `--http_max_calls` and `--http_max_connections`. The defaults live in [`DEFAULT_HTTP_CAPACITY`](../crates/biomcp/src/config.rs). Raise connections above calls to let discovery requests answer while tool calls occupy their slots.
 
