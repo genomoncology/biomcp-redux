@@ -33,7 +33,11 @@ fn documents() -> Result<Vec<(&'static str, String)>, Box<dyn std::error::Error>
         writeln!(recipes, "## {question}\n\n```sh")?;
         for step in case["steps"].as_array().ok_or("recipe steps missing")? {
             let args: Vec<String> = serde_json::from_value(step["run"].clone())?;
-            writeln!(recipes, "biomcp {}", shlex::try_join(args.iter().map(String::as_str))?)?;
+            writeln!(
+                recipes,
+                "biomcp {}",
+                shlex::try_join(args.iter().map(String::as_str))?
+            )?;
         }
         writeln!(recipes, "```\n")?;
     }

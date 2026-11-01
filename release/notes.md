@@ -36,4 +36,23 @@ The source credential names `ONCOKB_TOKEN`, `NCBI_API_KEY`, `S2_API_KEY`, `NCI_A
 
 Every JSON reply advertises its schema identity. Read `result` for records, `sources` for source outcomes and terms, `problems` for typed failures, `status` for completeness, `page` for paging and `next` for argument arrays. Commands have their own typed result shapes; 0.9 fields are not a compatibility interface. Missing optional values stay absent. Source-native identifiers and assertions remain separate when sources disagree. Counts preserve their source scope and never establish clinical eligibility or an assayed denominator.
 
+The 0.9 metadata and error fields change as follows:
+
+| 0.9 field | 1.0 migration |
+| --- | --- |
+| Flattened entity fields at the reply root | Read the command's `result` and its typed item or section shape. Gene cards, for example, use `result.items[].answer.gene`; article and trial cards have different schemas. |
+| `_meta.evidence_urls[].label`, `_meta.evidence_urls[].url` | Read record URLs and source provenance from the result's schema. There is no universal evidence URL list. |
+| `_meta.next_commands[]` | Read `next[].args` arrays with typed actions; do not split shell command strings. |
+| `_meta.suggestions[]` | Read explicit next actions and source problems. No generated suggestion text is a compatibility field. |
+| `_meta.section_sources[]` | Read `sources[]` and the source-native identities in each result. |
+| `_meta.workflow`, `_meta.workflow_rationale`, `_meta.workflow_playbook` | Removed with automatic workflow selection. |
+| `_meta.discovery_sources[]` | Removed with discover. Use explicit entity and source queries. |
+| `_meta.not_found` | Read the typed problem and status for the requested command. |
+| `_meta.alias_resolution.kind`, `requested_entity`, `query`, `canonical`, `canonical_id`, `confidence`, `match_tier`, `sources`, `candidates` | Read each command's explicit resolution and candidates. The old confidence tiers and cross-entity alias inference retire. |
+| `error.code`, `error.message`, `error.source`, `error.recovery`, `error.limit_bytes`, `error.limit`, `error.unit` | Read `problems[]` and returned next actions. Error codes and limit fields use the advertised command schema. |
+| Variant `filter_evaluation`, `requested_variant`, `resolution` at the reply root | Read the variant result's checked request, source outcomes and native candidates. Do not reuse old top-level projections. |
+| Preview `values`, `returned`, `total`, `has_more`, `omitted_oversized` | Read the section or page schema and follow its continuation. A preview count never supplies a population denominator. |
+
+The seven 0.9 public entity schemas also change their entire root contract: gene, variant, article, trial, drug, disease and pathway records now sit inside command-specific envelopes. Their [1.0 schemas](https://github.com/genomoncology/biomcp/tree/main/crates/biomcp-types/schemas) define every field. Source-specific sections no longer flatten into those seven shared records. Rebuild integrations against their command schema rather than treating a field of the same name as the same contract.
+
 The candidate's schema identity changes appear below when these notes are staged. The [schema directory](https://github.com/genomoncology/biomcp/tree/main/crates/biomcp-types/schemas) defines output fields and required values. In particular, adverse-event snapshot fields become optional when a cache write fails; callers must handle their absence. A major bump permits an intentional breaking schema change. The schema check does not prohibit all breaking changes.
