@@ -19,8 +19,36 @@ case "${1:-focused}" in
   fixture)
     python3.13 -m unittest release.test_licenses.Licensing.test_generation_excludes_dependencies_that_do_not_ship
     ;;
+  notices)
+    python3.13 - <<'PYTHON'
+import hashlib
+import json
+from pathlib import Path
+import subprocess
+import tempfile
+from release.notices import configuration
+
+with tempfile.TemporaryDirectory(prefix='biomcp-notices-check-') as folder:
+    root = Path(folder)
+    settings = root / 'about.toml'
+    settings.write_text(configuration())
+    for target in ('x86_64-unknown-linux-gnu', 'aarch64-unknown-linux-gnu',
+                   'x86_64-apple-darwin', 'aarch64-apple-darwin', 'x86_64-pc-windows-msvc'):
+        output = root / (target + '.json')
+        subprocess.run(['cargo', 'about', 'generate', '--locked', '--workspace', '--fail',
+                        '--target', target, '--config', str(settings), '--format', 'json',
+                        '--output-file', str(output)], check=True)
+        data = json.loads(output.read_text())
+        names = {item['crate']['name'] for license in data['licenses'] for item in license['used_by']}
+        assert names and not names.intersection({'borrow-or-share', 'foldhash', 'jsonschema'}), names
+        print(target, len(names), 'shipping crates', hashlib.sha256(output.read_bytes()).hexdigest(), flush=True)
+PYTHON
+    cargo deny --locked check licenses
+    ;;
   focused)
     python3.13 -m unittest release.test_licenses release.test_publication
+    cargo test --locked -p biomcp-types --features schema --test schemas checked_in_schemas_match_types -- --exact
+    du -sk "$CARGO_TARGET_DIR"
     df -k . "${TMPDIR:-/tmp}"
     trap 'df -k . "${TMPDIR:-/tmp}"; du -sk "$CARGO_TARGET_DIR"' EXIT
     python3.13 scripts/test_schema_release.py

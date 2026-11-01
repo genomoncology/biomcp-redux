@@ -33,15 +33,8 @@ def metadata(value):
         raise ValueError('wheel description requires ' + MARKER)
 
 
-def generate(output):
+def configuration():
     import tomllib
-    version = json.loads((ROOT / 'release/toolchain.json').read_text())['cargo-about']
-    try:
-        installed = subprocess.check_output(['cargo', 'about', '--version'], text=True).strip()
-    except subprocess.CalledProcessError:
-        installed = ''
-    if installed != 'cargo-about ' + version:
-        subprocess.run(['cargo', 'install', 'cargo-about', '--locked', '--version', version, '--features', 'cli'], check=True)
     policy = tomllib.loads((ROOT / 'deny.toml').read_text())['licenses']
     config = {'accepted': policy['allow']}
     for entry in policy.get('exceptions', []):
@@ -51,9 +44,20 @@ def generate(output):
              'ignore-dev-dependencies = true', 'ignore-build-dependencies = true']
     for name, entry in sorted(config.items()):
         lines += ['[' + name + ']', 'accepted = ' + json.dumps(sorted(set(entry['accepted'])))]
+    return '\n'.join(lines) + '\n'
+
+
+def generate(output):
+    version = json.loads((ROOT / 'release/toolchain.json').read_text())['cargo-about']
+    try:
+        installed = subprocess.check_output(['cargo', 'about', '--version'], text=True).strip()
+    except subprocess.CalledProcessError:
+        installed = ''
+    if installed != 'cargo-about ' + version:
+        subprocess.run(['cargo', 'install', 'cargo-about', '--locked', '--version', version, '--features', 'cli'], check=True)
     with tempfile.TemporaryDirectory(prefix='biomcp-notices-') as temp:
         settings = Path(temp) / 'about.toml'
-        settings.write_text('\n'.join(lines) + '\n')
+        settings.write_text(configuration())
         command = ['cargo', 'about', 'generate', '--locked', '--workspace', '--fail',
                    '--config', str(settings), '--format', 'json', '--output-file', str(Path(temp) / 'licenses.json')]
         subprocess.run(command, cwd=ROOT, check=True)
