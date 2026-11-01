@@ -110,7 +110,7 @@ def main():
     elif args.command == 'install-rust':
         install_rust()
     elif args.command == 'install-machete':
-        expected = 'cargo-machete ' + pins['cargo-machete']
+        expected = pins['cargo-machete']
         try:
             installed = subprocess.check_output(['cargo', 'machete', '--version'], text=True).strip()
         except (OSError, subprocess.CalledProcessError):
