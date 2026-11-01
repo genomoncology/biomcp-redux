@@ -142,7 +142,12 @@ fn connections(
             thread::Builder::new()
                 .name("mcp-http".into())
                 .spawn(move || {
-                    let _ = service.handle(stream);
+                    if let Err(error) = service.handle(stream) {
+                        crate::output::diagnostic(
+                            format!("biomcp: HTTP connection failed ({:?})\n", error.kind())
+                                .as_bytes(),
+                        );
+                    }
                 })?,
         );
     }

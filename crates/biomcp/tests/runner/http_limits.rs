@@ -29,6 +29,7 @@ fn closed(address: SocketAddr, data: &[u8]) -> Check {
 pub(super) fn check() -> Check {
     chunked()?;
     overload()?;
+    dropped_peer()?;
     let mut server = Server::start()?;
     for bytes in [
         format!(
@@ -249,4 +250,24 @@ pub(super) fn read_only_health(server: &Server) -> Result<(u16, serde_json::Valu
         ));
     }
     response
+}
+
+fn dropped_peer() -> Check {
+    let server = Server::start()?;
+    let mut socket = TcpStream::connect(server.address).map_err(|e| e.to_string())?;
+    socket.write_all(format!(
+        "POST /mcp HTTP/1.1\r\nHost: {}\r\nX-Biomcp-Key-Oncokb-Token: synthetic-secret\r\nContent-Length: 999\r\n\r\nprivate-body",
+        server.address
+    ).as_bytes()).map_err(|e| e.to_string())?;
+    socket.shutdown(std::net::Shutdown::Both).map_err(|e| e.to_string())?;
+    drop(socket);
+    let event = server.diagnostics.recv_timeout(Duration::from_secs(5))
+        .map_err(|_| "dropped HTTP peer was not recorded")?;
+    if event != "biomcp: HTTP connection failed (InvalidData)" {
+        return Err(format!("unsafe or missing connection diagnostic: {event}"));
+    }
+    if server.request("GET", "/health", "")?.0 != 200 {
+        return Err("server stopped after the client dropped".into());
+    }
+    Ok(())
 }

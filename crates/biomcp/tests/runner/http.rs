@@ -37,12 +37,17 @@ pub(super) struct Server {
     pub(super) child: Child,
     pub(super) address: SocketAddr,
     _environment: Environment,
+    pub(super) diagnostics: std::sync::mpsc::Receiver<String>,
+    diagnostic_reader: Option<std::thread::JoinHandle<()>>,
 }
 impl Drop for Server {
     fn drop(&mut self) {
         if self.stop().is_err() {
             let _ = self.child.kill();
             let _ = self.child.wait();
+        }
+        if let Some(reader) = self.diagnostic_reader.take() {
+            let _ = reader.join();
         }
     }
 }
