@@ -17,8 +17,12 @@ pub(super) fn check() -> Result<(), String> {
     let args = ["key", "set", "semantic-scholar"].map(str::to_owned);
     let (mut input, reader) = UnixStream::pair().map_err(|e| e.to_string())?;
     let observer = reader.try_clone().map_err(|e| e.to_string())?;
+    let (byte, remainder) = FIRST
+        .as_bytes()
+        .split_first()
+        .ok_or("missing first input byte")?;
     input
-        .write_all(&FIRST.as_bytes()[..1])
+        .write_all(std::slice::from_ref(byte))
         .map_err(|e| e.to_string())?;
     let mut command = env.command(env!("CARGO_BIN_EXE_biomcp"), &args);
     let first = command
@@ -44,7 +48,7 @@ pub(super) fn check() -> Result<(), String> {
     let result = child.finish();
     // Release and reap the first caller even when the second writer hangs.
     input
-        .write_all(&FIRST.as_bytes()[1..])
+        .write_all(remainder)
         .and_then(|()| input.write_all(b"\n"))
         .map_err(|e| e.to_string())?;
     drop(input);
