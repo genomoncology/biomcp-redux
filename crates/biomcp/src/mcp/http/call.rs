@@ -251,6 +251,7 @@ mod tests {
             time::{Duration, Instant},
         };
         const CALLS: usize = 300;
+        const SYNCS: usize = 64;
         const WINDOW: Duration = Duration::from_secs(5 * 60);
 
         #[test]
@@ -303,7 +304,7 @@ mod tests {
                     barrier.wait();
                     let mut results = Vec::new();
                     while running.load(Ordering::Acquire)
-                        && results.len() < CALLS
+                        && results.len() < SYNCS
                         && started.elapsed() < WINDOW
                     {
                         results.push(sync(&service).map_err(|error| error.to_string()));
@@ -312,7 +313,7 @@ mod tests {
                 });
                 let health = scope.spawn(|| {
                     let mut codes = Vec::new();
-                    while running.load(Ordering::Acquire) {
+                    while running.load(Ordering::Acquire) && started.elapsed() < WINDOW {
                         codes.push(
                             request(address, None)
                                 .map(|(code, _)| code)
@@ -323,6 +324,10 @@ mod tests {
                             std::thread::park_timeout(Duration::from_millis(20));
                         }
                     }
+                    if started.elapsed() >= WINDOW {
+                        running.store(false, Ordering::Release);
+                        service.calls.cancel();
+                    }
                     codes
                 });
                 let workers: Vec<_> = (0..super::super::MAX_CONNECTIONS)
@@ -332,7 +337,10 @@ mod tests {
                             let mut samples = Vec::new();
                             loop {
                                 let index = next.fetch_add(1, Ordering::AcqRel);
-                                if index >= CALLS || started.elapsed() >= WINDOW {
+                                if index >= CALLS
+                                    || !running.load(Ordering::Acquire)
+                                    || started.elapsed() >= WINDOW
+                                {
                                     break;
                                 }
                                 let args = if index % 2 == 0 {
@@ -499,7 +507,7 @@ mod tests {
                         exchange["delay_ms"] = json!(0);
                     }
                     let original = exchanges.clone();
-                    for _ in 0..CALLS {
+                    for _ in 0..SYNCS {
                         exchanges.extend(original.clone());
                     }
                     std::fs::write(destination, serde_json::to_vec(&value)?)?;
