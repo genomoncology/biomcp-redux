@@ -266,5 +266,3 @@ pub use response::{BiomarkerCard, BiomarkerHeader, BiomarkerPage, BiomarkerResul
 pub use response::{UsageArguments, UsageError};
 
 pub use response::{Reply, ReplyBody, ReplyData};
-
-pub fn cheap_check_failure() -> bool { if true { true } else { false } }
