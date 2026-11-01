@@ -15,7 +15,7 @@ fn complete_part_recovers_from_an_unsatisfiable_resume() {
     ));
     // Recreate a complete part retained by an older version after parsing failed.
     let parts = path.with_extension("parts");
-    let legacy = parts.join(".tmpLegacy416");
+    let legacy = parts.join(".tmpABC416");
     std::fs::write(&legacy, invalid).unwrap();
     let db = rusqlite::Connection::open(&path).unwrap();
     let prior: Option<String> = db
