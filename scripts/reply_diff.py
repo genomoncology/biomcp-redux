@@ -14,7 +14,9 @@ def capture_kind(execution):
     if not isinstance(execution, dict):
         raise ValueError("invalid execution shape")
     keys = set(execution)
-    if {"args", "stdout", "exit", "surface"} <= keys:
+    required = {"args", "stdout", "exit", "surface"}
+    metadata = {"root", "checkout", "version", "executable", "sequence_start", "sequence_end", "replay_owner_root"}
+    if required <= keys <= required | metadata and execution["surface"] in ("cli", "mcp"):
         return "process"
     if keys == {"args", "surface", "http_status", "supplied_header", "extra_argument", "reply"} and execution["surface"] == "http":
         return "http"
@@ -159,7 +161,7 @@ def main():
             counts["native-request-batches"] = sum(len(r["executions"]) for r in native.values())
             records["native-request-batches"] = len(native)
             print(f"{label} captures: " + ", ".join(
-                f"{k}={records[k]} records/{v} executions" for k, v in sorted(counts.items())))
+                f"{k}={records[k]} records/{v} executions" for k, v in sorted(counts.items())), file=sys.stderr)
         if base.keys() & head_structured.keys() or head.keys() & base_structured.keys():
             raise ValueError("execution category changed between captures")
         for label, missing in (("BASE", base_missing), ("HEAD", head_missing)):

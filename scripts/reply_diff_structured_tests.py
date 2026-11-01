@@ -31,7 +31,7 @@ class ReplyStructured(ReplyDiffCase):
             self.capture(self.head, [execution])
             result = self.compare()
             self.assertEqual(result.returncode, 0, result.stderr)
-            self.assertIn("1 records/1 executions", result.stdout)
+            self.assertIn("1 records/1 executions", result.stderr)
             self.capture(self.head, [{**execution, field: changed}])
             result = self.compare()
             self.assertEqual(result.returncode, 1, result.stderr)
@@ -41,6 +41,8 @@ class ReplyStructured(ReplyDiffCase):
         self.capture(self.base, [self.http()])
         for executions in [
                 [{**self.http(), "unknown": True}],
+                [{**self.http(), "stdout": [], "exit": 0}],
+                [dict(args=["help"], surface="cli", stdout=[], exit=0, unknown=True)],
                 [self.http(), self.concurrent()],
                 [self.concurrent()]]:
             self.capture(self.head, executions)
