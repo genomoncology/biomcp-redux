@@ -11,6 +11,10 @@ case "${1:-focused}" in
     ;;
   routine) make landing-gate ;;
   fixtures)
+    cargo fmt --all -- --check
+    ruff check --select F401,F841,ERA,BLE,E722,S110 release/gate.py release/test_gate.py
+    python3.13 scripts/check_shell.py
+    python3.13 scripts/check_docs.py
     python3.13 -m unittest release.test_gate
     ;;
   installed)
