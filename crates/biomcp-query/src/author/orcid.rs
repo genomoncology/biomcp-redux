@@ -54,8 +54,7 @@ fn execute(
             SourceState::Skipped,
             Some(Reason::Disabled),
         ));
-        return Err(SourceError::disabled(Source::Orcid)
-        .into());
+        return Err(SourceError::disabled(Source::Orcid).into());
     }
     let expected = key(q)?;
     type Saved = (

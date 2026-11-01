@@ -42,8 +42,7 @@ fn read(
 ) -> Result<(), RequestError> {
     let leg = cx.fetch.leg(&vaers::SPEC, deadline).fresh(cx.fresh);
     if cx.fetch.disabled(Source::Vaers) {
-        let error = biomcp_fetch::SourceError::disabled(Source::Vaers)
-        .into();
+        let error = biomcp_fetch::SourceError::disabled(Source::Vaers).into();
         out.sources
             .push(status::source(Source::Vaers, leg.finish(), Some(error)));
         return Err(error);

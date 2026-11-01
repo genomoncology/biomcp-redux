@@ -101,8 +101,7 @@ pub(super) fn read(
 ) -> Result<(), RequestError> {
     let leg = cx.fetch.leg(q.spec(), deadline).fresh(cx.fresh);
     if cx.fetch.disabled(q.source()) {
-        let e = SourceError::disabled(q.source())
-        .into();
+        let e = SourceError::disabled(q.source()).into();
         out.sources
             .push(status::source(q.source(), leg.finish(), Some(e)));
         return Err(e);

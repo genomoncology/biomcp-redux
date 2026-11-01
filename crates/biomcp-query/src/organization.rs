@@ -50,8 +50,7 @@ fn execute(
     out: &mut Outcome,
 ) -> Result<(), RequestError> {
     if cx.fetch.disabled(Source::Nci) {
-        return Err(SourceError::disabled(Source::Nci)
-        .into());
+        return Err(SourceError::disabled(Source::Nci).into());
     }
     let saved = snapshot::load(
         cx,

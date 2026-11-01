@@ -99,8 +99,7 @@ fn fetch_page(
     if (query.uses_clinvar_filters() && myvariant::components::disabled(cx.fetch, "clinvar"))
         || (query.uses_dbnsfp_selector() && myvariant::components::disabled(cx.fetch, "dbnsfp"))
     {
-        return Err(biomcp_fetch::SourceError::disabled(Source::MyVariant)
-        .into());
+        return Err(biomcp_fetch::SourceError::disabled(Source::MyVariant).into());
     }
     myvariant::search(leg, query).map(|page| SearchPage {
         total: page.total,

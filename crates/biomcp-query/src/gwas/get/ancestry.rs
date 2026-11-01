@@ -1,7 +1,7 @@
 //! The existing store retains one complete received ancestry collection.
 use super::{
-    Ctx, Deadline, GwasAncestries, GwasAncestry, GwasGet, Outcome, Problem, RequestError,
-    Source, SourceOutcome, StepKind, action, gwas, page, rejected, status,
+    Ctx, Deadline, GwasAncestries, GwasAncestry, GwasGet, Outcome, Problem, RequestError, Source,
+    SourceOutcome, StepKind, action, gwas, page, rejected, status,
 };
 use crate::source_snapshot;
 use biomcp_fetch::SourceError;

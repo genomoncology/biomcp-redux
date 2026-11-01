@@ -44,8 +44,7 @@ fn execute(
             SourceState::Skipped,
             Some(Reason::Disabled),
         ));
-        return Err(SourceError::disabled(Source::SemanticScholar)
-        .into());
+        return Err(SourceError::disabled(Source::SemanticScholar).into());
     }
     let key = snapshot::key("author-papers", &(q.id(), q.section(), q.limit()))?;
     let saved = retained(cx, q, &key, deadline, out)?;
