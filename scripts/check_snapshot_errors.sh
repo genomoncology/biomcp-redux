@@ -6,9 +6,7 @@ focused)
     cargo test --locked -p biomcp --test cases name-search-selects-paper-author
     ;;
 cheap)
-    make fmt
-    cargo clippy --locked -p biomcp --test cases -- -D warnings
-    make ratchets
+    make fmt lint ratchets
     ;;
 generate)
     make schema-generate
