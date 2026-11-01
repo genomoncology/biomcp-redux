@@ -5,6 +5,9 @@ type Check = Result<(), Box<dyn std::error::Error>>;
 
 pub(super) fn trials() -> Vec<libtest_mimic::Trial> {
     vec![
+        super::transcript::trial("cache-resilience/older-source-snapshot-rebuilds", || {
+            older_version().map_err(|e| e.to_string().into())
+        }),
         super::transcript::trial(
             "cache-resilience/corrupted-snapshot-reports-payload-error",
             || corrupted().map_err(|e| e.to_string().into()),
@@ -59,6 +62,44 @@ fn name_lookup() -> Check {
         || papers.get("local_error").is_some()
     {
         return Err(format!("selected author lost its papers: {papers}").into());
+    }
+    Ok(())
+}
+
+fn older_version() -> Check {
+    let env = Environment::new()?;
+    let replay = env.root().join("recordings");
+    copy_capture("author/synthetic", &replay, |_, _| {})?;
+    let args = ["search", "author", "Louis Williams"].map(str::to_owned);
+    let first = command(&env, &args, &env.globals(Some(&replay), false), 0)?;
+    let fetch = biomcp_fetch::Fetch::open(biomcp_fetch::FetchConfig {
+        cache: Some(env.root().join("case-cache/replay.sqlite")),
+        cache_owners: vec![biomcp_query::store::OWNER],
+        mode: biomcp_fetch::Mode::Offline,
+        ..Default::default()
+    })?;
+    let db = fetch.cache_access()?.connect()?;
+    let key: Vec<u8> = db.query_row("SELECT request_key FROM trial_snapshot", [], |r| r.get(0))?;
+    let mut old: serde_json::Value = serde_json::from_slice(&key)?;
+    old[0] = json!("biomcp.source_snapshot/0");
+    let old = serde_json::to_vec(&old)?;
+    for table in ["trial_snapshot", "pool", "pool_current"] {
+        db.execute(&format!("UPDATE {table} SET request_key=?1"), [&old])?;
+    }
+    db.execute(
+        "UPDATE trial_snapshot SET payload='older incompatible bytes'",
+        [],
+    )?;
+    let rebuilt = command(&env, &args, &env.globals(Some(&replay), false), 0)?;
+    if first.pointer("/result/items") != rebuilt.pointer("/result/items")
+        || rebuilt.get("local_error").is_some()
+        || first.pointer("/page/pool/id") == rebuilt.pointer("/page/pool/id")
+    {
+        return Err(format!("older snapshot was not rebuilt: {rebuilt}").into());
+    }
+    let count: u32 = db.query_row("SELECT count(*) FROM trial_snapshot", [], |r| r.get(0))?;
+    if count != 2 {
+        return Err("expected a rebuilt snapshot alongside the older version".into());
     }
     Ok(())
 }
