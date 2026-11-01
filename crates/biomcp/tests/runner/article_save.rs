@@ -10,6 +10,7 @@ type Check = Result<(), Box<dyn std::error::Error>>;
 
 pub(super) fn check() -> Check {
     text()?;
+    hidden_cli()?;
     preprint()?;
     supplement()?;
     cache_boundary::check()?;
@@ -112,7 +113,7 @@ fn receipt(value: &Value, path: &Path, bytes: &[u8], parts: Option<u32>) -> Chec
 }
 fn text() -> Check {
     let env = Environment::new()?;
-    let folder = env.root().join(".papers");
+    let folder = env.root().join("papers");
     fs::create_dir(&folder)?;
     let capture = "article/fulltext/live-introduction";
     let value = command(&env, capture, &args("text", &folder), 0)?;
@@ -157,7 +158,7 @@ fn text() -> Check {
         original,
         "Full text saves must preserve complete content and existing files"
     );
-    let stdio = env.root().join("stdio.md");
+    let stdio = folder.join("stdio.md");
     let value = super::mcp::call_with_globals(
         &env,
         &args("text", &stdio),
@@ -175,6 +176,18 @@ fn text() -> Check {
         2,
         "Full text saves must preserve complete content and existing files"
     );
+    Ok(())
+}
+fn hidden_cli() -> Check {
+    let env = Environment::new()?;
+    let destination = env.root().join(".zshenv");
+    command(
+        &env,
+        "article/fulltext/live-introduction",
+        &args("text", &destination),
+        0,
+    )?;
+    assert!(destination.is_file(), "CLI saves allow hidden destinations");
     Ok(())
 }
 fn supplement() -> Check {
