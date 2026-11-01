@@ -4,6 +4,7 @@ case "${1:-focused}" in
 red) cargo test --locked -p biomcp --test cases article-search/late-store-lock-keeps-fetched-items ;;
 cheap) make fmt lint ratchets ;;
 schema) make schema-generate ;;
+article) cargo test --locked -p biomcp-query --test article_search ;;
 focused)
  cargo test --locked -p biomcp --test cases article-search/current-store-opens-without-write-lock
  cargo test --locked -p biomcp --test cases late-store-lock-keeps-fetched
