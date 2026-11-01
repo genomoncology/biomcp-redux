@@ -17,11 +17,18 @@ landing-gate:
 	+python3 scripts/landing_gate.py
 
 # Keep these sequential even when the caller uses make -j.
-.PHONY: pre-job proof-check
+.PHONY: pre-job proof-check proof-list proof
 pre-job:
 	+$(MAKE) --no-print-directory fmt
 	+$(MAKE) --no-print-directory lint
 	+$(MAKE) --no-print-directory ratchets
+
+# Select literal names printed by proof-list, for example make proof PROOFS='name'.
+proof-list: pre-job
+	python3 scripts/trials.py --target tools --proofs --list
+
+proof: pre-job
+	python3 scripts/trials.py --target tools --proofs $(PROOFS)
 
 # Reuse the committed proof discovery and comparison checks.
 proof-check:
