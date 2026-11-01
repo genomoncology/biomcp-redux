@@ -4,10 +4,6 @@
     reason = "Fixture setup must fail on invalid checked inputs"
 )]
 use biomcp_fetch::{Fetch, FetchConfig, Mode};
-#[expect(
-    clippy::disallowed_methods,
-    reason = "The shared recording fixture owner copies and edits only test-owned files"
-)]
 use biomcp_test_support::recordings as recording_support;
 use std::{path::PathBuf, time::Duration};
 fn replay(dir: PathBuf) -> Fetch {
