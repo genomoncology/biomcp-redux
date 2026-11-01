@@ -21,7 +21,7 @@ debug = "line-tables-only"
 debug = false
 
 [workspace.dependencies]
-biomcp-test-support = { path = "crates/biomcp-test-support" }
+biomcp-test-support = { version = "=1.0.0", path = "crates/biomcp-test-support" }
 biodata = { version = "=1.0.0", path = "crates/biodata" }
 biomcp-adapters = { version = "=1.0.0", path = "crates/biomcp-adapters" }
 biomcp-fetch = { version = "=1.0.0", path = "crates/biomcp-fetch" }
