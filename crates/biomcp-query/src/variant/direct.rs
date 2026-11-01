@@ -26,7 +26,7 @@ pub(super) fn source(fetch: &biomcp_fetch::Fetch, query: &VariantGet) -> Option<
     if *section == S::AlphaGenome && !fetch.has_key(biomcp_fetch::SecretName::AlphaGenomeApiKey) {
         return Some(source);
     }
-    match (query.input().namespace().ok()?, section) {
+    match (query.input().namespace(), section) {
         (VariantNamespace::Ca, S::Civic | S::Erepo) | (VariantNamespace::ClinVar, S::Clinvar) => {
             Some(source)
         }

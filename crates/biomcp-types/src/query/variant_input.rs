@@ -114,15 +114,15 @@ impl VariantInput {
         }
     }
     /// Classify a published namespace, without parsing molecular meaning.
-    pub fn namespace(&self) -> Result<VariantNamespace, Error> {
-        Ok(match &self.kind {
+    pub fn namespace(&self) -> VariantNamespace {
+        match &self.kind {
             InputKind::Id(crate::VariantId::Rs(_)) => VariantNamespace::Rs,
             InputKind::Id(crate::VariantId::Ca(_)) => VariantNamespace::Ca,
             InputKind::Id(crate::VariantId::ClinVarVariation(_)) => VariantNamespace::ClinVar,
             InputKind::Id(_) => VariantNamespace::Unsupported,
             InputKind::Hgvs(_) => VariantNamespace::Hgvs,
             InputKind::Chromosome => VariantNamespace::Chromosome,
-        })
+        }
     }
 }
 fn positive(value: &str) -> bool {

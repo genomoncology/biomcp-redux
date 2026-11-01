@@ -43,7 +43,7 @@ impl TryFrom<Fields> for VariantAssertionsGet {
             AssertionSource::Clinvar => VariantNamespace::ClinVar,
             AssertionSource::Erepo => VariantNamespace::Ca,
         };
-        if fields.input.namespace().ok() != Some(expected) {
+        if fields.input.namespace() != expected {
             return Err(super::gene::QueryInvalid::new(&["input", "source"]));
         }
         if fields.limit.is_some_and(|n| !(1..=50).contains(&n)) {

@@ -44,7 +44,7 @@ impl TryFrom<Fields> for VariantNormalize {
             || !(hgvs.hgvs().is_some()
                 || f.source == NormalizationSource::Car
                     && f.build.is_some()
-                    && hgvs.namespace().ok() == Some(VariantNamespace::Chromosome))
+                    && hgvs.namespace() == VariantNamespace::Chromosome)
         {
             return Err(super::gene::QueryInvalid::new(&["hgvs"]));
         }
