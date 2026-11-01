@@ -82,8 +82,8 @@ class SchemaRelease(unittest.TestCase):
                             or not (member.isfile() or member.isdir())):
                         raise ValueError(f"unsafe source archive member: {member.name}")
                 tree.extractall(candidate, members=members)
-            # Plant a same-major narrowing in both generated types and snapshots.
-            before, after = "^[ACGTNRYSWKMBDHV]$", "^[ACGT]$"
+            # Narrow the shared class in both scalar patterns and derived snapshots.
+            before, after = "[ACGTNRYSWKMBDHV]", "[ACGT]"
             source = candidate / "crates/biodata/src/variant/sequence.rs"
             self.assertIn(before, source.read_text())
             source.write_text(source.read_text().replace(before, after))
