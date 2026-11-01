@@ -138,24 +138,47 @@ fn check_page(
 }
 /// Reviewed terms for the carried components remain explicit on pages and rows.
 pub fn components() -> Result<Box<[biomcp_types::ComponentLabel]>, RequestError> {
-    [("hpo", biodata::text!("hpo")), ("orphanet", biodata::text!("orphanet"))]
-        .into_iter()
-        .map(|(name, label)| {
-            let component = crate::disease_sources::components::get(Source::Monarch, name)
-                .ok_or(InputError::Serialization)?;
-            Ok(biomcp_types::ComponentLabel {
-                component: label,
-                terms: biomcp_types::ComponentTerms {
-                    usage: component.terms.usage,
-                    name: biodata::Text::new(component.terms.name)
-                        .map_err(|_| InputError::Serialization)?,
-                    url: biodata::Text::new(component.terms.url)
-                        .map_err(|_| InputError::Serialization)?,
-                },
-            })
+    use crate::disease_sources::components::{HPO, ORPHANET};
+    use biodata::TextLiteral;
+    #[expect(clippy::panic, reason = "Invalid shared static terms fail const evaluation")]
+    const HPO_NAME: TextLiteral = match TextLiteral::new(HPO.name) {
+        Ok(value) => value,
+        Err(_) => panic!("invalid static HPO name"),
+    };
+    #[expect(clippy::panic, reason = "Invalid shared static terms fail const evaluation")]
+    const HPO_URL: TextLiteral = match TextLiteral::new(HPO.url) {
+        Ok(value) => value,
+        Err(_) => panic!("invalid static HPO URL"),
+    };
+    #[expect(clippy::panic, reason = "Invalid shared static terms fail const evaluation")]
+    const ORPHANET_NAME: TextLiteral = match TextLiteral::new(ORPHANET.name) {
+        Ok(value) => value,
+        Err(_) => panic!("invalid static Orphanet name"),
+    };
+    #[expect(clippy::panic, reason = "Invalid shared static terms fail const evaluation")]
+    const ORPHANET_URL: TextLiteral = match TextLiteral::new(ORPHANET.url) {
+        Ok(value) => value,
+        Err(_) => panic!("invalid static Orphanet URL"),
+    };
+    [
+        ("hpo", biodata::text!("hpo"), HPO_NAME, HPO_URL),
+        ("orphanet", biodata::text!("orphanet"), ORPHANET_NAME, ORPHANET_URL),
+    ]
+    .into_iter()
+    .map(|(name, label, terms_name, terms_url)| {
+        let component = crate::disease_sources::components::get(Source::Monarch, name)
+            .ok_or(InputError::Serialization)?;
+        Ok(biomcp_types::ComponentLabel {
+            component: label,
+            terms: biomcp_types::ComponentTerms {
+                usage: component.terms.usage,
+                name: terms_name.into(),
+                url: terms_url.into(),
+            },
         })
-        .collect::<Result<Vec<_>, RequestError>>()
-        .map(Into::into)
+    })
+    .collect::<Result<Vec<_>, RequestError>>()
+    .map(Into::into)
 }
 /// HP-native discovery and independent exact term cards.
 pub mod phenotype;

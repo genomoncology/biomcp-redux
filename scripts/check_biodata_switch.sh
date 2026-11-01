@@ -4,9 +4,10 @@ set -eu
 phase=${1:-check}
 root=${2:-$(mktemp -d /private/tmp/biomcp-0459.XXXXXX)}
 case "$root" in /private/tmp/biomcp-0459.*) ;; *) echo 'unexpected qualification root' >&2; exit 1;; esac
-mkdir -p "$root/source"
-git archive HEAD | /usr/bin/tar -xf - -C "$root/source"
-cd "$root/source"
+source="$root/source-$(git rev-parse HEAD)"
+mkdir -p "$source"
+git archive HEAD | /usr/bin/tar -xf - -C "$source"
+cd "$source"
 export CARGO_TARGET_DIR="$root/target"
 printf 'Qualification root: %s\n' "$root"
 rustc --version
