@@ -125,3 +125,9 @@ release-mutations:
 workflow-lint:
 	cargo check --locked -p biodata -p biomcp-types --no-default-features
 	actionlint
+
+.PHONY: http-edge-check
+http-edge-check: fmt
+	cargo clippy --locked -p biomcp --bin biomcp --test cases -- -D warnings
+	cargo test --locked -p biomcp --test ratchets $(TEST_THREADS)
+	cargo test --locked -p biomcp --test cases mcp-http/ $(TEST_THREADS)
