@@ -30,6 +30,7 @@ pub(super) fn check() -> Check {
     chunked().map_err(|error| format!("chunked: {error}"))?;
     overload().map_err(|error| format!("overload: {error}"))?;
     dropped_peer().map_err(|error| format!("dropped peer: {error}"))?;
+    #[cfg(unix)]
     busy_health().map_err(|error| format!("busy health: {error}"))?;
     let mut server = Server::start()?;
     for bytes in [
@@ -279,19 +280,34 @@ fn dropped_peer() -> Check {
     Ok(())
 }
 
+#[cfg(unix)]
 fn busy_health() -> Check {
-    // The local proxy accepts no requests, so each tool stays in source work.
-    let proxy = std::net::TcpListener::bind("127.0.0.1:0").map_err(|e| e.to_string())?;
+    use std::os::unix::fs::OpenOptionsExt;
+    // Every tool blocks in the existing per-call settings read until this writer closes.
     let server = Server::configured_globals(
         "127.0.0.1:0",
-        Some(
-            serde_json::json!({"proxy":format!("http://{}", proxy.local_addr().map_err(|e| e.to_string())?)}),
-        ),
+        Some(serde_json::json!({})),
         None,
         None,
         None,
         &["--hosted".into()],
     )?;
+    let config = server
+        .environment()
+        .root()
+        .join("config/biomcp/config.json");
+    std::fs::remove_file(&config).map_err(|e| e.to_string())?;
+    nix::unistd::mkfifo(
+        &config,
+        nix::sys::stat::Mode::S_IRUSR | nix::sys::stat::Mode::S_IWUSR,
+    )
+    .map_err(|e| e.to_string())?;
+    let writer = std::fs::OpenOptions::new()
+        .read(true)
+        .write(true)
+        .custom_flags(nix::libc::O_NONBLOCK)
+        .open(&config)
+        .map_err(|e| e.to_string())?;
     let mut held = Vec::new();
     for index in 1..=8 {
         let body = super::mcp::request(
@@ -330,7 +346,7 @@ fn busy_health() -> Check {
     if status != 200 || body.get("store") != Some(&serde_json::json!(true)) {
         return Err(format!("busy server failed health: {status} {body}"));
     }
-    drop(proxy);
+    drop(writer);
     drop(held);
     Ok(())
 }
