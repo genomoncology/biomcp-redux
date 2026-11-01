@@ -83,6 +83,9 @@ class SchemaRelease(unittest.TestCase):
                             or not (member.isfile() or member.isdir())):
                         raise ValueError(f"unsafe source archive member: {member.name}")
                 tree.extractall(candidate, members=members)
+            # Archive timestamps can hide source-copy changes from a shared target.
+            for path in (candidate / "crates").rglob("*.rs"):
+                path.touch()
             # Keep the job's compiled dependencies when the source copy changes.
             target = Path(os.environ.get("CARGO_TARGET_DIR", ROOT / "target")).resolve()
             environment = dict(os.environ, CARGO_TARGET_DIR=str(target))
@@ -111,15 +114,16 @@ class SchemaRelease(unittest.TestCase):
             source = candidate / "crates/biodata/src/variant/sequence.rs"
             self.assertIn(before, source.read_text())
             originals = {path: path.read_bytes() for path in [source, *schemas]}
+            schema_test = [
+                "cargo", "test", "--locked", "-p", "biomcp-types", "--features", "schema",
+                "--test", "schemas", "checked_in_schemas_match_types", "--", "--exact",
+            ]
             try:
                 source.write_text(source.read_text().replace(before, after))
                 for schema in (candidate / "crates/biomcp-types/schemas").glob("*.json"):
                     schema.write_text(schema.read_text().replace(before, after))
                 # Ordinary in-tree generation accepts the jointly changed copies.
-                subprocess.run([
-                    "cargo", "test", "--locked", "-p", "biomcp-types", "--features", "schema",
-                    "--test", "schemas", "checked_in_schemas_match_types", "--", "--exact",
-                ], cwd=candidate, env=environment, check=True)
+                subprocess.run(schema_test, cwd=candidate, env=environment, check=True)
                 result = subprocess.run(
                     command, cwd=candidate, env=environment,
                     capture_output=True, text=True,
@@ -128,11 +132,12 @@ class SchemaRelease(unittest.TestCase):
                 self.assertIn("incompatible contract", result.stdout + result.stderr)
             finally:
                 # Cargo shares local-crate artifacts across these source copies.
-                # Restore and rebuild before removing the copy, even on a failed proof.
+                # Restore the real tree's code and embedded source paths on failure too.
                 for path, content in originals.items():
                     path.write_bytes(content)
-                subprocess.run(command + ["--generate"], cwd=candidate,
-                               env=environment, check=True)
+                for path in (ROOT / "crates").rglob("*.rs"):
+                    path.touch()
+                subprocess.run(schema_test, cwd=ROOT, env=environment, check=True)
 
 
 if __name__ == "__main__":

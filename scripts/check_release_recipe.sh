@@ -69,7 +69,7 @@ PYTHON
     cargo --version
     python3.13 --version
     ruff check --select F401,F841,ERA,BLE,E722,S110 scripts/test_schema_release.py
-    cargo test --locked -p biomcp-types --features schema --test schemas checked_in_schemas_match_types -- --exact
+    mkdir -p "$CARGO_TARGET_DIR"
     du -sk "$CARGO_TARGET_DIR"
     df -k . "${TMPDIR:-/tmp}"
     trap 'df -k . "${TMPDIR:-/tmp}"; du -sk "$CARGO_TARGET_DIR"' EXIT
