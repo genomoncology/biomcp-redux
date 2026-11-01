@@ -6,7 +6,7 @@ root=${2:-$(mktemp -d /private/tmp/biomcp-0459.XXXXXX)}
 case "$root" in /private/tmp/biomcp-0459.*) ;; *) echo 'unexpected qualification root' >&2; exit 1;; esac
 revision=${3:-$(git rev-parse HEAD)}
 export BIOMCP_BUILD_REVISION="$revision"
-if [ "$phase" = fixture ] || [ "$phase" = policy ] || [ "$phase" = docs ]; then
+if [ "$phase" = fixture ] || [ "$phase" = policy ] || [ "$phase" = docs ] || [ "$phase" = docs-generate ]; then
     [ "$(git rev-parse HEAD)" = "$revision" ] || exit 1
     export CARGO_TARGET_DIR="$root/target"
     python_bin=$(python3.13 -c 'import pathlib, sys; print(pathlib.Path(sys.executable).resolve().parent)')
@@ -14,6 +14,11 @@ if [ "$phase" = fixture ] || [ "$phase" = policy ] || [ "$phase" = docs ]; then
     python3 --version
     if [ "$phase" = fixture ]; then
         exec sh scripts/check_release_recipe.sh schema-reuse
+    fi
+    if [ "$phase" = docs-generate ]; then
+        make docs-generate
+        tar -czf "$root/generated-docs-$revision.tar.gz" docs/reference
+        exit 0
     fi
     if [ "$phase" = docs ]; then
         exec make docs-check
