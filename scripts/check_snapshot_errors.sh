@@ -12,7 +12,9 @@ cheap)
     ;;
 generate)
     make schema-generate
-    git diff -- crates/biomcp-types/schemas
+    git diff --stat -- crates/biomcp-types/schemas
+    tar -czf snapshot-schemas.tar.gz crates/biomcp-types/schemas
+    pwd
     ;;
 routine)
     make landing-gate

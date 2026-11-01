@@ -5,9 +5,10 @@ type Check = Result<(), Box<dyn std::error::Error>>;
 
 pub(super) fn trials() -> Vec<libtest_mimic::Trial> {
     vec![
-        super::transcript::trial("cache-resilience/corrupted-snapshot-reports-payload-error", || {
-            corrupted().map_err(|e| e.to_string().into())
-        }),
+        super::transcript::trial(
+            "cache-resilience/corrupted-snapshot-reports-payload-error",
+            || corrupted().map_err(|e| e.to_string().into()),
+        ),
         super::transcript::trial("author-papers/name-search-selects-paper-author", || {
             name_lookup().map_err(|e| e.to_string().into())
         }),
@@ -47,10 +48,16 @@ fn name_lookup() -> Check {
     copy_capture("author/papers", &replay, |_, _| {})?;
     let search = ["search", "author", "Louis Williams"].map(str::to_owned);
     let found = command(&env, &search, &env.globals(Some(&replay), false), 0)?;
-    let id = found.pointer("/result/items/0/id").and_then(serde_json::Value::as_str).ok_or("author ID")?;
+    let id = found
+        .pointer("/result/items/0/id")
+        .and_then(serde_json::Value::as_str)
+        .ok_or("author ID")?;
     let args = ["author", "papers", id].map(str::to_owned);
     let papers = command(&env, &args, &env.globals(Some(&replay), false), 0)?;
-    if papers.pointer("/result/author") != Some(&json!(id)) || papers.pointer("/result/items/0/title") != Some(&json!("Synthetic whole paper title")) || papers.get("local_error").is_some() {
+    if papers.pointer("/result/author") != Some(&json!(id))
+        || papers.pointer("/result/items/0/title") != Some(&json!("Synthetic whole paper title"))
+        || papers.get("local_error").is_some()
+    {
         return Err(format!("selected author lost its papers: {papers}").into());
     }
     Ok(())
