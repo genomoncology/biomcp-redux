@@ -336,6 +336,13 @@ fn caller(fetch: &Fetch, key: Option<&str>) -> Fetch {
 fn fixture(
     share: RateShare,
 ) -> Result<(tempfile::TempDir, Fetch, &'static SourceSpec), Box<dyn std::error::Error>> {
+    fixture_pacing(share, None)
+}
+
+fn fixture_pacing(
+    share: RateShare,
+    pacing: Option<biomcp_fetch::PacingOverride>,
+) -> Result<(tempfile::TempDir, Fetch, &'static SourceSpec), Box<dyn std::error::Error>> {
     let dir = tempfile::tempdir()?;
     let url = "https://example.invalid/answer";
     let hash = Sha256::digest([b"GET\0".as_slice(), url.as_bytes()].concat())
@@ -374,7 +381,12 @@ fn fixture(
             usage: biomcp_types::Use::Open,
         },
     }));
+    let mut source_pacing = biomcp_fetch::SourcePacing::default();
+    if let Some(pacing) = pacing {
+        source_pacing.insert(spec.quota, pacing)?;
+    }
     let fetch = Fetch::open(FetchConfig {
+        source_pacing,
         mode: Mode::Replay {
             dir: dir.path().into(),
         },
@@ -457,4 +469,51 @@ fn rate_share_rejects_zero_nonfinite_and_excess_shares() {
             "positive rate share {value}"
         );
     }
+}
+
+#[test]
+fn operator_rates_space_requests_and_leave_keyed_rates_independent() -> Check {
+    use biomcp_fetch::{PacingOverride, PacingRate};
+    for (input, keyed, expected) in [
+        (
+            PacingOverride {
+                rate: Some(PacingRate {
+                    requests: 1,
+                    seconds: 3,
+                }),
+                ..PacingOverride::default()
+            },
+            false,
+            Duration::from_secs(3),
+        ),
+        (
+            PacingOverride {
+                rate: Some(PacingRate {
+                    requests: 1,
+                    seconds: 3,
+                }),
+                ..PacingOverride::default()
+            },
+            true,
+            Duration::from_millis(250),
+        ),
+        (
+            PacingOverride {
+                keyed_rate: Some(PacingRate {
+                    requests: 1,
+                    seconds: 2,
+                }),
+                ..PacingOverride::default()
+            },
+            true,
+            Duration::from_secs(2),
+        ),
+    ] {
+        let (_dir, fetch, spec) = fixture_pacing(RateShare::default(), Some(input))?;
+        let fetch = caller(&fetch, keyed.then_some("synthetic-pacing-key"));
+        get(&fetch, spec, Duration::from_secs(10))?;
+        let remaining = get(&fetch, spec, Duration::from_secs(10))?;
+        assert_eq!(Duration::from_secs(10) - remaining, expected);
+    }
+    Ok(())
 }
