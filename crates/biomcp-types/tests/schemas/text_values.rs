@@ -123,7 +123,7 @@ pub(super) fn text_value_patterns_match_parser_admissions() {
         ArticleInput => ["1", "PMC1", "PPR0001", "PPRAB0001", "PPRABCDE1", "PPRABCDEF1", "PPR0000", "4294967296", "PMC4294967296", "10.1/a\u{0080}",
             "https://doi.org/10.1/a"],
         GeneInput => ["BRAF", " HGNC:1 ", "HGNC:0", "hgnc:1", "ENSGbad", "0001", "4294967296", "Gene alias"],
-        VariantInput => ["CA000001", "CA000000", "VCV000000000", "chr22:g.1A>G", "chr23:g.1A>G", "18446744073709551615", "18446744073709551616"],
+        VariantInput => ["CA000001", "CA000000", "VCV000000000", "chr22:g.1A>G", "chr23:g.1A>G", "4294967295", "4294967296", "clinvar:4294967295", "clinvar:4294967296", "rs18446744073709551615", "18446744073709551615", "18446744073709551616"],
         SheetRows => ["1-1", "01-1", "1-4294967296"],
         VariantRegion => ["chr1:1-2", "chr23:1-2", "chr1:01-2", "chr1:1-4294967296"],
         MyVariantQuery => [" query ", " ", "a\u{0080}", "\u{0085}", "\u{feff}", &"a".repeat(4102), &"a".repeat(4103)],

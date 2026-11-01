@@ -153,11 +153,11 @@ text_value!(
     VariantInput,
     "VariantInput",
     format!(
-        "^(?=[\\x21-\\x7e]{{1,{}}}$)({}|{}|^{}$|{})",
+        "^(?=[\\x21-\\x7e]{{1,{}}}$)({}|{}|{}|{})",
         Self::MAX_BYTES,
         crate::VariantId::pattern().replace("clinvar:", "[cC][lL][iI][nN][vV][aA][rR]:"),
         crate::HgvsText::pattern(),
-        biodata::schema_pattern::decimal(u64::MAX),
+        crate::ClinVarVariationId::pattern().replace("clinvar:", ""),
         Self::CHROMOSOME_PATTERN
     )
 );

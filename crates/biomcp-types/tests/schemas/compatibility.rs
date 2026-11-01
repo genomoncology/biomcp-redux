@@ -234,7 +234,9 @@ fn visit(
                 visit(root, branch, path, shapes, refs)?;
             }
         } else {
-            for (kind, branch) in scalars::branches(root, branches)? {
+            for (kind, branch) in scalars::branches(root, branches)
+                .map_err(|error| format!("{error} at {path}: {branches}"))?
+            {
                 descend(root, branch, path, &format!("@type={kind}"), shapes, refs)?;
             }
         }
