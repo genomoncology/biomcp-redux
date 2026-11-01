@@ -19,6 +19,22 @@ class GateStages(unittest.TestCase):
         self.assertEqual(result.returncode, 7)
         self.assertRegex(result.stdout, r'gate stage=fixture elapsed_seconds=\d+\.\d+ exit=7')
 
+    def test_pre_job_stops_at_format_failure(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            tools = Path(temporary)
+            cargo = tools / 'cargo'
+            cargo.write_text('#!/bin/sh\nprintf "cargo %s\\n" "$*"\nexit 7\n')
+            cargo.chmod(0o755)
+            env = {**os.environ, 'PATH': str(tools) + os.pathsep + os.environ['PATH']}
+            for key in ('MAKEFLAGS', 'MFLAGS', 'MAKELEVEL', 'MAKEOVERRIDES'):
+                env.pop(key, None)
+            result = subprocess.run(['make', '--no-print-directory', 'pre-job'],
+                                    cwd=ROOT, env=env, capture_output=True, text=True)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn('cargo fmt --all -- --check', result.stdout)
+            self.assertNotIn('cargo clippy', result.stdout)
+            self.assertNotIn('cargo test', result.stdout)
+
     def test_incremental_scan_keeps_removed_and_merge_blobs(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
