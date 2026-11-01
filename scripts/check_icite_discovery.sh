@@ -28,6 +28,8 @@ from gate import stage_fixtures
 
 binary = Path(cargo('dev')['executable'])
 runner = Path(cargo('dev', tests='tools')['executable'])
+subprocess.run([str(runner), '--proofs', 'live-source-checks/retained-drift-witnesses'],
+               check=True)
 with tempfile.TemporaryDirectory(prefix='installed-icite-') as folder:
     root = Path(folder)
     stage_fixtures(Path.cwd(), root / 'fixtures')

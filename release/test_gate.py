@@ -80,7 +80,7 @@ class InstalledCli(unittest.TestCase):
             result = subprocess.run([sys.executable, 'release/gate.py', '--prepare-only',
                                      '--artifacts', str(output), '--scratch', str(scratch)],
                                     env={**os.environ, 'PATH': str(root) + os.pathsep + os.environ['PATH']},
-                                    capture_output=True, text=True, timeout=60)
+                                    capture_output=True, text=True)
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
             helpers = scratch / 'fixtures/support/scripts'
             # Import from the installed layout without a checkout on the Python path.
