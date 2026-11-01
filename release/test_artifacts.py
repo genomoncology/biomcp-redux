@@ -127,10 +127,11 @@ class ReleaseCommands(unittest.TestCase):
             command = '''import io, runpy, sys
 from unittest.mock import patch
 native_open = io.open
-def windows_open(file, mode='r', *args, **kwargs):
-    if 'w' in mode and 'b' not in mode and kwargs.get('newline') is None:
-        kwargs['newline'] = '\\r\\n'
-    return native_open(file, mode, *args, **kwargs)
+def windows_open(file, mode='r', buffering=-1, encoding=None, errors=None,
+                 newline=None, closefd=True, opener=None):
+    if 'w' in mode and 'b' not in mode and newline is None:
+        newline = '\\r\\n'
+    return native_open(file, mode, buffering, encoding, errors, newline, closefd, opener)
 sys.path.insert(0, 'release')
 sys.argv = ['release/artifacts.py', 'build', '--output', sys.argv[1]]
 with patch('io.open', windows_open):
