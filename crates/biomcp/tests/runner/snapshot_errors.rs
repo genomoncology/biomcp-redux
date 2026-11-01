@@ -79,10 +79,13 @@ fn older_version() -> Check {
         ..Default::default()
     })?;
     let db = fetch.cache_access()?.connect()?;
-    let key: Vec<u8> = db.query_row("SELECT request_key FROM trial_snapshot", [], |r| r.get(0))?;
-    let mut old: serde_json::Value = serde_json::from_slice(&key)?;
-    old[0] = json!("biomcp.source_snapshot/0");
-    let old = serde_json::to_vec(&old)?;
+    // The preceding author store used this selector key and a different payload shape.
+    let old = serde_json::to_vec(&json!([
+        "biomcp.author_snapshot/3",
+        "Louis Williams",
+        "semantic-scholar",
+        5
+    ]))?;
     for table in ["trial_snapshot", "pool", "pool_current"] {
         db.execute(&format!("UPDATE {table} SET request_key=?1"), [&old])?;
     }
