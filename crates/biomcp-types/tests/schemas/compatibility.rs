@@ -105,6 +105,13 @@ fn compatible(
                     path,
                     old.pattern.as_deref(),
                     new.pattern.as_deref(),
+                )
+                || reviews.narrowing(
+                    old_name,
+                    old_major,
+                    path,
+                    old.pattern.as_deref(),
+                    new.pattern.as_deref(),
                 ))
         || new
             .minimum

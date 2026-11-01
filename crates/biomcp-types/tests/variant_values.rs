@@ -137,10 +137,7 @@ fn published_variant_identifiers_round_trip_without_text_inference() -> Check {
         #[cfg(feature = "schema")]
         assert_eq!(validator.is_valid(&json!(text)), valid, "schema: {text}");
         assert_eq!(text.parse::<HgvsText>().is_ok(), valid, "{text}");
-        let accepted = Text::new(text)
-            .ok()
-            .and_then(|value| Expression::hgvs(value).ok())
-            .is_some();
+        let accepted = Text::new(text).is_ok_and(|value| Expression::hgvs(value).is_ok());
         assert_eq!(accepted, valid, "{text}");
     }
     Ok(())
@@ -288,7 +285,7 @@ fn interval_comparison_requires_both_source_builds() {
         strand: None,
     };
     assert_eq!(region.contains(region), Ok(true));
-    let other = region.clone();
+    let other = region;
     region.build = None;
     assert_eq!(
         region
