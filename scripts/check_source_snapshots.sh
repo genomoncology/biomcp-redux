@@ -1,6 +1,10 @@
 #!/bin/sh
 set -eu
-case "${1:-focused}" in
+case "${1:-cases}" in
+qualify)
+    sh "$0" cheap
+    sh "$0" cases
+    ;;
 cheap)
     make fmt lint ratchets
     ;;
@@ -20,5 +24,9 @@ cases)
     cargo test --locked -p biomcp --test cases
     unset UPDATE_SCHEMAS
     cargo test --locked -p biomcp-types --features schema --test schemas checked_in_schemas_match_types -- --exact
+    ;;
+*)
+    echo "expected cheap, focused, cases or qualify" >&2
+    exit 2
     ;;
 esac
