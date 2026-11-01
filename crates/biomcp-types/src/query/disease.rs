@@ -289,6 +289,7 @@ impl DiseaseGet {
 
     /// Read an exact native disease CURIE through the default disease command.
     pub fn from_id(id: biodata::Curie) -> Result<Self, QueryInvalid> {
+        Text::new(id.as_str()).map_err(|_| QueryInvalid::new(&["id"]))?;
         Ok(Self(GetFields {
             id: DiseaseId::Concept(id),
             source: get_source(),
