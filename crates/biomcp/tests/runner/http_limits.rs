@@ -323,6 +323,9 @@ fn busy_capacity(configured: bool) -> Check {
         held.push(socket);
         writers.push(writer);
     }
+    if configured {
+        held.push(hold_header(&server)?);
+    }
     // Every FIFO open witnesses a real admitted tool call before this probe competes.
     let probe =
         super::mcp::request(serde_json::json!(9), "tools/list", serde_json::json!({})).to_string();
@@ -334,32 +337,7 @@ fn busy_capacity(configured: bool) -> Check {
         ));
     }
     if configured {
-        let call = super::mcp::request(
-            serde_json::json!(10),
-            "tools/call",
-            serde_json::json!({"name":"biomcp","arguments":{"args":["get","protein","P00003"]}}),
-        )
-        .to_string();
-        let (status, body) = server.request("POST", "/mcp", &call)?;
-        if status != 200 || body.pointer("/error/code") != Some(&serde_json::json!(-31000)) {
-            return Err(format!("third tool escaped call cap: {status} {body}"));
-        }
-    }
-    if configured {
-        // The two tool connections plus two unfinished headers fill the normal budget.
-        for _ in 0..2 {
-            let mut socket = TcpStream::connect(server.address).map_err(|e| e.to_string())?;
-            socket
-                .write_all(b"POST /mcp HTTP/1.1\r\n")
-                .map_err(|e| e.to_string())?;
-            held.push(socket);
-        }
-        let (status, body) = server.request("POST", "/mcp", &probe)?;
-        if status != 503 || body != serde_json::json!({"error":"Service unavailable"}) {
-            return Err(format!(
-                "fifth connection escaped connection cap: {status} {body}"
-            ));
-        }
+        refuse_over_capacity(&server, &probe, &mut held)?;
     }
     let (status, body) = server.request("GET", "/health", "")?;
     if status != 200 || body.get("store") != Some(&serde_json::json!(true)) {
@@ -367,6 +345,38 @@ fn busy_capacity(configured: bool) -> Check {
     }
     drop(writers);
     drop(held);
+    Ok(())
+}
+
+#[cfg(unix)]
+fn hold_header(server: &Server) -> Result<TcpStream, String> {
+    let mut socket = TcpStream::connect(server.address).map_err(|e| e.to_string())?;
+    socket
+        .write_all(b"POST /mcp HTTP/1.1\r\n")
+        .map_err(|e| e.to_string())?;
+    Ok(socket)
+}
+
+#[cfg(unix)]
+fn refuse_over_capacity(server: &Server, probe: &str, held: &mut Vec<TcpStream>) -> Check {
+    let call = super::mcp::request(
+        serde_json::json!(10),
+        "tools/call",
+        serde_json::json!({"name":"biomcp","arguments":{"args":["get","protein","P00003"]}}),
+    )
+    .to_string();
+    let (status, body) = server.request("POST", "/mcp", &call)?;
+    if status != 200 || body.pointer("/error/code") != Some(&serde_json::json!(-31000)) {
+        return Err(format!("third tool escaped call cap: {status} {body}"));
+    }
+    // Two tool connections plus two unfinished headers fill the normal budget.
+    held.push(hold_header(server)?);
+    let (status, body) = server.request("POST", "/mcp", probe)?;
+    if status != 503 || body != serde_json::json!({"error":"Service unavailable"}) {
+        return Err(format!(
+            "fifth connection escaped connection cap: {status} {body}"
+        ));
+    }
     Ok(())
 }
 
