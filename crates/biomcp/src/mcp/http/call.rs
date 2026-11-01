@@ -482,10 +482,26 @@ mod tests {
                 body.len()
             )?;
             let mut response = String::new();
-            socket.read_to_string(&mut response)?;
+            if let Err(error) = socket.read_to_string(&mut response)
+                && error.kind() != io::ErrorKind::ConnectionReset
+            {
+                return Err(error);
+            }
             let (head, body) = response
                 .split_once("\r\n\r\n")
                 .ok_or_else(|| io::Error::other("HTTP reply missing"))?;
+            let length = head
+                .lines()
+                .find_map(|line| {
+                    let (name, value) = line.split_once(':')?;
+                    name.eq_ignore_ascii_case("content-length")
+                        .then(|| value.trim().parse::<usize>().ok())
+                        .flatten()
+                })
+                .ok_or_else(|| io::Error::other("HTTP response length missing"))?;
+            if body.len() != length {
+                return Err(io::Error::other("incomplete HTTP response body"));
+            }
             let status = head
                 .split_whitespace()
                 .nth(1)
