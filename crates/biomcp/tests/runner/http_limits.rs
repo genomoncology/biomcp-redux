@@ -304,7 +304,9 @@ fn busy_health() -> Check {
         .to_string();
         let mut socket = TcpStream::connect(server.address).map_err(|e| e.to_string())?;
         socket.write_all(format!(
-            "POST /mcp HTTP/1.1\r\nHost: {}\r\nContent-Type: application/json\r\nAccept: application/json, text/event-stream\r\nMCP-Protocol-Version: 2026-07-28\r\nMcp-Method: tools/call\r\nMcp-Name: biomcp\r\nContent-Length: {}\r\n\r\n{body}",
+            "POST /mcp HTTP/1.1\r\nHost: {}\r\nContent-Type: application/json\r\n\
+             Accept: application/json, text/event-stream\r\nMCP-Protocol-Version: 2026-07-28\r\nMcp-Method: tools/call\r\nMcp-Name: biomcp\r\n\
+             Content-Length: {}\r\n\r\n{body}",
             server.address, body.len()
         ).as_bytes()).map_err(|e| e.to_string())?;
         held.push(socket);

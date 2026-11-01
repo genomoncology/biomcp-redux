@@ -131,3 +131,7 @@ http-edge-check: fmt
 	cargo clippy --locked -p biomcp --bin biomcp --test cases -- -D warnings
 	cargo test --locked -p biomcp --test ratchets $(TEST_THREADS)
 	cargo test --locked -p biomcp --test cases mcp-http/ $(TEST_THREADS)
+
+.PHONY: hosted-http-load
+hosted-http-load:
+	cargo test --locked -p biomcp --bin biomcp hosted_http_sync_load -- --ignored --nocapture
