@@ -8,6 +8,7 @@ use biomcp_types::{
     AuthorGet, AuthorPage, AuthorSearch, PageInfo, Reason, ReplyData, Request, Source, SourceState,
     StepKind,
 };
+type Saved = super::NativePages<(author::Page, bool)>;
 /// Preserve the source's exact query, candidate order and continuation.
 pub(crate) fn search(cx: &Ctx<'_>, q: &AuthorSearch) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
@@ -120,7 +121,7 @@ fn execute(
 fn present(
     q: &AuthorSearch,
     out: &mut Outcome,
-    saved: super::NativePages<(author::Page, bool)>,
+    saved: Saved,
     pool: crate::store::Pool,
 ) -> Result<(), RequestError> {
     let page = saved
@@ -180,11 +181,11 @@ fn retained(
     key: &[u8],
     deadline: Deadline<'_>,
     out: &mut Outcome,
-) -> Result<Option<(super::NativePages<(author::Page, bool)>, crate::store::Pool)>, RequestError> {
+) -> Result<Option<(Saved, crate::store::Pool)>, RequestError> {
     let (saved, mismatch) = if cx.fresh {
         (None, false)
     } else {
-        snapshot::find::<super::NativePages<(author::Page, bool)>>(cx, key, q.pool(), deadline)?
+        snapshot::find::<Saved>(cx, key, q.pool(), deadline)?
     };
     let saved = saved.filter(|(saved, _)| {
         saved.pages.iter().any(|p| q.offset() == p.0.offset())
