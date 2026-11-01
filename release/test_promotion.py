@@ -31,6 +31,7 @@ class Promotion(unittest.TestCase):
             ('draft-and-prerelease', [[current, older, dict(newer, draft=True), dict(newer, prerelease=True)]], False, True),
             ('query-fails', [[current, older]], True, False),
             ('container-push-fails', [[current, older]], False, False),
+            ('github-update-fails', [[current, older]], False, False),
             ('candidate-missing', [[older]], False, False),
             ('candidate-prerelease', [[dict(current, prerelease=True), older]], False, False),
         ]
@@ -53,6 +54,8 @@ if name == 'gh' and sys.argv[1] == 'api':
     print(os.environ['PAGES'])
 if name == 'docker' and os.environ['DOCKER_FAILS'] == 'yes':
     sys.exit(8)
+if name == 'gh' and sys.argv[1:3] == ['release', 'edit'] and os.environ['GITHUB_FAILS'] == 'yes':
+    sys.exit(9)
 '''
                 for tool in ['gh', 'docker']:
                     path = tools / tool
@@ -63,7 +66,8 @@ if name == 'docker' and os.environ['DOCKER_FAILS'] == 'yes':
                        'GITHUB_REPOSITORY': 'genomoncology/biomcp', 'GITHUB_EVENT_NAME': 'push',
                        'GITHUB_REF': 'refs/tags/v1.0.0', 'GITHUB_SHA': 'a' * 40,
                        'CALLS': str(calls), 'PAGES': json.dumps(pages), 'QUERY_FAILS': 'yes' if query_fails else 'no',
-                       'DOCKER_FAILS': 'yes' if name == 'container-push-fails' else 'no'}
+                       'DOCKER_FAILS': 'yes' if name == 'container-push-fails' else 'no',
+                       'GITHUB_FAILS': 'yes' if name == 'github-update-fails' else 'no'}
                 result = subprocess.run([sys.executable, 'release/publication.py', 'promote', '--staged', str(staged),
                                          '--digest', 'sha256:' + 'b' * 64], env=env, capture_output=True, text=True)
                 actual = [json.loads(line) for line in calls.read_text().splitlines()]
@@ -79,6 +83,11 @@ if name == 'docker' and os.environ['DOCKER_FAILS'] == 'yes':
                     self.assertNotEqual(result.returncode, 0)
                     self.assertEqual(len(actual), 2)
                     self.assertEqual(actual[-1][0], 'docker', 'GitHub latest must not move after a failed container promotion')
+                elif name == 'github-update-fails':
+                    self.assertNotEqual(result.returncode, 0, 'partial promotion must report failure')
+                    self.assertEqual(len(actual), 3, 'partial promotion must not attempt an automatic rollback')
+                    self.assertEqual(actual[1][0], 'docker')
+                    self.assertEqual(actual[2][:3], ['gh', 'release', 'edit'])
                 else:
                     self.assertEqual(len(actual), 1, 'failed or ineligible promotion must leave both pointers unchanged')
 
