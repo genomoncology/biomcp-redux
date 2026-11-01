@@ -119,10 +119,16 @@ fn continuation(
     let next = offset
         .checked_add(returned)
         .filter(|n| u64::from(*n) < total)?;
+    let input = match biomcp_types::VariantInput::from_identity(id.clone()) {
+        Ok(input) => input,
+        Err(_) => return None,
+    };
+    let candidate = match query.for_candidate(input) {
+        Ok(candidate) => candidate,
+        Err(_) => return None,
+    };
     Some(
-        query
-            .for_candidate(id.to_string().parse().ok()?)
-            .ok()?
+        candidate
             .at_section_offset(next)
             .with_sections(Box::new([biomcp_types::VariantSection::Gwas])),
     )
