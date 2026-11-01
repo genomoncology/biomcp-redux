@@ -95,7 +95,7 @@ fn execute<'a>(
     let graph_disabled = cx.fetch.disabled(Source::SemanticScholar);
     let text_disabled = cx.fetch.disabled(Source::PmcOa);
     let mut store = Store::open(cx.fetch.cache_access()?, *deadline)?;
-    let identity = serde_json::to_vec(&query.identity()).map_err(|_| CacheError::Database)?;
+    let identity = serde_json::to_vec(&query.identity()).map_err(|_| CacheError::Encoding)?;
     let key = Sha256::digest([b"biomcp.article_evidence/2\0".as_slice(), &identity].concat());
     let mut restored = false;
     let mut snapshot = if let Some(id) = query.pool() {
@@ -148,11 +148,16 @@ fn execute<'a>(
         snapshot.dropped |= out.dropped;
         encode(&snapshot)?
     };
-    let id = store.save_evidence(
-        query.pool().filter(|_| restored),
-        &key,
-        &payload,
-        &snapshot.sources,
+    let id = crate::publish::keep(
+        store
+            .save_evidence(
+                query.pool().filter(|_| restored),
+                &key,
+                &payload,
+                &snapshot.sources,
+            )
+            .map_err(Into::into),
+        out,
     )?;
     page::render(query, snapshot, id, out)?;
     skipped(out, graph_disabled, query.fulltext() && text_disabled);

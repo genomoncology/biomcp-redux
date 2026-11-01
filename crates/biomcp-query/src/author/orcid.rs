@@ -1,4 +1,4 @@
-use crate::{Ctx, Outcome, status, store::Store};
+use crate::{Ctx, Outcome, source_snapshot, status};
 use biodata::{OrcidId, OrcidWorkGroup};
 use biomcp_adapters::orcid;
 use biomcp_fetch::{CacheError, Deadline, RequestError, SourceError};
@@ -39,13 +39,7 @@ fn restart(q: &AuthorPapersQuery, out: &mut Outcome, mismatch: bool) {
     ));
 }
 fn key(q: &AuthorPapersQuery) -> Result<Vec<u8>, RequestError> {
-    serde_json::to_vec(&(
-        "biomcp.orcid_works_snapshot/4",
-        q.id(),
-        q.section(),
-        q.limit(),
-    ))
-    .map_err(|_| CacheError::Database.into())
+    source_snapshot::key("orcid-works", &(q.id(), q.section(), q.limit()))
 }
 fn execute(
     cx: &Ctx<'_>,
@@ -69,30 +63,21 @@ fn execute(
         .into());
     }
     let expected = key(q)?;
-    let mut store = Store::open(cx.fetch.cache_access()?, deadline)?;
-    let saved = if cx.fresh {
-        None
+    type Saved = (
+        Box<[OrcidWorkGroup]>,
+        SourceOutcome,
+        Vec<biomcp_types::Problem>,
+        bool,
+    );
+    let (saved, mismatch) = if cx.fresh {
+        (None, false)
     } else {
-        store.find(&expected, q.pool().map(biodata::Text::as_str))?
+        source_snapshot::find::<Saved>(cx, &expected, q.pool(), deadline)?
     };
-    let mismatch = saved.as_ref().is_some_and(|p| p.key != expected);
-    let (groups, source, pool) = if let Some(pool) = saved.filter(|_| !mismatch) {
-        let payload = store.source_snapshot(pool.info.id.as_str(), &expected, |source| {
-            cx.fetch.disabled(source)
-        })?;
-        let Some(payload) = payload else {
-            restart(q, out, false);
-            return Ok(());
-        };
-        let (groups, source, problems, dropped): (
-            Box<[OrcidWorkGroup]>,
-            SourceOutcome,
-            Vec<biomcp_types::Problem>,
-            bool,
-        ) = serde_json::from_str(&payload).map_err(|_| CacheError::Snapshot)?;
+    let (groups, source, pool) = if let Some(((groups, source, problems, dropped), pool)) = saved {
         out.problems.extend(problems);
         out.dropped = dropped;
-        (groups, source, pool)
+        (groups, source, Some(pool))
     } else {
         if q.pool().is_some() {
             restart(q, out, mismatch);
@@ -110,11 +95,19 @@ fn execute(
         let groups = mapped.value;
         out.include_refusals(mapped.refusals);
         out.problems.extend(mapped.problems);
-        let payload = serde_json::to_string(&(&groups, &source, &out.problems, out.dropped))
-            .map_err(|_| CacheError::Snapshot)?;
-        let size = u32::try_from(groups.len()).map_err(|_| CacheError::Database)?;
-        let pool =
-            store.publish_source_pool(&expected, &payload, size, std::slice::from_ref(&source))?;
+        let size = u32::try_from(groups.len()).map_err(|_| CacheError::Limit)?;
+        let pool = crate::publish::keep(
+            source_snapshot::publish(
+                cx,
+                &expected,
+                &(&groups, &source, &out.problems, out.dropped),
+                size,
+                std::slice::from_ref(&source),
+                None,
+                deadline,
+            ),
+            out,
+        )?;
         (groups, source, pool)
     };
     present(q, id, out, groups, source, pool);
@@ -126,7 +119,7 @@ fn present(
     out: &mut Outcome,
     groups: Box<[OrcidWorkGroup]>,
     source: SourceOutcome,
-    pool: crate::store::Pool,
+    pool: Option<crate::store::Pool>,
 ) {
     let total = groups.len() as u64;
     let rows: Box<[_]> = groups
@@ -136,7 +129,10 @@ fn present(
         .collect();
     let returned = rows.len() as u32;
     let offset = q.offset().saturating_add(returned);
-    if u64::from(offset) < total && returned > 0 {
+    if let Some(pool) = pool
+        .as_ref()
+        .filter(|_| u64::from(offset) < total && returned > 0)
+    {
         out.next.push(crate::next::Step::new(
             StepKind::Page,
             &[biomcp_types::Source::Orcid],
@@ -150,7 +146,7 @@ fn present(
         offset: q.offset(),
         returned,
         total,
-        pool: Some(pool.info),
+        pool: pool.map(|p| p.info),
         truncated: None,
     });
     {

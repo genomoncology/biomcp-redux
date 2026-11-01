@@ -54,7 +54,7 @@ fn execute<'a>(
     out: &mut Outcome,
 ) -> Result<(), RequestError> {
     let mut store = Store::open(cx.fetch.cache_access()?, *deadline)?;
-    let identity = serde_json::to_vec(&query.identity()).map_err(|_| CacheError::Database)?;
+    let identity = serde_json::to_vec(&query.identity()).map_err(|_| CacheError::Encoding)?;
     let key = Sha256::digest([b"biomcp.article_recommend/1\0".as_slice(), &identity].concat());
     let explicit = query.pool().map(Text::as_str);
     let old = if cx.fresh && explicit.is_none() {
@@ -77,7 +77,18 @@ fn execute<'a>(
         None => {
             let items = create(cx, query, deadline, out)?;
             store.set_deadline(*deadline);
-            store.publish(&key, &items, &out.sources, &out.problems, out.dropped)?
+            match crate::publish::keep(
+                store
+                    .publish(&key, &items, &out.sources, &out.problems, out.dropped)
+                    .map_err(Into::into),
+                out,
+            )? {
+                Some(pool) => pool,
+                None => {
+                    super::page::fetched(super::page::Cursor::Recommend(query), items, out);
+                    return Ok(());
+                }
+            }
         }
     };
     out.sources = pool.sources.clone();

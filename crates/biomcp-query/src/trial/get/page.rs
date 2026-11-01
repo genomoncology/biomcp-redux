@@ -1,7 +1,7 @@
 mod eligibility;
 mod publications;
 mod sites;
-use super::snapshot::Snapshot;
+use super::Snapshot;
 use crate::Outcome;
 use biodata::{NctId, Text};
 
@@ -128,7 +128,7 @@ pub(in crate::trial) fn records<T: Clone>(
         .skip(query.offset() as usize)
         .take(query.limit() as usize)
     {
-        let size = size(item).map_err(|_| CacheError::Database)?.len() + 1;
+        let size = size(item).map_err(|_| CacheError::Encoding)?.len() + 1;
         if !items.is_empty() && bytes + size > budget {
             break;
         }

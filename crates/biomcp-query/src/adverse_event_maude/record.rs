@@ -2,13 +2,12 @@
 use super::{
     AdverseEventGet, AdverseEventSection, Ctx, Outcome, Request, Source, StepKind, Text, maude,
 };
-use crate::{status, store::Store};
+use crate::{source_snapshot, status};
 use biomcp_fetch::{CacheError, Deadline, RequestError, SourceError};
 use biomcp_types::Paged;
 use biomcp_types::ReplyData;
 use biomcp_types::{Reason, SourceOutcome};
-use sha2::{Digest, Sha256};
-#[derive(serde::Deserialize)]
+#[derive(serde::Serialize, serde::Deserialize)]
 struct Saved(
     biodata::MaudeReport,
     Vec<SourceOutcome>,
@@ -16,42 +15,15 @@ struct Saved(
     #[serde(default)] maude::Positions,
     #[serde(default)] bool,
 );
-// Keep the established payload and snapshot identity when no field was rejected.
-impl serde::Serialize for Saved {
-    fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
-        use serde::ser::SerializeTuple;
-        let mut tuple = serializer.serialize_tuple(if self.4 {
-            5
-        } else if !self.3.is_empty() || self.4 {
-            4
-        } else if self.2.is_empty() {
-            2
-        } else {
-            3
-        })?;
-        tuple.serialize_element(&self.0)?;
-        tuple.serialize_element(&self.1)?;
-        if !self.2.is_empty() || !self.3.is_empty() || self.4 {
-            tuple.serialize_element(&self.2)?;
-        }
-        if !self.3.is_empty() || self.4 {
-            tuple.serialize_element(&self.3)?;
-        }
-        if self.4 {
-            tuple.serialize_element(&true)?;
-        }
-        tuple.end()
-    }
-}
-fn key(query: &AdverseEventGet) -> Vec<u8> {
-    Sha256::digest(format!("biomcp.maude_snapshot/1\0{}", query.id()).as_bytes()).to_vec()
+fn key(query: &AdverseEventGet) -> Result<Vec<u8>, RequestError> {
+    source_snapshot::key("adverse_event_maude", query.id())
 }
 pub(super) fn load(
     cx: &Ctx<'_>,
     query: &AdverseEventGet,
     deadline: Deadline<'_>,
     out: &mut Outcome,
-) -> Result<Option<(biodata::MaudeReport, maude::Positions, Text)>, RequestError> {
+) -> Result<Option<(biodata::MaudeReport, maude::Positions, Option<Text>)>, RequestError> {
     let leg = cx.fetch.leg(&maude::SPEC, deadline).fresh(cx.fresh);
     let denied = if cx.fetch.disabled(Source::Maude) {
         Some(
@@ -74,10 +46,9 @@ pub(super) fn load(
         return Err(error);
     }
     let (saved, snapshot) = if let Some(snapshot) = query.snapshot() {
-        let store = Store::open(cx.fetch.cache_access()?, deadline)?;
-        let Some(payload) =
-            store.source_snapshot(snapshot.as_str(), &key(query), |s| cx.fetch.disabled(s))?
-        else {
+        let saved: Option<Saved> =
+            source_snapshot::read(cx, &key(query)?, snapshot.as_str(), deadline)?;
+        let Some(saved) = saved else {
             out.body = ReplyData::PoolError { mismatch: false };
             out.next.push(crate::next::Step::run(
                 StepKind::Restart,
@@ -87,11 +58,10 @@ pub(super) fn load(
             ));
             return Ok(None);
         };
-        let saved: Saved = serde_json::from_str(&payload).map_err(|_| CacheError::Snapshot)?;
         if saved.0.mdr_report_key != *query.id() || !saved.3.check(&saved.0) {
-            return Err(CacheError::Database.into());
+            return Err(CacheError::Internal.into());
         }
-        (saved, snapshot.clone())
+        (saved, Some(snapshot.clone()))
     } else {
         let reply = maude::get(&leg, query);
         let error = reply.as_ref().err().copied();
@@ -116,18 +86,19 @@ pub(super) fn load(
             report.value.positions,
             report.refusals == biomcp_adapters::Refusal::Refused,
         );
-        let payload = serde_json::to_string(&saved).map_err(|_| CacheError::Snapshot)?;
-        let mut store = Store::open(cx.fetch.cache_access()?, deadline)?;
-        let snapshot = store.save_source_snapshot(&key(query), &payload, &out.sources)?;
+        let snapshot = crate::publish::keep(
+            source_snapshot::write(cx, &key(query)?, &saved, &out.sources, deadline),
+            out,
+        )?;
         (saved, snapshot)
     };
     Ok(Some(restore(saved, snapshot, out)))
 }
 fn restore(
     saved: Saved,
-    snapshot: Text,
+    snapshot: Option<Text>,
     out: &mut Outcome,
-) -> (biodata::MaudeReport, maude::Positions, Text) {
+) -> (biodata::MaudeReport, maude::Positions, Option<Text>) {
     out.sources = saved.1;
     out.dropped = saved.4;
     out.problems.extend(saved.2);
