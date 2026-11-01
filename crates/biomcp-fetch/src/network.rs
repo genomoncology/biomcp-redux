@@ -83,7 +83,7 @@ impl Network {
             Route::Https => self.https.clone(),
         })
     }
-    pub(crate) fn rpc_tls(&self) -> Result<rustls::ClientConfig, FetchError> {
+    pub(crate) fn tls_configuration(&self) -> Result<rustls::ClientConfig, FetchError> {
         crate::tls::configuration(self.roots.0.clone())
     }
 

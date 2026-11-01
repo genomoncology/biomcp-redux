@@ -198,7 +198,7 @@ impl Fetch {
         if config.max_body == u64::MAX {
             return Err(FetchError::BodyLimit);
         }
-        let tls = std::sync::Arc::new(config.network.rpc_tls()?);
+        let tls = std::sync::Arc::new(config.network.tls_configuration()?);
         let grpc_worker = std::sync::Arc::new(grpc::Worker::new(tls.clone(), config.grpc_limits)?);
         let agents = network::Agents::new(&config.network, config.proxy.as_ref(), tls.clone())?;
         if matches!(config.mode, Mode::Replay { .. }) && config.replay_cache.is_none() {

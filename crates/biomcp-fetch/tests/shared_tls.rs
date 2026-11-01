@@ -57,6 +57,19 @@ fn second_hosted_call_resumes_tls_after_first_calls_connections_close() -> Check
             "Each call must receive its reply"
         );
         cancellation.cancel();
+        let error = call
+            .leg(spec, call.deadline(spec.deadline))
+            .call(
+                &spec.get("/after-cancel").bytes(1024),
+                Input::Params(&[]),
+                Read::bytes(),
+            )
+            .unwrap_err();
+        assert!(
+            matches!(error, biomcp_fetch::RequestError::Source(error)
+                if error.reason == biomcp_types::Reason::DeadlineExceeded),
+            "A cancelled call must send nothing further"
+        );
     }
     assert_eq!(
         stub.handshakes(),
