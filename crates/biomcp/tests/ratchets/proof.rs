@@ -562,5 +562,19 @@ fn module_shape_rejects_new_source_debt() -> Check {
         parent,
         "/*! Values. */\nmod value;\nextern crate core;\nuse core::{fmt, hash};\n",
     )?;
-    super::module_shape::limits(root, 0, 0)
+    super::module_shape::limits(root, 0, 0)?;
+    put(
+        root,
+        parent,
+        "#![doc = include_str!(\"../README.md\")]\nmod value;\n",
+    )?;
+    super::module_shape::limits(root, 0, 0)?;
+    for prefix in ["/// Outer item docs.", "//!", "\n//! Late module docs."] {
+        put(root, leaf, &format!("{prefix}\npub struct Value;\n"))?;
+        assert!(
+            super::module_shape::limits(root, 0, 0).is_err(),
+            "invalid first-line module doc passed: {prefix:?}"
+        );
+    }
+    Ok(())
 }
