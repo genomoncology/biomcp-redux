@@ -76,7 +76,7 @@ impl std::error::Error for FetchError {}
 /// Local cache failures carry no SQL, file paths or provider text.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum CacheError {
-    /// Database access failed.
+    /// A SQLite operation failed.
     Database,
     /// Cache JSON could not be encoded or decoded.
     Encoding,
