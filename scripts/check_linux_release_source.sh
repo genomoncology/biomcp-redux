@@ -5,11 +5,14 @@ cd "$(dirname "$0")/.."
 case "${1:-container}" in
   container)
     image=$(python3.13 release/toolchain.py image manylinux-aarch64)
-    mkdir -p target/linux-source-check
+    mkdir -p target/linux-source-check/build
+    checkout=$(mktemp -d "$PWD/target/linux-source-check/source.XXXXXX")
+    trap 'python3.13 -c "import shutil,sys; shutil.rmtree(sys.argv[1])" "$checkout"' EXIT
+    git clone --quiet --depth 1 --no-local "$PWD" "$checkout"
     docker run --rm ${JOB_LABEL_FILE:+--label-file "$JOB_LABEL_FILE"} \
       --platform linux/arm64 --memory 8g --cpus 2 \
-      -v "$PWD:/source" -w /source \
-      -e HOME=/source/target/linux-source-check/home \
+      -v "$checkout:/source" -v "$PWD/target/linux-source-check/build:/source/target" -w /source \
+      -e HOME=/source/target/home \
       -e CARGO_BUILD_JOBS=2 -e RUST_TEST_THREADS=2 \
       "$image" /bin/bash scripts/check_linux_release_source.sh checks
     ;;
