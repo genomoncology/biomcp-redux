@@ -1,8 +1,8 @@
 //! Start one isolated HTTP process and retain its validated readiness address.
 use super::{Environment, Server};
+use serde_json::Value;
 #[cfg(unix)]
 use serde_json::json;
-use serde_json::Value;
 use std::{net::SocketAddr, process::Stdio, time::Duration};
 impl Server {
     pub(super) fn configured_key(
@@ -121,8 +121,9 @@ pub(super) fn ignored_interrupt() -> super::Check {
         None,
         &["--hosted".into()],
         |env, args| {
-            let binary =
-                crate::runner::launch::executable(std::path::Path::new(env!("CARGO_BIN_EXE_biomcp")));
+            let binary = crate::runner::launch::executable(std::path::Path::new(env!(
+                "CARGO_BIN_EXE_biomcp"
+            )));
             let mut shell = vec![
                 "-c".into(),
                 "trap '' INT; exec \"$@\"".into(),
