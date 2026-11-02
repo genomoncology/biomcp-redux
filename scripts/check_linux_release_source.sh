@@ -28,6 +28,7 @@ case "${1:-container}" in
     ;;
   checks|focused-checks)
     export PATH="$HOME/.cargo/bin:/opt/python/cp313-cp313/bin:$PATH"
+    python3.13 scripts/test_linux_fixture_cache.py
     mkdir -p "$HOME"
     # These fixtures retain only the OS command path, as on the release runner.
     if [ ! -x /usr/bin/git ]; then ln -s "$(command -v git)" /usr/bin/git; fi
