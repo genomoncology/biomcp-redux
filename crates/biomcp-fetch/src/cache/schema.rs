@@ -60,7 +60,7 @@ fn validate_owners(
                     |r| r.get(0),
                 )
                 .optional()
-                .map_err(version_error)?
+                .map_err(|error| version_error(error))?
         } else {
             None
         };
@@ -86,6 +86,7 @@ fn validate_owners(
     }
     Ok(())
 }
+#[track_caller]
 fn version_error(error: rusqlite::Error) -> CacheError {
     match error {
         rusqlite::Error::FromSqlConversionFailure(..)
