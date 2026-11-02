@@ -66,7 +66,7 @@ impl Server {
     pub(super) fn stop(&mut self) -> Check {
         self.shutdown(false)
     }
-    fn shutdown(&mut self, terminate: bool) -> Check {
+    fn shutdown(&mut self, _terminate: bool) -> Check {
         if self.child.try_wait().map_err(|e| e.to_string())?.is_some() {
             return Ok(());
         }
@@ -77,13 +77,13 @@ impl Server {
             );
             nix::sys::signal::kill(
                 pid,
-                if terminate {
+                if _terminate {
                     nix::sys::signal::Signal::SIGTERM
                 } else {
                     nix::sys::signal::Signal::SIGINT
                 },
             )
-                .map_err(|e| e.to_string())?;
+            .map_err(|e| e.to_string())?;
         }
         // Native Windows console Ctrl-C is exercised by the platform rehearsal.
         #[cfg(windows)]
@@ -585,10 +585,21 @@ fn metadata_cases(server: &Server) -> Check {
 #[cfg(unix)]
 fn ignored_interrupt() -> Check {
     let mut server = Server::configured_launch(
-        "127.0.0.1:0", None, None, None, None, &["--hosted".into()],
+        "127.0.0.1:0",
+        None,
+        None,
+        None,
+        None,
+        &["--hosted".into()],
         |env, args| {
-            let binary = super::launch::executable(std::path::Path::new(env!("CARGO_BIN_EXE_biomcp")));
-            let mut shell = vec!["-c".into(), "trap '' INT; exec \"$@\"".into(), "sh".into(), binary.to_string_lossy().into_owned()];
+            let binary =
+                super::launch::executable(std::path::Path::new(env!("CARGO_BIN_EXE_biomcp")));
+            let mut shell = vec![
+                "-c".into(),
+                "trap '' INT; exec \"$@\"".into(),
+                "sh".into(),
+                binary.to_string_lossy().into_owned(),
+            ];
             shell.extend_from_slice(args);
             env.command("sh", &shell)
         },

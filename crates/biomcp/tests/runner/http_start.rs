@@ -12,10 +12,6 @@ impl Server {
     ) -> Result<Self, String> {
         Self::configured_globals(bind, config, replay, key, allowed_host, &[])
     }
-    #[expect(
-        clippy::disallowed_types,
-        reason = "Own the HTTP diagnostic receiver shared by concurrent test callers"
-    )]
     pub(in crate::runner) fn configured_globals(
         bind: &str,
         config: Option<Value>,
@@ -24,9 +20,15 @@ impl Server {
         allowed_host: Option<&str>,
         globals: &[String],
     ) -> Result<Self, String> {
-        Self::configured_launch(bind, config, replay, key, allowed_host, globals, |env, args| {
-            env.command(env!("CARGO_BIN_EXE_biomcp"), args)
-        })
+        Self::configured_launch(
+            bind,
+            config,
+            replay,
+            key,
+            allowed_host,
+            globals,
+            |env, args| env.command(env!("CARGO_BIN_EXE_biomcp"), args),
+        )
     }
     #[expect(
         clippy::disallowed_types,
