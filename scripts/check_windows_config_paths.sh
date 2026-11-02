@@ -9,6 +9,7 @@ case "${1:-cheap}" in
     cheap) make check-cheap ;;
     focused) cargo test --locked -p biomcp --test cases housekeeping/ ;;
     check) make check-cheap; cargo test --locked -p biomcp --test cases housekeeping/ ;;
+    transport) make check-cheap; python3.13 scripts/test_windows_vm_lock.py ;;
     routine) make landing-gate ;;
     *) exit 2 ;;
 esac
