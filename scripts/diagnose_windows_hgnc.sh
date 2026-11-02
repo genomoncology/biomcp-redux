@@ -10,8 +10,11 @@ cleanup() {
     exit "$result"
 }
 trap cleanup EXIT
-revision=$(git rev-parse HEAD)
-ssh -o BatchMode=yes -o ConnectTimeout=15 yellow true
+revision=${1:-$(git rev-parse HEAD)}
+destination=${2:-yellow}
+if [ "$destination" = yellow ]; then
+    ssh -o BatchMode=yes -o ConnectTimeout=15 yellow true
+fi
 docker start windows-2022 >/dev/null
 ssh -o BatchMode=yes -o ConnectTimeout=3 -o ConnectionAttempts=60 -p 2222 Docker@localhost 'cmd /c ver' >/dev/null
 scp -O -o BatchMode=yes -o ConnectTimeout=15 -P 2222 scripts/diagnose_hgnc_baseline.py Docker@localhost:C:/h/biomcp-0566/diagnose_hgnc_baseline.py
@@ -21,5 +24,9 @@ result=$?
 set -e
 short=$(printf '%.12s' "$revision")
 scp -O -o BatchMode=yes -o ConnectTimeout=15 -P 2222 "Docker@localhost:C:/h/biomcp-0566/hgnc-bounded-output-$short.tar.gz" "$scratch/records.tar.gz"
-scp -o BatchMode=yes -o ConnectTimeout=15 "$scratch/records.tar.gz" "yellow:/home/ian/workspace/data/biomcp-redux-evidence/0566/windows-bounded-$short.tar.gz"
+if [ "$destination" = local ]; then
+    cp "$scratch/records.tar.gz" "windows-bounded-$short.tar.gz"
+else
+    scp -o BatchMode=yes -o ConnectTimeout=15 "$scratch/records.tar.gz" "yellow:/home/ian/workspace/data/biomcp-redux-evidence/0566/windows-bounded-$short.tar.gz"
+fi
 exit "$result"

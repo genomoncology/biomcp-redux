@@ -85,7 +85,8 @@ def main():
     binding = {"baseline_source": BASELINE_SOURCE, "embedded_commit_verified": True, "recipe_source": request_source,
                "product": str(PRODUCT), "product_sha256": digest(PRODUCT),
                "runner": str(RUNNER), "runner_sha256": digest(RUNNER),
-               "trial": TRIAL, "planned_attempts": 8, "maximum_concurrent_attempts": 4}
+               "trial": TRIAL, "planned_attempts": 8, "maximum_concurrent_attempts": 4,
+               "controller": "m5", "remote_vm": {"host": "gator", "cpus": 2, "memory_gib": 8}}
     (output / "binding.json").write_text(json.dumps(binding, indent=2))
     print(json.dumps(binding), flush=True)
     shutil.copy2(INSTALLED / "old-live-list.json", output / "baseline-old-live-list.json")
