@@ -105,7 +105,6 @@ impl Worker {
             Err(error) => failure(&mut self.process, &format!("child wait: {error}")),
         };
         let output = output(&mut self.process);
-        write!(std::io::stderr().lock(), "{output}").unwrap();
         assert!(status.success(), "cache child failed: {output}");
     }
 }
@@ -179,21 +178,8 @@ fn concurrent_first_opens_and_distinct_writes_survive_into_a_new_process() {
         worker.send(b'G');
     }
     // Requests and writes overlap while the shared database writer is held.
-    let requests_started = Instant::now();
     let request_a = server.next();
-    writeln!(
-        std::io::stderr().lock(),
-        "cache parent: first request {:?}",
-        requests_started.elapsed()
-    )
-    .unwrap();
     let request_b = server.next();
-    writeln!(
-        std::io::stderr().lock(),
-        "cache parent: second request {:?}",
-        requests_started.elapsed()
-    )
-    .unwrap();
     assert_ne!(request_a.text, request_b.text);
     request_a.ok();
     request_b.ok();
@@ -237,14 +223,7 @@ fn child() {
         .unwrap();
     event(&mut control, b'S');
     control.write_all(b"O").unwrap();
-    let started = Instant::now();
     let fetch = Fetch::open(config(Path::new(&path))).unwrap();
-    writeln!(
-        std::io::stderr().lock(),
-        "cache child {key}: open {:?}",
-        started.elapsed()
-    )
-    .unwrap();
     let quota_server = Server::new();
     let template = spec(&quota_server, KeyUse::None);
     let spec = Box::leak(Box::new(SourceSpec { base, ..*template }));
@@ -257,23 +236,18 @@ fn child() {
         vec![key.as_str()]
     };
     for key in keys {
-        let started = Instant::now();
-        let leg = fetch.leg(spec, fetch.deadline(Duration::from_secs(10)));
-        let received = leg
-            .call(
-                &endpoint,
-                Input::Params(&[("key", Arg::Text(key))]),
-                biomcp_fetch::Read::<Answer>::json(),
-            )
-            .map(|received| received.value);
-        writeln!(
-            std::io::stderr().lock(),
-            "cache child {key}: fetch {:?}, result {received:?}, report {:?}",
-            started.elapsed(),
-            leg.take_report()
-        )
-        .unwrap();
-        assert!(received.unwrap().answer);
+        assert!(
+            fetch
+                .leg(spec, fetch.deadline(Duration::from_secs(10)))
+                .call(
+                    &endpoint,
+                    Input::Params(&[("key", Arg::Text(key))]),
+                    biomcp_fetch::Read::<Answer>::json()
+                )
+                .map(|received| received.value)
+                .unwrap()
+                .answer
+        );
     }
     control.write_all(b"D").unwrap();
     event(&mut control, b'E');
