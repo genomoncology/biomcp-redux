@@ -26,11 +26,15 @@ impl Cache {
         deadline: Deadline<'_>,
     ) -> Result<bool, CacheError> {
         let connection = self.owned_connection()?;
-        connection.execute_batch(STAGING).map_err(|error| db_error(error))?;
+        connection
+            .execute_batch(STAGING)
+            .map_err(|error| db_error(error))?;
         if let Some(rows) = rows {
             for (batch, chunk) in rows.chunks(BATCH_ROWS).enumerate() {
                 sql_deadline(&connection, deadline)?;
-                let tx = connection.unchecked_transaction().map_err(|error| db_error(error))?;
+                let tx = connection
+                    .unchecked_transaction()
+                    .map_err(|error| db_error(error))?;
                 insert(&tx, bundle.name, batch * BATCH_ROWS, chunk)?;
                 tx.commit().map_err(|error| db_error(error))?;
             }

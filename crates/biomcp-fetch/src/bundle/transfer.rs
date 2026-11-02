@@ -107,7 +107,9 @@ fn stage(
     owners: &[SchemaOwner],
     deadline: Deadline<'_>,
 ) -> Result<Option<u32>, CacheError> {
-    let snapshot = connection.unchecked_transaction().map_err(|error| db_error(error))?;
+    let snapshot = connection
+        .unchecked_transaction()
+        .map_err(|error| db_error(error))?;
     check_predecessor(&snapshot, owners)?;
     if !source_table(&snapshot, "bundle")? || !exists(&snapshot, "predecessor", name)? {
         return Ok(None);

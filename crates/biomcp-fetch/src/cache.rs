@@ -111,7 +111,9 @@ impl Cache {
         }
         let mut connection = Connection::open(path).map_err(|error| db_error(error))?;
         check_owners(&connection, owners)?;
-        connection.busy_timeout(OPEN_WAIT).map_err(|error| db_error(error))?;
+        connection
+            .busy_timeout(OPEN_WAIT)
+            .map_err(|error| db_error(error))?;
         Self::initialize(&mut connection)?;
         // Ownership is validated before changing the file's journal mode.
         let journal: String = connection
@@ -265,7 +267,9 @@ impl Cache {
             return Err(CacheError::Busy);
         }
         let connection = wait_mutex(&self.0, deadline, &deadline.local(), Some(&self.4))?;
-        connection.busy_timeout(Duration::ZERO).map_err(|error| db_error(error))?;
+        connection
+            .busy_timeout(Duration::ZERO)
+            .map_err(|error| db_error(error))?;
         operation(&connection)
     }
 

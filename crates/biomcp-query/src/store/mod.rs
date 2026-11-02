@@ -61,7 +61,9 @@ impl<'a> Store<'a> {
         let started = Instant::now();
         let wall_end = started.checked_add(deadline.remaining()).unwrap_or(started);
         let mut connection = access.connect()?;
-        connection.busy_timeout(deadline.remaining()).map_err(|error| db(error))?;
+        connection
+            .busy_timeout(deadline.remaining())
+            .map_err(|error| db(error))?;
         access.admit(deadline, || {
             biomcp_fetch::check_owners(
                 &connection,
@@ -127,7 +129,10 @@ impl<'a> Store<'a> {
             if !self._access.is_hosted() {
                 return operation(&self.connection);
             }
-            let tx = self.connection.unchecked_transaction().map_err(|error| db(error))?;
+            let tx = self
+                .connection
+                .unchecked_transaction()
+                .map_err(|error| db(error))?;
             let result = operation(&tx)?;
             tx.commit().map_err(|error| db(error))?;
             Ok(result)
@@ -173,13 +178,13 @@ impl<'a> Store<'a> {
 }
 #[track_caller]
 fn db(error: rusqlite::Error) -> CacheError {
+    biomcp_fetch::record_sqlite_error("query.store", &error);
     if matches!(
         error.sqlite_error_code(),
         Some(rusqlite::ErrorCode::DatabaseBusy | rusqlite::ErrorCode::DatabaseLocked)
     ) {
         CacheError::Busy
     } else {
-        eprintln!("SQLite diagnostic: {:?}\n{}", error.sqlite_error(), std::panic::Location::caller());
         CacheError::Database
     }
 }
@@ -189,7 +194,9 @@ pub fn health(fetch: &biomcp_fetch::Fetch, budget: std::time::Duration) -> Resul
     let access = fetch.cache_access()?;
     let connection = access.connect_read_only()?;
     let deadline = fetch.deadline(budget);
-    connection.busy_timeout(deadline.remaining()).map_err(|error| db(error))?;
+    connection
+        .busy_timeout(deadline.remaining())
+        .map_err(|error| db(error))?;
     access.admit(deadline, || {
         biomcp_fetch::check_owners(
             &connection,

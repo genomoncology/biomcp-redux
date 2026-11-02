@@ -34,8 +34,8 @@ fn check_owners_at(
     if !connection.is_autocommit() {
         return validate(connection);
     }
-    let transaction =
-        Transaction::new_unchecked(connection, TransactionBehavior::Deferred).map_err(|error| db_error(error))?;
+    let transaction = Transaction::new_unchecked(connection, TransactionBehavior::Deferred)
+        .map_err(|error| db_error(error))?;
     validate(&transaction)?;
     transaction.commit().map_err(|error| db_error(error))
 }
@@ -207,13 +207,13 @@ fn create_reply_schema(tx: &Transaction<'_>, version: Option<u32>) -> Result<(),
 
 #[track_caller]
 pub(crate) fn db_error(error: rusqlite::Error) -> CacheError {
+    crate::record_sqlite_error("fetch", &error);
     if matches!(
         error.sqlite_error_code(),
         Some(rusqlite::ErrorCode::DatabaseBusy | rusqlite::ErrorCode::DatabaseLocked)
     ) {
         CacheError::Busy
     } else {
-        eprintln!("SQLite diagnostic: {:?}\n{}", error.sqlite_error(), std::panic::Location::caller());
         CacheError::Database
     }
 }

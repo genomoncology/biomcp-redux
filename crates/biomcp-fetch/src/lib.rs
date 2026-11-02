@@ -14,8 +14,11 @@ mod bundle;
 mod cache;
 mod cache_access;
 mod cleanup;
+mod sqlite_diagnostic;
 mod store_size;
 pub use cache_access::CacheAccess;
+#[doc(hidden)]
+pub use sqlite_diagnostic::{SQLITE_DIAGNOSTICS, record_sqlite_error};
 mod cache_request;
 mod containment;
 mod deadline;
