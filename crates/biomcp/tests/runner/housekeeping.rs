@@ -75,7 +75,7 @@ fn check() -> Check {
                 .lines()
                 .find_map(|line| line.strip_prefix("Config: "))
                 .ok_or("missing config path")?;
-            if !same_file::is_same_file(actual, &config)? {
+            if !Path::new(actual).is_absolute() || !same_file::is_same_file(actual, &config)? {
                 return Err(format!(
                     "config path does not match the settings boundary: actual={actual:?}, expected={config:?}"
                 ).into());

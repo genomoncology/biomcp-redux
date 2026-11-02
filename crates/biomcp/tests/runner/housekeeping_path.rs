@@ -48,7 +48,7 @@ fn fallbacks() -> Check {
     fs::create_dir(&bin)?;
     for path in [None, Some(bin.as_path())] {
         let actual = configuration(&env, &executable, path)?;
-        if !same_file::is_same_file(&actual, &executable)? {
+        if !actual.is_absolute() || !same_file::is_same_file(&actual, &executable)? {
             return Err(format!(
                 "missing PATH entry did not retain the running executable: PATH={path:?}, actual={actual:?}, expected={executable:?}"
             ).into());
@@ -59,7 +59,8 @@ fn fallbacks() -> Check {
         &executable,
         bin.join(format!("biomcp{}", std::env::consts::EXE_SUFFIX)),
     )?;
-    if !same_file::is_same_file(configuration(&env, &executable, Some(&bin))?, &executable)? {
+    let actual = configuration(&env, &executable, Some(&bin))?;
+    if !actual.is_absolute() || !same_file::is_same_file(&actual, &executable)? {
         return Err("a different installation replaced the running executable".into());
     }
     Ok(())
