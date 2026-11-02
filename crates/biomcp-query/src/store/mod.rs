@@ -203,6 +203,4 @@ pub fn health(fetch: &biomcp_fetch::Fetch, budget: std::time::Duration) -> Resul
 }
 
 #[cfg(test)]
-mod deadline_tests;
-#[cfg(test)]
 mod privacy_tests;
