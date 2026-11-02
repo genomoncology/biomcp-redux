@@ -47,8 +47,11 @@ fn fallbacks() -> Check {
     let bin = env.root().join("bin");
     fs::create_dir(&bin)?;
     for path in [None, Some(bin.as_path())] {
-        if configuration(&env, &executable, path)? != executable {
-            return Err("missing PATH entry did not retain the running executable".into());
+        let actual = configuration(&env, &executable, path)?;
+        if actual != executable {
+            return Err(format!(
+                "missing PATH entry did not retain the running executable: PATH={path:?}, actual={actual:?}, expected={executable:?}"
+            ).into());
         }
     }
     // A second installation can have identical bytes while naming a different file.

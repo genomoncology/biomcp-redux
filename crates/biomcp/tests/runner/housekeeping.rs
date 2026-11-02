@@ -71,7 +71,10 @@ fn check() -> Check {
             return Err("verbose build or schema provenance differs from this artifact".into());
         }
         if !empty && !text.contains(&config.display().to_string()) {
-            return Err("config path does not match the settings boundary".into());
+            return Err(format!(
+                "config path does not match the settings boundary: actual={:?}, expected={config:?}",
+                text.lines().find_map(|line| line.strip_prefix("Config: "))
+            ).into());
         }
         for client in [
             None,
