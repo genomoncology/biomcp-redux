@@ -188,11 +188,17 @@ fn shell_client(env: &Environment, empty: bool) -> Check {
     )?;
     let words = shlex::split(success(&output)?).ok_or("invalid shell command")?;
     let expected = env.command(env!("CARGO_BIN_EXE_biomcp"), &[]);
-    if words.len() != 7
-        || words[..5] != ["codex", "mcp", "add", "biomcp", "--"]
-        || words[6] != "serve"
-        || !Path::new(&words[5]).is_absolute()
-        || !same_file::is_same_file(&words[5], expected.get_program())?
+    let [codex, mcp, add, biomcp, separator, path, serve] = words.as_slice() else {
+        return Err(format!("wrong shell client configuration: {words:?}").into());
+    };
+    if codex != "codex"
+        || mcp != "mcp"
+        || add != "add"
+        || biomcp != "biomcp"
+        || separator != "--"
+        || serve != "serve"
+        || !Path::new(path).is_absolute()
+        || !same_file::is_same_file(path, expected.get_program())?
     {
         return Err(format!("wrong shell client configuration: {words:?}").into());
     }

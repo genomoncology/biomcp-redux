@@ -8,6 +8,7 @@ python3.13 --version
 case "${1:-cheap}" in
     cheap) make check-cheap ;;
     focused) cargo test --locked -p biomcp --test cases housekeeping/ ;;
+    check) make check-cheap; cargo test --locked -p biomcp --test cases housekeeping/ ;;
     routine) make landing-gate ;;
     *) exit 2 ;;
 esac
