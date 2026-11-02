@@ -26,7 +26,7 @@ cleanup() {
     rm -rf "$scratch"
     exit "$result"
 }
-trap cleanup EXIT
+windows_vm_traps
 revision=$(git rev-parse HEAD)
 short=$(printf '%.12s' "$revision")
 git archive "$revision" > "$scratch/source.tar"

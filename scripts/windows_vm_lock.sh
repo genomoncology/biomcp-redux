@@ -4,6 +4,12 @@ windows_lock_owned=0
 windows_lock_owner=
 windows_vm_ssh() { ssh -o BatchMode=yes -o ConnectTimeout=15 gator "$@"; }
 windows_vm_wait() { sleep 2; }
+windows_vm_traps() {
+    trap cleanup EXIT
+    trap 'exit 129' HUP
+    trap 'exit 130' INT
+    trap 'exit 143' TERM
+}
 windows_vm_claim() {
     windows_job_id=$(basename "$(dirname "${JOB_LABEL_FILE:-missing}")")
     case "${windows_job_id#j}" in ''|*[!0-9]*) return 1 ;; esac

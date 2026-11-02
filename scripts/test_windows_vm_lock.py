@@ -33,8 +33,7 @@ class WindowsVmLock(unittest.TestCase):
         script = f'. {shlex.quote(str(HELPER))}\n'
         script += 'windows_vm_ssh() { /bin/sh -c "$1"; }\n'
         return subprocess.run(["/bin/sh", "-eu", "-c", script + body],
-                              env={**self.env, **environment}, capture_output=True, text=True,
-                              timeout=10)
+                              env={**self.env, **environment}, capture_output=True, text=True)
 
     def test_failure_stops_owned_vm_before_releasing_lock(self):
         result = self.run_shell('''
@@ -80,6 +79,25 @@ windows_vm_release 1
         self.assertNotEqual(result.returncode, 0)
         self.assertFalse(self.lock.exists())
         self.assertFalse(self.log.exists())
+
+    def test_signals_exit_through_owned_cleanup(self):
+        for signal, code in [("HUP", 129), ("INT", 130), ("TERM", 143)]:
+            with self.subTest(signal=signal):
+                self.log.unlink(missing_ok=True)
+                result = self.run_shell("""
+started=0
+cleanup() {
+    result=$?
+    windows_vm_release "$started" || result=1
+    exit "$result"
+}
+windows_vm_traps
+windows_vm_claim
+started=1
+kill -s """ + signal + " $$\n")
+                self.assertEqual(result.returncode, code, result.stderr)
+                self.assertFalse(self.lock.exists())
+                self.assertTrue(self.log.read_text().startswith("stop windows-2022\n"))
 
     def test_stop_failure_still_releases_own_lock_and_reports_failure(self):
         result = self.run_shell("windows_vm_claim\nwindows_vm_release 1\n", MOCK_STOP_CODE="1")
