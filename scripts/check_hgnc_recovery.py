@@ -1,10 +1,10 @@
 """Build once and exercise HGNC recovery through copied, installed executables."""
+import json
 import os
 from pathlib import Path
 import shutil
 import subprocess
 import sys
-import tempfile
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
@@ -15,20 +15,32 @@ def main():
     os.chdir(ROOT)
     product = Path(cargo("dev")["executable"])
     runner = Path(cargo("dev", tests="tools")["executable"])
-    with tempfile.TemporaryDirectory(prefix="hgnc-recovery-") as directory:
-        installed = Path(directory)
-        binary = installed / product.name
-        tool = installed / runner.name
-        shutil.copy2(product, binary)
-        shutil.copy2(runner, tool)
-        shutil.copytree(ROOT / "tests", installed / "fixtures")
-        environment = {**os.environ, "BIOMCP_TEST_EXECUTABLE": str(binary),
-                       "BIOMCP_TEST_FIXTURES": str(installed / "fixtures")}
-        names = ["hgnc-first-snapshot-recovers"] if len(sys.argv) == 1 else sys.argv[1:]
-        for name in names:
-            subprocess.run([str(tool), "--proofs", "cache-resilience/" + name,
-                            "--exact", "--test-threads", "1"], cwd=installed,
-                           env=environment, check=True)
+    installed = ROOT / "hgnc-installed"
+    if installed.exists():
+        shutil.rmtree(installed)
+    installed.mkdir()
+    binary = installed / product.name
+    tool = installed / runner.name
+    shutil.copy2(product, binary)
+    shutil.copy2(runner, tool)
+    shutil.copytree(ROOT / "tests", installed / "fixtures")
+    environment = {**os.environ, "BIOMCP_TEST_EXECUTABLE": str(binary),
+                   "BIOMCP_TEST_FIXTURES": str(installed / "fixtures")}
+    print(json.dumps({"source": os.environ.get("BIOMCP_BUILD_REVISION"),
+                      "product": str(binary), "runner": str(tool),
+                      "fixtures": str(installed / "fixtures")}), flush=True)
+    listing = subprocess.run([str(tool), "--live-check", "--list"], cwd=installed,
+                             env=environment, check=True, capture_output=True)
+    (installed / "old-live-list.json").write_bytes(listing.stdout)
+    rows = json.loads(listing.stdout)["cases"]
+    print(json.dumps({"old_live_rows": [row for row in rows
+          if row["case"].endswith(("grammar.yaml", "failure500.yaml"))]}), flush=True)
+    names = ["hgnc-first-snapshot-recovers"] if len(sys.argv) == 1 else sys.argv[1:]
+    for name in names:
+        subprocess.run([str(tool), "--proofs", "cache-resilience/" + name,
+                        "--exact", "--test-threads", "1"], cwd=installed,
+                       env=environment, check=True)
+
 
 
 if __name__ == "__main__":

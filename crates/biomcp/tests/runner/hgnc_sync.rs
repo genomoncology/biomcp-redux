@@ -221,6 +221,10 @@ fn first() -> Check {
             String::from_utf8_lossy(&output.stderr)
         ));
     }
+    let result: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
+    if result.get("status") != Some(&json!("complete")) {
+        return Err(format!("first snapshot did not recover completely: {result}"));
+    }
     peer.finish()?;
     Ok(())
 }

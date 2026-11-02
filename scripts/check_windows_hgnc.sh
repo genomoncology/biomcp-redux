@@ -3,7 +3,24 @@
 set -eu
 cd "$(dirname "$0")/.."
 archive=$(mktemp)
-trap 'rm -f "$archive"' EXIT
+cleanup() {
+    result=$?
+    rm -f "$archive"
+    docker stop windows-2022 >/dev/null || true
+    exit "$result"
+}
+trap cleanup EXIT
+docker start windows-2022 >/dev/null
+# Wait for SSH boot readiness without changing the VM or authentication.
+ready=0
+for attempt in $(seq 1 30); do
+    if ssh -o BatchMode=yes -o ConnectTimeout=5 -p 2222 Docker@localhost 'cmd /c ver' >/dev/null 2>&1; then
+        ready=1
+        break
+    fi
+    sleep 2
+done
+[ "$ready" -eq 1 ]
 revision=$(git rev-parse HEAD)
 git archive "$revision" > "$archive"
 # Remove only this lane's obsolete full-debug build; the lean target is reused.
