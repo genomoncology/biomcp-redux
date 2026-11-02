@@ -24,6 +24,23 @@ impl Server {
         allowed_host: Option<&str>,
         globals: &[String],
     ) -> Result<Self, String> {
+        Self::configured_launch(bind, config, replay, key, allowed_host, globals, |env, args| {
+            env.command(env!("CARGO_BIN_EXE_biomcp"), args)
+        })
+    }
+    #[expect(
+        clippy::disallowed_types,
+        reason = "Own the HTTP diagnostic receiver shared by concurrent test callers"
+    )]
+    pub(super) fn configured_launch(
+        bind: &str,
+        config: Option<Value>,
+        replay: Option<std::path::PathBuf>,
+        key: Option<(&str, &str)>,
+        allowed_host: Option<&str>,
+        globals: &[String],
+        launch: impl FnOnce(&Environment, &[String]) -> crate::runner::capture::Capture,
+    ) -> Result<Self, String> {
         let environment = Environment::new().map_err(|e| e.to_string())?;
         if let Some(config) = config {
             environment.config(&config).map_err(|e| e.to_string())?;
@@ -37,7 +54,7 @@ impl Server {
         if let Some(path) = replay {
             args.extend(environment.globals(Some(&path), false));
         }
-        let mut command = environment.command(env!("CARGO_BIN_EXE_biomcp"), &args);
+        let mut command = launch(&environment, &args);
         #[cfg(windows)]
         {
             use std::os::windows::process::CommandExt;

@@ -17,6 +17,10 @@ pub(super) fn trials() -> Vec<Trial> {
         transcript_trial(crate::runner::pool_contract::HTTP_CAPACITY.0, || {
             super::http_capacity::check().map_err(Into::into)
         }),
+        #[cfg(unix)]
+        transcript_trial("mcp-http/ignored-interrupt-keeps-serving", || {
+            ignored_interrupt().map_err(Into::into)
+        }),
         transcript_trial("mcp-http/local-health-and-discovery", || {
             lifecycle().map_err(Into::into)
         }),
@@ -60,6 +64,9 @@ impl Drop for Server {
 }
 impl Server {
     pub(super) fn stop(&mut self) -> Check {
+        self.shutdown(false)
+    }
+    fn shutdown(&mut self, terminate: bool) -> Check {
         if self.child.try_wait().map_err(|e| e.to_string())?.is_some() {
             return Ok(());
         }
@@ -68,7 +75,14 @@ impl Server {
             let pid = nix::unistd::Pid::from_raw(
                 self.child.id().try_into().map_err(|_| "HTTP process ID")?,
             );
-            nix::sys::signal::kill(pid, nix::sys::signal::Signal::SIGINT)
+            nix::sys::signal::kill(
+                pid,
+                if terminate {
+                    nix::sys::signal::Signal::SIGTERM
+                } else {
+                    nix::sys::signal::Signal::SIGINT
+                },
+            )
                 .map_err(|e| e.to_string())?;
         }
         // Native Windows console Ctrl-C is exercised by the platform rehearsal.
@@ -566,4 +580,23 @@ fn metadata_cases(server: &Server) -> Check {
         return Err("unsupported protocol version was not reported".into());
     }
     Ok(())
+}
+
+#[cfg(unix)]
+fn ignored_interrupt() -> Check {
+    let mut server = Server::configured_launch(
+        "127.0.0.1:0", None, None, None, None, &["--hosted".into()],
+        |env, args| {
+            let binary = super::launch::executable(std::path::Path::new(env!("CARGO_BIN_EXE_biomcp")));
+            let mut shell = vec!["-c".into(), "trap '' INT; exec \"$@\"".into(), "sh".into(), binary.to_string_lossy().into_owned()];
+            shell.extend_from_slice(args);
+            env.command("sh", &shell)
+        },
+    )?;
+    let request = super::mcp::request(json!(1), "ping", json!({}));
+    let (status, reply) = server.request("POST", "/mcp", &request.to_string())?;
+    if status != 200 || reply != json!({"jsonrpc":"2.0", "id":1, "result":{}}) {
+        return Err(format!("ignored SIGINT MCP ping: {status} {reply}"));
+    }
+    server.shutdown(true)
 }
