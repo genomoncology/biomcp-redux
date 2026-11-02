@@ -2,10 +2,16 @@
 # Check the dependency switch in a physical checkout with job-owned output.
 set -eu
 phase=${1:-check}
-root=${2:-$(mktemp -d "${TMPDIR:-/tmp}/biomcp-0459.XXXXXX")}
-case "$root" in /private/tmp/biomcp-0459.*|/tmp/biomcp-0459.*|/var/tmp/biomcp-0459.*) ;; *) echo 'unexpected qualification root' >&2; exit 1;; esac
 revision=${3:-$(git rev-parse HEAD)}
 export BIOMCP_BUILD_REVISION="$revision"
+if [ "$phase" = gate ]; then
+    [ "$(git rev-parse HEAD)" = "$revision" ] || exit 1
+    python_bin=$(python3.13 -c 'import pathlib, sys; print(pathlib.Path(sys.executable).resolve().parent)')
+    export PATH="$python_bin:$PATH"
+    exec make landing-gate
+fi
+root=${2:-$(mktemp -d "${TMPDIR:-/tmp}/biomcp-0459.XXXXXX")}
+case "$root" in /private/tmp/biomcp-0459.*|/tmp/biomcp-0459.*) ;; *) echo 'unexpected qualification root' >&2; exit 1;; esac
 if [ "$phase" = fixture ] || [ "$phase" = policy ] || [ "$phase" = docs ] || [ "$phase" = docs-generate ]; then
     [ "$(git rev-parse HEAD)" = "$revision" ] || exit 1
     export CARGO_TARGET_DIR="$root/target"
@@ -26,13 +32,8 @@ if [ "$phase" = fixture ] || [ "$phase" = policy ] || [ "$phase" = docs ] || [ "
     exec make check-cheap
 fi
 source="$root/source-$revision"
-if [ "$phase" = gate ]; then
-    git clone --quiet --shared --no-checkout . "$source"
-    git -C "$source" checkout --quiet --detach "$revision"
-else
-    mkdir -p "$source"
-    git archive "$revision" | /usr/bin/tar -xf - -C "$source"
-fi
+mkdir -p "$source"
+git archive "$revision" | /usr/bin/tar -xf - -C "$source"
 if [ "$phase" = prepare ]; then
     baseline=${4:?same-main schema reference required}
     mkdir -p "$root/reference"
@@ -47,16 +48,8 @@ python_bin=$(python3.13 -c 'import pathlib, sys; print(pathlib.Path(sys.executab
 export PATH="$python_bin:$PATH"
 python3 --version
 case "$phase" in
-gate)
-    exec make landing-gate
-    ;;
-release)
-    python3 -m unittest release.test_licenses release.test_publication release.test_smoke
-    sh scripts/check_release_recipe.sh notices
-    ;;
 cheap)
-    cargo fmt --all -- --check
-    make lint ratchets
+    make check-cheap
     ;;
 vendor)
     python3 release/vendor.py -- cargo metadata --frozen --format-version 1 > "$root/offline-metadata.json"
