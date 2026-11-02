@@ -117,9 +117,9 @@ impl Cache {
         let journal: String = connection
             .pragma_query_value(None, "journal_mode", |row| row.get(0))
             .map_err(db_error)?;
-        if !journal.eq_ignore_ascii_case("delete") {
+        if !journal.eq_ignore_ascii_case("wal") {
             connection
-                .pragma_update(None, "journal_mode", "DELETE")
+                .pragma_update(None, "journal_mode", "WAL")
                 .map_err(db_error)?;
         }
         Ok(Self(
