@@ -10,7 +10,7 @@ The dependency direction follows `../decisions/2026-10-23-crates-enforce-depende
 
 | Rule | Owner | Enforcement |
 | --- | --- | --- |
-| Neutral entity values have no workspace dependency or I/O. | `crates/biodata` | Check: `crates/biomcp/tests/ratchets/dependencies.rs`; Check: `crates/biodata/clippy.toml` |
+| Neutral entity values have no workspace dependency or I/O. | [BioData](https://github.com/genomoncology/biodata) | Check: the published crate's dependency and lint checks |
 | Consumer queries, replies, source identities and schemas sit above neutral values. | `crates/biomcp-types` | Check: `crates/biomcp/tests/ratchets/dependencies.rs`; Check: `crates/biomcp-types/clippy.toml` |
 | Transport owns network clients, request caching, recording, replay and bundle transfer. | `crates/biomcp-fetch` | Check: `crates/biomcp/tests/ratchets/dependencies.rs` |
 | Adapters declare sources and map native replies without importing query services, the binary, HTTP clients or SQLite. | `crates/biomcp-adapters` | Check: `crates/biomcp/tests/ratchets/dependencies.rs`; Check: `crates/biomcp-adapters/clippy.toml` |
@@ -48,7 +48,7 @@ Terms describe publisher conditions. They do not grant reuse rights. Provider de
 
 ## 4. Values and native reply mapping
 
-`biodata` owns neutral checked values. `biomcp-types` owns BioMCP requests and replies. This separation implements `../decisions/2026-10-23-biodata-is-the-base-data-layer.md`.
+`biodata` owns neutral checked values in its public repository. BioMCP depends on BioData v1.0.0 at the exact commit in the workspace manifest; the release build vendors that locked source for offline compilation. `biomcp-types` owns BioMCP requests and replies. This separation implements `../decisions/2026-10-23-biodata-is-the-base-data-layer.md`.
 
 `crates/biomcp-adapters/src/raw.rs` represents a malformed optional field with `Field::Invalid`. Mapping helpers in `mapped.rs` preserve the useful record and attach a field problem. `Mapped<T>` carries the value, problems and the independent `Refusal` fact. Native member refusal is different from an optional field omission.
 

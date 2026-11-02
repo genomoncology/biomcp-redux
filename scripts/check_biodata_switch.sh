@@ -2,8 +2,8 @@
 # Check the dependency switch in a physical checkout with job-owned output.
 set -eu
 phase=${1:-check}
-root=${2:-$(mktemp -d /private/tmp/biomcp-0459.XXXXXX)}
-case "$root" in /private/tmp/biomcp-0459.*) ;; *) echo 'unexpected qualification root' >&2; exit 1;; esac
+root=${2:-$(mktemp -d "${TMPDIR:-/tmp}/biomcp-0459.XXXXXX")}
+case "$root" in /private/tmp/biomcp-0459.*|/tmp/biomcp-0459.*) ;; *) echo 'unexpected qualification root' >&2; exit 1;; esac
 revision=${3:-$(git rev-parse HEAD)}
 export BIOMCP_BUILD_REVISION="$revision"
 if [ "$phase" = fixture ] || [ "$phase" = policy ] || [ "$phase" = docs ] || [ "$phase" = docs-generate ]; then
@@ -38,7 +38,17 @@ cd "$source"
 export CARGO_TARGET_DIR="$root/target"
 printf 'Qualification root: %s\n' "$root"
 rustc --version
+python_bin=$(python3.13 -c 'import pathlib, sys; print(pathlib.Path(sys.executable).resolve().parent)')
+export PATH="$python_bin:$PATH"
+python3 --version
 case "$phase" in
+gate)
+    exec make landing-gate
+    ;;
+release)
+    python3 -m unittest release.test_licenses release.test_publication release.test_smoke
+    sh scripts/check_release_recipe.sh notices
+    ;;
 cheap)
     cargo fmt --all -- --check
     make lint ratchets
