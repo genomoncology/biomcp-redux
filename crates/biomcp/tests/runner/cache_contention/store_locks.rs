@@ -21,16 +21,13 @@ pub(super) fn trials() -> Vec<Trial> {
 
 fn locked(cdx: bool) -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
-    let root = env.shared_root();
     let result = locked_with_environment(cdx, &env);
-    drop(env);
-    result.map_err(|error| match std::sync::Arc::try_unwrap(root) {
-        Ok(root) => format!(
-            "{error}; retained store-lock fixture={}",
-            root.keep().display()
-        ),
-        Err(_) => format!("{error}; fixture still has another owner"),
-    })
+    result.map_err(
+        |error| match biomcp_test_support::evidence::retain(env.root()) {
+            Ok(root) => format!("{error}; retained store-lock fixture={}", root.display()),
+            Err(retention) => format!("{error}; fixture retention failed: {retention}"),
+        },
+    )
 }
 
 fn locked_with_environment(cdx: bool, env: &Environment) -> Result<(), String> {

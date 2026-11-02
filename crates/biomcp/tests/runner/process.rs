@@ -16,16 +16,6 @@ pub(super) struct Process {
 }
 
 impl Process {
-    pub(super) fn abort(mut self) -> Result<(Option<ExitStatus>, ExitStatus, Vec<u8>), String> {
-        let observed = self.child.try_wait().map_err(|e| e.to_string())?;
-        if observed.is_none() {
-            let _ = self.child.kill();
-        }
-        let status = self.child.wait().map_err(|e| e.to_string())?;
-        let _ = joined(self.stdout)?;
-        Ok((observed, status, joined(self.stderr)?))
-    }
-
     pub(super) fn new(mut child: Child) -> Result<Self, String> {
         let stdout = child
             .stdout

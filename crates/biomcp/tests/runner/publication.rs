@@ -31,17 +31,23 @@ impl Peer {
         let (tx, replies) = mpsc::channel();
         let reader = thread::spawn(move || {
             let mut stdout = Vec::new();
-            for line in BufReader::new(output).lines() {
-                let value = line.map_err(|e| e.to_string()).and_then(|line| {
-                    stdout.extend_from_slice(line.as_bytes());
-                    stdout.push(b'\n');
-                    let value: Value = serde_json::from_str(&line).map_err(|e| e.to_string())?;
+            let mut output = BufReader::new(output);
+            loop {
+                let mut line = Vec::new();
+                let read = output.read_until(b'\n', &mut line);
+                stdout.extend_from_slice(&line);
+                if matches!(read, Ok(0)) {
+                    break;
+                }
+                let failed = read.is_err();
+                let value = read.map_err(|e| e.to_string()).and_then(|_| {
+                    let value: Value = serde_json::from_slice(&line).map_err(|e| e.to_string())?;
                     if value.get("jsonrpc") != Some(&json!("2.0")) {
                         return Err("non-JSON-RPC stdout".into());
                     }
                     Ok(value)
                 });
-                if tx.send(value).is_err() {
+                if tx.send(value).is_err() || failed {
                     break;
                 }
             }
@@ -74,8 +80,12 @@ impl Peer {
     }
     fn failure(&mut self, context: &str) -> String {
         let mut capture = || -> Result<String, String> {
-            let process = self.process.take().ok_or("process missing")?;
-            let (observed, status, stderr) = process.abort()?;
+            let mut process = self.process.take().ok_or("process missing")?;
+            let observed = process.child.try_wait().map_err(|e| e.to_string())?;
+            if observed.is_none() {
+                let _ = process.child.kill();
+            }
+            let (status, _, stderr) = process.finish()?;
             let stdout = self
                 .reader
                 .take()
@@ -93,11 +103,12 @@ impl Peer {
             std::fs::write(directory.join("stdout"), &stdout).map_err(|e| e.to_string())?;
             std::fs::write(directory.join("stderr"), &stderr).map_err(|e| e.to_string())?;
             Ok(format!(
-                "{context}; child before cleanup={observed:?}, reaped={status:?}; raw output={}; stderr (first {} of {} bytes)={:?}",
+                "{context}; child before cleanup={observed:?}, reaped={status:?}; raw output={}; stdout first bytes={:?}; stderr (first {} of {} bytes)={:?}",
                 directory.display(),
+                stdout.get(..stdout.len().min(256)).unwrap_or(&stdout),
                 stderr.len().min(4096),
                 stderr.len(),
-                String::from_utf8_lossy(&stderr[..stderr.len().min(4096)])
+                String::from_utf8_lossy(stderr.get(..stderr.len().min(4096)).unwrap_or(&stderr))
             ))
         };
         capture().unwrap_or_else(|error| format!("{context}; diagnostic capture failed: {error}"))
