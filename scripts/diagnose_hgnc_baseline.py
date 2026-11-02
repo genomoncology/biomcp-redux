@@ -79,7 +79,10 @@ def main():
     work = ROOT / ("hgnc-bounded-work-" + request_source[:12])
     output.mkdir()
     work.mkdir()
-    binding = {"baseline_source": BASELINE_SOURCE, "recipe_source": request_source,
+    version = subprocess.run([str(PRODUCT), "version", "--verbose"], capture_output=True, check=True)
+    if f"Commit: {BASELINE_SOURCE}".encode() not in version.stdout:
+        raise ValueError("installed product does not match the baseline source")
+    binding = {"baseline_source": BASELINE_SOURCE, "embedded_commit_verified": True, "recipe_source": request_source,
                "product": str(PRODUCT), "product_sha256": digest(PRODUCT),
                "runner": str(RUNNER), "runner_sha256": digest(RUNNER),
                "trial": TRIAL, "planned_attempts": 8, "maximum_concurrent_attempts": 4}

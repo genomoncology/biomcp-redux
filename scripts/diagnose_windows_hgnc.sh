@@ -11,6 +11,7 @@ cleanup() {
 }
 trap cleanup EXIT
 revision=$(git rev-parse HEAD)
+ssh -o BatchMode=yes -o ConnectTimeout=15 yellow true
 docker start windows-2022 >/dev/null
 ssh -o BatchMode=yes -o ConnectTimeout=3 -o ConnectionAttempts=60 -p 2222 Docker@localhost 'cmd /c ver' >/dev/null
 scp -O -o BatchMode=yes -o ConnectTimeout=15 -P 2222 scripts/diagnose_hgnc_baseline.py Docker@localhost:C:/h/biomcp-0566/diagnose_hgnc_baseline.py
