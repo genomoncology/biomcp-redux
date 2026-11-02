@@ -3,7 +3,7 @@
 set -eu
 phase=${1:-check}
 root=${2:-$(mktemp -d "${TMPDIR:-/tmp}/biomcp-0459.XXXXXX")}
-case "$root" in /private/tmp/biomcp-0459.*|/tmp/biomcp-0459.*) ;; *) echo 'unexpected qualification root' >&2; exit 1;; esac
+case "$root" in /private/tmp/biomcp-0459.*|/tmp/biomcp-0459.*|/var/tmp/biomcp-0459.*) ;; *) echo 'unexpected qualification root' >&2; exit 1;; esac
 revision=${3:-$(git rev-parse HEAD)}
 export BIOMCP_BUILD_REVISION="$revision"
 if [ "$phase" = fixture ] || [ "$phase" = policy ] || [ "$phase" = docs ] || [ "$phase" = docs-generate ]; then
@@ -26,8 +26,13 @@ if [ "$phase" = fixture ] || [ "$phase" = policy ] || [ "$phase" = docs ] || [ "
     exec make check-cheap
 fi
 source="$root/source-$revision"
-mkdir -p "$source"
-git archive "$revision" | /usr/bin/tar -xf - -C "$source"
+if [ "$phase" = gate ]; then
+    git clone --quiet --shared --no-checkout . "$source"
+    git -C "$source" checkout --quiet --detach "$revision"
+else
+    mkdir -p "$source"
+    git archive "$revision" | /usr/bin/tar -xf - -C "$source"
+fi
 if [ "$phase" = prepare ]; then
     baseline=${4:?same-main schema reference required}
     mkdir -p "$root/reference"
