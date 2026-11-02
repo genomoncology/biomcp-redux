@@ -156,7 +156,8 @@ class Installer(unittest.TestCase):
                     result = self.install()
                     self.assertEqual(result.returncode == 0, passes, result.stderr)
                     self.assertEqual((self.destination / "biomcp").exists(), passes)
-            self.assertEqual((self.destination / "biomcp").read_bytes(), b"#!/bin/sh\necho candidate\n")
+                    if passes:
+                        self.assertEqual((self.destination / "biomcp").read_bytes(), b"#!/bin/sh\necho candidate\n")
 
     def test_latest_environment_and_local_tar_share_checksum_boundary(self):
         self.platform()
