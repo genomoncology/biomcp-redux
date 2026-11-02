@@ -19,7 +19,7 @@ pub(super) fn trials() -> Vec<Trial> {
         }),
         #[cfg(unix)]
         transcript_trial("mcp-http/ignored-interrupt-keeps-serving", || {
-            ignored_interrupt().map_err(Into::into)
+            start::ignored_interrupt().map_err(Into::into)
         }),
         transcript_trial("mcp-http/local-health-and-discovery", || {
             lifecycle().map_err(Into::into)
@@ -580,38 +580,4 @@ fn metadata_cases(server: &Server) -> Check {
         return Err("unsupported protocol version was not reported".into());
     }
     Ok(())
-}
-
-#[cfg(unix)]
-fn ignored_interrupt() -> Check {
-    let mut server = Server::configured_launch(
-        "127.0.0.1:0",
-        None,
-        None,
-        None,
-        None,
-        &["--hosted".into()],
-        |env, args| {
-            let binary =
-                super::launch::executable(std::path::Path::new(env!("CARGO_BIN_EXE_biomcp")));
-            let mut shell = vec![
-                "-c".into(),
-                "trap '' INT; exec \"$@\"".into(),
-                "sh".into(),
-                binary.to_string_lossy().into_owned(),
-            ];
-            shell.extend_from_slice(args);
-            env.command("sh", &shell)
-        },
-    )?;
-    let request = super::mcp::request(json!(1), "ping", json!({}));
-    let (status, reply) = server.request("POST", "/mcp", &request.to_string())?;
-    if status != 200
-        || reply.get("id") != Some(&json!(1))
-        || !reply.get("result").is_some_and(Value::is_object)
-        || reply.get("error").is_some()
-    {
-        return Err(format!("ignored SIGINT MCP ping: {status} {reply}"));
-    }
-    server.shutdown(true)
 }

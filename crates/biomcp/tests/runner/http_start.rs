@@ -1,5 +1,7 @@
 //! Start one isolated HTTP process and retain its validated readiness address.
 use super::{Environment, Server};
+#[cfg(unix)]
+use serde_json::json;
 use serde_json::Value;
 use std::{net::SocketAddr, process::Stdio, time::Duration};
 impl Server {
@@ -107,4 +109,38 @@ impl Server {
             .map_err(|_| "invalid listening address")?;
         Ok(server)
     }
+}
+
+#[cfg(unix)]
+pub(super) fn ignored_interrupt() -> super::Check {
+    let mut server = Server::configured_launch(
+        "127.0.0.1:0",
+        None,
+        None,
+        None,
+        None,
+        &["--hosted".into()],
+        |env, args| {
+            let binary =
+                crate::runner::launch::executable(std::path::Path::new(env!("CARGO_BIN_EXE_biomcp")));
+            let mut shell = vec![
+                "-c".into(),
+                "trap '' INT; exec \"$@\"".into(),
+                "sh".into(),
+                binary.to_string_lossy().into_owned(),
+            ];
+            shell.extend_from_slice(args);
+            env.command("sh", &shell)
+        },
+    )?;
+    let request = crate::runner::mcp::request(json!(1), "ping", json!({}));
+    let (status, reply) = server.request("POST", "/mcp", &request.to_string())?;
+    if status != 200
+        || reply.get("id") != Some(&json!(1))
+        || !reply.get("result").is_some_and(Value::is_object)
+        || reply.get("error").is_some()
+    {
+        return Err(format!("ignored SIGINT MCP ping: {status} {reply}"));
+    }
+    server.shutdown(true)
 }
