@@ -2,17 +2,25 @@
 # M5 controls the existing shared VM only after capacity has been granted.
 set -eu
 cd "$(dirname "$0")/.."
+export PATH="$HOME/.local/bin:$PATH"
+python3.13 --version
+python3.13 scripts/check_shell.py
+python3.13 -m py_compile scripts/diagnose_windows_config_paths.py
 scratch=$(mktemp -d)
 remote=
 started=0
 owned=0
+saved=0
 cleanup() {
     result=$?
     if [ "$started" -eq 1 ]; then
-        if [ "$owned" -eq 1 ]; then
+        if [ "$owned" -eq 1 ] && [ "$saved" -eq 1 ]; then
             ssh -o BatchMode=yes -o ConnectTimeout=15 gator 'ssh -o BatchMode=yes -o ConnectTimeout=15 -p 2222 Docker@localhost "powershell -NoProfile -Command \"Remove-Item -Recurse -Force C:\h\biomcp-0573\""' || true
         fi
         ssh -o BatchMode=yes -o ConnectTimeout=15 gator 'docker stop windows-2022' >/dev/null || true
+        stopped=$(ssh -o BatchMode=yes -o ConnectTimeout=15 gator 'docker inspect --format "{{.State.Running}}" windows-2022') || stopped=unknown
+        printf 'Windows VM running after cleanup: %s\n' "$stopped"
+        [ "$stopped" = false ] || result=1
     fi
     if [ -n "$remote" ]; then
         ssh -o BatchMode=yes -o ConnectTimeout=15 gator "rm -rf '$remote'" || true
@@ -26,6 +34,11 @@ short=$(printf '%.12s' "$revision")
 git archive "$revision" > "$scratch/source.tar"
 remote=$(ssh -o BatchMode=yes -o ConnectTimeout=15 gator 'mktemp -d /tmp/biomcp-0573.XXXXXX')
 scp -o BatchMode=yes -o ConnectTimeout=15 "$scratch/source.tar" scripts/wait_windows_ssh.py "gator:$remote/"
+running=$(ssh -o BatchMode=yes -o ConnectTimeout=15 gator 'docker inspect --format "{{.State.Running}}" windows-2022')
+if [ "$running" != false ]; then
+    printf 'Windows VM is already running; leave its consumer untouched\n' >&2
+    exit 1
+fi
 ssh -o BatchMode=yes -o ConnectTimeout=15 gator 'docker start windows-2022' >/dev/null
 started=1
 ssh -o BatchMode=yes -o ConnectTimeout=15 gator "python3 '$remote/wait_windows_ssh.py'"
@@ -44,4 +57,5 @@ scp -o BatchMode=yes -o ConnectTimeout=15 "gator:$remote/records.tar.gz" "$scrat
 (cd "$scratch" && shasum -a 256 source.tar records.tar.gz runtime.log > SHA256SUMS)
 ssh -o BatchMode=yes -o ConnectTimeout=15 yellow "mkdir -p /home/ian/workspace/data/biomcp-redux-evidence/0573/$short"
 scp -o BatchMode=yes -o ConnectTimeout=15 "$scratch/source.tar" "$scratch/records.tar.gz" "$scratch/runtime.log" "$scratch/SHA256SUMS" "yellow:/home/ian/workspace/data/biomcp-redux-evidence/0573/$short/"
+saved=1
 exit "$result"
