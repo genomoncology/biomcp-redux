@@ -173,17 +173,14 @@ impl<'a> Store<'a> {
 }
 #[track_caller]
 fn db(error: rusqlite::Error) -> CacheError {
-    eprintln!("SQLite diagnostic: {:?}\n{}", error.sqlite_error(), std::panic::Location::caller());
-    match error {
-        rusqlite::Error::SqliteFailure(e, _)
-            if matches!(
-                e.code,
-                rusqlite::ErrorCode::DatabaseBusy | rusqlite::ErrorCode::DatabaseLocked
-            ) =>
-        {
-            CacheError::Busy
-        }
-        _ => CacheError::Database,
+    if matches!(
+        error.sqlite_error_code(),
+        Some(rusqlite::ErrorCode::DatabaseBusy | rusqlite::ErrorCode::DatabaseLocked)
+    ) {
+        CacheError::Busy
+    } else {
+        eprintln!("SQLite diagnostic: {:?}\n{}", error.sqlite_error(), std::panic::Location::caller());
+        CacheError::Database
     }
 }
 
