@@ -14,8 +14,13 @@ mod bundle;
 mod cache;
 mod cache_access;
 mod cleanup;
+mod sqlite_diagnostic;
 mod store_size;
 pub use cache_access::CacheAccess;
+#[doc(hidden)]
+pub use observe::record_sqlite_error;
+#[doc(hidden)]
+pub use sqlite_diagnostic::SQLITE_DIAGNOSTICS;
 mod cache_request;
 mod containment;
 mod deadline;
@@ -52,6 +57,7 @@ pub use bundle::{
     KeyKind, Keys, MAX_BUNDLE_BYTES, Row, RowFormat, SetRow, bundle_sha256, decode_bundle_document,
     encode_bundle_row,
 };
+pub use cache::sql_deadline as configure_sqlite_deadline;
 pub use cache::{CACHE_NAMESPACE_VERSION, STALE_GRACE_SECONDS, SchemaOwner, VERSION, check_owners};
 pub use deadline::{CommandDeadline, Deadline, LocalDeadline};
 pub use declaration::{

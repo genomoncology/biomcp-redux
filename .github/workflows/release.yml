@@ -74,7 +74,7 @@ jobs:
       fail-fast: false
       matrix: ${{ fromJSON(needs.candidate.outputs.matrix) }}
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 90
+    timeout-minutes: 120
     permissions:
       contents: read
     steps:
@@ -109,9 +109,12 @@ jobs:
       - name: Check formatting, lint and tests on Linux x86_64
         if: matrix.platform == 'manylinux_2_28_x86_64'
         run: |
+          cargo install cargo-deny --version "${{ steps.tools.outputs.cargo_deny }}" --locked
           df -h . "${TMPDIR:-/tmp}"
           trap 'df -h . "${TMPDIR:-/tmp}"' EXIT
           make fmt lint test docs-check
+          du -sh target/debug
+          cargo clean --profile dev
       - name: Build and install native artifacts, including CLI version and offline health
         if: runner.os != 'Linux'
         shell: bash
