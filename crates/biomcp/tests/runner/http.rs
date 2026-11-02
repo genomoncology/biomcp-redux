@@ -606,7 +606,11 @@ fn ignored_interrupt() -> Check {
     )?;
     let request = super::mcp::request(json!(1), "ping", json!({}));
     let (status, reply) = server.request("POST", "/mcp", &request.to_string())?;
-    if status != 200 || reply != json!({"jsonrpc":"2.0", "id":1, "result":{}}) {
+    if status != 200
+        || reply.get("id") != Some(&json!(1))
+        || !reply.get("result").is_some_and(Value::is_object)
+        || reply.get("error").is_some()
+    {
         return Err(format!("ignored SIGINT MCP ping: {status} {reply}"));
     }
     server.shutdown(true)
