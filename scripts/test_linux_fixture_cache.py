@@ -16,7 +16,7 @@ class Retention(unittest.TestCase):
             result = subprocess.run(
                 ['sh', str(ROOT / 'scripts/linux_fixture_cache.sh'), str(retained),
                  sys.executable, '-c', '''
-import os,pathlib,sqlite3,sys
+import os,pathlib,sqlite3
 root=pathlib.Path(os.environ['BIOMCP_EVIDENCE_DIR'])
 print(root,flush=True)
 fixture=root/'fixture-failures'/'failed-case'

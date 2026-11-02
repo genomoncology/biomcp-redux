@@ -23,7 +23,8 @@ case "${1:-container}" in
       -v "$checkout:/source" -v "$PWD/target/linux-source-check/build:/source/target" -w /source \
       -e HOME=/source/target/home \
       -e CARGO_BUILD_JOBS=2 -e RUST_TEST_THREADS=2 \
-      "$image" /bin/bash scripts/check_linux_release_source.sh "$mode"
+      "$image" /bin/bash scripts/linux_fixture_cache.sh /source/target/fixture-evidence \
+        /bin/bash scripts/check_linux_release_source.sh "$mode"
     ;;
   checks|focused-checks)
     export PATH="$HOME/.cargo/bin:/opt/python/cp313-cp313/bin:$PATH"
