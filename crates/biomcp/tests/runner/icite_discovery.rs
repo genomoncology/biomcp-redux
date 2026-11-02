@@ -34,7 +34,12 @@ pub(super) fn prove() -> Result<(), Box<dyn std::error::Error>> {
                 &[script.display().to_string(), report.display().to_string()],
             )
             .output()
-            .map_err(|error| format!("cannot run iCite proof Python {}: {error}", python.display()))?;
+            .map_err(|error| {
+                format!(
+                    "cannot run iCite proof Python {}: {error}",
+                    python.display()
+                )
+            })?;
         if !output.status.success() {
             return Err(format!("iCite classifier proof failed: {output:?}").into());
         }
