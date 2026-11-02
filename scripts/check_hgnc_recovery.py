@@ -25,7 +25,8 @@ def main():
     shutil.copy2(runner, tool)
     shutil.copytree(ROOT / "tests", installed / "fixtures")
     environment = {**os.environ, "BIOMCP_TEST_EXECUTABLE": str(binary),
-                   "BIOMCP_TEST_FIXTURES": str(installed / "fixtures")}
+                   "BIOMCP_TEST_FIXTURES": str(installed / "fixtures"),
+                   "BIOMCP_TRANSCRIPT_DIR": str(installed / "hgnc-transcript")}
     print(json.dumps({"source": os.environ.get("BIOMCP_BUILD_REVISION"),
                       "product": str(binary), "runner": str(tool),
                       "fixtures": str(installed / "fixtures")}), flush=True)
@@ -34,8 +35,9 @@ def main():
     (installed / "old-live-list.json").write_bytes(listing.stdout)
     rows = json.loads(listing.stdout)["cases"]
     print(json.dumps({"old_live_rows": [row for row in rows
-          if row["case"].endswith(("grammar.yaml", "failure500.yaml"))]}), flush=True)
+          if row["case"].endswith(("grammar.yaml", "failure-500.yaml"))]}), flush=True)
     names = ["hgnc-first-snapshot-recovers"] if len(sys.argv) == 1 else sys.argv[1:]
+    print(json.dumps({"free_bytes_before_proof": shutil.disk_usage(ROOT).free}), flush=True)
     for name in names:
         subprocess.run([str(tool), "--proofs", "cache-resilience/" + name,
                         "--exact", "--test-threads", "1"], cwd=installed,
