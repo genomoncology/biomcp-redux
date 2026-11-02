@@ -9,6 +9,10 @@ export RUST_TEST_THREADS=2
 python3.13 --version
 make check-cheap
 cargo test --locked -p biomcp-fetch --lib cache::contention
+cargo test --locked -p biomcp-fetch --test bundle \
+    download::bundle_publication_finishes_while_another_owner_holds_the_reply_connection -- --exact
+cargo test --locked -p biomcp-fetch --test bundle \
+    download::replay_external_writer_stays_external_while_an_admission_owner_does_no_sql -- --exact
 cargo test --locked -p biomcp-query --lib
 cargo test --locked -p biomcp-query --test article_search
 python3.13 - <<'PYTHON'

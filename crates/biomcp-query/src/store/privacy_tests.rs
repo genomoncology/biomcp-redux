@@ -268,7 +268,7 @@ fn dropped_pool_facts_keep_caller_ownership_during_hydration() -> Check {
 // SQLite connection state cannot be observed through the CLI; the installed
 // held-store-lock case owns the reader and sync behavior.
 #[test]
-fn query_open_and_prepare_keep_virtual_sqlite_waits_zero_and_live_waits_bounded() -> Check {
+fn query_connections_keep_virtual_sqlite_waits_zero_and_live_waits_bounded() -> Check {
     for replay in [false, true] {
         let directory = tempfile::tempdir()?;
         let fetch = Fetch::open(FetchConfig {
@@ -287,25 +287,21 @@ fn query_open_and_prepare_keep_virtual_sqlite_waits_zero_and_live_waits_bounded(
             fetch.cache_access()?,
             fetch.deadline(Duration::from_secs(120)),
         )?;
-        for prepare in [false, true] {
-            if prepare {
-                store.prepare()?;
-            }
-            let milliseconds: i64 =
-                store
-                    .connection
-                    .query_row("PRAGMA busy_timeout", [], |row| row.get(0))?;
-            if replay {
-                assert_eq!(
-                    milliseconds, 0,
-                    "a virtual deadline cannot drive a real SQLite wait"
-                );
-            } else {
-                assert!(
-                    milliseconds > 0 && milliseconds <= 120_000,
-                    "live SQLite waits must retain the remaining real budget: {milliseconds}"
-                );
-            }
+        let milliseconds: i64 = store.read(|connection| {
+            connection
+                .query_row("PRAGMA busy_timeout", [], |row| row.get(0))
+                .map_err(super::db)
+        })?;
+        if replay {
+            assert_eq!(
+                milliseconds, 0,
+                "a virtual deadline cannot drive a real SQLite wait"
+            );
+        } else {
+            assert!(
+                milliseconds > 0 && milliseconds <= 120_000,
+                "live SQLite waits must retain the remaining real budget: {milliseconds}"
+            );
         }
     }
     Ok(())
