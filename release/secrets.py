@@ -420,11 +420,15 @@ def screen(mode, target, cache, since, progress):
         if result.returncode == 1 and report.is_file():
             progress["stage"] = "scanner-report"
             rejected = False
+            reported = 0
             for finding, path, coordinates in findings(report, mapping, staging):
+                reported += 1
                 if mode == "artifacts" and finding["rule"] == "private-key" and recognized(path, coordinates, digests):
                     continue
                 rejected = True
                 print(json.dumps({"file": finding["file"], "rule": finding["rule"]}))
+            if not reported:
+                raise ValueError("secret scanner finding report was empty")
             if rejected:
                 return 1
             print("Secret scan passed")

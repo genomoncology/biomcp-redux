@@ -147,8 +147,8 @@ class Screening(unittest.TestCase):
             library = artifacts / "libgnutls.so.30.34.3"
             # The pinned scanner cannot locate an unterminated multiline EOF
             # match completely. Incomplete coordinates must remain fatal.
-            for payload, expected in [(original, 0), (original.rstrip(b"\n"), 1), (original + b"\n" + fresh, 1),
-                                      (original + b"\n" + changed, 1)]:
+            for payload, expected in [(original, 0), (original.rstrip(b"\n"), 1), (original + b"\n" + fresh + b"\n", 1),
+                                      (original + b"\n" + changed + b"\n", 1)]:
                 library.write_bytes(payload)
                 result = subprocess.run([sys.executable, str(tools / "secrets.py"), "artifacts", str(artifacts),
                                          "--cache", str(ROOT / "target/security-tools")],
