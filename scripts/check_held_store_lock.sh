@@ -8,6 +8,9 @@ export CARGO_BUILD_JOBS=2
 export RUST_TEST_THREADS=2
 python3.13 --version
 make check-cheap
+cargo test --locked -p biomcp-fetch --lib cache::contention
+cargo test --locked -p biomcp-query --lib
+cargo test --locked -p biomcp-query --test article_search
 python3.13 - <<'PYTHON'
 from pathlib import Path
 import os

@@ -61,9 +61,7 @@ impl<'a> Store<'a> {
         let started = Instant::now();
         let wall_end = started.checked_add(deadline.remaining()).unwrap_or(started);
         let mut connection = access.connect()?;
-        connection
-            .busy_timeout(deadline.remaining())
-            .map_err(|error| db(error))?;
+        biomcp_fetch::configure_sqlite_deadline(&connection, deadline)?;
         access.admit(deadline, || {
             biomcp_fetch::check_owners(
                 &connection,
@@ -116,9 +114,7 @@ impl<'a> Store<'a> {
         if self.deadline().expired() {
             return Err(CacheError::Busy);
         }
-        self.connection
-            .busy_timeout(self.deadline().remaining())
-            .map_err(|error| db(error))
+        biomcp_fetch::configure_sqlite_deadline(&self.connection, self.deadline())
     }
     pub(super) fn read<T>(
         &self,
@@ -194,9 +190,7 @@ pub fn health(fetch: &biomcp_fetch::Fetch, budget: std::time::Duration) -> Resul
     let access = fetch.cache_access()?;
     let connection = access.connect_read_only()?;
     let deadline = fetch.deadline(budget);
-    connection
-        .busy_timeout(deadline.remaining())
-        .map_err(|error| db(error))?;
+    biomcp_fetch::configure_sqlite_deadline(&connection, deadline)?;
     access.admit(deadline, || {
         biomcp_fetch::check_owners(
             &connection,
@@ -208,5 +202,7 @@ pub fn health(fetch: &biomcp_fetch::Fetch, budget: std::time::Duration) -> Resul
     })
 }
 
+#[cfg(test)]
+mod deadline_tests;
 #[cfg(test)]
 mod privacy_tests;
