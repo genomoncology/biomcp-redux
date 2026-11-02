@@ -142,10 +142,12 @@ class Screening(unittest.TestCase):
             policy["fixtures"][0]["sha256"] = hashlib.sha256(fixture).hexdigest()
             policy_path = tools / "public-fixtures.json"
             policy_path.write_text(json.dumps(policy))
-            original = b"\x7fELF\xff\x00" + fixture
+            original = b"\x7fELF\xff\x00" + fixture + b"\n"
             changed = fixture.replace(b"\n", b"\nA", 1)
             library = artifacts / "libgnutls.so.30.34.3"
-            for payload, expected in [(original, 0), (original + b"\n" + fresh, 1),
+            # The pinned scanner cannot locate an unterminated multiline EOF
+            # match completely. Incomplete coordinates must remain fatal.
+            for payload, expected in [(original, 0), (original.rstrip(b"\n"), 1), (original + b"\n" + fresh, 1),
                                       (original + b"\n" + changed, 1)]:
                 library.write_bytes(payload)
                 result = subprocess.run([sys.executable, str(tools / "secrets.py"), "artifacts", str(artifacts),
@@ -158,6 +160,24 @@ class Screening(unittest.TestCase):
             policy_path.write_text(json.dumps(policy))
             with patch("release.public_fixtures.POLICY", policy_path), self.assertRaises(ValueError):
                 reviewed()
+
+    def test_scanner_finding_exit_without_reported_findings_fails_closed(self):
+        from contextlib import redirect_stderr, redirect_stdout
+        from release.secrets import main
+        with tempfile.TemporaryDirectory() as temporary:
+            target = Path(temporary)
+            def empty_report(command, **kwargs):
+                Path(command[command.index("--report-path") + 1]).touch()
+                return subprocess.CompletedProcess(command, 1, stderr=b"")
+            output, diagnostic = io.StringIO(), io.StringIO()
+            with patch("release.secrets.scanner", return_value=target / "scanner"), patch(
+                    "release.secrets.subprocess.run", side_effect=empty_report), redirect_stdout(output), redirect_stderr(diagnostic):
+                with self.assertRaises(SystemExit) as stopped:
+                    main(["artifacts", str(target)])
+            self.assertEqual(stopped.exception.code, 2)
+            self.assertEqual(output.getvalue(), "")
+            self.assertEqual(json.loads(diagnostic.getvalue()), {
+                "category": "scanner", "stage": "scanner-report", "artifact": "scan-target"})
 
     def test_history_scan_uses_isolated_git_location_and_fails_closed_without_git(self):
         from release.secrets import scan, ScreeningError
