@@ -11,7 +11,7 @@ import subprocess
 import sys
 
 runner, fixtures = (value.replace("'", "''") for value in sys.argv[1:])
-command = f"""
+command = rf"""
 $ErrorActionPreference = 'Stop'
 $env:BIOMCP_TEST_FIXTURES = '{fixtures}'
 $report = & '{runner}' --live-check --list
