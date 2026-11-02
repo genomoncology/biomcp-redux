@@ -315,16 +315,6 @@ def scanner_config(mode, mapping, staging):
     text = '[extend]\nuseDefault = true\n'
     if mode == "history":
         return text
-    if __package__:
-        from .public_fixtures import reviewed
-    else:
-        from public_fixtures import reviewed
-    # Only complete byte-equal reviewed public matches are recognized. This has
-    # no path condition: a fresh key in the very same library remains fatal.
-    patterns = [r"\A" + re.escape(value).replace("\\\n", r"\n").replace("\\\r", r"\r") + r"\z"
-                for value in reviewed()]
-    text += '\n[[rules]]\nid = "private-key"\n[[rules.allowlists]]\nregexTarget = "match"\n'
-    text += "regexes = " + json.dumps(patterns) + "\n"
     # Match-specific rules cannot exempt another finding on the same line.
     # History uses immutable reviewed bindings instead of these fixture forms.
     groups = [
@@ -409,6 +399,13 @@ def screen(mode, target, cache, since, progress):
         staging, mapping = prepare(target, mode, root, env, since, progress)
         progress.update(stage="scanner-configuration", artifact="scan-target")
         config, template, ignore, report = [root / name for name in ["config.toml", "report.tmpl", "ignore", "report.txt"]]
+        digests = set()
+        if mode == "artifacts":
+            if __package__:
+                from .public_fixtures import reviewed, recognized
+            else:
+                from public_fixtures import reviewed, recognized
+            digests = reviewed()
         config.write_text(scanner_config(mode, mapping, staging))
         template.write_text(r'{{range .}}{{printf "%s\t%s\t%d\t%d\t%d\t%d\n" .File .RuleID .StartLine .EndLine .StartColumn .EndColumn}}{{end}}')
         ignore.write_text("\n".join(history_ignores(target, env, mapping, staging)) if mode == "history" else "")
@@ -422,9 +419,16 @@ def screen(mode, target, cache, since, progress):
             raise ValueError("secret scanner could not screen every input")
         if result.returncode == 1 and report.is_file():
             progress["stage"] = "scanner-report"
-            for finding, _, _ in findings(report, mapping, staging):
+            rejected = False
+            for finding, path, coordinates in findings(report, mapping, staging):
+                if mode == "artifacts" and finding["rule"] == "private-key" and recognized(path, coordinates, digests):
+                    continue
+                rejected = True
                 print(json.dumps({"file": finding["file"], "rule": finding["rule"]}))
-            return 1
+            if rejected:
+                return 1
+            print("Secret scan passed")
+            return 0
         if result.returncode:
             raise ValueError("secret scanner failed; diagnostic output was suppressed")
         print("Secret scan passed")
