@@ -80,3 +80,13 @@ pub(crate) fn read_case(path: &Path) -> Result<Case, String> {
     let text = fs::read_to_string(path).map_err(|error| error.to_string())?;
     serde_saphyr::from_str(&text).map_err(|error| format!("{}: {error}", path.display()))
 }
+
+pub(crate) fn case_name(path: &Path, root: &Path) -> Result<String, String> {
+    Ok(path
+        .strip_prefix(root)
+        .map_err(|error| error.to_string())?
+        .iter()
+        .map(|part| part.to_str().ok_or("case path must be UTF-8"))
+        .collect::<Result<Vec<_>, _>>()?
+        .join("/"))
+}

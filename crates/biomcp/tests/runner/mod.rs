@@ -132,7 +132,7 @@ use serde_json::Value;
 use std::{fs, path::Path, sync::Arc};
 
 mod case_data;
-use case_data::{Case, Step, collect, read_case};
+use case_data::{Case, Step, case_name, collect, read_case};
 
 pub(super) fn discover(root: &Path) -> Result<Vec<Trial>, String> {
     let mut paths = Vec::new();
@@ -145,13 +145,7 @@ pub(super) fn discover(root: &Path) -> Result<Vec<Trial>, String> {
     let trials = paths
         .into_iter()
         .map(|path| {
-            let name = path
-                .strip_prefix(root)
-                .map_err(|error| error.to_string())?
-                .iter()
-                .map(|part| part.to_str().ok_or("case path must be UTF-8"))
-                .collect::<Result<Vec<_>, _>>()?
-                .join("/");
+            let name = case_name(&path, root)?;
             let case = read_case(&path)?;
             let name = format!("{}/{name}", case.feature);
             let registry = Arc::clone(&registry);
