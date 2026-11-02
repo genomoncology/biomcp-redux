@@ -201,6 +201,53 @@ def reranked_tail_case(change='boundary'):
                      for cmd in commands]}}
 
 
+def recommendation_case(story, day='1102', change=None):
+    # Identity/provenance selections from Yellow's retained Nov 1 and Nov 2
+    # 0068-scheduled reports (827yf6_p and odzt3h2e); no article text retained.
+    pools = {
+        'multi': ([['42745055', '42685317', '42748921', '42830785'],
+                   ['10.64898/2026.09.28.26364204']],
+                  {'1101': [['42929675', '42927854', '42685317', '42814929'],
+                            ['10.64898/2026.09.28.26364204']],
+                   '1102': [['42927854', '42748921', '42964339', '42814929', '42830785'], []]}),
+        'single': ([['42745055', '42685317', '42846599', '42891951'],
+                    ['10.1158/1538-7445.pancreatic26-b074']],
+                   {'1101': [['42929675', '42927884', '42685317', '42891951'],
+                             ['10.17650/1994-4098-2026-22-2-85-91']],
+                    '1102': [['42927884', '42846599', '42886887'],
+                             ['10.17650/1994-4098-2026-22-2-85-91',
+                              '10.1158/1538-7445.pancreatic26-b074']]})}
+    def requests(selection):
+        rows = [{'identity': 'recommendations-' + story, 'source': 'semantic-scholar',
+                 'role': 'Recommendations', 'url': 'https://example.org/' + story,
+                 'status': 200, 'provenance': {'discoveries': [
+                     {'namespace': namespace, 'ids': ids}
+                     for namespace, ids in zip(('pmid', 'doi'), selection)]}}]
+        for namespace, ids in zip(('pmid', 'doi'), selection):
+            if ids:
+                rows.append({'identity': namespace + ','.join(sorted(ids)), 'source': 'pubmed',
+                             'role': 'Summary' if namespace == 'pmid' else 'Search', 'status': 200,
+                             'provenance': {'input_context': 'fixed-' + namespace,
+                                 'inputs': {'namespace': namespace, 'ids': sorted(ids)}}})
+        return rows
+    old, live = pools[story]
+    before, after = requests(old), requests(live[day])
+    if change == 'unrelated':
+        after[1]['provenance']['inputs']['ids'][0] = '99999999'
+    elif change == 'context':
+        after[1]['provenance']['input_context'] = 'changed-parameter'
+    elif change == 'failed-discovery':
+        after[0]['status'] = None
+    elif change == 'subset':
+        after[1]['provenance']['inputs']['ids'].pop()
+    drift = ['pubmed: request-plan-changed']
+    return {'case': 'article/recommendations/' + story + '.yaml',
+            'result': {'drift': drift, 'commands': [{'ordinal': 1,
+                'before_status': 'complete', 'after_status': 'partial' if change == 'partial' else 'complete',
+                'exchanges': {'omitted': 0, 'drift_omitted': 0}}]},
+            'witness': [{'ordinal': 1, 'baseline': {'requests': before}, 'live': {'requests': after}}]}
+
+
 class NightlyCommand(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
@@ -418,6 +465,15 @@ class NightlyCommand(unittest.TestCase):
                 ('unrelated', 'failure', 1), ('invariant', 'failure', 1)]:
             with self.subTest(change=change):
                 self.classified(classification_case(change), expected, code)
+
+    def test_complete_recommendation_replacements_follow_exact_discovery(self):
+        for story in ('multi', 'single'):
+            for day in ('1101', '1102'):
+                with self.subTest(story=story, day=day):
+                    self.classified(recommendation_case(story, day), 'churn', 0)
+            for change in ('unrelated', 'context', 'failed-discovery', 'subset', 'partial'):
+                with self.subTest(story=story, change=change):
+                    self.classified(recommendation_case(story, change=change), 'failure', 1)
 
     def test_reranked_source_tail_requires_complete_provider_owned_selection(self):
         for change in ('boundary', 'prefix', 'filter', 'offset', 'limit', 'missing-batch',
