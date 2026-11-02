@@ -43,11 +43,11 @@ impl CacheAccess {
             &self.path,
             rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY | rusqlite::OpenFlags::SQLITE_OPEN_NO_MUTEX,
         )
-        .map_err(crate::cache::db_error)
+        .map_err(|error| crate::cache::db_error(error))
     }
     /// Open the selected owned file; callers validate their metadata before writes.
     pub fn connect(&self) -> Result<rusqlite::Connection, CacheError> {
-        rusqlite::Connection::open(&self.path).map_err(crate::cache::db_error)
+        rusqlite::Connection::open(&self.path).map_err(|error| crate::cache::db_error(error))
     }
 }
 impl Fetch {

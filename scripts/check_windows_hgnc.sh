@@ -6,6 +6,8 @@ archive=$(mktemp)
 trap 'rm -f "$archive"' EXIT
 revision=$(git rev-parse HEAD)
 git archive "$revision" > "$archive"
+# Remove only this lane's obsolete full-debug build; the lean target is reused.
+ssh -o BatchMode=yes -o ConnectTimeout=15 -p 2222 Docker@localhost 'powershell -NoProfile -Command "if (Test-Path C:\h\biomcp-0566-target) { Remove-Item -Recurse -Force C:\h\biomcp-0566-target }"'
 ssh -o BatchMode=yes -o ConnectTimeout=15 -p 2222 Docker@localhost 'powershell -NoProfile -Command "New-Item -ItemType Directory -Force C:\h\biomcp-0566 | Out-Null"'
 scp -O -o BatchMode=yes -o ConnectTimeout=15 -P 2222 "$archive" Docker@localhost:C:/h/biomcp-0566/source.tar
 ssh -o BatchMode=yes -o ConnectTimeout=15 -p 2222 Docker@localhost 'tar -xf C:\h\biomcp-0566\source.tar -C C:\h\biomcp-0566'
