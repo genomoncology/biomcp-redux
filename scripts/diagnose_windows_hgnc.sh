@@ -19,11 +19,12 @@ docker start windows-2022 >/dev/null
 python3 scripts/wait_windows_ssh.py
 scp -O -o BatchMode=yes -o ConnectTimeout=15 -P 2222 scripts/diagnose_hgnc_baseline.py Docker@localhost:C:/h/biomcp-0566/diagnose_hgnc_baseline.py
 set +e
-ssh -o BatchMode=yes -o ConnectTimeout=15 -p 2222 Docker@localhost "C:\\Users\\Docker\\AppData\\Roaming\\uv\\python\\cpython-3.13.13-windows-x86_64-none\\python.exe C:\\h\\biomcp-0566\\diagnose_hgnc_baseline.py $revision"
+ssh -o BatchMode=yes -o ConnectTimeout=15 -p 2222 Docker@localhost "C:\\Users\\Docker\\AppData\\Roaming\\uv\\python\\cpython-3.13.13-windows-x86_64-none\\python.exe C:\\h\\biomcp-0566\\diagnose_hgnc_baseline.py $revision" > "$scratch/runtime.log" 2>&1
 result=$?
 set -e
+cat "$scratch/runtime.log"
 short=$(printf '%.12s' "$revision")
-if ! ssh -o BatchMode=yes -o ConnectTimeout=15 -p 2222 Docker@localhost "cmd /c if exist C:\\h\\biomcp-0566\\hgnc-bounded-output-$short.tar.gz (exit 0) else (exit 1)"; then
+if ! rg -q '^HGNC_RECORDS_READY ' "$scratch/runtime.log"; then
     [ "$result" -ne 0 ] && exit "$result"
     exit 1
 fi

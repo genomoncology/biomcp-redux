@@ -9,6 +9,7 @@ import shutil
 import subprocess
 import sys
 import tarfile
+import tempfile
 
 BASELINE_SOURCE = "19032ac74503ff225dfb55e7a1a02afa5b5423f4"
 ROOT = Path(r"C:\h\biomcp-0566")
@@ -26,6 +27,8 @@ def capture_cli(transcripts, output):
     captures = []
     for path in sorted(transcripts.glob("*.json")):
         record = json.loads(path.read_text())
+        if record.get("kind") == "trial":
+            continue
         for execution in record["executions"]:
             stdout = bytes(execution["stdout"])
             name = f"cli-{len(captures) + 1}.json"
@@ -69,6 +72,8 @@ def attempt(number, work, output):
                "original_typed_database_failure": database,
                "free_bytes_before": free, "free_bytes_after": shutil.disk_usage(ROOT).free,
                "cli": capture_cli(transcripts, record)}
+    summary["complete_cli_captured"] = any(
+        row["exit"] == 0 and row["status"] == "complete" for row in summary["cli"])
     (record / "result.json").write_text(json.dumps(summary, indent=2))
     return summary
 
@@ -79,23 +84,26 @@ def main():
     work = ROOT / ("hgnc-bounded-work-" + request_source[:12])
     output.mkdir()
     work.mkdir()
-    version = subprocess.run([str(PRODUCT), "version", "--verbose"], capture_output=True, check=True)
-    if f"Commit: {BASELINE_SOURCE}".encode() not in version.stdout:
-        raise ValueError("installed product does not match the baseline source")
-    binding = {"baseline_source": BASELINE_SOURCE, "embedded_commit_verified": True, "recipe_source": request_source,
-               "product": str(PRODUCT), "product_sha256": digest(PRODUCT),
-               "runner": str(RUNNER), "runner_sha256": digest(RUNNER),
-               "trial": TRIAL, "planned_attempts": 8, "maximum_concurrent_attempts": 4,
-               "controller": "m5", "remote_vm": {"host": "gator", "cpus": 2, "memory_gib": 8}}
-    (output / "binding.json").write_text(json.dumps(binding, indent=2))
-    print(json.dumps(binding), flush=True)
-    shutil.copy2(INSTALLED / "old-live-list.json", output / "baseline-old-live-list.json")
-    shutil.copytree(INSTALLED / "hgnc-transcript", output / "baseline-transcript")
-    baseline = output / "baseline-cli"
-    baseline.mkdir()
-    print(json.dumps({"baseline_cli": capture_cli(output / "baseline-transcript", baseline)}), flush=True)
-    summaries = []
     try:
+        version = subprocess.run([str(PRODUCT), "version", "--verbose"], capture_output=True, check=True)
+        if f"Commit: {BASELINE_SOURCE}".encode() not in version.stdout:
+            raise ValueError("installed product does not match the baseline source")
+        binding = {"baseline_source": BASELINE_SOURCE, "embedded_commit_verified": True, "recipe_source": request_source,
+                   "product": str(PRODUCT), "product_sha256": digest(PRODUCT),
+                   "runner": str(RUNNER), "runner_sha256": digest(RUNNER),
+                   "trial": TRIAL, "planned_attempts": 8, "maximum_concurrent_attempts": 4,
+                   "controller": "m5", "remote_vm": {"host": "gator", "cpus": 2, "memory_gib": 8}}
+        (output / "binding.json").write_text(json.dumps(binding, indent=2))
+        print(json.dumps(binding), flush=True)
+        prior = ROOT / "hgnc-bounded-output-a08841e78b27" / "binding.json"
+        if prior.exists():
+            shutil.copy2(prior, output / "j25685-partial-binding.json")
+        shutil.copy2(INSTALLED / "old-live-list.json", output / "baseline-old-live-list.json")
+        shutil.copytree(INSTALLED / "hgnc-transcript", output / "baseline-transcript")
+        baseline = output / "baseline-cli"
+        baseline.mkdir()
+        print(json.dumps({"baseline_cli": capture_cli(output / "baseline-transcript", baseline)}), flush=True)
+        summaries = []
         with ThreadPoolExecutor(max_workers=4) as pool:
             for batch in [range(1, 5), range(5, 9)]:
                 results = list(pool.map(lambda number: attempt(number, work, output), batch))
@@ -107,13 +115,35 @@ def main():
         unchanged = digest(PRODUCT) == binding["product_sha256"] and digest(RUNNER) == binding["runner_sha256"]
         summary = {"attempts": summaries, "executables_unchanged": unchanged}
         (output / "summary.json").write_text(json.dumps(summary, indent=2))
-        return 0 if unchanged and len(summaries) == 8 and all(row["exit"] == 0 for row in summaries) else 1
+        return 0 if unchanged and len(summaries) == 8 and all(row["exit"] == 0 and row["complete_cli_captured"] for row in summaries) else 1
     finally:
         archive = ROOT / (output.name + ".tar.gz")
         with tarfile.open(archive, "w:gz") as package:
             package.add(output, arcname=output.name)
-        print(json.dumps({"records_archive": str(archive)}), flush=True)
+        print(f"HGNC_RECORDS_READY {archive}", flush=True)
+
+
+def check_parser():
+    # These are the two shapes written by runner/transcript.rs, not two executions.
+    with tempfile.TemporaryDirectory() as directory:
+        root = Path(directory)
+        transcripts = root / "transcript"
+        output = root / "output"
+        transcripts.mkdir()
+        output.mkdir()
+        (transcripts / "metadata.json").write_text(json.dumps({
+            "kind": "trial", "name": TRIAL, "uncaptured": True}))
+        stdout = b'{"status":"complete"}'
+        (transcripts / "execution.json").write_text(json.dumps({
+            "key": "trial/command/1", "executions": [{"exit": 0, "stdout": list(stdout)}]}))
+        actual = capture_cli(transcripts, output)
+        assert actual == [{"file": "cli-1.json", "exit": 0, "status": "complete"}], actual
+        assert (output / "cli-1.json").read_bytes() == stdout
+    print("mixed trial metadata and CLI execution transcript: ok")
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    if sys.argv[1:] == ["--check-parser"]:
+        check_parser()
+    else:
+        raise SystemExit(main())
