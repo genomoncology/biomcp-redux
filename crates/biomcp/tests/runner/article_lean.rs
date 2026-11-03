@@ -7,17 +7,22 @@ use std::path::Path;
 pub(super) fn trials() -> Vec<Trial> {
     vec![super::transcript::trial(
         "article-fulltext/compact-outline",
-        || check().map_err(Into::into),
+        || {
+            for extra in ["", "<sec><title>Introduction</title><p>Later introduction.</p></sec><sec><title>Other section</title><p>Other text.</p></sec><sec><title>Introduction</title><p>Final introduction.</p></sec><sec><title> </title><p>Untitled section.</p></sec>", "<sec><title>^</title><p>Literal marker title.</p></sec>"] {
+                check(extra).map_err(libtest_mimic::Failed::from)?;
+            }
+            Ok(())
+        },
     )]
 }
 
-fn check() -> Result<(), String> {
+fn check(extra: &str) -> Result<(), String> {
     let env = Environment::new().map_err(|error| error.to_string())?;
     super::response_cases::copy_capture("article/fulltext/synthetic", &env.root().join("outline-replay"), |_, record| {
         for exchange in record["exchanges"].as_array_mut().into_iter().flatten() {
             if let Some(value) = exchange.pointer_mut("/body/value")
                 && let Some(xml) = value.as_str().filter(|xml| xml.starts_with("<article>")) {
-                *value = Value::String(xml.replace("</body>", "<sec><title>Introduction</title><p>Later introduction.</p></sec><sec><title>Other section</title><p>Other text.</p></sec><sec><title>Introduction</title><p>Final introduction.</p></sec><sec><title> </title><p>Untitled section.</p></sec></body>"));
+                *value = Value::String(xml.replace("</body>", &format!("{extra}</body>")));
             }
         }
     }).map_err(|error| error.to_string())?;
@@ -26,7 +31,7 @@ fn check() -> Result<(), String> {
     let reply: Value = serde_json::from_str(&json).map_err(|error| error.to_string())?;
     let markdown = read(&env, binary, "md", false)?;
     let item = &reply["result"]["items"][0];
-    let find = serde_json::json!(["article", "text", "28944238", "--find", "<text>"]);
+    let find = serde_json::json!(["article", "text", "PMC5606870", "--find", "<text>"]);
     if !reply["next"]
         .as_array()
         .is_some_and(|steps| steps.iter().any(|step| step["args"] == find))
@@ -34,7 +39,8 @@ fn check() -> Result<(), String> {
         return Err("outline did not offer the literal --find fill-in suggestion".into());
     }
     if markdown.matches("**title:** ").count() != 1
-        || markdown.lines().any(|line| line.starts_with("# ")) {
+        || markdown.lines().any(|line| line.starts_with("# "))
+    {
         return Err("article title was repeated or lost".into());
     }
     let parts = item["sections"]["fulltext"]["data"]["parts"]
@@ -85,41 +91,21 @@ fn read(env: &Environment, binary: &Path, format: &str, disabled: bool) -> Resul
 
 fn outline(markdown: &str, parts: &[Value]) -> Result<(), String> {
     let mut current = "";
+    let repeats = markdown.contains("^ repeats the preceding title.");
     let mut rows = Vec::new();
-    for line in markdown.lines() {
-        if let Some(title) = line.strip_prefix("###### ") {
-            current = title;
-        } else if line.starts_with("| ") {
-            let cells = line.split('|').skip(1).map(str::trim).collect::<Vec<_>>();
-            if cells.len() == 4 && matches!(cells[0], "section" | "table") {
-                rows.push((
-                    current.to_owned(),
-                    cells[0].to_owned(),
-                    cells[1].to_owned(),
-                    cells[2].to_owned(),
-                ));
-            }
+    for line in markdown.lines().filter(|line| line.starts_with("| ")) {
+        let cells = line.split('|').skip(1).map(str::trim).collect::<Vec<_>>();
+        if cells.len() == 5 && matches!(cells[0], "section" | "table") {
+            if cells[2] != "^" || !repeats { current = cells[2]; }
+            rows.push((current.to_owned(), cells[0].to_owned(), cells[1].to_owned(), cells[3].to_owned()));
         }
     }
-    let expected = parts
-        .iter()
-        .map(|part| {
-            (
-                part["title"]
-                    .as_str()
-                    .unwrap_or("Parts without a source title")
-                    .to_owned(),
-                part["kind"].as_str().unwrap_or_default().to_owned(),
-                part["number"].to_string(),
-                part["tokens"].to_string(),
-            )
-        })
-        .collect::<Vec<_>>();
-    if rows != expected {
-        return Err(format!(
-            "outline title-to-part association changed: {rows:?} != {expected:?}"
-        ));
-    }
+    let expected = parts.iter().map(|part| (
+        part["title"].as_str().unwrap_or_default().to_owned(),
+        part["kind"].as_str().unwrap_or_default().to_owned(),
+        part["number"].to_string(), part["tokens"].to_string(),
+    )).collect::<Vec<_>>();
+    if rows != expected { return Err(format!("outline title-to-part association changed: {rows:?} != {expected:?}")); }
     Ok(())
 }
 
@@ -133,8 +119,15 @@ fn compare_baseline(env: &Environment, reply: &Value, markdown: &str) -> Result<
         return Err("compact outline changed article facts or query".into());
     }
     let old = read(env, Path::new(&binary), "md", false)?;
-    if old.lines().filter(|line| line.starts_with("**title:** ")).collect::<Vec<_>>()
-        != markdown.lines().filter(|line| line.starts_with("**title:** ")).collect::<Vec<_>>() {
+    if old
+        .lines()
+        .filter(|line| line.starts_with("**title:** "))
+        .collect::<Vec<_>>()
+        != markdown
+            .lines()
+            .filter(|line| line.starts_with("**title:** "))
+            .collect::<Vec<_>>()
+    {
         return Err("compact outline changed the card title".into());
     }
     if markdown.len() >= old.len() {

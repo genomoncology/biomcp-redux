@@ -90,7 +90,7 @@ impl View<'_> {
                     && self
                         .hint
                         .is_some_and(|hint| hint.schema == biomcp_types::ArticleCards::SCHEMA)
-                    && article::parts(value, depth + 1, out))
+                    && article::parts(value, out))
                 {
                     View {
                         root: self.root,
