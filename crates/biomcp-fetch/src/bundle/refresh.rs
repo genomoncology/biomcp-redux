@@ -1,7 +1,7 @@
 //! Server-owned bundle refreshes retain the ordinary publisher lock and quotas.
 use super::{Bundle, Row};
 use crate::{BundleRefresh, Leg};
-use std::thread::JoinHandle;
+use std::{io::Write, thread::JoinHandle};
 
 impl Leg<'_> {
     pub(super) fn background_read<R: Row>(&self, bundle: &Bundle<R>) -> bool {
@@ -68,20 +68,20 @@ impl Leg<'_> {
                     leg.sync_bundle(&bundle, true)?.published(&leg).map(|_| ())
                 });
                 if let Err(error) = result {
-                    eprintln!("bundle refresh {name}: {error}");
+                    diagnostic(name, error);
                 }
             });
         match worker {
             Ok(worker) => {
                 running.insert(name, worker);
             }
-            Err(_) => eprintln!("bundle refresh {name}: worker unavailable"),
+            Err(_) => diagnostic(name, "worker unavailable"),
         }
     }
 }
 fn join(name: &str, worker: JoinHandle<()>) {
     if worker.join().is_err() {
-        eprintln!("bundle refresh {name}: worker stopped");
+        diagnostic(name, "worker stopped");
     }
 }
 impl Drop for BundleRefresh {
@@ -91,4 +91,9 @@ impl Drop for BundleRefresh {
             join(name, worker);
         }
     }
+}
+
+fn diagnostic(name: &str, error: impl std::fmt::Display) {
+    // Losing stderr cannot replace a caller's already returned stale result.
+    writeln!(std::io::stderr().lock(), "bundle refresh {name}: {error}").unwrap_or_default();
 }
