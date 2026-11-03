@@ -61,6 +61,6 @@ Flag fields override file fields for that source. Other fields and sources remai
 
 ## Command deadlines and drug approvals
 
-`command_timeout_seconds` sets the positive whole-second command budget (default 20). A first bundle reader waits for an active synchronization within that budget and the source's deadline. Missing bundles still offer an explicit sync command; existing snapshots remain readable during replacement.
+`command_timeout_seconds` sets a positive whole-second command budget, using the [shared command default](../crates/biomcp/src/config.rs) when omitted. A first bundle reader waits for an active synchronization within that budget and the source's deadline. Missing bundles still offer an explicit sync command; existing snapshots remain readable during replacement.
 
-`drug_approvals_limit` sets the default number of Drugs@FDA submissions returned by the approvals section, from 1 through 50 (default 10). An explicit `--section-limit` overrides this setting. Continue with the returned page action when more submissions remain.
+`drug_approvals_limit` sets the number of Drugs@FDA submissions returned by the approvals section, from 1 through 50. Omit it to use the [built-in submission page size](../crates/biomcp-types/src/drug/mod.rs). An explicit `--section-limit` overrides this setting. Continue with the returned page action when more submissions remain.

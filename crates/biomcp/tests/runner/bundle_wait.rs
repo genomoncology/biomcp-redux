@@ -46,14 +46,15 @@ fn first_reader(expires: bool) -> Result<(), String> {
     fs::write(&ca, &peer.certificate).map_err(|e| e.to_string())?;
     let mut config = json!({"proxy":format!("http://{}",peer.address),"ca_bundle":ca,
         "disable_sources":["oncokb"]});
+    env.config(&config).map_err(|e| e.to_string())?;
+    invoke(&env, vec!["get".into(), "gene".into(), "ODC1".into()], 0)?;
     if expires {
         config
             .as_object_mut()
             .ok_or("config map")?
             .insert("command_timeout_seconds".into(), json!(1));
+        env.config(&config).map_err(|e| e.to_string())?;
     }
-    env.config(&config).map_err(|e| e.to_string())?;
-    invoke(&env, vec!["get".into(), "gene".into(), "ODC1".into()], 0)?;
     let mut command = env.command(
         env!("CARGO_BIN_EXE_biomcp"),
         &["sync".into(), "gencc".into()],
