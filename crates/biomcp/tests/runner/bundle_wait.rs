@@ -23,8 +23,9 @@ fn first_reader(expires: bool) -> Result<(), String> {
     invoke(
         &env,
         vec![
-            "sync".into(),
-            "hgnc".into(),
+            "get".into(),
+            "gene".into(),
+            "ODC1".into(),
             "--replay".into(),
             replay.to_string_lossy().into(),
             "--case-cache".into(),
