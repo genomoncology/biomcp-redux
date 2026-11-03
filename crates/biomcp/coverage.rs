@@ -44,7 +44,9 @@ fn source_words(
             .flatten()
             .filter_map(serde_json::Value::as_str)
         {
-            sources.insert(value.into());
+            if value != "all" {
+                sources.insert(value.into());
+            }
         }
     }
     if let Some(items) = node.get("items") {

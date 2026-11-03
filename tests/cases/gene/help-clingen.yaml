@@ -1,0 +1,28 @@
+{
+  "feature": "gene-help",
+  "live_check": "local-only generated help",
+  "story": "ClinGen discovery redirects to the gene section instead of returning empty help.",
+  "steps": [
+    {
+      "run": [
+        "help",
+        "get",
+        "clingen"
+      ],
+      "expect": {
+        "/result/commands/0/command": [
+          "get",
+          "gene"
+        ],
+        "/result/commands/0/description": {
+          "includes": "get gene ID clingen"
+        },
+        "/result/commands/0/sections/*/word": {
+          "includes_all_of": [
+            "clingen"
+          ]
+        }
+      }
+    }
+  ]
+}

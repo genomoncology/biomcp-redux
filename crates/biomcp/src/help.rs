@@ -71,15 +71,9 @@ fn compact(commands: &mut [HelpCommand]) {
         command.reply_schemas.clear();
         command.examples.truncate(1);
         for argument in &mut command.arguments {
-            argument.description = argument
-                .description
-                .lines()
-                .next()
-                .unwrap_or_default()
-                .split(". ")
-                .next()
-                .unwrap_or_default()
-                .into();
+            if argument.position.is_none() {
+                argument.description.clear();
+            }
             if argument.name == "section" || argument.name == "--section" {
                 argument.choices.clear();
             }

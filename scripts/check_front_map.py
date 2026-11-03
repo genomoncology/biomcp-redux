@@ -19,11 +19,12 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("binary", type=Path)
     parser.add_argument("--baseline", type=Path)
-    parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--output", type=Path)
     args = parser.parse_args()
-    args.output.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory() as scratch:
         root = Path(scratch)
+        args.output = args.output or root / "proof"
+        args.output.mkdir(parents=True, exist_ok=True)
         env = {key: value for key, value in os.environ.items()
                if key in {"PATH", "SystemRoot", "WINDIR", "TMPDIR", "TEMP", "TMP"}}
         env.update(HOME=str(root), XDG_CONFIG_HOME=str(root / "config"),
@@ -32,6 +33,7 @@ def main():
         binary.parent.mkdir()
         shutil.copy2(args.binary, binary)
         front = json.loads(run(binary, ["help"], env))["result"]["commands"][0]["description"]
+        assert run(binary, ["--format", "md", "help"], env).startswith(front + "\n\n")
         assert len(front) <= int(os.environ.get("BIOMCP_FRONT_MAP_CHARACTER_LIMIT", 2500))
         assert "--" not in front
         rendered = run(binary, ["skill", "render"], env)
@@ -49,9 +51,14 @@ def main():
         assert reply["result"]["instructions"] == front
         (args.output / "front-map.txt").write_text(front)
         (args.output / "initialize.json").write_text(process.stdout)
+        (args.output / "version.json").write_text(run(binary, ["version", "--verbose"], env))
+        raw = args.output / "help"
+        raw.mkdir(exist_ok=True)
         measurements = []
         pending = [tuple(row.get("command", [])) for row in
                    json.loads(run(binary, ["help"], env))["result"]["commands"]]
+        if not args.baseline:
+            pending = []
         visited = set()
         while pending:
             path = pending.pop()
@@ -67,10 +74,13 @@ def main():
             for fmt in ("json", "md"):
                 command = ["--format", fmt, "help", *path]
                 current = run(binary, command, env)
+                name = "-".join(path) + "." + fmt
+                (raw / ("candidate-" + name)).write_text(current)
                 record = {"command": list(path), "format": fmt, "characters": len(current)}
                 if args.baseline:
                     baseline = run(args.baseline, command, env)
                     record["baseline_characters"] = len(baseline)
+                    (raw / ("baseline-" + name)).write_text(baseline)
                 measurements.append(record)
         report = {"binary_sha256": hashlib.sha256(binary.read_bytes()).hexdigest(),
                   "map_characters": len(front), "map_bytes": len(front.encode()),
@@ -84,6 +94,9 @@ def main():
                 report[fmt] = {"longest_before": before, "longest_after": after, "reduction": 1 - after / before}
         (args.output / "proof.json").write_text(json.dumps(report, indent=2) + "\n")
         print(json.dumps({key: value for key, value in report.items() if key != "measurements"}))
+        if args.baseline:
+            assert report["json"]["reduction"] >= 0.40, report["json"]
+            assert report["md"]["reduction"] >= 0.40, report["md"]
 
 
 if __name__ == "__main__":
