@@ -114,17 +114,8 @@ fn execute<'a>(
     } else {
         Snapshot::empty()
     };
-    if cx.fetch.disabled_use(biomcp_types::Use::PerRecord)
-        && snapshot.fulltext.as_ref().is_some_and(|section| {
-            matches!(section,
-            Section::Data { data, .. } if !biomcp_adapters::pmc_oa::commercial(data.license))
-        })
-    {
+    if restrict_text(&mut snapshot, cx.fetch.disabled_use(biomcp_types::Use::PerRecord)) {
         restored = false;
-        snapshot.fulltext = Some(Section::unavailable(
-            Source::PmcOa,
-            biomcp_types::Reason::Disabled,
-        ));
     }
     let mut stages = deadline.child(deadline.remaining().saturating_sub(SAVE_BUDGET));
     let started = stages.remaining();
@@ -234,7 +225,12 @@ fn encode(snapshot: &Snapshot) -> Result<String, CacheError> {
     .map_err(|_| CacheError::Snapshot)
 }
 fn decode(payload: &str) -> Result<Option<Snapshot>, CacheError> {
-    let Some((graph, fulltext, (terminal, cursor, matched), sources, target, dropped)): Option<Saved> = crate::store::labels::decode(payload)? else { return Ok(None); };
+    let Some((graph, fulltext, (terminal, cursor, matched), sources, target, dropped)): Option<
+        Saved,
+    > = crate::store::labels::decode(payload)?
+    else {
+        return Ok(None);
+    };
     Ok(Some(Snapshot {
         dropped,
         graph,
@@ -245,4 +241,20 @@ fn decode(payload: &str) -> Result<Option<Snapshot>, CacheError> {
         sources,
         target: target.map(|(pmid, doi)| graph::Target { pmid, doi }),
     }))
+}
+
+fn restrict_text(snapshot: &mut Snapshot, restricted: bool) -> bool {
+    if restricted
+        && snapshot.fulltext.as_ref().is_some_and(|section| {
+            matches!(section,
+            Section::Data { data, .. } if !biomcp_adapters::pmc_oa::commercial(data.license))
+        })
+    {
+        snapshot.fulltext = Some(Section::unavailable(
+            Source::PmcOa,
+            biomcp_types::Reason::Disabled,
+        ));
+        return true;
+    }
+    false
 }

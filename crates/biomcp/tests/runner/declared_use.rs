@@ -9,13 +9,25 @@ mod legacy;
 mod records;
 const ACADEMIC: &str = "x-biomcp-use: academic\r\n";
 const KEY: &str = "7c28f96a-3f48-4d6b-8d30-512c5d41e979";
-const CLINPGX: &[&str] = &["get", "pgx", "--gene", "DPYD", "annotations", "--source", "clinpgx"];
+const CLINPGX: &[&str] = &[
+    "get",
+    "pgx",
+    "--gene",
+    "DPYD",
+    "annotations",
+    "--source",
+    "clinpgx",
+];
 const ONCOKB: &[&str] = &["get", "gene", "TP53", "oncokb"];
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        trial("mcp-hosted/use/legacy-group-membership", || legacy::check().map_err(Into::into)),
-        trial("mcp-hosted/use/continuation-rights", || continuation::check().map_err(Into::into)),
+        trial("mcp-hosted/use/legacy-group-membership", || {
+            legacy::check().map_err(Into::into)
+        }),
+        trial("mcp-hosted/use/continuation-rights", || {
+            continuation::check().map_err(Into::into)
+        }),
         trial("mcp-hosted/use/free-sources", || {
             records::free().map_err(Into::into)
         }),
@@ -46,8 +58,13 @@ fn disabled(reply: &Value, source: &str) -> bool {
         })
 }
 fn source_ok(reply: &Value, source: &str) -> bool {
-    reply.pointer("/result/structuredContent/sources").and_then(Value::as_array)
-        .is_some_and(|rows| rows.iter().any(|row| row["source"] == source && row["state"] == "ok"))
+    reply
+        .pointer("/result/structuredContent/sources")
+        .and_then(Value::as_array)
+        .is_some_and(|rows| {
+            rows.iter()
+                .any(|row| row["source"] == source && row["state"] == "ok")
+        })
 }
 fn admission() -> Result<(), String> {
     let assets = Environment::new().map_err(|e| e.to_string())?;
@@ -63,12 +80,32 @@ fn admission() -> Result<(), String> {
             None,
             &["--hosted".into()],
         )?;
-        let ddinter = call(&server, &["get", "drug", "DDInter1", "interactions", "--source", "ddinter"], "", false)?;
+        let ddinter = call(
+            &server,
+            &[
+                "get",
+                "drug",
+                "DDInter1",
+                "interactions",
+                "--source",
+                "ddinter",
+            ],
+            "",
+            false,
+        )?;
         if !disabled(&ddinter, "ddinter") {
             return Err(format!("default use admitted DDInter: {ddinter}"));
         }
         for use_header in ["", "x-biomcp-use: commercial\r\n", ACADEMIC] {
-            let args = ["get", "pgx", "--gene", "DPYD", "annotations", "--source", "clinpgx"];
+            let args = [
+                "get",
+                "pgx",
+                "--gene",
+                "DPYD",
+                "annotations",
+                "--source",
+                "clinpgx",
+            ];
             let cpic = call(&server, &args, use_header, false)?;
             if disabled(&cpic, "clinpgx") != (excluded || use_header != ACADEMIC) {
                 return Err(format!("wrong noncommercial source admission: {cpic}"));
@@ -107,11 +144,8 @@ fn admission() -> Result<(), String> {
 }
 fn retained() -> Result<(), String> {
     let assets = Environment::new().map_err(|e| e.to_string())?;
-    let stub = Stub::counted(
-        |_| Ok(r#"{"status":"success","data":[]}"#.into()),
-        |_| "Content-Range: 0-0/1\r\n".into(),
-        |_| 200,
-    )?;
+    let stub = Stub::for_source("api.clinpgx.org", "application/json",
+        |_| Ok(r#"{"status":"success","data":[]}"#.into()))?;
     stub.retain(assets.shared_root());
     let ca = assets.root().join("ca.pem");
     std::fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;

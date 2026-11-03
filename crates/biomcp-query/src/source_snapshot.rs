@@ -65,7 +65,8 @@ pub(crate) fn read<T: DeserializeOwned>(
     store
         .source_snapshot(token, key, |s| cx.fetch.disabled(s))?
         .map(|payload| decode(&payload))
-        .transpose().map(Option::flatten)
+        .transpose()
+        .map(Option::flatten)
 }
 fn decode<T: DeserializeOwned>(payload: &str) -> Result<Option<T>, RequestError> {
     crate::store::labels::decode(payload).map_err(Into::into)

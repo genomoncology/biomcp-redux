@@ -176,13 +176,19 @@ impl Policy {
             serde_json::from_str(text).map_err(|_| CacheError::Encoding)?;
         let metadata = if value.is_array() {
             Metadata {
-                sources: match super::labels::decode(text)? { Some(sources) => sources, None => return Ok(None) },
+                sources: match super::labels::decode(text)? {
+                    Some(sources) => sources,
+                    None => return Ok(None),
+                },
                 problems: Vec::new(),
                 dropped: false,
                 ownership: None,
             }
         } else {
-            match super::labels::decode(text)? { Some(metadata) => metadata, None => return Ok(None) }
+            match super::labels::decode(text)? {
+                Some(metadata) => metadata,
+                None => return Ok(None),
+            }
         };
         if !self.0.is_hosted() {
             return Ok(Some(metadata));

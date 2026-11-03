@@ -8,7 +8,11 @@ use serde_json::{Value, json};
 
 pub(super) fn free() -> Result<(), String> {
     let cases: &[(&str, &[&str], &str)] = &[
-        ("pgx/cpic-synthetic", &["get", "pgx", "--gene", "DPYD", "--source", "cpic"], "cpic"),
+        (
+            "pgx/cpic-synthetic",
+            &["get", "pgx", "--gene", "DPYD", "--source", "cpic"],
+            "cpic",
+        ),
         (
             "trial/native-exact",
             &[
@@ -100,7 +104,11 @@ pub(super) fn rights() -> Result<(), String> {
             "x-biomcp-use: commercial\r\n",
         ] {
             let reply = call(&server, &args, header, false)?;
-            if license == "CC BY NC" && reply.pointer("/result/structuredContent/result/content").is_some() {
+            if license == "CC BY NC"
+                && reply
+                    .pointer("/result/structuredContent/result/content")
+                    .is_some()
+            {
                 return Err("noncommercial full text leaked content".into());
             }
             if disabled(&reply, "pmc-oa") != (license == "CC BY NC") {
