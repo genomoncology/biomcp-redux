@@ -15,7 +15,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     terms: Terms {
         name: "CDC WONDER data use restrictions",
         url: "https://wonder.cdc.gov/datause.html",
-        usage: Use::Licensed,
+        usage: Use::Attribution,
     },
     quota: &crate::quotas::WONDER,
     key: KeyUse::None,

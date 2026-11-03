@@ -40,5 +40,5 @@ pub(super) fn restrict(fetch: Fetch, context: Option<Context<'_>>) -> Fetch {
         .collect();
     fetch
         .restrict_sources(disabled)
-        .restrict_uses([Use::Noncommercial, Use::Licensed].into_iter().collect())
+        .restrict_uses([Use::Noncommercial, Use::Licensed, Use::PerRecord].into_iter().collect())
 }

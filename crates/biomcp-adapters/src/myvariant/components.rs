@@ -94,7 +94,7 @@ pub fn all() -> &'static [Component] {
 }
 /// Whether source or component policy blocks a carried component.
 pub fn disabled(fetch: &biomcp_fetch::Fetch, name: &str) -> bool {
-    policy(
+    (fetch.legacy_restricted() && crate::registry::legacy::component(Source::MyVariant, name)) || policy(
         name,
         |source| fetch.disabled(source),
         |usage| fetch.disabled_use(usage),
@@ -102,7 +102,7 @@ pub fn disabled(fetch: &biomcp_fetch::Fetch, name: &str) -> bool {
 }
 /// Inspect that same component policy from a deadline-scoped adapter leg.
 pub fn disabled_on_leg(leg: &biomcp_fetch::Leg<'_>, name: &str) -> bool {
-    policy(
+    (leg.legacy_restricted() && crate::registry::legacy::component(Source::MyVariant, name)) || policy(
         name,
         |source| leg.disabled_source(source),
         |usage| leg.disabled_use(usage),

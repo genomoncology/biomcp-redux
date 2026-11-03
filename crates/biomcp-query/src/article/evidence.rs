@@ -114,6 +114,12 @@ fn execute<'a>(
     } else {
         Snapshot::empty()
     };
+    if cx.fetch.disabled_use(biomcp_types::Use::PerRecord)
+        && snapshot.fulltext.as_ref().is_some_and(|section| matches!(section,
+            Section::Data { data, .. } if !biomcp_adapters::pmc_oa::commercial(data.license)))
+    {
+        snapshot.fulltext = Some(Section::unavailable(Source::PmcOa, biomcp_types::Reason::Disabled));
+    }
     let mut stages = deadline.child(deadline.remaining().saturating_sub(SAVE_BUDGET));
     let started = stages.remaining();
     if graph_disabled {

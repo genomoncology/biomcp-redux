@@ -121,6 +121,7 @@ pub(in crate::article) fn load<'a>(
             Reason::NotOpen,
         ));
     };
+    biomcp_adapters::pmc_oa::permitted(&leg, Source::SemanticScholar, link.license())?;
     let data = PdfLink {
         url: Text::new(&link.url).map_err(|_| pdf_error(Reason::BadReply))?,
         status: link.status,

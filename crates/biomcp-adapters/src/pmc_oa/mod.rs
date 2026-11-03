@@ -102,6 +102,7 @@ pub fn read(
             problems: problems.list,
         });
     };
+    permitted(leg, Source::PmcOa, license(&license_code))?;
     let loc =
         location::Location::checked(&record.xml_url, &directory).map_err(|_| invalid_reply)?;
     if !loc.path.ends_with(".xml") {
@@ -180,3 +181,6 @@ fn body(
 
 /// Complete source policy and command declaration.
 pub(crate) mod decl;
+
+mod rights;
+pub use rights::{commercial, permitted};

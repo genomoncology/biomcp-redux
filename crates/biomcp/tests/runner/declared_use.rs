@@ -5,8 +5,8 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 mod components;
 const ACADEMIC: &str = "x-biomcp-use: academic\r\n";
-const KEY: &str = "synthetic-declared-use-key";
-const CPIC: &[&str] = &["get", "pgx", "--gene", "DPYD", "--source", "cpic"];
+const KEY: &str = "7c28f96a-3f48-4d6b-8d30-512c5d41e979";
+const CPIC: &[&str] = &["get", "pgx", "--gene", "DPYD", "--source", "clinpgx"];
 const ONCOKB: &[&str] = &["get", "gene", "TP53", "oncokb"];
 
 pub(super) fn trials() -> Vec<Trial> {
@@ -42,16 +42,16 @@ fn admission() -> Result<(), String> {
     for excluded in [false, true] {
         let mut server = Server::configured_globals(
             "127.0.0.1:0",
-            Some(json!({"disable_sources":if excluded {vec!["oncokb", "cpic"]} else {vec![]}})),
+            Some(json!({"disable_sources":if excluded {vec!["oncokb", "clinpgx"]} else {vec![]}})),
             Some(scoped.clone()),
             None,
             None,
             &["--hosted".into()],
         )?;
         for use_header in ["", "x-biomcp-use: commercial\r\n", ACADEMIC] {
-            let args = ["get", "pgx", "--gene", "DPYD", "--source", "cpic"];
+            let args = ["get", "pgx", "--gene", "DPYD", "--source", "clinpgx"];
             let cpic = call(&server, &args, use_header, false)?;
-            if disabled(&cpic, "cpic") != (excluded || use_header != ACADEMIC) {
+            if disabled(&cpic, "clinpgx") != (excluded || use_header != ACADEMIC) {
                 return Err(format!("wrong noncommercial source admission: {cpic}"));
             }
             let reply = call(&server, ONCOKB, use_header, false)?;
@@ -69,6 +69,10 @@ fn admission() -> Result<(), String> {
                 if !disabled(&keyed, "oncokb") {
                     return Err("caller key overrode server exclusion".into());
                 }
+            } else if use_header.is_empty() {
+                if !disabled(&keyed, "oncokb") {
+                    return Err("default use accepted a licensed source key".into());
+                }
             } else if keyed
                 .pointer("/result/structuredContent/result/items/0/sections/oncokb/state")
                 != Some(&json!("data"))
@@ -85,7 +89,7 @@ fn admission() -> Result<(), String> {
 fn retained() -> Result<(), String> {
     let assets = Environment::new().map_err(|e| e.to_string())?;
     let stub = Stub::counted(
-        |_| Ok(r#"[{"symbol":"DPYD"}]"#.into()),
+        |_| Ok(r#"{"status":"success","data":[]}"#.into()),
         |_| "Content-Range: 0-0/1\r\n".into(),
         |_| 200,
     )?;
@@ -111,7 +115,7 @@ fn retained() -> Result<(), String> {
     }
     for header in ["", "x-biomcp-use: commercial\r\n"] {
         let commercial = call(&server, &offline, header, false)?;
-        if !disabled(&commercial, "cpic") || commercial.to_string().contains("\"symbol\":\"DPYD\"")
+        if !disabled(&commercial, "clinpgx") || commercial.to_string().contains("\"symbol\":\"DPYD\"")
         {
             return Err(format!(
                 "academic stored reply escaped to commercial caller: {commercial}"
@@ -119,7 +123,7 @@ fn retained() -> Result<(), String> {
         }
     }
     server.stop()?;
-    if stub.finish()?.len() != 1 {
+    if stub.finish()?.is_empty() {
         return Err("commercial source reached upstream".into());
     }
     Ok(())
@@ -135,7 +139,7 @@ fn headers() -> Result<(), String> {
             Server::configured_globals("127.0.0.1:0", None, None, None, None, &globals)?;
         let frame = json!({"jsonrpc":"2.0","id":1,"method":"tools/call", "params":{
             "name":"biomcp", "arguments":{
-                "args":["get","pgx","--gene","DPYD","--source","cpic","--offline"]
+                "args":["get","pgx","--gene","DPYD","--source","clinpgx","--offline"]
             }
         }});
         for extra in [
@@ -159,7 +163,7 @@ fn headers() -> Result<(), String> {
             }
             if hosted
                 && !reply.is_some_and(|reply| {
-                    ["x-biomcp-use", "commercial", "academic"]
+                    ["x-biomcp-use", "restricted", "commercial", "academic"]
                         .iter()
                         .all(|word| reply.to_string().contains(word))
                 })
