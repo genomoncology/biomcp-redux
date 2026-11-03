@@ -1,9 +1,10 @@
 use crate::{Error, text_value};
 use std::{borrow::Cow, fmt, str::FromStr};
 /// Published rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS,
-/// chromosome genomic HGVS, or chromosome-position-reference-alternate coordinates.
-/// Use get variant <ID> to inspect source identities and variant normalize --hgvs <HGVS>
-/// for source normalization; no allele is selected from ambiguous candidates.
+/// chromosome genomic HGVS, or single-base chromosome-position-reference-alternate coordinates.
+/// Multi-base coordinates are unsupported: use reference-qualified HGVS and
+/// variant normalize --source car --hgvs <HGVS> to validate source forms.
+/// Ambiguous candidates remain separate.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct VariantInput {
     text: crate::Text,
@@ -34,7 +35,7 @@ pub enum VariantNamespace {
 }
 impl VariantInput {
     pub(crate) const COORDINATE_PATTERN: &'static str =
-        r"^(chr)?([1-9]|1[0-9]|2[0-2]|X|Y|M|MT)-[1-9][0-9]*-[ACGT]+-[ACGT]+$";
+        r"^(chr)?([1-9]|1[0-9]|2[0-2]|X|Y|M|MT)-[1-9][0-9]*-[ACGT]-[ACGT]$";
     pub(crate) const CHROMOSOME_PATTERN: &'static str =
         r"^chr([1-9]|1[0-9]|2[0-2]|X|Y|M|MT):g\.[\x21-\x7e]*[0-9][\x21-\x7e]*$";
 
@@ -124,6 +125,9 @@ impl VariantInput {
         if let InputKind::Coordinates(hgvs) = &self.kind {
             return Cow::Borrowed(hgvs);
         }
+        if let Some(body) = self.as_str().strip_prefix("chrM:") {
+            return Cow::Owned(format!("chrMT:{body}"));
+        }
         if let Some((accession, _)) = self.reference_gene()
             && let Some((_, body)) = self.as_str().split_once(':')
         {
@@ -166,14 +170,15 @@ fn coordinates(value: &str) -> Option<String> {
         .next()?
         .strip_prefix("chr")
         .unwrap_or(value.split('-').next()?);
+    let chromosome = if chromosome == "M" { "MT" } else { chromosome };
     let position = parts.next()?;
     let reference = parts.next()?;
     let alternate = parts.next()?;
     if parts.next().is_some()
         || position.starts_with('0')
         || position.parse::<u64>().ok()? == 0
-        || reference.is_empty()
-        || alternate.is_empty()
+        || reference.len() != 1
+        || alternate.len() != 1
         || !reference
             .bytes()
             .chain(alternate.bytes())
@@ -182,20 +187,7 @@ fn coordinates(value: &str) -> Option<String> {
         return None;
     }
     // Coordinate spelling is converted to the same checked genomic expression used elsewhere.
-    let expression = if reference.len() == 1 && alternate.len() == 1 {
-        format!("chr{chromosome}:g.{position}{reference}>{alternate}")
-    } else {
-        let end = position
-            .parse::<u64>()
-            .ok()?
-            .checked_add(reference.len() as u64 - 1)?;
-        let span = if reference.len() == 1 {
-            position.to_owned()
-        } else {
-            format!("{position}_{end}")
-        };
-        format!("chr{chromosome}:g.{span}del{reference}ins{alternate}")
-    };
+    let expression = format!("chr{chromosome}:g.{position}{reference}>{alternate}");
     crate::Expression::new(
         crate::ExpressionSyntax::HgvsG,
         crate::Text::new(&expression).ok()?,
