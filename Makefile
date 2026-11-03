@@ -289,5 +289,10 @@ mcp-reply-focused:
 	BIOMCP_TEST_EXECUTABLE="$(CURDIR)/target/mcp-reply/installed/bin/biomcp" cargo test --locked -p biomcp --test cases mcp-parity/ $(TEST_THREADS)
 	BIOMCP_TEST_EXECUTABLE="$(CURDIR)/target/mcp-reply/installed/bin/biomcp" cargo test --locked -p biomcp --test cases mcp-http/ $(TEST_THREADS)
 	BIOMCP_TEST_EXECUTABLE="$(CURDIR)/target/mcp-reply/installed/bin/biomcp" cargo test --locked -p biomcp --test cases mcp-hosted/ $(TEST_THREADS)
-	python3 scripts/check_front_map.py target/mcp-reply/installed/bin/biomcp
+	python3 scripts/check_front_map.py target/mcp-reply/installed/bin/biomcp --mcp-baseline target/0587-proofs/baseline-installed/biomcp --output target/0587-proofs/candidate
 mcp-reply-gate: landing-gate
+
+.PHONY: mcp-reply-scan
+mcp-reply-scan:
+	/Users/ian/.npm/_npx/f96b6f8e572bd88e/node_modules/jscpd/bin/jscpd --version
+	/Users/ian/.npm/_npx/f96b6f8e572bd88e/node_modules/jscpd/bin/jscpd crates/biomcp/src/config.rs crates/biomcp/src/config crates/biomcp/src/mcp.rs crates/biomcp/src/mcp crates/biomcp/tests/runner/protocol.rs crates/biomcp/tests/runner/protocol_schemas.rs crates/biomcp/tests/runner/mcp_reply_form.rs --format rust --reporters json --output target/0587-proofs/jscpd
