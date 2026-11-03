@@ -17,32 +17,30 @@ pub(super) fn trials() -> Vec<Trial> {
 fn first_reader(expires: bool) -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let replay = super::launch::fixtures().join("replies/gene/gencc");
-    let cache = env.root().join("case-cache").to_string_lossy().into_owned();
-    env.config(&json!({"disable_sources":["oncokb"]}))
-        .map_err(|e| e.to_string())?;
-    invoke(
-        &env,
-        vec![
-            "get".into(),
-            "gene".into(),
-            "ODC1".into(),
-            "--replay".into(),
-            replay.to_string_lossy().into(),
-            "--case-cache".into(),
-            cache.clone(),
-        ],
-        0,
-    )?;
-    let body = native_body(&replay)?;
+    let body = native_body(&replay, "gencc")?;
+    let hgnc = native_body(&replay, "hgnc")?;
     let (admitted, admission) = mpsc::channel();
     let (publish, publication) = mpsc::channel();
-    let peer = Stub::for_source("thegencc.org", "text/csv", move |_| {
-        admitted.send(()).map_err(|e| e.to_string())?;
-        publication
-            .recv_timeout(Duration::from_secs(30))
-            .map_err(|e| e.to_string())?;
-        Ok(body.clone())
-    })?;
+    let peer = Stub::for_sources(
+        &["thegencc.org", "storage.googleapis.com"],
+        |request| {
+            if request.contains("hgnc_complete_set") {
+                "text/tab-separated-values"
+            } else {
+                "text/csv"
+            }
+        },
+        move |request| {
+            if request.contains("hgnc_complete_set") {
+                return Ok(hgnc.clone());
+            }
+            admitted.send(()).map_err(|e| e.to_string())?;
+            publication
+                .recv_timeout(Duration::from_secs(30))
+                .map_err(|e| e.to_string())?;
+            Ok(body.clone())
+        },
+    )?;
     peer.retain(env.shared_root());
     let ca = env.root().join("ca.pem");
     fs::write(&ca, &peer.certificate).map_err(|e| e.to_string())?;
@@ -55,24 +53,26 @@ fn first_reader(expires: bool) -> Result<(), String> {
             .insert("command_timeout_seconds".into(), json!(1));
     }
     env.config(&config).map_err(|e| e.to_string())?;
+    invoke(&env, vec!["get".into(), "gene".into(), "ODC1".into()], 0)?;
     let mut command = env.command(
         env!("CARGO_BIN_EXE_biomcp"),
-        &[
-            "sync".into(),
-            "gencc".into(),
-            "--case-cache".into(),
-            cache.clone(),
-        ],
+        &["sync".into(), "gencc".into()],
     );
-    let child = command
+    let mut child = command
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
         .spawn()
         .map_err(|e| e.to_string())?;
-    admission
-        .recv_timeout(Duration::from_secs(15))
-        .map_err(|e| e.to_string())?;
-    let result = reader(&env, cache, publish, expires);
+    if let Err(error) = admission.recv_timeout(Duration::from_secs(15)) {
+        let _ = child.kill();
+        let output = command.wait_with_output(child).map_err(|e| e.to_string())?;
+        return Err(format!(
+            "publisher admission failed: {error}; stdout: {}; stderr: {}",
+            String::from_utf8_lossy(&output.stdout),
+            String::from_utf8_lossy(&output.stderr)
+        ));
+    }
+    let result = reader(&env, publish, expires);
     let output = command.wait_with_output(child).map_err(|e| e.to_string())?;
     if !output.status.success() {
         return Err(format!(
@@ -84,8 +84,8 @@ fn first_reader(expires: bool) -> Result<(), String> {
     result
 }
 
-fn native_body(replay: &std::path::Path) -> Result<String, String> {
-    let recording = fs::read_dir(replay.join("gencc"))
+fn native_body(replay: &std::path::Path, source: &str) -> Result<String, String> {
+    let recording = fs::read_dir(replay.join(source))
         .map_err(|e| e.to_string())?
         .next()
         .ok_or("GenCC recording missing")?
@@ -105,15 +105,12 @@ fn native_body(replay: &std::path::Path) -> Result<String, String> {
         .ok_or_else(|| "GenCC CSV".into())
 }
 
-fn reader(
-    env: &Environment,
-    cache: String,
-    publish: mpsc::Sender<()>,
-    expires: bool,
-) -> Result<(), String> {
+fn reader(env: &Environment, publish: mpsc::Sender<()>, expires: bool) -> Result<(), String> {
+    let observations = env.root().join("reader-observations.jsonl");
     std::thread::scope(|scope| {
         let (done, completion) = mpsc::channel();
         let environment = env;
+        let destination = &observations;
         scope.spawn(move || {
             let result = invoke(
                 environment,
@@ -122,27 +119,29 @@ fn reader(
                     "gene".into(),
                     "ODC1".into(),
                     "gencc".into(),
-                    "--case-cache".into(),
-                    cache,
+                    "--observe".into(),
+                    destination.to_string_lossy().into(),
                 ],
                 0,
             );
             let _ = done.send(result);
         });
-        // Await completion while publication is held. A premature refusal is
-        // retained, then the actual response event releases the publisher.
-        let early = completion.recv_timeout(if expires {
-            Duration::from_secs(3)
+        let admission = if expires {
+            completion
+                .recv_timeout(Duration::from_secs(3))
+                .map(Some)
+                .map_err(|e| e.to_string())
         } else {
-            Duration::from_millis(500)
-        });
+            wait_for_reader(&observations, &completion).map(|()| None)
+        };
+        // Only actual wait admission, premature completion, or the configured
+        // deadline releases publication. A startup delay cannot produce a pass.
         publish.send(()).map_err(|e| e.to_string())?;
-        let value = match early {
-            Ok(result) => result?,
-            Err(mpsc::RecvTimeoutError::Timeout) if !expires => completion
+        let value = match admission? {
+            Some(result) => result?,
+            None => completion
                 .recv_timeout(Duration::from_secs(15))
                 .map_err(|e| e.to_string())??,
-            Err(error) => return Err(error.to_string()),
         };
         let valid = if expires {
             value
@@ -164,4 +163,31 @@ fn reader(
         }
         Ok(())
     })
+}
+fn wait_for_reader(
+    path: &std::path::Path,
+    completion: &mpsc::Receiver<Result<Value, String>>,
+) -> Result<(), String> {
+    let end = std::time::Instant::now() + Duration::from_secs(15);
+    loop {
+        let admitted = fs::read_to_string(path)
+            .unwrap_or_default()
+            .lines()
+            .filter_map(|line| serde_json::from_str::<Value>(line).ok())
+            .any(|event| event.get("role") == Some(&json!("bundle-wait")));
+        if admitted {
+            return Ok(());
+        }
+        match completion.try_recv() {
+            Ok(value) => return Err(format!("reader completed before wait admission: {value:?}")),
+            Err(mpsc::TryRecvError::Disconnected) => {
+                return Err("reader disconnected before wait admission".into());
+            }
+            Err(mpsc::TryRecvError::Empty) => {}
+        }
+        if std::time::Instant::now() >= end {
+            return Err("reader never entered bundle wait".into());
+        }
+        std::thread::yield_now();
+    }
 }
