@@ -5,14 +5,16 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 mod components;
 mod continuation;
+mod legacy;
 mod records;
 const ACADEMIC: &str = "x-biomcp-use: academic\r\n";
 const KEY: &str = "7c28f96a-3f48-4d6b-8d30-512c5d41e979";
-const CLINPGX: &[&str] = &["get", "pgx", "--gene", "DPYD", "--source", "clinpgx"];
+const CLINPGX: &[&str] = &["get", "pgx", "--gene", "DPYD", "annotations", "--source", "clinpgx"];
 const ONCOKB: &[&str] = &["get", "gene", "TP53", "oncokb"];
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        trial("mcp-hosted/use/legacy-group-membership", || legacy::check().map_err(Into::into)),
         trial("mcp-hosted/use/continuation-rights", || continuation::check().map_err(Into::into)),
         trial("mcp-hosted/use/free-sources", || {
             records::free().map_err(Into::into)
@@ -66,7 +68,7 @@ fn admission() -> Result<(), String> {
             return Err(format!("default use admitted DDInter: {ddinter}"));
         }
         for use_header in ["", "x-biomcp-use: commercial\r\n", ACADEMIC] {
-            let args = ["get", "pgx", "--gene", "DPYD", "--source", "clinpgx"];
+            let args = ["get", "pgx", "--gene", "DPYD", "annotations", "--source", "clinpgx"];
             let cpic = call(&server, &args, use_header, false)?;
             if disabled(&cpic, "clinpgx") != (excluded || use_header != ACADEMIC) {
                 return Err(format!("wrong noncommercial source admission: {cpic}"));
@@ -181,9 +183,7 @@ fn headers() -> Result<(), String> {
             }
             if hosted
                 && !reply.is_some_and(|reply| {
-                    ["x-biomcp-use", "restricted", "commercial", "academic"]
-                        .iter()
-                        .all(|word| reply.to_string().contains(word))
+                    reply.get("error") == Some(&json!("Invalid x-biomcp-use header; allowed values: restricted, commercial, academic"))
                 })
             {
                 return Err("invalid declaration omitted allowed values".into());

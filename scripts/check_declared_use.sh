@@ -21,6 +21,8 @@ case "$phase" in
     mkdir -p "$output/installed/bin"
     cp "${CARGO_TARGET_DIR:-target}/debug/biomcp" "$output/installed/bin/biomcp"
     export BIOMCP_TEST_EXECUTABLE="$output/installed/bin/biomcp"
+    export BIOMCP_LEGACY_EXECUTABLE="/Users/ian/workspace/t/biomcp-redux-0585-baseline-3d25a0ea5/installed/bin/biomcp"
+    python3 scripts/test_reply_diff.py
     cargo test --locked -p biomcp --test cases mcp-hosted/use/ -- --test-threads=4
     ;;
   gate) exec make landing-gate ;;

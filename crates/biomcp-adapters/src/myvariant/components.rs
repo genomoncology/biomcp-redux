@@ -94,24 +94,23 @@ pub fn all() -> &'static [Component] {
 }
 /// Whether source or component policy blocks a carried component.
 pub fn disabled(fetch: &biomcp_fetch::Fetch, name: &str) -> bool {
-    (fetch.legacy_restricted() && crate::registry::legacy::component(Source::MyVariant, name))
-        || policy(
-            name,
+    policy(
+            name, fetch.legacy_restricted(),
             |source| fetch.disabled(source),
             |usage| fetch.disabled_use(usage),
         )
 }
 /// Inspect that same component policy from a deadline-scoped adapter leg.
 pub fn disabled_on_leg(leg: &biomcp_fetch::Leg<'_>, name: &str) -> bool {
-    (leg.legacy_restricted() && crate::registry::legacy::component(Source::MyVariant, name))
-        || policy(
-            name,
+    policy(
+            name, leg.legacy_restricted(),
             |source| leg.disabled_source(source),
             |usage| leg.disabled_use(usage),
         )
 }
 fn policy(
     name: &str,
+    legacy: bool,
     source_disabled: impl Fn(Source) -> bool,
     use_disabled: impl Fn(Use) -> bool,
 ) -> bool {
@@ -119,7 +118,7 @@ fn policy(
         || COMPONENTS
             .iter()
             .find(|c| c.name == name)
-            .is_some_and(|c| c.policy(source_disabled, use_disabled))
+            .is_some_and(|c| c.policy(legacy, source_disabled, use_disabled))
 }
 /// Opaque source queries cannot be safely scoped when a component is switched off.
 pub fn restricted(fetch: &biomcp_fetch::Fetch) -> bool {

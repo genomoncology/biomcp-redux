@@ -35,7 +35,7 @@ pub(super) fn check() -> Result<(), String> {
     db.execute("UPDATE citation_evidence SET outcomes=?1,payload=?2 WHERE id=?3",
         rusqlite::params![old(&outcomes), old(&payload), id]).map_err(|e| e.to_string())?;
     drop(db);
-    let args: Vec<_> = words.into_iter().chain(["--pool", id.as_str(), "--offline"]).collect();
+    let args: Vec<_> = words.into_iter().chain(["--pool", id.as_str()]).collect();
     let restored = call(&server, &args, ACADEMIC, false)?;
     if restored.pointer("/result/structuredContent/result/fulltext") != Some(&original) {
         return Err(format!("pre-change continuation failed: {restored}"));

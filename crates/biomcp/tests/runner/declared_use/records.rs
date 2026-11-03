@@ -8,6 +8,7 @@ use serde_json::{Value, json};
 
 pub(super) fn free() -> Result<(), String> {
     let cases: &[(&str, &[&str], &str)] = &[
+        ("pgx/cpic-synthetic", &["get", "pgx", "--gene", "DPYD", "--source", "cpic"], "cpic"),
         (
             "trial/native-exact",
             &[
