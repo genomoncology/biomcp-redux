@@ -8,14 +8,14 @@ case "$phase" in
   format)
     cargo fmt --all
     UPDATE_SCHEMAS=1 cargo test --locked -p biomcp-types --features schema --test schemas checked_in_schemas_match_types -- --exact
-    tar -czf "$PM_JOB_DIR/declared-use-generated.tar.gz" crates/biomcp-types/schemas
+    tar -czf "${TMPDIR:?}/declared-use-generated.tar.gz" crates/biomcp-types/schemas
     ;;
   focused)
     cargo build --locked -p biomcp --bin biomcp
     cargo test --locked -p biomcp --test cases --no-run
-    mkdir -p "$PM_JOB_DIR/installed/bin"
-    cp "${CARGO_TARGET_DIR:-target}/debug/biomcp" "$PM_JOB_DIR/installed/bin/biomcp"
-    export BIOMCP_TEST_EXECUTABLE="$PM_JOB_DIR/installed/bin/biomcp"
+    mkdir -p "${TMPDIR:?}/installed/bin"
+    cp "${CARGO_TARGET_DIR:-target}/debug/biomcp" "${TMPDIR:?}/installed/bin/biomcp"
+    export BIOMCP_TEST_EXECUTABLE="${TMPDIR:?}/installed/bin/biomcp"
     cargo test --locked -p biomcp --test cases mcp-hosted/use/ -- --test-threads=4
     ;;
   gate) exec make landing-gate ;;
