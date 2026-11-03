@@ -30,6 +30,7 @@ use execution::run_step;
 mod alphagenome;
 mod alphagenome_tls;
 mod bundle_wait;
+mod bundle_sync;
 mod cache_admission;
 mod cache_contention;
 mod capture;
@@ -251,6 +252,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(article_lean::trials());
     trials.extend(configuration::trials());
     trials.extend(bundle_wait::trials());
+    trials.extend(bundle_sync::trials());
     trials.extend(source_pacing::trials());
     trials.extend(recurrence::trials());
     trials.extend(replay::trials());
