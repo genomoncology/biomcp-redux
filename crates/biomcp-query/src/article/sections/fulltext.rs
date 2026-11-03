@@ -159,7 +159,9 @@ pub(crate) fn outline_next(
 ) {
     // This fill-in term advertises literal finding without inventing a research question.
     if let Some(query) = crate::next::checked(
-        serde_json::from_value::<ArticleText>(serde_json::json!({"input": input, "find": "<text>"})),
+        serde_json::from_value::<ArticleText>(
+            serde_json::json!({"input": input, "find": "<text>"}),
+        ),
         Source::PmcOa,
         problems,
     ) {

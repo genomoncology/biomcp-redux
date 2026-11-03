@@ -8,7 +8,11 @@ pub(super) fn trials() -> Vec<Trial> {
     vec![super::transcript::trial(
         "article-fulltext/compact-outline",
         || {
-            for extra in ["", "<sec><title>Introduction</title><p>Later introduction.</p></sec><sec><title>Other section</title><p>Other text.</p></sec><sec><title>Introduction</title><p>Final introduction.</p></sec><sec><title> </title><p>Untitled section.</p></sec>", "<sec><title>^</title><p>Literal marker title.</p></sec>"] {
+            for extra in [
+                "",
+                "<sec><title>Introduction</title><p>Later introduction.</p></sec><sec><title>Other section</title><p>Other text.</p></sec><sec><title>Introduction</title><p>Final introduction.</p></sec><sec><title> </title><p>Untitled section.</p></sec>",
+                "<sec><title>^</title><p>Literal marker title.</p></sec>",
+            ] {
                 check(extra).map_err(libtest_mimic::Failed::from)?;
             }
             Ok(())
@@ -18,14 +22,20 @@ pub(super) fn trials() -> Vec<Trial> {
 
 fn check(extra: &str) -> Result<(), String> {
     let env = Environment::new().map_err(|error| error.to_string())?;
-    super::response_cases::copy_capture("article/fulltext/synthetic", &env.root().join("outline-replay"), |_, record| {
-        for exchange in record["exchanges"].as_array_mut().into_iter().flatten() {
-            if let Some(value) = exchange.pointer_mut("/body/value")
-                && let Some(xml) = value.as_str().filter(|xml| xml.starts_with("<article>")) {
-                *value = Value::String(xml.replace("</body>", &format!("{extra}</body>")));
+    super::response_cases::copy_capture(
+        "article/fulltext/synthetic",
+        &env.root().join("outline-replay"),
+        |_, record| {
+            for exchange in record["exchanges"].as_array_mut().into_iter().flatten() {
+                if let Some(value) = exchange.pointer_mut("/body/value")
+                    && let Some(xml) = value.as_str().filter(|xml| xml.starts_with("<article>"))
+                {
+                    *value = Value::String(xml.replace("</body>", &format!("{extra}</body>")));
+                }
             }
-        }
-    }).map_err(|error| error.to_string())?;
+        },
+    )
+    .map_err(|error| error.to_string())?;
     let binary = Path::new(env!("CARGO_BIN_EXE_biomcp"));
     let json = read(&env, binary, "json", false)?;
     let reply: Value = serde_json::from_str(&json).map_err(|error| error.to_string())?;
@@ -96,16 +106,33 @@ fn outline(markdown: &str, parts: &[Value]) -> Result<(), String> {
     for line in markdown.lines().filter(|line| line.starts_with("| ")) {
         let cells = line.split('|').skip(1).map(str::trim).collect::<Vec<_>>();
         if cells.len() == 5 && matches!(cells[0], "section" | "table") {
-            if cells[2] != "^" || !repeats { current = cells[2]; }
-            rows.push((current.to_owned(), cells[0].to_owned(), cells[1].to_owned(), cells[3].to_owned()));
+            if cells[2] != "^" || !repeats {
+                current = cells[2];
+            }
+            rows.push((
+                current.to_owned(),
+                cells[0].to_owned(),
+                cells[1].to_owned(),
+                cells[3].to_owned(),
+            ));
         }
     }
-    let expected = parts.iter().map(|part| (
-        part["title"].as_str().unwrap_or_default().to_owned(),
-        part["kind"].as_str().unwrap_or_default().to_owned(),
-        part["number"].to_string(), part["tokens"].to_string(),
-    )).collect::<Vec<_>>();
-    if rows != expected { return Err(format!("outline title-to-part association changed: {rows:?} != {expected:?}")); }
+    let expected = parts
+        .iter()
+        .map(|part| {
+            (
+                part["title"].as_str().unwrap_or_default().to_owned(),
+                part["kind"].as_str().unwrap_or_default().to_owned(),
+                part["number"].to_string(),
+                part["tokens"].to_string(),
+            )
+        })
+        .collect::<Vec<_>>();
+    if rows != expected {
+        return Err(format!(
+            "outline title-to-part association changed: {rows:?} != {expected:?}"
+        ));
+    }
     Ok(())
 }
 
