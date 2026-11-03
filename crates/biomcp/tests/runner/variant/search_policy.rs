@@ -33,6 +33,12 @@ pub(super) fn enabled() -> Result<(), String> {
     super::super::network_stub::retain_replay_owner(env.shared_root().as_ref())
         .map_err(|e| e.to_string())?;
     let requests = stub.finish()?;
+    if let Some(transcript) = super::super::transcript::current() {
+        transcript.record(
+            "cache/variant-search/enabled-protein-selector/requests",
+            json!(requests),
+        )?;
+    }
     let [(_, request)] = requests.as_slice() else {
         return Err("enabled selector must send one source request".into());
     };
