@@ -4,6 +4,7 @@ export PATH="/Users/ian/.local/share/uv/python/cpython-3.13.17-macos-aarch64-non
 export RUSTUP_TOOLCHAIN=1.95.0
 export CARGO_TARGET_DIR="$PWD/target/0594-proofs"
 mkdir -p "$CARGO_TARGET_DIR"
+git rev-parse HEAD > "$CARGO_TARGET_DIR/source.txt"
 run_check() {
     label=$1
     shift
@@ -27,6 +28,7 @@ case "${1:-focused}" in
             fi
         fi
         run_check install cargo install --locked --debug --path crates/biomcp --root "$CARGO_TARGET_DIR/installed" --force
+        shasum -a 256 "$CARGO_TARGET_DIR/installed/bin/biomcp" > "$CARGO_TARGET_DIR/binary.sha256"
         export BIOMCP_TEST_EXECUTABLE="$CARGO_TARGET_DIR/installed/bin/biomcp"
         run_check green cargo test --locked -p biomcp --test cases gene-sections/bundle- -- --test-threads=1
         ;;
@@ -38,5 +40,10 @@ case "${1:-focused}" in
         run_check jscpd-tests "$npm" exec --offline --yes --package=jscpd@4.0.5 -- jscpd --format rust,yaml --min-tokens 50 --max-size 10mb --reporters console,json --output "$CARGO_TARGET_DIR/jscpd-tests" crates/biomcp/tests/runner/bundle_sync.rs crates/biomcp/tests/runner/mod.rs
         ;;
     gate) run_check routine make landing-gate ;;
+    final)
+        sh scripts/check_bundle_sync.sh green
+        sh scripts/check_bundle_sync.sh scan
+        sh scripts/check_bundle_sync.sh gate
+        ;;
     *) exit 2 ;;
 esac
