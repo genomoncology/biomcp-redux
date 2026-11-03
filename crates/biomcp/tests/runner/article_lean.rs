@@ -47,7 +47,7 @@ fn check() -> Result<(), String> {
 
 fn read(env: &Environment, binary: &Path, format: &str) -> Result<String, String> {
     let replay = super::launch::fixtures().join("replies/article/fulltext/synthetic");
-    let args = ["get", "article", "PMC5606870", "fulltext", "--format", format].map(str::to_owned);
+    let args = ["get", "article", "28944238", "fulltext", "--format", format].map(str::to_owned);
     let output = env.command(binary, &super::launch::arguments(&args, &env.globals(Some(&replay), false)))
         .output().map_err(|error| error.to_string())?;
     if !output.status.success() || !output.stderr.is_empty() {
