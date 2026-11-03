@@ -7,6 +7,8 @@ use std::{collections::BTreeMap, env, error::Error, fs, path::PathBuf};
 
 #[path = "build/schema_metadata.rs"]
 mod schema_metadata;
+#[path = "build/front_map.rs"]
+mod front_map;
 
 fn main() -> Result<(), Box<dyn Error>> {
     embed_build()?;
@@ -37,7 +39,12 @@ fn main() -> Result<(), Box<dyn Error>> {
         .collect::<String>();
     let output = PathBuf::from(env::var("OUT_DIR")?).join("schemas.rs");
     fs::write(output, format!("&[\n{entries}]\n"))?;
-    embed_skills()?;
+    let map = front_map::generate(&schemas)?;
+    if map.chars().count() > front_map::DEFAULT_CHARACTER_LIMIT {
+        return Err(format!("front map exceeds {} characters: {}", front_map::DEFAULT_CHARACTER_LIMIT, map.chars().count()).into());
+    }
+    fs::write(PathBuf::from(env::var("OUT_DIR")?).join("front-map.txt"), &map)?;
+    embed_skills(&map)?;
     embed_examples()
 }
 
@@ -283,11 +290,13 @@ fn git_revision() -> Result<String, Box<dyn Error>> {
     Ok(String::from_utf8(commit.stdout)?.trim().to_owned())
 }
 
-fn embed_skills() -> Result<(), Box<dyn Error>> {
+fn embed_skills(map: &str) -> Result<(), Box<dyn Error>> {
     let directory = PathBuf::from(env::var("CARGO_MANIFEST_DIR")?).join("../../skills");
     println!("cargo:rerun-if-changed={}", directory.display());
     let mut assets = BTreeMap::new();
     skill_files(&directory, &directory, &mut assets)?;
+    let guide = assets.get_mut("SKILL.md").ok_or("missing skill guide")?;
+    *guide = guide.replace("{{front-map}}", map);
     let entries = assets
         .iter()
         .map(|(name, text)| format!("({name:?}, {text:?}),\n"))
