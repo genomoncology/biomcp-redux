@@ -99,6 +99,28 @@
         "/result/source_query": "CA123643",
         "/page/total": 0
       }
+    },
+    {
+      "run": [
+        "get",
+        "variant",
+        "CA123643",
+        "all"
+      ],
+      "expect": {
+        "/result/resolution": "resolved",
+        "/result/candidates/0/sections/clinvar/state": "data",
+        "/result/candidates/0/sections/erepo/state": "empty",
+        "/result/candidates/0/sections/population/state": "data",
+        "/result/candidates/0/sections/gwas/state": "empty",
+        "/result/candidates/0/sections/civic/state": "data",
+        "/result/candidates/0/sections/hotspots/reason": "no-join-id",
+        "/result/candidates/0/sections/oncokb/reason": "no-key",
+        "/result/candidates/0/sections/alphagenome/reason": "no-key",
+        "/result/candidates/0/sections/predict/state": "empty",
+        "/result/candidates/0/sections/conservation/state": "empty",
+        "/result/candidates/0/sections/cosmic/state": "empty"
+      }
     }
   ]
 }

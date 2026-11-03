@@ -228,14 +228,16 @@ fn car(
     })
 }
 fn join_id(row: &VariantHeader) -> Option<String> {
+    join_for_build(row, biodata::Build::GRCh37)
+}
+fn join_for_build(row: &VariantHeader, build: biodata::Build) -> Option<String> {
     row.identity.representations.iter().find_map(|r| {
-        if r.build != Some(biodata::Build::GRCh37) {
+        if r.build != Some(build) {
             return None;
         }
         let allele = r.allele.as_ref()?;
         let chromosome =
-            biodata::Chromosome::from_accession(allele.location().sequence, biodata::Build::GRCh37)
-                .ok()?;
+            biodata::Chromosome::from_accession(allele.location().sequence, build).ok()?;
         myvariant::genomic_id(&chromosome.name(), r.expression.value())
     })
 }

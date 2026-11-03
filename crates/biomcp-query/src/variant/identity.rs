@@ -171,7 +171,7 @@ pub(super) fn missing(source: Source) -> Problem {
         Source::Erepo | Source::Civic => "one CAid",
         Source::Gwas => "one rsID",
         Source::Gnomad => {
-            "one source-qualified GRCh38 allele (CAid or reference-qualified genomic HGVS)"
+            "one source-qualified GRCh38 SNV (CAid or reference-qualified genomic HGVS); indels need a padded source representation"
         }
         _ => {
             "one exact source-qualified allele (CAid or reference-qualified genomic HGVS) with the source's required annotations"

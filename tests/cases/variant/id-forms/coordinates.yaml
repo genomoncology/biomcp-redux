@@ -115,6 +115,28 @@
       "expect": {
         "/error/message": "normalization accepts reference-qualified HGVS, or chromosome genomic HGVS with CAR and --build; convert rsIDs, clinvar:N, VCV accessions and genomic coordinates with get variant <ID> first"
       }
+    },
+    {
+      "run": [
+        "get",
+        "variant",
+        "7-140753336-A-T",
+        "all"
+      ],
+      "expect": {
+        "/result/resolution": "resolved",
+        "/result/candidates/0/sections/clinvar/state": "data",
+        "/result/candidates/0/sections/erepo/state": "empty",
+        "/result/candidates/0/sections/population/state": "data",
+        "/result/candidates/0/sections/gwas/state": "empty",
+        "/result/candidates/0/sections/civic/state": "data",
+        "/result/candidates/0/sections/hotspots/reason": "no-join-id",
+        "/result/candidates/0/sections/oncokb/reason": "no-key",
+        "/result/candidates/0/sections/alphagenome/reason": "no-key",
+        "/result/candidates/0/sections/predict/state": "empty",
+        "/result/candidates/0/sections/conservation/state": "empty",
+        "/result/candidates/0/sections/cosmic/state": "empty"
+      }
     }
   ]
 }

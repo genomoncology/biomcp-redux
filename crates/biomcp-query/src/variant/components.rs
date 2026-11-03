@@ -31,7 +31,9 @@ pub(super) fn target(candidates: &[VariantHeader]) -> Option<(String, Build)> {
             .find_map(|r| r.build)
             .map(|build| (candidate.record.id.to_string(), build))
     } else {
-        super::join_id(candidate).map(|id| (id, Build::GRCh37))
+        [biomcp_types::VariantGet::DEFAULT_BUILD, Build::GRCh37]
+            .into_iter()
+            .find_map(|build| super::join_for_build(candidate, build).map(|id| (id, build)))
     }
 }
 pub(super) fn measurements(
