@@ -35,6 +35,11 @@ pub(crate) fn http_capacity(
     Ok((calls, connections))
 }
 
+pub(crate) fn mcp_reply_form(settings: &Settings) -> crate::mcp::protocol::ReplyForm {
+    settings.as_ref().ok().and_then(Option::as_ref)
+        .and_then(|file| file.mcp_reply_form).unwrap_or_default()
+}
+
 pub(crate) type Settings = Result<Option<ConfigFile>, ConfigError>;
 
 fn configured(settings: &Settings) -> Result<Option<&ConfigFile>, ConfigError> {

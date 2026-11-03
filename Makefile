@@ -278,3 +278,14 @@ http-edge-coverage:
 .PHONY: http-capacity-check
 http-capacity-check: pre-job docs-check
 	cargo test --locked -p biomcp --test cases mcp-http/ $(TEST_THREADS)
+
+.PHONY: mcp-reply-focused mcp-reply-gate
+mcp-reply-focused:
+	cargo fmt --all
+	mkdir -p target/mcp-reply/installed
+	cargo install --locked --debug --path crates/biomcp --root target/mcp-reply/installed --force
+	BIOMCP_TEST_EXECUTABLE="$(CURDIR)/target/mcp-reply/installed/bin/biomcp" cargo test --locked -p biomcp --test cases mcp-parity/ $(TEST_THREADS)
+	BIOMCP_TEST_EXECUTABLE="$(CURDIR)/target/mcp-reply/installed/bin/biomcp" cargo test --locked -p biomcp --test cases mcp-http/ $(TEST_THREADS)
+	BIOMCP_TEST_EXECUTABLE="$(CURDIR)/target/mcp-reply/installed/bin/biomcp" cargo test --locked -p biomcp --test cases mcp-hosted/ $(TEST_THREADS)
+	python3 scripts/check_front_map.py target/mcp-reply/installed/bin/biomcp
+mcp-reply-gate: landing-gate

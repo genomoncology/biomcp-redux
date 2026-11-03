@@ -4,7 +4,7 @@ mod framing;
 pub(crate) mod http;
 mod legacy;
 mod output_schema;
-mod protocol;
+pub(crate) mod protocol;
 mod research;
 mod rpc;
 mod worker;
@@ -224,7 +224,7 @@ impl Server {
             return Ok(None);
         }
         Ok(Some(match outcome {
-            Ok(outcome) => protocol::tool_result(call.id, &outcome, call.modern),
+            Ok(outcome) => protocol::tool_result(call.id, &outcome, call.modern, crate::config::mcp_reply_form(&self.settings)),
             Err(_) => protocol::error(call.id, -32603, "Internal error"),
         }))
     }

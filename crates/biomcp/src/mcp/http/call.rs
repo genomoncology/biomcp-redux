@@ -86,7 +86,7 @@ impl Calls {
                 };
                 let outcome = worker::execute(|| {
                     research::execute(&call, context, true)
-                        .map(|outcome| protocol::tool_result(worker_id, &outcome, modern))
+                        .map(|outcome| protocol::tool_result(worker_id, &outcome, modern, crate::config::mcp_reply_form(&settings)))
                 });
                 let _ = sender.send(outcome);
             });

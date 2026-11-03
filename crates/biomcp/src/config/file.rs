@@ -40,6 +40,7 @@ impl ConfigError {
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
 pub(crate) struct ConfigFile {
+    pub(super) mcp_reply_form: Option<crate::mcp::protocol::ReplyForm>,
     pub(super) format: Option<crate::grammar::Format>,
     pub(super) proxy: Option<String>,
     pub(super) http: Option<Http>,
@@ -153,6 +154,7 @@ fn diagnose(bytes: &[u8]) -> Result<ConfigFile, ConfigError> {
         })
         .transpose()?;
     let file = ConfigFile {
+        mcp_reply_form: take(&mut map, "mcp_reply_form")?,
         format: take(&mut map, "format")?,
         proxy: take(&mut map, "proxy")?,
         http,
