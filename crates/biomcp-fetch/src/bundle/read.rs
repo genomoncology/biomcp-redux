@@ -51,18 +51,7 @@ impl Leg<'_> {
             .as_ref()
             .is_some_and(|names| !names.contains(bundle.name));
         let forced = replay || force_fresh || matches!(self.fetch.mode, Mode::Record { .. });
-        let background = old.is_some()
-            && !fresh
-            && !forced
-            && matches!(self.fetch.mode, Mode::Live { .. })
-            && self.fetch.background_refresh.is_some();
-        if background {
-            self.report
-                .lock()
-                .unwrap_or_else(std::sync::PoisonError::into_inner)
-                .stale = true;
-            self.refresh_in_background(bundle);
-        }
+        let background = old.is_some() && !fresh && !forced && self.background_read(bundle);
         if !offline && !background && (!fresh || forced) {
             match self.sync_for_read(bundle) {
                 Ok(_) => {

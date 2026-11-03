@@ -29,11 +29,24 @@ impl Fetch {
     }
 }
 impl Leg<'_> {
+    pub(super) fn background_read<R: Row>(&self, bundle: &Bundle<R>) -> bool {
+        if !matches!(self.fetch.mode, crate::Mode::Live { .. })
+            || self.fetch.background_refresh.is_none()
+        {
+            return false;
+        }
+        self.report
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
+            .stale = true;
+        self.refresh_in_background(bundle);
+        true
+    }
     #[expect(
         clippy::disallowed_methods,
         reason = "The server retains and joins each bundle refresh thread"
     )]
-    pub(super) fn refresh_in_background<R: Row>(&self, bundle: &Bundle<R>) {
+    fn refresh_in_background<R: Row>(&self, bundle: &Bundle<R>) {
         let Some(owner) = &self.fetch.background_refresh else {
             return;
         };
