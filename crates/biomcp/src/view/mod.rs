@@ -1,8 +1,8 @@
 //! One structural view of serialized JSON and its schema presentation hints.
+mod article;
 mod escape;
 mod help;
 mod hints;
-mod article;
 use biomcp_types::{Help, ResponseBody};
 use escape::{escape, source_link};
 use serde_json::Value;
@@ -87,10 +87,11 @@ impl View<'_> {
                 if name == "next" {
                     steps(value, out);
                 } else if !(name == "parts"
-                    && self.hint.is_some_and(|hint| {
-                        hint.schema == biomcp_types::ArticleCards::SCHEMA
-                    })
-                    && article::parts(value, depth + 1, out)) {
+                    && self
+                        .hint
+                        .is_some_and(|hint| hint.schema == biomcp_types::ArticleCards::SCHEMA)
+                    && article::parts(value, depth + 1, out))
+                {
                     View {
                         root: self.root,
                         hint: self.hint,

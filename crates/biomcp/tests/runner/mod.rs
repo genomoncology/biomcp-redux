@@ -6,8 +6,8 @@ mod local_files;
 tool_only! { mod protein_commands; }
 tool_only! { mod trial_condition; }
 tool_only! { pub(super) mod other_source_value_proof; }
-mod article_save;
 mod article_lean;
+mod article_save;
 mod article_save_reply;
 mod assertions;
 pub(super) mod case_main;

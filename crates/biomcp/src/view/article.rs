@@ -21,7 +21,9 @@ pub(super) fn parts(value: &Value, depth: usize, out: &mut String) -> bool {
             .unwrap_or(remaining.len());
         let (group, rest) = remaining.split_at(end);
         let mut rows = group.to_vec();
-        let label = title.and_then(Value::as_str).unwrap_or("Parts without a source title");
+        let label = title
+            .and_then(Value::as_str)
+            .unwrap_or("Parts without a source title");
         out.push_str(&format!(
             "{} {}\n\n",
             "#".repeat(depth.min(6)),
