@@ -4,6 +4,7 @@ use crate::runner::transcript::trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 mod components;
+mod records;
 const ACADEMIC: &str = "x-biomcp-use: academic\r\n";
 const KEY: &str = "7c28f96a-3f48-4d6b-8d30-512c5d41e979";
 const CPIC: &[&str] = &["get", "pgx", "--gene", "DPYD", "--source", "clinpgx"];
@@ -11,6 +12,8 @@ const ONCOKB: &[&str] = &["get", "gene", "TP53", "oncokb"];
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        trial("mcp-hosted/use/free-sources", || records::free().map_err(Into::into)),
+        trial("mcp-hosted/use/record-rights", || records::rights().map_err(Into::into)),
         trial("mcp-hosted/use/components", || {
             components::check().map_err(Into::into)
         }),
