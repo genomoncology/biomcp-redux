@@ -30,7 +30,7 @@
       "max_bytes": 2005,
       "expect": {
         "/schema": "biomcp.variant-page/16",
-        "/status": "complete",
+        "/status": "partial",
         "/query": {
           "equals": {
             "query": "rs113488022",
@@ -101,7 +101,7 @@
                   {
                     "component": "clinvar",
                     "terms": {
-                      "usage": "open",
+                      "usage": "restricted",
                       "name": "NCBI policy; submission rights remain source-specific",
                       "url": "https://www.ncbi.nlm.nih.gov/clinvar/docs/maintenance_use/"
                     }
@@ -138,7 +138,7 @@
                   {
                     "component": "clinvar",
                     "terms": {
-                      "usage": "open",
+                      "usage": "restricted",
                       "name": "NCBI policy; submission rights remain source-specific",
                       "url": "https://www.ncbi.nlm.nih.gov/clinvar/docs/maintenance_use/"
                     }
@@ -316,7 +316,7 @@
                   {
                     "component": "clinvar",
                     "terms": {
-                      "usage": "open",
+                      "usage": "restricted",
                       "name": "NCBI policy; submission rights remain source-specific",
                       "url": "https://www.ncbi.nlm.nih.gov/clinvar/docs/maintenance_use/"
                     }
@@ -353,7 +353,7 @@
                   {
                     "component": "clinvar",
                     "terms": {
-                      "usage": "open",
+                      "usage": "restricted",
                       "name": "NCBI policy; submission rights remain source-specific",
                       "url": "https://www.ncbi.nlm.nih.gov/clinvar/docs/maintenance_use/"
                     }
@@ -370,7 +370,7 @@
             "total": 3
           }
         },
-        "/status": "complete"
+        "/status": "partial"
       }
     }
   ]

@@ -30,7 +30,7 @@
       "max_bytes": 1187,
       "expect": {
         "/schema": "biomcp.variant-page/16",
-        "/status": "complete",
+        "/status": "partial",
         "/query": {
           "equals": {
             "gene": "EGFR",
@@ -70,7 +70,7 @@
                   {
                     "component": "clinvar",
                     "terms": {
-                      "usage": "open",
+                      "usage": "restricted",
                       "name": "NCBI policy; submission rights remain source-specific",
                       "url": "https://www.ncbi.nlm.nih.gov/clinvar/docs/maintenance_use/"
                     }
@@ -104,7 +104,7 @@
         "--protein",
         "L858R",
         "--disable-sources",
-        "open,noncommercial"
+        "noncommercial"
       ],
       "mcp": [
         "search",
@@ -114,13 +114,20 @@
         "--protein",
         "L858R",
         "--disable-sources",
-        "open,noncommercial"
+        "noncommercial"
       ],
       "exit": 4,
       "is_error": true,
       "expect": {
         "/sources/0/state": "skipped",
-        "/sources/0/reason": "disabled"
+        "/sources/0/reason": "disabled",
+        "/result/selector_terms": {
+          "equals": {
+            "usage": "noncommercial",
+            "name": "dbNSFP academic branch and individual component terms",
+            "url": "https://sites.google.com/site/jpopgen/dbNSFP"
+          }
+        }
       }
     },
     {
@@ -166,7 +173,7 @@
                   {
                     "component": "clinvar",
                     "terms": {
-                      "usage": "open",
+                      "usage": "restricted",
                       "name": "NCBI policy; submission rights remain source-specific",
                       "url": "https://www.ncbi.nlm.nih.gov/clinvar/docs/maintenance_use/"
                     }
@@ -188,7 +195,7 @@
             "total": 1
           }
         },
-        "/status": "complete"
+        "/status": "partial"
       }
     }
   ]
