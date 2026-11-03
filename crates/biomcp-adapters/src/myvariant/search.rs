@@ -38,7 +38,11 @@ impl Reply for Page {
     }
 }
 /// Send one declared native query window and validate it before cache admission.
-pub fn search(leg: &Leg<'_>, query: &VariantSearch, term: &str) -> Result<SearchPage, RequestError> {
+pub fn search(
+    leg: &Leg<'_>,
+    query: &VariantSearch,
+    term: &str,
+) -> Result<SearchPage, RequestError> {
     let fields = super::annotation_fields(leg, FIELDS);
     let mut args = vec![
         ("q", Arg::Text(term)),

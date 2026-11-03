@@ -11,6 +11,9 @@ mod section_deadline;
 pub(super) fn trials() -> Vec<Trial> {
     // The real peer checks resolver order, source requests and warm cache admission.
     vec![
+        transcript_trial("variant-search/enabled-protein-selector", || {
+            search_policy::enabled().map_err(Into::into)
+        }),
         transcript_trial("variant-search/open-protein-selector", || {
             search_policy::check().map_err(Into::into)
         }),

@@ -356,8 +356,14 @@ impl VariantSearch {
         }
         let mut term = match (&self.0.gene, &self.0.protein) {
             (Some(gene), Some(protein)) => {
-                let forms = protein.forms().map(|p| format!("\"{}\"", literal(&p))).join(" OR ");
-                format!("snpeff.ann.genename:{} AND snpeff.ann.hgvs_p:({forms})", literal(gene.as_str()))
+                let forms = protein
+                    .forms()
+                    .map(|p| format!("\"{}\"", literal(&p)))
+                    .join(" OR ");
+                format!(
+                    "snpeff.ann.genename:{} AND snpeff.ann.hgvs_p:({forms})",
+                    literal(gene.as_str())
+                )
             }
             _ => String::new(),
         };
