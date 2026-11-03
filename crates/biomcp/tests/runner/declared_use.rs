@@ -7,7 +7,7 @@ mod components;
 mod records;
 const ACADEMIC: &str = "x-biomcp-use: academic\r\n";
 const KEY: &str = "7c28f96a-3f48-4d6b-8d30-512c5d41e979";
-const CPIC: &[&str] = &["get", "pgx", "--gene", "DPYD", "--source", "clinpgx"];
+const CLINPGX: &[&str] = &["get", "pgx", "--gene", "DPYD", "--source", "clinpgx"];
 const ONCOKB: &[&str] = &["get", "gene", "TP53", "oncokb"];
 
 pub(super) fn trials() -> Vec<Trial> {
@@ -36,6 +36,10 @@ fn disabled(reply: &Value, source: &str) -> bool {
             rows.iter()
                 .any(|row| row["source"] == source && row["reason"] == "disabled")
         })
+}
+fn source_ok(reply: &Value, source: &str) -> bool {
+    reply.pointer("/result/structuredContent/sources").and_then(Value::as_array)
+        .is_some_and(|rows| rows.iter().any(|row| row["source"] == source && row["state"] == "ok"))
 }
 fn admission() -> Result<(), String> {
     let assets = Environment::new().map_err(|e| e.to_string())?;
@@ -107,13 +111,13 @@ fn retained() -> Result<(), String> {
         None,
         &["--hosted".into()],
     )?;
-    let academic = call(&server, CPIC, ACADEMIC, false)?;
-    if academic.pointer("/result/structuredContent/status") != Some(&json!("complete")) {
+    let academic = call(&server, CLINPGX, ACADEMIC, false)?;
+    if !source_ok(&academic, "clinpgx") {
         return Err(format!("academic noncommercial source failed: {academic}"));
     }
-    let offline: Vec<_> = CPIC.iter().copied().chain(["--offline"]).collect();
+    let offline: Vec<_> = CLINPGX.iter().copied().chain(["--offline"]).collect();
     let stored = call(&server, &offline, ACADEMIC, false)?;
-    if stored.pointer("/result/structuredContent/status") != Some(&json!("complete")) {
+    if !source_ok(&stored, "clinpgx") {
         return Err(format!("academic reply was not retained: {stored}"));
     }
     for header in ["", "x-biomcp-use: commercial\r\n"] {
