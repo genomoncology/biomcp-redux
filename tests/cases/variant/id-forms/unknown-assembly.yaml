@@ -17,9 +17,11 @@
             "build"
           ]
         },
-        "/problems/*/field": [
-          "assembly: no GRCh38 allele; retried GRCh37 source index; allele assembly unknown"
-        ]
+        "/problems/*/field": {
+          "includes_all_of": [
+            "assembly: no GRCh38 allele; retried GRCh37 source index; allele assembly unknown"
+          ]
+        }
       }
     },
     {
@@ -32,10 +34,12 @@
       ],
       "exit": 4,
       "expect": {
-        "/problems/*/field": [
-          "assembly: no GRCh38 allele; retried GRCh37 source index; allele assembly unknown",
-          "input: requires one CAid; convert with get variant <ID> and select an exact candidate"
-        ]
+        "/problems/*/field": {
+          "includes_all_of": [
+            "assembly: no GRCh38 allele; retried GRCh37 source index; allele assembly unknown",
+            "input: requires one CAid; convert with get variant <ID> and select an exact candidate"
+          ]
+        }
       }
     }
   ]

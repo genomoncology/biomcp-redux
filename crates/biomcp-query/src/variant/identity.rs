@@ -125,7 +125,7 @@ pub(super) fn choice(
     problems: &mut Vec<Problem>,
 ) -> Option<(biomcp_types::Request, Source)> {
     use biomcp_types::{Request, VariantResolver, VariantSearch};
-    let build = row.identity.representations.iter().find_map(|r| r.build);
+    let build = native_build(row);
     let mut input = crate::next::checked(row.record.id.as_str().parse(), row.source, problems)?;
     if build.is_none() {
         let ids: Vec<_> = row
@@ -186,4 +186,17 @@ pub(super) fn missing(source: Source) -> Problem {
         .into(),
         code: biomcp_types::ProblemCode::ValueUnknown,
     }
+}
+
+/// An assembly belongs to its source expression, never to the whole candidate.
+pub(super) fn native_build(row: &VariantHeader) -> Option<biodata::Build> {
+    row.identity
+        .representations
+        .iter()
+        .find_map(|representation| {
+            (representation.source == row.source.text()
+                && representation.expression.value().as_str() == row.record.id.as_str())
+            .then_some(representation.build)
+            .flatten()
+        })
 }
