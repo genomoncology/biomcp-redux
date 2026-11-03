@@ -12,8 +12,12 @@ const ONCOKB: &[&str] = &["get", "gene", "TP53", "oncokb"];
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        trial("mcp-hosted/use/free-sources", || records::free().map_err(Into::into)),
-        trial("mcp-hosted/use/record-rights", || records::rights().map_err(Into::into)),
+        trial("mcp-hosted/use/free-sources", || {
+            records::free().map_err(Into::into)
+        }),
+        trial("mcp-hosted/use/record-rights", || {
+            records::rights().map_err(Into::into)
+        }),
         trial("mcp-hosted/use/components", || {
             components::check().map_err(Into::into)
         }),
@@ -122,7 +126,8 @@ fn retained() -> Result<(), String> {
     }
     for header in ["", "x-biomcp-use: commercial\r\n"] {
         let commercial = call(&server, &offline, header, false)?;
-        if !disabled(&commercial, "clinpgx") || commercial.to_string().contains("\"symbol\":\"DPYD\"")
+        if !disabled(&commercial, "clinpgx")
+            || commercial.to_string().contains("\"symbol\":\"DPYD\"")
         {
             return Err(format!(
                 "academic stored reply escaped to commercial caller: {commercial}"

@@ -5,8 +5,10 @@ use biomcp_types::{Source, Use};
 
 /// Commercial reuse is allowed by these explicit record licenses.
 pub fn commercial(license: License) -> bool {
-    matches!(license, License::CcBy | License::CcBySa | License::CcByNd
-        | License::Cc0 | License::PublicDomain)
+    matches!(
+        license,
+        License::CcBy | License::CcBySa | License::CcByNd | License::Cc0 | License::PublicDomain
+    )
 }
 
 /// Hosted restricted and commercial calls never expose unlicensed full text.

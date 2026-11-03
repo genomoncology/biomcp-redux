@@ -21,8 +21,12 @@ impl DeclaredUse {
 }
 
 pub(super) fn restrict(fetch: Fetch, context: Option<Context<'_>>) -> Fetch {
-    let Some(context) = context.filter(|c| matches!(c.declared_use,
-        Some(DeclaredUse::Restricted | DeclaredUse::Commercial))) else {
+    let Some(context) = context.filter(|c| {
+        matches!(
+            c.declared_use,
+            Some(DeclaredUse::Restricted | DeclaredUse::Commercial)
+        )
+    }) else {
         return fetch;
     };
     let disabled = biomcp_query::sources::disable_groups()
@@ -38,7 +42,9 @@ pub(super) fn restrict(fetch: Fetch, context: Option<Context<'_>>) -> Fetch {
                 })
         })
         .collect();
-    fetch
-        .restrict_sources(disabled)
-        .restrict_uses([Use::Noncommercial, Use::Licensed, Use::PerRecord].into_iter().collect())
+    fetch.restrict_sources(disabled).restrict_uses(
+        [Use::Noncommercial, Use::Licensed, Use::PerRecord]
+            .into_iter()
+            .collect(),
+    )
 }

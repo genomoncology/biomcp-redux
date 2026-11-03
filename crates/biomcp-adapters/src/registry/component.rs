@@ -16,17 +16,19 @@ pub struct Component {
 impl Component {
     /// Apply independent publisher policy to an aggregator field.
     pub fn disabled(&self, fetch: &biomcp_fetch::Fetch) -> bool {
-        (fetch.legacy_restricted() && super::legacy::component(self.source, self.name)) || self.policy(
-            |source| fetch.disabled(source),
-            |usage| fetch.disabled_use(usage),
-        )
+        (fetch.legacy_restricted() && super::legacy::component(self.source, self.name))
+            || self.policy(
+                |source| fetch.disabled(source),
+                |usage| fetch.disabled_use(usage),
+            )
     }
     /// Apply that same policy inside a deadline-scoped request.
     pub fn disabled_on_leg(&self, leg: &biomcp_fetch::Leg<'_>) -> bool {
-        (leg.legacy_restricted() && super::legacy::component(self.source, self.name)) || self.policy(
-            |source| leg.disabled_source(source),
-            |usage| leg.disabled_use(usage),
-        )
+        (leg.legacy_restricted() && super::legacy::component(self.source, self.name))
+            || self.policy(
+                |source| leg.disabled_source(source),
+                |usage| leg.disabled_use(usage),
+            )
     }
     pub(crate) fn policy(
         &self,

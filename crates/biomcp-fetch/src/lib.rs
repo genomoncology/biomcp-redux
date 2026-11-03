@@ -286,7 +286,9 @@ impl Fetch {
     }
 
     /// Whether the retired restricted configuration group is selected.
-    pub fn legacy_restricted(&self) -> bool { self.legacy_restricted }
+    pub fn legacy_restricted(&self) -> bool {
+        self.legacy_restricted
+    }
     /// Preserve legacy configuration exclusions without publishing a use label.
     pub fn restrict_legacy(&self, disabled: bool) -> Self {
         let mut fetch = self.clone();
@@ -443,7 +445,9 @@ impl Leg<'_> {
         self.fetch.disabled_use(usage)
     }
     /// Whether legacy component exclusions apply to this leg.
-    pub fn legacy_restricted(&self) -> bool { self.fetch.legacy_restricted() }
+    pub fn legacy_restricted(&self) -> bool {
+        self.fetch.legacy_restricted()
+    }
 
     /// Bypass cached reads and stale fallback for this leg and its batch children.
     /// The process policy cannot be weakened by a call.
