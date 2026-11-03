@@ -80,7 +80,7 @@ pub(super) fn read(cx: &Ctx<'_>, query: &VariantGet, deadline: Deadline<'_>) -> 
             found.rejection = rejection;
         }
         // The source error and its outcome were retained above.
-        Err(_) => {}
+        Err(_) => return found,
     }
     if found.rows.len() == 1 && spec.source == Source::MyVariant {
         canonical(cx, deadline.after_stage(found.elapsed), &mut found);
