@@ -5,12 +5,16 @@ use serde_json::{Value, json};
 use std::{fs, process::Stdio, sync::mpsc, time::Duration};
 
 pub(super) fn trials() -> Vec<Trial> {
-    vec![super::transcript::trial(
-        "gene-sections/gencc-first-publisher",
-        || first_reader().map_err(Into::into),
-    )]
+    vec![
+        super::transcript::trial("gene-sections/gencc-first-publisher", || {
+            first_reader(false).map_err(Into::into)
+        }),
+        super::transcript::trial("gene-sections/gencc-first-publisher-deadline", || {
+            first_reader(true).map_err(Into::into)
+        }),
+    ]
 }
-fn first_reader() -> Result<(), String> {
+fn first_reader(expires: bool) -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let replay = super::launch::fixtures().join("replies/gene/gencc");
     let cache = env.root().join("case-cache").to_string_lossy().into_owned();
@@ -41,11 +45,15 @@ fn first_reader() -> Result<(), String> {
     peer.retain(env.shared_root());
     let ca = env.root().join("ca.pem");
     fs::write(&ca, &peer.certificate).map_err(|e| e.to_string())?;
-    env.config(
-        &json!({"proxy":format!("http://{}",peer.address),"ca_bundle":ca,
-        "disable_sources":["oncokb"]}),
-    )
-    .map_err(|e| e.to_string())?;
+    let mut config = json!({"proxy":format!("http://{}",peer.address),"ca_bundle":ca,
+        "disable_sources":["oncokb"]});
+    if expires {
+        config
+            .as_object_mut()
+            .ok_or("config map")?
+            .insert("command_timeout_seconds".into(), json!(1));
+    }
+    env.config(&config).map_err(|e| e.to_string())?;
     let mut command = env.command(
         env!("CARGO_BIN_EXE_biomcp"),
         &[
@@ -63,40 +71,7 @@ fn first_reader() -> Result<(), String> {
     admission
         .recv_timeout(Duration::from_secs(15))
         .map_err(|e| e.to_string())?;
-    let result = std::thread::scope(|scope| {
-        let (done, completion) = mpsc::channel();
-        let environment = &env;
-        scope.spawn(move || {
-            let result = invoke(
-                environment,
-                vec![
-                    "get".into(),
-                    "gene".into(),
-                    "ODC1".into(),
-                    "gencc".into(),
-                    "--case-cache".into(),
-                    cache,
-                ],
-                0,
-            );
-            let _ = done.send(result);
-        });
-        // Await completion while publication is held. A premature refusal is
-        // retained, then the actual response event releases the publisher.
-        let early = completion.recv_timeout(Duration::from_millis(500));
-        publish.send(()).map_err(|e| e.to_string())?;
-        let value = match early {
-            Ok(result) => result?,
-            Err(mpsc::RecvTimeoutError::Timeout) => completion
-                .recv_timeout(Duration::from_secs(15))
-                .map_err(|e| e.to_string())??,
-            Err(error) => return Err(error.to_string()),
-        };
-        if value.pointer("/result/items/0/sections/gencc/state") != Some(&json!("data")) {
-            return Err(format!("first reader did not await publication: {value}"));
-        }
-        Ok(())
-    });
+    let result = reader(&env, cache, publish, expires);
     let output = command.wait_with_output(child).map_err(|e| e.to_string())?;
     if !output.status.success() {
         return Err(format!(
@@ -127,4 +102,65 @@ fn native_body(replay: &std::path::Path) -> Result<String, String> {
         .and_then(Value::as_str)
         .map(str::to_owned)
         .ok_or_else(|| "GenCC CSV".into())
+}
+
+fn reader(
+    env: &Environment,
+    cache: String,
+    publish: mpsc::Sender<()>,
+    expires: bool,
+) -> Result<(), String> {
+    std::thread::scope(|scope| {
+        let (done, completion) = mpsc::channel();
+        let environment = env;
+        scope.spawn(move || {
+            let result = invoke(
+                environment,
+                vec![
+                    "get".into(),
+                    "gene".into(),
+                    "ODC1".into(),
+                    "gencc".into(),
+                    "--case-cache".into(),
+                    cache,
+                ],
+                0,
+            );
+            let _ = done.send(result);
+        });
+        // Await completion while publication is held. A premature refusal is
+        // retained, then the actual response event releases the publisher.
+        let early = completion.recv_timeout(if expires {
+            Duration::from_secs(3)
+        } else {
+            Duration::from_millis(500)
+        });
+        publish.send(()).map_err(|e| e.to_string())?;
+        let value = match early {
+            Ok(result) => result?,
+            Err(mpsc::RecvTimeoutError::Timeout) if !expires => completion
+                .recv_timeout(Duration::from_secs(15))
+                .map_err(|e| e.to_string())??,
+            Err(error) => return Err(error.to_string()),
+        };
+        let valid = if expires {
+            value
+                .get("sources")
+                .and_then(Value::as_array)
+                .is_some_and(|sources| {
+                    sources.iter().any(|source| {
+                        source.get("source") == Some(&json!("gencc"))
+                            && source.get("reason") == Some(&json!("syncing"))
+                    })
+                })
+        } else {
+            value.pointer("/result/items/0/sections/gencc/state") == Some(&json!("data"))
+        };
+        if !valid {
+            return Err(format!(
+                "first reader did not respect publication and deadline: {value}"
+            ));
+        }
+        Ok(())
+    })
 }
