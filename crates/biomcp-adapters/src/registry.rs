@@ -3,7 +3,7 @@
 mod component;
 mod groups;
 pub(crate) mod legacy;
-pub use groups::disable_groups;
+pub use groups::{disable_groups, sources_for_use};
 mod names;
 mod probe;
 pub use names::display_name;
@@ -56,7 +56,7 @@ pub fn disabled(names: &[String]) -> Result<BTreeSet<Source>, biodata::Error> {
         if name == "restricted" {
             disabled.extend(legacy::sources());
         } else if let Some(usage) = group(name) {
-            disabled.extend(groups::sources(usage));
+            disabled.extend(groups::sources_for_use(usage));
         } else {
             let source = sources()
                 .find(|s| s.source.to_string() == *name)

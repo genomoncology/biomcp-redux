@@ -29,8 +29,8 @@ The published `restricted` source label is replaced by the actual `open`, `attri
 
 - `open` gains `car`, `clinvar`, `erepo`, `gwas`, `hotspots`, `litsense`, `mutalyzer`, `mygene`, `nci`, `pubmed`, `pubtator`, `variantvalidator` and `cpic`, plus the MyVariant `clinvar` and `snpeff` components. The MyVariant service is open while each carried component retains its own terms.
 - `noncommercial` loses `cpic` and gains `who-pq` and the MyVariant `snpedia` component. Its existing DDInter, ClinPGx, Semantic Scholar API, ORCID, WHO IVD, CADD and academic dbNSFP exclusions remain.
-- `licensed` selects `alphagenome`, `oncokb`, the MyVariant `cosmic` component and the MyDisease `omim` component.
-- `per-record` selects PMC OA and Europe PMC full text. Publisher PDFs obtained through Semantic Scholar also retain their own record licenses, separately from the API's noncommercial terms.
+- The `licensed` label applies to `alphagenome`, `oncokb`, the MyVariant `cosmic` component and the MyDisease `omim` component.
+- The `per-record` label applies to PMC OA and Europe PMC full text. Publisher PDFs obtained through Semantic Scholar also retain their own record licenses, separately from the API's noncommercial terms.
 
 ClinicalTrials.gov, cBioPortal, VAERS, FAERS MedDRA terms and MAUDE GMDN terms carry attribution labels and remain available in restricted use. CPIC has its own terms independently of ClinPGx. CADD and COSMIC terms links are corrected, and SnpEff is identified by its MIT license. NCBI and openFDA keys continue to raise the limits of free sources. Previously stored continuations resolve old labels through the current source registry when read.
 

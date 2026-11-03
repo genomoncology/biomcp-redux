@@ -6,8 +6,6 @@ use std::collections::BTreeSet;
 pub(super) const USES: &[Use] = &[
     Use::Open,
     Use::Noncommercial,
-    Use::Licensed,
-    Use::PerRecord,
 ];
 
 /// List whole-source exclusions separately from independently labeled carried fields.
@@ -15,7 +13,7 @@ pub fn disable_groups() -> Vec<DisableGroup> {
     USES.iter()
         .map(|&group| DisableGroup {
             group,
-            sources: sources(group).into_iter().collect(),
+            sources: sources_for_use(group).into_iter().collect(),
             components: components()
                 .filter(|c| c.terms.usage == group)
                 .map(|c| DisabledComponent {
@@ -27,7 +25,8 @@ pub fn disable_groups() -> Vec<DisableGroup> {
         .collect()
 }
 
-pub(super) fn sources(group: Use) -> BTreeSet<Source> {
+/// Whole sources in one use category, without disabling their aggregators.
+pub fn sources_for_use(group: Use) -> BTreeSet<Source> {
     registered_sources()
         .filter(|s| s.terms.usage == group && !components().any(|c| c.source == s.source))
         .map(|s| s.source)
