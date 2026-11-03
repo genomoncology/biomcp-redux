@@ -269,7 +269,7 @@ def command_classification(capture, discoveries, peers, complete=False, comparis
     # Other commands still have to explain their own request plans.
     for cause in ('outage', 'throttled'):
         if causes[cause]:
-            return cause
+            return cause if explained_source_failures(capture) else 'failure'
     comparison = comparison or {}
     removed = [before[key] for key in before.keys() - after.keys()]
     added = [after[key] for key in after.keys() - before.keys()]
@@ -282,6 +282,16 @@ def command_classification(capture, discoveries, peers, complete=False, comparis
     return plan
 
 
+def explained_source_failures(command):
+    causes = command_causes(command)
+    affected = causes['throttled'] | causes['outage']
+    failed = [source for source in command['live'].get('output', {}).get('sources', [])
+              if source.get('state') in ('failed', 'stale')]
+    return all(source.get('source') in affected
+               and source.get('reason') in ('rate-limited', 'unavailable', 'deadline-exceeded')
+               for source in failed)
+
+
 def explained_output(command, comparison, outcome):
     before = command['baseline'].get('output', {})
     after = command['live'].get('output', {})
@@ -291,14 +301,8 @@ def explained_output(command, comparison, outcome):
         return old in ('partial', 'failed') and new == 'complete'
     if outcome not in ('throttled', 'outage'):
         return False
-    causes = command_causes(command)
-    affected = causes['throttled'] | causes['outage']
-    failed = [source for source in after.get('sources', [])
-              if source.get('state') in ('failed', 'stale')]
     return (old in ('complete', 'partial', 'failed') and new in ('partial', 'failed')
-            and all(source.get('source') in affected
-                    and source.get('reason') in ('rate-limited', 'unavailable', 'deadline-exceeded')
-                    for source in failed))
+            and explained_source_failures(command))
 
 
 def omitted_diagnostics(value):
