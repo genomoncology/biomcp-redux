@@ -397,6 +397,19 @@ class NightlyCommand(unittest.TestCase):
                 row['result']['drift'].append('old-id: field removed: /id')
             self.classified(row, expected, int(expected == 'failure'))
 
+    def test_recovery_does_not_explain_unrelated_plan_changes(self):
+        row = classification_case('unchanged')
+        row['result']['commands'][0].update(before_status='partial', after_status='complete')
+        self.classified(row, 'failure', 1)
+
+    def test_provider_failure_does_not_hide_same_source_bad_reply(self):
+        for change in ('429-output', '500-output'):
+            for reason in ('bad_reply', 'bad-reply'):
+                with self.subTest(change=change, reason=reason):
+                    row = classification_case(change)
+                    row['witness'][0]['live']['output']['sources'][0]['reason'] = reason
+                    self.classified(row, 'failure', 1)
+
     def test_outage_fails_on_third_calendar_night_and_resets_after_gap(self):
         import datetime
         row = classification_case('500')
