@@ -198,33 +198,66 @@ fn enum_review_binds_schema_site_and_exact_values_without_masking_constraints() 
     use super::compatibility::check_reviewed;
     use serde_json::json;
     let from = json!(["open", "attribution", "noncommercial", "restricted"]);
-    let to = json!(["open", "attribution", "noncommercial", "licensed", "per-record"]);
+    let to = json!([
+        "open",
+        "attribution",
+        "noncommercial",
+        "licensed",
+        "per-record"
+    ]);
     let reviews: Reviews = serde_json::from_value(json!({"enum_transitions":[{
         "schemas":["biomcp.example/1"], "path":"/$defs/Use/enum",
         "from":from, "to":to, "review":"Reviewed source-use transition"
-    }]})).expect("valid enum review fixture");
-    let schema = |values: &Value| json!({"$id":"biomcp.example/1", "type":"object",
-        "properties":{"use":{"$ref":"#/$defs/Use"},"other":{"type":"string","enum":["a","b"]}},
-        "$defs":{"Use":{"type":"string","enum":values}}
-    });
+    }]}))
+    .expect("valid enum review fixture");
+    let schema = |values: &Value| {
+        json!({"$id":"biomcp.example/1", "type":"object",
+            "properties":{"use":{"$ref":"#/$defs/Use"},"other":{"type":"string","enum":["a","b"]}},
+            "$defs":{"Use":{"type":"string","enum":values}}
+        })
+    };
     let old = schema(&from);
     let new = schema(&to);
     for kind in [ContractKind::Query, ContractKind::Reply] {
         assert!(check_reviewed(&old, &new, kind, &reviews).is_ok());
         assert!(check_reviewed(&old, &new, kind, &Reviews::default()).is_err());
         for changed in [
-            { let mut v = new.clone(); v["$id"] = json!("biomcp.other/1"); v },
-            { let mut v = new.clone(); v["$defs"]["Use"]["enum"] = json!(["open","licensed"]); v },
-            { let mut v = new.clone(); v["properties"]["other"]["enum"] = json!(["a"]); v },
-            { let mut v = new.clone(); v["$defs"]["Use"]["type"] = json!("integer"); v },
-            { let mut v = new.clone(); v["$defs"]["Use"]["maxLength"] = json!(2); v },
+            {
+                let mut v = new.clone();
+                v["$id"] = json!("biomcp.other/1");
+                v
+            },
+            {
+                let mut v = new.clone();
+                v["$defs"]["Use"]["enum"] = json!(["open", "licensed"]);
+                v
+            },
+            {
+                let mut v = new.clone();
+                v["properties"]["other"]["enum"] = json!(["a"]);
+                v
+            },
+            {
+                let mut v = new.clone();
+                v["$defs"]["Use"]["type"] = json!("integer");
+                v
+            },
+            {
+                let mut v = new.clone();
+                v["$defs"]["Use"]["maxLength"] = json!(2);
+                v
+            },
         ] {
-            assert!(check_reviewed(&old, &changed, kind, &reviews).is_err(), "{changed}");
+            assert!(
+                check_reviewed(&old, &changed, kind, &reviews).is_err(),
+                "{changed}"
+            );
         }
         let wrong_site: Reviews = serde_json::from_value(json!({"enum_transitions":[{
             "schemas":["biomcp.example/1"], "path":"/properties/other/enum",
             "from":from, "to":to, "review":"Different site"
-        }]})).expect("valid other-site fixture");
+        }]}))
+        .expect("valid other-site fixture");
         assert!(check_reviewed(&old, &new, kind, &wrong_site).is_err());
     }
 }

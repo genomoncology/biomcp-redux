@@ -124,7 +124,9 @@ fn envelope(value: &Value) -> Result<(), String> {
     )
     .map_err(|e| e.to_string())?;
     let component_bytes = serde_json::to_vec(&json!({"component_terms": &terms}))
-        .map_err(|e| e.to_string())?.len() - 1;
+        .map_err(|e| e.to_string())?
+        .len()
+        - 1;
     let payload = serde_json::to_vec(&comparable)
         .map_err(|e| e.to_string())?
         .len();
