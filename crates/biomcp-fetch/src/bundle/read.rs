@@ -182,21 +182,8 @@ impl Leg<'_> {
                 snapshot = cache.stored_bundle(bundle.name, find, self.budget())?;
                 break;
             }
-            if !waiting && self.fetch.config.observations.is_some() {
-                let url = format!("{}{}", self.spec.base.trim_end_matches('/'), bundle.path);
-                self.observed(
-                    &crate::retry::identity(&url),
-                    None,
-                    0,
-                    crate::Shape::default(),
-                    std::time::Duration::ZERO,
-                    ("bundle-wait", false, &url, crate::Provenance::default()),
-                );
-            }
+            self.wait_for_bundle(bundle, waiting)?;
             waiting = true;
-            if !crate::retry::wait(std::time::Duration::from_millis(10), self.budget()) {
-                return Err(self.failure(biomcp_types::Reason::Syncing, None).into());
-            }
             snapshot = cache.stored_bundle(bundle.name, find, self.budget())?;
         }
         let (meta, rows) =
