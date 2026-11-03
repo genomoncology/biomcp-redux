@@ -25,6 +25,9 @@ sys.exit(int(os.environ.get('FAKE_EXIT', '0')))
 SSH = '''#!/usr/bin/env python3
 import io, os, subprocess, sys, tarfile
 assert sys.argv[-2] == os.environ.get('FAKE_HOST', 'offline-store')
+if '# nightly-history' in sys.argv[-1]:
+    print(os.environ.get('FAKE_HISTORY', '[]'))
+    sys.exit(0)
 if os.environ.get('FAKE_COPY') == 'fail':
     sys.exit(23)
 payload = sys.stdin.buffer.read()
@@ -361,11 +364,56 @@ class NightlyCommand(unittest.TestCase):
         for change, expected, code in [
                 ('discovery', 'churn', 0), ('unchanged', 'failure', 1),
                 ('order', 'healthy', 0), ('schema', 'failure', 1),
-                ('500', 'failure', 1), ('429', 'throttled', 0),
+                ('500', 'outage', 0), ('429', 'throttled', 0),
                 ('cut', 'failure', 1), ('clean-cut', 'failure', 1), ('missing', 'uncertain', 1),
                 ('unrelated', 'failure', 1), ('invariant', 'failure', 1)]:
             with self.subTest(change=change):
                 self.classified(classification_case(change), expected, code)
+
+    def test_throttle_explains_downstream_drift_only_in_its_command(self):
+        row = classification_case('429-output')
+        row['witness'][0]['baseline']['requests'].append({
+            'identity': 'downstream', 'source': 'icite', 'status': 200})
+        row['result']['drift'].extend(['downstream: request-plan-removed',
+                                       'page continuation changed'])
+        self.classified(row, 'throttled', 0)
+        second = classification_case('unchanged')['witness'][0]
+        second['ordinal'] = 2
+        row['witness'].append(second)
+        row['result']['commands'].append({'ordinal': 2})
+        self.classified(row, 'failure', 1)
+
+    def test_recovery_keeps_schema_and_invariant_failures(self):
+        for change, expected in [('recovery', 'recovered'), ('shape', 'failure')]:
+            row = classification_case('429-output')
+            command = row['witness'][0]
+            command['baseline']['requests'][-1]['status'] = None
+            command['live']['requests'][-1]['status'] = 200
+            row['result']['commands'][0].update(before_status='partial', after_status='complete')
+            row['result']['drift'] = [
+                'old-id: HTTP status None -> Some(200)',
+                'command 1: output status changed: partial -> complete']
+            if change == 'shape':
+                row['result']['drift'].append('old-id: field removed: /id')
+            self.classified(row, expected, int(expected == 'failure'))
+
+    def test_outage_fails_on_third_calendar_night_and_resets_after_gap(self):
+        import datetime
+        row = classification_case('500')
+        report = {'eligible': 1, 'checked': 1, 'drift_cases': 1, 'error_cases': 0,
+                  'case_sample': [row]}
+        today = datetime.datetime.now(datetime.timezone.utc).date()
+        history = [[(today - datetime.timedelta(days=offset)).strftime('%Y%m%d'),
+                    json.dumps(report)] for offset in (2, 1)]
+        result = self.run_command(FAKE_REPORT=json.dumps(report), FAKE_HISTORY=json.dumps(history))
+        self.assertNotEqual(result.returncode, 0, result.stderr)
+        saved = json.loads((self.copied() / 'report.json').read_text())
+        self.assertEqual(saved['persistent_outage_sources'], ['pubmed'])
+        shutil.rmtree(self.store)
+        result = self.run_command(FAKE_REPORT=json.dumps(report), FAKE_HISTORY=json.dumps(history[:1]))
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(json.loads((self.copied() / 'report.json').read_text())[
+            'persistent_outage_sources'], [])
 
     def test_complete_recommendation_replacements_follow_exact_discovery(self):
         for story in ('multi', 'single'):
@@ -406,7 +454,7 @@ class NightlyCommand(unittest.TestCase):
                 ('omitted-count', 'failure', 1),
                 ('429-output', 'throttled', 0), ('429-schema', 'failure', 1),
                 ('429-other-error', 'failure', 1),
-                ('500-output', 'failure', 1)]:
+                ('500-output', 'outage', 0)]:
             with self.subTest(change=change):
                 self.classified(classification_case(change), expected, code)
 
