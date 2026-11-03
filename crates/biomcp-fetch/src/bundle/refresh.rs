@@ -53,19 +53,30 @@ impl Leg<'_> {
         fetch.agents = owner.agents.clone();
         fetch.cancelled = None;
         fetch.call_end = None;
-        let (spec, name, path, format, fresh) =
-            (bundle.spec, bundle.name, bundle.path, bundle.format, bundle.fresh);
+        let (spec, name, path, format, fresh) = (
+            bundle.spec,
+            bundle.name,
+            bundle.path,
+            bundle.format,
+            bundle.fresh,
+        );
         let worker = std::thread::Builder::new()
             .name("bundle-refresh".into())
             .spawn(move || {
                 let bundle = Bundle::<R> {
-                    spec, name, path, format, fresh, row: std::marker::PhantomData,
+                    spec,
+                    name,
+                    path,
+                    format,
+                    fresh,
+                    row: std::marker::PhantomData,
                 };
                 let deadline = fetch.deadline(fetch.config.sync_budget);
                 let mut leg = fetch.leg(spec, deadline);
                 leg.deadline = deadline;
                 let result = leg.bundle_cache().and_then(|cache| {
-                    if cache.bundle_info(name, leg.budget())?
+                    if cache
+                        .bundle_info(name, leg.budget())?
                         .is_some_and(|meta| meta.fresh_until > crate::cache::now())
                     {
                         return Ok(());
@@ -77,7 +88,9 @@ impl Leg<'_> {
                 }
             });
         match worker {
-            Ok(worker) => { running.insert(name, worker); }
+            Ok(worker) => {
+                running.insert(name, worker);
+            }
             Err(_) => eprintln!("bundle refresh {name}: worker unavailable"),
         }
     }

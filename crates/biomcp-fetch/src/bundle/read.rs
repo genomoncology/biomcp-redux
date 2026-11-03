@@ -123,13 +123,13 @@ impl Leg<'_> {
                             continue;
                         }
                     } else {
-                    if meta.fresh_until <= crate::cache::now() {
-                        self.report
-                            .lock()
-                            .unwrap_or_else(std::sync::PoisonError::into_inner)
-                            .stale = true;
-                    }
-                    return Ok(store::info(bundle, &meta));
+                        if meta.fresh_until <= crate::cache::now() {
+                            self.report
+                                .lock()
+                                .unwrap_or_else(std::sync::PoisonError::into_inner)
+                                .stale = true;
+                        }
+                        return Ok(store::info(bundle, &meta));
                     }
                 }
                 if active {
@@ -154,7 +154,10 @@ impl Leg<'_> {
         if self.fetch.config.observations.is_some() {
             let url = format!("{}{}", self.spec.base.trim_end_matches('/'), bundle.path);
             self.observed(
-                &crate::retry::identity(&url), None, 0, crate::Shape::default(),
+                &crate::retry::identity(&url),
+                None,
+                0,
+                crate::Shape::default(),
                 std::time::Duration::ZERO,
                 ("bundle-wait", false, &url, crate::Provenance::default()),
             );
