@@ -13,7 +13,7 @@
         "/result/commands/0/examples": {
           "count": 2
         },
-        "/result/commands/0/description": "Read an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation requires --build. Use search variant --gene BRAF --protein V600E or search variant --gene PTEN --coding c.333G>T for gene shorthand. Every candidate remains available; source assertions do not classify the variant for the caller."
+        "/result/commands/0/description": "Read an rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS or single-base genomic coordinates such as 7-140753336-A-T through the shared resolver. MyVariant identity lookups default to GRCh38; --build overrides it. Chromosome genomic HGVS requires --build. Use search variant --gene BRAF --protein V600E or search variant --gene PTEN --coding c.333G>T for gene shorthand. Every candidate remains available; source assertions do not classify the variant for the caller."
       },
       "max_bytes": 5514
     },
