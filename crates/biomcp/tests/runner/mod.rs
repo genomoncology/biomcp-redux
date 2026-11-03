@@ -34,6 +34,7 @@ mod capture;
 mod citation_values;
 mod clinpgx;
 mod configuration;
+mod bundle_wait;
 mod cpic;
 mod diagnostic_cdx;
 mod diagnostic_retirements;
@@ -247,6 +248,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     let mut trials = Vec::new();
     trials.extend(protocol::trials());
     trials.extend(configuration::trials());
+    trials.extend(bundle_wait::trials());
     trials.extend(source_pacing::trials());
     trials.extend(recurrence::trials());
     trials.extend(replay::trials());
