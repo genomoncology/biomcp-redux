@@ -15,6 +15,13 @@ def pointer(value, path):
 
 def main():
     binary = sys.argv[1]
+    shared_help = json.loads(subprocess.check_output([binary, "help", "help"], text=True))
+    shared_names = {
+        argument["name"]
+        for command in shared_help["result"]["commands"]
+        if command.get("command") == ["help"]
+        for argument in command.get("arguments", [])
+    }
     for path in sorted(Path("tests/cases").rglob("*.yaml")):
         try:
             case = json.loads(path.read_text())
@@ -37,12 +44,30 @@ def main():
                     del step["expect"][key]
                     step["expect"][key.rsplit("/", 1)[0]] = {"omits": ["arguments"]}
                     changed = True
-                if key.endswith("/arguments/*/name") and isinstance(expected, list):
-                    trimmed = [word for word in expected if word not in {
-                        "--format", "--disable-sources", "--source_pacing", "--config", "--offline", "--fresh"}]
-                    if trimmed != expected:
-                        step["expect"][key] = trimmed
-                        changed = True
+                if key.endswith("/arguments/*/name"):
+                    names = expected if isinstance(expected, list) else (
+                        expected.get("includes_all_of") if isinstance(expected, dict) else None)
+                    if not isinstance(names, list):
+                        continue
+                    arguments_path = key.removesuffix("/*/name")
+                    actual = pointer(output, arguments_path)
+                    actual_names = {argument["name"] for argument in actual or []}
+                    trimmed = [word for word in names
+                               if word not in shared_names or word in actual_names]
+                    if trimmed == names:
+                        continue
+                    if trimmed:
+                        step["expect"][key] = trimmed if isinstance(expected, list) else {
+                            **expected, "includes_all_of": trimmed}
+                    else:
+                        del step["expect"][key]
+                        if actual is None:
+                            parent = arguments_path.rsplit("/", 1)[0]
+                            assertion = step["expect"].setdefault(parent, {})
+                            assertion.setdefault("omits", [])
+                            if "arguments" not in assertion["omits"]:
+                                assertion["omits"].append("arguments")
+                    changed = True
         if changed:
             path.write_text(json.dumps(case, indent=2, ensure_ascii=False) + "\n")
 
