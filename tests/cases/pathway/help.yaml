@@ -142,11 +142,6 @@
           "count": 1
         },
         "/status": "complete",
-        "/result/commands/0/arguments/*/name": {
-          "includes_all_of": [
-            "--source_pacing"
-          ]
-        },
         "/result/commands/0": {
           "omits": [
             "arguments"

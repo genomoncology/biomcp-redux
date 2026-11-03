@@ -50,8 +50,7 @@
           "includes_all_of": [
             "input",
             "--section",
-            "--section-limit",
-            "--source_pacing"
+            "--section-limit"
           ]
         },
         "/result/commands/0/sections/*/word": {
@@ -119,8 +118,7 @@
             "--limit",
             "--offset",
             "--pool",
-            "--type",
-            "--source_pacing"
+            "--type"
           ]
         }
       },

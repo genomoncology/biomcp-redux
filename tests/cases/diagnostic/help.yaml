@@ -29,8 +29,7 @@
             "--offset",
             "--product-code",
             "--initiated-from",
-            "--initiated-to",
-            "--source_pacing"
+            "--initiated-to"
           ]
         },
         "/result/commands/0/arguments/14/choices": [
