@@ -5,7 +5,8 @@ impl Action {
     /// Prepare source selectors and preserve existing usage refusal envelopes.
     pub fn prepare(self) -> Result<Self, UsageError> {
         let action = prepare_disease(self).map_err(selector_error)?;
-        if let Some(error) = drug_selector(&action).or_else(|| unsupported(&action)) {
+        drug_selector(&action)?;
+        if let Some(error) = unsupported(&action) {
             return Err(error);
         }
         Ok(action)
@@ -148,13 +149,13 @@ fn unsupported(action: &Action) -> Option<UsageError> {
     None
 }
 
-fn drug_selector(action: &Action) -> Option<UsageError> {
+fn drug_selector(action: &Action) -> Result<(), UsageError> {
     let Action::Run {
         request: Request::GetDrug(query),
         ..
     } = action
     else {
-        return None;
+        return Ok(());
     };
     let (option, values) = if query
         .label_section()
@@ -178,12 +179,10 @@ fn drug_selector(action: &Action) -> Option<UsageError> {
                 .collect::<Result<Vec<biodata::Text>, _>>(),
         )
     } else {
-        return None;
+        return Ok(());
     };
-    let Ok(values) = values else {
-        return Some(UsageError::arguments());
-    };
-    Some(UsageError::SourceSelector {
+    let values = values.map_err(|_| UsageError::arguments())?;
+    Err(UsageError::SourceSelector {
         source: query.source().source(),
         option: option.into(),
         valid_values: values.into(),
