@@ -84,14 +84,16 @@ fn recordings(assets: &Environment) -> Result<std::path::PathBuf, String> {
         |source, record| {
             if source == "pmc-oa" {
                 for exchange in record["exchanges"].as_array_mut().into_iter().flatten() {
-                    let body = &mut exchange["body"]["value"];
+                    let Some(body) = exchange.pointer_mut("/body/value") else {
+                        continue;
+                    };
                     if let Some(text) = body.as_str() {
                         *body = json!(text.replace(
                             "\"license_code\": \"CC BY\"",
                             "\"license_code\": \"CC BY NC\""
                         ));
-                    } else if body.get("license_code").is_some() {
-                        body["license_code"] = json!("CC BY NC");
+                    } else if let Some(license) = body.get_mut("license_code") {
+                        *license = json!("CC BY NC");
                     }
                 }
             }

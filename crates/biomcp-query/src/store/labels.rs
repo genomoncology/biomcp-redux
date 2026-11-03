@@ -1,7 +1,7 @@
 //! Read old retained labels through current source and component declarations.
 use biomcp_fetch::CacheError;
 use biomcp_types::Source;
-use serde::{Deserialize, de::DeserializeOwned};
+use serde::de::DeserializeOwned;
 use serde_json::Value;
 
 pub(crate) fn decode<T: DeserializeOwned>(text: &str) -> Result<Option<T>, CacheError> {
@@ -22,11 +22,11 @@ fn relabel(value: &mut Value, owner: Option<Source>) -> Option<()> {
         }
         Value::Object(row) => {
             let owner = match row.get("source") {
-                Some(source) => Source::deserialize(source).ok(),
+                Some(source) => registered_source(source),
                 None => owner,
             };
             if row.contains_key("use") && row.contains_key("terms_url") {
-                let source = Source::deserialize(row.get("source")?).ok()?;
+                let source = registered_source(row.get("source")?)?;
                 let terms = crate::sources::terms(source)?;
                 row.insert("use".into(), terms.usage.as_str().into());
                 row.insert("terms".into(), terms.name.into());
@@ -51,4 +51,12 @@ fn relabel(value: &mut Value, owner: Option<Source>) -> Option<()> {
         _ => {}
     }
     Some(())
+}
+
+fn registered_source(value: &Value) -> Option<Source> {
+    let name = value.as_str()?;
+    crate::sources::sources()
+        .map(|spec| spec.source)
+        .chain(crate::sources::components().filter_map(|component| component.native_source))
+        .find(|source| <&str>::from(*source) == name)
 }

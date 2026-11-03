@@ -72,13 +72,13 @@ pub(super) fn rights() -> Result<(), String> {
             |source, record| {
                 if source == "pmc-oa" {
                     for exchange in record["exchanges"].as_array_mut().into_iter().flatten() {
-                        if let Some(body) = exchange.pointer("/body/value").and_then(Value::as_str)
+                        if let Some(body) = exchange.pointer_mut("/body/value")
+                            && let Some(text) = body.as_str()
                         {
-                            let body = body.replace(
+                            *body = json!(text.replace(
                                 "\"license_code\": \"CC BY\"",
                                 &format!("\"license_code\": \"{license}\""),
-                            );
-                            exchange["body"]["value"] = json!(body);
+                            ));
                         }
                     }
                 }
