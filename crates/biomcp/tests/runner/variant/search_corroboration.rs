@@ -17,20 +17,7 @@ fn run(disable_clinvar: bool, pair: bool) -> Result<(), String> {
                 "application/json"
             }
         },
-        move |request| {
-            if pair && !request.contains("efetch.fcgi") {
-                let mut page: Value =
-                    serde_json::from_str(&body(request)?).map_err(|e| e.to_string())?;
-                page["hits"]
-                    .as_array_mut()
-                    .ok_or("missing synthetic hits")?
-                    .truncate(2);
-                page["total"] = json!(2);
-                Ok(page.to_string())
-            } else {
-                body(request)
-            }
-        },
+        move |request| body(request, pair),
     )?;
     let env = super::source_environment(&stub)?;
     let replay = env.root().join("recordings");
@@ -170,7 +157,7 @@ fn row(id: &str, extra: Value) -> Value {
     }
     row
 }
-fn body(request: &str) -> Result<String, String> {
+fn body(request: &str, pair: bool) -> Result<String, String> {
     if request.contains("efetch.fcgi") {
         let (accession, position, base) = if request.contains("id=NC_000007.13") {
             ("NC_000007.13", 140453136, "A")
@@ -189,7 +176,7 @@ fn body(request: &str) -> Result<String, String> {
             ">{accession}:{position}-{position} synthetic\n{base}\n"
         ));
     }
-    let rows = vec![
+    let mut rows = vec![
         row(
             "chr7:g.140453136A>T",
             json!({"clinvar":{"variant_id":13961}}),
@@ -221,5 +208,6 @@ fn body(request: &str) -> Result<String, String> {
         row("chr1:g.105A>T", json!({"dbsnp":{"rsid":"rs123"}})),
         row("chr1:g.106A>T", json!({"clinvar":{"variant_id":123}})),
     ];
+    rows.truncate(if pair { 2 } else { 9 });
     Ok(json!({"total":rows.len(),"hits":rows}).to_string())
 }
