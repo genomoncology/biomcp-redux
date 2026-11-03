@@ -8,13 +8,28 @@ pub(super) fn check() -> Result<(), String> {
             check_policy(protein, policy)?;
         }
     }
+    refusal()?;
+    Ok(())
+}
+
+fn refusal() -> Result<(), String> {
+    let env = launch::Environment::new().map_err(|e| e.to_string())?;
+    let args = ["search", "variant", "--gene", "BRAF", "--protein", "V600E",
+        "--disable-sources", "open,noncommercial", "--offline"]
+        .into_iter().map(str::to_owned).collect::<Vec<_>>();
+    let output = env.command(env!("CARGO_BIN_EXE_biomcp"), &args)
+        .output().map_err(|e| e.to_string())?;
+    let value: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
+    if value.pointer("/sources/0/reason") != Some(&json!("disabled")) {
+        return Err(format!("both disabled must keep the named refusal: {value}"));
+    }
     Ok(())
 }
 
 fn check_policy(protein: &str, policy: &str) -> Result<(), String> {
     let stub = Stub::for_source("myvariant.info", "application/json", body)?;
     let env = super::source_environment(&stub)?;
-    let replay = env.root().join("recorded");
+    let replay = env.root().join("recordings");
     let words = ["search", "variant", "--gene", "BRAF", "--protein", protein,
         "--disable-sources", policy];
     let mut args: Vec<String> = words.into_iter().map(str::to_owned).collect();
@@ -23,7 +38,8 @@ fn check_policy(protein: &str, policy: &str) -> Result<(), String> {
         .output().map_err(|e| e.to_string())?;
     let cli: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
     check_reply(&cli)?;
-    let replay_env = launch::Environment::new().map_err(|e| e.to_string())?;
+    let replay_env = launch::Environment::new().map_err(|e| e.to_string())?
+        .with_replay_owner(env.shared_root());
     let args: Vec<String> = words.into_iter().map(str::to_owned).collect();
     let mut globals = replay_env.globals(Some(&replay), false);
     globals.push("--hosted".into());
