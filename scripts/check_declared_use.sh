@@ -25,6 +25,16 @@ case "$phase" in
     python3 scripts/test_reply_diff.py
     cargo test --locked -p biomcp --test cases mcp-hosted/use/ -- --test-threads=4
     ;;
+  capture)
+    cargo build --locked -p biomcp --bin biomcp
+    mkdir -p "$output/installed/bin"
+    cp "${CARGO_TARGET_DIR:-target}/debug/biomcp" "$output/installed/bin/biomcp"
+    export BIOMCP_TEST_EXECUTABLE="$output/installed/bin/biomcp"
+    export BIOMCP_LEGACY_EXECUTABLE="/Users/ian/workspace/t/biomcp-redux-0585-baseline-3d25a0ea5/installed/bin/biomcp"
+    export BIOMCP_TRANSCRIPT_DIR="$output/replies"
+    cargo test --locked -p biomcp --test cases -- --test-threads=4
+    python3 scripts/reply_diff.py --all-fields /Users/ian/workspace/t/biomcp-redux-0585-baseline-3d25a0ea5/replies "$output/replies" > "$output/reply-diff.jsonl" || [ "$?" -eq 1 ]
+    ;;
   gate) exec make landing-gate ;;
   *) exit 2 ;;
 esac

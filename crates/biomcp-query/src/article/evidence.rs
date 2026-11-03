@@ -114,7 +114,10 @@ fn execute<'a>(
     } else {
         Snapshot::empty()
     };
-    if restrict_text(&mut snapshot, cx.fetch.disabled_use(biomcp_types::Use::PerRecord)) {
+    if restrict_text(
+        &mut snapshot,
+        cx.fetch.disabled_use(biomcp_types::Use::PerRecord),
+    ) {
         restored = false;
     }
     let mut stages = deadline.child(deadline.remaining().saturating_sub(SAVE_BUDGET));

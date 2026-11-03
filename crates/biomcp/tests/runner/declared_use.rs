@@ -144,8 +144,9 @@ fn admission() -> Result<(), String> {
 }
 fn retained() -> Result<(), String> {
     let assets = Environment::new().map_err(|e| e.to_string())?;
-    let stub = Stub::for_source("api.clinpgx.org", "application/json",
-        |_| Ok(r#"{"status":"success","data":[]}"#.into()))?;
+    let stub = Stub::for_source("api.clinpgx.org", "application/json", |_| {
+        Ok(r#"{"status":"success","data":[]}"#.into())
+    })?;
     stub.retain(assets.shared_root());
     let ca = assets.root().join("ca.pem");
     std::fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;

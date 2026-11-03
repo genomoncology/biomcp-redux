@@ -5,7 +5,6 @@ use std::collections::BTreeSet;
 
 pub(super) const USES: &[Use] = &[
     Use::Open,
-    Use::Attribution,
     Use::Noncommercial,
     Use::Licensed,
     Use::PerRecord,
