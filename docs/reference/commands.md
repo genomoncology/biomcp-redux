@@ -3548,7 +3548,7 @@ Options:
 
 ```
 
-Read a checked supplement file or page its original rows. Sources: pmc-oa.
+Read a checked supplement file or page its original rows. Sources: pmc-oa, pubmed.
 
 - `file`: Exact file name from the supplements section.
 - `--find`: Exact case-insensitive needle.
@@ -3601,7 +3601,7 @@ Options:
 
 ```
 
-Download one publisher PDF to an explicit file or existing folder. Sources: pmc-oa, semantic-scholar.
+Download one publisher PDF to an explicit file or existing folder. Sources: semantic-scholar.
 
 - `input`: Article identity.
 - `--replace`: Replace an existing file only when explicitly requested.
@@ -3660,7 +3660,7 @@ Options:
 
 ```
 
-Read one bounded body part, find matching rows, or save the complete Markdown document. Sources: pmc-oa.
+Read one bounded body part, find matching rows, or save the complete Markdown document. Sources: europepmc, pmc-oa, pubmed.
 
 - `--find`: Case-insensitive exact text to find.
 - `input`: PubMed or PMC identity. DOI selectors are not accepted by the reader.
@@ -3717,7 +3717,7 @@ Options:
 
 ```
 
-Page the citing or referenced PubMed papers of one checked PMID. Sources: icite, semantic-scholar.
+Page the citing or referenced PubMed papers of one checked PMID. Sources: icite, pubmed, semantic-scholar.
 
 - `--limit`: Maximum papers on one page.
 - `--offset`: Number of pool items to skip.
@@ -3772,7 +3772,7 @@ Options:
 
 ```
 
-Page the citing or referenced PubMed papers of one checked PMID. Sources: icite, semantic-scholar.
+Page the citing or referenced PubMed papers of one checked PMID. Sources: icite, pubmed, semantic-scholar.
 
 - `--limit`: Maximum papers on one page.
 - `--offset`: Number of pool items to skip.
@@ -3830,7 +3830,7 @@ Options:
 
 ```
 
-Read every source context and optional explicit full-text citation paragraph. Sources: icite.
+Read every source context and optional explicit full-text citation paragraph. Sources: pmc-oa, pubmed, semantic-scholar.
 
 - `cited`: Cited PMID, PMC identity or DOI.
 - `citing`: Citing PMID, PMC identity or DOI.
@@ -4131,7 +4131,7 @@ Options:
 
 ```
 
-Read a bounded ancestry-detail page from the exact source-given GRCh38 allele. Sources: gnomad.
+Read a bounded ancestry-detail page from the exact source-given GRCh38 allele. Sources: car, gnomad, myvariant.
 
 - `--build`: Explicit source assembly when required by identity input.
 - `--detail`: Read source ancestry groups, preserving overlapping groups individually.

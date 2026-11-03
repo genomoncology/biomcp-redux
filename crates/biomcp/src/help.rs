@@ -59,7 +59,7 @@ pub(crate) fn dispatch(root: &crate::grammar::Root, path: &[String]) -> io::Resu
     if !public_grammar::overview(root, &mut commands, path)? {
         compact(&mut commands);
     }
-    if path.is_empty() || path == ["help"] {
+    if path.is_empty() {
         let mut map = topic("map", FRONT_MAP.into());
         map.command.clear();
         commands.insert(0, map);

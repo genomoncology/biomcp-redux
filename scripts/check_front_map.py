@@ -39,6 +39,9 @@ def main():
     parser.add_argument("binary", type=Path)
     parser.add_argument("--baseline", type=Path)
     parser.add_argument("--output", type=Path)
+    parser.add_argument("--revision")
+    parser.add_argument("--baseline-revision")
+    parser.add_argument("--baseline-sha256")
     args = parser.parse_args()
     with tempfile.TemporaryDirectory() as scratch:
         root = Path(scratch)
@@ -80,7 +83,14 @@ def main():
         assert reply["result"]["instructions"] == front
         (args.output / "front-map.txt").write_text(front)
         (args.output / "initialize.json").write_text(process.stdout)
-        (args.output / "version.json").write_text(run(binary, ["version", "--verbose"], env))
+        version = run(binary, ["version", "--verbose"], env)
+        assert not args.revision or args.revision in version, version
+        (args.output / "version.txt").write_text(version)
+        (args.output / "SKILL.md").write_text(skill)
+        if args.baseline:
+            retained = args.output / "installed/bin/biomcp"
+            retained.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(binary, retained)
         raw = args.output / "help"
         raw.mkdir(exist_ok=True)
         measurements = []
@@ -92,7 +102,9 @@ def main():
                          "removed": sorted(baseline_paths - current_paths)}
             assert not inventory["removed"], inventory
             assert all(path[0] == "help" for path in inventory["added_help_topics"]), inventory
-            (args.output / "baseline-version.json").write_text(run(args.baseline, ["version", "--verbose"], env))
+            baseline_version = run(args.baseline, ["version", "--verbose"], env)
+            assert not args.baseline_revision or args.baseline_revision in baseline_version, baseline_version
+            (args.output / "baseline-version.txt").write_text(baseline_version)
         else:
             current_paths, baseline_paths = set(), set()
         for path in sorted(current_paths | baseline_paths):
@@ -112,6 +124,7 @@ def main():
                   "inventory": inventory, "measurements": measurements}
         if args.baseline:
             report["baseline_sha256"] = hashlib.sha256(args.baseline.read_bytes()).hexdigest()
+            assert not args.baseline_sha256 or args.baseline_sha256 == report["baseline_sha256"]
             for fmt in ("json", "md"):
                 rows = [row for row in measurements if row["format"] == fmt]
                 before = max(row["baseline_characters"] for row in rows if "baseline_characters" in row)
