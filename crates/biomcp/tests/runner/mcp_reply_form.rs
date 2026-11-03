@@ -65,14 +65,7 @@ pub(super) fn check() -> Result<(), String> {
                     return Err("HTTP tool call failed".into());
                 }
                 let http = http.get("result").ok_or("HTTP result missing")?;
-                let value = check_content(stdio, form.unwrap_or("both"))?;
-                let failed = json!(index != 0);
-                if stdio.get("isError") != Some(&failed) || http.get("isError") != Some(&failed) {
-                    return Err("reply form lost tool error status".into());
-                }
-                if check_content(http, form.unwrap_or("both"))? != value {
-                    return Err("HTTP and stdio reply values differ".into());
-                }
+                let value = check_pair(stdio, http, form.unwrap_or("both"), index)?;
                 if form.is_none() {
                     reference.push(value);
                 } else if reference.get(index) != Some(&value) {
@@ -90,6 +83,18 @@ pub(super) fn check() -> Result<(), String> {
         }
     }
     invalid_settings()
+}
+
+fn check_pair(stdio: &Value, http: &Value, form: &str, index: usize) -> Result<Value, String> {
+    let value = check_content(stdio, form)?;
+    let failed = json!(index != 0);
+    if stdio.get("isError") != Some(&failed) || http.get("isError") != Some(&failed) {
+        return Err("reply form lost tool error status".into());
+    }
+    if check_content(http, form)? != value {
+        return Err("HTTP and stdio reply values differ".into());
+    }
+    Ok(value)
 }
 
 fn invalid_settings() -> Result<(), String> {
@@ -127,11 +132,12 @@ fn check_content(result: &Value, form: &str) -> Result<Value, String> {
         .and_then(Value::as_array)
         .filter(|blocks| blocks.len() == 1)
         .ok_or("expected one content block")?;
-    let text = blocks[0]
+    let block = blocks.first().ok_or("text block missing")?;
+    let text = block
         .get("text")
         .and_then(Value::as_str)
         .ok_or("text missing")?;
-    if blocks[0].get("type") != Some(&json!("text")) {
+    if block.get("type") != Some(&json!("text")) {
         return Err("expected text block".into());
     }
     match form {
