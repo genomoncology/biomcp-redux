@@ -74,7 +74,10 @@ fn run() -> Result<(), String> {
         .filter(|(_, r)| r.starts_with("GET /api/v1/annotate/"))
         .count()
         != 1
-        || requests.len() - added != 4
+        // Shared identity projection reuses the rsID lookup for the later all request.
+        || requests.iter().filter(|(_, r)| r.starts_with("GET /v1/query?")).count() != 1
+        || requests.iter().filter(|(_, r)| r.starts_with("GET /allele/CA123643?")).count() != 1
+        || requests.len() - added != 3
     {
         return Err(format!(
             "keyless or contextless request escaped, or warm cache missed: {}",
