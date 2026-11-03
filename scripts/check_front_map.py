@@ -79,6 +79,7 @@ def main():
             "clientInfo": {"name": "front-map-proof", "version": "1"}}}
         process = subprocess.run([str(binary), "serve"], input=json.dumps(request) + "\n",
                                  env=env, capture_output=True, text=True, timeout=30)
+        assert process.returncode == 0 and not process.stderr, process.stderr
         reply = json.loads(process.stdout.splitlines()[0])
         assert reply["result"]["instructions"] == front
         (args.output / "front-map.txt").write_text(front)

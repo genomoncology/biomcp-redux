@@ -23,6 +23,19 @@
           ]
         }
       }
+    },
+    {
+      "run": [
+        "help",
+        "get",
+        "clingen",
+        "--unrecognized-argument"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments"
+      }
     }
   ]
 }

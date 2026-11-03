@@ -6,7 +6,7 @@ pub(crate) fn command_sources(
     schema: &serde_json::Value,
 ) -> std::collections::BTreeSet<String> {
     let mut sources = std::collections::BTreeSet::new();
-    for key in ["source", "sources"] {
+    for key in ["source", "sources", "resolver"] {
         if let Some(node) = schema.pointer(&format!("/properties/{key}")) {
             source_words(node, schema, &mut sources);
         }

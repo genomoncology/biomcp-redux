@@ -113,11 +113,6 @@ fn render(entities: BTreeMap<String, Entity>) -> String {
 }
 
 #[cfg(test)]
-#[expect(
-    clippy::expect_used,
-    clippy::indexing_slicing,
-    reason = "Generation tests inspect fixed schemas and require explicit fixture failures"
-)]
 mod tests {
     use super::*;
     #[test]
