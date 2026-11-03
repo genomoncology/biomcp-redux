@@ -15,7 +15,7 @@ fn relabel(value: &mut Value, owner: Option<Source>) -> Option<()> {
     match value {
         Value::Array(rows) => { for row in rows { relabel(row, owner)?; } }
         Value::Object(row) => {
-            let owner = row.get("source").map(Source::deserialize).transpose().ok()?.or(owner);
+            let owner = match row.get("source") { Some(source) => Source::deserialize(source).ok(), None => owner };
             if row.contains_key("use") && row.contains_key("terms_url") {
                 let source = Source::deserialize(row.get("source")?).ok()?;
                 let terms = crate::sources::terms(source)?;
