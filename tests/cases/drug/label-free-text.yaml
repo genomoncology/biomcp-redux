@@ -15,7 +15,12 @@
       ],
       "expect": {
         "/page/returned": 1,
-        "/result/items/0/id": "98b197ea-bca4-427e-8737-97f70a3262bc"
+        "/result/items/0/id": "98b197ea-bca4-427e-8737-97f70a3262bc",
+        "/result/items/0": {
+          "omits": [
+            "matched_name"
+          ]
+        }
       }
     }
   ],

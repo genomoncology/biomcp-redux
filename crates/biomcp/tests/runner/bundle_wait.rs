@@ -28,24 +28,7 @@ fn first_reader() -> Result<(), String> {
         ],
         0,
     )?;
-    let recording = fs::read_dir(replay.join("gencc"))
-        .map_err(|e| e.to_string())?
-        .next()
-        .ok_or("GenCC recording missing")?
-        .map_err(|e| e.to_string())?
-        .path();
-    let record: Value = serde_json::from_slice(&fs::read(recording).map_err(|e| e.to_string())?)
-        .map_err(|e| e.to_string())?;
-    let body = record
-        .get("exchanges")
-        .and_then(Value::as_array)
-        .ok_or("GenCC exchanges")?
-        .iter()
-        .find(|exchange| exchange.get("status") == Some(&json!(200)))
-        .and_then(|exchange| exchange.pointer("/body/value"))
-        .and_then(Value::as_str)
-        .ok_or("GenCC CSV")?
-        .to_owned();
+    let body = native_body(&replay)?;
     let (admitted, admission) = mpsc::channel();
     let (publish, publication) = mpsc::channel();
     let peer = Stub::for_source("thegencc.org", "text/csv", move |_| {
@@ -123,4 +106,25 @@ fn first_reader() -> Result<(), String> {
     }
     peer.finish()?;
     result
+}
+
+fn native_body(replay: &std::path::Path) -> Result<String, String> {
+    let recording = fs::read_dir(replay.join("gencc"))
+        .map_err(|e| e.to_string())?
+        .next()
+        .ok_or("GenCC recording missing")?
+        .map_err(|e| e.to_string())?
+        .path();
+    let record: Value = serde_json::from_slice(&fs::read(recording).map_err(|e| e.to_string())?)
+        .map_err(|e| e.to_string())?;
+    record
+        .get("exchanges")
+        .and_then(Value::as_array)
+        .ok_or("GenCC exchanges")?
+        .iter()
+        .find(|exchange| exchange.get("status") == Some(&json!(200)))
+        .and_then(|exchange| exchange.pointer("/body/value"))
+        .and_then(Value::as_str)
+        .map(str::to_owned)
+        .ok_or_else(|| "GenCC CSV".into())
 }
