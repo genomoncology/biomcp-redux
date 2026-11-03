@@ -43,3 +43,8 @@ export BIOMCP_TRANSCRIPT_DIR="$PWD/target/0595-proofs/replies/$(git rev-parse HE
 cargo test --locked -p biomcp --test cases variant-search/ -- --nocapture
 
 python3 scripts/snpeff_parity.py $(git diff --name-only 0afa5e26afa2a9f38a90e965c844bd3f9d95ebf2 HEAD -- crates scripts/snpeff_fallback_job.sh scripts/snpeff_parity.py sdlc/features.md)
+if [ "${1:-}" = final ]; then
+    sh scripts/snpeff_fallback_job.sh scan
+    unset BIOMCP_TEST_EXECUTABLE BIOMCP_TRANSCRIPT_DIR BIOMCP_EVIDENCE_DIR
+    make landing-gate
+fi
