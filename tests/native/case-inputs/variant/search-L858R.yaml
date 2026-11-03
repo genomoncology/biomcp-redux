@@ -30,7 +30,7 @@
       "max_bytes": 1187,
       "expect": {
         "/schema": "biomcp.variant-page/16",
-        "/status": "partial",
+        "/status": "complete",
         "/query": {
           "equals": {
             "gene": "EGFR",
@@ -188,7 +188,7 @@
             "total": 1
           }
         },
-        "/status": "partial"
+        "/status": "complete"
       }
     }
   ]

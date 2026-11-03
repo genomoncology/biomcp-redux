@@ -30,7 +30,7 @@
       "max_bytes": 2005,
       "expect": {
         "/schema": "biomcp.variant-page/16",
-        "/status": "partial",
+        "/status": "complete",
         "/query": {
           "equals": {
             "query": "rs113488022",
@@ -370,7 +370,7 @@
             "total": 3
           }
         },
-        "/status": "partial"
+        "/status": "complete"
       }
     }
   ]
