@@ -139,8 +139,7 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
         [DrugSection::Xrefs] => biomcp_types::DrugXrefs::into_reply(query.clone(), None),
         _ => biomcp_types::DrugCard::into_reply(query.clone(), None),
     });
-    if !query.supports_sections()
-    {
+    if !query.supports_sections() {
         return super::unsupported(query.source(), out);
     }
     let command = cx.fetch.command_deadline(cx.budget);

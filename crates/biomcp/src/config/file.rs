@@ -98,7 +98,10 @@ fn decode(bytes: &[u8]) -> Result<ConfigFile, ConfigError> {
             })
         })
     })?;
-    if file.drug_approvals_limit.is_some_and(|n| !(1..=50).contains(&n)) {
+    if file
+        .drug_approvals_limit
+        .is_some_and(|n| !(1..=50).contains(&n))
+    {
         return Err(ConfigError::field("drug_approvals_limit"));
     }
     if let Some(keys) = &file.keys {

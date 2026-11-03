@@ -444,7 +444,11 @@ impl crate::Paged for DrugSearch {
 impl DrugGet {
     /// Whether the selected source serves every requested disclosure in one call.
     pub fn supports_sections(&self) -> bool {
-        self.sections().len() <= 1 && self.sections().iter().all(|section| self.source().sections().contains(section))
+        self.sections().len() <= 1
+            && self
+                .sections()
+                .iter()
+                .all(|section| self.source().sections().contains(section))
     }
     /// Explicit requested disclosures.
     pub fn sections(&self) -> &[DrugSection] {
