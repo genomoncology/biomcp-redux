@@ -1,0 +1,89 @@
+{
+  "feature": "variant-identity",
+  "live_check": "synthetic response-only routing matrix over existing public IDs",
+  "replay": "variant/id-forms",
+  "story": "clinvar input reaches each identity-taking variant command or names accepted forms and its converting command.",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "variant",
+        "clinvar:13961"
+      ],
+      "expect": {
+        "/result/resolution": "resolved"
+      }
+    },
+    {
+      "run": [
+        "variant",
+        "assertions",
+        "clinvar:13961",
+        "--source",
+        "clinvar"
+      ],
+      "expect": {
+        "/result/assertions/0/statement/attribution/record": "VCV000013961"
+      }
+    },
+    {
+      "run": [
+        "variant",
+        "population",
+        "clinvar:13961"
+      ],
+      "expect": {
+        "/result/population/state": "data",
+        "/result/population/data/build": "GRCh38"
+      }
+    },
+    {
+      "run": [
+        "variant",
+        "recurrence",
+        "clinvar:13961",
+        "--source",
+        "cbioportal",
+        "--gene",
+        "BRAF",
+        "--study",
+        "msk_impact_2017",
+        "--profile",
+        "msk_impact_2017_mutations",
+        "--sample-set",
+        "msk_impact_2017_all",
+        "--limit",
+        "3"
+      ],
+      "expect": {
+        "/result/examined_rows": 3
+      }
+    },
+    {
+      "run": [
+        "variant",
+        "normalize",
+        "--source",
+        "mutalyzer",
+        "--hgvs",
+        "clinvar:13961"
+      ],
+      "exit": 2,
+      "expect": {
+        "/error/message": "normalization accepts reference-qualified HGVS, or chromosome genomic HGVS with CAR and --build; convert rsIDs, clinvar:N, VCV accessions and genomic coordinates with get variant <ID> first"
+      }
+    },
+    {
+      "run": [
+        "variant",
+        "assertions",
+        "clinvar:13961",
+        "--source",
+        "erepo"
+      ],
+      "expect": {
+        "/problems/0/field": "input: requires one CAid; convert with get variant <ID> and select an exact candidate"
+      }
+    }
+  ]
+}

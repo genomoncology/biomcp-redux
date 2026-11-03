@@ -37,7 +37,14 @@ pub(super) fn read(
     // record on that assembly; never relabel those coordinates as GRCh38.
     if query.input().namespace() == biomcp_types::VariantNamespace::ClinVar
         && query.myvariant_build() == biodata::Build::GRCh38
-        && result.as_ref().is_ok_and(|(rows, _)| rows.is_empty())
+        && result.as_ref().is_ok_and(|(rows, _)| {
+            rows.iter().all(|row| {
+                !row.identity
+                    .representations
+                    .iter()
+                    .any(|r| r.build == Some(biodata::Build::GRCh38))
+            })
+        })
     {
         if let Ok(fallback) = query.with_build(biodata::Build::GRCh37) {
             result = super::myvariant_identity(

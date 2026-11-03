@@ -117,7 +117,7 @@ fn resolved(
     let Ok(identity) = VariantGet::new(
         query.input().clone(),
         biomcp_types::VariantResolver::Car,
-        None,
+        query.build(),
     ) else {
         return missing(query, Vec::new(), Vec::new(), None, false);
     };

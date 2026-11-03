@@ -137,13 +137,15 @@ impl TryFrom<Fields> for VariantGet {
     }
 }
 impl VariantGet {
+    /// Default identity lookup assembly; --build overrides this setting.
+    pub const DEFAULT_BUILD: Build = Build::GRCh38;
     /// Check coordinate assembly and preserve resolver choice.
     pub fn new(
         input: VariantInput,
         resolver: VariantResolver,
         build: Option<Build>,
     ) -> Result<Self, super::gene::QueryInvalid> {
-        let build = build.or_else(|| input.coordinate_form().then_some(Build::GRCh38));
+        let build = build.or_else(|| input.coordinate_form().then_some(Self::DEFAULT_BUILD));
         if input.namespace() == VariantNamespace::Unsupported {
             return Err(super::gene::QueryInvalid::new(&["input"]));
         }
@@ -269,7 +271,7 @@ impl VariantGet {
     }
     /// Assembly selected for a MyVariant identity request.
     pub fn myvariant_build(&self) -> Build {
-        self.build().unwrap_or(Build::GRCh38)
+        self.build().unwrap_or(Self::DEFAULT_BUILD)
     }
     /// Echo the assembly selected for a MyVariant identity request.
     pub fn with_myvariant_build(mut self) -> Self {

@@ -17,6 +17,9 @@ struct Fields<I = Text> {
     input: VariantInput,
     /// One native source; no fallback or text search.
     source: AssertionSource,
+    /// Identity lookup assembly; omitted uses the shared GRCh38 default.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    build: Option<crate::Build>,
     /// Native assertion accession or document ID.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     assertion: Option<I>,
@@ -39,6 +42,11 @@ crate::query::validation::checked_query!(VariantAssertionsGet, Fields);
 impl TryFrom<Fields> for VariantAssertionsGet {
     type Error = super::gene::QueryInvalid;
     fn try_from(fields: Fields) -> Result<Self, Self::Error> {
+        crate::VariantGet::new(
+            fields.input.clone(),
+            crate::VariantResolver::Car,
+            fields.build,
+        )?;
         if fields.input.namespace() == VariantNamespace::Unsupported {
             return Err(super::gene::QueryInvalid::new(&["input"]));
         }
@@ -77,6 +85,7 @@ impl TryFrom<Fields> for VariantAssertionsGet {
         Ok(Self(Fields {
             input: fields.input,
             source: fields.source,
+            build: fields.build,
             assertion,
             version: fields.version,
             limit: fields.limit,
@@ -94,6 +103,10 @@ impl VariantAssertionsGet {
         let mut query = self.clone();
         query.0.input = input;
         query
+    }
+    /// Caller assembly for identity resolution.
+    pub fn build(&self) -> Option<crate::Build> {
+        self.0.build
     }
     /// Explicit evidence source.
     pub fn source(&self) -> AssertionSource {
@@ -126,6 +139,7 @@ impl VariantAssertionsGet {
         Fields {
             input,
             source,
+            build: None,
             assertion: None,
             version: None,
             limit: None,
@@ -154,6 +168,7 @@ impl VariantAssertionsGet {
         Ok(Self(Fields {
             input,
             source,
+            build: None,
             assertion: None,
             version: None,
             limit: Some(limit),

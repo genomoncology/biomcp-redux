@@ -130,7 +130,7 @@ fn identity(
     let q = biomcp_types::VariantGet::new(
         query.input().clone(),
         biomcp_types::VariantResolver::Car,
-        None,
+        query.build(),
     )
     .map_err(|_| rejected(Source::AlleleRegistry, Reason::Rejected))?;
     let spec = super::source(&q);

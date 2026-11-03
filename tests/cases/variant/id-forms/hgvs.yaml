@@ -1,0 +1,88 @@
+{
+  "feature": "variant-identity",
+  "live_check": "synthetic response-only routing matrix over existing public IDs",
+  "replay": "variant/id-forms",
+  "story": "hgvs input reaches each identity-taking variant command or names accepted forms and its converting command.",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "variant",
+        "NM_004333.4:c.1799T>A"
+      ],
+      "expect": {
+        "/result/resolution": "resolved"
+      }
+    },
+    {
+      "run": [
+        "variant",
+        "assertions",
+        "NM_004333.4:c.1799T>A",
+        "--source",
+        "clinvar"
+      ],
+      "expect": {
+        "/result/assertions/0/statement/attribution/record": "VCV000013961"
+      }
+    },
+    {
+      "run": [
+        "variant",
+        "population",
+        "NM_004333.4:c.1799T>A"
+      ],
+      "expect": {
+        "/result/population/state": "data",
+        "/result/population/data/build": "GRCh38"
+      }
+    },
+    {
+      "run": [
+        "variant",
+        "recurrence",
+        "NM_004333.4:c.1799T>A",
+        "--source",
+        "cbioportal",
+        "--gene",
+        "BRAF",
+        "--study",
+        "msk_impact_2017",
+        "--profile",
+        "msk_impact_2017_mutations",
+        "--sample-set",
+        "msk_impact_2017_all",
+        "--limit",
+        "3"
+      ],
+      "expect": {
+        "/result/examined_rows": 3
+      }
+    },
+    {
+      "run": [
+        "variant",
+        "normalize",
+        "--source",
+        "mutalyzer",
+        "--hgvs",
+        "NM_004333.4:c.1799T>A"
+      ],
+      "expect": {
+        "/result/results/0/outcome": "resolved"
+      }
+    },
+    {
+      "run": [
+        "variant",
+        "assertions",
+        "NM_004333.4:c.1799T>A",
+        "--source",
+        "erepo"
+      ],
+      "expect": {
+        "/status": "empty"
+      }
+    }
+  ]
+}
