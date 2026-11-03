@@ -36,7 +36,13 @@ pub(super) fn exchange<R: Row>(
             return Ok(exchange);
         }
         drop(permit);
-        retry(leg, key, exchange.status, exchange.retry_after_ms.map(Duration::from_millis), attempt)?;
+        retry(
+            leg,
+            key,
+            exchange.status,
+            exchange.retry_after_ms.map(Duration::from_millis),
+            attempt,
+        )?;
     }
     Err(leg.failure(Reason::Unavailable, None).into())
 }
@@ -57,7 +63,10 @@ pub(super) fn retry(
     {
         return Err(error.into());
     }
-    if !crate::retry::wait(delay.unwrap_or_else(|| crate::retry::backoff(key, attempt)), leg.budget()) {
+    if !crate::retry::wait(
+        delay.unwrap_or_else(|| crate::retry::backoff(key, attempt)),
+        leg.budget(),
+    ) {
         if status != 429 {
             error.reason = Reason::Syncing;
         }

@@ -94,11 +94,7 @@ impl Leg<'_> {
             b,
             &url,
             &mut transfer,
-            if record {
-                None
-            } else {
-                old.as_ref()
-            },
+            if record { None } else { old.as_ref() },
         );
         if result.is_err() {
             // Preserve this holder's file only if its fenced metadata update succeeds.
