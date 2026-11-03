@@ -2689,7 +2689,7 @@ Options:
 
 ```
 
-Read an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation requires --build. Sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, myvariant, oncokb.
+Read an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation requires --build. Sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator.
 
 - `--build`: Required for chromosome notation; no assembly is guessed.
 - `--civic-cursor`: Source CIViC cursor, retained unchanged.
@@ -4131,7 +4131,7 @@ Options:
 
 ```
 
-Read a bounded ancestry-detail page from the exact source-given GRCh38 allele. Sources: car, gnomad, myvariant.
+Read a bounded ancestry-detail page from the exact source-given GRCh38 allele. Sources: car, gnomad, mutalyzer, myvariant, variantvalidator.
 
 - `--build`: Explicit source assembly when required by identity input.
 - `--detail`: Read source ancestry groups, preserving overlapping groups individually.
