@@ -258,6 +258,9 @@ def main():
                         if key not in paired else pointer(before, after))
             if key in paired and len(paired[key][0]) != len(paired[key][1]):
                 location = "/executions/length"
+                if full:
+                    print(json.dumps({"key": key, "path": location,
+                                      "before": len(paired[key][0]), "after": len(paired[key][1])}, sort_keys=True))
             if location:
                 differences += 1
                 show(key, before, after, location, differences, full)
