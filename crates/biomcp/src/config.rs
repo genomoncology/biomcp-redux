@@ -9,8 +9,8 @@ use std::{ffi::OsString, fs, path::PathBuf, sync::Arc, time::Duration};
 mod credential_reads_tests;
 
 pub(crate) mod file;
-pub(crate) use file::{ConfigError, ReplyForm};
 use file::ConfigFile;
+pub(crate) use file::{ConfigError, ReplyForm};
 
 pub(crate) const DEFAULT_HTTP_CAPACITY: usize = 8;
 
@@ -36,8 +36,12 @@ pub(crate) fn http_capacity(
 }
 
 pub(crate) fn mcp_reply_form(settings: &Settings) -> ReplyForm {
-    settings.as_ref().ok().and_then(Option::as_ref)
-        .and_then(|file| file.mcp_reply_form).unwrap_or_default()
+    settings
+        .as_ref()
+        .ok()
+        .and_then(Option::as_ref)
+        .and_then(|file| file.mcp_reply_form)
+        .unwrap_or_default()
 }
 
 pub(crate) type Settings = Result<Option<ConfigFile>, ConfigError>;

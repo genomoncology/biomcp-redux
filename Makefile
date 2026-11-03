@@ -283,7 +283,7 @@ http-capacity-check: pre-job docs-check
 mcp-reply-focused mcp-reply-gate: export PATH := /Users/ian/.local/share/uv/python/cpython-3.13.17-macos-aarch64-none/bin:$(HOME)/.cargo/bin:$(PATH)
 mcp-reply-focused mcp-reply-gate: export RUSTUP_TOOLCHAIN := 1.95.0
 mcp-reply-focused:
-	cargo fmt --all
+	cargo fmt --all -- --check
 	mkdir -p target/mcp-reply/installed
 	cargo install --locked --debug --path crates/biomcp --root target/mcp-reply/installed --force
 	BIOMCP_TEST_EXECUTABLE="$(CURDIR)/target/mcp-reply/installed/bin/biomcp" cargo test --locked -p biomcp --test cases mcp-parity/ $(TEST_THREADS)

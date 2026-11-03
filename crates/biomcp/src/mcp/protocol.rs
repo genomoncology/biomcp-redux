@@ -52,14 +52,12 @@ const DESCRIPTION: &str = concat!(
 );
 
 pub(super) fn tool(root: &crate::grammar::Root, read_only: bool) -> std::io::Result<Value> {
-    Ok(
-        json!({"name":"biomcp", "description":DESCRIPTION,
+    Ok(json!({"name":"biomcp", "description":DESCRIPTION,
         "annotations":{"readOnlyHint":read_only,"destructiveHint":false,"openWorldHint":true},
         "inputSchema":{"$schema":SCHEMA_DIALECT,"type":"object","properties":{
             "args":{"type":"array","items":{"type":"string"},
                 "description":"CLI command words, without biomcp. Example: [\"help\"]"}},
-            "required":["args"],"additionalProperties":false},"outputSchema":super::output_schema::for_tool(root, "biomcp")?}),
-    )
+            "required":["args"],"additionalProperties":false},"outputSchema":super::output_schema::for_tool(root, "biomcp")?}))
 }
 
 pub(super) fn tools(root: &crate::grammar::Root, read_only: bool) -> std::io::Result<Vec<Value>> {
@@ -81,7 +79,12 @@ pub(super) fn result(id: Value, mut value: Value, modern: bool) -> Value {
 
 // Tool results use the configured content form and negotiated protocol metadata.
 // JSON-RPC correlation IDs belong to the outer response, outside CallToolResult.
-pub(super) fn tool_result(id: Value, outcome: &crate::command::Outcome, modern: bool, form: ReplyForm) -> Value {
+pub(super) fn tool_result(
+    id: Value,
+    outcome: &crate::command::Outcome,
+    modern: bool,
+    form: ReplyForm,
+) -> Value {
     let failed = !matches!(
         outcome.status,
         crate::exit::Status::Success | crate::exit::Status::Absent
@@ -106,9 +109,13 @@ fn content(value: Value, failed: bool, form: ReplyForm) -> Value {
     match form {
         ReplyForm::Both => json!({"content":[{"type":"text","text":value.to_string()}],
             "structuredContent":value, "isError":failed}),
-        ReplyForm::StructuredOnly => json!({"content":[{"type":"text","text":"JSON reply is in structuredContent."}],
-            "structuredContent":value, "isError":failed}),
-        ReplyForm::TextOnly => json!({"content":[{"type":"text","text":value.to_string()}], "isError":failed}),
+        ReplyForm::StructuredOnly => {
+            json!({"content":[{"type":"text","text":"JSON reply is in structuredContent."}],
+            "structuredContent":value, "isError":failed})
+        }
+        ReplyForm::TextOnly => {
+            json!({"content":[{"type":"text","text":value.to_string()}], "isError":failed})
+        }
     }
 }
 pub(super) fn within_cap(result: &Value) -> bool {
