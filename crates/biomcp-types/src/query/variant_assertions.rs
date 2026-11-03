@@ -12,10 +12,10 @@ pub struct VariantAssertionsGet(Fields<AssertionId>);
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 #[cfg_attr(feature = "schema", schemars(rename = "Fields"))]
 struct Fields<I = Text> {
-    /// Checked Variation ID for ClinVar, or CAid for ERepo.
+    /// Supported variant ID; resolves one ClinVar Variation ID or ERepo CAid through the shared resolver.
     #[cfg_attr(feature="schema",schemars(extend("x-positional"=0)))]
     input: VariantInput,
-    /// One native source; no fallback or text search.
+    /// One native assertion source; shared identity conversion precedes source access when needed.
     source: AssertionSource,
     /// Identity lookup assembly; omitted uses the shared GRCh38 default.
     #[serde(default, skip_serializing_if = "Option::is_none")]

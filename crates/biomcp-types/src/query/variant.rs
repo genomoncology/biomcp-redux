@@ -1,10 +1,11 @@
 use crate::{Build, VariantInput, VariantNamespace};
 use serde::{Deserialize, Serialize};
-#[doc = " Read an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome \
-    notation requires --build. Use search variant --gene BRAF --protein V600E or \
-    search variant --gene PTEN --coding c.333G>T for gene shorthand. \
-    Every candidate remains available; source assertions do not classify the variant for the \
-    caller."]
+#[doc = " Read an rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS or \
+    genomic coordinates such as 7-140753336-A-T through the shared resolver. \
+    MyVariant identity lookups default to GRCh38; --build overrides it. \
+    Chromosome genomic HGVS requires --build. Use search variant --gene BRAF --protein V600E \
+    or search variant --gene PTEN --coding c.333G>T for gene shorthand. \
+    Every candidate remains available; source assertions do not classify the variant for the caller."]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "Fields")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
@@ -17,7 +18,7 @@ pub struct VariantGet(Fields);
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct Fields {
-    /// Published rsID, CAid, ClinVar Variation ID or reference-qualified HGVS.
+    /// rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS or genomic coordinates.
     #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 0)))]
     input: VariantInput,
     /// Named source sections; omitted by default. Each calls its own source. all keeps bounded pages and source skips; it never enables a missing key.
@@ -51,7 +52,7 @@ struct Fields {
     /// Resolver for reference-qualified notation; never repairs the input locally.
     #[serde(default = "resolver")]
     resolver: VariantResolver,
-    /// Required for chromosome notation; no assembly is guessed.
+    /// MyVariant identity assembly defaults to GRCh38; chromosome genomic HGVS requires an explicit build.
     #[serde(
         default,
         deserialize_with = "super::gene::present",

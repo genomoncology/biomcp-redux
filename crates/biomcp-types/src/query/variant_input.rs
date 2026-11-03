@@ -1,6 +1,9 @@
 use crate::{Error, text_value};
 use std::{borrow::Cow, fmt, str::FromStr};
-/// Published variant identifier grammar, without interpreting the allele expression.
+/// Published rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS,
+/// chromosome genomic HGVS, or chromosome-position-reference-alternate coordinates.
+/// Use get variant <ID> to inspect source identities and variant normalize --hgvs <HGVS>
+/// for source normalization; no allele is selected from ambiguous candidates.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct VariantInput {
     text: crate::Text,
