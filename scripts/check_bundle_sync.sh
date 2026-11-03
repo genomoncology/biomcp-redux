@@ -19,6 +19,7 @@ case "${1:-focused}" in
     focused|green)
         cargo fmt --all
         git diff > "$CARGO_TARGET_DIR/format.patch"
+        run_check bundle cargo test --locked -p biomcp-fetch --test bundle
         run_check runner cargo test --locked -p biomcp --test cases --no-run
         if [ "${1:-focused}" = focused ]; then
             export BIOMCP_TEST_EXECUTABLE=/Users/ian/workspace/jobs/biomcp-redux-0587/target/0587-proofs/baseline-installed/biomcp
@@ -37,7 +38,7 @@ case "${1:-focused}" in
         npm=/opt/zerobrew/opt/node@22/bin/npm
         run_check jscpd-version "$npm" exec --offline --yes --package=jscpd@4.0.5 -- jscpd --version
         run_check jscpd-product "$npm" exec --offline --yes --package=jscpd@4.0.5 -- jscpd --format rust,python --min-tokens 50 --max-size 10mb --reporters console,json --output "$CARGO_TARGET_DIR/jscpd-product" crates/biomcp-adapters/src/guidance.rs crates/biomcp-fetch/src/bundle/download.rs crates/biomcp-fetch/src/bundle/replay.rs crates/biomcp-query/src/sources.rs crates/biomcp/src/command/sync.rs
-        run_check jscpd-tests "$npm" exec --offline --yes --package=jscpd@4.0.5 -- jscpd --format rust,yaml --min-tokens 50 --max-size 10mb --reporters console,json --output "$CARGO_TARGET_DIR/jscpd-tests" crates/biomcp/tests/runner/bundle_sync.rs crates/biomcp/tests/runner/mod.rs
+        run_check jscpd-tests "$npm" exec --offline --yes --package=jscpd@4.0.5 -- jscpd --format rust,yaml --min-tokens 50 --max-size 10mb --reporters console,json --output "$CARGO_TARGET_DIR/jscpd-tests" crates/biomcp/tests/runner/bundle_sync.rs crates/biomcp/tests/runner/mod.rs crates/biomcp-fetch/tests/bundle/rows.rs
         ;;
     gate) run_check routine make landing-gate ;;
     final)

@@ -183,7 +183,12 @@ fn banner_csv_records_are_checked_before_atomic_publication() {
     std::thread::scope(|scope| {
         let call = scope.spawn(|| fetch.sync(&bundle));
         let request = server.next();
-        assert!(!request.text.to_ascii_lowercase().contains("if-"));
+        assert!(
+            request
+                .text
+                .to_ascii_lowercase()
+                .contains("if-none-match: \"generated\"")
+        );
         request.respond(200, "", good);
         call.join().unwrap().unwrap();
     });
