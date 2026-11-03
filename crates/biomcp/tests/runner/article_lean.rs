@@ -170,6 +170,7 @@ fn compare_baseline(env: &Environment, reply: &Value, markdown: &str) -> Result<
         old.len(),
         markdown.len(),
         old.len() - markdown.len()
-    ).map_err(|error| error.to_string())?;
+    )
+    .map_err(|error| error.to_string())?;
     Ok(())
 }
