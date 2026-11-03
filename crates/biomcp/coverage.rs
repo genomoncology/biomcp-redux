@@ -31,10 +31,10 @@ fn source_words(
     schema: &serde_json::Value,
     sources: &mut std::collections::BTreeSet<String>,
 ) {
-    if let Some(reference) = node.get("$ref").and_then(serde_json::Value::as_str) {
-        if let Some(target) = schema.pointer(reference.trim_start_matches('#')) {
-            source_words(target, schema, sources);
-        }
+    if let Some(reference) = node.get("$ref").and_then(serde_json::Value::as_str)
+        && let Some(target) = schema.pointer(reference.trim_start_matches('#'))
+    {
+        source_words(target, schema, sources);
     }
     for key in ["enum", "x-extensible-enum"] {
         for value in node
@@ -44,8 +44,8 @@ fn source_words(
             .flatten()
             .filter_map(serde_json::Value::as_str)
         {
-            if value != "all" {
-                sources.insert(value.into());
+            if let Ok(source) = value.parse::<biomcp_types::Source>() {
+                sources.insert(source.to_string());
             }
         }
     }

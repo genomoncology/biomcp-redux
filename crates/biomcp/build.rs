@@ -310,7 +310,13 @@ fn embed_skills(map: &str) -> Result<(), Box<dyn Error>> {
     let mut assets = BTreeMap::new();
     skill_files(&directory, &directory, &mut assets)?;
     let guide = assets.get_mut("SKILL.md").ok_or("missing skill guide")?;
+    if guide.matches("{{front-map}}").count() != 1 {
+        return Err("skill template requires exactly one front-map marker".into());
+    }
     *guide = guide.replace("{{front-map}}", map);
+    if guide.len() > 4096 {
+        return Err("embedded agent skill exceeds 4 KB".into());
+    }
     let entries = assets
         .iter()
         .map(|(name, text)| format!("({name:?}, {text:?}),\n"))

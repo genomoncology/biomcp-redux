@@ -26,7 +26,7 @@ def main():
                 continue
             output = json.loads(subprocess.check_output([binary, *step["run"]], text=True))
             for key, expected in list(step.get("expect", {}).items()):
-                if key.endswith("/description") or key.endswith("/examples"):
+                if (key.endswith("/description") and isinstance(expected, str)) or key.endswith("/examples"):
                     actual = pointer(output, key)
                     if isinstance(expected, dict) and "count" in expected:
                         actual = {"count": len(actual or [])}

@@ -20,6 +20,9 @@ pub fn command_implicit_sources(verb: &str, entity: &str) -> &'static [Source] {
         ("get", "variant") => &[
             MyVariant,
             ClinVar,
+            Erepo,
+            Gnomad,
+            Gwas,
             Civic,
             CancerHotspots,
             AlphaGenome,

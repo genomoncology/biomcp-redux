@@ -38,12 +38,12 @@
           "--updated-until",
           "--variant"
         ],
-        "/result/commands/0/arguments/4/description": "Exact MONDO or DOID CURIE resolved by MyDisease; NCI also accepts explicit NCIT:C codes.",
+        "/result/commands/0/arguments/4/description": "",
         "/result/commands/0/examples": {
           "count": 1
         },
-        "/result/commands/0/arguments/29/description": "First included registry update date.",
-        "/result/commands/0/arguments/9/description": "Ask ClinicalTrials.gov to restrict matching to the registered condition phrase; its support is partial."
+        "/result/commands/0/arguments/29/description": "",
+        "/result/commands/0/arguments/9/description": ""
       },
       "max_bytes": 11802,
       "run": [
