@@ -30,11 +30,12 @@ def run_selected(target: Sequence[str], cwd: Path, names: Sequence[str],
         raise ValueError("trial selection requires exact names from this target's --list: "
                          + ", ".join(unknown))
     prepare()
-    failed = False
+    status = 0
     for name in selected:
-        failed |= subprocess.run([*command, name, "--exact"], cwd=cwd).returncode != 0
-    if failed:
-        raise subprocess.CalledProcessError(1, command)
+        code = subprocess.run([*command, name, "--exact"], cwd=cwd).returncode
+        status = status or code
+    if status:
+        raise subprocess.CalledProcessError(status, command)
 
 
 def main():
