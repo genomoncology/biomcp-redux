@@ -31,7 +31,12 @@ fn check(extra: &str) -> Result<(), String> {
         "article/fulltext/synthetic",
         &env.root().join("outline-replay"),
         |_, record| {
-            for exchange in record.get_mut("exchanges").and_then(Value::as_array_mut).into_iter().flatten() {
+            for exchange in record
+                .get_mut("exchanges")
+                .and_then(Value::as_array_mut)
+                .into_iter()
+                .flatten()
+            {
                 if let Some(value) = exchange.pointer_mut("/body/value")
                     && let Some(xml) = value.as_str().filter(|xml| xml.starts_with("<article>"))
                 {
@@ -45,9 +50,12 @@ fn check(extra: &str) -> Result<(), String> {
     let json = read(&env, binary, "json", false)?;
     let reply: Value = serde_json::from_str(&json).map_err(|error| error.to_string())?;
     let markdown = read(&env, binary, "md", false)?;
-    let item = reply.pointer("/result/items/0").ok_or("missing article card")?;
+    let item = reply
+        .pointer("/result/items/0")
+        .ok_or("missing article card")?;
     let find = serde_json::json!(["article", "text", "PMC5606870", "--find", "<text>"]);
-    if !reply.get("next")
+    if !reply
+        .get("next")
         .and_then(Value::as_array)
         .is_some_and(|steps| steps.iter().any(|step| step.get("args") == Some(&find)))
     {
@@ -58,20 +66,27 @@ fn check(extra: &str) -> Result<(), String> {
     {
         return Err("article title was repeated or lost".into());
     }
-    let parts = item.pointer("/sections/fulltext/data/parts")
+    let parts = item
+        .pointer("/sections/fulltext/data/parts")
         .and_then(Value::as_array)
         .ok_or("missing outline parts")?;
     if parts.len() < 2
         || !parts
             .windows(2)
-            .any(|pair| matches!(pair, [left, right] if left.get("title").is_some() && left.get("title") == right.get("title")))
+            .any(|pair| {
+                let [left, right] = pair else {
+                    return false;
+                };
+                left.get("title").is_some() && left.get("title") == right.get("title")
+            })
     {
         return Err("fixture must exercise repeated part titles".into());
     }
     outline(&markdown, parts)?;
     let disabled: Value = serde_json::from_str(&read(&env, binary, "json", true)?)
         .map_err(|error| error.to_string())?;
-    if disabled.get("next")
+    if disabled
+        .get("next")
         .and_then(Value::as_array)
         .is_some_and(|steps| steps.iter().any(|step| step.get("args") == Some(&find)))
     {
@@ -129,8 +144,14 @@ fn outline(markdown: &str, parts: &[Value]) -> Result<(), String> {
         .iter()
         .map(|part| {
             (
-                part.get("title").and_then(Value::as_str).unwrap_or_default().to_owned(),
-                part.get("kind").and_then(Value::as_str).unwrap_or_default().to_owned(),
+                part.get("title")
+                    .and_then(Value::as_str)
+                    .unwrap_or_default()
+                    .to_owned(),
+                part.get("kind")
+                    .and_then(Value::as_str)
+                    .unwrap_or_default()
+                    .to_owned(),
                 part.get("number").map(Value::to_string).unwrap_or_default(),
                 part.get("tokens").map(Value::to_string).unwrap_or_default(),
             )
