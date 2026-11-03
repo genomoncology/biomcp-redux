@@ -65,15 +65,7 @@ fn finish<T: biomcp_types::ResponseBody<Query = biomcp_types::SyncQuery>>(
     );
     if let Some(error) = source_error {
         source_outcome.notices = biomcp_query::sources::notices(source, reason, error.retry_after);
-        if error.reason == biomcp_types::Reason::RateLimited && !matches!(encoding, Encoding::Mcp) {
-            use std::io::Write;
-            let mut stderr = io::stderr().lock();
-            write!(stderr, "{error}")?;
-            if let Some(delay) = error.retry_after {
-                write!(stderr, "; retry after {delay:?}")?;
-            }
-            writeln!(stderr)?;
-        }
+        rate_limit_stderr(error, encoding)?;
     }
     envelope.sources.push(source_outcome);
     let status = biomcp_query::sync_status(&envelope.sources, refusals);
@@ -102,4 +94,17 @@ fn finish<T: biomcp_types::ResponseBody<Query = biomcp_types::SyncQuery>>(
             status.into()
         },
     )
+}
+
+fn rate_limit_stderr(error: biomcp_fetch::SourceError, encoding: Encoding) -> io::Result<()> {
+    if error.reason == biomcp_types::Reason::RateLimited && !matches!(encoding, Encoding::Mcp) {
+        use std::io::Write;
+        let mut stderr = io::stderr().lock();
+        write!(stderr, "{error}")?;
+        if let Some(delay) = error.retry_after {
+            write!(stderr, "; retry after {delay:?}")?;
+        }
+        writeln!(stderr)?;
+    }
+    Ok(())
 }
