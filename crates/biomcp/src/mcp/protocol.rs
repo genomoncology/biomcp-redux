@@ -55,7 +55,9 @@ pub(super) fn tool(root: &crate::grammar::Root, read_only: bool) -> std::io::Res
     Ok(
         json!({"name":"biomcp", "description":DESCRIPTION,
         "annotations":{"readOnlyHint":read_only,"destructiveHint":false,"openWorldHint":true},
-        "inputSchema":{"$schema":SCHEMA_DIALECT,"type":"object","properties":{"args":{"type":"array","items":{"type":"string"},"description":"CLI command words, without biomcp. Example: [\"help\"]"}},
+        "inputSchema":{"$schema":SCHEMA_DIALECT,"type":"object","properties":{
+            "args":{"type":"array","items":{"type":"string"},
+                "description":"CLI command words, without biomcp. Example: [\"help\"]"}},
             "required":["args"],"additionalProperties":false},"outputSchema":super::output_schema::for_tool(root, "biomcp")?}),
     )
 }
@@ -87,7 +89,7 @@ pub(super) fn tool_result(id: Value, outcome: &crate::command::Outcome, modern: 
     let Ok(value) = outcome.value() else {
         return self::error(id, -32603, "Internal error");
     };
-    let reply = result(id.clone(), content(value, failed, form), modern);
+    let reply = result(id.clone(), content(value.clone(), failed, form), modern);
     if reply.get("result").is_some_and(within_cap) {
         return reply;
     }
