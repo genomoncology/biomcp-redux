@@ -89,6 +89,35 @@ pub(super) fn check() -> Result<(), String> {
             }
         }
     }
+    invalid_settings()
+}
+
+fn invalid_settings() -> Result<(), String> {
+    for value in [json!("unsupported-reply-form"), json!(42)] {
+        let environment = Environment::new().map_err(|e| e.to_string())?;
+        environment
+            .config(&json!({"mcp_reply_form":value}))
+            .map_err(|e| e.to_string())?;
+        let output = environment
+            .command(
+                env!("CARGO_BIN_EXE_biomcp"),
+                &[
+                    "serve".into(),
+                    "--http".into(),
+                    "127.0.0.1:0".into(),
+                    "--offline".into(),
+                ],
+            )
+            .output()
+            .map_err(|e| e.to_string())?;
+        let text = String::from_utf8_lossy(&output.stdout);
+        if output.status.success()
+            || !text.contains("mcp_reply_form")
+            || text.contains("unsupported-reply-form")
+        {
+            return Err("invalid MCP reply form did not name only its field".into());
+        }
+    }
     Ok(())
 }
 
