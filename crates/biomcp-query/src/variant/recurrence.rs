@@ -139,7 +139,9 @@ fn identity(
     out.problems.extend(found.problems);
     out.dropped |= found.dropped;
     out.local = out.local.or(found.local);
-    if let Some(error) = found.error { return Err(error); }
+    if let Some(error) = found.error {
+        return Err(error);
+    }
     let mut candidates = found.rows;
     let rejection = found.rejection;
     if candidates.len() != 1

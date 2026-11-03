@@ -63,8 +63,10 @@ pub(super) fn section(
             .find(|id| {
                 matches!(
                     (source, id),
-                    (AssertionSource::Clinvar, VariantId::ClinVarVariation(_) | VariantId::Vcv(_))
-                        | (AssertionSource::Erepo, VariantId::Ca(_))
+                    (
+                        AssertionSource::Clinvar,
+                        VariantId::ClinVarVariation(_) | VariantId::Vcv(_)
+                    ) | (AssertionSource::Erepo, VariantId::Ca(_))
                 )
             })
     });
@@ -100,39 +102,76 @@ fn resolved(
     query: &VariantAssertionsGet,
     deadline: Deadline<'_>,
 ) -> super::sections::Result<VariantAssertions> {
-    let native = query.input().identity().is_some_and(|id| matches!(
-        (query.source(), id),
-        (AssertionSource::Clinvar, VariantId::ClinVarVariation(_) | VariantId::Vcv(_))
-            | (AssertionSource::Erepo, VariantId::Ca(_))
-    ));
-    if native { return read(cx, query, deadline); }
-    let Ok(identity) = VariantGet::new(query.input().clone(), biomcp_types::VariantResolver::Car, None) else {
+    let native = query.input().identity().is_some_and(|id| {
+        matches!(
+            (query.source(), id),
+            (
+                AssertionSource::Clinvar,
+                VariantId::ClinVarVariation(_) | VariantId::Vcv(_)
+            ) | (AssertionSource::Erepo, VariantId::Ca(_))
+        )
+    });
+    if native {
+        return read(cx, query, deadline);
+    }
+    let Ok(identity) = VariantGet::new(
+        query.input().clone(),
+        biomcp_types::VariantResolver::Car,
+        None,
+    ) else {
         return missing(query, Vec::new(), Vec::new(), None, false);
     };
     let found = super::population_identity::read(cx, &identity, deadline, false);
     let mut ids = std::collections::BTreeSet::new();
     for row in &found.rows {
         for id in &row.identity.ids {
-            if matches!((query.source(), id),
-                (AssertionSource::Clinvar, VariantId::ClinVarVariation(_) | VariantId::Vcv(_))
-                | (AssertionSource::Erepo, VariantId::Ca(_))) {
+            if matches!(
+                (query.source(), id),
+                (
+                    AssertionSource::Clinvar,
+                    VariantId::ClinVarVariation(_) | VariantId::Vcv(_)
+                ) | (AssertionSource::Erepo, VariantId::Ca(_))
+            ) {
                 ids.insert(id.clone());
             }
         }
     }
     if ids.len() != 1 || found.rows.len() != 1 {
-        return missing(query, found.sources, found.problems, found.local, found.dropped);
+        return missing(
+            query,
+            found.sources,
+            found.problems,
+            found.local,
+            found.dropped,
+        );
     }
-    let Some(input) = ids.into_iter().next().and_then(|id| biomcp_types::VariantInput::from_identity(id).ok()) else {
-        return missing(query, found.sources, found.problems, found.local, found.dropped);
+    let Some(input) = ids
+        .into_iter()
+        .next()
+        .and_then(|id| biomcp_types::VariantInput::from_identity(id).ok())
+    else {
+        return missing(
+            query,
+            found.sources,
+            found.problems,
+            found.local,
+            found.dropped,
+        );
     };
     let converted = query.with_input(input);
-    let (section, sources, problems, local, dropped) = read(cx, &converted, deadline.after_stage(found.elapsed));
+    let (section, sources, problems, local, dropped) =
+        read(cx, &converted, deadline.after_stage(found.elapsed));
     let mut all_sources = found.sources;
     all_sources.extend(sources);
     let mut all_problems = found.problems;
     all_problems.extend(problems);
-    (section, all_sources, all_problems, found.local.or(local), found.dropped || dropped)
+    (
+        section,
+        all_sources,
+        all_problems,
+        found.local.or(local),
+        found.dropped || dropped,
+    )
 }
 fn missing(
     query: &VariantAssertionsGet,
@@ -150,7 +189,13 @@ fn missing(
         field: format!("input: requires one {forms}; convert with get variant <ID> and select an exact candidate").into(),
         code: biomcp_types::ProblemCode::ValueUnknown,
     });
-    (Section::unavailable(query.source().source(), Reason::NoJoinId), sources, problems, local, dropped)
+    (
+        Section::unavailable(query.source().source(), Reason::NoJoinId),
+        sources,
+        problems,
+        local,
+        dropped,
+    )
 }
 fn read(
     cx: &Ctx<'_>,

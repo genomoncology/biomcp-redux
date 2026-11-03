@@ -140,7 +140,9 @@ impl VariantAssertionsGet {
         offset: u32,
     ) -> Result<Self, crate::QueryInvalid> {
         let source = match &id {
-            crate::VariantId::ClinVarVariation(_) | crate::VariantId::Vcv(_) => AssertionSource::Clinvar,
+            crate::VariantId::ClinVarVariation(_) | crate::VariantId::Vcv(_) => {
+                AssertionSource::Clinvar
+            }
             crate::VariantId::Ca(_) => AssertionSource::Erepo,
             _ => return Err(crate::QueryInvalid::new(&["input", "source"])),
         };

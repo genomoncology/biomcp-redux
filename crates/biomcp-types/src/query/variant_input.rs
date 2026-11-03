@@ -30,7 +30,8 @@ pub enum VariantNamespace {
     Unsupported,
 }
 impl VariantInput {
-    pub(crate) const COORDINATE_PATTERN: &'static str = r"^(chr)?([1-9]|1[0-9]|2[0-2]|X|Y|M|MT)-[1-9][0-9]*-[ACGT]+-[ACGT]+$";
+    pub(crate) const COORDINATE_PATTERN: &'static str =
+        r"^(chr)?([1-9]|1[0-9]|2[0-2]|X|Y|M|MT)-[1-9][0-9]*-[ACGT]+-[ACGT]+$";
     pub(crate) const CHROMOSOME_PATTERN: &'static str =
         r"^chr([1-9]|1[0-9]|2[0-2]|X|Y|M|MT):g\.[\x21-\x7e]*[0-9][\x21-\x7e]*$";
 
@@ -142,7 +143,9 @@ impl VariantInput {
         match &self.kind {
             InputKind::Id(crate::VariantId::Rs(_)) => VariantNamespace::Rs,
             InputKind::Id(crate::VariantId::Ca(_)) => VariantNamespace::Ca,
-            InputKind::Id(crate::VariantId::ClinVarVariation(_) | crate::VariantId::Vcv(_)) => VariantNamespace::ClinVar,
+            InputKind::Id(crate::VariantId::ClinVarVariation(_) | crate::VariantId::Vcv(_)) => {
+                VariantNamespace::ClinVar
+            }
             InputKind::Id(_) => VariantNamespace::Unsupported,
             InputKind::Hgvs(_) => VariantNamespace::Hgvs,
             InputKind::Chromosome | InputKind::Coordinates(_) => VariantNamespace::Chromosome,
@@ -151,24 +154,46 @@ impl VariantInput {
 }
 fn coordinates(value: &str) -> Option<String> {
     let mut parts = value.split('-');
-    let chromosome = parts.next()?.strip_prefix("chr").unwrap_or(value.split('-').next()?);
+    let chromosome = parts
+        .next()?
+        .strip_prefix("chr")
+        .unwrap_or(value.split('-').next()?);
     let position = parts.next()?;
     let reference = parts.next()?;
     let alternate = parts.next()?;
-    if parts.next().is_some() || position.starts_with('0') || position.parse::<u64>().ok()? == 0
-        || reference.is_empty() || alternate.is_empty()
-        || !reference.bytes().chain(alternate.bytes()).all(|b| b"ACGT".contains(&b)) {
+    if parts.next().is_some()
+        || position.starts_with('0')
+        || position.parse::<u64>().ok()? == 0
+        || reference.is_empty()
+        || alternate.is_empty()
+        || !reference
+            .bytes()
+            .chain(alternate.bytes())
+            .all(|b| b"ACGT".contains(&b))
+    {
         return None;
     }
     // Coordinate spelling is converted to the same checked genomic expression used elsewhere.
     let expression = if reference.len() == 1 && alternate.len() == 1 {
         format!("chr{chromosome}:g.{position}{reference}>{alternate}")
     } else {
-        let end = position.parse::<u64>().ok()?.checked_add(reference.len() as u64 - 1)?;
-        let span = if reference.len() == 1 { position.to_owned() } else { format!("{position}_{end}") };
+        let end = position
+            .parse::<u64>()
+            .ok()?
+            .checked_add(reference.len() as u64 - 1)?;
+        let span = if reference.len() == 1 {
+            position.to_owned()
+        } else {
+            format!("{position}_{end}")
+        };
         format!("chr{chromosome}:g.{span}delins{alternate}")
     };
-    crate::Expression::new(crate::ExpressionSyntax::HgvsG, crate::Text::new(&expression).ok()?, None).ok()?;
+    crate::Expression::new(
+        crate::ExpressionSyntax::HgvsG,
+        crate::Text::new(&expression).ok()?,
+        None,
+    )
+    .ok()?;
     Some(expression)
 }
 fn input_text(value: &str) -> Result<crate::Text, Error> {

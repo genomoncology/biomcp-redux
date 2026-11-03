@@ -41,7 +41,11 @@ pub(super) fn read(
     {
         if let Ok(fallback) = query.with_build(biodata::Build::GRCh37) {
             result = super::myvariant_identity(
-                &fallback, &leg, &mut found.problems, &mut found.dropped, population,
+                &fallback,
+                &leg,
+                &mut found.problems,
+                &mut found.dropped,
+                population,
             );
             if result.as_ref().is_ok_and(|(rows, _)| !rows.is_empty()) {
                 found.problems.push(Problem {

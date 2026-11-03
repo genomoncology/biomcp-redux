@@ -46,7 +46,8 @@ impl TryFrom<Fields> for VariantNormalize {
                     && f.build.is_some()
                     && hgvs.namespace() == VariantNamespace::Chromosome)
         {
-            return Err(super::gene::QueryInvalid::new(&["hgvs"]).with_message(crate::ErrorMessage::VariantNormalizeForms));
+            return Err(super::gene::QueryInvalid::new(&["hgvs"])
+                .with_message(crate::ErrorMessage::VariantNormalizeForms));
         }
         if f.build
             .is_some_and(|build| !Self::supports_build(hgvs.hgvs(), build))
