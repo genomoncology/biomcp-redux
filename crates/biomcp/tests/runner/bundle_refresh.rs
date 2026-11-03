@@ -110,6 +110,11 @@ fn checked(reply: &Value, label: &str, stale: bool) -> Result<(), String> {
                 .find(|source| source.get("source") == Some(&json!("hgnc")))
         })
         .ok_or("missing HGNC outcome")?;
+    // A timed-out inline refresh can also return stale rows before this held
+    // fixture finishes. Its source failure must never satisfy immediate reuse.
+    if hgnc.get("reason").is_some_and(|reason| !reason.is_null()) {
+        return Err(format!("read waited for a failed inline refresh: {hgnc}"));
+    }
     if !value.to_string().contains(label) || (hgnc.get("state") == Some(&json!("stale"))) != stale {
         return Err(format!("bundle rows or stale marker changed: {value}"));
     }
