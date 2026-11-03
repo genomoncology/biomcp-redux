@@ -164,8 +164,8 @@ fn drug_selector(action: &Action) -> Option<UsageError> {
             "--label-section",
             biomcp_types::OPENFDA_LABEL_HEADINGS
                 .iter()
-                .filter_map(|heading| heading.parse().ok())
-                .collect(),
+                .map(|heading| heading.parse())
+                .collect::<Result<Vec<biodata::Text>, _>>(),
         )
     } else if !query.supports_sections() {
         (
@@ -174,16 +174,19 @@ fn drug_selector(action: &Action) -> Option<UsageError> {
                 .source()
                 .sections()
                 .iter()
-                .filter_map(|section| <&str>::from(*section).parse().ok())
-                .collect(),
+                .map(|section| <&str>::from(*section).parse())
+                .collect::<Result<Vec<biodata::Text>, _>>(),
         )
     } else {
         return None;
     };
+    let Ok(values) = values else {
+        return Some(UsageError::arguments());
+    };
     Some(UsageError::SourceSelector {
         source: query.source().source(),
         option: option.into(),
-        valid_values: values,
+        valid_values: values.into(),
         next: vec![biomcp_types::Step {
             kind: biomcp_types::StepKind::Configure,
             args: ["help", "get", "drug"].map(Into::into).into(),
