@@ -39,12 +39,8 @@ crate::query::validation::checked_query!(VariantAssertionsGet, Fields);
 impl TryFrom<Fields> for VariantAssertionsGet {
     type Error = super::gene::QueryInvalid;
     fn try_from(fields: Fields) -> Result<Self, Self::Error> {
-        let expected = match fields.source {
-            AssertionSource::Clinvar => VariantNamespace::ClinVar,
-            AssertionSource::Erepo => VariantNamespace::Ca,
-        };
-        if fields.input.namespace() != expected {
-            return Err(super::gene::QueryInvalid::new(&["input", "source"]));
+        if fields.input.namespace() == VariantNamespace::Unsupported {
+            return Err(super::gene::QueryInvalid::new(&["input"]));
         }
         if fields.limit.is_some_and(|n| !(1..=50).contains(&n)) {
             return Err(super::gene::QueryInvalid::new(&["limit"]));
@@ -93,6 +89,12 @@ impl VariantAssertionsGet {
     pub fn input(&self) -> &VariantInput {
         &self.0.input
     }
+    /// Keep assertion and page selectors after shared identity resolution.
+    pub fn with_input(&self, input: VariantInput) -> Self {
+        let mut query = self.clone();
+        query.0.input = input;
+        query
+    }
     /// Explicit evidence source.
     pub fn source(&self) -> AssertionSource {
         self.0.source
@@ -138,7 +140,7 @@ impl VariantAssertionsGet {
         offset: u32,
     ) -> Result<Self, crate::QueryInvalid> {
         let source = match &id {
-            crate::VariantId::ClinVarVariation(_) => AssertionSource::Clinvar,
+            crate::VariantId::ClinVarVariation(_) | crate::VariantId::Vcv(_) => AssertionSource::Clinvar,
             crate::VariantId::Ca(_) => AssertionSource::Erepo,
             _ => return Err(crate::QueryInvalid::new(&["input", "source"])),
         };

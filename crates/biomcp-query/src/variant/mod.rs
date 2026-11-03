@@ -374,7 +374,8 @@ fn myvariant_identity(
     dropped: &mut bool,
     population: bool,
 ) -> Result<(Vec<VariantHeader>, Option<Text>), RequestError> {
-    let input = query.input().as_str();
+    let native = query.input().source_id();
+    let input = native.as_ref();
     let term = if query.input().namespace() == VariantNamespace::ClinVar {
         format!(
             "clinvar.variant_id:{}",

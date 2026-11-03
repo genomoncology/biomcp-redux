@@ -28,11 +28,31 @@ pub(super) fn read(
     let spec = super::source(query);
     let leg = cx.fetch.leg(spec, deadline).fresh(cx.fresh);
     let started = leg.remaining();
-    let result = if population && spec.source == Source::MyVariant {
+    let mut result = if population && spec.source == Source::MyVariant {
         super::myvariant_identity(query, &leg, &mut found.problems, &mut found.dropped, true)
     } else {
         super::resolve(query, &leg, &mut found.problems, &mut found.dropped)
     };
+    // ClinVar records can carry only the older source assembly. Retry the same
+    // record on that assembly; never relabel those coordinates as GRCh38.
+    if query.input().namespace() == biomcp_types::VariantNamespace::ClinVar
+        && query.myvariant_build() == biodata::Build::GRCh38
+        && result.as_ref().is_ok_and(|(rows, _)| rows.is_empty())
+    {
+        if let Ok(fallback) = query.with_build(biodata::Build::GRCh37) {
+            result = super::myvariant_identity(
+                &fallback, &leg, &mut found.problems, &mut found.dropped, population,
+            );
+            if result.as_ref().is_ok_and(|(rows, _)| !rows.is_empty()) {
+                found.problems.push(Problem {
+                    source: Source::MyVariant,
+                    record: None,
+                    field: "assembly: no GRCh38 allele; used source GRCh37 allele".into(),
+                    code: biomcp_types::ProblemCode::ValueUnknown,
+                });
+            }
+        }
+    }
     found.elapsed = started.saturating_sub(leg.remaining());
     let error = result.as_ref().err().copied();
     found.error = error;

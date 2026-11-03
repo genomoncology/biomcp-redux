@@ -134,14 +134,14 @@ fn identity(
     )
     .map_err(|_| rejected(Source::AlleleRegistry, Reason::Rejected))?;
     let spec = super::source(&q);
-    let leg = cx.fetch.leg(spec, deadline).fresh(cx.fresh);
-    let result = super::resolve(&q, &leg, &mut out.problems, &mut out.dropped);
-    out.sources.push(status::source(
-        spec.source,
-        leg.finish(),
-        result.as_ref().err().copied(),
-    ));
-    let (mut candidates, rejection) = result?;
+    let found = super::population_identity::read(cx, &q, deadline, false);
+    out.sources.extend(found.sources);
+    out.problems.extend(found.problems);
+    out.dropped |= found.dropped;
+    out.local = out.local.or(found.local);
+    if let Some(error) = found.error { return Err(error); }
+    let mut candidates = found.rows;
+    let rejection = found.rejection;
     if candidates.len() != 1
         || rejection.is_some()
         || !candidates

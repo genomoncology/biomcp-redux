@@ -143,6 +143,7 @@ impl VariantGet {
         resolver: VariantResolver,
         build: Option<Build>,
     ) -> Result<Self, super::gene::QueryInvalid> {
+        let build = build.or_else(|| input.coordinate_form().then_some(Build::GRCh38));
         if input.namespace() == VariantNamespace::Unsupported {
             return Err(super::gene::QueryInvalid::new(&["input"]));
         }
@@ -223,6 +224,12 @@ impl VariantGet {
         fields.offset = 0;
         fields.try_into()
     }
+    /// Select an assembly through the same checked request boundary.
+    pub fn with_build(&self, build: Build) -> Result<Self, super::gene::QueryInvalid> {
+        let mut fields = self.0.clone();
+        fields.build = Some(build);
+        fields.try_into()
+    }
     /// Named section rows per page.
     pub fn section_limit(&self) -> u32 {
         self.0.section_limit.unwrap_or_else(default_section_limit)
@@ -262,13 +269,7 @@ impl VariantGet {
     }
     /// Assembly selected for a MyVariant identity request.
     pub fn myvariant_build(&self) -> Build {
-        self.build().unwrap_or_else(|| {
-            if self.sections().contains(&VariantSection::AlphaGenome) {
-                Build::GRCh38
-            } else {
-                Build::GRCh37
-            }
-        })
+        self.build().unwrap_or(Build::GRCh38)
     }
     /// Echo the assembly selected for a MyVariant identity request.
     pub fn with_myvariant_build(mut self) -> Self {
