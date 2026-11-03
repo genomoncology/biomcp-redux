@@ -6,19 +6,21 @@ pub(super) fn parts(value: &Value, depth: usize, out: &mut String) -> bool {
         return false;
     };
     if !items.windows(2).any(|pair| {
-        pair[0].get("title").is_some_and(Value::is_string)
-            && pair[0].get("title") == pair[1].get("title")
+        let mut values = pair.iter().map(|item| item.get("title"));
+        let title = values.next().flatten();
+        title.is_some_and(Value::is_string) && title == values.next().flatten()
     }) {
         return false;
     }
-    let mut start = 0;
-    while start < items.len() {
-        let title = items[start].get("title");
-        let end = items[start..]
+    let mut remaining = items.as_slice();
+    while let Some(first) = remaining.first() {
+        let title = first.get("title");
+        let end = remaining
             .iter()
             .position(|item| item.get("title") != title)
-            .map_or(items.len(), |offset| start + offset);
-        let mut rows = items[start..end].to_vec();
+            .unwrap_or(remaining.len());
+        let (group, rest) = remaining.split_at(end);
+        let mut rows = group.to_vec();
         if let Some(title) = title.and_then(Value::as_str) {
             out.push_str(&format!(
                 "{} {}\n\n",
@@ -32,7 +34,7 @@ pub(super) fn parts(value: &Value, depth: usize, out: &mut String) -> bool {
             }
         }
         super::table(&rows, &[], false, out);
-        start = end;
+        remaining = rest;
     }
     true
 }
