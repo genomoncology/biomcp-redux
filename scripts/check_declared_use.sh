@@ -4,18 +4,21 @@ set -eu
 export PATH="/Users/ian/.local/share/uv/python/cpython-3.13.17-macos-aarch64-none/bin:$PATH"
 export RUSTUP_TOOLCHAIN=1.95.0
 phase=${1:-focused}
+output="/Users/ian/workspace/t/biomcp-redux-0585-${PM_JOB:?}"
+mkdir -p "$output"
 case "$phase" in
   format)
     cargo fmt --all
     UPDATE_SCHEMAS=1 cargo test --locked -p biomcp-types --features schema --test schemas checked_in_schemas_match_types -- --exact
-    tar -czf "${TMPDIR:?}/declared-use-generated.tar.gz" crates/biomcp-types/schemas
+    git diff > "$output/generated.patch"
+    tar -czf "$output/declared-use-generated.tar.gz" crates/biomcp-types/schemas
     ;;
   focused)
     cargo build --locked -p biomcp --bin biomcp
     cargo test --locked -p biomcp --test cases --no-run
-    mkdir -p "${TMPDIR:?}/installed/bin"
-    cp "${CARGO_TARGET_DIR:-target}/debug/biomcp" "${TMPDIR:?}/installed/bin/biomcp"
-    export BIOMCP_TEST_EXECUTABLE="${TMPDIR:?}/installed/bin/biomcp"
+    mkdir -p "$output/installed/bin"
+    cp "${CARGO_TARGET_DIR:-target}/debug/biomcp" "$output/installed/bin/biomcp"
+    export BIOMCP_TEST_EXECUTABLE="$output/installed/bin/biomcp"
     cargo test --locked -p biomcp --test cases mcp-hosted/use/ -- --test-threads=4
     ;;
   gate) exec make landing-gate ;;
