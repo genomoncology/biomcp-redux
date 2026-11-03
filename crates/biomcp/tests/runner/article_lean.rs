@@ -2,7 +2,7 @@
 use super::launch::Environment;
 use libtest_mimic::Trial;
 use serde_json::Value;
-use std::path::Path;
+use std::{io::Write, path::Path};
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![super::transcript::trial(
@@ -164,11 +164,12 @@ fn compare_baseline(env: &Environment, reply: &Value, markdown: &str) -> Result<
             markdown.len()
         ));
     }
-    println!(
+    writeln!(
+        std::io::stdout(),
         "article outline Markdown bytes: {} -> {} (saved {})",
         old.len(),
         markdown.len(),
         old.len() - markdown.len()
-    );
+    ).map_err(|error| error.to_string())?;
     Ok(())
 }
