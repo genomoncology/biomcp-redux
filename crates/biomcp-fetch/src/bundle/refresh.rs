@@ -1,0 +1,97 @@
+//! Server-owned bundle refreshes retain the ordinary publisher lock and quotas.
+use super::{Bundle, Row};
+use crate::{Fetch, Leg, network::Agents};
+use std::{collections::BTreeMap, sync::Arc, thread::JoinHandle};
+
+#[expect(
+    clippy::disallowed_types,
+    reason = "The server owns and joins at most one refresh worker per declared bundle"
+)]
+pub(crate) struct Refresh {
+    agents: Arc<Agents>,
+    running: std::sync::Mutex<BTreeMap<&'static str, JoinHandle<()>>>,
+}
+impl Fetch {
+    /// Retain automatic stale refreshes until the last server transport is dropped.
+    /// One-shot commands keep their synchronous read behavior.
+    #[expect(
+        clippy::disallowed_types,
+        reason = "The server owns and joins at most one refresh worker per declared bundle"
+    )]
+    pub fn with_background_refresh(mut self) -> Self {
+        if self.background_refresh.is_none() {
+            self.background_refresh = Some(Arc::new(Refresh {
+                agents: self.agents.clone(),
+                running: std::sync::Mutex::new(BTreeMap::new()),
+            }));
+        }
+        self
+    }
+}
+impl Leg<'_> {
+    #[expect(
+        clippy::disallowed_methods,
+        reason = "The server retains and joins each bundle refresh thread"
+    )]
+    pub(super) fn refresh_in_background<R: Row>(&self, bundle: &Bundle<R>) {
+        let Some(owner) = &self.fetch.background_refresh else {
+            return;
+        };
+        let mut running = owner.running.lock().unwrap_or_else(|e| e.into_inner());
+        if let Some(worker) = running.get(bundle.name) {
+            if !worker.is_finished() {
+                return;
+            }
+            if let Some(worker) = running.remove(bundle.name) {
+                join(bundle.name, worker);
+            }
+        }
+        let mut fetch = self.fetch.clone();
+        // Keep caller policy, shared quotas and store, without retaining the
+        // owner from its own thread or inheriting a completed call's sockets.
+        fetch.background_refresh = None;
+        fetch.agents = owner.agents.clone();
+        fetch.cancelled = None;
+        fetch.call_end = None;
+        let (spec, name, path, format, fresh) =
+            (bundle.spec, bundle.name, bundle.path, bundle.format, bundle.fresh);
+        let worker = std::thread::Builder::new()
+            .name("bundle-refresh".into())
+            .spawn(move || {
+                let bundle = Bundle::<R> {
+                    spec, name, path, format, fresh, row: std::marker::PhantomData,
+                };
+                let deadline = fetch.deadline(fetch.config.sync_budget);
+                let mut leg = fetch.leg(spec, deadline);
+                leg.deadline = deadline;
+                let result = leg.bundle_cache().and_then(|cache| {
+                    if cache.bundle_info(name, leg.budget())?
+                        .is_some_and(|meta| meta.fresh_until > crate::cache::now())
+                    {
+                        return Ok(());
+                    }
+                    leg.sync_bundle(&bundle, true)?.published(&leg).map(|_| ())
+                });
+                if let Err(error) = result {
+                    eprintln!("bundle refresh {name}: {error}");
+                }
+            });
+        match worker {
+            Ok(worker) => { running.insert(name, worker); }
+            Err(_) => eprintln!("bundle refresh {name}: worker unavailable"),
+        }
+    }
+}
+fn join(name: &str, worker: JoinHandle<()>) {
+    if worker.join().is_err() {
+        eprintln!("bundle refresh {name}: worker stopped");
+    }
+}
+impl Drop for Refresh {
+    fn drop(&mut self) {
+        let running = self.running.get_mut().unwrap_or_else(|e| e.into_inner());
+        for (name, worker) in std::mem::take(running) {
+            join(name, worker);
+        }
+    }
+}

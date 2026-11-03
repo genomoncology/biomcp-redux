@@ -189,6 +189,7 @@ pub struct Fetch {
     recordings: std::sync::Arc<record::Recordings>,
     clock: Option<std::sync::Arc<deadline::VirtualClock>>,
     config: std::sync::Arc<FetchConfig>,
+    background_refresh: Option<std::sync::Arc<bundle::refresh::Refresh>>,
     bundle_imports: std::sync::Arc<std::sync::Mutex<std::collections::BTreeSet<&'static str>>>,
     disabled_sources: std::collections::BTreeSet<biomcp_types::Source>,
     disabled_uses: std::collections::BTreeSet<biomcp_types::Use>,
@@ -257,6 +258,7 @@ impl Fetch {
             legacy_restricted: config.legacy_restricted,
             config: std::sync::Arc::new(config),
             limiters: std::sync::Arc::default(),
+            background_refresh: None,
             bundle_imports: std::sync::Arc::default(),
         })
     }

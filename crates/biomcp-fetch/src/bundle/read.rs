@@ -51,7 +51,19 @@ impl Leg<'_> {
             .as_ref()
             .is_some_and(|names| !names.contains(bundle.name));
         let forced = replay || force_fresh || matches!(self.fetch.mode, Mode::Record { .. });
-        if !offline && (!fresh || forced) {
+        let background = old.is_some()
+            && !fresh
+            && !forced
+            && matches!(self.fetch.mode, Mode::Live { .. })
+            && self.fetch.background_refresh.is_some();
+        if background {
+            self.report
+                .lock()
+                .unwrap_or_else(std::sync::PoisonError::into_inner)
+                .stale = true;
+            self.refresh_in_background(bundle);
+        }
+        if !offline && !background && (!fresh || forced) {
             match self.sync_for_read(bundle) {
                 Ok(_) => {
                     if let Some(names) = &mut refreshed {
@@ -104,6 +116,13 @@ impl Leg<'_> {
             let active = live && cache.syncing(bundle.name, self.budget())?;
             if active || waited {
                 if let Some(meta) = cache.bundle_info(bundle.name, self.budget())? {
+                    if self.fresh && meta.fresh_until <= crate::cache::now() {
+                        if active {
+                            self.wait_for_bundle(bundle)?;
+                            waited = true;
+                            continue;
+                        }
+                    } else {
                     if meta.fresh_until <= crate::cache::now() {
                         self.report
                             .lock()
@@ -111,11 +130,10 @@ impl Leg<'_> {
                             .stale = true;
                     }
                     return Ok(store::info(bundle, &meta));
+                    }
                 }
                 if active {
-                    if !crate::retry::wait(std::time::Duration::from_millis(10), self.budget()) {
-                        return Err(self.failure(biomcp_types::Reason::Syncing, None).into());
-                    }
+                    self.wait_for_bundle(bundle)?;
                     waited = true;
                     continue;
                 }
@@ -130,6 +148,21 @@ impl Leg<'_> {
                         && cache.syncing(bundle.name, self.budget())? => {}
                 result => return result,
             }
+        }
+    }
+    fn wait_for_bundle<R: Row>(&self, bundle: &Bundle<R>) -> Result<(), RequestError> {
+        if self.fetch.config.observations.is_some() {
+            let url = format!("{}{}", self.spec.base.trim_end_matches('/'), bundle.path);
+            self.observed(
+                &crate::retry::identity(&url), None, 0, crate::Shape::default(),
+                std::time::Duration::ZERO,
+                ("bundle-wait", false, &url, crate::Provenance::default()),
+            );
+        }
+        if crate::retry::wait(std::time::Duration::from_millis(10), self.budget()) {
+            Ok(())
+        } else {
+            Err(self.failure(biomcp_types::Reason::Syncing, None).into())
         }
     }
     /// Read only the last validated local bundle, even when fresh or replay is selected.
