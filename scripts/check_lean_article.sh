@@ -14,8 +14,7 @@ case "$phase" in
     gate) make landing-gate ;;
     *) exit 2 ;;
 esac
-cargo build --locked -p biomcp --bin biomcp
-cp "${CARGO_TARGET_DIR:-target}/debug/biomcp" "$output/installed/bin/biomcp"
+CARGO_TARGET_DIR="${CARGO_TARGET_DIR:-target}" cargo install --locked --debug --path crates/biomcp --root "$output/installed" --force
 git rev-parse HEAD > "$output/source.txt"
 shasum -a 256 "$output/installed/bin/biomcp" > "$output/binary.sha256"
 export BIOMCP_TEST_EXECUTABLE="$output/installed/bin/biomcp"
