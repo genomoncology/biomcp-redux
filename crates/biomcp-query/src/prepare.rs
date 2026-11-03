@@ -174,7 +174,7 @@ fn drug_selector(action: &Action) -> Option<UsageError> {
                 .source()
                 .sections()
                 .iter()
-                .filter_map(|section| section.as_str().parse().ok())
+                .filter_map(|section| <&str>::from(*section).parse().ok())
                 .collect(),
         )
     } else {
