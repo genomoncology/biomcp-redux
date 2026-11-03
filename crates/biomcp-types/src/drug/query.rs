@@ -217,7 +217,7 @@ fn validate_sections(fields: &GetFields) -> Result<(), QueryInvalid> {
         ]));
     }
     if fields.section.contains(&DrugSection::Label) != fields.label_section.is_some() {
-        return Err(QueryInvalid::new(&["section", "label_section"]));
+        return Err(QueryInvalid::new(&["label_section", "section"]));
     }
     if fields.product_number.is_some() && !fields.section.contains(&DrugSection::Approvals) {
         return Err(QueryInvalid::new(&["product_number", "section"]));

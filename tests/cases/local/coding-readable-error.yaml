@@ -15,9 +15,7 @@
       "exit": 2,
       "expect": {
         "/error/option": "--coding",
-        "/error/valid_values/0": {
-          "excludes": "Pattern:"
-        }
+        "/error/valid_values/0": "HGVS 21.1 coding edit syntax without a reference. The parser additionally requires increasing range endpoints, different substitution bases and insertion adjacency where literal positions establish it. It does not check transcript sequence or exon boundaries."
       },
       "max_bytes": 2200
     }

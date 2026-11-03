@@ -28,13 +28,7 @@ use biomcp_fetch::{Arg, BadReply, Endpoint, Freshness, Leg, ReplyMetadata, Reque
 pub use map::Record;
 use raw::Record as RawRecord;
 /// Exact native headings supported by the label surface.
-pub const HEADINGS: [&str; 5] = [
-    "boxed_warning",
-    "dosage_and_administration",
-    "drug_interactions",
-    "indications_and_usage",
-    "warnings_and_cautions",
-];
+pub use biomcp_types::OPENFDA_LABEL_HEADINGS as HEADINGS;
 const LABEL: Endpoint = SPEC.get("").fresh(Freshness::Days(1)).json_absence();
 /// A source candidate page, preserving native order and source total.
 #[derive(Debug)]

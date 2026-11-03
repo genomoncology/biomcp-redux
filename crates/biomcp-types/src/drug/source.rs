@@ -94,3 +94,21 @@ impl schemars::JsonSchema for DrugSource {
             "type":"string", "enum":names, "x-enum-open":true})
     }
 }
+
+impl DrugSource {
+    /// Named disclosures actually served by this source's exact-ID endpoint.
+    pub fn sections(self) -> &'static [super::DrugSection] {
+        use super::DrugSection::*;
+        match self {
+            Self::Mychem => &[Xrefs],
+            Self::Chembl => &[Targets, Indications, Xrefs],
+            Self::Opentargets => &[Targets, Indications],
+            Self::Civic => &[Civic],
+            Self::OpenfdaLabel => &[Label],
+            Self::Drugsfda => &[Approvals],
+            Self::Ema => &[Regulatory],
+            Self::Ddinter => &[Interactions],
+            Self::WhoPq | Self::FdaDrugRecall => &[],
+        }
+    }
+}

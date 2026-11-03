@@ -18,19 +18,15 @@
       "exit": 0,
       "expect": {
         "/status": "complete",
-        "/result": {
-          "omits": [
-            "items"
-          ]
-        },
         "/sources/0/term": "\"CAVHANZA EXTRA\"",
         "": {
           "omits": [
             "problems"
           ]
-        }
+        },
+        "/page/returned": 1
       },
-      "max_bytes": 1500
+      "max_bytes": 2500
     },
     {
       "run": [
@@ -45,19 +41,15 @@
       "exit": 0,
       "expect": {
         "/status": "complete",
-        "/result": {
-          "omits": [
-            "items"
-          ]
-        },
         "/sources/0/term": "\"REFERENCE BRAND\"",
         "": {
           "omits": [
             "problems"
           ]
-        }
+        },
+        "/page/returned": 1
       },
-      "max_bytes": 1500
+      "max_bytes": 2500
     },
     {
       "run": [

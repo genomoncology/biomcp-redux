@@ -170,7 +170,7 @@ pub use response::{
     DiseaseSurvival, DiseaseSynonyms, DiseaseXrefs,
 };
 mod drug;
-pub use drug::{
+pub use drug::{OPENFDA_LABEL_HEADINGS,
     DrugApprovals, DrugCard, DrugCivic, DrugCivicClaim, DrugCivicMember, DrugCivicPage,
     DrugCivicProfile, DrugCivicStreams, DrugFdaCandidate, DrugFdaDocument, DrugFdaIngredient,
     DrugFdaPage, DrugFdaProduct, DrugFdaProperty, DrugFdaSubmission, DrugGet, DrugHeader,

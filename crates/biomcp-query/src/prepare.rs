@@ -5,7 +5,7 @@ impl Action {
     /// Prepare source selectors and preserve existing usage refusal envelopes.
     pub fn prepare(self) -> Result<Self, UsageError> {
         let action = prepare_disease(self).map_err(selector_error)?;
-        if let Some(error) = unsupported(&action) {
+        if let Some(error) = drug_selector(&action).or_else(|| unsupported(&action)) {
             return Err(error);
         }
         Ok(action)
@@ -144,6 +144,19 @@ fn unsupported(action: &Action) -> Option<UsageError> {
         && let Some((source, option)) = crate::article::unsupported(query)
     {
         return Some(UsageError::UnsupportedFilter { source, option });
+    }
+    None
+}
+
+fn drug_selector(action: &Action) -> Option<UsageError> {
+    let Action::Run { request: Request::GetDrug(query), .. } = action else { return None; };
+    if query.label_section().is_some_and(|heading| !biomcp_types::OPENFDA_LABEL_HEADINGS.contains(&heading.as_str())) {
+        return Some(UsageError::SourceSelector {
+            source: query.source().source(), option: "--label-section".into(),
+            valid_values: biomcp_types::OPENFDA_LABEL_HEADINGS.iter().filter_map(|heading| heading.parse().ok()).collect(),
+            next: vec![biomcp_types::Step { kind: biomcp_types::StepKind::Configure,
+                args: ["help", "get", "drug"].map(Into::into).into() }],
+        });
     }
     None
 }
