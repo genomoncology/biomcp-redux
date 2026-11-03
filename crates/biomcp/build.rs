@@ -5,10 +5,10 @@
 )]
 use std::{collections::BTreeMap, env, error::Error, fs, path::PathBuf};
 
-#[path = "build/schema_metadata.rs"]
-mod schema_metadata;
 #[path = "build/front_map.rs"]
 mod front_map;
+#[path = "build/schema_metadata.rs"]
+mod schema_metadata;
 
 fn main() -> Result<(), Box<dyn Error>> {
     embed_build()?;
@@ -41,12 +41,23 @@ fn main() -> Result<(), Box<dyn Error>> {
     fs::write(output, format!("&[\n{entries}]\n"))?;
     let map = front_map::generate(&schemas)?;
     println!("cargo:rerun-if-env-changed=BIOMCP_FRONT_MAP_CHARACTER_LIMIT");
-    let character_limit = env::var("BIOMCP_FRONT_MAP_CHARACTER_LIMIT").ok()
-        .map(|value| value.parse::<usize>()).transpose()?.unwrap_or(front_map::DEFAULT_CHARACTER_LIMIT);
+    let character_limit = env::var("BIOMCP_FRONT_MAP_CHARACTER_LIMIT")
+        .ok()
+        .map(|value| value.parse::<usize>())
+        .transpose()?
+        .unwrap_or(front_map::DEFAULT_CHARACTER_LIMIT);
     if map.chars().count() > character_limit {
-        return Err(format!("front map exceeds {} characters: {}", character_limit, map.chars().count()).into());
+        return Err(format!(
+            "front map exceeds {} characters: {}",
+            character_limit,
+            map.chars().count()
+        )
+        .into());
     }
-    fs::write(PathBuf::from(env::var("OUT_DIR")?).join("front-map.txt"), &map)?;
+    fs::write(
+        PathBuf::from(env::var("OUT_DIR")?).join("front-map.txt"),
+        &map,
+    )?;
     embed_skills(&map)?;
     embed_examples()
 }

@@ -1,5 +1,7 @@
 //! Schema-fed command help shared with MCP discovery.
 
+#[path = "../coverage.rs"]
+mod coverage;
 mod discovery;
 pub(crate) const FRONT_MAP: &str = include_str!(concat!(env!("OUT_DIR"), "/front-map.txt"));
 mod schema_fields;
@@ -109,10 +111,16 @@ pub(crate) fn commands(root: &crate::grammar::Root) -> io::Result<Vec<HelpComman
     Ok(commands)
 }
 fn command_description(verb: &str, entity: &str, schema: &Value) -> String {
-    let sources = biomcp_types::command_sources(verb, entity, schema)
-        .into_iter().collect::<Vec<_>>().join(", ");
+    let sources = coverage::command_sources(verb, entity, schema)
+        .into_iter()
+        .collect::<Vec<_>>()
+        .join(", ");
     let description = text(schema, "description");
-    let first = description.split(". ").next().unwrap_or_default().trim_end_matches('.');
+    let first = description
+        .split(". ")
+        .next()
+        .unwrap_or_default()
+        .trim_end_matches('.');
     format!("{first}. Sources: {sources}.")
 }
 

@@ -1,6 +1,11 @@
 //! Generate compact discovery from the public command and source declarations.
-use std::{collections::{BTreeMap, BTreeSet}, error::Error};
+#[path = "../coverage.rs"]
+mod coverage;
 use serde_json::Value;
+use std::{
+    collections::{BTreeMap, BTreeSet},
+    error::Error,
+};
 
 pub(crate) const DEFAULT_CHARACTER_LIMIT: usize = 2500;
 const TRAPS: &[&str] = &[
@@ -21,15 +26,24 @@ pub(crate) fn generate(schemas: &BTreeMap<String, String>) -> Result<String, Box
     generate_rows(&biomcp_types::command_paths(), schemas)
 }
 
-fn generate_rows(commands: &[(&str, &str, &str)], schemas: &BTreeMap<String, String>) -> Result<String, Box<dyn Error>> {
+fn generate_rows(
+    commands: &[(&str, &str, &str)],
+    schemas: &BTreeMap<String, String>,
+) -> Result<String, Box<dyn Error>> {
     let mut entities = BTreeMap::<String, Entity>::new();
     for &(verb, child, schema) in commands {
-        let name = if matches!(verb, "get" | "search") { child } else { verb };
+        let name = if matches!(verb, "get" | "search") {
+            child
+        } else {
+            verb
+        };
         let row = entities.entry(name.into()).or_default();
-        row.commands.insert(if name == child { verb } else { child }.into());
-        let schema: Value = serde_json::from_str(schemas.get(schema).ok_or("missing command schema")?)?;
+        row.commands
+            .insert(if name == child { verb } else { child }.into());
+        let schema: Value =
+            serde_json::from_str(schemas.get(schema).ok_or("missing command schema")?)?;
         sections(&schema, row);
-        for source in biomcp_types::command_sources(verb, child, &schema) {
+        for source in coverage::command_sources(verb, child, &schema) {
             row.sources.insert(source.to_string());
         }
         if row.sources.is_empty() {
@@ -49,13 +63,30 @@ fn sections(schema: &Value, row: &mut Entity) {
 
 fn section_words(node: &Value, schema: &Value, words: &mut BTreeSet<String>) {
     if let Some(reference) = node.get("$ref").and_then(Value::as_str)
-        && let Some(target) = schema.pointer(reference.trim_start_matches('#')) {
+        && let Some(target) = schema.pointer(reference.trim_start_matches('#'))
+    {
         section_words(target, schema, words);
     }
-    words.extend(node.get("enum").and_then(Value::as_array).into_iter().flatten().filter_map(Value::as_str).map(String::from));
-    if let Some(items) = node.get("items") { section_words(items, schema, words); }
+    words.extend(
+        node.get("enum")
+            .and_then(Value::as_array)
+            .into_iter()
+            .flatten()
+            .filter_map(Value::as_str)
+            .map(String::from),
+    );
+    if let Some(items) = node.get("items") {
+        section_words(items, schema, words);
+    }
     for key in ["anyOf", "oneOf"] {
-        for child in node.get(key).and_then(Value::as_array).into_iter().flatten() { section_words(child, schema, words); }
+        for child in node
+            .get(key)
+            .and_then(Value::as_array)
+            .into_iter()
+            .flatten()
+        {
+            section_words(child, schema, words);
+        }
     }
 }
 
@@ -63,8 +94,16 @@ fn render(entities: BTreeMap<String, Entity>) -> String {
     let mut lines = Vec::new();
     for (name, row) in entities {
         let words = |items: BTreeSet<String>| items.into_iter().collect::<Vec<_>>().join(",");
-        let sections = if row.sections.is_empty() { String::new() } else { format!(";{}", words(row.sections)) };
-        lines.push(format!("{name}: {}{sections};{}", words(row.commands), words(row.sources)));
+        let sections = if row.sections.is_empty() {
+            String::new()
+        } else {
+            format!(";{}", words(row.sections))
+        };
+        lines.push(format!(
+            "{name}: {}{sections};{}",
+            words(row.commands),
+            words(row.sources)
+        ));
     }
     lines.extend(TRAPS.iter().map(|line| (*line).into()));
     lines.join("\n")
@@ -75,38 +114,73 @@ mod tests {
     use super::*;
     #[test]
     fn every_declared_command_section_and_source_fits_the_map() {
-        let directory = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../biomcp-types/schemas");
-        let schemas: BTreeMap<String, String> = std::fs::read_dir(directory).expect("schemas").map(|entry| {
-            let text = std::fs::read_to_string(entry.expect("schema path").path()).expect("schema text");
-            let value: Value = serde_json::from_str(&text).expect("schema JSON");
-            (value["$id"].as_str().expect("schema identity").into(), text)
-        }).collect();
+        let directory =
+            std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../biomcp-types/schemas");
+        let schemas: BTreeMap<String, String> = std::fs::read_dir(directory)
+            .expect("schemas")
+            .map(|entry| {
+                let text = std::fs::read_to_string(entry.expect("schema path").path())
+                    .expect("schema text");
+                let value: Value = serde_json::from_str(&text).expect("schema JSON");
+                (value["$id"].as_str().expect("schema identity").into(), text)
+            })
+            .collect();
         let map = generate(&schemas).expect("generated map");
-        assert!(map.chars().count() <= DEFAULT_CHARACTER_LIMIT, "{} characters", map.chars().count());
+        assert!(
+            map.chars().count() <= DEFAULT_CHARACTER_LIMIT,
+            "{} characters",
+            map.chars().count()
+        );
         for (verb, child, identity) in biomcp_types::command_paths() {
-            let name = if matches!(verb, "get" | "search") { child } else { verb };
-            let line = map.lines().find(|line| line.starts_with(&format!("{name}: "))).expect("entity line");
-            assert!(line.split([' ', ':', ';', ',']).any(|word| word == if name == child { verb } else { child }));
+            let name = if matches!(verb, "get" | "search") {
+                child
+            } else {
+                verb
+            };
+            let line = map
+                .lines()
+                .find(|line| line.starts_with(&format!("{name}: ")))
+                .expect("entity line");
+            assert!(
+                line.split([' ', ':', ';', ','])
+                    .any(|word| word == if name == child { verb } else { child })
+            );
             let schema: Value = serde_json::from_str(&schemas[identity]).expect("schema");
-            for source in biomcp_types::command_sources(verb, child, &schema) {
-                assert!(line.split([' ', ':', ';', ',']).any(|word| word == source), "{source} missing: {line}");
+            for source in coverage::command_sources(verb, child, &schema) {
+                assert!(
+                    line.split([' ', ':', ';', ',']).any(|word| word == source),
+                    "{source} missing: {line}"
+                );
             }
             let mut row = Entity::default();
             sections(&schema, &mut row);
             for section in row.sections {
-                assert!(line.split([' ', ':', ';', ',']).any(|word| word == section), "{section} missing: {line}");
+                assert!(
+                    line.split([' ', ':', ';', ',']).any(|word| word == section),
+                    "{section} missing: {line}"
+                );
             }
         }
     }
 
     #[test]
     fn a_new_entity_needs_no_renderer_edit() {
-        let schemas = BTreeMap::from([("synthetic-schema".into(), serde_json::json!({"properties": {
-            "source": {"enum":["synthetic-source"]},
-            "section": {"anyOf":[{"enum":["synthetic-section"]},{"type":"null"}]}
-        }}).to_string())]);
-        let result = generate_rows(&[("search", "synthetic-entity", "synthetic-schema")], &schemas).expect("synthetic declaration");
-        assert!(result.starts_with("synthetic-entity: search;synthetic-section;synthetic-source\n"));
+        let schemas = BTreeMap::from([(
+            "synthetic-schema".into(),
+            serde_json::json!({"properties": {
+                "source": {"enum":["synthetic-source"]},
+                "section": {"anyOf":[{"enum":["synthetic-section"]},{"type":"null"}]}
+            }})
+            .to_string(),
+        )]);
+        let result = generate_rows(
+            &[("search", "synthetic-entity", "synthetic-schema")],
+            &schemas,
+        )
+        .expect("synthetic declaration");
+        assert!(
+            result.starts_with("synthetic-entity: search;synthetic-section;synthetic-source\n")
+        );
         assert!(result.chars().count() <= DEFAULT_CHARACTER_LIMIT);
     }
 }
