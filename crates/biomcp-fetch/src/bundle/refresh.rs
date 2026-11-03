@@ -1,33 +1,8 @@
 //! Server-owned bundle refreshes retain the ordinary publisher lock and quotas.
 use super::{Bundle, Row};
-use crate::{Fetch, Leg, network::Agents};
-use std::{collections::BTreeMap, sync::Arc, thread::JoinHandle};
+use crate::{BundleRefresh, Fetch, Leg};
+use std::thread::JoinHandle;
 
-#[expect(
-    clippy::disallowed_types,
-    reason = "The server owns and joins at most one refresh worker per declared bundle"
-)]
-pub(crate) struct Refresh {
-    agents: Arc<Agents>,
-    running: std::sync::Mutex<BTreeMap<&'static str, JoinHandle<()>>>,
-}
-impl Fetch {
-    /// Retain automatic stale refreshes until the last server transport is dropped.
-    /// One-shot commands keep their synchronous read behavior.
-    #[expect(
-        clippy::disallowed_types,
-        reason = "The server owns and joins at most one refresh worker per declared bundle"
-    )]
-    pub fn with_background_refresh(mut self) -> Self {
-        if self.background_refresh.is_none() {
-            self.background_refresh = Some(Arc::new(Refresh {
-                agents: self.agents.clone(),
-                running: std::sync::Mutex::new(BTreeMap::new()),
-            }));
-        }
-        self
-    }
-}
 impl Leg<'_> {
     pub(super) fn background_read<R: Row>(&self, bundle: &Bundle<R>) -> bool {
         if !matches!(self.fetch.mode, crate::Mode::Live { .. })
@@ -109,7 +84,7 @@ fn join(name: &str, worker: JoinHandle<()>) {
         eprintln!("bundle refresh {name}: worker stopped");
     }
 }
-impl Drop for Refresh {
+impl Drop for BundleRefresh {
     fn drop(&mut self) {
         let running = self.running.get_mut().unwrap_or_else(|e| e.into_inner());
         for (name, worker) in std::mem::take(running) {
