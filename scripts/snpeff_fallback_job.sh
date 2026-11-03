@@ -6,6 +6,16 @@ mkdir -p target/0595-proofs
 if [ "${1:-}" = scan ]; then
     scanner=/Users/ian/.npm/_npx/f96b6f8e572bd88e/node_modules/.bin/jscpd
     "$scanner" --version
+    baseline=target/0595-proofs/baseline-source
+    mkdir -p "$baseline"
+    git archive 0afa5e26afa2a9f38a90e965c844bd3f9d95ebf2 \
+        crates/biomcp-types/src/response/variant.rs crates/biomcp-types/src/response/mod.rs \
+        crates/biomcp-types/src/lib.rs crates/biomcp-query/src/variant/search.rs \
+        crates/biomcp-adapters/src/myvariant/search.rs crates/biomcp-adapters/src/myvariant/search_build.rs \
+        crates/biomcp-adapters/src/myvariant/mod.rs crates/biomcp-adapters/src/clinvar/mod.rs \
+        crates/biomcp/tests/runner/variant.rs | tar -xf - -C "$baseline"
+    "$scanner" "$baseline/crates/biomcp-types/src" "$baseline/crates/biomcp-query/src" "$baseline/crates/biomcp-adapters/src" --format rust --max-size 10mb --reporters json --output target/0595-proofs/jscpd-baseline-product
+    "$scanner" "$baseline/crates/biomcp/tests" --format rust --max-size 10mb --reporters json --output target/0595-proofs/jscpd-baseline-tests
     "$scanner" crates/biomcp-types/src/response/variant.rs crates/biomcp-types/src/response/mod.rs crates/biomcp-types/src/lib.rs crates/biomcp-query/src/variant/search.rs crates/biomcp-adapters/src/myvariant/search.rs crates/biomcp-adapters/src/myvariant/search_build.rs crates/biomcp-adapters/src/myvariant/corroboration.rs crates/biomcp-adapters/src/myvariant/mod.rs crates/biomcp-adapters/src/clinvar/mod.rs crates/biomcp-adapters/src/clinvar/reference.rs --format rust --max-size 10mb --reporters json --output target/0595-proofs/jscpd-product
     "$scanner" crates/biomcp/tests/runner/variant.rs crates/biomcp/tests/runner/variant/search_corroboration.rs --format rust --max-size 10mb --reporters json --output target/0595-proofs/jscpd-tests
     exit
@@ -31,3 +41,8 @@ export BIOMCP_TEST_EXECUTABLE="$PWD/target/0595-proofs/installed/bin/biomcp"
 export BIOMCP_EVIDENCE_DIR="$PWD/target/0595-proofs/evidence"
 export BIOMCP_TRANSCRIPT_DIR="$PWD/target/0595-proofs/replies"
 cargo test --locked -p biomcp --test cases variant-search/ -- --nocapture
+
+python3 scripts/snpeff_parity.py \
+    crates/biomcp-types/src/response/variant.rs crates/biomcp-query/src/variant/search.rs \
+    crates/biomcp-adapters/src/myvariant/search.rs crates/biomcp-adapters/src/myvariant/search_build.rs \
+    crates/biomcp-adapters/src/myvariant/corroboration.rs crates/biomcp-adapters/src/clinvar/reference.rs
