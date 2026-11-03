@@ -73,21 +73,27 @@ fn compact(commands: &mut [HelpCommand]) {
         command.reply_schemas.clear();
         command.examples.truncate(1);
         for argument in &mut command.arguments {
+            let accepted_form = argument
+                .description
+                .split(". ")
+                .next()
+                .unwrap_or_default()
+                .to_owned();
             if argument.position.is_none() {
                 argument.description.clear();
             }
-            if argument.choices.len() > INLINE_CHOICE_LIMIT
+            if !matches!(
+                argument.name.as_str(),
+                "--source" | "--sources" | "section" | "--section"
+            ) && argument.choices.len() > INLINE_CHOICE_LIMIT
                 && let Some((_, _, schema)) = crate::grammar::command_paths()
                     .iter()
                     .find(|(verb, entity, _)| command.command == [*verb, *entity])
             {
                 argument.description = format!(
-                    "{} allowed values: biomcp schema {schema}.",
+                    "{} allowed values; {accepted_form}. Full list: biomcp schema {schema}.",
                     argument.choices.len()
                 );
-                argument.choices.clear();
-            }
-            if argument.name == "section" || argument.name == "--section" {
                 argument.choices.clear();
             }
         }

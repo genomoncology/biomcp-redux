@@ -57,6 +57,16 @@ def main():
         assert "--" not in front
         rendered = run(binary, ["skill", "render"], env)
         assert rendered.startswith(front + "\n\n")
+        source_help = json.loads(run(binary, ["help", "sources"], env))["result"]["commands"][0]["description"]
+        assert source_help.startswith("Services:") and "Components:" in source_help
+        trial_help = json.loads(run(binary, ["help", "search", "trial"], env))["result"]["commands"][0]
+        country = next(argument for argument in trial_help["arguments"] if argument["name"] == "--country")
+        assert "Exact ClinicalTrials.gov country label" in country["description"]
+        schema_id = country["description"].rsplit("biomcp schema ", 1)[1].rstrip(".")
+        query_schema = json.loads(run(binary, ["schema", schema_id], env))
+        complete_choices = query_schema["properties"]["country"]["items"]["enum"]
+        assert country["description"].startswith(str(len(complete_choices)) + " allowed values;")
+        assert "United States" in complete_choices
         install = root / "installed"
         run(binary, ["skill", "install", str(install)], env)
         skill = (install / "skills/biomcp/SKILL.md").read_text()

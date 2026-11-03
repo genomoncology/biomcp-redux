@@ -11,18 +11,11 @@ pub(crate) fn command_sources(
             source_words(node, schema, &mut sources);
         }
     }
-    if sources.is_empty()
-        || matches!(
-            (verb, entity),
-            ("get", "gene" | "protein" | "variant" | "article")
-        )
-    {
-        sources.extend(
-            biomcp_types::command_implicit_sources(verb, entity)
-                .iter()
-                .map(ToString::to_string),
-        );
-    }
+    sources.extend(
+        biomcp_types::command_implicit_sources(verb, entity)
+            .iter()
+            .map(ToString::to_string),
+    );
     sources
 }
 

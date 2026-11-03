@@ -9,6 +9,7 @@ use std::{
 
 pub(crate) const DEFAULT_CHARACTER_LIMIT: usize = 2500;
 const TRAPS: &[&str] = &[
+    "Sources/components: help sources.",
     "Variant IDs are command-specific; normalize requires reference HGVS.",
     "Sections are source-specific.",
     "Article text: PMID/PMC/EuropePMC; select part/find/variant/save; no DOI.",
@@ -142,6 +143,14 @@ mod tests {
             "{} characters",
             map.chars().count()
         );
+        for source in biomcp_adapters::registry::sources() {
+            let name = source.source.to_string();
+            assert!(
+                map.split([' ', ':', ';', ',', '\n'])
+                    .any(|word| word == name),
+                "registered service missing from map: {name}"
+            );
+        }
         for (verb, child, identity) in biomcp_types::command_paths() {
             let name = if matches!(verb, "get" | "search") {
                 child
