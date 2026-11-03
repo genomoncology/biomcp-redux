@@ -42,10 +42,6 @@ impl Leg<'_> {
         self.refresh_in_background(bundle);
         true
     }
-    #[expect(
-        clippy::disallowed_methods,
-        reason = "The server retains and joins each bundle refresh thread"
-    )]
     fn refresh_in_background<R: Row>(&self, bundle: &Bundle<R>) {
         let Some(owner) = &self.fetch.background_refresh else {
             return;
