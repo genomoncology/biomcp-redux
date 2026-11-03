@@ -15,14 +15,14 @@ def pointer(value, path):
 
 def main():
     binary = sys.argv[1]
-    for path in Path("tests/cases").rglob("*.yaml"):
+    for path in sorted(Path("tests/cases").rglob("*.yaml")):
         try:
             case = json.loads(path.read_text())
         except ValueError:
             continue
         changed = False
         for step in case.get("steps", []):
-            if step.get("run", [None])[0] != "help":
+            if step.get("run", [None])[0] != "help" or step.get("exit", 0) != 0:
                 continue
             output = json.loads(subprocess.check_output([binary, *step["run"]], text=True))
             for key, expected in list(step.get("expect", {}).items()):
