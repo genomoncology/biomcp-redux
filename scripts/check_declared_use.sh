@@ -14,6 +14,8 @@ case "$phase" in
     tar -czf "$output/declared-use-generated.tar.gz" crates/biomcp-types/schemas
     ;;
   focused)
+    cargo fmt --all
+    git diff > "$output/generated.patch"
     cargo build --locked -p biomcp --bin biomcp
     cargo test --locked -p biomcp --test cases --no-run
     mkdir -p "$output/installed/bin"

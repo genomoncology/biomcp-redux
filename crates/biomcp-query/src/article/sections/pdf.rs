@@ -94,7 +94,12 @@ pub(in crate::article) fn load<'a>(
         .leg(&semantic_scholar::SPEC, *deadline)
         .fresh(cx.fresh);
     let started = leg.remaining();
-    let result = semantic_scholar::pdf(&leg, input);
+    let result = semantic_scholar::pdf(&leg, input).and_then(|record| {
+        if let Some(link) = &record.open_access_pdf {
+            biomcp_adapters::pmc_oa::permitted(&leg, Source::SemanticScholar, link.license())?;
+        }
+        Ok(record)
+    });
     *deadline = super::super::consume(*deadline, started, leg.remaining());
     let source = status::source(
         Source::SemanticScholar,
@@ -121,7 +126,6 @@ pub(in crate::article) fn load<'a>(
             Reason::NotOpen,
         ));
     };
-    biomcp_adapters::pmc_oa::permitted(&leg, Source::SemanticScholar, link.license())?;
     let data = PdfLink {
         url: Text::new(&link.url).map_err(|_| pdf_error(Reason::BadReply))?,
         status: link.status,

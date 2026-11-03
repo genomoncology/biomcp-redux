@@ -108,7 +108,7 @@ fn execute<'a>(
             crate::store::EvidenceState::Disabled => Snapshot::empty(),
             crate::store::EvidenceState::Ready(payload) => {
                 restored = true;
-                decode(&payload)?
+                decode(&payload)?.unwrap_or_else(Snapshot::empty)
             }
         }
     } else {
@@ -233,10 +233,9 @@ fn encode(snapshot: &Snapshot) -> Result<String, CacheError> {
     ))
     .map_err(|_| CacheError::Snapshot)
 }
-fn decode(payload: &str) -> Result<Snapshot, CacheError> {
-    let (graph, fulltext, (terminal, cursor, matched), sources, target, dropped): Saved =
-        serde_json::from_str(payload).map_err(|_| CacheError::Snapshot)?;
-    Ok(Snapshot {
+fn decode(payload: &str) -> Result<Option<Snapshot>, CacheError> {
+    let Some((graph, fulltext, (terminal, cursor, matched), sources, target, dropped)): Option<Saved> = crate::store::labels::decode(payload)? else { return Ok(None); };
+    Ok(Some(Snapshot {
         dropped,
         graph,
         fulltext,
@@ -245,5 +244,5 @@ fn decode(payload: &str) -> Result<Snapshot, CacheError> {
         matched,
         sources,
         target: target.map(|(pmid, doi)| graph::Target { pmid, doi }),
-    })
+    }))
 }
