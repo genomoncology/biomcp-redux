@@ -46,7 +46,9 @@ pub(crate) fn dispatch(root: &crate::grammar::Root, path: &[String]) -> io::Resu
         public_grammar::scoped_globals(root, &mut commands);
     }
     if path.is_empty() || path == ["help"] {
-        commands.insert(0, topic("map", FRONT_MAP.into()));
+        let mut map = topic("map", FRONT_MAP.into());
+        map.command.clear();
+        commands.insert(0, map);
     }
     Ok(Help { commands })
 }
@@ -107,8 +109,8 @@ pub(crate) fn commands(root: &crate::grammar::Root) -> io::Result<Vec<HelpComman
     Ok(commands)
 }
 fn command_description(verb: &str, entity: &str, schema: &Value) -> String {
-    let sources = biomcp_types::command_sources(verb, entity)
-        .iter().map(ToString::to_string).collect::<Vec<_>>().join(", ");
+    let sources = biomcp_types::command_sources(verb, entity, schema)
+        .into_iter().collect::<Vec<_>>().join(", ");
     let description = text(schema, "description");
     let first = description.split(". ").next().unwrap_or_default().trim_end_matches('.');
     format!("{first}. Sources: {sources}.")

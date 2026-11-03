@@ -2,8 +2,8 @@
 use std::{collections::{BTreeMap, BTreeSet}, error::Error};
 use serde_json::Value;
 
-pub const DEFAULT_CHARACTER_LIMIT: usize = 2500;
-pub const TRAPS: &[&str] = &[
+pub(crate) const DEFAULT_CHARACTER_LIMIT: usize = 2500;
+const TRAPS: &[&str] = &[
     "Variant: ClinVar/VCV, rsID, CAid, HGVS, coordinates; normalize requires HGVS.",
     "ClinGen: get gene ID clingen; validity and dosage are separate.",
     "Source errors are not empty results; inspect problems and next commands.",
@@ -17,15 +17,19 @@ struct Entity {
     sources: BTreeSet<String>,
 }
 
-pub fn generate(schemas: &BTreeMap<String, String>) -> Result<String, Box<dyn Error>> {
+pub(crate) fn generate(schemas: &BTreeMap<String, String>) -> Result<String, Box<dyn Error>> {
+    generate_rows(&biomcp_types::command_paths(), schemas)
+}
+
+fn generate_rows(commands: &[(&str, &str, &str)], schemas: &BTreeMap<String, String>) -> Result<String, Box<dyn Error>> {
     let mut entities = BTreeMap::<String, Entity>::new();
-    for (verb, child, schema) in biomcp_types::command_paths() {
+    for &(verb, child, schema) in commands {
         let name = if matches!(verb, "get" | "search") { child } else { verb };
         let row = entities.entry(name.into()).or_default();
         row.commands.insert(if name == child { verb } else { child }.into());
         let schema: Value = serde_json::from_str(schemas.get(schema).ok_or("missing command schema")?)?;
         sections(&schema, row);
-        for source in biomcp_types::command_sources(verb, child) {
+        for source in biomcp_types::command_sources(verb, child, &schema) {
             row.sources.insert(source.to_string());
         }
         if row.sources.is_empty() {
@@ -37,14 +41,21 @@ pub fn generate(schemas: &BTreeMap<String, String>) -> Result<String, Box<dyn Er
 
 fn sections(schema: &Value, row: &mut Entity) {
     for key in ["section", "sections"] {
-        let Some(mut node) = schema.pointer(&format!("/properties/{key}")) else { continue };
-        if let Some(items) = node.get("items") { node = items; }
-        if let Some(reference) = node.get("$ref").and_then(Value::as_str) {
-            node = schema.pointer(reference.trim_start_matches('#')).unwrap_or(node);
+        if let Some(node) = schema.pointer(&format!("/properties/{key}")) {
+            section_words(node, schema, &mut row.sections);
         }
-        for word in node.get("enum").and_then(Value::as_array).into_iter().flatten().filter_map(Value::as_str) {
-            row.sections.insert(word.into());
-        }
+    }
+}
+
+fn section_words(node: &Value, schema: &Value, words: &mut BTreeSet<String>) {
+    if let Some(reference) = node.get("$ref").and_then(Value::as_str)
+        && let Some(target) = schema.pointer(reference.trim_start_matches('#')) {
+        section_words(target, schema, words);
+    }
+    words.extend(node.get("enum").and_then(Value::as_array).into_iter().flatten().filter_map(Value::as_str).map(String::from));
+    if let Some(items) = node.get("items") { section_words(items, schema, words); }
+    for key in ["anyOf", "oneOf"] {
+        for child in node.get(key).and_then(Value::as_array).into_iter().flatten() { section_words(child, schema, words); }
     }
 }
 
@@ -63,13 +74,39 @@ fn render(entities: BTreeMap<String, Entity>) -> String {
 mod tests {
     use super::*;
     #[test]
+    fn every_declared_command_section_and_source_fits_the_map() {
+        let directory = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../biomcp-types/schemas");
+        let schemas: BTreeMap<String, String> = std::fs::read_dir(directory).expect("schemas").map(|entry| {
+            let text = std::fs::read_to_string(entry.expect("schema path").path()).expect("schema text");
+            let value: Value = serde_json::from_str(&text).expect("schema JSON");
+            (value["$id"].as_str().expect("schema identity").into(), text)
+        }).collect();
+        let map = generate(&schemas).expect("generated map");
+        assert!(map.chars().count() <= DEFAULT_CHARACTER_LIMIT, "{} characters", map.chars().count());
+        for (verb, child, identity) in biomcp_types::command_paths() {
+            let name = if matches!(verb, "get" | "search") { child } else { verb };
+            let line = map.lines().find(|line| line.starts_with(&format!("{name}: "))).expect("entity line");
+            assert!(line.split([' ', ':', ';', ',']).any(|word| word == if name == child { verb } else { child }));
+            let schema: Value = serde_json::from_str(&schemas[identity]).expect("schema");
+            for source in biomcp_types::command_sources(verb, child, &schema) {
+                assert!(line.split([' ', ':', ';', ',']).any(|word| word == source), "{source} missing: {line}");
+            }
+            let mut row = Entity::default();
+            sections(&schema, &mut row);
+            for section in row.sections {
+                assert!(line.split([' ', ':', ';', ',']).any(|word| word == section), "{section} missing: {line}");
+            }
+        }
+    }
+
+    #[test]
     fn a_new_entity_needs_no_renderer_edit() {
-        let mut entities = BTreeMap::new();
-        let mut row = Entity::default();
-        row.commands.insert("search".into());
-        row.sources.insert("synthetic-source".into());
-        sections(&serde_json::json!({"properties":{"section":{"enum":["synthetic-section"]}}}), &mut row);
-        entities.insert("synthetic-entity".into(), row);
-        assert!(render(entities).starts_with("synthetic-entity: search;synthetic-section;synthetic-source\n"));
+        let schemas = BTreeMap::from([("synthetic-schema".into(), serde_json::json!({"properties": {
+            "source": {"enum":["synthetic-source"]},
+            "section": {"anyOf":[{"enum":["synthetic-section"]},{"type":"null"}]}
+        }}).to_string())]);
+        let result = generate_rows(&[("search", "synthetic-entity", "synthetic-schema")], &schemas).expect("synthetic declaration");
+        assert!(result.starts_with("synthetic-entity: search;synthetic-section;synthetic-source\n"));
+        assert!(result.chars().count() <= DEFAULT_CHARACTER_LIMIT);
     }
 }

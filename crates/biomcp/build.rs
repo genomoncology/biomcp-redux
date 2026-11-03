@@ -40,8 +40,11 @@ fn main() -> Result<(), Box<dyn Error>> {
     let output = PathBuf::from(env::var("OUT_DIR")?).join("schemas.rs");
     fs::write(output, format!("&[\n{entries}]\n"))?;
     let map = front_map::generate(&schemas)?;
-    if map.chars().count() > front_map::DEFAULT_CHARACTER_LIMIT {
-        return Err(format!("front map exceeds {} characters: {}", front_map::DEFAULT_CHARACTER_LIMIT, map.chars().count()).into());
+    println!("cargo:rerun-if-env-changed=BIOMCP_FRONT_MAP_CHARACTER_LIMIT");
+    let character_limit = env::var("BIOMCP_FRONT_MAP_CHARACTER_LIMIT").ok()
+        .map(|value| value.parse::<usize>()).transpose()?.unwrap_or(front_map::DEFAULT_CHARACTER_LIMIT);
+    if map.chars().count() > character_limit {
+        return Err(format!("front map exceeds {} characters: {}", character_limit, map.chars().count()).into());
     }
     fs::write(PathBuf::from(env::var("OUT_DIR")?).join("front-map.txt"), &map)?;
     embed_skills(&map)?;

@@ -3,3 +3,5 @@ set -eu
 export PATH="/Users/ian/.local/share/uv/python/cpython-3.13.17-macos-aarch64-none/bin:$HOME/.cargo/bin:$PATH"
 cargo +1.95.0 fmt --all
 cargo +1.95.0 build --locked -p biomcp --bin biomcp
+cargo +1.95.0 test --locked -p biomcp --test ratchets front_map
+python3 scripts/check_front_map.py "${CARGO_TARGET_DIR:-target}/debug/biomcp" --baseline /Users/ian/workspace/t/biomcp-redux-0586-benchmark-baseline-27ead/installed/bin/biomcp --output "${PM_JOB_OUTPUT_DIR:-front-map-proof}"
