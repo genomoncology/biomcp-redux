@@ -10,7 +10,12 @@ pub(super) fn trials() -> Vec<Trial> {
         || {
             for extra in [
                 "",
-                "<sec><title>Introduction</title><p>Later introduction.</p></sec><sec><title>Other section</title><p>Other text.</p></sec><sec><title>Introduction</title><p>Final introduction.</p></sec><sec><title> </title><p>Untitled section.</p></sec>",
+                concat!(
+                    "<sec><title>Introduction</title><p>Later introduction.</p></sec>",
+                    "<sec><title>Other section</title><p>Other text.</p></sec>",
+                    "<sec><title>Introduction</title><p>Final introduction.</p></sec>",
+                    "<sec><title> </title><p>Untitled section.</p></sec>",
+                ),
                 "<sec><title>^</title><p>Literal marker title.</p></sec>",
             ] {
                 check(extra).map_err(libtest_mimic::Failed::from)?;
