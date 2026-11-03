@@ -422,7 +422,9 @@ class NightlyCommand(unittest.TestCase):
                     self.classified(recommendation_case(story, day), 'churn', 0)
             for change in ('unrelated', 'context', 'failed-discovery', 'subset', 'partial'):
                 with self.subTest(story=story, change=change):
-                    self.classified(recommendation_case(story, change=change), 'failure', 1)
+                    self.classified(recommendation_case(story, change=change),
+                                    'outage' if change == 'failed-discovery' else 'failure',
+                                    0 if change == 'failed-discovery' else 1)
 
     def test_reranked_source_tail_requires_complete_provider_owned_selection(self):
         for change in ('boundary', 'prefix', 'filter', 'offset', 'limit', 'missing-batch',

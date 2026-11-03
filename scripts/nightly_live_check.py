@@ -234,6 +234,10 @@ def same_window(old, new, left, right):
 
 
 def command_causes(command):
+    if not isinstance(command, dict) or not all(
+            isinstance(command.get(side), dict) and isinstance(command[side].get('requests'), list)
+            for side in ('baseline', 'live')):
+        return {cause: set() for cause in ('throttled', 'outage', 'recovered')}
     before = terminal(command['baseline']['requests'])
     after = terminal(command['live']['requests'])
     throttled = {item['source'] for item in after.values() if item.get('status') == 429}

@@ -6,7 +6,7 @@ from pathlib import Path
 import shlex
 import subprocess
 
-from nightly_live_check import classify_report
+from nightly_live_check import classify_case, classify_report
 
 
 def replay(rows, since):
@@ -32,7 +32,11 @@ def replay(rows, since):
             entry['report'] = report
             previous.append((night.isoformat(), report))
         except (ValueError, KeyError, TypeError, AttributeError) as error:
-            entry.update(failed=True, classification_error=str(error))
+            entry.update(failed=True, classification_error=str(error), report=report)
+            # Old reports predate eligible counts. Inspect their retained cases
+            # without inventing the missing selection proof or clearing the night.
+            for row in report.get('case_sample', []):
+                row['classification'] = classify_case(row)
         results.append(entry)
     return results
 
@@ -75,6 +79,7 @@ with p.open('x') as target:target.write(sys.stdin.read())
         print(json.dumps({'run': entry['run'], 'failed': entry['failed'], 'counts': counts,
                           'retained_failures': failures,
                           'raw_error': entry.get('raw_error'),
+                          'classification_error': entry.get('classification_error'),
                           'persistent_outage_sources': report.get('persistent_outage_sources', [])}))
     print('Derived evidence: ' + (args.host + ':' if args.host else '') + args.output)
 
