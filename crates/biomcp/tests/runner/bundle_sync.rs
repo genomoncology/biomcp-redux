@@ -87,7 +87,8 @@ fn refresh(modified: bool) -> Check {
     let peer = Stub::with_headers(&["thegencc.org"], |_| "text/csv", move |request| {
         let phase = reply_stage.load(Ordering::SeqCst);
         if phase > 0 {
-            unused
+            let expected = if modified { "if-modified-since: wed, 21 oct 2015 07:28:00 gmt" }
+                else if phase == 3 { "if-none-match: \"changed\"" } else { "if-none-match: \"first\"" };
             if !request.to_ascii_lowercase().contains(expected) {
                 return Err(format!("refresh omitted stored validator: {request}"));
             }

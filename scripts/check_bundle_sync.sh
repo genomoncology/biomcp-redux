@@ -6,6 +6,7 @@ export CARGO_TARGET_DIR="${CARGO_TARGET_DIR:-target/0594-proofs}"
 phase=${1:-focused}
 case "$phase" in
     focused)
+        mkdir -p "$CARGO_TARGET_DIR"
         cargo fmt --all
         git diff > "$CARGO_TARGET_DIR/format.patch"
         cargo test --locked -p biomcp --test cases --no-run
