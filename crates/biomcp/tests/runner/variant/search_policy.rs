@@ -119,9 +119,7 @@ fn check_policy(protein: &str, policy: &str) -> Result<(), String> {
         return Err(format!("expected exactly one source request: {requests:?}"));
     };
     for forbidden in ["dbnsfp", "cadd", "cosmic", "snpedia"] {
-        if request.to_lowercase().contains(forbidden)
-            || cli.to_string().to_lowercase().contains(forbidden)
-        {
+        if request.to_lowercase().contains(forbidden) {
             return Err(format!("disabled component leaked: {forbidden}"));
         }
     }
@@ -168,6 +166,20 @@ fn hosted_http(replay: &std::path::Path, protein: &str) -> Result<(), String> {
 }
 
 fn check_reply(value: &Value) -> Result<(), String> {
+    for forbidden in ["dbnsfp", "cadd", "cosmic", "snpedia"] {
+        if value.to_string().to_lowercase().contains(forbidden) {
+            return Err(format!("disabled component leaked in reply: {forbidden}"));
+        }
+    }
+    let term = concat!(
+        "snpeff.ann.genename:BRAF AND snpeff.ann.hgvs_p:(",
+        "\"V600E\" OR \"Val600Glu\" OR \"p.V600E\" OR \"p.Val600Glu\")"
+    );
+    if value.pointer("/result/source_query") != Some(&json!(term)) {
+        return Err(format!(
+            "open selector must search every accepted protein form: {value}"
+        ));
+    }
     if value.pointer("/result/items/0/record/id") != Some(&json!("chr7:g.140753336A>T"))
         || value.pointer("/result/selector_terms/name") != Some(&json!("SnpEff MIT"))
         || value.pointer("/result/items/0/transcripts/0/matched") != Some(&json!(true))
