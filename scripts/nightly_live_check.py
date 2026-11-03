@@ -267,13 +267,15 @@ def command_classification(capture, discoveries, peers, complete=False, comparis
         if causes[cause]:
             return cause
     comparison = comparison or {}
-    if (comparison.get('before_status') in ('partial', 'failed')
-            and comparison.get('after_status') == 'complete'):
-        return 'recovered'
     removed = [before[key] for key in before.keys() - after.keys()]
     added = [after[key] for key in after.keys() - before.keys()]
-    return (dependent_change(removed, added, discoveries, before, after, peers, complete)
+    plan = (dependent_change(removed, added, discoveries, before, after, peers, complete)
             if removed or added else 'healthy')
+    if (plan in ('healthy', 'churn')
+            and comparison.get('before_status') in ('partial', 'failed')
+            and comparison.get('after_status') == 'complete'):
+        return 'recovered'
+    return plan
 
 
 def explained_output(command, comparison, outcome):
@@ -290,7 +292,9 @@ def explained_output(command, comparison, outcome):
     failed = [source for source in after.get('sources', [])
               if source.get('state') in ('failed', 'stale')]
     return (old in ('complete', 'partial', 'failed') and new in ('partial', 'failed')
-            and all(source.get('source') in affected for source in failed))
+            and all(source.get('source') in affected
+                    and source.get('reason') in ('rate-limited', 'unavailable', 'deadline-exceeded')
+                    for source in failed))
 
 
 def omitted_diagnostics(value):
