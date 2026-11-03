@@ -4,7 +4,7 @@ mod framing;
 pub(crate) mod http;
 mod legacy;
 mod output_schema;
-pub(crate) mod protocol;
+mod protocol;
 mod research;
 mod rpc;
 mod worker;

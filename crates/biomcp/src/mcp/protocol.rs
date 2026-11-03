@@ -42,15 +42,7 @@ pub(super) fn valid_params(method: &str, params: &Value) -> bool {
 pub(super) const SCHEMA_DIALECT: &str = "https://json-schema.org/draft/2020-12/schema";
 const RESULT_CHARACTER_CAP: usize = 150_000;
 
-/// Keep both copies until the deployed clients have been checked for structured output.
-#[derive(Clone, Copy, Default, serde::Deserialize)]
-#[serde(rename_all = "kebab-case")]
-pub(crate) enum ReplyForm {
-    #[default]
-    Both,
-    StructuredOnly,
-    TextOnly,
-}
+use crate::config::ReplyForm;
 
 const DESCRIPTION: &str = concat!(
     "Run a BioMCP CLI command. arguments has exactly one field: args, an array of command words (strings), ",

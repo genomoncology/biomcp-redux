@@ -4,6 +4,16 @@ use serde::{Deserialize, de::DeserializeOwned};
 use serde_json::{Map, Value};
 use std::{collections::BTreeMap, fs, path::PathBuf};
 
+/// Keep both copies until the deployed clients have been checked for structured output.
+#[derive(Clone, Copy, Default, serde::Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub(crate) enum ReplyForm {
+    #[default]
+    Both,
+    StructuredOnly,
+    TextOnly,
+}
+
 #[derive(Clone, Debug)]
 pub(crate) struct ConfigError(pub(crate) String, ConfigScope);
 #[derive(Clone, Debug)]
@@ -40,7 +50,7 @@ impl ConfigError {
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
 pub(crate) struct ConfigFile {
-    pub(super) mcp_reply_form: Option<crate::mcp::protocol::ReplyForm>,
+    pub(super) mcp_reply_form: Option<ReplyForm>,
     pub(super) format: Option<crate::grammar::Format>,
     pub(super) proxy: Option<String>,
     pub(super) http: Option<Http>,
