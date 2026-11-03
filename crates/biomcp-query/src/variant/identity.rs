@@ -44,7 +44,12 @@ pub(super) fn read(cx: &Ctx<'_>, query: &VariantGet, deadline: Deadline<'_>) -> 
                 found.problems.push(Problem {
                     source: Source::MyVariant,
                     record: None,
-                    field: "assembly: no GRCh38 allele; used source GRCh37 allele".into(),
+                    field: if result.as_ref().is_ok_and(|(rows, _)| rows.iter().any(|row|
+                        row.identity.representations.iter().any(|r| r.build == Some(biodata::Build::GRCh37)))) {
+                        "assembly: no GRCh38 allele; used source GRCh37 allele"
+                    } else {
+                        "assembly: no GRCh38 allele; retried GRCh37 source index; allele assembly unknown"
+                    }.into(),
                     code: biomcp_types::ProblemCode::ValueUnknown,
                 });
             }

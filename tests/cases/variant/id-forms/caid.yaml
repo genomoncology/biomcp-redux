@@ -85,6 +85,20 @@
         "/status": "absent"
       },
       "exit": 1
+    },
+    {
+      "run": [
+        "search",
+        "variant",
+        "--query",
+        "CA123643",
+        "--source",
+        "myvariant"
+      ],
+      "expect": {
+        "/result/source_query": "CA123643",
+        "/page/total": 0
+      }
     }
   ]
 }

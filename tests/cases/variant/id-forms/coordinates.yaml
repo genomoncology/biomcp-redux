@@ -85,6 +85,36 @@
         "/status": "absent"
       },
       "exit": 1
+    },
+    {
+      "run": [
+        "search",
+        "variant",
+        "--query",
+        "7-140753336-A-T",
+        "--source",
+        "myvariant"
+      ],
+      "expect": {
+        "/result/source_query": "7-140753336-A-T",
+        "/page/total": 0
+      }
+    },
+    {
+      "run": [
+        "variant",
+        "normalize",
+        "--source",
+        "car",
+        "--hgvs",
+        "7-140753336-A-T",
+        "--build",
+        "GRCh38"
+      ],
+      "exit": 2,
+      "expect": {
+        "/error/message": "normalization accepts reference-qualified HGVS, or chromosome genomic HGVS with CAR and --build; convert rsIDs, clinvar:N, VCV accessions and genomic coordinates with get variant <ID> first"
+      }
     }
   ]
 }

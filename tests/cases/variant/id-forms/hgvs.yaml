@@ -84,6 +84,20 @@
         "/status": "absent"
       },
       "exit": 1
+    },
+    {
+      "run": [
+        "search",
+        "variant",
+        "--query",
+        "NM_004333.4:c.1799T>A",
+        "--source",
+        "myvariant"
+      ],
+      "expect": {
+        "/result/source_query": "NM_004333.4:c.1799T>A",
+        "/page/total": 0
+      }
     }
   ]
 }

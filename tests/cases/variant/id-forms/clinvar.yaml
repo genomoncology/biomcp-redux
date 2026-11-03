@@ -85,6 +85,20 @@
         "/status": "absent"
       },
       "exit": 1
+    },
+    {
+      "run": [
+        "search",
+        "variant",
+        "--query",
+        "clinvar:13961",
+        "--source",
+        "myvariant"
+      ],
+      "expect": {
+        "/result/source_query": "clinvar:13961",
+        "/page/total": 0
+      }
     }
   ]
 }

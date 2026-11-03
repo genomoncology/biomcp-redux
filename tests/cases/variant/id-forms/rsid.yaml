@@ -85,6 +85,20 @@
         "/status": "absent"
       },
       "exit": 1
+    },
+    {
+      "run": [
+        "search",
+        "variant",
+        "--query",
+        "rs113488022",
+        "--source",
+        "myvariant"
+      ],
+      "expect": {
+        "/result/source_query": "rs113488022",
+        "/page/total": 0
+      }
     }
   ]
 }

@@ -85,6 +85,20 @@
         "/status": "absent"
       },
       "exit": 1
+    },
+    {
+      "run": [
+        "search",
+        "variant",
+        "--query",
+        "VCV000013961",
+        "--source",
+        "myvariant"
+      ],
+      "expect": {
+        "/result/source_query": "VCV000013961",
+        "/page/total": 0
+      }
     }
   ]
 }
