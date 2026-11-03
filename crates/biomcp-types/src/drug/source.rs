@@ -98,7 +98,7 @@ impl schemars::JsonSchema for DrugSource {
 impl DrugSource {
     /// Named disclosures actually served by this source's exact-ID endpoint.
     pub fn sections(self) -> &'static [super::DrugSection] {
-        use super::DrugSection::*;
+        use super::DrugSection::{Approvals, Civic, Indications, Interactions, Label, Regulatory, Targets, Xrefs};
         match self {
             Self::Mychem => &[Xrefs],
             Self::Chembl => &[Targets, Indications, Xrefs],

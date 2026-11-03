@@ -112,7 +112,7 @@ fn selected_get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
         biomcp_types::DrugCard::into_reply(query.clone(), None)
     });
     if query.source() != DrugSource::Mychem
-        || !matches!(query.sections(), [] | [biomcp_types::DrugSection::Xrefs])
+        || !query.supports_sections()
     {
         return unsupported(query.source(), out);
     }

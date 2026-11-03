@@ -16,6 +16,21 @@
       "expect": {
         "/page/returned": 2
       }
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "BLA761445",
+        "approvals",
+        "--source",
+        "drugsfda",
+        "--section-limit",
+        "1"
+      ],
+      "expect": {
+        "/page/returned": 1
+      }
     }
   ]
 }

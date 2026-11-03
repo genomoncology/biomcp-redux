@@ -334,6 +334,12 @@ impl DrugGet {
     pub fn section_limit(&self) -> Option<u32> {
         self.fields.section_limit
     }
+    /// Set a checked section page size without changing the selected source or disclosure.
+    pub fn with_section_limit(&self, limit: u32) -> Result<Self, QueryInvalid> {
+        let mut fields = self.fields.clone();
+        fields.section_limit = Some(limit);
+        self.with_fields(fields)
+    }
     /// Explicit section continuation offset.
     pub fn section_offset(&self) -> Option<u32> {
         self.fields.section_offset
@@ -436,6 +442,10 @@ impl crate::Paged for DrugSearch {
 }
 
 impl DrugGet {
+    /// Whether the selected source serves every requested disclosure in one call.
+    pub fn supports_sections(&self) -> bool {
+        self.sections().len() <= 1 && self.sections().iter().all(|section| self.source().sections().contains(section))
+    }
     /// Explicit requested disclosures.
     pub fn sections(&self) -> &[DrugSection] {
         &self.fields.section

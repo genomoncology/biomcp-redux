@@ -150,13 +150,16 @@ fn unsupported(action: &Action) -> Option<UsageError> {
 
 fn drug_selector(action: &Action) -> Option<UsageError> {
     let Action::Run { request: Request::GetDrug(query), .. } = action else { return None; };
-    if query.label_section().is_some_and(|heading| !biomcp_types::OPENFDA_LABEL_HEADINGS.contains(&heading.as_str())) {
-        return Some(UsageError::SourceSelector {
-            source: query.source().source(), option: "--label-section".into(),
-            valid_values: biomcp_types::OPENFDA_LABEL_HEADINGS.iter().filter_map(|heading| heading.parse().ok()).collect(),
-            next: vec![biomcp_types::Step { kind: biomcp_types::StepKind::Configure,
-                args: ["help", "get", "drug"].map(Into::into).into() }],
-        });
-    }
-    None
+    let (option, values) = if query.label_section().is_some_and(|heading| !biomcp_types::OPENFDA_LABEL_HEADINGS.contains(&heading.as_str())) {
+        ("--label-section", biomcp_types::OPENFDA_LABEL_HEADINGS.iter().filter_map(|heading| heading.parse().ok()).collect())
+    } else if !query.supports_sections() {
+        ("section", query.source().sections().iter().filter_map(|section| section.as_str().parse().ok()).collect())
+    } else {
+        return None;
+    };
+    Some(UsageError::SourceSelector {
+        source: query.source().source(), option: option.into(), valid_values: values,
+        next: vec![biomcp_types::Step { kind: biomcp_types::StepKind::Configure,
+            args: ["help", "get", "drug"].map(Into::into).into() }],
+    })
 }

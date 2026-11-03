@@ -287,7 +287,7 @@ impl Service {
         let scope = self
             .globals
             .hosted
-            .then(|| biomcp_fetch::Cancellation::with_budget(crate::config::BUDGET));
+            .then(|| biomcp_fetch::Cancellation::with_budget(crate::config::budget(&self.settings)));
         let Some(call) = super::research::parse(params) else {
             return (
                 200,

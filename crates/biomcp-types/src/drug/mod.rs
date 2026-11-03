@@ -46,3 +46,6 @@ pub const OPENFDA_LABEL_HEADINGS: [&str; 5] = [
     "indications_and_usage",
     "warnings_and_cautions",
 ];
+
+/// Default submission page size for a native Drugs@FDA application.
+pub const DEFAULT_DRUG_APPROVALS_LIMIT: u32 = 10;
