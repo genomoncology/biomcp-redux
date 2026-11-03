@@ -84,7 +84,12 @@ impl VariantInput {
     pub fn source_id(&self) -> Cow<'_, str> {
         if let Some(crate::VariantId::Vcv(id)) = self.identity() {
             let value = id.to_string();
-            let digits = value[3..].split('.').next().unwrap_or("");
+            let digits = value
+                .strip_prefix("VCV")
+                .unwrap_or_default()
+                .split('.')
+                .next()
+                .unwrap_or_default();
             return Cow::Owned(format!("clinvar:{}", digits.trim_start_matches('0')));
         }
         if let Some(id @ crate::VariantId::ClinVarVariation(_)) = self.identity() {

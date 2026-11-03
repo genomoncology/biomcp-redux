@@ -11,7 +11,9 @@
         "rs113488022"
       ],
       "expect": {
-        "/result/resolution": "resolved"
+        "/result/resolution": "resolved",
+        "/query/build": "GRCh38",
+        "/query/build_defaulted": true
       }
     },
     {
@@ -120,6 +122,24 @@
         "/result/candidates/0/sections/predict/state": "empty",
         "/result/candidates/0/sections/conservation/state": "empty",
         "/result/candidates/0/sections/cosmic/state": "empty"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "variant",
+        "rs113488022",
+        "--build",
+        "GRCh37"
+      ],
+      "expect": {
+        "/query/build": "GRCh37",
+        "/query": {
+          "omits": [
+            "build_defaulted"
+          ]
+        },
+        "/result/candidates/0/identity/representations/0/build": "GRCh37"
       }
     }
   ]
