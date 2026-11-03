@@ -75,7 +75,9 @@ fn run(disable_clinvar: bool, pair: bool) -> Result<(), String> {
         return Err(format!("replay changed confirmation: {replay_value}"));
     }
     if pair {
-        hosted_restricted(&replay)?;
+        super::search_policy::hosted_http(&replay, "V600E", |value| {
+            check_reply(value, false, true)
+        })?;
     }
     super::super::network_stub::retain_replay_owner(env.shared_root().as_ref())
         .map_err(|e| e.to_string())?;
@@ -220,42 +222,4 @@ fn body(request: &str) -> Result<String, String> {
         row("chr1:g.106A>T", json!({"clinvar":{"variant_id":123}})),
     ];
     Ok(json!({"total":rows.len(),"hits":rows}).to_string())
-}
-
-fn hosted_restricted(replay: &std::path::Path) -> Result<(), String> {
-    let server = super::super::http::Server::configured_globals(
-        "127.0.0.1:0",
-        None,
-        Some(replay.into()),
-        None,
-        None,
-        &["--hosted".into()],
-    )?;
-    let frame = super::super::mcp::request(
-        json!(1),
-        "tools/call",
-        json!({
-            "name":"biomcp", "arguments":{"args":["search","variant","--gene","BRAF","--protein","V600E"]}
-        }),
-    );
-    let headers = "Content-Type: application/json\r\nAccept: application/json, text/event-stream\r\n\
-        MCP-Protocol-Version: 2026-07-28\r\nMcp-Method: tools/call\r\nMcp-Name: biomcp\r\nx-biomcp-use: restricted\r\n";
-    let (status, reply, _) = server.raw(
-        "POST",
-        "/mcp",
-        &server.address.to_string(),
-        headers,
-        &frame.to_string(),
-    )?;
-    let reply = reply.ok_or("missing hosted reply")?;
-    if status != 200 || reply.pointer("/result/isError") != Some(&json!(false)) {
-        return Err(format!("restricted hosted fallback failed: {reply}"));
-    }
-    check_reply(
-        reply
-            .pointer("/result/structuredContent")
-            .ok_or("missing hosted result")?,
-        false,
-        true,
-    )
 }
