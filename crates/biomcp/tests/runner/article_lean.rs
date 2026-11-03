@@ -16,7 +16,7 @@ fn check() -> Result<(), String> {
         for exchange in record["exchanges"].as_array_mut().into_iter().flatten() {
             if let Some(value) = exchange.pointer_mut("/body/value")
                 && let Some(xml) = value.as_str().filter(|xml| xml.starts_with("<article>")) {
-                *value = Value::String(xml.replace("</body>", "<sec><title>Introduction</title><p>Later introduction.</p></sec><sec><title>Other section</title><p>Other text.</p></sec><sec><title>Introduction</title><p>Final introduction.</p></sec></body>"));
+                *value = Value::String(xml.replace("</body>", "<sec><title>Introduction</title><p>Later introduction.</p></sec><sec><title>Other section</title><p>Other text.</p></sec><sec><title>Introduction</title><p>Final introduction.</p></sec><sec><title> </title><p>Untitled section.</p></sec></body>"));
             }
         }
     }).map_err(|error| error.to_string())?;
