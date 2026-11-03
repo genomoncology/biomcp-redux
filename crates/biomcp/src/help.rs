@@ -66,6 +66,8 @@ pub(crate) fn dispatch(root: &crate::grammar::Root, path: &[String]) -> io::Resu
     }
     Ok(Help { commands })
 }
+// Large catalogs remain available through the command's complete query schema.
+const INLINE_CHOICE_LIMIT: usize = 24;
 fn compact(commands: &mut [HelpCommand]) {
     for command in commands {
         command.reply_schemas.clear();
@@ -73,6 +75,17 @@ fn compact(commands: &mut [HelpCommand]) {
         for argument in &mut command.arguments {
             if argument.position.is_none() {
                 argument.description.clear();
+            }
+            if argument.choices.len() > INLINE_CHOICE_LIMIT
+                && let Some((_, _, schema)) = crate::grammar::command_paths()
+                    .iter()
+                    .find(|(verb, entity, _)| command.command == [*verb, *entity])
+            {
+                argument.description = format!(
+                    "{} allowed values: biomcp schema {schema}.",
+                    argument.choices.len()
+                );
+                argument.choices.clear();
             }
             if argument.name == "section" || argument.name == "--section" {
                 argument.choices.clear();

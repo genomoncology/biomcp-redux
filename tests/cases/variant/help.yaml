@@ -13,7 +13,7 @@
         "/result/commands/0/examples": {
           "count": 1
         },
-        "/result/commands/0/description": "Read an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation requires --build. Sources: alphagenome, car, civic, clinvar, hotspots, myvariant, oncokb."
+        "/result/commands/0/description": "Read an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation requires --build. Sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, myvariant, oncokb."
       },
       "max_bytes": 5514
     },

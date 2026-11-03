@@ -9,7 +9,8 @@ use std::{
 
 pub(crate) const DEFAULT_CHARACTER_LIMIT: usize = 2500;
 const TRAPS: &[&str] = &[
-    "Variant IDs: ClinVar/VCV,rsID,CAid,HGVS,coordinates; normalize: HGVS.",
+    "Variant IDs are command-specific; normalize requires reference HGVS.",
+    "Sections are source-specific.",
     "Article text: PMID/PMC/EuropePMC; select part/find/variant/save; no DOI.",
     "ClinGen: get gene ID clingen; separate validity/dosage.",
     "Errors differ from empty; inspect problems/next.",
@@ -44,12 +45,11 @@ fn generate_rows(
         let schema: Value =
             serde_json::from_str(schemas.get(schema).ok_or("missing command schema")?)?;
         sections(&schema, row);
-        for source in coverage::command_sources(verb, child, &schema) {
-            row.sources.insert(source.to_string());
-        }
-        if row.sources.is_empty() {
+        let sources = coverage::command_sources(verb, child, &schema);
+        if sources.is_empty() {
             return Err(format!("missing source coverage for {verb} {child}").into());
         }
+        row.sources.extend(sources);
     }
     Ok(render(entities))
 }
@@ -132,6 +132,11 @@ mod tests {
             })
             .collect();
         let map = generate(&schemas).expect("generated map");
+        assert_eq!(
+            map,
+            include_str!(concat!(env!("OUT_DIR"), "/front-map.txt")),
+            "embedded front map is stale against current declarations"
+        );
         assert!(
             map.chars().count() <= DEFAULT_CHARACTER_LIMIT,
             "{} characters",
@@ -149,7 +154,8 @@ mod tests {
                 .expect("entity line");
             assert!(
                 line.split([' ', ':', ';', ','])
-                    .any(|word| word == if name == child { verb } else { child })
+                    .any(|word| word == if name == child { verb } else { child }),
+                "command missing: {verb} {child}"
             );
             let schema: Value = serde_json::from_str(&schemas[identity]).expect("schema");
             for source in coverage::command_sources(verb, child, &schema) {
@@ -170,6 +176,34 @@ mod tests {
     }
 
     #[test]
+    fn a_command_cannot_borrow_another_commands_sources() {
+        let schemas = BTreeMap::from([
+            (
+                "covered".into(),
+                serde_json::json!({"properties":{"source":{"enum":["pubmed"]}}}).to_string(),
+            ),
+            (
+                "missing".into(),
+                serde_json::json!({"properties":{}}).to_string(),
+            ),
+        ]);
+        let result = generate_rows(
+            &[
+                ("search", "synthetic-entity", "covered"),
+                ("get", "synthetic-entity", "missing"),
+            ],
+            &schemas,
+        );
+        assert!(
+            result
+                .expect_err("a missing command declaration must fail")
+                .to_string()
+                .contains("missing source coverage for get synthetic-entity"),
+            "a command must declare its own sources"
+        );
+    }
+
+    #[test]
     fn a_new_entity_needs_no_renderer_edit() {
         let schemas = BTreeMap::from([(
             "synthetic-schema".into(),
@@ -184,7 +218,10 @@ mod tests {
             &schemas,
         )
         .expect("synthetic declaration");
-        assert!(result.starts_with("synthetic-entity: search;synthetic-section;pubmed\n"));
+        assert!(
+            result.starts_with("synthetic-entity: search;synthetic-section;pubmed\n"),
+            "new declaration must appear without renderer changes"
+        );
         assert!(
             result.chars().count() <= DEFAULT_CHARACTER_LIMIT,
             "synthetic map exceeds default budget"

@@ -15,6 +15,25 @@ def run(binary, args, env):
     return result.stdout
 
 
+def discover(binary, env):
+    pending = [tuple(row.get("command", [])) for row in
+               json.loads(run(binary, ["help"], env))["result"]["commands"]]
+    visited, leaves = set(), set()
+    while pending:
+        path = pending.pop()
+        if not path or path in visited:
+            continue
+        visited.add(path)
+        output = json.loads(run(binary, ["help", *path], env))
+        children = [tuple(row.get("command", [])) for row in output["result"].get("commands", [])]
+        deeper = [child for child in children if child[:len(path)] == path and len(child) > len(path)]
+        if deeper:
+            pending.extend(deeper)
+        else:
+            leaves.add(path)
+    return leaves
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("binary", type=Path)
@@ -55,45 +74,41 @@ def main():
         raw = args.output / "help"
         raw.mkdir(exist_ok=True)
         measurements = []
-        pending = [tuple(row.get("command", [])) for row in
-                   json.loads(run(binary, ["help"], env))["result"]["commands"]]
-        if not args.baseline:
-            pending = []
-        visited = set()
-        while pending:
-            path = pending.pop()
-            if not path or path in visited:
-                continue
-            visited.add(path)
-            output = run(binary, ["help", *path], env)
-            children = [tuple(row.get("command", [])) for row in json.loads(output)["result"].get("commands", [])]
-            deeper = [child for child in children if child[:len(path)] == path and len(child) > len(path)]
-            if deeper:
-                pending.extend(deeper)
-                continue
+        inventory = {}
+        if args.baseline:
+            current_paths, baseline_paths = discover(binary, env), discover(args.baseline, env)
+            inventory = {"candidate": sorted(current_paths), "baseline": sorted(baseline_paths),
+                         "added_help_topics": sorted(current_paths - baseline_paths),
+                         "removed": sorted(baseline_paths - current_paths)}
+            assert not inventory["removed"], inventory
+            assert all(path[0] == "help" for path in inventory["added_help_topics"]), inventory
+            (args.output / "baseline-version.json").write_text(run(args.baseline, ["version", "--verbose"], env))
+        else:
+            current_paths, baseline_paths = set(), set()
+        for path in sorted(current_paths | baseline_paths):
             for fmt in ("json", "md"):
                 command = ["--format", fmt, "help", *path]
                 current = run(binary, command, env)
                 name = "-".join(path) + "." + fmt
                 (raw / ("candidate-" + name)).write_text(current)
                 record = {"command": list(path), "format": fmt, "characters": len(current)}
-                if args.baseline:
+                if path in baseline_paths:
                     baseline = run(args.baseline, command, env)
                     record["baseline_characters"] = len(baseline)
                     (raw / ("baseline-" + name)).write_text(baseline)
                 measurements.append(record)
         report = {"binary_sha256": hashlib.sha256(binary.read_bytes()).hexdigest(),
                   "map_characters": len(front), "map_bytes": len(front.encode()),
-                  "measurements": measurements}
+                  "inventory": inventory, "measurements": measurements}
         if args.baseline:
             report["baseline_sha256"] = hashlib.sha256(args.baseline.read_bytes()).hexdigest()
             for fmt in ("json", "md"):
                 rows = [row for row in measurements if row["format"] == fmt]
-                before = max(row["baseline_characters"] for row in rows)
+                before = max(row["baseline_characters"] for row in rows if "baseline_characters" in row)
                 after = max(row["characters"] for row in rows)
                 report[fmt] = {"longest_before": before, "longest_after": after, "reduction": 1 - after / before}
         (args.output / "proof.json").write_text(json.dumps(report, indent=2) + "\n")
-        print(json.dumps({key: value for key, value in report.items() if key != "measurements"}))
+        print(json.dumps({key: value for key, value in report.items() if key not in {"measurements", "inventory"}}))
         if args.baseline:
             assert report["json"]["reduction"] >= 0.40, report["json"]
             assert report["md"]["reduction"] >= 0.40, report["md"]

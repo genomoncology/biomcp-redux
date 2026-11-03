@@ -244,7 +244,7 @@ Options:
 
 ```
 
-Exact author name query and source window; positional text maps to query. Sources: semantic-scholar, semanticscholar.
+Exact author name query and source window; positional text maps to query. Sources: semantic-scholar.
 
 - `--limit`: Bounded source page size.
 - `--offset`: Source offset.
@@ -2533,7 +2533,7 @@ Options:
 
 ```
 
-Get one to twenty article inputs in caller order. Sources: icite, pmc-oa, pubmed.
+Get one to twenty article inputs in caller order. Sources: europepmc, icite, pmc-oa, pubmed, pubtator, semantic-scholar.
 
 - `input`: PubMed, PMC or DOI identifiers in input order.
 - `--section`: Requested section words; trailing words and --section share this field.
@@ -2689,7 +2689,7 @@ Options:
 
 ```
 
-Read an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation requires --build. Sources: alphagenome, car, civic, clinvar, hotspots, myvariant, oncokb.
+Read an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation requires --build. Sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, myvariant, oncokb.
 
 - `--build`: Required for chromosome notation; no assembly is guessed.
 - `--civic-cursor`: Source CIViC cursor, retained unchanged.
@@ -4254,7 +4254,7 @@ Options:
 
 ```
 
-Send unchanged reference-qualified notation to explicitly named services. Sources: all, car, mutalyzer, variantvalidator.
+Send unchanged reference-qualified notation to explicitly named services. Sources: car, mutalyzer, variantvalidator.
 
 - `--build`: Caller assembly; required when VariantValidator is selected.
 - `--hgvs`: Reference-qualified HGVS, or chromosome genomic HGVS with an explicit build for CAR.
@@ -5695,6 +5695,7 @@ Commands:
   article        Read article text, references, citations and files.
   trial          Read trial groups and public documents.
   variant        Read source variant assertions, populations and recurrence.
+  clingen
 
 Options:
       --format <format>
@@ -6279,6 +6280,38 @@ Options:
 ```
 
 Read source variant assertions, populations and recurrence.
+
+
+## biomcp help get clingen
+
+```text
+Usage: biomcp help get clingen [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output; configuration can change the default.
+
+          [default: json]
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --source_pacing <source_pacing>
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline
+          Read local data without source requests.
+
+      --fresh
+          Request fresh source data instead of cached replies.
+
+```
+
+Describe help get clingen.
 
 
 ## biomcp help author

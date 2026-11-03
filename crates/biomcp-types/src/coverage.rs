@@ -3,7 +3,12 @@ use crate::Source;
 
 /// Sources not fully represented by a command source selector.
 pub fn command_implicit_sources(verb: &str, entity: &str) -> &'static [Source] {
-    use Source::*;
+    use Source::{
+        AlleleRegistry, AlphaGenome, CancerHotspots, Cbioportal, Cellosaurus, Chembl, Civic,
+        ClinGen, ClinVar, ClinicalTrialsGov, ComplexPortal, Erepo, EuropePmc, Gencc, Gnomad, Gwas,
+        Hgnc, Hpa, Icite, InterPro, Mutalyzer, MyGene, MyVariant, Oncokb, Orcid, PmcOa, PubMed,
+        PubTator, Reactome, SemanticScholar, UniProt, VariantValidator, WikiPathways,
+    };
     match (verb, entity) {
         ("protein", "domains") => &[InterPro],
         ("protein", "complexes" | "complex-members") => &[ComplexPortal],

@@ -13,7 +13,7 @@
             "--pool"
           ]
         },
-        "/result/commands/0/description": "Exact author name query and source window; positional text maps to query. Sources: semantic-scholar, semanticscholar.",
+        "/result/commands/0/description": "Exact author name query and source window; positional text maps to query. Sources: semantic-scholar.",
         "/result/commands/0/examples": {
           "count": 1
         },

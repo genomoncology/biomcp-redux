@@ -8,4 +8,7 @@ if [ "${1:-}" = refresh ]; then
     make docs-generate
 fi
 cargo +1.95.0 test --locked -p biomcp --test ratchets front_map
-python3 scripts/check_front_map.py "${CARGO_TARGET_DIR:-target}/debug/biomcp" --baseline /Users/ian/workspace/t/biomcp-redux-0586-benchmark-baseline-27ead/installed/bin/biomcp --output "$HOME/workspace/t/biomcp-redux-0586-proof-${PM_JOB:?}"
+python3 scripts/check_front_map.py "${CARGO_TARGET_DIR:-target}/debug/biomcp" --baseline /Users/ian/workspace/t/biomcp-redux-0586-benchmark-baseline-27ead/installed/bin/biomcp --output "$HOME/workspace/t/biomcp-redux-0586-proof-$(git rev-parse HEAD)"
+if [ "${1:-}" = gate ]; then
+    make landing-gate
+fi
