@@ -41,8 +41,9 @@ fn first_reader() -> Result<(), String> {
     admission.recv_timeout(Duration::from_secs(15)).map_err(|e| e.to_string())?;
     let result = std::thread::scope(|scope| {
         let (done, completion) = mpsc::channel();
-        scope.spawn(|| {
-            let result = invoke(&env, vec!["get".into(), "gene".into(), "ODC1".into(),
+        let environment = &env;
+        scope.spawn(move || {
+            let result = invoke(environment, vec!["get".into(), "gene".into(), "ODC1".into(),
                 "gencc".into(), "--case-cache".into(), cache], 0);
             let _ = done.send(result);
         });
