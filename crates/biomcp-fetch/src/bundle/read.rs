@@ -114,26 +114,25 @@ impl Leg<'_> {
         let mut waited = false;
         loop {
             let active = live && cache.syncing(bundle.name, self.budget())?;
+            if active && self.fresh {
+                self.wait_for_bundle(bundle, waited)?;
+                waited = true;
+                continue;
+            }
             if active || waited {
-                if let Some(meta) = cache.bundle_info(bundle.name, self.budget())? {
-                    if self.fresh && meta.fresh_until <= crate::cache::now() {
-                        if active {
-                            self.wait_for_bundle(bundle)?;
-                            waited = true;
-                            continue;
-                        }
-                    } else {
-                        if meta.fresh_until <= crate::cache::now() {
-                            self.report
-                                .lock()
-                                .unwrap_or_else(std::sync::PoisonError::into_inner)
-                                .stale = true;
-                        }
-                        return Ok(store::info(bundle, &meta));
+                if let Some(meta) = cache.bundle_info(bundle.name, self.budget())?
+                    && (!self.fresh || meta.fresh_until > crate::cache::now())
+                {
+                    if meta.fresh_until <= crate::cache::now() {
+                        self.report
+                            .lock()
+                            .unwrap_or_else(std::sync::PoisonError::into_inner)
+                            .stale = true;
                     }
+                    return Ok(store::info(bundle, &meta));
                 }
                 if active {
-                    self.wait_for_bundle(bundle)?;
+                    self.wait_for_bundle(bundle, waited)?;
                     waited = true;
                     continue;
                 }
@@ -150,8 +149,12 @@ impl Leg<'_> {
             }
         }
     }
-    fn wait_for_bundle<R: Row>(&self, bundle: &Bundle<R>) -> Result<(), RequestError> {
-        if self.fetch.config.observations.is_some() {
+    fn wait_for_bundle<R: Row>(
+        &self,
+        bundle: &Bundle<R>,
+        waited: bool,
+    ) -> Result<(), RequestError> {
+        if !waited && self.fetch.config.observations.is_some() {
             let url = format!("{}{}", self.spec.base.trim_end_matches('/'), bundle.path);
             self.observed(
                 &crate::retry::identity(&url),
