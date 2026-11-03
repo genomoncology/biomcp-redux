@@ -19,11 +19,11 @@ pub(super) fn confirmed(hit: &Hit, leg: &Leg<'_>, reference: &Leg<'_>) -> Result
     if clinvar || dbsnp {
         return Ok(true);
     }
-    let Some(build) = super::search_build::source_build(hit) else {
+    let Some((accession, position, base)) = super::search_build::reference_locus(hit) else {
         return Ok(false);
     };
     // Failure to confirm is an exclusion, never a protein match. The shared leg records errors.
-    crate::clinvar::reference_agrees(reference, hit.id.as_str(), build)
+    crate::clinvar::reference_agrees(reference, &accession, position, base)
 }
 fn valid_rs(value: &Field<biodata::Text>) -> bool {
     value.as_ref().is_some_and(|id| matches!(id.as_str().parse::<VariantId>(), Ok(VariantId::Rs(_))))

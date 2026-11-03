@@ -93,8 +93,14 @@ pub fn search(
     Ok(mapped_page(page, leg, query, reference))
 }
 
-fn mapped_page(page: Page, leg: &Leg<'_>, query: &VariantSearch, reference: &Leg<'_>) -> SearchPage {
-    let fallback = query.uses_dbnsfp_selector() && super::components::disabled_on_leg(leg, "dbnsfp");
+fn mapped_page(
+    page: Page,
+    leg: &Leg<'_>,
+    query: &VariantSearch,
+    reference: &Leg<'_>,
+) -> SearchPage {
+    let fallback =
+        query.uses_dbnsfp_selector() && super::components::disabled_on_leg(leg, "dbnsfp");
     let mut excluded = 0;
     let mut reference_error = None;
     let mut rows = Mapped {
@@ -117,9 +123,11 @@ fn mapped_page(page: Page, leg: &Leg<'_>, query: &VariantSearch, reference: &Leg
         let build = super::search_build::source_build(&hit);
         if fallback {
             match super::corroboration::confirmed(&hit, leg, reference) {
-                Ok(true) => {},
+                Ok(true) => {}
                 result => {
-                    if let Err(error) = result { reference_error = Some(error); }
+                    if let Err(error) = result {
+                        reference_error = Some(error);
+                    }
                     excluded += 1;
                     continue;
                 }

@@ -5,8 +5,8 @@ export RUSTUP_TOOLCHAIN=1.95.0
 mkdir -p target/0595-proofs
 if [ "${1:-}" = format ]; then
     cargo fmt --all
-    cargo check --locked -p biomcp-query
     git diff --binary > target/0595-proofs/format.patch
+    cargo check --locked -p biomcp-query
     exit
 fi
 if [ "${1:-}" = gate ]; then

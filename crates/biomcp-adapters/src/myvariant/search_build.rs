@@ -36,6 +36,10 @@ fn source_span(value: &SourceSpan) -> Option<(u64, u64)> {
 // Compare only literal substitution positions. Other HGVS forms retain unknown assembly;
 // no normalization, strand conversion, or allele transplant qualifies them.
 fn literal_span(expression: &str) -> Option<(u64, u64)> {
+    let (position, _) = literal_snv(expression)?;
+    Some((position, position))
+}
+fn literal_snv(expression: &str) -> Option<(u64, &str)> {
     let length = expression.bytes().take_while(u8::is_ascii_digit).count();
     let position = expression.get(..length)?.parse::<u64>().ok()?;
     let (reference, alternate) = expression.get(length..)?.split_once('>')?;
@@ -49,5 +53,14 @@ fn literal_span(expression: &str) -> Option<(u64, u64)> {
     {
         return None;
     }
-    Some((position, position))
+    Some((position, reference))
+}
+
+/// Source metadata alone qualifies the exact forward-reference SNV lookup.
+pub(super) fn reference_locus(hit: &Hit) -> Option<(String, u64, &str)> {
+    let build = source_build(hit)?;
+    let (chromosome, expression) = hit.id.as_str().strip_prefix("chr")?.split_once(":g.")?;
+    let chromosome = biodata::Chromosome::parse(if chromosome == "M" { "MT" } else { chromosome }).ok()?;
+    let (position, reference) = literal_snv(expression)?;
+    Some((chromosome.accession(build).to_string(), position, reference))
 }
