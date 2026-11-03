@@ -71,14 +71,12 @@ fn check(extra: &str) -> Result<(), String> {
         .and_then(Value::as_array)
         .ok_or("missing outline parts")?;
     if parts.len() < 2
-        || !parts
-            .windows(2)
-            .any(|pair| {
-                let [left, right] = pair else {
-                    return false;
-                };
-                left.get("title").is_some() && left.get("title") == right.get("title")
-            })
+        || !parts.windows(2).any(|pair| {
+            let [left, right] = pair else {
+                return false;
+            };
+            left.get("title").is_some() && left.get("title") == right.get("title")
+        })
     {
         return Err("fixture must exercise repeated part titles".into());
     }
