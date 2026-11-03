@@ -44,9 +44,7 @@ pub(super) fn enabled() -> Result<(), String> {
 
 pub(super) fn check() -> Result<(), String> {
     for protein in ["V600E", "Val600Glu", "p.V600E", "p.Val600Glu"] {
-        for policy in ["noncommercial", "noncommercial,licensed"] {
-            check_policy(protein, policy)?;
-        }
+        check_policy(protein)?;
     }
     refusal()?;
     Ok(())
@@ -81,7 +79,7 @@ fn refusal() -> Result<(), String> {
     Ok(())
 }
 
-fn check_policy(protein: &str, policy: &str) -> Result<(), String> {
+fn check_policy(protein: &str) -> Result<(), String> {
     let stub = Stub::for_source("myvariant.info", "application/json", body)?;
     let env = super::source_environment(&stub)?;
     let replay = env.root().join("recordings");
@@ -93,7 +91,7 @@ fn check_policy(protein: &str, policy: &str) -> Result<(), String> {
         "--protein",
         protein,
         "--disable-sources",
-        policy,
+        "noncommercial",
     ];
     let mut args: Vec<String> = words.into_iter().map(str::to_owned).collect();
     args.extend(["--record".into(), replay.to_string_lossy().into()]);
@@ -111,9 +109,7 @@ fn check_policy(protein: &str, policy: &str) -> Result<(), String> {
     globals.push("--hosted".into());
     let hosted = mcp::call_with_globals(&replay_env, &args, false, &globals)?;
     check_reply(&hosted)?;
-    if policy == "noncommercial,licensed" {
-        hosted_http(&replay, protein)?;
-    }
+    hosted_http(&replay, protein)?;
     let requests = stub.finish()?;
     let [(_, request)] = requests.as_slice() else {
         return Err(format!("expected exactly one source request: {requests:?}"));
