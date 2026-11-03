@@ -1,6 +1,7 @@
 //! NCBI EFetch sequence parameters: https://www.ncbi.nlm.nih.gov/books/NBK25499/.
 //! seq_start and seq_stop are inclusive, one-based; strand=1 is the forward reference.
 use super::FETCH;
+const REFERENCE: biomcp_fetch::Endpoint = FETCH.bytes(1024);
 use biomcp_fetch::{Arg, BadReply, Bytes, Input, Leg, Read, RequestError};
 
 /// Read at most one reference base, only for a source-qualified literal SNV.
@@ -25,11 +26,9 @@ pub(crate) fn reference_agrees(
         ("tool", Arg::Text("biomcp")),
     ];
     let reply = leg.call(
-        &FETCH,
+        &REFERENCE,
         Input::Params(&params),
-        Read::<Bytes>::bytes()
-            .bounded(1024, biomcp_types::Reason::BadReply)
-            .check(&|bytes| fasta(&bytes.0, &accession, position).map(|_| ())),
+        Read::<Bytes>::bytes().check(&|bytes| fasta(&bytes.0, &accession, position).map(|_| ())),
     )?;
     Ok(fasta(&reply.value.0, &accession, position)
         .map_err(|_| biomcp_fetch::bad_reply(biomcp_types::Source::ClinVar, None))?
