@@ -82,9 +82,9 @@ fn read(missing: bool) -> Result<(), String> {
     } else {
         stale_then_fresh(&mut server, &observations, admission, publish)
     };
-    server.finish()?;
-    stub.finish()?;
-    result
+    let stopped = server.finish();
+    let fixture = stub.finish();
+    result.and(stopped).and(fixture)
 }
 fn call(id: &str, fresh: bool) -> Value {
     let mut args = vec!["get", "gene", "ODC1"];
