@@ -97,6 +97,7 @@ pub use variant_query::VariantGetQuery;
 mod variant_normalize;
 pub use variant::{
     VariantCard, VariantHeader, VariantPage, VariantResolution, VariantSections, VariantTranscript,
+    VariantSearchExclusions, VariantSearchExclusionReason,
 };
 pub use variant_normalize::{
     NormalizationField, NormalizationMessage, NormalizationResult, VariantNormalization,

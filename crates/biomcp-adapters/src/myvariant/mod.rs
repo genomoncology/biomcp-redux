@@ -4,6 +4,7 @@ use biomcp_fetch::{Input, Read};
 pub mod components;
 /// MyVariant-carried historical COSMIC fragments.
 pub mod cosmic;
+mod corroboration;
 mod map;
 /// Capture-proven component measurements.
 pub mod measurements;
