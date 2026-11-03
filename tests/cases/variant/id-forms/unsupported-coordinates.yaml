@@ -27,6 +27,26 @@
     },
     {
       "run": [
+        "--format",
+        "md",
+        "get",
+        "variant",
+        "7-140753336-AA-T"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "": {
+          "includes_all_of": [
+            "single-base",
+            "reference-qualified HGVS",
+            "variant normalize --source car --hgvs"
+          ]
+        }
+      }
+    },
+    {
+      "run": [
         "get",
         "variant",
         "7-140753336-AC-T"

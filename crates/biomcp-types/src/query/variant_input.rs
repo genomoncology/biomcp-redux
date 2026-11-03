@@ -230,5 +230,8 @@ text_value!(
         biodata::ClinVarVariationId::pattern().replace("clinvar:", ""),
         Self::CHROMOSOME_PATTERN,
         Self::COORDINATE_PATTERN
-    )
+    ),
+    "Accepted forms: rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS, chromosome genomic HGVS, \
+    or single-base chromosome-position-reference-alternate coordinates. Multi-base coordinates are unsupported; \
+    use reference-qualified HGVS and variant normalize --source car --hgvs <HGVS> to validate source forms."
 );
