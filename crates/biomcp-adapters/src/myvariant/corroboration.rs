@@ -15,8 +15,9 @@ pub(super) fn confirmed(
             .as_ref()
             .and_then(Field::as_ref)
             .and_then(|row| row.variant_id.as_ref())
-            .and_then(|id| u32::try_from(*id).ok())
-            .is_some_and(|id| biodata::ClinVarVariationId::new(id).is_ok());
+            .is_some_and(|id| {
+                u32::try_from(*id).is_ok_and(|id| biodata::ClinVarVariationId::new(id).is_ok())
+            });
     let dbsnp = hit
         .dbsnp
         .as_ref()
@@ -30,11 +31,12 @@ pub(super) fn confirmed(
     if clinvar || dbsnp {
         return Ok(true);
     }
-    let Some((accession, position, base)) = super::search_build::reference_locus(hit) else {
+    let Some((chromosome, build, position, base)) = super::search_build::reference_locus(hit)
+    else {
         return Ok(false);
     };
     // Failure to confirm is an exclusion, never a protein match. The shared leg records errors.
-    crate::clinvar::reference_agrees(reference, &accession, position, base)
+    crate::clinvar::reference_agrees(reference, chromosome, build, position, base)
 }
 fn valid_rs(value: &Field<biodata::Text>) -> bool {
     value

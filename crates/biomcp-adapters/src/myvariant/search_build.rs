@@ -12,7 +12,8 @@ pub(super) fn source_build(hit: &Hit) -> Option<Build> {
     if source_chromosome.as_str() != chromosome {
         return None;
     }
-    let span = literal_span(expression)?;
+    let (position, _) = literal_span(expression)?;
+    let span = (position, position);
     let mut found = None;
     for (build, value) in [(Build::GRCh37, &hit.hg19), (Build::GRCh38, &hit.hg38)] {
         if let Some(value) = value {
@@ -35,11 +36,7 @@ fn source_span(value: &SourceSpan) -> Option<(u64, u64)> {
 }
 // Compare only literal substitution positions. Other HGVS forms retain unknown assembly;
 // no normalization, strand conversion, or allele transplant qualifies them.
-fn literal_span(expression: &str) -> Option<(u64, u64)> {
-    let (position, _) = literal_snv(expression)?;
-    Some((position, position))
-}
-fn literal_snv(expression: &str) -> Option<(u64, &str)> {
+fn literal_span(expression: &str) -> Option<(u64, &str)> {
     let length = expression.bytes().take_while(u8::is_ascii_digit).count();
     let position = expression.get(..length)?.parse::<u64>().ok()?;
     let (reference, alternate) = expression.get(length..)?.split_once('>')?;
@@ -57,11 +54,9 @@ fn literal_snv(expression: &str) -> Option<(u64, &str)> {
 }
 
 /// Source metadata alone qualifies the exact forward-reference SNV lookup.
-pub(super) fn reference_locus(hit: &Hit) -> Option<(String, u64, &str)> {
+pub(super) fn reference_locus(hit: &Hit) -> Option<(&str, Build, u64, &str)> {
     let build = source_build(hit)?;
     let (chromosome, expression) = hit.id.as_str().strip_prefix("chr")?.split_once(":g.")?;
-    let chromosome =
-        biodata::Chromosome::parse(if chromosome == "M" { "MT" } else { chromosome }).ok()?;
-    let (position, reference) = literal_snv(expression)?;
-    Some((chromosome.accession(build).to_string(), position, reference))
+    let (position, reference) = literal_span(expression)?;
+    Some((chromosome, build, position, reference))
 }

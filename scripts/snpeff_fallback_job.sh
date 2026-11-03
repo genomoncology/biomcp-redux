@@ -28,5 +28,6 @@ fi
 cargo fmt --all -- --check
 cargo install --locked --debug --path crates/biomcp --root target/0595-proofs/installed --force
 export BIOMCP_TEST_EXECUTABLE="$PWD/target/0595-proofs/installed/bin/biomcp"
+export BIOMCP_EVIDENCE_DIR="$PWD/target/0595-proofs/evidence"
 export BIOMCP_TRANSCRIPT_DIR="$PWD/target/0595-proofs/replies"
 cargo test --locked -p biomcp --test cases variant-search/ -- --nocapture

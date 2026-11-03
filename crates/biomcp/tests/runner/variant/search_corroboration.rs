@@ -43,9 +43,9 @@ fn run(disable_clinvar: bool, pair: bool) -> Result<(), String> {
         "V600E",
         "--disable-sources",
         if disable_clinvar {
-            "restricted,clinvar"
+            "noncommercial,clinvar"
         } else {
-            "restricted"
+            "noncommercial"
         },
         "--record",
     ]
@@ -58,6 +58,31 @@ fn run(disable_clinvar: bool, pair: bool) -> Result<(), String> {
         .output()
         .map_err(|e| e.to_string())?;
     let value: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
+    check_reply(&value, disable_clinvar, pair)?;
+    // Replay the exact recorded exchanges in another isolated installed process.
+    let replay_env = launch::Environment::new()
+        .map_err(|e| e.to_string())?
+        .with_replay_owner(env.shared_root());
+    let mut replay_args = args.into_iter().take(8).collect::<Vec<_>>();
+    replay_args.extend(["--replay".into(), replay.to_string_lossy().into()]);
+    let replay_output = replay_env
+        .command(env!("CARGO_BIN_EXE_biomcp"), &replay_args)
+        .output()
+        .map_err(|e| e.to_string())?;
+    let replay_value: Value =
+        serde_json::from_slice(&replay_output.stdout).map_err(|e| e.to_string())?;
+    if replay_value.pointer("/result") != value.pointer("/result") {
+        return Err(format!("replay changed confirmation: {replay_value}"));
+    }
+    if pair {
+        hosted_restricted(&replay)?;
+    }
+    super::super::network_stub::retain_replay_owner(env.shared_root().as_ref())
+        .map_err(|e| e.to_string())?;
+    let requests = stub.finish()?;
+    check_requests(requests, disable_clinvar, pair)
+}
+fn check_reply(value: &Value, disable_clinvar: bool, pair: bool) -> Result<(), String> {
     let expected = if disable_clinvar || pair { 1 } else { 4 };
     let total = if pair { 2 } else { 9 };
     let items = value
@@ -100,22 +125,13 @@ fn run(disable_clinvar: bool, pair: bool) -> Result<(), String> {
             "same-record allowed evidence selected the wrong identity: {value}"
         ));
     }
-    // Replay the exact recorded exchanges in another isolated installed process.
-    let replay_env = launch::Environment::new()
-        .map_err(|e| e.to_string())?
-        .with_replay_owner(env.shared_root());
-    let mut replay_args = args.into_iter().take(8).collect::<Vec<_>>();
-    replay_args.extend(["--replay".into(), replay.to_string_lossy().into()]);
-    let replay_output = replay_env
-        .command(env!("CARGO_BIN_EXE_biomcp"), &replay_args)
-        .output()
-        .map_err(|e| e.to_string())?;
-    let replay_value: Value =
-        serde_json::from_slice(&replay_output.stdout).map_err(|e| e.to_string())?;
-    if replay_value.pointer("/result") != value.pointer("/result") {
-        return Err(format!("replay changed confirmation: {replay_value}"));
-    }
-    let requests = stub.finish()?;
+    Ok(())
+}
+fn check_requests(
+    requests: super::Requests,
+    disable_clinvar: bool,
+    pair: bool,
+) -> Result<(), String> {
     let reference = requests
         .iter()
         .filter(|(_, request)| request.contains("efetch.fcgi"))
@@ -204,4 +220,42 @@ fn body(request: &str) -> Result<String, String> {
         row("chr1:g.106A>T", json!({"clinvar":{"variant_id":123}})),
     ];
     Ok(json!({"total":rows.len(),"hits":rows}).to_string())
+}
+
+fn hosted_restricted(replay: &std::path::Path) -> Result<(), String> {
+    let server = super::super::http::Server::configured_globals(
+        "127.0.0.1:0",
+        None,
+        Some(replay.into()),
+        None,
+        None,
+        &["--hosted".into()],
+    )?;
+    let frame = super::super::mcp::request(
+        json!(1),
+        "tools/call",
+        json!({
+            "name":"biomcp", "arguments":{"args":["search","variant","--gene","BRAF","--protein","V600E"]}
+        }),
+    );
+    let headers = "Content-Type: application/json\r\nAccept: application/json, text/event-stream\r\n\
+        MCP-Protocol-Version: 2026-07-28\r\nMcp-Method: tools/call\r\nMcp-Name: biomcp\r\nx-biomcp-use: restricted\r\n";
+    let (status, reply, _) = server.raw(
+        "POST",
+        "/mcp",
+        &server.address.to_string(),
+        headers,
+        &frame.to_string(),
+    )?;
+    let reply = reply.ok_or("missing hosted reply")?;
+    if status != 200 || reply.pointer("/result/isError") != Some(&json!(false)) {
+        return Err(format!("restricted hosted fallback failed: {reply}"));
+    }
+    check_reply(
+        reply
+            .pointer("/result/structuredContent")
+            .ok_or("missing hosted result")?,
+        false,
+        true,
+    )
 }
