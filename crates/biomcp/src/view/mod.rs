@@ -2,6 +2,7 @@
 mod escape;
 mod help;
 mod hints;
+mod article;
 use biomcp_types::{Help, ResponseBody};
 use escape::{escape, source_link};
 use serde_json::Value;
@@ -85,7 +86,11 @@ impl View<'_> {
                 heading(name, depth, out);
                 if name == "next" {
                     steps(value, out);
-                } else {
+                } else if !(name == "parts"
+                    && self.hint.is_some_and(|hint| {
+                        hint.schema == biomcp_types::ArticleCards::SCHEMA
+                    })
+                    && article::parts(value, depth + 1, out)) {
                     View {
                         root: self.root,
                         hint: self.hint,

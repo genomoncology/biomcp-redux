@@ -29,6 +29,24 @@ pub(super) fn get(query: &ArticleGet, out: &mut Outcome) {
         let Some(input) = input else {
             continue;
         };
+        if item.sections.as_ref().is_some_and(|sections| {
+            matches!(&sections.fulltext, Some(biomcp_types::Section::Data { data, .. }) if !data.parts.is_empty())
+        }) && let Some(query) = crate::next::checked(
+            serde_json::from_value::<biomcp_types::ArticleText>(serde_json::json!({
+                "input": input,
+                "find": "<text>"
+            })),
+            Source::PubMed,
+            &mut out.problems,
+        ) {
+            // The fill-in term advertises literal finding without inventing a research question.
+            push(
+                &mut out.next,
+                StepKind::Section,
+                &text_sources(query.input()),
+                Request::ArticleText(query),
+            );
+        }
         if !item.more.is_empty() {
             let words = item
                 .more
