@@ -1,6 +1,6 @@
 //! Server-owned bundle refreshes retain the ordinary publisher lock and quotas.
 use super::{Bundle, Row};
-use crate::{BundleRefresh, Fetch, Leg};
+use crate::{BundleRefresh, Leg};
 use std::thread::JoinHandle;
 
 impl Leg<'_> {
