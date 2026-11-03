@@ -21,12 +21,13 @@ pub(super) fn parts(value: &Value, depth: usize, out: &mut String) -> bool {
             .unwrap_or(remaining.len());
         let (group, rest) = remaining.split_at(end);
         let mut rows = group.to_vec();
-        if let Some(title) = title.and_then(Value::as_str) {
-            out.push_str(&format!(
-                "{} {}\n\n",
-                "#".repeat(depth.min(6)),
-                super::escape::escape(title)
-            ));
+        let label = title.and_then(Value::as_str).unwrap_or("Parts without a source title");
+        out.push_str(&format!(
+            "{} {}\n\n",
+            "#".repeat(depth.min(6)),
+            super::escape::escape(label)
+        ));
+        if title.is_some_and(Value::is_string) {
             for row in &mut rows {
                 if let Some(fields) = row.as_object_mut() {
                     fields.remove("title");

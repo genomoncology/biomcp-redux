@@ -6,13 +6,18 @@ export RUSTUP_TOOLCHAIN=1.95.0
 phase=${1:-focused}
 output="/Users/ian/workspace/t/biomcp-redux-0590-${PM_JOB:?}"
 mkdir -p "$output/installed/bin"
-if [ "$phase" = gate ]; then
-    make landing-gate
-fi
-cargo fmt --all
-git diff > "$output/format.patch"
+case "$phase" in
+    focused)
+        cargo fmt --all
+        git diff > "$output/format.patch"
+        ;;
+    gate) make landing-gate ;;
+    *) exit 2 ;;
+esac
 cargo build --locked -p biomcp --bin biomcp
 cp "${CARGO_TARGET_DIR:-target}/debug/biomcp" "$output/installed/bin/biomcp"
+git rev-parse HEAD > "$output/source.txt"
+shasum -a 256 "$output/installed/bin/biomcp" > "$output/binary.sha256"
 export BIOMCP_TEST_EXECUTABLE="$output/installed/bin/biomcp"
 export BIOMCP_LEGACY_EXECUTABLE="/Users/ian/workspace/t/biomcp-redux-0586-benchmark-baseline-27ead/installed/bin/biomcp"
 export BIOMCP_TRANSCRIPT_DIR="$output/replies"
