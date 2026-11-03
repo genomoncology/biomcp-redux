@@ -83,7 +83,7 @@ fn read(missing: bool) -> Result<(), String> {
         stale_then_fresh(&mut server, &observations, admission, publish)
     };
     let stopped = server.finish();
-    let fixture = stub.finish();
+    let fixture = stub.finish().map(|_| ());
     result.and(stopped).and(fixture)
 }
 fn call(id: &str, fresh: bool) -> Value {
