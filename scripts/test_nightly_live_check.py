@@ -337,6 +337,9 @@ class NightlyCommand(unittest.TestCase):
                     row = classification_case(change)
                     row['witness'][0]['live']['output']['sources'][0]['reason'] = reason
                     self.classified(row, 'failure', 1)
+                    row['result']['drift'] = row['result']['drift'][:1]
+                    row['witness'][0]['baseline']['output']['status'] = 'failed'
+                    self.classified(row, 'failure', 1)
 
     def test_recovery_retains_case_and_output_source_without_failed_request(self):
         row = classification_case('order')
