@@ -44,7 +44,7 @@ pub(super) fn enabled() -> Result<(), String> {
 
 pub(super) fn check() -> Result<(), String> {
     for protein in ["V600E", "Val600Glu", "p.V600E", "p.Val600Glu"] {
-        for policy in ["noncommercial", "restricted"] {
+        for policy in ["noncommercial", "noncommercial,licensed"] {
             check_policy(protein, policy)?;
         }
     }
@@ -111,7 +111,7 @@ fn check_policy(protein: &str, policy: &str) -> Result<(), String> {
     globals.push("--hosted".into());
     let hosted = mcp::call_with_globals(&replay_env, &args, false, &globals)?;
     check_reply(&hosted)?;
-    if policy == "restricted" {
+    if policy == "noncommercial,licensed" {
         hosted_http(&replay, protein)?;
     }
     let requests = stub.finish()?;
