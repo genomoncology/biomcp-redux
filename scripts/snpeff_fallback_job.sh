@@ -39,10 +39,7 @@ cargo fmt --all -- --check
 cargo install --locked --debug --path crates/biomcp --root target/0595-proofs/installed --force
 export BIOMCP_TEST_EXECUTABLE="$PWD/target/0595-proofs/installed/bin/biomcp"
 export BIOMCP_EVIDENCE_DIR="$PWD/target/0595-proofs/evidence"
-export BIOMCP_TRANSCRIPT_DIR="$PWD/target/0595-proofs/replies"
+export BIOMCP_TRANSCRIPT_DIR="$PWD/target/0595-proofs/replies/$(git rev-parse HEAD)"
 cargo test --locked -p biomcp --test cases variant-search/ -- --nocapture
 
-python3 scripts/snpeff_parity.py \
-    crates/biomcp-types/src/response/variant.rs crates/biomcp-query/src/variant/search.rs \
-    crates/biomcp-adapters/src/myvariant/search.rs crates/biomcp-adapters/src/myvariant/search_build.rs \
-    crates/biomcp-adapters/src/myvariant/corroboration.rs crates/biomcp-adapters/src/clinvar/reference.rs
+python3 scripts/snpeff_parity.py $(git diff --name-only 0afa5e26afa2a9f38a90e965c844bd3f9d95ebf2 HEAD -- crates scripts/snpeff_fallback_job.sh scripts/snpeff_parity.py sdlc/features.md)
