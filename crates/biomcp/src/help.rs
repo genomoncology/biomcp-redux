@@ -14,6 +14,18 @@ use serde_json::Value;
 use std::{collections::BTreeMap, io};
 
 pub(crate) fn dispatch(root: &crate::grammar::Root, path: &[String]) -> io::Result<Help> {
+    if path == ["get", "clingen"] {
+        let mut help = dispatch(root, &["get".into(), "gene".into()])?;
+        if let Some(command) = help.commands.first_mut() {
+            command
+                .description
+                .insert_str(0, "ClinGen: get gene ID clingen. ");
+            if let Some(example) = command.examples.first_mut() {
+                example.push("clingen".into());
+            }
+        }
+        return Ok(help);
+    }
     if let [topic] = path
         && matches!(topic.as_str(), "sources" | "config")
     {
@@ -45,7 +57,7 @@ pub(crate) fn dispatch(root: &crate::grammar::Root, path: &[String]) -> io::Resu
         })
         .collect();
     if !public_grammar::overview(root, &mut commands, path)? {
-        public_grammar::scoped_globals(root, &mut commands);
+        compact(&mut commands);
     }
     if path.is_empty() || path == ["help"] {
         let mut map = topic("map", FRONT_MAP.into());
@@ -54,6 +66,27 @@ pub(crate) fn dispatch(root: &crate::grammar::Root, path: &[String]) -> io::Resu
     }
     Ok(Help { commands })
 }
+fn compact(commands: &mut [HelpCommand]) {
+    for command in commands {
+        command.reply_schemas.clear();
+        command.examples.truncate(1);
+        for argument in &mut command.arguments {
+            argument.description = argument
+                .description
+                .lines()
+                .next()
+                .unwrap_or_default()
+                .split(". ")
+                .next()
+                .unwrap_or_default()
+                .into();
+            if argument.name == "section" || argument.name == "--section" {
+                argument.choices.clear();
+            }
+        }
+    }
+}
+
 #[cfg(test)]
 pub(crate) fn reference(root: &crate::grammar::Root) -> io::Result<Help> {
     let mut commands = commands(root)?;
@@ -268,6 +301,10 @@ fn text(node: &Value, key: &str) -> String {
 }
 pub(crate) fn tree(_root: &crate::grammar::Root) -> String {
     FRONT_MAP.into()
+}
+
+fn field<'a>(node: &'a Value, key: &str) -> &'a Value {
+    node.get(key).unwrap_or(&Value::Null)
 }
 
 fn section_words(schema: &Value) -> Vec<HelpWord> {
