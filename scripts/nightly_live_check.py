@@ -248,6 +248,10 @@ def command_causes(command):
     recovered = {item['source'] for key, item in after.items()
                  if key in before and before[key].get('status') != 200
                  and item.get('status') == 200}
+    recovered.update(source['source']
+                     for source in command['baseline'].get('output', {}).get('sources', [])
+                     if source.get('state') in ('failed', 'stale')
+                     and command['live'].get('output', {}).get('status') == 'complete')
     return {'throttled': throttled, 'outage': outage, 'recovered': recovered}
 
 
@@ -405,6 +409,8 @@ def classify_report(report, previous=(), night=None):
         outcome = classify_case(row)
         row['classification'] = outcome
         totals[outcome + '_cases'] += 1
+        if outcome == 'recovered':
+            classes['recovered']['cases'].append(row['case'])
         # Keep all observed causes even when another command makes the case fail.
         for command in row.get('witness', []) if isinstance(row.get('witness'), list) else []:
             for cause, sources in command_causes(command).items():

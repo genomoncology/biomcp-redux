@@ -410,6 +410,18 @@ class NightlyCommand(unittest.TestCase):
                     row['witness'][0]['live']['output']['sources'][0]['reason'] = reason
                     self.classified(row, 'failure', 1)
 
+    def test_recovery_retains_case_and_output_source_without_failed_request(self):
+        row = classification_case('order')
+        row['result']['drift'] = ['command 1: output status changed: partial -> complete']
+        row['result']['commands'][0].update(before_status='partial', after_status='complete')
+        row['witness'][0]['baseline']['output'] = {'status': 'partial', 'sources': [
+            {'source': 'pubmed', 'state': 'failed', 'reason': 'unavailable'}]}
+        row['witness'][0]['live']['output'] = {'status': 'complete'}
+        self.classified(row, 'recovered', 0)
+        saved = json.loads((self.copied() / 'report.json').read_text())
+        self.assertEqual(saved['cause_classes']['recovered'], {
+            'cases': ['order'], 'sources': ['pubmed']})
+
     def test_outage_fails_on_third_calendar_night_and_resets_after_gap(self):
         import datetime
         row = classification_case('500')
