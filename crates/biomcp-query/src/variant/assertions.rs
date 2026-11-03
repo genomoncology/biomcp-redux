@@ -121,7 +121,7 @@ fn resolved(
     ) else {
         return missing(query, Vec::new(), Vec::new(), None, false);
     };
-    let found = super::population_identity::read(cx, &identity, deadline, false);
+    let found = super::identity::read(cx, &identity, deadline);
     let mut ids = std::collections::BTreeSet::new();
     for row in &found.rows {
         for id in &row.identity.ids {
@@ -180,15 +180,7 @@ fn missing(
     local: Option<biomcp_fetch::RequestError>,
     dropped: bool,
 ) -> super::sections::Result<VariantAssertions> {
-    let forms = match query.source() {
-        AssertionSource::Clinvar => "clinvar:N or VCV accession",
-        AssertionSource::Erepo => "CAid",
-    };
-    problems.push(biomcp_types::Problem {
-        source: query.source().source(), record: None,
-        field: format!("input: requires one {forms}; convert with get variant <ID> and select an exact candidate").into(),
-        code: biomcp_types::ProblemCode::ValueUnknown,
-    });
+    problems.push(super::identity::missing(query.source().source()));
     (
         Section::unavailable(query.source().source(), Reason::NoJoinId),
         sources,

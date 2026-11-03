@@ -37,8 +37,8 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &VariantGet) -> Outcome {
         return out;
     }
     let spec = source(query);
-    let population = population_identity::requested(query) && !cx.fetch.disabled(Source::Gnomad);
-    let found = population_identity::read(cx, query, deadline, population);
+    let population = identity::requested(query) && !cx.fetch.disabled(Source::Gnomad);
+    let found = identity::read(cx, query, deadline);
     deadline = deadline.after_stage(found.elapsed);
     let found_resolution = identity_resolution(&found);
     let mut dropped = found.dropped;
@@ -165,7 +165,7 @@ pub(crate) fn resolve(
     let input = native.as_ref();
     match query.input().namespace() {
         VariantNamespace::Rs | VariantNamespace::ClinVar | VariantNamespace::Chromosome => {
-            myvariant_identity(query, leg, problems, dropped, false)
+            myvariant_identity(query, leg, problems, dropped)
         }
         VariantNamespace::Ca => car(allele_registry::by_id(leg, input)?, problems, dropped),
         _ => match query.resolver() {
@@ -296,7 +296,7 @@ fn enrich(
     )
 }
 
-fn identity_resolution(found: &population_identity::Identity) -> VariantResolution {
+fn identity_resolution(found: &identity::Identity) -> VariantResolution {
     let mut resolution = if found.error.is_some() {
         VariantResolution::Unavailable
     } else if found.rejection.is_some() {
@@ -362,9 +362,9 @@ pub(crate) fn overall(
 }
 
 mod gwas;
+mod identity;
 mod population;
 pub(crate) mod population_detail;
-mod population_identity;
 mod population_release;
 
 fn myvariant_identity(
@@ -372,7 +372,6 @@ fn myvariant_identity(
     leg: &Leg<'_>,
     problems: &mut Vec<biomcp_types::Problem>,
     dropped: &mut bool,
-    population: bool,
 ) -> Result<(Vec<VariantHeader>, Option<Text>), RequestError> {
     let native = query.input().source_id();
     let input = native.as_ref();
@@ -385,11 +384,7 @@ fn myvariant_identity(
         input.to_owned()
     };
     let build = query.myvariant_build();
-    let found = if population {
-        myvariant::population_lookup(leg, &term, build)?
-    } else {
-        myvariant::lookup(leg, &term, build)?
-    };
+    let found = myvariant::population_lookup(leg, &term, build)?;
     *dropped |= found.refusals == biomcp_adapters::Refusal::Refused;
     problems.extend(found.problems);
     Ok((found.value, None))

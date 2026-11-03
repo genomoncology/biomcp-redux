@@ -181,8 +181,8 @@ fn candidate_request(
     row: &VariantHeader,
     problems: &mut Vec<biomcp_types::Problem>,
 ) -> Option<(Request, Vec<Source>)> {
-    if super::population_identity::requested(query) {
-        let (request, source) = super::population_identity::choice(row, problems)?;
+    if super::identity::requested(query) {
+        let (request, source) = super::identity::choice(row, problems)?;
         let (request, sources) = match request {
             Request::GetVariant(q) if resolution == VariantResolution::Candidates => {
                 let q = q.with_sections(query.sections().into());

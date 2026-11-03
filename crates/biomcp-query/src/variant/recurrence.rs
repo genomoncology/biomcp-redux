@@ -134,7 +134,7 @@ fn identity(
     )
     .map_err(|_| rejected(Source::AlleleRegistry, Reason::Rejected))?;
     let spec = super::source(&q);
-    let found = super::population_identity::read(cx, &q, deadline, false);
+    let found = super::identity::read(cx, &q, deadline);
     out.sources.extend(found.sources);
     out.problems.extend(found.problems);
     out.dropped |= found.dropped;
@@ -150,6 +150,8 @@ fn identity(
             .first()
             .is_some_and(|c| c.identity.representations.iter().any(matching::supported))
     {
+        out.problems
+            .push(super::identity::missing(Source::Cbioportal));
         out.problems.push(matching::problem(
             spec.source,
             query.input().as_str(),

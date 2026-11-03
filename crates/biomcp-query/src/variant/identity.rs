@@ -18,21 +18,12 @@ pub(super) struct Identity {
     pub error: Option<RequestError>,
     pub elapsed: std::time::Duration,
 }
-pub(super) fn read(
-    cx: &Ctx<'_>,
-    query: &VariantGet,
-    deadline: Deadline<'_>,
-    population: bool,
-) -> Identity {
+pub(super) fn read(cx: &Ctx<'_>, query: &VariantGet, deadline: Deadline<'_>) -> Identity {
     let mut found = Identity::default();
     let spec = super::source(query);
     let leg = cx.fetch.leg(spec, deadline).fresh(cx.fresh);
     let started = leg.remaining();
-    let mut result = if population && spec.source == Source::MyVariant {
-        super::myvariant_identity(query, &leg, &mut found.problems, &mut found.dropped, true)
-    } else {
-        super::resolve(query, &leg, &mut found.problems, &mut found.dropped)
-    };
+    let mut result = super::resolve(query, &leg, &mut found.problems, &mut found.dropped);
     // ClinVar records can carry only the older source assembly. Retry the same
     // record on that assembly; never relabel those coordinates as GRCh38.
     if query.input().namespace() == biomcp_types::VariantNamespace::ClinVar
@@ -47,13 +38,8 @@ pub(super) fn read(
         })
     {
         if let Ok(fallback) = query.with_build(biodata::Build::GRCh37) {
-            result = super::myvariant_identity(
-                &fallback,
-                &leg,
-                &mut found.problems,
-                &mut found.dropped,
-                population,
-            );
+            result =
+                super::myvariant_identity(&fallback, &leg, &mut found.problems, &mut found.dropped);
             if result.as_ref().is_ok_and(|(rows, _)| !rows.is_empty()) {
                 found.problems.push(Problem {
                     source: Source::MyVariant,
@@ -83,7 +69,7 @@ pub(super) fn read(
         }
         found.rejection = rejection;
     }
-    if population && found.rows.len() == 1 && spec.source == Source::MyVariant {
+    if found.rows.len() == 1 && spec.source == Source::MyVariant {
         canonical(cx, deadline.after_stage(found.elapsed), &mut found);
     }
     found
@@ -171,4 +157,28 @@ pub(super) fn requested(query: &VariantGet) -> bool {
             biomcp_types::VariantSection::Population | biomcp_types::VariantSection::All
         )
     })
+}
+
+/// Explain the exact source key and the shared conversion command when no join exists.
+pub(super) fn missing(source: Source) -> Problem {
+    let forms = match source {
+        Source::ClinVar => "one clinvar:N or VCV accession",
+        Source::Erepo | Source::Civic => "one CAid",
+        Source::Gwas => "one rsID",
+        Source::Gnomad => {
+            "one source-qualified GRCh38 allele (CAid or reference-qualified genomic HGVS)"
+        }
+        _ => {
+            "one exact source-qualified allele (CAid or reference-qualified genomic HGVS) with the source's required annotations"
+        }
+    };
+    Problem {
+        source,
+        record: None,
+        field: format!(
+            "input: requires {forms}; convert with get variant <ID> and select an exact candidate"
+        )
+        .into(),
+        code: biomcp_types::ProblemCode::ValueUnknown,
+    }
 }

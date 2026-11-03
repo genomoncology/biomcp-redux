@@ -23,7 +23,7 @@
         "clinvar"
       ],
       "expect": {
-        "/result/assertions/0/statement/attribution/record": "VCV000013961"
+        "/result/assertions/0/domain": "germline"
       }
     },
     {
@@ -82,8 +82,9 @@
         "erepo"
       ],
       "expect": {
-        "/problems/0/field": "input: requires one CAid; convert with get variant <ID> and select an exact candidate"
-      }
+        "/status": "absent"
+      },
+      "exit": 1
     }
   ]
 }

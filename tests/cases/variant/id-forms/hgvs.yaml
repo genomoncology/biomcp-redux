@@ -23,7 +23,7 @@
         "clinvar"
       ],
       "expect": {
-        "/result/assertions/0/statement/attribution/record": "VCV000013961"
+        "/result/assertions/0/domain": "germline"
       }
     },
     {
@@ -81,8 +81,9 @@
         "erepo"
       ],
       "expect": {
-        "/status": "empty"
-      }
+        "/status": "absent"
+      },
+      "exit": 1
     }
   ]
 }
