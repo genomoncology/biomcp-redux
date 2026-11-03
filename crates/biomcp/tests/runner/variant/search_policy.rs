@@ -45,6 +45,9 @@ fn check_policy(protein: &str, policy: &str) -> Result<(), String> {
     globals.push("--hosted".into());
     let hosted = mcp::call_with_globals(&replay_env, &args, false, &globals)?;
     check_reply(&hosted)?;
+    if policy == "restricted" {
+        hosted_http(&replay, protein)?;
+    }
     let requests = stub.finish()?;
     let [(_, request)] = requests.as_slice() else {
         return Err(format!("expected exactly one source request: {requests:?}"));
@@ -59,6 +62,22 @@ fn check_policy(protein: &str, policy: &str) -> Result<(), String> {
         return Err(format!("open fields missing from request: {request}"));
     }
     Ok(())
+}
+
+fn hosted_http(replay: &std::path::Path, protein: &str) -> Result<(), String> {
+    let server = super::super::http::Server::configured_globals(
+        "127.0.0.1:0", None, Some(replay.into()), None, None, &["--hosted".into()],
+    )?;
+    let frame = mcp::request(json!(1), "tools/call", json!({"name":"biomcp", "arguments":{
+        "args":["search", "variant", "--gene", "BRAF", "--protein", protein]}}));
+    let headers = "Content-Type: application/json\r\nAccept: application/json, text/event-stream\r\n\
+        MCP-Protocol-Version: 2026-07-28\r\nMcp-Method: tools/call\r\nMcp-Name: biomcp\r\nx-biomcp-use: restricted\r\n";
+    let (status, reply, _) = server.raw("POST", "/mcp", &server.address.to_string(), headers, &frame.to_string())?;
+    let reply = reply.ok_or("missing hosted reply")?;
+    if status != 200 || reply.pointer("/result/isError") != Some(&json!(false)) {
+        return Err(format!("restricted hosted request failed: {reply}"));
+    }
+    check_reply(reply.pointer("/result/structuredContent").ok_or("missing hosted result")?)
 }
 
 fn check_reply(value: &Value) -> Result<(), String> {
