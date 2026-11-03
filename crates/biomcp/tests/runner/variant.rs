@@ -5,8 +5,8 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
 mod build_echo;
-mod search_policy;
 mod search_corroboration;
+mod search_policy;
 mod section_deadline;
 
 pub(super) fn trials() -> Vec<Trial> {

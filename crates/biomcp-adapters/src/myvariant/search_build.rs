@@ -60,7 +60,8 @@ fn literal_snv(expression: &str) -> Option<(u64, &str)> {
 pub(super) fn reference_locus(hit: &Hit) -> Option<(String, u64, &str)> {
     let build = source_build(hit)?;
     let (chromosome, expression) = hit.id.as_str().strip_prefix("chr")?.split_once(":g.")?;
-    let chromosome = biodata::Chromosome::parse(if chromosome == "M" { "MT" } else { chromosome }).ok()?;
+    let chromosome =
+        biodata::Chromosome::parse(if chromosome == "M" { "MT" } else { chromosome }).ok()?;
     let (position, reference) = literal_snv(expression)?;
     Some((chromosome.accession(build).to_string(), position, reference))
 }

@@ -5,17 +5,32 @@ use biomcp_fetch::{Arg, BadReply, Bytes, Input, Leg, Read, RequestError};
 
 /// Read at most one reference base, only for a source-qualified literal SNV.
 pub(crate) fn reference_agrees(
-    leg: &Leg<'_>, accession: &str, position: u64, reference: &str,
+    leg: &Leg<'_>,
+    accession: &str,
+    position: u64,
+    reference: &str,
 ) -> Result<bool, RequestError> {
     let params = [
-        ("db", Arg::Text("nuccore")), ("id", Arg::Text(accession)),
-        ("rettype", Arg::Text("fasta")), ("retmode", Arg::Text("text")),
-        ("strand", Arg::Num(1)), ("seq_start", Arg::Num(position)),
-        ("seq_stop", Arg::Num(position)), ("tool", Arg::Text("biomcp")),
+        ("db", Arg::Text("nuccore")),
+        ("id", Arg::Text(accession)),
+        ("rettype", Arg::Text("fasta")),
+        ("retmode", Arg::Text("text")),
+        ("strand", Arg::Num(1)),
+        ("seq_start", Arg::Num(position)),
+        ("seq_stop", Arg::Num(position)),
+        ("tool", Arg::Text("biomcp")),
     ];
-    let reply = leg.call(&FETCH, Input::Params(&params), Read::<Bytes>::bytes()
-        .bounded(1024, biomcp_types::Reason::BadReply)
-        .check(&|bytes| fasta(&bytes.0, accession, position).map(|_| ()).ok_or(BadReply)))?;
+    let reply = leg.call(
+        &FETCH,
+        Input::Params(&params),
+        Read::<Bytes>::bytes()
+            .bounded(1024, biomcp_types::Reason::BadReply)
+            .check(&|bytes| {
+                fasta(&bytes.0, accession, position)
+                    .map(|_| ())
+                    .ok_or(BadReply)
+            }),
+    )?;
     Ok(fasta(&reply.value.0, accession, position) == Some(reference))
 }
 fn fasta<'a>(bytes: &'a [u8], accession: &str, position: u64) -> Option<&'a str> {
@@ -26,7 +41,10 @@ fn fasta<'a>(bytes: &'a [u8], accession: &str, position: u64) -> Option<&'a str>
         return None;
     }
     let base = lines.next()?;
-    if base.len() != 1 || !base.bytes().all(|b| b"ACGT".contains(&b)) || lines.any(|line| !line.is_empty()) {
+    if base.len() != 1
+        || !base.bytes().all(|b| b"ACGT".contains(&b))
+        || lines.any(|line| !line.is_empty())
+    {
         return None;
     }
     Some(base)
