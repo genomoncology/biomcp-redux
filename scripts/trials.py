@@ -28,13 +28,17 @@ def run_selected(target: Sequence[str], cwd: Path, names: Sequence[str],
         raise ValueError("trial selection requires exact names from this target's --list: "
                          + ", ".join(unknown))
     prepare()
+    failed = False
     for name in selected:
-        subprocess.run([*command, name, "--exact"], cwd=cwd, check=True)
+        failed |= subprocess.run([*command, name, "--exact"], cwd=cwd).returncode != 0
+    if failed:
+        raise subprocess.CalledProcessError(1, command)
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--target", choices=["cases", "tools", "ratchets"], default="cases")
+    parser.add_argument("--executable", type=Path, help="Exercise this installed product without building another CLI")
     parser.add_argument("--profile", choices=["dev", "release"], default="dev")
     parser.add_argument("--cases", type=Path, help="case directory interpreted by the Rust runner")
     parser.add_argument("--proofs", action="store_true", help="select custom trials in tools")
@@ -60,7 +64,7 @@ def main():
         subprocess.run([*target, "--list"], cwd=cwd, check=True)
     else:
         def prepare():
-            os.environ["BIOMCP_TEST_EXECUTABLE"] = cargo(args.profile)["executable"]
+            os.environ["BIOMCP_TEST_EXECUTABLE"] = str(args.executable.resolve(strict=True)) if args.executable else cargo(args.profile)["executable"]
         run_selected(target, cwd, args.names, prepare)
 
 

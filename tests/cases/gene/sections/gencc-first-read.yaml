@@ -1,0 +1,25 @@
+{
+  "feature": "gene-sections",
+  "story": "The first bundle-backed read waits for data instead of returning syncing.",
+  "live_check": "Synthetic or recorded local regression; no live calls",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "gene",
+        "ODC1",
+        "gencc"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/sections/gencc/state": "data"
+      }
+    }
+  ],
+  "replay": "gene/gencc",
+  "config": {
+    "disable_sources": [
+      "oncokb"
+    ]
+  }
+}
