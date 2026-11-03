@@ -114,49 +114,26 @@ fn resolved(
     if native {
         return read(cx, query, deadline);
     }
-    let Ok(identity) = VariantGet::new(
+    let identity = match VariantGet::new(
         query.input().clone(),
         biomcp_types::VariantResolver::Car,
         query.build(),
-    ) else {
-        return missing(query, Vec::new(), Vec::new(), None, false);
+    ) {
+        Ok(identity) => identity,
+        Err(_) => return missing(query, Vec::new(), Vec::new(), None, false),
     };
     let found = super::identity::read(cx, &identity, deadline);
-    let mut ids = std::collections::BTreeSet::new();
-    for row in &found.rows {
-        for id in &row.identity.ids {
-            if matches!(
-                (query.source(), id),
-                (
-                    AssertionSource::Clinvar,
-                    VariantId::ClinVarVariation(_) | VariantId::Vcv(_)
-                ) | (AssertionSource::Erepo, VariantId::Ca(_))
-            ) {
-                ids.insert(id.clone());
-            }
+    let input = match selection(query, &found.rows) {
+        Ok(input) => input,
+        Err(_) => {
+            return missing(
+                query,
+                found.sources,
+                found.problems,
+                found.local,
+                found.dropped,
+            );
         }
-    }
-    if ids.len() != 1 || found.rows.len() != 1 {
-        return missing(
-            query,
-            found.sources,
-            found.problems,
-            found.local,
-            found.dropped,
-        );
-    }
-    let Some(input) = ids
-        .into_iter()
-        .next()
-        .and_then(|id| biomcp_types::VariantInput::from_identity(id).ok())
-    else {
-        return missing(
-            query,
-            found.sources,
-            found.problems,
-            found.local,
-            found.dropped,
-        );
     };
     let converted = query.with_input(input);
     let (section, sources, problems, local, dropped) =
@@ -172,6 +149,36 @@ fn resolved(
         found.local.or(local),
         found.dropped || dropped,
     )
+}
+fn selection(
+    query: &VariantAssertionsGet,
+    candidates: &[VariantHeader],
+) -> Result<biomcp_types::VariantInput, biomcp_types::QueryInvalid> {
+    let [row] = candidates else {
+        return Err(biomcp_types::QueryInvalid::new(&["input"]));
+    };
+    let mut ids = row
+        .identity
+        .ids
+        .iter()
+        .filter(|id| {
+            matches!(
+                (query.source(), id),
+                (
+                    AssertionSource::Clinvar,
+                    VariantId::ClinVarVariation(_) | VariantId::Vcv(_)
+                ) | (AssertionSource::Erepo, VariantId::Ca(_))
+            )
+        })
+        .collect::<std::collections::BTreeSet<_>>();
+    if ids.len() != 1 {
+        return Err(biomcp_types::QueryInvalid::new(&["input"]));
+    }
+    let id = ids
+        .pop_first()
+        .ok_or_else(|| biomcp_types::QueryInvalid::new(&["input"]))?;
+    biomcp_types::VariantInput::from_identity(id.clone())
+        .map_err(|_| biomcp_types::QueryInvalid::new(&["input"]))
 }
 fn missing(
     query: &VariantAssertionsGet,

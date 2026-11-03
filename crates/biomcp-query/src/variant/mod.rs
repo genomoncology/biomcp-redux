@@ -237,7 +237,10 @@ fn join_for_build(row: &VariantHeader, build: biodata::Build) -> Option<String> 
         }
         let allele = r.allele.as_ref()?;
         let chromosome =
-            biodata::Chromosome::from_accession(allele.location().sequence, build).ok()?;
+            match biodata::Chromosome::from_accession(allele.location().sequence, build) {
+                Ok(chromosome) => chromosome,
+                Err(_) => return None,
+            };
         myvariant::genomic_id(&chromosome.name(), r.expression.value())
     })
 }

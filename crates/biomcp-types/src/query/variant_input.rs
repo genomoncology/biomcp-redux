@@ -191,7 +191,7 @@ fn coordinates(value: &str) -> Option<String> {
         } else {
             format!("{position}_{end}")
         };
-        format!("chr{chromosome}:g.{span}delins{alternate}")
+        format!("chr{chromosome}:g.{span}del{reference}ins{alternate}")
     };
     crate::Expression::new(
         crate::ExpressionSyntax::HgvsG,

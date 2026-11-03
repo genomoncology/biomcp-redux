@@ -141,6 +141,46 @@
         },
         "/result/candidates/0/identity/representations/0/build": "GRCh37"
       }
+    },
+    {
+      "run": [
+        "variant",
+        "assertions",
+        "rs113488022",
+        "--source",
+        "clinvar",
+        "--build",
+        "GRCh37"
+      ],
+      "expect": {
+        "/query/build": "GRCh37",
+        "/result/assertions/0/domain": "germline"
+      }
+    },
+    {
+      "run": [
+        "variant",
+        "recurrence",
+        "rs113488022",
+        "--source",
+        "cbioportal",
+        "--gene",
+        "BRAF",
+        "--study",
+        "msk_impact_2017",
+        "--profile",
+        "msk_impact_2017_mutations",
+        "--sample-set",
+        "msk_impact_2017_all",
+        "--limit",
+        "3",
+        "--build",
+        "GRCh37"
+      ],
+      "expect": {
+        "/result/examined_rows": 3,
+        "/query/build": "GRCh37"
+      }
     }
   ]
 }

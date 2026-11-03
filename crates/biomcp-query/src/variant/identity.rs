@@ -37,7 +37,11 @@ pub(super) fn read(cx: &Ctx<'_>, query: &VariantGet, deadline: Deadline<'_>) -> 
             })
         })
     {
-        if let Ok(fallback) = query.with_build(biodata::Build::GRCh37) {
+        let fallback = match query.with_build(biodata::Build::GRCh37) {
+            Ok(fallback) => fallback,
+            Err(_) => return found,
+        };
+        {
             result =
                 super::myvariant_identity(&fallback, &leg, &mut found.problems, &mut found.dropped);
             if result.as_ref().is_ok_and(|(rows, _)| !rows.is_empty()) {
@@ -63,16 +67,20 @@ pub(super) fn read(cx: &Ctx<'_>, query: &VariantGet, deadline: Deadline<'_>) -> 
         .push(status::source(spec.source, leg.finish(), error));
     found.local = error.and_then(status::local);
     found.reason = error.and_then(status::reason);
-    if let Ok((rows, rejection)) = result {
-        found.rows = rows;
-        if rejection.is_some() {
-            found.reason = Some(Reason::Rejected);
-            if let Some(source) = found.sources.first_mut() {
-                source.state = biomcp_types::SourceState::Failed;
-                source.reason = Some(Reason::Rejected);
+    match result {
+        Ok((rows, rejection)) => {
+            found.rows = rows;
+            if rejection.is_some() {
+                found.reason = Some(Reason::Rejected);
+                if let Some(source) = found.sources.first_mut() {
+                    source.state = biomcp_types::SourceState::Failed;
+                    source.reason = Some(Reason::Rejected);
+                }
             }
+            found.rejection = rejection;
         }
-        found.rejection = rejection;
+        // The source error and its outcome were retained above.
+        Err(_) => {}
     }
     if found.rows.len() == 1 && spec.source == Source::MyVariant {
         canonical(cx, deadline.after_stage(found.elapsed), &mut found);

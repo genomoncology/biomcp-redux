@@ -560,3 +560,13 @@ fn typed_candidate_assertions_preserve_source_identity_and_page() -> Check {
     assert!(VariantAssertionsGet::from_identity("rs113488022".parse()?, 2, 3).is_err());
     Ok(())
 }
+
+#[test]
+fn coordinate_inputs_preserve_asserted_reference_for_source_validation() -> Check {
+    // Synthetic reference mutations at the existing public case coordinate.
+    let one = VariantInput::new("7-140753336-AA-T")?;
+    let other = VariantInput::new("7-140753336-AC-T")?;
+    assert_eq!(one.source_id(), "chr7:g.140753336_140753337delAAinsT");
+    assert_eq!(other.source_id(), "chr7:g.140753336_140753337delACinsT");
+    Ok(())
+}
