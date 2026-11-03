@@ -55,7 +55,8 @@ fn configure(env: &Environment, peer: &Stub) -> Check {
     peer.retain(env.shared_root());
     let ca = env.root().join("ca.pem");
     fs::write(&ca, &peer.certificate).map_err(|e| e.to_string())?;
-    env.config(&json!({"proxy":format!("http://{}",peer.address),"ca_bundle":ca,"command_timeout_seconds":10})).map_err(|e| e.to_string())
+    env.config(&json!({"proxy":format!("http://{}",peer.address),"ca_bundle":ca}))
+        .map_err(|e| e.to_string())
 }
 fn sync(env: &Environment) -> Result<std::process::Output, String> {
     env.command(
@@ -101,8 +102,9 @@ fn limited(short: bool) -> Check {
     let output = sync(&env)?;
     writeln!(
         std::io::stdout(),
-        "bundle retry short={short} elapsed_ms={} configured_deadline_seconds=10",
-        started.elapsed().as_millis()
+        "bundle retry short={short} elapsed_ms={} sync_budget_seconds={}",
+        started.elapsed().as_millis(),
+        biomcp_fetch::FetchConfig::default().sync_budget.as_secs()
     )
     .map_err(|e| e.to_string())?;
     if short {
