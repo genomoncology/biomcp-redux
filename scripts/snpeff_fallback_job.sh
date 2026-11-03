@@ -3,6 +3,13 @@ set -eu
 export PATH="/Users/ian/.local/share/uv/python/cpython-3.13.17-macos-aarch64-none/bin:$HOME/.cargo/bin:$PATH"
 export RUSTUP_TOOLCHAIN=1.95.0
 mkdir -p target/0595-proofs
+if [ "${1:-}" = scan ]; then
+    scanner=/Users/ian/.npm/_npx/f96b6f8e572bd88e/node_modules/.bin/jscpd
+    "$scanner" --version
+    "$scanner" crates/biomcp-types/src/response/variant.rs crates/biomcp-types/src/response/mod.rs crates/biomcp-types/src/lib.rs crates/biomcp-query/src/variant/search.rs crates/biomcp-adapters/src/myvariant/search.rs crates/biomcp-adapters/src/myvariant/search_build.rs crates/biomcp-adapters/src/myvariant/corroboration.rs crates/biomcp-adapters/src/myvariant/mod.rs crates/biomcp-adapters/src/clinvar/mod.rs crates/biomcp-adapters/src/clinvar/reference.rs --format rust --max-size 10mb --reporters json --output target/0595-proofs/jscpd-product
+    "$scanner" crates/biomcp/tests/runner/variant.rs crates/biomcp/tests/runner/variant/search_corroboration.rs --format rust --max-size 10mb --reporters json --output target/0595-proofs/jscpd-tests
+    exit
+fi
 if [ "${1:-}" = format ]; then
     cargo fmt --all
     git diff --binary > target/0595-proofs/format.patch
