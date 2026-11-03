@@ -282,6 +282,7 @@ http-capacity-check: pre-job docs-check
 .PHONY: mcp-reply-focused mcp-reply-gate
 mcp-reply-focused mcp-reply-gate: export PATH := /Users/ian/.local/share/uv/python/cpython-3.13.17-macos-aarch64-none/bin:$(HOME)/.cargo/bin:$(PATH)
 mcp-reply-focused mcp-reply-gate: export RUSTUP_TOOLCHAIN := 1.95.0
+mcp-reply-focused: export BIOMCP_TRANSCRIPT_DIR := $(CURDIR)/target/0587-proofs/replies
 mcp-reply-focused:
 	cargo fmt --all -- --check
 	mkdir -p target/mcp-reply/installed
@@ -292,7 +293,8 @@ mcp-reply-focused:
 	python3 scripts/check_front_map.py target/mcp-reply/installed/bin/biomcp --mcp-baseline target/0587-proofs/baseline-installed/biomcp --output target/0587-proofs/candidate
 mcp-reply-gate: landing-gate
 
+JSCPD ?= jscpd
 .PHONY: mcp-reply-scan
 mcp-reply-scan:
-	/Users/ian/.npm/_npx/f96b6f8e572bd88e/node_modules/jscpd/bin/jscpd --version
-	/Users/ian/.npm/_npx/f96b6f8e572bd88e/node_modules/jscpd/bin/jscpd crates/biomcp/src/config.rs crates/biomcp/src/config crates/biomcp/src/mcp.rs crates/biomcp/src/mcp crates/biomcp/tests/runner/protocol.rs crates/biomcp/tests/runner/protocol_schemas.rs crates/biomcp/tests/runner/mcp_reply_form.rs --format rust --reporters json --output target/0587-proofs/jscpd
+	$(JSCPD) --version
+	$(JSCPD) crates/biomcp/src/config.rs crates/biomcp/src/config crates/biomcp/src/mcp.rs crates/biomcp/src/mcp crates/biomcp/tests/runner/protocol.rs crates/biomcp/tests/runner/protocol_schemas.rs crates/biomcp/tests/runner/mcp_reply_form.rs --format rust --reporters json --output target/0587-proofs/jscpd
