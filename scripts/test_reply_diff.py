@@ -10,6 +10,14 @@ from reply_diff_structured_tests import ReplyStructured
 
 
 class ReplyDiff(ReplyDiffCase):
+    def test_full_report_preserves_json_type_changes(self):
+        key = "case/schema/help.yaml/step/0"
+        self.write(self.base, key, b'{"value":true}\n')
+        self.write(self.head, key, b'{"value":1}\n')
+        result = self.compare(all_fields=True)
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertEqual(json.loads(result.stdout)["path"], "/0/stdout/value")
+
     def test_full_report_enumerates_each_changed_field(self):
         key = "case/schema/help.yaml/step/0"
         self.write(self.base, key, b'{"use":"restricted","terms_url":"old"}\n')

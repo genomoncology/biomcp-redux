@@ -35,6 +35,10 @@ case "$phase" in
     cargo test --locked -p biomcp --test cases -- --test-threads=4
     python3 scripts/reply_diff.py --all-fields /Users/ian/workspace/t/biomcp-redux-0585-baseline-3d25a0ea5/replies "$output/replies" > "$output/reply-diff.jsonl" || [ "$?" -eq 1 ]
     ;;
-  gate) exec make landing-gate ;;
+  gate)
+    make landing-gate
+    make schema-release-check
+    exec sh scripts/check_declared_use.sh capture
+    ;;
   *) exit 2 ;;
 esac

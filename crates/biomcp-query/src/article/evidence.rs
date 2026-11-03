@@ -230,7 +230,7 @@ fn encode(snapshot: &Snapshot) -> Result<String, CacheError> {
 fn decode(payload: &str) -> Result<Option<Snapshot>, CacheError> {
     let Some((graph, fulltext, (terminal, cursor, matched), sources, target, dropped)): Option<
         Saved,
-    > = crate::store::labels::decode(payload)?
+    > = crate::store::labels::decode(payload).map_err(|_| CacheError::Snapshot)?
     else {
         return Ok(None);
     };

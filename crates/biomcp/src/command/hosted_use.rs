@@ -29,7 +29,8 @@ pub(super) fn restrict(fetch: Fetch, context: Option<Context<'_>>) -> Fetch {
     }) else {
         return fetch;
     };
-    let disabled = [Use::Noncommercial, Use::Licensed].into_iter()
+    let disabled = [Use::Noncommercial, Use::Licensed]
+        .into_iter()
         .flat_map(biomcp_query::sources::sources_for_use)
         .filter(|source| {
             context.declared_use == Some(DeclaredUse::Restricted)

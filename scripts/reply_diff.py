@@ -160,14 +160,14 @@ def fields(left, right, path=""):
                 yield {"path": child, "missing": "before" if index >= len(left) else "after"}
             else:
                 yield from fields(left[index], right[index], child)
-    elif left != right:
+    elif type(left) is not type(right) or left != right:
         if path.endswith("/stdout") and isinstance(left, str) and isinstance(right, str):
             try:
                 before, after = json.loads(left), json.loads(right)
             except (ValueError, TypeError):
                 pass
             else:
-                if before != after:
+                if pointer(before, after):
                     yield from fields(before, after, path)
                     return
         yield {"path": path or "/", "before": left, "after": right}

@@ -69,7 +69,7 @@ pub(crate) fn read<T: DeserializeOwned>(
         .map(Option::flatten)
 }
 fn decode<T: DeserializeOwned>(payload: &str) -> Result<Option<T>, RequestError> {
-    crate::store::labels::decode(payload).map_err(Into::into)
+    crate::store::labels::decode(payload).map_err(|_| CacheError::Snapshot.into())
 }
 fn encode(payload: &impl Serialize) -> Result<String, RequestError> {
     serde_json::to_string(payload).map_err(|_| CacheError::Snapshot.into())
