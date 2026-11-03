@@ -3,7 +3,7 @@ use super::{components, sources as registered_sources};
 use biomcp_types::{DisableGroup, DisabledComponent, Source, Use};
 use std::collections::BTreeSet;
 
-pub(super) const USES: &[Use] = &[Use::Open, Use::Noncommercial, Use::Restricted];
+pub(super) const USES: &[Use] = &[Use::Open, Use::Attribution, Use::Noncommercial, Use::Licensed, Use::PerRecord];
 
 /// List whole-source exclusions separately from independently labeled carried fields.
 pub fn disable_groups() -> Vec<DisableGroup> {

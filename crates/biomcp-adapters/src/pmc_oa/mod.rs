@@ -18,7 +18,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     terms: biomcp_fetch::Terms {
         name: "PMC copyright; article-specific licenses",
         url: "https://pmc.ncbi.nlm.nih.gov/about/copyright/",
-        usage: biomcp_types::Use::Restricted,
+        usage: biomcp_types::Use::PerRecord,
     },
     source: Source::PmcOa,
     base: "https://pmc-oa-opendata.s3.amazonaws.com",

@@ -11,7 +11,7 @@ pub const CADD: Component = Component {
     name: "cadd",
     terms: Terms {
         name: "CADD noncommercial data terms",
-        url: "https://cadd.gs.washington.edu/license",
+        url: "https://cadd.gs.washington.edu/download",
         usage: Use::Noncommercial,
     },
 };
@@ -33,8 +33,8 @@ pub const COSMIC: Component = Component {
     name: "cosmic",
     terms: Terms {
         name: "Historical COSMIC snapshot terms",
-        url: "http://cancer.sanger.ac.uk/cosmic/license",
-        usage: Use::Restricted,
+        url: "https://www.cosmickb.org/terms/",
+        usage: Use::Licensed,
     },
 };
 /// ClinVar retains the independently reviewed submission-specific rights label.
@@ -45,7 +45,7 @@ pub const CLINVAR: Component = Component {
     terms: Terms {
         name: "NCBI policy; submission rights remain source-specific",
         url: "https://www.ncbi.nlm.nih.gov/clinvar/docs/maintenance_use/",
-        usage: Use::Restricted,
+        usage: Use::Open,
     },
 };
 /// The carried SnpEff annotation keeps its own publisher terms.
@@ -55,12 +55,24 @@ pub const SNPEFF: Component = Component {
     name: "snpeff",
     terms: Terms {
         name: "MyVariant SnpEff annotation terms",
-        url: "http://bit.ly/2suyRKt",
-        usage: Use::Restricted,
+        url: "https://github.com/pcingola/SnpEff/blob/master/LICENSE.md",
+        usage: Use::Open,
     },
 };
 /// Component declarations used consistently by health and named sections.
-pub const COMPONENTS: &[Component] = &[CADD, DBNSFP, COSMIC, CLINVAR, SNPEFF];
+/// SNPedia retains its noncommercial reuse terms.
+pub const SNPEDIA: Component = Component {
+    source: Source::MyVariant,
+    native_source: None,
+    name: "snpedia",
+    terms: Terms {
+        name: "SNPedia CC BY-NC-SA",
+        url: "https://www.snpedia.com/index.php/SNPedia:General_disclaimer",
+        usage: Use::Noncommercial,
+    },
+};
+/// Component declarations used consistently by health and named sections.
+pub const COMPONENTS: &[Component] = &[CADD, DBNSFP, COSMIC, CLINVAR, SNPEFF, SNPEDIA];
 /// Resolve component terms from their canonical declaration.
 pub fn terms(name: &str) -> Option<Terms> {
     COMPONENTS.iter().find(|c| c.name == name).map(|c| c.terms)
