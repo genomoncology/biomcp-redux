@@ -31,7 +31,7 @@ fn check(extra: &str) -> Result<(), String> {
         "article/fulltext/synthetic",
         &env.root().join("outline-replay"),
         |_, record| {
-            for exchange in record["exchanges"].as_array_mut().into_iter().flatten() {
+            for exchange in record.get_mut("exchanges").and_then(Value::as_array_mut).into_iter().flatten() {
                 if let Some(value) = exchange.pointer_mut("/body/value")
                     && let Some(xml) = value.as_str().filter(|xml| xml.starts_with("<article>"))
                 {
@@ -45,11 +45,11 @@ fn check(extra: &str) -> Result<(), String> {
     let json = read(&env, binary, "json", false)?;
     let reply: Value = serde_json::from_str(&json).map_err(|error| error.to_string())?;
     let markdown = read(&env, binary, "md", false)?;
-    let item = &reply["result"]["items"][0];
+    let item = reply.pointer("/result/items/0").ok_or("missing article card")?;
     let find = serde_json::json!(["article", "text", "PMC5606870", "--find", "<text>"]);
-    if !reply["next"]
-        .as_array()
-        .is_some_and(|steps| steps.iter().any(|step| step["args"] == find))
+    if !reply.get("next")
+        .and_then(Value::as_array)
+        .is_some_and(|steps| steps.iter().any(|step| step.get("args") == Some(&find)))
     {
         return Err("outline did not offer the literal --find fill-in suggestion".into());
     }
@@ -58,22 +58,22 @@ fn check(extra: &str) -> Result<(), String> {
     {
         return Err("article title was repeated or lost".into());
     }
-    let parts = item["sections"]["fulltext"]["data"]["parts"]
-        .as_array()
+    let parts = item.pointer("/sections/fulltext/data/parts")
+        .and_then(Value::as_array)
         .ok_or("missing outline parts")?;
     if parts.len() < 2
         || !parts
             .windows(2)
-            .any(|pair| pair[0]["title"] == pair[1]["title"])
+            .any(|pair| matches!(pair, [left, right] if left.get("title").is_some() && left.get("title") == right.get("title")))
     {
         return Err("fixture must exercise repeated part titles".into());
     }
     outline(&markdown, parts)?;
     let disabled: Value = serde_json::from_str(&read(&env, binary, "json", true)?)
         .map_err(|error| error.to_string())?;
-    if disabled["next"]
-        .as_array()
-        .is_some_and(|steps| steps.iter().any(|step| step["args"] == find))
+    if disabled.get("next")
+        .and_then(Value::as_array)
+        .is_some_and(|steps| steps.iter().any(|step| step.get("args") == Some(&find)))
     {
         return Err("disabled fulltext source retained a find suggestion".into());
     }
@@ -110,26 +110,29 @@ fn outline(markdown: &str, parts: &[Value]) -> Result<(), String> {
     let mut rows = Vec::new();
     for line in markdown.lines().filter(|line| line.starts_with("| ")) {
         let cells = line.split('|').skip(1).map(str::trim).collect::<Vec<_>>();
-        if cells.len() == 5 && matches!(cells[0], "section" | "table") {
-            if cells[2] != "^" || !repeats {
-                current = cells[2];
+        if let [kind, number, title, tokens, ""] = cells.as_slice()
+            && matches!(*kind, "section" | "table")
+        {
+            if *title != "^" || !repeats {
+                current = title;
             }
             rows.push((
                 current.to_owned(),
-                cells[0].to_owned(),
-                cells[1].to_owned(),
-                cells[3].to_owned(),
+                (*kind).to_owned(),
+                (*number).to_owned(),
+                (*tokens).to_owned(),
             ));
         }
     }
+
     let expected = parts
         .iter()
         .map(|part| {
             (
-                part["title"].as_str().unwrap_or_default().to_owned(),
-                part["kind"].as_str().unwrap_or_default().to_owned(),
-                part["number"].to_string(),
-                part["tokens"].to_string(),
+                part.get("title").and_then(Value::as_str).unwrap_or_default().to_owned(),
+                part.get("kind").and_then(Value::as_str).unwrap_or_default().to_owned(),
+                part.get("number").map(Value::to_string).unwrap_or_default(),
+                part.get("tokens").map(Value::to_string).unwrap_or_default(),
             )
         })
         .collect::<Vec<_>>();
@@ -147,8 +150,11 @@ fn compare_baseline(env: &Environment, reply: &Value, markdown: &str) -> Result<
     };
     let before: Value = serde_json::from_str(&read(env, Path::new(&binary), "json", false)?)
         .map_err(|error| error.to_string())?;
-    if before["result"] != reply["result"] || before["query"] != reply["query"] {
-        return Err("compact outline changed article facts or query".into());
+    for field in ["result", "query"] {
+        let current = reply.get(field).ok_or("missing article result or query")?;
+        if before.get(field) != Some(current) {
+            return Err("compact outline changed article facts or query".into());
+        }
     }
     let old = read(env, Path::new(&binary), "md", false)?;
     if old
