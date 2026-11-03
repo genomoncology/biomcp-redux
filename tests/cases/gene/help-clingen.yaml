@@ -14,14 +14,17 @@
           "get",
           "gene"
         ],
-        "/result/commands/0/description": {
-          "includes": "get gene ID clingen"
-        },
         "/result/commands/0/sections/*/word": {
           "includes_all_of": [
             "clingen"
           ]
-        }
+        },
+        "/result/commands/0/examples/0": [
+          "get",
+          "gene",
+          "KRAS",
+          "clingen"
+        ]
       }
     },
     {
