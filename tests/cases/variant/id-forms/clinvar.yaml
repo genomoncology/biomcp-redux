@@ -11,7 +11,10 @@
         "clinvar:13961"
       ],
       "expect": {
-        "/result/resolution": "resolved"
+        "/result/resolution": "resolved",
+        "/problems/*/field": [
+          "assembly: no GRCh38 allele; used source GRCh37 allele"
+        ]
       }
     },
     {
