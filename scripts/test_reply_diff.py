@@ -10,6 +10,16 @@ from reply_diff_structured_tests import ReplyStructured
 
 
 class ReplyDiff(ReplyDiffCase):
+    def test_full_report_enumerates_each_changed_field(self):
+        key = "case/schema/help.yaml/step/0"
+        self.write(self.base, key, b'{"use":"restricted","terms_url":"old"}\n')
+        self.write(self.head, key, b'{"use":"licensed","terms_url":"new"}\n')
+        result = self.compare(all_fields=True)
+        self.assertEqual(result.returncode, 1, result.stderr)
+        rows = [json.loads(line) for line in result.stdout.splitlines()]
+        self.assertEqual({row["path"] for row in rows}, {"/0/stdout/use", "/0/stdout/terms_url"})
+        self.assertTrue(all(row["key"] == key for row in rows))
+
     def test_reply_and_exit_changes_name_the_case_pointer(self):
         key = "case/schema/help.yaml/step/0"
         self.write(self.base, key)

@@ -61,6 +61,10 @@ fn admission() -> Result<(), String> {
             None,
             &["--hosted".into()],
         )?;
+        let ddinter = call(&server, &["get", "drug", "DDInter1", "interactions", "--source", "ddinter"], "", false)?;
+        if !disabled(&ddinter, "ddinter") {
+            return Err(format!("default use admitted DDInter: {ddinter}"));
+        }
         for use_header in ["", "x-biomcp-use: commercial\r\n", ACADEMIC] {
             let args = ["get", "pgx", "--gene", "DPYD", "--source", "clinpgx"];
             let cpic = call(&server, &args, use_header, false)?;

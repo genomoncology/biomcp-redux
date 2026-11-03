@@ -54,7 +54,7 @@ pub const SNPEFF: Component = Component {
     native_source: None,
     name: "snpeff",
     terms: Terms {
-        name: "MyVariant SnpEff annotation terms",
+        name: "SnpEff MIT",
         url: "https://github.com/pcingola/SnpEff/blob/master/LICENSE.md",
         usage: Use::Open,
     },
