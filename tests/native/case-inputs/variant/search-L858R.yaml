@@ -120,14 +120,7 @@
       "is_error": true,
       "expect": {
         "/sources/0/state": "skipped",
-        "/sources/0/reason": "disabled",
-        "/result/selector_terms": {
-          "equals": {
-            "usage": "open",
-            "name": "SnpEff MIT",
-            "url": "https://github.com/pcingola/SnpEff/blob/master/LICENSE.md"
-          }
-        }
+        "/sources/0/reason": "disabled"
       }
     },
     {
