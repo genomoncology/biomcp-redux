@@ -23,6 +23,7 @@ case "${1:-focused}" in
     python3 scripts/label_search_proof.py focused
     ;;
   cheap) make check-cheap ;;
+  diagnose) python3 scripts/label_search_proof.py diagnose ;;
   live) python3 scripts/label_search_proof.py live ;;
   routine) exec sh scripts/check_nightly_tests.sh routine ;;
   *) exit 2 ;;

@@ -55,9 +55,12 @@ def live():
                 while True:
                     command = [str(executable), 'search', 'drug', query, '--source', 'openfda-label',
                                '--limit', str(limit), '--offset', str(offset)]
-                    result = subprocess.run(command, env=env, capture_output=True, check=True)
                     stem = f'{query.replace(" ", "-")}-{limit}-{offset}'
+                    command[1:1] = ['--record', str((PROOF / 'source-recordings').resolve())]
+                    result = subprocess.run(command, env=env, capture_output=True, check=False)
                     (PROOF / f'{stem}.json').write_bytes(result.stdout)
+                    (PROOF / f'{stem}-stderr.txt').write_bytes(result.stderr)
+                    result.check_returncode()
                     reply = json.loads(result.stdout)
                     page = reply['page']
                     items = reply['result'].get('items', [])
@@ -121,6 +124,20 @@ def scan():
                     'scripts/label_search_proof.py'], check=True)
 
 
+def diagnose():
+    executable = (PROOF / 'installed/biomcp').resolve()
+    with tempfile.TemporaryDirectory(prefix='label-search-diagnostic-') as isolated:
+        env = dict(os.environ, HOME=isolated, XDG_CONFIG_HOME=isolated,
+                   XDG_CACHE_HOME=isolated, XDG_DATA_HOME=isolated)
+        result = subprocess.run([str(executable), '--record', str((PROOF / 'diagnostic-recordings').resolve()),
+                                 'search', 'drug', 'imatinib', '--source', 'openfda-label',
+                                 '--limit', '3', '--offset', '12'], env=env, capture_output=True)
+    (PROOF / 'diagnostic-stdout.json').write_bytes(result.stdout)
+    (PROOF / 'diagnostic-stderr.txt').write_bytes(result.stderr)
+    print(result.stdout.decode())
+    result.check_returncode()
+
+
 def retain():
     revision = subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip()
     destination = f'/home/ian/workspace/data/biomcp-redux-evidence/0605/{revision}'
@@ -135,4 +152,4 @@ def retain():
 
 
 if __name__ == '__main__':
-    {'focused': focused, 'live': live, 'scan': scan, 'retain': retain}[sys.argv[1]]()
+    {'focused': focused, 'live': live, 'scan': scan, 'retain': retain, 'diagnose': diagnose}[sys.argv[1]]()
