@@ -100,6 +100,25 @@ class PluginInstall(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'was not run'):
                 plugin(root, '1.0.0', root, root / 'biomcp', claude=str(root / 'absent'))
 
+    @unittest.skipUnless(os.environ.get('BIOMCP_TEST_CLAUDE_INSTALL'), 'requires real Claude CLI')
+    def test_real_claude_installs_plugin_in_scratch_home(self):
+        from release.published import plugin
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            binary = root / 'biomcp'
+            binary.write_text('#!' + sys.executable + '\n' + '''import json, sys
+for line in sys.stdin:
+    frame = json.loads(line)
+    if 'id' not in frame: continue
+    reply = {1: {'serverInfo': {'version': '1.0.0'}},
+             2: {'tools': [{'name': 'biomcp'}]},
+             3: {'isError': False, 'structuredContent': {'result': {'commands': ['help']}}}}[frame['id']]
+    print(json.dumps({'jsonrpc': '2.0', 'id': frame['id'], 'result': reply}), flush=True)
+''')
+            binary.chmod(0o700)
+            plugin(root, '1.0.0', Path.cwd(), binary)
+            self.assertTrue((root / 'home/.claude/plugins/installed_plugins.json').is_file())
+
     def test_installed_plugin_command_must_return_user_visible_help(self):
         from release.smoke import mcp_probe
         from release.smoke import environment
