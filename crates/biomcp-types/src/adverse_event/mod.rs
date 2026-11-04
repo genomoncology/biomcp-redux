@@ -20,3 +20,8 @@ pub use vaers::{
     VAERS_INFLUENZA, VaersCell, VaersNotice, VaersRow, VaersScope, VaersSection, VaersSummary,
     vaers_vaccine_code,
 };
+
+#[cfg(feature = "schema")]
+mod command;
+#[cfg(feature = "schema")]
+pub use command::AdverseEventSearchCommand;
