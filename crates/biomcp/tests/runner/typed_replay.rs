@@ -12,12 +12,17 @@ pub(super) fn check(tool: &Value) -> Result<(), String> {
     let (verb, entity) = name.split_once('_').ok_or("tool path")?;
     let entity = entity.replace('_', "-");
     let mut paths = Vec::new();
-    case_data::collect(
-        &super::super::super::launch::fixtures().join("cases"),
-        &mut paths,
-    )
-    .map_err(|e| e.to_string())?;
-    paths.sort();
+    let cases = super::super::super::launch::fixtures().join("cases");
+    case_data::collect(&cases, &mut paths).map_err(|e| e.to_string())?;
+    paths.sort_by_key(|path| {
+        (
+            path.strip_prefix(&cases)
+                .ok()
+                .and_then(|path| path.components().next())
+                .is_none_or(|part| part.as_os_str() != entity.as_str()),
+            path.clone(),
+        )
+    });
     for path in paths {
         let case = case_data::read_case(&path)?;
         if case.replay.is_none() {
@@ -162,16 +167,25 @@ fn input(args: &[String], query: &Value) -> Option<Value> {
             continue;
         }
         let property = properties.get(&key)?;
-        let kind = resolved(property, query);
-        let value = if kind["type"] == "boolean" {
-            json!(inline.unwrap_or("true").parse::<bool>().ok()?)
+        let kind = type_name(resolved(property, query));
+        let value = if kind == Some("boolean") {
+            let word = inline
+                .map(str::to_owned)
+                .or_else(|| {
+                    words
+                        .peek()
+                        .filter(|word| matches!(word.as_str(), "true" | "false"))?;
+                    words.next().cloned()
+                })
+                .unwrap_or_else(|| "true".into());
+            json!(word.parse::<bool>().ok()?)
         } else {
             let word = inline
                 .map(str::to_owned)
                 .or_else(|| words.next().cloned())?;
-            if kind["type"] == "integer" {
+            if kind == Some("integer") {
                 json!(word.parse::<u64>().ok()?)
-            } else if kind["type"] == "array" {
+            } else if kind == Some("array") {
                 let mut values = if property["x-comma-separated"] == true {
                     word.split(',').map(str::to_owned).collect::<Vec<_>>()
                 } else {
@@ -200,8 +214,8 @@ fn input(args: &[String], query: &Value) -> Option<Value> {
     fields.sort_by_key(|(index, _, _)| *index);
     let mut position = 0;
     for (_, key, property) in fields {
-        let kind = resolved(property, query);
-        if kind["type"] == "array" {
+        let kind = type_name(resolved(property, query));
+        if kind == Some("array") {
             result.insert(key.clone(), json!(&positional[position..]));
             position = positional.len();
         } else if let Some(value) = positional.get(position) {
@@ -210,4 +224,14 @@ fn input(args: &[String], query: &Value) -> Option<Value> {
         }
     }
     (position == positional.len()).then_some(Value::Object(result))
+}
+
+fn type_name(node: &Value) -> Option<&str> {
+    node["type"].as_str().or_else(|| {
+        node["type"]
+            .as_array()?
+            .iter()
+            .filter_map(Value::as_str)
+            .find(|kind| *kind != "null")
+    })
 }
