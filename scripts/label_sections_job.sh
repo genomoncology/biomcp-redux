@@ -5,11 +5,21 @@ export RUSTUP_TOOLCHAIN=1.95.0
 export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"
 case "${1:-focused}" in
   generate) cargo fmt --all; make schema-generate docs-generate ;;
-  list) python3.13 scripts/trials.py --target cases --list ;;
+  build-cases)
+    mkdir -p target
+    cargo test --locked -p biomcp --test cases --no-run --message-format=json > target/0608-cargo.json
+    python3.13 -c 'import json; from pathlib import Path; rows = [json.loads(line) for line in Path("target/0608-cargo.json").read_text().splitlines()]; print(next(row["executable"] for row in rows if row.get("reason") == "compiler-artifact" and row.get("executable") and row["target"]["name"] == "cases"))' > target/0608-runner
+    ;;
+  list)
+    sh "$0" build-cases
+    runner=$(cat target/0608-runner)
+    "$runner" --list
+    ;;
   focused)
     make check-cheap
     shift
-    runner=${1:?focused requires discovered runner}; shift
+    sh "$0" build-cases
+    runner=$(cat target/0608-runner)
     python3.13 scripts/trials.py --target cases --runner "$runner" --executable "${CARGO_TARGET_DIR:-target}/debug/biomcp" --installed "$@"
     ;;
   scans)
