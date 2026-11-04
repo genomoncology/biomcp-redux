@@ -10,12 +10,19 @@
         "variant",
         "13-32315508-GT-G"
       ],
-      "exit": 1,
+      "exit": 4,
       "expect": {
-        "/result/resolution": "rejected",
-        "/result/rejection": "IncorrectReferenceAllele: expected reference AG",
-        "/result/candidates": {
-          "count": 0
+        "/status": "failed",
+        "/sources/0/reason": "rejected",
+        "/problems/*/field": {
+          "includes_all_of": [
+            "input: IncorrectReferenceAllele: expected reference AG"
+          ]
+        },
+        "": {
+          "omits": [
+            "result"
+          ]
         }
       }
     },
@@ -25,12 +32,19 @@
         "variant",
         "7-117559590-GTCT-G"
       ],
-      "exit": 1,
+      "exit": 4,
       "expect": {
-        "/result/resolution": "rejected",
-        "/result/rejection": "IncorrectReferenceAllele: expected reference ATCT",
-        "/result/candidates": {
-          "count": 0
+        "/status": "failed",
+        "/sources/0/reason": "rejected",
+        "/problems/*/field": {
+          "includes_all_of": [
+            "input: IncorrectReferenceAllele: expected reference ATCT"
+          ]
+        },
+        "": {
+          "omits": [
+            "result"
+          ]
         }
       }
     },
@@ -42,12 +56,18 @@
         "--build",
         "GRCh37"
       ],
-      "exit": 1,
+      "exit": 4,
       "expect": {
-        "/result/resolution": "rejected",
-        "/result/rejection": {
+        "/status": "failed",
+        "/sources/0/reason": "rejected",
+        "/problems/*/field": {
           "includes_all_of": [
-            "IncorrectReferenceAllele: expected reference"
+            "input: IncorrectReferenceAllele: expected reference GGTG"
+          ]
+        },
+        "": {
+          "omits": [
+            "result"
           ]
         }
       }
