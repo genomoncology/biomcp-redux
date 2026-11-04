@@ -100,10 +100,8 @@ impl TryFrom<SearchFields> for AdverseEventSearch {
         if !(1..=50).contains(&v.limit) {
             return Err(QueryInvalid::new(&["limit"]));
         }
-        v.received_from = super::receipt::day(v.received_from, false)
-            .map_err(|()| QueryInvalid::new(&["received_from"]))?;
-        v.received_to = super::receipt::day(v.received_to, true)
-            .map_err(|()| QueryInvalid::new(&["received_to"]))?;
+        v.received_from = super::receipt::day(v.received_from, false, "received_from")?;
+        v.received_to = super::receipt::day(v.received_to, true, "received_to")?;
         if v.received_from
             .zip(v.received_to)
             .is_some_and(|(a, b)| a.to_string() > b.to_string())

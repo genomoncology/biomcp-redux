@@ -4,6 +4,15 @@ cd "$(dirname "$0")/.."
 export RUSTUP_TOOLCHAIN=1.95.0
 export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"
 case "${1:-focused}" in
+  repair)
+    cargo fmt --all
+    make check-cheap
+    cargo test --locked -p biomcp-types --features schema --test adverse_event_contracts
+    shift
+    runner=${1:?repair requires the discovered case runner}
+    shift
+    python3.13 scripts/trials.py --target cases --runner "$runner" --executable "${CARGO_TARGET_DIR:-target}/debug/biomcp" --installed "$@"
+    ;;
   generate)
     cargo fmt --all
     make schema-generate docs-generate

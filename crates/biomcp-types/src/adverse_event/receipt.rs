@@ -1,8 +1,11 @@
 //! Normalize shared FDA receipt bounds before comparison or request serialization.
 use biodata::PartialDate;
-pub(super) fn day(date: Option<PartialDate>, upper: bool) -> Result<Option<PartialDate>, ()> {
+use crate::QueryInvalid;
+pub(super) fn day(
+    date: Option<PartialDate>, upper: bool, field: &str,
+) -> Result<Option<PartialDate>, QueryInvalid> {
     date.map(|date| {
-        let month = date.month().ok_or(())?;
+        let month = date.month().ok_or_else(|| QueryInvalid::new(&[field]))?;
         let day = date.day().unwrap_or_else(|| {
             if upper {
                 (28..=31)
@@ -13,7 +16,7 @@ pub(super) fn day(date: Option<PartialDate>, upper: bool) -> Result<Option<Parti
                 1
             }
         });
-        PartialDate::new(date.year(), Some(month), Some(day)).map_err(|_| ())
+        PartialDate::new(date.year(), Some(month), Some(day)).map_err(|_| QueryInvalid::new(&[field]))
     })
     .transpose()
 }
