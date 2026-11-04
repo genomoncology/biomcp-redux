@@ -119,14 +119,25 @@ pub struct StudyMutation {
     /// Native mutation class.
     pub mutation_type: Option<Text>,
 }
-page!(
-    study,
-    StudySamples,
-    StudySample,
-    StudyGet,
-    "biomcp.study-samples/1",
-    "Sample identities and types from one source collection."
-);
+/// Source sample identities and types from one complete received collection.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct StudySamples {
+    /// Exact native study scope.
+    pub study_id: StudyId,
+    /// Source sample identities and types in native order.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    pub items: Box<[StudySample]>,
+    /// Bounds within the received collection.
+    pub page: PageInfo,
+    /// Source collection acquisition time.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub acquired: Option<u64>,
+}
+impl ResponseBody for StudySamples {
+    const SCHEMA: &'static str = "biomcp.study-samples/1";
+    type Query = StudyGet;
+}
 /// Source mutation rows and the explicit gene/profile scope used to obtain them.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
