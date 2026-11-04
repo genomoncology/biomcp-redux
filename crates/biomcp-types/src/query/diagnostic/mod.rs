@@ -338,3 +338,15 @@ impl DiagnosticSearchSource {
         }
     }
 }
+
+impl DiagnosticGetSource {
+    /// Named disclosures implemented by the exact-record endpoint.
+    pub const fn sections(self) -> &'static [DiagnosticSection] {
+        use DiagnosticSection::{Conditions, Genes, Methods, Regulatory, Summary, Supplements};
+        match self {
+            Self::Gtr => &[Genes, Conditions, Methods],
+            Self::FdaPma => &[Regulatory, Supplements, Summary],
+            Self::WhoIvd | Self::Fda510k | Self::FdaDeviceRecall => &[],
+        }
+    }
+}

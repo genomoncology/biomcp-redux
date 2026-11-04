@@ -105,11 +105,7 @@ fn card(
     let sections: Box<[_]> = if q.supplement().is_some() {
         vec![DiagnosticSection::Regulatory]
     } else {
-        vec![
-            DiagnosticSection::Regulatory,
-            DiagnosticSection::Supplements,
-            DiagnosticSection::Summary,
-        ]
+        q.source().sections().to_vec()
     }
     .into();
     for section in &sections {
