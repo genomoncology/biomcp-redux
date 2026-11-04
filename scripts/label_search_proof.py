@@ -79,7 +79,8 @@ def live():
                         for path in recording.rglob('*.json'):
                             recorded = json.loads(path.read_text())
                             for exchange in recorded['exchanges']:
-                                body = json.loads(exchange['body']['value'])
+                                value = exchange['body']['value']
+                                body = json.loads(value) if isinstance(value, str) else value
                                 if exchange['status'] == 200 and body.get('results'):
                                     urls.append(recorded['url'])
                         if len(urls) != 1:
