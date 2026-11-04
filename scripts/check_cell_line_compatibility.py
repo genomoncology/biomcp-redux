@@ -1,5 +1,6 @@
 """Compare installed cell-line outputs with a retained baseline executable."""
 from pathlib import Path
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -12,7 +13,9 @@ from release.smoke import environment
 def invoke(binary, words):
     with tempfile.TemporaryDirectory(prefix="cell-line-compatibility-") as directory:
         root = Path(directory)
-        return subprocess.run([str(binary), *words], cwd=root, env=environment(root),
+        installed = root / "biomcp"
+        shutil.copy2(binary, installed)
+        return subprocess.run([str(installed), *words], cwd=root, env=environment(root),
                               capture_output=True, timeout=60)
 
 
@@ -29,6 +32,11 @@ def main():
     if red.returncode != 2 or b"species" not in red.stdout:
         raise ValueError("baseline did not reject the previously unsupported species filter")
     print("baseline red witness: species filter refused before source access")
+    for label, options in [("cli", []), ("markdown", ["--format", "md"])]:
+        help_reply = invoke(candidate, ["help", "search", "cell-line", *options])
+        if help_reply.returncode:
+            raise ValueError("cell-line help failed")
+        print(f"cell-line search help [{label}] bytes={len(help_reply.stdout)}")
 
 
 if __name__ == "__main__":
