@@ -13,7 +13,7 @@ pub(crate) fn boolean_argument(argument: Arg) -> Arg {
 }
 
 pub(super) fn boolean_value(argument: &Arg, value: Option<&std::ffi::OsString>) -> bool {
-    argument.get_action() == &ArgAction::SetTrue
+    matches!(argument.get_action(), ArgAction::SetTrue)
         && argument.is_require_equals_set()
         && value.is_some_and(|value| matches!(value.to_str(), Some("true" | "false")))
 }
