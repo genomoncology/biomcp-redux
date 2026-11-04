@@ -3,10 +3,14 @@
 import json
 import os
 import re
+import shutil
 from pathlib import Path
 import subprocess
+import sys
 import tempfile
 import time
+
+SCHEMA_ID = "biomcp.problem/2"
 
 
 def require(condition, message):
@@ -29,7 +33,7 @@ def environment(root):
     return env
 
 
-def smoke(binary, runner, fixtures, version, server_args=("serve",), timeout=None):
+def smoke(binary, runner, fixtures, version, server_args=("serve",), timeout=None, python=sys.executable):
     with tempfile.TemporaryDirectory() as directory:
         root = Path(directory).resolve()
         env = environment(root)
@@ -42,7 +46,7 @@ def smoke(binary, runner, fixtures, version, server_args=("serve",), timeout=Non
                 raise ValueError("installed command failed: " + result.stdout.decode() + result.stderr.decode())
             return json.loads(result.stdout)
         checks = []
-        require(command(["schema", "biomcp.problem/1"])["$id"] == "biomcp.problem/1", "schema identity differs")
+        require(command(["schema", SCHEMA_ID])["$id"] == SCHEMA_ID, "schema identity differs")
         checks.append("schemas")
         require(command(["help"])["result"]["commands"], "help commands missing")
         checks.append("help")
@@ -52,7 +56,10 @@ def smoke(binary, runner, fixtures, version, server_args=("serve",), timeout=Non
         checks.extend(["version", "mcp-all-stdout"])
         require(any((root / "cache").rglob("*.sqlite")), "first tool call did not create the cache")
         checks.append("ordinary-cache-created")
-        env.update(BIOMCP_TEST_EXECUTABLE=str(binary), BIOMCP_TEST_FIXTURES=str(fixtures))
+        interpreter = shutil.which(python)
+        require(interpreter is not None, "proof Python interpreter is unavailable: " + python)
+        env.update(BIOMCP_TEST_EXECUTABLE=str(binary), BIOMCP_TEST_FIXTURES=str(fixtures),
+                   BIOMCP_TEST_PYTHON=os.path.abspath(interpreter))
         tool = runner.with_name("tool-runner" + runner.suffix)
         case_suite([str(tool), "--proofs"], env, root, fixtures, timeout)
         checks.append("runner-proofs")
@@ -61,7 +68,7 @@ def smoke(binary, runner, fixtures, version, server_args=("serve",), timeout=Non
         return {"tools": tools, "checks": checks, **summary}
 
 
-def case_suite(command, env, root, fixtures, timeout=None):
+def case_suite(command, env, root, fixtures, timeout=None, expected_filtered=None):
     started = time.monotonic()
     result = subprocess.run(command + ["--test-threads", "2"], env=env, cwd=root,
                             capture_output=True, text=True, timeout=timeout)
@@ -69,8 +76,11 @@ def case_suite(command, env, root, fixtures, timeout=None):
     print(result.stdout, end="", flush=True)
     require(result.returncode == 0, "installed cases failed: " + result.stdout + result.stderr)
     counts = re.search(r"test result: ok\. (\d+) passed; (\d+) failed; (\d+) ignored; (\d+) measured; (\d+) filtered out", result.stdout)
-    require(counts is not None and counts.group(2) == "0" and counts.group(5) == "0",
-            "installed runner did not report an unfiltered complete suite")
+    filtered = 0 if expected_filtered is None else expected_filtered
+    require(counts is not None and counts.group(2) == "0" and int(counts.group(5)) == filtered,
+            "installed runner did not report the complete declared selection")
+    if expected_filtered is not None:
+        require(int(counts.group(1)) > 0, "container runner did not execute any proof")
     return {"cases": sum(1 for path in (fixtures / "cases").rglob("*") if path.suffix in (".yaml", ".yml")),
             "trials": int(counts.group(1)) + int(counts.group(3)),
             "elapsed_seconds": elapsed, "timeout_seconds": elapsed * 1.15}

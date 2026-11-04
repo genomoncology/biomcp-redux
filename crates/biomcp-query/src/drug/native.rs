@@ -15,6 +15,7 @@ fn failure(source: Source) -> RequestError {
         source,
         reason: Reason::BadReply,
         status: None,
+        tls_cause: None,
         retry_after: None,
     })
 }
@@ -139,11 +140,7 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
         [DrugSection::Xrefs] => biomcp_types::DrugXrefs::into_reply(query.clone(), None),
         _ => biomcp_types::DrugCard::into_reply(query.clone(), None),
     });
-    if !matches!(
-        query.sections(),
-        [] | [DrugSection::Targets] | [DrugSection::Indications] | [DrugSection::Xrefs]
-    ) || query.source() == DrugSource::Opentargets && query.sections() == [DrugSection::Xrefs]
-    {
+    if !query.supports_sections() {
         return super::unsupported(query.source(), out);
     }
     let command = cx.fetch.command_deadline(cx.budget);

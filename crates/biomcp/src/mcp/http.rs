@@ -67,7 +67,8 @@ pub(crate) fn serve(
     }
     let (max_calls, max_connections) = crate::config::http_capacity(&globals, &settings)
         .map_err(|error| StartError::Configuration(error.into()))?;
-    let fetch = crate::config::fetch(&globals, &settings).map(Arc::new);
+    let fetch = crate::config::fetch(&globals, &settings)
+        .map(|fetch| Arc::new(fetch.with_background_refresh()));
     if let Err(error) = &fetch
         && error.is_pacing()
     {
@@ -90,10 +91,14 @@ pub(crate) fn serve(
         settings,
     });
     let (stop, stopped) = std::sync::mpsc::sync_channel(1);
-    ctrlc::try_set_handler(move || {
+    // This standalone server owns shutdown, including inherited ignored signals.
+    ctrlc::set_handler(move || {
         let _ = stop.try_send(());
     })
-    .map_err(|_| StartError::Local)?;
+    .map_err(|_| {
+        crate::output::diagnostic(b"biomcp: could not install HTTP shutdown handler\n");
+        StartError::Local
+    })?;
     let mut ready = serde_json::to_vec(&json!({"listening":address.to_string()}))
         .map_err(|_| StartError::Local)?;
     ready.push(b'\n');
@@ -247,7 +252,7 @@ impl Service {
                     return (
                         400,
                         Some(
-                            json!({"error":"Invalid x-biomcp-use header; allowed values: commercial, academic"}),
+                            json!({"error":"Invalid x-biomcp-use header; allowed values: restricted, commercial, academic"}),
                         ),
                         Some(revision),
                     );
@@ -280,10 +285,9 @@ impl Service {
         revision: &'static str,
         declared_use: Option<crate::command::DeclaredUse>,
     ) -> (u16, Option<Value>, Option<&'static str>) {
-        let scope = self
-            .globals
-            .hosted
-            .then(|| biomcp_fetch::Cancellation::with_budget(crate::config::BUDGET));
+        let scope = self.globals.hosted.then(|| {
+            biomcp_fetch::Cancellation::with_budget(crate::config::budget(&self.settings))
+        });
         let Some(call) = super::research::parse(params) else {
             return (
                 200,
@@ -314,7 +318,7 @@ impl Service {
                     modern,
                     call,
                     secrets: keys,
-                    declared_use: declared_use.unwrap_or(crate::command::DeclaredUse::Commercial),
+                    declared_use: declared_use.unwrap_or(crate::command::DeclaredUse::Restricted),
                     scope,
                 },
             )
@@ -333,7 +337,12 @@ impl Service {
                 },
                 true,
             ) {
-                Ok(outcome) => super::protocol::tool_result(id, &outcome, modern),
+                Ok(outcome) => super::protocol::tool_result(
+                    id,
+                    &outcome,
+                    modern,
+                    crate::config::mcp_reply_form(&self.settings),
+                ),
                 Err(_) => super::protocol::error(id, -32603, "Internal error"),
             }
         };

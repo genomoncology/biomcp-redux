@@ -25,9 +25,10 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &VariantSearch) -> Outcome {
     };
     let leg = cx.fetch.leg(spec, deadline).fresh(cx.fresh);
     let terms = component_terms("clinvar", query.uses_clinvar_filters());
-    let selector_terms = component_terms("dbnsfp", query.uses_dbnsfp_selector());
+    let (selector, source_query) = selector(cx, query);
+    let selector_terms = component_terms(selector, query.uses_dbnsfp_selector());
     let reply = match (&terms, &selector_terms) {
-        (Ok(_), Ok(_)) => fetch_page(cx, &leg, query),
+        (Ok(_), Ok(_)) => fetch_page(cx, &leg, query, selector, &source_query, deadline),
         (Err(error), _) | (_, Err(error)) => Err(*error),
     };
     let terms = terms.ok().flatten();
@@ -41,8 +42,9 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &VariantSearch) -> Outcome {
             body: (VariantPage {
                 selector_terms: selector_terms.clone(),
                 filter_terms: terms.clone(),
-                source_query: query.source_query(),
+                source_query: source_query.clone(),
                 build: query.build(),
+                excluded: None,
                 items: Box::default(),
             })
             .with_query(query.clone()),
@@ -55,6 +57,7 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &VariantSearch) -> Outcome {
     );
     if let Ok(reply) = reply {
         out.include_refusals(reply.rows.refusals);
+        out.sources.extend(reply.reference_source);
         let returned = reply.rows.value.len() as u32;
         out.next = next(
             query,
@@ -74,8 +77,12 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &VariantSearch) -> Outcome {
         out.body = (VariantPage {
             selector_terms,
             filter_terms: terms,
-            source_query: query.source_query(),
+            source_query,
             build: query.build(),
+            excluded: (reply.excluded > 0).then_some(biomcp_types::VariantSearchExclusions {
+                count: reply.excluded,
+                reason: biomcp_types::VariantSearchExclusionReason::ReferenceUnconfirmed,
+            }),
             items: reply.rows.value.into(),
         })
         .with_query(query.clone());
@@ -84,30 +91,51 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &VariantSearch) -> Outcome {
     command.finish(deadline.remaining());
     out
 }
+fn selector(cx: &Ctx<'_>, query: &VariantSearch) -> (&'static str, String) {
+    if myvariant::components::disabled(cx.fetch, "dbnsfp") {
+        ("snpeff", query.snpeff_source_query())
+    } else {
+        ("dbnsfp", query.source_query())
+    }
+}
 fn fetch_page(
     cx: &Ctx<'_>,
     leg: &biomcp_fetch::Leg<'_>,
     query: &VariantSearch,
+    selector: &str,
+    source_query: &str,
+    deadline: biomcp_fetch::Deadline<'_>,
 ) -> Result<SearchPage, biomcp_fetch::RequestError> {
     if query.uses_clinvar_selector() {
         return clinvar::search(leg, query).map(|page| SearchPage {
+            reference_source: None,
+            excluded: 0,
             total: page.total,
             consumed: page.consumed,
             rows: page.rows,
         });
     }
     if (query.uses_clinvar_filters() && myvariant::components::disabled(cx.fetch, "clinvar"))
-        || (query.uses_dbnsfp_selector() && myvariant::components::disabled(cx.fetch, "dbnsfp"))
+        || (query.uses_dbnsfp_selector() && myvariant::components::disabled(cx.fetch, selector))
     {
         return Err(biomcp_fetch::SourceError::disabled(Source::MyVariant).into());
     }
-    myvariant::search(leg, query).map(|page| SearchPage {
+    let reference = cx.fetch.leg(&clinvar::SPEC, deadline).fresh(cx.fresh);
+    let page = myvariant::search(leg, query, source_query, &reference)?;
+    let report = reference.finish();
+    let reference_source = (!report.replies.is_empty() || page.reference_error.is_some())
+        .then(|| status::source(Source::ClinVar, report, page.reference_error));
+    Ok(SearchPage {
+        reference_source,
+        excluded: page.excluded,
         total: page.total,
         consumed: page.consumed,
         rows: page.rows,
     })
 }
 struct SearchPage {
+    reference_source: Option<biomcp_types::SourceOutcome>,
+    excluded: u32,
     total: u64,
     consumed: u32,
     rows: biomcp_adapters::Mapped<Vec<biomcp_types::VariantHeader>>,

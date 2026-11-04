@@ -99,7 +99,7 @@ Commands:
   biomarker      Find NCI biomarker concepts by name or synonym. The public tier returns codes, name, type, trial count, synonyms, parent_ids, ancestor_ids and eligibility_criterion. These concepts differ from diagnostic --biomarker filters and literal trial --variant text. Use search trial --source nci --biomarker-code CODE for trials that list an exact concept. Native criteria do not establish patient eligibility.
   author         Literal author name query and native window; positional text maps to query.
   organization   Find NCI organizations. Names are not unique; trial counts cover every status, including closed trials. No organization ID or get is available.
-  cell-line      One literal cell line search, with native order and no total claim.
+  cell-line      One native cell line search with optional text, species and NCIt disease filters.
   gwas           Source associations in default p-value-ascending order. Reports no personal risk, causal variant or gene, or clinical interpretation of a statistic.
   protein        Search five reviewed human UniProt headers by literal text or exact gene.
                  No variant effect, structure, interaction or clinical meaning is inferred. No bioinformatics tool runs.
@@ -189,7 +189,7 @@ Options:
 
 ```
 
-Find NCI biomarker concepts by name or synonym. The public tier returns codes, name, type, trial count, synonyms, parent_ids, ancestor_ids and eligibility_criterion. These concepts differ from diagnostic --biomarker filters and exact trial --variant text. Use search trial --source nci --biomarker-code CODE for trials that list an exact concept. Source criteria do not establish patient eligibility.
+Find NCI biomarker concepts by name or synonym. Sources: nci.
 
 - `--limit`: Maximum headers per local page.
 - `--name`: Source partial name or synonym search.
@@ -244,7 +244,7 @@ Options:
 
 ```
 
-Exact author name query and source window; positional text maps to query. Author IDs identify source records, not resolved people. Counts cover that source record. Missing metadata is unavailable. Topic-wide author ranking and cross-source merging are unavailable. Semantic Scholar and ORCID are noncommercial; commercial users disable both with --disable-sources noncommercial or config disable_sources. Optional keys: biomcp key set semantic-scholar or S2_API_KEY; biomcp key set orcid or ORCID_ACCESS_TOKEN. IDs use semantic-scholar:ID (alias semanticscholar:ID) or orcid:ID. Search supports --source semantic-scholar (alias semanticscholar), positional text and --limit/-l
+Exact author name query and source window; positional text maps to query. Sources: semantic-scholar.
 
 - `--limit`: Bounded source page size.
 - `--offset`: Source offset.
@@ -322,7 +322,7 @@ Options:
 
 ```
 
-Find NCI organizations. Names are not unique; trial counts cover every status, including closed trials. No organization ID or get is available.
+Find NCI organizations. Sources: nci.
 
 - `--city`: Source organization city.
 - `--country`: Source organization country.
@@ -341,26 +341,29 @@ Find NCI organizations. Names are not unique; trial counts cover every status, i
 ## biomcp search cell-line
 
 ```text
-One literal cell line search, with native order and no total claim.
+One native cell line search with optional text, species and NCIt disease filters.
 
-Usage: biomcp search cell-line [OPTIONS] <query>
+Usage: biomcp search cell-line [OPTIONS] [query]
 
 Arguments:
-  <query>
+  [query]
           Literal source query from the positional argument.
 
 Options:
+      --disease <disease>
+          Cellosaurus disease: NCIt name or ID (for example Melanoma or C3224).
+
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
 
           [default: json]
           [possible values: json, md]
 
-  -l, --limit <limit>
-          Native page size.
-
       --disable-sources <disable-sources>
           Exclude source names or source terms groups.
+
+  -l, --limit <limit>
+          Native page size.
 
       --offset <offset>
           Native start offset.
@@ -371,6 +374,9 @@ Options:
       --config <config>
           Read configuration from this file.
 
+      --species <species>
+          Cellosaurus species: NCBI Taxonomy name or ID (for example Homo sapiens or 9606).
+
       --offline
           Read local data without source requests.
 
@@ -379,11 +385,13 @@ Options:
 
 ```
 
-One exact cell line search, with source order and no total claim. An assay count is not an activity or sensitivity count. No treatment response is inferred; no bioinformatics tool runs.
+One source cell line search with optional text, species and NCIt disease filters. Sources: cellosaurus.
 
+- `--disease`: Cellosaurus disease: NCIt name or ID (for example Melanoma or C3224).
 - `--limit`: Source page size.
 - `--offset`: Source start offset.
 - `query`: Exact source query from the positional argument.
+- `--species`: Cellosaurus species: NCBI Taxonomy name or ID (for example Homo sapiens or 9606).
 
 ## biomcp search gwas
 
@@ -456,7 +464,7 @@ Options:
 
 ```
 
-Source associations in default p-value-ascending order. Reports no personal risk, causal variant or gene, or clinical interpretation of a statistic. BioMCP's local request deadline expired. GWAS Catalog response times can vary; retry later or use https://www.ebi.ac.uk/gwas/. Contact the GWAS Catalog helpdesk if this persists.
+Source associations in default p-value-ascending order. Sources: gwas.
 
 - `--extended-geneset`: Source extended gene set; requires gene.
 - `--gene`: Exact source mapped gene; legacy positional query aliases this field.
@@ -524,7 +532,7 @@ Options:
 ```
 
 Search five reviewed human UniProt headers by exact text or exact gene.
-No variant effect, structure, interaction or clinical meaning is inferred. No bioinformatics tool runs.
+No variant effect, structure, interaction or clinical meaning is inferred. Sources: uniprot.
 
 - `--gene`: Exact source gene field, without identifier inference.
 - `--limit`: Five rows by default; no more than 25.
@@ -577,7 +585,7 @@ Options:
 
 ```
 
-Search exact human HP term candidates through Monarch with bounded source pages. A term lookup answers terminology and does not establish a diagnosis.
+Search exact human HP term candidates through Monarch with bounded source pages. Sources: hpo, monarch.
 
 - `--limit`: Maximum source headers, default five.
 - `--offset`: Source source row offset.
@@ -637,7 +645,7 @@ Options:
 
 ```
 
-Search Reactome (default) or WikiPathways human pathways. Membership names a source and release; it implies no therapy, response or actionability. No enrichment is calculated.
+Search Reactome (default) or WikiPathways human pathways. Sources: reactome, wikipathways.
 
 - `--fresh`: Request a new retained observation.
 - `--gene`: Human gene input for exact resolution and UniProt mapping; Reactome only.
@@ -695,7 +703,7 @@ Options:
 
 ```
 
-Exact stored metadata search; text is never parsed as a query language. No frequency, denominator, survival or comparison is calculated. Source counts keep their source names.
+Exact stored metadata search; text is never parsed as a query language. Sources: cbioportal.
 
 - `--cancer-type`: Exact cBioPortal cancer-type code; no OncoTree conversion.
 - `--limit`: Maximum headers per page.
@@ -749,7 +757,7 @@ Options:
 
 ```
 
-Checked gene-keyed CPIC pair search. No phenotype, phase or dose is calculated.
+Checked gene-keyed CPIC pair search. Sources: cpic.
 
 - `--cpic-level`: Exact source level, including compound levels such as B/C.
 - `--gene`: Explicit source gene symbol.
@@ -836,7 +844,7 @@ Options:
 
 ```
 
-Search five source records by default. FDA device recalls cover every medical device; totals count recall records, without harm inference.
+Search five source records by default. Sources: fda-cdx, fda-device-recall, gtr, who-ivd.
 
 - `--biomarker`: Exact table-0 biomarker cell; unsupported in the group table.
 - `--bundle-revision`: Immutable stored bundle revision retained by a continuation.
@@ -870,29 +878,32 @@ Arguments:
           Independent VAERS table; omitted means reported symptoms.
 
 Options:
+      --drug <drug>...
+          FAERS literal drug name; repeat --drug for OR. OR inside one quoted value stays literal. Other filters AND with the names. BioMCP caps the escaped native query, including filters, at FAERS_QUERY_MAX_BYTES (4096 bytes).
+
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
 
           [default: json]
           [possible values: json, md]
 
-      --limit <limit>
-          Native report headers or VAERS rows per page; default five.
-
       --disable-sources <disable-sources>
           Exclude source names or source terms groups.
 
+      --limit <limit>
+          Native report headers or VAERS rows per page; default five.
+
       --manufacturer <manufacturer>
           MAUDE manufacturer phrase on device.manufacturer_d_name. A report may list several devices; filters may match different devices.
-
-      --offset <offset>
-          Native row offset. VAERS continuation requires its retained snapshot.
 
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
 
       --config <config>
           Read configuration from this file.
+
+      --offset <offset>
+          Native row offset. VAERS continuation requires its retained snapshot.
 
       --problem <problem>
           MAUDE phrase on native product_problems.
@@ -904,19 +915,19 @@ Options:
           FAERS MedDRA term phrase match, not exact equality.
 
       --received-from <received_from>
-          Inclusive first FDA receipt lower bound, YYYY-MM-DD.
-
-      --received-to <received_to>
-          Inclusive first FDA receipt upper bound, YYYY-MM-DD.
+          Inclusive FAERS or MAUDE FDA receipt lower bound, YYYY-MM-DD or YYYY-MM; a month starts on its first day.
 
       --offline
           Read local data without source requests.
 
-      --serious <serious>
-          FAERS report flag: any uses the source seriousness flag; the specific flags can overlap. Never a reaction outcome.
+      --received-to <received_to>
+          Inclusive FAERS or MAUDE FDA receipt upper bound, YYYY-MM-DD or YYYY-MM; a month ends on its last day.
 
       --fresh
           Request fresh source data instead of cached replies.
+
+      --serious <serious>
+          FAERS report flag: any uses the source seriousness flag; the specific flags can overlap. Never a reaction outcome.
 
       --snapshot <snapshot>
           Retained VAERS table for provider-free continuation.
@@ -926,16 +937,17 @@ Options:
 
 ```
 
-Search five report headers by default. MAUDE accepts device text or a manufacturer, product-code or problem filter. One report may list several devices; filters may match different devices. VAERS accepts MMR, COVID19, COVID-19 vaccine or one exact qualified source influenza code, matched without case; use influenza to list codes and labels. Tables remain separate and are never summed. One report may list several vaccines. VAERS returns five reported symptom rows by default; seriousness and age select independent tables. Counts are reports, not people. Reports do not show that a vaccine caused an event and cannot measure risk or compare vaccine safety. CDC WONDER can take longer than BioMCP's local command deadline. Use the interactive form at https://wonder.cdc.gov/vaers.html for a longer query. See https://wonder.cdc.gov/wonder/help/faq.html. BioMCP's local quota refused this request before contacting CDC WONDER. Retry after the reported seconds left. Automated queries must follow the spacing at https://wonder.cdc.gov/wonder/help/wonder-api.html.
+Search five report headers by default. Sources: faers, maude, vaers.
 
+- `--drug`: FAERS exact drug name; repeat --drug for OR. OR inside one quoted value stays exact. Other filters AND with the names. BioMCP caps the escaped source query, including filters, at FAERS_QUERY_MAX_BYTES (4096 bytes).
 - `--limit`: Source report headers or VAERS rows per page; default five.
 - `--manufacturer`: MAUDE manufacturer phrase on device.manufacturer_d_name. A report may list several devices; filters may match different devices.
 - `--offset`: Source row offset. VAERS continuation requires its retained snapshot.
 - `--problem`: MAUDE phrase on source product_problems.
 - `--product-code`: MAUDE exact source device.device_report_product_code; repeated codes join with OR.
 - `--reaction`: FAERS MedDRA term phrase match, not exact equality.
-- `--received-from`: Inclusive first FDA receipt lower bound, YYYY-MM-DD.
-- `--received-to`: Inclusive first FDA receipt upper bound, YYYY-MM-DD.
+- `--received-from`: Inclusive FAERS or MAUDE FDA receipt lower bound, YYYY-MM-DD or YYYY-MM; a month starts on its first day.
+- `--received-to`: Inclusive FAERS or MAUDE FDA receipt upper bound, YYYY-MM-DD or YYYY-MM; a month ends on its last day.
 - `section`: Independent VAERS table; omitted means reported symptoms.
 - `--serious`: FAERS report flag: any uses the source seriousness flag; the specific flags can overlap. Never a reaction outcome.
 - `--snapshot`: Retained VAERS table for source-free continuation.
@@ -995,7 +1007,7 @@ Options:
 
 ```
 
-Exact discovery text or an explicit SEER catalog page.
+Exact discovery text or an explicit SEER catalog page. Sources: monarch, mydisease, ols, seer.
 
 - `--limit`: Maximum source rows on one page.
 - `--offset`: Source row offset.
@@ -1069,7 +1081,7 @@ Options:
 
 ```
 
-Search one drug source. FDA drug recalls accept a name or source firm, classification, status, reason and initiation dates; counts are recall records. Other sources require a name.
+Search one drug source. Sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq.
 
 - `--classification`: Source FDA classification; drug recalls only.
 - `--firm`: Exact published recalling firm phrase; drug recalls only.
@@ -1131,7 +1143,7 @@ Options:
 
 ```
 
-Search genes by text, cytoband, or their intersection.
+Search genes by text, cytoband, or their intersection. Sources: hgnc.
 
 - `--band`: A cytoband prefix.
 - `--limit`: Number of results per page.
@@ -1236,9 +1248,12 @@ Options:
       --variant <variant>
           Variant words.
 
+  -q, --query <query_alias>
+          Alias for positional article text.
+
 ```
 
-Checked search selectors and pool cursor.
+Checked search selectors and pool cursor. Sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar.
 
 - `--author`: Author words sent to PubMed's author field.
 - `--disease`: Disease words.
@@ -1269,6 +1284,7 @@ pubtator: entity and word search including full text; needs the right entity ID;
 - `--type`: Publication-type filter.
 - `--until`: Inclusive upper publication-date bound at the stated precision; PubMed matches either electronic or print date.
 - `--variant`: Variant words.
+- `--query`: Alias for positional article text.
 
 ## biomcp search trial
 
@@ -1398,7 +1414,7 @@ Options:
 
 ```
 
-Search ClinicalTrials.gov or keyed NCI with source counts. NCI --facility matches exact organization names; a listed site is not necessarily enrolling.
+Search ClinicalTrials.gov or keyed NCI with source counts. Sources: ctgov, nci.
 
 - `--age`: Age in years; unstated source bounds count as no limit.
 - `--biomarker-code`: Exact NCIt biomarker concept listed by NCI in trial criteria; NCI source only. This listing does not establish biomarker positivity or patient eligibility.
@@ -1500,7 +1516,7 @@ Options:
 
 ```
 
-Discover source candidates using one declared selector, without interpreting free text.
+Discover source candidates using one declared selector, without interpreting free text. Sources: myvariant.
 
 - `--build`: Optional caller assembly sent to MyVariant; regions require it explicitly.
 - `--coding`: Coding HGVS change searched literally in ClinVar with --gene, without choosing a transcript.
@@ -1541,7 +1557,7 @@ Commands:
   gene           Get one to twenty human gene inputs in their original order.
   article        Get one to twenty article inputs in caller order.
   trial          Retrieve exact trial cards in input order; request bounded intact source sections with independent continuations.
-  variant        Read an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation requires --build. Use search variant --gene BRAF --protein V600E or search variant --gene PTEN --coding c.333G>T for gene shorthand. Every candidate remains available; source assertions do not classify the variant for the caller.
+  variant        Read an rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS or VCF-style genomic coordinates such as 7-140753336-A-T through the shared resolver. MyVariant identity lookups default to GRCh38; --build overrides it. Chromosome genomic HGVS requires --build. Use search variant --gene BRAF --protein V600E or search variant --gene PTEN --coding c.333G>T for gene shorthand. Every candidate remains available; source assertions do not classify the variant for the caller.
 
 Options:
       --format <format>
@@ -1608,7 +1624,7 @@ Options:
 
 ```
 
-Search NCI by exact NCIt code. Several source rows return candidates without choosing one. The public tier returns codes, name, type, trial count, synonyms, parent_ids, ancestor_ids and eligibility_criterion. No clinical interpretation is performed.
+Search NCI by exact NCIt code. Sources: nci.
 
 - `id`: Exact NCIt code, such as C96022.
 - `--source`: NCI is the biomarker concept source.
@@ -1648,7 +1664,7 @@ Options:
 
 ```
 
-Exact qualified records in caller order, with no name reconciliation. Author IDs identify source records, not resolved people. Counts cover that source record. Missing metadata is unavailable. Topic-wide author ranking and cross-source merging are unavailable. Semantic Scholar and ORCID are noncommercial; commercial users disable both with --disable-sources noncommercial or config disable_sources. Optional keys: biomcp key set semantic-scholar or S2_API_KEY; biomcp key set orcid or ORCID_ACCESS_TOKEN. IDs use semantic-scholar:ID (alias semanticscholar:ID) or orcid:ID. Search supports --source semantic-scholar (alias semanticscholar), positional text and --limit/-l; papers supports --limit/-l and Semantic Scholar details/--full.
+Exact qualified records in caller order, with no name reconciliation. Sources: orcid, semantic-scholar.
 
 - `ids`: One or more exact qualified IDs.
 
@@ -1696,7 +1712,7 @@ Options:
 
 ```
 
-One exact identity and an optional bounded named section. An assay count is not an activity or sensitivity count. No treatment response is inferred; no bioinformatics tool runs.
+One exact identity and an optional bounded named section. Sources: cellosaurus.
 
 - `id`: One exact primary accession or qualified source ID.
 - `section`: Omit for the default card; all returns bounded first pages without an assay count.
@@ -1759,7 +1775,7 @@ Options:
 
 ```
 
-Source association or study and source context. Reports no personal risk, causal variant or gene, or clinical interpretation of a statistic. BioMCP's local request deadline expired. GWAS Catalog response times can vary; retry later or use https://www.ebi.ac.uk/gwas/. Contact the GWAS Catalog helpdesk if this persists.
+Source association or study and source context. Sources: gwas.
 
 - `id`: Qualified association ID or exact GCST study accession.
 - `section`: Association loci or study associations and ancestries.
@@ -1818,7 +1834,7 @@ Options:
 
 Read source protein cards; a symbol returns candidates without choosing a protein.
 Sections disclose source facts with independent row bounds; function keeps all paragraphs.
-No variant effect, structure, interaction or clinical meaning is inferred. No bioinformatics tool runs. BioMCP's local request deadline expired. The health probe uses a shorter local cap than protein requests. InterPro documents that some queries take minutes; this timeout does not establish an outage. Please retry later or check https://www.ebi.ac.uk/interpro/. See https://interpro-documentation.readthedocs.io/en/latest/faq.html.
+No variant effect, structure, interaction or clinical meaning is inferred. Sources: complex-portal, hgnc, interpro, uniprot.
 
 - `input`: Source accessions or gene symbols, preserving caller order.
 - `--section`: Select source sections or all bounded first pages; function keeps one whole text record.
@@ -1885,7 +1901,7 @@ Options:
 
 ```
 
-Read an exact HP term from HPO or Monarch, or page source sections. A term lookup answers terminology; an association answers what its publisher asserts. Neither establishes a diagnosis.
+Read an exact HP term from HPO or Monarch, or page source sections. Sources: hpo, monarch.
 
 - `id`: Exact HP identifier.
 - `section`: Absent means the source identity card.
@@ -1949,7 +1965,7 @@ Options:
 
 ```
 
-Get an exact human Reactome R-HSA or WikiPathways WP card. Read whole summary, genes, Reactome events or bounded all sections. Membership names a source and release; it implies no therapy, response or actionability. No enrichment is calculated.
+Get an exact human Reactome R-HSA or WikiPathways WP card. Sources: reactome, wikipathways.
 
 - `--fresh`: Request a new source observation.
 - `id`: Exact human Reactome or WikiPathways identity without version suffixes.
@@ -1986,20 +2002,26 @@ Options:
           [default: json]
           [possible values: json, md]
 
-      --section-limit <section_limit>
-          Maximum records in each selected section.
+      --gene <gene>
+          Exact cBioPortal HUGO gene symbol or Entrez ID; required for mutations.
 
       --disable-sources <disable-sources>
           Exclude source names or source terms groups.
 
-      --section-offset <section_offset>
-          Offset within one named section; all requires zero.
+      --molecular-profile <molecular_profile>
+          Exact mutation profile ID; omitted selects the study's first mutation profile.
+
+      --section-limit <section_limit>
+          Maximum records in each selected section.
 
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
 
       --config <config>
           Read configuration from this file.
+
+      --section-offset <section_offset>
+          Offset within one named section; all requires zero.
 
       --offline
           Read local data without source requests.
@@ -2009,9 +2031,11 @@ Options:
 
 ```
 
-Exact case-sensitive study card or bounded metadata section. No frequency, denominator, survival or comparison is calculated. Source counts keep their source names.
+Exact case-sensitive study card or bounded metadata section. Sources: cbioportal.
 
+- `--gene`: Exact cBioPortal HUGO gene symbol or Entrez ID; required for mutations.
 - `id`: Exact source study ID; no default or repair.
+- `--molecular-profile`: Exact mutation profile ID; omitted selects the study's first mutation profile.
 - `section`: Omit for the card; all returns bounded first pages only.
 - `--section-limit`: Maximum records in each selected section.
 - `--section-offset`: Offset within one named section; all requires zero.
@@ -2020,8 +2044,10 @@ Omit for the card; all returns bounded first pages only.
 
 - `profiles`: Five exact source molecular profile references.
 - `sample-lists`: Five sample-list metadata records, without member sample IDs.
+- `mutations`: Source mutation rows for the required gene and selected mutation profile.
+- `samples`: Source sample identities and types only.
 - `files`: Five repository file references; no automatic download.
-- `all`: Each named section's bounded first page; never a gene aggregate request.
+- `all`: Bounded first pages; mutations are included only when gene is supplied.
 
 ## biomcp get pgx
 
@@ -2085,7 +2111,7 @@ Options:
 
 ```
 
-PGx card or section. No phenotype, phase or dose is calculated.
+PGx card or section. Sources: clinpgx, cpic.
 
 - `--annotation-id`: Checked ClinPGx accession, never a shared PaId.
 - `--diplotype`: Unchanged declared expression required for the diplotype section only.
@@ -2160,7 +2186,7 @@ Options:
 
 ```
 
-Get one exact source record or supported section. A listing is not authorization; a companion row is not a treatment recommendation.
+Get one exact source record or supported section. Sources: fda-510k, fda-device-recall, fda-pma, gtr, who-ivd.
 
 - `--bundle-revision`: Immutable stored bundle revision retained by a continuation.
 - `id`: Exact source identity, including version for GTR.
@@ -2234,7 +2260,7 @@ Options:
 
 ```
 
-Exact source report identity and an optional independently paged section. CDC WONDER can take longer than BioMCP's local command deadline. Use the interactive form at https://wonder.cdc.gov/vaers.html for a longer query. See https://wonder.cdc.gov/wonder/help/faq.html. BioMCP's local quota refused this request before contacting CDC WONDER. Retry after the reported seconds left. Automated queries must follow the spacing at https://wonder.cdc.gov/wonder/help/wonder-api.html.
+Exact source report identity and an optional independently paged section. Sources: faers, maude.
 
 - `--drug-index`: Absolute source-array index; required only for identifier sections.
 - `id`: Published report ID with no source prefix.
@@ -2326,7 +2352,7 @@ Options:
 
 ```
 
-Exact concept or source SEER site with independently paged section.
+Exact concept or source SEER site with independently paged section. Sources: monarch, mydisease, ols, seer.
 
 - `--age-range`: Source age-range code.
 - `--dataset`: Requested source dataset selector, not proof of returned membership.
@@ -2413,7 +2439,7 @@ Options:
 
 ```
 
-Exact source ID retrieval with an explicitly selected source.
+Exact source ID retrieval with an explicitly selected source. Sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq.
 
 - `--civic-cursor`: Source continuation cursor for that exact drug, profile and claim collection.
 - `--civic-kind`: Independent source evidence or assertion collection within the selected profile.
@@ -2476,7 +2502,7 @@ Options:
 
 ```
 
-Get one to twenty human gene inputs in their original order.
+Get one to twenty human gene inputs in their original order. Sources: civic, clingen, gencc, gnomad, hgnc, hpa, mygene, oncokb, reactome, uniprot.
 
 - `input`: Gene symbols or checked identifiers, in input order.
 - `--section`: Requested section words, preserving caller order and repetitions.
@@ -2533,7 +2559,7 @@ Options:
 
 ```
 
-Get one to twenty article inputs in caller order.
+Get one to twenty article inputs in caller order. Sources: europepmc, icite, pmc-oa, pubmed, pubtator, semantic-scholar.
 
 - `input`: PubMed, PMC or DOI identifiers in input order.
 - `--section`: Requested section words; trailing words and --section share this field.
@@ -2599,7 +2625,7 @@ Options:
 
 ```
 
-Retrieve exact trial cards in input order; request bounded intact source sections with independent continuations.
+Retrieve exact trial cards in input order; request bounded intact source sections with independent continuations. Sources: ctgov, nci.
 
 - `input`: One to twenty exact NCT identifiers, in caller order.
 - `--limit`: Whole-record count per source collection page; text fragments follow the text budget.
@@ -2612,6 +2638,7 @@ Optional intact source sections. Default cards only; diseases and summary requir
 
 - `eligibility`: Intact criteria and structured age/sex fields.
 - `outcomes`: Primary, secondary and other outcome records.
+- `results`: Posted outcome values, analyses and adverse-event tables (ClinicalTrials.gov).
 - `arms`: Arms and interventions with original relationships.
 - `locations`: Whole source sites with their attached contacts.
 - `contacts`: Central contacts and overall officials in their original roles.
@@ -2624,20 +2651,20 @@ Optional intact source sections. Default cards only; diseases and summary requir
 ## biomcp get variant
 
 ```text
-Read an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation requires --build. Use search variant --gene BRAF --protein V600E or search variant --gene PTEN --coding c.333G>T for gene shorthand. Every candidate remains available; source assertions do not classify the variant for the caller.
+Read an rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS or VCF-style genomic coordinates such as 7-140753336-A-T through the shared resolver. MyVariant identity lookups default to GRCh38; --build overrides it. Chromosome genomic HGVS requires --build. Use search variant --gene BRAF --protein V600E or search variant --gene PTEN --coding c.333G>T for gene shorthand. Every candidate remains available; source assertions do not classify the variant for the caller.
 
 Usage: biomcp get variant [OPTIONS] <input> [section]...
 
 Arguments:
   <input>
-          Published rsID, CAid, ClinVar Variation ID or reference-qualified HGVS.
+          rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS or VCF-style genomic coordinates.
 
   [section]...
           Named source sections; omitted by default. Each calls its own source. all keeps bounded pages and source skips; it never enables a missing key.
 
 Options:
       --build <build>
-          Required for chromosome notation; no assembly is guessed.
+          MyVariant identity assembly defaults to GRCh38; chromosome genomic HGVS requires an explicit build.
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
@@ -2689,13 +2716,13 @@ Options:
 
 ```
 
-Read an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation requires --build. Use search variant --gene BRAF --protein V600E or search variant --gene PTEN --coding c.333G>T for gene shorthand. Every candidate remains available; source assertions do not classify the variant for the caller.
+Read an rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS or VCF-style genomic coordinates such as 7-140753336-A-T through the shared resolver. Sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator.
 
-- `--build`: Required for chromosome notation; no assembly is guessed.
+- `--build`: MyVariant identity assembly defaults to GRCh38; chromosome genomic HGVS requires an explicit build.
 - `--civic-cursor`: Source CIViC cursor, retained unchanged.
 - `--civic-kind`: Source CIViC claim collection within the selected profile.
 - `--civic-profile`: Selected CIViC molecular profile for source claim paging.
-- `input`: Published rsID, CAid, ClinVar Variation ID or reference-qualified HGVS.
+- `input`: rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS or VCF-style genomic coordinates.
 - `--limit`: Candidate rows per page; more remain reachable through typed next commands.
 - `--offset`: Candidate rows to skip in source order.
 - `--resolver`: Resolver for reference-qualified notation; never repairs the input locally.
@@ -2806,7 +2833,7 @@ Options:
 
 ```
 
-One exact source record's publication window. ORCID sends its whole public works list in one reply and pages groups locally. Author IDs identify source records, not resolved people. Counts cover that source record. Missing metadata is unavailable. Topic-wide author ranking and cross-source merging are unavailable. Semantic Scholar and ORCID are noncommercial; commercial users disable both with --disable-sources noncommercial or config disable_sources. Optional keys: biomcp key set semantic-scholar or S2_API_KEY; biomcp key set orcid or ORCID_ACCESS_TOKEN. IDs use semantic-scholar:ID (alias semanticscholar:ID) or orcid:ID. Search supports --source semantic-scholar (alias semanticscholar), positional text and --limit/-l; papers supports --limit/-l and Semantic Scholar details/--full.
+One exact source record's publication window. Sources: orcid, semantic-scholar.
 
 - `--full`: Legacy alias for details; normalized on construction.
 - `id`: Exact qualified source record.
@@ -2891,7 +2918,7 @@ Options:
 
 ```
 
-A separate assay-count request, never implicit in metadata or all. An assay count is not an activity or sensitivity count. No treatment response is inferred; no bioinformatics tool runs.
+A separate assay-count request, never implicit in metadata or all. Sources: chembl.
 
 - `id`: Exact ChEMBL cell identity returned by metadata.
 
@@ -2989,7 +3016,7 @@ Options:
 
 ```
 
-Page five source UniProt features by exact type and displayed residue. No variant effect or clinical meaning is inferred; no bioinformatics tool runs.
+Page five source UniProt features by exact type and displayed residue. Sources: uniprot.
 
 - `accession`: Exact source protein sequence identity.
 - `--limit`: Five rows by default, at most 25.
@@ -3042,7 +3069,7 @@ Options:
 
 ```
 
-Page five source isoforms, exact-participant complexes or PDB links. Source identities stay separate. No structure, interaction or clinical meaning is inferred; no bioinformatics tool runs.
+Page five source isoforms, exact-participant complexes or PDB links. Sources: uniprot.
 
 - `accession`: Exact source protein sequence identity.
 - `--limit`: Five rows by default, at most 25.
@@ -3096,7 +3123,7 @@ Options:
 
 ```
 
-Page five source InterPro matches with original types and fragments. No structure or clinical meaning is inferred; no bioinformatics tool runs. BioMCP's local request deadline expired. The health probe uses a shorter local cap than protein requests. InterPro documents that some queries take minutes; this timeout does not establish an outage. Please retry later or check https://www.ebi.ac.uk/interpro/. See https://interpro-documentation.readthedocs.io/en/latest/faq.html.
+Page five source InterPro matches with original types and fragments. Sources: interpro.
 
 - `accession`: Exact source protein sequence identity.
 - `--limit`: Five rows by default, at most 25.
@@ -3148,7 +3175,7 @@ Options:
 
 ```
 
-Page five source isoforms, exact-participant complexes or PDB links. Source identities stay separate. No structure, interaction or clinical meaning is inferred; no bioinformatics tool runs.
+Page five source isoforms, exact-participant complexes or PDB links. Sources: complex-portal.
 
 - `accession`: Exact source protein sequence identity.
 - `--limit`: Five rows by default, at most 25.
@@ -3202,7 +3229,7 @@ Options:
 
 ```
 
-Page five source participants of an exact Complex Portal complex containing the anchor. No interaction or clinical meaning is inferred; no bioinformatics tool runs.
+Page five source participants of an exact Complex Portal complex containing the anchor. Sources: complex-portal.
 
 - `accession`: Exact source protein sequence identity.
 - `--complex`: Exact complex whose source participants contain the anchor.
@@ -3254,7 +3281,7 @@ Options:
 
 ```
 
-Page five source isoforms, exact-participant complexes or PDB links. Source identities stay separate. No structure, interaction or clinical meaning is inferred; no bioinformatics tool runs.
+Page five source isoforms, exact-participant complexes or PDB links. Sources: uniprot.
 
 - `accession`: Exact source protein sequence identity.
 - `--limit`: Five rows by default, at most 25.
@@ -3298,7 +3325,7 @@ Options:
 ```
 
 Read one complete source sequence for an exact source accession.
-No variant effect, structure or clinical meaning is inferred; no bioinformatics tool runs.
+No variant effect, structure or clinical meaning is inferred; no bioinformatics tool runs. Sources: uniprot.
 
 - `isoform`: Exact isoform or base accession; no canonical suffix is synthesized.
 
@@ -3387,7 +3414,7 @@ Options:
 
 ```
 
-Read Reactome exact references or WikiPathways GeneProduct data nodes. The details layer discloses complete Reactome physical contexts. Membership names a source and release; it implies no therapy, response or actionability. No enrichment is calculated.
+Read Reactome exact references or WikiPathways GeneProduct data nodes. Sources: reactome, wikipathways.
 
 - `details`: Include every physical entity context for these references; never clips source text.
 - `id`: Checked source-owned human pathway identity.
@@ -3439,7 +3466,7 @@ Options:
 
 ```
 
-Read Reactome event objects and unresolved source integer references in source order. Membership names a source and release; it implies no therapy, response or actionability. No enrichment is calculated.
+Read Reactome event objects and unresolved source integer references in source order. Sources: reactome.
 
 - `id`: Checked source-owned human pathway identity.
 - `--limit`: Five complete relation rows by default, at most fifty.
@@ -3548,7 +3575,7 @@ Options:
 
 ```
 
-Read a checked supplement file or page its original rows.
+Read a checked supplement file or page its original rows. Sources: pmc-oa, pubmed.
 
 - `file`: Exact file name from the supplements section.
 - `--find`: Exact case-insensitive needle.
@@ -3601,7 +3628,7 @@ Options:
 
 ```
 
-Download one publisher PDF to an explicit file or existing folder.
+Download one publisher PDF to an explicit file or existing folder. Sources: semantic-scholar.
 
 - `input`: Article identity.
 - `--replace`: Replace an existing file only when explicitly requested.
@@ -3660,7 +3687,7 @@ Options:
 
 ```
 
-Read one bounded body part, find matching rows, or save the complete Markdown document.
+Read one bounded body part, find matching rows, or save the complete Markdown document. Sources: europepmc, pmc-oa, pubmed.
 
 - `--find`: Case-insensitive exact text to find.
 - `input`: PubMed or PMC identity. DOI selectors are not accepted by the reader.
@@ -3717,7 +3744,7 @@ Options:
 
 ```
 
-Page the citing or referenced PubMed papers of one checked PMID.
+Page the citing or referenced PubMed papers of one checked PMID. Sources: icite, pubmed, semantic-scholar.
 
 - `--limit`: Maximum papers on one page.
 - `--offset`: Number of pool items to skip.
@@ -3772,7 +3799,7 @@ Options:
 
 ```
 
-Page the PubMed papers referenced by one checked article identifier.
+Page the citing or referenced PubMed papers of one checked PMID. Sources: icite, pubmed, semantic-scholar.
 
 - `--limit`: Maximum papers on one page.
 - `--offset`: Number of pool items to skip.
@@ -3830,7 +3857,7 @@ Options:
 
 ```
 
-Read every source context and optional explicit full-text citation paragraph.
+Read every source context and optional explicit full-text citation paragraph. Sources: pmc-oa, pubmed, semantic-scholar.
 
 - `cited`: Cited PMID, PMC identity or DOI.
 - `citing`: Citing PMID, PMC identity or DOI.
@@ -3886,7 +3913,7 @@ Options:
 
 ```
 
-Recommendations in the source's recent-paper pool order.
+Recommendations in the source's recent-paper pool order. Sources: semantic-scholar.
 
 - `--limit`: Maximum recommendations requested, in source order.
 - `--negative`: Up to ten negative paper identities.
@@ -3975,7 +4002,7 @@ Options:
 
 ```
 
-Download one exact ClinicalTrials.gov manifest PDF to an explicit caller path; never read its text. CLI and stdio MCP support saves; HTTP refuses with the source URL.
+Download one exact ClinicalTrials.gov manifest PDF to an explicit caller path; never read its text. Sources: ctgov.
 
 - `file`: Exact filename from the registry manifest; never a URL or inferred path.
 - `input`: Exact registry identity.
@@ -4031,7 +4058,7 @@ Usage: biomcp variant assertions [OPTIONS] --source <source> <input>
 
 Arguments:
   <input>
-          Checked Variation ID for ClinVar, or CAid for ERepo.
+          Supported variant ID; resolves one ClinVar Variation ID or ERepo CAid through the shared resolver.
 
 Options:
       --assertion <assertion>
@@ -4043,14 +4070,14 @@ Options:
           [default: json]
           [possible values: json, md]
 
+      --build <build>
+          Identity lookup assembly; omitted uses the shared GRCh38 default.
+
       --disable-sources <disable-sources>
           Exclude source names or source terms groups.
 
       --limit <limit>
           Assertions per page; omitted uses the native source default.
-
-      --offset <offset>
-          Assertions to skip in source order.
 
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
@@ -4058,8 +4085,11 @@ Options:
       --config <config>
           Read configuration from this file.
 
+      --offset <offset>
+          Assertions to skip in source order.
+
       --source <source>
-          One native source; no fallback or text search.
+          One native assertion source; shared identity conversion precedes source access when needed.
 
       --version <version>
           VCV archive or ERepo document version; RCV/SCV selectors match a returned native version.
@@ -4072,13 +4102,14 @@ Options:
 
 ```
 
-Page assertions from one explicitly selected evidence source.
+Page assertions from one explicitly selected evidence source. Sources: clinvar, erepo.
 
 - `--assertion`: Source assertion accession or document ID.
-- `input`: Checked Variation ID for ClinVar, or CAid for ERepo.
+- `--build`: Identity lookup assembly; omitted uses the shared GRCh38 default.
+- `input`: Supported variant ID; resolves one ClinVar Variation ID or ERepo CAid through the shared resolver.
 - `--limit`: Assertions per page; omitted uses the source default.
 - `--offset`: Assertions to skip in source order.
-- `--source`: One source; no fallback or text search.
+- `--source`: One source assertion source; shared identity conversion precedes source access when needed.
 - `--version`: VCV archive or ERepo document version; RCV/SCV selectors match a returned source version.
 
 ## biomcp variant population
@@ -4131,7 +4162,7 @@ Options:
 
 ```
 
-Read a bounded ancestry-detail page from the exact source-given GRCh38 allele.
+Read a bounded ancestry-detail page from the exact source-given GRCh38 allele. Sources: car, gnomad, mutalyzer, myvariant, variantvalidator.
 
 - `--build`: Explicit source assembly when required by identity input.
 - `--detail`: Read source ancestry groups, preserving overlapping groups individually.
@@ -4152,29 +4183,32 @@ Arguments:
           Published variant identity; ambiguous identities are never selected silently.
 
 Options:
+      --build <build>
+          Identity lookup assembly; omitted uses the shared GRCh38 default.
+
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
 
           [default: json]
           [possible values: json, md]
 
-      --gene <gene>
-          HGNC symbol resolved to the source's Entrez gene identifier.
-
       --disable-sources <disable-sources>
           Exclude source names or source terms groups.
 
+      --gene <gene>
+          HGNC symbol resolved to the source's Entrez gene identifier.
+
       --limit <limit>
           Source mutation rows per page, including excluded alleles.
-
-      --page <page>
-          Zero-based native source page.
 
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
 
       --config <config>
           Read configuration from this file.
+
+      --page <page>
+          Zero-based native source page.
 
       --profile <profile>
           Explicit mutation molecular profile.
@@ -4196,8 +4230,9 @@ Options:
 
 ```
 
-Observe exact-allele samples within one caller-selected source page.
+Observe exact-allele samples within one caller-selected source page. Sources: cbioportal.
 
+- `--build`: Identity lookup assembly; omitted uses the shared GRCh38 default.
 - `--gene`: HGNC symbol resolved to the source's Entrez gene identifier.
 - `input`: Published variant identity; ambiguous identities are never selected silently.
 - `--limit`: Source mutation rows per page, including excluded alleles.
@@ -4254,7 +4289,7 @@ Options:
 
 ```
 
-Send unchanged reference-qualified notation to explicitly named services.
+Send unchanged reference-qualified notation to explicitly named services. Sources: car, mutalyzer, variantvalidator.
 
 - `--build`: Caller assembly; required when VariantValidator is selected.
 - `--hgvs`: Reference-qualified HGVS, or chromosome genomic HGVS with an explicit build for CAR.
@@ -5241,7 +5276,7 @@ Options:
 
 ```
 
-Describe help search gwas. BioMCP's local request deadline expired. GWAS Catalog response times can vary; retry later or use https://www.ebi.ac.uk/gwas/. Contact the GWAS Catalog helpdesk if this persists.
+Describe help search gwas.
 
 
 ## biomcp help search protein
@@ -5469,7 +5504,7 @@ Options:
 
 ```
 
-Describe help search adverse-event. CDC WONDER can take longer than BioMCP's local command deadline. Use the interactive form at https://wonder.cdc.gov/vaers.html for a longer query. See https://wonder.cdc.gov/wonder/help/faq.html. BioMCP's local quota refused this request before contacting CDC WONDER. Retry after the reported seconds left. Automated queries must follow the spacing at https://wonder.cdc.gov/wonder/help/wonder-api.html.
+Describe help search adverse-event.
 
 
 ## biomcp help search disease
@@ -5695,6 +5730,7 @@ Commands:
   article        Read article text, references, citations and files.
   trial          Read trial groups and public documents.
   variant        Read source variant assertions, populations and recurrence.
+  clingen
 
 Options:
       --format <format>
@@ -5852,7 +5888,7 @@ Options:
 
 ```
 
-Describe help get gwas. BioMCP's local request deadline expired. GWAS Catalog response times can vary; retry later or use https://www.ebi.ac.uk/gwas/. Contact the GWAS Catalog helpdesk if this persists.
+Describe help get gwas.
 
 
 ## biomcp help get protein
@@ -6080,7 +6116,7 @@ Options:
 
 ```
 
-Describe help get adverse-event. CDC WONDER can take longer than BioMCP's local command deadline. Use the interactive form at https://wonder.cdc.gov/vaers.html for a longer query. See https://wonder.cdc.gov/wonder/help/faq.html. BioMCP's local quota refused this request before contacting CDC WONDER. Retry after the reported seconds left. Automated queries must follow the spacing at https://wonder.cdc.gov/wonder/help/wonder-api.html.
+Describe help get adverse-event.
 
 
 ## biomcp help get disease
@@ -6279,6 +6315,38 @@ Options:
 ```
 
 Read source variant assertions, populations and recurrence.
+
+
+## biomcp help get clingen
+
+```text
+Usage: biomcp help get clingen [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output; configuration can change the default.
+
+          [default: json]
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --source_pacing <source_pacing>
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline
+          Read local data without source requests.
+
+      --fresh
+          Request fresh source data instead of cached replies.
+
+```
+
+Describe help get clingen.
 
 
 ## biomcp help author

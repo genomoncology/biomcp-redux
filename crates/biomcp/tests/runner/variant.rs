@@ -5,11 +5,22 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
 mod build_echo;
+mod search_corroboration;
+mod search_policy;
 mod section_deadline;
 
 pub(super) fn trials() -> Vec<Trial> {
     // The real peer checks resolver order, source requests and warm cache admission.
     vec![
+        transcript_trial("variant-search/fallback-reference-confirmation", || {
+            search_corroboration::check().map_err(Into::into)
+        }),
+        transcript_trial("variant-search/enabled-protein-selector", || {
+            search_policy::enabled().map_err(Into::into)
+        }),
+        transcript_trial("variant-search/open-protein-selector", || {
+            search_policy::check().map_err(Into::into)
+        }),
         transcript_trial("variant-identity/sections-share-request-deadline", || {
             section_deadline::check().map_err(|error| error.to_string().into())
         }),
@@ -127,5 +138,8 @@ fn car_body(_: &str) -> Result<String, String> {
 }
 
 fn myvariant_body(_: &str) -> Result<String, String> {
-    Ok(json!({"_id":"chr7:g.140753336A>T","dbsnp":{"rsid":"rs113488022","gene":{"symbol":"BRAF"}},"clinvar":{"variant_id":13961}}).to_string())
+    Ok(json!({"_id":"chr7:g.140753336A>T",
+        "chrom":"7","hg38":{"start":140753336,"end":140753336},
+        "dbsnp":{"rsid":"rs113488022","gene":{"symbol":"BRAF"}},"clinvar":{"variant_id":13961}})
+    .to_string())
 }

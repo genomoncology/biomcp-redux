@@ -6,10 +6,9 @@ use biodata::{
     Error, EuropePmcId, Expression, ExpressionSyntax, FiniteNumber, GeneSymbol, HgncId, HgvsText,
     License, LocusGroup, Markdown, NcbiGeneId, NctId, PartialDate, Pmcid, Pmid, PopulationDataType,
     PopulationFrequency, PopulationSex, PredictorScore, RcvId, RsId, ScvId, SemanticScholarId,
-    Statement, StudyType, Term, Text, TrialAgeBound, TrialArm, TrialCard, TrialContact,
-    TrialDocument, TrialIntervention, TrialLocation, TrialOfficial, TrialOutcome, TrialPhase,
-    TrialReference, TrialSex, TrialStatus, Variant, VariantId, VariantRef, VcvId, canonical_enum,
-    text_value,
+    Statement, StudyType, Term, Text, TrialAgeBound, TrialArm, TrialContact, TrialDocument,
+    TrialIntervention, TrialLocation, TrialOfficial, TrialOutcome, TrialPhase, TrialReference,
+    TrialSex, TrialStatus, Variant, VariantId, VariantRef, VcvId, canonical_enum, text_value,
 };
 
 #[macro_use]
@@ -64,7 +63,6 @@ pub use query::{RecurrenceSource, VariantRecurrenceQuery};
 pub use query::{TrialGet, TrialSection};
 pub use query::{VariantInput, VariantNamespace};
 pub use response::TrialParameter;
-pub use response::VariantPage;
 pub use response::{AnnotatedEntity, AnnotationKind, Annotations, ArticleSections, Tldr};
 pub use response::{ArticleCardItem, ArticleCards, ArticleMatch, ArticleResolution};
 pub use response::{ArticleEdgeItem, ArticleEdgePage, CitationIntent, Citations};
@@ -136,6 +134,7 @@ pub use response::{TrialDocumentResult, TrialDocumentSaved};
 pub use response::{
     VariantCard, VariantGetQuery, VariantHeader, VariantResolution, VariantTranscript,
 };
+pub use response::{VariantPage, VariantSearchExclusionReason, VariantSearchExclusions};
 pub use source::{Reason, Source, Use};
 
 pub use query::{OrganizationSearch, OrganizationSource};
@@ -171,14 +170,15 @@ pub use response::{
 };
 mod drug;
 pub use drug::{
-    DrugApprovals, DrugCard, DrugCivic, DrugCivicClaim, DrugCivicMember, DrugCivicPage,
-    DrugCivicProfile, DrugCivicStreams, DrugFdaCandidate, DrugFdaDocument, DrugFdaIngredient,
-    DrugFdaPage, DrugFdaProduct, DrugFdaProperty, DrugFdaSubmission, DrugGet, DrugHeader,
-    DrugIndications, DrugInteractions, DrugLabel, DrugLabelFragment, DrugLabelText, DrugNameMatch,
-    DrugNameSelector, DrugOncokbLookup, DrugOncokbMissing, DrugPage, DrugRecallCard,
-    DrugRecallClassification, DrugRecallCountUnit, DrugRecallHeader, DrugRecallPage, DrugRecords,
-    DrugRegulatory, DrugSearch, DrugSection, DrugSource, DrugTargets, DrugWhoCard, DrugWhoGet,
-    DrugWhoPage, DrugWhoRow, DrugXrefs,
+    DEFAULT_DRUG_APPROVALS_LIMIT, DrugApprovals, DrugCard, DrugCivic, DrugCivicClaim,
+    DrugCivicMember, DrugCivicPage, DrugCivicProfile, DrugCivicStreams, DrugFdaCandidate,
+    DrugFdaDocument, DrugFdaIngredient, DrugFdaPage, DrugFdaProduct, DrugFdaProperty,
+    DrugFdaSubmission, DrugGet, DrugHeader, DrugIndications, DrugInteractions, DrugLabel,
+    DrugLabelFragment, DrugLabelText, DrugNameMatch, DrugNameSelector, DrugOncokbLookup,
+    DrugOncokbMissing, DrugPage, DrugRecallCard, DrugRecallClassification, DrugRecallCountUnit,
+    DrugRecallHeader, DrugRecallPage, DrugRecords, DrugRegulatory, DrugSearch, DrugSection,
+    DrugSource, DrugTargets, DrugWhoCard, DrugWhoGet, DrugWhoPage, DrugWhoRow, DrugXrefs,
+    OPENFDA_LABEL_HEADINGS,
 };
 
 pub use query::{CheckedQuery, QueryInvalid};
@@ -266,3 +266,15 @@ pub use response::{BiomarkerCard, BiomarkerHeader, BiomarkerPage, BiomarkerResul
 pub use response::{UsageArguments, UsageError};
 
 pub use response::{Reply, ReplyBody, ReplyData};
+
+mod coverage;
+pub use coverage::{command_implicit_sources, command_section_sources};
+
+#[cfg(feature = "schema")]
+pub use adverse_event::AdverseEventSearchCommand;
+pub use response::{
+    TrialAdverseEvents, TrialEvent, TrialEventGroup, TrialEventStats, TrialPostedCard,
+    TrialPostedOutcome, TrialResultAnalysis, TrialResultCategory, TrialResultClass,
+    TrialResultCount, TrialResultDenominator, TrialResultGroup, TrialResultMeasurement,
+    TrialResultRecord,
+};

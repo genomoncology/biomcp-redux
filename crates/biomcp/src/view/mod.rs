@@ -1,4 +1,5 @@
 //! One structural view of serialized JSON and its schema presentation hints.
+mod article;
 mod escape;
 mod help;
 mod hints;
@@ -18,6 +19,18 @@ pub(crate) fn markdown(value: &Value) -> io::Result<Vec<u8>> {
         .unwrap_or(Value::Null);
     let hint = hints::find(identity);
     let mut out = String::new();
+    if value.get("status").and_then(Value::as_str) == Some("absent") {
+        for source in value
+            .get("sources")
+            .and_then(Value::as_array)
+            .into_iter()
+            .flatten()
+        {
+            if source.get("state").and_then(Value::as_str) == Some("ok") {
+                no_data(&source["source"], &mut out);
+            }
+        }
+    }
     for source in value
         .get("sources")
         .and_then(Value::as_array)
@@ -72,6 +85,7 @@ impl View<'_> {
         let Some(fields) = value.as_object() else {
             return;
         };
+        state_note(value, out);
         for (name, value) in fields {
             if name == "schema"
                 || (name == "query"
@@ -85,7 +99,12 @@ impl View<'_> {
                 heading(name, depth, out);
                 if name == "next" {
                     steps(value, out);
-                } else {
+                } else if !(name == "parts"
+                    && self
+                        .hint
+                        .is_some_and(|hint| hint.schema == biomcp_types::ArticleCards::SCHEMA)
+                    && article::parts(value, out))
+                {
                     View {
                         root: self.root,
                         hint: self.hint,
@@ -132,6 +151,9 @@ impl View<'_> {
             && !items.iter().any(nested_records)
             && !contains_markdown(item_schema, self.root)
         {
+            for item in items {
+                table_notes(item, out);
+            }
             table(
                 items,
                 self.hint.map_or(&[], |h| h.columns),
@@ -148,6 +170,36 @@ impl View<'_> {
             }
             out.push('\n');
         }
+    }
+}
+// Tables flatten nested objects, so visit their source states before flattening.
+fn table_notes(value: &Value, out: &mut String) {
+    state_note(value, out);
+    if let Some(fields) = value.as_object() {
+        for field in fields.values().filter(|field| field.is_object()) {
+            table_notes(field, out);
+        }
+    }
+}
+fn no_data(source: &Value, out: &mut String) {
+    out.push_str(&format!("{} returned no data.\n\n", scalar(source)));
+}
+fn state_note(value: &Value, out: &mut String) {
+    let Some(source) = value.get("source").filter(|source| source.is_string()) else {
+        return;
+    };
+    match value.get("state").and_then(Value::as_str) {
+        Some("empty") => no_data(source, out),
+        Some("unavailable" | "failed") => {
+            if let Some(reason) = value.get("reason") {
+                out.push_str(&format!(
+                    "{} failed (reason: {}); resolve this reason and retry the request.\n\n",
+                    scalar(source),
+                    scalar(reason)
+                ));
+            }
+        }
+        _ => {}
     }
 }
 fn heading(name: &str, depth: usize, out: &mut String) {

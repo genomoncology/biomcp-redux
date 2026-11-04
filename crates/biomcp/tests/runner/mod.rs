@@ -6,6 +6,7 @@ mod local_files;
 tool_only! { mod protein_commands; }
 tool_only! { mod trial_condition; }
 tool_only! { pub(super) mod other_source_value_proof; }
+mod article_lean;
 mod article_save;
 mod article_save_reply;
 mod assertions;
@@ -22,11 +23,15 @@ mod pool_contract;
 #[path = "../support/synthetic_contracts.rs"]
 mod required_contract;
 tool_only! { pub(super) mod tools_api; }
+tool_only! { pub(super) mod proof_requirements; }
 mod features;
 use crate::runner::transcript::trial as transcript_trial;
 use execution::run_step;
 mod alphagenome;
 mod alphagenome_tls;
+mod bundle_refresh;
+mod bundle_sync;
+mod bundle_wait;
 mod cache_admission;
 mod cache_contention;
 mod capture;
@@ -44,9 +49,8 @@ mod drug_label;
 mod drug_next;
 mod evidence;
 mod faers_get;
-mod source_pacing;
-tool_only! { mod hgnc_sync; }
 mod held_proxy;
+mod hgnc_sync;
 mod hosted_deadline;
 mod hosted_pacing;
 mod housekeeping;
@@ -60,6 +64,7 @@ pub(super) mod launch;
 mod recurrence;
 mod remote_tools;
 mod replay;
+mod source_pacing;
 tool_only! { pub(crate) mod live; }
 tool_only! { mod live_follow_proof; }
 tool_only! { mod live_proof; }
@@ -109,6 +114,7 @@ mod store_coexistence;
 mod study_catalog;
 mod transcript;
 mod trial_get;
+mod trial_results;
 mod trial_sites;
 mod vaers;
 mod variant;
@@ -134,6 +140,16 @@ use std::{fs, path::Path, sync::Arc};
 mod case_data;
 use case_data::{Case, Step, collect, read_case};
 
+fn case_name(path: &Path, root: &Path) -> Result<String, String> {
+    Ok(path
+        .strip_prefix(root)
+        .map_err(|error| error.to_string())?
+        .iter()
+        .map(|part| part.to_str().ok_or("case path must be UTF-8"))
+        .collect::<Result<Vec<_>, _>>()?
+        .join("/"))
+}
+
 pub(super) fn discover(root: &Path) -> Result<Vec<Trial>, String> {
     let mut paths = Vec::new();
     collect(root, &mut paths).map_err(|error| format!("{}: {error}", root.display()))?;
@@ -145,13 +161,7 @@ pub(super) fn discover(root: &Path) -> Result<Vec<Trial>, String> {
     let trials = paths
         .into_iter()
         .map(|path| {
-            let name = path
-                .strip_prefix(root)
-                .map_err(|error| error.to_string())?
-                .iter()
-                .map(|part| part.to_str().ok_or("case path must be UTF-8"))
-                .collect::<Result<Vec<_>, _>>()?
-                .join("/");
+            let name = case_name(&path, root)?;
             let case = read_case(&path)?;
             let name = format!("{}/{name}", case.feature);
             let registry = Arc::clone(&registry);
@@ -241,7 +251,12 @@ fn run_case_owned(
 pub(super) fn protocol_trials() -> Vec<Trial> {
     let mut trials = Vec::new();
     trials.extend(protocol::trials());
+    trials.extend(article_lean::trials());
     trials.extend(configuration::trials());
+    trials.extend(bundle_wait::trials());
+    trials.extend(bundle_refresh::trials());
+    trials.extend(bundle_sync::trials());
+    trials.push(hgnc_sync::live_trial());
     trials.extend(source_pacing::trials());
     trials.extend(recurrence::trials());
     trials.extend(replay::trials());
@@ -271,6 +286,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(variant_hotspots::trials());
     trials.extend(vaers::trials());
     trials.extend(trial_get::trials());
+    trials.extend(trial_results::trials());
     trials.push(trial_sites::trial());
     trials.extend(snapshot_errors::trials());
     trials.extend(cache_errors::trials());
@@ -464,6 +480,7 @@ tool_only! {
     pub(super) fn tool_trials() -> Result<Vec<Trial>, String> {
         let registry = schema::Registry::embedded()?;
         let mut trials = proof::trials();
+        trials.push(proof_requirements::trial());
         trials.push(reply_comparison::trial());
         trials.extend(hgnc_sync::trials());
         trials.extend(schema_proof::trials(registry));

@@ -100,7 +100,7 @@ fn ids(
         .filter(|g| g.symbol.as_str() == symbol.as_str())
     {
         for id in gene.uniprot {
-            if let Ok(id) = UniProtIsoform::new(id.as_str())
+            if let Some(id) = UniProtIsoform::new(id.as_str())
                 && !ids.contains(&id)
             {
                 ids.push(id);
@@ -130,6 +130,7 @@ fn hydrate(
                             source: Source::UniProt,
                             reason: biomcp_types::Reason::BadReply,
                             status: Some(200),
+                            tls_cause: None,
                             retry_after: None,
                         }
                         .into(),

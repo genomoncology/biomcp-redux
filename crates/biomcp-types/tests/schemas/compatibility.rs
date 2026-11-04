@@ -44,6 +44,8 @@ pub(super) fn check_reviewed(
     kind: ContractKind,
     reviews: &Reviews,
 ) -> Check<()> {
+    let baseline = reviews.enum_baseline(old, new);
+    let old = &baseline;
     let old_shapes = shapes(old)?;
     let new_shapes = shapes(new)?;
     let (old_name, old_major) = identity(old)?;
@@ -105,16 +107,31 @@ fn compatible(
                     path,
                     old.pattern.as_deref(),
                     new.pattern.as_deref(),
+                )
+                || reviews.narrowing(
+                    old_name,
+                    old_major,
+                    path,
+                    old.pattern.as_deref(),
+                    new.pattern.as_deref(),
                 ))
         || new
             .minimum
             .is_some_and(|n| old.minimum.is_none_or(|o| n > o))
         || lowered(old.maximum, new.maximum)
         || new.selectors.as_ref().is_some_and(|new| {
-            old.selectors.as_ref().is_none_or(|old| {
-                old.iter()
-                    .any(|old| !new.iter().any(|new| new.is_subset(old)))
-            })
+            old.selectors.as_ref().map_or_else(
+                || !new.iter().any(|branch| branch.is_subset(&old.required)),
+                |alternatives| {
+                    alternatives.iter().any(|branch| {
+                        !new.iter().any(|required| {
+                            required
+                                .iter()
+                                .all(|field| old.required.contains(field) || branch.contains(field))
+                        })
+                    })
+                },
+            )
         })
         || old.open_enum && !new.open_enum
         || old.types != new.types
@@ -227,7 +244,9 @@ fn visit(
                 visit(root, branch, path, shapes, refs)?;
             }
         } else {
-            for (kind, branch) in scalars::branches(root, branches)? {
+            for (kind, branch) in scalars::branches(root, branches)
+                .map_err(|error| format!("{error} at {path}: {branches}"))?
+            {
                 descend(root, branch, path, &format!("@type={kind}"), shapes, refs)?;
             }
         }

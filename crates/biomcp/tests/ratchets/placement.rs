@@ -84,6 +84,10 @@ const ALLOWED: &[(&str, &str)] = &[
             through the public library API before adapters exist.",
     ),
     (
+        "crates/biomcp-types/tests/variant_coordinates.rs",
+        "Exercise VCF coordinate parser boundaries and assembly-qualified full-reference validation strings through the public library API.",
+    ),
+    (
         "crates/biomcp-types/tests/variant_values.rs",
         "Exercise copied common variant values and constructor boundaries through the public library API.",
     ),
@@ -124,6 +128,10 @@ const ALLOWED: &[(&str, &str)] = &[
         "Exercise the external Rust API consumer compile/runtime contract.",
     ),
     (
+        "crates/biomcp-types/tests/biodata_switch.rs",
+        "Exercise reviewed shared identifier identity, selector wire text and refusal codes through the consumer API.",
+    ),
+    (
         "crates/biomcp-types/tests/query.rs",
         "Exercise checked values and schema contracts through the public library API.",
     ),
@@ -142,6 +150,10 @@ const ALLOWED: &[(&str, &str)] = &[
     (
         "crates/biomcp-types/tests/schemas/compatibility_cases.rs",
         "Exercise checked values and schema contracts through the public library API.",
+    ),
+    (
+        "crates/biomcp-types/tests/schemas/policy.rs",
+        "Test reviewed schema pattern changes at exact paths and reject near misses.",
     ),
     (
         "crates/biomcp-types/tests/schemas/compatibility_recursive_cases.rs",
@@ -394,6 +406,10 @@ const ALLOWED: &[(&str, &str)] = &[
     (
         "crates/biomcp/tests/ratchets/lints.rs",
         "Prove the shared Clippy settings reject planted scalar, banned-type and reason drift.",
+    ),
+    (
+        "crates/biomcp/tests/ratchets/dependency_sources.rs",
+        "Reject unapproved Git revisions and missing source policy inputs through the dependency guard.",
     ),
     (
         "crates/biomcp/tests/ratchets/proof.rs",

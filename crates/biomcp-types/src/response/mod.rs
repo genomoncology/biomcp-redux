@@ -96,7 +96,8 @@ mod variant_query;
 pub use variant_query::VariantGetQuery;
 mod variant_normalize;
 pub use variant::{
-    VariantCard, VariantHeader, VariantPage, VariantResolution, VariantSections, VariantTranscript,
+    VariantCard, VariantHeader, VariantPage, VariantResolution, VariantSearchExclusionReason,
+    VariantSearchExclusions, VariantSections, VariantTranscript,
 };
 pub use variant_normalize::{
     NormalizationField, NormalizationMessage, NormalizationResult, VariantNormalization,
@@ -193,3 +194,11 @@ mod packet;
 mod reply;
 pub use packet::ReplyData;
 pub use reply::{Reply, ReplyBody};
+
+mod trial_results;
+pub use trial_results::{
+    TrialAdverseEvents, TrialEvent, TrialEventGroup, TrialEventStats, TrialPostedCard,
+    TrialPostedOutcome, TrialResultAnalysis, TrialResultCategory, TrialResultClass,
+    TrialResultCount, TrialResultDenominator, TrialResultGroup, TrialResultMeasurement,
+    TrialResultRecord,
+};

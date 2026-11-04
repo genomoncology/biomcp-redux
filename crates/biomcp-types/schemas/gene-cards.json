@@ -1379,7 +1379,7 @@
     },
     "Reply_OmimId": {
       "description": " A six-digit OMIM identifier, preserving all six digits.",
-      "pattern": "^[0-9]{6}$",
+      "pattern": "^[1-6][0-9]{5}$",
       "type": "string"
     },
     "Reply_Oncokb": {
@@ -3326,7 +3326,8 @@
         "open",
         "attribution",
         "noncommercial",
-        "restricted"
+        "licensed",
+        "per-record"
       ],
       "type": "string"
     },

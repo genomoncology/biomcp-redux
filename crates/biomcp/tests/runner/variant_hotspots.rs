@@ -88,7 +88,10 @@ fn candidate() -> Result<(), String> {
 }
 pub(super) fn body(request: &str) -> Result<String, String> {
     if request.starts_with("GET /v1/variant/") {
-        Ok(json!({"_id":"chr7:g.140753336A>T","dbsnp":{"rsid":"rs113488022","gene":{"symbol":"BRAF"}},"clinvar":{"variant_id":13961}}).to_string())
+        Ok(json!({"_id":"chr7:g.140753336A>T",
+        "chrom":"7","hg38":{"start":140753336,"end":140753336},
+        "dbsnp":{"rsid":"rs113488022","gene":{"symbol":"BRAF"}},"clinvar":{"variant_id":13961}})
+        .to_string())
     } else {
         // Counts are deliberately synthetic; provider data rights remain unverified.
         Ok(json!(
@@ -123,11 +126,15 @@ fn envelope(value: &Value) -> Result<(), String> {
             .terms,
     )
     .map_err(|e| e.to_string())?;
+    let component_bytes = serde_json::to_vec(&json!({"component_terms": &terms}))
+        .map_err(|e| e.to_string())?
+        .len()
+        - 1;
     let payload = serde_json::to_vec(&comparable)
         .map_err(|e| e.to_string())?
         .len();
     if terms != json!([{"component":"clinvar","terms":expected}])
-        || full - payload != 205 + source_terms
+        || full - payload != component_bytes + source_terms
         || payload > crate::runner::output_limit("hotspots-payload")?
         || full - source_terms > crate::runner::output_limit("hotspots-envelope")?
     {

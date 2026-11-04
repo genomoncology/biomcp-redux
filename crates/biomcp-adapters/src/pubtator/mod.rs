@@ -18,7 +18,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     terms: biomcp_fetch::Terms {
         name: "NCBI policies; publisher rights in input text",
         url: "https://www.ncbi.nlm.nih.gov/home/about/policies/",
-        usage: biomcp_types::Use::Restricted,
+        usage: biomcp_types::Use::Open,
     },
     source: Source::PubTator,
     base: "https://www.ncbi.nlm.nih.gov/research/pubtator3-api",
@@ -44,6 +44,7 @@ pub fn annotations(leg: &Leg<'_>, ids: &[Pmid]) -> Result<Vec<ArticleAnnotations
             source: Source::PubTator,
             reason: biomcp_types::Reason::BadReply,
             status: None,
+            tls_cause: None,
             retry_after: None,
         }
         .into());
