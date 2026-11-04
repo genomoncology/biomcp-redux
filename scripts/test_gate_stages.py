@@ -27,11 +27,15 @@ class GateStages(unittest.TestCase):
                 (root / directory).mkdir()
             for name, _ in launchers:
                 shutil.copy2(ROOT / 'scripts' / name, root / 'scripts' / name)
-            (root / 'bin/python3').symlink_to(sys.executable)
-            shell = root / 'bin/sh'
-            shell.write_text('#!' + sys.executable + '\nimport json, sys\n'
-                             'print(json.dumps(sys.argv[1:]))\nsys.exit(23)\n')
-            shell.chmod(0o755)
+            for name in ('python3', 'python3.13'):
+                (root / 'bin' / name).symlink_to(sys.executable)
+            capture = 'import json, sys\nprint(json.dumps(sys.argv[1:]))\nsys.exit(23)\n'
+            for name, body in {'sh': capture, 'make': capture, 'git': '',
+                               'uv': 'print(' + repr(str(root / 'bin/python3')) + ')',
+                               'cargo': "print('0.9.2')"}.items():
+                tool = root / 'bin' / name
+                tool.write_text('#!' + sys.executable + '\n' + body)
+                tool.chmod(0o755)
             env = {**environment(root), 'PATH': str(root / 'bin') + os.pathsep + os.defpath}
             for command in (configured, "printf 'quoted \"value\"';\nexit 23\n"):
                 (root / 'sdlc/pm.json').write_text(json.dumps({'ticketsGate': command}))
@@ -41,7 +45,7 @@ class GateStages(unittest.TestCase):
                                                 cwd=root / 'elsewhere', env=env,
                                                 capture_output=True, text=True)
                         self.assertEqual(result.returncode, 23, result.stdout + result.stderr)
-                        self.assertEqual(json.loads(result.stdout), ['-c', command])
+                        self.assertEqual(json.loads(result.stdout.splitlines()[-1]), ['-c', command])
 
     def test_stage_reports_failure_and_stops(self):
         result = subprocess.run([sys.executable, str(ROOT / 'scripts/timed_stage.py'),
