@@ -2002,20 +2002,26 @@ Options:
           [default: json]
           [possible values: json, md]
 
-      --section-limit <section_limit>
-          Maximum records in each selected section.
+      --gene <gene>
+          Exact cBioPortal HUGO gene symbol or Entrez ID; required for mutations.
 
       --disable-sources <disable-sources>
           Exclude source names or source terms groups.
 
-      --section-offset <section_offset>
-          Offset within one named section; all requires zero.
+      --molecular-profile <molecular_profile>
+          Exact mutation profile ID; omitted selects the study's first mutation profile.
+
+      --section-limit <section_limit>
+          Maximum records in each selected section.
 
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
 
       --config <config>
           Read configuration from this file.
+
+      --section-offset <section_offset>
+          Offset within one named section; all requires zero.
 
       --offline
           Read local data without source requests.
@@ -2027,7 +2033,9 @@ Options:
 
 Exact case-sensitive study card or bounded metadata section. Sources: cbioportal.
 
+- `--gene`: Exact cBioPortal HUGO gene symbol or Entrez ID; required for mutations.
 - `id`: Exact source study ID; no default or repair.
+- `--molecular-profile`: Exact mutation profile ID; omitted selects the study's first mutation profile.
 - `section`: Omit for the card; all returns bounded first pages only.
 - `--section-limit`: Maximum records in each selected section.
 - `--section-offset`: Offset within one named section; all requires zero.
@@ -2036,8 +2044,10 @@ Omit for the card; all returns bounded first pages only.
 
 - `profiles`: Five exact source molecular profile references.
 - `sample-lists`: Five sample-list metadata records, without member sample IDs.
+- `mutations`: Source mutation rows for the required gene and selected mutation profile.
+- `samples`: Source sample identities and types only.
 - `files`: Five repository file references; no automatic download.
-- `all`: Each named section's bounded first page; never a gene aggregate request.
+- `all`: Bounded first pages; mutations are included only when gene is supplied.
 
 ## biomcp get pgx
 
@@ -2628,6 +2638,7 @@ Optional intact source sections. Default cards only; diseases and summary requir
 
 - `eligibility`: Intact criteria and structured age/sex fields.
 - `outcomes`: Primary, secondary and other outcome records.
+- `results`: Posted outcome values, analyses and adverse-event tables (ClinicalTrials.gov).
 - `arms`: Arms and interventions with original relationships.
 - `locations`: Whole source sites with their attached contacts.
 - `contacts`: Central contacts and overall officials in their original roles.

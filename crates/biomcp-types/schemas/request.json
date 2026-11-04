@@ -780,11 +780,18 @@
       "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$",
       "type": "string"
     },
+    "StudyProfileId": {
+      "description": "Exact cBioPortal molecular profile identity.",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$",
+      "type": "string"
+    },
     "StudySection": {
       "description": "Supported bounded study metadata sections; gene counts are deferred.",
       "enum": [
         "profiles",
         "sample-lists",
+        "mutations",
+        "samples",
         "files",
         "all"
       ],
@@ -792,8 +799,10 @@
       "x-enum-descriptions": [
         " Five exact native molecular profile references.",
         " Five sample-list metadata records, without member sample IDs.",
+        " Source mutation rows for the required gene and selected mutation profile.",
+        " Source sample identities and types only.",
         " Five repository file references; no automatic download.",
-        " Each named section's bounded first page; never a gene aggregate request."
+        " Bounded first pages; mutations are included only when gene is supplied."
       ]
     },
     "StudyType": {
@@ -838,6 +847,7 @@
       "enum": [
         "eligibility",
         "outcomes",
+        "results",
         "arms",
         "locations",
         "contacts",
@@ -851,6 +861,7 @@
       "x-enum-descriptions": [
         " Intact criteria and structured age/sex fields.",
         " Primary, secondary and other outcome records.",
+        " Posted outcome values, analyses and adverse-event tables (ClinicalTrials.gov).",
         " Arms and interventions with original relationships.",
         " Whole source sites with their attached contacts.",
         " Central contacts and overall officials in their original roles.",
@@ -2294,10 +2305,32 @@
           "const": "get-study",
           "type": "string"
         },
+        "gene": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Exact cBioPortal HUGO gene symbol or Entrez ID; required for mutations."
+        },
         "id": {
           "$ref": "#/$defs/StudyId",
           "description": "Exact source study ID; no default or repair.",
           "x-positional": 0
+        },
+        "molecular_profile": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/StudyProfileId"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Exact mutation profile ID; omitted selects the study's first mutation profile."
         },
         "section": {
           "anyOf": [
