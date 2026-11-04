@@ -186,6 +186,12 @@ impl StudyGet {
     pub fn molecular_profile(&self) -> Option<&biodata::StudyProfileId> {
         self.0.molecular_profile.as_ref()
     }
+    /// Bind subsequent mutation pages to the selected source profile.
+    pub fn with_molecular_profile(&self, profile: biodata::StudyProfileId) -> Self {
+        let mut q = self.clone();
+        q.0.molecular_profile = Some(profile);
+        q
+    }
     /// Exact checked study ID.
     pub fn id(&self) -> &StudyId {
         &self.0.id

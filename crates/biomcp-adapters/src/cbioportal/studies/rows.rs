@@ -123,54 +123,9 @@ pub fn mutations(
     leg: &Leg<'_>,
     q: &StudyGet,
 ) -> Result<(Records<StudyMutation>, StudyProfileId, NcbiGeneId), RequestError> {
-    let selector = q
-        .gene()
-        .ok_or_else(|| biomcp_fetch::bad_reply(Source::Cbioportal, None))?;
-    let gene = leg
-        .call(
-            &endpoint("/genes", &[selector.as_str()])?,
-            Input::Params(&[]),
-            Read::<Gene>::json().check(&|g| {
-                if g.hugo_gene_symbol == *selector
-                    || g.entrez_gene_id.to_string() == selector.as_str()
-                {
-                    Ok(())
-                } else {
-                    Err(BadReply)
-                }
-            }),
-        )?
-        .value;
-    let profiles = leg
-        .call(
-            &endpoint("/studies", &[q.id().as_str(), "molecular-profiles"])?,
-            Input::Params(&[("projection", Arg::Text("SUMMARY"))]),
-            Read::<Profiles>::json().check(&|p| {
-                if p.0.iter().all(|p| p.study_id == *q.id()) {
-                    Ok(())
-                } else {
-                    Err(BadReply)
-                }
-            }),
-        )?
-        .value;
-    let profile = profiles
-        .0
-        .into_iter()
-        .find(|p| {
-            p.molecular_alteration_type.as_str() == "MUTATION_EXTENDED"
-                && q.molecular_profile()
-                    .is_none_or(|id| *id == p.molecular_profile_id)
-        })
-        .ok_or(biomcp_fetch::SourceError {
-            source: Source::Cbioportal,
-            reason: biomcp_types::Reason::Unavailable,
-            status: None,
-            tls_cause: None,
-            retry_after: None,
-        })?
-        .molecular_profile_id;
-    let lists = super::sample_lists(leg, q.id(), 0, 50)?;
+    let gene = gene(leg, q)?;
+    let profile = profile(leg, q)?;
+    let lists = super::sample_lists(leg, q.id(), 0, u32::MAX)?;
     let list = lists
         .window
         .rows
@@ -187,7 +142,7 @@ pub fn mutations(
             tls_cause: None,
             retry_after: None,
         })?;
-    let body = serde_json::json!({"sampleListId": list.sample_list_id, "entrezGeneIds": [gene.entrez_gene_id]});
+    let body = serde_json::json!({"sampleListId": list.sample_list_id, "entrezGeneIds": [gene]});
     let endpoint = SPEC
         .post_json("/molecular-profiles")
         .with_segments(&[
@@ -214,7 +169,7 @@ pub fn mutations(
                     && v.0.iter().all(|r| {
                         r.scope.study_id.as_str() == q.id().as_str()
                             && r.scope.molecular_profile_id.as_str() == profile.as_str()
-                            && r.scope.entrez_gene_id == gene.entrez_gene_id.get()
+                            && r.scope.entrez_gene_id == gene.get()
                     })
                 {
                     Ok(())
@@ -249,6 +204,60 @@ pub fn mutations(
             acquired: received.meta.fetched.and_then(|v| u64::try_from(v).ok()),
         },
         profile,
-        gene.entrez_gene_id,
+        gene,
     ))
+}
+
+fn gene(leg: &Leg<'_>, q: &StudyGet) -> Result<NcbiGeneId, RequestError> {
+    let selector = q
+        .gene()
+        .ok_or_else(|| biomcp_fetch::bad_reply(Source::Cbioportal, None))?;
+    let gene = leg
+        .call(
+            &endpoint("/genes", &[selector.as_str()])?,
+            Input::Params(&[]),
+            Read::<Gene>::json().check(&|g| {
+                if g.hugo_gene_symbol == *selector
+                    || g.entrez_gene_id.to_string() == selector.as_str()
+                {
+                    Ok(())
+                } else {
+                    Err(BadReply)
+                }
+            }),
+        )?
+        .value;
+    Ok(gene.entrez_gene_id)
+}
+fn profile(leg: &Leg<'_>, q: &StudyGet) -> Result<StudyProfileId, RequestError> {
+    let profiles = leg
+        .call(
+            &endpoint("/studies", &[q.id().as_str(), "molecular-profiles"])?,
+            Input::Params(&[("projection", Arg::Text("SUMMARY"))]),
+            Read::<Profiles>::json().check(&|p| {
+                if p.0.iter().all(|p| p.study_id == *q.id()) {
+                    Ok(())
+                } else {
+                    Err(BadReply)
+                }
+            }),
+        )?
+        .value;
+    let profile = profiles
+        .0
+        .into_iter()
+        .find(|p| {
+            p.molecular_alteration_type.as_str() == "MUTATION_EXTENDED"
+                && q.molecular_profile()
+                    .is_none_or(|id| *id == p.molecular_profile_id)
+        })
+        .ok_or(biomcp_fetch::SourceError {
+            source: Source::Cbioportal,
+            reason: biomcp_types::Reason::Unavailable,
+            status: None,
+            tls_cause: None,
+            retry_after: None,
+        })?
+        .molecular_profile_id;
+    Ok(profile)
 }

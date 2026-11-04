@@ -80,6 +80,7 @@ fn page(leg: &Leg<'_>, q: &StudyGet, cx: &Ctx<'_>, out: &mut Outcome) -> Result<
         let offset = rows.window.next_offset();
         out.include_refusals(rows.window.refusals());
         out.problems.extend(rows.problems);
+        let query = q.with_molecular_profile(profile.clone());
         let data = StudyMutations {
             study_id: q.id().clone(),
             molecular_profile_id: profile,
@@ -100,7 +101,7 @@ fn page(leg: &Leg<'_>, q: &StudyGet, cx: &Ctx<'_>, out: &mut Outcome) -> Result<
             out.body = data.with_query(q.clone());
             out.page = Some(page);
         }
-        continuation(out, cx, q, rows.rejected, offset);
+        continuation(out, cx, &query, rows.rejected, offset);
     }
     Ok(())
 }
