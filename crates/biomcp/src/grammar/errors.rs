@@ -198,7 +198,9 @@ pub(super) fn source_filter(
             argument: None,
             usage: Some(UsageError::Arguments(UsageArguments {
                 argument: Some(format!("--{}", name.replace('_', "-")).into()),
-                message: cause.message(),
+                message: cause
+                    .message()
+                    .or(Some(biomcp_types::ErrorMessage::UnsupportedFilter)),
                 valid_values: Some(valid.into()),
                 next: vec![next],
             })),

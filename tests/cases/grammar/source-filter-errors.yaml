@@ -24,7 +24,8 @@
           "help",
           "search",
           "adverse-event"
-        ]
+        ],
+        "/error/message": "a selected source does not support the requested filters"
       }
     },
     {
@@ -48,7 +49,8 @@
           "help",
           "search",
           "drug"
-        ]
+        ],
+        "/error/message": "a selected source does not support the requested filters"
       }
     },
     {
@@ -74,7 +76,8 @@
           "BRAF",
           "--source",
           "fda-cdx"
-        ]
+        ],
+        "/error/message": "a selected source does not support the requested filters"
       }
     },
     {
@@ -99,7 +102,8 @@
           "help",
           "search",
           "diagnostic"
-        ]
+        ],
+        "/error/message": "a selected source does not support the requested filters"
       }
     },
     {
