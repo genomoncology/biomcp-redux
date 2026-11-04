@@ -40,17 +40,31 @@ pub(super) fn render(verb: &str, entity: &str, schema: &Value) -> String {
     let provenance = if groups.is_empty() {
         sources.into_iter().collect::<Vec<_>>().join(",")
     } else {
-        groups
-            .into_iter()
-            .map(|(sources, sections)| format!("{}:{sources}", sections.join(",")))
-            .collect::<Vec<_>>()
-            .join("; ")
+        let mut same = Vec::new();
+        let mut other = Vec::new();
+        for (sources, sections) in groups {
+            if sections.len() == 1 && sections[0] == sources {
+                same.push(sources);
+            } else {
+                other.push(format!("{}({sources})", sections.join(",")));
+            }
+        }
+        same.extend(other);
+        format!("Sections=source: {}", same.join(";"))
     };
-    format!(
-        "{} Source evidence. {}.",
-        schema["description"]
-            .as_str()
-            .unwrap_or("Retrieve records."),
-        provenance
-    )
+    let input = schema["properties"]
+        .as_object()
+        .into_iter()
+        .flatten()
+        .find(|(_, node)| node.get("x-positional").is_some())
+        .and_then(|(_, node)| node.get("description"))
+        .and_then(Value::as_str)
+        .unwrap_or_default()
+        .split(". ")
+        .next()
+        .unwrap_or_default();
+    let prefix = format!("{verb} {entity} source records. ");
+    let budget = 320_usize.saturating_sub(prefix.chars().count() + provenance.chars().count() + 2);
+    let input = input.chars().take(budget).collect::<String>();
+    format!("{prefix}{input} {provenance}.")
 }

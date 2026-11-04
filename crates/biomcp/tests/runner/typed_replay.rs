@@ -1,5 +1,5 @@
 //! Reuse existing recorded caller cases without maintaining a second entity inventory.
-use super::super::{
+use super::super::super::{
     case_data,
     launch::Environment,
     mcp::{exchange_with_globals, request},
@@ -12,8 +12,11 @@ pub(super) fn check(tool: &Value) -> Result<(), String> {
     let (verb, entity) = name.split_once('_').ok_or("tool path")?;
     let entity = entity.replace('_', "-");
     let mut paths = Vec::new();
-    case_data::collect(&super::super::launch::fixtures().join("cases"), &mut paths)
-        .map_err(|e| e.to_string())?;
+    case_data::collect(
+        &super::super::super::launch::fixtures().join("cases"),
+        &mut paths,
+    )
+    .map_err(|e| e.to_string())?;
     paths.sort();
     for path in paths {
         let case = case_data::read_case(&path)?;
@@ -37,7 +40,7 @@ pub(super) fn check(tool: &Value) -> Result<(), String> {
             let output = env
                 .command(
                     env!("CARGO_BIN_EXE_biomcp"),
-                    &super::super::launch::arguments(args, &globals),
+                    &super::super::super::launch::arguments(args, &globals),
                 )
                 .output()
                 .map_err(|e| e.to_string())?;
