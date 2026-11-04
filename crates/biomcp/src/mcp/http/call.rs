@@ -86,11 +86,15 @@ impl Calls {
                 };
                 let outcome = worker::execute(|| {
                     research::execute(&call, context, true).map(|outcome| {
-                        protocol::tool_result(
-                            worker_id,
-                            &outcome,
-                            modern,
-                            crate::config::tool_reply_form(&globals, &settings),
+                        super::super::typed::summarize(
+                            protocol::tool_result(
+                                worker_id,
+                                &outcome,
+                                modern,
+                                crate::config::tool_reply_form(&globals, &settings),
+                            ),
+                            &root,
+                            crate::config::mcp_tool_mode(&globals, &settings),
                         )
                     })
                 });

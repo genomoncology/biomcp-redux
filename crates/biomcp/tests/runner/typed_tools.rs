@@ -1,4 +1,6 @@
-//! Installed-artifact typed tool discovery, schema refusal and CLI equivalence.
+#[path = "typed_replay.rs"]
+mod replay;
+// Installed-artifact typed tool discovery, schema refusal and CLI equivalence.
 use super::super::{
     launch::Environment,
     mcp::{exchange_with_globals, request},
@@ -79,7 +81,25 @@ pub(super) fn check() -> Result<(), String> {
             .as_str()
             .is_some_and(|name| name.starts_with("search_") || name.starts_with("get_"))
     }) {
-        parity(&env, tool, &globals)?;
+        replay::check(tool)?;
+    }
+    for arguments in [
+        json!({"condition":42}),
+        json!({"unexpected":"value"}),
+        json!({"limit":"10"}),
+    ] {
+        let reply = exchange_with_globals(
+            &env,
+            &[request(
+                json!(4),
+                "tools/call",
+                json!({"name":"search_trial","arguments":arguments}),
+            )],
+            &globals,
+        )?;
+        if reply[0].pointer("/error/code") != Some(&json!(-32602)) {
+            return Err("invalid argument shape accepted".into());
+        }
     }
     Ok(())
 }
@@ -103,109 +123,6 @@ fn descriptions(node: &Value) -> Result<(), String> {
             }
         }
         _ => {}
-    }
-    Ok(())
-}
-fn sample(node: &Value) -> Value {
-    if let Some(value) = node
-        .get("enum")
-        .and_then(Value::as_array)
-        .and_then(|v| v.first())
-    {
-        return value.clone();
-    }
-    if let Some(value) = node
-        .get("anyOf")
-        .and_then(Value::as_array)
-        .and_then(|v| v.iter().find(|v| v["type"] != "null"))
-    {
-        return sample(value);
-    }
-    match node["type"].as_str() {
-        Some("array") => json!([sample(&node["items"])]),
-        Some("integer") => node.get("minimum").cloned().unwrap_or(json!(1)),
-        Some("boolean") => json!(false),
-        _ => json!("example"),
-    }
-}
-fn parity(env: &Environment, tool: &Value, globals: &[String]) -> Result<(), String> {
-    let name = tool["name"].as_str().ok_or("tool name")?;
-    let (verb, entity) = name.split_once('_').ok_or("path")?;
-    let entity = entity.replace('_', "-");
-    let schema = &tool["inputSchema"];
-    let mut input = serde_json::Map::new();
-    for key in schema["required"]
-        .as_array()
-        .into_iter()
-        .flatten()
-        .filter_map(Value::as_str)
-    {
-        input.insert(key.into(), sample(&schema["properties"][key]));
-    }
-    let response = exchange_with_globals(
-        env,
-        &[request(
-            json!(1),
-            "tools/call",
-            json!({"name":name,"arguments":input}),
-        )],
-        globals,
-    )?;
-    let structured = response[0]
-        .pointer("/result/structuredContent")
-        .ok_or_else(|| format!("{name}: {}", response[0]))?;
-    if response[0]
-        .pointer("/result/content/0/text")
-        .and_then(Value::as_str)
-        .is_none_or(|text| text.lines().count() != 1)
-    {
-        return Err("summary must be one line".into());
-    }
-    // Canonical query schemas own the positional and flag spelling used for comparison.
-    let (_, _, id) = biomcp_types::command_paths()
-        .into_iter()
-        .find(|(v, e, _)| *v == verb && *e == entity)
-        .ok_or("command")?;
-    let output = env
-        .command(env!("CARGO_BIN_EXE_biomcp"), &["schema".into(), id.into()])
-        .output()
-        .map_err(|e| e.to_string())?;
-    let query: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
-    let mut cli = vec![verb.into(), entity];
-    let mut positions = Vec::new();
-    for (key, value) in input {
-        let words = value
-            .as_array()
-            .cloned()
-            .unwrap_or_else(|| vec![value])
-            .into_iter()
-            .map(|v| {
-                v.as_str()
-                    .map(str::to_owned)
-                    .unwrap_or_else(|| v.to_string())
-            })
-            .collect::<Vec<_>>();
-        if let Some(index) = query["properties"][&key]["x-positional"].as_u64() {
-            positions.push((index, words));
-        } else {
-            for word in words {
-                cli.push(format!("--{}={word}", key.replace('_', "-")));
-            }
-        }
-    }
-    positions.sort_by_key(|(index, _)| *index);
-    cli.extend(positions.into_iter().flat_map(|(_, words)| words));
-    cli.extend_from_slice(globals);
-    let output = env
-        .command(env!("CARGO_BIN_EXE_biomcp"), &cli)
-        .output()
-        .map_err(|e| e.to_string())?;
-    let expected: Value =
-        serde_json::from_slice(&output.stdout).map_err(|e| format!("{name} CLI: {e}"))?;
-    if structured.to_string() != expected.to_string() {
-        return Err(format!(
-            "{name} differs from CLI: {structured} versus {expected}"
-        ));
     }
     Ok(())
 }

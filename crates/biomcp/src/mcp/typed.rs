@@ -1,7 +1,22 @@
 //! Typed tools derive their contracts and CLI spelling from the command registry.
 mod arguments;
 mod description;
+mod summary;
 mod validation;
+pub(super) fn summarize(
+    mut reply: Value,
+    root: &crate::grammar::Root,
+    mode: crate::config::ToolMode,
+) -> Value {
+    if mode == crate::config::ToolMode::Typed
+        && let Some(value) = reply.pointer("/result/structuredContent")
+    {
+        let text = summary::render(root, value);
+        reply["result"]["content"] = json!([{"type":"text","text":text}]);
+    }
+    reply
+}
+
 use serde_json::{Value, json};
 use std::io;
 
