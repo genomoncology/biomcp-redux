@@ -58,7 +58,11 @@ pub(super) fn apply(
         };
         profile.evidence_items = evidence_filter::page(
             query.evidence_filter(),
-            query.civic_cursor(),
+            if query.civic_kind() == Some(CivicClaimKind::Evidence) {
+                query.civic_cursor()
+            } else {
+                None
+            },
             count,
             |level, after, count| {
                 let arguments = evidence_filter::arguments(

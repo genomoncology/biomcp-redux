@@ -26,6 +26,26 @@
         "/result/civic/data/evidence/page/total": 7,
         "/result/civic/data/evidence/page/returned": 7
       }
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "5",
+        "civic",
+        "--source",
+        "civic",
+        "--civic-kind",
+        "evidence",
+        "--section-limit",
+        "25",
+        "--evidence-level",
+        "A"
+      ],
+      "expect": {
+        "/result/civic/data/evidence/page/total": 7,
+        "/result/civic/data/evidence/page/returned": 7
+      }
     }
   ]
 }

@@ -202,7 +202,7 @@ fn page<T>(
         next,
     })
 }
-/// Retrieve only the exact native therapy and its requested accepted claim collections.
+/// Retrieve only the exact native therapy and its requested native claim collections.
 /// Claim profiles retain their own native context; collection totals never become profile counts.
 pub fn drug_civic(
     leg: &Leg<'_>,

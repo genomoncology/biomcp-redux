@@ -365,9 +365,9 @@ biodata::canonical_enum! {
 biodata::wire_enum! {
     /// CIViC native claim collection.
     CivicClaimKind {
-        /// Accepted evidence items.
+        /// Native evidence items.
         Evidence=>"evidence",
-        /// Accepted assertions.
+        /// Native assertions.
         Assertions=>"assertions",
     }
 }

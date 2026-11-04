@@ -1,7 +1,6 @@
 """Declare filtered root evidence replies for an existing exact CIViC profile."""
 import copy
 import json
-from pathlib import Path
 from civic_evidence_fixtures import ROOT, connection, record
 
 
@@ -44,6 +43,9 @@ def main():
     for after, page in [(None, connection(rows, 3, 'E2')),
                         ('E2', connection([dict(rows[0], id=910003)], 3))]:
         record(case, {'query': query, 'variables': {'id': 12, 'after': after}}, {'data': {'evidenceItems': page}})
+    default_query = query.replace('status:SUBMITTED', 'status:NON_REJECTED')
+    record(case, {'query': default_query, 'variables': {'id': 12, 'after': None}},
+           {'data': {'evidenceItems': connection(rows, 3, 'E2')}})
     steps = []
     base = ['get', 'variant', 'CA123643', 'civic', '--disable-sources', 'myvariant',
             '--section-limit', '2', '--evidence-level', 'A', '--evidence-status', 'submitted']
@@ -53,6 +55,8 @@ def main():
         steps.append({'run': run, 'expect': {'/result/candidates/0/sections/civic/data/profiles/0/evidence_page/total': 3,
                                             '/result/candidates/0/sections/civic/data/profiles/0/evidence_page/returned': 1 if after else 2,
                                             '/result/candidates/0/sections/civic/data/profiles/0/statements/0/record/id': 'EID910003' if after else 'EID910001'}})
+    default_run = base[:-2]
+    steps.append({'run': default_run, 'expect': {'/result/candidates/0/sections/civic/data/profiles/0/evidence_page/total': 3}})
     case = {'feature': 'variant-civic', 'live_check': 'synthetic',
             'story': 'Variant evidence selectors use root native filters and retain source totals and profile-scoped continuation.',
             'verified': 'Synthetic evidence IDs, levels, status and counts; profile metadata reused from the retained public native-civic fixture. No clinical meaning inferred.',
