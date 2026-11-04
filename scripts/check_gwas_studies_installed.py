@@ -31,24 +31,32 @@ def main():
                               ("associations", ["--limit", "50"]),
                               ("default", [])]:
             output = destination / name
-            output.mkdir()
+            prior = os.environ.get("BIOMCP_GWAS_PRIOR_STUDIES") if name == "studies" else None
+            if prior:
+                shutil.copytree(prior, output)
+                shutil.copy2(Path(prior).parent / "version.txt", output / "version.txt")
+            else:
+                output.mkdir()
+                argv = [str(binary), "search", "gwas", "--pubmed", "17554300", *options,
+                        "--record", str(output / "source"), "--fresh"]
+                started = time.monotonic()
+                result = subprocess.run(argv, env=env, cwd=isolated, capture_output=True, text=True)
+                (output / "stdout.json").write_text(result.stdout)
+                (output / "stderr.txt").write_text(result.stderr)
+                (output / "command.json").write_text(json.dumps({
+                    "source_revision": revision, "arguments": argv[1:],
+                    "elapsed_seconds": time.monotonic() - started, "exit_code": result.returncode,
+                    "budget": "command default; no override"}, indent=2) + "\n")
+            command = json.loads((output / "command.json").read_text())
+            assert command["exit_code"] == 0, (name, command)
+            if prior:
+                assert "Commit: " + command["source_revision"] + "\n" in (output / "version.txt").read_text()
+            reply = json.loads((output / "stdout.json").read_text())
             record = output / "source"
-            argv = [str(binary), "search", "gwas", "--pubmed", "17554300", *options,
-                    "--record", str(record), "--fresh"]
-            started = time.monotonic()
-            result = subprocess.run(argv, env=env, cwd=isolated, capture_output=True, text=True)
-            elapsed = time.monotonic() - started
-            (output / "stdout.json").write_text(result.stdout)
-            (output / "stderr.txt").write_text(result.stderr)
-            (output / "command.json").write_text(json.dumps({
-                "source_revision": revision, "arguments": argv[1:],
-                "elapsed_seconds": elapsed, "exit_code": result.returncode,
-                "budget": "command default; no override"}, indent=2) + "\n")
-            assert result.returncode == 0, (name, result.returncode, result.stderr)
-            reply = json.loads(result.stdout)
             assert reply["status"] == "complete", (name, reply)
             recordings = [json.loads(path.read_text()) for path in (record / "gwas").glob("*.json")]
-            bodies = [(item["url"], json.loads(item["exchanges"][0]["body"]["value"]))
+            bodies = [(item["url"], (item["exchanges"][0]["body"]["value"] if item["exchanges"][0]["body"]["kind"] == "json"
+                                    else json.loads(item["exchanges"][0]["body"]["value"])))
                       for item in recordings]
             rows = reply["result"]["items"]
             if name == "studies":
@@ -68,7 +76,8 @@ def main():
                               for _, body in bodies for row in body["_embedded"]["associations"]}
                 assert {row["id"] for row in rows} == source_ids
                 assert len(rows) == (50 if name == "associations" else 3)
-            results[name] = {"elapsed_seconds": elapsed, "returned": len(rows), "exit_code": 0}
+            results[name] = {"elapsed_seconds": command["elapsed_seconds"], "returned": len(rows),
+                             "exit_code": 0, "source_revision": command["source_revision"]}
         (destination / "results.json").write_text(json.dumps(results, indent=2) + "\n")
     for name, url in [("rest-api-doc.yaml", "https://www.ebi.ac.uk/gwas/rest/api/v2/rest-api-doc.yaml"),
                       ("rest-api.html", "https://www.ebi.ac.uk/gwas/docs/programmatic-access/rest-api/")]:
