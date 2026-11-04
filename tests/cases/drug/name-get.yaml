@@ -313,6 +313,22 @@
         ]
       },
       "max_bytes": 1500
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "Test therapy",
+        "--source",
+        "chembl"
+      ],
+      "exit": 4,
+      "expect": {
+        "/status": "failed",
+        "/query/query": "Test therapy",
+        "/problems/0/field": "molecule_chembl_id"
+      },
+      "max_bytes": 3000
     }
   ]
 }

@@ -22,7 +22,6 @@ pub(super) struct Therapy {
     pub id: Option<Field<u64>>,
     pub name: Option<Field<NativeText>>,
     pub link: Option<Field<Text>>,
-    #[serde(default)]
     pub therapy_aliases: Option<Field<Vec<Field<NativeText>>>>,
 }
 impl Therapy {

@@ -4,6 +4,12 @@ set -eu
 export RUSTUP_TOOLCHAIN=1.95.0
 case "${1:-focused}" in
   routine) exec sh scripts/check_nightly_tests.sh routine ;;
+  review-fixes)
+    sh "$0" prepare
+    make check-cheap
+    sh "$0" focused
+    python3 scripts/drug_names_proof.py upgrade
+    ;;
   prepare-focused)
     sh "$0" prepare
     sh "$0" focused

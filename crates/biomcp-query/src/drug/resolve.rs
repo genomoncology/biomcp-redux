@@ -25,6 +25,8 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
         mychem(cx, query, &search)
     } else if query.source() == DrugSource::Chembl {
         chembl(cx, query, &search)
+    } else if query.source() == DrugSource::Ema {
+        ema(cx, query, &search)
     } else {
         discover(cx, &search)
     };
@@ -58,18 +60,17 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
         }));
         return discovery;
     };
-    let Ok(resolved) = query.with_native_id(selected.id.clone()) else {
-        return discovery;
+    let resolved = match query.with_native_id(selected.id.clone()) {
+        Ok(resolved) => resolved,
+        Err(_) => return super::rejected_input(query.source(), "input", discovery),
     };
     let mut out = super::selected_get(&within(cx, deadline.remaining()), &resolved);
-    let Ok(ranking) = (if query.source() == DrugSource::Drugsfda {
+    let ranking = (if query.source() == DrugSource::Drugsfda {
         "exact brand before generic; NDA/BLA before ANDA, then earliest approval"
     } else {
         "exact brand before generic; source search order among equals"
     })
-    .parse() else {
-        return discovery;
-    };
+    .into();
     let resolution = DrugNameResolution {
         input: query.input().clone(),
         basis: if rank.0 == 0 {
@@ -311,12 +312,12 @@ fn mychem(cx: &Ctx<'_>, get: &DrugGet, query: &DrugSearch) -> (Outcome, Vec<(Ran
 fn chembl(cx: &Ctx<'_>, get: &DrugGet, query: &DrugSearch) -> (Outcome, Vec<(Rank, DrugHeader)>) {
     let deadline = cx.fetch.deadline(cx.budget);
     let mut all = Vec::new();
-    let mut outcome = None;
+    let mut outcome: Option<Outcome> = None;
     for selector in [
         biomcp_types::DrugNameSelector::Preferred,
         biomcp_types::DrugNameSelector::Synonym,
     ] {
-        let (out, candidates) = native_names(
+        let (mut out, candidates) = native_names(
             &within(cx, deadline.remaining()),
             query,
             &biomcp_adapters::chembl::SPEC,
@@ -355,14 +356,18 @@ fn chembl(cx: &Ctx<'_>, get: &DrugGet, query: &DrugSearch) -> (Outcome, Vec<(Ran
                 })
             },
         );
-        if out
-            .sources
-            .iter()
-            .any(|s| s.state != biomcp_types::SourceState::Ok)
+        if out.dropped
+            || out
+                .sources
+                .iter()
+                .any(|s| s.state != biomcp_types::SourceState::Ok)
         {
             return (out, Vec::new());
         }
         all.extend(candidates);
+        if let Some(previous) = &mut outcome {
+            out.problems.append(&mut previous.problems);
+        }
         outcome = Some(out);
     }
     (
@@ -371,6 +376,34 @@ fn chembl(cx: &Ctx<'_>, get: &DrugGet, query: &DrugSearch) -> (Outcome, Vec<(Ran
         }),
         all,
     )
+}
+
+fn ema(cx: &Ctx<'_>, get: &DrugGet, query: &DrugSearch) -> (Outcome, Vec<(Rank, DrugHeader)>) {
+    native_names(cx, query, &biomcp_adapters::ema::SPEC, |leg, _| {
+        let rows = biomcp_adapters::ema::search_names(leg, get.input().as_str())?;
+        let candidates = rows
+            .value
+            .into_iter()
+            .filter_map(|header| {
+                header.matched_name.map(|matched| {
+                    (
+                        (
+                            u8::from(matched == DrugNameMatch::Generic),
+                            0,
+                            String::new(),
+                        ),
+                        header,
+                    )
+                })
+            })
+            .collect();
+        Ok(NativePage {
+            candidates,
+            next_offset: None,
+            problems: rows.problems,
+            refusals: rows.refusals,
+        })
+    })
 }
 
 fn annotate(body: &mut ReplyData, resolution: DrugNameResolution) {

@@ -119,8 +119,9 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     {
         return super::unsupported(DrugSource::OpenfdaLabel, out);
     }
-    let Ok(id) = query.native_input() else {
-        return out;
+    let id = match query.native_input() {
+        Ok(id) => id,
+        Err(_) => return super::rejected_input(query.source(), "input", out),
     };
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();

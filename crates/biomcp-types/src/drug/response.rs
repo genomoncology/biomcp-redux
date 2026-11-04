@@ -269,8 +269,9 @@ pub struct DrugNameResolution {
     pub input: Text,
     /// Name basis selected after demoting a brand identical to its own ingredient.
     pub basis: super::DrugNameMatch,
-    /// Applied ambiguity ordering.
-    pub ranking: Text,
+    /// Applied ambiguity ordering, emitted only from fixed nonempty rule text.
+    #[cfg_attr(feature = "schema", schemars(with = "Text"))]
+    pub ranking: Box<str>,
     /// Total exact source records, including the selected record.
     pub total: u64,
     /// Up to five other exact records as ready get commands.

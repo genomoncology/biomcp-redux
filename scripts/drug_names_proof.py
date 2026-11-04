@@ -142,6 +142,39 @@ def live():
     print(json.dumps(binding, indent=2))
 
 
+def upgrade():
+    destination = (PROOFS / 'ema-upgrade').resolve()
+    destination.mkdir(parents=True, exist_ok=True)
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+    from release.smoke import environment
+    env = environment(destination)
+    baseline = (PROOFS / 'baseline-bin/biomcp').resolve()
+    current = Path('target/drug-names-installed/bin/biomcp').resolve()
+    cache = str(destination / 'case-cache')
+    fixture = str(Path('tests/replies/drug/name-get').resolve())
+    commands = [(baseline, ['--replay', fixture, '--case-cache', cache, 'sync', 'ema']),
+                (baseline, ['--offline', '--case-cache', cache, 'search', 'drug', 'Example ingredient', '--source', 'ema']),
+                (current, ['--offline', '--case-cache', cache, 'get', 'drug', 'Example ingredient', 'regulatory'])]
+    replies = []
+    for index, (binary, args) in enumerate(commands):
+        result = subprocess.run([str(binary), *args], env=env, capture_output=True, check=False)
+        (destination / f'{index}-stdout.json').write_bytes(result.stdout)
+        (destination / f'{index}-stderr.txt').write_bytes(result.stderr)
+        if result.returncode != 0:
+            raise ValueError(f'EMA upgrade command failed; see {destination}/{index}-stdout.json')
+        replies.append(json.loads(result.stdout))
+    if replies[1].get('result', {}).get('total') != 0:
+        raise ValueError('baseline EMA bundle did not reproduce the missing generic index')
+    if replies[2].get('result', {}).get('identity', {}).get('id') != 'EMEA/H/C/000406':
+        raise ValueError('current name get did not read the legacy stored generic field')
+    binding = {'source_commit': subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip(),
+               'binary_source_commit': (PROOFS / 'source.txt').read_text().strip(),
+               'baseline_source': BASELINE_SOURCE, 'legacy_generic_search_total': 0,
+               'current_get_id': replies[2]['result']['identity']['id']}
+    (destination / 'source-bindings.json').write_text(json.dumps(binding, indent=2) + '\n')
+    print(json.dumps(binding, indent=2))
+
+
 def scan():
     packages = (Path.home() / '.npm/_npx').glob('*/node_modules/jscpd/package.json')
     scanner = next((p.parent.parent / '.bin/jscpd' for p in packages
@@ -167,4 +200,4 @@ def scan():
 
 
 if __name__ == '__main__':
-    {'extract': extract, 'compare': compare, 'witness': witness, 'live': live, 'scan': scan}[sys.argv[1]]()
+    {'extract': extract, 'compare': compare, 'witness': witness, 'live': live, 'scan': scan, 'upgrade': upgrade}[sys.argv[1]]()
