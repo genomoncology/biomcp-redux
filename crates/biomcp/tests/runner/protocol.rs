@@ -2,6 +2,8 @@
 mod reply_form;
 #[path = "protocol_schemas.rs"]
 mod schemas;
+#[path = "typed_tools.rs"]
+mod typed;
 use super::{
     launch::Environment,
     mcp::{exchange, request},
@@ -16,6 +18,9 @@ type Check = Result<(), String>;
 
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = vec![
+        transcript_trial("mcp-parity/mcp-typed-tools", || {
+            typed::check().map_err(Into::into)
+        }),
         transcript_trial("mcp-parity/cancellation-suppresses-later-output", || {
             cancellation().map_err(Into::into)
         }),

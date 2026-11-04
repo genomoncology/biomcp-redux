@@ -4,6 +4,15 @@ use serde_json::{Value, json};
 // Official contracts: https://modelcontextprotocol.io/specification/2026-07-28/basic/versioning
 // and https://modelcontextprotocol.io/specification/2025-11-25/basic/lifecycle
 pub(super) const INSTRUCTIONS: &str = crate::help::FRONT_MAP;
+pub(super) fn instructions(mode: crate::config::ToolMode) -> String {
+    if mode == crate::config::ToolMode::Typed {
+        format!(
+            "Call verb_entity tools with named arguments; inspect problems and next commands.\n{INSTRUCTIONS}"
+        )
+    } else {
+        INSTRUCTIONS.into()
+    }
+}
 pub(super) const REVISIONS: [&str; 4] = ["2026-07-28", "2025-11-25", "2025-06-18", "2025-03-26"];
 pub(super) const VERSION_KEY: &str = "io.modelcontextprotocol/protocolVersion";
 pub(super) const CAPABILITIES_KEY: &str = "io.modelcontextprotocol/clientCapabilities";

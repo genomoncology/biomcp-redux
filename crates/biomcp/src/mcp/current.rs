@@ -37,6 +37,6 @@ pub(super) fn validate(id: &Value, params: &Value) -> Result<(), Value> {
     Ok(())
 }
 
-pub(super) fn discover() -> Value {
-    json!({"supportedVersions":REVISIONS,"instructions":protocol::INSTRUCTIONS,"capabilities":{"tools":{}}})
+pub(super) fn discover(mode: crate::config::ToolMode) -> Value {
+    json!({"supportedVersions":REVISIONS,"instructions":protocol::instructions(mode),"capabilities":{"tools":{}}})
 }

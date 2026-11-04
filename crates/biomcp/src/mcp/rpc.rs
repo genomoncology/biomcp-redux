@@ -53,7 +53,7 @@ pub(super) fn message(
             return Message::Reply(error);
         }
     } else if method == "initialize" {
-        let Some(result) = legacy::initialize(&params) else {
+        let Some(result) = legacy::initialize(&params, mode) else {
             return Message::Reply(protocol::error(id.clone(), -32602, "Invalid params"));
         };
         *legacy = true;
@@ -61,7 +61,7 @@ pub(super) fn message(
     }
     let result = match method {
         "ping" => json!({}),
-        "server/discover" => current::discover(),
+        "server/discover" => current::discover(mode),
         "tools/list" => match if mode == crate::config::ToolMode::Typed {
             super::typed::tools(root, read_only)
         } else {
