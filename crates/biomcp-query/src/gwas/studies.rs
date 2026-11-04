@@ -1,7 +1,7 @@
 //! Explicit publication study results, preserving native sample descriptions.
 use crate::{Ctx, Outcome, status};
 use biomcp_adapters::gwas;
-use biomcp_types::{GwasSearch, GwasStudyPage, PageInfo, ReplyBody, Source, StepKind, Paged};
+use biomcp_types::{GwasSearch, GwasStudyPage, PageInfo, Paged, ReplyBody, Source, StepKind};
 pub(super) fn search(cx: &Ctx<'_>, q: &GwasSearch) -> Outcome {
     let mut out = status::empty(GwasStudyPage::into_reply(q.clone(), None));
     let command = cx.fetch.command_deadline(cx.budget);
@@ -19,19 +19,47 @@ pub(super) fn search(cx: &Ctx<'_>, q: &GwasSearch) -> Outcome {
         let start = q.offset() - q.offset() % q.limit();
         let continuation = (u64::from(start) + u64::from(rows.received) < rows.total)
             .then(|| q.at_offset(start.saturating_add(rows.received)));
-        let page = PageInfo { offset: q.offset(), returned: rows.items.len() as u32,
-            total: rows.total, pool: None, truncated: None };
+        let page = PageInfo {
+            offset: q.offset(),
+            returned: rows.items.len() as u32,
+            total: rows.total,
+            pool: None,
+            truncated: None,
+        };
         out.page = Some(page.clone());
         if let Some(query) = &continuation {
-            out.next.push(crate::next::Step::run(StepKind::Page, &[Source::Gwas],
-                biomcp_types::Request::SearchGwas(query.clone()), cx.fresh));
+            out.next.push(crate::next::Step::run(
+                StepKind::Page,
+                &[Source::Gwas],
+                biomcp_types::Request::SearchGwas(query.clone()),
+                cx.fresh,
+            ));
         }
         for row in rows.items.iter().take(3) {
-            let get = biomcp_types::GwasGet::Study { id: row.study.id.clone(), section: None, page: Default::default() };
-            out.next.push(crate::next::Step::run(StepKind::Pivot, &[Source::Gwas], get.into(), false));
+            let get = biomcp_types::GwasGet::Study {
+                id: row.study.id.clone(),
+                section: None,
+                page: Default::default(),
+            };
+            out.next.push(crate::next::Step::run(
+                StepKind::Pivot,
+                &[Source::Gwas],
+                get.into(),
+                false,
+            ));
         }
-        out.body = GwasStudyPage { items: rows.items.into(), page, continuation }.with_query(q.clone());
-        status::item(&mut out, true, false, source.state == biomcp_types::SourceState::Stale);
+        out.body = GwasStudyPage {
+            items: rows.items.into(),
+            page,
+            continuation,
+        }
+        .with_query(q.clone());
+        status::item(
+            &mut out,
+            true,
+            false,
+            source.state == biomcp_types::SourceState::Stale,
+        );
     }
     out.sources.push(source);
     out.local = error.and_then(status::local);

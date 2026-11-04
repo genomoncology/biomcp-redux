@@ -17,52 +17,97 @@ pub fn search(leg: &Leg<'_>, q: &GwasSearch) -> Result<Page, RequestError> {
     let end = start.saturating_add(q.limit());
     let pages: Vec<_> = (start / 10..end.div_ceil(10)).collect();
     let mut combined = Page {
-        refusals: crate::Refusal::None, received: 0, problems: Vec::new(),
-        rows: Vec::new(), total: 0,
+        refusals: crate::Refusal::None,
+        received: 0,
+        problems: Vec::new(),
+        rows: Vec::new(),
+        total: 0,
     };
     let mut seen = std::collections::BTreeSet::new();
-    for (index, result) in leg.batch(&pages, |child, page| {
-        let mut values = selectors(q);
-        values.insert("page".into(), page.to_string());
-        values.insert("size".into(), "10".into());
-        native(child, q, values)
-    }).into_iter().enumerate() {
+    for (index, result) in leg
+        .batch(&pages, |child, page| {
+            let mut values = selectors(q);
+            values.insert("page".into(), page.to_string());
+            values.insert("size".into(), "10".into());
+            native(child, q, values)
+        })
+        .into_iter()
+        .enumerate()
+    {
         let page = result?;
         if index > 0 && combined.total != page.total {
-            return Err(biomcp_fetch::bad_reply(biomcp_types::Source::Gwas, Some(200)));
+            return Err(biomcp_fetch::bad_reply(
+                biomcp_types::Source::Gwas,
+                Some(200),
+            ));
         }
         combined.total = page.total;
         combined.refusals.include(page.refusals);
         combined.problems.extend(page.problems);
         for row in page.rows {
-                if !seen.insert(row.value.id) {
-                    return Err(biomcp_fetch::bad_reply(biomcp_types::Source::Gwas, Some(200)));
-                }
-                combined.rows.push(row);
+            if !seen.insert(row.value.id) {
+                return Err(biomcp_fetch::bad_reply(
+                    biomcp_types::Source::Gwas,
+                    Some(200),
+                ));
+            }
+            combined.rows.push(row);
         }
     }
-    if combined.rows.windows(2).any(|pair| match (&pair[0].value.exact_p_value, &pair[1].value.exact_p_value) {
-        (Some(a), Some(b)) => a > b,
-        _ => false,
-    }) { return Err(biomcp_fetch::bad_reply(biomcp_types::Source::Gwas, Some(200))); }
-    combined.received = combined.total.saturating_sub(start.into()).min(q.limit().into()) as u32;
+    if combined.rows.windows(2).any(|pair| {
+        match (&pair[0].value.exact_p_value, &pair[1].value.exact_p_value) {
+            (Some(a), Some(b)) => a > b,
+            _ => false,
+        }
+    }) {
+        return Err(biomcp_fetch::bad_reply(
+            biomcp_types::Source::Gwas,
+            Some(200),
+        ));
+    }
+    combined.received = combined
+        .total
+        .saturating_sub(start.into())
+        .min(q.limit().into()) as u32;
     Ok(combined)
 }
 
-fn native(leg: &Leg<'_>, q: &GwasSearch, values: BTreeMap<String, String>) -> Result<Page, RequestError> {
-    let params: Vec<_> = values.iter().map(|(k, v)| (k.as_str(), Arg::Text(v))).collect();
-    let mut response = leg.call(&ASSOCIATIONS, Input::Params(&params),
-        biomcp_fetch::Read::<raw::Response>::json()
-            .check(&|reply| admission(reply, q, &values))
-            .cache_if(&raw::Response::identities_admitted))?.value;
-    if q.limit() > 10 && let Some(rows) = &mut response.embedded {
+fn native(
+    leg: &Leg<'_>,
+    q: &GwasSearch,
+    values: BTreeMap<String, String>,
+) -> Result<Page, RequestError> {
+    let params: Vec<_> = values
+        .iter()
+        .map(|(k, v)| (k.as_str(), Arg::Text(v)))
+        .collect();
+    let mut response = leg
+        .call(
+            &ASSOCIATIONS,
+            Input::Params(&params),
+            biomcp_fetch::Read::<raw::Response>::json()
+                .check(&|reply| admission(reply, q, &values))
+                .cache_if(&raw::Response::identities_admitted),
+        )?
+        .value;
+    if q.limit() > 10
+        && let Some(rows) = &mut response.embedded
+    {
         let start = response.page.number * response.page.size;
         let end = q.offset() - q.offset() % q.limit() + q.limit();
-        rows.associations.truncate(end.saturating_sub(start) as usize);
-        let skip = q.offset().saturating_sub(start).min(rows.associations.len() as u32);
+        rows.associations
+            .truncate(end.saturating_sub(start) as usize);
+        let skip = q
+            .offset()
+            .saturating_sub(start)
+            .min(rows.associations.len() as u32);
         rows.associations.drain(..skip as usize);
     }
-    let skip = if q.limit() <= 10 { (q.offset() % q.limit()) as usize } else { 0 };
+    let skip = if q.limit() <= 10 {
+        (q.offset() % q.limit()) as usize
+    } else {
+        0
+    };
     Ok(super::page(response, skip))
 }
 

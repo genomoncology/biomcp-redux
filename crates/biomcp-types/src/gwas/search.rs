@@ -128,8 +128,15 @@ impl crate::CheckedQuery for GwasSearch {
 impl TryFrom<SearchFields> for GwasSearch {
     type Error = QueryInvalid;
     fn try_from(f: SearchFields) -> Result<Self, Self::Error> {
-        if f.studies && (f.pubmed.is_none() || f.variant.is_some() || f.r#trait.is_some()
-            || f.trait_id.is_some() || f.gene.is_some() || f.study.is_some() || f.p_value.is_some()) {
+        if f.studies
+            && (f.pubmed.is_none()
+                || f.variant.is_some()
+                || f.r#trait.is_some()
+                || f.trait_id.is_some()
+                || f.gene.is_some()
+                || f.study.is_some()
+                || f.p_value.is_some())
+        {
             return Err(QueryInvalid::new(&["studies", "pubmed"]));
         }
         if f.variant.is_none()
@@ -180,7 +187,9 @@ impl GwasSearch {
     }
 
     /// Select publication studies rather than association rows.
-    pub fn studies(&self) -> bool { self.0.studies }
+    pub fn studies(&self) -> bool {
+        self.0.studies
+    }
 
     /// Read only one association to obtain a native study total.
     pub fn study_count(id: GwasStudyId) -> Self {
