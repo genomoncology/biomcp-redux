@@ -49,7 +49,7 @@ def main():
             (replay / (key + '.json')).write_text(json.dumps(recording))
             report['requests'].append({'has_results': results, 'url': url})
         for entity, query, source, flag, field in [
-            ('adverse-event', ['pump'], 'maude', '--received-from', '2026-01-01'),
+            ('adverse-event', ['MMR'], 'vaers', '--reaction', 'Headache'),
             ('drug', ['artemether'], 'who-pq', '--initiated-from', '2026-01-01'),
             ('diagnostic', [], 'fda-cdx', '--gene', 'BRAF'),
         ]:
@@ -77,7 +77,7 @@ def main():
             (stage / (label + '.json')).write_bytes(result.stdout)
         for names in [('literal-true', 'bare', 'baseline-bare'), ('literal-false', 'omitted', 'baseline-omitted')]:
             assert len({outputs[name] for name in names}) == 1, names
-        for entity in ['trial', 'drug', 'adverse-event', 'diagnostic']:
+        for entity in ['trial', 'drug', 'diagnostic']:
             args = ['help', 'search', entity]
             before = subprocess.check_output([str(baseline), *args], env=env)
             after = subprocess.check_output([str(binary), *args], env=env)

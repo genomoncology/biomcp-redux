@@ -7,16 +7,16 @@
       "run": [
         "search",
         "adverse-event",
-        "pump",
+        "MMR",
         "--source",
-        "maude",
-        "--received-from",
-        "2026-01-01"
+        "vaers",
+        "--reaction",
+        "Headache"
       ],
       "exit": 2,
       "is_error": true,
       "expect": {
-        "/error/option": "--received-from",
+        "/error/option": "--reaction",
         "/error/valid_values": [
           "faers"
         ],
