@@ -28,20 +28,24 @@ impl From<wire::Record> for Record {
         let effective_time = p
             .field("effective_time", row.effective_time)
             .and_then(|v| p.optional("effective_time", Some(crate::drugsfda::date(&v))));
+        let sections = row
+            .sections
+            .into_iter()
+            .filter_map(|(heading, value)| {
+                if !super::HEADINGS.contains(&heading.as_str()) {
+                    return None;
+                }
+                p.optional_fields(&heading, Some(value))
+                    .map(|parts| (heading, parts))
+            })
+            .collect();
         Self {
             id: row.id,
             set_id: row.set_id,
             version: p.field("version", row.version),
             effective_time,
             openfda,
-            boxed_warning: p.optional_fields("boxed_warning", row.boxed_warning),
-            dosage_and_administration: p
-                .optional_fields("dosage_and_administration", row.dosage_and_administration),
-            drug_interactions: p.optional_fields("drug_interactions", row.drug_interactions),
-            indications_and_usage: p
-                .optional_fields("indications_and_usage", row.indications_and_usage),
-            warnings_and_cautions: p
-                .optional_fields("warnings_and_cautions", row.warnings_and_cautions),
+            sections,
             problems: p.list,
         }
     }

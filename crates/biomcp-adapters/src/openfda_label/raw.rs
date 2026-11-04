@@ -20,11 +20,7 @@ pub(super) struct Record {
     /// Rejected native nonidentity fields.
     pub problems: Vec<biomcp_types::Problem>,
     pub(super) openfda: Names,
-    pub(super) boxed_warning: Option<Vec<String>>,
-    pub(super) dosage_and_administration: Option<Vec<String>>,
-    pub(super) drug_interactions: Option<Vec<String>>,
-    pub(super) indications_and_usage: Option<Vec<String>>,
-    pub(super) warnings_and_cautions: Option<Vec<String>>,
+    pub(super) sections: std::collections::BTreeMap<String, Vec<String>>,
 }
 #[derive(Debug, Deserialize)]
 pub(super) struct Names {
@@ -34,18 +30,12 @@ pub(super) struct Names {
     pub application_number: Option<Vec<NativeText>>,
 }
 impl Record {
-    /// Only native fields the consumer explicitly supports; absent remains absent.
+    /// Only published native sections survive admission; absent remains absent.
     pub(super) fn parts(&self, heading: &str) -> Option<&[String]> {
-        match heading {
-            "boxed_warning" => &self.boxed_warning,
-            "dosage_and_administration" => &self.dosage_and_administration,
-            "drug_interactions" => &self.drug_interactions,
-            "indications_and_usage" => &self.indications_and_usage,
-            "warnings_and_cautions" => &self.warnings_and_cautions,
-            _ => return None,
-        }
-        .as_deref()
-        .filter(|parts| !parts.is_empty())
+        self.sections
+            .get(heading)
+            .map(Vec::as_slice)
+            .filter(|parts| !parts.is_empty())
     }
     pub(super) fn check(&self) -> Result<(), BadReply> {
         use biomcp_types::DrugSource;

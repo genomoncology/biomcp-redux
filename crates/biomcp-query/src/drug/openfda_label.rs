@@ -111,12 +111,7 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     } else {
         biomcp_types::DrugCard::into_reply(query.clone(), None)
     });
-    if !query.supports_sections()
-        || label
-            && !query
-                .label_section()
-                .is_some_and(|h| source::HEADINGS.contains(&h.as_str()))
-    {
+    if !query.supports_sections() {
         return super::unsupported(DrugSource::OpenfdaLabel, out);
     }
     let command = cx.fetch.command_deadline(cx.budget);
@@ -181,6 +176,22 @@ fn select(
         return Ok(());
     }
     let heading = query.label_section().map_or("", |h| h.as_str());
+    if !source::HEADINGS.contains(&heading) {
+        out.body = biomcp_types::ReplyData::Usage(biomcp_types::UsageError::SourceSelector {
+            source: SOURCE,
+            option: "--label-section".into(),
+            valid_values: source::HEADINGS
+                .iter()
+                .filter(|h| record.has_heading(h))
+                .filter_map(|h| h.parse().ok())
+                .collect(),
+            next: vec![biomcp_types::Step {
+                kind: StepKind::Configure,
+                args: ["help", "get", "drug"].map(Into::into).into(),
+            }],
+        });
+        return Ok(());
+    }
     let offset = query.section_offset().unwrap_or(0);
     let label = match record.label(heading, offset, query.section_limit().unwrap_or(1))? {
         Some(mut data) => {
