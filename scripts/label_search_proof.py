@@ -8,7 +8,6 @@ import subprocess
 import sys
 import tarfile
 import tempfile
-import urllib.error
 import urllib.parse
 import urllib.request
 
@@ -56,7 +55,8 @@ def live():
                     command = [str(executable), 'search', 'drug', query, '--source', 'openfda-label',
                                '--limit', str(limit), '--offset', str(offset)]
                     stem = f'{query.replace(" ", "-")}-{limit}-{offset}'
-                    command[1:1] = ['--record', str((PROOF / 'source-recordings').resolve())]
+                    recording = PROOF / 'source-recordings' / stem
+                    command[1:1] = ['--record', str(recording.resolve())]
                     result = subprocess.run(command, env=env, capture_output=True, check=False)
                     (PROOF / f'{stem}.json').write_bytes(result.stdout)
                     (PROOF / f'{stem}-stderr.txt').write_bytes(result.stderr)
@@ -75,29 +75,31 @@ def live():
                         raise ValueError('source page repeats an SPL set')
                     seen.update(ids)
                     if offset == 0:
-                        selectors = [f'openfda.brand_name{suffix}:"{query}" OR openfda.generic_name{suffix}:"{query}"'
-                                     for suffix in ['.exact', '']]
-                        selectors.append('"' + query + '"')
-                        for index, selector in enumerate(selectors):
-                            url = 'https://api.fda.gov/drug/label.json?' + urllib.parse.urlencode({'search': selector, 'limit': 1})
-                            try:
-                                with urllib.request.urlopen(url) as response:
-                                    native = response.read()
-                            except urllib.error.HTTPError as error:
-                                if error.code != 404:
-                                    raise
-                                native = error.read()
-                            (PROOF / f'{stem}-source-{index}.json').write_bytes(native)
-                            native_total = json.loads(native).get('meta', {}).get('results', {}).get('total', 0)
-                            if native_total:
-                                break
-                        (PROOF / f'{stem}-source-selector.json').write_text(json.dumps({'url': url, 'selector': selector, 'total': native_total}))
+                        urls = []
+                        for path in recording.rglob('*.json'):
+                            recorded = json.loads(path.read_text())
+                            for exchange in recorded['exchanges']:
+                                body = json.loads(exchange['body']['value'])
+                                if exchange['status'] == 200 and body.get('results'):
+                                    urls.append(recorded['url'])
+                        if len(urls) != 1:
+                            raise ValueError('expected one populated source query recording')
+                        parsed = urllib.parse.urlsplit(urls[0])
+                        params = dict(urllib.parse.parse_qsl(parsed.query))
+                        params['limit'] = '1'
+                        params.pop('skip', None)
+                        url = urllib.parse.urlunsplit(parsed._replace(query=urllib.parse.urlencode(params)))
+                        with urllib.request.urlopen(url) as response:
+                            native = response.read()
+                        (PROOF / f'{stem}-source.json').write_bytes(native)
+                        native_total = json.loads(native)['meta']['results']['total']
+                        (PROOF / f'{stem}-source-selector.json').write_text(json.dumps({'url': url, 'total': native_total}))
                         if native_total != total:
-                            raise ValueError('source total differs for the same selector')
+                            raise ValueError('source total differs for the same recorded query')
                     offset += len(items)
-                    if offset >= total:
+                    if offset >= total or limit == 3 or query != 'imatinib':
                         break
-            print(f'{query} limit={limit} total={total} unique={len(seen)}')
+            print(f'{query} limit={limit} total={total} observed_unique={len(seen)} complete_paging={offset >= total}')
 
 
 def scan():
