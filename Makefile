@@ -303,3 +303,7 @@ mcp-reply-scan:
 .PHONY: civic-evidence-build
 civic-evidence-build:
 	cargo build --locked -p biomcp --bin biomcp --test cases --message-format=json
+
+.PHONY: civic-evidence-focused
+civic-evidence-focused:
+	+sh scripts/check_civic_evidence.sh focused
