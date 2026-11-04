@@ -4,6 +4,13 @@ set -eu
 export RUSTUP_TOOLCHAIN=1.95.0
 case "${1:-focused}" in
   routine) exec sh scripts/check_nightly_tests.sh routine ;;
+  grammar-fixture)
+    export BIOMCP_TEST_EXECUTABLE="$PWD/target/drug-names-installed/bin/biomcp"
+    cargo test --locked -p biomcp --test cases grammar/ -- --nocapture
+    ;;
+  final-coverage)
+    exec python3 scripts/timed_stage.py coverage make --no-print-directory -o docs-check -o library-tests coverage
+    ;;
   review-fixes)
     sh "$0" prepare
     make check-cheap
