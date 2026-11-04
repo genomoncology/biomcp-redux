@@ -183,8 +183,10 @@ fn select(
             valid_values: source::HEADINGS
                 .iter()
                 .filter(|h| record.has_heading(h))
-                .filter_map(|h| h.parse().ok())
-                .collect(),
+                .map(|h| h.parse())
+                .collect::<Result<Vec<_>, _>>()
+                .map_err(|_| biomcp_fetch::bad_reply(SOURCE, Some(200)))?
+                .into(),
             next: vec![biomcp_types::Step {
                 kind: StepKind::Configure,
                 args: ["help", "get", "drug"].map(Into::into).into(),
