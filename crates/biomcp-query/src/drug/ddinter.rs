@@ -62,7 +62,7 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     let result = if interactions {
         ddinter::interactions(
             &leg,
-            query.input(),
+            &query.native_input(),
             query.section_limit().unwrap_or(5),
             query.section_offset().unwrap_or(0),
         )
@@ -78,7 +78,7 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
             found
         })
     } else {
-        ddinter::card(&leg, query.input()).map(|card| {
+        ddinter::card(&leg, &query.native_input()).map(|card| {
             out.include_refusals(card.refusals);
             out.problems.extend(card.problems);
             let card = card.value;

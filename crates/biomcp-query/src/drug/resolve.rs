@@ -1,7 +1,7 @@
 //! Resolve complete source names before the unchanged native-ID path.
 use crate::{Ctx, Outcome, status};
 use biomcp_types::{DrugGet, DrugHeader, DrugNameMatch, DrugNameResolution, DrugSearch, DrugSource, ReplyData, Step, StepKind, UsageArguments, UsageError};
-use biomcp_types::ReplyBody;
+
 
 type Rank = (u8, u8, String);
 
@@ -14,6 +14,7 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     let (mut discovery, mut candidates) = if query.source() == DrugSource::Drugsfda {
         fda(cx, &search)
     } else { discover(cx, &search) };
+    if discovery.sources.iter().any(|s| s.state != biomcp_types::SourceState::Ok) { return discovery; }
     candidates.sort_by(|a, b| a.0.cmp(&b.0));
     candidates.dedup_by(|a, b| a.1.id == b.1.id);
     let Some((_, selected)) = candidates.first() else {
@@ -29,6 +30,7 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     let mut out = super::selected_get(cx, &resolved);
     let resolution = DrugNameResolution {
         input: search.query().cloned().expect("name search has input"),
+        ranking: if query.source() == DrugSource::Drugsfda { "exact brand before generic; NDA/BLA before ANDA, then earliest approval" } else { "exact brand before generic; source search order among equals" }.parse().expect("fixed ranking text"),
         total: candidates.len() as u64,
         alternatives: candidates.iter().skip(1).take(5).map(|(_, h)| Step {
             kind: StepKind::Disambiguate,
@@ -60,9 +62,11 @@ fn discover(cx: &Ctx<'_>, search: &DrugSearch) -> (Outcome, Vec<(Rank, DrugHeade
                 if let Some(rank) = rank { candidates.push(((rank, 0, String::new()), header.clone())); }
             }
         }
-        let Some(page) = &out.page else { break; };
-        if page.returned == 0 || u64::from(page.offset) + u64::from(page.returned) >= page.total { break; }
-        query = query.at_offset(page.offset + page.returned);
+        let Some(next_query) = out.next.iter().find_map(|step| match &step.1 {
+            crate::Action::Run { request: biomcp_types::Request::SearchDrug(next), .. } if step.0 == StepKind::Page => Some(next.clone()),
+            _ => None,
+        }) else { break; };
+        query = next_query;
         let next = super::search(cx, &query);
         if next.sources.iter().any(|s| s.state != biomcp_types::SourceState::Ok) { out = next; break; }
         out = next;

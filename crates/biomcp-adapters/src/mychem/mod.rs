@@ -61,7 +61,7 @@ pub fn search(
         )?
         .value;
     let received = reply.hits.len() as u32;
-    map::page(reply, leg)
+    map::page(reply, leg, query)
         .map(|page| (page, received))
         .map_err(|_| biomcp_fetch::bad_reply(Source::Mychem, None))
 }

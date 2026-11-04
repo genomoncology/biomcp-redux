@@ -267,6 +267,8 @@ impl ResponseBody for DrugXrefs {
 pub struct DrugNameResolution {
     /// Original complete name matched case-insensitively.
     pub input: Text,
+    /// Applied ambiguity ordering.
+    pub ranking: Text,
     /// Total exact source records, including the selected record.
     pub total: u64,
     /// Up to five other exact records as ready get commands.

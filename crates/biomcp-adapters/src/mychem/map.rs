@@ -69,7 +69,7 @@ fn header(id: &str, rows: &[(&str, Component)]) -> Result<DrugHeader, BadReply> 
         url: Some(text(&format!("https://mychem.info/v1/chem/{id}"))?),
     })
 }
-pub(super) fn page(page: Page, leg: &Leg<'_>) -> Result<crate::Mapped<DrugPage>, BadReply> {
+pub(super) fn page(page: Page, leg: &Leg<'_>, query: &str) -> Result<crate::Mapped<DrugPage>, BadReply> {
     let mut problems = crate::mapped::Problems {
         source: biomcp_types::Source::Mychem,
         record: None,
@@ -89,7 +89,17 @@ pub(super) fn page(page: Page, leg: &Leg<'_>) -> Result<crate::Mapped<DrugPage>,
             continue;
         }
         let (id, _, rows) = components(hit, leg, &mut problems);
-        items.push(header(&id, &rows)?);
+        let mut item = header(&id, &rows)?;
+        let exact = |s: &str| s.eq_ignore_ascii_case(query);
+        let brand = rows.iter().any(|(_, c)| c.proprietaryname.as_deref().is_some_and(exact) || c.brand_name.as_ref().is_some_and(|v| strings(v).into_iter().any(exact)));
+        let generic = rows.iter().any(|(_, c)| name(c).is_some_and(exact) || c.nonproprietaryname.as_deref().is_some_and(exact) || c.generic_name.as_ref().is_some_and(|v| strings(v).into_iter().any(exact)));
+        item.matched_name = match (brand, generic) {
+            (true, true) => Some(biomcp_types::DrugNameMatch::Both),
+            (true, false) => Some(biomcp_types::DrugNameMatch::Brand),
+            (false, true) => Some(biomcp_types::DrugNameMatch::Generic),
+            _ => None,
+        };
+        items.push(item);
     }
     Ok(crate::Mapped {
         refusals,

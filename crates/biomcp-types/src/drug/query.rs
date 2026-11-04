@@ -145,7 +145,7 @@ enum NativeDrugId {
 struct GetFields {
     /// Published source-native identifier or complete brand or generic name.
     #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 0)))]
-    input: DrugId,
+    input: Text,
     /// Source inferred from an unambiguous requested section; otherwise MyChem.
     #[serde(default)]
     source: Option<DrugSource>,
@@ -184,7 +184,7 @@ impl TryFrom<GetFields> for DrugGet {
         let source = fields.source.unwrap_or_else(|| inferred_source(&fields.section));
         fields.source = Some(source);
         validate_sections(&fields)?;
-        let native_id = if !source.native_id(&fields.input) {
+        let native_id = if !fields.input.as_str().parse::<DrugId>().is_ok_and(|id| source.native_id(&id)) {
             NativeDrugId::Name
         } else { match source {
             DrugSource::FdaDrugRecall => NativeDrugId::Recall(
@@ -199,7 +199,7 @@ impl TryFrom<GetFields> for DrugGet {
                     .ok_or_else(|| QueryInvalid::new(&["source", "input"]))?,
             ),
             source => {
-                if !source.accepts(&fields.input) {
+                if !fields.input.as_str().parse::<DrugId>().is_ok_and(|id| source.accepts(&id)) {
                     return Err(QueryInvalid::new(&["source", "input"]));
                 }
                 NativeDrugId::Other
@@ -267,7 +267,7 @@ impl DrugGet {
     /// Preserve section selectors while replacing a resolved name with its native ID.
     pub fn with_native_id(&self, input: DrugId) -> Result<Self, QueryInvalid> {
         let mut fields = self.fields.clone();
-        fields.input = input;
+        fields.input = Text::new(&input.to_string()).map_err(|_| QueryInvalid::new(&["input"]))?;
         fields.try_into()
     }
     /// FDA recall identity retained by the checked boundary.
@@ -287,7 +287,7 @@ impl DrugGet {
     /// Select one exact native identity, with no sections requested.
     pub fn new(input: DrugId, source: DrugSource) -> Result<Self, QueryInvalid> {
         GetFields {
-            input,
+            input: Text::new(&input.to_string()).map_err(|_| QueryInvalid::new(&["input"]))?,
             source: Some(source),
             section: Box::default(),
             section_limit: None,
@@ -337,8 +337,12 @@ impl DrugGet {
         self.fields.civic_cursor.as_ref()
     }
     /// Unchanged published identifier.
-    pub fn input(&self) -> &DrugId {
+    pub fn input(&self) -> &Text {
         &self.fields.input
+    }
+    /// Source-native identity after name resolution.
+    pub fn native_input(&self) -> DrugId {
+        self.fields.input.as_str().parse().expect("native get dispatch requires a source ID")
     }
     /// Required selected source.
     pub fn source(&self) -> DrugSource {
@@ -528,7 +532,7 @@ impl DrugSource {
         if self != Self::Mychem { return self.accepts(input); }
         let value = input.to_string();
         value.len() == 27 && value.as_bytes().get(14) == Some(&b'-') && value.as_bytes().get(25) == Some(&b'-')
-            || value.starts_with("CHEMBL") || value.starts_with("DB") && value[2..].bytes().all(|b| b.is_ascii_digit())
+            || value.contains(':') || value.starts_with("CHEMBL") || value.starts_with("DB") && value[2..].bytes().all(|b| b.is_ascii_digit())
             || value.bytes().all(|b| b.is_ascii_digit())
     }
 }
