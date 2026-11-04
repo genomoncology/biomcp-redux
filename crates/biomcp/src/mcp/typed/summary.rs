@@ -78,12 +78,12 @@ fn translate(root: &crate::grammar::Root, args: &[Value]) -> Option<Value> {
                 .get_raw(key)?
                 .map(|v| v.to_str())
                 .collect::<Option<Vec<_>>>()?;
-            let kind = super::arguments::resolve(property, &input);
-            if kind["type"] == "array" {
+            let kind = non_null_type(property, &input);
+            if kind == Some("array") {
                 json!(values)
             } else {
                 let word = values.first()?;
-                if kind["type"] == "integer" {
+                if kind == Some("integer") {
                     json!(word.parse::<u64>().ok()?)
                 } else {
                     json!(word)
@@ -92,7 +92,9 @@ fn translate(root: &crate::grammar::Root, args: &[Value]) -> Option<Value> {
         };
         arguments.insert(key.clone(), value);
     }
-    Some(json!({"name":super::name(verb, entity),"arguments":arguments}))
+    let arguments = Value::Object(arguments);
+    super::validation::valid(&input, &arguments)
+        .then(|| json!({"name":super::name(verb, entity),"arguments":arguments}))
 }
 
 // A failed exact-ID getter directs a plain name to its registry's search command.
@@ -151,4 +153,24 @@ fn replacement(root: &crate::grammar::Root, args: &[std::ffi::OsString]) -> Opti
     let value = Value::Object(arguments);
     super::validation::valid(&super::arguments::input(&schema), &value)
         .then(|| json!({"name":super::name("search", &entity),"arguments":value}))
+}
+
+fn non_null_type<'a>(node: &'a Value, root: &'a Value) -> Option<&'a str> {
+    let node = super::arguments::resolve(node, root);
+    node["type"]
+        .as_str()
+        .or_else(|| {
+            node["type"]
+                .as_array()?
+                .iter()
+                .filter_map(Value::as_str)
+                .find(|kind| *kind != "null")
+        })
+        .or_else(|| {
+            node["anyOf"]
+                .as_array()?
+                .iter()
+                .filter_map(|node| non_null_type(node, root))
+                .find(|kind| *kind != "null")
+        })
 }

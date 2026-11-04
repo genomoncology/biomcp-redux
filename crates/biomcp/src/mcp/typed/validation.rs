@@ -19,6 +19,13 @@ pub(super) fn valid(schema: &Value, value: &Value) -> bool {
             }
         }
     }
+    if let Some(types) = schema.get("type").and_then(Value::as_array) {
+        return types.iter().any(|kind| {
+            let mut branch = schema.clone();
+            branch["type"] = kind.clone();
+            valid(&branch, value)
+        });
+    }
     match schema.get("type").and_then(Value::as_str) {
         Some("null") => value.is_null(),
         Some("string") => value.is_string(),
