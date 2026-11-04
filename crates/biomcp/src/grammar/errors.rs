@@ -169,6 +169,12 @@ pub(super) fn source_filter(
         .map(AsRef::as_ref)
         .filter(|name| *name != "source")
     {
+        if properties
+            .get(name)
+            .is_none_or(|property| property.get("x-positional").is_some())
+        {
+            continue;
+        }
         let Some(filter_value) = value.get(name) else {
             continue;
         };
