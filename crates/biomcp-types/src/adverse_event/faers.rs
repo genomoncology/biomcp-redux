@@ -1,7 +1,8 @@
 //! One owner for escaped FAERS query generation and its local request bound.
 use super::AdverseEventSerious;
-/// Maximum escaped native FAERS search expression in bytes, including filters.
-pub const FAERS_QUERY_MAX_BYTES: usize = 4096;
+/// BioMCP request budget for escaped FAERS expressions, including filters.
+/// Bounds repeated names before transport; openFDA publishes no search-length maximum.
+pub(super) const FAERS_QUERY_MAX_BYTES: usize = 4096;
 fn literal(value: &str) -> String {
     format!("\"{}\"", value.replace('\\', "\\\\").replace('"', "\\\""))
 }
