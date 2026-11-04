@@ -8,6 +8,12 @@ export PATH="$proof_python_bin:$PATH"
 case "${1:-focused}" in
 cheap) exec make check-cheap ;;
 generate) exec make schema-generate docs-generate ;;
+validate)
+    sh "$0" focused
+    export CARGO_BUILD_JOBS=2 RUST_TEST_THREADS=2
+    cargo test --locked -p biomcp-types --features schema --test schemas checked_in_schemas_match_types -- --exact
+    exec make docs-check
+    ;;
 structure)
     export CARGO_BUILD_JOBS=2 RUST_TEST_THREADS=2
     exec cargo test --locked -p biomcp --test ratchets repository_obeys_structural_contract -- --exact
@@ -45,7 +51,7 @@ for side in ['baseline', 'current']:
 SCAN
     exit ;;
 focused) ;;
-*) echo 'usage: check_who_dates.sh [focused|cheap|scans|structure|generate]' >&2; exit 2 ;;
+*) echo 'usage: check_who_dates.sh [focused|cheap|scans|structure|generate|validate]' >&2; exit 2 ;;
 esac
 python3.13 - <<'PY'
 import json
