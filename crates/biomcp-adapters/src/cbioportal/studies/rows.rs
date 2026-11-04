@@ -132,26 +132,10 @@ pub fn mutations(
 ) -> Result<(Records<StudyMutation>, StudyProfileId, NcbiGeneId), RequestError> {
     let gene = gene(leg, q)?;
     let profile = profile(leg, q)?;
-    let lists = super::sample_lists(leg, q.id(), 0, u32::MAX)?;
-    let list = lists
-        .window
-        .rows
-        .iter()
-        .find(|l| {
-            l.category
-                .as_ref()
-                .is_some_and(|c| c.as_str() == "all_cases_in_study")
-        })
-        .ok_or(biomcp_fetch::SourceError {
-            source: Source::Cbioportal,
-            reason: biomcp_types::Reason::Unavailable,
-            status: None,
-            tls_cause: None,
-            retry_after: None,
-        })?;
+    let (sample_list_id, list_problems) = sample_list(leg, q.id())?;
     let body = MutationFilter {
         entrez_gene_ids: [gene.get()],
-        sample_list_id: &list.sample_list_id,
+        sample_list_id: &sample_list_id,
     };
     let endpoint = SPEC
         .post_json("/molecular-profiles")
@@ -190,7 +174,7 @@ pub fn mutations(
             .cache_if(&|v| v.0.iter().all(|r| r.value.as_ref().is_some())),
     )?;
     let mut problems = problems(q.id());
-    problems.list.extend(lists.problems);
+    problems.list.extend(list_problems);
     let total = received.value.0.len();
     let rows: Vec<_> = received
         .value
@@ -278,4 +262,28 @@ fn acquired(time: Option<i64>) -> Result<Option<u64>, RequestError> {
     time.map(u64::try_from)
         .transpose()
         .map_err(|_| biomcp_fetch::bad_reply(Source::Cbioportal, None))
+}
+
+fn sample_list(
+    leg: &Leg<'_>,
+    id: &StudyId,
+) -> Result<(biodata::StudySampleListId, Vec<biomcp_types::Problem>), RequestError> {
+    let lists = super::sample_lists(leg, id, 0, u32::MAX)?;
+    let list = lists
+        .window
+        .rows
+        .into_iter()
+        .find(|l| {
+            l.category
+                .as_ref()
+                .is_some_and(|c| c.as_str() == "all_cases_in_study")
+        })
+        .ok_or(biomcp_fetch::SourceError {
+            source: Source::Cbioportal,
+            reason: biomcp_types::Reason::Unavailable,
+            status: None,
+            tls_cause: None,
+            retry_after: None,
+        })?;
+    Ok((list.sample_list_id, lists.problems))
 }
