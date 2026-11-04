@@ -122,7 +122,7 @@ pub fn samples(leg: &Leg<'_>, q: &StudyGet) -> Result<Records<StudySample>, Requ
         rejected: total - rows.iter().flatten().count(),
         window: crate::NativeWindow::local(rows, q.section_offset(), q.section_limit()),
         problems: problems.list,
-        acquired: meta.fetched.and_then(|v| u64::try_from(v).ok()),
+        acquired: acquired(meta.fetched)?,
     })
 }
 /// Resolve the native gene and mutation profile, then acquire only matching source observations.
@@ -211,7 +211,7 @@ pub fn mutations(
             rejected: total - rows.iter().flatten().count(),
             window: crate::NativeWindow::local(rows, q.section_offset(), q.section_limit()),
             problems: problems.list,
-            acquired: received.meta.fetched.and_then(|v| u64::try_from(v).ok()),
+            acquired: received.acquired(meta.fetched)?,
         },
         profile,
         gene,
@@ -227,8 +227,9 @@ fn gene(leg: &Leg<'_>, q: &StudyGet) -> Result<NcbiGeneId, RequestError> {
             &endpoint("/genes", &[selector.as_str()])?,
             Input::Params(&[]),
             Read::<Gene>::json().check(&|g| {
-                if g.hugo_gene_symbol == *selector
-                    || g.entrez_gene_id.to_string() == selector.as_str()
+                if g.entrez_gene_id != 0
+                    && (g.hugo_gene_symbol == *selector
+                        || g.entrez_gene_id.to_string() == selector.as_str())
                 {
                     Ok(())
                 } else {
@@ -271,4 +272,10 @@ fn profile(leg: &Leg<'_>, q: &StudyGet) -> Result<StudyProfileId, RequestError> 
         })?
         .molecular_profile_id;
     Ok(profile)
+}
+
+fn acquired(time: Option<i64>) -> Result<Option<u64>, RequestError> {
+    time.map(u64::try_from)
+        .transpose()
+        .map_err(|_| biomcp_fetch::bad_reply(Source::Cbioportal, None))
 }

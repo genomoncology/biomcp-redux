@@ -37,6 +37,14 @@ pub(crate) fn get(cx: &Ctx<'_>, q: &StudyGet) -> Outcome {
             ] {
                 next(&mut out, cx, StepKind::Section, q.with_section(section));
             }
+            if q.gene().is_some() {
+                next(
+                    &mut out,
+                    cx,
+                    StepKind::Section,
+                    q.with_section(StudySection::Mutations),
+                );
+            }
         }
     }
     if q.section() == Some(StudySection::All)
