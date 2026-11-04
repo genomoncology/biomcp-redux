@@ -12,12 +12,22 @@ case "${1:-focused}" in
     ;;
   list)
     python3 scripts/trials.py --list | rg study
+    python3 scripts/trials.py --target tools --proofs --list | rg study
     ;;
   focused)
-    python3 scripts/trials.py --installed study/rows study/help study/examples study/retired
+    shift
+    python3 scripts/trials.py --installed "$@"
+    ;;
+  tools)
+    shift
+    python3 scripts/trials.py --target tools --proofs --installed "$@"
+    ;;
+  scans)
+    cargo fmt --all -- --check
+    cargo clippy --locked -p biomcp-adapters -p biomcp-query -p biomcp-types --all-targets -- -D warnings
     ;;
   routine)
     exec sh scripts/check_nightly_tests.sh routine
     ;;
-  *) echo 'usage: check_study_rows.sh [generate|list|focused|routine]' >&2; exit 2 ;;
+  *) echo 'usage: check_study_rows.sh [generate|list|focused NAMES...|tools NAMES...|scans|routine]' >&2; exit 2 ;;
 esac
