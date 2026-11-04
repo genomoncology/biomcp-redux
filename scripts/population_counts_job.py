@@ -9,7 +9,6 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-from release.artifacts import cargo
 from release.gate import stage_fixtures
 from scripts.trials import run_selected
 
@@ -19,9 +18,20 @@ def main():
     output.mkdir(parents=True, exist_ok=True)
     installed = output / 'installed'
     installed.mkdir(exist_ok=True)
-    product = Path(cargo('dev')['executable'])
-    runner = Path(cargo('dev', tests='cases')['executable'])
-    tools = Path(cargo('dev', tests='tools')['executable'])
+    compiled = subprocess.run([
+        'cargo', 'test', '--locked', '-p', 'biomcp', '--test', 'cases',
+        '--test', 'tools', '--no-run', '--message-format=json',
+    ], check=True, stdout=subprocess.PIPE, text=True)
+    artifacts = {}
+    for line in compiled.stdout.splitlines():
+        message = json.loads(line)
+        if message.get('reason') == 'compiler-message':
+            rendered = message.get('message', {}).get('rendered')
+            if rendered:
+                print(rendered, file=sys.stderr, end='')
+        if message.get('reason') == 'compiler-artifact' and message.get('executable'):
+            artifacts[message['target']['name']] = Path(message['executable'])
+    product, runner, tools = (artifacts[name] for name in ('biomcp', 'cases', 'tools'))
     binary = installed / 'biomcp'
     case_runner = installed / 'case-runner'
     shutil.copy2(product, binary)

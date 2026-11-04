@@ -9,6 +9,9 @@ case "${1:-prepare}" in
     mkdir -p target/population-counts-proof
     git diff --binary > target/population-counts-proof/generated.patch
     make check-cheap
+    exec sh "$0" proof ;;
+  proof)
+    python3 scripts/check_shell.py
     ruff check --select F401,F841,ERA,BLE,E722,S110 scripts/population_counts_job.py
     python3 scripts/population_counts_job.py
     ;;
@@ -38,5 +41,5 @@ PY
       "$scanner" "$folder/source" --format rust --max-size 10mb --reporters console,json --output "$folder/report"
     done
     ;;
-  *) echo 'usage: check_population_counts.sh [prepare|routine|scans BASELINE]' >&2; exit 2 ;;
+  *) echo 'usage: check_population_counts.sh [prepare|proof|routine|scans BASELINE]' >&2; exit 2 ;;
 esac
