@@ -67,6 +67,15 @@ pub(super) fn check() -> Result<(), String> {
             return Err("typed save escaped hosted refusal".into());
         }
     }
+    let hostile = request(
+        json!(8),
+        "tools/call",
+        json!({"name":"get_gene","arguments":{"input":["--help"]}}),
+    );
+    let reply = exchange_with_globals(&env, &[hostile], &["--offline".into()])?;
+    if reply[0].pointer("/result/structuredContent/schema") == Some(&json!("biomcp.help/6")) {
+        return Err("literal input became a CLI flag".into());
+    }
     // A command-line mode explicitly overrides the configured mode.
     let reply = exchange_with_globals(
         &env,
