@@ -12,7 +12,12 @@ case "${1:-focused}" in
     python3 scripts/trials.py --runner "$runner" --executable "${CARGO_TARGET_DIR:-target}/debug/biomcp" --list > "$output/list.txt"
     rg 'civic-evidence' "$output/list.txt"
     python3 scripts/trials.py --runner "$runner" --executable "${CARGO_TARGET_DIR:-target}/debug/biomcp" --installed \
-      drug-civic/drug/civic-evidence-public.yaml drug-civic/drug/civic-evidence-streams.yaml
+      drug-civic/drug/civic-evidence-public.yaml drug-civic/drug/civic-evidence-streams.yaml variant-civic/variant/civic-evidence-filters.yaml variant-civic/variant/native-civic.yaml
+    baseline="$output/baseline/biomcp"
+    mkdir -p "$(dirname "$baseline")"
+    cp /Users/ian/workspace/jobs/biomcp-redux-0599/target/drug-names-proof/baseline-bin/biomcp "$baseline"
+    python3 -c 'import hashlib,sys; from pathlib import Path; assert hashlib.sha256(Path(sys.argv[1]).read_bytes()).hexdigest() == "b50998e586ccc38a2a4f6d851cce229651e380560814e5d4212d4694f89c7660"' "$baseline"
+    python3 scripts/check_civic_evidence_compatibility.py "$baseline" "${CARGO_TARGET_DIR:-target}/debug/biomcp"
     ;;
   generate)
     make schema-generate docs-generate

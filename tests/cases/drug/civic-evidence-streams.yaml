@@ -29,7 +29,7 @@
       "expect": {
         "/result/civic/data/evidence/page/total": 5,
         "/result/civic/data/evidence/page/returned": 2,
-        "/result/civic/data/evidence/records/*/statement/record/id": [
+        "/result/civic/data/evidence/records/*/claim/record/id": [
           "EID900001",
           "EID900002"
         ]
@@ -61,7 +61,7 @@
       "expect": {
         "/result/civic/data/evidence/page/total": 5,
         "/result/civic/data/evidence/page/returned": 2,
-        "/result/civic/data/evidence/records/*/statement/record/id": [
+        "/result/civic/data/evidence/records/*/claim/record/id": [
           "EID900003",
           "EID900004"
         ]
@@ -93,7 +93,7 @@
       "expect": {
         "/result/civic/data/evidence/page/total": 5,
         "/result/civic/data/evidence/page/returned": 1,
-        "/result/civic/data/evidence/records/*/statement/record/id": [
+        "/result/civic/data/evidence/records/*/claim/record/id": [
           "EID900005"
         ]
       }

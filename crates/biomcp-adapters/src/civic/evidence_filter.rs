@@ -65,7 +65,7 @@ pub(super) fn page<T>(
             .checked_add(rows.total_count)
             .ok_or_else(|| failure(Reason::TooLarge))?;
         if !active {
-            if index > cursor.level && next.is_none() && rows.total_count > 0 {
+            if index >= cursor.level && next.is_none() && rows.total_count > 0 {
                 next = Some(Cursor {
                     level: index,
                     after: None,
