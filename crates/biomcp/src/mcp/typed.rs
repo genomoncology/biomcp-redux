@@ -1,6 +1,7 @@
 //! Typed tools derive their contracts and CLI spelling from the command registry.
 mod arguments;
 mod description;
+mod validation;
 use serde_json::{Value, json};
 use std::io;
 
@@ -41,7 +42,7 @@ pub(super) fn parse(
     let schema = schema(id).ok()?;
     let input = arguments::input(&schema);
     let values = params.get("arguments")?;
-    if !jsonschema::validator_for(&input).ok()?.is_valid(values) {
+    if !validation::valid(&input, values) {
         return None;
     }
     let args = arguments::cli(root, verb, entity, &schema, values)?;
