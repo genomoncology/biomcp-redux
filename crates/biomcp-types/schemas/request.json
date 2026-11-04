@@ -295,6 +295,8 @@
       "enum": [
         "gtr",
         "fda-cdx",
+        "fda-pma",
+        "fda-510k",
         "who-ivd",
         "fda-device-recall"
       ],
@@ -306,6 +308,7 @@
         "genes",
         "conditions",
         "methods",
+        "summary",
         "regulatory",
         "supplements"
       ],
@@ -314,6 +317,7 @@
         "GTR native gene rows; five per page.",
         "GTR native condition rows; five per page.",
         "GTR native method entries; five per page.",
+        "FDA SSED PDF text: 25 MiB, 100 pages and 6144 escaped bytes per fragment; scans without text are explicit.",
         "Selected PMA submission statement; one fragment per page.",
         "PMA base application supplement headers; five per page."
       ]
@@ -2598,6 +2602,28 @@
           ],
           "description": "Exact MedGen:CUI identifier only."
         },
+        "decision_from": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PartialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Inclusive native decision date, YYYY-MM-DD; PMA and 510(k) only."
+        },
+        "decision_to": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PartialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Inclusive native decision date, YYYY-MM-DD; PMA and 510(k) only."
+        },
         "device_id": {
           "anyOf": [
             {
@@ -2681,7 +2707,7 @@
               "type": "null"
             }
           ],
-          "description": "WHO manufacturer words or native FDA recalling_firm phrase."
+          "description": "WHO manufacturer words, native FDA applicant (PMA/510(k)) or recalling_firm phrase."
         },
         "marker": {
           "anyOf": [
@@ -2693,6 +2719,17 @@
             }
           ],
           "description": "Literal whole-word phrase in WHO's Pathogen/Disease/Marker cell."
+        },
+        "name": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native trade_name (PMA) or device_name (510(k)) phrase."
         },
         "offset": {
           "default": 0,
@@ -2714,7 +2751,7 @@
         },
         "source": {
           "$ref": "#/$defs/DiagnosticSearchSource",
-          "description": "Explicit native GTR, WHO IVD, FDA companion or medical device recall discovery."
+          "description": "Explicit native GTR, WHO IVD, FDA PMA, 510(k), companion or medical device recall discovery."
         },
         "type": {
           "anyOf": [
@@ -2767,7 +2804,7 @@
               "type": "null"
             }
           ],
-          "description": "GTR: genes, conditions, methods. PMA: regulatory, supplements.\nWHO, 510(k) and device recalls have no sections; omit for the card.",
+          "description": "GTR: genes, conditions, methods. PMA: regulatory, supplements, summary.\nWHO, 510(k) and device recalls have no sections; omit for the card.",
           "x-positional": 1
         },
         "section_limit": {
@@ -3345,6 +3382,17 @@
         "command": {
           "const": "get-drug",
           "type": "string"
+        },
+        "document_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Exact native Drugs@FDA approval letter document ID. Text is bounded to 25 MiB, 100 pages\nand 6144 escaped bytes per fragment. No-text scans are explicit."
         },
         "evidence_level": {
           "description": "Native CIViC evidence levels; repeat to include several levels.",
