@@ -19,7 +19,7 @@ pub(crate) fn proof() -> Result<(), String> {
         }
     }
     let mut reader = Scripted(vec![Err(io::ErrorKind::Interrupted.into()), Ok(0)].into_iter());
-    if read(&mut reader, &mut [0]).map_err(|e| e.to_string())? != 0 {
+    if read(&mut reader, &mut [0]).map_err(|e| e.to_string())? != 0 || reader.0.next().is_some() {
         return Err("interrupted read did not continue to EOF".into());
     }
     for kind in [

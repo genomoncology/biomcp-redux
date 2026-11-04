@@ -20,6 +20,42 @@ for proof in ['mcp-http/read-retries-only-interrupted', 'mcp-http/early-close-is
     subprocess.run([runner, '--proofs', proof, '--exact'], check=True)
 PYTHON
     ;;
+  case-only)
+    [ "$#" -eq 6 ] || { echo 'case-only IMAGE RUNNER FIXTURES BINARY EXPECTED_SHA' >&2; exit 2; }
+    shift
+    python3.13 - "$@" <<'PYTHON'
+import hashlib, json, os, subprocess, sys
+from pathlib import Path
+image, runner, fixtures, binary, expected = sys.argv[1:]
+if Path(image).is_file():
+    subprocess.run(['docker', 'load', '-i', image], check=True)
+    image = 'biomcp-candidate:amd64'
+elif '@sha256:' not in image:
+    raise ValueError('case-only requires a pinned image or saved runtime image')
+common = ['docker', 'run', '--rm', '--platform', 'linux/amd64', '--memory', '2g', '--cpus', '2']
+if os.environ.get('JOB_LABEL_FILE'):
+    common += ['--label-file', os.environ['JOB_LABEL_FILE']]
+common += ['-v', str(Path(runner).resolve()) + ':/proof/case-runner:ro',
+           '-v', str(Path(fixtures).resolve()) + ':/proof/fixtures:ro']
+selected = '/usr/local/bin/biomcp'
+if binary != '-':
+    common += ['-v', str(Path(binary).resolve()) + ':/proof/biomcp:ro']
+    selected = '/proof/biomcp'
+print(json.dumps({'runner_sha256': hashlib.sha256(Path(runner).read_bytes()).hexdigest(),
+                  'expected_binary_sha256': expected, 'image': image}), flush=True)
+command = common + ['-e', 'BIOMCP_TEST_EXECUTABLE=' + selected,
+                    '-e', 'BIOMCP_TEST_FIXTURES=/tmp/check/fixtures',
+                    '-e', 'EXPECTED_BINARY_SHA256=' + expected,
+                    '--entrypoint', '/bin/sh', image, '-ec',
+                    'actual=$(sha256sum "$BIOMCP_TEST_EXECUTABLE"); '
+                    'test "${actual%% *}" = "$EXPECTED_BINARY_SHA256"; '
+                    'mkdir /tmp/check; cp /proof/case-runner /tmp/check/case-runner; '
+                    'cp -R /proof/fixtures /tmp/check/fixtures; '
+                    'exec /tmp/check/case-runner mcp-http/framing-resource-deadlines-and-shutdown '
+                    '--exact --test-threads 1']
+subprocess.run(command, check=True)
+PYTHON
+    ;;
   container)
     [ "$#" -eq 4 ] || { echo 'container ARTIFACTS CACHE REVISION' >&2; exit 2; }
     original_artifacts=$2
@@ -70,5 +106,5 @@ env = {**os.environ, 'BIOMCP_TEST_EXECUTABLE': str(Path('target/http-read-linux/
 subprocess.run([runner, 'mcp-http/framing-resource-deadlines-and-shutdown', '--exact', '--test-threads', '1'], env=env, check=True)
 PYTHON
     ;;
-  *) echo 'usage: check_http_read.sh [focused|routine|container ARTIFACTS CACHE REVISION]' >&2; exit 2 ;;
+  *) echo 'usage: check_http_read.sh [focused|routine|container ARTIFACTS CACHE REVISION|case-only IMAGE RUNNER FIXTURES BINARY EXPECTED_SHA]' >&2; exit 2 ;;
 esac
