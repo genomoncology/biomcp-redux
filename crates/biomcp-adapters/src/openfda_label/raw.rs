@@ -37,6 +37,28 @@ impl Record {
             .map(Vec::as_slice)
             .filter(|parts| !parts.is_empty())
     }
+    /// Derive a checked display fallback without changing the original section strings.
+    pub(super) fn product_name(&self) -> (Option<Text>, Vec<biomcp_types::Problem>) {
+        let mut problems = crate::mapped::Problems {
+            source: biomcp_types::Source::OpenfdaLabel,
+            record: crate::mapped::record(&self.id),
+            list: Vec::new(),
+        };
+        let mut name = None;
+        for value in self
+            .parts("spl_product_data_elements")
+            .iter()
+            .copied()
+            .flatten()
+        {
+            let value =
+                problems.optional("spl_product_data_elements", Some(Text::from_source(value)));
+            if name.is_none() {
+                name = value;
+            }
+        }
+        (name, problems.list)
+    }
     pub(super) fn check(&self) -> Result<(), BadReply> {
         use biomcp_types::DrugSource;
         if !DrugSource::OpenfdaLabel.accepts(&self.id)

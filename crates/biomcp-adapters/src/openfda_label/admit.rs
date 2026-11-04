@@ -39,7 +39,7 @@ impl From<wire::Record> for Record {
                     .map(|parts| (heading, parts))
             })
             .collect();
-        Self {
+        let mut record = Self {
             id: row.id,
             set_id: row.set_id,
             version: p.field("version", row.version),
@@ -47,6 +47,9 @@ impl From<wire::Record> for Record {
             openfda,
             sections,
             problems: p.list,
-        }
+        };
+        let (_, problems) = record.product_name();
+        record.problems.extend(problems);
+        record
     }
 }

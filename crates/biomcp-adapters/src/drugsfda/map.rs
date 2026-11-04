@@ -127,6 +127,48 @@ impl Submission {
 #[serde(transparent)]
 pub struct Application(pub(super) super::raw::Application);
 impl Application {
+    /// Exact native brand or ingredient match, original application first, then earliest approved submission.
+    pub fn name_rank(&self, name: &str) -> Option<(u8, u8, Option<String>)> {
+        let brand = self.0.products.iter().any(|p| {
+            p.brand_name.as_ref().is_some_and(|brand| {
+                biomcp_types::DrugNameMatch::same_name(brand.as_str(), name)
+                    && !p.active_ingredients.iter().any(|i| {
+                        i.name.as_ref().is_some_and(|ingredient| {
+                            biomcp_types::DrugNameMatch::same_name(
+                                brand.as_str(),
+                                ingredient.as_str(),
+                            )
+                        })
+                    })
+            })
+        });
+        let generic = self.0.products.iter().any(|p| {
+            p.active_ingredients.iter().any(|i| {
+                i.name
+                    .as_ref()
+                    .is_some_and(|n| biomcp_types::DrugNameMatch::generic_name(n.as_str(), name))
+            })
+        });
+        if !brand && !generic {
+            return None;
+        }
+        let first = self
+            .0
+            .submissions
+            .iter()
+            .filter(|s| {
+                s.submission_status
+                    .as_ref()
+                    .is_some_and(|s| s.as_str() == "AP")
+            })
+            .filter_map(|s| s.submission_status_date.map(|d| d.to_string()))
+            .min();
+        Some((
+            u8::from(!brand),
+            u8::from(self.0.application_number.to_string().starts_with("ANDA")),
+            first,
+        ))
+    }
     /// Actual refused native child records.
     pub fn refusals(&self) -> crate::Refusal {
         self.0.refusals
@@ -156,18 +198,33 @@ impl Application {
     pub fn submission_count(&self) -> usize {
         self.0.submissions.len()
     }
-    /// Map an application-owned submission window in native order.
+    /// Map the newest status dates first, then descending submission numbers; undated rows last.
     pub fn submissions(
         &self,
         offset: u32,
         limit: u32,
     ) -> Result<Box<[DrugFdaSubmission]>, RequestError> {
-        self.0
-            .submissions
-            .iter()
+        let mut rows: Vec<_> = self.0.submissions.iter().collect();
+        let date_key = |s: &Submission| {
+            s.submission_status_date
+                .map(|d| (d.year(), d.month(), d.day()))
+        };
+        rows.sort_by(|a, b| {
+            date_key(b).cmp(&date_key(a)).then_with(|| {
+                submission_number_key(b.submission_number.as_str())
+                    .cmp(&submission_number_key(a.submission_number.as_str()))
+            })
+        });
+        rows.into_iter()
             .skip(offset as usize)
             .take(limit as usize)
             .map(|s| s.mapped(&self.0))
             .collect()
     }
+}
+
+// Decimal text can exceed integer widths; the original wording stays on every returned record.
+fn submission_number_key(value: &str) -> (usize, &str) {
+    let value = value.trim_start_matches('0');
+    (value.len(), value)
 }
