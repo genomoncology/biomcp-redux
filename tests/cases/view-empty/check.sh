@@ -7,5 +7,19 @@ export RUSTUP_TOOLCHAIN=1.95.0
 export BIOMCP_TRANSCRIPT_DIR="$PWD/target/view-empty/transcripts"
 export BIOMCP_EVIDENCE_DIR="$PWD/target/view-empty/fixtures"
 mkdir -p "$PWD/target/view-empty"
+if [ "${1:-focused}" = parity ]; then
+    scp yellow:/home/ian/workspace/data/biomcp-redux-evidence/0582/installed/bin/biomcp target/view-empty/baseline-biomcp
+    scp yellow:/home/ian/workspace/data/biomcp-redux-evidence/0582/source-bindings.json target/view-empty/baseline-source-bindings.json
+    python3 tests/cases/view-empty/proof.py prepare
+    chmod +x target/view-empty/baseline-biomcp
+    export BIOMCP_TRANSCRIPT_DIR="$PWD/target/view-empty/baseline-transcripts"
+    python3 scripts/trials.py --installed --executable target/view-empty/baseline-biomcp --cases target/view-empty/json-cases empty-section failed-section all-absent
+    python3 tests/cases/view-empty/proof.py compare
+    exit
+fi
+if [ "${1:-focused}" = scans ]; then
+    python3 tests/cases/view-empty/proof.py scans
+    exit
+fi
 cargo fmt --all -- --check
 python3 scripts/trials.py --installed view-empty/empty-section view-empty/failed-section view-empty/all-absent
