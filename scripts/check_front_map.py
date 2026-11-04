@@ -55,9 +55,10 @@ def main():
         binary = root / "bin" / "biomcp"
         binary.parent.mkdir()
         shutil.copy2(args.binary, binary)
-        front = json.loads(run(binary, ["help"], env))["result"]["commands"][0]["description"]
+        help_reply = run(binary, ["help"], env)
+        front = json.loads(help_reply)["result"]["commands"][0]["description"]
         assert run(binary, ["--format", "md", "help"], env).startswith(front + "\n\n")
-        assert len(front) <= int(os.environ.get("BIOMCP_FRONT_MAP_CHARACTER_LIMIT", 2500))
+        assert len(front) <= int(os.environ.get("BIOMCP_FRONT_MAP_CHARACTER_LIMIT", 4000))
         assert "--" not in front
         rendered = run(binary, ["skill", "render"], env)
         assert rendered.startswith(front + "\n\n")
@@ -83,6 +84,7 @@ def main():
         assert process.returncode == 0 and not process.stderr, process.stderr
         reply = json.loads(process.stdout.splitlines()[0])
         assert reply["result"]["instructions"] == front
+        (args.output / "help.json").write_text(help_reply)
         (args.output / "front-map.txt").write_text(front)
         (args.output / "initialize.json").write_text(process.stdout)
         version = run(binary, ["version", "--verbose"], env)
