@@ -3,6 +3,7 @@ import hashlib
 import io
 import json
 import os
+import shutil
 from pathlib import Path
 import subprocess
 import sys
@@ -35,6 +36,8 @@ def main():
         home = Path(scratch)
         replay = home / 'replay' / 'ctgov'
         replay.mkdir(parents=True)
+        version = Path('tests/replies/grammar/boolean-literals/ctgov/e6d9a4526e6cc39dfac0cef1b72580f7020a33c464d145ab8e6a77f411ff0fff.json')
+        shutil.copy2(version, replay / version.name)
         env = {key: value for key, value in os.environ.items() if key in {'PATH', 'TMPDIR', 'SystemRoot', 'WINDIR'}}
         env.update(HOME=str(home), XDG_CONFIG_HOME=str(home / 'config'), XDG_CACHE_HOME=str(home / 'cache'))
         for results, total in [(False, 0), (True, 1)]:
