@@ -292,7 +292,7 @@ fn eight_consumer_envelopes_validate_and_identifier_pages_keep_closed_native_sco
     .unwrap();
 }
 #[test]
-fn request_boundaries_reject_missing_text_null_limits_partial_dates_and_removed_options() {
+fn request_boundaries_reject_missing_text_null_limits_invalid_dates_and_removed_options() {
     for value in [
         json!({}),
         json!({"text":""}),
