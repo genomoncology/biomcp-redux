@@ -14,7 +14,7 @@ pub(super) fn get(cx: &Ctx<'_>, q: &DiagnosticGet) -> Outcome {
     let id = q.id().as_str();
     let url = format!(
         "https://www.accessdata.fda.gov/cdrh_docs/pdf{}/{}B.pdf",
-        &id[1..3],
+        id.get(1..3).unwrap_or_default(),
         id
     )
     .parse();

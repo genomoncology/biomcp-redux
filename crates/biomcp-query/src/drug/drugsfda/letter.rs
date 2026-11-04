@@ -27,10 +27,11 @@ pub(super) fn select(
     if selected.len() != 1 {
         return Err(biomcp_fetch::bad_reply(Source::Drugsfda, Some(200)));
     }
-    let document = &mut selected[0]
-        .application_docs
-        .as_mut()
-        .ok_or_else(|| biomcp_fetch::bad_reply(Source::Drugsfda, Some(200)))?[0];
+    let document = selected
+        .first_mut()
+        .and_then(|s| s.application_docs.as_mut())
+        .and_then(|docs| docs.first_mut())
+        .ok_or_else(|| biomcp_fetch::bad_reply(Source::Drugsfda, Some(200)))?;
     if !document
         .r#type
         .as_ref()

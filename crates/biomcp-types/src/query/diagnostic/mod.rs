@@ -50,7 +50,7 @@ pub struct DiagnosticSearch(SearchFields);
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct SearchFields {
-    /// Explicit native GTR, WHO IVD, FDA companion or medical device recall discovery.
+    /// Explicit native GTR, WHO IVD, FDA PMA, 510(k), companion or medical device recall discovery.
     source: DiagnosticSearchSource,
     /// Exact source GeneID, exclusive with gene symbol.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -77,7 +77,7 @@ struct SearchFields {
     /// Literal whole-word phrase in WHO's Pathogen/Disease/Marker cell.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     marker: Option<Text>,
-    /// WHO manufacturer words or native FDA recalling_firm phrase.
+    /// WHO manufacturer words, native FDA applicant (PMA/510(k)) or recalling_firm phrase.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     manufacturer: Option<Text>,
     /// Exact native FDA device recall product code.
@@ -257,7 +257,7 @@ impl DiagnosticSearch {
     pub fn marker(&self) -> Option<&Text> {
         self.0.marker.as_ref()
     }
-    /// WHO manufacturer words or native FDA recalling_firm phrase.
+    /// WHO manufacturer words, native FDA applicant (PMA/510(k)) or recalling_firm phrase.
     pub fn manufacturer(&self) -> Option<&Text> {
         self.0.manufacturer.as_ref()
     }
