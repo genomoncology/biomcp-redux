@@ -51,7 +51,7 @@ def main():
             '--section-limit', '2', '--evidence-level', 'A', '--evidence-status', 'submitted']
     for after in [None, 'E2']:
         run = base + (['--civic-profile', '12', '--civic-kind', 'evidence', '--civic-cursor',
-                       json.dumps({'level': 0, 'after': after}, separators=(',', ':'))] if after else [])
+                       '0:' + after] if after else [])
         steps.append({'run': run, 'expect': {'/result/candidates/0/sections/civic/data/profiles/0/evidence_page/total': 3,
                                             '/result/candidates/0/sections/civic/data/profiles/0/evidence_page/returned': 1 if after else 2,
                                             '/result/candidates/0/sections/civic/data/profiles/0/statements/0/record/id': 'EID910003' if after else 'EID910001'}})

@@ -4,9 +4,8 @@ use super::variant_raw::{Connection, Page};
 use biodata::Text;
 use biomcp_fetch::RequestError;
 use biomcp_types::{CivicEvidenceFilter, CivicEvidenceLevel, Reason};
-use serde::{Deserialize, Serialize};
 
-#[derive(Default, Deserialize, Serialize)]
+#[derive(Default)]
 struct Cursor {
     level: usize,
     after: Option<Text>,
@@ -38,11 +37,23 @@ pub(super) fn page<T>(
         u32,
     ) -> Result<Connection<T>, RequestError>,
 ) -> Result<Connection<T>, RequestError> {
-    let cursor: Cursor = cursor
-        .map(|cursor| serde_json::from_str(cursor.as_str()))
-        .transpose()
-        .map_err(|_| failure(Reason::BadReply))?
-        .unwrap_or_default();
+    let cursor = match cursor {
+        Some(cursor) => {
+            let (level, after) = cursor
+                .as_str()
+                .split_once(':')
+                .ok_or_else(|| failure(Reason::BadReply))?;
+            Cursor {
+                level: level.parse().map_err(|_| failure(Reason::BadReply))?,
+                after: if after.is_empty() {
+                    None
+                } else {
+                    Some(Text::new(after).map_err(|_| failure(Reason::BadReply))?)
+                },
+            }
+        }
+        None => Cursor::default(),
+    };
     let levels = filter.levels();
     if cursor.level >= levels.len() {
         return Err(failure(Reason::BadReply));
@@ -87,8 +98,12 @@ pub(super) fn page<T>(
     let end_cursor = next
         .as_ref()
         .map(|cursor| {
-            let value = serde_json::to_string(cursor).map_err(|_| failure(Reason::BadReply))?;
-            Text::new(&value).map_err(|_| failure(Reason::BadReply))
+            Text::new(&format!(
+                "{}:{}",
+                cursor.level,
+                cursor.after.as_ref().map_or("", Text::as_str)
+            ))
+            .map_err(|_| failure(Reason::BadReply))
         })
         .transpose()?;
     Ok(Connection {

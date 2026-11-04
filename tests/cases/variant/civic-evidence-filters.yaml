@@ -45,7 +45,7 @@
         "--civic-kind",
         "evidence",
         "--civic-cursor",
-        "{\"level\":0,\"after\":\"E2\"}"
+        "0:E2"
       ],
       "expect": {
         "/result/candidates/0/sections/civic/data/profiles/0/evidence_page/total": 3,
