@@ -13,6 +13,9 @@ tool_only! { type Check = Result<(), String>; }
 tool_only! {
 pub(crate) fn trials() -> Vec<Trial> {
     let mut trials = vec![
+        transcript_trial("mcp-http/early-close-is-rejected", || {
+            super::http_limits::early_close_proof().map_err(Into::into)
+        }),
         transcript_trial("article-semantic-sections/checked-edge-boundaries", || {
             super::semantic_tables::check().map_err(|e| e.to_string().into())
         }),

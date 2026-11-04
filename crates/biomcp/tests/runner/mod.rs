@@ -65,8 +65,8 @@ pub(super) mod launch;
 mod recurrence;
 mod remote_tools;
 mod replay;
-mod source_pacing;
 mod socket_read;
+mod source_pacing;
 tool_only! { pub(crate) mod live; }
 tool_only! { mod live_follow_proof; }
 tool_only! { mod live_proof; }

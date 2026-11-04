@@ -290,7 +290,7 @@ fn peer_eof(stream: &mut std::net::TcpStream) -> Result<(), String> {
         .set_read_timeout(Some(Duration::from_secs(5)))
         .map_err(|e| e.to_string())?;
     let mut byte = [0];
-    match super::socket_read::read(&mut stream, &mut byte) {
+    match super::socket_read::read(stream, &mut byte) {
         Ok(0) => Ok(()),
         Err(error) if error.kind() == std::io::ErrorKind::ConnectionReset => Ok(()),
         other => Err(format!("cancelled socket did not close: {other:?}")),
