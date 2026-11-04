@@ -3270,7 +3270,7 @@
         },
         "query": {
           "$ref": "#/$defs/Text",
-          "description": "Literal name phrase; optional for FDA drug recalls. Drugs@FDA searches brands and ingredients,\nexact names before word matches. Harmonized recall names match but never become display names.",
+          "description": "Search phrase; optional for FDA drug recalls. Drugs@FDA searches brands and ingredients,\nexact names before word matches. openFDA labels search exact then word brand/generic names,\nthen label text (including indications) when no names match; source matches need not be exact names.\nHarmonized recall names match but never become display names.",
           "x-positional": 0
         },
         "reason": {
@@ -3365,9 +3365,7 @@
           "description": "Native CIViC evidence status; omitted preserves the source's existing default."
         },
         "input": {
-          "$ref": "#/$defs/DrugId",
-          "description": "Published source-native identifier, never SOURCE:ID or a selected name.",
-          "x-positional": 0
+          "$ref": "#/$defs/DrugId"
         },
         "label_section": {
           "anyOf": [
@@ -3419,8 +3417,7 @@
           ]
         },
         "source": {
-          "$ref": "#/$defs/DrugSource",
-          "description": "Required source; there is no default exact-ID resolver."
+          "$ref": "#/$defs/DrugSource"
         }
       },
       "required": [

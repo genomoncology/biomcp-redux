@@ -56,7 +56,7 @@ drug-native-sources: Retrieve native ChEMBL and Open Targets drug candidates, id
 drug-ema: Explicitly synchronize EMA medicines and read separate native candidates, exact identity cards and source-scoped regulatory dates without implicit synchronization.
 drug-civic: Search literal CIViC therapy candidates and retrieve independent native evidence and assertion pages with their complete profile context and shared native evidence level and status selectors.
 drug-mychem: Search literal MyChem candidate pages and retrieve exact native document identities with attributed cross-references.
-drug-label: Find complete brand or generic names with an explicit match basis and read exact SPL identities and native label fields with complete bounded text continuation, preserving revision, original text and source outcomes.
+drug-label: Search source brand, generic and label-text matches without dropping native page rows, preserve source display names and exact-match facts, and read exact SPL identities and native label fields with complete bounded text continuation, preserving revision, original text and source outcomes.
 drug-approvals: Read source-native application candidates, independent product status and application submission history newest status date first, with explicit product selection and configurable submission pages.
 disease-ols: Discover source-ordered ontology candidates, read exact OLS facts and refuse retired disease inputs before source access.
 disease-mydisease: Read an exact selected annotation and independently page native synonyms, cross references and parents without hidden enrichment.
@@ -120,7 +120,7 @@ housekeeping: Print build provenance and ready-to-paste local MCP configuration 
 store-coexistence: Allowed bundle reads import only names missing from the current generation through a verified atomic transfer, preserve both files, and retain current published bundles on conflicts.
 agent-skill: Agents read case-backed guidance and install managed guidance only inside an explicit directory.
 variant-alphagenome: Read independently paged native scoring groups for one source-resolved GRCh38 variant with the caller's required key.
-query-validation: A caller sees argument names for typed input failures, conflicting fields and invalid ranges without rejected values.
+query-validation: A caller sees argument identities and accepted forms for input failures, accepting sources and declared replacements for incompatible filters, and optional true or false values for boolean flags.
 local-file-persistence: Create private Unix cache files and update symlinked credential configuration targets while retaining field order.
 diagnostic-device-recall: Search native device recall records, inspect exact recall numbers and follow product codes to MAUDE without inferring harm.
 organization-nci: Find source-native NCI organizations with bounded snapshots and local paging.
@@ -130,4 +130,6 @@ variant-clinvar-haplotype: Preserve native ClinVar haplotype kind, version, chro
 mcp-hosted: A server operator refuses host file saves, health details and store or key changes over every MCP transport in hosted mode; HTTP calls declare commercial or academic use with commercial defaults and server exclusions preserved, use caller source headers under declared fallback tiers without retaining credentials, pace each effective key independently, share keyless pacing, scale provider rates with --rate-share and cap whole-call time and active hosted HTTP work.
 
 source-pacing: Operators can lower source rates and simultaneous requests within documented source ceilings.
+
+drug-name-get: Resolve source names with the fixed single-term salt/ester rule in one get call, infer an unambiguous section source, report bounded alternatives and direct unresolved names to source search.
 trial-results: A caller pages posted outcome measures, source group values, dispersion and analyses, and adverse-event tables from the same registry record, with its first posting date.
