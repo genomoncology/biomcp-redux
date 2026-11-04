@@ -2,9 +2,7 @@ use super::{SPEC, raw};
 use biodata::PartialDate;
 use biomcp_fetch::Input;
 use biomcp_fetch::{Arg, BadReply, Freshness, Leg, ReplyMetadata, RequestError};
-use biomcp_types::{
-    AdverseEventHeader, AdverseEventSearch, AdverseEventSource,
-};
+use biomcp_types::{AdverseEventHeader, AdverseEventSearch, AdverseEventSource};
 /// One native ordered report page; no drug/reaction-array join.
 #[derive(Debug)]
 pub struct Page {

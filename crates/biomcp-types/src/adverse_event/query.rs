@@ -92,7 +92,10 @@ impl TryFrom<SearchFields> for AdverseEventSearch {
                 "problem",
             ]));
         }
-        if v.text.is_none() && v.drug.is_empty() && !(v.source == AdverseEventSource::Maude && maude_filter) {
+        if v.text.is_none()
+            && v.drug.is_empty()
+            && !(v.source == AdverseEventSource::Maude && maude_filter)
+        {
             return Err(QueryInvalid::new(&[
                 "text",
                 "manufacturer",
@@ -147,8 +150,14 @@ impl TryFrom<SearchFields> for AdverseEventSearch {
         if query.source() == AdverseEventSource::Faers
             && query.faers_expression().len() > super::faers::FAERS_QUERY_MAX_BYTES
         {
-            return Err(QueryInvalid::new(&["text", "drug", "reaction", "received_from", "received_to"])
-                .with_message(crate::ErrorMessage::FaersQueryLength));
+            return Err(QueryInvalid::new(&[
+                "text",
+                "drug",
+                "reaction",
+                "received_from",
+                "received_to",
+            ])
+            .with_message(crate::ErrorMessage::FaersQueryLength));
         }
         Ok(query)
     }
