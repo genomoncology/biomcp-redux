@@ -16,7 +16,19 @@ case "${1:-focused}" in
   focused)
     output="$HOME/workspace/t/biomcp-redux-0601-$(git rev-parse HEAD)"
     mkdir -p "$output/transcripts"
-    BIOMCP_TRANSCRIPT_DIR="$output/transcripts" python3.13 scripts/trials.py --installed drug-approvals/newest-submission-pages drug-approvals/undated-and-numeric-ties
+    cargo build --locked -p biomcp --bin biomcp
+    cargo test --locked -p biomcp --test cases --no-run --message-format=json > "$output/case-artifacts.jsonl"
+    runner=$(python3.13 - "$output/case-artifacts.jsonl" <<'RUNNER'
+import json
+from pathlib import Path
+import sys
+artifacts = [json.loads(line) for line in Path(sys.argv[1]).read_text().splitlines()]
+print(next(item['executable'] for item in artifacts if item.get('reason') == 'compiler-artifact'
+           and item.get('executable') and item['target']['name'] == 'cases'))
+RUNNER
+    )
+    binary="${CARGO_TARGET_DIR:-target}/debug/biomcp"
+    BIOMCP_TRANSCRIPT_DIR="$output/transcripts" python3.13 scripts/trials.py --installed --runner "$runner" --executable "$binary" drug-approvals/newest-submission-pages drug-approvals/undated-and-numeric-ties
     ;;
   cheap)
     make check-cheap
