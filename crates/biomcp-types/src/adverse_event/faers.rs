@@ -1,7 +1,8 @@
 //! One owner for escaped FAERS query generation and its local request bound.
 use super::AdverseEventSerious;
 /// BioMCP request budget for escaped FAERS expressions, including filters.
-/// Bounds repeated names before transport; openFDA publishes no search-length maximum.
+/// Bounds repeated names before transport. The publisher query-parameters reference
+/// (https://open.fda.gov/apis/query-parameters/) does not specify a search-length cap.
 pub(super) const FAERS_QUERY_MAX_BYTES: usize = 4096;
 fn literal(value: &str) -> String {
     format!("\"{}\"", value.replace('\\', "\\\\").replace('"', "\\\""))

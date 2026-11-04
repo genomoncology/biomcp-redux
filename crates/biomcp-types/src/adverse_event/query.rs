@@ -34,7 +34,7 @@ struct SearchFields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     text: Option<Text>,
-    /// FAERS literal drug name; repeat --drug for OR. OR inside one quoted value stays literal. Other filters AND with the names. FAERS_QUERY_MAX_BYTES caps the escaped native query at 4096 bytes.
+    /// FAERS literal drug name; repeat --drug for OR. OR inside one quoted value stays literal. Other filters AND with the names. BioMCP caps the escaped native query, including filters, at FAERS_QUERY_MAX_BYTES (4096 bytes).
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     drug: Vec<Text>,
     /// MAUDE manufacturer phrase on device.manufacturer_d_name. A report may list several devices; filters may match different devices.
