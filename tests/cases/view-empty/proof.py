@@ -29,8 +29,11 @@ def outputs(directory):
         record = json.loads(path.read_text())
         for execution in record.get('executions', []):
             args = execution.get('args', [])
-            if execution.get('surface') == 'cli' and args[-2:] == ['--format', 'json']:
-                result[tuple(args)] = bytes(execution['stdout'])
+            if execution.get('surface') != 'cli' or '--format' not in args:
+                continue
+            end = args.index('--format') + 2
+            if args[end - 1] == 'json':
+                result[tuple(args[:end])] = bytes(execution['stdout'])
     return result
 
 
