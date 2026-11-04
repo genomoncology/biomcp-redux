@@ -10,56 +10,59 @@ pub(super) fn search(cx: &Ctx<'_>, q: &GwasSearch) -> Outcome {
     let result = gwas::studies(&leg, q);
     let error = result.as_ref().err().copied();
     let mut source = status::source(Source::Gwas, leg.finish(), error);
-    if let Ok(rows) = result {
-        out.include_refusals(rows.refusals);
-        out.dropped |= rows.items.iter().any(|row| row.association_count.is_none());
-        out.problems.extend(rows.problems);
-        source.retrieved_count = Some(rows.items.len() as u32);
-        source.count = Some(rows.total);
-        let start = q.offset() - q.offset() % q.limit();
-        let continuation = (u64::from(start) + u64::from(rows.received) < rows.total)
-            .then(|| q.at_offset(start.saturating_add(rows.received)));
-        let page = PageInfo {
-            offset: q.offset(),
-            returned: rows.items.len() as u32,
-            total: rows.total,
-            pool: None,
-            truncated: None,
-        };
-        out.page = Some(page.clone());
-        if let Some(query) = &continuation {
-            out.next.push(crate::next::Step::run(
-                StepKind::Page,
-                &[Source::Gwas],
-                biomcp_types::Request::SearchGwas(query.clone()),
-                cx.fresh,
-            ));
-        }
-        for row in rows.items.iter().take(3) {
-            let get = biomcp_types::GwasGet::Study {
-                id: row.study.id.clone(),
-                section: None,
-                page: Default::default(),
+    match result {
+        Ok(rows) => {
+            out.include_refusals(rows.refusals);
+            out.dropped |= rows.items.iter().any(|row| row.association_count.is_none());
+            out.problems.extend(rows.problems);
+            source.retrieved_count = Some(rows.items.len() as u32);
+            source.count = Some(rows.total);
+            let start = q.offset() - q.offset() % q.limit();
+            let continuation = (u64::from(start) + u64::from(rows.received) < rows.total)
+                .then(|| q.at_offset(start.saturating_add(rows.received)));
+            let page = PageInfo {
+                offset: q.offset(),
+                returned: rows.items.len() as u32,
+                total: rows.total,
+                pool: None,
+                truncated: None,
             };
-            out.next.push(crate::next::Step::run(
-                StepKind::Pivot,
-                &[Source::Gwas],
-                get.into(),
+            out.page = Some(page.clone());
+            if let Some(query) = &continuation {
+                out.next.push(crate::next::Step::run(
+                    StepKind::Page,
+                    &[Source::Gwas],
+                    biomcp_types::Request::SearchGwas(query.clone()),
+                    cx.fresh,
+                ));
+            }
+            for row in rows.items.iter().take(3) {
+                let get = biomcp_types::GwasGet::Study {
+                    id: row.study.id.clone(),
+                    section: None,
+                    page: Default::default(),
+                };
+                out.next.push(crate::next::Step::run(
+                    StepKind::Pivot,
+                    &[Source::Gwas],
+                    get.into(),
+                    false,
+                ));
+            }
+            out.body = GwasStudyPage {
+                items: rows.items.into(),
+                page,
+                continuation,
+            }
+            .with_query(q.clone());
+            status::item(
+                &mut out,
+                true,
                 false,
-            ));
+                source.state == biomcp_types::SourceState::Stale,
+            );
         }
-        out.body = GwasStudyPage {
-            items: rows.items.into(),
-            page,
-            continuation,
-        }
-        .with_query(q.clone());
-        status::item(
-            &mut out,
-            true,
-            false,
-            source.state == biomcp_types::SourceState::Stale,
-        );
+        Err(_) => {}
     }
     out.sources.push(source);
     out.local = error.and_then(status::local);
