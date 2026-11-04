@@ -14,6 +14,10 @@ pub(super) fn render(
     collect(root, value, &mut calls);
     if calls.is_empty()
         && status == "usage"
+        && value
+            .pointer("/error/option")
+            .and_then(Value::as_str)
+            .is_none_or(|option| !option.starts_with('-'))
         && let Some(call) = replacement(root, args)
     {
         calls.push(call.to_string());
