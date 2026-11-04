@@ -82,7 +82,12 @@ fn discover(
 
 // openFDA reports an exhausted offset as a 404 without a total. Probe the same
 // selector at zero before paging, so absence never broadens an existing search.
-fn candidates(leg: &Leg<'_>, selector: &str, limit: u32, offset: u32) -> Result<Page, RequestError> {
+fn candidates(
+    leg: &Leg<'_>,
+    selector: &str,
+    limit: u32,
+    offset: u32,
+) -> Result<Page, RequestError> {
     if offset == 0 {
         return page(leg, selector, limit, offset, None);
     }
@@ -90,7 +95,12 @@ fn candidates(leg: &Leg<'_>, selector: &str, limit: u32, offset: u32) -> Result<
     let total = first.window.total().unwrap_or(0);
     if u64::from(offset) >= total {
         first.window = crate::NativeWindow::new(
-            Vec::new(), offset, limit, Some(total), 0, crate::Refusal::None,
+            Vec::new(),
+            offset,
+            limit,
+            Some(total),
+            0,
+            crate::Refusal::None,
         );
         return Ok(first);
     }

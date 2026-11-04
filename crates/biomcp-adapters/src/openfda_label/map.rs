@@ -22,19 +22,20 @@ impl RawRecord {
             version: self.version.clone(),
             // Display order: brand, generic, native product data, then SPL set ID.
             // Product text is preserved verbatim; it is never used for name resolution.
-            name: Some(self
-                .openfda
-                .brand_name
-                .iter()
-                .flatten()
-                .next()
-                .or_else(|| self.openfda.generic_name.iter().flatten().next())
-                .or_else(|| self.spl_product_data_elements.iter().flatten().next())
-                .cloned()
-                .map(Into::into)
-                .unwrap_or(self.set_id.to_string().parse().map_err(|_| {
-                    biomcp_fetch::bad_reply(biomcp_types::Source::OpenfdaLabel, Some(200))
-                })?)),
+            name: Some(
+                self.openfda
+                    .brand_name
+                    .iter()
+                    .flatten()
+                    .next()
+                    .or_else(|| self.openfda.generic_name.iter().flatten().next())
+                    .or_else(|| self.spl_product_data_elements.iter().flatten().next())
+                    .cloned()
+                    .map(Into::into)
+                    .unwrap_or(self.set_id.to_string().parse().map_err(|_| {
+                        biomcp_fetch::bad_reply(biomcp_types::Source::OpenfdaLabel, Some(200))
+                    })?),
+            ),
             identity_level: DrugIdentityLevel::SplSet,
             r#type: None,
             url: Some(self.url()?),
