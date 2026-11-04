@@ -1,5 +1,7 @@
 """Check stage diagnostics and incremental secret history against real Git."""
+import json
 import os
+import shutil
 import re
 import secrets
 from pathlib import Path
@@ -15,6 +17,32 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class GateStages(unittest.TestCase):
+    def test_ticket_launchers_submit_configured_gate_and_preserve_exit(self):
+        launchers = (('tls_cause_job.sh', 'gate'), ('hgnc_sync_proof_job.sh', 'routine'),
+                     ('check_nightly_tests.sh', 'routine'))
+        configured = json.loads((ROOT / 'sdlc/pm.json').read_text())['ticketsGate']
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            for directory in ('scripts', 'sdlc', 'bin', 'elsewhere'):
+                (root / directory).mkdir()
+            for name, _ in launchers:
+                shutil.copy2(ROOT / 'scripts' / name, root / 'scripts' / name)
+            (root / 'bin/python3').symlink_to(sys.executable)
+            shell = root / 'bin/sh'
+            shell.write_text('#!' + sys.executable + '\nimport json, sys\n'
+                             'print(json.dumps(sys.argv[1:]))\nsys.exit(23)\n')
+            shell.chmod(0o755)
+            env = {**environment(root), 'PATH': str(root / 'bin') + os.pathsep + os.defpath}
+            for command in (configured, "printf 'quoted \"value\"';\nexit 23\n"):
+                (root / 'sdlc/pm.json').write_text(json.dumps({'ticketsGate': command}))
+                for name, mode in launchers:
+                    with self.subTest(launcher=name, command=command):
+                        result = subprocess.run(['/bin/sh', str(root / 'scripts' / name), mode],
+                                                cwd=root / 'elsewhere', env=env,
+                                                capture_output=True, text=True)
+                        self.assertEqual(result.returncode, 23, result.stdout + result.stderr)
+                        self.assertEqual(json.loads(result.stdout), ['-c', command])
+
     def test_stage_reports_failure_and_stops(self):
         result = subprocess.run([sys.executable, str(ROOT / 'scripts/timed_stage.py'),
                                  'fixture', sys.executable, '-c', 'raise SystemExit(7)'],
