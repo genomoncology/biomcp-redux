@@ -1,6 +1,7 @@
 """Latest pointers move only after every install passes and version ordering admits it."""
 import json
 import os
+import shutil
 from pathlib import Path
 import subprocess
 import sys
@@ -127,7 +128,10 @@ for line in sys.stdin:
     print(json.dumps({'jsonrpc': '2.0', 'id': frame['id'], 'result': reply}), flush=True)
 ''')
             binary.chmod(0o700)
-            plugin(root, '1.0.0', Path.cwd(), binary)
+            source = root / 'plugin-source'
+            for name in ('.claude-plugin', 'skills'):
+                shutil.copytree(Path.cwd() / name, source / name)
+            plugin(root, '1.0.0', source, binary)
             self.assertTrue((root / 'home/.claude/plugins/installed_plugins.json').is_file())
 
     def test_installed_plugin_command_must_return_user_visible_help(self):
