@@ -9,7 +9,7 @@ use serde_json::{Value, json};
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        super::transcript_trial("trial-results/posted-values-and-event-pages", || {
+        super::transcript_trial(super::pool_contract::TRIAL_RESULTS.0, || {
             posted().map_err(|e| e.to_string().into())
         }),
         super::transcript_trial("trial-results/no-posted-results", || {

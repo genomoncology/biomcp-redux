@@ -41,10 +41,8 @@ pub struct Detail {
     /// Whole source intervention rows.
     pub interventions: Box<[TrialIntervention]>,
     /// Posted native results in source order.
-    #[serde(default)]
     pub results: Box<[biomcp_types::TrialResultRecord]>,
     /// Results first publicly posted date from the protocol status.
-    #[serde(default)]
     pub results_first_posted: Option<biodata::PartialDate>,
     /// Actual refused native records, including refused document manifest records.
     #[serde(default = "super::refusals::none", with = "super::refusals")]

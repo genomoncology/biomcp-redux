@@ -25,6 +25,9 @@ case "${1:-focused}" in
     make docs-check
     make schema-release-check
     ;;
+  cheap)
+    make check-cheap
+    ;;
   review)
     make docs-check
     make schema-release-check
@@ -66,5 +69,5 @@ SCANS
     cargo clippy --locked -p biomcp --test cases -- -D warnings
     cargo test --locked -p biomcp --test ratchets
     ;;
-  *) echo 'usage: check_trial_results.sh [prepare|focused|review BASE_COMMIT|scans BASE_COMMIT]' >&2; exit 2 ;;
+  *) echo 'usage: check_trial_results.sh [prepare|focused|cheap|review BASE_COMMIT|scans BASE_COMMIT]' >&2; exit 2 ;;
 esac
