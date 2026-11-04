@@ -236,7 +236,7 @@ fn coordinate_change(position: u64, reference: &str, alternate: &str) -> Option<
     let mut alternate = alternate;
     while !reference.is_empty()
         && !alternate.is_empty()
-        && reference.as_bytes()[0] == alternate.as_bytes()[0]
+        && reference.as_bytes().first() == alternate.as_bytes().first()
     {
         reference = &reference[1..];
         alternate = &alternate[1..];

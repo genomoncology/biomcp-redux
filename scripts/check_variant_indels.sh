@@ -6,6 +6,7 @@ export RUSTUP_TOOLCHAIN=1.95.0
 case "${1:-focused}" in
   focused)
     cargo fmt --all -- --check
+    make lint-workspace lint-tools
     cargo test --locked -p biomcp --test ratchets repository_obeys_structural_contract -- --exact
     cargo test --locked -p biomcp-types --test variant_coordinates coordinate_inputs
     make schema-generate
@@ -14,6 +15,7 @@ case "${1:-focused}" in
     make docs-generate
     git diff --binary > target/variant-indels-generated.patch
     cargo test --locked -p biomcp --test cases variant/id-forms/ -- --test-threads 2
+    if [ -n "${2:-}" ]; then sh "$0" scans "$2"; fi
     ;;
   scans)
     baseline=${2:?scans requires the reviewed baseline commit}
