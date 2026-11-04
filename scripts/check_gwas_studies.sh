@@ -13,6 +13,7 @@ case "${1:-focused}" in
     ;;
   focused)
     export BIOMCP_BUILD_REVISION=$(git rev-parse HEAD)
+    make docs-generate
     cargo build --locked -p biomcp --bin biomcp
     mkdir -p target/gwas-studies
     cargo test --locked -p biomcp --test cases --no-run --message-format=json > target/gwas-studies/artifact.json
