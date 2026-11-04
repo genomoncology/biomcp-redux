@@ -10,6 +10,10 @@ pub(super) fn check() -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     env.config(&json!({"mcp_tool_mode":"typed","hosted_max_use":"commercial"}))
         .map_err(|e| e.to_string())?;
+    hosted(&env)?;
+    boundaries(&env)
+}
+fn hosted(env: &Environment) -> Result<(), String> {
     let frames = [
         request(
             json!(1),
@@ -27,7 +31,7 @@ pub(super) fn check() -> Result<(), String> {
             json!({"name":"article_pdf","arguments":{"input":"28944238","save":"saved.pdf"}}),
         ),
     ];
-    let replies = exchange_with_globals(&env, &frames, &["--offline".into(), "--hosted".into()])?;
+    let replies = exchange_with_globals(env, &frames, &["--offline".into(), "--hosted".into()])?;
     let server = Server::configured_globals(
         "127.0.0.1:0",
         Some(json!({"mcp_tool_mode":"typed","hosted_max_use":"commercial"})),
@@ -70,12 +74,15 @@ pub(super) fn check() -> Result<(), String> {
             return Err("typed save escaped hosted refusal".into());
         }
     }
+    Ok(())
+}
+fn boundaries(env: &Environment) -> Result<(), String> {
     let hostile = request(
         json!(8),
         "tools/call",
         json!({"name":"get_gene","arguments":{"input":["--help"]}}),
     );
-    let reply = exchange_with_globals(&env, &[hostile], &["--offline".into()])?;
+    let reply = exchange_with_globals(env, &[hostile], &["--offline".into()])?;
     if reply
         .first()
         .ok_or("missing reply")?
