@@ -35,6 +35,9 @@ PY
         output="$folder/source/$(echo "$file" | tr / _)"
         if [ "$side" = baseline ]; then git show "$baseline:$file" > "$output"; else cp "$file" "$output"; fi
       done
+      if [ "$side" = current ]; then
+        cp crates/biomcp-types/tests/variant_coordinates.rs "$folder/source/variant_coordinates.rs"
+      fi
       "$scanner" "$folder/source" --format rust --max-size 10mb --reporters console,json --output "$folder/report"
     done
     ;;
