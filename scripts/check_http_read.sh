@@ -8,8 +8,6 @@ case "${1:-focused}" in
   focused)
     export RUSTUP_TOOLCHAIN="$(python3.13 release/toolchain.py get rust)"
     mkdir -p target/http-read
-    rustc --edition 2024 --test crates/biomcp/tests/runner/socket_read.rs -o target/http-read/read-tests
-    target/http-read/read-tests
     cargo fmt --all -- --check
     cargo clippy --locked -p biomcp --test cases --test tools -- -D warnings
     cargo test --locked -p biomcp --test tools --no-run --message-format=json > target/http-read/tools.jsonl
@@ -18,7 +16,8 @@ import json, subprocess
 from pathlib import Path
 rows = [json.loads(line) for line in Path('target/http-read/tools.jsonl').read_text().splitlines()]
 runner, = [row['executable'] for row in rows if row.get('reason') == 'compiler-artifact' and row.get('target', {}).get('name') == 'tools' and row.get('executable')]
-subprocess.run([runner, '--proofs', 'mcp-http/early-close-is-rejected', '--exact'], check=True)
+for proof in ['mcp-http/read-retries-only-interrupted', 'mcp-http/early-close-is-rejected']:
+    subprocess.run([runner, '--proofs', proof, '--exact'], check=True)
 PYTHON
     ;;
   container)
@@ -50,8 +49,6 @@ PYTHON
     export PATH="$HOME/.cargo/bin:/opt/python/cp$python_series-cp$python_series/bin:$PATH"
     mkdir -p "$HOME"
     python release/toolchain.py install-rust
-    rustc --edition 2024 --test crates/biomcp/tests/runner/socket_read.rs -o "$CARGO_TARGET_DIR/read-tests"
-    "$CARGO_TARGET_DIR/read-tests"
     cargo test --locked -p biomcp --test cases --test tools --no-run --message-format=json > target/http-read-linux/runner.jsonl
     mkdir -p target/http-read-linux/installed
     tar -xzf /artifacts/biomcp-linux-x86_64.tar.gz -C target/http-read-linux/installed
@@ -62,7 +59,8 @@ from release.artifacts import candidate_record
 rows = [json.loads(line) for line in Path('target/http-read-linux/runner.jsonl').read_text().splitlines()]
 executables = {row['target']['name']: row['executable'] for row in rows if row.get('reason') == 'compiler-artifact' and row.get('executable')}
 runner = executables['cases']
-subprocess.run([executables['tools'], '--proofs', 'mcp-http/early-close-is-rejected', '--exact'], check=True)
+for proof in ['mcp-http/read-retries-only-interrupted', 'mcp-http/early-close-is-rejected']:
+    subprocess.run([executables['tools'], '--proofs', proof, '--exact'], check=True)
 record = candidate_record(Path('/artifacts'), os.environ['BIOMCP_BUILD_REVISION'])
 binary = Path('target/http-read-linux/installed/biomcp').resolve()
 assert hashlib.sha256(binary.read_bytes()).hexdigest() == record['binary_sha256']
