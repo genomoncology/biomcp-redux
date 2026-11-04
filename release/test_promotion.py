@@ -92,5 +92,32 @@ if name == 'gh' and sys.argv[1:3] == ['release', 'edit'] and os.environ['GITHUB_
                     self.assertEqual(len(actual), 1, 'failed or ineligible promotion must leave both pointers unchanged')
 
 
+class PluginInstall(unittest.TestCase):
+    def test_missing_claude_does_not_report_plugin_pass(self):
+        from release.published import plugin
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            with self.assertRaisesRegex(ValueError, 'was not run'):
+                plugin(root, '1.0.0', root, root / 'biomcp', claude=str(root / 'absent'))
+
+    def test_installed_plugin_command_must_return_user_visible_help(self):
+        from release.smoke import mcp_probe
+        from release.smoke import environment
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            binary = root / 'server.py'
+            binary.write_text('''import json, sys
+for line in sys.stdin:
+    frame = json.loads(line)
+    if 'id' not in frame: continue
+    reply = {1: {'serverInfo': {'version': '1.0.0'}},
+             2: {'tools': [{'name': 'biomcp'}]},
+             3: {'isError': False, 'structuredContent': {'result': {'commands': []}}}}[frame['id']]
+    print(json.dumps({'jsonrpc': '2.0', 'id': frame['id'], 'result': reply}), flush=True)
+''')
+            with self.assertRaisesRegex(ValueError, 'did not return help commands'):
+                mcp_probe([sys.executable, str(binary)], environment(root), root, '1.0.0', call_args=['help'])
+
+
 if __name__ == '__main__':
     unittest.main()
