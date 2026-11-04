@@ -190,7 +190,6 @@ impl DrugSource {
         }
         let value = input.to_string();
         value.len() == 10
-            && value.bytes().any(|b| b.is_ascii_digit())
             && value
                 .bytes()
                 .all(|b| b.is_ascii_uppercase() || b.is_ascii_digit())

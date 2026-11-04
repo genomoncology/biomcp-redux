@@ -64,7 +64,17 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
         Ok(resolved) => resolved,
         Err(_) => return super::rejected_input(query.source(), "input", discovery),
     };
-    let mut out = super::selected_get(&within(cx, deadline.remaining()), &resolved);
+    let out = super::selected_get(&within(cx, deadline.remaining()), &resolved);
+    chosen_name(query, rank.0, &candidates, discovery, out)
+}
+
+fn chosen_name(
+    query: &DrugGet,
+    rank: u8,
+    candidates: &[(Rank, DrugHeader)],
+    discovery: Outcome,
+    mut out: Outcome,
+) -> Outcome {
     let ranking = (if query.source() == DrugSource::Drugsfda {
         "exact brand before generic; NDA/BLA before ANDA, then earliest approval"
     } else {
@@ -73,7 +83,7 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     .into();
     let resolution = DrugNameResolution {
         input: query.input().clone(),
-        basis: if rank.0 == 0 {
+        basis: if rank == 0 {
             DrugNameMatch::Brand
         } else {
             DrugNameMatch::Generic
