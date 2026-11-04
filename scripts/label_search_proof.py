@@ -8,6 +8,7 @@ import subprocess
 import sys
 import tarfile
 import tempfile
+import urllib.error
 import urllib.parse
 import urllib.request
 
@@ -71,13 +72,24 @@ def live():
                         raise ValueError('source page repeats an SPL set')
                     seen.update(ids)
                     if offset == 0:
-                        term = reply['sources'][0].get('term')
-                        selector = term or f'openfda.brand_name.exact:"{query}" OR openfda.generic_name.exact:"{query}"'
-                        url = 'https://api.fda.gov/drug/label.json?' + urllib.parse.urlencode({'search': selector, 'limit': 1})
-                        with urllib.request.urlopen(url) as response:
-                            native = response.read()
-                        (PROOF / f'{stem}-source.json').write_bytes(native)
-                        if json.loads(native)['meta']['results']['total'] != total:
+                        selectors = [f'openfda.brand_name{suffix}:"{query}" OR openfda.generic_name{suffix}:"{query}"'
+                                     for suffix in ['.exact', '']]
+                        selectors.append('"' + query + '"')
+                        for index, selector in enumerate(selectors):
+                            url = 'https://api.fda.gov/drug/label.json?' + urllib.parse.urlencode({'search': selector, 'limit': 1})
+                            try:
+                                with urllib.request.urlopen(url) as response:
+                                    native = response.read()
+                            except urllib.error.HTTPError as error:
+                                if error.code != 404:
+                                    raise
+                                native = error.read()
+                            (PROOF / f'{stem}-source-{index}.json').write_bytes(native)
+                            native_total = json.loads(native).get('meta', {}).get('results', {}).get('total', 0)
+                            if native_total:
+                                break
+                        (PROOF / f'{stem}-source-selector.json').write_text(json.dumps({'url': url, 'selector': selector, 'total': native_total}))
+                        if native_total != total:
                             raise ValueError('source total differs for the same selector')
                     offset += len(items)
                     if offset >= total:
