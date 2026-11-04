@@ -33,7 +33,7 @@ class MakeGoalTests(unittest.TestCase):
                         'exec ' + shlex.quote(sys.executable) + ' "$@"\n')
         self.executable('fake-ssh/ssh', '#!/bin/sh\necho isolated-ssh\n')
         (self.root / 'Makefile').write_text(
-            'targeted-check docs-check:\n\tpython3 probe.py\n')
+            'targeted-check docs-check:\n\tpython3 probe.py\nssh-check:\n\tssh\n')
         (self.root / 'probe.py').write_text('''import json, os, pathlib, shutil, subprocess, sys, tomllib
 assert tomllib.loads('answer = 42')['answer'] == 42
 print(json.dumps({'python': str(pathlib.Path(sys.executable).resolve()),
@@ -41,7 +41,7 @@ print(json.dumps({'python': str(pathlib.Path(sys.executable).resolve()),
                   'rust': subprocess.check_output(['rustc', '--version'], text=True).strip(),
                   'toolchain': os.environ['RUSTUP_TOOLCHAIN']}), flush=True)
 os.environ['PATH'] = str(pathlib.Path('fake-ssh').resolve()) + os.pathsep + os.environ['PATH']
-subprocess.run(['ssh'], check=True)
+subprocess.run(['make', '--no-print-directory', 'ssh-check'], check=True)
 ''')
 
     def executable(self, name, content):
