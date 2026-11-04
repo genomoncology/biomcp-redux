@@ -15,7 +15,7 @@ pub(crate) fn proof() -> Result<(), String> {
     struct Scripted(std::vec::IntoIter<io::Result<usize>>);
     impl Read for Scripted {
         fn read(&mut self, _: &mut [u8]) -> io::Result<usize> {
-            self.0.next().expect("unexpected extra read")
+            self.0.next().unwrap_or_else(|| Err(io::Error::other("unexpected extra read")))
         }
     }
     let mut reader = Scripted(vec![Err(io::ErrorKind::Interrupted.into()), Ok(0)].into_iter());
