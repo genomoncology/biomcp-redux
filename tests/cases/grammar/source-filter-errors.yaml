@@ -80,6 +80,31 @@
     {
       "run": [
         "search",
+        "diagnostic",
+        "--source",
+        "gtr",
+        "--gene",
+        "BRAF",
+        "--marker",
+        "malaria"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/option": "--marker",
+        "/error/valid_values": [
+          "who-ivd"
+        ],
+        "/next/0/args": [
+          "help",
+          "search",
+          "diagnostic"
+        ]
+      }
+    },
+    {
+      "run": [
+        "search",
         "biomarker",
         "--source",
         "gtr",

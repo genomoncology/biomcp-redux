@@ -177,7 +177,7 @@ pub(super) fn source_filter(
         let Some(filter_value) = value.get(name) else {
             continue;
         };
-        let valid = accepting_sources(via, (verb, entity), value, &schema, cause, name)?;
+        let valid = accepting_sources(via, (verb, entity), value, &schema, name)?;
         if valid.is_empty() || valid.iter().any(|candidate| candidate.as_str() == source) {
             continue;
         }
@@ -212,38 +212,71 @@ fn accepting_sources(
     path: (&str, &str),
     value: &serde_json::Value,
     schema: &serde_json::Value,
-    cause: &biomcp_types::QueryInvalid,
     name: &str,
 ) -> Option<Vec<biodata::Text>> {
-    let (verb, entity) = path;
     let sources = super::validation::accepted(schema, schema.get("properties")?.get("source")?)?;
+    Some(
+        sources
+            .iter()
+            .filter(|source| {
+                accepts_filter(via, path, value, schema, name, source.as_str()).unwrap_or(false)
+            })
+            .cloned()
+            .collect(),
+    )
+}
+
+// Remove only other filters a candidate source rejects. Keep positional operands
+// and dependent filters, so the owning constructor remains the compatibility rule.
+fn accepts_filter(
+    via: biomcp_types::Rewrite,
+    path: (&str, &str),
+    value: &serde_json::Value,
+    schema: &serde_json::Value,
+    name: &str,
+    source: &str,
+) -> Option<bool> {
     let mut isolated = value.as_object()?.clone();
-    for other in cause.arguments().iter().map(AsRef::as_ref) {
-        if other != name
-            && other != "source"
-            && !schema
-                .get("required")
-                .and_then(serde_json::Value::as_array)
-                .is_some_and(|required| required.iter().any(|value| value.as_str() == Some(other)))
+    isolated.insert("source".into(), source.into());
+    loop {
+        let Err(cause) = super::rewrite::request(
+            via,
+            path.0,
+            path.1,
+            serde_json::Value::Object(isolated.clone()),
+        ) else {
+            return Some(true);
+        };
+        if !cause
+            .arguments()
+            .iter()
+            .any(|name| name.as_ref() == "source")
         {
-            isolated.remove(other);
+            return Some(false);
+        }
+        let mut removed = false;
+        for other in cause.arguments().iter().map(AsRef::as_ref) {
+            if other == name
+                || other == "source"
+                || schema
+                    .get("properties")?
+                    .get(other)
+                    .is_none_or(|property| property.get("x-positional").is_some())
+                || schema
+                    .get("required")
+                    .and_then(serde_json::Value::as_array)
+                    .is_some_and(|required| {
+                        required.iter().any(|value| value.as_str() == Some(other))
+                    })
+            {
+                continue;
+            }
+            removed |= isolated.remove(other).is_some();
+        }
+        if !removed {
+            return Some(false);
         }
     }
-    let valid: Vec<_> = sources
-        .iter()
-        .filter(|candidate| {
-            isolated.insert("source".into(), candidate.as_str().into());
-            super::rewrite::request(
-                via,
-                verb,
-                entity,
-                serde_json::Value::Object(isolated.clone()),
-            )
-            .is_ok()
-        })
-        .cloned()
-        .collect();
-    Some(valid)
 }
 
 fn replacement_step(
