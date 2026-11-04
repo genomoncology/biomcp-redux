@@ -71,6 +71,28 @@
           ]
         }
       }
+    },
+    {
+      "run": [
+        "get",
+        "variant",
+        "1-1-A-TA"
+      ],
+      "exit": 4,
+      "expect": {
+        "/status": "failed",
+        "/sources/0/reason": "rejected",
+        "/problems/*/field": {
+          "includes_all_of": [
+            "input: IncorrectReferenceAllele: expected reference N"
+          ]
+        },
+        "": {
+          "omits": [
+            "result"
+          ]
+        }
+      }
     }
   ]
 }

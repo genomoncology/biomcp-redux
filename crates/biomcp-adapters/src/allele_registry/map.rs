@@ -62,7 +62,7 @@ fn rejection(raw: &RawAllele, error: &Text) -> Resolution {
         .filter(|actual| {
             error.as_str() == "IncorrectReferenceAllele"
                 && !actual.as_str().is_empty()
-                && actual.as_str().bytes().all(|base| b"ACGT".contains(&base))
+                && actual.as_str().bytes().all(|base| b"ACGTN".contains(&base))
         });
     let Some(actual) = actual else {
         return Resolution::Rejected(error.clone());

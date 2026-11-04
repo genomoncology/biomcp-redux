@@ -5,3 +5,5 @@ The indel rows add unchanged public replies captured on 2026-11-04 from CAR and 
 Coordinate rules: [VCF 4.4 REF/ALT padding](https://github.com/samtools/hts-specs/blob/master/VCFv4.4.tex), [HGVS deletion-insertion](https://hgvs-nomenclature.org/main/recommendations/DNA/delins/), and [CAR API specification](https://reg.genome.network/doc/AlleleRegistry_1.01.xx_api_v1.pdf), pages 6 and 18, for IncorrectReferenceAllele and GET allele-by-definition. A chromosome's accession comes from the existing assembly table; CAR supplies normalization and any duplication notation. No clinical interpretation is inferred.
 
 The three free-text search rows reuse the existing synthetic empty MyVariant reply with only the query wrapper changed; they prove argument mapping, not live search recall. A live MyVariant search capture timed out and is not used as evidence of an empty result.
+
+The contig-start mismatch uses another unchanged CAR reply: `NC_000001.11:g.1delAinsTA` reports `actualAllele: N`. Only the source error display admits N; coordinate inputs retain their ACGT alphabet.
