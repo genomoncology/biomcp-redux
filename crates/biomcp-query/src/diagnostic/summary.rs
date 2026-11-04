@@ -10,14 +10,16 @@ pub(super) fn get(cx: &Ctx<'_>, q: &DiagnosticGet) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let leg = cx.fetch.leg(&fda_pma::DOCUMENTS, deadline).fresh(cx.fresh);
-    // FDA's published base SSED document convention; supplements have independent documents.
+    // FDA's legacy archive uses pdf/ (P010013, P970043); later folders are unpadded (P020014 -> pdf2/).
+    // See the Summary links on those FDA PMA records; supplements have independent documents.
     let id = q.id().as_str();
-    let url = format!(
-        "https://www.accessdata.fda.gov/cdrh_docs/pdf{}/{}B.pdf",
-        id.get(1..3).unwrap_or_default(),
-        id
-    )
-    .parse();
+    let year = id.get(1..3).unwrap_or_default();
+    let directory = if ("02"..="69").contains(&year) {
+        format!("pdf{}", year.trim_start_matches('0'))
+    } else {
+        "pdf".into()
+    };
+    let url = format!("https://www.accessdata.fda.gov/cdrh_docs/{directory}/{id}B.pdf").parse();
     let result = url
         .map_err(|_| biomcp_fetch::bad_reply(q.source().source(), None))
         .and_then(|url| pdf::read(&leg, &fda_pma::DOCUMENTS, &url, q.section_offset()));

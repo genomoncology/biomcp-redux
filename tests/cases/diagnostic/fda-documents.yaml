@@ -44,6 +44,38 @@
         }
       },
       "max_bytes": 20000
+    },
+    {
+      "run": [
+        "get",
+        "diagnostic",
+        "P020014",
+        "summary",
+        "--source",
+        "fda-pma"
+      ],
+      "expect": {
+        "/result/document/url": "https://www.accessdata.fda.gov/cdrh_docs/pdf2/P020014B.pdf",
+        "/result/document/pages": 24,
+        "/result/document/state": "text"
+      },
+      "max_bytes": 9500
+    },
+    {
+      "run": [
+        "get",
+        "diagnostic",
+        "P010013",
+        "summary",
+        "--source",
+        "fda-pma"
+      ],
+      "expect": {
+        "/result/document/url": "https://www.accessdata.fda.gov/cdrh_docs/pdf/P010013B.pdf",
+        "/result/document/pages": 21,
+        "/result/document/state": "text"
+      },
+      "max_bytes": 9500
     }
   ]
 }
