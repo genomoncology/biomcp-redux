@@ -56,6 +56,7 @@ for label, selected in [('baseline', previous), ('current', paths)]:
                     '--reporters', 'json', '--output', str(root / label)], check=True)
 print('Scoped Rust scanner baseline:', baseline)
 SCANS
+    make schema-release-check
     cargo clippy --locked -p biomcp --test cases -- -D warnings
     cargo test --locked -p biomcp --test ratchets
     ;;

@@ -25,15 +25,7 @@ fn posted() -> Check {
     copy_capture("trial/results/NCT01844505", &replay, |_, _| {})?;
     let first = command(
         &env,
-        &[
-            "get",
-            "trial",
-            "NCT01844505",
-            "results",
-            "--section-limit",
-            "3",
-        ]
-        .map(str::to_owned),
+        &["get", "trial", "NCT01844505", "results", "--limit", "50"].map(str::to_owned),
         &env.globals(Some(&replay), false),
         0,
     )?;
