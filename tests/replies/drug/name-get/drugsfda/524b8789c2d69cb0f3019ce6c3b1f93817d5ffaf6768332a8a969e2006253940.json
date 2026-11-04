@@ -1,7 +1,7 @@
 {
   "method": "GET",
   "source": "drugsfda",
-  "url": "https://api.fda.gov/drug/drugsfda.json?search=products.brand_name.exact%3A%22Example%20ingredient%22%20OR%20products.active_ingredients.name.exact%3A%22Example%20ingredient%22&limit=50",
+  "url": "https://api.fda.gov/drug/drugsfda.json?search=products.brand_name%3A%22eXaMpLe%20BrAnD%22%20OR%20products.active_ingredients.name%3A%22eXaMpLe%20BrAnD%22&limit=50",
   "exchanges": [
     {
       "fetched": 1793329799,
@@ -27,7 +27,7 @@
               "products": [
                 {
                   "product_number": "001",
-                  "brand_name": "Example brand",
+                  "brand_name": "Example ingredient",
                   "active_ingredients": [
                     {
                       "name": "Example ingredient",

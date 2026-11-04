@@ -122,7 +122,8 @@ impl DrugSearch {
             .unwrap_or(super::DrugNameSelector::Preferred)
     }
 }
-/// Retrieve a native ID or an exact brand or generic name. Brand matches rank first; Drugs@FDA then ranks original applications before ANDAs and earliest approval first; other sources retain search order.
+/// Retrieve a native ID or a complete source name.
+/// Brands rank first; Drugs@FDA then prefers original applications and earliest approval, otherwise source search order.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "GetFields")]
 pub struct DrugGet {

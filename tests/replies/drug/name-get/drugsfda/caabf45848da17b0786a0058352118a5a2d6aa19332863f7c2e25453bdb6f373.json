@@ -1,7 +1,7 @@
 {
   "method": "GET",
   "source": "drugsfda",
-  "url": "https://api.fda.gov/drug/drugsfda.json?search=products.brand_name.exact%3A%22Broken%20name%22%20OR%20products.active_ingredients.name.exact%3A%22Broken%20name%22&limit=50",
+  "url": "https://api.fda.gov/drug/drugsfda.json?search=products.brand_name%3A%22Broken%20name%22%20OR%20products.active_ingredients.name%3A%22Broken%20name%22&limit=50",
   "exchanges": [
     {
       "fetched": 1793329799,

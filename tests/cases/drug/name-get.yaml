@@ -28,7 +28,8 @@
           "NDA021588",
           "--source",
           "drugsfda"
-        ]
+        ],
+        "/result/identity/name_resolution/basis": "generic"
       },
       "max_bytes": 9000
     },
@@ -44,7 +45,8 @@
       "exit": 0,
       "expect": {
         "/result/identity/id": "NDA021335",
-        "/result/identity/name_resolution/total": 8
+        "/result/identity/name_resolution/total": 7,
+        "/result/identity/name_resolution/basis": "brand"
       },
       "max_bytes": 9000
     },
@@ -58,7 +60,8 @@
       "exit": 0,
       "expect": {
         "/result/identity/id": "ANDA000002",
-        "/result/identity/name_resolution/total": 2
+        "/result/identity/name_resolution/total": 2,
+        "/result/identity/name_resolution/basis": "brand"
       },
       "max_bytes": 9000
     },
@@ -192,6 +195,124 @@
         "/result/identity/name_resolution/total": 1
       },
       "max_bytes": 9000
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "Example medicine"
+      ],
+      "exit": 0,
+      "expect": {
+        "/status": "complete",
+        "/query/source": "mychem",
+        "/query/input": "KTUFNOKKBVMGRW-UHFFFAOYSA-N",
+        "/result/header/id": "KTUFNOKKBVMGRW-UHFFFAOYSA-N",
+        "/result/header/name_resolution/total": 1
+      },
+      "max_bytes": 9000
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "Compound one",
+        "approvals"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/identity/id": "NDA001111",
+        "/result/identity/name_resolution/basis": "generic"
+      },
+      "max_bytes": 9000
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "Compound one hydrochloride",
+        "approvals"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/identity/id": "NDA001111",
+        "/result/identity/name_resolution/basis": "generic"
+      },
+      "max_bytes": 9000
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "Brand salt",
+        "approvals"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/identity/id": "NDA001111",
+        "/result/identity/name_resolution/basis": "brand"
+      },
+      "max_bytes": 9000
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "Compound",
+        "approvals"
+      ],
+      "exit": 2,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/next/0/args": [
+          "search",
+          "drug",
+          "Compound",
+          "--source",
+          "drugsfda"
+        ]
+      },
+      "max_bytes": 1500
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "Unlisted medicine",
+        "approvals"
+      ],
+      "exit": 2,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/next/0/args": [
+          "search",
+          "drug",
+          "Unlisted medicine",
+          "--source",
+          "drugsfda"
+        ]
+      },
+      "max_bytes": 1500
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "Double medicine",
+        "approvals"
+      ],
+      "exit": 2,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/next/0/args": [
+          "search",
+          "drug",
+          "Double medicine",
+          "--source",
+          "drugsfda"
+        ]
+      },
+      "max_bytes": 1500
     }
   ]
 }

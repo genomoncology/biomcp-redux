@@ -4,6 +4,10 @@ set -eu
 export RUSTUP_TOOLCHAIN=1.95.0
 case "${1:-focused}" in
   routine) exec sh scripts/check_nightly_tests.sh routine ;;
+  prepare-focused)
+    sh "$0" prepare
+    sh "$0" focused
+    ;;
   prepare)
     cargo fmt --all
     git diff --binary > target/drug-names-format.patch
@@ -11,6 +15,7 @@ case "${1:-focused}" in
     UPDATE_SCHEMAS=1 cargo test --locked -p biomcp-types --features schema --test schemas checked_in_schemas_match_types -- --exact
     git diff --binary > target/drug-names-prepare.patch
     ;;
+  live) python3 scripts/drug_names_proof.py live ;;
   witness) python3 scripts/drug_names_proof.py witness ;;
   parity)
     python3 scripts/drug_names_proof.py extract

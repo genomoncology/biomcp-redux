@@ -1,5 +1,5 @@
-use biodata::DrugId;
 use super::DrugSection;
+use biodata::DrugId;
 use serde::{Deserialize, Serialize};
 /// One explicitly selected drug source; omitted search source means MyChem alone.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -117,7 +117,6 @@ impl DrugSource {
     }
 }
 
-
 impl DrugSource {
     /// Check only published ID grammar for this endpoint, without inferring identity level or joining records.
     pub fn accepts(self, id: &DrugId) -> bool {
@@ -155,7 +154,6 @@ impl DrugSource {
     }
 }
 
-
 pub(super) fn civic_id(value: &str) -> Option<std::num::NonZeroU32> {
     if !value.bytes().all(|byte| byte.is_ascii_digit()) {
         return None;
@@ -187,9 +185,12 @@ impl DrugSource {
         if self != Self::Mychem {
             return self.accepts(input);
         }
-        if !self.accepts(input) { return false; }
+        if !self.accepts(input) {
+            return false;
+        }
         let value = input.to_string();
         value.len() == 10
+            && value.bytes().any(|b| b.is_ascii_digit())
             && value
                 .bytes()
                 .all(|b| b.is_ascii_uppercase() || b.is_ascii_digit())

@@ -267,6 +267,8 @@ impl ResponseBody for DrugXrefs {
 pub struct DrugNameResolution {
     /// Original complete name matched case-insensitively.
     pub input: Text,
+    /// Name basis selected after demoting a brand identical to its own ingredient.
+    pub basis: super::DrugNameMatch,
     /// Applied ambiguity ordering.
     pub ranking: Text,
     /// Total exact source records, including the selected record.

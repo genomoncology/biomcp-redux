@@ -99,5 +99,37 @@ def witness():
         print(json.dumps(metadata, indent=2))
 
 
+def live():
+    destination = (PROOFS / 'live').resolve()
+    destination.mkdir(parents=True, exist_ok=True)
+    config = destination / 'config.json'
+    config.write_text('{}\n')
+    binary = Path('target/drug-names-installed/bin/biomcp').resolve()
+    common = [str(binary), '--config', str(config), '--case-cache', str(destination / 'cache'),
+              '--record', str(destination / 'recordings'), '--fresh']
+    replies = []
+    for index, name in enumerate(['imatinib', 'Gleevec', 'imatinib mesylate', 'no such medicine anywhere']):
+        args = ['get', 'drug', name, 'approvals', '--section-limit', '1']
+        if name == 'Gleevec':
+            args += ['--source', 'drugsfda']
+        result = subprocess.run([*common, *args], capture_output=True, check=False)
+        (destination / f'{index}-stdout.json').write_bytes(result.stdout)
+        (destination / f'{index}-stderr.txt').write_bytes(result.stderr)
+        value = json.loads(result.stdout)
+        if index < 3:
+            if result.returncode != 0 or value.get('result', {}).get('identity', {}).get('id') != 'NDA021335':
+                raise ValueError(f'live name did not select the original Gleevec application; see {destination}/{index}-stdout.json')
+            identity = value['result']['identity']
+            replies.append({'input': name, 'id': identity['id'], 'name_resolution': identity['name_resolution']})
+        else:
+            expected = ['search', 'drug', name, '--source', 'drugsfda']
+            if result.returncode != 2 or value.get('next', [{}])[0].get('args') != expected:
+                raise ValueError('unresolved live name lost the exact next search command')
+    binding = {'source_commit': subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip(),
+               'binary_sha256': hashlib.sha256(binary.read_bytes()).hexdigest(), 'replies': replies}
+    (destination / 'source-bindings.json').write_text(json.dumps(binding, indent=2) + '\n')
+    print(json.dumps(binding, indent=2))
+
+
 if __name__ == '__main__':
-    {'extract': extract, 'compare': compare, 'witness': witness}[sys.argv[1]]()
+    {'extract': extract, 'compare': compare, 'witness': witness, 'live': live}[sys.argv[1]]()

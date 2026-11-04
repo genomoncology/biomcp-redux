@@ -130,4 +130,4 @@ mcp-hosted: A server operator refuses host file saves, health details and store 
 
 source-pacing: Operators can lower source rates and simultaneous requests within documented source ceilings.
 
-drug-name-get: Resolve exact source brand or generic names in one get call, infer an unambiguous section source, report bounded alternatives and direct unresolved names to source search.
+drug-name-get: Resolve source names with the fixed single-term salt/ester rule in one get call, infer an unambiguous section source, report bounded alternatives and direct unresolved names to source search.

@@ -27,7 +27,7 @@
               "products": [
                 {
                   "product_number": "001",
-                  "brand_name": "Example brand",
+                  "brand_name": "Example ingredient",
                   "active_ingredients": [
                     {
                       "name": "Example ingredient",

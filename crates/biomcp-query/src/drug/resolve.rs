@@ -28,24 +28,19 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     } else {
         discover(cx, &search)
     };
-    if discovery
-        .sources
-        .iter()
-        .any(|s| s.state != biomcp_types::SourceState::Ok)
+    if discovery.dropped
+        || discovery
+            .sources
+            .iter()
+            .any(|s| s.state != biomcp_types::SourceState::Ok)
     {
+        status::item(&mut discovery, false, true, false);
         return discovery;
     }
     candidates.sort_by(|a, b| a.0.cmp(&b.0));
     let mut seen = std::collections::BTreeSet::new();
     candidates.retain(|(_, header)| seen.insert(header.id.to_string()));
-    let Some((_, selected)) = candidates.first() else {
-        if discovery
-            .sources
-            .iter()
-            .any(|s| s.state != biomcp_types::SourceState::Ok)
-        {
-            return discovery;
-        }
+    let Some((rank, selected)) = candidates.first() else {
         discovery.body = ReplyData::Usage(UsageError::Arguments(UsageArguments {
             argument: Some("input".into()),
             next: vec![Step {
@@ -77,6 +72,11 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     };
     let resolution = DrugNameResolution {
         input: query.input().clone(),
+        basis: if rank.0 == 0 {
+            DrugNameMatch::Brand
+        } else {
+            DrugNameMatch::Generic
+        },
         ranking,
         total: candidates.len() as u64,
         alternatives: candidates
@@ -113,7 +113,11 @@ fn discover(cx: &Ctx<'_>, search: &DrugSearch) -> (Outcome, Vec<(Rank, DrugHeade
     let mut query = search.clone();
     let mut out = super::search(&within(cx, deadline.remaining()), &query);
     let mut candidates = Vec::new();
+    let mut incomplete = false;
+    let mut problems = Vec::new();
     loop {
+        incomplete |= out.dropped;
+        problems.append(&mut out.problems);
         if let ReplyData::DrugPage {
             body: Some(page), ..
         } = &out.body
@@ -124,11 +128,11 @@ fn discover(cx: &Ctx<'_>, search: &DrugSearch) -> (Outcome, Vec<(Rank, DrugHeade
                     Some(DrugNameMatch::Generic) => Some(1),
                     _ if header.name.as_ref().is_some_and(|n| {
                         search.query().is_some_and(|q| {
-                            biomcp_types::DrugNameMatch::same_name(n.as_str(), q.as_str())
+                            biomcp_types::DrugNameMatch::generic_name(n.as_str(), q.as_str())
                         })
                     }) =>
                     {
-                        Some(0)
+                        Some(1)
                     }
                     _ => None,
                 };
@@ -158,6 +162,8 @@ fn discover(cx: &Ctx<'_>, search: &DrugSearch) -> (Outcome, Vec<(Rank, DrugHeade
         }
         out = next;
     }
+    out.dropped |= incomplete;
+    out.problems.extend(problems);
     (out, candidates)
 }
 
@@ -214,7 +220,7 @@ fn fda(cx: &Ctx<'_>, get: &DrugGet, query: &DrugSearch) -> (Outcome, Vec<(Rank, 
         query,
         &biomcp_adapters::drugsfda::SPEC,
         |leg, offset| {
-            let page = biomcp_adapters::drugsfda::search(leg, get.input(), 50, offset)?;
+            let page = biomcp_adapters::drugsfda::search_names(leg, get.input(), 50, offset)?;
             let next = offset + page.records.len() as u32;
             Ok(NativePage {
                 candidates: page
@@ -243,7 +249,7 @@ fn label(cx: &Ctx<'_>, get: &DrugGet, query: &DrugSearch) -> (Outcome, Vec<(Rank
         query,
         &biomcp_adapters::openfda_label::SPEC,
         |leg, offset| {
-            let page = biomcp_adapters::openfda_label::search(leg, get.input(), 50, offset).page?;
+            let page = biomcp_adapters::openfda_label::search_names(leg, get.input(), 50, offset)?;
             let next_offset = page.window.next_offset();
             let mut candidates = Vec::new();
             for row in &page.window.rows {
@@ -310,8 +316,11 @@ fn chembl(cx: &Ctx<'_>, get: &DrugGet, query: &DrugSearch) -> (Outcome, Vec<(Ran
         biomcp_types::DrugNameSelector::Preferred,
         biomcp_types::DrugNameSelector::Synonym,
     ] {
-        let (out, candidates) =
-            native_names(&within(cx, deadline.remaining()), query, &biomcp_adapters::chembl::SPEC, |leg, offset| {
+        let (out, candidates) = native_names(
+            &within(cx, deadline.remaining()),
+            query,
+            &biomcp_adapters::chembl::SPEC,
+            |leg, offset| {
                 let (page, _) = biomcp_adapters::chembl::search(
                     leg,
                     get.input().as_str(),
@@ -344,7 +353,8 @@ fn chembl(cx: &Ctx<'_>, get: &DrugGet, query: &DrugSearch) -> (Outcome, Vec<(Ran
                     problems,
                     refusals,
                 })
-            });
+            },
+        );
         if out
             .sources
             .iter()
@@ -398,5 +408,11 @@ fn annotate(body: &mut ReplyData, resolution: DrugNameResolution) {
 }
 
 fn within<'a>(cx: &Ctx<'a>, budget: std::time::Duration) -> Ctx<'a> {
-    Ctx { fetch: cx.fetch, ncbi_email: cx.ncbi_email.clone(), budget, fresh: cx.fresh }
+    Ctx {
+        fetch: cx.fetch,
+        // Drug source credentials remain in the borrowed Fetch; no drug source contacts NCBI.
+        ncbi_email: None,
+        budget,
+        fresh: cx.fresh,
+    }
 }

@@ -197,18 +197,20 @@ impl Molecule {
         let brand = self.0.molecule_synonyms.iter().any(|s| {
             s.molecule_synonym.as_deref().is_some_and(exact)
                 && s.syn_type.as_deref() == Some("TRADE_NAME")
+                && !self.0.pref_name.as_deref().is_some_and(exact)
         });
-        let generic = self.0.pref_name.as_deref().is_some_and(exact)
+        let generic = self
+            .0
+            .pref_name
+            .as_deref()
+            .is_some_and(|value| biomcp_types::DrugNameMatch::generic_name(value, name))
             || self.0.molecule_synonyms.iter().any(|s| {
-                s.molecule_synonym.as_deref().is_some_and(exact)
+                s.molecule_synonym
+                    .as_deref()
+                    .is_some_and(|value| biomcp_types::DrugNameMatch::generic_name(value, name))
                     && s.syn_type.as_deref() != Some("TRADE_NAME")
             });
-        match (brand, generic) {
-            (true, true) => Some(biomcp_types::DrugNameMatch::Both),
-            (true, false) => Some(biomcp_types::DrugNameMatch::Brand),
-            (false, true) => Some(biomcp_types::DrugNameMatch::Generic),
-            _ => None,
-        }
+        biomcp_types::DrugNameMatch::from_fields(brand, generic)
     }
     /// Actual refused native child identities.
     pub fn refusals(&self) -> crate::Refusal {
