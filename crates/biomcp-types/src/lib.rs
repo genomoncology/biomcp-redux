@@ -6,10 +6,9 @@ use biodata::{
     Error, EuropePmcId, Expression, ExpressionSyntax, FiniteNumber, GeneSymbol, HgncId, HgvsText,
     License, LocusGroup, Markdown, NcbiGeneId, NctId, PartialDate, Pmcid, Pmid, PopulationDataType,
     PopulationFrequency, PopulationSex, PredictorScore, RcvId, RsId, ScvId, SemanticScholarId,
-    Statement, StudyType, Term, Text, TrialAgeBound, TrialArm, TrialCard, TrialContact,
-    TrialDocument, TrialIntervention, TrialLocation, TrialOfficial, TrialOutcome, TrialPhase,
-    TrialReference, TrialSex, TrialStatus, Variant, VariantId, VariantRef, VcvId, canonical_enum,
-    text_value,
+    Statement, StudyType, Term, Text, TrialAgeBound, TrialArm, TrialContact, TrialDocument,
+    TrialIntervention, TrialLocation, TrialOfficial, TrialOutcome, TrialPhase, TrialReference,
+    TrialSex, TrialStatus, Variant, VariantId, VariantRef, VcvId, canonical_enum, text_value,
 };
 
 #[macro_use]
@@ -275,3 +274,9 @@ pub use coverage::command_implicit_sources;
 pub use adverse_event::AdverseEventSearchCommand;
 
 pub use response::{PdfText, PdfTextState};
+pub use response::{
+    TrialAdverseEvents, TrialEvent, TrialEventGroup, TrialEventStats, TrialPostedCard,
+    TrialPostedOutcome, TrialResultAnalysis, TrialResultCategory, TrialResultClass,
+    TrialResultCount, TrialResultDenominator, TrialResultGroup, TrialResultMeasurement,
+    TrialResultRecord,
+};

@@ -88,7 +88,8 @@ diagnostic-who-search: Search stored WHO product headers by literal marker and m
 mcp-research: Search citable source headers and fetch the same CLI record through research compatibility tools.
 store-clean: Publishing removes bounded expired pools and snapshots; ordinary reply writes prune expired replies; explicit cleanup removes expired state and obsolete owned database files with their sidecars while preserving supported generations, bundle tables in obsolete files, fresh state and foreign tables.
 study-catalog: Explicit catalog sync preserves checked metadata atomically; literal stored study searches retain selectors and source order.
-study-get: Exact stored study cards expose bounded independent profile and sample-list metadata without participant identifiers.
+study-get: Exact stored study cards expose bounded independent profile and sample-list metadata.
+study-rows: Read gene-filtered native mutation observations and sample ID/type rows with bounded pages, totals and the selected mutation profile.
 gwas-search: Search source-native association selectors in native p-value order, with exact positive thresholds and retained page walks that state a qualifying total only at the end.
 protein-search: A caller searches reviewed human proteins and walks retained source windows without guessing identities.
 phenotype-identity: A caller searches literal HP term candidates and reads independent exact HPO or Monarch cards without guessing or merging.
@@ -132,3 +133,4 @@ source-pacing: Operators can lower source rates and simultaneous requests within
 
 device-approval-search: Search native FDA PMA and 510(k) submission records by name, manufacturer and decision date.
 fda-document-text: Read FDA-published PMA SSED and selected drug approval letter text in bounded continuable fragments, with explicit no-text and oversized states.
+trial-results: A caller pages posted outcome measures, source group values, dispersion and analyses, and adverse-event tables from the same registry record, with its first posting date.
