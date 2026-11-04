@@ -104,15 +104,17 @@ def live():
     destination.mkdir(parents=True, exist_ok=True)
     config = destination / 'config.json'
     config.write_text('{}\n')
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+    from release.smoke import environment
+    child_environment = environment(destination)
     binary = Path('target/drug-names-installed/bin/biomcp').resolve()
-    common = [str(binary), '--config', str(config), '--case-cache', str(destination / 'cache'),
-              '--record', str(destination / 'recordings'), '--fresh']
+    common = [str(binary), '--config', str(config), '--record', str(destination / 'recordings'), '--fresh']
     replies = []
     for index, name in enumerate(['imatinib', 'Gleevec', 'imatinib mesylate', 'no such medicine anywhere']):
         args = ['get', 'drug', name, 'approvals', '--section-limit', '1']
         if name == 'Gleevec':
             args += ['--source', 'drugsfda']
-        result = subprocess.run([*common, *args], capture_output=True, check=False)
+        result = subprocess.run([*common, *args], env=child_environment, capture_output=True, check=False)
         (destination / f'{index}-stdout.json').write_bytes(result.stdout)
         (destination / f'{index}-stderr.txt').write_bytes(result.stderr)
         value = json.loads(result.stdout)
