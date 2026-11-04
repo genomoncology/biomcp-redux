@@ -1,8 +1,8 @@
 //! One registry record request with a typed protocol projection, checked against its requested identity before caching.
 use biomcp_fetch::{Input, Read};
 mod dates;
-mod results;
 mod publications;
+mod results;
 mod sites;
 use crate::{mapped::Problems, raw::Field};
 use biodata::{
@@ -81,8 +81,11 @@ pub fn get(leg: &Leg<'_>, id: NctId) -> Result<(Detail, ReplyMetadata), RequestE
         .map_or_else(Box::default, |d| {
             d.mapped(id, &mut problems, &mut detail.document_refusals)
         });
-    detail.results = problems.field("resultsSection", raw.results_section)
-        .map_or_else(Box::default, |r| r.rows(&mut problems, &mut detail.refusals));
+    detail.results = problems
+        .field("resultsSection", raw.results_section)
+        .map_or_else(Box::default, |r| {
+            r.rows(&mut problems, &mut detail.refusals)
+        });
     detail.refusals.include(detail.document_refusals);
     detail.problems = problems.list;
     Ok((detail, metadata))
@@ -260,11 +263,21 @@ impl Protocol {
             document_refusals: crate::Refusal::None,
         }
     }
-    fn card(&mut self, interventions: &[TrialIntervention], problems: &mut Problems, results_first_posted: &mut Option<biodata::PartialDate>) -> TrialCard {
+    fn card(
+        &mut self,
+        interventions: &[TrialIntervention],
+        problems: &mut Problems,
+        results_first_posted: &mut Option<biodata::PartialDate>,
+    ) -> TrialCard {
         let status = problems
             .field("statusModule", self.status_module.take())
             .unwrap_or_default();
-        *results_first_posted = RawDate::field("resultsFirstPostDateStruct", status.results_first_post_date_struct, problems).map(|d| d.date);
+        *results_first_posted = RawDate::field(
+            "resultsFirstPostDateStruct",
+            status.results_first_post_date_struct,
+            problems,
+        )
+        .map(|d| d.date);
         let design = problems
             .field("designModule", self.design_module.take())
             .unwrap_or_default();

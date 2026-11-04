@@ -196,4 +196,9 @@ pub use packet::ReplyData;
 pub use reply::{Reply, ReplyBody};
 
 mod trial_results;
-pub use trial_results::{TrialPostedOutcome, TrialResultGroup, TrialResultDenominator, TrialResultCount, TrialResultClass, TrialResultCategory, TrialResultMeasurement, TrialResultAnalysis, TrialAdverseEvents, TrialEventGroup, TrialEvent, TrialEventStats , TrialPostedCard, TrialResultRecord};
+pub use trial_results::{
+    TrialAdverseEvents, TrialEvent, TrialEventGroup, TrialEventStats, TrialPostedCard,
+    TrialPostedOutcome, TrialResultAnalysis, TrialResultCategory, TrialResultClass,
+    TrialResultCount, TrialResultDenominator, TrialResultGroup, TrialResultMeasurement,
+    TrialResultRecord,
+};

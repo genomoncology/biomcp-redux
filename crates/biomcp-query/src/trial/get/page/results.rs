@@ -17,8 +17,15 @@ pub(super) fn render(
         let id = snapshot.detail.card.nct_id;
         let mut page = records(query, &snapshot.detail.results, 8000, serde_json::to_vec)?;
         continue_records(&mut page, query, id, TrialSection::Results, pool);
-        advance(query, id, TrialSection::Results, pool,
-            page.offset + page.items.len() as u32, page.total, out);
+        advance(
+            query,
+            id,
+            TrialSection::Results,
+            pool,
+            page.offset + page.items.len() as u32,
+            page.total,
+            out,
+        );
         sections.results = Some(section(page, id));
     }
     Ok(())

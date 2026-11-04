@@ -32,22 +32,56 @@ impl Results {
         refusals: &mut crate::Refusal,
     ) -> Box<[TrialResultRecord]> {
         let mut rows = Vec::new();
-        if let Some(module) = problems.field("resultsSection.outcomeMeasuresModule", self.outcome_measures_module) {
-            rows.extend(super::super::refusals::records(
-                problems, refusals, "outcomeMeasures", module.outcome_measures,
-            ).into_vec().into_iter().map(TrialResultRecord::Outcome));
+        if let Some(module) = problems.field(
+            "resultsSection.outcomeMeasuresModule",
+            self.outcome_measures_module,
+        ) {
+            rows.extend(
+                super::super::refusals::records(
+                    problems,
+                    refusals,
+                    "outcomeMeasures",
+                    module.outcome_measures,
+                )
+                .into_vec()
+                .into_iter()
+                .map(TrialResultRecord::Outcome),
+            );
         }
-        if let Some(module) = problems.field("resultsSection.adverseEventsModule", self.adverse_events_module) {
+        if let Some(module) = problems.field(
+            "resultsSection.adverseEventsModule",
+            self.adverse_events_module,
+        ) {
             rows.push(TrialResultRecord::AdverseEvents(module.scope));
-            rows.extend(super::super::refusals::records(
-                problems, refusals, "eventGroups", module.event_groups,
-            ).into_vec().into_iter().map(TrialResultRecord::AdverseEventGroup));
+            rows.extend(
+                super::super::refusals::records(
+                    problems,
+                    refusals,
+                    "eventGroups",
+                    module.event_groups,
+                )
+                .into_vec()
+                .into_iter()
+                .map(TrialResultRecord::AdverseEventGroup),
+            );
             for (name, events, record) in [
-                ("seriousEvents", module.serious_events, TrialResultRecord::SeriousEvent as fn(TrialEvent) -> TrialResultRecord),
-                ("otherEvents", module.other_events, TrialResultRecord::OtherEvent as fn(TrialEvent) -> TrialResultRecord),
+                (
+                    "seriousEvents",
+                    module.serious_events,
+                    TrialResultRecord::SeriousEvent as fn(TrialEvent) -> TrialResultRecord,
+                ),
+                (
+                    "otherEvents",
+                    module.other_events,
+                    TrialResultRecord::OtherEvent as fn(TrialEvent) -> TrialResultRecord,
+                ),
             ] {
-                rows.extend(super::super::refusals::records(problems, refusals, name, events)
-                    .into_vec().into_iter().map(record));
+                rows.extend(
+                    super::super::refusals::records(problems, refusals, name, events)
+                        .into_vec()
+                        .into_iter()
+                        .map(record),
+                );
             }
         }
         rows.into()

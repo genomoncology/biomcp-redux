@@ -1,6 +1,6 @@
 use crate::{
-    NctId, Section, Status, TrialAgeBound, TrialArm, TrialPostedCard, TrialIntervention, TrialOutcome,
-    TrialSection, TrialSex,
+    NctId, Section, Status, TrialAgeBound, TrialArm, TrialIntervention, TrialOutcome,
+    TrialPostedCard, TrialSection, TrialSex,
 };
 use serde::{Deserialize, Serialize};
 /// Trial answers in original input order, retaining independent states.
