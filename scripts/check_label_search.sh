@@ -12,9 +12,9 @@ case "${1:-focused}" in
     ;;
   verify)
     sh "$0" focused
-    sh "$0" live
     sh "$0" cheap
     python3 scripts/label_search_proof.py scan
+    sh "$0" live
     python3 scripts/label_search_proof.py retain
     ;;
   focused)

@@ -55,7 +55,9 @@ def live():
                     command = [str(executable), 'search', 'drug', query, '--source', 'openfda-label',
                                '--limit', str(limit), '--offset', str(offset)]
                     stem = f'{query.replace(" ", "-")}-{limit}-{offset}'
-                    recording = PROOF / 'source-recordings' / stem
+                    revision = json.loads((PROOF / 'source-bindings.json').read_text())['source_commit']
+                    recording = PROOF / 'source-recordings' / revision / stem
+                    recording.parent.mkdir(parents=True, exist_ok=True)
                     command[1:1] = ['--record', str(recording.resolve())]
                     result = subprocess.run(command, env=env, capture_output=True, check=False)
                     (PROOF / f'{stem}.json').write_bytes(result.stdout)
@@ -75,17 +77,17 @@ def live():
                         raise ValueError('source page repeats an SPL set')
                     seen.update(ids)
                     if offset == 0:
-                        urls = []
+                        urls = set()
                         for path in recording.rglob('*.json'):
                             recorded = json.loads(path.read_text())
                             for exchange in recorded['exchanges']:
                                 value = exchange['body']['value']
                                 body = json.loads(value) if isinstance(value, str) else value
                                 if exchange['status'] == 200 and body.get('results'):
-                                    urls.append(recorded['url'])
+                                    urls.add(recorded['url'])
                         if len(urls) != 1:
                             raise ValueError('expected one populated source query recording')
-                        parsed = urllib.parse.urlsplit(urls[0])
+                        parsed = urllib.parse.urlsplit(next(iter(urls)))
                         params = dict(urllib.parse.parse_qsl(parsed.query))
                         params['limit'] = '1'
                         params.pop('skip', None)
