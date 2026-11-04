@@ -562,7 +562,9 @@ impl DrugSource {
             return self.accepts(input);
         }
         let value = input.to_string();
-        value.len() == 27
+        value.len() == 10 && value.bytes().all(|b| b.is_ascii_uppercase() || b.is_ascii_digit())
+            || value.bytes().all(|b| b.is_ascii_digit() || b == b'-') && value.bytes().any(|b| b.is_ascii_digit())
+            || value.len() == 27
             && value.as_bytes().get(14) == Some(&b'-')
             && value.as_bytes().get(25) == Some(&b'-')
             || value.contains(':')

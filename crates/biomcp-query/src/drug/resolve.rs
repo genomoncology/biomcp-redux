@@ -168,7 +168,7 @@ struct NativePage {
 fn native_names(
     cx: &Ctx<'_>,
     query: &DrugSearch,
-    spec: &biomcp_fetch::SourceSpec,
+    spec: &'static biomcp_fetch::SourceSpec,
     read: impl Fn(&biomcp_fetch::Leg<'_>, u32) -> Result<NativePage, biomcp_fetch::RequestError>,
 ) -> (Outcome, Vec<(Rank, DrugHeader)>) {
     let mut out = status::empty(biomcp_types::DrugPage::into_reply(query.clone(), None));
