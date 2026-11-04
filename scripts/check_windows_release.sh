@@ -38,6 +38,6 @@ ssh -o BatchMode=yes -p 2222 Docker@localhost "cmd /d /c if exist $remote (exit 
 owned=1
 git archive HEAD > "$scratch/source.tar"
 tar -cf "$scratch/artifacts.tar" -C "$artifacts" .
-scp -O -o BatchMode=yes -P 2222 "$scratch/source.tar" "$scratch/artifacts.tar" "Docker@localhost:$remote/"
+scp -O -o BatchMode=yes -P 2222 "$scratch/source.tar" "$scratch/artifacts.tar" "Docker@localhost:C:/h/biomcp-$ticket-$windows_job_id/"
 ssh -o BatchMode=yes -p 2222 Docker@localhost "cmd /d /c tar -xf $remote\\source.tar -C $remote && mkdir $remote\\candidate && tar -xf $remote\\artifacts.tar -C $remote\\candidate"
 ssh -o BatchMode=yes -p 2222 Docker@localhost "cmd /d /c $remote\\scripts\\check_windows_release.cmd $remote $revision"

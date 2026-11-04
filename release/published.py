@@ -138,7 +138,7 @@ def legacy_installer(root, version, artifacts, revision, script=None):
     return [str(binary)]
 
 
-def plugin(root, version, source, binary, claude='claude'):
+def plugin(root, version, source, binary, claude='claude', record=None):
     executable = shutil.which(claude)
     if not executable:
         raise ValueError('Claude CLI is required; plugin channel was not run')
@@ -161,7 +161,9 @@ def plugin(root, version, source, binary, claude='claude'):
         raise ValueError('installed plugin MCP launch declaration differs')
     mcp_probe([str(binary), *declaration['args']], env, root, version, call_args=['help'])
     print(json.dumps({'channel': 'plugin', 'installed': 'biomcp@biomcp',
-                      'command': ['help'], 'result': 'commands returned'}))
+                      'command': ['help'], 'result': 'commands returned',
+                      'revision': record['revision'] if record else None,
+                      'binary_sha256': hashlib.sha256(binary.read_bytes()).hexdigest()}))
 
 
 def homebrew(root, version):
@@ -206,9 +208,13 @@ def main():
     with tempfile.TemporaryDirectory() as directory:
         root = Path(directory)
         if args.channel == 'plugin':
-            if not args.plugin_source or not args.binary:
-                parser.error('plugin requires --plugin-source and --binary')
-            plugin(root, args.version, args.plugin_source.resolve(), args.binary.resolve(), args.claude)
+            if not all([args.plugin_source, args.binary, args.artifacts, args.revision]):
+                parser.error('plugin requires --plugin-source, --binary, --artifacts and --revision')
+            record = json.loads((args.artifacts / 'release.json').read_text())
+            if (record['revision'] != args.revision or record['version'] != args.version
+                    or hashlib.sha256(args.binary.read_bytes()).hexdigest() != record['binary_sha256']):
+                raise ValueError('plugin executable differs from candidate identity')
+            plugin(root, args.version, args.plugin_source.resolve(), args.binary.resolve(), args.claude, record)
             return
         if args.channel == 'legacy-installer':
             if not args.artifacts or not args.revision or not re.fullmatch('[0-9a-f]{40}', args.revision):
