@@ -10,6 +10,12 @@ case "${1:-focused}" in
     make docs-generate
     git diff --binary > target/label-search-proof/generated.patch
     ;;
+  verify)
+    sh "$0" focused
+    sh "$0" live
+    sh "$0" cheap
+    python3 scripts/label_search_proof.py scan
+    ;;
   focused)
     mkdir -p target/label-search-proof
     cargo build --locked -p biomcp --bin biomcp --test cases --message-format=json > target/label-search-proof/build.jsonl

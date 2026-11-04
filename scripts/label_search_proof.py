@@ -84,5 +84,29 @@ def live():
             print(f'{query} limit={limit} total={total} unique={len(seen)}')
 
 
+def scan():
+    baseline = '26d580e5'
+    scanner = next((p.parent.parent / '.bin/jscpd'
+                    for p in (Path.home() / '.npm/_npx').glob('*/node_modules/jscpd/package.json')
+                    if json.loads(p.read_text()).get('version') == '4.0.5'), None)
+    if scanner is None:
+        raise ValueError('cached jscpd 4.0.5 is required')
+    subprocess.run([scanner, '--version'], check=True)
+    paths = subprocess.check_output(['git', 'diff', '--name-only', baseline, 'HEAD', '--',
+                                    'crates/biomcp-adapters/src/openfda_label',
+                                    'crates/biomcp-types/src/drug/query.rs'], text=True).splitlines()
+    prior = []
+    for name in paths:
+        target = PROOF / 'baseline-source' / name
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(subprocess.check_output(['git', 'show', baseline + ':' + name]))
+        prior.append(str(target))
+    for label, selected in [('baseline', prior), ('current', paths)]:
+        subprocess.run([scanner, *selected, '--format', 'rust', '--max-size', '10mb',
+                        '--reporters', 'json', '--output', PROOF / f'jscpd-{label}'], check=True)
+    subprocess.run(['ruff', 'check', '--select', 'F401,F841,ERA,BLE,E722,S110',
+                    'scripts/label_search_proof.py'], check=True)
+
+
 if __name__ == '__main__':
-    {'focused': focused, 'live': live}[sys.argv[1]]()
+    {'focused': focused, 'live': live, 'scan': scan}[sys.argv[1]]()
