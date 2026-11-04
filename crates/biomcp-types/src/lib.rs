@@ -276,3 +276,5 @@ pub use response::{
     TrialResultCount, TrialResultDenominator, TrialResultGroup, TrialResultMeasurement,
     TrialResultRecord,
 };
+#[cfg(feature = "schema")]
+pub use adverse_event::AdverseEventSearchCommand;
