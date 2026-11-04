@@ -93,7 +93,7 @@ fn boundaries(env: &Environment) -> Result<(), String> {
     }
     // A command-line mode explicitly overrides the configured mode.
     let reply = exchange_with_globals(
-        &env,
+        env,
         &[request(json!(4), "tools/list", json!({}))],
         &["--tool-mode".into(), "single".into(), "--offline".into()],
     )?;
