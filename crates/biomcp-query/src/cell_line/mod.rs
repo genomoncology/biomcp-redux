@@ -9,21 +9,20 @@ mod provenance;
 mod sections;
 use crate::{Ctx, Outcome, status};
 use biomcp_adapters::cellosaurus;
-use biomcp_types::{CellLineGet, CellLinePage, CellLineSearch, Request, Source, Status, StepKind};
+use biomcp_types::{CellLineGet, CellLinePage, CellLineSearchCommand, CellLineFilteredPage, ReplyData, Request, Source, Status, StepKind};
 /// One native window, with no fabricated total or extra-page fetch.
-pub(crate) fn search(cx: &Ctx<'_>, query: &CellLineSearch) -> Outcome {
+pub(crate) fn search(cx: &Ctx<'_>, query: &CellLineSearchCommand) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let leg = cx.fetch.leg(&cellosaurus::SPEC, deadline).fresh(cx.fresh);
     let reply = cellosaurus::search(&leg, query);
     let error = reply.as_ref().err().copied();
     let mut out = empty(
-        (CellLinePage {
+        search_body(CellLinePage {
             items: Box::default(),
             release: None,
             fetched: None,
-        })
-        .with_query(query.clone()),
+        }, query),
     );
     out.sources
         .push(status::source(Source::Cellosaurus, leg.finish(), error));
@@ -49,15 +48,14 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &CellLineSearch) -> Outcome {
             ));
         }
         status::search(&mut out);
-        out.body = (CellLinePage {
+        out.body = search_body(CellLinePage {
             items: page.items.into(),
             release: None,
             fetched: page
                 .metadata
                 .fetched
                 .and_then(|value| u64::try_from(value).ok()),
-        })
-        .with_query(query.clone());
+        }, query);
         provenance::attach(cx, deadline, &mut out);
     }
     recovery(&mut out, Request::SearchCellLine(query.clone()));
@@ -83,5 +81,13 @@ fn recovery(out: &mut Outcome, request: Request) {
             request,
             true,
         ));
+    }
+}
+
+fn search_body(page: CellLinePage, query: &CellLineSearchCommand) -> ReplyData {
+    if let Some(literal) = query.unfiltered() {
+        page.with_query(literal)
+    } else {
+        CellLineFilteredPage(page).with_query(query.clone())
     }
 }

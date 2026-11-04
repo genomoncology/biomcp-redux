@@ -11,7 +11,7 @@ use biomcp_fetch::{
     Arg, BadReply, Freshness, InputError, KeyUse, Leg, PathSegment, ReplyMetadata, RequestError,
     SourceSpec, Terms,
 };
-use biomcp_types::{CellLineCard, CellLineHeader, CellLineSearch, Source, Use};
+use biomcp_types::{CellLineCard, CellLineHeader, CellLineSearchCommand, Source, Use};
 pub use sections::complete;
 use std::time::Duration;
 /// Publisher access and attribution policy, shared by admission and health.
@@ -66,7 +66,7 @@ pub fn literal(field: &str, value: &str) -> String {
     )
 }
 /// Search one checked accession or unchanged literal name with its native window.
-pub fn search(leg: &Leg<'_>, q: &CellLineSearch) -> Result<Page, RequestError> {
+pub fn search(leg: &Leg<'_>, q: &CellLineSearchCommand) -> Result<Page, RequestError> {
     let accession = q.query().and_then(|v| v.as_str().parse::<CellosaurusAccession>().ok());
     let mut terms = Vec::new();
     if let Some(text) = q.query() {

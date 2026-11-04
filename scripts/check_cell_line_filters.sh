@@ -14,6 +14,7 @@ case "${1:-focused}" in
     python3 scripts/trials.py --list
     python3 scripts/trials.py --installed cell-line/filters cell-line/examples cell-line/help
     cargo test --locked -p biomcp-types --features schema --test cell_line_contracts
+    python3 scripts/check_cell_line_compatibility.py "${2:?baseline executable required}" "${CARGO_TARGET_DIR:-target}/debug/biomcp"
     ;;
   *) echo 'usage: check_cell_line_filters.sh [generate|focused]' >&2; exit 2 ;;
 esac

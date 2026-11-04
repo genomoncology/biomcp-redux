@@ -1,7 +1,7 @@
 use crate::QueryInvalid;
 use biodata::{CellLineSourceId, CellosaurusAccession, ChemblCellId, Text};
 use serde::{Deserialize, Serialize};
-fn default_limit() -> u32 {
+pub(super) fn default_limit() -> u32 {
     5
 }
 biodata::wire_enum! { described
@@ -42,16 +42,15 @@ pub enum CellLineInput {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "SearchFields")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-#[cfg_attr(feature = "schema", schemars(with = "SearchFields", extend("anyOf" = [{"required":["query"]},{"required":["species"]},{"required":["disease"]}])))]
+#[cfg_attr(feature = "schema", schemars(with = "SearchFields"))]
 pub struct CellLineSearch(SearchFields);
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct SearchFields {
     /// Literal source query from the positional argument.
-    #[serde(default, deserialize_with = "crate::query::present", skip_serializing_if = "Option::is_none")]
-    #[cfg_attr(feature = "schema", schemars(with = "Text", extend("x-positional" = 0)))]
-    query: Option<Text>,
+    #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 0)))]
+    query: Text,
     /// Native page size.
     #[serde(default = "default_limit")]
     #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 25)))]
@@ -59,14 +58,6 @@ struct SearchFields {
     /// Native start offset.
     #[serde(default)]
     offset: u32,
-    /// Cellosaurus species: NCBI Taxonomy name or ID (for example Homo sapiens or 9606).
-    #[serde(default, deserialize_with = "crate::query::present", skip_serializing_if = "Option::is_none")]
-    #[cfg_attr(feature = "schema", schemars(with = "Text"))]
-    species: Option<Text>,
-    /// Cellosaurus disease: NCIt name or ID (for example Melanoma or C3224).
-    #[serde(default, deserialize_with = "crate::query::present", skip_serializing_if = "Option::is_none")]
-    #[cfg_attr(feature = "schema", schemars(with = "Text"))]
-    disease: Option<Text>,
 }
 crate::query::validation::checked_query!(CellLineSearch, SearchFields);
 impl TryFrom<SearchFields> for CellLineSearch {
@@ -75,24 +66,16 @@ impl TryFrom<SearchFields> for CellLineSearch {
         if !(1..=25).contains(&v.limit) {
             return Err(QueryInvalid::new(&["limit"]));
         }
-        if v.query.is_none() && v.species.is_none() && v.disease.is_none() {
-            return Err(QueryInvalid::new(&["query", "species", "disease"]));
-        }
         Ok(Self(v))
     }
 }
 impl CellLineSearch {
+    pub(super) fn from_parts(query: Text, limit: u32, offset: u32) -> Self {
+        Self(SearchFields { query, limit, offset })
+    }
     /// Literal checked search text.
-    pub fn query(&self) -> Option<&Text> {
-        self.0.query.as_ref()
-    }
-    /// Native species name or taxonomy identifier.
-    pub fn species(&self) -> Option<&Text> {
-        self.0.species.as_ref()
-    }
-    /// Native NCIt disease name or identifier.
-    pub fn disease(&self) -> Option<&Text> {
-        self.0.disease.as_ref()
+    pub fn query(&self) -> &Text {
+        &self.0.query
     }
     /// Native page size.
     pub fn limit(&self) -> u32 {

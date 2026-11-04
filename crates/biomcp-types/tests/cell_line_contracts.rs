@@ -66,16 +66,12 @@ fn checked_cell_identifiers_keep_their_exact_namespace() {
 #[test]
 fn requests_reject_bad_bounds_and_identities_before_io() {
     let q: CellLineSearch = serde_json::from_value(json!({"query":"MV4;11"})).unwrap();
-    assert_eq!(q.query().unwrap().as_str(), "MV4;11");
+    assert_eq!(q.query().as_str(), "MV4;11");
     assert_eq!(q.limit(), 5);
     assert_eq!(q.offset(), 0);
     for v in [
         json!({}),
         json!({"query":""}),
-        json!({"species":null}),
-        json!({"disease":null}),
-        json!({"species":""}),
-        json!({"disease":""}),
         json!({"query":"x","limit":0}),
         json!({"query":"x","limit":26}),
         json!({"query":"x","offset":-1}),
