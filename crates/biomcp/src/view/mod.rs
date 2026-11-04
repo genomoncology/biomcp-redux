@@ -20,7 +20,12 @@ pub(crate) fn markdown(value: &Value) -> io::Result<Vec<u8>> {
     let hint = hints::find(identity);
     let mut out = String::new();
     if value.get("status").and_then(Value::as_str) == Some("absent") {
-        for source in value.get("sources").and_then(Value::as_array).into_iter().flatten() {
+        for source in value
+            .get("sources")
+            .and_then(Value::as_array)
+            .into_iter()
+            .flatten()
+        {
             if source.get("state").and_then(Value::as_str) == Some("ok") {
                 no_data(&source["source"], &mut out);
             }
@@ -180,7 +185,8 @@ fn state_note(value: &Value, out: &mut String) {
             if let Some(reason) = value.get("reason") {
                 out.push_str(&format!(
                     "{} failed (reason: {}); resolve this reason and retry the request.\n\n",
-                    scalar(source), scalar(reason)
+                    scalar(source),
+                    scalar(reason)
                 ));
             }
         }
