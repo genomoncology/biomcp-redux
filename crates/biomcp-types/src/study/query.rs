@@ -19,7 +19,7 @@ biodata::wire_enum! {
         Samples => "samples",
         /// Five repository file references; no automatic download.
         Files => "files",
-        /// Each named section's bounded first page; never a gene aggregate request.
+        /// Bounded first pages; mutations are included only when gene is supplied.
         All => "all"
     }
 }
@@ -154,7 +154,9 @@ impl TryFrom<GetFields> for StudyGet {
         if matches!(v.section, None | Some(StudySection::All)) && v.section_offset != 0 {
             return Err(QueryInvalid::new(&["section", "section_offset"]));
         }
-        if v.section == Some(StudySection::Mutations) && v.gene.is_none() {
+        if (v.section == Some(StudySection::Mutations) || v.molecular_profile.is_some())
+            && v.gene.is_none()
+        {
             return Err(QueryInvalid::new(&["gene"]));
         }
         if (v.gene.is_some() || v.molecular_profile.is_some())
