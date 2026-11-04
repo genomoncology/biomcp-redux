@@ -58,7 +58,7 @@ def main():
                 ["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip(),
             "binary_sha256": hashlib.sha256(args.binary.read_bytes()).hexdigest(),
             "baseline_sha256": baseline_sha,
-            "baseline_source_commit": "d349 (public run 41806259796)",
+            "baseline_public_run": 41806259796,
             "native_sha256": hashlib.sha256(native).hexdigest(),
             "native_url": url,
             "source_query": expression,
