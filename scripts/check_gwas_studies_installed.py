@@ -4,21 +4,18 @@ import os
 from pathlib import Path
 import shutil
 import subprocess
-import sys
 import tempfile
 import time
 import urllib.request
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / "release"))
-from artifacts import cargo
 
 
 def main():
     revision = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
     destination = ROOT / "target" / "gwas-studies-evidence" / revision
     destination.mkdir(parents=True, exist_ok=False)
-    executable = Path(cargo("dev")["executable"])
+    executable = Path(os.environ["BIOMCP_TEST_EXECUTABLE"]).resolve(strict=True)
     with tempfile.TemporaryDirectory(prefix="installed-gwas-") as folder:
         isolated = Path(folder)
         binary = isolated / "biomcp"

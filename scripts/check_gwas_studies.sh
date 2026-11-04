@@ -12,16 +12,28 @@ case "${1:-focused}" in
     make docs-generate
     ;;
   focused)
-    make docs-generate
-    python3 scripts/trials.py --target cases --list
-    python3 scripts/trials.py --target cases --installed gwas-search/gwas/examples.yaml gwas-get/gwas/get-examples.yaml gwas-search/gwas/help.yaml gwas-search/gwas/studies.yaml
+    export BIOMCP_BUILD_REVISION=$(git rev-parse HEAD)
+    cargo build --locked -p biomcp --bin biomcp
+    mkdir -p target/gwas-studies
+    cargo test --locked -p biomcp --test cases --no-run --message-format=json > target/gwas-studies/artifact.json
+    runner=$(python3 -c 'import json; from pathlib import Path; print(next(r["executable"] for line in Path("target/gwas-studies/artifact.json").read_text().splitlines() if (r := json.loads(line)).get("reason") == "compiler-artifact" and r.get("executable") and r["target"]["name"] == "cases"))')
+    product=${CARGO_TARGET_DIR:-target}/debug/biomcp
+    python3 scripts/trials.py --target cases --runner "$runner" --list
+    python3 scripts/trials.py --target cases --runner "$runner" --executable "$product" --installed gwas-search/gwas/examples.yaml gwas-get/gwas/get-examples.yaml gwas-search/gwas/help.yaml gwas-search/gwas/studies.yaml
     ;;
-  installed) python3 scripts/check_gwas_studies_installed.py ;;
+  installed)
+    BIOMCP_TEST_EXECUTABLE="${CARGO_TARGET_DIR:-target}/debug/biomcp" python3 scripts/check_gwas_studies_installed.py
+    ;;
+  proof)
+    sh "$0" focused
+    sh "$0" scans
+    sh "$0" installed
+    ;;
   scans)
     cargo fmt --all -- --check
     cargo clippy --locked -p biomcp-adapters -p biomcp-query -p biomcp-types --all-targets -- -D warnings
     ;;
 
   routine) exec sh scripts/check_nightly_tests.sh routine ;;
-  *) echo 'usage: check_gwas_studies.sh [prepare|focused|installed|scans|routine]' >&2; exit 2 ;;
+  *) echo 'usage: check_gwas_studies.sh [prepare|focused|installed|scans|proof|routine]' >&2; exit 2 ;;
 esac
