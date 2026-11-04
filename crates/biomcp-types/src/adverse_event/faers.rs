@@ -18,10 +18,9 @@ impl super::AdverseEventSearch {
             .chain(query.drug().iter())
             .map(|name| name_expression(name.as_str()))
             .collect::<Vec<_>>();
-        let mut selector = if names.len() == 1 {
-            names[0].clone()
-        } else {
-            format!("({})", names.join(" OR "))
+        let mut selector = match names.as_slice() {
+            [single] => single.clone(),
+            _ => format!("({})", names.join(" OR ")),
         };
         if let Some(reaction) = query.reaction() {
             selector.push_str(&format!(
