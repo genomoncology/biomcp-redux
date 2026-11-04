@@ -22,4 +22,5 @@ if not names:
     raise SystemExit('No grammar cases discovered')
 subprocess.run(['python3', 'scripts/trials.py', '--runner', runner,
                 '--executable', str(stage / 'biomcp'), '--installed', *names], check=True)
+subprocess.run(['python3', 'scripts/test_usage_requests.py', str(stage / 'biomcp'), str(stage)], check=True)
 PY
