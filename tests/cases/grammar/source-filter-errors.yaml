@@ -1,0 +1,31 @@
+{
+  "feature": "query-validation",
+  "live_check": "synthetic",
+  "story": "Source-incompatible filters name accepting sources and a declared replacement, while invalid source values keep their own identity.",
+  "steps": [
+    {
+      "run": ["search", "adverse-event", "pump", "--source", "maude", "--received-from", "2026-01-01"],
+      "exit": 2,
+      "is_error": true,
+      "expect": {"/error/option": "--received-from", "/error/valid_values": ["faers"], "/next/0/args": ["help", "search", "adverse-event"]}
+    },
+    {
+      "run": ["search", "drug", "artemether", "--source", "who-pq", "--initiated-from", "2026-01-01"],
+      "exit": 2,
+      "is_error": true,
+      "expect": {"/error/option": "--initiated-from", "/error/valid_values": ["fda-drug-recall"], "/next/0/args": ["help", "search", "drug"]}
+    },
+    {
+      "run": ["search", "diagnostic", "--source", "fda-cdx", "--gene", "BRAF"],
+      "exit": 2,
+      "is_error": true,
+      "expect": {"/error/option": "--gene", "/error/valid_values": ["gtr"], "/next/0/args": ["search", "diagnostic", "--biomarker", "BRAF", "--source", "fda-cdx"]}
+    },
+    {
+      "run": ["search", "diagnostic", "--source", "mychem", "--gene", "BRAF"],
+      "exit": 2,
+      "is_error": true,
+      "expect": {"/error/option": "--source"}
+    }
+  ]
+}

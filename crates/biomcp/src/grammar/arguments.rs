@@ -60,7 +60,12 @@ pub(super) fn command_for(
             };
         }
         command = command.arg(if property_type(property) == Some("boolean") {
-            argument.action(ArgAction::SetTrue)
+            argument
+                .action(ArgAction::SetTrue)
+                .num_args(0..=1)
+                .require_equals(true)
+                .default_missing_value("true")
+                .value_parser(clap::value_parser!(bool))
         } else {
             value_argument(argument, property)
         });
@@ -144,4 +149,58 @@ impl TypedValueParser for QueryValueParser {
         }
         Ok(value)
     }
+}
+
+/// Optional boolean literals are consumed only when they are exactly true or false.
+pub(super) fn boolean_literals(
+    args: &[std::ffi::OsString],
+    root: &Command,
+) -> Vec<std::ffi::OsString> {
+    let mut result = Vec::new();
+    let mut command = root;
+    let mut words = args.iter().peekable();
+    while let Some(word) = words.next() {
+        let Some(text) = word.to_str() else {
+            result.push(word.clone());
+            continue;
+        };
+        if text == "--" {
+            result.push(word.clone());
+            result.extend(words.cloned());
+            break;
+        }
+        if let Some(child) = command.find_subcommand(text) {
+            command = child;
+        }
+        let argument = text.strip_prefix("--").and_then(|name| {
+            command
+                .get_arguments()
+                .chain(root.get_arguments())
+                .find(|arg| arg.get_long() == Some(name))
+        });
+        if let Some(argument) = argument {
+            if argument.is_require_equals_set()
+                && words
+                    .peek()
+                    .is_some_and(|value| matches!(value.to_str(), Some("true" | "false")))
+            {
+                let value = words
+                    .next()
+                    .and_then(|value| value.to_str())
+                    .unwrap_or_default();
+                result.push(format!("{text}={value}").into());
+                continue;
+            }
+            result.push(word.clone());
+            if argument.get_action().takes_values()
+                && !argument.is_require_equals_set()
+                && let Some(value) = words.next()
+            {
+                result.push(value.clone());
+            }
+            continue;
+        }
+        result.push(word.clone());
+    }
+    result
 }

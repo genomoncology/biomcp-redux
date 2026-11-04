@@ -247,6 +247,7 @@ pub(crate) struct ParseInvalid {
 }
 pub(crate) fn parse(root: &Command, args: &[OsString]) -> Result<Parsed, ParseInvalid> {
     let args = entry::arguments(args, root);
+    let args = arguments::boolean_literals(&args, root);
     let matches = root
         .clone()
         .try_get_matches_from(std::iter::once(OsString::from("biomcp")).chain(args))
@@ -292,8 +293,7 @@ pub(crate) fn parse(root: &Command, args: &[OsString]) -> Result<Parsed, ParseIn
         }
     } else {
         let (entity, matches) = matches.subcommand().ok_or_else(ParseInvalid::default)?;
-        let request = request(verb, entity, matches)
-            .map_err(|cause| errors::checked_invalid(verb, entity, &cause))?;
+        let request = request(verb, entity, matches)?;
         Action::Run {
             request,
             fresh: globals.fresh,
@@ -492,18 +492,16 @@ fn split_sections(result: &mut Map<String, Value>, schema: &Value) -> Result<(),
     Ok(())
 }
 
-fn request(
-    verb: &str,
-    entity: &str,
-    matches: &clap::ArgMatches,
-) -> Result<Request, biomcp_types::QueryInvalid> {
-    let value = request_arguments(verb, entity, matches)
-        .map_err(|_| biomcp_types::QueryInvalid::default())?;
+fn request(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Request, ParseInvalid> {
+    let value = request_arguments(verb, entity, matches)?;
     let command = biomcp_types::COMMANDS
         .iter()
         .find(|command| (command.verb, command.entity) == (verb, entity))
-        .ok_or_else(biomcp_types::QueryInvalid::default)?;
-    rewrite::request(command.via, verb, entity, value)
+        .ok_or_else(ParseInvalid::default)?;
+    rewrite::request(command.via, verb, entity, value.clone()).map_err(|cause| {
+        errors::source_filter(command.via, verb, entity, &value, &cause)
+            .unwrap_or_else(|| errors::checked_invalid(verb, entity, &cause))
+    })
 }
 
 fn request_arguments(
