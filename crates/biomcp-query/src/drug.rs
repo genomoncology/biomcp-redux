@@ -8,6 +8,7 @@ mod ema;
 mod next;
 mod openfda_label;
 mod recall;
+mod resolve;
 pub(crate) mod who;
 use crate::{Ctx, Outcome, status};
 use biomcp_adapters::mychem;
@@ -69,7 +70,7 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
 }
 /// Get one exact native document, without fallback or automatic section expansion.
 pub(crate) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
-    let mut out = selected_get(cx, query);
+    let mut out = if query.is_name() { resolve::get(cx, query) } else { selected_get(cx, query) };
     let source = query.source().source();
     if out.sources.iter().any(|outcome| {
         outcome.source == source && outcome.reason == Some(biomcp_types::Reason::BadReply)

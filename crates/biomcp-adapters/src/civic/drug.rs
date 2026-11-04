@@ -31,7 +31,8 @@ impl Therapy {
         let link = cx.field("link", self.link);
         let record = variant_map::record(id, link.as_ref(), cx)?;
         Some(DrugHeader {
-            matched_name: None,
+            name_resolution: None,
+        matched_name: None,
             id: cx.optional("id", Some(id.to_string().parse()))?,
             source: DrugSource::Civic,
             version: None,

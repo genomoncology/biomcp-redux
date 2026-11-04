@@ -140,7 +140,8 @@ impl RawApplication {
     /// An application endpoint establishes application identity, without choosing a brand.
     pub(super) fn header(&self) -> DrugHeader {
         DrugHeader {
-            matched_name: None,
+            name_resolution: None,
+        matched_name: None,
             id: self.application_number.clone(),
             source: DrugSource::Drugsfda,
             name: None,

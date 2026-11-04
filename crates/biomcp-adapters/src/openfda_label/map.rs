@@ -16,7 +16,8 @@ impl RawRecord {
         self.check()
             .map_err(|_| biomcp_fetch::bad_reply(biomcp_types::Source::OpenfdaLabel, Some(200)))?;
         Ok(DrugHeader {
-            matched_name: None,
+            name_resolution: None,
+        matched_name: None,
             id: self.set_id.clone(),
             source: DrugSource::OpenfdaLabel,
             version: self.version.clone(),

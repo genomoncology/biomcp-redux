@@ -171,7 +171,7 @@ pub use response::{
 };
 mod drug;
 pub use drug::{
-    DEFAULT_DRUG_APPROVALS_LIMIT, DrugApprovals, DrugCard, DrugCivic, DrugCivicClaim,
+    DEFAULT_DRUG_APPROVALS_LIMIT, DrugNameResolution, DrugApprovals, DrugCard, DrugCivic, DrugCivicClaim,
     DrugCivicMember, DrugCivicPage, DrugCivicProfile, DrugCivicStreams, DrugFdaCandidate,
     DrugFdaDocument, DrugFdaIngredient, DrugFdaPage, DrugFdaProduct, DrugFdaProperty,
     DrugFdaSubmission, DrugGet, DrugHeader, DrugIndications, DrugInteractions, DrugLabel,

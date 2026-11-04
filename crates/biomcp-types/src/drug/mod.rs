@@ -18,7 +18,7 @@ mod response;
 mod source;
 pub use query::{DrugGet, DrugSearch, DrugSection};
 pub use response::{
-    DrugApprovals, DrugCard, DrugCivic, DrugHeader, DrugIndications, DrugInteractions, DrugLabel,
+    DrugNameResolution, DrugApprovals, DrugCard, DrugCivic, DrugHeader, DrugIndications, DrugInteractions, DrugLabel,
     DrugLabelFragment, DrugLabelText, DrugPage, DrugRecords, DrugRegulatory, DrugTargets,
     DrugXrefs,
 };
