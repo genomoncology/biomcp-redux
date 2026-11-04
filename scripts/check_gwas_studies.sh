@@ -22,6 +22,11 @@ case "${1:-focused}" in
     python3 scripts/trials.py --target cases --runner "$runner" --list
     python3 scripts/trials.py --target cases --runner "$runner" --executable "$product" --installed gwas-search/gwas/examples.yaml gwas-get/gwas/get-examples.yaml gwas-search/gwas/help.yaml gwas-search/gwas/studies.yaml
     ;;
+  live)
+    export BIOMCP_BUILD_REVISION=$(git rev-parse HEAD)
+    cargo build --locked -p biomcp --bin biomcp
+    sh "$0" installed
+    ;;
   installed)
     BIOMCP_TEST_EXECUTABLE="${CARGO_TARGET_DIR:-target}/debug/biomcp" python3 scripts/check_gwas_studies_installed.py
     ;;
@@ -32,9 +37,9 @@ case "${1:-focused}" in
     ;;
   scans)
     cargo fmt --all -- --check
-    cargo clippy --locked -p biomcp-adapters -p biomcp-query -p biomcp-types --all-targets -- -D warnings
+    make lint-workspace lint-tools
     ;;
 
   routine) exec sh scripts/check_nightly_tests.sh routine ;;
-  *) echo 'usage: check_gwas_studies.sh [prepare|focused|installed|scans|proof|routine]' >&2; exit 2 ;;
+  *) echo 'usage: check_gwas_studies.sh [prepare|focused|installed|scans|proof|live|routine]' >&2; exit 2 ;;
 esac

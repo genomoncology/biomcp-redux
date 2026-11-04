@@ -23,8 +23,9 @@ def main():
         env = {"PATH": os.environ["PATH"], "HOME": str(isolated),
                "XDG_CONFIG_HOME": str(isolated / "config"),
                "XDG_CACHE_HOME": str(isolated / "cache")}
-        version = subprocess.check_output([str(binary), "version"], env=env, text=True)
-        (destination / "version.json").write_text(version)
+        version = subprocess.check_output([str(binary), "version", "--verbose"], env=env, text=True)
+        (destination / "version.txt").write_text(version)
+        assert "Commit: " + revision + "\n" in version, version
         results = {}
         for name, options in [("studies", ["--studies", "--limit", "50"]),
                               ("associations", ["--limit", "50"]),
