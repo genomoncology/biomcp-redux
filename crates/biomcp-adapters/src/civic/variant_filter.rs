@@ -51,18 +51,21 @@ pub(super) fn apply(
             .copied()
             .filter(|id| raw::id(*id))
             .ok_or_else(|| failure(Reason::BadReply))?;
-        let count = if query.civic_kind().is_some() {
-            query.section_limit()
-        } else {
-            query.section_limit().min(2)
+        let count = match query.civic_kind() {
+            Some(CivicClaimKind::Evidence) => query.section_limit(),
+            Some(CivicClaimKind::Assertions) => 0,
+            None => query.section_limit().min(2),
         };
         profile.evidence_items = evidence_filter::page(
             query.evidence_filter(),
             query.civic_cursor(),
             count,
             |level, after, count| {
-                let arguments =
-                    evidence_filter::arguments(query.evidence_filter(), level, "status:ALL");
+                let arguments = evidence_filter::arguments(
+                    query.evidence_filter(),
+                    level,
+                    "status:NON_REJECTED",
+                );
                 let body = Request {
                     query: format!(
                         "query($id:Int!,$after:String){{evidenceItems(molecularProfileId:$id,{arguments},first:{count},after:$after){{totalCount pageInfo{{hasNextPage endCursor}} nodes{{id status evidenceType evidenceLevel evidenceDirection significance disease{{name doid}} therapies{{name}} therapyInteractionType source{{citationId sourceType}}}}}}}}"
@@ -74,7 +77,7 @@ pub(super) fn apply(
                         &GENES,
                         Input::json(&[], &body),
                         Read::json().cache_if(&|reply: &Response| {
-                            reply.data.evidence_items.progresses(after)
+                            count == 0 || reply.data.evidence_items.progresses(after)
                         }),
                     )?
                     .value;

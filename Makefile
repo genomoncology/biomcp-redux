@@ -299,3 +299,7 @@ mcp-reply-scan:
 	$(JSCPD) --version
 	$(JSCPD) crates/biomcp/src/config.rs crates/biomcp/src/config crates/biomcp/src/help.rs crates/biomcp/src/mcp.rs crates/biomcp/src/mcp --format rust --max-size 10mb --reporters json --output target/0587-proofs/jscpd-product
 	$(JSCPD) crates/biomcp/tests/runner/protocol.rs crates/biomcp/tests/runner/protocol_schemas.rs crates/biomcp/tests/runner/mcp_reply_form.rs --format rust --max-size 10mb --reporters json --output target/0587-proofs/jscpd-tests
+
+.PHONY: civic-evidence-build
+civic-evidence-build:
+	cargo build --locked -p biomcp --bin biomcp --test cases --message-format=json

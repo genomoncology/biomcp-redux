@@ -83,11 +83,10 @@ impl TryFrom<Fields> for VariantGet {
     type Error = super::gene::QueryInvalid;
     fn try_from(fields: Fields) -> Result<Self, Self::Error> {
         if !fields.evidence_filter.is_empty()
-            && (fields.civic_kind == Some(CivicClaimKind::Assertions)
-                || !fields
-                    .section
-                    .iter()
-                    .any(|s| matches!(s, VariantSection::Civic | VariantSection::All)))
+            && !fields
+                .section
+                .iter()
+                .any(|s| matches!(s, VariantSection::Civic | VariantSection::All))
         {
             return Err(super::gene::QueryInvalid::new(&[
                 "evidence_level",

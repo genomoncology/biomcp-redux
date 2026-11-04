@@ -135,15 +135,13 @@ fn matches(
     count: u32,
 ) -> bool {
     (kind == Some(CivicClaimKind::Assertions)
-        || data
-            .evidence_items
-            .as_ref()
-            .is_some_and(|rows| rows.nodes.len() <= count as usize && rows.progresses(after)))
+        || data.evidence_items.as_ref().is_some_and(|rows| {
+            rows.nodes.len() <= count as usize && (count == 0 || rows.progresses(after))
+        }))
         && (kind == Some(CivicClaimKind::Evidence)
-            || data
-                .assertions
-                .as_ref()
-                .is_some_and(|rows| rows.nodes.len() <= count as usize && rows.progresses(after)))
+            || data.assertions.as_ref().is_some_and(|rows| {
+                rows.nodes.len() <= count as usize && (count == 0 || rows.progresses(after))
+            }))
 }
 fn seek<T>(
     leg: &Leg<'_>,
