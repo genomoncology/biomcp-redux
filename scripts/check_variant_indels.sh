@@ -7,9 +7,9 @@ case "${1:-focused}" in
   focused)
     cargo fmt --all -- --check
     cargo test --locked -p biomcp-types --test variant_coordinates coordinate_inputs
+    make schema-generate
     cargo install --locked --debug --path crates/biomcp --root target/variant-indels-installed --force
     export BIOMCP_TEST_EXECUTABLE="$PWD/target/variant-indels-installed/bin/biomcp"
-    make schema-generate
     make docs-generate
     git diff --binary > target/variant-indels-generated.patch
     cargo test --locked -p biomcp --test cases variant/id-forms/ -- --test-threads 2
