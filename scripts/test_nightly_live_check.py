@@ -327,7 +327,8 @@ class NightlyCommand(unittest.TestCase):
                 elif change == 'source':
                     root['source'] = 'unrelated'
                 elif change == 'baseline':
-                    later['baseline']['requests'] = [copy.deepcopy(root)]
+                    later['baseline']['requests'] = [
+                        {'identity': 'baseline-only', 'source': 'pubmed', 'status': 200}]
                 elif change == 'unrelated':
                     dependent['provenance']['inputs']['ids'] = ['unrelated']
                 elif change == 'missing-inputs':
