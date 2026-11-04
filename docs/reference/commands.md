@@ -99,7 +99,7 @@ Commands:
   biomarker      Find NCI biomarker concepts by name or synonym. The public tier returns codes, name, type, trial count, synonyms, parent_ids, ancestor_ids and eligibility_criterion. These concepts differ from diagnostic --biomarker filters and literal trial --variant text. Use search trial --source nci --biomarker-code CODE for trials that list an exact concept. Native criteria do not establish patient eligibility.
   author         Literal author name query and native window; positional text maps to query.
   organization   Find NCI organizations. Names are not unique; trial counts cover every status, including closed trials. No organization ID or get is available.
-  cell-line      One literal cell line search, with native order and no total claim.
+  cell-line      One native cell line search with optional text, species and NCIt disease filters.
   gwas           Source associations in default p-value-ascending order. Reports no personal risk, causal variant or gene, or clinical interpretation of a statistic.
   protein        Search five reviewed human UniProt headers by literal text or exact gene.
                  No variant effect, structure, interaction or clinical meaning is inferred. No bioinformatics tool runs.
@@ -341,26 +341,29 @@ Find NCI organizations. Sources: nci.
 ## biomcp search cell-line
 
 ```text
-One literal cell line search, with native order and no total claim.
+One native cell line search with optional text, species and NCIt disease filters.
 
-Usage: biomcp search cell-line [OPTIONS] <query>
+Usage: biomcp search cell-line [OPTIONS] [query]
 
 Arguments:
-  <query>
+  [query]
           Literal source query from the positional argument.
 
 Options:
+      --disease <disease>
+          Cellosaurus disease: NCIt name or ID (for example Melanoma or C3224).
+
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
 
           [default: json]
           [possible values: json, md]
 
-  -l, --limit <limit>
-          Native page size.
-
       --disable-sources <disable-sources>
           Exclude source names or source terms groups.
+
+  -l, --limit <limit>
+          Native page size.
 
       --offset <offset>
           Native start offset.
@@ -371,6 +374,9 @@ Options:
       --config <config>
           Read configuration from this file.
 
+      --species <species>
+          Cellosaurus species: NCBI Taxonomy name or ID (for example Homo sapiens or 9606).
+
       --offline
           Read local data without source requests.
 
@@ -379,11 +385,13 @@ Options:
 
 ```
 
-One exact cell line search, with source order and no total claim. Sources: cellosaurus.
+One source cell line search with optional text, species and NCIt disease filters. Sources: cellosaurus.
 
+- `--disease`: Cellosaurus disease: NCIt name or ID (for example Melanoma or C3224).
 - `--limit`: Source page size.
 - `--offset`: Source start offset.
 - `query`: Exact source query from the positional argument.
+- `--species`: Cellosaurus species: NCBI Taxonomy name or ID (for example Homo sapiens or 9606).
 
 ## biomcp search gwas
 
@@ -908,10 +916,10 @@ Options:
           FAERS MedDRA term phrase match, not exact equality.
 
       --received-from <received_from>
-          Inclusive first FDA receipt lower bound, YYYY-MM-DD.
+          Inclusive FAERS or MAUDE FDA receipt lower bound, YYYY-MM-DD or YYYY-MM; a month starts on its first day.
 
       --received-to <received_to>
-          Inclusive first FDA receipt upper bound, YYYY-MM-DD.
+          Inclusive FAERS or MAUDE FDA receipt upper bound, YYYY-MM-DD or YYYY-MM; a month ends on its last day.
 
       --offline
           Read local data without source requests.
@@ -938,8 +946,8 @@ Search five report headers by default. Sources: faers, maude, vaers.
 - `--problem`: MAUDE phrase on source product_problems.
 - `--product-code`: MAUDE exact source device.device_report_product_code; repeated codes join with OR.
 - `--reaction`: FAERS MedDRA term phrase match, not exact equality.
-- `--received-from`: Inclusive first FDA receipt lower bound, YYYY-MM-DD.
-- `--received-to`: Inclusive first FDA receipt upper bound, YYYY-MM-DD.
+- `--received-from`: Inclusive FAERS or MAUDE FDA receipt lower bound, YYYY-MM-DD or YYYY-MM; a month starts on its first day.
+- `--received-to`: Inclusive FAERS or MAUDE FDA receipt upper bound, YYYY-MM-DD or YYYY-MM; a month ends on its last day.
 - `section`: Independent VAERS table; omitted means reported symptoms.
 - `--serious`: FAERS report flag: any uses the source seriousness flag; the specific flags can overlap. Never a reaction outcome.
 - `--snapshot`: Retained VAERS table for source-free continuation.
@@ -1549,7 +1557,7 @@ Commands:
   gene           Get one to twenty human gene inputs in their original order.
   article        Get one to twenty article inputs in caller order.
   trial          Retrieve exact trial cards in input order; request bounded intact source sections with independent continuations.
-  variant        Read an rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS or single-base genomic coordinates such as 7-140753336-A-T through the shared resolver. MyVariant identity lookups default to GRCh38; --build overrides it. Chromosome genomic HGVS requires --build. Use search variant --gene BRAF --protein V600E or search variant --gene PTEN --coding c.333G>T for gene shorthand. Every candidate remains available; source assertions do not classify the variant for the caller.
+  variant        Read an rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS or VCF-style genomic coordinates such as 7-140753336-A-T through the shared resolver. MyVariant identity lookups default to GRCh38; --build overrides it. Chromosome genomic HGVS requires --build. Use search variant --gene BRAF --protein V600E or search variant --gene PTEN --coding c.333G>T for gene shorthand. Every candidate remains available; source assertions do not classify the variant for the caller.
 
 Options:
       --format <format>
@@ -2632,13 +2640,13 @@ Optional intact source sections. Default cards only; diseases and summary requir
 ## biomcp get variant
 
 ```text
-Read an rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS or single-base genomic coordinates such as 7-140753336-A-T through the shared resolver. MyVariant identity lookups default to GRCh38; --build overrides it. Chromosome genomic HGVS requires --build. Use search variant --gene BRAF --protein V600E or search variant --gene PTEN --coding c.333G>T for gene shorthand. Every candidate remains available; source assertions do not classify the variant for the caller.
+Read an rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS or VCF-style genomic coordinates such as 7-140753336-A-T through the shared resolver. MyVariant identity lookups default to GRCh38; --build overrides it. Chromosome genomic HGVS requires --build. Use search variant --gene BRAF --protein V600E or search variant --gene PTEN --coding c.333G>T for gene shorthand. Every candidate remains available; source assertions do not classify the variant for the caller.
 
 Usage: biomcp get variant [OPTIONS] <input> [section]...
 
 Arguments:
   <input>
-          rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS or single-base genomic coordinates.
+          rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS or VCF-style genomic coordinates.
 
   [section]...
           Named source sections; omitted by default. Each calls its own source. all keeps bounded pages and source skips; it never enables a missing key.
@@ -2697,13 +2705,13 @@ Options:
 
 ```
 
-Read an rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS or single-base genomic coordinates such as 7-140753336-A-T through the shared resolver. Sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator.
+Read an rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS or VCF-style genomic coordinates such as 7-140753336-A-T through the shared resolver. Sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator.
 
 - `--build`: MyVariant identity assembly defaults to GRCh38; chromosome genomic HGVS requires an explicit build.
 - `--civic-cursor`: Source CIViC cursor, retained unchanged.
 - `--civic-kind`: Source CIViC claim collection within the selected profile.
 - `--civic-profile`: Selected CIViC molecular profile for source claim paging.
-- `input`: rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS or single-base genomic coordinates.
+- `input`: rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS or VCF-style genomic coordinates.
 - `--limit`: Candidate rows per page; more remain reachable through typed next commands.
 - `--offset`: Candidate rows to skip in source order.
 - `--resolver`: Resolver for reference-qualified notation; never repairs the input locally.
