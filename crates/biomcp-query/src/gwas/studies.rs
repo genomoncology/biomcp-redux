@@ -62,10 +62,9 @@ pub(super) fn search(cx: &Ctx<'_>, q: &GwasSearch) -> Outcome {
                 source.state == biomcp_types::SourceState::Stale,
             );
         }
-        Err(_) => {}
+        Err(error) => out.local = status::local(error),
     }
     out.sources.push(source);
-    out.local = error.and_then(status::local);
     status::search(&mut out);
     command.finish(deadline.remaining());
     out
