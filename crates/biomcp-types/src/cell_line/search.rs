@@ -1,9 +1,9 @@
 //! Checked cell-line command input, separate from the unchanged literal-search reply query.
+use super::CellLineSearch;
+use super::query::{check_search_limit, default_limit};
 use crate::QueryInvalid;
 use biodata::Text;
 use serde::{Deserialize, Serialize};
-use super::CellLineSearch;
-use super::query::{check_search_limit, default_limit};
 /// One native cell line search with optional text, species and NCIt disease filters.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "CommandFields")]
@@ -15,7 +15,11 @@ pub struct CellLineSearchCommand(CommandFields);
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct CommandFields {
     /// Literal source query from the positional argument.
-    #[serde(default, deserialize_with = "crate::query::present", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        deserialize_with = "crate::query::present",
+        skip_serializing_if = "Option::is_none"
+    )]
     #[cfg_attr(feature = "schema", schemars(with = "Text", extend("x-positional" = 0)))]
     query: Option<Text>,
     /// Native page size.
@@ -26,11 +30,19 @@ struct CommandFields {
     #[serde(default)]
     offset: u32,
     /// Cellosaurus species: NCBI Taxonomy name or ID (for example Homo sapiens or 9606).
-    #[serde(default, deserialize_with = "crate::query::present", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        deserialize_with = "crate::query::present",
+        skip_serializing_if = "Option::is_none"
+    )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     species: Option<Text>,
     /// Cellosaurus disease: NCIt name or ID (for example Melanoma or C3224).
-    #[serde(default, deserialize_with = "crate::query::present", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        deserialize_with = "crate::query::present",
+        skip_serializing_if = "Option::is_none"
+    )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     disease: Option<Text>,
 }
@@ -80,6 +92,7 @@ impl CellLineSearchCommand {
         if self.species().is_some() || self.disease().is_some() {
             return None;
         }
-        self.query().map(|query| CellLineSearch::from_parts(query.clone(), self.limit(), self.offset()))
+        self.query()
+            .map(|query| CellLineSearch::from_parts(query.clone(), self.limit(), self.offset()))
     }
 }

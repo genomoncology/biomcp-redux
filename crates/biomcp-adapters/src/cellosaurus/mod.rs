@@ -67,10 +67,15 @@ pub fn literal(field: &str, value: &str) -> String {
 }
 /// Search literal text and native taxonomy/disease fields within one checked window.
 pub fn search(leg: &Leg<'_>, q: &CellLineSearchCommand) -> Result<Page, RequestError> {
-    let accession = q.query().and_then(|v| v.as_str().parse::<CellosaurusAccession>().ok());
+    let accession = q
+        .query()
+        .and_then(|v| v.as_str().parse::<CellosaurusAccession>().ok());
     let mut terms = Vec::new();
     if let Some(text) = q.query() {
-        terms.push(literal(if accession.is_some() { "ac" } else { "idsy" }, text.as_str()));
+        terms.push(literal(
+            if accession.is_some() { "ac" } else { "idsy" },
+            text.as_str(),
+        ));
     }
     // Native fields, including their source ontology identifiers; no local disease inference.
     // https://api.cellosaurus.org/api-fields documents ox and the NCIt-only din field.

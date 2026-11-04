@@ -75,7 +75,11 @@ impl TryFrom<SearchFields> for CellLineSearch {
 }
 impl CellLineSearch {
     pub(super) fn from_parts(query: Text, limit: u32, offset: u32) -> Self {
-        Self(SearchFields { query, limit, offset })
+        Self(SearchFields {
+            query,
+            limit,
+            offset,
+        })
     }
     /// Literal checked search text.
     pub fn query(&self) -> &Text {

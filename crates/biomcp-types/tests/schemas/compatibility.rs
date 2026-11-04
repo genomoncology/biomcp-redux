@@ -122,11 +122,15 @@ fn compatible(
         || new.selectors.as_ref().is_some_and(|new| {
             old.selectors.as_ref().map_or_else(
                 || !new.iter().any(|branch| branch.is_subset(&old.required)),
-                |alternatives| alternatives.iter().any(|branch| {
-                    !new.iter().any(|required| required.iter().all(|field| {
-                        old.required.contains(field) || branch.contains(field)
-                    }))
-                }),
+                |alternatives| {
+                    alternatives.iter().any(|branch| {
+                        !new.iter().any(|required| {
+                            required
+                                .iter()
+                                .all(|field| old.required.contains(field) || branch.contains(field))
+                        })
+                    })
+                },
             )
         })
         || old.open_enum && !new.open_enum
