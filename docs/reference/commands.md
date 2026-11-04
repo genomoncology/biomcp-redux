@@ -893,29 +893,32 @@ Arguments:
           Independent VAERS table; omitted means reported symptoms.
 
 Options:
+      --drug <drug>...
+          FAERS literal drug name; repeat --drug for OR. OR inside one quoted value stays literal. Other filters AND with the names. BioMCP caps the escaped native query, including filters, at FAERS_QUERY_MAX_BYTES (4096 bytes).
+
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
 
           [default: json]
           [possible values: json, md]
 
-      --limit <limit>
-          Native report headers or VAERS rows per page; default five.
-
       --disable-sources <disable-sources>
           Exclude source names or source terms groups.
 
+      --limit <limit>
+          Native report headers or VAERS rows per page; default five.
+
       --manufacturer <manufacturer>
           MAUDE manufacturer phrase on device.manufacturer_d_name. A report may list several devices; filters may match different devices.
-
-      --offset <offset>
-          Native row offset. VAERS continuation requires its retained snapshot.
 
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
 
       --config <config>
           Read configuration from this file.
+
+      --offset <offset>
+          Native row offset. VAERS continuation requires its retained snapshot.
 
       --problem <problem>
           MAUDE phrase on native product_problems.
@@ -929,17 +932,17 @@ Options:
       --received-from <received_from>
           Inclusive FAERS or MAUDE FDA receipt lower bound, YYYY-MM-DD or YYYY-MM; a month starts on its first day.
 
-      --received-to <received_to>
-          Inclusive FAERS or MAUDE FDA receipt upper bound, YYYY-MM-DD or YYYY-MM; a month ends on its last day.
-
       --offline
           Read local data without source requests.
 
-      --serious <serious>
-          FAERS report flag: any uses the source seriousness flag; the specific flags can overlap. Never a reaction outcome.
+      --received-to <received_to>
+          Inclusive FAERS or MAUDE FDA receipt upper bound, YYYY-MM-DD or YYYY-MM; a month ends on its last day.
 
       --fresh
           Request fresh source data instead of cached replies.
+
+      --serious <serious>
+          FAERS report flag: any uses the source seriousness flag; the specific flags can overlap. Never a reaction outcome.
 
       --snapshot <snapshot>
           Retained VAERS table for provider-free continuation.
@@ -951,6 +954,7 @@ Options:
 
 Search five report headers by default. Sources: faers, maude, vaers.
 
+- `--drug`: FAERS exact drug name; repeat --drug for OR. OR inside one quoted value stays exact. Other filters AND with the names. BioMCP caps the escaped source query, including filters, at FAERS_QUERY_MAX_BYTES (4096 bytes).
 - `--limit`: Source report headers or VAERS rows per page; default five.
 - `--manufacturer`: MAUDE manufacturer phrase on device.manufacturer_d_name. A report may list several devices; filters may match different devices.
 - `--offset`: Source row offset. VAERS continuation requires its retained snapshot.
@@ -2031,20 +2035,26 @@ Options:
           [default: json]
           [possible values: json, md]
 
-      --section-limit <section_limit>
-          Maximum records in each selected section.
+      --gene <gene>
+          Exact cBioPortal HUGO gene symbol or Entrez ID; required for mutations.
 
       --disable-sources <disable-sources>
           Exclude source names or source terms groups.
 
-      --section-offset <section_offset>
-          Offset within one named section; all requires zero.
+      --molecular-profile <molecular_profile>
+          Exact mutation profile ID; omitted selects the study's first mutation profile.
+
+      --section-limit <section_limit>
+          Maximum records in each selected section.
 
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
 
       --config <config>
           Read configuration from this file.
+
+      --section-offset <section_offset>
+          Offset within one named section; all requires zero.
 
       --offline
           Read local data without source requests.
@@ -2056,7 +2066,9 @@ Options:
 
 Exact case-sensitive study card or bounded metadata section. Sources: cbioportal.
 
+- `--gene`: Exact cBioPortal HUGO gene symbol or Entrez ID; required for mutations.
 - `id`: Exact source study ID; no default or repair.
+- `--molecular-profile`: Exact mutation profile ID; omitted selects the study's first mutation profile.
 - `section`: Omit for the card; all returns bounded first pages only.
 - `--section-limit`: Maximum records in each selected section.
 - `--section-offset`: Offset within one named section; all requires zero.
@@ -2065,8 +2077,10 @@ Omit for the card; all returns bounded first pages only.
 
 - `profiles`: Five exact source molecular profile references.
 - `sample-lists`: Five sample-list metadata records, without member sample IDs.
+- `mutations`: Source mutation rows for the required gene and selected mutation profile.
+- `samples`: Source sample identities and types only.
 - `files`: Five repository file references; no automatic download.
-- `all`: Each named section's bounded first page; never a gene aggregate request.
+- `all`: Bounded first pages; mutations are included only when gene is supplied.
 
 ## biomcp get pgx
 
@@ -2657,6 +2671,7 @@ Optional intact source sections. Default cards only; diseases and summary requir
 
 - `eligibility`: Intact criteria and structured age/sex fields.
 - `outcomes`: Primary, secondary and other outcome records.
+- `results`: Posted outcome values, analyses and adverse-event tables (ClinicalTrials.gov).
 - `arms`: Arms and interventions with original relationships.
 - `locations`: Whole source sites with their attached contacts.
 - `contacts`: Central contacts and overall officials in their original roles.
