@@ -25,13 +25,14 @@ struct Variables<'a> {
     after: Option<&'a Text>,
 }
 
-fn fetch(
+fn fetch_native(
     leg: &Leg<'_>,
     id: std::num::NonZeroU32,
     query: &DrugGet,
     kind: Option<CivicClaimKind>,
     after: Option<&Text>,
     count: u32,
+    level: Option<biomcp_types::CivicEvidenceLevel>,
 ) -> Result<raw::Data, RequestError> {
     let profile = query
         .civic_profile()
@@ -47,8 +48,13 @@ fn fetch(
                 "assertionType assertionDirection ampLevel variantOrigin",
             ),
         };
+        let filter = if kind == CivicClaimKind::Evidence {
+            super::evidence_filter::arguments(query.evidence_filter(), level, "status:ACCEPTED")
+        } else {
+            "status:ACCEPTED".into()
+        };
         format!(
-            "{name}(therapyId:$id{profile},status:ACCEPTED,first:{count},after:$after){{totalCount \
+            "{name}(therapyId:$id{profile},{filter},first:{count},after:$after){{totalCount \
                 pageInfo{{hasNextPage endCursor}} nodes{{{COMMON} {fields} {MEMBERS}}}}}"
         )
     };
@@ -85,6 +91,42 @@ fn fetch(
         return Err(failure(Reason::BadReply));
     }
     Ok(reply.data)
+}
+fn fetch(
+    leg: &Leg<'_>,
+    id: std::num::NonZeroU32,
+    query: &DrugGet,
+    kind: Option<CivicClaimKind>,
+    after: Option<&Text>,
+    count: u32,
+) -> Result<raw::Data, RequestError> {
+    if query.evidence_filter().is_empty() {
+        return fetch_native(leg, id, query, kind, after, count, None);
+    }
+    let mut therapy = None;
+    let evidence_items = super::evidence_filter::page(
+        query.evidence_filter(),
+        after,
+        count,
+        |level, cursor, count| {
+            let data = fetch_native(
+                leg,
+                id,
+                query,
+                Some(CivicClaimKind::Evidence),
+                cursor,
+                count,
+                level,
+            )?;
+            therapy = data.therapy;
+            data.evidence_items.ok_or_else(|| failure(Reason::BadReply))
+        },
+    )?;
+    Ok(raw::Data {
+        therapy,
+        evidence_items: Some(evidence_items),
+        assertions: None,
+    })
 }
 fn matches(
     data: &raw::Data,
