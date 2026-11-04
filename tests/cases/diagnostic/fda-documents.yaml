@@ -1,0 +1,49 @@
+{
+  "live_check": "FDA-published P170019 SSED and NDA021588 letter id64255; original PDF source bytes retained without editing",
+  "feature": "fda-document-text",
+  "story": "A PMA SSED and a selected native approval letter expose bounded original embedded text with continuations.",
+  "replay": "diagnostic/fda-documents",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "diagnostic",
+        "P170019",
+        "summary",
+        "--source",
+        "fda-pma"
+      ],
+      "expect": {
+        "/result/document/pages": 58,
+        "/result/document/state": "text",
+        "/result/document/offset": 0,
+        "/next/0/kind": "page",
+        "/result/document/text": {
+          "includes": "SUMMARY OF SAFETY AND EFFECTIVENESS DATA"
+        }
+      },
+      "max_bytes": 9500
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "NDA021588",
+        "approvals",
+        "--source",
+        "drugsfda",
+        "--document-id",
+        "64255"
+      ],
+      "expect": {
+        "/result/approvals/data/records/0/application_docs/0/id": "64255",
+        "/result/approvals/data/records/0/application_docs/0/text/state": "text",
+        "/result/approvals/data/records/0/application_docs/0/url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2020/021588Orig1s056,s057ltr.pdf",
+        "/result/approvals/data/records/0/application_docs/0/text/text": {
+          "includes": "NDA 021588"
+        }
+      },
+      "max_bytes": 20000
+    }
+  ]
+}

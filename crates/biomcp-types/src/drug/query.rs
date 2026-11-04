@@ -164,7 +164,8 @@ struct GetFields {
     /// Explicit native application product number, only for approvals.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     product_number: Option<Text>,
-    /// Exact native Drugs@FDA approval letter document ID; text is bounded to 25 MiB, 50 pages and 6144 escaped bytes per fragment. No-text scans are explicit.
+    /// Exact native Drugs@FDA approval letter document ID. Text is bounded to 25 MiB, 100 pages
+    /// and 6144 escaped bytes per fragment. No-text scans are explicit.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     document_id: Option<Text>,
     /// Selected native CIViC molecular profile for a drug-scoped claim stream.

@@ -2,7 +2,7 @@
 use biomcp_fetch::{Input, Leg, Read, RequestError, SourceSpec};
 use biomcp_types::{PdfText, PdfTextState, Reason, Source};
 /// Maximum pages admitted before extracting text.
-pub const MAX_PAGES: usize = 50;
+pub const MAX_PAGES: usize = 100;
 /// Maximum expanded stream or total extracted text size.
 pub const MAX_EXPANDED_BYTES: usize = 4 * 1024 * 1024;
 /// Escaped JSON text bytes returned in one continuable fragment.
@@ -32,7 +32,14 @@ pub fn read(
         total: 0,
         text: None,
     };
-    let endpoint = spec.download(url.as_str())?.bytes(super::MAX_BYTES);
+    // FDA's historical document links use HTTP; retain that published spelling in the reply.
+    let https = url
+        .as_str()
+        .strip_prefix("http://www.accessdata.fda.gov/")
+        .map(|path| format!("https://www.accessdata.fda.gov/{path}"));
+    let endpoint = spec
+        .download(https.as_deref().unwrap_or(url.as_str()))?
+        .bytes(super::MAX_BYTES);
     let bytes = match leg.call(&endpoint, Input::Params(&[]), Read::bytes()) {
         Ok(reply) => reply.value.0,
         Err(RequestError::Source(source)) if source.reason == Reason::TooLarge => {

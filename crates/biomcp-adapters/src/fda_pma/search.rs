@@ -1,10 +1,8 @@
+//! Source-owned FDA device search and document access.
 use biomcp_fetch::{Leg, RequestError};
 use biomcp_types::{DiagnosticCandidate, DiagnosticSearch};
 /// Search native FDA submission records, retaining supplements and source totals.
-pub fn search(
-    leg: &Leg<'_>,
-    q: &DiagnosticSearch,
-) -> Result<crate::device_search::Page, RequestError> {
+pub fn search(leg: &Leg<'_>, q: &DiagnosticSearch) -> Result<super::SearchPage, RequestError> {
     let (rows, total) =
         crate::device_search::page::<super::raw::Record>(leg, &super::SPEC, q, "trade_name")?;
     let mut problems = Vec::new();

@@ -129,3 +129,6 @@ variant-clinvar-haplotype: Preserve native ClinVar haplotype kind, version, chro
 mcp-hosted: A server operator refuses host file saves, health details and store or key changes over every MCP transport in hosted mode; HTTP calls declare commercial or academic use with commercial defaults and server exclusions preserved, use caller source headers under declared fallback tiers without retaining credentials, pace each effective key independently, share keyless pacing, scale provider rates with --rate-share and cap whole-call time and active hosted HTTP work.
 
 source-pacing: Operators can lower source rates and simultaneous requests within documented source ceilings.
+
+device-approval-search: Search native FDA PMA and 510(k) submission records by name, manufacturer and decision date.
+fda-document-text: Read FDA-published PMA SSED and selected drug approval letter text in bounded continuable fragments, with explicit no-text and oversized states.

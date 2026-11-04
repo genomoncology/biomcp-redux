@@ -1,7 +1,9 @@
 mod id;
+mod search_validation;
 use super::QueryInvalid;
 use biodata::{DiagnosticDeviceId, FdaDrugApplication, GeneSymbol, NcbiGeneId, PartialDate, Text};
 pub use id::DiagnosticId;
+use search_validation::{validate_device, validate_recall};
 use serde::{Deserialize, Serialize};
 mod get;
 pub use get::DiagnosticGet;
@@ -30,7 +32,7 @@ biodata::wire_enum! {
         #[doc = "GTR native gene rows; five per page."] Genes => "genes",
         #[doc = "GTR native condition rows; five per page."] Conditions => "conditions",
         #[doc = "GTR native method entries; five per page."] Methods => "methods",
-        #[doc = "FDA SSED PDF text; bounded to 25 MiB, 50 pages and 6144 escaped bytes per fragment. Scans without text are explicit."] Summary => "summary",
+        #[doc = "FDA SSED PDF text: 25 MiB, 100 pages and 6144 escaped bytes per fragment; scans without text are explicit."] Summary => "summary",
         #[doc = "Selected PMA submission statement; one fragment per page."] Regulatory => "regulatory",
         #[doc = "PMA base application supplement headers; five per page."] Supplements => "supplements"
     }
@@ -310,49 +312,6 @@ impl crate::Paged for DiagnosticSearch {
     }
 }
 
-fn validate_recall(v: &SearchFields, other: bool, filters: bool) -> Result<(), QueryInvalid> {
-    if v.source != DiagnosticSearchSource::FdaDeviceRecall {
-        if filters {
-            return Err(QueryInvalid::new(&[
-                "source",
-                "product_code",
-                "initiated_from",
-                "initiated_to",
-            ]));
-        }
-        return Ok(());
-    }
-    if other || v.marker.is_some() || v.bundle_revision.is_some() {
-        return Err(QueryInvalid::new(&[
-            "source",
-            "gene_id",
-            "gene",
-            "condition_id",
-            "type",
-            "device_id",
-            "drug_application",
-            "biomarker",
-            "marker",
-            "bundle_revision",
-        ]));
-    }
-    for (name, date) in [
-        ("initiated_from", v.initiated_from),
-        ("initiated_to", v.initiated_to),
-    ] {
-        if date.is_some_and(|d| d.day().is_none()) {
-            return Err(QueryInvalid::new(&[name]));
-        }
-    }
-    if v.initiated_from
-        .zip(v.initiated_to)
-        .is_some_and(|(a, b)| a.to_string() > b.to_string())
-    {
-        return Err(QueryInvalid::new(&["initiated_from", "initiated_to"]));
-    }
-    Ok(())
-}
-
 impl DiagnosticGetSource {
     /// Source identity for this explicit native selector.
     pub const fn source(self) -> crate::Source {
@@ -378,54 +337,4 @@ impl DiagnosticSearchSource {
             Self::FdaDeviceRecall => crate::Source::FdaDeviceRecall,
         }
     }
-}
-
-fn validate_device(v: &SearchFields, other: bool) -> Result<(), QueryInvalid> {
-    let device = matches!(
-        v.source,
-        DiagnosticSearchSource::FdaPma | DiagnosticSearchSource::Fda510k
-    );
-    if !device {
-        if v.name.is_some() || v.decision_from.is_some() || v.decision_to.is_some() {
-            return Err(QueryInvalid::new(&[
-                "source",
-                "name",
-                "decision_from",
-                "decision_to",
-            ]));
-        }
-        return Ok(());
-    }
-    if other || v.bundle_revision.is_some() {
-        return Err(QueryInvalid::new(&[
-            "source",
-            "gene_id",
-            "gene",
-            "condition_id",
-            "type",
-            "device_id",
-            "drug_application",
-            "biomarker",
-            "marker",
-            "product_code",
-            "initiated_from",
-            "initiated_to",
-            "bundle_revision",
-        ]));
-    }
-    for (name, date) in [
-        ("decision_from", v.decision_from),
-        ("decision_to", v.decision_to),
-    ] {
-        if date.is_some_and(|d| d.day().is_none()) {
-            return Err(QueryInvalid::new(&[name]));
-        }
-    }
-    if v.decision_from
-        .zip(v.decision_to)
-        .is_some_and(|(a, b)| a.to_string() > b.to_string())
-    {
-        return Err(QueryInvalid::new(&["decision_from", "decision_to"]));
-    }
-    Ok(())
 }

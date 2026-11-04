@@ -137,3 +137,5 @@ pub static DOCUMENTS: biomcp_fetch::SourceSpec = biomcp_fetch::SourceSpec {
     quota: &crate::quotas::OPENFDA,
     deadline: std::time::Duration::from_secs(15),
 };
+
+pub use crate::device_search::Page as SearchPage;

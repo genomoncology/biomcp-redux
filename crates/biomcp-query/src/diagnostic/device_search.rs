@@ -1,3 +1,4 @@
+//! Source-owned FDA device search and document access.
 use super::{empty, next};
 use crate::{Ctx, Outcome, status};
 use biomcp_types::{

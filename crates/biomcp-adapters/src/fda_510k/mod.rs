@@ -92,3 +92,5 @@ pub(crate) mod decl;
 
 mod search;
 pub use search::search;
+
+pub use crate::device_search::Page as SearchPage;
