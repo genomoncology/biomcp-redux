@@ -5,10 +5,15 @@ cd "$(dirname "$0")/.."
 export RUSTUP_TOOLCHAIN=1.95.0
 python3.13 - <<'PY'
 import json
+import math
+import os
 from pathlib import Path
 import subprocess
 import sys
 
+workers = str(max(1, math.floor(float(os.environ.get("PM_JOB_CORES", "2")))))
+os.environ.setdefault("CARGO_BUILD_JOBS", workers)
+os.environ.setdefault("RUST_TEST_THREADS", workers)
 built = subprocess.check_output([
     'cargo', 'build', '--locked', '-p', 'biomcp', '--bin', 'biomcp',
     '--test', 'cases', '--message-format=json',
