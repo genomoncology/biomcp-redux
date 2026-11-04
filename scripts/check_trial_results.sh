@@ -27,6 +27,7 @@ case "${1:-focused}" in
     ;;
   review)
     make docs-check
+    make schema-release-check
     sh "$0" scans "${2:?review requires the explicit reviewed baseline commit}"
     ;;
   scans)
@@ -62,7 +63,6 @@ for label, selected in [('baseline', previous), ('current', paths)]:
                     '--reporters', 'json', '--output', str(root / label)], check=True)
 print('Scoped Rust scanner baseline:', baseline)
 SCANS
-    make schema-release-check
     cargo clippy --locked -p biomcp --test cases -- -D warnings
     cargo test --locked -p biomcp --test ratchets
     ;;

@@ -32,43 +32,7 @@ fn posted() -> Check {
     if first["result"]["items"][0]["card"]["results_first_posted"] != "2017-09-26" {
         return Err("results first posted date differs from protocol status".into());
     }
-    let primary = &first["result"]["items"][0]["sections"]["results"]["data"]["items"][0];
-    if primary["record"] != "outcome"
-        || primary["data"]["title"] != "Progression Free Survival (PFS)"
-        || primary["data"]["paramType"] != "MEDIAN"
-        || primary["data"]["dispersionType"] != "95% Confidence Interval"
-        || primary["data"]["unitOfMeasure"] != "months"
-    {
-        return Err("reported PFS labels changed".into());
-    }
-    for (index, id, title, value, lower, upper) in [
-        (0, "OG000", "Nivolumab", "6.87", "4.34", "9.46"),
-        (
-            1,
-            "OG001",
-            "Nivolumab + Ipilimumab",
-            "11.50",
-            "8.90",
-            "16.72",
-        ),
-        (2, "OG002", "Ipilimumab", "2.89", "2.79", "3.42"),
-    ] {
-        let data = &primary["data"];
-        if data["groups"][index]["id"] != id
-            || data["groups"][index]["title"] != title
-            || data["classes"][0]["categories"][0]["measurements"][index]
-                != json!({"groupId":id,"value":value,"lowerLimit":lower,"upperLimit":upper})
-        {
-            return Err("reported median/CI or outcome group changed".into());
-        }
-    }
-    if primary["data"]["analyses"][0]["groupIds"] != json!(["OG000", "OG002"])
-        || primary["data"]["analyses"][0]["paramValue"] != "0.57"
-        || primary["data"]["analyses"][0]["ciLowerLimit"] != "0.43"
-        || primary["data"]["analyses"][0]["ciUpperLimit"] != "0.76"
-    {
-        return Err("posted analysis or comparison groups changed".into());
-    }
+    posted_primary(&first)?;
     let mut rows = Vec::new();
     let mut current = first;
     // Continuations are served offline from the same stored record, never a new HTTP request.
@@ -138,6 +102,47 @@ fn posted() -> Check {
     }
     Ok(())
 }
+fn posted_primary(first: &Value) -> Check {
+    let primary = &first["result"]["items"][0]["sections"]["results"]["data"]["items"][0];
+    if primary["record"] != "outcome"
+        || primary["data"]["title"] != "Progression Free Survival (PFS)"
+        || primary["data"]["paramType"] != "MEDIAN"
+        || primary["data"]["dispersionType"] != "95% Confidence Interval"
+        || primary["data"]["unitOfMeasure"] != "months"
+    {
+        return Err("reported PFS labels changed".into());
+    }
+    for (index, id, title, value, lower, upper) in [
+        (0, "OG000", "Nivolumab", "6.87", "4.34", "9.46"),
+        (
+            1,
+            "OG001",
+            "Nivolumab + Ipilimumab",
+            "11.50",
+            "8.90",
+            "16.72",
+        ),
+        (2, "OG002", "Ipilimumab", "2.89", "2.79", "3.42"),
+    ] {
+        let data = &primary["data"];
+        if data["groups"][index]["id"] != id
+            || data["groups"][index]["title"] != title
+            || data["classes"][0]["categories"][0]["measurements"][index]
+                != json!({"groupId":id,"value":value,"lowerLimit":lower,"upperLimit":upper})
+        {
+            return Err("reported median/CI or outcome group changed".into());
+        }
+    }
+    if primary["data"]["analyses"][0]["groupIds"] != json!(["OG000", "OG002"])
+        || primary["data"]["analyses"][0]["paramValue"] != "0.57"
+        || primary["data"]["analyses"][0]["ciLowerLimit"] != "0.43"
+        || primary["data"]["analyses"][0]["ciUpperLimit"] != "0.76"
+    {
+        return Err("posted analysis or comparison groups changed".into());
+    }
+    Ok(())
+}
+
 fn source() -> Result<Value, Box<dyn std::error::Error>> {
     for file in std::fs::read_dir(
         super::launch::fixtures().join("replies/trial/results/NCT01844505/ctgov"),
