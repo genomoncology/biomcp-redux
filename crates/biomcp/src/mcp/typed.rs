@@ -13,7 +13,12 @@ pub(super) fn summarize(
         && let Some(value) = reply.pointer("/result/structuredContent")
     {
         let text = summary::render(root, value, args);
-        reply["result"]["content"] = json!([{"type":"text","text":text}]);
+        let content = json!([{"type":"text","text":text}]);
+        let mut result = reply["result"].clone();
+        result["content"] = content;
+        if super::protocol::within_cap(&result) {
+            reply["result"] = result;
+        }
     }
     reply
 }
