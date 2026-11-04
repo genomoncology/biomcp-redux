@@ -103,7 +103,7 @@ fn add_sections(
         } else {
             bindings(verb, child, &section, sources)
         };
-        if section != "all" && (publishers.is_empty() || !publishers.is_subset(sources)) {
+        if section != "all" && publishers.is_empty() {
             return Err(
                 format!("missing section source coverage for {verb} {child} {section}").into(),
             );
