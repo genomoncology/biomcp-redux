@@ -8,6 +8,10 @@ case "${1:-focused}" in
     cargo fmt --all
     make schema-generate docs-generate
     ;;
+  evidence)
+    sh "$0" scans "$2"
+    sh "$0" live "$3"
+    ;;
   scans)
     baseline=${2:?scans requires baseline commit}
     mkdir -p target/0606-scans/baseline
