@@ -1,7 +1,7 @@
 //! Schema-fed command help shared with MCP discovery.
 
 #[path = "../coverage.rs"]
-mod coverage;
+pub(crate) mod coverage;
 mod discovery;
 pub(crate) const FRONT_MAP: &str = include_str!(concat!(env!("OUT_DIR"), "/front-map.txt"));
 mod schema_fields;

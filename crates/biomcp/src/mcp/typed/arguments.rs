@@ -83,7 +83,9 @@ pub(super) fn input(schema: &Value) -> Value {
     let mut result = json!({"$schema":super::super::protocol::SCHEMA_DIALECT,
         "type":"object", "properties":properties,"additionalProperties":false});
     if let Some(required) = schema.get("required") {
-        result["required"] = required.clone();
+        if let Some(fields) = result.as_object_mut() {
+            fields.insert("required".into(), required.clone());
+        }
     }
     result
 }
@@ -131,7 +133,12 @@ pub(super) fn cli(
             continue;
         }
         let values = words(value)?;
-        if schema["properties"][key].get("x-comma-separated") == Some(&Value::Bool(true)) {
+        if schema
+            .get("properties")
+            .and_then(|fields| fields.get(key))
+            .and_then(|field| field.get("x-comma-separated"))
+            == Some(&Value::Bool(true))
+        {
             args.push(format!("--{flag}={}", values.join(",")).into());
         } else {
             for value in values {

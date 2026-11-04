@@ -43,7 +43,8 @@ pub(super) fn check() -> Result<(), String> {
             .ok_or("stdio reply")?;
         let (status, http) = server.request("POST", "/mcp", &frame.to_string())?;
         if status != 200
-            || stdio["result"]["structuredContent"] != http["result"]["structuredContent"]
+            || stdio.pointer("/result/structuredContent")
+                != http.pointer("/result/structuredContent")
         {
             return Err("typed hosted transport mismatch".into());
         }
@@ -60,7 +61,9 @@ pub(super) fn check() -> Result<(), String> {
             return Err(format!("missing typed replacement {expected}: {text}"));
         }
         if index == 2
-            && !stdio["result"]["structuredContent"]
+            && !stdio
+                .pointer("/result/structuredContent")
+                .ok_or("structured reply")?
                 .to_string()
                 .contains(expected)
         {
@@ -73,7 +76,12 @@ pub(super) fn check() -> Result<(), String> {
         json!({"name":"get_gene","arguments":{"input":["--help"]}}),
     );
     let reply = exchange_with_globals(&env, &[hostile], &["--offline".into()])?;
-    if reply[0].pointer("/result/structuredContent/schema") == Some(&json!("biomcp.help/6")) {
+    if reply
+        .first()
+        .ok_or("missing reply")?
+        .pointer("/result/structuredContent/schema")
+        == Some(&json!("biomcp.help/6"))
+    {
         return Err("literal input became a CLI flag".into());
     }
     // A command-line mode explicitly overrides the configured mode.
@@ -82,7 +90,12 @@ pub(super) fn check() -> Result<(), String> {
         &[request(json!(4), "tools/list", json!({}))],
         &["--tool-mode".into(), "single".into(), "--offline".into()],
     )?;
-    if reply[0].pointer("/result/tools/0/name") != Some(&json!("biomcp")) {
+    if reply
+        .first()
+        .ok_or("missing reply")?
+        .pointer("/result/tools/0/name")
+        != Some(&json!("biomcp"))
+    {
         return Err("flag did not override config".into());
     }
     Ok(())

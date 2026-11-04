@@ -22,8 +22,12 @@ pub(super) fn valid(schema: &Value, value: &Value) -> bool {
     if let Some(types) = schema.get("type").and_then(Value::as_array) {
         return types.iter().any(|kind| {
             let mut branch = schema.clone();
-            branch["type"] = kind.clone();
-            valid(&branch, value)
+            if let Some(fields) = branch.as_object_mut() {
+                fields.insert("type".into(), kind.clone());
+                valid(&branch, value)
+            } else {
+                false
+            }
         });
     }
     match schema.get("type").and_then(Value::as_str) {

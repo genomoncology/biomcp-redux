@@ -40,91 +40,126 @@ pub(super) fn check(tool: &Value) -> Result<(), String> {
             if args.first().map(String::as_str) != Some(verb) || args.get(1) != Some(&entity) {
                 continue;
             }
-            let env = Environment::new().map_err(|e| e.to_string())?;
-            let mut config = case.config.clone().unwrap_or_else(|| json!({}));
-            env.config(&config).map_err(|e| e.to_string())?;
-            let replay = response_cases::replay(&env, case.replay.as_deref(), case.cache_acquired)?;
-            let globals = env.globals(replay.as_deref(), false);
-            for setup in case.steps[..index]
-                .iter()
-                .filter_map(|step| step.run.as_ref())
-                .filter(|args| args.first().is_some_and(|word| word == "sync"))
-            {
-                let output = env
-                    .command(
-                        env!("CARGO_BIN_EXE_biomcp"),
-                        &super::super::super::launch::arguments(setup, &globals),
-                    )
-                    .output()
-                    .map_err(|e| e.to_string())?;
-                if !output.status.success() {
-                    return Err(format!("recorded case setup failed: {setup:?}"));
-                }
+            if candidate(tool, args, &case, index)? {
+                return Ok(());
             }
-            let output = env
-                .command(
-                    env!("CARGO_BIN_EXE_biomcp"),
-                    &super::super::super::launch::arguments(args, &globals),
-                )
-                .output()
-                .map_err(|e| e.to_string())?;
-            if !output.status.success() {
-                continue;
-            }
-            let expected: Value =
-                serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
-            if expected["status"] == "usage" || expected["status"] == "failed" {
-                continue;
-            }
-            let (_, _, id) = biomcp_types::command_paths()
-                .into_iter()
-                .find(|(v, e, _)| *v == verb && *e == entity)
-                .ok_or("command")?;
-            let output = env
-                .command(env!("CARGO_BIN_EXE_biomcp"), &["schema".into(), id.into()])
-                .output()
-                .map_err(|e| e.to_string())?;
-            let query: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
-            let Some(input) = input(args, &query) else {
-                continue;
-            };
-            if !jsonschema::validator_for(&tool["inputSchema"])
-                .map_err(|e| e.to_string())?
-                .is_valid(&input)
-            {
-                continue;
-            }
-            config["mcp_tool_mode"] = json!("typed");
-            env.config(&config).map_err(|e| e.to_string())?;
-            let reply = exchange_with_globals(
-                &env,
-                &[request(
-                    json!(1),
-                    "tools/call",
-                    json!({"name":name,"arguments":input}),
-                )],
-                &globals,
-            )?;
-            let actual = reply[0]
-                .pointer("/result/structuredContent")
-                .ok_or_else(|| format!("{name}: {}", reply[0]))?;
-            if actual.to_string() != expected.to_string() {
-                return Err(format!(
-                    "{name} recorded CLI mismatch ({path:?}): {actual} versus {expected}"
-                ));
-            }
-            if !jsonschema::validator_for(&tool["outputSchema"])
-                .map_err(|e| e.to_string())?
-                .is_valid(actual)
-            {
-                return Err(format!("{name} output schema mismatch"));
-            }
-            return Ok(());
         }
     }
     Err(format!(
         "no successful recorded search/get witness for {name}"
     ))
+}
+
+fn prepare(
+    case: &case_data::Case,
+    index: usize,
+) -> Result<(Environment, Vec<String>, Value), String> {
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    let config = case.config.clone().unwrap_or_else(|| json!({}));
+    env.config(&config).map_err(|e| e.to_string())?;
+    let replay = response_cases::replay(&env, case.replay.as_deref(), case.cache_acquired)?;
+    let globals = env.globals(replay.as_deref(), false);
+    for setup in case
+        .steps
+        .get(..index)
+        .ok_or("case step index")?
+        .iter()
+        .filter_map(|step| step.run.as_ref())
+        .filter(|args| args.first().is_some_and(|word| word == "sync"))
+    {
+        let output = env
+            .command(
+                env!("CARGO_BIN_EXE_biomcp"),
+                &super::super::super::launch::arguments(setup, &globals),
+            )
+            .output()
+            .map_err(|e| e.to_string())?;
+        if !output.status.success() {
+            return Err(format!("recorded case setup failed: {setup:?}"));
+        }
+    }
+
+    Ok((env, globals, config))
+}
+fn candidate(
+    tool: &Value,
+    args: &[String],
+    case: &case_data::Case,
+    index: usize,
+) -> Result<bool, String> {
+    let name = tool
+        .get("name")
+        .and_then(Value::as_str)
+        .ok_or("tool name")?;
+    let (env, globals, mut config) = prepare(case, index)?;
+    let output = env
+        .command(
+            env!("CARGO_BIN_EXE_biomcp"),
+            &super::super::super::launch::arguments(args, &globals),
+        )
+        .output()
+        .map_err(|e| e.to_string())?;
+    if !output.status.success() {
+        return Ok(false);
+    }
+    let expected: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
+    if expected.get("status") == Some(&json!("usage"))
+        || expected.get("status") == Some(&json!("failed"))
+    {
+        return Ok(false);
+    }
+    let verb = args.first().ok_or("command verb")?;
+    let entity = args.get(1).ok_or("command entity")?;
+    let (_, _, id) = biomcp_types::command_paths()
+        .into_iter()
+        .find(|(v, e, _)| *v == verb.as_str() && *e == entity.as_str())
+        .ok_or("command")?;
+    let output = env
+        .command(env!("CARGO_BIN_EXE_biomcp"), &["schema".into(), id.into()])
+        .output()
+        .map_err(|e| e.to_string())?;
+    let query: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
+    let Some(input) = input(args, &query) else {
+        return Ok(false);
+    };
+    if !jsonschema::validator_for(&tool["inputSchema"])
+        .map_err(|e| e.to_string())?
+        .is_valid(&input)
+    {
+        return Ok(false);
+    }
+    config
+        .as_object_mut()
+        .ok_or("configuration object")?
+        .insert("mcp_tool_mode".into(), json!("typed"));
+    env.config(&config).map_err(|e| e.to_string())?;
+    let reply = exchange_with_globals(
+        &env,
+        &[request(
+            json!(1),
+            "tools/call",
+            json!({"name":name,"arguments":input}),
+        )],
+        &globals,
+    )?;
+    let reply = reply.first().ok_or("missing typed reply")?;
+    let actual = reply
+        .pointer("/result/structuredContent")
+        .ok_or_else(|| format!("{name}: {reply}"))?;
+    if serde_json::to_vec(actual).map_err(|e| e.to_string())?
+        != serde_json::to_vec(&expected).map_err(|e| e.to_string())?
+    {
+        return Err(format!(
+            "{name} recorded CLI mismatch : {actual} versus {expected}"
+        ));
+    }
+    if !jsonschema::validator_for(&tool["outputSchema"])
+        .map_err(|e| e.to_string())?
+        .is_valid(actual)
+    {
+        return Err(format!("{name} output schema mismatch"));
+    }
+    Ok(true)
 }
 fn resolved<'a>(node: &'a Value, root: &'a Value) -> &'a Value {
     if let Some(reference) = node.get("$ref").and_then(Value::as_str) {
@@ -207,6 +242,14 @@ fn input(args: &[String], query: &Value) -> Option<Value> {
         };
         result.insert(key, value);
     }
+    positional_fields(properties, query, result, &positional)
+}
+fn positional_fields(
+    properties: &serde_json::Map<String, Value>,
+    query: &Value,
+    mut result: serde_json::Map<String, Value>,
+    positional: &[String],
+) -> Option<Value> {
     let mut fields = properties
         .iter()
         .filter_map(|(key, p)| p["x-positional"].as_u64().map(|i| (i, key, p)))
@@ -216,7 +259,7 @@ fn input(args: &[String], query: &Value) -> Option<Value> {
     for (_, key, property) in fields {
         let kind = type_name(resolved(property, query));
         if kind == Some("array") {
-            result.insert(key.clone(), json!(&positional[position..]));
+            result.insert(key.clone(), json!(positional.get(position..)?));
             position = positional.len();
         } else if let Some(value) = positional.get(position) {
             result.insert(key.clone(), json!(value));

@@ -1,6 +1,5 @@
 //! Source and section provenance comes from the same declarations as the front map.
-#[path = "../../../coverage.rs"]
-mod coverage;
+use crate::help::coverage;
 use serde_json::Value;
 use std::collections::{BTreeMap, BTreeSet};
 
@@ -12,7 +11,13 @@ pub(super) fn render(verb: &str, entity: &str, schema: &Value) -> String {
         .collect::<Vec<_>>();
     let mut groups = BTreeMap::<String, Vec<String>>::new();
     for key in ["section", "sections"] {
-        let node = super::arguments::resolve(&schema["properties"][key], schema);
+        let node = super::arguments::resolve(
+            schema
+                .get("properties")
+                .and_then(|fields| fields.get(key))
+                .unwrap_or(&Value::Null),
+            schema,
+        );
         let node = node
             .get("anyOf")
             .and_then(Value::as_array)
@@ -49,7 +54,7 @@ pub(super) fn render(verb: &str, entity: &str, schema: &Value) -> String {
         let mut same = Vec::new();
         let mut other = Vec::new();
         for (sources, sections) in groups {
-            if sections.len() == 1 && sections[0] == sources {
+            if sections.len() == 1 && sections.first() == Some(&sources) {
                 same.push(sources);
             } else {
                 other.push(format!("{}({sources})", sections.join(",")));

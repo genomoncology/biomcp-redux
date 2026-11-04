@@ -18,7 +18,7 @@ type Check = Result<(), String>;
 
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = vec![
-        transcript_trial("mcp-parity/mcp-typed-tools", || {
+        transcript_trial(super::pool_contract::TYPED_TOOLS.0, || {
             typed::check().map_err(Into::into)
         }),
         transcript_trial("mcp-parity/cancellation-suppresses-later-output", || {

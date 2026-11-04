@@ -68,7 +68,7 @@ fn translate(root: &crate::grammar::Root, args: &[Value]) -> Option<Value> {
     let input = super::arguments::input(&schema);
     let command = root.find_subcommand(verb)?.find_subcommand(entity)?;
     let mut arguments = serde_json::Map::new();
-    for (key, property) in input["properties"].as_object()? {
+    for (key, property) in input.get("properties")?.as_object()? {
         if matches.value_source(key) != Some(clap::parser::ValueSource::CommandLine) {
             continue;
         }
@@ -109,23 +109,25 @@ fn replacement(root: &crate::grammar::Root, args: &[std::ffi::OsString]) -> Opti
         .map(Value::from)
         .collect::<Vec<_>>();
     let original = translate(root, &values)?;
-    let called = original["name"].as_str()?.strip_prefix("get_")?;
+    let called = original.get("name")?.as_str()?.strip_prefix("get_")?;
     let entity = called.replace('_', "-");
     let (_, _, id) = crate::grammar::command_paths()
         .into_iter()
         .find(|(verb, child, _)| *verb == "search" && *child == entity)?;
     let schema = super::schema(id).ok()?;
-    let fields = schema["properties"].as_object()?;
-    let original = original["arguments"].as_object()?;
+    let fields = schema.get("properties")?.as_object()?;
+    let original = original.get("arguments")?.as_object()?;
     let input = original.get("input").or_else(|| original.get("id"))?;
     let input = input
         .as_str()
         .or_else(|| input.as_array()?.first()?.as_str())?;
     let mut arguments = serde_json::Map::new();
     let words = input.split_whitespace().collect::<Vec<_>>();
-    if fields.contains_key("gene") && words.len() == 2 {
-        arguments.insert("gene".into(), json!(words[0]));
-        let key = if words[1].starts_with("c.") {
+    if let [gene, change] = words.as_slice()
+        && fields.contains_key("gene")
+    {
+        arguments.insert("gene".into(), json!(gene));
+        let key = if change.starts_with("c.") {
             "coding"
         } else {
             "protein"
@@ -133,7 +135,7 @@ fn replacement(root: &crate::grammar::Root, args: &[std::ffi::OsString]) -> Opti
         if !fields.contains_key(key) {
             return None;
         }
-        arguments.insert(key.into(), json!(words[1]));
+        arguments.insert(key.into(), json!(change));
     } else {
         let key = fields
             .iter()
@@ -144,7 +146,7 @@ fn replacement(root: &crate::grammar::Root, args: &[std::ffi::OsString]) -> Opti
                     .into_iter()
                     .find(|key| fields.contains_key(*key))
             })?;
-        let node = super::arguments::resolve(&fields[key], &schema);
+        let node = super::arguments::resolve(fields.get(key)?, &schema);
         arguments.insert(
             key.into(),
             if node["type"] == "array" {

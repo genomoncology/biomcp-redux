@@ -14,10 +14,14 @@ pub(super) fn summarize(
     {
         let text = summary::render(root, value, args);
         let content = json!([{"type":"text","text":text}]);
-        let mut result = reply["result"].clone();
-        result["content"] = content;
-        if super::protocol::within_cap(&result) {
-            reply["result"] = result;
+        if let Some(result) = reply.get_mut("result") {
+            let mut candidate = result.clone();
+            if let Some(fields) = candidate.as_object_mut() {
+                fields.insert("content".into(), content);
+            }
+            if super::protocol::within_cap(&candidate) {
+                *result = candidate;
+            }
         }
     }
     reply

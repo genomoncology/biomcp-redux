@@ -78,7 +78,10 @@ fn exchange(
         .lines()
         .map(|line| {
             let value: Value = serde_json::from_str(line).map_err(|e| e.to_string())?;
-            Ok((value["id"].to_string(), line.to_owned()))
+            Ok((
+                value.get("id").ok_or("missing reply id")?.to_string(),
+                line.to_owned(),
+            ))
         })
         .collect()
 }
