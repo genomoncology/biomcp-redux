@@ -51,17 +51,21 @@ pub fn search(leg: &Leg<'_>, q: &GwasSearch) -> Result<Page, RequestError> {
             combined.rows.push(row);
         }
     }
+    if u64::from(combined.received) != combined.total {
+        return Err(biomcp_fetch::bad_reply(
+            biomcp_types::Source::Gwas,
+            Some(200),
+        ));
+    }
+    // Optional metadata and refused identities must retain the original native
+    // page's usable rows and diagnostics when exact local ordering is unprovable.
     if combined.rows.len() as u64 != combined.total
-        || u64::from(combined.received) != combined.total
         || combined
             .rows
             .iter()
             .any(|row| row.value.exact_p_value.is_none())
     {
-        return Err(biomcp_fetch::bad_reply(
-            biomcp_types::Source::Gwas,
-            Some(200),
-        ));
+        return native(leg, q, selectors(q), 0);
     }
     combined.rows.sort_by(|a, b| {
         a.value

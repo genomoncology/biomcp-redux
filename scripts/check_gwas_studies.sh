@@ -37,11 +37,12 @@ case "${1:-focused}" in
     sh "$0" focused
     sh "$0" installed
     ;;
-  scans)
-    cargo fmt --all -- --check
-    make lint-workspace lint-tools
+  scans) make check-cheap ;;
+  review)
+    make check-cheap
+    sh "$0" focused
     ;;
 
   routine) exec sh scripts/check_nightly_tests.sh routine ;;
-  *) echo 'usage: check_gwas_studies.sh [prepare|focused|installed|scans|proof|live|routine]' >&2; exit 2 ;;
+  *) echo 'usage: check_gwas_studies.sh [prepare|focused|installed|scans|review|proof|live|routine]' >&2; exit 2 ;;
 esac
