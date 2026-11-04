@@ -8,6 +8,9 @@ case "${1:-focused}" in
     cargo fmt --all
     make schema-generate docs-generate
     ;;
+  live)
+    python3.13 scripts/maude_dates_proof.py "${CARGO_TARGET_DIR:-target}/debug/biomcp" "$2" "target/0606-live"
+    ;;
   list)
     python3.13 scripts/trials.py --target cases --list
     ;;

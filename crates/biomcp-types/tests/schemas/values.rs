@@ -441,8 +441,11 @@ fn generated_metadata_preserves_partial_dates_and_describes_error_codes() {
             assert!(input_validator.is_valid(&value));
             let query: biomcp_types::AdverseEventSearch = serde_json::from_value(value).unwrap();
             // Month input becomes a full-day reply query accepted by the retained schema.
-            assert!(jsonschema::validator_for(&full_dates).unwrap()
-                .is_valid(&serde_json::to_value(query).unwrap()));
+            assert!(
+                jsonschema::validator_for(&full_dates)
+                    .unwrap()
+                    .is_valid(&serde_json::to_value(query).unwrap())
+            );
         }
     }
     let timestamp = generate::<biodata::StudyImportTime>();

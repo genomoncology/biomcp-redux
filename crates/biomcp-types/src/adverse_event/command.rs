@@ -17,7 +17,8 @@ impl schemars::JsonSchema for AdverseEventSearchCommand {
         }
         schema.insert(
             "x-reply-query-titles".into(),
-            vec![<super::AdverseEventSearch as schemars::JsonSchema>::schema_name().into_owned()].into(),
+            vec![<super::AdverseEventSearch as schemars::JsonSchema>::schema_name().into_owned()]
+                .into(),
         );
         schema
     }

@@ -121,9 +121,7 @@ impl TryFrom<SearchFields> for AdverseEventSearch {
         {
             return Err(QueryInvalid::new(&["source", "text"]));
         }
-        if v.source != AdverseEventSource::Faers
-            && (v.reaction.is_some() || v.serious.is_some())
-        {
+        if v.source != AdverseEventSource::Faers && (v.reaction.is_some() || v.serious.is_some()) {
             return Err(QueryInvalid::new(&[
                 "source",
                 "reaction",
@@ -135,7 +133,11 @@ impl TryFrom<SearchFields> for AdverseEventSearch {
         if v.source == AdverseEventSource::Vaers
             && (v.received_from.is_some() || v.received_to.is_some())
         {
-            return Err(QueryInvalid::new(&["source", "received_from", "received_to"]));
+            return Err(QueryInvalid::new(&[
+                "source",
+                "received_from",
+                "received_to",
+            ]));
         }
         Ok(Self(v))
     }

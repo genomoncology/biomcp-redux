@@ -31,9 +31,11 @@ pub fn expression(query: &AdverseEventSearch) -> String {
         selectors.push(phrase("product_problems", text));
     }
     if query.received_from().is_some() || query.received_to().is_some() {
-        let from = query.received_from()
+        let from = query
+            .received_from()
             .map_or_else(|| "*".into(), |date| date.to_string().replace('-', ""));
-        let to = query.received_to()
+        let to = query
+            .received_to()
             .map_or_else(|| "*".into(), |date| date.to_string().replace('-', ""));
         selectors.push(format!("date_received:[{from} TO {to}]"));
     }
