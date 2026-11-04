@@ -35,7 +35,7 @@
         "/status": "complete",
         "/result/molecular_profile_id": "skcm_tcga_pan_can_atlas_2018_mutations",
         "/result/entrez_gene_id": "673",
-        "/result/items/0/sample_id": "TCGA-D3-A51N-06",
+        "/result/items/0/sample_id": "TCGA-BF-A1PU-01",
         "/result/items/0/protein_change": "V600E",
         "/result/items/0/mutation_type": "Missense_Mutation",
         "/page/total": 245,
@@ -63,7 +63,7 @@
         "/status": "complete",
         "/result/molecular_profile_id": "skcm_tcga_pan_can_atlas_2018_mutations",
         "/result/entrez_gene_id": "673",
-        "/result/items/0/sample_id": "TCGA-D3-A5GN-06",
+        "/result/items/0/sample_id": "TCGA-BF-A1PX-01",
         "/result/items/0/protein_change": "V600E",
         "/result/items/0/mutation_type": "Missense_Mutation",
         "/page/total": 245,
@@ -80,7 +80,7 @@
         "/query/gene": "BRAF",
         "/page/offset": 47,
         "/page/total": 245,
-        "/result/items/0/sample_id": "TCGA-D3-A5GR-06"
+        "/result/items/0/sample_id": "TCGA-BF-A3DJ-01"
       },
       "max_bytes": 7000
     },
