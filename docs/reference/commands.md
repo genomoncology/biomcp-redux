@@ -48,11 +48,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 -h, --help: Print scoped command help without source requests.
 --version: Print the installed version without source requests.
@@ -132,11 +138,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -181,11 +193,17 @@ Options:
       --source <source>
           Explicit keyed NCI source.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -236,11 +254,17 @@ Options:
       --source <source>
           Native author source.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -299,14 +323,20 @@ Options:
       --name <name>
           NCI partial organization name; names are not unique.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
 
       --offset <offset>
           Offset within the complete retained organization snapshot.
 
-      --fresh
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
       --pool <pool>
           Snapshot identity retained by continuation commands.
@@ -377,11 +407,17 @@ Options:
       --species <species>
           Cellosaurus species: NCBI Taxonomy name or ID (for example Homo sapiens or 9606).
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -450,14 +486,20 @@ Options:
       --pubmed <pubmed>
           Exact source publication identity.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
 
       --study <study>
           Exact source study accession.
 
-      --fresh
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
       --trait <trait>
           Literal native efo_trait label; never searches reported_trait prose.
@@ -532,11 +574,17 @@ Options:
           [default: false]
           [possible values: true, false]
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -586,11 +634,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -655,8 +709,11 @@ Options:
           [default: false]
           [possible values: true, false]
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -710,11 +767,17 @@ Options:
       --pool <pool>
           Opaque continuation retaining the catalog revision and selectors.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -764,11 +827,17 @@ Options:
       --source <source>
           Required CPIC source; ClinPGx is not supported for search.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -830,11 +899,17 @@ Options:
       --initiated-to <initiated_to>
           Inclusive initiation date, YYYY-MM-DD; FDA device recalls only.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
       --limit <limit>
           Five results by default; at most fifty source rows or product headers.
@@ -932,14 +1007,20 @@ Options:
       --received-from <received_from>
           Inclusive FAERS or MAUDE FDA receipt lower bound, YYYY-MM-DD or YYYY-MM; a month starts on its first day.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
 
       --received-to <received_to>
           Inclusive FAERS or MAUDE FDA receipt upper bound, YYYY-MM-DD or YYYY-MM; a month ends on its last day.
 
-      --fresh
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
       --serious <serious>
           FAERS report flag: any uses the source seriousness flag; the specific flags can overlap. Never a reaction outcome.
@@ -1014,11 +1095,17 @@ Options:
       --source <source>
           One explicit source, default OLS.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -1082,14 +1169,20 @@ Options:
       --reason <reason>
           Phrase in the published recall reason; drug recalls only.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
 
       --source <source>
           Exactly one source; default MyChem never fans out.
 
-      --fresh
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
       --status <status>
           Literal native recall status; drug recalls only.
@@ -1150,11 +1243,17 @@ Options:
       --offset <offset>
           Number of results to skip.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -1220,8 +1319,11 @@ Options:
       --offset <offset>
           Number of pool items to skip.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
 
       --open-access[=<open_access>]
           Require the source's native open-access filter; Semantic Scholar means a public PDF.
@@ -1229,8 +1331,11 @@ Options:
           [default: false]
           [possible values: true, false]
 
-      --fresh
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
       --pool <pool>
           Stable snapshot from an earlier response.
@@ -1364,8 +1469,11 @@ Options:
       --distance <distance>
           Source distance with explicit mi or km units.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
 
       --exact-condition[=<exact_condition>]
           Ask ClinicalTrials.gov to restrict matching to the registered condition phrase; its support is partial.
@@ -1373,8 +1481,11 @@ Options:
           [default: false]
           [possible values: true, false]
 
-      --fresh
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
       --facility <facility>
           Facility phrase; ClinicalTrials.gov broadens after zero exact matches. NCI matches exact names. Cannot combine with radius.
@@ -1526,14 +1637,20 @@ Options:
       --protein <protein>
           Explicit substitution or synonymous change using checked amino-acid codes.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
 
       --query <query>
           Raw MyVariant query, passed and echoed unchanged when component policy allows; requires --source myvariant. With disabled components use declared selectors instead.
 
-      --fresh
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
       --region <region>
           Exact one-based inclusive MyVariant region, such as chr7:55259500-55259600; requires --build.
@@ -1605,11 +1722,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -1646,11 +1769,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -1686,11 +1815,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -1734,11 +1869,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -1797,11 +1938,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -1854,11 +2001,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -1923,11 +2076,17 @@ Options:
       --source <source>
           HPO or Monarch for cards, synonyms and xrefs; Monarch only for hierarchy, diseases and genes. Defaults to HPO for cards, synonyms and xrefs, otherwise Monarch.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -1993,8 +2152,11 @@ Options:
       --section-offset <section_offset>
           Native relation offset for a selected genes or events section.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -2056,11 +2218,17 @@ Options:
       --section-offset <section_offset>
           Offset within one named section; all requires zero.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -2133,14 +2301,20 @@ Options:
       --snapshot <snapshot>
           Retained collection for local continuation.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
 
       --source <source>
           Required source, checked against the section.
 
-      --fresh
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -2211,11 +2385,17 @@ Options:
       --supplement <supplement>
           Exact native PMA supplement; absent selects the base row.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -2285,11 +2465,17 @@ Options:
       --source <source>
           FAERS by default; MAUDE is explicit.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -2371,14 +2557,20 @@ Options:
       --section-offset <section_offset>
           Native row offset within the selected section.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
 
       --sex <sex>
           Native sex code.
 
-      --fresh
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
       --source <source>
           Default MyDisease; no automatic fallback.
@@ -2464,11 +2656,17 @@ Options:
       --source <source>
           Required source; there is no default exact-ID resolver.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -2527,11 +2725,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -2584,11 +2788,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -2650,11 +2860,17 @@ Options:
       --source <source>
           Explicit provider; defaults to ClinicalTrials.gov and never falls back.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -2735,14 +2951,20 @@ Options:
       --section-limit <section_limit>
           Rows per named source section page; omitted uses the native source default.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
 
       --section-offset <section_offset>
           Source rows to skip independently of identity candidate paging.
 
-      --fresh
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
       --tumor-type <tumor_type>
           Explicit tumor context for keyed OncoKB annotation.
@@ -2805,11 +3027,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -2861,11 +3089,17 @@ Options:
       --pool <pool>
           Retained collection identity.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -2908,11 +3142,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -2946,11 +3186,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -2991,11 +3237,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -3044,11 +3296,17 @@ Options:
       --type <type>
           Exact UniProt native label, without an alias map.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -3097,11 +3355,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -3151,11 +3415,17 @@ Options:
       --type <type>
           Exact native InterPro type, not a normalized domain label.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -3203,11 +3473,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -3257,11 +3533,17 @@ Options:
       --pool <pool>
           Retained collection identity.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -3309,11 +3591,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -3352,11 +3640,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -3392,11 +3686,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -3442,11 +3742,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -3494,11 +3800,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -3541,11 +3853,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -3606,11 +3924,17 @@ Options:
       --variant <variant>
           Explicit protein substitution.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -3662,11 +3986,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -3724,11 +4054,17 @@ Options:
       --variant <variant>
           Explicit checked protein substitution.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -3781,11 +4117,17 @@ Options:
       --source <source>
           Graph provider; iCite remains the default.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -3836,11 +4178,17 @@ Options:
       --source <source>
           Graph provider; iCite remains the default.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -3897,11 +4245,17 @@ Options:
       --pool <pool>
           Stored checked source scan and original hit positions.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -3953,11 +4307,17 @@ Options:
       --pool <pool>
           Fixed recommendation pool.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -3995,11 +4355,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -4045,11 +4411,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -4089,11 +4461,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -4145,11 +4523,17 @@ Options:
       --version <version>
           VCV archive or ERepo document version; RCV/SCV selectors match a returned native version.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -4208,11 +4592,17 @@ Options:
       --resolver <resolver>
           Resolver for reference-qualified input.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -4276,11 +4666,17 @@ Options:
       --study <study>
           Explicit study; there is no default cohort.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -4335,11 +4731,17 @@ Options:
       --source <source>
           Explicit service; all preserves independent results without consensus.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -4382,11 +4784,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -4423,11 +4831,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 Example: biomcp skill list
 
@@ -4459,11 +4873,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 Example: biomcp skill list
 
@@ -4495,11 +4915,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 Example: biomcp skill render
 
@@ -4535,11 +4961,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 Example: biomcp skill status biomcp-guidance
 
@@ -4561,8 +4993,11 @@ Arguments:
           Directory to inspect or install BioMCP guidance.
 
 Options:
-      --force
+      --force[=<force>]
           Repair managed files; retain unrelated files.
+
+          [default: false]
+          [possible values: true, false]
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
@@ -4579,11 +5014,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 Example: biomcp skill install biomcp-guidance
 
@@ -4608,8 +5049,11 @@ Options:
           [default: json]
           [possible values: json, md]
 
-      --verbose
+      --verbose[=<verbose>]
           Include commit, target, schema versions, config and cache paths.
+
+          [default: false]
+          [possible values: true, false]
 
       --disable-sources <disable-sources>
           Exclude source names or source terms groups.
@@ -4620,11 +5064,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 Example: biomcp version
 
@@ -4663,11 +5113,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 Example: biomcp mcp-config
 
@@ -4700,11 +5156,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 Example: biomcp health --offline
 
@@ -4739,11 +5201,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -4771,11 +5239,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 Example: biomcp store clean
 
@@ -4812,11 +5286,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 Example: biomcp key list
 
@@ -4848,11 +5328,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 Example: biomcp key list
 
@@ -4879,8 +5365,11 @@ Options:
           [default: json]
           [possible values: json, md]
 
-      --replace
+      --replace[=<replace>]
           Replace an existing stored credential.
+
+          [default: false]
+          [possible values: true, false]
 
       --disable-sources <disable-sources>
           Exclude source names or source terms groups.
@@ -4891,11 +5380,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 Example: biomcp key set oncokb
 
@@ -4933,11 +5428,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 Example: biomcp key remove oncokb
 
@@ -4961,8 +5462,11 @@ Options:
           [default: json]
           [possible values: json, md]
 
-      --hosted
+      --hosted[=<hosted>]
           Refuse host file saves, health details and store or key changes over MCP.
+
+          [default: false]
+          [possible values: true, false]
 
       --disable-sources <disable-sources>
           Exclude source names or source terms groups.
@@ -4990,11 +5494,17 @@ Options:
       --allow-host <allow-host>
           Allow an HTTP Host authority; required for non-loopback listeners.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 Example: biomcp serve
 Example: biomcp help serve
@@ -5037,11 +5547,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 JSON reply readers ignore unknown fields and unknown growable enum values within a major. Query schemas remain closed.
 
@@ -5103,11 +5619,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -5158,11 +5680,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -5190,11 +5718,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -5224,11 +5758,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -5256,11 +5796,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -5290,11 +5836,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -5322,11 +5874,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -5356,11 +5914,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -5388,11 +5952,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -5422,11 +5992,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -5454,11 +6030,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -5486,11 +6068,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -5518,11 +6106,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -5550,11 +6144,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -5582,11 +6182,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -5614,11 +6220,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -5646,11 +6258,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -5680,11 +6298,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -5714,11 +6338,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -5748,11 +6378,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -5802,11 +6438,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -5834,11 +6476,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -5868,11 +6516,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -5902,11 +6556,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -5934,11 +6594,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -5968,11 +6634,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -6000,11 +6672,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -6034,11 +6712,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -6066,11 +6750,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -6098,11 +6788,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -6130,11 +6826,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -6162,11 +6864,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -6194,11 +6902,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -6226,11 +6940,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -6258,11 +6978,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -6292,11 +7018,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -6326,11 +7058,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -6360,11 +7098,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -6392,11 +7136,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -6429,11 +7179,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -6461,11 +7217,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -6498,11 +7260,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -6530,11 +7298,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -6573,11 +7347,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -6605,11 +7385,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -6637,11 +7423,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -6669,11 +7461,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -6701,11 +7499,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -6733,11 +7537,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -6765,11 +7575,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -6797,11 +7613,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -6835,11 +7657,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -6867,11 +7695,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -6899,11 +7733,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -6942,11 +7782,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -6974,11 +7820,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -7006,11 +7858,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -7038,11 +7896,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -7070,11 +7934,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -7102,11 +7972,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -7134,11 +8010,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -7166,11 +8048,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -7203,11 +8091,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -7235,11 +8129,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -7275,11 +8175,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -7307,11 +8213,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -7339,11 +8251,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -7371,11 +8289,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -7403,11 +8327,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -7450,11 +8380,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -7482,11 +8418,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -7514,11 +8456,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -7546,11 +8494,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -7578,11 +8532,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -7610,11 +8570,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -7642,11 +8608,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -7674,11 +8646,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -7706,11 +8684,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -7738,11 +8722,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -7770,11 +8760,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -7802,11 +8798,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -7840,11 +8842,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -7874,11 +8882,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -7906,11 +8920,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -7938,11 +8958,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -7970,11 +8996,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -8002,11 +9034,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -8034,11 +9072,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -8068,11 +9112,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -8105,11 +9155,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -8137,11 +9193,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -8182,11 +9244,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -8217,11 +9285,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -8249,11 +9323,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -8281,11 +9361,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -8315,11 +9401,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -8347,11 +9439,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -8385,11 +9483,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -8424,11 +9528,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -8457,11 +9567,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -8489,11 +9605,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -8523,11 +9645,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -8564,11 +9692,17 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --offline
+      --offline[=<offline>]
           Read local data without source requests.
 
-      --fresh
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
