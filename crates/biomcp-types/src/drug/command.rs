@@ -8,6 +8,7 @@ impl schemars::JsonSchema for DrugGetCommand {
     }
     fn json_schema(generator: &mut schemars::SchemaGenerator) -> schemars::Schema {
         let mut schema = super::DrugGet::json_schema(generator);
+        schema.insert("description".into(), "Retrieve a drug by source-native ID, brand or generic name, with explicit source-scoped sections.".into());
         let who = super::DrugWhoGet::json_schema(generator);
         if let Some(properties) = schema.get_mut("properties").and_then(|v| v.as_object_mut())
             && let Some(input) = who.pointer("/properties/input")
