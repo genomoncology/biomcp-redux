@@ -59,9 +59,7 @@ pub(super) fn frequency(
         },
     )
     .with_stratum(Some(data_type), None, None, None)
-    .and_then(|frequency| {
-        frequency.with_counts(subset.ac, subset.an, subset.homozygote_count, None)
-    });
+    .and_then(|frequency| frequency.with_counts(subset.ac, subset.an, None, None));
     match frequency {
         Ok(frequency) => Some(match &subset.filters {
             Some(filters) => frequency.with_filters(filters.clone().into()),

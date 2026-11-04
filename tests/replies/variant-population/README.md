@@ -12,3 +12,11 @@ and request
 `https://myvariant.info/v1/variant/chr7%3Ag.140753336A%3ET?assembly=hg38`.
 Only the source record identity, coordinate metadata, rsID and ClinGen CAid remain.
 The query envelope and downstream count reply in the local transport case are synthetic.
+
+0610 extends the same gnomAD request with source `homozygote_count` totals and nullable `joint { ac an homozygote_count }`. The four prior variant-request wrappers are rebound to the new query body and canonical POST identity; their exchanges and numeric fields are unchanged. Missing fields stay absent rather than becoming zero.
+
+`homozygotes-joint` contains actual public gnomAD, MyVariant and CAR responses captured on 2026-11-04. Its original gnomAD request/response bytes and response SHA-256 are retained beside the replay wrapper in `source-binding.json`. The witness publishes exome homozygotes 80805, genome homozygotes 6918, joint AC 513548, AN 1613846 and homozygotes 87723. Matching VA ALL rows publish 4.1.0 for exome and genome; the summary names that shared version, not a separate joint release. No values are summed.
+
+`no-joint` and `conflicting-release` are explicitly synthetic response-only controls over that unchanged witness numeric data. Only joint is replaced by null in the first; only the genome ALL release label becomes `synthetic-conflicting-release` in the second. They are not claims of live absence or a published conflicting release. The actual BRAF source query returned joint 2/1612922/0 and is not presented as a no-joint witness.
+
+Publisher schemas: [variant totals](https://github.com/broadinstitute/gnomad-browser/blob/main/graphql-api/src/graphql/types/variant.graphql) and [VA provenance](https://github.com/broadinstitute/gnomad-browser/blob/main/graphql-api/src/graphql/types/va.graphql). VA has exome and genome release metadata but no independent joint branch.
