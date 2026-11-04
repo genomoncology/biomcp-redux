@@ -15,8 +15,12 @@ case "${1:-focused}" in
     runner=$(cat target/0608-runner)
     "$runner" --list
     ;;
-  focused)
-    make check-cheap
+  focused|installed)
+    if [ "$1" = focused ]; then
+      make check-cheap
+    else
+      cargo build --locked -p biomcp --bin biomcp
+    fi
     shift
     sh "$0" build-cases
     runner=$(cat target/0608-runner)
