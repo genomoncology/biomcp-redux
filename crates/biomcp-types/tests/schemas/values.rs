@@ -505,7 +505,7 @@ const LINKS: &[(&str, &[(&str, &str)])] = &[
     ("StudyCard", &[("source_url", "uri")]),
     ("SupplementContent", &[("url", "uri")]),
     ("TextContent", &[("url", "uri")]),
-    ("TrialCard", &[("url", "uri")]),
+    ("TrialPostedCard", &[("url", "uri")]),
     ("TrialDocument", &[("url", "uri")]),
     ("TrialHeader", &[("url", "uri")]),
     ("StudyFile", &[("htmlUrl", "uri"), ("downloadUrl", "uri")]),
