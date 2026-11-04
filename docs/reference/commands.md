@@ -2416,6 +2416,12 @@ Options:
       --config <config>
           Read configuration from this file.
 
+      --evidence-level <evidence_level>...
+          Native CIViC evidence levels; repeat to include several levels.
+
+      --evidence-status <evidence_status>
+          Native CIViC evidence status; omitted preserves the source's existing default.
+
       --label-section <label_section>
           Exact native label heading, required only for the label section.
 
@@ -2425,17 +2431,17 @@ Options:
       --section-limit <section_limit>
           Named section page size, refused on an identity-only card.
 
-      --section-offset <section_offset>
-          Named section continuation, refused on an identity-only card.
-
-      --source <source>
-          Required source; there is no default exact-ID resolver.
-
       --offline
           Read local data without source requests.
 
+      --section-offset <section_offset>
+          Named section continuation, refused on an identity-only card.
+
       --fresh
           Request fresh source data instead of cached replies.
+
+      --source <source>
+          Required source; there is no default exact-ID resolver.
 
 ```
 
@@ -2444,6 +2450,8 @@ Exact source ID retrieval with an explicitly selected source. Sources: chembl, c
 - `--civic-cursor`: Source continuation cursor for that exact drug, profile and claim collection.
 - `--civic-kind`: Independent source evidence or assertion collection within the selected profile.
 - `--civic-profile`: Selected source CIViC molecular profile for a drug-scoped claim stream.
+- `--evidence-level`: Source CIViC evidence levels; repeat to include several levels.
+- `--evidence-status`: Source CIViC evidence status; omitted preserves the source's existing default.
 - `input`: Exact source ID; WHO references retain source spaces. No name or alias resolution.
 - `--label-section`: Exact source label heading, required only for the label section.
 - `--product-number`: Explicit source application product number, only for approvals.
@@ -2690,26 +2698,32 @@ Options:
       --config <config>
           Read configuration from this file.
 
+      --evidence-level <evidence_level>...
+          Native CIViC evidence levels; repeat to include several levels.
+
+      --evidence-status <evidence_status>
+          Native CIViC evidence status; omitted preserves the source's existing default.
+
       --limit <limit>
           Candidate rows per page; more remain reachable through typed next commands.
 
       --offset <offset>
           Candidate rows to skip in source order.
 
+      --offline
+          Read local data without source requests.
+
       --resolver <resolver>
           Resolver for reference-qualified notation; never repairs the input locally.
+
+      --fresh
+          Request fresh source data instead of cached replies.
 
       --section-limit <section_limit>
           Rows per named source section page; omitted uses the native source default.
 
-      --offline
-          Read local data without source requests.
-
       --section-offset <section_offset>
           Source rows to skip independently of identity candidate paging.
-
-      --fresh
-          Request fresh source data instead of cached replies.
 
       --tumor-type <tumor_type>
           Explicit tumor context for keyed OncoKB annotation.
@@ -2722,6 +2736,8 @@ Read an rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS or VCF-st
 - `--civic-cursor`: Source CIViC cursor, retained unchanged.
 - `--civic-kind`: Source CIViC claim collection within the selected profile.
 - `--civic-profile`: Selected CIViC molecular profile for source claim paging.
+- `--evidence-level`: Source CIViC evidence levels; repeat to include several levels.
+- `--evidence-status`: Source CIViC evidence status; omitted preserves the source's existing default.
 - `input`: rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS or VCF-style genomic coordinates.
 - `--limit`: Candidate rows per page; more remain reachable through typed next commands.
 - `--offset`: Candidate rows to skip in source order.
