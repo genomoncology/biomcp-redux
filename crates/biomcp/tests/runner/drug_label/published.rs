@@ -43,8 +43,13 @@ pub(super) fn sections() -> Check {
         }
     }
     let absent = both(&env, args(record, "alarms", 0)?, 0)?;
-    if absent.pointer("/result/label/reason") != Some(&json!("not-found")) {
-        return Err("published but absent section must be unavailable".into());
+    if absent.pointer("/result/label/state") != Some(&json!("empty"))
+        || absent.pointer("/status") != Some(&json!("complete"))
+        || absent.pointer("/sources/0/state") != Some(&json!("ok"))
+    {
+        return Err(
+            "published but absent section must be empty with a complete source result".into(),
+        );
     }
     for heading in ["not_a_section", "openfda", "id"] {
         let invalid = both(&env, args(record, heading, 0)?, 2)?;

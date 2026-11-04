@@ -5,8 +5,8 @@ use biomcp_fetch::RequestError;
 use biomcp_types::Paged;
 use biomcp_types::ReplyBody;
 use biomcp_types::{
-    DrugGet, DrugLabel, DrugPage, DrugSearch, DrugSection, DrugSource, PageInfo, Reason, Request,
-    Section, Source, StepKind,
+    DrugGet, DrugLabel, DrugPage, DrugSearch, DrugSection, DrugSource, PageInfo, Request, Section,
+    Source, StepKind,
 };
 const SOURCE: Source = Source::OpenfdaLabel;
 pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
@@ -220,10 +220,10 @@ fn select(
                 data,
             }
         }
-        None => {
-            crate::status::item(out, true, false, true);
-            Section::unavailable(SOURCE, Reason::NotFound)
-        }
+        None => Section::Empty {
+            source: SOURCE,
+            record: None,
+        },
     };
     out.body = (DrugLabel {
         identity: record.header()?,
