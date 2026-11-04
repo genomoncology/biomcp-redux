@@ -93,6 +93,17 @@ if name == 'gh' and sys.argv[1:3] == ['release', 'edit'] and os.environ['GITHUB_
 
 
 class PluginInstall(unittest.TestCase):
+    def test_changed_candidate_sidecar_cannot_qualify_an_older_wheel(self):
+        from release.artifacts import candidate_record
+        from release.test_licenses import wheel_fixture
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            _, record = wheel_fixture(root, 'manylinux_2_28_x86_64')
+            record['revision'] = 'b' * 40
+            (root / 'release.json').write_text(json.dumps(record))
+            with self.assertRaisesRegex(ValueError, 'sidecar differs'):
+                candidate_record(root, 'b' * 40)
+
     def test_missing_claude_does_not_report_plugin_pass(self):
         from release.published import plugin
         with tempfile.TemporaryDirectory() as directory:

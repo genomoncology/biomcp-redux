@@ -325,9 +325,16 @@ class LegacyInstaller(unittest.TestCase):
             artifacts.mkdir()
             content = b'#!/bin/sh\necho "biomcp 1.0.0"\n'
             archive, _ = candidate(artifacts, 'biomcp-' + suffix + '.tar.gz', content)
-            (artifacts / 'release.json').write_text(json.dumps({
-                'revision': 'a' * 40, 'version': '1.0.0',
-                'binary_sha256': hashlib.sha256(content).hexdigest()}))
+            from release.artifacts import wheel
+            record = {'revision': 'a' * 40, 'version': '1.0.0',
+                      'distribution': 'biomcp-cli', 'platform': 'manylinux_2_28_x86_64',
+                      'profile': 'release', 'cargo_profile': {'debug_assertions': False, 'opt_level': '3'},
+                      'binary_sha256': hashlib.sha256(content).hexdigest()}
+            binary = root / 'fake-binary'
+            binary.write_bytes(content)
+            write_payloads(artifacts)
+            wheel(artifacts, binary, record)
+            (artifacts / 'release.json').write_text(json.dumps(record))
             command = legacy_installer(root, '1.0.0', artifacts, 'a' * 40)
             check_version(run(command + ['version']), '1.0.0')
             requested = [json.loads(line) for line in (root / 'downloads.jsonl').read_text().splitlines()]

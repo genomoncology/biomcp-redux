@@ -2,7 +2,6 @@
 import argparse
 import hashlib
 import shutil
-import shlex
 import json
 import os
 from pathlib import Path
@@ -18,9 +17,11 @@ import urllib.request
 if __package__:
     from .smoke import environment, mcp_probe
     from .local_server import server
+    from .artifacts import candidate_record
 else:
     from smoke import environment, mcp_probe
     from local_server import server
+    from artifacts import candidate_record
 
 IMAGE = 'ghcr.io/genomoncology/biomcp'
 SERVER = 'io.github.genomoncology/biomcp'
@@ -95,9 +96,7 @@ def legacy_installer(root, version, artifacts, revision, script=None):
         raise ValueError('pinned 0.9 installer checksum differs')
     script_path = root / 'install.sh'
     script_path.write_bytes(data)
-    record = json.loads((artifacts / 'release.json').read_text())
-    if record['revision'] != revision or record['version'] != version:
-        raise ValueError('candidate archive source revision or version differs')
+    record = candidate_record(artifacts, revision, version)
     adapter = root / 'download-bin'
     adapter.mkdir()
     curl = shutil.which('curl')
@@ -210,9 +209,8 @@ def main():
         if args.channel == 'plugin':
             if not all([args.plugin_source, args.binary, args.artifacts, args.revision]):
                 parser.error('plugin requires --plugin-source, --binary, --artifacts and --revision')
-            record = json.loads((args.artifacts / 'release.json').read_text())
-            if (record['revision'] != args.revision or record['version'] != args.version
-                    or hashlib.sha256(args.binary.read_bytes()).hexdigest() != record['binary_sha256']):
+            record = candidate_record(args.artifacts, args.revision, args.version)
+            if hashlib.sha256(args.binary.read_bytes()).hexdigest() != record['binary_sha256']:
                 raise ValueError('plugin executable differs from candidate identity')
             plugin(root, args.version, args.plugin_source.resolve(), args.binary.resolve(), args.claude, record)
             return
