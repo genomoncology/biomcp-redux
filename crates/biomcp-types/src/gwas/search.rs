@@ -182,6 +182,13 @@ impl GwasSearch {
     /// Select publication studies rather than association rows.
     pub fn studies(&self) -> bool { self.0.studies }
 
+    /// Read only one association to obtain a native study total.
+    pub fn study_count(id: GwasStudyId) -> Self {
+        let mut query = Self::study_page(id, &super::GwasSectionPage::default());
+        query.0.limit = 1;
+        query
+    }
+
     /// Checked variant selector.
     pub fn variant(&self) -> Option<&RsId> {
         self.0.variant.as_ref()

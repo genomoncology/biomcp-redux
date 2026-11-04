@@ -62,7 +62,7 @@ pub fn studies(leg: &Leg<'_>, q: &GwasSearch) -> Result<Studies, RequestError> {
         out.items.push(GwasStudyRow { study: mapped.value, association_count: None });
     }
     let counts = leg.batch(&out.items, |child, row| {
-        let query = GwasSearch::study_page(row.study.id.clone(), &biomcp_types::GwasSectionPage::default());
+        let query = GwasSearch::study_count(row.study.id.clone());
         super::search(child, &query).map(|page| page.total)
     });
     for (row, count) in out.items.iter_mut().zip(counts) {

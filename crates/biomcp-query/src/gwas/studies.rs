@@ -12,6 +12,7 @@ pub(super) fn search(cx: &Ctx<'_>, q: &GwasSearch) -> Outcome {
     let mut source = status::source(Source::Gwas, leg.finish(), error);
     if let Ok(rows) = result {
         out.include_refusals(rows.refusals);
+        out.dropped |= rows.items.iter().any(|row| row.association_count.is_none());
         out.problems.extend(rows.problems);
         source.retrieved_count = Some(rows.items.len() as u32);
         source.count = Some(rows.total);

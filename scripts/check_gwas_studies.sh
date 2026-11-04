@@ -9,6 +9,7 @@ case "${1:-focused}" in
     cargo check --locked -p biomcp
     cargo test --locked -p biomcp --test cases -- --list
     make docs-generate
+    UPDATE_SCHEMAS=1 cargo test --locked -p biomcp-types --features schema --test schemas checked_in_schemas_match_types -- --exact
     ;;
   focused)
     cargo test --locked -p biomcp --test cases -- gwas/
