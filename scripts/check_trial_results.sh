@@ -3,6 +3,8 @@
 set -eu
 cd "$(dirname "$0")/.."
 export RUSTUP_TOOLCHAIN=1.95.0
+python_bin=$(python3.13 -c 'from pathlib import Path; import sys; print(Path(sys.executable).resolve().parent)')
+export PATH="$python_bin:$PATH"
 case "${1:-focused}" in
   prepare)
     python3.13 scripts/schema_release.py --generate
@@ -22,6 +24,10 @@ case "${1:-focused}" in
     cargo test --locked -p biomcp --test cases trial/help
     make docs-check
     make schema-release-check
+    ;;
+  review)
+    make docs-check
+    sh "$0" scans "${2:?review requires the explicit reviewed baseline commit}"
     ;;
   scans)
     baseline=${2:?scans requires the explicit reviewed baseline commit}
@@ -60,5 +66,5 @@ SCANS
     cargo clippy --locked -p biomcp --test cases -- -D warnings
     cargo test --locked -p biomcp --test ratchets
     ;;
-  *) echo 'usage: check_trial_results.sh [prepare|focused|scans BASE_COMMIT]' >&2; exit 2 ;;
+  *) echo 'usage: check_trial_results.sh [prepare|focused|review BASE_COMMIT|scans BASE_COMMIT]' >&2; exit 2 ;;
 esac
