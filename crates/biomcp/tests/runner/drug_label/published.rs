@@ -1,5 +1,5 @@
 //! Feature drug-label: every source section remains selectable without changing its text.
-use super::*;
+use super::{Check, Value, both, field, get_args, get_setup, json};
 
 pub(super) fn sections() -> Check {
     let original: Value = serde_json::from_str(&crate::runner::launch::fixture_text(

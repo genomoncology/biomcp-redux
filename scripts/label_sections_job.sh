@@ -44,6 +44,7 @@ case "${1:-focused}" in
       npm exec --offline --yes --package=jscpd@4.0.5 -- jscpd "$prefix/crates/biomcp/tests/runner" --format rust --max-size 10mb --reporters json --output "target/0608-scans/$side-tests"
     done
     ;;
+  case-lint) cargo clippy --locked -p biomcp --test cases --test tools -- -D warnings ;;
   section-lint) cargo clippy --locked -p biomcp-query --lib -- -D warnings ;;
   verify)
     shift
