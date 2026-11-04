@@ -17,10 +17,11 @@ pub(super) fn check() -> Result<(), String> {
             None,
             &["--hosted".into()],
         )?;
-        let frame = json!({"jsonrpc":"2.0","id":1,"method":"tools/list"});
+        let frame = json!({"jsonrpc":"2.0","id":1,"method":"tools/call",
+            "params":{"name":"biomcp","arguments":{"args":["get","gene","TP53","oncokb","--offline"]}}});
         for mode in ["restricted", "commercial", "academic"] {
             let headers = format!(
-                "Content-Type: application/json\r\nAccept: application/json\r\nMCP-Protocol-Version: 2025-11-25\r\nx-biomcp-use: {mode}\r\n"
+                "Content-Type: application/json\r\nAccept: application/json, text/event-stream\r\nMCP-Protocol-Version: 2025-11-25\r\nx-biomcp-use: {mode}\r\nx-biomcp-key-oncokb-api-key: {KEY}\r\n"
             );
             let (status, reply, _) = server.raw(
                 "POST",
@@ -42,7 +43,9 @@ pub(super) fn check() -> Result<(), String> {
                     );
                 }
             } else if status != 200 {
-                return Err("hosted ceiling refused an allowed declaration".into());
+                return Err(format!(
+                    "hosted ceiling {ceiling} refused allowed {mode}: {status} {reply:?}"
+                ));
             }
         }
         // An absent declaration remains restricted even when the ceiling is higher.
