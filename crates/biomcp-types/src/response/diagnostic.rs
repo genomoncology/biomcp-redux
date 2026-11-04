@@ -212,7 +212,7 @@ page!(
     DiagnosticCandidate,
     DiagnosticSearch,
     "biomcp.diagnostic-page/5",
-    "Source-ordered GTR test candidates or WHO product headers."
+    "Source-ordered native diagnostic and medical-device submission candidates."
 );
 page!(
     diagnostic,
