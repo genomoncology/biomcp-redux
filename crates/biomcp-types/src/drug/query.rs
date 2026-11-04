@@ -124,8 +124,6 @@ impl DrugSearch {
 /// Retrieve a native ID or an exact brand or generic name. Brand matches rank first; Drugs@FDA then ranks original applications before ANDAs and earliest approval first; other sources retain search order.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "GetFields")]
-#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-#[cfg_attr(feature = "schema", schemars(with = "GetFields"))]
 pub struct DrugGet {
     #[serde(flatten)]
     fields: GetFields,
@@ -147,7 +145,8 @@ struct GetFields {
     #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 0)))]
     input: Text,
     /// Source inferred from an unambiguous requested section; otherwise MyChem.
-    #[serde(default)]
+    #[serde(default, deserialize_with = "selected_source")]
+    #[cfg_attr(feature = "schema", schemars(with = "DrugSource", extend("default" = "mychem")))]
     source: Option<DrugSource>,
     /// Explicit named disclosures; empty means identity only.
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
@@ -341,8 +340,8 @@ impl DrugGet {
         &self.fields.input
     }
     /// Source-native identity after name resolution.
-    pub fn native_input(&self) -> DrugId {
-        self.fields.input.as_str().parse().expect("native get dispatch requires a source ID")
+    pub fn native_input(&self) -> Result<DrugId, QueryInvalid> {
+        self.fields.input.as_str().parse().map_err(|_| QueryInvalid::new(&["input"]))
     }
     /// Required selected source.
     pub fn source(&self) -> DrugSource {
@@ -534,5 +533,25 @@ impl DrugSource {
         value.len() == 27 && value.as_bytes().get(14) == Some(&b'-') && value.as_bytes().get(25) == Some(&b'-')
             || value.contains(':') || value.starts_with("CHEMBL") || value.starts_with("DB") && value[2..].bytes().all(|b| b.is_ascii_digit())
             || value.bytes().all(|b| b.is_ascii_digit())
+    }
+}
+
+fn selected_source<'de, D: serde::Deserializer<'de>>(d: D) -> Result<Option<DrugSource>, D::Error> {
+    DrugSource::deserialize(d).map(Some)
+}
+
+#[cfg(feature = "schema")]
+impl schemars::JsonSchema for DrugGet {
+    fn schema_name() -> std::borrow::Cow<'static, str> { "DrugGet".into() }
+    fn json_schema(generator: &mut schemars::SchemaGenerator) -> schemars::Schema {
+        let mut schema = GetFields::json_schema(generator);
+        if let Some(properties) = schema.get_mut("properties").and_then(|p| p.as_object_mut()) {
+            properties.insert("input".into(), generator.subschema_for::<DrugId>().to_value());
+            properties.insert("source".into(), generator.subschema_for::<DrugSource>().to_value());
+        }
+        if let Some(required) = schema.get_mut("required").and_then(|r| r.as_array_mut()) {
+            required.push("source".into());
+        }
+        schema
     }
 }

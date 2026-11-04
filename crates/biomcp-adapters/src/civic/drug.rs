@@ -22,6 +22,8 @@ pub(super) struct Therapy {
     pub id: Option<Field<u64>>,
     pub name: Option<Field<NativeText>>,
     pub link: Option<Field<Text>>,
+    #[serde(default)]
+    pub therapy_aliases: Option<Field<Vec<Field<NativeText>>>>,
 }
 impl Therapy {
     pub(super) fn header(self, cx: &mut Problems) -> Option<DrugHeader> {
@@ -131,7 +133,11 @@ pub fn drug_search(
                     .into_iter()
                     .filter_map(|row| {
                         cx.record = None;
-                        match row.header(&mut cx) {
+                        let exact_alias = row.therapy_aliases.as_ref().and_then(Field::as_ref).is_some_and(|names| names.iter().filter_map(Field::as_ref).any(|name| name.as_str().eq_ignore_ascii_case(text.as_str())));
+                        match row.header(&mut cx).map(|mut header| {
+                            if exact_alias { header.matched_name = Some(biomcp_types::DrugNameMatch::Generic); }
+                            header
+                        }) {
                             Some(row) => Some(row),
                             None => {
                                 refusals = crate::Refusal::Refused;

@@ -16,7 +16,7 @@ pub(super) fn chembl(
     out: &mut Outcome,
 ) -> Result<(), RequestError> {
     let source = Source::Chembl;
-    let (row, metadata) = chembl::molecule(leg, &query.native_input())?;
+    let (row, metadata) = chembl::molecule(leg, &query.native_input().map_err(|_| biomcp_fetch::InputError::Serialization)?)?;
     if !matches!(
         query.sections(),
         [DrugSection::Targets] | [DrugSection::Indications]
@@ -30,7 +30,7 @@ pub(super) fn chembl(
     let offset = query.section_offset().unwrap_or(0);
     match query.sections() {
         [DrugSection::Targets] => {
-            let (mut page, meta) = chembl::mechanisms(leg, &query.native_input(), limit, offset)?;
+            let (mut page, meta) = chembl::mechanisms(leg, &query.native_input().map_err(|_| biomcp_fetch::InputError::Serialization)?, limit, offset)?;
             let records = chembl::map_targets(&drug, std::mem::take(&mut page.window.rows))
                 .map_err(|_| failure(source))?;
             out.problems.extend(page.problems);
@@ -46,7 +46,7 @@ pub(super) fn chembl(
             );
         }
         [DrugSection::Indications] => {
-            let (mut page, meta) = chembl::indications(leg, &query.native_input(), limit, offset)?;
+            let (mut page, meta) = chembl::indications(leg, &query.native_input().map_err(|_| biomcp_fetch::InputError::Serialization)?, limit, offset)?;
             let records = chembl::map_indications(&drug, std::mem::take(&mut page.window.rows))
                 .map_err(|_| failure(source))?;
             out.problems.extend(page.problems);
@@ -71,7 +71,7 @@ pub(super) fn opentargets(
     fresh: bool,
     out: &mut Outcome,
 ) -> Result<(), RequestError> {
-    let (row, meta) = opentargets::drug(leg, &query.native_input())?;
+    let (row, meta) = opentargets::drug(leg, &query.native_input().map_err(|_| biomcp_fetch::InputError::Serialization)?)?;
     let Some(row) = row else {
         crate::status::item(out, false, false, false);
         return Ok(());
@@ -276,7 +276,7 @@ fn chembl_card(
     out.body = card.with_query(query.clone());
     card_next(out, query, fresh, has_xrefs);
     if let Some(get) = crate::next::checked(
-        DrugGet::new(query.native_input(), biomcp_types::DrugSource::Opentargets),
+        DrugGet::new(query.native_input().map_err(|_| biomcp_fetch::InputError::Serialization)?, biomcp_types::DrugSource::Opentargets),
         query.source().source(),
         &mut out.problems,
     ) {

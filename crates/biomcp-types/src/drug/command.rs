@@ -21,6 +21,9 @@ impl schemars::JsonSchema for DrugGetCommand {
             }
             properties.insert("input".into(), input);
         }
+        if let Some(required) = schema.get_mut("required").and_then(|r| r.as_array_mut()) {
+            required.retain(|name| name != "source");
+        }
         schema.insert(
             "x-reply-query-titles".into(),
             vec![<super::DrugWhoGet as schemars::JsonSchema>::schema_name().into_owned()].into(),

@@ -6,9 +6,10 @@ case "${1:-focused}" in
   routine) exec sh scripts/check_nightly_tests.sh routine ;;
   prepare)
     cargo fmt --all
+    git diff --binary > target/drug-names-format.patch
+    cargo check --locked -p biomcp
     UPDATE_SCHEMAS=1 cargo test --locked -p biomcp-types --features schema --test schemas checked_in_schemas_match_types -- --exact
     git diff --binary > target/drug-names-prepare.patch
-    cargo check --locked -p biomcp
     ;;
   focused)
     cargo install --locked --debug --path crates/biomcp --root target/drug-names-installed --force

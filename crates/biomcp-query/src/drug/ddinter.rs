@@ -56,13 +56,14 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     if !query.supports_sections() {
         return unsupported(query.source(), out);
     }
+    let Ok(id) = query.native_input() else { return out; };
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let leg = cx.fetch.leg(&ddinter::SPEC, deadline).fresh(cx.fresh);
     let result = if interactions {
         ddinter::interactions(
             &leg,
-            &query.native_input(),
+            &id,
             query.section_limit().unwrap_or(5),
             query.section_offset().unwrap_or(0),
         )
@@ -78,7 +79,7 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
             found
         })
     } else {
-        ddinter::card(&leg, &query.native_input()).map(|card| {
+        ddinter::card(&leg, &id).map(|card| {
             out.include_refusals(card.refusals);
             out.problems.extend(card.problems);
             let card = card.value;

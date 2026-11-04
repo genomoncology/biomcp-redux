@@ -1,5 +1,6 @@
 //! Resolve complete source names before the unchanged native-ID path.
 use crate::{Ctx, Outcome, status};
+use biomcp_types::ReplyBody;
 use biomcp_types::{DrugGet, DrugHeader, DrugNameMatch, DrugNameResolution, DrugSearch, DrugSource, ReplyData, Step, StepKind, UsageArguments, UsageError};
 
 
@@ -12,7 +13,7 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
         Err(_) => return status::empty(ReplyData::Usage(UsageError::arguments())),
     };
     let (mut discovery, mut candidates) = if query.source() == DrugSource::Drugsfda {
-        fda(cx, &search)
+        fda(cx, query, &search)
     } else { discover(cx, &search) };
     if discovery.sources.iter().any(|s| s.state != biomcp_types::SourceState::Ok) { return discovery; }
     candidates.sort_by(|a, b| a.0.cmp(&b.0));
@@ -28,9 +29,10 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     };
     let Ok(resolved) = query.with_native_id(selected.id.clone()) else { return discovery; };
     let mut out = super::selected_get(cx, &resolved);
+    let Ok(ranking) = (if query.source() == DrugSource::Drugsfda { "exact brand before generic; NDA/BLA before ANDA, then earliest approval" } else { "exact brand before generic; source search order among equals" }).parse() else { return discovery; };
     let resolution = DrugNameResolution {
-        input: search.query().cloned().expect("name search has input"),
-        ranking: if query.source() == DrugSource::Drugsfda { "exact brand before generic; NDA/BLA before ANDA, then earliest approval" } else { "exact brand before generic; source search order among equals" }.parse().expect("fixed ranking text"),
+        input: query.input().clone(),
+        ranking,
         total: candidates.len() as u64,
         alternatives: candidates.iter().skip(1).take(5).map(|(_, h)| Step {
             kind: StepKind::Disambiguate,
@@ -74,9 +76,8 @@ fn discover(cx: &Ctx<'_>, search: &DrugSearch) -> (Outcome, Vec<(Rank, DrugHeade
     (out, candidates)
 }
 
-fn fda(cx: &Ctx<'_>, query: &DrugSearch) -> (Outcome, Vec<(Rank, DrugHeader)>) {
-    let mut out = status::empty(biomcp_types::DrugCard::into_reply(
-        DrugGet::new(query.query().expect("name").to_string().parse().expect("checked input"), query.source()).expect("checked source"), None));
+fn fda(cx: &Ctx<'_>, get: &DrugGet, query: &DrugSearch) -> (Outcome, Vec<(Rank, DrugHeader)>) {
+    let mut out = status::empty(biomcp_types::DrugPage::into_reply(query.clone(), None));
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let leg = cx.fetch.leg(&biomcp_adapters::drugsfda::SPEC, deadline).fresh(cx.fresh);
@@ -84,12 +85,12 @@ fn fda(cx: &Ctx<'_>, query: &DrugSearch) -> (Outcome, Vec<(Rank, DrugHeader)>) {
     let mut offset = 0;
     let mut error = None;
     loop {
-        match biomcp_adapters::drugsfda::search(&leg, query.query().expect("name"), 50, offset) {
+        match biomcp_adapters::drugsfda::search(&leg, get.input(), 50, offset) {
             Ok(page) => {
                 out.include_refusals(page.refusals);
                 out.problems.extend(page.problems);
                 for row in &page.records {
-                    if let Some((name, application, date)) = row.name_rank(query.query().expect("name").as_str()) {
+                    if let Some((name, application, date)) = row.name_rank(get.input().as_str()) {
                         candidates.push(((name, application, date.unwrap_or_else(|| "9999".into())), row.header()));
                     }
                 }
