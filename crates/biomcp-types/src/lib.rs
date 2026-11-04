@@ -48,7 +48,9 @@ pub use query::{
 pub use query::{ArticleGet, ArticleSection, ArticleSectionWord};
 pub use query::{ArticleSupplement, ArticleText, SheetRows};
 pub use query::{COMMANDS, CommandSpec, Rewrite, command_paths};
-pub use query::{CivicClaimKind, VariantSection};
+pub use query::{
+    CivicClaimKind, CivicEvidenceFilter, CivicEvidenceLevel, CivicEvidenceStatus, VariantSection,
+};
 pub use query::{GeneGet, GeneSearch, GeneSection, GeneSectionWord, Request};
 pub use query::{
     MyVariantQuery, VariantRegion, VariantSearch, VariantSearchField, VariantSearchSource,
@@ -204,8 +206,8 @@ pub use query::{
 pub use response::{
     DiagnosticCandidate, DiagnosticCard, DiagnosticCompanion, DiagnosticConditions,
     DiagnosticGenes, DiagnosticLaboratory, DiagnosticMethods, DiagnosticPage, DiagnosticRegulatory,
-    DiagnosticRegulatoryField, DiagnosticRegulatoryFragment, DiagnosticSupplements, GtrCard,
-    GtrHeader, GtrNativeStatus,
+    DiagnosticRegulatoryField, DiagnosticRegulatoryFragment, DiagnosticSummary,
+    DiagnosticSupplements, GtrCard, GtrHeader, GtrNativeStatus,
 };
 
 pub use response::{
@@ -272,6 +274,8 @@ pub use coverage::{command_implicit_sources, command_section_sources};
 
 #[cfg(feature = "schema")]
 pub use adverse_event::AdverseEventSearchCommand;
+
+pub use response::{PdfText, PdfTextState};
 pub use response::{
     TrialAdverseEvents, TrialEvent, TrialEventGroup, TrialEventStats, TrialPostedCard,
     TrialPostedOutcome, TrialResultAnalysis, TrialResultCategory, TrialResultClass,

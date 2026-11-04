@@ -227,6 +227,10 @@ struct GetFields {
     /// Explicit native application product number, only for approvals.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     product_number: Option<Text>,
+    /// Exact native Drugs@FDA approval letter document ID. Text is bounded to 25 MiB, 100 pages
+    /// and 6144 escaped bytes per fragment. No-text scans are explicit.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    document_id: Option<Text>,
     /// Selected native CIViC molecular profile for a drug-scoped claim stream.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 2147483647)))]
@@ -237,6 +241,8 @@ struct GetFields {
     /// Native continuation cursor for that exact drug, profile and claim collection.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     civic_cursor: Option<Text>,
+    #[serde(flatten)]
+    evidence_filter: crate::CivicEvidenceFilter,
 }
 crate::query::validation::checked_query!(DrugGet, GetFields);
 impl TryFrom<GetFields> for DrugGet {
@@ -285,6 +291,12 @@ impl TryFrom<GetFields> for DrugGet {
     }
 }
 fn validate_sections(fields: &GetFields) -> Result<(), QueryInvalid> {
+    if fields.document_id.is_some()
+        && (fields.source != Some(DrugSource::Drugsfda)
+            || fields.section.as_ref() != [DrugSection::Approvals])
+    {
+        return Err(QueryInvalid::new(&["document_id", "source", "section"]));
+    }
     if fields.section_limit.is_some_and(|n| !(1..=50).contains(&n)) {
         return Err(QueryInvalid::new(&["section_limit"]));
     }
@@ -309,6 +321,13 @@ fn validate_sections(fields: &GetFields) -> Result<(), QueryInvalid> {
     Ok(())
 }
 fn validate_civic(fields: &GetFields) -> Result<(), QueryInvalid> {
+    if !fields.evidence_filter.is_empty() && fields.civic_kind != Some(CivicClaimKind::Evidence) {
+        return Err(QueryInvalid::new(&[
+            "evidence_level",
+            "evidence_status",
+            "civic_kind",
+        ]));
+    }
     if fields
         .civic_profile
         .is_some_and(|id| id == 0 || id > i32::MAX as u64)
@@ -372,9 +391,11 @@ impl DrugGet {
             section_offset: None,
             label_section: None,
             product_number: None,
+            document_id: None,
             civic_profile: None,
             civic_kind: None,
             civic_cursor: None,
+            evidence_filter: Default::default(),
         }
         .try_into()
     }
@@ -410,9 +431,17 @@ impl DrugGet {
     pub fn civic_kind(&self) -> Option<CivicClaimKind> {
         self.fields.civic_kind
     }
+    /// Native evidence selectors retained across pages.
+    pub fn evidence_filter(&self) -> &crate::CivicEvidenceFilter {
+        &self.fields.evidence_filter
+    }
     /// Original native cursor for that selected claim collection.
     pub fn civic_cursor(&self) -> Option<&Text> {
         self.fields.civic_cursor.as_ref()
+    }
+    /// Selected native approval document ID.
+    pub fn document_id(&self) -> Option<&Text> {
+        self.fields.document_id.as_ref()
     }
     /// Unchanged published identifier.
     pub fn input(&self) -> &Text {

@@ -1,15 +1,16 @@
 # The user is an agent
 
-Decided 2026-10-23 by Ian. Scope rewritten 2026-11-01 to match the workspace scope decision.
+Decided 2026-10-23 by Ian.
 
-## Scope
-
-BioMCP's user is an agent. It serves cancer care, rare disease and other medical questions (Ian, 2026-10-25: "They can be restricted to cancer care, rare disease, or really any medical question."), and life sciences and biopharma research from public data, such as biomarker discovery and market analysis of drug targets (Ian, 2026-11-01: "widen it. too restrictive."). BioMCP gives entity-driven access to data sources and APIs: it can download a source's data as a local bundle, search for entities, and get or fetch a specific entity. It does not download, install or run other bioinformatics tools automatically (Ian, 2026-10-25: "I just don't want to be downloading other bioinformatics tools and things like that automatically, but the agent using BioMCP could be using it in a portfolio of tools.").
-
-BioMCP work does not design molecules, antibodies, peptides or sequences, engineer organisms or vectors, or work on toxins. Ian keeps this limit so the team can keep using Claude models (Ian, 2026-11-01: "the exclusion list is a good idea so that I keep working with Claude models").
-
-## Shape
-
+- BioMCP's user is an agent that supports cancer care decisions for clinicians.
 - Ideal state is speed and progressive disclosure: return just enough, and tell the agent which subcommand or option drills deeper.
 - Trials set the pattern. A search returns trial headers, and subcommands drill into locations, outcomes and other sections. Every entity follows it.
 - The CLI tree must be easy for an agent to understand: one spelling per idea, `search` for headers, `get` for a card, `<entity> <relation> <id>` for drill-downs, and typed next steps in every response.
+
+Amended 2026-10-25 by Ian: the agent may support any medical question, such as cancer care, rare disease or other clinical care, not only cancer care. The limit is that BioMCP organizes source information to answer questions.
+
+Clarified 2026-10-25 by Ian: the target audience is biomedical research on any human health question. Clinicians are one group within it. 
+
+Framed 2026-10-25 by Ian: BioMCP is entity-driven access to data sources and APIs. It can download a source's data as a local bundle, search for entities, and get or fetch a specific entity with its sections and relations. It never downloads, installs or runs other bioinformatics tools on the user's behalf. An agent may use BioMCP alongside other tools; that portfolio sits outside BioMCP.
+
+Widened 2026-11-01 by Ian, relayed by Jarvis (m18585), who called the earlier scope "too restrictive": BioMCP may serve life sciences and biopharma research from public data, including target and biomarker discovery, competitive and market analysis of drug targets, drug development and trial landscapes, regulatory intelligence, and drug safety. Molecule, antibody, construct, peptide and sequence design, organism and vector engineering, and toxins stay out. BioMCP still gives entity-driven access to sources and APIs and never downloads, installs or runs other bioinformatics tools for the user. Nothing before 1.0 changes: the README and the skill guide describe cancer care and human health research without stating the old limit.

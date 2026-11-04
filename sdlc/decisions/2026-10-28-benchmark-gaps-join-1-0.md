@@ -4,7 +4,7 @@ Date: 2026-10-28
 
 Decided by Ian ("let's go ahead and get those tickets prepped and in there").
 
-The 0405 replay of MCP-Bench's BioMCP tasks found capabilities that agents trained on biomcp-python 0.4.6 use and 1.0 lacks. They ship in 1.0:
+The 0405 replay of MCP-Bench's BioMCP tasks found capabilities that agents trained on biomcp-python 0.4.6 use and 1.0 lacks. They ship in 1.0, as an explicit expansion of the rule that new capabilities wait:
 
 - NCI organization search, and NCI trials at a named organization (0408, 0409).
 - NCI biomarker search, and NCI trials that list a biomarker by exact NCIt code (0410, 0411).
@@ -15,4 +15,4 @@ The 0405 replay of MCP-Bench's BioMCP tasks found capabilities that agents train
 
 The PM checked each source on 2026-10-28 with bounded calls, and an adversarial design review corrected the tickets the same day. None needs a dataset download.
 
-Shared rules for these tickets: keys are read only when the source is called; live captures are bounded and within each source's published limits; no licensed content in fixtures, and NCI captures prefer records with generic public contacts; new schemas use hyphenated IDs and enter the 1.0 baseline; help, examples, the generated command reference, the upgrade table and MCP tool text name the new surface; no text heuristics; a new entity that pushes the generated MCP description past its measured cap comes to the PM for a caps ruling.
+Shared rules for these tickets: keys are read only when the source is called and never printed or recorded; live captures are bounded and within each source's published limits; no licensed content in fixtures, and NCI captures prefer records with generic public contacts; new schemas use hyphenated IDs and enter the 1.0 baseline; help, examples, the generated command reference, the upgrade table and MCP tool text name the new surface; no text heuristics; a new entity that pushes the generated MCP description past its measured cap comes to the PM for a caps ruling.
