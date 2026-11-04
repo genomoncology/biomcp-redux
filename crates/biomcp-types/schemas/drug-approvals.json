@@ -259,7 +259,7 @@
       "type": "object"
     },
     "Reply_DrugFdaDocument": {
-      "description": "A native application document link; the command does not download it.",
+      "description": "A native application document link, with embedded text only when its document ID is selected.",
       "properties": {
         "date": {
           "anyOf": [

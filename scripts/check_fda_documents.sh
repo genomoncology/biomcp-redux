@@ -8,6 +8,7 @@ case "${1:-cases}" in
     make docs-generate
     exec make check-cheap ;;
   routine) exec sh scripts/check_nightly_tests.sh routine ;;
+  scans) exec python3 scripts/scan_fda_documents.py "${2:?reviewed baseline commit required}" ;;
   live)
     make plain-cli-build
     exec python3 scripts/check_fda_document_live.py ;;
@@ -21,5 +22,5 @@ case "${1:-cases}" in
     python3 scripts/trials.py --target cases --runner "$fda_case_runner" --executable "$fda_product_binary" --list > target/fda-documents-trials.txt
     python3 scripts/trials.py --target cases --runner "$fda_case_runner" --executable "$fda_product_binary" --installed device-approval-search/diagnostic/device-approvals.yaml fda-document-text/diagnostic/fda-documents.yaml fda-document-text/diagnostic/pdf-over-limit.yaml fda-document-text/diagnostic/pdf-scanned-no-text.yaml diagnostic-pma/diagnostic/pma.yaml diagnostic-cdx/diagnostic/help.yaml
     ;;
-  *) echo 'usage: check_fda_documents.sh [prepare|cases|routine|live]' >&2; exit 2 ;;
+  *) echo 'usage: check_fda_documents.sh [prepare|cases|routine|live|scans BASELINE]' >&2; exit 2 ;;
 esac

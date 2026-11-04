@@ -381,7 +381,7 @@
       "type": "object"
     },
     "Reply_DiagnosticPage": {
-      "description": "Source-ordered GTR test candidates or WHO product headers.",
+      "description": "Source-ordered native diagnostic and medical-device submission candidates.",
       "properties": {
         "count_unit": {
           "anyOf": [
