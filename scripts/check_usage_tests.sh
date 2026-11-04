@@ -53,7 +53,7 @@ listed = subprocess.check_output([runner, '--list'], text=True, cwd='crates/biom
 (stage / 'cases-list.txt').write_text(listed)
 print(listed, end='')
 names = [line.removesuffix(': test') for line in listed.splitlines()
-         if line.startswith('grammar/') and line.endswith(': test')]
+         if line.startswith('query-validation/grammar/') and line.endswith(': test')]
 if not names:
     raise SystemExit('No grammar cases discovered')
 subprocess.run(['python3', 'scripts/trials.py', '--runner', runner,
