@@ -10,15 +10,6 @@ use biomcp_types::{
     Request, Section, Source, SourceRecord, StepKind, TrialArmRecord, TrialCardItem,
     TrialEligibilityPage, TrialGet, TrialRecords, TrialSection, TrialSections,
 };
-const SECTIONS: [TrialSection; 7] = [
-    TrialSection::Eligibility,
-    TrialSection::Outcomes,
-    TrialSection::Arms,
-    TrialSection::Locations,
-    TrialSection::Contacts,
-    TrialSection::References,
-    TrialSection::Documents,
-];
 pub(super) fn valid(query: &TrialGet, snapshot: &Snapshot) -> bool {
     let d = &snapshot.detail;
     let total = match query.sections().first() {
@@ -54,7 +45,12 @@ pub(super) fn render(
     records_sections(query, &snapshot, pool.as_ref(), &mut sections, out)?;
     sites::render(query, &snapshot, pool.as_ref(), &mut sections, out)?;
     publications::render(query, &snapshot, pool.as_ref(), &mut sections, out)?;
-    for section in SECTIONS.into_iter().filter(|s| !requested(*s)) {
+    for section in biomcp_types::TrialSource::Ctgov
+        .sections()
+        .iter()
+        .copied()
+        .filter(|s| !requested(*s))
+    {
         out.next.push(crate::next::Step::run(
             StepKind::Section,
             &[query.source().source()],
@@ -79,7 +75,12 @@ pub(super) fn render(
         card: Some(snapshot.detail.card),
         fetched: snapshot.fetched,
         sections: (!query.sections().is_empty()).then_some(sections),
-        more: SECTIONS.into_iter().filter(|s| !requested(*s)).collect(),
+        more: biomcp_types::TrialSource::Ctgov
+            .sections()
+            .iter()
+            .copied()
+            .filter(|s| !requested(*s))
+            .collect(),
     })
 }
 fn eligibility(
