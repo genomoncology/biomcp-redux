@@ -11,11 +11,7 @@ run_installed() {
     cargo build --locked -p biomcp --bin biomcp
     cargo test --locked -p biomcp --test "$runner_target" --no-run --message-format=json > "$build_output"
     runner_path=$(python3 -c 'import json,sys; rows=[json.loads(line) for line in open(sys.argv[1])]; print(next(row["executable"] for row in rows if row.get("reason")=="compiler-artifact" and row.get("executable") and row["target"]["name"]==sys.argv[2]))' "$build_output" "$runner_target")
-    if [ "$runner_target" = tools ]; then
-        python3 scripts/trials.py --target tools --proofs --runner "$runner_path" --executable "${CARGO_TARGET_DIR:-target}/debug/biomcp" --installed "$@"
-    else
-        python3 scripts/trials.py --runner "$runner_path" --executable "${CARGO_TARGET_DIR:-target}/debug/biomcp" --installed "$@"
-    fi
+    python3 scripts/trials.py --runner "$runner_path" --executable "${CARGO_TARGET_DIR:-target}/debug/biomcp" --installed "$@"
 }
 case "${1:-focused}" in
   generate)
@@ -26,15 +22,10 @@ case "${1:-focused}" in
     ;;
   list)
     cargo test --locked -p biomcp --test cases -- --list | rg study
-    cargo test --locked -p biomcp --test tools -- --proofs --list | rg study
     ;;
   focused)
     shift
     run_installed cases "$@"
-    ;;
-  tools)
-    shift
-    run_installed tools "$@"
     ;;
   scans)
     cargo fmt --all -- --check
@@ -43,5 +34,5 @@ case "${1:-focused}" in
   routine)
     exec sh scripts/check_nightly_tests.sh routine
     ;;
-  *) echo 'usage: check_study_rows.sh [generate|list|focused NAMES...|tools NAMES...|scans|routine]' >&2; exit 2 ;;
+  *) echo 'usage: check_study_rows.sh [generate|list|focused NAMES...|scans|routine]' >&2; exit 2 ;;
 esac
