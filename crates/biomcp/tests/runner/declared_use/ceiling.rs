@@ -21,7 +21,9 @@ pub(super) fn check() -> Result<(), String> {
             "params":{"name":"biomcp","arguments":{"args":["get","gene","TP53","oncokb","--offline"]}}});
         for mode in ["restricted", "commercial", "academic"] {
             let headers = format!(
-                "Content-Type: application/json\r\nAccept: application/json, text/event-stream\r\nMCP-Protocol-Version: 2025-11-25\r\nx-biomcp-use: {mode}\r\nx-biomcp-key-oncokb-api-key: {KEY}\r\n"
+                "Content-Type: application/json\r\nAccept: application/json, text/event-stream\r\n\
+                 MCP-Protocol-Version: 2025-11-25\r\nx-biomcp-use: {mode}\r\n\
+                 x-biomcp-key-oncokb-api-key: {KEY}\r\n"
             );
             let (status, reply, _) = server.raw(
                 "POST",

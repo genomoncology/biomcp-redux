@@ -26,6 +26,9 @@ subprocess.run([sys.executable, 'scripts/trials.py', '--runner', sys.argv[1],
                 '--executable', sys.argv[2], '--installed', *names], check=True)
 CASES
     ;;
+  structural)
+    cargo test --locked -p biomcp --test ratchets repository_obeys_structural_contract -- --exact
+    ;;
   cheap)
     make check-cheap
     make docs-check
@@ -36,5 +39,5 @@ CASES
   routine)
     exec sh scripts/check_nightly_tests.sh routine
     ;;
-  *) echo 'usage: check_hosted_modes.sh [focused|cheap|scans BASE_COMMIT|routine]' >&2; exit 2 ;;
+  *) echo 'usage: check_hosted_modes.sh [focused|structural|cheap|scans BASE_COMMIT|routine]' >&2; exit 2 ;;
 esac
