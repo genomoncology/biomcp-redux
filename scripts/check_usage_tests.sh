@@ -4,7 +4,6 @@ set -eu
 cd "$(dirname "$0")/.."
 make check-cheap
 python3 - <<'PY'
-import os
 from pathlib import Path
 import shutil
 import subprocess

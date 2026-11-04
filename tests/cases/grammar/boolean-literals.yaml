@@ -3,9 +3,80 @@
   "live_check": "synthetic",
   "story": "Boolean flags consume only explicit true or false and preserve other positional text.",
   "steps": [
-    {"run": ["search", "trial", "--has-results", "true"], "offline": true, "exit": 4, "is_error": true, "expect": {"/query/has_results": true, "/query/query": null, "/sources/0/reason": "offline"}},
-    {"run": ["search", "trial", "--has-results", "false"], "offline": true, "exit": 4, "is_error": true, "expect": {"/query/has_results": null, "/query/query": null, "/sources/0/reason": "offline"}},
-    {"run": ["search", "trial", "--has-results"], "offline": true, "exit": 4, "is_error": true, "expect": {"/query/has_results": true, "/query/query": null, "/sources/0/reason": "offline"}},
-    {"run": ["search", "trial", "--has-results", "melanoma"], "offline": true, "exit": 4, "is_error": true, "expect": {"/query/has_results": true, "/query/query": "melanoma", "/sources/0/reason": "offline"}}
+    {
+      "run": [
+        "search",
+        "trial",
+        "--has-results",
+        "true"
+      ],
+      "offline": true,
+      "exit": 4,
+      "is_error": true,
+      "expect": {
+        "/query/has_results": true,
+        "/sources/0/reason": "offline",
+        "/query": {
+          "omits": [
+            "query"
+          ]
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "trial",
+        "--has-results",
+        "false"
+      ],
+      "offline": true,
+      "exit": 4,
+      "is_error": true,
+      "expect": {
+        "/sources/0/reason": "offline",
+        "/query": {
+          "omits": [
+            "has_results",
+            "query"
+          ]
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "trial",
+        "--has-results"
+      ],
+      "offline": true,
+      "exit": 4,
+      "is_error": true,
+      "expect": {
+        "/query/has_results": true,
+        "/sources/0/reason": "offline",
+        "/query": {
+          "omits": [
+            "query"
+          ]
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "trial",
+        "--has-results",
+        "melanoma"
+      ],
+      "offline": true,
+      "exit": 4,
+      "is_error": true,
+      "expect": {
+        "/query/has_results": true,
+        "/query/query": "melanoma",
+        "/sources/0/reason": "offline"
+      }
+    }
   ]
 }
