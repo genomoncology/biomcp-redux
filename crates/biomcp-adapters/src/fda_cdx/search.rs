@@ -36,6 +36,7 @@ pub fn search(leg: &Leg<'_>, query: &DiagnosticSearch) -> Result<Search, Request
             source: Source::FdaCdx,
             reason: biomcp_types::Reason::Rejected,
             status: None,
+            tls_cause: None,
             retry_after: None,
         }
         .into());
