@@ -295,7 +295,205 @@ impl DrugGet {
         }
     }
     /// CIViC therapy number retained by the checked boundary.
-    pub 
+    pub fn civic_id(&self) -> Option<std::num::NonZeroU32> {
+        match self.native_id {
+            NativeDrugId::Civic(id) => Some(id),
+            _ => None,
+        }
+    }
+    /// Select one exact native identity, with no sections requested.
+    pub fn new(input: DrugId, source: DrugSource) -> Result<Self, QueryInvalid> {
+        GetFields {
+            input: Text::new(&input.to_string()).map_err(|_| QueryInvalid::new(&["input"]))?,
+            source: Some(source),
+            section: Box::default(),
+            section_limit: None,
+            section_offset: None,
+            label_section: None,
+            product_number: None,
+            civic_profile: None,
+            civic_kind: None,
+            civic_cursor: None,
+        }
+        .try_into()
+    }
+    /// Continue one native claim collection while preserving selected drug, source and section paging.
+    pub fn with_civic_page(
+        &self,
+        profile: u64,
+        kind: CivicClaimKind,
+        cursor: Option<Text>,
+    ) -> Result<Self, QueryInvalid> {
+        let mut fields = self.fields.clone();
+        fields.civic_profile = Some(profile);
+        fields.civic_kind = Some(kind);
+        fields.civic_cursor = cursor;
+        self.with_fields(fields)
+    }
+    /// Continue a therapy-wide claim stream without selecting a molecular profile.
+    pub fn with_civic_stream(
+        &self,
+        kind: CivicClaimKind,
+        cursor: Option<Text>,
+    ) -> Result<Self, QueryInvalid> {
+        let mut fields = self.fields.clone();
+        fields.civic_kind = Some(kind);
+        fields.civic_cursor = cursor;
+        self.with_fields(fields)
+    }
+    /// Selected native drug-scoped CIViC molecular profile.
+    pub fn civic_profile(&self) -> Option<u64> {
+        self.fields.civic_profile
+    }
+    /// Selected independent native claim collection.
+    pub fn civic_kind(&self) -> Option<CivicClaimKind> {
+        self.fields.civic_kind
+    }
+    /// Original native cursor for that selected claim collection.
+    pub fn civic_cursor(&self) -> Option<&Text> {
+        self.fields.civic_cursor.as_ref()
+    }
+    /// Unchanged published identifier.
+    pub fn input(&self) -> &Text {
+        &self.fields.input
+    }
+    /// Source-native identity after name resolution.
+    pub fn native_input(&self) -> Result<DrugId, QueryInvalid> {
+        self.fields
+            .input
+            .as_str()
+            .parse()
+            .map_err(|_| QueryInvalid::new(&["input"]))
+    }
+    /// Required selected source.
+    pub fn source(&self) -> DrugSource {
+        self.fields.source.unwrap_or(DrugSource::Mychem)
+    }
+    /// Explicit page bound; command handlers apply their existing default when absent.
+    pub fn section_limit(&self) -> Option<u32> {
+        self.fields.section_limit
+    }
+    /// Set a checked section page size without changing the selected source or disclosure.
+    pub fn with_section_limit(&self, limit: u32) -> Result<Self, QueryInvalid> {
+        let mut fields = self.fields.clone();
+        fields.section_limit = Some(limit);
+        self.with_fields(fields)
+    }
+    /// Explicit section continuation offset.
+    pub fn section_offset(&self) -> Option<u32> {
+        self.fields.section_offset
+    }
+}
+fn present_query<'de, D: serde::Deserializer<'de>>(d: D) -> Result<Option<Text>, D::Error> {
+    Text::deserialize(d).map(Some)
+}
+
+fn selected_name<'de, D: serde::Deserializer<'de>>(
+    d: D,
+) -> Result<Option<super::DrugNameSelector>, D::Error> {
+    super::DrugNameSelector::deserialize(d).map(Some)
+}
+impl DrugSearch {
+    /// Literal source query, without rewriting.
+    pub fn query(&self) -> Option<&Text> {
+        self.0.query.as_ref()
+    }
+    /// Selected native recall filter.
+    pub fn firm(&self) -> Option<&Text> {
+        self.0.firm.as_ref()
+    }
+    /// Selected native recall filter.
+    pub fn classification(&self) -> Option<super::DrugRecallClassification> {
+        self.0.classification
+    }
+    /// Selected native recall filter.
+    pub fn status(&self) -> Option<&Text> {
+        self.0.status.as_ref()
+    }
+    /// Selected native recall filter.
+    pub fn reason(&self) -> Option<&Text> {
+        self.0.reason.as_ref()
+    }
+    /// Selected native recall filter.
+    pub fn initiated_from(&self) -> Option<biodata::PartialDate> {
+        self.0.initiated_from
+    }
+    /// Selected native recall filter.
+    pub fn initiated_to(&self) -> Option<biodata::PartialDate> {
+        self.0.initiated_to
+    }
+
+    /// Single selected native source.
+    pub fn source(&self) -> DrugSource {
+        self.0.source
+    }
+    /// Native page bound.
+    pub fn limit(&self) -> u32 {
+        self.0.limit
+    }
+    /// Native page offset.
+    pub fn offset(&self) -> u32 {
+        self.0.offset
+    }
+}
+impl crate::Paged for DrugSearch {
+    type Offset = u32;
+    fn set_page_offset(&mut self, offset: Self::Offset) {
+        self.0.offset = offset;
+    }
+}
+
+impl DrugGet {
+    /// Whether the selected source serves every requested disclosure in one call.
+    pub fn supports_sections(&self) -> bool {
+        self.sections().len() <= 1
+            && self
+                .sections()
+                .iter()
+                .all(|section| self.source().sections().contains(section))
+    }
+    /// Explicit requested disclosures.
+    pub fn sections(&self) -> &[DrugSection] {
+        &self.fields.section
+    }
+}
+
+impl DrugGet {
+    /// Continue the same named section without changing source, identity or section selectors.
+    pub fn at_section_offset(&self, offset: u32) -> Result<Self, QueryInvalid> {
+        let mut fields = self.fields.clone();
+        fields.section_offset = Some(offset);
+        self.with_fields(fields)
+    }
+    /// Exact selected native label heading.
+    pub fn label_section(&self) -> Option<&Text> {
+        self.fields.label_section.as_ref()
+    }
+    /// Exact application product selector.
+    pub fn product_number(&self) -> Option<&Text> {
+        self.fields.product_number.as_ref()
+    }
+}
+
+impl DrugGet {
+    /// Select one named disclosure without changing the exact source identity.
+    pub fn for_section(&self, section: DrugSection) -> Result<Self, QueryInvalid> {
+        let mut fields = self.fields.clone();
+        fields.section = vec![section].into();
+        self.with_fields(fields)
+    }
+}
+
+impl DrugGet {
+    /// Select an explicit native label heading for the same source identity.
+    pub fn for_label(&self, heading: Text) -> Result<Self, QueryInvalid> {
+        let mut fields = self.fields.clone();
+        fields.section = vec![DrugSection::Label].into();
+        fields.label_section = Some(heading);
+        self.with_fields(fields)
+    }
+}
+
 fn selected_source<'de, D: serde::Deserializer<'de>>(d: D) -> Result<Option<DrugSource>, D::Error> {
     DrugSource::deserialize(d).map(Some)
 }
