@@ -39,7 +39,9 @@ def main():
     names = ["hgnc-first-snapshot-recovers"] if len(sys.argv) == 1 else sys.argv[1:]
     print(json.dumps({"free_bytes_before_proof": shutil.disk_usage(ROOT).free}), flush=True)
     for name in names:
-        subprocess.run([str(tool), "--proofs", "cache-resilience/" + name,
+        selection = (["--cases", str(installed / "fixtures/cases")]
+                     if name == "hgnc-trials-during-live-sync" else ["--proofs"])
+        subprocess.run([str(tool), *selection, "cache-resilience/" + name,
                         "--exact", "--test-threads", "1"], cwd=installed,
                        env=environment, check=True)
 
