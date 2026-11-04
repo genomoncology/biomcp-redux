@@ -88,7 +88,8 @@ diagnostic-who-search: Search stored WHO product headers by literal marker and m
 mcp-research: Search citable source headers and fetch the same CLI record through research compatibility tools.
 store-clean: Publishing removes bounded expired pools and snapshots; ordinary reply writes prune expired replies; explicit cleanup removes expired state and obsolete owned database files with their sidecars while preserving supported generations, bundle tables in obsolete files, fresh state and foreign tables.
 study-catalog: Explicit catalog sync preserves checked metadata atomically; literal stored study searches retain selectors and source order.
-study-get: Exact stored study cards expose bounded independent profile and sample-list metadata without participant identifiers.
+study-get: Exact stored study cards expose bounded independent profile and sample-list metadata.
+study-rows: Read gene-filtered native mutation observations and sample ID/type rows with bounded pages, totals and the selected mutation profile.
 gwas-search: Search source-native association selectors in native p-value order, with exact positive thresholds and retained page walks that state a qualifying total only at the end.
 protein-search: A caller searches reviewed human proteins and walks retained source windows without guessing identities.
 phenotype-identity: A caller searches literal HP term candidates and reads independent exact HPO or Monarch cards without guessing or merging.
@@ -107,7 +108,7 @@ protein-sections: A caller reads native protein features, alternative products, 
 protein-domains-complexes: Read source-native InterPro matches and exact-participant Complex Portal pages without inferred membership.
 pathway-help: Discover every pathway source, selector, section and paging option through generated help and parsed case examples.
 protein-docs-accounting: Discover every protein command, native section and selector through generated help and parsed CLI/MCP examples.
-cell-line-identity: A caller searches literal Cellosaurus headers and retrieves exact accession or verified source-qualified cell identities.
+cell-line-identity: A caller searches Cellosaurus headers by literal text, native species or NCIt disease, and retrieves exact accession or verified source-qualified cell identities.
 cell-line-chembl: A caller reads exact accession-linked ChEMBL metadata and requests native assay totals separately, with source terms and independent release provenance.
 cell-line-sections: A caller pages complete native Cellosaurus names, identities, cross-references and variation rows without inference.
 cell-line-all: A caller receives every bounded first section page with independent source failures, skips and provenance, while deferred routes return fixed guidance before provider requests.
@@ -131,3 +132,4 @@ mcp-hosted: A server operator refuses host file saves, health details and store 
 source-pacing: Operators can lower source rates and simultaneous requests within documented source ceilings.
 
 drug-name-get: Resolve source names with the fixed single-term salt/ester rule in one get call, infer an unambiguous section source, report bounded alternatives and direct unresolved names to source search.
+trial-results: A caller pages posted outcome measures, source group values, dispersion and analyses, and adverse-event tables from the same registry record, with its first posting date.
