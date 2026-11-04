@@ -30,14 +30,14 @@ def main():
         for name, options in [("studies", ["--studies", "--limit", "50"]),
                               ("associations", ["--limit", "50"]),
                               ("default", [])]:
-            record = destination / name / "source"
+            output = destination / name
+            output.mkdir()
+            record = output / "source"
             argv = [str(binary), "search", "gwas", "--pubmed", "17554300", *options,
                     "--record", str(record), "--fresh"]
             started = time.monotonic()
             result = subprocess.run(argv, env=env, cwd=isolated, capture_output=True, text=True)
             elapsed = time.monotonic() - started
-            output = destination / name
-            output.mkdir(exist_ok=True)
             (output / "stdout.json").write_text(result.stdout)
             (output / "stderr.txt").write_text(result.stderr)
             (output / "command.json").write_text(json.dumps({
