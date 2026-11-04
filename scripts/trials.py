@@ -30,7 +30,7 @@ def run_selected(target: Sequence[str], cwd: Path, names: Sequence[str],
         matches = sorted(name for name in available
                          if name.partition("/")[2] == path and path.endswith(".yaml"))
         if len(matches) != 1:
-            nearest = matches or difflib.get_close_matches(
+            nearest = matches[:3] or difflib.get_close_matches(
                 path, sorted(available), n=3, cutoff=0)
             raise ValueError(f"case file {path!r} requires exactly one catalog match; "
                              f"found {len(matches)}; nearest catalog entries: "
