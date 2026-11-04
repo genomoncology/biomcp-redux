@@ -16,10 +16,15 @@ impl schemars::JsonSchema for DrugGetCommand {
             if let Some(object) = input.as_object_mut() {
                 object.insert(
                     "description".into(),
-                    "Source-native ID or complete brand or generic name; WHO references retain native spaces. Exact brands rank before generics; Drugs@FDA prefers NDA/BLA before ANDA, then earliest approval. Other sources retain search order.".into(),
+                    concat!("Source-native ID or complete brand or generic name; WHO references retain native spaces. ",
+                        "Exact brands rank before generics; Drugs@FDA prefers NDA/BLA before ANDA, then earliest approval. ",
+                        "Other sources retain search order. The chosen record reports up to five alternatives and their total.").into(),
                 );
             }
             properties.insert("input".into(), input);
+        }
+        if let Some(source) = schema.get_mut("properties").and_then(|p| p.get_mut("source")) {
+            source["description"] = "Omit to infer the source of an unambiguous section; identity or mixed sections use MyChem.".into();
         }
         if let Some(required) = schema.get_mut("required").and_then(|r| r.as_array_mut()) {
             required.retain(|name| name != "source");

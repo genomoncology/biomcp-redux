@@ -72,7 +72,7 @@
       "exit": 2,
       "expect": {
         "/error/code": "usage.arguments",
-        "/error/next/0/args": [
+        "/next/0/args": [
           "search",
           "drug",
           "Missing name",
@@ -92,7 +92,7 @@
       "exit": 2,
       "expect": {
         "/error/code": "usage.arguments",
-        "/error/next/0/args": [
+        "/next/0/args": [
           "search",
           "drug",
           "Example",

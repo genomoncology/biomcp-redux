@@ -20,6 +20,7 @@ pub static SPEC: SourceSpec = SourceSpec {
 };
 mod links;
 mod map;
+mod names;
 mod normalize;
 mod raw;
 use biomcp_fetch::{Arg, Endpoint, Freshness, Leg, PathSegment, RequestError};

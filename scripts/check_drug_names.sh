@@ -11,6 +11,14 @@ case "${1:-focused}" in
     UPDATE_SCHEMAS=1 cargo test --locked -p biomcp-types --features schema --test schemas checked_in_schemas_match_types -- --exact
     git diff --binary > target/drug-names-prepare.patch
     ;;
+  parity)
+    python3 scripts/drug_names_proof.py extract
+    export BIOMCP_TEST_EXECUTABLE="$PWD/target/drug-names-proof/baseline-bin/biomcp"
+    export BIOMCP_TRANSCRIPT_DIR="$PWD/target/drug-names-proof/baseline-transcripts"
+    export BIOMCP_EVIDENCE_DIR="$PWD/target/drug-names-proof/baseline-evidence"
+    cargo test --locked -p biomcp --test cases drug/ -- --skip drug/name-get --nocapture
+    python3 scripts/drug_names_proof.py compare
+    ;;
   focused)
     cargo fmt --all
     git diff --binary > target/drug-names-format.patch
@@ -20,10 +28,10 @@ case "${1:-focused}" in
     export BIOMCP_EVIDENCE_DIR="$PWD/target/drug-names-proof/evidence"
     mkdir -p target/drug-names-proof
     git rev-parse HEAD > target/drug-names-proof/source.txt
-    cargo test --locked -p biomcp --test cases drug/ -- --nocapture
-    cargo test --locked -p biomcp-types --test drug_contracts
     make docs-generate
     git diff --binary > target/drug-names-docs.patch
+    cargo test --locked -p biomcp --test cases drug/ -- --nocapture
+    cargo test --locked -p biomcp-types --test drug_contracts
     ;;
   *) exit 2 ;;
 esac

@@ -9,6 +9,7 @@ use biomcp_types::{
 type Rank = (u8, u8, String);
 
 pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
+    let deadline = cx.fetch.deadline(cx.budget);
     let name = query.input().to_string();
     let search: DrugSearch = match serde_json::from_value(
         serde_json::json!({"query": name, "source": query.source(), "limit": 50}),
@@ -65,7 +66,7 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     let Ok(resolved) = query.with_native_id(selected.id.clone()) else {
         return discovery;
     };
-    let mut out = super::selected_get(cx, &resolved);
+    let mut out = super::selected_get(&within(cx, deadline.remaining()), &resolved);
     let Ok(ranking) = (if query.source() == DrugSource::Drugsfda {
         "exact brand before generic; NDA/BLA before ANDA, then earliest approval"
     } else {
@@ -108,8 +109,9 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
 }
 
 fn discover(cx: &Ctx<'_>, search: &DrugSearch) -> (Outcome, Vec<(Rank, DrugHeader)>) {
+    let deadline = cx.fetch.deadline(cx.budget);
     let mut query = search.clone();
-    let mut out = super::search(cx, &query);
+    let mut out = super::search(&within(cx, deadline.remaining()), &query);
     let mut candidates = Vec::new();
     loop {
         if let ReplyData::DrugPage {
@@ -145,7 +147,7 @@ fn discover(cx: &Ctx<'_>, search: &DrugSearch) -> (Outcome, Vec<(Rank, DrugHeade
             break;
         };
         query = next_query;
-        let next = super::search(cx, &query);
+        let next = super::search(&within(cx, deadline.remaining()), &query);
         if next
             .sources
             .iter()
@@ -301,6 +303,7 @@ fn mychem(cx: &Ctx<'_>, get: &DrugGet, query: &DrugSearch) -> (Outcome, Vec<(Ran
     })
 }
 fn chembl(cx: &Ctx<'_>, get: &DrugGet, query: &DrugSearch) -> (Outcome, Vec<(Rank, DrugHeader)>) {
+    let deadline = cx.fetch.deadline(cx.budget);
     let mut all = Vec::new();
     let mut outcome = None;
     for selector in [
@@ -308,7 +311,7 @@ fn chembl(cx: &Ctx<'_>, get: &DrugGet, query: &DrugSearch) -> (Outcome, Vec<(Ran
         biomcp_types::DrugNameSelector::Synonym,
     ] {
         let (out, candidates) =
-            native_names(cx, query, &biomcp_adapters::chembl::SPEC, |leg, offset| {
+            native_names(&within(cx, deadline.remaining()), query, &biomcp_adapters::chembl::SPEC, |leg, offset| {
                 let (page, _) = biomcp_adapters::chembl::search(
                     leg,
                     get.input().as_str(),
@@ -392,4 +395,8 @@ fn annotate(body: &mut ReplyData, resolution: DrugNameResolution) {
         _ => return,
     };
     header.name_resolution = Some(resolution);
+}
+
+fn within<'a>(cx: &Ctx<'a>, budget: std::time::Duration) -> Ctx<'a> {
+    Ctx { fetch: cx.fetch, ncbi_email: cx.ncbi_email.clone(), budget, fresh: cx.fresh }
 }
