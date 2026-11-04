@@ -7,9 +7,9 @@
       "run": [
         "search",
         "adverse-event",
-        "MMR",
+        "pump",
         "--source",
-        "vaers",
+        "maude",
         "--reaction",
         "Headache"
       ],

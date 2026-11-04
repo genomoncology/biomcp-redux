@@ -49,7 +49,7 @@ def main():
             (replay / (key + '.json')).write_text(json.dumps(recording))
             report['requests'].append({'has_results': results, 'url': url})
         for entity, query, source, flag, field in [
-            ('adverse-event', ['MMR'], 'vaers', '--reaction', 'Headache'),
+            ('adverse-event', ['pump'], 'maude', '--reaction', 'Headache'),
             ('drug', ['artemether'], 'who-pq', '--initiated-from', '2026-01-01'),
             ('diagnostic', [], 'fda-cdx', '--gene', 'BRAF'),
         ]:
