@@ -360,6 +360,7 @@ impl Service {
                     ),
                     &self.root,
                     crate::config::mcp_tool_mode(&self.globals, &self.settings),
+                    &call.args,
                 ),
                 Err(_) => super::protocol::error(id, -32603, "Internal error"),
             }

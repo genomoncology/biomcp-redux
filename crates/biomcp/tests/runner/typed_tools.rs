@@ -1,3 +1,5 @@
+#[path = "typed_policy.rs"]
+mod policy;
 #[path = "typed_replay.rs"]
 mod replay;
 // Installed-artifact typed tool discovery, schema refusal and CLI equivalence.
@@ -101,7 +103,7 @@ pub(super) fn check() -> Result<(), String> {
             return Err("invalid argument shape accepted".into());
         }
     }
-    Ok(())
+    policy::check()
 }
 fn descriptions(node: &Value) -> Result<(), String> {
     if node

@@ -95,6 +95,7 @@ impl Calls {
                             ),
                             &root,
                             crate::config::mcp_tool_mode(&globals, &settings),
+                            &call.args,
                         )
                     })
                 });

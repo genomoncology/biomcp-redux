@@ -7,11 +7,12 @@ pub(super) fn summarize(
     mut reply: Value,
     root: &crate::grammar::Root,
     mode: crate::config::ToolMode,
+    args: &[std::ffi::OsString],
 ) -> Value {
     if mode == crate::config::ToolMode::Typed
         && let Some(value) = reply.pointer("/result/structuredContent")
     {
-        let text = summary::render(root, value);
+        let text = summary::render(root, value, args);
         reply["result"]["content"] = json!([{"type":"text","text":text}]);
     }
     reply

@@ -28,6 +28,7 @@ enum Event {
 }
 
 struct Call {
+    args: Vec<std::ffi::OsString>,
     id: Value,
     modern: bool,
     cancelled: bool,
@@ -178,12 +179,16 @@ impl Server {
             ),
         };
         let scope = recovery.as_ref().and(cancellation.clone());
-        self.start_call(key, id, modern, cancellation, move || {
+        let original_args = call.args.clone();
+        self.start_call(key.clone(), id, modern, cancellation, move || {
             let mut context = crate::command::Context::new(&globals, &fetch, &root, &settings);
             context.recovery = recovery.as_deref();
             context.scope = scope.as_ref();
             research::execute(&call, context, false)
         })?;
+        if let Some(call) = self.active.get_mut(&key) {
+            call.args = original_args;
+        }
         Ok(None)
     }
 
@@ -210,6 +215,7 @@ impl Server {
         self.active.insert(
             key,
             Call {
+                args: Vec::new(),
                 id,
                 modern,
                 cancelled: false,
@@ -244,6 +250,7 @@ impl Server {
                 ),
                 &self.root,
                 crate::config::mcp_tool_mode(&self.globals, &self.settings),
+                &call.args,
             ),
             Err(_) => protocol::error(call.id, -32603, "Internal error"),
         }))

@@ -20,7 +20,7 @@ pub(super) fn check(tool: &Value) -> Result<(), String> {
     paths.sort();
     for path in paths {
         let case = case_data::read_case(&path)?;
-        if case.replay.is_none() || case.config.is_some() {
+        if case.replay.is_none() {
             continue;
         }
         for step in case
@@ -35,6 +35,8 @@ pub(super) fn check(tool: &Value) -> Result<(), String> {
                 continue;
             }
             let env = Environment::new().map_err(|e| e.to_string())?;
+            let mut config = case.config.clone().unwrap_or_else(|| json!({}));
+            env.config(&config).map_err(|e| e.to_string())?;
             let replay = response_cases::replay(&env, case.replay.as_deref(), case.cache_acquired)?;
             let globals = env.globals(replay.as_deref(), false);
             let output = env
@@ -70,8 +72,8 @@ pub(super) fn check(tool: &Value) -> Result<(), String> {
             {
                 continue;
             }
-            env.config(&json!({"mcp_tool_mode":"typed"}))
-                .map_err(|e| e.to_string())?;
+            config["mcp_tool_mode"] = json!("typed");
+            env.config(&config).map_err(|e| e.to_string())?;
             let reply = exchange_with_globals(
                 &env,
                 &[request(
