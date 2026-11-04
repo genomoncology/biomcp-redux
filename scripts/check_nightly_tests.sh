@@ -5,16 +5,16 @@ cd "$(dirname "$0")/.."
 case "${1:-focused}" in
   routine) exec make landing-gate ;;
   scans)
+    baseline=${2:?scans requires the reviewed baseline commit}
     mkdir -p target/nightly-scans/baseline
-    git show origin/main:scripts/nightly_live_check.py > target/nightly-scans/baseline/nightly_live_check.py
-    git show origin/main:scripts/test_nightly_live_check.py > target/nightly-scans/baseline/test_nightly_live_check.py
-    scanner="$HOME/.npm/_npx/f96b6f8e572bd88e/node_modules/.bin/jscpd"
-    "$scanner" --version
+    git show "$baseline":scripts/nightly_live_check.py > target/nightly-scans/baseline/nightly_live_check.py
+    git show "$baseline":scripts/test_nightly_live_check.py > target/nightly-scans/baseline/test_nightly_live_check.py
+    npx --yes jscpd@4.0.8 --version
     for side in baseline current; do
       prefix=scripts
       test "$side" != baseline || prefix=target/nightly-scans/baseline
       for name in nightly_live_check test_nightly_live_check; do
-        "$scanner" "$prefix/$name.py" --format python --max-size 10mb \
+        npx --yes jscpd@4.0.8 "$prefix/$name.py" --format python --max-size 10mb \
           --reporters json --output "target/nightly-scans/$side-$name"
       done
     done
@@ -23,7 +23,7 @@ case "${1:-focused}" in
     ruff check --select F401,F841,ERA,BLE,E722,S110 scripts/nightly_live_check.py scripts/test_nightly_live_check.py
     exit ;;
   focused) ;;
-  *) echo 'usage: check_nightly_tests.sh [focused|scans|routine]' >&2; exit 2 ;;
+  *) echo 'usage: check_nightly_tests.sh [focused|scans BASE_COMMIT|routine]' >&2; exit 2 ;;
 esac
 cargo fmt --all -- --check
 ruff check --select F401,F841,ERA,BLE,E722,S110 scripts/nightly_live_check.py scripts/reclassify_nightly.py scripts/nightly_recommendation_cases.py scripts/test_nightly_live_check.py
