@@ -102,6 +102,12 @@ fn check_failure(env: &Environment, value: &Value, mode: &str) -> Result<(), Str
     {
         return Err(format!("TLS log lost safe cause {cause}: {log}"));
     }
+    if let Some(transcript) = super::transcript::current() {
+        transcript.record(
+            &format!("trial/corporate-network/tls-log/{mode}"),
+            json!({"kind":"tls-log", "entries":entries}),
+        )?;
+    }
     if log.contains("wrong-name.invalid") || log.contains("synthetic-private") {
         return Err("TLS diagnostics leaked private certificate or proxy text".into());
     }

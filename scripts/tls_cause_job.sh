@@ -38,7 +38,6 @@ PYHASH
     scan)
         python3 - "$proofs" <<'PYSCAN'
 import json
-import os
 from pathlib import Path
 import subprocess
 import sys
@@ -68,7 +67,7 @@ PYSCAN
         ;;
     gate)
         python3 --version
-        cargo machete --version
+        test "$(cargo machete --version)" = "cargo-machete 0.9.2"
         make landing-gate
         ;;
     *) exit 2 ;;
