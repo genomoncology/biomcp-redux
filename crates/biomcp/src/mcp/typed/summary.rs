@@ -44,7 +44,7 @@ fn translate(root: &crate::grammar::Root, args: &[Value]) -> Option<Value> {
     let args = args.iter().map(Value::as_str).collect::<Option<Vec<_>>>()?;
     let mut argv = vec!["biomcp"];
     argv.extend(args);
-    let matches = root.clone().try_get_matches_from(argv).ok()?;
+    let matches = clap::Command::clone(root).try_get_matches_from(argv).ok()?;
     let (verb, matches) = matches.subcommand()?;
     let (entity, matches) = matches.subcommand()?;
     let (_, _, id) = crate::grammar::command_paths()
