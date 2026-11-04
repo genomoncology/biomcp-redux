@@ -13,7 +13,7 @@ fn closed(address: SocketAddr, data: &[u8]) -> Check {
         .map_err(|e| e.to_string())?;
     socket.write_all(data).map_err(|e| e.to_string())?;
     let mut byte = [0];
-    match socket.read(&mut byte) {
+    match super::socket_read::read(&mut socket, &mut byte) {
         Ok(0) => Ok(()),
         Err(e)
             if matches!(
@@ -66,7 +66,7 @@ pub(super) fn check() -> Check {
         .map_err(|e| e.to_string())?;
     server.stop()?;
     let mut byte = [0];
-    match held.read(&mut byte) {
+    match super::socket_read::read(&mut held, &mut byte) {
         Ok(0) => (),
         Err(error) if error.kind() == std::io::ErrorKind::ConnectionReset => (),
         other => return Err(format!("HTTP shutdown retained a client socket: {other:?}")),
@@ -99,7 +99,7 @@ fn slow_header(address: SocketAddr) -> Check {
         }
     });
     let mut byte = [0];
-    let result = slow.read(&mut byte);
+    let result = super::socket_read::read(&mut slow, &mut byte);
     // Measure the observed read event before stopping and joining the writer.
     let close_elapsed = started.elapsed();
     let cleanup_started = Instant::now();
