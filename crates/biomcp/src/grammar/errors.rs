@@ -172,7 +172,7 @@ pub(super) fn source_filter(
         let Some(filter_value) = value.get(name) else {
             continue;
         };
-        let mut isolated = value.clone();
+        let mut isolated = value.as_object()?.clone();
         for other in cause.arguments().iter().map(AsRef::as_ref) {
             if other != name
                 && other != "source"
@@ -183,14 +183,20 @@ pub(super) fn source_filter(
                         required.iter().any(|value| value.as_str() == Some(other))
                     })
             {
-                isolated.as_object_mut()?.remove(other);
+                isolated.remove(other);
             }
         }
         let valid: Vec<_> = sources
             .iter()
             .filter(|candidate| {
-                isolated["source"] = candidate.as_str().into();
-                super::rewrite::request(via, verb, entity, isolated.clone()).is_ok()
+                isolated.insert("source".into(), candidate.as_str().into());
+                super::rewrite::request(
+                    via,
+                    verb,
+                    entity,
+                    serde_json::Value::Object(isolated.clone()),
+                )
+                .is_ok()
             })
             .cloned()
             .collect();
@@ -203,7 +209,9 @@ pub(super) fn source_filter(
         let next = if let Some((_, _, _, _, replacement)) = equivalent {
             let mut corrected = value.clone();
             corrected.as_object_mut()?.remove(name);
-            corrected[*replacement] = filter_value.clone();
+            corrected
+                .as_object_mut()?
+                .insert((*replacement).into(), filter_value.clone());
             replacement_step(verb, entity, &schema, &corrected)?
         } else {
             super::validation::help([verb, entity])
