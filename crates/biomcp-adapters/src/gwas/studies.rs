@@ -6,6 +6,7 @@ use serde::Deserialize;
 use std::collections::BTreeMap;
 
 /// Checked study rows and source diagnostics.
+#[derive(Debug)]
 pub struct Studies {
     /// Native study total.
     pub total: u64,
