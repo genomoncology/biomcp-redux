@@ -29,9 +29,18 @@ python3 - <<'PY'
 from pathlib import Path
 import shutil
 import subprocess
-from release.artifacts import cargo
-binary = cargo('dev')['executable']
-runner = cargo('dev', tests='cases')['executable']
+import json
+
+def built_executable(target):
+    command = ['cargo', 'build' if target == 'biomcp' else 'test', '--locked', '-p', 'biomcp', '--message-format=json']
+    command += ['--bin', target] if target == 'biomcp' else ['--test', target, '--no-run']
+    result = subprocess.run(command, stdout=subprocess.PIPE, text=True, check=True)
+    artifacts = [json.loads(line) for line in result.stdout.splitlines()]
+    return next(row['executable'] for row in reversed(artifacts)
+                if row.get('reason') == 'compiler-artifact' and row.get('executable') and row['target']['name'] == target)
+
+binary = built_executable('biomcp')
+runner = built_executable('cases')
 stage = Path('target/usage-installed').resolve()
 stage.mkdir(parents=True, exist_ok=True)
 shutil.copy2(binary, stage / 'biomcp')
