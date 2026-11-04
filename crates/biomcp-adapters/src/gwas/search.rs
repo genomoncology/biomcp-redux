@@ -6,16 +6,18 @@ use biomcp_types::GwasSearch;
 use std::collections::BTreeMap;
 pub(super) mod identity;
 
+const NATIVE_PAGE_SIZE: u32 = 10;
+
 /// Read the checked native page under ascending source p value.
 pub fn search(leg: &Leg<'_>, q: &GwasSearch) -> Result<Page, RequestError> {
-    if q.limit() <= 10 {
+    if q.limit() <= NATIVE_PAGE_SIZE {
         return native(leg, q, selectors(q));
     }
     // Large source replies can consume the command budget. Bound rows per request,
     // and use the fetch layer's bounded workers, source pacing and shared deadline.
     let start = q.offset() - q.offset() % q.limit();
     let end = start.saturating_add(q.limit());
-    let pages: Vec<_> = (start / 10..end.div_ceil(10)).collect();
+    let pages: Vec<_> = (start / NATIVE_PAGE_SIZE..end.div_ceil(NATIVE_PAGE_SIZE)).collect();
     let mut combined = Page {
         refusals: crate::Refusal::None,
         received: 0,
@@ -28,7 +30,7 @@ pub fn search(leg: &Leg<'_>, q: &GwasSearch) -> Result<Page, RequestError> {
         .batch(&pages, |child, page| {
             let mut values = selectors(q);
             values.insert("page".into(), page.to_string());
-            values.insert("size".into(), "10".into());
+            values.insert("size".into(), NATIVE_PAGE_SIZE.to_string());
             native(child, q, values)
         })
         .into_iter()
@@ -90,7 +92,7 @@ fn native(
                 .cache_if(&raw::Response::identities_admitted),
         )?
         .value;
-    if q.limit() > 10
+    if q.limit() > NATIVE_PAGE_SIZE
         && let Some(rows) = &mut response.embedded
     {
         let start = response.page.number * response.page.size;
@@ -103,7 +105,7 @@ fn native(
             .min(rows.associations.len() as u32);
         rows.associations.drain(..skip as usize);
     }
-    let skip = if q.limit() <= 10 {
+    let skip = if q.limit() <= NATIVE_PAGE_SIZE {
         (q.offset() % q.limit()) as usize
     } else {
         0
