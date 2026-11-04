@@ -56,7 +56,7 @@ struct MutationFilter<'a> {
     sample_list_id: &'a biodata::StudySampleListId,
 }
 
-fn endpoint(path: &str, segments: &[&str]) -> Result<biomcp_fetch::Endpoint, RequestError> {
+fn endpoint(path: &'static str, segments: &[&str]) -> Result<biomcp_fetch::Endpoint, RequestError> {
     let segments = segments
         .iter()
         .map(|v| PathSegment::new(v))
@@ -211,7 +211,7 @@ pub fn mutations(
             rejected: total - rows.iter().flatten().count(),
             window: crate::NativeWindow::local(rows, q.section_offset(), q.section_limit()),
             problems: problems.list,
-            acquired: received.acquired(meta.fetched)?,
+            acquired: acquired(received.meta.fetched)?,
         },
         profile,
         gene,
