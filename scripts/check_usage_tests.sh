@@ -30,6 +30,11 @@ from pathlib import Path
 import shutil
 import subprocess
 import json
+import math
+import os
+workers = str(max(1, math.floor(float(os.environ.get('PM_JOB_CORES', '2')))))
+os.environ.setdefault('CARGO_BUILD_JOBS', workers)
+os.environ.setdefault('RUST_TEST_THREADS', workers)
 
 def built_executable(target):
     command = ['cargo', 'build' if target == 'biomcp' else 'test', '--locked', '-p', 'biomcp', '--message-format=json']
