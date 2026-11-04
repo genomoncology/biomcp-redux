@@ -9,12 +9,23 @@ case "${1:-focused}" in
     mkdir -p target/nightly-scans/baseline
     git show "$baseline":scripts/nightly_live_check.py > target/nightly-scans/baseline/nightly_live_check.py
     git show "$baseline":scripts/test_nightly_live_check.py > target/nightly-scans/baseline/test_nightly_live_check.py
-    npx --yes jscpd@4.0.8 --version
+    scanner=$(python3 - <<'SCANNER'
+import json
+from pathlib import Path
+for package in (Path.home() / '.npm/_npx').glob('*/node_modules/jscpd/package.json'):
+    if json.loads(package.read_text())['version'] == '4.0.5':
+        print(package.parent.parent / '.bin/jscpd')
+        break
+else:
+    raise SystemExit('cached jscpd 4.0.5 is required')
+SCANNER
+    )
+    "$scanner" --version
     for side in baseline current; do
       prefix=scripts
       test "$side" != baseline || prefix=target/nightly-scans/baseline
       for name in nightly_live_check test_nightly_live_check; do
-        npx --yes jscpd@4.0.8 "$prefix/$name.py" --format python --max-size 10mb \
+        "$scanner" "$prefix/$name.py" --format python --max-size 10mb \
           --reporters json --output "target/nightly-scans/$side-$name"
       done
     done
