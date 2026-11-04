@@ -172,7 +172,7 @@ fn render(entities: BTreeMap<String, Entity>) -> String {
                 .sections
                 .into_iter()
                 .map(|(word, sources)| {
-                    let extra = sources.difference(&common).cloned().collect();
+                    let extra: BTreeSet<_> = sources.difference(&common).cloned().collect();
                     if extra.is_empty() {
                         word
                     } else {
@@ -183,7 +183,7 @@ fn render(entities: BTreeMap<String, Entity>) -> String {
                 .join(",");
             line.push_str(&format!(";{sections}"));
         }
-        let other = row.sources.difference(&represented).cloned().collect();
+        let other: BTreeSet<_> = row.sources.difference(&represented).cloned().collect();
         if !other.is_empty() {
             line.push_str(&format!(";{}", words(&other)));
         }
