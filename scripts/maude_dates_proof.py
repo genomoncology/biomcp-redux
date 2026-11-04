@@ -30,16 +30,18 @@ def main():
         shutil.copy2(args.baseline, baseline)
         env = environment(root)
 
-        def run(program, name, command):
+        def run(program, name, command, expected=0):
             result = subprocess.run([str(program), *command], cwd=root, env=env,
                                     capture_output=True, timeout=60)
             (output / f"{name}.stdout.json").write_bytes(result.stdout)
             (output / f"{name}.stderr").write_bytes(result.stderr)
-            if result.returncode:
+            if result.returncode != expected:
                 raise RuntimeError(f"{name} exited {result.returncode}; see retained output")
             return result.stdout
 
         prefix = ["search", "adverse-event", "insulin pump", "--source", "maude"]
+        run(baseline, "maude-month-before", prefix + [
+            "--received-from", "2020-01", "--received-to", "2020-01"], expected=2)
         month = json.loads(run(binary, "maude-month", prefix + [
             "--received-from", "2020-01", "--received-to", "2020-01"]))
         day = json.loads(run(binary, "maude-day", prefix + [
