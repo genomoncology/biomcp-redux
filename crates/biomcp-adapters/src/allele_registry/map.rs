@@ -9,10 +9,15 @@ use biodata::{Allele, Build, Expression, Representation, SequenceLocation, Span0
 use biomcp_types::{Problem, Source, SourceRecord, VariantHeader};
 pub(super) fn allele(raw: RawAllele, expected: Option<&str>) -> Resolution {
     if let Some(error) = &raw.error_type {
-        let rejection = raw.actual_allele.as_ref().and_then(crate::raw::Field::as_ref)
-            .filter(|actual| error.as_str() == "IncorrectReferenceAllele"
-                && !actual.as_str().is_empty()
-                && actual.as_str().bytes().all(|base| b"ACGT".contains(&base)))
+        let rejection = raw
+            .actual_allele
+            .as_ref()
+            .and_then(crate::raw::Field::as_ref)
+            .filter(|actual| {
+                error.as_str() == "IncorrectReferenceAllele"
+                    && !actual.as_str().is_empty()
+                    && actual.as_str().bytes().all(|base| b"ACGT".contains(&base))
+            })
             .and_then(|actual| Text::new(&format!("{error}: expected reference {actual}")).ok())
             .unwrap_or_else(|| error.clone());
         return Resolution::Rejected(rejection);

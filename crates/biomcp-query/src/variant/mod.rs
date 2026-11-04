@@ -250,7 +250,11 @@ fn join_for_build(row: &VariantHeader, build: biodata::Build) -> Option<String> 
     })
 }
 pub(crate) fn source(query: &VariantGet) -> &'static biomcp_fetch::SourceSpec {
-    if query.input().coordinate_validation(query.myvariant_build()).is_some() {
+    if query
+        .input()
+        .coordinate_validation(query.myvariant_build())
+        .is_some()
+    {
         return &allele_registry::SPEC;
     }
     let direct = matches!(

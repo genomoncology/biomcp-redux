@@ -84,16 +84,31 @@ impl VariantInput {
     }
     /// Full VCF REF/ALT for source validation, before shared padding is removed.
     pub fn coordinate_validation(&self, build: crate::Build) -> Option<String> {
-        if !self.coordinate_form() { return None; }
+        if !self.coordinate_form() {
+            return None;
+        }
         let parts: Vec<_> = self.as_str().split('-').collect();
-        let [chromosome, position, reference, alternate] = parts.as_slice() else { return None; };
-        if reference.len() == 1 && alternate.len() == 1 { return None; }
+        let [chromosome, position, reference, alternate] = parts.as_slice() else {
+            return None;
+        };
+        if reference.len() == 1 && alternate.len() == 1 {
+            return None;
+        }
         let chromosome = chromosome.strip_prefix("chr").unwrap_or(chromosome);
-        let chromosome: biodata::Chromosome = (if chromosome == "M" { "MT" } else { chromosome }).parse().ok()?;
+        let chromosome: biodata::Chromosome = (if chromosome == "M" { "MT" } else { chromosome })
+            .parse()
+            .ok()?;
         let start: u64 = position.parse().ok()?;
         let end = start.checked_add(reference.len() as u64 - 1)?;
-        let range = if start == end { start.to_string() } else { format!("{start}_{end}") };
-        Some(format!("{}:g.{range}del{reference}ins{alternate}", chromosome.accession(build)))
+        let range = if start == end {
+            start.to_string()
+        } else {
+            format!("{start}_{end}")
+        };
+        Some(format!(
+            "{}:g.{range}del{reference}ins{alternate}",
+            chromosome.accession(build)
+        ))
     }
     /// Source lookup identity; VCV archive versions do not change the Variation ID.
     pub fn source_id(&self) -> Cow<'_, str> {
@@ -199,33 +214,43 @@ fn coordinates(value: &str) -> Option<String> {
         return None;
     }
     if reference.len() == 1 && alternate.len() == 1 {
-        return Some(format!("chr{chromosome}:g.{position}{reference}>{alternate}"));
+        return Some(format!(
+            "chr{chromosome}:g.{position}{reference}>{alternate}"
+        ));
     }
     let mut start = position.parse::<u64>().ok()?;
     let mut reference = reference;
     let mut alternate = alternate;
     // VCF 4.4 REF/ALT padding; HGVS DNA deletion/insertion/delins grammar.
     // Source validation retains the original REF, including these shared bases.
-    while !reference.is_empty() && !alternate.is_empty()
+    while !reference.is_empty()
+        && !alternate.is_empty()
         && reference.as_bytes()[0] == alternate.as_bytes()[0]
     {
         reference = &reference[1..];
         alternate = &alternate[1..];
         start = start.checked_add(1)?;
     }
-    while !reference.is_empty() && !alternate.is_empty()
+    while !reference.is_empty()
+        && !alternate.is_empty()
         && reference.as_bytes().last() == alternate.as_bytes().last()
     {
         reference = &reference[..reference.len() - 1];
         alternate = &alternate[..alternate.len() - 1];
     }
     let end = start.checked_add(reference.len().saturating_sub(1) as u64)?;
-    let range = if start == end { start.to_string() } else { format!("{start}_{end}") };
+    let range = if start == end {
+        start.to_string()
+    } else {
+        format!("{start}_{end}")
+    };
     let change = match (reference.is_empty(), alternate.is_empty()) {
         (true, true) => return None,
         (true, false) => format!("{}_{}ins{alternate}", start.checked_sub(1)?, start),
         (false, true) => format!("{range}del"),
-        (false, false) if reference.len() == 1 && alternate.len() == 1 => format!("{start}{reference}>{alternate}"),
+        (false, false) if reference.len() == 1 && alternate.len() == 1 => {
+            format!("{start}{reference}>{alternate}")
+        }
         _ => format!("{range}delins{alternate}"),
     };
     let expression = format!("chr{chromosome}:g.{change}");
