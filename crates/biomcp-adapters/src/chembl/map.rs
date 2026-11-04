@@ -193,7 +193,7 @@ pub struct Indication(pub(super) RawIndication);
 impl Molecule {
     /// Match complete native preferred or synonym names, retaining native trade-name classification.
     pub fn name_match(&self, name: &str) -> Option<biomcp_types::DrugNameMatch> {
-        let exact = |value: &str| value.eq_ignore_ascii_case(name);
+        let exact = |value: &str| biomcp_types::DrugNameMatch::same_name(value, name);
         let brand = self.0.molecule_synonyms.iter().any(|s| s.molecule_synonym.as_deref().is_some_and(exact) && s.syn_type.as_deref() == Some("TRADE_NAME"));
         let generic = self.0.pref_name.as_deref().is_some_and(exact) || self.0.molecule_synonyms.iter().any(|s| s.molecule_synonym.as_deref().is_some_and(exact) && s.syn_type.as_deref() != Some("TRADE_NAME"));
         match (brand, generic) {

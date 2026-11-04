@@ -133,7 +133,7 @@ pub fn drug_search(
                     .into_iter()
                     .filter_map(|row| {
                         cx.record = None;
-                        let exact_alias = row.therapy_aliases.as_ref().and_then(Field::as_ref).is_some_and(|names| names.iter().filter_map(Field::as_ref).any(|name| name.as_str().eq_ignore_ascii_case(text.as_str())));
+                        let exact_alias = row.therapy_aliases.as_ref().and_then(Field::as_ref).is_some_and(|names| names.iter().filter_map(Field::as_ref).any(|name| biomcp_types::DrugNameMatch::same_name(name.as_str(), text.as_str())));
                         match row.header(&mut cx).map(|mut header| {
                             if exact_alias { header.matched_name = Some(biomcp_types::DrugNameMatch::Generic); }
                             header

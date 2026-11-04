@@ -113,6 +113,11 @@ impl Record {
         self.0.parts(heading).is_some()
     }
     /// Preserve native complete-name matching.
+    /// Complete brand or generic equality without search's spacing normalization.
+    pub fn exact_name_match(&self, name: &biodata::Text) -> Option<biomcp_types::DrugNameMatch> {
+        let exact = |names: &Option<Vec<crate::native_text::NativeText>>| names.iter().flatten().any(|n| biomcp_types::DrugNameMatch::same_name(n.as_str(), name.as_str()));
+        biomcp_types::DrugNameMatch::from_fields(exact(&self.0.openfda.brand_name), exact(&self.0.openfda.generic_name))
+    }
     pub fn name_match(&self, name: &biodata::Text) -> Option<biomcp_types::DrugNameMatch> {
         self.0.name_match(name)
     }

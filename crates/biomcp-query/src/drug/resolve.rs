@@ -14,10 +14,14 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     };
     let (mut discovery, mut candidates) = if query.source() == DrugSource::Drugsfda {
         fda(cx, query, &search)
-    } else { discover(cx, &search) };
+    } else if query.source() == DrugSource::OpenfdaLabel { label(cx, query, &search) }
+    else if query.source() == DrugSource::Mychem { mychem(cx, query, &search) }
+    else if query.source() == DrugSource::Chembl { chembl(cx, query, &search) }
+    else { discover(cx, &search) };
     if discovery.sources.iter().any(|s| s.state != biomcp_types::SourceState::Ok) { return discovery; }
     candidates.sort_by(|a, b| a.0.cmp(&b.0));
-    candidates.dedup_by(|a, b| a.1.id == b.1.id);
+    let mut seen = std::collections::BTreeSet::new();
+    candidates.retain(|(_, header)| seen.insert(header.id.to_string()));
     let Some((_, selected)) = candidates.first() else {
         if discovery.sources.iter().any(|s| s.state != biomcp_types::SourceState::Ok) { return discovery; }
         discovery.body = ReplyData::Usage(UsageError::Arguments(UsageArguments {
@@ -58,7 +62,7 @@ fn discover(cx: &Ctx<'_>, search: &DrugSearch) -> (Outcome, Vec<(Rank, DrugHeade
                 let rank = match header.matched_name {
                     Some(DrugNameMatch::Brand | DrugNameMatch::Both) => Some(0),
                     Some(DrugNameMatch::Generic) => Some(1),
-                    _ if header.name.as_ref().is_some_and(|n| search.query().is_some_and(|q| n.as_str().eq_ignore_ascii_case(q.as_str()))) => Some(0),
+                    _ if header.name.as_ref().is_some_and(|n| search.query().is_some_and(|q| biomcp_types::DrugNameMatch::same_name(n.as_str(), q.as_str()))) => Some(0),
                     _ => None,
                 };
                 if let Some(rank) = rank { candidates.push(((rank, 0, String::new()), header.clone())); }
@@ -76,26 +80,32 @@ fn discover(cx: &Ctx<'_>, search: &DrugSearch) -> (Outcome, Vec<(Rank, DrugHeade
     (out, candidates)
 }
 
-fn fda(cx: &Ctx<'_>, get: &DrugGet, query: &DrugSearch) -> (Outcome, Vec<(Rank, DrugHeader)>) {
+struct NativePage {
+    candidates: Vec<(Rank, DrugHeader)>,
+    next_offset: Option<u32>,
+    problems: Vec<biomcp_types::Problem>,
+    refusals: biomcp_adapters::Refusal,
+}
+fn native_names(
+    cx: &Ctx<'_>, query: &DrugSearch, spec: &biomcp_fetch::SourceSpec,
+    read: impl Fn(&biomcp_fetch::Leg<'_>, u32) -> Result<NativePage, biomcp_fetch::RequestError>,
+) -> (Outcome, Vec<(Rank, DrugHeader)>) {
     let mut out = status::empty(biomcp_types::DrugPage::into_reply(query.clone(), None));
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
-    let leg = cx.fetch.leg(&biomcp_adapters::drugsfda::SPEC, deadline).fresh(cx.fresh);
+    let leg = cx.fetch.leg(spec, deadline).fresh(cx.fresh);
     let mut candidates = Vec::new();
     let mut offset = 0;
     let mut error = None;
     loop {
-        match biomcp_adapters::drugsfda::search(&leg, get.input(), 50, offset) {
+        match read(&leg, offset) {
             Ok(page) => {
                 out.include_refusals(page.refusals);
                 out.problems.extend(page.problems);
-                for row in &page.records {
-                    if let Some((name, application, date)) = row.name_rank(get.input().as_str()) {
-                        candidates.push(((name, application, date.unwrap_or_else(|| "9999".into())), row.header()));
-                    }
-                }
-                offset += page.records.len() as u32;
-                if page.records.is_empty() || u64::from(offset) >= page.total { break; }
+                candidates.extend(page.candidates);
+                let Some(next) = page.next_offset else { break; };
+                if next <= offset { error = Some(biomcp_fetch::InputError::Serialization.into()); break; }
+                offset = next;
             }
             Err(failure) => { error = Some(failure); break; }
         }
@@ -105,6 +115,70 @@ fn fda(cx: &Ctx<'_>, get: &DrugGet, query: &DrugSearch) -> (Outcome, Vec<(Rank, 
     status::search(&mut out);
     command.finish(deadline.remaining());
     (out, candidates)
+}
+fn fda(cx: &Ctx<'_>, get: &DrugGet, query: &DrugSearch) -> (Outcome, Vec<(Rank, DrugHeader)>) {
+    native_names(cx, query, &biomcp_adapters::drugsfda::SPEC, |leg, offset| {
+        let page = biomcp_adapters::drugsfda::search(leg, get.input(), 50, offset)?;
+        let next = offset + page.records.len() as u32;
+        Ok(NativePage {
+            candidates: page.records.iter().filter_map(|row| {
+                row.name_rank(get.input().as_str()).map(|(name, app, date)| ((name, app, date.unwrap_or_else(|| "9999".into())), row.header()))
+            }).collect(),
+            next_offset: (next > offset && u64::from(next) < page.total).then_some(next),
+            problems: page.problems, refusals: page.refusals,
+        })
+    })
+}
+fn label(cx: &Ctx<'_>, get: &DrugGet, query: &DrugSearch) -> (Outcome, Vec<(Rank, DrugHeader)>) {
+    native_names(cx, query, &biomcp_adapters::openfda_label::SPEC, |leg, offset| {
+        let page = biomcp_adapters::openfda_label::search(leg, get.input(), 50, offset).page?;
+        let next_offset = page.window.next_offset();
+        let mut candidates = Vec::new();
+        for row in &page.window.rows {
+            if let Some(matched) = row.exact_name_match(get.input()) {
+                candidates.push(((u8::from(matched == DrugNameMatch::Generic), 0, String::new()), row.header()?));
+            }
+        }
+        Ok(NativePage { candidates, next_offset, problems: page.problems, refusals: page.window.refusals() })
+    })
+}
+
+fn mychem(cx: &Ctx<'_>, get: &DrugGet, query: &DrugSearch) -> (Outcome, Vec<(Rank, DrugHeader)>) {
+    native_names(cx, query, &biomcp_adapters::mychem::SPEC, |leg, offset| {
+        let (page, received) = biomcp_adapters::mychem::search_names(leg, get.input().as_str(), 50, offset)?;
+        let next = offset + received;
+        Ok(NativePage {
+            candidates: page.value.items.iter().filter_map(|header| header.matched_name.map(|matched|
+                ((u8::from(matched == DrugNameMatch::Generic), 0, String::new()), header.clone()))).collect(),
+            next_offset: (received > 0 && page.value.total.is_some_and(|total| u64::from(next) < total)).then_some(next),
+            problems: page.problems, refusals: page.refusals,
+        })
+    })
+}
+fn chembl(cx: &Ctx<'_>, get: &DrugGet, query: &DrugSearch) -> (Outcome, Vec<(Rank, DrugHeader)>) {
+    let mut all = Vec::new();
+    let mut outcome = None;
+    for selector in [biomcp_types::DrugNameSelector::Preferred, biomcp_types::DrugNameSelector::Synonym] {
+        let (out, candidates) = native_names(cx, query, &biomcp_adapters::chembl::SPEC, |leg, offset| {
+            let (page, _) = biomcp_adapters::chembl::search(leg, get.input().as_str(), selector, 50, offset)?;
+            let next_offset = page.window.next_offset();
+            let refusals = page.window.refusals();
+            let mut problems = page.problems;
+            let mut candidates = Vec::new();
+            for row in &page.window.rows {
+                if let Some(matched) = row.name_match(get.input().as_str()) {
+                    let header = biomcp_adapters::chembl::molecule_header(row).map_err(|_| biomcp_fetch::InputError::Serialization)?;
+                    problems.extend(header.problems);
+                    candidates.push(((u8::from(matched == DrugNameMatch::Generic), 0, String::new()), header.value));
+                }
+            }
+            Ok(NativePage { candidates, next_offset, problems, refusals })
+        });
+        if out.sources.iter().any(|s| s.state != biomcp_types::SourceState::Ok) { return (out, Vec::new()); }
+        all.extend(candidates);
+        outcome = Some(out);
+    }
+    (outcome.unwrap_or_else(|| status::empty(biomcp_types::DrugPage::into_reply(query.clone(), None))), all)
 }
 
 fn annotate(body: &mut ReplyData, resolution: DrugNameResolution) {

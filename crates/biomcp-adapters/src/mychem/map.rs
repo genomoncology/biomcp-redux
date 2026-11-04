@@ -90,7 +90,7 @@ pub(super) fn page(page: Page, leg: &Leg<'_>, query: &str) -> Result<crate::Mapp
         }
         let (id, _, rows) = components(hit, leg, &mut problems);
         let mut item = header(&id, &rows)?;
-        let exact = |s: &str| s.eq_ignore_ascii_case(query);
+        let exact = |s: &str| biomcp_types::DrugNameMatch::same_name(s, query);
         let brand = rows.iter().any(|(_, c)| c.proprietaryname.as_deref().is_some_and(exact) || c.brand_name.as_ref().is_some_and(|v| strings(v).into_iter().any(exact)));
         let generic = rows.iter().any(|(_, c)| name(c).is_some_and(exact) || c.nonproprietaryname.as_deref().is_some_and(exact) || c.generic_name.as_ref().is_some_and(|v| strings(v).into_iter().any(exact)));
         item.matched_name = match (brand, generic) {

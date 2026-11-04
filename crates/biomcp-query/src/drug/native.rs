@@ -109,7 +109,7 @@ fn search_page(
             .map(|row| {
                 let mut header = identity::chembl_header(row, problems)?;
                 header.matched_name = row.name_match(name.as_str());
-                Ok(header)
+                Ok::<_, biodata::Error>(header)
             })
             .collect::<Result<Vec<_>, _>>()
             .map_err(|_| failure(source))?;
