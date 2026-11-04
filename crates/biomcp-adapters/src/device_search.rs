@@ -3,6 +3,7 @@ use biomcp_fetch::{Arg, BadReply, Freshness, Input, Leg, Read, RequestError, Sou
 use biomcp_types::{DiagnosticSearch, Problem};
 use serde::de::DeserializeOwned;
 /// Source-owned diagnostic submission candidates.
+#[derive(Debug)]
 pub struct Page {
     /// Original source records, without grouping applications.
     pub items: Box<[biomcp_types::DiagnosticCandidate]>,

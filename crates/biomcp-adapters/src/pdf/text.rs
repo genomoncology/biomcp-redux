@@ -64,7 +64,12 @@ pub fn read(
         &bytes,
         lopdf::LoadOptions::with_max_decompressed_size(MAX_EXPANDED_BYTES),
     )
-    .map_err(|_| error(spec.source, Reason::BadReply))?;
+    .map_err(|issue| match issue {
+        lopdf::Error::Decompress(lopdf::DecompressError::MemoryLimitExceeded { .. }) => {
+            error(spec.source, Reason::TooLarge)
+        }
+        _ => error(spec.source, Reason::BadReply),
+    })?;
     check()?;
     let pages = document.get_pages();
     result.pages = Some(pages.len() as u32);

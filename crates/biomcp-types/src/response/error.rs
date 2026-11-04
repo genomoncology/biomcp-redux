@@ -111,7 +111,8 @@ singleton! {
         AdverseSection => "choose a named adverse-event section",
 
 
-        DiagnosticSearchSources => "choose --source gtr, who-ivd, fda-cdx, fda-pma or fda-510k for search; choose --source gtr, who-ivd, fda-pma or fda-510k for exact get",
+        DiagnosticSearchSources => "choose --source gtr, who-ivd, fda-cdx, fda-pma or fda-510k for search; \
+            choose --source gtr, who-ivd, fda-pma or fda-510k for exact get",
         DiagnosticRecallSources => "choose --source gtr, who-ivd, fda-cdx, fda-pma, fda-510k or fda-device-recall for search; \
             choose --source gtr, who-ivd, fda-pma, fda-510k or fda-device-recall for exact get",
         DiagnosticType => "use: --type",
