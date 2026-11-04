@@ -6,9 +6,10 @@ export RUSTUP_TOOLCHAIN=1.95.0
 case "${1:-focused}" in
   focused)
     cargo fmt --all -- --check
-    cargo test --locked -p biomcp-types --test variant_values coordinate_inputs
+    cargo test --locked -p biomcp-types --test variant_coordinates coordinate_inputs
     cargo install --locked --debug --path crates/biomcp --root target/variant-indels-installed --force
     export BIOMCP_TEST_EXECUTABLE="$PWD/target/variant-indels-installed/bin/biomcp"
+    make schema-generate
     make docs-generate
     git diff --binary > target/variant-indels-generated.patch
     cargo test --locked -p biomcp --test cases variant/id-forms/ -- --test-threads 2
@@ -30,7 +31,7 @@ PY
     for side in baseline current; do
       folder="target/variant-indel-scans/$side"
       mkdir -p "$folder/source"
-      for file in crates/biomcp-types/src/query/variant_input.rs crates/biomcp-types/src/query/variant.rs crates/biomcp-types/tests/variant_values.rs crates/biomcp-query/src/variant/mod.rs crates/biomcp-adapters/src/allele_registry/map.rs crates/biomcp-adapters/src/allele_registry/raw.rs; do
+      for file in crates/biomcp-types/src/query/variant_input.rs crates/biomcp-types/src/query/variant.rs crates/biomcp-types/tests/variant_values.rs crates/biomcp-query/src/variant/mod.rs crates/biomcp-query/src/variant/identity.rs crates/biomcp-adapters/src/allele_registry/map.rs crates/biomcp-adapters/src/allele_registry/raw.rs; do
         output="$folder/source/$(echo "$file" | tr / _)"
         if [ "$side" = baseline ]; then git show "$baseline:$file" > "$output"; else cp "$file" "$output"; fi
       done
@@ -38,6 +39,7 @@ PY
     done
     ;;
   refresh)
+    make schema-generate
     make docs-generate
     git diff --binary > target/variant-indels-generated.patch
     ;;
