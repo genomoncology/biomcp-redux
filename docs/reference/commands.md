@@ -405,8 +405,11 @@ Arguments:
           Exact native mapped gene; legacy positional query aliases this field.
 
 Options:
-      --extended-geneset
+      --extended-geneset[=<extended_geneset>]
           Source extended gene set; requires gene.
+
+          [default: false]
+          [possible values: true, false]
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
@@ -420,8 +423,11 @@ Options:
   -g, --gene <gene>
           Exact native mapped gene; legacy positional query aliases this field.
 
-      --include-child-traits
+      --include-child-traits[=<include_child_traits>]
           Source child-trait expansion; requires trait_id.
+
+          [default: false]
+          [possible values: true, false]
 
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
@@ -520,8 +526,11 @@ Options:
       --pool <pool>
           Exact retained collection identity.
 
-      --reviewed
+      --reviewed[=<reviewed>]
           Reviewed human scope stays enabled; unreviewed search is deferred.
+
+          [default: false]
+          [possible values: true, false]
 
       --offline
           Read local data without source requests.
@@ -610,8 +619,11 @@ Options:
           [default: json]
           [possible values: json, md]
 
-      --fresh
+      --fresh[=<fresh>]
           Request a new retained observation.
+
+          [default: false]
+          [possible values: true, false]
 
       --disable-sources <disable-sources>
           Exclude source names or source terms groups.
@@ -637,8 +649,11 @@ Options:
       --source <source>
           Sources in caller order; repeated sources take turns without title joins.
 
-      --top-level
+      --top-level[=<top_level>]
           Native human Reactome top-level discovery, exclusive with text and gene.
+
+          [default: false]
+          [possible values: true, false]
 
       --offline
           Read local data without source requests.
@@ -1192,8 +1207,11 @@ Options:
       --limit <limit>
           Maximum page length.
 
-      --no-preprints
+      --no-preprints[=<no_preprints>]
           Exclude preprints using the source's native filter.
+
+          [default: false]
+          [possible values: true, false]
 
       --offset <offset>
           Number of pool items to skip.
@@ -1201,8 +1219,11 @@ Options:
       --offline
           Read local data without source requests.
 
-      --open-access
+      --open-access[=<open_access>]
           Require the source's native open-access filter; Semantic Scholar means a public PDF.
+
+          [default: false]
+          [possible values: true, false]
 
       --fresh
           Request fresh source data instead of cached replies.
@@ -1324,8 +1345,11 @@ Options:
       --condition-id <condition_id>
           Exact MONDO or DOID CURIE resolved by MyDisease; NCI also accepts explicit NCIT:C codes.
 
-      --count-only
+      --count-only[=<count_only>]
           Source total only; no returned study rows.
+
+          [default: false]
+          [possible values: true, false]
 
       --country <country>...
           Exact ClinicalTrials.gov country label; repeat for OR. Trials must list a site in a named country. NCI uses its native country filter.
@@ -1339,8 +1363,11 @@ Options:
       --offline
           Read local data without source requests.
 
-      --exact-condition
+      --exact-condition[=<exact_condition>]
           Ask ClinicalTrials.gov to restrict matching to the registered condition phrase; its support is partial.
+
+          [default: false]
+          [possible values: true, false]
 
       --fresh
           Request fresh source data instead of cached replies.
@@ -1351,8 +1378,11 @@ Options:
       --gene <gene>
           Resolve one checked gene for registry text discovery only; no eligibility judgment.
 
-      --has-results
+      --has-results[=<has_results>]
           Require posted source results.
+
+          [default: false]
+          [possible values: true, false]
 
       --id <id>
           Exact NCT identity in a conjunction with other filters.
@@ -1935,8 +1965,11 @@ Options:
           [default: json]
           [possible values: json, md]
 
-      --fresh
+      --fresh[=<fresh>]
           Request a new source observation.
+
+          [default: false]
+          [possible values: true, false]
 
       --disable-sources <disable-sources>
           Exclude source names or source terms groups.
@@ -2789,8 +2822,11 @@ Options:
           [default: json]
           [possible values: json, md]
 
-      --full
+      --full[=<full>]
           Legacy alias for details; normalized on construction.
+
+          [default: false]
+          [possible values: true, false]
 
       --disable-sources <disable-sources>
           Exclude source names or source terms groups.
@@ -3531,8 +3567,11 @@ Options:
       --offset <offset>
           Matching-row or text-fragment offset.
 
-      --replace
+      --replace[=<replace>]
           Replace an existing destination only when explicitly requested with save.
+
+          [default: false]
+          [possible values: true, false]
 
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
@@ -3590,8 +3629,11 @@ Options:
           [default: json]
           [possible values: json, md]
 
-      --replace
+      --replace[=<replace>]
           Replace an existing file only when explicitly requested.
+
+          [default: false]
+          [possible values: true, false]
 
       --disable-sources <disable-sources>
           Exclude source names or source terms groups.
@@ -3655,8 +3697,11 @@ Options:
       --config <config>
           Read configuration from this file.
 
-      --replace
+      --replace[=<replace>]
           Replace an existing destination only when explicitly requested with save.
+
+          [default: false]
+          [possible values: true, false]
 
       --save <save>
           Save the whole original document to an explicit file or existing folder.
@@ -3813,8 +3858,11 @@ Options:
           [default: json]
           [possible values: json, md]
 
-      --fulltext
+      --fulltext[=<fulltext>]
           Include the citing paper's own explicit reference paragraphs.
+
+          [default: false]
+          [possible values: true, false]
 
       --disable-sources <disable-sources>
           Exclude source names or source terms groups.
@@ -3964,8 +4012,11 @@ Options:
           [default: json]
           [possible values: json, md]
 
-      --replace
+      --replace[=<replace>]
           Replace an existing file only when explicitly requested.
+
+          [default: false]
+          [possible values: true, false]
 
       --disable-sources <disable-sources>
           Exclude source names or source terms groups.
@@ -4118,8 +4169,11 @@ Options:
           [default: json]
           [possible values: json, md]
 
-      --detail
+      --detail[=<detail>]
           Read source ancestry groups, preserving overlapping groups individually.
+
+          [default: false]
+          [possible values: true, false]
 
       --disable-sources <disable-sources>
           Exclude source names or source terms groups.
