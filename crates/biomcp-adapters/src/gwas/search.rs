@@ -94,7 +94,7 @@ fn native(
         && let Some(rows) = &mut response.embedded
     {
         let start = response.page.number * response.page.size;
-        let end = q.offset() - q.offset() % q.limit() + q.limit();
+        let end = (q.offset() - q.offset() % q.limit()).saturating_add(q.limit());
         rows.associations
             .truncate(end.saturating_sub(start) as usize);
         let skip = q
