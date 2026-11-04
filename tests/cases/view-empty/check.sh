@@ -19,7 +19,7 @@ if [ "${1:-focused}" = parity ]; then
     python3 tests/cases/view-empty/proof.py prepare
     chmod +x target/view-empty/baseline-biomcp
     export BIOMCP_TRANSCRIPT_DIR="$PWD/target/view-empty/baseline-transcripts"
-    python3 scripts/trials.py --installed --executable target/view-empty/baseline-biomcp --cases target/view-empty/json-cases markdown-view/empty-section markdown-view/failed-section markdown-view/all-absent markdown-view/table-section
+    python3 scripts/trials.py --installed --executable target/view-empty/baseline-biomcp --cases target/view-empty/json-cases markdown-view/empty-section.yaml markdown-view/failed-section.yaml markdown-view/all-absent.yaml markdown-view/table-section.yaml
     python3 tests/cases/view-empty/proof.py compare
     exit
 fi
@@ -28,4 +28,4 @@ if [ "${1:-focused}" = scans ]; then
     exit
 fi
 cargo fmt --all -- --check
-python3 scripts/trials.py --installed markdown-view/view-empty/empty-section markdown-view/view-empty/failed-section markdown-view/view-empty/all-absent markdown-view/view-empty/table-section
+python3 scripts/trials.py --installed markdown-view/view-empty/empty-section.yaml markdown-view/view-empty/failed-section.yaml markdown-view/view-empty/all-absent.yaml markdown-view/view-empty/table-section.yaml
