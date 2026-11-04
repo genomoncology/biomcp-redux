@@ -8,7 +8,9 @@
           "includes_all_of": [
             "query",
             "--limit",
-            "--offset"
+            "--offset",
+            "--species",
+            "--disease"
           ]
         },
         "/result/commands/0/description": "One exact cell line search, with source order and no total claim. Sources: cellosaurus.",
@@ -18,7 +20,7 @@
         "/status": "complete"
       },
       "full_output_bytes": true,
-      "max_bytes": 2136,
+      "max_bytes": 3200,
       "run": [
         "help",
         "search",

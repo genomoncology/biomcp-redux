@@ -67,11 +67,19 @@ pub fn literal(field: &str, value: &str) -> String {
 }
 /// Search one checked accession or unchanged literal name with its native window.
 pub fn search(leg: &Leg<'_>, q: &CellLineSearch) -> Result<Page, RequestError> {
-    let accession = q.query().as_str().parse::<CellosaurusAccession>().ok();
-    let query = literal(
-        if accession.is_some() { "ac" } else { "idsy" },
-        q.query().as_str(),
-    );
+    let accession = q.query().and_then(|v| v.as_str().parse::<CellosaurusAccession>().ok());
+    let mut terms = Vec::new();
+    if let Some(text) = q.query() {
+        terms.push(literal(if accession.is_some() { "ac" } else { "idsy" }, text.as_str()));
+    }
+    // Native fields, including their source ontology identifiers; no local disease inference.
+    // https://api.cellosaurus.org/api-fields documents ox and the NCIt-only din field.
+    for (field, value) in [("ox", q.species()), ("din", q.disease())] {
+        if let Some(value) = value {
+            terms.push(literal(field, value.as_str()));
+        }
+    }
+    let query = terms.join(" AND ");
     candidates(
         leg,
         &query,
