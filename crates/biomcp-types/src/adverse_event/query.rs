@@ -8,9 +8,6 @@ fn default_source() -> AdverseEventSource {
 fn default_limit() -> u32 {
     5
 }
-fn full_day(date: Option<PartialDate>) -> bool {
-    date.is_none_or(|d| d.day().is_some())
-}
 #[doc = " Search five report headers by default. MAUDE accepts device text or a manufacturer, \
     product-code or problem filter. One report may list several devices; filters may match \
     different devices. VAERS accepts MMR, COVID19, COVID-19 vaccine or \
@@ -37,6 +34,11 @@ struct SearchFields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     text: Option<Text>,
+    #[doc = "FAERS literal drug name; repeat --drug for OR. OR inside one quoted value stays literal. \
+        Other filters AND with the names. BioMCP caps the escaped native query, including filters, \
+        at FAERS_QUERY_MAX_BYTES (4096 bytes)."]
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    drug: Vec<Text>,
     /// MAUDE manufacturer phrase on device.manufacturer_d_name. A report may list several devices; filters may match different devices.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     manufacturer: Option<Text>,
@@ -62,11 +64,11 @@ struct SearchFields {
     /// FAERS report flag: any uses the source seriousness flag; the specific flags can overlap. Never a reaction outcome.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     serious: Option<AdverseEventSerious>,
-    /// Inclusive first FDA receipt lower bound, YYYY-MM-DD.
+    /// Inclusive FAERS or MAUDE FDA receipt lower bound, YYYY-MM-DD or YYYY-MM; a month starts on its first day.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("format" = "date")))]
     received_from: Option<PartialDate>,
-    /// Inclusive first FDA receipt upper bound, YYYY-MM-DD.
+    /// Inclusive FAERS or MAUDE FDA receipt upper bound, YYYY-MM-DD or YYYY-MM; a month ends on its last day.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("format" = "date")))]
     received_to: Option<PartialDate>,
@@ -81,7 +83,7 @@ struct SearchFields {
 crate::query::validation::checked_query!(AdverseEventSearch, SearchFields);
 impl TryFrom<SearchFields> for AdverseEventSearch {
     type Error = QueryInvalid;
-    fn try_from(v: SearchFields) -> Result<Self, Self::Error> {
+    fn try_from(mut v: SearchFields) -> Result<Self, Self::Error> {
         let maude_filter =
             v.manufacturer.is_some() || !v.product_code.is_empty() || v.problem.is_some();
         if v.source != AdverseEventSource::Maude && maude_filter {
@@ -92,7 +94,10 @@ impl TryFrom<SearchFields> for AdverseEventSearch {
                 "problem",
             ]));
         }
-        if v.text.is_none() && !(v.source == AdverseEventSource::Maude && maude_filter) {
+        if v.text.is_none()
+            && v.drug.is_empty()
+            && !(v.source == AdverseEventSource::Maude && maude_filter)
+        {
             return Err(QueryInvalid::new(&[
                 "text",
                 "manufacturer",
@@ -100,15 +105,14 @@ impl TryFrom<SearchFields> for AdverseEventSearch {
                 "problem",
             ]));
         }
+        if v.source != AdverseEventSource::Faers && !v.drug.is_empty() {
+            return Err(QueryInvalid::new(&["source", "drug"]));
+        }
         if !(1..=50).contains(&v.limit) {
             return Err(QueryInvalid::new(&["limit"]));
         }
-        if !full_day(v.received_from) {
-            return Err(QueryInvalid::new(&["received_from"]));
-        }
-        if !full_day(v.received_to) {
-            return Err(QueryInvalid::new(&["received_to"]));
-        }
+        v.received_from = super::receipt::day(v.received_from, false, "received_from")?;
+        v.received_to = super::receipt::day(v.received_to, true, "received_to")?;
         if v.received_from
             .zip(v.received_to)
             .is_some_and(|(a, b)| a.to_string() > b.to_string())
@@ -126,12 +130,7 @@ impl TryFrom<SearchFields> for AdverseEventSearch {
         {
             return Err(QueryInvalid::new(&["source", "text"]));
         }
-        if v.source != AdverseEventSource::Faers
-            && (v.reaction.is_some()
-                || v.serious.is_some()
-                || v.received_from.is_some()
-                || v.received_to.is_some())
-        {
+        if v.source != AdverseEventSource::Faers && (v.reaction.is_some() || v.serious.is_some()) {
             return Err(QueryInvalid::new(&[
                 "source",
                 "reaction",
@@ -140,7 +139,29 @@ impl TryFrom<SearchFields> for AdverseEventSearch {
                 "received_to",
             ]));
         }
-        Ok(Self(v))
+        if v.source == AdverseEventSource::Vaers
+            && (v.received_from.is_some() || v.received_to.is_some())
+        {
+            return Err(QueryInvalid::new(&[
+                "source",
+                "received_from",
+                "received_to",
+            ]));
+        }
+        let query = Self(v);
+        if query.source() == AdverseEventSource::Faers
+            && query.faers_expression().len() > super::faers::FAERS_QUERY_MAX_BYTES
+        {
+            return Err(QueryInvalid::new(&[
+                "text",
+                "drug",
+                "reaction",
+                "received_from",
+                "received_to",
+            ])
+            .with_message(crate::ErrorMessage::FaersQueryLength));
+        }
+        Ok(query)
     }
 }
 impl AdverseEventSearch {
@@ -148,6 +169,7 @@ impl AdverseEventSearch {
     pub fn maude_product(code: Text) -> Result<Self, QueryInvalid> {
         Self::try_from(SearchFields {
             text: None,
+            drug: Vec::new(),
             manufacturer: None,
             product_code: vec![code],
             problem: None,
@@ -196,6 +218,10 @@ impl AdverseEventSearch {
     /// Literal source text.
     pub fn text(&self) -> Option<&Text> {
         self.0.text.as_ref()
+    }
+    /// Explicit FAERS literal drug names, ORed with any positional text.
+    pub fn drug(&self) -> &[Text] {
+        &self.0.drug
     }
     /// Native MAUDE manufacturer phrase.
     pub fn manufacturer(&self) -> Option<&Text> {

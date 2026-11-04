@@ -3,6 +3,8 @@ use biomcp_fetch::{Input, Read};
 mod detail;
 mod map;
 mod raw;
+mod reference;
+pub(crate) use reference::reference_agrees;
 mod search;
 mod subject;
 use crate::quotas;
@@ -20,7 +22,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     terms: biomcp_fetch::Terms {
         name: "NCBI policy; submission rights remain source-specific",
         url: "https://www.ncbi.nlm.nih.gov/clinvar/docs/maintenance_use/",
-        usage: biomcp_types::Use::Restricted,
+        usage: biomcp_types::Use::Open,
     },
     source: Source::ClinVar,
     base: "https://eutils.ncbi.nlm.nih.gov/entrez/eutils",
@@ -39,9 +41,12 @@ pub fn assertions(
     id: &str,
     selection: Option<(&biomcp_types::AssertionId, Option<&str>)>,
 ) -> Result<crate::Mapped<Vec<VariantAssertion>>, RequestError> {
-    let vcv = selection
+    let selected_vcv = selection
         .filter(|(id, _)| matches!(id, biomcp_types::AssertionId::Vcv(_)))
-        .map(|(id, version)| (id.as_str(), version));
+        .map(|(id, version)| (id.to_string(), version));
+    let vcv = selected_vcv
+        .as_ref()
+        .map(|(id, version)| (id.as_str(), *version));
     let selected = vcv.map(|(record, version)| {
         version.map_or_else(|| record.to_owned(), |v| format!("{record}.{v}"))
     });

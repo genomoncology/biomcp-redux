@@ -9,8 +9,8 @@ use std::{ffi::OsString, fs, path::PathBuf, sync::Arc, time::Duration};
 mod credential_reads_tests;
 
 pub(crate) mod file;
-pub(crate) use file::ConfigError;
 use file::ConfigFile;
+pub(crate) use file::{ConfigError, ReplyForm};
 
 pub(crate) const DEFAULT_HTTP_CAPACITY: usize = 8;
 
@@ -33,6 +33,15 @@ pub(crate) fn http_capacity(
         return Err(ConfigError::field("http_max_connections"));
     }
     Ok((calls, connections))
+}
+
+pub(crate) fn mcp_reply_form(settings: &Settings) -> ReplyForm {
+    settings
+        .as_ref()
+        .ok()
+        .and_then(Option::as_ref)
+        .and_then(|file| file.mcp_reply_form)
+        .unwrap_or_default()
 }
 
 pub(crate) type Settings = Result<Option<ConfigFile>, ConfigError>;
@@ -77,6 +86,34 @@ pub(crate) fn retired_study_directory() -> bool {
 }
 
 pub(crate) const BUDGET: Duration = Duration::from_secs(20);
+pub(crate) fn budget(settings: &Settings) -> Duration {
+    settings
+        .as_ref()
+        .ok()
+        .and_then(Option::as_ref)
+        .and_then(|file| file.command_timeout_seconds)
+        .map_or(BUDGET, |seconds| {
+            Duration::from_secs(u64::from(seconds.get()))
+        })
+}
+pub(crate) fn request_defaults(
+    settings: &Settings,
+    request: &biomcp_types::Request,
+) -> Result<biomcp_types::Request, ConfigError> {
+    let limit = configured(settings)?.and_then(|file| file.drug_approvals_limit);
+    if let biomcp_types::Request::GetDrug(query) = request
+        && query.source() == biomcp_types::DrugSource::Drugsfda
+        && query.sections() == [biomcp_types::DrugSection::Approvals]
+        && query.section_limit().is_none()
+        && let Some(limit) = limit
+    {
+        return query
+            .with_section_limit(limit)
+            .map(biomcp_types::Request::GetDrug)
+            .map_err(|_| ConfigError::field("drug_approvals_limit"));
+    }
+    Ok(request.clone())
+}
 #[derive(Clone, Debug)]
 pub(crate) enum StartupError {
     Cache(biomcp_fetch::CacheError),
@@ -151,6 +188,9 @@ fn fetch_using(
         source_pacing: pacing::resolve(globals, file)?,
         disabled_sources: disabled_sources(globals, file)?,
         disabled_uses: biomcp_query::sources::disabled_uses(&disabled_names(globals, file)),
+        legacy_restricted: disabled_names(globals, file)
+            .iter()
+            .any(|name| name == "restricted"),
         observations: globals
             .observe
             .as_ref()
@@ -352,6 +392,12 @@ pub(crate) fn restrict(fetch: Fetch, globals: &Globals) -> std::io::Result<Fetch
     let disabled = biomcp_query::sources::disabled(&globals.disable_sources)
         .map_err(|_| std::io::Error::other("unchecked source policy"))?;
     Ok(fetch
+        .restrict_legacy(
+            globals
+                .disable_sources
+                .iter()
+                .any(|name| name == "restricted"),
+        )
         .restrict_sources(disabled)
         .restrict_uses(biomcp_query::sources::disabled_uses(
             &globals.disable_sources,

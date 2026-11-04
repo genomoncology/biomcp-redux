@@ -14,8 +14,13 @@ mod bundle;
 mod cache;
 mod cache_access;
 mod cleanup;
+mod sqlite_diagnostic;
 mod store_size;
 pub use cache_access::CacheAccess;
+#[doc(hidden)]
+pub use observe::record_sqlite_error;
+#[doc(hidden)]
+pub use sqlite_diagnostic::SQLITE_DIAGNOSTICS;
 mod cache_request;
 mod containment;
 mod deadline;
@@ -30,6 +35,7 @@ mod prepared;
 mod privacy;
 mod tls;
 pub use network::{Certificates, Network};
+pub use tls::TlsCause;
 mod quota;
 mod read;
 mod record;
@@ -52,6 +58,7 @@ pub use bundle::{
     KeyKind, Keys, MAX_BUNDLE_BYTES, Row, RowFormat, SetRow, bundle_sha256, decode_bundle_document,
     encode_bundle_row,
 };
+pub use cache::sql_deadline as configure_sqlite_deadline;
 pub use cache::{CACHE_NAMESPACE_VERSION, STALE_GRACE_SECONDS, SchemaOwner, VERSION, check_owners};
 pub use deadline::{CommandDeadline, Deadline, LocalDeadline};
 pub use declaration::{
@@ -111,6 +118,8 @@ pub struct FetchConfig {
     pub disabled_sources: std::collections::BTreeSet<biomcp_types::Source>,
     /// Component terms categories switched off by the same source policy.
     pub disabled_uses: std::collections::BTreeSet<biomcp_types::Use>,
+    /// Preserve the retired restricted configuration group.
+    pub legacy_restricted: bool,
     /// Configured credentials.
     pub secrets: Secrets,
     /// Explicit SQLite cache path; absence disables storage.
@@ -145,6 +154,7 @@ impl Default for FetchConfig {
             cache_owners: Vec::new(),
             disabled_sources: Default::default(),
             disabled_uses: Default::default(),
+            legacy_restricted: false,
             secrets: Secrets::default(),
             cache: None,
             cache_predecessors: Vec::new(),
@@ -180,11 +190,22 @@ pub struct Fetch {
     recordings: std::sync::Arc<record::Recordings>,
     clock: Option<std::sync::Arc<deadline::VirtualClock>>,
     config: std::sync::Arc<FetchConfig>,
+    background_refresh: Option<std::sync::Arc<BundleRefresh>>,
     bundle_imports: std::sync::Arc<std::sync::Mutex<std::collections::BTreeSet<&'static str>>>,
     disabled_sources: std::collections::BTreeSet<biomcp_types::Source>,
     disabled_uses: std::collections::BTreeSet<biomcp_types::Use>,
+    legacy_restricted: bool,
 }
 
+#[expect(
+    clippy::disallowed_types,
+    reason = "The server owns and joins at most one refresh worker per declared bundle"
+)]
+struct BundleRefresh {
+    agents: std::sync::Arc<network::Agents>,
+    running:
+        std::sync::Mutex<std::collections::BTreeMap<&'static str, std::thread::JoinHandle<()>>>,
+}
 impl fmt::Debug for Fetch {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("Fetch")
@@ -194,6 +215,21 @@ impl fmt::Debug for Fetch {
 }
 
 impl Fetch {
+    /// Retain automatic stale refreshes until the last server transport is dropped.
+    /// One-shot commands keep their synchronous read behavior.
+    #[expect(
+        clippy::disallowed_types,
+        reason = "The server owns and joins at most one refresh worker per declared bundle"
+    )]
+    pub fn with_background_refresh(mut self) -> Self {
+        if self.background_refresh.is_none() {
+            self.background_refresh = Some(std::sync::Arc::new(BundleRefresh {
+                agents: self.agents.clone(),
+                running: std::sync::Mutex::new(std::collections::BTreeMap::new()),
+            }));
+        }
+        self
+    }
     /// Bounded nonfatal settings notices for local health diagnostics.
     pub fn configuration_health(&self) -> Option<&biomcp_types::ConfigurationHealth> {
         self.config.network.configuration()
@@ -244,8 +280,10 @@ impl Fetch {
             clock: clock.map(std::sync::Arc::new),
             disabled_sources: config.disabled_sources.clone(),
             disabled_uses: config.disabled_uses.clone(),
+            legacy_restricted: config.legacy_restricted,
             config: std::sync::Arc::new(config),
             limiters: std::sync::Arc::default(),
+            background_refresh: None,
             bundle_imports: std::sync::Arc::default(),
         })
     }
@@ -272,6 +310,17 @@ impl Fetch {
         let mut restricted = self.clone();
         restricted.disabled_sources.extend(disabled);
         restricted
+    }
+
+    /// Whether the retired restricted configuration group is selected.
+    pub fn legacy_restricted(&self) -> bool {
+        self.legacy_restricted
+    }
+    /// Preserve legacy configuration exclusions without publishing a use label.
+    pub fn restrict_legacy(&self, disabled: bool) -> Self {
+        let mut fetch = self.clone();
+        fetch.legacy_restricted |= disabled;
+        fetch
     }
 
     /// Whether a component category was explicitly switched off.
@@ -421,6 +470,10 @@ impl Leg<'_> {
     /// Inspect the same component policy before choosing a source projection.
     pub fn disabled_use(&self, usage: biomcp_types::Use) -> bool {
         self.fetch.disabled_use(usage)
+    }
+    /// Whether legacy component exclusions apply to this leg.
+    pub fn legacy_restricted(&self) -> bool {
+        self.fetch.legacy_restricted()
     }
 
     /// Bypass cached reads and stale fallback for this leg and its batch children.

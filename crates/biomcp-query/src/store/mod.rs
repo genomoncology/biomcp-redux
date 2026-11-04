@@ -44,7 +44,6 @@ pub const OWNER: SchemaOwner = SchemaOwner {
     reason = "Bound command-owned SQLite work with its wall clock and stable snapshot timestamp"
 )]
 pub(crate) struct Store<'a> {
-    connection: Connection,
     deadline: Deadline<'a>,
     wall_end: Instant,
     _access: CacheAccess,
@@ -60,11 +59,9 @@ impl<'a> Store<'a> {
         }
         let started = Instant::now();
         let wall_end = started.checked_add(deadline.remaining()).unwrap_or(started);
-        let mut connection = access.connect()?;
-        connection.busy_timeout(deadline.remaining()).map_err(db)?;
-        access.admit(deadline, || {
+        with_connection(&access, deadline, |connection| {
             biomcp_fetch::check_owners(
-                &connection,
+                connection,
                 &[
                     SchemaOwner {
                         name: "biomcp-fetch",
@@ -76,60 +73,66 @@ impl<'a> Store<'a> {
                 ],
             )?;
             let version: Option<u32> = connection
-                .query_row("SELECT version FROM meta WHERE owner=?1", [OWNER.name], |r| r.get(0))
+                .query_row(
+                    "SELECT version FROM meta WHERE owner=?1",
+                    [OWNER.name],
+                    |r| r.get(0),
+                )
                 .optional()
-                .map_err(db)?;
+                .map_err(|error| db(error))?;
             if version == Some(VERSION) {
                 return Ok(());
             }
-            let tx = connection.transaction_with_behavior(rusqlite::TransactionBehavior::Immediate).map_err(db)?;
+            let tx = connection
+                .transaction_with_behavior(rusqlite::TransactionBehavior::Immediate)
+                .map_err(|error| db(error))?;
             biomcp_fetch::check_owners(&tx, &[OWNER])?;
             let version: Option<u32> = tx
-                .query_row("SELECT version FROM meta WHERE owner=?1", [OWNER.name], |r| r.get(0))
+                .query_row(
+                    "SELECT version FROM meta WHERE owner=?1",
+                    [OWNER.name],
+                    |r| r.get(0),
+                )
                 .optional()
-                .map_err(db)?;
+                .map_err(|error| db(error))?;
             if version.is_some_and(|version| version != VERSION) {
                 for table in OWNER.tables.iter().rev() {
-                    tx.execute_batch(&format!("DROP TABLE IF EXISTS {table}")).map_err(db)?;
+                    tx.execute_batch(&format!("DROP TABLE IF EXISTS {table}"))
+                        .map_err(|error| db(error))?;
                 }
             }
-            tx.execute_batch(include_str!("schema.sql")).map_err(db)?;
+            tx.execute_batch(include_str!("schema.sql"))
+                .map_err(|error| db(error))?;
             tx.execute(
                 "INSERT INTO meta(owner,version) VALUES (?1,?2) ON CONFLICT(owner) DO UPDATE SET version=excluded.version",
                 params![OWNER.name, VERSION],
             )
-            .map_err(db)?;
-            tx.commit().map_err(db)?;
-            connection.pragma_update(None, "journal_mode", "WAL").map_err(db)?;
+            .map_err(|error| db(error))?;
+            tx.commit().map_err(|error| db(error))?;
+            connection
+                .pragma_update(None, "journal_mode", "WAL")
+                .map_err(|error| db(error))?;
             Ok(())
         })?;
         Ok(Self {
-            connection,
             deadline,
             wall_end,
             _access: access,
         })
     }
-    pub(super) fn prepare(&self) -> Result<(), CacheError> {
-        if self.deadline().expired() {
-            return Err(CacheError::Busy);
-        }
-        self.connection
-            .busy_timeout(self.deadline().remaining())
-            .map_err(db)
-    }
     pub(super) fn read<T>(
         &self,
         operation: impl FnOnce(&Connection) -> Result<T, CacheError>,
     ) -> Result<T, CacheError> {
-        self.prepare()?;
-        self._access.admit(self.deadline(), || {
+        with_connection(&self._access, self.deadline(), |connection| {
             if !self._access.is_hosted() {
-                return operation(&self.connection);
+                return operation(connection);
             }
-            let tx = self.connection.unchecked_transaction().map_err(db)?;
+            let tx = connection
+                .unchecked_transaction()
+                .map_err(|error| db(error))?;
             let result = operation(&tx)?;
-            tx.commit().map_err(db)?;
+            tx.commit().map_err(|error| db(error))?;
             Ok(result)
         })
     }
@@ -137,15 +140,12 @@ impl<'a> Store<'a> {
         &mut self,
         operation: impl FnOnce(&rusqlite::Transaction<'_>) -> Result<T, CacheError>,
     ) -> Result<T, CacheError> {
-        self.prepare()?;
-        let deadline = self.deadline();
-        self._access.admit(deadline, || {
-            let tx = self
-                .connection
+        with_connection(&self._access, self.deadline(), |connection| {
+            let tx = connection
                 .transaction_with_behavior(rusqlite::TransactionBehavior::Immediate)
-                .map_err(db)?;
+                .map_err(|error| db(error))?;
             let result = operation(&tx)?;
-            tx.commit().map_err(db)?;
+            tx.commit().map_err(|error| db(error))?;
             Ok(result)
         })
     }
@@ -171,27 +171,39 @@ impl<'a> Store<'a> {
             .unwrap_or(0)
     }
 }
+// Opening and closing SQLite can acquire file locks too. Keep the entire local
+// connection lifetime inside ordinary SQL admission, including error unwinding.
+fn with_connection<T>(
+    access: &CacheAccess,
+    deadline: Deadline<'_>,
+    operation: impl FnOnce(&mut Connection) -> Result<T, CacheError>,
+) -> Result<T, CacheError> {
+    access.admit(deadline, || {
+        let mut connection = access.connect()?;
+        biomcp_fetch::configure_sqlite_deadline(&connection, deadline)?;
+        operation(&mut connection)
+    })
+}
+#[track_caller]
 fn db(error: rusqlite::Error) -> CacheError {
-    match error {
-        rusqlite::Error::SqliteFailure(e, _)
-            if matches!(
-                e.code,
-                rusqlite::ErrorCode::DatabaseBusy | rusqlite::ErrorCode::DatabaseLocked
-            ) =>
-        {
-            CacheError::Busy
-        }
-        _ => CacheError::Database,
+    biomcp_fetch::record_sqlite_error("query.store", &error);
+    if matches!(
+        error.sqlite_error_code(),
+        Some(rusqlite::ErrorCode::DatabaseBusy | rusqlite::ErrorCode::DatabaseLocked)
+    ) {
+        CacheError::Busy
+    } else {
+        CacheError::Database
     }
 }
 
 /// Validate and open the owned query store without making a source request.
 pub fn health(fetch: &biomcp_fetch::Fetch, budget: std::time::Duration) -> Result<(), CacheError> {
     let access = fetch.cache_access()?;
-    let connection = access.connect_read_only()?;
     let deadline = fetch.deadline(budget);
-    connection.busy_timeout(deadline.remaining()).map_err(db)?;
     access.admit(deadline, || {
+        let connection = access.connect_read_only()?;
+        biomcp_fetch::configure_sqlite_deadline(&connection, deadline)?;
         biomcp_fetch::check_owners(
             &connection,
             &[SchemaOwner {
@@ -204,3 +216,5 @@ pub fn health(fetch: &biomcp_fetch::Fetch, budget: std::time::Duration) -> Resul
 
 #[cfg(test)]
 mod privacy_tests;
+
+pub(crate) mod labels;

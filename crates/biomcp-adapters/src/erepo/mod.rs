@@ -13,7 +13,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     terms: biomcp_fetch::Terms {
         name: "ClinGen sharing policy; record rights unverified",
         url: "https://clinicalgenome.org/about/terms-of-use/",
-        usage: biomcp_types::Use::Restricted,
+        usage: biomcp_types::Use::Open,
     },
     source: Source::Erepo,
     base: "https://erepo.clinicalgenome.org",
@@ -40,6 +40,7 @@ pub fn assertions(
         list: mapped.problems,
     };
     if let Some((id, Some(version))) = selection {
+        let id = id.to_string();
         let id = id.as_str();
         let record = records
             .iter()

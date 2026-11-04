@@ -42,9 +42,9 @@ macro_rules! command_types {
                 "biomcp.cell-line-assay-count-query/1", 6, Direct
             );
             /// Discover unchanged literal Cellosaurus candidates.
-            SearchCellLine(CellLineSearch) => (
-                "search", "cell-line", CellLineSearch, "cell-line-search-query", "biomcp.cell-line-search-query/2", CellLineSearch,
-                "cell-line-search-query", "biomcp.cell-line-search-query/2", "biomcp.cell-line-search-query/2", 7, SearchCellLine
+            SearchCellLine(CellLineSearchCommand) => (
+                "search", "cell-line", CellLineSearchCommand, "cell-line-search-command", "biomcp.cell-line-search-command/1", CellLineSearchCommand,
+                "cell-line-search-command", "biomcp.cell-line-search-command/1", "biomcp.cell-line-search-command/1", 7, SearchCellLine
             );
             /// Read an exact accession or verified qualified source identity.
             GetCellLine(CellLineGet) => (
@@ -179,8 +179,8 @@ macro_rules! command_types {
             );
             /// Search source-native adverse event reports.
             SearchAdverseEvent(AdverseEventSearch) => (
-                "search", "adverse-event", AdverseEventSearch, "adverse-event-search", "biomcp.adverse-event-search/4", AdverseEventSearch,
-                "adverse-event-search", "biomcp.adverse-event-search/4", "biomcp.adverse-event-search/4", 32, Direct
+                "search", "adverse-event", AdverseEventSearch, "adverse-event-search", "biomcp.adverse-event-search/4", AdverseEventSearchCommand,
+                "adverse-event-search-command", "biomcp.adverse-event-search-command/1", "biomcp.adverse-event-search/4", 32, Direct
             );
             /// Read one exact source report, without source probing.
             GetAdverseEvent(AdverseEventGet) => (

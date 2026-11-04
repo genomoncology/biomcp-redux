@@ -1,8 +1,8 @@
 gene-identity: A caller resolves approved symbols, aliases, previous symbols and identifiers without guessing between ambiguous candidates.
 gene-search: A caller searches genes by words, chromosome band and locus group with totals and bounded pages.
-gene-bundle: A caller synchronizes the HGNC bundle and reads gene identity offline.
+gene-bundle: A caller synchronizes the HGNC bundle and reads gene identity offline; live servers return stale rows while refreshing in the background, and missing or explicitly fresh reads wait.
 gene-help: A caller discovers gene arguments, section names and executable examples through help.
-gene-sections: A caller requests named gene sections separately or together and sees each section's source and availability.
+gene-sections: A caller requests named gene sections separately or together, sees each source and availability, and waits within a configurable deadline for an active first bundle publication.
 gene-protein: A caller sees every reviewed human protein linked by the gene's identifiers.
 gene-pathways: A caller sees Reactome pathways linked to the gene.
 gene-expression: A caller sees source-stated tissue expression and subcellular locations for the gene.
@@ -43,7 +43,7 @@ trial-nci: Explicit NCI phase and status filters use publisher vocabularies; tri
 trial-publications: Retrieve native registry references and document manifests and save a listed document to an explicit caller path.
 trial-sites: Page original registry sites and their attached contacts, and retrieve requested-trial central contacts and officials.
 variant-population: A caller reads source-given population counts and current catalog associations, keeps missing datasets distinct from zero, and pages ancestry without inferred frequencies or clinical meaning.
-variant-search: Search explicit gene/protein or ClinVar gene/coding changes, assembly-qualified regions or raw MyVariant queries with proved literal source filters, preserve native candidates, source transcript notation and matches, and pages, and honor component terms switches.
+variant-search: Search explicit gene/protein or ClinVar gene/coding changes, assembly-qualified regions or raw MyVariant queries with proved literal source filters, preserve native candidates, source transcript notation and matches, and pages, and honor component terms switches; SnpEff fallback matches require allowed same-record corroboration or an agreeing reference base.
 trial-help: Discover trial commands through schema-generated help and executable case examples.
 variant-recurrence: Retrieve bounded exact-allele sample observations in an explicitly selected cBioPortal cohort without inferring a denominator.
 variant-normalization: A caller sends unchanged HGVS to named services and receives independent source mappings, warnings and versions.
@@ -57,7 +57,7 @@ drug-ema: Explicitly synchronize EMA medicines and read separate native candidat
 drug-civic: Search literal CIViC therapy candidates and retrieve independent native evidence and assertion pages with their complete profile context.
 drug-mychem: Search literal MyChem candidate pages and retrieve exact native document identities with attributed cross-references.
 drug-label: Find complete brand or generic names with an explicit match basis and read exact SPL identities and native label fields with complete bounded text continuation, preserving revision, original text and source outcomes.
-drug-approvals: Read source-native application candidates, independent product status and application submission history with explicit product selection.
+drug-approvals: Read source-native application candidates, independent product status and application submission history with explicit product selection and configurable submission pages.
 disease-ols: Discover source-ordered ontology candidates, read exact OLS facts and refuse retired disease inputs before source access.
 disease-mydisease: Read an exact selected annotation and independently page native synonyms, cross references and parents without hidden enrichment.
 disease-seer: Select native SEER catalog sites and page stage incidence or annual observed and modeled survival without inferred population or dataset facts.
@@ -69,7 +69,7 @@ drug-failures: Every kept drug source reports synthetic transport and broken-bod
 drug-identity: Drug sources reject mismatched, conflicting and absent identity joins before cache admission or product selection.
 drug-help: Discover source-scoped drug sections, selectors and explicit bundle synchronization through generated help and executable case examples.
 diagnostic-gtr: Explicitly synchronize the complete GTR pair and read exact native test candidates, cards and relation pages without implicit synchronization or clinical inference.
-adverse-event-search: Search literal FAERS report mentions with typed phrase, seriousness and receipt selectors, native report pages and exact next requests.
+adverse-event-search: Search literal FAERS drug names joined with OR and other filters joined with AND, with typed phrase, seriousness and receipt selectors, native report pages and exact next requests.
 cpic-pgx: Read explicit CPIC gene pairs, identity, native recommendations, guideline references and declared diplotype mappings without clinical inference.
 maude-reports: Search native device phrases, manufacturer phrases, exact product codes and product problem phrases and read exact native cards, device rows and complete narratives with source terms and independent count units.
 adverse-event-get: Read one exact FAERS report and independently page retained drug, reaction and original identifier arrays without causal or product identity inference.
@@ -88,7 +88,8 @@ diagnostic-who-search: Search stored WHO product headers by literal marker and m
 mcp-research: Search citable source headers and fetch the same CLI record through research compatibility tools.
 store-clean: Publishing removes bounded expired pools and snapshots; ordinary reply writes prune expired replies; explicit cleanup removes expired state and obsolete owned database files with their sidecars while preserving supported generations, bundle tables in obsolete files, fresh state and foreign tables.
 study-catalog: Explicit catalog sync preserves checked metadata atomically; literal stored study searches retain selectors and source order.
-study-get: Exact stored study cards expose bounded independent profile and sample-list metadata without participant identifiers.
+study-get: Exact stored study cards expose bounded independent profile and sample-list metadata.
+study-rows: Read gene-filtered native mutation observations and sample ID/type rows with bounded pages, totals and the selected mutation profile.
 gwas-search: Search source-native association selectors in native p-value order, with exact positive thresholds and retained page walks that state a qualifying total only at the end.
 protein-search: A caller searches reviewed human proteins and walks retained source windows without guessing identities.
 phenotype-identity: A caller searches literal HP term candidates and reads independent exact HPO or Monarch cards without guessing or merging.
@@ -107,7 +108,7 @@ protein-sections: A caller reads native protein features, alternative products, 
 protein-domains-complexes: Read source-native InterPro matches and exact-participant Complex Portal pages without inferred membership.
 pathway-help: Discover every pathway source, selector, section and paging option through generated help and parsed case examples.
 protein-docs-accounting: Discover every protein command, native section and selector through generated help and parsed CLI/MCP examples.
-cell-line-identity: A caller searches literal Cellosaurus headers and retrieves exact accession or verified source-qualified cell identities.
+cell-line-identity: A caller searches Cellosaurus headers by literal text, native species or NCIt disease, and retrieves exact accession or verified source-qualified cell identities.
 cell-line-chembl: A caller reads exact accession-linked ChEMBL metadata and requests native assay totals separately, with source terms and independent release provenance.
 cell-line-sections: A caller pages complete native Cellosaurus names, identities, cross-references and variation rows without inference.
 cell-line-all: A caller receives every bounded first section page with independent source failures, skips and provenance, while deferred routes return fixed guidance before provider requests.
@@ -129,3 +130,4 @@ variant-clinvar-haplotype: Preserve native ClinVar haplotype kind, version, chro
 mcp-hosted: A server operator refuses host file saves, health details and store or key changes over every MCP transport in hosted mode; HTTP calls declare commercial or academic use with commercial defaults and server exclusions preserved, use caller source headers under declared fallback tiers without retaining credentials, pace each effective key independently, share keyless pacing, scale provider rates with --rate-share and cap whole-call time and active hosted HTTP work.
 
 source-pacing: Operators can lower source rates and simultaneous requests within documented source ceilings.
+trial-results: A caller pages posted outcome measures, source group values, dispersion and analyses, and adverse-event tables from the same registry record, with its first posting date.

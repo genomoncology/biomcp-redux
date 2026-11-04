@@ -61,7 +61,7 @@ pub(crate) fn serve(
         globals,
         root,
         settings,
-        fetch: fetch.map(std::sync::Arc::new),
+        fetch: fetch.map(|fetch| std::sync::Arc::new(fetch.with_background_refresh())),
         recovery,
     };
     let mut output = io::stdout().lock();
@@ -162,7 +162,7 @@ impl Server {
             Err(error) => (
                 Err(error.clone()),
                 Some(biomcp_fetch::Cancellation::with_budget(
-                    crate::config::BUDGET,
+                    crate::config::budget(&settings),
                 )),
             ),
         };
@@ -224,7 +224,12 @@ impl Server {
             return Ok(None);
         }
         Ok(Some(match outcome {
-            Ok(outcome) => protocol::tool_result(call.id, &outcome, call.modern),
+            Ok(outcome) => protocol::tool_result(
+                call.id,
+                &outcome,
+                call.modern,
+                crate::config::mcp_reply_form(&self.settings),
+            ),
             Err(_) => protocol::error(call.id, -32603, "Internal error"),
         }))
     }
@@ -258,7 +263,9 @@ impl Recovery {
             return Ok((snapshot.clone(), false));
         }
         let settings = std::sync::Arc::new(crate::config::file::read_file(globals.config.as_ref()));
-        let fetch = std::sync::Arc::new(crate::config::fetch(globals, &settings)?);
+        let fetch = std::sync::Arc::new(
+            crate::config::fetch(globals, &settings)?.with_background_refresh(),
+        );
         let snapshot = Snapshot { fetch, settings };
         *stored = Some(snapshot.clone());
         Ok((snapshot, true))

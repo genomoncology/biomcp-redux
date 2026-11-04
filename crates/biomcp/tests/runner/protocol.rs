@@ -1,3 +1,5 @@
+#[path = "mcp_reply_form.rs"]
+mod reply_form;
 #[path = "protocol_schemas.rs"]
 mod schemas;
 use super::{
@@ -45,6 +47,9 @@ pub(super) fn trials() -> Vec<Trial> {
             discovery().map_err(Into::into)
         }),
     ];
+    trials.push(transcript_trial("mcp-parity/reply-forms", || {
+        reply_form::check().map_err(Into::into)
+    }));
     trials.extend(super::store_clean::trials());
     trials.extend(super::store_coexistence::trials());
     trials
@@ -354,7 +359,8 @@ fn discovery() -> Check {
             != Some(&json!({
                 "$schema":"https://json-schema.org/draft/2020-12/schema",
                 "type":"object",
-                "properties":{"args":{"type":"array","items":{"type":"string"}}},
+                "properties":{"args":{"type":"array","items":{"type":"string"},
+                    "description":"CLI command words, without biomcp. Example: [\"help\"]"}},
                 "required":["args"],
                 "additionalProperties":false
             }))
@@ -394,145 +400,28 @@ fn discovery() -> Check {
     discovery_description(text)
 }
 
-const DISCOVERY_WORDS: &[&str] = &[
-    "search pathway --fresh --gene --pool query --source reactome|wikipathways --top-level",
-    "get pathway --fresh id --pool section; R-HSA|WP :summary|genes|events|all",
-    "pathway genes details id --pool; Reactome|WikiPathways GPML",
-    "pathway events id --pool; Reactome",
-    "sync wikipathways",
-    "Pathway membership names source/release; no therapy, response, actionability or enrichment",
-    "search study --cancer-type --pool",
-    "get study :profiles|sample-lists|files|all",
-    "sync cbioportal-studies",
-    "protein",
-    "civic",
-    "clingen",
-    "constraint",
-    "expression",
-    "pathways",
-    "oncokb",
-    "all",
-    "--band",
-    "--locus-group",
-    "search article",
-    "get article",
-    "article text",
-    "article supplement",
-    "article citations",
-    "article references",
-    "article citation-evidence",
-    "article recommendations",
-    "search disease",
-    "get disease :synonyms|xrefs|hierarchy|genes|phenotypes|incidence|survival",
-    "--ontology",
-    "search trial",
-    "get trial",
-    "trial document",
-    "get variant",
-    "search variant",
-    "variant assertions",
-    "variant population",
-    "variant normalize",
-    "variant recurrence",
-    "search adverse-event",
-    "get adverse-event",
-    ":drugs|reactions|unii|rxcui|product-ndc|package-ndc|spl-id|spl-set-id|application-number|devices|narrative",
-    "--source faers|maude",
-    "--reaction",
-    "--serious",
-    "--received-from",
-    "--received-to",
-    "--drug-index",
-    "--section-limit",
-    "--section-offset",
-    "search diagnostic --source gtr|fda-cdx|who-ivd|fda-device-recall",
-    "--marker",
-    "--manufacturer",
-    "get diagnostic --source gtr|who-ivd|fda-pma|fda-510k|fda-device-recall",
-    "genes|conditions|methods|regulatory|supplements",
-    "sync gtr",
-    "sync who-ivd",
-    "sync fda-cdx",
-    "--gene-id",
-    "--condition-id",
-    "--device-id",
-    "--drug-application",
-    "--biomarker",
-    "--supplement",
-    "search pgx",
-    "get pgx",
-    "cpic|clinpgx",
-    "--cpic-level",
-    "--diplotype",
-    "--kind",
-    "recommendations|guidelines|diplotype|annotations",
-    "search drug",
-    "get drug",
-    "sync ema",
-    "sync ddinter",
-    "interactions",
-    "regulatory",
-    "approvals",
-    "xrefs",
-    "indications",
-    "targets",
-    "label",
-    "predict",
-    "conservation",
-    "cosmic",
-    "search gwas --extended-geneset --gene --include-child-traits --p-value --pool --pubmed query --study --trait --trait-id --variant",
-    "get gwas id section --snapshot :loci|associations|ancestries",
-    "--p-value requires default p-value-ascending",
-    "no personal risk, causal variant/gene or clinical statistic interpretation",
-    "hotspots",
-    "search phenotype --limit --offset --source hpo|monarch",
-    "get phenotype --section-limit --section-offset --snapshot --source hpo|monarch",
-    ":synonyms|xrefs|hierarchy|diseases|genes",
-    "terms are terminology, associations publisher assertions; neither diagnoses",
-];
-
 fn discovery_description(text: &str) -> Check {
     writeln!(std::io::stdout(), "MCP_DESCRIPTION_BYTES={}", text.len())
         .map_err(|e| e.to_string())?;
-    // The output budget uses j15878 measured 3840 bytes plus fifteen percent.
     if text.len() > crate::runner::output_limit("command-description")? {
         return Err("command description exceeds budget".into());
     }
-    for word in [
-        "search biomarker --source nci --name",
-        "get biomarker",
-        ";NCI concepts;diagnostic --biomarker tests;trial --variant literal text",
-        "search organization --source nci --name --city --state --country --postal-code --family --lat --lon \
-            --distance --limit --offset --pool;names not unique;counts all trial statuses;no get",
-        "search cell-line query --limit/-l --offset",
-        "get cell-line CVCL_ID|SOURCE:ID --section-limit --section-offset :names|identity|xrefs|variants|chembl|all",
-        "cell-line assay-count",
-        "Author IDs name source records;no ranking/merge.",
-        "Both sources noncommercial;--disable-sources noncommercial.",
-        "biomcp key set semantic-scholar (S2_API_KEY)",
-        "biomcp key set orcid (ORCID_ACCESS_TOKEN)",
-        "author papers",
-        "semantic-scholar:ID|orcid:ID",
-        "details|--full",
-        "An assay count is not an activity or sensitivity count.",
-        "No treatment response is inferred; no bioinformatics tool runs.",
-        "protein features --position --type",
-        "domains --type",
-        "complex-members --complex",
-        "isoforms",
-        "structures",
-        "sequence",
-        "--reviewed",
-        "no variant effect/structure/interaction/clinical inference;no bioinformatics tool runs",
-    ] {
-        if !text.contains(word) {
-            return Err(format!("protein discovery misses {word}"));
-        }
-    }
-    for &word in DISCOVERY_WORDS {
-        if !text.contains(word) {
-            return Err(format!("description misses {word}"));
-        }
+    let example = text
+        .split("Example: ")
+        .nth(1)
+        .and_then(|rest| rest.split(". Start").next())
+        .ok_or("description has no copyable example")?;
+    let arguments: Value = serde_json::from_str(example).map_err(|e| e.to_string())?;
+    let replies = exchange(
+        &environment()?,
+        &[request(
+            json!("example"),
+            "tools/call",
+            json!({"name":"biomcp","arguments":arguments}),
+        )],
+    )?;
+    if reply(&replies, &json!("example"))?.pointer("/result/isError") != Some(&json!(false)) {
+        return Err("call written from tool description failed".into());
     }
     Ok(())
 }

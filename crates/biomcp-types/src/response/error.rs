@@ -55,6 +55,8 @@ singleton! {
         OrganizationTooBroad => "organization search is too broad; narrow --name, --city, --state, --country, \
         --postal-code, --family or --lat/--lon/--distance",
 
+ VariantNormalizeForms => "normalization accepts reference-qualified HGVS, or chromosome genomic HGVS with CAR \
+ and --build; convert rsIDs, clinvar:N, VCV accessions and genomic coordinates with get variant <ID> first",
  GwasPositiveThreshold => "--p-value threshold must be a positive probability in scientific notation",
  SourceSelector => "choose one of the source selector values",
  UnsupportedFilter => "a selected source does not support the requested filters",
@@ -81,6 +83,7 @@ singleton! {
             [associations|ancestries]; bare numbers are unsupported; sections must match the resource kind; \
             --section-limit is 1..50 and --section-offset is a nonnegative integer; identities are never \
             repaired",
+        FaersQueryLength => "FAERS_QUERY_MAX_BYTES is 4096 bytes for the escaped native query including filters; use fewer or shorter --drug names",
         AdverseText => "use: search adverse-event <TEXT>; text stays literal",
         AdverseOutcome => "--outcome is retired; use --serious death or --serious hospitalization for report flags and \
             reactions for native outcomes; the old hospitalization and disability mappings were wrong",

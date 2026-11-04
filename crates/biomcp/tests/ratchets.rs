@@ -1,6 +1,8 @@
 //! Repository structure is part of the build contract.
 #[path = "ratchets/dependencies.rs"]
 mod dependencies;
+#[path = "ratchets/dependency_sources.rs"]
+mod dependency_sources;
 #[path = "ratchets/errors.rs"]
 mod errors;
 #[path = "runner/features.rs"]
@@ -197,3 +199,6 @@ fn required_surface_has_asserted_calls() -> Check {
 fn required_coverage_rejects_planted_gaps() -> Check {
     required::controls()
 }
+
+#[path = "../build/front_map.rs"]
+mod front_map;
