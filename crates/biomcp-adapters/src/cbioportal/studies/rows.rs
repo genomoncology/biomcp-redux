@@ -4,7 +4,7 @@ use crate::{mapped::Problems, raw::Field};
 use biodata::{NcbiGeneId, StudyId, StudyProfileId, Text};
 use biomcp_fetch::{Arg, BadReply, Freshness, Input, Leg, PathSegment, Read, Reply, RequestError};
 use biomcp_types::{Source, StudyGet, StudyMutation, StudySample};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 const MAX_ROWS: u64 = 10_000_000; // cBioPortal's documented maximum page size.
 const MAX_BYTES: u64 = 16 * 1024 * 1024;
@@ -31,7 +31,7 @@ struct Mutations(Vec<super::super::scope::Row<Mutation, super::super::scope::Mut
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct Gene {
-    entrez_gene_id: NcbiGeneId,
+    entrez_gene_id: u32,
     hugo_gene_symbol: Text,
 }
 #[derive(Deserialize)]
@@ -48,6 +48,13 @@ macro_rules! reply {
     ($($t:ty),+) => {$(impl Reply for $t { fn check(&self) -> Result<(), BadReply> { Ok(()) } })+};
 }
 reply!(Samples, Mutations, Gene, Profiles);
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+struct MutationFilter<'a> {
+    entrez_gene_ids: [u32; 1],
+    sample_list_id: &'a biodata::StudySampleListId,
+}
 
 fn endpoint(path: &str, segments: &[&str]) -> Result<biomcp_fetch::Endpoint, RequestError> {
     let segments = segments
@@ -142,7 +149,10 @@ pub fn mutations(
             tls_cause: None,
             retry_after: None,
         })?;
-    let body = serde_json::json!({"sampleListId": list.sample_list_id, "entrezGeneIds": [gene]});
+    let body = MutationFilter {
+        entrez_gene_ids: [gene.get()],
+        sample_list_id: &list.sample_list_id,
+    };
     let endpoint = SPEC
         .post_json("/molecular-profiles")
         .with_segments(&[
@@ -227,7 +237,8 @@ fn gene(leg: &Leg<'_>, q: &StudyGet) -> Result<NcbiGeneId, RequestError> {
             }),
         )?
         .value;
-    Ok(gene.entrez_gene_id)
+    NcbiGeneId::new(gene.entrez_gene_id)
+        .map_err(|_| biomcp_fetch::bad_reply(Source::Cbioportal, None))
 }
 fn profile(leg: &Leg<'_>, q: &StudyGet) -> Result<StudyProfileId, RequestError> {
     let profiles = leg
