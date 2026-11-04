@@ -41,6 +41,7 @@ pub(crate) struct Globals {
     pub(crate) offline: bool,
     pub(crate) fresh: bool,
     pub(crate) hosted: bool,
+    pub(crate) mcp_tool_mode: Option<crate::config::ToolMode>,
     pub(crate) http_max_calls: Option<std::num::NonZeroUsize>,
     pub(crate) http_max_connections: Option<std::num::NonZeroUsize>,
     pub(crate) source_pacing: Option<String>,
@@ -355,6 +356,7 @@ fn globals(matches: &clap::ArgMatches) -> Result<Globals, ParseInvalid> {
             .cloned()
             .collect(),
         replay: matches.get_one::<PathBuf>("replay").cloned(),
+        mcp_tool_mode: None,
         observe: matches.get_one::<PathBuf>("observe").cloned(),
         record: matches.get_one::<PathBuf>("record").cloned(),
         case_cache: matches.get_one::<PathBuf>("case-cache").cloned(),

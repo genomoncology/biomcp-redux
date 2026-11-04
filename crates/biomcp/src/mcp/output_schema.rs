@@ -2,6 +2,16 @@
 use serde_json::{Value, json};
 use std::{collections::BTreeSet, io};
 
+pub(super) fn for_command(root: &crate::grammar::Root, verb: &str, entity: &str) -> io::Result<Value> {
+    let mut output = for_tool(root, "biomcp")?;
+    let ids = crate::help::commands(root)?.into_iter()
+        .filter(|command| command.command == [verb, entity])
+        .flat_map(|command| command.reply_schemas).collect::<BTreeSet<_>>();
+    output["anyOf"][0]["properties"]["schema"] = json!({"type":"string","enum":ids});
+    output["anyOf"].as_array_mut().ok_or_else(|| io::Error::other("missing branches"))?.truncate(2);
+    Ok(output)
+}
+
 pub(super) fn for_tool(root: &crate::grammar::Root, name: &str) -> io::Result<Value> {
     let mut ids = crate::help::commands(root)?
         .into_iter()

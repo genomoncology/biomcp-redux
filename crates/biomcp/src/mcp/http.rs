@@ -266,7 +266,7 @@ impl Service {
             None
         };
         let mut legacy = revision != super::protocol::REVISIONS[0];
-        let result = match super::rpc::message(&request.body, &mut legacy, true, &self.root) {
+        let result = match super::rpc::message(&request.body, &mut legacy, true, &self.root, crate::config::mcp_tool_mode(&self.globals, &self.settings)) {
             super::rpc::Message::Reply(reply) => reply,
             super::rpc::Message::Notification { .. } => return (202, None, Some(revision)),
             super::rpc::Message::Tool { id, params, modern } => {
@@ -292,7 +292,7 @@ impl Service {
         let scope = self.globals.hosted.then(|| {
             biomcp_fetch::Cancellation::with_budget(crate::config::budget(&self.settings))
         });
-        let Some(call) = super::research::parse(params) else {
+        let Some(call) = super::typed::parse(&self.root, params, crate::config::mcp_tool_mode(&self.globals, &self.settings)) else {
             return (
                 200,
                 Some(super::protocol::error(id, -32602, "Invalid params")),
@@ -345,7 +345,7 @@ impl Service {
                     id,
                     &outcome,
                     modern,
-                    crate::config::mcp_reply_form(&self.settings),
+                    crate::config::tool_reply_form(&self.globals, &self.settings),
                 ),
                 Err(_) => super::protocol::error(id, -32603, "Internal error"),
             }

@@ -90,7 +90,7 @@ impl Calls {
                             worker_id,
                             &outcome,
                             modern,
-                            crate::config::mcp_reply_form(&settings),
+                            crate::config::tool_reply_form(&globals, &settings),
                         )
                     })
                 });
