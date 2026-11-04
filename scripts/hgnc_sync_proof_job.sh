@@ -8,6 +8,8 @@ mkdir -p "$out"
 git rev-parse HEAD > "$out/source.txt"
 case "${1:-focused}" in
     focused)
+        python3 scripts/trials.py --target tools --list > "$out/tools-list.txt"
+        python3 scripts/trials.py --target tools --proofs --list > "$out/proofs-list.txt"
         python3 scripts/trials.py --target tools --installed \
             --executable /tmp/biomcp-0596-proof/biomcp \
             cache-resilience/hgnc-trials-during-live-sync
@@ -18,6 +20,7 @@ case "${1:-focused}" in
             cache-resilience/hgnc-first-snapshot-wait-is-bounded
         ;;
     ordinary)
+        python3 scripts/trials.py --list > "$out/cases-list.txt"
         python3 scripts/trials.py --installed --executable /tmp/biomcp-0596-proof/biomcp \
             cache-resilience/hgnc-trials-during-live-sync
         ;;
