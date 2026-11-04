@@ -13,6 +13,12 @@ pub(super) fn render(verb: &str, entity: &str, schema: &Value) -> String {
     let mut groups = BTreeMap::<String, Vec<String>>::new();
     for key in ["section", "sections"] {
         let node = super::arguments::resolve(&schema["properties"][key], schema);
+        let node = node
+            .get("anyOf")
+            .and_then(Value::as_array)
+            .and_then(|branches| branches.iter().find(|node| node["type"] != "null"))
+            .map(|node| super::arguments::resolve(node, schema))
+            .unwrap_or(node);
         let node = super::arguments::resolve(node.get("items").unwrap_or(node), schema);
         for section in node
             .get("enum")

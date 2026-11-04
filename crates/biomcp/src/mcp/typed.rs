@@ -29,7 +29,7 @@ fn schema(id: &str) -> io::Result<Value> {
     )
     .map_err(Into::into)
 }
-pub(super) fn tools(root: &crate::grammar::Root, read_only: bool) -> io::Result<Vec<Value>> {
+pub(super) fn tools(_root: &crate::grammar::Root, read_only: bool) -> io::Result<Vec<Value>> {
     crate::grammar::command_paths()
         .iter()
         .map(|&(verb, entity, id)| {
@@ -37,7 +37,7 @@ pub(super) fn tools(root: &crate::grammar::Root, read_only: bool) -> io::Result<
             Ok(json!({"name":name(verb, entity),
             "description":description::render(verb, entity, &schema),
             "inputSchema":arguments::input(&schema),
-            "outputSchema":super::output_schema::for_command(root, verb, entity)?,
+            "outputSchema":super::output_schema::for_command(verb, entity, id)?,
             "annotations":{"readOnlyHint":read_only,"destructiveHint":false,"openWorldHint":true}}))
         })
         .collect()

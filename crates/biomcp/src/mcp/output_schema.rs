@@ -2,23 +2,26 @@
 use serde_json::{Value, json};
 use std::{collections::BTreeSet, io};
 
-pub(super) fn for_command(
-    root: &crate::grammar::Root,
-    verb: &str,
-    entity: &str,
-) -> io::Result<Value> {
-    let mut output = for_tool(root, "biomcp")?;
-    let ids = crate::help::commands(root)?
+pub(super) fn for_command(verb: &str, entity: &str, id: &str) -> io::Result<Value> {
+    let ids = crate::schema::replies(id, verb, entity)
         .into_iter()
-        .filter(|command| command.command == [verb, entity])
-        .flat_map(|command| command.reply_schemas)
-        .collect::<BTreeSet<_>>();
-    output["anyOf"][0]["properties"]["schema"] = json!({"type":"string","enum":ids});
-    output["anyOf"]
-        .as_array_mut()
-        .ok_or_else(|| io::Error::other("missing branches"))?
-        .truncate(2);
-    Ok(output)
+        .collect();
+    Ok(
+        json!({"$schema":super::protocol::SCHEMA_DIALECT,"type":"object",
+        "anyOf":[envelope(ids)?,shape(&canonical("biomcp.error/4")?)?]}),
+    )
+}
+fn envelope(ids: BTreeSet<String>) -> io::Result<Value> {
+    let health = canonical(<biomcp_types::Health as biomcp_types::ResponseBody>::SCHEMA)?;
+    let mut envelope = shape(&health)?;
+    let properties = envelope
+        .get_mut("properties")
+        .and_then(Value::as_object_mut)
+        .ok_or_else(|| io::Error::other("missing envelope properties"))?;
+    properties.insert("schema".into(), json!({"type":"string","enum":ids}));
+    properties.insert("query".into(), json!({"type":["object","array","null"]}));
+    properties.insert("result".into(), json!({"type":"object"}));
+    Ok(envelope)
 }
 
 pub(super) fn for_tool(root: &crate::grammar::Root, name: &str) -> io::Result<Value> {
@@ -34,16 +37,7 @@ pub(super) fn for_tool(root: &crate::grammar::Root, name: &str) -> io::Result<Va
     if name == "fetch" {
         ids.extend(crate::schema::local_replies(&["help".into()]));
     }
-    let health = canonical(<biomcp_types::Health as biomcp_types::ResponseBody>::SCHEMA)?;
-    let mut envelope = shape(&health)?;
-    let properties = envelope
-        .get_mut("properties")
-        .and_then(Value::as_object_mut)
-        .ok_or_else(|| io::Error::other("missing envelope properties"))?;
-    properties.insert("schema".into(), json!({"type":"string","enum":ids}));
-    properties.insert("query".into(), json!({"type":["object","array","null"]}));
-    properties.insert("result".into(), json!({"type":"object"}));
-    let mut branches = vec![envelope, shape(&canonical("biomcp.error/4")?)?];
+    let mut branches = vec![envelope(ids)?, shape(&canonical("biomcp.error/4")?)?];
     if name == "biomcp" {
         branches.push(json!({"properties":{
             "$id":{"type":"string","pattern":"^(biomcp|biodata)\\.[a-z0-9_-]+/[1-9][0-9]*$"},
