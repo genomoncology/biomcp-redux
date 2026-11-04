@@ -59,7 +59,9 @@ pub(super) fn frequency(
         },
     )
     .with_stratum(Some(data_type), None, None, None)
-    .and_then(|frequency| frequency.with_counts(subset.ac, subset.an, None, None));
+    .and_then(|frequency| {
+        frequency.with_counts(subset.ac, subset.an, subset.homozygote_count, None)
+    });
     match frequency {
         Ok(frequency) => Some(match &subset.filters {
             Some(filters) => frequency.with_filters(filters.clone().into()),
@@ -116,4 +118,30 @@ fn rejected_release(name: &str, problems: &[Problem]) -> bool {
     problems.iter().any(|problem| {
         problem.field.as_ref() == prefix || problem.field.as_ref() == format!("{prefix}.version")
     })
+}
+
+/// Bind the query dataset to a release actually reported for both matching source totals.
+/// gnomAD publishes no independent VA joint release: retain joint values without one.
+pub(super) fn shared_release(
+    raw: &Variant,
+    exome: Option<&biomcp_types::GnomadCounts>,
+    genome: Option<&biomcp_types::GnomadCounts>,
+    problems: &mut Vec<Problem>,
+) -> Option<Text> {
+    let exome = exome.and_then(|counts| counts.frequency.as_ref());
+    let genome = genome.and_then(|counts| counts.frequency.as_ref());
+    if let Some((exome, genome)) = exome.zip(genome)
+        && exome.dataset_version() == genome.dataset_version()
+    {
+        return Some(exome.dataset_version().clone());
+    }
+    if raw.joint.is_some() {
+        problems.push(Problem {
+            source: Source::Gnomad,
+            record: Some(raw.variant_id.clone()),
+            field: "joint.dataset_version".into(),
+            code: ProblemCode::ValueUnknown,
+        });
+    }
+    None
 }

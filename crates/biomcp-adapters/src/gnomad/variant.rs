@@ -11,10 +11,7 @@ const VARIANT: Endpoint = SPEC
     .post_json("/api")
     .idempotent()
     .fresh(Freshness::Days(7));
-const QUERY: &str = "query($id:String!){variant(variantId:$id,dataset:gnomad_r4){variant_id exome{ac an filters \
-    populations{id ac an}} genome{ac an filters populations{id ac an}} va{exome{derivedFrom{version} \
-    focusAlleleCount locusAlleleCount cohort{id}} genome{derivedFrom{version} focusAlleleCount \
-    locusAlleleCount cohort{id}}}}}";
+const QUERY: &str = "query($id:String!){variant(variantId:$id,dataset:gnomad_r4){variant_id exome{ac an homozygote_count filters populations{id ac an}} genome{ac an homozygote_count filters populations{id ac an}} joint{ac an homozygote_count} va{exome{derivedFrom{version} focusAlleleCount locusAlleleCount cohort{id}} genome{derivedFrom{version} focusAlleleCount locusAlleleCount cohort{id}}}}}";
 /// Dataset selector sent unchanged to the source.
 pub const DATASET: &str = "gnomad_r4";
 mod map;
@@ -30,6 +27,8 @@ pub struct Variant {
     pub exome: Option<Subset>,
     /// Genome observation, absent when source says null.
     pub genome: Option<Subset>,
+    /// Joint totals supplied independently by the source, never summed.
+    pub joint: Option<Subset>,
 }
 /// Source VA cohorts, kept separate for each sequencing dataset.
 #[derive(Debug)]
@@ -70,6 +69,8 @@ pub struct Subset {
     pub ac: Option<u64>,
     /// Source allele number.
     pub an: Option<u64>,
+    /// Source total homozygote count, including a reported zero.
+    pub homozygote_count: Option<u64>,
     /// Source filters, including an explicitly empty list.
     pub filters: Option<Vec<Text>>,
     /// Every group in native source order, including sex-specific groups.

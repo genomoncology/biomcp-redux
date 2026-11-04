@@ -10,12 +10,18 @@ pub struct VariantPopulation {
     pub dataset: Text,
     /// Source dataset assembly.
     pub build: Build,
+    /// Release shared by independently checked exome and genome totals in this response.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub dataset_version: Option<Text>,
     /// Exome observation; omitted when the source dataset is null.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub exome: Option<Box<GnomadCounts>>,
     /// Genome observation; omitted when the source dataset is null.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub genome: Option<Box<GnomadCounts>>,
+    /// Source joint totals; null means the source supplied no joint data. Never a sum.
+    #[serde(default)]
+    pub joint: Option<Box<GnomadCounts>>,
 }
 /// Native gnomAD counts retained when a dataset release cannot be established.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -41,6 +47,9 @@ pub struct GnomadCounts {
     /// Native allele denominator.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub an: Option<u64>,
+    /// Source-published total homozygote count, never calculated from other counts.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub homozygote_count: Option<u64>,
     /// Native source filters, never converted to a classification.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub filters: Option<Box<[Text]>>,

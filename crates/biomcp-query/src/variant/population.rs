@@ -131,26 +131,39 @@ pub(super) fn summary(
         );
         Box::new(native)
     };
+    let exome = raw.exome.as_ref().map(|s| {
+        project(
+            s,
+            PopulationDataType::Exomes,
+            raw.va.as_ref().and_then(|v| v.exome.as_ref()),
+            "exome",
+        )
+    });
+    let genome = raw.genome.as_ref().map(|s| {
+        project(
+            s,
+            PopulationDataType::Genomes,
+            raw.va.as_ref().and_then(|v| v.genome.as_ref()),
+            "genome",
+        )
+    });
+    let dataset_version = super::population_release::shared_release(
+        raw,
+        exome.as_deref(),
+        genome.as_deref(),
+        problems,
+    );
     Ok(VariantPopulation {
         variant: raw.variant_id.clone(),
         dataset: text(gnomad::variant::DATASET)?,
         build: Build::GRCh38,
-        exome: raw.exome.as_ref().map(|s| {
-            project(
-                s,
-                PopulationDataType::Exomes,
-                raw.va.as_ref().and_then(|v| v.exome.as_ref()),
-                "exome",
-            )
-        }),
-        genome: raw.genome.as_ref().map(|s| {
-            project(
-                s,
-                PopulationDataType::Genomes,
-                raw.va.as_ref().and_then(|v| v.genome.as_ref()),
-                "genome",
-            )
-        }),
+        dataset_version,
+        exome,
+        genome,
+        joint: raw
+            .joint
+            .as_ref()
+            .map(|s| Box::new(counts(s, PopulationDataType::Joint, None))),
     })
 }
 pub(super) fn counts(
@@ -167,6 +180,11 @@ pub(super) fn counts(
         sex,
         ac: group.map_or(raw.ac, |g| g.ac),
         an: group.map_or(raw.an, |g| g.an),
+        homozygote_count: if group.is_none() {
+            raw.homozygote_count
+        } else {
+            None
+        },
         filters: raw.filters.clone().map(Into::into),
     }
 }
