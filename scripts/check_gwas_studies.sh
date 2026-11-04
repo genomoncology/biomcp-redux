@@ -38,11 +38,15 @@ case "${1:-focused}" in
     sh "$0" installed
     ;;
   scans) make check-cheap ;;
+  citation)
+    make check-cheap
+    cargo test --locked -p biomcp-adapters --test source_declarations
+    ;;
   review)
     make check-cheap
     sh "$0" focused
     ;;
 
   routine) exec sh scripts/check_nightly_tests.sh routine ;;
-  *) echo 'usage: check_gwas_studies.sh [prepare|focused|installed|scans|review|proof|live|routine]' >&2; exit 2 ;;
+  *) echo 'usage: check_gwas_studies.sh [prepare|focused|installed|scans|citation|review|proof|live|routine]' >&2; exit 2 ;;
 esac
