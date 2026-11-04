@@ -87,6 +87,11 @@ PYSCAN
         sh "$0" scan
         sh "$0" gate
         ;;
+    lint)
+        cargo clippy --keep-going --workspace --all-targets --locked -- -D warnings
+        cargo clippy --keep-going --locked -p biomcp --test tools -- -D warnings
+        cargo test --locked -p biomcp --test ratchets repository_obeys_structural_contract -- --exact
+        ;;
     gate)
         python3 --version
         test "$(cargo machete --version)" = "0.9.2"
