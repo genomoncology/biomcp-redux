@@ -26,7 +26,7 @@ pub(super) fn sections() -> Check {
                 return Err("section paging stalled".into());
             }
             offset += returned;
-            if offset == total {
+            if offset >= total {
                 break;
             }
         }
@@ -42,7 +42,7 @@ pub(super) fn sections() -> Check {
             return Err(format!("source text changed: {heading}"));
         }
     }
-    let absent = both(&env, args(record, "boxed_warning", 0)?, 0)?;
+    let absent = both(&env, args(record, "alarms", 0)?, 0)?;
     if absent.pointer("/result/label/reason") != Some(&json!("not-found")) {
         return Err("published but absent section must be unavailable".into());
     }
