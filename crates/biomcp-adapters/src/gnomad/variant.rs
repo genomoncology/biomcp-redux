@@ -11,7 +11,13 @@ const VARIANT: Endpoint = SPEC
     .post_json("/api")
     .idempotent()
     .fresh(Freshness::Days(7));
-const QUERY: &str = "query($id:String!){variant(variantId:$id,dataset:gnomad_r4){variant_id exome{ac an homozygote_count filters populations{id ac an}} genome{ac an homozygote_count filters populations{id ac an}} joint{ac an homozygote_count} va{exome{derivedFrom{version} focusAlleleCount locusAlleleCount cohort{id}} genome{derivedFrom{version} focusAlleleCount locusAlleleCount cohort{id}}}}}";
+const QUERY: &str = concat!(
+    "query($id:String!){variant(variantId:$id,dataset:gnomad_r4){variant_id exome{ac an ho",
+    "mozygote_count filters populations{id ac an}} genome{ac an homozygote_count filters p",
+    "opulations{id ac an}} joint{ac an homozygote_count} va{exome{derivedFrom{version} foc",
+    "usAlleleCount locusAlleleCount cohort{id}} genome{derivedFrom{version} focusAlleleCou",
+    "nt locusAlleleCount cohort{id}}}}}",
+);
 /// Dataset selector sent unchanged to the source.
 pub const DATASET: &str = "gnomad_r4";
 mod map;

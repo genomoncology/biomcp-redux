@@ -28,6 +28,11 @@
           "omits": [
             "frequency"
           ]
+        },
+        "/result/groups/0": {
+          "omits": [
+            "homozygote_count"
+          ]
         }
       }
     }
