@@ -54,11 +54,11 @@ pub fn search(leg: &Leg<'_>, q: &GwasSearch) -> Result<Page, RequestError> {
             combined.rows.push(row);
         }
     }
-    if combined.rows.windows(2).any(|pair| {
-        match (&pair[0].value.exact_p_value, &pair[1].value.exact_p_value) {
-            (Some(a), Some(b)) => a > b,
-            _ => false,
+    if combined.rows.windows(2).any(|pair| match pair {
+        [a, b] => {
+            matches!((&a.value.exact_p_value, &b.value.exact_p_value), (Some(a), Some(b)) if a > b)
         }
+        _ => false,
     }) {
         return Err(biomcp_fetch::bad_reply(
             biomcp_types::Source::Gwas,
