@@ -246,6 +246,20 @@ fn coordinates(value: &str) -> Option<String> {
     };
     let change = match (reference.is_empty(), alternate.is_empty()) {
         (true, true) => return None,
+        // At the beginning of a contig VCF pads on the right. HGVS has no
+        // position zero, so retain that anchor as a delins for source normalization.
+        (true, false) if start == 1 => {
+            let mut parts = value.rsplit('-');
+            let alternate = parts.next()?;
+            let reference = parts.next()?;
+            let end = reference.len() as u64;
+            let range = if end == 1 {
+                "1".to_owned()
+            } else {
+                format!("1_{end}")
+            };
+            format!("{range}delins{alternate}")
+        }
         (true, false) => format!("{}_{}ins{alternate}", start.checked_sub(1)?, start),
         (false, true) => format!("{range}del"),
         (false, false) if reference.len() == 1 && alternate.len() == 1 => {
