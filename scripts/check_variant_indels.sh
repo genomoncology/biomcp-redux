@@ -5,9 +5,7 @@ cd "$(dirname "$0")/.."
 export RUSTUP_TOOLCHAIN=1.95.0
 case "${1:-focused}" in
   focused)
-    cargo fmt --all -- --check
-    make lint-workspace lint-tools
-    cargo test --locked -p biomcp --test ratchets repository_obeys_structural_contract -- --exact
+    make check-cheap
     cargo test --locked -p biomcp-types --test variant_coordinates coordinate_inputs
     make schema-generate
     cargo install --locked --debug --path crates/biomcp --root target/variant-indels-installed --force
