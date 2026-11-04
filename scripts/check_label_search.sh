@@ -15,6 +15,7 @@ case "${1:-focused}" in
     sh "$0" live
     sh "$0" cheap
     python3 scripts/label_search_proof.py scan
+    python3 scripts/label_search_proof.py retain
     ;;
   focused)
     mkdir -p target/label-search-proof

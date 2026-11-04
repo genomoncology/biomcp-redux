@@ -6,6 +6,7 @@ from pathlib import Path
 import shutil
 import subprocess
 import sys
+import tarfile
 import tempfile
 import urllib.parse
 import urllib.request
@@ -108,5 +109,18 @@ def scan():
                     'scripts/label_search_proof.py'], check=True)
 
 
+def retain():
+    revision = subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip()
+    destination = f'/home/ian/workspace/data/biomcp-redux-evidence/0605/{revision}'
+    archive = PROOF / 'proof.tar.gz'
+    with tarfile.open(archive, 'w:gz') as bundle:
+        for item in sorted(PROOF.iterdir()):
+            if item.name not in ['installed', 'proof.tar.gz']:
+                bundle.add(item, arcname=item.name)
+    subprocess.run(['ssh', 'yellow', 'mkdir', '-p', destination], check=True)
+    subprocess.run(['scp', str(archive), 'yellow:' + destination + '/proof.tar.gz'], check=True)
+    print('Evidence:', 'yellow:' + destination + '/proof.tar.gz')
+
+
 if __name__ == '__main__':
-    {'focused': focused, 'live': live, 'scan': scan}[sys.argv[1]]()
+    {'focused': focused, 'live': live, 'scan': scan, 'retain': retain}[sys.argv[1]]()
