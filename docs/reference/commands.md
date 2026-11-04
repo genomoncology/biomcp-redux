@@ -2667,23 +2667,23 @@ Options:
       --section-limit <section_limit>
           Named section page size, refused on an identity-only card.
 
-      --section-offset <section_offset>
-          Named section continuation, refused on an identity-only card.
-
-      --source <source>
-          Omit to infer the source of an unambiguous section; identity or mixed sections use MyChem.
-
       --offline[=<offline>]
           Read local data without source requests.
 
           [default: false]
           [possible values: true, false]
 
+      --section-offset <section_offset>
+          Named section continuation, refused on an identity-only card.
+
       --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
 
           [default: false]
           [possible values: true, false]
+
+      --source <source>
+          Omit to infer the source of an unambiguous section; identity or mixed sections use MyChem.
 
 ```
 
@@ -2970,32 +2970,26 @@ Options:
       --offset <offset>
           Candidate rows to skip in source order.
 
-      --offline
-          Read local data without source requests.
-
-      --resolver <resolver>
-          Resolver for reference-qualified notation; never repairs the input locally.
-
-      --fresh
-          Request fresh source data instead of cached replies.
-
-      --section-limit <section_limit>
-          Rows per named source section page; omitted uses the native source default.
-
       --offline[=<offline>]
           Read local data without source requests.
 
           [default: false]
           [possible values: true, false]
 
-      --section-offset <section_offset>
-          Source rows to skip independently of identity candidate paging.
+      --resolver <resolver>
+          Resolver for reference-qualified notation; never repairs the input locally.
 
       --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
 
           [default: false]
           [possible values: true, false]
+
+      --section-limit <section_limit>
+          Rows per named source section page; omitted uses the native source default.
+
+      --section-offset <section_offset>
+          Source rows to skip independently of identity candidate paging.
 
       --tumor-type <tumor_type>
           Explicit tumor context for keyed OncoKB annotation.
