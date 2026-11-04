@@ -11,7 +11,7 @@ pub fn search(leg: &Leg<'_>, q: &GwasSearch) -> Result<Page, RequestError> {
     if q.limit() <= 10 {
         return native(leg, q, selectors(q));
     }
-    // The Catalog expands each row before replying. Bound that server work per request,
+    // Large source replies can consume the command budget. Bound rows per request,
     // and use the fetch layer's bounded workers, source pacing and shared deadline.
     let start = q.offset() - q.offset() % q.limit();
     let end = start.saturating_add(q.limit());

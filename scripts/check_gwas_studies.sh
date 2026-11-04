@@ -12,8 +12,15 @@ case "${1:-focused}" in
     UPDATE_SCHEMAS=1 cargo test --locked -p biomcp-types --features schema --test schemas checked_in_schemas_match_types -- --exact
     ;;
   focused)
-    cargo test --locked -p biomcp --test cases -- gwas/
+    python3 scripts/trials.py --target cases --list
+    python3 scripts/trials.py --target cases --installed gwas/examples gwas/get-examples gwas/help gwas/studies
     ;;
+  installed) python3 scripts/check_gwas_studies_installed.py ;;
+  scans)
+    cargo fmt --all -- --check
+    cargo clippy --locked -p biomcp-adapters -p biomcp-query -p biomcp-types --all-targets -- -D warnings
+    ;;
+
   routine) exec sh scripts/check_nightly_tests.sh routine ;;
-  *) echo 'usage: check_gwas_studies.sh [prepare|focused|routine]' >&2; exit 2 ;;
+  *) echo 'usage: check_gwas_studies.sh [prepare|focused|installed|scans|routine]' >&2; exit 2 ;;
 esac
