@@ -196,11 +196,10 @@ fn render(entities: BTreeMap<String, Entity>) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-    #[test]
-    fn every_declared_command_section_and_source_fits_the_map() {
+    fn schemas() -> BTreeMap<String, String> {
         let directory =
             std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../biomcp-types/schemas");
-        let schemas: BTreeMap<String, String> = std::fs::read_dir(directory)
+        std::fs::read_dir(directory)
             .expect("schemas")
             .map(|entry| {
                 let text = std::fs::read_to_string(entry.expect("schema path").path())
@@ -208,7 +207,75 @@ mod tests {
                 let value: Value = serde_json::from_str(&text).expect("schema JSON");
                 (value["$id"].as_str().expect("schema identity").into(), text)
             })
-            .collect();
+            .collect()
+    }
+    fn shown_sources(line: &str, section: &str) -> BTreeSet<String> {
+        let mut shown = BTreeSet::new();
+        for field in line.split(';').filter(|field| field.starts_with('(')) {
+            shown.extend(field.trim_matches(['(', ')']).split(',').map(String::from));
+        }
+        let marker = format!("{section}(");
+        if let Some(start) = line.find(&marker) {
+            let tail = &line[start + marker.len()..];
+            shown.extend(
+                tail.split(')')
+                    .next()
+                    .expect("source group")
+                    .split(',')
+                    .map(String::from),
+            );
+        }
+        shown
+    }
+    fn assert_command(map: &str, verb: &str, child: &str, schema: &Value) {
+        let name = if matches!(verb, "get" | "search") {
+            child
+        } else {
+            verb
+        };
+        let line = map
+            .lines()
+            .find(|line| line.starts_with(&format!("{name}: ")))
+            .expect("entity line");
+        let words = || line.split([' ', ':', ';', ',', '(', ')']);
+        assert!(
+            words().any(|word| word == if name == child { verb } else { child }),
+            "command missing: {verb} {child}"
+        );
+        let sources = coverage::command_sources(verb, child, schema);
+        for source in &sources {
+            assert!(
+                words().any(|word| word == source),
+                "{source} missing: {line}"
+            );
+        }
+        for section in sections(schema) {
+            assert!(
+                words().any(|word| word == section),
+                "{section} missing: {line}"
+            );
+            let expected = if section == "all" {
+                sections(schema)
+                    .into_iter()
+                    .filter(|word| word != "all")
+                    .flat_map(|word| bindings(verb, child, &word, &sources))
+                    .collect()
+            } else {
+                bindings(verb, child, &section, &sources)
+            };
+            assert!(
+                !expected.is_empty(),
+                "missing typed binding: {verb} {child} {section}"
+            );
+            assert!(
+                expected.is_subset(&shown_sources(line, &section)),
+                "{section} source pairing missing: {line}"
+            );
+        }
+    }
+    #[test]
+    fn every_declared_command_section_and_source_fits_the_map() {
+        let schemas = schemas();
         let map = generate(&schemas).expect("generated map");
         assert_eq!(
             map,
@@ -242,70 +309,8 @@ mod tests {
             );
         }
         for (verb, child, identity) in biomcp_types::command_paths() {
-            let name = if matches!(verb, "get" | "search") {
-                child
-            } else {
-                verb
-            };
-            let line = map
-                .lines()
-                .find(|line| line.starts_with(&format!("{name}: ")))
-                .expect("entity line");
-            assert!(
-                line.split([' ', ':', ';', ',', '(', ')'])
-                    .any(|word| word == if name == child { verb } else { child }),
-                "command missing: {verb} {child}"
-            );
             let schema: Value = serde_json::from_str(&schemas[identity]).expect("schema");
-            for source in coverage::command_sources(verb, child, &schema) {
-                assert!(
-                    line.split([' ', ':', ';', ',', '(', ')'])
-                        .any(|word| word == source),
-                    "{source} missing: {line}"
-                );
-            }
-            let sources = coverage::command_sources(verb, child, &schema);
-            for section in sections(&schema) {
-                assert!(
-                    line.split([' ', ':', ';', ',', '(', ')'])
-                        .any(|word| word == section),
-                    "{section} missing: {line}"
-                );
-                {
-                    let mut shown = BTreeSet::new();
-                    for field in line.split(';').filter(|field| field.starts_with('(')) {
-                        shown.extend(field.trim_matches(['(', ')']).split(',').map(String::from));
-                    }
-                    let marker = format!("{section}(");
-                    if let Some(start) = line.find(&marker) {
-                        let tail = &line[start + marker.len()..];
-                        shown.extend(
-                            tail.split(')')
-                                .next()
-                                .expect("source group")
-                                .split(',')
-                                .map(String::from),
-                        );
-                    }
-                    let expected = if section == "all" {
-                        sections(&schema)
-                            .into_iter()
-                            .filter(|word| word != "all")
-                            .flat_map(|word| bindings(verb, child, &word, &sources))
-                            .collect()
-                    } else {
-                        bindings(verb, child, &section, &sources)
-                    };
-                    assert!(
-                        !expected.is_empty(),
-                        "missing typed binding: {verb} {child} {section}"
-                    );
-                    assert!(
-                        expected.is_subset(&shown),
-                        "{section} source pairing missing: {line}"
-                    );
-                }
-            }
+            assert_command(&map, verb, child, &schema);
         }
     }
 

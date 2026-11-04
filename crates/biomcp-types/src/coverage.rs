@@ -68,49 +68,24 @@ pub fn command_section_sources(
         TrialSource, VaersSection, VariantSection,
     };
     match (verb, entity) {
-        ("author", "papers") => word
-            .parse::<AuthorPaperSection>()
-            .ok()
-            .map(|s| s.sources().to_vec()),
-        ("get", "gene") => word.parse::<GeneSection>().ok().map(|s| vec![s.source()]),
-        ("get", "variant") => word
-            .parse::<VariantSection>()
-            .ok()
-            .map(|s| vec![s.direct_source().unwrap_or(Source::MyVariant)]),
+        ("author", "papers") => many(word, AuthorPaperSection::sources),
+        ("get", "gene") => one(word, GeneSection::source),
+        ("get", "variant") => one(word, |s: VariantSection| {
+            s.direct_source().unwrap_or(Source::MyVariant)
+        }),
         ("get", "protein") => word
             .parse::<ProteinSection>()
             .ok()
             .and_then(|s| s.source())
             .map(|s| vec![s]),
-        ("get", "article") => word
-            .parse::<ArticleSection>()
-            .ok()
-            .map(|s| s.sources().to_vec()),
-        ("get", "cell-line") => word
-            .parse::<CellLineSection>()
-            .ok()
-            .map(|s| s.sources().to_vec()),
-        ("get", "disease") => word
-            .parse::<DiseaseSection>()
-            .ok()
-            .map(|s| s.sources().to_vec()),
-        ("get", "pathway") => word
-            .parse::<PathwaySection>()
-            .ok()
-            .map(|s| s.sources().to_vec()),
-        ("get", "phenotype") => word
-            .parse::<PhenotypeSection>()
-            .ok()
-            .map(|s| s.sources().to_vec()),
-        ("get", "pgx") => word.parse::<PgxSection>().ok().map(|s| vec![s.source()]),
-        ("get", "adverse-event") => word
-            .parse::<AdverseEventSection>()
-            .ok()
-            .map(|s| vec![s.source().source()]),
-        ("search", "adverse-event") => word
-            .parse::<VaersSection>()
-            .ok()
-            .map(|_| vec![Source::Vaers]),
+        ("get", "article") => many(word, ArticleSection::sources),
+        ("get", "cell-line") => many(word, CellLineSection::sources),
+        ("get", "disease") => many(word, DiseaseSection::sources),
+        ("get", "pathway") => many(word, PathwaySection::sources),
+        ("get", "phenotype") => many(word, PhenotypeSection::sources),
+        ("get", "pgx") => one(word, PgxSection::source),
+        ("get", "adverse-event") => one(word, |s: AdverseEventSection| s.source().source()),
+        ("search", "adverse-event") => one(word, |_: VaersSection| Source::Vaers),
         ("get", "drug") => word.parse::<DrugSection>().ok().map(|s| {
             DrugSource::ALL
                 .into_iter()
@@ -118,30 +93,40 @@ pub fn command_section_sources(
                 .map(DrugSource::source)
                 .collect()
         }),
-        ("get", "trial") => word.parse::<TrialSection>().ok().map(|s| {
-            candidates
-                .iter()
-                .copied()
-                .filter(|source| {
-                    source
-                        .to_string()
-                        .parse::<TrialSource>()
-                        .is_ok_and(|source| source.sections().contains(&s))
-                })
-                .collect()
+        ("get", "trial") => supported(word, candidates, |source, s: TrialSection| {
+            source
+                .to_string()
+                .parse::<TrialSource>()
+                .is_ok_and(|source| source.sections().contains(&s))
         }),
-        ("get", "diagnostic") => word.parse::<DiagnosticSection>().ok().map(|s| {
-            candidates
-                .iter()
-                .copied()
-                .filter(|source| {
-                    source
-                        .to_string()
-                        .parse::<DiagnosticGetSource>()
-                        .is_ok_and(|source| source.sections().contains(&s))
-                })
-                .collect()
+        ("get", "diagnostic") => supported(word, candidates, |source, s: DiagnosticSection| {
+            source
+                .to_string()
+                .parse::<DiagnosticGetSource>()
+                .is_ok_and(|source| source.sections().contains(&s))
         }),
         _ => None,
     }
+}
+fn one<T: std::str::FromStr>(word: &str, source: impl FnOnce(T) -> Source) -> Option<Vec<Source>> {
+    word.parse().ok().map(|section| vec![source(section)])
+}
+fn many<T: std::str::FromStr>(
+    word: &str,
+    sources: impl FnOnce(T) -> &'static [Source],
+) -> Option<Vec<Source>> {
+    word.parse().ok().map(|section| sources(section).to_vec())
+}
+fn supported<T: std::str::FromStr + Copy>(
+    word: &str,
+    candidates: &[Source],
+    accepts: impl Fn(Source, T) -> bool,
+) -> Option<Vec<Source>> {
+    word.parse().ok().map(|section| {
+        candidates
+            .iter()
+            .copied()
+            .filter(|source| accepts(*source, section))
+            .collect()
+    })
 }
