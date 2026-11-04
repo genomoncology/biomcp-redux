@@ -25,11 +25,12 @@ case "${1:-focused}" in
   scans)
     baseline=${2:?scans requires baseline commit}
     mkdir -p target/0608-scans/baseline
-    git archive "$baseline" crates/biomcp-types/src/drug crates/biomcp-adapters/src/openfda_label crates/biomcp-query/src/drug | tar -xf - -C target/0608-scans/baseline
+    git archive "$baseline" crates/biomcp-types/src/drug crates/biomcp-adapters/src/openfda_label crates/biomcp-query/src/drug crates/biomcp/tests/runner | tar -xf - -C target/0608-scans/baseline
     for side in baseline current; do
       prefix=.
       test "$side" != baseline || prefix=target/0608-scans/baseline
-      npm exec --offline --yes --package=jscpd@4.0.5 -- jscpd "$prefix/crates/biomcp-types/src/drug" "$prefix/crates/biomcp-adapters/src/openfda_label" "$prefix/crates/biomcp-query/src/drug" --format rust --max-size 10mb --reporters json --output "target/0608-scans/$side"
+      npm exec --offline --yes --package=jscpd@4.0.5 -- jscpd "$prefix/crates/biomcp-types/src/drug" "$prefix/crates/biomcp-adapters/src/openfda_label" "$prefix/crates/biomcp-query/src/drug" --format rust --max-size 10mb --reporters json --output "target/0608-scans/$side-product"
+      npm exec --offline --yes --package=jscpd@4.0.5 -- jscpd "$prefix/crates/biomcp/tests/runner" --format rust --max-size 10mb --reporters json --output "target/0608-scans/$side-tests"
     done
     ;;
   routine) make landing-gate ;;
