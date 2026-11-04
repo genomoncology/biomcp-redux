@@ -30,7 +30,7 @@ fn default_limit() -> u32 {
     10
 }
 #[doc = " Search one drug source. FDA drug recalls accept a name or native firm, classification, \
-    status, reason and initiation dates; counts are recall records. Other sources require a name."]
+    status, reason and initiation dates; counts are recall records. WHO prequalification accepts a name or date range. Other sources require a name."]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "SearchFields")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
@@ -40,7 +40,7 @@ pub struct DrugSearch(SearchFields);
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct SearchFields {
-    /// Literal name phrase; optional for FDA drug recalls. Drugs@FDA searches brands and ingredients,
+    /// Literal name phrase; optional for FDA drug recalls and WHO date ranges. Drugs@FDA searches brands and ingredients,
     /// exact names before word matches. Harmonized recall names match but never become display names.
     #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 0)))]
     #[serde(
@@ -68,6 +68,13 @@ struct SearchFields {
     /// Inclusive initiation day, YYYY-MM-DD; drug recalls only.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     initiated_to: Option<biodata::PartialDate>,
+
+    /// Inclusive WHO prequalification lower bound, YYYY, YYYY-MM or YYYY-MM-DD; WHO PQ only.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    prequalified_from: Option<biodata::PartialDate>,
+    /// Inclusive WHO prequalification upper bound, YYYY, YYYY-MM or YYYY-MM-DD; WHO PQ only.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    prequalified_to: Option<biodata::PartialDate>,
 
     /// Exactly one source; default MyChem never fans out.
     #[serde(default = "default_source")]
@@ -98,9 +105,33 @@ impl TryFrom<SearchFields> for DrugSearch {
         if fields.name_selector.is_some() && fields.source != DrugSource::Chembl {
             return Err(QueryInvalid::new(&["name_selector", "source"]));
         }
+        let who_dates = fields.prequalified_from.is_some() || fields.prequalified_to.is_some();
+        if who_dates && fields.source != DrugSource::WhoPq {
+            return Err(QueryInvalid::new(&[
+                "prequalified_from",
+                "prequalified_to",
+                "source",
+            ]));
+        }
+        if fields.source == DrugSource::WhoPq && fields.query.is_none() && !who_dates {
+            return Err(
+                QueryInvalid::new(&["query", "prequalified_from", "prequalified_to"])
+                    .with_message(crate::ErrorMessage::WhoSearchArguments),
+            );
+        }
+        if fields
+            .prequalified_from
+            .zip(fields.prequalified_to)
+            .is_some_and(|(a, b)| {
+                (a.year(), a.month().unwrap_or(1), a.day().unwrap_or(1))
+                    > (b.year(), b.month().unwrap_or(12), b.day().unwrap_or(31))
+            })
+        {
+            return Err(QueryInvalid::new(&["prequalified_from", "prequalified_to"]));
+        }
         super::recall::validate_search(
             fields.source,
-            fields.query.is_some(),
+            fields.query.is_some() || (fields.source == DrugSource::WhoPq && who_dates),
             fields.firm.is_some()
                 || fields.classification.is_some()
                 || fields.status.is_some()
@@ -114,6 +145,14 @@ impl TryFrom<SearchFields> for DrugSearch {
     }
 }
 impl DrugSearch {
+    /// Inclusive WHO prequalification lower bound.
+    pub fn prequalified_from(&self) -> Option<biodata::PartialDate> {
+        self.0.prequalified_from
+    }
+    /// Inclusive WHO prequalification upper bound.
+    pub fn prequalified_to(&self) -> Option<biodata::PartialDate> {
+        self.0.prequalified_to
+    }
     /// Checked native selector, with preferred name as the ChEMBL default.
     pub fn name_selector(&self) -> super::DrugNameSelector {
         self.0
