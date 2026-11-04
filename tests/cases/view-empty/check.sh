@@ -7,6 +7,12 @@ export RUSTUP_TOOLCHAIN=1.95.0
 export BIOMCP_TRANSCRIPT_DIR="$PWD/target/view-empty/transcripts"
 export BIOMCP_EVIDENCE_DIR="$PWD/target/view-empty/fixtures"
 mkdir -p "$PWD/target/view-empty"
+if [ "${1:-focused}" = final ]; then
+    sh "$0" focused
+    sh "$0" parity
+    sh "$0" scans
+    exec sh scripts/check_nightly_tests.sh routine
+fi
 if [ "${1:-focused}" = parity ]; then
     scp yellow:/home/ian/workspace/data/biomcp-redux-evidence/0582/installed/bin/biomcp target/view-empty/baseline-biomcp
     scp yellow:/home/ian/workspace/data/biomcp-redux-evidence/0582/source-bindings.json target/view-empty/baseline-source-bindings.json
