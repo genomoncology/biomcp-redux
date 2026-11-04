@@ -47,6 +47,8 @@ def native_replies(directory):
             continue
         rows = []
         for execution in record.get('executions', []):
+            if not isinstance(execution, dict):
+                continue
             args = execution.get('args', [])
             if execution.get('surface') == 'cli' and any(args[i:i + 2] == ['get', 'drug'] for i in range(len(args) - 1)):
                 rows.append((execution['exit'], bytes(execution['stdout'])))
