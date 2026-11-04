@@ -14,13 +14,13 @@ from zipfile import ZipFile
 
 BASELINE = 'd349f24892deac67c3b9bb836b708a487b5ea442'
 BASELINE_HASH = 'b50998e586ccc38a2a4f6d851cce229651e380560814e5d4212d4694f89c7660'
-ARCHIVE = 'yellow.local:/home/ian/workspace/data/biomcp-redux-evidence/0294/public-rehearsal-41806259796/native-macosx_11_0_arm64.zip'
 
 
 def main():
     binary, stage = Path(sys.argv[1]).resolve(), Path(sys.argv[2]).resolve()
     archive = stage / 'baseline.zip'
-    subprocess.run(['scp', ARCHIVE, str(archive)], check=True)
+    if not archive.is_file():
+        raise SystemExit('Stage the retained rehearsal archive at ' + str(archive))
     with ZipFile(archive) as outer:
         with tarfile.open(fileobj=io.BytesIO(outer.read('biomcp-darwin-arm64.tar.gz'))) as native:
             members = [member for member in native.getmembers() if Path(member.name).name == 'biomcp' and member.isfile()]
@@ -30,7 +30,6 @@ def main():
     baseline = stage / 'baseline-biomcp'
     baseline.write_bytes(data)
     baseline.chmod(0o755)
-    archive.unlink()
     report = {'baseline_revision': BASELINE, 'baseline_sha256': BASELINE_HASH, 'requests': []}
     with tempfile.TemporaryDirectory(prefix='biomcp-usage-') as scratch:
         home = Path(scratch)
