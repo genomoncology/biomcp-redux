@@ -93,7 +93,9 @@ pub fn search(
         .collect();
     if query.query().is_none() {
         rows.sort_by_key(|(date, _)| {
-            std::cmp::Reverse(date.map(|date| (date.year(), date.month(), date.day())))
+            std::cmp::Reverse(
+                date.map_or(None, |date| Some((date.year(), date.month(), date.day()))),
+            )
         });
     }
     Ok(rows.into_iter().map(|(_, row)| row.into()).collect())

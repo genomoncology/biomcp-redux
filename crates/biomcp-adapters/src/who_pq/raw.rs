@@ -1,4 +1,4 @@
-use biomcp_fetch::{KeyKind, Keys, Row};
+use biomcp_fetch::{BadReply, KeyKind, Keys, Row};
 use serde::Deserialize;
 #[derive(Debug, Deserialize)]
 pub(super) struct Native {
@@ -40,13 +40,17 @@ impl Native {
         !needle.is_empty() && haystack.windows(needle.len()).any(|part| part == needle)
     }
     /// Parse only a complete native date; absent and unfamiliar cells stay absent for filtering.
-    pub(super) fn prequalified_date(&self) -> Result<biodata::PartialDate, ()> {
+    pub(super) fn prequalified_date(&self) -> Result<biodata::PartialDate, BadReply> {
         let mut parts = self
             .date
             .split(|c: char| c.is_whitespace() || c == ',')
             .filter(|part| !part.is_empty());
-        let day = parts.next().ok_or(())?.parse().map_err(|_| ())?;
-        let month = match parts.next().ok_or(())? {
+        let day = parts
+            .next()
+            .ok_or(BadReply)?
+            .parse()
+            .map_err(|_| BadReply)?;
+        let month = match parts.next().ok_or(BadReply)? {
             "Jan" => 1,
             "Feb" => 2,
             "Mar" => 3,
@@ -59,13 +63,17 @@ impl Native {
             "Oct" => 10,
             "Nov" => 11,
             "Dec" => 12,
-            _ => return Err(()),
+            _ => return Err(BadReply),
         };
-        let year = parts.next().ok_or(())?.parse().map_err(|_| ())?;
+        let year = parts
+            .next()
+            .ok_or(BadReply)?
+            .parse()
+            .map_err(|_| BadReply)?;
         if parts.next().is_some() {
-            return Err(());
+            return Err(BadReply);
         }
-        biodata::PartialDate::new(year, Some(month), Some(day)).map_err(|_| ())
+        biodata::PartialDate::new(year, Some(month), Some(day)).map_err(|_| BadReply)
     }
     pub(super) fn reference(&self) -> &biodata::Text {
         &self.reference

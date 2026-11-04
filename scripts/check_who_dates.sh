@@ -5,6 +5,10 @@ cd "$(dirname "$0")/.."
 export RUSTUP_TOOLCHAIN=1.95.0
 case "${1:-focused}" in
 cheap) exec make check-cheap ;;
+structure)
+    export CARGO_BUILD_JOBS=2 RUST_TEST_THREADS=2
+    exec cargo test --locked -p biomcp --test ratchets repository_obeys_structural_contract -- --exact
+    ;;
 scans)
     python3.13 - <<'SCAN'
 import json
@@ -38,7 +42,7 @@ for side in ['baseline', 'current']:
 SCAN
     exit ;;
 focused) ;;
-*) echo 'usage: check_who_dates.sh [focused|cheap|scans]' >&2; exit 2 ;;
+*) echo 'usage: check_who_dates.sh [focused|cheap|scans|structure]' >&2; exit 2 ;;
 esac
 python3.13 - <<'PY'
 import json
