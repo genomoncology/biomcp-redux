@@ -69,6 +69,22 @@
         "/sources/0/state": "ok",
         "/page/total": 0
       }
+    },
+    {
+      "run": [
+        "search",
+        "protein",
+        "--gene",
+        "BRAF",
+        "--reviewed",
+        "false"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "--reviewed"
+      }
     }
   ],
   "replay": "grammar/boolean-literals"

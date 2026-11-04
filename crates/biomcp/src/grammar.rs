@@ -383,8 +383,8 @@ fn arguments(matches: &clap::ArgMatches, schema: &Value) -> Result<Value, ParseI
             continue;
         }
         if property_type(property) == Some("boolean") {
-            if matches.get_flag(name) {
-                result.insert(name.clone(), Value::Bool(true));
+            if matches.value_source(name) == Some(clap::parser::ValueSource::CommandLine) {
+                result.insert(name.clone(), Value::Bool(matches.get_flag(name)));
             }
             continue;
         }
