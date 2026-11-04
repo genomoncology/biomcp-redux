@@ -9,7 +9,6 @@ pub(crate) fn boolean_argument(argument: Arg) -> Arg {
         .num_args(0..=1)
         .require_equals(true)
         .default_missing_value("true")
-        .value_parser(clap::value_parser!(bool))
 }
 
 pub(super) fn boolean_value(argument: &Arg, value: Option<&std::ffi::OsString>) -> bool {

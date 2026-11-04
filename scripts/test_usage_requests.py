@@ -77,11 +77,12 @@ def main():
             (stage / (label + '.json')).write_bytes(result.stdout)
         for names in [('literal-true', 'bare', 'baseline-bare'), ('literal-false', 'omitted', 'baseline-omitted')]:
             assert len({outputs[name] for name in names}) == 1, names
-        for entity in ['trial', 'drug', 'diagnostic']:
-            args = ['help', 'search', entity]
+        for path in [['search', 'trial'], ['search', 'drug'], ['search', 'diagnostic'],
+                     ['version'], ['skill', 'install'], ['serve'], ['key', 'set']]:
+            args = ['help', *path]
             before = subprocess.check_output([str(baseline), *args], env=env)
             after = subprocess.check_output([str(binary), *args], env=env)
-            assert before == after, entity
+            assert before == after, path
     report['successful_replies_byte_identical'] = True
     (stage / 'request-parity.json').write_text(json.dumps(report, indent=2) + '\n')
     print('installed boolean requests and successful reply parity passed')
