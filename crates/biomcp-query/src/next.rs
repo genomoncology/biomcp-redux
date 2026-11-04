@@ -137,6 +137,7 @@ fn navigation(body: &biomcp_types::ReplyData) -> Navigation<'_> {
         | ReplyData::GwasStudy { .. }
         | ReplyData::GwasLoci { .. }
         | ReplyData::GwasAncestries { .. }
+        | ReplyData::GwasStudyPage { .. }
         | ReplyData::GwasPage { .. }
         | ReplyData::PathwayEvents { .. }
         | ReplyData::ProteinComplexes { .. } => Navigation::NativeOrder,
