@@ -3,6 +3,20 @@
 set -eu
 cd "$(dirname "$0")/.."
 export RUSTUP_TOOLCHAIN=1.95.0
+run_installed() {
+    runner_target=$1
+    shift
+    build_output="${CARGO_TARGET_DIR:-target}/study-rows-$runner_target.json"
+    mkdir -p "$(dirname "$build_output")"
+    cargo build --locked -p biomcp --bin biomcp
+    cargo test --locked -p biomcp --test "$runner_target" --no-run --message-format=json > "$build_output"
+    runner_path=$(python3 -c 'import json,sys; rows=[json.loads(line) for line in open(sys.argv[1])]; print(next(row["executable"] for row in rows if row.get("reason")=="compiler-artifact" and row.get("executable") and row["target"]["name"]==sys.argv[2]))' "$build_output" "$runner_target")
+    if [ "$runner_target" = tools ]; then
+        python3 scripts/trials.py --target tools --proofs --runner "$runner_path" --executable "${CARGO_TARGET_DIR:-target}/debug/biomcp" --installed "$@"
+    else
+        python3 scripts/trials.py --runner "$runner_path" --executable "${CARGO_TARGET_DIR:-target}/debug/biomcp" --installed "$@"
+    fi
+}
 case "${1:-focused}" in
   generate)
     cargo check --locked --workspace
@@ -11,16 +25,16 @@ case "${1:-focused}" in
     pwd
     ;;
   list)
-    python3 scripts/trials.py --list | rg study
-    python3 scripts/trials.py --target tools --proofs --list | rg study
+    cargo test --locked -p biomcp --test cases -- --list | rg study
+    cargo test --locked -p biomcp --test tools -- --proofs --list | rg study
     ;;
   focused)
     shift
-    python3 scripts/trials.py --installed "$@"
+    run_installed cases "$@"
     ;;
   tools)
     shift
-    python3 scripts/trials.py --target tools --proofs --installed "$@"
+    run_installed tools "$@"
     ;;
   scans)
     cargo fmt --all -- --check
