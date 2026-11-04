@@ -11,8 +11,12 @@ case "${1:-focused}" in
     git diff > target/cell-line-filters/generated.patch
     ;;
   focused)
-    python3 scripts/trials.py --list
-    python3 scripts/trials.py --installed cell-line/filters cell-line/examples cell-line/help
+    mkdir -p target/cell-line-filters
+    cargo build --locked -p biomcp --bin biomcp
+    cargo test --locked -p biomcp --test cases --no-run --message-format=json > target/cell-line-filters/runner-build.jsonl
+    case_runner=$(python3 -c 'import json; from pathlib import Path; rows=[json.loads(line) for line in Path("target/cell-line-filters/runner-build.jsonl").read_text().splitlines()]; print(next(row["executable"] for row in rows if row.get("reason")=="compiler-artifact" and row["target"]["name"]=="cases" and row.get("executable")))')
+    python3 scripts/trials.py --runner "$case_runner" --list
+    python3 scripts/trials.py --runner "$case_runner" --executable "${CARGO_TARGET_DIR:-target}/debug/biomcp" --installed cell-line/filters cell-line/examples cell-line/help
     cargo test --locked -p biomcp-types --features schema --test cell_line_contracts
     python3 scripts/check_cell_line_compatibility.py "${2:?baseline executable required}" "${CARGO_TARGET_DIR:-target}/debug/biomcp"
     ;;
