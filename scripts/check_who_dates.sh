@@ -51,7 +51,8 @@ for side in ['baseline', 'current']:
 SCAN
     exit ;;
 focused) ;;
-*) echo 'usage: check_who_dates.sh [focused|cheap|scans|structure|generate|validate]' >&2; exit 2 ;;
+regressions) export WHO_MOVE_REGRESSIONS=1 ;;
+*) echo 'usage: check_who_dates.sh [focused|cheap|scans|structure|generate|validate|regressions]' >&2; exit 2 ;;
 esac
 python3.13 - <<'PY'
 import json
@@ -74,11 +75,25 @@ executables = {item['target']['name']: item['executable'] for item in artifacts
 runner = str(Path(executables['cases']).resolve())
 executable = str(Path(executables['biomcp']).resolve())
 listed = subprocess.check_output([runner, '--list'], cwd='crates/biomcp', text=True)
-names = [line.removesuffix(': test') for line in listed.splitlines()
-         if line.endswith(('/who-dates.yaml: test', '/who-sync.yaml: test'))]
-if len(names) != 2:
-    raise SystemExit('WHO cases missing from --list: ' + repr(names))
-print('WHO case selectors:', names, flush=True)
+suffixes = ('/who-dates.yaml', '/who-sync.yaml')
+regressions = os.environ.get('WHO_MOVE_REGRESSIONS') == '1'
+if regressions:
+    suffixes += ('/drug/civic-evidence-public.yaml', '/drug/civic-evidence-streams.yaml',
+                 '/variant/civic-evidence-filters.yaml', '/variant/native-civic.yaml',
+                 '/diagnostic/fda-documents.yaml', '/diagnostic/pdf-over-limit.yaml',
+                 '/diagnostic/pdf-scanned-no-text.yaml')
+catalog = [line.removesuffix(': test') for line in listed.splitlines() if line.endswith(': test')]
+missing = [suffix for suffix in suffixes if not any(name.endswith(suffix) for name in catalog)]
+if missing:
+    raise SystemExit('Cases missing from --list: ' + repr(missing))
+names = [name for name in catalog if name.endswith(suffixes)
+         or regressions and ('/drug/label-' in name or '/drug/openfda-label' in name
+                             or '/drug/help' in name)]
+print('Installed case selectors:', names, flush=True)
 subprocess.run([sys.executable, 'scripts/trials.py', '--installed',
                 '--runner', runner, '--executable', executable, *names], check=True)
+if regressions:
+    subprocess.run(['make', 'current-schema-check'], check=True)
+    subprocess.run(['cargo', 'clippy', '--locked', '-p', 'biomcp', '--test', 'cases',
+                    '--test', 'tools', '--', '-D', 'warnings'], check=True)
 PY
