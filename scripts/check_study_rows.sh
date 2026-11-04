@@ -7,7 +7,7 @@ case "${1:-focused}" in
   generate)
     cargo check --locked --workspace
     make schema-generate docs-generate
-    tar -czf /tmp/biomcp-study-rows-generated.tar.gz crates/biomcp-types/schemas docs/reference/commands.md docs/recipes.md skills/SKILL.md docs/reference/source-pacing.md
+    COPYFILE_DISABLE=1 tar -czf /tmp/biomcp-study-rows-generated.tar.gz crates/biomcp-types/schemas docs/reference/commands.md docs/recipes.md skills/SKILL.md docs/reference/source-pacing.md
     pwd
     ;;
   list)
