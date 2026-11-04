@@ -1,3 +1,5 @@
+#[path = "typed_baseline.rs"]
+mod baseline;
 #[path = "typed_policy.rs"]
 mod policy;
 #[path = "typed_replay.rs"]
@@ -103,7 +105,8 @@ pub(super) fn check() -> Result<(), String> {
             return Err("invalid argument shape accepted".into());
         }
     }
-    policy::check()
+    policy::check()?;
+    baseline::check()
 }
 fn descriptions(node: &Value) -> Result<(), String> {
     if node

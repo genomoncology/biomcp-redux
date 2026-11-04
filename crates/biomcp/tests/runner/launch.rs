@@ -177,3 +177,12 @@ pub(super) fn native_budget(key: &str) -> Result<usize, String> {
         .ok_or_else(|| format!("unmeasured native proof: {key}"))
 }
 }
+
+// Optional installed wire-compatibility input, selected only at the launcher boundary.
+#[expect(
+    clippy::disallowed_methods,
+    reason = "The launcher reads the explicit installed baseline path"
+)]
+pub(super) fn typed_baseline() -> Option<std::path::PathBuf> {
+    std::env::var_os("BIOMCP_TYPED_BASELINE").map(std::path::PathBuf::from)
+}
