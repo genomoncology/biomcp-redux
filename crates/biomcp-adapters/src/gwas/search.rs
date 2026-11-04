@@ -10,42 +10,37 @@ const NATIVE_PAGE_SIZE: u32 = 10;
 
 /// Read the checked native page under ascending source p value.
 pub fn search(leg: &Leg<'_>, q: &GwasSearch) -> Result<Page, RequestError> {
-    if q.limit() <= NATIVE_PAGE_SIZE {
-        return native(leg, q, selectors(q));
+    if q.limit() <= NATIVE_PAGE_SIZE || q.offset() != 0 {
+        return native(leg, q, selectors(q), (q.offset() % q.limit()) as usize);
     }
-    // Large source replies can consume the command budget. Bound rows per request,
-    // and use the fetch layer's bounded workers, source pacing and shared deadline.
-    let start = q.offset() - q.offset() % q.limit();
-    let end = start.saturating_add(q.limit());
-    let pages: Vec<_> = (start / NATIVE_PAGE_SIZE..end.div_ceil(NATIVE_PAGE_SIZE)).collect();
-    let mut combined = Page {
-        refusals: crate::Refusal::None,
-        received: 0,
-        problems: Vec::new(),
-        rows: Vec::new(),
-        total: 0,
-    };
-    let mut seen = std::collections::BTreeSet::new();
-    for (index, result) in leg
-        .batch(&pages, |child, page| {
-            let mut values = selectors(q);
-            values.insert("page".into(), page.to_string());
-            values.insert("size".into(), NATIVE_PAGE_SIZE.to_string());
-            native(child, q, values)
-        })
-        .into_iter()
-        .enumerate()
-    {
+    // Sorted native pages have unstable ties. Only sort locally after retrieving
+    // a complete bounded match; a partial result retains the native global order.
+    let mut values = selectors(q);
+    values.remove("sort");
+    values.remove("direction");
+    values.insert("size".into(), NATIVE_PAGE_SIZE.to_string());
+    let mut combined = native(leg, q, values.clone(), 0)?;
+    if combined.total > u64::from(q.limit()) {
+        return native(leg, q, selectors(q), 0);
+    }
+    let pages: Vec<_> = (1..combined.total.div_ceil(NATIVE_PAGE_SIZE.into())).collect();
+    let mut seen: std::collections::BTreeSet<_> =
+        combined.rows.iter().map(|row| row.value.id).collect();
+    for result in leg.batch(&pages, |child, page| {
+        let mut values = values.clone();
+        values.insert("page".into(), page.to_string());
+        native(child, q, values, 0)
+    }) {
         let page = result?;
-        if index > 0 && combined.total != page.total {
+        if combined.total != page.total {
             return Err(biomcp_fetch::bad_reply(
                 biomcp_types::Source::Gwas,
                 Some(200),
             ));
         }
-        combined.total = page.total;
         combined.refusals.include(page.refusals);
         combined.problems.extend(page.problems);
+        combined.received += page.received;
         for row in page.rows {
             if !seen.insert(row.value.id) {
                 return Err(biomcp_fetch::bad_reply(
@@ -56,21 +51,24 @@ pub fn search(leg: &Leg<'_>, q: &GwasSearch) -> Result<Page, RequestError> {
             combined.rows.push(row);
         }
     }
-    if combined.rows.windows(2).any(|pair| match pair {
-        [a, b] => {
-            matches!((&a.value.exact_p_value, &b.value.exact_p_value), (Some(a), Some(b)) if a > b)
-        }
-        _ => false,
-    }) {
+    if combined.rows.len() as u64 != combined.total
+        || u64::from(combined.received) != combined.total
+        || combined
+            .rows
+            .iter()
+            .any(|row| row.value.exact_p_value.is_none())
+    {
         return Err(biomcp_fetch::bad_reply(
             biomcp_types::Source::Gwas,
             Some(200),
         ));
     }
-    combined.received = combined
-        .total
-        .saturating_sub(start.into())
-        .min(q.limit().into()) as u32;
+    combined.rows.sort_by(|a, b| {
+        a.value
+            .exact_p_value
+            .cmp(&b.value.exact_p_value)
+            .then_with(|| a.value.id.get().cmp(&b.value.id.get()))
+    });
     Ok(combined)
 }
 
@@ -78,12 +76,13 @@ fn native(
     leg: &Leg<'_>,
     q: &GwasSearch,
     values: BTreeMap<String, String>,
+    skip: usize,
 ) -> Result<Page, RequestError> {
     let params: Vec<_> = values
         .iter()
         .map(|(k, v)| (k.as_str(), Arg::Text(v)))
         .collect();
-    let mut response = leg
+    let response = leg
         .call(
             &ASSOCIATIONS,
             Input::Params(&params),
@@ -92,24 +91,6 @@ fn native(
                 .cache_if(&raw::Response::identities_admitted),
         )?
         .value;
-    if q.limit() > NATIVE_PAGE_SIZE
-        && let Some(rows) = &mut response.embedded
-    {
-        let start = response.page.number * response.page.size;
-        let end = (q.offset() - q.offset() % q.limit()).saturating_add(q.limit());
-        rows.associations
-            .truncate(end.saturating_sub(start) as usize);
-        let skip = q
-            .offset()
-            .saturating_sub(start)
-            .min(rows.associations.len() as u32);
-        rows.associations.drain(..skip as usize);
-    }
-    let skip = if q.limit() <= NATIVE_PAGE_SIZE {
-        (q.offset() % q.limit()) as usize
-    } else {
-        0
-    };
     Ok(super::page(response, skip))
 }
 
@@ -162,6 +143,9 @@ fn admission(
         return Err(BadReply);
     }
     // Exact parts govern order even when native doubles underflow.
+    if !values.contains_key("sort") {
+        return Ok(());
+    }
     let mut previous = None;
     for row in rows.iter().filter_map(|row| row.value.as_ref()) {
         if let Some(exact) = row.exact_p_value() {

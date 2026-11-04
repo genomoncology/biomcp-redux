@@ -1,6 +1,6 @@
 {
   "feature": "gwas-search",
-  "story": "Publication studies keep source samples and counts; large association pages finish within the shared budget and preserve native slots.",
+  "story": "Publication studies keep source samples and counts; complete bounded matches sort exact p values, and partial windows retain native global ordering.",
   "live_check": "synthetic timing and study page boundary cases",
   "replay": "gwas/studies",
   "steps": [
@@ -70,6 +70,27 @@
         "/result/page/total": 50
       },
       "max_bytes": 8000
+    },
+    {
+      "run": [
+        "search",
+        "gwas",
+        "--pubmed",
+        "17554300",
+        "--limit",
+        "12"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items": {
+          "count": 12
+        },
+        "/result/items/0/id": "association:10000",
+        "/result/items/11/id": "association:10011",
+        "/result/continuation/query/offset": 12,
+        "/result/page/total": 50
+      },
+      "max_bytes": 8500
     }
   ]
 }
