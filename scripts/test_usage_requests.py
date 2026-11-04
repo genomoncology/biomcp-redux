@@ -13,7 +13,7 @@ from zipfile import ZipFile
 
 BASELINE = 'd349f24892deac67c3b9bb836b708a487b5ea442'
 BASELINE_HASH = 'b50998e586ccc38a2a4f6d851cce229651e380560814e5d4212d4694f89c7660'
-ARCHIVE = 'yellow:/home/ian/workspace/data/biomcp-redux-evidence/0294/public-rehearsal-41806259796/native-macosx_11_0_arm64.zip'
+ARCHIVE = 'yellow.local:/home/ian/workspace/data/biomcp-redux-evidence/0294/public-rehearsal-41806259796/native-macosx_11_0_arm64.zip'
 
 
 def main():
