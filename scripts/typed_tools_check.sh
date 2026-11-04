@@ -1,11 +1,14 @@
 #!/bin/sh
 set -eu
+typed_scratch=$(mktemp -d)
+trap 'rm -rf "$typed_scratch"' EXIT HUP INT TERM
 if [ "$#" -gt 0 ]; then
-    typed_scratch=$(mktemp -d)
-    trap 'rm -rf "$typed_scratch"' EXIT HUP INT TERM
     cp "$1" "$typed_scratch/baseline"
     test "$(shasum -a 256 "$typed_scratch/baseline" | cut -d ' ' -f 1)" = "$2"
     export BIOMCP_TYPED_BASELINE="$typed_scratch/baseline"
 fi
-cargo build --locked -p biomcp --bin biomcp
-python3 scripts/trials.py --installed mcp-parity/mcp-typed-tools
+cargo build --locked -p biomcp --bin biomcp --message-format=json > "$typed_scratch/product.json"
+cargo test --locked -p biomcp --test cases --no-run --message-format=json > "$typed_scratch/runner.json"
+typed_product=$(python3 -c 'import json,sys; print(next(v["executable"] for s in open(sys.argv[1]) if (v:=json.loads(s)).get("executable") and v["target"]["name"]=="biomcp"))' "$typed_scratch/product.json")
+typed_runner=$(python3 -c 'import json,sys; print(next(v["executable"] for s in open(sys.argv[1]) if (v:=json.loads(s)).get("executable") and v["target"]["name"]=="cases"))' "$typed_scratch/runner.json")
+python3 scripts/trials.py --runner "$typed_runner" --executable "$typed_product" --installed mcp-parity/mcp-typed-tools
