@@ -579,6 +579,7 @@ fn coordinate_inputs_convert_vcf_padding_and_preserve_full_reference_for_validat
             "chr7:g.140753336_140753337delinsTTT",
             "NC_000007.14:g.140753336_140753337delACinsTTT",
         ),
+        ("1-1-A-TA", "chr1:g.1delinsTA", "NC_000001.11:g.1delAinsTA"),
         ("1-1-TA-A", "chr1:g.1del", "NC_000001.11:g.1_2delTAinsA"),
     ] {
         let input = VariantInput::new(input)?;

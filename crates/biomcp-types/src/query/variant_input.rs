@@ -213,16 +213,27 @@ fn coordinates(value: &str) -> Option<String> {
     {
         return None;
     }
+    let change = coordinate_change(position.parse().ok()?, reference, alternate)?;
+    let expression = format!("chr{chromosome}:g.{change}");
+    crate::Expression::new(
+        crate::ExpressionSyntax::HgvsG,
+        crate::Text::new(&expression).ok()?,
+        None,
+    )
+    .ok()?;
+    Some(expression)
+}
+// VCF 4.4 REF/ALT padding and HGVS DNA deletion/insertion/delins grammar.
+// Source validation retains the original REF, including shared bases.
+fn coordinate_change(position: u64, reference: &str, alternate: &str) -> Option<String> {
     if reference.len() == 1 && alternate.len() == 1 {
-        return Some(format!(
-            "chr{chromosome}:g.{position}{reference}>{alternate}"
-        ));
+        return Some(format!("{position}{reference}>{alternate}"));
     }
-    let mut start = position.parse::<u64>().ok()?;
+    let original_reference = reference;
+    let original_alternate = alternate;
+    let mut start = position;
     let mut reference = reference;
     let mut alternate = alternate;
-    // VCF 4.4 REF/ALT padding; HGVS DNA deletion/insertion/delins grammar.
-    // Source validation retains the original REF, including these shared bases.
     while !reference.is_empty()
         && !alternate.is_empty()
         && reference.as_bytes()[0] == alternate.as_bytes()[0]
@@ -244,21 +255,17 @@ fn coordinates(value: &str) -> Option<String> {
     } else {
         format!("{start}_{end}")
     };
-    let change = match (reference.is_empty(), alternate.is_empty()) {
+    Some(match (reference.is_empty(), alternate.is_empty()) {
         (true, true) => return None,
-        // At the beginning of a contig VCF pads on the right. HGVS has no
-        // position zero, so retain that anchor as a delins for source normalization.
+        // HGVS has no position zero: keep right padding at the contig start.
         (true, false) if start == 1 => {
-            let mut parts = value.rsplit('-');
-            let alternate = parts.next()?;
-            let reference = parts.next()?;
-            let end = reference.len() as u64;
+            let end = original_reference.len();
             let range = if end == 1 {
                 "1".to_owned()
             } else {
                 format!("1_{end}")
             };
-            format!("{range}delins{alternate}")
+            format!("{range}delins{original_alternate}")
         }
         (true, false) => format!("{}_{}ins{alternate}", start.checked_sub(1)?, start),
         (false, true) => format!("{range}del"),
@@ -266,15 +273,7 @@ fn coordinates(value: &str) -> Option<String> {
             format!("{start}{reference}>{alternate}")
         }
         _ => format!("{range}delins{alternate}"),
-    };
-    let expression = format!("chr{chromosome}:g.{change}");
-    crate::Expression::new(
-        crate::ExpressionSyntax::HgvsG,
-        crate::Text::new(&expression).ok()?,
-        None,
-    )
-    .ok()?;
-    Some(expression)
+    })
 }
 fn input_text(value: &str) -> Result<crate::Text, Error> {
     if value.is_empty()
