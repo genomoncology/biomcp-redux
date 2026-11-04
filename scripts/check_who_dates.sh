@@ -3,6 +3,43 @@
 set -eu
 cd "$(dirname "$0")/.."
 export RUSTUP_TOOLCHAIN=1.95.0
+case "${1:-focused}" in
+cheap) exec make check-cheap ;;
+scans)
+    python3.13 - <<'SCAN'
+import json
+from pathlib import Path
+import subprocess
+
+scanner = next((package.parent.parent / '.bin/jscpd'
+                for package in (Path.home() / '.npm/_npx').glob('*/node_modules/jscpd/package.json')
+                if json.loads(package.read_text())['version'] == '4.0.5'), None)
+if scanner is None:
+    raise SystemExit('cached jscpd 4.0.5 is required')
+files = ['crates/biomcp-adapters/src/who_pq/mod.rs',
+         'crates/biomcp-adapters/src/who_pq/raw.rs',
+         'crates/biomcp-query/src/drug/who.rs',
+         'crates/biomcp-types/src/drug/query.rs',
+         'crates/biomcp-types/src/response/error.rs']
+subprocess.run([str(scanner), '--version'], check=True)
+root = Path('target/who-date-scans')
+for side in ['baseline', 'current']:
+    paths = files
+    if side == 'baseline':
+        paths = []
+        for name in files:
+            path = root / 'baseline' / name
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(subprocess.check_output(['git', 'show', '220d8453a:' + name]))
+            paths.append(str(path))
+    subprocess.run([str(scanner), *paths, '--format', 'rust', '--min-tokens', '50',
+                    '--max-size', '10mb', '--reporters', 'console,json',
+                    '--output', str(root / (side + '-report'))], check=True)
+SCAN
+    exit ;;
+focused) ;;
+*) echo 'usage: check_who_dates.sh [focused|cheap|scans]' >&2; exit 2 ;;
+esac
 python3.13 - <<'PY'
 import json
 import math
