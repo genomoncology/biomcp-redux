@@ -49,7 +49,7 @@ def native_replies(directory):
             if not isinstance(execution, dict):
                 continue
             args = execution.get('args', [])
-            if execution.get('surface') != 'cli' or not any(args[i:i + 2] == ['get', 'drug'] for i in range(len(args) - 1)):
+            if execution.get('surface') != 'cli' or not any(args[i:i + 2] == ['get', 'drug'] and i + 2 < len(args) and not args[i + 2].startswith('--') for i in range(len(args) - 1)):
                 continue
             key = record['key']
             if key.startswith('trial/'):
