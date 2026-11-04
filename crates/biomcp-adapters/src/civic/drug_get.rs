@@ -3,7 +3,6 @@ use super::{
     drug_map, drug_raw as raw, drug_request::fetch, variant::failure, variant_raw::Connection,
 };
 use crate::Mapped;
-use biodata::Text;
 use biomcp_fetch::{Leg, RequestError};
 use biomcp_types::{
     CivicClaimKind, CivicClaimPage, DrugCivic, DrugCivicPage, DrugCivicStreams, DrugGet, Reason,
