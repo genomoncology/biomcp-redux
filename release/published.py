@@ -154,7 +154,7 @@ def plugin(root, version, source, binary, claude='claude', record=None):
     metadata = json.loads((installed_path / '.claude-plugin/plugin.json').read_text())
     if metadata['version'] != version:
         raise ValueError('installed Claude plugin version differs')
-    marketplace = Path(env['HOME']) / '.claude/plugins/marketplaces/biomcp/.claude-plugin/marketplace.json'
+    marketplace = installed_path / '.claude-plugin/marketplace.json'
     entry, = json.loads(marketplace.read_text())['plugins']
     declaration = entry['mcpServers']['biomcp']
     if declaration != {'command': 'biomcp', 'args': ['serve']}:
