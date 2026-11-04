@@ -79,6 +79,29 @@ pub(super) fn check() -> Result<(), String> {
     if refused[0].pointer("/error/code") != Some(&json!(-32602)) {
         return Err("wrong enum accepted".into());
     }
+    for (name, arguments) in [
+        (
+            "get_variant",
+            json!({"input":"rs113488022","civic_profile":"1"}),
+        ),
+        ("search_disease", json!({"text":42})),
+    ] {
+        let reply = exchange_with_globals(
+            &env,
+            &[request(
+                json!(9),
+                "tools/call",
+                json!({"name":name,"arguments":arguments}),
+            )],
+            &globals,
+        )?;
+        if reply[0].pointer("/error/code") != Some(&json!(-32602)) {
+            return Err(format!(
+                "nullable scalar type accepted by {name}: {}",
+                reply[0]
+            ));
+        }
+    }
     // Every entity gets one search and get through both command boundaries.
     for tool in tools.iter().filter(|tool| {
         tool["name"]
