@@ -8,21 +8,6 @@ fn default_source() -> AdverseEventSource {
 fn default_limit() -> u32 {
     5
 }
-fn receipt_day(date: Option<PartialDate>, upper: bool) -> Result<Option<PartialDate>, ()> {
-    date.map(|date| {
-        let month = date.month().ok_or(())?;
-        let day = date.day().unwrap_or_else(|| {
-            if upper {
-                (28..=31).rev().find(|day| {
-                    PartialDate::new(date.year(), Some(month), Some(*day)).is_ok()
-                }).unwrap_or(28)
-            } else {
-                1
-            }
-        });
-        PartialDate::new(date.year(), Some(month), Some(day)).map_err(|_| ())
-    }).transpose()
-}
 #[doc = " Search five report headers by default. MAUDE accepts device text or a manufacturer, \
     product-code or problem filter. One report may list several devices; filters may match \
     different devices. VAERS accepts MMR, COVID19, COVID-19 vaccine or \
@@ -115,9 +100,9 @@ impl TryFrom<SearchFields> for AdverseEventSearch {
         if !(1..=50).contains(&v.limit) {
             return Err(QueryInvalid::new(&["limit"]));
         }
-        v.received_from = receipt_day(v.received_from, false)
+        v.received_from = super::receipt::day(v.received_from, false)
             .map_err(|()| QueryInvalid::new(&["received_from"]))?;
-        v.received_to = receipt_day(v.received_to, true)
+        v.received_to = super::receipt::day(v.received_to, true)
             .map_err(|()| QueryInvalid::new(&["received_to"]))?;
         if v.received_from
             .zip(v.received_to)

@@ -1,5 +1,6 @@
 //! Source-specific adverse event requests and bounded report responses.
 mod query;
+mod receipt;
 mod response;
 mod selectors;
 pub use query::{AdverseEventGet, AdverseEventSearch};
