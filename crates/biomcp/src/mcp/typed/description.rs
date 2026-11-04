@@ -70,7 +70,14 @@ pub(super) fn render(verb: &str, entity: &str, schema: &Value) -> String {
         .next()
         .unwrap_or_default();
     let prefix = format!("{verb} {entity} source records. ");
-    let budget = 320_usize.saturating_sub(prefix.chars().count() + provenance.chars().count() + 2);
+    let input = input
+        .replace("identifiers", "IDs")
+        .replace(" accession", "")
+        .replace("reference-qualified ", "")
+        .replace("VCF-style genomic coordinates", "VCF")
+        .replace(", in input order", "")
+        .replace(", in caller order", "");
+    let budget = 300_usize.saturating_sub(prefix.chars().count() + provenance.chars().count() + 2);
     let input = input.chars().take(budget).collect::<String>();
     format!("{prefix}{input} {provenance}.")
 }

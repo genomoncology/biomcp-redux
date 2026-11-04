@@ -51,7 +51,7 @@ pub(super) fn check() -> Result<(), String> {
             .find(|tool| tool["name"] == name)
             .ok_or_else(|| format!("missing {name}"))?;
         let description = tool["description"].as_str().ok_or("description")?;
-        if description.chars().count() > 320 {
+        if description.chars().count() > 300 {
             return Err(format!(
                 "{name} description {}: {description}",
                 description.chars().count()
