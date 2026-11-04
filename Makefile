@@ -307,3 +307,7 @@ civic-evidence-build:
 .PHONY: civic-evidence-focused
 civic-evidence-focused:
 	+sh scripts/check_civic_evidence.sh focused
+
+.PHONY: civic-evidence-structure
+civic-evidence-structure:
+	cargo test --locked -p biomcp --test ratchets repository_obeys_structural_contract -- --exact $(if $(strip $(RUST_TEST_THREADS)),--test-threads $(RUST_TEST_THREADS))

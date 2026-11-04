@@ -6,6 +6,7 @@ mod drug;
 mod drug_get;
 mod drug_map;
 mod drug_raw;
+mod drug_request;
 mod evidence_filter;
 mod raw;
 mod variant;

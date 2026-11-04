@@ -72,7 +72,9 @@ pub(super) fn apply(
                 );
                 let body = Request {
                     query: format!(
-                        "query($id:Int!,$after:String){{evidenceItems(molecularProfileId:$id,{arguments},first:{count},after:$after){{totalCount pageInfo{{hasNextPage endCursor}} nodes{{id status evidenceType evidenceLevel evidenceDirection significance disease{{name doid}} therapies{{name}} therapyInteractionType source{{citationId sourceType}}}}}}}}"
+                        "query($id:Int!,$after:String){{evidenceItems(molecularProfileId:$id,{arguments},first:{count},after:$after){{totalCount \
+                        pageInfo{{hasNextPage endCursor}} nodes{{id status evidenceType evidenceLevel evidenceDirection \
+                        significance disease{{name doid}} therapies{{name}} therapyInteractionType source{{citationId sourceType}}}}}}}}"
                     ),
                     variables: Variables { id, after },
                 };
