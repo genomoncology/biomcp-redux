@@ -492,14 +492,20 @@ Options:
           [default: false]
           [possible values: true, false]
 
-      --study <study>
-          Exact source study accession.
+      --studies[=<studies>]
+          Return study records for the selected publication instead of associations.
+
+          [default: false]
+          [possible values: true, false]
 
       --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
 
           [default: false]
           [possible values: true, false]
+
+      --study <study>
+          Exact source study accession.
 
       --trait <trait>
           Literal native efo_trait label; never searches reported_trait prose.
@@ -523,6 +529,7 @@ Source associations in default p-value-ascending order. Sources: gwas.
 - `--pool`: Retained threshold walk identity; requires a threshold.
 - `--pubmed`: Exact source publication identity.
 - `query`: Exact source mapped gene; legacy positional query aliases this field.
+- `--studies`: Return study records for the selected publication instead of associations.
 - `--study`: Exact source study accession.
 - `--trait`: Exact source efo_trait label; never searches reported_trait prose.
 - `--trait-id`: Exact source ontology identity.
