@@ -89,6 +89,9 @@ pub struct DrugFdaDocument {
     /// Native document date, independent of event dates.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub date: Option<PartialDate>,
+    /// Bounded embedded letter text, present only when selected by document ID.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub text: Option<crate::PdfText>,
     /// Original document type.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub r#type: Option<Text>,

@@ -24,7 +24,7 @@ struct GetFields<I = Text> {
     /// Explicit source: GTR accession/version, WHO Product ID, PMA P number,
     /// 510(k) K number or device recall Z-NNNN-YYYY.
     source: DiagnosticGetSource,
-    /// GTR: genes, conditions, methods. PMA: regulatory, supplements.
+    /// GTR: genes, conditions, methods. PMA: regulatory, supplements, summary.
     /// WHO, 510(k) and device recalls have no sections; omit for the card.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 1)))]
@@ -207,7 +207,11 @@ fn validate_source<I>(v: &GetFields<I>) -> Result<(), QueryInvalid> {
         ),
         DiagnosticGetSource::FdaPma => matches!(
             v.section,
-            None | Some(DiagnosticSection::Regulatory | DiagnosticSection::Supplements)
+            None | Some(
+                DiagnosticSection::Regulatory
+                    | DiagnosticSection::Supplements
+                    | DiagnosticSection::Summary
+            )
         ),
         DiagnosticGetSource::WhoIvd
         | DiagnosticGetSource::Fda510k
@@ -219,7 +223,12 @@ fn validate_source<I>(v: &GetFields<I>) -> Result<(), QueryInvalid> {
     if v.source != DiagnosticGetSource::FdaPma && v.supplement.is_some() {
         return Err(QueryInvalid::new(&["supplement", "source"]));
     }
-    if v.supplement.is_some() && v.section == Some(DiagnosticSection::Supplements) {
+    if v.supplement.is_some()
+        && matches!(
+            v.section,
+            Some(DiagnosticSection::Supplements | DiagnosticSection::Summary)
+        )
+    {
         return Err(QueryInvalid::new(&["supplement", "section"]));
     }
     if matches!(

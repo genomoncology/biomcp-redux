@@ -205,8 +205,8 @@ pub use query::{
 pub use response::{
     DiagnosticCandidate, DiagnosticCard, DiagnosticCompanion, DiagnosticConditions,
     DiagnosticGenes, DiagnosticLaboratory, DiagnosticMethods, DiagnosticPage, DiagnosticRegulatory,
-    DiagnosticRegulatoryField, DiagnosticRegulatoryFragment, DiagnosticSupplements, GtrCard,
-    GtrHeader, GtrNativeStatus,
+    DiagnosticRegulatoryField, DiagnosticRegulatoryFragment, DiagnosticSummary,
+    DiagnosticSupplements, GtrCard, GtrHeader, GtrNativeStatus,
 };
 
 pub use response::{
@@ -273,3 +273,5 @@ pub use coverage::command_implicit_sources;
 
 #[cfg(feature = "schema")]
 pub use adverse_event::AdverseEventSearchCommand;
+
+pub use response::{PdfText, PdfTextState};

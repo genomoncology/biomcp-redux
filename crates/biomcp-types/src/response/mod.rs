@@ -194,3 +194,6 @@ mod packet;
 mod reply;
 pub use packet::ReplyData;
 pub use reply::{Reply, ReplyBody};
+
+mod pdf;
+pub use pdf::{PdfText, PdfTextState};

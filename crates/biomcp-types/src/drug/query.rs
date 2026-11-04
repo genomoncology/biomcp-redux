@@ -164,6 +164,9 @@ struct GetFields {
     /// Explicit native application product number, only for approvals.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     product_number: Option<Text>,
+    /// Exact native Drugs@FDA approval letter document ID; text is bounded to 25 MiB, 50 pages and 6144 escaped bytes per fragment. No-text scans are explicit.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    document_id: Option<Text>,
     /// Selected native CIViC molecular profile for a drug-scoped claim stream.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 2147483647)))]
@@ -204,6 +207,12 @@ impl TryFrom<GetFields> for DrugGet {
     }
 }
 fn validate_sections(fields: &GetFields) -> Result<(), QueryInvalid> {
+    if fields.document_id.is_some()
+        && (fields.source != DrugSource::Drugsfda
+            || fields.section.as_ref() != [DrugSection::Approvals])
+    {
+        return Err(QueryInvalid::new(&["document_id", "source", "section"]));
+    }
     if fields.section_limit.is_some_and(|n| !(1..=50).contains(&n)) {
         return Err(QueryInvalid::new(&["section_limit"]));
     }
@@ -280,6 +289,7 @@ impl DrugGet {
             section_offset: None,
             label_section: None,
             product_number: None,
+            document_id: None,
             civic_profile: None,
             civic_kind: None,
             civic_cursor: None,
@@ -321,6 +331,10 @@ impl DrugGet {
     /// Original native cursor for that selected claim collection.
     pub fn civic_cursor(&self) -> Option<&Text> {
         self.fields.civic_cursor.as_ref()
+    }
+    /// Selected native approval document ID.
+    pub fn document_id(&self) -> Option<&Text> {
+        self.fields.document_id.as_ref()
     }
     /// Unchanged published identifier.
     pub fn input(&self) -> &DrugId {

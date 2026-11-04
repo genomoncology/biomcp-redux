@@ -22,3 +22,6 @@ pub fn download(
             error => error,
         })
 }
+
+mod text;
+pub use text::{FRAGMENT_BYTES, MAX_EXPANDED_BYTES, MAX_PAGES, read};
