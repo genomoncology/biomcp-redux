@@ -32,7 +32,7 @@ PY
     for side in baseline current; do
       folder="target/variant-indel-scans/$side"
       mkdir -p "$folder/source"
-      for file in crates/biomcp-types/src/query/variant_input.rs crates/biomcp-types/src/query/variant.rs crates/biomcp-types/tests/variant_values.rs crates/biomcp-query/src/variant/mod.rs crates/biomcp-query/src/variant/identity.rs crates/biomcp-adapters/src/allele_registry/map.rs crates/biomcp-adapters/src/allele_registry/raw.rs; do
+      for file in crates/biomcp/tests/ratchets/placement.rs crates/biomcp-types/src/query/variant_input.rs crates/biomcp-types/src/query/variant.rs crates/biomcp-types/tests/variant_values.rs crates/biomcp-query/src/variant/mod.rs crates/biomcp-query/src/variant/identity.rs crates/biomcp-adapters/src/allele_registry/map.rs crates/biomcp-adapters/src/allele_registry/raw.rs; do
         output="$folder/source/$(echo "$file" | tr / _)"
         if [ "$side" = baseline ]; then git show "$baseline:$file" > "$output"; else cp "$file" "$output"; fi
       done
