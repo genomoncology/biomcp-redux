@@ -8,7 +8,7 @@ pub(super) mod identity;
 
 const NATIVE_PAGE_SIZE: u32 = 10;
 
-/// Read the checked native page under ascending source p value.
+/// Read a bounded p-value-ascending window, sorting locally only for a complete match.
 pub fn search(leg: &Leg<'_>, q: &GwasSearch) -> Result<Page, RequestError> {
     if q.limit() <= NATIVE_PAGE_SIZE || q.offset() != 0 {
         return native(leg, q, selectors(q), (q.offset() % q.limit()) as usize);

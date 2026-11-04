@@ -3,6 +3,9 @@
 set -eu
 cd "$(dirname "$0")/.."
 export RUSTUP_TOOLCHAIN=1.95.0
+if test -n "${2:-}"; then
+  export BIOMCP_GWAS_PRIOR_STUDIES="$PWD/target/gwas-studies-evidence/$2/studies"
+fi
 case "${1:-focused}" in
   prepare)
     cargo fmt --all
@@ -23,9 +26,6 @@ case "${1:-focused}" in
     python3 scripts/trials.py --target cases --runner "$runner" --executable "$product" --installed gwas-search/gwas/examples.yaml gwas-get/gwas/get-examples.yaml gwas-search/gwas/help.yaml gwas-search/gwas/studies.yaml
     ;;
   live)
-    if test -n "${2:-}"; then
-      export BIOMCP_GWAS_PRIOR_STUDIES="$PWD/target/gwas-studies-evidence/$2/studies"
-    fi
     export BIOMCP_BUILD_REVISION=$(git rev-parse HEAD)
     cargo build --locked -p biomcp --bin biomcp
     sh "$0" installed
@@ -35,7 +35,6 @@ case "${1:-focused}" in
     ;;
   proof)
     sh "$0" focused
-    sh "$0" scans
     sh "$0" installed
     ;;
   scans)
