@@ -1,5 +1,6 @@
 """Exercise installed repeatable FAERS names and compare retained single-name bytes."""
 import argparse
+import hashlib
 import json
 from pathlib import Path
 import shutil
@@ -22,6 +23,8 @@ def main():
     args = parser.parse_args()
     output = args.output.resolve()
     output.mkdir(parents=True, exist_ok=True)
+    baseline_sha = hashlib.sha256(args.baseline.read_bytes()).hexdigest()
+    assert baseline_sha == "b50998e586ccc38a2a4f6d851cce229651e380560814e5d4212d4694f89c7660"
     with tempfile.TemporaryDirectory(prefix="biomcp-faers-names-") as temporary:
         root = Path(temporary)
         binary = root / "biomcp"
@@ -50,6 +53,17 @@ def main():
             native = response.read()
         (output / "openfda.json").write_bytes(native)
         (output / "openfda-url.txt").write_text(url + "\n")
+        bindings = {
+            "source_commit": subprocess.check_output(
+                ["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip(),
+            "binary_sha256": hashlib.sha256(args.binary.read_bytes()).hexdigest(),
+            "baseline_sha256": baseline_sha,
+            "baseline_source_commit": "d349 (public run 41806259796)",
+            "native_sha256": hashlib.sha256(native).hexdigest(),
+            "native_url": url,
+            "source_query": expression,
+        }
+        (output / "bindings.json").write_text(json.dumps(bindings, indent=2) + "\n")
         total = json.loads(native)["meta"]["results"]["total"]
         assert reply["page"]["total"] == total
         assert total > 50000
