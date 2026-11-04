@@ -29,7 +29,7 @@ case "${1:-focused}" in
     ;;
   scans)
     cargo fmt --all -- --check
-    cargo clippy --locked -p biomcp-adapters -p biomcp-query -p biomcp-types --all-targets -- -D warnings
+    cargo clippy --locked -p biomcp-adapters -p biomcp-query -p biomcp-types --features biomcp-types/schema --all-targets -- -D warnings
     run_installed cases study-rows/study/rows.yaml
     ;;
   routine)
