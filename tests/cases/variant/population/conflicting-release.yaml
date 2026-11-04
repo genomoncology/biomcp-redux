@@ -29,15 +29,16 @@
             "joint.dataset_version"
           ]
         },
-        "/result/population/data/joint/ac": 513548,
-        "/result/population/data/joint/an": 1613846,
-        "/result/population/data/joint/homozygote_count": 87723,
-        "/result/population/data/joint/data_type": "joint",
-        "/result/population/data/joint": {
+        "/result/population/data/joint/data/ac": 513548,
+        "/result/population/data/joint/data/an": 1613846,
+        "/result/population/data/joint/data/homozygote_count": 87723,
+        "/result/population/data/joint/data/data_type": "joint",
+        "/result/population/data/joint/data": {
           "omits": [
             "frequency"
           ]
-        }
+        },
+        "/result/population/data/joint/state": "data"
       }
     }
   ]

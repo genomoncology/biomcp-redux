@@ -2452,15 +2452,6 @@
           ],
           "description": "Complete native group ID, including its source sex suffix when present."
         },
-        "homozygote_count": {
-          "description": "Source-published total homozygote count, never calculated from other counts.",
-          "format": "uint64",
-          "minimum": 0,
-          "type": [
-            "integer",
-            "null"
-          ]
-        },
         "sex": {
           "anyOf": [
             {
@@ -7620,17 +7611,6 @@
           "$ref": "#/$defs/Reply_Text",
           "description": "Source dataset selector."
         },
-        "dataset_version": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_Text"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "Release shared by independently checked exome and genome totals in this response."
-        },
         "exome": {
           "anyOf": [
             {
@@ -7652,18 +7632,6 @@
             }
           ],
           "description": "Genome observation; omitted when the source dataset is null."
-        },
-        "joint": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_GnomadCounts"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "description": "Source joint totals; null means the source supplied no joint data. Never a sum."
         },
         "variant": {
           "$ref": "#/$defs/Reply_Text",

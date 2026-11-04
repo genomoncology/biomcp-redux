@@ -23,7 +23,7 @@ The [upgrade table](https://github.com/genomoncology/biomcp/blob/main/sdlc/plann
 
 ## Added population fields
 
-Variant population replies add source-published `homozygote_count` for exome and genome totals and `joint` AC, AN and homozygote totals. A null `joint` means gnomAD supplied no joint data; BioMCP never adds exome and genome counts. `dataset_version` names a release only when matching same-response exome and genome totals independently report the same version. Joint counts have no invented independent release or frequency. Existing counts, filters and ancestry pagination retain their meanings.
+Variant population replies add source-published `homozygote_count` for exome and genome totals and `joint` AC, AN and homozygote totals. A joint section with `state: empty` means gnomAD supplied no joint data; BioMCP never adds exome and genome counts. `dataset_version` names a release only when matching same-response exome and genome totals independently report the same version. Joint counts have no invented independent release or frequency. Existing counts, filters and ancestry pagination retain their meanings.
 
 ## Hosted use and source terms
 

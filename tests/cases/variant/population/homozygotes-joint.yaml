@@ -20,20 +20,21 @@
         "/result/population/data/genome/homozygote_count": 6918,
         "/page/total": 305,
         "/result/population/data/dataset_version": "4.1.0",
-        "/result/population/data/joint/ac": 513548,
-        "/result/population/data/joint/an": 1613846,
-        "/result/population/data/joint/homozygote_count": 87723,
-        "/result/population/data/joint/data_type": "joint",
-        "/result/population/data/joint": {
-          "omits": [
-            "frequency"
-          ]
-        },
         "/result/groups/0": {
           "omits": [
             "homozygote_count"
           ]
-        }
+        },
+        "/result/population/data/joint/data/ac": 513548,
+        "/result/population/data/joint/data/an": 1613846,
+        "/result/population/data/joint/data/homozygote_count": 87723,
+        "/result/population/data/joint/data/data_type": "joint",
+        "/result/population/data/joint/data": {
+          "omits": [
+            "frequency"
+          ]
+        },
+        "/result/population/data/joint/state": "data"
       }
     }
   ]

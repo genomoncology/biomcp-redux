@@ -15,9 +15,6 @@
         "/result/population/data/exome/an": 1460618,
         "/result/population/data/exome/homozygote_count": 0,
         "/result/population/data/exome/frequency/dataset_version": "4.1.0",
-        "/result/population/data/joint/ac": 2,
-        "/result/population/data/joint/an": 1612922,
-        "/result/population/data/joint/homozygote_count": 0,
         "/result/population/data": {
           "omits": [
             "genome",
@@ -28,7 +25,10 @@
           "includes_all_of": [
             "joint.dataset_version"
           ]
-        }
+        },
+        "/result/population/data/joint/data/ac": 2,
+        "/result/population/data/joint/data/an": 1612922,
+        "/result/population/data/joint/data/homozygote_count": 0
       }
     }
   ]

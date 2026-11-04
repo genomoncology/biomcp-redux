@@ -21,6 +21,7 @@ def main():
     installed.mkdir(exist_ok=True)
     product = Path(cargo('dev')['executable'])
     runner = Path(cargo('dev', tests='cases')['executable'])
+    tools = Path(cargo('dev', tests='tools')['executable'])
     binary = installed / 'biomcp'
     case_runner = installed / 'case-runner'
     shutil.copy2(product, binary)
@@ -40,6 +41,8 @@ def main():
         raise ValueError('population selection is empty')
     (output / 'selected-cases.json').write_text(json.dumps(names, indent=2) + '\n')
     run_selected([str(case_runner)], installed, names, lambda: None)
+    run_selected([str(tools), '--proofs'], ROOT / 'crates/biomcp',
+                 ['schema-discovery/validates-results-before-assertions'], lambda: None)
     binding = {
         'source_commit': subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip(),
         'installed_binary_sha256': hashlib.sha256(binary.read_bytes()).hexdigest(),

@@ -20,7 +20,12 @@
         "/result/population/data/genome/homozygote_count": 6918,
         "/page/total": 305,
         "/result/population/data/dataset_version": "4.1.0",
-        "/result/population/data/joint": null
+        "/result/population/data/joint/state": "empty",
+        "/result/population/data/joint": {
+          "omits": [
+            "data"
+          ]
+        }
       }
     }
   ]

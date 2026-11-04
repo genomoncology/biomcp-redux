@@ -160,11 +160,23 @@ pub(super) fn summary(
         dataset_version,
         exome,
         genome,
-        joint: raw
-            .joint
-            .as_ref()
-            .map(|s| Box::new(counts(s, PopulationDataType::Joint, None))),
+        joint: joint(raw, problems),
     })
+}
+fn joint(raw: &gnomad::variant::Variant, problems: &[Problem]) -> Section<Box<GnomadCounts>> {
+    match &raw.joint {
+        Some(subset) => Section::Data {
+            source: Source::Gnomad,
+            data: Box::new(counts(subset, PopulationDataType::Joint, None)),
+        },
+        None if problems.iter().any(|p| p.field.as_ref() == "joint") => {
+            Section::unavailable(Source::Gnomad, Reason::BadReply)
+        }
+        None => Section::Empty {
+            source: Source::Gnomad,
+            record: None,
+        },
+    }
 }
 pub(super) fn counts(
     raw: &gnomad::variant::Subset,

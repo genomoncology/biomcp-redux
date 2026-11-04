@@ -19,9 +19,15 @@ pub struct VariantPopulation {
     /// Genome observation; omitted when the source dataset is null.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub genome: Option<Box<GnomadCounts>>,
-    /// Source joint totals; null means the source supplied no joint data. Never a sum.
-    #[serde(default)]
-    pub joint: Option<Box<GnomadCounts>>,
+    /// Independent source joint totals, or an explicit empty state when none were supplied.
+    #[serde(default = "joint_empty")]
+    pub joint: crate::Section<Box<GnomadCounts>>,
+}
+fn joint_empty() -> crate::Section<Box<GnomadCounts>> {
+    crate::Section::Empty {
+        source: crate::Source::Gnomad,
+        record: None,
+    }
 }
 /// Native gnomAD counts retained when a dataset release cannot be established.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
