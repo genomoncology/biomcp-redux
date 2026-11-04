@@ -1163,6 +1163,7 @@
       "type": "object"
     },
     "Reply_DrugGet": {
+      "description": "A source-selected drug request echoed with a native ID after name resolution.",
       "properties": {
         "civic_cursor": {
           "anyOf": [

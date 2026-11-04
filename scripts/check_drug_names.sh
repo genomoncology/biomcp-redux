@@ -4,13 +4,6 @@ set -eu
 export RUSTUP_TOOLCHAIN=1.95.0
 case "${1:-focused}" in
   routine) exec sh scripts/check_nightly_tests.sh routine ;;
-  schema-fix)
-    sh "$0" prepare
-    cargo test --locked -p biomcp-types --features schema --test schemas
-    make docs-generate
-    git diff --binary > target/drug-names-docs.patch
-    make docs-check
-    ;;
   review-fixes)
     sh "$0" prepare
     make check-cheap

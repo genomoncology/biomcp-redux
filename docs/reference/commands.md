@@ -1549,7 +1549,7 @@ Commands:
   diagnostic     Get one exact source record or supported section. A listing is not authorization; a companion row is not a treatment recommendation.
   adverse-event  Exact native report identity and an optional independently paged section.
   disease        Exact concept or native SEER site with independently paged section.
-  drug
+  drug           Retrieve a drug by source-native ID, brand or generic name, with explicit source-scoped sections.
   gene           Get one to twenty human gene inputs in their original order.
   article        Get one to twenty article inputs in caller order.
   trial          Retrieve exact trial cards in input order; request bounded intact source sections with independent continuations.
@@ -2376,6 +2376,7 @@ One named section; absent means identity card only.
 ## biomcp get drug
 
 ```text
+Retrieve a drug by source-native ID, brand or generic name, with explicit source-scoped sections.
 
 Usage: biomcp get drug [OPTIONS] <input> [section]...
 
@@ -2434,7 +2435,7 @@ Options:
 
 ```
 
-. Sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq.
+Retrieve a drug by source ID, brand or generic name, with explicit source-scoped sections. Sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq.
 
 - `--civic-cursor`: Source continuation cursor for that exact drug, profile and claim collection.
 - `--civic-kind`: Independent source evidence or assertion collection within the selected profile.
