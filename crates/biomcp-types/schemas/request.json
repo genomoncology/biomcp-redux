@@ -1457,6 +1457,10 @@
           "$ref": "#/$defs/Pmid",
           "description": "Exact source publication identity."
         },
+        "studies": {
+          "description": "Return study records for the selected publication instead of associations.",
+          "type": "boolean"
+        },
         "study": {
           "$ref": "#/$defs/GwasStudyId",
           "description": "Exact source study accession."
@@ -3283,7 +3287,7 @@
         },
         "query": {
           "$ref": "#/$defs/Text",
-          "description": "Literal name phrase; optional for FDA drug recalls. Drugs@FDA searches brands and ingredients,\nexact names before word matches. Harmonized recall names match but never become display names.",
+          "description": "Search phrase; optional for FDA drug recalls. Drugs@FDA searches brands and ingredients,\nexact names before word matches. openFDA labels search exact then word brand/generic names,\nthen label text (including indications) when no names match; source matches need not be exact names.\nHarmonized recall names match but never become display names.",
           "x-positional": 0
         },
         "reason": {
@@ -3371,9 +3375,7 @@
           "description": "Exact native Drugs@FDA approval letter document ID. Text is bounded to 25 MiB, 100 pages\nand 6144 escaped bytes per fragment. No-text scans are explicit."
         },
         "input": {
-          "$ref": "#/$defs/DrugId",
-          "description": "Published source-native identifier, never SOURCE:ID or a selected name.",
-          "x-positional": 0
+          "$ref": "#/$defs/DrugId"
         },
         "label_section": {
           "anyOf": [
@@ -3425,8 +3427,7 @@
           ]
         },
         "source": {
-          "$ref": "#/$defs/DrugSource",
-          "description": "Required source; there is no default exact-ID resolver."
+          "$ref": "#/$defs/DrugSource"
         }
       },
       "required": [
