@@ -103,16 +103,6 @@
         "/sources/0/state": "ok",
         "/page/total": 0
       }
-    },
-    {
-      "run": [
-        "--offline",
-        "false",
-        "version",
-        "--verbose",
-        "false"
-      ],
-      "stdout": "biomcp 1.0.0\n"
     }
   ],
   "replay": "grammar/boolean-literals"

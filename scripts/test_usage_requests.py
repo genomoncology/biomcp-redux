@@ -77,6 +77,11 @@ def main():
             (stage / (label + '.json')).write_bytes(result.stdout)
         for names in [('literal-true', 'bare', 'baseline-bare'), ('literal-false', 'omitted', 'baseline-omitted')]:
             assert len({outputs[name] for name in names}) == 1, names
+        plain_version = subprocess.check_output([str(baseline), 'version'], env=env)
+        literal_version = subprocess.check_output(
+            [str(binary), '--offline', 'false', 'version', '--verbose', 'false'], env=env)
+        assert literal_version == plain_version
+        (stage / 'global-local-false-version.txt').write_bytes(literal_version)
         for path in [['search', 'trial'], ['search', 'drug'], ['search', 'diagnostic'],
                      ['version'], ['skill', 'install'], ['serve'], ['key', 'set']]:
             args = ['help', *path]
