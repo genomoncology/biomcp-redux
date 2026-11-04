@@ -103,7 +103,7 @@ fn add_sections(
         } else {
             bindings(verb, child, &section, sources)
         };
-        if section != "all" && publishers.is_empty() {
+        if section != "all" && (publishers.is_empty() || !publishers.is_subset(sources)) {
             return Err(
                 format!("missing section source coverage for {verb} {child} {section}").into(),
             );
@@ -220,6 +220,19 @@ mod tests {
             "{} characters",
             map.chars().count()
         );
+        for line in map.lines() {
+            for field in line.split(';').filter(|field| field.starts_with('(')) {
+                for source in field.trim_matches(['(', ')']).split(',') {
+                    assert_eq!(
+                        line.split([' ', ';', ',', '(', ')'])
+                            .filter(|word| *word == source)
+                            .count(),
+                        1,
+                        "common source must be named once: {line}"
+                    );
+                }
+            }
+        }
         for source in biomcp_adapters::registry::sources() {
             let name = source.source.to_string();
             assert!(
@@ -258,7 +271,7 @@ mod tests {
                         .any(|word| word == section),
                     "{section} missing: {line}"
                 );
-                if section != "all" {
+                {
                     let mut shown = BTreeSet::new();
                     for field in line.split(';').filter(|field| field.starts_with('(')) {
                         shown.extend(field.trim_matches(['(', ')']).split(',').map(String::from));
@@ -274,7 +287,15 @@ mod tests {
                                 .map(String::from),
                         );
                     }
-                    let expected = bindings(verb, child, &section, &sources);
+                    let expected = if section == "all" {
+                        sections(&schema)
+                            .into_iter()
+                            .filter(|word| word != "all")
+                            .flat_map(|word| bindings(verb, child, &word, &sources))
+                            .collect()
+                    } else {
+                        bindings(verb, child, &section, &sources)
+                    };
                     assert!(
                         !expected.is_empty(),
                         "missing typed binding: {verb} {child} {section}"

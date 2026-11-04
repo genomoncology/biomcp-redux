@@ -62,12 +62,16 @@ pub fn command_section_sources(
     candidates: &[Source],
 ) -> Option<Vec<Source>> {
     use crate::{
-        AdverseEventSection, ArticleSection, CellLineSection, DiagnosticGetSource,
-        DiagnosticSection, DiseaseSection, DrugSection, DrugSource, GeneSection, PathwaySection,
-        PgxSection, PhenotypeSection, ProteinSection, TrialSection, TrialSource, VaersSection,
-        VariantSection,
+        AdverseEventSection, ArticleSection, AuthorPaperSection, CellLineSection,
+        DiagnosticGetSource, DiagnosticSection, DiseaseSection, DrugSection, DrugSource,
+        GeneSection, PathwaySection, PgxSection, PhenotypeSection, ProteinSection, TrialSection,
+        TrialSource, VaersSection, VariantSection,
     };
     match (verb, entity) {
+        ("author", "papers") => word
+            .parse::<AuthorPaperSection>()
+            .ok()
+            .map(|s| s.sources().to_vec()),
         ("get", "gene") => word.parse::<GeneSection>().ok().map(|s| vec![s.source()]),
         ("get", "variant") => word
             .parse::<VariantSection>()
