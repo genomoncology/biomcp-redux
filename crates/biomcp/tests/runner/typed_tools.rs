@@ -61,9 +61,16 @@ pub(super) fn check() -> Result<(), String> {
     }
     writeln!(
         std::io::stdout(),
-        "TYPED_TOOL_LIST characters={} tools={}",
+        "TYPED_TOOL_LIST characters={} tools={} response_characters={}",
         json!(tools).to_string().chars().count(),
-        tools.len()
+        tools.len(),
+        replies
+            .iter()
+            .find(|r| r["id"] == 1)
+            .ok_or("tool-list reply")?
+            .to_string()
+            .chars()
+            .count()
     )
     .map_err(|e| e.to_string())?;
     let refused = exchange_with_globals(
