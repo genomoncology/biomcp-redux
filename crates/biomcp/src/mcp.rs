@@ -6,8 +6,8 @@ mod legacy;
 mod output_schema;
 mod protocol;
 mod research;
-mod typed;
 mod rpc;
+mod typed;
 mod worker;
 
 use framing::Frame;
@@ -120,7 +120,13 @@ fn start_input(sender: mpsc::SyncSender<Event>) -> io::Result<()> {
 
 impl Server {
     fn message(&mut self, frame: &[u8]) -> io::Result<Option<Value>> {
-        match rpc::message(frame, &mut self.legacy, self.globals.hosted, &self.root, crate::config::mcp_tool_mode(&self.globals, &self.settings)) {
+        match rpc::message(
+            frame,
+            &mut self.legacy,
+            self.globals.hosted,
+            &self.root,
+            crate::config::mcp_tool_mode(&self.globals, &self.settings),
+        ) {
             rpc::Message::Reply(reply) => Ok(Some(reply)),
             rpc::Message::Tool { id, params, modern } => self.admit(id, &params, modern),
             rpc::Message::Notification { method, params } => {
@@ -139,7 +145,11 @@ impl Server {
     }
 
     fn admit(&mut self, id: Value, params: &Value, modern: bool) -> io::Result<Option<Value>> {
-        let Some(call) = typed::parse(&self.root, params, crate::config::mcp_tool_mode(&self.globals, &self.settings)) else {
+        let Some(call) = typed::parse(
+            &self.root,
+            params,
+            crate::config::mcp_tool_mode(&self.globals, &self.settings),
+        ) else {
             return Ok(Some(protocol::error(id, -32602, "Invalid params")));
         };
         let key = id.to_string();

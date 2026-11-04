@@ -62,7 +62,11 @@ pub(super) fn message(
     let result = match method {
         "ping" => json!({}),
         "server/discover" => current::discover(),
-        "tools/list" => match if mode == crate::config::ToolMode::Typed { super::typed::tools(root, read_only) } else { protocol::tools(root, read_only) } {
+        "tools/list" => match if mode == crate::config::ToolMode::Typed {
+            super::typed::tools(root, read_only)
+        } else {
+            protocol::tools(root, read_only)
+        } {
             Ok(tools) => json!({"tools":tools}),
             Err(_) => {
                 return Message::Reply(protocol::error(

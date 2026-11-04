@@ -156,7 +156,9 @@ pub(super) fn housekeeping(
 }
 
 pub(super) fn serve(matches: &clap::ArgMatches, mut globals: super::Globals) -> super::Parsed {
-    globals.mcp_tool_mode = matches.get_one::<crate::config::ToolMode>("tool-mode").copied();
+    globals.mcp_tool_mode = matches
+        .get_one::<crate::config::ToolMode>("tool-mode")
+        .copied();
     globals.hosted = matches.get_flag("hosted");
     globals.http_max_calls = matches
         .get_one::<std::num::NonZeroUsize>("http_max_calls")
