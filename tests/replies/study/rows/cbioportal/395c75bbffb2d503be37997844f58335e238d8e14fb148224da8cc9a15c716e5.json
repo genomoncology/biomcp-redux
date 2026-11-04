@@ -1,11 +1,11 @@
 {
   "source": "cbioportal",
   "method": "GET",
-  "url": "https://www.cbioportal.org/api/studies/skcm_tcga_pan_can_atlas_2018/samples?direction=ASC&pageSize=10000000&projection=SUMMARY&sortBy=sampleId",
+  "url": "https://www.cbioportal.org/api/studies/skcm_tcga_pan_can_atlas_2018/samples?projection=SUMMARY&pageSize=10000000&sortBy=sampleId&direction=ASC",
   "exchanges": [
     {
       "status": 200,
-      "fetched": 1793809359,
+      "fetched": 1793810561,
       "content_type": "application/json",
       "delay_ms": 0,
       "retry_after_ms": null,
