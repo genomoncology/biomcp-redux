@@ -177,21 +177,7 @@ fn select(
     }
     let heading = query.label_section().map_or("", |h| h.as_str());
     if !source::HEADINGS.contains(&heading) {
-        out.body = biomcp_types::ReplyData::Usage(biomcp_types::UsageError::SourceSelector {
-            source: SOURCE,
-            option: "--label-section".into(),
-            valid_values: source::HEADINGS
-                .iter()
-                .filter(|h| record.has_heading(h))
-                .map(|h| h.parse())
-                .collect::<Result<Vec<_>, _>>()
-                .map_err(|_| biomcp_fetch::bad_reply(SOURCE, Some(200)))?
-                .into(),
-            next: vec![biomcp_types::Step {
-                kind: StepKind::Configure,
-                args: ["help", "get", "drug"].map(Into::into).into(),
-            }],
-        });
+        out.body = biomcp_types::ReplyData::Usage(invalid_heading(record)?);
         return Ok(());
     }
     let offset = query.section_offset().unwrap_or(0);
@@ -243,4 +229,22 @@ fn page(offset: u32, returned: u32, total: u64) -> PageInfo {
         pool: None,
         truncated: None,
     }
+}
+
+fn invalid_heading(record: &source::Record) -> Result<biomcp_types::UsageError, RequestError> {
+    Ok(biomcp_types::UsageError::SourceSelector {
+        source: SOURCE,
+        option: "--label-section".into(),
+        valid_values: source::HEADINGS
+            .iter()
+            .filter(|h| record.has_heading(h))
+            .map(|h| h.parse())
+            .collect::<Result<Vec<_>, _>>()
+            .map_err(|_| biomcp_fetch::bad_reply(SOURCE, Some(200)))?
+            .into(),
+        next: vec![biomcp_types::Step {
+            kind: StepKind::Configure,
+            args: ["help", "get", "drug"].map(Into::into).into(),
+        }],
+    })
 }
