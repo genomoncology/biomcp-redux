@@ -89,7 +89,7 @@ PYSCAN
         ;;
     gate)
         python3 --version
-        test "$(cargo machete --version)" = "cargo-machete 0.9.2"
+        test "$(cargo machete --version)" = "0.9.2"
         make landing-gate
         ;;
     *) exit 2 ;;
