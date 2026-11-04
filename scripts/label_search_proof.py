@@ -1,0 +1,88 @@
+"""Exercise source label pages against one installed CLI and retain source bindings."""
+import hashlib
+import json
+import os
+from pathlib import Path
+import shutil
+import subprocess
+import sys
+import tempfile
+import urllib.parse
+import urllib.request
+
+PROOF = Path('target/label-search-proof')
+
+
+def focused():
+    artifacts = [json.loads(line) for line in (PROOF / 'build.jsonl').read_text().splitlines()]
+    executable = next(Path(row['executable']) for row in artifacts
+                      if row.get('reason') == 'compiler-artifact' and row.get('executable')
+                      and row['target']['name'] == 'biomcp' and row['target']['kind'] == ['bin'])
+    runner = next(Path(row['executable']) for row in artifacts
+                  if row.get('reason') == 'compiler-artifact' and row.get('executable')
+                  and row['target']['name'] == 'cases')
+    installed = PROOF / 'installed/biomcp'
+    installed.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(executable, installed)
+    revision = subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip()
+    (PROOF / 'source-bindings.json').write_text(json.dumps({
+        'source_commit': revision, 'binary_sha256': hashlib.sha256(installed.read_bytes()).hexdigest(),
+        'executable': str(installed.resolve()), 'runner': str(runner)}, indent=2) + '\n')
+    command = [sys.executable, 'scripts/trials.py', '--runner', str(runner),
+               '--executable', str(installed), '--installed']
+    listed = subprocess.check_output([*command, '--list'], text=True)
+    (PROOF / 'actual-list.txt').write_text(listed)
+    names = [line.removesuffix(': test') for line in listed.splitlines()
+             if line.endswith(': test') and ('drug/label-' in line or 'drug/openfda-label' in line
+                                              or 'drug/help' in line)]
+    if not names:
+        raise ValueError('no label trials discovered')
+    subprocess.run([*command, *names], check=True)
+
+
+def live():
+    executable = (PROOF / 'installed/biomcp').resolve()
+    for query in ['imatinib', 'chronic myeloid leukemia']:
+        for limit in ([3, 10] if query == 'imatinib' else [10]):
+            seen = set()
+            offset = 0
+            total = None
+            with tempfile.TemporaryDirectory(prefix='label-search-live-') as isolated:
+                env = dict(os.environ, HOME=isolated, XDG_CONFIG_HOME=isolated,
+                           XDG_CACHE_HOME=isolated, XDG_DATA_HOME=isolated)
+                while True:
+                    command = [str(executable), 'search', 'drug', query, '--source', 'openfda-label',
+                               '--limit', str(limit), '--offset', str(offset)]
+                    result = subprocess.run(command, env=env, capture_output=True, check=True)
+                    stem = f'{query.replace(" ", "-")}-{limit}-{offset}'
+                    (PROOF / f'{stem}.json').write_bytes(result.stdout)
+                    reply = json.loads(result.stdout)
+                    page = reply['page']
+                    items = reply['result'].get('items', [])
+                    current = page['total']
+                    if total is not None and total != current:
+                        raise ValueError('native total changed across pages')
+                    total = current
+                    if len(items) != min(limit, total - offset) or any(not row.get('name') for row in items):
+                        raise ValueError('page is incomplete or unnamed')
+                    ids = [row['id'] for row in items]
+                    if len(set(ids)) != len(ids) or seen.intersection(ids):
+                        raise ValueError('source page repeats an SPL set')
+                    seen.update(ids)
+                    if offset == 0:
+                        term = reply['sources'][0].get('term')
+                        selector = term or f'openfda.brand_name.exact:"{query}" OR openfda.generic_name.exact:"{query}"'
+                        url = 'https://api.fda.gov/drug/label.json?' + urllib.parse.urlencode({'search': selector, 'limit': 1})
+                        with urllib.request.urlopen(url) as response:
+                            native = response.read()
+                        (PROOF / f'{stem}-source.json').write_bytes(native)
+                        if json.loads(native)['meta']['results']['total'] != total:
+                            raise ValueError('source total differs for the same selector')
+                    offset += len(items)
+                    if offset >= total:
+                        break
+            print(f'{query} limit={limit} total={total} unique={len(seen)}')
+
+
+if __name__ == '__main__':
+    {'focused': focused, 'live': live}[sys.argv[1]]()
