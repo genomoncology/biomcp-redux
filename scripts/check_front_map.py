@@ -91,10 +91,9 @@ def main():
         assert not args.revision or args.revision in version, version
         (args.output / "version.txt").write_text(version)
         (args.output / "SKILL.md").write_text(skill)
-        if args.baseline:
-            retained = args.output / "installed/bin/biomcp"
-            retained.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copy2(binary, retained)
+        retained = args.output / "installed/bin/biomcp"
+        retained.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(binary, retained)
         if args.mcp_baseline:
             mcp_measurements = {}
             for label, executable in (("before", args.mcp_baseline), ("after", binary)):
