@@ -18,3 +18,9 @@ cargo test --locked -p biomcp --test cases --no-run --message-format=json > "$ty
 typed_product=$(python3 -c 'import json,sys; print(next(v["executable"] for s in open(sys.argv[1]) if (v:=json.loads(s)).get("executable") and v["target"]["name"]=="biomcp"))' "$typed_scratch/product.json")
 typed_runner=$(python3 -c 'import json,sys; print(next(v["executable"] for s in open(sys.argv[1]) if (v:=json.loads(s)).get("executable") and v["target"]["name"]=="cases"))' "$typed_scratch/runner.json")
 python3 scripts/trials.py --runner "$typed_runner" --executable "$typed_product" --installed mcp-parity/mcp-typed-tools
+
+if [ "${TYPED_TOOLS_EXTENDED_CHECKS:-0}" = 1 ]; then
+    make docs-generate
+    make mcp-reply-scan JSCPD='npm exec --offline --yes --package=jscpd@4.0.5 -- jscpd'
+    npm exec --offline --yes --package=jscpd@4.0.5 -- jscpd crates/biomcp/tests/runner/typed_*.rs --format rust --max-size 10mb --reporters json --output target/typed-tools-jscpd-tests
+fi

@@ -23,10 +23,11 @@ pub(super) fn check(tool: &Value) -> Result<(), String> {
         if case.replay.is_none() {
             continue;
         }
-        for step in case
+        for (index, step) in case
             .steps
             .iter()
-            .filter(|step| step.exit == 0 && !step.offline)
+            .enumerate()
+            .filter(|(_, step)| step.exit == 0 && !step.offline)
         {
             let Some(args) = &step.run else {
                 continue;
@@ -39,6 +40,22 @@ pub(super) fn check(tool: &Value) -> Result<(), String> {
             env.config(&config).map_err(|e| e.to_string())?;
             let replay = response_cases::replay(&env, case.replay.as_deref(), case.cache_acquired)?;
             let globals = env.globals(replay.as_deref(), false);
+            for setup in case.steps[..index]
+                .iter()
+                .filter_map(|step| step.run.as_ref())
+                .filter(|args| args.first().is_some_and(|word| word == "sync"))
+            {
+                let output = env
+                    .command(
+                        env!("CARGO_BIN_EXE_biomcp"),
+                        &super::super::super::launch::arguments(setup, &globals),
+                    )
+                    .output()
+                    .map_err(|e| e.to_string())?;
+                if !output.status.success() {
+                    return Err(format!("recorded case setup failed: {setup:?}"));
+                }
+            }
             let output = env
                 .command(
                     env!("CARGO_BIN_EXE_biomcp"),
