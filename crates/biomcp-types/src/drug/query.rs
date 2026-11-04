@@ -115,6 +115,23 @@ impl TryFrom<SearchFields> for DrugSearch {
     }
 }
 impl DrugSearch {
+    /// Construct a literal name search through the same checked fields as every input surface.
+    pub fn named(query: Text, source: DrugSource, limit: u32) -> Result<Self, QueryInvalid> {
+        SearchFields {
+            query: Some(query),
+            source,
+            limit,
+            offset: 0,
+            firm: None,
+            classification: None,
+            status: None,
+            reason: None,
+            initiated_from: None,
+            initiated_to: None,
+            name_selector: None,
+        }
+        .try_into()
+    }
     /// Checked native selector, with preferred name as the ChEMBL default.
     pub fn name_selector(&self) -> super::DrugNameSelector {
         self.0

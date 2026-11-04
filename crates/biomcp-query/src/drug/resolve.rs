@@ -11,9 +11,7 @@ type Rank = (u8, u8, String);
 pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     let deadline = cx.fetch.deadline(cx.budget);
     let name = query.input().to_string();
-    let search: DrugSearch = match serde_json::from_value(
-        serde_json::json!({"query": name, "source": query.source(), "limit": 50}),
-    ) {
+    let search = match DrugSearch::named(query.input().clone(), query.source(), 50) {
         Ok(search) => search,
         Err(_) => return status::empty(ReplyData::Usage(UsageError::arguments())),
     };

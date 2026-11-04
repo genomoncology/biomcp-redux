@@ -55,12 +55,7 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     out
 }
 pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
-    let is_approvals = query.sections() == [DrugSection::Approvals];
-    let mut out = empty(if is_approvals {
-        biomcp_types::DrugApprovals::into_reply(query.clone(), None)
-    } else {
-        biomcp_types::DrugCard::into_reply(query.clone(), None)
-    });
+    let (is_approvals, mut out) = empty_get(query);
     if !query.supports_sections() {
         return unsupported(query.source(), out);
     }
@@ -140,6 +135,16 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     command.finish(deadline.remaining());
     out
 }
+fn empty_get(query: &DrugGet) -> (bool, Outcome) {
+    let is_approvals = query.sections() == [DrugSection::Approvals];
+    let out = empty(if is_approvals {
+        biomcp_types::DrugApprovals::into_reply(query.clone(), None)
+    } else {
+        biomcp_types::DrugCard::into_reply(query.clone(), None)
+    });
+    (is_approvals, out)
+}
+
 fn label_steps(cx: &Ctx<'_>, row: &source::Application, out: &mut Outcome) {
     for id in row.label_ids() {
         if let Some(request) = crate::next::checked(
