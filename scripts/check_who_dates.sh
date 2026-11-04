@@ -3,8 +3,11 @@
 set -eu
 cd "$(dirname "$0")/.."
 export RUSTUP_TOOLCHAIN=1.95.0
+proof_python_bin=$(python3.13 -c 'from pathlib import Path; import sys; print(Path(sys.executable).resolve().parent)')
+export PATH="$proof_python_bin:$PATH"
 case "${1:-focused}" in
 cheap) exec make check-cheap ;;
+generate) exec make schema-generate docs-generate ;;
 structure)
     export CARGO_BUILD_JOBS=2 RUST_TEST_THREADS=2
     exec cargo test --locked -p biomcp --test ratchets repository_obeys_structural_contract -- --exact
@@ -42,7 +45,7 @@ for side in ['baseline', 'current']:
 SCAN
     exit ;;
 focused) ;;
-*) echo 'usage: check_who_dates.sh [focused|cheap|scans|structure]' >&2; exit 2 ;;
+*) echo 'usage: check_who_dates.sh [focused|cheap|scans|structure|generate]' >&2; exit 2 ;;
 esac
 python3.13 - <<'PY'
 import json
