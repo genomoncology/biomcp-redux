@@ -8,12 +8,13 @@ case "${1:-focused}" in
     cargo fmt --all
     cargo check --locked -p biomcp
     cargo test --locked -p biomcp --test cases -- --list
-    make docs-generate
     UPDATE_SCHEMAS=1 cargo test --locked -p biomcp-types --features schema --test schemas checked_in_schemas_match_types -- --exact
+    make docs-generate
     ;;
   focused)
+    make docs-generate
     python3 scripts/trials.py --target cases --list
-    python3 scripts/trials.py --target cases --installed gwas/examples gwas/get-examples gwas/help gwas/studies
+    python3 scripts/trials.py --target cases --installed gwas-search/gwas/examples.yaml gwas-get/gwas/get-examples.yaml gwas-search/gwas/help.yaml gwas-search/gwas/studies.yaml
     ;;
   installed) python3 scripts/check_gwas_studies_installed.py ;;
   scans)
