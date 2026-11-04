@@ -2,6 +2,28 @@
 # Build once and run installed grammar cases selected from the runner's discovery.
 set -eu
 cd "$(dirname "$0")/.."
+case "${1:-focused}" in
+  scans)
+    mkdir -p target/usage-installed/scans/baseline
+    git archive 00b80ec46 crates/biomcp/src/grammar.rs crates/biomcp/src/grammar tests/cases/grammar | tar -xf - -C target/usage-installed/scans/baseline
+    python3 - <<'SCAN'
+import json
+from pathlib import Path
+import subprocess
+scanner = next(path.parent.parent / '.bin/jscpd'
+               for path in (Path.home() / '.npm/_npx').glob('*/node_modules/jscpd/package.json')
+               if json.loads(path.read_text())['version'] == '4.0.5')
+subprocess.run([str(scanner), '--version'], check=True)
+for label, root in [('baseline', Path('target/usage-installed/scans/baseline')), ('current', Path('.'))]:
+    for kind, paths, formats in [('product', ['crates/biomcp/src/grammar.rs', 'crates/biomcp/src/grammar'], 'rust'), ('tests', ['tests/cases/grammar'], 'yaml')]:
+        subprocess.run([str(scanner), *[str(root / path) for path in paths], '--format', formats,
+                        '--max-size', '10mb', '--reporters', 'json', '--output',
+                        str(Path('target/usage-installed/scans') / (label + '-' + kind))], check=True)
+SCAN
+    exit ;;
+  focused) ;;
+  *) echo 'usage: check_usage_tests.sh [focused|scans]' >&2; exit 2 ;;
+esac
 make check-cheap
 python3 - <<'PY'
 from pathlib import Path
