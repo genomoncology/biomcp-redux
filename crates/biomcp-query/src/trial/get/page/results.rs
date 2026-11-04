@@ -1,3 +1,4 @@
+//! Whole posted result rows share the existing immutable section paging.
 use super::{Snapshot, advance, continue_records, records, section};
 use crate::Outcome;
 use biodata::Text;
