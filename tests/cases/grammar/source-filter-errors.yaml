@@ -109,6 +109,53 @@
     {
       "run": [
         "search",
+        "pathway",
+        "--source",
+        "wikipathways",
+        "--gene",
+        "BRAF"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/option": "--gene",
+        "/error/valid_values": [
+          "reactome"
+        ],
+        "/next/0/args": [
+          "help",
+          "search",
+          "pathway"
+        ],
+        "/error/message": "a selected source does not support the requested filters"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "pathway",
+        "--source",
+        "reactome,wikipathways",
+        "--top-level"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/option": "--top-level",
+        "/error/valid_values": [
+          "reactome"
+        ],
+        "/next/0/args": [
+          "help",
+          "search",
+          "pathway"
+        ],
+        "/error/message": "a selected source does not support the requested filters"
+      }
+    },
+    {
+      "run": [
+        "search",
         "biomarker",
         "--source",
         "gtr",

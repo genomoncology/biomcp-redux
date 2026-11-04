@@ -85,6 +85,34 @@
         "/error/code": "usage.arguments",
         "/error/option": "--reviewed"
       }
+    },
+    {
+      "run": [
+        "search",
+        "trial",
+        "--offline",
+        "false"
+      ],
+      "expect": {
+        "/query": {
+          "omits": [
+            "query",
+            "has_results"
+          ]
+        },
+        "/sources/0/state": "ok",
+        "/page/total": 0
+      }
+    },
+    {
+      "run": [
+        "--offline",
+        "false",
+        "version",
+        "--verbose",
+        "false"
+      ],
+      "stdout": "biomcp 1.0.0\n"
     }
   ],
   "replay": "grammar/boolean-literals"

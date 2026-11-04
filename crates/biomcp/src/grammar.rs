@@ -9,6 +9,7 @@ mod metadata;
 mod tree;
 pub(crate) use tree::Root;
 mod validation;
+pub(crate) use arguments::boolean_argument;
 use arguments::command_for;
 mod gwas;
 mod local;
@@ -112,7 +113,7 @@ fn global_arguments() -> Command {
         );
     }
     for name in ["offline", "fresh"] {
-        root = root.arg(
+        root = root.arg(boolean_argument(
             Arg::new(name)
                 .long(name)
                 .help(if name == "offline" {
@@ -121,9 +122,8 @@ fn global_arguments() -> Command {
                     "Request fresh source data instead of cached replies."
                 })
                 .global(true)
-                .action(ArgAction::SetTrue)
                 .overrides_with(name),
-        );
+        ));
     }
     root
 }
@@ -175,7 +175,12 @@ fn scan_command_words<'a>(
         }
         let takes_value = argument.is_some_and(|arg| arg.get_action().takes_values());
         words.next();
-        if takes_value && !inline {
+        if !inline
+            && (takes_value
+                || argument.is_some_and(|argument| {
+                    arguments::boolean_value(argument, words.peek().copied())
+                }))
+        {
             words.next();
         }
     }
@@ -317,6 +322,7 @@ pub(crate) fn presentation(
 ) -> Option<(Option<Format>, Option<PathBuf>)> {
     let parser = root.clone().ignore_errors(true);
     let args = entry::arguments(args, &parser);
+    let args = arguments::boolean_literals(&args, &parser);
     let matches = parser
         .try_get_matches_from(std::iter::once(OsString::from("biomcp")).chain(args))
         .ok()?;

@@ -158,10 +158,7 @@ pub(super) fn source_filter(
     }
     let schema = super::validation::schema(verb, entity)?;
     let properties = schema.get("properties")?;
-    let source = value
-        .get("source")
-        .or_else(|| properties.get("source")?.get("default"))?
-        .as_str()?;
+    let selected = selected_sources(value, &schema)?;
     for name in cause
         .arguments()
         .iter()
@@ -178,12 +175,18 @@ pub(super) fn source_filter(
             continue;
         };
         let valid = accepting_sources(via, (verb, entity), value, &schema, name)?;
-        if valid.is_empty() || valid.iter().any(|candidate| candidate.as_str() == source) {
+        if valid.is_empty()
+            || selected
+                .iter()
+                .all(|source| valid.iter().any(|candidate| candidate.as_str() == *source))
+        {
             continue;
         }
         let equivalent = super::metadata::FILTER_EQUIVALENTS
             .iter()
-            .find(|(v, e, s, from, _)| (*v, *e, *s, *from) == (verb, entity, source, name));
+            .find(|(v, e, s, from, _)| {
+                (*v, *e, *from) == (verb, entity, name) && selected.as_slice() == [*s]
+            });
         let next = if let Some((_, _, _, _, replacement)) = equivalent {
             let mut corrected = value.clone();
             corrected.as_object_mut()?.remove(name);
@@ -207,6 +210,19 @@ pub(super) fn source_filter(
         });
     }
     None
+}
+
+fn selected_sources<'a>(
+    value: &'a serde_json::Value,
+    schema: &'a serde_json::Value,
+) -> Option<Vec<&'a str>> {
+    let source = value
+        .get("source")
+        .or_else(|| schema.get("properties")?.get("source")?.get("default"))?;
+    let values = source
+        .as_array()
+        .map_or_else(|| std::slice::from_ref(source), Vec::as_slice);
+    values.iter().map(serde_json::Value::as_str).collect()
 }
 
 fn accepting_sources(
@@ -239,7 +255,14 @@ fn accepts_filter(
     source: &str,
 ) -> Option<bool> {
     let mut isolated = value.as_object()?.clone();
-    isolated.insert("source".into(), source.into());
+    let source = if value.get("source").is_some_and(serde_json::Value::is_array)
+        || super::property_type(schema.get("properties")?.get("source")?) == Some("array")
+    {
+        serde_json::Value::Array(vec![source.into()])
+    } else {
+        source.into()
+    };
+    isolated.insert("source".into(), source);
     loop {
         let Err(cause) = super::rewrite::request(
             via,

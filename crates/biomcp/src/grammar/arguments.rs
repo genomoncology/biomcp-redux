@@ -2,6 +2,22 @@
 use super::{gwas, properties, property_type};
 use clap::{Arg, ArgAction, Command, builder::TypedValueParser};
 use serde_json::Value;
+/// Shared literal semantics for actual booleans; fixed-value enum switches opt out.
+pub(crate) fn boolean_argument(argument: Arg) -> Arg {
+    argument
+        .action(ArgAction::SetTrue)
+        .num_args(0..=1)
+        .require_equals(true)
+        .default_missing_value("true")
+        .value_parser(clap::value_parser!(bool))
+}
+
+pub(super) fn boolean_value(argument: &Arg, value: Option<&std::ffi::OsString>) -> bool {
+    argument.get_action() == &ArgAction::SetTrue
+        && argument.is_require_equals_set()
+        && value.is_some_and(|value| matches!(value.to_str(), Some("true" | "false")))
+}
+
 pub(super) fn command_for(
     name: &'static str,
     schema: &Value,
@@ -60,12 +76,7 @@ pub(super) fn command_for(
             };
         }
         command = command.arg(if property_type(property) == Some("boolean") {
-            argument
-                .action(ArgAction::SetTrue)
-                .num_args(0..=1)
-                .require_equals(true)
-                .default_missing_value("true")
-                .value_parser(clap::value_parser!(bool))
+            boolean_argument(argument)
         } else {
             value_argument(argument, property)
         });
@@ -172,18 +183,10 @@ pub(super) fn boolean_literals(
         if let Some(child) = command.find_subcommand(text) {
             command = child;
         }
-        let argument = text.strip_prefix("--").and_then(|name| {
-            command
-                .get_arguments()
-                .chain(root.get_arguments())
-                .find(|arg| arg.get_long() == Some(name))
-        });
-        if let Some(argument) = argument {
-            if argument.is_require_equals_set()
-                && words
-                    .peek()
-                    .is_some_and(|value| matches!(value.to_str(), Some("true" | "false")))
-            {
+        let argument =
+            super::entry::argument(command, text).or_else(|| super::entry::argument(root, text));
+        if let Some((argument, inline)) = argument {
+            if !inline && boolean_value(argument, words.peek().copied()) {
                 let value = words
                     .next()
                     .and_then(|value| value.to_str())
@@ -192,7 +195,8 @@ pub(super) fn boolean_literals(
                 continue;
             }
             result.push(word.clone());
-            if argument.get_action().takes_values()
+            if !inline
+                && argument.get_action().takes_values()
                 && !argument.is_require_equals_set()
                 && let Some(value) = words.next()
             {

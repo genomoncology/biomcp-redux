@@ -73,4 +73,5 @@ if not names:
 subprocess.run(['python3', 'scripts/trials.py', '--runner', runner,
                 '--executable', str(stage / 'biomcp'), '--installed', *names], check=True)
 subprocess.run(['python3', 'scripts/test_usage_requests.py', str(stage / 'biomcp'), str(stage)], check=True)
+subprocess.run(['make', 'docs-generate'], check=True)
 PY
