@@ -9,6 +9,7 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from release.artifacts import cargo
+from scripts.trials import run_selected
 
 
 def main():
@@ -38,12 +39,10 @@ def main():
           if row["case"].endswith(("grammar.yaml", "failure-500.yaml"))]}), flush=True)
     names = ["hgnc-first-snapshot-recovers"] if len(sys.argv) == 1 else sys.argv[1:]
     print(json.dumps({"free_bytes_before_proof": shutil.disk_usage(ROOT).free}), flush=True)
-    for name in names:
-        selection = (["--cases", str(installed / "fixtures/cases")]
-                     if name == "hgnc-trials-during-live-sync" else ["--proofs"])
-        subprocess.run([str(tool), *selection, "cache-resilience/" + name,
-                        "--exact", "--test-threads", "1"], cwd=installed,
-                       env=environment, check=True)
+    os.environ.update(environment)
+    run_selected([str(tool), "--cases", str(installed / "fixtures/cases")],
+                 installed, ["cache-resilience/" + name for name in names],
+                 prepare=lambda: None)
 
 
 
