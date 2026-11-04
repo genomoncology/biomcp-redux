@@ -28,11 +28,11 @@ def main():
         shutil.copy2(args.binary, binary)
         baseline = root / "baseline-biomcp"
         shutil.copy2(args.baseline, baseline)
-        env = environment(root)
-
         def run(program, name, command, expected=0):
-            result = subprocess.run([str(program), *command], cwd=root, env=env,
-                                    capture_output=True, timeout=60)
+            call_root = root / name
+            call_root.mkdir()
+            result = subprocess.run([str(program), *command], cwd=call_root,
+                                    env=environment(call_root), capture_output=True, timeout=60)
             (output / f"{name}.stdout.json").write_bytes(result.stdout)
             (output / f"{name}.stderr").write_bytes(result.stderr)
             if result.returncode != expected:
