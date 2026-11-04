@@ -7,6 +7,9 @@ import subprocess
 import sys
 import tarfile
 import zipfile
+import urllib.error
+import urllib.parse
+import urllib.request
 
 PROOFS = Path('target/drug-names-proof')
 ARCHIVE_SHA = 'c322e70ca7b9c3e5039740debf8575257d605d01f354261b28e121ac59eaf6f3'
@@ -70,5 +73,31 @@ def compare():
     print(json.dumps(report, indent=2))
 
 
+def witness():
+    destination = PROOFS / 'source-witness'
+    destination.mkdir(parents=True, exist_ok=True)
+    for suffix in ['.exact', '']:
+        selector = f'products.brand_name{suffix}:"imatinib" OR products.active_ingredients.name{suffix}:"imatinib"'
+        url = 'https://api.fda.gov/drug/drugsfda.json?' + urllib.parse.urlencode({'search': selector, 'limit': 50})
+        try:
+            with urllib.request.urlopen(url, timeout=30) as reply:
+                body, status = reply.read(), reply.status
+        except urllib.error.HTTPError as error:
+            body, status = error.read(), error.code
+        name = 'exact' if suffix else 'words'
+        (destination / f'{name}.json').write_bytes(body)
+        data = json.loads(body)
+        facts = [{'application': row.get('application_number'),
+                  'brands': [p.get('brand_name') for p in row.get('products', [])],
+                  'ingredients': [i.get('name') for p in row.get('products', []) for i in p.get('active_ingredients', [])],
+                  'openfda_names': {key: row.get('openfda', {}).get(key) for key in ['brand_name', 'generic_name', 'substance_name']}}
+                 for row in data.get('results', [])]
+        metadata = {'source': 'drugsfda', 'url': url, 'status': status,
+                    'source_commit': subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip(),
+                    'body_sha256': hashlib.sha256(body).hexdigest(), 'name_fields': facts}
+        (destination / f'{name}-metadata.json').write_text(json.dumps(metadata, indent=2) + '\n')
+        print(json.dumps(metadata, indent=2))
+
+
 if __name__ == '__main__':
-    {'extract': extract, 'compare': compare}[sys.argv[1]]()
+    {'extract': extract, 'compare': compare, 'witness': witness}[sys.argv[1]]()

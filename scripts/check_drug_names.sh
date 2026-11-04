@@ -11,6 +11,7 @@ case "${1:-focused}" in
     UPDATE_SCHEMAS=1 cargo test --locked -p biomcp-types --features schema --test schemas checked_in_schemas_match_types -- --exact
     git diff --binary > target/drug-names-prepare.patch
     ;;
+  witness) python3 scripts/drug_names_proof.py witness ;;
   parity)
     python3 scripts/drug_names_proof.py extract
     export BIOMCP_TEST_EXECUTABLE="$PWD/target/drug-names-proof/baseline-bin/biomcp"
