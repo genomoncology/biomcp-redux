@@ -65,7 +65,7 @@ pub fn search(
             }
             let date = row.prequalified_date();
             if (from.is_some() || to.is_some())
-                && !date.is_some_and(|date| {
+                && !date.is_ok_and(|date| {
                     let key = (
                         date.year(),
                         date.month().unwrap_or(1),

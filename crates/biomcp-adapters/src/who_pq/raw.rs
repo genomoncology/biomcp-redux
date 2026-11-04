@@ -40,13 +40,13 @@ impl Native {
         !needle.is_empty() && haystack.windows(needle.len()).any(|part| part == needle)
     }
     /// Parse only a complete native date; absent and unfamiliar cells stay absent for filtering.
-    pub(super) fn prequalified_date(&self) -> Option<biodata::PartialDate> {
+    pub(super) fn prequalified_date(&self) -> Result<biodata::PartialDate, ()> {
         let mut parts = self
             .date
             .split(|c: char| c.is_whitespace() || c == ',')
             .filter(|part| !part.is_empty());
-        let day = parts.next()?.parse().ok()?;
-        let month = match parts.next()? {
+        let day = parts.next().ok_or(())?.parse().map_err(|_| ())?;
+        let month = match parts.next().ok_or(())? {
             "Jan" => 1,
             "Feb" => 2,
             "Mar" => 3,
@@ -59,13 +59,13 @@ impl Native {
             "Oct" => 10,
             "Nov" => 11,
             "Dec" => 12,
-            _ => return None,
+            _ => return Err(()),
         };
-        let year = parts.next()?.parse().ok()?;
+        let year = parts.next().ok_or(())?.parse().map_err(|_| ())?;
         if parts.next().is_some() {
-            return None;
+            return Err(());
         }
-        biodata::PartialDate::new(year, Some(month), Some(day)).ok()
+        biodata::PartialDate::new(year, Some(month), Some(day)).map_err(|_| ())
     }
     pub(super) fn reference(&self) -> &biodata::Text {
         &self.reference
