@@ -126,7 +126,8 @@ def live():
             if result.returncode != 2 or value.get('next', [{}])[0].get('args') != expected:
                 raise ValueError('unresolved live name lost the exact next search command')
     binding = {'source_commit': subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip(),
-               'binary_sha256': hashlib.sha256(binary.read_bytes()).hexdigest(), 'replies': replies}
+               'binary_sha256': hashlib.sha256(binary.read_bytes()).hexdigest(),
+               'binary_source_commit': (PROOFS / 'source.txt').read_text().strip(), 'replies': replies}
     (destination / 'source-bindings.json').write_text(json.dumps(binding, indent=2) + '\n')
     print(json.dumps(binding, indent=2))
 
