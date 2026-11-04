@@ -5,6 +5,7 @@ use serde::{Deserialize, Serialize};
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct PdfText {
     /// Original FDA document URL.
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub url: biodata::Text,
     /// Native PDF pages when readable.
     #[serde(default, skip_serializing_if = "Option::is_none")]

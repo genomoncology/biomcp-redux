@@ -97,8 +97,7 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
                     cx,
                     query,
                     row,
-                    page.metadata.fetched,
-                    page.updated,
+                    (page.metadata.fetched, page.updated),
                     deadline,
                     &mut out,
                 ) {

@@ -28,38 +28,41 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
     } else {
         biomcp_adapters::fda_510k::search(&leg, q)
     };
-    let error = result.as_ref().err().copied();
-    if let Ok(page) = result {
-        let returned = page.items.len() as u32;
-        {
-            let found = page.total != 0;
-            crate::status::item(&mut out, found, false, false);
-        };
-        out.problems = page.problems;
-        next::candidates(&mut out, q, &page.items, cx.fresh);
-        if u64::from(q.offset()) + u64::from(returned) < page.total && returned > 0 {
-            next::push(
-                &mut out,
-                StepKind::Page,
-                &[q.source().source()],
-                Request::SearchDiagnostic(q.at_offset(q.offset() + returned)),
-                cx.fresh,
-            );
+    let error = match result {
+        Ok(page) => {
+            let returned = page.items.len() as u32;
+            {
+                let found = page.total != 0;
+                crate::status::item(&mut out, found, false, false);
+            };
+            out.problems = page.problems;
+            next::candidates(&mut out, q, &page.items, cx.fresh);
+            if u64::from(q.offset()) + u64::from(returned) < page.total && returned > 0 {
+                next::push(
+                    &mut out,
+                    StepKind::Page,
+                    &[q.source().source()],
+                    Request::SearchDiagnostic(q.at_offset(q.offset() + returned)),
+                    cx.fresh,
+                );
+            }
+            out.page = Some(PageInfo {
+                offset: q.offset(),
+                returned,
+                total: page.total,
+                pool: None,
+                truncated: None,
+            });
+            out.body = (DiagnosticPage {
+                items: page.items,
+                count_unit: Some(DiagnosticCountUnit::DeviceSubmissions),
+                distinct_id_total: None,
+            })
+            .with_query(q.clone());
+            None
         }
-        out.page = Some(PageInfo {
-            offset: q.offset(),
-            returned,
-            total: page.total,
-            pool: None,
-            truncated: None,
-        });
-        out.body = (DiagnosticPage {
-            items: page.items,
-            count_unit: Some(DiagnosticCountUnit::DeviceSubmissions),
-            distinct_id_total: None,
-        })
-        .with_query(q.clone());
-    }
+        Err(error) => Some(error),
+    };
     out.local = error.and_then(status::local);
     out.sources
         .push(status::source(source, leg.finish(), error));

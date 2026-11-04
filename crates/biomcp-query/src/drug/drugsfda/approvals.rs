@@ -9,11 +9,11 @@ pub(super) fn select(
     cx: &Ctx<'_>,
     query: &DrugGet,
     row: &source::Application,
-    fetched: Option<i64>,
-    updated: Option<biodata::PartialDate>,
+    metadata: (Option<i64>, Option<biodata::PartialDate>),
     deadline: biomcp_fetch::Deadline<'_>,
     out: &mut Outcome,
 ) -> Result<(), RequestError> {
+    let (fetched, updated) = metadata;
     let products: Box<[_]> = row
         .products()
         .into_vec()

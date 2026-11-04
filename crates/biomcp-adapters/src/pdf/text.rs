@@ -1,5 +1,5 @@
 //! FDA-published PDF text; article downloads retain their existing behavior.
-use biomcp_fetch::{Input, Leg, Read, RequestError, SourceSpec};
+use biomcp_fetch::{Leg, RequestError, SourceSpec};
 use biomcp_types::{PdfText, PdfTextState, Reason, Source};
 /// Maximum pages admitted before extracting text.
 pub const MAX_PAGES: usize = 100;
@@ -37,17 +37,15 @@ pub fn read(
         .as_str()
         .strip_prefix("http://www.accessdata.fda.gov/")
         .map(|path| format!("https://www.accessdata.fda.gov/{path}"));
-    let endpoint = spec
-        .download(https.as_deref().unwrap_or(url.as_str()))?
-        .bytes(super::MAX_BYTES);
-    let bytes = match leg.call(&endpoint, Input::Params(&[]), Read::bytes()) {
-        Ok(reply) => reply.value.0,
-        Err(RequestError::Source(source)) if source.reason == Reason::TooLarge => {
-            result.state = PdfTextState::TooLarge;
-            return Ok(result);
-        }
-        Err(error) => return Err(error),
-    };
+    let bytes =
+        match super::download::from_source(leg, spec, https.as_deref().unwrap_or(url.as_str())) {
+            Ok(bytes) => bytes,
+            Err(RequestError::Source(source)) if source.reason == Reason::TooLarge => {
+                result.state = PdfTextState::TooLarge;
+                return Ok(result);
+            }
+            Err(error) => return Err(error),
+        };
     if !bytes.starts_with(b"%PDF-") {
         return Err(error(spec.source, Reason::NotPdf));
     }

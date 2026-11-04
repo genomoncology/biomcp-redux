@@ -21,29 +21,32 @@ pub(super) fn get(cx: &Ctx<'_>, q: &DiagnosticGet) -> Outcome {
     let result = url
         .map_err(|_| biomcp_fetch::bad_reply(q.source().source(), None))
         .and_then(|url| pdf::read(&leg, &fda_pma::DOCUMENTS, &url, q.section_offset()));
-    let error = result.as_ref().err().copied();
-    if let Ok(document) = result {
-        let returned = u32::from(document.text.is_some());
-        let unavailable = document.state != PdfTextState::Text;
-        status::item(&mut out, true, false, unavailable);
-        out.page = Some(PageInfo {
-            offset: q.section_offset(),
-            returned,
-            total: document.total.into(),
-            pool: None,
-            truncated: None,
-        });
-        if returned > 0 && q.section_offset() + returned < document.total {
-            next::push(
-                &mut out,
-                StepKind::Page,
-                &[q.source().source()],
-                Request::GetDiagnostic(q.at_section_offset(q.section_offset() + returned)),
-                cx.fresh,
-            );
+    let error = match result {
+        Ok(document) => {
+            let returned = u32::from(document.text.is_some());
+            let unavailable = document.state != PdfTextState::Text;
+            status::item(&mut out, true, false, unavailable);
+            out.page = Some(PageInfo {
+                offset: q.section_offset(),
+                returned,
+                total: document.total.into(),
+                pool: None,
+                truncated: None,
+            });
+            if returned > 0 && q.section_offset() + returned < document.total {
+                next::push(
+                    &mut out,
+                    StepKind::Page,
+                    &[q.source().source()],
+                    Request::GetDiagnostic(q.at_section_offset(q.section_offset() + returned)),
+                    cx.fresh,
+                );
+            }
+            out.body = DiagnosticSummary { document }.with_query(q.clone());
+            None
         }
-        out.body = DiagnosticSummary { document }.with_query(q.clone());
-    }
+        Err(error) => Some(error),
+    };
     out.local = error.and_then(status::local);
     out.sources
         .push(status::source(q.source().source(), leg.finish(), error));

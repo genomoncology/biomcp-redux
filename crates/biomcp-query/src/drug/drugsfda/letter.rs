@@ -32,10 +32,10 @@ pub(super) fn select(
         .and_then(|s| s.application_docs.as_mut())
         .and_then(|docs| docs.first_mut())
         .ok_or_else(|| biomcp_fetch::bad_reply(Source::Drugsfda, Some(200)))?;
-    if !document
+    if document
         .r#type
         .as_ref()
-        .is_some_and(|kind| kind.as_str() == "Letter")
+        .is_none_or(|kind| kind.as_str() != "Letter")
     {
         return Err(biomcp_fetch::bad_reply(Source::Drugsfda, Some(200)));
     }
@@ -49,14 +49,13 @@ pub(super) fn select(
     let error = result.as_ref().err().copied();
     let report = status::source(Source::Drugsfda, leg.finish(), error);
     // Both requests belong to Drugs@FDA; keep one source outcome and the document failure.
-    if error.is_some() {
-        if let Some(source) = out
+    if error.is_some()
+        && let Some(source) = out
             .sources
             .iter_mut()
             .find(|source| source.source == Source::Drugsfda)
-        {
-            *source = report;
-        }
+    {
+        *source = report;
     }
     let text = result?;
     let returned = u32::from(text.text.is_some());
@@ -68,19 +67,20 @@ pub(super) fn select(
         pool: None,
         truncated: None,
     });
-    if returned > 0 && offset + returned < text.total {
-        if let Some(request) = crate::next::checked(
+    if returned > 0
+        && offset + returned < text.total
+        && let Some(request) = crate::next::checked(
             query.at_section_offset(offset + returned),
             Source::Drugsfda,
             &mut out.problems,
-        ) {
-            out.next.push(crate::next::Step::run(
-                StepKind::Page,
-                &[Source::Drugsfda],
-                Request::GetDrug(request),
-                cx.fresh,
-            ));
-        }
+        )
+    {
+        out.next.push(crate::next::Step::run(
+            StepKind::Page,
+            &[Source::Drugsfda],
+            Request::GetDrug(request),
+            cx.fresh,
+        ));
     }
     document.text = Some(text);
     Ok(Some(selected.into()))

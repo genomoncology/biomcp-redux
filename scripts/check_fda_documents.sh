@@ -9,6 +9,8 @@ case "${1:-focused}" in
     exec make check-cheap ;;
   routine) exec sh scripts/check_nightly_tests.sh routine ;;
   focused)
+    make schema-generate
+    make docs-generate
     make check-cheap
     python3 scripts/trials.py --target cases --list > target/fda-documents-trials.txt
     python3 scripts/trials.py --target cases --installed diagnostic/device-approvals diagnostic/fda-documents diagnostic/pdf-over-limit diagnostic/pdf-scanned-no-text diagnostic/pma diagnostic/help
