@@ -3,7 +3,7 @@ use crate::QueryInvalid;
 use biodata::Text;
 use serde::{Deserialize, Serialize};
 use super::CellLineSearch;
-use super::query::default_limit;
+use super::query::{check_search_limit, default_limit};
 /// One native cell line search with optional text, species and NCIt disease filters.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "CommandFields")]
@@ -38,9 +38,7 @@ crate::query::validation::checked_query!(CellLineSearchCommand, CommandFields);
 impl TryFrom<CommandFields> for CellLineSearchCommand {
     type Error = QueryInvalid;
     fn try_from(v: CommandFields) -> Result<Self, Self::Error> {
-        if !(1..=25).contains(&v.limit) {
-            return Err(QueryInvalid::new(&["limit"]));
-        }
+        check_search_limit(v.limit)?;
         if v.query.is_none() && v.species.is_none() && v.disease.is_none() {
             return Err(QueryInvalid::new(&["query", "species", "disease"]));
         }

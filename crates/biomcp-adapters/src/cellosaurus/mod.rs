@@ -65,7 +65,7 @@ pub fn literal(field: &str, value: &str) -> String {
         value.replace('\\', "\\\\").replace('"', "\\\"")
     )
 }
-/// Search one checked accession or unchanged literal name with its native window.
+/// Search literal text and native taxonomy/disease fields within one checked window.
 pub fn search(leg: &Leg<'_>, q: &CellLineSearchCommand) -> Result<Page, RequestError> {
     let accession = q.query().and_then(|v| v.as_str().parse::<CellosaurusAccession>().ok());
     let mut terms = Vec::new();
