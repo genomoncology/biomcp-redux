@@ -63,6 +63,14 @@ pub(super) fn render(verb: &str, entity: &str, schema: &Value) -> String {
         same.extend(other);
         format!("Sections=source: {}", same.join(";"))
     };
+    let prefix = format!("{verb} {entity} source records. ");
+    let input = input_description(schema);
+    let budget = 300_usize.saturating_sub(prefix.chars().count() + provenance.chars().count() + 2);
+    let input = input.chars().take(budget).collect::<String>();
+    format!("{prefix}{input} {provenance}.")
+}
+
+fn input_description(schema: &Value) -> String {
     let input = schema["properties"]
         .as_object()
         .into_iter()
@@ -74,15 +82,11 @@ pub(super) fn render(verb: &str, entity: &str, schema: &Value) -> String {
         .split(". ")
         .next()
         .unwrap_or_default();
-    let prefix = format!("{verb} {entity} source records. ");
-    let input = input
+    input
         .replace("identifiers", "IDs")
         .replace(" accession", "")
         .replace("reference-qualified ", "")
         .replace("VCF-style genomic coordinates", "VCF")
         .replace(", in input order", "")
-        .replace(", in caller order", "");
-    let budget = 300_usize.saturating_sub(prefix.chars().count() + provenance.chars().count() + 2);
-    let input = input.chars().take(budget).collect::<String>();
-    format!("{prefix}{input} {provenance}.")
+        .replace(", in caller order", "")
 }

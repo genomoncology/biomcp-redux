@@ -82,10 +82,10 @@ pub(super) fn input(schema: &Value) -> Value {
         .collect::<serde_json::Map<_, _>>();
     let mut result = json!({"$schema":super::super::protocol::SCHEMA_DIALECT,
         "type":"object", "properties":properties,"additionalProperties":false});
-    if let Some(required) = schema.get("required") {
-        if let Some(fields) = result.as_object_mut() {
-            fields.insert("required".into(), required.clone());
-        }
+    if let Some(required) = schema.get("required")
+        && let Some(fields) = result.as_object_mut()
+    {
+        fields.insert("required".into(), required.clone());
     }
     result
 }
