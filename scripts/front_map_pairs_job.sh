@@ -12,6 +12,10 @@ case "${1:-focused}" in
         cargo test --locked -p biomcp --test ratchets -- --list > target/front-map-pairs/trials.txt
         cargo test --locked -p biomcp --test ratchets front_map::tests::
         python3 scripts/check_front_map.py "${CARGO_TARGET_DIR:-target}/debug/biomcp" --revision "$(git rev-parse HEAD)" --output target/front-map-pairs/installed
+        cargo test --locked -p biomcp --test cases -- --list > target/front-map-pairs/case-trials.txt
+        export BIOMCP_TRANSCRIPT_DIR="$PWD/target/front-map-pairs/affected-transcripts"
+        export BIOMCP_EVIDENCE_DIR="$PWD/target/front-map-pairs/affected-fixtures"
+        sh scripts/check_study_rows.sh focused trial-results/posted-values-and-event-pages trial-results/no-posted-results study-rows/study/rows.yaml
         ;;
     scans)
         python3 - "$2" <<'PY'

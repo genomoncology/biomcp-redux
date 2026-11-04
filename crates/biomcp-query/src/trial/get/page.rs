@@ -1,5 +1,6 @@
 mod eligibility;
 mod publications;
+mod results;
 mod sites;
 use super::Snapshot;
 use crate::Outcome;
@@ -10,6 +11,7 @@ use biomcp_types::{
     Request, Section, Source, SourceRecord, StepKind, TrialArmRecord, TrialCardItem,
     TrialEligibilityPage, TrialGet, TrialRecords, TrialSection, TrialSections,
 };
+
 pub(super) fn valid(query: &TrialGet, snapshot: &Snapshot) -> bool {
     let d = &snapshot.detail;
     let total = match query.sections().first() {
@@ -19,6 +21,7 @@ pub(super) fn valid(query: &TrialGet, snapshot: &Snapshot) -> bool {
             .and_then(|e| e.criteria.as_ref())
             .map_or(0, |s| s.as_str().chars().count()),
         Some(TrialSection::Outcomes) => d.outcomes.len(),
+        Some(TrialSection::Results) => d.results.len(),
         Some(TrialSection::Arms) => d.arms.len() + d.interventions.len(),
         Some(TrialSection::References) => d.references.len(),
         Some(TrialSection::Documents) => d.documents.len(),
@@ -42,6 +45,7 @@ pub(super) fn render(
     if requested(TrialSection::Eligibility) {
         sections.eligibility = Some(eligibility(query, &snapshot, pool.as_ref(), out));
     }
+    results::render(query, &snapshot, pool.as_ref(), &mut sections, out)?;
     records_sections(query, &snapshot, pool.as_ref(), &mut sections, out)?;
     sites::render(query, &snapshot, pool.as_ref(), &mut sections, out)?;
     publications::render(query, &snapshot, pool.as_ref(), &mut sections, out)?;
@@ -72,7 +76,10 @@ pub(super) fn render(
         } else {
             crate::status::item_status(true, false, false)
         },
-        card: Some(snapshot.detail.card),
+        card: Some(biomcp_types::TrialPostedCard {
+            protocol: snapshot.detail.card,
+            results_first_posted: snapshot.detail.results_first_posted,
+        }),
         fetched: snapshot.fetched,
         sections: (!query.sections().is_empty()).then_some(sections),
         more: biomcp_types::TrialSource::Ctgov
