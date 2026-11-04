@@ -72,6 +72,10 @@ fn requests_reject_bad_bounds_and_identities_before_io() {
     for v in [
         json!({}),
         json!({"query":""}),
+        json!({"species":null}),
+        json!({"disease":null}),
+        json!({"species":""}),
+        json!({"disease":""}),
         json!({"query":"x","limit":0}),
         json!({"query":"x","limit":26}),
         json!({"query":"x","offset":-1}),

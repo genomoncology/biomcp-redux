@@ -33,6 +33,18 @@
             "9606",
             "9606"
           ]
+        },
+        "/next/*/args/*": {
+          "includes_all_of": [
+            "--species",
+            "Homo sapiens",
+            "--disease",
+            "Melanoma",
+            "--offset"
+          ]
+        },
+        "/result/items/*/name": {
+          "excludes": "B16"
         }
       },
       "max_bytes": 9000
