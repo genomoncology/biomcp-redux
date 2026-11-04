@@ -10,7 +10,7 @@ case "${1:-focused}" in
     ;;
   evidence)
     sh "$0" scans "$2"
-    sh "$0" live "$3"
+    sh "$0" proof "$3"
     ;;
   scans)
     baseline=${2:?scans requires baseline commit}
@@ -24,7 +24,10 @@ case "${1:-focused}" in
         --format rust --max-size 10mb --reporters json --output "target/0606-scans/$side"
     done
     cargo clippy --locked -p biomcp-types -p biomcp-adapters --all-targets --features biomcp-types/schema -- -D warnings
-    ruff check --select F401,F841,ERA,BLE,E722,S110 scripts/maude_dates_proof.py
+    ;;
+  proof)
+    uvx --offline --from ruff==0.17.2 ruff check --select F401,F841,ERA,BLE,E722,S110 scripts/maude_dates_proof.py
+    sh "$0" live "$2"
     ;;
   live)
     python3.13 scripts/maude_dates_proof.py "${CARGO_TARGET_DIR:-target}/debug/biomcp" "$2" "target/0606-live"
