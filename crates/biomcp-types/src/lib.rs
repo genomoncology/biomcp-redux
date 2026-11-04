@@ -270,11 +270,11 @@ pub use response::{Reply, ReplyBody, ReplyData};
 mod coverage;
 pub use coverage::command_implicit_sources;
 
+#[cfg(feature = "schema")]
+pub use adverse_event::AdverseEventSearchCommand;
 pub use response::{
     TrialAdverseEvents, TrialEvent, TrialEventGroup, TrialEventStats, TrialPostedCard,
     TrialPostedOutcome, TrialResultAnalysis, TrialResultCategory, TrialResultClass,
     TrialResultCount, TrialResultDenominator, TrialResultGroup, TrialResultMeasurement,
     TrialResultRecord,
 };
-#[cfg(feature = "schema")]
-pub use adverse_event::AdverseEventSearchCommand;
