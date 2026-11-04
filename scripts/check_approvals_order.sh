@@ -30,8 +30,12 @@ RUNNER
     binary="${CARGO_TARGET_DIR:-target}/debug/biomcp"
     BIOMCP_TRANSCRIPT_DIR="$output/transcripts" python3.13 scripts/trials.py --installed --runner "$runner" --executable "$binary" drug-approvals/newest-submission-pages drug-approvals/undated-and-numeric-ties
     ;;
+  review)
+    sh scripts/check_trial_results.sh scans "${2:?review requires the explicit reviewed baseline commit}"
+    make check-cheap
+    ;;
   cheap)
     make check-cheap
     ;;
-  *) echo 'usage: check_approvals_order.sh [prepare|focused|cheap]' >&2; exit 2 ;;
+  *) echo 'usage: check_approvals_order.sh [prepare|focused|review BASE_COMMIT|cheap]' >&2; exit 2 ;;
 esac
