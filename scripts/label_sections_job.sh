@@ -45,6 +45,11 @@ case "${1:-focused}" in
     done
     ;;
   section-lint) cargo clippy --locked -p biomcp-query --lib -- -D warnings ;;
-  routine) make landing-gate ;;
+  verify)
+    shift
+    sh "$0" installed "$@"
+    sh scripts/check_nightly_tests.sh routine
+    ;;
+  routine) exec sh scripts/check_nightly_tests.sh routine ;;
   *) exit 2 ;;
 esac
