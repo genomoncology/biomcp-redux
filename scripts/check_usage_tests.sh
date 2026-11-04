@@ -21,6 +21,18 @@ for label, root in [('baseline', Path('target/usage-installed/scans/baseline')),
                         str(Path('target/usage-installed/scans') / (label + '-' + kind))], check=True)
 SCAN
     exit ;;
+  cases)
+    runner=${2:?cases requires the prepared runner}
+    binary=${3:?cases requires the installed binary}
+    python3 scripts/trials.py --runner "$runner" --executable "$binary" --installed \
+      query-validation/grammar/boolean-literals.yaml \
+      query-validation/grammar/semantic-arguments.yaml \
+      query-validation/grammar/source-filter-errors.yaml \
+      query-validation/grammar/usage-bad-enum.yaml \
+      query-validation/grammar/usage-bad-typed-id.yaml \
+      query-validation/grammar/usage-missing-option.yaml \
+      query-validation/grammar/usage-unknown-option.yaml
+    exec python3 scripts/test_usage_requests.py "$binary" target/usage-installed ;;
   focused) ;;
   *) echo 'usage: check_usage_tests.sh [focused|scans]' >&2; exit 2 ;;
 esac
