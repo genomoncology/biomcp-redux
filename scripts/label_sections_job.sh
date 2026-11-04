@@ -4,7 +4,14 @@ cd "$(dirname "$0")/.."
 export RUSTUP_TOOLCHAIN=1.95.0
 export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"
 case "${1:-focused}" in
-  generate) cargo fmt --all; make schema-generate docs-generate ;;
+  generate)
+    cargo fmt --all
+    make schema-generate docs-generate
+    mkdir -p target
+    git diff --binary > target/0608-generated.patch
+    git status --short
+    sh "$0" list
+    ;;
   build-cases)
     mkdir -p target
     cargo test --locked -p biomcp --test cases --no-run --message-format=json > target/0608-cargo.json
