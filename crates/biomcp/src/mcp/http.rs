@@ -351,15 +351,13 @@ impl Service {
                 },
                 true,
             ) {
-                Ok(outcome) => super::typed::summarize(
-                    super::protocol::tool_result(
-                        id,
-                        &outcome,
-                        modern,
-                        crate::config::tool_reply_form(&self.globals, &self.settings),
-                    ),
+                Ok(outcome) => super::typed::tool_result(
+                    id,
+                    &outcome,
+                    modern,
+                    &self.globals,
+                    &self.settings,
                     &self.root,
-                    crate::config::mcp_tool_mode(&self.globals, &self.settings),
                     &call.args,
                 ),
                 Err(_) => super::protocol::error(id, -32603, "Internal error"),

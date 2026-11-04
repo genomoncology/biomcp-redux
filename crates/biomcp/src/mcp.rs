@@ -241,15 +241,13 @@ impl Server {
             return Ok(None);
         }
         Ok(Some(match outcome {
-            Ok(outcome) => typed::summarize(
-                protocol::tool_result(
-                    call.id,
-                    &outcome,
-                    call.modern,
-                    crate::config::tool_reply_form(&self.globals, &self.settings),
-                ),
+            Ok(outcome) => typed::tool_result(
+                call.id,
+                &outcome,
+                call.modern,
+                &self.globals,
+                &self.settings,
                 &self.root,
-                crate::config::mcp_tool_mode(&self.globals, &self.settings),
                 &call.args,
             ),
             Err(_) => protocol::error(call.id, -32603, "Internal error"),

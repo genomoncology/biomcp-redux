@@ -3,7 +3,30 @@ mod arguments;
 mod description;
 mod summary;
 mod validation;
-pub(super) fn summarize(
+pub(super) fn tool_result(
+    id: Value,
+    outcome: &crate::command::Outcome,
+    modern: bool,
+    globals: &crate::grammar::Globals,
+    settings: &crate::config::Settings,
+    root: &crate::grammar::Root,
+    args: &[std::ffi::OsString],
+) -> Value {
+    let reply = super::protocol::tool_result(
+        id,
+        outcome,
+        modern,
+        crate::config::tool_reply_form(globals, settings),
+    );
+    summarize(
+        reply,
+        root,
+        crate::config::mcp_tool_mode(globals, settings),
+        args,
+    )
+}
+
+fn summarize(
     mut reply: Value,
     root: &crate::grammar::Root,
     mode: crate::config::ToolMode,
