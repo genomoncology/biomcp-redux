@@ -37,9 +37,9 @@ def outputs(directory):
 def compare():
     baseline = outputs(ROOT / 'baseline-transcripts')
     current = outputs(ROOT / 'transcripts')
-    assert len(baseline) == len(current) == 3
+    assert len(baseline) == len(current) == 4
     assert baseline == current, 'Installed JSON output changed'
-    print('Three installed JSON replies are byte-identical to the source-bound retained baseline.')
+    print('Four installed JSON replies are byte-identical to the source-bound retained baseline.')
 
 
 def scans():

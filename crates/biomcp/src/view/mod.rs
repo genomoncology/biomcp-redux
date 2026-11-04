@@ -152,7 +152,7 @@ impl View<'_> {
             && !contains_markdown(item_schema, self.root)
         {
             for item in items {
-                state_note(item, out);
+                table_notes(item, out);
             }
             table(
                 items,
@@ -169,6 +169,15 @@ impl View<'_> {
                 }
             }
             out.push('\n');
+        }
+    }
+}
+// Tables flatten nested objects, so visit their source states before flattening.
+fn table_notes(value: &Value, out: &mut String) {
+    state_note(value, out);
+    if let Some(fields) = value.as_object() {
+        for field in fields.values().filter(|field| field.is_object()) {
+            table_notes(field, out);
         }
     }
 }
