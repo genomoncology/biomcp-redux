@@ -212,22 +212,18 @@
         "2020-07"
       ],
       "expect": {
-        "/page/total": 6,
+        "/page/total": 4,
         "/result/items/*/reference": [
           "BT-ON002",
           "BT-ON003",
-          "BT-ON008",
           "BT-ON009",
-          "BT-ON010",
-          "BT-ON016"
+          "BT-ON010"
         ],
         "/result/items/*/date_of_prequalification": [
           "14  Jul,  2020",
           "14  Jul,  2020",
-          "11  Jun,  2020",
           "31  Jul,  2020",
-          "31  Jul,  2020",
-          "21  Dec,  2020"
+          "31  Jul,  2020"
         ]
       },
       "max_bytes": 40000
@@ -245,22 +241,14 @@
         "2020-07-14"
       ],
       "expect": {
-        "/page/total": 6,
+        "/page/total": 2,
         "/result/items/*/reference": [
           "BT-ON002",
-          "BT-ON003",
-          "BT-ON008",
-          "BT-ON009",
-          "BT-ON010",
-          "BT-ON016"
+          "BT-ON003"
         ],
         "/result/items/*/date_of_prequalification": [
           "14  Jul,  2020",
-          "14  Jul,  2020",
-          "11  Jun,  2020",
-          "31  Jul,  2020",
-          "31  Jul,  2020",
-          "21  Dec,  2020"
+          "14  Jul,  2020"
         ]
       },
       "max_bytes": 40000
