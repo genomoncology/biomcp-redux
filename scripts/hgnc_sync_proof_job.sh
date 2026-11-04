@@ -8,9 +8,11 @@ mkdir -p "$out"
 git rev-parse HEAD > "$out/source.txt"
 case "${1:-focused}" in
     focused)
+        python3 scripts/trials.py --target tools --installed \
+            --executable /tmp/biomcp-0596-proof/biomcp \
+            cache-resilience/hgnc-trials-during-live-sync
         python3 scripts/trials.py --target tools --proofs --installed \
             --executable /tmp/biomcp-0596-proof/biomcp \
-            cache-resilience/hgnc-trials-during-live-sync \
             cache-resilience/hgnc-trials-after-killed-sync \
             cache-resilience/hgnc-first-snapshot-recovers \
             cache-resilience/hgnc-first-snapshot-wait-is-bounded
