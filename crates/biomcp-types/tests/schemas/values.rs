@@ -430,7 +430,7 @@ fn generated_metadata_preserves_partial_dates_and_describes_error_codes() {
     assert!(date.get("format").is_none());
     let full_dates = generate::<biomcp_types::AdverseEventSearch>();
     for field in ["received_from", "received_to"] {
-        assert_eq!(full_dates["properties"][field]["format"], "date");
+        assert!(full_dates["properties"][field].get("format").is_none());
     }
     let timestamp = generate::<biodata::StudyImportTime>();
     assert!(

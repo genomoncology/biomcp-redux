@@ -8,8 +8,20 @@ fn default_source() -> AdverseEventSource {
 fn default_limit() -> u32 {
     5
 }
-fn full_day(date: Option<PartialDate>) -> bool {
-    date.is_none_or(|d| d.day().is_some())
+fn receipt_day(date: Option<PartialDate>, upper: bool) -> Result<Option<PartialDate>, ()> {
+    date.map(|date| {
+        let month = date.month().ok_or(())?;
+        let day = date.day().unwrap_or_else(|| {
+            if upper {
+                (28..=31).rev().find(|day| {
+                    PartialDate::new(date.year(), Some(month), Some(*day)).is_ok()
+                }).unwrap_or(28)
+            } else {
+                1
+            }
+        });
+        PartialDate::new(date.year(), Some(month), Some(day)).map_err(|_| ())
+    }).transpose()
 }
 #[doc = " Search five report headers by default. MAUDE accepts device text or a manufacturer, \
     product-code or problem filter. One report may list several devices; filters may match \
@@ -62,13 +74,11 @@ struct SearchFields {
     /// FAERS report flag: any uses the source seriousness flag; the specific flags can overlap. Never a reaction outcome.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     serious: Option<AdverseEventSerious>,
-    /// Inclusive first FDA receipt lower bound, YYYY-MM-DD.
+    /// Inclusive FAERS or MAUDE FDA receipt lower bound, YYYY-MM-DD or YYYY-MM; a month starts on its first day.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    #[cfg_attr(feature = "schema", schemars(extend("format" = "date")))]
     received_from: Option<PartialDate>,
-    /// Inclusive first FDA receipt upper bound, YYYY-MM-DD.
+    /// Inclusive FAERS or MAUDE FDA receipt upper bound, YYYY-MM-DD or YYYY-MM; a month ends on its last day.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    #[cfg_attr(feature = "schema", schemars(extend("format" = "date")))]
     received_to: Option<PartialDate>,
     /// Native report headers or VAERS rows per page; default five.
     #[serde(default = "default_limit")]
@@ -81,7 +91,7 @@ struct SearchFields {
 crate::query::validation::checked_query!(AdverseEventSearch, SearchFields);
 impl TryFrom<SearchFields> for AdverseEventSearch {
     type Error = QueryInvalid;
-    fn try_from(v: SearchFields) -> Result<Self, Self::Error> {
+    fn try_from(mut v: SearchFields) -> Result<Self, Self::Error> {
         let maude_filter =
             v.manufacturer.is_some() || !v.product_code.is_empty() || v.problem.is_some();
         if v.source != AdverseEventSource::Maude && maude_filter {
@@ -103,12 +113,10 @@ impl TryFrom<SearchFields> for AdverseEventSearch {
         if !(1..=50).contains(&v.limit) {
             return Err(QueryInvalid::new(&["limit"]));
         }
-        if !full_day(v.received_from) {
-            return Err(QueryInvalid::new(&["received_from"]));
-        }
-        if !full_day(v.received_to) {
-            return Err(QueryInvalid::new(&["received_to"]));
-        }
+        v.received_from = receipt_day(v.received_from, false)
+            .map_err(|()| QueryInvalid::new(&["received_from"]))?;
+        v.received_to = receipt_day(v.received_to, true)
+            .map_err(|()| QueryInvalid::new(&["received_to"]))?;
         if v.received_from
             .zip(v.received_to)
             .is_some_and(|(a, b)| a.to_string() > b.to_string())
@@ -127,10 +135,7 @@ impl TryFrom<SearchFields> for AdverseEventSearch {
             return Err(QueryInvalid::new(&["source", "text"]));
         }
         if v.source != AdverseEventSource::Faers
-            && (v.reaction.is_some()
-                || v.serious.is_some()
-                || v.received_from.is_some()
-                || v.received_to.is_some())
+            && (v.reaction.is_some() || v.serious.is_some())
         {
             return Err(QueryInvalid::new(&[
                 "source",
@@ -139,6 +144,11 @@ impl TryFrom<SearchFields> for AdverseEventSearch {
                 "received_from",
                 "received_to",
             ]));
+        }
+        if v.source == AdverseEventSource::Vaers
+            && (v.received_from.is_some() || v.received_to.is_some())
+        {
+            return Err(QueryInvalid::new(&["source", "received_from", "received_to"]));
         }
         Ok(Self(v))
     }
