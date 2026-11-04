@@ -34,6 +34,23 @@ PYHASH
         export BIOMCP_TRANSCRIPT_DIR="$proofs/green/transcripts"
         export BIOMCP_EVIDENCE_DIR="$proofs/green/fixtures"
         python3 scripts/trials.py --installed corporate-network/additive-ca-tls-and-proxy-isolation
+        mkdir -p "$proofs/installed/bin"
+        cp "${CARGO_TARGET_DIR:-target}/debug/biomcp" "$proofs/installed/bin/biomcp"
+        python3 - "$proofs" <<'PYBIND'
+import hashlib
+import json
+from pathlib import Path
+import subprocess
+import sys
+root = Path(sys.argv[1])
+sha = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
+files = subprocess.check_output(["git", "diff", "--name-only", "974d11223", "HEAD"], text=True).splitlines()
+binding = {"source_commit": sha, "binary_source_commit": sha,
+           "binary_sha256": hashlib.sha256((root / "installed/bin/biomcp").read_bytes()).hexdigest(),
+           "files": {p: hashlib.sha256(Path(p).read_bytes()).hexdigest() for p in files}}
+(root / "source-bindings.json").write_text(json.dumps(binding, indent=2) + "\n")
+print("Installed binary SHA-256:", binding["binary_sha256"])
+PYBIND
         ;;
     scan)
         python3 - "$proofs" <<'PYSCAN'
@@ -64,6 +81,11 @@ for kind, paths in (("product", product), ("tests", tests)):
                         "--max-size", "10mb", "--reporters", "json", "--output",
                         proofs / ("jscpd-" + label + kind)], check=True)
 PYSCAN
+        ;;
+    final)
+        sh "$0" focused
+        sh "$0" scan
+        sh "$0" gate
         ;;
     gate)
         python3 --version
