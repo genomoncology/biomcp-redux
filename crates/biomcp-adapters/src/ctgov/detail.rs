@@ -1,6 +1,7 @@
 //! One registry record request with a typed protocol projection, checked against its requested identity before caching.
 use biomcp_fetch::{Input, Read};
 mod dates;
+mod results;
 mod publications;
 mod sites;
 use crate::{mapped::Problems, raw::Field};
@@ -38,6 +39,12 @@ pub struct Detail {
     pub arms: Box<[TrialArm]>,
     /// Whole source intervention rows.
     pub interventions: Box<[TrialIntervention]>,
+    /// Posted native results in source order.
+    #[serde(default)]
+    pub results: Box<[biomcp_types::TrialResultRecord]>,
+    /// Results first publicly posted date from the protocol status.
+    #[serde(default)]
+    pub results_first_posted: Option<biodata::PartialDate>,
     /// Actual refused native records, including refused document manifest records.
     #[serde(default = "super::refusals::none", with = "super::refusals")]
     pub refusals: crate::Refusal,
@@ -74,6 +81,8 @@ pub fn get(leg: &Leg<'_>, id: NctId) -> Result<(Detail, ReplyMetadata), RequestE
         .map_or_else(Box::default, |d| {
             d.mapped(id, &mut problems, &mut detail.document_refusals)
         });
+    detail.results = problems.field("resultsSection", raw.results_section)
+        .map_or_else(Box::default, |r| r.rows(&mut problems, &mut detail.refusals));
     detail.refusals.include(detail.document_refusals);
     detail.problems = problems.list;
     Ok((detail, metadata))
@@ -83,6 +92,7 @@ pub fn get(leg: &Leg<'_>, id: NctId) -> Result<(Detail, ReplyMetadata), RequestE
 struct Study {
     protocol_section: Protocol,
     document_section: Option<Field<publications::Documents>>,
+    results_section: Option<Field<results::Results>>,
 }
 impl Reply for Study {
     fn check(&self) -> Result<(), BadReply> {
@@ -114,6 +124,7 @@ struct Identification {
 #[serde(rename_all = "camelCase")]
 struct Status {
     overall_status: Option<Field<TrialStatus>>,
+    results_first_post_date_struct: Option<Field<RawDate>>,
     last_update_post_date_struct: Option<Field<RawDate>>,
     start_date_struct: Option<Field<RawDate>>,
     primary_completion_date_struct: Option<Field<RawDate>>,
@@ -223,8 +234,11 @@ impl Protocol {
                 || (Box::default(), Box::default(), Box::default()),
                 |sites| sites.rows(&mut problems, &mut refusals),
             );
-        let card = self.card(&interventions, &mut problems);
+        let mut results_first_posted = None;
+        let card = self.card(&interventions, &mut problems, &mut results_first_posted);
         Detail {
+            results: Box::default(),
+            results_first_posted,
             references: problems
                 .field("referencesModule", self.references_module)
                 .map_or_else(Box::default, |r| r.rows(&mut problems, &mut refusals)),
@@ -246,10 +260,11 @@ impl Protocol {
             document_refusals: crate::Refusal::None,
         }
     }
-    fn card(&mut self, interventions: &[TrialIntervention], problems: &mut Problems) -> TrialCard {
+    fn card(&mut self, interventions: &[TrialIntervention], problems: &mut Problems, results_first_posted: &mut Option<biodata::PartialDate>) -> TrialCard {
         let status = problems
             .field("statusModule", self.status_module.take())
             .unwrap_or_default();
+        *results_first_posted = RawDate::field("resultsFirstPostDateStruct", status.results_first_post_date_struct, problems).map(|d| d.date);
         let design = problems
             .field("designModule", self.design_module.take())
             .unwrap_or_default();

@@ -270,3 +270,5 @@ pub use response::{Reply, ReplyBody, ReplyData};
 
 mod coverage;
 pub use coverage::command_implicit_sources;
+
+pub use response::{TrialPostedOutcome, TrialResultGroup, TrialResultDenominator, TrialResultCount, TrialResultClass, TrialResultCategory, TrialResultMeasurement, TrialResultAnalysis, TrialAdverseEvents, TrialEventGroup, TrialEvent, TrialEventStats , TrialPostedCard, TrialResultRecord};
