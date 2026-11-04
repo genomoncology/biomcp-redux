@@ -45,16 +45,22 @@ def native_replies(directory):
         record = json.loads(path.read_text())
         if 'drug/name-get' in record.get('key', ''):
             continue
-        rows = []
         for execution in record.get('executions', []):
             if not isinstance(execution, dict):
                 continue
             args = execution.get('args', [])
-            if execution.get('surface') == 'cli' and any(args[i:i + 2] == ['get', 'drug'] for i in range(len(args) - 1)):
-                rows.append((execution['exit'], bytes(execution['stdout'])))
-        if rows:
-            replies[path.name] = rows
-    return replies
+            if execution.get('surface') != 'cli' or not any(args[i:i + 2] == ['get', 'drug'] for i in range(len(args) - 1)):
+                continue
+            key = record['key']
+            if key.startswith('trial/'):
+                # The recorded-next-step trial owns replay folders outside the child home.
+                normalized = [arg.replace(execution['root'], '<root>').replace(execution['checkout'], '<checkout>') for arg in args]
+                for index, arg in enumerate(normalized[:-1]):
+                    if arg in ['--replay', '--record', '--case-cache']:
+                        normalized[index + 1] = '<runtime-path>'
+                key = key.rsplit('/', 2)[0] + '/' + json.dumps(normalized)
+            replies.setdefault(key, []).append((execution.get('sequence_start', 0), execution['exit'], bytes(execution['stdout'])))
+    return {key: [(exit_code, stdout) for _, exit_code, stdout in sorted(rows)] for key, rows in replies.items()}
 
 
 def compare():
@@ -110,13 +116,13 @@ def live():
     from release.smoke import environment
     child_environment = environment(destination)
     binary = Path('target/drug-names-installed/bin/biomcp').resolve()
-    common = [str(binary), '--config', str(config), '--record', str(destination / 'recordings'), '--fresh']
+    common = [str(binary), '--config', str(config), '--fresh']
     replies = []
     for index, name in enumerate(['imatinib', 'Gleevec', 'imatinib mesylate', 'no such medicine anywhere']):
         args = ['get', 'drug', name, 'approvals', '--section-limit', '1']
         if name == 'Gleevec':
             args += ['--source', 'drugsfda']
-        result = subprocess.run([*common, *args], env=child_environment, capture_output=True, check=False)
+        result = subprocess.run([*common, '--record', str(destination / f'recordings-{index}'), *args], env=child_environment, capture_output=True, check=False)
         (destination / f'{index}-stdout.json').write_bytes(result.stdout)
         (destination / f'{index}-stderr.txt').write_bytes(result.stderr)
         value = json.loads(result.stdout)
