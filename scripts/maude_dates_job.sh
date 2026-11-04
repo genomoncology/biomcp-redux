@@ -33,8 +33,11 @@ case "${1:-focused}" in
     cargo test --locked -p biomcp-types --features schema --test adverse_event_contracts
     cargo test --locked -p biomcp-types --features schema --test schemas
     make current-schema-check schema-release-check
+    cargo build --locked -p biomcp --bin biomcp
     shift
-    python3.13 scripts/trials.py --target cases --installed "$@"
+    runner=${1:?focused requires the discovered case runner}
+    shift
+    python3.13 scripts/trials.py --target cases --runner "$runner" --executable "${CARGO_TARGET_DIR:-target}/debug/biomcp" --installed "$@"
     ;;
   *) exit 2 ;;
 esac
