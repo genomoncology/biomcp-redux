@@ -87,14 +87,13 @@ class FocusedCommand(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             directory = Path(temporary)
             runner = directory / 'runner'
-            runner.write_text(RUNNER)
+            runner.write_text(RUNNER.replace('#!/usr/bin/env python3', '#!' + sys.executable, 1))
             runner.chmod(0o755)
             command = [sys.executable, str(ROOT / 'scripts/trials.py'),
                        '--runner', str(runner), '--executable', str(runner), '--installed']
             environment = dict(os.environ, PATH=str(directory),
                                TRIAL_CATALOG='markdown-view/view-empty/empty-section.yaml: test')
-            # The prebuilt runner needs Python, but no Cargo is available.
-            environment['PATH'] += os.pathsep + str(Path(sys.executable).parent)
+            # Only the runner's absolute Python interpreter is available; no Cargo.
             for path in ['view-empty/empty-section.yaml', 'view-empty/empty-section',
                          'unknown.yaml']:
                 with self.subTest(path=path):
