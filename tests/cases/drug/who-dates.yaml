@@ -1,5 +1,5 @@
 {
-  "live_check": "WHO finished-product CSV observed 2026-11-04; complete unedited export retained",
+  "live_check": "public",
   "feature": "drug-who-medicines",
   "story": "WHO date-only ranges include every 2020 product newest first; names and inclusive year, month and day bounds filter the same local bundle, retaining native date cells.",
   "replay": "drug/who-dates",
@@ -284,5 +284,6 @@
       "max_bytes": 40000,
       "exit": 2
     }
-  ]
+  ],
+  "verified": "Complete unedited finished-product CSV captured from https://extranet.who.int/prequal/medicines/prequalified/finished-pharmaceutical-products/export?page&_format=csv on 2026-11-04; expected 2020 products and native date cells projected from that capture."
 }
