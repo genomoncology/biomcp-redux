@@ -65,7 +65,7 @@ def compare():
         raise ValueError(f'native-ID replies changed: {changed}')
     revision = subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip()
     binary = Path('target/drug-names-installed/bin/biomcp')
-    report = {'source_commit': revision, 'binary_source_commit': revision,
+    report = {'source_commit': revision, 'binary_source_commit': (PROOFS / 'source.txt').read_text().strip(),
               'binary_sha256': hashlib.sha256(binary.read_bytes()).hexdigest(),
               'baseline_source': BASELINE_SOURCE, 'baseline_binary_sha256': BASELINE_BINARY_SHA,
               'native_get_reply_count': sum(map(len, baseline.values())), 'native_get_byte_parity': True}
@@ -131,5 +131,29 @@ def live():
     print(json.dumps(binding, indent=2))
 
 
+def scan():
+    packages = (Path.home() / '.npm/_npx').glob('*/node_modules/jscpd/package.json')
+    scanner = next((p.parent.parent / '.bin/jscpd' for p in packages
+                    if json.loads(p.read_text()).get('version') == '4.0.5'), None)
+    if scanner is None:
+        raise ValueError('cached jscpd 4.0.5 is required')
+    subprocess.run([scanner, '--version'], check=True)
+    paths = subprocess.check_output(['git', 'diff', '--name-only', '5dfcab7ed', 'HEAD', '--', 'crates'], text=True).splitlines()
+    paths = [p for p in paths if p.endswith('.rs')]
+    old_paths = subprocess.check_output(['git', 'ls-tree', '-r', '--name-only', '5dfcab7ed', '--', *paths], text=True).splitlines()
+    baseline = PROOFS / 'baseline-source'
+    baseline.mkdir(parents=True, exist_ok=True)
+    archive = subprocess.run(['git', 'archive', '5dfcab7ed', *old_paths], check=True, stdout=subprocess.PIPE)
+    subprocess.run(['tar', '-xf', '-', '-C', baseline], input=archive.stdout, check=True)
+    for kind in ['product', 'tests']:
+        current = [p for p in paths if ('/tests/' in p) == (kind == 'tests')]
+        prior = [str(baseline / p) for p in old_paths if ('/tests/' in p) == (kind == 'tests')]
+        for label, selected in [('baseline', prior), ('current', current)]:
+            if selected:
+                subprocess.run([scanner, *selected, '--format', 'rust', '--max-size', '10mb',
+                                '--reporters', 'json', '--output', PROOFS / f'jscpd-{label}-{kind}'], check=True)
+    subprocess.run(['ruff', 'check', '--select', 'F401,F841,ERA,BLE,E722,S110', 'scripts/drug_names_proof.py'], check=True)
+
+
 if __name__ == '__main__':
-    {'extract': extract, 'compare': compare, 'witness': witness, 'live': live}[sys.argv[1]]()
+    {'extract': extract, 'compare': compare, 'witness': witness, 'live': live, 'scan': scan}[sys.argv[1]]()

@@ -274,5 +274,6 @@ pub struct DrugNameResolution {
     /// Total exact source records, including the selected record.
     pub total: u64,
     /// Up to five other exact records as ready get commands.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub alternatives: Box<[Step]>,
 }
