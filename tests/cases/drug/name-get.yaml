@@ -109,7 +109,7 @@
         "Broken name",
         "approvals"
       ],
-      "exit": 3,
+      "exit": 4,
       "expect": {
         "/status": "failed",
         "/query/query": "Broken name",

@@ -12,6 +12,8 @@ case "${1:-focused}" in
     git diff --binary > target/drug-names-prepare.patch
     ;;
   focused)
+    cargo fmt --all
+    git diff --binary > target/drug-names-format.patch
     cargo install --locked --debug --path crates/biomcp --root target/drug-names-installed --force
     export BIOMCP_TEST_EXECUTABLE="$PWD/target/drug-names-installed/bin/biomcp"
     export BIOMCP_TRANSCRIPT_DIR="$PWD/target/drug-names-proof/transcripts"
@@ -20,6 +22,8 @@ case "${1:-focused}" in
     git rev-parse HEAD > target/drug-names-proof/source.txt
     cargo test --locked -p biomcp --test cases drug/ -- --nocapture
     cargo test --locked -p biomcp-types --test drug_contracts
+    make docs-generate
+    git diff --binary > target/drug-names-docs.patch
     ;;
   *) exit 2 ;;
 esac
