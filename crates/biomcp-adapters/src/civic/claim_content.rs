@@ -44,7 +44,7 @@ pub(super) fn therapies(
                 name: label.clone(),
                 identity_level: biodata::DrugIdentityLevel::Unknown,
                 name_resolution: None,
-        matched_name: None,
+                matched_name: None,
                 r#type: None,
                 version: None,
                 url: None,

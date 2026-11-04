@@ -52,8 +52,16 @@ pub fn search(leg: &Leg<'_>, query: &str) -> Result<crate::Mapped<Vec<DrugHeader
         .map(|row| {
             problems.record = Some(row.record.clone());
             let mut header = map::header(row, &mut problems);
-            let exact = |field| row.field(field).and_then(Result::ok).is_some_and(|n| biomcp_types::DrugNameMatch::same_name(n, query));
-            header.matched_name = match (exact("name_of_medicine"), exact("active_substance") || exact("international_non_proprietary_name_common_name")) {
+            let exact = |field| {
+                row.field(field)
+                    .and_then(Result::ok)
+                    .is_some_and(|n| biomcp_types::DrugNameMatch::same_name(n, query))
+            };
+            header.matched_name = match (
+                exact("name_of_medicine"),
+                exact("active_substance")
+                    || exact("international_non_proprietary_name_common_name"),
+            ) {
                 (true, true) => Some(biomcp_types::DrugNameMatch::Both),
                 (true, false) => Some(biomcp_types::DrugNameMatch::Brand),
                 (false, true) => Some(biomcp_types::DrugNameMatch::Generic),

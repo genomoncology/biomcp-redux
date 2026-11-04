@@ -17,7 +17,7 @@ impl RawRecord {
             .map_err(|_| biomcp_fetch::bad_reply(biomcp_types::Source::OpenfdaLabel, Some(200)))?;
         Ok(DrugHeader {
             name_resolution: None,
-        matched_name: None,
+            matched_name: None,
             id: self.set_id.clone(),
             source: DrugSource::OpenfdaLabel,
             version: self.version.clone(),
@@ -115,9 +115,18 @@ impl Record {
     /// Preserve native complete-name matching.
     /// Complete brand or generic equality without search's spacing normalization.
     pub fn exact_name_match(&self, name: &biodata::Text) -> Option<biomcp_types::DrugNameMatch> {
-        let exact = |names: &Option<Vec<crate::native_text::NativeText>>| names.iter().flatten().any(|n| biomcp_types::DrugNameMatch::same_name(n.as_str(), name.as_str()));
-        biomcp_types::DrugNameMatch::from_fields(exact(&self.0.openfda.brand_name), exact(&self.0.openfda.generic_name))
+        let exact = |names: &Option<Vec<crate::native_text::NativeText>>| {
+            names
+                .iter()
+                .flatten()
+                .any(|n| biomcp_types::DrugNameMatch::same_name(n.as_str(), name.as_str()))
+        };
+        biomcp_types::DrugNameMatch::from_fields(
+            exact(&self.0.openfda.brand_name),
+            exact(&self.0.openfda.generic_name),
+        )
     }
+    /// Preserve search's existing complete-name and spacing normalization.
     pub fn name_match(&self, name: &biodata::Text) -> Option<biomcp_types::DrugNameMatch> {
         self.0.name_match(name)
     }

@@ -141,7 +141,7 @@ impl RawApplication {
     pub(super) fn header(&self) -> DrugHeader {
         DrugHeader {
             name_resolution: None,
-        matched_name: None,
+            matched_name: None,
             id: self.application_number.clone(),
             source: DrugSource::Drugsfda,
             name: None,

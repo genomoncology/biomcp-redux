@@ -44,8 +44,13 @@ fn search_and_get_source_defaults_are_explicit() {
         serde_json::to_value(query).expect("search JSON")["source"],
         "mychem"
     );
-    assert_eq!(serde_json::from_value::<DrugGet>(json!({"input":"CHEMBL941"})).expect("default").source().as_str(), "mychem");
-
+    assert_eq!(
+        serde_json::from_value::<DrugGet>(json!({"input":"CHEMBL941"}))
+            .expect("default")
+            .source()
+            .as_str(),
+        "mychem"
+    );
 }
 #[test]
 fn selected_source_checks_its_native_identifier_grammar() {
@@ -81,7 +86,11 @@ fn selected_source_checks_its_native_identifier_grammar() {
         ("civic", "0"),
         ("openfda-label", "not-a-uuid"),
     ] {
-        assert!(serde_json::from_value::<DrugGet>(json!({"source":source,"input":id})).expect("non-ID input is a name").is_name());
+        assert!(
+            serde_json::from_value::<DrugGet>(json!({"source":source,"input":id}))
+                .expect("non-ID input is a name")
+                .is_name()
+        );
     }
 }
 #[test]

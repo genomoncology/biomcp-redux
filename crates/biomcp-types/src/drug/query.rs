@@ -180,30 +180,44 @@ crate::query::validation::checked_query!(DrugGet, GetFields);
 impl TryFrom<GetFields> for DrugGet {
     type Error = QueryInvalid;
     fn try_from(mut fields: GetFields) -> Result<Self, Self::Error> {
-        let source = fields.source.unwrap_or_else(|| inferred_source(&fields.section));
+        let source = fields
+            .source
+            .unwrap_or_else(|| inferred_source(&fields.section));
         fields.source = Some(source);
         validate_sections(&fields)?;
-        let native_id = if !fields.input.as_str().parse::<DrugId>().is_ok_and(|id| source.native_id(&id)) {
+        let native_id = if !fields
+            .input
+            .as_str()
+            .parse::<DrugId>()
+            .is_ok_and(|id| source.native_id(&id))
+        {
             NativeDrugId::Name
-        } else { match source {
-            DrugSource::FdaDrugRecall => NativeDrugId::Recall(
-                fields
-                    .input
-                    .to_string()
-                    .parse()
-                    .map_err(|_| QueryInvalid::new(&["source", "input"]))?,
-            ),
-            DrugSource::Civic => NativeDrugId::Civic(
-                civic_id(&fields.input.to_string())
-                    .ok_or_else(|| QueryInvalid::new(&["source", "input"]))?,
-            ),
-            source => {
-                if !fields.input.as_str().parse::<DrugId>().is_ok_and(|id| source.accepts(&id)) {
-                    return Err(QueryInvalid::new(&["source", "input"]));
+        } else {
+            match source {
+                DrugSource::FdaDrugRecall => NativeDrugId::Recall(
+                    fields
+                        .input
+                        .to_string()
+                        .parse()
+                        .map_err(|_| QueryInvalid::new(&["source", "input"]))?,
+                ),
+                DrugSource::Civic => NativeDrugId::Civic(
+                    civic_id(&fields.input.to_string())
+                        .ok_or_else(|| QueryInvalid::new(&["source", "input"]))?,
+                ),
+                source => {
+                    if !fields
+                        .input
+                        .as_str()
+                        .parse::<DrugId>()
+                        .is_ok_and(|id| source.accepts(&id))
+                    {
+                        return Err(QueryInvalid::new(&["source", "input"]));
+                    }
+                    NativeDrugId::Other
                 }
-                NativeDrugId::Other
             }
-        }};
+        };
         validate_civic(&fields)?;
         Ok(Self { fields, native_id })
     }
@@ -246,7 +260,8 @@ fn validate_civic(fields: &GetFields) -> Result<(), QueryInvalid> {
         return Err(QueryInvalid::new(&["civic_cursor", "civic_kind"]));
     }
     if fields.civic_kind.is_some()
-        && (fields.source != Some(DrugSource::Civic) || !fields.section.contains(&DrugSection::Civic))
+        && (fields.source != Some(DrugSource::Civic)
+            || !fields.section.contains(&DrugSection::Civic))
     {
         return Err(QueryInvalid::new(&["civic_kind", "source", "section"]));
     }
@@ -262,7 +277,9 @@ impl DrugGet {
         })
     }
     /// Whether this input requires exact source name resolution.
-    pub fn is_name(&self) -> bool { self.native_id == NativeDrugId::Name }
+    pub fn is_name(&self) -> bool {
+        self.native_id == NativeDrugId::Name
+    }
     /// Preserve section selectors while replacing a resolved name with its native ID.
     pub fn with_native_id(&self, input: DrugId) -> Result<Self, QueryInvalid> {
         let mut fields = self.fields.clone();
@@ -341,7 +358,11 @@ impl DrugGet {
     }
     /// Source-native identity after name resolution.
     pub fn native_input(&self) -> Result<DrugId, QueryInvalid> {
-        self.fields.input.as_str().parse().map_err(|_| QueryInvalid::new(&["input"]))
+        self.fields
+            .input
+            .as_str()
+            .parse()
+            .map_err(|_| QueryInvalid::new(&["input"]))
     }
     /// Required selected source.
     pub fn source(&self) -> DrugSource {
@@ -520,18 +541,33 @@ fn civic_id(value: &str) -> Option<std::num::NonZeroU32> {
 }
 
 fn inferred_source(sections: &[DrugSection]) -> DrugSource {
-    let candidates: Vec<_> = DrugSource::ALL.into_iter().filter(|source|
-        !sections.is_empty() && sections.iter().all(|section| source.sections().contains(section))
-    ).collect();
-    match candidates.as_slice() { [source] => *source, _ => DrugSource::Mychem }
+    let candidates: Vec<_> = DrugSource::ALL
+        .into_iter()
+        .filter(|source| {
+            !sections.is_empty()
+                && sections
+                    .iter()
+                    .all(|section| source.sections().contains(section))
+        })
+        .collect();
+    match candidates.as_slice() {
+        [source] => *source,
+        _ => DrugSource::Mychem,
+    }
 }
 impl DrugSource {
     /// Distinguish native MyChem keys from names; other sources use their existing ID grammar.
     pub fn native_id(self, input: &DrugId) -> bool {
-        if self != Self::Mychem { return self.accepts(input); }
+        if self != Self::Mychem {
+            return self.accepts(input);
+        }
         let value = input.to_string();
-        value.len() == 27 && value.as_bytes().get(14) == Some(&b'-') && value.as_bytes().get(25) == Some(&b'-')
-            || value.contains(':') || value.starts_with("CHEMBL") || value.starts_with("DB") && value[2..].bytes().all(|b| b.is_ascii_digit())
+        value.len() == 27
+            && value.as_bytes().get(14) == Some(&b'-')
+            && value.as_bytes().get(25) == Some(&b'-')
+            || value.contains(':')
+            || value.starts_with("CHEMBL")
+            || value.starts_with("DB") && value[2..].bytes().all(|b| b.is_ascii_digit())
             || value.bytes().all(|b| b.is_ascii_digit())
     }
 }
@@ -542,12 +578,20 @@ fn selected_source<'de, D: serde::Deserializer<'de>>(d: D) -> Result<Option<Drug
 
 #[cfg(feature = "schema")]
 impl schemars::JsonSchema for DrugGet {
-    fn schema_name() -> std::borrow::Cow<'static, str> { "DrugGet".into() }
+    fn schema_name() -> std::borrow::Cow<'static, str> {
+        "DrugGet".into()
+    }
     fn json_schema(generator: &mut schemars::SchemaGenerator) -> schemars::Schema {
         let mut schema = GetFields::json_schema(generator);
         if let Some(properties) = schema.get_mut("properties").and_then(|p| p.as_object_mut()) {
-            properties.insert("input".into(), generator.subschema_for::<DrugId>().to_value());
-            properties.insert("source".into(), generator.subschema_for::<DrugSource>().to_value());
+            properties.insert(
+                "input".into(),
+                generator.subschema_for::<DrugId>().to_value(),
+            );
+            properties.insert(
+                "source".into(),
+                generator.subschema_for::<DrugSource>().to_value(),
+            );
         }
         if let Some(required) = schema.get_mut("required").and_then(|r| r.as_array_mut()) {
             required.push("source".into());

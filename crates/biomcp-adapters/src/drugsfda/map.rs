@@ -129,12 +129,37 @@ pub struct Application(pub(super) super::raw::Application);
 impl Application {
     /// Exact native brand or ingredient match, original application first, then earliest approved submission.
     pub fn name_rank(&self, name: &str) -> Option<(u8, u8, Option<String>)> {
-        let brand = self.0.products.iter().any(|p| p.brand_name.as_ref().is_some_and(|n| biomcp_types::DrugNameMatch::same_name(n.as_str(), name)));
-        let generic = self.0.products.iter().any(|p| p.active_ingredients.iter().any(|i| i.name.as_ref().is_some_and(|n| biomcp_types::DrugNameMatch::same_name(n.as_str(), name))));
-        if !brand && !generic { return None; }
-        let first = self.0.submissions.iter().filter(|s| s.submission_status.as_ref().is_some_and(|s| s.as_str() == "AP"))
-            .filter_map(|s| s.submission_status_date.map(|d| d.to_string())).min();
-        Some((u8::from(!brand), u8::from(self.0.application_number.to_string().starts_with("ANDA")), first))
+        let brand = self.0.products.iter().any(|p| {
+            p.brand_name
+                .as_ref()
+                .is_some_and(|n| biomcp_types::DrugNameMatch::same_name(n.as_str(), name))
+        });
+        let generic = self.0.products.iter().any(|p| {
+            p.active_ingredients.iter().any(|i| {
+                i.name
+                    .as_ref()
+                    .is_some_and(|n| biomcp_types::DrugNameMatch::same_name(n.as_str(), name))
+            })
+        });
+        if !brand && !generic {
+            return None;
+        }
+        let first = self
+            .0
+            .submissions
+            .iter()
+            .filter(|s| {
+                s.submission_status
+                    .as_ref()
+                    .is_some_and(|s| s.as_str() == "AP")
+            })
+            .filter_map(|s| s.submission_status_date.map(|d| d.to_string()))
+            .min();
+        Some((
+            u8::from(!brand),
+            u8::from(self.0.application_number.to_string().starts_with("ANDA")),
+            first,
+        ))
     }
     /// Actual refused native child records.
     pub fn refusals(&self) -> crate::Refusal {
