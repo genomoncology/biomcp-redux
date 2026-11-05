@@ -10,10 +10,11 @@ pub use response::{
     AdverseEventFaersCard, AdverseEventHeader, AdverseEventIdentifierRecords,
     AdverseEventIdentifiers, AdverseEventIdentityCounts, AdverseEventMaudeCard,
     AdverseEventNarrative, AdverseEventNarrativeItem, AdverseEventPage, AdverseEventReaction,
-    AdverseEventReactionMatch, AdverseEventReactions, AdverseEventRecords,
+    AdverseEventReactionCount, AdverseEventReactionCounts, AdverseEventReactionMatch,
+    AdverseEventReactions, AdverseEventRecords,
 };
 pub use selectors::{
-    AdverseEventIdentifierSection, AdverseEventSection, AdverseEventSerious, AdverseEventSource,
+    AdverseEventAggregate, AdverseEventIdentifierSection, AdverseEventSection, AdverseEventSerious, AdverseEventSource,
     ReportUnit,
 };
 

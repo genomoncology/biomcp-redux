@@ -191,6 +191,7 @@ pub use adverse_event::{
     AdverseEventFaersCard, AdverseEventGet, AdverseEventHeader, AdverseEventIdentifierRecords,
     AdverseEventIdentifierSection, AdverseEventIdentifiers, AdverseEventIdentityCounts,
     AdverseEventMaudeCard, AdverseEventNarrative, AdverseEventNarrativeItem, AdverseEventPage,
+    AdverseEventAggregate, AdverseEventReactionCount, AdverseEventReactionCounts,
     AdverseEventReaction, AdverseEventReactionMatch, AdverseEventReactions, AdverseEventRecords,
     AdverseEventSearch, AdverseEventSection, AdverseEventSerious, AdverseEventSource, ReportUnit,
     VAERS_INFLUENZA, VaersCell, VaersNotice, VaersRow, VaersScope, VaersSection, VaersSummary,

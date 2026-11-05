@@ -19,6 +19,8 @@ pub static SPEC: SourceSpec = SourceSpec {
 };
 mod raw;
 mod search;
+mod counts;
+pub use counts::{CountPage, reactions};
 pub use search::{Page, expression, search};
 
 pub mod detail;
