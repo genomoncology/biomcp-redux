@@ -99,7 +99,7 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "NciBiomarkerUse"))]
     biomarker_use: Option<NciBiomarkerUse>,
-    #[doc = "Criteria text.\nSearch literal registry eligibility text for discovery only; no eligibility judgment."]
+    #[doc = "Criteria text.\nClinicalTrials.gov only: search exact registry eligibility text for discovery; no eligibility judgment."]
     #[serde(
         default,
         deserialize_with = "super::gene::present",
@@ -143,7 +143,7 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "TrialSex"))]
     sex: Option<TrialSex>,
-    /// ClinicalTrials.gov only: age in years; unstated source bounds count as no limit.
+    #[doc = "Age in years.\nClinicalTrials.gov only; unstated source bounds count as no limit."]
     #[serde(
         default,
         deserialize_with = "super::gene::present",
@@ -314,7 +314,7 @@ impl TrialSearch {
     pub fn variant(&self) -> Option<&Text> {
         self.0.variant.as_ref()
     }
-    /// Search literal registry eligibility text for discovery only; no eligibility judgment.
+    /// ClinicalTrials.gov only: search exact registry eligibility text for discovery; no eligibility judgment.
     pub fn criteria(&self) -> Option<&Text> {
         self.0.criteria.as_ref()
     }
@@ -354,7 +354,7 @@ impl TrialSearch {
     pub fn sex(&self) -> Option<&TrialSex> {
         self.0.sex.as_ref()
     }
-    /// ClinicalTrials.gov only: age in years; unstated source bounds count as no limit.
+    #[doc = "Age in years.\nClinicalTrials.gov only; unstated source bounds count as no limit."]
     pub fn age(&self) -> Option<&u32> {
         self.0.age.as_ref()
     }
