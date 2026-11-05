@@ -3842,12 +3842,12 @@
         },
         "input": {
           "$ref": "#/$defs/VariantInput",
-          "description": "rsID, CAid, clinvar:N, VCV, HGVS or VCF coordinates.\nrsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS or VCF-style genomic coordinates.",
+          "description": "rsID, CAid, clinvar:N, VCV, HGVS or VCF.\nrsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS or VCF-style genomic coordinates.",
           "x-positional": 0
         },
         "limit": {
           "default": 10,
-          "description": "Page size.\nCandidate rows per page; more remain reachable through typed next commands.",
+          "description": "Candidate rows per page; more remain reachable through typed next commands.",
           "format": "uint32",
           "maximum": 50,
           "minimum": 1,
@@ -3855,7 +3855,7 @@
         },
         "offset": {
           "default": 0,
-          "description": "Candidate offset.\nCandidate rows to skip in source order.",
+          "description": "Candidate rows to skip in source order.",
           "format": "uint32",
           "minimum": 0,
           "type": "integer"
@@ -4104,7 +4104,7 @@
       "description": "Search clinical trials.",
       "properties": {
         "age": {
-          "description": "Age, years.\nAge in years; unstated source bounds count as no limit.",
+          "description": "Age years.\nAge in years; unstated source bounds count as no limit.",
           "format": "uint32",
           "minimum": 0,
           "type": "integer"
@@ -4134,7 +4134,7 @@
           "description": "MONDO/DOID/NCIT:C.\nExact MONDO or DOID CURIE resolved by MyDisease; NCI also accepts explicit NCIT:C codes."
         },
         "count_only": {
-          "description": "Total only.\nSource total only; no returned study rows.",
+          "description": "Total.\nSource total only; no returned study rows.",
           "type": "boolean"
         },
         "country": {
@@ -4410,7 +4410,7 @@
           "type": "array"
         },
         "keyword": {
-          "description": "Registry text; OR.\nRepeat for ClinicalTrials.gov general text alternatives joined with OR; different filters combine with AND. NCI accepts one keyword.",
+          "description": "Text; OR.\nRepeat for ClinicalTrials.gov general text alternatives joined with OR; different filters combine with AND. NCI accepts one keyword.",
           "items": {
             "$ref": "#/$defs/Text"
           },
@@ -4419,7 +4419,7 @@
         },
         "lat": {
           "$ref": "#/$defs/Text",
-          "description": "Latitude, degrees.\nRadius center latitude in degrees."
+          "description": "Latitude degrees.\nRadius center latitude in degrees."
         },
         "limit": {
           "default": 10,
@@ -4431,15 +4431,15 @@
         },
         "lon": {
           "$ref": "#/$defs/Text",
-          "description": "Longitude, degrees.\nRadius center longitude in degrees."
+          "description": "Longitude degrees.\nRadius center longitude in degrees."
         },
         "next_page": {
           "$ref": "#/$defs/Text",
-          "description": "Continuation.\nOpaque registry continuation; keep filters unchanged."
+          "description": "Page token.\nOpaque registry continuation; keep filters unchanged."
         },
         "offset": {
           "default": 0,
-          "description": "Rows to skip.\nZero-based offset of the first row in this continuation page.",
+          "description": "Zero-based offset of the first row in this continuation page.",
           "format": "uint32",
           "minimum": 0,
           "type": "integer"
@@ -4459,7 +4459,7 @@
         },
         "source": {
           "$ref": "#/$defs/TrialSource",
-          "description": "clinicaltrials or nci.\nExplicit provider; defaults to ClinicalTrials.gov and never falls back."
+          "description": "clinicaltrials/nci.\nExplicit provider; defaults to ClinicalTrials.gov and never falls back."
         },
         "sponsor": {
           "$ref": "#/$defs/Text",
@@ -4479,11 +4479,11 @@
         },
         "updated_since": {
           "$ref": "#/$defs/PartialDate",
-          "description": "First update.\nFirst included registry update date."
+          "description": "First date.\nFirst included registry update date."
         },
         "updated_until": {
           "$ref": "#/$defs/PartialDate",
-          "description": "Last update.\nLast included registry update date."
+          "description": "Last date.\nLast included registry update date."
         },
         "variant": {
           "$ref": "#/$defs/Text",

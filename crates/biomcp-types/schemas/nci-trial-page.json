@@ -1399,7 +1399,7 @@
       "description": "Search ClinicalTrials.gov or keyed NCI with native counts. NCI --facility matches exact organization names; a listed site is not necessarily enrolling.",
       "properties": {
         "age": {
-          "description": "Age, years.\nAge in years; unstated source bounds count as no limit.",
+          "description": "Age years.\nAge in years; unstated source bounds count as no limit.",
           "format": "uint32",
           "minimum": 0,
           "type": "integer"
@@ -1425,7 +1425,7 @@
           "description": "MONDO/DOID/NCIT:C.\nExact MONDO or DOID CURIE resolved by MyDisease; NCI also accepts explicit NCIT:C codes."
         },
         "count_only": {
-          "description": "Total only.\nSource total only; no returned study rows.",
+          "description": "Total.\nSource total only; no returned study rows.",
           "type": "boolean"
         },
         "country": {
@@ -1701,7 +1701,7 @@
           "type": "array"
         },
         "keyword": {
-          "description": "Registry text; OR.\nRepeat for ClinicalTrials.gov general text alternatives joined with OR; different filters combine with AND. NCI accepts one keyword.",
+          "description": "Text; OR.\nRepeat for ClinicalTrials.gov general text alternatives joined with OR; different filters combine with AND. NCI accepts one keyword.",
           "items": {
             "$ref": "#/$defs/Reply_Text"
           },
@@ -1710,7 +1710,7 @@
         },
         "lat": {
           "$ref": "#/$defs/Reply_Text",
-          "description": "Latitude, degrees.\nRadius center latitude in degrees."
+          "description": "Latitude degrees.\nRadius center latitude in degrees."
         },
         "limit": {
           "default": 10,
@@ -1722,15 +1722,15 @@
         },
         "lon": {
           "$ref": "#/$defs/Reply_Text",
-          "description": "Longitude, degrees.\nRadius center longitude in degrees."
+          "description": "Longitude degrees.\nRadius center longitude in degrees."
         },
         "next_page": {
           "$ref": "#/$defs/Reply_Text",
-          "description": "Continuation.\nOpaque registry continuation; keep filters unchanged."
+          "description": "Page token.\nOpaque registry continuation; keep filters unchanged."
         },
         "offset": {
           "default": 0,
-          "description": "Rows to skip.\nZero-based offset of the first row in this continuation page.",
+          "description": "Zero-based offset of the first row in this continuation page.",
           "format": "uint32",
           "minimum": 0,
           "type": "integer"
@@ -1750,7 +1750,7 @@
         },
         "source": {
           "$ref": "#/$defs/Reply_TrialSource",
-          "description": "clinicaltrials or nci.\nExplicit provider; defaults to ClinicalTrials.gov and never falls back."
+          "description": "clinicaltrials/nci.\nExplicit provider; defaults to ClinicalTrials.gov and never falls back."
         },
         "sponsor": {
           "$ref": "#/$defs/Reply_Text",
@@ -1770,11 +1770,11 @@
         },
         "updated_since": {
           "$ref": "#/$defs/Reply_PartialDate",
-          "description": "First update.\nFirst included registry update date."
+          "description": "First date.\nFirst included registry update date."
         },
         "updated_until": {
           "$ref": "#/$defs/Reply_PartialDate",
-          "description": "Last update.\nLast included registry update date."
+          "description": "Last date.\nLast included registry update date."
         },
         "variant": {
           "$ref": "#/$defs/Reply_Text",

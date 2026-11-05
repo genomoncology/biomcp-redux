@@ -3815,12 +3815,12 @@
         },
         "input": {
           "$ref": "#/$defs/Reply_VariantInput",
-          "description": "rsID, CAid, clinvar:N, VCV, HGVS or VCF coordinates.\nrsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS or VCF-style genomic coordinates.",
+          "description": "rsID, CAid, clinvar:N, VCV, HGVS or VCF.\nrsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS or VCF-style genomic coordinates.",
           "x-positional": 0
         },
         "limit": {
           "default": 10,
-          "description": "Page size.\nCandidate rows per page; more remain reachable through typed next commands.",
+          "description": "Candidate rows per page; more remain reachable through typed next commands.",
           "format": "uint32",
           "maximum": 50,
           "minimum": 1,
@@ -3828,7 +3828,7 @@
         },
         "offset": {
           "default": 0,
-          "description": "Candidate offset.\nCandidate rows to skip in source order.",
+          "description": "Candidate rows to skip in source order.",
           "format": "uint32",
           "minimum": 0,
           "type": "integer"

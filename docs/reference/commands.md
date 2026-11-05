@@ -1592,7 +1592,7 @@ Arguments:
 
 Options:
       --age <age>
-          Age, years.
+          Age years.
           Age in years; unstated source bounds count as no limit.
 
       --format <format>
@@ -1628,7 +1628,7 @@ Options:
           Exact MONDO or DOID CURIE resolved by MyDisease; NCI also accepts explicit NCIT:C codes.
 
       --count-only[=<count_only>]
-          Total only.
+          Total.
           Source total only; no returned study rows.
 
           [default: false]
@@ -1689,11 +1689,11 @@ Options:
           Intervention alternatives joined with OR; supported by ClinicalTrials.gov.
 
       --keyword <keyword>...
-          Registry text; OR.
+          Text; OR.
           Repeat for ClinicalTrials.gov general text alternatives joined with OR; different filters combine with AND. NCI accepts one keyword.
 
       --lat <lat>
-          Latitude, degrees.
+          Latitude degrees.
           Radius center latitude in degrees.
 
       --limit <limit>
@@ -1701,15 +1701,14 @@ Options:
           Headers per page; NCI applies its own lower publisher limit.
 
       --lon <lon>
-          Longitude, degrees.
+          Longitude degrees.
           Radius center longitude in degrees.
 
       --next-page <next_page>
-          Continuation.
+          Page token.
           Opaque registry continuation; keep filters unchanged.
 
       --offset <offset>
-          Rows to skip.
           Zero-based offset of the first row in this continuation page.
 
       --phase <phase>
@@ -1722,8 +1721,8 @@ Options:
           Registry sex facet.
 
       --source <source>
-          clinicaltrials or nci text; biomcp_help search trial
-          clinicaltrials or nci.
+          clinicaltrials/nci text; biomcp_help search trial
+          clinicaltrials/nci.
           Explicit provider; defaults to ClinicalTrials.gov and never falls back.
 
       --sponsor <sponsor>
@@ -1746,11 +1745,11 @@ Options:
           Exact registry study type.
 
       --updated-since <updated_since>
-          First update.
+          First date.
           First included registry update date.
 
       --updated-until <updated_until>
-          Last update.
+          Last date.
           Last included registry update date.
 
       --variant <variant>
@@ -1761,7 +1760,7 @@ Options:
 
 Search clinical trials. Sources: ctgov, nci.
 
-- `--age`: Age, years.
+- `--age`: Age years.
 Age in years; unstated source bounds count as no limit.
 - `--biomarker-code`: NCI NCIt code.
 Exact NCIt biomarker concept listed by NCI in trial criteria; NCI source only. This listing does not establish biomarker positivity or patient eligibility.
@@ -1772,7 +1771,7 @@ Filter by NCI's source inclusion or exclusion criterion. Check each result's bio
 Condition alternatives joined with OR; NCI requires NCIt codes.
 - `--condition-id`: MONDO/DOID/NCIT:C.
 Exact MONDO or DOID CURIE resolved by MyDisease; NCI also accepts explicit NCIT:C codes.
-- `--count-only`: Total only.
+- `--count-only`: Total.
 Source total only; no returned study rows.
 - `--country`: Country label; biomcp_help search trial.
 Exact ClinicalTrials.gov country label; repeat for OR. Trials must list a site in a named country. NCI uses its source country filter.
@@ -1792,18 +1791,17 @@ Require posted source results.
 Exact NCT identity in a conjunction with other filters.
 - `--intervention`: Treatment terms; OR.
 Intervention alternatives joined with OR; supported by ClinicalTrials.gov.
-- `--keyword`: Registry text; OR.
+- `--keyword`: Text; OR.
 Repeat for ClinicalTrials.gov general text alternatives joined with OR; different filters combine with AND. NCI accepts one keyword.
-- `--lat`: Latitude, degrees.
+- `--lat`: Latitude degrees.
 Radius center latitude in degrees.
 - `--limit`: Page size.
 Headers per page; NCI applies its own lower publisher limit.
-- `--lon`: Longitude, degrees.
+- `--lon`: Longitude degrees.
 Radius center longitude in degrees.
-- `--next-page`: Continuation.
+- `--next-page`: Page token.
 Opaque registry continuation; keep filters unchanged.
-- `--offset`: Rows to skip.
-Zero-based offset of the first row in this continuation page.
+- `--offset`: Zero-based offset of the first row in this continuation page.
 - `--phase`: Source phase text; biomcp_help search trial
 Source phase.
 Exact source phase. ClinicalTrials.gov: 1, 2, 3, 4, early-1, not-applicable, 1/2, 2/3. NCI: NA, 0, I, I_II, II, II_III, III, IV.
@@ -1811,8 +1809,8 @@ Exact source phase. ClinicalTrials.gov: 1, 2, 3, 4, early-1, not-applicable, 1/2
 General registry discovery text.
 - `--sex`: Registry sex facet text; biomcp_help search trial
 Registry sex facet.
-- `--source`: clinicaltrials or nci text; biomcp_help search trial
-clinicaltrials or nci.
+- `--source`: clinicaltrials/nci text; biomcp_help search trial
+clinicaltrials/nci.
 Explicit source; defaults to ClinicalTrials.gov and never falls back.
 - `--sponsor`: Sponsor.
 Sponsor name; ClinicalTrials.gov broadens after zero exact matches. Use --sponsor-type for the funding category.
@@ -1825,9 +1823,9 @@ Exact source status. NCI: Active, Administratively Complete, Approved, Closed to
 - `--study-type`: Study type text; biomcp_help search trial
 Study type.
 Exact registry study type.
-- `--updated-since`: First update.
+- `--updated-since`: First date.
 First included registry update date.
-- `--updated-until`: Last update.
+- `--updated-until`: Last date.
 Last included registry update date.
 - `--variant`: Variant text.
 Exact variant text for registry discovery only; no eligibility judgment.
@@ -3258,7 +3256,7 @@ Usage: biomcp get variant [OPTIONS] <input> [section]...
 
 Arguments:
   <input>
-          rsID, CAid, clinvar:N, VCV, HGVS or VCF coordinates.
+          rsID, CAid, clinvar:N, VCV, HGVS or VCF.
           rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS or VCF-style genomic coordinates.
 
   [section]...
@@ -3311,11 +3309,9 @@ Options:
           Native CIViC evidence status; omitted preserves the source's existing default.
 
       --limit <limit>
-          Page size.
           Candidate rows per page; more remain reachable through typed next commands.
 
       --offset <offset>
-          Candidate offset.
           Candidate rows to skip in source order.
 
       --offline[=<offline>]
@@ -3367,12 +3363,10 @@ Source CIViC evidence levels; repeat to include several levels.
 - `--evidence-status`: CIViC evidence status text; biomcp_help get variant
 CIViC evidence status.
 Source CIViC evidence status; omitted preserves the source's existing default.
-- `input`: rsID, CAid, clinvar:N, VCV, HGVS or VCF coordinates.
+- `input`: rsID, CAid, clinvar:N, VCV, HGVS or VCF.
 rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS or VCF-style genomic coordinates.
-- `--limit`: Page size.
-Candidate rows per page; more remain reachable through typed next commands.
-- `--offset`: Candidate offset.
-Candidate rows to skip in source order.
+- `--limit`: Candidate rows per page; more remain reachable through typed next commands.
+- `--offset`: Candidate rows to skip in source order.
 - `--resolver`: Resolver text; biomcp_help get variant
 Resolver.
 Resolver for reference-qualified notation; never repairs the input locally.
