@@ -11,7 +11,10 @@ pub(super) fn render(
 ) -> String {
     let sources = coverage::command_sources(verb, entity, schema)
         .into_iter()
-        .filter(|word| word.parse().is_ok_and(|source| !excluded.contains(&source)))
+        .filter(|word| {
+            word.parse::<biomcp_types::Source>()
+                .is_ok_and(|source| !excluded.contains(&source))
+        })
         .collect::<BTreeSet<_>>();
     let provenance = provenance(verb, entity, schema, &sources, excluded);
     let summary = biomcp_types::COMMANDS
