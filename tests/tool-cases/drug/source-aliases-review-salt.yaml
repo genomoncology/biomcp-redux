@@ -33,9 +33,7 @@
         "/next/0/args": [
           "search",
           "drug",
-          "EX-66",
-          "--source",
-          "mychem"
+          "EX-66"
         ]
       },
       "exit": 1,

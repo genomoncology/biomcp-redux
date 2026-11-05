@@ -1,8 +1,11 @@
 .DEFAULT_GOAL := landing-gate
 
-.PHONY: drug-alias-review-regressions
+.PHONY: drug-alias-review-regressions drug-alias-review-tools
 drug-alias-review-regressions:
 	cargo test --locked -p biomcp --test cases drug/source-aliases-review
+	$(MAKE) drug-alias-review-tools
+
+drug-alias-review-tools:
 	cargo test --locked -p biomcp --test tools -- --cases "$(CURDIR)/tests/tool-cases" drug-native-sources/drug/source-aliases-review
 
 .PHONY: drug-alias-baseline
@@ -23,7 +26,7 @@ drug-alias-check:
 	cargo test --locked -p biomcp --test cases drug/
 	cargo test --locked -p biomcp --test tools -- --cases "$(CURDIR)/tests/tool-cases" drug-native-sources/drug/source-aliases.yaml --exact
 
-drug-alias-review-check: drug-alias-check current-schema-check schema-release-check
+drug-alias-review-check: drug-alias-check drug-alias-review-tools current-schema-check schema-release-check
 	$(MAKE) drug-alias-scans
 
 drug-alias-scans:
