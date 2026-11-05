@@ -1,6 +1,7 @@
 //! Literal native drug discovery and exact selected source identities.
 use biomcp_types::Paged;
 use biomcp_types::ReplyBody;
+mod aliases;
 mod civic;
 mod ddinter;
 mod drugsfda;
@@ -9,7 +10,6 @@ mod next;
 mod openfda_label;
 mod recall;
 mod resolve;
-mod aliases;
 pub(crate) mod who;
 use crate::{Ctx, Outcome, status};
 use biomcp_adapters::mychem;

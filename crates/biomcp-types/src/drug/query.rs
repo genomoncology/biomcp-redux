@@ -225,7 +225,10 @@ impl DrugGet {
     }
     /// Select one exact native identity, with no sections requested.
     pub fn new(input: DrugId, source: DrugSource) -> Result<Self, QueryInvalid> {
-        Self::named(Text::new(&input.to_string()).map_err(|_| QueryInvalid::new(&["input"]))?, source)
+        Self::named(
+            Text::new(&input.to_string()).map_err(|_| QueryInvalid::new(&["input"]))?,
+            source,
+        )
     }
     /// Resolve a complete source name through the same checked boundary as CLI input.
     pub fn named(input: Text, source: DrugSource) -> Result<Self, QueryInvalid> {

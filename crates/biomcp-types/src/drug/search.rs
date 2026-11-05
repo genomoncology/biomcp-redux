@@ -134,7 +134,10 @@ impl DrugSearch {
         query
     }
     /// Select the native ChEMBL synonym filter without changing the request's other fields.
-    pub fn with_name_selector(&self, selector: super::DrugNameSelector) -> Result<Self, QueryInvalid> {
+    pub fn with_name_selector(
+        &self,
+        selector: super::DrugNameSelector,
+    ) -> Result<Self, QueryInvalid> {
         let mut fields = self.0.clone();
         fields.name_selector = Some(selector);
         fields.try_into()
