@@ -7,7 +7,11 @@ use serde::{Deserialize, Serialize};
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct VariantHotspots {
     /// Source rows remain candidates when no transcript/consequence join exists.
-    #[serde(default, skip_serializing_if = "Option::is_none", deserialize_with = "data_reason")]
+    #[serde(
+        default,
+        skip_serializing_if = "Option::is_none",
+        deserialize_with = "data_reason"
+    )]
     reason: Option<crate::Reason>,
     /// Native residue records in source order.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
@@ -22,14 +26,23 @@ pub struct VariantHotspots {
 impl VariantHotspots {
     /// Retain fetched candidate rows; membership states whether each join is established.
     pub fn new(records: Box<[HotspotRecord]>, page: PageInfo, next: Option<VariantGet>) -> Self {
-        Self { reason: None, records, page, next }
+        Self {
+            reason: None,
+            records,
+            page,
+            next,
+        }
     }
 }
 
-fn data_reason<'de, D: serde::Deserializer<'de>>(deserializer: D) -> Result<Option<crate::Reason>, D::Error> {
+fn data_reason<'de, D: serde::Deserializer<'de>>(
+    deserializer: D,
+) -> Result<Option<crate::Reason>, D::Error> {
     let reason = Option::<crate::Reason>::deserialize(deserializer)?;
     if reason.is_some() {
-        return Err(serde::de::Error::custom("hotspot data cannot carry a failure reason; candidate joins use membership"));
+        return Err(serde::de::Error::custom(
+            "hotspot data cannot carry a failure reason; candidate joins use membership",
+        ));
     }
     Ok(None)
 }

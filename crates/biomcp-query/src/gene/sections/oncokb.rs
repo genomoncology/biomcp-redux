@@ -102,7 +102,8 @@ fn skipped(genes: &[(HgncId, Gene)], reason: Reason) -> SectionResult {
             })
             .collect(),
         source: biomcp_adapters::registry::outcome(
-            GeneSection::Oncokb.source(), biomcp_types::SourceStatus::Skipped(Some(reason)),
+            GeneSection::Oncokb.source(),
+            biomcp_types::SourceStatus::Skipped(Some(reason)),
         ),
         problems: Vec::new(),
         local: None,

@@ -123,7 +123,11 @@ fn refused(reason: Reason, state: SourceState) -> super::sections::Result<Varian
         section,
         vec![biomcp_adapters::registry::outcome(
             Source::AlphaGenome,
-            if state == SourceState::Skipped { biomcp_types::SourceStatus::Skipped(Some(reason)) } else { biomcp_types::SourceStatus::Failed(Some(reason)) },
+            if state == SourceState::Skipped {
+                biomcp_types::SourceStatus::Skipped(Some(reason))
+            } else {
+                biomcp_types::SourceStatus::Failed(Some(reason))
+            },
         )],
         Vec::new(),
         None,

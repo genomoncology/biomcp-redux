@@ -143,7 +143,9 @@ fn service(
         problems: Vec::new(),
     });
     if result.value.outcome == VariantResolution::Rejected {
-        source.set_status(biomcp_types::SourceStatus::Failed(Some(biomcp_types::Reason::Rejected)));
+        source.set_status(biomcp_types::SourceStatus::Failed(Some(
+            biomcp_types::Reason::Rejected,
+        )));
     }
     (result, source, error.and_then(status::local))
 }

@@ -65,10 +65,18 @@ impl<'de> Deserialize<'de> for SourceStatusView {
         let wire = Wire::deserialize(deserializer)?;
         let status = match (wire.state, wire.reason) {
             (SourceState::Ok, None) => SourceStatus::Ok,
-            (SourceState::Ok, Some(_)) => return Err(serde::de::Error::custom("current source answer cannot carry a failure reason")),
+            (SourceState::Ok, Some(_)) => {
+                return Err(serde::de::Error::custom(
+                    "current source answer cannot carry a failure reason",
+                ));
+            }
             (SourceState::Stale, reason) => SourceStatus::Stale(reason),
             (SourceState::Syncing, None | Some(Reason::Syncing)) => SourceStatus::Syncing,
-            (SourceState::Syncing, Some(_)) => return Err(serde::de::Error::custom("syncing source requires the syncing reason")),
+            (SourceState::Syncing, Some(_)) => {
+                return Err(serde::de::Error::custom(
+                    "syncing source requires the syncing reason",
+                ));
+            }
             (SourceState::Failed, reason) => SourceStatus::Failed(reason),
             (SourceState::Skipped, reason) => SourceStatus::Skipped(reason),
         };

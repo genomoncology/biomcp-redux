@@ -79,12 +79,15 @@ pub fn terms(source: Source) -> Option<biomcp_fetch::Terms> {
 }
 
 /// Construct every outcome with the same publisher declaration used by health.
-pub fn outcome(
-    source: Source,
-    status: biomcp_types::SourceStatus,
-) -> biomcp_types::SourceOutcome {
+pub fn outcome(source: Source, status: biomcp_types::SourceStatus) -> biomcp_types::SourceOutcome {
     let terms = crate::decl::decl(source).spec.terms;
-    biomcp_types::SourceOutcome::new(source, terms.usage, terms.name.into(), terms.url.into(), status)
+    biomcp_types::SourceOutcome::new(
+        source,
+        terms.usage,
+        terms.name.into(),
+        terms.url.into(),
+        status,
+    )
 }
 
 /// Reapply current publisher labels when an outcome is restored from a snapshot.

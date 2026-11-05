@@ -83,7 +83,8 @@ fn text(value: &str) -> Result<Text, biomcp_types::QueryInvalid> {
 fn too_large(query: &AdverseEventGet, out: &mut Outcome) {
     crate::status::item(out, false, true, false);
     out.sources = vec![biomcp_adapters::registry::outcome(
-        Source::Maude, biomcp_types::SourceStatus::Failed(Some(biomcp_types::Reason::TooLarge)),
+        Source::Maude,
+        biomcp_types::SourceStatus::Failed(Some(biomcp_types::Reason::TooLarge)),
     )];
     out.problems.push(biomcp_types::Problem {
         source: Source::Maude,

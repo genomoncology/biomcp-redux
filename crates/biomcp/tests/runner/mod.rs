@@ -40,7 +40,6 @@ mod clinpgx;
 mod configuration;
 mod cpic;
 mod diagnostic_cdx;
-mod source_status;
 mod diagnostic_retirements;
 mod diagnostic_who;
 mod disease_monarch;
@@ -68,6 +67,7 @@ mod remote_tools;
 mod replay;
 mod socket_read;
 mod source_pacing;
+mod source_status;
 tool_only! { pub(crate) mod live; }
 tool_only! { mod live_follow_proof; }
 tool_only! { mod live_proof; }

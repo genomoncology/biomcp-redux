@@ -232,7 +232,8 @@ fn link_page(
 pub(super) use crate::status::empty;
 fn unsupported(source: DrugSource, mut out: Outcome) -> Outcome {
     out.sources.push(biomcp_adapters::registry::outcome(
-        source.source(), biomcp_types::SourceStatus::Skipped(Some(biomcp_types::Reason::Unsupported)),
+        source.source(),
+        biomcp_types::SourceStatus::Skipped(Some(biomcp_types::Reason::Unsupported)),
     ));
     out
 }
@@ -322,10 +323,13 @@ pub(super) fn rejected_input(source: DrugSource, field: &str, mut out: Outcome) 
         code: biomcp_types::ProblemCode::ValueUnknown,
     });
     if let Some(existing) = out.sources.iter_mut().find(|s| s.source == source.source()) {
-        existing.set_status(biomcp_types::SourceStatus::Failed(Some(biomcp_types::Reason::BadReply)));
+        existing.set_status(biomcp_types::SourceStatus::Failed(Some(
+            biomcp_types::Reason::BadReply,
+        )));
     } else {
         out.sources.push(biomcp_adapters::registry::outcome(
-            source.source(), biomcp_types::SourceStatus::Failed(Some(biomcp_types::Reason::BadReply)),
+            source.source(),
+            biomcp_types::SourceStatus::Failed(Some(biomcp_types::Reason::BadReply)),
         ));
     }
     status::item(&mut out, false, true, false);

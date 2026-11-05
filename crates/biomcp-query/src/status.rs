@@ -239,7 +239,10 @@ pub(crate) fn source(
         .or_else(|| report.failures.first().map(|failure| failure.reason));
     let mut outcome = biomcp_adapters::registry::outcome(
         source,
-        if matches!(reason, Some(biomcp_types::Reason::Disabled | biomcp_types::Reason::NoKey)) {
+        if matches!(
+            reason,
+            Some(biomcp_types::Reason::Disabled | biomcp_types::Reason::NoKey)
+        ) {
             biomcp_types::SourceStatus::Skipped(reason)
         } else if report.stale {
             biomcp_types::SourceStatus::Stale(reason)

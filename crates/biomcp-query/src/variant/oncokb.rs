@@ -4,8 +4,8 @@ use biodata::Build;
 use biomcp_adapters::oncokb;
 use biomcp_fetch::{Deadline, SecretName};
 use biomcp_types::{
-    PageInfo, Reason, Section, Source, SourceOutcome, VariantGet, VariantHeader,
-    VariantOncokb, VariantSection,
+    PageInfo, Reason, Section, Source, SourceOutcome, VariantGet, VariantHeader, VariantOncokb,
+    VariantSection,
 };
 
 pub(super) fn section(

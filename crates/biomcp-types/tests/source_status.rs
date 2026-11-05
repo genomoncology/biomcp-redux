@@ -4,8 +4,20 @@ use serde_json::json;
 
 #[test]
 fn source_status_is_atomic_across_updates_clones_and_wire_input() {
-    let mut source = SourceOutcome::new(Source::FdaCdx, biomcp_types::Use::Open, "terms".into(), "https://example.org".into(), SourceStatus::Ok);
-    for status in [SourceStatus::Ok, SourceStatus::Stale(Some(Reason::Unavailable)), SourceStatus::Failed(Some(Reason::NoJoinId)), SourceStatus::Skipped(Some(Reason::Unsupported)), SourceStatus::Syncing] {
+    let mut source = SourceOutcome::new(
+        Source::FdaCdx,
+        biomcp_types::Use::Open,
+        "terms".into(),
+        "https://example.org".into(),
+        SourceStatus::Ok,
+    );
+    for status in [
+        SourceStatus::Ok,
+        SourceStatus::Stale(Some(Reason::Unavailable)),
+        SourceStatus::Failed(Some(Reason::NoJoinId)),
+        SourceStatus::Skipped(Some(Reason::Unsupported)),
+        SourceStatus::Syncing,
+    ] {
         source.set_status(status);
         let wire = serde_json::to_value(source.clone()).unwrap();
         let restored: SourceOutcome = serde_json::from_value(wire).unwrap();

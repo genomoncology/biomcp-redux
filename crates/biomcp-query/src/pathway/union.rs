@@ -175,7 +175,8 @@ fn initial(cx: &Ctx<'_>, q: &PathwaySearch, deadline: Deadline<'_>, out: &mut Ou
             drop(leg);
             saved.1.push((vec![], Some(0), 0, None));
             saved.3.push(biomcp_adapters::registry::outcome(
-                Source::Reactome, biomcp_types::SourceStatus::Ok,
+                Source::Reactome,
+                biomcp_types::SourceStatus::Ok,
             ));
         }
     }

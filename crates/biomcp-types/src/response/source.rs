@@ -48,8 +48,24 @@ pub struct SourceOutcome {
 
 impl SourceOutcome {
     /// Build a source report with one complete status.
-    pub fn new(source: Source, usage: crate::Use, terms: Box<str>, terms_url: Box<str>, status: SourceStatus) -> Self {
-        Self { source, usage, terms, terms_url, status: status.into(), term: None, count: None, retrieved_count: None, notices: Vec::new() }
+    pub fn new(
+        source: Source,
+        usage: crate::Use,
+        terms: Box<str>,
+        terms_url: Box<str>,
+        status: SourceStatus,
+    ) -> Self {
+        Self {
+            source,
+            usage,
+            terms,
+            terms_url,
+            status: status.into(),
+            term: None,
+            count: None,
+            retrieved_count: None,
+            notices: Vec::new(),
+        }
     }
 
     /// Replace state and reason together.
@@ -80,7 +96,9 @@ impl SourceOutcome {
 
 impl std::ops::Deref for SourceOutcome {
     type Target = SourceStatusView;
-    fn deref(&self) -> &Self::Target { &self.status }
+    fn deref(&self) -> &Self::Target {
+        &self.status
+    }
 }
 
 /// A source notice or request recovery step.

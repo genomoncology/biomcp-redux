@@ -18,7 +18,8 @@ pub(crate) fn search(cx: &Ctx<'_>, q: &AuthorSearch) -> Outcome {
         out.local = status::local(error);
         if out.sources.is_empty() {
             out.sources.push(biomcp_adapters::registry::outcome(
-                Source::SemanticScholar, biomcp_types::SourceStatus::Failed(None),
+                Source::SemanticScholar,
+                biomcp_types::SourceStatus::Failed(None),
             ));
         }
     }
@@ -42,7 +43,8 @@ fn execute(
 ) -> Result<(), RequestError> {
     if cx.fetch.disabled(Source::SemanticScholar) {
         out.sources.push(biomcp_adapters::registry::outcome(
-            Source::SemanticScholar, biomcp_types::SourceStatus::Skipped(Some(Reason::Disabled)),
+            Source::SemanticScholar,
+            biomcp_types::SourceStatus::Skipped(Some(Reason::Disabled)),
         ));
         return Err(SourceError::disabled(Source::SemanticScholar).into());
     }
@@ -59,7 +61,8 @@ fn execute(
                 pages: vec![],
                 key_needed: false,
                 source: biomcp_adapters::registry::outcome(
-                    Source::SemanticScholar, biomcp_types::SourceStatus::Ok,
+                    Source::SemanticScholar,
+                    biomcp_types::SourceStatus::Ok,
                 ),
             },
             None,
