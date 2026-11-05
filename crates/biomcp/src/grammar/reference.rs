@@ -293,5 +293,20 @@ fn every_rendered_flag_retains_its_schema_or_parser_description() -> Check {
         "flags lack descriptions: {}",
         missing.join(", ")
     );
+    for command in &commands {
+        for argument in command
+            .arguments
+            .iter()
+            .filter(|argument| argument.name.starts_with("--"))
+        {
+            assert!(
+                argument.description.contains("Value form:")
+                    && argument.description.contains("Example:"),
+                "{} {} lacks form/example metadata",
+                command.command.join(" "),
+                argument.name
+            );
+        }
+    }
     Ok(())
 }

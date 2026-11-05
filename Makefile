@@ -382,3 +382,7 @@ source-status-pre-review:
 help-contract-check:
 	cargo test --locked -p biomcp --bin biomcp every_rendered_flag_retains_its_schema_or_parser_description $(TEST_THREADS)
 	cargo test --locked -p biomcp --test cases schema-discovery/help-contract $(TEST_THREADS)
+
+.PHONY: help-metadata-prepare
+help-metadata-prepare:
+	+$(MAKE) schema-generate docs-generate help-contract-check
