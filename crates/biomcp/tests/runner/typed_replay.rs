@@ -356,8 +356,7 @@ fn single_parity(
         && new.len() == 1
         && let (Some(before), Some(after)) = (old.values().next(), new.values().next())
     {
-        approved = super::baseline::named_hint(env, &server_args, args, before, after)?
-            || volatile::raw(context.id, index + 1, before, after)?;
+        approved = volatile::raw(context.id, index + 1, before, after)?;
     }
     let mut failure = None;
     if (old != new && !approved) || context.delayed_control {
