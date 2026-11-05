@@ -4,7 +4,8 @@
 drug-alias-baseline: plain-cli-build
 	python3 scripts/drug_alias_probe.py
 
-.PHONY: drug-alias-prepare drug-alias-check drug-alias-review-check
+.PHONY: drug-alias-prepare drug-alias-check drug-alias-review-check drug-alias-scans
+DRUG_ALIAS_BASELINE ?= d590e1c7bf92fbcf8b0dc299814d9fe2983244b5
 drug-alias-prepare:
 	cargo fmt --all
 	$(MAKE) schema-generate docs-generate
@@ -18,7 +19,10 @@ drug-alias-check:
 	cargo test --locked -p biomcp --test tools -- --cases "$(CURDIR)/tests/tool-cases" drug-native-sources/drug/source-aliases.yaml --exact
 
 drug-alias-review-check: drug-alias-check current-schema-check schema-release-check
-	sh scripts/check_trial_results.sh scans $$(git merge-base HEAD origin/main)
+	$(MAKE) drug-alias-scans
+
+drug-alias-scans:
+	sh scripts/check_trial_results.sh scans $(DRUG_ALIAS_BASELINE)
 
 # Cargo and the test harnesses do not interpret pm's fractional core booking.
 ifneq ($(strip $(PM_JOB_CORES)),)
