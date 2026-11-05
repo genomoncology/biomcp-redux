@@ -11,7 +11,7 @@ import tempfile
 import time
 
 from typed_harness_capture import exchange
-from typed_harness_smoke import check_sources, interrupted, own_process
+from typed_harness_smoke import check_sources, copy_script, interrupted, own_process, remote_scratch, ssh
 
 
 def server():
@@ -85,6 +85,20 @@ def check():
     print("Synthetic byte forwarding, third-call refusal and TERM/HUP cleanup pass; no product/client/provider ran")
 
 
+def transport(host):
+    scratch = remote_scratch(host)
+    try:
+        with tempfile.TemporaryDirectory(prefix="typed-transfer-preflight-") as temporary:
+            payload = Path(temporary) / "public ' quoted payload.txt"
+            payload.write_bytes(b"synthetic public transport payload\x00\n")
+            for source in [Path(__file__).with_name("typed_harness_smoke.py"), Path(__file__).with_name("typed_harness_turn_limit.ts"), payload]:
+                copy_script(host, source, scratch)
+    finally:
+        ssh(host, ["rm", "-rf", "--", scratch], timeout=15)
+    ssh(host, ["test", "!", "-e", scratch], timeout=15)
+    print("SSH receiving hashes and private scratch cleanup pass; no product/client/provider ran")
+
+
 if __name__ == "__main__":
     action = sys.argv[1] if len(sys.argv) > 1 else "check"
     if action == "server":
@@ -100,5 +114,7 @@ if __name__ == "__main__":
     elif action == "sleeper":
         Path(sys.argv[2]).write_text(str(os.getpid()))
         time.sleep(180)
+    elif action == "transport":
+        transport(sys.argv[2])
     else:
         raise SystemExit("expected check, bridge, or server")

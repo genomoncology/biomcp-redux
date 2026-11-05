@@ -32,6 +32,32 @@ def ssh(host, command, **kwargs):
     return subprocess.run(["ssh", "-o", "BatchMode=yes", "-o", "ConnectTimeout=8", host, shlex.join(command)], check=True, **kwargs)
 
 
+def remote_scratch(host):
+    scratch = ssh(host, ["mktemp", "-d", "-t", "biomcp-typed-smoke.XXXXXXXX"], capture_output=True, text=True, timeout=15).stdout.strip()
+    if not scratch.startswith("/tmp/biomcp-typed-smoke."):
+        raise RuntimeError("unexpected remote scratch path")
+    return scratch
+
+
+def copy_script(host, source, scratch):
+    receiver = """import hashlib, os, pathlib, stat, sys
+directory = pathlib.Path(sys.argv[1])
+metadata = directory.lstat()
+if not stat.S_ISDIR(metadata.st_mode) or metadata.st_uid != os.geteuid() or metadata.st_mode & 0o077:
+    raise SystemExit('remote scratch must be an owned private directory')
+path = directory / sys.argv[2]
+with os.fdopen(os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600), 'wb') as output:
+    output.write(sys.stdin.buffer.read())
+print(hashlib.sha256(path.read_bytes()).hexdigest())
+"""
+    data = source.read_bytes()
+    received = ssh(host, ["python3", "-c", receiver, scratch, source.name], input=data, capture_output=True, timeout=15).stdout.decode().strip()
+    expected = hashlib.sha256(data).hexdigest()
+    if received != expected:
+        raise RuntimeError("remote script receiving hash differs")
+    print(json.dumps({"transferred_script": source.name, "receiving_sha256": received}), flush=True)
+
+
 def interrupted(_signal, _frame):
     raise KeyboardInterrupt("typed harness owner interrupted")
 
@@ -125,12 +151,10 @@ def job(args):
         raise RuntimeError("binary differs from the explicitly authorized artifact")
     (output / "binary-sha256.txt").write_text(binary_sha + "\n")
     for name in args.clients:
-        scratch = ssh(args.client_host, ["mktemp", "-d", "-t", "biomcp-typed-smoke.XXXXXXXX"], capture_output=True, text=True).stdout.strip()
-        if not scratch.startswith("/tmp/biomcp-typed-smoke."):
-            raise RuntimeError("unexpected remote scratch path")
+        scratch = remote_scratch(args.client_host)
         try:
-            scripts = [str(Path(__file__).resolve()), str(Path(__file__).with_name("typed_harness_turn_limit.ts"))]
-            subprocess.run(["scp", "-q", *scripts, f"{args.client_host}:{scratch}/"], check=True)
+            for script in [Path(__file__).resolve(), Path(__file__).with_name("typed_harness_turn_limit.ts")]:
+                copy_script(args.client_host, script, scratch)
             command = ["python3", f"{scratch}/typed_harness_smoke.py", "client", "--client", name, "--execute-approved-clients", "--server-host", args.server_host, "--server-python", sys.executable, "--recorder", str(root / "scripts/typed_harness_capture.py"), "--binary", str(Path(args.binary).resolve()), "--replay", str(root / "tests/replies/trial/get/NCT02563002"), "--output", str(output / name)]
             if name == "pi":
                 command += ["--pi-node", args.pi_node, "--pi-bundle", args.pi_bundle]
