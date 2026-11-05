@@ -47,6 +47,26 @@
         "/error/option": "--drug",
         "/error/message": "pass --drug once per literal name to search several names with OR; OR inside one --drug value is not supported"
       }
+    },
+    {
+      "run": [
+        "search",
+        "adverse-event",
+        "--drug",
+        "oral",
+        "--drug",
+        "atorvastatin"
+      ],
+      "offline": true,
+      "exit": 4,
+      "expect": {
+        "/status": "failed",
+        "/query/drug": [
+          "oral",
+          "atorvastatin"
+        ],
+        "/sources/0/source": "faers"
+      }
     }
   ]
 }

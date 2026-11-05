@@ -400,6 +400,8 @@ bench-honesty-repro:
 bench-honesty-focused:
 	cargo test --locked -p biomcp --test cases query-validation/argument-recovery $(TEST_THREADS)
 	cargo test --locked -p biomcp --test cases drug-boolean-refusal $(TEST_THREADS)
+	cargo test --locked -p biomcp --test cases faers-literals-and-cap $(TEST_THREADS)
+	cargo test --locked -p biomcp --test cases faers-several-names $(TEST_THREADS)
 	cargo test --locked -p biomcp --test cases resolver-provenance $(TEST_THREADS)
 	cargo test --locked -p biomcp --test cases resolver-variantvalidator $(TEST_THREADS)
 	cargo test --locked -p biomcp --test cases diagnostic/device-approvals $(TEST_THREADS)
