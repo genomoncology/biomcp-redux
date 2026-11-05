@@ -3,11 +3,24 @@ use super::super::{
     launch::{Environment, fixtures},
     mcp::{exchange_with_globals, request},
 };
+use crate::runner::transcript::trial as transcript_trial;
+use libtest_mimic::Trial;
 use serde_json::{Value, json};
 
 type Check = Result<(), String>;
 
-pub(super) fn check() -> Check {
+pub(super) fn trials() -> Vec<Trial> {
+    vec![
+        transcript_trial("drug-label/native-name-fallback", || {
+            display_names().map_err(Into::into)
+        }),
+        transcript_trial("drug-label/indication-priority-and-native-pages", || {
+            check().map_err(Into::into)
+        }),
+    ]
+}
+
+fn check() -> Check {
     let mut failures = Vec::new();
     for mode in ["single", "typed"] {
         let env = Environment::new().map_err(|e| e.to_string())?;
@@ -80,7 +93,7 @@ fn search(env: &Environment, mode: &str, query: &str, offset: u32) -> Result<Val
 }
 
 // Exact reported command, using its unchanged retained native ten-row page.
-pub(super) fn display_names() -> Check {
+fn display_names() -> Check {
     let mut failures = Vec::new();
     for mode in ["single", "typed"] {
         let env = Environment::new().map_err(|e| e.to_string())?;

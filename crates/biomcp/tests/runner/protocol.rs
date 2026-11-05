@@ -30,12 +30,6 @@ type Check = Result<(), String>;
 
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = vec![
-        transcript_trial("drug-label/native-name-fallback", || {
-            label_priority::display_names().map_err(Into::into)
-        }),
-        transcript_trial("drug-label/indication-priority-and-native-pages", || {
-            label_priority::check().map_err(Into::into)
-        }),
         transcript_trial("mcp-parity/typed-cli-bridge", || {
             typed_bridge::check().map_err(Into::into)
         }),
@@ -95,6 +89,7 @@ pub(super) fn trials() -> Vec<Trial> {
             discovery().map_err(Into::into)
         }),
     ];
+    trials.extend(label_priority::trials());
     tool_only! {
         trials.push(transcript_trial("mcp-parity/typed-baseline-and-replay-guards", || {
             typed::guards().map_err(Into::into)
