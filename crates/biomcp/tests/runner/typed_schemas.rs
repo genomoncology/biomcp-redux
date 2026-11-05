@@ -161,9 +161,9 @@ pub(super) fn budget(tool: &Value) -> Result<(), String> {
     let length = size(tool);
     // search_trial exposes the complete supported filter set. Even with no descriptions,
     // its supported filter schema structure is 2058 characters; these optional filters cannot fit
-    // the ordinary budget. Keep the sole measured exception bounded at 3375.
+    // the ordinary budget. Restore source-owned numeric guidance within the sole measured exception of 3450.
     let limit = if field(tool, "name") == "search_trial" {
-        3375
+        3450
     } else {
         2000
     };

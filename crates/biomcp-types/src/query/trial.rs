@@ -143,7 +143,7 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "TrialSex"))]
     sex: Option<TrialSex>,
-    #[doc = "Age years.\nAge in years; unstated source bounds count as no limit."]
+    /// Age in years; unstated source bounds count as no limit.
     #[serde(
         default,
         deserialize_with = "super::gene::present",
@@ -245,7 +245,7 @@ struct Fields {
     #[doc = "Posted results.\nRequire posted source results."]
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     has_results: bool,
-    #[doc = "Page size.\nHeaders per page; NCI applies its own lower publisher limit."]
+    /// Headers per page; NCI applies its own lower publisher limit.
     #[serde(default = "default_limit")]
     #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 100)))]
     limit: u32,

@@ -206,7 +206,7 @@ struct Fields {
     #[serde(default = "limit")]
     #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 50)))]
     limit: u32,
-    #[doc = "Pool items to skip.\nNumber of pool items to skip."]
+    /// Number of pool items to skip.
     #[serde(default)]
     offset: u32,
     #[doc = "Stable result snapshot.\nStable snapshot from an earlier response."]
