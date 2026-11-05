@@ -472,6 +472,9 @@ def classify_case(row):
         causes = command_causes(command)
         for cause in ('throttled', 'outage'):
             earlier_failed.update({source: cause for source in causes[cause]})
+        for key, request in after.items():
+            if request.get('status') == 200:
+                earlier_roots.pop(key, None)
         earlier_roots.update({key: before[key] for key in before.keys() & after.keys()
                               if failed_status(after[key].get('status'))})
         previous_command, previous_outcome, previous_comparison = original, outcome, comparison
