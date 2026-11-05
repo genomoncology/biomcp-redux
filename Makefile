@@ -381,3 +381,7 @@ source-status-pre-review:
 .PHONY: supplement-indications-reproduce
 supplement-indications-reproduce:
 	python3.13 scripts/check_supplement_indications.py
+
+.PHONY: supplement-indications-focused
+supplement-indications-focused:
+	python3.13 scripts/trials.py --installed --case-file drug/supplement-purpose.yaml --case-file drug/supplement-purpose-missing.yaml drug-approvals/newest-submission-pages drug-approvals/undated-and-numeric-ties

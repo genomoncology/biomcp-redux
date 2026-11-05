@@ -1,0 +1,44 @@
+{
+  "feature": "drug-approvals",
+  "story": "Efficacy supplements carry literal FDA-letter purposes with exact document attribution, including every indication and corrected letters; unavailable downloads stay explicit.",
+  "live_check": "Synthetic PDFs transcribe attributed FDA text; recorded only",
+  "replay": "drug/supplement-purpose",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "drug",
+        "NDA208692",
+        "approvals",
+        "--source",
+        "drugsfda",
+        "--section-limit",
+        "50"
+      ],
+      "expect": {
+        "/page/total": 15,
+        "/result/approvals/data/records/0/submission_number": "19",
+        "/result/approvals/data/records/2/supplement_purpose/state": "stated",
+        "/result/approvals/data/records/2/supplement_purpose/document_id": "81763",
+        "/result/approvals/data/records/2/supplement_purpose/text": {
+          "includes_all_of": [
+            "pancreatic neuroendocrine tumors.",
+            "extra-pancreatic neuroendocrine tumors."
+          ]
+        },
+        "/result/approvals/data/records/6/supplement_purpose/state": "stated",
+        "/result/approvals/data/records/6/supplement_purpose/document_id": "68715",
+        "/result/approvals/data/records/6/supplement_purpose/text": {
+          "includes_all_of": [
+            "differentiated thyroid cancer",
+            "radioactive iodine-refractory or ineligible."
+          ]
+        },
+        "/result/approvals/data/records/1/supplement_purpose/state": "unavailable",
+        "/result/approvals/data/records/1/supplement_purpose/message": {
+          "includes": "could not be read"
+        }
+      }
+    }
+  ]
+}
