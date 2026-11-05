@@ -422,7 +422,15 @@ fn population_reason(
     }
 }
 
-fn reply(query: &VariantGet, body: VariantCard, sources: &[biomcp_types::SourceOutcome]) -> biomcp_types::ReplyData {
-    let echo = biomcp_types::VariantGetQuery::new(query.clone(), body.source, sources.iter().find(|v| v.source == body.source));
+fn reply(
+    query: &VariantGet,
+    body: VariantCard,
+    sources: &[biomcp_types::SourceOutcome],
+) -> biomcp_types::ReplyData {
+    let echo = biomcp_types::VariantGetQuery::new(
+        query.clone(),
+        body.source,
+        sources.iter().find(|v| v.source == body.source),
+    );
     body.with_query(echo)
 }

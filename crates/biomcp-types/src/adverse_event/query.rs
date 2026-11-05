@@ -175,8 +175,9 @@ impl TryFrom<SearchFields> for AdverseEventSearch {
                         .any(|word| word.eq_ignore_ascii_case("OR"))
             })
         {
-            return Err(QueryInvalid::new(&["drug"])
-                .with_message(crate::ErrorMessage::FaersDrugNames));
+            return Err(
+                QueryInvalid::new(&["drug"]).with_message(crate::ErrorMessage::FaersDrugNames)
+            );
         }
         let query = Self(v);
         if query.source() == AdverseEventSource::Faers

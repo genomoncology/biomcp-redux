@@ -1,6 +1,6 @@
+use super::variant::ResolverChoice;
 use crate::{Build, VariantGet, VariantInput, VariantResolver};
 use serde::{Deserialize, Serialize};
-use super::variant::ResolverChoice;
 /// Read a bounded ancestry-detail page from the exact source-given GRCh38 allele.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "Fields")]
@@ -8,14 +8,20 @@ use super::variant::ResolverChoice;
 #[cfg_attr(feature = "schema", schemars(with = "Fields"))]
 pub struct VariantPopulationQuery(Fields);
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields, bound(deserialize = "R: serde::Deserialize<'de> + ResolverChoice"))]
+#[serde(
+    deny_unknown_fields,
+    bound(deserialize = "R: serde::Deserialize<'de> + ResolverChoice")
+)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct Fields<R: ResolverChoice = VariantResolver> {
     /// Exact published allele identity; ambiguous candidates must first be selected.
     #[cfg_attr(feature="schema",schemars(extend("x-positional"=0)))]
     input: VariantInput,
     /// Resolver for reference-qualified input.
-    #[serde(default = "R::default_resolver", skip_serializing_if = "ResolverChoice::unused")]
+    #[serde(
+        default = "R::default_resolver",
+        skip_serializing_if = "ResolverChoice::unused"
+    )]
     #[cfg_attr(feature = "schema", schemars(with = "VariantResolver"))]
     resolver: R,
     /// Explicit source assembly when required by identity input.
@@ -54,7 +60,10 @@ pub struct VariantPopulationQueryEcho(Fields<Option<VariantResolver>>);
 
 impl VariantPopulationQuery {
     /// Echo actual identity provenance without changing the request or its continuations.
-    pub fn answered_query(&self, outcome: Option<&crate::SourceOutcome>) -> VariantPopulationQueryEcho {
+    pub fn answered_query(
+        &self,
+        outcome: Option<&crate::SourceOutcome>,
+    ) -> VariantPopulationQueryEcho {
         VariantPopulationQueryEcho(Fields {
             input: self.0.input.clone(),
             resolver: VariantResolver::answered(outcome),

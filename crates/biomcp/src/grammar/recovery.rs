@@ -143,12 +143,18 @@ pub(super) fn trial_first_page(
     value: &Value,
     cause: &biomcp_types::QueryInvalid,
 ) -> Option<Step> {
-    if !matches!(cause.message(), Some(
-        biomcp_types::ErrorMessage::TrialSectionPool | biomcp_types::ErrorMessage::TrialSearchCursor
-    )) {
+    if !matches!(
+        cause.message(),
+        Some(
+            biomcp_types::ErrorMessage::TrialSectionPool
+                | biomcp_types::ErrorMessage::TrialSearchCursor
+        )
+    ) {
         return None;
     }
     let mut first = value.clone();
-    first.as_object_mut()?.insert("offset".into(), Value::from(0));
+    first
+        .as_object_mut()?
+        .insert("offset".into(), Value::from(0));
     checked(via, path, first)
 }

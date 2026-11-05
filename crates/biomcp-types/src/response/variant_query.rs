@@ -26,7 +26,8 @@ impl VariantGetQuery {
                 query.with_myvariant_build()
             } else {
                 query
-            }.answered_query(outcome),
+            }
+            .answered_query(outcome),
             build_defaulted: defaulted.then_some(true),
         }
     }

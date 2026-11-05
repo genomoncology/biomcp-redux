@@ -15,7 +15,10 @@ use serde::{Deserialize, Serialize};
 )]
 pub struct VariantGet(Fields);
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields, bound(deserialize = "R: serde::Deserialize<'de> + ResolverChoice"))]
+#[serde(
+    deny_unknown_fields,
+    bound(deserialize = "R: serde::Deserialize<'de> + ResolverChoice")
+)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct Fields<R: ResolverChoice = VariantResolver> {
     #[doc = "rs/CA/clinvar:N/VCV/HGVS/VCF\n\
@@ -53,7 +56,10 @@ struct Fields<R: ResolverChoice = VariantResolver> {
     #[serde(flatten)]
     evidence_filter: crate::CivicEvidenceFilter,
     #[doc = "Resolver.\nResolver for reference-qualified notation; never repairs the input locally."]
-    #[serde(default = "R::default_resolver", skip_serializing_if = "ResolverChoice::unused")]
+    #[serde(
+        default = "R::default_resolver",
+        skip_serializing_if = "ResolverChoice::unused"
+    )]
     #[cfg_attr(feature = "schema", schemars(with = "VariantResolver"))]
     resolver: R,
     #[doc = "Assembly\nMyVariant identity assembly defaults to GRCh38; chromosome genomic HGVS requires an explicit build."]
@@ -89,12 +95,20 @@ pub(crate) trait ResolverChoice: Serialize {
     fn unused(&self) -> bool;
 }
 impl ResolverChoice for VariantResolver {
-    fn default_resolver() -> Self { Self::Car }
-    fn unused(&self) -> bool { false }
+    fn default_resolver() -> Self {
+        Self::Car
+    }
+    fn unused(&self) -> bool {
+        false
+    }
 }
 impl ResolverChoice for Option<VariantResolver> {
-    fn default_resolver() -> Self { None }
-    fn unused(&self) -> bool { self.is_none() }
+    fn default_resolver() -> Self {
+        None
+    }
+    fn unused(&self) -> bool {
+        self.is_none()
+    }
 }
 impl VariantGet {
     /// Build a reply-only query from the identity outcome, without changing the executable request.
@@ -366,7 +380,8 @@ biodata::wire_enum! {
 impl VariantResolver {
     /// An identity source that supplied a current or stale answer; failed or unused resolvers are omitted.
     pub fn answered(outcome: Option<&crate::SourceOutcome>) -> Option<Self> {
-        let outcome = outcome.filter(|v| matches!(v.state, crate::SourceState::Ok | crate::SourceState::Stale))?;
+        let outcome = outcome
+            .filter(|v| matches!(v.state, crate::SourceState::Ok | crate::SourceState::Stale))?;
         match outcome.source {
             crate::Source::AlleleRegistry => Some(Self::Car),
             crate::Source::Mutalyzer => Some(Self::Mutalyzer),
