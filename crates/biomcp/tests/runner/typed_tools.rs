@@ -237,8 +237,8 @@ fn descriptions(node: &Value) -> Result<(), String> {
 }
 
 pub(super) fn guards() -> Result<(), String> {
-    baseline::invalid_id_witness()?;
-    baseline::check()?;
+    super::super::launch::typed_baseline()
+        .ok_or("BIOMCP_TYPED_BASELINE is required for single-mode wire parity")?;
     let env = Environment::new().map_err(|e| e.to_string())?;
     env.config(&json!({"mcp_tool_mode":"typed"}))
         .map_err(|e| e.to_string())?;
@@ -247,5 +247,7 @@ pub(super) fn guards() -> Result<(), String> {
         .iter()
         .find(|tool| tool.get("name") == Some(&json!("search_biomarker")))
         .ok_or("missing search_biomarker registry tool")?;
-    replay::rejects_overstrict_schema(tool)
+    replay::rejects_overstrict_schema(tool)?;
+    baseline::invalid_id_witness()?;
+    baseline::check()
 }
