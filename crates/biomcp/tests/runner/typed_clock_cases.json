@@ -1,84 +1,213 @@
 {
-  "article/citations/edge-cursors.yaml step 1": {
-    "capture_sha256": "0551f951578e740570d31d044205a262ecc7ee3d2ef64f97f59f6caedaa523b9",
+  "article/edges/anonymous-row.yaml step 1": {
+    "capture_sha256": "1dd96ad67e0dd689fbc243b5c68fe793dd0782eed154f04c19a949cee5995846",
     "pointers": [
       "/page/pool/created",
       "/page/pool/expires"
     ]
   },
-  "article/citations/references.yaml step 1": {
-    "capture_sha256": "c9729f21be65470cd38d57cdfe0f0bafb76c2dadb082a4c05da83eb3b1e9bf81",
+  "article/edges/references.yaml step 1": {
+    "capture_sha256": "cce44613c7e45d43e3669db7477855ca1c0bde05c79eef5f3e43e61473bff974",
     "pointers": [
       "/page/pool/created",
       "/page/pool/expires"
     ]
   },
-  "article/filters/include-retracted.yaml step 1": {
-    "capture_sha256": "2338cfe404c37caa75c8a2d8555b0d06ec061cd6ce1f2b29b0881d3b02a7bbcd",
+  "article/edges/window.yaml step 1": {
+    "capture_sha256": "3620dca0f4c682637b5269f36790ee621a73b6b0054eeb30d2e456ea1b6eab04",
     "pointers": [
       "/page/pool/created",
       "/page/pool/expires"
     ]
   },
-  "article/litvar/akt1-rsid-citations.yaml step 1": {
-    "capture_sha256": "5b49b8d55cd37bac1cd5910087ab902cccbba92e705ced2bfb037b4ad1270470",
+  "article/filters/access-europepmc.yaml step 1": {
+    "capture_sha256": "afda1901ce17f58a446f3abbff0e20bfb4d56c120d2ee07947bdf31bb5fc50a8",
     "pointers": [
       "/page/pool/created",
       "/page/pool/expires"
     ]
   },
-  "author/papers.yaml step 2": {
-    "capture_sha256": "698dba9b6024d0cfe14047a734ffe29cdc5754b81729058169b876cdc7427e68",
-    "pointers": [
-      "/next/1/args/6"
-    ]
-  },
-  "orcid/refused-member.yaml step 1": {
-    "capture_sha256": "cf964e3e8d73d6f6d8395d4a6c1a359b8e7cc0649cbf5729aa517a5883b06aab",
+  "article/filters/include-retracted.yaml step 2": {
+    "capture_sha256": "5f6e98b6039b76030e364e851b3d7b844dabde21cf56cb8af5196a5ac5f6e177",
     "pointers": [
       "/page/pool/created",
       "/page/pool/expires"
     ]
   },
-  "pathway-sections/examples.yaml step 1": {
-    "capture_sha256": "6552ec3e9a0c70b03a4a126407b900d47826fa74a95f540b04ab616a6057c20a",
+  "article/filters/since.yaml step 1": {
+    "capture_sha256": "532fabef5f63b347843ab2a255081f4a6e2be2675fc3aa9a11ae26ff6f92694c",
     "pointers": [
+      "/page/pool/created",
+      "/page/pool/expires"
+    ]
+  },
+  "article/filters/since.yaml step 2": {
+    "capture_sha256": "ab985b50703ceebb8cec7e890926f63cf6de072f75161d18863cfcb30f212cda",
+    "pointers": [
+      "/page/pool/created",
+      "/page/pool/expires"
+    ]
+  },
+  "article/fold/failed-pubmed.yaml step 1": {
+    "capture_sha256": "1e275fea058be62e3a0011bb393411122a1c354d41714d4b036018776fcc5edb",
+    "pointers": [
+      "/page/pool/created",
+      "/page/pool/expires"
+    ]
+  },
+  "article/litsense/licensed-subset.yaml step 1": {
+    "capture_sha256": "d0d301c46068706b725a67567dde358a3843b6e69882bf1468f95ad540f5149d",
+    "pointers": [
+      "/page/pool/created",
+      "/page/pool/expires"
+    ]
+  },
+  "article/litvar/akt1-rsid-citations.yaml step 2": {
+    "capture_sha256": "f9136bfc73685d5a373dc3c573f6c4192b976712d38d1693293e1052b126c1cd",
+    "pointers": [
+      "/page/pool/created",
+      "/page/pool/expires"
+    ]
+  },
+  "article/recommendations/multi.yaml step 1": {
+    "capture_sha256": "128e31b49754c50fb08ba51997f3c21a38d76eda519cab063a5cf164591fd727",
+    "pointers": [
+      "/page/pool/created",
+      "/page/pool/expires"
+    ]
+  },
+  "article/recommendations/single.yaml step 1": {
+    "capture_sha256": "0c7b5b73a75de0be0c5960f6a77febd5b5fe1d237c7a328ce4dc346fa8127d2e",
+    "pointers": [
+      "/page/pool/created",
+      "/page/pool/expires"
+    ]
+  },
+  "article/search/synthetic-four-term-short.yaml step 1": {
+    "capture_sha256": "480d5bc5023a7f56c0d1ab6fb3fabeb190413dbaeee0f0c6ea2cfc620ff27f2a",
+    "pointers": [
+      "/page/pool/created",
+      "/page/pool/expires"
+    ]
+  },
+  "author/search-disabled-pool.yaml step 1": {
+    "capture_sha256": "8473317bb727e86d874b9e7b7facd603503e957f4ef9e44ad38bf7da9f3da1ae",
+    "pointers": [
+      "/page/pool/created",
+      "/page/pool/expires"
+    ]
+  },
+  "author/search.yaml step 1": {
+    "capture_sha256": "929327c83aa281eaa1c03d3b3796f920fd46f2d733808493d65e3fe51fd5f1b5",
+    "pointers": [
+      "/page/pool/created",
+      "/page/pool/expires"
+    ]
+  },
+  "author/source-alias.yaml step 1": {
+    "capture_sha256": "c82f0a12ca2fbb766ab0420aafb00cf0d0e0f2ce7031b2ab390867089c6fbd49",
+    "pointers": [
+      "/page/pool/created",
+      "/page/pool/expires"
+    ]
+  },
+  "gwas/examples.yaml step 3": {
+    "capture_sha256": "b5795b7e9a9ca224ccbf2daa635ef63eac2e158d941a6066f18c1deda4f969a6",
+    "pointers": [
+      "/page/pool/created",
+      "/page/pool/expires",
       "/result/page/pool/created",
       "/result/page/pool/expires"
     ]
   },
-  "protein/examples.yaml step 11": {
-    "capture_sha256": "dd08d0535f9df587e9e17b6310f7df3d04d898c47dec35158eb77b45a9b7e835",
+  "orcid/refused-member.yaml step 2": {
+    "capture_sha256": "c9ddc5de3774d94dd593496f255faab7a361c50d55b24212ac0f467f62032803",
     "pointers": [
       "/page/pool/created",
       "/page/pool/expires"
     ]
   },
-  "protein/examples.yaml step 3": {
-    "capture_sha256": "11090b85a4293c97eeb4e0934a80fac34a0e177c2ca86253e78c76c85bce6df6",
+  "orcid/visibility.yaml step 1": {
+    "capture_sha256": "f85947fa2ab88f156f013eb58e4a990876f544f2d07c58dd561793df0275c73d",
     "pointers": [
       "/page/pool/created",
       "/page/pool/expires"
     ]
   },
-  "protein/examples.yaml step 9": {
-    "capture_sha256": "910485655ef0ff4840b706b7e75529278bf79c8f526fce91dff974df30c4cbb7",
+  "pathway-sections/all.yaml step 1": {
+    "capture_sha256": "401f313f50ff152de13dbfdbf199e285c15c455ec8aa6f1e34982da137a6db84",
+    "pointers": [
+      "/result/events/data/page/pool/created",
+      "/result/events/data/page/pool/expires",
+      "/result/genes/data/page/pool/created",
+      "/result/genes/data/page/pool/expires"
+    ]
+  },
+  "protein/examples.yaml step 1": {
+    "capture_sha256": "c1107efb08aa710b2bd6674f666ba5fe3f768285ff95597d2fda4256ce920dce",
     "pointers": [
       "/page/pool/created",
       "/page/pool/expires"
     ]
   },
-  "protein/native-sections.yaml step 7": {
-    "capture_sha256": "a1e1ec59562f77c3ea673670dfbb11df4678b45253fbfc63851bbb2f919e4557",
+  "protein/examples.yaml step 10": {
+    "capture_sha256": "ed4717d630869a82fe210df4cbcfa6f1d8912bee1d4220c7f230a45fa79ae59f",
     "pointers": [
       "/page/pool/created",
       "/page/pool/expires"
     ]
   },
-  "study/examples.yaml step 5": {
-    "capture_sha256": "a439c0c0fbde819f3412f68c36c00c2373fadc6541b410d15ae43431fa15d70d",
+  "protein/examples.yaml step 2": {
+    "capture_sha256": "393f260b70b96b8aa895fdd88ccd65971192c5c4c1b4bea69cf6ab28f15265d7",
     "pointers": [
-      "/result/snapshot/acquired"
+      "/page/pool/created",
+      "/page/pool/expires"
+    ]
+  },
+  "protein/examples.yaml step 4": {
+    "capture_sha256": "8cc0016132ce1a1407ce6430ab0a6e5389deebc46f1a3d772ee2c223cc40b0d6",
+    "pointers": [
+      "/page/pool/created",
+      "/page/pool/expires"
+    ]
+  },
+  "protein/examples.yaml step 6": {
+    "capture_sha256": "160763310ac47b76f5e2a8a783314d6ca9c22b93dc3921e75db9cf5a8d94ca2d",
+    "pointers": [
+      "/page/pool/created",
+      "/page/pool/expires"
+    ]
+  },
+  "protein/native-reviewed.yaml step 1": {
+    "capture_sha256": "a30f6a0b228a11f31f593db54a8079d717f69902f698afa50ff35c180dd1b86c",
+    "pointers": [
+      "/page/pool/created",
+      "/page/pool/expires"
+    ]
+  },
+  "protein/paging.yaml step 2": {
+    "capture_sha256": "791960193b79b8286ba8e1a94e0f48deb4a0bcbf887a9779f18148ef06624d38",
+    "pointers": [
+      "/page/pool/created",
+      "/page/pool/expires"
+    ]
+  },
+  "study/examples.yaml step 3": {
+    "capture_sha256": "18447a8f5f6daabc8b212af9b6ff01cb87355dddce9d843a2455d61a64e7ad87",
+    "pointers": [
+      "/page/pool/created",
+      "/page/pool/expires",
+      "/result/page/pool/created",
+      "/result/page/pool/expires"
+    ]
+  },
+  "study/examples.yaml step 4": {
+    "capture_sha256": "fc6a0bc92cda00ec8eb666f0cfd618a2bdd65fec632db682893b88bdeab62799",
+    "pointers": [
+      "/page/pool/created",
+      "/page/pool/expires",
+      "/result/page/pool/created",
+      "/result/page/pool/expires"
     ]
   }
 }
