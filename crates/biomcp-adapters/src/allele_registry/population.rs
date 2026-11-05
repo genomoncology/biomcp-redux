@@ -1,8 +1,9 @@
 //! Preserve the registry's gnomAD v4 cross-reference, never infer padding or alignment.
 use crate::{Mapped, mapped::Problems};
-use biodata::{Expression, ExpressionSyntax, Text};
+use biodata::Text;
 use biomcp_fetch::{Leg, RequestError};
 use biomcp_types::Source;
+use biomcp_types::VariantInput;
 
 /// Read one canonical allele's exact GRCh38 gnomAD v4 key.
 /// gnomAD v2 uses GRCh37 and is deliberately not a fallback.
@@ -12,18 +13,28 @@ pub fn population_id(leg: &Leg<'_>, id: &str) -> Result<Mapped<Option<Text>>, Re
         .map_err(|_| biomcp_fetch::bad_reply(Source::AlleleRegistry, None))?;
     let mut fields = Problems {
         source: Source::AlleleRegistry,
-        record: Text::new(id).ok(),
+        record: Some(
+            Text::new(id).map_err(|_| biomcp_fetch::bad_reply(Source::AlleleRegistry, None))?,
+        ),
         list: Vec::new(),
     };
     let mut ids = std::collections::BTreeSet::new();
     if let Some(external) = fields.field("externalRecords", raw.external) {
         for row in fields.fields("externalRecords.gnomAD_4", external.gnomad) {
             let id = fields.field("externalRecords.gnomAD_4.id", Some(row.id));
-            if let Some(expression) = fields.optional(
+            let parsed = fields.optional(
                 "externalRecords.gnomAD_4.id",
-                id.map(|id| Expression::new(ExpressionSyntax::Gnomad, id, None)),
-            ) {
-                ids.insert(expression.value().clone());
+                id.as_ref().map(|id| id.as_str().parse::<VariantInput>()),
+            );
+            if let Some((id, parsed)) = id.zip(parsed)
+                && fields
+                    .required(
+                        "externalRecords.gnomAD_4.id",
+                        parsed.coordinate_form().then_some(()),
+                    )
+                    .is_some()
+            {
+                ids.insert(id);
             }
         }
     }

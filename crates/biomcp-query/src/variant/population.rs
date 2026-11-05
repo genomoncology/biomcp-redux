@@ -34,6 +34,7 @@ pub(super) fn section(
         result.3 = joined.local;
         return result;
     };
+    let deadline = deadline.after_stage(joined.elapsed);
     let leg = cx.fetch.leg(&gnomad::SPEC, deadline).fresh(cx.fresh);
     let mut dropped = false;
     let mut problems = joined.problems;

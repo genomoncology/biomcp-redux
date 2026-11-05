@@ -77,7 +77,7 @@ struct PopulationRead {
 fn read(
     cx: &Ctx<'_>,
     query: &VariantPopulationQuery,
-    deadline: biomcp_fetch::Deadline<'_>,
+    mut deadline: biomcp_fetch::Deadline<'_>,
 ) -> PopulationRead {
     let mut read = PopulationRead {
         dropped: false,
@@ -94,6 +94,7 @@ fn read(
     }
     if let Ok(identity) = query.identity() {
         let found = super::identity::read(cx, &identity, deadline);
+        deadline = deadline.after_stage(found.elapsed);
         read.dropped = found.dropped;
         read.sources = found.sources;
         read.problems = found.problems;
@@ -105,6 +106,7 @@ fn read(
         }
     }
     let joined = super::population_identity::read(cx, &read.candidates, deadline);
+    deadline = deadline.after_stage(joined.elapsed);
     read.sources.extend(joined.sources);
     read.problems.extend(joined.problems);
     read.local = read.local.or(joined.local);

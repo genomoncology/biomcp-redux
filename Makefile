@@ -394,3 +394,8 @@ source-status-pre-review:
 .PHONY: indel-population-baseline
 indel-population-baseline:
 	python3 scripts/trials.py --case-file variant/id-forms/deletion.yaml --case-file variant/id-forms/insertion.yaml
+
+.PHONY: indel-population-check
+indel-population-check:
+	+$(MAKE) check-cheap
+	python3 scripts/trials.py --case-file variant/id-forms/deletion.yaml --case-file variant/id-forms/insertion.yaml --case-file variant/id-forms/delins.yaml --case-file variant/population/indel-native.yaml --case-file variant/population/indel-typed.yaml
