@@ -40,7 +40,9 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
                 &mut found,
                 query.source(),
                 format!(
-                    "The search for {input:?} returned no rows. {} record {} supplies the name {name:?}; tried the selected source with that name. Returned rows and totals belong to the selected source.",
+                    "The search for {input:?} returned no rows. {} record {} supplies the name {name:?}; \
+                     tried the selected source with that name. \
+                     Returned rows and totals belong to the selected source.",
                     card.header.source, card.header.id
                 ),
             );
@@ -58,7 +60,7 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
         return out;
     }
     let input = query.input();
-    let (card, evidence) = authority(&within(cx, deadline.remaining()), input, query.source());
+    let (card, mut evidence) = authority(&within(cx, deadline.remaining()), input, query.source());
     evidence.append(&mut out);
     let Some(card) = card else {
         return out;
@@ -74,7 +76,11 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
         if deadline.remaining().is_zero() {
             break;
         }
-        let Ok(retry) = query.with_name(name.clone()) else {
+        let Some(retry) = crate::next::checked(
+            query.with_name(name.clone()),
+            card.header.source.source(),
+            &mut evidence.problems,
+        ) else {
             continue;
         };
         let mut found = super::resolve::get(&within(cx, deadline.remaining()), &retry);
@@ -84,7 +90,9 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
                 &mut found,
                 query.source(),
                 format!(
-                    "The source did not resolve {input:?}. {} record {} supplies the name {name:?}; tried resolving that name in the selected source. Only that source can supply its own record.",
+                    "The source did not resolve {input:?}. {} record {} supplies the name {name:?}; \
+                     tried resolving that name in the selected source. \
+                     Only that source can supply its own record.",
                     card.header.source, card.header.id
                 ),
             );
@@ -132,7 +140,11 @@ fn authority(cx: &Ctx<'_>, input: &Text, selected: DrugSource) -> (Option<DrugCa
         if deadline.remaining().is_zero() {
             break;
         }
-        let Ok(query) = DrugGet::named(input.clone(), source) else {
+        let Some(query) = crate::next::checked(
+            DrugGet::named(input.clone(), source),
+            source.source(),
+            &mut evidence.problems,
+        ) else {
             continue;
         };
         let out = super::resolve::get(&within(cx, deadline.remaining()), &query);
@@ -223,11 +235,16 @@ fn hint(
             out,
             selected,
             format!(
-                "{} has several exact records for {input:?}; no cross-source alias was selected. Search that source to inspect its candidates.",
+                "{} has several exact records for {input:?}; no cross-source alias was selected. \
+                 Search that source to inspect its candidates.",
                 card.header.source
             ),
         );
-        if let Ok(query) = DrugSearch::named(input.clone(), card.header.source, 10) {
+        if let Some(query) = crate::next::checked(
+            DrugSearch::named(input.clone(), card.header.source, 10),
+            card.header.source.source(),
+            &mut out.problems,
+        ) {
             out.next.push(crate::next::Step::run(
                 StepKind::Disambiguate,
                 &[card.header.source.source()],
@@ -241,11 +258,16 @@ fn hint(
         out,
         selected,
         format!(
-            "The completed queries in {selected} found no matching record for {input:?}. {} record {} matches the input; its presence does not establish a record in {selected}.",
+            "The completed queries in {selected} found no matching record for {input:?}. \
+             {} record {} matches the input; its presence does not establish a record in {selected}.",
             card.header.source, card.header.id
         ),
     );
-    if let Ok(query) = DrugGet::new(card.header.id.clone(), card.header.source) {
+    if let Some(query) = crate::next::checked(
+        DrugGet::new(card.header.id.clone(), card.header.source),
+        card.header.source.source(),
+        &mut out.problems,
+    ) {
         out.next.push(crate::next::Step::run(
             StepKind::Disambiguate,
             &[card.header.source.source()],
@@ -258,7 +280,7 @@ fn hint(
 
 fn search_spelling(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     let deadline = cx.fetch.deadline(cx.budget);
-    let out = super::search_source(cx, query);
+    let mut out = super::search_source(cx, query);
     if query.source() != DrugSource::Chembl
         || query.explicit_name_selector()
         || query.offset() != 0
@@ -266,7 +288,11 @@ fn search_spelling(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     {
         return out;
     }
-    let Ok(synonym) = query.with_name_selector(DrugNameSelector::Synonym) else {
+    let Some(synonym) = crate::next::checked(
+        query.with_name_selector(DrugNameSelector::Synonym),
+        query.source().source(),
+        &mut out.problems,
+    ) else {
         return out;
     };
     let mut found = super::search_source(&within(cx, deadline.remaining()), &synonym);

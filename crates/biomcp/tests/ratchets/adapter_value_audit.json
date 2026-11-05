@@ -1682,7 +1682,7 @@
     },
     {
       "path": "crates/biomcp-query/src/drug.rs",
-      "site": "search: Mychem , leg . finish ( ) , error ) ) ; if let Ok ( ( page , received ) ) = result { out . include_refusals",
+      "site": "search_source: Mychem , leg . finish ( ) , error ) ) ; if let Ok ( ( page , received ) ) = result { out . include_refusals",
       "maximum": 1,
       "class": "migrated",
       "owner": "drug.rs",
