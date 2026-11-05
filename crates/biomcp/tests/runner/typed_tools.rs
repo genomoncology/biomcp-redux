@@ -47,7 +47,7 @@ fn discovery(env: &Environment, globals: &[String]) -> Result<Vec<Value>, String
         .and_then(Value::as_array)
         .ok_or("missing tools")?;
     let paths = biomcp_types::command_paths();
-    if tools.len() != paths.len() {
+    if tools.len() != paths.len() + 3 {
         return Err("missing registry tools".into());
     }
     let instructions = replies
