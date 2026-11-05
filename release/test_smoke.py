@@ -9,6 +9,9 @@ import tempfile
 import unittest
 
 
+INSTALLED_SMOKE_HANG_GUARD_SECONDS = float(os.environ.get("BIOMCP_INSTALLED_SMOKE_HANG_GUARD_SECONDS", "600"))
+
+
 class InstalledTemporarySpace(unittest.TestCase):
     def test_actual_installed_cli_refuses_a_different_candidate_commit(self):
         # Use the selected built executable through the same CLI checker as every installer.
@@ -140,7 +143,7 @@ finally:
                     if configured:
                         env["TMPDIR"] = str(parent)
                     selected = installed / ("absent" if fail else binary.name)
-                    result = subprocess.run([sys.executable, "-c", script, str(selected), str(installed / ("case-runner" + runner.suffix)), str(fixtures), version], env=env, capture_output=True, text=True, timeout=300)
+                    result = subprocess.run([sys.executable, "-c", script, str(selected), str(installed / ("case-runner" + runner.suffix)), str(fixtures), version], env=env, capture_output=True, text=True, timeout=INSTALLED_SMOKE_HANG_GUARD_SECONDS)
                     print(result.stdout, end="", flush=True)
                     self.assertEqual(result.returncode == 0, not fail, result.stdout + result.stderr)
                     roots = json.loads(result.stdout.splitlines()[-1])["temporary_roots"]

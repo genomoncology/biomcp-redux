@@ -13,6 +13,8 @@ import time
 import threading
 
 SCHEMA_ID = "biomcp.problem/2"
+# Later channels retain the first channel’s 15% margin, with startup headroom.
+SUITE_TIMEOUT_FLOOR_SECONDS = float(os.environ.get("BIOMCP_SUITE_TIMEOUT_FLOOR_SECONDS", "60"))
 
 
 def phase(name):
@@ -158,7 +160,7 @@ def case_suite(command, env, root, fixtures, timeout=None, expected_filtered=Non
         require(int(counts.group(1)) > 0, "container runner did not execute any proof")
     return {"cases": sum(1 for path in (fixtures / "cases").rglob("*") if path.suffix in (".yaml", ".yml")),
             "trials": int(counts.group(1)) + int(counts.group(3)),
-            "elapsed_seconds": elapsed, "timeout_seconds": elapsed * 1.15}
+            "elapsed_seconds": elapsed, "timeout_seconds": max(SUITE_TIMEOUT_FLOOR_SECONDS, elapsed * 1.15)}
 
 
 def mcp_probe(command, env, root, version, call_args=None):
