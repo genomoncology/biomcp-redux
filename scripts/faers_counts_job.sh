@@ -12,8 +12,10 @@ case "${1:-focused}" in
     ;;
   focused)
     cargo test --locked -p biomcp-types --features schema --test adverse_event_contracts
-    python3.13 scripts/trials.py --case-file adverse-event/faers-reaction-counts.yaml --case-file adverse-event/examples.yaml --case-file adverse-event/faers-several-names.yaml --case-file adverse-event/help.yaml
-    python3.13 scripts/trials.py --target tools --cases tests/tool-cases --case-file adverse-event/faers-reaction-counts.yaml
+    for faers_case in faers-reaction-counts examples faers-several-names help; do
+      cargo test --locked -p biomcp --test cases -- "adverse-event-search/adverse-event/$faers_case.yaml" --exact
+    done
+    cargo test --locked -p biomcp --test tools -- --cases "$PWD/tests/tool-cases" adverse-event-search/adverse-event/faers-reaction-counts.yaml --exact
     ;;
   scans)
     baseline=${2:?scans requires the current main baseline}
