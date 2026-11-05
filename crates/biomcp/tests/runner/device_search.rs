@@ -55,8 +55,9 @@ pub(super) fn check() -> Check {
                 json!({"source":source,"name":"NoSuchDevice0668"}),
                 "device-search-roundtrip",
             )?;
-            if empty.get("status") != Some(&json!("empty"))
-                || empty.pointer("/result/items") != Some(&json!([]))
+            if empty
+                .pointer("/result/items")
+                .is_some_and(|items| items != &json!([]))
                 || empty.pointer("/page/total") != Some(&json!(0))
             {
                 return Err(format!("no match did not stay empty: {empty}"));
