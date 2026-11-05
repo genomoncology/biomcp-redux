@@ -101,7 +101,7 @@ fn provenance(
             }
         }
         same.extend(other);
-        format!("Sections: {}", same.join(";"))
+        format!("Sections:{}", same.join(";"))
     }
 }
 
