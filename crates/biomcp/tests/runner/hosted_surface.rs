@@ -205,7 +205,7 @@ fn source_notices(server: &Server, mode: &str) -> Check {
         (
             "search_trial",
             vec!["search", "trial", "--condition", "melanoma"],
-            json!({"condition":"melanoma"}),
+            json!({"condition":["melanoma"]}),
             "operator",
         ),
         (
