@@ -97,7 +97,7 @@ fn check_pair(stdio: &Value, http: &Value, form: &str, index: usize) -> Result<V
         if let Some(context) = super::super::transcript::current() {
             context.record(
                 "trial/mcp-parity/reply-forms/mismatch",
-                &json!({
+                json!({
                     "kind":"reply-form-mismatch", "form":form, "call":index,
                     "stdio":&value, "http":&http_value
                 }),
