@@ -46,5 +46,8 @@ summary.update(source_commit=subprocess.check_output(['git','rev-parse','HEAD'],
 print(json.dumps(summary,indent=2))
 PY
     ;;
+  focused)
+    python3.13 scripts/trials.py --case-file adverse-event/faers-reaction-counts.yaml
+    ;;
   *) exit 2 ;;
 esac
