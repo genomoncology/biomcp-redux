@@ -11,7 +11,7 @@ import tempfile
 import time
 
 from typed_harness_capture import exchange
-from typed_harness_smoke import check_sources, copy_script, interrupted, own_process, remote_scratch, ssh
+from typed_harness_smoke import check_sources, cleanup_remote_scratch, copy_script, interrupted, own_process, remote_scratch, ssh
 
 
 def server():
@@ -93,10 +93,17 @@ def transport(host):
             payload.write_bytes(b"synthetic public transport payload\x00\n")
             for source in [Path(__file__).with_name("typed_harness_smoke.py"), Path(__file__).with_name("typed_harness_turn_limit.ts"), payload]:
                 copy_script(host, source, scratch)
+            try:
+                copy_script(host, payload, scratch)
+            except subprocess.CalledProcessError as error:
+                if b"FileExistsError" not in error.stderr:
+                    raise
+            else:
+                raise RuntimeError("duplicate destination was not refused")
     finally:
-        ssh(host, ["rm", "-rf", "--", scratch], timeout=15)
+        cleanup_remote_scratch(host, scratch)
     ssh(host, ["test", "!", "-e", scratch], timeout=15)
-    print("SSH receiving hashes and private scratch cleanup pass; no product/client/provider ran")
+    print("SSH receiving hashes, duplicate refusal and bounded private scratch cleanup pass; no product/client/provider ran")
 
 
 if __name__ == "__main__":

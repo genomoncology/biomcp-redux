@@ -39,6 +39,10 @@ def remote_scratch(host):
     return scratch
 
 
+def cleanup_remote_scratch(host, scratch):
+    ssh(host, ["rm", "-rf", "--", scratch], timeout=15)
+
+
 def copy_script(host, source, scratch):
     receiver = """import hashlib, os, pathlib, stat, sys
 directory = pathlib.Path(sys.argv[1])
@@ -166,7 +170,7 @@ def job(args):
                 remote = shlex.join(["zsh", "-lc", shlex.join(command)])
                 own_process(["ssh", "-o", "BatchMode=yes", "-o", "ConnectTimeout=8", args.client_host, remote], 195, stdout=stdout, stderr=stderr)
         finally:
-            ssh(args.client_host, ["rm", "-rf", "--", scratch])
+            cleanup_remote_scratch(args.client_host, scratch)
 
 
 def main():
