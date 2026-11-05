@@ -22,6 +22,9 @@ type Check = Result<(), String>;
 
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = vec![
+        transcript_trial("mcp-parity/typed-baseline-and-replay-guards", || {
+            typed::guards().map_err(Into::into)
+        }),
         transcript_trial("mcp-parity/compact-typed-schemas", || {
             let env = Environment::new()?;
             typed_schemas::check(&env).map_err(Into::into)

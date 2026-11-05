@@ -84,3 +84,31 @@ fn exchange(
         })
         .collect()
 }
+
+// Diagnostic evidence only: any changed hint still needs a product ruling.
+pub(super) fn invalid_id_witness() -> Result<(), String> {
+    use std::io::Write;
+    let baseline = launch::typed_baseline().ok_or("missing frozen baseline")?;
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    let frames = [request(
+        json!(1),
+        "tools/call",
+        json!({"name":"biomcp",
+        "arguments":{"args":["get","trial","lung cancer"]}}),
+    )];
+    let args = ["serve".into(), "--offline".into()];
+    for (label, binary) in [
+        ("frozen-ed9c", baseline.as_path()),
+        (
+            "current-default-single",
+            std::path::Path::new(env!("CARGO_BIN_EXE_biomcp")),
+        ),
+    ] {
+        let replies = exchange(&env, binary, &args, &frames)?;
+        for raw in replies.values() {
+            writeln!(std::io::stdout(), "TYPED_INVALID_ID_RAW {label} {raw}")
+                .map_err(|e| e.to_string())?;
+        }
+    }
+    Ok(())
+}

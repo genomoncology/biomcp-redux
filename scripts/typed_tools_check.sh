@@ -22,7 +22,17 @@ cargo test --locked -p biomcp --test cases --no-run --message-format=json > "$ty
 }
 typed_product=$(python3 -c 'import json,sys; print(next(v["executable"] for s in open(sys.argv[1]) if (v:=json.loads(s)).get("executable") and v["target"]["name"]=="biomcp"))' "$typed_scratch/product.json")
 typed_runner=$(python3 -c 'import json,sys; print(next(v["executable"] for s in open(sys.argv[1]) if (v:=json.loads(s)).get("executable") and v["target"]["name"]=="cases"))' "$typed_scratch/runner.json")
-python3 scripts/trials.py --runner "$typed_runner" --executable "$typed_product" --installed mcp-parity/mcp-typed-tools
+if [ "${3:-}" = guards ]; then
+    if env -u BIOMCP_TYPED_BASELINE python3 scripts/trials.py --runner "$typed_runner" --executable "$typed_product" --installed mcp-parity/typed-baseline-and-replay-guards > "$typed_scratch/missing-baseline.log" 2>&1; then
+        echo 'missing baseline unexpectedly passed' >&2
+        exit 1
+    fi
+    cat "$typed_scratch/missing-baseline.log"
+    rg 'BIOMCP_TYPED_BASELINE is required' "$typed_scratch/missing-baseline.log"
+    python3 scripts/trials.py --runner "$typed_runner" --executable "$typed_product" --installed mcp-parity/typed-baseline-and-replay-guards
+else
+    python3 scripts/trials.py --runner "$typed_runner" --executable "$typed_product" --installed mcp-parity/mcp-typed-tools
+fi
 
 if [ "${3:-}" = extended ]; then
     make docs-generate

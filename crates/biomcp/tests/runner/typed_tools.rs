@@ -235,3 +235,17 @@ fn descriptions(node: &Value) -> Result<(), String> {
     }
     Ok(())
 }
+
+pub(super) fn guards() -> Result<(), String> {
+    baseline::check()?;
+    baseline::invalid_id_witness()?;
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    env.config(&json!({"mcp_tool_mode":"typed"}))
+        .map_err(|e| e.to_string())?;
+    let tools = discovery(&env, &["--offline".into()])?;
+    let tool = tools
+        .iter()
+        .find(|tool| tool.get("name") == Some(&json!("search_biomarker")))
+        .ok_or("missing search_biomarker registry tool")?;
+    replay::rejects_overstrict_schema(tool)
+}
