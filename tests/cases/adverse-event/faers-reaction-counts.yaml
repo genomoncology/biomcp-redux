@@ -55,18 +55,19 @@
       ],
       "expect": {
         "/status": "complete",
-        "/result/reaction_counts/limit_reached": false,
         "": {
           "omits": [
             "page",
             "next"
           ]
         },
-        "/result/reaction_counts": {
+        "/result": {
           "omits": [
+            "reaction_counts",
             "items"
           ]
-        }
+        },
+        "/query/aggregate": "reactions"
       }
     },
     {

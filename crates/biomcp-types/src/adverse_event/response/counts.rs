@@ -17,7 +17,6 @@ pub struct AdverseEventReactionCount {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct AdverseEventReactionCounts {
     /// Native reaction buckets in provider order; a report may contribute to several.
-    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub items: Box<[AdverseEventReactionCount]>,
     /// The provider returned as many terms as requested; more terms may exist.
     /// This does not establish a total or prove that terms were omitted.

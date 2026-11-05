@@ -24,10 +24,12 @@ pub(super) fn search(cx: &Ctx<'_>, query: &AdverseEventSearch) -> Outcome {
         components: Box::default(),
     };
     if let Ok(page) = reply {
-        body.reaction_counts = Some(AdverseEventReactionCounts {
-            limit_reached: page.items.len() == query.limit() as usize,
-            items: page.items.into(),
-        });
+        if !page.items.is_empty() {
+            body.reaction_counts = Some(AdverseEventReactionCounts {
+                limit_reached: page.items.len() == query.limit() as usize,
+                items: page.items.into(),
+            });
+        }
         body.source_updated = page.updated.map(Into::into);
         body.fetched = page
             .metadata
