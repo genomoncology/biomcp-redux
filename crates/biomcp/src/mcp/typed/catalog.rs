@@ -138,7 +138,7 @@ pub(super) fn summary(text: &str, excluded: &BTreeSet<Source>) -> String {
 }
 
 fn names(source: Source) -> impl Iterator<Item = String> {
-    [
+    let mut names = [
         source.to_string(),
         biomcp_query::sources::display_name(source).to_lowercase(),
     ]
@@ -148,6 +148,9 @@ fn names(source: Source) -> impl Iterator<Item = String> {
             .iter()
             .map(|alias| alias.to_lowercase()),
     )
+    .collect::<Vec<_>>();
+    names.sort_by_key(|name| std::cmp::Reverse(name.len()));
+    names.into_iter()
 }
 
 fn matches(text: &str, name: &str) -> Vec<usize> {

@@ -203,7 +203,7 @@ fn refused_source(server: &Server) -> Result<(), String> {
 }
 
 fn configured_exclusions(env: &Environment) -> Result<(), String> {
-    env.config(&json!({"mcp_tool_mode":"typed","disable_sources":["ctgov","who-pq"]}))
+    env.config(&json!({"mcp_tool_mode":"typed","disable_sources":["ctgov","who-pq","gwas"]}))
         .map_err(|e| e.to_string())?;
     let replies = exchange_with_globals(
         env,
@@ -231,6 +231,22 @@ fn configured_exclusions(env: &Environment) -> Result<(), String> {
                 .find(|tool| tool.get("name") == Some(&json!("search_diagnostic")))
         })
         .and_then(|tool| tool.pointer("/inputSchema/properties/marker/description"));
+    let summary = reply
+        .pointer("/result/tools")
+        .and_then(Value::as_array)
+        .and_then(|tools| {
+            tools
+                .iter()
+                .find(|tool| tool.get("name") == Some(&json!("search_gwas")))
+        })
+        .and_then(|tool| tool.get("description"))
+        .and_then(Value::as_str)
+        .ok_or("GWAS summary")?;
+    if summary.contains("Catalog") {
+        return Err(format!(
+            "partial excluded publisher remains in summary: {summary}"
+        ));
+    }
     if marker != Some(&json!("WHO marker phrase.")) {
         return Err("unrelated publisher exclusion hid allowed WHO diagnostic prose".into());
     }
