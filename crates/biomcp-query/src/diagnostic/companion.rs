@@ -22,45 +22,47 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let leg = cx.fetch.leg(&fda_cdx::SPEC, deadline);
-    let result = fda_cdx::search(&leg, q);
-    let error = result.as_ref().err().copied();
-    if let Ok(page) = result {
-        let q = page
-            .info
-            .content_revision
-            .as_deref()
-            .and_then(|v| v.parse().ok())
-            .map_or_else(|| q.clone(), |v| q.with_bundle_revision(v));
-        pivots(&mut out, &page.items, cx.fresh);
-        let returned = page.items.len() as u32;
-        if u64::from(q.offset()) + u64::from(returned) < page.total {
-            super::next::push(
-                &mut out,
-                StepKind::Page,
-                &[q.source().source()],
-                Request::SearchDiagnostic(q.at_offset(q.offset() + returned)),
-                cx.fresh,
-            );
+    let error = match fda_cdx::search(&leg, q) {
+        Ok(page) => {
+            let q = page
+                .info
+                .content_revision
+                .as_deref()
+                .and_then(|v| v.parse().ok())
+                .map_or_else(|| q.clone(), |v| q.with_bundle_revision(v));
+            pivots(&mut out, &page.items, cx.fresh);
+            let returned = page.items.len() as u32;
+            if u64::from(q.offset()) + u64::from(returned) < page.total {
+                super::next::push(
+                    &mut out,
+                    StepKind::Page,
+                    &[q.source().source()],
+                    Request::SearchDiagnostic(q.at_offset(q.offset() + returned)),
+                    cx.fresh,
+                );
+            }
+            {
+                let unavailable = false;
+                crate::status::item(&mut out, true, false, unavailable);
+            };
+            out.problems.extend(page.problems);
+            out.page = Some(PageInfo {
+                offset: q.offset(),
+                returned,
+                total: page.total,
+                pool: None,
+                truncated: None,
+            });
+            out.body = (DiagnosticCompanion {
+                items: page.items,
+                count_unit: None,
+                distinct_id_total: None,
+            })
+            .with_query(echo.clone());
+            None
         }
-        {
-            let unavailable = false;
-            crate::status::item(&mut out, true, false, unavailable);
-        };
-        out.problems.extend(page.problems);
-        out.page = Some(PageInfo {
-            offset: q.offset(),
-            returned,
-            total: page.total,
-            pool: None,
-            truncated: None,
-        });
-        out.body = (DiagnosticCompanion {
-            items: page.items,
-            count_unit: None,
-            distinct_id_total: None,
-        })
-        .with_query(echo.clone());
-    }
+        Err(error) => Some(error),
+    };
     out.local = error.and_then(status::local);
     let source = status::source(Source::FdaCdx, leg.finish(), error);
     if matches!(source.state, SourceState::Stale) && out.status() == Status::Complete {
