@@ -192,13 +192,12 @@ fn compare(
         args,
         expected.get("status") != Some(&json!("usage")),
     )?;
-    if let Some(schema) = tool.get("outputSchema") {
-        if !jsonschema::validator_for(schema)
+    if let Some(schema) = tool.get("outputSchema")
+        && !jsonschema::validator_for(schema)
             .map_err(|e| e.to_string())?
             .is_valid(actual)
-        {
-            return Err(format!("{name} output schema mismatch"));
-        }
+    {
+        return Err(format!("{name} output schema mismatch"));
     }
     Ok(())
 }
