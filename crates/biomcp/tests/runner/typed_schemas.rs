@@ -161,7 +161,7 @@ fn budget(tool: &Value) -> Result<(), String> {
     let length = size(tool);
     // search_trial exposes the complete supported filter set. Even with no descriptions,
     // its supported filter schema structure is 2058 characters; these optional filters cannot fit
-    // the ordinary budget. The installed tool measures 3351; keep its sole exception at 3375.
+    // the ordinary budget. Keep the sole measured exception bounded at 3375.
     let limit = if field(tool, "name") == "search_trial" {
         3375
     } else {
