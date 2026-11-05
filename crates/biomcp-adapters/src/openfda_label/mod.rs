@@ -1,4 +1,4 @@
-//! Identity-checked openFDA name discovery without clinical text selection.
+//! Source-scoped openFDA label identities, name discovery and literal indication search.
 use biomcp_fetch::Input;
 use biomcp_fetch::{SourceSpec, Terms};
 use biomcp_types::Source;
