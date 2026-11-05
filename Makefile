@@ -391,10 +391,6 @@ source-status-check:
 source-status-pre-review:
 	+$(MAKE) source-status-check check-cheap current-schema-check schema-release-check
 
-.PHONY: indel-population-baseline
-indel-population-baseline:
-	python3 scripts/trials.py --case-file variant/id-forms/deletion.yaml --case-file variant/id-forms/insertion.yaml
-
 .PHONY: indel-population-check
 indel-population-check:
 	+$(MAKE) check-cheap
