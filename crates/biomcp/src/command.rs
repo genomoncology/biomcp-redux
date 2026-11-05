@@ -58,21 +58,10 @@ fn dispatch_using(
     {
         return encoding.schema(text);
     }
-    let retired = crate::retired::message(root, args);
-    let mut parsed = match crate::grammar::parse(root, args) {
+    let mut parsed = match parse_arguments(root, args, encoding)? {
         Ok(parsed) => parsed,
-        Err(cause) => {
-            if (!cause.registered_argument || crate::retired::retired_source(root, args))
-                && let Some(message) = retired
-            {
-                return usage_envelope(UsageError::Retired(message), encoding);
-            }
-            return parse_refusal(root, args, cause, encoding);
-        }
+        Err(outcome) => return Ok(outcome),
     };
-    if let Some(message) = retired {
-        return usage_envelope(UsageError::Retired(message), encoding);
-    }
     if let Some(context) = context
         && parsed.globals.inherit(context.globals).is_err()
     {
@@ -123,6 +112,32 @@ fn dispatch_using(
         encoding,
     )?;
     hosted_keys::outcome(outcome, parsed.globals.hosted, encoding)
+}
+
+fn parse_arguments(
+    root: &crate::grammar::Root,
+    args: &[OsString],
+    encoding: Encoding,
+) -> io::Result<Result<crate::grammar::Parsed, Outcome>> {
+    let retired = crate::retired::message(root, args);
+    let parsed = match crate::grammar::parse(root, args) {
+        Ok(parsed) => parsed,
+        Err(cause) => {
+            let outcome = if (!cause.registered_argument
+                || crate::retired::retired_source(root, args))
+                && let Some(message) = retired
+            {
+                usage_envelope(UsageError::Retired(message), encoding)
+            } else {
+                parse_refusal(root, args, cause, encoding)
+            };
+            return Ok(Err(outcome?));
+        }
+    };
+    match retired {
+        Some(message) => Ok(Err(usage_envelope(UsageError::Retired(message), encoding)?)),
+        None => Ok(Ok(parsed)),
+    }
 }
 
 pub(crate) fn execute(

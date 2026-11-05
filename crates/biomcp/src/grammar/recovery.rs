@@ -31,14 +31,19 @@ pub(super) fn corrected(
                 .iter()
                 .filter(|item| {
                     let mut candidate = value.clone();
-                    candidate[*name] = Value::Array(vec![(*item).clone()]);
+                    let Some(fields) = candidate.as_object_mut() else {
+                        return false;
+                    };
+                    fields.insert((*name).into(), Value::Array(vec![(*item).clone()]));
                     checked(via, path, candidate).is_some()
                 })
                 .cloned()
                 .collect();
             if !accepted.is_empty() {
                 let mut candidate = value.clone();
-                candidate[*name] = Value::Array(accepted);
+                candidate
+                    .as_object_mut()?
+                    .insert((*name).into(), Value::Array(accepted));
                 if let Some(step) = checked(via, path, candidate) {
                     return Some(step);
                 }
@@ -51,7 +56,9 @@ pub(super) fn corrected(
         }
         for replacement in candidates(schema, property) {
             let mut candidate = value.clone();
-            candidate[*name] = replacement;
+            candidate
+                .as_object_mut()?
+                .insert((*name).into(), replacement);
             if let Some(step) = checked(via, path, candidate) {
                 return Some(step);
             }
