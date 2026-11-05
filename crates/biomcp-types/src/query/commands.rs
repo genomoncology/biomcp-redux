@@ -233,7 +233,7 @@ macro_rules! command_types {
                 "variant", "normalize", VariantNormalize, "variant-normalize", "biomcp.variant-normalize/5", VariantNormalize, "variant-normalize",
                 "biomcp.variant-normalize/5", "biomcp.variant-normalize/5", 57, Direct
             );
-            /// Get genetic variant evidence.
+            /// Get genetic variants.
             GetVariant(VariantGet) => (
                 "get", "variant", VariantGet, "variant-get", "biomcp.variant-get/7", VariantGet, "variant-get", "biomcp.variant-get/7",
                 "biomcp.variant-get/7", 53, Direct

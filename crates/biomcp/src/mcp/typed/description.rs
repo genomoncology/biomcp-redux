@@ -97,11 +97,11 @@ fn provenance(
             if sections.len() == 1 && sections.first() == Some(&sources) {
                 same.push(sources);
             } else {
-                other.push(format!("{}({sources})", sections.join(",")));
+                other.push(format!("{}:{sources}", sections.join(",")));
             }
         }
         same.extend(other);
-        format!("Sections=source: {}", same.join(";"))
+        format!("Sections: {}", same.join(";"))
     }
 }
 
@@ -140,5 +140,5 @@ fn input_description(schema: &Value) -> String {
         .replace("VCF-style genomic coordinates", "VCF")
         .replace(", in input order", "")
         .replace(", in caller order", "");
-    format!("{name}: {description}")
+    format!("{name}:{description}")
 }

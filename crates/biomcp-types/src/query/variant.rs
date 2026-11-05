@@ -18,7 +18,7 @@ pub struct VariantGet(Fields);
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct Fields {
-    #[doc = "rsID/CAid,clinvar:N/VCV,HGVS/VCF\n\
+    #[doc = "rs/CA/clinvar:N/VCV/HGVS/VCF\n\
         rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS or VCF-style genomic coordinates."]
     #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 0)))]
     input: VariantInput,
@@ -38,14 +38,14 @@ struct Fields {
     /// Source rows to skip independently of identity candidate paging.
     #[serde(default)]
     section_offset: u32,
-    #[doc = "Profile ID\nSelected CIViC molecular profile for native claim paging."]
+    /// Selected CIViC molecular profile for native claim paging.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 2147483647)))]
     civic_profile: Option<u64>,
     #[doc = "Tumor\nExplicit tumor context for keyed OncoKB annotation."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     tumor_type: Option<crate::Text>,
-    #[doc = "Claim kind\nNative CIViC claim collection within the selected profile."]
+    #[doc = "Claims\nNative CIViC claim collection within the selected profile."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     civic_kind: Option<CivicClaimKind>,
     #[doc = "Cursor\nNative CIViC cursor, retained unchanged."]
@@ -56,7 +56,7 @@ struct Fields {
     #[doc = "Resolver.\nResolver for reference-qualified notation; never repairs the input locally."]
     #[serde(default = "resolver")]
     resolver: VariantResolver,
-    #[doc = "GRCh37/38\nMyVariant identity assembly defaults to GRCh38; chromosome genomic HGVS requires an explicit build."]
+    #[doc = "Assembly\nMyVariant identity assembly defaults to GRCh38; chromosome genomic HGVS requires an explicit build."]
     #[serde(
         default,
         deserialize_with = "super::gene::present",
