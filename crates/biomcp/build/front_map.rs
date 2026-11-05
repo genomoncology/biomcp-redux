@@ -44,7 +44,16 @@ pub(crate) fn generate_typed(schemas: &BTreeMap<String, String>) -> Result<Strin
         lines.push(format!("{}: {}", words(&tools), words(&sources)));
     }
     lines.push("biomcp_help: command path (e.g. search trial, sources); search/fetch: research results and exact result IDs.".into());
-    lines.extend(TRAPS.iter().skip(1).map(|line| (*line).into()));
+    for trap in TRAPS.iter().skip(1) {
+        let mut line = (*trap).to_owned();
+        for (verb, entity, _) in biomcp_types::command_paths() {
+            line = line.replace(
+                &format!("{verb} {entity}"),
+                &format!("{verb}_{entity}").replace('-', "_"),
+            );
+        }
+        lines.push(line);
+    }
     Ok(lines.join("\n"))
 }
 
