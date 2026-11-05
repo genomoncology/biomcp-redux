@@ -34,9 +34,18 @@ def main():
     if loaded:
         commands.append([sys.executable, '-m', 'unittest', '-v', 'release.test_smoke'])
     cores = float(os.environ.get('PM_JOB_CORES', os.cpu_count() or 1))
+    affinity = None
+    if loaded:
+        # Gator reserves physical CPUs 10–11 for Windows; keep this proof on
+        # its booked allocation, including all burner and test descendants.
+        available = sorted(os.sched_getaffinity(0) - {10, 11})
+        affinity = available[-max(1, math.floor(cores)):]
+        os.sched_setaffinity(0, affinity)
+        cores = len(affinity)
     count = math.ceil(cores * 1.5) if loaded else 0
     print(json.dumps({'mode': 'load' if loaded else 'focused', 'cores': cores, 'burners': count,
-                      'host_load': os.getloadavg(), 'python': sys.version}), flush=True)
+                      'host_load': os.getloadavg(), 'physical_cores': os.cpu_count(),
+                      'affinity': affinity, 'python': sys.version}), flush=True)
     burners = [subprocess.Popen([sys.executable, '-c', 'while True: pass']) for _ in range(count)]
     failures = 0
     try:
