@@ -159,7 +159,7 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     facility: Option<Text>,
-    #[doc = "Country; biomcp_help search trial.\n\
+    #[doc = "Country label; biomcp_help search trial.\n\
         Exact ClinicalTrials.gov country label; repeat for OR. Trials must list a site in a named country. NCI uses its native country filter."]
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     #[cfg_attr(feature = "schema", schemars(schema_with = "country::schema"))]
@@ -204,7 +204,7 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "SponsorType"))]
     sponsor_type: Option<SponsorType>,
-    #[doc = "First update.\nFirst included registry update date."]
+    #[doc = "First date.\nFirst included registry update date."]
     #[serde(
         default,
         deserialize_with = "super::gene::present",
@@ -212,7 +212,7 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "PartialDate"))]
     updated_since: Option<PartialDate>,
-    #[doc = "Last update.\nLast included registry update date."]
+    #[doc = "Last date.\nLast included registry update date."]
     #[serde(
         default,
         deserialize_with = "super::gene::present",
@@ -228,7 +228,7 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "NctId"))]
     id: Option<NctId>,
-    #[doc = "Continuation.\nOpaque registry continuation; keep filters unchanged."]
+    #[doc = "Page token.\nOpaque registry continuation; keep filters unchanged."]
     #[serde(
         default,
         deserialize_with = "super::gene::present",
