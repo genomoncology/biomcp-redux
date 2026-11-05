@@ -1,7 +1,7 @@
 {
   "feature": "drug-native-sources",
   "story": "Source-stated alias retries and continuation pages retain the caller's native label indication constraint.",
-  "verified": "All drug names, label rows, indication wording, identities and times are authored synthetic examples. Replay contains only constrained label requests, so a retry or page that drops the indication cannot match.",
+  "verified": "All drug names, label rows, indication wording, identities and times are authored synthetic examples. Replay contains only constrained label requests, so a retry or page that drops the indication cannot match. The added constrained indication-name tier is an authored empty response, not a live capture.",
   "replay": "drug/source-aliases",
   "steps": [
     {

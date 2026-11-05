@@ -44,6 +44,14 @@ drug-alias-cache-regressions:
 	cargo test --locked -p biomcp --test cases drug-native-sources/chembl-search-cache-admission -- --exact
 	cargo test --locked -p biomcp --test cases drug-native-sources/mychem-search-cache-admission -- --exact
 
+.PHONY: drug-label-alias-integration
+drug-label-alias-integration: fmt
+	cargo clippy --keep-going --locked -p biomcp-adapters -p biomcp-types -p biomcp-query -p biomcp --all-targets --features biomcp-types/schema -- -D warnings
+	cargo test --locked -p biomcp --test cases drug/source-aliases $(TEST_THREADS)
+	cargo test --locked -p biomcp --test tools -- --cases "$(CURDIR)/tests/tool-cases" drug-native-sources/drug/source-aliases
+	cargo test --locked -p biomcp --test cases drug/indication.yaml $(TEST_THREADS)
+	$(MAKE) label-priority-check label-display-check
+
 .PHONY: faers-counts-integration-check
 faers-counts-integration-check:
 	sh scripts/faers_counts_job.sh mechanical
