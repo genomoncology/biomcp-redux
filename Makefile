@@ -417,3 +417,12 @@ bench-honesty-recheck:
 bench-honesty-case-recheck:
 	cargo test --locked -p biomcp --test cases drug-boolean-refusal $(TEST_THREADS)
 	cargo test --locked -p biomcp --test cases resolver-provenance $(TEST_THREADS)
+
+.PHONY: bench-honesty-selector-focus bench-honesty-population-cases bench-honesty-provenance-cases
+bench-honesty-selector-focus:
+	+$(MAKE) --keep-going bench-honesty-population-cases bench-honesty-provenance-cases fmt bench-honesty-lint
+bench-honesty-population-cases:
+	cargo test --locked -p biomcp --test cases variant-population/ $(TEST_THREADS)
+bench-honesty-provenance-cases:
+	cargo test --locked -p biomcp --test cases resolver-provenance $(TEST_THREADS)
+	cargo test --locked -p biomcp --test cases resolver-variantvalidator $(TEST_THREADS)
