@@ -81,37 +81,62 @@ fn help(value: &mut Value, cx: Context<'_>) -> io::Result<()> {
 }
 
 fn next(value: &mut Value, cx: Context<'_>) {
-    if let Some(steps) = value.get_mut("next").and_then(Value::as_array_mut) {
-        steps.retain_mut(|step| {
-            let Some(args) = step.get_mut("args").and_then(Value::as_array_mut) else {
-                return false;
-            };
-            // These are inherited server globals, never client instructions.
-            let mut index = 0;
-            while index < args.len() {
-                if matches!(
-                    args[index].as_str(),
-                    Some("--config" | "--replay" | "--record" | "--case-cache" | "--observe")
-                ) {
-                    let end = (index + 2).min(args.len());
-                    args.drain(index..end);
-                } else {
-                    index += 1;
+    match value {
+        Value::Object(fields) => {
+            if let Some(mut steps) = fields.remove("next") {
+                let keep = match &mut steps {
+                    Value::Array(rows) => {
+                        rows.retain_mut(|step| next_step(step, cx));
+                        !rows.is_empty()
+                    }
+                    Value::Object(_) => next_step(&mut steps, cx),
+                    _ => false,
+                };
+                if keep {
+                    fields.insert("next".into(), steps);
                 }
             }
-            let words = args
-                .iter()
-                .filter_map(Value::as_str)
-                .map(String::from)
-                .collect::<Vec<_>>();
-            next_allowed(&words, cx)
-        });
-        if steps.is_empty()
-            && let Some(fields) = value.as_object_mut()
-        {
-            fields.remove("next");
+            for value in fields.values_mut() {
+                next(value, cx);
+            }
+        }
+        Value::Array(values) => {
+            for value in values {
+                next(value, cx);
+            }
+        }
+        _ => {}
+    }
+}
+
+fn next_step(step: &mut Value, cx: Context<'_>) -> bool {
+    let Some(args) = step.get_mut("args").and_then(Value::as_array_mut) else {
+        return false;
+    };
+    // Inherited server globals precede any positional end-of-options separator.
+    let mut index = 0;
+    while index < args.len() {
+        if args[index] == "--" {
+            break;
+        }
+        if matches!(
+            args[index].as_str(),
+            Some("--config" | "--replay" | "--record" | "--case-cache" | "--observe")
+        ) {
+            let end = (index + 2).min(args.len());
+            args.drain(index..end);
+        } else {
+            index += 1;
         }
     }
+    let Some(words) = args
+        .iter()
+        .map(|v| v.as_str().map(String::from))
+        .collect::<Option<Vec<_>>>()
+    else {
+        return false;
+    };
+    next_allowed(&words, cx)
 }
 
 fn notices(value: &mut Value, cx: Context<'_>) -> io::Result<()> {
