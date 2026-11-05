@@ -101,15 +101,22 @@ pub(super) fn parse(
                 .keys()
                 .find(|key| input["properties"].get(*key).is_none())
         });
-        let error = biomcp_types::UsageError::argument_values(
-            key.map_or_else(|| "arguments".into(), |key| key.clone().into()),
-            input["properties"]
-                .as_object()?
-                .keys()
-                .map(|key| biodata::Text::new(key).ok())
-                .collect::<Option<Vec<_>>>()?
-                .into(),
-        );
+        let error = biomcp_types::UsageError::Arguments(biomcp_types::UsageArguments {
+            argument: Some(key.map_or_else(|| "arguments".into(), |key| key.clone().into())),
+            valid_values: Some(
+                input["properties"]
+                    .as_object()?
+                    .keys()
+                    .map(|key| biodata::Text::new(key).ok())
+                    .collect::<Option<Vec<_>>>()?
+                    .into(),
+            ),
+            next: vec![biomcp_types::Step {
+                kind: biomcp_types::StepKind::Configure,
+                args: ["help", verb, entity].into_iter().map(Box::from).collect(),
+            }],
+            ..Default::default()
+        });
         let known = fields
             .map(|fields| {
                 Value::Object(
