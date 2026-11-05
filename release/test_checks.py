@@ -85,6 +85,50 @@ class ReviewedPublicHistory(unittest.TestCase):
         print("Reviewed public history row omissions rejected: 50")
 
 
+class ReviewedSiblingHistory(unittest.TestCase):
+    """Check the public sibling blobs without rerunning the whole append scan."""
+
+    def test_symbolic_key_recipes_are_the_only_sibling_findings(self):
+        target = os.environ.get("BIOMCP_APPEND_HISTORY")
+        if not target:
+            self.skipTest("requires the complete public append ancestry")
+        target = Path(target)
+        sources = [
+            ("6c9c2d5995f9b2f2b83fa2625f6f540ae8799e2d", "5b4821ad23375d8096e596c42026e134045ae9bf"),
+            ("6d517ab2047dad49695adbe918596d856295c562", "8ce1e9a200985491fa3e6d30aa982bd3d717bff9"),
+        ]
+        path = "src/entities/variant/resolution/coding_oracles/aliases.json"
+        with tempfile.TemporaryDirectory() as directory:
+            env = {**environment(Path(directory)), "PATH": os.defpath}
+            payloads = [(path, history_scan.git(target, env, "cat-file", "blob", blob))
+                        for commit, blob in sources]
+            observed = []
+            original = history_scan.findings
+            def inspect(report, mapping, staging):
+                for finding, staged, coordinates in original(report, mapping, staging):
+                    observed.append(finding)
+                    # Review the value only in memory. These are derivation
+                    # recipes in the variant oracle, rather than access keys.
+                    line = staged.read_text().splitlines()[finding["line"]]
+                    fields = json.loads("{" + line.strip().rstrip(",") + "}")
+                    self.assertEqual(list(fields), ["expected_key_recipe"])
+                    value = fields["expected_key_recipe"]
+                    self.assertIsInstance(value, str)
+                    import re
+                    self.assertTrue(re.fullmatch(r"[a-z_+():.' -]+", value),
+                                    "recipe classification requires local review")
+                    self.assertTrue(all(len(word) < 20 for word in re.findall(r"[a-z]+", value)),
+                                    "recipe must contain symbolic words only")
+                    print(json.dumps({key: finding[key] for key in ("blob", "file", "line", "rule")}))
+                    yield finding, staged, coordinates
+            with (patch.object(history_scan, "inputs", return_value=iter(payloads)),
+                  patch.object(history_scan, "history_ignores", return_value=[]),
+                  patch.object(history_scan, "findings", side_effect=inspect)):
+                status = history_scan.scan("history", target, Path("target/security-tools"))
+            self.assertEqual(status, 1)
+            self.assertEqual(len(observed), 3)
+
+
 class SmokeSchema(unittest.TestCase):
     def test_installed_probe_schema_is_in_checked_in_registry(self):
         schemas = Path(__file__).resolve().parents[1] / "crates/biomcp-types/schemas"
