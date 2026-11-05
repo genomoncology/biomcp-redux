@@ -82,7 +82,9 @@ fn selectors(output: &Value) -> Result<(), String> {
         || output.pointer("/sources/0/source") != Some(&json!("myvariant"))
         || output.pointer("/sources/0/state") != Some(&json!("ok"))
     {
-        return Err(format!("population reply misstates its identity resolver: {output}"));
+        return Err(format!(
+            "population reply misstates its identity resolver: {output}"
+        ));
     }
     Ok(())
 }
