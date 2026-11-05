@@ -1,6 +1,6 @@
 //! Project hosted discovery and recovery through the same execution authority.
 use crate::command::Context;
-use biomcp_types::{Help, Source};
+use biomcp_types::{Help, ResponseBody, Source};
 use serde_json::{Value, json};
 use std::{ffi::OsString, io};
 
@@ -29,7 +29,7 @@ pub(super) fn project(
 }
 
 fn help(value: &mut Value, cx: Context<'_>) -> io::Result<()> {
-    if value.get("schema") == Some(&json!("biomcp.help/6")) {
+    if value.get("schema") == Some(&json!(Help::SCHEMA)) {
         let mut help: Help = serde_json::from_value(value["result"].clone())?;
         help.commands = commands(help.commands, cx)?;
         if let Some(relation) = help
