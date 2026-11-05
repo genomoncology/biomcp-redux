@@ -77,7 +77,15 @@ fn diagnostic() -> Result<(), String> {
             &globals,
         )?;
         let source = value.pointer("/sources/0").ok_or("source missing")?;
-        if source.get("state") == Some(&json!("ok")) && source.get("reason").is_some() {
+        if source.get("state") != Some(&json!("ok"))
+            || source.get("reason").is_some()
+            || value
+                .pointer("/page/returned")
+                .and_then(Value::as_u64)
+                .unwrap_or(0)
+                == 0
+            || !problem(&value, "table_1.biomarker")
+        {
             failures.push(format!("{mode}: {source}"));
         }
     }
@@ -129,6 +137,9 @@ fn hotspots() -> Result<(), String> {
         if section.pointer("/data/records/0/membership") != Some(&json!("candidate")) {
             return Err("candidate join disclosure lost".into());
         }
+        if !problem(&value, "transcript_consequence_join") {
+            return Err("candidate join problem lost".into());
+        }
         stub.finish()?;
     }
     if failures.is_empty() {
@@ -136,4 +147,15 @@ fn hotspots() -> Result<(), String> {
     } else {
         Err(failures.join("\n"))
     }
+}
+
+fn problem(value: &Value, field: &str) -> bool {
+    value
+        .get("problems")
+        .and_then(Value::as_array)
+        .is_some_and(|problems| {
+            problems
+                .iter()
+                .any(|problem| problem.get("field") == Some(&json!(field)))
+        })
 }
