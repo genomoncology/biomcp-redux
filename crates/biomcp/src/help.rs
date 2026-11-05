@@ -1,5 +1,6 @@
 //! Schema-fed command help shared with MCP discovery.
 
+mod argument_details;
 #[path = "../coverage.rs"]
 pub(crate) mod coverage;
 mod discovery;
@@ -152,6 +153,7 @@ pub(crate) fn commands(root: &crate::grammar::Root) -> io::Result<Vec<HelpComman
     commands.push(topic("exit", crate::exit::reference()));
 
     public_grammar::augment(root, &mut commands)?;
+    argument_details::complete(&mut commands);
     discovery::complete(&mut commands);
     for command in &mut commands {
         if command.reply_schemas.is_empty() {

@@ -66,7 +66,7 @@ struct Fields {
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     #[cfg_attr(feature = "schema", schemars(length(max = MAX_ALTERNATIVES)))]
     intervention: Box<[Text]>,
-    #[doc = "Gene symbol/ID.\nResolve one checked gene for registry text discovery only; no eligibility judgment."]
+    #[doc = "Gene symbol/ID.\nClinicalTrials.gov only: resolve one checked gene for registry text discovery; no eligibility judgment."]
     #[serde(
         default,
         deserialize_with = "super::gene::present",
@@ -74,7 +74,7 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "GeneInput"))]
     gene: Option<GeneInput>,
-    #[doc = "Variant text.\nLiteral variant text for registry discovery only; no eligibility judgment."]
+    #[doc = "Variant text.\nClinicalTrials.gov only: literal variant text for registry discovery; no eligibility judgment."]
     #[serde(
         default,
         deserialize_with = "super::gene::present",
@@ -306,11 +306,11 @@ impl TrialSearch {
     pub fn intervention(&self) -> &[Text] {
         &self.0.intervention
     }
-    /// Resolve one checked gene for registry text discovery only; no eligibility judgment.
+    /// ClinicalTrials.gov only: resolve one checked gene for registry text discovery; no eligibility judgment.
     pub fn gene(&self) -> Option<&GeneInput> {
         self.0.gene.as_ref()
     }
-    /// Literal variant text for registry discovery only; no eligibility judgment.
+    /// ClinicalTrials.gov only: literal variant text for registry discovery; no eligibility judgment.
     pub fn variant(&self) -> Option<&Text> {
         self.0.variant.as_ref()
     }

@@ -1,0 +1,79 @@
+//! Combine schema argument facts, recorded examples and registry source coverage.
+use biomcp_types::{HelpArgument, HelpCommand};
+
+pub(super) fn complete(commands: &mut [HelpCommand]) {
+    for command in commands {
+        let sources = command
+            .command
+            .get(..2)
+            .and_then(|path| {
+                crate::grammar::command_paths()
+                    .iter()
+                    .find(|(verb, entity, _)| path == [*verb, *entity])
+                    .and_then(|(_, _, id)| crate::schema::find(id))
+                    .and_then(|text| serde_json::from_str::<serde_json::Value>(text).ok())
+                    .map(|schema| {
+                        super::coverage::command_sources(&path[0], &path[1], &schema)
+                            .into_iter()
+                            .collect::<Vec<_>>()
+                            .join(", ")
+                    })
+            })
+            .unwrap_or_default();
+        for argument in &mut command.arguments {
+            if !argument.name.starts_with("--") {
+                continue;
+            }
+            let sample = example(argument, &command.examples);
+            let scope = if sources.is_empty() {
+                "Local command option; independent of source selection.".into()
+            } else {
+                format!(
+                    "Command sources: {sources}; source restrictions in the field description apply."
+                )
+            };
+            argument.description.push_str(&format!(
+                " Value form: {}. Example: {sample}. {scope}",
+                argument.value_type
+            ));
+        }
+    }
+}
+fn example(argument: &HelpArgument, examples: &[Vec<String>]) -> String {
+    for example in examples {
+        for (index, word) in example.iter().enumerate() {
+            if word == &argument.name {
+                let value = example
+                    .get(index + 1)
+                    .filter(|value| !value.starts_with("--"));
+                return value.map_or_else(
+                    || word.clone(),
+                    |value| {
+                        format!(
+                            "{word} {}",
+                            shlex::try_quote(value)
+                                .map_or_else(|_| "<value>".into(), |value| value.into_owned())
+                        )
+                    },
+                );
+            }
+            if word.starts_with(&format!("{}=", argument.name)) {
+                return word.clone();
+            }
+        }
+    }
+    if argument.value_type == "boolean" {
+        return argument.name.clone();
+    }
+    let value = argument
+        .choices
+        .first()
+        .cloned()
+        .or_else(|| argument.default.clone())
+        .unwrap_or_else(|| format!("<{}>", argument.value_type));
+    format!(
+        "{} {}",
+        argument.name,
+        shlex::try_quote(&value).map_or_else(|_| "<value>".into(), |value| value.into_owned())
+    )
+}
