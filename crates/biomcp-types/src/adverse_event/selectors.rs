@@ -117,8 +117,12 @@ impl AdverseEventSource {
     }
     #[cfg(feature = "schema")]
     pub(crate) fn search_components() -> std::collections::BTreeMap<String, crate::Source> {
-        Self::ALL
+        schemars::schema_for!(Self)
+            .get("enum")
+            .and_then(|value| value.as_array())
             .into_iter()
+            .flatten()
+            .filter_map(|value| value.as_str()?.parse::<Self>().ok())
             .filter_map(|source| {
                 source
                     .required_search_component()
