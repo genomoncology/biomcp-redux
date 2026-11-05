@@ -10,5 +10,4 @@ steps:
     expect:
       /id: trial NCT02296125
       /url: https://clinicaltrials.gov/study/NCT02296125
-      /text:
-        contains: NCT02296125
+      /metadata/schema: biomcp.trial-cards/9
