@@ -424,7 +424,7 @@ fn pool_error(
     }
 }
 
-fn usage_envelope(error: UsageError, encoding: Encoding) -> io::Result<Outcome> {
+pub(crate) fn usage_envelope(error: UsageError, encoding: Encoding) -> io::Result<Outcome> {
     encoding.encode(ErrorEnvelope::from(error), crate::exit::Status::Usage)
 }
 

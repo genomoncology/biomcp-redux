@@ -298,16 +298,9 @@ impl Service {
         let scope = self.globals.hosted.then(|| {
             biomcp_fetch::Cancellation::with_budget(crate::config::budget(&self.settings))
         });
-        let Some(call) = super::typed::parse(
-            &self.root,
-            params,
-            crate::config::mcp_tool_mode(&self.globals, &self.settings),
-        ) else {
-            return (
-                200,
-                Some(super::protocol::error(id, -32602, "Invalid params")),
-                Some(revision),
-            );
+        let call = match self.parse_tool(&id, params, modern) {
+            Ok(call) => call,
+            Err(reply) => return (200, Some(reply), Some(revision)),
         };
         let keys = if self.globals.hosted {
             let keys = match request.source_keys() {
@@ -364,6 +357,30 @@ impl Service {
             }
         };
         (200, Some(result), Some(revision))
+    }
+    fn parse_tool(
+        &self,
+        id: &Value,
+        params: &Value,
+        modern: bool,
+    ) -> Result<super::research::Call, Value> {
+        let call = super::typed::parse(
+            &self.root,
+            params,
+            crate::config::mcp_tool_mode(&self.globals, &self.settings),
+        )
+        .ok_or_else(|| super::protocol::error(id.clone(), -32602, "Invalid params"))?;
+        call.map_err(|rejected| {
+            super::typed::rejection(
+                id.clone(),
+                rejected,
+                modern,
+                &self.globals,
+                &self.settings,
+                &self.root,
+            )
+            .unwrap_or_else(|_| super::protocol::error(id.clone(), -32603, "Internal error"))
+        })
     }
     fn allowed(&self, request: &wire::Request) -> bool {
         if !matches!(request.one("origin"), Ok(None)) {

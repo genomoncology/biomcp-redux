@@ -6,6 +6,7 @@ mod policy;
 mod replay;
 // Installed-artifact typed tool discovery, schema refusal and CLI equivalence.
 use super::super::{
+    http::Server,
     launch::Environment,
     mcp::{exchange_with_globals, request},
 };
@@ -90,76 +91,115 @@ fn discovery(env: &Environment, globals: &[String]) -> Result<Vec<Value>, String
     Ok(tools.clone())
 }
 fn rejections(env: &Environment, globals: &[String]) -> Result<(), String> {
-    let refused = exchange_with_globals(
-        env,
-        &[request(
-            json!(3),
-            "tools/call",
-            json!({
-        "name":"search_trial","arguments":{"source":"not-a-source"}}),
-        )],
+    let server = Server::configured_globals(
+        "127.0.0.1:0",
+        Some(json!({"mcp_tool_mode":"typed"})),
+        None,
+        None,
+        None,
         globals,
     )?;
-    if refused
-        .first()
-        .ok_or("missing rejection reply")?
-        .pointer("/error/code")
-        != Some(&json!(-32602))
-    {
-        return Err("wrong enum accepted".into());
-    }
-    for (name, arguments) in [
-        (
-            "get_variant",
-            json!({"input":"rs113488022","civic_profile":"1"}),
-        ),
-        ("search_disease", json!({"text":42})),
-    ] {
-        let reply = exchange_with_globals(
-            env,
-            &[request(
-                json!(9),
-                "tools/call",
-                json!({"name":name,"arguments":arguments}),
-            )],
-            globals,
-        )?;
-        if reply
-            .first()
-            .ok_or("missing rejection reply")?
-            .pointer("/error/code")
-            != Some(&json!(-32602))
-        {
-            return Err(format!(
-                "nullable scalar type accepted by {name}: {}",
-                reply.first().ok_or("missing rejection reply")?
-            ));
-        }
-    }
     for arguments in [
-        json!({"condition":42}),
+        json!({"source":"not-a-source"}),
+        json!({"limit":"not-a-number"}),
+        json!({"limit":true}),
+        json!({"limit":null}),
+        json!({"limit":{"value":10}}),
         json!({"unexpected":"value"}),
-        json!({"limit":"10"}),
+        json!([]),
     ] {
-        let reply = exchange_with_globals(
-            env,
-            &[request(
-                json!(4),
-                "tools/call",
-                json!({"name":"search_trial","arguments":arguments}),
-            )],
-            globals,
-        )?;
-        if reply
-            .first()
-            .ok_or("missing rejection reply")?
-            .pointer("/error/code")
-            != Some(&json!(-32602))
+        let frame = request(
+            json!(3),
+            "tools/call",
+            json!({"name":"search_trial","arguments":arguments}),
+        );
+        let stdio = validation_parity(env, globals, &server, &frame)?;
+        let envelope = stdio
+            .pointer("/result/structuredContent")
+            .ok_or("usage envelope")?;
+        if stdio.pointer("/result/isError") != Some(&json!(true))
+            || envelope.get("status") != Some(&json!("usage"))
+            || !envelope
+                .pointer("/error/option")
+                .is_some_and(Value::is_string)
+            || !envelope
+                .pointer("/error/valid_values")
+                .is_some_and(Value::is_array)
         {
-            return Err("invalid argument shape accepted".into());
+            return Err(format!("missing recoverable usage envelope: {stdio}"));
         }
+        let text = stdio
+            .pointer("/result/content/0/text")
+            .and_then(Value::as_str)
+            .ok_or("missing summary")?;
+        let (_, next) = text
+            .lines()
+            .next()
+            .ok_or("summary line")?
+            .split_once("next ")
+            .ok_or_else(|| format!("missing typed correction: {text}"))?;
+        let next: Value = serde_json::from_str(next).map_err(|e| e.to_string())?;
+        let frame = request(json!(4), "tools/call", next);
+        let reply = validation_parity(env, globals, &server, &frame)?;
+        if reply
+            .pointer("/result/structuredContent/status")
+            .and_then(Value::as_str)
+            .is_none_or(|status| status == "usage")
+        {
+            return Err(format!("typed correction rejected: {reply}"));
+        }
+    }
+    integer_spelling(env, globals, &server)
+}
+
+fn integer_spelling(env: &Environment, globals: &[String], server: &Server) -> Result<(), String> {
+    let mut numeric_reply = None;
+    for limit in [json!(10), json!("10")] {
+        let frame = request(
+            json!(5),
+            "tools/call",
+            json!({"name":"search_trial","arguments":{"limit":limit}}),
+        );
+        let reply = validation_parity(env, globals, server, &frame)?;
+        let envelope = reply
+            .pointer("/result/structuredContent")
+            .ok_or("integer envelope")?;
+        if envelope
+            .get("status")
+            .and_then(Value::as_str)
+            .is_none_or(|status| status == "usage")
+        {
+            return Err(format!("CLI-compatible integer rejected: {reply}"));
+        }
+        if numeric_reply
+            .as_ref()
+            .is_some_and(|numeric| numeric != envelope)
+        {
+            return Err("string integer differs from numeric integer".into());
+        }
+        numeric_reply = Some(envelope.clone());
     }
     Ok(())
+}
+
+fn validation_parity(
+    env: &Environment,
+    globals: &[String],
+    server: &Server,
+    frame: &Value,
+) -> Result<Value, String> {
+    let replies = exchange_with_globals(env, std::slice::from_ref(frame), globals)?;
+    let stdio = replies.first().ok_or("missing validation reply")?;
+    let (status, http) = server.request("POST", "/mcp", &frame.to_string())?;
+    let result = stdio
+        .get("result")
+        .ok_or_else(|| format!("missing tool result: {stdio}"))?;
+    if status != 200 || Some(result) != http.get("result") {
+        return Err(format!(
+            "typed validation transports differ: {stdio} / {http}"
+        ));
+    }
+    Ok(stdio.clone())
 }
 fn descriptions(node: &Value) -> Result<(), String> {
     if node

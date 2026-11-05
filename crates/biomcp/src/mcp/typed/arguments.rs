@@ -89,16 +89,11 @@ pub(super) fn input(schema: &Value) -> Value {
     }
     result
 }
-fn words(value: &Value) -> Option<Vec<String>> {
+fn words(value: &Value) -> Vec<String> {
     match value {
-        Value::String(value) => Some(vec![value.clone()]),
-        Value::Number(value) => Some(vec![value.to_string()]),
-        Value::Array(values) => values
-            .iter()
-            .map(words)
-            .collect::<Option<Vec<_>>>()
-            .map(|values| values.into_iter().flatten().collect()),
-        _ => None,
+        Value::String(value) => vec![value.clone()],
+        Value::Array(values) => values.iter().flat_map(words).collect(),
+        _ => vec![value.to_string()],
     }
 }
 pub(super) fn cli(
@@ -113,18 +108,20 @@ pub(super) fn cli(
     // Parser indices own positional order; flags precede them to keep literal values safe.
     let mut positional = Vec::new();
     for (key, value) in values.as_object()? {
-        if value.is_null() {
-            continue;
-        }
         let argument = command
             .get_arguments()
             .find(|arg| arg.get_id().as_str() == key)?;
         if let Some(index) = argument.get_index() {
-            positional.push((index, words(value)?));
+            positional.push((index, words(value)));
             continue;
         }
         let flag = argument.get_long()?;
-        if let Some(boolean) = value.as_bool() {
+        if let Some(boolean) = value.as_bool()
+            && matches!(
+                argument.get_action(),
+                clap::ArgAction::SetTrue | clap::ArgAction::SetFalse
+            )
+        {
             if argument.is_require_equals_set() {
                 args.push(format!("--{flag}={boolean}").into());
             } else if boolean {
@@ -132,7 +129,7 @@ pub(super) fn cli(
             }
             continue;
         }
-        let values = words(value)?;
+        let values = words(value);
         if schema
             .get("properties")
             .and_then(|fields| fields.get(key))
