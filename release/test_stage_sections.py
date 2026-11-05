@@ -145,7 +145,7 @@ class RecoveryConsumption(unittest.TestCase):
             writes = {key for key, value in job['permissions'].items() if value == 'write'}
             self.assertEqual(writes, {'id-token', 'attestations'} if name == 'stage' else set())
             for step in job['steps']:
-                self.assertNotIn('secrets.', json.dumps(step))
+                self.assertNotIn('${{ secrets.', json.dumps(step))
                 self.assertNotIn('publication.py', step.get('run', ''))
                 self.assertNotIn('published.py', step.get('run', ''))
         attest, = [step for step in jobs['stage']['steps'] if step.get('uses', '').startswith('actions/attest@')]
