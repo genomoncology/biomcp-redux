@@ -45,6 +45,12 @@ class RecoveryConsumption(unittest.TestCase):
             selected, evidence = consumer.validate_payload(root, 'macosx_11_0_arm64',
                                                            consumer.RUNS['macosx_11_0_arm64'])
             self.assertEqual(selected, dist)
+            (dist / 'fixture-evidence').mkdir()
+            consumer.validate_payload(root, 'macosx_11_0_arm64', consumer.RUNS['macosx_11_0_arm64'])
+            (dist / 'fixture-evidence/unlisted').write_bytes(b'not an empty evidence directory')
+            with self.assertRaisesRegex(ValueError, 'inventory'):
+                consumer.validate_payload(root, 'macosx_11_0_arm64', consumer.RUNS['macosx_11_0_arm64'])
+            (dist / 'fixture-evidence/unlisted').unlink()
             self.assertEqual(evidence['sources']['product']['revision'], consumer.PRODUCT)
             (dist / 'unlisted.whl').write_bytes(b'foreign bytes')
             with self.assertRaisesRegex(ValueError, 'inventory'):
@@ -132,6 +138,39 @@ class RecoveryConsumption(unittest.TestCase):
                 os.environ['GITHUB_SHA'] = commit()
                 with self.assertRaisesRegex(ValueError, 'packaging input'):
                     consumer.source_guard(root / 'product', tooling)
+
+    def test_same_sanitized_recovery_receipt_becomes_a_signed_subject(self):
+        import hashlib
+        import yaml
+        run = dict(id=1, head_sha=consumer.RECOVERY, event='workflow_dispatch',
+                   path='.github/workflows/release.yml', head_branch='reviewed',
+                   status='completed', conclusion='success', run_attempt=1,
+                   arbitrary_url='https://object.invalid/?token=do-not-retain')
+        record = consumer.api_receipt(run, [])
+        self.assertNotIn('do-not-retain', json.dumps(record))
+        workflow = yaml.safe_load(Path('.github/workflows/release-stage-sections.yml').read_text())
+        steps = workflow['jobs']['stage']['steps']
+        copy_index, = [i for i, step in enumerate(steps)
+                       if step.get('name') == 'Bind the rehearsal inputs to the signed staged payload']
+        scan_index, = [i for i, step in enumerate(steps) if 'secrets.py artifacts' in step.get('run', '')]
+        subject_index, = [i for i, step in enumerate(steps) if 'workflow.py subjects' in step.get('run', '')]
+        attest_index, = [i for i, step in enumerate(steps) if step.get('uses', '').startswith('actions/attest@')]
+        self.assertLess(copy_index, scan_index)
+        self.assertLess(scan_index, subject_index)
+        self.assertLess(subject_index, attest_index)
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / 'receipts').mkdir(); (root / 'staged').mkdir()
+            receipt = json.dumps(record).encode()
+            (root / 'receipts/recovery-inputs.json').write_bytes(receipt)
+            subprocess.run(['sh', '-ec', steps[copy_index]['run']], cwd=root, check=True)
+            subprocess.run([os.sys.executable, str(Path('release/workflow.py').resolve()), 'subjects',
+                            '--artifacts', str(root / 'staged'), '--output', str(root / 'subjects.sha256')],
+                           check=True)
+            self.assertEqual((root / 'receipts/recovery-inputs.json').read_bytes(), receipt)
+            self.assertEqual((root / 'staged/REHEARSAL-INPUT-BINDING.json').read_bytes(), receipt)
+            self.assertEqual((root / 'subjects.sha256').read_text(),
+                             hashlib.sha256(receipt).hexdigest() + '  REHEARSAL-INPUT-BINDING.json\n')
 
     def test_consumer_workflow_has_only_stage_signing_and_no_publication(self):
         # Keep this boundary check structural; the artifact cases above own aggregation behavior.

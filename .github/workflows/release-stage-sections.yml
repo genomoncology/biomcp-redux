@@ -82,6 +82,8 @@ jobs:
         --output ../staged
 
         ruby -c ../staged/biomcp.rb'
+    - name: Bind the rehearsal inputs to the signed staged payload
+      run: cp receipts/recovery-inputs.json staged/REHEARSAL-INPUT-BINDING.json
     - name: Scan every staged publication artifact for secrets
       run: python3 product/release/secrets.py artifacts staged
     - name: Enumerate every staged artifact for attestation

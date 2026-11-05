@@ -148,7 +148,9 @@ def validate_payload(root, platform, run):
             or sources['product'] != receipt['product'] or sources['tooling'] != receipt['tooling']):
         raise ValueError('artifact recovery receipt differs')
     actual = {'dist/' + path.name: digest(path) for path in dist.iterdir() if path.is_file()}
-    if any(not path.is_file() or path.is_symlink() for path in dist.iterdir()) or actual != receipt['sha256']:
+    unexpected = [path for path in dist.iterdir() if path.is_symlink() or (not path.is_file()
+                  and not (path.name == 'fixture-evidence' and path.is_dir() and not any(path.iterdir())))]
+    if unexpected or actual != receipt['sha256']:
         raise ValueError('native file inventory or bytes differ from recovery receipt')
     candidate = json.loads((dist / 'release.json').read_text())
     if (candidate['revision'] != PRODUCT or candidate['platform'] != platform
@@ -173,6 +175,18 @@ def validate_payload(root, platform, run):
         if 'dist/biomcp-container-' + arch + '.tar' not in actual:
             raise ValueError('qualified container archive is missing')
     return dist, {'sources': sources, 'files': receipt, 'install_report': report}
+
+
+def api_receipt(run, jobs, artifact=None):
+    # Retain identity/status fields, never API redirect URLs or arbitrary API bodies.
+    record = {'run': {key: run[key] for key in ('id', 'head_sha', 'event', 'path',
+              'head_branch', 'status', 'conclusion', 'run_attempt')},
+              'jobs': [{key: job[key] for key in ('id', 'name', 'status', 'conclusion')}
+                       for job in jobs]}
+    if artifact is not None:
+        record['artifact'] = {key: artifact[key] for key in ('id', 'name', 'size_in_bytes',
+                              'digest', 'expired', 'workflow_run')}
+    return record
 
 
 def collect(args):
@@ -242,9 +256,13 @@ def collect(args):
             if platform.startswith('manylinux'):
                 if container[0].get('cases') != expected_cases or container[0].get('trials', 0) < expected_cases:
                     raise ValueError('container installed cases or trials are incomplete')
-            shutil.copytree(dist, args.output / platform)
-        records[platform] = {'run': run, 'jobs': jobs, 'artifact': artifact, **evidence}
-    (args.receipts / 'recovery-inputs.json').write_text(json.dumps({'binding': binding, 'candidate_run': candidate, 'candidate_jobs': candidate_jobs, 'platforms': records}, indent=2) + '\n')
+            destination = args.output / platform
+            destination.mkdir()
+            for path in dist.iterdir():
+                if path.is_file():
+                    shutil.copy2(path, destination / path.name)
+        records[platform] = {**api_receipt(run, jobs, artifact), **evidence}
+    (args.receipts / 'recovery-inputs.json').write_text(json.dumps({'binding': binding, 'candidate': api_receipt(candidate, candidate_jobs), 'platforms': records}, indent=2) + '\n')
     with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
         output.write('version=1.0.0\n')
 
