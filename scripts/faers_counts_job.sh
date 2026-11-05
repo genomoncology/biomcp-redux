@@ -13,12 +13,10 @@ case "${1:-focused}" in
   focused)
     cargo test --locked -p biomcp-types --features schema --test adverse_event_contracts
     python3.13 scripts/trials.py --case-file adverse-event/faers-reaction-counts.yaml --case-file adverse-event/examples.yaml --case-file adverse-event/faers-several-names.yaml --case-file adverse-event/help.yaml
-    PYTHONPATH=. python3.13 scripts/faers_counts_mcp.py "${CARGO_TARGET_DIR:-target}/debug/biomcp"
+    python3.13 scripts/trials.py --target tools --cases tests/tool-cases --case-file adverse-event/faers-reaction-counts.yaml
     ;;
   scans)
     baseline=${2:?scans requires the current main baseline}
-    uvx --offline --from ruff==0.17.2 ruff check --select F401,F841,ERA,BLE,E722,S110 scripts/faers_counts_mcp.py
-    uvx --offline --from vulture==2.14 vulture scripts/faers_counts_mcp.py --min-confidence 60
     mkdir -p target/0662-scans/baseline
     git archive "$baseline" crates/biomcp-types/src/adverse_event crates/biomcp-query/src/adverse_event.rs crates/biomcp-query/src/adverse_event crates/biomcp-adapters/src/faers | tar -xf - -C target/0662-scans/baseline
     for side in baseline current; do

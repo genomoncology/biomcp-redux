@@ -41,7 +41,16 @@
             "next"
           ]
         }
-      }
+      },
+      "mcp": [
+        "search",
+        "adverse-event",
+        "Synthetic medicine",
+        "--aggregate",
+        "reactions",
+        "--limit",
+        "2"
+      ]
     },
     {
       "run": [
