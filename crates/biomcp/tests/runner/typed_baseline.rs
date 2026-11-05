@@ -97,6 +97,7 @@ pub(super) fn invalid_id_witness() -> Result<(), String> {
         "arguments":{"args":["get","trial","lung cancer"]}}),
     )];
     let args = ["serve".into(), "--offline".into()];
+    let mut frozen = None;
     for (label, binary) in [
         ("frozen-ed9c", baseline.as_path()),
         (
@@ -105,6 +106,17 @@ pub(super) fn invalid_id_witness() -> Result<(), String> {
         ),
     ] {
         let replies = exchange(&env, binary, &args, &frames)?;
+        if label == "frozen-ed9c" {
+            frozen = Some(replies.clone());
+        } else if frozen.as_ref() != Some(&replies) {
+            for raw in replies.values() {
+                writeln!(std::io::stdout(), "TYPED_INVALID_ID_RAW {label} {raw}")
+                    .map_err(|e| e.to_string())?;
+            }
+            return Err(
+                "unapproved invalid-ID single-mode wire difference; PM ruling required".into(),
+            );
+        }
         for raw in replies.values() {
             writeln!(std::io::stdout(), "TYPED_INVALID_ID_RAW {label} {raw}")
                 .map_err(|e| e.to_string())?;

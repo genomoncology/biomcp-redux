@@ -21,15 +21,11 @@ pub(super) fn check(tool: &Value) -> Result<(), String> {
     case_data::collect(&cases, &mut paths).map_err(|e| e.to_string())?;
     paths.sort();
     let mut calls = 0;
+    let mut excluded = 0;
     let mut failures = Vec::new();
     for path in paths {
         let case = case_data::read_case(&path)?;
-        for (index, step) in case
-            .steps
-            .iter()
-            .enumerate()
-            .filter(|(_, step)| step.exit == 0)
-        {
+        for (index, step) in case.steps.iter().enumerate() {
             let Some(args) = &step.run else { continue };
             if args.first().map(String::as_str) != Some(verb)
                 || args.get(1).map(String::as_str) != Some(entity)
@@ -37,8 +33,9 @@ pub(super) fn check(tool: &Value) -> Result<(), String> {
                 continue;
             }
             let label = format!("{name} {} step {}", path.display(), index + 1);
-            match candidate(tool, args, &case, index) {
-                Ok(()) => calls += 1,
+            match candidate(tool, args, &case, index, &label) {
+                Ok(true) => calls += 1,
+                Ok(false) => excluded += 1,
                 Err(error) => failures.push(format!("{label}: {error}")),
             }
         }
@@ -49,7 +46,7 @@ pub(super) fn check(tool: &Value) -> Result<(), String> {
     use std::io::Write;
     writeln!(
         std::io::stdout(),
-        "TYPED_REPLAY tool={name} calls={calls} failures={}",
+        "TYPED_REPLAY tool={name} calls={calls} excluded={excluded} failures={}",
         failures.len()
     )
     .map_err(|e| e.to_string())?;
@@ -96,14 +93,12 @@ fn candidate(
     args: &[String],
     case: &case_data::Case,
     index: usize,
-) -> Result<(), String> {
-    let name = tool
-        .get("name")
-        .and_then(Value::as_str)
-        .ok_or("tool name")?;
+    label: &str,
+) -> Result<bool, String> {
     let (env, mut globals, mut config) = prepare(case, index)?;
     let (args, extra) = query_arguments(args);
     globals.extend(extra);
+    let step = case.steps.get(index).ok_or("case step index")?;
     let output = env
         .command(
             env!("CARGO_BIN_EXE_biomcp"),
@@ -111,8 +106,12 @@ fn candidate(
         )
         .output()
         .map_err(|e| e.to_string())?;
-    if !output.status.success() {
-        return Err(format!("recorded CLI failed: {args:?}"));
+    if output.status.code() != Some(step.exit) {
+        return Err(format!(
+            "CLI exit changed: expected {}, actual {:?}: {args:?}",
+            step.exit,
+            output.status.code()
+        ));
     }
     let expected: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
     let verb = args.first().ok_or("command verb")?;
@@ -126,35 +125,73 @@ fn candidate(
         .output()
         .map_err(|e| e.to_string())?;
     let query: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
-    let input =
-        input(&args, &query).ok_or_else(|| format!("cannot translate recorded CLI: {args:?}"))?;
-    validate_input(tool, &input)?;
+    let Some(input) = input(&args, &query) else {
+        if expected.get("status") != Some(&json!("usage")) {
+            return Err(format!("valid CLI cannot translate: {args:?}"));
+        }
+        use std::io::Write;
+        writeln!(std::io::stdout(), "TYPED_REPLAY_CLI_SYNTAX case={label} step={} args={args:?} reason={} CLI_witness={expected} typed_coverage=typed_tools::rejections(unknown-key/non-object/malformed-value)",
+            index + 1, expected.get("error").unwrap_or(&Value::Null)).map_err(|e| e.to_string())?;
+        return Ok(false);
+    };
+    if let Err(error) = validate_input(tool, &input) {
+        if expected.get("status") != Some(&json!("usage")) {
+            return Err(error);
+        }
+        use std::io::Write;
+        writeln!(
+            std::io::stdout(),
+            "TYPED_REPLAY_EXPECTED_INVALID case={label} step={} {error}; CLI_witness={expected}",
+            index + 1
+        )
+        .map_err(|e| e.to_string())?;
+    }
     config
         .as_object_mut()
         .ok_or("configuration object")?
         .insert("mcp_tool_mode".into(), json!("typed"));
     env.config(&config).map_err(|e| e.to_string())?;
+    compare(tool, &input, &expected, &args, &env, &globals)?;
+    Ok(true)
+}
+
+fn compare(
+    tool: &Value,
+    input: &Value,
+    expected: &Value,
+    args: &[String],
+    env: &Environment,
+    globals: &[String],
+) -> Result<(), String> {
+    let name = tool
+        .get("name")
+        .and_then(Value::as_str)
+        .ok_or("tool name")?;
     let reply = exchange_with_globals(
-        &env,
+        env,
         &[request(
             json!(1),
             "tools/call",
             json!({"name":name,"arguments":input}),
         )],
-        &globals,
+        globals,
     )?;
     let reply = reply.first().ok_or("missing typed reply")?;
     let actual = reply
         .pointer("/result/structuredContent")
         .ok_or_else(|| format!("{name}: {reply}"))?;
     if serde_json::to_vec(actual).map_err(|e| e.to_string())?
-        != serde_json::to_vec(&expected).map_err(|e| e.to_string())?
+        != serde_json::to_vec(expected).map_err(|e| e.to_string())?
     {
         return Err(format!(
             "{name} decoded CLI JSON mismatch: {actual} versus {expected}"
         ));
     }
-    super::super::super::schema::Registry::embedded()?.validate(actual, &args, true)?;
+    super::super::super::schema::Registry::embedded()?.validate(
+        actual,
+        args,
+        expected.get("status") != Some(&json!("usage")),
+    )?;
     if let Some(schema) = tool.get("outputSchema") {
         if !jsonschema::validator_for(schema)
             .map_err(|e| e.to_string())?
@@ -266,15 +303,18 @@ fn input(args: &[String], query: &Value) -> Option<Value> {
                     words.next().cloned()
                 })
                 .unwrap_or_else(|| "true".into());
-            json!(word.parse::<bool>().ok()?)
+            word.parse::<bool>()
+                .map_or_else(|_| json!(word), |value| json!(value))
         } else {
             let word = inline
                 .map(str::to_owned)
                 .or_else(|| words.next().cloned())?;
             if kind == Some("integer") {
-                json!(word.parse::<u64>().ok()?)
+                word.parse::<u64>()
+                    .map_or_else(|_| json!(word), |value| json!(value))
             } else if kind == Some("number") {
-                json!(word.parse::<f64>().ok()?)
+                word.parse::<f64>()
+                    .map_or_else(|_| json!(word), |value| json!(value))
             } else if kind == Some("array") {
                 let mut values = if property["x-comma-separated"] == true {
                     word.split(',').map(str::to_owned).collect::<Vec<_>>()
