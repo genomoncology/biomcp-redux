@@ -37,10 +37,14 @@ pub(super) fn invalid(
 }
 
 fn primary(schema: &Value) -> Option<(&str, &Value)> {
-    schema.get("properties")?.as_object()?.iter().find_map(|(name, property)| {
-        (property.get("x-positional").and_then(Value::as_u64) == Some(0))
-            .then_some((name.as_str(), property))
-    })
+    schema
+        .get("properties")?
+        .as_object()?
+        .iter()
+        .find_map(|(name, property)| {
+            (property.get("x-positional").and_then(Value::as_u64) == Some(0))
+                .then_some((name.as_str(), property))
+        })
 }
 
 fn search_step(entity: &str, schema: &Value, input: &str) -> Option<biomcp_types::Step> {
@@ -59,9 +63,9 @@ fn search_step(entity: &str, schema: &Value, input: &str) -> Option<biomcp_types
         };
         Map::from_iter([(name.into(), value)])
     };
-    let command = biomcp_types::COMMANDS.iter().find(|command| {
-        (command.verb, command.entity) == ("search", entity)
-    })?;
+    let command = biomcp_types::COMMANDS
+        .iter()
+        .find(|command| (command.verb, command.entity) == ("search", entity))?;
     crate::grammar::rewrite::request(command.via, "search", entity, Value::Object(fields.clone()))
         .ok()?;
     // Spell options before the positional boundary, so a literal name stays data.
@@ -73,10 +77,15 @@ fn search_step(entity: &str, schema: &Value, input: &str) -> Option<biomcp_types
     }
     if let Some(value) = positional {
         args.push("--".into());
-        let values = value.as_array().map_or_else(|| std::slice::from_ref(&value), Vec::as_slice);
+        let values = value
+            .as_array()
+            .map_or_else(|| std::slice::from_ref(&value), Vec::as_slice);
         for value in values {
             args.push(value.as_str()?.into());
         }
     }
-    Some(biomcp_types::Step { kind: biomcp_types::StepKind::Disambiguate, args: args.into() })
+    Some(biomcp_types::Step {
+        kind: biomcp_types::StepKind::Disambiguate,
+        args: args.into(),
+    })
 }

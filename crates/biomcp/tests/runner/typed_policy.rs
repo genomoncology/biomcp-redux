@@ -72,8 +72,15 @@ fn hosted(env: &Environment) -> Result<(), String> {
                 json!({"name":"search_variant","arguments":{"query":query,"source":"myvariant"}}),
             )?;
         }
-        if index >= 5 && text.lines().next().is_some_and(|line| line.contains("search_")) {
-            return Err(format!("hosted refusal acquired a search suggestion: {text}"));
+        if index >= 5
+            && text
+                .lines()
+                .next()
+                .is_some_and(|line| line.contains("search_"))
+        {
+            return Err(format!(
+                "hosted refusal acquired a search suggestion: {text}"
+            ));
         }
         if index >= 5
             && !stdio
@@ -95,9 +102,16 @@ fn fresh_refusal(env: &Environment) -> Result<(), String> {
     );
     let replies = exchange_with_globals(env, &[frame], &["--hosted".into(), "--fresh".into()])?;
     let reply = replies.first().ok_or("hosted fresh reply")?;
-    let text = reply.pointer("/result/content/0/text").and_then(Value::as_str).ok_or("summary")?;
-    if reply.pointer("/result/structuredContent/error/code") != Some(&json!("usage.mcp_unavailable"))
-        || text.lines().next().is_some_and(|line| line.contains("search_"))
+    let text = reply
+        .pointer("/result/content/0/text")
+        .and_then(Value::as_str)
+        .ok_or("summary")?;
+    if reply.pointer("/result/structuredContent/error/code")
+        != Some(&json!("usage.mcp_unavailable"))
+        || text
+            .lines()
+            .next()
+            .is_some_and(|line| line.contains("search_"))
     {
         return Err(format!("hosted get refusal changed guidance: {reply}"));
     }
