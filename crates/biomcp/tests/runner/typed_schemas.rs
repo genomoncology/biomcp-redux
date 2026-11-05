@@ -13,6 +13,9 @@ fn field<'a>(node: &'a Value, key: &str) -> &'a Value {
 pub(super) fn check(env: &Environment) -> Result<(), String> {
     let tools = catalog(env, json!({"mcp_tool_mode":"typed"}))?;
     let mut failures = Vec::new();
+    if tools.len() != biomcp_types::command_paths().len() + 3 {
+        return Err("typed catalog must include every command plus help and research tools".into());
+    }
     for (verb, entity, id) in biomcp_types::command_paths() {
         let name = format!("{verb}_{entity}").replace('-', "_");
         let tool = tools
@@ -201,6 +204,10 @@ fn settings(env: &Environment, default: &[Value]) -> Result<(), String> {
     )?;
     report(&enabled)?;
     for tool in enabled {
+        if matches!(field(&tool, "name").as_str(), Some("biomcp_help" | "search" | "fetch")) {
+            if !default.contains(&tool) { return Err("shared help/research contract changed".into()); }
+            continue;
+        }
         if tool
             .pointer("/outputSchema/anyOf/0/properties/schema/enum")
             .and_then(Value::as_array)

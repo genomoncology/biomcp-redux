@@ -30,6 +30,23 @@ pub(crate) fn generate(schemas: &BTreeMap<String, String>) -> Result<String, Box
     generate_rows(&biomcp_types::command_paths(), schemas)
 }
 
+pub(crate) fn generate_typed(schemas: &BTreeMap<String, String>) -> Result<String, Box<dyn Error>> {
+    let mut rows = BTreeMap::<String, (BTreeSet<String>, BTreeSet<String>)>::new();
+    for (verb, entity, id) in biomcp_types::command_paths() {
+        let schema: Value = serde_json::from_str(schemas.get(id).ok_or("missing command schema")?)?;
+        let row = rows.entry(entity.into()).or_default();
+        row.0.insert(format!("{verb}_{entity}").replace('-', "_"));
+        row.1.extend(coverage::command_sources(verb, entity, &schema));
+    }
+    let mut lines = vec!["Call named tools for source evidence; use biomcp_help(command) for arguments, sections and examples.".to_owned()];
+    for (tools, sources) in rows.into_values() {
+        lines.push(format!("{}: {}", words(&tools), words(&sources)));
+    }
+    lines.push("biomcp_help: command path (e.g. search trial, sources); search/fetch: research results and exact result IDs.".into());
+    lines.extend(TRAPS.iter().skip(1).map(|line| (*line).into()));
+    Ok(lines.join("\n"))
+}
+
 fn generate_rows(
     commands: &[(&str, &str, &str)],
     schemas: &BTreeMap<String, String>,
