@@ -508,6 +508,8 @@ fn phenotype() -> Result<(), String> {
 // Fetch keeps the envelope disclosures separately from its one rendered record.
 pub(super) fn fetch_metadata(value: &Value) -> Value {
     let mut expected = value.clone();
-    expected.as_object_mut().unwrap().remove("result");
+    if let Some(fields) = expected.as_object_mut() {
+        fields.remove("result");
+    }
     expected
 }
