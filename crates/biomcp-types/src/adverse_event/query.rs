@@ -86,16 +86,22 @@ struct SearchFields {
     #[serde(default)]
     offset: u32,
 }
+impl SearchFields {
+    fn validate_aggregate(&self) -> Result<(), QueryInvalid> {
+        if self.aggregate.is_some() && self.source != AdverseEventSource::Faers {
+            return Err(QueryInvalid::new(&["source", "aggregate"]));
+        }
+        if self.aggregate.is_some() && self.offset != 0 {
+            return Err(QueryInvalid::new(&["aggregate", "offset"]));
+        }
+        Ok(())
+    }
+}
 crate::query::validation::checked_query!(AdverseEventSearch, SearchFields);
 impl TryFrom<SearchFields> for AdverseEventSearch {
     type Error = QueryInvalid;
     fn try_from(mut v: SearchFields) -> Result<Self, Self::Error> {
-        if v.aggregate.is_some() && v.source != AdverseEventSource::Faers {
-            return Err(QueryInvalid::new(&["source", "aggregate"]));
-        }
-        if v.aggregate.is_some() && v.offset != 0 {
-            return Err(QueryInvalid::new(&["aggregate", "offset"]));
-        }
+        v.validate_aggregate()?;
         let maude_filter =
             v.manufacturer.is_some() || !v.product_code.is_empty() || v.problem.is_some();
         if v.source != AdverseEventSource::Maude && maude_filter {

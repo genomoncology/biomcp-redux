@@ -27,6 +27,11 @@ case "${1:-focused}" in
       npm exec --offline --yes --package=jscpd@4.0.5 -- jscpd "$prefix/crates/biomcp-types/src/adverse_event" "$prefix/crates/biomcp-query/src/adverse_event.rs" "$prefix/crates/biomcp-query/src/adverse_event" "$prefix/crates/biomcp-adapters/src/faers" --format rust --max-size 10mb --reporters console,json --output "target/0662-scans/$side"
     done
     ;;
+  mechanical)
+    cargo fmt --all -- --check
+    cargo clippy --locked -p biomcp-types -p biomcp-adapters -p biomcp-query --all-targets --features biomcp-types/schema -- -D warnings
+    cargo test --locked -p biomcp --test ratchets -- repository_obeys_structural_contract --exact
+    ;;
   routine)
     sh scripts/faers_counts_job.sh scans "${2:?routine requires the current main baseline}"
     make landing-gate
