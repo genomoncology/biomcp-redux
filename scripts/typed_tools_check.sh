@@ -7,6 +7,7 @@ if [ "$#" -gt 0 ]; then
     test "$(shasum -a 256 "$typed_scratch/baseline" | cut -d ' ' -f 1)" = "$2"
     mkdir -p target/typed-tools-baseline
     cp "$typed_scratch/baseline" target/typed-tools-baseline/biomcp
+    chmod a-w "$typed_scratch/baseline" target/typed-tools-baseline/biomcp
     export BIOMCP_TYPED_BASELINE="$typed_scratch/baseline"
 fi
 : "${BIOMCP_TYPED_BASELINE:?a verified frozen baseline executable is required}"
