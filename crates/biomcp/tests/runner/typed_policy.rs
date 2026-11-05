@@ -26,6 +26,11 @@ fn hosted(env: &Environment) -> Result<(), String> {
             json!({"name":"get_trial","arguments":{"input":["melanoma"]}}),
         ),
         request(
+            json!(5),
+            "tools/call",
+            json!({"name":"get_trial","arguments":{"input":["lung cancer"]}}),
+        ),
+        request(
             json!(3),
             "tools/call",
             json!({"name":"article_pdf","arguments":{"input":"28944238","save":"saved.pdf"}}),
@@ -58,13 +63,13 @@ fn hosted(env: &Environment) -> Result<(), String> {
             .ok_or("summary")?;
         let expected = match index {
             0 => "search_variant",
-            1 => "search_trial",
+            1 | 2 => "search_trial",
             _ => "hosted",
         };
-        if index < 2 && !text.contains(expected) {
+        if index < 3 && !text.contains(expected) {
             return Err(format!("missing typed replacement {expected}: {text}"));
         }
-        if index == 2
+        if index == 3
             && !stdio
                 .pointer("/result/structuredContent")
                 .ok_or("structured reply")?
