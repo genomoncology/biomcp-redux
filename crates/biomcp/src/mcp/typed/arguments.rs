@@ -8,7 +8,7 @@ pub(super) fn resolve<'a>(node: &'a Value, root: &'a Value) -> &'a Value {
         .and_then(|reference| root.pointer(reference.trim_start_matches('#')))
         .unwrap_or(node)
 }
-fn compact(node: &Value, root: &Value) -> Value {
+fn compact(node: &Value, root: &Value, optional: bool, enum_limit: usize) -> Value {
     let node = resolve(node, root);
     let Some(fields) = node.as_object() else {
         return node.clone();
@@ -16,6 +16,26 @@ fn compact(node: &Value, root: &Value) -> Value {
     let mut result = serde_json::Map::new();
     for (key, value) in fields {
         match key.as_str() {
+            "type" if optional && value.is_array() => {
+                let kinds: Vec<_> = value
+                    .as_array()
+                    .into_iter()
+                    .flatten()
+                    .filter(|kind| *kind != "null")
+                    .cloned()
+                    .collect();
+                result.insert(
+                    key.clone(),
+                    if kinds.len() == 1 {
+                        kinds.first().cloned().unwrap_or(Value::Null)
+                    } else {
+                        json!(kinds)
+                    },
+                );
+            }
+            "enum" if value.as_array().is_some_and(|v| v.len() > enum_limit) => {
+                result.insert("type".into(), json!("string"));
+            }
             "type"
             | "enum"
             | "const"
@@ -27,37 +47,24 @@ fn compact(node: &Value, root: &Value) -> Value {
             | "additionalProperties" => {
                 result.insert(key.clone(), value.clone());
             }
-            "description" => {
-                result.insert(
-                    key.clone(),
-                    Value::String(
-                        value
-                            .as_str()
-                            .unwrap_or_default()
-                            .lines()
-                            .next()
-                            .unwrap_or_default()
-                            .chars()
-                            .take(80)
-                            .collect(),
-                    ),
-                );
-            }
             "items" => {
-                result.insert(key.clone(), compact(value, root));
+                result.insert(key.clone(), compact(value, root, false, enum_limit));
             }
             "anyOf" | "oneOf" => {
-                result.insert(
-                    key.clone(),
-                    Value::Array(
-                        value
-                            .as_array()
-                            .into_iter()
-                            .flatten()
-                            .map(|v| compact(v, root))
-                            .collect(),
-                    ),
-                );
+                let branches: Vec<_> = value
+                    .as_array()
+                    .into_iter()
+                    .flatten()
+                    .filter(|v| !optional || resolve(v, root).get("type") != Some(&json!("null")))
+                    .map(|v| compact(v, root, optional, enum_limit))
+                    .collect();
+                if branches.len() == 1 {
+                    if let Some(fields) = branches.first().and_then(Value::as_object) {
+                        result.extend(fields.clone());
+                    }
+                } else {
+                    result.insert(key.clone(), json!(branches));
+                }
             }
             _ => {}
         }
@@ -65,18 +72,48 @@ fn compact(node: &Value, root: &Value) -> Value {
     Value::Object(result)
 }
 pub(super) fn input(schema: &Value) -> Value {
-    let properties = schema["properties"]
-        .as_object()
+    input_with_limit(schema, crate::config::DEFAULT_TYPED_ENUM_LIMIT)
+}
+pub(super) fn input_with_limit(schema: &Value, enum_limit: usize) -> Value {
+    let properties = schema
+        .get("properties")
+        .and_then(Value::as_object)
         .into_iter()
         .flatten()
         .flat_map(|(key, node)| {
+            let description = node.get("description").and_then(Value::as_str).map(|text| {
+                text.lines()
+                    .next()
+                    .unwrap_or_default()
+                    .chars()
+                    .take(80)
+                    .collect::<String>()
+            });
             if let Some(flags) = node.get("x-cli-flags").and_then(Value::as_object) {
                 flags
                     .keys()
-                    .map(|flag| (flag.clone(), json!({"type":"boolean"})))
+                    .map(|flag| {
+                        let mut property = json!({"type":"boolean"});
+                        if let Some(text) = &description
+                            && let Some(fields) = property.as_object_mut()
+                        {
+                            fields.insert("description".into(), json!(text));
+                        }
+                        (flag.clone(), property)
+                    })
                     .collect()
             } else {
-                vec![(key.clone(), compact(node, schema))]
+                let optional = !schema
+                    .get("required")
+                    .and_then(Value::as_array)
+                    .is_some_and(|v| v.contains(&json!(key)));
+                let mut property = compact(node, schema, optional, enum_limit);
+                if let Some(text) = description
+                    && let Some(fields) = property.as_object_mut()
+                {
+                    fields.insert("description".into(), json!(text));
+                }
+                vec![(key.clone(), property)]
             }
         })
         .collect::<serde_json::Map<_, _>>();

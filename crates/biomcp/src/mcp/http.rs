@@ -272,6 +272,7 @@ impl Service {
             true,
             &self.root,
             crate::config::mcp_tool_mode(&self.globals, &self.settings),
+            &self.settings,
         ) {
             super::rpc::Message::Reply(reply) => reply,
             super::rpc::Message::Notification { .. } => return (202, None, Some(revision)),

@@ -66,16 +66,27 @@ fn schema(id: &str) -> io::Result<Value> {
     )
     .map_err(Into::into)
 }
-pub(super) fn tools(_root: &crate::grammar::Root, read_only: bool) -> io::Result<Vec<Value>> {
+pub(super) fn tools(
+    _root: &crate::grammar::Root,
+    read_only: bool,
+    settings: &crate::config::Settings,
+) -> io::Result<Vec<Value>> {
+    let (output_schema, enum_limit) = crate::config::mcp_typed_schema_options(settings);
     crate::grammar::command_paths()
         .iter()
         .map(|&(verb, entity, id)| {
             let schema = schema(id)?;
-            Ok(json!({"name":name(verb, entity),
+            let mut tool = json!({"name":name(verb, entity),
             "description":description::render(verb, entity, &schema),
-            "inputSchema":arguments::input(&schema),
-            "outputSchema":super::output_schema::for_command(verb, entity, id)?,
-            "annotations":{"readOnlyHint":read_only,"destructiveHint":false,"openWorldHint":true}}))
+            "inputSchema":arguments::input_with_limit(&schema, enum_limit),
+            "annotations":{"readOnlyHint":read_only,"destructiveHint":false,"openWorldHint":true}});
+            if output_schema && let Some(fields) = tool.as_object_mut() {
+                fields.insert(
+                    "outputSchema".into(),
+                    super::output_schema::for_command(verb, entity, id)?,
+                );
+            }
+            Ok(tool)
         })
         .collect()
 }

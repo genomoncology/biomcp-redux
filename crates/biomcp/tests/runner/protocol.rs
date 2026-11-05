@@ -6,6 +6,8 @@ mod schemas;
 mod typed;
 #[path = "typed_reply.rs"]
 mod typed_reply;
+#[path = "typed_schemas.rs"]
+mod typed_schemas;
 use super::{
     launch::Environment,
     mcp::{exchange, request},
@@ -20,6 +22,10 @@ type Check = Result<(), String>;
 
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = vec![
+        transcript_trial("mcp-parity/compact-typed-schemas", || {
+            let env = Environment::new()?;
+            typed_schemas::check(&env).map_err(Into::into)
+        }),
         transcript_trial("mcp-parity/typed-reply-forms-and-cap", || {
             typed_reply::check().map_err(Into::into)
         }),

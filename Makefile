@@ -321,3 +321,22 @@ typed-reply-check:
 	mkdir -p "$(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target)/typed-replies"
 	cargo build --locked -p biomcp --bin biomcp --test cases --message-format=json-render-diagnostics > "$(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target)/typed-replies/build.jsonl"
 	python3 -c 'import json,subprocess,sys; rows=[json.loads(line) for line in open(sys.argv[1]) if line.startswith("{")]; executables={row["target"]["name"]:row["executable"] for row in rows if row.get("reason")=="compiler-artifact" and row.get("executable")}; subprocess.run([sys.executable,"scripts/trials.py","--runner",executables["cases"],"--executable",executables["biomcp"],"--installed","mcp-parity/typed-reply-forms-and-cap","mcp-parity/complete-tool-result-character-cap"],check=True)' "$(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target)/typed-replies/build.jsonl"
+
+.PHONY: typed-schema-check
+typed-schema-check:
+	mkdir -p "$(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target)/typed-schemas"
+	cargo build --locked -p biomcp --bin biomcp --test cases --message-format=json-render-diagnostics > "$(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target)/typed-schemas/build.jsonl"
+	python3 -c 'import json,subprocess,sys; rows=[json.loads(line) for line in open(sys.argv[1]) if line.startswith("{")]; executables={row["target"]["name"]:row["executable"] for row in rows if row.get("reason")=="compiler-artifact" and row.get("executable")}; subprocess.run([sys.executable,"scripts/trials.py","--runner",executables["cases"],"--executable",executables["biomcp"],"--installed","mcp-parity/compact-typed-schemas"],check=True)' "$(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target)/typed-schemas/build.jsonl"
+
+.PHONY: typed-schema-source-check
+typed-schema-source-check:
+	+$(MAKE) schema-generate docs-generate
+	+$(MAKE) --keep-going fmt typed-schema-lint typed-schema-metadata-lint typed-schema-check typed-schema-structure
+
+.PHONY: typed-schema-lint typed-schema-metadata-lint typed-schema-structure
+typed-schema-lint:
+	cargo clippy --locked -p biomcp --bin biomcp --test cases -- -D warnings
+typed-schema-metadata-lint:
+	cargo clippy --locked -p biomcp-types --features schema --test schemas -- -D warnings
+typed-schema-structure:
+	cargo test --locked -p biomcp --test ratchets $(TEST_THREADS)

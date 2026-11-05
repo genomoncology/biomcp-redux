@@ -52,6 +52,18 @@ pub(crate) fn mcp_reply_form(settings: &Settings) -> ReplyForm {
         .unwrap_or_default()
 }
 
+pub(crate) const DEFAULT_TYPED_ENUM_LIMIT: usize = 30;
+
+pub(crate) fn mcp_typed_schema_options(settings: &Settings) -> (bool, usize) {
+    let file = settings.as_ref().ok().and_then(Option::as_ref);
+    (
+        file.and_then(|f| f.mcp_typed_output_schema)
+            .unwrap_or(false),
+        file.and_then(|f| f.mcp_typed_enum_limit)
+            .unwrap_or(DEFAULT_TYPED_ENUM_LIMIT),
+    )
+}
+
 pub(crate) fn mcp_tool_mode(globals: &Globals, settings: &Settings) -> ToolMode {
     globals
         .mcp_tool_mode

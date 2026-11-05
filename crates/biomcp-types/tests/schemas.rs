@@ -223,6 +223,7 @@ fn checked_in_schemas_match_types() {
         .map(|contract| {
             let mut new = (contract.generate)();
             new["$id"] = contract.id.into();
+            generation::command_descriptions(&mut new, contract.id);
             compatibility::check_reviewed(&new, &new, contract.kind, &reviews)
                 .unwrap_or_else(|error| panic!("{}: {error}", contract.name));
             let path = root.join(format!("{}.json", contract.name));

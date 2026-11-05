@@ -50,3 +50,66 @@ fn prepare(node: &mut Value, kind: ContractKind) {
         _ => {}
     }
 }
+
+/// Publish the same choice documentation for CLI help, schema readers and MCP discovery.
+pub(super) fn command_descriptions(schema: &mut Value, id: &str) {
+    let Some(command) = biomcp_types::COMMANDS.iter().find(|row| row.schema == id) else {
+        return;
+    };
+    let root = schema.clone();
+    if let Some(properties) = schema.get_mut("properties").and_then(Value::as_object_mut) {
+        for (name, property) in properties {
+            let Some(form) = choice_form(property, &root) else {
+                continue;
+            };
+            let original = property
+                .get("description")
+                .and_then(Value::as_str)
+                .unwrap_or_default();
+            let first = original.lines().next().unwrap_or_default();
+            if first.contains("biomcp_help") {
+                continue;
+            }
+            let suffix = format!(" {form}; biomcp_help {} {}", command.verb, command.entity);
+            let wording = if first.is_empty() {
+                name.replace('_', " ")
+            } else {
+                first.into()
+            };
+            let prefix: String = wording
+                .chars()
+                .take(80_usize.saturating_sub(suffix.len()))
+                .collect();
+            let prefix = if prefix.len() < wording.len() {
+                prefix
+                    .rsplit_once(' ')
+                    .map_or(prefix.as_str(), |(words, _)| words)
+            } else {
+                prefix.as_str()
+            };
+            let description = format!("{}{suffix}\n{original}", prefix.trim_end_matches('.'));
+            if let Some(object) = property.as_object_mut() {
+                object.insert("description".into(), description.into());
+            }
+        }
+    }
+}
+fn choice_form(node: &Value, root: &Value) -> Option<&'static str> {
+    if let Some(values) = node.get("enum").and_then(Value::as_array) {
+        return values
+            .first()
+            .map(|value| if value.is_string() { "text" } else { "value" });
+    }
+    if let Some(reference) = node.get("$ref").and_then(Value::as_str) {
+        return choice_form(root.pointer(reference.strip_prefix('#')?)?, root);
+    }
+    if let Some(items) = node.get("items") {
+        return choice_form(items, root);
+    }
+    ["anyOf", "oneOf"].into_iter().find_map(|key| {
+        node.get(key)
+            .and_then(Value::as_array)?
+            .iter()
+            .find_map(|branch| choice_form(branch, root))
+    })
+}
