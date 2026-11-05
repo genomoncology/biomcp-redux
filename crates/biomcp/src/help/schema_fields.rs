@@ -41,31 +41,38 @@ pub(super) fn resolve<'a>(node: &'a Value, root: &'a Value) -> &'a Value {
     node
 }
 
-#[test]
-fn every_section_rule_keeps_its_complete_source_text() -> Result<(), Box<dyn std::error::Error>> {
-    let root = crate::grammar::root().map_err(|_| "grammar unavailable")?;
-    let commands = super::commands(&root)?;
-    for command in &commands {
-        let Some(actual) = &command.section_rule else {
-            continue;
-        };
-        let (_, _, id) = crate::grammar::command_paths()
-            .iter()
-            .find(|(verb, entity, _)| command.command == [*verb, *entity])
-            .ok_or("section rule has no schema owner")?;
-        let schema: Value = serde_json::from_str(crate::schema::find(id).ok_or("missing schema")?)?;
-        let section = schema
-            .pointer("/properties/section")
-            .ok_or("missing section")?;
-        let original = section
-            .get("x-section-rule")
-            .and_then(Value::as_str)
-            .ok_or_else(|| format!("{id}: missing canonical section rule"))?;
-        assert_eq!(actual, &super::discovery::plain(original), "{id}");
-        assert!(
-            !actual.contains("biomcp_help"),
-            "{id}: compact guidance leaked into rule"
-        );
+#[cfg(test)]
+mod tests {
+    use super::Value;
+
+    #[test]
+    fn every_section_rule_keeps_its_complete_source_text() -> Result<(), Box<dyn std::error::Error>>
+    {
+        let root = crate::grammar::root().map_err(|_| "grammar unavailable")?;
+        let commands = crate::help::commands(&root)?;
+        for command in &commands {
+            let Some(actual) = &command.section_rule else {
+                continue;
+            };
+            let (_, _, id) = crate::grammar::command_paths()
+                .iter()
+                .find(|(verb, entity, _)| command.command == [*verb, *entity])
+                .ok_or("section rule has no schema owner")?;
+            let schema: Value =
+                serde_json::from_str(crate::schema::find(id).ok_or("missing schema")?)?;
+            let section = schema
+                .pointer("/properties/section")
+                .ok_or("missing section")?;
+            let original = section
+                .get("x-section-rule")
+                .and_then(Value::as_str)
+                .ok_or_else(|| format!("{id}: missing canonical section rule"))?;
+            assert_eq!(actual, &crate::help::discovery::plain(original), "{id}");
+            assert!(
+                !actual.contains("biomcp_help"),
+                "{id}: compact guidance leaked into rule"
+            );
+        }
+        Ok(())
     }
-    Ok(())
 }
