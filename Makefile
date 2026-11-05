@@ -376,4 +376,4 @@ source-status-check:
 
 .PHONY: source-status-pre-review
 source-status-pre-review:
-	+$(MAKE) check-cheap current-schema-check schema-release-check
+	+$(MAKE) source-status-check check-cheap current-schema-check schema-release-check
