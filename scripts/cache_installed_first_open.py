@@ -39,7 +39,7 @@ def main():
         'candidate': SOURCE, 'binary': str(binary), 'binary_sha256': actual,
         'artifact': args.artifact, 'command': ['health', '--offline'],
         'processes_per_round': 8, 'maximum_rounds': 50,
-        'timing_limit': 'Docker exec dispatch duration includes daemon overhead; successful schema/WAL phase timing is unobservable',
+        'timing_limit': ('Docker exec dispatch includes daemon overhead; ' if args.container else 'Native process dispatch duration only; ') + 'successful schema/WAL phase timing is unobservable',
     })
     failed = False
     for round_index in range(50):
