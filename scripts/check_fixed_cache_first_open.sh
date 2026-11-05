@@ -9,7 +9,7 @@ mkdir -p "$root"
 make check-cheap
 uvx --offline --from ruff==0.17.2 ruff check --select F401,F841,ERA,BLE,E722,S110 \
     release/smoke.py release/test_checks.py release/test_smoke.py scripts/cache_installed_first_open.py
-uvx --offline --from vulture==2.14 vulture release/smoke.py scripts/cache_installed_first_open.py --min-confidence 60
+uvx --offline --from vulture==2.14 vulture release/gate.py release/smoke.py scripts/cache_installed_first_open.py --min-confidence 60
 python3.13 -m unittest release.test_checks release.test_gate
 cargo test --locked -p biomcp-fetch --lib
 cargo test --locked -p biomcp-fetch --test cache
