@@ -170,7 +170,13 @@ pub(super) fn clock(case: &str, step: usize, before: &str, after: &str) -> Resul
         .get(&key)
         .ok_or("unlisted delayed clock probe")?
         .pointers;
-    let mut fields = pointers(case, step)?.ok_or("clock case has no approved handle fields")?;
+    if key == "study/examples.yaml step 5" {
+        if extra != &["/result/snapshot/acquired"] {
+            return Err("unexpected study acquisition control path".into());
+        }
+        return study_clock(before, after);
+    }
+    let mut fields = pointers(case, step)?.unwrap_or_default();
     fields.extend(extra.iter().cloned());
     let old: Value = serde_json::from_str(before).map_err(|error| error.to_string())?;
     let new: Value = serde_json::from_str(after).map_err(|error| error.to_string())?;
@@ -192,6 +198,39 @@ pub(super) fn clock(case: &str, step: usize, before: &str, after: &str) -> Resul
     )
     .map_err(|error| error.to_string())
 }
+
+// Diagnosis only: this never grants an allowance to the full raw comparison.
+fn study_clock(before: &str, after: &str) -> Result<(), String> {
+    let mut old: Value = serde_json::from_str(before).map_err(|error| error.to_string())?;
+    let new: Value = serde_json::from_str(after).map_err(|error| error.to_string())?;
+    let serialized_old = old.to_string();
+    if serialized_old != before {
+        return Err("study CURRENT raw frame changed canonical form".into());
+    }
+    let path = "/result/structuredContent/result/snapshot/acquired";
+    let first = old.pointer(path).and_then(Value::as_u64).ok_or("study acquisition timestamp")?;
+    let last = new.pointer(path).and_then(Value::as_u64).ok_or("study acquisition control timestamp")?;
+    if last <= first {
+        return Err("delayed study CURRENT/CURRENT acquisition clock did not advance".into());
+    }
+    let body = old.pointer("/result/structuredContent").ok_or("study body")?;
+    let serialized_body = body.to_string();
+    if old.pointer("/result/content/0/text").and_then(Value::as_str) != Some(serialized_body.as_str()) {
+        return Err("study CURRENT text is not its exact serialized body".into());
+    }
+    *old.pointer_mut(path).ok_or("study clock field")? = Value::from(last);
+    let body = old.pointer("/result/structuredContent").ok_or("study updated body")?.to_string();
+    *old.pointer_mut("/result/content/0/text").ok_or("study text")? = Value::String(body);
+    let expected = old.to_string();
+    if expected != after {
+        return Err("study delayed CURRENT/CURRENT differs outside acquisition clock".into());
+    }
+    use std::io::Write;
+    writeln!(std::io::stdout(), "TYPED_CLOCK_CONTROL case=study/examples.yaml step 5 \
+         exact_clock_paths=[/result/snapshot/acquired] other_fields=strict diagnostic_only=true")
+        .map_err(|error| error.to_string())
+}
+
 
 }
 
