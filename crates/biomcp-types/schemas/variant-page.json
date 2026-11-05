@@ -7220,7 +7220,7 @@
               "type": "null"
             }
           ],
-          "description": "Assembly; default GRCh38.\nMyVariant identity assembly defaults to GRCh38; chromosome genomic HGVS requires an explicit build."
+          "description": "GRCh37 or GRCh38.\nMyVariant identity assembly defaults to GRCh38; chromosome genomic HGVS requires an explicit build."
         },
         "civic_cursor": {
           "anyOf": [
@@ -7231,7 +7231,7 @@
               "type": "null"
             }
           ],
-          "description": "CIViC continuation.\nNative CIViC cursor, retained unchanged."
+          "description": "CIViC cursor.\nNative CIViC cursor, retained unchanged."
         },
         "civic_kind": {
           "anyOf": [
@@ -7242,10 +7242,10 @@
               "type": "null"
             }
           ],
-          "description": "CIViC collection.\nNative CIViC claim collection within the selected profile."
+          "description": "CIViC claims.\nNative CIViC claim collection within the selected profile."
         },
         "civic_profile": {
-          "description": "CIViC profile ID.\nSelected CIViC molecular profile for native claim paging.",
+          "description": "CIViC profile.\nSelected CIViC molecular profile for native claim paging.",
           "format": "uint64",
           "maximum": 2147483647,
           "minimum": 1,
@@ -7255,7 +7255,7 @@
           ]
         },
         "evidence_level": {
-          "description": "Native CIViC evidence levels; repeat to include several levels.",
+          "description": "CIViC evidence levels.\nNative CIViC evidence levels; repeat to include several levels.",
           "items": {
             "$ref": "#/$defs/Reply_CivicEvidenceLevel"
           },
@@ -7270,7 +7270,7 @@
               "type": "null"
             }
           ],
-          "description": "Native CIViC evidence status; omitted preserves the source's existing default."
+          "description": "CIViC evidence status.\nNative CIViC evidence status; omitted preserves the source's existing default."
         },
         "input": {
           "$ref": "#/$defs/Reply_VariantInput",
@@ -7279,7 +7279,7 @@
         },
         "limit": {
           "default": 10,
-          "description": "Candidate page size.\nCandidate rows per page; more remain reachable through typed next commands.",
+          "description": "Page size.\nCandidate rows per page; more remain reachable through typed next commands.",
           "format": "uint32",
           "maximum": 50,
           "minimum": 1,
@@ -7287,7 +7287,7 @@
         },
         "offset": {
           "default": 0,
-          "description": "Candidates to skip.\nCandidate rows to skip in source order.",
+          "description": "Candidate offset.\nCandidate rows to skip in source order.",
           "format": "uint32",
           "minimum": 0,
           "type": "integer"
@@ -7295,10 +7295,10 @@
         "resolver": {
           "$ref": "#/$defs/Reply_VariantResolver",
           "default": "car",
-          "description": "Notation resolver.\nResolver for reference-qualified notation; never repairs the input locally."
+          "description": "Resolver.\nResolver for reference-qualified notation; never repairs the input locally."
         },
         "section": {
-          "description": "Source sections.\nNamed source sections; omitted by default. Each calls its own source. all keeps bounded pages and source skips; it never enables a missing key.",
+          "description": "Sections.\nNamed source sections; omitted by default. Each calls its own source. all keeps bounded pages and source skips; it never enables a missing key.",
           "items": {
             "$ref": "#/$defs/Reply_VariantSection"
           },
@@ -7306,7 +7306,7 @@
           "x-positional": 1
         },
         "section_limit": {
-          "description": "Source rows per page.\nRows per named source section page; omitted uses the native source default.",
+          "description": "Section page size.\nRows per named source section page; omitted uses the native source default.",
           "format": "uint32",
           "maximum": 50,
           "minimum": 1,
@@ -7314,7 +7314,7 @@
         },
         "section_offset": {
           "default": 0,
-          "description": "Source rows to skip.\nSource rows to skip independently of identity candidate paging.",
+          "description": "Section offset.\nSource rows to skip independently of identity candidate paging.",
           "format": "uint32",
           "minimum": 0,
           "type": "integer"
@@ -7328,7 +7328,7 @@
               "type": "null"
             }
           ],
-          "description": "OncoKB tumor context.\nExplicit tumor context for keyed OncoKB annotation."
+          "description": "OncoKB tumor.\nExplicit tumor context for keyed OncoKB annotation."
         }
       },
       "required": [

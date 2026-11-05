@@ -71,7 +71,7 @@
           "type": "null"
         }
       ],
-      "description": "FAERS owns drugs, reactions and identifiers; MAUDE owns devices and narrative. Omitted means card only.",
+      "description": "FAERS owns drugs, reactions and text; biomcp_help get adverse-event\nFAERS owns drugs, reactions and identifiers; MAUDE owns devices and narrative. Omitted means card only.",
       "x-positional": 1
     },
     "section_limit": {
@@ -102,7 +102,7 @@
     },
     "source": {
       "default": "faers",
-      "description": "FAERS by default; MAUDE is explicit.",
+      "description": "FAERS by default; MAUDE is explicit text; biomcp_help get adverse-event\nFAERS by default; MAUDE is explicit.",
       "enum": [
         "faers",
         "maude"

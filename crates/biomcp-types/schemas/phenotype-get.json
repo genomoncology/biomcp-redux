@@ -55,7 +55,7 @@
     },
     "section": {
       "$ref": "#/$defs/PhenotypeSection",
-      "description": "Absent means the source identity card.",
+      "description": "Absent means the source identity card text; biomcp_help get phenotype\nAbsent means the source identity card.",
       "x-positional": 1
     },
     "section_limit": {
@@ -78,7 +78,7 @@
     },
     "source": {
       "$ref": "#/$defs/PhenotypeSource",
-      "description": "HPO or Monarch for cards, synonyms and xrefs; Monarch only for hierarchy, diseases and genes. Defaults to HPO for cards, synonyms and xrefs, otherwise Monarch."
+      "description": "HPO or Monarch for cards, synonyms and xrefs; text; biomcp_help get phenotype\nHPO or Monarch for cards, synonyms and xrefs; Monarch only for hierarchy, diseases and genes. Defaults to HPO for cards, synonyms and xrefs, otherwise Monarch."
     }
   },
   "required": [

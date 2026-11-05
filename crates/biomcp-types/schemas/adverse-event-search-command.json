@@ -161,7 +161,7 @@
           "type": "null"
         }
       ],
-      "description": "VAERS table.\nIndependent VAERS table; omitted means reported symptoms.",
+      "description": "VAERS table text; biomcp_help search adverse-event\nVAERS table.\nIndependent VAERS table; omitted means reported symptoms.",
       "x-positional": 1
     },
     "serious": {
@@ -173,7 +173,7 @@
           "type": "null"
         }
       ],
-      "description": "FAERS seriousness flag.\nFAERS report flag: any uses the source seriousness flag; the specific flags can overlap. Never a reaction outcome."
+      "description": "FAERS seriousness flag text; biomcp_help search adverse-event\nFAERS seriousness flag.\nFAERS report flag: any uses the source seriousness flag; the specific flags can overlap. Never a reaction outcome."
     },
     "snapshot": {
       "anyOf": [
@@ -189,7 +189,7 @@
     "source": {
       "$ref": "#/$defs/AdverseEventSource",
       "default": "faers",
-      "description": "Source; default FAERS.\nFAERS by default; VAERS accepts only exact supported vaccine names."
+      "description": "Source; default FAERS text; biomcp_help search adverse-event\nSource; default FAERS.\nFAERS by default; VAERS accepts only exact supported vaccine names."
     },
     "text": {
       "$ref": "#/$defs/Text",
