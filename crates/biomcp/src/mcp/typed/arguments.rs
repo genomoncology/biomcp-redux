@@ -181,7 +181,13 @@ pub(super) fn cli(
         }
     }
     positional.sort_by_key(|(index, _)| *index);
-    args.push("--".into());
+    if positional
+        .iter()
+        .flat_map(|(_, words)| words)
+        .any(|word| word.starts_with('-'))
+    {
+        args.push("--".into());
+    }
     args.extend(
         positional
             .into_iter()

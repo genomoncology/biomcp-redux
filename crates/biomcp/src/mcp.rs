@@ -150,6 +150,7 @@ impl Server {
             &self.root,
             params,
             crate::config::mcp_tool_mode(&self.globals, &self.settings),
+            self.globals.fresh,
         ) else {
             return Ok(Some(protocol::error(id, -32602, "Invalid params")));
         };

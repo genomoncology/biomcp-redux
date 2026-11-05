@@ -396,6 +396,7 @@ impl Service {
             &self.root,
             params,
             crate::config::mcp_tool_mode(&self.globals, &self.settings),
+            self.globals.fresh,
         )
         .ok_or_else(|| super::protocol::error(id.clone(), -32602, "Invalid params"))?;
         call.map_err(|rejected| {
