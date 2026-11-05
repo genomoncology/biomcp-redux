@@ -1,6 +1,6 @@
 //! Construct query arguments from their owning schemas.
 pub(crate) use super::process_arguments::{boolean_argument, boolean_value};
-use super::{gwas, properties, property_type};
+use super::{properties, property_type};
 use clap::{Arg, ArgAction, Command, builder::TypedValueParser};
 use serde_json::Value;
 
@@ -74,30 +74,20 @@ fn aliases(
     schema: &Value,
     mut command: Command,
 ) -> Result<Command, super::ParseInvalid> {
-    if schema.get("$id").and_then(Value::as_str) == Some("biomcp.article-search/3") {
-        command = command.arg(
-            Arg::new("query_alias")
-                .long("query")
-                .short('q')
-                .help("Alias for positional article text.")
-                .conflicts_with("text"),
-        );
+    for alias in super::query_aliases::declarations(name, schema) {
+        if let Some(long) = alias.long {
+            command = command.arg(
+                Arg::new(alias.argument)
+                    .long(long)
+                    .short(alias.short)
+                    .help("Alias for positional article text.")
+                    .conflicts_with(alias.field),
+            );
+        } else {
+            command = command.mut_arg(alias.argument, |argument| argument.short(alias.short));
+        }
     }
-    if matches!(name, "cell-line" | "author") && properties(schema)?.contains_key("query") {
-        command = command.mut_arg("limit", |arg| arg.short('l'));
-    }
-    Ok(if name == "gwas" {
-        gwas::aliases(command, schema)
-    } else if schema.get("$id").and_then(Value::as_str).is_some_and(|id| {
-        id.starts_with("biomcp.pathway-")
-            || id.starts_with("biomcp.author-")
-            || id == "biomcp.phenotype-search-query/1"
-    }) && properties(schema)?.contains_key("limit")
-    {
-        command.mut_arg("limit", |argument| argument.short('l'))
-    } else {
-        command
-    })
+    Ok(command)
 }
 
 fn value_argument(argument: Arg, property: &Value) -> Arg {

@@ -128,7 +128,13 @@ fn prepare_in(
         previous_step = Some(step);
     }
     let step = case.steps.get(index).ok_or("case step index")?;
-    let globals = env.globals(replay.as_deref(), step.offline);
+    // An explicit offline request must not receive the fixture's mutually exclusive replay mode.
+    let offline = step.offline
+        || step
+            .run
+            .as_deref()
+            .is_some_and(|args| arguments::offline(args).unwrap_or(false));
+    let globals = env.globals(replay.as_deref(), offline);
     Ok((globals, config))
 }
 
@@ -141,16 +147,16 @@ fn candidate(
     calls: &mut usize,
 ) -> Result<bool, String> {
     let label = context.label;
-    let (env, mut globals, config) = prepare(case, index)?;
-    let (args, extra, process_validation) = query_arguments(args);
-    globals.extend(extra);
+    let (env, fixture_globals, config) = prepare(case, index)?;
+    let (args, mut globals, process_validation) = query_arguments(args);
+    globals.extend(fixture_globals);
     let step = case.steps.get(index).ok_or("case step index")?;
     let expected = cli_case(&env, &args, &globals, step)?;
     if !process_valid(process_validation, &expected, label)? {
         return Ok(false);
     }
     let query = query_schema(&env, &args)?;
-    let Some(input) = input(&args, &query) else {
+    let Some(input) = input(&args, &query, &expected) else {
         if expected.get("status") != Some(&json!("usage")) {
             return Err(format!("valid CLI cannot translate: {args:?}"));
         }
@@ -339,10 +345,12 @@ fn single_parity(
 ) -> Result<Value, String> {
     let frozen = super::super::super::launch::typed_baseline().ok_or("missing frozen baseline")?;
     let current = std::path::Path::new(env!("CARGO_BIN_EXE_biomcp"));
+    let request_args =
+        super::super::super::launch::arguments(args, &arguments::request_globals(globals));
     let frames = [request(
         json!(1),
         "tools/call",
-        json!({"name":"biomcp","arguments":{"args":args}}),
+        json!({"name":"biomcp","arguments":{"args":request_args}}),
     )];
     let mut server_args = vec!["serve".into()];
     server_args.extend_from_slice(globals);
@@ -498,8 +506,9 @@ pub(super) fn clock_controls() -> Result<(), String> {
             return Err(format!("clock case is not a registry query: {key}"));
         }
         super::super::super::transcript::case_step(sequence);
-        let (env, mut globals, _) = prepare(&case, index)?;
-        globals.extend(extra);
+        let (env, fixture_globals, _) = prepare(&case, index)?;
+        let mut globals = extra;
+        globals.extend(fixture_globals);
         use std::io::Write;
         writeln!(
             std::io::stdout(),

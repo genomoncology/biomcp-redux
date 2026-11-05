@@ -12,9 +12,9 @@ pub(crate) use tree::Root;
 mod validation;
 pub(crate) use arguments::boolean_argument;
 use arguments::command_for;
-mod gwas;
 mod local;
 mod queries;
+mod query_aliases;
 #[cfg(test)]
 mod reference;
 pub(crate) use queries::command_paths;
@@ -366,10 +366,13 @@ fn arguments(matches: &clap::ArgMatches, schema: &Value) -> Result<Value, ParseI
         };
         result.insert(name.clone(), value);
     }
-    if schema.get("$id").and_then(Value::as_str) == Some("biomcp.article-search/3")
-        && let Some(text) = matches.get_one::<String>("query_alias")
+    for alias in query_aliases::declarations("", schema)
+        .iter()
+        .filter(|alias| alias.argument != alias.field)
     {
-        result.insert("text".into(), Value::String(text.clone()));
+        if let Some(text) = matches.get_one::<String>(alias.argument) {
+            result.insert(alias.field.into(), Value::String(text.clone()));
+        }
     }
     split_sections(&mut result, schema)?;
     Ok(Value::Object(result))
