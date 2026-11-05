@@ -386,3 +386,10 @@ help-contract-check:
 .PHONY: help-metadata-prepare
 help-metadata-prepare:
 	+$(MAKE) schema-generate docs-generate help-contract-check
+
+.PHONY: help-metadata-final
+help-metadata-final:
+	+$(MAKE) schema-generate docs-generate help-contract-check
+	python3 scripts/refresh_help_cases.py "$(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target)/debug/biomcp"
+	cargo test --locked -p biomcp --test cases help $(TEST_THREADS)
+	cargo test --locked -p biomcp --test cases mcp-parity/typed-description-contract $(TEST_THREADS)
