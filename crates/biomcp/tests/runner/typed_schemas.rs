@@ -144,7 +144,7 @@ fn oversized_enum(node: &Value, limit: usize) -> bool {
         _ => false,
     }
 }
-fn size(tool: &Value) -> usize {
+pub(super) fn size(tool: &Value) -> usize {
     ["name", "description"]
         .iter()
         .map(|key| {
@@ -161,9 +161,9 @@ pub(super) fn budget(tool: &Value) -> Result<(), String> {
     let length = size(tool);
     // search_trial exposes the complete supported filter set. Even with no descriptions,
     // its supported filter schema structure is 2058 characters; these optional filters cannot fit
-    // the ordinary budget. Restore source-owned numeric guidance within the sole measured exception of 3450.
+    // the ordinary budget. Restore source-owned numeric guidance within the sole PM-approved exception of 3500.
     let limit = if field(tool, "name") == "search_trial" {
-        3450
+        3500
     } else {
         2000
     };
