@@ -95,17 +95,14 @@ pub(super) fn parse(
     let input = arguments::input(&schema);
     let values = params.get("arguments").unwrap_or(&Value::Null);
     if !validation::valid(&input, values) {
+        let properties = input.get("properties")?.as_object()?;
         let fields = values.as_object();
-        let key = fields.and_then(|fields| {
-            fields
-                .keys()
-                .find(|key| input["properties"].get(*key).is_none())
-        });
+        let key =
+            fields.and_then(|fields| fields.keys().find(|key| !properties.contains_key(*key)));
         let error = biomcp_types::UsageError::Arguments(biomcp_types::UsageArguments {
             argument: Some(key.map_or_else(|| "arguments".into(), |key| key.clone().into())),
             valid_values: Some(
-                input["properties"]
-                    .as_object()?
+                properties
                     .keys()
                     .map(|key| biodata::Text::new(key).ok())
                     .collect::<Option<Vec<_>>>()?
@@ -122,7 +119,7 @@ pub(super) fn parse(
                 Value::Object(
                     fields
                         .iter()
-                        .filter(|(key, _)| input["properties"].get(*key).is_some())
+                        .filter(|(key, _)| properties.contains_key(*key))
                         .map(|(key, value)| (key.clone(), value.clone()))
                         .collect(),
                 )

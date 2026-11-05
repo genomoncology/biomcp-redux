@@ -113,19 +113,18 @@ fn rejections(env: &Environment, globals: &[String]) -> Result<(), String> {
             "tools/call",
             json!({"name":"search_trial","arguments":arguments}),
         );
-        let replies = exchange_with_globals(env, std::slice::from_ref(&frame), globals)?;
-        let stdio = replies.first().ok_or("missing rejection reply")?;
-        let (status, http) = server.request("POST", "/mcp", &frame.to_string())?;
-        if status != 200 || stdio["result"] != http["result"] {
-            return Err(format!(
-                "typed validation transports differ: {stdio} / {http}"
-            ));
-        }
-        let envelope = &stdio["result"]["structuredContent"];
+        let stdio = validation_parity(env, globals, &server, &frame)?;
+        let envelope = stdio
+            .pointer("/result/structuredContent")
+            .ok_or("usage envelope")?;
         if stdio.pointer("/result/isError") != Some(&json!(true))
-            || envelope["status"] != "usage"
-            || !envelope["error"]["option"].is_string()
-            || !envelope["error"]["valid_values"].is_array()
+            || envelope.get("status") != Some(&json!("usage"))
+            || !envelope
+                .pointer("/error/option")
+                .is_some_and(Value::is_string)
+            || !envelope
+                .pointer("/error/valid_values")
+                .is_some_and(Value::is_array)
         {
             return Err(format!("missing recoverable usage envelope: {stdio}"));
         }
@@ -141,18 +140,19 @@ fn rejections(env: &Environment, globals: &[String]) -> Result<(), String> {
             .ok_or_else(|| format!("missing typed correction: {text}"))?;
         let next: Value = serde_json::from_str(next).map_err(|e| e.to_string())?;
         let frame = request(json!(4), "tools/call", next);
-        let replies = exchange_with_globals(env, std::slice::from_ref(&frame), globals)?;
-        let (status, http) = server.request("POST", "/mcp", &frame.to_string())?;
-        if status != 200
-            || replies[0]["result"] != http["result"]
-            || !replies[0]
-                .pointer("/result/structuredContent/status")
-                .and_then(Value::as_str)
-                .is_some_and(|status| status != "usage")
+        let reply = validation_parity(env, globals, &server, &frame)?;
+        if reply
+            .pointer("/result/structuredContent/status")
+            .and_then(Value::as_str)
+            .is_none_or(|status| status == "usage")
         {
-            return Err(format!("typed correction rejected: {replies:?} / {http}"));
+            return Err(format!("typed correction rejected: {reply}"));
         }
     }
+    integer_spelling(env, globals, &server)
+}
+
+fn integer_spelling(env: &Environment, globals: &[String], server: &Server) -> Result<(), String> {
     let mut numeric_reply = None;
     for limit in [json!(10), json!("10")] {
         let frame = request(
@@ -160,22 +160,17 @@ fn rejections(env: &Environment, globals: &[String]) -> Result<(), String> {
             "tools/call",
             json!({"name":"search_trial","arguments":{"limit":limit}}),
         );
-        let replies = exchange_with_globals(env, std::slice::from_ref(&frame), globals)?;
-        let (status, http) = server.request("POST", "/mcp", &frame.to_string())?;
-        if status != 200
-            || replies[0]["result"] != http["result"]
-            || !replies[0]
-                .pointer("/result/structuredContent/status")
-                .and_then(Value::as_str)
-                .is_some_and(|status| status != "usage")
-        {
-            return Err(format!(
-                "CLI-compatible integer rejected: {replies:?} / {http}"
-            ));
-        }
-        let envelope = replies[0]
+        let reply = validation_parity(env, globals, server, &frame)?;
+        let envelope = reply
             .pointer("/result/structuredContent")
             .ok_or("integer envelope")?;
+        if envelope
+            .get("status")
+            .and_then(Value::as_str)
+            .is_none_or(|status| status == "usage")
+        {
+            return Err(format!("CLI-compatible integer rejected: {reply}"));
+        }
         if numeric_reply
             .as_ref()
             .is_some_and(|numeric| numeric != envelope)
@@ -185,6 +180,26 @@ fn rejections(env: &Environment, globals: &[String]) -> Result<(), String> {
         numeric_reply = Some(envelope.clone());
     }
     Ok(())
+}
+
+fn validation_parity(
+    env: &Environment,
+    globals: &[String],
+    server: &Server,
+    frame: &Value,
+) -> Result<Value, String> {
+    let replies = exchange_with_globals(env, std::slice::from_ref(frame), globals)?;
+    let stdio = replies.first().ok_or("missing validation reply")?;
+    let (status, http) = server.request("POST", "/mcp", &frame.to_string())?;
+    let result = stdio
+        .get("result")
+        .ok_or_else(|| format!("missing tool result: {stdio}"))?;
+    if status != 200 || Some(result) != http.get("result") {
+        return Err(format!(
+            "typed validation transports differ: {stdio} / {http}"
+        ));
+    }
+    Ok(stdio.clone())
 }
 fn descriptions(node: &Value) -> Result<(), String> {
     if node
