@@ -40,6 +40,7 @@ mod clinpgx;
 mod configuration;
 mod cpic;
 mod diagnostic_cdx;
+mod source_status;
 mod diagnostic_retirements;
 mod diagnostic_who;
 mod disease_monarch;
@@ -286,6 +287,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(housekeeping::trials());
     trials.extend(clinpgx::trials());
     trials.extend(variant_hotspots::trials());
+    trials.extend(source_status::trials());
     trials.extend(vaers::trials());
     trials.extend(trial_get::trials());
     trials.extend(trial_results::trials());
