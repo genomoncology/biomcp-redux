@@ -8,7 +8,7 @@ root="$PWD/target/fixed-cache-first-open"
 mkdir -p "$root"
 make check-cheap
 uvx --offline --from ruff==0.17.2 ruff check --select F401,F841,ERA,BLE,E722,S110 \
-    release/smoke.py release/test_checks.py release/test_smoke.py scripts/cache_installed_first_open.py
+    release/smoke.py release/test_checks.py release/test_smoke.py release/test_gate.py scripts/cache_installed_first_open.py
 uvx --offline --from vulture==2.14 vulture release/gate.py release/smoke.py scripts/cache_installed_first_open.py --min-confidence 60
 python3.13 -m unittest release.test_checks release.test_gate
 cargo test --locked -p biomcp-fetch --lib
@@ -47,7 +47,7 @@ subprocess.run([str(scanner), '--version'], check=True)
 product = ['crates/biomcp-fetch/src/cache.rs', 'crates/biomcp-fetch/src/cache']
 tests = ['crates/biomcp-fetch/tests/support/cache_process.rs']
 python_product = ['release/smoke.py']
-python_tests = ['release/test_checks.py', 'release/test_smoke.py']
+python_tests = ['release/test_checks.py', 'release/test_smoke.py', 'release/test_gate.py']
 baseline = root / 'baseline'
 baseline.mkdir()
 archive = subprocess.check_output(['git', 'archive', '015aea0a704b7b6176b6988bc6fae707ac0feb38', *product, *tests, *python_product, *python_tests])
