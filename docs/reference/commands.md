@@ -116,7 +116,7 @@ Commands:
   diagnostic     Search five source records by default. FDA device recalls cover every medical device; totals count recall records, without harm inference.
   adverse-event  Search five report headers by default. MAUDE accepts device text or a manufacturer, product-code or problem filter. One report may list several devices; filters may match different devices. VAERS accepts MMR, COVID19, COVID-19 vaccine or one exact qualified native influenza code, matched without case; use influenza to list codes and labels. Tables remain separate and are never summed. One report may list several vaccines. VAERS returns five reported symptom rows by default; seriousness and age select independent tables. Counts are reports, not people. Reports do not show that a vaccine caused an event and cannot measure risk or compare vaccine safety.
   disease        Literal discovery text or an explicit SEER catalog page.
-  drug           Search one drug source. FDA drug recalls accept a name or native firm, classification, status, reason and initiation dates; counts are recall records. WHO prequalification accepts a name or date range. Other sources require a name.
+  drug           Search one drug source. FDA drug recalls accept a name or native firm, classification, status, reason and initiation dates; counts are recall records. WHO prequalification accepts a name or date range. openFDA labels also accept literal indication wording. Other sources require a name.
   gene           Search genes by text, cytoband, or their intersection.
   article        Checked search selectors and pool cursor.
   trial          Search ClinicalTrials.gov or keyed NCI with native counts. NCI --facility matches exact organization names; a listed site is not necessarily enrolling.
@@ -1037,9 +1037,10 @@ Arguments:
           VAERS table; biomcp_help search adverse-event
 
 Options:
-      --drug <drug>...
-          FAERS drug names; OR.
-          FAERS literal drug name; repeat --drug for OR. OR inside one quoted value stays literal. Other filters AND with the names. BioMCP caps the escaped native query, including filters, at FAERS_QUERY_MAX_BYTES (4096 bytes).
+      --aggregate <aggregate>
+          FAERS reaction counts; biomcp_help search adverse-event
+          FAERS reaction counts.
+          Use reactions for source-native count buckets across matching reports. Counts are not rates or causal associations; a report may contribute to several terms. Requires MedDRA and offset zero.
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
@@ -1050,12 +1051,12 @@ Options:
       --disable-sources <disable-sources>
           Exclude source names or source terms groups.
 
-      --limit <limit>
-          Native report headers or VAERS rows per page; default five.
+      --drug <drug>...
+          FAERS drug names; OR.
+          FAERS literal drug name; repeat --drug for OR. OR inside one quoted value stays literal. Other filters AND with the names. BioMCP caps the escaped native query, including filters, at FAERS_QUERY_MAX_BYTES (4096 bytes).
 
-      --manufacturer <manufacturer>
-          MAUDE manufacturer.
-          MAUDE manufacturer phrase on device.manufacturer_d_name. A report may list several devices; filters may match different devices.
+      --limit <limit>
+          Native report headers, counted FAERS reaction terms or VAERS rows; default five.
 
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
@@ -1063,8 +1064,12 @@ Options:
       --config <config>
           Read configuration from this file.
 
+      --manufacturer <manufacturer>
+          MAUDE manufacturer.
+          MAUDE manufacturer phrase on device.manufacturer_d_name. A report may list several devices; filters may match different devices.
+
       --offset <offset>
-          Native row offset. VAERS continuation requires its retained snapshot.
+          Native report row offset; reaction counts require zero. VAERS needs its snapshot.
 
       --problem <problem>
           MAUDE product problem.
@@ -1078,12 +1083,18 @@ Options:
           FAERS MedDRA phrase.
           FAERS MedDRA term phrase match, not exact equality.
 
+      --offline[=<offline>]
+          Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
+
       --received-from <received_from>
           First date, YYYY-MM[-DD].
           Inclusive FAERS or MAUDE FDA receipt lower bound, YYYY-MM-DD or YYYY-MM; a month starts on its first day.
 
-      --offline[=<offline>]
-          Read local data without source requests.
+      --fresh[=<fresh>]
+          Request fresh source data instead of cached replies.
 
           [default: false]
           [possible values: true, false]
@@ -1091,12 +1102,6 @@ Options:
       --received-to <received_to>
           Last date, YYYY-MM[-DD].
           Inclusive FAERS or MAUDE FDA receipt upper bound, YYYY-MM-DD or YYYY-MM; a month ends on its last day.
-
-      --fresh[=<fresh>]
-          Request fresh source data instead of cached replies.
-
-          [default: false]
-          [possible values: true, false]
 
       --serious <serious>
           FAERS seriousness flag; biomcp_help search adverse-event
@@ -1116,12 +1121,15 @@ Options:
 
 Search drug, device and vaccine adverse events. Sources: faers, maude, vaers.
 
+- `--aggregate`: FAERS reaction counts; biomcp_help search adverse-event
+FAERS reaction counts.
+Use reactions for source count buckets across matching reports. Counts are not rates or causal associations; a report may contribute to several terms. Requires MedDRA and offset zero.
 - `--drug`: FAERS drug names; OR.
 FAERS exact drug name; repeat --drug for OR. OR inside one quoted value stays exact. Other filters AND with the names. BioMCP caps the escaped source query, including filters, at FAERS_QUERY_MAX_BYTES (4096 bytes).
-- `--limit`: Source report headers or VAERS rows per page; default five.
+- `--limit`: Source report headers, counted FAERS reaction terms or VAERS rows; default five.
 - `--manufacturer`: MAUDE manufacturer.
 MAUDE manufacturer phrase on device.manufacturer_d_name. A report may list several devices; filters may match different devices.
-- `--offset`: Source row offset. VAERS continuation requires its retained snapshot.
+- `--offset`: Source report row offset; reaction counts require zero. VAERS needs its snapshot.
 - `--problem`: MAUDE product problem.
 MAUDE phrase on source product_problems.
 - `--product-code`: MAUDE product codes; OR.
@@ -1218,13 +1226,15 @@ One explicit source, default OLS.
 ## biomcp search drug
 
 ```text
-Search one drug source. FDA drug recalls accept a name or native firm, classification, status, reason and initiation dates; counts are recall records. WHO prequalification accepts a name or date range. Other sources require a name.
+Search one drug source. FDA drug recalls accept a name or native firm, classification, status, reason and initiation dates; counts are recall records. WHO prequalification accepts a name or date range. openFDA labels also accept literal indication wording. Other sources require a name.
 
 Usage: biomcp search drug [OPTIONS] [query]
 
 Arguments:
   [query]
-          Search phrase; optional for FDA drug recalls and WHO date ranges. Drugs@FDA searches brands and ingredients,
+          Name phrase; optional with supported source filters.
+          FDA drug recalls, WHO date ranges and label indication searches allow no name.
+          Drugs@FDA searches brands and ingredients,
           exact names before word matches. openFDA labels search exact then word brand/generic names,
           then label text (including indications) when no names match; source matches need not be exact names.
           Harmonized recall names match but never become display names.
@@ -1246,14 +1256,19 @@ Options:
       --firm <firm>
           Literal published recalling firm phrase; drug recalls only.
 
-      --initiated-from <initiated_from>
-          Inclusive initiation day, YYYY-MM-DD; drug recalls only.
+      --indication <indication>
+          Literal label indication; openFDA labels only.
+          Search the native Indications and Usage field without disease synonym expansion.
+          An optional name query further narrows the same source search.
 
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
 
       --config <config>
           Read configuration from this file.
+
+      --initiated-from <initiated_from>
+          Inclusive initiation day, YYYY-MM-DD; drug recalls only.
 
       --initiated-to <initiated_to>
           Inclusive initiation day, YYYY-MM-DD; drug recalls only.
@@ -1268,23 +1283,23 @@ Options:
       --offset <offset>
           Native rows to skip.
 
-      --prequalified-from <prequalified_from>
-          Inclusive WHO prequalification lower bound, YYYY, YYYY-MM or YYYY-MM-DD; WHO PQ only.
-
       --offline[=<offline>]
           Read local data without source requests.
 
           [default: false]
           [possible values: true, false]
 
-      --prequalified-to <prequalified_to>
-          Inclusive WHO prequalification upper bound, YYYY, YYYY-MM or YYYY-MM-DD; WHO PQ only.
+      --prequalified-from <prequalified_from>
+          Inclusive WHO prequalification lower bound, YYYY, YYYY-MM or YYYY-MM-DD; WHO PQ only.
 
       --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
 
           [default: false]
           [possible values: true, false]
+
+      --prequalified-to <prequalified_to>
+          Inclusive WHO prequalification upper bound, YYYY, YYYY-MM or YYYY-MM-DD; WHO PQ only.
 
       --reason <reason>
           Phrase in the published recall reason; drug recalls only.
@@ -1298,11 +1313,14 @@ Options:
 
 ```
 
-Search drugs and medicines by name. Sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq.
+Search drugs and medicines by name or source label indication. Sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq.
 
 - `--classification`: Source FDA classification; drug recalls only; biomcp_help search drug
 Source FDA classification; drug recalls only.
 - `--firm`: Exact published recalling firm phrase; drug recalls only.
+- `--indication`: Exact label indication; openFDA labels only.
+Search the source Indications and Usage field without disease synonym expansion.
+An optional name query further narrows the same source search.
 - `--initiated-from`: Inclusive initiation day, YYYY-MM-DD; drug recalls only.
 - `--initiated-to`: Inclusive initiation day, YYYY-MM-DD; drug recalls only.
 - `--limit`: Source candidate rows per page.
@@ -1311,7 +1329,9 @@ Explicit ChEMBL source name selector; omitted means preferred name.
 - `--offset`: Source rows to skip.
 - `--prequalified-from`: Inclusive WHO prequalification lower bound, YYYY, YYYY-MM or YYYY-MM-DD; WHO PQ only.
 - `--prequalified-to`: Inclusive WHO prequalification upper bound, YYYY, YYYY-MM or YYYY-MM-DD; WHO PQ only.
-- `query`: Search phrase; optional for FDA drug recalls and WHO date ranges. Drugs@FDA searches brands and ingredients,
+- `query`: Name phrase; optional with supported source filters.
+FDA drug recalls, WHO date ranges and label indication searches allow no name.
+Drugs@FDA searches brands and ingredients,
 exact names before word matches. openFDA labels search exact then word brand/generic names,
 then label text (including indications) when no names match; source matches need not be exact names.
 Harmonized recall names match but never become display names.

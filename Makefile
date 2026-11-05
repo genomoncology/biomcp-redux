@@ -32,6 +32,12 @@ drug-alias-review-check: drug-alias-check drug-alias-review-tools current-schema
 drug-alias-scans:
 	sh scripts/check_trial_results.sh scans $(DRUG_ALIAS_BASELINE)
 
+.PHONY: faers-counts-integration-check
+faers-counts-integration-check:
+	sh scripts/faers_counts_job.sh mechanical
+	sh scripts/faers_counts_job.sh focused
+	+$(MAKE) current-schema-check
+
 # Cargo and the test harnesses do not interpret pm's fractional core booking.
 ifneq ($(strip $(PM_JOB_CORES)),)
 PM_WORKERS := $(shell python3 -c 'import math,os; print(max(1, math.floor(float(os.environ["PM_JOB_CORES"]))))')
@@ -396,6 +402,13 @@ typed-hosted-check:
 	mkdir -p "$(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target)/typed-hosted"
 	cargo build --locked -p biomcp --bin biomcp --test cases --message-format=json-render-diagnostics > "$(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target)/typed-hosted/build.jsonl"
 	BIOMCP_TRANSCRIPT_DIR="$(abspath $(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target))/typed-hosted/catalogs" python3 -c 'import json,subprocess,sys; rows=[json.loads(line) for line in open(sys.argv[1]) if line.startswith("{")]; executables={row["target"]["name"]:row["executable"] for row in rows if row.get("reason")=="compiler-artifact" and row.get("executable")}; subprocess.run([sys.executable,"scripts/trials.py","--runner",executables["cases"],"--executable",executables["biomcp"],"--installed","mcp-parity/typed-hosted-catalog"],check=True)' "$(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target)/typed-hosted/build.jsonl"
+
+.PHONY: drug-indication-focused
+drug-indication-focused:
+	+$(MAKE) schema-generate docs-generate
+	mkdir -p target/drug-indication-generated
+	tar -czf target/drug-indication-generated/source.tar.gz crates/biomcp-types/schemas docs/reference/commands.md
+	BIOMCP_TRANSCRIPT_DIR="$(abspath $(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target))/drug-indication-transcripts" python3 scripts/trials.py --installed mcp-parity/typed-cli-bridge mcp-parity/compact-typed-schemas mcp-parity/typed-hosted-catalog --case-file drug/indication.yaml --case-file drug/openfda-label-page.yaml --case-file drug/label-free-text.yaml --case-file drug/retired.yaml
 
 .PHONY: source-status-check
 source-status-check:
