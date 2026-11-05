@@ -50,5 +50,5 @@
     }
   ],
   "story": "Author help describes exact provider identity and unavailable topic rank",
-  "verified": "Help byte limits use j18463 output plus fifteen percent for defaults, aliases, inherited options and examples; higher existing limits remain."
+  "verified": "Help limits are refreshed by scripts/refresh_help_cases.py from complete offline CLI stdout."
 }
