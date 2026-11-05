@@ -1335,10 +1335,10 @@ Drugs@FDA searches brands and ingredients,
 exact names before word matches. openFDA labels search exact then word brand/generic names,
 then label text (including indications) when no names match; source matches need not be exact names.
 Harmonized recall names match but never become display names.
-- `--reason`: Phrase in the published recall reason; drug recalls only.
+- `--reason`: Phrase in the published recall reason; drug recalls only. Value form: string. Example: --reason 'Lack of Sterility Assurance'. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `--source`: Selected record source; after an empty name lookup,; biomcp_help search drug
-Selected record source; after an empty name lookup, existing sources may supply aliases.
-- `--status`: Exact source recall status; drug recalls only.
+Selected record source; after an empty name lookup, existing sources may supply aliases. Value form: string. Example: --source ema. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
+- `--status`: Exact source recall status; drug recalls only. Value form: string. Example: --status Ongoing. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 
 ## biomcp search gene
 
