@@ -2179,7 +2179,7 @@
         },
         "limit": {
           "default": 10,
-          "description": "Headers per page; NCI applies its own lower publisher limit.",
+          "description": "Page size.\nHeaders per page; NCI applies its own lower publisher limit.",
           "format": "uint32",
           "maximum": 100,
           "minimum": 1,
@@ -2195,7 +2195,7 @@
         },
         "offset": {
           "default": 0,
-          "description": "Zero-based offset of the first row in this continuation page.",
+          "description": "Page offset.\nZero-based offset of the first row in this continuation page.",
           "format": "uint32",
           "minimum": 0,
           "type": "integer"

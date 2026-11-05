@@ -1707,6 +1707,7 @@ Options:
           ClinicalTrials.gov only: radius center latitude in degrees.
 
       --limit <limit>
+          Page size.
           Headers per page; NCI applies its own lower publisher limit.
 
       --lon <lon>
@@ -1718,6 +1719,7 @@ Options:
           Opaque registry continuation; keep filters unchanged.
 
       --offset <offset>
+          Page offset.
           Zero-based offset of the first row in this continuation page.
 
       --phase <phase>
@@ -1804,12 +1806,14 @@ Intervention alternatives joined with OR; supported by ClinicalTrials.gov. Value
 Repeat for ClinicalTrials.gov general text alternatives joined with OR; different filters combine with AND. NCI accepts one keyword. Value form: repeatable values (repeat the flag). Example: --keyword survival. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--lat`: Latitude degrees.
 ClinicalTrials.gov only: radius center latitude in degrees. Value form: string. Example: --lat 42.3601. Command sources: ctgov, nci; source restrictions in the field description apply.
-- `--limit`: Headers per page; NCI applies its own lower publisher limit. Value form: integer. Example: --limit 1. Command sources: ctgov, nci; source restrictions in the field description apply.
+- `--limit`: Page size.
+Headers per page; NCI applies its own lower publisher limit. Value form: integer. Example: --limit 1. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--lon`: Longitude degrees.
 ClinicalTrials.gov only: radius center longitude in degrees. Value form: string. Example: --lon -71.0589. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--next-page`: Page token.
 Opaque registry continuation; keep filters unchanged. Value form: string. Example: --next-page <next-page> (syntax; replace the placeholder with your retained value). Command sources: ctgov, nci; source restrictions in the field description apply.
-- `--offset`: Zero-based offset of the first row in this continuation page. Value form: integer. Example: --offset 0. Command sources: ctgov, nci; source restrictions in the field description apply.
+- `--offset`: Page offset.
+Zero-based offset of the first row in this continuation page. Value form: integer. Example: --offset 0. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--phase`: Source phase; biomcp_help search trial
 Source phase.
 Exact source phase. ClinicalTrials.gov: 1, 2, 3, 4, early-1, not-applicable, 1/2, 2/3. NCI: NA, 0, I, I_II, II, II_III, III, IV. Value form: string. Example: --phase 1. Command sources: ctgov, nci; source restrictions in the field description apply.
