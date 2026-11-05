@@ -26,14 +26,13 @@
       "run": [
         "variant",
         "population",
-        "7-117559590-ATCT-A",
+        "7-140753336-A-T",
         "--resolver",
         "variantvalidator"
       ],
-      "exit": 4,
       "expect": {
         "/query/resolver": "car",
-        "/query/input": "7-117559590-ATCT-A",
+        "/query/input": "7-140753336-A-T",
         "/sources/0/source": "car",
         "/sources/0/state": "ok"
       }
