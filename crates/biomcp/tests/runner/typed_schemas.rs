@@ -204,8 +204,13 @@ fn settings(env: &Environment, default: &[Value]) -> Result<(), String> {
     )?;
     report(&enabled)?;
     for tool in enabled {
-        if matches!(field(&tool, "name").as_str(), Some("biomcp_help" | "search" | "fetch")) {
-            if !default.contains(&tool) { return Err("shared help/research contract changed".into()); }
+        if matches!(
+            field(&tool, "name").as_str(),
+            Some("biomcp_help" | "search" | "fetch")
+        ) {
+            if !default.contains(&tool) {
+                return Err("shared help/research contract changed".into());
+            }
             continue;
         }
         if tool

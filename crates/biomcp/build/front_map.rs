@@ -36,7 +36,8 @@ pub(crate) fn generate_typed(schemas: &BTreeMap<String, String>) -> Result<Strin
         let schema: Value = serde_json::from_str(schemas.get(id).ok_or("missing command schema")?)?;
         let row = rows.entry(entity.into()).or_default();
         row.0.insert(format!("{verb}_{entity}").replace('-', "_"));
-        row.1.extend(coverage::command_sources(verb, entity, &schema));
+        row.1
+            .extend(coverage::command_sources(verb, entity, &schema));
     }
     let mut lines = vec!["Call named tools for source evidence; use biomcp_help(command) for arguments, sections and examples.".to_owned()];
     for (tools, sources) in rows.into_values() {

@@ -11,17 +11,27 @@ pub(super) fn tool() -> Value {
 }
 pub(super) fn parse(params: &Value) -> Option<super::super::research::Call> {
     let fields = params.get("arguments")?.as_object()?;
-    if fields.len() != 1 { return None; }
+    if fields.len() != 1 {
+        return None;
+    }
     let command = fields.get("command")?.as_str()?;
     let mut args = vec![std::ffi::OsString::from("help")];
     args.extend(command.split_whitespace().map(std::ffi::OsString::from));
-    Some(super::super::research::Call { args, projection: super::super::research::Projection::Cli })
+    Some(super::super::research::Call {
+        args,
+        projection: super::super::research::Projection::Cli,
+    })
 }
 // Translate only CLI-owned help steps, preserving their complete command path.
 pub(super) fn next(root: &crate::grammar::Root, args: &[&str]) -> Option<Value> {
     let (verb, path) = args.split_first()?;
-    if *verb != "help" { return None; }
-    let argv = args.iter().map(std::ffi::OsString::from).collect::<Vec<_>>();
+    if *verb != "help" {
+        return None;
+    }
+    let argv = args
+        .iter()
+        .map(std::ffi::OsString::from)
+        .collect::<Vec<_>>();
     crate::grammar::parse(root, &argv).ok()?;
     Some(json!({"name":"biomcp_help","arguments":{"command":path.join(" ")}}))
 }

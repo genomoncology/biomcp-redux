@@ -68,7 +68,7 @@ fn schema(id: &str) -> io::Result<Value> {
     .map_err(Into::into)
 }
 pub(super) fn tools(
-    _root: &crate::grammar::Root,
+    root: &crate::grammar::Root,
     read_only: bool,
     settings: &crate::config::Settings,
 ) -> io::Result<Vec<Value>> {
@@ -91,7 +91,7 @@ pub(super) fn tools(
         })
         .collect::<io::Result<Vec<_>>>()?;
     tools.push(help::tool());
-    tools.extend(super::research::tools(_root)?);
+    tools.extend(super::research::tools(root)?);
     Ok(tools)
 }
 pub(super) fn parse(

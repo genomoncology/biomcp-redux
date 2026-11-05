@@ -2,10 +2,10 @@
 mod reply_form;
 #[path = "protocol_schemas.rs"]
 mod schemas;
-#[path = "typed_help.rs"]
-mod typed_help;
 #[path = "typed_tools.rs"]
 mod typed;
+#[path = "typed_help.rs"]
+mod typed_help;
 #[path = "typed_reply.rs"]
 mod typed_reply;
 #[path = "typed_schemas.rs"]
