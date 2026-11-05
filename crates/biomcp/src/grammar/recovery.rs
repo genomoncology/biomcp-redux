@@ -20,13 +20,14 @@ pub(super) fn corrected(
     schema: &Value,
     value: &Value,
     names: &[&str],
+    allow_omission: bool,
 ) -> Option<Step> {
     if let Some(step) = checked(via, path, value.clone()) {
         return Some(step);
     }
     for name in names {
         let property = schema.get("properties")?.get(*name)?;
-        if let Some(values) = value.get(*name).and_then(Value::as_array) {
+        if allow_omission && let Some(values) = value.get(*name).and_then(Value::as_array) {
             let accepted: Vec<_> = values
                 .iter()
                 .filter(|item| {
@@ -49,12 +50,15 @@ pub(super) fn corrected(
                 }
             }
         }
-        let mut candidate = value.clone();
-        candidate.as_object_mut()?.remove(*name);
-        if let Some(step) = checked(via, path, candidate) {
-            return Some(step);
+        // Ordinary invalid filters must not disappear from the proposed request.
+        if allow_omission {
+            let mut candidate = value.clone();
+            candidate.as_object_mut()?.remove(*name);
+            if let Some(step) = checked(via, path, candidate) {
+                return Some(step);
+            }
         }
-        for replacement in candidates(schema, property) {
+        for replacement in candidates(schema, property, value.get(*name).is_none()) {
             let mut candidate = value.clone();
             candidate
                 .as_object_mut()?
@@ -67,7 +71,7 @@ pub(super) fn corrected(
     None
 }
 
-fn candidates(schema: &Value, property: &Value) -> Vec<Value> {
+fn candidates(schema: &Value, property: &Value, missing: bool) -> Vec<Value> {
     let resolved = super::validation::resolve(schema, property);
     let mut values: Vec<_> = property
         .get("default")
@@ -82,7 +86,7 @@ fn candidates(schema: &Value, property: &Value) -> Vec<Value> {
                 .cloned(),
         )
         .collect();
-    if super::property_type(resolved) == Some("integer") {
+    if missing && super::property_type(resolved) == Some("integer") {
         values.push(resolved.get("minimum").cloned().unwrap_or(Value::from(0)));
     }
     if super::property_type(property) == Some("array") {
