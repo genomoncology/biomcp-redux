@@ -244,11 +244,13 @@ fn input(args: &[String], query: &Value) -> Option<Value> {
             .split_once('=')
             .map_or((flag, None), |(a, b)| (a, Some(b)));
         let key = flag.replace('-', "_");
-        if let Some((key, value)) = properties
-            .iter()
-            .find_map(|(key, p)| p.get("x-cli-flags")?.get(flag).map(|v| (key, v)))
-        {
-            result.insert(key.clone(), value.clone());
+        if properties.values().any(|property| {
+            property
+                .get("x-cli-flags")
+                .and_then(|flags| flags.get(flag))
+                .is_some()
+        }) {
+            result.insert(key, json!(true));
             continue;
         }
         let property = properties.get(&key)?;
@@ -270,6 +272,8 @@ fn input(args: &[String], query: &Value) -> Option<Value> {
                 .or_else(|| words.next().cloned())?;
             if kind == Some("integer") {
                 json!(word.parse::<u64>().ok()?)
+            } else if kind == Some("number") {
+                json!(word.parse::<f64>().ok()?)
             } else if kind == Some("array") {
                 let mut values = if property["x-comma-separated"] == true {
                     word.split(',').map(str::to_owned).collect::<Vec<_>>()
