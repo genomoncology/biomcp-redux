@@ -127,7 +127,7 @@ fn notices(value: &mut Value, cx: Context<'_>) -> io::Result<()> {
 pub(super) fn instructions(cx: Context<'_>) -> io::Result<String> {
     let excluded = super::typed::catalog::excluded(cx)?;
     let mut rows = vec!["Use the biomcp tool with command words in args; use help for arguments and help sources for this server's source policy.".to_owned()];
-    for &(verb, entity, id) in crate::grammar::command_paths() {
+    for (verb, entity, id) in crate::grammar::command_paths() {
         let schema: Value = serde_json::from_str(
             crate::schema::find(id).ok_or_else(|| io::Error::other("query schema"))?,
         )?;
@@ -181,17 +181,37 @@ fn offered(path: &[String], cx: Context<'_>) -> bool {
 fn reason(source: Source, cx: Context<'_>) -> io::Result<String> {
     let operator = crate::config::excluded_sources(cx.globals, cx.settings)
         .map_err(|e| io::Error::other(e.0))?;
-    let explanation = if operator.contains(&source) {
-        "The server operator disabled this source.".to_owned()
-    } else if crate::command::hosted_use::disabled(cx.declared_use, cx.secrets).contains(&source) {
+    let component_disabled = |hosted| {
+        cx.fetch.as_ref().is_ok_and(|fetch| {
+            let effective = if hosted {
+                crate::command::hosted_use::restrict(
+                    fetch.restrict_sources(Default::default()),
+                    Some(cx),
+                )
+            } else {
+                fetch.restrict_sources(Default::default())
+            };
+            biomcp_query::sources::components()
+                .any(|component| component.source == source && component.disabled(&effective))
+        })
+    };
+    let explanation = if operator.contains(&source) || component_disabled(false) {
+        "The server operator disabled this source or a required component.".to_owned()
+    } else if crate::command::hosted_use::disabled(cx.declared_use, cx.secrets).contains(&source)
+        || component_disabled(true)
+    {
         let ceiling =
             crate::config::hosted_max_use(cx.settings).map_err(|e| io::Error::other(e.0))?;
+        let effective = cx
+            .declared_use
+            .unwrap_or(crate::command::DeclaredUse::Academic);
         format!(
-            "This source is disabled by hosted use policy; the server ceiling permits {} use.",
+            "This source or a required component is disabled by the requested hosted use policy (permitted use: {}). The server ceiling permits {} use.",
+            effective.allowed(),
             ceiling.allowed()
         )
     } else {
-        "The server operator or hosted use policy disabled a required source component.".to_owned()
+        "This request disabled the source or a required component.".to_owned()
     };
     Ok(format!(
         "{explanation} A self-hosted install can enable it subject to the publisher's terms."

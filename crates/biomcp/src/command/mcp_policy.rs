@@ -2,7 +2,7 @@
 use biomcp_query::Action;
 use biomcp_types::{ErrorMessage, Request, UsageError};
 
-pub(super) fn refusal(parsed: &crate::grammar::Parsed, http: bool) -> Option<UsageError> {
+pub(crate) fn refusal(parsed: &crate::grammar::Parsed, http: bool) -> Option<UsageError> {
     let globals = &parsed.globals;
     let action = parsed.action.as_ref();
     if globals.hosted
