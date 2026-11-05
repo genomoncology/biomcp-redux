@@ -298,6 +298,39 @@ class NightlyCommand(unittest.TestCase):
             with self.subTest(change=change):
                 self.classified(classification_case(change), expected, code)
 
+    def test_failed_discovery_explains_only_its_dependents_and_cached_retries(self):
+        import copy
+        for status in (429, 500, None):
+            for change in ('dependent', 'cached-retry', 'unrelated', 'shape', 'plan'):
+                with self.subTest(status=status, change=change):
+                    row = classification_case('order')
+                    command = row['witness'][0]
+                    command['live']['requests'].reverse()
+                    root = command['live']['requests'][0]
+                    root['status'] = status
+                    root['provenance'] = {}
+                    command['live']['requests'] = [root]
+                    row['result']['drift'] = ['search: HTTP status changed',
+                                              'old-id: request-plan-removed']
+                    if change == 'cached-retry':
+                        later = copy.deepcopy(command)
+                        later['ordinal'] = 2
+                        later['baseline']['requests'] = []
+                        row['witness'].append(later)
+                        row['result']['commands'].append({'ordinal': 2})
+                        row['result']['drift'].append('search: request-plan-added')
+                    elif change == 'unrelated':
+                        command['baseline']['requests'][-1]['provenance']['inputs']['ids'] = ['unrelated']
+                    elif change == 'shape':
+                        row['result']['drift'].append('search: field removed: /id')
+                    elif change == 'plan':
+                        command['live']['requests'].append({'identity': 'unexplained',
+                            'source': 'other', 'role': 'Search', 'status': 200})
+                        row['result']['drift'].append('unexplained: request-plan-added')
+                    positive = change in ('dependent', 'cached-retry')
+                    self.classified(row, ('throttled' if status == 429 else 'outage')
+                                    if positive else 'failure', int(not positive))
+
     def test_throttle_explains_downstream_drift_only_in_its_command(self):
         row = classification_case('429-output')
         row['witness'][0]['baseline']['requests'].append({
