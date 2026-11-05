@@ -335,9 +335,10 @@ def command_classification(capture, discoveries, peers, complete=False, comparis
     # Other commands still have to explain their own request plans.
     for cause in ('outage', 'throttled'):
         if causes[cause]:
-            return cause if (explained_source_failures(capture)
-                and failure_plan(before, after, discoveries, peers)
-                in ('healthy', 'churn')) else 'failure'
+            if not explained_source_failures(capture):
+                return 'failure'
+            plan = failure_plan(before, after, discoveries, peers)
+            return cause if plan in ('healthy', 'churn') else plan
     comparison = comparison or {}
     removed = [before[key] for key in before.keys() - after.keys()]
     added = [after[key] for key in after.keys() - before.keys()]

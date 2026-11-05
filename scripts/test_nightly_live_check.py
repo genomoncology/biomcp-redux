@@ -328,10 +328,11 @@ print(json.dumps([(p.parent.name,p.read_text()) for p in sorted(root.glob('*/rep
                 counts[after] += 1
                 if before != after:
                     changes.append((row['case'], before, after))
-                    self.assertEqual((before, after), ('failure', 'outage'), row['case'])
-                    self.assertTrue(any(current.failed_status(request.get('status'))
-                        and request.get('status') != 429 for command in row['witness']
-                        for request in command['live']['requests']), row['case'])
+                    with self.subTest(run=name, case=row['case']):
+                        self.assertEqual((before, after), ('failure', 'outage'))
+                        self.assertTrue(any(current.failed_status(request.get('status'))
+                            and request.get('status') != 429 for command in row['witness']
+                            for request in command['live']['requests']))
             print(json.dumps({'run': name, 'counts': dict(counts), 'changes': changes}), flush=True)
 
     def test_failed_discovery_explains_only_its_dependents_and_cached_retries(self):
@@ -375,7 +376,7 @@ print(json.dumps([(p.parent.name,p.read_text()) for p in sorted(root.glob('*/rep
                         row['result']['drift'].append('unexplained: request-plan-added')
                     positive = change in ('dependent', 'cached-retry')
                     self.classified(row, ('throttled' if status == 429 else 'outage')
-                                    if positive else 'uncertain' if change == 'nonempty-cache' else 'failure',
+                                    if positive else 'uncertain' if change in ('plan', 'nonempty-cache') else 'failure',
                                     int(not positive))
 
     def test_cached_failed_output_requires_the_same_output_and_transition(self):
