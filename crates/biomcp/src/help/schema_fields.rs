@@ -50,11 +50,12 @@ mod tests {
     {
         let root = crate::grammar::root().map_err(|_| "grammar unavailable")?;
         let commands = crate::help::commands(&root)?;
+        let paths = crate::grammar::command_paths();
         for command in &commands {
             let Some(actual) = &command.section_rule else {
                 continue;
             };
-            let (_, _, id) = crate::grammar::command_paths()
+            let (_, _, id) = paths
                 .iter()
                 .find(|(verb, entity, _)| command.command == [*verb, *entity])
                 .ok_or("section rule has no schema owner")?;
