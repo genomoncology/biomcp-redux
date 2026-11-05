@@ -331,6 +331,12 @@ typed-schema-check:
 .PHONY: typed-schema-source-check
 typed-schema-source-check:
 	+$(MAKE) schema-generate docs-generate
-	+$(MAKE) fmt typed-schema-check
+	+$(MAKE) --keep-going fmt typed-schema-lint typed-schema-metadata-lint typed-schema-check typed-schema-structure
+
+.PHONY: typed-schema-lint typed-schema-metadata-lint typed-schema-structure
+typed-schema-lint:
 	cargo clippy --locked -p biomcp --bin biomcp --test cases -- -D warnings
+typed-schema-metadata-lint:
+	cargo clippy --locked -p biomcp-types --features schema --test schemas -- -D warnings
+typed-schema-structure:
 	cargo test --locked -p biomcp --test ratchets $(TEST_THREADS)
