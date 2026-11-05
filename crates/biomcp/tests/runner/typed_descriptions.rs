@@ -120,7 +120,7 @@ fn publishers(verb: &str, entity: &str, schema: &Value, description: &str) -> Re
             verb,
             entity,
             section,
-            &biomcp_types::Source::ALL,
+            biomcp_types::Source::ALL,
         )
         .unwrap_or_default();
         if !description.contains(section)
