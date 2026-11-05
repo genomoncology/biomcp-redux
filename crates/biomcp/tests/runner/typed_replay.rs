@@ -41,15 +41,15 @@ pub(super) fn check(tool: &Value, case_index: &mut usize) -> Result<(), String> 
             )
             .map_err(|e| e.to_string())?;
             *case_index += 1;
-            match candidate(tool, args, &case, index, &label) {
-                Ok(true) => calls += 1,
+            match candidate(tool, args, &case, index, &label, &mut calls) {
+                Ok(true) => {}
                 Ok(false) => excluded += 1,
                 Err(error) => failures.push(format!("{label}: {error}")),
             }
         }
     }
     if calls == 0 {
-        failures.push(format!("{name}: no successful recorded case; no exemption"));
+        failures.push(format!("{name}: no recorded typed call; no exemption"));
     }
     use std::io::Write;
     writeln!(
@@ -117,6 +117,7 @@ fn candidate(
     case: &case_data::Case,
     index: usize,
     label: &str,
+    calls: &mut usize,
 ) -> Result<bool, String> {
     let (env, mut globals, mut config) = prepare(case, index)?;
     let (args, extra) = query_arguments(args);
@@ -167,7 +168,7 @@ fn candidate(
         .ok_or("configuration object")?
         .insert("mcp_tool_mode".into(), json!("typed"));
     env.config(&config).map_err(|e| e.to_string())?;
-    let typed_parity = compare(tool, &input, &expected, &args, &env, &globals);
+    let typed_parity = compare(tool, &input, &expected, &args, &env, &globals, calls);
     let mut failures = Vec::new();
     if let Some(error) = schema_failure {
         failures.push(error);
@@ -270,6 +271,7 @@ fn compare(
     args: &[String],
     env: &Environment,
     globals: &[String],
+    calls: &mut usize,
 ) -> Result<(), String> {
     let name = tool
         .get("name")
@@ -285,6 +287,7 @@ fn compare(
         globals,
     )?;
     let reply = reply.first().ok_or("missing typed reply")?;
+    *calls += 1;
     let actual = reply
         .pointer("/result/structuredContent")
         .ok_or_else(|| format!("{name}: {reply}"))?;
