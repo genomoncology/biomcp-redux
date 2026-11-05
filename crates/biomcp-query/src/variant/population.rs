@@ -27,8 +27,7 @@ pub(super) fn section(
     }
     let joined = super::population_identity::read(cx, candidates, deadline);
     let Some(id) = joined.id else {
-        let mut result = missing();
-        result.0 = Section::unavailable(Source::Gnomad, joined.reason.unwrap_or(Reason::NoJoinId));
+        let mut result = missing(joined.reason.unwrap_or(Reason::NoJoinId));
         result.1 = joined.sources;
         result.2.extend(joined.problems);
         result.3 = joined.local;
@@ -254,7 +253,9 @@ fn stratum(id: &Text) -> (Option<Text>, Option<PopulationSex>) {
     }
 }
 
-fn missing() -> (
+fn missing(
+    reason: Reason,
+) -> (
     Section<VariantPopulation>,
     Vec<SourceOutcome>,
     Vec<Problem>,
@@ -264,15 +265,19 @@ fn missing() -> (
     (
         Section::Unavailable {
             source: Source::Gnomad,
-            reason: Reason::NoJoinId,
+            reason,
         },
         Vec::new(),
-        vec![Problem {
-            source: Source::Gnomad,
-            record: None,
-            field: "GRCh38_allele".into(),
-            code: ProblemCode::ValueUnknown,
-        }],
+        if reason == Reason::NoJoinId {
+            vec![Problem {
+                source: Source::Gnomad,
+                record: None,
+                field: "GRCh38_allele".into(),
+                code: ProblemCode::ValueUnknown,
+            }]
+        } else {
+            Vec::new()
+        },
         None,
         false,
     )
