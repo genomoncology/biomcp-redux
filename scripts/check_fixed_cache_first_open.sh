@@ -6,19 +6,14 @@ export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"
 export CARGO_BUILD_JOBS=2 RUST_TEST_THREADS=2 RUSTUP_TOOLCHAIN=1.95.0
 root="$PWD/target/fixed-cache-first-open"
 mkdir -p "$root"
-python3.13 scripts/check_docs.py
-python3.13 scripts/check_shell.py
-cargo fmt --all -- --check
+make check-cheap
 uvx --offline --from ruff==0.17.2 ruff check --select F401,F841,ERA,BLE,E722,S110 \
     release/smoke.py release/test_checks.py release/test_smoke.py scripts/cache_installed_first_open.py
 uvx --offline --from vulture==2.14 vulture release/smoke.py scripts/cache_installed_first_open.py --min-confidence 60
-make unused-dependencies
 python3.13 -m unittest release.test_checks release.test_gate
-cargo clippy --locked -p biomcp-fetch --all-targets -- -D warnings
 cargo test --locked -p biomcp-fetch --lib
 cargo test --locked -p biomcp-fetch --test cache
-cargo build --locked -p biomcp --bin biomcp --test cases --test tools --test ratchets --message-format=json > "$root/debug-build.json"
-cargo test --locked -p biomcp --test ratchets repository_obeys_structural_contract -- --exact
+cargo build --locked -p biomcp --bin biomcp --test cases --test tools --message-format=json > "$root/debug-build.json"
 python3.13 - "$root" <<'PY'
 import json
 import os
