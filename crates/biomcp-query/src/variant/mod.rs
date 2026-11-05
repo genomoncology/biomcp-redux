@@ -381,8 +381,8 @@ pub(crate) fn overall(
 mod gwas;
 mod identity;
 mod population;
-mod population_identity;
 pub(crate) mod population_detail;
+mod population_identity;
 mod population_release;
 
 fn myvariant_identity(

@@ -18,7 +18,7 @@ pub fn population_id(leg: &Leg<'_>, id: &str) -> Result<Mapped<Option<Text>>, Re
         ),
         list: Vec::new(),
     };
-    let mut ids = std::collections::BTreeSet::new();
+    let mut ids = std::collections::HashSet::new();
     if let Some(external) = fields.field("externalRecords", raw.external) {
         for row in fields.fields("externalRecords.gnomAD_4", external.gnomad) {
             let id = fields.field("externalRecords.gnomAD_4.id", Some(row.id));
