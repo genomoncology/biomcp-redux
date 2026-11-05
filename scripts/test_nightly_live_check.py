@@ -1,4 +1,5 @@
 """Exercise scheduled command settings, delivery and scratch ownership offline."""
+import fnmatch
 import json
 from pathlib import Path
 import shutil
@@ -175,9 +176,9 @@ class NightlyCommand(support.NightlyHarness, unittest.TestCase):
 
 
 def load_tests(loader, tests, pattern):
-    # The direct command includes both owners. Discovery finds the second
-    # module itself, so it must not be loaded again through this entry point.
-    if pattern is None:
+    # Keep the original entry point complete when discovery targets only it.
+    # Broader discovery loads the classification module itself exactly once.
+    if pattern is None or not fnmatch.fnmatchcase("test_nightly_classification.py", pattern):
         if __package__:
             from . import test_nightly_classification as classification
         else:
