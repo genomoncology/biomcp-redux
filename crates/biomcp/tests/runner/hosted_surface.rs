@@ -2,7 +2,7 @@
 use super::super::{
     http::Server,
     launch::{Environment, fixtures},
-    mcp::request,
+    mcp::{exchange_with_globals, request},
 };
 use serde_json::{Value, json};
 
@@ -36,6 +36,23 @@ pub(super) fn check() -> Result<(), String> {
         )?;
         let catalog = request(json!(2), "tools/list", json!({}));
         let (_, catalog) = server.request("POST", "/mcp", &catalog.to_string())?;
+        let invalid = if mode == "typed" {
+            json!({"name":"article_text","arguments":{"unexpected":true}})
+        } else {
+            json!({"name":"biomcp","arguments":{"args":["article","text","--unexpected"]}})
+        };
+        recovery(&call(&server, invalid.clone())?)?;
+        let stdio = exchange_with_globals(
+            &config_owner,
+            &[request(json!(3), "tools/call", invalid)],
+            &["--hosted".into(), "--offline".into()],
+        )?;
+        recovery(
+            stdio
+                .first()
+                .and_then(|reply| reply.pointer("/result/structuredContent"))
+                .ok_or("stdio error reply")?,
+        )?;
         if mode == "typed" {
             let tools = catalog
                 .pointer("/result/tools")
@@ -214,6 +231,34 @@ fn call(server: &Server, params: Value) -> Result<Value, String> {
         .pointer("/result/structuredContent")
         .cloned()
         .ok_or_else(|| format!("missing tool reply: {reply}"))
+}
+
+fn recovery(reply: &Value) -> Result<(), String> {
+    if reply.pointer("/error/code") != Some(&json!("usage.arguments")) {
+        return Err(format!("parser refusal changed: {reply}"));
+    }
+    for value in reply
+        .pointer("/error/valid_values")
+        .and_then(Value::as_array)
+        .into_iter()
+        .flatten()
+    {
+        if matches!(
+            value.as_str(),
+            Some(
+                "save"
+                    | "replace"
+                    | "--save"
+                    | "--replace"
+                    | "--fresh"
+                    | "--config"
+                    | "--source_pacing"
+            )
+        ) {
+            return Err(format!("hosted recovery offers refused option: {reply}"));
+        }
+    }
+    Ok(())
 }
 
 fn continuation(mode: &str) -> Result<(), String> {
