@@ -22,7 +22,9 @@
         "/next": [],
         "/result/population/reason": "bad-reply",
         "/result/candidates/0/identity/ids/0": "CA180574",
-        "/problems": []
+        "/problems/*/field": {
+          "excludes": "GRCh38_allele"
+        }
       }
     },
     {
@@ -38,8 +40,10 @@
         "/result/resolution": "resolved",
         "/result/candidates/0/identity/ids/0": "CA180574",
         "/result/candidates/0/sections/population/reason": "bad-reply",
-        "/problems": [],
-        "/next": []
+        "/next": [],
+        "/problems/*/field": {
+          "excludes": "GRCh38_allele"
+        }
       }
     }
   ]
