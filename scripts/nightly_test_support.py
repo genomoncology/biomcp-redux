@@ -50,9 +50,10 @@ class NightlyHarness:
         self.checkout = self.root / 'checkout'
         (self.checkout / 'scripts').mkdir(parents=True)
         shutil.copy(ROOT / 'Makefile', self.checkout / 'Makefile')
-        script = ROOT / 'scripts/nightly_live_check.py'
-        if script.exists():
-            shutil.copy(script, self.checkout / 'scripts')
+        for name in ('nightly_live_check.py', 'nightly_evidence.py'):
+            script = ROOT / 'scripts' / name
+            if script.exists():
+                shutil.copy(script, self.checkout / 'scripts')
         self.home = self.root / 'home'
         self.scratch_root = self.root / 'scratch'
         self.store = self.root / 'store'
