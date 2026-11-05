@@ -65,9 +65,14 @@ def letter(binary, output):
     (output / "letter.json").write_text(result.stdout)
     (output / "letter.stderr").write_text(result.stderr)
     value = json.loads(result.stdout)
+    rows = value.get("result", {}).get("approvals", {}).get("data", {}).get("records", [])
+    document = next((doc for row in rows for doc in row.get("application_docs", [])
+                     if doc.get("id") == "81763"), {})
     print(json.dumps({"check": "selected-native-letter-81763", "exit": result.returncode,
-                      "status": value.get("status"), "sources": value.get("sources"),
-                      "result": value.get("result"),
+                      "status": value.get("status"),
+                      "sources": [{key: source.get(key) for key in ("source", "state", "reason")}
+                                  for source in value.get("sources", [])],
+                      "document_text_state": document.get("text", {}).get("state"),
                       "retained": str(output / "letter.json")}), flush=True)
     if result.returncode not in (0, 4):
         raise ValueError("selected letter command had a local or usage failure")
