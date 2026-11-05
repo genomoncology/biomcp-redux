@@ -85,14 +85,14 @@ serve: Serve MCP over standard input or HTTP.
 schema: List every schema identity and description with biomcp schema, or print one schema artifact with biomcp schema <id>.
 help: Describe commands and their arguments.
 
-- `--format`: Choose JSON or Markdown output; configuration can change the default.
-- `--disable-sources`: Exclude source names or source terms groups.
-- `--source_pacing`: Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
-- `--config`: Read configuration from this file.
-- `--offline`: Read local data without source requests.
-- `--fresh`: Request fresh source data instead of cached replies.
-- `--help`: Print scoped command help without source requests.
-- `--version`: Print the installed version without source requests.
+- `--format`: Choose JSON or Markdown output; configuration can change the default. Value form: string. Example: --format json. Local command option; independent of source selection.
+- `--disable-sources`: Exclude source names or source terms groups. Value form: string. Example: --disable-sources '<string>'. Local command option; independent of source selection.
+- `--source_pacing`: Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Value form: string. Example: --source_pacing '<string>'. Local command option; independent of source selection.
+- `--config`: Read configuration from this file. Value form: string. Example: --config '<string>'. Local command option; independent of source selection.
+- `--offline`: Read local data without source requests. Value form: boolean. Example: --offline. Local command option; independent of source selection.
+- `--fresh`: Request fresh source data instead of cached replies. Value form: boolean. Example: --fresh. Local command option; independent of source selection.
+- `--help`: Print scoped command help without source requests. Value form: boolean. Example: --help. Local command option; independent of source selection.
+- `--version`: Print the installed version without source requests. Value form: boolean. Example: --version. Local command option; independent of source selection.
 
 ## biomcp search
 
@@ -210,12 +210,12 @@ Options:
 
 Search NCI biomarker concepts by name or synonym. Sources: nci.
 
-- `--limit`: Maximum headers per local page.
-- `--name`: Source partial name or synonym search.
-- `--offset`: Offset within the complete retained observation.
-- `--pool`: Snapshot identity retained by continuation commands.
+- `--limit`: Maximum headers per local page. Value form: integer. Example: --limit 5. Command sources: nci; source restrictions in the field description apply.
+- `--name`: Source partial name or synonym search. Value form: string. Example: --name PD-L1. Command sources: nci; source restrictions in the field description apply.
+- `--offset`: Offset within the complete retained observation. Value form: integer. Example: --offset 0. Command sources: nci; source restrictions in the field description apply.
+- `--pool`: Snapshot identity retained by continuation commands. Value form: string. Example: --pool '<string>'. Command sources: nci; source restrictions in the field description apply.
 - `--source`: Explicit keyed NCI source; biomcp_help search biomarker
-Explicit keyed NCI source.
+Explicit keyed NCI source. Value form: string. Example: --source nci. Command sources: nci; source restrictions in the field description apply.
 
 ## biomcp search author
 
@@ -273,12 +273,12 @@ Options:
 
 Search research paper authors. Sources: semantic-scholar.
 
-- `--limit`: Bounded source page size.
-- `--offset`: Source offset.
-- `--pool`: Retained page identity.
+- `--limit`: Bounded source page size. Value form: integer. Example: --limit 5. Command sources: semantic-scholar; source restrictions in the field description apply.
+- `--offset`: Source offset. Value form: integer. Example: --offset 0. Command sources: semantic-scholar; source restrictions in the field description apply.
+- `--pool`: Retained page identity. Value form: string. Example: --pool '<string>'. Command sources: semantic-scholar; source restrictions in the field description apply.
 - `query`: Exact query from the positional argument.
 - `--source`: Source author source; biomcp_help search author
-Source author source.
+Source author source. Value form: string. Example: --source semanticscholar. Command sources: semantic-scholar; source restrictions in the field description apply.
 
 ## biomcp search organization
 
@@ -359,20 +359,20 @@ Options:
 
 Search clinical research organizations. Sources: nci.
 
-- `--city`: Source organization city.
-- `--country`: Source organization country.
-- `--distance`: Positive radius with explicit mi or km units.
-- `--family`: Source organization family.
-- `--lat`: Radius center latitude in degrees; requires lon and distance.
-- `--limit`: Five headers by default, at most fifty.
-- `--lon`: Radius center longitude in degrees; requires lat and distance.
-- `--name`: NCI partial organization name; names are not unique.
-- `--offset`: Offset within the complete retained organization snapshot.
-- `--pool`: Snapshot identity retained by continuation commands.
-- `--postal-code`: Source postal code.
+- `--city`: Source organization city. Value form: string. Example: --city Boston. Command sources: nci; source restrictions in the field description apply.
+- `--country`: Source organization country. Value form: string. Example: --country 'United States'. Command sources: nci; source restrictions in the field description apply.
+- `--distance`: Positive radius with explicit mi or km units. Value form: string. Example: --distance 10mi. Command sources: nci; source restrictions in the field description apply.
+- `--family`: Source organization family. Value form: string. Example: --family 'Dana-Farber/Harvard Cancer Center'. Command sources: nci; source restrictions in the field description apply.
+- `--lat`: Radius center latitude in degrees; requires lon and distance. Value form: string. Example: --lat 42.3469. Command sources: nci; source restrictions in the field description apply.
+- `--limit`: Five headers by default, at most fifty. Value form: integer. Example: --limit 5. Command sources: nci; source restrictions in the field description apply.
+- `--lon`: Radius center longitude in degrees; requires lat and distance. Value form: string. Example: --lon -71.1025. Command sources: nci; source restrictions in the field description apply.
+- `--name`: NCI partial organization name; names are not unique. Value form: string. Example: --name Dana-Farber. Command sources: nci; source restrictions in the field description apply.
+- `--offset`: Offset within the complete retained organization snapshot. Value form: integer. Example: --offset 0. Command sources: nci; source restrictions in the field description apply.
+- `--pool`: Snapshot identity retained by continuation commands. Value form: string. Example: --pool '<string>'. Command sources: nci; source restrictions in the field description apply.
+- `--postal-code`: Source postal code. Value form: string. Example: --postal-code 02215. Command sources: nci; source restrictions in the field description apply.
 - `--source`: Explicit keyed NCI source; biomcp_help search organization
-Explicit keyed NCI source.
-- `--state`: Source state or province.
+Explicit keyed NCI source. Value form: string. Example: --source nci. Command sources: nci; source restrictions in the field description apply.
+- `--state`: Source state or province. Value form: string. Example: --state MA. Command sources: nci; source restrictions in the field description apply.
 
 ## biomcp search cell-line
 
@@ -429,11 +429,11 @@ Options:
 
 Search cell lines by name or identifier. Sources: cellosaurus.
 
-- `--disease`: Cellosaurus disease: NCIt name or ID (for example Melanoma or C3224).
-- `--limit`: Source page size.
-- `--offset`: Source start offset.
+- `--disease`: Cellosaurus disease: NCIt name or ID (for example Melanoma or C3224). Value form: string. Example: --disease Melanoma. Command sources: cellosaurus; source restrictions in the field description apply.
+- `--limit`: Source page size. Value form: integer. Example: --limit 1. Command sources: cellosaurus; source restrictions in the field description apply.
+- `--offset`: Source start offset. Value form: integer. Example: --offset 0. Command sources: cellosaurus; source restrictions in the field description apply.
 - `query`: Exact source query from the positional argument.
-- `--species`: Cellosaurus species: NCBI Taxonomy name or ID (for example Homo sapiens or 9606).
+- `--species`: Cellosaurus species: NCBI Taxonomy name or ID (for example Homo sapiens or 9606). Value form: string. Example: --species 'Homo sapiens'. Command sources: cellosaurus; source restrictions in the field description apply.
 
 ## biomcp search gwas
 
@@ -526,20 +526,20 @@ Options:
 
 Search genetic associations in GWAS Catalog. Sources: gwas.
 
-- `--extended-geneset`: Source extended gene set; requires gene.
-- `--gene`: Exact source mapped gene; legacy positional query aliases this field.
-- `--include-child-traits`: Source child-trait expansion; requires trait_id.
-- `--limit`: Maximum association rows.
-- `--offset`: Source association offset.
-- `--p-value`: Inclusive positive probability in scientific notation. Requires the default p-value-ascending order; no sort option is available. The qualifying total stays unknown until the ordered walk reaches its end.
-- `--pool`: Retained threshold walk identity; requires a threshold.
-- `--pubmed`: Exact source publication identity.
+- `--extended-geneset`: Source extended gene set; requires gene. Value form: boolean. Example: --extended-geneset. Command sources: gwas; source restrictions in the field description apply.
+- `--gene`: Exact source mapped gene; legacy positional query aliases this field. Value form: string. Example: --gene FGFR2. Command sources: gwas; source restrictions in the field description apply.
+- `--include-child-traits`: Source child-trait expansion; requires trait_id. Value form: boolean. Example: --include-child-traits. Command sources: gwas; source restrictions in the field description apply.
+- `--limit`: Maximum association rows. Value form: integer. Example: --limit 3. Command sources: gwas; source restrictions in the field description apply.
+- `--offset`: Source association offset. Value form: integer. Example: --offset 3. Command sources: gwas; source restrictions in the field description apply.
+- `--p-value`: Inclusive positive probability in scientific notation. Requires the default p-value-ascending order; no sort option is available. The qualifying total stays unknown until the ordered walk reaches its end. Value form: string. Example: --p-value 4e-254. Command sources: gwas; source restrictions in the field description apply.
+- `--pool`: Retained threshold walk identity; requires a threshold. Value form: string. Example: --pool '<string>'. Command sources: gwas; source restrictions in the field description apply.
+- `--pubmed`: Exact source publication identity. Value form: string. Example: --pubmed 17529967. Command sources: gwas; source restrictions in the field description apply.
 - `query`: Exact source mapped gene; legacy positional query aliases this field.
-- `--studies`: Return study records for the selected publication instead of associations.
-- `--study`: Exact source study accession.
-- `--trait`: Exact source efo_trait label; never searches reported_trait prose.
-- `--trait-id`: Exact source ontology identity.
-- `--variant`: Exact source rsID.
+- `--studies`: Return study records for the selected publication instead of associations. Value form: boolean. Example: --studies. Command sources: gwas; source restrictions in the field description apply.
+- `--study`: Exact source study accession. Value form: string. Example: --study GCST000035. Command sources: gwas; source restrictions in the field description apply.
+- `--trait`: Exact source efo_trait label; never searches reported_trait prose. Value form: string. Example: --trait 'breast carcinoma'. Command sources: gwas; source restrictions in the field description apply.
+- `--trait-id`: Exact source ontology identity. Value form: string. Example: --trait-id MONDO_0004989. Command sources: gwas; source restrictions in the field description apply.
+- `--variant`: Exact source rsID. Value form: string. Example: --variant rs2981582. Command sources: gwas; source restrictions in the field description apply.
 
 ## biomcp search protein
 
@@ -603,12 +603,12 @@ Options:
 
 Search reviewed human proteins in UniProt. Sources: uniprot.
 
-- `--gene`: Exact source gene field, without identifier inference.
-- `--limit`: Five rows by default; no more than 25.
-- `--offset`: Source/retained result offset.
-- `--pool`: Exact retained collection identity.
+- `--gene`: Exact source gene field, without identifier inference. Value form: string. Example: --gene BRAF. Command sources: uniprot; source restrictions in the field description apply.
+- `--limit`: Five rows by default; no more than 25. Value form: integer. Example: --limit 25. Command sources: uniprot; source restrictions in the field description apply.
+- `--offset`: Source/retained result offset. Value form: integer. Example: --offset 0. Command sources: uniprot; source restrictions in the field description apply.
+- `--pool`: Exact retained collection identity. Value form: string. Example: --pool '<string>'. Command sources: uniprot; source restrictions in the field description apply.
 - `query`: Exact text, exclusive with gene.
-- `--reviewed`: Reviewed human scope stays enabled; unreviewed search is deferred.
+- `--reviewed`: Reviewed human scope stays enabled; unreviewed search is deferred. Value form: boolean. Example: --reviewed. Command sources: uniprot; source restrictions in the field description apply.
 
 ## biomcp search phenotype
 
@@ -663,10 +663,10 @@ Options:
 
 Search human phenotypes in HPO. Sources: hpo, monarch.
 
-- `--limit`: Maximum source headers, default five.
-- `--offset`: Source source row offset.
+- `--limit`: Maximum source headers, default five. Value form: integer. Example: --limit 1. Command sources: hpo, monarch; source restrictions in the field description apply.
+- `--offset`: Source source row offset. Value form: integer. Example: --offset 0. Command sources: hpo, monarch; source restrictions in the field description apply.
 - `--source`: Monarch only; HPO search is unsupported; biomcp_help search phenotype
-Monarch only; HPO search is unsupported.
+Monarch only; HPO search is unsupported. Value form: string. Example: --source monarch. Command sources: hpo, monarch; source restrictions in the field description apply.
 - `text`: Unchanged exact term search text.
 
 ## biomcp search pathway
@@ -734,15 +734,15 @@ Options:
 
 Search human biological pathways. Sources: reactome, wikipathways.
 
-- `--fresh`: Request a new retained observation.
-- `--gene`: Human gene input for exact resolution and UniProt mapping; Reactome only.
-- `--limit`: Five rows by default, one to fifty. Reactome rows equals this limit without refill.
-- `--offset`: Source Reactome Start row or retained WikiPathways catalog offset.
-- `--pool`: Retained snapshot identity for deterministic continuation.
+- `--fresh`: Request a new retained observation. Value form: boolean. Example: --fresh. Command sources: reactome, wikipathways; source restrictions in the field description apply.
+- `--gene`: Human gene input for exact resolution and UniProt mapping; Reactome only. Value form: string. Example: --gene HGNC:1097. Command sources: reactome, wikipathways; source restrictions in the field description apply.
+- `--limit`: Five rows by default, one to fifty. Reactome rows equals this limit without refill. Value form: integer. Example: --limit 5. Command sources: reactome, wikipathways; source restrictions in the field description apply.
+- `--offset`: Source Reactome Start row or retained WikiPathways catalog offset. Value form: integer. Example: --offset 0. Command sources: reactome, wikipathways; source restrictions in the field description apply.
+- `--pool`: Retained snapshot identity for deterministic continuation. Value form: string. Example: --pool '<string>'. Command sources: reactome, wikipathways; source restrictions in the field description apply.
 - `query`: Exact source query; exclusive with gene and top-level discovery.
 - `--source`: Sources in caller order; repeated sources take; biomcp_help search pathway
-Sources in caller order; repeated sources take turns without title joins.
-- `--top-level`: Source human Reactome top-level discovery, exclusive with text and gene.
+Sources in caller order; repeated sources take turns without title joins. Value form: array. Example: --source reactome. Command sources: reactome, wikipathways; source restrictions in the field description apply.
+- `--top-level`: Source human Reactome top-level discovery, exclusive with text and gene. Value form: boolean. Example: --top-level. Command sources: reactome, wikipathways; source restrictions in the field description apply.
 
 ## biomcp search study
 
@@ -799,10 +799,10 @@ Options:
 
 Search cancer genomics studies in cBioPortal. Sources: cbioportal.
 
-- `--cancer-type`: Exact cBioPortal cancer-type code; no OncoTree conversion.
-- `--limit`: Maximum headers per page.
-- `--offset`: Zero-based offset in the checked snapshot.
-- `--pool`: Opaque continuation retaining the catalog revision and selectors.
+- `--cancer-type`: Exact cBioPortal cancer-type code; no OncoTree conversion. Value form: string. Example: --cancer-type mixed. Command sources: cbioportal; source restrictions in the field description apply.
+- `--limit`: Maximum headers per page. Value form: integer. Example: --limit 1. Command sources: cbioportal; source restrictions in the field description apply.
+- `--offset`: Zero-based offset in the checked snapshot. Value form: integer. Example: --offset 0. Command sources: cbioportal; source restrictions in the field description apply.
+- `--pool`: Opaque continuation retaining the catalog revision and selectors. Value form: string. Example: --pool '<string>'. Command sources: cbioportal; source restrictions in the field description apply.
 - `text`: Exact study ID, name or description text, without synonyms or typo repair.
 
 ## biomcp search pgx
@@ -860,12 +860,12 @@ Options:
 
 Search pharmacogenomic gene and drug pairs. Sources: cpic.
 
-- `--cpic-level`: Exact source level, including compound levels such as B/C.
-- `--gene`: Explicit source gene symbol.
-- `--limit`: Rows per source page.
-- `--offset`: Source source offset.
+- `--cpic-level`: Exact source level, including compound levels such as B/C. Value form: string. Example: --cpic-level B/C. Command sources: cpic; source restrictions in the field description apply.
+- `--gene`: Explicit source gene symbol. Value form: string. Example: --gene DPYD. Command sources: cpic; source restrictions in the field description apply.
+- `--limit`: Rows per source page. Value form: integer. Example: --limit 1. Command sources: cpic; source restrictions in the field description apply.
+- `--offset`: Source source offset. Value form: integer. Example: --offset 0. Command sources: cpic; source restrictions in the field description apply.
 - `--source`: Required CPIC source; ClinPGx is not supported for; biomcp_help search pgx
-Required CPIC source; ClinPGx is not supported for search.
+Required CPIC source; ClinPGx is not supported for search. Value form: string. Example: --source cpic. Command sources: cpic; source restrictions in the field description apply.
 
 ## biomcp search diagnostic
 
@@ -983,43 +983,43 @@ Options:
 Search diagnostic laboratory tests and devices. Sources: fda-510k, fda-cdx, fda-device-recall, fda-pma, gtr, who-ivd.
 
 - `--biomarker`: Exact table-0 cell.
-Exact table-0 biomarker cell; unsupported in the group table.
+Exact table-0 biomarker cell; unsupported in the group table. Value form: string. Example: --biomarker KRAS. Command sources: fda-510k, fda-cdx, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
 - `--bundle-revision`: Stored bundle revision.
-Immutable stored bundle revision retained by a continuation.
+Immutable stored bundle revision retained by a continuation. Value form: string. Example: --bundle-revision sha256:3eb93d3ba1a08b508955b0699d32042584fd8e0c805c72f7eeb470ef04ba959a. Command sources: fda-510k, fda-cdx, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
 - `--condition-id`: Exact MedGen:CUI.
-Exact MedGen:CUI identifier only.
+Exact MedGen:CUI identifier only. Value form: string. Example: --condition-id MedGen:C2676676. Command sources: fda-510k, fda-cdx, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
 - `--decision-from`: First date, YYYY-MM-DD.
-Inclusive source decision date, YYYY-MM-DD; PMA and 510(k) only.
+Inclusive source decision date, YYYY-MM-DD; PMA and 510(k) only. Value form: string. Example: --decision-from 2017-11-30. Command sources: fda-510k, fda-cdx, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
 - `--decision-to`: Last date, YYYY-MM-DD.
-Inclusive source decision date, YYYY-MM-DD; PMA and 510(k) only.
+Inclusive source decision date, YYYY-MM-DD; PMA and 510(k) only. Value form: string. Example: --decision-to 2017-11-30. Command sources: fda-510k, fda-cdx, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
 - `--device-id`: PMA or K identifier.
-Exact PMA application, application/supplement or source K identity.
+Exact PMA application, application/supplement or source K identity. Value form: string. Example: --device-id P200010/S026. Command sources: fda-510k, fda-cdx, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
 - `--drug-application`: NDA/BLA application.
-Cell-owned typed NDA/BLA application.
+Cell-owned typed NDA/BLA application. Value form: string. Example: --drug-application BLA125514. Command sources: fda-510k, fda-cdx, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
 - `--gene`: Exact gene symbol.
-Exact source gene_symbol field, without alias expansion.
+Exact source gene_symbol field, without alias expansion. Value form: string. Example: --gene BRCA1. Command sources: fda-510k, fda-cdx, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
 - `--gene-id`: Exact NCBI GeneID.
-Exact source GeneID, exclusive with gene symbol.
+Exact source GeneID, exclusive with gene symbol. Value form: string. Example: --gene-id 672. Command sources: fda-510k, fda-cdx, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
 - `--initiated-from`: First date, YYYY-MM-DD.
-Inclusive initiation date, YYYY-MM-DD; FDA device recalls only.
+Inclusive initiation date, YYYY-MM-DD; FDA device recalls only. Value form: string. Example: --initiated-from 2024-01-01. Command sources: fda-510k, fda-cdx, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
 - `--initiated-to`: Last date, YYYY-MM-DD.
-Inclusive initiation date, YYYY-MM-DD; FDA device recalls only.
-- `--limit`: Five results by default; at most fifty source rows or product headers.
+Inclusive initiation date, YYYY-MM-DD; FDA device recalls only. Value form: string. Example: --initiated-to 2024-12-31. Command sources: fda-510k, fda-cdx, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
+- `--limit`: Five results by default; at most fifty source rows or product headers. Value form: integer. Example: --limit 1. Command sources: fda-510k, fda-cdx, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
 - `--manufacturer`: Manufacturer phrase.
-WHO manufacturer words, source FDA applicant (PMA/510(k)) or recalling_firm phrase.
+WHO manufacturer words, source FDA applicant (PMA/510(k)) or recalling_firm phrase. Value form: string. Example: --manufacturer 'Synthetic maker'. Command sources: fda-510k, fda-cdx, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
 - `--marker`: WHO marker phrase.
-Exact whole-word phrase in WHO's Pathogen/Disease/Marker cell.
+Exact whole-word phrase in WHO's Pathogen/Disease/Marker cell. Value form: string. Example: --marker hIv. Command sources: fda-510k, fda-cdx, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
 - `--name`: Source device name.
-Source trade_name (PMA) or device_name (510(k)) phrase.
-- `--offset`: Zero-based source result offset.
+Source trade_name (PMA) or device_name (510(k)) phrase. Value form: string. Example: --name 'FoundationOne CDx'. Command sources: fda-510k, fda-cdx, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
+- `--offset`: Zero-based source result offset. Value form: integer. Example: --offset 5. Command sources: fda-510k, fda-cdx, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
 - `--product-code`: FDA product code.
-Exact source FDA device recall product code.
+Exact source FDA device recall product code. Value form: string. Example: --product-code ABC. Command sources: fda-510k, fda-cdx, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
 - `--source`: Source diagnostic source; biomcp_help search diagnostic
 Source diagnostic source.
-Explicit source GTR, WHO IVD, FDA PMA, 510(k), companion or medical device recall discovery.
+Explicit source GTR, WHO IVD, FDA PMA, 510(k), companion or medical device recall discovery. Value form: string. Example: --source fda-device-recall. Command sources: fda-510k, fda-cdx, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
 - `--type`: Source test_type; biomcp_help search diagnostic
 Source test_type.
-Exact source test_type value.
+Exact source test_type value. Value form: string. Example: --type Research. Command sources: fda-510k, fda-cdx, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
 
 ## biomcp search adverse-event
 
@@ -1117,30 +1117,30 @@ Options:
 Search drug, device and vaccine adverse events. Sources: faers, maude, vaers.
 
 - `--drug`: FAERS drug names; OR.
-FAERS exact drug name; repeat --drug for OR. OR inside one quoted value stays exact. Other filters AND with the names. BioMCP caps the escaped source query, including filters, at FAERS_QUERY_MAX_BYTES (4096 bytes).
-- `--limit`: Source report headers or VAERS rows per page; default five.
+FAERS exact drug name; repeat --drug for OR. OR inside one quoted value stays exact. Other filters AND with the names. BioMCP caps the escaped source query, including filters, at FAERS_QUERY_MAX_BYTES (4096 bytes). Value form: array. Example: --drug "synthetic\\B". Command sources: faers, maude, vaers; source restrictions in the field description apply.
+- `--limit`: Source report headers or VAERS rows per page; default five. Value form: integer. Example: --limit 1. Command sources: faers, maude, vaers; source restrictions in the field description apply.
 - `--manufacturer`: MAUDE manufacturer.
-MAUDE manufacturer phrase on device.manufacturer_d_name. A report may list several devices; filters may match different devices.
-- `--offset`: Source row offset. VAERS continuation requires its retained snapshot.
+MAUDE manufacturer phrase on device.manufacturer_d_name. A report may list several devices; filters may match different devices. Value form: string. Example: --manufacturer 'Synthetic maker'. Command sources: faers, maude, vaers; source restrictions in the field description apply.
+- `--offset`: Source row offset. VAERS continuation requires its retained snapshot. Value form: integer. Example: --offset 0. Command sources: faers, maude, vaers; source restrictions in the field description apply.
 - `--problem`: MAUDE product problem.
-MAUDE phrase on source product_problems.
+MAUDE phrase on source product_problems. Value form: string. Example: --problem 'Synthetic problem'. Command sources: faers, maude, vaers; source restrictions in the field description apply.
 - `--product-code`: MAUDE product codes; OR.
-MAUDE exact source device.device_report_product_code; repeated codes join with OR.
+MAUDE exact source device.device_report_product_code; repeated codes join with OR. Value form: array. Example: --product-code ABC. Command sources: faers, maude, vaers; source restrictions in the field description apply.
 - `--reaction`: FAERS MedDRA phrase.
-FAERS MedDRA term phrase match, not exact equality.
+FAERS MedDRA term phrase match, not exact equality. Value form: string. Example: --reaction 'synthetic reaction'. Command sources: faers, maude, vaers; source restrictions in the field description apply.
 - `--received-from`: First date, YYYY-MM[-DD].
-Inclusive FAERS or MAUDE FDA receipt lower bound, YYYY-MM-DD or YYYY-MM; a month starts on its first day.
+Inclusive FAERS or MAUDE FDA receipt lower bound, YYYY-MM-DD or YYYY-MM; a month starts on its first day. Value form: string. Example: --received-from 2024-01-01. Command sources: faers, maude, vaers; source restrictions in the field description apply.
 - `--received-to`: Last date, YYYY-MM[-DD].
-Inclusive FAERS or MAUDE FDA receipt upper bound, YYYY-MM-DD or YYYY-MM; a month ends on its last day.
+Inclusive FAERS or MAUDE FDA receipt upper bound, YYYY-MM-DD or YYYY-MM; a month ends on its last day. Value form: string. Example: --received-to 2024-12-31. Command sources: faers, maude, vaers; source restrictions in the field description apply.
 - `section`: VAERS table; biomcp_help search adverse-event
 - `--serious`: FAERS seriousness flag; biomcp_help search adverse-event
 FAERS seriousness flag.
-FAERS report flag: any uses the source seriousness flag; the specific flags can overlap. Never a reaction outcome.
+FAERS report flag: any uses the source seriousness flag; the specific flags can overlap. Never a reaction outcome. Value form: string. Example: --serious death. Command sources: faers, maude, vaers; source restrictions in the field description apply.
 - `--snapshot`: VAERS snapshot.
-Retained VAERS table for source-free continuation.
+Retained VAERS table for source-free continuation. Value form: string. Example: --snapshot '<string>'. Command sources: faers, maude, vaers; source restrictions in the field description apply.
 - `--source`: Source; default FAERS; biomcp_help search adverse-event
 Source; default FAERS.
-FAERS by default; VAERS accepts only exact supported vaccine names.
+FAERS by default; VAERS accepts only exact supported vaccine names. Value form: string. Example: --source maude. Command sources: faers, maude, vaers; source restrictions in the field description apply.
 - `text`: Drug, device or vaccine.
 Exact drug text, MAUDE device phrase or exact supported VAERS vaccine.
 
@@ -1207,12 +1207,12 @@ Options:
 
 Search diseases and their identifiers. Sources: monarch, mydisease, ols, seer.
 
-- `--limit`: Maximum source rows on one page.
-- `--offset`: Source row offset.
+- `--limit`: Maximum source rows on one page. Value form: integer. Example: --limit 1. Command sources: monarch, mydisease, ols, seer; source restrictions in the field description apply.
+- `--offset`: Source row offset. Value form: integer. Example: --offset 1. Command sources: monarch, mydisease, ols, seer; source restrictions in the field description apply.
 - `--ontology`: Exactly one ontology, default MONDO; biomcp_help search disease
-Exactly one ontology, default MONDO.
+Exactly one ontology, default MONDO. Value form: string. Example: --ontology mondo. Command sources: monarch, mydisease, ols, seer; source restrictions in the field description apply.
 - `--source`: One explicit source, default OLS; biomcp_help search disease
-One explicit source, default OLS.
+One explicit source, default OLS. Value form: string. Example: --source seer. Command sources: monarch, mydisease, ols, seer; source restrictions in the field description apply.
 - `text`: Exact source search text; absent for the SEER site catalog.
 
 ## biomcp search drug
@@ -1301,24 +1301,24 @@ Options:
 Search drugs and medicines by name. Sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq.
 
 - `--classification`: Source FDA classification; drug recalls only; biomcp_help search drug
-Source FDA classification; drug recalls only.
-- `--firm`: Exact published recalling firm phrase; drug recalls only.
-- `--initiated-from`: Inclusive initiation day, YYYY-MM-DD; drug recalls only.
-- `--initiated-to`: Inclusive initiation day, YYYY-MM-DD; drug recalls only.
-- `--limit`: Source candidate rows per page.
+Source FDA classification; drug recalls only. Value form: string. Example: --classification 'Class II'. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
+- `--firm`: Exact published recalling firm phrase; drug recalls only. Value form: string. Example: --firm Apotex. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
+- `--initiated-from`: Inclusive initiation day, YYYY-MM-DD; drug recalls only. Value form: string. Example: --initiated-from 2024-01-01. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
+- `--initiated-to`: Inclusive initiation day, YYYY-MM-DD; drug recalls only. Value form: string. Example: --initiated-to 2024-12-31. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
+- `--limit`: Source candidate rows per page. Value form: integer. Example: --limit 1. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `--name-selector`: Explicit ChEMBL source name selector; omitted means; biomcp_help search drug
-Explicit ChEMBL source name selector; omitted means preferred name.
-- `--offset`: Source rows to skip.
-- `--prequalified-from`: Inclusive WHO prequalification lower bound, YYYY, YYYY-MM or YYYY-MM-DD; WHO PQ only.
-- `--prequalified-to`: Inclusive WHO prequalification upper bound, YYYY, YYYY-MM or YYYY-MM-DD; WHO PQ only.
+Explicit ChEMBL source name selector; omitted means preferred name. Value form: string. Example: --name-selector preferred. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
+- `--offset`: Source rows to skip. Value form: integer. Example: --offset 1. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
+- `--prequalified-from`: Inclusive WHO prequalification lower bound, YYYY, YYYY-MM or YYYY-MM-DD; WHO PQ only. Value form: string. Example: --prequalified-from 2020. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
+- `--prequalified-to`: Inclusive WHO prequalification upper bound, YYYY, YYYY-MM or YYYY-MM-DD; WHO PQ only. Value form: string. Example: --prequalified-to 2020. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `query`: Search phrase; optional for FDA drug recalls and WHO date ranges. Drugs@FDA searches brands and ingredients,
 exact names before word matches. openFDA labels search exact then word brand/generic names,
 then label text (including indications) when no names match; source matches need not be exact names.
 Harmonized recall names match but never become display names.
-- `--reason`: Phrase in the published recall reason; drug recalls only.
+- `--reason`: Phrase in the published recall reason; drug recalls only. Value form: string. Example: --reason 'Lack of Sterility Assurance'. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `--source`: Exactly one source; default MyChem never fans out; biomcp_help search drug
-Exactly one source; default MyChem never fans out.
-- `--status`: Exact source recall status; drug recalls only.
+Exactly one source; default MyChem never fans out. Value form: string. Example: --source ema. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
+- `--status`: Exact source recall status; drug recalls only. Value form: string. Example: --status Ongoing. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 
 ## biomcp search gene
 
@@ -1376,11 +1376,11 @@ Options:
 
 Search human genes by name or identifier. Sources: hgnc.
 
-- `--band`: A cytoband prefix.
-- `--limit`: Number of results per page.
+- `--band`: A cytoband prefix. Value form: string. Example: --band 9p21.3. Command sources: hgnc; source restrictions in the field description apply.
+- `--limit`: Number of results per page. Value form: integer. Example: --limit 50. Command sources: hgnc; source restrictions in the field description apply.
 - `--locus-group`: Optional HGNC locus group intersected with the; biomcp_help search gene
-Optional HGNC locus group intersected with the selector.
-- `--offset`: Number of results to skip.
+Optional HGNC locus group intersected with the selector. Value form: string. Example: --locus-group pseudogene. Command sources: hgnc; source restrictions in the field description apply.
+- `--offset`: Number of results to skip. Value form: integer. Example: --offset 24. Command sources: hgnc; source restrictions in the field description apply.
 - `query`: Words matched against symbols, previous symbols, aliases and names.
 
 ## biomcp search article
@@ -1514,35 +1514,35 @@ Options:
 Search research articles and biomedical papers. Sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar.
 
 - `--author`: PubMed author words.
-Author words sent to PubMed's author field.
-- `--disease`: Disease words.
-- `--drug`: Drug words.
+Author words sent to PubMed's author field. Value form: string. Example: --author Carpten. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
+- `--disease`: Disease words. Value form: string. Example: --disease meningioma. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
+- `--drug`: Drug words. Value form: string. Example: --drug 'drug words'. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
 - `--gene`: Gene symbol or ID.
-Gene input; PubMed resolves it through HGNC.
+Gene input; PubMed resolves it through HGNC. Value form: string. Example: --gene NF2. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
 - `--journal`: PubMed journal words.
-Journal words sent to PubMed's journal field.
-- `--limit`: Maximum page length.
+Journal words sent to PubMed's journal field. Value form: string. Example: --journal 'journal words'. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
+- `--limit`: Maximum page length. Value form: integer. Example: --limit 5. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
 - `--no-preprints`: Exclude preprints.
-Exclude preprints using the source's source filter.
-- `--offset`: Number of pool items to skip.
+Exclude preprints using the source's source filter. Value form: boolean. Example: --no-preprints. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
+- `--offset`: Number of pool items to skip. Value form: integer. Example: --offset 5. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
 - `--open-access`: Source open access.
-Require the source's source open-access filter; Semantic Scholar means a public PDF.
+Require the source's source open-access filter; Semantic Scholar means a public PDF. Value form: boolean. Example: --open-access. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
 - `--pool`: Stable result snapshot.
-Stable snapshot from an earlier response.
+Stable snapshot from an earlier response. Value form: string. Example: --pool '<string>'. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
 - `--exclude-retracted`: Retraction filter; biomcp_help search article
 Retraction filter.
-Include retracted papers by default, or exclude them using a source filter.
+Include retracted papers by default, or exclude them using a source filter. Value form: boolean. Example: --exclude-retracted. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
 - `--include-retracted`: Retraction filter; biomcp_help search article
 Retraction filter.
-Include retracted papers by default, or exclude them using a source filter.
+Include retracted papers by default, or exclude them using a source filter. Value form: boolean. Example: --include-retracted. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
 - `--since`: First publication date.
-Inclusive lower publication-date bound at the stated precision; PubMed matches either electronic or print date.
+Inclusive lower publication-date bound at the stated precision; PubMed matches either electronic or print date. Value form: string. Example: --since 2024. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
 - `--sort`: rank, date or citations; biomcp_help search article
 rank, date or citations.
 rank (default): source order; several sources take turns; source search cost.
 date: source search cost; PubMed means date added and Europe PMC means newest first; other sources refuse it.
 citations: most cited first across the whole pool; adds iCite calls, about 1 s per 1,000 PMIDs.
-All sources support citations.
+All sources support citations. Value form: string. Example: --sort date. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
 - `--source`: Sources; default pubmed; biomcp_help search article
 Sources; default pubmed.
 Sources to search in caller order, comma separated. Default: pubmed.
@@ -1552,15 +1552,15 @@ europepmc: words in open full text and preprints; incidental mentions are possib
 litvar: exact variant publications; requires --variant and a protein change needs --gene; unresolved inputs return candidates.
 semantic-scholar: broad discovery; a shared keyless pool may return 429; an optional free key raises the limit.
 litsense: sentence resemblance, not a match; unrelated hits and timeouts are possible.
-pubtator: entity and word search including full text; needs the right entity ID; --gene uses HGNC Entrez identity and cannot run without that join.
+pubtator: entity and word search including full text; needs the right entity ID; --gene uses HGNC Entrez identity and cannot run without that join. Value form: array. Example: --source europepmc. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
 - `text`: Source search words.
 Words sent to each named source in its default fields.
 - `--type`: Publication-type filter; biomcp_help search article
-Publication-type filter.
+Publication-type filter. Value form: string. Example: --type review. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
 - `--until`: Last publication date.
-Inclusive upper publication-date bound at the stated precision; PubMed matches either electronic or print date.
-- `--variant`: Variant words.
-- `--query`: Alias for positional article text.
+Inclusive upper publication-date bound at the stated precision; PubMed matches either electronic or print date. Value form: string. Example: --until 2020. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
+- `--variant`: Variant words. Value form: string. Example: --variant rs121434592. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
+- `--query`: Alias for positional article text. Value form: string. Example: --query '<string>'. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
 
 ## biomcp search trial
 
@@ -1654,7 +1654,7 @@ Options:
 
       --gene <gene>
           Gene symbol/ID.
-          Resolve one checked gene for registry text discovery only; no eligibility judgment.
+          ClinicalTrials.gov only: resolve one checked gene for registry text discovery; no eligibility judgment.
 
       --has-results[=<has_results>]
           Posted results.
@@ -1736,79 +1736,79 @@ Options:
 
       --variant <variant>
           Variant text.
-          Literal variant text for registry discovery only; no eligibility judgment.
+          ClinicalTrials.gov only: literal variant text for registry discovery; no eligibility judgment.
 
 ```
 
 Search clinical trials. Sources: ctgov, nci.
 
-- `--age`: Age in years; unstated source bounds count as no limit.
+- `--age`: Age in years; unstated source bounds count as no limit. Value form: integer. Example: --age 18. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--biomarker-code`: NCI NCIt code.
-Exact NCIt biomarker concept listed by NCI in trial criteria; NCI source only. This listing does not establish biomarker positivity or patient eligibility.
+Exact NCIt biomarker concept listed by NCI in trial criteria; NCI source only. This listing does not establish biomarker positivity or patient eligibility. Value form: string. Example: --biomarker-code C96022. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--biomarker-use`: NCI criterion; biomcp_help search trial
 NCI criterion.
-Filter by NCI's source inclusion or exclusion criterion. Check each result's biomarker entry and reported problems.
+Filter by NCI's source inclusion or exclusion criterion. Check each result's biomarker entry and reported problems. Value form: string. Example: --biomarker-use inclusion. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--condition`: Disease or NCIt.
-Condition alternatives joined with OR; NCI requires NCIt codes.
+Condition alternatives joined with OR; NCI requires NCIt codes. Value form: array. Example: --condition melanoma. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--condition-id`: MONDO/DOID/NCIT:C.
-Exact MONDO or DOID CURIE resolved by MyDisease; NCI also accepts explicit NCIT:C codes.
+Exact MONDO or DOID CURIE resolved by MyDisease; NCI also accepts explicit NCIT:C codes. Value form: string. Example: --condition-id NCIT:C3224. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--count-only`: Total.
-Source total only; no returned study rows.
+Source total only; no returned study rows. Value form: boolean. Example: --count-only. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--country`: Country label; biomcp_help search trial.
-Exact ClinicalTrials.gov country label; repeat for OR. Trials must list a site in a named country. NCI uses its source country filter.
+Exact ClinicalTrials.gov country label; repeat for OR. Trials must list a site in a named country. NCI uses its source country filter. Value form: array. Example: --country 'United States'. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--criteria`: Criteria text.
-Search exact registry eligibility text for discovery only; no eligibility judgment.
+Search exact registry eligibility text for discovery only; no eligibility judgment. Value form: string. Example: --criteria 'exact criteria'. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--distance`: Radius, mi or km.
-Source distance with explicit mi or km units.
+Source distance with explicit mi or km units. Value form: string. Example: --distance 50mi. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--exact-condition`: Exact condition.
-Ask ClinicalTrials.gov to restrict matching to the registered condition phrase; its support is partial.
+Ask ClinicalTrials.gov to restrict matching to the registered condition phrase; its support is partial. Value form: boolean. Example: --exact-condition. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--facility`: Facility.
-Facility phrase; ClinicalTrials.gov broadens after zero exact matches. NCI matches exact names. Cannot combine with radius.
+Facility phrase; ClinicalTrials.gov broadens after zero exact matches. NCI matches exact names. Cannot combine with radius. Value form: string. Example: --facility 'Dana-Farber Cancer Institute'. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--gene`: Gene symbol/ID.
-Resolve one checked gene for registry text discovery only; no eligibility judgment.
+ClinicalTrials.gov only: resolve one checked gene for registry text discovery; no eligibility judgment. Value form: string. Example: --gene KIT. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--has-results`: Posted results.
-Require posted source results.
+Require posted source results. Value form: boolean. Example: --has-results true. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--id`: NCT identifier.
-Exact NCT identity in a conjunction with other filters.
+Exact NCT identity in a conjunction with other filters. Value form: string. Example: --id NCT05273554. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--intervention`: Treatment terms; OR.
-Intervention alternatives joined with OR; supported by ClinicalTrials.gov.
+Intervention alternatives joined with OR; supported by ClinicalTrials.gov. Value form: array. Example: --intervention pembrolizumab. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--keyword`: Text; OR.
-Repeat for ClinicalTrials.gov general text alternatives joined with OR; different filters combine with AND. NCI accepts one keyword.
+Repeat for ClinicalTrials.gov general text alternatives joined with OR; different filters combine with AND. NCI accepts one keyword. Value form: array. Example: --keyword survival. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--lat`: Latitude degrees.
-Radius center latitude in degrees.
-- `--limit`: Headers per page; NCI applies its own lower publisher limit.
+Radius center latitude in degrees. Value form: string. Example: --lat 42.3601. Command sources: ctgov, nci; source restrictions in the field description apply.
+- `--limit`: Headers per page; NCI applies its own lower publisher limit. Value form: integer. Example: --limit 1. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--lon`: Longitude degrees.
-Radius center longitude in degrees.
+Radius center longitude in degrees. Value form: string. Example: --lon -71.0589. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--next-page`: Page token.
-Opaque registry continuation; keep filters unchanged.
-- `--offset`: Zero-based offset of the first row in this continuation page.
+Opaque registry continuation; keep filters unchanged. Value form: string. Example: --next-page '<string>'. Command sources: ctgov, nci; source restrictions in the field description apply.
+- `--offset`: Zero-based offset of the first row in this continuation page. Value form: integer. Example: --offset 0. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--phase`: Source phase; biomcp_help search trial
 Source phase.
-Exact source phase. ClinicalTrials.gov: 1, 2, 3, 4, early-1, not-applicable, 1/2, 2/3. NCI: NA, 0, I, I_II, II, II_III, III, IV.
+Exact source phase. ClinicalTrials.gov: 1, 2, 3, 4, early-1, not-applicable, 1/2, 2/3. NCI: NA, 0, I, I_II, II, II_III, III, IV. Value form: string. Example: --phase 1. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `query`: Trial text.
 General registry discovery text.
 - `--sex`: Registry sex facet; biomcp_help search trial
-Registry sex facet.
+Registry sex facet. Value form: string. Example: --sex ALL. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--source`: clinicaltrials/nci; biomcp_help search trial
 clinicaltrials/nci.
-Explicit source; defaults to ClinicalTrials.gov and never falls back.
+Explicit source; defaults to ClinicalTrials.gov and never falls back. Value form: string. Example: --source nci. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--sponsor`: Sponsor.
-Sponsor name; ClinicalTrials.gov broadens after zero exact matches. Use --sponsor-type for the funding category.
+Sponsor name; ClinicalTrials.gov broadens after zero exact matches. Use --sponsor-type for the funding category. Value form: string. Example: --sponsor 'MD Anderson'. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--sponsor-type`: Funding class; biomcp_help search trial
 Funding class.
-Registry sponsor funding category; use --sponsor for a sponsor name.
+Registry sponsor funding category; use --sponsor for a sponsor name. Value form: string. Example: --sponsor-type other. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--status`: Source status; biomcp_help search trial
 Source status.
-Exact source status. NCI: Active, Administratively Complete, Approved, Closed to Accrual, Closed to Accrual and Intervention, Complete, INACTIVE, Enrolling by Invitation, Temporarily Closed to Accrual, Temporarily Closed to Accrual and Intervention, Withdrawn. ClinicalTrials.gov uses registry labels.
+Exact source status. NCI: Active, Administratively Complete, Approved, Closed to Accrual, Closed to Accrual and Intervention, Complete, INACTIVE, Enrolling by Invitation, Temporarily Closed to Accrual, Temporarily Closed to Accrual and Intervention, Withdrawn. ClinicalTrials.gov uses registry labels. Value form: string. Example: --status COMPLETED. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--study-type`: Study type; biomcp_help search trial
 Study type.
-Exact registry study type.
+Exact registry study type. Value form: string. Example: --study-type INTERVENTIONAL. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--updated-since`: First date.
-First included registry update date.
+First included registry update date. Value form: string. Example: --updated-since '<string>'. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--updated-until`: Last date.
-Last included registry update date.
+Last included registry update date. Value form: string. Example: --updated-until '<string>'. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--variant`: Variant text.
-Exact variant text for registry discovery only; no eligibility judgment.
+ClinicalTrials.gov only: exact variant text for registry discovery; no eligibility judgment. Value form: string. Example: --variant L576P. Command sources: ctgov, nci; source restrictions in the field description apply.
 
 ## biomcp search variant
 
@@ -1889,20 +1889,20 @@ Options:
 Search genetic variants by gene, change or region. Sources: myvariant.
 
 - `--build`: Optional caller assembly sent to MyVariant; regions; biomcp_help search variant
-Optional caller assembly sent to MyVariant; regions require it explicitly.
-- `--coding`: Coding HGVS change searched literally in ClinVar with --gene, without choosing a transcript.
-- `--condition`: Exact MyVariant clinvar.rcv.conditions.name phrase; source text is not a local diagnosis. Requires a declared protein or region selector.
-- `--gene`: Checked gene symbol for the dbNSFP substitution or ClinVar coding/synonymous selector.
+Optional caller assembly sent to MyVariant; regions require it explicitly. Value form: string. Example: --build GRCh37. Command sources: myvariant; source restrictions in the field description apply.
+- `--coding`: Coding HGVS change searched literally in ClinVar with --gene, without choosing a transcript. Value form: string. Example: --coding 'c.333G>T'. Command sources: myvariant; source restrictions in the field description apply.
+- `--condition`: Exact MyVariant clinvar.rcv.conditions.name phrase; source text is not a local diagnosis. Requires a declared protein or region selector. Value form: string. Example: --condition 'Carcinoma of colon (CRC)'. Command sources: myvariant; source restrictions in the field description apply.
+- `--gene`: Checked gene symbol for the dbNSFP substitution or ClinVar coding/synonymous selector. Value form: string. Example: --gene EGFR. Command sources: myvariant; source restrictions in the field description apply.
 - `--has`: Require the selected component's identifier field; biomcp_help search variant
-Require the selected component's identifier field. Only source-proven mappings are offered.
-- `--limit`: Source candidates per page, default 10, maximum 50; all candidates remain candidates.
-- `--offset`: Source offset within this command's bounded result window; larger source totals remain visible.
-- `--protein`: Explicit substitution or synonymous change using checked amino-acid codes.
-- `--query`: Raw MyVariant query, passed and echoed unchanged when component policy allows; requires --source myvariant. With disabled components use declared selectors instead.
-- `--region`: Exact one-based inclusive MyVariant region, such as chr7:55259500-55259600; requires --build.
-- `--review-status`: Exact MyVariant clinvar.rcv.review_status phrase; no star conversion. Requires a declared protein or region selector.
+Require the selected component's identifier field. Only source-proven mappings are offered. Value form: string. Example: --has clinvar. Command sources: myvariant; source restrictions in the field description apply.
+- `--limit`: Source candidates per page, default 10, maximum 50; all candidates remain candidates. Value form: integer. Example: --limit 50. Command sources: myvariant; source restrictions in the field description apply.
+- `--offset`: Source offset within this command's bounded result window; larger source totals remain visible. Value form: integer. Example: --offset 0. Command sources: myvariant; source restrictions in the field description apply.
+- `--protein`: Explicit substitution or synonymous change using checked amino-acid codes. Value form: string. Example: --protein L858R. Command sources: myvariant; source restrictions in the field description apply.
+- `--query`: Raw MyVariant query, passed and echoed unchanged when component policy allows; requires --source myvariant. With disabled components use declared selectors instead. Value form: string. Example: --query CA123643. Command sources: myvariant; source restrictions in the field description apply.
+- `--region`: Exact one-based inclusive MyVariant region, such as chr7:55259500-55259600; requires --build. Value form: string. Example: --region chr7:140453136-140453136. Command sources: myvariant; source restrictions in the field description apply.
+- `--review-status`: Exact MyVariant clinvar.rcv.review_status phrase; no star conversion. Requires a declared protein or region selector. Value form: string. Example: --review-status 'no assertion criteria provided'. Command sources: myvariant; source restrictions in the field description apply.
 - `--source`: Explicit source language; required for a raw query; biomcp_help search variant
-Explicit source language; required for a raw query.
+Explicit source language; required for a raw query. Value form: string. Example: --source myvariant. Command sources: myvariant; source restrictions in the field description apply.
 
 ## biomcp get
 
@@ -2014,7 +2014,7 @@ Get NCI biomarker concepts by code. Sources: nci.
 
 - `id`: Exact NCIt code, such as C96022.
 - `--source`: NCI is the biomarker concept source; biomcp_help get biomarker
-NCI is the biomarker concept source.
+NCI is the biomarker concept source. Value form: string. Example: --source nci. Command sources: nci; source restrictions in the field description apply.
 
 ## biomcp get author
 
@@ -2115,8 +2115,8 @@ Get cell line details and cross-references. Sources: cellosaurus.
 
 - `id`: One exact primary accession or qualified source ID.
 - `section`: Omit for the default card; all returns bounded first; biomcp_help get cell-line
-- `--section-limit`: Explicit row limit for each requested collection; source variation defaults to three.
-- `--section-offset`: Offset within each independently requested collection.
+- `--section-limit`: Explicit row limit for each requested collection; source variation defaults to three. Value form: integer. Example: --section-limit 25. Command sources: cellosaurus; source restrictions in the field description apply.
+- `--section-offset`: Offset within each independently requested collection. Value form: integer. Example: --section-offset 1. Command sources: cellosaurus; source restrictions in the field description apply.
 
 Omit for the default card; all returns bounded first pages without an assay count.
 
@@ -2184,9 +2184,9 @@ Get GWAS Catalog associations or studies. Sources: gwas.
 
 - `id`: Qualified association ID or exact GCST study accession.
 - `section`: Association loci or study associations and ancestries; biomcp_help get gwas
-- `--section-limit`: Maximum source relation rows.
-- `--section-offset`: Source relation row offset.
-- `--snapshot`: Retained ancestry reply for a local page.
+- `--section-limit`: Maximum source relation rows. Value form: integer. Example: --section-limit 1. Command sources: gwas; source restrictions in the field description apply.
+- `--section-offset`: Source relation row offset. Value form: integer. Example: --section-offset 0. Command sources: gwas; source restrictions in the field description apply.
+- `--snapshot`: Retained ancestry reply for a local page. Value form: string. Example: --snapshot '<string>'. Command sources: gwas; source restrictions in the field description apply.
 
 Association loci or study associations and ancestries.
 
@@ -2246,8 +2246,8 @@ Options:
 Get protein details and source annotations. Sources: complex-portal, hgnc, interpro, uniprot.
 
 - `input`: Source accessions or gene symbols, preserving caller order.
-- `--section`: Select source sections or all bounded first pages;; biomcp_help get protein
-- `--section-limit`: First-page row limit; function keeps one whole source text record and does not page its paragraphs.
+- `--section`: Select source sections or all bounded first pages;; biomcp_help get protein Value form: array. Example: --section function. Command sources: complex-portal, hgnc, interpro, uniprot; source restrictions in the field description apply.
+- `--section-limit`: First-page row limit; function keeps one whole source text record and does not page its paragraphs. Value form: integer. Example: --section-limit 2. Command sources: complex-portal, hgnc, interpro, uniprot; source restrictions in the field description apply.
 
 Select source sections or all bounded first pages; function keeps one whole text record.
 
@@ -2321,11 +2321,11 @@ Get human phenotype details and relationships. Sources: hpo, monarch.
 
 - `id`: Exact HP identifier.
 - `section`: Absent means the source identity card; biomcp_help get phenotype
-- `--section-limit`: Default five text/link rows or one complete association row.
-- `--section-offset`: Source section row offset.
-- `--snapshot`: Retained exact source reply for local text and link pages; unsupported for diseases and genes.
+- `--section-limit`: Default five text/link rows or one complete association row. Value form: integer. Example: --section-limit 1. Command sources: hpo, monarch; source restrictions in the field description apply.
+- `--section-offset`: Source section row offset. Value form: integer. Example: --section-offset 0. Command sources: hpo, monarch; source restrictions in the field description apply.
+- `--snapshot`: Retained exact source reply for local text and link pages; unsupported for diseases and genes. Value form: string. Example: --snapshot '<string>'. Command sources: hpo, monarch; source restrictions in the field description apply.
 - `--source`: HPO or Monarch for cards, synonyms and xrefs;; biomcp_help get phenotype
-HPO or Monarch for cards, synonyms and xrefs; Monarch only for hierarchy, diseases and genes. Defaults to HPO for cards, synonyms and xrefs, otherwise Monarch.
+HPO or Monarch for cards, synonyms and xrefs; Monarch only for hierarchy, diseases and genes. Defaults to HPO for cards, synonyms and xrefs, otherwise Monarch. Value form: string. Example: --source monarch. Command sources: hpo, monarch; source restrictions in the field description apply.
 
 Absent means the source identity card.
 
@@ -2390,12 +2390,12 @@ Options:
 
 Get human pathway details. Sources: reactome, wikipathways.
 
-- `--fresh`: Request a new source observation.
+- `--fresh`: Request a new source observation. Value form: boolean. Example: --fresh. Command sources: reactome, wikipathways; source restrictions in the field description apply.
 - `id`: Exact human Reactome or WikiPathways identity without version suffixes.
-- `--pool`: Retained snapshot, when continuing a source relation.
+- `--pool`: Retained snapshot, when continuing a source relation. Value form: string. Example: --pool '<string>'. Command sources: reactome, wikipathways; source restrictions in the field description apply.
 - `section`: Omit for the card; WikiPathways has summary and genes; biomcp_help get pathway
-- `--section-limit`: Bounded initial section size; each all section has its own first page.
-- `--section-offset`: Source relation offset for a selected genes or events section.
+- `--section-limit`: Bounded initial section size; each all section has its own first page. Value form: integer. Example: --section-limit 5. Command sources: reactome, wikipathways; source restrictions in the field description apply.
+- `--section-offset`: Source relation offset for a selected genes or events section. Value form: integer. Example: --section-offset 0. Command sources: reactome, wikipathways; source restrictions in the field description apply.
 
 Omit for the card; WikiPathways has summary and genes sections.
 
@@ -2462,12 +2462,12 @@ Options:
 
 Get cancer genomics study details. Sources: cbioportal.
 
-- `--gene`: Exact cBioPortal HUGO gene symbol or Entrez ID; required for mutations.
+- `--gene`: Exact cBioPortal HUGO gene symbol or Entrez ID; required for mutations. Value form: string. Example: --gene BRAF. Command sources: cbioportal; source restrictions in the field description apply.
 - `id`: Exact source study ID; no default or repair.
-- `--molecular-profile`: Exact mutation profile ID; omitted selects the study's first mutation profile.
+- `--molecular-profile`: Exact mutation profile ID; omitted selects the study's first mutation profile. Value form: string. Example: --molecular-profile skcm_tcga_pan_can_atlas_2018_mutations. Command sources: cbioportal; source restrictions in the field description apply.
 - `section`: Omit for the card; all returns bounded first pages only; biomcp_help get study
-- `--section-limit`: Maximum records in each selected section.
-- `--section-offset`: Offset within one named section; all requires zero.
+- `--section-limit`: Maximum records in each selected section. Value form: integer. Example: --section-limit 1. Command sources: cbioportal; source restrictions in the field description apply.
+- `--section-offset`: Offset within one named section; all requires zero. Value form: integer. Example: --section-offset 45. Command sources: cbioportal; source restrictions in the field description apply.
 
 Omit for the card; all returns bounded first pages only.
 
@@ -2550,18 +2550,18 @@ Options:
 
 Get pharmacogenomic evidence and source sections. Sources: clinpgx, cpic.
 
-- `--annotation-id`: Checked ClinPGx accession, never a shared PaId.
-- `--diplotype`: Unchanged declared expression required for the diplotype section only.
-- `--drug-id`: Exact published CPIC drug key; recommendations only.
-- `--gene`: Explicit source gene symbol.
+- `--annotation-id`: Checked ClinPGx accession, never a shared PaId. Value form: string. Example: --annotation-id '<string>'. Command sources: clinpgx, cpic; source restrictions in the field description apply.
+- `--diplotype`: Unchanged declared expression required for the diplotype section only. Value form: string. Example: --diplotype '*1/*2A'. Command sources: clinpgx, cpic; source restrictions in the field description apply.
+- `--drug-id`: Exact published CPIC drug key; recommendations only. Value form: string. Example: --drug-id '<string>'. Command sources: clinpgx, cpic; source restrictions in the field description apply.
+- `--gene`: Explicit source gene symbol. Value form: string. Example: --gene DPYD. Command sources: clinpgx, cpic; source restrictions in the field description apply.
 - `--kind`: One ClinPGx collection; clinical is the default only on; biomcp_help get pgx
-One ClinPGx collection; clinical is the default only on annotations.
+One ClinPGx collection; clinical is the default only on annotations. Value form: string. Example: --kind clinical. Command sources: clinpgx, cpic; source restrictions in the field description apply.
 - `section`: One named section; omitted means the CPIC gene card; biomcp_help get pgx
-- `--section-limit`: Rows per page: three clinical, five elsewhere.
-- `--section-offset`: Offset within the selected section.
-- `--snapshot`: Retained collection for local continuation.
+- `--section-limit`: Rows per page: three clinical, five elsewhere. Value form: integer. Example: --section-limit 1. Command sources: clinpgx, cpic; source restrictions in the field description apply.
+- `--section-offset`: Offset within the selected section. Value form: integer. Example: --section-offset 0. Command sources: clinpgx, cpic; source restrictions in the field description apply.
+- `--snapshot`: Retained collection for local continuation. Value form: string. Example: --snapshot '<string>'. Command sources: clinpgx, cpic; source restrictions in the field description apply.
 - `--source`: Required source, checked against the section; biomcp_help get pgx
-Required source, checked against the section.
+Required source, checked against the section. Value form: string. Example: --source cpic. Command sources: clinpgx, cpic; source restrictions in the field description apply.
 
 One named section; omitted means the CPIC gene card.
 
@@ -2633,15 +2633,15 @@ Options:
 
 Get diagnostic test or device details. Sources: fda-510k, fda-device-recall, fda-pma, gtr, who-ivd.
 
-- `--bundle-revision`: Immutable stored bundle revision retained by a continuation.
+- `--bundle-revision`: Immutable stored bundle revision retained by a continuation. Value form: string. Example: --bundle-revision '<string>'. Command sources: fda-510k, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
 - `id`: Exact source identity, including version for GTR.
 - `section`: GTR: genes, conditions, methods. PMA: regulatory,; biomcp_help get diagnostic
-- `--section-limit`: Maximum source rows; omitted means five rows, or one regulatory fragment.
-- `--section-offset`: Zero-based source row or fragment offset.
+- `--section-limit`: Maximum source rows; omitted means five rows, or one regulatory fragment. Value form: integer. Example: --section-limit 2. Command sources: fda-510k, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
+- `--section-offset`: Zero-based source row or fragment offset. Value form: integer. Example: --section-offset 5. Command sources: fda-510k, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
 - `--source`: Explicit source: GTR accession/version, WHO Product; biomcp_help get diagnostic
 Explicit source: GTR accession/version, WHO Product ID, PMA P number,
-510(k) K number or device recall Z-NNNN-YYYY.
-- `--supplement`: Exact source PMA supplement; absent selects the base row.
+510(k) K number or device recall Z-NNNN-YYYY. Value form: string. Example: --source fda-device-recall. Command sources: fda-510k, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
+- `--supplement`: Exact source PMA supplement; absent selects the base row. Value form: string. Example: --supplement S020. Command sources: fda-510k, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
 
 GTR: genes, conditions, methods. PMA: regulatory, supplements, summary.
 WHO, 510(k) and device recalls have no sections; omit for the card.
@@ -2715,14 +2715,14 @@ Options:
 
 Get a drug, device or vaccine adverse event report. Sources: faers, maude.
 
-- `--drug-index`: Absolute source-array index; required only for identifier sections.
+- `--drug-index`: Absolute source-array index; required only for identifier sections. Value form: integer. Example: --drug-index 0. Command sources: faers, maude; source restrictions in the field description apply.
 - `id`: Published report ID with no source prefix.
 - `section`: FAERS owns drugs, reactions and identifiers;; biomcp_help get adverse-event
-- `--section-limit`: Whole source rows per section page.
-- `--section-offset`: Offset within the selected source section.
-- `--snapshot`: Checked retained report snapshot for source-free continuation.
+- `--section-limit`: Whole source rows per section page. Value form: integer. Example: --section-limit 1. Command sources: faers, maude; source restrictions in the field description apply.
+- `--section-offset`: Offset within the selected source section. Value form: integer. Example: --section-offset 0. Command sources: faers, maude; source restrictions in the field description apply.
+- `--snapshot`: Checked retained report snapshot for source-free continuation. Value form: string. Example: --snapshot '<string>'. Command sources: faers, maude; source restrictions in the field description apply.
 - `--source`: FAERS by default; MAUDE is explicit; biomcp_help get adverse-event
-FAERS by default; MAUDE is explicit.
+FAERS by default; MAUDE is explicit. Value form: string. Example: --source maude. Command sources: faers, maude; source restrictions in the field description apply.
 
 FAERS owns drugs, reactions and identifiers; MAUDE owns devices and narrative. Omitted means card only.
 
@@ -2816,20 +2816,20 @@ Options:
 
 Get disease details and source statistics. Sources: monarch, mydisease, ols, seer.
 
-- `--age-range`: Source age-range code.
-- `--dataset`: Requested source dataset selector, not proof of returned membership.
+- `--age-range`: Source age-range code. Value form: string. Example: --age-range 1. Command sources: monarch, mydisease, ols, seer; source restrictions in the field description apply.
+- `--dataset`: Requested source dataset selector, not proof of returned membership. Value form: string. Example: --dataset 4. Command sources: monarch, mydisease, ols, seer; source restrictions in the field description apply.
 - `id`: Exact ontology CURIE or an explicit SEER catalog site ID.
-- `--interval`: Survival-only interval code.
+- `--interval`: Survival-only interval code. Value form: string. Example: --interval 5. Command sources: monarch, mydisease, ols, seer; source restrictions in the field description apply.
 - `--ontology`: One OLS ontology; biomcp_help get disease
-One OLS ontology.
-- `--period`: Incidence-only source period code.
-- `--race`: Source race code.
+One OLS ontology. Value form: string. Example: --ontology mondo. Command sources: monarch, mydisease, ols, seer; source restrictions in the field description apply.
+- `--period`: Incidence-only source period code. Value form: string. Example: --period 5. Command sources: monarch, mydisease, ols, seer; source restrictions in the field description apply.
+- `--race`: Source race code. Value form: string. Example: --race 1. Command sources: monarch, mydisease, ols, seer; source restrictions in the field description apply.
 - `section`: One named section; absent means identity card only; biomcp_help get disease
-- `--section-limit`: Source rows per page: default 2 for Monarch genes, 1 for Monarch phenotypes, otherwise 5.
-- `--section-offset`: Source row offset within the selected section.
-- `--sex`: Source sex code.
+- `--section-limit`: Source rows per page: default 2 for Monarch genes, 1 for Monarch phenotypes, otherwise 5. Value form: integer. Example: --section-limit 1. Command sources: monarch, mydisease, ols, seer; source restrictions in the field description apply.
+- `--section-offset`: Source row offset within the selected section. Value form: integer. Example: --section-offset 1. Command sources: monarch, mydisease, ols, seer; source restrictions in the field description apply.
+- `--sex`: Source sex code. Value form: string. Example: --sex 3. Command sources: monarch, mydisease, ols, seer; source restrictions in the field description apply.
 - `--source`: Default MyDisease; no automatic fallback; biomcp_help get disease
-Default MyDisease; no automatic fallback.
+Default MyDisease; no automatic fallback. Value form: string. Example: --source seer. Command sources: monarch, mydisease, ols, seer; source restrictions in the field description apply.
 
 One named section; absent means identity card only.
 
@@ -2934,31 +2934,31 @@ Options:
 Get drug and medicine details. Sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq.
 
 - `--civic-cursor`: CIViC continuation.
-Source continuation cursor for that exact drug, profile and claim collection.
+Source continuation cursor for that exact drug, profile and claim collection. Value form: string. Example: --civic-cursor 0:A2. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `--civic-kind`: CIViC collection; biomcp_help get drug
 CIViC collection.
-Independent source evidence or assertion collection within the selected profile.
-- `--civic-profile`: Selected source CIViC molecular profile for a drug-scoped claim stream.
+Independent source evidence or assertion collection within the selected profile. Value form: string. Example: --civic-kind evidence. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
+- `--civic-profile`: Selected source CIViC molecular profile for a drug-scoped claim stream. Value form: integer. Example: --civic-profile 1. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `--document-id`: FDA letter document ID.
 Exact source Drugs@FDA approval letter document ID. Text is bounded to 25 MiB, 100 pages
-and 6144 escaped bytes per fragment. No-text scans are explicit.
+and 6144 escaped bytes per fragment. No-text scans are explicit. Value form: string. Example: --document-id 64255. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `--evidence-level`: A–E; biomcp_help get drug
 A–E
-Source CIViC evidence levels; repeat to include several levels.
+Source CIViC evidence levels; repeat to include several levels. Value form: array. Example: --evidence-level A. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `--evidence-status`: Status; biomcp_help get drug
 Status
-Source CIViC evidence status; omitted preserves the source's existing default.
+Source CIViC evidence status; omitted preserves the source's existing default. Value form: string. Example: --evidence-status accepted. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `input`: Source ID, brand or generic name.
 Source-source ID or complete brand or generic name; WHO references retain source spaces. Exact brands rank before generics; Drugs@FDA prefers NDA/BLA before ANDA, then earliest approval. Other sources retain search order. The chosen record reports up to five alternatives and their total. Generic names also accept one trailing listed salt or ester term: mesylate, hydrochloride, sodium, potassium, calcium, sulfate, maleate, tartrate, citrate, phosphate, acetate, besylate, fumarate, succinate, tosylate, bromide, chloride. Brand names identical to their own ingredient count as generic. USAN nomenclature: https://www.ama-assn.org/about/united-states-adopted-names-usan/united-states-adopted-names-naming-guidelines
 - `--label-section`: Exact openFDA SPL field.
-Exact published openFDA SPL section field, including table fields; required for the label section.
+Exact published openFDA SPL section field, including table fields; required for the label section. Value form: string. Example: --label-section warnings_and_cautions. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `--product-number`: FDA product number.
-Explicit source application product number, only for approvals.
+Explicit source application product number, only for approvals. Value form: string. Example: --product-number 001. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `section`: Source sections; biomcp_help get drug
-- `--section-limit`: Named section page size, refused on an identity-only card.
-- `--section-offset`: Named section continuation, refused on an identity-only card.
+- `--section-limit`: Named section page size, refused on an identity-only card. Value form: integer. Example: --section-limit 1. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
+- `--section-offset`: Named section continuation, refused on an identity-only card. Value form: integer. Example: --section-offset 1. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `--source`: Omit to infer the source of an unambiguous section;; biomcp_help get drug
-Omit to infer the source of an unambiguous section; identity or mixed sections use MyChem.
+Omit to infer the source of an unambiguous section; identity or mixed sections use MyChem. Value form: string. Example: --source ema. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 
 Explicit named disclosures; empty means identity only.
 
@@ -3018,7 +3018,7 @@ Options:
 Get gene identities and source annotations. Sources: civic, clingen, gencc, gnomad, hgnc, hpa, mygene, oncokb, reactome, uniprot.
 
 - `input`: Gene symbols or checked identifiers, in input order.
-- `--section`: Requested section words, preserving caller order and; biomcp_help get gene
+- `--section`: Requested section words, preserving caller order and; biomcp_help get gene Value form: array. Example: --section protein. Command sources: civic, clingen, gencc, gnomad, hgnc, hpa, mygene, oncokb, reactome, uniprot; source restrictions in the field description apply.
 
 Requested section words, preserving caller order and repetitions.
 Trailing section words select sections. Use --section WORD to keep inputs that equal a section word as inputs.
@@ -3080,7 +3080,7 @@ Options:
 Get research article details. Sources: europepmc, icite, pmc-oa, pubmed, pubtator, semantic-scholar.
 
 - `input`: PubMed, PMC or DOI identifiers in input order.
-- `--section`: Requested section words; trailing words and --section; biomcp_help get article
+- `--section`: Requested section words; trailing words and --section; biomcp_help get article Value form: array. Example: --section annotations. Command sources: europepmc, icite, pmc-oa, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
 
 Requested section words; trailing words and --section share this field.
 
@@ -3153,12 +3153,12 @@ Options:
 Get clinical trial details. Sources: ctgov, nci.
 
 - `input`: One to twenty exact NCT identifiers, in caller order.
-- `--limit`: Whole-record count per source collection page; text fragments follow the text budget.
-- `--offset`: Character offset for ClinicalTrials.gov eligibility or NCI summary; whole-record offset for other collections.
-- `--pool`: Checked stored source record, supplied by a continuation.
-- `--section`: Optional intact source sections. Default cards only;; biomcp_help get trial
+- `--limit`: Whole-record count per source collection page; text fragments follow the text budget. Value form: integer. Example: --limit 1. Command sources: ctgov, nci; source restrictions in the field description apply.
+- `--offset`: Character offset for ClinicalTrials.gov eligibility or NCI summary; whole-record offset for other collections. Value form: integer. Example: --offset 0. Command sources: ctgov, nci; source restrictions in the field description apply.
+- `--pool`: Checked stored source record, supplied by a continuation. Value form: string. Example: --pool '<string>'. Command sources: ctgov, nci; source restrictions in the field description apply.
+- `--section`: Optional intact source sections. Default cards only;; biomcp_help get trial Value form: array. Example: --section outcomes. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--source`: Explicit source; defaults to ClinicalTrials.gov and; biomcp_help get trial
-Explicit source; defaults to ClinicalTrials.gov and never falls back.
+Explicit source; defaults to ClinicalTrials.gov and never falls back. Value form: string. Example: --source nci. Command sources: ctgov, nci; source restrictions in the field description apply.
 
 Optional intact source sections. Default cards only; diseases and summary require NCI. NCI locations, contacts, references and documents are unsupported.
 
@@ -3271,31 +3271,31 @@ Get genetic variants. Sources: alphagenome, car, civic, clinvar, erepo, gnomad, 
 
 - `--build`: Assembly; biomcp_help get variant
 Assembly
-MyVariant identity assembly defaults to GRCh38; chromosome genomic HGVS requires an explicit build.
+MyVariant identity assembly defaults to GRCh38; chromosome genomic HGVS requires an explicit build. Value form: string. Example: --build GRCh37. Command sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator; source restrictions in the field description apply.
 - `--civic-cursor`: Cursor
-Source CIViC cursor, retained unchanged.
+Source CIViC cursor, retained unchanged. Value form: string. Example: --civic-cursor 0:E2. Command sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator; source restrictions in the field description apply.
 - `--civic-kind`: Claims; biomcp_help get variant
 Claims
-Source CIViC claim collection within the selected profile.
-- `--civic-profile`: Selected CIViC molecular profile for source claim paging.
+Source CIViC claim collection within the selected profile. Value form: string. Example: --civic-kind evidence. Command sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator; source restrictions in the field description apply.
+- `--civic-profile`: Selected CIViC molecular profile for source claim paging. Value form: integer. Example: --civic-profile 12. Command sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator; source restrictions in the field description apply.
 - `--evidence-level`: A–E; biomcp_help get variant
 A–E
-Source CIViC evidence levels; repeat to include several levels.
+Source CIViC evidence levels; repeat to include several levels. Value form: array. Example: --evidence-level A. Command sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator; source restrictions in the field description apply.
 - `--evidence-status`: Status; biomcp_help get variant
 Status
-Source CIViC evidence status; omitted preserves the source's existing default.
+Source CIViC evidence status; omitted preserves the source's existing default. Value form: string. Example: --evidence-status submitted. Command sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator; source restrictions in the field description apply.
 - `input`: rs/CA/clinvar:N/VCV/HGVS/VCF
 rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS or VCF-style genomic coordinates.
-- `--limit`: Candidate rows per page; more remain reachable through typed next commands.
-- `--offset`: Candidate rows to skip in source order.
+- `--limit`: Candidate rows per page; more remain reachable through typed next commands. Value form: integer. Example: --limit 10. Command sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator; source restrictions in the field description apply.
+- `--offset`: Candidate rows to skip in source order. Value form: integer. Example: --offset 0. Command sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator; source restrictions in the field description apply.
 - `--resolver`: Resolver; biomcp_help get variant
 Resolver.
-Resolver for reference-qualified notation; never repairs the input locally.
+Resolver for reference-qualified notation; never repairs the input locally. Value form: string. Example: --resolver car. Command sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator; source restrictions in the field description apply.
 - `section`: Sections; biomcp_help get variant
-- `--section-limit`: Rows per named source section page; omitted uses the source default.
-- `--section-offset`: Source rows to skip independently of identity candidate paging.
+- `--section-limit`: Rows per named source section page; omitted uses the source default. Value form: integer. Example: --section-limit 2. Command sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator; source restrictions in the field description apply.
+- `--section-offset`: Source rows to skip independently of identity candidate paging. Value form: integer. Example: --section-offset 0. Command sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator; source restrictions in the field description apply.
 - `--tumor-type`: Tumor
-Explicit tumor context for keyed OncoKB annotation.
+Explicit tumor context for keyed OncoKB annotation. Value form: string. Example: --tumor-type '<string>'. Command sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator; source restrictions in the field description apply.
 
 Named source sections; omitted by default. Each calls its own source. all keeps bounded pages and source skips; it never enables a missing key.
 
@@ -3416,11 +3416,11 @@ Options:
 
 List an author's research papers. Sources: orcid, semantic-scholar.
 
-- `--full`: Legacy alias for details; normalized on construction.
+- `--full`: Legacy alias for details; normalized on construction. Value form: boolean. Example: --full. Command sources: orcid, semantic-scholar; source restrictions in the field description apply.
 - `id`: Exact qualified source record.
-- `--limit`: Bounded row count.
-- `--offset`: Source or retained collection offset.
-- `--pool`: Retained collection identity.
+- `--limit`: Bounded row count. Value form: integer. Example: --limit 5. Command sources: orcid, semantic-scholar; source restrictions in the field description apply.
+- `--offset`: Source or retained collection offset. Value form: integer. Example: --offset 0. Command sources: orcid, semantic-scholar; source restrictions in the field description apply.
+- `--pool`: Retained collection identity. Value form: string. Example: --pool '<string>'. Command sources: orcid, semantic-scholar; source restrictions in the field description apply.
 - `section`: Detailed disclosure when requested; biomcp_help author papers
 
 Detailed disclosure when requested.
@@ -3624,11 +3624,11 @@ Options:
 Get protein features by residue or region. Sources: uniprot.
 
 - `accession`: Exact source protein sequence identity.
-- `--limit`: Five rows by default, at most 25.
-- `--offset`: Source or retained page offset.
-- `--pool`: Retained collection identity.
-- `--position`: Source one-based residue; zero fails during deserialization.
-- `--type`: Exact UniProt source label, without an alias map.
+- `--limit`: Five rows by default, at most 25. Value form: integer. Example: --limit 1. Command sources: uniprot; source restrictions in the field description apply.
+- `--offset`: Source or retained page offset. Value form: integer. Example: --offset 0. Command sources: uniprot; source restrictions in the field description apply.
+- `--pool`: Retained collection identity. Value form: string. Example: --pool '<string>'. Command sources: uniprot; source restrictions in the field description apply.
+- `--position`: Source one-based residue; zero fails during deserialization. Value form: integer. Example: --position 25. Command sources: uniprot; source restrictions in the field description apply.
+- `--type`: Exact UniProt source label, without an alias map. Value form: string. Example: --type Chain. Command sources: uniprot; source restrictions in the field description apply.
 
 ## biomcp protein isoforms
 
@@ -3683,9 +3683,9 @@ Options:
 Get protein isoforms and alternative products. Sources: uniprot.
 
 - `accession`: Exact source protein sequence identity.
-- `--limit`: Five rows by default, at most 25.
-- `--offset`: Source or retained page offset.
-- `--pool`: Retained collection identity.
+- `--limit`: Five rows by default, at most 25. Value form: integer. Example: --limit 1. Command sources: uniprot; source restrictions in the field description apply.
+- `--offset`: Source or retained page offset. Value form: integer. Example: --offset 0. Command sources: uniprot; source restrictions in the field description apply.
+- `--pool`: Retained collection identity. Value form: string. Example: --pool '<string>'. Command sources: uniprot; source restrictions in the field description apply.
 
 ## biomcp protein domains
 
@@ -3743,10 +3743,10 @@ Options:
 Get protein domains and families from InterPro. Sources: interpro.
 
 - `accession`: Exact source protein sequence identity.
-- `--limit`: Five rows by default, at most 25.
-- `--offset`: Source or retained page offset.
-- `--pool`: Retained collection identity.
-- `--type`: Exact source InterPro type, not a normalized domain label.
+- `--limit`: Five rows by default, at most 25. Value form: integer. Example: --limit 1. Command sources: interpro; source restrictions in the field description apply.
+- `--offset`: Source or retained page offset. Value form: integer. Example: --offset 0. Command sources: interpro; source restrictions in the field description apply.
+- `--pool`: Retained collection identity. Value form: string. Example: --pool '<string>'. Command sources: interpro; source restrictions in the field description apply.
+- `--type`: Exact source InterPro type, not a normalized domain label. Value form: string. Example: --type '<string>'. Command sources: interpro; source restrictions in the field description apply.
 
 ## biomcp protein complexes
 
@@ -3801,9 +3801,9 @@ Options:
 List protein complexes containing a protein. Sources: complex-portal.
 
 - `accession`: Exact source protein sequence identity.
-- `--limit`: Five rows by default, at most 25.
-- `--offset`: Source or retained page offset.
-- `--pool`: Retained collection identity.
+- `--limit`: Five rows by default, at most 25. Value form: integer. Example: --limit 1. Command sources: complex-portal; source restrictions in the field description apply.
+- `--offset`: Source or retained page offset. Value form: integer. Example: --offset 0. Command sources: complex-portal; source restrictions in the field description apply.
+- `--pool`: Retained collection identity. Value form: string. Example: --pool '<string>'. Command sources: complex-portal; source restrictions in the field description apply.
 
 ## biomcp protein complex-members
 
@@ -3861,10 +3861,10 @@ Options:
 List the members of a protein complex. Sources: complex-portal.
 
 - `accession`: Exact source protein sequence identity.
-- `--complex`: Exact complex whose source participants contain the anchor.
-- `--limit`: Five rows by default, at most 25.
-- `--offset`: Source or retained page offset.
-- `--pool`: Retained collection identity.
+- `--complex`: Exact complex whose source participants contain the anchor. Value form: string. Example: --complex CPX-715. Command sources: complex-portal; source restrictions in the field description apply.
+- `--limit`: Five rows by default, at most 25. Value form: integer. Example: --limit 1. Command sources: complex-portal; source restrictions in the field description apply.
+- `--offset`: Source or retained page offset. Value form: integer. Example: --offset 0. Command sources: complex-portal; source restrictions in the field description apply.
+- `--pool`: Retained collection identity. Value form: string. Example: --pool '<string>'. Command sources: complex-portal; source restrictions in the field description apply.
 
 ## biomcp protein structures
 
@@ -3919,9 +3919,9 @@ Options:
 Get protein structure references from PDB. Sources: uniprot.
 
 - `accession`: Exact source protein sequence identity.
-- `--limit`: Five rows by default, at most 25.
-- `--offset`: Source or retained page offset.
-- `--pool`: Retained collection identity.
+- `--limit`: Five rows by default, at most 25. Value form: integer. Example: --limit 1. Command sources: uniprot; source restrictions in the field description apply.
+- `--offset`: Source or retained page offset. Value form: integer. Example: --offset 0. Command sources: uniprot; source restrictions in the field description apply.
+- `--pool`: Retained collection identity. Value form: string. Example: --pool '<string>'. Command sources: uniprot; source restrictions in the field description apply.
 
 ## biomcp protein sequence
 
@@ -4072,9 +4072,9 @@ List genes in a biological pathway. Sources: reactome, wikipathways.
 - `details`: Include every physical entity context for these; biomcp_help pathway genes
 Include every physical entity context for these references; never clips source text.
 - `id`: Checked source-owned human pathway identity.
-- `--limit`: Five complete relation rows by default, at most fifty.
-- `--offset`: Offset within the retained selected relation.
-- `--pool`: Immutable relation snapshot.
+- `--limit`: Five complete relation rows by default, at most fifty. Value form: integer. Example: --limit 5. Command sources: reactome, wikipathways; source restrictions in the field description apply.
+- `--offset`: Offset within the retained selected relation. Value form: integer. Example: --offset 0. Command sources: reactome, wikipathways; source restrictions in the field description apply.
+- `--pool`: Immutable relation snapshot. Value form: string. Example: --pool '<string>'. Command sources: reactome, wikipathways; source restrictions in the field description apply.
 
 ## biomcp pathway events
 
@@ -4129,9 +4129,9 @@ Options:
 List events within a biological pathway. Sources: reactome.
 
 - `id`: Checked source-owned human pathway identity.
-- `--limit`: Five complete relation rows by default, at most fifty.
-- `--offset`: Offset within the retained selected relation.
-- `--pool`: Immutable relation snapshot.
+- `--limit`: Five complete relation rows by default, at most fifty. Value form: integer. Example: --limit 50. Command sources: reactome; source restrictions in the field description apply.
+- `--offset`: Offset within the retained selected relation. Value form: integer. Example: --offset 0. Command sources: reactome; source restrictions in the field description apply.
+- `--pool`: Immutable relation snapshot. Value form: string. Example: --pool '<string>'. Command sources: reactome; source restrictions in the field description apply.
 
 ## biomcp article
 
@@ -4253,14 +4253,14 @@ Options:
 Read a research article supplementary file. Sources: pmc-oa, pubmed.
 
 - `file`: Exact file name from the supplements section.
-- `--find`: Exact case-insensitive needle.
+- `--find`: Exact case-insensitive needle. Value form: string. Example: --find F1761I. Command sources: pmc-oa, pubmed; source restrictions in the field description apply.
 - `input`: PubMed or PMC identity.
-- `--offset`: Matching-row or text-fragment offset.
-- `--replace`: Replace an existing destination only when explicitly requested with save.
-- `--rows`: Inclusive original row range.
-- `--save`: Save the whole original document to an explicit file or existing folder.
-- `--sheet`: Sheet name for row selection.
-- `--variant`: Explicit protein substitution.
+- `--offset`: Matching-row or text-fragment offset. Value form: integer. Example: --offset 3. Command sources: pmc-oa, pubmed; source restrictions in the field description apply.
+- `--replace`: Replace an existing destination only when explicitly requested with save. Value form: boolean. Example: --replace. Command sources: pmc-oa, pubmed; source restrictions in the field description apply.
+- `--rows`: Inclusive original row range. Value form: string. Example: --rows 84-86. Command sources: pmc-oa, pubmed; source restrictions in the field description apply.
+- `--save`: Save the whole original document to an explicit file or existing folder. Value form: string. Example: --save '<string>'. Command sources: pmc-oa, pubmed; source restrictions in the field description apply.
+- `--sheet`: Sheet name for row selection. Value form: string. Example: --sheet ST2. Command sources: pmc-oa, pubmed; source restrictions in the field description apply.
+- `--variant`: Explicit protein substitution. Value form: string. Example: --variant P245S. Command sources: pmc-oa, pubmed; source restrictions in the field description apply.
 
 ## biomcp article pdf
 
@@ -4315,8 +4315,8 @@ Options:
 Save a research article PDF. Sources: semantic-scholar.
 
 - `input`: Article identity.
-- `--replace`: Replace an existing file only when explicitly requested.
-- `--save`: Destination file or existing folder.
+- `--replace`: Replace an existing file only when explicitly requested. Value form: boolean. Example: --replace. Command sources: semantic-scholar; source restrictions in the field description apply.
+- `--save`: Destination file or existing folder. Value form: string. Example: --save owned.pdf. Command sources: semantic-scholar; source restrictions in the field description apply.
 
 ## biomcp article text
 
@@ -4382,13 +4382,13 @@ Options:
 
 Read research article full text. Sources: europepmc, pmc-oa, pubmed.
 
-- `--find`: Case-insensitive exact text to find.
+- `--find`: Case-insensitive exact text to find. Value form: string. Example: --find AXIN2. Command sources: europepmc, pmc-oa, pubmed; source restrictions in the field description apply.
 - `input`: PubMed or PMC identity. DOI selectors are not accepted by the reader.
-- `--offset`: Number of matching rows already returned.
-- `--part`: One-based outline part number.
-- `--replace`: Replace an existing destination only when explicitly requested with save.
-- `--save`: Save the whole original document to an explicit file or existing folder.
-- `--variant`: Explicit checked protein substitution.
+- `--offset`: Number of matching rows already returned. Value form: integer. Example: --offset 0. Command sources: europepmc, pmc-oa, pubmed; source restrictions in the field description apply.
+- `--part`: One-based outline part number. Value form: integer. Example: --part 1. Command sources: europepmc, pmc-oa, pubmed; source restrictions in the field description apply.
+- `--replace`: Replace an existing destination only when explicitly requested with save. Value form: boolean. Example: --replace. Command sources: europepmc, pmc-oa, pubmed; source restrictions in the field description apply.
+- `--save`: Save the whole original document to an explicit file or existing folder. Value form: string. Example: --save '<string>'. Command sources: europepmc, pmc-oa, pubmed; source restrictions in the field description apply.
+- `--variant`: Explicit checked protein substitution. Value form: string. Example: --variant '<string>'. Command sources: europepmc, pmc-oa, pubmed; source restrictions in the field description apply.
 
 ## biomcp article citations
 
@@ -4446,12 +4446,12 @@ Options:
 
 List research papers citing an article. Sources: icite, pubmed, semantic-scholar.
 
-- `--limit`: Maximum papers on one page.
-- `--offset`: Number of pool items to skip.
+- `--limit`: Maximum papers on one page. Value form: integer. Example: --limit 1. Command sources: icite, pubmed, semantic-scholar; source restrictions in the field description apply.
+- `--offset`: Number of pool items to skip. Value form: integer. Example: --offset 0. Command sources: icite, pubmed, semantic-scholar; source restrictions in the field description apply.
 - `pmid`: PMID, PMC or DOI; iCite accepts only a PMID.
-- `--pool`: Fixed snapshot from an earlier page.
+- `--pool`: Fixed snapshot from an earlier page. Value form: string. Example: --pool '<string>'. Command sources: icite, pubmed, semantic-scholar; source restrictions in the field description apply.
 - `--source`: Graph source; iCite remains the default; biomcp_help article citations
-Graph source; iCite remains the default.
+Graph source; iCite remains the default. Value form: string. Example: --source semantic-scholar. Command sources: icite, pubmed, semantic-scholar; source restrictions in the field description apply.
 
 ## biomcp article references
 
@@ -4509,12 +4509,12 @@ Options:
 
 List research papers referenced by an article. Sources: icite, pubmed, semantic-scholar.
 
-- `--limit`: Maximum papers on one page.
-- `--offset`: Number of pool items to skip.
+- `--limit`: Maximum papers on one page. Value form: integer. Example: --limit 1. Command sources: icite, pubmed, semantic-scholar; source restrictions in the field description apply.
+- `--offset`: Number of pool items to skip. Value form: integer. Example: --offset 112. Command sources: icite, pubmed, semantic-scholar; source restrictions in the field description apply.
 - `pmid`: PMID, PMC or DOI; iCite accepts only a PMID.
-- `--pool`: Fixed snapshot from an earlier page.
+- `--pool`: Fixed snapshot from an earlier page. Value form: string. Example: --pool '<string>'. Command sources: icite, pubmed, semantic-scholar; source restrictions in the field description apply.
 - `--source`: Graph source; iCite remains the default; biomcp_help article citations
-Graph source; iCite remains the default.
+Graph source; iCite remains the default. Value form: string. Example: --source semantic-scholar. Command sources: icite, pubmed, semantic-scholar; source restrictions in the field description apply.
 
 ## biomcp article citation-evidence
 
@@ -4579,10 +4579,10 @@ Get research article citation evidence. Sources: pmc-oa, pubmed, semantic-schola
 
 - `cited`: Cited PMID, PMC identity or DOI.
 - `citing`: Citing PMID, PMC identity or DOI.
-- `--fulltext`: Include the citing paper's own explicit reference paragraphs.
-- `--offset`: Context fragment position returned by the advancing step.
-- `--paragraph-offset`: Full-text fragment position returned by the advancing step.
-- `--pool`: Stored checked source scan and original hit positions.
+- `--fulltext`: Include the citing paper's own explicit reference paragraphs. Value form: boolean. Example: --fulltext. Command sources: pmc-oa, pubmed, semantic-scholar; source restrictions in the field description apply.
+- `--offset`: Context fragment position returned by the advancing step. Value form: integer. Example: --offset 0. Command sources: pmc-oa, pubmed, semantic-scholar; source restrictions in the field description apply.
+- `--paragraph-offset`: Full-text fragment position returned by the advancing step. Value form: integer. Example: --paragraph-offset 0. Command sources: pmc-oa, pubmed, semantic-scholar; source restrictions in the field description apply.
+- `--pool`: Stored checked source scan and original hit positions. Value form: string. Example: --pool '<string>'. Command sources: pmc-oa, pubmed, semantic-scholar; source restrictions in the field description apply.
 
 ## biomcp article recommendations
 
@@ -4639,10 +4639,10 @@ Options:
 
 Get related research article recommendations. Sources: semantic-scholar.
 
-- `--limit`: Maximum recommendations requested, in source order.
-- `--negative`: Up to ten negative paper identities.
-- `--offset`: Number of stored recommendations to skip.
-- `--pool`: Fixed recommendation pool.
+- `--limit`: Maximum recommendations requested, in source order. Value form: integer. Example: --limit 5. Command sources: semantic-scholar; source restrictions in the field description apply.
+- `--negative`: Up to ten negative paper identities. Value form: array. Example: --negative 33433946. Command sources: semantic-scholar; source restrictions in the field description apply.
+- `--offset`: Number of stored recommendations to skip. Value form: integer. Example: --offset 1. Command sources: semantic-scholar; source restrictions in the field description apply.
+- `--pool`: Fixed recommendation pool. Value form: string. Example: --pool '<string>'. Command sources: semantic-scholar; source restrictions in the field description apply.
 - `seeds`: One to ten positive paper identities.
 
 ## biomcp trial
@@ -4745,8 +4745,8 @@ Save a clinical trial document. Sources: ctgov.
 
 - `file`: Exact filename from the registry manifest; never a URL or inferred path.
 - `input`: Exact registry identity.
-- `--replace`: Replace an existing file only when explicitly requested.
-- `--save`: Caller-owned file or existing folder.
+- `--replace`: Replace an existing file only when explicitly requested. Value form: boolean. Example: --replace. Command sources: ctgov; source restrictions in the field description apply.
+- `--save`: Caller-owned file or existing folder. Value form: string. Example: --save protocol.pdf. Command sources: ctgov; source restrictions in the field description apply.
 
 ## biomcp variant
 
@@ -4857,15 +4857,15 @@ Options:
 
 Get genetic variant assertions from ClinVar or ClinGen. Sources: clinvar, erepo.
 
-- `--assertion`: Source assertion accession or document ID.
+- `--assertion`: Source assertion accession or document ID. Value form: string. Example: --assertion PCER000001171. Command sources: clinvar, erepo; source restrictions in the field description apply.
 - `--build`: Identity lookup assembly; omitted uses the; biomcp_help variant assertions
-Identity lookup assembly; omitted uses the shared GRCh38 default.
+Identity lookup assembly; omitted uses the shared GRCh38 default. Value form: string. Example: --build GRCh37. Command sources: clinvar, erepo; source restrictions in the field description apply.
 - `input`: Supported variant ID; resolves one ClinVar Variation ID or ERepo CAid through the shared resolver.
-- `--limit`: Assertions per page; omitted uses the source default.
-- `--offset`: Assertions to skip in source order.
+- `--limit`: Assertions per page; omitted uses the source default. Value form: integer. Example: --limit 1. Command sources: clinvar, erepo; source restrictions in the field description apply.
+- `--offset`: Assertions to skip in source order. Value form: integer. Example: --offset 0. Command sources: clinvar, erepo; source restrictions in the field description apply.
 - `--source`: One source assertion source; shared identity; biomcp_help variant assertions
-One source assertion source; shared identity conversion precedes source access when needed.
-- `--version`: VCV archive or ERepo document version; RCV/SCV selectors match a returned source version.
+One source assertion source; shared identity conversion precedes source access when needed. Value form: string. Example: --source clinvar. Command sources: clinvar, erepo; source restrictions in the field description apply.
+- `--version`: VCV archive or ERepo document version; RCV/SCV selectors match a returned source version. Value form: string. Example: --version 1.0.0. Command sources: clinvar, erepo; source restrictions in the field description apply.
 
 ## biomcp variant population
 
@@ -4931,13 +4931,13 @@ Options:
 Get genetic variant population frequencies. Sources: car, gnomad, mutalyzer, myvariant, variantvalidator.
 
 - `--build`: Explicit source assembly when required by; biomcp_help variant population
-Explicit source assembly when required by identity input.
-- `--detail`: Read source ancestry groups, preserving overlapping groups individually.
+Explicit source assembly when required by identity input. Value form: string. Example: --build GRCh37. Command sources: car, gnomad, mutalyzer, myvariant, variantvalidator; source restrictions in the field description apply.
+- `--detail`: Read source ancestry groups, preserving overlapping groups individually. Value form: boolean. Example: --detail. Command sources: car, gnomad, mutalyzer, myvariant, variantvalidator; source restrictions in the field description apply.
 - `input`: Exact published allele identity; ambiguous candidates must first be selected.
-- `--limit`: Maximum rows per page.
-- `--offset`: Source rows to skip.
+- `--limit`: Maximum rows per page. Value form: integer. Example: --limit 3. Command sources: car, gnomad, mutalyzer, myvariant, variantvalidator; source restrictions in the field description apply.
+- `--offset`: Source rows to skip. Value form: integer. Example: --offset 10. Command sources: car, gnomad, mutalyzer, myvariant, variantvalidator; source restrictions in the field description apply.
 - `--resolver`: Resolver for reference-qualified input; biomcp_help variant population
-Resolver for reference-qualified input.
+Resolver for reference-qualified input. Value form: string. Example: --resolver car. Command sources: car, gnomad, mutalyzer, myvariant, variantvalidator; source restrictions in the field description apply.
 
 ## biomcp variant recurrence
 
@@ -5009,16 +5009,16 @@ Options:
 Get genetic variant observations in a cohort. Sources: cbioportal.
 
 - `--build`: Identity lookup assembly; omitted uses the; biomcp_help variant recurrence
-Identity lookup assembly; omitted uses the shared GRCh38 default.
-- `--gene`: HGNC symbol resolved to the source's Entrez gene identifier.
+Identity lookup assembly; omitted uses the shared GRCh38 default. Value form: string. Example: --build GRCh37. Command sources: cbioportal; source restrictions in the field description apply.
+- `--gene`: HGNC symbol resolved to the source's Entrez gene identifier. Value form: string. Example: --gene BRAF. Command sources: cbioportal; source restrictions in the field description apply.
 - `input`: Published variant identity; ambiguous identities are never selected silently.
-- `--limit`: Source mutation rows per page, including excluded alleles.
-- `--page`: Zero-based source page.
-- `--profile`: Explicit mutation molecular profile.
-- `--sample-set`: Explicit sample list; selected size is never an allele denominator.
+- `--limit`: Source mutation rows per page, including excluded alleles. Value form: integer. Example: --limit 3. Command sources: cbioportal; source restrictions in the field description apply.
+- `--page`: Zero-based source page. Value form: integer. Example: --page 0. Command sources: cbioportal; source restrictions in the field description apply.
+- `--profile`: Explicit mutation molecular profile. Value form: string. Example: --profile msk_impact_2017_mutations. Command sources: cbioportal; source restrictions in the field description apply.
+- `--sample-set`: Explicit sample list; selected size is never an allele denominator. Value form: string. Example: --sample-set msk_impact_2017_all. Command sources: cbioportal; source restrictions in the field description apply.
 - `--source`: Explicit cohort source; biomcp_help variant recurrence
-Explicit cohort source.
-- `--study`: Explicit study; there is no default cohort.
+Explicit cohort source. Value form: string. Example: --source cbioportal. Command sources: cbioportal; source restrictions in the field description apply.
+- `--study`: Explicit study; there is no default cohort. Value form: string. Example: --study msk_impact_2017. Command sources: cbioportal; source restrictions in the field description apply.
 
 ## biomcp variant normalize
 
@@ -5078,13 +5078,13 @@ Options:
 Normalize reference-qualified genetic variant HGVS. Sources: car, mutalyzer, variantvalidator.
 
 - `--build`: Caller assembly; required when VariantValidator; biomcp_help variant normalize
-Caller assembly; required when VariantValidator is selected.
+Caller assembly; required when VariantValidator is selected. Value form: string. Example: --build GRCh38. Command sources: car, mutalyzer, variantvalidator; source restrictions in the field description apply.
 - `--hgvs`: Reference-qualified HGVS, or chromosome genomic HGVS with an explicit build for CAR.
-Checked for reference and syntax only; no full HGVS parser.
-- `--limit`: Source mapping rows per service, with typed continuation for remaining rows.
-- `--offset`: Source mapping rows to skip per service.
+Checked for reference and syntax only; no full HGVS parser. Value form: string. Example: --hgvs 'NM_004333.4:c.1799T>A'. Command sources: car, mutalyzer, variantvalidator; source restrictions in the field description apply.
+- `--limit`: Source mapping rows per service, with typed continuation for remaining rows. Value form: integer. Example: --limit 10. Command sources: car, mutalyzer, variantvalidator; source restrictions in the field description apply.
+- `--offset`: Source mapping rows to skip per service. Value form: integer. Example: --offset 0. Command sources: car, mutalyzer, variantvalidator; source restrictions in the field description apply.
 - `--source`: Explicit service; all preserves independent; biomcp_help variant normalize
-Explicit service; all preserves independent results without consensus.
+Explicit service; all preserves independent results without consensus. Value form: string. Example: --source mutalyzer. Command sources: car, mutalyzer, variantvalidator; source restrictions in the field description apply.
 
 ## biomcp sync
 
@@ -5365,7 +5365,7 @@ Example: biomcp skill install biomcp-guidance
 Install into DIR/skills/biomcp; a skills or biomcp directory is accepted directly. Existing files remain unchanged without --force.
 
 - `directory`: Directory to inspect or install BioMCP guidance.
-- `--force`: Repair managed files; retain unrelated files.
+- `--force`: Repair managed files; retain unrelated files. Value form: boolean. Example: --force. Local command option; independent of source selection.
 
 ## biomcp version
 
@@ -5414,7 +5414,7 @@ Example: biomcp version
 
 Print version; --verbose adds build, schema and path provenance. No source requests or key reads.
 
-- `--verbose`: Include commit, target, schema versions, config and cache paths.
+- `--verbose`: Include commit, target, schema versions, config and cache paths. Value form: boolean. Example: --verbose. Local command option; independent of source selection.
 
 ## biomcp mcp-config
 
@@ -5463,7 +5463,7 @@ Example: biomcp mcp-config
 
 Print MCP configuration with this executable’s absolute path. JSON formats name their top-level object and retain released client aliases. The codex client prints its shell registration command. No source requests or key reads.
 
-- `--client`: Choose a JSON client or the codex shell registration command; default mcp-servers.
+- `--client`: Choose a JSON client or the codex shell registration command; default mcp-servers. Value form: string. Example: --client mcp-servers. Local command option; independent of source selection.
 
 ## biomcp health
 
@@ -5504,7 +5504,7 @@ Example: biomcp health --offline
 
 ```
 
-Report publisher terms and bounded source reachability; at most one page for each implemented source. BioMCP's local request deadline expired. GWAS Catalog response times can vary; retry later or use https://www.ebi.ac.uk/gwas/. Contact the GWAS Catalog helpdesk if this persists. BioMCP's local request deadline expired. The health probe uses a shorter local cap than protein requests. InterPro documents that some queries take minutes; this timeout does not establish an outage. Please retry later or check https://www.ebi.ac.uk/interpro/. See https://interpro-documentation.readthedocs.io/en/latest/faq.html. CDC WONDER can take longer than BioMCP's local command deadline. Use the interactive form at https://wonder.cdc.gov/vaers.html for a longer query. See https://wonder.cdc.gov/wonder/help/faq.html. BioMCP's local quota refused this request before contacting CDC WONDER. Retry after the reported seconds left. Automated queries must follow the spacing at https://wonder.cdc.gov/wonder/help/wonder-api.html.
+Report publisher terms and bounded source reachability; at most one page for each implemented source.
 
 
 ## biomcp store
@@ -5731,7 +5731,7 @@ Example: biomcp key set oncokb
 Register one credential from a no-echo prompt or one standard-input line. Use --config PATH to choose the configuration file.
 
 - `source`: Source credential name to register or remove.
-- `--replace`: Replace an existing stored credential.
+- `--replace`: Replace an existing stored credential. Value form: boolean. Example: --replace. Local command option; independent of source selection.
 
 ## biomcp key remove
 
@@ -5850,13 +5850,13 @@ Example: biomcp help serve
 
 Serve MCP over stdio or --http [ADDR]. Non-loopback binds require --allow-host HOST or http.allowed_hosts; neither authenticates callers. HTTP refuses sync, store clean and --fresh. Stdio saves refuse --replace. --hosted refuses file saves, health details, sync, store clean, --fresh and key commands on every transport with a usage.mcp_unavailable error. MCP revisions: 2026-07-28, 2025-11-25, 2025-06-18, 2025-03-26. --rate-share scales only keyed hosted source rates. Hosted HTTP calls have bounded work and one whole-call deadline. Send MCP-Protocol-Version on HTTP requests. Without it, initialize uses its requested legacy revision; other requests default to 2025-03-26. Unsupported headers return HTTP 400.
 
-- `--tool-mode`: Advertise one CLI tool or generated typed command tools; default single.
-- `--hosted`: Refuse host file saves, health details and store or key changes over MCP.
-- `--rate-share`: Use this share of keyed source rates in hosted mode (greater than 0, at most 1).
-- `--http`: Listen on an HTTP address; omit its value for the loopback default.
-- `--http_max_calls`: Limit tool calls in flight.
-- `--http_max_connections`: Limit open HTTP connections; must cover http_max_calls.
-- `--allow-host`: Allow an HTTP Host authority; required for non-loopback listeners.
+- `--tool-mode`: Advertise one CLI tool or generated typed command tools; default single. Value form: string. Example: --tool-mode single. Local command option; independent of source selection.
+- `--hosted`: Refuse host file saves, health details and store or key changes over MCP. Value form: boolean. Example: --hosted. Local command option; independent of source selection.
+- `--rate-share`: Use this share of keyed source rates in hosted mode (greater than 0, at most 1). Value form: string. Example: --rate-share 1. Local command option; independent of source selection.
+- `--http`: Listen on an HTTP address; omit its value for the loopback default. Value form: string. Example: --http 127.0.0.1:8080. Local command option; independent of source selection.
+- `--http_max_calls`: Limit tool calls in flight. Value form: string. Example: --http_max_calls '<string>'. Local command option; independent of source selection.
+- `--http_max_connections`: Limit open HTTP connections; must cover http_max_calls. Value form: string. Example: --http_max_connections '<string>'. Local command option; independent of source selection.
+- `--allow-host`: Allow an HTTP Host authority; required for non-loopback listeners. Value form: string. Example: --allow-host '<string>'. Local command option; independent of source selection.
 
 ## biomcp schema
 
@@ -5916,30 +5916,64 @@ Describe commands and their arguments.
 Usage: biomcp help [OPTIONS] [COMMAND]
 
 Commands:
-  search      Search source records by entity and checked filters.
-  get         Retrieve one entity and its source sections.
-  author      Read papers attributed to a source author record.
-  cell-line   Read source cell line assay counts.
-  protein     Read protein sequences, features and source relationships.
-  pathway     Read pathway genes and source events.
-  article     Read article text, references, citations and files.
-  trial       Read trial groups and public documents.
-  variant     Read source variant assertions, populations and recurrence.
-  sync        Synchronize a local source bundle.
+  search             Search source records by entity and checked filters.
+  get                Retrieve one entity and its source sections.
+  author             Read papers attributed to a source author record.
+  cell-line          Read source cell line assay counts.
+  protein            Read protein sequences, features and source relationships.
+  pathway            Read pathway genes and source events.
+  article            Read article text, references, citations and files.
+  trial              Read trial groups and public documents.
+  variant            Read source variant assertions, populations and recurrence.
+  sync               Synchronize a local source bundle.
   skill
   version
   mcp-config
-  health      Report source terms and bounded reachability.
-  store       Manage local cached replies and snapshots.
-  key         Register and manage source credentials without showing values.
-  serve       Serve MCP over standard input or HTTP.
+  health             Report source terms and bounded reachability.
+  store              Manage local cached replies and snapshots.
+  key                Register and manage source credentials without showing values.
+  serve              Serve MCP over standard input or HTTP.
   schema
-  help        Describe commands and their arguments.
+  biomarker
+  papers
+  organization
+  assay-count
+  gwas
+  features
+  isoforms
+  domains
+  complexes
+  complex-members
+  structures
+  sequence
+  phenotype
+  genes
+  events
+  study
+  pgx
+  diagnostic
+  adverse-event
+  disease
+  drug
+  gene
+  supplement
+  pdf
+  text
+  citations
+  references
+  citation-evidence
+  recommendations
+  document
+  assertions
+  population
+  recurrence
+  normalize
+  help               Describe commands and their arguments.
   network
   sources
   config
-  exit        Explain process exit and error codes.
-  relations   Map entities through sections and search filters.
+  exit               Explain process exit and error codes.
+  relations          Map entities through sections and search filters.
 
 Options:
       --format <format>
@@ -9792,6 +9826,1298 @@ Options:
 ```
 
 Describe help schema.
+
+
+## biomcp help biomarker
+
+```text
+Usage: biomcp help biomarker [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output; configuration can change the default.
+
+          [default: json]
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --source_pacing <source_pacing>
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline[=<offline>]
+          Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
+          Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
+
+```
+
+Describe help biomarker.
+
+
+## biomcp help papers
+
+```text
+Usage: biomcp help papers [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output; configuration can change the default.
+
+          [default: json]
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --source_pacing <source_pacing>
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline[=<offline>]
+          Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
+          Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
+
+```
+
+Describe help papers.
+
+
+## biomcp help organization
+
+```text
+Usage: biomcp help organization [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output; configuration can change the default.
+
+          [default: json]
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --source_pacing <source_pacing>
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline[=<offline>]
+          Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
+          Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
+
+```
+
+Describe help organization.
+
+
+## biomcp help assay-count
+
+```text
+Usage: biomcp help assay-count [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output; configuration can change the default.
+
+          [default: json]
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --source_pacing <source_pacing>
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline[=<offline>]
+          Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
+          Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
+
+```
+
+Describe help assay-count.
+
+
+## biomcp help gwas
+
+```text
+Usage: biomcp help gwas [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output; configuration can change the default.
+
+          [default: json]
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --source_pacing <source_pacing>
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline[=<offline>]
+          Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
+          Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
+
+```
+
+Describe help gwas.
+
+
+## biomcp help features
+
+```text
+Usage: biomcp help features [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output; configuration can change the default.
+
+          [default: json]
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --source_pacing <source_pacing>
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline[=<offline>]
+          Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
+          Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
+
+```
+
+Describe help features.
+
+
+## biomcp help isoforms
+
+```text
+Usage: biomcp help isoforms [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output; configuration can change the default.
+
+          [default: json]
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --source_pacing <source_pacing>
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline[=<offline>]
+          Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
+          Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
+
+```
+
+Describe help isoforms.
+
+
+## biomcp help domains
+
+```text
+Usage: biomcp help domains [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output; configuration can change the default.
+
+          [default: json]
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --source_pacing <source_pacing>
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline[=<offline>]
+          Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
+          Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
+
+```
+
+Describe help domains.
+
+
+## biomcp help complexes
+
+```text
+Usage: biomcp help complexes [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output; configuration can change the default.
+
+          [default: json]
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --source_pacing <source_pacing>
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline[=<offline>]
+          Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
+          Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
+
+```
+
+Describe help complexes.
+
+
+## biomcp help complex-members
+
+```text
+Usage: biomcp help complex-members [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output; configuration can change the default.
+
+          [default: json]
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --source_pacing <source_pacing>
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline[=<offline>]
+          Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
+          Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
+
+```
+
+Describe help complex-members.
+
+
+## biomcp help structures
+
+```text
+Usage: biomcp help structures [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output; configuration can change the default.
+
+          [default: json]
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --source_pacing <source_pacing>
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline[=<offline>]
+          Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
+          Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
+
+```
+
+Describe help structures.
+
+
+## biomcp help sequence
+
+```text
+Usage: biomcp help sequence [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output; configuration can change the default.
+
+          [default: json]
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --source_pacing <source_pacing>
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline[=<offline>]
+          Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
+          Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
+
+```
+
+Describe help sequence.
+
+
+## biomcp help phenotype
+
+```text
+Usage: biomcp help phenotype [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output; configuration can change the default.
+
+          [default: json]
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --source_pacing <source_pacing>
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline[=<offline>]
+          Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
+          Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
+
+```
+
+Describe help phenotype.
+
+
+## biomcp help genes
+
+```text
+Usage: biomcp help genes [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output; configuration can change the default.
+
+          [default: json]
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --source_pacing <source_pacing>
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline[=<offline>]
+          Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
+          Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
+
+```
+
+Describe help genes.
+
+
+## biomcp help events
+
+```text
+Usage: biomcp help events [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output; configuration can change the default.
+
+          [default: json]
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --source_pacing <source_pacing>
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline[=<offline>]
+          Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
+          Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
+
+```
+
+Describe help events.
+
+
+## biomcp help study
+
+```text
+Usage: biomcp help study [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output; configuration can change the default.
+
+          [default: json]
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --source_pacing <source_pacing>
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline[=<offline>]
+          Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
+          Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
+
+```
+
+Describe help study.
+
+
+## biomcp help pgx
+
+```text
+Usage: biomcp help pgx [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output; configuration can change the default.
+
+          [default: json]
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --source_pacing <source_pacing>
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline[=<offline>]
+          Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
+          Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
+
+```
+
+Describe help pgx.
+
+
+## biomcp help diagnostic
+
+```text
+Usage: biomcp help diagnostic [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output; configuration can change the default.
+
+          [default: json]
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --source_pacing <source_pacing>
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline[=<offline>]
+          Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
+          Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
+
+```
+
+Describe help diagnostic.
+
+
+## biomcp help adverse-event
+
+```text
+Usage: biomcp help adverse-event [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output; configuration can change the default.
+
+          [default: json]
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --source_pacing <source_pacing>
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline[=<offline>]
+          Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
+          Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
+
+```
+
+Describe help adverse-event.
+
+
+## biomcp help disease
+
+```text
+Usage: biomcp help disease [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output; configuration can change the default.
+
+          [default: json]
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --source_pacing <source_pacing>
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline[=<offline>]
+          Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
+          Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
+
+```
+
+Describe help disease.
+
+
+## biomcp help drug
+
+```text
+Usage: biomcp help drug [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output; configuration can change the default.
+
+          [default: json]
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --source_pacing <source_pacing>
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline[=<offline>]
+          Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
+          Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
+
+```
+
+Describe help drug.
+
+
+## biomcp help gene
+
+```text
+Usage: biomcp help gene [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output; configuration can change the default.
+
+          [default: json]
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --source_pacing <source_pacing>
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline[=<offline>]
+          Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
+          Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
+
+```
+
+Describe help gene.
+
+
+## biomcp help supplement
+
+```text
+Usage: biomcp help supplement [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output; configuration can change the default.
+
+          [default: json]
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --source_pacing <source_pacing>
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline[=<offline>]
+          Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
+          Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
+
+```
+
+Describe help supplement.
+
+
+## biomcp help pdf
+
+```text
+Usage: biomcp help pdf [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output; configuration can change the default.
+
+          [default: json]
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --source_pacing <source_pacing>
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline[=<offline>]
+          Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
+          Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
+
+```
+
+Describe help pdf.
+
+
+## biomcp help text
+
+```text
+Usage: biomcp help text [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output; configuration can change the default.
+
+          [default: json]
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --source_pacing <source_pacing>
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline[=<offline>]
+          Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
+          Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
+
+```
+
+Describe help text.
+
+
+## biomcp help citations
+
+```text
+Usage: biomcp help citations [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output; configuration can change the default.
+
+          [default: json]
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --source_pacing <source_pacing>
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline[=<offline>]
+          Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
+          Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
+
+```
+
+Describe help citations.
+
+
+## biomcp help references
+
+```text
+Usage: biomcp help references [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output; configuration can change the default.
+
+          [default: json]
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --source_pacing <source_pacing>
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline[=<offline>]
+          Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
+          Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
+
+```
+
+Describe help references.
+
+
+## biomcp help citation-evidence
+
+```text
+Usage: biomcp help citation-evidence [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output; configuration can change the default.
+
+          [default: json]
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --source_pacing <source_pacing>
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline[=<offline>]
+          Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
+          Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
+
+```
+
+Describe help citation-evidence.
+
+
+## biomcp help recommendations
+
+```text
+Usage: biomcp help recommendations [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output; configuration can change the default.
+
+          [default: json]
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --source_pacing <source_pacing>
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline[=<offline>]
+          Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
+          Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
+
+```
+
+Describe help recommendations.
+
+
+## biomcp help document
+
+```text
+Usage: biomcp help document [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output; configuration can change the default.
+
+          [default: json]
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --source_pacing <source_pacing>
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline[=<offline>]
+          Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
+          Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
+
+```
+
+Describe help document.
+
+
+## biomcp help assertions
+
+```text
+Usage: biomcp help assertions [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output; configuration can change the default.
+
+          [default: json]
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --source_pacing <source_pacing>
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline[=<offline>]
+          Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
+          Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
+
+```
+
+Describe help assertions.
+
+
+## biomcp help population
+
+```text
+Usage: biomcp help population [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output; configuration can change the default.
+
+          [default: json]
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --source_pacing <source_pacing>
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline[=<offline>]
+          Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
+          Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
+
+```
+
+Describe help population.
+
+
+## biomcp help recurrence
+
+```text
+Usage: biomcp help recurrence [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output; configuration can change the default.
+
+          [default: json]
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --source_pacing <source_pacing>
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline[=<offline>]
+          Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
+          Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
+
+```
+
+Describe help recurrence.
+
+
+## biomcp help normalize
+
+```text
+Usage: biomcp help normalize [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output; configuration can change the default.
+
+          [default: json]
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --source_pacing <source_pacing>
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline[=<offline>]
+          Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
+          Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
+
+```
+
+Describe help normalize.
 
 
 ## biomcp help help

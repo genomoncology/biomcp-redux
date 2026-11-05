@@ -2147,7 +2147,7 @@
         },
         "gene": {
           "$ref": "#/$defs/Reply_GeneInput",
-          "description": "Gene symbol/ID.\nResolve one checked gene for registry text discovery only; no eligibility judgment."
+          "description": "Gene symbol/ID.\nClinicalTrials.gov only: resolve one checked gene for registry text discovery; no eligibility judgment."
         },
         "has_results": {
           "description": "Posted results.\nRequire posted source results.",
@@ -2243,7 +2243,7 @@
         },
         "variant": {
           "$ref": "#/$defs/Reply_Text",
-          "description": "Variant text.\nLiteral variant text for registry discovery only; no eligibility judgment."
+          "description": "Variant text.\nClinicalTrials.gov only: literal variant text for registry discovery; no eligibility judgment."
         }
       },
       "type": "object"

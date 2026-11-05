@@ -32,10 +32,19 @@ pub(super) fn complete(commands: &mut [HelpCommand]) {
                     "Command sources: {sources}; source restrictions in the field description apply."
                 )
             };
-            argument.description.push_str(&format!(
-                " Value form: {}. Example: {sample}. {scope}",
-                argument.value_type
-            ));
+            let sample = if argument.description.contains("Example:") {
+                String::new()
+            } else {
+                format!(" Example: {sample}.")
+            };
+            let form = if argument.value_type == "array" {
+                "repeatable values (repeat the flag)"
+            } else {
+                &argument.value_type
+            };
+            argument
+                .description
+                .push_str(&format!(" Value form: {form}.{sample} {scope}"));
         }
     }
 }
@@ -73,8 +82,14 @@ fn example(argument: &HelpArgument, examples: &[Vec<String>]) -> String {
         .or_else(|| {
             (argument.value_type == "integer" || argument.value_type == "number")
                 .then(|| argument.minimum.unwrap_or(0).to_string())
-        })
-        .unwrap_or_else(|| format!("<{}>", argument.value_type));
+        });
+    let Some(value) = value else {
+        return format!(
+            "{} <{}> (syntax; replace the placeholder with your retained value)",
+            argument.name,
+            argument.name.trim_start_matches("--")
+        );
+    };
     format!(
         "{} {}",
         argument.name,
