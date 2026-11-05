@@ -64,13 +64,6 @@ pub(crate) fn mcp_tool_mode(globals: &Globals, settings: &Settings) -> ToolMode 
         })
         .unwrap_or_default()
 }
-pub(crate) fn tool_reply_form(globals: &Globals, settings: &Settings) -> ReplyForm {
-    if mcp_tool_mode(globals, settings) == ToolMode::Typed {
-        ReplyForm::StructuredOnly
-    } else {
-        mcp_reply_form(settings)
-    }
-}
 
 pub(crate) type Settings = Result<Option<ConfigFile>, ConfigError>;
 
