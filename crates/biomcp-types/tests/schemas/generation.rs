@@ -87,8 +87,17 @@ pub(super) fn command_descriptions(schema: &mut Value, id: &str) {
             } else {
                 prefix.as_str()
             };
-            let description = format!("{}{suffix}\n{original}", prefix.trim_end_matches('.'));
+            let summary = format!("{}{suffix}", prefix.trim_end_matches('.'));
+            let description = if name == "section" {
+                summary
+            } else {
+                format!("{summary}\n{original}")
+            };
+            let section_rule = (name == "section").then(|| original.to_owned());
             if let Some(object) = property.as_object_mut() {
+                if let Some(rule) = section_rule {
+                    object.insert("x-section-rule".into(), rule.into());
+                }
                 object.insert("description".into(), description.into());
             }
         }
@@ -112,4 +121,35 @@ fn choice_form(node: &Value, root: &Value) -> Option<&'static str> {
             .iter()
             .find_map(|branch| choice_form(branch, root))
     })
+}
+
+#[test]
+fn section_rules_keep_the_complete_source_owned_prose() -> Result<(), String> {
+    for contract in super::commands::registry() {
+        if !biomcp_types::COMMANDS
+            .iter()
+            .any(|row| row.schema == contract.id)
+        {
+            continue;
+        }
+        let mut schema = (contract.generate)();
+        let Some(original) = schema.pointer("/properties/section/description").cloned() else {
+            continue;
+        };
+        command_descriptions(&mut schema, contract.id);
+        if schema.pointer("/properties/section/x-section-rule") != Some(&original) {
+            return Err(format!("{}: lost full section rule", contract.id));
+        }
+        let description = schema
+            .pointer("/properties/section/description")
+            .and_then(Value::as_str)
+            .ok_or("missing compact section description")?;
+        if description.contains('\n') || description.chars().count() > 80 {
+            return Err(format!(
+                "{}: invalid compact section description",
+                contract.id
+            ));
+        }
+    }
+    Ok(())
 }
