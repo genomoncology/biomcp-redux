@@ -55,12 +55,16 @@
       ],
       "expect": {
         "/status": "complete",
-        "/result/reaction_counts/items": [],
         "/result/reaction_counts/limit_reached": false,
         "": {
           "omits": [
             "page",
             "next"
+          ]
+        },
+        "/result/reaction_counts": {
+          "omits": [
+            "items"
           ]
         }
       }
