@@ -367,6 +367,34 @@ print(json.dumps([(p.parent.name,p.read_text()) for p in sorted(root.glob('*/rep
                     self.classified(row, ('throttled' if status == 429 else 'outage')
                                     if positive else 'failure', int(not positive))
 
+    def test_cached_failed_output_requires_the_same_output_and_transition(self):
+        import copy
+        for change in ('cached', 'output', 'transition', 'missing-output', 'shape'):
+            with self.subTest(change=change):
+                row = classification_case('500-output')
+                first = row['witness'][0]
+                row['result']['commands'][0].update(before_status='complete', after_status='failed')
+                later = copy.deepcopy(first)
+                later['ordinal'] = 2
+                for side in ('baseline', 'live'):
+                    later[side]['requests'] = []
+                row['witness'].append(later)
+                row['result']['commands'].append({'ordinal': 2,
+                    'before_status': 'complete', 'after_status': 'failed'})
+                row['result']['drift'].append('command 2: output status changed: complete -> failed')
+                if change == 'output':
+                    later['live']['output']['unrelated'] = True
+                elif change == 'transition':
+                    row['result']['commands'][1]['after_status'] = 'partial'
+                elif change == 'missing-output':
+                    for command in row['witness']:
+                        for side in ('baseline', 'live'):
+                            command[side].pop('output')
+                elif change == 'shape':
+                    row['result']['drift'].append('command 2: field removed: /id')
+                self.classified(row, 'outage' if change == 'cached' else 'failure',
+                                int(change != 'cached'))
+
     def test_throttle_explains_downstream_drift_only_in_its_command(self):
         row = classification_case('429-output')
         row['witness'][0]['baseline']['requests'].append({

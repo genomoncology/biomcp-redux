@@ -460,7 +460,8 @@ def classify_case(row):
             outcome = earlier_failed[root['source']]
         if (outcome == 'healthy' and previous_outcome in ('outage', 'throttled')
                 and not before and not after and previous_command is not None
-                and all(original[side].get('output') == previous_command[side].get('output')
+                and all('output' in original[side] and 'output' in previous_command[side]
+                        and original[side]['output'] == previous_command[side]['output']
                         for side in ('baseline', 'live'))
                 and comparison.get('before_status') != comparison.get('after_status')
                 and all(comparison.get(key) == previous_comparison.get(key)
