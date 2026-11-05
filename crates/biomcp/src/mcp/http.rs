@@ -265,14 +265,25 @@ impl Service {
         } else {
             None
         };
+        let keys = self.catalog_keys(request, &value);
+        let Ok(keys) = keys else {
+            return (
+                400,
+                Some(json!({"error":"Invalid source key headers"})),
+                Some(revision),
+            );
+        };
+        let mut context =
+            crate::command::Context::new(&self.globals, &self.fetch, &self.root, &self.settings);
+        context.declared_use = declared_use;
+        context.secrets = keys.as_ref();
         let mut legacy = revision != super::protocol::REVISIONS[0];
         let result = match super::rpc::message(
             &request.body,
             &mut legacy,
             true,
-            &self.root,
+            context,
             crate::config::mcp_tool_mode(&self.globals, &self.settings),
-            &self.settings,
         ) {
             super::rpc::Message::Reply(reply) => reply,
             super::rpc::Message::Notification { .. } => return (202, None, Some(revision)),
@@ -287,6 +298,22 @@ impl Service {
         };
         (status, Some(result), Some(revision))
     }
+    fn catalog_keys(
+        &self,
+        request: &wire::Request,
+        value: &Value,
+    ) -> io::Result<Option<biomcp_fetch::Secrets>> {
+        (self.globals.hosted
+            && crate::config::mcp_tool_mode(&self.globals, &self.settings)
+                == crate::config::ToolMode::Typed
+            && matches!(
+                value.get("method").and_then(Value::as_str),
+                Some("tools/list" | "server/discover" | "initialize")
+            ))
+        .then(|| request.source_keys())
+        .transpose()
+    }
+
     fn tool(
         &self,
         request: &wire::Request,

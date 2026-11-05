@@ -6,6 +6,8 @@ mod schemas;
 mod typed;
 #[path = "typed_help.rs"]
 mod typed_help;
+#[path = "typed_hosted.rs"]
+mod typed_hosted;
 #[path = "typed_reply.rs"]
 mod typed_reply;
 #[path = "typed_schemas.rs"]
@@ -27,8 +29,14 @@ pub(super) fn trials() -> Vec<Trial> {
         transcript_trial("mcp-parity/typed-baseline-and-replay-guards", || {
             typed::guards().map_err(Into::into)
         }),
+        transcript_trial("mcp-parity/typed-hosted-catalog", || {
+            typed_hosted::check().map_err(Into::into)
+        }),
         transcript_trial("mcp-parity/typed-help-research-discovery", || {
             typed_help::discovery().map_err(Into::into)
+        }),
+        transcript_trial("mcp-parity/typed-getter-help", || {
+            typed::getter_help().map_err(Into::into)
         }),
         transcript_trial("mcp-parity/typed-help-next-recovery", || {
             typed_help::recovery().map_err(Into::into)

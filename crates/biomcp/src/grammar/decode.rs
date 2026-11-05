@@ -49,6 +49,6 @@ impl<'de> MapAccess<'de> for Fields {
     ) -> Result<V::Value, Self::Error> {
         let (key, value) = self.pending.take().ok_or_else(QueryInvalid::default)?;
         seed.deserialize(value)
-            .map_err(|_| (self.invalid_field)(&key).decoded_invalid())
+            .map_err(|_| (self.invalid_field)(&key))
     }
 }

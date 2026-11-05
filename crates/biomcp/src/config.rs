@@ -467,3 +467,11 @@ pub(crate) fn executable() -> std::io::Result<PathBuf> {
     }
     Ok(executable)
 }
+
+/// Explicit exclusions shared by execution and typed discovery.
+pub(crate) fn excluded_sources(
+    globals: &Globals,
+    settings: &Settings,
+) -> Result<std::collections::BTreeSet<biomcp_types::Source>, ConfigError> {
+    disabled_sources(globals, configured(settings)?)
+}

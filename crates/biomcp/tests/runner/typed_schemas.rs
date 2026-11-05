@@ -157,7 +157,7 @@ fn size(tool: &Value) -> usize {
         .sum::<usize>()
         + field(tool, "inputSchema").to_string().chars().count()
 }
-fn budget(tool: &Value) -> Result<(), String> {
+pub(super) fn budget(tool: &Value) -> Result<(), String> {
     let length = size(tool);
     // search_trial exposes the complete supported filter set. Even with no descriptions,
     // its supported filter schema structure is 2058 characters; these optional filters cannot fit

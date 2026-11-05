@@ -125,9 +125,8 @@ impl Server {
             frame,
             &mut self.legacy,
             self.globals.hosted,
-            &self.root,
+            crate::command::Context::new(&self.globals, &self.fetch, &self.root, &self.settings),
             crate::config::mcp_tool_mode(&self.globals, &self.settings),
-            &self.settings,
         ) {
             rpc::Message::Reply(reply) => Ok(Some(reply)),
             rpc::Message::Tool { id, params, modern } => self.admit(id, &params, modern),

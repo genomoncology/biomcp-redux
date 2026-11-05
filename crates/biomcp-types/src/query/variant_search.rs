@@ -99,7 +99,7 @@ text_value!(
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "Fields")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-#[cfg_attr(feature = "schema", schemars(with = "Fields", extend("x-get-search" = {"query": null, "source": "myvariant"}, "anyOf" = [
+#[cfg_attr(feature = "schema", schemars(with = "Fields", extend("anyOf" = [
     {"required":["gene","protein"]},
     {"required":["gene","coding"]},
     {"required":["region","build"]},
