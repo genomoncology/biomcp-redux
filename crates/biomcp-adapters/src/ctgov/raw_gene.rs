@@ -61,28 +61,33 @@ impl Protocol {
             }
         }
         if let Some(conditions) = self.conditions_module.as_ref().and_then(Field::as_ref) {
-            fields.extend(values(&conditions.conditions).map(|text| ("condition", text.as_str())));
-            fields.extend(values(&conditions.keywords).map(|text| ("keyword", text.as_ref())));
+            fields.extend(
+                values(conditions.conditions.as_ref()).map(|text| ("condition", text.as_str())),
+            );
+            fields.extend(
+                values(conditions.keywords.as_ref()).map(|text| ("keyword", text.as_ref())),
+            );
         }
         if let Some(interventions) = self
             .arms_interventions_module
             .as_ref()
             .and_then(Field::as_ref)
         {
-            fields.extend(values(&interventions.interventions).filter_map(|row| {
-                row.name
-                    .as_ref()
-                    .and_then(Field::as_ref)
-                    .map(|name| ("intervention", name.as_str()))
-            }));
+            fields.extend(
+                values(interventions.interventions.as_ref()).filter_map(|row| {
+                    row.name
+                        .as_ref()
+                        .and_then(Field::as_ref)
+                        .map(|name| ("intervention", name.as_str()))
+                }),
+            );
         }
         fields
     }
 }
 
-fn values<T>(field: &Option<Field<Vec<Field<T>>>>) -> impl Iterator<Item = &T> {
+fn values<T>(field: Option<&Field<Vec<Field<T>>>>) -> impl Iterator<Item = &T> {
     field
-        .as_ref()
         .and_then(Field::as_ref)
         .into_iter()
         .flatten()
