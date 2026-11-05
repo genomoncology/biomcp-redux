@@ -116,13 +116,9 @@ fn publishers(verb: &str, entity: &str, schema: &Value, description: &str) -> Re
         }
     }
     for section in sections.iter().filter(|section| section.as_str() != "all") {
-        let sources = biomcp_types::command_section_sources(
-            verb,
-            entity,
-            section,
-            biomcp_types::Source::ALL,
-        )
-        .unwrap_or_default();
+        let sources =
+            biomcp_types::command_section_sources(verb, entity, section, biomcp_types::Source::ALL)
+                .unwrap_or_default();
         if !description.contains(section)
             || sources
                 .iter()
