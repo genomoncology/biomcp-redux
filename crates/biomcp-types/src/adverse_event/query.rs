@@ -57,6 +57,7 @@ struct SearchFields {
         Counts are not rates or causal associations; a report may contribute to several terms. \
         Requires MedDRA and offset zero."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = super::AdverseEventSection::Reactions.required_component())))]
     aggregate: Option<AdverseEventAggregate>,
     /// Independent VAERS table; omitted means reported symptoms.
     #[serde(default, skip_serializing_if = "Option::is_none")]

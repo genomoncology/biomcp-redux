@@ -249,6 +249,7 @@ fn components(mode: &str) -> Check {
     }
     component_help(&server, mode)?;
     component_recovery(&server, mode)?;
+    aggregate_component(&server, mode)?;
     component_card(&server, mode)
 }
 
@@ -366,6 +367,37 @@ fn component_recovery(server: &Server, mode: &str) -> Check {
         {
             return Err(format!(
                 "{mode}: recovery offers a component-disabled choice: {reply}"
+            ));
+        }
+    }
+    Ok(())
+}
+
+fn aggregate_component(server: &Server, mode: &str) -> Check {
+    for aggregate in ["bogus", "reactions"] {
+        let reply = query(
+            server,
+            mode,
+            "search_adverse_event",
+            &[
+                "search",
+                "adverse-event",
+                "Synthetic medicine",
+                "--aggregate",
+                aggregate,
+            ],
+            json!({"text":"Synthetic medicine","aggregate":aggregate}),
+        )?;
+        if aggregate == "bogus" {
+            recovery(&reply)?;
+            if reply.pointer("/error/valid_values").is_some() {
+                return Err(format!("disabled aggregation offered in recovery: {reply}"));
+            }
+        } else if reply.pointer("/sources/0/reason") != Some(&json!("disabled"))
+            || !reply.to_string().contains("operator")
+        {
+            return Err(format!(
+                "aggregation component refusal/cause changed: {reply}"
             ));
         }
     }
