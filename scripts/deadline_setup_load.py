@@ -1,4 +1,5 @@
 """Run changed deadline checks once, or ten times with CPU contention."""
+import hashlib
 import json
 import math
 import os
@@ -6,7 +7,25 @@ from pathlib import Path
 import shutil
 import subprocess
 import sys
+import tarfile
 import time
+
+
+def retain(root):
+    revision = subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip()
+    archive = root / f'{revision}-{time.time_ns()}.tar.gz'
+    with tarfile.open(archive, 'w:gz') as output:
+        for path in root.iterdir():
+            if path.suffix in ('.log', '.jsonl'):
+                output.add(path, arcname=path.name)
+    digest = hashlib.sha256(archive.read_bytes()).hexdigest()
+    destination = '/home/ian/workspace/data/biomcp-redux-evidence/0669'
+    subprocess.run(['ssh', 'yellow', 'mkdir', '-p', destination], check=True)
+    subprocess.run(['scp', str(archive), f'yellow:{destination}/'], check=True)
+    received = subprocess.check_output(['ssh', 'yellow', 'sha256sum', f'{destination}/{archive.name}'], text=True).split()[0]
+    if received != digest:
+        raise ValueError('receiving evidence hash differs')
+    print(json.dumps({'evidence': f'yellow:{destination}/{archive.name}', 'sha256': digest}), flush=True)
 
 
 def main():
@@ -43,9 +62,11 @@ def main():
         os.sched_setaffinity(0, affinity)
         cores = len(affinity)
     count = math.ceil(cores * 1.5) if loaded else 0
-    print(json.dumps({'mode': 'load' if loaded else 'focused', 'cores': cores, 'burners': count,
-                      'host_load': os.getloadavg(), 'physical_cores': os.cpu_count(),
-                      'affinity': affinity, 'python': sys.version}), flush=True)
+    metadata = {'mode': 'load' if loaded else 'focused', 'cores': cores, 'burners': count,
+                'host_load': os.getloadavg(), 'physical_cores': os.cpu_count(),
+                'affinity': affinity, 'python': sys.version}
+    (root / 'run.jsonl').write_text(json.dumps(metadata) + '\n')
+    print(json.dumps(metadata), flush=True)
     burners = [subprocess.Popen([sys.executable, '-c', 'while True: pass']) for _ in range(count)]
     failures = 0
     try:
@@ -55,9 +76,12 @@ def main():
                 started = time.monotonic()
                 with path.open('wb') as output:
                     result = subprocess.run(command, env=env, stdout=output, stderr=subprocess.STDOUT)
-                print(json.dumps({'repeat': repeat, 'command': command, 'exit': result.returncode,
-                                  'elapsed_seconds': time.monotonic() - started,
-                                  'host_load': os.getloadavg(), 'log': str(path)}), flush=True)
+                record = {'repeat': repeat, 'command': command, 'exit': result.returncode,
+                          'elapsed_seconds': time.monotonic() - started,
+                          'host_load': os.getloadavg(), 'log': str(path)}
+                with (root / 'run.jsonl').open('a') as output:
+                    output.write(json.dumps(record) + '\n')
+                print(json.dumps(record), flush=True)
                 if result.returncode:
                     print(path.read_text(), flush=True)
                     failures += 1
@@ -66,6 +90,7 @@ def main():
             child.terminate()
         for child in burners:
             child.wait()
+    retain(root)
     print(f'failures: {failures}', flush=True)
     return bool(failures)
 
