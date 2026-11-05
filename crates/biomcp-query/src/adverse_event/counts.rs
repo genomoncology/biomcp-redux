@@ -9,8 +9,6 @@ pub(super) fn search(cx: &Ctx<'_>, query: &AdverseEventSearch) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let leg = cx.fetch.leg(&faers::SPEC, deadline).fresh(cx.fresh);
-    let reply = faers::reactions(&leg, query);
-    let error = reply.as_ref().err().copied();
     let mut body = AdverseEventPage {
         reaction_counts: None,
         reaction_match: query
@@ -23,7 +21,13 @@ pub(super) fn search(cx: &Ctx<'_>, query: &AdverseEventSearch) -> Outcome {
         unit: ReportUnit::Reports,
         components: Box::default(),
     };
-    if let Ok(page) = reply {
+    let mapped = faers::reactions(&leg, query).and_then(|page| {
+        body.fetched = page
+            .metadata
+            .fetched
+            .map(u64::try_from)
+            .transpose()
+            .map_err(|_| biomcp_fetch::InputError::Serialization)?;
         if !page.items.is_empty() {
             body.reaction_counts = Some(AdverseEventReactionCounts {
                 limit_reached: page.items.len() == query.limit() as usize,
@@ -31,12 +35,10 @@ pub(super) fn search(cx: &Ctx<'_>, query: &AdverseEventSearch) -> Outcome {
             });
         }
         body.source_updated = page.updated.map(Into::into);
-        body.fetched = page
-            .metadata
-            .fetched
-            .and_then(|value| u64::try_from(value).ok());
         body.components = page.components;
-    }
+        Ok(())
+    });
+    let error = mapped.err();
     let mut out = status::finish(
         [status::item_status(false, true, false)],
         status::Parts {

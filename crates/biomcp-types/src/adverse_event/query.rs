@@ -52,7 +52,9 @@ struct SearchFields {
     #[doc = "Source; default FAERS.\nFAERS by default; VAERS accepts only exact supported vaccine names."]
     #[serde(default = "default_source")]
     source: AdverseEventSource,
-    #[doc = "FAERS reaction counts.\nUse reactions for source-native count buckets across matching reports. Counts are not rates or causal associations; a report may contribute to several terms. Requires MedDRA and offset zero."]
+    #[doc = "FAERS reaction counts.\nUse reactions for source-native count buckets across matching reports. \
+        Counts are not rates or causal associations; a report may contribute to several terms. \
+        Requires MedDRA and offset zero."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     aggregate: Option<AdverseEventAggregate>,
     /// Independent VAERS table; omitted means reported symptoms.
