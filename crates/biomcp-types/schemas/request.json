@@ -1034,7 +1034,7 @@
   "oneOf": [
     {
       "additionalProperties": false,
-      "description": "Find native NCI biomarker concepts.",
+      "description": "Search NCI biomarker concepts by name or synonym.",
       "properties": {
         "command": {
           "const": "search-biomarker",
@@ -1083,7 +1083,7 @@
     },
     {
       "additionalProperties": false,
-      "description": "Search native NCI biomarker rows by exact NCIt code.",
+      "description": "Get NCI biomarker concepts by code.",
       "properties": {
         "command": {
           "const": "get-biomarker",
@@ -1108,7 +1108,7 @@
     },
     {
       "additionalProperties": false,
-      "description": "Find NCI organization names without assigning an identity.",
+      "description": "Search clinical research organizations.",
       "properties": {
         "city": {
           "$ref": "#/$defs/Text",
@@ -1189,7 +1189,7 @@
     },
     {
       "additionalProperties": false,
-      "description": "Discover native author candidates without identity reconciliation.",
+      "description": "Search research paper authors.",
       "properties": {
         "command": {
           "const": "search-author",
@@ -1234,7 +1234,7 @@
     },
     {
       "additionalProperties": false,
-      "description": "Page one exact provider record’s native papers.",
+      "description": "List an author's research papers.",
       "properties": {
         "command": {
           "const": "author-papers",
@@ -1282,7 +1282,7 @@
     },
     {
       "additionalProperties": false,
-      "description": "Read exact provider author cards in input order.",
+      "description": "Get research author details.",
       "properties": {
         "command": {
           "const": "get-author",
@@ -1307,7 +1307,7 @@
     },
     {
       "additionalProperties": false,
-      "description": "Read the native assay total for one exact ChEMBL cell.",
+      "description": "Get a cell line's ChEMBL assay count.",
       "properties": {
         "command": {
           "const": "cell-line-assay-count",
@@ -1344,7 +1344,7 @@
           ]
         }
       ],
-      "description": "Discover unchanged literal Cellosaurus candidates.",
+      "description": "Search cell lines by name or identifier.",
       "properties": {
         "command": {
           "const": "search-cell-line",
@@ -1386,7 +1386,7 @@
     },
     {
       "additionalProperties": false,
-      "description": "Read an exact accession or verified qualified source identity.",
+      "description": "Get cell line details and cross-references.",
       "properties": {
         "command": {
           "const": "get-cell-line",
@@ -1425,7 +1425,7 @@
     },
     {
       "additionalProperties": false,
-      "description": "Search one native GWAS Catalog association page.",
+      "description": "Search genetic associations in GWAS Catalog.",
       "properties": {
         "command": {
           "const": "search-gwas",
@@ -1505,7 +1505,7 @@
     },
     {
       "additionalProperties": false,
-      "description": "Read one exact association and its native loci.",
+      "description": "Get GWAS Catalog associations or studies.",
       "properties": {
         "command": {
           "const": "get-gwas-association",
@@ -1554,7 +1554,7 @@
     },
     {
       "additionalProperties": false,
-      "description": "Read one exact study and its native relations.",
+      "description": "Get GWAS Catalog associations or studies.",
       "properties": {
         "command": {
           "const": "get-gwas-study",
@@ -1603,7 +1603,7 @@
     },
     {
       "additionalProperties": false,
-      "description": "Read native InterPro matches.",
+      "description": "Get protein domains and families from InterPro.",
       "properties": {
         "accession": {
           "$ref": "#/$defs/UniProtIsoform",
@@ -1646,7 +1646,7 @@
     },
     {
       "additionalProperties": false,
-      "description": "Read exact participant-admitted complex headers.",
+      "description": "List protein complexes containing a protein.",
       "properties": {
         "accession": {
           "$ref": "#/$defs/UniProtIsoform",
@@ -1685,7 +1685,7 @@
     },
     {
       "additionalProperties": false,
-      "description": "Read native participants under an exact protein anchor.",
+      "description": "List the members of a protein complex.",
       "properties": {
         "accession": {
           "$ref": "#/$defs/UniProtIsoform",
@@ -1729,7 +1729,7 @@
     },
     {
       "additionalProperties": false,
-      "description": "Read exact native feature rows with checked residue selectors.",
+      "description": "Get protein features by residue or region.",
       "properties": {
         "accession": {
           "$ref": "#/$defs/UniProtIsoform",
@@ -1779,7 +1779,7 @@
     },
     {
       "additionalProperties": false,
-      "description": "Read native alternative products without constructing sequences.",
+      "description": "Get protein isoforms and alternative products.",
       "properties": {
         "accession": {
           "$ref": "#/$defs/UniProtIsoform",
@@ -1818,7 +1818,7 @@
     },
     {
       "additionalProperties": false,
-      "description": "Read source PDB references without residue coverage inference.",
+      "description": "Get protein structure references from PDB.",
       "properties": {
         "accession": {
           "$ref": "#/$defs/UniProtIsoform",
@@ -1857,7 +1857,7 @@
     },
     {
       "additionalProperties": false,
-      "description": "Read one exact source sequence without alias repair.",
+      "description": "Get a source protein sequence.",
       "properties": {
         "command": {
           "const": "protein-sequence",
@@ -1889,7 +1889,7 @@
           ]
         }
       ],
-      "description": "Discover reviewed human UniProt candidates without selecting one.",
+      "description": "Search reviewed human proteins in UniProt.",
       "properties": {
         "command": {
           "const": "search-protein",
@@ -1936,7 +1936,7 @@
     },
     {
       "additionalProperties": false,
-      "description": "Read exact protein cards or all HGNC-listed protein candidates.",
+      "description": "Get protein details and source annotations.",
       "properties": {
         "command": {
           "const": "get-protein",
@@ -1977,7 +1977,7 @@
     },
     {
       "additionalProperties": false,
-      "description": "Discover literal HP term candidates in publisher order.",
+      "description": "Search human phenotypes in HPO.",
       "properties": {
         "command": {
           "const": "search-phenotype",
@@ -2018,7 +2018,7 @@
     },
     {
       "additionalProperties": false,
-      "description": "Read one independent exact HPO or Monarch term card.",
+      "description": "Get human phenotype details and relationships.",
       "properties": {
         "command": {
           "const": "get-phenotype",
@@ -2065,7 +2065,7 @@
     },
     {
       "additionalProperties": false,
-      "description": "Discover source-native human pathway headers.",
+      "description": "Search human biological pathways.",
       "properties": {
         "command": {
           "const": "search-pathway",
@@ -2128,7 +2128,7 @@
     },
     {
       "additionalProperties": false,
-      "description": "Read an exact human pathway card or summary.",
+      "description": "Get human pathway details.",
       "properties": {
         "command": {
           "const": "get-pathway",
@@ -2177,7 +2177,7 @@
     },
     {
       "additionalProperties": false,
-      "description": "Page retained exact source membership references.",
+      "description": "List genes in a biological pathway.",
       "properties": {
         "command": {
           "const": "pathway-genes",
@@ -2222,7 +2222,7 @@
     },
     {
       "additionalProperties": false,
-      "description": "Page retained source-contained event references.",
+      "description": "List events within a biological pathway.",
       "properties": {
         "command": {
           "const": "pathway-events",
@@ -2274,7 +2274,7 @@
           ]
         }
       ],
-      "description": "Discover literal study catalog metadata.",
+      "description": "Search cancer genomics studies in cBioPortal.",
       "properties": {
         "cancer_type": {
           "$ref": "#/$defs/CbioportalCancerTypeId",
@@ -2323,7 +2323,7 @@
     },
     {
       "additionalProperties": false,
-      "description": "Read exact study metadata.",
+      "description": "Get cancer genomics study details.",
       "properties": {
         "command": {
           "const": "get-study",
@@ -2392,7 +2392,7 @@
     },
     {
       "additionalProperties": false,
-      "description": "Discover source-native CPIC gene pairs.",
+      "description": "Search pharmacogenomic gene and drug pairs.",
       "properties": {
         "command": {
           "const": "search-pgx",
@@ -2445,7 +2445,7 @@
     },
     {
       "additionalProperties": false,
-      "description": "Read an explicit CPIC gene card or source section.",
+      "description": "Get pharmacogenomic evidence and source sections.",
       "properties": {
         "command": {
           "const": "get-pgx",
@@ -2539,7 +2539,7 @@
     },
     {
       "additionalProperties": false,
-      "description": "Read one exact ClinPGx clinical annotation accession.",
+      "description": "Get pharmacogenomic evidence and source sections.",
       "properties": {
         "command": {
           "const": "get-pgx-annotation",
@@ -2563,7 +2563,7 @@
     },
     {
       "additionalProperties": false,
-      "description": "Discover native diagnostic laboratory tests.",
+      "description": "Search diagnostic laboratory tests and devices.",
       "properties": {
         "biomarker": {
           "anyOf": [
@@ -2773,7 +2773,7 @@
     },
     {
       "additionalProperties": false,
-      "description": "Read an exact source diagnostic record or relation page.",
+      "description": "Get diagnostic test or device details.",
       "properties": {
         "bundle_revision": {
           "anyOf": [
@@ -2846,7 +2846,7 @@
     },
     {
       "additionalProperties": false,
-      "description": "Search source-native adverse event reports.",
+      "description": "Search drug, device and vaccine adverse events.",
       "properties": {
         "command": {
           "const": "search-adverse-event",
@@ -2990,7 +2990,7 @@
     },
     {
       "additionalProperties": false,
-      "description": "Read one exact source report, without source probing.",
+      "description": "Get a drug, device or vaccine adverse event report.",
       "properties": {
         "command": {
           "const": "get-adverse-event",
@@ -3066,7 +3066,7 @@
     },
     {
       "additionalProperties": false,
-      "description": "Discover one source-native disease candidate page.",
+      "description": "Search diseases and their identifiers.",
       "properties": {
         "command": {
           "const": "search-disease",
@@ -3114,7 +3114,7 @@
     },
     {
       "additionalProperties": false,
-      "description": "Read an exact source disease concept or native statistic page.",
+      "description": "Get disease details and source statistics.",
       "properties": {
         "age_range": {
           "anyOf": [
@@ -3236,7 +3236,7 @@
     },
     {
       "additionalProperties": false,
-      "description": "Discover literal native drug candidates.",
+      "description": "Search drugs and medicines by name.",
       "properties": {
         "classification": {
           "anyOf": [
@@ -3367,7 +3367,7 @@
     },
     {
       "additionalProperties": false,
-      "description": "Read one exact source drug identity.",
+      "description": "Get drug and medicine details.",
       "properties": {
         "civic_cursor": {
           "anyOf": [
@@ -3499,7 +3499,7 @@
     },
     {
       "additionalProperties": false,
-      "description": "Read native WHO prequalification rows by exact reference.",
+      "description": "Get drug and medicine details.",
       "properties": {
         "command": {
           "const": "get-who-medicine",
@@ -3524,7 +3524,7 @@
     },
     {
       "additionalProperties": false,
-      "description": "Read source-native variant assertions.",
+      "description": "Get genetic variant assertions from ClinVar or ClinGen.",
       "properties": {
         "assertion": {
           "anyOf": [
@@ -3596,7 +3596,7 @@
     },
     {
       "additionalProperties": false,
-      "description": "Read source ancestry observations.",
+      "description": "Get genetic variant population frequencies.",
       "properties": {
         "build": {
           "anyOf": [
@@ -3651,7 +3651,7 @@
     },
     {
       "additionalProperties": false,
-      "description": "Observe an exact allele in an explicitly selected cohort.",
+      "description": "Get genetic variant observations in a cohort.",
       "properties": {
         "build": {
           "anyOf": [
@@ -3722,7 +3722,7 @@
     },
     {
       "additionalProperties": false,
-      "description": "Send unchanged HGVS to explicit normalization services.",
+      "description": "Normalize reference-qualified genetic variant HGVS.",
       "properties": {
         "build": {
           "anyOf": [
@@ -3773,7 +3773,7 @@
     },
     {
       "additionalProperties": false,
-      "description": "Read a published variant identifier.",
+      "description": "Get genetic variant evidence.",
       "properties": {
         "build": {
           "anyOf": [
@@ -3936,7 +3936,7 @@
           ]
         }
       ],
-      "description": "Discover source-native variant candidates.",
+      "description": "Search genetic variants by gene, change or region.",
       "properties": {
         "build": {
           "$ref": "#/$defs/Build",
@@ -4006,7 +4006,7 @@
     },
     {
       "additionalProperties": false,
-      "description": "Save an exact registry document to an explicit destination.",
+      "description": "Save a clinical trial document.",
       "properties": {
         "command": {
           "const": "trial-document",
@@ -4041,7 +4041,7 @@
     },
     {
       "additionalProperties": false,
-      "description": "Retrieve exact trial cards and source protocol sections.",
+      "description": "Get clinical trial details.",
       "properties": {
         "command": {
           "const": "get-trial",
@@ -4097,7 +4097,7 @@
     },
     {
       "additionalProperties": false,
-      "description": "Search ClinicalTrials.gov without local screening.",
+      "description": "Search clinical trials.",
       "properties": {
         "age": {
           "description": "Age in years; unstated source bounds count as no limit.",
@@ -4493,7 +4493,7 @@
     },
     {
       "additionalProperties": false,
-      "description": "Save a publisher PDF to an explicit destination.",
+      "description": "Save a research article PDF.",
       "properties": {
         "command": {
           "const": "article-pdf",
@@ -4522,7 +4522,7 @@
     },
     {
       "additionalProperties": false,
-      "description": "Read source citation evidence.",
+      "description": "Get research article citation evidence.",
       "properties": {
         "cited": {
           "$ref": "#/$defs/ArticleInput",
@@ -4570,7 +4570,7 @@
     },
     {
       "additionalProperties": false,
-      "description": "Source-native paper recommendations.",
+      "description": "Get related research article recommendations.",
       "properties": {
         "command": {
           "const": "article-recommend",
@@ -4622,7 +4622,7 @@
     },
     {
       "additionalProperties": false,
-      "description": "Read a licensed supplementary file.",
+      "description": "Read a research article supplementary file.",
       "properties": {
         "command": {
           "const": "article-supplement",
@@ -4701,7 +4701,7 @@
           ]
         }
       ],
-      "description": "Read licensed PMC body text.",
+      "description": "Read research article full text.",
       "properties": {
         "command": {
           "const": "article-text",
@@ -4750,7 +4750,7 @@
     },
     {
       "additionalProperties": false,
-      "description": "Papers citing one PMID.",
+      "description": "List research papers citing an article.",
       "properties": {
         "command": {
           "const": "article-citations",
@@ -4794,7 +4794,7 @@
     },
     {
       "additionalProperties": false,
-      "description": "Papers referenced by one PMID.",
+      "description": "List research papers referenced by an article.",
       "properties": {
         "command": {
           "const": "article-references",
@@ -4838,7 +4838,7 @@
     },
     {
       "additionalProperties": false,
-      "description": "Retrieve PubMed article cards.",
+      "description": "Get research article details.",
       "properties": {
         "command": {
           "const": "get-article",
@@ -4923,7 +4923,7 @@
           ]
         }
       ],
-      "description": "Search PubMed article identities.",
+      "description": "Search research articles and biomedical papers.",
       "properties": {
         "author": {
           "$ref": "#/$defs/Text",
@@ -5030,7 +5030,7 @@
     },
     {
       "additionalProperties": false,
-      "description": "Get gene identities and annotations.",
+      "description": "Get gene identities and source annotations.",
       "properties": {
         "command": {
           "const": "get-gene",
@@ -5075,7 +5075,7 @@
           ]
         }
       ],
-      "description": "Search gene headers.",
+      "description": "Search human genes by name or identifier.",
       "properties": {
         "band": {
           "$ref": "#/$defs/Cytoband",

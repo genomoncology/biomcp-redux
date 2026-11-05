@@ -33,7 +33,11 @@ pub(super) fn check(env: &Environment) -> Result<(), String> {
             .ok_or("registry summary")?
             .summary
             .trim();
-        if !description.starts_with(summary) || description.chars().count() > 300 {
+        if summary.is_empty()
+            || summary.lines().count() != 1
+            || !description.starts_with(summary)
+            || description.chars().count() > 300
+        {
             return Err(format!(
                 "{name}: command summary or budget differs: {description}"
             ));
