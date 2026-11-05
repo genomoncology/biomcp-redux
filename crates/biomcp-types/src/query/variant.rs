@@ -22,12 +22,12 @@ struct Fields {
         rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS or VCF-style genomic coordinates."]
     #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 0)))]
     input: VariantInput,
-    #[doc = "Source sections.\n\
+    #[doc = "Sections.\n\
         Named source sections; omitted by default. Each calls its own source. all keeps bounded pages and source skips; it never enables a missing key."]
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 1)))]
     section: Box<[VariantSection]>,
-    #[doc = "Source rows per page.\nRows per named source section page; omitted uses the native source default."]
+    #[doc = "Section page size.\nRows per named source section page; omitted uses the native source default."]
     #[serde(
         default,
         deserialize_with = "super::gene::present",
@@ -35,39 +35,39 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "u32", range(min = 1, max = 50)))]
     section_limit: Option<u32>,
-    #[doc = "Source rows to skip.\nSource rows to skip independently of identity candidate paging."]
+    #[doc = "Section offset.\nSource rows to skip independently of identity candidate paging."]
     #[serde(default)]
     section_offset: u32,
-    #[doc = "CIViC profile ID.\nSelected CIViC molecular profile for native claim paging."]
+    #[doc = "CIViC profile.\nSelected CIViC molecular profile for native claim paging."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 2147483647)))]
     civic_profile: Option<u64>,
-    #[doc = "OncoKB tumor context.\nExplicit tumor context for keyed OncoKB annotation."]
+    #[doc = "OncoKB tumor.\nExplicit tumor context for keyed OncoKB annotation."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     tumor_type: Option<crate::Text>,
-    #[doc = "CIViC collection.\nNative CIViC claim collection within the selected profile."]
+    #[doc = "CIViC claims.\nNative CIViC claim collection within the selected profile."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     civic_kind: Option<CivicClaimKind>,
-    #[doc = "CIViC continuation.\nNative CIViC cursor, retained unchanged."]
+    #[doc = "CIViC cursor.\nNative CIViC cursor, retained unchanged."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     civic_cursor: Option<crate::Text>,
     #[serde(flatten)]
     evidence_filter: crate::CivicEvidenceFilter,
-    #[doc = "Notation resolver.\nResolver for reference-qualified notation; never repairs the input locally."]
+    #[doc = "Resolver.\nResolver for reference-qualified notation; never repairs the input locally."]
     #[serde(default = "resolver")]
     resolver: VariantResolver,
-    #[doc = "Assembly; default GRCh38.\nMyVariant identity assembly defaults to GRCh38; chromosome genomic HGVS requires an explicit build."]
+    #[doc = "GRCh37 or GRCh38.\nMyVariant identity assembly defaults to GRCh38; chromosome genomic HGVS requires an explicit build."]
     #[serde(
         default,
         deserialize_with = "super::gene::present",
         skip_serializing_if = "Option::is_none"
     )]
     build: Option<Build>,
-    #[doc = "Candidate page size.\nCandidate rows per page; more remain reachable through typed next commands."]
+    #[doc = "Page size.\nCandidate rows per page; more remain reachable through typed next commands."]
     #[serde(default = "default_limit")]
     #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 50)))]
     limit: u32,
-    #[doc = "Candidates to skip.\nCandidate rows to skip in source order."]
+    #[doc = "Candidate offset.\nCandidate rows to skip in source order."]
     #[serde(default)]
     offset: u32,
 }
