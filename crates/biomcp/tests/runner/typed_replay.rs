@@ -482,6 +482,7 @@ pub(super) fn rejects_overstrict_schema(tool: &Value) -> Result<(), String> {
 tool_only! {
 // This diagnostic mode proves clock fields; it does not grant main replay allowances.
 pub(super) fn clock_controls() -> Result<(), String> {
+    let mut failures = Vec::new();
     let cases = super::super::super::launch::fixtures().join("cases");
     for (sequence, key) in volatile::clock_cases()?.iter().enumerate() {
         let (id, number) = key.rsplit_once(" step ").ok_or("clock case identifier")?;
@@ -522,9 +523,15 @@ pub(super) fn clock_controls() -> Result<(), String> {
             label: key,
             delayed_control: true,
         };
-        single_parity(&env, &case, index, &args, &globals, context)?;
+        if let Err(error) = single_parity(&env, &case, index, &args, &globals, context) {
+            failures.push(format!("{key}: {error}"));
+        }
     }
-    Ok(())
+    if failures.is_empty() {
+        Ok(())
+    } else {
+        Err(failures.join("\n"))
+    }
 }
 
 }
