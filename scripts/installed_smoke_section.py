@@ -140,7 +140,7 @@ def main():
         raise ValueError('installed binary differs from release manifest')
     bind_fixtures(args.candidate, proof, output)
     for name in ['case-runner', 'tool-runner']:
-        listing = subprocess.check_output([str(proof / name), '--list'], env=dict(os.environ, BIOMCP_TEST_FIXTURES=str(proof / 'fixtures')), text=True)
+        listing = subprocess.check_output([str(proof / name), *(['--proofs'] if name == 'tool-runner' else []), '--list'], env=dict(os.environ, BIOMCP_TEST_FIXTURES=str(proof / 'fixtures')), text=True)
         (output / (name + '-list.txt')).write_text(listing)
     binding = {'candidate': args.candidate, 'product': record, 'bootstrap': bootstrap,
                'fixture_source_sha256': digest(output / 'fixture-source.json'),
