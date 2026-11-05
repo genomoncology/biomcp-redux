@@ -162,7 +162,12 @@ fn catalog(server: &Server, usage: Option<&str>) -> Result<Value, String> {
 }
 
 fn capture(label: &str, reply: &Value) -> Result<(), String> {
-    if let Some(tools) = reply.pointer("/result/tools").and_then(Value::as_array) {
+    if !label.starts_with("instructions-") {
+        let tools = reply
+            .pointer("/result/tools")
+            .and_then(Value::as_array)
+            .filter(|tools| !tools.is_empty())
+            .ok_or_else(|| format!("{label} catalog has no tools: {reply}"))?;
         for tool in tools {
             super::typed_schemas::budget(tool)?;
         }

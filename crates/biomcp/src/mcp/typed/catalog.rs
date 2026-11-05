@@ -120,27 +120,47 @@ pub(in crate::mcp) fn instructions(context: crate::command::Context<'_>) -> io::
 
 pub(super) fn mentions_excluded(text: &str, excluded: &BTreeSet<Source>) -> bool {
     let text = text.to_lowercase();
-    excluded.iter().any(|source| {
-        [
-            source.to_string(),
-            biomcp_query::sources::display_name(*source).to_lowercase(),
-        ]
-        .into_iter()
-        .chain(
-            biomcp_query::sources::discovery_aliases(*source)
-                .iter()
-                .map(|alias| alias.to_lowercase()),
-        )
-        .any(|name| {
-            text.match_indices(name.as_str()).any(|(index, _)| {
-                text.get(..index)
-                    .and_then(|prefix| prefix.chars().next_back())
+    excluded
+        .iter()
+        .any(|source| names(*source).any(|name| !matches(&text, &name).is_empty()))
+}
+
+pub(super) fn summary(text: &str, excluded: &BTreeSet<Source>) -> String {
+    let mut text = text.to_owned();
+    for source in excluded {
+        for name in names(*source) {
+            for index in matches(&text.to_lowercase(), &name).into_iter().rev() {
+                text.replace_range(index..index + name.len(), "");
+            }
+        }
+    }
+    text.split_whitespace().collect::<Vec<_>>().join(" ")
+}
+
+fn names(source: Source) -> impl Iterator<Item = String> {
+    [
+        source.to_string(),
+        biomcp_query::sources::display_name(source).to_lowercase(),
+    ]
+    .into_iter()
+    .chain(
+        biomcp_query::sources::discovery_aliases(source)
+            .iter()
+            .map(|alias| alias.to_lowercase()),
+    )
+}
+
+fn matches(text: &str, name: &str) -> Vec<usize> {
+    text.match_indices(name)
+        .filter(|(index, _)| {
+            text.get(..*index)
+                .and_then(|prefix| prefix.chars().next_back())
+                .is_none_or(|c| !c.is_alphanumeric())
+                && text
+                    .get(index + name.len()..)
+                    .and_then(|tail| tail.chars().next())
                     .is_none_or(|c| !c.is_alphanumeric())
-                    && text
-                        .get(index + name.len()..)
-                        .and_then(|tail| tail.chars().next())
-                        .is_none_or(|c| !c.is_alphanumeric())
-            })
         })
-    })
+        .map(|(index, _)| index)
+        .collect()
 }
