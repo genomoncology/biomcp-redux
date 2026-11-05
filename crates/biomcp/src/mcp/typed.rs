@@ -1,5 +1,7 @@
 //! Typed tools derive their contracts and CLI spelling from the command registry.
 mod arguments;
+mod catalog;
+pub(super) use catalog::instructions;
 mod description;
 mod help;
 mod summary;
@@ -68,17 +70,23 @@ fn schema(id: &str) -> io::Result<Value> {
     .map_err(Into::into)
 }
 pub(super) fn tools(
-    root: &crate::grammar::Root,
+    context: crate::command::Context<'_>,
     read_only: bool,
-    settings: &crate::config::Settings,
 ) -> io::Result<Vec<Value>> {
-    let (output_schema, enum_limit) = crate::config::mcp_typed_schema_options(settings);
+    let (output_schema, enum_limit) = crate::config::mcp_typed_schema_options(context.settings);
+    let excluded = catalog::excluded(context)?;
     let mut tools = crate::grammar::command_paths()
         .iter()
         .map(|&(verb, entity, id)| {
             let schema = schema(id)?;
+            if crate::command::mcp_policy::always_refused(&schema, context.globals.hosted) {
+                return Ok(None);
+            }
+            let read_only = read_only || !crate::command::mcp_policy::can_save(&schema);
+            let excluded = catalog::relevant(verb, entity, &schema, &excluded);
+            let schema = catalog::schema(schema, &excluded);
             let mut tool = json!({"name":name(verb, entity),
-            "description":description::render(verb, entity, &schema),
+            "description":description::render(verb, entity, &schema, &excluded),
             "inputSchema":arguments::input_with_limit(&schema, enum_limit),
             "annotations":{"readOnlyHint":read_only,"destructiveHint":false,"openWorldHint":true}});
             if output_schema && let Some(fields) = tool.as_object_mut() {
@@ -87,11 +95,14 @@ pub(super) fn tools(
                     super::output_schema::for_command(verb, entity, id)?,
                 );
             }
-            Ok(tool)
+            Ok(Some(tool))
         })
-        .collect::<io::Result<Vec<_>>>()?;
+        .collect::<io::Result<Vec<_>>>()?
+        .into_iter()
+        .flatten()
+        .collect::<Vec<_>>();
     tools.push(help::tool());
-    tools.extend(super::research::tools(root)?);
+    tools.extend(super::research::tools(context.root)?);
     Ok(tools)
 }
 pub(super) fn parse(

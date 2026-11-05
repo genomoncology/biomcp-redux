@@ -4,9 +4,13 @@ use serde_json::{Value, json};
 // Official contracts: https://modelcontextprotocol.io/specification/2026-07-28/basic/versioning
 // and https://modelcontextprotocol.io/specification/2025-11-25/basic/lifecycle
 pub(super) const INSTRUCTIONS: &str = crate::help::FRONT_MAP;
-pub(super) fn instructions(mode: crate::config::ToolMode) -> String {
+pub(super) fn instructions(
+    mode: crate::config::ToolMode,
+    context: crate::command::Context<'_>,
+) -> String {
     if mode == crate::config::ToolMode::Typed {
-        include_str!(concat!(env!("OUT_DIR"), "/typed-front-map.txt")).into()
+        super::typed::instructions(context)
+            .unwrap_or_else(|_| "Use biomcp_help for command arguments.".into())
     } else {
         INSTRUCTIONS.into()
     }
