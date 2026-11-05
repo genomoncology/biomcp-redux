@@ -70,20 +70,27 @@ pub(super) fn call_checked(
         .pointer("/content/0/text")
         .and_then(Value::as_str)
         .ok_or("missing text")?;
-    // Typed mode prefixes its summary; both modes retain the compact JSON as the last line.
-    if serde_json::from_str::<Value>(text.lines().last().unwrap_or_default())
-        .map_err(|e| e.to_string())?
-        != *value
-    {
+    let tools = replies
+        .iter()
+        .find(|v| v.get("id") == Some(&json!(0)))
+        .and_then(|v| v.pointer("/result/tools"))
+        .and_then(Value::as_array)
+        .ok_or("tool catalog missing")?;
+    let typed = tools
+        .iter()
+        .any(|tool| tool.get("name") == Some(&json!("get_gene")));
+    let payload = if typed {
+        text.lines().last().unwrap_or_default()
+    } else {
+        text
+    };
+    if serde_json::from_str::<Value>(payload).map_err(|e| e.to_string())? != *value {
         return Err("research text differs from structured content".into());
     }
     {
-        let tool = replies
+        let tool = tools
             .iter()
-            .find(|v| v.get("id") == Some(&json!(0)))
-            .and_then(|v| v.pointer("/result/tools"))
-            .and_then(Value::as_array)
-            .and_then(|tools| tools.iter().find(|v| v.get("name") == Some(&json!(name))))
+            .find(|v| v.get("name") == Some(&json!(name)))
             .ok_or("tool definition missing")?;
         let schema = tool.get("outputSchema").ok_or("output schema missing")?;
         jsonschema::validator_for(schema)
