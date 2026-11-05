@@ -78,3 +78,47 @@ fn search(env: &Environment, mode: &str, query: &str, offset: u32) -> Result<Val
         .cloned()
         .ok_or("search envelope missing".into())
 }
+
+// Exact reported command, using the retained native page projected to its default limit.
+pub(super) fn display_names() -> Check {
+    let mut failures = Vec::new();
+    for mode in ["single", "typed"] {
+        let env = Environment::new().map_err(|e| e.to_string())?;
+        env.config(&json!({"mcp_tool_mode":mode}))
+            .map_err(|e| e.to_string())?;
+        let params = if mode == "single" {
+            json!({"name":"biomcp","arguments":{"args":["search","drug","chronic myeloid leukemia","--source","openfda-label"]}})
+        } else {
+            json!({"name":"search_drug","arguments":{"query":"chronic myeloid leukemia","source":"openfda-label"}})
+        };
+        let replay = fixtures().join("replies/drug/label-display");
+        let replies = exchange_with_globals(
+            &env,
+            &[request(json!(1), "tools/call", params)],
+            &env.globals(Some(&replay), false),
+        )?;
+        let reply = replies.first().ok_or("display-name reply missing")?;
+        let body = reply
+            .pointer("/result/structuredContent")
+            .ok_or("display-name envelope missing")?;
+        if reply.pointer("/result/isError") != Some(&json!(false))
+            || body.pointer("/page/returned") != Some(&json!(5))
+            || body.pointer("/page/total") != Some(&json!(109))
+        {
+            return Err(format!("{mode} native label page changed: {reply}"));
+        }
+        let id = "4764f37b-c9e6-4ede-bcc2-8a03b7c521df";
+        let name = body
+            .pointer("/result/items/3/name")
+            .and_then(Value::as_str)
+            .ok_or("display name missing")?;
+        if body.pointer("/result/items/3/id") != Some(&json!(id)) || name != id {
+            failures.push(format!("{mode}: SPL {id} without brand/generic must display its native ID; got {} display characters", name.chars().count()));
+        }
+    }
+    if failures.is_empty() {
+        Ok(())
+    } else {
+        Err(failures.join("\n"))
+    }
+}

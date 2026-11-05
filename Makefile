@@ -404,3 +404,7 @@ label-priority-integration: fmt label-priority-check
 	cargo clippy --locked -p biomcp-adapters -p biomcp-query -p biomcp --all-targets -- -D warnings
 	cargo test --locked -p biomcp --test ratchets $(TEST_THREADS)
 	python3 scripts/check_docs.py
+
+.PHONY: label-display-check
+label-display-check:
+	BIOMCP_TRANSCRIPT_DIR="$(CURDIR)/target/label-display-evidence" cargo test --locked -p biomcp --test cases drug-label/native-name-fallback $(TEST_THREADS)

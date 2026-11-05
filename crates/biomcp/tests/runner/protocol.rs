@@ -30,6 +30,9 @@ type Check = Result<(), String>;
 
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = vec![
+        transcript_trial("drug-label/native-name-fallback", || {
+            label_priority::display_names().map_err(Into::into)
+        }),
         transcript_trial("drug-label/indication-priority-and-native-pages", || {
             label_priority::check().map_err(Into::into)
         }),
