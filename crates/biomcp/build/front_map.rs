@@ -304,6 +304,12 @@ mod tests {
     fn every_declared_command_section_and_source_fits_the_map() {
         let schemas = schemas();
         let map = generate(&schemas).expect("generated map");
+        let typed_map = generate_typed(&schemas).expect("generated typed map");
+        assert_eq!(
+            typed_map,
+            include_str!(concat!(env!("OUT_DIR"), "/typed-front-map.txt"))
+        );
+        assert!(typed_map.chars().count() <= 4096);
         assert_eq!(
             map,
             include_str!(concat!(env!("OUT_DIR"), "/front-map.txt")),
