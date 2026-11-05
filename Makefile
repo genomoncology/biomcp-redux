@@ -377,3 +377,10 @@ source-status-check:
 .PHONY: source-status-pre-review
 source-status-pre-review:
 	+$(MAKE) source-status-check check-cheap current-schema-check schema-release-check
+
+.PHONY: deadline-setup-focused deadline-setup-load
+deadline-setup-focused:
+	python3 scripts/deadline_setup_load.py
+
+deadline-setup-load:
+	python3 scripts/deadline_setup_load.py load
