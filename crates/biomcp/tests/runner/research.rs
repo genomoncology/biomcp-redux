@@ -1,6 +1,8 @@
 //! Research wrappers map the existing CLI result without provider calls.
 #[path = "research_links.rs"]
 mod links;
+#[path = "research_readable.rs"]
+mod readable;
 use super::{
     launch::Environment,
     mcp::{exchange, request},
@@ -12,6 +14,9 @@ use serde_json::{Value, json};
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        transcript_trial("mcp-research/fetch-readable-record-once", || {
+            readable::check().map_err(Into::into)
+        }),
         transcript_trial("mcp-research/research-registry-projection-paths", || {
             links::check().map_err(Into::into)
         }),
