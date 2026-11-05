@@ -22,7 +22,9 @@ pub struct DrugSearch(SearchFields);
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct SearchFields {
-    /// Search phrase; optional for FDA drug recalls, WHO date ranges and openFDA indication searches. Drugs@FDA searches brands and ingredients,
+    /// Name phrase; optional with supported source filters.
+    /// FDA drug recalls, WHO date ranges and label indication searches allow no name.
+    /// Drugs@FDA searches brands and ingredients,
     /// exact names before word matches. openFDA labels search exact then word brand/generic names,
     /// then label text (including indications) when no names match; source matches need not be exact names.
     /// Harmonized recall names match but never become display names.
@@ -34,8 +36,9 @@ struct SearchFields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     query: Option<Text>,
-    /// Literal phrase in the label's Indications and Usage section; openFDA labels only.
-    /// An optional name query further narrows the same source search. No disease synonym expansion.
+    /// Literal label indication; openFDA labels only.
+    /// Search the native Indications and Usage field without disease synonym expansion.
+    /// An optional name query further narrows the same source search.
     #[serde(
         default,
         deserialize_with = "present_query",
