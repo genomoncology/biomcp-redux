@@ -30,6 +30,7 @@ pub(super) fn next(root: &crate::grammar::Root, args: &[&str]) -> Option<Value> 
     }
     let argv = args
         .iter()
+        .copied()
         .map(std::ffi::OsString::from)
         .collect::<Vec<_>>();
     crate::grammar::parse(root, &argv).ok()?;
