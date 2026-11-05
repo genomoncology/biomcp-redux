@@ -1,11 +1,12 @@
 """Bounded current-source replay probes; retain complete CLI and MCP replies."""
+import hashlib
 import json
 from pathlib import Path
 import subprocess
 import sys
 import tempfile
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(sys.argv[2]).resolve() if len(sys.argv) > 2 else Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from release.smoke import environment
 
@@ -13,7 +14,7 @@ from release.smoke import environment
 def main():
     binary = Path(sys.argv[1]).resolve()
     output = Path.home() / 'workspace/t' / ('biomcp-0678-' + subprocess.check_output(
-        ['git', 'rev-parse', 'HEAD'], text=True).strip())
+        ['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip())
     output.mkdir(parents=True, exist_ok=True)
     probes = [
         ('trial-search', ['search', 'trial', '--condition', 'melanoma', '--offset', '10'],
@@ -21,7 +22,7 @@ def main():
         ('trial-section', ['get', 'trial', 'NCT01844505', 'results', '--offset', '15'],
          'get_trial', {'input': ['NCT01844505'], 'section': ['results'], 'offset': 15}, None),
         ('faers-or', ['search', 'adverse-event', '--drug', 'imatinib OR nilotinib'],
-         'search_adverse_event', {'drug': ['imatinib OR nilotinib']}, None),
+         'search_adverse_event', {'drug': ['imatinib OR nilotinib']}, 'adverse-event/faers-several-names'),
         ('resolver', ['get', 'variant', 'CA123643', '--resolver', 'variantvalidator', '--build', 'GRCh38'],
          'get_variant', {'input': 'CA123643', 'resolver': 'variantvalidator', 'build': 'GRCh38'}, 'variant/id-forms'),
         ('population-resolver', ['variant', 'population', '7-117559590-ATCT-A', '--resolver', 'variantvalidator'],
@@ -62,7 +63,16 @@ def main():
                 rows = [json.loads(line) for line in result.stdout.splitlines()]
                 reply = next(row for row in rows if row.get('id') == 1)
                 body = reply.get('result', {}).get('structuredContent', reply.get('error'))
-                print(json.dumps({'probe': label, 'mode': mode, 'body': body}), flush=True)
+                summary = {key: body.get(key) for key in ('schema', 'status', 'query', 'page', 'error') if isinstance(body, dict) and key in body}
+                if isinstance(body, dict):
+                    summary['sources'] = [{key: row.get(key) for key in ('source', 'state', 'reason')} for row in body.get('sources', [])]
+                print(json.dumps({'probe': label, 'mode': mode, 'reply': summary}), flush=True)
+    (output / 'bindings.json').write_text(json.dumps({
+        'source_revision': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip(),
+        'binary_sha256': hashlib.sha256(binary.read_bytes()).hexdigest(),
+        'live_check': 'exclude: bounded replay and usage probes; synthetic routing/FAERS bodies and retained ClinGen/FDA replies; no new live source capture',
+        'fixture_paths': [replay for *_, replay in probes if replay],
+    }, indent=2) + '\n')
     print('Evidence:', output)
 
 
