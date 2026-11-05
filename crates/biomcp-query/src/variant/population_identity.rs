@@ -23,6 +23,15 @@ pub(super) fn read(cx: &Ctx<'_>, rows: &[VariantHeader], deadline: Deadline<'_>)
         return join;
     }
     let [row] = rows else { return join };
+    if !row.identity.representations.iter().any(|r| {
+        r.source == Source::AlleleRegistry.text()
+            && r.build == Some(biodata::Build::GRCh38)
+            && r.allele.as_ref().is_some_and(|a| {
+                a.reference().to_string().len() != 1 || a.alternate().to_string().len() != 1
+            })
+    }) {
+        return join;
+    }
     let ids: std::collections::BTreeSet<_> = row
         .identity
         .ids
