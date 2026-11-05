@@ -41,5 +41,6 @@
         "/sources/3/reason": "disabled"
       }
     }
-  ]
+  ],
+  "live_check": "Authored synthetic alias responses; local replay only, excluded from provider live checks."
 }

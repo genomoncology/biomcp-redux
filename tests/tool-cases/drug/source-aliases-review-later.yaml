@@ -41,5 +41,6 @@
   "config": {
     "mcp_tool_mode": "typed",
     "mcp_typed_output_schema": true
-  }
+  },
+  "live_check": "Authored synthetic alias responses; local replay only, excluded from provider live checks."
 }

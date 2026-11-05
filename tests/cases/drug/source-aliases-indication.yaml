@@ -47,5 +47,6 @@
         "/result/items/0/id": "22222222-2222-4222-8222-222222222222"
       }
     }
-  ]
+  ],
+  "live_check": "Authored synthetic alias responses; local replay only, excluded from provider live checks."
 }

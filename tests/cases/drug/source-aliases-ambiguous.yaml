@@ -38,5 +38,6 @@
         "/next/0/args/4": "chembl"
       }
     }
-  ]
+  ],
+  "live_check": "Authored synthetic alias responses; local replay only, excluded from provider live checks."
 }

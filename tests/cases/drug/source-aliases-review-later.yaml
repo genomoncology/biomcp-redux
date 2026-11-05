@@ -54,5 +54,6 @@
         "/query/input": "CHEMBL941"
       }
     }
-  ]
+  ],
+  "live_check": "Authored synthetic alias responses; local replay only, excluded from provider live checks."
 }
