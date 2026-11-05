@@ -251,10 +251,10 @@ fn enum_settings(env: &Environment, default: &[Value]) -> Result<(), String> {
         return Err("enum limit setting ignored".into());
     }
     for tool in &large {
-        let name = field(tool, "name");
+        let name = field(tool, "name").as_str().ok_or("tool name")?;
         let compact = small
             .iter()
-            .find(|t| field(t, "name").as_str() == Some(name.as_str()))
+            .find(|t| field(t, "name").as_str() == Some(name))
             .ok_or("lowered tool")?;
         for (key, property) in field(field(tool, "inputSchema"), "properties")
             .as_object()
