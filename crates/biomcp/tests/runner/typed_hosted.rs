@@ -153,6 +153,11 @@ fn catalog(server: &Server, usage: Option<&str>) -> Result<Value, String> {
 }
 
 fn capture(label: &str, reply: &Value) -> Result<(), String> {
+    if let Some(tools) = reply.pointer("/result/tools").and_then(Value::as_array) {
+        for tool in tools {
+            super::typed_schemas::budget(tool)?;
+        }
+    }
     if let Some(transcript) = super::super::transcript::current() {
         transcript.record(&format!("typed-catalog/{label}"), reply.clone())?;
     }
