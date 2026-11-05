@@ -1,30 +1,31 @@
 //! Hosted discovery and follow-ups describe this server's actual authority.
-use super::super::{http::Server, launch::fixtures, mcp::request};
+use super::super::{
+    http::Server,
+    launch::{Environment, fixtures},
+    mcp::request,
+};
 use serde_json::{Value, json};
 
 pub(super) fn check() -> Result<(), String> {
     let mut errors = Vec::new();
     for mode in ["single", "typed"] {
-        let server = Server::configured_launch(
+        let config_owner = Environment::new().map_err(|e| e.to_string())?;
+        config_owner.config(&json!({"mcp_tool_mode":mode,"hosted_max_use":"restricted","disable_sources":["ctgov"]})).map_err(|e| e.to_string())?;
+        let server = Server::configured_globals(
             "127.0.0.1:0",
-            Some(
-                json!({"mcp_tool_mode":mode,"hosted_max_use":"restricted","disable_sources":["ctgov"]}),
-            ),
+            None,
             Some(fixtures().join("replies/drug/openfda-label-page")),
             None,
             None,
-            &["--hosted".into()],
-            |env, args| {
-                let mut args = args.to_vec();
-                args.extend([
-                    "--config".into(),
-                    env.root()
-                        .join("config/biomcp/config.json")
-                        .to_string_lossy()
-                        .into_owned(),
-                ]);
-                env.command(env!("CARGO_BIN_EXE_biomcp"), &args)
-            },
+            &[
+                "--hosted".into(),
+                "--config".into(),
+                config_owner
+                    .root()
+                    .join("config/biomcp/config.json")
+                    .to_string_lossy()
+                    .into_owned(),
+            ],
         )?;
         let catalog = request(json!(2), "tools/list", json!({}));
         let (_, catalog) = server.request("POST", "/mcp", &catalog.to_string())?;
