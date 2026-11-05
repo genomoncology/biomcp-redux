@@ -12,12 +12,12 @@ mod recall;
 mod resolve;
 pub(crate) mod who;
 use crate::{Ctx, Outcome, status};
+/// Search selected-source records, consulting source-stated names only after an empty lookup.
+pub(crate) use aliases::search as search_with_aliases;
 use biomcp_adapters::mychem;
 use biomcp_types::{
     DrugGet, DrugPage, DrugSearch, DrugSource, PageInfo, Request, Source, StepKind,
 };
-/// Search selected-source records, consulting source-stated names only after an empty lookup.
-pub(crate) use aliases::search as search_with_aliases;
 /// Search the selected source directly without consulting another source.
 fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     if query.source() == DrugSource::FdaDrugRecall {
