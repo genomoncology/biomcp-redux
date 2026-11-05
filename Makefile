@@ -381,7 +381,9 @@ source-status-pre-review:
 .PHONY: label-priority-check
 label-priority-check:
 	BIOMCP_TRANSCRIPT_DIR="$(CURDIR)/target/label-priority-evidence" cargo test --locked -p biomcp --test cases drug-label/indication-priority-and-native-pages $(TEST_THREADS)
-	python3 scripts/trials.py --case-file drug/indication.yaml --case-file drug/openfda-label-page.yaml --case-file drug/label-discovery.yaml --case-file drug/label-free-text.yaml --case-file drug/label-controls.yaml
+	@for selection in drug/indication.yaml drug/openfda-label-page.yaml drug/label-discovery.yaml drug/label-free-text.yaml drug/label-controls.yaml; do \
+		cargo test --locked -p biomcp --test cases "$$selection" $(TEST_THREADS) || exit $$?; \
+	done
 	cargo test --locked -p biomcp --test cases member-values/openfda-label $(TEST_THREADS)
 
 .PHONY: drug-indication-focused
