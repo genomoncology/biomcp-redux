@@ -371,3 +371,16 @@ drug-indication-focused:
 	mkdir -p target/drug-indication-generated
 	tar -czf target/drug-indication-generated/source.tar.gz crates/biomcp-types/schemas docs/reference/commands.md
 	BIOMCP_TRANSCRIPT_DIR="$(abspath $(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target))/drug-indication-transcripts" python3 scripts/trials.py --installed mcp-parity/typed-cli-bridge mcp-parity/compact-typed-schemas mcp-parity/typed-hosted-catalog --case-file drug/indication.yaml --case-file drug/openfda-label-page.yaml --case-file drug/label-free-text.yaml --case-file drug/retired.yaml
+
+.PHONY: source-status-check
+source-status-check:
+	cargo test --locked -p biomcp-types --test rust_api $(TEST_THREADS)
+	cargo test --locked -p biomcp-types --doc $(TEST_THREADS)
+	cargo test --locked -p biomcp --test cases source-status $(TEST_THREADS)
+	cargo test --locked -p biomcp --test cases variant-hotspots/ $(TEST_THREADS)
+	cargo test --locked -p biomcp --test cases diagnostic/fda-cdx $(TEST_THREADS)
+	cargo test --locked -p biomcp --test cases local/commands $(TEST_THREADS)
+
+.PHONY: source-status-pre-review
+source-status-pre-review:
+	+$(MAKE) source-status-check check-cheap current-schema-check schema-release-check
