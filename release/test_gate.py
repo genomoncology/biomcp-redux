@@ -2,6 +2,7 @@
 import hashlib
 import json
 import os
+import shutil
 from pathlib import Path
 import subprocess
 import sys
@@ -130,6 +131,8 @@ class InstalledCli(unittest.TestCase):
                                       capture_output=True, text=True)
             self.assertEqual(imported.returncode, 0, imported.stdout + imported.stderr)
             if actual_build:
+                # The copied runners and helpers must stand on their own.
+                shutil.rmtree(source)
                 from release.smoke import environment
                 for name, selection in [('case-runner', ['--list']), ('tool-runner', ['--proofs', '--list'])]:
                     listed = subprocess.run([str(scratch / name), *selection], cwd=scratch,
@@ -138,9 +141,17 @@ class InstalledCli(unittest.TestCase):
                                             capture_output=True, text=True)
                     self.assertEqual(listed.returncode, 0, listed.stdout + listed.stderr)
                     self.assertTrue(listed.stdout.strip())
-                from release.gate import cli_checks, install_wheel
-                installed = install_wheel(next(output.glob('*.whl')), root / 'venv', root, sys.executable)
-                self.assertEqual(len(cli_checks(installed, record)), 3)
+                installed = subprocess.run([sys.executable, '-c',
+                    'from pathlib import Path; import sys; '
+                    'from release.artifacts import candidate_record; '
+                    'from release.gate import install_wheel, cli_checks; '
+                    'output=Path(sys.argv[1]); root=Path(sys.argv[2]); '
+                    'record=candidate_record(output, sys.argv[3]); '
+                    'binary=install_wheel(next(output.glob("*.whl")), root / "venv", root, sys.executable); '
+                    'assert len(cli_checks(binary, record)) == 3',
+                    str(output), str(root), record['revision']],
+                    cwd=scratch / 'tools', env=env, capture_output=True, text=True)
+                self.assertEqual(installed.returncode, 0, installed.stdout + installed.stderr)
                 print(json.dumps({'bootstrap_walk': 'pass', **bootstrap,
                                   'installed_cases': 'not-run', 'candidate': 'synthetic-local-bootstrap'}))
 

@@ -323,5 +323,5 @@ windows-bootstrap-check: shell-check
 	uvx --offline --from vulture==2.14 vulture release/gate.py --min-confidence 60
 	python3 -m unittest release.test_gate release.test_source_revision release.test_windows
 
-windows-bootstrap-walk:
+windows-bootstrap-walk: windows-bootstrap-check
 	BIOMCP_TEST_ARCHIVE_BOOTSTRAP=1 python3 -m unittest release.test_gate.InstalledCli.test_archive_bootstrap_preserves_tooling_and_product_identity
