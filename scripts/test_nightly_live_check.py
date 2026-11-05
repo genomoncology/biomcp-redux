@@ -334,7 +334,11 @@ class NightlyCommand(unittest.TestCase):
     def test_throttle_explains_downstream_drift_only_in_its_command(self):
         row = classification_case('429-output')
         row['witness'][0]['baseline']['requests'].append({
-            'identity': 'downstream', 'source': 'icite', 'status': 200})
+            'identity': 'downstream', 'source': 'icite', 'role': 'Summary', 'status': 200,
+            'provenance': {'input_context': 'fixed', 'inputs': {
+                'namespace': 'pmid', 'ids': ['child']}}})
+        row['witness'][0]['baseline']['requests'][1]['provenance']['discovery'] = {
+            'namespace': 'pmid', 'ids': ['child']}
         row['result']['drift'].extend(['downstream: request-plan-removed',
                                        'page continuation changed'])
         self.classified(row, 'throttled', 0)
@@ -451,8 +455,7 @@ class NightlyCommand(unittest.TestCase):
             for change in ('unrelated', 'context', 'failed-discovery', 'subset', 'partial'):
                 with self.subTest(story=story, change=change):
                     self.classified(recommendation_case(story, change=change),
-                                    'outage' if change == 'failed-discovery' else 'failure',
-                                    0 if change == 'failed-discovery' else 1)
+                                    'failure', 1)
 
     def test_reranked_source_tail_requires_complete_provider_owned_selection(self):
         for change in ('boundary', 'prefix', 'filter', 'offset', 'limit', 'missing-batch',
