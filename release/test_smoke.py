@@ -159,12 +159,12 @@ finally:
 
     @unittest.skipIf(os.name == "nt", "the planted executable uses a POSIX shebang")
     def test_installed_schema_change_names_the_case(self):
+        from release.gate import stage_fixtures
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory).resolve()
             binary = Path(os.environ["BIOMCP_INSTALLED_BINARY"]).resolve()
             runner = Path(os.environ["BIOMCP_CASE_RUNNER"]).resolve()
-            # Discover a declared owner distinct from smoke's initial schema probe,
-            # so the planted mismatch is still caught by the named installed case.
+            # Discover the Help schema owned by the installed executable.
             schema_id = json.loads(subprocess.check_output([str(binary), "help"]))["schema"]
             planted = root / "changed-schema"
             planted.write_text(f"#!{sys.executable}\nimport os, sys, json, subprocess\n"
@@ -183,15 +183,17 @@ finally:
             print(json.dumps({"planted_script": planted.read_text(), "original_schema": original_schema,
                               "changed_schema": changed_schema}), flush=True)
             fixtures = root / "fixtures"
-            shutil.copytree("tests", fixtures)
-            provenance = Path("sdlc/planning/slices/gene.md")
-            (fixtures / "support" / provenance).parent.mkdir(parents=True)
-            shutil.copy2(provenance, fixtures / "support" / provenance)
+            source = Path(__file__).resolve().parents[1]
+            stage_fixtures(source, fixtures)
             case = fixtures / "cases/installed-schema.yaml"
-            case.write_text(f"feature: schema-discovery\nstory: Installed schema identity\nsteps:\n  - run: [schema, {schema_id}]\n    expect: {{'/$id': {schema_id}}}\n")
-            script = "from release.smoke import smoke; import sys; smoke(*sys.argv[1:])"
-            result = subprocess.run([sys.executable, "-c", script, str(planted), str(runner), str(fixtures),
-                                     os.environ["BIOMCP_INSTALLED_VERSION"]], capture_output=True, text=True)
+            case.write_text(f"feature: schema-discovery\nstory: Installed schema identity\n"
+                            "live_check: Local installed-schema mutation proof; excluded from provider live checks.\n"
+                            f"steps:\n  - run: [schema, {schema_id}]\n    expect: {{'/$id': {schema_id}}}\n")
+            env = dict(os.environ, BIOMCP_TEST_FIXTURES=str(fixtures))
+            result = subprocess.run([sys.executable, str(source / "scripts/trials.py"),
+                                     "--runner", str(runner), "--executable", str(planted),
+                                     "--cases", str(fixtures / "cases"), "--case-file", "installed-schema.yaml"],
+                                    env=env, cwd=root, capture_output=True, text=True)
             self.assertNotEqual(result.returncode, 0)
             self.assertIn("installed-schema.yaml", result.stdout + result.stderr)
             diagnostic = f"Installed schema identity; step 1: schema validation: raw artifact differs from requested {schema_id}"
