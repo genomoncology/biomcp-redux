@@ -6,6 +6,8 @@ export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"
 export CARGO_BUILD_JOBS=2 RUST_TEST_THREADS=2 RUSTUP_TOOLCHAIN=1.95.0
 root="$PWD/target/fixed-cache-first-open"
 mkdir -p "$root"
+case "${1:-focused}" in
+focused)
 make check-cheap
 uvx --offline --from ruff==0.17.2 ruff check --select F401,F841,ERA,BLE,E722,S110 \
     release/smoke.py release/test_checks.py release/test_smoke.py release/test_gate.py scripts/cache_installed_first_open.py
@@ -33,6 +35,10 @@ env = dict(os.environ, BIOMCP_INSTALLED_BINARY=str(installed / 'biomcp'),
 subprocess.run([sys.executable, '-m', 'unittest',
                 'release.test_smoke.InstalledTemporarySpace.test_isolated_installed_commands_and_cleanup'], env=env, check=True)
 PY
+;;
+remaining) ;; # Carry unchanged green inputs; leave the broad cleanup failure red.
+*) exit 2 ;;
+esac
 python3.13 - "$root" <<'PY'
 import json
 from pathlib import Path
