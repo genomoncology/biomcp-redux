@@ -2,6 +2,7 @@
 mod arguments;
 mod decode;
 mod entry;
+mod process_arguments;
 pub(crate) mod rewrite;
 pub(crate) use entry::entry_aliases;
 mod errors;
@@ -28,7 +29,7 @@ pub(crate) fn bundle_names() -> Vec<&'static str> {
 
 use biomcp_query::{Action, Bundle};
 use biomcp_types::{Help, Request, ResponseBody};
-use clap::{Arg, ArgAction, Command};
+use clap::{Arg, Command};
 use serde_json::{Map, Value};
 use std::{ffi::OsString, path::PathBuf};
 
@@ -66,68 +67,13 @@ pub(crate) struct Parsed {
     pub(crate) http: Option<(String, Vec<String>)>,
 }
 fn global_arguments() -> Command {
-    let mut root = Command::new("biomcp")
-        .disable_help_flag(true)
-        .disable_help_subcommand(true)
-        .disable_version_flag(true)
-        .after_help(
-            entry_aliases()
-                .iter()
-                .map(|alias| format!("{}: {}", alias.flags().join(", "), alias.description()))
-                .collect::<Vec<_>>()
-                .join("\n"),
-        )
-        .arg_required_else_help(true)
-        .subcommand_required(true);
-    root = root.arg(
-        Arg::new("format")
-            .long("format")
-            .help("Choose JSON or Markdown output; configuration can change the default.")
-            .default_value("json")
-            .global(true)
-            .value_parser(["json", "md"]),
-    );
-    root = root.arg(
-        Arg::new("disable-sources")
-            .long("disable-sources")
-            .help("Exclude source names or source terms groups.")
-            .global(true)
-            .num_args(1)
-            .value_delimiter(',')
-            .action(ArgAction::Append),
-    );
-    root = root.arg(
-        Arg::new("source_pacing")
-            .long("source_pacing")
-            .help(
-                "Override source pacing with a JSON map of rate, keyed_rate and in_flight values.",
-            )
-            .global(true),
-    );
-    for name in ["config", "replay", "record", "case-cache", "observe"] {
-        root = root.arg(
-            Arg::new(name)
-                .long(name)
-                .hide(name != "config")
-                .help("Read configuration from this file.")
-                .global(true)
-                .value_parser(clap::value_parser!(PathBuf)),
-        );
-    }
-    for name in ["offline", "fresh"] {
-        root = root.arg(boolean_argument(
-            Arg::new(name)
-                .long(name)
-                .help(if name == "offline" {
-                    "Read local data without source requests."
-                } else {
-                    "Request fresh source data instead of cached replies."
-                })
-                .global(true)
-                .overrides_with(name),
-        ));
-    }
-    root
+    process_arguments::root().after_help(
+        entry_aliases()
+            .iter()
+            .map(|alias| format!("{}: {}", alias.flags().join(", "), alias.description()))
+            .collect::<Vec<_>>()
+            .join("\n"),
+    )
 }
 pub(crate) fn is_housekeeping(root: &Command, args: &[OsString]) -> bool {
     scan_command_words(root, args, true)

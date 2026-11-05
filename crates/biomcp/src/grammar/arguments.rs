@@ -1,21 +1,8 @@
 //! Construct query arguments from their owning schemas.
+pub(crate) use super::process_arguments::{boolean_argument, boolean_value};
 use super::{gwas, properties, property_type};
 use clap::{Arg, ArgAction, Command, builder::TypedValueParser};
 use serde_json::Value;
-/// Shared literal semantics for actual booleans; fixed-value enum switches opt out.
-pub(crate) fn boolean_argument(argument: Arg) -> Arg {
-    argument
-        .action(ArgAction::SetTrue)
-        .num_args(0..=1)
-        .require_equals(true)
-        .default_missing_value("true")
-}
-
-pub(super) fn boolean_value(argument: &Arg, value: Option<&std::ffi::OsString>) -> bool {
-    matches!(argument.get_action(), ArgAction::SetTrue)
-        && argument.is_require_equals_set()
-        && value.is_some_and(|value| matches!(value.to_str(), Some("true" | "false")))
-}
 
 pub(super) fn command_for(
     name: &'static str,

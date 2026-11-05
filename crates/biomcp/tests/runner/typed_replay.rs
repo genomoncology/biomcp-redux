@@ -1,4 +1,6 @@
-//! Reuse existing recorded caller cases without maintaining a second entity inventory.
+#[path = "../../src/grammar/process_arguments.rs"]
+mod process_arguments;
+// Reuse existing recorded caller cases without maintaining a second entity inventory.
 use super::super::super::{
     case_data,
     launch::Environment,
@@ -27,8 +29,9 @@ pub(super) fn check(tool: &Value, case_index: &mut usize) -> Result<(), String> 
         let case = case_data::read_case(&path)?;
         for (index, step) in case.steps.iter().enumerate() {
             let Some(args) = &step.run else { continue };
-            if args.first().map(String::as_str) != Some(verb)
-                || args.get(1).map(String::as_str) != Some(entity)
+            let (query, _, _) = query_arguments(args);
+            if query.first().map(String::as_str) != Some(verb)
+                || query.get(1).map(String::as_str) != Some(entity)
             {
                 continue;
             }
@@ -117,11 +120,14 @@ fn candidate(
     label: &str,
     calls: &mut usize,
 ) -> Result<bool, String> {
-    let (env, mut globals, mut config) = prepare(case, index)?;
-    let (args, extra) = query_arguments(args);
+    let (env, mut globals, config) = prepare(case, index)?;
+    let (args, extra, process_validation) = query_arguments(args);
     globals.extend(extra);
     let step = case.steps.get(index).ok_or("case step index")?;
     let expected = cli_case(&env, &args, &globals, step)?;
+    if !process_valid(process_validation, &expected, label)? {
+        return Ok(false);
+    }
     let verb = args.first().ok_or("command verb")?;
     let entity = args.get(1).ok_or("command entity")?;
     let (_, _, id) = biomcp_types::command_paths()
@@ -167,11 +173,7 @@ fn candidate(
         index,
         std::path::Path::new(env!("CARGO_BIN_EXE_biomcp")),
     )?;
-    config
-        .as_object_mut()
-        .ok_or("configuration object")?
-        .insert("mcp_tool_mode".into(), json!("typed"));
-    env.config(&config).map_err(|e| e.to_string())?;
+    typed_config(&env, config)?;
     let typed_parity = compare(tool, &input, &expected, &args, &env, &globals, calls);
     let mut failures = Vec::new();
     if let Some(error) = schema_failure {
@@ -190,6 +192,31 @@ fn candidate(
     }
 }
 
+fn typed_config(env: &Environment, mut config: Value) -> Result<(), String> {
+    config
+        .as_object_mut()
+        .ok_or("configuration object")?
+        .insert("mcp_tool_mode".into(), json!("typed"));
+    env.config(&config).map_err(|e| e.to_string())
+}
+
+fn process_valid(
+    validation: Result<(), String>,
+    expected: &Value,
+    label: &str,
+) -> Result<bool, String> {
+    let Err(error) = validation else {
+        return Ok(true);
+    };
+    if expected.get("status") != Some(&json!("usage")) {
+        return Err(error);
+    }
+    use std::io::Write;
+    writeln!(std::io::stdout(), "TYPED_REPLAY_CLI_SYNTAX case={label} shared_process_parser={error}; CLI_witness={expected}; coverage=same-global-parser-for-CLI-and-serve")
+        .map_err(|e| e.to_string())?;
+    Ok(false)
+}
+
 fn cli_case(
     env: &Environment,
     args: &[String],
@@ -198,7 +225,7 @@ fn cli_case(
 ) -> Result<Value, String> {
     let mut command = env.command(
         env!("CARGO_BIN_EXE_biomcp"),
-        &super::super::super::launch::arguments(args, globals),
+        &super::super::super::launch::arguments(args, &json_globals(globals)),
     );
     let output = super::super::super::execution::output(&mut command, step.stdin.as_deref())?;
     if output.status.code() != Some(step.exit) {
@@ -326,26 +353,71 @@ fn validate_input(tool: &Value, input: &Value) -> Result<(), String> {
         .map_err(|e| format!("typed schema rejected recorded case: {e}; input={input}"))
 }
 
-fn query_arguments(args: &[String]) -> (Vec<String>, Vec<String>) {
+fn query_arguments(args: &[String]) -> (Vec<String>, Vec<String>, Result<(), String>) {
+    let parser = process_arguments::root();
     let mut query = Vec::new();
     let mut globals = Vec::new();
-    let mut words = args.iter();
+    let mut words = args.iter().peekable();
     while let Some(word) = words.next() {
-        match word.as_str() {
-            "--format" => {
-                words.next();
+        if word == "--" {
+            query.push(word.clone());
+            query.extend(words.cloned());
+            break;
+        }
+        let (flag, inline) = word
+            .split_once('=')
+            .map_or((word.as_str(), false), |(flag, _)| (flag, true));
+        let Some(argument) = parser.get_arguments().find(|arg| {
+            arg.get_long()
+                .is_some_and(|name| flag == format!("--{name}"))
+        }) else {
+            query.push(word.clone());
+            continue;
+        };
+        let following = words
+            .peek()
+            .map(|word| std::ffi::OsString::from(word.as_str()));
+        if !inline && process_arguments::boolean_value(argument, following.as_ref()) {
+            globals.push(format!("{word}={}", words.next().unwrap_or(word)));
+        } else {
+            globals.push(word.clone());
+            if !inline
+                && argument.get_action().takes_values()
+                && let Some(value) = words.next()
+            {
+                globals.push(value.clone());
             }
-            "--disable-sources" => {
-                globals.push(word.clone());
-                if let Some(value) = words.next() {
-                    globals.push(value.clone());
-                }
-            }
-            "--offline" | "--fresh" => globals.push(word.clone()),
-            _ => query.push(word.clone()),
         }
     }
-    (query, globals)
+    let validation = parser
+        .subcommand_required(false)
+        .arg_required_else_help(false)
+        .try_get_matches_from(std::iter::once("biomcp").chain(globals.iter().map(String::as_str)))
+        .map(|_| ())
+        .map_err(|error| error.to_string());
+    (query, globals, validation)
+}
+
+fn json_globals(globals: &[String]) -> Vec<String> {
+    let mut result = Vec::new();
+    let mut words = globals.iter();
+    while let Some(word) = words.next() {
+        if word == "--format" {
+            result.push(word.clone());
+            if let Some(value) = words.next() {
+                result.push(if value == "md" {
+                    "json".into()
+                } else {
+                    value.clone()
+                });
+            }
+        } else if word == "--format=md" {
+            result.push("--format=json".into());
+        } else {
+            result.push(word.clone());
+        }
+    }
+    result
 }
 
 pub(super) fn rejects_overstrict_schema(tool: &Value) -> Result<(), String> {
