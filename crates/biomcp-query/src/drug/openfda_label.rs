@@ -51,10 +51,7 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
         let next_offset = window.next_offset();
         let items = window.rows;
         let returned = items.len() as u32;
-        {
-            let found = returned != 0;
-            crate::status::item(&mut out, found, false, false);
-        };
+        crate::status::item(&mut out, returned != 0, false, false);
         if let Some(source) = out.sources.first_mut() {
             source.count = Some(total);
             source.retrieved_count = Some(returned);
