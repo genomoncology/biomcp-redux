@@ -87,6 +87,21 @@ struct SearchFields {
     offset: u32,
 }
 impl SearchFields {
+    fn validate_drug_names(&self) -> Result<(), QueryInvalid> {
+        if self.source == AdverseEventSource::Faers
+            && self.drug.iter().any(|name| {
+                let mut words = name.as_str().split_whitespace();
+                let _ = words.next();
+                let _ = words.next_back();
+                words.any(|word| word.eq_ignore_ascii_case("OR"))
+            })
+        {
+            return Err(
+                QueryInvalid::new(&["drug"]).with_message(crate::ErrorMessage::FaersDrugNames)
+            );
+        }
+        Ok(())
+    }
     fn validate_aggregate(&self) -> Result<(), QueryInvalid> {
         if self.aggregate.is_some() && self.source != AdverseEventSource::Faers {
             return Err(QueryInvalid::new(&["source", "aggregate"]));
@@ -166,19 +181,7 @@ impl TryFrom<SearchFields> for AdverseEventSearch {
                 "received_to",
             ]));
         }
-        if v.source == AdverseEventSource::Faers
-            && v.drug.iter().any(|name| {
-                let words: Vec<_> = name.as_str().split_whitespace().collect();
-                words.len() > 2
-                    && words[1..words.len() - 1]
-                        .iter()
-                        .any(|word| word.eq_ignore_ascii_case("OR"))
-            })
-        {
-            return Err(
-                QueryInvalid::new(&["drug"]).with_message(crate::ErrorMessage::FaersDrugNames)
-            );
-        }
+        v.validate_drug_names()?;
         let query = Self(v);
         if query.source() == AdverseEventSource::Faers
             && query.faers_expression().len() > super::faers::FAERS_QUERY_MAX_BYTES

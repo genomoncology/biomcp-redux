@@ -23,7 +23,7 @@
         "search",
         "adverse-event",
         "--drug",
-        "synthetic A\tOR\tsynthetic B"
+        "synthetic A   OR   synthetic B"
       ],
       "exit": 2,
       "offline": true,

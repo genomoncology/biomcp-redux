@@ -410,3 +410,10 @@ bench-honesty-mechanical:
 	+$(MAKE) --keep-going fmt bench-honesty-lint ratchets docs-check current-schema-check
 bench-honesty-lint:
 	cargo clippy --keep-going --locked -p biomcp-types -p biomcp-query -p biomcp --all-targets --features biomcp-types/schema -- -D warnings
+
+.PHONY: bench-honesty-recheck bench-honesty-case-recheck
+bench-honesty-recheck:
+	+$(MAKE) --keep-going bench-honesty-case-recheck bench-honesty-tools fmt bench-honesty-lint ratchets
+bench-honesty-case-recheck:
+	cargo test --locked -p biomcp --test cases drug-boolean-refusal $(TEST_THREADS)
+	cargo test --locked -p biomcp --test cases resolver-provenance $(TEST_THREADS)
