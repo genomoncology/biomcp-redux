@@ -1123,7 +1123,7 @@ Search drug, device and vaccine adverse events. Sources: faers, maude, vaers.
 
 - `--aggregate`: FAERS reaction counts; biomcp_help search adverse-event
 FAERS reaction counts.
-Use reactions for source count buckets across matching reports. Counts are not rates or causal associations; a report may contribute to several terms. Requires MedDRA and offset zero.
+Use reactions for source count buckets across matching reports. Counts are not rates or causal associations; a report may contribute to several terms. Requires MedDRA and offset zero. Value form: string. Example: --aggregate reactions. Command sources: faers, maude, vaers; source restrictions in the field description apply.
 - `--drug`: FAERS drug names; OR.
 FAERS exact drug name; repeat --drug for OR. OR inside one quoted value stays exact. Other filters AND with the names. BioMCP caps the escaped source query, including filters, at FAERS_QUERY_MAX_BYTES (4096 bytes). Value form: repeatable values (repeat the flag). Example: --drug "synthetic\\B". Command sources: faers, maude, vaers; source restrictions in the field description apply.
 - `--limit`: Source report headers, counted FAERS reaction terms or VAERS rows; default five. Value form: integer. Example: --limit 1. Command sources: faers, maude, vaers; source restrictions in the field description apply.
@@ -1320,7 +1320,7 @@ Source FDA classification; drug recalls only. Value form: string. Example: --cla
 - `--firm`: Exact published recalling firm phrase; drug recalls only. Value form: string. Example: --firm Apotex. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `--indication`: Exact label indication; openFDA labels only.
 Search the source Indications and Usage field without disease synonym expansion.
-An optional name query further narrows the same source search.
+An optional name query further narrows the same source search. Value form: string. Example: --indication melanoma. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `--initiated-from`: Inclusive initiation day, YYYY-MM-DD; drug recalls only. Value form: string. Example: --initiated-from 2024-01-01. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `--initiated-to`: Inclusive initiation day, YYYY-MM-DD; drug recalls only. Value form: string. Example: --initiated-to 2024-12-31. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `--limit`: Source candidate rows per page. Value form: integer. Example: --limit 1. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.

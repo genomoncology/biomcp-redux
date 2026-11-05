@@ -38,10 +38,11 @@ def refresh(binary, env):
             raw = subprocess.check_output([binary, "--offline", *step["run"]], env=env)
             output = json.loads(raw)
             for limit, actual in [("max_bytes", len(raw)), ("max_tokens", math.ceil(len(raw) / 4))]:
-                if limit in step:
-                    measured = math.ceil(actual * 1.15)
-                    changed |= step[limit] != measured
-                    step[limit] = measured
+                for limits in (step, step.get("expect", {}).get("", {})):
+                    if isinstance(limits, dict) and limit in limits:
+                        measured = math.ceil(actual * 1.15)
+                        changed |= limits[limit] != measured
+                        limits[limit] = measured
             for key, expected in list(step.get("expect", {}).items()):
                 if (key.endswith("/description") and isinstance(expected, str)) or key.endswith("/examples"):
                     actual = pointer(output, key)
