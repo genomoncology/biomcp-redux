@@ -72,7 +72,7 @@ pub(crate) fn dispatch(root: &crate::grammar::Root, path: &[String]) -> io::Resu
 }
 // Large catalogs remain available through the command's complete query schema.
 const INLINE_CHOICE_LIMIT: usize = 24;
-fn compact(commands: &mut [HelpCommand]) {
+pub(crate) fn compact(commands: &mut [HelpCommand]) {
     for command in commands {
         command.reply_schemas.clear();
         command.examples.truncate(1);

@@ -71,7 +71,7 @@ pub(super) fn help_command(root: &Command) -> Command {
     }
     for (_, entity, _) in super::command_paths() {
         if help.find_subcommand(entity).is_none() {
-            help = help.subcommand(Command::new(*entity));
+            help = help.subcommand(Command::new(entity));
         }
     }
     help.subcommand(

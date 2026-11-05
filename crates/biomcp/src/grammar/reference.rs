@@ -270,3 +270,28 @@ fn every_section_rule_keeps_its_complete_source_text() -> Check {
     }
     Ok(())
 }
+
+#[test]
+fn every_rendered_flag_retains_its_schema_or_parser_description() -> Check {
+    let parser = super::root().map_err(|_| "grammar unavailable")?;
+    let mut commands = crate::help::commands(&parser)?;
+    crate::help::compact(&mut commands);
+    let missing = commands
+        .iter()
+        .flat_map(|command| {
+            command
+                .arguments
+                .iter()
+                .filter(|argument| {
+                    argument.name.starts_with("--") && argument.description.trim().is_empty()
+                })
+                .map(|argument| format!("{} {}", command.command.join(" "), argument.name))
+        })
+        .collect::<Vec<_>>();
+    assert!(
+        missing.is_empty(),
+        "flags lack descriptions: {}",
+        missing.join(", ")
+    );
+    Ok(())
+}
