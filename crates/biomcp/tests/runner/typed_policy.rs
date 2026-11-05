@@ -58,8 +58,10 @@ fn hosted(env: &Environment) -> Result<(), String> {
                 json!({"name":"search_trial","arguments":{"query":"lung cancer"}}),
             )?;
         }
-        if index == 3 || index == 4 {
-            let query = if index == 3 {
+        if index == 0 || index == 3 || index == 4 {
+            let query = if index == 0 {
+                "BRAF V600E"
+            } else if index == 3 {
                 "beta thalassemia"
             } else {
                 "unrecognized"
@@ -70,7 +72,10 @@ fn hosted(env: &Environment) -> Result<(), String> {
                 json!({"name":"search_variant","arguments":{"query":query,"source":"myvariant"}}),
             )?;
         }
-        if index == 5
+        if index >= 5 && text.lines().next().is_some_and(|line| line.contains("search_")) {
+            return Err(format!("hosted refusal acquired a search suggestion: {text}"));
+        }
+        if index >= 5
             && !stdio
                 .pointer("/result/structuredContent")
                 .ok_or("structured reply")?
@@ -139,7 +144,7 @@ fn exact_next(env: &Environment, text: &str, expected: Value) -> Result<(), Stri
     Ok(())
 }
 
-fn frames() -> [Value; 6] {
+fn frames() -> [Value; 7] {
     [
         request(
             json!(1),
@@ -165,6 +170,11 @@ fn frames() -> [Value; 6] {
             json!(7),
             "tools/call",
             json!({"name":"get_variant","arguments":{"input":"unrecognized"}}),
+        ),
+        request(
+            json!(9),
+            "tools/call",
+            json!({"name":"get_gene","arguments":{"input":["BRAF"],"fresh":true}}),
         ),
         request(
             json!(3),

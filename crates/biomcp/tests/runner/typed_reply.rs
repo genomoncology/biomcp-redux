@@ -166,6 +166,12 @@ fn cap() -> Result<(), String> {
                 .and_then(|reply| reply.pointer("/result/structuredContent"))
                 .ok_or("cap reply missing")?;
             let broad = value.pointer("/error/code") == Some(&json!("usage.too_broad"));
+            if broad && mode == "typed"
+                && replies[0].pointer("/result/content/0/text").and_then(Value::as_str)
+                    .and_then(|text| text.lines().next()).is_some_and(|text| text.contains("search_"))
+            {
+                return Err("too-broad reply acquired a search suggestion".into());
+            }
             if broad != refused {
                 return Err(format!(
                     "{mode} cap differed at recorded summary length {length}: {}",
