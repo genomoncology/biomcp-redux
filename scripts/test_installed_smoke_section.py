@@ -61,9 +61,12 @@ child.wait()
             child.stdout.read()  # EOF waits for every inherited stdout owner to exit.
             self.assertEqual(child.wait(timeout=5), -signal.SIGKILL)
             status = Path('/proc') / str(descendant) / 'status'
-            if status.exists():
+            try:
                 state = next(line for line in status.read_text().splitlines() if line.startswith('State:'))
-                self.assertIn('Z', state)
+            except FileNotFoundError:
+                pass
+            else:
+                self.assertIn(state.split()[1], {'X', 'Z'})
         finally:
             cleanup(child.pid)
             child.wait(timeout=5)
