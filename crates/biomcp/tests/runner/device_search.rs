@@ -67,7 +67,12 @@ pub(super) fn check() -> Check {
                         input,
                         "device-search-roundtrip",
                     )?;
-                    if get.pointer(&format!("/result/header/{field}")) != Some(&json!(id)) {
+                    let pointer = if source == "fda-pma" {
+                        format!("/result/header/{field}")
+                    } else {
+                        format!("/result/{field}")
+                    };
+                    if get.pointer(&pointer) != Some(&json!(id)) {
                         return Err(format!("returned ID did not open: {get}"));
                     }
                 }
