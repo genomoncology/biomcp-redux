@@ -24,7 +24,7 @@ runner=$(python3 -c 'import json,sys; print(next(r["executable"] for s in open(s
 python3 scripts/trials.py --runner "$runner" --executable "$binary" --installed query-validation/argument-recovery
 python3 scripts/trials.py --runner "$runner" --executable "$binary" --installed \
     mcp-parity/typed-cli-bridge mcp-parity/typed-help-next-recovery mcp-parity/mcp-typed-tools
-if [ "${1:-focused}" = focused ]; then
+if [ "${1:-focused}" != check ]; then
     python3 scripts/trials.py --runner "$runner" --executable "$binary" --installed \
         --case-file grammar/source-filter-errors.yaml \
         --case-file grammar/usage-bad-enum.yaml \
@@ -36,7 +36,7 @@ if [ "${1:-focused}" = focused ]; then
         --case-file local/refusals-search.yaml
 fi
 
-if [ "${1:-focused}" = regressions ]; then
+if [ "${1:-focused}" != check ]; then
     python3 scripts/trials.py --runner "$runner" --executable "$binary" --installed \
         --case-file article/fold/synthetic-fold.yaml \
         --case-file pathway-sections/validation.yaml \

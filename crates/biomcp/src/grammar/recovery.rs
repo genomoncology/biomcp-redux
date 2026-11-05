@@ -58,7 +58,11 @@ pub(super) fn corrected(
                 return Some(step);
             }
         }
-        for replacement in candidates(schema, property, value.get(*name).is_none()) {
+        for replacement in candidates(
+            schema,
+            property,
+            value.get(*name).is_none() || allow_omission,
+        ) {
             let mut candidate = value.clone();
             candidate
                 .as_object_mut()?
@@ -73,8 +77,18 @@ pub(super) fn corrected(
 
 fn candidates(schema: &Value, property: &Value, missing: bool) -> Vec<Value> {
     let resolved = super::validation::resolve(schema, property);
+    // A supplied value expresses intent. Only a singleton vocabulary is unambiguous.
+    if !missing
+        && resolved
+            .get("enum")
+            .and_then(Value::as_array)
+            .is_none_or(|v| v.len() != 1)
+    {
+        return Vec::new();
+    }
     let mut values: Vec<_> = property
         .get("default")
+        .filter(|_| missing)
         .into_iter()
         .cloned()
         .chain(
