@@ -20,6 +20,21 @@ def pump(stream, label, events):
     events.put((label, None))
 
 
+def validate_transcript(output):
+    requests = [json.loads(line) for line in (output / "requests.jsonl").read_text().splitlines() if line.strip()]
+    calls = [frame for frame in requests if frame.get("method") == "tools/call"]
+    replies = {frame.get("id"): frame.get("result", {}) for line in (output / "replies.jsonl").read_text().splitlines() if line.strip() for frame in [json.loads(line)]}
+    if len(calls) != 2:
+        raise RuntimeError("expected exactly two tools/call requests")
+    first, second = [replies.get(call["id"], {}) for call in calls]
+    success = first.get("structuredContent", {})
+    usage = second.get("structuredContent", {})
+    if first.get("isError") or success.get("status") != "complete":
+        raise RuntimeError("expected complete success for first get_trial; raw evidence retained")
+    if second.get("isError") is not True or usage.get("status") != "usage" or usage.get("error", {}).get("code") != "usage.arguments":
+        raise RuntimeError("expected CLI usage error for second get_trial; raw evidence retained")
+
+
 def exchange(child, output):
     events = queue.Queue()
     for stream, label in [(sys.stdin.buffer, "requests"), (child.stdout, "replies")]:
@@ -65,6 +80,7 @@ def exchange(child, output):
                 sys.stdout.buffer.flush()
     if len(calls) != 2 or pending or any(buffers.values()):
         raise RuntimeError("incomplete two-call MCP exchange")
+    validate_transcript(output)
 
 
 def interrupted(_signal, _frame):
@@ -81,7 +97,8 @@ def main():
     signal.signal(signal.SIGHUP, interrupted)
     args.output.mkdir(parents=True, exist_ok=False)
     with tempfile.TemporaryDirectory(prefix="biomcp-harness-") as temporary:
-        root = Path(temporary)
+        # macOS /var and /tmp are aliases; replay rejects symlink ancestors.
+        root = Path(temporary).resolve()
         environment = {}
         # Match biomcp-test-support::environment::ENV_PATHS, child only.
         for key, directory in [("HOME", "home"), ("USERPROFILE", "home"), ("APPDATA", "config"), ("LOCALAPPDATA", "cache"), ("XDG_CONFIG_HOME", "config"), ("XDG_CACHE_HOME", "cache")]:
@@ -91,6 +108,7 @@ def main():
         config = root / "config.json"
         config.write_text(json.dumps({"mcp_tool_mode": "typed", "mcp_reply_form": "both"}))
         command = [str(args.binary.resolve()), "serve", "--config", str(config), "--replay", str(args.replay.resolve()), "--case-cache", str(root / "case-cache")]
+        (args.output / "setup.json").write_text(json.dumps({"scratch_root": str(root), "argv": command, "configuration": json.loads(config.read_text())}))
         with (args.output / "server.stderr").open("wb") as errors:
             child = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=errors, env=environment, cwd=root, start_new_session=True)
             try:
