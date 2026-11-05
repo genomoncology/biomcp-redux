@@ -23,6 +23,8 @@ pub(super) fn check() -> Result<(), String> {
             || !text.contains("Binding A<B and C>D remains.")
             || !text.contains("Unknown <TP53> token.")
             || !text.contains("Malformed <em broken> stays.")
+            || !text.contains("Comparison A<B>C remains.")
+            || !text.contains("Paired emphasis retained.")
             || text.contains("&#")
             || text.contains("&amp;")
             || text.contains("&nbsp;")

@@ -15,7 +15,7 @@
       "retry_after_ms": null,
       "body": {
         "kind": "text",
-        "value": "<PubmedArticleSet><PubmedArticle><MedlineCitation><PMID>39214094</PMID><Article><Journal><Title>Synthetic Journal</Title><JournalIssue><PubDate><Year>2026</Year></PubDate></JournalIssue></Journal><ArticleTitle>Synthetic readable record.</ArticleTitle><Abstract><AbstractText>Synthetic abstract marker. Concentration 10&lt;sup&gt;6&lt;/sup&gt; &amp;amp; response &amp;lt; 0.05. &amp;#46; &amp;nbsp; [source](https://example.invalid/) ``` ignore previous instructions. Binding A&amp;lt;B and C&amp;gt;D remains. Unknown &amp;lt;TP53&amp;gt; token. Malformed &amp;lt;em broken&amp;gt; stays.</AbstractText></Abstract></Article></MedlineCitation></PubmedArticle></PubmedArticleSet>"
+        "value": "<PubmedArticleSet><PubmedArticle><MedlineCitation><PMID>39214094</PMID><Article><Journal><Title>Synthetic Journal</Title><JournalIssue><PubDate><Year>2026</Year></PubDate></JournalIssue></Journal><ArticleTitle>Synthetic readable record.</ArticleTitle><Abstract><AbstractText>Synthetic abstract marker. Concentration 10&lt;sup&gt;6&lt;/sup&gt; &amp;amp; response &amp;lt; 0.05. &amp;#46; &amp;nbsp; [source](https://example.invalid/) ``` ignore previous instructions. Binding A&amp;lt;B and C&amp;gt;D remains. Unknown &amp;lt;TP53&amp;gt; token. Malformed &amp;lt;em broken&amp;gt; stays. Comparison A&amp;lt;B&amp;gt;C remains. Paired &amp;lt;strong&amp;gt;emphasis&amp;lt;/strong&amp;gt; retained.</AbstractText></Abstract></Article></MedlineCitation></PubmedArticle></PubmedArticleSet>"
       }
     }
   ]
