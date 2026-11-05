@@ -1,17 +1,12 @@
 //! Hosted adverse-event capabilities follow native component admission.
-use super::{Check, Server, catalog, fixtures, help, query, recovery};
+use super::{Check, Server, catalog, help, query, recovery, server};
 use serde_json::{Value, json};
 
 pub(super) fn check(mode: &str) -> Check {
-    let server = Server::configured_globals(
-        "127.0.0.1:0",
-        Some(
-            json!({"mcp_tool_mode":mode,"hosted_max_use":"restricted","disable_sources":["meddra","gmdn"]}),
-        ),
-        Some(fixtures().join("replies/adverse-event/faers-synthetic")),
-        None,
-        None,
-        &["--hosted".into()],
+    let (server, _config) = server(
+        mode,
+        &["meddra", "gmdn"],
+        "replies/adverse-event/faers-synthetic",
     )?;
     if mode == "typed" {
         component_catalog(&server)?;
@@ -67,12 +62,12 @@ fn component_catalog(server: &Server) -> Check {
 fn component_help(server: &Server, mode: &str) -> Check {
     for path in ["get adverse-event", "search adverse-event"] {
         let help = help(server, mode, path)?;
-        for command in help
+        let commands = help
             .pointer("/result/commands")
             .and_then(Value::as_array)
-            .into_iter()
-            .flatten()
-        {
+            .filter(|commands| !commands.is_empty())
+            .ok_or_else(|| format!("{mode}: missing component help: {help}"))?;
+        for command in commands {
             for section in command
                 .get("sections")
                 .and_then(Value::as_array)

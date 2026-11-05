@@ -21,28 +21,10 @@ pub(super) fn check() -> Check {
 }
 
 fn surface(mode: &str) -> Check {
-    let config = Environment::new().map_err(|e| e.to_string())?;
-    config
-        .config(&json!({
-            "mcp_tool_mode":mode, "hosted_max_use":"restricted",
-            "disable_sources":["ctgov","meddra","gmdn","reactome"]
-        }))
-        .map_err(|e| e.to_string())?;
-    let server = Server::configured_globals(
-        "127.0.0.1:0",
-        None,
-        Some(fixtures().join("replies/drug/openfda-label-page")),
-        None,
-        None,
-        &[
-            "--hosted".into(),
-            "--config".into(),
-            config
-                .root()
-                .join("config/biomcp/config.json")
-                .to_string_lossy()
-                .into_owned(),
-        ],
+    let (server, config) = server(
+        mode,
+        &["ctgov", "meddra", "gmdn", "reactome"],
+        "replies/drug/openfda-label-page",
     )?;
     parser_recovery(&server, &config, mode)?;
     if mode == "typed" {
@@ -61,6 +43,32 @@ fn surface(mode: &str) -> Check {
     }
     offered_help(&server, mode)?;
     source_notices(&server, mode)
+}
+
+fn server(mode: &str, disabled: &[&str], replay: &str) -> Result<(Server, Environment), String> {
+    let config = Environment::new().map_err(|e| e.to_string())?;
+    config
+        .config(
+            &json!({"mcp_tool_mode":mode,"hosted_max_use":"restricted","disable_sources":disabled}),
+        )
+        .map_err(|e| e.to_string())?;
+    let server = Server::configured_globals(
+        "127.0.0.1:0",
+        None,
+        Some(fixtures().join(replay)),
+        None,
+        None,
+        &[
+            "--hosted".into(),
+            "--config".into(),
+            config
+                .root()
+                .join("config/biomcp/config.json")
+                .to_string_lossy()
+                .into_owned(),
+        ],
+    )?;
+    Ok((server, config))
 }
 
 fn parser_recovery(server: &Server, env: &Environment, mode: &str) -> Check {
@@ -237,17 +245,10 @@ fn source_notices(server: &Server, mode: &str) -> Check {
 }
 
 fn continuation(mode: &str) -> Check {
-    let server = Server::configured_globals(
-        "127.0.0.1:0",
-        Some(json!({"mcp_tool_mode":mode,"hosted_max_use":"restricted"})),
-        Some(fixtures().join("replies/variant/civic-evidence-filters")),
-        None,
-        None,
-        &[
-            "--hosted".into(),
-            "--disable-sources".into(),
-            "myvariant".into(),
-        ],
+    let (server, _config) = server(
+        mode,
+        &["myvariant"],
+        "replies/variant/civic-evidence-filters",
     )?;
     let reply = query(
         &server,

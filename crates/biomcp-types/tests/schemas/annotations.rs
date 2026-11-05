@@ -85,8 +85,7 @@ fn validate_cli_flags(flags: Option<&Value>) -> Check<()> {
     Ok(())
 }
 
-#[test]
-fn required_component_annotations_are_metadata_with_checked_sources() {
+pub(super) fn required_component_annotations_are_metadata_with_checked_sources() {
     use serde_json::json;
     let old = json!({"$id":"biodata.example/1", "type":"object", "properties":{"name":{"type":"string"}},
         "required":["name"], "additionalProperties":false});
