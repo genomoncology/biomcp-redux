@@ -143,20 +143,24 @@ fn candidate(
             index + 1, expected.get("error").unwrap_or(&Value::Null)).map_err(|e| e.to_string())?;
         return Ok(false);
     };
+    let mut schema_failure = None;
     if let Err(error) = validate_input(tool, &input) {
-        if expected.get("status") != Some(&json!("usage")) {
-            return Err(error);
+        if expected.get("status") == Some(&json!("usage")) {
+            use std::io::Write;
+            writeln!(std::io::stdout(), "TYPED_REPLAY_EXPECTED_INVALID case={label} step={} {error}; CLI_witness={expected}", index + 1)
+                .map_err(|e| e.to_string())?;
+        } else {
+            schema_failure = Some(error);
         }
-        use std::io::Write;
-        writeln!(
-            std::io::stdout(),
-            "TYPED_REPLAY_EXPECTED_INVALID case={label} step={} {error}; CLI_witness={expected}",
-            index + 1
-        )
-        .map_err(|e| e.to_string())?;
     }
     let frozen_parity = single_parity(&env, case, index, &args, &globals);
-    // The raw comparison leaves the same root reset and prepared for this CLI/typed pair.
+    // Keep this comparison independent even when a frozen setup or call failed.
+    reset_prepare(
+        &env,
+        case,
+        index,
+        std::path::Path::new(env!("CARGO_BIN_EXE_biomcp")),
+    )?;
     let expected = cli_case(&env, &args, &globals, step)?;
     config
         .as_object_mut()
@@ -164,10 +168,20 @@ fn candidate(
         .insert("mcp_tool_mode".into(), json!("typed"));
     env.config(&config).map_err(|e| e.to_string())?;
     let typed_parity = compare(tool, &input, &expected, &args, &env, &globals);
-    match (frozen_parity, typed_parity) {
-        (Ok(()), Ok(())) => Ok(true),
-        (Err(error), Ok(())) | (Ok(()), Err(error)) => Err(error),
-        (Err(raw), Err(typed)) => Err(format!("{raw}\n{typed}")),
+    let mut failures = Vec::new();
+    if let Some(error) = schema_failure {
+        failures.push(error);
+    }
+    if let Err(error) = frozen_parity {
+        failures.push(error);
+    }
+    if let Err(error) = typed_parity {
+        failures.push(error);
+    }
+    if failures.is_empty() {
+        Ok(true)
+    } else {
+        Err(failures.join("\n"))
     }
 }
 
@@ -243,7 +257,6 @@ fn single_parity(
             "CURRENT/CURRENT nondeterministic single RAW mismatch in identical reset root; exact frozen/current/control bytes are in this case indexed transcript; no fields exempted".to_owned()
         });
     }
-    reset_prepare(env, case, index, current)?;
     match failure {
         Some(error) => Err(error),
         None => Ok(()),
