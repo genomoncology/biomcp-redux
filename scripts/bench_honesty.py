@@ -88,6 +88,8 @@ def main():
         'binary_sha256': binary_digest,
         'live_check': 'exclude: bounded diagnostic script, not a case; fixture classes are synthetic variant routing and FAERS header bodies plus retained ClinGen/FDA replies; --live-faers replaces only FAERS with one native CLI capture then replays both MCP modes',
         'live_faers': '--live-faers' in sys.argv[4:],
+        'faers_recording': next((arg.split('=', 1)[1] for arg in sys.argv[4:] if arg.startswith('--faers-recording=')), None),
+        'faers_origin': 'native public capture or its replay' if any(arg == '--live-faers' or arg.startswith('--faers-recording=') for arg in sys.argv[4:]) else 'synthetic routing fixture',
         'fixture_paths': [replay for *_, replay in probes if replay],
     }, indent=2) + '\n')
     print('Evidence:', output)
