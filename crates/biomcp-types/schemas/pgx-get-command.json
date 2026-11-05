@@ -125,8 +125,9 @@
           "type": "null"
         }
       ],
-      "description": "One named section; omitted means the CPIC gene card; biomcp_help get pgx\nOne named section; omitted means the CPIC gene card.",
-      "x-positional": 0
+      "description": "One named section; omitted means the CPIC gene card; biomcp_help get pgx",
+      "x-positional": 0,
+      "x-section-rule": "One named section; omitted means the CPIC gene card."
     },
     "section_limit": {
       "description": "Rows per page: three clinical, five elsewhere.",

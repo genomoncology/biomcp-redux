@@ -52,9 +52,9 @@ struct SearchFields {
     #[doc = "Source; default FAERS.\nFAERS by default; VAERS accepts only exact supported vaccine names."]
     #[serde(default = "default_source")]
     source: AdverseEventSource,
-    #[doc = "VAERS table.\nIndependent VAERS table; omitted means reported symptoms."]
+    /// Independent VAERS table; omitted means reported symptoms.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 1)))]
+    #[cfg_attr(feature = "schema", schemars(title = "VAERS table.", extend("x-positional" = 1)))]
     section: Option<super::VaersSection>,
     #[doc = "VAERS snapshot.\nRetained VAERS table for provider-free continuation."]
     #[serde(default, skip_serializing_if = "Option::is_none")]

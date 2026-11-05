@@ -161,8 +161,10 @@
           "type": "null"
         }
       ],
-      "description": "VAERS table; biomcp_help search adverse-event\nVAERS table.\nIndependent VAERS table; omitted means reported symptoms.",
-      "x-positional": 1
+      "description": "VAERS table; biomcp_help search adverse-event",
+      "title": "VAERS table.",
+      "x-positional": 1,
+      "x-section-rule": "Independent VAERS table; omitted means reported symptoms."
     },
     "serious": {
       "anyOf": [

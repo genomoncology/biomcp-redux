@@ -52,9 +52,9 @@ struct GetFields {
     #[serde(default, deserialize_with = "selected_source")]
     #[cfg_attr(feature = "schema", schemars(with = "DrugSource", extend("default" = "mychem")))]
     source: Option<DrugSource>,
-    #[doc = "Source sections.\nExplicit named disclosures; empty means identity only."]
+    /// Explicit named disclosures; empty means identity only.
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
-    #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 1)))]
+    #[cfg_attr(feature = "schema", schemars(title = "Source sections.", extend("x-positional" = 1)))]
     section: Box<[DrugSection]>,
     /// Named section page size, refused on an identity-only card.
     #[serde(default, skip_serializing_if = "Option::is_none")]
