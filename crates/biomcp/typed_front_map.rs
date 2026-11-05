@@ -1,6 +1,4 @@
 //! Shared typed navigation from the advertised command schemas.
-#[path = "coverage.rs"]
-mod coverage;
 use serde_json::Value;
 use std::{
     collections::{BTreeMap, BTreeSet},
@@ -20,6 +18,7 @@ pub(crate) fn generate(
     commands: &[(&str, &str, &str)],
     schemas: &BTreeMap<String, String>,
     excluded: &BTreeSet<String>,
+    command_sources: fn(&str, &str, &Value) -> BTreeSet<String>,
 ) -> Result<String, Box<dyn Error>> {
     let mut rows = BTreeMap::<String, (BTreeSet<String>, BTreeSet<String>)>::new();
     for &(verb, entity, id) in commands {
@@ -27,7 +26,7 @@ pub(crate) fn generate(
         let row = rows.entry(entity.into()).or_default();
         row.0.insert(format!("{verb}_{entity}").replace('-', "_"));
         row.1.extend(
-            coverage::command_sources(verb, entity, &schema)
+            command_sources(verb, entity, &schema)
                 .into_iter()
                 .filter(|source| !excluded.contains(source)),
         );

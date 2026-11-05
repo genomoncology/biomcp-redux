@@ -10,7 +10,7 @@ use std::{
 
 pub(super) fn excluded(context: crate::command::Context<'_>) -> io::Result<BTreeSet<Source>> {
     let mut sources = crate::config::excluded_sources(context.globals, context.settings)
-        .map_err(io::Error::other)?;
+        .map_err(|error| io::Error::other(error.0))?;
     sources.extend(crate::command::hosted_use::disabled(
         context.declared_use,
         context.secrets,
@@ -18,12 +18,7 @@ pub(super) fn excluded(context: crate::command::Context<'_>) -> io::Result<BTree
     Ok(sources)
 }
 
-pub(super) fn schema(
-    verb: &str,
-    entity: &str,
-    mut schema: Value,
-    excluded: &BTreeSet<Source>,
-) -> Value {
+pub(super) fn schema(mut schema: Value, excluded: &BTreeSet<Source>) -> Value {
     filter(&mut schema, excluded);
     if excluded.is_empty() {
         return schema;
@@ -91,12 +86,12 @@ pub(in crate::mcp) fn instructions(context: crate::command::Context<'_>) -> io::
     let excluded = excluded(context)?;
     let mut commands = Vec::new();
     let mut schemas = BTreeMap::new();
-    for &(verb, entity, id) in crate::grammar::command_paths() {
+    for (verb, entity, id) in crate::grammar::command_paths() {
         let query = super::schema(id)?;
         if crate::command::mcp_policy::always_refused(&query, context.globals.hosted) {
             continue;
         }
-        let query = schema(verb, entity, query, &excluded);
+        let query = schema(query, &excluded);
         schemas.insert(id.into(), query.to_string());
         commands.push((verb, entity, id));
     }
@@ -104,6 +99,7 @@ pub(in crate::mcp) fn instructions(context: crate::command::Context<'_>) -> io::
         &commands,
         &schemas,
         &excluded.iter().map(ToString::to_string).collect(),
+        crate::help::coverage::command_sources,
     )
     .map_err(|error| io::Error::other(error.to_string()))
 }
