@@ -168,7 +168,7 @@
     "source": {
       "$ref": "#/$defs/DrugSource",
       "default": "mychem",
-      "description": "Selected record source; after an empty name lookup,; biomcp_help search drug\nSelected record source; after an empty name lookup, existing sources may supply aliases."
+      "description": "Selected source; biomcp_help search drug\nSelected source.\n\nAfter an empty name lookup, existing sources may supply aliases."
     },
     "status": {
       "anyOf": [
