@@ -47,6 +47,20 @@ fn help(value: &mut Value, cx: Context<'_>) -> io::Result<()> {
                 });
             }
             for argument in &mut command.arguments {
+                if matches!(
+                    argument.name.trim_start_matches('-'),
+                    "section" | "sections"
+                ) && let [verb, entity] = command.command.as_slice()
+                {
+                    argument.choices.retain(|word| {
+                        super::typed::catalog::section_allowed(verb, entity, word, &excluded)
+                    });
+                    if argument.default.as_ref().is_some_and(|word| {
+                        !super::typed::catalog::section_allowed(verb, entity, word, &excluded)
+                    }) {
+                        argument.default = None;
+                    }
+                }
                 argument.choices.retain(|word| {
                     !word
                         .parse::<Source>()

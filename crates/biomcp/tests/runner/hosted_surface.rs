@@ -10,7 +10,7 @@ pub(super) fn check() -> Result<(), String> {
     let mut errors = Vec::new();
     for mode in ["single", "typed"] {
         let config_owner = Environment::new().map_err(|e| e.to_string())?;
-        config_owner.config(&json!({"mcp_tool_mode":mode,"hosted_max_use":"restricted","disable_sources":["ctgov"]})).map_err(|e| e.to_string())?;
+        config_owner.config(&json!({"mcp_tool_mode":mode,"hosted_max_use":"restricted","disable_sources":["ctgov","meddra","reactome"]})).map_err(|e| e.to_string())?;
         let server = Server::configured_globals(
             "127.0.0.1:0",
             None,
@@ -47,7 +47,7 @@ pub(super) fn check() -> Result<(), String> {
                 errors.push("typed: disabled OncoKB section offered".into());
             }
         }
-        for path in ["", "get gene", "sources"] {
+        for path in ["", "get gene", "get pathway", "sources"] {
             let params = if mode == "typed" {
                 json!({"name":"biomcp_help","arguments":{"command":path}})
             } else {
@@ -60,6 +60,22 @@ pub(super) fn check() -> Result<(), String> {
                 .pointer("/result/commands")
                 .and_then(Value::as_array)
                 .ok_or("help commands")?;
+            if path == "get pathway"
+                && commands.iter().any(|command| {
+                    command
+                        .get("arguments")
+                        .and_then(Value::as_array)
+                        .into_iter()
+                        .flatten()
+                        .any(|arg| {
+                            arg.get("choices")
+                                .and_then(Value::as_array)
+                                .is_some_and(|choices| choices.contains(&json!("events")))
+                        })
+                })
+            {
+                errors.push(format!("{mode}: disabled Reactome events section offered"));
+            }
             for command in commands {
                 let path = command.get("command").cloned().unwrap_or(json!([]));
                 if matches!(
@@ -94,6 +110,13 @@ pub(super) fn check() -> Result<(), String> {
             }
         }
         for (verb, entity, args, input, expected) in [
+            (
+                "search",
+                "adverse-event",
+                vec!["Synthetic medicine", "--reaction", "rash"],
+                json!({"text":"Synthetic medicine","reaction":"rash"}),
+                "operator",
+            ),
             (
                 "search",
                 "drug",
