@@ -145,11 +145,15 @@ fn rejections(env: &Environment, globals: &[String]) -> Result<(), String> {
         let (status, http) = server.request("POST", "/mcp", &frame.to_string())?;
         if status != 200
             || replies[0]["result"] != http["result"]
-            || replies[0].pointer("/result/structuredContent/status") == Some(&json!("usage"))
+            || !replies[0]
+                .pointer("/result/structuredContent/status")
+                .and_then(Value::as_str)
+                .is_some_and(|status| status != "usage")
         {
             return Err(format!("typed correction rejected: {replies:?} / {http}"));
         }
     }
+    let mut numeric_reply = None;
     for limit in [json!(10), json!("10")] {
         let frame = request(
             json!(5),
@@ -160,12 +164,25 @@ fn rejections(env: &Environment, globals: &[String]) -> Result<(), String> {
         let (status, http) = server.request("POST", "/mcp", &frame.to_string())?;
         if status != 200
             || replies[0]["result"] != http["result"]
-            || replies[0].pointer("/result/structuredContent/status") == Some(&json!("usage"))
+            || !replies[0]
+                .pointer("/result/structuredContent/status")
+                .and_then(Value::as_str)
+                .is_some_and(|status| status != "usage")
         {
             return Err(format!(
                 "CLI-compatible integer rejected: {replies:?} / {http}"
             ));
         }
+        let envelope = replies[0]
+            .pointer("/result/structuredContent")
+            .ok_or("integer envelope")?;
+        if numeric_reply
+            .as_ref()
+            .is_some_and(|numeric| numeric != envelope)
+        {
+            return Err("string integer differs from numeric integer".into());
+        }
+        numeric_reply = Some(envelope.clone());
     }
     Ok(())
 }
