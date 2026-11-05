@@ -1,6 +1,6 @@
 {
   "study/examples.yaml step 3": {
-    "capture_sha256": "202346b5a90b26ff1a039af5df531a1d68b6e2dfe5b48fd0959ba0a89335811e",
+    "capture_sha256": "6ce229629cbed1ecdbc9569e7bea887f39083507e3f87f339d60a071117733bc",
     "pointers": [
       "/page/pool/created",
       "/page/pool/expires",
@@ -10,7 +10,7 @@
     ]
   },
   "study/examples.yaml step 4": {
-    "capture_sha256": "fc6a0bc92cda00ec8eb666f0cfd618a2bdd65fec632db682893b88bdeab62799",
+    "capture_sha256": "ef8f8cd678a155d5d3224d2cef0065fb8bdf46dafb599348e2fa6195671ecaf1",
     "pointers": [
       "/page/pool/created",
       "/page/pool/expires",
