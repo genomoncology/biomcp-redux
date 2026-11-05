@@ -28,6 +28,9 @@ type Check = Result<(), String>;
 
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = vec![
+        transcript_trial("mcp-parity/typed-baseline-and-replay-guards", || {
+            typed::guards().map_err(Into::into)
+        }),
         transcript_trial("mcp-parity/typed-cli-bridge", || {
             typed_bridge::check().map_err(Into::into)
         }),
@@ -87,6 +90,11 @@ pub(super) fn trials() -> Vec<Trial> {
             discovery().map_err(Into::into)
         }),
     ];
+    tool_only! {
+        trials.push(transcript_trial("mcp-parity/typed-clock-controls", || {
+            typed::clock_controls().map_err(Into::into)
+        }));
+    }
     trials.push(transcript_trial("mcp-parity/reply-forms", || {
         reply_form::check().map_err(Into::into)
     }));
