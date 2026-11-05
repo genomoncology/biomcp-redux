@@ -20,11 +20,15 @@
       "expect": {
         "/status": "failed",
         "/next": [],
-        "/result/population/reason": "bad-reply",
-        "/result/candidates/0/identity/ids/0": "CA180574",
         "/problems/*/field": {
           "excludes": "GRCh38_allele"
-        }
+        },
+        "": {
+          "omits": [
+            "result"
+          ]
+        },
+        "/sources/1/reason": "bad-reply"
       }
     },
     {

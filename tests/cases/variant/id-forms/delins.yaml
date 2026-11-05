@@ -27,7 +27,11 @@
       "expect": {
         "/status": "failed",
         "/next": [],
-        "/result/population/reason": "no-join-id"
+        "": {
+          "omits": [
+            "result"
+          ]
+        }
       },
       "mcp": [
         "variant",

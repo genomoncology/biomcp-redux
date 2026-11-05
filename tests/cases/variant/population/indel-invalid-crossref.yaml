@@ -18,10 +18,14 @@
       "expect": {
         "/status": "failed",
         "/next": [],
-        "/result/population/reason": "no-join-id",
         "/problems/*/field": {
           "includes_all_of": [
             "externalRecords.gnomAD_4.id"
+          ]
+        },
+        "": {
+          "omits": [
+            "result"
           ]
         }
       }
