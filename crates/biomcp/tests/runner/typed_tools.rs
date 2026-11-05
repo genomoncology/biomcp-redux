@@ -20,6 +20,13 @@ pub(super) fn getter_help() -> Result<(), String> {
     policy::get_help(&env)
 }
 
+pub(super) fn description_contract() -> Result<(), String> {
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    env.config(&json!({"mcp_tool_mode":"typed"}))
+        .map_err(|e| e.to_string())?;
+    policy::check_descriptions(&env)
+}
+
 pub(super) fn check() -> Result<(), String> {
     super::super::launch::typed_baseline()
         .ok_or("BIOMCP_TYPED_BASELINE is required for single-mode wire parity")?;

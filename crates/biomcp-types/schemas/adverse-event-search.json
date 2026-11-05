@@ -77,7 +77,7 @@
     },
     "limit": {
       "default": 5,
-      "description": "Rows per page.\nNative report headers or VAERS rows per page; default five.",
+      "description": "Native report headers or VAERS rows per page; default five.",
       "format": "uint32",
       "maximum": 50,
       "minimum": 1,
@@ -96,7 +96,7 @@
     },
     "offset": {
       "default": 0,
-      "description": "Source rows to skip.\nNative row offset. VAERS continuation requires its retained snapshot.",
+      "description": "Native row offset. VAERS continuation requires its retained snapshot.",
       "format": "uint32",
       "minimum": 0,
       "type": "integer"

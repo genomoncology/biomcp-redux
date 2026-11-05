@@ -38,7 +38,7 @@
     },
     "section": {
       "$ref": "#/$defs/CellLineSection",
-      "description": "Omit for the default card; all returns bounded text; biomcp_help get cell-line\nOmit for the default card; all returns bounded first pages without an assay count.",
+      "description": "Omit for the default card; all returns bounded first; biomcp_help get cell-line\nOmit for the default card; all returns bounded first pages without an assay count.",
       "x-positional": 1
     },
     "section_limit": {

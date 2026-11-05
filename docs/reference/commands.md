@@ -191,7 +191,7 @@ Options:
           Snapshot identity retained by continuation commands.
 
       --source <source>
-          Explicit keyed NCI source text; biomcp_help search biomarker
+          Explicit keyed NCI source; biomcp_help search biomarker
           Explicit keyed NCI source.
 
       --offline[=<offline>]
@@ -214,7 +214,7 @@ Search NCI biomarker concepts by name or synonym. Sources: nci.
 - `--name`: Source partial name or synonym search.
 - `--offset`: Offset within the complete retained observation.
 - `--pool`: Snapshot identity retained by continuation commands.
-- `--source`: Explicit keyed NCI source text; biomcp_help search biomarker
+- `--source`: Explicit keyed NCI source; biomcp_help search biomarker
 Explicit keyed NCI source.
 
 ## biomcp search author
@@ -254,7 +254,7 @@ Options:
           Read configuration from this file.
 
       --source <source>
-          Native author source text; biomcp_help search author
+          Native author source; biomcp_help search author
           Native author source.
 
       --offline[=<offline>]
@@ -277,7 +277,7 @@ Search research paper authors. Sources: semantic-scholar.
 - `--offset`: Source offset.
 - `--pool`: Retained page identity.
 - `query`: Exact query from the positional argument.
-- `--source`: Source author source text; biomcp_help search author
+- `--source`: Source author source; biomcp_help search author
 Source author source.
 
 ## biomcp search organization
@@ -349,7 +349,7 @@ Options:
           Native postal code.
 
       --source <source>
-          Explicit keyed NCI source text; biomcp_help search organization
+          Explicit keyed NCI source; biomcp_help search organization
           Explicit keyed NCI source.
 
       --state <state>
@@ -370,7 +370,7 @@ Search clinical research organizations. Sources: nci.
 - `--offset`: Offset within the complete retained organization snapshot.
 - `--pool`: Snapshot identity retained by continuation commands.
 - `--postal-code`: Source postal code.
-- `--source`: Explicit keyed NCI source text; biomcp_help search organization
+- `--source`: Explicit keyed NCI source; biomcp_help search organization
 Explicit keyed NCI source.
 - `--state`: Source state or province.
 
@@ -638,7 +638,7 @@ Options:
           Native source row offset.
 
       --source <source>
-          Monarch only; HPO search is unsupported text; biomcp_help search phenotype
+          Monarch only; HPO search is unsupported; biomcp_help search phenotype
           Monarch only; HPO search is unsupported.
 
       --source_pacing <source_pacing>
@@ -665,7 +665,7 @@ Search human phenotypes in HPO. Sources: hpo, monarch.
 
 - `--limit`: Maximum source headers, default five.
 - `--offset`: Source source row offset.
-- `--source`: Monarch only; HPO search is unsupported text; biomcp_help search phenotype
+- `--source`: Monarch only; HPO search is unsupported; biomcp_help search phenotype
 Monarch only; HPO search is unsupported.
 - `text`: Unchanged exact term search text.
 
@@ -715,7 +715,7 @@ Options:
           Retained snapshot identity for deterministic continuation.
 
       --source <source>
-          Sources in caller order; repeated sources take text; biomcp_help search pathway
+          Sources in caller order; repeated sources take; biomcp_help search pathway
           Sources in caller order; repeated sources take turns without title joins.
 
       --top-level[=<top_level>]
@@ -740,7 +740,7 @@ Search human biological pathways. Sources: reactome, wikipathways.
 - `--offset`: Source Reactome Start row or retained WikiPathways catalog offset.
 - `--pool`: Retained snapshot identity for deterministic continuation.
 - `query`: Exact source query; exclusive with gene and top-level discovery.
-- `--source`: Sources in caller order; repeated sources take text; biomcp_help search pathway
+- `--source`: Sources in caller order; repeated sources take; biomcp_help search pathway
 Sources in caller order; repeated sources take turns without title joins.
 - `--top-level`: Source human Reactome top-level discovery, exclusive with text and gene.
 
@@ -841,7 +841,7 @@ Options:
           Native source offset.
 
       --source <source>
-          Required CPIC source; ClinPGx is not supported for text; biomcp_help search pgx
+          Required CPIC source; ClinPGx is not supported for; biomcp_help search pgx
           Required CPIC source; ClinPGx is not supported for search.
 
       --offline[=<offline>]
@@ -864,7 +864,7 @@ Search pharmacogenomic gene and drug pairs. Sources: cpic.
 - `--gene`: Explicit source gene symbol.
 - `--limit`: Rows per source page.
 - `--offset`: Source source offset.
-- `--source`: Required CPIC source; ClinPGx is not supported for text; biomcp_help search pgx
+- `--source`: Required CPIC source; ClinPGx is not supported for; biomcp_help search pgx
 Required CPIC source; ClinPGx is not supported for search.
 
 ## biomcp search diagnostic
@@ -947,7 +947,6 @@ Options:
           Inclusive initiation date, YYYY-MM-DD; FDA device recalls only.
 
       --limit <limit>
-          Rows per page, 1–50.
           Five results by default; at most fifty source rows or product headers.
 
       --manufacturer <manufacturer>
@@ -963,7 +962,6 @@ Options:
           Native trade_name (PMA) or device_name (510(k)) phrase.
 
       --offset <offset>
-          Source rows to skip.
           Zero-based source result offset.
 
       --product-code <product_code>
@@ -971,12 +969,12 @@ Options:
           Exact native FDA device recall product code.
 
       --source <source>
-          Native diagnostic source text; biomcp_help search diagnostic
+          Native diagnostic source; biomcp_help search diagnostic
           Native diagnostic source.
           Explicit native GTR, WHO IVD, FDA PMA, 510(k), companion or medical device recall discovery.
 
       --type <type>
-          Native test_type text; biomcp_help search diagnostic
+          Native test_type; biomcp_help search diagnostic
           Native test_type.
           Exact native test_type value.
 
@@ -1006,22 +1004,20 @@ Exact source GeneID, exclusive with gene symbol.
 Inclusive initiation date, YYYY-MM-DD; FDA device recalls only.
 - `--initiated-to`: Last date, YYYY-MM-DD.
 Inclusive initiation date, YYYY-MM-DD; FDA device recalls only.
-- `--limit`: Rows per page, 1–50.
-Five results by default; at most fifty source rows or product headers.
+- `--limit`: Five results by default; at most fifty source rows or product headers.
 - `--manufacturer`: Manufacturer phrase.
 WHO manufacturer words, source FDA applicant (PMA/510(k)) or recalling_firm phrase.
 - `--marker`: WHO marker phrase.
 Exact whole-word phrase in WHO's Pathogen/Disease/Marker cell.
 - `--name`: Source device name.
 Source trade_name (PMA) or device_name (510(k)) phrase.
-- `--offset`: Source rows to skip.
-Zero-based source result offset.
+- `--offset`: Zero-based source result offset.
 - `--product-code`: FDA product code.
 Exact source FDA device recall product code.
-- `--source`: Source diagnostic source text; biomcp_help search diagnostic
+- `--source`: Source diagnostic source; biomcp_help search diagnostic
 Source diagnostic source.
 Explicit source GTR, WHO IVD, FDA PMA, 510(k), companion or medical device recall discovery.
-- `--type`: Source test_type text; biomcp_help search diagnostic
+- `--type`: Source test_type; biomcp_help search diagnostic
 Source test_type.
 Exact source test_type value.
 
@@ -1038,7 +1034,7 @@ Arguments:
           Literal drug text, MAUDE device phrase or exact supported VAERS vaccine.
 
   [section]
-          VAERS table text; biomcp_help search adverse-event
+          VAERS table; biomcp_help search adverse-event
           VAERS table.
           Independent VAERS table; omitted means reported symptoms.
 
@@ -1057,7 +1053,6 @@ Options:
           Exclude source names or source terms groups.
 
       --limit <limit>
-          Rows per page.
           Native report headers or VAERS rows per page; default five.
 
       --manufacturer <manufacturer>
@@ -1071,7 +1066,6 @@ Options:
           Read configuration from this file.
 
       --offset <offset>
-          Source rows to skip.
           Native row offset. VAERS continuation requires its retained snapshot.
 
       --problem <problem>
@@ -1107,7 +1101,7 @@ Options:
           [possible values: true, false]
 
       --serious <serious>
-          FAERS seriousness flag text; biomcp_help search adverse-event
+          FAERS seriousness flag; biomcp_help search adverse-event
           FAERS seriousness flag.
           FAERS report flag: any uses the source seriousness flag; the specific flags can overlap. Never a reaction outcome.
 
@@ -1116,7 +1110,7 @@ Options:
           Retained VAERS table for provider-free continuation.
 
       --source <source>
-          Source; default FAERS text; biomcp_help search adverse-event
+          Source; default FAERS; biomcp_help search adverse-event
           Source; default FAERS.
           FAERS by default; VAERS accepts only exact supported vaccine names.
 
@@ -1126,12 +1120,10 @@ Search drug, device and vaccine adverse events. Sources: faers, maude, vaers.
 
 - `--drug`: FAERS drug names; OR.
 FAERS exact drug name; repeat --drug for OR. OR inside one quoted value stays exact. Other filters AND with the names. BioMCP caps the escaped source query, including filters, at FAERS_QUERY_MAX_BYTES (4096 bytes).
-- `--limit`: Rows per page.
-Source report headers or VAERS rows per page; default five.
+- `--limit`: Source report headers or VAERS rows per page; default five.
 - `--manufacturer`: MAUDE manufacturer.
 MAUDE manufacturer phrase on device.manufacturer_d_name. A report may list several devices; filters may match different devices.
-- `--offset`: Source rows to skip.
-Source row offset. VAERS continuation requires its retained snapshot.
+- `--offset`: Source row offset. VAERS continuation requires its retained snapshot.
 - `--problem`: MAUDE product problem.
 MAUDE phrase on source product_problems.
 - `--product-code`: MAUDE product codes; OR.
@@ -1142,21 +1134,21 @@ FAERS MedDRA term phrase match, not exact equality.
 Inclusive FAERS or MAUDE FDA receipt lower bound, YYYY-MM-DD or YYYY-MM; a month starts on its first day.
 - `--received-to`: Last date, YYYY-MM[-DD].
 Inclusive FAERS or MAUDE FDA receipt upper bound, YYYY-MM-DD or YYYY-MM; a month ends on its last day.
-- `section`: VAERS table text; biomcp_help search adverse-event
+- `section`: VAERS table; biomcp_help search adverse-event
 VAERS table.
 Independent VAERS table; omitted means reported symptoms.
-- `--serious`: FAERS seriousness flag text; biomcp_help search adverse-event
+- `--serious`: FAERS seriousness flag; biomcp_help search adverse-event
 FAERS seriousness flag.
 FAERS report flag: any uses the source seriousness flag; the specific flags can overlap. Never a reaction outcome.
 - `--snapshot`: VAERS snapshot.
 Retained VAERS table for source-free continuation.
-- `--source`: Source; default FAERS text; biomcp_help search adverse-event
+- `--source`: Source; default FAERS; biomcp_help search adverse-event
 Source; default FAERS.
 FAERS by default; VAERS accepts only exact supported vaccine names.
 - `text`: Drug, device or vaccine.
 Exact drug text, MAUDE device phrase or exact supported VAERS vaccine.
 
-VAERS table text; biomcp_help search adverse-event
+VAERS table; biomcp_help search adverse-event
 VAERS table.
 Independent VAERS table; omitted means reported symptoms.
 
@@ -1192,7 +1184,7 @@ Options:
           Native row offset.
 
       --ontology <ontology>
-          Exactly one ontology, default MONDO text; biomcp_help search disease
+          Exactly one ontology, default MONDO; biomcp_help search disease
           Exactly one ontology, default MONDO.
 
       --source_pacing <source_pacing>
@@ -1202,7 +1194,7 @@ Options:
           Read configuration from this file.
 
       --source <source>
-          One explicit source, default OLS text; biomcp_help search disease
+          One explicit source, default OLS; biomcp_help search disease
           One explicit source, default OLS.
 
       --offline[=<offline>]
@@ -1223,9 +1215,9 @@ Search diseases and their identifiers. Sources: monarch, mydisease, ols, seer.
 
 - `--limit`: Maximum source rows on one page.
 - `--offset`: Source row offset.
-- `--ontology`: Exactly one ontology, default MONDO text; biomcp_help search disease
+- `--ontology`: Exactly one ontology, default MONDO; biomcp_help search disease
 Exactly one ontology, default MONDO.
-- `--source`: One explicit source, default OLS text; biomcp_help search disease
+- `--source`: One explicit source, default OLS; biomcp_help search disease
 One explicit source, default OLS.
 - `text`: Exact source search text; absent for the SEER site catalog.
 
@@ -1245,7 +1237,7 @@ Arguments:
 
 Options:
       --classification <classification>
-          Native FDA classification; drug recalls only text; biomcp_help search drug
+          Native FDA classification; drug recalls only; biomcp_help search drug
           Native FDA classification; drug recalls only.
 
       --format <format>
@@ -1276,7 +1268,7 @@ Options:
           Native candidate rows per page.
 
       --name-selector <name_selector>
-          Explicit ChEMBL native name selector; omitted text; biomcp_help search drug
+          Explicit ChEMBL native name selector; omitted means; biomcp_help search drug
           Explicit ChEMBL native name selector; omitted means preferred name.
 
       --offset <offset>
@@ -1304,7 +1296,7 @@ Options:
           Phrase in the published recall reason; drug recalls only.
 
       --source <source>
-          Exactly one source; default MyChem never fans out text; biomcp_help search drug
+          Exactly one source; default MyChem never fans out; biomcp_help search drug
           Exactly one source; default MyChem never fans out.
 
       --status <status>
@@ -1314,13 +1306,13 @@ Options:
 
 Search drugs and medicines by name. Sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq.
 
-- `--classification`: Source FDA classification; drug recalls only text; biomcp_help search drug
+- `--classification`: Source FDA classification; drug recalls only; biomcp_help search drug
 Source FDA classification; drug recalls only.
 - `--firm`: Exact published recalling firm phrase; drug recalls only.
 - `--initiated-from`: Inclusive initiation day, YYYY-MM-DD; drug recalls only.
 - `--initiated-to`: Inclusive initiation day, YYYY-MM-DD; drug recalls only.
 - `--limit`: Source candidate rows per page.
-- `--name-selector`: Explicit ChEMBL source name selector; omitted text; biomcp_help search drug
+- `--name-selector`: Explicit ChEMBL source name selector; omitted means; biomcp_help search drug
 Explicit ChEMBL source name selector; omitted means preferred name.
 - `--offset`: Source rows to skip.
 - `--prequalified-from`: Inclusive WHO prequalification lower bound, YYYY, YYYY-MM or YYYY-MM-DD; WHO PQ only.
@@ -1330,7 +1322,7 @@ exact names before word matches. openFDA labels search exact then word brand/gen
 then label text (including indications) when no names match; source matches need not be exact names.
 Harmonized recall names match but never become display names.
 - `--reason`: Phrase in the published recall reason; drug recalls only.
-- `--source`: Exactly one source; default MyChem never fans out text; biomcp_help search drug
+- `--source`: Exactly one source; default MyChem never fans out; biomcp_help search drug
 Exactly one source; default MyChem never fans out.
 - `--status`: Exact source recall status; drug recalls only.
 
@@ -1362,7 +1354,7 @@ Options:
           Number of results per page.
 
       --locus-group <locus_group>
-          Optional HGNC locus group intersected with the text; biomcp_help search gene
+          Optional HGNC locus group intersected with the; biomcp_help search gene
           Optional HGNC locus group intersected with the selector.
 
       --source_pacing <source_pacing>
@@ -1392,7 +1384,7 @@ Search human genes by name or identifier. Sources: hgnc.
 
 - `--band`: A cytoband prefix.
 - `--limit`: Number of results per page.
-- `--locus-group`: Optional HGNC locus group intersected with the text; biomcp_help search gene
+- `--locus-group`: Optional HGNC locus group intersected with the; biomcp_help search gene
 Optional HGNC locus group intersected with the selector.
 - `--offset`: Number of results to skip.
 - `query`: Words matched against symbols, previous symbols, aliases and names.
@@ -1454,7 +1446,6 @@ Options:
           [possible values: true, false]
 
       --offset <offset>
-          Pool items to skip.
           Number of pool items to skip.
 
       --offline[=<offline>]
@@ -1491,7 +1482,7 @@ Options:
           Inclusive lower publication-date bound at the stated precision; PubMed matches either electronic or print date.
 
       --sort <sort>
-          rank, date or citations text; biomcp_help search article
+          rank, date or citations; biomcp_help search article
           rank, date or citations.
           rank (default): native provider order; several sources take turns; native search cost.
           date: native search cost; PubMed means date added and Europe PMC means newest first; other sources refuse it.
@@ -1499,7 +1490,7 @@ Options:
           All sources support citations.
 
       --source <source>
-          Sources; default pubmed text; biomcp_help search article
+          Sources; default pubmed; biomcp_help search article
           Sources; default pubmed.
           Sources to search in caller order, comma separated. Default: pubmed.
           Several sources take turns, remove duplicates and show every native rank.
@@ -1511,7 +1502,7 @@ Options:
           pubtator: entity and word search including full text; needs the right entity ID; --gene uses HGNC Entrez identity and cannot run without that join.
 
       --type <type>
-          Publication-type filter text; biomcp_help search article
+          Publication-type filter; biomcp_help search article
           Publication-type filter.
 
       --until <until>
@@ -1539,27 +1530,26 @@ Journal words sent to PubMed's journal field.
 - `--limit`: Maximum page length.
 - `--no-preprints`: Exclude preprints.
 Exclude preprints using the source's source filter.
-- `--offset`: Pool items to skip.
-Number of pool items to skip.
+- `--offset`: Number of pool items to skip.
 - `--open-access`: Source open access.
 Require the source's source open-access filter; Semantic Scholar means a public PDF.
 - `--pool`: Stable result snapshot.
 Stable snapshot from an earlier response.
-- `--exclude-retracted`: Retraction filter text; biomcp_help search article
+- `--exclude-retracted`: Retraction filter; biomcp_help search article
 Retraction filter.
 Include retracted papers by default, or exclude them using a source filter.
-- `--include-retracted`: Retraction filter text; biomcp_help search article
+- `--include-retracted`: Retraction filter; biomcp_help search article
 Retraction filter.
 Include retracted papers by default, or exclude them using a source filter.
 - `--since`: First publication date.
 Inclusive lower publication-date bound at the stated precision; PubMed matches either electronic or print date.
-- `--sort`: rank, date or citations text; biomcp_help search article
+- `--sort`: rank, date or citations; biomcp_help search article
 rank, date or citations.
 rank (default): source order; several sources take turns; source search cost.
 date: source search cost; PubMed means date added and Europe PMC means newest first; other sources refuse it.
 citations: most cited first across the whole pool; adds iCite calls, about 1 s per 1,000 PMIDs.
 All sources support citations.
-- `--source`: Sources; default pubmed text; biomcp_help search article
+- `--source`: Sources; default pubmed; biomcp_help search article
 Sources; default pubmed.
 Sources to search in caller order, comma separated. Default: pubmed.
 Several sources take turns, remove duplicates and show every source rank.
@@ -1571,7 +1561,7 @@ litsense: sentence resemblance, not a match; unrelated hits and timeouts are pos
 pubtator: entity and word search including full text; needs the right entity ID; --gene uses HGNC Entrez identity and cannot run without that join.
 - `text`: Source search words.
 Words sent to each named source in its default fields.
-- `--type`: Publication-type filter text; biomcp_help search article
+- `--type`: Publication-type filter; biomcp_help search article
 Publication-type filter.
 - `--until`: Last publication date.
 Inclusive upper publication-date bound at the stated precision; PubMed matches either electronic or print date.
@@ -1592,7 +1582,6 @@ Arguments:
 
 Options:
       --age <age>
-          Age, years.
           Age in years; unstated source bounds count as no limit.
 
       --format <format>
@@ -1609,7 +1598,7 @@ Options:
           Exclude source names or source terms groups.
 
       --biomarker-use <biomarker_use>
-          NCI criterion text; biomcp_help search trial
+          NCI criterion; biomcp_help search trial
           NCI criterion.
           Filter by NCI's native inclusion or exclusion criterion. Check each result's biomarker entry and reported problems.
 
@@ -1628,7 +1617,7 @@ Options:
           Exact MONDO or DOID CURIE resolved by MyDisease; NCI also accepts explicit NCIT:C codes.
 
       --count-only[=<count_only>]
-          Total only.
+          Total.
           Source total only; no returned study rows.
 
           [default: false]
@@ -1689,41 +1678,39 @@ Options:
           Intervention alternatives joined with OR; supported by ClinicalTrials.gov.
 
       --keyword <keyword>...
-          Registry text; OR.
+          Text; OR.
           Repeat for ClinicalTrials.gov general text alternatives joined with OR; different filters combine with AND. NCI accepts one keyword.
 
       --lat <lat>
-          Latitude, degrees.
+          Latitude degrees.
           Radius center latitude in degrees.
 
       --limit <limit>
-          Page size.
           Headers per page; NCI applies its own lower publisher limit.
 
       --lon <lon>
-          Longitude, degrees.
+          Longitude degrees.
           Radius center longitude in degrees.
 
       --next-page <next_page>
-          Continuation.
+          Page token.
           Opaque registry continuation; keep filters unchanged.
 
       --offset <offset>
-          Rows to skip.
           Zero-based offset of the first row in this continuation page.
 
       --phase <phase>
-          Native phase text; biomcp_help search trial
+          Native phase; biomcp_help search trial
           Native phase.
           Exact source phase. ClinicalTrials.gov: 1, 2, 3, 4, early-1, not-applicable, 1/2, 2/3. NCI: NA, 0, I, I_II, II, II_III, III, IV.
 
       --sex <sex>
-          Registry sex facet text; biomcp_help search trial
+          Registry sex facet; biomcp_help search trial
           Registry sex facet.
 
       --source <source>
-          clinicaltrials or nci text; biomcp_help search trial
-          clinicaltrials or nci.
+          clinicaltrials/nci; biomcp_help search trial
+          clinicaltrials/nci.
           Explicit provider; defaults to ClinicalTrials.gov and never falls back.
 
       --sponsor <sponsor>
@@ -1731,26 +1718,26 @@ Options:
           Sponsor name; ClinicalTrials.gov broadens after zero exact matches. Use --sponsor-type for the funding category.
 
       --sponsor-type <sponsor_type>
-          Funding class text; biomcp_help search trial
+          Funding class; biomcp_help search trial
           Funding class.
           Registry sponsor funding category; use --sponsor for a sponsor name.
 
       --status <status>
-          Native status text; biomcp_help search trial
+          Native status; biomcp_help search trial
           Native status.
           Exact source status. NCI: Active, Administratively Complete, Approved, Closed to Accrual, Closed to Accrual and Intervention, Complete, INACTIVE, Enrolling by Invitation, Temporarily Closed to Accrual, Temporarily Closed to Accrual and Intervention, Withdrawn. ClinicalTrials.gov uses registry labels.
 
       --study-type <study_type>
-          Study type text; biomcp_help search trial
+          Study type; biomcp_help search trial
           Study type.
           Exact registry study type.
 
       --updated-since <updated_since>
-          First update.
+          First date.
           First included registry update date.
 
       --updated-until <updated_until>
-          Last update.
+          Last date.
           Last included registry update date.
 
       --variant <variant>
@@ -1761,18 +1748,17 @@ Options:
 
 Search clinical trials. Sources: ctgov, nci.
 
-- `--age`: Age, years.
-Age in years; unstated source bounds count as no limit.
+- `--age`: Age in years; unstated source bounds count as no limit.
 - `--biomarker-code`: NCI NCIt code.
 Exact NCIt biomarker concept listed by NCI in trial criteria; NCI source only. This listing does not establish biomarker positivity or patient eligibility.
-- `--biomarker-use`: NCI criterion text; biomcp_help search trial
+- `--biomarker-use`: NCI criterion; biomcp_help search trial
 NCI criterion.
 Filter by NCI's source inclusion or exclusion criterion. Check each result's biomarker entry and reported problems.
 - `--condition`: Disease or NCIt.
 Condition alternatives joined with OR; NCI requires NCIt codes.
 - `--condition-id`: MONDO/DOID/NCIT:C.
 Exact MONDO or DOID CURIE resolved by MyDisease; NCI also accepts explicit NCIT:C codes.
-- `--count-only`: Total only.
+- `--count-only`: Total.
 Source total only; no returned study rows.
 - `--country`: Country label; biomcp_help search trial.
 Exact ClinicalTrials.gov country label; repeat for OR. Trials must list a site in a named country. NCI uses its source country filter.
@@ -1792,42 +1778,40 @@ Require posted source results.
 Exact NCT identity in a conjunction with other filters.
 - `--intervention`: Treatment terms; OR.
 Intervention alternatives joined with OR; supported by ClinicalTrials.gov.
-- `--keyword`: Registry text; OR.
+- `--keyword`: Text; OR.
 Repeat for ClinicalTrials.gov general text alternatives joined with OR; different filters combine with AND. NCI accepts one keyword.
-- `--lat`: Latitude, degrees.
+- `--lat`: Latitude degrees.
 Radius center latitude in degrees.
-- `--limit`: Page size.
-Headers per page; NCI applies its own lower publisher limit.
-- `--lon`: Longitude, degrees.
+- `--limit`: Headers per page; NCI applies its own lower publisher limit.
+- `--lon`: Longitude degrees.
 Radius center longitude in degrees.
-- `--next-page`: Continuation.
+- `--next-page`: Page token.
 Opaque registry continuation; keep filters unchanged.
-- `--offset`: Rows to skip.
-Zero-based offset of the first row in this continuation page.
-- `--phase`: Source phase text; biomcp_help search trial
+- `--offset`: Zero-based offset of the first row in this continuation page.
+- `--phase`: Source phase; biomcp_help search trial
 Source phase.
 Exact source phase. ClinicalTrials.gov: 1, 2, 3, 4, early-1, not-applicable, 1/2, 2/3. NCI: NA, 0, I, I_II, II, II_III, III, IV.
 - `query`: Trial text.
 General registry discovery text.
-- `--sex`: Registry sex facet text; biomcp_help search trial
+- `--sex`: Registry sex facet; biomcp_help search trial
 Registry sex facet.
-- `--source`: clinicaltrials or nci text; biomcp_help search trial
-clinicaltrials or nci.
+- `--source`: clinicaltrials/nci; biomcp_help search trial
+clinicaltrials/nci.
 Explicit source; defaults to ClinicalTrials.gov and never falls back.
 - `--sponsor`: Sponsor.
 Sponsor name; ClinicalTrials.gov broadens after zero exact matches. Use --sponsor-type for the funding category.
-- `--sponsor-type`: Funding class text; biomcp_help search trial
+- `--sponsor-type`: Funding class; biomcp_help search trial
 Funding class.
 Registry sponsor funding category; use --sponsor for a sponsor name.
-- `--status`: Source status text; biomcp_help search trial
+- `--status`: Source status; biomcp_help search trial
 Source status.
 Exact source status. NCI: Active, Administratively Complete, Approved, Closed to Accrual, Closed to Accrual and Intervention, Complete, INACTIVE, Enrolling by Invitation, Temporarily Closed to Accrual, Temporarily Closed to Accrual and Intervention, Withdrawn. ClinicalTrials.gov uses registry labels.
-- `--study-type`: Study type text; biomcp_help search trial
+- `--study-type`: Study type; biomcp_help search trial
 Study type.
 Exact registry study type.
-- `--updated-since`: First update.
+- `--updated-since`: First date.
 First included registry update date.
-- `--updated-until`: Last update.
+- `--updated-until`: Last date.
 Last included registry update date.
 - `--variant`: Variant text.
 Exact variant text for registry discovery only; no eligibility judgment.
@@ -1841,7 +1825,7 @@ Usage: biomcp search variant [OPTIONS]
 
 Options:
       --build <build>
-          Optional caller assembly sent to MyVariant; text; biomcp_help search variant
+          Optional caller assembly sent to MyVariant; regions; biomcp_help search variant
           Optional caller assembly sent to MyVariant; regions require it explicitly.
 
       --format <format>
@@ -1869,7 +1853,7 @@ Options:
           Checked gene symbol for the dbNSFP substitution or ClinVar coding/synonymous selector.
 
       --has <has>
-          Require the selected component's identifier text; biomcp_help search variant
+          Require the selected component's identifier field; biomcp_help search variant
           Require the selected component's identifier field. Only source-proven mappings are offered.
 
       --limit <limit>
@@ -1903,19 +1887,19 @@ Options:
           Literal MyVariant clinvar.rcv.review_status phrase; no star conversion. Requires a declared protein or region selector.
 
       --source <source>
-          Explicit source language; required for a raw text; biomcp_help search variant
+          Explicit source language; required for a raw query; biomcp_help search variant
           Explicit source language; required for a raw query.
 
 ```
 
 Search genetic variants by gene, change or region. Sources: myvariant.
 
-- `--build`: Optional caller assembly sent to MyVariant; text; biomcp_help search variant
+- `--build`: Optional caller assembly sent to MyVariant; regions; biomcp_help search variant
 Optional caller assembly sent to MyVariant; regions require it explicitly.
 - `--coding`: Coding HGVS change searched literally in ClinVar with --gene, without choosing a transcript.
 - `--condition`: Exact MyVariant clinvar.rcv.conditions.name phrase; source text is not a local diagnosis. Requires a declared protein or region selector.
 - `--gene`: Checked gene symbol for the dbNSFP substitution or ClinVar coding/synonymous selector.
-- `--has`: Require the selected component's identifier text; biomcp_help search variant
+- `--has`: Require the selected component's identifier field; biomcp_help search variant
 Require the selected component's identifier field. Only source-proven mappings are offered.
 - `--limit`: Source candidates per page, default 10, maximum 50; all candidates remain candidates.
 - `--offset`: Source offset within this command's bounded result window; larger source totals remain visible.
@@ -1923,7 +1907,7 @@ Require the selected component's identifier field. Only source-proven mappings a
 - `--query`: Raw MyVariant query, passed and echoed unchanged when component policy allows; requires --source myvariant. With disabled components use declared selectors instead.
 - `--region`: Exact one-based inclusive MyVariant region, such as chr7:55259500-55259600; requires --build.
 - `--review-status`: Exact MyVariant clinvar.rcv.review_status phrase; no star conversion. Requires a declared protein or region selector.
-- `--source`: Explicit source language; required for a raw text; biomcp_help search variant
+- `--source`: Explicit source language; required for a raw query; biomcp_help search variant
 Explicit source language; required for a raw query.
 
 ## biomcp get
@@ -2006,7 +1990,7 @@ Options:
           [possible values: json, md]
 
       --source <source>
-          NCI is the biomarker concept source text; biomcp_help get biomarker
+          NCI is the biomarker concept source; biomcp_help get biomarker
           NCI is the biomarker concept source.
 
       --disable-sources <disable-sources>
@@ -2035,7 +2019,7 @@ Options:
 Get NCI biomarker concepts by code. Sources: nci.
 
 - `id`: Exact NCIt code, such as C96022.
-- `--source`: NCI is the biomarker concept source text; biomcp_help get biomarker
+- `--source`: NCI is the biomarker concept source; biomcp_help get biomarker
 NCI is the biomarker concept source.
 
 ## biomcp get author
@@ -2095,7 +2079,7 @@ Arguments:
           One exact primary accession or qualified source ID.
 
   [section]
-          Omit for the default card; all returns bounded text; biomcp_help get cell-line
+          Omit for the default card; all returns bounded first; biomcp_help get cell-line
           Omit for the default card; all returns bounded first pages without an assay count.
 
 Options:
@@ -2137,12 +2121,12 @@ Options:
 Get cell line details and cross-references. Sources: cellosaurus.
 
 - `id`: One exact primary accession or qualified source ID.
-- `section`: Omit for the default card; all returns bounded text; biomcp_help get cell-line
+- `section`: Omit for the default card; all returns bounded first; biomcp_help get cell-line
 Omit for the default card; all returns bounded first pages without an assay count.
 - `--section-limit`: Explicit row limit for each requested collection; source variation defaults to three.
 - `--section-offset`: Offset within each independently requested collection.
 
-Omit for the default card; all returns bounded text; biomcp_help get cell-line
+Omit for the default card; all returns bounded first; biomcp_help get cell-line
 Omit for the default card; all returns bounded first pages without an assay count.
 
 - `names`: Source display names.
@@ -2164,7 +2148,7 @@ Arguments:
           Qualified association ID or exact GCST study accession.
 
   [section]
-          Association loci or study associations and text; biomcp_help get gwas
+          Association loci or study associations and ancestries; biomcp_help get gwas
           Association loci or study associations and ancestries.
 
 Options:
@@ -2209,13 +2193,13 @@ Options:
 Get GWAS Catalog associations or studies. Sources: gwas.
 
 - `id`: Qualified association ID or exact GCST study accession.
-- `section`: Association loci or study associations and text; biomcp_help get gwas
+- `section`: Association loci or study associations and ancestries; biomcp_help get gwas
 Association loci or study associations and ancestries.
 - `--section-limit`: Maximum source relation rows.
 - `--section-offset`: Source relation row offset.
 - `--snapshot`: Retained ancestry reply for a local page.
 
-Association loci or study associations and text; biomcp_help get gwas
+Association loci or study associations and ancestries; biomcp_help get gwas
 Association loci or study associations and ancestries.
 
 - `loci`: Source association loci.
@@ -2243,7 +2227,7 @@ Options:
           [possible values: json, md]
 
       --section <section>
-          Select native sections or all bounded first text; biomcp_help get protein
+          Select native sections or all bounded first pages;; biomcp_help get protein
           Select native sections or all bounded first pages; function keeps one whole text record.
 
       --disable-sources <disable-sources>
@@ -2275,11 +2259,11 @@ Options:
 Get protein details and source annotations. Sources: complex-portal, hgnc, interpro, uniprot.
 
 - `input`: Source accessions or gene symbols, preserving caller order.
-- `--section`: Select source sections or all bounded first text; biomcp_help get protein
+- `--section`: Select source sections or all bounded first pages;; biomcp_help get protein
 Select source sections or all bounded first pages; function keeps one whole text record.
 - `--section-limit`: First-page row limit; function keeps one whole source text record and does not page its paragraphs.
 
-Select source sections or all bounded first text; biomcp_help get protein
+Select source sections or all bounded first pages;; biomcp_help get protein
 Select source sections or all bounded first pages; function keeps one whole text record.
 
 - `features`: Source UniProt features.
@@ -2303,7 +2287,7 @@ Arguments:
           Exact HP identifier.
 
   [section]
-          Absent means the source identity card text; biomcp_help get phenotype
+          Absent means the source identity card; biomcp_help get phenotype
           Absent means the source identity card.
 
 Options:
@@ -2332,7 +2316,7 @@ Options:
           Read configuration from this file.
 
       --source <source>
-          HPO or Monarch for cards, synonyms and xrefs; text; biomcp_help get phenotype
+          HPO or Monarch for cards, synonyms and xrefs;; biomcp_help get phenotype
           HPO or Monarch for cards, synonyms and xrefs; Monarch only for hierarchy, diseases and genes. Defaults to HPO for cards, synonyms and xrefs, otherwise Monarch.
 
       --offline[=<offline>]
@@ -2352,15 +2336,15 @@ Options:
 Get human phenotype details and relationships. Sources: hpo, monarch.
 
 - `id`: Exact HP identifier.
-- `section`: Absent means the source identity card text; biomcp_help get phenotype
+- `section`: Absent means the source identity card; biomcp_help get phenotype
 Absent means the source identity card.
 - `--section-limit`: Default five text/link rows or one complete association row.
 - `--section-offset`: Source section row offset.
 - `--snapshot`: Retained exact source reply for local text and link pages; unsupported for diseases and genes.
-- `--source`: HPO or Monarch for cards, synonyms and xrefs; text; biomcp_help get phenotype
+- `--source`: HPO or Monarch for cards, synonyms and xrefs;; biomcp_help get phenotype
 HPO or Monarch for cards, synonyms and xrefs; Monarch only for hierarchy, diseases and genes. Defaults to HPO for cards, synonyms and xrefs, otherwise Monarch.
 
-Absent means the source identity card text; biomcp_help get phenotype
+Absent means the source identity card; biomcp_help get phenotype
 Absent means the source identity card.
 
 - `synonyms`: Source synonyms.
@@ -2381,7 +2365,7 @@ Arguments:
           Exact human Reactome or WikiPathways identity without version suffixes.
 
   [section]
-          Omit for the card; WikiPathways has summary and text; biomcp_help get pathway
+          Omit for the card; WikiPathways has summary and genes; biomcp_help get pathway
           Omit for the card; WikiPathways has summary and genes sections.
 
 Options:
@@ -2428,12 +2412,12 @@ Get human pathway details. Sources: reactome, wikipathways.
 - `--fresh`: Request a new source observation.
 - `id`: Exact human Reactome or WikiPathways identity without version suffixes.
 - `--pool`: Retained snapshot, when continuing a source relation.
-- `section`: Omit for the card; WikiPathways has summary and text; biomcp_help get pathway
+- `section`: Omit for the card; WikiPathways has summary and genes; biomcp_help get pathway
 Omit for the card; WikiPathways has summary and genes sections.
 - `--section-limit`: Bounded initial section size; each all section has its own first page.
 - `--section-offset`: Source relation offset for a selected genes or events section.
 
-Omit for the card; WikiPathways has summary and text; biomcp_help get pathway
+Omit for the card; WikiPathways has summary and genes; biomcp_help get pathway
 Omit for the card; WikiPathways has summary and genes sections.
 
 - `summary`: Complete source description.
@@ -2453,7 +2437,7 @@ Arguments:
           Exact source study ID; no default or repair.
 
   [section]
-          Omit for the card; all returns bounded first pages text; biomcp_help get study
+          Omit for the card; all returns bounded first pages only; biomcp_help get study
           Omit for the card; all returns bounded first pages only.
 
 Options:
@@ -2503,12 +2487,12 @@ Get cancer genomics study details. Sources: cbioportal.
 - `--gene`: Exact cBioPortal HUGO gene symbol or Entrez ID; required for mutations.
 - `id`: Exact source study ID; no default or repair.
 - `--molecular-profile`: Exact mutation profile ID; omitted selects the study's first mutation profile.
-- `section`: Omit for the card; all returns bounded first pages text; biomcp_help get study
+- `section`: Omit for the card; all returns bounded first pages only; biomcp_help get study
 Omit for the card; all returns bounded first pages only.
 - `--section-limit`: Maximum records in each selected section.
 - `--section-offset`: Offset within one named section; all requires zero.
 
-Omit for the card; all returns bounded first pages text; biomcp_help get study
+Omit for the card; all returns bounded first pages only; biomcp_help get study
 Omit for the card; all returns bounded first pages only.
 
 - `profiles`: Five exact source molecular profile references.
@@ -2527,7 +2511,7 @@ Usage: biomcp get pgx [OPTIONS] --source <source> [section]
 
 Arguments:
   [section]
-          One named section; omitted means the CPIC gene card text; biomcp_help get pgx
+          One named section; omitted means the CPIC gene card; biomcp_help get pgx
           One named section; omitted means the CPIC gene card.
 
 Options:
@@ -2559,7 +2543,7 @@ Options:
           Explicit source gene symbol.
 
       --kind <kind>
-          One ClinPGx collection; clinical is the default only text; biomcp_help get pgx
+          One ClinPGx collection; clinical is the default only on; biomcp_help get pgx
           One ClinPGx collection; clinical is the default only on annotations.
 
       --section-limit <section_limit>
@@ -2578,7 +2562,7 @@ Options:
           [possible values: true, false]
 
       --source <source>
-          Required source, checked against the section text; biomcp_help get pgx
+          Required source, checked against the section; biomcp_help get pgx
           Required source, checked against the section.
 
       --fresh[=<fresh>]
@@ -2595,17 +2579,17 @@ Get pharmacogenomic evidence and source sections. Sources: clinpgx, cpic.
 - `--diplotype`: Unchanged declared expression required for the diplotype section only.
 - `--drug-id`: Exact published CPIC drug key; recommendations only.
 - `--gene`: Explicit source gene symbol.
-- `--kind`: One ClinPGx collection; clinical is the default only text; biomcp_help get pgx
+- `--kind`: One ClinPGx collection; clinical is the default only on; biomcp_help get pgx
 One ClinPGx collection; clinical is the default only on annotations.
-- `section`: One named section; omitted means the CPIC gene card text; biomcp_help get pgx
+- `section`: One named section; omitted means the CPIC gene card; biomcp_help get pgx
 One named section; omitted means the CPIC gene card.
 - `--section-limit`: Rows per page: three clinical, five elsewhere.
 - `--section-offset`: Offset within the selected section.
 - `--snapshot`: Retained collection for local continuation.
-- `--source`: Required source, checked against the section text; biomcp_help get pgx
+- `--source`: Required source, checked against the section; biomcp_help get pgx
 Required source, checked against the section.
 
-One named section; omitted means the CPIC gene card text; biomcp_help get pgx
+One named section; omitted means the CPIC gene card; biomcp_help get pgx
 One named section; omitted means the CPIC gene card.
 
 - `recommendations`: Complete source recommendation contexts.
@@ -2625,7 +2609,7 @@ Arguments:
           Exact native identity, including version for GTR.
 
   [section]
-          GTR: genes, conditions, methods. PMA: text; biomcp_help get diagnostic
+          GTR: genes, conditions, methods. PMA: regulatory,; biomcp_help get diagnostic
           GTR: genes, conditions, methods. PMA: regulatory, supplements, summary.
           WHO, 510(k) and device recalls have no sections; omit for the card.
 
@@ -2655,7 +2639,7 @@ Options:
           Read configuration from this file.
 
       --source <source>
-          Explicit source: GTR accession/version, WHO text; biomcp_help get diagnostic
+          Explicit source: GTR accession/version, WHO Product; biomcp_help get diagnostic
           Explicit source: GTR accession/version, WHO Product ID, PMA P number,
           510(k) K number or device recall Z-NNNN-YYYY.
 
@@ -2680,17 +2664,17 @@ Get diagnostic test or device details. Sources: fda-510k, fda-device-recall, fda
 
 - `--bundle-revision`: Immutable stored bundle revision retained by a continuation.
 - `id`: Exact source identity, including version for GTR.
-- `section`: GTR: genes, conditions, methods. PMA: text; biomcp_help get diagnostic
+- `section`: GTR: genes, conditions, methods. PMA: regulatory,; biomcp_help get diagnostic
 GTR: genes, conditions, methods. PMA: regulatory, supplements, summary.
 WHO, 510(k) and device recalls have no sections; omit for the card.
 - `--section-limit`: Maximum source rows; omitted means five rows, or one regulatory fragment.
 - `--section-offset`: Zero-based source row or fragment offset.
-- `--source`: Explicit source: GTR accession/version, WHO text; biomcp_help get diagnostic
+- `--source`: Explicit source: GTR accession/version, WHO Product; biomcp_help get diagnostic
 Explicit source: GTR accession/version, WHO Product ID, PMA P number,
 510(k) K number or device recall Z-NNNN-YYYY.
 - `--supplement`: Exact source PMA supplement; absent selects the base row.
 
-GTR: genes, conditions, methods. PMA: text; biomcp_help get diagnostic
+GTR: genes, conditions, methods. PMA: regulatory,; biomcp_help get diagnostic
 GTR: genes, conditions, methods. PMA: regulatory, supplements, summary.
 WHO, 510(k) and device recalls have no sections; omit for the card.
 
@@ -2713,7 +2697,7 @@ Arguments:
           Published report ID with no source prefix.
 
   [section]
-          FAERS owns drugs, reactions and text; biomcp_help get adverse-event
+          FAERS owns drugs, reactions and identifiers;; biomcp_help get adverse-event
           FAERS owns drugs, reactions and identifiers; MAUDE owns devices and narrative. Omitted means card only.
 
 Options:
@@ -2745,7 +2729,7 @@ Options:
           Checked retained report snapshot for provider-free continuation.
 
       --source <source>
-          FAERS by default; MAUDE is explicit text; biomcp_help get adverse-event
+          FAERS by default; MAUDE is explicit; biomcp_help get adverse-event
           FAERS by default; MAUDE is explicit.
 
       --offline[=<offline>]
@@ -2766,15 +2750,15 @@ Get a drug, device or vaccine adverse event report. Sources: faers, maude.
 
 - `--drug-index`: Absolute source-array index; required only for identifier sections.
 - `id`: Published report ID with no source prefix.
-- `section`: FAERS owns drugs, reactions and text; biomcp_help get adverse-event
+- `section`: FAERS owns drugs, reactions and identifiers;; biomcp_help get adverse-event
 FAERS owns drugs, reactions and identifiers; MAUDE owns devices and narrative. Omitted means card only.
 - `--section-limit`: Whole source rows per section page.
 - `--section-offset`: Offset within the selected source section.
 - `--snapshot`: Checked retained report snapshot for source-free continuation.
-- `--source`: FAERS by default; MAUDE is explicit text; biomcp_help get adverse-event
+- `--source`: FAERS by default; MAUDE is explicit; biomcp_help get adverse-event
 FAERS by default; MAUDE is explicit.
 
-FAERS owns drugs, reactions and text; biomcp_help get adverse-event
+FAERS owns drugs, reactions and identifiers;; biomcp_help get adverse-event
 FAERS owns drugs, reactions and identifiers; MAUDE owns devices and narrative. Omitted means card only.
 
 - `drugs`: Independent source drug rows.
@@ -2801,7 +2785,7 @@ Arguments:
           Exact ontology CURIE or an explicit SEER catalog site ID.
 
   [section]
-          One named section; absent means identity card text; biomcp_help get disease
+          One named section; absent means identity card only; biomcp_help get disease
           One named section; absent means identity card only.
 
 Options:
@@ -2830,7 +2814,7 @@ Options:
           Read configuration from this file.
 
       --ontology <ontology>
-          One OLS ontology text; biomcp_help get disease
+          One OLS ontology; biomcp_help get disease
           One OLS ontology.
 
       --period <period>
@@ -2861,7 +2845,7 @@ Options:
           [possible values: true, false]
 
       --source <source>
-          Default MyDisease; no automatic fallback text; biomcp_help get disease
+          Default MyDisease; no automatic fallback; biomcp_help get disease
           Default MyDisease; no automatic fallback.
 
 ```
@@ -2872,19 +2856,19 @@ Get disease details and source statistics. Sources: monarch, mydisease, ols, see
 - `--dataset`: Requested source dataset selector, not proof of returned membership.
 - `id`: Exact ontology CURIE or an explicit SEER catalog site ID.
 - `--interval`: Survival-only interval code.
-- `--ontology`: One OLS ontology text; biomcp_help get disease
+- `--ontology`: One OLS ontology; biomcp_help get disease
 One OLS ontology.
 - `--period`: Incidence-only source period code.
 - `--race`: Source race code.
-- `section`: One named section; absent means identity card text; biomcp_help get disease
+- `section`: One named section; absent means identity card only; biomcp_help get disease
 One named section; absent means identity card only.
 - `--section-limit`: Source rows per page: default 2 for Monarch genes, 1 for Monarch phenotypes, otherwise 5.
 - `--section-offset`: Source row offset within the selected section.
 - `--sex`: Source sex code.
-- `--source`: Default MyDisease; no automatic fallback text; biomcp_help get disease
+- `--source`: Default MyDisease; no automatic fallback; biomcp_help get disease
 Default MyDisease; no automatic fallback.
 
-One named section; absent means identity card text; biomcp_help get disease
+One named section; absent means identity card only; biomcp_help get disease
 One named section; absent means identity card only.
 
 - `synonyms`: Publisher scoped synonyms.
@@ -2904,10 +2888,11 @@ Usage: biomcp get drug [OPTIONS] <input> [section]...
 
 Arguments:
   <input>
+          Source ID, brand or generic name.
           Source-native ID or complete brand or generic name; WHO references retain native spaces. Exact brands rank before generics; Drugs@FDA prefers NDA/BLA before ANDA, then earliest approval. Other sources retain search order. The chosen record reports up to five alternatives and their total. Generic names also accept one trailing listed salt or ester term: mesylate, hydrochloride, sodium, potassium, calcium, sulfate, maleate, tartrate, citrate, phosphate, acetate, besylate, fumarate, succinate, tosylate, bromide, chloride. Brand names identical to their own ingredient count as generic. USAN nomenclature: https://www.ama-assn.org/about/united-states-adopted-names-usan/united-states-adopted-names-naming-guidelines
 
   [section]...
-          Source sections text; biomcp_help get drug
+          Source sections; biomcp_help get drug
           Source sections.
           Explicit named disclosures; empty means identity only.
 
@@ -2923,7 +2908,7 @@ Options:
           [possible values: json, md]
 
       --civic-kind <civic_kind>
-          CIViC collection text; biomcp_help get drug
+          CIViC collection; biomcp_help get drug
           CIViC collection.
           Independent native evidence or assertion collection within the selected profile.
 
@@ -2931,7 +2916,6 @@ Options:
           Exclude source names or source terms groups.
 
       --civic-profile <civic_profile>
-          CIViC profile ID.
           Selected native CIViC molecular profile for a drug-scoped claim stream.
 
       --source_pacing <source_pacing>
@@ -2946,13 +2930,13 @@ Options:
           and 6144 escaped bytes per fragment. No-text scans are explicit.
 
       --evidence-level <evidence_level>...
-          CIViC evidence levels text; biomcp_help get drug
-          CIViC evidence levels.
+          A–E; biomcp_help get drug
+          A–E
           Native CIViC evidence levels; repeat to include several levels.
 
       --evidence-status <evidence_status>
-          CIViC evidence status text; biomcp_help get drug
-          CIViC evidence status.
+          Status; biomcp_help get drug
+          Status
           Native CIViC evidence status; omitted preserves the source's existing default.
 
       --label-section <label_section>
@@ -2970,7 +2954,6 @@ Options:
           [possible values: true, false]
 
       --section-limit <section_limit>
-          Section page size.
           Named section page size, refused on an identity-only card.
 
       --fresh[=<fresh>]
@@ -2980,11 +2963,10 @@ Options:
           [possible values: true, false]
 
       --section-offset <section_offset>
-          Section rows to skip.
           Named section continuation, refused on an identity-only card.
 
       --source <source>
-          Omit to infer the source of an unambiguous section; text; biomcp_help get drug
+          Omit to infer the source of an unambiguous section;; biomcp_help get drug
           Omit to infer the source of an unambiguous section; identity or mixed sections use MyChem.
 
 ```
@@ -2993,36 +2975,34 @@ Get drug and medicine details. Sources: chembl, civic, ddinter, drugsfda, ema, f
 
 - `--civic-cursor`: CIViC continuation.
 Source continuation cursor for that exact drug, profile and claim collection.
-- `--civic-kind`: CIViC collection text; biomcp_help get drug
+- `--civic-kind`: CIViC collection; biomcp_help get drug
 CIViC collection.
 Independent source evidence or assertion collection within the selected profile.
-- `--civic-profile`: CIViC profile ID.
-Selected source CIViC molecular profile for a drug-scoped claim stream.
+- `--civic-profile`: Selected source CIViC molecular profile for a drug-scoped claim stream.
 - `--document-id`: FDA letter document ID.
 Exact source Drugs@FDA approval letter document ID. Text is bounded to 25 MiB, 100 pages
 and 6144 escaped bytes per fragment. No-text scans are explicit.
-- `--evidence-level`: CIViC evidence levels text; biomcp_help get drug
-CIViC evidence levels.
+- `--evidence-level`: A–E; biomcp_help get drug
+A–E
 Source CIViC evidence levels; repeat to include several levels.
-- `--evidence-status`: CIViC evidence status text; biomcp_help get drug
-CIViC evidence status.
+- `--evidence-status`: Status; biomcp_help get drug
+Status
 Source CIViC evidence status; omitted preserves the source's existing default.
-- `input`: Source-source ID or complete brand or generic name; WHO references retain source spaces. Exact brands rank before generics; Drugs@FDA prefers NDA/BLA before ANDA, then earliest approval. Other sources retain search order. The chosen record reports up to five alternatives and their total. Generic names also accept one trailing listed salt or ester term: mesylate, hydrochloride, sodium, potassium, calcium, sulfate, maleate, tartrate, citrate, phosphate, acetate, besylate, fumarate, succinate, tosylate, bromide, chloride. Brand names identical to their own ingredient count as generic. USAN nomenclature: https://www.ama-assn.org/about/united-states-adopted-names-usan/united-states-adopted-names-naming-guidelines
+- `input`: Source ID, brand or generic name.
+Source-source ID or complete brand or generic name; WHO references retain source spaces. Exact brands rank before generics; Drugs@FDA prefers NDA/BLA before ANDA, then earliest approval. Other sources retain search order. The chosen record reports up to five alternatives and their total. Generic names also accept one trailing listed salt or ester term: mesylate, hydrochloride, sodium, potassium, calcium, sulfate, maleate, tartrate, citrate, phosphate, acetate, besylate, fumarate, succinate, tosylate, bromide, chloride. Brand names identical to their own ingredient count as generic. USAN nomenclature: https://www.ama-assn.org/about/united-states-adopted-names-usan/united-states-adopted-names-naming-guidelines
 - `--label-section`: Exact openFDA SPL field.
 Exact published openFDA SPL section field, including table fields; required for the label section.
 - `--product-number`: FDA product number.
 Explicit source application product number, only for approvals.
-- `section`: Source sections text; biomcp_help get drug
+- `section`: Source sections; biomcp_help get drug
 Source sections.
 Explicit named disclosures; empty means identity only.
-- `--section-limit`: Section page size.
-Named section page size, refused on an identity-only card.
-- `--section-offset`: Section rows to skip.
-Named section continuation, refused on an identity-only card.
-- `--source`: Omit to infer the source of an unambiguous section; text; biomcp_help get drug
+- `--section-limit`: Named section page size, refused on an identity-only card.
+- `--section-offset`: Named section continuation, refused on an identity-only card.
+- `--source`: Omit to infer the source of an unambiguous section;; biomcp_help get drug
 Omit to infer the source of an unambiguous section; identity or mixed sections use MyChem.
 
-Source sections text; biomcp_help get drug
+Source sections; biomcp_help get drug
 Source sections.
 Explicit named disclosures; empty means identity only.
 
@@ -3054,7 +3034,7 @@ Options:
           [possible values: json, md]
 
       --section <section>
-          Requested section words, preserving caller order and text; biomcp_help get gene
+          Requested section words, preserving caller order and; biomcp_help get gene
           Requested section words, preserving caller order and repetitions.
           Trailing section words select sections. Use --section WORD to keep inputs that equal a section word as inputs.
 
@@ -3084,11 +3064,11 @@ Options:
 Get gene identities and source annotations. Sources: civic, clingen, gencc, gnomad, hgnc, hpa, mygene, oncokb, reactome, uniprot.
 
 - `input`: Gene symbols or checked identifiers, in input order.
-- `--section`: Requested section words, preserving caller order and text; biomcp_help get gene
+- `--section`: Requested section words, preserving caller order and; biomcp_help get gene
 Requested section words, preserving caller order and repetitions.
 Trailing section words select sections. Use --section WORD to keep inputs that equal a section word as inputs.
 
-Requested section words, preserving caller order and text; biomcp_help get gene
+Requested section words, preserving caller order and; biomcp_help get gene
 Requested section words, preserving caller order and repetitions.
 Trailing section words select sections. Use --section WORD to keep inputs that equal a section word as inputs.
 
@@ -3121,7 +3101,7 @@ Options:
           [possible values: json, md]
 
       --section <section>
-          Requested section words; trailing words and text; biomcp_help get article
+          Requested section words; trailing words and --section; biomcp_help get article
           Requested section words; trailing words and --section share this field.
 
       --disable-sources <disable-sources>
@@ -3150,10 +3130,10 @@ Options:
 Get research article details. Sources: europepmc, icite, pmc-oa, pubmed, pubtator, semantic-scholar.
 
 - `input`: PubMed, PMC or DOI identifiers in input order.
-- `--section`: Requested section words; trailing words and text; biomcp_help get article
+- `--section`: Requested section words; trailing words and --section; biomcp_help get article
 Requested section words; trailing words and --section share this field.
 
-Requested section words; trailing words and text; biomcp_help get article
+Requested section words; trailing words and --section; biomcp_help get article
 Requested section words; trailing words and --section share this field.
 
 - `annotations`: Normalized text-mined entities from PubTator3.
@@ -3202,11 +3182,11 @@ Options:
           Read configuration from this file.
 
       --section <section>
-          Optional intact source sections. Default cards text; biomcp_help get trial
+          Optional intact source sections. Default cards only;; biomcp_help get trial
           Optional intact source sections. Default cards only; diseases and summary require NCI. NCI locations, contacts, references and documents are unsupported.
 
       --source <source>
-          Explicit provider; defaults to ClinicalTrials.gov text; biomcp_help get trial
+          Explicit provider; defaults to ClinicalTrials.gov and; biomcp_help get trial
           Explicit provider; defaults to ClinicalTrials.gov and never falls back.
 
       --offline[=<offline>]
@@ -3229,12 +3209,12 @@ Get clinical trial details. Sources: ctgov, nci.
 - `--limit`: Whole-record count per source collection page; text fragments follow the text budget.
 - `--offset`: Character offset for ClinicalTrials.gov eligibility or NCI summary; whole-record offset for other collections.
 - `--pool`: Checked stored source record, supplied by a continuation.
-- `--section`: Optional intact source sections. Default cards text; biomcp_help get trial
+- `--section`: Optional intact source sections. Default cards only;; biomcp_help get trial
 Optional intact source sections. Default cards only; diseases and summary require NCI. NCI locations, contacts, references and documents are unsupported.
-- `--source`: Explicit source; defaults to ClinicalTrials.gov text; biomcp_help get trial
+- `--source`: Explicit source; defaults to ClinicalTrials.gov and; biomcp_help get trial
 Explicit source; defaults to ClinicalTrials.gov and never falls back.
 
-Optional intact source sections. Default cards text; biomcp_help get trial
+Optional intact source sections. Default cards only;; biomcp_help get trial
 Optional intact source sections. Default cards only; diseases and summary require NCI. NCI locations, contacts, references and documents are unsupported.
 
 - `eligibility`: Intact criteria and structured age/sex fields.
@@ -3258,18 +3238,18 @@ Usage: biomcp get variant [OPTIONS] <input> [section]...
 
 Arguments:
   <input>
-          rsID, CAid, clinvar:N, VCV, HGVS or VCF coordinates.
+          rs/CA/clinvar:N/VCV/HGVS/VCF
           rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS or VCF-style genomic coordinates.
 
   [section]...
-          Sections text; biomcp_help get variant
+          Sections; biomcp_help get variant
           Sections.
           Named source sections; omitted by default. Each calls its own source. all keeps bounded pages and source skips; it never enables a missing key.
 
 Options:
       --build <build>
-          GRCh37 or GRCh38 text; biomcp_help get variant
-          GRCh37 or GRCh38.
+          Assembly; biomcp_help get variant
+          Assembly
           MyVariant identity assembly defaults to GRCh38; chromosome genomic HGVS requires an explicit build.
 
       --format <format>
@@ -3279,43 +3259,40 @@ Options:
           [possible values: json, md]
 
       --civic-cursor <civic_cursor>
-          CIViC cursor.
+          Cursor
           Native CIViC cursor, retained unchanged.
 
       --disable-sources <disable-sources>
           Exclude source names or source terms groups.
 
       --civic-kind <civic_kind>
-          CIViC claims text; biomcp_help get variant
-          CIViC claims.
+          Claims; biomcp_help get variant
+          Claims
           Native CIViC claim collection within the selected profile.
 
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
 
       --civic-profile <civic_profile>
-          CIViC profile.
           Selected CIViC molecular profile for native claim paging.
 
       --config <config>
           Read configuration from this file.
 
       --evidence-level <evidence_level>...
-          CIViC evidence levels text; biomcp_help get variant
-          CIViC evidence levels.
+          A–E; biomcp_help get variant
+          A–E
           Native CIViC evidence levels; repeat to include several levels.
 
       --evidence-status <evidence_status>
-          CIViC evidence status text; biomcp_help get variant
-          CIViC evidence status.
+          Status; biomcp_help get variant
+          Status
           Native CIViC evidence status; omitted preserves the source's existing default.
 
       --limit <limit>
-          Page size.
           Candidate rows per page; more remain reachable through typed next commands.
 
       --offset <offset>
-          Candidate offset.
           Candidate rows to skip in source order.
 
       --offline[=<offline>]
@@ -3325,7 +3302,7 @@ Options:
           [possible values: true, false]
 
       --resolver <resolver>
-          Resolver text; biomcp_help get variant
+          Resolver; biomcp_help get variant
           Resolver.
           Resolver for reference-qualified notation; never repairs the input locally.
 
@@ -3336,57 +3313,50 @@ Options:
           [possible values: true, false]
 
       --section-limit <section_limit>
-          Section page size.
           Rows per named source section page; omitted uses the native source default.
 
       --section-offset <section_offset>
-          Section offset.
           Source rows to skip independently of identity candidate paging.
 
       --tumor-type <tumor_type>
-          OncoKB tumor.
+          Tumor
           Explicit tumor context for keyed OncoKB annotation.
 
 ```
 
-Get genetic variant evidence. Sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator.
+Get genetic variants. Sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator.
 
-- `--build`: GRCh37 or GRCh38 text; biomcp_help get variant
-GRCh37 or GRCh38.
+- `--build`: Assembly; biomcp_help get variant
+Assembly
 MyVariant identity assembly defaults to GRCh38; chromosome genomic HGVS requires an explicit build.
-- `--civic-cursor`: CIViC cursor.
+- `--civic-cursor`: Cursor
 Source CIViC cursor, retained unchanged.
-- `--civic-kind`: CIViC claims text; biomcp_help get variant
-CIViC claims.
+- `--civic-kind`: Claims; biomcp_help get variant
+Claims
 Source CIViC claim collection within the selected profile.
-- `--civic-profile`: CIViC profile.
-Selected CIViC molecular profile for source claim paging.
-- `--evidence-level`: CIViC evidence levels text; biomcp_help get variant
-CIViC evidence levels.
+- `--civic-profile`: Selected CIViC molecular profile for source claim paging.
+- `--evidence-level`: A–E; biomcp_help get variant
+A–E
 Source CIViC evidence levels; repeat to include several levels.
-- `--evidence-status`: CIViC evidence status text; biomcp_help get variant
-CIViC evidence status.
+- `--evidence-status`: Status; biomcp_help get variant
+Status
 Source CIViC evidence status; omitted preserves the source's existing default.
-- `input`: rsID, CAid, clinvar:N, VCV, HGVS or VCF coordinates.
+- `input`: rs/CA/clinvar:N/VCV/HGVS/VCF
 rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS or VCF-style genomic coordinates.
-- `--limit`: Page size.
-Candidate rows per page; more remain reachable through typed next commands.
-- `--offset`: Candidate offset.
-Candidate rows to skip in source order.
-- `--resolver`: Resolver text; biomcp_help get variant
+- `--limit`: Candidate rows per page; more remain reachable through typed next commands.
+- `--offset`: Candidate rows to skip in source order.
+- `--resolver`: Resolver; biomcp_help get variant
 Resolver.
 Resolver for reference-qualified notation; never repairs the input locally.
-- `section`: Sections text; biomcp_help get variant
+- `section`: Sections; biomcp_help get variant
 Sections.
 Named source sections; omitted by default. Each calls its own source. all keeps bounded pages and source skips; it never enables a missing key.
-- `--section-limit`: Section page size.
-Rows per named source section page; omitted uses the source default.
-- `--section-offset`: Section offset.
-Source rows to skip independently of identity candidate paging.
-- `--tumor-type`: OncoKB tumor.
+- `--section-limit`: Rows per named source section page; omitted uses the source default.
+- `--section-offset`: Source rows to skip independently of identity candidate paging.
+- `--tumor-type`: Tumor
 Explicit tumor context for keyed OncoKB annotation.
 
-Sections text; biomcp_help get variant
+Sections; biomcp_help get variant
 Sections.
 Named source sections; omitted by default. Each calls its own source. all keeps bounded pages and source skips; it never enables a missing key.
 
@@ -3458,7 +3428,7 @@ Arguments:
           Exact qualified provider record.
 
   [section]
-          Detailed disclosure when requested text; biomcp_help author papers
+          Detailed disclosure when requested; biomcp_help author papers
           Detailed disclosure when requested.
 
 Options:
@@ -3513,10 +3483,10 @@ List an author's research papers. Sources: orcid, semantic-scholar.
 - `--limit`: Bounded row count.
 - `--offset`: Source or retained collection offset.
 - `--pool`: Retained collection identity.
-- `section`: Detailed disclosure when requested text; biomcp_help author papers
+- `section`: Detailed disclosure when requested; biomcp_help author papers
 Detailed disclosure when requested.
 
-Detailed disclosure when requested text; biomcp_help author papers
+Detailed disclosure when requested; biomcp_help author papers
 Detailed disclosure when requested.
 
 - `details`: Source detailed metadata for the same paper window.
@@ -4119,7 +4089,7 @@ Arguments:
           Checked source-owned human pathway identity.
 
   [details]
-          Include every physical entity context for these text; biomcp_help pathway genes
+          Include every physical entity context for these; biomcp_help pathway genes
           Include every physical entity context for these references; never clips source text.
 
 Options:
@@ -4163,7 +4133,7 @@ Options:
 
 List genes in a biological pathway. Sources: reactome, wikipathways.
 
-- `details`: Include every physical entity context for these text; biomcp_help pathway genes
+- `details`: Include every physical entity context for these; biomcp_help pathway genes
 Include every physical entity context for these references; never clips source text.
 - `id`: Checked source-owned human pathway identity.
 - `--limit`: Five complete relation rows by default, at most fifty.
@@ -4521,7 +4491,7 @@ Options:
           Read configuration from this file.
 
       --source <source>
-          Graph provider; iCite remains the default text; biomcp_help article citations
+          Graph provider; iCite remains the default; biomcp_help article citations
           Graph provider; iCite remains the default.
 
       --offline[=<offline>]
@@ -4544,7 +4514,7 @@ List research papers citing an article. Sources: icite, pubmed, semantic-scholar
 - `--offset`: Number of pool items to skip.
 - `pmid`: PMID, PMC or DOI; iCite accepts only a PMID.
 - `--pool`: Fixed snapshot from an earlier page.
-- `--source`: Graph source; iCite remains the default text; biomcp_help article citations
+- `--source`: Graph source; iCite remains the default; biomcp_help article citations
 Graph source; iCite remains the default.
 
 ## biomcp article references
@@ -4584,7 +4554,7 @@ Options:
           Read configuration from this file.
 
       --source <source>
-          Graph provider; iCite remains the default text; biomcp_help article citations
+          Graph provider; iCite remains the default; biomcp_help article citations
           Graph provider; iCite remains the default.
 
       --offline[=<offline>]
@@ -4607,7 +4577,7 @@ List research papers referenced by an article. Sources: icite, pubmed, semantic-
 - `--offset`: Number of pool items to skip.
 - `pmid`: PMID, PMC or DOI; iCite accepts only a PMID.
 - `--pool`: Fixed snapshot from an earlier page.
-- `--source`: Graph source; iCite remains the default text; biomcp_help article citations
+- `--source`: Graph source; iCite remains the default; biomcp_help article citations
 Graph source; iCite remains the default.
 
 ## biomcp article citation-evidence
@@ -4910,7 +4880,7 @@ Options:
           [possible values: json, md]
 
       --build <build>
-          Identity lookup assembly; omitted uses the text; biomcp_help variant assertions
+          Identity lookup assembly; omitted uses the; biomcp_help variant assertions
           Identity lookup assembly; omitted uses the shared GRCh38 default.
 
       --disable-sources <disable-sources>
@@ -4929,7 +4899,7 @@ Options:
           Assertions to skip in source order.
 
       --source <source>
-          One native assertion source; shared text; biomcp_help variant assertions
+          One native assertion source; shared identity; biomcp_help variant assertions
           One native assertion source; shared identity conversion precedes source access when needed.
 
       --version <version>
@@ -4952,12 +4922,12 @@ Options:
 Get genetic variant assertions from ClinVar or ClinGen. Sources: clinvar, erepo.
 
 - `--assertion`: Source assertion accession or document ID.
-- `--build`: Identity lookup assembly; omitted uses the text; biomcp_help variant assertions
+- `--build`: Identity lookup assembly; omitted uses the; biomcp_help variant assertions
 Identity lookup assembly; omitted uses the shared GRCh38 default.
 - `input`: Supported variant ID; resolves one ClinVar Variation ID or ERepo CAid through the shared resolver.
 - `--limit`: Assertions per page; omitted uses the source default.
 - `--offset`: Assertions to skip in source order.
-- `--source`: One source assertion source; shared text; biomcp_help variant assertions
+- `--source`: One source assertion source; shared identity; biomcp_help variant assertions
 One source assertion source; shared identity conversion precedes source access when needed.
 - `--version`: VCV archive or ERepo document version; RCV/SCV selectors match a returned source version.
 
@@ -4974,7 +4944,7 @@ Arguments:
 
 Options:
       --build <build>
-          Explicit source assembly when required by text; biomcp_help variant population
+          Explicit source assembly when required by; biomcp_help variant population
           Explicit source assembly when required by identity input.
 
       --format <format>
@@ -5005,7 +4975,7 @@ Options:
           Native rows to skip.
 
       --resolver <resolver>
-          Resolver for reference-qualified input text; biomcp_help variant population
+          Resolver for reference-qualified input; biomcp_help variant population
           Resolver for reference-qualified input.
 
       --offline[=<offline>]
@@ -5024,13 +4994,13 @@ Options:
 
 Get genetic variant population frequencies. Sources: car, gnomad, mutalyzer, myvariant, variantvalidator.
 
-- `--build`: Explicit source assembly when required by text; biomcp_help variant population
+- `--build`: Explicit source assembly when required by; biomcp_help variant population
 Explicit source assembly when required by identity input.
 - `--detail`: Read source ancestry groups, preserving overlapping groups individually.
 - `input`: Exact published allele identity; ambiguous candidates must first be selected.
 - `--limit`: Maximum rows per page.
 - `--offset`: Source rows to skip.
-- `--resolver`: Resolver for reference-qualified input text; biomcp_help variant population
+- `--resolver`: Resolver for reference-qualified input; biomcp_help variant population
 Resolver for reference-qualified input.
 
 ## biomcp variant recurrence
@@ -5046,7 +5016,7 @@ Arguments:
 
 Options:
       --build <build>
-          Identity lookup assembly; omitted uses the text; biomcp_help variant recurrence
+          Identity lookup assembly; omitted uses the; biomcp_help variant recurrence
           Identity lookup assembly; omitted uses the shared GRCh38 default.
 
       --format <format>
@@ -5080,7 +5050,7 @@ Options:
           Explicit sample list; selected size is never an allele denominator.
 
       --source <source>
-          Explicit cohort source text; biomcp_help variant recurrence
+          Explicit cohort source; biomcp_help variant recurrence
           Explicit cohort source.
 
       --study <study>
@@ -5102,7 +5072,7 @@ Options:
 
 Get genetic variant observations in a cohort. Sources: cbioportal.
 
-- `--build`: Identity lookup assembly; omitted uses the text; biomcp_help variant recurrence
+- `--build`: Identity lookup assembly; omitted uses the; biomcp_help variant recurrence
 Identity lookup assembly; omitted uses the shared GRCh38 default.
 - `--gene`: HGNC symbol resolved to the source's Entrez gene identifier.
 - `input`: Published variant identity; ambiguous identities are never selected silently.
@@ -5110,7 +5080,7 @@ Identity lookup assembly; omitted uses the shared GRCh38 default.
 - `--page`: Zero-based source page.
 - `--profile`: Explicit mutation molecular profile.
 - `--sample-set`: Explicit sample list; selected size is never an allele denominator.
-- `--source`: Explicit cohort source text; biomcp_help variant recurrence
+- `--source`: Explicit cohort source; biomcp_help variant recurrence
 Explicit cohort source.
 - `--study`: Explicit study; there is no default cohort.
 
@@ -5123,7 +5093,7 @@ Usage: biomcp variant normalize [OPTIONS] --hgvs <hgvs> --source <source>
 
 Options:
       --build <build>
-          Caller assembly; required when text; biomcp_help variant normalize
+          Caller assembly; required when VariantValidator; biomcp_help variant normalize
           Caller assembly; required when VariantValidator is selected.
 
       --format <format>
@@ -5152,7 +5122,7 @@ Options:
           Source mapping rows to skip per service.
 
       --source <source>
-          Explicit service; all preserves independent text; biomcp_help variant normalize
+          Explicit service; all preserves independent; biomcp_help variant normalize
           Explicit service; all preserves independent results without consensus.
 
       --offline[=<offline>]
@@ -5171,13 +5141,13 @@ Options:
 
 Normalize reference-qualified genetic variant HGVS. Sources: car, mutalyzer, variantvalidator.
 
-- `--build`: Caller assembly; required when text; biomcp_help variant normalize
+- `--build`: Caller assembly; required when VariantValidator; biomcp_help variant normalize
 Caller assembly; required when VariantValidator is selected.
 - `--hgvs`: Reference-qualified HGVS, or chromosome genomic HGVS with an explicit build for CAR.
 Checked for reference and syntax only; no full HGVS parser.
 - `--limit`: Source mapping rows per service, with typed continuation for remaining rows.
 - `--offset`: Source mapping rows to skip per service.
-- `--source`: Explicit service; all preserves independent text; biomcp_help variant normalize
+- `--source`: Explicit service; all preserves independent; biomcp_help variant normalize
 Explicit service; all preserves independent results without consensus.
 
 ## biomcp sync

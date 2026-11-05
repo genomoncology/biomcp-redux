@@ -98,11 +98,11 @@ struct SearchFields {
     #[doc = "Last date, YYYY-MM-DD.\nInclusive native decision date, YYYY-MM-DD; PMA and 510(k) only."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     decision_to: Option<PartialDate>,
-    #[doc = "Rows per page, 1–50.\nFive results by default; at most fifty source rows or product headers."]
+    /// Five results by default; at most fifty source rows or product headers.
     #[serde(default = "limit")]
     #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 50)))]
     limit: u32,
-    #[doc = "Source rows to skip.\nZero-based source result offset."]
+    /// Zero-based source result offset.
     #[serde(default)]
     offset: u32,
     #[doc = "Stored bundle revision.\nImmutable stored bundle revision retained by a continuation."]
