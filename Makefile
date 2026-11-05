@@ -375,6 +375,9 @@ hosted-surface-mechanical:
 	cargo clippy --keep-going --locked -p biomcp --all-targets -- -D warnings
 	cargo test --locked -p biomcp --test ratchets -- repository_obeys_structural_contract --exact
 
+.PHONY: hosted-surface-development
+hosted-surface-development: hosted-surface-check hosted-surface-mechanical
+
 .PHONY: source-status-check
 source-status-check:
 	cargo test --locked -p biomcp-types --test rust_api $(TEST_THREADS)

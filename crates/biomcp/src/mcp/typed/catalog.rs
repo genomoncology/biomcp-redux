@@ -202,7 +202,7 @@ pub(super) fn mentions_excluded(text: &str, excluded: &BTreeSet<Source>) -> bool
     names(excluded).any(|name| !matches(&text, &name).is_empty())
 }
 
-pub(super) fn summary(text: &str, excluded: &BTreeSet<Source>) -> String {
+pub(in crate::mcp) fn summary(text: &str, excluded: &BTreeSet<Source>) -> String {
     let mut text = text.to_owned();
     for name in names(excluded) {
         for index in matches(&text.to_lowercase(), &name).into_iter().rev() {

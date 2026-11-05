@@ -9,6 +9,7 @@ use serde_json::{Value, json};
 pub(super) fn check() -> Result<(), String> {
     let mut errors = Vec::new();
     for mode in ["single", "typed"] {
+        continuation(mode)?;
         let config_owner = Environment::new().map_err(|e| e.to_string())?;
         config_owner.config(&json!({"mcp_tool_mode":mode,"hosted_max_use":"restricted","disable_sources":["ctgov","meddra","reactome"]})).map_err(|e| e.to_string())?;
         let server = Server::configured_globals(
@@ -200,4 +201,43 @@ fn call(server: &Server, params: Value) -> Result<Value, String> {
         .pointer("/result/structuredContent")
         .cloned()
         .ok_or_else(|| format!("missing tool reply: {reply}"))
+}
+
+fn continuation(mode: &str) -> Result<(), String> {
+    let server = Server::configured_globals(
+        "127.0.0.1:0",
+        Some(json!({"mcp_tool_mode":mode,"hosted_max_use":"restricted"})),
+        Some(fixtures().join("replies/variant/civic-evidence-filters")),
+        None,
+        None,
+        &[
+            "--hosted".into(),
+            "--disable-sources".into(),
+            "myvariant".into(),
+        ],
+    )?;
+    let params = if mode == "typed" {
+        json!({"name":"get_variant","arguments":{"input":"CA123643","section":["civic"],"section_limit":2,"evidence_level":"A","evidence_status":"submitted"}})
+    } else {
+        json!({"name":"biomcp","arguments":{"args":["get","variant","CA123643","civic","--section-limit","2","--evidence-level","A","--evidence-status","submitted"]}})
+    };
+    let reply = call(&server, params)?;
+    let page = reply
+        .pointer("/result/candidates/0/sections/civic/data/profiles/0/evidence_page")
+        .ok_or_else(|| format!("{mode}: CIViC page missing: {reply}"))?;
+    for (pointer, expected) in [
+        ("/total", json!(3)),
+        ("/returned", json!(2)),
+        ("/next/input", json!("CA123643")),
+        ("/next/civic_profile", json!(12)),
+        ("/next/civic_kind", json!("evidence")),
+        ("/next/evidence_level", json!("A")),
+    ] {
+        if page.pointer(pointer) != Some(&expected) {
+            return Err(format!(
+                "{mode}: typed CIViC continuation changed at {pointer}: {page}"
+            ));
+        }
+    }
+    Ok(())
 }

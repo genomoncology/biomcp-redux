@@ -31,6 +31,9 @@ fn help(value: &mut Value, cx: Context<'_>) -> io::Result<()> {
             }
             if command.command == ["help", "sources"] {
                 command.description = sources(cx)?;
+            } else {
+                command.description =
+                    super::typed::catalog::summary(&command.description, &excluded);
             }
             command.arguments.retain(|argument| {
                 !matches!(
@@ -52,6 +55,8 @@ fn help(value: &mut Value, cx: Context<'_>) -> io::Result<()> {
                 });
             }
             for argument in &mut command.arguments {
+                argument.description =
+                    super::typed::catalog::summary(&argument.description, &excluded);
                 if matches!(
                     argument.name.trim_start_matches('-'),
                     "section" | "sections"
@@ -86,31 +91,14 @@ fn help(value: &mut Value, cx: Context<'_>) -> io::Result<()> {
 }
 
 fn next(value: &mut Value, cx: Context<'_>) {
-    match value {
-        Value::Object(fields) => {
-            if let Some(mut steps) = fields.remove("next") {
-                let keep = match &mut steps {
-                    Value::Array(rows) => {
-                        rows.retain_mut(|step| next_step(step, cx));
-                        !rows.is_empty()
-                    }
-                    Value::Object(_) => next_step(&mut steps, cx),
-                    _ => false,
-                };
-                if keep {
-                    fields.insert("next".into(), steps);
-                }
-            }
-            for value in fields.values_mut() {
-                next(value, cx);
-            }
+    // Envelope recovery commands are Steps; source-body continuations are queries.
+    if let Some(steps) = value.get_mut("next").and_then(Value::as_array_mut) {
+        steps.retain_mut(|step| next_step(step, cx));
+        if steps.is_empty()
+            && let Some(fields) = value.as_object_mut()
+        {
+            fields.remove("next");
         }
-        Value::Array(values) => {
-            for value in values {
-                next(value, cx);
-            }
-        }
-        _ => {}
     }
 }
 

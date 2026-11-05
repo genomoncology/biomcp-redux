@@ -38,7 +38,7 @@ pub(crate) fn hosted_refused(action: &Action) -> bool {
     matches!(
         action,
         Action::Health | Action::Sync { .. } | Action::StoreClean
-    ) || matches!(action, Action::Run { request, .. } if saves(request))
+    ) || matches!(action, Action::Run { request, fresh } if *fresh || saves(request))
 }
 fn replaces(request: &Request) -> bool {
     match request {
