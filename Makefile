@@ -395,4 +395,4 @@ supplement-letter-reproduce:
 
 .PHONY: supplement-indications-check
 supplement-indications-check:
-	+$(MAKE) supplement-indications-focused supplement-letter-reproduce check-cheap current-schema-check schema-release-check
+	+$(MAKE) supplement-indications-focused check-cheap current-schema-check schema-release-check

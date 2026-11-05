@@ -95,10 +95,17 @@ fn read(
         Err(error) => return Err(error),
     };
     Ok(if let Some(text) = evidence {
-        DrugFdaSupplementPurpose::Stated {
-            text,
-            document_id: document.id.clone(),
-            url: url.clone(),
+        match biodata::Text::from_source(&text) {
+            Ok(text) => DrugFdaSupplementPurpose::Stated {
+                text,
+                document_id: document.id.clone(),
+                url: url.clone(),
+            },
+            Err(_) => unavailable(
+                "The linked FDA letter purpose could not be represented as source text.",
+                Some(document),
+                Some(biomcp_types::Reason::BadReply),
+            ),
         }
     } else {
         unavailable(
@@ -122,7 +129,7 @@ fn unavailable(
     }
 }
 
-fn purpose(text: &str, row: &DrugFdaSubmission) -> Option<biodata::Text> {
+fn purpose(text: &str, row: &DrugFdaSubmission) -> Option<String> {
     let text = text.split_whitespace().collect::<Vec<_>>().join(" ");
     let header = format!(
         "{}/S-{:0>3}",
@@ -152,5 +159,5 @@ fn purpose(text: &str, row: &DrugFdaSubmission) -> Option<biodata::Text> {
     if stated.len() <= provides - start + " provides for ".len() {
         return None;
     }
-    biodata::Text::from_source(stated).ok()
+    Some(stated.to_owned())
 }
