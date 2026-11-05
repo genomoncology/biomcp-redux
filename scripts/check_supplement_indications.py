@@ -14,6 +14,8 @@ def main():
     binary = cargo("dev")["executable"]
     output = Path("target/supplement-indications").resolve()
     output.mkdir(parents=True, exist_ok=True)
+    if sys.argv[1:] == ["letter"]:
+        return letter(binary, output)
     recording = output / "recordings"
     for mode in ("single", "typed"):
         arguments = {"input": "NDA208692", "section": ["approvals"],
@@ -51,6 +53,24 @@ def main():
                           "retained": str(output / (mode + ".jsonl"))}), flush=True)
         if reply.get("isError") or not rows:
             raise ValueError("approval reproduction returned no records")
+
+
+def letter(binary, output):
+    with tempfile.TemporaryDirectory() as directory:
+        result = subprocess.run([str(binary), "get", "drug", "NDA208692", "approvals",
+                                 "--source", "drugsfda", "--document-id", "81763",
+                                 "--record", str(output / "letter-recordings")],
+                                env=environment(directory), capture_output=True,
+                                text=True, timeout=90)
+    (output / "letter.json").write_text(result.stdout)
+    (output / "letter.stderr").write_text(result.stderr)
+    value = json.loads(result.stdout)
+    print(json.dumps({"check": "selected-native-letter-81763", "exit": result.returncode,
+                      "status": value.get("status"), "sources": value.get("sources"),
+                      "result": value.get("result"),
+                      "retained": str(output / "letter.json")}), flush=True)
+    if result.returncode not in (0, 4):
+        raise ValueError("selected letter command had a local or usage failure")
 
 
 if __name__ == "__main__":

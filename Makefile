@@ -385,3 +385,7 @@ supplement-indications-reproduce:
 .PHONY: supplement-indications-focused
 supplement-indications-focused:
 	python3.13 scripts/trials.py --installed --case-file drug/supplement-purpose.yaml --case-file drug/supplement-purpose-missing.yaml --case-file drug/supplement-purpose-mismatch.yaml drug-approvals/newest-submission-pages drug-approvals/undated-and-numeric-ties
+
+.PHONY: supplement-letter-reproduce
+supplement-letter-reproduce:
+	python3.13 scripts/check_supplement_indications.py letter

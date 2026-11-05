@@ -58,7 +58,12 @@ fn read(
         .unwrap_or_default()
         .iter()
         .filter(|doc| doc.r#type.as_ref().is_some_and(|v| v.as_str() == "Letter"))
-        .max_by_key(|doc| (doc.date, &doc.id));
+        .max_by_key(|doc| {
+            (
+                doc.date.map(|date| (date.year(), date.month(), date.day())),
+                doc.id.as_str(),
+            )
+        });
     let Some((document, url)) = document.and_then(|doc| doc.url.as_ref().map(|url| (doc, url)))
     else {
         return Ok(unavailable(
@@ -117,11 +122,7 @@ fn purpose(text: &str, row: &DrugFdaSubmission) -> Option<biodata::Text> {
         row.event.record,
         row.submission_number.as_str()
     );
-    let compact: String = text
-        .chars()
-        .take(500)
-        .filter(|c| !c.is_whitespace())
-        .collect();
+    let compact: String = text.chars().filter(|c| !c.is_whitespace()).collect();
     let tail = compact.split_once(&header)?.1;
     if tail.starts_with(|c: char| c.is_ascii_digit()) {
         return None;
