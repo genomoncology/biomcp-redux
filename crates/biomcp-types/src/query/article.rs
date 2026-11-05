@@ -161,7 +161,7 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     drug: Option<Text>,
-    #[doc = "PubMed author words.\nPubMed and Europe PMC only: author words sent to the source's author field."]
+    #[doc = "PubMed/Europe PMC author words.\nPubMed and Europe PMC only: author words sent to the source's author field."]
     #[serde(
         default,
         deserialize_with = "present",
@@ -169,7 +169,7 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     author: Option<Text>,
-    #[doc = "PubMed journal words.\nPubMed and Europe PMC only: journal words sent to the source's journal field."]
+    #[doc = "PubMed/Europe PMC journal words.\nPubMed and Europe PMC only: journal words sent to the source's journal field."]
     #[serde(
         default,
         deserialize_with = "present",
