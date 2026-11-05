@@ -3,6 +3,11 @@
 set -eu
 cd "$(dirname "$0")/.."
 export PATH="$HOME/.local/bin:$PATH"
+if [ "${1:-}" = metadata ]; then
+  sh -n "$0"
+  python3.13 -c 'import json; from pathlib import Path; config=json.loads(Path("sdlc/pm.json").read_text()); assert "mailroom" not in config; print("sdlc/pm.json: valid JSON; unused mailroom entry absent")'
+  exit 0
+fi
 python3.13 --version
 actionlint -version
 ruff --version
