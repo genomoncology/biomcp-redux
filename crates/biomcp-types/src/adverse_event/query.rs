@@ -294,7 +294,7 @@ struct GetFields {
     source: AdverseEventSource,
     /// FAERS owns drugs, reactions and identifiers; MAUDE owns devices and narrative. Omitted means card only.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    #[cfg_attr(feature = "schema", schemars(title = "VAERS table.", extend("x-positional" = 1)))]
+    #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 1)))]
     section: Option<AdverseEventSection>,
     /// Checked retained report snapshot for provider-free continuation.
     #[serde(default, skip_serializing_if = "Option::is_none")]
