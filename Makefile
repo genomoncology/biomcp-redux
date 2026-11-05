@@ -39,6 +39,11 @@ drug-alias-main-integration:
 	cargo test --locked -p biomcp --test cases drug/indication.yaml
 	$(MAKE) drug-alias-review-tools current-schema-check
 
+.PHONY: drug-alias-cache-regressions
+drug-alias-cache-regressions:
+	cargo test --locked -p biomcp --test cases drug-native-sources/chembl-search-cache-admission -- --exact
+	cargo test --locked -p biomcp --test cases drug-native-sources/mychem-search-cache-admission -- --exact
+
 .PHONY: faers-counts-integration-check
 faers-counts-integration-check:
 	sh scripts/faers_counts_job.sh mechanical
