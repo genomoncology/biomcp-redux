@@ -39,22 +39,30 @@ pub(super) fn source(text: &str) -> String {
     while let Some(start) = remaining.find('<') {
         out.push_str(&remaining[..start]);
         remaining = &remaining[start..];
-        if let Some(end) = remaining.find('>') {
-            let fragment = &remaining[..=end];
-            let name = fragment.strip_prefix("</").unwrap_or(&fragment[1..]);
-            if !name.starts_with(|ch: char| ch.is_ascii_alphabetic() || ch == '!') {
-                out.push('<');
-                remaining = &remaining[1..];
-                continue;
-            }
-            let mut reader = Reader::from_str(fragment);
+        let name = remaining.strip_prefix("</").unwrap_or(&remaining[1..]);
+        if name.starts_with(|ch: char| ch.is_ascii_alphabetic() || ch == '!') {
+            let mut reader = Reader::from_str(remaining);
             reader.config_mut().check_end_names = false;
             reader.config_mut().allow_unmatched_ends = true;
             let marker = match reader.read_event() {
-                Ok(Event::Start(tag)) if tag.name().as_ref() == "sup" => Some("^("),
-                Ok(Event::Start(tag)) if tag.name().as_ref() == "sub" => Some("_("),
-                Ok(Event::End(tag)) if matches!(tag.name().as_ref(), "sup" | "sub") => Some(")"),
-                Ok(Event::Empty(tag)) if tag.name().as_ref() == "br" => Some("\n"),
+                Ok(Event::Start(tag)) if tag.name().as_ref().eq_ignore_ascii_case("sup") => {
+                    Some("^(")
+                }
+                Ok(Event::Start(tag)) if tag.name().as_ref().eq_ignore_ascii_case("sub") => {
+                    Some("_(")
+                }
+                Ok(Event::End(tag))
+                    if ["sup", "sub"]
+                        .iter()
+                        .any(|name| tag.name().as_ref().eq_ignore_ascii_case(name)) =>
+                {
+                    Some(")")
+                }
+                Ok(Event::Start(tag) | Event::Empty(tag))
+                    if tag.name().as_ref().eq_ignore_ascii_case("br") =>
+                {
+                    Some("\n")
+                }
                 Ok(Event::Start(_) | Event::End(_) | Event::Empty(_) | Event::Comment(_)) => {
                     Some("")
                 }
@@ -62,7 +70,7 @@ pub(super) fn source(text: &str) -> String {
             };
             if let Some(marker) = marker {
                 out.push_str(marker);
-                remaining = &remaining[end + 1..];
+                remaining = &remaining[reader.buffer_position() as usize..];
                 continue;
             }
         }
