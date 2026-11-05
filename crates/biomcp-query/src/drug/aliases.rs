@@ -20,6 +20,10 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     let Some(card) = card else {
         return out;
     };
+    if ambiguous(&card) {
+        hint(&mut out, &card, &evidence, input, query.source(), cx.fresh);
+        return out;
+    }
     let mut tried = vec![input.clone()];
     for name in names(&card) {
         if tried.iter().any(|old| biomcp_types::DrugNameMatch::same_name(old.as_str(), name.as_str())) {
@@ -54,6 +58,10 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     let Some(card) = card else {
         return out;
     };
+    if ambiguous(&card) {
+        hint(&mut out, &card, &evidence, input, query.source(), cx.fresh);
+        return out;
+    }
     for name in names(&card) {
         if biomcp_types::DrugNameMatch::same_name(name.as_str(), input.as_str()) { continue }
         if deadline.remaining().is_zero() { break }
@@ -91,6 +99,7 @@ impl Evidence {
 fn authority(cx: &Ctx<'_>, input: &Text, selected: DrugSource) -> (Option<DrugCard>, Evidence) {
     let deadline = cx.fetch.deadline(cx.budget);
     let mut evidence = Evidence::default();
+    let mut alternatives = None;
     for source in [DrugSource::Mychem, DrugSource::OpenfdaLabel, DrugSource::Chembl] {
         if source == selected { continue }
         if deadline.remaining().is_zero() { break }
@@ -103,9 +112,14 @@ fn authority(cx: &Ctx<'_>, input: &Text, selected: DrugSource) -> (Option<DrugCa
             if card.header.name_resolution.as_ref().is_some_and(|r| r.total == 1) {
                 return (Some(card), evidence);
             }
+            if alternatives.is_none() { alternatives = Some(card) }
         }
     }
-    (None, evidence)
+    (alternatives, evidence)
+}
+
+fn ambiguous(card: &DrugCard) -> bool {
+    card.header.name_resolution.as_ref().is_none_or(|r| r.total != 1)
 }
 
 fn names(card: &DrugCard) -> Vec<&Text> {
@@ -135,6 +149,16 @@ fn notice(out: &mut Outcome, selected: DrugSource, message: String) {
 
 fn hint(out: &mut Outcome, card: &DrugCard, evidence: &Evidence, input: &Text, selected: DrugSource, fresh: bool) {
     evidence.append(out);
+    if ambiguous(card) {
+        notice(out, selected, format!(
+            "{} has several exact records for {input:?}; no cross-source alias was selected. Search that source to inspect its candidates.", card.header.source
+        ));
+        if let Ok(query) = DrugSearch::named(input.clone(), card.header.source, 10) {
+            out.next.push(crate::next::Step::run(StepKind::Disambiguate,
+                &[card.header.source.source()], Request::SearchDrug(query), fresh));
+        }
+        return;
+    }
     notice(out, selected, format!(
         "The completed searches in {selected} found no record for {input:?} or the source-stated names tried. {} record {} matches the input; its presence does not establish a record in {selected}.",
         card.header.source, card.header.id

@@ -16,7 +16,7 @@ use biomcp_adapters::mychem;
 use biomcp_types::{
     DrugGet, DrugPage, DrugSearch, DrugSource, PageInfo, Request, Source, StepKind,
 };
-/// Search the one selected source, without fan-out or selecting an identity.
+/// Search selected-source records, consulting source-stated names only after an empty lookup.
 pub(crate) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     aliases::search(cx, query)
 }
