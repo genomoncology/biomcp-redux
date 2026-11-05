@@ -11,12 +11,14 @@ from windows_remote import remote_command
 
 
 class WindowsRemote(unittest.TestCase):
-    def test_transport_contains_no_powershell_metacharacters(self):
+    def test_transport_encodes_payload_and_propagates_native_exit(self):
         payload = 'if exist "C:\\h\\a (b)" (exit /b 1) else (mkdir "C:\\h\\a (b)")'
         command = remote_command(payload)
         prefix = 'powershell.exe -NoProfile -NonInteractive -EncodedCommand '
         self.assertTrue(command.startswith(prefix))
-        script = base64.b64decode(command[len(prefix):], validate=True).decode('utf-16le')
+        encoded, suffix = command[len(prefix):].split(';', 1)
+        self.assertEqual(suffix, ' exit $LASTEXITCODE')
+        script = base64.b64decode(encoded, validate=True).decode('utf-16le')
         self.assertIn("/d /s /c \"" + payload + '\"', script)
         self.assertIn('exit $process.ExitCode', script)
 
@@ -33,7 +35,8 @@ class WindowsRemote(unittest.TestCase):
         result = run(create)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         try:
-            self.assertEqual(run(create).returncode, 19)
+            result = run(create)
+            self.assertEqual(result.returncode, 19, result.stdout + result.stderr)
             result = run(f'cd /d "{path}" && echo proof>marker && type marker')
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
             self.assertEqual(result.stdout.strip(), 'proof')

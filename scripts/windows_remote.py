@@ -16,7 +16,9 @@ def remote_command(payload):
         "$process.WaitForExit(); exit $process.ExitCode"
     )
     encoded = base64.b64encode(script.encode('utf-16le')).decode('ascii')
-    return 'powershell.exe -NoProfile -NonInteractive -EncodedCommand ' + encoded
+    # The default outer PowerShell otherwise maps any native failure to 1.
+    return ('powershell.exe -NoProfile -NonInteractive -EncodedCommand ' + encoded
+            + '; exit $LASTEXITCODE')
 
 
 if __name__ == '__main__':
