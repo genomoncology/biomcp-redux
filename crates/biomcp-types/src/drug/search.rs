@@ -72,7 +72,9 @@ struct SearchFields {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     prequalified_to: Option<biodata::PartialDate>,
 
-    /// Selected source; after an empty name lookup, existing sources may supply aliases.
+    /// Selected source.
+    ///
+    /// After an empty name lookup, existing sources may supply aliases.
     #[serde(default = "default_source")]
     source: DrugSource,
     /// Explicit ChEMBL native name selector; omitted means preferred name.

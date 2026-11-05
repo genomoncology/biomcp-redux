@@ -52,6 +52,11 @@ drug-label-alias-integration: fmt
 	cargo test --locked -p biomcp --test cases drug/indication.yaml $(TEST_THREADS)
 	$(MAKE) label-priority-check label-display-check
 
+.PHONY: drug-source-guidance-check
+drug-source-guidance-check:
+	+$(MAKE) schema-generate docs-generate
+	+$(MAKE) --keep-going typed-schema-check typed-hosted-check
+
 .PHONY: faers-counts-integration-check
 faers-counts-integration-check:
 	sh scripts/faers_counts_job.sh mechanical
