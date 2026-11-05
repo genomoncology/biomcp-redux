@@ -35,6 +35,9 @@ case "${1:-focused}" in
     cargo clippy --keep-going --locked -p biomcp-types -p biomcp-adapters -p biomcp-query -p biomcp --all-targets --features biomcp-types/schema -- -D warnings
     cargo test --locked -p biomcp --test ratchets -- repository_obeys_structural_contract --exact
     ;;
+  guidance)
+    cargo test --locked -p biomcp --test cases -- query-validation/grammar/numeric-description-guidance.yaml --exact
+    ;;
   routine)
     sh scripts/faers_counts_job.sh scans "${2:?routine requires the current main baseline}"
     make landing-gate
