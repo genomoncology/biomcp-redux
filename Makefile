@@ -395,3 +395,18 @@ source-status-pre-review:
 bench-honesty-repro:
 	cargo build --locked -p biomcp --bin biomcp
 	python3 scripts/bench_honesty.py "$(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target)/debug/biomcp"
+
+.PHONY: bench-honesty-focused bench-honesty-generate bench-honesty-mechanical
+bench-honesty-focused:
+	cargo test --locked -p biomcp --test cases query-validation/argument-recovery $(TEST_THREADS)
+	cargo test --locked -p biomcp --test cases drug-boolean-refusal $(TEST_THREADS)
+	cargo test --locked -p biomcp --test cases resolver-provenance $(TEST_THREADS)
+	cargo test --locked -p biomcp --test cases resolver-variantvalidator $(TEST_THREADS)
+	cargo test --locked -p biomcp --test cases diagnostic/device-approvals $(TEST_THREADS)
+	cargo test --locked -p biomcp --test cases gene/sections/clingen-validity $(TEST_THREADS)
+	cargo test --locked -p biomcp --test tools -- --cases "$(CURDIR)/tests/tool-cases" adverse-event-search/adverse-event/drug-boolean-refusal.yaml --exact
+bench-honesty-generate:
+	cargo fmt --all
+	$(MAKE) schema-generate docs-generate
+bench-honesty-mechanical:
+	+$(MAKE) --keep-going check-cheap

@@ -99,5 +99,57 @@
       "source": "not-a-source"
     },
     "option": "--source"
+  },
+  {
+    "args": [
+      "get",
+      "trial",
+      "NCT01844505",
+      "results",
+      "--offset",
+      "15",
+      "--limit",
+      "7"
+    ],
+    "tool": "get_trial",
+    "fields": {
+      "input": [
+        "NCT01844505"
+      ],
+      "section": [
+        "results"
+      ],
+      "offset": 15,
+      "limit": 7
+    },
+    "option": "--offset",
+    "message": "nonzero --offset requires --pool from the returned continuation; run the suggested first-page command, then follow its next command"
+  },
+  {
+    "args": [
+      "search",
+      "trial",
+      "--condition",
+      "melanoma",
+      "--intervention",
+      "pembrolizumab",
+      "--limit",
+      "7",
+      "--offset",
+      "10"
+    ],
+    "tool": "search_trial",
+    "fields": {
+      "condition": [
+        "melanoma"
+      ],
+      "intervention": [
+        "pembrolizumab"
+      ],
+      "limit": 7,
+      "offset": 10
+    },
+    "option": "--offset",
+    "message": "nonzero --offset requires --next-page from the returned continuation; run the suggested first-page command, then follow its next command"
   }
 ]

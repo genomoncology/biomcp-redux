@@ -34,7 +34,7 @@ struct SearchFields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     text: Option<Text>,
-    #[doc = "FAERS drug names; OR.\nFAERS literal drug name; repeat --drug for OR. OR inside one quoted value stays literal. \
+    #[doc = "FAERS drug names; OR.\nFAERS literal drug name; repeat --drug for OR. A standalone OR joining names inside one --drug value is refused. \
         Other filters AND with the names. BioMCP caps the escaped native query, including filters, \
         at FAERS_QUERY_MAX_BYTES (4096 bytes)."]
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
@@ -165,6 +165,18 @@ impl TryFrom<SearchFields> for AdverseEventSearch {
                 "received_from",
                 "received_to",
             ]));
+        }
+        if v.source == AdverseEventSource::Faers
+            && v.drug.iter().any(|name| {
+                let words: Vec<_> = name.as_str().split_whitespace().collect();
+                words.len() > 2
+                    && words[1..words.len() - 1]
+                        .iter()
+                        .any(|word| word.eq_ignore_ascii_case("OR"))
+            })
+        {
+            return Err(QueryInvalid::new(&["drug"])
+                .with_message(crate::ErrorMessage::FaersDrugNames));
         }
         let query = Self(v);
         if query.source() == AdverseEventSource::Faers

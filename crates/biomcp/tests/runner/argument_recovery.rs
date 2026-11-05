@@ -14,6 +14,7 @@ struct Case {
     tool: String,
     fields: Value,
     option: String,
+    message: Option<String>,
 }
 
 pub(super) fn trials() -> Vec<Trial> {
@@ -95,6 +96,9 @@ fn cli(env: &Environment, args: &[String]) -> Result<(Option<i32>, Value), Strin
 }
 
 fn validate(env: &Environment, case: &Case, value: &Value) -> Result<(), String> {
+    if case.message.as_ref().is_some_and(|message| value.pointer("/error/message").and_then(Value::as_str) != Some(message)) {
+        return Err(format!("missing paging explanation: {value}"));
+    }
     let option = value
         .pointer("/error/option")
         .and_then(Value::as_str)

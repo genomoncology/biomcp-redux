@@ -21,8 +21,8 @@ def main():
          'search_trial', {'condition': ['melanoma'], 'offset': 10}, None),
         ('trial-section', ['get', 'trial', 'NCT01844505', 'results', '--offset', '15'],
          'get_trial', {'input': ['NCT01844505'], 'section': ['results'], 'offset': 15}, None),
-        ('faers-or', ['search', 'adverse-event', '--drug', 'imatinib OR nilotinib'],
-         'search_adverse_event', {'drug': ['imatinib OR nilotinib']}, 'adverse-event/faers-several-names'),
+        ('faers-or', ['search', 'adverse-event', '--drug', 'imatinib OR nilotinib', '--limit', '1'],
+         'search_adverse_event', {'drug': ['imatinib OR nilotinib'], 'limit': 1}, 'adverse-event/faers-several-names'),
         ('resolver', ['get', 'variant', 'CA123643', '--resolver', 'variantvalidator', '--build', 'GRCh38'],
          'get_variant', {'input': 'CA123643', 'resolver': 'variantvalidator', 'build': 'GRCh38'}, 'variant/id-forms'),
         ('population-resolver', ['variant', 'population', '7-117559590-ATCT-A', '--resolver', 'variantvalidator'],
@@ -34,16 +34,23 @@ def main():
     ]
     with tempfile.TemporaryDirectory(prefix='biomcp-0678-') as temporary:
         for label, args, tool, fields, replay in probes:
+            if len(sys.argv) > 3 and label not in sys.argv[3].split(','):
+                continue
             root = Path(temporary) / label
             root.mkdir()
             env = environment(root)
             config = root / 'config/biomcp'
             config.mkdir(parents=True)
             globals_ = ['--replay', str(ROOT / 'tests/replies' / replay)] if replay else ['--offline']
+            live_faers = label == 'faers-or' and '--live-faers' in sys.argv[4:]
+            if live_faers:
+                globals_ = ['--record', str(output / 'faers-native')]
             result = subprocess.run([str(binary), *globals_, *args], env=env,
                                     capture_output=True, timeout=60)
             (output / f'{label}-cli.json').write_bytes(result.stdout)
             (output / f'{label}-cli.stderr').write_bytes(result.stderr)
+            if live_faers:
+                globals_ = ['--replay', str(output / 'faers-native')]
             for mode in ('single', 'typed'):
                 (config / 'config.json').write_text(json.dumps({'mcp_tool_mode': mode}))
                 params = {'name': tool, 'arguments': fields} if mode == 'typed' else {
@@ -70,7 +77,8 @@ def main():
     (output / 'bindings.json').write_text(json.dumps({
         'source_revision': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip(),
         'binary_sha256': hashlib.sha256(binary.read_bytes()).hexdigest(),
-        'live_check': 'exclude: bounded replay and usage probes; synthetic routing/FAERS bodies and retained ClinGen/FDA replies; no new live source capture',
+        'live_check': 'exclude: bounded diagnostic script, not a case; fixture classes are synthetic variant routing and FAERS header bodies plus retained ClinGen/FDA replies; --live-faers replaces only FAERS with one native CLI capture then replays both MCP modes',
+        'live_faers': '--live-faers' in sys.argv[4:],
         'fixture_paths': [replay for *_, replay in probes if replay],
     }, indent=2) + '\n')
     print('Evidence:', output)
