@@ -6,7 +6,7 @@ if [ "$#" -gt 0 ]; then
     cp "$1" "$typed_scratch/baseline"
     test "$(shasum -a 256 "$typed_scratch/baseline" | cut -d ' ' -f 1)" = "$2"
     mkdir -p target/typed-tools-baseline
-    cp "$typed_scratch/baseline" target/typed-tools-baseline/biomcp
+    cp -f "$typed_scratch/baseline" target/typed-tools-baseline/biomcp
     chmod a-w "$typed_scratch/baseline" target/typed-tools-baseline/biomcp
     export BIOMCP_TYPED_BASELINE="$typed_scratch/baseline"
 fi
