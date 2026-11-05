@@ -31,10 +31,10 @@ pub struct TrialSearch(Box<Fields>);
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct Fields {
-    #[doc = "clinicaltrials or nci.\nExplicit provider; defaults to ClinicalTrials.gov and never falls back."]
+    #[doc = "clinicaltrials/nci.\nExplicit provider; defaults to ClinicalTrials.gov and never falls back."]
     #[serde(default, skip_serializing_if = "TrialSource::is_default")]
     source: TrialSource,
-    #[doc = "Registry text; OR.\n\
+    #[doc = "Text; OR.\n\
         Repeat for ClinicalTrials.gov general text alternatives joined with OR; different filters combine with AND. NCI accepts one keyword."]
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     #[cfg_attr(feature = "schema", schemars(length(max = MAX_ALTERNATIVES)))]
@@ -143,7 +143,7 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "TrialSex"))]
     sex: Option<TrialSex>,
-    #[doc = "Age, years.\nAge in years; unstated source bounds count as no limit."]
+    /// Age in years; unstated source bounds count as no limit.
     #[serde(
         default,
         deserialize_with = "super::gene::present",
@@ -164,7 +164,7 @@ struct Fields {
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     #[cfg_attr(feature = "schema", schemars(schema_with = "country::schema"))]
     country: Box<[Box<str>]>,
-    #[doc = "Latitude, degrees.\nRadius center latitude in degrees."]
+    #[doc = "Latitude degrees.\nRadius center latitude in degrees."]
     #[serde(
         default,
         deserialize_with = "super::gene::present",
@@ -172,7 +172,7 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     lat: Option<Text>,
-    #[doc = "Longitude, degrees.\nRadius center longitude in degrees."]
+    #[doc = "Longitude degrees.\nRadius center longitude in degrees."]
     #[serde(
         default,
         deserialize_with = "super::gene::present",
@@ -204,7 +204,7 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "SponsorType"))]
     sponsor_type: Option<SponsorType>,
-    #[doc = "First update.\nFirst included registry update date."]
+    #[doc = "First date.\nFirst included registry update date."]
     #[serde(
         default,
         deserialize_with = "super::gene::present",
@@ -212,7 +212,7 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "PartialDate"))]
     updated_since: Option<PartialDate>,
-    #[doc = "Last update.\nLast included registry update date."]
+    #[doc = "Last date.\nLast included registry update date."]
     #[serde(
         default,
         deserialize_with = "super::gene::present",
@@ -228,7 +228,7 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "NctId"))]
     id: Option<NctId>,
-    #[doc = "Continuation.\nOpaque registry continuation; keep filters unchanged."]
+    #[doc = "Page token.\nOpaque registry continuation; keep filters unchanged."]
     #[serde(
         default,
         deserialize_with = "super::gene::present",
@@ -236,16 +236,16 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     next_page: Option<Text>,
-    #[doc = "Rows to skip.\nZero-based offset of the first row in this continuation page."]
+    /// Zero-based offset of the first row in this continuation page.
     #[serde(default)]
     offset: u32,
-    #[doc = "Total only.\nSource total only; no returned study rows."]
+    #[doc = "Total.\nSource total only; no returned study rows."]
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     count_only: bool,
     #[doc = "Posted results.\nRequire posted source results."]
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     has_results: bool,
-    #[doc = "Page size.\nHeaders per page; NCI applies its own lower publisher limit."]
+    /// Headers per page; NCI applies its own lower publisher limit.
     #[serde(default = "default_limit")]
     #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 100)))]
     limit: u32,

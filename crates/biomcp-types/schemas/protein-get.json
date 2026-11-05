@@ -48,7 +48,7 @@
       "x-positional": 0
     },
     "section": {
-      "description": "Select native sections or all bounded first text; biomcp_help get protein\nSelect native sections or all bounded first pages; function keeps one whole text record.",
+      "description": "Select native sections or all bounded first pages;; biomcp_help get protein\nSelect native sections or all bounded first pages; function keeps one whole text record.",
       "items": {
         "$ref": "#/$defs/ProteinSection"
       },

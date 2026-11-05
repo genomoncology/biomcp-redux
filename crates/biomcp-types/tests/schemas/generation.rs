@@ -70,9 +70,9 @@ pub(super) fn command_descriptions(schema: &mut Value, id: &str) {
             if first.contains("biomcp_help") {
                 continue;
             }
-            let suffix = format!(" {form}; biomcp_help {} {}", command.verb, command.entity);
+            let suffix = format!("; biomcp_help {} {}", command.verb, command.entity);
             let wording = if first.is_empty() {
-                name.replace('_', " ")
+                format!("{} {form}", name.replace('_', " "))
             } else {
                 first.into()
             };

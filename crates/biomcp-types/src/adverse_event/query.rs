@@ -73,11 +73,11 @@ struct SearchFields {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("format" = "date")))]
     received_to: Option<PartialDate>,
-    #[doc = "Rows per page.\nNative report headers or VAERS rows per page; default five."]
+    /// Native report headers or VAERS rows per page; default five.
     #[serde(default = "default_limit")]
     #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 50)))]
     limit: u32,
-    #[doc = "Source rows to skip.\nNative row offset. VAERS continuation requires its retained snapshot."]
+    /// Native row offset. VAERS continuation requires its retained snapshot.
     #[serde(default)]
     offset: u32,
 }

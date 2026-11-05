@@ -5,14 +5,16 @@ use super::super::{
     mcp::{exchange_with_globals, request},
 };
 use serde_json::{Value, json};
+use std::io::Write;
 
 pub(super) fn check() -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     env.config(&json!({"mcp_tool_mode":"typed"}))
         .map_err(|e| e.to_string())?;
+    let mut budgets = Vec::new();
     let frames = [request(json!(1), "tools/list", json!({}))];
     let local = exchange_with_globals(&env, &frames, &["--offline".into()])?;
-    capture("local", local.first().ok_or("local reply")?)?;
+    capture("local", local.first().ok_or("local reply")?, &mut budgets)?;
     let tools = local
         .first()
         .and_then(|r| r.pointer("/result/tools"))
@@ -31,11 +33,16 @@ pub(super) fn check() -> Result<(), String> {
             return Err(format!("wrong file capability hint: {name}"));
         }
     }
-    configured_exclusions(&env)?;
-    hosted()
+    configured_exclusions(&env, &mut budgets)?;
+    hosted(&mut budgets)?;
+    if budgets.is_empty() {
+        Ok(())
+    } else {
+        Err(budgets.join("\n"))
+    }
 }
 
-fn hosted() -> Result<(), String> {
+fn hosted(budgets: &mut Vec<String>) -> Result<(), String> {
     let server = Server::configured_globals(
         "127.0.0.1:0",
         Some(json!({"mcp_tool_mode":"typed"})),
@@ -44,13 +51,13 @@ fn hosted() -> Result<(), String> {
         None,
         &["--offline".into(), "--hosted".into()],
     )?;
-    let hosted = catalog(&server, None)?;
-    capture("restricted", &hosted)?;
+    let hosted = catalog(&server, None, budgets)?;
+    capture("restricted", &hosted, budgets)?;
     assert_hosted(&hosted)?;
     refused_source(&server)?;
     for usage in ["commercial", "academic"] {
-        let reply = catalog(&server, Some(usage))?;
-        capture(usage, &reply)?;
+        let reply = catalog(&server, Some(usage), budgets)?;
+        capture(usage, &reply, budgets)?;
         let expected = usage == "academic";
         let choices = reply
             .pointer("/result/tools")
@@ -117,7 +124,11 @@ fn assert_hosted(hosted: &Value) -> Result<(), String> {
     Ok(())
 }
 
-fn catalog(server: &Server, usage: Option<&str>) -> Result<Value, String> {
+fn catalog(
+    server: &Server,
+    usage: Option<&str>,
+    budgets: &mut Vec<String>,
+) -> Result<Value, String> {
     let frame = request(json!(1), "tools/list", json!({}));
     let usage = usage
         .map(|usage| format!("x-biomcp-use: {usage}\r\n"))
@@ -157,11 +168,11 @@ fn catalog(server: &Server, usage: Option<&str>) -> Result<Value, String> {
     {
         return Err("hosted instructions advertise refused tools/sources or exceed budget".into());
     }
-    capture(&format!("instructions-{usage}"), &discovery)?;
+    capture(&format!("instructions-{usage}"), &discovery, budgets)?;
     Ok(reply)
 }
 
-fn capture(label: &str, reply: &Value) -> Result<(), String> {
+fn capture(label: &str, reply: &Value, budgets: &mut Vec<String>) -> Result<(), String> {
     if !label.starts_with("instructions-") {
         let tools = reply
             .pointer("/result/tools")
@@ -169,7 +180,16 @@ fn capture(label: &str, reply: &Value) -> Result<(), String> {
             .filter(|tools| !tools.is_empty())
             .ok_or_else(|| format!("{label} catalog has no tools: {reply}"))?;
         for tool in tools {
-            super::typed_schemas::budget(tool)?;
+            writeln!(
+                std::io::stdout(),
+                "TYPED_CATALOG_SIZE {label} {} characters={}",
+                tool.get("name").unwrap_or(&Value::Null),
+                super::typed_schemas::size(tool)
+            )
+            .map_err(|e| e.to_string())?;
+            if let Err(error) = super::typed_schemas::budget(tool) {
+                budgets.push(format!("{label}: {error}"));
+            }
         }
     }
     if let Some(transcript) = super::super::transcript::current() {
@@ -202,7 +222,7 @@ fn refused_source(server: &Server) -> Result<(), String> {
     Ok(())
 }
 
-fn configured_exclusions(env: &Environment) -> Result<(), String> {
+fn configured_exclusions(env: &Environment, budgets: &mut Vec<String>) -> Result<(), String> {
     env.config(&json!({"mcp_tool_mode":"typed","disable_sources":["ctgov","who-pq","gwas"]}))
         .map_err(|e| e.to_string())?;
     let replies = exchange_with_globals(
@@ -211,7 +231,7 @@ fn configured_exclusions(env: &Environment) -> Result<(), String> {
         &["--offline".into()],
     )?;
     let reply = replies.first().ok_or("configured catalog")?;
-    capture("local-excluded", reply)?;
+    capture("local-excluded", reply, budgets)?;
     if !reply.pointer("/result/tools").is_some_and(Value::is_array) {
         return Err("configured catalog missing tools".into());
     }

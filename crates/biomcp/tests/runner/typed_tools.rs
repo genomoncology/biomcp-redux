@@ -20,23 +20,43 @@ pub(super) fn getter_help() -> Result<(), String> {
     policy::get_help(&env)
 }
 
+pub(super) fn description_contract() -> Result<(), String> {
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    env.config(&json!({"mcp_tool_mode":"typed"}))
+        .map_err(|e| e.to_string())?;
+    policy::check_descriptions(&env)
+}
+
 pub(super) fn check() -> Result<(), String> {
+    super::super::launch::typed_baseline()
+        .ok_or("BIOMCP_TYPED_BASELINE is required for single-mode wire parity")?;
     let env = Environment::new().map_err(|e| e.to_string())?;
     env.config(&json!({"mcp_tool_mode":"typed"}))
         .map_err(|e| e.to_string())?;
     let globals = vec!["--offline".into()];
     let tools = discovery(&env, &globals)?;
     rejections(&env, &globals)?;
-    // Every entity gets one search and get through both command boundaries.
-    for tool in tools.iter().filter(|tool| {
-        tool["name"]
-            .as_str()
-            .is_some_and(|name| name.starts_with("search_") || name.starts_with("get_"))
-    }) {
-        replay::check(tool)?;
+
+    let mut failures = Vec::new();
+    let mut case_index = 0;
+    for (verb, entity, _) in biomcp_types::command_paths() {
+        let name = format!("{verb}_{entity}").replace('-', "_");
+        let tool = tools
+            .iter()
+            .find(|tool| tool.get("name") == Some(&json!(name)))
+            .ok_or_else(|| format!("missing registry tool {name}"))?;
+        if let Err(error) = replay::check(tool, &mut case_index) {
+            failures.push(error);
+        }
+    }
+    if let Err(error) = baseline::check() {
+        failures.push(error);
+    }
+    if !failures.is_empty() {
+        return Err(failures.join("\n"));
     }
     policy::check()?;
-    baseline::check()
+    Ok(())
 }
 fn discovery(env: &Environment, globals: &[String]) -> Result<Vec<Value>, String> {
     let replies = exchange_with_globals(
@@ -230,4 +250,39 @@ fn descriptions(node: &Value) -> Result<(), String> {
         _ => {}
     }
     Ok(())
+}
+
+pub(super) fn guards() -> Result<(), String> {
+    super::super::launch::typed_baseline()
+        .ok_or("BIOMCP_TYPED_BASELINE is required for single-mode wire parity")?;
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    env.config(&json!({"mcp_tool_mode":"typed"}))
+        .map_err(|e| e.to_string())?;
+    let tools = discovery(&env, &["--offline".into()])?;
+    let tool = tools
+        .iter()
+        .find(|tool| tool.get("name") == Some(&json!("search_biomarker")))
+        .ok_or("missing search_biomarker registry tool")?;
+    replay::rejects_overstrict_schema(tool)?;
+    let mut failures = Vec::new();
+    if let Err(error) = baseline::invalid_id_witness() {
+        failures.push(error);
+    }
+    if let Err(error) = baseline::check() {
+        failures.push(error);
+    }
+    if failures.is_empty() {
+        Ok(())
+    } else {
+        Err(failures.join("\n"))
+    }
+}
+
+tool_only! {
+pub(super) fn clock_controls() -> Result<(), String> {
+    super::super::launch::typed_baseline()
+        .ok_or("BIOMCP_TYPED_BASELINE is required for single-mode wire parity")?;
+    replay::clock_controls()
+}
+
 }

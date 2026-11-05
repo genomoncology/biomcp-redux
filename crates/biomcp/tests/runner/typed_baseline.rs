@@ -8,9 +8,8 @@ use serde_json::{Value, json};
 use std::{collections::BTreeMap, process::Stdio};
 
 pub(super) fn check() -> Result<(), String> {
-    let Some(baseline) = launch::typed_baseline() else {
-        return Ok(());
-    };
+    let baseline = launch::typed_baseline()
+        .ok_or("BIOMCP_TYPED_BASELINE is required for single-mode wire parity")?;
     let env = Environment::new().map_err(|e| e.to_string())?;
     let frames = [
         request(json!(1), "server/discover", json!({})),
@@ -47,26 +46,29 @@ pub(super) fn check() -> Result<(), String> {
             &mode,
             &frames,
         )?;
-        if actual != expected {
-            return Err("single mode changed baseline wire bytes".into());
-        }
+        compare_frames(&frames, &expected, &actual)?;
     }
-    Ok(())
+    invalid_id_witness()
 }
-fn exchange(
+pub(super) fn exchange(
     env: &Environment,
     binary: &std::path::Path,
     args: &[String],
     frames: &[Value],
 ) -> Result<BTreeMap<String, String>, String> {
-    let child = env
-        .command(binary, args)
+    let mut transcript_args = args.to_vec();
+    transcript_args.extend(frames.iter().map(Value::to_string));
+    let mut command = env.command_with_arguments(binary, args, &transcript_args);
+    let child = command
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
         .spawn()
         .map_err(|e| e.to_string())?;
     let (status, stdout, stderr) = process::exchange(child, frames)?;
+    command
+        .record(status, &stdout, "mcp")
+        .map_err(|e| e.to_string())?;
     if !status.success() || !stderr.is_empty() {
         return Err(format!(
             "baseline process failed: {}",
@@ -84,4 +86,56 @@ fn exchange(
             ))
         })
         .collect()
+}
+
+fn compare_frames(
+    frames: &[Value],
+    old: &BTreeMap<String, String>,
+    new: &BTreeMap<String, String>,
+) -> Result<(), String> {
+    if old.keys().ne(new.keys()) {
+        return Err("single mode changed reply IDs".into());
+    }
+    for frame in frames {
+        let id = frame.get("id").ok_or("frame id")?.to_string();
+        let before = old.get(&id).ok_or("frozen reply")?;
+        let after = new.get(&id).ok_or("current reply")?;
+        if before == after {
+            continue;
+        }
+        return Err(format!(
+            "unapproved single RAW frame {id}: frozen={before}; current={after}"
+        ));
+    }
+    Ok(())
+}
+
+pub(super) fn invalid_id_witness() -> Result<(), String> {
+    use std::io::Write;
+    let baseline = launch::typed_baseline()
+        .ok_or("BIOMCP_TYPED_BASELINE is required for single-mode wire parity")?;
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    let frames = [request(
+        json!(1),
+        "tools/call",
+        json!({"name":"biomcp","arguments":{"args":["get","trial","lung cancer"]}}),
+    )];
+    let args = ["serve".into(), "--offline".into()];
+    let old = exchange(&env, &baseline, &args, &frames)?;
+    let current = exchange(
+        &env,
+        std::path::Path::new(env!("CARGO_BIN_EXE_biomcp")),
+        &args,
+        &frames,
+    )?;
+    for (label, replies) in [("frozen-ed9c", &old), ("current-default-single", &current)] {
+        for raw in replies.values() {
+            writeln!(
+                std::io::stdout(),
+                "TYPED_INVALID_ID_RAW {label} mode=serve-offline isolated-config=default {raw}"
+            )
+            .map_err(|e| e.to_string())?;
+        }
+    }
+    compare_frames(&frames, &old, &current)
 }

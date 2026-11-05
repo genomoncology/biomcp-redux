@@ -106,10 +106,10 @@
           "type": "null"
         }
       ],
-      "description": "CIViC collection text; biomcp_help get drug\nCIViC collection.\nIndependent native evidence or assertion collection within the selected profile."
+      "description": "CIViC collection; biomcp_help get drug\nCIViC collection.\nIndependent native evidence or assertion collection within the selected profile."
     },
     "civic_profile": {
-      "description": "CIViC profile ID.\nSelected native CIViC molecular profile for a drug-scoped claim stream.",
+      "description": "Selected native CIViC molecular profile for a drug-scoped claim stream.",
       "format": "uint64",
       "maximum": 2147483647,
       "minimum": 1,
@@ -130,7 +130,7 @@
       "description": "FDA letter document ID.\nExact native Drugs@FDA approval letter document ID. Text is bounded to 25 MiB, 100 pages\nand 6144 escaped bytes per fragment. No-text scans are explicit."
     },
     "evidence_level": {
-      "description": "CIViC evidence levels text; biomcp_help get drug\nCIViC evidence levels.\nNative CIViC evidence levels; repeat to include several levels.",
+      "description": "A–E; biomcp_help get drug\nA–E\nNative CIViC evidence levels; repeat to include several levels.",
       "items": {
         "$ref": "#/$defs/CivicEvidenceLevel"
       },
@@ -145,11 +145,11 @@
           "type": "null"
         }
       ],
-      "description": "CIViC evidence status text; biomcp_help get drug\nCIViC evidence status.\nNative CIViC evidence status; omitted preserves the source's existing default."
+      "description": "Status; biomcp_help get drug\nStatus\nNative CIViC evidence status; omitted preserves the source's existing default."
     },
     "input": {
       "$ref": "#/$defs/Text",
-      "description": "Source-native ID or complete brand or generic name; WHO references retain native spaces. Exact brands rank before generics; Drugs@FDA prefers NDA/BLA before ANDA, then earliest approval. Other sources retain search order. The chosen record reports up to five alternatives and their total. Generic names also accept one trailing listed salt or ester term: mesylate, hydrochloride, sodium, potassium, calcium, sulfate, maleate, tartrate, citrate, phosphate, acetate, besylate, fumarate, succinate, tosylate, bromide, chloride. Brand names identical to their own ingredient count as generic. USAN nomenclature: https://www.ama-assn.org/about/united-states-adopted-names-usan/united-states-adopted-names-naming-guidelines",
+      "description": "Source ID, brand or generic name.\nSource-native ID or complete brand or generic name; WHO references retain native spaces. Exact brands rank before generics; Drugs@FDA prefers NDA/BLA before ANDA, then earliest approval. Other sources retain search order. The chosen record reports up to five alternatives and their total. Generic names also accept one trailing listed salt or ester term: mesylate, hydrochloride, sodium, potassium, calcium, sulfate, maleate, tartrate, citrate, phosphate, acetate, besylate, fumarate, succinate, tosylate, bromide, chloride. Brand names identical to their own ingredient count as generic. USAN nomenclature: https://www.ama-assn.org/about/united-states-adopted-names-usan/united-states-adopted-names-naming-guidelines",
       "x-positional": 0
     },
     "label_section": {
@@ -175,7 +175,7 @@
       "description": "FDA product number.\nExplicit native application product number, only for approvals."
     },
     "section": {
-      "description": "Source sections text; biomcp_help get drug\nSource sections.\nExplicit named disclosures; empty means identity only.",
+      "description": "Source sections; biomcp_help get drug\nSource sections.\nExplicit named disclosures; empty means identity only.",
       "items": {
         "$ref": "#/$defs/DrugSection"
       },
@@ -183,7 +183,7 @@
       "x-positional": 1
     },
     "section_limit": {
-      "description": "Section page size.\nNamed section page size, refused on an identity-only card.",
+      "description": "Named section page size, refused on an identity-only card.",
       "format": "uint32",
       "maximum": 50,
       "minimum": 1,
@@ -193,7 +193,7 @@
       ]
     },
     "section_offset": {
-      "description": "Section rows to skip.\nNamed section continuation, refused on an identity-only card.",
+      "description": "Named section continuation, refused on an identity-only card.",
       "format": "uint32",
       "minimum": 0,
       "type": [
@@ -203,7 +203,7 @@
     },
     "source": {
       "$ref": "#/$defs/DrugSource",
-      "description": "Omit to infer the source of an unambiguous section; text; biomcp_help get drug\nOmit to infer the source of an unambiguous section; identity or mixed sections use MyChem."
+      "description": "Omit to infer the source of an unambiguous section;; biomcp_help get drug\nOmit to infer the source of an unambiguous section; identity or mixed sections use MyChem."
     }
   },
   "required": [

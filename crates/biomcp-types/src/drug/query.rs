@@ -56,11 +56,11 @@ struct GetFields {
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 1)))]
     section: Box<[DrugSection]>,
-    #[doc = "Section page size.\nNamed section page size, refused on an identity-only card."]
+    /// Named section page size, refused on an identity-only card.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 50)))]
     section_limit: Option<u32>,
-    #[doc = "Section rows to skip.\nNamed section continuation, refused on an identity-only card."]
+    /// Named section continuation, refused on an identity-only card.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     section_offset: Option<u32>,
     #[doc = "Exact openFDA SPL field.\nExact published openFDA SPL section field, including table fields; required for the label section."]
@@ -73,7 +73,7 @@ struct GetFields {
     /// and 6144 escaped bytes per fragment. No-text scans are explicit.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     document_id: Option<Text>,
-    #[doc = "CIViC profile ID.\nSelected native CIViC molecular profile for a drug-scoped claim stream."]
+    /// Selected native CIViC molecular profile for a drug-scoped claim stream.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 2147483647)))]
     civic_profile: Option<u64>,
