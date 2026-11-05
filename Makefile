@@ -377,3 +377,7 @@ source-status-check:
 .PHONY: source-status-pre-review
 source-status-pre-review:
 	+$(MAKE) source-status-check check-cheap current-schema-check schema-release-check
+
+.PHONY: supplement-indications-reproduce
+supplement-indications-reproduce:
+	python3.13 scripts/check_supplement_indications.py
