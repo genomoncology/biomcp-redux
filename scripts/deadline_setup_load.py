@@ -45,7 +45,7 @@ def main():
                BIOMCP_CASE_RUNNER=str(installed / 'case-runner'), BIOMCP_INSTALLED_VERSION='1.0.0',
                BIOMCP_EVIDENCE_DIR=str(root / 'fixture-evidence'))
     commands = [
-        [sys.executable, '-m', 'unittest', '-v', 'release.test_gate'],
+        [sys.executable, '-m', 'unittest', '-v', 'release.test_checks', 'release.test_gate'],
         [sys.executable, 'scripts/typed_harness_preflight.py', 'check'],
         [binaries['cases'], 'gene-sections/gencc-first-publisher', '--test-threads', '2'],
     ]
