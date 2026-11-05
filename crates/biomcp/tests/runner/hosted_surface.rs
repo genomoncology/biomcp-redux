@@ -1,20 +1,51 @@
 //! Hosted discovery and follow-ups describe this server's actual authority.
-use super::super::{http::Server, mcp::request};
+use super::super::{http::Server, launch::fixtures, mcp::request};
 use serde_json::{Value, json};
 
 pub(super) fn check() -> Result<(), String> {
     let mut errors = Vec::new();
     for mode in ["single", "typed"] {
-        let server = Server::configured_globals(
+        let server = Server::configured_launch(
             "127.0.0.1:0",
             Some(
                 json!({"mcp_tool_mode":mode,"hosted_max_use":"restricted","disable_sources":["ctgov"]}),
             ),
+            Some(fixtures().join("replies/drug/openfda-label-page")),
             None,
             None,
-            None,
-            &["--offline".into(), "--hosted".into()],
+            &["--hosted".into()],
+            |env, args| {
+                let mut args = args.to_vec();
+                args.extend([
+                    "--config".into(),
+                    env.root()
+                        .join("config/biomcp/config.json")
+                        .to_string_lossy()
+                        .into_owned(),
+                ]);
+                env.command(env!("CARGO_BIN_EXE_biomcp"), &args)
+            },
         )?;
+        let catalog = request(json!(2), "tools/list", json!({}));
+        let (_, catalog) = server.request("POST", "/mcp", &catalog.to_string())?;
+        if mode == "typed" {
+            let tools = catalog
+                .pointer("/result/tools")
+                .and_then(Value::as_array)
+                .ok_or("catalog")?;
+            let gene = tools
+                .iter()
+                .find(|tool| tool["name"] == "get_gene")
+                .ok_or("get_gene")?;
+            let schema = &gene["inputSchema"];
+            let validator = jsonschema::validator_for(schema).map_err(|e| e.to_string())?;
+            if !validator.is_valid(&json!({"input":["BRAF"]})) {
+                return Err("hosted gene schema rejects a supported input".into());
+            }
+            if validator.is_valid(&json!({"input":["BRAF"],"section":["oncokb"]})) {
+                errors.push("typed: disabled OncoKB section offered".into());
+            }
+        }
         for path in ["", "get gene", "sources"] {
             let params = if mode == "typed" {
                 json!({"name":"biomcp_help","arguments":{"command":path}})
@@ -65,6 +96,13 @@ pub(super) fn check() -> Result<(), String> {
             (
                 "search",
                 "drug",
+                vec!["imatinib", "--source", "openfda-label", "--limit", "3"],
+                json!({"query":"imatinib","source":"openfda-label","limit":3}),
+                "next",
+            ),
+            (
+                "search",
+                "drug",
                 vec!["artemether", "--source", "who-pq"],
                 json!({"query":"artemether","source":"who-pq"}),
                 "restricted",
@@ -80,7 +118,7 @@ pub(super) fn check() -> Result<(), String> {
                 "get",
                 "gene",
                 vec!["BRAF", "--source", "hgnc"],
-                json!({"input":"BRAF","source":"hgnc"}),
+                json!({"input":["BRAF"],"source":"hgnc"}),
                 "",
             ),
         ] {
@@ -92,7 +130,16 @@ pub(super) fn check() -> Result<(), String> {
                 json!({"name":"biomcp","arguments":{"args":words}})
             };
             let reply = call(&server, params)?;
+            if expected == "next"
+                && reply
+                    .get("next")
+                    .and_then(Value::as_array)
+                    .is_none_or(Vec::is_empty)
+            {
+                errors.push(format!("{mode}: allowed follow-ups lost: {reply}"));
+            }
             if !expected.is_empty()
+                && expected != "next"
                 && (!reply.to_string().contains(expected)
                     || !reply.to_string().contains("self-hosted"))
             {

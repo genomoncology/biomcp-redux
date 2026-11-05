@@ -367,7 +367,13 @@ typed-hosted-check:
 
 .PHONY: hosted-surface-check
 hosted-surface-check:
-	python3 scripts/trials.py --installed mcp-hosted/served-surface-and-source-policy
+	python3 scripts/trials.py --installed mcp-hosted/served-surface-and-source-policy mcp-parity/typed-hosted-catalog
+
+.PHONY: hosted-surface-mechanical
+hosted-surface-mechanical:
+	cargo fmt --all -- --check
+	cargo clippy --keep-going --locked -p biomcp --all-targets -- -D warnings
+	cargo test --locked -p biomcp --test ratchets -- repository_obeys_structural_contract --exact
 
 .PHONY: source-status-check
 source-status-check:
