@@ -1,4 +1,4 @@
-//! Configured reply forms reach both transports and every tool, without changing JSON values.
+//! Configured reply forms preserve JSON values under matching transport policies.
 use super::super::{
     http::Server,
     launch::Environment,
@@ -20,7 +20,10 @@ pub(super) fn check() -> Result<(), String> {
             Some("structured-only"),
             Some("text-only"),
         ] {
-            let config = form.map_or(json!({}), |form| json!({"mcp_reply_form":form}));
+            let config = form.map_or(
+                json!({"hosted_max_use":"academic"}),
+                |form| json!({"mcp_reply_form":form,"hosted_max_use":"academic"}),
+            );
             let environment = Environment::new().map_err(|e| e.to_string())?;
             environment.config(&config).map_err(|e| e.to_string())?;
             let calls = [
@@ -60,12 +63,8 @@ pub(super) fn check() -> Result<(), String> {
                     .find(|reply| reply.get("id") == call.get("id"))
                     .and_then(|reply| reply.get("result"))
                     .ok_or("stdio result missing")?;
-                let (status, http) = server.request("POST", "/mcp", &call.to_string())?;
-                if status != 200 {
-                    return Err("HTTP tool call failed".into());
-                }
-                let http = http.get("result").ok_or("HTTP result missing")?;
-                let value = check_pair(stdio, http, form.unwrap_or("both"), index)
+                let http = http_reply(&server, call, hosted)?;
+                let value = check_pair(stdio, &http, form.unwrap_or("both"), index)
                     .map_err(|error| format!("hosted={hosted}: {error}"))?;
                 if form.is_none() {
                     reference.push(value);
@@ -84,6 +83,22 @@ pub(super) fn check() -> Result<(), String> {
         }
     }
     invalid_settings()
+}
+
+fn http_reply(server: &Server, call: &Value, hosted: bool) -> Result<Value, String> {
+    let extra = if hosted {
+        "x-biomcp-use: academic\r\n"
+    } else {
+        ""
+    };
+    let (status, reply) = server.request_with_headers("POST", "/mcp", &call.to_string(), extra)?;
+    if status != 200 {
+        return Err("HTTP tool call failed".into());
+    }
+    reply
+        .get("result")
+        .cloned()
+        .ok_or("HTTP result missing".into())
 }
 
 fn check_pair(stdio: &Value, http: &Value, form: &str, index: usize) -> Result<Value, String> {

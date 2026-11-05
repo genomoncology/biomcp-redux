@@ -419,6 +419,9 @@ hosted-surface-annotations:
 hosted-surface-lint:
 	cargo clippy --keep-going --locked -p biomcp -p biomcp-types --all-targets --all-features -- -D warnings
 
-.PHONY: hosted-reply-parity
+.PHONY: hosted-reply-parity hosted-reply-parity-check
 hosted-reply-parity:
-	BIOMCP_TRANSCRIPT_DIR="$(abspath $(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target))/hosted-reply-parity" python3 scripts/trials.py --installed mcp-parity/reply-forms mcp-parity/typed-reply-forms-and-cap mcp-hosted/use/source-admission mcp-hosted/served-surface-and-source-policy
+	+$(MAKE) --keep-going hosted-reply-parity-check hosted-surface-lint fmt
+
+hosted-reply-parity-check:
+	BIOMCP_TRANSCRIPT_DIR="$(abspath $(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target))/hosted-reply-parity/$(shell git rev-parse HEAD)" python3 scripts/trials.py --installed mcp-parity/reply-forms mcp-parity/typed-reply-forms-and-cap mcp-hosted/use/source-admission mcp-hosted/served-surface-and-source-policy
