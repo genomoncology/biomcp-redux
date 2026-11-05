@@ -340,3 +340,9 @@ typed-schema-metadata-lint:
 	cargo clippy --locked -p biomcp-types --features schema --test schemas -- -D warnings
 typed-schema-structure:
 	cargo test --locked -p biomcp --test ratchets $(TEST_THREADS)
+
+.PHONY: typed-help-check
+typed-help-check:
+	mkdir -p "$(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target)/typed-help"
+	cargo build --locked -p biomcp --bin biomcp --test cases --message-format=json-render-diagnostics > "$(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target)/typed-help/build.jsonl"
+	python3 -c 'import json,subprocess,sys; rows=[json.loads(line) for line in open(sys.argv[1]) if line.startswith("{")]; executables={row["target"]["name"]:row["executable"] for row in rows if row.get("reason")=="compiler-artifact" and row.get("executable")}; subprocess.run([sys.executable,"scripts/trials.py","--runner",executables["cases"],"--executable",executables["biomcp"],"--installed","mcp-parity/typed-help-research-discovery","mcp-parity/typed-help-next-recovery"],check=True)' "$(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target)/typed-help/build.jsonl"

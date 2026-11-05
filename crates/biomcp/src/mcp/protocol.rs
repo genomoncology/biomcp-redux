@@ -6,9 +6,7 @@ use serde_json::{Value, json};
 pub(super) const INSTRUCTIONS: &str = crate::help::FRONT_MAP;
 pub(super) fn instructions(mode: crate::config::ToolMode) -> String {
     if mode == crate::config::ToolMode::Typed {
-        format!(
-            "Call verb_entity tools with named arguments; inspect problems and next commands.\n{INSTRUCTIONS}"
-        )
+        include_str!(concat!(env!("OUT_DIR"), "/typed-front-map.txt")).into()
     } else {
         INSTRUCTIONS.into()
     }

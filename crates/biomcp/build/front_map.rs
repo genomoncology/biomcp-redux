@@ -30,6 +30,33 @@ pub(crate) fn generate(schemas: &BTreeMap<String, String>) -> Result<String, Box
     generate_rows(&biomcp_types::command_paths(), schemas)
 }
 
+pub(crate) fn generate_typed(schemas: &BTreeMap<String, String>) -> Result<String, Box<dyn Error>> {
+    let mut rows = BTreeMap::<String, (BTreeSet<String>, BTreeSet<String>)>::new();
+    for (verb, entity, id) in biomcp_types::command_paths() {
+        let schema: Value = serde_json::from_str(schemas.get(id).ok_or("missing command schema")?)?;
+        let row = rows.entry(entity.into()).or_default();
+        row.0.insert(format!("{verb}_{entity}").replace('-', "_"));
+        row.1
+            .extend(coverage::command_sources(verb, entity, &schema));
+    }
+    let mut lines = vec!["Call named tools for source evidence; use biomcp_help(command) for arguments, sections and examples.".to_owned()];
+    for (tools, sources) in rows.into_values() {
+        lines.push(format!("{}: {}", words(&tools), words(&sources)));
+    }
+    lines.push("biomcp_help: command path (e.g. search trial, sources); search/fetch: research results and exact result IDs.".into());
+    for trap in TRAPS.iter().skip(1) {
+        let mut line = (*trap).to_owned();
+        for (verb, entity, _) in biomcp_types::command_paths() {
+            line = line.replace(
+                &format!("{verb} {entity}"),
+                &format!("{verb}_{entity}").replace('-', "_"),
+            );
+        }
+        lines.push(line);
+    }
+    Ok(lines.join("\n"))
+}
+
 fn generate_rows(
     commands: &[(&str, &str, &str)],
     schemas: &BTreeMap<String, String>,
@@ -277,6 +304,12 @@ mod tests {
     fn every_declared_command_section_and_source_fits_the_map() {
         let schemas = schemas();
         let map = generate(&schemas).expect("generated map");
+        let typed_map = generate_typed(&schemas).expect("generated typed map");
+        assert_eq!(
+            typed_map,
+            include_str!(concat!(env!("OUT_DIR"), "/typed-front-map.txt"))
+        );
+        assert!(typed_map.chars().count() <= 4096);
         assert_eq!(
             map,
             include_str!(concat!(env!("OUT_DIR"), "/front-map.txt")),

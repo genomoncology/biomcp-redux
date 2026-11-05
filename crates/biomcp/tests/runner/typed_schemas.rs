@@ -98,12 +98,16 @@ fn catalog(env: &Environment, config: Value) -> Result<Vec<Value>, String> {
         &[request(json!(1), "tools/list", json!({}))],
         &["--offline".into()],
     )?;
-    replies
+    let tools = replies
         .first()
         .and_then(|r| r.pointer("/result/tools"))
         .and_then(Value::as_array)
         .cloned()
-        .ok_or("catalog missing".into())
+        .ok_or("catalog missing")?;
+    if tools.len() != biomcp_types::command_paths().len() + 3 {
+        return Err("typed catalog must include every command plus help and research tools".into());
+    }
+    Ok(tools)
 }
 fn nested_description(node: &Value, top: bool) -> bool {
     match node {
@@ -201,6 +205,15 @@ fn settings(env: &Environment, default: &[Value]) -> Result<(), String> {
     )?;
     report(&enabled)?;
     for tool in enabled {
+        if matches!(
+            field(&tool, "name").as_str(),
+            Some("biomcp_help" | "search" | "fetch")
+        ) {
+            if !default.contains(&tool) {
+                return Err("shared help/research contract changed".into());
+            }
+            continue;
+        }
         if tool
             .pointer("/outputSchema/anyOf/0/properties/schema/enum")
             .and_then(Value::as_array)
