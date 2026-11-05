@@ -369,7 +369,7 @@ fn takes_value(root: &clap::Command, flag: &str, positional: &[&str]) -> Option<
         })
 }
 
-fn retired_source(root: &clap::Command, args: &[OsString]) -> bool {
+pub(crate) fn retired_source(root: &clap::Command, args: &[OsString]) -> bool {
     let mut positional = Vec::new();
     let mut args = args.iter();
     while let Some(word) = args.next().and_then(|word| word.to_str()) {

@@ -62,7 +62,7 @@ fn dispatch_using(
     let mut parsed = match crate::grammar::parse(root, args) {
         Ok(parsed) => parsed,
         Err(cause) => {
-            if !cause.registered_argument
+            if (!cause.registered_argument || crate::retired::retired_source(root, args))
                 && let Some(message) = retired
             {
                 return usage_envelope(UsageError::Retired(message), encoding);

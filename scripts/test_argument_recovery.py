@@ -55,9 +55,11 @@ def main():
                              ('typed', calls(binary, root, 'typed'))]:
             for (args, _, _, option), value in zip(CASES, values):
                 report.append(dict(mode=mode, args=args, response=value))
+                if value.get('error', {}).get('code') != 'usage.arguments':
+                    failures.append(f'{mode} {args[:2]}: expected argument error')
                 if value.get('error', {}).get('option') not in {option, '--' + option}:
                     failures.append(f'{mode} {args[:2]}: wrong argument')
-                if not isinstance(value.get('error', {}).get('valid_values'), list):
+                if not isinstance(value.get('error', {}).get('valid_values'), list) or not value['error']['valid_values']:
                     failures.append(f'{mode} {args[:2]}: values must be a list')
                 corrected = value.get('next', [{}])[0].get('args', [])
                 if not corrected or corrected[0] == 'help':
@@ -68,6 +70,13 @@ def main():
                                          text=True, timeout=60)
                 if json.loads(checked.stdout).get('status') == 'usage':
                     failures.append(f'{mode} {args[:2]}: correction is not parseable')
+        for args in [
+            ['get', 'pgx', 'DPYD', 'interactions', '--source', 'cpic'],
+            ['search', 'pgx', '--gene', 'CYP2D6', '--source', 'pharmgkb'],
+        ]:
+            legacy = subprocess.run([str(binary), *args], env=environment(root), cwd=root,
+                                    capture_output=True, text=True, timeout=60)
+            assert legacy.returncode == 2 and json.loads(legacy.stdout)['error']['code'] == 'usage.retired'
     stage = Path('target/argument-recovery')
     stage.mkdir(parents=True, exist_ok=True)
     (stage / 'responses.json').write_text(json.dumps(report, indent=2) + '\n')

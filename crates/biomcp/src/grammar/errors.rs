@@ -161,7 +161,9 @@ fn parser_correction(
         .clone()
         .ignore_errors(true)
         .mut_subcommand(*verb, |command| {
-            command.mut_subcommand(*entity, |command| command.ignore_errors(true))
+            command
+                .ignore_errors(true)
+                .mut_subcommand(*entity, |command| command.ignore_errors(true))
         })
         .try_get_matches_from(std::iter::once(std::ffi::OsString::from("biomcp")).chain(args))
         .ok()?;
