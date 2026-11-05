@@ -162,9 +162,12 @@ impl Server {
                     id,
                     rejected,
                     modern,
-                    &self.globals,
-                    &self.settings,
-                    &self.root,
+                    crate::command::Context::new(
+                        &self.globals,
+                        &self.fetch,
+                        &self.root,
+                        &self.settings,
+                    ),
                 )
                 .map(Some);
             }

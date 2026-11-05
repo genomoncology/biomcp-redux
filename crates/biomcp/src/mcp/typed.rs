@@ -180,20 +180,46 @@ pub(super) struct Rejected {
 }
 pub(super) fn rejection(
     id: Value,
-    rejected: Rejected,
+    mut rejected: Rejected,
     modern: bool,
-    globals: &crate::grammar::Globals,
-    settings: &crate::config::Settings,
-    root: &crate::grammar::Root,
+    context: crate::command::Context<'_>,
 ) -> io::Result<Value> {
-    let outcome = crate::command::usage_envelope(rejected.error, crate::command::Encoding::Mcp)?;
+    if context.globals.hosted {
+        let &(verb, entity, id) = crate::grammar::command_paths()
+            .iter()
+            .find(|(verb, entity, _)| {
+                rejected.args.first().is_some_and(|word| word == *verb)
+                    && rejected.args.get(1).is_some_and(|word| word == *entity)
+            })
+            .ok_or_else(|| io::Error::other("typed command path"))?;
+        let excluded = catalog::excluded(context)?;
+        let schema = catalog::hosted_schema(schema(id)?, verb, entity, &excluded);
+        if let biomcp_types::UsageError::Arguments(arguments) = &mut rejected.error
+            && let Some(values) = arguments.valid_values.take()
+        {
+            let values = values
+                .into_vec()
+                .into_iter()
+                .filter(|value| {
+                    schema
+                        .get("properties")
+                        .and_then(|fields| fields.get(value.as_str()))
+                        .is_some()
+                })
+                .collect::<Vec<_>>();
+            arguments.valid_values = (!values.is_empty()).then(|| values.into());
+        }
+    }
+    let mut outcome =
+        crate::command::usage_envelope(rejected.error, crate::command::Encoding::Mcp)?;
+    super::hosted::project(&mut outcome, context)?;
     Ok(tool_result(
         id,
         &outcome,
         modern,
-        globals,
-        settings,
-        root,
+        context.globals,
+        context.settings,
+        context.root,
         &rejected.args,
     ))
 }

@@ -10,6 +10,7 @@ pub(super) fn project(out: &mut crate::command::Outcome, cx: Context<'_>) -> io:
     }
     let value = out.value_mut()?;
     help(value, cx)?;
+    recovery(value, cx)?;
     next(value, cx);
     notices(value, cx)
 }
@@ -47,18 +48,7 @@ fn help(value: &mut Value, cx: Context<'_>) -> io::Result<()> {
             command.arguments.retain(|argument| {
                 schema.as_ref().is_none_or(|schema| {
                     super::typed::catalog::argument_allowed(schema, &argument.name, &excluded)
-                }) && !matches!(
-                    argument.name.as_str(),
-                    "--fresh"
-                        | "--config"
-                        | "--source_pacing"
-                        | "--save"
-                        | "--replace"
-                        | "--replay"
-                        | "--record"
-                        | "--case-cache"
-                        | "--observe"
-                )
+                }) && offered_argument(&argument.name)
             });
             if let [verb, entity] = command.command.as_slice() {
                 command.sections.retain(|section| {
@@ -97,6 +87,58 @@ fn help(value: &mut Value, cx: Context<'_>) -> io::Result<()> {
             command.examples.retain(|args| next_allowed(args, cx));
         }
         value["result"] = serde_json::to_value(help)?;
+    }
+    Ok(())
+}
+
+fn offered_argument(name: &str) -> bool {
+    !matches!(
+        name,
+        "--fresh"
+            | "--config"
+            | "--source_pacing"
+            | "--save"
+            | "--replace"
+            | "--replay"
+            | "--record"
+            | "--case-cache"
+            | "--observe"
+    )
+}
+
+fn recovery(value: &mut Value, cx: Context<'_>) -> io::Result<()> {
+    let schema = value
+        .pointer("/next/0/args")
+        .and_then(Value::as_array)
+        .filter(|words| words.first() == Some(&json!("help")))
+        .and_then(|words| {
+            crate::grammar::command_paths()
+                .iter()
+                .find(|(verb, entity, _)| {
+                    words.get(1) == Some(&json!(verb)) && words.get(2) == Some(&json!(entity))
+                })
+                .map(|(_, _, id)| super::typed::schema(id))
+        })
+        .transpose()?;
+    let excluded = super::typed::catalog::excluded(cx)?;
+    if let Some(values) = value
+        .pointer_mut("/error/valid_values")
+        .and_then(Value::as_array_mut)
+    {
+        values.retain(|value| {
+            value.as_str().is_none_or(|word| {
+                !word.starts_with("--")
+                    || offered_argument(word)
+                        && schema.as_ref().is_none_or(|schema| {
+                            super::typed::catalog::argument_allowed(schema, word, &excluded)
+                        })
+            })
+        });
+        if values.is_empty()
+            && let Some(error) = value.get_mut("error").and_then(Value::as_object_mut)
+        {
+            error.remove("valid_values");
+        }
     }
     Ok(())
 }
