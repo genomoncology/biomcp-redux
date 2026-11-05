@@ -58,6 +58,7 @@ child.wait()
         try:
             descendant = int(child.stdout.readline())
             cleanup(child.pid)
+            child.stdout.read()  # EOF waits for every inherited stdout owner to exit.
             self.assertEqual(child.wait(timeout=5), -signal.SIGKILL)
             status = Path('/proc') / str(descendant) / 'status'
             if status.exists():

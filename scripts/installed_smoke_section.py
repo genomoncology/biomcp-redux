@@ -94,6 +94,29 @@ def main():
                         'F401,F841,ERA,BLE,E722,S110', 'release/smoke.py', 'release/test_smoke.py',
                         'scripts/installed_smoke_section.py', 'scripts/test_installed_smoke_section.py'], check=True)
         subprocess.run([sys.executable, '-m', 'unittest', '-v', 'scripts.test_installed_smoke_section'], check=True)
+        subprocess.run(['uvx', '--offline', '--from', 'vulture==2.14', 'vulture', 'release/gate.py',
+                        'release/smoke.py', 'scripts/installed_smoke_section.py',
+                        'scripts/test_installed_smoke_section.py', '--min-confidence', '60'], check=True)
+        scanner = next((path.parent.parent / '.bin/jscpd' for path in Path.home().glob('.npm/_npx/*/node_modules/jscpd/package.json')
+                        if json.loads(path.read_text()).get('version') == '4.0.5'), None)
+        if scanner is None:
+            raise ValueError('cached jscpd 4.0.5 unavailable')
+        root = Path('target/installed-smoke-tooling')
+        baseline = root / 'baseline'
+        baseline.mkdir(parents=True)
+        old = subprocess.check_output(['git', 'archive', '1bb97e64f41634b19efc42b937b195e55a20ece4',
+                                       'release/smoke.py', 'release/test_smoke.py'])
+        subprocess.run(['tar', '-xf', '-', '-C', str(baseline)], input=old, check=True)
+        for kind, files in [('product', ['release/smoke.py', 'scripts/installed_smoke_section.py']),
+                            ('tests', ['release/test_smoke.py', 'scripts/test_installed_smoke_section.py'])]:
+            for side in ['baseline', 'current']:
+                selected = [str(baseline / files[0])] if side == 'baseline' else files
+                subprocess.run([str(scanner), *selected, '--format', 'python', '--max-size', '10mb',
+                                '--reporters', 'json', '--output', str(root / (side + '-' + kind))], check=True)
+            before = json.loads((root / ('baseline-' + kind) / 'jscpd-report.json').read_text())
+            after = json.loads((root / ('current-' + kind) / 'jscpd-report.json').read_text())
+            if after['statistics']['total']['duplicatedTokens'] > before['statistics']['total']['duplicatedTokens']:
+                raise ValueError('new Python duplicate tokens: ' + kind)
         return 0
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('artifacts', type=Path)
