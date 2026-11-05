@@ -16,15 +16,12 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     let Some(input) = query.query() else {
         return out;
     };
-    if query.explicit_name_selector() {
-        return out;
-    }
     let (card, evidence) = authority(&within(cx, deadline.remaining()), input, query.source());
     evidence.append(&mut out);
     let Some(card) = card else {
         return out;
     };
-    if ambiguous(&card) {
+    if ambiguous(&card) || query.explicit_name_selector() {
         hint(&mut out, &card, &evidence, input, query.source(), cx.fresh);
         return out;
     }
@@ -107,6 +104,7 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
 struct Evidence {
     sources: Vec<SourceOutcome>,
     problems: Vec<biomcp_types::Problem>,
+    local: Option<biomcp_fetch::RequestError>,
 }
 impl Evidence {
     fn append(&self, out: &mut Outcome) {
@@ -120,6 +118,7 @@ impl Evidence {
                 out.problems.push(problem.clone())
             }
         }
+        out.local = out.local.or(self.local);
     }
 }
 
@@ -144,6 +143,7 @@ fn authority(cx: &Ctx<'_>, input: &Text, selected: DrugSource) -> (Option<DrugCa
         let out = super::resolve::get(&within(cx, deadline.remaining()), &query);
         evidence.sources.extend(out.sources.iter().cloned());
         evidence.problems.extend(out.problems.iter().cloned());
+        evidence.local = evidence.local.or(out.local);
         if !usable(&out, source) || out.dropped {
             continue;
         }
@@ -247,7 +247,7 @@ fn hint(
         out,
         selected,
         format!(
-            "The completed searches in {selected} found no record for {input:?} or the source-stated names tried. {} record {} matches the input; its presence does not establish a record in {selected}.",
+            "The completed queries in {selected} found no matching record for {input:?}. {} record {} matches the input; its presence does not establish a record in {selected}.",
             card.header.source, card.header.id
         ),
     );
