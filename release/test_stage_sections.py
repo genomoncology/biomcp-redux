@@ -194,6 +194,7 @@ class RecoveryConsumption(unittest.TestCase):
         self.assertEqual(len(brew['strategy']['matrix']['include']), 2)
         gate, = [step for step in brew['steps'] if 'release/gate.py' in step.get('run', '')]
         self.assertIn('$GITHUB_WORKSPACE/formula', gate['run'])
+        self.assertEqual(gate['env']['BIOMCP_BUILD_REVISION'], '${{ env.PRODUCT_REVISION }}')
         self.assertNotIn('sandbox', gate['run'])
 
 

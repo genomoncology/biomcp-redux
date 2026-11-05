@@ -150,6 +150,8 @@ jobs:
         name: recovered-native-inputs
         path: native
     - name: Install the staged two-architecture Homebrew formula
+      env:
+        BIOMCP_BUILD_REVISION: ${{ env.PRODUCT_REVISION }}
       run: python release/gate.py --artifacts "native/${{ matrix.platform }}" --scratch "$GITHUB_WORKSPACE/formula" --staged-formula
         staged/biomcp.rb
     - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
