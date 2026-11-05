@@ -394,6 +394,37 @@ fn components(mode: &str) -> Result<(), String> {
             }
         }
     }
+    for (tool, args, input) in [
+        (
+            "search_adverse_event",
+            vec!["search", "adverse-event", "x", "--source", "bogus"],
+            json!({"text":"x","source":"bogus"}),
+        ),
+        (
+            "get_adverse_event",
+            vec!["get", "adverse-event", "100", "--source", "faers", "bogus"],
+            json!({"id":"100","source":"faers","section":"bogus"}),
+        ),
+    ] {
+        let params = if mode == "typed" {
+            json!({"name":tool,"arguments":input})
+        } else {
+            json!({"name":"biomcp","arguments":{"args":args}})
+        };
+        let reply = call(&server, params)?;
+        recovery(&reply)?;
+        if reply
+            .pointer("/error/valid_values")
+            .and_then(Value::as_array)
+            .into_iter()
+            .flatten()
+            .any(|word| matches!(word.as_str(), Some("maude" | "reactions" | "devices")))
+        {
+            return Err(format!(
+                "{mode}: recovery offers a component-disabled choice: {reply}"
+            ));
+        }
+    }
     let card = if mode == "typed" {
         json!({"name":"get_adverse_event","arguments":{"id":"100"}})
     } else {

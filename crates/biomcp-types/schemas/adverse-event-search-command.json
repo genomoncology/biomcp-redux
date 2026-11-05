@@ -128,7 +128,8 @@
           "type": "null"
         }
       ],
-      "description": "FAERS MedDRA phrase.\nFAERS MedDRA term phrase match, not exact equality."
+      "description": "FAERS MedDRA phrase.\nFAERS MedDRA term phrase match, not exact equality.",
+      "x-required-component": "meddra"
     },
     "received_from": {
       "anyOf": [
@@ -191,7 +192,10 @@
     "source": {
       "$ref": "#/$defs/AdverseEventSource",
       "default": "faers",
-      "description": "Source; default FAERS; biomcp_help search adverse-event\nSource; default FAERS.\nFAERS by default; VAERS accepts only exact supported vaccine names."
+      "description": "Source; default FAERS; biomcp_help search adverse-event\nSource; default FAERS.\nFAERS by default; VAERS accepts only exact supported vaccine names.",
+      "x-required-components": {
+        "maude": "gmdn"
+      }
     },
     "text": {
       "$ref": "#/$defs/Text",

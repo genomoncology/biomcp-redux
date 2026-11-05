@@ -113,7 +113,7 @@ fn offered_argument(name: &str) -> bool {
 }
 
 fn recovery(value: &mut Value, cx: Context<'_>) -> io::Result<()> {
-    let schema = value
+    let path = value
         .pointer("/next/0/args")
         .and_then(Value::as_array)
         .filter(|words| words.first() == Some(&json!("help")))
@@ -123,22 +123,47 @@ fn recovery(value: &mut Value, cx: Context<'_>) -> io::Result<()> {
                 .find(|(verb, entity, _)| {
                     words.get(1) == Some(&json!(verb)) && words.get(2) == Some(&json!(entity))
                 })
-                .map(|(_, _, id)| super::typed::schema(id))
-        })
+                .copied()
+        });
+    let schema = path
+        .map(|(_, _, id)| super::typed::schema(id))
         .transpose()?;
     let excluded = super::typed::catalog::excluded(cx)?;
+    let source_exclusions = schema
+        .as_ref()
+        .map(|schema| super::typed::catalog::capability_excluded(schema, &excluded))
+        .unwrap_or_else(|| excluded.clone());
+    let option = value
+        .pointer("/error/option")
+        .and_then(Value::as_str)
+        .unwrap_or_default()
+        .to_owned();
+    let field_allowed = schema
+        .as_ref()
+        .is_none_or(|schema| super::typed::catalog::argument_allowed(schema, &option, &excluded));
     if let Some(values) = value
         .pointer_mut("/error/valid_values")
         .and_then(Value::as_array_mut)
     {
         values.retain(|value| {
-            value.as_str().is_none_or(|word| {
-                !word.starts_with("--")
-                    || offered_argument(word)
-                        && schema.as_ref().is_none_or(|schema| {
-                            super::typed::catalog::argument_allowed(schema, word, &excluded)
-                        })
-            })
+            field_allowed
+                && value.as_str().is_none_or(|word| {
+                    if word.starts_with("--") {
+                        return offered_argument(word)
+                            && schema.as_ref().is_none_or(|schema| {
+                                super::typed::catalog::argument_allowed(schema, word, &excluded)
+                            });
+                    }
+                    match option.trim_start_matches('-') {
+                        "source" | "sources" | "resolver" => !word
+                            .parse::<Source>()
+                            .is_ok_and(|source| source_exclusions.contains(&source)),
+                        "section" | "sections" => path.is_none_or(|(verb, entity, _)| {
+                            super::typed::catalog::section_allowed(verb, entity, word, &excluded)
+                        }),
+                        _ => true,
+                    }
+                })
         });
         if values.is_empty()
             && let Some(error) = value.get_mut("error").and_then(Value::as_object_mut)
