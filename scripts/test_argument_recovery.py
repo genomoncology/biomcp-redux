@@ -17,6 +17,8 @@ CASES = [
      'search_pgx', {'gene': 'CYP2D6'}, '--source'),
     (['article', 'text', '39214094'],
      'article_text', {'input': '39214094'}, '--part'),
+    (['get', 'disease', 'MONDO:0005184', 'genes', 'survival', '--source', 'monarch'],
+     'get_disease', {'id': 'MONDO:0005184', 'section': ['genes', 'survival'], 'source': 'monarch'}, 'section'),
 ]
 
 

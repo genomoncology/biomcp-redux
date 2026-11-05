@@ -58,13 +58,21 @@ fn dispatch_using(
     {
         return encoding.schema(text);
     }
-    if let Some(message) = crate::retired::message(root, args) {
-        return usage_envelope(UsageError::Retired(message), encoding);
-    }
+    let retired = crate::retired::message(root, args);
     let mut parsed = match crate::grammar::parse(root, args) {
         Ok(parsed) => parsed,
-        Err(cause) => return parse_refusal(root, args, cause, encoding),
+        Err(cause) => {
+            if !cause.registered_argument
+                && let Some(message) = retired
+            {
+                return usage_envelope(UsageError::Retired(message), encoding);
+            }
+            return parse_refusal(root, args, cause, encoding);
+        }
     };
+    if let Some(message) = retired {
+        return usage_envelope(UsageError::Retired(message), encoding);
+    }
     if let Some(context) = context
         && parsed.globals.inherit(context.globals).is_err()
     {

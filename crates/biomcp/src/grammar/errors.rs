@@ -28,21 +28,53 @@ fn command_context<'a>(root: &'a Command, error: &clap::Error) -> (&'a Command, 
     (command, path)
 }
 
-fn invalid_argument<'a>(command: &'a Command, error: &clap::Error) -> Option<&'a clap::Arg> {
+fn invalid_argument<'a>(
+    command: &'a Command,
+    path: &[&str],
+    error: &clap::Error,
+) -> Option<&'a clap::Arg> {
     let spellings: Vec<_> = match error.get(ContextKind::InvalidArg)? {
         ContextValue::String(value) => vec![value.as_str()],
         ContextValue::Strings(values) => values.iter().map(String::as_str).collect(),
         _ => return None,
     };
-    spellings.iter().find_map(|spelling| {
-        command
-            .get_arguments()
-            .find(|argument| argument.to_string() == *spelling)
-    })
+    spellings
+        .iter()
+        .find_map(|spelling| {
+            command
+                .get_arguments()
+                .find(|argument| argument.to_string() == *spelling)
+        })
+        .or_else(|| excess_positional(command, path, error))
+}
+
+fn excess_positional<'a>(
+    command: &'a Command,
+    path: &[&str],
+    error: &clap::Error,
+) -> Option<&'a clap::Arg> {
+    if error.kind() != ErrorKind::UnknownArgument {
+        return None;
+    }
+    let ContextValue::String(spelling) = error.get(ContextKind::InvalidArg)? else {
+        return None;
+    };
+    let [verb, entity] = path else { return None };
+    let schema = super::validation::schema(verb, entity)?;
+    let argument = command
+        .get_positionals()
+        .max_by_key(|arg| arg.get_index())?;
+    let property = schema.get("properties")?.get(argument.get_id().as_str())?;
+    super::validation::resolve(&schema, property)
+        .get("enum")?
+        .as_array()?
+        .iter()
+        .any(|value| value.as_str() == Some(spelling))
+        .then_some(argument)
 }
 
 fn parser_usage(command: &Command, path: &[&str], error: &clap::Error) -> Option<UsageArguments> {
-    let (argument, valid_values) = if let Some(argument) = invalid_argument(command, error) {
+    let (argument, valid_values) = if let Some(argument) = invalid_argument(command, path, error) {
         let identity = argument
             .get_long()
             .map_or_else(|| argument.get_id().to_string(), |name| format!("--{name}"));
@@ -106,13 +138,63 @@ fn parser_usage(command: &Command, path: &[&str], error: &clap::Error) -> Option
     })
 }
 
+fn parser_correction(
+    root: &Command,
+    path: &[&str],
+    error: &clap::Error,
+    args: &[std::ffi::OsString],
+) -> Option<biomcp_types::Step> {
+    let [verb, entity] = path else { return None };
+    let command = root.find_subcommand(verb)?.find_subcommand(entity)?;
+    let argument = invalid_argument(command, path, error)?;
+    let mut args = args.to_vec();
+    if error.kind() == ErrorKind::UnknownArgument
+        && let Some(ContextValue::String(spelling)) = error.get(ContextKind::InvalidArg)
+        && !spelling.starts_with('-')
+        && let Some(index) = args
+            .iter()
+            .rposition(|word| word.to_str() == Some(spelling))
+    {
+        args.remove(index);
+    }
+    let matches = root
+        .clone()
+        .ignore_errors(true)
+        .try_get_matches_from(std::iter::once(std::ffi::OsString::from("biomcp")).chain(args))
+        .ok()?;
+    let matches = matches
+        .subcommand_matches(verb)?
+        .subcommand_matches(entity)?;
+    let value = super::request_arguments(verb, entity, matches).ok()?;
+    let schema = super::validation::schema(verb, entity)?;
+    let declaration = biomcp_types::COMMANDS
+        .iter()
+        .find(|command| (command.verb, command.entity) == (*verb, *entity))?;
+    super::recovery::corrected(
+        declaration.via,
+        (verb, entity),
+        &schema,
+        &value,
+        &[argument.get_id().as_str()],
+    )
+}
+
 /// Preserve parser-owned identities and command guidance from the first parse.
-pub(super) fn parse_invalid(root: &Command, error: &clap::Error) -> super::ParseInvalid {
+pub(super) fn parse_invalid(
+    root: &Command,
+    error: &clap::Error,
+    args: &[std::ffi::OsString],
+) -> super::ParseInvalid {
     let (command, path) = command_context(root, error);
-    if let Some(arguments) = parser_usage(command, &path, error) {
+    if let Some(mut arguments) = parser_usage(command, &path, error) {
+        let registered_argument = invalid_argument(command, &path, error).is_some();
+        if registered_argument {
+            super::recovery::next(&mut arguments, parser_correction(root, &path, error, args));
+        }
         return super::ParseInvalid {
             argument: None,
             usage: Some(UsageError::Arguments(arguments)),
+            registered_argument,
         };
     }
     let message = match path.as_slice() {
@@ -123,21 +205,35 @@ pub(super) fn parse_invalid(root: &Command, error: &clap::Error) -> super::Parse
     super::ParseInvalid {
         argument: None,
         usage: message.map(UsageError::message),
+        registered_argument: false,
     }
 }
 
 /// Carry checked constructor guidance without reading caller arguments again.
 pub(super) fn checked_invalid(
+    via: biomcp_types::Rewrite,
     verb: &str,
     entity: &str,
+    value: &serde_json::Value,
     cause: &biomcp_types::QueryInvalid,
 ) -> super::ParseInvalid {
     let usage = super::validation::checked(verb, entity, cause)
+        .map(|mut arguments| {
+            let names: Vec<_> = cause.arguments().iter().map(AsRef::as_ref).collect();
+            let corrected = super::validation::schema(verb, entity).and_then(|schema| {
+                super::recovery::corrected(via, (verb, entity), &schema, value, &names)
+            });
+            super::recovery::next(&mut arguments, corrected);
+            arguments
+        })
         .map(UsageError::Arguments)
         .or_else(|| cause.message().map(UsageError::message));
+    let registered_argument =
+        matches!(&usage, Some(UsageError::Arguments(arguments)) if arguments.argument.is_some());
     super::ParseInvalid {
         argument: None,
         usage,
+        registered_argument,
     }
 }
 
@@ -165,10 +261,9 @@ pub(super) fn source_filter(
         .map(AsRef::as_ref)
         .filter(|name| *name != "source")
     {
-        if properties
-            .get(name)
-            .is_none_or(|property| property.get("x-positional").is_some())
-        {
+        if properties.get(name).is_none_or(|property| {
+            property.get("x-positional").is_some() && property.get("x-section-rule").is_none()
+        }) {
             continue;
         }
         let Some(filter_value) = value.get(name) else {
@@ -195,7 +290,8 @@ pub(super) fn source_filter(
                 .insert((*replacement).into(), filter_value.clone());
             replacement_step(verb, entity, &schema, &corrected)?
         } else {
-            super::validation::help([verb, entity])
+            super::recovery::corrected(via, (verb, entity), &schema, value, &[name])
+                .unwrap_or_else(|| super::validation::help([verb, entity]))
         };
         return Some(super::ParseInvalid {
             argument: None,
@@ -207,6 +303,7 @@ pub(super) fn source_filter(
                 valid_values: Some(valid.into()),
                 next: vec![next],
             })),
+            registered_argument: true,
         });
     }
     None
