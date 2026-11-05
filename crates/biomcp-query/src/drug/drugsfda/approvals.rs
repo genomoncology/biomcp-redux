@@ -27,7 +27,8 @@ pub(super) fn select(
     let approvals = if query.product_number().is_some() && products.is_empty() {
         crate::status::item(out, true, false, true);
         Section::unavailable(Source::Drugsfda, Reason::NotFound)
-    } else if let Some(records) = super::letter::select(cx, query, row, deadline, out)? {
+    } else if let Some(mut records) = super::letter::select(cx, query, row, deadline, out)? {
+        super::purpose::enrich(cx, &mut records, deadline, out)?;
         Section::Data {
             source: Source::Drugsfda,
             data: DrugRecords {
@@ -41,12 +42,13 @@ pub(super) fn select(
         }
     } else {
         let offset = query.section_offset().unwrap_or(0);
-        let records = row.submissions(
+        let mut records = row.submissions(
             offset,
             query
                 .section_limit()
                 .unwrap_or(biomcp_types::DEFAULT_DRUG_APPROVALS_LIMIT),
         )?;
+        super::purpose::enrich(cx, &mut records, deadline, out)?;
         let returned = records.len() as u32;
         let total = row.submission_count() as u64;
         out.page = Some(PageInfo {
