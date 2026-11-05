@@ -13,8 +13,8 @@ pub(super) fn check(mode: &str) -> Check {
     }
     component_help(&server, mode)?;
     component_recovery(&server, mode)?;
-    aggregate_component(&server, mode)?;
-    component_card(&server, mode)
+    component_card(&server, mode)?;
+    aggregate_component(&server, mode)
 }
 
 fn component_catalog(server: &Server) -> Check {
