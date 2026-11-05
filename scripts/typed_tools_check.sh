@@ -25,8 +25,7 @@ else
         python3 -c 'import json,sys; [print(v["message"].get("rendered","")) for s in open(sys.argv[1]) if (v:=json.loads(s)).get("reason")=="compiler-message"]' "$typed_scratch/product.json"
         exit 1
     }
-    typed_target=cases
-    if [ "${3:-}" = clock ]; then typed_target=tools; fi
+    typed_target=tools
     cargo test --locked -p biomcp --test "$typed_target" --no-run --message-format=json > "$typed_scratch/runner.json" || {
         python3 -c 'import json,sys; [print(v["message"].get("rendered","")) for s in open(sys.argv[1]) if (v:=json.loads(s)).get("reason")=="compiler-message"]' "$typed_scratch/runner.json"
         exit 1
@@ -38,17 +37,17 @@ export BIOMCP_TRANSCRIPT_DIR="$(pwd)/target/typed-tools-transcript/$(basename "$
 mkdir -p "$BIOMCP_TRANSCRIPT_DIR"
 echo "TYPED_EVIDENCE_DIR=$BIOMCP_TRANSCRIPT_DIR"
 if [ "${3:-}" = guards ]; then
-    if env -u BIOMCP_TYPED_BASELINE python3 scripts/trials.py --runner "$typed_runner" --executable "$typed_product" --installed mcp-parity/typed-baseline-and-replay-guards > "$typed_scratch/missing-baseline.log" 2>&1; then
+    if env -u BIOMCP_TYPED_BASELINE python3 scripts/trials.py --target tools --runner "$typed_runner" --executable "$typed_product" --installed mcp-parity/typed-baseline-and-replay-guards > "$typed_scratch/missing-baseline.log" 2>&1; then
         echo 'missing baseline unexpectedly passed' >&2
         exit 1
     fi
     cat "$typed_scratch/missing-baseline.log"
     rg 'BIOMCP_TYPED_BASELINE is required' "$typed_scratch/missing-baseline.log"
-    python3 scripts/trials.py --runner "$typed_runner" --executable "$typed_product" --installed mcp-parity/typed-baseline-and-replay-guards
+    python3 scripts/trials.py --target tools --runner "$typed_runner" --executable "$typed_product" --installed mcp-parity/typed-baseline-and-replay-guards
 elif [ "${3:-}" = clock ]; then
     python3 scripts/trials.py --target tools --runner "$typed_runner" --executable "$typed_product" --installed mcp-parity/typed-clock-controls
 else
-    python3 scripts/trials.py --runner "$typed_runner" --executable "$typed_product" --installed mcp-parity/mcp-typed-tools
+    python3 scripts/trials.py --target tools --runner "$typed_runner" --executable "$typed_product" --installed mcp-parity/typed-historical-baseline-and-replay
 fi
 
 if [ "${3:-}" = extended ]; then

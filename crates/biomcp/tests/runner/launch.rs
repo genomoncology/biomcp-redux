@@ -22,10 +22,12 @@ impl Environment {
         })
     }
 
+    tool_only! {
     pub(super) fn using_executable(&self, binary: &Path) -> Self {
         let mut environment = self.clone();
         environment.selected_executable = Some(executable(binary));
         environment
+    }
     }
 
     pub(super) fn with_replay_owner(mut self, owner: Arc<tempfile::TempDir>) -> Self {
@@ -192,11 +194,13 @@ pub(super) fn native_budget(key: &str) -> Result<usize, String> {
 }
 }
 
-// Optional installed wire-compatibility input, selected only at the launcher boundary.
+tool_only! {
+// Required explicit historical wire-compatibility input at the launcher boundary.
 #[expect(
     clippy::disallowed_methods,
     reason = "The launcher reads the explicit installed baseline path"
 )]
 pub(super) fn typed_baseline() -> Option<std::path::PathBuf> {
     std::env::var_os("BIOMCP_TYPED_BASELINE").map(std::path::PathBuf::from)
+}
 }

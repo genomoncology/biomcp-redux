@@ -1,9 +1,11 @@
+tool_only! {
 #[path = "typed_baseline.rs"]
 mod baseline;
-#[path = "typed_policy.rs"]
-mod policy;
 #[path = "typed_replay.rs"]
 mod replay;
+}
+#[path = "typed_policy.rs"]
+mod policy;
 // Installed-artifact typed tool discovery, schema refusal and CLI equivalence.
 use super::super::{
     http::Server,
@@ -28,14 +30,25 @@ pub(super) fn description_contract() -> Result<(), String> {
 }
 
 pub(super) fn check() -> Result<(), String> {
-    super::super::launch::typed_baseline()
-        .ok_or("BIOMCP_TYPED_BASELINE is required for single-mode wire parity")?;
+    checked_tools()?;
+    policy::check()
+}
+
+fn checked_tools() -> Result<Vec<Value>, String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     env.config(&json!({"mcp_tool_mode":"typed"}))
         .map_err(|e| e.to_string())?;
     let globals = vec!["--offline".into()];
     let tools = discovery(&env, &globals)?;
     rejections(&env, &globals)?;
+    Ok(tools)
+}
+
+tool_only! {
+pub(super) fn historical() -> Result<(), String> {
+    super::super::launch::typed_baseline()
+        .ok_or("BIOMCP_TYPED_BASELINE is required for single-mode wire parity")?;
+    let tools = checked_tools()?;
 
     let mut failures = Vec::new();
     let mut case_index = 0;
@@ -58,6 +71,8 @@ pub(super) fn check() -> Result<(), String> {
     policy::check()?;
     Ok(())
 }
+}
+
 fn discovery(env: &Environment, globals: &[String]) -> Result<Vec<Value>, String> {
     let replies = exchange_with_globals(
         env,
@@ -252,6 +267,7 @@ fn descriptions(node: &Value) -> Result<(), String> {
     Ok(())
 }
 
+tool_only! {
 pub(super) fn guards() -> Result<(), String> {
     super::super::launch::typed_baseline()
         .ok_or("BIOMCP_TYPED_BASELINE is required for single-mode wire parity")?;
@@ -278,7 +294,6 @@ pub(super) fn guards() -> Result<(), String> {
     }
 }
 
-tool_only! {
 pub(super) fn clock_controls() -> Result<(), String> {
     super::super::launch::typed_baseline()
         .ok_or("BIOMCP_TYPED_BASELINE is required for single-mode wire parity")?;
