@@ -238,13 +238,9 @@ fn single_parity(
         reset_prepare(env, case, index, current)?;
         let control = super::baseline::exchange(env, current, &server_args, &frames)?;
         failure = Some(if new == control {
-            format!(
-                "frozen/current deterministic single RAW mismatch: frozen={old:?}; current={new:?}"
-            )
+            "frozen/current deterministic single RAW mismatch; exact frozen/current bytes are in this case indexed transcript".to_owned()
         } else {
-            format!(
-                "CURRENT/CURRENT nondeterministic single RAW mismatch in identical reset root: current={new:?}; control={control:?}; frozen={old:?}"
-            )
+            "CURRENT/CURRENT nondeterministic single RAW mismatch in identical reset root; exact frozen/current/control bytes are in this case indexed transcript; no fields exempted".to_owned()
         });
     }
     reset_prepare(env, case, index, current)?;
