@@ -95,13 +95,13 @@ fn cli(env: &Environment, args: &[String]) -> Result<(Option<i32>, Value), Strin
 }
 
 fn validate(env: &Environment, case: &Case, value: &Value) -> Result<(), String> {
-    let option = value.pointer("/error/option").and_then(Value::as_str);
+    let option = value
+        .pointer("/error/option")
+        .and_then(Value::as_str)
+        .map(|name| name.strip_prefix("--").unwrap_or(name));
+    let expected = case.option.strip_prefix("--").unwrap_or(&case.option);
     if value.pointer("/error/code") != Some(&json!("usage.arguments"))
-        || ![
-            Some(case.option.as_str()),
-            Some(format!("--{}", case.option).as_str()),
-        ]
-        .contains(&option)
+        || option != Some(expected)
         || value
             .pointer("/error/valid_values")
             .and_then(Value::as_array)
