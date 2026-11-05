@@ -17,7 +17,7 @@ pub(crate) fn boolean_value(argument: &Arg, value: Option<&std::ffi::OsString>) 
         && value.is_some_and(|value| matches!(value.to_str(), Some("true" | "false")))
 }
 
-pub(crate) fn root() -> Command {
+pub(crate) fn command() -> Command {
     let mut root = Command::new("biomcp")
         .disable_help_flag(true)
         .disable_help_subcommand(true)

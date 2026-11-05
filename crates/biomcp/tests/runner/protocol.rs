@@ -74,6 +74,11 @@ pub(super) fn trials() -> Vec<Trial> {
             discovery().map_err(Into::into)
         }),
     ];
+    tool_only! {
+        trials.push(transcript_trial("mcp-parity/typed-clock-controls", || {
+            typed::clock_controls().map_err(Into::into)
+        }));
+    }
     trials.push(transcript_trial("mcp-parity/reply-forms", || {
         reply_form::check().map_err(Into::into)
     }));

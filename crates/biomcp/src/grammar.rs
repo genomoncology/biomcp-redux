@@ -67,7 +67,7 @@ pub(crate) struct Parsed {
     pub(crate) http: Option<(String, Vec<String>)>,
 }
 fn global_arguments() -> Command {
-    process_arguments::root().after_help(
+    process_arguments::command().after_help(
         entry_aliases()
             .iter()
             .map(|alias| format!("{}: {}", alias.flags().join(", "), alias.description()))

@@ -1,5 +1,8 @@
-#[path = "../../src/grammar/process_arguments.rs"]
-mod process_arguments;
+#[path = "typed_replay_arguments.rs"]
+mod arguments;
+#[path = "typed_replay_volatile.rs"]
+mod volatile;
+use arguments::{input, json_globals, query_arguments};
 // Reuse existing recorded caller cases without maintaining a second entity inventory.
 use super::super::super::{
     case_data,
@@ -8,6 +11,13 @@ use super::super::super::{
     response_cases,
 };
 use serde_json::{Value, json};
+
+#[derive(Clone, Copy)]
+struct CaseContext<'a> {
+    id: &'a str,
+    label: &'a str,
+    delayed_control: bool,
+}
 
 pub(super) fn check(tool: &Value, case_index: &mut usize) -> Result<(), String> {
     let name = tool
@@ -44,7 +54,17 @@ pub(super) fn check(tool: &Value, case_index: &mut usize) -> Result<(), String> 
             )
             .map_err(|e| e.to_string())?;
             *case_index += 1;
-            match candidate(tool, args, &case, index, &label, &mut calls) {
+            let id = path
+                .strip_prefix(&cases)
+                .map_err(|error| error.to_string())?
+                .to_string_lossy()
+                .replace('\\', "/");
+            let context = CaseContext {
+                id: &id,
+                label: &label,
+                delayed_control: false,
+            };
+            match candidate(tool, args, &case, index, context, &mut calls) {
                 Ok(true) => {}
                 Ok(false) => excluded += 1,
                 Err(error) => failures.push(format!("{label}: {error}")),
@@ -117,9 +137,10 @@ fn candidate(
     args: &[String],
     case: &case_data::Case,
     index: usize,
-    label: &str,
+    context: CaseContext<'_>,
     calls: &mut usize,
 ) -> Result<bool, String> {
+    let label = context.label;
     let (env, mut globals, config) = prepare(case, index)?;
     let (args, extra, process_validation) = query_arguments(args);
     globals.extend(extra);
@@ -128,37 +149,19 @@ fn candidate(
     if !process_valid(process_validation, &expected, label)? {
         return Ok(false);
     }
-    let verb = args.first().ok_or("command verb")?;
-    let entity = args.get(1).ok_or("command entity")?;
-    let (_, _, id) = biomcp_types::command_paths()
-        .into_iter()
-        .find(|(v, e, _)| *v == verb.as_str() && *e == entity.as_str())
-        .ok_or("command")?;
-    let output = env
-        .command(env!("CARGO_BIN_EXE_biomcp"), &["schema".into(), id.into()])
-        .output()
-        .map_err(|e| e.to_string())?;
-    let query: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
+    let query = query_schema(&env, &args)?;
     let Some(input) = input(&args, &query) else {
         if expected.get("status") != Some(&json!("usage")) {
             return Err(format!("valid CLI cannot translate: {args:?}"));
         }
         use std::io::Write;
-        writeln!(std::io::stdout(), "TYPED_REPLAY_CLI_SYNTAX case={label} step={} args={args:?} reason={} CLI_witness={expected} typed_coverage=typed_tools::rejections(unknown-key/non-object/malformed-value)",
+        writeln!(std::io::stdout(), "TYPED_REPLAY_CLI_SYNTAX case={label} step={} args={args:?} reason={} \
+             CLI_witness={expected} typed_coverage=typed_tools::rejections(unknown-key/non-object/malformed-value)",
             index + 1, expected.get("error").unwrap_or(&Value::Null)).map_err(|e| e.to_string())?;
         return Ok(false);
     };
-    let mut schema_failure = None;
-    if let Err(error) = validate_input(tool, &input) {
-        if expected.get("status") == Some(&json!("usage")) {
-            use std::io::Write;
-            writeln!(std::io::stdout(), "TYPED_REPLAY_EXPECTED_INVALID case={label} step={} {error}; CLI_witness={expected}", index + 1)
-                .map_err(|e| e.to_string())?;
-        } else {
-            schema_failure = Some(error);
-        }
-    }
-    let frozen_parity = single_parity(&env, case, index, &args, &globals);
+    let schema_failure = schema_failure(tool, &input, &expected, label, index)?;
+    let frozen_parity = single_parity(&env, case, index, &args, &globals, context);
     // Keep this comparison independent even when a frozen setup or call failed.
     reset_prepare(
         &env,
@@ -174,7 +177,16 @@ fn candidate(
         std::path::Path::new(env!("CARGO_BIN_EXE_biomcp")),
     )?;
     typed_config(&env, config)?;
-    let typed_parity = compare(tool, &input, &expected, &args, &env, &globals, calls);
+    let expected = mcp_expected(&input, expected, &frozen_parity);
+    let typed_parity = compare(
+        tool,
+        &input,
+        &expected,
+        (context.id, index + 1),
+        &env,
+        &globals,
+        calls,
+    );
     let mut failures = Vec::new();
     if let Some(error) = schema_failure {
         failures.push(error);
@@ -189,6 +201,59 @@ fn candidate(
         Ok(true)
     } else {
         Err(failures.join("\n"))
+    }
+}
+
+// README.md:61 and command/mcp_policy.rs forbid replacement in every MCP call.
+fn schema_failure(
+    tool: &Value,
+    input: &Value,
+    expected: &Value,
+    label: &str,
+    index: usize,
+) -> Result<Option<String>, String> {
+    let Err(error) = validate_input(tool, input) else {
+        return Ok(None);
+    };
+    if expected.get("status") != Some(&json!("usage")) {
+        return Ok(Some(error));
+    }
+    use std::io::Write;
+    writeln!(
+        std::io::stdout(),
+        "TYPED_REPLAY_EXPECTED_INVALID case={label} step={} {error}; CLI_witness={expected}",
+        index + 1
+    )
+    .map_err(|error| error.to_string())?;
+    Ok(None)
+}
+
+fn query_schema(env: &Environment, args: &[String]) -> Result<Value, String> {
+    let verb = args.first().ok_or("command verb")?;
+    let entity = args.get(1).ok_or("command entity")?;
+    let (_, _, id) = biomcp_types::command_paths()
+        .into_iter()
+        .find(|(v, e, _)| *v == verb.as_str() && *e == entity.as_str())
+        .ok_or("registry command")?;
+    let output = env
+        .command(env!("CARGO_BIN_EXE_biomcp"), &["schema".into(), id.into()])
+        .output()
+        .map_err(|error| error.to_string())?;
+    serde_json::from_slice(&output.stdout).map_err(|error| error.to_string())
+}
+
+fn mcp_expected(input: &Value, cli: Value, single: &Result<Value, String>) -> Value {
+    let refusal = json!({"error":{"code":"usage.arguments",
+        "message":"expected a supported command with checked arguments"},
+        "schema":"biomcp.error/4","status":"usage"});
+    if input.get("replace") == Some(&json!(true))
+        && cli.pointer("/query/replace") == Some(&json!(true))
+        && cli.get("status") == Some(&json!("complete"))
+        && single.as_ref().is_ok_and(|reply| reply == &refusal)
+    {
+        refusal
+    } else {
+        cli
     }
 }
 
@@ -212,8 +277,12 @@ fn process_valid(
         return Err(error);
     }
     use std::io::Write;
-    writeln!(std::io::stdout(), "TYPED_REPLAY_CLI_SYNTAX case={label} shared_process_parser={error}; CLI_witness={expected}; coverage=same-global-parser-for-CLI-and-serve")
-        .map_err(|e| e.to_string())?;
+    writeln!(
+        std::io::stdout(),
+        "TYPED_REPLAY_CLI_SYNTAX case={label} shared_process_parser={error}; \
+         CLI_witness={expected}; coverage=same-global-parser-for-CLI-and-serve"
+    )
+    .map_err(|e| e.to_string())?;
     Ok(false)
 }
 
@@ -266,7 +335,8 @@ fn single_parity(
     index: usize,
     args: &[String],
     globals: &[String],
-) -> Result<(), String> {
+    context: CaseContext<'_>,
+) -> Result<Value, String> {
     let frozen = super::super::super::launch::typed_baseline().ok_or("missing frozen baseline")?;
     let current = std::path::Path::new(env!("CARGO_BIN_EXE_biomcp"));
     let frames = [request(
@@ -281,24 +351,46 @@ fn single_parity(
     reset_prepare(env, case, index, current)?;
     let new = super::baseline::exchange(env, current, &server_args, &frames)?;
     let mut approved = false;
-    if old != new && old.len() == 1 && new.len() == 1 {
-        if let (Some(before), Some(after)) = (old.values().next(), new.values().next()) {
-            approved = super::baseline::named_hint(env, &server_args, args, before, after)?;
-        }
+    if old != new
+        && old.len() == 1
+        && new.len() == 1
+        && let (Some(before), Some(after)) = (old.values().next(), new.values().next())
+    {
+        approved = super::baseline::named_hint(env, &server_args, args, before, after)?
+            || volatile::raw(context.id, index + 1, before, after)?;
     }
     let mut failure = None;
-    if old != new && !approved {
+    if (old != new && !approved) || context.delayed_control {
+        if context.delayed_control {
+            std::thread::sleep(std::time::Duration::from_millis(1100));
+        }
         reset_prepare(env, case, index, current)?;
         let control = super::baseline::exchange(env, current, &server_args, &frames)?;
-        failure = Some(if new == control {
-            "frozen/current deterministic single RAW mismatch; exact frozen/current bytes are in this case indexed transcript".to_owned()
+        if context.delayed_control {
+            tool_only! { volatile::clock(
+                context.id,
+                index + 1,
+                new.get("1").ok_or("CURRENT clock frame")?,
+                control.get("1").ok_or("CURRENT control clock frame")?,
+            )?; }
         } else {
-            "CURRENT/CURRENT nondeterministic single RAW mismatch in identical reset root; exact frozen/current/control bytes are in this case indexed transcript; no fields exempted".to_owned()
-        });
+            failure = Some(if new == control {
+                "frozen/current deterministic single RAW mismatch; exact bytes are in the case transcript".to_owned()
+            } else {
+                "CURRENT/CURRENT nondeterministic single RAW mismatch; exact bytes are in the case transcript; no fields exempted".to_owned()
+            });
+        }
     }
     match failure {
         Some(error) => Err(error),
-        None => Ok(()),
+        None => {
+            let reply: Value = serde_json::from_str(new.get("1").ok_or("single reply")?)
+                .map_err(|error| error.to_string())?;
+            reply
+                .pointer("/result/structuredContent")
+                .cloned()
+                .ok_or_else(|| "single structured reply".into())
+        }
     }
 }
 
@@ -306,7 +398,7 @@ fn compare(
     tool: &Value,
     input: &Value,
     expected: &Value,
-    args: &[String],
+    case: (&str, usize),
     env: &Environment,
     globals: &[String],
     calls: &mut usize,
@@ -329,6 +421,8 @@ fn compare(
     let actual = reply
         .pointer("/result/structuredContent")
         .ok_or_else(|| format!("{name}: {reply}"))?;
+    let checked = volatile::expected(case.0, case.1, expected, actual)?;
+    let expected = checked.as_ref().unwrap_or(expected);
     if serde_json::to_vec(actual).map_err(|e| e.to_string())?
         != serde_json::to_vec(expected).map_err(|e| e.to_string())?
     {
@@ -338,7 +432,7 @@ fn compare(
     }
     super::super::super::schema::Registry::embedded()?.validate(
         actual,
-        args,
+        &[],
         expected.get("status") != Some(&json!("usage")),
     )?;
     if let Some(schema) = tool.get("outputSchema")
@@ -359,73 +453,6 @@ fn validate_input(tool: &Value, input: &Value) -> Result<(), String> {
         .map_err(|e| format!("typed schema rejected recorded case: {e}; input={input}"))
 }
 
-fn query_arguments(args: &[String]) -> (Vec<String>, Vec<String>, Result<(), String>) {
-    let parser = process_arguments::root();
-    let mut query = Vec::new();
-    let mut globals = Vec::new();
-    let mut words = args.iter().peekable();
-    while let Some(word) = words.next() {
-        if word == "--" {
-            query.push(word.clone());
-            query.extend(words.cloned());
-            break;
-        }
-        let (flag, inline) = word
-            .split_once('=')
-            .map_or((word.as_str(), false), |(flag, _)| (flag, true));
-        let Some(argument) = parser.get_arguments().find(|arg| {
-            arg.get_long()
-                .is_some_and(|name| flag == format!("--{name}"))
-        }) else {
-            query.push(word.clone());
-            continue;
-        };
-        let following = words
-            .peek()
-            .map(|word| std::ffi::OsString::from(word.as_str()));
-        if !inline && process_arguments::boolean_value(argument, following.as_ref()) {
-            globals.push(format!("{word}={}", words.next().unwrap_or(word)));
-        } else {
-            globals.push(word.clone());
-            if !inline
-                && argument.get_action().takes_values()
-                && let Some(value) = words.next()
-            {
-                globals.push(value.clone());
-            }
-        }
-    }
-    let validation = parser
-        .subcommand_required(false)
-        .arg_required_else_help(false)
-        .try_get_matches_from(std::iter::once("biomcp").chain(globals.iter().map(String::as_str)))
-        .map(|_| ())
-        .map_err(|error| error.to_string());
-    (query, globals, validation)
-}
-
-fn json_globals(globals: &[String]) -> Vec<String> {
-    let mut result = Vec::new();
-    let mut words = globals.iter();
-    while let Some(word) = words.next() {
-        if word == "--format" {
-            result.push(word.clone());
-            if let Some(value) = words.next() {
-                result.push(if value == "md" {
-                    "json".into()
-                } else {
-                    value.clone()
-                });
-            }
-        } else if word == "--format=md" {
-            result.push("--format=json".into());
-        } else {
-            result.push(word.clone());
-        }
-    }
-    result
-}
-
 pub(super) fn rejects_overstrict_schema(tool: &Value) -> Result<(), String> {
     let mut tool = tool.clone();
     tool.as_object_mut()
@@ -442,129 +469,52 @@ pub(super) fn rejects_overstrict_schema(tool: &Value) -> Result<(), String> {
     }
     Ok(())
 }
-fn resolved<'a>(node: &'a Value, root: &'a Value) -> &'a Value {
-    if let Some(reference) = node.get("$ref").and_then(Value::as_str) {
-        return root
-            .pointer(reference.trim_start_matches('#'))
-            .unwrap_or(node);
-    }
-    if let Some(branch) = node
-        .get("anyOf")
-        .and_then(Value::as_array)
-        .and_then(|v| v.iter().find(|n| n["type"] != "null"))
-    {
-        return resolved(branch, root);
-    }
-    node
-}
-fn input(args: &[String], query: &Value) -> Option<Value> {
-    let properties = query["properties"].as_object()?;
-    let mut result = serde_json::Map::new();
-    let mut positional = Vec::new();
-    let mut words = args.iter().skip(2).peekable();
-    while let Some(word) = words.next() {
-        if word == "--" {
-            positional.extend(words.cloned());
-            break;
+
+tool_only! {
+// This diagnostic mode proves clock fields; it does not grant main replay allowances.
+pub(super) fn clock_controls() -> Result<(), String> {
+    let cases = super::super::super::launch::fixtures().join("cases");
+    for (sequence, key) in volatile::clock_cases()?.iter().enumerate() {
+        let (id, number) = key.rsplit_once(" step ").ok_or("clock case identifier")?;
+        let index = number
+            .parse::<usize>()
+            .map_err(|error| error.to_string())?
+            .checked_sub(1)
+            .ok_or("clock step index")?;
+        let case = case_data::read_case(&cases.join(id))?;
+        let args = case
+            .steps
+            .get(index)
+            .and_then(|step| step.run.as_ref())
+            .ok_or("clock command")?;
+        let (args, extra, validation) = query_arguments(args);
+        validation?;
+        if !biomcp_types::command_paths()
+            .iter()
+            .any(|(verb, entity, _)| {
+                args.first().map(String::as_str) == Some(*verb)
+                    && args.get(1).map(String::as_str) == Some(*entity)
+            })
+        {
+            return Err(format!("clock case is not a registry query: {key}"));
         }
-        let Some(flag) = word.strip_prefix("--") else {
-            positional.push(word.clone());
-            continue;
+        super::super::super::transcript::case_step(sequence);
+        let (env, mut globals, _) = prepare(&case, index)?;
+        globals.extend(extra);
+        use std::io::Write;
+        writeln!(
+            std::io::stdout(),
+            "TYPED_CLOCK_CASE index={sequence} case={key}"
+        )
+        .map_err(|error| error.to_string())?;
+        let context = CaseContext {
+            id,
+            label: key,
+            delayed_control: true,
         };
-        let (flag, inline) = flag
-            .split_once('=')
-            .map_or((flag, None), |(a, b)| (a, Some(b)));
-        let key = flag.replace('-', "_");
-        if properties.values().any(|property| {
-            property
-                .get("x-cli-flags")
-                .and_then(|flags| flags.get(flag))
-                .is_some()
-        }) {
-            result.insert(key, json!(true));
-            continue;
-        }
-        let property = properties.get(&key)?;
-        let kind = type_name(resolved(property, query));
-        let value = if kind == Some("boolean") {
-            let word = inline
-                .map(str::to_owned)
-                .or_else(|| {
-                    words
-                        .peek()
-                        .filter(|word| matches!(word.as_str(), "true" | "false"))?;
-                    words.next().cloned()
-                })
-                .unwrap_or_else(|| "true".into());
-            word.parse::<bool>()
-                .map_or_else(|_| json!(word), |value| json!(value))
-        } else {
-            let word = inline
-                .map(str::to_owned)
-                .or_else(|| words.next().cloned())?;
-            if kind == Some("integer") {
-                word.parse::<u64>()
-                    .map_or_else(|_| json!(word), |value| json!(value))
-            } else if kind == Some("number") {
-                word.parse::<f64>()
-                    .ok()
-                    .filter(|value| value.is_finite())
-                    .map_or_else(|| json!(word), |value| json!(value))
-            } else if kind == Some("array") {
-                let mut values = if property["x-comma-separated"] == true {
-                    word.split(',').map(str::to_owned).collect::<Vec<_>>()
-                } else {
-                    vec![word]
-                };
-                if property["x-comma-separated"] != true && property["x-trailing-section"] != true {
-                    while words.peek().is_some_and(|v| !v.starts_with('-')) {
-                        values.push(words.next()?.clone());
-                    }
-                }
-                let entry = result.entry(key.clone()).or_insert(json!([]));
-                entry
-                    .as_array_mut()?
-                    .extend(values.into_iter().map(Value::String));
-                continue;
-            } else {
-                json!(word)
-            }
-        };
-        result.insert(key, value);
+        single_parity(&env, &case, index, &args, &globals, context)?;
     }
-    positional_fields(properties, query, result, &positional)
-}
-fn positional_fields(
-    properties: &serde_json::Map<String, Value>,
-    query: &Value,
-    mut result: serde_json::Map<String, Value>,
-    positional: &[String],
-) -> Option<Value> {
-    let mut fields = properties
-        .iter()
-        .filter_map(|(key, p)| p["x-positional"].as_u64().map(|i| (i, key, p)))
-        .collect::<Vec<_>>();
-    fields.sort_by_key(|(index, _, _)| *index);
-    let mut position = 0;
-    for (_, key, property) in fields {
-        let kind = type_name(resolved(property, query));
-        if kind == Some("array") {
-            result.insert(key.clone(), json!(positional.get(position..)?));
-            position = positional.len();
-        } else if let Some(value) = positional.get(position) {
-            result.insert(key.clone(), json!(value));
-            position += 1;
-        }
-    }
-    (position == positional.len()).then_some(Value::Object(result))
+    Ok(())
 }
 
-fn type_name(node: &Value) -> Option<&str> {
-    node["type"].as_str().or_else(|| {
-        node["type"]
-            .as_array()?
-            .iter()
-            .filter_map(Value::as_str)
-            .find(|kind| *kind != "null")
-    })
 }

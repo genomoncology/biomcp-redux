@@ -5,11 +5,21 @@ use std::collections::{BTreeMap, BTreeSet};
 // Store::publish and publish_source_pool retain a one-day immutable pool.
 const POOL_TTL_SECONDS: u64 = 86_400;
 
+#[derive(serde::Deserialize)]
+#[serde(deny_unknown_fields)]
+struct ReviewedFields {
+    pointers: Vec<String>,
+    #[serde(rename = "capture_sha256")]
+    _capture_sha256: String,
+}
+
 fn pointers(case: &str, step: usize) -> Result<Option<Vec<String>>, String> {
-    let inventory: BTreeMap<String, Vec<String>> =
+    let inventory: BTreeMap<String, ReviewedFields> =
         serde_json::from_str(include_str!("typed_volatile_cases.json"))
             .map_err(|error| error.to_string())?;
-    Ok(inventory.get(&format!("{case} step {step}")).cloned())
+    Ok(inventory
+        .get(&format!("{case} step {step}"))
+        .map(|entry| entry.pointers.clone()))
 }
 
 pub(super) fn expected(
@@ -21,11 +31,19 @@ pub(super) fn expected(
     let Some(paths) = pointers(case, step)? else {
         return Ok(None);
     };
+    project(&paths, before, after).map(Some)
+}
+
+fn project(paths: &[String], before: &Value, after: &Value) -> Result<Value, String> {
     let mut expected = before.clone();
-    let mut handles = BTreeMap::new();
-    for path in &paths {
-        let old = before.pointer(path).ok_or_else(|| format!("missing approved field {path}"))?;
-        let new = after.pointer(path).ok_or_else(|| format!("missing approved field {path}"))?;
+    let mut handles = BTreeMap::<String, String>::new();
+    for path in paths {
+        let old = before
+            .pointer(path)
+            .ok_or_else(|| format!("missing approved field {path}"))?;
+        let new = after
+            .pointer(path)
+            .ok_or_else(|| format!("missing approved field {path}"))?;
         if path.ends_with("/created") || path.ends_with("/expires") {
             if old.as_u64().is_none() || new.as_u64().is_none() {
                 return Err(format!("approved pool timestamp changed type at {path}"));
@@ -34,11 +52,15 @@ pub(super) fn expected(
             let old = handle(old, path)?;
             let new = handle(new, path)?;
             if handles.get(old).is_some_and(|prior| prior != new) {
-                return Err(format!("one captured handle has inconsistent references at {path}"));
+                return Err(format!(
+                    "one captured handle has inconsistent references at {path}"
+                ));
             }
             handles.insert(old.to_owned(), new.to_owned());
         }
-        *expected.pointer_mut(path).ok_or("approved field missing from expected reply")? = new.clone();
+        *expected
+            .pointer_mut(path)
+            .ok_or("approved field missing from expected reply")? = new.clone();
     }
     let distinct: BTreeSet<_> = handles.values().collect();
     if distinct.len() != handles.len() {
@@ -47,7 +69,7 @@ pub(super) fn expected(
     references(before, after, &handles, "")?;
     pool_ttl(before, &handles.keys().cloned().collect())?;
     pool_ttl(after, &handles.values().cloned().collect())?;
-    Ok(Some(expected))
+    Ok(expected)
 }
 
 fn handle<'a>(value: &'a Value, path: &str) -> Result<&'a str, String> {
@@ -55,7 +77,9 @@ fn handle<'a>(value: &'a Value, path: &str) -> Result<&'a str, String> {
         .as_str()
         .filter(|value| {
             value.len() == 32
-                && value.bytes().all(|byte| byte.is_ascii_digit() || matches!(byte, b'a'..=b'f'))
+                && value
+                    .bytes()
+                    .all(|byte| byte.is_ascii_digit() || matches!(byte, b'a'..=b'f'))
         })
         .ok_or_else(|| format!("approved handle changed its declared hexadecimal form at {path}"))
 }
@@ -71,7 +95,9 @@ fn references(
             if let Some(expected) = handles.get(value)
                 && after.pointer(path).and_then(Value::as_str) != Some(expected.as_str())
             {
-                return Err(format!("captured handle reference is inconsistent at {path}"));
+                return Err(format!(
+                    "captured handle reference is inconsistent at {path}"
+                ));
             }
         }
         Value::Object(fields) => {
@@ -93,13 +119,24 @@ fn references(
 fn pool_ttl(value: &Value, handles: &BTreeSet<String>) -> Result<(), String> {
     match value {
         Value::Object(fields) => {
-            if fields.get("id").and_then(Value::as_str).is_some_and(|id| handles.contains(id))
+            if fields
+                .get("id")
+                .and_then(Value::as_str)
+                .is_some_and(|id| handles.contains(id))
                 && (fields.contains_key("created") || fields.contains_key("expires"))
             {
-                let created = fields.get("created").and_then(Value::as_u64).ok_or("pool created time")?;
-                let expires = fields.get("expires").and_then(Value::as_u64).ok_or("pool expiry time")?;
+                let created = fields
+                    .get("created")
+                    .and_then(Value::as_u64)
+                    .ok_or("pool created time")?;
+                let expires = fields
+                    .get("expires")
+                    .and_then(Value::as_u64)
+                    .ok_or("pool expiry time")?;
                 if created.checked_add(POOL_TTL_SECONDS) != Some(expires) {
-                    return Err("captured pool expiry does not equal creation plus the declared TTL".into());
+                    return Err(
+                        "captured pool expiry does not equal creation plus the declared TTL".into(),
+                    );
                 }
             }
             for value in fields.values() {
@@ -116,25 +153,82 @@ fn pool_ttl(value: &Value, handles: &BTreeSet<String>) -> Result<(), String> {
     Ok(())
 }
 
+tool_only! {
+pub(super) fn clock_cases() -> Result<Vec<String>, String> {
+    let inventory: BTreeMap<String, ReviewedFields> =
+        serde_json::from_str(include_str!("typed_clock_cases.json"))
+            .map_err(|error| error.to_string())?;
+    Ok(inventory.into_keys().collect())
+}
+
+pub(super) fn clock(case: &str, step: usize, before: &str, after: &str) -> Result<(), String> {
+    let inventory: BTreeMap<String, ReviewedFields> =
+        serde_json::from_str(include_str!("typed_clock_cases.json"))
+            .map_err(|error| error.to_string())?;
+    let key = format!("{case} step {step}");
+    let extra = &inventory
+        .get(&key)
+        .ok_or("unlisted delayed clock probe")?
+        .pointers;
+    let mut fields = pointers(case, step)?.ok_or("clock case has no approved handle fields")?;
+    fields.extend(extra.iter().cloned());
+    let old: Value = serde_json::from_str(before).map_err(|error| error.to_string())?;
+    let new: Value = serde_json::from_str(after).map_err(|error| error.to_string())?;
+    for pointer in extra {
+        let path = format!("/result/structuredContent{pointer}");
+        if old.pointer(&path) == new.pointer(&path) {
+            return Err(format!(
+                "delayed CURRENT/CURRENT clock did not differ at {pointer}"
+            ));
+        }
+    }
+    if !raw_fields(&fields, before, after)? {
+        return Err("delayed CURRENT/CURRENT differs outside the named pool fields".into());
+    }
+    use std::io::Write;
+    writeln!(
+        std::io::stdout(),
+        "TYPED_CLOCK_CONTROL case={key} exact_clock_paths={extra:?} other_fields=strict"
+    )
+    .map_err(|error| error.to_string())
+}
+
+}
+
 pub(super) fn raw(case: &str, step: usize, before: &str, after: &str) -> Result<bool, String> {
+    let Some(paths) = pointers(case, step)? else {
+        return Ok(false);
+    };
+    raw_fields(&paths, before, after)
+}
+
+fn raw_fields(paths: &[String], before: &str, after: &str) -> Result<bool, String> {
     let old: Value = serde_json::from_str(before).map_err(|error| error.to_string())?;
     let new: Value = serde_json::from_str(after).map_err(|error| error.to_string())?;
     if old.to_string() != before {
         return Err("single raw reply is not in its existing canonical wire form".into());
     }
-    let old_body = old.pointer("/result/structuredContent").ok_or("single structured reply")?;
-    let new_body = new.pointer("/result/structuredContent").ok_or("single structured reply")?;
-    let Some(expected_body) = expected(case, step, old_body, new_body)? else {
-        return Ok(false);
-    };
+    let old_body = old
+        .pointer("/result/structuredContent")
+        .ok_or("single structured reply")?;
+    let new_body = new
+        .pointer("/result/structuredContent")
+        .ok_or("single structured reply")?;
+    let expected_body = project(paths, old_body, new_body)?;
     let mut expected = old.clone();
-    if let Some(text) = old.pointer("/result/content/0/text").and_then(Value::as_str) {
+    if let Some(text) = old
+        .pointer("/result/content/0/text")
+        .and_then(Value::as_str)
+    {
         if text != old_body.to_string() {
             return Err("single text is not the exact existing serialized structured reply".into());
         }
-        *expected.pointer_mut("/result/content/0/text").ok_or("single text")? =
-            Value::String(expected_body.to_string());
+        *expected
+            .pointer_mut("/result/content/0/text")
+            .ok_or("single text")? = Value::String(expected_body.to_string());
     }
-    *expected.pointer_mut("/result/structuredContent").ok_or("single structured reply")? = expected_body;
+    *expected
+        .pointer_mut("/result/structuredContent")
+        .ok_or("single structured reply")? = expected_body;
     Ok(expected.to_string() == after)
 }

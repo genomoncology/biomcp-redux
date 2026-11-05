@@ -263,3 +263,12 @@ pub(super) fn guards() -> Result<(), String> {
         Err(failures.join("\n"))
     }
 }
+
+tool_only! {
+pub(super) fn clock_controls() -> Result<(), String> {
+    super::super::launch::typed_baseline()
+        .ok_or("BIOMCP_TYPED_BASELINE is required for single-mode wire parity")?;
+    replay::clock_controls()
+}
+
+}
