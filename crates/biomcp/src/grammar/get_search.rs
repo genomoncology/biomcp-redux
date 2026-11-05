@@ -86,7 +86,7 @@ fn search_step(
     }
     let argv = args
         .iter()
-        .map(std::ffi::OsString::from)
+        .map(|word| std::ffi::OsString::from(word.as_ref()))
         .collect::<Vec<_>>();
     let parsed = crate::grammar::parse(root, &argv).ok()?;
     if !matches!(parsed.action, Some(biomcp_query::Action::Run { .. })) {
