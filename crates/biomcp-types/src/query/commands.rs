@@ -348,7 +348,7 @@ macro_rules! commands {
         /// Every command row, including shared rewritten paths.
         pub const COMMANDS: &[CommandSpec] = &[$(CommandSpec {
             verb: $verb, entity: $entity, schema: $grammar_schema, via: Rewrite::$via, order: $order,
-            summary: concat!($($summary),*),
+            summary: concat!($($summary),*).trim_ascii(),
         },)+];
     };
 }

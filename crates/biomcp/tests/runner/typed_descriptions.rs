@@ -31,9 +31,9 @@ pub(super) fn check(env: &Environment) -> Result<(), String> {
             .iter()
             .find(|row| row.verb == verb && row.entity == entity)
             .ok_or("registry summary")?
-            .summary
-            .trim();
-        if summary.is_empty()
+            .summary;
+        if summary != summary.trim()
+            || summary.is_empty()
             || summary.lines().count() != 1
             || !description.starts_with(summary)
             || description.chars().count() > 300
