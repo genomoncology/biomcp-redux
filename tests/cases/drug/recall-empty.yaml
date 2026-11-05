@@ -21,11 +21,11 @@
         "/page/returned": 0,
         "/sources/0/state": "ok",
         "/sources/1/source": "mychem",
-        "/sources/1/count": 0,
         "/sources/2/source": "openfda-label",
-        "/sources/2/count": 0,
         "/sources/3/source": "chembl",
-        "/sources/3/count": 0
+        "/sources/1/state": "ok",
+        "/sources/2/state": "ok",
+        "/sources/3/state": "ok"
       }
     }
   ],

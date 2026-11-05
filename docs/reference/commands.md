@@ -1290,8 +1290,8 @@ Options:
           Phrase in the published recall reason; drug recalls only.
 
       --source <source>
-          Exactly one source; default MyChem never fans out; biomcp_help search drug
-          Exactly one source; default MyChem never fans out.
+          Selected record source; after an empty name lookup,; biomcp_help search drug
+          Selected record source; after an empty name lookup, existing sources may supply aliases.
 
       --status <status>
           Literal native recall status; drug recalls only.
@@ -1316,8 +1316,8 @@ exact names before word matches. openFDA labels search exact then word brand/gen
 then label text (including indications) when no names match; source matches need not be exact names.
 Harmonized recall names match but never become display names.
 - `--reason`: Phrase in the published recall reason; drug recalls only.
-- `--source`: Exactly one source; default MyChem never fans out; biomcp_help search drug
-Exactly one source; default MyChem never fans out.
+- `--source`: Selected record source; after an empty name lookup,; biomcp_help search drug
+Selected record source; after an empty name lookup, existing sources may supply aliases.
 - `--status`: Exact source recall status; drug recalls only.
 
 ## biomcp search gene
