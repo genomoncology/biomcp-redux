@@ -13,6 +13,13 @@ use super::super::{
 use serde_json::{Value, json};
 use std::io::Write;
 
+pub(super) fn getter_help() -> Result<(), String> {
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    env.config(&json!({"mcp_tool_mode":"typed"}))
+        .map_err(|e| e.to_string())?;
+    policy::get_help(&env)
+}
+
 pub(super) fn check() -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     env.config(&json!({"mcp_tool_mode":"typed"}))

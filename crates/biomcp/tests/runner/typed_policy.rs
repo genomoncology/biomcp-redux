@@ -78,7 +78,7 @@ fn hosted(env: &Environment) -> Result<(), String> {
     get_help(env)?;
     fresh_refusal(env)
 }
-fn get_help(env: &Environment) -> Result<(), String> {
+pub(super) fn get_help(env: &Environment) -> Result<(), String> {
     for (name, arguments, command) in [
         ("get_author", json!({"ids":["123"]}), "get author"),
         (
