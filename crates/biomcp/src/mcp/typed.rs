@@ -109,6 +109,7 @@ pub(super) fn parse(
     root: &crate::grammar::Root,
     params: &Value,
     mode: crate::config::ToolMode,
+    fresh: bool,
 ) -> Option<Result<super::research::Call, Rejected>> {
     if mode == crate::config::ToolMode::Single {
         return super::research::parse(params).map(Ok);
@@ -160,7 +161,10 @@ pub(super) fn parse(
         let args = arguments::cli(root, verb, entity, &schema, &known)?;
         return Some(Err(Rejected { error, args }));
     }
-    let args = arguments::cli(root, verb, entity, &schema, values)?;
+    let mut args = arguments::cli(root, verb, entity, &schema, values)?;
+    if fresh {
+        args.insert(2, "--fresh".into());
+    }
     Some(Ok(super::research::Call {
         args,
         projection: super::research::Projection::Cli,
