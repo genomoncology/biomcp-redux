@@ -177,7 +177,8 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     journal: Option<Text>,
-    #[doc = "First publication date.\nPubMed, Europe PMC and Semantic Scholar only: inclusive lower publication-date bound; PubMed matches electronic or print date."]
+    #[doc = "First publication date.\nPubMed, Europe PMC and Semantic Scholar only: inclusive lower publication-date \
+        bound; PubMed matches electronic or print date."]
     #[serde(
         default,
         deserialize_with = "present",
@@ -185,7 +186,8 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "PartialDate"))]
     since: Option<PartialDate>,
-    #[doc = "Last publication date.\nPubMed, Europe PMC and Semantic Scholar only: inclusive upper publication-date bound; PubMed matches electronic or print date."]
+    #[doc = "Last publication date.\nPubMed, Europe PMC and Semantic Scholar only: inclusive upper publication-date \
+        bound; PubMed matches electronic or print date."]
     #[serde(
         default,
         deserialize_with = "present",

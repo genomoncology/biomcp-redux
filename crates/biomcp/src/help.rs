@@ -61,7 +61,14 @@ pub(crate) fn dispatch(root: &crate::grammar::Root, path: &[String]) -> io::Resu
         && crate::grammar::command_paths()
             .iter()
             .any(|(_, entity, _)| path.first().is_some_and(|word| word.as_str() == *entity));
-    if entity || !public_grammar::overview(root, &mut commands, path)? {
+    if entity {
+        for command in &mut commands {
+            command.arguments.clear();
+            command.sections.clear();
+            command.section_rule = None;
+        }
+        compact(&mut commands);
+    } else if !public_grammar::overview(root, &mut commands, path)? {
         compact(&mut commands);
     }
     if path.is_empty() {
