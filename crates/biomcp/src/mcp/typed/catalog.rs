@@ -120,35 +120,35 @@ pub(in crate::mcp) fn instructions(context: crate::command::Context<'_>) -> io::
 
 pub(super) fn mentions_excluded(text: &str, excluded: &BTreeSet<Source>) -> bool {
     let text = text.to_lowercase();
-    excluded
-        .iter()
-        .any(|source| names(*source).any(|name| !matches(&text, &name).is_empty()))
+    names(excluded).any(|name| !matches(&text, &name).is_empty())
 }
 
 pub(super) fn summary(text: &str, excluded: &BTreeSet<Source>) -> String {
     let mut text = text.to_owned();
-    for source in excluded {
-        for name in names(*source) {
-            for index in matches(&text.to_lowercase(), &name).into_iter().rev() {
-                text.replace_range(index..index + name.len(), "");
-            }
+    for name in names(excluded) {
+        for index in matches(&text.to_lowercase(), &name).into_iter().rev() {
+            text.replace_range(index..index + name.len(), "");
         }
     }
     text.split_whitespace().collect::<Vec<_>>().join(" ")
 }
 
-fn names(source: Source) -> impl Iterator<Item = String> {
-    let mut names = [
-        source.to_string(),
-        biomcp_query::sources::display_name(source).to_lowercase(),
-    ]
-    .into_iter()
-    .chain(
-        biomcp_query::sources::discovery_aliases(source)
-            .iter()
-            .map(|alias| alias.to_lowercase()),
-    )
-    .collect::<Vec<_>>();
+fn names(excluded: &BTreeSet<Source>) -> impl Iterator<Item = String> {
+    let mut names = excluded
+        .iter()
+        .flat_map(|source| {
+            [
+                source.to_string(),
+                biomcp_query::sources::display_name(*source).to_lowercase(),
+            ]
+            .into_iter()
+            .chain(
+                biomcp_query::sources::discovery_aliases(*source)
+                    .iter()
+                    .map(|alias| alias.to_lowercase()),
+            )
+        })
+        .collect::<Vec<_>>();
     names.sort_by_key(|name| std::cmp::Reverse(name.len()));
     names.into_iter()
 }
