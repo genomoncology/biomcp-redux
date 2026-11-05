@@ -14,6 +14,7 @@ import shlex
 import signal
 import subprocess
 import sys
+import time
 
 
 PROMPT = """Use BioMCP's typed get_trial tool exactly twice, in this order:
@@ -29,6 +30,45 @@ or missing, report that limitation. Stop after reporting these two replies.
 
 def ssh(host, command, **kwargs):
     return subprocess.run(["ssh", "-o", "BatchMode=yes", "-o", "ConnectTimeout=8", host, shlex.join(command)], check=True, **kwargs)
+
+
+def interrupted(_signal, _frame):
+    raise KeyboardInterrupt("typed harness owner interrupted")
+
+
+def own_process(command, timeout, **kwargs):
+    child = subprocess.Popen(command, start_new_session=True, **kwargs)
+    try:
+        status = child.wait(timeout=timeout)
+        if status:
+            raise RuntimeError(f"owned process exit {status}")
+    finally:
+        # Kill the owned group even when its leader has exited before a child.
+        try:
+            os.killpg(child.pid, signal.SIGTERM)
+        except ProcessLookupError:
+            return_cleanup = False
+        else:
+            return_cleanup = True
+        if return_cleanup:
+            try:
+                child.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                os.killpg(child.pid, signal.SIGKILL)
+                child.wait()
+            deadline = time.monotonic() + 5
+            while time.monotonic() < deadline:
+                try:
+                    os.killpg(child.pid, 0)
+                except ProcessLookupError:
+                    break
+                time.sleep(0.05)
+            else:
+                try:
+                    os.killpg(child.pid, signal.SIGKILL)
+                except ProcessLookupError:
+                    pass
+        child.wait()
 
 
 def check_sources():
@@ -65,19 +105,7 @@ def client(args):
     metadata = {"client": args.client, "pi_exposure": "default codemode", "outer_timeout_seconds": 180, "mcp_timeout_seconds": 60, "max_tools_calls": 2, "max_pi_provider_requests": 3, "claude_max_budget_usd": 1.00, "pi_subscription_evidence": args.pi_subscription_evidence}
     print(json.dumps({"smoke_configuration": metadata}), flush=True)
     # No hooks, sessions, provider/model overrides or authentication files added.
-    child = subprocess.Popen(command, cwd=scratch, start_new_session=True)
-    try:
-        status = child.wait(timeout=180)
-        if status:
-            raise RuntimeError(f"client exit {status}")
-    finally:
-        if child.poll() is None:
-            os.killpg(child.pid, signal.SIGTERM)
-            try:
-                child.wait(timeout=5)
-            except subprocess.TimeoutExpired:
-                os.killpg(child.pid, signal.SIGKILL)
-                child.wait()
+    own_process(command, 180, cwd=scratch)
 
 
 def job(args):
@@ -111,12 +139,15 @@ def job(args):
             if args.pi_subscription_evidence:
                 command += ["--pi-subscription-evidence", args.pi_subscription_evidence]
             with (output / f"{name}.events.jsonl").open("wb") as stdout, (output / f"{name}.stderr").open("wb") as stderr:
-                ssh(args.client_host, ["zsh", "-lc", shlex.join(command)], stdout=stdout, stderr=stderr, timeout=195)
+                remote = shlex.join(["zsh", "-lc", shlex.join(command)])
+                own_process(["ssh", "-o", "BatchMode=yes", "-o", "ConnectTimeout=8", args.client_host, remote], 195, stdout=stdout, stderr=stderr)
         finally:
             ssh(args.client_host, ["rm", "-rf", "--", scratch])
 
 
 def main():
+    signal.signal(signal.SIGTERM, interrupted)
+    signal.signal(signal.SIGHUP, interrupted)
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("action", choices=["check", "job", "client"])
     parser.add_argument("--execute-approved-clients", action="store_true")

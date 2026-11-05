@@ -2,13 +2,16 @@
 """Synthetic pipe checks only; never starts BioMCP, a client, or a provider."""
 
 import json
+import os
 from pathlib import Path
+import signal
 import subprocess
 import sys
 import tempfile
+import time
 
 from typed_harness_capture import exchange
-from typed_harness_smoke import check_sources
+from typed_harness_smoke import check_sources, interrupted, own_process
 
 
 def server():
@@ -35,6 +38,32 @@ def request(index, value):
     return json.dumps({"jsonrpc": "2.0", "id": index, "method": "tools/call", "params": {"name": "get_trial", "arguments": {"input": [value]}}}).encode() + b"\n"
 
 
+def cancellation(root):
+    for termination in [signal.SIGTERM, signal.SIGHUP]:
+        pid_file = root / str(termination)
+        owner = subprocess.Popen([sys.executable, __file__, "owner", str(pid_file)], stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+        try:
+            deadline = time.monotonic() + 3
+            while not pid_file.exists() and time.monotonic() < deadline:
+                time.sleep(0.02)
+            if not pid_file.exists():
+                raise RuntimeError("synthetic owned child did not start")
+            pid = int(pid_file.read_text())
+            owner.send_signal(termination)
+            owner.communicate(timeout=12)
+            try:
+                os.kill(pid, 0)
+            except ProcessLookupError:
+                pass
+            else:
+                os.kill(pid, signal.SIGKILL)
+                raise RuntimeError("owned child survived owner termination")
+        finally:
+            if owner.poll() is None:
+                owner.kill()
+                owner.communicate()
+
+
 def check():
     check_sources()
     with tempfile.TemporaryDirectory(prefix="typed-harness-preflight-") as temporary:
@@ -52,7 +81,8 @@ def check():
         run = subprocess.run([sys.executable, __file__, "bridge", str(refused)], input=inputs + request(3, "lung cancer"), capture_output=True, timeout=5)
         if run.returncode == 0 or b"unexpected tools/call" not in run.stderr:
             raise RuntimeError("third-call bound failed")
-    print("Synthetic byte forwarding and third-call refusal pass; no product/client/provider ran")
+        cancellation(root)
+    print("Synthetic byte forwarding, third-call refusal and TERM/HUP cleanup pass; no product/client/provider ran")
 
 
 if __name__ == "__main__":
@@ -63,5 +93,12 @@ if __name__ == "__main__":
         bridge(sys.argv[2])
     elif action == "check":
         check()
+    elif action == "owner":
+        signal.signal(signal.SIGTERM, interrupted)
+        signal.signal(signal.SIGHUP, interrupted)
+        own_process([sys.executable, __file__, "sleeper", sys.argv[2]], 180)
+    elif action == "sleeper":
+        Path(sys.argv[2]).write_text(str(os.getpid()))
+        time.sleep(180)
     else:
         raise SystemExit("expected check, bridge, or server")
