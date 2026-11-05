@@ -46,6 +46,7 @@ fn hosted() -> Result<(), String> {
     let hosted = catalog(&server, None)?;
     capture("restricted", &hosted)?;
     assert_hosted(&hosted)?;
+    refused_source(&server)?;
     for usage in ["commercial", "academic"] {
         let reply = catalog(&server, Some(usage))?;
         capture(usage, &reply)?;
@@ -154,6 +155,30 @@ fn catalog(server: &Server, usage: Option<&str>) -> Result<Value, String> {
 fn capture(label: &str, reply: &Value) -> Result<(), String> {
     if let Some(transcript) = super::super::transcript::current() {
         transcript.record(&format!("typed-catalog/{label}"), reply.clone())?;
+    }
+    Ok(())
+}
+
+fn refused_source(server: &Server) -> Result<(), String> {
+    let call = request(
+        json!(4),
+        "tools/call",
+        json!({"name":"search_drug","arguments":{"query":"aspirin","source":"who-pq"}}),
+    );
+    let (_, reply) = server.request("POST", "/mcp", &call.to_string())?;
+    let disabled = reply
+        .pointer("/result/structuredContent/sources")
+        .and_then(Value::as_array)
+        .is_some_and(|sources| {
+            sources.iter().any(|source| {
+                source.get("source") == Some(&json!("who-pq"))
+                    && source.get("reason") == Some(&json!("disabled"))
+            })
+        });
+    if !disabled {
+        return Err(format!(
+            "catalog source exclusion differs from execution: {reply}"
+        ));
     }
     Ok(())
 }
